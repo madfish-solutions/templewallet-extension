@@ -3,6 +3,7 @@
     "baseUrl": "ts",
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["chrome"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
