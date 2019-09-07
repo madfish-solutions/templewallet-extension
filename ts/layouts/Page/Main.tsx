@@ -3,9 +3,9 @@ import * as React from "react";
 import WidthContainer from "layouts/WidthContainer";
 
 const PageMain: React.FC = ({ children }) => (
-  <WidthContainer as="main" className="flex justify-center">
-    <div className="bg-white w-full max-w-xl rounded overflow-hidden shadow-lg">
-      <div className="p-4">{children}</div>
+  <WidthContainer as="main" className="flex justify-center mb-8">
+    <div className="bg-white w-full max-w-xl rounded overflow-hidden shadow-lg px-4 py-8">
+      {children}
     </div>
   </WidthContainer>
 );
