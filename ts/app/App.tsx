@@ -11,7 +11,7 @@ interface AppProps {
 const App: React.FC<AppProps> = ({ popup }) => {
   return (
     <ContextProvider>
-      <Layout popup>
+      <Layout popup={popup}>
         <View />
         <ThanosCheck />
       </Layout>
