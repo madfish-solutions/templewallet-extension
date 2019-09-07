@@ -26,7 +26,7 @@ export const NETWORK_CONFIG = {
 };
 export const SERVER = "https://alphanet-node.tzscan.io";
 
-export default function useThanos(): any {
+export default function useThanosSDK(): any {
   const conseiljs = useConseilJSContext();
   const conseilJsLoaded = Boolean(conseiljs);
 
@@ -51,6 +51,7 @@ export default function useThanos(): any {
   }
 
   function initializeAccount(account: TezosAccount): Promise<any> {
+    console.info(account);
     const conseil = safelyGetConseilJS();
 
     return conseil.TezosWalletUtil.unlockFundraiserIdentity(
@@ -61,13 +62,16 @@ export default function useThanos(): any {
     );
   }
 
-  function activateAccount(keystore: any, secret: string): Promise<any> {
+  function activateAccount(
+    keystore: any,
+    activationCode: string
+  ): Promise<any> {
     const conseil = safelyGetConseilJS();
 
     return conseil.TezosNodeWriter.sendIdentityActivationOperation(
       SERVER,
       keystore,
-      secret,
+      activationCode,
       ""
     );
   }
