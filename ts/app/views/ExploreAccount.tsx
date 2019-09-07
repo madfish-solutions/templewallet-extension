@@ -81,7 +81,7 @@ const ExploreAccount: React.FC = () => (
               style={{ lineHeight: "36px" }}
               className="text-gray-400 text-base truncate px-2"
             >
-              From: tz1a9w1SBZzxB3Uc5SkrHxLLSbAcJovKRVjx
+              To: tz1a9w1SBZzxB3Uc5SkrHxLLSbAcJovKRVjx
             </div>
             <div
               style={{ lineHeight: "36px" }}
