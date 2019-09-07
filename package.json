@@ -19,9 +19,11 @@
   "dependencies": {
     "clsx": "^1.0.4",
     "constate": "^1.2.0",
+    "jdenticon": "^2.2.0",
     "preact": "10.0.0-rc.1",
     "react": "^16.9.0",
-    "react-dom": "^16.9.0"
+    "react-dom": "^16.9.0",
+    "react-router-dom": "^5.0.1"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^1.2.0",
@@ -29,6 +31,7 @@
     "@types/node": "12.7.4",
     "@types/react": "16.9.2",
     "@types/react-dom": "16.9.0",
+    "@types/react-router-dom": "4.3.5",
     "autoprefixer": "^9.6.1",
     "conseiljs": "0.2.6",
     "cross-env": "^5.2.1",

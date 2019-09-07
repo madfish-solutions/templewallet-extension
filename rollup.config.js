@@ -12,8 +12,18 @@ const { NODE_ENV } = process.env;
 const PREACT_COMPAT = NODE_ENV === "production";
 const OMITTED_ROLLUP_WARNINGS = new Set(["CIRCULAR_DEPENDENCY"]);
 const EXTENSIONS = [".js", ".jsx", ".ts", ".tsx"];
-const MODULES_WITH_NAMED_EXPORTS = ["react", "react-dom"];
-const ALREADY_TRANSPILED_MODULES = ["react", "react-dom"];
+const MODULES_WITH_NAMED_EXPORTS = [
+  "react",
+  "react-dom",
+  "react-is",
+  "jdenticon"
+];
+const ALREADY_TRANSPILED_MODULES = [
+  "react",
+  "react-dom",
+  "react-router-dom",
+  "jdenticon"
+];
 
 export default {
   plugins: [
@@ -39,7 +49,8 @@ export default {
     }),
     nodeResolve({
       mainFields: ["source", "module", "main"],
-      extensions: EXTENSIONS
+      extensions: EXTENSIONS,
+      browser: true
     }),
     sucrase({
       transforms: ["typescript", "jsx"],
