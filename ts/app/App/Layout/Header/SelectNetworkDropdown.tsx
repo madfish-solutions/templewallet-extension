@@ -58,7 +58,7 @@ const SelectNetworkDropdown: React.FC = () => {
             "bg-black w-64 p-4",
             "rounded overflow-hidden shadow"
           )}
-          style={{ top: "120%", backgroundColor: "rgba(0, 0, 0, 0.8)" }}
+          style={{ top: "120%", backgroundColor: "rgba(0, 0, 0, 0.9)" }}
         >
           {NETWORKS.map(net => {
             const { key, label, color } = net;

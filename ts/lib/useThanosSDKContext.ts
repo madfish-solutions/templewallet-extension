@@ -1,3 +1,4 @@
+import createUseContext from "constate";
 import useConseilJSContext from "./useConseilJSContext";
 
 export enum TezosNetwork {
@@ -11,7 +12,7 @@ export enum TezosTransactionType {
 }
 
 export interface TezosAccount {
-  mnemonic: Array<string>;
+  mnemonic: string;
   email: string;
   secret: string;
   amount: string;
@@ -26,7 +27,9 @@ export const NETWORK_CONFIG = {
 };
 export const SERVER = "https://alphanet-node.tzscan.io";
 
-export default function useThanosSDK(): any {
+export default createUseContext(useThanosSDK);
+
+function useThanosSDK(): any {
   const conseiljs = useConseilJSContext();
   const conseilJsLoaded = Boolean(conseiljs);
 
@@ -51,11 +54,10 @@ export default function useThanosSDK(): any {
   }
 
   function initializeAccount(account: TezosAccount): Promise<any> {
-    console.info(account);
     const conseil = safelyGetConseilJS();
 
     return conseil.TezosWalletUtil.unlockFundraiserIdentity(
-      account.mnemonic.join(" "),
+      account.mnemonic,
       account.email,
       account.password,
       account.pkh

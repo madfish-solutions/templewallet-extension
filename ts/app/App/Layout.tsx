@@ -6,10 +6,10 @@ interface LayoutProps {
   popup?: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => (
+const Layout: React.FC<LayoutProps> = ({ popup, children }) => (
   <>
-    <Header />
-    <Content>{children}</Content>
+    <Header popup={popup} />
+    <Content popup={popup}>{children}</Content>
   </>
 );
 
