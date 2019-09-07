@@ -29,6 +29,7 @@
     "@types/react": "16.9.2",
     "@types/react-dom": "16.9.0",
     "autoprefixer": "^9.6.1",
+    "conseiljs": "0.2.6",
     "cross-env": "^5.2.1",
     "cssnano": "^4.1.10",
     "npm-run-all": "^4.1.5",
