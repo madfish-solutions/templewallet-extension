@@ -1,15 +1,19 @@
 import * as React from "react";
-import useConseilJSContext from "lib/useConseilJSContext";
-import useAccountContext from "lib/useAccountContext";
-import useThanosContext from "lib/useThanosContext";
+import ContextProvider from "lib/ContextProvider";
+import Layout from "./App/Layout";
+import View from "./App/View";
 
-const App: React.FC = () => {
+interface AppProps {
+  popup?: boolean;
+}
+
+const App: React.FC<AppProps> = ({ popup }) => {
   return (
-    <useConseilJSContext.Provider>
-      <useAccountContext.Provider>
-        <useThanosContext.Provider>KEK</useThanosContext.Provider>
-      </useAccountContext.Provider>
-    </useConseilJSContext.Provider>
+    <ContextProvider>
+      <Layout popup>
+        <View />
+      </Layout>
+    </ContextProvider>
   );
 };
 

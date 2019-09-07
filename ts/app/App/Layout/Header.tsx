@@ -1,9 +1,8 @@
 import * as React from "react";
-import classNames from "clsx";
-import WidthContainer from "layouts/WidthContainer";
+import WidthContainer from "lib/layouts/WidthContainer";
 import SelectNetworkDropdown from "./Header/SelectNetworkDropdown";
 
-const PageHeader: React.FC = () => (
+const Header: React.FC = () => (
   <header className="bg-orange-500 pb-24 -mb-20">
     <WidthContainer
       as="nav"
@@ -39,4 +38,4 @@ const PageHeader: React.FC = () => (
   </header>
 );
 
-export default PageHeader;
+export default Header;
