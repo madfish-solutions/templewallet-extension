@@ -10,6 +10,8 @@ module.exports = {
       xl: "1280px"
     },
     colors: {
+      ["white-alpha-005"]: "rgba(255, 255, 255, 0.05)",
+
       transparent: "transparent",
 
       black: "#000",

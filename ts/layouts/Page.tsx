@@ -1,10 +1,11 @@
 import * as React from "react";
 import Header from "./Page/Header";
+import Main from "./Page/Main";
 
 const PageLayout: React.FC = ({ children }) => (
   <>
     <Header />
-    <main>{children}</main>
+    <Main>{children}</Main>
   </>
 );
 
