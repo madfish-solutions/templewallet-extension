@@ -1,0 +1,58 @@
+{
+  "name": "Thanos - Tezos Glove",
+  "short_name": "Thanos",
+  "version": "0.1.0",
+  "manifest_version": 2,
+  "author": "https://thanos.app",
+  "description": "Description...",
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Alt+Shift+T",
+        "mac": "Alt+Shift+T",
+        "chromeos": "Alt+Shift+T",
+        "linux": "Alt+Shift+T"
+      }
+    }
+  },
+  "icons": {
+    "16": "misc/icon-16.png",
+    "128": "misc/icon-128.png"
+  },
+  "default_locale": "en",
+  "background": {
+    "scripts": ["scripts/background.js"],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_icon": {
+      "19": "misc/icon-19.png",
+      "38": "misc/icon-38.png"
+    },
+    "default_title": "Thanos",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["file://*/*", "http://*/*", "https://*/*"],
+      "js": ["scripts/contentscript.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "clipboardWrite",
+    "http://localhost:8545/",
+    "https://*.infura.io/",
+    "activeTab",
+    "webRequest",
+    "*://*.eth/",
+    "notifications"
+  ],
+  "externally_connectable": {
+    "matches": ["https://metamask.io/*"],
+    "ids": ["*"]
+  }
+}
