@@ -166,7 +166,7 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-router-dom@^4.3.5":
+"@types/react-router-dom@4.3.5":
   version "4.3.5"
   resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-4.3.5.tgz#72f229967690c890d00f96e6b85e9ee5780db31f"
   integrity sha512-eFajSUASYbPHg2BDM1G8Btx+YqGgvROPIg6sBhl3O4kbDdYXdFdfrgQFf/pcBuQVObjfT9AL/dd15jilR5DIEA==
@@ -588,6 +588,11 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000980, caniuse-lite@^1.0.30000984, can
   version "1.0.30000989"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000989.tgz#b9193e293ccf7e4426c5245134b8f2a56c0ac4b9"
   integrity sha512-vrMcvSuMz16YY6GSVZ0dWDTJP8jqk3iFQ/Aq5iqblPwxSVVZI+zxDyTX0VPqtQsDnfdrBDcsmhgTEOh5R8Lbpw==
+
+canvas-renderer@~2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/canvas-renderer/-/canvas-renderer-2.1.1.tgz#d91fe9511ab48056ff9fa8a04514bede76535f55"
+  integrity sha512-/V0XetN7s1Mk3NO7x2wxPZYv0pLMQtGAhecuOuKR88beiYCUle1AbCcFZNLu+4NVzi9RVHS0rXtIgzPEaKidLw==
 
 chalk@^2.0.0, chalk@^2.0.1, chalk@^2.1.0, chalk@^2.4.1, chalk@^2.4.2:
   version "2.4.2"
@@ -1883,6 +1888,14 @@ isobject@^3.0.0, isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha1-TkMekrEalzFjaqH5yNHMvP2reN8=
+
+jdenticon@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/jdenticon/-/jdenticon-2.2.0.tgz#6a9d9cb2134a7848ff21d59b3871148cbc6af87f"
+  integrity sha512-WGqwpjN9pab/Sah9pGnFH5tQc3HF3WbLV/tPVbykvk5nuAkxG/zhzQYWC2owvpnS+/A0HmlSx35rtY8kyN+x7Q==
+  dependencies:
+    "@types/node" "*"
+    canvas-renderer "~2.1.1"
 
 jest-worker@^24.6.0:
   version "24.9.0"
