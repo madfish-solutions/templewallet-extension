@@ -1,44 +1,81 @@
 import * as React from "react";
 import createUseContext from "constate";
-import useThanosSDK from "./useThanosSDK";
+import useThanosSDKContext from "./useThanosSDKContext";
 import useAccountContext from "./useAccountContext";
 
 export default createUseContext(useThanos);
 
 function useThanos() {
+  const { conseilJsLoaded, initializeAccount } = useThanosSDKContext();
   const {
-    conseilJsLoaded,
-    initializeAccount,
-    activateAccount,
-    getTotalBalance,
-    getAccount,
-    getTransactions,
-    sendTransaction
-  } = useThanosSDK();
-  const { initialized: accInitialized, account } = useAccountContext();
+    initialized: accInitialized,
+    account,
+    save,
+    clean
+  } = useAccountContext();
 
-  const [{ ready }, setState] = React.useState(() => ({
-    ready: false
+  const [{ initialized, loading, keystore }, setState] = React.useState(() => ({
+    initialized: false,
+    loading: false,
+    keystore: null
   }));
 
-  React.useEffect(() => {
-    if (accInitialized && conseilJsLoaded && account) {
-      (async () => {
-        try {
-          const keystore = await initializeAccount(account);
-          console.info("YEAH, keystore:", keystore);
-          console.info(
-            "YEAH",
-            await activateAccount(keystore, (account as any).secret)
-          );
-        } catch (err) {
-          console.error(err);
-        }
-      })();
-    }
-  }, [conseilJsLoaded, accInitialized, account]);
+  const authorize = React.useCallback(
+    async acc => {
+      await initializeAccount(acc);
+      save(acc);
+    },
+    [initializeAccount, save]
+  );
 
+  const init = React.useCallback(() => {
+    if (account) {
+      setState(state => ({
+        ...state,
+        initialized: true,
+        loading: true
+      }));
+
+      (async () => {
+        let ks: any;
+        try {
+          ks = await initializeAccount(account);
+        } catch (_err) {
+          setState(state => ({ ...state, loading: false }));
+          await clean();
+          alert("Authorize error");
+          return;
+        }
+
+        setState(state => ({
+          ...state,
+          loading: false,
+          keystore: ks
+        }));
+      })();
+    } else {
+      setState(state => ({
+        ...state,
+        initialized: true,
+        keystore: null
+      }));
+    }
+  }, [account, initializeAccount]);
+
+  React.useEffect(() => {
+    if (accInitialized && conseilJsLoaded) {
+      init();
+    }
+  }, [conseilJsLoaded, accInitialized, init]);
+
+  const authorized = Boolean(keystore);
+  const logout = clean;
   return {
-    ready
+    initialized,
+    loading,
+    keystore,
+    authorized,
+    authorize,
+    logout
   };
 }
