@@ -1,8 +1,7 @@
 import * as React from "react";
-// import classNames from "clsx";
-import WidthContainer from "layouts/WidthContainer";
+import WidthContainer from "lib/layouts/WidthContainer";
 
-const PageMain: React.FC = ({ children }) => (
+const Content: React.FC = ({ children }) => (
   <WidthContainer as="main" className="flex justify-center mb-8">
     <div className="bg-white w-full max-w-xl rounded overflow-hidden shadow-lg px-4 py-8">
       {children}
@@ -10,4 +9,4 @@ const PageMain: React.FC = ({ children }) => (
   </WidthContainer>
 );
 
-export default PageMain;
+export default Content;
