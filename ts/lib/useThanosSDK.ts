@@ -201,9 +201,18 @@ export default function useThanosSDK(): any {
     );
   }
 
+  async function isAccountRevealed(account: string) {
+    const conseil = safelyGetConseilJS();
+    return conseil.TezosNodeReader.isManagerKeyRevealedForAccount(
+      SERVER,
+      account
+    );
+  }
+
   return {
     conseilJsLoaded,
     initializeAccount,
+    isAccountRevealed,
     activateAccount,
     getTotalBalance,
     getAccount,
