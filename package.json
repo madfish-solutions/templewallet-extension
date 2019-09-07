@@ -17,11 +17,13 @@
     "dist:remove": "rimraf dist/"
   },
   "dependencies": {
+    "@types/react-router-dom": "^4.3.5",
     "clsx": "^1.0.4",
     "constate": "^1.2.0",
     "preact": "10.0.0-rc.1",
     "react": "^16.9.0",
-    "react-dom": "^16.9.0"
+    "react-dom": "^16.9.0",
+    "react-router-dom": "^5.0.1"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^1.2.0",
