@@ -1,5 +1,5 @@
 import * as React from "react";
-import WidthContainer from "main/layouts/WidthContainer";
+import WidthContainer from "layouts/WidthContainer";
 import useConseilJSContext from "lib/useConseilJSContext";
 import useThanos from "lib/useThanos";
 
