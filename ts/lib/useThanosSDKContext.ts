@@ -180,7 +180,7 @@ function useThanosSDK(): any {
 
     return received
       .concat(sent)
-      .sort((a: any, b: any) => a.timestamp - b.timestamp);
+      .sort((a: any, b: any) => b.timestamp - a.timestamp);
   }
 
   async function sendTransaction(
