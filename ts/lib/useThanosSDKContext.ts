@@ -1,5 +1,6 @@
 import createUseContext from "constate";
 import useConseilJSContext from "./useConseilJSContext";
+import useNetworkContext from "./useNetworkContext";
 
 export enum TezosNetwork {
   Alphanet = "alphanet",
@@ -15,23 +16,20 @@ export interface TezosAccount {
   mnemonic: string;
   email: string;
   secret: string;
-  amount: string;
+  amount?: string;
   pkh: string;
   password: string;
 }
 
 export const PLATFORM = "tezos";
-export const NETWORK_CONFIG = {
-  url: "https://conseil-dev.cryptonomic-infra.tech",
-  apiKey: "bakingbad"
-};
-export const SERVER = "https://alphanet-node.tzscan.io";
 
 export default createUseContext(useThanosSDK);
 
 function useThanosSDK(): any {
   const conseiljs = useConseilJSContext();
   const conseilJsLoaded = Boolean(conseiljs);
+
+  const { network } = useNetworkContext();
 
   function safelyGetConseilJS() {
     if (!conseiljs) {
@@ -47,7 +45,7 @@ function useThanosSDK(): any {
     const conseil = safelyGetConseilJS();
 
     return conseil.TezosConseilClient.getAccount(
-      NETWORK_CONFIG,
+      network.config,
       networkType,
       address
     );
@@ -71,7 +69,7 @@ function useThanosSDK(): any {
     const conseil = safelyGetConseilJS();
 
     return conseil.TezosNodeWriter.sendIdentityActivationOperation(
-      SERVER,
+      network.server,
       keystore,
       activationCode,
       ""
@@ -110,7 +108,7 @@ function useThanosSDK(): any {
     accountQuery = conseil.ConseilQueryBuilder.setLimit(accountQuery, 1);
 
     return conseil.ConseilDataClient.executeEntityQuery(
-      NETWORK_CONFIG,
+      network.config,
       PLATFORM,
       networkType,
       "accounts",
@@ -171,7 +169,7 @@ function useThanosSDK(): any {
         .map(prepareTransactionsQuery)
         .map(query =>
           conseil.ConseilDataClient.executeEntityQuery(
-            NETWORK_CONFIG,
+            network.config,
             PLATFORM,
             networkType,
             "operations",
@@ -194,7 +192,7 @@ function useThanosSDK(): any {
     const conseil = safelyGetConseilJS();
 
     conseil.TezosNodeWriter.sendTransactionOperation(
-      SERVER,
+      network.server,
       keystore,
       to,
       amount,
@@ -206,7 +204,7 @@ function useThanosSDK(): any {
   async function isAccountRevealed(account: string) {
     const conseil = safelyGetConseilJS();
     return conseil.TezosNodeReader.isManagerKeyRevealedForAccount(
-      SERVER,
+      network.server,
       account
     );
   }
