@@ -105,8 +105,6 @@ const ExploreAccount: React.FC = () => {
     }
   }, []);
 
-  console.log(transactions);
-
   return (
     <>
       <div className="bg-gray-100 px-8 py-4 -mt-8 -mx-8 mb-4 flex items-center">
@@ -127,8 +125,9 @@ const ExploreAccount: React.FC = () => {
           height="80px"
           className="mb-4"
         />
+        <h3 className="text-xl font-thin text-gray-800">Balance:</h3>
         <h3 className="text-3xl font-thin text-gray-800">
-          Balance: <b>{round(balance, 4)}</b> ꜩ
+          <b>{round(balance, 4)}</b> ꜩ
         </h3>
         <div className="text-xl mb-4 font-light text-gray-500 flex content-center">
           <span style={{ lineHeight: "36px" }}>
