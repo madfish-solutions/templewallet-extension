@@ -3,7 +3,7 @@ import createUseContext from "constate";
 
 export default createUseContext(useAccount);
 
-const ACC_FIELDS = ["mnemonic", "email", "secret", "amount", "pkh", "password"];
+const ACC_FIELDS = ["mnemonic", "email", "secret", "pkh", "password"];
 
 function useAccount() {
   const [{ initialized, account }, setState] = React.useState(() => ({

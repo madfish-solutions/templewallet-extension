@@ -1,22 +1,10 @@
 import * as React from "react";
 import classNames from "clsx";
 import useOnClickOutside from "lib/useClickOutside";
-
-const NETWORKS = [
-  {
-    key: "mainnet",
-    label: "Main Tezos Network",
-    color: "#29b6af"
-  },
-  {
-    key: "alphanet",
-    label: "Alpha Test Network",
-    color: "#ff4a8d"
-  }
-];
+import useNetworkContext from "lib/useNetworkContext";
 
 const SelectNetworkDropdown: React.FC = () => {
-  const [selectedNetwork, setSelectedNetwork] = React.useState(NETWORKS[0]);
+  const { network, setNetwork, networks } = useNetworkContext();
 
   const ref = React.useRef(null);
   const [opened, setOpened] = React.useState(false);
@@ -45,9 +33,9 @@ const SelectNetworkDropdown: React.FC = () => {
       >
         <div
           className="mr-4 w-4 h-4 rounded-full border border-white"
-          style={{ backgroundColor: selectedNetwork.color }}
+          style={{ backgroundColor: network.color }}
         />
-        <span className="text-base">{selectedNetwork.label}</span>
+        <span className="text-base">{network.label}</span>
         <SortingIcon className="ml-2" style={{ height: 24, width: "auto" }} />
       </button>
       {opened && (
@@ -60,12 +48,12 @@ const SelectNetworkDropdown: React.FC = () => {
           )}
           style={{ top: "120%", backgroundColor: "rgba(0, 0, 0, 0.9)" }}
         >
-          {NETWORKS.map(net => {
-            const { key, label, color } = net;
+          {networks.map(net => {
+            const { id, label, color } = net;
 
             return (
               <button
-                key={key}
+                key={id}
                 className={classNames(
                   "w-full rounded p-4",
                   "hover:bg-white-alpha-005",
@@ -73,7 +61,9 @@ const SelectNetworkDropdown: React.FC = () => {
                   "flex items-center"
                 )}
                 onClick={() => {
-                  setSelectedNetwork(net);
+                  if (network.id !== net.id) {
+                    setNetwork(net);
+                  }
                   setOpened(false);
                 }}
               >
