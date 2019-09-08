@@ -19,7 +19,6 @@ const ImportAccountFromFile: React.FC = () => {
       reader.onload = (readEvt: any) => {
         (async () => {
           try {
-            console.info(typeof readEvt.target.result);
             const data = JSON.parse(readEvt.target.result);
             await authorize({
               ...data,
