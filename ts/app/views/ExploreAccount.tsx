@@ -56,31 +56,52 @@ const Transaction: React.FC = (props: any) => (
   </div>
 );
 
+const RefreshButton: React.FC = (props: any) => (
+  <svg
+    width={32}
+    height={32}
+    viewBox="0 0 24 24"
+    aria-labelledby="rotateIconTitle"
+    stroke="#a0aec0"
+    strokeLinecap="round"
+    fill="none"
+    color="#a0aec0"
+    {...props}
+  >
+    <title>{"Rotate"}</title>
+    <path d="M22 12l-3 3-3-3M2 12l3-3 3 3" />
+    <path d="M19.016 14v-1.95A7.05 7.05 0 008 6.22M16.016 17.845A7.05 7.05 0 015 12.015V10M5 10V9M19 15v-1" />
+  </svg>
+);
+
 const ExploreAccount: React.FC = () => {
   const [balance, setBalance] = React.useState(0);
   const [transactions, setTransactions] = React.useState<Array<any>>([]);
   const { getTotalBalance, getTransactions } = useThanosSDKContext();
   const { logout, keystore }: any = useThanosContext();
 
+  async function refreshData() {
+    try {
+      const address = keystore.publicKeyHash;
+      const { sum_balance } = (await getTotalBalance(address))[0];
+      const txs = await getTransactions(address);
+      setBalance(sum_balance / 10 ** 6);
+      setTransactions(mapTransactions(txs, address));
+    } catch (_) {
+      setBalance(0);
+      setTransactions([]);
+    }
+  }
+
   const handleSignOutClick = React.useCallback(() => {
     logout();
   }, [logout]);
 
+  const handleRefreshClick = React.useCallback(refreshData, [refreshData]);
+
   React.useEffect(() => {
     if (keystore) {
-      const address = keystore.publicKeyHash;
-
-      (async () => {
-        try {
-          const { sum_balance } = (await getTotalBalance(address))[0];
-          const txs = await getTransactions(address);
-          setBalance(sum_balance / 10 ** 6);
-          setTransactions(mapTransactions(txs, address));
-        } catch (_) {
-          setBalance(0);
-          setTransactions([]);
-        }
-      })();
+      refreshData();
     }
   }, []);
 
@@ -109,9 +130,18 @@ const ExploreAccount: React.FC = () => {
         <h3 className="text-3xl font-thin text-gray-800">
           Balance: <b>{round(balance, 4)}</b> ꜩ
         </h3>
-        <h4 className="text-xl mb-4 font-light text-gray-500">
-          ${round(balance * 1.06, 2)}
-        </h4>
+        <div className="text-xl mb-4 font-light text-gray-500 flex content-center">
+          <span style={{ lineHeight: "36px" }}>
+            ${round(balance * 1.06, 2)}
+          </span>
+          <button
+            type="button"
+            onClick={handleRefreshClick}
+            className="rounded focus:outline-none focus:shadow-outline inline ml-4"
+          >
+            <RefreshButton />
+          </button>
+        </div>
       </div>
 
       <div className="flex justify-center max-w-sm mx-auto">
