@@ -56,7 +56,7 @@ const Transaction: React.FC = (props: any) => (
   </div>
 );
 
-const RefreshButton: React.FC = (props: any) => (
+const RefreshButton: React.FC<any> = ({ fetching, ...rest }) => (
   <svg
     width={32}
     height={32}
@@ -66,7 +66,8 @@ const RefreshButton: React.FC = (props: any) => (
     strokeLinecap="round"
     fill="none"
     color="#a0aec0"
-    {...props}
+    className={fetching ? "spin" : ""}
+    {...rest}
   >
     <title>{"Rotate"}</title>
     <path d="M22 12l-3 3-3-3M2 12l3-3 3 3" />
@@ -75,19 +76,31 @@ const RefreshButton: React.FC = (props: any) => (
 );
 
 const ExploreAccount: React.FC = () => {
+  const [fetching, setFetching] = React.useState(false);
   const [balance, setBalance] = React.useState(0);
   const [transactions, setTransactions] = React.useState<Array<any>>([]);
   const { getTotalBalance, getTransactions } = useThanosSDKContext();
-  const { logout, keystore }: any = useThanosContext();
+  const {
+    logout,
+    keystore,
+    activated,
+    activating,
+    activateAcc
+  }: any = useThanosContext();
 
   async function refreshData() {
+    if (fetching) return;
+
     try {
+      setFetching(true);
       const address = keystore.publicKeyHash;
       const { sum_balance } = (await getTotalBalance(address))[0];
       const txs = await getTransactions(address);
+      setFetching(false);
       setBalance(sum_balance / 10 ** 6);
       setTransactions(mapTransactions(txs, address));
     } catch (_) {
+      setFetching(false);
       setBalance(0);
       setTransactions([]);
     }
@@ -108,6 +121,35 @@ const ExploreAccount: React.FC = () => {
   return (
     <>
       <div className="bg-gray-100 px-8 py-4 -mt-8 -mx-8 mb-4 flex items-center">
+        <div className="text-base text-gray-800 flex items-center">
+          {(() => {
+            if (activating) {
+              return "Loading activation...";
+            }
+
+            if (!activated) {
+              return (
+                <>
+                  <span className="mr-2 w-2 h-2 rounded-full border border-white bg-yellow-600" />
+                  <span>Not Activated</span>
+                  <button
+                    className="ml-2 text-blue-600 underline"
+                    onClick={activateAcc}
+                  >
+                    Activate?
+                  </button>
+                </>
+              );
+            }
+
+            return (
+              <>
+                <span className="mr-2 w-2 h-2 rounded-full border border-white bg-green-600" />
+                <span>Activated</span>
+              </>
+            );
+          })()}
+        </div>
         <div className="flex-1" />
         <button
           className="border-2 border-gray-600 hover:border-gray-700 text-gray-600 hover:text-gray-700 text-sm font-semibold py-1 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -138,7 +180,7 @@ const ExploreAccount: React.FC = () => {
             onClick={handleRefreshClick}
             className="rounded focus:outline-none focus:shadow-outline inline ml-4"
           >
-            <RefreshButton />
+            <RefreshButton fetching={fetching} />
           </button>
         </div>
       </div>
@@ -166,8 +208,8 @@ const ExploreAccount: React.FC = () => {
         <form className="w-full max-w-sm">
           <h3 className="text-lg text-gray-500 mb-4">Transaction History</h3>
           <div className="flex flex-col">
-            {transactions.map(tx => (
-              <Transaction {...tx} key={tx.counter} />
+            {transactions.map((tx, i) => (
+              <Transaction {...tx} key={i} />
             ))}
           </div>
         </form>

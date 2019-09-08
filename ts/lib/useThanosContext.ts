@@ -9,7 +9,9 @@ function useThanos() {
   const {
     conseilJsLoaded,
     initializeAccount,
-    isAccountRevealed
+    activateAccount,
+    isAccountRevealed,
+    sendTransaction
   } = useThanosSDKContext();
   const {
     initialized: accInitialized,
@@ -43,6 +45,20 @@ function useThanos() {
       })();
     }
   }, [keystore]);
+
+  const activateAcc = async () => {
+    try {
+      setActState({ activated: false, activating: true });
+      await activateAccount(keystore, (account as any).secret);
+      alert("DONE!\nWait some time until the network confirm you.");
+      setActState({ activated: false, activating: false });
+    } catch (err) {
+      alert(
+        `Oops, Activation Error!\nIf you already submit account activation - wait some time until the network confirm you.`
+      );
+      setActState({ activated: false, activating: false });
+    }
+  };
 
   const authorize = React.useCallback(
     async acc => {
@@ -102,6 +118,8 @@ function useThanos() {
     authorize,
     logout,
     activated,
-    activating
+    activating,
+    activateAcc,
+    sendTransaction
   };
 }
