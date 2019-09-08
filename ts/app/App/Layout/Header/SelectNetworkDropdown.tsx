@@ -49,22 +49,26 @@ const SelectNetworkDropdown: React.FC = () => {
           style={{ top: "120%", backgroundColor: "rgba(0, 0, 0, 0.9)" }}
         >
           {networks.map(net => {
-            const { id, label, color } = net;
+            const { id, label, color, disabled } = net;
 
             return (
               <button
                 key={id}
                 className={classNames(
                   "w-full rounded p-4",
-                  "hover:bg-white-alpha-005",
-                  "cursor-pointer",
-                  "flex items-center"
+                  !disabled && "hover:bg-white-alpha-005",
+                  !disabled ? "cursor-pointer" : "cursor-default",
+                  "flex items-center",
+                  disabled && "opacity-25"
                 )}
+                disabled={disabled}
                 onClick={() => {
-                  if (network.id !== net.id) {
-                    setNetwork(net);
+                  if (!disabled) {
+                    if (network.id !== net.id) {
+                      setNetwork(net);
+                    }
+                    setOpened(false);
                   }
-                  setOpened(false);
                 }}
               >
                 <div

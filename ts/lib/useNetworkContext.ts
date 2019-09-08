@@ -3,6 +3,7 @@ import createUseContext from "constate";
 
 const NETWORKS = [
   {
+    disabled: false,
     id: "alphanet",
     label: "Alpha Test Network",
     color: "#29b6af",
@@ -13,6 +14,7 @@ const NETWORKS = [
     server: "https://alphanet-node.tzscan.io"
   },
   {
+    disabled: true,
     id: "mainnet",
     label: "Main Tezos Network",
     color: "#ff4a8d",
