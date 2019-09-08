@@ -6,7 +6,13 @@ import useAccountContext from "./useAccountContext";
 export default createUseContext(useThanos);
 
 function useThanos() {
-  const { conseilJsLoaded, initializeAccount } = useThanosSDKContext();
+  const {
+    conseilJsLoaded,
+    initializeAccount,
+    activateAccount,
+    isAccountRevealed,
+    sendTransaction
+  } = useThanosSDKContext();
   const {
     initialized: accInitialized,
     account,
@@ -19,6 +25,40 @@ function useThanos() {
     loading: false,
     keystore: null
   }));
+  const [{ activated, activating }, setActState] = React.useState(() => ({
+    activated: false,
+    activating: false
+  }));
+
+  React.useEffect(() => {
+    if (keystore) {
+      (async () => {
+        try {
+          setActState({ activated: false, activating: true });
+          const activated = await isAccountRevealed(
+            (keystore as any).publicKeyHash
+          );
+          setActState({ activated, activating: false });
+        } catch (err) {
+          setActState({ activated: false, activating: false });
+        }
+      })();
+    }
+  }, [keystore]);
+
+  const activateAcc = async () => {
+    try {
+      setActState({ activated: false, activating: true });
+      await activateAccount(keystore, (account as any).secret);
+      alert("DONE!\nWait some time until the network confirm you.");
+      setActState({ activated: false, activating: false });
+    } catch (err) {
+      alert(
+        `Oops, Activation Error!\nIf you already submit account activation - wait some time until the network confirm you.`
+      );
+      setActState({ activated: false, activating: false });
+    }
+  };
 
   const authorize = React.useCallback(
     async acc => {
@@ -76,6 +116,10 @@ function useThanos() {
     keystore,
     authorized,
     authorize,
-    logout
+    logout,
+    activated,
+    activating,
+    activateAcc,
+    sendTransaction
   };
 }

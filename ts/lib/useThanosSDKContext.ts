@@ -191,7 +191,7 @@ function useThanosSDK(): any {
   ) {
     const conseil = safelyGetConseilJS();
 
-    conseil.TezosNodeWriter.sendTransactionOperation(
+    return conseil.TezosNodeWriter.sendTransactionOperation(
       network.server,
       keystore,
       to,
