@@ -16,7 +16,7 @@ export interface TezosAccount {
   mnemonic: string;
   email: string;
   secret: string;
-  amount: string;
+  amount?: string;
   pkh: string;
   password: string;
 }
