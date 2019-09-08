@@ -10,6 +10,8 @@ import useThanosContext from "lib/useThanosContext";
 import ImportAccountFromFile from "app/views/ImportAccountFromFile";
 import ImportAccountManual from "app/views/ImportAccountManual";
 import ExploreAccount from "app/views/ExploreAccount";
+import TransferFunds from "app/views/TransferFunds";
+import ReceiveFunds from "app/views/ReceiveFunds";
 
 const View: React.FC = () => (
   <Router>
@@ -20,14 +22,6 @@ const View: React.FC = () => (
         switchComponent={(authorized: any) => (
           <Redirect to={authorized ? "/account" : "/import/manual"} />
         )}
-      />
-
-      <RestrictedRoute
-        exact
-        path="/account"
-        switchComponent={(authorized: any, props: any) =>
-          authorized ? <ExploreAccount {...props} /> : <Redirect to="/" />
-        }
       />
 
       <RestrictedRoute
@@ -46,6 +40,26 @@ const View: React.FC = () => (
         path="/import/manual"
         switchComponent={(authorized: any, props: any) =>
           !authorized ? <ImportAccountManual {...props} /> : <Redirect to="/" />
+        }
+      />
+
+      <RestrictedRoute
+        exact
+        path="/account"
+        switchComponent={(authorized: any, props: any) =>
+          authorized ? <ExploreAccount {...props} /> : <Redirect to="/" />
+        }
+      />
+      <RestrictedRoute
+        path="/account/transfer"
+        switchComponent={(authorized: any, props: any) =>
+          authorized ? <TransferFunds {...props} /> : <Redirect to="/" />
+        }
+      />
+      <RestrictedRoute
+        path="/account/receive"
+        switchComponent={(authorized: any, props: any) =>
+          authorized ? <ReceiveFunds {...props} /> : <Redirect to="/" />
         }
       />
     </Switch>

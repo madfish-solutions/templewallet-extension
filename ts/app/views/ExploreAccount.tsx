@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import jdenticon from "jdenticon";
 import useThanosContext from "lib/useThanosContext";
 
@@ -36,18 +37,22 @@ const ExploreAccount: React.FC = () => {
       </div>
 
       <div className="flex justify-center max-w-sm mx-auto">
-        <button
-          className="bg-blue-500 hover:bg-blue-600 text-white text-base font-bold mr-2 py-2 px-6 rounded focus:outline-none focus:shadow-outline w-full"
-          type="button"
-        >
-          Send
-        </button>
-        <button
-          className="bg-blue-500 hover:bg-blue-600 text-white text-base font-bold ml-2 py-2 px-6 rounded focus:outline-none focus:shadow-outline w-full"
-          type="button"
-        >
-          Receive
-        </button>
+        <Link to="/account/transfer">
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white text-base font-bold mr-2 py-2 px-6 rounded focus:outline-none focus:shadow-outline w-full"
+            type="button"
+          >
+            Send
+          </button>
+        </Link>
+        <Link to="/account/receive">
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white text-base font-bold ml-2 py-2 px-6 rounded focus:outline-none focus:shadow-outline w-full"
+            type="button"
+          >
+            Receive
+          </button>
+        </Link>
       </div>
 
       <div className="flex justify-center mt-8">
