@@ -1,3 +1,7 @@
+# Thanos
+
+![Thanos chrome extension](https://raw.githubusercontent.com/madfish-solutions/thanos/meida/preview.jpeg)
+
 ## Available Scripts
 
 In the project directory, you can run:
