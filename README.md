@@ -1,6 +1,6 @@
 # Thanos
 
-![Thanos chrome extension](https://raw.githubusercontent.com/madfish-solutions/thanos/develop/media/preview.jpeg)
+![Thanos chrome extension](https://user-images.githubusercontent.com/6189971/65123478-62927300-da04-11e9-9e4d-e25ba2343b44.png)
 
 ## Available Scripts
 
