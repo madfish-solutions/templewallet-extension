@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import App from "app/App";
+
+const App: React.FC = () => <span>Options</span>;
 
 ReactDOM.render(<App />, document.getElementById("root"));
