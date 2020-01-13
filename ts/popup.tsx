@@ -1,8 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { browser } from "webextension-polyfill-ts";
-
-const App: React.FC = () => <span>Popup</span>;
+import App from "app/App";
 
 ReactDOM.render(<App />, document.getElementById("root"));
 
