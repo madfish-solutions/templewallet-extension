@@ -1,5 +1,6 @@
 import * as Fs from "fs";
 import * as Path from "path";
+import dotenv from "dotenv";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
@@ -11,6 +12,12 @@ import { terser } from "rollup-plugin-terser";
 import OMT from "@surma/rollup-plugin-off-main-thread";
 import tsConfig from "./tsconfig.json";
 
+// Steal ENV vars from .env file
+dotenv.config();
+
+// Grab NODE_ENV and THANOS_APP_* environment variables and prepare them to be
+// injected into the application via DefinePlugin in Webpack configuration.
+const THANOS_APP = /^THANOS_APP_/i;
 const { NODE_ENV, PREACT_COMPAT: PREACT_COMPAT_ENV } = process.env;
 const PREACT_COMPAT = PREACT_COMPAT_ENV === "true";
 const OMITTED_ROLLUP_WARNINGS = new Set(["CIRCULAR_DEPENDENCY"]);
@@ -50,7 +57,16 @@ export default {
       ].filter(Boolean)
     }),
     replace({
-      "process.env.NODE_ENV": JSON.stringify(NODE_ENV)
+      "process.env.NODE_ENV": JSON.stringify(NODE_ENV),
+      ...(() => {
+        const appEnvs = {};
+        for (const k of Object.keys(process.env)) {
+          if (THANOS_APP.test(k)) {
+            appEnvs[`process.env.${k}`] = JSON.stringify(process.env[k]);
+          }
+        }
+        return appEnvs;
+      })()
     }),
     nodeResolve({
       mainFields: ["source", "module", "main"],

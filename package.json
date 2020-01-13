@@ -37,6 +37,7 @@
     "clsx": "^1.0.4",
     "cross-env": "^6.0.3",
     "cssnano": "^4.1.10",
+    "dotenv": "^8.2.0",
     "fontfaceobserver": "^2.1.0",
     "invariant": "^2.2.4",
     "mkdirp": "^0.5.1",
