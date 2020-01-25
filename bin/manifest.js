@@ -11,7 +11,6 @@ process.on("unhandledRejection", err => {
 
 const fs = require("fs");
 const path = require("path");
-const mkdirp = require("mkdirp");
 const sade = require("sade");
 const wextManifest = require("wext-manifest");
 
@@ -33,16 +32,12 @@ prog
     );
 
     const outputDir = path.dirname(opts.output);
-    mkdirp(path.join(CWD, outputDir), err => {
-      if (err) throw err;
-
-      fs.writeFileSync(
-        path.join(outputDir, mnfst.name),
-        NODE_ENV === "production"
-          ? JSON.stringify(JSON.parse(mnfst.content))
-          : mnfst.content
-      );
-    });
+    fs.writeFileSync(
+      path.join(outputDir, mnfst.name),
+      NODE_ENV === "production"
+        ? JSON.stringify(JSON.parse(mnfst.content))
+        : mnfst.content
+    );
   });
 
 prog.parse(process.argv);
