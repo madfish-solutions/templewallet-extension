@@ -32,10 +32,13 @@ const ALREADY_TRANSPILED_MODULES = [
 const ALREADY_TRANSPILED_MODULES_EXCLUDE = ALREADY_TRANSPILED_MODULES.map(mn =>
   Path.join("node_modules", mn, "**")
 );
+const OMT_LOADER = Fs.readFileSync(
+  Path.join(__dirname, "omt-loader.ejs")
+).toString("utf8");
 
 export default {
   output: {
-    format: "amd",
+    format: NODE_ENV === "development" ? "esm" : "amd",
     chunkFileNames: "[hash].js"
   },
   plugins: [
@@ -85,6 +88,7 @@ export default {
           production: NODE_ENV === "production"
         }),
     commonjs({
+      sourceMap: false,
       include: "node_modules/**",
       namedExports: MODULES_WITH_NAMED_EXPORTS.reduce(
         (exps, name) => ({
@@ -94,12 +98,11 @@ export default {
         {}
       )
     }),
-    OMT({
-      loader: Fs.readFileSync(Path.join(__dirname, "omt-loader.ejs")).toString(
-        "utf8"
-      ),
-      publicPath: "scripts"
-    }),
+    NODE_ENV !== "development" &&
+      OMT({
+        loader: OMT_LOADER,
+        publicPath: "scripts"
+      }),
     NODE_ENV === "production" &&
       terser({
         parse: {
