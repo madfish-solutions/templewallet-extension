@@ -15,9 +15,9 @@ import tsConfig from "./tsconfig.json";
 // Steal ENV vars from .env file
 dotenv.config();
 
-// Grab NODE_ENV and THANOS_APP_* environment variables and prepare them to be
+// Grab NODE_ENV and THANOS_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
-const THANOS_APP = /^THANOS_APP_/i;
+const THANOS_WALLET = /^THANOS_WALLET_/i;
 const { NODE_ENV, PREACT_COMPAT: PREACT_COMPAT_ENV } = process.env;
 const PREACT_COMPAT = PREACT_COMPAT_ENV === "true";
 const OMITTED_ROLLUP_WARNINGS = new Set(["CIRCULAR_DEPENDENCY"]);
@@ -61,7 +61,7 @@ export default {
       ...(() => {
         const appEnvs = {};
         for (const k of Object.keys(process.env)) {
-          if (THANOS_APP.test(k)) {
+          if (THANOS_WALLET.test(k)) {
             appEnvs[`process.env.${k}`] = JSON.stringify(process.env[k]);
           }
         }
