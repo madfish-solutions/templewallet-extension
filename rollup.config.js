@@ -88,7 +88,6 @@ export default {
           production: NODE_ENV === "production"
         }),
     commonjs({
-      sourceMap: false,
       include: "node_modules/**",
       namedExports: MODULES_WITH_NAMED_EXPORTS.reduce(
         (exps, name) => ({
