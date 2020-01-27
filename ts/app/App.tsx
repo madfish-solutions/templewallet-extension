@@ -1,5 +1,9 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
+import {
+  ThanosWalletProvider,
+  useThanosWalletContext
+} from "lib/thanos-wallet";
 
 const App: React.FC = () => (
   <AppProvider>
@@ -12,7 +16,9 @@ const App: React.FC = () => (
 export default App;
 
 const AppProvider: React.FC = ({ children }) => (
-  <Woozie.Provider>{children}</Woozie.Provider>
+  <Woozie.Provider>
+    <ThanosWalletProvider>{children}</ThanosWalletProvider>
+  </Woozie.Provider>
 );
 
 const Page: React.FC = () => {
@@ -34,6 +40,14 @@ const ROUTE_MAP = Woozie.Router.prepare([
   ["*", () => <NotFound />]
 ]);
 
-const Explore: React.FC = () => <>Explore</>;
+const Explore: React.FC = () => {
+  const { tezos } = useThanosWalletContext();
+
+  React.useEffect(() => {
+    console.info(tezos);
+  }, [tezos]);
+
+  return <>Explore</>;
+};
 const Faq: React.FC = () => <>FAQ</>;
 const NotFound: React.FC = () => <>Not Found</>;

@@ -1,6 +1,7 @@
 import * as Fs from "fs";
 import * as Path from "path";
 import dotenv from "dotenv";
+import json from "@rollup/plugin-json";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
@@ -23,15 +24,18 @@ const PREACT_COMPAT = PREACT_COMPAT_ENV === "true";
 const OMITTED_ROLLUP_WARNINGS = new Set(["CIRCULAR_DEPENDENCY"]);
 const EXTENSIONS = [".js", ".mjs", ".jsx", ".ts", ".tsx"];
 const MODULES_WITH_NAMED_EXPORTS = ["react", "react-dom", "react-is"];
-const ALREADY_TRANSPILED_MODULES = [
-  "react",
-  "react-dom",
-  "webextension-polyfill-ts",
-  "webextension-polyfill"
-];
-const ALREADY_TRANSPILED_MODULES_EXCLUDE = ALREADY_TRANSPILED_MODULES.map(mn =>
-  Path.join("node_modules", mn, "**")
-);
+// const ALREADY_TRANSPILED_MODULES = [
+//   "react",
+//   "react-dom",
+//   "webextension-polyfill-ts",
+//   "webextension-polyfill",
+//   "@taquito/taquito",
+//   "constate"
+// ];
+// const ALREADY_TRANSPILED_MODULES_EXCLUDE = ALREADY_TRANSPILED_MODULES.map(mn =>
+//   Path.join("node_modules", mn, "**")
+// );
+const JS_MODULES_TRANSPILE_EXCLUDE = "node_modules/**";
 const OMT_LOADER = Fs.readFileSync(
   Path.join(__dirname, "omt-loader.ejs")
 ).toString("utf8");
@@ -71,19 +75,21 @@ export default {
         return appEnvs;
       })()
     }),
+    json(),
     nodeResolve({
       mainFields: ["source", "module", "main"],
       extensions: EXTENSIONS,
       browser: true
+      // preferBuiltins: false
     }),
     NODE_ENV === "production"
       ? babel({
-          exclude: ALREADY_TRANSPILED_MODULES_EXCLUDE,
+          exclude: JS_MODULES_TRANSPILE_EXCLUDE,
           extensions: EXTENSIONS,
           runtimeHelpers: true
         })
       : sucrase({
-          exclude: ALREADY_TRANSPILED_MODULES_EXCLUDE,
+          exclude: JS_MODULES_TRANSPILE_EXCLUDE,
           transforms: ["typescript", "jsx"],
           production: NODE_ENV === "production"
         }),
