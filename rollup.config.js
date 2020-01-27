@@ -38,7 +38,7 @@ const OMT_LOADER = Fs.readFileSync(
 
 export default {
   output: {
-    format: NODE_ENV === "development" ? "esm" : "amd",
+    format: "amd",
     chunkFileNames: "[hash].js"
   },
   plugins: [
@@ -97,11 +97,10 @@ export default {
         {}
       )
     }),
-    NODE_ENV !== "development" &&
-      OMT({
-        loader: OMT_LOADER,
-        publicPath: "scripts"
-      }),
+    OMT({
+      loader: OMT_LOADER,
+      publicPath: "scripts"
+    }),
     NODE_ENV === "production" &&
       terser({
         parse: {

@@ -11,12 +11,14 @@ process.on("unhandledRejection", err => {
 
 const fs = require("fs");
 const path = require("path");
+const util = require("util");
 const sade = require("sade");
 const wextManifest = require("wext-manifest");
 
 const CWD = process.cwd();
 const { NODE_ENV, TARGET_BROWSER = "chrome" } = process.env;
 
+const mkdrip = util.promisify(fs.mkdir);
 const prog = sade("manifest");
 
 prog
@@ -26,12 +28,13 @@ prog
   )
   .option("-o, --output", "Change the name of the output file", "bundle.js")
   .example("create -o build/manifest.json src/manifest.template.js")
-  .action((template, opts) => {
+  .action(async (template, opts) => {
     const mnfst = wextManifest[TARGET_BROWSER](
       require(path.join(CWD, template))
     );
 
     const outputDir = path.dirname(opts.output);
+    await mkdrip(outputDir, { recursive: true });
     fs.writeFileSync(
       path.join(outputDir, mnfst.name),
       NODE_ENV === "production"
