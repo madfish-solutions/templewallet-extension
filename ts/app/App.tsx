@@ -1,30 +1,39 @@
 import * as React from "react";
-import { Router, Switch, Route } from "wouter";
-import useHashLocation from "lib/react/useHashLocation";
-import { useBrowserStorage } from "lib/browser";
+import * as Woozie from "lib/woozie";
 
 const App: React.FC = () => (
-  <React.Suspense fallback={null}>
-    <Router hook={useHashLocation}>
-      <Switch>
-        <Route path="/faq" component={Faq} />
-        <Route path="/:term*" component={Explore} />
-      </Switch>
-    </Router>
-  </React.Suspense>
+  <AppProvider>
+    <React.Suspense fallback={null}>
+      <Page />
+    </React.Suspense>
+  </AppProvider>
 );
 
 export default App;
 
-const Explore: React.FC = () => {
-  const [storageData, setStorageData] = useBrowserStorage(["kek", "lal"]);
+const AppProvider: React.FC = ({ children }) => (
+  <Woozie.Provider>{children}</Woozie.Provider>
+);
 
+const Page: React.FC = () => {
+  const { trigger, pathname } = Woozie.useLocationContext();
+
+  // Scroll to Top after new location pushed
   React.useEffect(() => {
-    setTimeout(() => {
-      (setStorageData as any)({ kek: "KEK", lal: "LAL" });
-    }, 3000);
-  }, []);
+    if (trigger === Woozie.HistoryAction.Push) {
+      window.scrollTo(0, 0);
+    }
+  });
 
-  return <>{JSON.stringify(storageData)} Explore</>;
+  return Woozie.Router.resolve(pathname, ROUTE_MAP);
 };
+
+const ROUTE_MAP = Woozie.Router.prepare([
+  ["/", () => <Explore />],
+  ["/faq", () => <Faq />],
+  ["*", () => <NotFound />]
+]);
+
+const Explore: React.FC = () => <>Explore</>;
 const Faq: React.FC = () => <>FAQ</>;
+const NotFound: React.FC = () => <>Not Found</>;
