@@ -16,12 +16,15 @@ import tsConfig from "./tsconfig.json";
 // Steal ENV vars from .env file
 dotenv.config();
 
+const TAQUITO_SOURCE = "@taquito/taquito";
+const TAQUITO_REPLACEMENT = "@taquito/taquito/dist/taquito.bundle.js";
+
 // Grab NODE_ENV and THANOS_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
 const THANOS_WALLET = /^THANOS_WALLET_/i;
 const { NODE_ENV, PREACT_COMPAT: PREACT_COMPAT_ENV } = process.env;
 const PREACT_COMPAT = PREACT_COMPAT_ENV === "true";
-const OMITTED_ROLLUP_WARNINGS = new Set(["CIRCULAR_DEPENDENCY"]);
+const OMITTED_ROLLUP_WARNINGS = new Set(["CIRCULAR_DEPENDENCY", "EVAL"]);
 const EXTENSIONS = [".js", ".mjs", ".jsx", ".ts", ".tsx"];
 const MODULES_WITH_NAMED_EXPORTS = ["react", "react-dom", "react-is"];
 // const ALREADY_TRANSPILED_MODULES = [
@@ -48,11 +51,17 @@ export default {
   plugins: [
     includePaths({
       extensions: EXTENSIONS,
-      paths: [tsConfig.compilerOptions.baseUrl]
+      paths: [tsConfig.compilerOptions.baseUrl],
+      external: []
     }),
     alias({
       resolve: EXTENSIONS,
       entries: [
+        {
+          find: TAQUITO_SOURCE,
+          replacement: TAQUITO_REPLACEMENT
+        },
+        // Preact
         PREACT_COMPAT && {
           find: "react",
           replacement: "preact/compat"
@@ -77,10 +86,10 @@ export default {
     }),
     json(),
     nodeResolve({
-      mainFields: ["source", "module", "main"],
       extensions: EXTENSIONS,
-      browser: true
-      // preferBuiltins: false
+      mainFields: ["source", "module", "main"],
+      browser: true,
+      preferBuiltins: false
     }),
     NODE_ENV === "production"
       ? babel({
@@ -95,13 +104,16 @@ export default {
         }),
     commonjs({
       include: "node_modules/**",
-      namedExports: MODULES_WITH_NAMED_EXPORTS.reduce(
-        (exps, name) => ({
-          ...exps,
-          [require.resolve(name)]: Object.keys(require(name))
-        }),
-        {}
-      )
+      namedExports: {
+        [TAQUITO_REPLACEMENT]: Object.keys(require(TAQUITO_SOURCE)),
+        ...MODULES_WITH_NAMED_EXPORTS.reduce(
+          (exps, name) => ({
+            ...exps,
+            [require.resolve(name)]: Object.keys(require(name))
+          }),
+          {}
+        )
+      }
     }),
     OMT({
       loader: OMT_LOADER,
