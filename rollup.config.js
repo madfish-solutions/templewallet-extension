@@ -24,7 +24,7 @@ const PREACT_COMPAT = PREACT_COMPAT_ENV === "true";
 const OMITTED_ROLLUP_WARNINGS = new Set(["CIRCULAR_DEPENDENCY", "EVAL"]);
 const EXTENSIONS = [".js", ".mjs", ".jsx", ".ts", ".tsx"];
 const MODULES_WITH_NAMED_EXPORTS = ["react", "react-dom", "react-is"];
-const NON_TRANSPILED_MODULES = ["preact", "react-async"];
+const NON_TRANSPILED_MODULES = ["preact", "swr"];
 const JS_MODULES_TRANSPILE_INCLUDE = [
   "ts/**",
   ...NON_TRANSPILED_MODULES.map(mn => Path.join("node_modules", mn, "**"))

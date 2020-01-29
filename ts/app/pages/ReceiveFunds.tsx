@@ -2,11 +2,11 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { QRCode } from "react-qr-svg";
-import useThanosContext from "lib/useThanosContext";
+import { useThanosWalletContext } from "lib/thanos-wallet";
 
 const ReceiveFunds: React.FC = () => {
-  const { keystore }: any = useThanosContext();
-  const address = keystore.publicKeyHash;
+  const { account: maybeAccount } = useThanosWalletContext();
+  const account = maybeAccount!;
 
   return (
     <>
@@ -36,7 +36,7 @@ const ReceiveFunds: React.FC = () => {
               fgColor="#000000"
               level="Q"
               style={{ width: 256 }}
-              value={address}
+              value={account.address}
             />
           </div>
           <div className="mb-6">
@@ -55,7 +55,7 @@ const ReceiveFunds: React.FC = () => {
                 "rounded"
               )}
             >
-              {address}
+              {account.address}
             </div>
           </div>
         </form>

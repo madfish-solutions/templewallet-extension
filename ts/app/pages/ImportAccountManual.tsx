@@ -1,12 +1,12 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import useThanosContext from "lib/useThanosContext";
+import { useThanosWalletContext } from "lib/thanos-wallet";
 
 const FIELDS = ["mnemonic", "email", "secret", "pkh", "password"];
 
 const ImportAccountManual: React.FC = () => {
-  const { authorize } = useThanosContext();
+  const { importAccount } = useThanosWalletContext();
 
   const handleSubmit = React.useCallback(
     (evt: React.FormEvent) => {
@@ -20,7 +20,7 @@ const ImportAccountManual: React.FC = () => {
 
       (async () => {
         try {
-          await authorize(data);
+          await importAccount(data);
         } catch (err) {
           alert(
             `Oops, error!\n"${err.message}"\nYour data may be invalid, or smth with us;(`
@@ -28,7 +28,7 @@ const ImportAccountManual: React.FC = () => {
         }
       })();
     },
-    [authorize]
+    [importAccount]
   );
 
   return (

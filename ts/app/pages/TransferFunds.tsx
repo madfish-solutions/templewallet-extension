@@ -1,19 +1,12 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import useThanosContext from "lib/useThanosContext";
+import { useThanosWalletContext } from "lib/thanos-wallet";
 
 const FIELDS = ["to", "amount", "fee"];
 
 const TransferFunds: React.FC = () => {
-  const {
-    activated,
-    activating,
-    activateAcc,
-    keystore,
-    sendTransaction
-  } = useThanosContext();
-  const ready = activated && !activating;
+  const { transfer } = useThanosWalletContext();
   const [sending, setSending] = React.useState(false);
 
   const handleSubmit = (evt: React.FormEvent) => {
@@ -29,11 +22,10 @@ const TransferFunds: React.FC = () => {
       if (sending) return;
       try {
         setSending(true);
-        const tx = await sendTransaction(
-          keystore,
+        const tx = await transfer(
           data.to,
-          data.amount,
-          data.fee
+          data.amount
+          // data.fee
         );
 
         alert(`DONE! Transaction:\n${JSON.stringify(tx)}`);
@@ -63,48 +55,46 @@ const TransferFunds: React.FC = () => {
 
       <div className="flex flex-col items-center text-center">
         <h1 className="text-3xl mb-4 text-gray-800">Transfer Tezos</h1>
-        {ready && (
-          <h4 className="text-base mb-2 text-gray-600 max-w-xs">
-            Please, provide the recipient address and amount to be sent
-          </h4>
-        )}
+        <h4 className="text-base mb-2 text-gray-600 max-w-xs">
+          Please, provide the recipient address and amount to be sent
+        </h4>
       </div>
 
       {(() => {
-        if (activating) {
-          return (
-            <div className="w-full h-48 flex items-center justify-center">
-              <div className="text-sm font-medium text-gray-500 uppercase">
-                Loading activation status...
-              </div>
-            </div>
-          );
-        }
+        // if (activating) {
+        //   return (
+        //     <div className="w-full h-48 flex items-center justify-center">
+        //       <div className="text-sm font-medium text-gray-500 uppercase">
+        //         Loading activation status...
+        //       </div>
+        //     </div>
+        //   );
+        // }
 
-        if (!activated) {
-          return (
-            <div className="w-full h-48 flex items-center justify-center">
-              <div
-                className="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4"
-                role="alert"
-              >
-                <p className="font-bold text-base">
-                  Your account is Not activated
-                </p>
-                <div className="mt-4">
-                  <button
-                    className="border-2 border-green-600 hover:border-green-700 text-green-600 hover:text-green-700 text-sm font-semibold py-1 px-4 rounded focus:outline-none focus:shadow-outline"
-                    type="button"
-                    disabled={activating}
-                    onClick={activateAcc}
-                  >
-                    {activating ? "Activating" : "Activate"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        }
+        // if (!activated) {
+        //   return (
+        //     <div className="w-full h-48 flex items-center justify-center">
+        //       <div
+        //         className="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4"
+        //         role="alert"
+        //       >
+        //         <p className="font-bold text-base">
+        //           Your account is Not activated
+        //         </p>
+        //         <div className="mt-4">
+        //           <button
+        //             className="border-2 border-green-600 hover:border-green-700 text-green-600 hover:text-green-700 text-sm font-semibold py-1 px-4 rounded focus:outline-none focus:shadow-outline"
+        //             type="button"
+        //             disabled={activating}
+        //             onClick={activateAcc}
+        //           >
+        //             {activating ? "Activating" : "Activate"}
+        //           </button>
+        //         </div>
+        //       </div>
+        //     </div>
+        //   );
+        // }
 
         return (
           <div className="flex justify-center mt-8">
