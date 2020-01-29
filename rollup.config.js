@@ -16,9 +16,6 @@ import tsConfig from "./tsconfig.json";
 // Steal ENV vars from .env file
 dotenv.config();
 
-const TAQUITO_SOURCE = "@taquito/taquito";
-const TAQUITO_REPLACEMENT = "@taquito/taquito/dist/taquito.bundle.js";
-
 // Grab NODE_ENV and THANOS_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
 const THANOS_WALLET = /^THANOS_WALLET_/i;
@@ -27,21 +24,16 @@ const PREACT_COMPAT = PREACT_COMPAT_ENV === "true";
 const OMITTED_ROLLUP_WARNINGS = new Set(["CIRCULAR_DEPENDENCY", "EVAL"]);
 const EXTENSIONS = [".js", ".mjs", ".jsx", ".ts", ".tsx"];
 const MODULES_WITH_NAMED_EXPORTS = ["react", "react-dom", "react-is"];
-// const ALREADY_TRANSPILED_MODULES = [
-//   "react",
-//   "react-dom",
-//   "webextension-polyfill-ts",
-//   "webextension-polyfill",
-//   "@taquito/taquito",
-//   "constate"
-// ];
-// const ALREADY_TRANSPILED_MODULES_EXCLUDE = ALREADY_TRANSPILED_MODULES.map(mn =>
-//   Path.join("node_modules", mn, "**")
-// );
-const JS_MODULES_TRANSPILE_EXCLUDE = "node_modules/**";
+const NON_TRANSPILED_MODULES = ["preact", "react-async"];
+const JS_MODULES_TRANSPILE_INCLUDE = [
+  "ts/**",
+  ...NON_TRANSPILED_MODULES.map(mn => Path.join("node_modules", mn, "**"))
+];
 const OMT_LOADER = Fs.readFileSync(
   Path.join(__dirname, "omt-loader.ejs")
 ).toString("utf8");
+const TAQUITO_SOURCE = "@taquito/taquito";
+const TAQUITO_REPLACEMENT = "@taquito/taquito/dist/taquito.bundle.js";
 
 export default {
   output: {
@@ -93,12 +85,12 @@ export default {
     }),
     NODE_ENV === "production"
       ? babel({
-          exclude: JS_MODULES_TRANSPILE_EXCLUDE,
+          include: JS_MODULES_TRANSPILE_INCLUDE,
           extensions: EXTENSIONS,
           runtimeHelpers: true
         })
       : sucrase({
-          exclude: JS_MODULES_TRANSPILE_EXCLUDE,
+          include: JS_MODULES_TRANSPILE_INCLUDE,
           transforms: ["typescript", "jsx"],
           production: NODE_ENV === "production"
         }),
