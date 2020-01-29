@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "postinstall": "browserify -r @taquito/taquito -u xhr2-cookies -s taquito -o node_modules/@taquito/taquito/dist/taquito.bundle.js",
+    "postinstall": "run-s browserify-taquito",
     "start": "cross-env NODE_ENV=development run-s remove-dist watch-all",
     "build": "cross-env NODE_ENV=production run-s remove-dist copy-static deploy-all",
     "watch-all": "run-p *:watch",
@@ -17,7 +17,8 @@
     "manifest:watch": "watch \"run-s create-manifest\" manifest/",
     "manifest:deploy": "run-s create-manifest",
     "copy-static": "cp -r static/ build/",
-    "create-manifest": "node ./bin/manifest.js create -o build/manifest.json manifest/manifest.template.js"
+    "create-manifest": "node ./bin/manifest.js create -o build/manifest.json manifest/manifest.template.js",
+    "browserify-taquito": "browserify -r @taquito/taquito -u xhr2-cookies -s taquito -o node_modules/@taquito/taquito/dist/taquito.bundle.js"
   },
   "dependencies": {
     "@babel/core": "^7.8.3",
