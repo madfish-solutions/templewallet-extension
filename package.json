@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "postinstall": "browserify -r @taquito/taquito -s taquito -o node_modules/@taquito/taquito/dist/taquito.bundle.js",
+    "postinstall": "browserify -r @taquito/taquito -u xhr2-cookies -s taquito -o node_modules/@taquito/taquito/dist/taquito.bundle.js",
     "start": "cross-env NODE_ENV=development run-s remove-dist watch-all",
     "build": "cross-env NODE_ENV=production run-s remove-dist copy-static deploy-all",
     "watch-all": "run-p *:watch",
