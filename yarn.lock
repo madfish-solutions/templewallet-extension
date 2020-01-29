@@ -1326,6 +1326,11 @@ anymatch@~3.1.1:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
+are-passive-events-supported@^1.1.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/are-passive-events-supported/-/are-passive-events-supported-1.1.1.tgz#3db180a1753a2186a2de50a32cded3ac0979f5dc"
+  integrity sha512-5wnvlvB/dTbfrCvJ027Y4L4gW/6Mwoy1uFSavney0YO++GU+0e/flnjiBBwH+1kh7xNCgCOGvmJC3s32joYbww==
+
 argparse@^1.0.7:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/argparse/-/argparse-1.0.10.tgz#bcd6791ea5ae09725e17e5ad988134cd40b3d911"
@@ -2409,6 +2414,11 @@ exec-sh@^0.2.0:
   integrity sha512-FIUCJz1RbuS0FKTdaAafAByGS0CPvU3R0MeHxgtl+djzCc//F8HakL8GzmVNZanasTbTAY/3DRFA0KpVqj/eAw==
   dependencies:
     merge "^1.2.0"
+
+fast-deep-equal@2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-2.0.1.tgz#7b05218ddf9667bf7f370bf7fdb2cb15fdd0aa49"
+  integrity sha1-ewUhjd+WZ79/Nwv3/bLLFf3Qqkk=
 
 fast-glob@^3.0.3:
   version "3.1.1"
@@ -3919,11 +3929,6 @@ randomfill@^1.0.3:
     randombytes "^2.0.5"
     safe-buffer "^5.1.0"
 
-react-async@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/react-async/-/react-async-10.0.0.tgz#3a123017692e130b35b82e5e426699ac3f4d609b"
-  integrity sha512-Uk7yG49ftaJ1ShMfgTqsZUcEIRxdWHV2ABojw+dzFifCSMeqydCFhzj9x7okACClCzMDgkGqC5/bOtY95yQG1A==
-
 react-dom@^16.12.0:
   version "16.12.0"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.12.0.tgz#0da4b714b8d13c2038c9396b54a92baea633fe11"
@@ -4533,6 +4538,13 @@ svgo@^1.0.0:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
+swr@^0.1.16:
+  version "0.1.16"
+  resolved "https://registry.yarnpkg.com/swr/-/swr-0.1.16.tgz#e1667f2260ac091fb4c2cc6255ca1b8ff83b0acd"
+  integrity sha512-E+i0pJOCCPRxnwQMFKf3RYr4os+B4swNuwnHo+pBCNxwfuJiN0ZalwP9u4OqjoeMl9eZFgcQYUPHD8KVyTqM1g==
+  dependencies:
+    fast-deep-equal "2.0.1"
+
 syntax-error@^1.1.1:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/syntax-error/-/syntax-error-1.4.0.tgz#2d9d4ff5c064acb711594a3e3b95054ad51d907c"
@@ -4723,6 +4735,19 @@ use-force-update@^1.0.7:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/use-force-update/-/use-force-update-1.0.7.tgz#f5e672633f5a398b25c33b2287150918bcb3526b"
   integrity sha512-k5dppYhO+I5X/cd7ildbrzeMZJkWwdAh5adaIk0qKN2euh7J0h2GBGBcB4QZ385eyHHnp7LIygvebdRx3XKdwA==
+
+use-latest@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/use-latest/-/use-latest-1.0.0.tgz#c86d2e4893b15f27def69da574a47136d107facb"
+  integrity sha512-CxmFi75KTXeTIBlZq3LhJ4Hz98pCaRKZHCpnbiaEHIr5QnuHvH8lKYoluPBt/ik7j/hFVPB8K3WqF6mQvLyQTg==
+
+use-onclickoutside@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/use-onclickoutside/-/use-onclickoutside-0.3.1.tgz#fdd723a6a499046b6bc761e4a03af432eee5917b"
+  integrity sha512-aahvbW5+G0XJfzj31FJeLsvc6qdKbzeTsQ8EtkHHq5qTg6bm/qkJeKLcgrpnYeHDDbd7uyhImLGdkbM9BRzOHQ==
+  dependencies:
+    are-passive-events-supported "^1.1.0"
+    use-latest "^1.0.0"
 
 util-deprecate@^1.0.1, util-deprecate@~1.0.1:
   version "1.0.2"

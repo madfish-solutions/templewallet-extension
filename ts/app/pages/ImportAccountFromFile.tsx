@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Link } from "lib/woozie";
-import useThanosContext from "lib/useThanosContext";
+import { useThanosWalletContext } from "lib/thanos-wallet";
 
 const ImportAccountFromFile: React.FC = () => {
-  const { authorize } = useThanosContext();
+  const { importAccount } = useThanosWalletContext();
   const [loading, setLoading] = React.useState(false);
 
   const handleChange = React.useCallback(
@@ -19,11 +19,8 @@ const ImportAccountFromFile: React.FC = () => {
       reader.onload = (readEvt: any) => {
         (async () => {
           try {
-            const data = JSON.parse(readEvt.target.result);
-            await authorize({
-              ...data,
-              mnemonic: data.mnemonic.join(" ")
-            });
+            const acc = JSON.parse(readEvt.target.result);
+            await importAccount(acc);
             setLoading(false);
           } catch (err) {
             alert(
@@ -36,7 +33,7 @@ const ImportAccountFromFile: React.FC = () => {
 
       reader.readAsText(evt.target.files[0]);
     },
-    [authorize]
+    [importAccount]
   );
 
   return (

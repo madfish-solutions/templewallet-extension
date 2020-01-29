@@ -1,53 +1,8 @@
 import * as React from "react";
-import classNames from "clsx";
+// import classNames from "clsx";
+import useSWR from "swr";
 import { Link } from "lib/woozie";
-import useThanosSDKContext from "lib/useThanosSDKContext";
-import useThanosContext from "lib/useThanosContext";
-
-enum TransactionSide {
-  Outcoming = "To",
-  Incoming = "From"
-}
-
-const round = (val: number, decPlaces: any = 4): number =>
-  Number(`${Math.round(+`${val}e${decPlaces}`)}e-${decPlaces}`);
-
-const mapTransactions = (txs: Array<any>, address: string): Array<any> => {
-  return txs.map(tx => ({
-    ...tx,
-    side:
-      tx.source === address
-        ? TransactionSide.Outcoming
-        : TransactionSide.Incoming
-  }));
-};
-
-const Transaction: React.FC = (props: any) => (
-  <div
-    className="flex justify-between content-center mb-2"
-    style={{ height: "36px" }}
-  >
-    <img src={getAvatarUrl(props.source)} alt="" width="36px" height="36px" />
-    <div
-      style={{ lineHeight: "36px" }}
-      className="text-gray-400 text-base truncate px-2"
-    >
-      {props.side}: {props.source}
-    </div>
-    <div
-      style={{ lineHeight: "36px" }}
-      className={classNames(
-        "flex-shrink-0 text-lg",
-        props.side === TransactionSide.Outcoming
-          ? "text-red-700"
-          : "text-green-500"
-      )}
-    >
-      {props.side === TransactionSide.Outcoming ? "-" : "+"}{" "}
-      {round(props.amount / 10 ** 6, 4)} ꜩ
-    </div>
-  </div>
-);
+import { useThanosWalletContext } from "lib/thanos-wallet";
 
 const RefreshButton: React.FC<any> = ({ fetching, ...rest }) => (
   <svg
@@ -69,71 +24,64 @@ const RefreshButton: React.FC<any> = ({ fetching, ...rest }) => (
 );
 
 const ExploreAccount: React.FC = () => {
-  const [fetching, setFetching] = React.useState(false);
-  const [balance, setBalance] = React.useState(0);
-  const [transactions, setTransactions] = React.useState<Array<any>>([]);
-  const { getTotalBalance, getTransactions } = useThanosSDKContext();
   const {
-    logout,
-    keystore,
-    activated,
-    activating,
-    activateAcc
-  }: any = useThanosContext();
+    account: maybeAccount,
+    destroyAccount,
+    getBalance,
+    getBalanceHistory
+  } = useThanosWalletContext();
+  const account = maybeAccount!;
 
-  async function refreshData() {
-    if (fetching) return;
+  const fetchAccountData = React.useCallback(
+    async (address: string) => {
+      const [balance, transactions = []] = await Promise.all([
+        getBalance(address)
+        // getBalanceHistory(address)
+      ]);
 
-    try {
-      setFetching(true);
-      const address = keystore.publicKeyHash;
-      const { sum_balance } = (await getTotalBalance(address))[0];
-      const txs = await getTransactions(address);
-      setFetching(false);
-      setBalance(sum_balance / 10 ** 6);
-      setTransactions(mapTransactions(txs, address));
-    } catch (_) {
-      setFetching(false);
-      setBalance(0);
-      setTransactions([]);
-    }
-  }
+      return { balance, transactions };
+    },
+    [getBalance, getBalanceHistory]
+  );
+
+  const accountSWR = useSWR(account.address, fetchAccountData, {
+    suspense: true
+  });
+
+  const handleRefreshClick = React.useCallback(() => {
+    accountSWR.revalidate();
+  }, [accountSWR]);
 
   const handleSignOutClick = React.useCallback(() => {
-    logout();
-  }, [logout]);
+    destroyAccount();
+  }, [destroyAccount]);
 
-  const handleRefreshClick = React.useCallback(refreshData, [refreshData]);
-
-  React.useEffect(() => {
-    if (keystore) {
-      refreshData();
-    }
-  }, []);
+  const balance = accountSWR.data!.balance;
+  const transactions = accountSWR.data!.transactions;
 
   return (
     <>
       <div className="bg-gray-100 px-8 py-4 -mt-8 -mx-8 mb-4 flex items-center">
         <div className="text-base text-gray-800 flex items-center">
           {(() => {
-            if (activating) {
-              return "Loading activation...";
-            }
+            // if (activating) {
+            //   return "Loading activation...";
+            // }
 
-            if (!activated) {
-              return (
-                <>
-                  <span className="mr-2 w-2 h-2 rounded-full border border-white bg-yellow-600" />
-                  <span>Not Activated</span>
-                  <button
-                    className="ml-2 text-blue-600 underline"
-                    onClick={activateAcc}
-                  >
-                    Activate?
-                  </button>
-                </>
-              );
-            }
+            // if (!activated) {
+            //   return (
+            //     <>
+            //       <span className="mr-2 w-2 h-2 rounded-full border border-white bg-yellow-600" />
+            //       <span>Not Activated</span>
+            //       <button
+            //         className="ml-2 text-blue-600 underline"
+            //         onClick={activateAcc}
+            //       >
+            //         Activate?
+            //       </button>
+            //     </>
+            //   );
+            // }
 
             return (
               <>
@@ -162,18 +110,18 @@ const ExploreAccount: React.FC = () => {
         />
         <h3 className="text-xl font-thin text-gray-800">Balance:</h3>
         <h3 className="text-3xl font-thin text-gray-800">
-          <b>{round(balance, 4)}</b> ꜩ
+          <b>{round(+balance, 4)}</b> ꜩ
         </h3>
         <div className="text-xl mb-4 font-light text-gray-500 flex content-center">
           <span style={{ lineHeight: "36px" }}>
-            ${round(balance * 1.06, 2)}
+            ${round(+balance * 1.06, 2)}
           </span>
           <button
             type="button"
             onClick={handleRefreshClick}
             className="rounded focus:outline-none focus:shadow-outline inline ml-4"
           >
-            <RefreshButton fetching={fetching} />
+            <RefreshButton fetching={accountSWR.isValidating} />
           </button>
         </div>
       </div>
@@ -201,9 +149,10 @@ const ExploreAccount: React.FC = () => {
         <form className="w-full max-w-sm">
           <h3 className="text-lg text-gray-500 mb-4">Transaction History</h3>
           <div className="flex flex-col">
-            {transactions.map((tx, i) => (
+            {JSON.stringify(transactions)}
+            {/* {transactions.value.map((tx, i) => (
               <Transaction {...tx} key={i} />
-            ))}
+            ))} */}
           </div>
         </form>
       </div>
@@ -213,6 +162,47 @@ const ExploreAccount: React.FC = () => {
 
 export default ExploreAccount;
 
-function getAvatarUrl(id: string | number, type: string = "jdenticon") {
-  return `https://avatars.dicebear.com/v2/${type}/${id}.svg`;
+// const mapTransactions = (txs: Array<any>, address: string): Array<any> => {
+//   return txs.map(tx => ({
+//     ...tx,
+//     side:
+//       tx.source === address
+//         ? TransactionSide.Outcoming
+//         : TransactionSide.Incoming
+//   }));
+// };
+
+// const Transaction: React.FC = (props: any) => (
+//   <div
+//     className="flex justify-between content-center mb-2"
+//     style={{ height: "36px" }}
+//   >
+//     <img src={getAvatarUrl(props.source)} alt="" width="36px" height="36px" />
+//     <div
+//       style={{ lineHeight: "36px" }}
+//       className="text-gray-400 text-base truncate px-2"
+//     >
+//       {props.side}: {props.source}
+//     </div>
+//     <div
+//       style={{ lineHeight: "36px" }}
+//       className={classNames(
+//         "flex-shrink-0 text-lg",
+//         props.side === TransactionSide.Outcoming
+//           ? "text-red-700"
+//           : "text-green-500"
+//       )}
+//     >
+//       {props.side === TransactionSide.Outcoming ? "-" : "+"}{" "}
+//       {round(props.amount / 10 ** 6, 4)} ꜩ
+//     </div>
+//   </div>
+// );
+
+function round(val: number, decPlaces: any = 4) {
+  return Number(`${Math.round(+`${val}e${decPlaces}`)}e-${decPlaces}`);
 }
+
+// function getAvatarUrl(id: string | number, type: string = "jdenticon") {
+//   return `https://avatars.dicebear.com/v2/${type}/${id}.svg`;
+// }
