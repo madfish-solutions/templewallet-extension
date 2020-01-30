@@ -1,47 +1,28 @@
 import * as React from "react";
-// import classNames from "clsx";
+import classNames from "clsx";
 import useSWR from "swr";
 import { Link } from "lib/woozie";
 import { useThanosWalletContext } from "lib/thanos-wallet";
-
-const RefreshButton: React.FC<any> = ({ fetching, ...rest }) => (
-  <svg
-    width={32}
-    height={32}
-    viewBox="0 0 24 24"
-    aria-labelledby="rotateIconTitle"
-    stroke="#a0aec0"
-    strokeLinecap="round"
-    fill="none"
-    color="#a0aec0"
-    className={fetching ? "spin" : ""}
-    {...rest}
-  >
-    <title>{"Rotate"}</title>
-    <path d="M22 12l-3 3-3-3M2 12l3-3 3 3" />
-    <path d="M19.016 14v-1.95A7.05 7.05 0 008 6.22M16.016 17.845A7.05 7.05 0 015 12.015V10M5 10V9M19 15v-1" />
-  </svg>
-);
 
 const ExploreAccount: React.FC = () => {
   const {
     account: maybeAccount,
     destroyAccount,
-    getBalance,
-    getBalanceHistory
+    getBalance
+    // getBalanceHistory
   } = useThanosWalletContext();
   const account = maybeAccount!;
 
   const fetchAccountData = React.useCallback(
     async (address: string) => {
-      const [balance, transactions = []] = await Promise.all([
-        getBalance(address)
-        // getBalanceHistory(address)
+      const [balance, transactions] = await Promise.all([
+        getBalance(address),
+        fetchAllAccountOperations(address)
       ]);
 
       return { balance, transactions };
     },
-    [getBalance, getBalanceHistory]
+    [getBalance]
   );
 
   const accountSWR = useSWR(account.address, fetchAccountData, {
@@ -149,10 +130,10 @@ const ExploreAccount: React.FC = () => {
         <form className="w-full max-w-sm">
           <h3 className="text-lg text-gray-500 mb-4">Transaction History</h3>
           <div className="flex flex-col">
-            {JSON.stringify(transactions)}
-            {/* {transactions.value.map((tx, i) => (
-              <Transaction {...tx} key={i} />
-            ))} */}
+            {/* {JSON.stringify(transactions)} */}
+            {transactions.map((operation, i) => (
+              <Transaction operation={operation} key={i} />
+            ))}
           </div>
         </form>
       </div>
@@ -162,47 +143,145 @@ const ExploreAccount: React.FC = () => {
 
 export default ExploreAccount;
 
-// const mapTransactions = (txs: Array<any>, address: string): Array<any> => {
-//   return txs.map(tx => ({
-//     ...tx,
-//     side:
-//       tx.source === address
-//         ? TransactionSide.Outcoming
-//         : TransactionSide.Incoming
-//   }));
-// };
+enum TransactionSide {
+  Incoming,
+  Outcoming
+}
 
-// const Transaction: React.FC = (props: any) => (
-//   <div
-//     className="flex justify-between content-center mb-2"
-//     style={{ height: "36px" }}
-//   >
-//     <img src={getAvatarUrl(props.source)} alt="" width="36px" height="36px" />
-//     <div
-//       style={{ lineHeight: "36px" }}
-//       className="text-gray-400 text-base truncate px-2"
-//     >
-//       {props.side}: {props.source}
-//     </div>
-//     <div
-//       style={{ lineHeight: "36px" }}
-//       className={classNames(
-//         "flex-shrink-0 text-lg",
-//         props.side === TransactionSide.Outcoming
-//           ? "text-red-700"
-//           : "text-green-500"
-//       )}
-//     >
-//       {props.side === TransactionSide.Outcoming ? "-" : "+"}{" "}
-//       {round(props.amount / 10 ** 6, 4)} ꜩ
-//     </div>
-//   </div>
-// );
+type Operation = {
+  row_id: number;
+  type: string;
+  hash: string;
+  sender: string | null;
+  receiver: string | null;
+  delegate: string | null;
+  is_success: number;
+  time: number;
+  volume: number;
+  fee: number;
+  burned: number;
+  height: number;
+  reward: number;
+  side?: TransactionSide;
+  source?: string | null;
+};
+
+const Transaction: React.FC<{ operation: Operation }> = ({ operation }) => (
+  <div
+    className="flex justify-between content-center mb-2"
+    style={{ height: "36px" }}
+  >
+    <img
+      src={getAvatarUrl(operation.source!)}
+      alt=""
+      width="36px"
+      height="36px"
+    />
+    <div
+      style={{ lineHeight: "36px" }}
+      className="text-gray-400 text-base truncate px-2"
+    >
+      {operation.side!}: {operation.source!}
+    </div>
+    <div
+      style={{ lineHeight: "36px" }}
+      className={classNames(
+        "flex-shrink-0 text-lg",
+        operation.side! === TransactionSide.Outcoming
+          ? "text-red-700"
+          : "text-green-500"
+      )}
+    >
+      {operation.side! === TransactionSide.Outcoming ? "-" : "+"}{" "}
+      {round(operation.volume, 4)} ꜩ
+    </div>
+  </div>
+);
+
+const RefreshButton: React.FC<any> = ({ fetching, ...rest }) => (
+  <svg
+    width={32}
+    height={32}
+    viewBox="0 0 24 24"
+    aria-labelledby="rotateIconTitle"
+    stroke="#a0aec0"
+    strokeLinecap="round"
+    fill="none"
+    color="#a0aec0"
+    className={fetching ? "spin" : ""}
+    {...rest}
+  >
+    <title>{"Rotate"}</title>
+    <path d="M22 12l-3 3-3-3M2 12l3-3 3 3" />
+    <path d="M19.016 14v-1.95A7.05 7.05 0 008 6.22M16.016 17.845A7.05 7.05 0 015 12.015V10M5 10V9M19 15v-1" />
+  </svg>
+);
 
 function round(val: number, decPlaces: any = 4) {
   return Number(`${Math.round(+`${val}e${decPlaces}`)}e-${decPlaces}`);
 }
 
-// function getAvatarUrl(id: string | number, type: string = "jdenticon") {
-//   return `https://avatars.dicebear.com/v2/${type}/${id}.svg`;
-// }
+function getAvatarUrl(id: string | number, type: string = "jdenticon") {
+  return `https://avatars.dicebear.com/v2/${type}/${id}.svg`;
+}
+
+async function fetchAllAccountOperations(address: string) {
+  const [inOps, outOps] = await Promise.all([
+    fetchAccountOperations(address, "receiver"),
+    fetchAccountOperations(address, "sender")
+  ]);
+
+  [
+    { ops: inOps, side: TransactionSide.Incoming },
+    { ops: outOps, side: TransactionSide.Outcoming }
+  ].forEach(({ ops, side }) => {
+    for (const op of ops) {
+      op.side = side;
+      op.source = side === TransactionSide.Incoming ? op.sender : op.receiver;
+    }
+  });
+
+  return inOps
+    .concat(outOps)
+    .sort((a, b) => b.time - a.time)
+    .filter(o => o.type === "transaction");
+}
+
+async function fetchAccountOperations(
+  address: string,
+  direction: "receiver" | "sender"
+) {
+  const columns = [
+    "row_id",
+    "type",
+    "hash",
+    "sender",
+    "receiver",
+    "delegate",
+    "is_success",
+    "time",
+    "volume",
+    "fee",
+    "burned",
+    "height",
+    "reward"
+  ];
+  const url = [
+    "https://api.babylonnet.tzstats.com",
+    "/tables/op",
+    `?${direction}=${address}`,
+    "&order=desc",
+    `&columns=${columns.join(",")}`,
+    "&limit=100"
+  ].join("");
+
+  const res = await fetch(url);
+  if (res.ok) {
+    const ops = await res.json();
+    return ops.map((op: any[]) =>
+      op.reduce((opObj, val, i) => ({ ...opObj, [columns[i]]: val }), {})
+    ) as Operation[];
+  } else {
+    throw new Error(res.statusText);
+  }
+}
