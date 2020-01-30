@@ -22,16 +22,19 @@ const TransferFunds: React.FC = () => {
       if (sending) return;
       try {
         setSending(true);
-        const tx = await transfer(
+        const op = await transfer(
           data.to,
           data.amount
           // data.fee
         );
 
-        alert(`DONE! Transaction:\n${JSON.stringify(tx)}`);
+        alert(`DONE! Transaction:\n${JSON.stringify({ hash: op.hash })}`);
         form.reset();
         setSending(false);
       } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
         alert(
           `Oops, error!\n"${err.message}"\nYour data may be invalid, or smth with us;(`
         );
@@ -160,9 +163,10 @@ const TransferFunds: React.FC = () => {
                   )}
                   id="address-to"
                   type="number"
-                  placeholder="15000"
+                  placeholder="(auto)"
                   name="fee"
-                  required
+                  // required
+                  disabled
                 />
               </div>
               <div className="flex items-center justify-between mt-8">

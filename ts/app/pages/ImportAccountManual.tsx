@@ -20,7 +20,10 @@ const ImportAccountManual: React.FC = () => {
 
       (async () => {
         try {
-          await importAccount(data);
+          await importAccount({
+            ...data,
+            mnemonic: data.mnemonic.split(" ")
+          });
         } catch (err) {
           alert(
             `Oops, error!\n"${err.message}"\nYour data may be invalid, or smth with us;(`
