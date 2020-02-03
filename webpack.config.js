@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const dotenv = require("dotenv");
 const webpack = require("webpack");
+const resolve = require("resolve");
 const wextManifest = require("wext-manifest");
 const ZipPlugin = require("zip-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
@@ -12,6 +13,11 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 // const ExtensionReloader = require("webpack-extension-reloader");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
+const WatchMissingNodeModulesPlugin = require("react-dev-utils/WatchMissingNodeModulesPlugin");
+const ForkTsCheckerWebpackPlugin = require("react-dev-utils/ForkTsCheckerWebpackPlugin");
+const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
+const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const WebpackBar = require("webpackbar");
 const safePostCssParser = require("postcss-safe-parser");
@@ -23,13 +29,16 @@ dotenv.config();
 // Grab NODE_ENV and THANOS_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
 const THANOS_WALLET = /^THANOS_WALLET_/i;
-const {
+let {
   NODE_ENV = "development",
   TARGET_BROWSER = "chrome",
-  SOURCE_MAP: SOURCE_MAP_ENV
+  SOURCE_MAP: SOURCE_MAP_ENV,
+  IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = "10000"
 } = process.env;
 const SOURCE_MAP = NODE_ENV !== "production" && SOURCE_MAP_ENV !== "false";
+const IMAGE_INLINE_SIZE_LIMIT = parseInt(IMAGE_INLINE_SIZE_LIMIT_ENV);
 const CWD_PATH = fs.realpathSync(process.cwd());
+const NODE_MODULES_PATH = path.join(CWD_PATH, "node_modules");
 const SOURCE_PATH = path.join(CWD_PATH, "src");
 const PUBLIC_PATH = path.join(CWD_PATH, "public");
 const DEST_PATH = path.join(CWD_PATH, "dist");
@@ -100,7 +109,7 @@ module.exports = {
   },
 
   resolve: {
-    modules: ["node_modules", ...ADDITIONAL_MODULE_PATHS],
+    modules: [NODE_MODULES_PATH, ...ADDITIONAL_MODULE_PATHS],
     extensions: MODULE_FILE_EXTENSIONS
   },
 
@@ -122,27 +131,7 @@ module.exports = {
               cache: true,
               formatter: require.resolve("react-dev-utils/eslintFormatter"),
               eslintPath: require.resolve("eslint"),
-              resolvePluginsRelativeTo: __dirname,
-              ignore: process.env.EXTEND_ESLINT === "true",
-              baseConfig: (() => {
-                // We allow overriding the config only if the env variable is set
-                if (process.env.EXTEND_ESLINT === "true") {
-                  const eslintCli = new eslint.CLIEngine();
-                  let eslintConfig;
-                  try {
-                    eslintConfig = eslintCli.getConfigForFile(paths.appIndexJs);
-                  } catch (e) {
-                    console.error(e);
-                    process.exit(1);
-                  }
-                  return eslintConfig;
-                } else {
-                  return {
-                    extends: [require.resolve("eslint-config-react-app")]
-                  };
-                }
-              })(),
-              useEslintrc: false
+              resolvePluginsRelativeTo: __dirname
             },
             loader: require.resolve("eslint-loader")
           }
@@ -150,36 +139,153 @@ module.exports = {
       },
 
       {
-        test: /\.(js|mjs|jsx|ts|tsx)$/,
-        loader: "@sucrase/webpack-loader",
-        include: SOURCE_PATH,
-        options: {
-          transforms: ["typescript", "jsx"],
-          production: NODE_ENV === "production"
-        }
-      },
-      {
-        test: CSS_REGEX,
-        exclude: CSS_MODULE_REGEX,
-        use: getStyleLoaders({
-          importLoaders: 1,
-          sourceMap: SOURCE_MAP
-        })
+        // "oneOf" will traverse all following loaders until one will
+        // match the requirements. When no loader matches it will fall
+        // back to the "file" loader at the end of the loader list.
+        oneOf: [
+          // "url" loader works like "file" loader except that it embeds assets
+          // smaller than specified limit in bytes as data URLs to avoid requests.
+          // A missing `test` is equivalent to a match.
+          {
+            test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+            loader: require.resolve("url-loader"),
+            options: {
+              limit: IMAGE_INLINE_SIZE_LIMIT,
+              name: "media/[hash:8].[ext]"
+            }
+          },
+          // Process application JS with Babel.
+          // The preset includes JSX, Flow, TypeScript, and some ESnext features.
+          {
+            test: /\.(js|mjs|jsx|ts|tsx)$/,
+            include: SOURCE_PATH,
+            loader: require.resolve("babel-loader"),
+            options: {
+              customize: require.resolve(
+                "babel-preset-react-app/webpack-overrides"
+              ),
+              plugins: [
+                [
+                  require.resolve("babel-plugin-named-asset-import"),
+                  {
+                    loaderMap: {
+                      svg: {
+                        ReactComponent:
+                          "@svgr/webpack?-svgo,+titleProp,+ref![path]"
+                      }
+                    }
+                  }
+                ]
+              ],
+              // This is a feature of `babel-loader` for webpack (not Babel itself).
+              // It enables caching results in ./node_modules/.cache/babel-loader/
+              // directory for faster rebuilds.
+              cacheDirectory: true,
+              // See #6846 for context on why cacheCompression is disabled
+              cacheCompression: false,
+              compact: NODE_ENV === "production"
+            }
+          },
+          // Process any JS outside of the app with Babel.
+          // Unlike the application JS, we only compile the standard ES features.
+          {
+            test: /\.(js|mjs)$/,
+            exclude: /@babel(?:\/|\\{1,2})runtime/,
+            loader: require.resolve("babel-loader"),
+            options: {
+              babelrc: false,
+              configFile: false,
+              compact: false,
+              presets: [
+                [
+                  require.resolve("babel-preset-react-app/dependencies"),
+                  { helpers: true }
+                ]
+              ],
+              cacheDirectory: true,
+              // See #6846 for context on why cacheCompression is disabled
+              cacheCompression: false,
+              // Babel sourcemaps are needed for debugging into node_modules
+              // code.  Without the options below, debuggers like VSCode
+              // show incorrect code and set breakpoints on the wrong lines.
+              sourceMaps: SOURCE_MAP,
+              inputSourceMap: SOURCE_MAP
+            }
+          },
+          // "postcss" loader applies autoprefixer to our CSS.
+          // "css" loader resolves paths in CSS and adds assets as dependencies.
+          // "style" loader turns CSS into JS modules that inject <style> tags.
+          // In production, we use MiniCSSExtractPlugin to extract that CSS
+          // to a file, but in development "style" loader enables hot editing
+          // of CSS.
+          // By default we support CSS Modules with the extension .module.css
+          {
+            test: CSS_REGEX,
+            exclude: CSS_MODULE_REGEX,
+            use: getStyleLoaders({
+              importLoaders: 1,
+              sourceMap: SOURCE_MAP
+            }),
+            // Don't consider CSS imports dead code even if the
+            // containing package claims to have no side effects.
+            // Remove this when webpack adds a warning or an error for this.
+            // See https://github.com/webpack/webpack/issues/6571
+            sideEffects: true
+          },
+          // Adds support for CSS Modules (https://github.com/css-modules/css-modules)
+          // using the extension .module.css
+          {
+            test: CSS_MODULE_REGEX,
+            use: getStyleLoaders({
+              importLoaders: 1,
+              sourceMap: SOURCE_MAP,
+              modules: {
+                getLocalIdent: getCSSModuleLocalIdent
+              }
+            })
+          },
+          // "file" loader makes sure those assets get served by WebpackDevServer.
+          // When you `import` an asset, you get its (virtual) filename.
+          // In production, they would get copied to the `build` folder.
+          // This loader doesn't use a "test" so it will catch all modules
+          // that fall through the other loaders.
+          {
+            loader: require.resolve("file-loader"),
+            // Exclude `js` files to keep "css" loader working as it injects
+            // its runtime that would otherwise be processed through "file" loader.
+            // Also exclude `html` and `json` extensions so they get processed
+            // by webpacks internal loaders.
+            exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
+            options: {
+              name: "media/[hash:8].[ext]"
+            }
+          }
+          // ** STOP ** Are you adding a new loader?
+          // Make sure to add the new loader(s) before the "file" loader.
+        ]
       }
+
       // {
-      //   test: CSS_MODULE_REGEX,
-      //   use: getStyleLoaders({
-      //     importLoaders: 1,
-      //     // sourceMap: isEnvProduction && shouldUseSourceMap,
-      //     modules: {
-      //       getLocalIdent: getCSSModuleLocalIdent,
-      //     },
-      //   }),
-      // },
+      //   test: /\.(js|mjs|jsx|ts|tsx)$/,
+      //   loader: "@sucrase/webpack-loader",
+      //   include: SOURCE_PATH,
+      //   options: {
+      //     transforms: ["typescript", "jsx"],
+      //     production: NODE_ENV === "production"
+      //   }
+      // }
     ]
   },
 
   plugins: [
+    new CleanWebpackPlugin({
+      cleanOnceBeforeBuildPatterns: [OUTPUT_PATH, OUTPUT_PACKED_PATH],
+      cleanStaleWebpackAssets: false,
+      verbose: false
+    }),
+
+    new ModuleNotFoundPlugin(SOURCE_PATH),
+
     new webpack.DefinePlugin({
       "process.env.NODE_ENV": JSON.stringify(NODE_ENV),
       "process.env.TARGET_BROWSER": JSON.stringify(TARGET_BROWSER),
@@ -194,10 +300,11 @@ module.exports = {
       })()
     }),
 
-    new CleanWebpackPlugin({
-      cleanOnceBeforeBuildPatterns: [OUTPUT_PATH, OUTPUT_PACKED_PATH],
-      cleanStaleWebpackAssets: false,
-      verbose: false
+    new WatchMissingNodeModulesPlugin(NODE_MODULES_PATH),
+
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
+      chunkFilename: "[name].chunk.css"
     }),
 
     ...HTML_TEMPLATES.map(
@@ -206,13 +313,44 @@ module.exports = {
           template: htmlTemplate.path,
           filename: path.basename(htmlTemplate.path),
           chunks: [...htmlTemplate.chunks, "commons"],
-          inject: "body"
+          inject: "body",
+          ...(NODE_ENV === "production"
+            ? {
+                minify: {
+                  removeComments: true,
+                  collapseWhitespace: true,
+                  removeRedundantAttributes: true,
+                  useShortDoctype: true,
+                  removeEmptyAttributes: true,
+                  removeStyleLinkTypeAttributes: true,
+                  keepClosingSlash: true,
+                  minifyJS: true,
+                  minifyCSS: true,
+                  minifyURLs: true
+                }
+              }
+            : {})
         })
     ),
 
-    new MiniCssExtractPlugin({
-      filename: "[name].css",
-      chunkFilename: "[name].chunk.css"
+    new ForkTsCheckerWebpackPlugin({
+      typescript: resolve.sync("typescript", {
+        basedir: NODE_MODULES_PATH
+      }),
+      async: NODE_ENV === "development",
+      useTypescriptIncrementalApi: true,
+      checkSyntacticErrors: true,
+      tsconfig: path.join(CWD_PATH, "tsconfig.json"),
+      reportFiles: [
+        "**",
+        "!**/__tests__/**",
+        "!**/?(*.)(spec|test).*",
+        "!**/src/setupProxy.*",
+        "!**/src/setupTests.*"
+      ],
+      silent: true,
+      // The formatter is invoked directly in WebpackDevServerUtils during development
+      formatter: NODE_ENV === "production" ? typescriptFormatter : undefined
     }),
 
     new CopyWebpackPlugin([
@@ -327,9 +465,7 @@ module.exports = {
 
 function getStyleLoaders(cssOptions = {}) {
   return [
-    {
-      loader: MiniCssExtractPlugin.loader
-    },
+    MiniCssExtractPlugin.loader,
     {
       loader: require.resolve("css-loader"),
       options: cssOptions
