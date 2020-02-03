@@ -45,7 +45,7 @@ function useThanosWallet() {
 
   const destroyAccount = React.useCallback(
     () => setToStorage({ accountstr: null }),
-    []
+    [setToStorage]
   );
 
   return {

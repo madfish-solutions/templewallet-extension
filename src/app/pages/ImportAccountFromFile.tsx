@@ -33,7 +33,7 @@ const ImportAccountFromFile: React.FC = () => {
 
       reader.readAsText(evt.target.files[0]);
     },
-    [importAccount]
+    [importAccount, setLoading, loading]
   );
 
   return (

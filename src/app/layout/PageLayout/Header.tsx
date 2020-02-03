@@ -11,7 +11,7 @@ const Header: React.FC<HeaderProps> = ({ popup }) => (
   <header className={classNames("bg-orange-500", !popup && "pb-24 -mb-20")}>
     <ContentContainer className="flex items-center justify-between flex-wrap py-6">
       <div className="flex items-center flex-shrink-0 text-white mr-6">
-        <img src="../misc/icon.png" width="36" height="36" />
+        <img src="../misc/icon.png" alt="" width="36" height="36" />
         {!popup && (
           <span className="font-semibold ml-2 text-xl tracking-tight">
             Thanos
