@@ -1,6 +1,7 @@
-# 🔐💰 Thanos Wallet
+# Thanos Wallet
 
-Cryptocurrency wallet for [Tezos blockchain](https://tezos.com) as Web Extension for your Browser.
+Cryptocurrency wallet for [Tezos blockchain](https://tezos.com) as Web Extension for your Browser.<br>
+Providing ability to manage NFT, XTZ tokens and interact with dApps.
 
 ![Thanos Wallet](https://user-images.githubusercontent.com/6189971/65123478-62927300-da04-11e9-9e4d-e25ba2343b44.png)
 
