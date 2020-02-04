@@ -337,7 +337,8 @@ module.exports = {
       typescript: resolve.sync("typescript", {
         basedir: NODE_MODULES_PATH
       }),
-      async: NODE_ENV === "development",
+      async: false,
+      silent: true,
       useTypescriptIncrementalApi: true,
       checkSyntacticErrors: true,
       tsconfig: path.join(CWD_PATH, "tsconfig.json"),
@@ -348,9 +349,7 @@ module.exports = {
         "!**/src/setupProxy.*",
         "!**/src/setupTests.*"
       ],
-      silent: true,
-      // The formatter is invoked directly in WebpackDevServerUtils during development
-      formatter: NODE_ENV === "production" ? typescriptFormatter : undefined
+      formatter: typescriptFormatter
     }),
 
     new CopyWebpackPlugin([
@@ -379,7 +378,10 @@ module.exports = {
     //     },
     // }),
 
-    new WebpackBar()
+    new WebpackBar({
+      name: "Thanos Wallet",
+      color: "#ed8936"
+    })
   ].filter(Boolean),
 
   optimization: {
