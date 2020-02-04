@@ -1,0 +1,497 @@
+"use strict";
+
+const path = require("path");
+const fs = require("fs");
+const dotenv = require("dotenv");
+const webpack = require("webpack");
+const resolve = require("resolve");
+const wextManifest = require("wext-manifest");
+const ZipPlugin = require("zip-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+// const ExtensionReloader = require("webpack-extension-reloader");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
+const WatchMissingNodeModulesPlugin = require("react-dev-utils/WatchMissingNodeModulesPlugin");
+const ForkTsCheckerWebpackPlugin = require("react-dev-utils/ForkTsCheckerWebpackPlugin");
+const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
+const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const WebpackBar = require("webpackbar");
+const safePostCssParser = require("postcss-safe-parser");
+const tsConfig = require("./tsconfig.json");
+
+// Steal ENV vars from .env file
+dotenv.config();
+
+// Grab NODE_ENV and THANOS_WALLET_* environment variables and prepare them to be
+// injected into the application via DefinePlugin in Webpack configuration.
+const THANOS_WALLET = /^THANOS_WALLET_/i;
+let {
+  NODE_ENV = "development",
+  TARGET_BROWSER = "chrome",
+  SOURCE_MAP: SOURCE_MAP_ENV,
+  IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = "10000"
+} = process.env;
+const SOURCE_MAP = NODE_ENV !== "production" && SOURCE_MAP_ENV !== "false";
+const IMAGE_INLINE_SIZE_LIMIT = parseInt(IMAGE_INLINE_SIZE_LIMIT_ENV);
+const CWD_PATH = fs.realpathSync(process.cwd());
+const NODE_MODULES_PATH = path.join(CWD_PATH, "node_modules");
+const SOURCE_PATH = path.join(CWD_PATH, "src");
+const PUBLIC_PATH = path.join(CWD_PATH, "public");
+const DEST_PATH = path.join(CWD_PATH, "dist");
+const OUTPUT_PATH = path.join(DEST_PATH, `${TARGET_BROWSER}_unpacked`);
+const PACKED_EXTENSION = (() => {
+  switch (TARGET_BROWSER) {
+    case "opera":
+      return "crx";
+
+    case "firefox":
+      return "xpi";
+
+    default:
+      return "zip";
+  }
+})();
+const OUTPUT_PACKED_PATH = path.join(
+  OUTPUT_PATH,
+  `${TARGET_BROWSER}.${PACKED_EXTENSION}`
+);
+const HTML_TEMPLATES = [
+  {
+    path: path.join(PUBLIC_PATH, "popup.html"),
+    chunks: ["popup"]
+  },
+  {
+    path: path.join(PUBLIC_PATH, "welcome.html"),
+    chunks: ["welcome"]
+  },
+  {
+    path: path.join(PUBLIC_PATH, "options.html"),
+    chunks: ["options"]
+  }
+];
+const ENTRIES = {
+  popup: path.join(SOURCE_PATH, "popup.tsx"),
+  welcome: path.join(SOURCE_PATH, "welcome.tsx"),
+  options: path.join(SOURCE_PATH, "options.tsx"),
+  background: path.join(SOURCE_PATH, "background.ts")
+};
+const SEPARATED_CHUNKS = new Set(["background"]);
+const MANIFEST_PATH = path.join(PUBLIC_PATH, "manifest.json");
+const MODULE_FILE_EXTENSIONS = [".js", ".mjs", ".jsx", ".ts", ".tsx", ".json"];
+const ADDITIONAL_MODULE_PATHS = [
+  tsConfig.compilerOptions.baseUrl &&
+    path.join(CWD_PATH, tsConfig.compilerOptions.baseUrl)
+].filter(Boolean);
+const CSS_REGEX = /\.css$/;
+const CSS_MODULE_REGEX = /\.module\.css$/;
+const PURGECSS_OPTIONS = {
+  content: ["./public/**/*.{html,js,mjs}", "./src/**/*.{js,jsx,ts,tsx}"],
+  // Include any special characters you're using in this regular expression
+  defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
+};
+
+module.exports = {
+  mode: NODE_ENV,
+  bail: NODE_ENV === "production",
+  devtool: SOURCE_MAP && "cheap-module-source-map",
+
+  entry: ENTRIES,
+
+  output: {
+    path: OUTPUT_PATH,
+    pathinfo: NODE_ENV === "development",
+    filename: "[name].js",
+    chunkFilename: "[name].chunk.js"
+  },
+
+  resolve: {
+    modules: [NODE_MODULES_PATH, ...ADDITIONAL_MODULE_PATHS],
+    extensions: MODULE_FILE_EXTENSIONS
+  },
+
+  module: {
+    strictExportPresence: true,
+
+    rules: [
+      { parser: { requireEnsure: false } },
+
+      // First, run the linter.
+      // It's important to do this before Babel processes the JS.
+      {
+        test: /\.(js|mjs|jsx|ts|tsx)$/,
+        enforce: "pre",
+        include: SOURCE_PATH,
+        use: [
+          {
+            options: {
+              cache: true,
+              formatter: require.resolve("react-dev-utils/eslintFormatter"),
+              eslintPath: require.resolve("eslint"),
+              resolvePluginsRelativeTo: __dirname
+            },
+            loader: require.resolve("eslint-loader")
+          }
+        ]
+      },
+
+      {
+        // "oneOf" will traverse all following loaders until one will
+        // match the requirements. When no loader matches it will fall
+        // back to the "file" loader at the end of the loader list.
+        oneOf: [
+          // "url" loader works like "file" loader except that it embeds assets
+          // smaller than specified limit in bytes as data URLs to avoid requests.
+          // A missing `test` is equivalent to a match.
+          {
+            test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+            loader: require.resolve("url-loader"),
+            options: {
+              limit: IMAGE_INLINE_SIZE_LIMIT,
+              name: "media/[hash:8].[ext]"
+            }
+          },
+          // Process application JS with Babel.
+          // The preset includes JSX, Flow, TypeScript, and some ESnext features.
+          {
+            test: /\.(js|mjs|jsx|ts|tsx)$/,
+            include: SOURCE_PATH,
+            loader: require.resolve("babel-loader"),
+            options: {
+              customize: require.resolve(
+                "babel-preset-react-app/webpack-overrides"
+              ),
+              plugins: [
+                [
+                  require.resolve("babel-plugin-named-asset-import"),
+                  {
+                    loaderMap: {
+                      svg: {
+                        ReactComponent:
+                          "@svgr/webpack?-svgo,+titleProp,+ref![path]"
+                      }
+                    }
+                  }
+                ]
+              ],
+              // This is a feature of `babel-loader` for webpack (not Babel itself).
+              // It enables caching results in ./node_modules/.cache/babel-loader/
+              // directory for faster rebuilds.
+              cacheDirectory: true,
+              // See #6846 for context on why cacheCompression is disabled
+              cacheCompression: false,
+              compact: NODE_ENV === "production"
+            }
+          },
+          // Process any JS outside of the app with Babel.
+          // Unlike the application JS, we only compile the standard ES features.
+          {
+            test: /\.(js|mjs)$/,
+            exclude: /@babel(?:\/|\\{1,2})runtime/,
+            loader: require.resolve("babel-loader"),
+            options: {
+              babelrc: false,
+              configFile: false,
+              compact: false,
+              presets: [
+                [
+                  require.resolve("babel-preset-react-app/dependencies"),
+                  { helpers: true }
+                ]
+              ],
+              cacheDirectory: true,
+              // See #6846 for context on why cacheCompression is disabled
+              cacheCompression: false,
+              // Babel sourcemaps are needed for debugging into node_modules
+              // code.  Without the options below, debuggers like VSCode
+              // show incorrect code and set breakpoints on the wrong lines.
+              sourceMaps: SOURCE_MAP,
+              inputSourceMap: SOURCE_MAP
+            }
+          },
+          // "postcss" loader applies autoprefixer to our CSS.
+          // "css" loader resolves paths in CSS and adds assets as dependencies.
+          // "style" loader turns CSS into JS modules that inject <style> tags.
+          // In production, we use MiniCSSExtractPlugin to extract that CSS
+          // to a file, but in development "style" loader enables hot editing
+          // of CSS.
+          // By default we support CSS Modules with the extension .module.css
+          {
+            test: CSS_REGEX,
+            exclude: CSS_MODULE_REGEX,
+            use: getStyleLoaders({
+              importLoaders: 1,
+              sourceMap: SOURCE_MAP
+            }),
+            // Don't consider CSS imports dead code even if the
+            // containing package claims to have no side effects.
+            // Remove this when webpack adds a warning or an error for this.
+            // See https://github.com/webpack/webpack/issues/6571
+            sideEffects: true
+          },
+          // Adds support for CSS Modules (https://github.com/css-modules/css-modules)
+          // using the extension .module.css
+          {
+            test: CSS_MODULE_REGEX,
+            use: getStyleLoaders({
+              importLoaders: 1,
+              sourceMap: SOURCE_MAP,
+              modules: {
+                getLocalIdent: getCSSModuleLocalIdent
+              }
+            })
+          },
+          // "file" loader makes sure those assets get served by WebpackDevServer.
+          // When you `import` an asset, you get its (virtual) filename.
+          // In production, they would get copied to the `build` folder.
+          // This loader doesn't use a "test" so it will catch all modules
+          // that fall through the other loaders.
+          {
+            loader: require.resolve("file-loader"),
+            // Exclude `js` files to keep "css" loader working as it injects
+            // its runtime that would otherwise be processed through "file" loader.
+            // Also exclude `html` and `json` extensions so they get processed
+            // by webpacks internal loaders.
+            exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
+            options: {
+              name: "media/[hash:8].[ext]"
+            }
+          }
+          // ** STOP ** Are you adding a new loader?
+          // Make sure to add the new loader(s) before the "file" loader.
+        ]
+      }
+
+      // {
+      //   test: /\.(js|mjs|jsx|ts|tsx)$/,
+      //   loader: "@sucrase/webpack-loader",
+      //   include: SOURCE_PATH,
+      //   options: {
+      //     transforms: ["typescript", "jsx"],
+      //     production: NODE_ENV === "production"
+      //   }
+      // }
+    ]
+  },
+
+  plugins: [
+    new CleanWebpackPlugin({
+      cleanOnceBeforeBuildPatterns: [OUTPUT_PATH, OUTPUT_PACKED_PATH],
+      cleanStaleWebpackAssets: false,
+      verbose: false
+    }),
+
+    new ModuleNotFoundPlugin(SOURCE_PATH),
+
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENV": JSON.stringify(NODE_ENV),
+      "process.env.TARGET_BROWSER": JSON.stringify(TARGET_BROWSER),
+      ...(() => {
+        const appEnvs = {};
+        for (const k of Object.keys(process.env)) {
+          if (THANOS_WALLET.test(k)) {
+            appEnvs[`process.env.${k}`] = JSON.stringify(process.env[k]);
+          }
+        }
+        return appEnvs;
+      })()
+    }),
+
+    new WatchMissingNodeModulesPlugin(NODE_MODULES_PATH),
+
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
+      chunkFilename: "[name].chunk.css"
+    }),
+
+    ...HTML_TEMPLATES.map(
+      htmlTemplate =>
+        new HtmlWebpackPlugin({
+          template: htmlTemplate.path,
+          filename: path.basename(htmlTemplate.path),
+          chunks: [...htmlTemplate.chunks, "commons"],
+          inject: "body",
+          ...(NODE_ENV === "production"
+            ? {
+                minify: {
+                  removeComments: true,
+                  collapseWhitespace: true,
+                  removeRedundantAttributes: true,
+                  useShortDoctype: true,
+                  removeEmptyAttributes: true,
+                  removeStyleLinkTypeAttributes: true,
+                  keepClosingSlash: true,
+                  minifyJS: true,
+                  minifyCSS: true,
+                  minifyURLs: true
+                }
+              }
+            : {})
+        })
+    ),
+
+    new ForkTsCheckerWebpackPlugin({
+      typescript: resolve.sync("typescript", {
+        basedir: NODE_MODULES_PATH
+      }),
+      async: false,
+      silent: true,
+      useTypescriptIncrementalApi: true,
+      checkSyntacticErrors: true,
+      tsconfig: path.join(CWD_PATH, "tsconfig.json"),
+      reportFiles: [
+        "**",
+        "!**/__tests__/**",
+        "!**/?(*.)(spec|test).*",
+        "!**/src/setupProxy.*",
+        "!**/src/setupTests.*"
+      ],
+      formatter: typescriptFormatter
+    }),
+
+    new CopyWebpackPlugin([
+      {
+        from: PUBLIC_PATH,
+        to: OUTPUT_PATH
+      },
+      {
+        from: MANIFEST_PATH,
+        to: path.join(OUTPUT_PATH, "manifest.json"),
+        toType: "file",
+        transform: content =>
+          wextManifest[TARGET_BROWSER](JSON.parse(content)).content
+      }
+    ]),
+
+    // plugin to enable browser reloading in development mode
+    //   NODE_ENV === "development" && new ExtensionReloader({
+    //     port: 9090,
+    //     reloadPage: true,
+    //     entries: {
+    //         // TODO: reload manifest on update
+    //         contentScript: 'contentScript',
+    //         background: 'background',
+    //         extensionPage: ['popup', 'options'],
+    //     },
+    // }),
+
+    new WebpackBar({
+      name: "Thanos Wallet",
+      color: "#ed8936"
+    })
+  ].filter(Boolean),
+
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          name: "commons",
+          minChunks: 2,
+          chunks(chunk) {
+            return !SEPARATED_CHUNKS.has(chunk.name);
+          }
+        }
+      }
+    },
+
+    minimizer: [
+      new TerserPlugin({
+        sourceMap: SOURCE_MAP,
+        terserOptions: {
+          parse: {
+            ecma: 8
+          },
+          compress: {
+            ecma: 5,
+            warnings: false,
+            comparisons: false,
+            inline: 2
+          },
+          mangle: {
+            safari10: true
+          },
+          output: {
+            ecma: 5,
+            comments: false,
+            ascii_only: true
+          }
+        }
+      }),
+
+      new OptimizeCSSAssetsPlugin({
+        cssProcessorOptions: {
+          parser: safePostCssParser,
+          map: SOURCE_MAP
+            ? {
+                // `inline: false` forces the sourcemap to be output into a
+                // separate file
+                inline: false,
+                // `annotation: true` appends the sourceMappingURL to the end of
+                // the css file, helping the browser find the sourcemap
+                annotation: true
+              }
+            : false
+        },
+        cssProcessorPluginOptions: {
+          preset: ["default", { minifyFontValues: { removeQuotes: false } }]
+        }
+      }),
+
+      new ZipPlugin({
+        path: DEST_PATH,
+        extension: PACKED_EXTENSION,
+        filename: TARGET_BROWSER
+      })
+    ]
+  },
+
+  // Some libraries import Node modules but don't use them in the browser.
+  // Tell Webpack to provide empty mocks for them so importing them works.
+  node: {
+    module: "empty",
+    dgram: "empty",
+    dns: "mock",
+    fs: "empty",
+    http2: "empty",
+    net: "empty",
+    tls: "empty",
+    child_process: "empty"
+  },
+  // Turn off performance processing because we utilize
+  // our own hints via the FileSizeReporter
+  performance: false
+};
+
+function getStyleLoaders(cssOptions = {}) {
+  return [
+    MiniCssExtractPlugin.loader,
+    {
+      loader: require.resolve("css-loader"),
+      options: cssOptions
+    },
+    {
+      loader: require.resolve("postcss-loader"),
+      options: {
+        ident: "postcss",
+        plugins: () =>
+          [
+            require("postcss-flexbugs-fixes"),
+            require("postcss-preset-env")({
+              autoprefixer: {
+                flexbox: "no-2009"
+              },
+              stage: 3
+            }),
+            require("tailwindcss"),
+            NODE_ENV === "production" &&
+              require("@fullhuman/postcss-purgecss")(PURGECSS_OPTIONS),
+            require("autoprefixer")
+          ].filter(Boolean),
+        sourceMap: SOURCE_MAP
+      }
+    }
+  ].filter(Boolean);
+}

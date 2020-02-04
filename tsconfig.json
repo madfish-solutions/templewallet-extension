@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "ts",
+    "baseUrl": "src",
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -16,5 +16,5 @@
     "noEmit": true,
     "jsx": "react"
   },
-  "include": ["ts"]
+  "include": ["src"]
 }
