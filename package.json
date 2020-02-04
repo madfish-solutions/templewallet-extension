@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack --watch --info-verbosity none --display minimal --hide-modules",
-    "build": "cross-env NODE_ENV=production webpack"
+    "build": "cross-env NODE_ENV=production webpack",
+    "build-all": "run-s build:*",
+    "build:chrome": "cross-env TARGET_BROWSER=chrome run-s build",
+    "build:firefox": "cross-env TARGET_BROWSER=firefox run-s build",
+    "build:opera": "cross-env TARGET_BROWSER=opera run-s build"
   },
   "dependencies": {
     "@babel/core": "^7.8.3",
