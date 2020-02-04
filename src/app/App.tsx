@@ -8,7 +8,7 @@ import Page from "app/Page";
 
 const App: React.FC<{ popup?: boolean }> = ({ popup }) => (
   <ErrorBoundary>
-    <React.Suspense fallback={null}>
+    <React.Suspense fallback={<AppSuspenseFallback />}>
       <AppProvider>
         <PageLayout popup={popup}>
           <Page />
@@ -26,4 +26,10 @@ const AppProvider: React.FC = ({ children }) => (
       <ThanosWalletProvider>{children}</ThanosWalletProvider>
     </TezosProvider>
   </Woozie.Provider>
+);
+
+const AppSuspenseFallback: React.FC = () => (
+  <div className="w-full min-h-screen flex items-center justify-center">
+    <div className="p-2 text-lg font-semibold text-gray-600">Loading...</div>
+  </div>
 );
