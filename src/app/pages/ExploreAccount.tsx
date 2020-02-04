@@ -85,6 +85,7 @@ const ExploreAccount: React.FC = () => {
         <h1 className="text-3xl mb-4 text-gray-800">Explore Account</h1>
         <img
           src="../misc/tezoslogo.png"
+          alt=""
           width="80px"
           height="80px"
           className="mb-4"
