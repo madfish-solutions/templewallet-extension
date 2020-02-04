@@ -63,6 +63,8 @@ yarn build-all
 
 ### 4) Load extension to your Browser
 
+![ThanosWallet_Load](https://user-images.githubusercontent.com/11996139/73763346-f8435a80-4779-11ea-9e9d-4c1db9560f64.gif)
+
 ## 🧱 Development
 
 ```bash
