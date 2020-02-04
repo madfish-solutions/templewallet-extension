@@ -11,7 +11,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-// const ExtensionReloader = require("webpack-extension-reloader");
+const ExtensionReloader = require("webpack-extension-reloader");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
 const WatchMissingNodeModulesPlugin = require("react-dev-utils/WatchMissingNodeModulesPlugin");
@@ -77,9 +77,10 @@ const ENTRIES = {
   popup: path.join(SOURCE_PATH, "popup.tsx"),
   welcome: path.join(SOURCE_PATH, "welcome.tsx"),
   options: path.join(SOURCE_PATH, "options.tsx"),
-  background: path.join(SOURCE_PATH, "background.ts")
+  background: path.join(SOURCE_PATH, "background.ts"),
+  contentScript: path.join(SOURCE_PATH, "contentScript.ts")
 };
-const SEPARATED_CHUNKS = new Set(["background"]);
+const SEPARATED_CHUNKS = new Set(["background", "contentScript"]);
 const MANIFEST_PATH = path.join(PUBLIC_PATH, "manifest.json");
 const MODULE_FILE_EXTENSIONS = [".js", ".mjs", ".jsx", ".ts", ".tsx", ".json"];
 const ADDITIONAL_MODULE_PATHS = [
@@ -366,22 +367,23 @@ module.exports = {
       }
     ]),
 
-    // plugin to enable browser reloading in development mode
-    //   NODE_ENV === "development" && new ExtensionReloader({
-    //     port: 9090,
-    //     reloadPage: true,
-    //     entries: {
-    //         // TODO: reload manifest on update
-    //         contentScript: 'contentScript',
-    //         background: 'background',
-    //         extensionPage: ['popup', 'options'],
-    //     },
-    // }),
-
     new WebpackBar({
       name: "Thanos Wallet",
       color: "#ed8936"
-    })
+    }),
+
+    // plugin to enable browser reloading in development mode
+    NODE_ENV === "development" &&
+      new ExtensionReloader({
+        port: 9090,
+        reloadPage: true,
+        // manifest: path.join(OUTPUT_PATH, "manifest.json"),
+        entries: {
+          contentScript: "contentScript",
+          background: "background",
+          extensionPage: ["commons", "popup", "welcome", "options"]
+        }
+      })
   ].filter(Boolean),
 
   optimization: {
