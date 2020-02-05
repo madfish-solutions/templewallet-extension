@@ -2,15 +2,20 @@ import * as React from "react";
 import * as Woozie from "lib/woozie";
 import { TezosProvider } from "lib/tezos";
 import { ThanosWalletProvider } from "lib/thanos-wallet";
+import { AppEnvironment, useAppEnvContext } from "app/env";
 import PageLayout from "app/layout/PageLayout";
 import ErrorBoundary from "app/ErrorBoundary";
 import Page from "app/Page";
 
-const App: React.FC<{ popup?: boolean }> = ({ popup }) => (
+type AppProps = {
+  env: AppEnvironment;
+};
+
+const App: React.FC<AppProps> = ({ env }) => (
   <ErrorBoundary>
     <React.Suspense fallback={<AppSuspenseFallback />}>
-      <AppProvider>
-        <PageLayout popup={popup}>
+      <AppProvider env={env}>
+        <PageLayout>
           <Page />
         </PageLayout>
       </AppProvider>
@@ -20,10 +25,14 @@ const App: React.FC<{ popup?: boolean }> = ({ popup }) => (
 
 export default App;
 
-const AppProvider: React.FC = ({ children }) => (
+const AppProvider: React.FC<AppProps> = ({ children, env }) => (
   <Woozie.Provider>
     <TezosProvider>
-      <ThanosWalletProvider>{children}</ThanosWalletProvider>
+      <ThanosWalletProvider>
+        <useAppEnvContext.Provider {...env}>
+          {children}
+        </useAppEnvContext.Provider>
+      </ThanosWalletProvider>
     </TezosProvider>
   </Woozie.Provider>
 );
