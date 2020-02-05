@@ -1,16 +1,37 @@
-// import { observable, computed } from "mobx";
+// import { configure, observable, computed, action } from "mobx";
 import { browser } from "webextension-polyfill-ts";
 
-// class OrderLine {
-//   @observable
-//   price = 0;
+// interface Storage {
+//   accounts: any[]
+// }
 
-//   @observable
-//   amount = 1;
+// // Don't allow state modifications outside actions.
+// configure({ enforceActions: "observed" });
 
-//   @computed
-//   get total() {
-//     return this.price * this.amount;
+// (async () => {
+//   try {
+//     const storage = await getStorage();
+//     const thanosWallet = new ThanosWallet(storage);
+
+//   } catch (err) {
+//     if (process.env.NODE_ENV === "development") {
+//       console.error(err);
+//     }
+//   }
+// })();
+
+// async function getStorage() {
+//   const val = await browser.storage.local.get();
+//   return Object.keys(val).length !== 0
+//     ? val as Storage
+//     : null;
+// }
+
+// class ThanosWallet {
+//   storage: Storage | null;
+
+//   constructor(storage: Storage | null) {
+//     this.storage = storage;
 //   }
 // }
 
