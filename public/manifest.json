@@ -60,14 +60,14 @@
   },
 
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["scripts/background.js"],
     "__chrome|opera__persistent": false
   },
 
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["contentScript.js"]
+      "js": ["scripts/contentScript.js"]
     }
   ]
 }
