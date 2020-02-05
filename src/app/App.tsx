@@ -33,3 +33,12 @@ const AppSuspenseFallback: React.FC = () => (
     <div className="p-2 text-lg font-semibold text-gray-600">Loading...</div>
   </div>
 );
+
+// (async () => {
+//   try {
+//     const reply = await browser.runtime.sendMessage({ kek: "lal" });
+//     console.info(reply);
+//   } catch (err) {
+//     console.error(err);
+//   }
+// })();
