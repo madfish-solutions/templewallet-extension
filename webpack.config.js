@@ -105,8 +105,8 @@ module.exports = {
   output: {
     path: OUTPUT_PATH,
     pathinfo: NODE_ENV === "development",
-    filename: "[name].js",
-    chunkFilename: "[name].chunk.js"
+    filename: "scripts/[name].js",
+    chunkFilename: "scripts/[name].chunk.js"
   },
 
   resolve: {
@@ -265,16 +265,6 @@ module.exports = {
           // Make sure to add the new loader(s) before the "file" loader.
         ]
       }
-
-      // {
-      //   test: /\.(js|mjs|jsx|ts|tsx)$/,
-      //   loader: "@sucrase/webpack-loader",
-      //   include: SOURCE_PATH,
-      //   options: {
-      //     transforms: ["typescript", "jsx"],
-      //     production: NODE_ENV === "production"
-      //   }
-      // }
     ]
   },
 
@@ -304,8 +294,8 @@ module.exports = {
     new WatchMissingNodeModulesPlugin(NODE_MODULES_PATH),
 
     new MiniCssExtractPlugin({
-      filename: "[name].css",
-      chunkFilename: "[name].chunk.css"
+      filename: "styles/[name].css",
+      chunkFilename: "styles/[name].chunk.css"
     }),
 
     ...HTML_TEMPLATES.map(
