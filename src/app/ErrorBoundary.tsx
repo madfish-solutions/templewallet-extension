@@ -1,4 +1,5 @@
 import * as React from "react";
+import classNames from "clsx";
 
 export default class ErrorBoundary extends React.Component {
   state = { error: null };
@@ -14,10 +15,17 @@ export default class ErrorBoundary extends React.Component {
   render() {
     if (this.state.error) {
       return (
-        <div>
-          {process.env.NODE_ENV === "development"
-            ? JSON.stringify(this.state.error)
-            : "Oops, error;("}
+        <div
+          className={classNames(
+            "w-full min-h-screen",
+            "flex items-center justify-center"
+          )}
+        >
+          <div className="p-4">
+            {process.env.NODE_ENV === "development"
+              ? JSON.stringify(this.state.error, undefined, 2)
+              : "Oops, error;("}
+          </div>
         </div>
       );
     }
