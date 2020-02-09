@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { TezosProvider } from "lib/tezos";
-import { ThanosWalletProvider } from "lib/thanos-wallet";
+import { useThanosFrontContext } from "lib/thanos/front";
 import { AppEnvironment, useAppEnvContext } from "app/env";
 import PageLayout from "app/layout/PageLayout";
 import ErrorBoundary from "app/ErrorBoundary";
@@ -27,13 +26,9 @@ export default App;
 
 const AppProvider: React.FC<AppProps> = ({ children, env }) => (
   <Woozie.Provider>
-    <TezosProvider>
-      <ThanosWalletProvider>
-        <useAppEnvContext.Provider {...env}>
-          {children}
-        </useAppEnvContext.Provider>
-      </ThanosWalletProvider>
-    </TezosProvider>
+    <useThanosFrontContext.Provider>
+      <useAppEnvContext.Provider {...env}>{children}</useAppEnvContext.Provider>
+    </useThanosFrontContext.Provider>
   </Woozie.Provider>
 );
 
@@ -42,12 +37,3 @@ const AppSuspenseFallback: React.FC = () => (
     <div className="p-2 text-lg font-semibold text-gray-600">Loading...</div>
   </div>
 );
-
-// (async () => {
-//   try {
-//     const reply = await browser.runtime.sendMessage({ kek: "lal" });
-//     console.info(reply);
-//   } catch (err) {
-//     console.error(err);
-//   }
-// })();
