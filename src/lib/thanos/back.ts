@@ -48,7 +48,7 @@ export function unlock(passphrase: string) {
 
 function assertInited(state: ThanosBackState) {
   if (!state.inited) {
-    throw new Error("Not inited");
+    throw new Error("Not initialized");
   }
 }
 
