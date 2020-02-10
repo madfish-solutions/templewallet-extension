@@ -11,7 +11,7 @@ const Header: React.FC = () => {
   return (
     <header
       className={classNames(
-        "bg-primary-indigo",
+        "bg-primary-orange",
         fullPageWindow && "pb-24 -mb-20"
       )}
     >
