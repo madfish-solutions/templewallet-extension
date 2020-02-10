@@ -10,7 +10,10 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className={classNames("bg-orange-500", fullPageWindow && "pb-24 -mb-20")}
+      className={classNames(
+        "bg-primary-indigo",
+        fullPageWindow && "pb-24 -mb-20"
+      )}
     >
       <ContentContainer className="flex items-center justify-between flex-wrap py-6">
         <div className="flex items-center flex-shrink-0 text-white mr-6">
