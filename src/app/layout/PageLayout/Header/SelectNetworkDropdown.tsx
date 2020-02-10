@@ -40,8 +40,8 @@ const SelectNetworkDropdown: React.FC = () => {
       <button
         className={classNames(
           "px-4 py-2",
-          "border-2 border-indigo-100 hover:border-white",
-          "text-indigo-100 hover:text-white",
+          "border-2 border-primary-orange-lighter hover:border-white",
+          "text-primary-orange-lighter hover:text-white",
           "text-base font-medium",
           "rounded",
           "flex items-center"
