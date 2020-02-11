@@ -9,6 +9,7 @@ export const useThanosFrontContext = createUseContext(useThanosFront);
 function useThanosFront() {
   const stateSWR = useSWR("1", fetchState, {
     suspense: true,
+    shouldRetryOnError: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
