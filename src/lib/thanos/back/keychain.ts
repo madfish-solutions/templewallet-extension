@@ -22,5 +22,5 @@ export interface Keyring {
    */
   deserialize(): Promise<any>;
 
-  addAccounts();
+  addAccounts(): Promise<any>;
 }
