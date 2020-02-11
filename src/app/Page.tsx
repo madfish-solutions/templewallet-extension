@@ -19,12 +19,12 @@ const ROUTE_MAP = Woozie.Router.prepare<RouteContext>([
     "/",
     (_p, ctx) => (
       <Woozie.Redirect
-        to={ctx!.thanosFront.authorized ? "/explore" : "/login"}
+        to={ctx!.thanosFront.authorized ? "/explore" : "/signin"}
       />
     )
   ],
   [
-    "/login",
+    "/signin",
     (_p, ctx) =>
       ctx!.thanosFront.authorized ? (
         <Woozie.Redirect to="/" />
