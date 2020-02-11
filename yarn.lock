@@ -6783,10 +6783,10 @@ react-error-overlay@^6.0.5:
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.5.tgz#55d59c2a3810e8b41922e0b4e5f85dcf239bd533"
   integrity sha512-+DMR2k5c6BqMDSMF8hLH0vYKtKTeikiFW+fj0LClN+XZg4N9b8QUAdHC62CGWNLTi/gnuuemNcNcTFrCvK1f+A==
 
-react-hook-form@^4.9.2:
-  version "4.9.2"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-4.9.2.tgz#756c44d19fb3cf851ed89b6a06680056a64404ae"
-  integrity sha512-XJ6AAkYwN807R8TBsYevrrTuen1lpo9u9lf9Yibr/E0/yL4uQieqXrG1mzCkit4xujapr86jfSEMbkVjKKt+Aw==
+react-hook-form@^4.9.3:
+  version "4.9.3"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-4.9.3.tgz#7794a323de2f92e4685f3581b2ea3e52955d14d8"
+  integrity sha512-TPjOl5Hyq1O8VFBxxz9lnbuP/KreJD07GRUI2G8K/JnWy0pln/QaZ/p1fsnJ+8BAwQQB2fhEXSR5XrX2mxYBtw==
 
 react-is@^16.8.1:
   version "16.12.0"
@@ -8191,10 +8191,10 @@ webpack-sources@^1.1.0, webpack-sources@^1.4.0, webpack-sources@^1.4.1, webpack-
     source-list-map "^2.0.0"
     source-map "~0.6.1"
 
-webpack@^4.41.5:
-  version "4.41.5"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-4.41.5.tgz#3210f1886bce5310e62bb97204d18c263341b77c"
-  integrity sha512-wp0Co4vpyumnp3KlkmpM5LWuzvZYayDwM2n17EHFr4qxBBbRokC7DJawPJC7TfSFZ9HZ6GsdH40EBj4UV0nmpw==
+webpack@^4.41.6:
+  version "4.41.6"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-4.41.6.tgz#12f2f804bf6542ef166755050d4afbc8f66ba7e1"
+  integrity sha512-yxXfV0Zv9WMGRD+QexkZzmGIh54bsvEs+9aRWxnN8erLWEOehAKUTeNBoUbA6HPEZPlRo7KDi2ZcNveoZgK9MA==
   dependencies:
     "@webassemblyjs/ast" "1.8.5"
     "@webassemblyjs/helper-module-context" "1.8.5"
