@@ -9,33 +9,27 @@ interface RouteContext {
   thanosFront: ReturnType<typeof useThanosFrontContext>;
 }
 
-const ROUTE_MAP = Woozie.Router.prepare<RouteContext>([
+const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
     "*",
-    (_p, ctx) =>
-      ctx!.thanosFront.unlocked ? Woozie.Router.NOT_FOUND : <Unlock />
+    (_p, { thanosFront }) =>
+      thanosFront.unlocked ? Woozie.Router.NOT_FOUND : <Unlock />
   ],
   [
     "/",
-    (_p, ctx) => (
-      <Woozie.Redirect
-        to={ctx!.thanosFront.authorized ? "/explore" : "/signin"}
-      />
+    (_p, { thanosFront }) => (
+      <Woozie.Redirect to={thanosFront.authorized ? "/explore" : "/signin"} />
     )
   ],
   [
     "/signin",
-    (_p, ctx) =>
-      ctx!.thanosFront.authorized ? (
-        <Woozie.Redirect to="/" />
-      ) : (
-        <ImportAccount />
-      )
+    (_p, { thanosFront }) =>
+      thanosFront.authorized ? <Woozie.Redirect to="/" /> : <ImportAccount />
   ],
   [
     "/explore",
-    (_p, ctx) =>
-      ctx!.thanosFront.authorized ? <Explore /> : <Woozie.Redirect to="/" />
+    (_p, { thanosFront }) =>
+      thanosFront.authorized ? <Explore /> : <Woozie.Redirect to="/" />
   ],
   ["*", () => <Woozie.Redirect to="/" />]
 ]);
@@ -54,7 +48,7 @@ const Page: React.FC = () => {
   const ctx = React.useMemo<RouteContext>(() => ({ thanosFront }), [
     thanosFront
   ]);
-  return Woozie.Router.resolve(pathname, ROUTE_MAP, ctx);
+  return Woozie.Router.resolve(ROUTE_MAP, pathname, ctx);
 };
 
 export default Page;
