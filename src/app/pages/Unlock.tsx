@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { useThanosFrontContext } from "lib/thanos/front";
+import PageLayout from "app/layout/PageLayout";
 
 type FormData = {
   passphrase: string;
@@ -41,44 +42,46 @@ const Unlock: React.FC = () => {
   );
 
   return (
-    <div
-      className={classNames(
-        "w-full min-h-screen",
-        "flex items-center justify-center"
-      )}
-    >
-      <form className="max-w-sm" onSubmit={handleSubmit(onSubmit)}>
-        <div className="mb-4">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="unlock_passphrase_field"
-          >
-            Passphrase
-          </label>
-          <input
-            ref={register({ required: "Required." })}
-            type="password"
-            name="passphrase"
-            id="unlock_passphrase_field"
-            placeholder="********"
-            className={classNames(
-              "w-full h-20",
-              "border-4 border-gray-100 focus:border-gray-200",
-              "bg-gray-100 focus:bg-white focus:outline-none",
-              "p-2",
-              "text-base",
-              "rounded overflow-hidden"
-            )}
-          />
+    <PageLayout>
+      <div
+        className={classNames(
+          "w-full min-h-screen",
+          "flex items-center justify-center"
+        )}
+      >
+        <form className="max-w-sm" onSubmit={handleSubmit(onSubmit)}>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="unlock_passphrase_field"
+            >
+              Passphrase
+            </label>
+            <input
+              ref={register({ required: "Required." })}
+              type="password"
+              name="passphrase"
+              id="unlock_passphrase_field"
+              placeholder="********"
+              className={classNames(
+                "w-full h-20",
+                "border-4 border-gray-100 focus:border-gray-200",
+                "bg-gray-100 focus:bg-white focus:outline-none",
+                "p-2",
+                "text-base",
+                "rounded overflow-hidden"
+              )}
+            />
 
-          {errors.passphrase && (
-            <p className="text-red-500 text-xs italic">
-              {errors.passphrase.message}
-            </p>
-          )}
-        </div>
-      </form>
-    </div>
+            {errors.passphrase && (
+              <p className="text-red-500 text-xs italic">
+                {errors.passphrase.message}
+              </p>
+            )}
+          </div>
+        </form>
+      </div>
+    </PageLayout>
   );
 };
 

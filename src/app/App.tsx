@@ -2,7 +2,6 @@ import * as React from "react";
 import * as Woozie from "lib/woozie";
 import { useThanosFrontContext } from "lib/thanos/front";
 import { AppEnvironment, useAppEnvContext } from "app/env";
-import PageLayout from "app/layout/PageLayout";
 import ErrorBoundary from "app/ErrorBoundary";
 import Page from "app/Page";
 
@@ -14,9 +13,7 @@ const App: React.FC<AppProps> = ({ env }) => (
   <ErrorBoundary>
     <React.Suspense fallback={<AppSuspenseFallback />}>
       <AppProvider env={env}>
-        <PageLayout>
-          <Page />
-        </PageLayout>
+        <Page />
       </AppProvider>
     </React.Suspense>
   </ErrorBoundary>

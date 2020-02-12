@@ -14,15 +14,15 @@ export enum WindowType {
 
 export const useAppEnvContext = createUseContext((env: AppEnvironment) => env);
 
-export const RedirectToFullPage: React.FC = () => {
+export const OpenInFullPage: React.FC = () => {
   React.useEffect(() => {
-    redirectToFullPage();
+    openInFullPage();
   }, []);
 
   return null;
 };
 
-export function redirectToFullPage() {
+export function openInFullPage() {
   const { search, hash } = window.location;
   const url = createUrl("fullpage.html", search, hash);
   browser.tabs.create({

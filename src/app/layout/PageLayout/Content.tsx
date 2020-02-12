@@ -7,17 +7,17 @@ const Content: React.FC = ({ children }) => {
   const { windowType } = useAppEnvContext();
   const fullPageWindow = windowType === WindowType.FullPage;
 
-  return (
-    <ContentContainer className="flex justify-center mb-8">
+  return fullPageWindow ? (
+    <ContentContainer>
       <div
-        className={classNames(
-          "bg-white w-full px-4 py-8",
-          fullPageWindow && "max-w-xl rounded overflow-hidden shadow-lg"
-        )}
+        className={classNames("bg-white", "rounded-md shadow-lg", "px-4")}
+        style={{ minHeight: "20rem" }}
       >
         {children}
       </div>
     </ContentContainer>
+  ) : (
+    <ContentContainer className="bg-white">{children}</ContentContainer>
   );
 };
 
