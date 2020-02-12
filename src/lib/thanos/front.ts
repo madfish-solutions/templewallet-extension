@@ -2,7 +2,7 @@ import * as React from "react";
 import createUseContext from "constate";
 import useSWR from "swr";
 import { browser } from "webextension-polyfill-ts";
-import { ThanosState, ThanosMessageType } from "lib/thanos/types";
+import { ThanosFrontState, ThanosMessageType } from "lib/thanos/types";
 
 export const useThanosFrontContext = createUseContext(useThanosFront);
 
@@ -60,5 +60,5 @@ async function fetchState() {
   const state = await browser.runtime.sendMessage({
     type: ThanosMessageType.GET_STATE
   });
-  return state as ThanosState;
+  return state as ThanosFrontState;
 }

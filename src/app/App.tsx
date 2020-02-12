@@ -25,11 +25,13 @@ const App: React.FC<AppProps> = ({ env }) => (
 export default App;
 
 const AppProvider: React.FC<AppProps> = ({ children, env }) => (
-  <Woozie.Provider>
-    <useThanosFrontContext.Provider>
-      <useAppEnvContext.Provider {...env}>{children}</useAppEnvContext.Provider>
-    </useThanosFrontContext.Provider>
-  </Woozie.Provider>
+  <useAppEnvContext.Provider {...env}>
+    <Woozie.Provider>
+      <useThanosFrontContext.Provider>
+        {children}
+      </useThanosFrontContext.Provider>
+    </Woozie.Provider>
+  </useAppEnvContext.Provider>
 );
 
 const AppSuspenseFallback: React.FC = () => (

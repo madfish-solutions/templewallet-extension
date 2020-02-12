@@ -1,4 +1,4 @@
-export interface ThanosState {
+export interface ThanosFrontState {
   unlocked: boolean;
   account: ThanosAccount | null;
 }

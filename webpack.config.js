@@ -65,8 +65,8 @@ const HTML_TEMPLATES = [
     chunks: ["popup"]
   },
   {
-    path: path.join(PUBLIC_PATH, "welcome.html"),
-    chunks: ["welcome"]
+    path: path.join(PUBLIC_PATH, "fullpage.html"),
+    chunks: ["fullpage"]
   },
   {
     path: path.join(PUBLIC_PATH, "options.html"),
@@ -75,10 +75,15 @@ const HTML_TEMPLATES = [
 ];
 const ENTRIES = {
   popup: path.join(SOURCE_PATH, "popup.tsx"),
-  welcome: path.join(SOURCE_PATH, "welcome.tsx"),
+  fullpage: path.join(SOURCE_PATH, "fullpage.tsx"),
   options: path.join(SOURCE_PATH, "options.tsx"),
   background: path.join(SOURCE_PATH, "background.ts"),
   contentScript: path.join(SOURCE_PATH, "contentScript.ts")
+};
+const EXTENSION_ENTRIES = {
+  contentScript: "contentScript",
+  background: "background",
+  extensionPage: ["commons", "popup", "fullpage", "options"]
 };
 const SEPARATED_CHUNKS = new Set(["background", "contentScript"]);
 const MANIFEST_PATH = path.join(PUBLIC_PATH, "manifest.json");
@@ -368,11 +373,7 @@ module.exports = {
         port: 9090,
         reloadPage: true,
         // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-        entries: {
-          contentScript: "contentScript",
-          background: "background",
-          extensionPage: ["commons", "popup", "welcome", "options"]
-        }
+        entries: EXTENSION_ENTRIES
       })
   ].filter(Boolean),
 
