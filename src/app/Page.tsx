@@ -1,9 +1,9 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
 import { useThanosFrontContext } from "lib/thanos/front";
-import { WindowType, useAppEnvContext, RedirectToFullPage } from "app/env";
+import { WindowType, useAppEnvContext, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
-import ImportAccount from "app/pages/ImportAccount";
+import Welcome from "app/pages/Welcome";
 import Explore from "app/pages/Explore";
 
 interface RouteContext {
@@ -14,33 +14,33 @@ interface RouteContext {
 const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
     "*",
-    (_p, { appEnv }) =>
-      appEnv.windowType === WindowType.FullPage ? (
-        Woozie.Router.SKIP
-      ) : (
-        <RedirectToFullPage />
-      )
-  ],
-  [
-    "*",
     (_p, { thanosFront }) =>
       thanosFront.unlocked ? Woozie.Router.SKIP : <Unlock />
   ],
   [
+    "*",
+    (_p, { appEnv, thanosFront }) =>
+      thanosFront.authorized || appEnv.windowType === WindowType.FullPage ? (
+        Woozie.Router.SKIP
+      ) : (
+        <OpenInFullPage />
+      )
+  ],
+  [
     "/",
     (_p, { thanosFront }) => (
-      <Woozie.Redirect to={thanosFront.authorized ? "/explore" : "/signin"} />
+      <Woozie.Redirect to={thanosFront.authorized ? "/explore" : "/welcome"} />
     )
   ],
   [
-    "/signin",
+    "/welcome",
     (_p, { thanosFront }) =>
-      thanosFront.authorized ? <Woozie.Redirect to="/" /> : <ImportAccount />
+      !thanosFront.authorized ? <Welcome /> : Woozie.Router.SKIP
   ],
   [
     "/explore",
     (_p, { thanosFront }) =>
-      thanosFront.authorized ? <Explore /> : <Woozie.Redirect to="/" />
+      thanosFront.authorized ? <Explore /> : Woozie.Router.SKIP
   ],
   ["*", () => <Woozie.Redirect to="/" />]
 ]);

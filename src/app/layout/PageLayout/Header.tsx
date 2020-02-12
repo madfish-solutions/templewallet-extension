@@ -1,21 +1,26 @@
 import * as React from "react";
 import classNames from "clsx";
+import { useThanosFrontContext } from "lib/thanos/front";
 import { WindowType, useAppEnvContext } from "app/env";
 import ContentContainer from "app/layout/ContentContainer";
+import styles from "./Header.module.css";
 import SelectNetworkDropdown from "./Header/SelectNetworkDropdown";
 
 const Header: React.FC = () => {
   const { windowType } = useAppEnvContext();
   const fullPageWindow = windowType === WindowType.FullPage;
 
+  const thanosFront = useThanosFrontContext();
+
   return (
     <header
       className={classNames(
         "bg-primary-orange",
+        styles["inner-shadow"],
         fullPageWindow && "pb-24 -mb-20"
       )}
     >
-      <ContentContainer className="flex items-center justify-between flex-wrap py-6">
+      <ContentContainer className={classNames("py-6", "flex items-center")}>
         <div className="flex items-center flex-shrink-0 text-white mr-6">
           <img src="../misc/icon.png" alt="" width="36" height="36" />
           {fullPageWindow && (
@@ -24,20 +29,10 @@ const Header: React.FC = () => {
             </span>
           )}
         </div>
-        <div className="flex flex-grow items-center w-auto">
-          {/* <div className="text-sm flex-grow">
-            <a
-              href="#kek"
-              className="inline-block mt-0 text-indigo-200 hover:text-white mr-4"
-            >
-              Dice Game
-            </a>
-          </div> */}
-          <div className="flex-grow" />
-          <div>
-            <SelectNetworkDropdown />
-          </div>
-        </div>
+
+        <div className="flex-1" />
+
+        {thanosFront.authorized && <SelectNetworkDropdown />}
       </ContentContainer>
     </header>
   );

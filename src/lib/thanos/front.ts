@@ -7,7 +7,7 @@ import { ThanosFrontState, ThanosMessageType } from "lib/thanos/types";
 export const useThanosFrontContext = createUseContext(useThanosFront);
 
 function useThanosFront() {
-  const stateSWR = useSWR("1", fetchState, {
+  const stateSWR = useSWR("stub", fetchState, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
