@@ -14,6 +14,7 @@ export type RouteMap<C> = Array<{
   keys: Array<string> | false;
 }>;
 
+export const SKIP = Symbol("Woozie.Router.Skip");
 export const NOT_FOUND = Symbol("Woozie.Router.NotFound");
 
 export function createMap<C>(routes: Routes<C>): RouteMap<C> {
@@ -33,7 +34,7 @@ export function resolve<C>(preparedRM: RouteMap<C>, path: Path, ctx: C): any {
     if (pattern.test(path)) {
       const params = createParams(path, pattern, keys);
       const result = resolveResult(params, ctx);
-      if (result !== NOT_FOUND) {
+      if (result !== SKIP) {
         return result;
       }
     }

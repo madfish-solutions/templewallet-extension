@@ -1,24 +1,25 @@
 import { createStore, createEvent, createEffect } from "effector";
 import { browser } from "webextension-polyfill-ts";
 import {
-  ThanosState,
+  ThanosFrontState,
   ThanosAccount,
   ThanosMessageType
 } from "lib/thanos/types";
 
-interface ThanosBackState extends ThanosState {
+interface ThanosBackState {
   inited: boolean;
   storage: Storage | null;
+  front: ThanosFrontState;
 }
 
 type Storage = {
   encrypted: string;
 };
 
-export async function getFrontState(): Promise<ThanosState> {
-  const { inited, unlocked, account } = store.getState();
+export async function getFrontState(): Promise<ThanosFrontState> {
+  const { inited, front } = store.getState();
   if (inited) {
-    return { unlocked, account };
+    return front;
   } else {
     await new Promise(r => setTimeout(r, 10));
     return getFrontState();
@@ -53,7 +54,7 @@ function assertInited(state: ThanosBackState) {
 }
 
 const accountImported = createEvent<ThanosAccount>("Account imported");
-const unlocked = createEvent<ThanosState>("Unlocked");
+const unlocked = createEvent<ThanosFrontState>("Unlocked");
 
 const loadStorage = createEffect({
   handler: async () => {
@@ -64,24 +65,35 @@ const loadStorage = createEffect({
 
 const store = createStore<ThanosBackState>({
   inited: false,
-  unlocked: true,
-  account: null,
-  storage: null
+  storage: null,
+  front: {
+    unlocked: true,
+    account: null
+  }
 })
   .on(loadStorage.done, (state, { result: storage }) => ({
     ...state,
     inited: true,
-    unlocked: !storage,
-    storage
+    storage,
+    front: {
+      ...state.front,
+      unlocked: !storage
+    }
   }))
   .on(accountImported, (state, account) => ({
     ...state,
-    account
+    front: {
+      ...state.front,
+      account
+    }
   }))
   .on(unlocked, (state, { account }) => ({
     ...state,
-    unlocked: true,
-    account
+    front: {
+      ...state.front,
+      unlocked: true,
+      account
+    }
   }));
 
 (async () => {
@@ -93,27 +105,12 @@ const store = createStore<ThanosBackState>({
   }
 })();
 
-function handleStateUpdate(state: ThanosState) {
+function handleStateUpdate(state: ThanosBackState) {
   persistState(state);
   browser.runtime.sendMessage({ type: ThanosMessageType.STATE_UPDATED });
 }
 
-function persistState(state: ThanosState) {
+function persistState(state: ThanosBackState) {
   const encrypted = JSON.stringify(state);
   return browser.storage.local.set({ encrypted });
 }
-
-// function setStorage(items: Storage.StorageAreaSetItemsType) {
-//   return browser.storage.local.set(items);
-// }
-
-// browser.runtime.onMessage.addListener(async (msg, sender) => {
-//   browser.windows.create({
-//     url: browser.runtime.getURL("action.html"),
-//     type: "popup",
-//     height: 680,
-//     width: 420
-//   });
-
-//   return "PONG";
-// });

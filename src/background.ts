@@ -6,7 +6,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
   switch (reason) {
     case "install":
       browser.tabs.create({
-        url: browser.runtime.getURL("welcome.html")
+        url: browser.runtime.getURL("fullpage.html")
       });
       break;
   }
@@ -24,3 +24,10 @@ browser.runtime.onMessage.addListener(async msg => {
       return unlock(msg?.passphrase);
   }
 });
+
+// browser.windows.create({
+//   url: browser.runtime.getURL("confirm.html"),
+//   type: "popup",
+//   height: 680,
+//   width: 420
+// });
