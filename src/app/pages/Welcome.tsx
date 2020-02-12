@@ -3,14 +3,22 @@ import classNames from "clsx";
 import { Link } from "lib/woozie";
 import ContentContainer from "app/layout/ContentContainer";
 import { ReactComponent as EntranceIcon } from "app/icons/entrance.svg";
-import { ReactComponent as PersonAddIcon } from "app/icons/personAdd.svg";
+import { ReactComponent as FolderAddIcon } from "app/icons/folder-add.svg";
 
 const SIGNS = [
   {
     key: "import",
     linkTo: "/import-wallet",
     filled: false,
-    Icon: EntranceIcon,
+    Icon: ({
+      className,
+      ...rest
+    }: React.ComponentProps<typeof EntranceIcon>) => (
+      <EntranceIcon
+        className={classNames("transform rotate-90", className)}
+        {...rest}
+      />
+    ),
     title: "Import existing Wallet",
     description: "Import your existing wallet using a 12 word seed phrase"
   },
@@ -18,7 +26,7 @@ const SIGNS = [
     key: "create",
     linkTo: "/create-wallet",
     filled: true,
-    Icon: PersonAddIcon,
+    Icon: FolderAddIcon,
     title: "Create a new Wallet",
     description: "This will create a new wallet and seed phrase"
   }
@@ -47,19 +55,20 @@ const Welcome: React.FC = () => {
                 "bg-primary-orange",
                 "overflow-hidden rounded-lg",
                 "transition duration-300 ease-in-out",
-                "transform hover:scale-110",
-                "shadow-md hover:shadow-lg"
+                "transform hover:scale-110 focus:scale-110",
+                "shadow-md hover:shadow-lg focus:shadow-lg"
               )}
             >
-              <div className={classNames("absolute inset-0", "p-2")}>
+              <div className={classNames("absolute inset-0", "p-1")}>
                 <div
                   className={classNames(
                     "w-full h-full",
                     "overflow-hidden rounded-md",
+                    "p-4",
                     "flex flex-col items-center justify-center",
                     filled
                       ? "text-white"
-                      : "shadow-inner bg-white text-primary-orange"
+                      : "shadow-inner bg-primary-orange-lighter text-primary-orange"
                   )}
                 >
                   <Icon className="pb-2 stroke-current transform scale-150" />
@@ -67,12 +76,7 @@ const Welcome: React.FC = () => {
                   <h1 className="pb-1 text-center text-xl font-semibold">
                     {title}
                   </h1>
-                  <p
-                    className="text-center opacity-75"
-                    style={{ maxWidth: "70%" }}
-                  >
-                    {description}
-                  </p>
+                  <p className="text-center opacity-75">{description}</p>
                 </div>
               </div>
             </Link>
