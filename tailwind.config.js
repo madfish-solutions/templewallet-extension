@@ -135,7 +135,7 @@ module.exports = {
        * Brand colors
        */
       const brandColors = {
-        "primary-bg": "#fcfaf7",
+        "primary-white": "#fcfaf7",
         "primary-orange": baseColors.orange[500],
         "primary-orange-light": baseColors.orange[300],
         "primary-orange-dark": baseColors.orange[700],
@@ -248,32 +248,39 @@ module.exports = {
       "0": "0",
       default: "1"
     },
-    fontFamily: {
-      sans: [
-        "system-ui",
-        "-apple-system",
-        "BlinkMacSystemFont",
-        '"Segoe UI"',
-        "Roboto",
-        '"Helvetica Neue"',
-        "Arial",
-        '"Noto Sans"',
-        "sans-serif",
-        '"Apple Color Emoji"',
-        '"Segoe UI Emoji"',
-        '"Segoe UI Symbol"',
-        '"Noto Color Emoji"'
-      ],
-      serif: ["Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
-      mono: [
-        "Menlo",
-        "Monaco",
-        "Consolas",
-        '"Liberation Mono"',
-        '"Courier New"',
-        "monospace"
-      ]
-    },
+    fontFamily: (() => {
+      const baseFontFamily = {
+        sans: [
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          '"Segoe UI"',
+          "Roboto",
+          '"Helvetica Neue"',
+          "Arial",
+          '"Noto Sans"',
+          "sans-serif",
+          '"Apple Color Emoji"',
+          '"Segoe UI Emoji"',
+          '"Segoe UI Symbol"',
+          '"Noto Color Emoji"'
+        ],
+        serif: ["Georgia", "Cambria", '"Times New Roman"', "Times", "serif"],
+        mono: [
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          '"Liberation Mono"',
+          '"Courier New"',
+          "monospace"
+        ]
+      };
+
+      return {
+        ...baseFontFamily,
+        inter: ["'Inter'", ...baseFontFamily.sans]
+      };
+    })(),
     fontSize: {
       xs: "0.75rem",
       sm: "0.875rem",
