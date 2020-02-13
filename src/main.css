@@ -10,8 +10,12 @@
  * Text shadow utils.
  */
 
-.text-shadow {
+.text-shadow-black {
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+.text-shadow-black-orange {
+  text-shadow: 0 1px 0 rgba(39, 19, 3, 0.06);
 }
 
 /**

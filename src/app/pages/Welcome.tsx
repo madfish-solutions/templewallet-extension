@@ -76,7 +76,7 @@ const Welcome: React.FC = () => {
                     filled
                       ? "text-white"
                       : "shadow-inner bg-primary-orange-lighter text-primary-orange",
-                    "text-shadow"
+                    "text-shadow-black-orange"
                   )}
                 >
                   <Icon className="pb-2 stroke-current transform scale-150" />
