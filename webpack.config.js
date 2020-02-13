@@ -460,10 +460,14 @@ module.exports = {
 
 function getStyleLoaders(cssOptions = {}) {
   return [
-    MiniCssExtractPlugin.loader,
     {
-      loader: require.resolve("css-loader"),
-      options: cssOptions
+      loader: MiniCssExtractPlugin.loader,
+      options: {
+        publicPath: "../"
+      }
+    },
+    {
+      loader: require.resolve("css-loader")
     },
     {
       loader: require.resolve("postcss-loader"),

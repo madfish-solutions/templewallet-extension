@@ -4322,6 +4322,11 @@ inquirer@7.0.4, inquirer@^7.0.0:
     strip-ansi "^5.1.0"
     through "^2.3.6"
 
+inter-ui@^3.12.0:
+  version "3.12.0"
+  resolved "https://registry.yarnpkg.com/inter-ui/-/inter-ui-3.12.0.tgz#950cd7d7aa45faff3a141037d58fdb9278105e83"
+  integrity sha512-JbRUs3bQPmnop70I0gpJwSpJ/aVxLNgzTSYqxlVfny9NrsoCdWTo/7FG8jNhYZu56fS6Gf7ettekikgRGA41Iw==
+
 internal-slot@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/internal-slot/-/internal-slot-1.0.2.tgz#9c2e9fb3cd8e5e4256c6f45fe310067fcfa378a3"
