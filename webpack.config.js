@@ -467,7 +467,8 @@ function getStyleLoaders(cssOptions = {}) {
       }
     },
     {
-      loader: require.resolve("css-loader")
+      loader: require.resolve("css-loader"),
+      options: cssOptions
     },
     {
       loader: require.resolve("postcss-loader"),

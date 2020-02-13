@@ -3,6 +3,7 @@ import * as Woozie from "lib/woozie";
 import { useThanosFrontContext } from "lib/thanos/front";
 import { AppEnvironment, useAppEnvContext } from "app/env";
 import AwaitFonts from "app/a11y/AwaitFonts";
+import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
 import ErrorBoundary from "app/ErrorBoundary";
 import Page from "app/Page";
 
@@ -14,6 +15,7 @@ const App: React.FC<AppProps> = ({ env }) => (
   <ErrorBoundary>
     <React.Suspense fallback={<AppSuspenseFallback />}>
       <AppProvider env={env}>
+        <DisableOutlinesForClick />
         <AwaitFonts />
 
         <Page />
