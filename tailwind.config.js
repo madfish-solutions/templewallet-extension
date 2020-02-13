@@ -760,5 +760,18 @@ module.exports = {
     transitionDuration: ["responsive"]
   },
   corePlugins: {},
-  plugins: []
+  plugins: [
+    require("@serh11p/tailwindcss-alpha")({
+      modules: {
+        backgroundColor: true,
+        textColor: true,
+        borderColor: true
+      },
+      alpha: {
+        "25": 0.25,
+        "50": 0.5,
+        "75": 0.75
+      }
+    })
+  ]
 };
