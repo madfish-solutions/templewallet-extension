@@ -20,7 +20,12 @@ const SIGNS = [
       />
     ),
     title: "Import existing Wallet",
-    description: "Import your existing wallet using a 12 word seed phrase"
+    description: (
+      <>
+        Already have a seed phrase? Import your existing wallet using a 12 word
+        seed phrase
+      </>
+    )
   },
   {
     key: "create",
@@ -28,7 +33,9 @@ const SIGNS = [
     filled: true,
     Icon: FolderAddIcon,
     title: "Create a new Wallet",
-    description: "This will create a new wallet and seed phrase"
+    description: (
+      <>Let’s get set up! This will create a new wallet and seed phrase</>
+    )
   }
 ];
 
@@ -64,7 +71,7 @@ const Welcome: React.FC = () => {
                   className={classNames(
                     "w-full h-full",
                     "overflow-hidden rounded-md",
-                    "p-4",
+                    "px-10 py-4",
                     "flex flex-col items-center justify-center",
                     filled
                       ? "text-white"
