@@ -6,6 +6,18 @@
 
 @tailwind utilities;
 
+/**
+ * Text shadow utils.
+ */
+
+.text-shadow {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+/**
+ * Legacy stuff.
+ */
+
 .spin {
   animation: spin 1s;
 }

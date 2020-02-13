@@ -75,7 +75,8 @@ const Welcome: React.FC = () => {
                     "flex flex-col items-center justify-center",
                     filled
                       ? "text-white"
-                      : "shadow-inner bg-primary-orange-lighter text-primary-orange"
+                      : "shadow-inner bg-primary-orange-lighter text-primary-orange",
+                    "text-shadow"
                   )}
                 >
                   <Icon className="pb-2 stroke-current transform scale-150" />
@@ -83,7 +84,17 @@ const Welcome: React.FC = () => {
                   <h1 className="pb-1 text-center text-xl font-semibold">
                     {title}
                   </h1>
-                  <p className="text-center opacity-75">{description}</p>
+
+                  <p
+                    className={classNames(
+                      "text-center",
+                      filled
+                        ? "text-primary-orange-lighter"
+                        : "text-primary-orange"
+                    )}
+                  >
+                    {description}
+                  </p>
                 </div>
               </div>
             </Link>

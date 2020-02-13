@@ -4,6 +4,8 @@ import { useThanosFrontContext } from "lib/thanos/front";
 import { WindowType, useAppEnvContext, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
+import ImportWallet from "app/pages/ImportWallet";
+import CreateWallet from "app/pages/CreateWallet";
 import Explore from "app/pages/Explore";
 
 interface RouteContext {
@@ -36,6 +38,20 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     "/welcome",
     (_p, { thanosFront }) =>
       !thanosFront.authorized ? <Welcome /> : Woozie.Router.SKIP
+  ],
+  [
+    "/create-wallet",
+    (_p, { thanosFront }) =>
+      !thanosFront.authorized ? <CreateWallet /> : Woozie.Router.SKIP
+  ],
+  [
+    "/import-wallet",
+    (_p, { appEnv }) =>
+      appEnv.windowType === WindowType.FullPage ? (
+        <ImportWallet />
+      ) : (
+        <OpenInFullPage />
+      )
   ],
   [
     "/explore",
