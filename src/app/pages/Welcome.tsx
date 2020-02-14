@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import ContentContainer from "app/layout/ContentContainer";
+import ContentContainer from "app/layouts/ContentContainer";
 import { ReactComponent as EntranceIcon } from "app/icons/entrance.svg";
 import { ReactComponent as FolderAddIcon } from "app/icons/folder-add.svg";
 
@@ -34,7 +34,10 @@ const SIGNS = [
     Icon: FolderAddIcon,
     title: "Create a new Wallet",
     description: (
-      <>Let’s get set up! This will create a new wallet and seed phrase</>
+      <>
+        New to Thanos Wallet? Let’s get set up! This will create a new wallet
+        and seed phrase
+      </>
     )
   }
 ];
@@ -72,29 +75,38 @@ const Welcome: React.FC = () => {
                     "w-full h-full",
                     "overflow-hidden rounded-md",
                     "px-10 py-4",
-                    "flex flex-col items-center justify-center",
+                    "flex flex-col",
                     filled
                       ? "text-white"
                       : "shadow-inner bg-primary-orange-lighter text-primary-orange",
                     "text-shadow-black-orange"
                   )}
                 >
-                  <Icon className="pb-2 stroke-current transform scale-150" />
+                  <div
+                    className={classNames(
+                      "flex-1",
+                      "flex flex-col items-center justify-end"
+                    )}
+                  >
+                    <Icon className="stroke-current transform scale-125" />
+                  </div>
 
                   <h1 className="pb-1 text-center text-xl font-semibold">
                     {title}
                   </h1>
 
-                  <p
-                    className={classNames(
-                      "text-center",
-                      filled
-                        ? "text-primary-orange-lighter"
-                        : "text-primary-orange"
-                    )}
-                  >
-                    {description}
-                  </p>
+                  <div className="flex-1">
+                    <p
+                      className={classNames(
+                        "my-1 text-center",
+                        filled
+                          ? "text-primary-orange-lighter"
+                          : "text-primary-orange"
+                      )}
+                    >
+                      {description}
+                    </p>
+                  </div>
                 </div>
               </div>
             </Link>

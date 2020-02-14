@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { goBack } from "lib/woozie";
 import { useThanosFrontContext } from "lib/thanos/front";
 import { WindowType, useAppEnvContext } from "app/env";
-import ContentContainer from "app/layout/ContentContainer";
+import ContentContainer from "app/layouts/ContentContainer";
 import styles from "./PageLayout.module.css";
 import SelectNetworkDropdown from "./PageLayout/SelectNetworkDropdown";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
@@ -11,10 +11,10 @@ import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 type PageLayoutProps = HeaderProps;
 
 const PageLayout: React.FC<PageLayoutProps> = ({ hasBackAction, children }) => (
-  <>
+  <div className="mb-12">
     <Header hasBackAction={hasBackAction} />
     <Content>{children}</Content>
-  </>
+  </div>
 );
 
 export default PageLayout;
