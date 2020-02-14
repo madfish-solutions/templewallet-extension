@@ -13,3 +13,12 @@ export enum ThanosMessageType {
   UNLOCK = "THANOS_WALLET_UNLOCK",
   IMPORT_ACCOUNT = "THANOS_WALLET_IMPORT_ACCOUNT"
 }
+
+export interface ThanosMessageBase {
+  type: ThanosMessageType;
+}
+
+export interface ThanosUnlockRequest extends ThanosMessageBase {
+  type: ThanosMessageType.UNLOCK;
+  passphrase: string;
+}

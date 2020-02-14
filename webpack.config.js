@@ -274,6 +274,8 @@ module.exports = {
   },
 
   plugins: [
+    new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/),
+
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: [OUTPUT_PATH, OUTPUT_PACKED_PATH],
       cleanStaleWebpackAssets: false,

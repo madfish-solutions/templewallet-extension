@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { useThanosFrontContext } from "lib/thanos/front";
-import PageLayout from "app/layout/PageLayout";
+import PageLayout from "app/layouts/PageLayout";
 
 type FormData = {
   passphrase: string;
