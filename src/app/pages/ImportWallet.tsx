@@ -5,7 +5,7 @@ import NewWallet from "app/templates/NewWallet";
 const ImportWallet: React.FC = () => {
   return (
     <PageLayout hasBackAction>
-      <NewWallet ownMnemonic title="Restore your Account with Seed Phrase" />
+      <NewWallet ownMnemonic title="Restore your Wallet with Seed Phrase" />
     </PageLayout>
   );
 };
