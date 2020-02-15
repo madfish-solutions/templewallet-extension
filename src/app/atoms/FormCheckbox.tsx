@@ -112,6 +112,7 @@ const FormCheckbox = React.forwardRef<HTMLInputElement, FormCheckboxProps>(
               "rounded-md overflow-hidden",
               "disable-outline-for-click",
               localFocused && "shadow-outline",
+              "transition ease-in-out duration-200",
               "text-white",
               "flex justify-center items-center"
             )}
