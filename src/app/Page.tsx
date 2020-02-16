@@ -1,57 +1,91 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { useThanosWalletContext } from "lib/thanos-wallet";
-import ExploreAccount from "app/pages/ExploreAccount";
-import ImportAccountFromFile from "app/pages/ImportAccountFromFile";
-import ImportAccountManual from "app/pages/ImportAccountManual";
-import ReceiveFunds from "app/pages/ReceiveFunds";
-import TransferFunds from "app/pages/TransferFunds";
+import { useThanosFrontContext } from "lib/thanos/front";
+import { WindowType, useAppEnvContext, OpenInFullPage } from "app/env";
+import Unlock from "app/pages/Unlock";
+import Welcome from "app/pages/Welcome";
+import ImportWallet from "app/pages/ImportWallet";
+import CreateWallet from "app/pages/CreateWallet";
+import Explore from "app/pages/Explore";
 
-const ROUTE_MAP = Woozie.Router.prepare([
+interface RouteContext {
+  appEnv: ReturnType<typeof useAppEnvContext>;
+  thanosFront: ReturnType<typeof useThanosFrontContext>;
+}
+
+const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
+  [
+    "/import-wallet",
+    (_p, { appEnv, thanosFront }) => {
+      switch (true) {
+        case thanosFront.ready:
+          return Woozie.Router.SKIP;
+
+        case appEnv.windowType !== WindowType.FullPage:
+          return <OpenInFullPage />;
+
+        default:
+          return <ImportWallet />;
+      }
+    }
+  ],
+  [
+    "*",
+    (_p, { thanosFront }) =>
+      thanosFront.locked ? <Unlock /> : Woozie.Router.SKIP
+  ],
+  [
+    "*",
+    (_p, { appEnv, thanosFront }) =>
+      thanosFront.ready || appEnv.windowType === WindowType.FullPage ? (
+        Woozie.Router.SKIP
+      ) : (
+        <OpenInFullPage />
+      )
+  ],
   [
     "/",
-    (_p, authed) => (
-      <Woozie.Redirect to={authed ? "/account" : "/import/manual"} />
+    (_p, { thanosFront }) => (
+      <Woozie.Redirect to={thanosFront.ready ? "/explore" : "/welcome"} />
     )
   ],
   [
-    "/import/file",
-    (_p, authed) =>
-      !authed ? <ImportAccountFromFile /> : <Woozie.Redirect to="/" />
+    "/welcome",
+    (_p, { thanosFront }) =>
+      !thanosFront.ready ? <Welcome /> : Woozie.Router.SKIP
   ],
   [
-    "/import/manual",
-    (_p, authed) =>
-      !authed ? <ImportAccountManual /> : <Woozie.Redirect to="/" />
+    "/create-wallet",
+    (_p, { thanosFront }) =>
+      !thanosFront.ready ? <CreateWallet /> : Woozie.Router.SKIP
   ],
   [
-    "/account",
-    (_p, authed) => (authed ? <ExploreAccount /> : <Woozie.Redirect to="/" />)
-  ],
-  [
-    "/account/receive",
-    (_p, authed) => (authed ? <ReceiveFunds /> : <Woozie.Redirect to="/" />)
-  ],
-  [
-    "/account/transfer",
-    (_p, authed) => (authed ? <TransferFunds /> : <Woozie.Redirect to="/" />)
+    "/explore",
+    (_p, { thanosFront }) =>
+      thanosFront.ready ? <Explore /> : Woozie.Router.SKIP
   ],
   ["*", () => <Woozie.Redirect to="/" />]
 ]);
 
 const Page: React.FC = () => {
-  const { account } = useThanosWalletContext();
   const { trigger, pathname } = Woozie.useLocationContext();
 
-  // Scroll to Top after new location pushed
-  React.useEffect(() => {
+  // Scroll to top after new location pushed.
+  React.useLayoutEffect(() => {
     if (trigger === Woozie.HistoryAction.Push) {
       window.scrollTo(0, 0);
     }
-  });
+  }, [trigger, pathname]);
 
-  const authorized = React.useMemo(() => Boolean(account), [account]);
-  return Woozie.Router.resolve(pathname, ROUTE_MAP, authorized);
+  const appEnv = useAppEnvContext();
+  const thanosFront = useThanosFrontContext();
+
+  const ctx = React.useMemo<RouteContext>(() => ({ appEnv, thanosFront }), [
+    appEnv,
+    thanosFront
+  ]);
+
+  return Woozie.Router.resolve(ROUTE_MAP, pathname, ctx);
 };
 
 export default Page;
