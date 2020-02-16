@@ -22,6 +22,11 @@ export function changeState(
 ) {
   const title = ""; // Deprecated stuff
 
+  if (USE_LOCATION_HASH_AS_URL) {
+    const { pathname, search } = window.location;
+    url = createUrl(pathname, search, url);
+  }
+
   switch (action) {
     case HistoryAction.Push:
       window.history.pushState(state, title, url);
@@ -56,9 +61,7 @@ export function createUrl(
   if (hash && !hash.startsWith("#")) {
     hash = `#${hash}`;
   }
-  const url = `${pathname}${search}${hash}`;
-
-  return USE_LOCATION_HASH_AS_URL ? `${window.location.pathname}#${url}` : url;
+  return `${pathname}${search}${hash}`;
 }
 
 export function useHistory() {

@@ -1,18 +1,24 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { TezosProvider } from "lib/tezos";
-import { ThanosWalletProvider } from "lib/thanos-wallet";
-import PageLayout from "app/layout/PageLayout";
+import { useThanosFrontContext } from "lib/thanos/front";
+import { AppEnvironment, useAppEnvContext } from "app/env";
+import AwaitFonts from "app/a11y/AwaitFonts";
+import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
 import ErrorBoundary from "app/ErrorBoundary";
 import Page from "app/Page";
 
-const App: React.FC<{ popup?: boolean }> = ({ popup }) => (
+type AppProps = {
+  env: AppEnvironment;
+};
+
+const App: React.FC<AppProps> = ({ env }) => (
   <ErrorBoundary>
     <React.Suspense fallback={<AppSuspenseFallback />}>
-      <AppProvider>
-        <PageLayout popup={popup}>
-          <Page />
-        </PageLayout>
+      <AppProvider env={env}>
+        <DisableOutlinesForClick />
+        <AwaitFonts />
+
+        <Page />
       </AppProvider>
     </React.Suspense>
   </ErrorBoundary>
@@ -20,12 +26,14 @@ const App: React.FC<{ popup?: boolean }> = ({ popup }) => (
 
 export default App;
 
-const AppProvider: React.FC = ({ children }) => (
-  <Woozie.Provider>
-    <TezosProvider>
-      <ThanosWalletProvider>{children}</ThanosWalletProvider>
-    </TezosProvider>
-  </Woozie.Provider>
+const AppProvider: React.FC<AppProps> = ({ children, env }) => (
+  <useAppEnvContext.Provider {...env}>
+    <Woozie.Provider>
+      <useThanosFrontContext.Provider>
+        {children}
+      </useThanosFrontContext.Provider>
+    </Woozie.Provider>
+  </useAppEnvContext.Provider>
 );
 
 const AppSuspenseFallback: React.FC = () => (
@@ -33,12 +41,3 @@ const AppSuspenseFallback: React.FC = () => (
     <div className="p-2 text-lg font-semibold text-gray-600">Loading...</div>
   </div>
 );
-
-// (async () => {
-//   try {
-//     const reply = await browser.runtime.sendMessage({ kek: "lal" });
-//     console.info(reply);
-//   } catch (err) {
-//     console.error(err);
-//   }
-// })();
