@@ -1,20 +1,53 @@
-import { createStore, createEvent, createEffect } from "effector";
+import { createStore, createEvent } from "effector";
 import { browser } from "webextension-polyfill-ts";
+import { Buffer } from "buffer";
+import * as Bip39 from "bip39";
+// import * as Bip32 from "bip32";
+import * as TaquitoUtils from "@taquito/utils";
+import { InMemorySigner } from "@taquito/signer";
+import * as Passworder from "lib/passworder";
 import {
   ThanosFrontState,
+  ThanosStatus,
   ThanosAccount,
-  ThanosMessageType
+  ThanosMessageType,
+  ThanosRequest,
+  ThanosResponse
 } from "lib/thanos/types";
+
+// const TEZOS_BIP44_COINTYPE = 1729;
+const STORAGE_KEY = "back";
 
 interface ThanosBackState {
   inited: boolean;
-  storage: Storage | null;
   front: ThanosFrontState;
 }
 
-type Storage = {
-  encrypted: string;
-};
+interface Storage {
+  salt: string;
+  encrypted: Passworder.EncryptedPayload;
+}
+
+export async function processRequest(
+  msg: ThanosRequest
+): Promise<ThanosResponse | void> {
+  switch (msg.type) {
+    case ThanosMessageType.GetStateRequest:
+      const state = await getFrontState();
+      return {
+        type: ThanosMessageType.GetStateResponse,
+        state
+      };
+
+    case ThanosMessageType.NewWalletRequest:
+      await registerNewWallet(msg.mnemonic, msg.password);
+      return { type: ThanosMessageType.NewWalletResponse };
+
+    case ThanosMessageType.UnlockRequest:
+      await unlock(msg.password);
+      return { type: ThanosMessageType.UnlockResponse };
+  }
+}
 
 export async function getFrontState(): Promise<ThanosFrontState> {
   const { inited, front } = store.getState();
@@ -26,91 +59,147 @@ export async function getFrontState(): Promise<ThanosFrontState> {
   }
 }
 
-export async function importAccount(privateKey: string) {
-  const account = { privateKey };
-  accountImported(account);
+export async function registerNewWallet(mnemonic: string, password: string) {
+  const seed = Bip39.mnemonicToSeedSync(mnemonic, password);
+  const privateKey = TaquitoUtils.b58cencode(
+    seed.slice(0, 32),
+    TaquitoUtils.prefix.edsk2
+  );
+  const stuff = { mnemonic, privateKey };
+
+  const salt = Passworder.generateSalt();
+  const passKey = await Passworder.generateKey(password, salt);
+  const encrypted = await Passworder.encrypt(stuff, passKey);
+
+  await saveStorage({
+    salt: Buffer.from(salt).toString("hex"),
+    encrypted
+  });
+
+  await unlock(password);
 }
 
-export function unlock(passphrase: string) {
+export async function unlock(password: string) {
   const state = store.getState();
-
   assertInited(state);
-  if (!state.storage) {
+
+  const storage = await fetchStorage();
+  if (!storage) {
     throw new Error("Nothing to unlock");
   }
 
-  if (passphrase === "qwe123") {
-    const unlockedState = JSON.parse(state.storage.encrypted);
-    unlocked(unlockedState);
-  } else {
-    throw new Error("Incorrect password. Try 'qwe123'");
+  try {
+    const salt = Buffer.from(storage.salt, "hex");
+    const passKey = await Passworder.generateKey(password, salt);
+    const { privateKey } = await Passworder.decrypt(storage.encrypted, passKey);
+    const signer = new InMemorySigner(privateKey as string);
+    const publicKeyHash = await signer.publicKeyHash();
+
+    const account = { publicKeyHash };
+    unlocked(account);
+  } catch (_err) {
+    throw new Error("Incorrect password");
   }
 }
 
+// key.substr(0, encrypted ? 5 : 4);
 function assertInited(state: ThanosBackState) {
   if (!state.inited) {
     throw new Error("Not initialized");
   }
 }
 
-const accountImported = createEvent<ThanosAccount>("Account imported");
-const unlocked = createEvent<ThanosFrontState>("Unlocked");
+/**
+ * Private
+ */
 
-const loadStorage = createEffect({
-  handler: async () => {
-    const items = await browser.storage.local.get();
-    return Object.keys(items).length !== 0 ? (items as Storage) : null;
-  }
-});
+const inited = createEvent<boolean>("Inited");
+const unlocked = createEvent<ThanosAccount>("Unlocked");
 
 const store = createStore<ThanosBackState>({
   inited: false,
-  storage: null,
   front: {
-    unlocked: true,
+    status: ThanosStatus.Idle,
     account: null
   }
 })
-  .on(loadStorage.done, (state, { result: storage }) => ({
+  .on(inited, (state, storageExist) => ({
     ...state,
     inited: true,
-    storage,
     front: {
       ...state.front,
-      unlocked: !storage
+      status: storageExist ? ThanosStatus.Locked : ThanosStatus.Idle
     }
   }))
-  .on(accountImported, (state, account) => ({
+  .on(unlocked, (state, account) => ({
     ...state,
     front: {
       ...state.front,
-      account
-    }
-  }))
-  .on(unlocked, (state, { account }) => ({
-    ...state,
-    front: {
-      ...state.front,
-      unlocked: true,
+      status: ThanosStatus.Ready,
       account
     }
   }));
 
 (async () => {
   try {
-    await loadStorage();
+    const storage = await fetchStorage();
+    const storageExist = Boolean(storage);
+    inited(storageExist);
+
     store.watch(handleStateUpdate);
   } catch (err) {
     throw err;
   }
 })();
 
-function handleStateUpdate(state: ThanosBackState) {
-  persistState(state);
-  browser.runtime.sendMessage({ type: ThanosMessageType.STATE_UPDATED });
+function handleStateUpdate(_state: ThanosBackState) {
+  // persistState(state);
+  browser.runtime.sendMessage({ type: ThanosMessageType.StateUpdated });
 }
 
-function persistState(state: ThanosBackState) {
-  const encrypted = JSON.stringify(state);
-  return browser.storage.local.set({ encrypted });
+async function fetchStorage() {
+  const items = await browser.storage.local.get();
+  if (STORAGE_KEY in items) {
+    return items[STORAGE_KEY] as Storage;
+  } else {
+    return null;
+  }
 }
+
+async function saveStorage(storage: Storage) {
+  await browser.storage.local.set({ [STORAGE_KEY]: storage });
+}
+
+// function persistState(state: ThanosBackState) {
+//   const frontEncrypted = JSON.stringify(state.front);
+//   return browser.storage.local.set({ frontEncrypted });
+// }
+
+// const privateKey = seedToPrivateKey(
+//   seed,
+//   `m/44'/${TEZOS_BIP44_COINTYPE}'/${account}'/0/0`
+// );
+
+// function seedToPrivateKey(seed: Buffer, derivePath: string) {
+//   const keyNode = Bip32.fromSeed(seed);
+//   const keyChild = keyNode.derivePath(derivePath);
+//   return keyChild.privateKey!.toString("hex");
+// }
+
+// const MNEMONIC = Symbol("ThanosVault.Mnemonic");
+// const KEY = Symbol("ThanosVault.Key");
+
+// class ThanosVault {
+//   [MNEMONIC]: string;
+//   [KEY]: string;
+
+//   constructor(mnemonic: string, password: string) {
+//     this[MNEMONIC] = mnemonic;
+//     this[KEY] = password;
+//   }
+// }
+
+/**
+ * 1) Generate account from mnemonic;
+ * 2)
+ */

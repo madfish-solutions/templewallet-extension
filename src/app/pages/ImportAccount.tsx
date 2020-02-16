@@ -10,7 +10,7 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 
 const ImportAccount: React.FC = () => {
-  const { importAccount } = useThanosFrontContext();
+  const { importAccount } = useThanosFrontContext() as any;
 
   const { register, handleSubmit, errors, setError, clearError } = useForm<
     FormData

@@ -38,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
       className={classNames(
         "bg-primary-orange",
         styles["inner-shadow"],
-        fullPageWindow && "pb-24 -mb-20"
+        fullPageWindow ? "pb-24 -mb-20" : "pb-4"
       )}
     >
       <ContentContainer className={classNames("py-4", "flex items-center")}>
@@ -53,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
 
         <div className="flex-1" />
 
-        {thanosFront.authorized && <SelectNetworkDropdown />}
+        {thanosFront.ready && <SelectNetworkDropdown />}
       </ContentContainer>
 
       <ContentContainer className={classNames("flex items-center")}>
