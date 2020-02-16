@@ -1,6 +1,6 @@
 import { browser } from "webextension-polyfill-ts";
-import { ThanosMessageType } from "lib/thanos/types";
-import { getFrontState, importAccount, unlock } from "lib/thanos/back";
+import { ThanosRequest } from "lib/thanos/types";
+import { processRequest } from "lib/thanos/back";
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
   switch (reason) {
@@ -13,15 +13,8 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
 });
 
 browser.runtime.onMessage.addListener(async msg => {
-  switch (msg?.type) {
-    case ThanosMessageType.GET_STATE:
-      return getFrontState();
-
-    case ThanosMessageType.IMPORT_ACCOUNT:
-      return importAccount(msg?.privateKey);
-
-    case ThanosMessageType.UNLOCK:
-      return unlock(msg?.passphrase);
+  if ("type" in msg) {
+    return processRequest(msg as ThanosRequest);
   }
 });
 

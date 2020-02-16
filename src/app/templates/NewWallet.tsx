@@ -1,7 +1,8 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { validateMnemonic } from "bip39";
+import { validateMnemonic, generateMnemonic } from "bip39";
+import { useThanosFrontContext } from "lib/thanos/front";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
@@ -9,6 +10,7 @@ import {
 } from "app/defaults";
 import FormField from "app/atoms/FormField";
 import FormCheckbox from "app/atoms/FormCheckbox";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
 
 interface FormData {
   mnemonic?: string;
@@ -23,6 +25,8 @@ type NewWalletProps = {
 };
 
 const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
+  const { registerWallet } = useThanosFrontContext();
+
   const {
     watch,
     register,
@@ -40,15 +44,35 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
     }
   }, [triggerValidation, formState.dirtyFields, passwordValue]);
 
-  const onSubmit = React.useCallback(data => {
-    console.info(data);
-  }, []);
+  const onSubmit = React.useCallback(
+    async (data: FormData) => {
+      try {
+        await registerWallet(
+          ownMnemonic ? data.mnemonic! : generateMnemonic(128),
+          data.password
+        );
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+
+        alert(err.message);
+      }
+    },
+    [ownMnemonic, registerWallet]
+  );
 
   return (
     <div className="py-4">
-      <h1 className="mb-2 text-2xl font-light text-gray-700 text-center">
+      <h1
+        className={classNames(
+          "mb-2",
+          "text-2xl font-light text-gray-700 text-center"
+        )}
+      >
         {title}
       </h1>
+
       <hr className="my-4" />
 
       <form
@@ -124,22 +148,9 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
           containerClassName="mb-6"
         />
 
-        <button
-          disabled={formState.isSubmitting}
-          className={classNames(
-            "px-8",
-            "bg-primary-orange rounded",
-            "flex items-center",
-            "text-primary-orange-lighter text-shadow-black-orange",
-            "text-base font-semibold",
-            "transition duration-300 ease-in-out",
-            "opacity-90 hover:opacity-100",
-            "shadow-sm hover:shadow"
-          )}
-          style={{ paddingTop: "0.625rem", paddingBottom: "0.625rem" }}
-        >
+        <FormSubmitButton loading={formState.isSubmitting}>
           Create
-        </button>
+        </FormSubmitButton>
       </form>
     </div>
   );

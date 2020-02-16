@@ -15,14 +15,29 @@ interface RouteContext {
 
 const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
+    "/import-wallet",
+    (_p, { appEnv, thanosFront }) => {
+      switch (true) {
+        case thanosFront.ready:
+          return Woozie.Router.SKIP;
+
+        case appEnv.windowType !== WindowType.FullPage:
+          return <OpenInFullPage />;
+
+        default:
+          return <ImportWallet />;
+      }
+    }
+  ],
+  [
     "*",
     (_p, { thanosFront }) =>
-      thanosFront.unlocked ? Woozie.Router.SKIP : <Unlock />
+      thanosFront.locked ? <Unlock /> : Woozie.Router.SKIP
   ],
   [
     "*",
     (_p, { appEnv, thanosFront }) =>
-      thanosFront.authorized || appEnv.windowType === WindowType.FullPage ? (
+      thanosFront.ready || appEnv.windowType === WindowType.FullPage ? (
         Woozie.Router.SKIP
       ) : (
         <OpenInFullPage />
@@ -31,32 +46,23 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
     "/",
     (_p, { thanosFront }) => (
-      <Woozie.Redirect to={thanosFront.authorized ? "/explore" : "/welcome"} />
+      <Woozie.Redirect to={thanosFront.ready ? "/explore" : "/welcome"} />
     )
   ],
   [
     "/welcome",
     (_p, { thanosFront }) =>
-      !thanosFront.authorized ? <Welcome /> : Woozie.Router.SKIP
+      !thanosFront.ready ? <Welcome /> : Woozie.Router.SKIP
   ],
   [
     "/create-wallet",
     (_p, { thanosFront }) =>
-      !thanosFront.authorized ? <CreateWallet /> : Woozie.Router.SKIP
-  ],
-  [
-    "/import-wallet",
-    (_p, { appEnv }) =>
-      appEnv.windowType === WindowType.FullPage ? (
-        <ImportWallet />
-      ) : (
-        <OpenInFullPage />
-      )
+      !thanosFront.ready ? <CreateWallet /> : Woozie.Router.SKIP
   ],
   [
     "/explore",
     (_p, { thanosFront }) =>
-      thanosFront.authorized ? <Explore /> : Woozie.Router.SKIP
+      thanosFront.ready ? <Explore /> : Woozie.Router.SKIP
   ],
   ["*", () => <Woozie.Redirect to="/" />]
 ]);
