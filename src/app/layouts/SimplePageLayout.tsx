@@ -22,7 +22,9 @@ const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
       )}
     >
       {title && (
-        <h1 className="my-4 text-4xl text-gray-700 font-light">{title}</h1>
+        <h1 className="mt-2 mb-12 text-4xl text-gray-700 font-light">
+          {title}
+        </h1>
       )}
 
       {fullPage ? (
