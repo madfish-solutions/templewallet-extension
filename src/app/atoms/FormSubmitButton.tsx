@@ -18,6 +18,7 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
       "relative",
       "px-8",
       "bg-primary-orange rounded",
+      "border border-primary-orange",
       "flex items-center",
       loading
         ? "text-transparent"
@@ -29,20 +30,20 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
       !(loading || disabled) && "hover:shadow",
       className
     )}
-    style={{ paddingTop: "0.625rem", paddingBottom: "0.625rem", ...style }}
+    style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem", ...style }}
     disabled={disabled}
     {...rest}
   >
     {children}
 
-    {loading && (
+    {/* {loading && (
       <span
         className={classNames(
           "absolute inset-0",
           "flex itmes-center justify-center"
         )}
       ></span>
-    )}
+    )} */}
   </button>
 );
 
