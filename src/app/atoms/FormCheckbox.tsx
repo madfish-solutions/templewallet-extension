@@ -105,6 +105,9 @@ const FormCheckbox = React.forwardRef<HTMLInputElement, FormCheckboxProps>(
                   case localFocused:
                     return "border-primary-orange";
 
+                  case Boolean(errorCaption):
+                    return "border-red-400";
+
                   default:
                     return "border-gray-400";
                 }
