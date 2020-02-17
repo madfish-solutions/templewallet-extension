@@ -20,25 +20,27 @@ const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
     type={type}
     className={classNames(
       "relative",
-      "px-8",
-      "bg-gray-200 rounded",
-      "border border-gray-300",
+      "px-6",
+      "bg-white rounded",
+      "border border-gray-200",
       "flex items-center",
-      loading ? "text-transparent" : "text-gray-500",
+      loading
+        ? "text-transparent"
+        : "text-primary-orange text-shadow-black-orange",
       "text-base font-semibold",
-      "transition duration-300 ease-in-out",
+      "transition duration-200 ease-in-out",
       loading || disabled ? "opacity-75" : "opacity-90 hover:opacity-100",
       "shadow-sm",
       !(loading || disabled) && "hover:shadow",
       className
     )}
-    style={{ paddingTop: "0.625rem", paddingBottom: "0.625rem", ...style }}
+    style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem", ...style }}
     disabled={disabled}
     {...rest}
   >
     {children}
 
-    {loading && (
+    {/* {loading && (
       <span
         className={classNames(
           "absolute inset-0",
@@ -47,7 +49,7 @@ const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
       >
         Loading...
       </span>
-    )}
+    )} */}
   </button>
 );
 
