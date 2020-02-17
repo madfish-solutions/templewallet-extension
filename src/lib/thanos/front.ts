@@ -52,16 +52,6 @@ function useThanosFront() {
 
   const { status, account } = state;
 
-  const unlock = React.useCallback(async (password: string) => {
-    const res = await sendMessage({
-      type: ThanosMessageType.UnlockRequest,
-      password
-    });
-    if (res.type !== ThanosMessageType.UnlockResponse) {
-      throw new Error(NO_RES_ERROR_MESSAGE);
-    }
-  }, []);
-
   const registerWallet = React.useCallback(
     async (mnemonic: string, password: string) => {
       const res = await sendMessage({
@@ -76,7 +66,26 @@ function useThanosFront() {
     []
   );
 
-  return { status, account, idle, locked, ready, unlock, registerWallet };
+  const unlock = React.useCallback(async (password: string) => {
+    const res = await sendMessage({
+      type: ThanosMessageType.UnlockRequest,
+      password
+    });
+    if (res.type !== ThanosMessageType.UnlockResponse) {
+      throw new Error(NO_RES_ERROR_MESSAGE);
+    }
+  }, []);
+
+  const lock = React.useCallback(async () => {
+    const res = await sendMessage({
+      type: ThanosMessageType.LockRequest
+    });
+    if (res.type !== ThanosMessageType.LockResponse) {
+      throw new Error(NO_RES_ERROR_MESSAGE);
+    }
+  }, []);
+
+  return { status, account, idle, locked, ready, registerWallet, unlock, lock };
 }
 
 async function sendMessage(msg: ThanosRequest) {

@@ -20,18 +20,22 @@ export enum ThanosMessageType {
   NewWalletRequest = "THANOS_WALLET_NEW_WALLET_REQUEST",
   NewWalletResponse = "THANOS_WALLET_NEW_WALLET_RESPONSE",
   UnlockRequest = "THANOS_WALLET_UNLOCK_REQUEST",
-  UnlockResponse = "THANOS_WALLET_UNLOCK_RESPONSE"
+  UnlockResponse = "THANOS_WALLET_UNLOCK_RESPONSE",
+  LockRequest = "THANOS_WALLET_LOCK_REQUEST",
+  LockResponse = "THANOS_WALLET_LOCK_RESPONSE"
 }
 
 export type ThanosRequest =
   | ThanosGetStateRequest
   | ThanosNewWalletRequest
-  | ThanosUnlockRequest;
+  | ThanosUnlockRequest
+  | ThanosLockRequest;
 
 export type ThanosResponse =
   | ThanosGetStateResponse
   | ThanosNewWalletResponse
-  | ThanosUnlockResponse;
+  | ThanosUnlockResponse
+  | ThanosLockResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -63,4 +67,12 @@ export interface ThanosUnlockRequest extends ThanosMessageBase {
 
 export interface ThanosUnlockResponse extends ThanosMessageBase {
   type: ThanosMessageType.UnlockResponse;
+}
+
+export interface ThanosLockRequest extends ThanosMessageBase {
+  type: ThanosMessageType.LockRequest;
+}
+
+export interface ThanosLockResponse extends ThanosMessageBase {
+  type: ThanosMessageType.LockResponse;
 }

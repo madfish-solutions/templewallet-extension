@@ -46,6 +46,10 @@ export async function processRequest(
     case ThanosMessageType.UnlockRequest:
       await unlock(msg.password);
       return { type: ThanosMessageType.UnlockResponse };
+
+    case ThanosMessageType.LockRequest:
+      await lock();
+      return { type: ThanosMessageType.LockResponse };
   }
 }
 
@@ -102,7 +106,10 @@ export async function unlock(password: string) {
   }
 }
 
-// key.substr(0, encrypted ? 5 : 4);
+export async function lock() {
+  locked();
+}
+
 function assertInited(state: ThanosBackState) {
   if (!state.inited) {
     throw new Error("Not initialized");
@@ -115,6 +122,7 @@ function assertInited(state: ThanosBackState) {
 
 const inited = createEvent<boolean>("Inited");
 const unlocked = createEvent<ThanosAccount>("Unlocked");
+const locked = createEvent("Locked");
 
 const store = createStore<ThanosBackState>({
   inited: false,
@@ -137,6 +145,14 @@ const store = createStore<ThanosBackState>({
       ...state.front,
       status: ThanosStatus.Ready,
       account
+    }
+  }))
+  .on(locked, state => ({
+    ...state,
+    front: {
+      ...state.front,
+      status: ThanosStatus.Locked,
+      account: null
     }
   }));
 

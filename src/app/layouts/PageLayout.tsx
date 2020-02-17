@@ -27,11 +27,15 @@ const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
   const { windowType } = useAppEnvContext();
   const fullPageWindow = windowType === WindowType.FullPage;
 
-  const thanosFront = useThanosFrontContext();
+  const { ready, lock } = useThanosFrontContext();
 
   const handleBackAction = React.useCallback(() => {
     goBack();
   }, []);
+
+  const handleLogoutClick = React.useCallback(() => {
+    lock();
+  }, [lock]);
 
   return (
     <header
@@ -53,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
 
         <div className="flex-1" />
 
-        {thanosFront.ready && <SelectNetworkDropdown />}
+        {ready && <SelectNetworkDropdown />}
       </ContentContainer>
 
       <ContentContainer className={classNames("flex items-center")}>
@@ -80,6 +84,26 @@ const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
               )}
             />
             Back
+          </button>
+        )}
+
+        <div className="flex-1" />
+
+        {ready && (
+          <button
+            className={classNames(
+              "px-4 py-2",
+              "bg-white-10 rounded",
+              "flex items-center",
+              "text-primary-orange-lighter text-shadow-black-orange",
+              "text-sm font-semibold",
+              "shadow hover:shadow-md",
+              "transition duration-300 ease-in-out",
+              "opacity-90 hover:opacity-100"
+            )}
+            onClick={handleLogoutClick}
+          >
+            Log out
           </button>
         )}
       </ContentContainer>

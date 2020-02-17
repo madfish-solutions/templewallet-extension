@@ -1,9 +1,8 @@
 import * as React from "react";
-import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import { useThanosFrontContext } from "lib/thanos/front";
-import ContentContainer from "app/layouts/ContentContainer";
+import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
@@ -52,22 +51,7 @@ const Unlock: React.FC = () => {
   }, []);
 
   return (
-    <ContentContainer
-      className={classNames(
-        "min-h-screen",
-        "flex flex-col items-center justify-center"
-      )}
-    >
-      <h1 className="my-4 text-4xl text-gray-700 font-light">Unlock Wallet</h1>
-
-      {/* <div
-        className={classNames(
-          "w-full mx-auto max-w-md",
-          "bg-white",
-          "rounded-md shadow-md",
-          "px-4"
-        )}
-      > */}
+    <SimplePageLayout title="Unlock Wallet">
       <form
         className="my-8 w-full mx-auto max-w-sm"
         onSubmit={handleSubmit(onSubmit)}
@@ -98,8 +82,7 @@ const Unlock: React.FC = () => {
           </FormSecondaryButton>
         </div>
       </form>
-      {/* </div> */}
-    </ContentContainer>
+    </SimplePageLayout>
   );
 };
 
