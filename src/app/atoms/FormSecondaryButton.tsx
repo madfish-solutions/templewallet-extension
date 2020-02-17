@@ -21,9 +21,10 @@ const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
     className={classNames(
       "relative",
       "px-8",
-      "bg-gray-300 rounded",
+      "bg-gray-200 rounded",
+      "border border-gray-300",
       "flex items-center",
-      loading ? "text-transparent" : "text-gray-500 text-shadow-black",
+      loading ? "text-transparent" : "text-gray-500",
       "text-base font-semibold",
       "transition duration-300 ease-in-out",
       loading || disabled ? "opacity-75" : "opacity-90 hover:opacity-100",
