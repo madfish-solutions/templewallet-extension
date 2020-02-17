@@ -131,7 +131,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
               "w-full",
               "py-3 px-4",
               "border-2",
-              errorCaption ? "border-red-75" : "border-gray-300",
+              errorCaption ? "border-red-500" : "border-gray-300",
               "focus:border-primary-orange",
               "bg-gray-100 focus:bg-transparent",
               "bg-black-40",
