@@ -1,5 +1,5 @@
 import * as React from "react";
-import createUseContext from "constate";
+import constate from "constate";
 import useSWR from "swr";
 import { browser } from "webextension-polyfill-ts";
 import {
@@ -11,9 +11,7 @@ import {
 
 const NO_RES_ERROR_MESSAGE = "Invalid response recieved";
 
-export const useThanosFrontContext = createUseContext(useThanosFront);
-
-function useThanosFront() {
+export const [ThanosFrontProvider, useThanosFront] = constate(() => {
   const fetchState = React.useCallback(async () => {
     const res = await sendMessage({ type: ThanosMessageType.GetStateRequest });
     if (res.type === ThanosMessageType.GetStateResponse) {
@@ -86,7 +84,7 @@ function useThanosFront() {
   }, []);
 
   return { status, account, idle, locked, ready, registerWallet, unlock, lock };
-}
+});
 
 async function sendMessage(msg: ThanosRequest) {
   const res = await browser.runtime.sendMessage(msg);

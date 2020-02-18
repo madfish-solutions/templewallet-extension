@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { useThanosFrontContext } from "lib/thanos/front";
+import { useThanosFront } from "lib/thanos/front";
 
 type FormData = {
   privateKey: string;
@@ -10,7 +10,7 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 
 const ImportAccount: React.FC = () => {
-  const { importAccount } = useThanosFrontContext() as any;
+  const { importAccount } = useThanosFront() as any;
 
   const { register, handleSubmit, errors, setError, clearError } = useForm<
     FormData

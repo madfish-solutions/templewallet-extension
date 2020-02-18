@@ -1,4 +1,4 @@
-import createUseContext from "constate";
+import constate from "constate";
 import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
 import {
   HistoryAction,
@@ -92,9 +92,7 @@ export function createLocationUpdates(
   }
 }
 
-export const useLocationContext = createUseContext(useLocation);
-
-export function useLocation() {
+export const [LocationProvider, useLocation] = constate(() => {
   useHistory();
   return createLocationState();
-}
+});

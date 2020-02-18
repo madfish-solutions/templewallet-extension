@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import { WindowType, useAppEnvContext } from "app/env";
+import { WindowType, useAppEnv } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
 
 type SimplePageLayoutProps = {
@@ -11,7 +11,7 @@ const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
   title,
   children
 }) => {
-  const appEnv = useAppEnvContext();
+  const appEnv = useAppEnv();
   const fullPage = appEnv.windowType === WindowType.FullPage;
 
   return (

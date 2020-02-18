@@ -1,8 +1,8 @@
 import * as React from "react";
 import classNames from "clsx";
 import { goBack } from "lib/woozie";
-import { useThanosFrontContext } from "lib/thanos/front";
-import { WindowType, useAppEnvContext } from "app/env";
+import { useThanosFront } from "lib/thanos/front";
+import { WindowType, useAppEnv } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
 import styles from "./PageLayout.module.css";
 import SelectNetworkDropdown from "./PageLayout/SelectNetworkDropdown";
@@ -24,10 +24,10 @@ type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
-  const { windowType } = useAppEnvContext();
+  const { windowType } = useAppEnv();
   const fullPageWindow = windowType === WindowType.FullPage;
 
-  const { ready, lock } = useThanosFrontContext();
+  const { ready, lock } = useThanosFront();
 
   const handleBackAction = React.useCallback(() => {
     goBack();
@@ -112,7 +112,7 @@ const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
 };
 
 const Content: React.FC = ({ children }) => {
-  const { windowType } = useAppEnvContext();
+  const { windowType } = useAppEnv();
   const fullPageWindow = windowType === WindowType.FullPage;
 
   return fullPageWindow ? (

@@ -1,5 +1,5 @@
 import * as React from "react";
-import createUseContext from "constate";
+import constate from "constate";
 import { browser } from "webextension-polyfill-ts";
 import { createUrl } from "lib/woozie";
 
@@ -12,7 +12,9 @@ export enum WindowType {
   FullPage
 }
 
-export const useAppEnvContext = createUseContext((env: AppEnvironment) => env);
+export const [AppEnvProvider, useAppEnv] = constate(
+  (env: AppEnvironment) => env
+);
 
 export const OpenInFullPage: React.FC = () => {
   React.useEffect(() => {
