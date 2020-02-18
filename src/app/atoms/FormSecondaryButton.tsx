@@ -20,7 +20,7 @@ const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
     type={type}
     className={classNames(
       "relative",
-      "px-6",
+      "px-8",
       "bg-white rounded",
       "border border-gray-200",
       "flex items-center",
@@ -34,7 +34,7 @@ const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
       !(loading || disabled) && "hover:shadow",
       className
     )}
-    style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem", ...style }}
+    style={{ paddingTop: "0.625rem", paddingBottom: "0.625rem", ...style }}
     disabled={disabled}
     {...rest}
   >

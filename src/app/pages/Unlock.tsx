@@ -1,11 +1,11 @@
 import * as React from "react";
+import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { navigate } from "lib/woozie";
+import { Link } from "lib/woozie";
 import { useThanosFrontContext } from "lib/thanos/front";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 
 type FormData = {
   password: string;
@@ -46,10 +46,6 @@ const Unlock: React.FC = () => {
     [submitting, clearError, setError, unlock]
   );
 
-  const handleImportAnotherClick = React.useCallback(() => {
-    navigate("/import-wallet");
-  }, []);
-
   return (
     <SimplePageLayout title="Unlock Wallet">
       <form
@@ -57,7 +53,7 @@ const Unlock: React.FC = () => {
         onSubmit={handleSubmit(onSubmit)}
       >
         <FormField
-          ref={register({ required: "Required." })}
+          ref={register({ required: "Required" })}
           label="Password"
           labelDescription="A password is used to protect the wallet."
           id="unlock-password"
@@ -65,21 +61,29 @@ const Unlock: React.FC = () => {
           name="password"
           placeholder="********"
           errorCaption={errors.password && errors.password.message}
-          containerClassName="mb-6"
+          containerClassName="mb-4"
           autoFocus
         />
 
-        <div className="flex items-stretch">
-          <FormSubmitButton loading={submitting}>Unlock</FormSubmitButton>
+        <FormSubmitButton loading={submitting}>Unlock</FormSubmitButton>
 
-          <div className="flex-1" />
+        <div className="my-6">
+          <h3 className="text-gray-600 text-sm font-light">
+            Restore Account? Want to sign in another?
+          </h3>
 
-          <FormSecondaryButton
-            disabled={submitting}
-            onClick={handleImportAnotherClick}
+          <Link
+            to="/import-wallet"
+            className={classNames(
+              "text-primary-orange",
+              "text-sm font-semibold",
+              "transition duration-200 ease-in-out",
+              "opacity-75 hover:opacity-100 focus:opacity-100",
+              "hover:underline"
+            )}
           >
-            Import another
-          </FormSecondaryButton>
+            Import Wallet using Seed Phrase
+          </Link>
         </div>
       </form>
     </SimplePageLayout>
