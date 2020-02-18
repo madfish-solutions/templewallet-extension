@@ -2,12 +2,14 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic, generateMnemonic } from "bip39";
+import { Link } from "lib/woozie";
 import { useThanosFrontContext } from "lib/thanos/front";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
   MNEMONIC_ERROR_CAPTION
 } from "app/defaults";
+import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormCheckbox from "app/atoms/FormCheckbox";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -25,7 +27,7 @@ type NewWalletProps = {
 };
 
 const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
-  const { registerWallet } = useThanosFrontContext();
+  const { locked, registerWallet } = useThanosFrontContext();
 
   const {
     watch,
@@ -79,6 +81,31 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
         className="my-8 w-full mx-auto max-w-sm"
         onSubmit={handleSubmit(onSubmit)}
       >
+        {locked && (
+          <Alert
+            title="Attension!"
+            description={
+              <>
+                <p>
+                  Locked wallet <span className="font-bold">already exist</span>
+                  .
+                  <br />
+                  Importing a new one will{" "}
+                  <span className="font-bold">destroy the existing</span>.
+                </p>
+                <p className="mt-1">
+                  If you want to save something from already existing wallet -{" "}
+                  <Link to="/" className="font-bold hover:underline">
+                    back to Unlock page
+                  </Link>{" "}
+                  and unlock it.
+                </p>
+              </>
+            }
+            className="my-6"
+          />
+        )}
+
         {ownMnemonic && (
           <FormField
             secret
