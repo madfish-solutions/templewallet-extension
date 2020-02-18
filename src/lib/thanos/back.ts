@@ -64,7 +64,7 @@ export async function getFrontState(): Promise<ThanosFrontState> {
 }
 
 export async function registerNewWallet(mnemonic: string, password: string) {
-  const seed = Bip39.mnemonicToSeedSync(mnemonic, password);
+  const seed = Bip39.mnemonicToSeedSync(mnemonic);
   const privateKey = TaquitoUtils.b58cencode(
     seed.slice(0, 32),
     TaquitoUtils.prefix.edsk2
