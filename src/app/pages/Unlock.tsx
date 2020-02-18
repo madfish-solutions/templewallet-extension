@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { Link } from "lib/woozie";
-import { useThanosFrontContext } from "lib/thanos/front";
+import { useThanosFront } from "lib/thanos/front";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -14,7 +14,7 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 
 const Unlock: React.FC = () => {
-  const { unlock } = useThanosFrontContext();
+  const { unlock } = useThanosFront();
 
   const {
     register,

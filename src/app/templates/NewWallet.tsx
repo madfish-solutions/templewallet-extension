@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic, generateMnemonic } from "bip39";
 import { Link } from "lib/woozie";
-import { useThanosFrontContext } from "lib/thanos/front";
+import { useThanosFront } from "lib/thanos/front";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
@@ -27,7 +27,7 @@ type NewWalletProps = {
 };
 
 const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
-  const { locked, registerWallet } = useThanosFrontContext();
+  const { locked, registerWallet } = useThanosFront();
 
   const {
     watch,

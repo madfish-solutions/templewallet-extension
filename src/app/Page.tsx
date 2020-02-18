@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { useThanosFrontContext } from "lib/thanos/front";
-import { WindowType, useAppEnvContext, OpenInFullPage } from "app/env";
+import { useThanosFront } from "lib/thanos/front";
+import { WindowType, useAppEnv, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
 import ImportWallet from "app/pages/ImportWallet";
@@ -9,8 +9,8 @@ import CreateWallet from "app/pages/CreateWallet";
 import Explore from "app/pages/Explore";
 
 interface RouteContext {
-  appEnv: ReturnType<typeof useAppEnvContext>;
-  thanosFront: ReturnType<typeof useThanosFrontContext>;
+  appEnv: ReturnType<typeof useAppEnv>;
+  thanosFront: ReturnType<typeof useThanosFront>;
 }
 
 const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
@@ -68,7 +68,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 ]);
 
 const Page: React.FC = () => {
-  const { trigger, pathname } = Woozie.useLocationContext();
+  const { trigger, pathname } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
   React.useLayoutEffect(() => {
@@ -77,8 +77,8 @@ const Page: React.FC = () => {
     }
   }, [trigger, pathname]);
 
-  const appEnv = useAppEnvContext();
-  const thanosFront = useThanosFrontContext();
+  const appEnv = useAppEnv();
+  const thanosFront = useThanosFront();
 
   const ctx = React.useMemo<RouteContext>(() => ({ appEnv, thanosFront }), [
     appEnv,

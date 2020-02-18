@@ -1,10 +1,10 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useThanosFrontContext } from "lib/thanos/front";
+import { useThanosFront } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
 
 const Explore: React.FC = () => {
-  const { account } = useThanosFrontContext();
+  const { account } = useThanosFront();
 
   return (
     <PageLayout hasBackAction>

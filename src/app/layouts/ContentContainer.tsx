@@ -1,12 +1,12 @@
 import * as React from "react";
 import classNames from "clsx";
-import { WindowType, useAppEnvContext } from "app/env";
+import { WindowType, useAppEnv } from "app/env";
 
 const ContentContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,
   ...rest
 }) => {
-  const appEnv = useAppEnvContext();
+  const appEnv = useAppEnv();
 
   return (
     <div

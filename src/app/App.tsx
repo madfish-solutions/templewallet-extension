@@ -1,14 +1,14 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { useThanosFrontContext } from "lib/thanos/front";
-import { AppEnvironment, useAppEnvContext } from "app/env";
+import { ThanosFrontProvider } from "lib/thanos/front";
+import { AppEnvProvider } from "app/env";
 import AwaitFonts from "app/a11y/AwaitFonts";
 import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
 import ErrorBoundary from "app/ErrorBoundary";
 import Page from "app/Page";
 
 type AppProps = {
-  env: AppEnvironment;
+  env: React.ComponentProps<typeof AppEnvProvider>;
 };
 
 const App: React.FC<AppProps> = ({ env }) => (
@@ -27,13 +27,11 @@ const App: React.FC<AppProps> = ({ env }) => (
 export default App;
 
 const AppProvider: React.FC<AppProps> = ({ children, env }) => (
-  <useAppEnvContext.Provider {...env}>
+  <AppEnvProvider {...env}>
     <Woozie.Provider>
-      <useThanosFrontContext.Provider>
-        {children}
-      </useThanosFrontContext.Provider>
+      <ThanosFrontProvider>{children}</ThanosFrontProvider>
     </Woozie.Provider>
-  </useAppEnvContext.Provider>
+  </AppEnvProvider>
 );
 
 const AppSuspenseFallback: React.FC = () => (
