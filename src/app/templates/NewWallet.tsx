@@ -87,15 +87,16 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
             description={
               <>
                 <p>
-                  Locked wallet <span className="font-bold">already exist</span>
+                  Locked wallet{" "}
+                  <span className="font-semibold">already exist</span>
                   .
                   <br />
                   Importing a new one will{" "}
-                  <span className="font-bold">destroy the existing</span>.
+                  <span className="font-semibold">destroy the existing</span>.
                 </p>
                 <p className="mt-1">
                   If you want to save something from already existing wallet -{" "}
-                  <Link to="/" className="font-bold hover:underline">
+                  <Link to="/" className="font-semibold hover:underline">
                     back to Unlock page
                   </Link>{" "}
                   and unlock it.

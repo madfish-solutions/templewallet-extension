@@ -35,7 +35,7 @@ const Alert: React.FC<AlertProps> = ({
       role="alert"
       {...rest}
     >
-      {title && <h2 className="text-lg font-bold mb-1">{title}</h2>}
+      {title && <h2 className="text-lg font-semibold mb-1">{title}</h2>}
       {description && <div className="text-sm font-light">{description}</div>}
     </div>
   );
