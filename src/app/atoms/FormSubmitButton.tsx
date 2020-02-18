@@ -25,12 +25,14 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
         : "text-primary-orange-lighter text-shadow-black-orange",
       "text-base font-semibold",
       "transition duration-300 ease-in-out",
-      loading || disabled ? "opacity-75" : "opacity-90 hover:opacity-100",
+      loading || disabled
+        ? "opacity-75"
+        : "opacity-90 hover:opacity-100 focus:opacity-100",
       "shadow-sm",
-      !(loading || disabled) && "hover:shadow",
+      !(loading || disabled) && "hover:shadow focus:shadow",
       className
     )}
-    style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem", ...style }}
+    style={{ paddingTop: "0.625rem", paddingBottom: "0.625rem", ...style }}
     disabled={disabled}
     {...rest}
   >
