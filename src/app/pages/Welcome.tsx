@@ -22,8 +22,8 @@ const SIGNS = [
     title: "Import existing Wallet",
     description: (
       <>
-        Already have a seed phrase? Import your existing wallet using a 12 word
-        seed phrase
+        Already have a seed phrase? Import your existing wallet using a 12 or
+        more mnemonic words
       </>
     )
   },
