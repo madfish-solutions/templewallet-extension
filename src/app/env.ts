@@ -12,9 +12,16 @@ export enum WindowType {
   FullPage
 }
 
-export const [AppEnvProvider, useAppEnv] = constate(
-  (env: AppEnvironment) => env
-);
+export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
+  const fullPage = env.windowType === WindowType.FullPage;
+  const popup = env.windowType === WindowType.Popup;
+
+  return React.useMemo(() => ({ ...env, fullPage, popup }), [
+    env,
+    fullPage,
+    popup
+  ]);
+});
 
 export const OpenInFullPage: React.FC = () => {
   React.useEffect(() => {

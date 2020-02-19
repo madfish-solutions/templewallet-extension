@@ -2,9 +2,14 @@ import * as React from "react";
 import classNames from "clsx";
 import { useThanosFront } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
+import Identicon from "app/atoms/Identicon";
 
 const Explore: React.FC = () => {
   const { account } = useThanosFront();
+
+  if (!account) {
+    throw new Error("Explore page only allowed with existing Account");
+  }
 
   return (
     <PageLayout hasBackAction>
@@ -21,8 +26,12 @@ const Explore: React.FC = () => {
         <hr className="my-4" />
 
         <p className="font-base text-gray-600">
-          Hello, {account!.publicKeyHash}
+          Hello, {account.publicKeyHash}
         </p>
+
+        <div className="my-4">
+          <Identicon hash={account.publicKeyHash} size={56} />
+        </div>
       </div>
     </PageLayout>
   );
