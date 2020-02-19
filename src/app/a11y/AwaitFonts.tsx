@@ -1,19 +1,36 @@
 import * as React from "react";
+import useSWR from "swr";
 import FontFaceObserver from "fontfaceobserver";
 
-export default lazyVoid(async () => {
-  const fonts = [300, 400, 600].map(
-    weight => new FontFaceObserver("Inter", { weight })
-  );
-  await Promise.all(fonts.map(font => font.load()));
-  document.body.classList.add("font-inter");
-});
+type AwaitFontsProps = {
+  name: string;
+  weights: number[];
+  className: string;
+};
 
-function lazyVoid(factory: () => Promise<void>) {
-  return React.lazy(async () => {
-    await factory();
-    return { default: Nil };
+const AwaitFonts: React.FC<AwaitFontsProps> = ({
+  name,
+  weights,
+  className,
+  children
+}) => {
+  useSWR([name, weights, className], awaitFonts, {
+    suspense: true,
+    shouldRetryOnError: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false
   });
-}
 
-const Nil: React.FC = () => null;
+  return <>{children}</>;
+};
+
+export default AwaitFonts;
+
+async function awaitFonts(name: string, weights: number[], className: string) {
+  try {
+    const fonts = weights.map(weight => new FontFaceObserver(name, { weight }));
+    await Promise.all(fonts.map(font => font.load()));
+    document.body.classList.add(className);
+    return null;
+  } catch (_err) {}
+}

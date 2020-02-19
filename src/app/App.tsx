@@ -16,9 +16,14 @@ const App: React.FC<AppProps> = ({ env }) => (
     <React.Suspense fallback={<AppSuspenseFallback />}>
       <AppProvider env={env}>
         <DisableOutlinesForClick />
-        <AwaitFonts />
 
-        <Page />
+        <AwaitFonts
+          name="Inter"
+          weights={[300, 400, 600]}
+          className="font-inter"
+        >
+          <Page />
+        </AwaitFonts>
       </AppProvider>
     </React.Suspense>
   </ErrorBoundary>
