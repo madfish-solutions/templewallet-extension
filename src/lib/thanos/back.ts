@@ -2,7 +2,7 @@ import { createStore, createEvent } from "effector";
 import { browser } from "webextension-polyfill-ts";
 import { Buffer } from "buffer";
 import * as Bip39 from "bip39";
-// import * as Bip32 from "bip32";
+import * as Bip32 from "bip32";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
 import * as Passworder from "lib/passworder";
@@ -15,12 +15,27 @@ import {
   ThanosResponse
 } from "lib/thanos/types";
 
-// const TEZOS_BIP44_COINTYPE = 1729;
+const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY = "back";
 
 interface ThanosBackState {
   inited: boolean;
   front: ThanosFrontState;
+  passKey: CryptoKey | null;
+}
+
+interface UnlockedThanosBackState extends ThanosBackState {
+  passKey: CryptoKey;
+}
+
+interface EncryptedStuff {
+  mnemonic: string;
+  accounts: EncryptedAccount[];
+}
+
+interface EncryptedAccount {
+  name: string;
+  privateKey: string;
 }
 
 interface Storage {
@@ -65,15 +80,17 @@ export async function getFrontState(): Promise<ThanosFrontState> {
 
 export async function registerNewWallet(mnemonic: string, password: string) {
   const seed = Bip39.mnemonicToSeedSync(mnemonic);
-  const privateKey = TaquitoUtils.b58cencode(
-    seed.slice(0, 32),
-    TaquitoUtils.prefix.edsk2
-  );
-  const stuff = { mnemonic, privateKey };
+  const privateKey = seedToPrivateKey(seed, 0);
+
+  const initialAccount = {
+    name: "Account 1",
+    privateKey
+  };
+  const stuff = { mnemonic, accounts: [initialAccount] };
 
   const salt = Passworder.generateSalt();
   const passKey = await Passworder.generateKey(password, salt);
-  const encrypted = await Passworder.encrypt(stuff, passKey);
+  const encrypted = await encrypt(stuff, passKey);
 
   await saveStorage({
     salt: Buffer.from(salt).toString("hex"),
@@ -95,19 +112,64 @@ export async function unlock(password: string) {
   try {
     const salt = Buffer.from(storage.salt, "hex");
     const passKey = await Passworder.generateKey(password, salt);
-    const { privateKey } = await Passworder.decrypt(storage.encrypted, passKey);
-    const signer = new InMemorySigner(privateKey as string);
-    const publicKeyHash = await signer.publicKeyHash();
+    const { accounts } = await decrypt(storage.encrypted, passKey);
+    const frontAccount = await Promise.all(accounts.map(toFrontAccount));
 
-    const account = { publicKeyHash };
-    unlocked(account);
+    unlocked({ accounts: frontAccount, passKey });
   } catch (_err) {
     throw new Error("Incorrect password");
   }
 }
 
+export async function createAccounts(howMany = 1) {
+  const state = store.getState();
+  assertUnlocked(state);
+
+  const storage = await fetchStorage();
+  if (!storage) {
+    throw new Error("Storage Not Found");
+  }
+
+  const { mnemonic, accounts: exisitngAccounts } = await decrypt(
+    storage.encrypted,
+    state.passKey
+  );
+  const seed = Bip39.mnemonicToSeedSync(mnemonic);
+
+  const existingLength = exisitngAccounts.length;
+  const newAccounts = Array.from({ length: howMany }).map((_, i) => {
+    const newIndex = existingLength + i;
+    return {
+      name: `Account ${newIndex}`,
+      privateKey: seedToPrivateKey(seed, newIndex)
+    };
+  });
+
+  const accounts = [...exisitngAccounts, ...newAccounts];
+
+  const encrypted = await encrypt({ mnemonic, accounts }, state.passKey);
+  await saveStorage({ ...storage, encrypted });
+
+  const frontAccounts = await Promise.all(accounts.map(toFrontAccount));
+  accountsUpdated(frontAccounts);
+}
+
 export async function lock() {
+  const state = store.getState();
+  assertInited(state);
+
   locked();
+}
+
+function encrypt(stuff: EncryptedStuff, passKey: CryptoKey) {
+  return Passworder.encrypt(stuff, passKey);
+}
+
+function decrypt(
+  encryptedPayload: Passworder.EncryptedPayload,
+  passKey: CryptoKey
+): Promise<EncryptedStuff> {
+  return Passworder.decrypt(encryptedPayload, passKey);
 }
 
 function assertInited(state: ThanosBackState) {
@@ -116,20 +178,34 @@ function assertInited(state: ThanosBackState) {
   }
 }
 
+function assertUnlocked(
+  state: ThanosBackState
+): asserts state is UnlockedThanosBackState {
+  assertInited(state);
+  if (state.front.status !== ThanosStatus.Ready) {
+    throw new Error("Not ready");
+  }
+}
+
 /**
  * Private
  */
 
 const inited = createEvent<boolean>("Inited");
-const unlocked = createEvent<ThanosAccount>("Unlocked");
 const locked = createEvent("Locked");
+const unlocked = createEvent<{
+  accounts: ThanosAccount[];
+  passKey: CryptoKey;
+}>("Unlocked");
+const accountsUpdated = createEvent<ThanosAccount[]>("Accounts updated");
 
 const store = createStore<ThanosBackState>({
   inited: false,
   front: {
     status: ThanosStatus.Idle,
-    account: null
-  }
+    accounts: []
+  },
+  passKey: null
 })
   .on(inited, (state, storageExist) => ({
     ...state,
@@ -139,21 +215,27 @@ const store = createStore<ThanosBackState>({
       status: storageExist ? ThanosStatus.Locked : ThanosStatus.Idle
     }
   }))
-  .on(unlocked, (state, account) => ({
+  .on(locked, () => ({
+    // Attension!
+    // Security stuff!
+    // Don't merge new state to exisitng!
+    // Build a new state from scratch
+    // Reset all security properties!
+    inited: true,
+    front: {
+      status: ThanosStatus.Locked,
+      accounts: []
+    },
+    passKey: null
+  }))
+  .on(unlocked, (state, { accounts, passKey }) => ({
     ...state,
     front: {
       ...state.front,
       status: ThanosStatus.Ready,
-      account
-    }
-  }))
-  .on(locked, state => ({
-    ...state,
-    front: {
-      ...state.front,
-      status: ThanosStatus.Locked,
-      account: null
-    }
+      accounts
+    },
+    passKey
   }));
 
 (async () => {
@@ -186,36 +268,20 @@ async function saveStorage(storage: Storage) {
   await browser.storage.local.set({ [STORAGE_KEY]: storage });
 }
 
-// function persistState(state: ThanosBackState) {
-//   const frontEncrypted = JSON.stringify(state.front);
-//   return browser.storage.local.set({ frontEncrypted });
-// }
+function seedToPrivateKey(seed: Buffer, account: number) {
+  const keyNode = Bip32.fromSeed(seed);
+  const keyChild = keyNode.derivePath(
+    `m/44'/${TEZOS_BIP44_COINTYPE}'/${account}'/0/0`
+  );
 
-// const privateKey = seedToPrivateKey(
-//   seed,
-//   `m/44'/${TEZOS_BIP44_COINTYPE}'/${account}'/0/0`
-// );
+  return TaquitoUtils.b58cencode(
+    keyChild.privateKey!.slice(0, 32),
+    TaquitoUtils.prefix.edsk2
+  );
+}
 
-// function seedToPrivateKey(seed: Buffer, derivePath: string) {
-//   const keyNode = Bip32.fromSeed(seed);
-//   const keyChild = keyNode.derivePath(derivePath);
-//   return keyChild.privateKey!.toString("hex");
-// }
-
-// const MNEMONIC = Symbol("ThanosVault.Mnemonic");
-// const KEY = Symbol("ThanosVault.Key");
-
-// class ThanosVault {
-//   [MNEMONIC]: string;
-//   [KEY]: string;
-
-//   constructor(mnemonic: string, password: string) {
-//     this[MNEMONIC] = mnemonic;
-//     this[KEY] = password;
-//   }
-// }
-
-/**
- * 1) Generate account from mnemonic;
- * 2)
- */
+async function toFrontAccount({ name, privateKey }: EncryptedAccount) {
+  const signer = new InMemorySigner(privateKey);
+  const publicKeyHash = await signer.publicKeyHash();
+  return { name, publicKeyHash };
+}
