@@ -46,18 +46,9 @@ const Unlock: React.FC = () => {
     [submitting, clearError, setError, unlock]
   );
 
-  const formRef = React.useRef<HTMLFormElement>(null);
-
-  React.useEffect(() => {
-    const selector = "#unlock-password";
-    const el = formRef.current?.querySelector<HTMLInputElement>(selector);
-    el?.focus();
-  }, []);
-
   return (
     <SimplePageLayout title="Unlock Wallet">
       <form
-        ref={formRef}
         className="my-8 w-full mx-auto max-w-sm"
         onSubmit={handleSubmit(onSubmit)}
       >
@@ -71,6 +62,7 @@ const Unlock: React.FC = () => {
           placeholder="********"
           errorCaption={errors.password && errors.password.message}
           containerClassName="mb-4"
+          autoFocus
         />
 
         <FormSubmitButton loading={submitting}>Unlock</FormSubmitButton>

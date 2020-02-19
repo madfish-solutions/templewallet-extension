@@ -11,7 +11,8 @@ type AwaitFontsProps = {
 const AwaitFonts: React.FC<AwaitFontsProps> = ({
   name,
   weights,
-  className
+  className,
+  children
 }) => {
   useSWR([name, weights, className], awaitFonts, {
     suspense: true,
@@ -20,7 +21,7 @@ const AwaitFonts: React.FC<AwaitFontsProps> = ({
     revalidateOnReconnect: false
   });
 
-  return null;
+  return <>{children}</>;
 };
 
 export default AwaitFonts;
