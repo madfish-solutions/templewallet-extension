@@ -113,9 +113,9 @@ export async function unlock(password: string) {
     const salt = Buffer.from(storage.salt, "hex");
     const passKey = await Passworder.generateKey(password, salt);
     const { accounts } = await decrypt(storage.encrypted, passKey);
-    const frontAccount = await Promise.all(accounts.map(toFrontAccount));
+    const frontAccounts = await Promise.all(accounts.map(toFrontAccount));
 
-    unlocked({ accounts: frontAccount, passKey });
+    unlocked({ accounts: frontAccounts, passKey });
   } catch (_err) {
     throw new Error("Incorrect password");
   }
