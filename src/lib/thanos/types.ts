@@ -1,6 +1,6 @@
 export interface ThanosFrontState {
   status: ThanosStatus;
-  account: ThanosAccount | null;
+  accounts: ThanosAccount[];
 }
 
 export enum ThanosStatus {
@@ -10,6 +10,7 @@ export enum ThanosStatus {
 }
 
 export interface ThanosAccount {
+  name: string;
   publicKeyHash: string;
 }
 

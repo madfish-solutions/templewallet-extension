@@ -48,7 +48,7 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     }
   }, [stateSWR]);
 
-  const { status, account } = state;
+  const { status, accounts } = state;
 
   const registerWallet = React.useCallback(
     async (mnemonic: string, password: string) => {
@@ -83,7 +83,18 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     }
   }, []);
 
-  return { status, account, idle, locked, ready, registerWallet, unlock, lock };
+  const account = accounts[0];
+
+  return {
+    status,
+    account,
+    idle,
+    locked,
+    ready,
+    registerWallet,
+    unlock,
+    lock
+  };
 });
 
 async function sendMessage(msg: ThanosRequest) {
