@@ -2,10 +2,11 @@ import * as React from "react";
 import classNames from "clsx";
 import { goBack } from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
-import { WindowType, useAppEnv } from "app/env";
+import { useAppEnv } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
+import Identicon from "app/atoms/Identicon";
 import styles from "./PageLayout.module.css";
-import SelectNetworkDropdown from "./PageLayout/SelectNetworkDropdown";
+// import SelectNetworkDropdown from "./PageLayout/SelectNetworkDropdown";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 
 type PageLayoutProps = HeaderProps;
@@ -24,10 +25,9 @@ type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
-  const { windowType } = useAppEnv();
-  const fullPageWindow = windowType === WindowType.FullPage;
+  const appEnv = useAppEnv();
 
-  const { ready, lock } = useThanosFront();
+  const { ready, account, lock } = useThanosFront();
 
   const handleBackAction = React.useCallback(() => {
     goBack();
@@ -42,13 +42,13 @@ const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
       className={classNames(
         "bg-primary-orange",
         styles["inner-shadow"],
-        fullPageWindow ? "pb-24 -mb-20" : "pb-4"
+        appEnv.fullPage && "pb-24 -mb-20"
       )}
     >
       <ContentContainer className={classNames("py-4", "flex items-center")}>
         <div className="flex items-center flex-shrink-0 text-white mr-6">
           <img src="../misc/icon.png" alt="" width="36" height="36" />
-          {fullPageWindow && (
+          {appEnv.fullPage && (
             <span className="font-semibold ml-2 text-xl tracking-tight">
               Thanos
             </span>
@@ -57,10 +57,34 @@ const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
 
         <div className="flex-1" />
 
-        {ready && <SelectNetworkDropdown />}
+        {/* {ready && <SelectNetworkDropdown />} */}
+
+        {ready && (
+          <>
+            {/* <span className="mr-2 text-base text-primary-white font-semibold text-shadow-black">
+              Account 1
+            </span> */}
+
+            <div
+              className={classNames(
+                "bg-white-10",
+                "border border-white-25",
+                "rounded-md",
+                "p-px",
+                "transition ease-in-out duration-200",
+                "shadow hover:shadow-md",
+                "cursor-pointer"
+              )}
+            >
+              <Identicon hash={account!.publicKeyHash} size={36} />
+            </div>
+          </>
+        )}
       </ContentContainer>
 
-      <ContentContainer className={classNames("flex items-center")}>
+      <ContentContainer
+        className={classNames("flex items-center", !appEnv.fullPage && "pb-4")}
+      >
         {hasBackAction && (
           <button
             className={classNames(
@@ -112,10 +136,9 @@ const Header: React.FC<HeaderProps> = ({ hasBackAction }) => {
 };
 
 const Content: React.FC = ({ children }) => {
-  const { windowType } = useAppEnv();
-  const fullPageWindow = windowType === WindowType.FullPage;
+  const appEnv = useAppEnv();
 
-  return fullPageWindow ? (
+  return appEnv.fullPage ? (
     <ContentContainer>
       <div
         className={classNames("bg-white", "rounded-md shadow-lg", "px-4")}
