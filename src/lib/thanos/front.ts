@@ -4,9 +4,9 @@ import useSWR from "swr";
 import { browser } from "webextension-polyfill-ts";
 import {
   ThanosMessageType,
+  ThanosStatus,
   ThanosRequest,
-  ThanosResponse,
-  ThanosStatus
+  ThanosResponse
 } from "lib/thanos/types";
 
 const NO_RES_ERROR_MESSAGE = "Invalid response recieved";
@@ -14,11 +14,8 @@ const NO_RES_ERROR_MESSAGE = "Invalid response recieved";
 export const [ThanosFrontProvider, useThanosFront] = constate(() => {
   const fetchState = React.useCallback(async () => {
     const res = await sendMessage({ type: ThanosMessageType.GetStateRequest });
-    if (res.type === ThanosMessageType.GetStateResponse) {
-      return res.state;
-    } else {
-      throw new Error(NO_RES_ERROR_MESSAGE);
-    }
+    assertResponse(res.type === ThanosMessageType.GetStateResponse);
+    return res.state;
   }, []);
 
   const stateSWR = useSWR("stub", fetchState, {
@@ -57,9 +54,7 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
         mnemonic,
         password
       });
-      if (res.type !== ThanosMessageType.NewWalletResponse) {
-        throw new Error(NO_RES_ERROR_MESSAGE);
-      }
+      assertResponse(res.type === ThanosMessageType.NewWalletResponse);
     },
     []
   );
@@ -69,18 +64,30 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
       type: ThanosMessageType.UnlockRequest,
       password
     });
-    if (res.type !== ThanosMessageType.UnlockResponse) {
-      throw new Error(NO_RES_ERROR_MESSAGE);
-    }
+    assertResponse(res.type === ThanosMessageType.UnlockResponse);
   }, []);
 
   const lock = React.useCallback(async () => {
     const res = await sendMessage({
       type: ThanosMessageType.LockRequest
     });
-    if (res.type !== ThanosMessageType.LockResponse) {
-      throw new Error(NO_RES_ERROR_MESSAGE);
-    }
+    assertResponse(res.type === ThanosMessageType.LockResponse);
+  }, []);
+
+  const createAccount = React.useCallback(async () => {
+    const res = await sendMessage({
+      type: ThanosMessageType.CreateAccountRequest
+    });
+    assertResponse(res.type === ThanosMessageType.CreateAccountResponse);
+  }, []);
+
+  const revealMnemonic = React.useCallback(async (password: string) => {
+    const res = await sendMessage({
+      type: ThanosMessageType.RevealMnemonicRequest,
+      password
+    });
+    assertResponse(res.type === ThanosMessageType.RevealMnemonicResponse);
+    return res.mnemonic;
   }, []);
 
   const account = accounts[0];
@@ -91,17 +98,24 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     idle,
     locked,
     ready,
+
+    // Callbacks
     registerWallet,
     unlock,
-    lock
+    lock,
+    createAccount,
+    revealMnemonic
   };
 });
 
 async function sendMessage(msg: ThanosRequest) {
   const res = await browser.runtime.sendMessage(msg);
-  if ("type" in res) {
-    return res as ThanosResponse;
-  } else {
+  assertResponse("type" in res);
+  return res as ThanosResponse;
+}
+
+function assertResponse(condition: any): asserts condition {
+  if (!condition) {
     throw new Error(NO_RES_ERROR_MESSAGE);
   }
 }
