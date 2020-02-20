@@ -23,20 +23,28 @@ export enum ThanosMessageType {
   UnlockRequest = "THANOS_WALLET_UNLOCK_REQUEST",
   UnlockResponse = "THANOS_WALLET_UNLOCK_RESPONSE",
   LockRequest = "THANOS_WALLET_LOCK_REQUEST",
-  LockResponse = "THANOS_WALLET_LOCK_RESPONSE"
+  LockResponse = "THANOS_WALLET_LOCK_RESPONSE",
+  CreateAccountRequest = "THANOS_WALLET_CREATE_ACCOUNT_REQUEST",
+  CreateAccountResponse = "THANOS_WALLET_CREATE_ACCOUNT_RESPONSE",
+  RevealMnemonicRequest = "THANOS_WALLET_REVEAL_MNEMONIC_REQUEST",
+  RevealMnemonicResponse = "THANOS_WALLET_REVEAL_MNEMONIC_RESPONSE"
 }
 
 export type ThanosRequest =
   | ThanosGetStateRequest
   | ThanosNewWalletRequest
   | ThanosUnlockRequest
-  | ThanosLockRequest;
+  | ThanosLockRequest
+  | ThanosCreateAccountRequest
+  | ThanosRevalMnemonicRequest;
 
 export type ThanosResponse =
   | ThanosGetStateResponse
   | ThanosNewWalletResponse
   | ThanosUnlockResponse
-  | ThanosLockResponse;
+  | ThanosLockResponse
+  | ThanosCreateAccountResponse
+  | ThanosRevalMnemonicResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -76,4 +84,22 @@ export interface ThanosLockRequest extends ThanosMessageBase {
 
 export interface ThanosLockResponse extends ThanosMessageBase {
   type: ThanosMessageType.LockResponse;
+}
+
+export interface ThanosCreateAccountRequest extends ThanosMessageBase {
+  type: ThanosMessageType.CreateAccountRequest;
+}
+
+export interface ThanosCreateAccountResponse extends ThanosMessageBase {
+  type: ThanosMessageType.CreateAccountResponse;
+}
+
+export interface ThanosRevalMnemonicRequest extends ThanosMessageBase {
+  type: ThanosMessageType.RevealMnemonicRequest;
+  password: string;
+}
+
+export interface ThanosRevalMnemonicResponse extends ThanosMessageBase {
+  type: ThanosMessageType.RevealMnemonicResponse;
+  mnemonic: string;
 }
