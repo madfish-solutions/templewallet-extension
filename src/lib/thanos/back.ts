@@ -65,6 +65,17 @@ export async function processRequest(
     case ThanosMessageType.LockRequest:
       await lock();
       return { type: ThanosMessageType.LockResponse };
+
+    case ThanosMessageType.CreateAccountRequest:
+      await createAccounts();
+      return { type: ThanosMessageType.CreateAccountResponse };
+
+    case ThanosMessageType.RevealMnemonicRequest:
+      const mnemonic = await revealMnemonic(msg.password);
+      return {
+        type: ThanosMessageType.RevealMnemonicResponse,
+        mnemonic
+      };
   }
 }
 
@@ -98,6 +109,13 @@ export async function registerNewWallet(mnemonic: string, password: string) {
   });
 
   await unlock(password);
+}
+
+export async function lock() {
+  const state = store.getState();
+  assertInited(state);
+
+  locked();
 }
 
 export async function unlock(password: string) {
@@ -154,11 +172,24 @@ export async function createAccounts(howMany = 1) {
   accountsUpdated(frontAccounts);
 }
 
-export async function lock() {
+export async function revealMnemonic(password: string) {
   const state = store.getState();
-  assertInited(state);
+  assertUnlocked(state);
 
-  locked();
+  const storage = await fetchStorage();
+  if (!storage) {
+    throw new Error("Storage Not Found");
+  }
+
+  try {
+    const salt = Buffer.from(storage.salt, "hex");
+    const passKey = await Passworder.generateKey(password, salt);
+    const { mnemonic } = await decrypt(storage.encrypted, passKey);
+
+    return mnemonic;
+  } catch (_err) {
+    throw new Error("Invalid password");
+  }
 }
 
 function encrypt(stuff: EncryptedStuff, passKey: CryptoKey) {
