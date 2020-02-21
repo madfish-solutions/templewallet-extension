@@ -1,4 +1,5 @@
 import * as React from "react";
+import useSWR from "swr";
 import classNames from "clsx";
 import { TZStatsNetwork, getAccountOperations } from "lib/TZStatsApi";
 
@@ -17,23 +18,23 @@ enum FieldName {
   total_fees_paid = "Total Fees Paid"
 }
 
+const fetchAccountOperations = (
+  network: TZStatsNetwork,
+  publicKeyHash: string
+) =>
+  getAccountOperations(network, {
+    publicKeyHash
+  });
+
 const ExploreAccount: React.FC<any> = ({ ownMnemonic, title }) => {
-  const [network, setNetwork] = React.useState(TZStatsNetwork.Mainnet);
-  const [publicKeyHash, setPublicKeyHash] = React.useState(
+  const [network] = React.useState(TZStatsNetwork.Mainnet);
+  const [publicKeyHash] = React.useState(
     "tz1W1f1JrE7VsqgpUpj1iiDobqP5TixgZhDk"
   );
-
-  const [account, setAccount] = React.useState({ ops: [] });
-
-  React.useEffect(() => {
-    (async () => {
-      const fetchAccountOperations = await getAccountOperations(network, {
-        publicKeyHash
-      });
-      setAccount(fetchAccountOperations);
-      console.log(fetchAccountOperations, "acc");
-    })();
-  }, []);
+  const { data } = useSWR([network, publicKeyHash], fetchAccountOperations, {
+    suspense: true
+  });
+  const [account] = React.useState(data);
 
   return (
     <div className="py-4">
@@ -47,7 +48,7 @@ const ExploreAccount: React.FC<any> = ({ ownMnemonic, title }) => {
       </h1>
 
       <hr className="my-4" />
-      <div className="flex flex-wrap">
+      <div className="flex justify-center flex-wrap">
         {Object.keys(FieldName).map((field: string, key: number) => (
           <Card value={account[field]} title={FieldName[field]} key={key} />
         ))}
@@ -60,7 +61,7 @@ const ExploreAccount: React.FC<any> = ({ ownMnemonic, title }) => {
 
 const Card: React.FC<any> = ({ value, title }) => {
   return (
-    <div className="w-36 m-2 p-2 border-2">
+    <div className="w-48 m-2 p-2 border-2">
       <div>
         <span className="text-lg">{value}</span>
       </div>
