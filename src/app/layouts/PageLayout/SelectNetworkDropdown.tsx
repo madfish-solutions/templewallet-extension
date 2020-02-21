@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import useOnClickOutside from "use-onclickoutside";
+import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 
 const NETWORKS = [
   {
@@ -17,7 +18,13 @@ const NETWORKS = [
   }
 ];
 
-const SelectNetworkDropdown: React.FC = () => {
+type SelectNetworkDropdownProps = {
+  className?: string;
+};
+
+const SelectNetworkDropdown: React.FC<SelectNetworkDropdownProps> = ({
+  className
+}) => {
   const [network, setNetwork] = React.useState(() => NETWORKS[0]);
 
   const ref = React.useRef(null);
@@ -36,32 +43,49 @@ const SelectNetworkDropdown: React.FC = () => {
   useOnClickOutside(ref, handleClickOuside);
 
   return (
-    <div className="relative">
+    <div className={classNames("relative", className)}>
       <button
         className={classNames(
-          "mr-2 px-4 py-2",
-          "border-2 border-primary-orange-lighter hover:border-white",
-          "text-primary-orange-lighter hover:text-white",
-          "text-base font-medium",
-          "rounded",
-          "flex items-center"
+          "px-2 py-1",
+          "bg-white-10 rounded",
+          "border border-primary-orange-25",
+          "text-primary-white text-shadow-black",
+          "text-xs font-medium",
+          "transition ease-in-out duration-200",
+          opened ? "shadow-md" : "shadow hover:shadow-md focus:shadow-md",
+          opened
+            ? "opacity-100"
+            : "opacity-90 hover:opacity-100 focus:opacity-100",
+          "flex items-center",
+          "select-none"
         )}
-        style={{ transition: "all 0.3s" }}
         onClick={handleClick}
       >
         <div
-          className="mr-4 w-4 h-4 rounded-full border border-white"
+          className={classNames(
+            "mr-2",
+            "w-3 h-3",
+            "border border-primary-white",
+            "rounded-full",
+            "shadow-xs"
+          )}
           style={{ backgroundColor: network.color }}
         />
-        <span className="text-base">{network.label}</span>
-        <SortingIcon className="ml-2" style={{ height: 24, width: "auto" }} />
+
+        <span>{network.label}</span>
+
+        <ChevronDownIcon
+          className="ml-1 -mr-1 stroke-current stroke-2"
+          style={{ height: 16, width: "auto" }}
+        />
       </button>
+
       {opened && (
         <div
           ref={ref}
           className={classNames(
-            "absolute right-0",
-            "bg-black w-64 p-4",
+            "absolute right-0 z-50",
+            "bg-black w-64 p-2",
             "rounded overflow-hidden shadow"
           )}
           style={{ top: "120%", backgroundColor: "rgba(0, 0, 0, 0.9)" }}
@@ -104,20 +128,3 @@ const SelectNetworkDropdown: React.FC = () => {
 };
 
 export default SelectNetworkDropdown;
-
-const SortingIcon: React.FC<React.SVGProps<any>> = props => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    stroke="#fff"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-labelledby="sortingIconTitle"
-    color="#fff"
-    viewBox="0 0 24 24"
-    {...props}
-  >
-    <path d="M8 8.333L12 4.333 16 8.333 16 8.333" />
-    <path d="M16 15.667L12 19.667 8 15.667 8 15.667" />
-  </svg>
-);

@@ -769,6 +769,7 @@ module.exports = {
         borderColor: true
       },
       alpha: {
+        "5": 0.05,
         "10": 0.1,
         "25": 0.25,
         "50": 0.5,
