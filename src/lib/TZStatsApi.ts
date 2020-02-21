@@ -1,7 +1,5 @@
 import axios, { AxiosPromise } from "axios";
 
-axios.interceptors.response.use(res => res.data);
-
 export enum TZStatsNetwork {
   Mainnet = "https://api.tzstats.com",
   Zeronet = "https://api.zeronet.tzstats.com",
@@ -23,7 +21,7 @@ enum StatusType {
   Skipped = "skipped"
 }
 
-interface TZStatsAccountResponse {
+interface TZStatsAccount {
   address: string;
   address_type: AddressType;
   delegate: string;
@@ -103,9 +101,10 @@ interface TZStatsAccountResponse {
   next_bake_time: Date;
   next_endorse_height: number;
   next_endorse_time: Date;
+  ops?: object[];
 }
 
-interface TZStatsContractResponse {
+interface TZStatsContract {
   address: string;
   manager: string;
   delegate: string;
@@ -146,19 +145,20 @@ interface TZStatsContractResponse {
   bigmap_ids: BigInt64Array;
 }
 
-interface TZStatsContractScriptResponse {
+interface TZStatsContractScript {
   script: object;
   storage_type: object;
   entrypoint: object;
 }
 
-interface TZStatsContractStorageResponse {
+interface TZStatsContractStorage {
   //GET CONTRACT STORAGE
   meta: object;
   value: object;
   entrypoint: object;
 }
-interface TZStatsContractCallsResponse {
+
+interface TZStatsContractCalls {
   entrypoint: string;
   branch: string;
   id: number;
@@ -166,7 +166,7 @@ interface TZStatsContractCallsResponse {
   prim: object;
 }
 
-interface TZStatsMarketsTickersResponse {
+interface TZStatsMarketsTickers {
   pair: string;
   base: string;
   quote: string;
@@ -183,7 +183,7 @@ interface TZStatsMarketsTickersResponse {
   timestamp: Date;
 }
 
-interface TZStatsOperationResponse {
+interface TZStatsOperation {
   hash: string;
   type: string; // it is should be enum
   block: string;
@@ -231,7 +231,7 @@ export async function getAccount(
   params: { publicKeyHash: string }
 ) {
   return unify(
-    axios.get<TZStatsAccountResponse>(
+    axios.get<TZStatsAccount>(
       `${network}/explorer/account/${params.publicKeyHash}`
     )
   );
@@ -242,7 +242,7 @@ export async function getAccountOperations(
   params: { publicKeyHash: string }
 ) {
   return unify(
-    axios.get<TZStatsAccountResponse>(
+    axios.get<TZStatsAccount>(
       `${network}/explorer/account/${params.publicKeyHash}/op`
     )
   );
@@ -253,7 +253,7 @@ export async function getContract(
   params: { publicKeyHash: string }
 ) {
   return unify(
-    axios.get<TZStatsContractResponse>(
+    axios.get<TZStatsContract>(
       `${network}/explorer/contract/${params.publicKeyHash}`
     )
   );
@@ -263,7 +263,7 @@ export async function getContractScript(
   params: { publicKeyHash: string }
 ) {
   return unify(
-    axios.get<TZStatsContractScriptResponse>(
+    axios.get<TZStatsContractScript>(
       `${network}/explorer/contract/${params.publicKeyHash}/script`
     )
   );
@@ -274,7 +274,7 @@ export async function getContractStorage(
   params: { publicKeyHash: string }
 ) {
   return unify(
-    axios.get<TZStatsContractStorageResponse>(
+    axios.get<TZStatsContractStorage>(
       `${network}/explorer/contract/${params.publicKeyHash}/storage`
     )
   );
@@ -285,7 +285,7 @@ export async function getContractCalls(
   params: { publicKeyHash: string }
 ) {
   return unify(
-    axios.get<TZStatsContractCallsResponse>(
+    axios.get<TZStatsContractCalls>(
       `${network}/explorer/contract/${params.publicKeyHash}/calls`
     )
   );
@@ -297,7 +297,7 @@ export async function getContractManager(
 ) {
   // The response schema didnt provided it docs
   return unify(
-    axios.get<TZStatsContractCallsResponse>(
+    axios.get<TZStatsContractCalls>(
       `${network}/explorer/contract/${params.publicKeyHash}/manager`
     )
   );
@@ -305,7 +305,7 @@ export async function getContractManager(
 
 export async function getMarketsTickers(network: TZStatsNetwork) {
   return unify(
-    axios.get<TZStatsMarketsTickersResponse>(`${network}/markets/tickers`)
+    axios.get<TZStatsMarketsTickers[]>(`${network}/markets/tickers`)
   );
 }
 
@@ -314,7 +314,7 @@ export async function getOperations(
   params: { publicKeyHash: string }
 ) {
   return unify(
-    axios.get<TZStatsMarketsTickersResponse>(
+    axios.get<TZStatsOperation[]>(
       `${network}/explorer/op/${params.publicKeyHash}`
     )
   );
