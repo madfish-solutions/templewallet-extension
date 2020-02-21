@@ -3,6 +3,7 @@ import classNames from "clsx";
 import { useThanosFront } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
 import Identicon from "app/atoms/Identicon";
+import ExploreAccount from "app/templates/ExploreAccount";
 
 const Explore: React.FC = () => {
   const { account } = useThanosFront();
@@ -31,6 +32,9 @@ const Explore: React.FC = () => {
 
         <div className="my-4">
           <Identicon hash={account.publicKeyHash} size={56} />
+        </div>
+        <div className="my-4">
+          <ExploreAccount />
         </div>
       </div>
     </PageLayout>
