@@ -258,6 +258,7 @@ export async function getContract(
     )
   );
 }
+
 export async function getContractScript(
   network: TZStatsNetwork,
   params: { publicKeyHash: string }
