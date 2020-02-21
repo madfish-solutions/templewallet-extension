@@ -19,7 +19,7 @@ const App: React.FC<AppProps> = ({ env }) => (
 
         <AwaitFonts
           name="Inter"
-          weights={[300, 400, 600]}
+          weights={[300, 400, 500, 600]}
           className="font-inter"
         >
           <Page />
