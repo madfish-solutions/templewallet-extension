@@ -1,7 +1,14 @@
 import axios, { AxiosPromise } from "axios";
 
+export enum TZStatsNetwork {
+  Mainnet = "https://api.tzstats.com",
+  Zeronet = "https://api.zeronet.tzstats.com",
+  Babylonnet = "https://api.babylonnet.tzstats.com",
+  Carthagenet = "https://api.carthagenet.tzstats.com",
+  Labnet = "https://api.labnet.tzstats.com"
+}
+
 const apiClient = axios.create({
-  baseURL: "https://api.tzstats.com",
   responseType: "json",
   headers: {
     "Content-Type": "application/json"
@@ -226,65 +233,97 @@ interface TZStatsOperationResponse {
   branch: string;
 }
 
-export async function getAccount(publicKeyHash: string) {
-  return unify(
-    apiClient.get<TZStatsAccountResponse>(`explorer/account/${publicKeyHash}`)
-  );
-}
-
-export async function getAccountOperations(publicKeyHash: string) {
+export async function getAccount(
+  network: TZStatsNetwork,
+  publicKeyHash: string
+) {
   return unify(
     apiClient.get<TZStatsAccountResponse>(
-      `explorer/account/${publicKeyHash}/op`
+      `${network}/explorer/account/${publicKeyHash}`
     )
   );
 }
 
-export async function getContract(publicKeyHash: string) {
+export async function getAccountOperations(
+  network: TZStatsNetwork,
+  publicKeyHash: string
+) {
   return unify(
-    apiClient.get<TZStatsContractResponse>(`explorer/contract/${publicKeyHash}`)
+    apiClient.get<TZStatsAccountResponse>(
+      `${network}/explorer/account/${publicKeyHash}/op`
+    )
   );
 }
-export async function getContractScript(publicKeyHash: string) {
+
+export async function getContract(
+  network: TZStatsNetwork,
+  publicKeyHash: string
+) {
+  return unify(
+    apiClient.get<TZStatsContractResponse>(
+      `${network}/explorer/contract/${publicKeyHash}`
+    )
+  );
+}
+export async function getContractScript(
+  network: TZStatsNetwork,
+  publicKeyHash: string
+) {
   return unify(
     apiClient.get<TZStatsContractScriptResponse>(
-      `explorer/contract/${publicKeyHash}/script`
+      `${network}/explorer/contract/${publicKeyHash}/script`
     )
   );
 }
 
-export async function getContractStorage(publicKeyHash: string) {
+export async function getContractStorage(
+  network: TZStatsNetwork,
+  publicKeyHash: string
+) {
   return unify(
     apiClient.get<TZStatsContractStorageResponse>(
-      `explorer/contract/${publicKeyHash}/storage`
+      `${network}/explorer/contract/${publicKeyHash}/storage`
     )
   );
 }
 
-export async function getContractCalls(publicKeyHash: string) {
+export async function getContractCalls(
+  network: TZStatsNetwork,
+  publicKeyHash: string
+) {
   return unify(
     apiClient.get<TZStatsContractCallsResponse>(
-      `explorer/contract/${publicKeyHash}/calls`
+      `${network}/explorer/contract/${publicKeyHash}/calls`
     )
   );
 }
 
-export async function getContractManager(publicKeyHash: string) {
+export async function getContractManager(
+  network: TZStatsNetwork,
+  publicKeyHash: string
+) {
   // The response schema didnt provided it docs
   return unify(
     apiClient.get<TZStatsContractCallsResponse>(
-      `explorer/contract/${publicKeyHash}/manager`
+      `${network}/explorer/contract/${publicKeyHash}/manager`
     )
   );
 }
 
-export async function getMarketsTickers() {
-  return unify(apiClient.get<TZStatsMarketsTickersResponse>(`markets/tickers`));
+export async function getMarketsTickers(network: TZStatsNetwork) {
+  return unify(
+    apiClient.get<TZStatsMarketsTickersResponse>(`${network}/markets/tickers`)
+  );
 }
 
-export async function getOperations(publicKeyHash: string) {
+export async function getOperations(
+  network: TZStatsNetwork,
+  publicKeyHash: string
+) {
   return unify(
-    apiClient.get<TZStatsMarketsTickersResponse>(`explorer/op/${publicKeyHash}`)
+    apiClient.get<TZStatsMarketsTickersResponse>(
+      `${network}/explorer/op/${publicKeyHash}`
+    )
   );
 }
 
