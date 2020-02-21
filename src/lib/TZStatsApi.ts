@@ -1,4 +1,5 @@
 import axios, { AxiosPromise } from "axios";
+
 const apiClient = axios.create({
   baseURL: "https://api.tzstats.com",
   responseType: "json",
@@ -16,10 +17,10 @@ enum AddressType {
 }
 
 enum StatusType {
-  TZ1 = "applied",
-  TZ2 = "failed",
-  TZ3 = "backtracked",
-  TZ4 = "skipped"
+  Applied = "applied",
+  Failed = "failed",
+  Backtracked = "backtracked",
+  Skipped = "skipped"
 }
 
 interface TZStatsAccountResponse {
