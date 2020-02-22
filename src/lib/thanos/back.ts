@@ -156,7 +156,7 @@ export async function createAccounts(howMany = 1) {
 
   const existingLength = exisitngAccounts.length;
   const newAccounts = Array.from({ length: howMany }).map((_, i) => {
-    const newIndex = existingLength + i;
+    const newIndex = existingLength + i + 1;
     return {
       name: `Account ${newIndex}`,
       privateKey: seedToPrivateKey(seed, newIndex)
