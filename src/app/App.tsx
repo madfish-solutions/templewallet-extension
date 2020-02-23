@@ -40,7 +40,7 @@ const AppProvider: React.FC<AppProps> = ({ children, env }) => (
 );
 
 const docEl = document.documentElement;
-const transClassName = "scale-110";
+const transClassName = "scale-105";
 
 docEl.classList.add("opacity-0", "transform", transClassName);
 
