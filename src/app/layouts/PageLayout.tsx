@@ -8,6 +8,7 @@ import Identicon from "app/atoms/Identicon";
 import styles from "./PageLayout.module.css";
 import SelectNetworkDropdown from "./PageLayout/SelectNetworkDropdown";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
+// import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
 type PageLayoutProps = {
   hasBackAction?: boolean;
