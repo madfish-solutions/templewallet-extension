@@ -153,8 +153,8 @@ const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction }) => {
     const toolbarEl = rootRef.current;
     if ("IntersectionObserver" in window && toolbarEl) {
       const observer = new IntersectionObserver(
-        ([evt]) => {
-          setSticked(evt.intersectionRatio < 1);
+        ([entry]) => {
+          setSticked(entry.boundingClientRect.y < entry.rootBounds!.y);
         },
         { threshold: [1] }
       );

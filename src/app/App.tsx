@@ -39,8 +39,19 @@ const AppProvider: React.FC<AppProps> = ({ children, env }) => (
   </AppEnvProvider>
 );
 
-const AppSuspenseFallback: React.FC = () => (
-  <div className="w-full min-h-screen flex items-center justify-center">
-    <div className="p-2 text-lg font-semibold text-gray-600">Loading...</div>
-  </div>
-);
+const docEl = document.documentElement;
+const transClassName = "scale-110";
+
+docEl.classList.add("opacity-0", "transform", transClassName);
+
+const AppSuspenseFallback: React.FC = () => {
+  React.useEffect(
+    () => () => {
+      docEl.classList.add("transition", "easy-out", "duration-300");
+      docEl.classList.remove("opacity-0", transClassName);
+    },
+    []
+  );
+
+  return null;
+};
