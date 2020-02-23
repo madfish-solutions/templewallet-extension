@@ -47,7 +47,7 @@ docEl.classList.add("opacity-0", "transform", transClassName);
 const AppSuspenseFallback: React.FC = () => {
   React.useEffect(
     () => () => {
-      docEl.classList.add("transition", "easy-out", "duration-300");
+      docEl.classList.add("transition", "easy-in", "duration-200");
       docEl.classList.remove("opacity-0", transClassName);
     },
     []
