@@ -1,5 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
+import Popper from "lib/Popper";
 import { goBack } from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
 import { useAppEnv } from "app/env";
@@ -41,7 +42,9 @@ const Header: React.FC = () => {
       )}
     >
       <ContentContainer className="py-4">
-        <div className="flex items-strech">
+        <div
+          className={classNames("flex items-strech", appEnv.fullPage && "px-4")}
+        >
           <div className="flex items-center flex-shrink-0 text-white mr-6">
             <img src="../misc/icon.png" alt="" width="36" height="36" />
 
@@ -75,21 +78,35 @@ const Header: React.FC = () => {
                 <SelectNetworkDropdown />
               </div>
 
-              <div className="flex items-center">
-                <div
-                  className={classNames(
-                    "bg-white-10",
-                    "border border-white-25",
-                    "rounded-md",
-                    "p-px",
-                    "transition ease-in-out duration-200",
-                    "shadow hover:shadow-md",
-                    "cursor-pointer"
-                  )}
-                >
-                  <Identicon hash={account!.publicKeyHash} size={48} />
-                </div>
-              </div>
+              <Popper
+                popper={{
+                  placement: "bottom-end",
+                  strategy: "fixed"
+                }}
+                trigger={({ opened }) => (
+                  <button
+                    className={classNames(
+                      "bg-white-10",
+                      "border border-white-25",
+                      "rounded-md",
+                      "p-px",
+                      "transition ease-in-out duration-200",
+                      opened
+                        ? "shadow-md"
+                        : "shadow hover:shadow-md focus:shadow-md",
+                      opened
+                        ? "opacity-100"
+                        : "opacity-90 hover:opacity-100 focus:opacity-100",
+                      "cursor-pointer"
+                    )}
+                  >
+                    <Identicon hash={account!.publicKeyHash} size={48} />
+                  </button>
+                )}
+                className="flex items-center"
+              >
+                <AccountDropdown />
+              </Popper>
             </>
           )}
         </div>
@@ -136,15 +153,10 @@ type ToolbarProps = {
 
 const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction }) => {
   const appEnv = useAppEnv();
-  const { ready, lock } = useThanosFront();
 
   const handleBackAction = React.useCallback(() => {
     goBack();
   }, []);
-
-  const handleLogoutClick = React.useCallback(() => {
-    lock();
-  }, [lock]);
 
   const [sticked, setSticked] = React.useState(false);
 
@@ -214,16 +226,40 @@ const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction }) => {
       )}
 
       <div className="flex-1" />
+    </div>
+  );
+};
 
-      {ready && (
+const AccountDropdown: React.FC = () => {
+  const { accounts, account, lock } = useThanosFront();
+
+  const handleLogoutClick = React.useCallback(() => {
+    lock();
+  }, [lock]);
+
+  return (
+    <div
+      className={classNames(
+        "mt-2 bg-black-90 p-2",
+        "rounded overflow-hidden shadow-xl",
+        "text-white"
+      )}
+      style={{ minWidth: "16rem" }}
+    >
+      <div className="flex items-center">
+        <h3 className="mx-1 text-base font-light text-white-75">Accounts</h3>
+
+        <div className="flex-1" />
+
         <button
           className={classNames(
-            "px-4 py-2",
+            "px-4 py-1",
             "rounded",
+            "border border-white",
             "flex items-center",
-            "text-primary-orange text-shadow-black-orange",
-            "text-sm font-semibold",
-            "hover:bg-primary-orange-darker-5",
+            "text-white text-shadow-black",
+            "text-sm font-light",
+            "hover:bg-white-10",
             "transition duration-300 ease-in-out",
             "opacity-90 hover:opacity-100"
           )}
@@ -231,7 +267,34 @@ const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction }) => {
         >
           Log out
         </button>
-      )}
+      </div>
+
+      <div className="my-2 flex flex-col">
+        {accounts.map(acc => {
+          const selected = acc.publicKeyHash === account.publicKeyHash;
+
+          return (
+            <div
+              className={classNames(
+                "rounded overflow-hidden",
+                "flex items-center",
+                "p-1",
+                selected && "bg-white-10"
+              )}
+            >
+              <Identicon hash={acc.publicKeyHash} size={36} />
+
+              <span className="ml-2 text-base font-semibold">{acc.name}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* <hr />
+
+      <div className="my-2">
+
+      </div> */}
     </div>
   );
 };

@@ -94,6 +94,7 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
 
   return {
     status,
+    accounts,
     account,
     idle,
     locked,
