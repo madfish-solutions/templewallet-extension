@@ -17,7 +17,7 @@ type PopperProps = React.HTMLAttributes<HTMLDivElement> & {
 };
 
 const Popper: React.FC<PopperProps> = ({
-  popper: popperOptions,
+  popper: popperOptions = {},
   containerClassName,
   trigger,
   children,
@@ -45,7 +45,18 @@ const Popper: React.FC<PopperProps> = ({
       const popper = (popperRef.current = createPopper(
         triggerRef.current,
         popupRef.current,
-        popperOptions
+        {
+          ...popperOptions,
+          modifiers: [
+            {
+              name: "preventOverflow",
+              options: {
+                padding: 8
+              }
+            },
+            ...(popperOptions.modifiers ?? [])
+          ]
+        }
       ));
 
       return () => {
