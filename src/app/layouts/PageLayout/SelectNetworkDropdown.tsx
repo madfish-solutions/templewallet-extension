@@ -30,15 +30,7 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
     <Popper
       popper={{
         placement: "bottom",
-        strategy: "fixed",
-        modifiers: [
-          {
-            name: "offset",
-            options: {
-              offset: [0, 8]
-            }
-          }
-        ]
+        strategy: "fixed"
       }}
       trigger={({ opened }) => (
         <button
@@ -80,8 +72,11 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
       {({ setOpened }) => (
         <div
           className={classNames(
-            "bg-black w-64 p-2",
-            "rounded overflow-hidden shadow-lg"
+            "mt-2",
+            "bg-black-90",
+            "rounded overflow-hidden",
+            "shadow-xl",
+            "p-2"
           )}
         >
           {NETWORKS.map(net => {
@@ -91,7 +86,7 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
               <button
                 key={id}
                 className={classNames(
-                  "w-full rounded p-4",
+                  "w-full rounded p-4 mr-4",
                   !disabled && "hover:bg-white-alpha-005",
                   !disabled ? "cursor-pointer" : "cursor-default",
                   "flex items-center",
