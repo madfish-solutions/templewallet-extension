@@ -3,13 +3,15 @@ import classNames from "clsx";
 import Popper from "lib/Popper";
 import { goBack } from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
-import { useAppEnv } from "app/env";
+import { useAppEnv, openInFullPage } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
 import Identicon from "app/atoms/Identicon";
 import styles from "./PageLayout.module.css";
 import SelectNetworkDropdown from "./PageLayout/SelectNetworkDropdown";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
-// import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
+import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
+import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
 type PageLayoutProps = {
   hasBackAction?: boolean;
@@ -105,7 +107,7 @@ const Header: React.FC = () => {
                 )}
                 className="flex items-center"
               >
-                <AccountDropdown />
+                {({ setOpened }) => <AccountDropdown setOpened={setOpened} />}
               </Popper>
             </>
           )}
@@ -230,12 +232,51 @@ const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction }) => {
   );
 };
 
-const AccountDropdown: React.FC = () => {
-  const { accounts, account, lock } = useThanosFront();
+type AccountDropdown = {
+  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
+  const appEnv = useAppEnv();
+  const {
+    accounts,
+    account,
+    lock,
+    setAccIndex,
+    createAccount
+  } = useThanosFront();
+
+  const prevAccLengthRef = React.useRef(accounts.length);
+  React.useEffect(() => {
+    const accLength = accounts.length;
+    if (prevAccLengthRef.current < accLength) {
+      setAccIndex(accLength - 1);
+      setOpened(false);
+    }
+    prevAccLengthRef.current = accLength;
+  }, [accounts, setAccIndex, setOpened]);
 
   const handleLogoutClick = React.useCallback(() => {
     lock();
   }, [lock]);
+
+  const handleCreateAccountClick = React.useCallback(() => {
+    (async () => {
+      try {
+        await createAccount();
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+
+        alert(err.message);
+      }
+    })();
+  }, [createAccount]);
+
+  const handleMaximiseViewClick = React.useCallback(() => {
+    openInFullPage();
+  }, []);
 
   return (
     <div
@@ -247,7 +288,16 @@ const AccountDropdown: React.FC = () => {
       style={{ minWidth: "16rem" }}
     >
       <div className="flex items-center">
-        <h3 className="mx-1 text-base font-light text-white-75">Accounts</h3>
+        <h3
+          className={classNames(
+            "mx-1",
+            "flex items-center",
+            "text-sm font-light text-white-75"
+          )}
+        >
+          <PeopleIcon className="mr-1 h-6 w-auto stroke-current" />
+          Accounts
+        </h3>
 
         <div className="flex-1" />
 
@@ -270,31 +320,82 @@ const AccountDropdown: React.FC = () => {
       </div>
 
       <div className="my-2 flex flex-col">
-        {accounts.map(acc => {
+        {accounts.map((acc, i) => {
           const selected = acc.publicKeyHash === account.publicKeyHash;
+          const handleAccountClick = () => {
+            if (!selected) {
+              setAccIndex(i);
+            }
+            setOpened(false);
+          };
 
           return (
-            <div
+            <button
+              key={acc.publicKeyHash}
               className={classNames(
+                "block w-full",
                 "rounded overflow-hidden",
                 "flex items-center",
                 "p-1",
-                selected && "bg-white-10"
+                "transition ease-in-out duration-200",
+                selected ? "bg-white-25" : "hover:bg-white-10"
               )}
+              style={{
+                marginTop: "0.125rem",
+                marginBottom: "0.125rem"
+              }}
+              onClick={handleAccountClick}
             >
-              <Identicon hash={acc.publicKeyHash} size={36} />
+              <Identicon
+                hash={acc.publicKeyHash}
+                size={32}
+                className="border border-white-10"
+              />
 
-              <span className="ml-2 text-base font-semibold">{acc.name}</span>
-            </div>
+              <span className="ml-2 text-base font-medium">{acc.name}</span>
+            </button>
           );
         })}
       </div>
 
-      {/* <hr />
+      <hr />
 
       <div className="my-2">
+        <button
+          className={classNames(
+            "block w-full",
+            "my-1",
+            "rounded overflow-hidden",
+            "flex items-center",
+            "p-1",
+            "transition ease-in-out duration-200",
+            "hover:bg-white-10",
+            "text-base font-light"
+          )}
+          onClick={handleCreateAccountClick}
+        >
+          <AddIcon className="mr-2 h-6 w-auto stroke-current" /> Create account
+        </button>
 
-      </div> */}
+        {!appEnv.fullPage && (
+          <button
+            className={classNames(
+              "block w-full",
+              "my-1",
+              "rounded overflow-hidden",
+              "flex items-center",
+              "p-1",
+              "transition ease-in-out duration-200",
+              "hover:bg-white-10",
+              "text-base font-light"
+            )}
+            onClick={handleMaximiseViewClick}
+          >
+            <MaximiseIcon className="mr-2 h-6 w-auto stroke-current" /> Maximise
+            view
+          </button>
+        )}
+      </div>
     </div>
   );
 };
