@@ -359,6 +359,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
                   marginBottom: "0.125rem"
                 }}
                 onClick={handleAccountClick}
+                autoFocus={selected}
               >
                 <Identicon
                   hash={acc.publicKeyHash}
