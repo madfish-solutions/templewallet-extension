@@ -282,23 +282,22 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
     <div
       className={classNames(
         "mt-2",
-        "bg-gray-100",
-        "border border-black-10",
+        "border border-primary-orange-25",
         "rounded overflow-hidden shadow-xl",
         "p-2"
       )}
-      style={{ minWidth: "16rem" }}
+      style={{ minWidth: "16rem", backgroundColor: "#292929" }}
     >
-      <div className="flex items-center">
+      <div className="mb-2 flex items-end">
         <h3
           className={classNames(
             "mx-1",
             "flex items-center",
-            "text-sm font-light text-gray-500"
+            "text-sm text-white-90"
           )}
         >
-          <PeopleIcon className="mr-1 h-6 w-auto stroke-current" />
           Accounts
+          <PeopleIcon className="ml-1 h-6 w-auto stroke-current" />
         </h3>
 
         <div className="flex-1" />
@@ -307,11 +306,11 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
           className={classNames(
             "px-4 py-1",
             "rounded",
-            "border border-gray-400",
+            "border border-white",
             "flex items-center",
-            "text-gray-600",
-            "text-sm font-semibold",
-            "hover:bg-black-5",
+            "text-white text-shadow-black",
+            "text-sm",
+            "hover:bg-white-5",
             "transition duration-300 ease-in-out",
             "opacity-90 hover:opacity-100"
           )}
@@ -321,47 +320,56 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
         </button>
       </div>
 
-      <div className="my-2 flex flex-col">
-        {accounts.map((acc, i) => {
-          const selected = acc.publicKeyHash === account.publicKeyHash;
-          const handleAccountClick = () => {
-            if (!selected) {
-              setAccIndex(i);
-            }
-            setOpened(false);
-          };
+      <div
+        className={classNames(
+          "overflow-y-auto",
+          "my-2",
+          "border-t border-b border-white-25"
+        )}
+        style={{ maxHeight: "10rem" }}
+      >
+        <div className="my-2 flex flex-col">
+          {accounts.map((acc, i) => {
+            const selected = acc.publicKeyHash === account.publicKeyHash;
+            const handleAccountClick = () => {
+              if (!selected) {
+                setAccIndex(i);
+              }
+              setOpened(false);
+            };
 
-          return (
-            <button
-              key={acc.publicKeyHash}
-              className={classNames(
-                "block w-full",
-                "rounded overflow-hidden",
-                "flex items-center",
-                "p-1",
-                "text-gray-700",
-                "transition ease-in-out duration-200",
-                selected ? "bg-black-10" : "hover:bg-black-5"
-              )}
-              style={{
-                marginTop: "0.125rem",
-                marginBottom: "0.125rem"
-              }}
-              onClick={handleAccountClick}
-            >
-              <Identicon
-                hash={acc.publicKeyHash}
-                size={32}
-                className="border border-black-10"
-              />
+            return (
+              <button
+                key={acc.publicKeyHash}
+                className={classNames(
+                  "block w-full",
+                  "rounded overflow-hidden",
+                  "flex items-center",
+                  "p-1",
+                  "text-white",
+                  "transition ease-in-out duration-200",
+                  selected ? "bg-white-10" : "hover:bg-white-5"
+                )}
+                style={{
+                  marginTop: "0.125rem",
+                  marginBottom: "0.125rem"
+                }}
+                onClick={handleAccountClick}
+              >
+                <Identicon
+                  hash={acc.publicKeyHash}
+                  size={32}
+                  style={{
+                    boxShadow: "0 0 0 1px rgba(255, 255, 255, 0.25)"
+                  }}
+                />
 
-              <span className="ml-2 text-base font-medium">{acc.name}</span>
-            </button>
-          );
-        })}
+                <span className="ml-2 text-base font-medium">{acc.name}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-
-      <hr />
 
       <div className="my-2">
         <button
@@ -372,8 +380,8 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
             "flex items-center",
             "p-1",
             "transition ease-in-out duration-200",
-            "hover:bg-black-10",
-            "text-gray-700 text-base font-light"
+            "hover:bg-white-10",
+            "text-white text-shadow-black text-sm"
           )}
           onClick={handleCreateAccountClick}
         >
@@ -389,8 +397,8 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
               "flex items-center",
               "p-1",
               "transition ease-in-out duration-200",
-              "hover:bg-black-5",
-              "text-gray-700 text-base font-light"
+              "hover:bg-white-5",
+              "text-white text-sm"
             )}
             onClick={handleMaximiseViewClick}
           >

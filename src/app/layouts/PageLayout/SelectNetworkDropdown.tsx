@@ -73,11 +73,14 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
         <div
           className={classNames(
             "mt-2",
-            "bg-black-90",
+            "border border-primary-orange-25",
             "rounded overflow-hidden",
             "shadow-xl",
             "p-2"
           )}
+          style={{
+            backgroundColor: "#292929"
+          }}
         >
           {NETWORKS.map(net => {
             const { id, label, color, disabled } = net;
@@ -92,7 +95,7 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
                   "rounded",
                   "px-2 py-1",
                   "transition easy-in-out duration-200",
-                  !disabled && (selected ? "bg-white-25" : "hover:bg-white-10"),
+                  !disabled && (selected ? "bg-white-10" : "hover:bg-white-5"),
                   disabled ? "cursor-default" : "cursor-pointer",
                   "flex items-center",
                   disabled && "opacity-25"
