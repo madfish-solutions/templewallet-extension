@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import Popper from "lib/Popper";
-import { goBack } from "lib/woozie";
+import { Link, goBack, navigate } from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
 import { useAppEnv, openInFullPage } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
@@ -11,6 +11,7 @@ import SelectNetworkDropdown from "./PageLayout/SelectNetworkDropdown";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import { ReactComponent as ControlsIcon } from "app/icons/controls.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
 type PageLayoutProps = {
@@ -47,7 +48,10 @@ const Header: React.FC = () => {
         <div
           className={classNames("flex items-strech", appEnv.fullPage && "px-4")}
         >
-          <div className="flex items-center flex-shrink-0 text-white mr-6">
+          <Link
+            to="/"
+            className="block flex items-center flex-shrink-0 text-white mr-6"
+          >
             <img src="../misc/icon.png" alt="" width="36" height="36" />
 
             {appEnv.fullPage && (
@@ -55,7 +59,7 @@ const Header: React.FC = () => {
                 Thanos
               </span>
             )}
-          </div>
+          </Link>
 
           <div className="flex-1" />
 
@@ -274,6 +278,11 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
     })();
   }, [createAccount]);
 
+  const handleSettingsClick = React.useCallback(() => {
+    navigate("/settings");
+    setOpened(false);
+  }, [setOpened]);
+
   const handleMaximiseViewClick = React.useCallback(() => {
     openInFullPage();
   }, []);
@@ -288,8 +297,8 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
       )}
       style={{
         minWidth: "16rem",
-        backgroundColor: "#292929",
-        borderColor: "#202020"
+        backgroundColor: "#272727",
+        borderColor: "#4c4c4c"
       }}
     >
       <div className="mb-2 flex items-end">
@@ -330,7 +339,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
           "my-2",
           "border-t border-b border-white-25"
         )}
-        style={{ maxHeight: "10rem" }}
+        style={{ maxHeight: "11rem" }}
       >
         <div className="my-2 flex flex-col">
           {accounts.map((acc, i) => {
@@ -349,12 +358,13 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
                   "block w-full",
                   "rounded overflow-hidden",
                   "flex items-center",
-                  "p-1",
-                  "text-white",
+                  "text-white text-shadow-black",
                   "transition ease-in-out duration-200",
-                  selected ? "bg-white-10" : "hover:bg-white-5"
+                  selected ? "bg-white-10" : "hover:bg-white-5",
+                  !selected && "opacity-75 hover:opacity-100"
                 )}
                 style={{
+                  padding: "0.375rem",
                   marginTop: "0.125rem",
                   marginBottom: "0.125rem"
                 }}
@@ -377,40 +387,48 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
       </div>
 
       <div className="my-2">
-        <button
-          className={classNames(
-            "block w-full",
-            "my-1",
-            "rounded overflow-hidden",
-            "flex items-center",
-            "p-1",
-            "transition ease-in-out duration-200",
-            "hover:bg-white-10",
-            "text-white text-shadow-black text-sm"
-          )}
-          onClick={handleCreateAccountClick}
-        >
-          <AddIcon className="mr-2 h-6 w-auto stroke-current" /> Create account
-        </button>
+        {[
+          {
+            Icon: AddIcon,
+            content: "Create account",
+            onClick: handleCreateAccountClick
+          },
+          {
+            Icon: ControlsIcon,
+            content: "Settings",
+            onClick: handleSettingsClick
+          },
+          !appEnv.fullPage && {
+            Icon: MaximiseIcon,
+            content: "Maximise view",
+            onClick: handleMaximiseViewClick
+          }
+        ]
+          .filter(Boolean)
+          .map((item, i) => {
+            if (!item) return null;
+            const { Icon, content, onClick } = item;
 
-        {!appEnv.fullPage && (
-          <button
-            className={classNames(
-              "block w-full",
-              "my-1",
-              "rounded overflow-hidden",
-              "flex items-center",
-              "p-1",
-              "transition ease-in-out duration-200",
-              "hover:bg-white-5",
-              "text-white text-sm"
-            )}
-            onClick={handleMaximiseViewClick}
-          >
-            <MaximiseIcon className="mr-2 h-6 w-auto stroke-current" /> Maximise
-            view
-          </button>
-        )}
+            return (
+              <button
+                key={i}
+                className={classNames(
+                  "block w-full",
+                  "my-1",
+                  "rounded overflow-hidden",
+                  "flex items-center",
+                  "p-2",
+                  "transition ease-in-out duration-200",
+                  "hover:bg-white-10",
+                  "text-white text-shadow-black text-sm"
+                )}
+                onClick={onClick}
+              >
+                <Icon className="mr-2 h-6 w-auto stroke-current" />
+                {content}
+              </button>
+            );
+          })}
       </div>
     </div>
   );

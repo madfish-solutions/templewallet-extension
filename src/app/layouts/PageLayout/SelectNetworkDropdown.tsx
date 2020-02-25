@@ -79,8 +79,8 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
             "p-2"
           )}
           style={{
-            backgroundColor: "#292929",
-            borderColor: "#202020"
+            backgroundColor: "#272727",
+            borderColor: "#4c4c4c"
           }}
         >
           {NETWORKS.map(net => {
