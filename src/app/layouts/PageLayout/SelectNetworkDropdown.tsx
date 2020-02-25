@@ -73,13 +73,14 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
         <div
           className={classNames(
             "mt-2",
-            "border border-primary-orange-25",
+            "border",
             "rounded overflow-hidden",
             "shadow-xl",
             "p-2"
           )}
           style={{
-            backgroundColor: "#292929"
+            backgroundColor: "#292929",
+            borderColor: "#202020"
           }}
         >
           {NETWORKS.map(net => {
