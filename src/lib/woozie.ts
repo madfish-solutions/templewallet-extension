@@ -16,13 +16,20 @@ export { Router };
 
 export function navigate(
   to: To,
-  action: HistoryAction.Push | HistoryAction.Replace = HistoryAction.Push
+  action?: HistoryAction.Push | HistoryAction.Replace
 ) {
   const lctn = createLocationState();
   const lctnUpdates = createLocationUpdates(to, lctn);
 
   const { pathname, search, hash, state } = lctnUpdates;
   const url = createUrl(pathname, search, hash);
+
+  if (!action) {
+    action =
+      url === createUrl(lctn.pathname, lctn.search, lctn.hash)
+        ? HistoryAction.Replace
+        : HistoryAction.Push;
+  }
 
   changeState(action, state, url);
 }
