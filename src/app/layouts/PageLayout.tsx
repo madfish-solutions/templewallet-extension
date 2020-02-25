@@ -350,7 +350,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
                   "rounded overflow-hidden",
                   "flex items-center",
                   "p-1",
-                  "text-white",
+                  "text-white text-shadow-black",
                   "transition ease-in-out duration-200",
                   selected ? "bg-white-10" : "hover:bg-white-5"
                 )}
@@ -383,7 +383,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
             "my-1",
             "rounded overflow-hidden",
             "flex items-center",
-            "p-1",
+            "p-2",
             "transition ease-in-out duration-200",
             "hover:bg-white-10",
             "text-white text-shadow-black text-sm"
