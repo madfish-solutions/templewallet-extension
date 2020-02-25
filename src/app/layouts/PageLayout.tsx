@@ -281,9 +281,11 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
   return (
     <div
       className={classNames(
-        "mt-2 bg-black-90 p-2",
+        "mt-2",
+        "bg-gray-100",
+        "border border-black-10",
         "rounded overflow-hidden shadow-xl",
-        "text-white"
+        "p-2"
       )}
       style={{ minWidth: "16rem" }}
     >
@@ -292,7 +294,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
           className={classNames(
             "mx-1",
             "flex items-center",
-            "text-sm font-light text-white-75"
+            "text-sm font-light text-gray-500"
           )}
         >
           <PeopleIcon className="mr-1 h-6 w-auto stroke-current" />
@@ -305,11 +307,11 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
           className={classNames(
             "px-4 py-1",
             "rounded",
-            "border border-white",
+            "border border-gray-400",
             "flex items-center",
-            "text-white text-shadow-black",
-            "text-sm font-light",
-            "hover:bg-white-10",
+            "text-gray-600",
+            "text-sm font-semibold",
+            "hover:bg-black-5",
             "transition duration-300 ease-in-out",
             "opacity-90 hover:opacity-100"
           )}
@@ -337,8 +339,9 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
                 "rounded overflow-hidden",
                 "flex items-center",
                 "p-1",
+                "text-gray-700",
                 "transition ease-in-out duration-200",
-                selected ? "bg-white-25" : "hover:bg-white-10"
+                selected ? "bg-black-10" : "hover:bg-black-5"
               )}
               style={{
                 marginTop: "0.125rem",
@@ -349,7 +352,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
               <Identicon
                 hash={acc.publicKeyHash}
                 size={32}
-                className="border border-white-10"
+                className="border border-black-10"
               />
 
               <span className="ml-2 text-base font-medium">{acc.name}</span>
@@ -369,8 +372,8 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
             "flex items-center",
             "p-1",
             "transition ease-in-out duration-200",
-            "hover:bg-white-10",
-            "text-base font-light"
+            "hover:bg-black-10",
+            "text-gray-700 text-base font-light"
           )}
           onClick={handleCreateAccountClick}
         >
@@ -386,8 +389,8 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
               "flex items-center",
               "p-1",
               "transition ease-in-out duration-200",
-              "hover:bg-white-10",
-              "text-base font-light"
+              "hover:bg-black-5",
+              "text-gray-700 text-base font-light"
             )}
             onClick={handleMaximiseViewClick}
           >
