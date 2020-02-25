@@ -256,6 +256,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
     if (prevAccLengthRef.current < accLength) {
       setAccIndex(accLength - 1);
       setOpened(false);
+      navigate("/");
     }
     prevAccLengthRef.current = accLength;
   }, [accounts, setAccIndex, setOpened]);
