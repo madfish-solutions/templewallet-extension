@@ -267,6 +267,13 @@ const store = createStore<ThanosBackState>({
       accounts
     },
     passKey
+  }))
+  .on(accountsUpdated, (state, accounts) => ({
+    ...state,
+    front: {
+      ...state.front,
+      accounts
+    }
   }));
 
 (async () => {

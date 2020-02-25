@@ -73,22 +73,31 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
         <div
           className={classNames(
             "mt-2",
-            "bg-black-90",
+            "border",
             "rounded overflow-hidden",
             "shadow-xl",
             "p-2"
           )}
+          style={{
+            backgroundColor: "#292929",
+            borderColor: "#202020"
+          }}
         >
           {NETWORKS.map(net => {
             const { id, label, color, disabled } = net;
+            const selected = network.id === id;
 
             return (
               <button
                 key={id}
                 className={classNames(
-                  "w-full rounded p-4 mr-4",
-                  !disabled && "hover:bg-white-alpha-005",
-                  !disabled ? "cursor-pointer" : "cursor-default",
+                  "w-full",
+                  "mb-1",
+                  "rounded",
+                  "px-2 py-1",
+                  "transition easy-in-out duration-200",
+                  !disabled && (selected ? "bg-white-10" : "hover:bg-white-5"),
+                  disabled ? "cursor-default" : "cursor-pointer",
                   "flex items-center",
                   disabled && "opacity-25"
                 )}
@@ -103,10 +112,10 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
                 }}
               >
                 <div
-                  className="mr-4 w-4 h-4 rounded-full border border-white"
+                  className="mr-2 w-3 h-3 rounded-full border border-white"
                   style={{ backgroundColor: color }}
                 />
-                <span className="text-white text-base">{label}</span>
+                <span className="text-white text-sm">{label}</span>
               </button>
             );
           })}
