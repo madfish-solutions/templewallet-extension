@@ -50,6 +50,12 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
   const [accIndex, setAccIndex] = React.useState(0);
   const account = accounts[accIndex];
 
+  React.useEffect(() => {
+    if (accIndex >= accounts.length) {
+      setAccIndex(0);
+    }
+  }, [accounts, accIndex, setAccIndex]);
+
   const registerWallet = React.useCallback(
     async (mnemonic: string, password: string) => {
       const res = await sendMessage({

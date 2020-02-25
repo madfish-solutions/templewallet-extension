@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { ReactComponent as LockAltIcon } from "app/icons/lock-alt.svg";
 
-type FormFieldRef = HTMLInputElement & HTMLTextAreaElement;
+type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = React.InputHTMLAttributes<HTMLInputElement> &
   React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 interface FormFieldProps extends FormFieldAttrs {
@@ -125,7 +125,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
 
         <div className={classNames("relative", "mb-2", "flex items-stretch")}>
           <Field
-            ref={ref}
+            ref={ref as any}
             className={classNames(
               "appearance-none",
               "w-full",
