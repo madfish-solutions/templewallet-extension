@@ -25,9 +25,6 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     revalidateOnReconnect: false
   });
   const state = stateSWR.data!;
-  const idle = state.status === ThanosStatus.Idle;
-  const locked = state.status === ThanosStatus.Locked;
-  const ready = state.status === ThanosStatus.Ready;
 
   React.useEffect(() => {
     browser.runtime.onMessage.addListener(handleMessage);
@@ -46,6 +43,18 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
   }, [stateSWR]);
 
   const { status, accounts } = state;
+  const idle = status === ThanosStatus.Idle;
+  const locked = status === ThanosStatus.Locked;
+  const ready = status === ThanosStatus.Ready;
+
+  const [accIndex, setAccIndex] = React.useState(0);
+  const account = accounts[accIndex];
+
+  React.useEffect(() => {
+    if (accIndex >= accounts.length) {
+      setAccIndex(0);
+    }
+  }, [accounts, accIndex, setAccIndex]);
 
   const registerWallet = React.useCallback(
     async (mnemonic: string, password: string) => {
@@ -90,16 +99,17 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     return res.mnemonic;
   }, []);
 
-  const account = accounts[0];
-
   return {
     status,
-    account,
     idle,
     locked,
     ready,
+    accounts,
+    accIndex,
+    account,
 
     // Callbacks
+    setAccIndex,
     registerWallet,
     unlock,
     lock,
