@@ -157,7 +157,7 @@ type ToolbarProps = {
   hasBackAction?: boolean;
 };
 
-const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction = true }) => {
   const appEnv = useAppEnv();
 
   const handleBackAction = React.useCallback(() => {

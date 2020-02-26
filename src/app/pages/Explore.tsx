@@ -12,7 +12,7 @@ const Explore: React.FC = () => {
   }
 
   return (
-    <PageLayout hasBackAction>
+    <PageLayout>
       <div className="py-4">
         <h1
           className={classNames(
