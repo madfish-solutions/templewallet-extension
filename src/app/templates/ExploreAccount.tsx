@@ -3,41 +3,75 @@ import useSWR from "swr";
 import classNames from "clsx";
 import { TZStatsNetwork, getAccountOperations } from "lib/TZStatsApi";
 
-enum FieldName {
-  total_balance = "Total Balance",
-  spendable_balance = "Spendable Balance",
-  rich_rank = "Rank",
-  total_received = "Total received",
-  total_sent = "Total sent",
-  n_tx = "Transactions",
-  n_ops = "Operations",
-  active_delegations = "Active delegations",
-  rolls = "Rolls owned",
-  first_seen = "Creation Date",
-  last_seen = "Last Active",
-  total_fees_paid = "Total Fees Paid"
-}
+const ACCOUNT_FIELDS = [
+  {
+    key: "total_balance",
+    title: "Total Balance"
+  },
+  {
+    key: "spendable_balance",
+    title: "Spendable Balance"
+  },
+  {
+    key: "rich_rank",
+    title: "Rank"
+  },
+  {
+    key: "total_received",
+    title: "Total received"
+  },
+  {
+    key: "total_sent",
+    title: "Total sent"
+  },
+  {
+    key: "n_tx",
+    title: "Transactions"
+  },
+  {
+    key: "n_ops",
+    title: "Operations"
+  },
+  {
+    key: "active_delegations",
+    title: "Active delegations"
+  },
+  {
+    key: "rolls",
+    title: "Rolls owned"
+  },
+  {
+    key: "first_seen",
+    title: "Creation Date"
+  },
+  {
+    key: "last_seen",
+    title: "Last Active"
+  },
+  {
+    key: "total_fees_paid",
+    title: "Total Fees Paid"
+  }
+];
 
 const fetchAccountOperations = (
   network: TZStatsNetwork,
   publicKeyHash: string
-) =>
-  getAccountOperations(network, {
-    publicKeyHash
-  });
+) => getAccountOperations(network, { publicKeyHash });
 
-const ExploreAccount: React.FC<any> = ({ ownMnemonic, title }) => {
-  const [network] = React.useState(TZStatsNetwork.Mainnet);
-  const [publicKeyHash] = React.useState(
-    "tz1W1f1JrE7VsqgpUpj1iiDobqP5TixgZhDk"
+const ExploreAccount: React.FC<any> = ({ title }) => {
+  const network = React.useMemo(() => TZStatsNetwork.Mainnet, []);
+  const publicKeyHash = React.useMemo(
+    () => "tz1W1f1JrE7VsqgpUpj1iiDobqP5TixgZhDk",
+    []
   );
   const { data } = useSWR([network, publicKeyHash], fetchAccountOperations, {
     suspense: true
   });
-  const [account] = React.useState(data);
+  const account = data!;
 
   return (
-    <div className="py-4">
+    <div className="py-4 max-w-full overflow-x-auto">
       <h1
         className={classNames(
           "mb-2",
@@ -48,12 +82,15 @@ const ExploreAccount: React.FC<any> = ({ ownMnemonic, title }) => {
       </h1>
 
       <hr className="my-4" />
+
       <div className="flex justify-center flex-wrap">
-        {Object.keys(FieldName).map((field: string, key: number) => (
-          <Card value={account[field]} title={FieldName[field]} key={key} />
+        {ACCOUNT_FIELDS.map(({ key, title }) => (
+          <Card key={key} value={(account as any)[key]} title={title} />
         ))}
       </div>
+
       <hr className="my-4" />
+
       <OperationsTable operations={account.ops} />
     </div>
   );
