@@ -4,7 +4,7 @@ import NewWallet from "app/templates/NewWallet";
 
 const CreateWallet: React.FC = () => {
   return (
-    <PageLayout hasBackAction>
+    <PageLayout>
       <NewWallet title="Create new Wallet" />
     </PageLayout>
   );

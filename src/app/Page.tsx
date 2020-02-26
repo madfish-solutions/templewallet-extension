@@ -7,11 +7,14 @@ import Welcome from "app/pages/Welcome";
 import ImportWallet from "app/pages/ImportWallet";
 import CreateWallet from "app/pages/CreateWallet";
 import Explore from "app/pages/Explore";
+import Settings from "app/pages/Settings";
 
 interface RouteContext {
   appEnv: ReturnType<typeof useAppEnv>;
   thanosFront: ReturnType<typeof useThanosFront>;
 }
+
+type RouteFactory = Woozie.Router.ResolveResult<RouteContext>;
 
 const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
@@ -45,24 +48,12 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   [
     "/",
-    (_p, { thanosFront }) => (
-      <Woozie.Redirect to={thanosFront.ready ? "/explore" : "/welcome"} />
-    )
+    (_p, { thanosFront }) => (thanosFront.ready ? <Explore /> : <Welcome />)
   ],
+  ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
   [
-    "/welcome",
-    (_p, { thanosFront }) =>
-      !thanosFront.ready ? <Welcome /> : Woozie.Router.SKIP
-  ],
-  [
-    "/create-wallet",
-    (_p, { thanosFront }) =>
-      !thanosFront.ready ? <CreateWallet /> : Woozie.Router.SKIP
-  ],
-  [
-    "/explore",
-    (_p, { thanosFront }) =>
-      thanosFront.ready ? <Explore /> : Woozie.Router.SKIP
+    "/settings/:tabSlug?",
+    onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)
   ],
   ["*", () => <Woozie.Redirect to="/" />]
 ]);
@@ -89,3 +80,13 @@ const Page: React.FC = () => {
 };
 
 export default Page;
+
+function onlyReady(factory: RouteFactory): RouteFactory {
+  return (params, ctx) =>
+    ctx.thanosFront.ready ? factory(params, ctx) : Woozie.Router.SKIP;
+}
+
+function onlyNotReady(factory: RouteFactory): RouteFactory {
+  return (params, ctx) =>
+    ctx.thanosFront.ready ? Woozie.Router.SKIP : factory(params, ctx);
+}

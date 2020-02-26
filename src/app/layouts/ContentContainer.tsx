@@ -2,7 +2,12 @@ import * as React from "react";
 import classNames from "clsx";
 import { WindowType, useAppEnv } from "app/env";
 
-const ContentContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+type ContentContainerProps = React.HTMLAttributes<HTMLDivElement> & {
+  padding?: boolean;
+};
+
+const ContentContainer: React.FC<ContentContainerProps> = ({
+  padding = true,
   className,
   ...rest
 }) => {
@@ -16,7 +21,7 @@ const ContentContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
           ? "max-w-screen-md"
           : "max-w-screen-sm",
         "mx-auto",
-        "px-4",
+        padding && "px-4",
         className
       )}
       {...rest}

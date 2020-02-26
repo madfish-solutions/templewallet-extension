@@ -19,7 +19,7 @@ const App: React.FC<AppProps> = ({ env }) => (
 
         <AwaitFonts
           name="Inter"
-          weights={[300, 400, 600]}
+          weights={[300, 400, 500, 600]}
           className="font-inter"
         >
           <Page />
@@ -39,8 +39,19 @@ const AppProvider: React.FC<AppProps> = ({ children, env }) => (
   </AppEnvProvider>
 );
 
-const AppSuspenseFallback: React.FC = () => (
-  <div className="w-full min-h-screen flex items-center justify-center">
-    <div className="p-2 text-lg font-semibold text-gray-600">Loading...</div>
-  </div>
-);
+const docEl = document.documentElement;
+const transClassName = "scale-105";
+
+docEl.classList.add("opacity-0", "transform", transClassName);
+
+const AppSuspenseFallback: React.FC = () => {
+  React.useEffect(
+    () => () => {
+      docEl.classList.add("transition", "easy-in", "duration-200");
+      docEl.classList.remove("opacity-0", transClassName);
+    },
+    []
+  );
+
+  return null;
+};

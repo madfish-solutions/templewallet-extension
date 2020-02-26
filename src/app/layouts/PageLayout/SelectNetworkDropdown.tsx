@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
-import useOnClickOutside from "use-onclickoutside";
+import Popper from "lib/Popper";
+import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 
 const NETWORKS = [
   {
@@ -17,65 +18,86 @@ const NETWORKS = [
   }
 ];
 
-const SelectNetworkDropdown: React.FC = () => {
+type NetworkDropdownProps = React.HTMLAttributes<HTMLDivElement>;
+
+const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
+  className,
+  ...rest
+}) => {
   const [network, setNetwork] = React.useState(() => NETWORKS[0]);
 
-  const ref = React.useRef(null);
-  const [opened, setOpened] = React.useState(false);
-  const handleClick = React.useCallback(
-    evt => {
-      evt.preventDefault();
-      setOpened(o => !o);
-    },
-    [setOpened]
-  );
-
-  const handleClickOuside = React.useCallback(() => {
-    setOpened(false);
-  }, [setOpened]);
-  useOnClickOutside(ref, handleClickOuside);
-
   return (
-    <div className="relative">
-      <button
-        className={classNames(
-          "mr-2 px-4 py-2",
-          "border-2 border-primary-orange-lighter hover:border-white",
-          "text-primary-orange-lighter hover:text-white",
-          "text-base font-medium",
-          "rounded",
-          "flex items-center"
-        )}
-        style={{ transition: "all 0.3s" }}
-        onClick={handleClick}
-      >
-        <div
-          className="mr-4 w-4 h-4 rounded-full border border-white"
-          style={{ backgroundColor: network.color }}
-        />
-        <span className="text-base">{network.label}</span>
-        <SortingIcon className="ml-2" style={{ height: 24, width: "auto" }} />
-      </button>
-      {opened && (
-        <div
-          ref={ref}
+    <Popper
+      popper={{
+        placement: "bottom",
+        strategy: "fixed"
+      }}
+      trigger={({ opened }) => (
+        <button
           className={classNames(
-            "absolute right-0",
-            "bg-black w-64 p-4",
-            "rounded overflow-hidden shadow"
+            "px-2 py-1",
+            "bg-white-10 rounded",
+            "border border-primary-orange-25",
+            "text-primary-white text-shadow-black",
+            "text-xs font-medium",
+            "transition ease-in-out duration-200",
+            opened ? "shadow-md" : "shadow hover:shadow-md focus:shadow-md",
+            opened
+              ? "opacity-100"
+              : "opacity-90 hover:opacity-100 focus:opacity-100",
+            "flex items-center",
+            "select-none"
           )}
-          style={{ top: "120%", backgroundColor: "rgba(0, 0, 0, 0.9)" }}
+        >
+          <div
+            className={classNames(
+              "mr-2",
+              "w-3 h-3",
+              "border border-primary-white",
+              "rounded-full",
+              "shadow-xs"
+            )}
+            style={{ backgroundColor: network.color }}
+          />
+
+          <span>{network.label}</span>
+
+          <ChevronDownIcon
+            className="ml-1 -mr-1 stroke-current stroke-2"
+            style={{ height: 16, width: "auto" }}
+          />
+        </button>
+      )}
+    >
+      {({ setOpened }) => (
+        <div
+          className={classNames(
+            "mt-2",
+            "border",
+            "rounded overflow-hidden",
+            "shadow-xl",
+            "p-2"
+          )}
+          style={{
+            backgroundColor: "#272727",
+            borderColor: "#4c4c4c"
+          }}
         >
           {NETWORKS.map(net => {
             const { id, label, color, disabled } = net;
+            const selected = network.id === id;
 
             return (
               <button
                 key={id}
                 className={classNames(
-                  "w-full rounded p-4",
-                  !disabled && "hover:bg-white-alpha-005",
-                  !disabled ? "cursor-pointer" : "cursor-default",
+                  "w-full",
+                  "mb-1",
+                  "rounded",
+                  "px-2 py-1",
+                  "transition easy-in-out duration-200",
+                  !disabled && (selected ? "bg-white-10" : "hover:bg-white-5"),
+                  disabled ? "cursor-default" : "cursor-pointer",
                   "flex items-center",
                   disabled && "opacity-25"
                 )}
@@ -90,34 +112,17 @@ const SelectNetworkDropdown: React.FC = () => {
                 }}
               >
                 <div
-                  className="mr-4 w-4 h-4 rounded-full border border-white"
+                  className="mr-2 w-3 h-3 rounded-full border border-white"
                   style={{ backgroundColor: color }}
                 />
-                <span className="text-white text-base">{label}</span>
+                <span className="text-white text-sm">{label}</span>
               </button>
             );
           })}
         </div>
       )}
-    </div>
+    </Popper>
   );
 };
 
-export default SelectNetworkDropdown;
-
-const SortingIcon: React.FC<React.SVGProps<any>> = props => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    stroke="#fff"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-labelledby="sortingIconTitle"
-    color="#fff"
-    viewBox="0 0 24 24"
-    {...props}
-  >
-    <path d="M8 8.333L12 4.333 16 8.333 16 8.333" />
-    <path d="M16 15.667L12 19.667 8 15.667 8 15.667" />
-  </svg>
-);
+export default NetworkDropdown;
