@@ -76,6 +76,12 @@ export async function processRequest(
         type: ThanosMessageType.RevealMnemonicResponse,
         mnemonic
       };
+
+    case ThanosMessageType.EditAccountRequest:
+      await editAccount(msg.accountIndex, msg.name);
+      return {
+        type: ThanosMessageType.EditAccountResponse
+      };
   }
 }
 
@@ -190,6 +196,34 @@ export async function revealMnemonic(password: string) {
   } catch (_err) {
     throw new Error("Invalid password");
   }
+}
+
+export async function editAccount(accIndex: number, name: string) {
+  const state = store.getState();
+  assertUnlocked(state);
+
+  const storage = await fetchStorage();
+  if (!storage) {
+    throw new Error("Storage Not Found");
+  }
+
+  const { accounts, ...decrypted } = await decrypt(
+    storage.encrypted,
+    state.passKey
+  );
+
+  const newAccounts = accounts.map((acc, i) =>
+    i === accIndex ? { ...acc, name } : acc
+  );
+
+  const encrypted = await encrypt(
+    { ...decrypted, accounts: newAccounts },
+    state.passKey
+  );
+  await saveStorage({ ...storage, encrypted });
+
+  const frontAccounts = await Promise.all(accounts.map(toFrontAccount));
+  accountsUpdated(frontAccounts);
 }
 
 function encrypt(stuff: EncryptedStuff, passKey: CryptoKey) {
