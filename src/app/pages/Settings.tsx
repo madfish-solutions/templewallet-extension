@@ -30,7 +30,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
   );
 
   return (
-    <PageLayout hasBackAction>
+    <PageLayout>
       <div className="py-4">
         <h1
           className={classNames(
