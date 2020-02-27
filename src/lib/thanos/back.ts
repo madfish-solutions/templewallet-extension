@@ -207,19 +207,16 @@ export async function editAccount(accIndex: number, name: string) {
     throw new Error("Storage Not Found");
   }
 
-  const { accounts, ...decrypted } = await decrypt(
+  const { accounts: exisitngAccounts, ...decrypted } = await decrypt(
     storage.encrypted,
     state.passKey
   );
 
-  const newAccounts = accounts.map((acc, i) =>
+  const accounts = exisitngAccounts.map((acc, i) =>
     i === accIndex ? { ...acc, name } : acc
   );
 
-  const encrypted = await encrypt(
-    { ...decrypted, accounts: newAccounts },
-    state.passKey
-  );
+  const encrypted = await encrypt({ ...decrypted, accounts }, state.passKey);
   await saveStorage({ ...storage, encrypted });
 
   const frontAccounts = await Promise.all(accounts.map(toFrontAccount));
