@@ -99,6 +99,18 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     return res.mnemonic;
   }, []);
 
+  const editAccountName = React.useCallback(
+    async (name: string) => {
+      const res = await sendMessage({
+        type: ThanosMessageType.EditAccountRequest,
+        accountIndex: accIndex,
+        name
+      });
+      assertResponse(res.type === ThanosMessageType.EditAccountResponse);
+    },
+    [accIndex]
+  );
+
   return {
     status,
     idle,
@@ -114,7 +126,8 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     unlock,
     lock,
     createAccount,
-    revealMnemonic
+    revealMnemonic,
+    editAccountName
   };
 });
 
