@@ -17,6 +17,7 @@ import {
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY = "back";
+const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 
 interface ThanosBackState {
   inited: boolean;
@@ -199,6 +200,8 @@ export async function revealMnemonic(password: string) {
 }
 
 export async function editAccount(accIndex: number, name: string) {
+  name = name.trim();
+
   const state = store.getState();
   assertUnlocked(state);
 
@@ -207,10 +210,20 @@ export async function editAccount(accIndex: number, name: string) {
     throw new Error("Storage Not Found");
   }
 
+  if (!ACCOUNT_NAME_PATTERN.test(name)) {
+    throw new Error(
+      "Invalid name. It should be: 1-16 characters, without special"
+    );
+  }
+
   const { accounts: exisitngAccounts, ...decrypted } = await decrypt(
     storage.encrypted,
     state.passKey
   );
+
+  if (exisitngAccounts.some((acc, i) => i !== accIndex && acc.name === name)) {
+    throw new Error("Account with same name already exist");
+  }
 
   const accounts = exisitngAccounts.map((acc, i) =>
     i === accIndex ? { ...acc, name } : acc
