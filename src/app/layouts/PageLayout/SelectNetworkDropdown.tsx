@@ -2,19 +2,38 @@ import * as React from "react";
 import classNames from "clsx";
 import Popper from "lib/Popper";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
+import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 
 const NETWORKS = [
   {
     disabled: false,
-    id: "testnet",
-    label: "Babylon testnet",
-    color: "#29b6af"
+    id: "mainnet",
+    label: "Tezos Mainnet",
+    color: "#83b300"
   },
   {
-    disabled: true,
-    id: "mainnet",
-    label: "Babylon mainnet",
-    color: "#ff4a8d"
+    disabled: false,
+    id: "babylonnet",
+    label: "Babylonnet",
+    color: "#ed6663"
+  },
+  {
+    disabled: false,
+    id: "zeronet",
+    label: "Zeronet",
+    color: "#e9e1cc"
+  },
+  {
+    disabled: false,
+    id: "carthagenet",
+    label: "Carthagenet",
+    color: "#0f4c81"
+  },
+  {
+    disabled: false,
+    id: "labnet",
+    label: "Labnet",
+    color: "#f6c90e"
   }
 ];
 
@@ -74,15 +93,28 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
           className={classNames(
             "mt-2",
             "border",
-            "rounded overflow-hidden",
+            "rounded-md overflow-hidden",
             "shadow-xl",
             "p-2"
           )}
           style={{
-            backgroundColor: "#272727",
-            borderColor: "#4c4c4c"
+            backgroundColor: "#1b262c",
+            borderColor: "#212e36"
           }}
         >
+          <h2
+            className={classNames(
+              "mb-2",
+              "border-b border-white-25",
+              "px-1 pb-1",
+              "flex items-center",
+              "text-white-90 text-sm text-center"
+            )}
+          >
+            <SignalAltIcon className="mr-1 h-4 w-auto stroke-current" />
+            Networks
+          </h2>
+
           {NETWORKS.map(net => {
             const { id, label, color, disabled } = net;
             const selected = network.id === id;
@@ -94,13 +126,15 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
                   "w-full",
                   "mb-1",
                   "rounded",
-                  "px-2 py-1",
                   "transition easy-in-out duration-200",
                   !disabled && (selected ? "bg-white-10" : "hover:bg-white-5"),
                   disabled ? "cursor-default" : "cursor-pointer",
                   "flex items-center",
                   disabled && "opacity-25"
                 )}
+                style={{
+                  padding: "0.375rem 1.5rem 0.375rem 0.5rem"
+                }}
                 disabled={disabled}
                 onClick={() => {
                   if (!disabled) {
@@ -112,10 +146,17 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
                 }}
               >
                 <div
-                  className="mr-2 w-3 h-3 rounded-full border border-white"
+                  className={classNames(
+                    "mr-2 w-3 h-3",
+                    "border border-primary-white",
+                    "rounded-full",
+                    "shadow-xs"
+                  )}
                   style={{ backgroundColor: color }}
                 />
-                <span className="text-white text-sm">{label}</span>
+                <span className="text-white text-sm text-shadow-black">
+                  {label}
+                </span>
               </button>
             );
           })}
