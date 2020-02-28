@@ -30,27 +30,35 @@ const Explore: React.FC = () => {
     setEditing(false);
   }, [setEditing]);
 
-  const handleSaveClick = React.useCallback(() => {
-    const newName = editAccNameFieldRef.current?.value;
-    if (newName && newName !== account.name) {
-      editAccountName(newName).catch(err => {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+  const handleEditSubmit = React.useCallback<React.FormEventHandler>(
+    evt => {
+      evt.preventDefault();
 
-        alert(err.message);
-      });
-    }
+      const newName = editAccNameFieldRef.current?.value;
+      if (newName && newName !== account.name) {
+        editAccountName(newName).catch(err => {
+          if (process.env.NODE_ENV === "development") {
+            console.error(err);
+          }
 
-    setEditing(false);
-  }, [account.name, editAccountName, setEditing]);
+          alert(err.message);
+        });
+      }
+
+      setEditing(false);
+    },
+    [account.name, editAccountName, setEditing]
+  );
 
   return (
     <PageLayout>
       <div className="pb-4">
         <div className="relative pt-4 flex items-center justify-center">
           {editing ? (
-            <div className="flex-1 flex flex-col items-center">
+            <form
+              className="flex-1 flex flex-col items-center"
+              onSubmit={handleEditSubmit}
+            >
               <FormField
                 ref={editAccNameFieldRef}
                 defaultValue={account.name}
@@ -65,6 +73,7 @@ const Explore: React.FC = () => {
 
               <div className="mb-2 flex items-stretch">
                 <button
+                  type="button"
                   className={classNames(
                     "mx-1",
                     "px-2 py-1",
@@ -89,12 +98,11 @@ const Explore: React.FC = () => {
                     "hover:bg-black-5",
                     "opacity-75 hover:opacity-100 focus:opacity-100"
                   )}
-                  onClick={handleSaveClick}
                 >
                   Save
                 </button>
               </div>
-            </div>
+            </form>
           ) : (
             <h1
               className={classNames(
