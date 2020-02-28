@@ -22,6 +22,15 @@ const Explore: React.FC = () => {
     }
   }, [editing]);
 
+  const autoCancelTimeoutRef = React.useRef<number>();
+
+  React.useEffect(
+    () => () => {
+      clearTimeout(autoCancelTimeoutRef.current);
+    },
+    []
+  );
+
   const handleEditClick = React.useCallback(() => {
     setEditing(true);
   }, [setEditing]);
@@ -50,6 +59,16 @@ const Explore: React.FC = () => {
     [account.name, editAccountName, setEditing]
   );
 
+  const handleEditFieldFocus = React.useCallback(() => {
+    clearTimeout(autoCancelTimeoutRef.current);
+  }, []);
+
+  const handleEditFieldBlur = React.useCallback(() => {
+    autoCancelTimeoutRef.current = window.setTimeout(() => {
+      setEditing(false);
+    }, 5_000);
+  }, [setEditing]);
+
   return (
     <PageLayout>
       <div className="pb-4">
@@ -69,6 +88,8 @@ const Explore: React.FC = () => {
                 style={{ padding: "0.075rem 0" }}
                 maxLength={16}
                 spellCheck={false}
+                onFocus={handleEditFieldFocus}
+                onBlur={handleEditFieldBlur}
               />
 
               <div className="mb-2 flex items-stretch">
