@@ -293,13 +293,13 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
       className={classNames(
         "mt-2",
         "border",
-        "rounded overflow-hidden shadow-xl",
+        "rounded-md overflow-hidden shadow-xl",
         "p-2"
       )}
       style={{
         minWidth: "16rem",
-        backgroundColor: "#272727",
-        borderColor: "#4c4c4c"
+        backgroundColor: "#1b262c",
+        borderColor: "#212e36"
       }}
     >
       <div className="mb-2 flex items-end">
