@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
-import { WindowType, useAppEnv, OpenInFullPage } from "app/env";
+import { useAppEnv, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
 import ImportWallet from "app/pages/ImportWallet";
@@ -24,7 +24,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
         case thanosFront.ready:
           return Woozie.Router.SKIP;
 
-        case appEnv.windowType !== WindowType.FullPage:
+        case !appEnv.fullPage:
           return <OpenInFullPage />;
 
         default:
@@ -34,17 +34,18 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   [
     "*",
-    (_p, { thanosFront }) =>
-      thanosFront.locked ? <Unlock /> : Woozie.Router.SKIP
-  ],
-  [
-    "*",
-    (_p, { appEnv, thanosFront }) =>
-      thanosFront.ready || appEnv.windowType === WindowType.FullPage ? (
-        Woozie.Router.SKIP
-      ) : (
-        <OpenInFullPage />
-      )
+    (_p, { appEnv, thanosFront }) => {
+      switch (true) {
+        case thanosFront.locked:
+          return <Unlock />;
+
+        case !thanosFront.ready && !appEnv.fullPage:
+          return <OpenInFullPage />;
+
+        default:
+          return Woozie.Router.SKIP;
+      }
+    }
   ],
   [
     "/",
