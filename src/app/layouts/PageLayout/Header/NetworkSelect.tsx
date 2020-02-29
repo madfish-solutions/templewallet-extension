@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import Popper from "lib/Popper";
+import DropdownWrapper from "app/atoms/DropdownWrapper";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 
@@ -37,9 +38,9 @@ const NETWORKS = [
   }
 ];
 
-type NetworkDropdownProps = React.HTMLAttributes<HTMLDivElement>;
+type NetworkSelectProps = React.HTMLAttributes<HTMLDivElement>;
 
-const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
+const NetworkSelect: React.FC<NetworkSelectProps> = ({
   className,
   ...rest
 }) => {
@@ -89,19 +90,7 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
       )}
     >
       {({ setOpened }) => (
-        <div
-          className={classNames(
-            "mt-2",
-            "border",
-            "rounded-md overflow-hidden",
-            "shadow-xl",
-            "p-2"
-          )}
-          style={{
-            backgroundColor: "#1b262c",
-            borderColor: "#212e36"
-          }}
-        >
+        <DropdownWrapper>
           <h2
             className={classNames(
               "mb-2",
@@ -160,10 +149,10 @@ const NetworkDropdown: React.FC<NetworkDropdownProps> = ({
               </button>
             );
           })}
-        </div>
+        </DropdownWrapper>
       )}
     </Popper>
   );
 };
 
-export default NetworkDropdown;
+export default NetworkSelect;
