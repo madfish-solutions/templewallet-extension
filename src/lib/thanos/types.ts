@@ -1,4 +1,4 @@
-export interface ThanosFrontState {
+export interface ThanosState {
   status: ThanosStatus;
   accounts: ThanosAccount[];
 }
@@ -10,8 +10,15 @@ export enum ThanosStatus {
 }
 
 export interface ThanosAccount {
+  type: ThanosAccountType;
   name: string;
   publicKeyHash: string;
+}
+
+export enum ThanosAccountType {
+  HD,
+  Imported,
+  Connected
 }
 
 export enum ThanosMessageType {
@@ -60,13 +67,13 @@ export interface ThanosGetStateRequest extends ThanosMessageBase {
 
 export interface ThanosGetStateResponse extends ThanosMessageBase {
   type: ThanosMessageType.GetStateResponse;
-  state: ThanosFrontState;
+  state: ThanosState;
 }
 
 export interface ThanosNewWalletRequest extends ThanosMessageBase {
   type: ThanosMessageType.NewWalletRequest;
-  mnemonic: string;
   password: string;
+  mnemonic?: string;
 }
 
 export interface ThanosNewWalletResponse extends ThanosMessageBase {
