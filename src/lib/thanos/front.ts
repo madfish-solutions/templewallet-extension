@@ -57,11 +57,11 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
   }, [accounts, accIndex, setAccIndex]);
 
   const registerWallet = React.useCallback(
-    async (mnemonic: string, password: string) => {
+    async (password: string, mnemonic?: string) => {
       const res = await sendMessage({
         type: ThanosMessageType.NewWalletRequest,
-        mnemonic,
-        password
+        password,
+        mnemonic
       });
       assertResponse(res.type === ThanosMessageType.NewWalletResponse);
     },

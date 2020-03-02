@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { validateMnemonic, generateMnemonic } from "bip39";
+import { validateMnemonic } from "bip39";
 import { Link } from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
 import {
@@ -50,8 +50,8 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
     async (data: FormData) => {
       try {
         await registerWallet(
-          ownMnemonic ? data.mnemonic! : generateMnemonic(128),
-          data.password
+          data.password,
+          ownMnemonic ? data.mnemonic! : undefined
         );
       } catch (err) {
         if (process.env.NODE_ENV === "development") {

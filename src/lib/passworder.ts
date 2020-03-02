@@ -41,10 +41,10 @@ export async function encrypt(
   };
 }
 
-export async function decrypt(
+export async function decrypt<T = any>(
   { dt: encryptedStuffHex, iv: ivHex }: EncryptedPayload,
   key: CryptoKey
-) {
+): Promise<T> {
   const stuffBuf = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv: Buffer.from(ivHex, "hex") },
     key,
@@ -54,15 +54,17 @@ export async function decrypt(
   return JSON.parse(stuffStr);
 }
 
-export async function generateKey(password: string, salt: Uint8Array) {
-  const key = await crypto.subtle.importKey(
+export function generateKey(password: string) {
+  return crypto.subtle.importKey(
     "raw",
     Buffer.alloc(32, password),
     "PBKDF2",
     false,
     ["deriveBits", "deriveKey"]
   );
+}
 
+export function deriveKey(key: CryptoKey, salt: Uint8Array) {
   return crypto.subtle.deriveKey(
     {
       name: "PBKDF2",

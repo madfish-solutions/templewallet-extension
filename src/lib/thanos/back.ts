@@ -1,47 +1,24 @@
 import { createStore, createEvent } from "effector";
 import { browser } from "webextension-polyfill-ts";
-import { Buffer } from "buffer";
-import * as Bip39 from "bip39";
-import * as Bip32 from "bip32";
-import * as TaquitoUtils from "@taquito/utils";
-import { InMemorySigner } from "@taquito/signer";
-import * as Passworder from "lib/passworder";
 import {
-  ThanosFrontState,
+  ThanosState,
   ThanosStatus,
   ThanosAccount,
   ThanosMessageType,
   ThanosRequest,
   ThanosResponse
 } from "lib/thanos/types";
+import { Vault } from "lib/thanos/back/vault";
 
-const TEZOS_BIP44_COINTYPE = 1729;
-const STORAGE_KEY = "back";
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 
-interface ThanosBackState {
+interface ThanosBackState extends ThanosState {
   inited: boolean;
-  front: ThanosFrontState;
-  passKey: CryptoKey | null;
+  vault: Vault | null;
 }
 
 interface UnlockedThanosBackState extends ThanosBackState {
-  passKey: CryptoKey;
-}
-
-interface EncryptedStuff {
-  mnemonic: string;
-  accounts: EncryptedAccount[];
-}
-
-interface EncryptedAccount {
-  name: string;
-  privateKey: string;
-}
-
-interface Storage {
-  salt: string;
-  encrypted: Passworder.EncryptedPayload;
+  vault: Vault;
 }
 
 export async function processRequest(
@@ -56,7 +33,7 @@ export async function processRequest(
       };
 
     case ThanosMessageType.NewWalletRequest:
-      await registerNewWallet(msg.mnemonic, msg.password);
+      await registerNewWallet(msg.password, msg.mnemonic);
       return { type: ThanosMessageType.NewWalletResponse };
 
     case ThanosMessageType.UnlockRequest:
@@ -68,7 +45,7 @@ export async function processRequest(
       return { type: ThanosMessageType.LockResponse };
 
     case ThanosMessageType.CreateAccountRequest:
-      await createAccounts();
+      await createHDAccount();
       return { type: ThanosMessageType.CreateAccountResponse };
 
     case ThanosMessageType.RevealMnemonicRequest:
@@ -86,34 +63,29 @@ export async function processRequest(
   }
 }
 
-export async function getFrontState(): Promise<ThanosFrontState> {
-  const { inited, front } = store.getState();
-  if (inited) {
-    return front;
+export async function getFrontState(): Promise<ThanosState> {
+  const state = store.getState();
+  if (state.inited) {
+    return frontStore.getState();
   } else {
     await new Promise(r => setTimeout(r, 10));
     return getFrontState();
   }
 }
 
-export async function registerNewWallet(mnemonic: string, password: string) {
-  const seed = Bip39.mnemonicToSeedSync(mnemonic);
-  const privateKey = seedToPrivateKey(seed, 0);
+export async function registerNewWallet(password: string, mnemonic?: string) {
+  const state = store.getState();
+  assertInited(state);
 
-  const initialAccount = {
-    name: "Account 1",
-    privateKey
-  };
-  const stuff = { mnemonic, accounts: [initialAccount] };
+  try {
+    await Vault.spawn(password, mnemonic);
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.error(err);
+    }
 
-  const salt = Passworder.generateSalt();
-  const passKey = await Passworder.generateKey(password, salt);
-  const encrypted = await encrypt(stuff, passKey);
-
-  await saveStorage({
-    salt: Buffer.from(salt).toString("hex"),
-    encrypted
-  });
+    throw new Error("Failed to create New Wallet");
+  }
 
   await unlock(password);
 }
@@ -129,122 +101,70 @@ export async function unlock(password: string) {
   const state = store.getState();
   assertInited(state);
 
-  const storage = await fetchStorage();
-  if (!storage) {
-    throw new Error("Nothing to unlock");
-  }
-
   try {
-    const salt = Buffer.from(storage.salt, "hex");
-    const passKey = await Passworder.generateKey(password, salt);
-    const { accounts } = await decrypt(storage.encrypted, passKey);
-    const frontAccounts = await Promise.all(accounts.map(toFrontAccount));
+    const vault = await Vault.setup(password);
+    const accounts = await vault.fetchAccounts();
 
-    unlocked({ accounts: frontAccounts, passKey });
-  } catch (_err) {
+    unlocked({ vault, accounts });
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.error(err);
+    }
+
     throw new Error("Incorrect password");
   }
 }
 
-export async function createAccounts(howMany = 1) {
+export async function createHDAccount() {
   const state = store.getState();
   assertUnlocked(state);
 
-  const storage = await fetchStorage();
-  if (!storage) {
-    throw new Error("Storage Not Found");
+  let updatedAccounts;
+  try {
+    updatedAccounts = await state.vault.createHDAccount();
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.error(err);
+    }
+
+    throw new Error("Failed to create HD Account");
   }
-
-  const { mnemonic, accounts: exisitngAccounts } = await decrypt(
-    storage.encrypted,
-    state.passKey
-  );
-  const seed = Bip39.mnemonicToSeedSync(mnemonic);
-
-  const existingLength = exisitngAccounts.length;
-  const newAccounts = Array.from({ length: howMany }).map((_, i) => {
-    const newIndex = existingLength + i + 1;
-    return {
-      name: `Account ${newIndex}`,
-      privateKey: seedToPrivateKey(seed, newIndex)
-    };
-  });
-
-  const accounts = [...exisitngAccounts, ...newAccounts];
-
-  const encrypted = await encrypt({ mnemonic, accounts }, state.passKey);
-  await saveStorage({ ...storage, encrypted });
-
-  const frontAccounts = await Promise.all(accounts.map(toFrontAccount));
-  accountsUpdated(frontAccounts);
+  accountsUpdated(updatedAccounts);
 }
 
 export async function revealMnemonic(password: string) {
   const state = store.getState();
   assertUnlocked(state);
 
-  const storage = await fetchStorage();
-  if (!storage) {
-    throw new Error("Storage Not Found");
-  }
-
   try {
-    const salt = Buffer.from(storage.salt, "hex");
-    const passKey = await Passworder.generateKey(password, salt);
-    const { mnemonic } = await decrypt(storage.encrypted, passKey);
+    return await state.vault.revealMnemonic(password);
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.error(err);
+    }
 
-    return mnemonic;
-  } catch (_err) {
     throw new Error("Invalid password");
   }
 }
 
 export async function editAccount(accIndex: number, name: string) {
-  name = name.trim();
-
   const state = store.getState();
   assertUnlocked(state);
 
-  const storage = await fetchStorage();
-  if (!storage) {
-    throw new Error("Storage Not Found");
-  }
-
+  name = name.trim();
   if (!ACCOUNT_NAME_PATTERN.test(name)) {
     throw new Error(
       "Invalid name. It should be: 1-16 characters, without special"
     );
   }
 
-  const { accounts: exisitngAccounts, ...decrypted } = await decrypt(
-    storage.encrypted,
-    state.passKey
-  );
-
-  if (exisitngAccounts.some((acc, i) => i !== accIndex && acc.name === name)) {
-    throw new Error("Account with same name already exist");
+  let updatedAccounts;
+  try {
+    updatedAccounts = await state.vault.editAccountName(accIndex, name);
+  } catch (_err) {
+    throw new Error("Failed to edit account name");
   }
-
-  const accounts = exisitngAccounts.map((acc, i) =>
-    i === accIndex ? { ...acc, name } : acc
-  );
-
-  const encrypted = await encrypt({ ...decrypted, accounts }, state.passKey);
-  await saveStorage({ ...storage, encrypted });
-
-  const frontAccounts = await Promise.all(accounts.map(toFrontAccount));
-  accountsUpdated(frontAccounts);
-}
-
-function encrypt(stuff: EncryptedStuff, passKey: CryptoKey) {
-  return Passworder.encrypt(stuff, passKey);
-}
-
-function decrypt(
-  encryptedPayload: Passworder.EncryptedPayload,
-  passKey: CryptoKey
-): Promise<EncryptedStuff> {
-  return Passworder.decrypt(encryptedPayload, passKey);
+  accountsUpdated(updatedAccounts);
 }
 
 function assertInited(state: ThanosBackState) {
@@ -257,7 +177,7 @@ function assertUnlocked(
   state: ThanosBackState
 ): asserts state is UnlockedThanosBackState {
   assertInited(state);
-  if (state.front.status !== ThanosStatus.Ready) {
+  if (state.status !== ThanosStatus.Ready) {
     throw new Error("Not ready");
   }
 }
@@ -269,101 +189,58 @@ function assertUnlocked(
 const inited = createEvent<boolean>("Inited");
 const locked = createEvent("Locked");
 const unlocked = createEvent<{
+  vault: Vault;
   accounts: ThanosAccount[];
-  passKey: CryptoKey;
 }>("Unlocked");
 const accountsUpdated = createEvent<ThanosAccount[]>("Accounts updated");
 
 const store = createStore<ThanosBackState>({
   inited: false,
-  front: {
-    status: ThanosStatus.Idle,
-    accounts: []
-  },
-  passKey: null
+  vault: null,
+  status: ThanosStatus.Idle,
+  accounts: []
 })
-  .on(inited, (state, storageExist) => ({
+  .on(inited, (state, vaultExist) => ({
     ...state,
     inited: true,
-    front: {
-      ...state.front,
-      status: storageExist ? ThanosStatus.Locked : ThanosStatus.Idle
-    }
+    status: vaultExist ? ThanosStatus.Locked : ThanosStatus.Idle
   }))
   .on(locked, () => ({
     // Attension!
     // Security stuff!
     // Don't merge new state to exisitng!
     // Build a new state from scratch
-    // Reset all security properties!
+    // Reset all properties!
     inited: true,
-    front: {
-      status: ThanosStatus.Locked,
-      accounts: []
-    },
-    passKey: null
+    vault: null,
+    status: ThanosStatus.Locked,
+    accounts: []
   }))
-  .on(unlocked, (state, { accounts, passKey }) => ({
+  .on(unlocked, (state, { vault, accounts }) => ({
     ...state,
-    front: {
-      ...state.front,
-      status: ThanosStatus.Ready,
-      accounts
-    },
-    passKey
+    vault,
+    status: ThanosStatus.Ready,
+    accounts
   }))
   .on(accountsUpdated, (state, accounts) => ({
     ...state,
-    front: {
-      ...state.front,
-      accounts
-    }
+    accounts
   }));
+
+const frontStore = store.map<ThanosState>(({ status, accounts }) => ({
+  status,
+  accounts
+}));
 
 (async () => {
   try {
-    const storage = await fetchStorage();
-    const storageExist = Boolean(storage);
-    inited(storageExist);
+    const vaultExist = await Vault.isExist();
+    inited(vaultExist);
 
-    store.watch(handleStateUpdate);
+    frontStore.watch(() => {
+      browser.runtime.sendMessage({ type: ThanosMessageType.StateUpdated });
+    });
   } catch (err) {
     throw err;
   }
 })();
-
-function handleStateUpdate(_state: ThanosBackState) {
-  // persistState(state);
-  browser.runtime.sendMessage({ type: ThanosMessageType.StateUpdated });
-}
-
-async function fetchStorage() {
-  const items = await browser.storage.local.get();
-  if (STORAGE_KEY in items) {
-    return items[STORAGE_KEY] as Storage;
-  } else {
-    return null;
-  }
-}
-
-async function saveStorage(storage: Storage) {
-  await browser.storage.local.set({ [STORAGE_KEY]: storage });
-}
-
-function seedToPrivateKey(seed: Buffer, account: number) {
-  const keyNode = Bip32.fromSeed(seed);
-  const keyChild = keyNode.derivePath(
-    `m/44'/${TEZOS_BIP44_COINTYPE}'/${account}'/0/0`
-  );
-
-  return TaquitoUtils.b58cencode(
-    keyChild.privateKey!.slice(0, 32),
-    TaquitoUtils.prefix.edsk2
-  );
-}
-
-async function toFrontAccount({ name, privateKey }: EncryptedAccount) {
-  const signer = new InMemorySigner(privateKey);
-  const publicKeyHash = await signer.publicKeyHash();
-  return { name, publicKeyHash };
-}
