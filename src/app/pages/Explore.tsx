@@ -135,30 +135,28 @@ const Explore: React.FC = () => {
             </h1>
           )}
 
-          <button
-            className={classNames(
-              "absolute top-0 right-0",
-              "px-2 py-1",
-              "rounded overflow-hidden",
-              "flex items-center",
-              "text-gray-600 text-sm",
-              "transition ease-in-out duration-200",
-              "hover:bg-black-5",
-              "opacity-75 hover:opacity-100 focus:opacity-100"
-            )}
-            onClick={handleEditClick}
-          >
-            {!editing && (
-              <>
-                <EditIcon
-                  className={classNames(
-                    "-ml-1 mr-1 h-4 w-auto stroke-current stroke-2"
-                  )}
-                />
-                Edit
-              </>
-            )}
-          </button>
+          {!editing && (
+            <button
+              className={classNames(
+                "absolute top-0 right-0",
+                "px-2 py-1",
+                "rounded overflow-hidden",
+                "flex items-center",
+                "text-gray-600 text-sm",
+                "transition ease-in-out duration-200",
+                "hover:bg-black-5",
+                "opacity-75 hover:opacity-100 focus:opacity-100"
+              )}
+              onClick={handleEditClick}
+            >
+              <EditIcon
+                className={classNames(
+                  "-ml-1 mr-1 h-4 w-auto stroke-current stroke-2"
+                )}
+              />
+              Edit
+            </button>
+          )}
         </div>
 
         <hr className="mb-4" />
