@@ -1,4 +1,4 @@
-import { Storage, browser } from "webextension-polyfill-ts";
+import { browser } from "webextension-polyfill-ts";
 import { Buffer } from "buffer";
 import * as Bip39 from "bip39";
 import * as Bip32 from "bip32";
@@ -178,15 +178,12 @@ async function encryptAndSave(items: [string, any][], passKey: CryptoKey) {
   const salt = await fetchSalt();
   const derivedPassKey = await Passworder.deriveKey(passKey, salt);
   const encItems = await Promise.all(
-    items.map(([_k, stuff]) => Passworder.encrypt(stuff, derivedPassKey))
+    items.map(async ([saveKey, stuff]) => {
+      const encrypted = await Passworder.encrypt(stuff, derivedPassKey);
+      return [saveKey, encrypted] as [string, Passworder.EncryptedPayload];
+    })
   );
-
-  const itemsToSave: { [key: string]: Passworder.EncryptedPayload } = {};
-  items.forEach(([key], i) => {
-    itemsToSave[key] = encItems[i];
-  });
-
-  await saveStorage(itemsToSave);
+  await saveStorage(encItems);
 }
 
 async function fetchSalt() {
@@ -197,7 +194,7 @@ async function fetchSalt() {
 async function setupSalt() {
   const salt = Passworder.generateSalt();
   const saltHex = Buffer.from(salt).toString("hex");
-  await saveStorage({ [SALT_STERM]: saltHex });
+  await saveStorage([[SALT_STERM, saltHex]]);
 }
 
 function deriveVaultSterm(...parts: (string | number)[]) {
@@ -220,6 +217,10 @@ async function fetchStorage<T>(itemKeys: string[] | string) {
   }
 }
 
-async function saveStorage(items: Storage.StorageAreaSetItemsType) {
-  await browser.storage.local.set(items);
+async function saveStorage(items: [string, any][]) {
+  const itemsToSave: { [key: string]: any } = {};
+  for (const [key, val] of items) {
+    itemsToSave[key] = val;
+  }
+  await browser.storage.local.set(itemsToSave);
 }
