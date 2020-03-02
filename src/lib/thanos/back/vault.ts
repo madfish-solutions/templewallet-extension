@@ -1,3 +1,4 @@
+import sodium from "libsodium-wrappers";
 import { browser } from "webextension-polyfill-ts";
 import { Buffer } from "buffer";
 import * as Bip39 from "bip39";
@@ -14,7 +15,7 @@ enum Sterm {
   Check = "check",
   Mnemonic = "mnemonic",
   Accounts = "accounts",
-  HDAccKey = "hdacckey"
+  AccKey = "acckey"
 }
 
 const TEZOS_BIP44_COINTYPE = 1729;
@@ -22,7 +23,7 @@ const SALT_STERM = deriveVaultSterm(Sterm.Salt);
 const CHECK_STERM = deriveVaultSterm(Sterm.Check);
 const MNEMONIC_STERM = deriveVaultSterm(Sterm.Mnemonic);
 const ACCOUNTS_STERM = deriveVaultSterm(Sterm.Accounts);
-const HDACC_KEY_STERM = deriveVaultSterm(Sterm.HDAccKey);
+const ACC_KEY_STERM = deriveVaultSterm(Sterm.AccKey);
 
 export class Vault {
   static async isExist() {
@@ -47,13 +48,13 @@ export class Vault {
     }
     const seed = Bip39.mnemonicToSeedSync(mnemonic);
 
-    const firstHDAccIndex = 0;
-    const firstHDAccPrivateKey = seedToHDPrivateKey(seed, firstHDAccIndex);
+    const firstAccIndex = 0;
+    const firstAccPrivateKey = seedToHDPrivateKey(seed, firstAccIndex);
 
     const initialAccount: ThanosAccount = {
       type: ThanosAccountType.HD,
       name: "Account 1",
-      publicKeyHash: await getPublicKeyHash(firstHDAccPrivateKey)
+      publicKeyHash: await getPublicKeyHash(firstAccPrivateKey)
     };
 
     const passKey = await Passworder.generateKey(password);
@@ -63,10 +64,7 @@ export class Vault {
       [
         [CHECK_STERM, null],
         [MNEMONIC_STERM, mnemonic],
-        [
-          deriveVaultSterm(HDACC_KEY_STERM, firstHDAccIndex),
-          firstHDAccPrivateKey
-        ],
+        [deriveVaultSterm(ACC_KEY_STERM, firstAccIndex), firstAccPrivateKey],
         [ACCOUNTS_STERM, [initialAccount]]
       ],
       passKey
@@ -100,22 +98,59 @@ export class Vault {
     const newHDAccIndex = allHDAccounts.length;
     const newHDAccPrivateKey = seedToHDPrivateKey(seed, newHDAccIndex);
 
+    const newAccIndex = allAccounts.length;
     const newAccount: ThanosAccount = {
       type: ThanosAccountType.HD,
-      name: `Account ${allAccounts.length + 1}`,
+      name: `Account ${newAccIndex + 1}`,
       publicKeyHash: await getPublicKeyHash(newHDAccPrivateKey)
     };
     const newAllAcounts = [...allAccounts, newAccount];
 
     await encryptAndSave(
       [
-        [deriveVaultSterm(HDACC_KEY_STERM, newHDAccIndex), newHDAccPrivateKey],
+        [deriveVaultSterm(ACC_KEY_STERM, newAccIndex), newHDAccPrivateKey],
         [ACCOUNTS_STERM, newAllAcounts]
       ],
       this.passKey
     );
 
     return newAllAcounts;
+  }
+
+  async importAccount(privateKey: string) {
+    const allAccounts = await this.fetchAccounts();
+
+    const newAccIndex = allAccounts.length;
+    const newAccount: ThanosAccount = {
+      type: ThanosAccountType.Imported,
+      name: `Account ${newAccIndex + 1}`,
+      publicKeyHash: await getPublicKeyHash(privateKey)
+    };
+    const newAllAcounts = [...allAccounts, newAccount];
+
+    await encryptAndSave(
+      [
+        [deriveVaultSterm(ACC_KEY_STERM, newAccIndex), privateKey],
+        [ACCOUNTS_STERM, newAllAcounts]
+      ],
+      this.passKey
+    );
+
+    return newAllAcounts;
+  }
+
+  async importFundraiserAccount(
+    email: string,
+    password: string,
+    mnemonic: string
+  ) {
+    const seed = Bip39.mnemonicToSeedSync(mnemonic, `${email}${password}`);
+    const privateKey = TaquitoUtils.b58cencode(
+      seed.slice(0, 32),
+      TaquitoUtils.prefix.edsk2
+    );
+
+    return this.importAccount(privateKey);
   }
 
   async editAccountName(accIndex: number, name: string) {
@@ -137,9 +172,14 @@ export class Vault {
   }
 }
 
-function getPublicKeyHash(privateKey: string) {
-  const signer = new InMemorySigner(privateKey);
+async function getPublicKeyHash(privateKey: string) {
+  const signer = await createMemorySigner(privateKey);
   return signer.publicKeyHash();
+}
+
+async function createMemorySigner(privateKey: string) {
+  await sodium.ready;
+  return new InMemorySigner(privateKey);
 }
 
 function seedToHDPrivateKey(seed: Buffer, account: number) {
