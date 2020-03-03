@@ -30,6 +30,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
       onFocus,
       onBlur,
       className,
+      autoComplete = "off",
       ...rest
     },
     ref
@@ -143,6 +144,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
               className
             )}
             id={id}
+            autoComplete={autoComplete}
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
