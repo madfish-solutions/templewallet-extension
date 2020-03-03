@@ -11,43 +11,29 @@ import {
   encryptAndSaveMany
 } from "lib/thanos/back/safe-storage";
 
-// const STORAGE_KEY_PREFIX = "encstrg";
+const TEZOS_BIP44_COINTYPE = 1729;
+const STORAGE_KEY_PREFIX = "vault";
 
-// enum StorageEntityId {
-//   // Attension!
-//   // Security stuff!
-//   // Don't change this enum!
-//   // Only add new parts!
-//   Check = "check",
-//   Mnemonic = "mnemonic",
-//   Accounts = "accounts",
-//   AccKey = "acckey"
-// }
-
-// `Sterm` is `Storage Term` :$
-enum Sterm {
-  Vault = "vault",
-  Salt = "salt",
+enum StorageEntity {
   Check = "check",
   Mnemonic = "mnemonic",
-  Accounts = "accounts",
-  AccKey = "acckey"
+  AccKey = "acckey",
+  Accounts = "accounts"
 }
 
-const TEZOS_BIP44_COINTYPE = 1729;
-const CHECK_STERM = deriveVaultSterm(Sterm.Check);
-const MNEMONIC_STERM = deriveVaultSterm(Sterm.Mnemonic);
-const ACCOUNTS_STERM = deriveVaultSterm(Sterm.Accounts);
-const ACC_KEY_STERM = deriveVaultSterm(Sterm.AccKey);
+const checkStrgKey = createStorageKey(StorageEntity.Check);
+const mnemonicStrgKey = createStorageKey(StorageEntity.Mnemonic);
+const accKeyStrgKey = createDynamicStorageKey(StorageEntity.AccKey);
+const accountsStrgKey = createStorageKey(StorageEntity.Accounts);
 
 export class Vault {
   static isExist() {
-    return isStored(CHECK_STERM);
+    return isStored(checkStrgKey);
   }
 
   static async setup(password: string) {
     const passKey = await Passworder.generateKey(password);
-    await fetchAndDecryptOne(CHECK_STERM, passKey);
+    await fetchAndDecryptOne(checkStrgKey, passKey);
 
     return new Vault(passKey);
   }
@@ -66,15 +52,16 @@ export class Vault {
       name: "Account 1",
       publicKeyHash: await getPublicKeyHash(firstAccPrivateKey)
     };
+    const newAccounts = [initialAccount];
 
     const passKey = await Passworder.generateKey(password);
 
     await encryptAndSaveMany(
       [
-        [CHECK_STERM, null],
-        [MNEMONIC_STERM, mnemonic],
-        [deriveVaultSterm(ACC_KEY_STERM, firstAccIndex), firstAccPrivateKey],
-        [ACCOUNTS_STERM, [initialAccount]]
+        [checkStrgKey, null],
+        [mnemonicStrgKey, mnemonic],
+        [accKeyStrgKey(firstAccIndex), firstAccPrivateKey],
+        [accountsStrgKey, newAccounts]
       ],
       passKey
     );
@@ -88,17 +75,17 @@ export class Vault {
 
   async revealMnemonic(password: string) {
     const passKey = await Passworder.generateKey(password);
-    return fetchAndDecryptOne<string>(MNEMONIC_STERM, passKey);
+    return fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
   }
 
   fetchAccounts() {
-    return fetchAndDecryptOne<ThanosAccount[]>(ACCOUNTS_STERM, this.passKey);
+    return fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, this.passKey);
   }
 
   async createHDAccount() {
     const [mnemonic, allAccounts] = await Promise.all([
-      fetchAndDecryptOne<string>(MNEMONIC_STERM, this.passKey),
-      fetchAndDecryptOne<ThanosAccount[]>(ACCOUNTS_STERM, this.passKey)
+      fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey),
+      fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, this.passKey)
     ]);
 
     const seed = Bip39.mnemonicToSeedSync(mnemonic);
@@ -118,8 +105,8 @@ export class Vault {
 
     await encryptAndSaveMany(
       [
-        [deriveVaultSterm(ACC_KEY_STERM, newAccIndex), newHDAccPrivateKey],
-        [ACCOUNTS_STERM, newAllAcounts]
+        [accKeyStrgKey(newAccIndex), newHDAccPrivateKey],
+        [accountsStrgKey, newAllAcounts]
       ],
       this.passKey
     );
@@ -140,8 +127,8 @@ export class Vault {
 
     await encryptAndSaveMany(
       [
-        [deriveVaultSterm(ACC_KEY_STERM, newAccIndex), privateKey],
-        [ACCOUNTS_STERM, newAllAcounts]
+        [accKeyStrgKey(newAccIndex), privateKey],
+        [accountsStrgKey, newAllAcounts]
       ],
       this.passKey
     );
@@ -176,7 +163,7 @@ export class Vault {
     const newAllAcounts = allAccounts.map((acc, i) =>
       i === accIndex ? { ...acc, name } : acc
     );
-    await encryptAndSaveMany([[ACCOUNTS_STERM, newAllAcounts]], this.passKey);
+    await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], this.passKey);
 
     return newAllAcounts;
   }
@@ -204,6 +191,15 @@ function seedToHDPrivateKey(seed: Buffer, account: number) {
   );
 }
 
-function deriveVaultSterm(...parts: (string | number)[]) {
-  return [Sterm.Vault, ...parts].join("_");
+function createStorageKey(id: StorageEntity) {
+  return combineStorageKey(STORAGE_KEY_PREFIX, id);
+}
+
+function createDynamicStorageKey(id: StorageEntity) {
+  const keyBase = combineStorageKey(STORAGE_KEY_PREFIX, id);
+  return (subKey: number | string) => combineStorageKey(keyBase, subKey);
+}
+
+function combineStorageKey(...parts: (string | number)[]) {
+  return parts.join("_");
 }
