@@ -1,12 +1,28 @@
 import sodium from "libsodium-wrappers";
-import { browser } from "webextension-polyfill-ts";
-import { Buffer } from "buffer";
 import * as Bip39 from "bip39";
 import * as Bip32 from "bip32";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
 import * as Passworder from "lib/passworder";
 import { ThanosAccount, ThanosAccountType } from "lib/thanos/types";
+import {
+  isStored,
+  fetchAndDecryptOne,
+  encryptAndSaveMany
+} from "lib/thanos/back/safe-storage";
+
+// const STORAGE_KEY_PREFIX = "encstrg";
+
+// enum StorageEntityId {
+//   // Attension!
+//   // Security stuff!
+//   // Don't change this enum!
+//   // Only add new parts!
+//   Check = "check",
+//   Mnemonic = "mnemonic",
+//   Accounts = "accounts",
+//   AccKey = "acckey"
+// }
 
 // `Sterm` is `Storage Term` :$
 enum Sterm {
@@ -19,25 +35,19 @@ enum Sterm {
 }
 
 const TEZOS_BIP44_COINTYPE = 1729;
-const SALT_STERM = deriveVaultSterm(Sterm.Salt);
 const CHECK_STERM = deriveVaultSterm(Sterm.Check);
 const MNEMONIC_STERM = deriveVaultSterm(Sterm.Mnemonic);
 const ACCOUNTS_STERM = deriveVaultSterm(Sterm.Accounts);
 const ACC_KEY_STERM = deriveVaultSterm(Sterm.AccKey);
 
 export class Vault {
-  static async isExist() {
-    try {
-      await fetchStorage(CHECK_STERM);
-      return true;
-    } catch (_err) {
-      return false;
-    }
+  static isExist() {
+    return isStored(CHECK_STERM);
   }
 
   static async setup(password: string) {
     const passKey = await Passworder.generateKey(password);
-    await fetchAndDecrypt(CHECK_STERM, passKey);
+    await fetchAndDecryptOne(CHECK_STERM, passKey);
 
     return new Vault(passKey);
   }
@@ -58,9 +68,8 @@ export class Vault {
     };
 
     const passKey = await Passworder.generateKey(password);
-    await setupSalt();
 
-    await encryptAndSave(
+    await encryptAndSaveMany(
       [
         [CHECK_STERM, null],
         [MNEMONIC_STERM, mnemonic],
@@ -79,17 +88,18 @@ export class Vault {
 
   async revealMnemonic(password: string) {
     const passKey = await Passworder.generateKey(password);
-    return fetchAndDecrypt<string>(MNEMONIC_STERM, passKey);
+    return fetchAndDecryptOne<string>(MNEMONIC_STERM, passKey);
   }
 
   fetchAccounts() {
-    return fetchAndDecrypt<ThanosAccount[]>(ACCOUNTS_STERM, this.passKey);
+    return fetchAndDecryptOne<ThanosAccount[]>(ACCOUNTS_STERM, this.passKey);
   }
 
   async createHDAccount() {
-    const [mnemonic, allAccounts] = await fetchAndDecrypt<
-      [string, ThanosAccount[]]
-    >([MNEMONIC_STERM, ACCOUNTS_STERM], this.passKey);
+    const [mnemonic, allAccounts] = await Promise.all([
+      fetchAndDecryptOne<string>(MNEMONIC_STERM, this.passKey),
+      fetchAndDecryptOne<ThanosAccount[]>(ACCOUNTS_STERM, this.passKey)
+    ]);
 
     const seed = Bip39.mnemonicToSeedSync(mnemonic);
     const allHDAccounts = allAccounts.filter(
@@ -106,7 +116,7 @@ export class Vault {
     };
     const newAllAcounts = [...allAccounts, newAccount];
 
-    await encryptAndSave(
+    await encryptAndSaveMany(
       [
         [deriveVaultSterm(ACC_KEY_STERM, newAccIndex), newHDAccPrivateKey],
         [ACCOUNTS_STERM, newAllAcounts]
@@ -128,7 +138,7 @@ export class Vault {
     };
     const newAllAcounts = [...allAccounts, newAccount];
 
-    await encryptAndSave(
+    await encryptAndSaveMany(
       [
         [deriveVaultSterm(ACC_KEY_STERM, newAccIndex), privateKey],
         [ACCOUNTS_STERM, newAllAcounts]
@@ -166,7 +176,7 @@ export class Vault {
     const newAllAcounts = allAccounts.map((acc, i) =>
       i === accIndex ? { ...acc, name } : acc
     );
-    await encryptAndSave([[ACCOUNTS_STERM, newAllAcounts]], this.passKey);
+    await encryptAndSaveMany([[ACCOUNTS_STERM, newAllAcounts]], this.passKey);
 
     return newAllAcounts;
   }
@@ -194,73 +204,6 @@ function seedToHDPrivateKey(seed: Buffer, account: number) {
   );
 }
 
-async function fetchAndDecrypt<T>(
-  itemKeys: string[] | string,
-  passKey: CryptoKey
-) {
-  let oneItem = false;
-  if (!Array.isArray(itemKeys)) {
-    itemKeys = [itemKeys];
-    oneItem = true;
-  }
-
-  const encItems = await fetchStorage<Passworder.EncryptedPayload[]>(itemKeys);
-  const salt = await fetchSalt();
-  const derivedPassKey = await Passworder.deriveKey(passKey, salt);
-  const items = await Promise.all(
-    encItems.map(enc => Passworder.decrypt(enc, derivedPassKey))
-  );
-
-  return (oneItem ? items[0] : items) as T;
-}
-
-async function encryptAndSave(items: [string, any][], passKey: CryptoKey) {
-  const salt = await fetchSalt();
-  const derivedPassKey = await Passworder.deriveKey(passKey, salt);
-  const encItems = await Promise.all(
-    items.map(async ([saveKey, stuff]) => {
-      const encrypted = await Passworder.encrypt(stuff, derivedPassKey);
-      return [saveKey, encrypted] as [string, Passworder.EncryptedPayload];
-    })
-  );
-  await saveStorage(encItems);
-}
-
-async function fetchSalt() {
-  const saltHex = await fetchStorage<string>(SALT_STERM);
-  return Buffer.from(saltHex, "hex");
-}
-
-async function setupSalt() {
-  const salt = Passworder.generateSalt();
-  const saltHex = Buffer.from(salt).toString("hex");
-  await saveStorage([[SALT_STERM, saltHex]]);
-}
-
 function deriveVaultSterm(...parts: (string | number)[]) {
   return [Sterm.Vault, ...parts].join("_");
-}
-
-async function fetchStorage<T>(itemKeys: string[] | string) {
-  let oneItem = false;
-  if (!Array.isArray(itemKeys)) {
-    itemKeys = [itemKeys];
-    oneItem = true;
-  }
-
-  const savedItems = await browser.storage.local.get(itemKeys);
-  if (itemKeys.every(key => key in savedItems)) {
-    const items = itemKeys.map(key => savedItems[key]);
-    return (oneItem ? items[0] : items) as T;
-  } else {
-    throw new Error("Some storage item not found");
-  }
-}
-
-async function saveStorage(items: [string, any][]) {
-  const itemsToSave: { [key: string]: any } = {};
-  for (const [key, val] of items) {
-    itemsToSave[key] = val;
-  }
-  await browser.storage.local.set(itemsToSave);
 }
