@@ -1,17 +1,14 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useThanosFront } from "lib/thanos/front";
+import { Link } from "lib/woozie";
+// import { useThanosFront } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
-import FormField from "app/atoms/FormField";
 import xtzImgUrl from "app/misc/xtz.png";
+import { ReactComponent as QRIcon } from "app/icons/qr.svg";
+import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import EditableTitle from "./Explore/EditableTitle";
 
 const Explore: React.FC = () => {
-  const { account } = useThanosFront();
-  if (!account) {
-    throw new Error("Explore page only allowed with existing Account");
-  }
-
   return (
     <PageLayout>
       <EditableTitle />
@@ -21,8 +18,8 @@ const Explore: React.FC = () => {
       <div className="flex flex-col items-center">
         <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" />
 
-        <div className="text-gray-700 text-2xl font-light">
-          342.2324 <span className="text-lg opacity-75">XTZ</span>
+        <div className="text-gray-800 text-2xl font-light">
+          342.2324 <span className="text-lg opacity-90">XTZ</span>
         </div>
 
         <div className="text-gray-600 text-lg font-light">
@@ -31,53 +28,65 @@ const Explore: React.FC = () => {
 
         <div
           className="mt-4 w-full mx-auto flex items-stretch"
-          style={{ maxWidth: "16rem" }}
+          style={{ maxWidth: "18rem" }}
         >
           <div className="w-1/2 p-2">
-            <button
+            <Link
+              to="/receive"
               className={classNames(
-                "w-full",
+                "block w-full",
                 "py-2 px-4 rounded",
-                "border-2 border-gray-500 hover:border-gray-600",
-                "text-gray-500 hover:text-gray-600",
-                "text-base font-bold",
+                "border-2 border-blue-400 hover:border-blue-500",
+                "flex items-center justify-center",
+                "text-blue-400 hover:text-blue-500",
+                "shadow-sm",
+                "text-base font-semibold",
                 "transition ease-in-out duration-200"
               )}
               type="button"
             >
-              Bake
-            </button>
+              <QRIcon
+                className={classNames(
+                  "-ml-2 mr-2",
+                  "h-5 w-auto",
+                  "stroke-current"
+                )}
+              />
+              Receive
+            </Link>
           </div>
 
           <div className="w-1/2 p-2">
-            <button
+            <Link
+              to="/send"
               className={classNames(
                 "w-full",
                 "py-2 px-4 rounded",
                 "border-2 border-blue-500 hover:border-blue-600",
                 "bg-blue-500 hover:bg-blue-600",
+                "shadow-sm",
+                "flex items-center justify-center",
                 "text-white",
-                "text-base font-bold",
+                "text-base font-semibold",
                 "transition ease-in-out duration-200"
               )}
               type="button"
             >
+              <SendIcon
+                className={classNames(
+                  "-ml-3 -mt-1 mr-1",
+                  "h-5 w-auto",
+                  "transform -rotate-45",
+                  "stroke-current"
+                )}
+              />
               Send
-            </button>
+            </Link>
           </div>
         </div>
       </div>
 
-      <SubTitle>Receive</SubTitle>
-
-      <FormField
-        value={account.publicKeyHash}
-        className={classNames("w-full mx-auto", "text-center")}
-        style={{ maxWidth: "21rem", padding: "0.5rem", fontSize: "0.875rem" }}
-        size={36}
-        spellCheck={false}
-        readOnly
-      />
+      <SubTitle>Baking</SubTitle>
 
       {/* <button onClick={handleCopyToClipboard}>Copy to Clipboard</button> */}
 

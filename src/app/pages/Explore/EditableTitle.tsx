@@ -6,9 +6,6 @@ import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 
 const EditableTitle: React.FC = () => {
   const { account, editAccountName } = useThanosFront();
-  if (!account) {
-    throw new Error("Explore page only allowed with existing Account");
-  }
 
   const [editing, setEditing] = React.useState(false);
 
