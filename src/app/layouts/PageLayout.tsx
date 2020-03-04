@@ -6,16 +6,18 @@ import ContentContainer from "app/layouts/ContentContainer";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import Header from "./PageLayout/Header";
 
-type PageLayoutProps = {
-  hasBackAction?: boolean;
-};
+type PageLayoutProps = ToolbarProps;
 
-const PageLayout: React.FC<PageLayoutProps> = ({ hasBackAction, children }) => (
+const PageLayout: React.FC<PageLayoutProps> = ({
+  pageTitle,
+  hasBackAction,
+  children
+}) => (
   <div className="mb-12">
     <Header />
 
     <ContentPaper>
-      <Toolbar hasBackAction={hasBackAction} />
+      <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
 
       <div className="p-4">{children}</div>
     </ContentPaper>
@@ -57,10 +59,14 @@ const ContentPaper: React.FC<ContentPaparProps> = ({
 };
 
 type ToolbarProps = {
+  pageTitle?: React.ReactNode;
   hasBackAction?: boolean;
 };
 
-const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction = true }) => {
+const Toolbar: React.FC<ToolbarProps> = ({
+  pageTitle,
+  hasBackAction = true
+}) => {
   const appEnv = useAppEnv();
 
   const handleBackAction = React.useCallback(() => {
@@ -108,30 +114,44 @@ const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction = true }) => {
         top: -1
       }}
     >
-      {hasBackAction && (
-        <button
-          className={classNames(
-            "px-4 py-2",
-            "rounded",
-            "flex items-center",
-            "text-gray-600 text-shadow-black",
-            "text-sm font-semibold",
-            "hover:bg-black-5",
-            "transition duration-300 ease-in-out",
-            "opacity-90 hover:opacity-100"
-          )}
-          onClick={handleBackAction}
-        >
-          <ChevronLeftIcon
+      <div className="flex-1">
+        {hasBackAction && (
+          <button
             className={classNames(
-              "-ml-2",
-              "h-5 w-auto",
-              "stroke-current",
-              "stroke-2"
+              "px-4 py-2",
+              "rounded",
+              "flex items-center",
+              "text-gray-600 text-shadow-black",
+              "text-sm font-semibold",
+              "hover:bg-black-5",
+              "transition duration-300 ease-in-out",
+              "opacity-90 hover:opacity-100"
             )}
-          />
-          Back
-        </button>
+            onClick={handleBackAction}
+          >
+            <ChevronLeftIcon
+              className={classNames(
+                "-ml-2",
+                "h-5 w-auto",
+                "stroke-current",
+                "stroke-2"
+              )}
+            />
+            Back
+          </button>
+        )}
+      </div>
+
+      {pageTitle && (
+        <h2
+          className={classNames(
+            "px-1",
+            "text-gray-600",
+            "text-base font-normal"
+          )}
+        >
+          {pageTitle}
+        </h2>
       )}
 
       <div className="flex-1" />

@@ -15,21 +15,9 @@ const Receive: React.FC = () => {
   const { fieldRef, copy, copied } = useCopyToClipboard();
 
   return (
-    <PageLayout>
+    <PageLayout pageTitle="Receive">
       <div className="py-4">
-        <h1
-          className={classNames(
-            "mb-2",
-            "flex items-center justify-center",
-            "text-2xl font-light text-gray-700 text-center"
-          )}
-        >
-          Receive
-        </h1>
-
-        <hr />
-
-        <div className={classNames("mt-6", "w-full max-w-sm mx-auto")}>
+        <div className={classNames("w-full max-w-sm mx-auto")}>
           {/* <div className="mb-6 flex items-center justify-center">
             <Identicon hash={address} size={24} />
 
