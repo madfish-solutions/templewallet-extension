@@ -1,176 +1,189 @@
 import * as React from "react";
 import classNames from "clsx";
+import { Link } from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
+import useTippy from "lib/ui/useTippy";
+import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
-import Identicon from "app/atoms/Identicon";
-import FormField from "app/atoms/FormField";
-import { ReactComponent as EditIcon } from "app/icons/edit.svg";
+import xtzImgUrl from "app/misc/xtz.png";
+import { ReactComponent as QRIcon } from "app/icons/qr.svg";
+import { ReactComponent as SendIcon } from "app/icons/send.svg";
+import EditableTitle from "./Explore/EditableTitle";
 
 const Explore: React.FC = () => {
-  const { account, editAccountName } = useThanosFront();
-  if (!account) {
-    throw new Error("Explore page only allowed with existing Account");
-  }
-
-  const [editing, setEditing] = React.useState(false);
-
-  const editAccNameFieldRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (editing) {
-      editAccNameFieldRef.current?.focus();
-    }
-  }, [editing]);
-
-  const autoCancelTimeoutRef = React.useRef<number>();
-
-  React.useEffect(
-    () => () => {
-      clearTimeout(autoCancelTimeoutRef.current);
-    },
-    []
-  );
-
-  const handleEditClick = React.useCallback(() => {
-    setEditing(true);
-  }, [setEditing]);
-
-  const handleCancelClick = React.useCallback(() => {
-    setEditing(false);
-  }, [setEditing]);
-
-  const handleEditSubmit = React.useCallback<React.FormEventHandler>(
-    evt => {
-      evt.preventDefault();
-
-      const newName = editAccNameFieldRef.current?.value;
-      if (newName && newName !== account.name) {
-        editAccountName(newName).catch(err => {
-          if (process.env.NODE_ENV === "development") {
-            console.error(err);
-          }
-
-          alert(err.message);
-        });
-      }
-
-      setEditing(false);
-    },
-    [account.name, editAccountName, setEditing]
-  );
-
-  const handleEditFieldFocus = React.useCallback(() => {
-    clearTimeout(autoCancelTimeoutRef.current);
-  }, []);
-
-  const handleEditFieldBlur = React.useCallback(() => {
-    autoCancelTimeoutRef.current = window.setTimeout(() => {
-      setEditing(false);
-    }, 5_000);
-  }, [setEditing]);
+  const { account } = useThanosFront();
 
   return (
     <PageLayout>
-      <div className="pb-4">
-        <div className="relative pt-4 flex items-center justify-center">
-          {editing ? (
-            <form
-              className="flex-1 flex flex-col items-center"
-              onSubmit={handleEditSubmit}
-            >
-              <FormField
-                ref={editAccNameFieldRef}
-                defaultValue={account.name}
-                className={classNames(
-                  "w-full mx-auto max-w-xs",
-                  "text-2xl font-light text-gray-700 text-center"
-                )}
-                style={{ padding: "0.075rem 0" }}
-                maxLength={16}
-                spellCheck={false}
-                onFocus={handleEditFieldFocus}
-                onBlur={handleEditFieldBlur}
-              />
+      <EditableTitle />
 
-              <div className="mb-2 flex items-stretch">
-                <button
-                  type="button"
-                  className={classNames(
-                    "mx-1",
-                    "px-2 py-1",
-                    "rounded overflow-hidden",
-                    "text-gray-600 text-sm",
-                    "transition ease-in-out duration-200",
-                    "hover:bg-black-5",
-                    "opacity-75 hover:opacity-100 focus:opacity-100"
-                  )}
-                  onClick={handleCancelClick}
-                >
-                  Cancel
-                </button>
+      <hr className="mb-4" />
 
-                <button
-                  className={classNames(
-                    "mx-1",
-                    "px-2 py-1",
-                    "rounded overflow-hidden",
-                    "text-gray-600 text-sm",
-                    "transition ease-in-out duration-200",
-                    "hover:bg-black-5",
-                    "opacity-75 hover:opacity-100 focus:opacity-100"
-                  )}
-                >
-                  Save
-                </button>
-              </div>
-            </form>
-          ) : (
-            <h1
-              className={classNames(
-                "mb-2",
-                "text-2xl font-light text-gray-700 text-center"
-              )}
-            >
-              {account.name}
-            </h1>
-          )}
+      <div className="flex flex-col items-center">
+        <ShortAddressLabel address={account.publicKeyHash} className="mb-4" />
 
-          {!editing && (
-            <button
-              className={classNames(
-                "absolute top-0 right-0",
-                "px-2 py-1",
-                "rounded overflow-hidden",
-                "flex items-center",
-                "text-gray-600 text-sm",
-                "transition ease-in-out duration-200",
-                "hover:bg-black-5",
-                "opacity-75 hover:opacity-100 focus:opacity-100"
-              )}
-              onClick={handleEditClick}
-            >
-              <EditIcon
-                className={classNames(
-                  "-ml-1 mr-1 h-4 w-auto stroke-current stroke-2"
-                )}
-              />
-              Edit
-            </button>
-          )}
+        <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" />
+
+        <div className="text-gray-800 text-2xl font-light">
+          342.2324 <span className="text-lg opacity-90">XTZ</span>
         </div>
 
-        <hr className="mb-4" />
+        <div className="text-gray-600 text-lg font-light">
+          $13.54 <span className="text-sm opacity-75">USD</span>
+        </div>
 
-        <p className="font-base text-gray-600">
-          Hello, {account.publicKeyHash}
-        </p>
+        <div
+          className="mt-4 w-full mx-auto flex items-stretch"
+          style={{ maxWidth: "18rem" }}
+        >
+          <div className="w-1/2 p-2">
+            <Link
+              to="/receive"
+              className={classNames(
+                "block w-full",
+                "py-2 px-4 rounded",
+                "border-2",
+                "border-blue-500 hover:border-blue-600 focus:border-blue-600",
+                "flex items-center justify-center",
+                "text-blue-500 hover:text-blue-600 focus:text-blue-600",
+                "shadow-sm hover:shadow focus:shadow",
+                "text-base font-semibold",
+                "transition ease-in-out duration-300"
+              )}
+              type="button"
+            >
+              <QRIcon
+                className={classNames(
+                  "-ml-2 mr-2",
+                  "h-5 w-auto",
+                  "stroke-current"
+                )}
+              />
+              Receive
+            </Link>
+          </div>
 
-        <div className="my-4">
-          <Identicon hash={account.publicKeyHash} size={56} />
+          <div className="w-1/2 p-2">
+            <Link
+              to="/send"
+              className={classNames(
+                "w-full",
+                "py-2 px-4 rounded",
+                "border-2",
+                "border-blue-500 hover:border-blue-600 focus:border-blue-600",
+                "bg-blue-500 hover:bg-blue-600",
+                "shadow-sm hover:shadow focus:shadow",
+                "flex items-center justify-center",
+                "text-white",
+                "text-base font-semibold",
+                "transition ease-in-out duration-300"
+              )}
+              type="button"
+            >
+              <SendIcon
+                className={classNames(
+                  "-ml-3 -mt-1 mr-1",
+                  "h-5 w-auto",
+                  "transform -rotate-45",
+                  "stroke-current"
+                )}
+              />
+              Send
+            </Link>
+          </div>
         </div>
       </div>
+
+      <SubTitle>Baking</SubTitle>
     </PageLayout>
   );
 };
 
 export default Explore;
+
+type ShortAddressLabelProps = React.HTMLAttributes<HTMLButtonElement> & {
+  address: string;
+};
+
+const ShortAddressLabel: React.FC<ShortAddressLabelProps> = ({
+  address,
+  className,
+  ...rest
+}) => {
+  const shortAddress = React.useMemo(() => {
+    const ln = address.length;
+    return (
+      <>
+        {address.slice(0, 7)}
+        <span className="opacity-75">...</span>
+        {address.slice(ln - 4, ln)}
+      </>
+    );
+  }, [address]);
+
+  const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
+
+  const tippyProps = React.useMemo(
+    () => ({
+      trigger: "mouseenter",
+      hideOnClick: false,
+      content: copied ? "Copied." : "Copy to clipboard",
+      animation: "shift-away-subtle",
+      onHidden() {
+        setCopied(false);
+      }
+    }),
+    [copied, setCopied]
+  );
+
+  const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
+
+  return (
+    <>
+      <button
+        ref={buttonRef}
+        type="button"
+        className={classNames(
+          "bg-gray-100 hover:bg-gray-200",
+          "rounded-sm shadow-xs",
+          "py-1 px-2",
+          "text-gray-600 text-sm leading-none select-none",
+          "transition ease-in-out duration-300",
+          className
+        )}
+        {...rest}
+        onClick={copy}
+      >
+        {shortAddress}
+      </button>
+
+      <input ref={fieldRef} value={address} readOnly className="sr-only" />
+    </>
+  );
+};
+
+type SubTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
+
+const SubTitle: React.FC<SubTitleProps> = ({
+  className,
+  children,
+  ...rest
+}) => (
+  <h4
+    className={classNames(
+      "mt-8 mb-4",
+      "flex items-center justify-center",
+      "text-center",
+      "text-gray-500",
+      "text-sm",
+      "font-semibold",
+      "uppercase",
+      className
+    )}
+    {...rest}
+  >
+    <span className="text-gray-400 text-xs mx-1">•</span>
+    {children}
+    <span className="text-gray-400 text-xs mx-1">•</span>
+  </h4>
+);

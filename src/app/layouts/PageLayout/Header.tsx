@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import Popper from "lib/Popper";
+import Popper from "lib/ui/Popper";
 import { Link } from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
 import { useAppEnv } from "app/env";
