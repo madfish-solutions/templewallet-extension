@@ -14,7 +14,7 @@ const Explore: React.FC = () => {
   const { account } = useThanosFront();
 
   return (
-    <PageLayout>
+    <PageLayout pageTitle="Explore">
       <EditableTitle />
 
       <hr className="mb-4" />

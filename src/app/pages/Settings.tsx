@@ -30,17 +30,18 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
   );
 
   return (
-    <PageLayout>
+    <PageLayout pageTitle="Settings">
       <div className="py-4">
-        <h1
-          className={classNames(
-            "mb-2",
-            "flex items-center justify-center",
-            "text-2xl font-light text-gray-700 text-center"
-          )}
-        >
-          {activeTab
-            ? (() => {
+        {activeTab && (
+          <>
+            <h1
+              className={classNames(
+                "mb-2",
+                "flex items-center justify-center",
+                "text-2xl font-light text-gray-700 text-center"
+              )}
+            >
+              {(() => {
                 const { Icon, color, title } = activeTab;
                 return (
                   <>
@@ -51,13 +52,14 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
                     {title}
                   </>
                 );
-              })()
-            : "Settings"}
-        </h1>
+              })()}
+            </h1>
 
-        <hr />
+            <hr className="mb-6" />
+          </>
+        )}
 
-        <div className="mt-6">
+        <div>
           {activeTab ? (
             <activeTab.Component />
           ) : (
