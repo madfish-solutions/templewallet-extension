@@ -3,7 +3,7 @@ import * as Bip39 from "bip39";
 import * as Bip32 from "bip32";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
-import * as Passworder from "lib/passworder";
+import * as Passworder from "lib/thanos/passworder";
 import { ThanosAccount, ThanosAccountType } from "lib/thanos/types";
 import {
   isStored,

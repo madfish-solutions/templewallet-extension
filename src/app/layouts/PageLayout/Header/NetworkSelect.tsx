@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import Popper from "lib/Popper";
+import Popper from "lib/ui/Popper";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";

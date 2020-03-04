@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
 import { useThanosFront } from "lib/thanos/front";
+import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 // import Identicon from "app/atoms/Identicon";
 import FormField from "app/atoms/FormField";
@@ -122,40 +123,3 @@ const Receive: React.FC = () => {
 };
 
 export default Receive;
-
-function useCopyToClipboard(copyDelay: number = 1000 * 2) {
-  const fieldRef = React.useRef<HTMLInputElement>(null);
-
-  const [copied, setCopied] = React.useState(false);
-
-  const copiedTimeoutRef = React.useRef<number>();
-  React.useEffect(() => {
-    if (copied) {
-      copiedTimeoutRef.current = window.setTimeout(() => {
-        setCopied(false);
-        const textarea = fieldRef.current;
-        if (textarea && document.activeElement === textarea) {
-          textarea.blur();
-        }
-      }, copyDelay);
-    }
-
-    return () => {
-      clearTimeout(copiedTimeoutRef.current);
-    };
-  }, [copied, setCopied, copyDelay]);
-
-  const copy = React.useCallback(() => {
-    if (copied) return;
-
-    const textarea = fieldRef.current;
-    if (textarea) {
-      textarea.focus();
-      textarea.select();
-      document.execCommand("copy");
-      setCopied(true);
-    }
-  }, [copied, setCopied]);
-
-  return { fieldRef, copied, setCopied, copy };
-}
