@@ -95,7 +95,10 @@ const Receive: React.FC = () => {
             </span>
           </div>
 
-          <div className="p-1 bg-gray-100 border-2 border-gray-300 rounded">
+          <div
+            className="p-1 bg-gray-100 border-2 border-gray-300 rounded"
+            style={{ maxWidth: "60%" }}
+          >
             <QRCode
               bgColor="#f7fafc"
               fgColor="#000000"
