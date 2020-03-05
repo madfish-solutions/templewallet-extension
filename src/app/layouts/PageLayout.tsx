@@ -146,8 +146,9 @@ const Toolbar: React.FC<ToolbarProps> = ({
         <h2
           className={classNames(
             "px-1",
+            "flex items-center",
             "text-gray-600",
-            "text-base font-normal"
+            "text-sm font-light"
           )}
         >
           {pageTitle}

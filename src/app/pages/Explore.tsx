@@ -6,6 +6,7 @@ import useTippy from "lib/ui/useTippy";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 import xtzImgUrl from "app/misc/xtz.png";
+import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import EditableTitle from "./Explore/EditableTitle";
@@ -14,7 +15,14 @@ const Explore: React.FC = () => {
   const { account } = useThanosFront();
 
   return (
-    <PageLayout pageTitle="Explore">
+    <PageLayout
+      pageTitle={
+        <>
+          <ExploreIcon className="mr-1 h-4 w-auto stroke-current" />
+          Explore
+        </>
+      }
+    >
       <EditableTitle />
 
       <hr className="mb-4" />

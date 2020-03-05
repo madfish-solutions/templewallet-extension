@@ -7,7 +7,8 @@ import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
-import { ReactComponent as ControlsIcon } from "app/icons/controls.svg";
+import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
+import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
 type AccountDropdown = {
@@ -104,11 +105,11 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
         className={classNames(
           "overflow-y-auto",
           "my-2",
-          "border-t border-b border-white-25"
+          "border border-white-10 shadow-inner rounded"
         )}
-        style={{ maxHeight: "11rem" }}
+        style={{ maxHeight: "10rem" }}
       >
-        <div className="my-2 flex flex-col">
+        <div className="flex flex-col">
           {accounts.map((acc, i) => {
             const selected = acc.publicKeyHash === account.publicKeyHash;
             const handleAccountClick = () => {
@@ -123,17 +124,16 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
                 key={acc.publicKeyHash}
                 className={classNames(
                   "block w-full",
-                  "rounded overflow-hidden",
+                  "overflow-hidden",
                   "flex items-center",
                   "text-white text-shadow-black",
                   "transition ease-in-out duration-200",
+                  selected && "shadow",
                   selected ? "bg-white-10" : "hover:bg-white-5",
                   !selected && "opacity-75 hover:opacity-100"
                 )}
                 style={{
-                  padding: "0.375rem",
-                  marginTop: "0.125rem",
-                  marginBottom: "0.125rem"
+                  padding: "0.375rem"
                 }}
                 onClick={handleAccountClick}
                 autoFocus={selected}
@@ -161,7 +161,12 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
             onClick: handleCreateAccountClick
           },
           {
-            Icon: ControlsIcon,
+            Icon: DownloadIcon,
+            content: "Import account"
+            // onClick: handleImportAccountClick
+          },
+          {
+            Icon: SettingsIcon,
             content: "Settings",
             onClick: handleSettingsClick
           },
@@ -184,14 +189,21 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
                   "my-1",
                   "rounded overflow-hidden",
                   "flex items-center",
-                  "p-2",
+                  "px-2",
                   "transition ease-in-out duration-200",
                   "hover:bg-white-10",
                   "text-white text-shadow-black text-sm"
                 )}
+                style={{
+                  paddingTop: "0.375rem",
+                  paddingBottom: "0.375rem"
+                }}
                 onClick={onClick}
               >
-                <Icon className="mr-2 h-6 w-auto stroke-current" />
+                <div className="w-8 flex items-center">
+                  <Icon className="h-6 w-auto stroke-current" />
+                </div>
+
                 {content}
               </button>
             );
