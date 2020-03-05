@@ -6,6 +6,7 @@ import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 // import Identicon from "app/atoms/Identicon";
 import FormField from "app/atoms/FormField";
+import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 
 const Receive: React.FC = () => {
@@ -15,7 +16,14 @@ const Receive: React.FC = () => {
   const { fieldRef, copy, copied } = useCopyToClipboard();
 
   return (
-    <PageLayout pageTitle="Receive">
+    <PageLayout
+      pageTitle={
+        <>
+          <QRIcon className="mr-1 h-4 w-auto stroke-current" />
+          Receive
+        </>
+      }
+    >
       <div className="py-4">
         <div className={classNames("w-full max-w-sm mx-auto")}>
           {/* <div className="mb-6 flex items-center justify-center">
@@ -40,7 +48,6 @@ const Receive: React.FC = () => {
             size={36}
             spellCheck={false}
             readOnly
-            containerClassName="mb-1"
             className="text-center"
             style={{
               padding: "0.5rem",

@@ -3,6 +3,7 @@ import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useAppEnv } from "app/env";
 import PageLayout from "app/layouts/PageLayout";
+import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
 import RevealSeedPhrase from "./Settings/RevealSeedPhrase";
 
@@ -30,7 +31,14 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
   );
 
   return (
-    <PageLayout pageTitle="Settings">
+    <PageLayout
+      pageTitle={
+        <>
+          <SettingsIcon className="mr-1 h-4 w-auto stroke-current" />
+          Settings
+        </>
+      }
+    >
       <div className="py-4">
         {activeTab && (
           <>
