@@ -39,21 +39,21 @@ const AppProvider: React.FC<AppProps> = ({ children, env }) => (
   </AppEnvProvider>
 );
 
-const docEl = document.documentElement;
+const rootEl = document.getElementById("root")!;
 
 const baseClassNames = ["transform"];
 const initialClassNames = ["scale-105", "opacity-0"];
-const transitionClassNames = ["transition", "easy-in", "duration-200"];
+const transitionClassNames = ["transition", "ease", "duration-200"];
 
-docEl.classList.add(...baseClassNames, ...initialClassNames);
+rootEl.classList.add(...baseClassNames, ...initialClassNames);
 
 const AppSuspenseFallback: React.FC = () => {
   React.useEffect(
     () => () => {
-      docEl.classList.add(...transitionClassNames);
-      docEl.classList.remove(...initialClassNames);
+      rootEl.classList.add(...transitionClassNames);
+      rootEl.classList.remove(...initialClassNames);
       setTimeout(() => {
-        docEl.classList.remove(...baseClassNames, ...transitionClassNames);
+        rootEl.classList.remove(...baseClassNames, ...transitionClassNames);
       }, 200);
     },
     []
