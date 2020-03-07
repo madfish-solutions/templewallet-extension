@@ -83,6 +83,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   padding: "0.375rem 1.5rem 0.375rem 0.5rem"
                 }}
                 disabled={disabled}
+                autoFocus={selected}
                 onClick={() => {
                   if (!disabled) {
                     if (network.id !== net.id) {
