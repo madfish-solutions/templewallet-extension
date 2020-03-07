@@ -40,57 +40,15 @@ const NETWORKS = [
 
 type NetworkSelectProps = React.HTMLAttributes<HTMLDivElement>;
 
-const NetworkSelect: React.FC<NetworkSelectProps> = ({
-  className,
-  ...rest
-}) => {
+const NetworkSelect: React.FC<NetworkSelectProps> = () => {
   const [network, setNetwork] = React.useState(() => NETWORKS[0]);
 
   return (
     <Popper
-      popper={{
-        placement: "bottom",
-        strategy: "fixed"
-      }}
-      trigger={({ opened }) => (
-        <button
-          className={classNames(
-            "px-2 py-1",
-            "bg-white-10 rounded",
-            "border border-primary-orange-25",
-            "text-primary-white text-shadow-black",
-            "text-xs font-medium",
-            "transition ease-in-out duration-200",
-            opened ? "shadow-md" : "shadow hover:shadow-md focus:shadow-md",
-            opened
-              ? "opacity-100"
-              : "opacity-90 hover:opacity-100 focus:opacity-100",
-            "flex items-center",
-            "select-none"
-          )}
-        >
-          <div
-            className={classNames(
-              "mr-2",
-              "w-3 h-3",
-              "border border-primary-white",
-              "rounded-full",
-              "shadow-xs"
-            )}
-            style={{ backgroundColor: network.color }}
-          />
-
-          <span>{network.label}</span>
-
-          <ChevronDownIcon
-            className="ml-1 -mr-1 stroke-current stroke-2"
-            style={{ height: 16, width: "auto" }}
-          />
-        </button>
-      )}
-    >
-      {({ setOpened }) => (
-        <DropdownWrapper>
+      placement="bottom"
+      strategy="fixed"
+      popup={({ opened, setOpened }) => (
+        <DropdownWrapper opened={opened}>
           <h2
             className={classNames(
               "mb-2",
@@ -150,6 +108,45 @@ const NetworkSelect: React.FC<NetworkSelectProps> = ({
             );
           })}
         </DropdownWrapper>
+      )}
+    >
+      {({ ref, opened, toggleOpened }) => (
+        <button
+          ref={ref}
+          className={classNames(
+            "px-2 py-1",
+            "bg-white-10 rounded",
+            "border border-primary-orange-25",
+            "text-primary-white text-shadow-black",
+            "text-xs font-medium",
+            "transition ease-in-out duration-200",
+            opened ? "shadow-md" : "shadow hover:shadow-md focus:shadow-md",
+            opened
+              ? "opacity-100"
+              : "opacity-90 hover:opacity-100 focus:opacity-100",
+            "flex items-center",
+            "select-none"
+          )}
+          onClick={toggleOpened}
+        >
+          <div
+            className={classNames(
+              "mr-2",
+              "w-3 h-3",
+              "border border-primary-white",
+              "rounded-full",
+              "shadow-xs"
+            )}
+            style={{ backgroundColor: network.color }}
+          />
+
+          <span>{network.label}</span>
+
+          <ChevronDownIcon
+            className="ml-1 -mr-1 stroke-current stroke-2"
+            style={{ height: 16, width: "auto" }}
+          />
+        </button>
       )}
     </Popper>
   );
