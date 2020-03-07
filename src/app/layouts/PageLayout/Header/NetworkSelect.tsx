@@ -45,10 +45,10 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
 
   return (
     <Popper
-      placement="bottom"
+      placement="bottom-end"
       strategy="fixed"
       popup={({ opened, setOpened }) => (
-        <DropdownWrapper opened={opened}>
+        <DropdownWrapper opened={opened} className="origin-top-right">
           <h2
             className={classNames(
               "mb-2",
