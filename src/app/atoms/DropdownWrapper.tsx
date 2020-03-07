@@ -1,5 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
+import CSSTransition from "react-transition-group/CSSTransition";
 
 type DropdownWrapperProps = React.HTMLAttributes<HTMLDivElement> & {
   opened: boolean;
@@ -10,8 +11,23 @@ const DropdownWrapper: React.FC<DropdownWrapperProps> = ({
   className,
   style = {},
   ...rest
-}) =>
-  opened ? (
+}) => (
+  <CSSTransition
+    in={opened}
+    timeout={100}
+    classNames={{
+      enter: "transform opacity-0 scale-95",
+      enterActive: classNames(
+        "transform opacity-100 scale-100",
+        "transition ease-out duration-100"
+      ),
+      exit: classNames(
+        "transform opacity-0 scale-95",
+        "transition ease-in duration-100"
+      )
+    }}
+    unmountOnExit
+  >
     <div
       className={classNames(
         "mt-2",
@@ -28,6 +44,7 @@ const DropdownWrapper: React.FC<DropdownWrapperProps> = ({
       }}
       {...rest}
     />
-  ) : null;
+  </CSSTransition>
+);
 
 export default DropdownWrapper;

@@ -65,6 +65,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
   return (
     <DropdownWrapper
       opened={opened}
+      className="origin-top-right"
       style={{
         minWidth: "16rem"
       }}
