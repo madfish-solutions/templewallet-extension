@@ -1,104 +1,119 @@
 import * as React from "react";
-import classNames from "clsx";
 import { Instance, Options, createPopper } from "@popperjs/core";
 import useOnClickOutside from "use-onclickoutside";
+import Portal from "lib/ui/Portal";
 
 export interface PopperRenderProps {
   opened: boolean;
   setOpened: React.Dispatch<React.SetStateAction<boolean>>;
+  toggleOpened: () => void;
 }
-export type PopperRenderPropsValue<T> = T | ((props: PopperRenderProps) => T);
+export type RenderProp<P> = (props: P) => React.ReactElement;
 
-type PopperProps = React.HTMLAttributes<HTMLDivElement> & {
-  popper?: Partial<Options>;
-  containerClassName?: string;
-  trigger: PopperRenderPropsValue<React.ReactElement>;
-  children: PopperRenderPropsValue<React.ReactElement>;
-};
-
-const Popper: React.FC<PopperProps> = ({
-  popper: popperOptions = {},
-  containerClassName,
-  trigger,
-  children,
-  ...rest
-}) => {
-  const rootRef = React.useRef(null);
-  const popperRef = React.useRef<Instance>();
-  const triggerRef = React.useRef<HTMLElement>(null);
-  const popupRef = React.useRef<HTMLDivElement>(null);
-
-  const [opened, setOpened] = React.useState(false);
-
-  const togglePopup = React.useCallback(() => {
-    setOpened(o => !o);
-  }, [setOpened]);
-
-  const handleClickOuside = React.useCallback(() => {
-    setOpened(false);
-  }, [setOpened]);
-
-  useOnClickOutside(rootRef, handleClickOuside);
-
-  React.useEffect(() => {
-    if (triggerRef.current && popupRef.current) {
-      const popper = (popperRef.current = createPopper(
-        triggerRef.current,
-        popupRef.current,
-        {
-          ...popperOptions,
-          modifiers: [
-            {
-              name: "preventOverflow",
-              options: {
-                padding: 8
-              }
-            },
-            ...(popperOptions.modifiers ?? [])
-          ]
-        }
-      ));
-
-      return () => {
-        popper.destroy();
-      };
+type PopperProps = Partial<Options> & {
+  popup: RenderProp<PopperRenderProps>;
+  children: RenderProp<
+    PopperRenderProps & {
+      ref: React.RefObject<HTMLButtonElement>;
     }
-  }, [popperOptions]);
-
-  React.useLayoutEffect(() => {
-    popperRef.current?.forceUpdate();
-  }, [opened]);
-
-  const renderProps = React.useMemo(
-    () => ({
-      opened,
-      setOpened
-    }),
-    [opened, setOpened]
-  );
-
-  const triggerNode = React.useMemo(
-    () => (typeof trigger === "function" ? trigger(renderProps) : trigger),
-    [trigger, renderProps]
-  );
-
-  const childrenNode = React.useMemo(
-    () => (typeof children === "function" ? children(renderProps) : children),
-    [children, renderProps]
-  );
-
-  return (
-    <span ref={rootRef} {...rest}>
-      {React.cloneElement(triggerNode, {
-        ref: triggerRef,
-        onClick: togglePopup
-      })}
-
-      <div ref={popupRef} className={classNames("z-50", containerClassName)}>
-        {opened && childrenNode}
-      </div>
-    </span>
-  );
+  >;
 };
+
+const Popper = React.memo<PopperProps>(
+  ({ popup, children, ...popperOptions }) => {
+    const popperRef = React.useRef<Instance>();
+    const triggerRef = React.useRef<HTMLButtonElement>(null);
+    const popupRef = React.useRef<HTMLDivElement>(null);
+
+    const [opened, setOpened] = React.useState(false);
+
+    const toggleOpened = React.useCallback(() => {
+      setOpened(o => !o);
+    }, [setOpened]);
+
+    const handleClickOuside = React.useCallback(
+      evt => {
+        if (!(triggerRef.current && triggerRef.current.contains(evt.target))) {
+          setOpened(false);
+        }
+      },
+      [setOpened]
+    );
+
+    useOnClickOutside(popupRef, opened ? handleClickOuside : null);
+
+    const finalOptions = React.useMemo(
+      () => ({
+        ...popperOptions,
+        modifiers: [
+          {
+            name: "preventOverflow",
+            options: {
+              padding: 8
+            }
+          },
+          ...(popperOptions.modifiers ?? [])
+        ]
+      }),
+      [popperOptions]
+    );
+
+    React.useEffect(() => {
+      if (popperRef.current) {
+        popperRef.current.setOptions(finalOptions);
+      } else if (triggerRef.current && popupRef.current) {
+        popperRef.current = createPopper(
+          triggerRef.current,
+          popupRef.current,
+          finalOptions
+        );
+      }
+    }, [finalOptions]);
+
+    React.useEffect(
+      () => () => {
+        if (popperRef.current) {
+          popperRef.current.destroy();
+        }
+      },
+      []
+    );
+
+    React.useLayoutEffect(() => {
+      popperRef.current?.forceUpdate();
+    }, [opened]);
+
+    const renderPropsBase = React.useMemo(
+      () => ({
+        opened,
+        setOpened,
+        toggleOpened
+      }),
+      [opened, setOpened, toggleOpened]
+    );
+
+    const triggerNode = React.useMemo(
+      () => children({ ...renderPropsBase, ref: triggerRef }),
+      [children, renderPropsBase]
+    );
+
+    const popupNode = React.useMemo(() => popup(renderPropsBase), [
+      popup,
+      renderPropsBase
+    ]);
+
+    return (
+      <>
+        {triggerNode}
+
+        <Portal>
+          <div ref={popupRef} className="z-40">
+            {popupNode}
+          </div>
+        </Portal>
+      </>
+    );
+  }
+);
 
 export default Popper;
