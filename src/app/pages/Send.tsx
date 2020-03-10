@@ -18,16 +18,16 @@ const fieldParams = {
 
 interface FormData {
   recipientAddress: string;
-  amount: number;
+  primaryAmount: number;
   transactionFee: number;
 }
 
-function getValidNumber(n: string): string | void {
+function getValidNumber(n: string, decimals = 8): string | void {
   let val = n;
   let numVal = +val;
   const indexOfDot = val.indexOf(".");
-  if (indexOfDot !== -1 && val.length - indexOfDot > 9) {
-    val = val.substring(0, indexOfDot + 9);
+  if (indexOfDot !== -1 && val.length - indexOfDot > decimals + 1) {
+    val = val.substring(0, indexOfDot + decimals + 1);
     numVal = +val;
   }
   if (val === "" || val === "0") return val;
@@ -36,18 +36,18 @@ function getValidNumber(n: string): string | void {
   }
 }
 
+type TRX_FEE_KEYS = "small" | "medium" | "large";
+
+const TRX_FEE: { [key: string]: number } = {
+  small: 0.01,
+  medium: 0.02,
+  large: 0.04
+};
+
 const Send: React.FC = () => {
   const primaryRate = 3.19; // XTZ_USDT
   const [balance] = React.useState(342.2324);
   const [isPrimaryExchange, setPrimaryExchange] = React.useState(true);
-
-  const TRX_FEE: { [key: string]: number } = {
-    small: 0.01,
-    medium: 0.02,
-    large: 0.04
-  };
-
-  type TRX_FEE_KEYS = "small" | "medium" | "large";
 
   const {
     watch,
@@ -60,7 +60,7 @@ const Send: React.FC = () => {
   } = useForm<FormData>();
 
   register(
-    { name: "amount", type: "custom" },
+    { name: "primaryAmount", type: "custom" },
     {
       required: "Required field",
       validate: {
@@ -88,38 +88,51 @@ const Send: React.FC = () => {
     { required: "Required field" }
   );
 
-  const primaryAmount = watch("amount");
-  const setPrimaryAmount = (val: any) => setValue("amount", val);
+  const primaryAmount = watch("primaryAmount");
+  const setPrimaryAmount = React.useCallback(
+    (val: any) => setValue("primaryAmount", val),
+    [setValue]
+  );
 
-  const trxFee = watch("transactionFee");
-  const setTrxFee = (val: any) => setValue("transactionFee", val);
-
-  const toggleExchange = (e: any) => {
-    e.preventDefault();
-    setPrimaryAmount(String(secondaryAmount));
-    return setPrimaryExchange(!isPrimaryExchange);
-  };
+  const trxFee = watch("transactionFee", String(TRX_FEE.small));
+  const setTrxFee = React.useCallback(
+    (val: any) => setValue("transactionFee", val),
+    [setValue]
+  );
 
   const secondaryAmount = React.useMemo(() => {
-    if (isPrimaryExchange) return +primaryAmount / primaryRate || 0;
-    else return +primaryAmount * primaryRate || 0;
+    if (isPrimaryExchange) {
+      return getValidNumber(String(+primaryAmount / primaryRate), 2) || 0;
+    } else {
+      return getValidNumber(String(+primaryAmount * primaryRate)) || 0;
+    }
   }, [isPrimaryExchange, primaryAmount]);
+
+  const toggleExchange = React.useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setPrimaryAmount(String(secondaryAmount));
+      return setPrimaryExchange(!isPrimaryExchange);
+    },
+    [isPrimaryExchange, secondaryAmount, setPrimaryAmount]
+  );
 
   const isActiveTrxFeeBtn = React.useCallback(
     (btnName: TRX_FEE_KEYS): boolean => {
       return +trxFee === TRX_FEE[btnName];
     },
-    [TRX_FEE, trxFee]
+    [trxFee]
   );
 
   const handleChange = React.useCallback(
     (
       evt: React.ChangeEvent<HTMLInputElement>,
-      setMethod: (val: React.SetStateAction<string>) => string | void
+      setMethod: (val: React.SetStateAction<string>) => string | void,
+      decimals?: number
     ) => {
       let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
 
-      const validNumber = getValidNumber(val);
+      const validNumber = getValidNumber(val, decimals);
       if (typeof validNumber === "string") {
         setMethod(validNumber);
       }
@@ -127,29 +140,41 @@ const Send: React.FC = () => {
     []
   );
 
-  const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>): void =>
-    handleChange(e, setPrimaryAmount);
+  const handleChangeAmount = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>): void =>
+      handleChange(e, setPrimaryAmount, !isPrimaryExchange ? 2 : undefined),
+    [handleChange, isPrimaryExchange, setPrimaryAmount]
+  );
 
-  const handleChangeTrxFee = (e: React.ChangeEvent<HTMLInputElement>): void =>
-    handleChange(e, setTrxFee);
+  const handleChangeTrxFee = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>): void =>
+      handleChange(e, setTrxFee),
+    [handleChange, setTrxFee]
+  );
 
   React.useEffect(() => {
-    if (formState.isSubmitted) triggerValidation("amount");
+    if (formState.isSubmitted) triggerValidation("primaryAmount");
   }, [errors, formState, primaryAmount, triggerValidation]);
 
-  const onSubmit = React.useCallback(async (data: FormData) => {
-    const fetchData = () => new Promise(res => setTimeout(res, 800));
+  const onSubmit = React.useCallback(
+    async (data: FormData) => {
+      const fetchData = () => new Promise(res => setTimeout(res, 800));
 
-    try {
-      await fetchData();
-    } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
+      try {
+        const amountXTZ = isPrimaryExchange ? primaryAmount : secondaryAmount;
+
+        await fetchData();
+        console.log({ ...data, amountXTZ });
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+
+        alert(err.message);
       }
-
-      alert(err.message);
-    }
-  }, []);
+    },
+    [isPrimaryExchange, primaryAmount, secondaryAmount]
+  );
 
   return (
     <PageLayout
@@ -193,7 +218,7 @@ const Send: React.FC = () => {
               {...fieldParams}
             />
             <FormField
-              name="amount"
+              name="primaryAmount"
               id="send-amount"
               label="Amount"
               value={primaryAmount ? String(primaryAmount) : ""}
@@ -202,7 +227,7 @@ const Send: React.FC = () => {
                 isPrimaryExchange ? "USD" : "XTZ"
               }`}
               placeholder="15.00 XTZ"
-              errorCaption={errors.amount?.message}
+              errorCaption={errors.primaryAmount?.message}
               extraButton={
                 <FormSubmitButton
                   onClick={toggleExchange}
@@ -234,7 +259,7 @@ const Send: React.FC = () => {
                       setTrxFee(String(TRX_FEE.small));
                     }}
                   >
-                    Small <br /> ({TRX_FEE.small} XTZ)
+                    Slow <br /> ({TRX_FEE.small} XTZ)
                   </button>
                   <button
                     className={classNames(
@@ -248,7 +273,7 @@ const Send: React.FC = () => {
                       setTrxFee(String(TRX_FEE.medium));
                     }}
                   >
-                    Medium <br /> ({TRX_FEE.medium} XTZ)
+                    Average <br /> ({TRX_FEE.medium} XTZ)
                   </button>
                   <button
                     className={classNames(
@@ -262,7 +287,7 @@ const Send: React.FC = () => {
                       setTrxFee(String(TRX_FEE.large));
                     }}
                   >
-                    Large <br /> ({TRX_FEE.large} XTZ)
+                    Fast <br /> ({TRX_FEE.large} XTZ)
                   </button>
                 </div>
               }
