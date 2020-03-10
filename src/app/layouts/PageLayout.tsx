@@ -1,26 +1,23 @@
 import * as React from "react";
 import classNames from "clsx";
-import Popper from "lib/Popper";
 import { goBack } from "lib/woozie";
-import { useThanosFront } from "lib/thanos/front";
 import { useAppEnv } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
-import Identicon from "app/atoms/Identicon";
-import styles from "./PageLayout.module.css";
-import SelectNetworkDropdown from "./PageLayout/SelectNetworkDropdown";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
-// import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
+import Header from "./PageLayout/Header";
 
-type PageLayoutProps = {
-  hasBackAction?: boolean;
-};
+type PageLayoutProps = ToolbarProps;
 
-const PageLayout: React.FC<PageLayoutProps> = ({ hasBackAction, children }) => (
+const PageLayout: React.FC<PageLayoutProps> = ({
+  pageTitle,
+  hasBackAction,
+  children
+}) => (
   <div className="mb-12">
     <Header />
 
     <ContentPaper>
-      <Toolbar hasBackAction={hasBackAction} />
+      <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
 
       <div className="p-4">{children}</div>
     </ContentPaper>
@@ -28,92 +25,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ hasBackAction, children }) => (
 );
 
 export default PageLayout;
-
-const Header: React.FC = () => {
-  const appEnv = useAppEnv();
-  const { ready, account } = useThanosFront();
-
-  return (
-    <header
-      className={classNames(
-        "bg-primary-orange",
-        styles["inner-shadow"],
-        appEnv.fullPage && "pb-20 -mb-20"
-      )}
-    >
-      <ContentContainer className="py-4">
-        <div
-          className={classNames("flex items-strech", appEnv.fullPage && "px-4")}
-        >
-          <div className="flex items-center flex-shrink-0 text-white mr-6">
-            <img src="../misc/icon.png" alt="" width="36" height="36" />
-
-            {appEnv.fullPage && (
-              <span className="font-semibold ml-2 text-xl tracking-tight">
-                Thanos
-              </span>
-            )}
-          </div>
-
-          <div className="flex-1" />
-
-          {ready && (
-            <>
-              <div className={classNames("mr-2", "flex flex-col items-end")}>
-                <div
-                  className={classNames(
-                    "overflow-hidden",
-                    "ml-2",
-                    "text-primary-white",
-                    "text-sm font-semibold",
-                    "text-shadow-black",
-                    "opacity-90"
-                  )}
-                >
-                  {account.name}
-                </div>
-
-                <div className="flex-1" />
-
-                <SelectNetworkDropdown />
-              </div>
-
-              <Popper
-                popper={{
-                  placement: "bottom-end",
-                  strategy: "fixed"
-                }}
-                trigger={({ opened }) => (
-                  <button
-                    className={classNames(
-                      "bg-white-10",
-                      "border border-white-25",
-                      "rounded-md",
-                      "p-px",
-                      "transition ease-in-out duration-200",
-                      opened
-                        ? "shadow-md"
-                        : "shadow hover:shadow-md focus:shadow-md",
-                      opened
-                        ? "opacity-100"
-                        : "opacity-90 hover:opacity-100 focus:opacity-100",
-                      "cursor-pointer"
-                    )}
-                  >
-                    <Identicon hash={account!.publicKeyHash} size={48} />
-                  </button>
-                )}
-                className="flex items-center"
-              >
-                <AccountDropdown />
-              </Popper>
-            </>
-          )}
-        </div>
-      </ContentContainer>
-    </header>
-  );
-};
 
 type ContentPaparProps = React.ComponentProps<typeof ContentContainer>;
 
@@ -148,10 +59,14 @@ const ContentPaper: React.FC<ContentPaparProps> = ({
 };
 
 type ToolbarProps = {
+  pageTitle?: React.ReactNode;
   hasBackAction?: boolean;
 };
 
-const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction }) => {
+const Toolbar: React.FC<ToolbarProps> = ({
+  pageTitle,
+  hasBackAction = true
+}) => {
   const appEnv = useAppEnv();
 
   const handleBackAction = React.useCallback(() => {
@@ -199,102 +114,48 @@ const Toolbar: React.FC<ToolbarProps> = ({ hasBackAction }) => {
         top: -1
       }}
     >
-      {hasBackAction && (
-        <button
-          className={classNames(
-            "px-4 py-2",
-            "rounded",
-            "flex items-center",
-            "text-gray-600 text-shadow-black",
-            "text-sm font-semibold",
-            "hover:bg-black-5",
-            "transition duration-300 ease-in-out",
-            "opacity-90 hover:opacity-100"
-          )}
-          onClick={handleBackAction}
-        >
-          <ChevronLeftIcon
+      <div className="flex-1">
+        {hasBackAction && (
+          <button
             className={classNames(
-              "-ml-2",
-              "h-5 w-auto",
-              "stroke-current",
-              "stroke-2"
+              "px-4 py-2",
+              "rounded",
+              "flex items-center",
+              "text-gray-600 text-shadow-black",
+              "text-sm font-semibold",
+              "hover:bg-black-5",
+              "transition duration-300 ease-in-out",
+              "opacity-90 hover:opacity-100"
             )}
-          />
-          Back
-        </button>
+            onClick={handleBackAction}
+          >
+            <ChevronLeftIcon
+              className={classNames(
+                "-ml-2",
+                "h-5 w-auto",
+                "stroke-current",
+                "stroke-2"
+              )}
+            />
+            Back
+          </button>
+        )}
+      </div>
+
+      {pageTitle && (
+        <h2
+          className={classNames(
+            "px-1",
+            "flex items-center",
+            "text-gray-600",
+            "text-sm font-light"
+          )}
+        >
+          {pageTitle}
+        </h2>
       )}
 
       <div className="flex-1" />
-    </div>
-  );
-};
-
-const AccountDropdown: React.FC = () => {
-  const { accounts, account, lock } = useThanosFront();
-
-  const handleLogoutClick = React.useCallback(() => {
-    lock();
-  }, [lock]);
-
-  return (
-    <div
-      className={classNames(
-        "mt-2 bg-black-90 p-2",
-        "rounded overflow-hidden shadow-xl",
-        "text-white"
-      )}
-      style={{ minWidth: "16rem" }}
-    >
-      <div className="flex items-center">
-        <h3 className="mx-1 text-base font-light text-white-75">Accounts</h3>
-
-        <div className="flex-1" />
-
-        <button
-          className={classNames(
-            "px-4 py-1",
-            "rounded",
-            "border border-white",
-            "flex items-center",
-            "text-white text-shadow-black",
-            "text-sm font-light",
-            "hover:bg-white-10",
-            "transition duration-300 ease-in-out",
-            "opacity-90 hover:opacity-100"
-          )}
-          onClick={handleLogoutClick}
-        >
-          Log out
-        </button>
-      </div>
-
-      <div className="my-2 flex flex-col">
-        {accounts.map(acc => {
-          const selected = acc.publicKeyHash === account.publicKeyHash;
-
-          return (
-            <div
-              className={classNames(
-                "rounded overflow-hidden",
-                "flex items-center",
-                "p-1",
-                selected && "bg-white-10"
-              )}
-            >
-              <Identicon hash={acc.publicKeyHash} size={36} />
-
-              <span className="ml-2 text-base font-semibold">{acc.name}</span>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* <hr />
-
-      <div className="my-2">
-
-      </div> */}
     </div>
   );
 };

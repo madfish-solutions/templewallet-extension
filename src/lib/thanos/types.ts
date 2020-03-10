@@ -1,4 +1,4 @@
-export interface ThanosFrontState {
+export interface ThanosState {
   status: ThanosStatus;
   accounts: ThanosAccount[];
 }
@@ -10,8 +10,15 @@ export enum ThanosStatus {
 }
 
 export interface ThanosAccount {
+  type: ThanosAccountType;
   name: string;
   publicKeyHash: string;
+}
+
+export enum ThanosAccountType {
+  HD,
+  Imported,
+  Connected
 }
 
 export enum ThanosMessageType {
@@ -27,7 +34,9 @@ export enum ThanosMessageType {
   CreateAccountRequest = "THANOS_WALLET_CREATE_ACCOUNT_REQUEST",
   CreateAccountResponse = "THANOS_WALLET_CREATE_ACCOUNT_RESPONSE",
   RevealMnemonicRequest = "THANOS_WALLET_REVEAL_MNEMONIC_REQUEST",
-  RevealMnemonicResponse = "THANOS_WALLET_REVEAL_MNEMONIC_RESPONSE"
+  RevealMnemonicResponse = "THANOS_WALLET_REVEAL_MNEMONIC_RESPONSE",
+  EditAccountRequest = "THANOS_WALLET_EDIT_ACCOUNT_REQUEST",
+  EditAccountResponse = "THANOS_WALLET_EDIT_ACCOUNT_RESPONSE"
 }
 
 export type ThanosRequest =
@@ -36,7 +45,8 @@ export type ThanosRequest =
   | ThanosUnlockRequest
   | ThanosLockRequest
   | ThanosCreateAccountRequest
-  | ThanosRevalMnemonicRequest;
+  | ThanosRevealMnemonicRequest
+  | ThanosEditAccountRequest;
 
 export type ThanosResponse =
   | ThanosGetStateResponse
@@ -44,7 +54,8 @@ export type ThanosResponse =
   | ThanosUnlockResponse
   | ThanosLockResponse
   | ThanosCreateAccountResponse
-  | ThanosRevalMnemonicResponse;
+  | ThanosRevealMnemonicResponse
+  | ThanosEditAccountResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -56,13 +67,13 @@ export interface ThanosGetStateRequest extends ThanosMessageBase {
 
 export interface ThanosGetStateResponse extends ThanosMessageBase {
   type: ThanosMessageType.GetStateResponse;
-  state: ThanosFrontState;
+  state: ThanosState;
 }
 
 export interface ThanosNewWalletRequest extends ThanosMessageBase {
   type: ThanosMessageType.NewWalletRequest;
-  mnemonic: string;
   password: string;
+  mnemonic?: string;
 }
 
 export interface ThanosNewWalletResponse extends ThanosMessageBase {
@@ -94,12 +105,22 @@ export interface ThanosCreateAccountResponse extends ThanosMessageBase {
   type: ThanosMessageType.CreateAccountResponse;
 }
 
-export interface ThanosRevalMnemonicRequest extends ThanosMessageBase {
+export interface ThanosRevealMnemonicRequest extends ThanosMessageBase {
   type: ThanosMessageType.RevealMnemonicRequest;
   password: string;
 }
 
-export interface ThanosRevalMnemonicResponse extends ThanosMessageBase {
+export interface ThanosRevealMnemonicResponse extends ThanosMessageBase {
   type: ThanosMessageType.RevealMnemonicResponse;
   mnemonic: string;
+}
+
+export interface ThanosEditAccountRequest extends ThanosMessageBase {
+  type: ThanosMessageType.EditAccountRequest;
+  accountIndex: number;
+  name: string;
+}
+
+export interface ThanosEditAccountResponse extends ThanosMessageBase {
+  type: ThanosMessageType.EditAccountResponse;
 }

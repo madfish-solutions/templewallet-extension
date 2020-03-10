@@ -9,7 +9,6 @@ const ExploreAccount: React.FC = () => {
     account: maybeAccount,
     destroyAccount,
     getBalance
-    // getBalanceHistory
   } = useThanosWalletContext();
   const account = maybeAccount!;
 

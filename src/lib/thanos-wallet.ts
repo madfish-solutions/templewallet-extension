@@ -8,13 +8,7 @@ export const useThanosWalletContext = createUseContext(useThanosWallet);
 export const ThanosWalletProvider = useThanosWalletContext.Provider;
 
 function useThanosWallet() {
-  const {
-    tezos,
-    initAccount,
-    getBalance,
-    getBalanceHistory,
-    transfer
-  } = useTezosContext();
+  const { tezos, initAccount, getBalance, transfer } = useTezosContext();
 
   const [{ accountstr }, setToStorage] = useBrowserStorage("accountstr");
 
@@ -54,7 +48,6 @@ function useThanosWallet() {
     account,
     importAccount,
     destroyAccount,
-    getBalanceHistory,
     transfer
   };
 }

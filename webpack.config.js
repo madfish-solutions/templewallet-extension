@@ -103,7 +103,7 @@ const PURGECSS_OPTIONS = {
 module.exports = {
   mode: NODE_ENV,
   bail: NODE_ENV === "production",
-  devtool: SOURCE_MAP && "cheap-module-source-map",
+  devtool: SOURCE_MAP && "inline-cheap-module-source-map",
 
   entry: ENTRIES,
 
