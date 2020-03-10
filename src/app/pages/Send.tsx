@@ -42,6 +42,14 @@ const Send: React.FC = () => {
   const [balance] = React.useState(342.2324);
   const [isPrimaryExchange, setIsPrimaryExchange] = React.useState(true);
 
+  const TRX_FEE: { [key: string]: number } = {
+    small: 0.001,
+    medium: 0.002,
+    large: 0.004
+  };
+
+  type TRX_FEE_KEYS = "small" | "medium" | "large";
+
   const {
     watch,
     register,
@@ -52,13 +60,11 @@ const Send: React.FC = () => {
     setValue
   } = useForm<FormData>();
 
-  // const primaryAmount = watch("amount");
   const [primaryAmount, setPrimaryAmount] = React.useState("");
-  const [trxFee, setTrxFee] = React.useState("");
+  const [trxFee, setTrxFee] = React.useState(String(TRX_FEE.small));
 
   const toggleExchange = (e: any) => {
     e.preventDefault();
-    // setValue("amount", String(secondaryAmount));
     setPrimaryAmount(String(secondaryAmount));
     return setIsPrimaryExchange(!isPrimaryExchange);
   };
@@ -67,6 +73,13 @@ const Send: React.FC = () => {
     if (isPrimaryExchange) return +primaryAmount / primaryRate || 0;
     else return +primaryAmount * primaryRate || 0;
   }, [isPrimaryExchange, primaryAmount]);
+
+  const isActiveTrxFeeBtn = React.useCallback(
+    (btnName: TRX_FEE_KEYS): boolean => {
+      return +trxFee === TRX_FEE[btnName];
+    },
+    [TRX_FEE, trxFee]
+  );
 
   const handleChange = React.useCallback(
     (
@@ -171,7 +184,52 @@ const Send: React.FC = () => {
               id="send-transaction-fee"
               label="Transaction fee"
               placeholder="(auto)"
-              labelDescription="Lorem ipsum sit amet."
+              labelDescription={
+                <div className="mt-1">
+                  <button
+                    className={classNames(
+                      "mr-2 border rounded-md p-2",
+                      isActiveTrxFeeBtn("small") &&
+                        "text-primary-orange hover:text-primary-orange border-primary-orange",
+                      "cursor-pointer hover:text-gray-800"
+                    )}
+                    onClick={(e: any) => {
+                      e.preventDefault();
+                      setTrxFee(String(TRX_FEE.small));
+                    }}
+                  >
+                    Small <br /> ({TRX_FEE.small} XTZ)
+                  </button>
+                  <button
+                    className={classNames(
+                      "mr-2 border rounded-md p-2",
+                      "cursor-pointer hover:text-gray-800",
+                      isActiveTrxFeeBtn("medium") &&
+                        "text-primary-orange hover:text-primary-orange border-primary-orange"
+                    )}
+                    onClick={(e: any) => {
+                      e.preventDefault();
+                      setTrxFee(String(TRX_FEE.medium));
+                    }}
+                  >
+                    Medium <br /> ({TRX_FEE.medium} XTZ)
+                  </button>
+                  <button
+                    className={classNames(
+                      "mr-2 border rounded-md p-2",
+                      isActiveTrxFeeBtn("large") &&
+                        "text-primary-orange hover:text-primary-orange border-primary-orange",
+                      "cursor-pointer hover:text-gray-800"
+                    )}
+                    onClick={(e: any) => {
+                      e.preventDefault();
+                      setTrxFee(String(TRX_FEE.large));
+                    }}
+                  >
+                    Large <br /> ({TRX_FEE.large} XTZ)
+                  </button>
+                </div>
+              }
               errorCaption={
                 errors.transactionFee ? "Invalid transaction fee" : null
               }
