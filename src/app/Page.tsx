@@ -1,17 +1,21 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
-import { WindowType, useAppEnv, OpenInFullPage } from "app/env";
+import { useAppEnv, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
 import ImportWallet from "app/pages/ImportWallet";
 import CreateWallet from "app/pages/CreateWallet";
 import Explore from "app/pages/Explore";
+import Receive from "app/pages/Receive";
+import Settings from "app/pages/Settings";
 
 interface RouteContext {
   appEnv: ReturnType<typeof useAppEnv>;
   thanosFront: ReturnType<typeof useThanosFront>;
 }
+
+type RouteFactory = Woozie.Router.ResolveResult<RouteContext>;
 
 const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
@@ -21,7 +25,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
         case thanosFront.ready:
           return Woozie.Router.SKIP;
 
-        case appEnv.windowType !== WindowType.FullPage:
+        case !appEnv.fullPage:
           return <OpenInFullPage />;
 
         default:
@@ -31,38 +35,28 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   [
     "*",
-    (_p, { thanosFront }) =>
-      thanosFront.locked ? <Unlock /> : Woozie.Router.SKIP
-  ],
-  [
-    "*",
-    (_p, { appEnv, thanosFront }) =>
-      thanosFront.ready || appEnv.windowType === WindowType.FullPage ? (
-        Woozie.Router.SKIP
-      ) : (
-        <OpenInFullPage />
-      )
+    (_p, { appEnv, thanosFront }) => {
+      switch (true) {
+        case thanosFront.locked:
+          return <Unlock />;
+
+        case !thanosFront.ready && !appEnv.fullPage:
+          return <OpenInFullPage />;
+
+        default:
+          return Woozie.Router.SKIP;
+      }
+    }
   ],
   [
     "/",
-    (_p, { thanosFront }) => (
-      <Woozie.Redirect to={thanosFront.ready ? "/explore" : "/welcome"} />
-    )
+    (_p, { thanosFront }) => (thanosFront.ready ? <Explore /> : <Welcome />)
   ],
+  ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
+  ["/receive", onlyReady(() => <Receive />)],
   [
-    "/welcome",
-    (_p, { thanosFront }) =>
-      !thanosFront.ready ? <Welcome /> : Woozie.Router.SKIP
-  ],
-  [
-    "/create-wallet",
-    (_p, { thanosFront }) =>
-      !thanosFront.ready ? <CreateWallet /> : Woozie.Router.SKIP
-  ],
-  [
-    "/explore",
-    (_p, { thanosFront }) =>
-      thanosFront.ready ? <Explore /> : Woozie.Router.SKIP
+    "/settings/:tabSlug?",
+    onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)
   ],
   ["*", () => <Woozie.Redirect to="/" />]
 ]);
@@ -89,3 +83,13 @@ const Page: React.FC = () => {
 };
 
 export default Page;
+
+function onlyReady(factory: RouteFactory): RouteFactory {
+  return (params, ctx) =>
+    ctx.thanosFront.ready ? factory(params, ctx) : Woozie.Router.SKIP;
+}
+
+function onlyNotReady(factory: RouteFactory): RouteFactory {
+  return (params, ctx) =>
+    ctx.thanosFront.ready ? Woozie.Router.SKIP : factory(params, ctx);
+}

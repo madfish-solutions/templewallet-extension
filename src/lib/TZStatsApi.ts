@@ -321,7 +321,7 @@ export async function getOperations(
   );
 }
 
-async function unify(promise: AxiosPromise) {
+async function unify<T>(promise: AxiosPromise<T>): Promise<T> {
   const res = await promise;
   return res.data;
 }

@@ -25,9 +25,6 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     revalidateOnReconnect: false
   });
   const state = stateSWR.data!;
-  const idle = state.status === ThanosStatus.Idle;
-  const locked = state.status === ThanosStatus.Locked;
-  const ready = state.status === ThanosStatus.Ready;
 
   React.useEffect(() => {
     browser.runtime.onMessage.addListener(handleMessage);
@@ -46,13 +43,25 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
   }, [stateSWR]);
 
   const { status, accounts } = state;
+  const idle = status === ThanosStatus.Idle;
+  const locked = status === ThanosStatus.Locked;
+  const ready = status === ThanosStatus.Ready;
+
+  const [accIndex, setAccIndex] = React.useState(0);
+  const account = accounts[accIndex];
+
+  React.useEffect(() => {
+    if (accIndex >= accounts.length) {
+      setAccIndex(0);
+    }
+  }, [accounts, accIndex, setAccIndex]);
 
   const registerWallet = React.useCallback(
-    async (mnemonic: string, password: string) => {
+    async (password: string, mnemonic?: string) => {
       const res = await sendMessage({
         type: ThanosMessageType.NewWalletRequest,
-        mnemonic,
-        password
+        password,
+        mnemonic
       });
       assertResponse(res.type === ThanosMessageType.NewWalletResponse);
     },
@@ -90,22 +99,35 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     return res.mnemonic;
   }, []);
 
-  const account = accounts[0];
+  const editAccountName = React.useCallback(
+    async (name: string) => {
+      const res = await sendMessage({
+        type: ThanosMessageType.EditAccountRequest,
+        accountIndex: accIndex,
+        name
+      });
+      assertResponse(res.type === ThanosMessageType.EditAccountResponse);
+    },
+    [accIndex]
+  );
 
   return {
     status,
-    accounts,
-    account,
     idle,
     locked,
     ready,
+    accounts,
+    accIndex,
+    account,
 
     // Callbacks
+    setAccIndex,
     registerWallet,
     unlock,
     lock,
     createAccount,
-    revealMnemonic
+    revealMnemonic,
+    editAccountName
   };
 });
 

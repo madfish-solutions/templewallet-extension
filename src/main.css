@@ -1,4 +1,19 @@
+/**
+ * Inter UI font
+ */
+
 @import "~inter-ui/inter.css";
+
+/**
+ * Tippy JS
+ */
+
+@import "~tippy.js/dist/tippy.css";
+@import "~tippy.js/animations/shift-away-subtle.css";
+
+/**
+ * TailwindCSS
+ */
 
 @tailwind base;
 
@@ -16,37 +31,4 @@
 
 .text-shadow-black-orange {
   text-shadow: 0 1px 0 rgba(39, 19, 3, 0.06);
-}
-
-/**
- * Legacy stuff.
- */
-
-.spin {
-  animation: spin 1s;
-}
-
-@-moz-keyframes spin {
-  from {
-    -moz-transform: rotate(0deg);
-  }
-  to {
-    -moz-transform: rotate(360deg);
-  }
-}
-@-webkit-keyframes spin {
-  from {
-    -webkit-transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(360deg);
-  }
-}
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
