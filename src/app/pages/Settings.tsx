@@ -113,7 +113,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
                             "flex items-center justify-center",
                             "text-white",
                             "transition ease-in-out duration-200",
-                            "hover:opacity-90 focus:opacity-90"
+                            "opacity-90 hover:opacity-100 focus:opacity-100"
                           )}
                           style={{ backgroundColor: color }}
                         >
@@ -126,7 +126,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
                           to={linkTo}
                           className={classNames(
                             "text-lg leading-6 font-medium",
-                            "text-gray-700 hover:text-gray-600",
+                            "text-gray-700 hover:text-gray-800",
                             "hover:underline focus:underline",
                             "transition ease-in-out duration-200"
                           )}
@@ -134,7 +134,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
                           {title}
                         </Link>
 
-                        <p className="mt-1 text-sm font-light leading-5 text-gray-500">
+                        <p className="mt-1 text-sm font-light leading-5 text-gray-600">
                           {description}
                         </p>
                       </div>
