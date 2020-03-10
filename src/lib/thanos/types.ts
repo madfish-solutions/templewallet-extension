@@ -22,21 +22,29 @@ export enum ThanosAccountType {
 }
 
 export enum ThanosMessageType {
-  StateUpdated = "THANOS_WALLET_STATE_UPDATED",
-  GetStateRequest = "THANOS_WALLET_GET_STATE_REQUEST",
-  GetStateResponse = "THANOS_WALLET_GET_STATE_RESPONSE",
-  NewWalletRequest = "THANOS_WALLET_NEW_WALLET_REQUEST",
-  NewWalletResponse = "THANOS_WALLET_NEW_WALLET_RESPONSE",
-  UnlockRequest = "THANOS_WALLET_UNLOCK_REQUEST",
-  UnlockResponse = "THANOS_WALLET_UNLOCK_RESPONSE",
-  LockRequest = "THANOS_WALLET_LOCK_REQUEST",
-  LockResponse = "THANOS_WALLET_LOCK_RESPONSE",
-  CreateAccountRequest = "THANOS_WALLET_CREATE_ACCOUNT_REQUEST",
-  CreateAccountResponse = "THANOS_WALLET_CREATE_ACCOUNT_RESPONSE",
-  RevealMnemonicRequest = "THANOS_WALLET_REVEAL_MNEMONIC_REQUEST",
-  RevealMnemonicResponse = "THANOS_WALLET_REVEAL_MNEMONIC_RESPONSE",
-  EditAccountRequest = "THANOS_WALLET_EDIT_ACCOUNT_REQUEST",
-  EditAccountResponse = "THANOS_WALLET_EDIT_ACCOUNT_RESPONSE"
+  StateUpdated = "THANOS_STATE_UPDATED",
+  GetStateRequest = "THANOS_GET_STATE_REQUEST",
+  GetStateResponse = "THANOS_GET_STATE_RESPONSE",
+  NewWalletRequest = "THANOS_NEW_WALLET_REQUEST",
+  NewWalletResponse = "THANOS_NEW_WALLET_RESPONSE",
+  UnlockRequest = "THANOS_UNLOCK_REQUEST",
+  UnlockResponse = "THANOS_UNLOCK_RESPONSE",
+  LockRequest = "THANOS_LOCK_REQUEST",
+  LockResponse = "THANOS_LOCK_RESPONSE",
+  CreateAccountRequest = "THANOS_CREATE_ACCOUNT_REQUEST",
+  CreateAccountResponse = "THANOS_CREATE_ACCOUNT_RESPONSE",
+  RevealPrivateKeyRequest = "THANOS_REVEAL_PRIVATE_KEY_REQUEST",
+  RevealPrivateKeyResponse = "THANOS_REVEAL_PRIVATE_KEY_RESPONSE",
+  RevealMnemonicRequest = "THANOS_REVEAL_MNEMONIC_REQUEST",
+  RevealMnemonicResponse = "THANOS_REVEAL_MNEMONIC_RESPONSE",
+  EditAccountRequest = "THANOS_EDIT_ACCOUNT_REQUEST",
+  EditAccountResponse = "THANOS_EDIT_ACCOUNT_RESPONSE",
+  ImportAccountRequest = "THANOS_IMPORT_ACCOUNT_REQUEST",
+  ImportAccountResponse = "THANOS_IMPORT_ACCOUNT_RESPONSE",
+  ImportFundraiserAccountRequest = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_REQUEST",
+  ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
+  SignRequest = "THANOS_SIGN_REQUEST",
+  SignResponse = "THANOS_SIGN_RESPONSE"
 }
 
 export type ThanosRequest =
@@ -45,8 +53,12 @@ export type ThanosRequest =
   | ThanosUnlockRequest
   | ThanosLockRequest
   | ThanosCreateAccountRequest
+  | ThanosRevealPrivateKeyRequest
   | ThanosRevealMnemonicRequest
-  | ThanosEditAccountRequest;
+  | ThanosEditAccountRequest
+  | ThanosImportAccountRequest
+  | ThanosImportFundraiserAccountRequest
+  | ThanosSignRequest;
 
 export type ThanosResponse =
   | ThanosGetStateResponse
@@ -54,8 +66,12 @@ export type ThanosResponse =
   | ThanosUnlockResponse
   | ThanosLockResponse
   | ThanosCreateAccountResponse
+  | ThanosRevealPrivateKeyResponse
   | ThanosRevealMnemonicResponse
-  | ThanosEditAccountResponse;
+  | ThanosEditAccountResponse
+  | ThanosImportAccountResponse
+  | ThanosImportFundraiserAccountResponse
+  | ThanosSignResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -105,6 +121,17 @@ export interface ThanosCreateAccountResponse extends ThanosMessageBase {
   type: ThanosMessageType.CreateAccountResponse;
 }
 
+export interface ThanosRevealPrivateKeyRequest extends ThanosMessageBase {
+  type: ThanosMessageType.RevealPrivateKeyRequest;
+  accountIndex: number;
+  password: string;
+}
+
+export interface ThanosRevealPrivateKeyResponse extends ThanosMessageBase {
+  type: ThanosMessageType.RevealPrivateKeyResponse;
+  privateKey: string;
+}
+
 export interface ThanosRevealMnemonicRequest extends ThanosMessageBase {
   type: ThanosMessageType.RevealMnemonicRequest;
   password: string;
@@ -123,4 +150,38 @@ export interface ThanosEditAccountRequest extends ThanosMessageBase {
 
 export interface ThanosEditAccountResponse extends ThanosMessageBase {
   type: ThanosMessageType.EditAccountResponse;
+}
+
+export interface ThanosImportAccountRequest extends ThanosMessageBase {
+  type: ThanosMessageType.ImportAccountRequest;
+  privateKey: string;
+}
+
+export interface ThanosImportAccountResponse extends ThanosMessageBase {
+  type: ThanosMessageType.ImportAccountResponse;
+}
+
+export interface ThanosImportFundraiserAccountRequest
+  extends ThanosMessageBase {
+  type: ThanosMessageType.ImportFundraiserAccountRequest;
+  email: string;
+  password: string;
+  mnemonic: string;
+}
+
+export interface ThanosImportFundraiserAccountResponse
+  extends ThanosMessageBase {
+  type: ThanosMessageType.ImportFundraiserAccountResponse;
+}
+
+export interface ThanosSignRequest extends ThanosMessageBase {
+  type: ThanosMessageType.SignRequest;
+  accountIndex: number;
+  bytes: string;
+  watermark?: Uint8Array;
+}
+
+export interface ThanosSignResponse extends ThanosMessageBase {
+  type: ThanosMessageType.SignResponse;
+  result: any;
 }

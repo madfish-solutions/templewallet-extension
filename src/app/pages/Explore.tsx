@@ -12,7 +12,11 @@ import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import EditableTitle from "./Explore/EditableTitle";
 
 const Explore: React.FC = () => {
-  const { account } = useThanosFront();
+  const { account, tezos } = useThanosFront();
+
+  React.useEffect(() => {
+    console.info(tezos);
+  }, [tezos]);
 
   return (
     <PageLayout

@@ -2,6 +2,7 @@ import * as React from "react";
 import constate from "constate";
 import useSWR from "swr";
 import { browser } from "webextension-polyfill-ts";
+import { TezosToolkit } from "@taquito/taquito";
 import {
   ThanosMessageType,
   ThanosStatus,
@@ -49,6 +50,19 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
 
   const [accIndex, setAccIndex] = React.useState(0);
   const account = accounts[accIndex];
+  const accountPkh = account?.publicKeyHash;
+
+  const tezos = React.useMemo(() => {
+    if (!accountPkh) {
+      return null;
+    }
+
+    const t = new TezosToolkit();
+    const rpc = "https://babylonnet.tezos.org.ua";
+    const signer = new ThanosSigner(accIndex, accountPkh);
+    t.setProvider({ rpc, signer });
+    return t;
+  }, [accIndex, accountPkh]);
 
   React.useEffect(() => {
     if (accIndex >= accounts.length) {
@@ -90,6 +104,19 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     assertResponse(res.type === ThanosMessageType.CreateAccountResponse);
   }, []);
 
+  const revealPrivateKey = React.useCallback(
+    async (password: string) => {
+      const res = await sendMessage({
+        type: ThanosMessageType.RevealPrivateKeyRequest,
+        accountIndex: accIndex,
+        password
+      });
+      assertResponse(res.type === ThanosMessageType.RevealPrivateKeyResponse);
+      return res.privateKey;
+    },
+    [accIndex]
+  );
+
   const revealMnemonic = React.useCallback(async (password: string) => {
     const res = await sendMessage({
       type: ThanosMessageType.RevealMnemonicRequest,
@@ -111,6 +138,29 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     [accIndex]
   );
 
+  const importAccount = React.useCallback(async (privateKey: string) => {
+    const res = await sendMessage({
+      type: ThanosMessageType.ImportAccountRequest,
+      privateKey
+    });
+    assertResponse(res.type === ThanosMessageType.ImportAccountResponse);
+  }, []);
+
+  const importFundraiserAccount = React.useCallback(
+    async (email: string, password: string, mnemonic: string) => {
+      const res = await sendMessage({
+        type: ThanosMessageType.ImportFundraiserAccountRequest,
+        email,
+        password,
+        mnemonic
+      });
+      assertResponse(
+        res.type === ThanosMessageType.ImportFundraiserAccountResponse
+      );
+    },
+    []
+  );
+
   return {
     status,
     idle,
@@ -119,6 +169,7 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     accounts,
     accIndex,
     account,
+    tezos,
 
     // Callbacks
     setAccIndex,
@@ -126,10 +177,46 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     unlock,
     lock,
     createAccount,
+    revealPrivateKey,
     revealMnemonic,
-    editAccountName
+    editAccountName,
+    importAccount,
+    importFundraiserAccount
   };
 });
+
+class ThanosSigner {
+  private accIndex: number;
+  private pkh: string;
+
+  constructor(accIndex: number, pkh: string) {
+    this.accIndex = accIndex;
+    this.pkh = pkh;
+  }
+
+  async publicKeyHash() {
+    return this.pkh;
+  }
+
+  async publicKey(): Promise<string> {
+    throw new Error("Public key cannot be exposed");
+  }
+
+  async secretKey(): Promise<string> {
+    throw new Error("Secret key cannot be exposed");
+  }
+
+  async sign(bytes: string, watermark?: Uint8Array) {
+    const res = await sendMessage({
+      type: ThanosMessageType.SignRequest,
+      accountIndex: this.accIndex,
+      bytes,
+      watermark
+    });
+    assertResponse(res.type === ThanosMessageType.SignResponse);
+    return res.result;
+  }
+}
 
 async function sendMessage(msg: ThanosRequest) {
   const res = await browser.runtime.sendMessage(msg);
