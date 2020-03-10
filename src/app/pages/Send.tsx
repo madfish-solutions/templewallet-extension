@@ -23,6 +23,20 @@ interface FormData {
   transactionFee: number;
 }
 
+function getValidNumber(n: string): string | void {
+  let val = n;
+  let numVal = +val;
+  const indexOfDot = val.indexOf(".");
+  if (indexOfDot !== -1 && val.length - indexOfDot > 9) {
+    val = val.substring(0, indexOfDot + 9);
+    numVal = +val;
+  }
+  if (val === "") return "";
+  if (!isNaN(numVal) && numVal >= 0 && numVal < Number.MAX_SAFE_INTEGER) {
+    return val;
+  }
+}
+
 const Send: React.FC = () => {
   const primaryRate = 3.19; // XTZ_USDT
   const [balance] = React.useState(342.2324);
@@ -38,18 +52,41 @@ const Send: React.FC = () => {
     setValue
   } = useForm<FormData>();
 
-  const primaryAmount = watch("amount");
+  // const primaryAmount = watch("amount");
+  const [primaryAmount, setPrimaryAmount] = React.useState("");
+  const [trxFee, setTrxFee] = React.useState("");
 
   const toggleExchange = (e: any) => {
     e.preventDefault();
-    setValue("amount", secondaryAmount);
+    // setValue("amount", String(secondaryAmount));
+    setPrimaryAmount(String(secondaryAmount));
     return setIsPrimaryExchange(!isPrimaryExchange);
   };
 
   const secondaryAmount = React.useMemo(() => {
-    if (isPrimaryExchange) return primaryAmount / primaryRate;
-    else return primaryAmount * primaryRate;
+    if (isPrimaryExchange) return +primaryAmount / primaryRate || 0;
+    else return +primaryAmount * primaryRate || 0;
   }, [isPrimaryExchange, primaryAmount]);
+
+  const handleChange = React.useCallback(
+    (
+      evt: React.ChangeEvent<HTMLInputElement>,
+      setMethod: (val: React.SetStateAction<string>) => string | void
+    ) => {
+      let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
+
+      const validNumber = getValidNumber(val);
+      if (typeof validNumber === "string") setMethod(validNumber);
+      else evt.preventDefault();
+    },
+    []
+  );
+
+  const handleChangeAmount = (e: React.ChangeEvent<HTMLInputElement>): void =>
+    handleChange(e, setPrimaryAmount);
+
+  const handleChangeTrxFee = (e: React.ChangeEvent<HTMLInputElement>): void =>
+    handleChange(e, setTrxFee);
 
   const onSubmit = React.useCallback(async (data: FormData) => {
     const fetchData = () => new Promise(res => setTimeout(res, 800));
@@ -107,9 +144,11 @@ const Send: React.FC = () => {
                 max: balance,
                 validate: isNumber
               })}
-              name="amount"
+              // name="amount"
               id="send-amount"
               label="Amount"
+              value={primaryAmount}
+              onInput={(e: any) => handleChangeAmount(e)}
               labelDescription={`${secondaryAmount} ${
                 isPrimaryExchange ? "USD" : "XTZ"
               }`}
@@ -127,7 +166,8 @@ const Send: React.FC = () => {
             />
             <FormField
               ref={register({ required: true })}
-              name="transactionFee"
+              value={trxFee}
+              onInput={(e: any) => handleChangeTrxFee(e)}
               id="send-transaction-fee"
               label="Transaction fee"
               placeholder="(auto)"
