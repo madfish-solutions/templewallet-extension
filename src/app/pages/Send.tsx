@@ -11,7 +11,6 @@ import { ACCOUNT_ADDRESS_PATTERN } from "app/defaults";
 import xtzImgUrl from "app/misc/xtz.png";
 
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
-import { isNumber } from "util";
 
 const fieldParams = {
   containerClassName: "mb-4"
@@ -31,7 +30,7 @@ function getValidNumber(n: string): string | void {
     val = val.substring(0, indexOfDot + 9);
     numVal = +val;
   }
-  if (val === "") return "";
+  if (val === "" || val === "0") return val;
   if (!isNaN(numVal) && numVal >= 0 && numVal < Number.MAX_SAFE_INTEGER) {
     return val;
   }
@@ -40,12 +39,12 @@ function getValidNumber(n: string): string | void {
 const Send: React.FC = () => {
   const primaryRate = 3.19; // XTZ_USDT
   const [balance] = React.useState(342.2324);
-  const [isPrimaryExchange, setIsPrimaryExchange] = React.useState(true);
+  const [isPrimaryExchange, setPrimaryExchange] = React.useState(true);
 
   const TRX_FEE: { [key: string]: number } = {
-    small: 0.001,
-    medium: 0.002,
-    large: 0.004
+    small: 0.01,
+    medium: 0.02,
+    large: 0.04
   };
 
   type TRX_FEE_KEYS = "small" | "medium" | "large";
@@ -60,13 +59,45 @@ const Send: React.FC = () => {
     setValue
   } = useForm<FormData>();
 
-  const [primaryAmount, setPrimaryAmount] = React.useState("");
-  const [trxFee, setTrxFee] = React.useState(String(TRX_FEE.small));
+  register(
+    { name: "amount", type: "custom" },
+    {
+      required: "Required field",
+      validate: {
+        min: v => {
+          const primaryValue = 0.1 + +trxFee;
+          const minValue = isPrimaryExchange
+            ? primaryValue
+            : primaryValue / primaryRate;
+          const message = `Minimal value: ${minValue}`;
+          return +v >= minValue || message;
+        },
+        max: v => {
+          const primaryValue = balance - +trxFee;
+          const maxValue = isPrimaryExchange
+            ? primaryValue
+            : primaryValue / primaryRate;
+          const message = `Maximal value: ${maxValue}`;
+          return +v <= maxValue || message;
+        }
+      }
+    }
+  );
+  register(
+    { name: "transactionFee", type: "custom" },
+    { required: "Required field" }
+  );
+
+  const primaryAmount = watch("amount");
+  const setPrimaryAmount = (val: any) => setValue("amount", val);
+
+  const trxFee = watch("transactionFee");
+  const setTrxFee = (val: any) => setValue("transactionFee", val);
 
   const toggleExchange = (e: any) => {
     e.preventDefault();
     setPrimaryAmount(String(secondaryAmount));
-    return setIsPrimaryExchange(!isPrimaryExchange);
+    return setPrimaryExchange(!isPrimaryExchange);
   };
 
   const secondaryAmount = React.useMemo(() => {
@@ -89,8 +120,9 @@ const Send: React.FC = () => {
       let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
 
       const validNumber = getValidNumber(val);
-      if (typeof validNumber === "string") setMethod(validNumber);
-      else evt.preventDefault();
+      if (typeof validNumber === "string") {
+        setMethod(validNumber);
+      }
     },
     []
   );
@@ -100,6 +132,10 @@ const Send: React.FC = () => {
 
   const handleChangeTrxFee = (e: React.ChangeEvent<HTMLInputElement>): void =>
     handleChange(e, setTrxFee);
+
+  React.useEffect(() => {
+    if (formState.isSubmitted) triggerValidation("amount");
+  }, [errors, formState, primaryAmount, triggerValidation]);
 
   const onSubmit = React.useCallback(async (data: FormData) => {
     const fetchData = () => new Promise(res => setTimeout(res, 800));
@@ -139,34 +175,34 @@ const Send: React.FC = () => {
             </div>
             <FormField
               ref={register({
-                required: true,
-                pattern: ACCOUNT_ADDRESS_PATTERN
+                required: "Required field",
+                pattern: {
+                  value: ACCOUNT_ADDRESS_PATTERN,
+                  message: "Invalid address"
+                }
               })}
               name="recipientAddress"
               id="send-recipient-address"
               label="Recipient address"
               labelDescription="Lorem ipsum sit amet."
               placeholder="tz1a9w1S..."
-              errorCaption={errors.recipientAddress ? "Invalid address" : null}
+              errorCaption={
+                (errors.recipientAddress && errors.recipientAddress.message) ||
+                null
+              }
               {...fieldParams}
             />
             <FormField
-              ref={register({
-                required: true,
-                min: 0.1,
-                max: balance,
-                validate: isNumber
-              })}
-              // name="amount"
+              name="amount"
               id="send-amount"
               label="Amount"
-              value={primaryAmount}
+              value={primaryAmount ? String(primaryAmount) : ""}
               onInput={(e: any) => handleChangeAmount(e)}
               labelDescription={`${secondaryAmount} ${
                 isPrimaryExchange ? "USD" : "XTZ"
               }`}
               placeholder="15.00 XTZ"
-              errorCaption={errors.amount ? "Invalid amount" : null}
+              errorCaption={errors.amount?.message}
               extraButton={
                 <FormSubmitButton
                   onClick={toggleExchange}
@@ -178,10 +214,10 @@ const Send: React.FC = () => {
               {...fieldParams}
             />
             <FormField
-              ref={register({ required: true })}
               value={trxFee}
               onInput={(e: any) => handleChangeTrxFee(e)}
               id="send-transaction-fee"
+              name="transactionFee"
               label="Transaction fee"
               placeholder="(auto)"
               labelDescription={
