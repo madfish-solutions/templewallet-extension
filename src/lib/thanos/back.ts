@@ -48,6 +48,13 @@ export async function processRequest(
       await createHDAccount();
       return { type: ThanosMessageType.CreateAccountResponse };
 
+    case ThanosMessageType.RevealPrivateKeyRequest:
+      const privateKey = await revealPrivateKey(msg.accountIndex, msg.password);
+      return {
+        type: ThanosMessageType.RevealPrivateKeyResponse,
+        privateKey
+      };
+
     case ThanosMessageType.RevealMnemonicRequest:
       const mnemonic = await revealMnemonic(msg.password);
       return {
@@ -59,6 +66,25 @@ export async function processRequest(
       await editAccount(msg.accountIndex, msg.name);
       return {
         type: ThanosMessageType.EditAccountResponse
+      };
+
+    case ThanosMessageType.ImportAccountRequest:
+      await importAccount(msg.privateKey);
+      return {
+        type: ThanosMessageType.ImportAccountResponse
+      };
+
+    case ThanosMessageType.ImportFundraiserAccountRequest:
+      await importFundraiserAccount(msg.email, msg.password, msg.mnemonic);
+      return {
+        type: ThanosMessageType.ImportFundraiserAccountResponse
+      };
+
+    case ThanosMessageType.SignRequest:
+      const result = await sign(msg.accountIndex, msg.bytes, msg.watermark);
+      return {
+        type: ThanosMessageType.SignResponse,
+        result
       };
   }
 }
@@ -132,6 +158,21 @@ export async function createHDAccount() {
   accountsUpdated(updatedAccounts);
 }
 
+export async function revealPrivateKey(accIndex: number, password: string) {
+  const state = store.getState();
+  assertUnlocked(state);
+
+  try {
+    return await state.vault.revealPrivateKey(accIndex, password);
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.error(err);
+    }
+
+    throw new Error("Invalid password");
+  }
+}
+
 export async function revealMnemonic(password: string) {
   const state = store.getState();
   assertUnlocked(state);
@@ -165,6 +206,53 @@ export async function editAccount(accIndex: number, name: string) {
     throw new Error("Failed to edit account name");
   }
   accountsUpdated(updatedAccounts);
+}
+
+export async function importAccount(privateKey: string) {
+  const state = store.getState();
+  assertUnlocked(state);
+
+  try {
+    const updatedAccounts = await state.vault.importAccount(privateKey);
+    accountsUpdated(updatedAccounts);
+  } catch (_err) {
+    throw new Error("Failed to import account");
+  }
+}
+
+export async function importFundraiserAccount(
+  email: string,
+  password: string,
+  mnemonic: string
+) {
+  const state = store.getState();
+  assertUnlocked(state);
+
+  try {
+    const updatedAccounts = await state.vault.importFundraiserAccount(
+      email,
+      password,
+      mnemonic
+    );
+    accountsUpdated(updatedAccounts);
+  } catch (_err) {
+    throw new Error("Failed to import fundraiser account");
+  }
+}
+
+export async function sign(
+  accIndex: number,
+  bytes: string,
+  watermark?: Uint8Array
+) {
+  const state = store.getState();
+  assertUnlocked(state);
+
+  try {
+    return await state.vault.sign(accIndex, bytes, watermark);
+  } catch (_err) {
+    throw new Error("Failed to sign");
+  }
 }
 
 function assertInited(state: ThanosBackState) {
