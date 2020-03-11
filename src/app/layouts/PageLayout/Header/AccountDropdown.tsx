@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { navigate } from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
+import { PopperRenderProps } from "lib/ui/Popper";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
@@ -11,11 +12,9 @@ import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
-type AccountDropdown = {
-  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
-};
+type AccountDropdown = PopperRenderProps;
 
-const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
+const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const {
     accounts,
@@ -65,6 +64,8 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ setOpened }) => {
 
   return (
     <DropdownWrapper
+      opened={opened}
+      className="origin-top-right"
       style={{
         minWidth: "16rem"
       }}

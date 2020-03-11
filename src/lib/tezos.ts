@@ -16,8 +16,7 @@ function useTezos() {
   const tezos = React.useMemo(() => {
     const tt = new TezosToolkit();
     tt.setProvider({
-      rpc: "https://babylonnet.tezos.org.ua",
-      indexer: "https://api.tez.ie/indexer/babylonnet"
+      rpc: "https://babylonnet.tezos.org.ua"
     });
     return tt;
   }, []);
@@ -45,16 +44,11 @@ function useTezos() {
     [tezos]
   );
 
-  const getBalanceHistory = React.useCallback(
-    (address: string) => tezos.query.balanceHistory(address),
-    [tezos]
-  );
-
   const transfer = React.useCallback(
     (address: string, amount: number) =>
       tezos.contract.transfer({ to: address, amount }),
     [tezos]
   );
 
-  return { tezos, initAccount, getBalance, getBalanceHistory, transfer };
+  return { tezos, initAccount, getBalance, transfer };
 }

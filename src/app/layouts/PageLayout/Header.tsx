@@ -72,12 +72,13 @@ const Header: React.FC = () => {
               </div>
 
               <Popper
-                popper={{
-                  placement: "bottom-end",
-                  strategy: "fixed"
-                }}
-                trigger={({ opened }) => (
+                placement="bottom-end"
+                strategy="fixed"
+                popup={props => <AccountDropdown {...props} />}
+              >
+                {({ ref, opened, toggleOpened }) => (
                   <button
+                    ref={ref}
                     className={classNames(
                       "bg-white-10",
                       "border border-white-25",
@@ -92,13 +93,11 @@ const Header: React.FC = () => {
                         : "opacity-90 hover:opacity-100 focus:opacity-100",
                       "cursor-pointer"
                     )}
+                    onClick={toggleOpened}
                   >
                     <Identicon hash={account!.publicKeyHash} size={48} />
                   </button>
                 )}
-                className="flex items-center"
-              >
-                {({ setOpened }) => <AccountDropdown setOpened={setOpened} />}
               </Popper>
             </>
           )}
