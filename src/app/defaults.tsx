@@ -2,6 +2,9 @@ import * as React from "react";
 
 export const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{3,14}$/;
 
+// TODO: Write really pattern
+export const ACCOUNT_ADDRESS_PATTERN = /^[a-zA-Z0-9 _-]{3,14}$/;
+
 export const PASSWORD_PATTERN = new RegExp(
   [
     "^",
