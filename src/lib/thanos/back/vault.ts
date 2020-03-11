@@ -72,6 +72,11 @@ export class Vault {
     this.passKey = passKey;
   }
 
+  async revealPrivateKey(accIndex: number, password: string) {
+    const passKey = await Passworder.generateKey(password);
+    return fetchAndDecryptOne<string>(accKeyStrgKey(accIndex), passKey);
+  }
+
   async revealMnemonic(password: string) {
     const passKey = await Passworder.generateKey(password);
     return fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
@@ -165,6 +170,15 @@ export class Vault {
     await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], this.passKey);
 
     return newAllAcounts;
+  }
+
+  async sign(accIndex: number, bytes: string, watermark?: Uint8Array) {
+    const privateKey = await fetchAndDecryptOne<string>(
+      accKeyStrgKey(accIndex),
+      this.passKey
+    );
+    const signer = await createMemorySigner(privateKey);
+    return signer.sign(bytes, watermark);
   }
 }
 
