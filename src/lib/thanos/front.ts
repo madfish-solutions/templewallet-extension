@@ -3,6 +3,7 @@ import constate from "constate";
 import useSWR from "swr";
 import { browser } from "webextension-polyfill-ts";
 import { TezosToolkit } from "@taquito/taquito";
+import usePassiveStorage from "lib/thanos/front/usePassiveStorage";
 import {
   ThanosMessageType,
   ThanosStatus,
@@ -48,7 +49,8 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
 
-  const [accIndex, setAccIndex] = React.useState(0);
+  const [accIndex, setAccIndex] = usePassiveStorage("account_index", 0);
+
   const account = accounts[accIndex];
   const accountPkh = account?.publicKeyHash;
 
