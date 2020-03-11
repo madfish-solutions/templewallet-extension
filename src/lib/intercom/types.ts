@@ -1,32 +1,32 @@
 export enum MessageType {
-  Res = "INTERCOM_RESPONSE", // request responses
-  Err = "INTERCOM_ERROR", // request error
-  Sub = "INTERCOM_SUBSCRIPTION" // subscription updates
+  Req = "INTERCOM_REQUEST", // Request responses
+  Res = "INTERCOM_RESPONSE", // Reponse message
+  Err = "INTERCOM_ERROR", // Error message
+  Sub = "INTERCOM_SUBSCRIPTION" // Subscription updates
 }
 
-export interface RequestMessage {
-  payload: any;
-  reqId: number;
-}
-
-export type ServerMessage =
-  | SubscriptionMessage
-  | ResponseSuccessMessage
-  | ResponseSuccessMessage;
-
-export interface SubscriptionMessage {
-  type: MessageType.Sub;
+export interface Message {
+  type: MessageType;
   data: any;
 }
 
-export interface ResponseSuccessMessage {
+export interface ReqResMessage extends Message {
+  type: MessageType.Req | MessageType.Res | MessageType.Err;
+  reqId: number;
+}
+
+export interface RequestMessage extends ReqResMessage {
+  type: MessageType.Req;
+}
+
+export interface ResponseMessage extends ReqResMessage {
   type: MessageType.Res;
-  data: any;
-  reqId: number;
 }
 
-export interface ResponseErrorMessage {
+export interface ErrorMessage extends ReqResMessage {
   type: MessageType.Err;
-  data: any;
-  reqId: number;
+}
+
+export interface SubscriptionMessage extends Message {
+  type: MessageType.Sub;
 }
