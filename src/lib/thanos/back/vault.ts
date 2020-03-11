@@ -1,4 +1,3 @@
-import sodium from "libsodium-wrappers";
 import * as Bip39 from "bip39";
 import * as Bip32 from "bip32";
 import * as TaquitoUtils from "@taquito/utils";
@@ -175,8 +174,7 @@ async function getPublicKeyHash(privateKey: string) {
 }
 
 async function createMemorySigner(privateKey: string) {
-  await sodium.ready;
-  return new InMemorySigner(privateKey);
+  return InMemorySigner.fromSecretKey(privateKey);
 }
 
 function seedToHDPrivateKey(seed: Buffer, account: number) {

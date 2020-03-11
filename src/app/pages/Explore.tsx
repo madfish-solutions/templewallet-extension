@@ -33,11 +33,11 @@ const Explore: React.FC = () => {
         <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" />
 
         <div className="text-gray-800 text-2xl font-light">
-          342.2324 <span className="text-lg opacity-90">XTZ</span>
+          34.2324 <span className="text-lg opacity-90">XTZ</span>
         </div>
 
         <div className="text-gray-600 text-lg font-light">
-          $13.54 <span className="text-sm opacity-75">USD</span>
+          $110.88 <span className="text-sm opacity-75">USD</span>
         </div>
 
         <div
