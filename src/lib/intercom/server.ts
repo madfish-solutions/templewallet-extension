@@ -1,38 +1,27 @@
-import { browser, Runtime } from "webextension-polyfill-ts";
+import { Runtime, browser } from "webextension-polyfill-ts";
 import {
   MessageType,
-  ResponseSuccessMessage,
-  ResponseErrorMessage,
+  RequestMessage,
+  ResponseMessage,
+  ErrorMessage,
   SubscriptionMessage
 } from "./types";
-import { listeners } from "cluster";
 
 const DEFAULT_ERROR_MESSAGE = "Unexpected error occured";
 
-type Listener = (payload: any) => Promise<any>;
-
-function makeResponse(
-  data: any,
-  type: MessageType.Err | MessageType.Res,
-  reqId: number
-): ResponseSuccessMessage | ResponseErrorMessage {
-  return { reqId, data, type };
-}
-
-function makeSubscriptionMessage(data: any): SubscriptionMessage {
-  return { data, type: MessageType.Sub };
-}
+type Listener = (msg: any, port: Runtime.Port) => void;
 
 export class IntercomServer {
   private ports = new Set<Runtime.Port>();
+  private listeners = new Set<Listener>();
+
   constructor() {
     /* handling of new incoming and closed connections */
     browser.runtime.onConnect.addListener(port => {
-      if (!this.ports.has(port)) {
-        this.ports.add(port);
-      }
+      this.addPort(port);
+
       port.onDisconnect.addListener(() => {
-        this.ports.delete(port);
+        this.removePort(port);
       });
     });
   }
@@ -40,44 +29,70 @@ export class IntercomServer {
   /**
    * Callback should return a promise
    */
-  subscribeToRequests(callback: (payload: any) => Promise<any>): () => void {
-    const portListeners = new Map<Runtime.Port, Listener>();
-    this.ports.forEach(port => {
-      const listener = async (message: any) => {
-        try {
-          const data = await callback(message.payload);
-          this._respond(data, MessageType.Res, message.reqId, port);
-        } catch (e) {
-          this._respond(
-            "message" in e ? e.message : DEFAULT_ERROR_MESSAGE,
-            MessageType.Err,
-            message.reqId,
-            port
-          );
-        }
-      };
-      portListeners.set(port, listener);
-      port.onMessage.addListener(listener);
-    });
+  handleRequest(handler: (payload: any) => Promise<any>) {
+    const handleReqMessage = (msg: any, port: Runtime.Port) => {
+      if (msg?.type === MessageType.Req) {
+        (async msg => {
+          try {
+            const data = await handler(msg.data);
+            this.respond(port, {
+              type: MessageType.Res,
+              reqId: msg.reqId,
+              data
+            });
+          } catch (err) {
+            this.respond(port, {
+              type: MessageType.Err,
+              reqId: msg.reqId,
+              data: "message" in err ? err.message : DEFAULT_ERROR_MESSAGE
+            });
+          }
+        })(msg as RequestMessage);
+      }
+    };
 
-    return () =>
-      portListeners.forEach((listener, port) =>
-        port.onMessage.removeListener(listener)
-      );
-  }
-
-  private _respond(
-    data: any,
-    type: MessageType.Err | MessageType.Res,
-    reqId: number,
-    port: Runtime.Port
-  ) {
-    const msg = makeResponse(data, type, reqId);
-    port.postMessage(msg);
+    this.addListener(handleReqMessage);
+    return () => {
+      this.removeListener(handleReqMessage);
+    };
   }
 
   broadcast(data: any) {
-    const msg = makeSubscriptionMessage(data);
-    this.ports.forEach(port => port.postMessage(msg));
+    const msg: SubscriptionMessage = { type: MessageType.Sub, data };
+    this.ports.forEach(port => {
+      port.postMessage(msg);
+    });
+  }
+
+  private respond(port: Runtime.Port, msg: ResponseMessage | ErrorMessage) {
+    port.postMessage(msg);
+  }
+
+  private addPort(port: Runtime.Port) {
+    this.listeners.forEach(listener => {
+      port.onMessage.addListener(listener);
+    });
+    this.ports.add(port);
+  }
+
+  private removePort(port: Runtime.Port) {
+    this.listeners.forEach(listener => {
+      port.onMessage.removeListener(listener);
+    });
+    this.ports.delete(port);
+  }
+
+  private addListener(listener: Listener) {
+    this.ports.forEach(port => {
+      port.onMessage.addListener(listener);
+    });
+    this.listeners.add(listener);
+  }
+
+  private removeListener(listener: Listener) {
+    this.ports.forEach(port => {
+      port.onMessage.removeListener(listener);
+    });
+    this.listeners.delete(listener);
   }
 }
