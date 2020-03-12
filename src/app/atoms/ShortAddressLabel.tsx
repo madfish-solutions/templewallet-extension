@@ -5,20 +5,25 @@ import classNames from "clsx";
 
 type ShortAddressLabelProps = React.HTMLAttributes<HTMLButtonElement> & {
   address: string;
+  small?: boolean;
 };
 
 const ShortAddressLabel: React.FC<ShortAddressLabelProps> = ({
   address,
   className,
+  small = false,
   ...rest
 }) => {
   const shortAddress = React.useMemo(() => {
     const ln = address.length;
+    const firstCharsCount = 7;
+    const lastCharsCount = 4;
+
     return (
       <>
-        {address.slice(0, 7)}
+        {address.slice(0, firstCharsCount)}
         <span className="opacity-75">...</span>
-        {address.slice(ln - 4, ln)}
+        {address.slice(ln - lastCharsCount, ln)}
       </>
     );
   }, [address]);
@@ -48,8 +53,8 @@ const ShortAddressLabel: React.FC<ShortAddressLabelProps> = ({
         className={classNames(
           "bg-gray-100 hover:bg-gray-200",
           "rounded-sm shadow-xs",
-          "py-1 px-2",
-          "text-gray-600 text-sm leading-none select-none",
+          small ? "text-xs p-1" : "text-sm py-1 px-2",
+          "text-gray-600 leading-none select-none",
           "transition ease-in-out duration-300",
           className
         )}
