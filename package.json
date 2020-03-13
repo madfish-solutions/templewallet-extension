@@ -39,6 +39,7 @@
     "copy-webpack-plugin": "^5.1.1",
     "cross-env": "^7.0.2",
     "css-loader": "^3.4.2",
+    "date-fns": "^2.10.0",
     "dotenv": "^8.2.0",
     "effector": "^20.12.2",
     "eslint": "6.x",

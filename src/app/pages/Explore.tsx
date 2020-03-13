@@ -2,14 +2,16 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
-import useTippy from "lib/ui/useTippy";
-import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 import xtzImgUrl from "app/misc/xtz.png";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import EditableTitle from "./Explore/EditableTitle";
+
+import ShortAddressLabel from "app/atoms/ShortAddressLabel";
+
+import OperationHistory from "app/templates/OperationHistory";
 
 const Explore: React.FC = () => {
   const { account, tezos } = useThanosFront();
@@ -105,74 +107,14 @@ const Explore: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <SubTitle>Baking</SubTitle>
+      <hr className="my-4" />
+      <SubTitle>Operation History</SubTitle>
+      <OperationHistory address="tz1W1f1JrE7VsqgpUpj1iiDobqP5TixgZhDk" />
     </PageLayout>
   );
 };
 
 export default Explore;
-
-type ShortAddressLabelProps = React.HTMLAttributes<HTMLButtonElement> & {
-  address: string;
-};
-
-const ShortAddressLabel: React.FC<ShortAddressLabelProps> = ({
-  address,
-  className,
-  ...rest
-}) => {
-  const shortAddress = React.useMemo(() => {
-    const ln = address.length;
-    return (
-      <>
-        {address.slice(0, 7)}
-        <span className="opacity-75">...</span>
-        {address.slice(ln - 4, ln)}
-      </>
-    );
-  }, [address]);
-
-  const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
-
-  const tippyProps = React.useMemo(
-    () => ({
-      trigger: "mouseenter",
-      hideOnClick: false,
-      content: copied ? "Copied." : "Copy to clipboard",
-      animation: "shift-away-subtle",
-      onHidden() {
-        setCopied(false);
-      }
-    }),
-    [copied, setCopied]
-  );
-
-  const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
-
-  return (
-    <>
-      <button
-        ref={buttonRef}
-        type="button"
-        className={classNames(
-          "bg-gray-100 hover:bg-gray-200",
-          "rounded-sm shadow-xs",
-          "py-1 px-2",
-          "text-gray-600 text-sm leading-none select-none",
-          "transition ease-in-out duration-300",
-          className
-        )}
-        {...rest}
-        onClick={copy}
-      >
-        {shortAddress}
-      </button>
-
-      <input ref={fieldRef} value={address} readOnly className="sr-only" />
-    </>
-  );
-};
 
 type SubTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
 
@@ -183,7 +125,7 @@ const SubTitle: React.FC<SubTitleProps> = ({
 }) => (
   <h4
     className={classNames(
-      "mt-8 mb-4",
+      "my-4",
       "flex items-center justify-center",
       "text-center",
       "text-gray-500",
