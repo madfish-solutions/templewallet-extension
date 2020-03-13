@@ -107,9 +107,14 @@ const Explore: React.FC = () => {
           </div>
         </div>
       </div>
+
       <hr className="my-4" />
+
       <SubTitle>Operation History</SubTitle>
-      <OperationHistory address="tz1W1f1JrE7VsqgpUpj1iiDobqP5TixgZhDk" />
+
+      <React.Suspense fallback={null}>
+        <OperationHistory address="tz1W1f1JrE7VsqgpUpj1iiDobqP5TixgZhDk" />
+      </React.Suspense>
     </PageLayout>
   );
 };
