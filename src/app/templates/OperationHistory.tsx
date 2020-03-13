@@ -41,9 +41,21 @@ type Operation = {
   source?: string | null;
 };
 
+let initialLoad = true;
+
 const OperationHistory: React.FC<OperationHistoryProps> = ({ address }) => {
   const network = React.useMemo(() => TZStatsNetwork.Mainnet, []);
-  const { data } = useSWR([network, address], fetchAccountOperations, {
+  const fetchOperations = React.useCallback<typeof fetchAccountOperations>(
+    async (network, address) => {
+      if (initialLoad) {
+        await new Promise(res => setTimeout(res, 200));
+        initialLoad = false;
+      }
+      return fetchAccountOperations(network, address);
+    },
+    []
+  );
+  const { data } = useSWR([network, address], fetchOperations, {
     suspense: true
   });
   const operations = (data?.ops as Operation[]) || [];
