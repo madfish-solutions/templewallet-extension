@@ -1,30 +1,50 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { useAppEnv } from "app/env";
 import PageLayout from "app/layouts/PageLayout";
+import RevealSecret from "app/templates/RevealSecret";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
-import RevealSeedPhrase from "./Settings/RevealSeedPhrase";
+import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
 
 type SettingsProps = {
   tabSlug?: string | null;
 };
 
+const RevealPrivateKey: React.FC = () => <RevealSecret reveal="private-key" />;
+const RevealSeedPhrase: React.FC = () => <RevealSecret reveal="seed-phrase" />;
+
 const TABS = [
+  {
+    slug: "reveal_private_key",
+    title: "Reveal Private Key",
+    Icon: KeyIcon,
+    Component: RevealPrivateKey,
+    color: "#3182CE",
+    description: (
+      <>
+        Also known as "Export Account". Lorem ipsum, dolor sit amet consectetur
+        adipisicing elit.
+      </>
+    )
+  },
   {
     slug: "reveal_seed_phrase",
     title: "Reveal Seed Phrase",
-    Icon: KeyIcon,
+    Icon: StickerIcon,
     Component: RevealSeedPhrase,
-    color: "#3182CE",
-    bgColor: "rgba(49, 130, 206, 0.05)"
+    color: "#F6AD55",
+    description: (
+      <>
+        Also known as "Export Wallet". If you ever change browsers or move
+        computers, you will need this seed phrase to access your wallet and
+        accounts.
+      </>
+    )
   }
 ];
 
 const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
-  const appEnv = useAppEnv();
-
   const activeTab = React.useMemo(
     () => TABS.find(t => t.slug === tabSlug) || null,
     [tabSlug]
@@ -71,38 +91,58 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
           {activeTab ? (
             <activeTab.Component />
           ) : (
-            <div className="flex flex-strech">
-              {TABS.map(({ slug, title, Icon, color, bgColor }) => (
-                <div
-                  key={slug}
-                  className={classNames(
-                    appEnv.fullPage ? "w-1/2 px-6" : "w-full"
-                  )}
-                >
-                  <Link
-                    to={`/settings/${slug}`}
-                    className={classNames(
-                      "block w-full",
-                      "rounded-md overflow-hidden",
-                      "border",
-                      "p-4",
-                      "flex flex-col items-center justify-center",
-                      "text-gray-500 text-lg",
-                      "transition ease-in-out duration-300",
-                      "opacity-90 hover:opacity-100 focus:opacity-100"
-                    )}
-                    style={{
-                      backgroundColor: bgColor,
-                      borderColor: color,
-                      color
-                    }}
+            <ul className="md:grid md:grid-cols-2 md:col-gap-8 md:row-gap-10">
+              {TABS.map(({ slug, title, description, Icon, color }, i) => {
+                const first = i === 0;
+                const linkTo = `/settings/${slug}`;
+
+                return (
+                  <li
+                    key={slug}
+                    className={classNames(!first && "mt-10 md:mt-0")}
                   >
-                    <Icon className="h-16 w-auto stroke-current stroke" />
-                    {title}
-                  </Link>
-                </div>
-              ))}
-            </div>
+                    <div className="flex">
+                      <div className="ml-2 flex-shrink-0">
+                        <Link
+                          to={linkTo}
+                          className={classNames(
+                            "block",
+                            "h-12 w-12",
+                            "border-2 border-white-25",
+                            "rounded-full",
+                            "flex items-center justify-center",
+                            "text-white",
+                            "transition ease-in-out duration-200",
+                            "opacity-90 hover:opacity-100 focus:opacity-100"
+                          )}
+                          style={{ backgroundColor: color }}
+                        >
+                          <Icon className="h-8 w-8 stroke-current" />
+                        </Link>
+                      </div>
+
+                      <div className="ml-4">
+                        <Link
+                          to={linkTo}
+                          className={classNames(
+                            "text-lg leading-6 font-medium",
+                            "text-gray-700 hover:text-gray-800",
+                            "hover:underline focus:underline",
+                            "transition ease-in-out duration-200"
+                          )}
+                        >
+                          {title}
+                        </Link>
+
+                        <p className="mt-1 text-sm font-light leading-5 text-gray-600">
+                          {description}
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </div>
       </div>

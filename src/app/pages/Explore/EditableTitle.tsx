@@ -11,6 +11,20 @@ const EditableTitle: React.FC = () => {
 
   const editAccNameFieldRef = React.useRef<HTMLInputElement>(null);
 
+  const accNamePrevRef = React.useRef<string>();
+
+  React.useEffect(() => {
+    if (
+      accNamePrevRef.current &&
+      accNamePrevRef.current !== account.name &&
+      editing
+    ) {
+      setEditing(false);
+    }
+
+    accNamePrevRef.current = account.name;
+  }, [account.name, editing, setEditing]);
+
   React.useEffect(() => {
     if (editing) {
       editAccNameFieldRef.current?.focus();
@@ -49,9 +63,9 @@ const EditableTitle: React.FC = () => {
         });
       }
 
-      setEditing(false);
+      // setEditing(false);
     },
-    [account.name, editAccountName, setEditing]
+    [account.name, editAccountName]
   );
 
   const handleEditFieldFocus = React.useCallback(() => {

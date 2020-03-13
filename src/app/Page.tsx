@@ -8,6 +8,7 @@ import ImportWallet from "app/pages/ImportWallet";
 import CreateWallet from "app/pages/CreateWallet";
 import Explore from "app/pages/Explore";
 import Receive from "app/pages/Receive";
+import Send from "app/pages/Send";
 import Settings from "app/pages/Settings";
 
 interface RouteContext {
@@ -54,6 +55,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
   ["/receive", onlyReady(() => <Receive />)],
+  ["/send", onlyReady(() => <Send />)],
   [
     "/settings/:tabSlug?",
     onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)
