@@ -14,7 +14,11 @@ import ShortAddressLabel from "app/atoms/ShortAddressLabel";
 import OperationHistory from "app/templates/OperationHistory";
 
 const Explore: React.FC = () => {
-  const { account } = useThanosFront();
+  const { account, tezos } = useThanosFront();
+
+  React.useEffect(() => {
+    console.info(tezos);
+  }, [tezos]);
 
   return (
     <PageLayout
