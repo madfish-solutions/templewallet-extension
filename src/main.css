@@ -5,6 +5,14 @@
 @import "~inter-ui/inter.css";
 
 /**
+ * Popper JS
+ */
+[data-popper-reference-hidden] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/**
  * Tippy JS
  */
 
