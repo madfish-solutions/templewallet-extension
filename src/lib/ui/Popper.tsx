@@ -52,6 +52,9 @@ const Popper = React.memo<PopperProps>(
               padding: 8
             }
           },
+          {
+            name: "hide"
+          },
           ...(popperOptions.modifiers ?? [])
         ]
       }),
