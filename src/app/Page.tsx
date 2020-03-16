@@ -6,6 +6,8 @@ import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
 import ImportWallet from "app/pages/ImportWallet";
 import CreateWallet from "app/pages/CreateWallet";
+
+import ImportAccount from "app/pages/ImportAccount";
 import Explore from "app/pages/Explore";
 import Receive from "app/pages/Receive";
 import Send from "app/pages/Send";
@@ -34,6 +36,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
       }
     }
   ],
+  ["/import-account", () => <ImportAccount />],
   [
     "*",
     (_p, { appEnv, thanosFront }) => {
