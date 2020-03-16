@@ -1,47 +1,15 @@
 import * as React from "react";
 import classNames from "clsx";
+import { useThanosFront } from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 
-const NETWORKS = [
-  {
-    disabled: false,
-    id: "mainnet",
-    label: "Tezos Mainnet",
-    color: "#83b300"
-  },
-  {
-    disabled: false,
-    id: "babylonnet",
-    label: "Babylonnet",
-    color: "#ed6663"
-  },
-  {
-    disabled: false,
-    id: "zeronet",
-    label: "Zeronet",
-    color: "#e9e1cc"
-  },
-  {
-    disabled: false,
-    id: "carthagenet",
-    label: "Carthagenet",
-    color: "#0f4c81"
-  },
-  {
-    disabled: false,
-    id: "labnet",
-    label: "Labnet",
-    color: "#f6c90e"
-  }
-];
-
 type NetworkSelectProps = React.HTMLAttributes<HTMLDivElement>;
 
 const NetworkSelect: React.FC<NetworkSelectProps> = () => {
-  const [network, setNetwork] = React.useState(() => NETWORKS[0]);
+  const { networks, netIndex, setNetIndex, network } = useThanosFront();
 
   return (
     <Popper
@@ -62,9 +30,8 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             Networks
           </h2>
 
-          {NETWORKS.map(net => {
-            const { id, label, color, disabled } = net;
-            const selected = network.id === id;
+          {networks.map(({ id, name, color, disabled }, i) => {
+            const selected = i === netIndex;
 
             return (
               <button
@@ -86,8 +53,8 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                 autoFocus={selected}
                 onClick={() => {
                   if (!disabled) {
-                    if (network.id !== net.id) {
-                      setNetwork(net);
+                    if (!selected) {
+                      setNetIndex(i);
                     }
                     setOpened(false);
                   }
@@ -103,7 +70,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   style={{ backgroundColor: color }}
                 />
                 <span className="text-white text-sm text-shadow-black">
-                  {label}
+                  {name}
                 </span>
               </button>
             );
@@ -141,7 +108,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             style={{ backgroundColor: network.color }}
           />
 
-          <span>{network.label}</span>
+          <span>{network.name}</span>
 
           <ChevronDownIcon
             className="ml-1 -mr-1 stroke-current stroke-2"

@@ -14,7 +14,7 @@ enum AddressType {
   TZ3 = "p256"
 }
 
-enum StatusType {
+enum OperationStatus {
   Applied = "applied",
   Failed = "failed",
   Backtracked = "backtracked",
@@ -194,7 +194,7 @@ interface TZStatsOperation {
   op_n: number;
   op_c: number;
   op_i: number;
-  status: StatusType;
+  status: OperationStatus;
   is_success: boolean;
   is_contract: boolean;
   gas_limit: number;

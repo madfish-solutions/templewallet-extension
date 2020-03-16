@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import useSWR from "swr";
-import { TZStatsNetwork, getAccountOperations } from "lib/TZStatsApi";
+import { TZStatsNetwork, getAccountOperations } from "lib/tzstats";
 import Identicon from "app/atoms/Identicon";
 import ShortAddressLabel from "app/atoms/ShortAddressLabel";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
