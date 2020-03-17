@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { goBack } from "lib/woozie";
 import { useAppEnv } from "app/env";
+import OverscrollBg from "app/a11y/OverscrollBg";
 import ContentContainer from "app/layouts/ContentContainer";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import Header from "./PageLayout/Header";
@@ -13,15 +14,22 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   hasBackAction,
   children
 }) => (
-  <div className="mb-12">
-    <Header />
+  <>
+    <OverscrollBg
+      topClassName="bg-primary-orange"
+      bottomClassName="bg-primary-white"
+    />
 
-    <ContentPaper>
-      <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
+    <div className="pb-20">
+      <Header />
 
-      <div className="p-4">{children}</div>
-    </ContentPaper>
-  </div>
+      <ContentPaper>
+        <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
+
+        <div className="p-4">{children}</div>
+      </ContentPaper>
+    </div>
+  </>
 );
 
 export default PageLayout;
