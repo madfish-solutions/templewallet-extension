@@ -196,7 +196,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
                   "text-gray-500 text-sm"
                 )}
               >
-                <span>Click to reveal or edit secret words</span>
+                <span>Click to reveal or edit this field</span>
               </p>
             </div>
           )}
