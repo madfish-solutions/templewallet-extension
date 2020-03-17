@@ -20,7 +20,7 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     return res.state;
   }, []);
 
-  const stateSWR = useSWR("stub", fetchState, {
+  const stateSWR = useSWR("state", fetchState, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
@@ -44,13 +44,15 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     }
   }, [stateSWR]);
 
-  const { status, accounts } = state;
+  const { status, accounts, networks } = state;
   const idle = status === ThanosStatus.Idle;
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
 
-  const [accIndex, setAccIndex] = usePassiveStorage("account_index", 0);
+  const [netIndex, setNetIndex] = usePassiveStorage("network_id", 0);
+  const network = networks[netIndex];
 
+  const [accIndex, setAccIndex] = usePassiveStorage("account_index", 0);
   const account = accounts[accIndex];
   const accountPkh = account?.publicKeyHash;
 
@@ -60,11 +62,11 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     }
 
     const t = new TezosToolkit();
-    const rpc = "https://babylonnet.tezos.org.ua";
+    const rpc = network.rpcBaseURL;
     const signer = new ThanosSigner(accIndex, accountPkh);
     t.setProvider({ rpc, signer });
     return t;
-  }, [accIndex, accountPkh]);
+  }, [network.rpcBaseURL, accIndex, accountPkh]);
 
   React.useEffect(() => {
     if (accIndex >= accounts.length) {
@@ -168,6 +170,10 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     idle,
     locked,
     ready,
+    networks,
+    netIndex,
+    setNetIndex,
+    network,
     accounts,
     accIndex,
     account,

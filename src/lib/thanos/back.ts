@@ -1,5 +1,6 @@
 import { createStore, createEvent } from "effector";
 import { browser } from "webextension-polyfill-ts";
+import { NETWORKS } from "lib/thanos/networks";
 import {
   ThanosState,
   ThanosStatus,
@@ -286,12 +287,14 @@ const store = createStore<ThanosBackState>({
   inited: false,
   vault: null,
   status: ThanosStatus.Idle,
-  accounts: []
+  accounts: [],
+  networks: []
 })
   .on(inited, (state, vaultExist) => ({
     ...state,
     inited: true,
-    status: vaultExist ? ThanosStatus.Locked : ThanosStatus.Idle
+    status: vaultExist ? ThanosStatus.Locked : ThanosStatus.Idle,
+    networks: NETWORKS
   }))
   .on(locked, () => ({
     // Attension!
@@ -302,7 +305,8 @@ const store = createStore<ThanosBackState>({
     inited: true,
     vault: null,
     status: ThanosStatus.Locked,
-    accounts: []
+    accounts: [],
+    networks: NETWORKS
   }))
   .on(unlocked, (state, { vault, accounts }) => ({
     ...state,
@@ -315,9 +319,10 @@ const store = createStore<ThanosBackState>({
     accounts
   }));
 
-const frontStore = store.map<ThanosState>(({ status, accounts }) => ({
+const frontStore = store.map<ThanosState>(({ status, accounts, networks }) => ({
   status,
-  accounts
+  accounts,
+  networks
 }));
 
 (async () => {
