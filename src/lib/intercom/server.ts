@@ -58,9 +58,11 @@ export class IntercomServer {
                 data
               });
 
-              break;
+              return;
             }
           }
+
+          throw new Error("Not Found");
         } catch (err) {
           this.respond(port, {
             type: MessageType.Err,
