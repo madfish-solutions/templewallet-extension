@@ -13,24 +13,28 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   pageTitle,
   hasBackAction,
   children
-}) => (
-  <>
-    <OverscrollBg
-      topClassName="bg-primary-orange"
-      bottomClassName="bg-primary-white"
-    />
+}) => {
+  const appEnv = useAppEnv();
 
-    <div className="pb-20">
-      <Header />
+  return (
+    <>
+      <OverscrollBg
+        topClassName="bg-primary-orange"
+        bottomClassName={appEnv.fullPage ? "bg-primary-white" : "bg-white"}
+      />
 
-      <ContentPaper>
-        <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
+      <div className="pb-20">
+        <Header />
 
-        <div className="p-4">{children}</div>
-      </ContentPaper>
-    </div>
-  </>
-);
+        <ContentPaper>
+          <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
+
+          <div className="p-4">{children}</div>
+        </ContentPaper>
+      </div>
+    </>
+  );
+};
 
 export default PageLayout;
 
