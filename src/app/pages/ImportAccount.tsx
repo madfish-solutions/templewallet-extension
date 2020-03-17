@@ -4,16 +4,12 @@ import { useForm } from "react-hook-form";
 import { validateMnemonic } from "bip39";
 import { navigate } from "lib/woozie";
 import { useThanosFront } from "lib/thanos/front";
+import { MNEMONIC_ERROR_CAPTION } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Alert from "app/atoms/Alert";
-import {
-  PASSWORD_PATTERN,
-  EMAIL_PATTERN,
-  PASSWORD_ERROR_CAPTION,
-  MNEMONIC_ERROR_CAPTION
-} from "app/defaults";
+import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 
 type TABS = "privateKey" | "fundraiser";
 
@@ -25,7 +21,10 @@ const Tab: React.FC<{
   <div
     className={classNames(
       "text-center cursor-pointer rounded-md mx-2 py-2 px-4",
-      active && "text-primary-orange bg-primary-orange-10",
+      active
+        ? "text-primary-orange bg-primary-orange-10"
+        : "hover:bg-gray-100 focus:bg-gray-100",
+      "transition ease-in-out duration-200",
       className
     )}
     onClick={onClick}
@@ -50,7 +49,14 @@ const ImportAccount: React.FC = () => {
   }, [accounts, setAccIndex]);
 
   return (
-    <PageLayout>
+    <PageLayout
+      pageTitle={
+        <>
+          <DownloadIcon className="mr-1 h-4 w-auto stroke-current" />
+          Import Account
+        </>
+      }
+    >
       <div className="py-4">
         <div className="flex text-gray-600 text-base font-light justify-center mb-4">
           <Tab
@@ -80,7 +86,7 @@ interface FormDataPrivateKey {
 const ImportPrivateKeyForm: React.FC = () => {
   const { importAccount } = useThanosFront();
 
-  const { register, handleSubmit } = useForm<FormDataPrivateKey>();
+  const { register, handleSubmit, errors } = useForm<FormDataPrivateKey>();
   const [error, setError] = React.useState("");
 
   const onSubmit = React.useCallback<(data: FormDataPrivateKey) => void>(
@@ -95,14 +101,10 @@ const ImportPrivateKeyForm: React.FC = () => {
   );
 
   return (
-    <form className="py-2" onSubmit={handleSubmit(onSubmit)}>
-      <FormField
-        name="privateKey"
-        ref={register({ required: "Required field" })}
-        placeholder="*********"
-        label="Private Key"
-        containerClassName="mb-4"
-      />
+    <form
+      className="my-8 w-full mx-auto max-w-sm"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       {error && (
         <Alert
           className="mb-4"
@@ -111,6 +113,21 @@ const ImportPrivateKeyForm: React.FC = () => {
           description={error}
         />
       )}
+
+      <FormField
+        ref={register({ required: "Required" })}
+        secret
+        textarea
+        rows={4}
+        name="privateKey"
+        id="importacc-privatekey"
+        label="Private Key"
+        labelDescription="The Secret key of the Account you want to import."
+        placeholder="e.g. edsk3wfiPMu..."
+        errorCaption={errors.privateKey?.message}
+        containerClassName="mb-6"
+      />
+
       <FormSubmitButton>Import account</FormSubmitButton>
     </form>
   );
@@ -141,24 +158,40 @@ const ImportFundraiser: React.FC = () => {
   );
 
   return (
-    <form className="py-2" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      className="my-8 w-full mx-auto max-w-sm"
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      {error && (
+        <Alert
+          className="mb-4"
+          type="error"
+          title="Error"
+          description={error}
+        />
+      )}
+
       <FormField
+        ref={register({ required: true })}
         name="email"
-        ref={register({ required: true, pattern: EMAIL_PATTERN })}
-        errorCaption={errors.email ? "Incorrect email" : null}
-        placeholder="email@gmail.com"
+        id="importfundacc-email"
         label="Email"
+        placeholder="email@gmail.com"
+        errorCaption={errors.email ? "Required" : null}
         containerClassName="mb-4"
       />
+
       <FormField
-        type="password"
+        ref={register({ required: true })}
         name="password"
-        ref={register({ required: true, pattern: PASSWORD_PATTERN })}
-        errorCaption={errors.password ? PASSWORD_ERROR_CAPTION : null}
-        placeholder="*********"
+        type="password"
+        id="importfundacc-password"
         label="Password"
+        placeholder="*********"
+        errorCaption={errors.password ? "Required" : null}
         containerClassName="mb-4"
       />
+
       <FormField
         secret
         textarea
@@ -171,20 +204,13 @@ const ImportFundraiser: React.FC = () => {
         errorCaption={errors.mnemonic && MNEMONIC_ERROR_CAPTION}
         label="Seed phrase"
         labelDescription="Mnemonic. Your secret twelve word phrase."
-        id="newwallet-mnemonic"
+        id="importfundacc-mnemonic"
         placeholder="e.g. venue sock milk update..."
         spellCheck={false}
-        containerClassName="mb-4"
+        containerClassName="mb-6"
         className="resize-none"
       />
-      {error && (
-        <Alert
-          className="mb-4"
-          type="error"
-          title="Error"
-          description={error}
-        />
-      )}
+
       <FormSubmitButton>Import account</FormSubmitButton>
     </form>
   );
