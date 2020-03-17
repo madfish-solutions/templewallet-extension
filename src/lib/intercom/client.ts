@@ -26,9 +26,11 @@ export class IntercomClient {
 
           case msg?.type === MessageType.Res:
             resolve(msg.data);
+            break;
 
           case msg?.type === MessageType.Err:
             reject(msg.data);
+            break;
         }
 
         this.port.onMessage.removeListener(listener);
