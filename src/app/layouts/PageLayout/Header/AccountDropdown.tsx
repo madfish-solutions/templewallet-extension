@@ -58,6 +58,11 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
     setOpened(false);
   }, [setOpened]);
 
+  const handleImportAccountClick = React.useCallback(() => {
+    navigate("/import-account");
+    setOpened(false);
+  }, [setOpened]);
+
   const handleMaximiseViewClick = React.useCallback(() => {
     openInFullPage();
   }, []);
@@ -163,8 +168,8 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
           },
           {
             Icon: DownloadIcon,
-            content: "Import account"
-            // onClick: handleImportAccountClick
+            content: "Import account",
+            onClick: handleImportAccountClick
           },
           {
             Icon: SettingsIcon,

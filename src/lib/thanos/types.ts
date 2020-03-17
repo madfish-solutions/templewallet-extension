@@ -25,7 +25,7 @@ export enum ThanosAccountType {
 }
 
 export interface ThanosNetwork {
-  id: string | number;
+  id: string;
   name: string;
   type: ThanosNetworkType;
   rpcBaseURL: string;
