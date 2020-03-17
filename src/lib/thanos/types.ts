@@ -1,6 +1,9 @@
+import { TZStatsNetwork } from "lib/tzstats";
+
 export interface ThanosState {
   status: ThanosStatus;
   accounts: ThanosAccount[];
+  networks: ThanosNetwork[];
 }
 
 export enum ThanosStatus {
@@ -19,6 +22,21 @@ export enum ThanosAccountType {
   HD,
   Imported,
   Connected
+}
+
+export interface ThanosNetwork {
+  id: string;
+  name: string;
+  type: ThanosNetworkType;
+  rpcBaseURL: string;
+  tzStats: TZStatsNetwork;
+  color: string;
+  disabled: boolean;
+}
+
+export enum ThanosNetworkType {
+  Main,
+  Test
 }
 
 export enum ThanosMessageType {
