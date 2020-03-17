@@ -12,7 +12,7 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 
 const ActivateAccount: React.FC = () => {
-  const [isSuccess, setSuccess] = React.useState(false);
+  const [success, setSuccess] = React.useState<React.ReactNode>(null);
 
   const {
     register,
@@ -29,14 +29,14 @@ const ActivateAccount: React.FC = () => {
       if (isSubmitting) return;
 
       clearError("secret");
-      setSuccess(false);
+      setSuccess(null);
       try {
         const activateActionMock = (secret: string) =>
           new Promise(res => setTimeout(() => res(secret), 350));
         await activateActionMock(data.secret);
         // throw new Error("This secret key is not valid :(");
 
-        setSuccess(true);
+        setSuccess("You successfully activated your account");
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -53,11 +53,11 @@ const ActivateAccount: React.FC = () => {
       className="w-full max-w-sm mx-auto p-2"
       onSubmit={handleSubmit(onSubmit)}
     >
-      {isSuccess && (
+      {success && (
         <Alert
           type="success"
           title="Success"
-          description="You successfully activated your account"
+          description={success}
           className="mb-4"
         />
       )}
