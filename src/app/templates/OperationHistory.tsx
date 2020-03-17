@@ -66,10 +66,11 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ address }) => {
         <div className="flex flex-col w-full">
           {/* {JSON.stringify(transactions)} */}
           {operations.map((operation, i) => (
-            <>
+            <React.Fragment key={i}>
               {!!i && <hr />}
-              <Operation operation={operation} address={address} key={i} />
-            </>
+
+              <Operation operation={operation} address={address} />
+            </React.Fragment>
           ))}
         </div>
       </div>

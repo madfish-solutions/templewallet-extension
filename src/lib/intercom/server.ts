@@ -9,11 +9,11 @@ import {
 
 const DEFAULT_ERROR_MESSAGE = "Unexpected error occured";
 
-type Listener = (msg: any, port: Runtime.Port) => void;
+type ReqHandler = (payload: any) => Promise<any>;
 
 export class IntercomServer {
   private ports = new Set<Runtime.Port>();
-  private listeners = new Set<Listener>();
+  private reqHandlers: Array<ReqHandler> = [];
 
   constructor() {
     /* handling of new incoming and closed connections */
@@ -24,36 +24,17 @@ export class IntercomServer {
         this.removePort(port);
       });
     });
+
+    this.handleMessage = this.handleMessage.bind(this);
   }
 
   /**
    * Callback should return a promise
    */
   handleRequest(handler: (payload: any) => Promise<any>) {
-    const handleReqMessage = (msg: any, port: Runtime.Port) => {
-      if (msg?.type === MessageType.Req) {
-        (async msg => {
-          try {
-            const data = await handler(msg.data);
-            this.respond(port, {
-              type: MessageType.Res,
-              reqId: msg.reqId,
-              data
-            });
-          } catch (err) {
-            this.respond(port, {
-              type: MessageType.Err,
-              reqId: msg.reqId,
-              data: "message" in err ? err.message : DEFAULT_ERROR_MESSAGE
-            });
-          }
-        })(msg as RequestMessage);
-      }
-    };
-
-    this.addListener(handleReqMessage);
+    this.addReqHandler(handler);
     return () => {
-      this.removeListener(handleReqMessage);
+      this.removeReqHandler(handler);
     };
   }
 
@@ -64,35 +45,54 @@ export class IntercomServer {
     });
   }
 
+  private handleMessage(msg: any, port: Runtime.Port) {
+    if (msg?.type === MessageType.Req) {
+      (async msg => {
+        try {
+          for (const handler of this.reqHandlers) {
+            const data = await handler(msg.data);
+            if (data !== undefined) {
+              this.respond(port, {
+                type: MessageType.Res,
+                reqId: msg.reqId,
+                data
+              });
+
+              return;
+            }
+          }
+
+          throw new Error("Not Found");
+        } catch (err) {
+          this.respond(port, {
+            type: MessageType.Err,
+            reqId: msg.reqId,
+            data: "message" in err ? err.message : DEFAULT_ERROR_MESSAGE
+          });
+        }
+      })(msg as RequestMessage);
+    }
+  }
+
   private respond(port: Runtime.Port, msg: ResponseMessage | ErrorMessage) {
     port.postMessage(msg);
   }
 
   private addPort(port: Runtime.Port) {
-    this.listeners.forEach(listener => {
-      port.onMessage.addListener(listener);
-    });
+    port.onMessage.addListener(this.handleMessage);
     this.ports.add(port);
   }
 
   private removePort(port: Runtime.Port) {
-    this.listeners.forEach(listener => {
-      port.onMessage.removeListener(listener);
-    });
+    port.onMessage.removeListener(this.handleMessage);
     this.ports.delete(port);
   }
 
-  private addListener(listener: Listener) {
-    this.ports.forEach(port => {
-      port.onMessage.addListener(listener);
-    });
-    this.listeners.add(listener);
+  private addReqHandler(handler: ReqHandler) {
+    this.reqHandlers.push(handler);
   }
 
-  private removeListener(listener: Listener) {
-    this.ports.forEach(port => {
-      port.onMessage.removeListener(listener);
-    });
-    this.listeners.delete(listener);
+  private removeReqHandler(handler: ReqHandler) {
+    this.reqHandlers = this.reqHandlers.filter(h => h !== handler);
   }
 }

@@ -1,7 +1,6 @@
 import { browser } from "webextension-polyfill-ts";
-import { Queue } from "queue-ts";
-import { ThanosRequest } from "lib/thanos/types";
-import { processRequest } from "lib/thanos/back";
+import { IntercomServer } from "lib/intercom/server";
+import { start } from "lib/thanos/back";
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
   switch (reason) {
@@ -13,19 +12,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
   }
 });
 
-const queue = new Queue(1);
-
-browser.runtime.onMessage.addListener(msg => {
-  if ("type" in msg) {
-    return new Promise((res, rej) => {
-      queue.add(() =>
-        processRequest(msg as ThanosRequest)
-          .then(res)
-          .catch(rej)
-      );
-    });
-  }
-});
+start(new IntercomServer());
 
 // browser.windows.create({
 //   url: browser.runtime.getURL("confirm.html"),
