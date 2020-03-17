@@ -1,7 +1,7 @@
 import * as React from "react";
 import useSWR from "swr";
 import classNames from "clsx";
-import { TZStatsNetwork, getAccountOperations } from "lib/TZStatsApi";
+import { TZStatsNetwork, getAccountOperations } from "lib/tzstats";
 
 const ACCOUNT_FIELDS = [
   {

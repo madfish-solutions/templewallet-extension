@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import useSWR from "swr";
-import { TZStatsNetwork, getAccountOperations } from "lib/TZStatsApi";
+import { TZStatsNetwork, getAccountOperations } from "lib/tzstats";
 import Identicon from "app/atoms/Identicon";
 import ShortAddressLabel from "app/atoms/ShortAddressLabel";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
@@ -66,10 +66,11 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ address }) => {
         <div className="flex flex-col w-full">
           {/* {JSON.stringify(transactions)} */}
           {operations.map((operation, i) => (
-            <>
+            <React.Fragment key={i}>
               {!!i && <hr />}
-              <Operation operation={operation} address={address} key={i} />
-            </>
+
+              <Operation operation={operation} address={address} />
+            </React.Fragment>
           ))}
         </div>
       </div>
