@@ -5,6 +5,8 @@ export const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{3,14}$/;
 // TODO: Write really pattern
 export const ACCOUNT_ADDRESS_PATTERN = /^[a-zA-Z0-9 _-]{3,14}$/;
 
+export const EMAIL_PATTERN = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
 export const PASSWORD_PATTERN = new RegExp(
   [
     "^",

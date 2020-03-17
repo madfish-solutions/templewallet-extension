@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 
 type AlertProps = React.HTMLAttributes<HTMLDivElement> & {
-  type?: "warn";
+  type?: "success" | "warn" | "error";
   title: React.ReactNode;
   description: React.ReactNode;
 };
@@ -16,8 +16,12 @@ const Alert: React.FC<AlertProps> = ({
 }) => {
   const [bgColorClassName, borderColorClassName, textColorClassName] = (() => {
     switch (type) {
+      case "success":
+        return ["bg-green-100", "border-green-500", "text-green-700"];
       case "warn":
         return ["bg-yellow-100", "border-yellow-500", "text-yellow-700"];
+      case "error":
+        return ["bg-red-100", "border-red-500", "text-red-700"];
     }
   })();
 
