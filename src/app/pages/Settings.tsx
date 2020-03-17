@@ -3,9 +3,11 @@ import classNames from "clsx";
 import { Link } from "lib/woozie";
 import PageLayout from "app/layouts/PageLayout";
 import RevealSecret from "app/templates/RevealSecret";
+import ActivateAccount from "app/templates/ActivateAccount";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
 import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
+import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 
 type SettingsProps = {
   tabSlug?: string | null;
@@ -39,6 +41,19 @@ const TABS = [
         Also known as "Export Wallet". If you ever change browsers or move
         computers, you will need this seed phrase to access your wallet and
         accounts.
+      </>
+    )
+  },
+  {
+    slug: "activate_account",
+    title: "Activate Account",
+    Icon: OkIcon,
+    Component: ActivateAccount,
+    color: "rgb(131, 179, 0)",
+    description: (
+      <>
+        Bla-bla-bla known as "Bla-bla". If you blabla change browsers or move
+        kek, you will need this seed phrase to access your wallet and accounts.
       </>
     )
   }
