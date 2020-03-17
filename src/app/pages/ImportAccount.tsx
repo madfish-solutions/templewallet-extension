@@ -101,7 +101,7 @@ const ImportPrivateKeyForm: React.FC = () => {
         ref={register({ required: "Required field" })}
         placeholder="*********"
         label="Private Key"
-        className="mb-4"
+        containerClassName="mb-4"
       />
       {error && (
         <Alert
@@ -148,7 +148,7 @@ const ImportFundraiser: React.FC = () => {
         errorCaption={errors.email ? "Incorrect email" : null}
         placeholder="email@gmail.com"
         label="Email"
-        className="mb-4"
+        containerClassName="mb-4"
       />
       <FormField
         type="password"
@@ -157,7 +157,7 @@ const ImportFundraiser: React.FC = () => {
         errorCaption={errors.password ? PASSWORD_ERROR_CAPTION : null}
         placeholder="*********"
         label="Password"
-        className="mb-4"
+        containerClassName="mb-4"
       />
       <FormField
         secret
