@@ -2,20 +2,18 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic } from "bip39";
+import { navigate } from "lib/woozie";
+import { useThanosFront } from "lib/thanos/front";
+import PageLayout from "app/layouts/PageLayout";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import Alert from "app/atoms/Alert";
 import {
   PASSWORD_PATTERN,
   EMAIL_PATTERN,
   PASSWORD_ERROR_CAPTION,
   MNEMONIC_ERROR_CAPTION
 } from "app/defaults";
-
-import Alert from "app/atoms/Alert";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-
-import PageLayout from "app/layouts/PageLayout";
-import { useThanosFront } from "lib/thanos/front";
-import { navigate } from "lib/woozie";
 
 type TABS = "privateKey" | "fundraiser";
 
