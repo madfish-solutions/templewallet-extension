@@ -1,20 +1,22 @@
 import { Buffer } from "buffer";
 
 /**
- * password + salt => key
- * stuff + key => enc_stuff
- * enc_stuff + key => stuff
+ * password => passKey
+ * passKey + salt => derivedPassKey
+ * stuff + derivedPassKey => enc_stuff
+ * enc_stuff + derivedPassKey => stuff
  *
  * Encrypt
  * 1) salt = generateSalt()
- * 2) passKey = generateKey(password*, salt)
- * 3) encryptedStuff = encrypt(stuff*, passKey)
- * 4) persist*(salt, encryptedStuff);
+ * 2) passKey = generateKey(password*)
+ * 3) derivedPassKey = deriveKey(passKey, salt)
+ * 3) encryptedStuff = encrypt(stuff*, derivedPassKey)
+ * 4) persist*(salt, encryptedStuff)
  *
  * Decrypt
- * 1) passKey = generateKey(password*, salt*)
- * 2) stuff = decrypt(encryptedStuff*, passKey)
- * 3) If not OK - password incorrect
+ * 1) load*(salt, encryptedStuff)
+ * 2) derivedPassKey = deriveKey(passKey*, salt)
+ * 3) stuff = decrypt(encryptedStuff*, derivedPassKey)
  *
  */
 
