@@ -47,29 +47,18 @@ const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
           <h1 className="text-4xl text-gray-700 font-light">{title}</h1>
         </div>
 
-        {appEnv.fullPage ? (
-          <div
-            className={classNames(
-              "w-full mx-auto max-w-md",
-              "bg-white",
-              "rounded-md shadow-md",
-              "px-4"
-            )}
-          >
-            {children}
-          </div>
-        ) : (
-          <div
-            className={classNames(
-              "-mx-4 px-4",
-              "bg-white",
-              "border-t border-gray-200",
-              "shadow-md"
-            )}
-          >
-            {children}
-          </div>
-        )}
+        <div
+          className={classNames(
+            appEnv.fullPage
+              ? classNames("w-full mx-auto max-w-md", "rounded-md")
+              : classNames("-mx-4", "border-t border-gray-200"),
+            "px-4",
+            "bg-white",
+            "shadow-md"
+          )}
+        >
+          {children}
+        </div>
 
         <div
           className={classNames(
