@@ -1,5 +1,4 @@
 import * as React from "react";
-import useForceUpdate from "use-force-update";
 
 type OverscrollBgProps = {
   topClassName: string;
@@ -12,46 +11,45 @@ const OverscrollBg: React.FC<OverscrollBgProps> = ({
   topClassName,
   bottomClassName
 }) => {
-  const scrollTop = useScrollTop();
+  const prevScrollTopRef = React.useRef<number>();
+
+  const handleScroll = React.useCallback(() => {
+    const scrollTop = doc.scrollTop;
+    if (!prevScrollTopRef.current || scrollTop !== prevScrollTopRef.current) {
+      const scrollRoad = doc.scrollHeight - doc.clientHeight;
+      const newClassName =
+        scrollTop > scrollRoad / 2 ? bottomClassName : topClassName;
+
+      if (!doc.classList.contains(newClassName)) {
+        doc.classList.remove(
+          newClassName === bottomClassName ? topClassName : bottomClassName
+        );
+        doc.classList.add(newClassName);
+      }
+    }
+
+    prevScrollTopRef.current = scrollTop;
+  }, [topClassName, bottomClassName]);
 
   React.useLayoutEffect(() => {
-    const scrollRoad = doc.scrollHeight - doc.clientHeight;
-    const newClassName =
-      scrollTop > scrollRoad / 2 ? bottomClassName : topClassName;
-
-    if (!doc.classList.contains(newClassName)) {
-      doc.classList.remove(
-        newClassName === bottomClassName ? topClassName : bottomClassName
-      );
-      doc.classList.add(newClassName);
-    }
-  }, [scrollTop, topClassName, bottomClassName]);
-
-  React.useEffect(
-    () => () => {
+    handleScroll();
+    return () => {
       doc.classList.remove(topClassName, bottomClassName);
-    },
-    [topClassName, bottomClassName]
-  );
+    };
+  }, [handleScroll, topClassName, bottomClassName]);
+
+  useScroll(handleScroll);
 
   return null;
 };
 
 export default OverscrollBg;
 
-function useScrollTop() {
-  const forceUpdate = useForceUpdate();
-
+function useScroll(listener: () => void) {
   React.useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", listener);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", listener);
     };
-
-    function handleScroll() {
-      forceUpdate();
-    }
-  }, [forceUpdate]);
-
-  return doc.scrollTop;
+  }, [listener]);
 }
