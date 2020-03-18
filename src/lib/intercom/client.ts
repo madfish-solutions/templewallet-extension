@@ -29,7 +29,7 @@ export class IntercomClient {
             break;
 
           case msg?.type === MessageType.Err:
-            reject(msg.data);
+            reject(new Error(msg.data));
             break;
         }
 
