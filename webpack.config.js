@@ -95,6 +95,8 @@ const ADDITIONAL_MODULE_PATHS = [
 const CSS_REGEX = /\.css$/;
 const CSS_MODULE_REGEX = /\.module\.css$/;
 const PURGECSS_OPTIONS = {
+  whitelistPatterns: [/popper/, /tippy/],
+  whitelistPatternsChildren: [/popper/, /tippy/],
   content: ["./public/**/*.{html,js,mjs}", "./src/**/*.{js,jsx,ts,tsx}"],
   // Include any special characters you're using in this regular expression
   defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
