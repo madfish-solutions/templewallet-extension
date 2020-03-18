@@ -28,15 +28,11 @@ export async function registerNewWallet(password: string, mnemonic?: string) {
 
   try {
     await Vault.spawn(password, mnemonic);
+    await unlock(password);
   } catch (err) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(err);
-    }
-
+    logError(err);
     throw new Error("Failed to create New Wallet");
   }
-
-  await unlock(password);
 }
 
 export async function lock() {
@@ -56,10 +52,7 @@ export async function unlock(password: string) {
 
     unlocked({ vault, accounts });
   } catch (err) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(err);
-    }
-
+    logError(err);
     throw new Error("Incorrect password");
   }
 }
@@ -68,17 +61,13 @@ export async function createHDAccount() {
   const state = store.getState();
   assertUnlocked(state);
 
-  let updatedAccounts;
   try {
-    updatedAccounts = await state.vault.createHDAccount();
+    const updatedAccounts = await state.vault.createHDAccount();
+    accountsUpdated(updatedAccounts);
   } catch (err) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(err);
-    }
-
+    logError(err);
     throw new Error("Failed to create HD Account");
   }
-  accountsUpdated(updatedAccounts);
 }
 
 export async function revealPrivateKey(accIndex: number, password: string) {
@@ -88,10 +77,7 @@ export async function revealPrivateKey(accIndex: number, password: string) {
   try {
     return await state.vault.revealPrivateKey(accIndex, password);
   } catch (err) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(err);
-    }
-
+    logError(err);
     throw new Error("Invalid password");
   }
 }
@@ -103,10 +89,7 @@ export async function revealMnemonic(password: string) {
   try {
     return await state.vault.revealMnemonic(password);
   } catch (err) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(err);
-    }
-
+    logError(err);
     throw new Error("Invalid password");
   }
 }
@@ -122,13 +105,13 @@ export async function editAccount(accIndex: number, name: string) {
     );
   }
 
-  let updatedAccounts;
   try {
-    updatedAccounts = await state.vault.editAccountName(accIndex, name);
-  } catch (_err) {
+    const updatedAccounts = await state.vault.editAccountName(accIndex, name);
+    accountsUpdated(updatedAccounts);
+  } catch (err) {
+    logError(err);
     throw new Error("Failed to edit account name");
   }
-  accountsUpdated(updatedAccounts);
 }
 
 export async function importAccount(privateKey: string) {
@@ -138,8 +121,13 @@ export async function importAccount(privateKey: string) {
   try {
     const updatedAccounts = await state.vault.importAccount(privateKey);
     accountsUpdated(updatedAccounts);
-  } catch (_err) {
-    throw new Error("Failed to import account");
+  } catch (err) {
+    logError(err);
+    throw new Error(
+      "Failed to import account" +
+        ".\nThis may happen because provided Key is invalid" +
+        " or such an account already exists"
+    );
   }
 }
 
@@ -158,7 +146,8 @@ export async function importFundraiserAccount(
       mnemonic
     );
     accountsUpdated(updatedAccounts);
-  } catch (_err) {
+  } catch (err) {
+    logError(err);
     throw new Error("Failed to import fundraiser account");
   }
 }
@@ -173,7 +162,8 @@ export async function sign(
 
   try {
     return await state.vault.sign(accIndex, bytes, watermark);
-  } catch (_err) {
+  } catch (err) {
+    logError(err);
     throw new Error("Failed to sign");
   }
 }
@@ -190,5 +180,11 @@ function assertUnlocked(
   assertInited(state);
   if (state.status !== ThanosStatus.Ready) {
     throw new Error("Not ready");
+  }
+}
+
+function logError(err: Error) {
+  if (process.env.NODE_ENV === "development") {
+    console.error(err);
   }
 }

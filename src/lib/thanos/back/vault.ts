@@ -105,7 +105,7 @@ export class Vault {
       name: `Account ${newAccIndex + 1}`,
       publicKeyHash: await getPublicKeyHash(newHDAccPrivateKey)
     };
-    const newAllAcounts = [...allAccounts, newAccount];
+    const newAllAcounts = this.concatAccount(allAccounts, newAccount);
 
     await encryptAndSaveMany(
       [
@@ -127,7 +127,7 @@ export class Vault {
       name: `Account ${newAccIndex + 1}`,
       publicKeyHash: await getPublicKeyHash(privateKey)
     };
-    const newAllAcounts = [...allAccounts, newAccount];
+    const newAllAcounts = this.concatAccount(allAccounts, newAccount);
 
     await encryptAndSaveMany(
       [
@@ -179,6 +179,14 @@ export class Vault {
     );
     const signer = await createMemorySigner(privateKey);
     return signer.sign(bytes, watermark);
+  }
+
+  private concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
+    if (current.every(a => a.publicKeyHash !== newOne.publicKeyHash)) {
+      return [...current, newOne];
+    }
+
+    throw new Error("Account already exists");
   }
 }
 
