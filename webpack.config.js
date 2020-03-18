@@ -118,7 +118,39 @@ module.exports = {
 
   resolve: {
     modules: [NODE_MODULES_PATH, ...ADDITIONAL_MODULE_PATHS],
-    extensions: MODULE_FILE_EXTENSIONS
+    extensions: MODULE_FILE_EXTENSIONS,
+    plugins: [
+      {
+        apply(resolver) {
+          const target = resolver.ensureHook("resolve");
+
+          resolver
+            .getHook("resolve")
+            .tapAsync(
+              "TaquitoSignerResolverPlugin",
+              (request, resolveContext, callback) => {
+                if (
+                  /@taquito\/signer$/.test(request.request) &&
+                  /@taquito\/taquito/.test(request.context.issuer)
+                ) {
+                  return resolver.doResolve(
+                    target,
+                    {
+                      ...request,
+                      request: "lib/taquito-signer-stub"
+                    },
+                    null,
+                    resolveContext,
+                    callback
+                  );
+                }
+
+                callback();
+              }
+            );
+        }
+      }
+    ]
   },
 
   module: {
