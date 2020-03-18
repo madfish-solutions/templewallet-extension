@@ -107,7 +107,7 @@ const ImportPrivateKeyForm: React.FC = () => {
     >
       {error && (
         <Alert
-          className="mb-4"
+          className="mb-6"
           type="error"
           title="Error"
           description={error}
@@ -164,7 +164,7 @@ const ImportFundraiser: React.FC = () => {
     >
       {error && (
         <Alert
-          className="mb-4"
+          className="mb-6"
           type="error"
           title="Error"
           description={error}
@@ -176,7 +176,7 @@ const ImportFundraiser: React.FC = () => {
         name="email"
         id="importfundacc-email"
         label="Email"
-        placeholder="email@gmail.com"
+        placeholder="email@example.com"
         errorCaption={errors.email ? "Required" : null}
         containerClassName="mb-4"
       />
