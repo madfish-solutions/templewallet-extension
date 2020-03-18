@@ -15,7 +15,7 @@ const OverscrollBg: React.FC<OverscrollBgProps> = ({
 
   const handleScroll = React.useCallback(() => {
     const scrollTop = doc.scrollTop;
-    if (!prevScrollTopRef.current || scrollTop !== prevScrollTopRef.current) {
+    if (scrollTop !== prevScrollTopRef.current) {
       const scrollRoad = doc.scrollHeight - doc.clientHeight;
       const newClassName =
         scrollTop > scrollRoad / 2 ? bottomClassName : topClassName;
