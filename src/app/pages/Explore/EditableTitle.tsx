@@ -52,18 +52,22 @@ const EditableTitle: React.FC = () => {
     evt => {
       evt.preventDefault();
 
-      const newName = editAccNameFieldRef.current?.value;
-      if (newName && newName !== account.name) {
-        editAccountName(newName).catch(err => {
+      (async () => {
+        try {
+          const newName = editAccNameFieldRef.current?.value;
+          if (newName && newName !== account.name) {
+            await editAccountName(newName);
+          }
+
+          setEditing(false);
+        } catch (err) {
           if (process.env.NODE_ENV === "development") {
             console.error(err);
           }
 
           alert(err.message);
-        });
-      }
-
-      // setEditing(false);
+        }
+      })();
     },
     [account.name, editAccountName]
   );
