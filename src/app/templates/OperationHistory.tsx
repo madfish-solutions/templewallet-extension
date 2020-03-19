@@ -1,7 +1,12 @@
 import * as React from "react";
 import classNames from "clsx";
 import useSWR from "swr";
-import { TZStatsNetwork, getAccountOperations } from "lib/tzstats";
+import {
+  TZStatsNetwork,
+  TZStatsOperation,
+  OperationStatus,
+  getAccountOperations
+} from "lib/tzstats";
 import Identicon from "app/atoms/Identicon";
 import ShortAddressLabel from "app/atoms/ShortAddressLabel";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
@@ -14,32 +19,6 @@ const fetchAccountOperations = (
 interface OperationHistoryProps {
   address: string;
 }
-
-enum TransactionSide {
-  Incoming,
-  Outcoming
-}
-
-type OperationStatus = "applied" | "failed" | "backtracked" | "skipped";
-
-type Operation = {
-  row_id: number;
-  type: string;
-  hash: string;
-  sender: string | null;
-  receiver: string | null;
-  delegate: string | null;
-  is_success: number;
-  status: OperationStatus;
-  time: number;
-  volume: number;
-  fee: number;
-  burned: number;
-  height: number;
-  reward: number;
-  side?: TransactionSide;
-  source?: string | null;
-};
 
 let initialLoad = true;
 
@@ -58,7 +37,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ address }) => {
   const { data } = useSWR([network, address], fetchOperations, {
     suspense: true
   });
-  const operations = (data?.ops as Operation[]) || [];
+  const operations = data?.ops || [];
 
   return (
     <div>
@@ -78,7 +57,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ address }) => {
   );
 };
 
-const Operation: React.FC<{ operation: Operation; address: string }> = ({
+const Operation: React.FC<{ operation: TZStatsOperation; address: string }> = ({
   operation,
   address
 }) => {
@@ -167,13 +146,13 @@ interface StatusChipProps {
 const StatusChip: React.FC<StatusChipProps> = ({ status, className }) => {
   const [extraClasses, statusName] = React.useMemo<[string, string]>(() => {
     switch (status) {
-      case "backtracked":
+      case OperationStatus.Backtracked:
         return ["bg-yellow-100 text-yellow-600", "In Progress"];
-      case "applied":
+      case OperationStatus.Applied:
         return ["bg-green-100 text-green-600", "Applied"];
-      case "failed":
+      case OperationStatus.Failed:
         return ["bg-red-100 text-red-600", "Failed"];
-      case "skipped":
+      case OperationStatus.Skipped:
         return ["bg-red-100 text-red-600", "Skipped"];
     }
   }, [status]);

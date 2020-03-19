@@ -1,4 +1,5 @@
 import axios, { AxiosPromise } from "axios";
+import memoize from "memoizee";
 
 export enum TZStatsNetwork {
   Mainnet = "https://api.tzstats.com",
@@ -14,7 +15,7 @@ enum AddressType {
   TZ3 = "p256"
 }
 
-enum OperationStatus {
+export enum OperationStatus {
   Applied = "applied",
   Failed = "failed",
   Backtracked = "backtracked",
@@ -101,7 +102,7 @@ interface TZStatsAccount {
   next_bake_time: Date;
   next_endorse_height: number;
   next_endorse_time: Date;
-  ops?: object[];
+  ops?: TZStatsOperation[];
 }
 
 interface TZStatsContract {
@@ -183,7 +184,7 @@ interface TZStatsMarketsTickers {
   timestamp: Date;
 }
 
-interface TZStatsOperation {
+export interface TZStatsOperation {
   hash: string;
   type: string; // it is should be enum
   block: string;
@@ -226,11 +227,61 @@ interface TZStatsOperation {
   branch: string;
 }
 
+type OperationsRow = [
+  number, // [row_id] - uint64
+  number, // [time] - datetime
+  number, // [height] - int64
+  number, // [cycle] - int64
+  string, // [hash] - hash
+  number, // [counter] - int64
+  number, // [op_n] - int64
+  number, // [op_l] - int64
+  number, // [op_p] - int64
+  number, // [op_c] - int64
+  number, // [op_i] - int64
+  string, // [type] - enum (OperationType)
+  OperationStatus, // [status] - enum
+  boolean, // [is_success] - flag boolean
+  boolean, // [is_contract] - flag boolean
+  number, // [gas_limit] - int64
+  number, // [gas_used] - int64
+  number, // [gas_price] - float
+  number, // [storage_limit] - int64
+  number, // [storage_size] - int64
+  number, // [storage_paid] - int64
+  number, // [volume] - money
+  number, // [fee] - money
+  number, // [reward] - money
+  number, // [deposit] - money
+  number, // [burned] - money
+  number, // [sender_id] - uint64
+  number, // [receiver_id] - uint64
+  number, // [manager_id] - uint64
+  number, // [delegate_id] - uint64
+  boolean, // [is_internal] - flag bool
+  boolean, // [has_data] - flag bool
+  any, // [data] - bytes
+  object | null, // [parameters] - object
+  object | null, // [storage] - bytes
+  object | null, // [big_map_diff] - bytes
+  object | null, // [errors] - bytes
+  number, // [days_destroyed] - float
+  number, // [branch_id] - uint64
+  number, // [branch_height] - int64
+  number, // [branch_depth] - int64
+  boolean, // [is_implicit] - flag bool
+  number, // [entrypoint_id] - int64
+  string, // [sender] - hash
+  string | null, // [receiver] - hash
+  string | null, // [manager] - hash
+  string | null // [delegate] - hash
+];
+
 export async function getAccount(
   network: TZStatsNetwork,
   params: { publicKeyHash: string }
 ) {
-  return unify(
+  return makeQuery(10000, () =>
     axios.get<TZStatsAccount>(
       `${network}/explorer/account/${params.publicKeyHash}`
     )
@@ -241,7 +292,7 @@ export async function getAccountOperations(
   network: TZStatsNetwork,
   params: { publicKeyHash: string }
 ) {
-  return unify(
+  return makeQuery(10000, () =>
     axios.get<TZStatsAccount>(
       `${network}/explorer/account/${params.publicKeyHash}/op`
     )
@@ -252,7 +303,7 @@ export async function getContract(
   network: TZStatsNetwork,
   params: { publicKeyHash: string }
 ) {
-  return unify(
+  return makeQuery(10000, () =>
     axios.get<TZStatsContract>(
       `${network}/explorer/contract/${params.publicKeyHash}`
     )
@@ -263,7 +314,7 @@ export async function getContractScript(
   network: TZStatsNetwork,
   params: { publicKeyHash: string }
 ) {
-  return unify(
+  return makeQuery(10000, () =>
     axios.get<TZStatsContractScript>(
       `${network}/explorer/contract/${params.publicKeyHash}/script`
     )
@@ -274,7 +325,7 @@ export async function getContractStorage(
   network: TZStatsNetwork,
   params: { publicKeyHash: string }
 ) {
-  return unify(
+  return makeQuery(10000, () =>
     axios.get<TZStatsContractStorage>(
       `${network}/explorer/contract/${params.publicKeyHash}/storage`
     )
@@ -285,7 +336,7 @@ export async function getContractCalls(
   network: TZStatsNetwork,
   params: { publicKeyHash: string }
 ) {
-  return unify(
+  return makeQuery(10000, () =>
     axios.get<TZStatsContractCalls>(
       `${network}/explorer/contract/${params.publicKeyHash}/calls`
     )
@@ -297,7 +348,7 @@ export async function getContractManager(
   params: { publicKeyHash: string }
 ) {
   // The response schema didnt provided it docs
-  return unify(
+  return makeQuery(10000, () =>
     axios.get<TZStatsContractCalls>(
       `${network}/explorer/contract/${params.publicKeyHash}/manager`
     )
@@ -305,7 +356,7 @@ export async function getContractManager(
 }
 
 export async function getMarketsTickers(network: TZStatsNetwork) {
-  return unify(
+  return makeQuery(10000, () =>
     axios.get<TZStatsMarketsTickers[]>(`${network}/markets/tickers`)
   );
 }
@@ -314,14 +365,28 @@ export async function getOperations(
   network: TZStatsNetwork,
   params: { publicKeyHash: string }
 ) {
-  return unify(
+  return makeQuery(10000, () =>
     axios.get<TZStatsOperation[]>(
       `${network}/explorer/op/${params.publicKeyHash}`
     )
   );
 }
 
-async function unify<T>(promise: AxiosPromise<T>): Promise<T> {
-  const res = await promise;
+export async function getOperationsTable(network: TZStatsNetwork) {
+  return makeQuery(10000, () =>
+    axios.get<OperationsRow[]>(`${network}/tables/op`)
+  );
+}
+
+async function makeQuery<T>(
+  maxAge: number,
+  request: () => AxiosPromise<T>
+): Promise<T> {
+  const memoized = memoize(request, {
+    promise: true,
+    maxAge,
+    normalizer: (args: any) => JSON.stringify(args)
+  });
+  const res = await memoized();
   return res.data;
 }
