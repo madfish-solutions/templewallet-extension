@@ -1,24 +1,18 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { useThanosFront } from "lib/thanos/front";
+import { useReadyThanos } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
-import xtzImgUrl from "app/misc/xtz.png";
+import ShortAddressLabel from "app/atoms/ShortAddressLabel";
+import OperationHistory from "app/templates/OperationHistory";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
+import xtzImgUrl from "app/misc/xtz.png";
 import EditableTitle from "./Explore/EditableTitle";
 
-import ShortAddressLabel from "app/atoms/ShortAddressLabel";
-
-import OperationHistory from "app/templates/OperationHistory";
-
 const Explore: React.FC = () => {
-  const { account, tezos } = useThanosFront();
-
-  React.useEffect(() => {
-    console.info(tezos);
-  }, [tezos]);
+  const { account } = useReadyThanos();
 
   return (
     <PageLayout

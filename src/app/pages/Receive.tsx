@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
-import { useThanosFront } from "lib/thanos/front";
+import { useReadyThanos } from "lib/thanos/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 // import Identicon from "app/atoms/Identicon";
@@ -10,7 +10,7 @@ import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 
 const Receive: React.FC = () => {
-  const { account } = useThanosFront();
+  const { account } = useReadyThanos();
   const address = account.publicKeyHash;
 
   const { fieldRef, copy, copied } = useCopyToClipboard();

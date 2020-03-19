@@ -15,16 +15,13 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
 }) => (
   <button
     className={classNames(
-      "relative",
       "px-8",
       "bg-primary-orange rounded",
       "border border-primary-orange",
       "flex items-center",
-      loading
-        ? "text-transparent"
-        : "text-primary-orange-lighter text-shadow-black-orange",
+      "text-primary-orange-lighter text-shadow-black-orange",
       "text-base font-semibold",
-      "transition duration-300 ease-in-out",
+      "transition duration-200 ease-in-out",
       loading || disabled
         ? "opacity-75"
         : "opacity-90 hover:opacity-100 focus:opacity-100",
@@ -37,15 +34,6 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
     {...rest}
   >
     {children}
-
-    {/* {loading && (
-      <span
-        className={classNames(
-          "absolute inset-0",
-          "flex itmes-center justify-center"
-        )}
-      ></span>
-    )} */}
   </button>
 );
 

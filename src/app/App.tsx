@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { ThanosFrontProvider } from "lib/thanos/front";
+import { ThanosProvider } from "lib/thanos/front";
 import { AppEnvProvider } from "app/env";
 import AwaitFonts from "app/a11y/AwaitFonts";
 import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
@@ -34,7 +34,7 @@ export default App;
 const AppProvider: React.FC<AppProps> = ({ children, env }) => (
   <AppEnvProvider {...env}>
     <Woozie.Provider>
-      <ThanosFrontProvider>{children}</ThanosFrontProvider>
+      <ThanosProvider>{children}</ThanosProvider>
     </Woozie.Provider>
   </AppEnvProvider>
 );
