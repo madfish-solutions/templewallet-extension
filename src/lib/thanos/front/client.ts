@@ -1,9 +1,7 @@
 import * as React from "react";
 import constate from "constate";
 import useSWR from "swr";
-import { TezosToolkit } from "@taquito/taquito";
 import { IntercomClient } from "lib/intercom";
-import usePassiveStorage from "lib/thanos/front/usePassiveStorage";
 import {
   ThanosMessageType,
   ThanosStatus,
@@ -13,7 +11,11 @@ import {
 
 type Request = (req: ThanosRequest) => Promise<ThanosResponse>;
 
-export const [ThanosFrontProvider, useThanosFront] = constate(() => {
+export const [ThanosClientProvider, useThanosClient] = constate(() => {
+  /**
+   * Communication
+   */
+
   const intercom = React.useMemo(() => new IntercomClient(), []);
 
   const request = React.useCallback<Request>(
@@ -24,6 +26,10 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     },
     [intercom]
   );
+
+  /**
+   * State
+   */
 
   const fetchState = React.useCallback(async () => {
     const res = await request({ type: ThanosMessageType.GetStateRequest });
@@ -49,35 +55,18 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     });
   }, [intercom, stateSWR]);
 
+  /**
+   * Aliases
+   */
+
   const { status, accounts, networks } = state;
   const idle = status === ThanosStatus.Idle;
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
 
-  const [netIndex, setNetIndex] = usePassiveStorage("network_id", 0);
-  const network = networks[netIndex];
-
-  const [accIndex, setAccIndex] = usePassiveStorage("account_index", 0);
-  const account = accounts[accIndex];
-  const accountPkh = account?.publicKeyHash;
-
-  const tezos = React.useMemo(() => {
-    if (!accountPkh) {
-      return null;
-    }
-
-    const t = new TezosToolkit();
-    const rpc = network.rpcBaseURL;
-    const signer = new ThanosSigner(accIndex, accountPkh, request);
-    t.setProvider({ rpc, signer });
-    return t;
-  }, [network.rpcBaseURL, accIndex, accountPkh, request]);
-
-  React.useEffect(() => {
-    if (accIndex >= accounts.length) {
-      setAccIndex(0);
-    }
-  }, [accounts, accIndex, setAccIndex]);
+  /**
+   * Actions
+   */
 
   const registerWallet = React.useCallback(
     async (password: string, mnemonic?: string) => {
@@ -117,7 +106,7 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
   }, [request]);
 
   const revealPrivateKey = React.useCallback(
-    async (password: string) => {
+    async (accIndex: number, password: string) => {
       const res = await request({
         type: ThanosMessageType.RevealPrivateKeyRequest,
         accountIndex: accIndex,
@@ -126,7 +115,7 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
       assertResponse(res.type === ThanosMessageType.RevealPrivateKeyResponse);
       return res.privateKey;
     },
-    [request, accIndex]
+    [request]
   );
 
   const revealMnemonic = React.useCallback(
@@ -142,7 +131,7 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
   );
 
   const editAccountName = React.useCallback(
-    async (name: string) => {
+    async (accIndex: number, name: string) => {
       const res = await request({
         type: ThanosMessageType.EditAccountRequest,
         accountIndex: accIndex,
@@ -150,7 +139,7 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
       });
       assertResponse(res.type === ThanosMessageType.EditAccountResponse);
     },
-    [request, accIndex]
+    [request]
   );
 
   const importAccount = React.useCallback(
@@ -179,22 +168,21 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     [request]
   );
 
+  const createSigner = React.useCallback(
+    (accIndex: number, pkh: string) => new ThanosSigner(accIndex, pkh, request),
+    [request]
+  );
+
   return {
+    state,
+    // Aliases
     status,
+    networks,
+    accounts,
     idle,
     locked,
     ready,
-    networks,
-    netIndex,
-    setNetIndex,
-    network,
-    accounts,
-    accIndex,
-    account,
-    tezos,
-
-    // Callbacks
-    setAccIndex,
+    // Actions
     registerWallet,
     unlock,
     lock,
@@ -203,7 +191,8 @@ export const [ThanosFrontProvider, useThanosFront] = constate(() => {
     revealMnemonic,
     editAccountName,
     importAccount,
-    importFundraiserAccount
+    importFundraiserAccount,
+    createSigner
   };
 });
 
@@ -242,10 +231,8 @@ class ThanosSigner {
   }
 }
 
-const NO_RES_ERROR_MESSAGE = "Invalid response recieved";
-
 function assertResponse(condition: any): asserts condition {
   if (!condition) {
-    throw new Error(NO_RES_ERROR_MESSAGE);
+    throw new Error("Invalid response recieved");
   }
 }

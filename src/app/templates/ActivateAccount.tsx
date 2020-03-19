@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
+import { ActivationStatus, useReadyThanos } from "lib/thanos/front";
+import useIsMounted from "lib/ui/useIsMounted";
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -11,7 +13,18 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 
 const ActivateAccount: React.FC = () => {
-  const [success, setSuccess] = React.useState<React.ReactNode>(null);
+  const { activateAccount } = useReadyThanos();
+  const isMounted = useIsMounted();
+
+  const [success, setSuccessPure] = React.useState<React.ReactNode>(null);
+  const setSuccess = React.useCallback<typeof setSuccessPure>(
+    val => {
+      if (isMounted()) {
+        setSuccessPure(val);
+      }
+    },
+    [setSuccessPure, isMounted]
+  );
 
   const {
     register,
@@ -21,30 +34,42 @@ const ActivateAccount: React.FC = () => {
     setError,
     errors
   } = useForm<FormData>();
-  const { isSubmitting } = formState;
+  const submitting = formState.isSubmitting;
 
   const onSubmit = React.useCallback(
     async (data: FormData) => {
-      if (isSubmitting) return;
+      if (submitting) return;
 
       clearError("secret");
       setSuccess(null);
-      try {
-        const activateActionMock = (secret: string) =>
-          new Promise(res => setTimeout(() => res(secret), 350));
-        await activateActionMock(data.secret);
-        // throw new Error("This secret key is not valid :(");
 
-        setSuccess("You successfully activated your account");
+      try {
+        const [activationStatus, op] = await activateAccount(data.secret);
+        switch (activationStatus) {
+          case ActivationStatus.AlreadyActivated:
+            setSuccess("🏁 Your Account already activated.");
+            break;
+
+          case ActivationStatus.ActivationRequestSent:
+            setSuccess("🛫 Activation request sent! Confirming...");
+            op!.confirmation().then(() => {
+              setSuccess("✅ Your account successfully activated!");
+            });
+            break;
+        }
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
 
-        setError("secret", SUBMIT_ERROR_TYPE, err.message);
+        // Human delay.
+        await new Promise(res => setTimeout(res, 300));
+        const mes =
+          "Failed. This may happen because provided Secret is invalid";
+        setError("secret", SUBMIT_ERROR_TYPE, mes);
       }
     },
-    [clearError, isSubmitting, setError]
+    [clearError, submitting, setError, setSuccess, activateAccount]
   );
 
   return (
@@ -60,16 +85,22 @@ const ActivateAccount: React.FC = () => {
           className="mb-4"
         />
       )}
+
       <FormField
+        textarea
+        ref={register({ required: "Required" })}
         name="secret"
-        ref={register({ required: true })}
-        containerClassName="mb-4"
+        id="activateaccount-secret"
         label="Secret"
-        labelDescription="Wtf description"
+        labelDescription="'secret' field from Fundraiser Account or Faucet"
         placeholder="e.g. n4hs7sd3..."
-        errorCaption={errors.secret && errors.secret.message}
+        errorCaption={errors.secret?.message}
+        containerClassName="mb-4"
       />
-      <FormSubmitButton loading={isSubmitting}>Activate</FormSubmitButton>
+
+      <FormSubmitButton loading={submitting}>
+        {submitting ? "Activating..." : "Activate"}
+      </FormSubmitButton>
     </form>
   );
 };
