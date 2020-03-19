@@ -288,16 +288,24 @@ export async function getAccount(
   );
 }
 
-export async function getAccountOperations(
-  network: TZStatsNetwork,
-  params: { publicKeyHash: string }
-) {
-  return makeQuery(10000, () =>
+export const getAccountOperations = makeQueryV2(
+  5_000,
+  (network: TZStatsNetwork, params: { publicKeyHash: string }) =>
     axios.get<TZStatsAccount>(
       `${network}/explorer/account/${params.publicKeyHash}/op`
     )
-  );
-}
+);
+
+// export async function getAccountOperations(
+//   network: TZStatsNetwork,
+//   params: { publicKeyHash: string }
+// ) {
+//   return makeQuery(10000, () =>
+//     axios.get<TZStatsAccount>(
+//       `${network}/explorer/account/${params.publicKeyHash}/op`
+//     )
+//   );
+// }
 
 export async function getContract(
   network: TZStatsNetwork,
@@ -397,7 +405,7 @@ export const getOperationsTableV2 = makeQueryV2(
     axios.get<OperationsRow[]>(`${net}/tables/op`, { params })
 );
 
-async function makeQueryV2<P extends any[], R>(
+function makeQueryV2<P extends any[], R>(
   maxAge: number,
   request: (...args: P) => AxiosPromise<R>
 ) {
