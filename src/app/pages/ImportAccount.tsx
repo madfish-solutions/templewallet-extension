@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic } from "bip39";
 import { navigate } from "lib/woozie";
-import { useThanosFront } from "lib/thanos/front";
+import { useThanosClient, useReadyThanos } from "lib/thanos/front";
 import { MNEMONIC_ERROR_CAPTION } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
@@ -36,17 +36,17 @@ const Tab: React.FC<{
 const ImportAccount: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<TABS>("privateKey");
 
-  const { accounts, setAccIndex } = useThanosFront();
+  const { allAccounts, setAccIndex } = useReadyThanos();
 
-  const prevAccLengthRef = React.useRef(accounts.length);
+  const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
-    const accLength = accounts.length;
+    const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
       setAccIndex(accLength - 1);
       navigate("/");
     }
     prevAccLengthRef.current = accLength;
-  }, [accounts, setAccIndex]);
+  }, [allAccounts, setAccIndex]);
 
   return (
     <PageLayout
@@ -84,7 +84,7 @@ interface FormDataPrivateKey {
 }
 
 const ImportPrivateKeyForm: React.FC = () => {
-  const { importAccount } = useThanosFront();
+  const { importAccount } = useThanosClient();
 
   const { register, handleSubmit, errors } = useForm<FormDataPrivateKey>();
   const [error, setError] = React.useState("");
@@ -140,7 +140,7 @@ interface FormDataImportFundraiser {
 }
 
 const ImportFundraiser: React.FC = () => {
-  const { importFundraiserAccount } = useThanosFront();
+  const { importFundraiserAccount } = useThanosClient();
   const { register, errors, handleSubmit } = useForm<
     FormDataImportFundraiser
   >();

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { useThanosFront } from "lib/thanos/front";
+import { useThanosClient } from "lib/thanos/front";
 import { useAppEnv, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
@@ -15,7 +15,7 @@ import Settings from "app/pages/Settings";
 
 interface RouteContext {
   appEnv: ReturnType<typeof useAppEnv>;
-  thanosFront: ReturnType<typeof useThanosFront>;
+  thanos: ReturnType<typeof useThanosClient>;
 }
 
 type RouteFactory = Woozie.Router.ResolveResult<RouteContext>;
@@ -23,9 +23,9 @@ type RouteFactory = Woozie.Router.ResolveResult<RouteContext>;
 const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
     "/import-wallet",
-    (_p, { appEnv, thanosFront }) => {
+    (_p, { appEnv, thanos }) => {
       switch (true) {
-        case thanosFront.ready:
+        case thanos.ready:
           return Woozie.Router.SKIP;
 
         case !appEnv.fullPage:
@@ -39,12 +39,12 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ["/import-account", () => <ImportAccount />],
   [
     "*",
-    (_p, { appEnv, thanosFront }) => {
+    (_p, { appEnv, thanos }) => {
       switch (true) {
-        case thanosFront.locked:
+        case thanos.locked:
           return <Unlock />;
 
-        case !thanosFront.ready && !appEnv.fullPage:
+        case !thanos.ready && !appEnv.fullPage:
           return <OpenInFullPage />;
 
         default:
@@ -52,10 +52,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
       }
     }
   ],
-  [
-    "/",
-    (_p, { thanosFront }) => (thanosFront.ready ? <Explore /> : <Welcome />)
-  ],
+  ["/", (_p, { thanos }) => (thanos.ready ? <Explore /> : <Welcome />)],
   ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
   ["/receive", onlyReady(() => <Receive />)],
   ["/send", onlyReady(() => <Send />)],
@@ -77,11 +74,11 @@ const Page: React.FC = () => {
   }, [trigger, pathname]);
 
   const appEnv = useAppEnv();
-  const thanosFront = useThanosFront();
+  const thanos = useThanosClient();
 
-  const ctx = React.useMemo<RouteContext>(() => ({ appEnv, thanosFront }), [
+  const ctx = React.useMemo<RouteContext>(() => ({ appEnv, thanos }), [
     appEnv,
-    thanosFront
+    thanos
   ]);
 
   return Woozie.Router.resolve(ROUTE_MAP, pathname, ctx);
@@ -91,10 +88,10 @@ export default Page;
 
 function onlyReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) =>
-    ctx.thanosFront.ready ? factory(params, ctx) : Woozie.Router.SKIP;
+    ctx.thanos.ready ? factory(params, ctx) : Woozie.Router.SKIP;
 }
 
 function onlyNotReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) =>
-    ctx.thanosFront.ready ? Woozie.Router.SKIP : factory(params, ctx);
+    ctx.thanos.ready ? Woozie.Router.SKIP : factory(params, ctx);
 }
