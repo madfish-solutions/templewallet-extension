@@ -390,3 +390,25 @@ async function makeQuery<T>(
   const res = await memoized();
   return res.data;
 }
+
+export const getOperationsTableV2 = makeQueryV2(
+  5_000,
+  (net: TZStatsNetwork, params: { publicKeyHash: string }) =>
+    axios.get<OperationsRow[]>(`${net}/tables/op`, { params })
+);
+
+async function makeQueryV2<P extends any[], R>(
+  maxAge: number,
+  request: (...args: P) => AxiosPromise<R>
+) {
+  const unified = async (...args: P) => {
+    const res = await request(...args);
+    return res.data;
+  };
+
+  return memoize(unified, {
+    promise: true,
+    maxAge,
+    normalizer: (args: any) => JSON.stringify(args)
+  });
+}
