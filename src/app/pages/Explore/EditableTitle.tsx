@@ -1,11 +1,12 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useThanosFront } from "lib/thanos/front";
+import { useThanosClient, useReadyThanos } from "lib/thanos/front";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 
 const EditableTitle: React.FC = () => {
-  const { account, editAccountName } = useThanosFront();
+  const { editAccountName } = useThanosClient();
+  const { account, accIndex } = useReadyThanos();
 
   const [editing, setEditing] = React.useState(false);
 
@@ -56,7 +57,7 @@ const EditableTitle: React.FC = () => {
         try {
           const newName = editAccNameFieldRef.current?.value;
           if (newName && newName !== account.name) {
-            await editAccountName(newName);
+            await editAccountName(accIndex, newName);
           }
 
           setEditing(false);
@@ -69,7 +70,7 @@ const EditableTitle: React.FC = () => {
         }
       })();
     },
-    [account.name, editAccountName]
+    [account.name, editAccountName, accIndex]
   );
 
   const handleEditFieldFocus = React.useCallback(() => {

@@ -1,5 +1,13 @@
 import { TZStatsNetwork } from "lib/tzstats";
 
+type NonEmptyArray<T> = [T, ...T[]];
+
+export interface ReadyThanosState extends ThanosState {
+  status: ThanosStatus.Ready;
+  accounts: NonEmptyArray<ThanosAccount>;
+  networks: NonEmptyArray<ThanosNetwork>;
+}
+
 export interface ThanosState {
   status: ThanosStatus;
   accounts: ThanosAccount[];

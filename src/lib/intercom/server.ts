@@ -46,7 +46,10 @@ export class IntercomServer {
   }
 
   private handleMessage(msg: any, port: Runtime.Port) {
-    if (msg?.type === MessageType.Req) {
+    if (
+      port.sender?.id === browser.runtime.id &&
+      msg?.type === MessageType.Req
+    ) {
       (async msg => {
         try {
           for (const handler of this.reqHandlers) {
