@@ -2,7 +2,7 @@ import * as React from "react";
 import useSWR from "swr";
 import { useReadyThanos } from "lib/thanos/front/ready";
 
-export function useBalance(address: string) {
+export function useBalance(address: string, suspense?: boolean) {
   const { tezos, network } = useReadyThanos();
 
   const fetchBalance = React.useCallback(async () => {
@@ -10,9 +10,7 @@ export function useBalance(address: string) {
     return tezos.format("mutez", "tz", amount);
   }, [tezos, address]);
 
-  const balancesSWR = useSWR([address, network.rpcBaseURL], fetchBalance, {
-    suspense: true
+  return useSWR([address, network.rpcBaseURL], fetchBalance, {
+    suspense
   });
-
-  return balancesSWR.data!;
 }
