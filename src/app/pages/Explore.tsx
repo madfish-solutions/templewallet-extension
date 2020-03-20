@@ -5,6 +5,7 @@ import { useReadyThanos } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
 import ShortAddressLabel from "app/atoms/ShortAddressLabel";
 import OperationHistory from "app/templates/OperationHistory";
+import Balance from "app/templates/Balance";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
@@ -13,6 +14,7 @@ import EditableTitle from "./Explore/EditableTitle";
 
 const Explore: React.FC = () => {
   const { account } = useReadyThanos();
+  const address = account.publicKeyHash;
 
   return (
     <PageLayout
@@ -28,17 +30,25 @@ const Explore: React.FC = () => {
       <hr className="mb-4" />
 
       <div className="flex flex-col items-center">
-        <ShortAddressLabel address={account.publicKeyHash} className="mb-4" />
+        <ShortAddressLabel address={address} className="mb-4" />
 
         <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" />
 
-        <div className="text-gray-800 text-2xl font-light">
-          34.2324 <span className="text-lg opacity-90">XTZ</span>
-        </div>
+        <Balance address={address}>
+          {balance => (
+            <>
+              <div className="text-gray-800 text-2xl font-light">
+                {round(+balance, 4)}{" "}
+                <span className="text-lg opacity-90">XTZ</span>
+              </div>
 
-        <div className="text-gray-600 text-lg font-light">
-          $110.88 <span className="text-sm opacity-75">USD</span>
-        </div>
+              <div className="text-gray-600 text-lg font-light">
+                ${round(+balance * 1.65, 2)}{" "}
+                <span className="text-sm opacity-75">USD</span>
+              </div>
+            </>
+          )}
+        </Balance>
 
         <div
           className="mt-4 w-full mx-auto flex items-stretch"
@@ -140,3 +150,7 @@ const SubTitle: React.FC<SubTitleProps> = ({
     <span className="text-gray-400 text-xs mx-1">•</span>
   </h4>
 );
+
+function round(val: number, decPlaces: any = 4) {
+  return Number(`${Math.round(+`${val}e${decPlaces}`)}e-${decPlaces}`);
+}
