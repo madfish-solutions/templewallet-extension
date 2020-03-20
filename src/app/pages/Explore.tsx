@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
+import { ThanosNetworkType } from "lib/thanos/types";
 import { useReadyThanos } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
 import ShortAddressLabel from "app/atoms/ShortAddressLabel";
@@ -13,7 +14,7 @@ import xtzImgUrl from "app/misc/xtz.png";
 import EditableTitle from "./Explore/EditableTitle";
 
 const Explore: React.FC = () => {
-  const { account } = useReadyThanos();
+  const { account, network } = useReadyThanos();
   const address = account.publicKeyHash;
 
   return (
@@ -36,17 +37,19 @@ const Explore: React.FC = () => {
 
         <Balance address={address}>
           {balance => (
-            <>
+            <div className="flex flex-col items-center">
               <div className="text-gray-800 text-2xl font-light">
                 {round(+balance, 4)}{" "}
                 <span className="text-lg opacity-90">XTZ</span>
               </div>
 
-              <div className="text-gray-600 text-lg font-light">
-                ${round(+balance * 1.65, 2)}{" "}
-                <span className="text-sm opacity-75">USD</span>
-              </div>
-            </>
+              {network.type === ThanosNetworkType.Main && (
+                <div className="text-gray-600 text-lg font-light">
+                  ${round(+balance * 1.65, 2)}{" "}
+                  <span className="text-sm opacity-75">USD</span>
+                </div>
+              )}
+            </div>
           )}
         </Balance>
 
