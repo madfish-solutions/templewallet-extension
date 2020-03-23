@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useThanosFront } from "lib/thanos/front";
+import { useReadyThanos } from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
@@ -9,7 +9,7 @@ import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 type NetworkSelectProps = React.HTMLAttributes<HTMLDivElement>;
 
 const NetworkSelect: React.FC<NetworkSelectProps> = () => {
-  const { networks, netIndex, setNetIndex, network } = useThanosFront();
+  const { allNetworks, network, netIndex, setNetIndex } = useReadyThanos();
 
   return (
     <Popper
@@ -30,7 +30,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             Networks
           </h2>
 
-          {networks.map(({ id, name, color, disabled }, i) => {
+          {allNetworks.map(({ id, name, color, disabled }, i) => {
             const selected = i === netIndex;
 
             return (

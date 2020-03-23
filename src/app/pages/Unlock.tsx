@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { Link } from "lib/woozie";
-import { useThanosFront } from "lib/thanos/front";
+import { useThanosClient } from "lib/thanos/front";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -14,7 +14,7 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 
 const Unlock: React.FC = () => {
-  const { unlock } = useThanosFront();
+  const { unlock } = useThanosClient();
 
   const {
     register,
@@ -65,7 +65,9 @@ const Unlock: React.FC = () => {
           autoFocus
         />
 
-        <FormSubmitButton loading={submitting}>Unlock</FormSubmitButton>
+        <FormSubmitButton loading={submitting}>
+          {submitting ? "Unlocking..." : "Unlock"}
+        </FormSubmitButton>
 
         <div className="my-6">
           <h3 className="text-gray-600 text-sm font-light">

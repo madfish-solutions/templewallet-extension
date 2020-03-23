@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic } from "bip39";
 import { Link } from "lib/woozie";
-import { useThanosFront } from "lib/thanos/front";
+import { useThanosClient } from "lib/thanos/front";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
@@ -27,7 +27,7 @@ type NewWalletProps = {
 };
 
 const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
-  const { locked, registerWallet } = useThanosFront();
+  const { locked, registerWallet } = useThanosClient();
 
   const {
     watch,
@@ -37,6 +37,7 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
     triggerValidation,
     formState
   } = useForm<FormData>();
+  const submitting = formState.isSubmitting;
 
   const passwordValue = watch("password");
 
@@ -48,6 +49,8 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
 
   const onSubmit = React.useCallback(
     async (data: FormData) => {
+      if (submitting) return;
+
       try {
         await registerWallet(
           data.password,
@@ -61,7 +64,7 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
         alert(err.message);
       }
     },
-    [ownMnemonic, registerWallet]
+    [submitting, ownMnemonic, registerWallet]
   );
 
   return (
@@ -176,8 +179,8 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
           containerClassName="mb-6"
         />
 
-        <FormSubmitButton loading={formState.isSubmitting}>
-          Create
+        <FormSubmitButton loading={submitting}>
+          {submitting ? "Creating..." : "Create"}
         </FormSubmitButton>
       </form>
     </div>

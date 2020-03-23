@@ -57,4 +57,8 @@ export class IntercomClient {
   private send(msg: RequestMessage) {
     this.port.postMessage(msg);
   }
+
+  private destroy() {
+    this.port.disconnect();
+  }
 }
