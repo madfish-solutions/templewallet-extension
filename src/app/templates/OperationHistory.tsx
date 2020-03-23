@@ -1,75 +1,59 @@
 import * as React from "react";
 import classNames from "clsx";
 import useSWR from "swr";
-import { TZStatsNetwork, getAccountOperations } from "lib/tzstats";
+import {
+  QFOperator,
+  OperationRow,
+  OperationStatus,
+  getOperationTable
+} from "lib/tzstats";
+import { useReadyThanos } from "lib/thanos/front";
 import Identicon from "app/atoms/Identicon";
 import ShortAddressLabel from "app/atoms/ShortAddressLabel";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 
-const fetchAccountOperations = (
-  network: TZStatsNetwork,
-  publicKeyHash: string
-) => getAccountOperations(network, { publicKeyHash });
-
 interface OperationHistoryProps {
-  address: string;
+  accountPkh: string;
 }
-
-enum TransactionSide {
-  Incoming,
-  Outcoming
-}
-
-type OperationStatus = "applied" | "failed" | "backtracked" | "skipped";
-
-type Operation = {
-  row_id: number;
-  type: string;
-  hash: string;
-  sender: string | null;
-  receiver: string | null;
-  delegate: string | null;
-  is_success: number;
-  status: OperationStatus;
-  time: number;
-  volume: number;
-  fee: number;
-  burned: number;
-  height: number;
-  reward: number;
-  side?: TransactionSide;
-  source?: string | null;
-};
 
 let initialLoad = true;
 
-const OperationHistory: React.FC<OperationHistoryProps> = ({ address }) => {
-  const network = React.useMemo(() => TZStatsNetwork.Mainnet, []);
-  const fetchOperations = React.useCallback<typeof fetchAccountOperations>(
-    async (network, address) => {
-      if (initialLoad) {
-        await new Promise(res => setTimeout(res, 200));
-        initialLoad = false;
-      }
-      return fetchAccountOperations(network, address);
-    },
-    []
+const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
+  const { network } = useReadyThanos();
+
+  const fetchOperations = React.useCallback(async () => {
+    if (initialLoad) {
+      await new Promise(res => setTimeout(res, 200));
+      initialLoad = false;
+    }
+    return getOperationTable(network.tzStats, { limit: 50, order: "desc" }, [
+      ["sender", QFOperator.Equal, accountPkh]
+    ]);
+  }, [network.tzStats, accountPkh]);
+
+  const { data } = useSWR(
+    ["operation-history", network.tzStats, accountPkh],
+    fetchOperations,
+    {
+      suspense: true,
+      refreshInterval: 10_000
+    }
   );
-  const { data } = useSWR([network, address], fetchOperations, {
-    suspense: true
-  });
-  const operations = (data?.ops as Operation[]) || [];
+  const operations = data!;
 
   return (
     <div>
       <div className="flex justify-center mt-8">
         <div className="flex flex-col w-full">
           {/* {JSON.stringify(transactions)} */}
-          {operations.map((operation, i) => (
-            <React.Fragment key={i}>
-              {!!i && <hr />}
+          {operations.map(op => (
+            <React.Fragment key={op.hash}>
+              {/* {!!i && <hr />} */}
 
-              <Operation operation={operation} address={address} />
+              <Operation
+                {...op}
+                address="tz1MXjdb684ByEP5qUn5J7EMub7Sr8eBziDe"
+              />
             </React.Fragment>
           ))}
         </div>
@@ -78,27 +62,28 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ address }) => {
   );
 };
 
-const Operation: React.FC<{ operation: Operation; address: string }> = ({
-  operation,
-  address
-}) => {
-  const isTransaction = React.useMemo(() => operation.type === "transaction", [
-    operation.type
-  ]);
+type OperationProps = OperationRow & {
+  address: string;
+};
+
+const Operation = React.memo<OperationProps>(op => {
+  console.info(op);
+  const { address, hash, type, receiver, volume, status, time } = op;
+  const isTransaction = React.useMemo(() => type === "transaction", [type]);
 
   const isIncoming = React.useMemo(() => {
-    return operation.receiver === address;
-  }, [address, operation.receiver]);
+    return receiver === address;
+  }, [address, receiver]);
 
   return (
     <div className="flex content-center my-3">
       <div className="mr-3">
-        <Identicon hash={operation.hash} size={50} />
+        <Identicon hash={hash} size={50} />
       </div>
       <div className="flex-1">
         <div className="flex">
           <div>
-            <ShortAddressLabel small address={operation.hash} />
+            <ShortAddressLabel small address={hash} />
           </div>
           <div className="flex-1">
             <div
@@ -110,7 +95,7 @@ const Operation: React.FC<{ operation: Operation; address: string }> = ({
             >
               <div className="text-sm">
                 {isTransaction && (isIncoming ? "-" : "+")}
-                {round(operation.volume, 4)} ꜩ
+                {round(volume, 4)} ꜩ
               </div>
               <div className="text-xs">
                 {isTransaction && (isIncoming ? "-" : "+")}
@@ -122,14 +107,12 @@ const Operation: React.FC<{ operation: Operation; address: string }> = ({
           </div>
         </div>
         <div className="flex">
-          <StatusChip status={operation.status} className="mr-2" />
-          <span className="text-blue-600 opacity-75 mr-2">
-            {operation.type}
-          </span>
+          <StatusChip status={status} className="mr-2" />
+          <span className="text-blue-600 opacity-75 mr-2">{type}</span>
           <Time
             children={() => (
               <span className="text-gray-600">
-                {formatDistanceToNow(new Date(operation.time))}
+                {formatDistanceToNow(new Date(time))}
               </span>
             )}
           />
@@ -137,7 +120,7 @@ const Operation: React.FC<{ operation: Operation; address: string }> = ({
       </div>
     </div>
   );
-};
+});
 
 type TimeProps = {
   children: () => React.ReactElement;

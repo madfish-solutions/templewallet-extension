@@ -1,5 +1,3 @@
-import axios, { AxiosPromise } from "axios";
-
 export enum TZStatsNetwork {
   Mainnet = "https://api.tzstats.com",
   Zeronet = "https://api.zeronet.tzstats.com",
@@ -8,20 +6,20 @@ export enum TZStatsNetwork {
   Labnet = "https://api.labnet.tzstats.com"
 }
 
-enum AddressType {
-  TZ1 = "ed25519",
-  TZ2 = "secp256k1",
-  TZ3 = "p256"
+export interface ErrorData {
+  code: number;
+  status: number;
+  message: string;
+  scope: string;
+  detail: string;
+  request_id: string;
 }
 
-enum OperationStatus {
-  Applied = "applied",
-  Failed = "failed",
-  Backtracked = "backtracked",
-  Skipped = "skipped"
-}
+export type AddressType = "ed25519" | "secp256k1" | "p256";
 
-interface TZStatsAccount {
+export type OperationStatus = "applied" | "failed" | "backtracked" | "skipped";
+
+export interface TZStatsAccount {
   address: string;
   address_type: AddressType;
   delegate: string;
@@ -101,10 +99,10 @@ interface TZStatsAccount {
   next_bake_time: Date;
   next_endorse_height: number;
   next_endorse_time: Date;
-  ops?: object[];
+  ops?: TZStatsOperation[];
 }
 
-interface TZStatsContract {
+export interface TZStatsContract {
   address: string;
   manager: string;
   delegate: string;
@@ -145,20 +143,19 @@ interface TZStatsContract {
   bigmap_ids: BigInt64Array;
 }
 
-interface TZStatsContractScript {
+export interface TZStatsContractScript {
   script: object;
   storage_type: object;
   entrypoint: object;
 }
 
-interface TZStatsContractStorage {
-  //GET CONTRACT STORAGE
+export interface TZStatsContractStorage {
   meta: object;
   value: object;
   entrypoint: object;
 }
 
-interface TZStatsContractCalls {
+export interface TZStatsContractCalls {
   entrypoint: string;
   branch: string;
   id: number;
@@ -166,7 +163,7 @@ interface TZStatsContractCalls {
   prim: object;
 }
 
-interface TZStatsMarketsTickers {
+export interface TZStatsMarketsTickers {
   pair: string;
   base: string;
   quote: string;
@@ -183,7 +180,7 @@ interface TZStatsMarketsTickers {
   timestamp: Date;
 }
 
-interface TZStatsOperation {
+export interface TZStatsOperation {
   hash: string;
   type: string; // it is should be enum
   block: string;
@@ -226,102 +223,127 @@ interface TZStatsOperation {
   branch: string;
 }
 
-export async function getAccount(
-  network: TZStatsNetwork,
-  params: { publicKeyHash: string }
-) {
-  return unify(
-    axios.get<TZStatsAccount>(
-      `${network}/explorer/account/${params.publicKeyHash}`
-    )
-  );
+export type QueryArguments = Partial<{
+  // columns: string[],
+  limit: number;
+  cursor: number;
+  order: "asc" | "desc";
+}>;
+
+export type QueryFilter = [QFColumn, QFOperator, QFArgument];
+
+export type QFColumn = string;
+export type QFArgument = string;
+
+export enum QFOperator {
+  Equal = "eq",
+  NotEqual = "ne",
+  GreaterThan = "gt",
+  GreaterThanOrEqual = "gte",
+  LessThan = "lt",
+  LessThanOrEqual = "lte",
+  InclusionInList = "in",
+  NotIncludedInList = "nin",
+  Range = "rg",
+  Regexp = "re"
 }
 
-export async function getAccountOperations(
-  network: TZStatsNetwork,
-  params: { publicKeyHash: string }
-) {
-  return unify(
-    axios.get<TZStatsAccount>(
-      `${network}/explorer/account/${params.publicKeyHash}/op`
-    )
-  );
+export interface OperationRow {
+  rowId: number;
+  time: number;
+  height: number;
+  cycle: number;
+  hash: string;
+  counter: number;
+  opN: number;
+  opL: number;
+  opP: number;
+  opC: number;
+  opI: number;
+  type: string;
+  status: OperationStatus;
+  isSuccess: boolean;
+  isContract: boolean;
+  gasLimit: number;
+  gasUsed: number;
+  gasPrice: number;
+  storageLimit: number;
+  storageSize: number;
+  storagePaid: number;
+  volume: number;
+  fee: number;
+  reward: number;
+  deposit: number;
+  burned: number;
+  senderId: number;
+  receiverId: number;
+  managerId: number;
+  delegateId: number;
+  isInternal: boolean;
+  hasData: boolean;
+  data: any;
+  parameters: string | null;
+  storage: string | null;
+  bigMapDiff: string | null;
+  errors: string | null;
+  daysDestroyed: number;
+  branchId: number;
+  branchHeight: number;
+  branchDepth: number;
+  isImplicit: boolean;
+  entrypointId: number;
+  sender: string;
+  receiver: string | null;
+  manager: string | null;
+  delegate: string | null;
 }
 
-export async function getContract(
-  network: TZStatsNetwork,
-  params: { publicKeyHash: string }
-) {
-  return unify(
-    axios.get<TZStatsContract>(
-      `${network}/explorer/contract/${params.publicKeyHash}`
-    )
-  );
-}
-
-export async function getContractScript(
-  network: TZStatsNetwork,
-  params: { publicKeyHash: string }
-) {
-  return unify(
-    axios.get<TZStatsContractScript>(
-      `${network}/explorer/contract/${params.publicKeyHash}/script`
-    )
-  );
-}
-
-export async function getContractStorage(
-  network: TZStatsNetwork,
-  params: { publicKeyHash: string }
-) {
-  return unify(
-    axios.get<TZStatsContractStorage>(
-      `${network}/explorer/contract/${params.publicKeyHash}/storage`
-    )
-  );
-}
-
-export async function getContractCalls(
-  network: TZStatsNetwork,
-  params: { publicKeyHash: string }
-) {
-  return unify(
-    axios.get<TZStatsContractCalls>(
-      `${network}/explorer/contract/${params.publicKeyHash}/calls`
-    )
-  );
-}
-
-export async function getContractManager(
-  network: TZStatsNetwork,
-  params: { publicKeyHash: string }
-) {
-  // The response schema didnt provided it docs
-  return unify(
-    axios.get<TZStatsContractCalls>(
-      `${network}/explorer/contract/${params.publicKeyHash}/manager`
-    )
-  );
-}
-
-export async function getMarketsTickers(network: TZStatsNetwork) {
-  return unify(
-    axios.get<TZStatsMarketsTickers[]>(`${network}/markets/tickers`)
-  );
-}
-
-export async function getOperations(
-  network: TZStatsNetwork,
-  params: { publicKeyHash: string }
-) {
-  return unify(
-    axios.get<TZStatsOperation[]>(
-      `${network}/explorer/op/${params.publicKeyHash}`
-    )
-  );
-}
-
-async function unify<T>(promise: AxiosPromise<T>): Promise<T> {
-  const res = await promise;
-  return res.data;
-}
+export type OperationRowTuple = [
+  number, // [row_id] - uint64
+  number, // [time] - datetime
+  number, // [height] - int64
+  number, // [cycle] - int64
+  string, // [hash] - hash
+  number, // [counter] - int64
+  number, // [op_n] - int64
+  number, // [op_l] - int64
+  number, // [op_p] - int64
+  number, // [op_c] - int64
+  number, // [op_i] - int64
+  string, // [type] - enum (OperationType)
+  OperationStatus, // [status] - enum
+  boolean, // [is_success] - flag boolean
+  boolean, // [is_contract] - flag boolean
+  number, // [gas_limit] - int64
+  number, // [gas_used] - int64
+  number, // [gas_price] - float
+  number, // [storage_limit] - int64
+  number, // [storage_size] - int64
+  number, // [storage_paid] - int64
+  number, // [volume] - money
+  number, // [fee] - money
+  number, // [reward] - money
+  number, // [deposit] - money
+  number, // [burned] - money
+  number, // [sender_id] - uint64
+  number, // [receiver_id] - uint64
+  number, // [manager_id] - uint64
+  number, // [delegate_id] - uint64
+  boolean, // [is_internal] - flag bool
+  boolean, // [has_data] - flag bool
+  any, // [data] - bytes
+  string | null, // [parameters] - object
+  string | null, // [storage] - bytes
+  string | null, // [big_map_diff] - bytes
+  string | null, // [errors] - bytes
+  number, // [days_destroyed] - float
+  number, // [branch_id] - uint64
+  number, // [branch_height] - int64
+  number, // [branch_depth] - int64
+  boolean, // [is_implicit] - flag bool
+  number, // [entrypoint_id] - int64
+  string, // [sender] - hash
+  string | null, // [receiver] - hash
+  string | null, // [manager] - hash
+  string | null // [delegate] - hash
+];
