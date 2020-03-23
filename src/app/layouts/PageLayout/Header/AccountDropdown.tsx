@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { navigate } from "lib/woozie";
-import { useThanosFront } from "lib/thanos/front";
+import { useThanosClient, useReadyThanos } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
@@ -16,24 +16,19 @@ type AccountDropdown = PopperRenderProps;
 
 const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
-  const {
-    accounts,
-    account,
-    lock,
-    setAccIndex,
-    createAccount
-  } = useThanosFront();
+  const { lock, createAccount } = useThanosClient();
+  const { allAccounts, account, setAccIndex } = useReadyThanos();
 
-  const prevAccLengthRef = React.useRef(accounts.length);
+  const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
-    const accLength = accounts.length;
+    const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
       setAccIndex(accLength - 1);
       setOpened(false);
       navigate("/");
     }
     prevAccLengthRef.current = accLength;
-  }, [accounts, setAccIndex, setOpened]);
+  }, [allAccounts, setAccIndex, setOpened]);
 
   const handleLogoutClick = React.useCallback(() => {
     lock();
@@ -116,7 +111,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
         style={{ maxHeight: "10rem" }}
       >
         <div className="flex flex-col">
-          {accounts.map((acc, i) => {
+          {allAccounts.map((acc, i) => {
             const selected = acc.publicKeyHash === account.publicKeyHash;
             const handleAccountClick = () => {
               if (!selected) {
