@@ -4,6 +4,7 @@ import { ReadyThanosProvider } from "lib/thanos/front/ready";
 
 export * from "lib/thanos/front/client";
 export * from "lib/thanos/front/ready";
+export * from "lib/thanos/front/balance";
 
 export const ThanosProvider: React.FC = ({ children }) => (
   <ThanosClientProvider>
