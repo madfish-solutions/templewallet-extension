@@ -120,7 +120,7 @@ const Explore: React.FC = () => {
       <SubTitle>Operation History</SubTitle>
 
       <React.Suspense fallback={null}>
-        <OperationHistory address="tz1W1f1JrE7VsqgpUpj1iiDobqP5TixgZhDk" />
+        <OperationHistory accountPkh="tz1bWKY9TTY2nEMmqJX7T2Vewpfa7SWHVnP8" />
       </React.Suspense>
     </PageLayout>
   );
