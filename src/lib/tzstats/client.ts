@@ -5,8 +5,11 @@ import {
   QueryArguments,
   QueryFilter,
   OperationRowTuple,
-  OperationRow
+  OperationRow,
+  TZStatsAccountOp
 } from "lib/tzstats/types";
+
+export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;
 
 export type Query<T> = (
   n: TZStatsNetwork,
@@ -24,15 +27,29 @@ api.interceptors.response.use(
 
     const errors: ErrorData[] = (err as AxiosError).response?.data?.errors;
     const finalError = new Error("Failed when querying TZStats API");
-    (finalError as any).errors = errors ?? [];
-    throw finalError;
+    throw Object.assign(finalError, {
+      data: errors ?? [],
+      origin: err
+    });
   }
 );
 
-export const getOperationTable = wrap(
+export const getAccountWithOperations = explore<
+  TZStatsAccountOp,
+  {
+    pkh: string;
+    limit: number;
+    offset: number;
+    block: string | number;
+    since: string | number;
+    order: "asc" | "desc";
+  }
+>(({ pkh, ...rest }) => [`/explorer/account/${pkh}/op`, rest]);
+
+export const getOperationTable = wrapQuery(
   query<OperationRowTuple[]>("/tables/op"),
-  ops =>
-    ops.map(
+  opsInTuples =>
+    opsInTuples.map(
       ([
         rowId,
         time,
@@ -133,6 +150,25 @@ export const getOperationTable = wrap(
     )
 );
 
+function explore<T = any, P = never>(
+  pathOrFactory: string | ((p: Partial<P>) => [string, Partial<P>])
+): Explore<P, T> {
+  return async (network, args) => {
+    let path, params;
+    if (typeof pathOrFactory === "function") {
+      [path, params] = pathOrFactory(args!);
+    } else {
+      path = pathOrFactory;
+    }
+
+    const res = await api.get<T>(path, {
+      baseURL: network,
+      params
+    });
+    return res.data;
+  };
+}
+
 function query<T = any>(path: string): Query<T> {
   return async (network, args, filters = []) => {
     const params: { [key: string]: any } = { ...(args ?? {}) };
@@ -148,6 +184,6 @@ function query<T = any>(path: string): Query<T> {
   };
 }
 
-function wrap<T, U>(query: Query<T>, transformer: (d: T) => U): Query<U> {
+function wrapQuery<T, U>(query: Query<T>, transformer: (d: T) => U): Query<U> {
   return (...args) => query(...args).then(transformer);
 }

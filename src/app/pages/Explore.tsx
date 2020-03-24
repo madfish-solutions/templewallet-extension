@@ -15,7 +15,7 @@ import EditableTitle from "./Explore/EditableTitle";
 
 const Explore: React.FC = () => {
   const { account, network } = useReadyThanos();
-  const address = account.publicKeyHash;
+  const accountPkh = account.publicKeyHash;
 
   return (
     <PageLayout
@@ -31,11 +31,11 @@ const Explore: React.FC = () => {
       <hr className="mb-4" />
 
       <div className="flex flex-col items-center">
-        <ShortAddressLabel address={address} className="mb-4" />
+        <ShortAddressLabel address={accountPkh} className="mb-4" />
 
         <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" />
 
-        <Balance address={address}>
+        <Balance address={accountPkh}>
           {balance => (
             <div className="flex flex-col items-center">
               <div className="text-gray-800 text-2xl font-light">
@@ -120,7 +120,7 @@ const Explore: React.FC = () => {
       <SubTitle>Operation History</SubTitle>
 
       <React.Suspense fallback={null}>
-        <OperationHistory accountPkh="tz1bWKY9TTY2nEMmqJX7T2Vewpfa7SWHVnP8" />
+        <OperationHistory accountPkh={accountPkh} />
       </React.Suspense>
     </PageLayout>
   );
