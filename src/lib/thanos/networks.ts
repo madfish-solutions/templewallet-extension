@@ -5,6 +5,7 @@ export const NETWORKS: ThanosNetwork[] = [
   {
     id: "mainnet",
     name: "Tezos Mainnet",
+    description: "Carthage mainnet",
     type: ThanosNetworkType.Main,
     rpcBaseURL: "https://mainnet.tezos.org.ua",
     tzStats: TZStatsNetwork.Mainnet,
@@ -12,17 +13,9 @@ export const NETWORKS: ThanosNetwork[] = [
     disabled: false
   },
   {
-    id: "babylonnet",
-    name: "Babylonnet",
-    type: ThanosNetworkType.Test,
-    rpcBaseURL: "https://babylonnet.tezos.org.ua",
-    tzStats: TZStatsNetwork.Babylonnet,
-    color: "#ed6663",
-    disabled: false
-  },
-  {
     id: "carthagenet",
     name: "Carthagenet",
+    description: "Carthage testnet",
     type: ThanosNetworkType.Test,
     rpcBaseURL: "https://carthagenet.tezos.org.ua",
     tzStats: TZStatsNetwork.Carthagenet,
@@ -30,8 +23,19 @@ export const NETWORKS: ThanosNetwork[] = [
     disabled: false
   },
   {
+    id: "babylonnet",
+    name: "Babylonnet",
+    description: "Babylon testnet",
+    type: ThanosNetworkType.Test,
+    rpcBaseURL: "https://babylonnet.tezos.org.ua",
+    tzStats: TZStatsNetwork.Babylonnet,
+    color: "#ed6663",
+    disabled: false
+  },
+  {
     id: "labnet",
     name: "Labnet",
+    description: "Labnet testnet",
     type: ThanosNetworkType.Test,
     rpcBaseURL: "https://labnet.tezos.org.ua",
     tzStats: TZStatsNetwork.Labnet,
@@ -41,6 +45,7 @@ export const NETWORKS: ThanosNetwork[] = [
   {
     id: "zeronet",
     name: "Zeronet",
+    description: "Zeronet testnet",
     type: ThanosNetworkType.Test,
     rpcBaseURL: "<no public nodes>",
     tzStats: TZStatsNetwork.Zeronet,

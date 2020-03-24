@@ -143,7 +143,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
                   hash={acc.publicKeyHash}
                   size={32}
                   style={{
-                    boxShadow: "0 0 0 1px rgba(255, 255, 255, 0.25)"
+                    boxShadow: "0 0 0 1px rgba(255, 255, 255, 0.15)"
                   }}
                 />
 

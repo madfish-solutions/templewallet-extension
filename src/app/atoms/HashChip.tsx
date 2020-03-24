@@ -3,22 +3,23 @@ import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy from "lib/ui/useTippy";
 import classNames from "clsx";
 
-type ShortAddressLabelProps = React.HTMLAttributes<HTMLButtonElement> & {
+type HashChipProps = React.HTMLAttributes<HTMLButtonElement> & {
   address: string;
+  firstCharsCount?: number;
+  lastCharsCount?: number;
   small?: boolean;
 };
 
-const ShortAddressLabel: React.FC<ShortAddressLabelProps> = ({
+const HashChip: React.FC<HashChipProps> = ({
   address,
-  className,
+  firstCharsCount = 7,
+  lastCharsCount = 4,
   small = false,
+  className,
   ...rest
 }) => {
   const shortAddress = React.useMemo(() => {
     const ln = address.length;
-    const firstCharsCount = 7;
-    const lastCharsCount = 4;
-
     return (
       <>
         {address.slice(0, firstCharsCount)}
@@ -26,7 +27,7 @@ const ShortAddressLabel: React.FC<ShortAddressLabelProps> = ({
         {address.slice(ln - lastCharsCount, ln)}
       </>
     );
-  }, [address]);
+  }, [address, firstCharsCount, lastCharsCount]);
 
   const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
 
@@ -69,4 +70,4 @@ const ShortAddressLabel: React.FC<ShortAddressLabelProps> = ({
   );
 };
 
-export default ShortAddressLabel;
+export default HashChip;

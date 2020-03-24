@@ -7,6 +7,8 @@ type IdenticonProps = React.HTMLAttributes<HTMLDivElement> & {
   size?: number;
 };
 
+const cache = new Map<string, string>();
+
 const Identicon: React.FC<IdenticonProps> = ({
   hash,
   size = 100,
@@ -15,8 +17,15 @@ const Identicon: React.FC<IdenticonProps> = ({
   ...rest
 }) => {
   const backgroundImage = React.useMemo(() => {
-    const svgStr = toSvg(hash, size);
-    return `url('data:image/svg+xml;base64,${btoa(svgStr)}')`;
+    const key = `${hash}_${size}`;
+    if (cache.has(key)) {
+      return cache.get(key);
+    } else {
+      const svgStr = toSvg(hash, size);
+      const bi = `url('data:image/svg+xml;base64,${btoa(svgStr)}')`;
+      cache.set(key, bi);
+      return bi;
+    }
   }, [hash, size]);
 
   return (
@@ -28,7 +37,6 @@ const Identicon: React.FC<IdenticonProps> = ({
         className={classNames(
           "inline-block",
           "bg-gray-100 bg-no-repeat bg-center",
-          "border border-gray-200",
           "overflow-hidden",
           className
         )}
