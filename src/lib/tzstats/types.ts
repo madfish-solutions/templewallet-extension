@@ -19,6 +19,10 @@ export type AddressType = "ed25519" | "secp256k1" | "p256";
 
 export type OperationStatus = "applied" | "failed" | "backtracked" | "skipped";
 
+export interface TZStatsAccountOp extends TZStatsAccount {
+  ops: TZStatsOperation[];
+}
+
 export interface TZStatsAccount {
   address: string;
   address_type: AddressType;

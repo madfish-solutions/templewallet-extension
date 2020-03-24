@@ -2,10 +2,9 @@ import * as React from "react";
 import classNames from "clsx";
 import useSWR from "swr";
 import {
-  QFOperator,
-  OperationRow,
+  TZStatsOperation,
   OperationStatus,
-  getOperationTable
+  getAccountWithOperations
 } from "lib/tzstats";
 import { useReadyThanos } from "lib/thanos/front";
 import Identicon from "app/atoms/Identicon";
@@ -26,9 +25,19 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       await new Promise(res => setTimeout(res, 200));
       initialLoad = false;
     }
-    return getOperationTable(network.tzStats, { limit: 50, order: "desc" }, [
-      ["sender", QFOperator.Equal, accountPkh]
-    ]);
+    try {
+      return await getAccountWithOperations(network.tzStats, {
+        pkh: accountPkh,
+        order: "desc",
+        limit: 50,
+        offset: 0
+      }).then(acc => acc.ops);
+    } catch (err) {
+      if (err?.origin?.response?.status === 404) {
+        return [];
+      }
+      throw err;
+    }
   }, [network.tzStats, accountPkh]);
 
   const { data } = useSWR(
@@ -62,7 +71,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   );
 };
 
-type OperationProps = OperationRow & {
+type OperationProps = TZStatsOperation & {
   address: string;
 };
 
