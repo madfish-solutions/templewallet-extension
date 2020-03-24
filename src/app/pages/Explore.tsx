@@ -4,7 +4,7 @@ import { Link } from "lib/woozie";
 import { ThanosNetworkType } from "lib/thanos/types";
 import { useReadyThanos } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
-import ShortAddressLabel from "app/atoms/ShortAddressLabel";
+import HashChip from "app/atoms/HashChip";
 import OperationHistory from "app/templates/OperationHistory";
 import Balance from "app/templates/Balance";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
@@ -31,7 +31,7 @@ const Explore: React.FC = () => {
       <hr className="mb-4" />
 
       <div className="flex flex-col items-center">
-        <ShortAddressLabel address={accountPkh} className="mb-4" />
+        <HashChip address={accountPkh} className="mb-4" />
 
         <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" />
 
@@ -115,12 +115,10 @@ const Explore: React.FC = () => {
         </div>
       </div>
 
-      <hr className="my-4" />
-
       <SubTitle>Operation History</SubTitle>
 
       <React.Suspense fallback={null}>
-        <OperationHistory accountPkh={accountPkh} />
+        <OperationHistory accountPkh="tz1hjem5Rpf4KAVbwMLJet75TDb8HjAKnTYk" />
       </React.Suspense>
     </PageLayout>
   );
