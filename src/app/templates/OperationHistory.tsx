@@ -1,16 +1,12 @@
 import * as React from "react";
 import classNames from "clsx";
 import useSWR from "swr";
-import {
-  QFOperator,
-  OperationRow,
-  OperationStatus,
-  getOperationTable
-} from "lib/tzstats";
+import formatDistanceToNow from "date-fns/formatDistanceToNow";
+import { TZStatsOperation, getAccountWithOperations } from "lib/tzstats";
+import { ThanosNetworkType } from "lib/thanos/types";
 import { useReadyThanos } from "lib/thanos/front";
 import Identicon from "app/atoms/Identicon";
-import ShortAddressLabel from "app/atoms/ShortAddressLabel";
-import formatDistanceToNow from "date-fns/formatDistanceToNow";
+import HashChip from "app/atoms/HashChip";
 
 interface OperationHistoryProps {
   accountPkh: string;
@@ -26,9 +22,19 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       await new Promise(res => setTimeout(res, 200));
       initialLoad = false;
     }
-    return getOperationTable(network.tzStats, { limit: 50, order: "desc" }, [
-      ["sender", QFOperator.Equal, accountPkh]
-    ]);
+    try {
+      return await getAccountWithOperations(network.tzStats, {
+        pkh: accountPkh,
+        order: "desc",
+        limit: 50,
+        offset: 0
+      }).then(acc => acc.ops);
+    } catch (err) {
+      if (err?.origin?.response?.status === 404) {
+        return [];
+      }
+      throw err;
+    }
   }, [network.tzStats, accountPkh]);
 
   const { data } = useSWR(
@@ -42,85 +48,107 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const operations = data!;
 
   return (
-    <div>
-      <div className="flex justify-center mt-8">
-        <div className="flex flex-col w-full">
-          {/* {JSON.stringify(transactions)} */}
-          {operations.map(op => (
-            <React.Fragment key={op.hash}>
-              {/* {!!i && <hr />} */}
-
-              <Operation
-                {...op}
-                address="tz1MXjdb684ByEP5qUn5J7EMub7Sr8eBziDe"
-              />
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
+    <div className={classNames("mt-8", "flex flex-col")}>
+      {operations.map(op => (
+        <Operation
+          key={`${op.hash}_${op.type}`}
+          {...op}
+          address={accountPkh}
+          networkType={network.type}
+        />
+      ))}
     </div>
   );
 };
 
-type OperationProps = OperationRow & {
+export default OperationHistory;
+
+type OperationProps = TZStatsOperation & {
   address: string;
+  networkType: ThanosNetworkType;
 };
 
-const Operation = React.memo<OperationProps>(op => {
-  console.info(op);
-  const { address, hash, type, receiver, volume, status, time } = op;
-  const isTransaction = React.useMemo(() => type === "transaction", [type]);
+const Operation = React.memo<OperationProps>(
+  ({ networkType, address, hash, type, receiver, volume, status, time }) => {
+    const volumeExists = volume !== 0;
+    const typeTx = type === "transaction";
+    const imReceiver = receiver === address;
 
-  const isIncoming = React.useMemo(() => {
-    return receiver === address;
-  }, [address, receiver]);
-
-  return (
-    <div className="flex content-center my-3">
-      <div className="mr-3">
-        <Identicon hash={hash} size={50} />
-      </div>
-      <div className="flex-1">
-        <div className="flex">
-          <div>
-            <ShortAddressLabel small address={hash} />
-          </div>
-          <div className="flex-1">
-            <div
-              className={classNames(
-                "flex flex-col justify-center flex-shrink-0 items-end",
-                isTransaction &&
-                  (isIncoming ? "text-red-700" : "text-green-500")
-              )}
-            >
-              <div className="text-sm">
-                {isTransaction && (isIncoming ? "-" : "+")}
-                {round(volume, 4)} ꜩ
-              </div>
-              <div className="text-xs">
-                {isTransaction && (isIncoming ? "-" : "+")}
-                <span className={!isTransaction ? "invisible " : ""}>
-                  300 $
-                </span>
-              </div>
-            </div>
-          </div>
+    return (
+      <div className={classNames("my-3", "flex items-strech")}>
+        <div className="mr-2">
+          <Identicon hash={hash} size={50} className="shadow-xs" />
         </div>
-        <div className="flex">
-          <StatusChip status={status} className="mr-2" />
-          <span className="text-blue-600 opacity-75 mr-2">{type}</span>
-          <Time
-            children={() => (
-              <span className="text-gray-600">
-                {formatDistanceToNow(new Date(time))}
+
+        <div className="flex-1">
+          <div className="flex items-center">
+            <HashChip
+              address={hash}
+              firstCharsCount={10}
+              lastCharsCount={7}
+              small
+              className="mr-2"
+            />
+
+            <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
+          </div>
+
+          <div className="flex items-strech">
+            <div className="flex flex-col">
+              <span className="mt-1 text-blue-600 opacity-75">
+                {formatOperationType(type, imReceiver)}
               </span>
+
+              {status === "backtracked" ? (
+                <span className="text-xs text-yellow-600 font-light">
+                  pending...
+                </span>
+              ) : (
+                <Time
+                  children={() => (
+                    <span className="text-xs text-gray-500 font-light">
+                      {formatDistanceToNow(new Date(time), {
+                        includeSeconds: true,
+                        addSuffix: true
+                      })}
+                    </span>
+                  )}
+                />
+              )}
+            </div>
+
+            <div className="flex-1" />
+
+            {volumeExists && (
+              <div className="flex-shrink-0 flex flex-col items-end">
+                <div
+                  className={classNames(
+                    "text-sm",
+                    typeTx
+                      ? imReceiver
+                        ? "text-green-500"
+                        : "text-red-700"
+                      : "text-gray-800"
+                  )}
+                >
+                  {typeTx && (imReceiver ? "+" : "-")}
+                  {round(volume, 4)} ꜩ
+                </div>
+
+                {networkType === ThanosNetworkType.Main && (
+                  <div className="text-xs text-gray-500">
+                    <span className="mr-px">$</span>
+                    {round(volume * 1.65, 2)}
+                  </div>
+                )}
+              </div>
             )}
-          />
+          </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 type TimeProps = {
   children: () => React.ReactElement;
@@ -142,45 +170,54 @@ const Time: React.FC<TimeProps> = ({ children }) => {
   return value;
 };
 
-interface StatusChipProps {
-  status: OperationStatus;
-  className?: string;
-}
-
-const StatusChip: React.FC<StatusChipProps> = ({ status, className }) => {
-  const [extraClasses, statusName] = React.useMemo<[string, string]>(() => {
-    switch (status) {
-      case "backtracked":
-        return ["bg-yellow-100 text-yellow-600", "In Progress"];
-      case "applied":
-        return ["bg-green-100 text-green-600", "Applied"];
-      case "failed":
-        return ["bg-red-100 text-red-600", "Failed"];
-      case "skipped":
-        return ["bg-red-100 text-red-600", "Skipped"];
-    }
-  }, [status]);
-
-  return (
-    <Chip className={classNames(extraClasses, className)}>{statusName}</Chip>
-  );
-};
-
-const Chip: React.FC<{ className?: string }> = ({ children, className }) => (
-  <div
-    className={classNames(
-      "rounded-sm shadow-xs",
-      "text-xs p-1",
-      "leading-none select-none",
-      className
-    )}
-  >
-    {children}
-  </div>
-);
-
 function round(val: number, decPlaces: any = 4) {
   return Number(`${Math.round(+`${val}e${decPlaces}`)}e-${decPlaces}`);
 }
 
-export default OperationHistory;
+function formatOperationType(type: string, imReciever: boolean) {
+  if (type === "transaction") {
+    type = `${imReciever ? "↓" : "↑"}_${type}`;
+  }
+
+  return type
+    .split("_")
+    .map(w => `${w.charAt(0).toUpperCase()}${w.substring(1)}`)
+    .join(" ");
+}
+
+// interface StatusChipProps {
+//   status: OperationStatus;
+//   className?: string;
+// }
+
+// const StatusChip: React.FC<StatusChipProps> = ({ status, className }) => {
+//   const [extraClasses, statusName] = React.useMemo<[string, string]>(() => {
+//     switch (status) {
+//       case "backtracked":
+//         return ["bg-yellow-100 text-yellow-600", "In Progress"];
+//       case "applied":
+//         return ["bg-green-100 text-green-600", "Applied"];
+//       case "failed":
+//         return ["bg-red-100 text-red-600", "Failed"];
+//       case "skipped":
+//         return ["bg-red-100 text-red-600", "Skipped"];
+//     }
+//   }, [status]);
+
+//   return (
+//     <Chip className={classNames(extraClasses, className)}>{statusName}</Chip>
+//   );
+// };
+
+// const Chip: React.FC<{ className?: string }> = ({ children, className }) => (
+//   <div
+//     className={classNames(
+//       "rounded-sm shadow-xs",
+//       "text-xs p-1",
+//       "leading-none select-none",
+//       className
+//     )}
+//   >
+//     {children}
+//   </div>
+// );
