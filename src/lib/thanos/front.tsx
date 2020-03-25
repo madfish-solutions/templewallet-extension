@@ -2,6 +2,7 @@ import * as React from "react";
 import { ThanosClientProvider, useThanosClient } from "lib/thanos/front/client";
 import { ReadyThanosProvider } from "lib/thanos/front/ready";
 
+export * from "lib/thanos/types";
 export * from "lib/thanos/front/client";
 export * from "lib/thanos/front/ready";
 export * from "lib/thanos/front/balance";
