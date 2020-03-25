@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useThanosClient, useReadyThanos } from "lib/thanos/front";
+import Name from "app/atoms/Name";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 
@@ -137,14 +138,15 @@ const EditableTitle: React.FC = () => {
           </div>
         </form>
       ) : (
-        <h1
+        <Name
           className={classNames(
             "mb-2",
             "text-2xl font-light text-gray-700 text-center"
           )}
+          style={{ maxWidth: "20rem" }}
         >
           {account.name}
-        </h1>
+        </Name>
       )}
 
       {!editing && (

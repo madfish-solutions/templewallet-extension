@@ -26,7 +26,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       return await getAccountWithOperations(network.tzStats, {
         pkh: accountPkh,
         order: "desc",
-        limit: 50,
+        limit: 25,
         offset: 0
       }).then(acc => acc.ops);
     } catch (err) {

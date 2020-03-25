@@ -1,11 +1,18 @@
 import * as React from "react";
 import classNames from "clsx";
 import { navigate } from "lib/woozie";
-import { useThanosClient, useReadyThanos } from "lib/thanos/front";
+import {
+  ThanosAccountType,
+  useThanosClient,
+  useReadyThanos
+} from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
+import Name from "app/atoms/Name";
+import Money from "app/atoms/Money";
+import Balance from "app/templates/Balance";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
@@ -108,7 +115,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
           "my-2",
           "border border-white-10 shadow-inner rounded"
         )}
-        style={{ maxHeight: "10rem" }}
+        style={{ maxHeight: "11rem" }}
       >
         <div className="flex flex-col">
           {allAccounts.map((acc, i) => {
@@ -142,12 +149,49 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
                 <Identicon
                   hash={acc.publicKeyHash}
                   size={32}
+                  className="flex-shrink-0"
                   style={{
                     boxShadow: "0 0 0 1px rgba(255, 255, 255, 0.15)"
                   }}
                 />
 
-                <span className="ml-2 text-base font-medium">{acc.name}</span>
+                <div className="ml-2 flex flex-col items-start">
+                  <Name className="text-sm font-medium leading-tight">
+                    {acc.name}
+                  </Name>
+
+                  <div className="flex flex-wrap items-center">
+                    <Balance address={acc.publicKeyHash}>
+                      {bal => (
+                        <span
+                          className={classNames(
+                            "text-xs leading-none",
+                            "text-white-75"
+                          )}
+                        >
+                          <Money>{bal}</Money>{" "}
+                          <span style={{ fontSize: "0.5rem" }}>XTZ</span>
+                        </span>
+                      )}
+                    </Balance>
+
+                    {acc.type === ThanosAccountType.Imported && (
+                      <span
+                        className={classNames(
+                          "ml-2",
+                          "rounded-sm",
+                          "border border-white-25",
+                          "px-1 py-px",
+                          "leading-tight",
+                          "text-white-50"
+                        )}
+                        style={{ fontSize: "0.6rem" }}
+                      >
+                        Imported
+                      </span>
+                    )}
+                  </div>
+                </div>
               </button>
             );
           })}

@@ -4,18 +4,14 @@ import BigNumber from "bignumber.js";
 import CSSTransition from "react-transition-group/CSSTransition";
 import { useBalance } from "lib/thanos/front";
 
-type Balance = string | number | BigNumber;
-
 type BalanceProps = {
   address: string;
-  children: (balance: Balance) => React.ReactElement;
+  children: (b: BigNumber) => React.ReactElement;
 };
 
 const Balance = React.memo<BalanceProps>(({ address, children }) => {
   const { data: balance } = useBalance(address);
-
-  const local = balance;
-  const exist = local !== undefined;
+  const exist = balance !== undefined;
 
   return React.useMemo(
     () => (
@@ -32,11 +28,11 @@ const Balance = React.memo<BalanceProps>(({ address, children }) => {
         }}
       >
         <div className={classNames("inline-block", !exist && "invisible")}>
-          {children(exist ? local! : 0)}
+          {children(exist ? balance! : new BigNumber(0))}
         </div>
       </CSSTransition>
     ),
-    [children, exist, local]
+    [children, exist, balance]
   );
 });
 
