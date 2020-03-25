@@ -12,8 +12,21 @@ export interface HistoryWithLastAction extends History {
   lastAction: HistoryAction;
 }
 
-patchMethod("pushState", HistoryAction.Push);
-patchMethod("replaceState", HistoryAction.Replace);
+export type HistoryListener = () => void;
+
+const listeners = new Set<HistoryListener>();
+
+export function listen(listener: HistoryListener) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+export function useHistory() {
+  const forceUpdate = useForceUpdate();
+  React.useLayoutEffect(() => listen(forceUpdate), [forceUpdate]);
+}
 
 export function changeState(
   action: HistoryAction.Push | HistoryAction.Replace,
@@ -64,37 +77,32 @@ export function createUrl(
   return `${pathname}${search}${hash}`;
 }
 
-export function useHistory() {
-  const forceUpdate = useForceUpdate();
+patchMethod("pushState", HistoryAction.Push);
+patchMethod("replaceState", HistoryAction.Replace);
 
-  React.useEffect(() => {
-    window.addEventListener(HistoryAction.Pop, handlePopstate);
-    window.addEventListener(HistoryAction.Push, handlePushstate);
-    window.addEventListener(HistoryAction.Replace, handleReplacestate);
+window.addEventListener(HistoryAction.Pop, handlePopstate);
+window.addEventListener(HistoryAction.Push, handlePushstate);
+window.addEventListener(HistoryAction.Replace, handleReplacestate);
 
-    return () => {
-      window.removeEventListener(HistoryAction.Pop, handlePopstate);
-      window.removeEventListener(HistoryAction.Push, handlePushstate);
-      window.removeEventListener(HistoryAction.Replace, handleReplacestate);
-    };
+function handlePopstate() {
+  patchLastAction(HistoryAction.Pop);
+  notifyListeners();
+}
+function handlePushstate() {
+  patchLastAction(HistoryAction.Push);
+  notifyListeners();
+}
+function handleReplacestate() {
+  patchLastAction(HistoryAction.Replace);
+  notifyListeners();
+}
 
-    function handlePopstate() {
-      patchLastAction(HistoryAction.Pop);
-      forceUpdate();
-    }
-    function handlePushstate() {
-      patchLastAction(HistoryAction.Push);
-      forceUpdate();
-    }
-    function handleReplacestate() {
-      patchLastAction(HistoryAction.Replace);
-      forceUpdate();
-    }
+function patchLastAction(action: HistoryAction) {
+  (window.history as HistoryWithLastAction).lastAction = action;
+}
 
-    function patchLastAction(action: HistoryAction) {
-      (window.history as HistoryWithLastAction).lastAction = action;
-    }
-  }, [forceUpdate]);
+function notifyListeners() {
+  listeners.forEach(listener => listener());
 }
 
 function patchMethod(method: string, eventType: HistoryAction) {
