@@ -21,19 +21,7 @@ const Redirect: React.FC<RedirectProps> = ({
     const lctn = createLocationState();
     const { pathname, search, hash, state } = createLocationUpdates(to, lctn);
     const url = createUrl(pathname, search, hash);
-
-    // Defer until patched history listeners was added
-    const timeout = setTimeout(() => {
-      changeState(
-        push ? HistoryAction.Push : HistoryAction.Replace,
-        state,
-        url
-      );
-    }, 0);
-
-    return () => {
-      clearTimeout(timeout);
-    };
+    changeState(push ? HistoryAction.Push : HistoryAction.Replace, state, url);
   }, [to, push]);
 
   return fallback;
