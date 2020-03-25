@@ -69,6 +69,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   )}
                   style={{ backgroundColor: color }}
                 />
+
                 <span className="text-white text-sm text-shadow-black">
                   {name}
                 </span>
