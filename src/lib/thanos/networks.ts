@@ -14,7 +14,7 @@ export const NETWORKS: ThanosNetwork[] = [
   },
   {
     id: "carthagenet",
-    name: "Carthagenet",
+    name: "Carthage Testnet",
     description: "Carthage testnet",
     type: ThanosNetworkType.Test,
     rpcBaseURL: "https://carthagenet.tezos.org.ua",
@@ -24,7 +24,7 @@ export const NETWORKS: ThanosNetwork[] = [
   },
   {
     id: "babylonnet",
-    name: "Babylonnet",
+    name: "Babylon Testnet",
     description: "Babylon testnet",
     type: ThanosNetworkType.Test,
     rpcBaseURL: "https://babylonnet.tezos.org.ua",
@@ -34,7 +34,7 @@ export const NETWORKS: ThanosNetwork[] = [
   },
   {
     id: "labnet",
-    name: "Labnet",
+    name: "Lab Testnet",
     description: "Labnet testnet",
     type: ThanosNetworkType.Test,
     rpcBaseURL: "https://labnet.tezos.org.ua",
