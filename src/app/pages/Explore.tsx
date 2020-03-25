@@ -1,9 +1,9 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { ThanosNetworkType } from "lib/thanos/types";
-import { useReadyThanos } from "lib/thanos/front";
+import { ThanosNetworkType, useReadyThanos } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
+import Money from "app/atoms/Money";
 import HashChip from "app/atoms/HashChip";
 import OperationHistory from "app/templates/OperationHistory";
 import Balance from "app/templates/Balance";
@@ -39,13 +39,14 @@ const Explore: React.FC = () => {
           {balance => (
             <div className="flex flex-col items-center">
               <div className="text-gray-800 text-2xl font-light">
-                {round(+balance, 4)}{" "}
+                <Money>{balance}</Money>{" "}
                 <span className="text-lg opacity-90">XTZ</span>
               </div>
 
               {network.type === ThanosNetworkType.Main && (
                 <div className="text-gray-600 text-lg font-light">
-                  ${round(+balance * 1.65, 2)}{" "}
+                  <span className="mr-px">$</span>
+                  <Money fiat>{balance.times(1.65)}</Money>{" "}
                   <span className="text-sm opacity-75">USD</span>
                 </div>
               )}
@@ -151,7 +152,3 @@ const SubTitle: React.FC<SubTitleProps> = ({
     <span className="text-gray-400 text-xs mx-1">•</span>
   </h4>
 );
-
-function round(val: number, decPlaces: any = 4) {
-  return Number(`${Math.round(+`${val}e${decPlaces}`)}e-${decPlaces}`);
-}
