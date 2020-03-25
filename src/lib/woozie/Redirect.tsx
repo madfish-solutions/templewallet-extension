@@ -6,15 +6,15 @@ import {
 } from "lib/woozie/location";
 import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 
-interface RedirectProps {
+type RedirectProps = {
   to: To;
-  trigger?: HistoryAction.Push | HistoryAction.Replace;
+  push?: boolean;
   fallback?: React.ReactElement;
-}
+};
 
 const Redirect: React.FC<RedirectProps> = ({
   to,
-  trigger = HistoryAction.Replace,
+  push = false,
   fallback = null
 }) => {
   React.useEffect(() => {
@@ -24,13 +24,17 @@ const Redirect: React.FC<RedirectProps> = ({
 
     // Defer until patched history listeners was added
     const timeout = setTimeout(() => {
-      changeState(trigger, state, url);
+      changeState(
+        push ? HistoryAction.Push : HistoryAction.Replace,
+        state,
+        url
+      );
     }, 0);
 
     return () => {
       clearTimeout(timeout);
     };
-  }, [to, trigger]);
+  }, [to, push]);
 
   return fallback;
 };
