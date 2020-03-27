@@ -60,6 +60,8 @@ export enum ThanosMessageType {
   LockResponse = "THANOS_LOCK_RESPONSE",
   CreateAccountRequest = "THANOS_CREATE_ACCOUNT_REQUEST",
   CreateAccountResponse = "THANOS_CREATE_ACCOUNT_RESPONSE",
+  RevealPublicKeyRequest = "THANOS_REVEAL_PUBLIC_KEY_REQUEST",
+  RevealPublicKeyResponse = "THANOS_REVEAL_PUBLIC_KEY_RESPONSE",
   RevealPrivateKeyRequest = "THANOS_REVEAL_PRIVATE_KEY_REQUEST",
   RevealPrivateKeyResponse = "THANOS_REVEAL_PRIVATE_KEY_RESPONSE",
   RevealMnemonicRequest = "THANOS_REVEAL_MNEMONIC_REQUEST",
@@ -80,6 +82,7 @@ export type ThanosRequest =
   | ThanosUnlockRequest
   | ThanosLockRequest
   | ThanosCreateAccountRequest
+  | ThanosRevealPublicKeyRequest
   | ThanosRevealPrivateKeyRequest
   | ThanosRevealMnemonicRequest
   | ThanosEditAccountRequest
@@ -93,6 +96,7 @@ export type ThanosResponse =
   | ThanosUnlockResponse
   | ThanosLockResponse
   | ThanosCreateAccountResponse
+  | ThanosRevealPublicKeyResponse
   | ThanosRevealPrivateKeyResponse
   | ThanosRevealMnemonicResponse
   | ThanosEditAccountResponse
@@ -146,6 +150,16 @@ export interface ThanosCreateAccountRequest extends ThanosMessageBase {
 
 export interface ThanosCreateAccountResponse extends ThanosMessageBase {
   type: ThanosMessageType.CreateAccountResponse;
+}
+
+export interface ThanosRevealPublicKeyRequest extends ThanosMessageBase {
+  type: ThanosMessageType.RevealPublicKeyRequest;
+  accountIndex: number;
+}
+
+export interface ThanosRevealPublicKeyResponse extends ThanosMessageBase {
+  type: ThanosMessageType.RevealPublicKeyResponse;
+  publicKey: string;
 }
 
 export interface ThanosRevealPrivateKeyRequest extends ThanosMessageBase {
@@ -205,7 +219,7 @@ export interface ThanosSignRequest extends ThanosMessageBase {
   type: ThanosMessageType.SignRequest;
   accountIndex: number;
   bytes: string;
-  watermark?: Uint8Array;
+  watermark?: string;
 }
 
 export interface ThanosSignResponse extends ThanosMessageBase {

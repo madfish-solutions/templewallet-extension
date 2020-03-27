@@ -72,6 +72,14 @@ export class Vault {
     this.passKey = passKey;
   }
 
+  async revealPublicKey(accIndex: number) {
+    const privateKey = await fetchAndDecryptOne<string>(
+      accKeyStrgKey(accIndex),
+      this.passKey
+    );
+    return getPublicKey(privateKey);
+  }
+
   async revealPrivateKey(accIndex: number, password: string) {
     const passKey = await Passworder.generateKey(password);
     return fetchAndDecryptOne<string>(accKeyStrgKey(accIndex), passKey);
@@ -172,13 +180,14 @@ export class Vault {
     return newAllAcounts;
   }
 
-  async sign(accIndex: number, bytes: string, watermark?: Uint8Array) {
+  async sign(accIndex: number, bytes: string, watermark?: string) {
     const privateKey = await fetchAndDecryptOne<string>(
       accKeyStrgKey(accIndex),
       this.passKey
     );
     const signer = await createMemorySigner(privateKey);
-    return signer.sign(bytes, watermark);
+    const watermarkBuf = watermark && (TaquitoUtils.hex2buf(watermark) as any);
+    return signer.sign(bytes, watermarkBuf);
   }
 
   private concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
@@ -188,6 +197,11 @@ export class Vault {
 
     throw new Error("Account already exists");
   }
+}
+
+async function getPublicKey(privateKey: string) {
+  const signer = await createMemorySigner(privateKey);
+  return signer.publicKey();
 }
 
 async function getPublicKeyHash(privateKey: string) {

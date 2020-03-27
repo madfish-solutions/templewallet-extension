@@ -1,170 +1,148 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-
+import useSWR from "swr";
+import BigNumber from "bignumber.js";
+import { DEFAULT_FEE, Tezos } from "@taquito/taquito";
+import { ValidationResult, validateAddress } from "@taquito/utils";
+import { useReadyThanos, useBalance } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
+import Money from "app/atoms/Money";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-
-import { ACCOUNT_ADDRESS_PATTERN } from "app/defaults";
-
 import xtzImgUrl from "app/misc/xtz.png";
-
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
 
-const fieldParams = {
-  containerClassName: "mb-4"
-};
-
 interface FormData {
-  recipientAddress: string;
-  primaryAmount: number;
-  transactionFee: number;
+  to: string;
+  amount: string;
+  fee: string;
 }
 
-function getValidNumber(n: string, decimals = 8): string | void {
-  let val = n;
-  let numVal = +val;
-  const indexOfDot = val.indexOf(".");
-  if (indexOfDot !== -1 && val.length - indexOfDot > decimals + 1) {
-    val = val.substring(0, indexOfDot + decimals + 1);
-    numVal = +val;
-  }
-  if (val === "" || val === "0") return val;
-  if (!isNaN(numVal) && numVal >= 0 && numVal < Number.MAX_SAFE_INTEGER) {
-    return val;
-  }
-}
+// https://tezos.stackexchange.com/questions/2164/storage-fee-baker-fee-and-allocation-fee
+// Multi step: address => base fee => amount, fee
+// One estimated base fee for max value, estimated with max balance
+// One estimated fee for
 
-type TRX_FEE_KEYS = "small" | "medium" | "large";
-
-const TRX_FEE: { [key: string]: number } = {
-  small: 0.01,
-  medium: 0.02,
-  large: 0.04
-};
+// For estimation.
+const FAKE_ADDRESS = "tz1X7QPUFXiLXhddwzf62LJTtBXWEeWNrDNh";
 
 const Send: React.FC = () => {
-  const primaryRate = 3.19; // XTZ_USDT
-  const [balance] = React.useState(342.2324);
-  const [isPrimaryExchange, setPrimaryExchange] = React.useState(true);
+  const { accountPkh, tezos, tezosKey } = useReadyThanos();
+
+  const assetSymbol = "XTZ";
+
+  const balRes = useBalance(accountPkh, true);
+  const balance = balRes.data!;
+  const balanceNum = balance.toNumber();
 
   const {
     watch,
     register,
     handleSubmit,
     errors,
-    triggerValidation,
     formState,
-    setValue
-  } = useForm<FormData>();
+    setValue,
+    getValues,
+    triggerValidation
+  } = useForm<FormData>({ defaultValues: { fee: "0.0001" } });
+  const vls = watch();
 
-  register(
-    { name: "primaryAmount", type: "custom" },
-    {
-      required: "Required field",
-      validate: {
-        min: v => {
-          const primaryValue = 0.1 + +trxFee;
-          const minValue = isPrimaryExchange
-            ? primaryValue
-            : primaryValue / primaryRate;
-          const message = `Minimal value: ${minValue}`;
-          return +v >= minValue || message;
-        },
-        max: v => {
-          const primaryValue = balance - +trxFee;
-          const maxValue = isPrimaryExchange
-            ? primaryValue
-            : primaryValue / primaryRate;
-          const message = `Maximal value: ${maxValue}`;
-          return +v <= maxValue || message;
-        }
-      }
+  const estimateBaseFee = React.useCallback(async () => {
+    const balanceBN = new BigNumber(balanceNum);
+    let optimisticFeeTz = mutezToTz(DEFAULT_FEE.TRANSFER);
+    const manager = await tezos.rpc.getManagerKey(accountPkh);
+    if (!hasManager(manager)) {
+      optimisticFeeTz = optimisticFeeTz.plus(mutezToTz(DEFAULT_FEE.REVEAL));
     }
-  );
-  register(
-    { name: "transactionFee", type: "custom" },
-    { required: "Required field" }
-  );
 
-  const primaryAmount = watch("primaryAmount");
-  const setPrimaryAmount = React.useCallback(
-    (val: any) => setValue("primaryAmount", val),
-    [setValue]
-  );
-
-  const trxFee = watch("transactionFee", String(TRX_FEE.small));
-  const setTrxFee = React.useCallback(
-    (val: any) => setValue("transactionFee", val),
-    [setValue]
-  );
-
-  const secondaryAmount = React.useMemo(() => {
-    if (isPrimaryExchange) {
-      return getValidNumber(String(+primaryAmount / primaryRate), 2) || 0;
-    } else {
-      return getValidNumber(String(+primaryAmount * primaryRate)) || 0;
+    if (optimisticFeeTz.isGreaterThan(balanceBN)) {
+      return tzToMutez(optimisticFeeTz);
     }
-  }, [isPrimaryExchange, primaryAmount]);
 
-  const toggleExchange = React.useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      setPrimaryAmount(String(secondaryAmount));
-      return setPrimaryExchange(!isPrimaryExchange);
+    const to = FAKE_ADDRESS;
+    const amount = 313.187549 - 0.257; // balanceBN.minus(optimisticFeeTz).toNumber();
+    console.info(balanceNum);
+    const estimate = await tezos.estimate.transfer({ to, amount });
+    console.info({
+      storageLimit: estimate.storageLimit,
+      burnFeeMutez: estimate.burnFeeMutez,
+      gasLimit: estimate.gasLimit,
+      minimalFeeMutez: estimate.minimalFeeMutez,
+      suggestedFeeMutez: estimate.suggestedFeeMutez,
+      usingBaseFeeMutez: estimate.usingBaseFeeMutez,
+      totalCost: estimate.totalCost
+    });
+
+    let total = new BigNumber(estimate.totalCost);
+    if (!hasManager(manager)) {
+      total = total.plus(DEFAULT_FEE.REVEAL);
+    }
+    return total;
+  }, [tezos, accountPkh, balanceNum]);
+  // "312930553"
+  // 312930553
+  // storageLimit: 257
+  // burnFeeMutez: 257000
+  // gasLimit: 10307
+  // minimalFeeMutez: 1219
+  // suggestedFeeMutez: 1319
+  // usingBaseFeeMutez: 1219
+  // totalCost: 258219
+  const baseFeeRes = useSWR(
+    ["base-fee", tezosKey, accountPkh, balanceNum],
+    estimateBaseFee,
+    { suspense: true }
+  );
+
+  const baseFee = baseFeeRes.data!;
+
+  const getTotalFee = React.useCallback(
+    (feeVal: string) => baseFee.plus(tzToMutez(feeVal || 0)),
+    [baseFee]
+  );
+
+  const getAvailableAmount = React.useCallback(
+    (totalFee: BigNumber) => {
+      const feeTz = mutezToTz(totalFee);
+      return balance.isGreaterThan(feeTz)
+        ? balance.minus(feeTz)
+        : new BigNumber(0);
     },
-    [isPrimaryExchange, secondaryAmount, setPrimaryAmount]
+    [balance]
   );
 
-  const isActiveTrxFeeBtn = React.useCallback(
-    (btnName: TRX_FEE_KEYS): boolean => {
-      return +trxFee === TRX_FEE[btnName];
-    },
-    [trxFee]
+  const totalFee = React.useMemo(() => getTotalFee(vls.fee), [
+    getTotalFee,
+    vls.fee
+  ]);
+
+  const avaiableAmount = React.useMemo(
+    () => totalFee && getAvailableAmount(totalFee),
+    [totalFee, getAvailableAmount]
   );
-
-  const handleChange = React.useCallback(
-    (
-      evt: React.ChangeEvent<HTMLInputElement>,
-      setMethod: (val: React.SetStateAction<string>) => string | void,
-      decimals?: number
-    ) => {
-      let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
-
-      const validNumber = getValidNumber(val, decimals);
-      if (typeof validNumber === "string") {
-        setMethod(validNumber);
-      }
-    },
-    []
-  );
-
-  const handleChangeAmount = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>): void =>
-      handleChange(e, setPrimaryAmount, !isPrimaryExchange ? 2 : undefined),
-    [handleChange, isPrimaryExchange, setPrimaryAmount]
-  );
-
-  const handleChangeTrxFee = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>): void =>
-      handleChange(e, setTrxFee),
-    [handleChange, setTrxFee]
-  );
-
+  // 2012.004686
+  // 2011.510086
+  // 0.234794
+  // 257000 ? = 0.257 XTZ - revelation fixed cost
   React.useEffect(() => {
-    if (formState.isSubmitted) triggerValidation("primaryAmount");
-  }, [errors, formState, primaryAmount, triggerValidation]);
+    if (vls.amount && avaiableAmount) {
+      triggerValidation("amount");
+    }
+  }, [triggerValidation, avaiableAmount, vls.amount]);
 
   const onSubmit = React.useCallback(
-    async (data: FormData) => {
-      const fetchData = () => new Promise(res => setTimeout(res, 800));
-
+    async ({ to, amount: amountVal, fee: feeVal }: FormData) => {
       try {
-        const amountXTZ = isPrimaryExchange ? primaryAmount : secondaryAmount;
-
-        await fetchData();
-        console.log({ ...data, amountXTZ });
+        const amountBN = new BigNumber(amountVal);
+        const amount = amountBN.toNumber();
+        const estimate = await tezos.estimate.transfer({ to, amount });
+        const addFeeMutez = tzToMutez(feeVal);
+        const fee = addFeeMutez.plus(estimate.usingBaseFeeMutez).toNumber();
+        const op = await tezos.contract.transfer({ to, amount, fee });
+        console.info(op);
+        await op.confirmation();
+        alert("DONE");
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -173,14 +151,23 @@ const Send: React.FC = () => {
         alert(err.message);
       }
     },
-    [isPrimaryExchange, primaryAmount, secondaryAmount]
+    [tezos, baseFee, accountPkh]
   );
+
+  const handleSetMaxAmount = React.useCallback(() => {
+    if (avaiableAmount) {
+      setValue("amount", avaiableAmount.toString());
+    }
+  }, [setValue, avaiableAmount]);
 
   return (
     <PageLayout
       pageTitle={
         <>
-          <SendIcon className="mr-1 h-4 w-auto stroke-current" /> Send
+          <SendIcon
+            className={classNames("mr-1 h-4 w-auto", "stroke-current")}
+          />{" "}
+          Send
         </>
       }
     >
@@ -188,114 +175,98 @@ const Send: React.FC = () => {
         <div className={classNames("w-full max-w-sm mx-auto")}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex items-center mb-4 border p-2 rounded-md">
-              <img src={xtzImgUrl} alt="xtz" className="h-12 w-auto mr-2" />
+              <img
+                src={xtzImgUrl}
+                alt={assetSymbol}
+                className="h-12 w-auto mr-2"
+              />
+
               <div className="font-light leading-none">
                 <div className="text-xl font-normal text-gray-800 mb-1">
-                  XTZ
+                  {assetSymbol}
                 </div>
+
                 <div className="text-base text-gray-600">
-                  Balance: {balance} XTZ
+                  Balance: <Money>{balance}</Money> {assetSymbol}
                 </div>
               </div>
             </div>
+
             <FormField
               ref={register({
-                required: "Required field",
-                pattern: {
-                  value: ACCOUNT_ADDRESS_PATTERN,
-                  message: "Invalid address"
+                required: "Required",
+                validate: v => isAddressValid(v) || "Invalid address"
+              })}
+              name="to"
+              id="send-to"
+              label="Recipient address"
+              labelDescription={`Address to send ${assetSymbol} funds to`}
+              placeholder="tz1a9w1S7h..."
+              errorCaption={errors.to?.message}
+              containerClassName="mb-4"
+            />
+
+            <FormField
+              ref={register({
+                required: "Required",
+                validate: v => {
+                  const vls = getValues();
+                  const total = getTotalFee(vls.fee);
+                  const avaiableAmount = getAvailableAmount(total);
+                  const vBN = new BigNumber(v);
+                  return (
+                    vBN.isLessThanOrEqualTo(avaiableAmount) ||
+                    `Maximal: ${avaiableAmount.toString()}`
+                  );
                 }
               })}
-              name="recipientAddress"
-              id="send-recipient-address"
-              label="Recipient address"
-              labelDescription="Lorem ipsum sit amet."
-              placeholder="tz1a9w1S..."
-              errorCaption={
-                (errors.recipientAddress && errors.recipientAddress.message) ||
-                null
-              }
-              {...fieldParams}
-            />
-            <FormField
-              name="primaryAmount"
+              name="amount"
               id="send-amount"
               label="Amount"
-              value={primaryAmount ? String(primaryAmount) : ""}
-              onInput={(e: any) => handleChangeAmount(e)}
-              labelDescription={`${secondaryAmount} ${
-                isPrimaryExchange ? "USD" : "XTZ"
-              }`}
-              placeholder="15.00 XTZ"
-              errorCaption={errors.primaryAmount?.message}
-              extraButton={
-                <FormSubmitButton
-                  onClick={toggleExchange}
-                  className="ml-3 px-4"
-                >
-                  {isPrimaryExchange ? "XTZ" : "USD"}
-                </FormSubmitButton>
-              }
-              {...fieldParams}
-            />
-            <FormField
-              value={trxFee}
-              onInput={(e: any) => handleChangeTrxFee(e)}
-              id="send-transaction-fee"
-              name="transactionFee"
-              label="Transaction fee"
-              placeholder="(auto)"
               labelDescription={
-                <div className="mt-1">
-                  <button
-                    className={classNames(
-                      "mr-2 border rounded-md p-2",
-                      isActiveTrxFeeBtn("small") &&
-                        "text-primary-orange hover:text-primary-orange border-primary-orange",
-                      "cursor-pointer hover:text-gray-800"
-                    )}
-                    onClick={(e: any) => {
-                      e.preventDefault();
-                      setTrxFee(String(TRX_FEE.small));
-                    }}
-                  >
-                    Slow <br /> ({TRX_FEE.small} XTZ)
-                  </button>
-                  <button
-                    className={classNames(
-                      "mr-2 border rounded-md p-2",
-                      "cursor-pointer hover:text-gray-800",
-                      isActiveTrxFeeBtn("medium") &&
-                        "text-primary-orange hover:text-primary-orange border-primary-orange"
-                    )}
-                    onClick={(e: any) => {
-                      e.preventDefault();
-                      setTrxFee(String(TRX_FEE.medium));
-                    }}
-                  >
-                    Average <br /> ({TRX_FEE.medium} XTZ)
-                  </button>
-                  <button
-                    className={classNames(
-                      "mr-2 border rounded-md p-2",
-                      isActiveTrxFeeBtn("large") &&
-                        "text-primary-orange hover:text-primary-orange border-primary-orange",
-                      "cursor-pointer hover:text-gray-800"
-                    )}
-                    onClick={(e: any) => {
-                      e.preventDefault();
-                      setTrxFee(String(TRX_FEE.large));
-                    }}
-                  >
-                    Fast <br /> ({TRX_FEE.large} XTZ)
-                  </button>
-                </div>
+                <>
+                  Available to send:{" "}
+                  {avaiableAmount && (
+                    <button
+                      type="button"
+                      className={classNames("underline")}
+                      onClick={handleSetMaxAmount}
+                    >
+                      {avaiableAmount.toString()}
+                    </button>
+                  )}
+                </>
               }
-              errorCaption={
-                errors.transactionFee ? "Invalid transaction fee" : null
-              }
-              {...fieldParams}
+              placeholder="e.g. 123.45"
+              errorCaption={errors.amount?.message}
+              containerClassName="mb-4"
             />
+
+            <FormField
+              ref={register({
+                required: "Required"
+              })}
+              name="fee"
+              id="send-fee"
+              label="Additional Fee"
+              labelDescription={
+                <>
+                  Base Fee of this transaction is:{" "}
+                  <span className="font-semibold">
+                    {mutezToTz(baseFee).toString()} XTZ
+                  </span>
+                  <br />
+                  Total Fee:{" "}
+                  <span className="font-semibold">
+                    {mutezToTz(totalFee).toString()} XTZ
+                  </span>
+                </>
+              }
+              placeholder="0"
+              errorCaption={errors.fee?.message}
+              containerClassName="mb-4"
+            />
+
             <FormSubmitButton loading={formState.isSubmitting}>
               Send
             </FormSubmitButton>
@@ -306,4 +277,24 @@ const Send: React.FC = () => {
   );
 };
 
-export default Send;
+export default () => (
+  <React.Suspense fallback={null}>
+    <Send />
+  </React.Suspense>
+);
+
+function hasManager(manager: any) {
+  return manager && typeof manager === "object" ? !!manager.key : !!manager;
+}
+
+function tzToMutez(tz: any) {
+  return Tezos.format("tz", "mutez", tz) as BigNumber;
+}
+
+function mutezToTz(mutez: any) {
+  return Tezos.format("mutez", "tz", mutez) as BigNumber;
+}
+
+function isAddressValid(address: string) {
+  return validateAddress(address) === ValidationResult.VALID;
+}

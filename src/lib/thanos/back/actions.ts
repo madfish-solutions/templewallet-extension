@@ -70,6 +70,18 @@ export async function createHDAccount() {
   }
 }
 
+export async function revealPublicKey(accIndex: number) {
+  const state = store.getState();
+  assertUnlocked(state);
+
+  try {
+    return await state.vault.revealPublicKey(accIndex);
+  } catch (err) {
+    logError(err);
+    throw new Error("Failed");
+  }
+}
+
 export async function revealPrivateKey(accIndex: number, password: string) {
   const state = store.getState();
   assertUnlocked(state);
@@ -155,7 +167,7 @@ export async function importFundraiserAccount(
 export async function sign(
   accIndex: number,
   bytes: string,
-  watermark?: Uint8Array
+  watermark?: string
 ) {
   const state = store.getState();
   assertUnlocked(state);
