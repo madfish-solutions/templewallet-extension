@@ -1,6 +1,8 @@
 import * as React from "react";
 import constate from "constate";
 import useSWR from "swr";
+import { buf2hex } from "@taquito/utils";
+import toBuffer from "typedarray-to-buffer";
 import { IntercomClient } from "lib/intercom";
 import {
   ThanosMessageType,
@@ -9,24 +11,9 @@ import {
   ThanosResponse
 } from "lib/thanos/types";
 
-type Request = (req: ThanosRequest) => Promise<ThanosResponse>;
+const intercom = new IntercomClient();
 
 export const [ThanosClientProvider, useThanosClient] = constate(() => {
-  /**
-   * Communication
-   */
-
-  const intercom = React.useMemo(() => new IntercomClient(), []);
-
-  const request = React.useCallback<Request>(
-    async req => {
-      const res = await intercom.request(req);
-      assertResponse("type" in res);
-      return res as ThanosResponse;
-    },
-    [intercom]
-  );
-
   /**
    * State
    */
@@ -35,7 +22,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     const res = await request({ type: ThanosMessageType.GetStateRequest });
     assertResponse(res.type === ThanosMessageType.GetStateResponse);
     return res.state;
-  }, [request]);
+  }, []);
 
   const stateSWR = useSWR("state", fetchState, {
     suspense: true,
@@ -53,7 +40,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
           break;
       }
     });
-  }, [intercom, stateSWR]);
+  }, [stateSWR]);
 
   /**
    * Aliases
@@ -77,33 +64,30 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
       });
       assertResponse(res.type === ThanosMessageType.NewWalletResponse);
     },
-    [request]
+    []
   );
 
-  const unlock = React.useCallback(
-    async (password: string) => {
-      const res = await request({
-        type: ThanosMessageType.UnlockRequest,
-        password
-      });
-      assertResponse(res.type === ThanosMessageType.UnlockResponse);
-    },
-    [request]
-  );
+  const unlock = React.useCallback(async (password: string) => {
+    const res = await request({
+      type: ThanosMessageType.UnlockRequest,
+      password
+    });
+    assertResponse(res.type === ThanosMessageType.UnlockResponse);
+  }, []);
 
   const lock = React.useCallback(async () => {
     const res = await request({
       type: ThanosMessageType.LockRequest
     });
     assertResponse(res.type === ThanosMessageType.LockResponse);
-  }, [request]);
+  }, []);
 
   const createAccount = React.useCallback(async () => {
     const res = await request({
       type: ThanosMessageType.CreateAccountRequest
     });
     assertResponse(res.type === ThanosMessageType.CreateAccountResponse);
-  }, [request]);
+  }, []);
 
   const revealPrivateKey = React.useCallback(
     async (accIndex: number, password: string) => {
@@ -115,20 +99,17 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
       assertResponse(res.type === ThanosMessageType.RevealPrivateKeyResponse);
       return res.privateKey;
     },
-    [request]
+    []
   );
 
-  const revealMnemonic = React.useCallback(
-    async (password: string) => {
-      const res = await request({
-        type: ThanosMessageType.RevealMnemonicRequest,
-        password
-      });
-      assertResponse(res.type === ThanosMessageType.RevealMnemonicResponse);
-      return res.mnemonic;
-    },
-    [request]
-  );
+  const revealMnemonic = React.useCallback(async (password: string) => {
+    const res = await request({
+      type: ThanosMessageType.RevealMnemonicRequest,
+      password
+    });
+    assertResponse(res.type === ThanosMessageType.RevealMnemonicResponse);
+    return res.mnemonic;
+  }, []);
 
   const editAccountName = React.useCallback(
     async (accIndex: number, name: string) => {
@@ -139,19 +120,16 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
       });
       assertResponse(res.type === ThanosMessageType.EditAccountResponse);
     },
-    [request]
+    []
   );
 
-  const importAccount = React.useCallback(
-    async (privateKey: string) => {
-      const res = await request({
-        type: ThanosMessageType.ImportAccountRequest,
-        privateKey
-      });
-      assertResponse(res.type === ThanosMessageType.ImportAccountResponse);
-    },
-    [request]
-  );
+  const importAccount = React.useCallback(async (privateKey: string) => {
+    const res = await request({
+      type: ThanosMessageType.ImportAccountRequest,
+      privateKey
+    });
+    assertResponse(res.type === ThanosMessageType.ImportAccountResponse);
+  }, []);
 
   const importFundraiserAccount = React.useCallback(
     async (email: string, password: string, mnemonic: string) => {
@@ -165,12 +143,12 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
         res.type === ThanosMessageType.ImportFundraiserAccountResponse
       );
     },
-    [request]
+    []
   );
 
   const createSigner = React.useCallback(
-    (accIndex: number, pkh: string) => new ThanosSigner(accIndex, pkh, request),
-    [request]
+    (accIndex: number, pkh: string) => new ThanosSigner(accIndex, pkh),
+    []
   );
 
   return {
@@ -199,12 +177,10 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 class ThanosSigner {
   private accIndex: number;
   private pkh: string;
-  private request: Request;
 
-  constructor(accIndex: number, pkh: string, request: Request) {
+  constructor(accIndex: number, pkh: string) {
     this.accIndex = accIndex;
     this.pkh = pkh;
-    this.request = request;
   }
 
   async publicKeyHash() {
@@ -212,7 +188,12 @@ class ThanosSigner {
   }
 
   async publicKey(): Promise<string> {
-    throw new Error("Public key cannot be exposed");
+    const res = await request({
+      type: ThanosMessageType.RevealPublicKeyRequest,
+      accountIndex: this.accIndex
+    });
+    assertResponse(res.type === ThanosMessageType.RevealPublicKeyResponse);
+    return res.publicKey;
   }
 
   async secretKey(): Promise<string> {
@@ -220,15 +201,21 @@ class ThanosSigner {
   }
 
   async sign(bytes: string, watermark?: Uint8Array) {
-    const res = await this.request({
+    const res = await request({
       type: ThanosMessageType.SignRequest,
       accountIndex: this.accIndex,
       bytes,
-      watermark
+      watermark: buf2hex(toBuffer(watermark))
     });
     assertResponse(res.type === ThanosMessageType.SignResponse);
     return res.result;
   }
+}
+
+async function request(req: ThanosRequest) {
+  const res = await intercom.request(req);
+  assertResponse("type" in res);
+  return res as ThanosResponse;
 }
 
 function assertResponse(condition: any): asserts condition {
