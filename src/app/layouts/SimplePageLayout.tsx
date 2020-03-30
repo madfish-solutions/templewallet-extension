@@ -3,6 +3,7 @@ import classNames from "clsx";
 import { useAppEnv } from "app/env";
 import OverscrollBg from "app/a11y/OverscrollBg";
 import ContentContainer from "app/layouts/ContentContainer";
+import Logo from "app/atoms/Logo";
 
 type SimplePageLayoutProps = {
   title: React.ReactNode;
@@ -32,19 +33,25 @@ const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
       >
         <div
           className={classNames(
-            "flex-1",
+            "mt-12 mb-4",
             "flex flex-col items-center justify-center"
           )}
         >
-          <div className="mb-4 flex items-center text-gray-700">
-            <img src="../misc/icon.png" alt="" width="40" height="40" />
+          <div className="mb-4 flex items-center">
+            <Logo />
 
-            <span className="font-semibold ml-1 text-2xl tracking-tight">
+            <h1
+              className={classNames(
+                "ml-1",
+                "text-2xl font-semibold tracking-tight",
+                "text-gray-700"
+              )}
+            >
               Thanos
-            </span>
+            </h1>
           </div>
 
-          <h1 className="text-4xl text-gray-700 font-light">{title}</h1>
+          <div className="text-2xl text-gray-700 font-light">{title}</div>
         </div>
 
         <div
