@@ -7,6 +7,7 @@ import { useAppEnv } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import Logo from "app/atoms/Logo";
 import styles from "./Header.module.css";
 import NetworkSelect from "./Header/NetworkSelect";
 import AccountDropdown from "./Header/AccountDropdown";
@@ -26,26 +27,8 @@ const Header: React.FC = () => {
       <ContentContainer className="py-4">
         <div className={classNames(appEnv.fullPage && "px-4")}>
           <div className="flex items-strech">
-            <Link
-              to="/"
-              className="flex-shrink-0 flex items-center text-white pr-4"
-            >
-              <img
-                src="../misc/icon.png"
-                alt=""
-                width="40"
-                height="40"
-                style={{
-                  marginTop: 6,
-                  marginBottom: 6
-                }}
-              />
-
-              {appEnv.fullPage && (
-                <span className="font-semibold ml-1 text-xl tracking-tight">
-                  Thanos
-                </span>
-              )}
+            <Link to="/" className="flex-shrink-0 pr-4">
+              <Logo hasTitle={appEnv.fullPage} />
             </Link>
 
             {ready && <Control />}

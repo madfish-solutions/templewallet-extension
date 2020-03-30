@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import ContentContainer from "app/layouts/ContentContainer";
+import Logo from "app/atoms/Logo";
 import { ReactComponent as EntranceIcon } from "app/icons/entrance.svg";
 import { ReactComponent as FolderAddIcon } from "app/icons/folder-add.svg";
 
@@ -44,15 +44,29 @@ const SIGNS = [
 
 const Welcome: React.FC = () => {
   return (
-    <ContentContainer
+    <div
       className={classNames(
         "min-h-screen",
+        "w-full max-w-screen-md mx-auto",
+        "px-4",
         "flex flex-col items-center justify-center"
       )}
     >
-      <h1 className="my-4 text-4xl text-gray-700 font-light">
-        Welcome to Thanos Wallet
-      </h1>
+      <div
+        className={classNames("-mt-32", "text-2xl text-gray-700 font-light")}
+      >
+        Welcome to
+      </div>
+
+      <div className="mb-8 flex items-center">
+        <Logo />
+
+        <h1
+          className={classNames("ml-2", "text-3xl text-gray-700 font-semibold")}
+        >
+          Thanos Wallet
+        </h1>
+      </div>
 
       <div className={classNames("w-full", "my-4", "flex items-stretch")}>
         {SIGNS.map(({ key, linkTo, filled, Icon, title, description }) => (
@@ -113,7 +127,7 @@ const Welcome: React.FC = () => {
           </div>
         ))}
       </div>
-    </ContentContainer>
+    </div>
   );
 };
 
