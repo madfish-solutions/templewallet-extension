@@ -47,7 +47,17 @@ const Unlock: React.FC = () => {
   );
 
   return (
-    <SimplePageLayout title="Unlock Wallet">
+    <SimplePageLayout
+      title={
+        <div className="mt-4 mb-2 text-center">
+          <div className="text-2xl">
+            Unlock the Wallet
+            <br />
+            <div className="text-xl leading-none">to continue</div>
+          </div>
+        </div>
+      }
+    >
       <form
         className="my-8 w-full mx-auto max-w-sm"
         onSubmit={handleSubmit(onSubmit)}
