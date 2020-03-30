@@ -136,7 +136,6 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
               errorCaption ? "border-red-500" : "border-gray-300",
               "focus:border-primary-orange",
               "bg-gray-100 focus:bg-transparent",
-              "bg-black-40",
               "focus:outline-none focus:shadow-outline",
               "transition ease-in-out duration-200",
               "rounded-md",

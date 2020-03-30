@@ -5,13 +5,38 @@ import useSWR from "swr";
 import BigNumber from "bignumber.js";
 import { DEFAULT_FEE, Tezos } from "@taquito/taquito";
 import { ValidationResult, validateAddress } from "@taquito/utils";
-import { useReadyThanos, useBalance } from "lib/thanos/front";
+import {
+  ThanosAccountType,
+  useReadyThanos,
+  useBalance
+} from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
+import Balance from "app/templates/Balance";
 import Money from "app/atoms/Money";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import Identicon from "app/atoms/Identicon";
+import Name from "app/atoms/Name";
 import xtzImgUrl from "app/misc/xtz.png";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
+
+const Send: React.FC = () => (
+  <PageLayout
+    pageTitle={
+      <>
+        <SendIcon className="mr-1 h-4 w-auto stroke-current" /> Send
+      </>
+    }
+  >
+    <div className="py-4">
+      <div className="w-full max-w-sm mx-auto">
+        <Form />
+      </div>
+    </div>
+  </PageLayout>
+);
+
+export default Send;
 
 interface FormData {
   to: string;
@@ -19,22 +44,35 @@ interface FormData {
   fee: string;
 }
 
-// https://tezos.stackexchange.com/questions/2164/storage-fee-baker-fee-and-allocation-fee
-// Multi step: address => base fee => amount, fee
-// One estimated base fee for max value, estimated with max balance
-// One estimated fee for
+const RECOMMENDED_ADD_FEE = 100;
+const NOT_ENOUGH_FUNDS = Symbol("NOT_ENOUGH_FUNDS");
 
-// For estimation.
-const FAKE_ADDRESS = "tz1X7QPUFXiLXhddwzf62LJTtBXWEeWNrDNh";
-
-const Send: React.FC = () => {
-  const { accountPkh, tezos, tezosKey } = useReadyThanos();
+const Form: React.FC = () => {
+  const { accountPkh, allAccounts, tezos, tezosKey } = useReadyThanos();
 
   const assetSymbol = "XTZ";
 
-  const balRes = useBalance(accountPkh, true);
-  const balance = balRes.data!;
+  const balSWR = useBalance(accountPkh, true);
+  const balance = balSWR.data!;
   const balanceNum = balance.toNumber();
+
+  const validateAddress = React.useCallback((v: any) => {
+    switch (false) {
+      case isAddressValid(v):
+        return "Invalid address";
+
+      // case v !== accountPkh:
+      //   return "This is your address. It cannot be used";
+
+      default:
+        return true;
+    }
+  }, []);
+
+  const recommendedAddFeeTz = React.useMemo(
+    () => mutezToTz(RECOMMENDED_ADD_FEE).toString(),
+    []
+  );
 
   const {
     watch,
@@ -43,102 +81,119 @@ const Send: React.FC = () => {
     errors,
     formState,
     setValue,
-    getValues,
     triggerValidation
-  } = useForm<FormData>({ defaultValues: { fee: "0.0001" } });
+  } = useForm<FormData>({
+    mode: "onBlur",
+    defaultValues: { fee: recommendedAddFeeTz }
+  });
   const vls = watch();
+  const feeValue = watch("fee", recommendedAddFeeTz);
+
+  const toFilled = React.useMemo(
+    () => Boolean(vls.to && isAddressValid(vls.to)),
+    [vls.to]
+  );
+
+  const filledAccount = React.useMemo(
+    () =>
+      (toFilled && allAccounts.find(a => a.publicKeyHash === vls.to)) || null,
+    [toFilled, allAccounts, vls.to]
+  );
 
   const estimateBaseFee = React.useCallback(async () => {
-    const balanceBN = new BigNumber(balanceNum);
-    let optimisticFeeTz = mutezToTz(DEFAULT_FEE.TRANSFER);
-    const manager = await tezos.rpc.getManagerKey(accountPkh);
-    if (!hasManager(manager)) {
-      optimisticFeeTz = optimisticFeeTz.plus(mutezToTz(DEFAULT_FEE.REVEAL));
-    }
+    try {
+      const balanceBN = new BigNumber(balanceNum);
+      if (balanceBN.isZero()) {
+        return NOT_ENOUGH_FUNDS;
+      }
 
-    if (optimisticFeeTz.isGreaterThan(balanceBN)) {
-      return tzToMutez(optimisticFeeTz);
-    }
+      const to = vls.to;
+      const estmtn = await tezos.estimate.transfer({ to, amount: 0.000001 });
+      let amountMax = balanceBN.minus(mutezToTz(estmtn.burnFeeMutez));
+      const manager = await tezos.rpc.getManagerKey(accountPkh);
+      if (!hasManager(manager)) {
+        amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
+      }
+      const estmtnMax = await tezos.estimate.transfer({
+        to,
+        amount: amountMax.toNumber()
+      });
 
-    const to = FAKE_ADDRESS;
-    const amount = 313.187549 - 0.257; // balanceBN.minus(optimisticFeeTz).toNumber();
-    console.info(balanceNum);
-    const estimate = await tezos.estimate.transfer({ to, amount });
-    console.info({
-      storageLimit: estimate.storageLimit,
-      burnFeeMutez: estimate.burnFeeMutez,
-      gasLimit: estimate.gasLimit,
-      minimalFeeMutez: estimate.minimalFeeMutez,
-      suggestedFeeMutez: estimate.suggestedFeeMutez,
-      usingBaseFeeMutez: estimate.usingBaseFeeMutez,
-      totalCost: estimate.totalCost
-    });
+      let baseFee = mutezToTz(estmtnMax.totalCost);
+      if (!hasManager(manager)) {
+        baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
+      }
 
-    let total = new BigNumber(estimate.totalCost);
-    if (!hasManager(manager)) {
-      total = total.plus(DEFAULT_FEE.REVEAL);
+      if (baseFee.isGreaterThanOrEqualTo(balanceBN)) {
+        return NOT_ENOUGH_FUNDS;
+      }
+
+      return baseFee;
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(err);
+      }
+
+      if (err) {
+        return NOT_ENOUGH_FUNDS;
+      }
+
+      throw err;
     }
-    return total;
-  }, [tezos, accountPkh, balanceNum]);
-  // "312930553"
-  // 312930553
-  // storageLimit: 257
-  // burnFeeMutez: 257000
-  // gasLimit: 10307
-  // minimalFeeMutez: 1219
-  // suggestedFeeMutez: 1319
-  // usingBaseFeeMutez: 1219
-  // totalCost: 258219
-  const baseFeeRes = useSWR(
-    ["base-fee", tezosKey, accountPkh, balanceNum],
+  }, [balanceNum, vls.to, tezos, accountPkh]);
+
+  const { data: baseFee, isValidating: estimating } = useSWR(
+    () =>
+      toFilled ? ["base-fee", balanceNum, vls.to, tezosKey, accountPkh] : null,
     estimateBaseFee,
-    { suspense: true }
+    {
+      dedupingInterval: 30_000
+    }
   );
 
-  const baseFee = baseFeeRes.data!;
+  const maxAmount = React.useMemo(() => {
+    if (!baseFee || baseFee === NOT_ENOUGH_FUNDS) return null;
+    const addFee = feeValue ? new BigNumber(feeValue) : 0;
+    return balance.minus(baseFee).minus(addFee);
+  }, [balance, baseFee, feeValue]);
 
-  const getTotalFee = React.useCallback(
-    (feeVal: string) => baseFee.plus(tzToMutez(feeVal || 0)),
-    [baseFee]
-  );
-
-  const getAvailableAmount = React.useCallback(
-    (totalFee: BigNumber) => {
-      const feeTz = mutezToTz(totalFee);
-      return balance.isGreaterThan(feeTz)
-        ? balance.minus(feeTz)
-        : new BigNumber(0);
+  const validateAmount = React.useCallback(
+    (v: string) => {
+      if (baseFee === NOT_ENOUGH_FUNDS)
+        return "Not enough funds for this transaction";
+      if (!maxAmount) return true;
+      const vBN = new BigNumber(v);
+      return (
+        vBN.isLessThanOrEqualTo(maxAmount) || `Maximal: ${maxAmount.toString()}`
+      );
     },
-    [balance]
+    [maxAmount, baseFee]
   );
 
-  const totalFee = React.useMemo(() => getTotalFee(vls.fee), [
-    getTotalFee,
-    vls.fee
-  ]);
-
-  const avaiableAmount = React.useMemo(
-    () => totalFee && getAvailableAmount(totalFee),
-    [totalFee, getAvailableAmount]
-  );
-  // 2012.004686
-  // 2011.510086
-  // 0.234794
-  // 257000 ? = 0.257 XTZ - revelation fixed cost
-  React.useEffect(() => {
-    if (vls.amount && avaiableAmount) {
+  React.useLayoutEffect(() => {
+    if (formState.dirtyFields.has("amount")) {
       triggerValidation("amount");
     }
-  }, [triggerValidation, avaiableAmount, vls.amount]);
+  }, [triggerValidation, formState.dirtyFields, maxAmount, baseFee]);
+
+  const handleSetMaxAmount = React.useCallback(() => {
+    if (maxAmount) {
+      setValue("amount", maxAmount.toString());
+      triggerValidation("amount");
+    }
+  }, [setValue, maxAmount, triggerValidation]);
+
+  const handleSetRecommendedFee = React.useCallback(() => {
+    setValue("fee", recommendedAddFeeTz);
+  }, [setValue, recommendedAddFeeTz]);
 
   const onSubmit = React.useCallback(
-    async ({ to, amount: amountVal, fee: feeVal }: FormData) => {
+    async ({ to, amount: amountVal, fee: feeVal }) => {
       try {
-        const amountBN = new BigNumber(amountVal);
-        const amount = amountBN.toNumber();
-        const estimate = await tezos.estimate.transfer({ to, amount });
-        const addFeeMutez = tzToMutez(feeVal);
-        const fee = addFeeMutez.plus(estimate.usingBaseFeeMutez).toNumber();
+        const amount = new BigNumber(amountVal).toNumber();
+        const estmtn = await tezos.estimate.transfer({ to, amount });
+        const addFee = tzToMutez(feeVal || 0);
+        const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
         const op = await tezos.contract.transfer({ to, amount, fee });
         console.info(op);
         await op.confirmation();
@@ -151,137 +206,263 @@ const Send: React.FC = () => {
         alert(err.message);
       }
     },
-    [tezos, baseFee, accountPkh]
+    [tezos]
   );
 
-  const handleSetMaxAmount = React.useCallback(() => {
-    if (avaiableAmount) {
-      setValue("amount", avaiableAmount.toString());
-    }
-  }, [setValue, avaiableAmount]);
+  const restFormDisplayed = Boolean(toFilled && baseFee);
+  const estimateFallbackDisplayed = !baseFee && estimating;
 
   return (
-    <PageLayout
-      pageTitle={
-        <>
-          <SendIcon
-            className={classNames("mr-1 h-4 w-auto", "stroke-current")}
-          />{" "}
-          Send
-        </>
-      }
-    >
-      <div className="py-4">
-        <div className={classNames("w-full max-w-sm mx-auto")}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex items-center mb-4 border p-2 rounded-md">
-              <img
-                src={xtzImgUrl}
-                alt={assetSymbol}
-                className="h-12 w-auto mr-2"
-              />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="flex items-center mb-4 border p-2 rounded-md">
+        <img src={xtzImgUrl} alt={assetSymbol} className="h-12 w-auto mr-2" />
 
-              <div className="font-light leading-none">
-                <div className="text-xl font-normal text-gray-800 mb-1">
-                  {assetSymbol}
-                </div>
+        <div className="font-light leading-none">
+          <div className="text-xl font-normal text-gray-800 mb-1">
+            {assetSymbol}
+          </div>
 
-                <div className="text-base text-gray-600">
-                  Balance: <Money>{balance}</Money> {assetSymbol}
-                </div>
-              </div>
-            </div>
-
-            <FormField
-              ref={register({
-                required: "Required",
-                validate: v => isAddressValid(v) || "Invalid address"
-              })}
-              name="to"
-              id="send-to"
-              label="Recipient address"
-              labelDescription={`Address to send ${assetSymbol} funds to`}
-              placeholder="tz1a9w1S7h..."
-              errorCaption={errors.to?.message}
-              containerClassName="mb-4"
-            />
-
-            <FormField
-              ref={register({
-                required: "Required",
-                validate: v => {
-                  const vls = getValues();
-                  const total = getTotalFee(vls.fee);
-                  const avaiableAmount = getAvailableAmount(total);
-                  const vBN = new BigNumber(v);
-                  return (
-                    vBN.isLessThanOrEqualTo(avaiableAmount) ||
-                    `Maximal: ${avaiableAmount.toString()}`
-                  );
-                }
-              })}
-              name="amount"
-              id="send-amount"
-              label="Amount"
-              labelDescription={
-                <>
-                  Available to send:{" "}
-                  {avaiableAmount && (
-                    <button
-                      type="button"
-                      className={classNames("underline")}
-                      onClick={handleSetMaxAmount}
-                    >
-                      {avaiableAmount.toString()}
-                    </button>
-                  )}
-                </>
-              }
-              placeholder="e.g. 123.45"
-              errorCaption={errors.amount?.message}
-              containerClassName="mb-4"
-            />
-
-            <FormField
-              ref={register({
-                required: "Required"
-              })}
-              name="fee"
-              id="send-fee"
-              label="Additional Fee"
-              labelDescription={
-                <>
-                  Base Fee of this transaction is:{" "}
-                  <span className="font-semibold">
-                    {mutezToTz(baseFee).toString()} XTZ
-                  </span>
-                  <br />
-                  Total Fee:{" "}
-                  <span className="font-semibold">
-                    {mutezToTz(totalFee).toString()} XTZ
-                  </span>
-                </>
-              }
-              placeholder="0"
-              errorCaption={errors.fee?.message}
-              containerClassName="mb-4"
-            />
-
-            <FormSubmitButton loading={formState.isSubmitting}>
-              Send
-            </FormSubmitButton>
-          </form>
+          <div className="text-base text-gray-600">
+            Balance: <Money>{balance}</Money> {assetSymbol}
+          </div>
         </div>
       </div>
-    </PageLayout>
+
+      <FormField
+        ref={register({
+          required: "Required",
+          validate: validateAddress
+        })}
+        name="to"
+        id="send-to"
+        label="Recipient address"
+        labelDescription={
+          filledAccount ? (
+            <div className="flex flex-wrap items-center">
+              <Identicon
+                hash={filledAccount.publicKeyHash}
+                size={14}
+                className="flex-shrink-0 opacity-75"
+                style={{
+                  boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)"
+                }}
+              />
+              <div className="ml-1 font-normal">{filledAccount.name}</div>(
+              <Balance address={filledAccount.publicKeyHash}>
+                {bal => (
+                  <span className={classNames("text-xs leading-none")}>
+                    <Money>{bal}</Money>{" "}
+                    <span style={{ fontSize: "0.5rem" }}>XTZ</span>
+                  </span>
+                )}
+              </Balance>
+              )
+            </div>
+          ) : (
+            `Address to send ${assetSymbol} funds to.`
+          )
+        }
+        placeholder="tz1a9w1S7h..."
+        errorCaption={errors.to?.message}
+        containerClassName="mb-4"
+      />
+
+      {estimateFallbackDisplayed ? (
+        <div className="my-4 text-center text-sm font-lighter text-gray-700">
+          Estimating...
+        </div>
+      ) : restFormDisplayed ? (
+        <>
+          <FormField
+            ref={register({
+              required: "Required",
+              validate: validateAmount
+            })}
+            name="amount"
+            id="send-amount"
+            label="Amount"
+            labelDescription={
+              maxAmount && (
+                <>
+                  Available to send:{" "}
+                  <button
+                    type="button"
+                    className={classNames("underline")}
+                    onClick={handleSetMaxAmount}
+                  >
+                    {maxAmount.toString()}
+                  </button>
+                </>
+              )
+            }
+            placeholder="e.g. 123.45"
+            errorCaption={errors.amount?.message}
+            containerClassName="mb-4"
+            autoFocus
+          />
+
+          <FormField
+            ref={register({
+              required: "Required"
+            })}
+            name="fee"
+            id="send-fee"
+            label="Additional Fee"
+            labelDescription={
+              baseFee instanceof BigNumber && (
+                <>
+                  Base Fee for this transaction is:{" "}
+                  <span className="font-semibold">
+                    {baseFee.toString()} XTZ
+                  </span>
+                  <br />
+                  Additional - for validators, recommended -{" "}
+                  <button
+                    type="button"
+                    className={classNames("underline")}
+                    onClick={handleSetRecommendedFee}
+                  >
+                    {recommendedAddFeeTz}
+                  </button>
+                </>
+              )
+            }
+            placeholder="0"
+            errorCaption={errors.fee?.message}
+            containerClassName="mb-4"
+          />
+
+          <FormSubmitButton loading={formState.isSubmitting}>
+            Send
+          </FormSubmitButton>
+        </>
+      ) : (
+        <div className={classNames("my-6", "flex flex-col")}>
+          <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+            <span className="text-base font-semibold text-gray-700">
+              Send to My Accounts
+            </span>
+
+            <span
+              className={classNames("mt-1", "text-xs font-light text-gray-600")}
+              style={{ maxWidth: "90%" }}
+            >
+              Tap to Account you want to send funds to.
+            </span>
+          </h2>
+
+          <div
+            className={classNames(
+              "rounded-md overflow-hidden",
+              "border-2 bg-gray-100",
+              "flex flex-col",
+              "text-gray-700 text-sm leading-tight"
+            )}
+          >
+            {allAccounts.map((acc, i, arr) => {
+              const last = i === arr.length - 1;
+              const handleAccountClick = () => {
+                setValue("to", acc.publicKeyHash);
+                triggerValidation("to");
+              };
+
+              return (
+                <button
+                  key={acc.publicKeyHash}
+                  type="button"
+                  className={classNames(
+                    "block w-full",
+                    "overflow-hidden",
+                    !last && "border-b border-gray-200",
+                    "hover:bg-gray-200 focus:bg-gray-200",
+                    "flex items-center",
+                    "text-gray-700",
+                    "transition ease-in-out duration-200",
+                    "focus:outline-none",
+                    "opacity-90 hover:opacity-100"
+                  )}
+                  style={{
+                    padding: "0.375rem"
+                  }}
+                  onClick={handleAccountClick}
+                >
+                  <Identicon
+                    hash={acc.publicKeyHash}
+                    size={32}
+                    className="flex-shrink-0"
+                    style={{
+                      boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.15)"
+                    }}
+                  />
+
+                  <div className="ml-2 flex flex-col items-start">
+                    <div className="flex flex-wrap items-center">
+                      <Name className="text-sm font-medium leading-tight">
+                        {acc.name}
+                      </Name>
+
+                      {acc.type === ThanosAccountType.Imported && (
+                        <span
+                          className={classNames(
+                            "ml-2",
+                            "rounded-sm",
+                            "border border-black-25",
+                            "px-1 py-px",
+                            "leading-tight",
+                            "text-black-50"
+                          )}
+                          style={{ fontSize: "0.6rem" }}
+                        >
+                          Imported
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-1 flex flex-wrap items-center">
+                      <div
+                        className={classNames(
+                          "text-xs leading-none",
+                          "text-gray-700"
+                        )}
+                      >
+                        {(() => {
+                          const val = acc.publicKeyHash;
+                          const ln = val.length;
+                          return (
+                            <>
+                              {val.slice(0, 7)}
+                              <span className="opacity-75">...</span>
+                              {val.slice(ln - 4, ln)}
+                            </>
+                          );
+                        })()}
+                      </div>
+
+                      <Balance address={acc.publicKeyHash}>
+                        {bal => (
+                          <div
+                            className={classNames(
+                              "ml-2",
+                              "text-xs leading-none",
+                              "text-gray-600"
+                            )}
+                          >
+                            <Money>{bal}</Money>{" "}
+                            <span style={{ fontSize: "0.5rem" }}>XTZ</span>
+                          </div>
+                        )}
+                      </Balance>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </form>
   );
 };
-
-export default () => (
-  <React.Suspense fallback={null}>
-    <Send />
-  </React.Suspense>
-);
 
 function hasManager(manager: any) {
   return manager && typeof manager === "object" ? !!manager.key : !!manager;
