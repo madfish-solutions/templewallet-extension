@@ -47,6 +47,11 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
     return t;
   }, [createSigner, network.rpcBaseURL, accIndex, accountPkh]);
 
+  const tezosKey = React.useMemo(
+    () => [network.rpcBaseURL, accountPkh].join(","),
+    [network.rpcBaseURL, accountPkh]
+  );
+
   const activateAccount = React.useCallback(
     async (secret: string) => {
       let op;
@@ -78,10 +83,12 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
 
     allAccounts,
     account,
+    accountPkh,
     accIndex,
     setAccIndex,
 
     tezos,
+    tezosKey,
     activateAccount
   };
 });

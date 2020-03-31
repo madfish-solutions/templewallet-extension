@@ -13,6 +13,7 @@ interface FormFieldProps extends FormFieldAttrs {
   textarea?: boolean;
   secret?: boolean;
   extraButton?: React.ReactNode;
+  extraInner?: React.ReactNode;
 }
 
 const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
@@ -25,11 +26,13 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
       textarea,
       secret: secretProp,
       extraButton = null,
+      extraInner = null,
       id,
       onChange,
       onFocus,
       onBlur,
       className,
+      spellCheck = false,
       autoComplete = "off",
       ...rest
     },
@@ -130,12 +133,12 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
             className={classNames(
               "appearance-none",
               "w-full",
-              "py-3 px-4",
+              "py-3 pl-4",
+              extraInner ? "pr-16" : "pr-4",
               "border-2",
               errorCaption ? "border-red-500" : "border-gray-300",
               "focus:border-primary-orange",
               "bg-gray-100 focus:bg-transparent",
-              "bg-black-40",
               "focus:outline-none focus:shadow-outline",
               "transition ease-in-out duration-200",
               "rounded-md",
@@ -144,12 +147,29 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
               className
             )}
             id={id}
+            spellCheck={spellCheck}
             autoComplete={autoComplete}
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
             {...rest}
           />
+
+          {extraInner && (
+            <div
+              className={classNames(
+                "overflow-hidden",
+                "absolute inset-y-0 right-0 w-16",
+                "flex items-center justify-center",
+                "opacity-50",
+                "pointer-events-none"
+              )}
+            >
+              <span className="text-gray-900 text-lg font-light">
+                {extraInner}
+              </span>
+            </div>
+          )}
 
           {extraButton}
 

@@ -62,6 +62,13 @@ async function processRequest(
       await Actions.createHDAccount();
       return { type: ThanosMessageType.CreateAccountResponse };
 
+    case ThanosMessageType.RevealPublicKeyRequest:
+      const publicKey = await Actions.revealPublicKey(req.accountIndex);
+      return {
+        type: ThanosMessageType.RevealPublicKeyResponse,
+        publicKey
+      };
+
     case ThanosMessageType.RevealPrivateKeyRequest:
       const privateKey = await Actions.revealPrivateKey(
         req.accountIndex,

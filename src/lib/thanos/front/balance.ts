@@ -13,6 +13,7 @@ export function useBalance(address: string, suspense?: boolean) {
 
   return useSWR(["balance", address, network.rpcBaseURL], fetchBalance, {
     refreshInterval: 10_000,
+    dedupingInterval: 15_000,
     suspense
   });
 }
