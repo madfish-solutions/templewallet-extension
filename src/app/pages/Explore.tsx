@@ -119,11 +119,13 @@ const Explore: React.FC = () => {
       <SubTitle>Operation History</SubTitle>
 
       <React.Suspense fallback={null}>
-        <OperationHistory accountPkh="tz1hjem5Rpf4KAVbwMLJet75TDb8HjAKnTYk" />
+        <OperationHistory accountPkh={accountPkh} />
       </React.Suspense>
     </PageLayout>
   );
 };
+
+// "tz1hjem5Rpf4KAVbwMLJet75TDb8HjAKnTYk"
 
 export default Explore;
 
