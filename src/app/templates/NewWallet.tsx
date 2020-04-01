@@ -179,8 +179,8 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
           containerClassName="mb-6"
         />
 
-        <FormSubmitButton loading={submitting}>
-          {submitting ? "Creating..." : "Create"}
+        <FormSubmitButton loading={submitting} disabled={submitting}>
+          Create
         </FormSubmitButton>
       </form>
     </div>

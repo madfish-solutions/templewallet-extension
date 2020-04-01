@@ -163,7 +163,9 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
             containerClassName="mb-4"
           />
 
-          <FormSubmitButton loading={submitting}>Reveal</FormSubmitButton>
+          <FormSubmitButton loading={submitting} disabled={submitting}>
+            Reveal
+          </FormSubmitButton>
         </form>
       )}
     </div>

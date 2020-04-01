@@ -31,7 +31,7 @@ const Explore: React.FC = () => {
       <hr className="mb-4" />
 
       <div className="flex flex-col items-center">
-        <HashChip address={accountPkh} className="mb-4" />
+        <HashChip hash={accountPkh} className="mb-4" />
 
         <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" />
 

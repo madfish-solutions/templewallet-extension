@@ -4,6 +4,7 @@ import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
 import { useAppEnv } from "app/env";
 import OverscrollBg from "app/a11y/OverscrollBg";
 import ContentContainer from "app/layouts/ContentContainer";
+import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import Header from "./PageLayout/Header";
 
@@ -14,13 +15,14 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   hasBackAction,
   children
 }) => {
-  const appEnv = useAppEnv();
+  // const appEnv = useAppEnv();
 
   return (
     <>
       <OverscrollBg
         topClassName="bg-primary-orange"
-        bottomClassName={appEnv.fullPage ? "bg-primary-white" : "bg-white"}
+        bottomClassName="bg-primary-orange"
+        // {appEnv.fullPage ? "bg-primary-white" : "bg-white"}
       />
 
       <div className="pb-20">
@@ -29,7 +31,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         <ContentPaper>
           <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
 
-          <div className="p-4">{children}</div>
+          <div className="p-4">
+            <React.Suspense fallback={<SpinnerSection />}>
+              {children}
+            </React.Suspense>
+          </div>
         </ContentPaper>
       </div>
     </>
@@ -69,6 +75,12 @@ const ContentPaper: React.FC<ContentPaparProps> = ({
     </ContentContainer>
   );
 };
+
+const SpinnerSection: React.FC = () => (
+  <div className="my-8 flex justify-center">
+    <Spinner className="w-20" />
+  </div>
+);
 
 type ToolbarProps = {
   pageTitle?: React.ReactNode;
