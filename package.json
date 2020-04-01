@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
+    "@dicebear/avatars": "^4.0.5",
+    "@dicebear/avatars-bottts-sprites": "^4.0.5",
+    "@dicebear/avatars-jdenticon-sprites": "^4.0.5",
     "@fullhuman/postcss-purgecss": "^2.1.0",
     "@popperjs/core": "^2.1.1",
     "@serh11p/tailwindcss-alpha": "^0.2.0",
@@ -54,7 +57,6 @@
     "fontfaceobserver": "^2.1.0",
     "html-webpack-plugin": "^4.0.3",
     "inter-ui": "^3.12.1",
-    "jdenticon": "^2.2.0",
     "mini-css-extract-plugin": "^0.9.0",
     "npm-run-all": "^4.1.5",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
