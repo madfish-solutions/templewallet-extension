@@ -4,7 +4,6 @@ import { QRCode } from "react-qr-svg";
 import { useReadyThanos } from "lib/thanos/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
-// import Identicon from "app/atoms/Identicon";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
@@ -26,68 +25,55 @@ const Receive: React.FC = () => {
     >
       <div className="py-4">
         <div className={classNames("w-full max-w-sm mx-auto")}>
-          {/* <div className="mb-6 flex items-center justify-center">
-            <Identicon hash={address} size={24} />
-
-            <span
-              className={classNames(
-                "ml-2",
-                "text-gray-700",
-                "text-lg font-semibold"
-              )}
-            >
-              {account.name}
-            </span>
-          </div> */}
-
           <FormField
+            textarea
+            rows={2}
             ref={fieldRef}
             label="Address"
-            labelDescription="This address supports transfering & receiving funds."
+            labelDescription={
+              <>Your current account address. Share it to receive funds.</>
+            }
             value={address}
             size={36}
             spellCheck={false}
             readOnly
-            className="text-center"
             style={{
-              padding: "0.5rem",
-              fontSize: "0.875rem"
+              resize: "none"
             }}
           />
 
-          <div className="mb-6 flex justify-center">
-            <button
-              type="button"
-              className={classNames(
-                "py-1 px-2 w-40",
-                "bg-primary-orange rounded",
-                "border border-primary-orange",
-                "flex items-center justify-center",
-                "text-primary-orange-lighter text-shadow-black-orange",
-                "text-sm font-semibold",
-                "transition duration-300 ease-in-out",
-                "opacity-90 hover:opacity-100 focus:opacity-100",
-                "shadow-sm",
-                "hover:shadow focus:shadow"
-              )}
-              onClick={copy}
-            >
-              {copied ? (
-                "Copied."
-              ) : (
-                <>
-                  <CopyIcon
-                    className={classNames(
-                      "mr-1",
-                      "h-4 w-auto",
-                      "stroke-current stroke-2"
-                    )}
-                  />
-                  Copy to clipboard
-                </>
-              )}
-            </button>
-          </div>
+          <button
+            type="button"
+            className={classNames(
+              "mx-auto mb-6",
+              "py-1 px-2 w-40",
+              "bg-primary-orange rounded",
+              "border border-primary-orange",
+              "flex items-center justify-center",
+              "text-primary-orange-lighter text-shadow-black-orange",
+              "text-sm font-semibold",
+              "transition duration-300 ease-in-out",
+              "opacity-90 hover:opacity-100 focus:opacity-100",
+              "shadow-sm",
+              "hover:shadow focus:shadow"
+            )}
+            onClick={copy}
+          >
+            {copied ? (
+              "Copied."
+            ) : (
+              <>
+                <CopyIcon
+                  className={classNames(
+                    "mr-1",
+                    "h-4 w-auto",
+                    "stroke-current stroke-2"
+                  )}
+                />
+                Copy to clipboard
+              </>
+            )}
+          </button>
 
           <div className="mb-4 flex flex-col leading-tight">
             <span className="text-base font-semibold text-gray-700">
@@ -104,7 +90,7 @@ const Receive: React.FC = () => {
 
           <div
             className="p-1 bg-gray-100 border-2 border-gray-300 rounded"
-            style={{ maxWidth: "60%" }}
+            style={{ maxWidth: "55%" }}
           >
             <QRCode
               bgColor="#f7fafc"
