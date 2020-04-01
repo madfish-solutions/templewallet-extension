@@ -88,7 +88,7 @@ const Control: React.FC = () => {
             )}
             onClick={toggleOpened}
           >
-            <Identicon hash={account.publicKeyHash} size={48} />
+            <Identicon type="bottts" hash={account.publicKeyHash} size={48} />
           </button>
         )}
       </Popper>

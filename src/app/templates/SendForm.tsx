@@ -271,6 +271,7 @@ const SendForm: React.FC = () => {
           filledAccount ? (
             <div className="flex flex-wrap items-center">
               <Identicon
+                type="bottts"
                 hash={filledAccount.publicKeyHash}
                 size={14}
                 className="flex-shrink-0 opacity-75"
@@ -278,7 +279,8 @@ const SendForm: React.FC = () => {
                   boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)"
                 }}
               />
-              <div className="ml-1 font-normal">{filledAccount.name}</div>(
+              <div className="ml-1 mr-px font-normal">{filledAccount.name}</div>{" "}
+              (
               <Balance address={filledAccount.publicKeyHash}>
                 {bal => (
                   <span className={classNames("text-xs leading-none")}>
@@ -337,7 +339,7 @@ const SendForm: React.FC = () => {
             placeholder="e.g. 123.45"
             errorCaption={errors.amount?.message}
             containerClassName="mb-4"
-            autoFocus
+            autoFocus={maxAmount && maxAmount !== NOT_ENOUGH_FUNDS}
           />
 
           <Controller
@@ -354,7 +356,9 @@ const SendForm: React.FC = () => {
                   Base Fee for this transaction is:{" "}
                   <span className="font-normal">{baseFee.toString()}</span>
                   <br />
-                  Additional - faster, recommended -{" "}
+                  Additional - speeds up its confirmation,
+                  <br />
+                  recommended:{" "}
                   <button
                     type="button"
                     className={classNames("underline")}
@@ -375,130 +379,140 @@ const SendForm: React.FC = () => {
           </FormSubmitButton>
         </>
       ) : (
-        <div className={classNames("my-6", "flex flex-col")}>
-          <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-            <span className="text-base font-semibold text-gray-700">
-              Send to My Accounts
-            </span>
-
-            <span
-              className={classNames("mt-1", "text-xs font-light text-gray-600")}
-              style={{ maxWidth: "90%" }}
+        allAccounts.length > 1 && (
+          <div className={classNames("my-6", "flex flex-col")}>
+            <h2
+              className={classNames("mb-4", "leading-tight", "flex flex-col")}
             >
-              Tap to Account you want to send funds to.
-            </span>
-          </h2>
+              <span className="text-base font-semibold text-gray-700">
+                Send to My Accounts
+              </span>
 
-          <div
-            className={classNames(
-              "rounded-md overflow-hidden",
-              "border-2 bg-gray-100",
-              "flex flex-col",
-              "text-gray-700 text-sm leading-tight"
-            )}
-          >
-            {allAccounts.map((acc, i, arr) => {
-              const last = i === arr.length - 1;
-              const handleAccountClick = () => {
-                setValue("to", acc.publicKeyHash);
-                triggerValidation("to");
-              };
+              <span
+                className={classNames(
+                  "mt-1",
+                  "text-xs font-light text-gray-600"
+                )}
+                style={{ maxWidth: "90%" }}
+              >
+                Tap to Account you want to send funds to.
+              </span>
+            </h2>
 
-              return (
-                <button
-                  key={acc.publicKeyHash}
-                  type="button"
-                  className={classNames(
-                    "block w-full",
-                    "overflow-hidden",
-                    !last && "border-b border-gray-200",
-                    "hover:bg-gray-200 focus:bg-gray-200",
-                    "flex items-center",
-                    "text-gray-700",
-                    "transition ease-in-out duration-200",
-                    "focus:outline-none",
-                    "opacity-90 hover:opacity-100"
-                  )}
-                  style={{
-                    padding: "0.375rem"
-                  }}
-                  onClick={handleAccountClick}
-                >
-                  <Identicon
-                    hash={acc.publicKeyHash}
-                    size={32}
-                    className="flex-shrink-0"
-                    style={{
-                      boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.15)"
-                    }}
-                  />
+            <div
+              className={classNames(
+                "rounded-md overflow-hidden",
+                "border-2 bg-gray-100",
+                "flex flex-col",
+                "text-gray-700 text-sm leading-tight"
+              )}
+            >
+              {allAccounts
+                .filter(acc => acc.publicKeyHash !== accountPkh)
+                .map((acc, i, arr) => {
+                  const last = i === arr.length - 1;
+                  const handleAccountClick = () => {
+                    setValue("to", acc.publicKeyHash);
+                    triggerValidation("to");
+                  };
 
-                  <div className="ml-2 flex flex-col items-start">
-                    <div className="flex flex-wrap items-center">
-                      <Name className="text-sm font-medium leading-tight">
-                        {acc.name}
-                      </Name>
-
-                      {acc.type === ThanosAccountType.Imported && (
-                        <span
-                          className={classNames(
-                            "ml-2",
-                            "rounded-sm",
-                            "border border-black-25",
-                            "px-1 py-px",
-                            "leading-tight",
-                            "text-black-50"
-                          )}
-                          style={{ fontSize: "0.6rem" }}
-                        >
-                          Imported
-                        </span>
+                  return (
+                    <button
+                      key={acc.publicKeyHash}
+                      type="button"
+                      className={classNames(
+                        "block w-full",
+                        "overflow-hidden",
+                        !last && "border-b border-gray-200",
+                        "hover:bg-gray-200 focus:bg-gray-200",
+                        "flex items-center",
+                        "text-gray-700",
+                        "transition ease-in-out duration-200",
+                        "focus:outline-none",
+                        "opacity-90 hover:opacity-100"
                       )}
-                    </div>
+                      style={{
+                        padding: "0.4rem 0.375rem 0.4rem 0.375rem"
+                      }}
+                      onClick={handleAccountClick}
+                    >
+                      <Identicon
+                        type="bottts"
+                        hash={acc.publicKeyHash}
+                        size={32}
+                        className="flex-shrink-0"
+                        style={{
+                          boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)"
+                        }}
+                      />
 
-                    <div className="mt-1 flex flex-wrap items-center">
-                      <div
-                        className={classNames(
-                          "text-xs leading-none",
-                          "text-gray-700"
-                        )}
-                      >
-                        {(() => {
-                          const val = acc.publicKeyHash;
-                          const ln = val.length;
-                          return (
-                            <>
-                              {val.slice(0, 7)}
-                              <span className="opacity-75">...</span>
-                              {val.slice(ln - 4, ln)}
-                            </>
-                          );
-                        })()}
-                      </div>
+                      <div className="ml-2 flex flex-col items-start">
+                        <div className="flex flex-wrap items-center">
+                          <Name className="text-sm font-medium leading-tight">
+                            {acc.name}
+                          </Name>
 
-                      <Balance address={acc.publicKeyHash}>
-                        {bal => (
+                          {acc.type === ThanosAccountType.Imported && (
+                            <span
+                              className={classNames(
+                                "ml-2",
+                                "rounded-sm",
+                                "border border-black-25",
+                                "px-1 py-px",
+                                "leading-tight",
+                                "text-black-50"
+                              )}
+                              style={{ fontSize: "0.6rem" }}
+                            >
+                              Imported
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="mt-1 flex flex-wrap items-center">
                           <div
                             className={classNames(
-                              "ml-2",
                               "text-xs leading-none",
-                              "text-gray-600"
+                              "text-gray-700"
                             )}
                           >
-                            <Money>{bal}</Money>{" "}
-                            <span style={{ fontSize: "0.75em" }}>
-                              {assetSymbol}
-                            </span>
+                            {(() => {
+                              const val = acc.publicKeyHash;
+                              const ln = val.length;
+                              return (
+                                <>
+                                  {val.slice(0, 7)}
+                                  <span className="opacity-75">...</span>
+                                  {val.slice(ln - 4, ln)}
+                                </>
+                              );
+                            })()}
                           </div>
-                        )}
-                      </Balance>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+
+                          <Balance address={acc.publicKeyHash}>
+                            {bal => (
+                              <div
+                                className={classNames(
+                                  "ml-2",
+                                  "text-xs leading-none",
+                                  "text-gray-600"
+                                )}
+                              >
+                                <Money>{bal}</Money>{" "}
+                                <span style={{ fontSize: "0.75em" }}>
+                                  {assetSymbol}
+                                </span>
+                              </div>
+                            )}
+                          </Balance>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+            </div>
           </div>
-        </div>
+        )
       )}
     </form>
   );

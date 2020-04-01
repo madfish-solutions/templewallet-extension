@@ -1,15 +1,21 @@
 import * as React from "react";
 import classNames from "clsx";
-import { toSvg } from "jdenticon";
+import Avatars from "@dicebear/avatars";
+import jdenticonSpirtes from "@dicebear/avatars-jdenticon-sprites";
+import botttsSprites from "@dicebear/avatars-bottts-sprites";
 
 type IdenticonProps = React.HTMLAttributes<HTMLDivElement> & {
-  hash: number | string;
+  type?: "jdenticon" | "bottts";
+  hash: string;
   size?: number;
 };
 
 const cache = new Map<string, string>();
+const jdenticonIcons = new Avatars(jdenticonSpirtes);
+const botttsIcons = new Avatars(botttsSprites);
 
 const Identicon: React.FC<IdenticonProps> = ({
+  type = "jdenticon",
   hash,
   size = 100,
   className,
@@ -17,16 +23,27 @@ const Identicon: React.FC<IdenticonProps> = ({
   ...rest
 }) => {
   const backgroundImage = React.useMemo(() => {
-    const key = `${hash}_${size}`;
+    const key = `${type}_${hash}_${size}`;
     if (cache.has(key)) {
       return cache.get(key);
     } else {
-      const svgStr = toSvg(hash, size);
-      const bi = `url('data:image/svg+xml;base64,${btoa(svgStr)}')`;
+      const opts = {
+        base64: true,
+        width: size,
+        height: size,
+        margin: 4
+      };
+      const imgSrc =
+        type === "jdenticon"
+          ? // ? `data:image/svg+xml;base64,${btoa(toSvg(hash, size))}`
+            jdenticonIcons.create(hash, opts)
+          : botttsIcons.create(hash, opts);
+
+      const bi = `url('${imgSrc}')`;
       cache.set(key, bi);
       return bi;
     }
-  }, [hash, size]);
+  }, [type, hash, size]);
 
   return (
     <div

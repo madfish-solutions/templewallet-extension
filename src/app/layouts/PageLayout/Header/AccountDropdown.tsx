@@ -147,11 +147,12 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
                 autoFocus={selected}
               >
                 <Identicon
+                  type="bottts"
                   hash={acc.publicKeyHash}
                   size={32}
                   className="flex-shrink-0"
                   style={{
-                    boxShadow: "0 0 0 1px rgba(255, 255, 255, 0.15)"
+                    boxShadow: "0 0 0 1px rgba(255, 255, 255, 0.05)"
                   }}
                 />
 
