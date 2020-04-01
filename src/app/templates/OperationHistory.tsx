@@ -47,11 +47,21 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   );
   const operations = data!;
 
+  const onlyUniqueOps = React.useMemo(() => {
+    const unique: TZStatsOperation[] = [];
+    for (const op of operations) {
+      if (unique.every(u => opKey(u) !== opKey(op))) {
+        unique.push(op);
+      }
+    }
+    return unique;
+  }, [operations]);
+
   return (
     <div className={classNames("mt-8", "flex flex-col")}>
-      {operations.map(op => (
+      {onlyUniqueOps.map(op => (
         <Operation
-          key={`${op.hash}_${op.type}`}
+          key={opKey(op)}
           {...op}
           address={accountPkh}
           networkType={network.type}
@@ -183,6 +193,10 @@ function formatOperationType(type: string, imReciever: boolean) {
     .split("_")
     .map(w => `${w.charAt(0).toUpperCase()}${w.substring(1)}`)
     .join(" ");
+}
+
+function opKey(op: TZStatsOperation) {
+  return `${op.hash}_${op.type}`;
 }
 
 // interface StatusChipProps {
