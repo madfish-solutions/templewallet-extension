@@ -98,8 +98,8 @@ const ActivateAccount: React.FC = () => {
         containerClassName="mb-4"
       />
 
-      <FormSubmitButton loading={submitting}>
-        {submitting ? "Activating..." : "Activate"}
+      <FormSubmitButton loading={submitting} disabled={submitting}>
+        Activate
       </FormSubmitButton>
     </form>
   );

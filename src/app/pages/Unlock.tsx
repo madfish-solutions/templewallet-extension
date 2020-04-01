@@ -75,8 +75,8 @@ const Unlock: React.FC = () => {
           autoFocus
         />
 
-        <FormSubmitButton loading={submitting}>
-          {submitting ? "Unlocking..." : "Unlock"}
+        <FormSubmitButton loading={submitting} disabled={submitting}>
+          Unlock
         </FormSubmitButton>
 
         <div className="my-6">

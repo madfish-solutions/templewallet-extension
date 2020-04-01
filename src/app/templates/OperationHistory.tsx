@@ -83,6 +83,7 @@ const Operation = React.memo<OperationProps>(
     const volumeExists = volume !== 0;
     const typeTx = type === "transaction";
     const imReceiver = receiver === address;
+    const pending = status === "backtracked";
 
     return (
       <div className={classNames("my-3", "flex items-strech")}>
@@ -93,7 +94,7 @@ const Operation = React.memo<OperationProps>(
         <div className="flex-1">
           <div className="flex items-center">
             <HashChip
-              address={hash}
+              hash={hash}
               firstCharsCount={10}
               lastCharsCount={7}
               small
@@ -109,7 +110,7 @@ const Operation = React.memo<OperationProps>(
                 {formatOperationType(type, imReceiver)}
               </span>
 
-              {status === "backtracked" ? (
+              {pending ? (
                 <span className="text-xs text-yellow-600 font-light">
                   pending...
                 </span>
@@ -134,11 +135,18 @@ const Operation = React.memo<OperationProps>(
                 <div
                   className={classNames(
                     "text-sm",
-                    typeTx
-                      ? imReceiver
-                        ? "text-green-500"
-                        : "text-red-700"
-                      : "text-gray-800"
+                    (() => {
+                      switch (true) {
+                        case pending:
+                          return "text-yellow-600";
+
+                        case typeTx:
+                          return imReceiver ? "text-green-500" : "text-red-700";
+
+                        default:
+                          return "text-gray-800";
+                      }
+                    })()
                   )}
                 >
                   {typeTx && (imReceiver ? "+" : "-")}

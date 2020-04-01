@@ -4,30 +4,30 @@ import useTippy from "lib/ui/useTippy";
 import classNames from "clsx";
 
 type HashChipProps = React.HTMLAttributes<HTMLButtonElement> & {
-  address: string;
+  hash: string;
   firstCharsCount?: number;
   lastCharsCount?: number;
   small?: boolean;
 };
 
 const HashChip: React.FC<HashChipProps> = ({
-  address,
+  hash,
   firstCharsCount = 7,
   lastCharsCount = 4,
   small = false,
   className,
   ...rest
 }) => {
-  const shortAddress = React.useMemo(() => {
-    const ln = address.length;
+  const shortHash = React.useMemo(() => {
+    const ln = hash.length;
     return (
       <>
-        {address.slice(0, firstCharsCount)}
+        {hash.slice(0, firstCharsCount)}
         <span className="opacity-75">...</span>
-        {address.slice(ln - lastCharsCount, ln)}
+        {hash.slice(ln - lastCharsCount, ln)}
       </>
     );
-  }, [address, firstCharsCount, lastCharsCount]);
+  }, [hash, firstCharsCount, lastCharsCount]);
 
   const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
 
@@ -62,10 +62,10 @@ const HashChip: React.FC<HashChipProps> = ({
         {...rest}
         onClick={copy}
       >
-        {shortAddress}
+        {shortHash}
       </button>
 
-      <input ref={fieldRef} value={address} readOnly className="sr-only" />
+      <input ref={fieldRef} value={hash} readOnly className="sr-only" />
     </>
   );
 };
