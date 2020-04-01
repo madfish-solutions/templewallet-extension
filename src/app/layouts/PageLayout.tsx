@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import { goBack } from "lib/woozie";
+import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
 import { useAppEnv } from "app/env";
 import OverscrollBg from "app/a11y/OverscrollBg";
 import ContentContainer from "app/layouts/ContentContainer";
@@ -79,11 +79,23 @@ const Toolbar: React.FC<ToolbarProps> = ({
   pageTitle,
   hasBackAction = true
 }) => {
+  const { historyPosition, pathname } = useLocation();
   const appEnv = useAppEnv();
 
+  const inHome = pathname === "/";
+  const canBack = historyPosition > 0 || !inHome;
+
   const handleBackAction = React.useCallback(() => {
-    goBack();
-  }, []);
+    switch (true) {
+      case historyPosition > 0:
+        goBack();
+        break;
+
+      case !inHome:
+        navigate("/", HistoryAction.Replace);
+        break;
+    }
+  }, [historyPosition, inHome]);
 
   const [sticked, setSticked] = React.useState(false);
 
@@ -123,18 +135,19 @@ const Toolbar: React.FC<ToolbarProps> = ({
         // The top value needs to be -1px or the element will never intersect
         // with the top of the browser window
         // (thus never triggering the intersection observer).
-        top: -1
+        top: -1,
+        minHeight: "2.75rem"
       }}
     >
       <div className="flex-1">
-        {hasBackAction && (
+        {hasBackAction && canBack && (
           <button
             className={classNames(
               "px-4 py-2",
               "rounded",
               "flex items-center",
               "text-gray-600 text-shadow-black",
-              "text-sm font-semibold",
+              "text-sm font-semibold leading-none",
               "hover:bg-black-5",
               "transition duration-300 ease-in-out",
               "opacity-90 hover:opacity-100"

@@ -8,8 +8,9 @@ export enum HistoryAction {
   Replace = "replacestate"
 }
 
-export interface HistoryWithLastAction extends History {
+export interface PatchedHistory extends History {
   lastAction: HistoryAction;
+  position: number;
 }
 
 export type HistoryListener = () => void;
@@ -85,20 +86,28 @@ window.addEventListener(HistoryAction.Push, handlePushstate);
 window.addEventListener(HistoryAction.Replace, handleReplacestate);
 
 function handlePopstate() {
-  patchLastAction(HistoryAction.Pop);
+  patchHistory(HistoryAction.Pop);
   notifyListeners();
 }
 function handlePushstate() {
-  patchLastAction(HistoryAction.Push);
+  patchHistory(HistoryAction.Push);
   notifyListeners();
 }
 function handleReplacestate() {
-  patchLastAction(HistoryAction.Replace);
+  patchHistory(HistoryAction.Replace);
   notifyListeners();
 }
 
-function patchLastAction(action: HistoryAction) {
-  (window.history as HistoryWithLastAction).lastAction = action;
+function patchHistory(action: HistoryAction) {
+  const patchedHistory = window.history as PatchedHistory;
+  const position =
+    (patchedHistory.position ?? 0) +
+    (action === HistoryAction.Push ? 1 : action === HistoryAction.Pop ? -1 : 0);
+
+  Object.assign(patchedHistory, {
+    lastAction: action,
+    position
+  });
 }
 
 function notifyListeners() {
