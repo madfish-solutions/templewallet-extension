@@ -3,13 +3,16 @@ import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { ThanosNetworkType, useReadyThanos } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
-import Money from "app/atoms/Money";
-import HashChip from "app/atoms/HashChip";
 import OperationHistory from "app/templates/OperationHistory";
 import Balance from "app/templates/Balance";
+import Money from "app/atoms/Money";
+import HashChip from "app/atoms/HashChip";
+import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
+import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
+import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
 import xtzImgUrl from "app/misc/xtz.png";
 import EditableTitle from "./Explore/EditableTitle";
 
@@ -116,16 +119,28 @@ const Explore: React.FC = () => {
         </div>
       </div>
 
-      <SubTitle>Operation History</SubTitle>
+      <SubTitle>Baking</SubTitle>
 
-      <React.Suspense fallback={null}>
+      <div
+        className={classNames(
+          "pt-2 mb-12",
+          "flex flex-col items-center justify-center",
+          "text-gray-500"
+        )}
+      >
+        <SupportAltIcon className="mb-1 w-16 h-auto stroke-current" />
+
+        <h3 className="text-sm font-light">Coming soon</h3>
+      </div>
+
+      <SubTitle>Operations</SubTitle>
+
+      <React.Suspense fallback={<SpinnerSection />}>
         <OperationHistory accountPkh={accountPkh} />
       </React.Suspense>
     </PageLayout>
   );
 };
-
-// "tz1hjem5Rpf4KAVbwMLJet75TDb8HjAKnTYk"
 
 export default Explore;
 
@@ -135,22 +150,35 @@ const SubTitle: React.FC<SubTitleProps> = ({
   className,
   children,
   ...rest
-}) => (
-  <h4
-    className={classNames(
-      "my-4",
-      "flex items-center justify-center",
-      "text-center",
-      "text-gray-500",
-      "text-sm",
-      "font-semibold",
-      "uppercase",
-      className
-    )}
-    {...rest}
-  >
-    <span className="text-gray-400 text-xs mx-1">•</span>
-    {children}
-    <span className="text-gray-400 text-xs mx-1">•</span>
-  </h4>
+}) => {
+  const comp = (
+    <span className="text-gray-500 px-1">
+      <ComponentIcon className="h-5 w-auto stroke-current" />
+    </span>
+  );
+
+  return (
+    <h2
+      className={classNames(
+        "mt-10 mb-2",
+        "flex items-center justify-center",
+        "text-gray-700",
+        "text-2xl",
+        "font-light",
+        "uppercase",
+        className
+      )}
+      {...rest}
+    >
+      {comp}
+      {children}
+      {comp}
+    </h2>
+  );
+};
+
+const SpinnerSection: React.FC = () => (
+  <div className="my-12 flex justify-center">
+    <Spinner theme="gray" className="w-20" />
+  </div>
 );

@@ -3,7 +3,7 @@ import classNames from "clsx";
 import styles from "./Spinner.module.css";
 
 type SpinnerProps = React.HTMLAttributes<HTMLDivElement> & {
-  theme?: "primary" | "white";
+  theme?: "primary" | "white" | "gray";
 };
 
 const Spinner = React.memo<SpinnerProps>(
@@ -23,8 +23,9 @@ const Spinner = React.memo<SpinnerProps>(
                 case "white":
                   return "bg-white shadow-sm";
 
+                case "gray":
                 default:
-                  return "bg-gray-100";
+                  return "bg-gray-400";
               }
             })(),
             styles["bounce"],
