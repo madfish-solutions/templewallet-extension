@@ -15,14 +15,13 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   hasBackAction,
   children
 }) => {
-  // const appEnv = useAppEnv();
+  const appEnv = useAppEnv();
 
   return (
     <>
       <OverscrollBg
         topClassName="bg-primary-orange"
-        bottomClassName="bg-primary-orange"
-        // {appEnv.fullPage ? "bg-primary-white" : "bg-white"}
+        bottomClassName={appEnv.fullPage ? "bg-primary-white" : "bg-white"}
       />
 
       <div className="pb-20">
