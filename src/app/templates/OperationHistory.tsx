@@ -7,6 +7,7 @@ import { ThanosNetworkType } from "lib/thanos/types";
 import { useReadyThanos } from "lib/thanos/front";
 import Identicon from "app/atoms/Identicon";
 import HashChip from "app/atoms/HashChip";
+import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 
 interface OperationHistoryProps {
   accountPkh: string;
@@ -30,6 +31,9 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
         offset: 0
       }).then(acc => acc.ops);
     } catch (err) {
+      // Human delay
+      await new Promise(r => setTimeout(r, 300));
+
       if (err?.origin?.response?.status === 404) {
         return [];
       }
@@ -58,7 +62,23 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   }, [operations]);
 
   return (
-    <div className={classNames("mt-8", "flex flex-col")}>
+    <div
+      className={classNames("mt-8", "w-full max-w-md mx-auto", "flex flex-col")}
+    >
+      {onlyUniqueOps.length === 0 && (
+        <div
+          className={classNames(
+            "mb-12",
+            "flex flex-col items-center justify-center",
+            "text-gray-500"
+          )}
+        >
+          <LayersIcon className="mb-2 w-16 h-auto stroke-current" />
+
+          <h3 className="text-sm font-light">No operations found</h3>
+        </div>
+      )}
+
       {onlyUniqueOps.map(op => (
         <Operation
           key={opKey(op)}
@@ -206,40 +226,3 @@ function formatOperationType(type: string, imReciever: boolean) {
 function opKey(op: TZStatsOperation) {
   return `${op.hash}_${op.type}`;
 }
-
-// interface StatusChipProps {
-//   status: OperationStatus;
-//   className?: string;
-// }
-
-// const StatusChip: React.FC<StatusChipProps> = ({ status, className }) => {
-//   const [extraClasses, statusName] = React.useMemo<[string, string]>(() => {
-//     switch (status) {
-//       case "backtracked":
-//         return ["bg-yellow-100 text-yellow-600", "In Progress"];
-//       case "applied":
-//         return ["bg-green-100 text-green-600", "Applied"];
-//       case "failed":
-//         return ["bg-red-100 text-red-600", "Failed"];
-//       case "skipped":
-//         return ["bg-red-100 text-red-600", "Skipped"];
-//     }
-//   }, [status]);
-
-//   return (
-//     <Chip className={classNames(extraClasses, className)}>{statusName}</Chip>
-//   );
-// };
-
-// const Chip: React.FC<{ className?: string }> = ({ children, className }) => (
-//   <div
-//     className={classNames(
-//       "rounded-sm shadow-xs",
-//       "text-xs p-1",
-//       "leading-none select-none",
-//       className
-//     )}
-//   >
-//     {children}
-//   </div>
-// );
