@@ -3,10 +3,11 @@ import classNames from "clsx";
 import useSWR from "swr";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { TZStatsOperation, getAccountWithOperations } from "lib/tzstats";
-import { ThanosNetworkType } from "lib/thanos/types";
 import { useReadyThanos } from "lib/thanos/front";
+import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
 import HashChip from "app/atoms/HashChip";
+import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 
 interface OperationHistoryProps {
@@ -80,12 +81,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       )}
 
       {onlyUniqueOps.map(op => (
-        <Operation
-          key={opKey(op)}
-          {...op}
-          address={accountPkh}
-          networkType={network.type}
-        />
+        <Operation key={opKey(op)} accountPkh={accountPkh} {...op} />
       ))}
     </div>
   );
@@ -94,15 +90,14 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
 export default OperationHistory;
 
 type OperationProps = TZStatsOperation & {
-  address: string;
-  networkType: ThanosNetworkType;
+  accountPkh: string;
 };
 
 const Operation = React.memo<OperationProps>(
-  ({ networkType, address, hash, type, receiver, volume, status, time }) => {
+  ({ accountPkh, hash, type, receiver, volume, status, time }) => {
     const volumeExists = volume !== 0;
     const typeTx = type === "transaction";
-    const imReceiver = receiver === address;
+    const imReceiver = receiver === accountPkh;
     const pending = status === "backtracked";
 
     return (
@@ -170,15 +165,17 @@ const Operation = React.memo<OperationProps>(
                   )}
                 >
                   {typeTx && (imReceiver ? "+" : "-")}
-                  {round(volume, 4)} ꜩ
+                  <Money>{volume}</Money> ꜩ
                 </div>
 
-                {networkType === ThanosNetworkType.Main && (
-                  <div className="text-xs text-gray-500">
-                    <span className="mr-px">$</span>
-                    {round(volume * 1.65, 2)}
-                  </div>
-                )}
+                <InUSD volume={volume}>
+                  {usdVolume => (
+                    <div className="text-xs text-gray-500">
+                      <span className="mr-px">$</span>
+                      {usdVolume}
+                    </div>
+                  )}
+                </InUSD>
               </div>
             )}
           </div>
@@ -207,10 +204,6 @@ const Time: React.FC<TimeProps> = ({ children }) => {
 
   return value;
 };
-
-function round(val: number, decPlaces: any = 4) {
-  return Number(`${Math.round(+`${val}e${decPlaces}`)}e-${decPlaces}`);
-}
 
 function formatOperationType(type: string, imReciever: boolean) {
   if (type === "transaction") {

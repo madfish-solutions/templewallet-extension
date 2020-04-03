@@ -1,10 +1,11 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { ThanosNetworkType, useReadyThanos } from "lib/thanos/front";
+import { useReadyThanos } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
 import Balance from "app/templates/Balance";
+import InUSD from "app/templates/InUSD";
 import Money from "app/atoms/Money";
 import HashChip from "app/atoms/HashChip";
 import Spinner from "app/atoms/Spinner";
@@ -17,7 +18,7 @@ import xtzImgUrl from "app/misc/xtz.png";
 import EditableTitle from "./Explore/EditableTitle";
 
 const Explore: React.FC = () => {
-  const { account, network } = useReadyThanos();
+  const { account } = useReadyThanos();
   const accountPkh = account.publicKeyHash;
 
   return (
@@ -46,13 +47,14 @@ const Explore: React.FC = () => {
                 <span className="text-lg opacity-90">XTZ</span>
               </div>
 
-              {network.type === ThanosNetworkType.Main && (
-                <div className="text-gray-600 text-lg font-light">
-                  <span className="mr-px">$</span>
-                  <Money fiat>{balance.times(1.65)}</Money>{" "}
-                  <span className="text-sm opacity-75">USD</span>
-                </div>
-              )}
+              <InUSD volume={balance}>
+                {usdBalance => (
+                  <div className="text-gray-600 text-lg font-light">
+                    <span className="mr-px">$</span>
+                    {usdBalance} <span className="text-sm opacity-75">USD</span>
+                  </div>
+                )}
+              </InUSD>
             </div>
           )}
         </Balance>

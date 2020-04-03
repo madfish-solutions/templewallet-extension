@@ -6,7 +6,8 @@ import {
   QueryFilter,
   OperationRowTuple,
   OperationRow,
-  TZStatsAccountOp
+  TZStatsAccountOp,
+  TZStatsMarketTicker
 } from "lib/tzstats/types";
 
 export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;
@@ -33,6 +34,15 @@ api.interceptors.response.use(
     });
   }
 );
+
+export const getMarketTickers = () =>
+  getMarketTickersPure(TZStatsNetwork.Mainnet);
+
+export const getMarketTickersPure = explore<TZStatsMarketTicker[]>(
+  "/markets/tickers"
+);
+
+(window as any).getMarketTickers = getMarketTickers;
 
 export const getAccountWithOperations = explore<
   TZStatsAccountOp,

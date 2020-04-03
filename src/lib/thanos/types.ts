@@ -43,10 +43,7 @@ export interface ThanosNetwork {
   disabled: boolean;
 }
 
-export enum ThanosNetworkType {
-  Main,
-  Test
-}
+export type ThanosNetworkType = "main" | "test";
 
 export enum ThanosMessageType {
   StateUpdated = "THANOS_STATE_UPDATED",

@@ -167,7 +167,7 @@ export interface TZStatsContractCalls {
   prim: object;
 }
 
-export interface TZStatsMarketsTickers {
+export interface TZStatsMarketTicker {
   pair: string;
   base: string;
   quote: string;
@@ -181,7 +181,7 @@ export interface TZStatsMarketsTickers {
   n_trades: number;
   volume_base: number;
   volume_quote: number;
-  timestamp: Date;
+  timestamp: string;
 }
 
 export interface TZStatsOperation {

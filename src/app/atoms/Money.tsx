@@ -6,12 +6,18 @@ type MoneyProps = {
   fiat?: boolean;
 };
 
-const Money: React.FC<MoneyProps> = ({ children, fiat }) => (
-  <>{round(+children, fiat ? 2 : 4)}</>
-);
+const CRYPTO_DECIMALS = 4;
+
+const Money = React.memo<MoneyProps>(({ children, fiat }) => {
+  const bn = new BigNumber(children);
+  const decimals = fiat
+    ? 2
+    : (() => {
+        const current = bn.decimalPlaces();
+        return current > CRYPTO_DECIMALS ? CRYPTO_DECIMALS : current;
+      })();
+
+  return <>{bn.toFormat(decimals, BigNumber.ROUND_UP)}</>;
+});
 
 export default Money;
-
-function round(val: number, decPlaces: any = 4) {
-  return Number(`${Math.round(+`${val}e${decPlaces}`)}e-${decPlaces}`);
-}

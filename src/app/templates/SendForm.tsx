@@ -14,6 +14,7 @@ import {
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import Balance from "app/templates/Balance";
+import InUSD from "app/templates/InUSD";
 import Spinner from "app/atoms/Spinner";
 import Money from "app/atoms/Money";
 import AddressField from "app/atoms/AddressField";
@@ -75,6 +76,7 @@ const SendForm: React.FC = () => {
   const amountFieldDirty = formState.dirtyFields.has("amount");
 
   const toValue = watch("to");
+  const amountValue = watch("amount");
   const feeValue = watch("fee", recommendedAddFeeTz as any);
 
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
@@ -112,6 +114,8 @@ const SendForm: React.FC = () => {
         fetchBalance(accountPkh, tezos)
       );
       if (balanceBN.isZero()) {
+        // Human delay
+        await new Promise(r => setTimeout(r, 300));
         return NOT_ENOUGH_FUNDS;
       }
 
@@ -249,23 +253,36 @@ const SendForm: React.FC = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         {React.useMemo(
           () => (
-            <div className="flex items-center mb-4 border p-2 rounded-md">
+            <div
+              className={classNames(
+                "mb-6",
+                "border rounded-md",
+                "p-2",
+                "flex items-center"
+              )}
+            >
               <img
                 src={xtzImgUrl}
                 alt={assetSymbol}
-                className="h-12 w-auto mr-2"
+                className="h-12 w-auto mr-3"
               />
 
               <div className="font-light leading-none">
-                <div className="text-xl font-normal text-gray-800 mb-1">
-                  {assetSymbol}
-                </div>
+                <div className="flex items-center">
+                  <div className="flex flex-col">
+                    <span className="text-xl text-gray-700">
+                      <Money>{balance}</Money>{" "}
+                      <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
+                    </span>
 
-                <div className="text-base text-gray-600">
-                  Balance:{" "}
-                  <span className="text-gray-600 text-lg">
-                    <Money>{balance}</Money>
-                  </span>
+                    <InUSD volume={balance}>
+                      {usdBalance => (
+                        <div className="mt-1 text-sm text-gray-500">
+                          ${usdBalance}
+                        </div>
+                      )}
+                    </InUSD>
+                  </div>
                 </div>
               </div>
             </div>
@@ -360,6 +377,23 @@ const SendForm: React.FC = () => {
                     >
                       {maxAmount.toString()}
                     </button>
+                    {amountValue ? (
+                      <>
+                        <br />
+                        <InUSD volume={amountValue}>
+                          {usdAmount => (
+                            <div className="mt-1 -mb-3">
+                              ≈{" "}
+                              <span className="font-normal text-gray-700">
+                                <span className="pr-px">$</span>
+                                {usdAmount}
+                              </span>{" "}
+                              in USD
+                            </div>
+                          )}
+                        </InUSD>
+                      </>
+                    ) : null}
                   </>
                 )
               }

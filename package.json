@@ -33,6 +33,7 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-named-asset-import": "^0.3.6",
     "babel-preset-react-app": "^9.1.2",
+    "bignumber.js": "^9.0.0",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
     "buffer": "^5.5.0",
