@@ -86,18 +86,29 @@ interface FormDataPrivateKey {
 const ImportPrivateKeyForm: React.FC = () => {
   const { importAccount } = useThanosClient();
 
-  const { register, handleSubmit, errors } = useForm<FormDataPrivateKey>();
-  const [error, setError] = React.useState("");
+  const { register, handleSubmit, errors, formState } = useForm<
+    FormDataPrivateKey
+  >();
+  const [error, setError] = React.useState<React.ReactNode>(null);
 
   const onSubmit = React.useCallback<(data: FormDataPrivateKey) => void>(
     async data => {
+      if (formState.isSubmitting) return;
+
+      setError(null);
       try {
         await importAccount(data.privateKey);
       } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+
+        // Human delay
+        await new Promise(r => setTimeout(r, 300));
         setError(err.message);
       }
     },
-    [importAccount]
+    [importAccount, formState.isSubmitting, setError]
   );
 
   return (
@@ -128,7 +139,12 @@ const ImportPrivateKeyForm: React.FC = () => {
         containerClassName="mb-6"
       />
 
-      <FormSubmitButton>Import account</FormSubmitButton>
+      <FormSubmitButton
+        loading={formState.isSubmitting}
+        disabled={formState.isSubmitting}
+      >
+        Import account
+      </FormSubmitButton>
     </form>
   );
 };
@@ -141,20 +157,29 @@ interface FormDataImportFundraiser {
 
 const ImportFundraiser: React.FC = () => {
   const { importFundraiserAccount } = useThanosClient();
-  const { register, errors, handleSubmit } = useForm<
+  const { register, errors, handleSubmit, formState } = useForm<
     FormDataImportFundraiser
   >();
-  const [error, setError] = React.useState("");
+  const [error, setError] = React.useState<React.ReactNode>(null);
 
   const onSubmit = React.useCallback<(data: FormDataImportFundraiser) => void>(
     async data => {
+      if (formState.isSubmitting) return;
+
+      setError(null);
       try {
         await importFundraiserAccount(data.email, data.password, data.mnemonic);
       } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+
+        // Human delay
+        await new Promise(r => setTimeout(r, 300));
         setError(err.message);
       }
     },
-    [importFundraiserAccount]
+    [importFundraiserAccount, formState.isSubmitting, setError]
   );
 
   return (
@@ -211,7 +236,12 @@ const ImportFundraiser: React.FC = () => {
         className="resize-none"
       />
 
-      <FormSubmitButton>Import account</FormSubmitButton>
+      <FormSubmitButton
+        loading={formState.isSubmitting}
+        disabled={formState.isSubmitting}
+      >
+        Import account
+      </FormSubmitButton>
     </form>
   );
 };
