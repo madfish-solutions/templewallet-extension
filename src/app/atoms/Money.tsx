@@ -16,8 +16,23 @@ const Money = React.memo<MoneyProps>(({ children, fiat }) => {
         const current = bn.decimalPlaces();
         return current > CRYPTO_DECIMALS ? CRYPTO_DECIMALS : current;
       })();
+  const result = bn.toFormat(decimals, BigNumber.ROUND_UP);
+  const indexOfDot = result.indexOf(".");
 
-  return <>{bn.toFormat(decimals, BigNumber.ROUND_UP)}</>;
+  return (
+    <>
+      {indexOfDot === -1 ? (
+        result
+      ) : (
+        <>
+          {result.slice(0, indexOfDot + 1)}
+          <span className="opacity-90" style={{ fontSize: "0.9em" }}>
+            {result.slice(indexOfDot + 1, result.length)}
+          </span>
+        </>
+      )}
+    </>
+  );
 });
 
 export default Money;
