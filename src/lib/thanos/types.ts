@@ -143,6 +143,7 @@ export interface ThanosLockResponse extends ThanosMessageBase {
 
 export interface ThanosCreateAccountRequest extends ThanosMessageBase {
   type: ThanosMessageType.CreateAccountRequest;
+  password: string;
 }
 
 export interface ThanosCreateAccountResponse extends ThanosMessageBase {
@@ -151,7 +152,7 @@ export interface ThanosCreateAccountResponse extends ThanosMessageBase {
 
 export interface ThanosRevealPublicKeyRequest extends ThanosMessageBase {
   type: ThanosMessageType.RevealPublicKeyRequest;
-  accountIndex: number;
+  accountPublicKeyHash: string;
 }
 
 export interface ThanosRevealPublicKeyResponse extends ThanosMessageBase {
@@ -161,7 +162,7 @@ export interface ThanosRevealPublicKeyResponse extends ThanosMessageBase {
 
 export interface ThanosRevealPrivateKeyRequest extends ThanosMessageBase {
   type: ThanosMessageType.RevealPrivateKeyRequest;
-  accountIndex: number;
+  accountPublicKeyHash: string;
   password: string;
 }
 
@@ -182,7 +183,7 @@ export interface ThanosRevealMnemonicResponse extends ThanosMessageBase {
 
 export interface ThanosEditAccountRequest extends ThanosMessageBase {
   type: ThanosMessageType.EditAccountRequest;
-  accountIndex: number;
+  accountPublicKeyHash: string;
   name: string;
 }
 
@@ -214,7 +215,7 @@ export interface ThanosImportFundraiserAccountResponse
 
 export interface ThanosSignRequest extends ThanosMessageBase {
   type: ThanosMessageType.SignRequest;
-  accountIndex: number;
+  accountPublicKeyHash: string;
   bytes: string;
   watermark?: string;
 }

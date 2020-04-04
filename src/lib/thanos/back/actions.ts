@@ -57,37 +57,41 @@ export async function unlock(password: string) {
   }
 }
 
-export async function createHDAccount() {
+export async function createHDAccount(password: string) {
   const state = store.getState();
   assertUnlocked(state);
 
   try {
-    const updatedAccounts = await state.vault.createHDAccount();
+    const updatedAccounts = await state.vault.createHDAccount(password);
     accountsUpdated(updatedAccounts);
   } catch (err) {
     logError(err);
-    throw new Error("Failed to create HD Account");
+    throw new Error("Incorrect password");
+    // throw new Error("Failed to create HD Account");
   }
 }
 
-export async function revealPublicKey(accIndex: number) {
+export async function revealPublicKey(accPublicKeyHash: string) {
   const state = store.getState();
   assertUnlocked(state);
 
   try {
-    return await state.vault.revealPublicKey(accIndex);
+    return await state.vault.revealPublicKey(accPublicKeyHash);
   } catch (err) {
     logError(err);
-    throw new Error("Failed");
+    throw new Error("Failed to reveal Public Key of your Account");
   }
 }
 
-export async function revealPrivateKey(accIndex: number, password: string) {
+export async function revealPrivateKey(
+  accPublicKeyHash: string,
+  password: string
+) {
   const state = store.getState();
   assertUnlocked(state);
 
   try {
-    return await state.vault.revealPrivateKey(accIndex, password);
+    return await state.vault.revealPrivateKey(accPublicKeyHash, password);
   } catch (err) {
     logError(err);
     throw new Error("Invalid password");
@@ -106,7 +110,7 @@ export async function revealMnemonic(password: string) {
   }
 }
 
-export async function editAccount(accIndex: number, name: string) {
+export async function editAccount(accPublicKeyHash: string, name: string) {
   const state = store.getState();
   assertUnlocked(state);
 
@@ -118,7 +122,10 @@ export async function editAccount(accIndex: number, name: string) {
   }
 
   try {
-    const updatedAccounts = await state.vault.editAccountName(accIndex, name);
+    const updatedAccounts = await state.vault.editAccountName(
+      accPublicKeyHash,
+      name
+    );
     accountsUpdated(updatedAccounts);
   } catch (err) {
     logError(err);
@@ -165,7 +172,7 @@ export async function importFundraiserAccount(
 }
 
 export async function sign(
-  accIndex: number,
+  accPublicKeyHash: string,
   bytes: string,
   watermark?: string
 ) {
@@ -173,7 +180,7 @@ export async function sign(
   assertUnlocked(state);
 
   try {
-    return await state.vault.sign(accIndex, bytes, watermark);
+    return await state.vault.sign(accPublicKeyHash, bytes, watermark);
   } catch (err) {
     logError(err);
     throw new Error("Failed to sign");

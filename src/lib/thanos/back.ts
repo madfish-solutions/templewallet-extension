@@ -59,11 +59,11 @@ async function processRequest(
       return { type: ThanosMessageType.LockResponse };
 
     case ThanosMessageType.CreateAccountRequest:
-      await Actions.createHDAccount();
+      await Actions.createHDAccount(req.password);
       return { type: ThanosMessageType.CreateAccountResponse };
 
     case ThanosMessageType.RevealPublicKeyRequest:
-      const publicKey = await Actions.revealPublicKey(req.accountIndex);
+      const publicKey = await Actions.revealPublicKey(req.accountPublicKeyHash);
       return {
         type: ThanosMessageType.RevealPublicKeyResponse,
         publicKey
@@ -71,7 +71,7 @@ async function processRequest(
 
     case ThanosMessageType.RevealPrivateKeyRequest:
       const privateKey = await Actions.revealPrivateKey(
-        req.accountIndex,
+        req.accountPublicKeyHash,
         req.password
       );
       return {
@@ -87,7 +87,7 @@ async function processRequest(
       };
 
     case ThanosMessageType.EditAccountRequest:
-      await Actions.editAccount(req.accountIndex, req.name);
+      await Actions.editAccount(req.accountPublicKeyHash, req.name);
       return {
         type: ThanosMessageType.EditAccountResponse
       };
@@ -110,7 +110,7 @@ async function processRequest(
 
     case ThanosMessageType.SignRequest:
       const result = await Actions.sign(
-        req.accountIndex,
+        req.accountPublicKeyHash,
         req.bytes,
         req.watermark
       );

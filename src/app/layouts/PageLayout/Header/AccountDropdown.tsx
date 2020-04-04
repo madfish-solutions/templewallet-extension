@@ -23,37 +23,39 @@ type AccountDropdown = PopperRenderProps;
 
 const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
-  const { lock, createAccount } = useThanosClient();
-  const { allAccounts, account, setAccIndex } = useReadyThanos();
+  const { lock } = useThanosClient();
+  const { allAccounts, account, setAccountPkh } = useReadyThanos();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
-      setAccIndex(accLength - 1);
+      setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
       setOpened(false);
       navigate("/");
     }
     prevAccLengthRef.current = accLength;
-  }, [allAccounts, setAccIndex, setOpened]);
+  }, [allAccounts, setAccountPkh, setOpened]);
 
   const handleLogoutClick = React.useCallback(() => {
     lock();
   }, [lock]);
 
   const handleCreateAccountClick = React.useCallback(() => {
-    (async () => {
-      try {
-        await createAccount();
-      } catch (err) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+    // (async () => {
+    //   try {
+    //     await createAccount();
+    //   } catch (err) {
+    //     if (process.env.NODE_ENV === "development") {
+    //       console.error(err);
+    //     }
 
-        alert(err.message);
-      }
-    })();
-  }, [createAccount]);
+    //     alert(err.message);
+    //   }
+    // })();
+    navigate("/create-account");
+    setOpened(false);
+  }, [setOpened]);
 
   const handleSettingsClick = React.useCallback(() => {
     navigate("/settings");
@@ -118,11 +120,11 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
         style={{ maxHeight: "11rem" }}
       >
         <div className="flex flex-col">
-          {allAccounts.map((acc, i) => {
+          {allAccounts.map(acc => {
             const selected = acc.publicKeyHash === account.publicKeyHash;
             const handleAccountClick = () => {
               if (!selected) {
-                setAccIndex(i);
+                setAccountPkh(acc.publicKeyHash);
               }
               setOpened(false);
             };

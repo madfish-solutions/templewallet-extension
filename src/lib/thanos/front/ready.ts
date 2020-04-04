@@ -25,15 +25,34 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
    */
 
   const [netIndex, setNetIndex] = usePassiveStorage("network_id", 0);
-  const network = useSafeListItem(allNetworks, netIndex, setNetIndex);
+
+  React.useEffect(() => {
+    if (netIndex >= allNetworks.length) {
+      setNetIndex(0);
+    }
+  }, [allNetworks.length, netIndex, setNetIndex]);
+
+  const safeNetIndex = netIndex in allNetworks ? netIndex : 0;
+  const network = allNetworks[safeNetIndex];
 
   /**
    * Accounts
    */
 
-  const [accIndex, setAccIndex] = usePassiveStorage("account_index", 0);
-  const account = useSafeListItem(allAccounts, accIndex, setAccIndex);
-  const accountPkh = account.publicKeyHash;
+  const defaultAcc = allAccounts[0];
+  const [accountPkh, setAccountPkh] = usePassiveStorage(
+    "account_publickeyhash",
+    defaultAcc.publicKeyHash
+  );
+
+  React.useEffect(() => {
+    if (allAccounts.every(a => a.publicKeyHash !== accountPkh)) {
+      setAccountPkh(defaultAcc.publicKeyHash);
+    }
+  }, [allAccounts, accountPkh, setAccountPkh, defaultAcc]);
+
+  const account =
+    allAccounts.find(a => a.publicKeyHash === accountPkh) ?? defaultAcc;
 
   /**
    * tezos = TezosToolkit instance
@@ -42,10 +61,10 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
   const tezos = React.useMemo(() => {
     const t = new TezosToolkit();
     const rpc = network.rpcBaseURL;
-    const signer = createSigner(accIndex, accountPkh);
+    const signer = createSigner(accountPkh);
     t.setProvider({ rpc, signer });
     return t;
-  }, [createSigner, network.rpcBaseURL, accIndex, accountPkh]);
+  }, [createSigner, network.rpcBaseURL, accountPkh]);
 
   const tezosKey = React.useMemo(
     () => [network.rpcBaseURL, accountPkh].join(","),
@@ -84,31 +103,13 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
     allAccounts,
     account,
     accountPkh,
-    accIndex,
-    setAccIndex,
+    setAccountPkh,
 
     tezos,
     tezosKey,
     activateAccount
   };
 });
-
-function useSafeListItem<T>(
-  list: T[],
-  index: number,
-  setIndex: React.Dispatch<number>
-) {
-  const safeIndex = index in list ? index : 0;
-  const item = list[safeIndex];
-
-  React.useEffect(() => {
-    if (index >= list.length) {
-      setIndex(0);
-    }
-  }, [list, index, setIndex]);
-
-  return item;
-}
 
 function assertReady(state: ThanosState): asserts state is ReadyThanosState {
   if (state.status !== ThanosStatus.Ready) {

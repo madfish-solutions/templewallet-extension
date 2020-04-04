@@ -17,7 +17,7 @@ type RevealSecretProps = {
 
 const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
   const { revealPrivateKey, revealMnemonic } = useThanosClient();
-  const { accIndex } = useReadyThanos();
+  const { accountPkh } = useReadyThanos();
 
   const {
     register,
@@ -48,7 +48,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
         const scrt = await (() => {
           switch (reveal) {
             case "private-key":
-              return revealPrivateKey(accIndex, password);
+              return revealPrivateKey(accountPkh, password);
 
             case "seed-phrase":
               return revealMnemonic(password);
@@ -72,7 +72,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       setError,
       revealPrivateKey,
       revealMnemonic,
-      accIndex,
+      accountPkh,
       setSecret
     ]
   );
@@ -159,7 +159,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
             type="password"
             name="password"
             placeholder="********"
-            errorCaption={errors.password && errors.password.message}
+            errorCaption={errors.password?.message}
             containerClassName="mb-4"
           />
 
