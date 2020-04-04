@@ -17,7 +17,7 @@ import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import Spinner from "app/atoms/Spinner";
 import Money from "app/atoms/Money";
-import AddressField from "app/atoms/AddressField";
+import NoSpaceField from "app/atoms/NoSpaceField";
 import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
@@ -292,7 +292,7 @@ const SendForm: React.FC = () => {
 
         <Controller
           name="to"
-          as={<AddressField ref={toFieldRef} />}
+          as={<NoSpaceField ref={toFieldRef} />}
           control={control}
           rules={{
             required: "Required",

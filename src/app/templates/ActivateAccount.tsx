@@ -88,6 +88,7 @@ const ActivateAccount: React.FC = () => {
 
       <FormField
         textarea
+        rows={2}
         ref={register({ required: "Required" })}
         name="secret"
         id="activateaccount-secret"
@@ -95,6 +96,7 @@ const ActivateAccount: React.FC = () => {
         labelDescription="'secret' field from Fundraiser Account or Faucet"
         placeholder="e.g. n4hs7sd3..."
         errorCaption={errors.secret?.message}
+        style={{ resize: "none" }}
         containerClassName="mb-4"
       />
 
