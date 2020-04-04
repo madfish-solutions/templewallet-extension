@@ -674,8 +674,11 @@ const TransferErrorCaption: React.FC<TransferErrorCaptionProps> = ({
           <br />
           This may happen because:
           <ul className="mt-1 ml-2 list-disc list-inside text-xs">
-            <li>No funds to send;</li>
-            <li>Minimal fee for transaction is greater than your balance;</li>
+            <li>
+              Minimal fee for transaction is greater than your balance. A large
+              fee may be due because you sending funds to an empty account. That
+              requires a one-time 0.257 XTZ burn fee;
+            </li>
             <li>Network or other tech issue.</li>
           </ul>
         </>
