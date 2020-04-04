@@ -13,7 +13,7 @@ const requestQueue = new Queue(1);
 const frontStore = store.map(toFront);
 
 export async function start(intercom: IntercomServer) {
-  intercom.handleRequest(handleRequest);
+  intercom.onRequest(handleRequest);
 
   const vaultExist = await Vault.isExist();
   inited(vaultExist);
