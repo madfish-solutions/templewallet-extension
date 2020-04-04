@@ -4,6 +4,10 @@
 
 @import "~inter-ui/inter.css";
 
+* {
+  font-variant-ligatures: none;
+}
+
 /**
  * Popper JS
  */
