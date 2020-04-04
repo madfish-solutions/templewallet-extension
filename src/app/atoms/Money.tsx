@@ -26,7 +26,7 @@ const Money = React.memo<MoneyProps>(({ children, fiat }) => {
       ) : (
         <>
           {result.slice(0, indexOfDot + 1)}
-          <span className="opacity-90" style={{ fontSize: "0.9em" }}>
+          <span style={{ fontSize: "0.9em" }}>
             {result.slice(indexOfDot + 1, result.length)}
           </span>
         </>
