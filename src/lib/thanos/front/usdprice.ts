@@ -6,9 +6,12 @@ import { useReadyThanos } from "lib/thanos/front/ready";
 
 export const [USDPriceProvider, useUSDPrice] = constate(() => {
   const mtSWR = useMarketTickers(true);
+  const { network } = useReadyThanos();
 
   return React.useMemo(() => {
-    if (!mtSWR.data) return null;
+    if (!(mtSWR.data && network.type === "main")) {
+      return null;
+    }
 
     // Inspiration
     // https://github.com/blockwatch-cc/tzstats/blob/7de49649b795db74f3de817fd5f268a3753b5254/src/components/Layout/Sidebar/MarketInfo/MarketInfo.js#L16
@@ -23,18 +26,12 @@ export const [USDPriceProvider, useUSDPrice] = constate(() => {
       vol && usdTickers.reduce((s, t) => s + (t.last * t.volume_base) / vol, 0);
 
     return price;
-  }, [mtSWR.data]);
+  }, [mtSWR.data, network.type]);
 });
 
 export function useMarketTickers(suspense?: boolean) {
-  const { network } = useReadyThanos();
-
-  return useSWR(
-    () => (network.type === "main" ? "market-tickers" : null),
-    getMarketTickers,
-    {
-      dedupingInterval: 360_000,
-      suspense
-    }
-  );
+  return useSWR("market-tickers", getMarketTickers, {
+    dedupingInterval: 360_000,
+    suspense
+  });
 }
