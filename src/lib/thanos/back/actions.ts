@@ -22,175 +22,102 @@ export async function getFrontState(): Promise<ThanosState> {
   }
 }
 
-export async function registerNewWallet(password: string, mnemonic?: string) {
-  const state = store.getState();
-  assertInited(state);
-
-  try {
+export function registerNewWallet(password: string, mnemonic?: string) {
+  return withInited(async () => {
     await Vault.spawn(password, mnemonic);
     await unlock(password);
-  } catch (err) {
-    logError(err);
-    throw new Error("Failed to create New Wallet");
-  }
+  });
 }
 
-export async function lock() {
-  const state = store.getState();
-  assertInited(state);
-
-  locked();
+export function lock() {
+  return withInited(async () => {
+    locked();
+  });
 }
 
-export async function unlock(password: string) {
-  const state = store.getState();
-  assertInited(state);
-
-  try {
+export function unlock(password: string) {
+  return withInited(async () => {
     const vault = await Vault.setup(password);
     const accounts = await vault.fetchAccounts();
-
     unlocked({ vault, accounts });
-  } catch (err) {
-    logError(err);
-    throw new Error("Incorrect password");
-  }
+  });
 }
 
-export async function createHDAccount(password: string) {
-  const state = store.getState();
-  assertUnlocked(state);
-
-  try {
-    const updatedAccounts = await state.vault.createHDAccount(password);
+export function createHDAccount(password: string) {
+  return withUnlocked(async () => {
+    const updatedAccounts = await Vault.createHDAccount(password);
     accountsUpdated(updatedAccounts);
-  } catch (err) {
-    logError(err);
-    throw new Error("Incorrect password");
-    // throw new Error("Failed to create HD Account");
-  }
+  });
 }
 
-export async function revealPublicKey(accPublicKeyHash: string) {
-  const state = store.getState();
-  assertUnlocked(state);
-
-  try {
-    return await state.vault.revealPublicKey(accPublicKeyHash);
-  } catch (err) {
-    logError(err);
-    throw new Error("Failed to reveal Public Key of your Account");
-  }
+export function revealMnemonic(password: string) {
+  return withUnlocked(() => Vault.revealMnemonic(password));
 }
 
-export async function revealPrivateKey(
-  accPublicKeyHash: string,
-  password: string
-) {
-  const state = store.getState();
-  assertUnlocked(state);
-
-  try {
-    return await state.vault.revealPrivateKey(accPublicKeyHash, password);
-  } catch (err) {
-    logError(err);
-    throw new Error("Invalid password");
-  }
+export function revealPrivateKey(accPublicKeyHash: string, password: string) {
+  return withUnlocked(() => Vault.revealPrivateKey(accPublicKeyHash, password));
 }
 
-export async function revealMnemonic(password: string) {
-  const state = store.getState();
-  assertUnlocked(state);
-
-  try {
-    return await state.vault.revealMnemonic(password);
-  } catch (err) {
-    logError(err);
-    throw new Error("Invalid password");
-  }
+export function revealPublicKey(accPublicKeyHash: string) {
+  return withUnlocked(({ vault }) => vault.revealPublicKey(accPublicKeyHash));
 }
 
-export async function editAccount(accPublicKeyHash: string, name: string) {
-  const state = store.getState();
-  assertUnlocked(state);
+export function editAccount(accPublicKeyHash: string, name: string) {
+  return withUnlocked(async ({ vault }) => {
+    name = name.trim();
+    if (!ACCOUNT_NAME_PATTERN.test(name)) {
+      throw new Error(
+        "Invalid name. It should be: 1-16 characters, without special"
+      );
+    }
 
-  name = name.trim();
-  if (!ACCOUNT_NAME_PATTERN.test(name)) {
-    throw new Error(
-      "Invalid name. It should be: 1-16 characters, without special"
-    );
-  }
-
-  try {
-    const updatedAccounts = await state.vault.editAccountName(
-      accPublicKeyHash,
-      name
-    );
+    const updatedAccounts = await vault.editAccountName(accPublicKeyHash, name);
     accountsUpdated(updatedAccounts);
-  } catch (err) {
-    logError(err);
-    throw new Error("Failed to edit account name");
-  }
+  });
 }
 
-export async function importAccount(privateKey: string) {
-  const state = store.getState();
-  assertUnlocked(state);
-
-  try {
-    const updatedAccounts = await state.vault.importAccount(privateKey);
+export function importAccount(privateKey: string) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.importAccount(privateKey);
     accountsUpdated(updatedAccounts);
-  } catch (err) {
-    logError(err);
-    throw new Error(
-      "Failed to import account" +
-        ".\nThis may happen because provided Key is invalid" +
-        " or such an account already exists"
-    );
-  }
+  });
 }
 
-export async function importFundraiserAccount(
+export function importFundraiserAccount(
   email: string,
   password: string,
   mnemonic: string
 ) {
-  const state = store.getState();
-  assertUnlocked(state);
-
-  try {
-    const updatedAccounts = await state.vault.importFundraiserAccount(
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.importFundraiserAccount(
       email,
       password,
       mnemonic
     );
     accountsUpdated(updatedAccounts);
-  } catch (err) {
-    logError(err);
-    throw new Error("Failed to import fundraiser account");
-  }
+  });
 }
 
-export async function sign(
+export function sign(
   accPublicKeyHash: string,
   bytes: string,
   watermark?: string
 ) {
-  const state = store.getState();
-  assertUnlocked(state);
-
-  try {
-    return await state.vault.sign(accPublicKeyHash, bytes, watermark);
-  } catch (err) {
-    logError(err);
-    throw new Error("Failed to sign");
-  }
+  return withUnlocked(({ vault }) =>
+    vault.sign(accPublicKeyHash, bytes, watermark)
+  );
 }
 
-function assertInited(state: StoreState) {
-  if (!state.inited) {
-    throw new Error("Not initialized");
-  }
+function withUnlocked<T>(factory: (state: UnlockedStoreState) => T) {
+  const state = store.getState();
+  assertUnlocked(state);
+  return factory(state);
+}
+
+function withInited<T>(factory: (state: StoreState) => T) {
+  const state = store.getState();
+  assertInited(state);
+  return factory(state);
 }
 
 function assertUnlocked(
@@ -202,8 +129,8 @@ function assertUnlocked(
   }
 }
 
-function logError(err: Error) {
-  if (process.env.NODE_ENV === "development") {
-    console.error(err);
+function assertInited(state: StoreState) {
+  if (!state.inited) {
+    throw new Error("Not initialized");
   }
 }
