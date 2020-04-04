@@ -1,12 +1,12 @@
 import * as React from "react";
 import FormField from "app/atoms/FormField";
 
-type AddressFieldProps = React.ComponentProps<typeof FormField> & {
+type NoSpaceFieldProps = React.ComponentProps<typeof FormField> & {
   value?: string;
   onChange?: (v: string) => void;
 };
 
-const AddressField = React.forwardRef<HTMLTextAreaElement, AddressFieldProps>(
+const NoSpaceField = React.forwardRef<HTMLTextAreaElement, NoSpaceFieldProps>(
   ({ value, onChange, ...rest }, ref) => {
     const format = React.useCallback(
       (val: string) => val.replace(/\s/g, ""),
@@ -29,4 +29,4 @@ const AddressField = React.forwardRef<HTMLTextAreaElement, AddressFieldProps>(
   }
 );
 
-export default AddressField;
+export default NoSpaceField;
