@@ -33,135 +33,156 @@ export class Vault {
   }
 
   static async setup(password: string) {
-    const passKey = await Passworder.generateKey(password);
-    await fetchAndDecryptOne(checkStrgKey, passKey);
-
-    return new Vault(passKey);
+    const passKey = await Vault.toValidPassKey(password);
+    return withError("Failed to unlock wallet", async () => {
+      await fetchAndDecryptOne(checkStrgKey, passKey);
+      return new Vault(passKey);
+    });
   }
 
   static async spawn(password: string, mnemonic?: string) {
-    if (!mnemonic) {
-      mnemonic = Bip39.generateMnemonic(128);
-    }
-    const seed = Bip39.mnemonicToSeedSync(mnemonic);
+    return withError("Failed to create wallet", async () => {
+      if (!mnemonic) {
+        mnemonic = Bip39.generateMnemonic(128);
+      }
+      const seed = Bip39.mnemonicToSeedSync(mnemonic);
 
-    const hdAccIndex = 0;
-    const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-    const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
-      accPrivateKey
-    );
+      const hdAccIndex = 0;
+      const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
+      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
+        accPrivateKey
+      );
 
-    const initialAccount: ThanosAccount = {
-      type: ThanosAccountType.HD,
-      name: "Account 1",
-      publicKeyHash: accPublicKeyHash
-    };
-    const newAccounts = [initialAccount];
+      const initialAccount: ThanosAccount = {
+        type: ThanosAccountType.HD,
+        name: "Account 1",
+        publicKeyHash: accPublicKeyHash
+      };
+      const newAccounts = [initialAccount];
 
-    const passKey = await Passworder.generateKey(password);
+      const passKey = await Passworder.generateKey(password);
 
-    await encryptAndSaveMany(
-      [
-        [checkStrgKey, null],
-        [mnemonicStrgKey, mnemonic],
-        [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-        [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-        [accountsStrgKey, newAccounts]
-      ],
-      passKey
+      await encryptAndSaveMany(
+        [
+          [checkStrgKey, null],
+          [mnemonicStrgKey, mnemonic],
+          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
+          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+          [accountsStrgKey, newAccounts]
+        ],
+        passKey
+      );
+    });
+  }
+
+  static async revealMnemonic(password: string) {
+    const passKey = await Vault.toValidPassKey(password);
+    return withError("Failed to reveal seed phrase", () =>
+      fetchAndDecryptOne<string>(mnemonicStrgKey, passKey)
     );
   }
 
-  private passKey: CryptoKey;
-
-  constructor(passKey: CryptoKey) {
-    this.passKey = passKey;
+  static async revealPrivateKey(accPublicKeyHash: string, password: string) {
+    const passKey = await Vault.toValidPassKey(password);
+    return withError("Failed to reveal private key", () =>
+      fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), passKey)
+    );
   }
+  static async createHDAccount(password: string) {
+    const passKey = await Vault.toValidPassKey(password);
+    return withError("Failed to create account", async () => {
+      const [mnemonic, allAccounts] = await Promise.all([
+        fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
+        fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, passKey)
+      ]);
+
+      const seed = Bip39.mnemonicToSeedSync(mnemonic);
+      const allHDAccounts = allAccounts.filter(
+        a => a.type === ThanosAccountType.HD
+      );
+      const hdAccIndex = allHDAccounts.length;
+      const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
+      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
+        accPrivateKey
+      );
+
+      const newAccount: ThanosAccount = {
+        type: ThanosAccountType.HD,
+        name: getNewAccountName(allAccounts),
+        publicKeyHash: accPublicKeyHash
+      };
+      const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+      await encryptAndSaveMany(
+        [
+          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
+          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+          [accountsStrgKey, newAllAcounts]
+        ],
+        passKey
+      );
+
+      return newAllAcounts;
+    });
+  }
+
+  private static toValidPassKey(password: string) {
+    return withError("Invalid password", async doThrow => {
+      const passKey = await Passworder.generateKey(password);
+      const check = await fetchAndDecryptOne<any>(checkStrgKey, passKey);
+      if (check !== null) {
+        doThrow();
+      }
+      return passKey;
+    });
+  }
+
+  constructor(private passKey: CryptoKey) {}
 
   revealPublicKey(accPublicKeyHash: string) {
-    return fetchAndDecryptOne<string>(
-      accPubKeyStrgKey(accPublicKeyHash),
-      this.passKey
+    return withError("Failed to reveal public key", () =>
+      fetchAndDecryptOne<string>(
+        accPubKeyStrgKey(accPublicKeyHash),
+        this.passKey
+      )
     );
-  }
-
-  async revealPrivateKey(accPublicKeyHash: string, password: string) {
-    const passKey = await Passworder.generateKey(password);
-    return fetchAndDecryptOne<string>(
-      accPrivKeyStrgKey(accPublicKeyHash),
-      passKey
-    );
-  }
-
-  async revealMnemonic(password: string) {
-    const passKey = await Passworder.generateKey(password);
-    return fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
   }
 
   fetchAccounts() {
     return fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, this.passKey);
   }
 
-  async createHDAccount(password: string) {
-    const passKey = await Passworder.generateKey(password);
-    const [mnemonic, allAccounts] = await Promise.all([
-      fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
-      fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, passKey)
-    ]);
-
-    const seed = Bip39.mnemonicToSeedSync(mnemonic);
-    const allHDAccounts = allAccounts.filter(
-      a => a.type === ThanosAccountType.HD
-    );
-    const hdAccIndex = allHDAccounts.length;
-    const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-    const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
-      accPrivateKey
-    );
-
-    const newAccount: ThanosAccount = {
-      type: ThanosAccountType.HD,
-      name: this.getNewAccountName(allAccounts),
-      publicKeyHash: accPublicKeyHash
-    };
-    const newAllAcounts = this.concatAccount(allAccounts, newAccount);
-
-    await encryptAndSaveMany(
-      [
-        [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-        [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-        [accountsStrgKey, newAllAcounts]
-      ],
-      passKey
-    );
-
-    return newAllAcounts;
-  }
-
   async importAccount(accPrivateKey: string) {
-    const allAccounts = await this.fetchAccounts();
+    const errMessage =
+      "Failed to import account" +
+      ".\nThis may happen because provided Key is invalid" +
+      " or such an account already exists";
 
-    const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
-      accPrivateKey
-    );
+    return withError(errMessage, async () => {
+      const allAccounts = await this.fetchAccounts();
 
-    const newAccount: ThanosAccount = {
-      type: ThanosAccountType.Imported,
-      name: this.getNewAccountName(allAccounts),
-      publicKeyHash: accPublicKeyHash
-    };
-    const newAllAcounts = this.concatAccount(allAccounts, newAccount);
+      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
+        accPrivateKey
+      );
 
-    await encryptAndSaveMany(
-      [
-        [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-        [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-        [accountsStrgKey, newAllAcounts]
-      ],
-      this.passKey
-    );
+      const newAccount: ThanosAccount = {
+        type: ThanosAccountType.Imported,
+        name: getNewAccountName(allAccounts),
+        publicKeyHash: accPublicKeyHash
+      };
+      const newAllAcounts = concatAccount(allAccounts, newAccount);
 
-    return newAllAcounts;
+      await encryptAndSaveMany(
+        [
+          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
+          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+          [accountsStrgKey, newAllAcounts]
+        ],
+        this.passKey
+      );
+
+      return newAllAcounts;
+    });
   }
 
   async importFundraiserAccount(
@@ -169,58 +190,68 @@ export class Vault {
     password: string,
     mnemonic: string
   ) {
-    const seed = Bip39.mnemonicToSeedSync(mnemonic, `${email}${password}`);
-    const privateKey = TaquitoUtils.b58cencode(
-      seed.slice(0, 32),
-      TaquitoUtils.prefix.edsk2
-    );
+    return withError("Failed to import fundraiser account", async () => {
+      const seed = Bip39.mnemonicToSeedSync(mnemonic, `${email}${password}`);
+      const privateKey = TaquitoUtils.b58cencode(
+        seed.slice(0, 32),
+        TaquitoUtils.prefix.edsk2
+      );
 
-    return this.importAccount(privateKey);
+      return this.importAccount(privateKey);
+    });
   }
 
   async editAccountName(accPublicKeyHash: string, name: string) {
-    const allAccounts = await this.fetchAccounts();
-    if (!allAccounts.some(acc => acc.publicKeyHash === accPublicKeyHash)) {
-      throw new Error("Account not found");
-    }
+    return withError("Failed to edit account name", async () => {
+      const allAccounts = await this.fetchAccounts();
+      if (!allAccounts.some(acc => acc.publicKeyHash === accPublicKeyHash)) {
+        throw new PublicError("Account not found");
+      }
 
-    if (
-      allAccounts.some(
-        acc => acc.publicKeyHash !== accPublicKeyHash && acc.name === name
-      )
-    ) {
-      throw new Error("Account with same name already exist");
-    }
+      if (
+        allAccounts.some(
+          acc => acc.publicKeyHash !== accPublicKeyHash && acc.name === name
+        )
+      ) {
+        throw new PublicError("Account with same name already exist");
+      }
 
-    const newAllAcounts = allAccounts.map(acc =>
-      acc.publicKeyHash === accPublicKeyHash ? { ...acc, name } : acc
-    );
-    await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], this.passKey);
+      const newAllAcounts = allAccounts.map(acc =>
+        acc.publicKeyHash === accPublicKeyHash ? { ...acc, name } : acc
+      );
+      await encryptAndSaveMany(
+        [[accountsStrgKey, newAllAcounts]],
+        this.passKey
+      );
 
-    return newAllAcounts;
+      return newAllAcounts;
+    });
   }
 
   async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {
-    const privateKey = await fetchAndDecryptOne<string>(
-      accPrivKeyStrgKey(accPublicKeyHash),
-      this.passKey
-    );
-    const signer = await createMemorySigner(privateKey);
-    const watermarkBuf = watermark && (TaquitoUtils.hex2buf(watermark) as any);
-    return signer.sign(bytes, watermarkBuf);
+    return withError("Failed to sign", async () => {
+      const privateKey = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        this.passKey
+      );
+      const signer = await createMemorySigner(privateKey);
+      const watermarkBuf =
+        watermark && (TaquitoUtils.hex2buf(watermark) as any);
+      return signer.sign(bytes, watermarkBuf);
+    });
+  }
+}
+
+function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
+  if (current.every(a => a.publicKeyHash !== newOne.publicKeyHash)) {
+    return [...current, newOne];
   }
 
-  private concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
-    if (current.every(a => a.publicKeyHash !== newOne.publicKeyHash)) {
-      return [...current, newOne];
-    }
+  throw new PublicError("Account already exists");
+}
 
-    throw new Error("Account already exists");
-  }
-
-  private getNewAccountName(allAccounts: ThanosAccount[]) {
-    return `Account ${allAccounts.length + 1}`;
-  }
+function getNewAccountName(allAccounts: ThanosAccount[]) {
+  return `Account ${allAccounts.length + 1}`;
 }
 
 async function getPublicKeyAndHash(privateKey: string) {
@@ -256,3 +287,18 @@ function createDynamicStorageKey(id: StorageEntity) {
 function combineStorageKey(...parts: (string | number)[]) {
   return parts.join("_");
 }
+
+async function withError<T>(
+  errMessage: string,
+  factory: (doThrow: () => void) => Promise<T>
+) {
+  try {
+    return await factory(() => {
+      throw new Error("<stub>");
+    });
+  } catch (err) {
+    throw err instanceof PublicError ? err : new Error(errMessage);
+  }
+}
+
+class PublicError extends Error {}
