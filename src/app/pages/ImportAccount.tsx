@@ -36,17 +36,17 @@ const Tab: React.FC<{
 const ImportAccount: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<TABS>("privateKey");
 
-  const { allAccounts, setAccIndex } = useReadyThanos();
+  const { allAccounts, setAccountPkh } = useReadyThanos();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
-      setAccIndex(accLength - 1);
+      setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
       navigate("/");
     }
     prevAccLengthRef.current = accLength;
-  }, [allAccounts, setAccIndex]);
+  }, [allAccounts, setAccountPkh]);
 
   return (
     <PageLayout

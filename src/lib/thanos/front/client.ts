@@ -82,18 +82,19 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     assertResponse(res.type === ThanosMessageType.LockResponse);
   }, []);
 
-  const createAccount = React.useCallback(async () => {
+  const createAccount = React.useCallback(async (password: string) => {
     const res = await request({
-      type: ThanosMessageType.CreateAccountRequest
+      type: ThanosMessageType.CreateAccountRequest,
+      password
     });
     assertResponse(res.type === ThanosMessageType.CreateAccountResponse);
   }, []);
 
   const revealPrivateKey = React.useCallback(
-    async (accIndex: number, password: string) => {
+    async (accountPublicKeyHash: string, password: string) => {
       const res = await request({
         type: ThanosMessageType.RevealPrivateKeyRequest,
-        accountIndex: accIndex,
+        accountPublicKeyHash,
         password
       });
       assertResponse(res.type === ThanosMessageType.RevealPrivateKeyResponse);
@@ -112,10 +113,10 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   }, []);
 
   const editAccountName = React.useCallback(
-    async (accIndex: number, name: string) => {
+    async (accountPublicKeyHash: string, name: string) => {
       const res = await request({
         type: ThanosMessageType.EditAccountRequest,
-        accountIndex: accIndex,
+        accountPublicKeyHash,
         name
       });
       assertResponse(res.type === ThanosMessageType.EditAccountResponse);
@@ -147,7 +148,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   );
 
   const createSigner = React.useCallback(
-    (accIndex: number, pkh: string) => new ThanosSigner(accIndex, pkh),
+    (accountPublicKeyHash: string) => new ThanosSigner(accountPublicKeyHash),
     []
   );
 
@@ -175,22 +176,16 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 });
 
 class ThanosSigner {
-  private accIndex: number;
-  private pkh: string;
-
-  constructor(accIndex: number, pkh: string) {
-    this.accIndex = accIndex;
-    this.pkh = pkh;
-  }
+  constructor(private accountPublicKeyHash: string) {}
 
   async publicKeyHash() {
-    return this.pkh;
+    return this.accountPublicKeyHash;
   }
 
   async publicKey(): Promise<string> {
     const res = await request({
       type: ThanosMessageType.RevealPublicKeyRequest,
-      accountIndex: this.accIndex
+      accountPublicKeyHash: this.accountPublicKeyHash
     });
     assertResponse(res.type === ThanosMessageType.RevealPublicKeyResponse);
     return res.publicKey;
@@ -203,7 +198,7 @@ class ThanosSigner {
   async sign(bytes: string, watermark?: Uint8Array) {
     const res = await request({
       type: ThanosMessageType.SignRequest,
-      accountIndex: this.accIndex,
+      accountPublicKeyHash: this.accountPublicKeyHash,
       bytes,
       watermark: buf2hex(toBuffer(watermark))
     });

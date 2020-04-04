@@ -184,7 +184,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
             "px-1",
             "flex items-center",
             "text-gray-600",
-            "text-sm font-light"
+            "text-sm font-light leading-none"
           )}
         >
           {pageTitle}

@@ -7,12 +7,11 @@ import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 
 const EditableTitle: React.FC = () => {
   const { editAccountName } = useThanosClient();
-  const { account, accIndex } = useReadyThanos();
+  const { account, accountPkh } = useReadyThanos();
 
   const [editing, setEditing] = React.useState(false);
 
   const editAccNameFieldRef = React.useRef<HTMLInputElement>(null);
-
   const accNamePrevRef = React.useRef<string>();
 
   React.useEffect(() => {
@@ -58,7 +57,7 @@ const EditableTitle: React.FC = () => {
         try {
           const newName = editAccNameFieldRef.current?.value;
           if (newName && newName !== account.name) {
-            await editAccountName(accIndex, newName);
+            await editAccountName(accountPkh, newName);
           }
 
           setEditing(false);
@@ -71,7 +70,7 @@ const EditableTitle: React.FC = () => {
         }
       })();
     },
-    [account.name, editAccountName, accIndex]
+    [account.name, editAccountName, accountPkh]
   );
 
   const handleEditFieldFocus = React.useCallback(() => {
@@ -93,14 +92,17 @@ const EditableTitle: React.FC = () => {
         >
           <FormField
             ref={editAccNameFieldRef}
+            name="name"
             defaultValue={account.name}
+            maxLength={16}
+            pattern="^[a-zA-Z0-9 _-]{1,16}$"
+            title="1-16 characters, no special"
+            spellCheck={false}
             className={classNames(
               "w-full mx-auto max-w-xs",
               "text-2xl font-light text-gray-700 text-center"
             )}
             style={{ padding: "0.075rem 0" }}
-            maxLength={16}
-            spellCheck={false}
             onFocus={handleEditFieldFocus}
             onBlur={handleEditFieldBlur}
           />
