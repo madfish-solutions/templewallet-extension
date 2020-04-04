@@ -31,7 +31,7 @@ export class IntercomServer {
   /**
    * Callback should return a promise
    */
-  handleRequest(handler: (payload: any) => Promise<any>) {
+  onRequest(handler: (payload: any) => Promise<any>) {
     this.addReqHandler(handler);
     return () => {
       this.removeReqHandler(handler);

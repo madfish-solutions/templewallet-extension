@@ -54,11 +54,11 @@ export class IntercomClient {
     return () => this.port.onMessage.removeListener(listener);
   }
 
-  private send(msg: RequestMessage) {
-    this.port.postMessage(msg);
+  destroy() {
+    this.port.disconnect();
   }
 
-  private destroy() {
-    this.port.disconnect();
+  private send(msg: RequestMessage) {
+    this.port.postMessage(msg);
   }
 }
