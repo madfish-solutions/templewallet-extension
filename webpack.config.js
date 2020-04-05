@@ -69,6 +69,10 @@ const HTML_TEMPLATES = [
     chunks: ["fullpage"]
   },
   {
+    path: path.join(PUBLIC_PATH, "confirm.html"),
+    chunks: ["confirm"]
+  },
+  {
     path: path.join(PUBLIC_PATH, "options.html"),
     chunks: ["options"]
   }
@@ -76,6 +80,7 @@ const HTML_TEMPLATES = [
 const ENTRIES = {
   popup: path.join(SOURCE_PATH, "popup.tsx"),
   fullpage: path.join(SOURCE_PATH, "fullpage.tsx"),
+  confirm: path.join(SOURCE_PATH, "confirm.tsx"),
   options: path.join(SOURCE_PATH, "options.tsx"),
   background: path.join(SOURCE_PATH, "background.ts")
   // contentScript: path.join(SOURCE_PATH, "contentScript.ts")
@@ -94,7 +99,7 @@ const ENTRIES = {
 const EXTENSION_ENTRIES = {
   // contentScript: "contentScript",
   background: "background",
-  extensionPage: ["commons", "popup", "fullpage", "options"]
+  extensionPage: ["commons", "popup", "fullpage", "confirm", "options"]
 };
 const SEPARATED_CHUNKS = new Set(["background" /*, "contentScript"*/]);
 const MANIFEST_PATH = path.join(PUBLIC_PATH, "manifest.json");
