@@ -44,7 +44,9 @@ const ActivateAccount: React.FC = () => {
       setSuccess(null);
 
       try {
-        const [activationStatus, op] = await activateAccount(data.secret);
+        const [activationStatus, op] = await activateAccount(
+          data.secret.replace(/\s/g, "")
+        );
         switch (activationStatus) {
           case ActivationStatus.AlreadyActivated:
             setSuccess("🏁 Your Account already activated.");
@@ -72,11 +74,23 @@ const ActivateAccount: React.FC = () => {
     [clearError, submitting, setError, setSuccess, activateAccount]
   );
 
+  const submit = React.useMemo(() => handleSubmit(onSubmit), [
+    handleSubmit,
+    onSubmit
+  ]);
+
+  const handleSecretFieldKeyPress = React.useCallback(
+    evt => {
+      if (evt.which === 13 && !evt.shiftKey) {
+        evt.preventDefault();
+        submit();
+      }
+    },
+    [submit]
+  );
+
   return (
-    <form
-      className="w-full max-w-sm mx-auto p-2"
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form className="w-full max-w-sm mx-auto p-2" onSubmit={submit}>
       {success && (
         <Alert
           type="success"
@@ -98,6 +112,7 @@ const ActivateAccount: React.FC = () => {
         errorCaption={errors.secret?.message}
         style={{ resize: "none" }}
         containerClassName="mb-4"
+        onKeyPress={handleSecretFieldKeyPress}
       />
 
       <FormSubmitButton loading={submitting} disabled={submitting}>
