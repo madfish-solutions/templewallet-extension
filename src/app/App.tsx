@@ -42,7 +42,7 @@ const AppProvider: React.FC<AppProps> = ({ children, env }) => (
 const rootEl = document.getElementById("root")!;
 
 const baseClassNames = ["transform"];
-const initialClassNames = ["scale-105", "opacity-0"];
+const initialClassNames = ["scale-105"];
 const transitionClassNames = ["transition", "ease", "duration-200"];
 
 rootEl.classList.add(...baseClassNames, ...initialClassNames);
