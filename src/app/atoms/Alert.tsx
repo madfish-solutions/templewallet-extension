@@ -5,15 +5,23 @@ type AlertProps = React.HTMLAttributes<HTMLDivElement> & {
   type?: "success" | "warn" | "error";
   title: React.ReactNode;
   description: React.ReactNode;
+  autoFocus?: boolean;
 };
 
 const Alert: React.FC<AlertProps> = ({
   type = "warn",
   title,
   description,
+  autoFocus,
   className,
   ...rest
 }) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    ref.current?.focus();
+  }, [autoFocus]);
+
   const [bgColorClassName, borderColorClassName, textColorClassName] = (() => {
     switch (type) {
       case "success":
@@ -27,6 +35,7 @@ const Alert: React.FC<AlertProps> = ({
 
   return (
     <div
+      ref={ref}
       className={classNames(
         "w-full px-4 py-3",
         bgColorClassName,
@@ -36,7 +45,9 @@ const Alert: React.FC<AlertProps> = ({
         textColorClassName,
         className
       )}
+      tabIndex={-1}
       role="alert"
+      aria-label="Alert"
       {...rest}
     >
       {title && <h2 className="text-lg font-semibold mb-1">{title}</h2>}

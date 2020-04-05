@@ -43,6 +43,7 @@ const SendForm: React.FC = () => {
 
   const balSWR = useBalance(accountPkh, true);
   const balance = balSWR.data!;
+  const revalidateBalance = balSWR.revalidate;
   const balanceNum = balance.toNumber();
 
   const validateAddress = React.useCallback(
@@ -248,7 +249,12 @@ const SendForm: React.FC = () => {
 
   return (
     <>
-      {operation && <OperationStatus operation={operation} />}
+      {operation && (
+        <OperationStatus
+          operation={operation}
+          revalidateBalance={revalidateBalance}
+        />
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {React.useMemo(
@@ -587,9 +593,13 @@ export default SendForm;
 
 type OperationStatusProps = {
   operation: any;
+  revalidateBalance?: () => any;
 };
 
-const OperationStatus: React.FC<OperationStatusProps> = ({ operation }) => {
+const OperationStatus: React.FC<OperationStatusProps> = ({
+  operation,
+  revalidateBalance
+}) => {
   const descFooter = React.useMemo(
     () => (
       <div className="mt-2 text-xs">
@@ -633,6 +643,10 @@ const OperationStatus: React.FC<OperationStatusProps> = ({ operation }) => {
             </>
           )
         }));
+
+        if (revalidateBalance) {
+          revalidateBalance();
+        }
       })
       .catch(() => {
         setAlert({
@@ -641,7 +655,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({ operation }) => {
           description: "Failed. Something went wrong ;("
         });
       });
-  }, [operation, setAlert, descFooter]);
+  }, [operation, setAlert, descFooter, revalidateBalance]);
 
   return (
     <Alert
