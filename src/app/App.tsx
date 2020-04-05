@@ -12,7 +12,7 @@ type AppProps = {
 };
 
 const App: React.FC<AppProps> = ({ env }) => (
-  <ErrorBoundary>
+  <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
     <React.Suspense fallback={<AppSuspenseFallback />}>
       <AppProvider env={env}>
         <DisableOutlinesForClick />

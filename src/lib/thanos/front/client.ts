@@ -1,6 +1,6 @@
 import * as React from "react";
 import constate from "constate";
-import useSWR from "swr";
+import { useRetryableSWR } from "lib/swr";
 import { buf2hex } from "@taquito/utils";
 import toBuffer from "typedarray-to-buffer";
 import { IntercomClient } from "lib/intercom";
@@ -24,7 +24,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     return res.state;
   }, []);
 
-  const stateSWR = useSWR("state", fetchState, {
+  const stateSWR = useRetryableSWR("state", fetchState, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,

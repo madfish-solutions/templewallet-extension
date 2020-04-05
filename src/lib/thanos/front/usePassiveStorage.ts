@@ -1,12 +1,12 @@
 import * as React from "react";
 import { browser } from "webextension-polyfill-ts";
-import useSWR from "swr";
+import { useRetryableSWR } from "lib/swr";
 
 export default function usePassiveStorage<T = any>(
   key: string,
   fallback?: T
 ): [T, React.Dispatch<T>] {
-  const { data } = useSWR<T>(key, fetchOne, {
+  const { data } = useRetryableSWR<T>(key, fetchOne, {
     suspense: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
