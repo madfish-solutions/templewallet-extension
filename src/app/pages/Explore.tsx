@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useReadyThanos } from "lib/thanos/front";
+import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
 import Balance from "app/templates/Balance";
@@ -137,9 +138,11 @@ const Explore: React.FC = () => {
 
       <SubTitle>Operations</SubTitle>
 
-      <React.Suspense fallback={<SpinnerSection />}>
-        <OperationHistory accountPkh={accountPkh} />
-      </React.Suspense>
+      <ErrorBoundary whileMessage="fetching or processing operation history from TZStats">
+        <React.Suspense fallback={<SpinnerSection />}>
+          <OperationHistory accountPkh={accountPkh} />
+        </React.Suspense>
+      </ErrorBoundary>
     </PageLayout>
   );
 };

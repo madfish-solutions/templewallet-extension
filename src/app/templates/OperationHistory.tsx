@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import useSWR from "swr";
+import { useRetryableSWR } from "lib/swr";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { TZStatsOperation, getAccountWithOperations } from "lib/tzstats";
 import { useReadyThanos } from "lib/thanos/front";
@@ -42,7 +42,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     }
   }, [network.tzStats, accountPkh]);
 
-  const { data } = useSWR(
+  const { data } = useRetryableSWR(
     ["operation-history", network.tzStats, accountPkh],
     fetchOperations,
     {

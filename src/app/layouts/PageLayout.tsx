@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
 import { useAppEnv } from "app/env";
+import ErrorBoundary from "app/ErrorBoundary";
 import OverscrollBg from "app/a11y/OverscrollBg";
 import ContentContainer from "app/layouts/ContentContainer";
 import Spinner from "app/atoms/Spinner";
@@ -31,9 +32,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({
           <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
 
           <div className="p-4">
-            <React.Suspense fallback={<SpinnerSection />}>
-              {children}
-            </React.Suspense>
+            <ErrorBoundary whileMessage="displaying this page">
+              <React.Suspense fallback={<SpinnerSection />}>
+                {children}
+              </React.Suspense>
+            </ErrorBoundary>
           </div>
         </ContentPaper>
       </div>

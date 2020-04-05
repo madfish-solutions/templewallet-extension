@@ -1,6 +1,6 @@
 import * as React from "react";
 import constate from "constate";
-import useSWR from "swr";
+import { useRetryableSWR } from "lib/swr";
 import { getMarketTickers } from "lib/tzstats";
 import { useReadyThanos } from "lib/thanos/front/ready";
 
@@ -30,7 +30,7 @@ export const [USDPriceProvider, useUSDPrice] = constate(() => {
 });
 
 export function useMarketTickers(suspense?: boolean) {
-  return useSWR("market-tickers", getMarketTickers, {
+  return useRetryableSWR("market-tickers", getMarketTickers, {
     dedupingInterval: 360_000,
     suspense
   });
