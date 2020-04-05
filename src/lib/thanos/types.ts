@@ -70,7 +70,8 @@ export enum ThanosMessageType {
   ImportFundraiserAccountRequest = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_REQUEST",
   ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
   SignRequest = "THANOS_SIGN_REQUEST",
-  SignResponse = "THANOS_SIGN_RESPONSE"
+  SignResponse = "THANOS_SIGN_RESPONSE",
+  ConfirmRequest = "THANOS_CONFIRM_REQUEST"
 }
 
 export type ThanosRequest =
@@ -85,7 +86,8 @@ export type ThanosRequest =
   | ThanosEditAccountRequest
   | ThanosImportAccountRequest
   | ThanosImportFundraiserAccountRequest
-  | ThanosSignRequest;
+  | ThanosSignRequest
+  | ThanosConfirmRequest;
 
 export type ThanosResponse =
   | ThanosGetStateResponse
@@ -223,4 +225,11 @@ export interface ThanosSignRequest extends ThanosMessageBase {
 export interface ThanosSignResponse extends ThanosMessageBase {
   type: ThanosMessageType.SignResponse;
   result: any;
+}
+
+export interface ThanosConfirmRequest extends ThanosMessageBase {
+  type: ThanosMessageType.ConfirmRequest;
+  id: string;
+  confirm: boolean;
+  password?: string;
 }

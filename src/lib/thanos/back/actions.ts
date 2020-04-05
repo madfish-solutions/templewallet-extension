@@ -1,4 +1,12 @@
-import { ThanosState, ThanosStatus } from "lib/thanos/types";
+import { Buffer } from "buffer";
+import { IntercomServer } from "lib/intercom/server";
+import { generateSalt } from "lib/thanos/passworder";
+import {
+  ThanosState,
+  ThanosStatus,
+  ThanosMessageType,
+  ThanosConfirmRequest
+} from "lib/thanos/types";
 import { Vault } from "lib/thanos/back/vault";
 import {
   StoreState,
@@ -9,6 +17,7 @@ import {
   unlocked,
   accountsUpdated
 } from "lib/thanos/back/store";
+import { browser } from "webextension-polyfill-ts";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 
@@ -99,12 +108,47 @@ export function importFundraiserAccount(
 }
 
 export function sign(
+  intercom: IntercomServer,
   accPublicKeyHash: string,
   bytes: string,
   watermark?: string
 ) {
-  return withUnlocked(({ vault }) =>
-    vault.sign(accPublicKeyHash, bytes, watermark)
+  return withUnlocked(
+    () =>
+      new Promise(async (resolve, reject) => {
+        const id = Buffer.from(generateSalt()).toString("hex");
+        const search = new URLSearchParams({ id });
+        const confirmWin = await browser.windows.create({
+          url: browser.runtime.getURL(`confirm.html?${search}`),
+          type: "popup",
+          height: 680,
+          width: 420
+        });
+
+        const stop = intercom.onRequest(async msg => {
+          if (
+            msg?.type === ThanosMessageType.ConfirmRequest &&
+            msg?.id === id
+          ) {
+            const req = msg as ThanosConfirmRequest;
+
+            if (req.confirm) {
+              const result = await Vault.sign(
+                accPublicKeyHash,
+                req.password!,
+                bytes,
+                watermark
+              );
+              resolve(result);
+            } else {
+              reject(new Error("Declined"));
+            }
+
+            stop();
+            browser.windows.remove(confirmWin.id!);
+          }
+        });
+      })
   );
 }
 

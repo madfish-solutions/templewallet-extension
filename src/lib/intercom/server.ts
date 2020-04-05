@@ -92,7 +92,7 @@ export class IntercomServer {
   }
 
   private addReqHandler(handler: ReqHandler) {
-    this.reqHandlers.push(handler);
+    this.reqHandlers.unshift(handler);
   }
 
   private removeReqHandler(handler: ReqHandler) {

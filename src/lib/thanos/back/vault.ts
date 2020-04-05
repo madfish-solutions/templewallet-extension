@@ -88,6 +88,7 @@ export class Vault {
       fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), passKey)
     );
   }
+
   static async createHDAccount(password: string) {
     const passKey = await Vault.toValidPassKey(password);
     return withError("Failed to create account", async () => {
@@ -123,6 +124,25 @@ export class Vault {
       );
 
       return newAllAcounts;
+    });
+  }
+
+  static async sign(
+    accPublicKeyHash: string,
+    password: string,
+    bytes: string,
+    watermark?: string
+  ) {
+    const passKey = await Vault.toValidPassKey(password);
+    return withError("Failed to sign", async () => {
+      const privateKey = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        passKey
+      );
+      const signer = await createMemorySigner(privateKey);
+      const watermarkBuf =
+        watermark && (TaquitoUtils.hex2buf(watermark) as any);
+      return signer.sign(bytes, watermarkBuf);
     });
   }
 
@@ -224,19 +244,6 @@ export class Vault {
       );
 
       return newAllAcounts;
-    });
-  }
-
-  async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {
-    return withError("Failed to sign", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        this.passKey
-      );
-      const signer = await createMemorySigner(privateKey);
-      const watermarkBuf =
-        watermark && (TaquitoUtils.hex2buf(watermark) as any);
-      return signer.sign(bytes, watermarkBuf);
     });
   }
 }

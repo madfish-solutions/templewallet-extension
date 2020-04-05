@@ -229,7 +229,7 @@ const SendForm: React.FC = () => {
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
         const op = await tezos.contract.transfer({ to, amount, fee });
         setOperation(op);
-        reset({ to: "" });
+        reset({ to: "", fee: 0.0001 });
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
