@@ -54,7 +54,7 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
       try {
         await registerWallet(
           data.password,
-          ownMnemonic ? data.mnemonic! : undefined
+          ownMnemonic ? data.mnemonic!.trim() : undefined
         );
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
@@ -117,7 +117,7 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
             rows={4}
             ref={register({
               required: true,
-              validate: val => validateMnemonic(val)
+              validate: val => validateMnemonic(val.trim())
             })}
             label="Seed phrase"
             labelDescription="Mnemonic. Your secret twelve word phrase."

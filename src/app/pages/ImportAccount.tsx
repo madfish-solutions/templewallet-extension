@@ -97,7 +97,7 @@ const ImportPrivateKeyForm: React.FC = () => {
 
       setError(null);
       try {
-        await importAccount(data.privateKey);
+        await importAccount(data.privateKey.replace(/\s/g, ""));
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -168,7 +168,11 @@ const ImportFundraiser: React.FC = () => {
 
       setError(null);
       try {
-        await importFundraiserAccount(data.email, data.password, data.mnemonic);
+        await importFundraiserAccount(
+          data.email,
+          data.password,
+          data.mnemonic.trim()
+        );
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -224,7 +228,7 @@ const ImportFundraiser: React.FC = () => {
         name="mnemonic"
         ref={register({
           required: true,
-          validate: val => validateMnemonic(val)
+          validate: val => validateMnemonic(val.trim())
         })}
         errorCaption={errors.mnemonic && MNEMONIC_ERROR_CAPTION}
         label="Seed phrase"
