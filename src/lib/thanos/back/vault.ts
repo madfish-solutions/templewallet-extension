@@ -89,44 +89,6 @@ export class Vault {
     );
   }
 
-  static async createHDAccount(password: string) {
-    const passKey = await Vault.toValidPassKey(password);
-    return withError("Failed to create account", async () => {
-      const [mnemonic, allAccounts] = await Promise.all([
-        fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
-        fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, passKey)
-      ]);
-
-      const seed = Bip39.mnemonicToSeedSync(mnemonic);
-      const allHDAccounts = allAccounts.filter(
-        a => a.type === ThanosAccountType.HD
-      );
-      const hdAccIndex = allHDAccounts.length;
-      const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
-        accPrivateKey
-      );
-
-      const newAccount: ThanosAccount = {
-        type: ThanosAccountType.HD,
-        name: getNewAccountName(allAccounts),
-        publicKeyHash: accPublicKeyHash
-      };
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
-
-      await encryptAndSaveMany(
-        [
-          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-          [accountsStrgKey, newAllAcounts]
-        ],
-        passKey
-      );
-
-      return newAllAcounts;
-    });
-  }
-
   static async sign(
     accPublicKeyHash: string,
     password: string,
@@ -170,6 +132,43 @@ export class Vault {
 
   fetchAccounts() {
     return fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, this.passKey);
+  }
+
+  async createHDAccount(name?: string) {
+    return withError("Failed to create account", async () => {
+      const [mnemonic, allAccounts] = await Promise.all([
+        fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey),
+        this.fetchAccounts()
+      ]);
+
+      const seed = Bip39.mnemonicToSeedSync(mnemonic);
+      const allHDAccounts = allAccounts.filter(
+        a => a.type === ThanosAccountType.HD
+      );
+      const hdAccIndex = allHDAccounts.length;
+      const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
+      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
+        accPrivateKey
+      );
+
+      const newAccount: ThanosAccount = {
+        type: ThanosAccountType.HD,
+        name: name || getNewAccountName(allAccounts),
+        publicKeyHash: accPublicKeyHash
+      };
+      const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+      await encryptAndSaveMany(
+        [
+          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
+          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+          [accountsStrgKey, newAllAcounts]
+        ],
+        this.passKey
+      );
+
+      return newAllAcounts;
+    });
   }
 
   async importAccount(accPrivateKey: string) {

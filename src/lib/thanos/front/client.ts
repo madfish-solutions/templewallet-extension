@@ -82,10 +82,10 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     assertResponse(res.type === ThanosMessageType.LockResponse);
   }, []);
 
-  const createAccount = React.useCallback(async (password: string) => {
+  const createAccount = React.useCallback(async (name?: string) => {
     const res = await request({
       type: ThanosMessageType.CreateAccountRequest,
-      password
+      name
     });
     assertResponse(res.type === ThanosMessageType.CreateAccountResponse);
   }, []);

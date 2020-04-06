@@ -52,9 +52,18 @@ export function unlock(password: string) {
   });
 }
 
-export function createHDAccount(password: string) {
-  return withUnlocked(async () => {
-    const updatedAccounts = await Vault.createHDAccount(password);
+export function createHDAccount(name?: string) {
+  return withUnlocked(async ({ vault }) => {
+    if (name) {
+      name = name.trim();
+      if (!ACCOUNT_NAME_PATTERN.test(name)) {
+        throw new Error(
+          "Invalid name. It should be: 1-16 characters, without special"
+        );
+      }
+    }
+
+    const updatedAccounts = await vault.createHDAccount(name);
     accountsUpdated(updatedAccounts);
   });
 }

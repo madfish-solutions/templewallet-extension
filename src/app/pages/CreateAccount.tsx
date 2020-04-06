@@ -8,7 +8,7 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 
 type FormData = {
-  password: string;
+  name: string;
 };
 
 const SUBMIT_ERROR_TYPE = "submit-error";
@@ -16,6 +16,10 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 const CreateAccount: React.FC = () => {
   const { createAccount } = useThanosClient();
   const { allAccounts, setAccountPkh } = useReadyThanos();
+
+  const defaultName = React.useMemo(() => `Account ${allAccounts.length + 1}`, [
+    allAccounts.length
+  ]);
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
@@ -34,16 +38,16 @@ const CreateAccount: React.FC = () => {
     setError,
     clearError,
     formState
-  } = useForm<FormData>();
+  } = useForm<FormData>({ defaultValues: { name: defaultName } });
   const submitting = formState.isSubmitting;
 
   const onSubmit = React.useCallback(
-    async ({ password }) => {
+    async ({ name }) => {
       if (submitting) return;
 
-      clearError("password");
+      clearError("name");
       try {
-        await createAccount(password);
+        await createAccount(name);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -51,7 +55,7 @@ const CreateAccount: React.FC = () => {
 
         // Human delay.
         await new Promise(res => setTimeout(res, 300));
-        setError("password", SUBMIT_ERROR_TYPE, err.message);
+        setError("name", SUBMIT_ERROR_TYPE, err.message);
       }
     },
     [submitting, clearError, setError, createAccount]
@@ -69,14 +73,20 @@ const CreateAccount: React.FC = () => {
       <div className="mt-6 w-full max-w-sm mx-auto">
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormField
-            ref={register({ required: "Required" })}
-            label="Password"
-            labelDescription={`Enter password to create new Account.`}
-            id="create-account-password"
-            type="password"
-            name="password"
-            placeholder="********"
-            errorCaption={errors.password?.message}
+            ref={register({
+              required: "Required",
+              pattern: {
+                value: /^[a-zA-Z0-9 _-]{1,16}$/,
+                message: "1-16 characters, no special"
+              }
+            })}
+            label="Account name"
+            labelDescription={`What will be the name of the new account?`}
+            id="create-account-name"
+            type="text"
+            name="name"
+            placeholder={defaultName}
+            errorCaption={errors.name?.message}
             containerClassName="mb-4"
           />
 

@@ -145,7 +145,7 @@ export interface ThanosLockResponse extends ThanosMessageBase {
 
 export interface ThanosCreateAccountRequest extends ThanosMessageBase {
   type: ThanosMessageType.CreateAccountRequest;
-  password: string;
+  name?: string;
 }
 
 export interface ThanosCreateAccountResponse extends ThanosMessageBase {
