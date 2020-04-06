@@ -9,10 +9,11 @@ import { Vault } from "lib/thanos/back/vault";
 import { toFront, store, inited } from "lib/thanos/back/store";
 import * as Actions from "lib/thanos/back/actions";
 
+const intercom = new IntercomServer();
 const requestQueue = new Queue(1);
 const frontStore = store.map(toFront);
 
-export async function start(intercom: IntercomServer) {
+export async function start() {
   intercom.onRequest(handleRequest);
 
   const vaultExist = await Vault.isExist();
@@ -59,7 +60,7 @@ async function processRequest(
       return { type: ThanosMessageType.LockResponse };
 
     case ThanosMessageType.CreateAccountRequest:
-      await Actions.createHDAccount(req.password);
+      await Actions.createHDAccount(req.name);
       return { type: ThanosMessageType.CreateAccountResponse };
 
     case ThanosMessageType.RevealPublicKeyRequest:
@@ -110,6 +111,7 @@ async function processRequest(
 
     case ThanosMessageType.SignRequest:
       const result = await Actions.sign(
+        intercom,
         req.accountPublicKeyHash,
         req.bytes,
         req.watermark

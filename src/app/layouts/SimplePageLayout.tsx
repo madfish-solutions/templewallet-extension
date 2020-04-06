@@ -33,11 +33,11 @@ const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
       >
         <div
           className={classNames(
-            "mt-12 mb-4",
+            "mt-12 mb-10",
             "flex flex-col items-center justify-center"
           )}
         >
-          <div className="mb-4 flex items-center">
+          <div className="flex items-center">
             <Logo />
 
             <h1
@@ -51,7 +51,16 @@ const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
             </h1>
           </div>
 
-          <div className="text-2xl text-gray-700 font-light">{title}</div>
+          <div
+            className={classNames(
+              "mt-4",
+              "text-center",
+              "text-2xl font-light leading-tight",
+              "text-gray-700"
+            )}
+          >
+            {title}
+          </div>
         </div>
 
         <div

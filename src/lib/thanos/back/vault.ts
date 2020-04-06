@@ -88,41 +88,23 @@ export class Vault {
       fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), passKey)
     );
   }
-  static async createHDAccount(password: string) {
+
+  static async sign(
+    accPublicKeyHash: string,
+    password: string,
+    bytes: string,
+    watermark?: string
+  ) {
     const passKey = await Vault.toValidPassKey(password);
-    return withError("Failed to create account", async () => {
-      const [mnemonic, allAccounts] = await Promise.all([
-        fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
-        fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, passKey)
-      ]);
-
-      const seed = Bip39.mnemonicToSeedSync(mnemonic);
-      const allHDAccounts = allAccounts.filter(
-        a => a.type === ThanosAccountType.HD
-      );
-      const hdAccIndex = allHDAccounts.length;
-      const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
-        accPrivateKey
-      );
-
-      const newAccount: ThanosAccount = {
-        type: ThanosAccountType.HD,
-        name: getNewAccountName(allAccounts),
-        publicKeyHash: accPublicKeyHash
-      };
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
-
-      await encryptAndSaveMany(
-        [
-          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-          [accountsStrgKey, newAllAcounts]
-        ],
+    return withError("Failed to sign", async () => {
+      const privateKey = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
         passKey
       );
-
-      return newAllAcounts;
+      const signer = await createMemorySigner(privateKey);
+      const watermarkBuf =
+        watermark && (TaquitoUtils.hex2buf(watermark) as any);
+      return signer.sign(bytes, watermarkBuf);
     });
   }
 
@@ -150,6 +132,43 @@ export class Vault {
 
   fetchAccounts() {
     return fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, this.passKey);
+  }
+
+  async createHDAccount(name?: string) {
+    return withError("Failed to create account", async () => {
+      const [mnemonic, allAccounts] = await Promise.all([
+        fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey),
+        this.fetchAccounts()
+      ]);
+
+      const seed = Bip39.mnemonicToSeedSync(mnemonic);
+      const allHDAccounts = allAccounts.filter(
+        a => a.type === ThanosAccountType.HD
+      );
+      const hdAccIndex = allHDAccounts.length;
+      const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
+      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
+        accPrivateKey
+      );
+
+      const newAccount: ThanosAccount = {
+        type: ThanosAccountType.HD,
+        name: name || getNewAccountName(allAccounts),
+        publicKeyHash: accPublicKeyHash
+      };
+      const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+      await encryptAndSaveMany(
+        [
+          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
+          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+          [accountsStrgKey, newAllAcounts]
+        ],
+        this.passKey
+      );
+
+      return newAllAcounts;
+    });
   }
 
   async importAccount(accPrivateKey: string) {
@@ -224,19 +243,6 @@ export class Vault {
       );
 
       return newAllAcounts;
-    });
-  }
-
-  async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {
-    return withError("Failed to sign", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        this.passKey
-      );
-      const signer = await createMemorySigner(privateKey);
-      const watermarkBuf =
-        watermark && (TaquitoUtils.hex2buf(watermark) as any);
-      return signer.sign(bytes, watermarkBuf);
     });
   }
 }

@@ -16,6 +16,14 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 const Unlock: React.FC = () => {
   const { unlock } = useThanosClient();
 
+  const formRef = React.useRef<HTMLFormElement>(null);
+
+  const focusPasswordField = React.useCallback(() => {
+    formRef.current
+      ?.querySelector<HTMLInputElement>("input[name='password']")
+      ?.focus();
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -41,24 +49,24 @@ const Unlock: React.FC = () => {
         // Human delay.
         await new Promise(res => setTimeout(res, 300));
         setError("password", SUBMIT_ERROR_TYPE, err.message);
+        focusPasswordField();
       }
     },
-    [submitting, clearError, setError, unlock]
+    [submitting, clearError, setError, unlock, focusPasswordField]
   );
 
   return (
     <SimplePageLayout
       title={
-        <div className="mt-4 mb-2 text-center">
-          <div className="text-2xl">
-            Unlock the Wallet
-            <br />
-            <div className="text-xl leading-none">to continue</div>
-          </div>
-        </div>
+        <>
+          Unlock the Wallet
+          <br />
+          <span style={{ fontSize: "0.9em" }}>to continue</span>
+        </>
       }
     >
       <form
+        ref={formRef}
         className="my-8 w-full mx-auto max-w-sm"
         onSubmit={handleSubmit(onSubmit)}
       >

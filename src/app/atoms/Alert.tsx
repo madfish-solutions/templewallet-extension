@@ -25,11 +25,11 @@ const Alert: React.FC<AlertProps> = ({
   const [bgColorClassName, borderColorClassName, textColorClassName] = (() => {
     switch (type) {
       case "success":
-        return ["bg-green-100", "border-green-500", "text-green-700"];
+        return ["bg-green-100", "border-green-400", "text-green-700"];
       case "warn":
-        return ["bg-yellow-100", "border-yellow-500", "text-yellow-700"];
+        return ["bg-yellow-100", "border-yellow-400", "text-yellow-700"];
       case "error":
-        return ["bg-red-100", "border-red-500", "text-red-700"];
+        return ["bg-red-100", "border-red-400", "text-red-700"];
     }
   })();
 
@@ -41,7 +41,7 @@ const Alert: React.FC<AlertProps> = ({
         bgColorClassName,
         "border",
         borderColorClassName,
-        "rounded shadow-xs",
+        "rounded-md",
         textColorClassName,
         className
       )}
