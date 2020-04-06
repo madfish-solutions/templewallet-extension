@@ -60,7 +60,7 @@ async function processRequest(
       return { type: ThanosMessageType.LockResponse };
 
     case ThanosMessageType.CreateAccountRequest:
-      await Actions.createHDAccount(req.password);
+      await Actions.createHDAccount(req.name);
       return { type: ThanosMessageType.CreateAccountResponse };
 
     case ThanosMessageType.RevealPublicKeyRequest:
