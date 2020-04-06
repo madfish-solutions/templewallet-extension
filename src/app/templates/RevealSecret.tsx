@@ -39,6 +39,14 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     }
   }, [secret]);
 
+  const formRef = React.useRef<HTMLFormElement>(null);
+
+  const focusPasswordField = React.useCallback(() => {
+    formRef.current
+      ?.querySelector<HTMLInputElement>("input[name='password']")
+      ?.focus();
+  }, []);
+
   const onSubmit = React.useCallback(
     async ({ password }) => {
       if (submitting) return;
@@ -63,6 +71,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
         // Human delay.
         await new Promise(res => setTimeout(res, 300));
         setError("password", SUBMIT_ERROR_TYPE, err.message);
+        focusPasswordField();
       }
     },
     [
@@ -73,7 +82,8 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       revealPrivateKey,
       revealMnemonic,
       accountPkh,
-      setSecret
+      setSecret,
+      focusPasswordField
     ]
   );
 
@@ -150,7 +160,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           />
         </>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
           <FormField
             ref={register({ required: "Required" })}
             label="Password"

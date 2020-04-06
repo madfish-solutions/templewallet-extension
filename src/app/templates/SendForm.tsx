@@ -231,6 +231,10 @@ const SendForm: React.FC = () => {
         setOperation(op);
         reset({ to: "", fee: 0.0001 });
       } catch (err) {
+        if (err.message === "Declined") {
+          return;
+        }
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -678,7 +682,7 @@ const TransferErrorCaption: React.FC<TransferErrorCaptionProps> = ({
 }) => (
   <Alert
     type={type === "transfer" ? "error" : "warn"}
-    title={type === "transfer" ? "Failed" : "No funds to send 😶"}
+    title={zeroBalance ? "No funds to send 😶" : "Failed"}
     description={
       zeroBalance ? (
         <>Your Balance is equals to Zero.</>
@@ -689,9 +693,9 @@ const TransferErrorCaption: React.FC<TransferErrorCaptionProps> = ({
           This may happen because:
           <ul className="mt-1 ml-2 list-disc list-inside text-xs">
             <li>
-              Minimal fee for transaction is greater than your balance. A large
-              fee may be due because you sending funds to an empty account. That
-              requires a one-time 0.257 XTZ burn fee;
+              Minimal fee for this transaction is greater than your balance. A
+              large fee may be due because you sending funds to an empty Manager
+              account. That requires a one-time 0.257 XTZ burn fee;
             </li>
             <li>Network or other tech issue.</li>
           </ul>

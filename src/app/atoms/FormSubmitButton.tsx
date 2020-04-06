@@ -19,11 +19,9 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
       "relative",
       "px-8",
       "bg-primary-orange rounded",
-      "border border-primary-orange",
+      "border-2 border-primary-orange",
       "flex items-center",
-      loading
-        ? "text-transparent"
-        : "text-primary-orange-lighter text-shadow-black-orange",
+      loading ? "text-transparent" : "text-primary-orange-lighter",
       "text-base font-semibold",
       "transition duration-200 ease-in-out",
       loading || disabled

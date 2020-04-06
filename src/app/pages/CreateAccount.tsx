@@ -74,9 +74,8 @@ const CreateAccount: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormField
             ref={register({
-              required: "Required",
               pattern: {
-                value: /^[a-zA-Z0-9 _-]{1,16}$/,
+                value: /^[a-zA-Z0-9 _-]{0,16}$/,
                 message: "1-16 characters, no special"
               }
             })}
