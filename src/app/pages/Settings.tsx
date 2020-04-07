@@ -52,8 +52,8 @@ const TABS = [
     color: "rgb(131, 179, 0)",
     description: (
       <>
-        Bla-bla-bla known as "Bla-bla". If you blabla change browsers or move
-        kek, you will need this seed phrase to access your wallet and accounts.
+        Recommended allocations for contributions to the Tezos Foundation’s
+        fundraiser must be activated before they may be accessed.
       </>
     )
   }
