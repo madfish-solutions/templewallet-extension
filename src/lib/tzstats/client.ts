@@ -42,8 +42,6 @@ export const getMarketTickersPure = explore<TZStatsMarketTicker[]>(
   "/markets/tickers"
 );
 
-(window as any).getMarketTickers = getMarketTickers;
-
 export const getAccountWithOperations = explore<
   TZStatsAccountOp,
   {
