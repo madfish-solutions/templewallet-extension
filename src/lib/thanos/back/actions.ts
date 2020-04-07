@@ -17,7 +17,7 @@ import {
   unlocked,
   accountsUpdated
 } from "lib/thanos/back/store";
-import { browser } from "webextension-polyfill-ts";
+import { Windows, browser } from "webextension-polyfill-ts";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 const CONFIRM_WIDTH = 320;
@@ -119,6 +119,8 @@ export function importFundraiserAccount(
   });
 }
 
+let currentConfirmWindow: Windows.Window;
+
 export function sign(
   intercom: IntercomServer,
   accPublicKeyHash: string,
@@ -143,6 +145,7 @@ export function sign(
           top: Math.max(top, 0),
           left: Math.max(left, 0)
         });
+        currentConfirmWindow = confirmWin;
 
         let stop: any;
         let timeout: any;
@@ -181,9 +184,11 @@ export function sign(
           reject(new Error("Declined"));
         };
 
-        browser.windows.onRemoved.addListener(() => {
-          decline();
-          close();
+        browser.windows.onRemoved.addListener(winId => {
+          if (winId === confirmWin?.id) {
+            decline();
+            close();
+          }
         });
 
         stop = intercom.onRequest(async msg => {
@@ -218,6 +223,17 @@ export function sign(
         }, AUTODECLINE_AFTER);
       })
   );
+}
+
+export async function closeConfirmWindow() {
+  if (currentConfirmWindow?.id) {
+    try {
+      const win = await browser.windows.get(currentConfirmWindow.id);
+      if (win.id) {
+        browser.windows.remove(win.id);
+      }
+    } catch (_err) {}
+  }
 }
 
 function withUnlocked<T>(factory: (state: UnlockedStoreState) => T) {

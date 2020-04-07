@@ -140,7 +140,15 @@ async function processRequest(
 
 const queue = new Queue(1);
 
-function enqueue<T>(factory: () => Promise<T>) {
+async function enqueue<T>(factory: () => Promise<T>) {
+  // if (confirm) {
+  //   throw new Error("Confirm previous first");
+  // }
+
+  if (!queue.isAvailable()) {
+    await Actions.closeConfirmWindow();
+  }
+
   return new Promise<T>((response, reject) => {
     queue.add(() =>
       factory()
