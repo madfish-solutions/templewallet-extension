@@ -19,7 +19,9 @@ const Alert: React.FC<AlertProps> = ({
   const ref = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    ref.current?.focus();
+    if (autoFocus) {
+      ref.current?.focus();
+    }
   }, [autoFocus]);
 
   const [bgColorClassName, borderColorClassName, textColorClassName] = (() => {

@@ -10,7 +10,7 @@ import {
   useReadyThanos,
   useBalance,
   fetchBalance,
-  getBalanceSWRKey
+  getBalanceSWRKey,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import Balance from "app/templates/Balance";
@@ -68,10 +68,10 @@ const SendForm: React.FC = () => {
     formState,
     setValue,
     triggerValidation,
-    reset
+    reset,
   } = useForm<FormData>({
     mode: "onChange",
-    defaultValues: { fee: recommendedAddFeeTz }
+    defaultValues: { fee: recommendedAddFeeTz },
   });
 
   const amountFieldDirty = formState.dirtyFields.has("amount");
@@ -89,7 +89,7 @@ const SendForm: React.FC = () => {
       const firstInvlaid = [
         [errors.to, toFieldRef],
         [errors.amount, amountFieldRef],
-        [errors.fee, feeFieldRef]
+        [errors.fee, feeFieldRef],
       ].find(([e]) => e);
       if (firstInvlaid) {
         (firstInvlaid[1] as any).current?.focus();
@@ -104,7 +104,8 @@ const SendForm: React.FC = () => {
 
   const filledAccount = React.useMemo(
     () =>
-      (toFilled && allAccounts.find(a => a.publicKeyHash === toValue)) || null,
+      (toFilled && allAccounts.find((a) => a.publicKeyHash === toValue)) ||
+      null,
     [toFilled, allAccounts, toValue]
   );
 
@@ -116,7 +117,7 @@ const SendForm: React.FC = () => {
       );
       if (balanceBN.isZero()) {
         // Human delay
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise((r) => setTimeout(r, 300));
         return NOT_ENOUGH_FUNDS;
       }
 
@@ -129,7 +130,7 @@ const SendForm: React.FC = () => {
       }
       const estmtnMax = await tezos.estimate.transfer({
         to,
-        amount: amountMax.toNumber()
+        amount: amountMax.toNumber(),
       });
 
       let baseFee = mutezToTz(estmtnMax.totalCost);
@@ -159,7 +160,7 @@ const SendForm: React.FC = () => {
     () => (toFilled ? ["base-fee", toValue, tezosKey, accountPkh] : null),
     estimateBaseFee,
     {
-      dedupingInterval: 30_000
+      dedupingInterval: 30_000,
     }
   );
 
@@ -240,7 +241,7 @@ const SendForm: React.FC = () => {
         }
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await new Promise((res) => setTimeout(res, 300));
         setSubmitError(err);
       }
     },
@@ -286,7 +287,7 @@ const SendForm: React.FC = () => {
                     </span>
 
                     <InUSD volume={balance}>
-                      {usdBalance => (
+                      {(usdBalance) => (
                         <div className="mt-1 text-sm text-gray-500">
                           ${usdBalance}
                         </div>
@@ -306,7 +307,7 @@ const SendForm: React.FC = () => {
           control={control}
           rules={{
             required: "Required",
-            validate: validateAddress
+            validate: validateAddress,
           }}
           onChange={([v]) => v}
           textarea
@@ -322,7 +323,7 @@ const SendForm: React.FC = () => {
                   size={14}
                   className="flex-shrink-0 opacity-75"
                   style={{
-                    boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)"
+                    boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)",
                   }}
                 />
                 <div className="ml-1 mr-px font-normal">
@@ -330,7 +331,7 @@ const SendForm: React.FC = () => {
                 </div>{" "}
                 (
                 <Balance address={filledAccount.publicKeyHash}>
-                  {bal => (
+                  {(bal) => (
                     <span className={classNames("text-xs leading-none")}>
                       <Money>{bal}</Money>{" "}
                       <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
@@ -346,7 +347,7 @@ const SendForm: React.FC = () => {
           placeholder="tz1a9w1S7hN5s..."
           errorCaption={errors.to?.message}
           style={{
-            resize: "none"
+            resize: "none",
           }}
           containerClassName="mb-4"
         />
@@ -369,7 +370,7 @@ const SendForm: React.FC = () => {
               as={<AssetField ref={amountFieldRef} />}
               control={control}
               rules={{
-                validate: validateAmount
+                validate: validateAmount,
               }}
               onChange={([v]) => v}
               id="send-amount"
@@ -391,7 +392,7 @@ const SendForm: React.FC = () => {
                       <>
                         <br />
                         <InUSD volume={amountValue}>
-                          {usdAmount => (
+                          {(usdAmount) => (
                             <div className="mt-1 -mb-3">
                               ≈{" "}
                               <span className="font-normal text-gray-700">
@@ -482,7 +483,7 @@ const SendForm: React.FC = () => {
                 )}
               >
                 {allAccounts
-                  .filter(acc => acc.publicKeyHash !== accountPkh)
+                  .filter((acc) => acc.publicKeyHash !== accountPkh)
                   .map((acc, i, arr) => {
                     const last = i === arr.length - 1;
                     const handleAccountClick = () => {
@@ -506,7 +507,7 @@ const SendForm: React.FC = () => {
                           "opacity-90 hover:opacity-100"
                         )}
                         style={{
-                          padding: "0.4rem 0.375rem 0.4rem 0.375rem"
+                          padding: "0.4rem 0.375rem 0.4rem 0.375rem",
                         }}
                         onClick={handleAccountClick}
                       >
@@ -516,7 +517,7 @@ const SendForm: React.FC = () => {
                           size={32}
                           className="flex-shrink-0"
                           style={{
-                            boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)"
+                            boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)",
                           }}
                         />
 
@@ -564,7 +565,7 @@ const SendForm: React.FC = () => {
                             </div>
 
                             <Balance address={acc.publicKeyHash}>
-                              {bal => (
+                              {(bal) => (
                                 <div
                                   className={classNames(
                                     "ml-2",
@@ -602,7 +603,7 @@ type OperationStatusProps = {
 
 const OperationStatus: React.FC<OperationStatusProps> = ({
   operation,
-  revalidateBalance
+  revalidateBalance,
 }) => {
   const descFooter = React.useMemo(
     () => (
@@ -631,21 +632,21 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
         🛫 Transaction request sent! Confirming...
         {descFooter}
       </>
-    )
+    ),
   }));
 
   React.useEffect(() => {
     operation
       .confirmation()
       .then(() => {
-        setAlert(a => ({
+        setAlert((a) => ({
           ...a,
           description: (
             <>
               ✅ Transaction successfully processed and confirmed!
               {descFooter}
             </>
-          )
+          ),
         }));
 
         if (revalidateBalance) {
@@ -656,7 +657,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
         setAlert({
           type: "error",
           title: "Error",
-          description: "Failed. Something went wrong ;("
+          description: "Failed. Something went wrong ;(",
         });
       });
   }, [operation, setAlert, descFooter, revalidateBalance]);
@@ -666,6 +667,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
       type={alert.type}
       title={alert.title}
       description={alert.description}
+      autoFocus
       className="mb-8"
     />
   );
@@ -678,7 +680,7 @@ type TransferErrorCaptionProps = {
 
 const TransferErrorCaption: React.FC<TransferErrorCaptionProps> = ({
   type,
-  zeroBalance
+  zeroBalance,
 }) => (
   <Alert
     type={type === "transfer" ? "error" : "warn"}
@@ -702,6 +704,7 @@ const TransferErrorCaption: React.FC<TransferErrorCaptionProps> = ({
         </>
       )
     }
+    autoFocus
     className={classNames("mt-6 mb-4")}
   />
 );
