@@ -18,7 +18,7 @@ const ActivateAccount: React.FC = () => {
 
   const [success, setSuccessPure] = React.useState<React.ReactNode>(null);
   const setSuccess = React.useCallback<typeof setSuccessPure>(
-    val => {
+    (val) => {
       if (isMounted()) {
         setSuccessPure(val);
       }
@@ -32,7 +32,7 @@ const ActivateAccount: React.FC = () => {
     formState,
     clearError,
     setError,
-    errors
+    errors,
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
@@ -65,7 +65,7 @@ const ActivateAccount: React.FC = () => {
         }
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await new Promise((res) => setTimeout(res, 300));
         const mes =
           "Failed. This may happen because provided Secret is invalid";
         setError("secret", SUBMIT_ERROR_TYPE, mes);
@@ -76,11 +76,11 @@ const ActivateAccount: React.FC = () => {
 
   const submit = React.useMemo(() => handleSubmit(onSubmit), [
     handleSubmit,
-    onSubmit
+    onSubmit,
   ]);
 
   const handleSecretFieldKeyPress = React.useCallback(
-    evt => {
+    (evt) => {
       if (evt.which === 13 && !evt.shiftKey) {
         evt.preventDefault();
         submit();
@@ -96,6 +96,7 @@ const ActivateAccount: React.FC = () => {
           type="success"
           title="Success"
           description={success}
+          autoFocus
           className="mb-4"
         />
       )}

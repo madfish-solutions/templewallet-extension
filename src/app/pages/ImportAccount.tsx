@@ -92,7 +92,7 @@ const ImportPrivateKeyForm: React.FC = () => {
   const [error, setError] = React.useState<React.ReactNode>(null);
 
   const onSubmit = React.useCallback<(data: FormDataPrivateKey) => void>(
-    async data => {
+    async (data) => {
       if (formState.isSubmitting) return;
 
       setError(null);
@@ -104,7 +104,7 @@ const ImportPrivateKeyForm: React.FC = () => {
         }
 
         // Human delay
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise((r) => setTimeout(r, 300));
         setError(err.message);
       }
     },
@@ -118,10 +118,11 @@ const ImportPrivateKeyForm: React.FC = () => {
     >
       {error && (
         <Alert
-          className="mb-6"
           type="error"
           title="Error"
+          autoFocus
           description={error}
+          className="mb-6"
         />
       )}
 
@@ -163,7 +164,7 @@ const ImportFundraiser: React.FC = () => {
   const [error, setError] = React.useState<React.ReactNode>(null);
 
   const onSubmit = React.useCallback<(data: FormDataImportFundraiser) => void>(
-    async data => {
+    async (data) => {
       if (formState.isSubmitting) return;
 
       setError(null);
@@ -179,7 +180,7 @@ const ImportFundraiser: React.FC = () => {
         }
 
         // Human delay
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise((r) => setTimeout(r, 300));
         setError(err.message);
       }
     },
@@ -193,10 +194,11 @@ const ImportFundraiser: React.FC = () => {
     >
       {error && (
         <Alert
-          className="mb-6"
           type="error"
           title="Error"
           description={error}
+          autoFocus
+          className="mb-6"
         />
       )}
 
@@ -228,7 +230,7 @@ const ImportFundraiser: React.FC = () => {
         name="mnemonic"
         ref={register({
           required: true,
-          validate: val => validateMnemonic(val.trim())
+          validate: (val) => validateMnemonic(val.trim()),
         })}
         errorCaption={errors.mnemonic && MNEMONIC_ERROR_CAPTION}
         label="Seed phrase"

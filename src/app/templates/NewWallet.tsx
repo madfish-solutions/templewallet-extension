@@ -7,7 +7,7 @@ import { useThanosClient } from "lib/thanos/front";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
-  MNEMONIC_ERROR_CAPTION
+  MNEMONIC_ERROR_CAPTION,
 } from "app/defaults";
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
@@ -35,7 +35,7 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
     handleSubmit,
     errors,
     triggerValidation,
-    formState
+    formState,
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
@@ -117,7 +117,7 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
             rows={4}
             ref={register({
               required: true,
-              validate: val => validateMnemonic(val.trim())
+              validate: (val) => validateMnemonic(val.trim()),
             })}
             label="Seed phrase"
             labelDescription="Mnemonic. Your secret twelve word phrase."
@@ -146,7 +146,7 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
         <FormField
           ref={register({
             required: true,
-            validate: val => val === passwordValue
+            validate: (val) => val === passwordValue,
           })}
           label="Repeat Password"
           labelDescription="Please enter the password again."
