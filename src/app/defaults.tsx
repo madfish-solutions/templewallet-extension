@@ -6,7 +6,7 @@ export const PASSWORD_PATTERN = new RegExp(
     "(?=.*[a-z])", // Must contain at least 1 lowercase alphabetical character
     "(?=.*[A-Z])", // Must contain at least 1 uppercase alphabetical character
     "(?=.*[0-9])", // Must contain at least 1 numeric character
-    "(?=.{8,})" // Must be eight characters or longer
+    "(?=.{8,})", // Must be eight characters or longer
   ].join("")
 );
 

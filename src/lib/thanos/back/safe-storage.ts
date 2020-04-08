@@ -41,7 +41,7 @@ async function encrypt(stuff: any, passKey: CryptoKey) {
 
   return {
     encrypted,
-    salt: Buffer.from(salt).toString("hex")
+    salt: Buffer.from(salt).toString("hex"),
   };
 }
 

@@ -32,7 +32,7 @@ const FormCheckbox = React.forwardRef<HTMLInputElement, FormCheckboxProps>(
       () => checked || false
     );
     const handleChange = React.useCallback(
-      evt => {
+      (evt) => {
         if (onChange) {
           onChange(evt);
           if (evt.defaultPrevented) {
@@ -51,7 +51,7 @@ const FormCheckbox = React.forwardRef<HTMLInputElement, FormCheckboxProps>(
     const [localFocused, setLocalFocused] = React.useState(false);
 
     const handleFocus = React.useCallback(
-      evt => {
+      (evt) => {
         if (onFocus) {
           onFocus(evt);
           if (evt.defaultPrevented) {
@@ -65,7 +65,7 @@ const FormCheckbox = React.forwardRef<HTMLInputElement, FormCheckboxProps>(
     );
 
     const handleBlur = React.useCallback(
-      evt => {
+      (evt) => {
         if (onBlur) {
           onBlur(evt);
           if (evt.defaultPrevented) {

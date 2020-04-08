@@ -16,7 +16,7 @@ const Logo: React.FC<LogoProps> = ({ hasTitle, dark, className, ...rest }) => (
         height: 40,
         width: "auto",
         marginTop: 6,
-        marginBottom: 6
+        marginBottom: 6,
       }}
     />
 

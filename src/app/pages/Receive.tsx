@@ -38,7 +38,7 @@ const Receive: React.FC = () => {
             spellCheck={false}
             readOnly
             style={{
-              resize: "none"
+              resize: "none",
             }}
           />
 

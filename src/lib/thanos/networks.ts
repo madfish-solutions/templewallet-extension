@@ -10,7 +10,7 @@ export const NETWORKS: ThanosNetwork[] = [
     rpcBaseURL: "https://mainnet.tezos.org.ua",
     tzStats: TZStatsNetwork.Mainnet,
     color: "#83b300",
-    disabled: false
+    disabled: false,
   },
   {
     id: "carthagenet",
@@ -20,7 +20,7 @@ export const NETWORKS: ThanosNetwork[] = [
     rpcBaseURL: "https://carthagenet.tezos.org.ua",
     tzStats: TZStatsNetwork.Carthagenet,
     color: "#0f4c81",
-    disabled: false
+    disabled: false,
   },
   {
     id: "babylonnet",
@@ -30,7 +30,7 @@ export const NETWORKS: ThanosNetwork[] = [
     rpcBaseURL: "https://babylonnet.tezos.org.ua",
     tzStats: TZStatsNetwork.Babylonnet,
     color: "#ed6663",
-    disabled: false
+    disabled: false,
   },
   {
     id: "labnet",
@@ -40,7 +40,7 @@ export const NETWORKS: ThanosNetwork[] = [
     rpcBaseURL: "https://labnet.tezos.org.ua",
     tzStats: TZStatsNetwork.Labnet,
     color: "#f6c90e",
-    disabled: false
+    disabled: false,
   },
   {
     id: "zeronet",
@@ -50,6 +50,6 @@ export const NETWORKS: ThanosNetwork[] = [
     rpcBaseURL: "<no public nodes>",
     tzStats: TZStatsNetwork.Zeronet,
     color: "#e9e1cc",
-    disabled: true
-  }
+    disabled: true,
+  },
 ];

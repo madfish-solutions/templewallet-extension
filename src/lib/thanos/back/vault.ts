@@ -7,7 +7,7 @@ import { ThanosAccount, ThanosAccountType } from "lib/thanos/types";
 import {
   isStored,
   fetchAndDecryptOne,
-  encryptAndSaveMany
+  encryptAndSaveMany,
 } from "lib/thanos/back/safe-storage";
 
 const TEZOS_BIP44_COINTYPE = 1729;
@@ -18,7 +18,7 @@ enum StorageEntity {
   Mnemonic = "mnemonic",
   AccPrivKey = "accprivkey",
   AccPubKey = "accpubkey",
-  Accounts = "accounts"
+  Accounts = "accounts",
 }
 
 const checkStrgKey = createStorageKey(StorageEntity.Check);
@@ -56,7 +56,7 @@ export class Vault {
       const initialAccount: ThanosAccount = {
         type: ThanosAccountType.HD,
         name: "Account 1",
-        publicKeyHash: accPublicKeyHash
+        publicKeyHash: accPublicKeyHash,
       };
       const newAccounts = [initialAccount];
 
@@ -68,7 +68,7 @@ export class Vault {
           [mnemonicStrgKey, mnemonic],
           [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
           [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-          [accountsStrgKey, newAccounts]
+          [accountsStrgKey, newAccounts],
         ],
         passKey
       );
@@ -109,7 +109,7 @@ export class Vault {
   }
 
   private static toValidPassKey(password: string) {
-    return withError("Invalid password", async doThrow => {
+    return withError("Invalid password", async (doThrow) => {
       const passKey = await Passworder.generateKey(password);
       const check = await fetchAndDecryptOne<any>(checkStrgKey, passKey);
       if (check !== null) {
@@ -138,12 +138,12 @@ export class Vault {
     return withError("Failed to create account", async () => {
       const [mnemonic, allAccounts] = await Promise.all([
         fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey),
-        this.fetchAccounts()
+        this.fetchAccounts(),
       ]);
 
       const seed = Bip39.mnemonicToSeedSync(mnemonic);
       const allHDAccounts = allAccounts.filter(
-        a => a.type === ThanosAccountType.HD
+        (a) => a.type === ThanosAccountType.HD
       );
       const hdAccIndex = allHDAccounts.length;
       const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
@@ -154,7 +154,7 @@ export class Vault {
       const newAccount: ThanosAccount = {
         type: ThanosAccountType.HD,
         name: name || getNewAccountName(allAccounts),
-        publicKeyHash: accPublicKeyHash
+        publicKeyHash: accPublicKeyHash,
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 
@@ -162,7 +162,7 @@ export class Vault {
         [
           [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
           [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-          [accountsStrgKey, newAllAcounts]
+          [accountsStrgKey, newAllAcounts],
         ],
         this.passKey
       );
@@ -186,7 +186,7 @@ export class Vault {
       const newAccount: ThanosAccount = {
         type: ThanosAccountType.Imported,
         name: getNewAccountName(allAccounts),
-        publicKeyHash: accPublicKeyHash
+        publicKeyHash: accPublicKeyHash,
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 
@@ -194,7 +194,7 @@ export class Vault {
         [
           [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
           [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-          [accountsStrgKey, newAllAcounts]
+          [accountsStrgKey, newAllAcounts],
         ],
         this.passKey
       );
@@ -222,19 +222,19 @@ export class Vault {
   async editAccountName(accPublicKeyHash: string, name: string) {
     return withError("Failed to edit account name", async () => {
       const allAccounts = await this.fetchAccounts();
-      if (!allAccounts.some(acc => acc.publicKeyHash === accPublicKeyHash)) {
+      if (!allAccounts.some((acc) => acc.publicKeyHash === accPublicKeyHash)) {
         throw new PublicError("Account not found");
       }
 
       if (
         allAccounts.some(
-          acc => acc.publicKeyHash !== accPublicKeyHash && acc.name === name
+          (acc) => acc.publicKeyHash !== accPublicKeyHash && acc.name === name
         )
       ) {
         throw new PublicError("Account with same name already exist");
       }
 
-      const newAllAcounts = allAccounts.map(acc =>
+      const newAllAcounts = allAccounts.map((acc) =>
         acc.publicKeyHash === accPublicKeyHash ? { ...acc, name } : acc
       );
       await encryptAndSaveMany(
@@ -248,7 +248,7 @@ export class Vault {
 }
 
 function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
-  if (current.every(a => a.publicKeyHash !== newOne.publicKeyHash)) {
+  if (current.every((a) => a.publicKeyHash !== newOne.publicKeyHash)) {
     return [...current, newOne];
   }
 

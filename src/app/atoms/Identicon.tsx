@@ -31,7 +31,7 @@ const Identicon: React.FC<IdenticonProps> = ({
         base64: true,
         width: size,
         height: size,
-        margin: 4
+        margin: 4,
       };
       const imgSrc =
         type === "jdenticon"
@@ -62,7 +62,7 @@ const Identicon: React.FC<IdenticonProps> = ({
           width: size,
           height: size,
           borderRadius: Math.round(size / 10),
-          ...style
+          ...style,
         }}
         {...rest}
       />

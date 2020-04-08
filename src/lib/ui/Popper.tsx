@@ -28,11 +28,11 @@ const Popper = React.memo<PopperProps>(
     const [opened, setOpened] = React.useState(false);
 
     const toggleOpened = React.useCallback(() => {
-      setOpened(o => !o);
+      setOpened((o) => !o);
     }, [setOpened]);
 
     const handleClickOuside = React.useCallback(
-      evt => {
+      (evt) => {
         if (!(triggerRef.current && triggerRef.current.contains(evt.target))) {
           setOpened(false);
         }
@@ -49,14 +49,14 @@ const Popper = React.memo<PopperProps>(
           {
             name: "preventOverflow",
             options: {
-              padding: 8
-            }
+              padding: 8,
+            },
           },
           {
-            name: "hide"
+            name: "hide",
           },
-          ...(popperOptions.modifiers ?? [])
-        ]
+          ...(popperOptions.modifiers ?? []),
+        ],
       }),
       [popperOptions]
     );
@@ -90,7 +90,7 @@ const Popper = React.memo<PopperProps>(
       () => ({
         opened,
         setOpened,
-        toggleOpened
+        toggleOpened,
       }),
       [opened, setOpened, toggleOpened]
     );
@@ -102,7 +102,7 @@ const Popper = React.memo<PopperProps>(
 
     const popupNode = React.useMemo(() => popup(renderPropsBase), [
       popup,
-      renderPropsBase
+      renderPropsBase,
     ]);
 
     return (

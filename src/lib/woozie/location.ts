@@ -35,7 +35,7 @@ export function createLocationState(): LocationState {
     length: historyLength,
     lastAction: trigger = null,
     position: historyPosition = 0,
-    state
+    state,
   } = window.history as PatchedHistory;
 
   let {
@@ -47,7 +47,7 @@ export function createLocationState(): LocationState {
     pathname,
     port,
     protocol,
-    search
+    search,
   } = window.location;
 
   if (USE_LOCATION_HASH_AS_URL) {
@@ -71,7 +71,7 @@ export function createLocationState(): LocationState {
     pathname,
     port,
     protocol,
-    search
+    search,
   };
 }
 

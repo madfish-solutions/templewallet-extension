@@ -17,7 +17,7 @@ export interface ThanosState {
 export enum ThanosStatus {
   Idle,
   Locked,
-  Ready
+  Ready,
 }
 
 export interface ThanosAccount {
@@ -29,7 +29,7 @@ export interface ThanosAccount {
 export enum ThanosAccountType {
   HD,
   Imported,
-  Connected
+  Connected,
 }
 
 export interface ThanosNetwork {
@@ -71,7 +71,7 @@ export enum ThanosMessageType {
   ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
   SignRequest = "THANOS_SIGN_REQUEST",
   SignResponse = "THANOS_SIGN_RESPONSE",
-  ConfirmRequest = "THANOS_CONFIRM_REQUEST"
+  ConfirmRequest = "THANOS_CONFIRM_REQUEST",
 }
 
 export type ThanosRequest =

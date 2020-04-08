@@ -25,7 +25,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     errors,
     setError,
     clearError,
-    formState
+    formState,
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
@@ -69,7 +69,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
         }
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await new Promise((res) => setTimeout(res, 300));
         setError("password", SUBMIT_ERROR_TYPE, err.message);
         focusPasswordField();
       }
@@ -83,7 +83,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       revealMnemonic,
       accountPkh,
       setSecret,
-      focusPasswordField
+      focusPasswordField,
     ]
   );
 
@@ -109,7 +109,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           ),
           fieldDesc: (
             <>Current account key. Save it somewhere safe and secret.</>
-          )
+          ),
         };
 
       case "seed-phrase":
@@ -127,7 +127,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
               seed phrase to access your accounts. Save them somewhere safe and
               secret.
             </>
-          )
+          ),
         };
     }
   }, [reveal]);

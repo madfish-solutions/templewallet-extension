@@ -24,7 +24,7 @@ const DropdownWrapper: React.FC<DropdownWrapperProps> = ({
       exit: classNames(
         "transform opacity-0 scale-95",
         "transition ease-in duration-100"
-      )
+      ),
     }}
     unmountOnExit
   >
@@ -40,7 +40,7 @@ const DropdownWrapper: React.FC<DropdownWrapperProps> = ({
       style={{
         backgroundColor: "#1b262c",
         borderColor: "#212e36",
-        ...style
+        ...style,
       }}
       {...rest}
     />

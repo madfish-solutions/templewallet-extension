@@ -31,7 +31,7 @@ export async function encrypt(
   const encryptedStuff = await crypto.subtle.encrypt(
     {
       name: "AES-GCM",
-      iv
+      iv,
     },
     key,
     Buffer.from(stuffStr)
@@ -39,7 +39,7 @@ export async function encrypt(
 
   return {
     dt: Buffer.from(encryptedStuff).toString("hex"),
-    iv: Buffer.from(iv).toString("hex")
+    iv: Buffer.from(iv).toString("hex"),
   };
 }
 
@@ -72,7 +72,7 @@ export function deriveKey(key: CryptoKey, salt: Uint8Array) {
       name: "PBKDF2",
       salt,
       iterations: 10000,
-      hash: "SHA-256"
+      hash: "SHA-256",
     },
     key,
     { name: "AES-GCM", length: 256 },

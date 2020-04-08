@@ -21,7 +21,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
 
   const fetchOperations = React.useCallback(async () => {
     if (initialLoad) {
-      await new Promise(res => setTimeout(res, 200));
+      await new Promise((res) => setTimeout(res, 200));
       initialLoad = false;
     }
     try {
@@ -29,11 +29,11 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
         pkh: accountPkh,
         order: "desc",
         limit: 25,
-        offset: 0
-      }).then(acc => acc.ops);
+        offset: 0,
+      }).then((acc) => acc.ops);
     } catch (err) {
       // Human delay
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise((r) => setTimeout(r, 300));
 
       if (err?.origin?.response?.status === 404) {
         return [];
@@ -47,7 +47,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     fetchOperations,
     {
       suspense: true,
-      refreshInterval: 10_000
+      refreshInterval: 10_000,
     }
   );
   const operations = data!;
@@ -55,7 +55,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const onlyUniqueOps = React.useMemo(() => {
     const unique: TZStatsOperation[] = [];
     for (const op of operations) {
-      if (unique.every(u => opKey(u) !== opKey(op))) {
+      if (unique.every((u) => opKey(u) !== opKey(op))) {
         unique.push(op);
       }
     }
@@ -80,7 +80,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
         </div>
       )}
 
-      {onlyUniqueOps.map(op => (
+      {onlyUniqueOps.map((op) => (
         <Operation key={opKey(op)} accountPkh={accountPkh} {...op} />
       ))}
     </div>
@@ -135,7 +135,7 @@ const Operation = React.memo<OperationProps>(
                     <span className="text-xs text-gray-500 font-light">
                       {formatDistanceToNow(new Date(time), {
                         includeSeconds: true,
-                        addSuffix: true
+                        addSuffix: true,
                       })}
                     </span>
                   )}
@@ -169,7 +169,7 @@ const Operation = React.memo<OperationProps>(
                 </div>
 
                 <InUSD volume={volume}>
-                  {usdVolume => (
+                  {(usdVolume) => (
                     <div className="text-xs text-gray-500">
                       <span className="mr-px">$</span>
                       {usdVolume}
@@ -212,7 +212,7 @@ function formatOperationType(type: string, imReciever: boolean) {
 
   return type
     .split("_")
-    .map(w => `${w.charAt(0).toUpperCase()}${w.substring(1)}`)
+    .map((w) => `${w.charAt(0).toUpperCase()}${w.substring(1)}`)
     .join(" ");
 }
 

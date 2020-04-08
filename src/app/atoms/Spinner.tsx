@@ -9,7 +9,7 @@ type SpinnerProps = React.HTMLAttributes<HTMLDivElement> & {
 const Spinner = React.memo<SpinnerProps>(
   ({ theme = "primary", className, ...rest }) => (
     <div className={classNames("flex justify-around", className)} {...rest}>
-      {["bounce1", "bounce2", "bounce3"].map(name => (
+      {["bounce1", "bounce2", "bounce3"].map((name) => (
         <div
           key={name}
           className={classNames(

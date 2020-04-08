@@ -52,7 +52,7 @@ const ConfirmForm: React.FC = () => {
     errors,
     setError,
     clearError,
-    formState
+    formState,
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
@@ -66,7 +66,7 @@ const ConfirmForm: React.FC = () => {
           type: ThanosMessageType.ConfirmRequest,
           id,
           confirm: true,
-          password
+          password,
         };
         await intercom.request(req);
       } catch (err) {
@@ -75,7 +75,7 @@ const ConfirmForm: React.FC = () => {
         }
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await new Promise((res) => setTimeout(res, 300));
         setError("password", SUBMIT_ERROR_TYPE, err.message);
         focusPasswordField();
       }
@@ -91,7 +91,7 @@ const ConfirmForm: React.FC = () => {
       const req: ThanosConfirmRequest = {
         type: ThanosMessageType.ConfirmRequest,
         id,
-        confirm: false
+        confirm: false,
       };
       await intercom.request(req);
     } catch (err) {
@@ -100,7 +100,7 @@ const ConfirmForm: React.FC = () => {
       }
 
       // Human delay.
-      await new Promise(res => setTimeout(res, 300));
+      await new Promise((res) => setTimeout(res, 300));
       setError("password", SUBMIT_ERROR_TYPE, err.message);
       focusPasswordField();
     }
@@ -112,7 +112,7 @@ const ConfirmForm: React.FC = () => {
       className="flex flex-col items-center py-2"
       style={{
         height: 320,
-        width: 320
+        width: 320,
       }}
       onSubmit={handleSubmit(onSubmit)}
     >

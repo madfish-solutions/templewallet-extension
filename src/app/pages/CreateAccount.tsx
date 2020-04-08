@@ -18,7 +18,7 @@ const CreateAccount: React.FC = () => {
   const { allAccounts, setAccountPkh } = useReadyThanos();
 
   const defaultName = React.useMemo(() => `Account ${allAccounts.length + 1}`, [
-    allAccounts.length
+    allAccounts.length,
   ]);
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
@@ -37,7 +37,7 @@ const CreateAccount: React.FC = () => {
     errors,
     setError,
     clearError,
-    formState
+    formState,
   } = useForm<FormData>({ defaultValues: { name: defaultName } });
   const submitting = formState.isSubmitting;
 
@@ -54,7 +54,7 @@ const CreateAccount: React.FC = () => {
         }
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await new Promise((res) => setTimeout(res, 300));
         setError("name", SUBMIT_ERROR_TYPE, err.message);
       }
     },
@@ -76,8 +76,8 @@ const CreateAccount: React.FC = () => {
             ref={register({
               pattern: {
                 value: /^[a-zA-Z0-9 _-]{0,16}$/,
-                message: "1-16 characters, no special"
-              }
+                message: "1-16 characters, no special",
+              },
             })}
             label="Account name"
             labelDescription={`What will be the name of the new account?`}

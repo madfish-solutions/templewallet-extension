@@ -25,7 +25,7 @@ const SIGNS = [
         Already have a seed phrase? Import your existing wallet using a 12 or
         more mnemonic words
       </>
-    )
+    ),
   },
   {
     key: "create",
@@ -38,8 +38,8 @@ const SIGNS = [
         New to Thanos Wallet? Let’s get set up! This will create a new wallet
         and seed phrase
       </>
-    )
-  }
+    ),
+  },
 ];
 
 const Welcome: React.FC = () => {

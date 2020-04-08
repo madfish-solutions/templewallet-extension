@@ -18,7 +18,8 @@ export const [USDPriceProvider, useUSDPrice] = constate(() => {
 
     // filter fresh tickers in USD only (age < 2min)
     const usdTickers = mtSWR.data.filter(
-      e => e.quote === "USD" && Date.now() - +new Date(e.timestamp) < 60_000 * 2
+      (e) =>
+        e.quote === "USD" && Date.now() - +new Date(e.timestamp) < 60_000 * 2
     );
     // price index: use all USD ticker last prices with equal weight
     const vol = usdTickers.reduce((s, t) => s + t.volume_base, 0) || null;
@@ -32,6 +33,6 @@ export const [USDPriceProvider, useUSDPrice] = constate(() => {
 export function useMarketTickers(suspense?: boolean) {
   return useRetryableSWR("market-tickers", getMarketTickers, {
     dedupingInterval: 360_000,
-    suspense
+    suspense,
   });
 }

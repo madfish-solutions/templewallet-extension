@@ -9,7 +9,7 @@ export type AppEnvironment = {
 
 export enum WindowType {
   Popup,
-  FullPage
+  FullPage,
 }
 
 export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
@@ -19,7 +19,7 @@ export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
   return React.useMemo(() => ({ ...env, fullPage, popup }), [
     env,
     fullPage,
-    popup
+    popup,
   ]);
 });
 
@@ -35,6 +35,6 @@ export function openInFullPage() {
   const { search, hash } = window.location;
   const url = createUrl("fullpage.html", search, hash);
   browser.tabs.create({
-    url: browser.runtime.getURL(url)
+    url: browser.runtime.getURL(url),
   });
 }

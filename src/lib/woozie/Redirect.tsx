@@ -2,7 +2,7 @@ import * as React from "react";
 import {
   To,
   createLocationState,
-  createLocationUpdates
+  createLocationUpdates,
 } from "lib/woozie/location";
 import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 
@@ -15,7 +15,7 @@ type RedirectProps = {
 const Redirect: React.FC<RedirectProps> = ({
   to,
   push = false,
-  fallback = null
+  fallback = null,
 }) => {
   React.useLayoutEffect(() => {
     const lctn = createLocationState();

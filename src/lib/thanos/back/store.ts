@@ -15,12 +15,12 @@ export interface UnlockedStoreState extends StoreState {
 export function toFront({
   status,
   accounts,
-  networks
+  networks,
 }: StoreState): ThanosState {
   return {
     status,
     accounts,
-    networks
+    networks,
   };
 }
 
@@ -48,13 +48,13 @@ export const store = createStore<StoreState>({
   vault: null,
   status: ThanosStatus.Idle,
   accounts: [],
-  networks: []
+  networks: [],
 })
   .on(inited, (state, vaultExist) => ({
     ...state,
     inited: true,
     status: vaultExist ? ThanosStatus.Locked : ThanosStatus.Idle,
-    networks: NETWORKS
+    networks: NETWORKS,
   }))
   .on(locked, () => ({
     // Attension!
@@ -66,15 +66,15 @@ export const store = createStore<StoreState>({
     vault: null,
     status: ThanosStatus.Locked,
     accounts: [],
-    networks: NETWORKS
+    networks: NETWORKS,
   }))
   .on(unlocked, (state, { vault, accounts }) => ({
     ...state,
     vault,
     status: ThanosStatus.Ready,
-    accounts
+    accounts,
   }))
   .on(accountsUpdated, (state, accounts) => ({
     ...state,
-    accounts
+    accounts,
   }));

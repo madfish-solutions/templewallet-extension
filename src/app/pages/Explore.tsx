@@ -41,7 +41,7 @@ const Explore: React.FC = () => {
         <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" />
 
         <Balance address={accountPkh}>
-          {balance => (
+          {(balance) => (
             <div className="flex flex-col items-center">
               <div className="text-gray-800 text-2xl font-light">
                 <Money>{balance}</Money>{" "}
@@ -49,7 +49,7 @@ const Explore: React.FC = () => {
               </div>
 
               <InUSD volume={balance}>
-                {usdBalance => (
+                {(usdBalance) => (
                   <div className="text-gray-600 text-lg font-light">
                     <span className="mr-px">$</span>
                     {usdBalance} <span className="text-sm opacity-75">USD</span>

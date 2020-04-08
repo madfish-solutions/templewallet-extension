@@ -18,7 +18,7 @@ export function useBalance(address: string, suspense?: boolean) {
     {
       refreshInterval: 10_000,
       dedupingInterval: 15_000,
-      suspense
+      suspense,
     }
   );
 }

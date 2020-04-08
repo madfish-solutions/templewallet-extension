@@ -3,7 +3,7 @@ export enum TZStatsNetwork {
   Zeronet = "https://api.zeronet.tzstats.com",
   Babylonnet = "https://api.babylonnet.tzstats.com",
   Carthagenet = "https://api.carthagenet.tzstats.com",
-  Labnet = "https://api.labnet.tzstats.com"
+  Labnet = "https://api.labnet.tzstats.com",
 }
 
 export interface ErrorData {
@@ -249,7 +249,7 @@ export enum QFOperator {
   InclusionInList = "in",
   NotIncludedInList = "nin",
   Range = "rg",
-  Regexp = "re"
+  Regexp = "re",
 }
 
 export interface OperationRow {

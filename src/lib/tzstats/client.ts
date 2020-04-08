@@ -7,7 +7,7 @@ import {
   OperationRowTuple,
   OperationRow,
   TZStatsAccountOp,
-  TZStatsMarketTicker
+  TZStatsMarketTicker,
 } from "lib/tzstats/types";
 
 export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;
@@ -20,8 +20,8 @@ export type Query<T> = (
 
 const api = axios.create();
 api.interceptors.response.use(
-  res => res,
-  err => {
+  (res) => res,
+  (err) => {
     if (process.env.NODE_ENV === "development") {
       console.error(err);
     }
@@ -30,7 +30,7 @@ api.interceptors.response.use(
     const finalError = new Error("Failed when querying TZStats API");
     throw Object.assign(finalError, {
       data: errors ?? [],
-      origin: err
+      origin: err,
     });
   }
 );
@@ -56,7 +56,7 @@ export const getAccountWithOperations = explore<
 
 export const getOperationTable = wrapQuery(
   query<OperationRowTuple[]>("/tables/op"),
-  opsInTuples =>
+  (opsInTuples) =>
     opsInTuples.map(
       ([
         rowId,
@@ -105,7 +105,7 @@ export const getOperationTable = wrapQuery(
         sender,
         receiver,
         manager,
-        delegate
+        delegate,
       ]): OperationRow => ({
         rowId,
         time,
@@ -153,7 +153,7 @@ export const getOperationTable = wrapQuery(
         sender,
         receiver,
         manager,
-        delegate
+        delegate,
       })
     )
 );
@@ -171,7 +171,7 @@ function explore<T = any, P = never>(
 
     const res = await api.get<T>(path, {
       baseURL: network,
-      params
+      params,
     });
     return res.data;
   };
@@ -186,7 +186,7 @@ function query<T = any>(path: string): Query<T> {
 
     const res = await api.get<T>(path, {
       baseURL: network,
-      params
+      params,
     });
     return res.data;
   };

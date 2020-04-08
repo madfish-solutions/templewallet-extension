@@ -14,7 +14,7 @@ type PageLayoutProps = ToolbarProps;
 const PageLayout: React.FC<PageLayoutProps> = ({
   pageTitle,
   hasBackAction,
-  children
+  children,
 }) => {
   const appEnv = useAppEnv();
 
@@ -91,7 +91,7 @@ type ToolbarProps = {
 
 const Toolbar: React.FC<ToolbarProps> = ({
   pageTitle,
-  hasBackAction = true
+  hasBackAction = true,
 }) => {
   const { historyPosition, pathname } = useLocation();
   const appEnv = useAppEnv();
@@ -150,7 +150,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
         // with the top of the browser window
         // (thus never triggering the intersection observer).
         top: -1,
-        minHeight: "2.75rem"
+        minHeight: "2.75rem",
       }}
     >
       <div className="flex-1">

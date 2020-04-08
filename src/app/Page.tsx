@@ -34,7 +34,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
         default:
           return <ImportWallet />;
       }
-    }
+    },
   ],
   [
     "*",
@@ -49,7 +49,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
         default:
           return Woozie.Router.SKIP;
       }
-    }
+    },
   ],
   ["/", (_p, { thanos }) => (thanos.ready ? <Explore /> : <Welcome />)],
   ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
@@ -59,9 +59,9 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ["/send", onlyReady(() => <Send />)],
   [
     "/settings/:tabSlug?",
-    onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)
+    onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),
   ],
-  ["*", () => <Woozie.Redirect to="/" />]
+  ["*", () => <Woozie.Redirect to="/" />],
 ]);
 
 const Page: React.FC = () => {
@@ -79,7 +79,7 @@ const Page: React.FC = () => {
 
   const ctx = React.useMemo<RouteContext>(() => ({ appEnv, thanos }), [
     appEnv,
-    thanos
+    thanos,
   ]);
 
   return Woozie.Router.resolve(ROUTE_MAP, pathname, ctx);
