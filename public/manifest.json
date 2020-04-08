@@ -10,24 +10,24 @@
     "128": "misc/icon-128.png"
   },
 
-  "description": "",
+  "description": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser.",
   "homepage_url": "https://github.com/madfish-solutions/thanos",
   "short_name": "Thanos Wallet",
 
   "permissions": [
-    "http://*/*",
-    "https://*/*",
     "tabs",
     "activeTab",
     "storage",
     "unlimitedStorage",
-    "clipboardWrite"
+    "clipboardWrite",
+    "https://*.tzstats.com/",
+    "https://*.tezos.org.ua/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
-  "__chrome|firefox__author": "abhijithvijayan",
+  "__chrome|firefox__author": "https://madfish.solutions",
   "__opera__developer": {
-    "name": "abhijithvijayan"
+    "name": "https://madfish.solutions"
   },
 
   "__firefox__applications": {
