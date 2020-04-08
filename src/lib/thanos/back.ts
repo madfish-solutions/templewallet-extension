@@ -38,13 +38,6 @@ async function processRequest(
         state,
       };
 
-    case ThanosMessageType.RevealPublicKeyRequest:
-      const publicKey = await Actions.revealPublicKey(req.accountPublicKeyHash);
-      return {
-        type: ThanosMessageType.RevealPublicKeyResponse,
-        publicKey,
-      };
-
     case ThanosMessageType.NewWalletRequest:
       return enqueue(async () => {
         await Actions.registerNewWallet(req.password, req.mnemonic);
@@ -67,6 +60,17 @@ async function processRequest(
       return enqueue(async () => {
         await Actions.createHDAccount(req.name);
         return { type: ThanosMessageType.CreateAccountResponse };
+      });
+
+    case ThanosMessageType.RevealPublicKeyRequest:
+      return enqueue(async () => {
+        const publicKey = await Actions.revealPublicKey(
+          req.accountPublicKeyHash
+        );
+        return {
+          type: ThanosMessageType.RevealPublicKeyResponse,
+          publicKey,
+        };
       });
 
     case ThanosMessageType.RevealPrivateKeyRequest:
