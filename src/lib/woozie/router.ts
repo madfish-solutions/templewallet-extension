@@ -24,7 +24,7 @@ export function createMap<C>(routes: Routes<C>): RouteMap<C> {
       route,
       resolveResult,
       pattern,
-      keys
+      keys,
     };
   });
 }

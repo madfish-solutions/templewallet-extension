@@ -9,7 +9,7 @@ const doc = document.documentElement;
 
 const OverscrollBg: React.FC<OverscrollBgProps> = ({
   topClassName,
-  bottomClassName
+  bottomClassName,
 }) => {
   const prevScrollTopRef = React.useRef<number>();
 

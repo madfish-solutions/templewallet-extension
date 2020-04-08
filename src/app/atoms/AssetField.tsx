@@ -38,7 +38,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
     }, [setLocalValue, focused, valueStr]);
 
     const handleChange = React.useCallback(
-      evt => {
+      (evt) => {
         const decimals = 6;
         let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
         let numVal = +val;
@@ -59,7 +59,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
     );
 
     const handleFocus = React.useCallback(
-      evt => {
+      (evt) => {
         if (onFocus) {
           onFocus(evt);
           if (evt.defaultPrevented) {
@@ -72,7 +72,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
     );
 
     const handleBlur = React.useCallback(
-      evt => {
+      (evt) => {
         if (onBlur) {
           onBlur(evt);
           if (evt.defaultPrevented) {

@@ -7,7 +7,7 @@ import { ReadyThanosState, ThanosStatus, ThanosState } from "lib/thanos/types";
 
 export enum ActivationStatus {
   ActivationRequestSent,
-  AlreadyActivated
+  AlreadyActivated,
 }
 
 export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
@@ -17,7 +17,7 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
   const {
     networks: allNetworks,
     accounts: allAccounts,
-    createSigner
+    createSigner,
   } = thanosFront;
 
   /**
@@ -46,13 +46,13 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
   );
 
   React.useEffect(() => {
-    if (allAccounts.every(a => a.publicKeyHash !== accountPkh)) {
+    if (allAccounts.every((a) => a.publicKeyHash !== accountPkh)) {
       setAccountPkh(defaultAcc.publicKeyHash);
     }
   }, [allAccounts, accountPkh, setAccountPkh, defaultAcc]);
 
   const account =
-    allAccounts.find(a => a.publicKeyHash === accountPkh) ?? defaultAcc;
+    allAccounts.find((a) => a.publicKeyHash === accountPkh) ?? defaultAcc;
 
   /**
    * tezos = TezosToolkit instance
@@ -107,7 +107,7 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
 
     tezos,
     tezosKey,
-    activateAccount
+    activateAccount,
   };
 });
 

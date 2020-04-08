@@ -28,7 +28,7 @@ const TABS = [
         Also known as "Export Account". Lorem ipsum, dolor sit amet consectetur
         adipisicing elit.
       </>
-    )
+    ),
   },
   {
     slug: "reveal_seed_phrase",
@@ -42,7 +42,7 @@ const TABS = [
         computers, you will need this seed phrase to access your wallet and
         accounts.
       </>
-    )
+    ),
   },
   {
     slug: "activate_account",
@@ -55,13 +55,13 @@ const TABS = [
         Recommended allocations for contributions to the Tezos Foundation’s
         fundraiser must be activated before they may be accessed.
       </>
-    )
-  }
+    ),
+  },
 ];
 
 const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
   const activeTab = React.useMemo(
-    () => TABS.find(t => t.slug === tabSlug) || null,
+    () => TABS.find((t) => t.slug === tabSlug) || null,
     [tabSlug]
   );
 

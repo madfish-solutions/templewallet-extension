@@ -4,7 +4,7 @@ import { navigate } from "lib/woozie";
 import {
   ThanosAccountType,
   useThanosClient,
-  useReadyThanos
+  useReadyThanos,
 } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { useAppEnv, openInFullPage } from "app/env";
@@ -76,7 +76,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
       opened={opened}
       className="origin-top-right"
       style={{
-        minWidth: "16rem"
+        minWidth: "16rem",
       }}
     >
       <div className="mb-2 flex items-end">
@@ -120,7 +120,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
         style={{ maxHeight: "11rem" }}
       >
         <div className="flex flex-col">
-          {allAccounts.map(acc => {
+          {allAccounts.map((acc) => {
             const selected = acc.publicKeyHash === account.publicKeyHash;
             const handleAccountClick = () => {
               if (!selected) {
@@ -143,7 +143,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
                   !selected && "opacity-75 hover:opacity-100"
                 )}
                 style={{
-                  padding: "0.375rem"
+                  padding: "0.375rem",
                 }}
                 onClick={handleAccountClick}
                 autoFocus={selected}
@@ -154,7 +154,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
                   size={32}
                   className="flex-shrink-0"
                   style={{
-                    boxShadow: "0 0 0 1px rgba(255, 255, 255, 0.05)"
+                    boxShadow: "0 0 0 1px rgba(255, 255, 255, 0.05)",
                   }}
                 />
 
@@ -165,7 +165,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
 
                   <div className="flex flex-wrap items-center">
                     <Balance address={acc.publicKeyHash}>
-                      {bal => (
+                      {(bal) => (
                         <span
                           className={classNames(
                             "text-xs leading-none",
@@ -206,23 +206,23 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
           {
             Icon: AddIcon,
             content: "Create account",
-            onClick: handleCreateAccountClick
+            onClick: handleCreateAccountClick,
           },
           {
             Icon: DownloadIcon,
             content: "Import account",
-            onClick: handleImportAccountClick
+            onClick: handleImportAccountClick,
           },
           {
             Icon: SettingsIcon,
             content: "Settings",
-            onClick: handleSettingsClick
+            onClick: handleSettingsClick,
           },
           !appEnv.fullPage && {
             Icon: MaximiseIcon,
             content: "Maximise view",
-            onClick: handleMaximiseViewClick
-          }
+            onClick: handleMaximiseViewClick,
+          },
         ]
           .filter(Boolean)
           .map((item, i) => {
@@ -244,7 +244,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
                 )}
                 style={{
                   paddingTop: "0.375rem",
-                  paddingBottom: "0.375rem"
+                  paddingBottom: "0.375rem",
                 }}
                 onClick={onClick}
               >

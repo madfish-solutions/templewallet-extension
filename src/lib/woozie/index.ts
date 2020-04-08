@@ -3,7 +3,7 @@ import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 import {
   To,
   createLocationState,
-  createLocationUpdates
+  createLocationUpdates,
 } from "lib/woozie/location";
 
 export * from "lib/woozie/config";

@@ -50,7 +50,7 @@ const EditableTitle: React.FC = () => {
   }, [setEditing]);
 
   const handleEditSubmit = React.useCallback<React.FormEventHandler>(
-    evt => {
+    (evt) => {
       evt.preventDefault();
 
       (async () => {

@@ -68,7 +68,7 @@ const Control: React.FC = () => {
       <Popper
         placement="bottom-end"
         strategy="fixed"
-        popup={props => <AccountDropdown {...props} />}
+        popup={(props) => <AccountDropdown {...props} />}
       >
         {({ ref, opened, toggleOpened }) => (
           <button

@@ -4,7 +4,7 @@ import {
   RequestMessage,
   ResponseMessage,
   ErrorMessage,
-  SubscriptionMessage
+  SubscriptionMessage,
 } from "./types";
 
 const DEFAULT_ERROR_MESSAGE = "Unexpected error occured";
@@ -17,7 +17,7 @@ export class IntercomServer {
 
   constructor() {
     /* handling of new incoming and closed connections */
-    browser.runtime.onConnect.addListener(port => {
+    browser.runtime.onConnect.addListener((port) => {
       this.addPort(port);
 
       port.onDisconnect.addListener(() => {
@@ -40,7 +40,7 @@ export class IntercomServer {
 
   broadcast(data: any) {
     const msg: SubscriptionMessage = { type: MessageType.Sub, data };
-    this.ports.forEach(port => {
+    this.ports.forEach((port) => {
       port.postMessage(msg);
     });
   }
@@ -50,7 +50,7 @@ export class IntercomServer {
       port.sender?.id === browser.runtime.id &&
       msg?.type === MessageType.Req
     ) {
-      (async msg => {
+      (async (msg) => {
         try {
           for (const handler of this.reqHandlers) {
             const data = await handler(msg.data);
@@ -58,7 +58,7 @@ export class IntercomServer {
               this.respond(port, {
                 type: MessageType.Res,
                 reqId: msg.reqId,
-                data
+                data,
               });
 
               return;
@@ -70,7 +70,7 @@ export class IntercomServer {
           this.respond(port, {
             type: MessageType.Err,
             reqId: msg.reqId,
-            data: "message" in err ? err.message : DEFAULT_ERROR_MESSAGE
+            data: "message" in err ? err.message : DEFAULT_ERROR_MESSAGE,
           });
         }
       })(msg as RequestMessage);
@@ -96,6 +96,6 @@ export class IntercomServer {
   }
 
   private removeReqHandler(handler: ReqHandler) {
-    this.reqHandlers = this.reqHandlers.filter(h => h !== handler);
+    this.reqHandlers = this.reqHandlers.filter((h) => h !== handler);
   }
 }

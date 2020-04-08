@@ -30,7 +30,7 @@ const Unlock: React.FC = () => {
     errors,
     setError,
     clearError,
-    formState
+    formState,
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
@@ -47,7 +47,7 @@ const Unlock: React.FC = () => {
         }
 
         // Human delay.
-        await new Promise(res => setTimeout(res, 300));
+        await new Promise((res) => setTimeout(res, 300));
         setError("password", SUBMIT_ERROR_TYPE, err.message);
         focusPasswordField();
       }

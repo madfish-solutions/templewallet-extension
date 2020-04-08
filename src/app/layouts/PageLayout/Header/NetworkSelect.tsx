@@ -47,7 +47,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   disabled && "opacity-25"
                 )}
                 style={{
-                  padding: "0.375rem 1.5rem 0.375rem 0.5rem"
+                  padding: "0.375rem 1.5rem 0.375rem 0.5rem",
                 }}
                 disabled={disabled}
                 autoFocus={selected}

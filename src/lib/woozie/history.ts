@@ -5,7 +5,7 @@ import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
 export enum HistoryAction {
   Pop = "popstate",
   Push = "pushstate",
-  Replace = "replacestate"
+  Replace = "replacestate",
 }
 
 export interface PatchedHistory extends History {
@@ -106,19 +106,19 @@ function patchHistory(action: HistoryAction) {
 
   Object.assign(patchedHistory, {
     lastAction: action,
-    position
+    position,
   });
 }
 
 function notifyListeners() {
-  listeners.forEach(listener => listener());
+  listeners.forEach((listener) => listener());
 }
 
 function patchMethod(method: string, eventType: HistoryAction) {
   const history = window.history as any;
   const original = history[method];
 
-  history[method] = function(state: any) {
+  history[method] = function (state: any) {
     const result = original.apply(this, arguments);
 
     const event = new CustomEvent(eventType);

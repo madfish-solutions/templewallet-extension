@@ -5,7 +5,7 @@ import {
   ThanosState,
   ThanosStatus,
   ThanosMessageType,
-  ThanosConfirmRequest
+  ThanosConfirmRequest,
 } from "lib/thanos/types";
 import { Vault } from "lib/thanos/back/vault";
 import {
@@ -15,7 +15,7 @@ import {
   store,
   locked,
   unlocked,
-  accountsUpdated
+  accountsUpdated,
 } from "lib/thanos/back/store";
 import { Windows, browser } from "webextension-polyfill-ts";
 
@@ -29,7 +29,7 @@ export async function getFrontState(): Promise<ThanosState> {
   if (state.inited) {
     return toFront(state);
   } else {
-    await new Promise(r => setTimeout(r, 10));
+    await new Promise((r) => setTimeout(r, 10));
     return getFrontState();
   }
 }
@@ -143,7 +143,7 @@ export function sign(
           width: 360,
           height: 360,
           top: Math.max(top, 0),
-          left: Math.max(left, 0)
+          left: Math.max(left, 0),
         });
         currentConfirmWindow = confirmWin;
 
@@ -184,14 +184,14 @@ export function sign(
           reject(new Error("Declined"));
         };
 
-        browser.windows.onRemoved.addListener(winId => {
+        browser.windows.onRemoved.addListener((winId) => {
           if (winId === confirmWin?.id) {
             decline();
             close();
           }
         });
 
-        stop = intercom.onRequest(async msg => {
+        stop = intercom.onRequest(async (msg) => {
           if (
             msg?.type === ThanosMessageType.ConfirmRequest &&
             msg?.id === id

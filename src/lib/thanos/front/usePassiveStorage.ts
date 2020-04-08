@@ -9,7 +9,7 @@ export default function usePassiveStorage<T = any>(
   const { data } = useRetryableSWR<T>(key, fetchOne, {
     suspense: true,
     revalidateOnFocus: false,
-    revalidateOnReconnect: false
+    revalidateOnReconnect: false,
   });
   const finalData = fallback !== undefined ? data ?? fallback : data!;
 

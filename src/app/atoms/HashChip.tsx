@@ -39,7 +39,7 @@ const HashChip: React.FC<HashChipProps> = ({
       animation: "shift-away-subtle",
       onHidden() {
         setCopied(false);
-      }
+      },
     }),
     [copied, setCopied]
   );

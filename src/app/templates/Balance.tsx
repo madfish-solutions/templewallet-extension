@@ -24,7 +24,7 @@ const Balance = React.memo<BalanceProps>(({ address, children }) => {
             "opacity-100",
             "transition ease-out duration-200"
           ),
-          exit: classNames("opacity-0", "transition ease-in duration-200")
+          exit: classNames("opacity-0", "transition ease-in duration-200"),
         }}
       >
         <div className={classNames("inline-block", !exist && "invisible")}>

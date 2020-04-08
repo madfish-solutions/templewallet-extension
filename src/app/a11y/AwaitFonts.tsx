@@ -12,13 +12,13 @@ const AwaitFonts: React.FC<AwaitFontsProps> = ({
   name,
   weights,
   className,
-  children
+  children,
 }) => {
   useSWR([name, weights, className], awaitFonts, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
-    revalidateOnReconnect: false
+    revalidateOnReconnect: false,
   });
 
   return <>{children}</>;
@@ -28,8 +28,10 @@ export default AwaitFonts;
 
 async function awaitFonts(name: string, weights: number[], className: string) {
   try {
-    const fonts = weights.map(weight => new FontFaceObserver(name, { weight }));
-    await Promise.all(fonts.map(font => font.load()));
+    const fonts = weights.map(
+      (weight) => new FontFaceObserver(name, { weight })
+    );
+    await Promise.all(fonts.map((font) => font.load()));
     document.body.classList.add(className);
     return null;
   } catch (_err) {}

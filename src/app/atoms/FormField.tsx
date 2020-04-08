@@ -45,7 +45,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
     const [focused, setFocused] = React.useState(false);
 
     const handleChange = React.useCallback(
-      evt => {
+      (evt) => {
         if (onChange) {
           onChange(evt);
           if (evt.defaultPrevented) {
@@ -59,7 +59,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
     );
 
     const handleFocus = React.useCallback(
-      evt => {
+      (evt) => {
         if (onFocus) {
           onFocus(evt);
           if (evt.defaultPrevented) {
@@ -73,7 +73,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
     );
 
     const handleBlur = React.useCallback(
-      evt => {
+      (evt) => {
         if (onBlur) {
           onBlur(evt);
           if (evt.defaultPrevented) {
@@ -186,7 +186,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
                 top: 2,
                 right: 2,
                 bottom: 2,
-                left: 2
+                left: 2,
               }}
               onClick={handleSecretBannerClick}
             >

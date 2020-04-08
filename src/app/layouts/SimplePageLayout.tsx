@@ -11,7 +11,7 @@ type SimplePageLayoutProps = {
 
 const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
   title,
-  children
+  children,
 }) => {
   const appEnv = useAppEnv();
 

@@ -19,7 +19,7 @@ const Link: React.FC<LinkProps> = ({ to, replace, ...rest }) => {
   const url = React.useMemo(() => createUrl(pathname, search, hash), [
     pathname,
     search,
-    hash
+    hash,
   ]);
 
   const handleNavigate = React.useCallback(() => {
@@ -50,7 +50,7 @@ const LinkAnchor: React.FC<LinkAnchorProps> = ({
   ...rest
 }) => {
   const handleClick = React.useCallback(
-    evt => {
+    (evt) => {
       try {
         if (onClick) {
           onClick(evt);

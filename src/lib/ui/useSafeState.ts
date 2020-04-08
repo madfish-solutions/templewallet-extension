@@ -8,7 +8,7 @@ export default function useSafeState<T>(
   const [state, setStatePure] = React.useState(initialState);
 
   const setState = React.useCallback<React.Dispatch<React.SetStateAction<T>>>(
-    val => {
+    (val) => {
       if (isMounted()) {
         setStatePure(val);
       }

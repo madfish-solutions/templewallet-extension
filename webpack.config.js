@@ -33,7 +33,7 @@ let {
   NODE_ENV = "development",
   TARGET_BROWSER = "chrome",
   SOURCE_MAP: SOURCE_MAP_ENV,
-  IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = "10000"
+  IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = "10000",
 } = process.env;
 const SOURCE_MAP = NODE_ENV !== "production" && SOURCE_MAP_ENV !== "false";
 const IMAGE_INLINE_SIZE_LIMIT = parseInt(IMAGE_INLINE_SIZE_LIMIT_ENV);
@@ -62,27 +62,27 @@ const OUTPUT_PACKED_PATH = path.join(
 const HTML_TEMPLATES = [
   {
     path: path.join(PUBLIC_PATH, "popup.html"),
-    chunks: ["popup"]
+    chunks: ["popup"],
   },
   {
     path: path.join(PUBLIC_PATH, "fullpage.html"),
-    chunks: ["fullpage"]
+    chunks: ["fullpage"],
   },
   {
     path: path.join(PUBLIC_PATH, "confirm.html"),
-    chunks: ["confirm"]
+    chunks: ["confirm"],
   },
   {
     path: path.join(PUBLIC_PATH, "options.html"),
-    chunks: ["options"]
-  }
+    chunks: ["options"],
+  },
 ];
 const ENTRIES = {
   popup: path.join(SOURCE_PATH, "popup.tsx"),
   fullpage: path.join(SOURCE_PATH, "fullpage.tsx"),
   confirm: path.join(SOURCE_PATH, "confirm.tsx"),
   options: path.join(SOURCE_PATH, "options.tsx"),
-  background: path.join(SOURCE_PATH, "background.ts")
+  background: path.join(SOURCE_PATH, "background.ts"),
   // contentScript: path.join(SOURCE_PATH, "contentScript.ts")
 };
 
@@ -99,14 +99,14 @@ const ENTRIES = {
 const EXTENSION_ENTRIES = {
   // contentScript: "contentScript",
   background: "background",
-  extensionPage: ["commons", "popup", "fullpage", "confirm", "options"]
+  extensionPage: ["commons", "popup", "fullpage", "confirm", "options"],
 };
 const SEPARATED_CHUNKS = new Set(["background" /*, "contentScript"*/]);
 const MANIFEST_PATH = path.join(PUBLIC_PATH, "manifest.json");
 const MODULE_FILE_EXTENSIONS = [".js", ".mjs", ".jsx", ".ts", ".tsx", ".json"];
 const ADDITIONAL_MODULE_PATHS = [
   tsConfig.compilerOptions.baseUrl &&
-    path.join(CWD_PATH, tsConfig.compilerOptions.baseUrl)
+    path.join(CWD_PATH, tsConfig.compilerOptions.baseUrl),
 ].filter(Boolean);
 const CSS_REGEX = /\.css$/;
 const CSS_MODULE_REGEX = /\.module\.css$/;
@@ -115,7 +115,7 @@ const PURGECSS_OPTIONS = {
   whitelistPatternsChildren: [/popper/, /tippy/],
   content: ["./public/**/*.{html,js,mjs}", "./src/**/*.{js,jsx,ts,tsx}"],
   // Include any special characters you're using in this regular expression
-  defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
+  defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
 };
 
 module.exports = {
@@ -129,7 +129,7 @@ module.exports = {
     path: OUTPUT_PATH,
     pathinfo: NODE_ENV === "development",
     filename: "scripts/[name].js",
-    chunkFilename: "scripts/[name].chunk.js"
+    chunkFilename: "scripts/[name].chunk.js",
   },
 
   resolve: {
@@ -153,7 +153,7 @@ module.exports = {
                     target,
                     {
                       ...request,
-                      request: "lib/taquito-signer-stub"
+                      request: "lib/taquito-signer-stub",
                     },
                     null,
                     resolveContext,
@@ -164,9 +164,9 @@ module.exports = {
                 callback();
               }
             );
-        }
-      }
-    ]
+        },
+      },
+    ],
   },
 
   module: {
@@ -187,11 +187,11 @@ module.exports = {
               cache: true,
               formatter: require.resolve("react-dev-utils/eslintFormatter"),
               eslintPath: require.resolve("eslint"),
-              resolvePluginsRelativeTo: __dirname
+              resolvePluginsRelativeTo: __dirname,
             },
-            loader: require.resolve("eslint-loader")
-          }
-        ]
+            loader: require.resolve("eslint-loader"),
+          },
+        ],
       },
 
       {
@@ -207,8 +207,8 @@ module.exports = {
             loader: require.resolve("url-loader"),
             options: {
               limit: IMAGE_INLINE_SIZE_LIMIT,
-              name: "media/[hash:8].[ext]"
-            }
+              name: "media/[hash:8].[ext]",
+            },
           },
           // Process application JS with Babel.
           // The preset includes JSX, Flow, TypeScript, and some ESnext features.
@@ -227,11 +227,11 @@ module.exports = {
                     loaderMap: {
                       svg: {
                         ReactComponent:
-                          "@svgr/webpack?-svgo,+titleProp,+ref![path]"
-                      }
-                    }
-                  }
-                ]
+                          "@svgr/webpack?-svgo,+titleProp,+ref![path]",
+                      },
+                    },
+                  },
+                ],
               ],
               // This is a feature of `babel-loader` for webpack (not Babel itself).
               // It enables caching results in ./node_modules/.cache/babel-loader/
@@ -239,8 +239,8 @@ module.exports = {
               cacheDirectory: true,
               // See #6846 for context on why cacheCompression is disabled
               cacheCompression: false,
-              compact: NODE_ENV === "production"
-            }
+              compact: NODE_ENV === "production",
+            },
           },
           // Process any JS outside of the app with Babel.
           // Unlike the application JS, we only compile the standard ES features.
@@ -255,8 +255,8 @@ module.exports = {
               presets: [
                 [
                   require.resolve("babel-preset-react-app/dependencies"),
-                  { helpers: true }
-                ]
+                  { helpers: true },
+                ],
               ],
               cacheDirectory: true,
               // See #6846 for context on why cacheCompression is disabled
@@ -265,8 +265,8 @@ module.exports = {
               // code.  Without the options below, debuggers like VSCode
               // show incorrect code and set breakpoints on the wrong lines.
               sourceMaps: SOURCE_MAP,
-              inputSourceMap: SOURCE_MAP
-            }
+              inputSourceMap: SOURCE_MAP,
+            },
           },
           // "postcss" loader applies autoprefixer to our CSS.
           // "css" loader resolves paths in CSS and adds assets as dependencies.
@@ -280,13 +280,13 @@ module.exports = {
             exclude: CSS_MODULE_REGEX,
             use: getStyleLoaders({
               importLoaders: 1,
-              sourceMap: SOURCE_MAP
+              sourceMap: SOURCE_MAP,
             }),
             // Don't consider CSS imports dead code even if the
             // containing package claims to have no side effects.
             // Remove this when webpack adds a warning or an error for this.
             // See https://github.com/webpack/webpack/issues/6571
-            sideEffects: true
+            sideEffects: true,
           },
           // Adds support for CSS Modules (https://github.com/css-modules/css-modules)
           // using the extension .module.css
@@ -296,9 +296,9 @@ module.exports = {
               importLoaders: 1,
               sourceMap: SOURCE_MAP,
               modules: {
-                getLocalIdent: getCSSModuleLocalIdent
-              }
-            })
+                getLocalIdent: getCSSModuleLocalIdent,
+              },
+            }),
           },
           // "file" loader makes sure those assets get served by WebpackDevServer.
           // When you `import` an asset, you get its (virtual) filename.
@@ -313,14 +313,14 @@ module.exports = {
             // by webpacks internal loaders.
             exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
             options: {
-              name: "media/[hash:8].[ext]"
-            }
-          }
+              name: "media/[hash:8].[ext]",
+            },
+          },
           // ** STOP ** Are you adding a new loader?
           // Make sure to add the new loader(s) before the "file" loader.
-        ]
-      }
-    ]
+        ],
+      },
+    ],
   },
 
   plugins: [
@@ -329,7 +329,7 @@ module.exports = {
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: [OUTPUT_PATH, OUTPUT_PACKED_PATH],
       cleanStaleWebpackAssets: false,
-      verbose: false
+      verbose: false,
     }),
 
     new ModuleNotFoundPlugin(SOURCE_PATH),
@@ -345,18 +345,18 @@ module.exports = {
           }
         }
         return appEnvs;
-      })()
+      })(),
     }),
 
     new WatchMissingNodeModulesPlugin(NODE_MODULES_PATH),
 
     new MiniCssExtractPlugin({
       filename: "styles/[name].css",
-      chunkFilename: "styles/[name].chunk.css"
+      chunkFilename: "styles/[name].chunk.css",
     }),
 
     ...HTML_TEMPLATES.map(
-      htmlTemplate =>
+      (htmlTemplate) =>
         new HtmlWebpackPlugin({
           template: htmlTemplate.path,
           filename: path.basename(htmlTemplate.path),
@@ -374,16 +374,16 @@ module.exports = {
                   keepClosingSlash: true,
                   minifyJS: true,
                   minifyCSS: true,
-                  minifyURLs: true
-                }
+                  minifyURLs: true,
+                },
               }
-            : {})
+            : {}),
         })
     ),
 
     new ForkTsCheckerWebpackPlugin({
       typescript: resolve.sync("typescript", {
-        basedir: NODE_MODULES_PATH
+        basedir: NODE_MODULES_PATH,
       }),
       async: false,
       silent: true,
@@ -395,28 +395,28 @@ module.exports = {
         "!**/__tests__/**",
         "!**/?(*.)(spec|test).*",
         "!**/src/setupProxy.*",
-        "!**/src/setupTests.*"
+        "!**/src/setupTests.*",
       ],
-      formatter: typescriptFormatter
+      formatter: typescriptFormatter,
     }),
 
     new CopyWebpackPlugin([
       {
         from: PUBLIC_PATH,
-        to: OUTPUT_PATH
+        to: OUTPUT_PATH,
       },
       {
         from: MANIFEST_PATH,
         to: path.join(OUTPUT_PATH, "manifest.json"),
         toType: "file",
-        transform: content =>
-          wextManifest[TARGET_BROWSER](JSON.parse(content)).content
-      }
+        transform: (content) =>
+          wextManifest[TARGET_BROWSER](JSON.parse(content)).content,
+      },
     ]),
 
     new WebpackBar({
       name: "Thanos Wallet",
-      color: "#ed8936"
+      color: "#ed8936",
     }),
 
     // plugin to enable browser reloading in development mode
@@ -425,8 +425,8 @@ module.exports = {
         port: 9090,
         reloadPage: true,
         // manifest: path.join(OUTPUT_PATH, "manifest.json"),
-        entries: EXTENSION_ENTRIES
-      })
+        entries: EXTENSION_ENTRIES,
+      }),
   ].filter(Boolean),
 
   optimization: {
@@ -437,9 +437,9 @@ module.exports = {
           minChunks: 2,
           chunks(chunk) {
             return !SEPARATED_CHUNKS.has(chunk.name);
-          }
-        }
-      }
+          },
+        },
+      },
     },
 
     minimizer: [
@@ -447,23 +447,23 @@ module.exports = {
         sourceMap: SOURCE_MAP,
         terserOptions: {
           parse: {
-            ecma: 8
+            ecma: 8,
           },
           compress: {
             ecma: 5,
             warnings: false,
             comparisons: false,
-            inline: 2
+            inline: 2,
           },
           mangle: {
-            safari10: true
+            safari10: true,
           },
           output: {
             ecma: 5,
             comments: false,
-            ascii_only: true
-          }
-        }
+            ascii_only: true,
+          },
+        },
       }),
 
       new OptimizeCSSAssetsPlugin({
@@ -476,21 +476,21 @@ module.exports = {
                 inline: false,
                 // `annotation: true` appends the sourceMappingURL to the end of
                 // the css file, helping the browser find the sourcemap
-                annotation: true
+                annotation: true,
               }
-            : false
+            : false,
         },
         cssProcessorPluginOptions: {
-          preset: ["default", { minifyFontValues: { removeQuotes: false } }]
-        }
+          preset: ["default", { minifyFontValues: { removeQuotes: false } }],
+        },
       }),
 
       new ZipPlugin({
         path: DEST_PATH,
         extension: PACKED_EXTENSION,
-        filename: TARGET_BROWSER
-      })
-    ]
+        filename: TARGET_BROWSER,
+      }),
+    ],
   },
 
   // Some libraries import Node modules but don't use them in the browser.
@@ -503,11 +503,11 @@ module.exports = {
     http2: "empty",
     net: "empty",
     tls: "empty",
-    child_process: "empty"
+    child_process: "empty",
   },
   // Turn off performance processing because we utilize
   // our own hints via the FileSizeReporter
-  performance: false
+  performance: false,
 };
 
 function getStyleLoaders(cssOptions = {}) {
@@ -515,12 +515,12 @@ function getStyleLoaders(cssOptions = {}) {
     {
       loader: MiniCssExtractPlugin.loader,
       options: {
-        publicPath: "../"
-      }
+        publicPath: "../",
+      },
     },
     {
       loader: require.resolve("css-loader"),
-      options: cssOptions
+      options: cssOptions,
     },
     {
       loader: require.resolve("postcss-loader"),
@@ -531,17 +531,17 @@ function getStyleLoaders(cssOptions = {}) {
             require("postcss-flexbugs-fixes"),
             require("postcss-preset-env")({
               autoprefixer: {
-                flexbox: "no-2009"
+                flexbox: "no-2009",
               },
-              stage: 3
+              stage: 3,
             }),
             require("tailwindcss"),
             NODE_ENV === "production" &&
               require("@fullhuman/postcss-purgecss")(PURGECSS_OPTIONS),
-            require("autoprefixer")
+            require("autoprefixer"),
           ].filter(Boolean),
-        sourceMap: SOURCE_MAP
-      }
-    }
+        sourceMap: SOURCE_MAP,
+      },
+    },
   ].filter(Boolean);
 }
