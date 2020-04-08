@@ -3,7 +3,7 @@ import { IntercomServer } from "lib/intercom/server";
 import {
   ThanosMessageType,
   ThanosRequest,
-  ThanosResponse
+  ThanosResponse,
 } from "lib/thanos/types";
 import { Vault } from "lib/thanos/back/vault";
 import { toFront, store, inited } from "lib/thanos/back/store";
@@ -13,7 +13,7 @@ const intercom = new IntercomServer();
 const frontStore = store.map(toFront);
 
 export async function start() {
-  intercom.onRequest(async req => {
+  intercom.onRequest(async (req) => {
     if ("type" in req) {
       return processRequest(req as ThanosRequest);
     }
@@ -35,7 +35,14 @@ async function processRequest(
       const state = await Actions.getFrontState();
       return {
         type: ThanosMessageType.GetStateResponse,
-        state
+        state,
+      };
+
+    case ThanosMessageType.RevealPublicKeyRequest:
+      const publicKey = await Actions.revealPublicKey(req.accountPublicKeyHash);
+      return {
+        type: ThanosMessageType.RevealPublicKeyResponse,
+        publicKey,
       };
 
     case ThanosMessageType.NewWalletRequest:
@@ -62,17 +69,6 @@ async function processRequest(
         return { type: ThanosMessageType.CreateAccountResponse };
       });
 
-    case ThanosMessageType.RevealPublicKeyRequest:
-      return enqueue(async () => {
-        const publicKey = await Actions.revealPublicKey(
-          req.accountPublicKeyHash
-        );
-        return {
-          type: ThanosMessageType.RevealPublicKeyResponse,
-          publicKey
-        };
-      });
-
     case ThanosMessageType.RevealPrivateKeyRequest:
       return enqueue(async () => {
         const privateKey = await Actions.revealPrivateKey(
@@ -81,7 +77,7 @@ async function processRequest(
         );
         return {
           type: ThanosMessageType.RevealPrivateKeyResponse,
-          privateKey
+          privateKey,
         };
       });
 
@@ -90,7 +86,7 @@ async function processRequest(
         const mnemonic = await Actions.revealMnemonic(req.password);
         return {
           type: ThanosMessageType.RevealMnemonicResponse,
-          mnemonic
+          mnemonic,
         };
       });
 
@@ -98,7 +94,7 @@ async function processRequest(
       return enqueue(async () => {
         await Actions.editAccount(req.accountPublicKeyHash, req.name);
         return {
-          type: ThanosMessageType.EditAccountResponse
+          type: ThanosMessageType.EditAccountResponse,
         };
       });
 
@@ -106,7 +102,7 @@ async function processRequest(
       return enqueue(async () => {
         await Actions.importAccount(req.privateKey);
         return {
-          type: ThanosMessageType.ImportAccountResponse
+          type: ThanosMessageType.ImportAccountResponse,
         };
       });
 
@@ -118,7 +114,7 @@ async function processRequest(
           req.mnemonic
         );
         return {
-          type: ThanosMessageType.ImportFundraiserAccountResponse
+          type: ThanosMessageType.ImportFundraiserAccountResponse,
         };
       });
 
@@ -132,7 +128,7 @@ async function processRequest(
         );
         return {
           type: ThanosMessageType.SignResponse,
-          result
+          result,
         };
       });
   }
@@ -141,19 +137,11 @@ async function processRequest(
 const queue = new Queue(1);
 
 async function enqueue<T>(factory: () => Promise<T>) {
-  // if (confirm) {
-  //   throw new Error("Confirm previous first");
-  // }
-
   if (!queue.isAvailable()) {
     await Actions.closeConfirmWindow();
   }
 
   return new Promise<T>((response, reject) => {
-    queue.add(() =>
-      factory()
-        .then(response)
-        .catch(reject)
-    );
+    queue.add(() => factory().then(response).catch(reject));
   });
 }
