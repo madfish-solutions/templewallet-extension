@@ -42,17 +42,6 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
   }, [lock]);
 
   const handleCreateAccountClick = React.useCallback(() => {
-    // (async () => {
-    //   try {
-    //     await createAccount();
-    //   } catch (err) {
-    //     if (process.env.NODE_ENV === "development") {
-    //       console.error(err);
-    //     }
-
-    //     alert(err.message);
-    //   }
-    // })();
     navigate("/create-account");
     setOpened(false);
   }, [setOpened]);
@@ -69,7 +58,8 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
 
   const handleMaximiseViewClick = React.useCallback(() => {
     openInFullPage();
-  }, []);
+    setOpened(false);
+  }, [setOpened]);
 
   return (
     <DropdownWrapper
@@ -218,9 +208,9 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
             content: "Settings",
             onClick: handleSettingsClick,
           },
-          !appEnv.fullPage && {
+          {
             Icon: MaximiseIcon,
-            content: "Maximise view",
+            content: appEnv.fullPage ? "Open new tab" : "Maximise view",
             onClick: handleMaximiseViewClick,
           },
         ]
