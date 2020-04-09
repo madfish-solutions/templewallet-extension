@@ -470,7 +470,7 @@ const SendForm: React.FC = () => {
                   )}
                   style={{ maxWidth: "90%" }}
                 >
-                  Tap to Account you want to send funds to.
+                  Click on Account you want to send funds to.
                 </span>
               </h2>
 
