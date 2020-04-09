@@ -15,8 +15,6 @@
   "short_name": "Thanos Wallet",
 
   "permissions": [
-    "tabs",
-    "activeTab",
     "storage",
     "unlimitedStorage",
     "clipboardWrite",
