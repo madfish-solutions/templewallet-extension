@@ -25,8 +25,7 @@ const TABS = [
     color: "#3182CE",
     description: (
       <>
-        Also known as "Export Account". Lorem ipsum, dolor sit amet consectetur
-        adipisicing elit.
+        Also known as "Export Account", reveals private key for your selected account.
       </>
     ),
   },
@@ -38,9 +37,8 @@ const TABS = [
     color: "#F6AD55",
     description: (
       <>
-        Also known as "Export Wallet". If you ever change browsers or move
-        computers, you will need this seed phrase to access your wallet and
-        accounts.
+        Also known as "Export Wallet", you may need this seed phrase to access your wallet and
+        accounts on other devices.
       </>
     ),
   },
@@ -52,8 +50,7 @@ const TABS = [
     color: "rgb(131, 179, 0)",
     description: (
       <>
-        Recommended allocations for contributions to the Tezos Foundation’s
-        fundraiser must be activated before they may be accessed.
+        Use this section to activate your Tezos account by providing secret phrase.
       </>
     ),
   },
