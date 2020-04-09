@@ -28,6 +28,10 @@
     "name": "https://madfish.solutions"
   },
 
+  "__firefox__applications": {
+    "gecko": { "id": "{34ac229e-1cf5-4e4c-8a77-988155c4360f}" }
+  },
+
   "__chrome__minimum_chrome_version": "49",
   "__opera__minimum_opera_version": "36",
 
