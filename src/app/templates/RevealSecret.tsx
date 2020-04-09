@@ -164,7 +164,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           <FormField
             ref={register({ required: "Required" })}
             label="Password"
-            labelDescription={`Enter password to reveal ${texts.name}.`}
+            labelDescription={`Enter password to reveal the ${texts.name}.`}
             id="reveal-secret-password"
             type="password"
             name="password"
