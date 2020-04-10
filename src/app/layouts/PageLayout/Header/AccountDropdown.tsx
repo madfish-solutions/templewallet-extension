@@ -158,7 +158,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
                       {(bal) => (
                         <span
                           className={classNames(
-                            "text-xs leading-none",
+                            "text-xs leading-tight",
                             "text-white-75"
                           )}
                         >

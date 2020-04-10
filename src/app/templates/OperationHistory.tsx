@@ -121,7 +121,7 @@ const Operation = React.memo<OperationProps>(
 
           <div className="flex items-strech">
             <div className="flex flex-col">
-              <span className="mt-1 text-blue-600 opacity-75">
+              <span className="mt-1 text-xs text-blue-600 opacity-75">
                 {formatOperationType(type, imReceiver)}
               </span>
 

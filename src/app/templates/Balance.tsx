@@ -13,8 +13,10 @@ const Balance = React.memo<BalanceProps>(({ address, children }) => {
   const { data: balance } = useBalance(address);
   const exist = balance !== undefined;
 
-  return React.useMemo(
-    () => (
+  return React.useMemo(() => {
+    const childNode = children(exist ? balance! : new BigNumber(0));
+
+    return (
       <CSSTransition
         in={exist}
         timeout={200}
@@ -27,13 +29,15 @@ const Balance = React.memo<BalanceProps>(({ address, children }) => {
           exit: classNames("opacity-0", "transition ease-in duration-200"),
         }}
       >
-        <div className={classNames("inline-block", !exist && "invisible")}>
-          {children(exist ? balance! : new BigNumber(0))}
-        </div>
+        {React.cloneElement(childNode, {
+          className: classNames(
+            childNode.props.className,
+            !exist && "invisible"
+          ),
+        })}
       </CSSTransition>
-    ),
-    [children, exist, balance]
-  );
+    );
+  }, [children, exist, balance]);
 });
 
 export default Balance;
