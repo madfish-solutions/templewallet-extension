@@ -113,6 +113,7 @@ const Welcome: React.FC = () => {
                     <p
                       className={classNames(
                         "my-1 text-center",
+                        "text-xs",
                         filled
                           ? "text-primary-orange-lighter"
                           : "text-primary-orange"

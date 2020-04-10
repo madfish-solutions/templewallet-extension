@@ -39,7 +39,7 @@ const AppProvider: React.FC<AppProps> = ({ children, env }) => (
   </AppEnvProvider>
 );
 
-const rootEl = document.getElementById("root")!;
+const rootEl = document.documentElement;
 
 const baseClassNames = ["transform"];
 const initialClassNames = ["scale-105"];
