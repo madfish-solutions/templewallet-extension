@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useAppEnv } from "app/env";
-import OverscrollBg from "app/a11y/OverscrollBg";
+import DocBg from "app/a11y/DocBg";
 import ContentContainer from "app/layouts/ContentContainer";
 import Logo from "app/atoms/Logo";
 
@@ -17,12 +17,7 @@ const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
 
   return (
     <>
-      {!appEnv.fullPage && (
-        <OverscrollBg
-          topClassName="bg-primary-white"
-          bottomClassName="bg-white"
-        />
-      )}
+      {!appEnv.fullPage && <DocBg bgClassName="bg-primary-white" />}
 
       <ContentContainer
         className={classNames(

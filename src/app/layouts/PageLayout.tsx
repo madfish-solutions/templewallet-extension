@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
-import OverscrollBg from "app/a11y/OverscrollBg";
+import DocBg from "app/a11y/DocBg";
 import ContentContainer from "app/layouts/ContentContainer";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
@@ -15,34 +15,27 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   pageTitle,
   hasBackAction,
   children,
-}) => {
-  const appEnv = useAppEnv();
+}) => (
+  <>
+    <DocBg bgClassName="bg-primary-orange" />
 
-  return (
-    <>
-      <OverscrollBg
-        topClassName="bg-primary-orange"
-        bottomClassName={appEnv.fullPage ? "bg-primary-white" : "bg-white"}
-      />
+    <div className="pb-20">
+      <Header />
 
-      <div className="pb-20">
-        <Header />
+      <ContentPaper>
+        <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
 
-        <ContentPaper>
-          <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
-
-          <div className="p-4">
-            <ErrorBoundary whileMessage="displaying this page">
-              <React.Suspense fallback={<SpinnerSection />}>
-                {children}
-              </React.Suspense>
-            </ErrorBoundary>
-          </div>
-        </ContentPaper>
-      </div>
-    </>
-  );
-};
+        <div className="p-4">
+          <ErrorBoundary whileMessage="displaying this page">
+            <React.Suspense fallback={<SpinnerSection />}>
+              {children}
+            </React.Suspense>
+          </ErrorBoundary>
+        </div>
+      </ContentPaper>
+    </div>
+  </>
+);
 
 export default PageLayout;
 

@@ -2,8 +2,9 @@ import * as React from "react";
 import * as Woozie from "lib/woozie";
 import { ThanosProvider } from "lib/thanos/front";
 import { AppEnvProvider } from "app/env";
-import AwaitFonts from "app/a11y/AwaitFonts";
 import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
+import AwaitFonts from "app/a11y/AwaitFonts";
+import BootAnimation from "app/a11y/BootAnimation";
 import ErrorBoundary from "app/ErrorBoundary";
 import Page from "app/Page";
 
@@ -13,7 +14,7 @@ type AppProps = {
 
 const App: React.FC<AppProps> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
-    <React.Suspense fallback={<AppSuspenseFallback />}>
+    <React.Suspense fallback={null}>
       <AppProvider env={env}>
         <DisableOutlinesForClick />
 
@@ -22,7 +23,9 @@ const App: React.FC<AppProps> = ({ env }) => (
           weights={[300, 400, 500, 600]}
           className="font-inter"
         >
-          <Page />
+          <BootAnimation>
+            <Page />
+          </BootAnimation>
         </AwaitFonts>
       </AppProvider>
     </React.Suspense>
@@ -38,26 +41,3 @@ const AppProvider: React.FC<AppProps> = ({ children, env }) => (
     </Woozie.Provider>
   </AppEnvProvider>
 );
-
-const rootEl = document.documentElement;
-
-const baseClassNames = ["transform"];
-const initialClassNames = ["scale-105"];
-const transitionClassNames = ["transition", "ease", "duration-200"];
-
-rootEl.classList.add(...baseClassNames, ...initialClassNames);
-
-const AppSuspenseFallback: React.FC = () => {
-  React.useEffect(
-    () => () => {
-      rootEl.classList.add(...transitionClassNames);
-      rootEl.classList.remove(...initialClassNames);
-      setTimeout(() => {
-        rootEl.classList.remove(...baseClassNames, ...transitionClassNames);
-      }, 200);
-    },
-    []
-  );
-
-  return null;
-};
