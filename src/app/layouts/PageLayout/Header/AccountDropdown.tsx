@@ -58,8 +58,12 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
 
   const handleMaximiseViewClick = React.useCallback(() => {
     openInFullPage();
-    setOpened(false);
-  }, [setOpened]);
+    if (appEnv.popup) {
+      window.close();
+    } else {
+      setOpened(false);
+    }
+  }, [appEnv.popup, setOpened]);
 
   return (
     <DropdownWrapper
@@ -158,7 +162,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
                       {(bal) => (
                         <span
                           className={classNames(
-                            "text-xs leading-none",
+                            "text-xs leading-tight",
                             "text-white-75"
                           )}
                         >

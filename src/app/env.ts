@@ -24,9 +24,14 @@ export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
 });
 
 export const OpenInFullPage: React.FC = () => {
-  React.useEffect(() => {
+  const appEnv = useAppEnv();
+
+  React.useLayoutEffect(() => {
     openInFullPage();
-  }, []);
+    if (appEnv.popup) {
+      window.close();
+    }
+  }, [appEnv.popup]);
 
   return null;
 };

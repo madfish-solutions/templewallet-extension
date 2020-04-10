@@ -74,6 +74,12 @@ const Page: React.FC = () => {
     }
   }, [trigger, pathname]);
 
+  React.useLayoutEffect(() => {
+    if (process.env.TARGET_BROWSER === "firefox") {
+      document.getElementById("root")?.classList.add("grayscale-firefox-fix");
+    }
+  }, []);
+
   const appEnv = useAppEnv();
   const thanos = useThanosClient();
 

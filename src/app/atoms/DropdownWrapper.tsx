@@ -35,6 +35,7 @@ const DropdownWrapper: React.FC<DropdownWrapperProps> = ({
         "rounded-md overflow-hidden",
         "shadow-xl",
         "p-2",
+        process.env.TARGET_BROWSER === "firefox" && "grayscale-firefox-fix",
         className
       )}
       style={{
