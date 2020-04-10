@@ -14,16 +14,10 @@ interface OperationHistoryProps {
   accountPkh: string;
 }
 
-let initialLoad = true;
-
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const { network } = useReadyThanos();
 
   const fetchOperations = React.useCallback(async () => {
-    if (initialLoad) {
-      await new Promise((res) => setTimeout(res, 200));
-      initialLoad = false;
-    }
     try {
       return await getAccountWithOperations(network.tzStats, {
         pkh: accountPkh,
@@ -121,7 +115,7 @@ const Operation = React.memo<OperationProps>(
 
           <div className="flex items-strech">
             <div className="flex flex-col">
-              <span className="mt-1 text-blue-600 opacity-75">
+              <span className="mt-1 text-xs text-blue-600 opacity-75">
                 {formatOperationType(type, imReceiver)}
               </span>
 
