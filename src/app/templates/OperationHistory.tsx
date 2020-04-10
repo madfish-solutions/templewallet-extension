@@ -14,16 +14,10 @@ interface OperationHistoryProps {
   accountPkh: string;
 }
 
-let initialLoad = true;
-
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const { network } = useReadyThanos();
 
   const fetchOperations = React.useCallback(async () => {
-    if (initialLoad) {
-      await new Promise((res) => setTimeout(res, 200));
-      initialLoad = false;
-    }
     try {
       return await getAccountWithOperations(network.tzStats, {
         pkh: accountPkh,
