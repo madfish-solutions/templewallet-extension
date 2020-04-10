@@ -58,8 +58,12 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
 
   const handleMaximiseViewClick = React.useCallback(() => {
     openInFullPage();
-    setOpened(false);
-  }, [setOpened]);
+    if (appEnv.popup) {
+      window.close();
+    } else {
+      setOpened(false);
+    }
+  }, [appEnv.popup, setOpened]);
 
   return (
     <DropdownWrapper
