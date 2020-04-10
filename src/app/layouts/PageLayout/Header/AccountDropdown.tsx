@@ -111,7 +111,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
           "my-2",
           "border border-white-10 shadow-inner rounded"
         )}
-        style={{ maxHeight: "11rem" }}
+        style={{ maxHeight: "10rem" }}
       >
         <div className="flex flex-col">
           {allAccounts.map((acc) => {
