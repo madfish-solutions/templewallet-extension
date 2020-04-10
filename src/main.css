@@ -50,3 +50,9 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* CSS transition flickering in Firefox */
+
+.grayscale-firefox-fix {
+  filter: grayscale(1%);
+}
