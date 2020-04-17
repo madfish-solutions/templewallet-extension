@@ -171,9 +171,14 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
           labelDescription={
             <>
               I have read and agree to the{" "}
-              <button type="button" className="text-secondary underline">
+              <a
+                href="https://thanoswallet.com/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-secondary underline"
+              >
                 Terms of Usage
-              </button>
+              </a>
             </>
           }
           containerClassName="mb-6"
