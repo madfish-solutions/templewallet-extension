@@ -626,10 +626,10 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     description: React.ReactNode;
   }>(() => ({
     type: "success",
-    title: "Success",
+    title: "Success 🛫",
     description: (
       <>
-        🛫 Transaction request sent! Confirming...
+        Transaction request sent! Confirming...
         {descFooter}
       </>
     ),
@@ -641,9 +641,10 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
       .then(() => {
         setAlert((a) => ({
           ...a,
+          title: "Success ✅",
           description: (
             <>
-              ✅ Transaction successfully processed and confirmed!
+              Transaction successfully processed and confirmed!
               {descFooter}
             </>
           ),

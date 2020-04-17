@@ -25,23 +25,37 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     return res.state;
   }, []);
 
-  const stateSWR = useRetryableSWR("state", fetchState, {
+  const { data, revalidate } = useRetryableSWR("state", fetchState, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
-  const state = stateSWR.data!;
+  const state = data!;
+
+  const [confirmId, setConfirmId] = React.useState<string | null>(null);
+  const waitingConfirmRef = React.useRef(false);
 
   React.useEffect(() => {
     return intercom.subscribe((msg) => {
       switch (msg?.type) {
         case ThanosMessageType.StateUpdated:
-          stateSWR.revalidate();
+          revalidate();
+          break;
+
+        case ThanosMessageType.ConfirmRequested:
+          if (waitingConfirmRef.current) {
+            setConfirmId((msg as any).id);
+          }
+          break;
+
+        case ThanosMessageType.ConfirmExpired:
+          waitingConfirmRef.current = false;
+          setConfirmId(null);
           break;
       }
     });
-  }, [stateSWR]);
+  }, [revalidate, setConfirmId]);
 
   /**
    * Aliases
@@ -153,8 +167,24 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const confirmOperation = React.useCallback(
+    async (id: string, confirm: boolean, password?: string) => {
+      const res = await request({
+        type: ThanosMessageType.ConfirmRequest,
+        id,
+        confirm,
+        password,
+      });
+      assertResponse(res.type === ThanosMessageType.ConfirmResponse);
+    },
+    []
+  );
+
   const createSigner = React.useCallback(
-    (accountPublicKeyHash: string) => new ThanosSigner(accountPublicKeyHash),
+    (accountPublicKeyHash: string) =>
+      new ThanosSigner(accountPublicKeyHash, () => {
+        waitingConfirmRef.current = true;
+      }),
     []
   );
 
@@ -170,6 +200,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     ready,
 
     // Misc
+    confirmId,
+    setConfirmId,
     seedRevealed,
     setSeedRevealed,
 
@@ -183,12 +215,16 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     editAccountName,
     importAccount,
     importFundraiserAccount,
+    confirmOperation,
     createSigner,
   };
 });
 
 class ThanosSigner {
-  constructor(private accountPublicKeyHash: string) {}
+  constructor(
+    private accountPublicKeyHash: string,
+    private onBeforeSign?: () => void
+  ) {}
 
   async publicKeyHash() {
     return this.accountPublicKeyHash;
@@ -208,6 +244,9 @@ class ThanosSigner {
   }
 
   async sign(bytes: string, watermark?: Uint8Array) {
+    if (this.onBeforeSign) {
+      this.onBeforeSign();
+    }
     const res = await request({
       type: ThanosMessageType.SignRequest,
       accountPublicKeyHash: this.accountPublicKeyHash,
@@ -219,7 +258,7 @@ class ThanosSigner {
   }
 }
 
-async function request(req: ThanosRequest) {
+async function request<T extends ThanosRequest>(req: T) {
   const res = await intercom.request(req);
   assertResponse("type" in res);
   return res as ThanosResponse;

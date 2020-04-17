@@ -142,7 +142,7 @@ const queue = new Queue(1);
 
 async function enqueue<T>(factory: () => Promise<T>) {
   if (!queue.isAvailable()) {
-    await Actions.closeConfirmWindow();
+    await Actions.stopConfirming();
   }
 
   return new Promise<T>((response, reject) => {

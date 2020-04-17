@@ -17,11 +17,11 @@ import {
   unlocked,
   accountsUpdated,
 } from "lib/thanos/back/store";
-import { Windows, browser } from "webextension-polyfill-ts";
+// import { Windows, browser } from "webextension-polyfill-ts";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
-const CONFIRM_WIDTH = 320;
-const CONFIRM_HEIGHT = 320;
+// const CONFIRM_WIDTH = 320;
+// const CONFIRM_HEIGHT = 320;
 const AUTODECLINE_AFTER = 60_000;
 
 export async function getFrontState(): Promise<ThanosState> {
@@ -119,7 +119,8 @@ export function importFundraiserAccount(
   });
 }
 
-let currentConfirmWindow: Windows.Window;
+// let currentConfirmWindow: Windows.Window;
+let stopSign: (() => void) | undefined;
 
 export function sign(
   intercom: IntercomServer,
@@ -131,32 +132,46 @@ export function sign(
     () =>
       new Promise(async (resolve, reject) => {
         const id = Buffer.from(generateSalt()).toString("hex");
-        const search = new URLSearchParams({ id });
 
-        const win = await browser.windows.getCurrent();
-        const top = Math.round(win.top! + win.height! / 2 - CONFIRM_HEIGHT / 2);
-        const left = Math.round(win.left! + win.width! / 2 - CONFIRM_WIDTH / 2);
-
-        const confirmWin = await browser.windows.create({
-          type: "popup",
-          url: browser.runtime.getURL(`confirm.html?${search}`),
-          width: 360,
-          height: 360,
-          top: Math.max(top, 0),
-          left: Math.max(left, 0),
+        intercom.broadcast({
+          type: ThanosMessageType.ConfirmRequested,
+          id,
         });
-        currentConfirmWindow = confirmWin;
+
+        // const search = new URLSearchParams({ id });
+        // const win = await browser.windows.getCurrent();
+        // const top = Math.round(win.top! + win.height! / 2 - CONFIRM_HEIGHT / 2);
+        // const left = Math.round(win.left! + win.width! / 2 - CONFIRM_WIDTH / 2);
+
+        // const confirmWin = await browser.windows.create({
+        //   type: "popup",
+        //   url: browser.runtime.getURL(`confirm.html?${search}`),
+        //   width: 360,
+        //   height: 360,
+        //   top: Math.max(top, 0),
+        //   left: Math.max(left, 0),
+        // });
+        // currentConfirmWindow = confirmWin;
 
         let stop: any;
         let timeout: any;
 
         let closing = false;
-        const close = async () => {
+        const close = () => {
           if (closing) return;
           closing = true;
 
-          if (stop) stop();
-          if (timeout) clearTimeout(timeout);
+          try {
+            if (stop) stop();
+            if (timeout) clearTimeout(timeout);
+
+            intercom.broadcast({
+              type: ThanosMessageType.ConfirmExpired,
+              id,
+            });
+          } catch (_err) {}
+
+          stopSign = undefined;
 
           // try {
           //   const tabs = await browser.tabs.query({
@@ -170,26 +185,31 @@ export function sign(
           //   }
           // } catch (_err) {}
 
-          if (confirmWin.id) {
-            try {
-              const win = await browser.windows.get(confirmWin.id);
-              if (win.id) {
-                browser.windows.remove(win.id);
-              }
-            } catch (_err) {}
-          }
+          // if (confirmWin.id) {
+          //   try {
+          //     const win = await browser.windows.get(confirmWin.id);
+          //     if (win.id) {
+          //       browser.windows.remove(win.id);
+          //     }
+          //   } catch (_err) {}
+          // }
         };
 
         const decline = () => {
           reject(new Error("Declined"));
         };
 
-        browser.windows.onRemoved.addListener((winId) => {
-          if (winId === confirmWin?.id) {
-            decline();
-            close();
-          }
-        });
+        // browser.windows.onRemoved.addListener((winId) => {
+        //   if (winId === confirmWin?.id) {
+        //     decline();
+        //     close();
+        //   }
+        // });
+
+        stopSign = () => {
+          decline();
+          close();
+        };
 
         stop = intercom.onRequest(async (msg) => {
           if (
@@ -212,7 +232,10 @@ export function sign(
 
             close();
 
-            return null;
+            return {
+              type: ThanosMessageType.ConfirmResponse,
+              id,
+            };
           }
         });
 
@@ -225,16 +248,22 @@ export function sign(
   );
 }
 
-export async function closeConfirmWindow() {
-  if (currentConfirmWindow?.id) {
-    try {
-      const win = await browser.windows.get(currentConfirmWindow.id);
-      if (win.id) {
-        browser.windows.remove(win.id);
-      }
-    } catch (_err) {}
+export async function stopConfirming() {
+  if (stopSign) {
+    stopSign();
   }
 }
+
+// export async function closeConfirmWindow() {
+//   if (currentConfirmWindow?.id) {
+//     try {
+//       const win = await browser.windows.get(currentConfirmWindow.id);
+//       if (win.id) {
+//         browser.windows.remove(win.id);
+//       }
+//     } catch (_err) {}
+//   }
+// }
 
 function withUnlocked<T>(factory: (state: UnlockedStoreState) => T) {
   const state = store.getState();

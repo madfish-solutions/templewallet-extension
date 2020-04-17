@@ -47,6 +47,8 @@ export type ThanosNetworkType = "main" | "test";
 
 export enum ThanosMessageType {
   StateUpdated = "THANOS_STATE_UPDATED",
+  ConfirmRequested = "THANOS_CONFIRM_REQUESTED",
+  ConfirmExpired = "THANOS_CONFIRM_EXPIRED",
   GetStateRequest = "THANOS_GET_STATE_REQUEST",
   GetStateResponse = "THANOS_GET_STATE_RESPONSE",
   NewWalletRequest = "THANOS_NEW_WALLET_REQUEST",
@@ -72,6 +74,7 @@ export enum ThanosMessageType {
   SignRequest = "THANOS_SIGN_REQUEST",
   SignResponse = "THANOS_SIGN_RESPONSE",
   ConfirmRequest = "THANOS_CONFIRM_REQUEST",
+  ConfirmResponse = "THANOS_CONFIRM_RESPONSE",
 }
 
 export type ThanosRequest =
@@ -101,7 +104,8 @@ export type ThanosResponse =
   | ThanosEditAccountResponse
   | ThanosImportAccountResponse
   | ThanosImportFundraiserAccountResponse
-  | ThanosSignResponse;
+  | ThanosSignResponse
+  | ThanosConfirmResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -232,4 +236,9 @@ export interface ThanosConfirmRequest extends ThanosMessageBase {
   id: string;
   confirm: boolean;
   password?: string;
+}
+
+export interface ThanosConfirmResponse extends ThanosMessageBase {
+  type: ThanosMessageType.ConfirmResponse;
+  id: string;
 }
