@@ -16,7 +16,11 @@ type RevealSecretProps = {
 };
 
 const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
-  const { revealPrivateKey, revealMnemonic } = useThanosClient();
+  const {
+    revealPrivateKey,
+    revealMnemonic,
+    setSeedRevealed,
+  } = useThanosClient();
   const { accountPkh } = useReadyThanos();
 
   const {
@@ -47,21 +51,29 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       ?.focus();
   }, []);
 
+  React.useLayoutEffect(() => {
+    focusPasswordField();
+  }, [focusPasswordField]);
+
   const onSubmit = React.useCallback(
     async ({ password }) => {
       if (submitting) return;
 
       clearError("password");
       try {
-        const scrt = await (() => {
-          switch (reveal) {
-            case "private-key":
-              return revealPrivateKey(accountPkh, password);
+        let scrt: string;
 
-            case "seed-phrase":
-              return revealMnemonic(password);
-          }
-        })();
+        switch (reveal) {
+          case "private-key":
+            scrt = await revealPrivateKey(accountPkh, password);
+            break;
+
+          case "seed-phrase":
+            scrt = await revealMnemonic(password);
+            setSeedRevealed(true);
+            break;
+        }
+
         setSecret(scrt);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
@@ -82,6 +94,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       revealPrivateKey,
       revealMnemonic,
       accountPkh,
+      setSeedRevealed,
       setSecret,
       focusPasswordField,
     ]
