@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Thanos Wallet - Tezos Glove",
-  "version": "0.2.0",
+  "name": "Thanos Wallet",
+  "version": "1.0.0-beta.0",
 
   "icons": {
     "16": "misc/icon-16.png",
@@ -10,27 +10,26 @@
     "128": "misc/icon-128.png"
   },
 
-  "description": "",
+  "description": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser.",
   "homepage_url": "https://github.com/madfish-solutions/thanos",
   "short_name": "Thanos Wallet",
 
   "permissions": [
-    "http://*/*",
-    "https://*/*",
-    "activeTab",
     "storage",
     "unlimitedStorage",
-    "clipboardWrite"
+    "clipboardWrite",
+    "https://*.tzstats.com/",
+    "https://*.tezos.org.ua/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
-  "__chrome|firefox__author": "abhijithvijayan",
+  "__chrome|firefox__author": "https://madfish.solutions",
   "__opera__developer": {
-    "name": "abhijithvijayan"
+    "name": "https://madfish.solutions"
   },
 
   "__firefox__applications": {
-    "gecko": { "id": "{754FB1AD-CC3B-4856-B6A0-7786F8CA9D17}" }
+    "gecko": { "id": "{34ac229e-1cf5-4e4c-8a77-988155c4360f}" }
   },
 
   "__chrome__minimum_chrome_version": "49",
@@ -62,12 +61,5 @@
   "background": {
     "scripts": ["scripts/background.js"],
     "__chrome|opera__persistent": false
-  },
-
-  "content_scripts": [
-    {
-      "matches": ["http://*/*", "https://*/*"],
-      "js": ["scripts/contentScript.js"]
-    }
-  ]
+  }
 }

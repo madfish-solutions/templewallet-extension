@@ -1,34 +1,58 @@
+/**
+ * Inter UI font
+ */
+
+@import "~inter-ui/inter.css";
+
+* {
+  font-variant-ligatures: none;
+}
+
+/**
+ * Popper JS
+ */
+[data-popper-reference-hidden] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/**
+ * Tippy JS
+ */
+
+@import "~tippy.js/dist/tippy.css";
+@import "~tippy.js/animations/shift-away-subtle.css";
+
+/**
+ * TailwindCSS
+ */
+
 @tailwind base;
 
 @tailwind components;
 
 @tailwind utilities;
 
-.spin {
-  animation: spin 1s;
+/**
+ * Text shadow utils.
+ */
+
+.text-shadow-black {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
 }
 
-@-moz-keyframes spin {
-  from {
-    -moz-transform: rotate(0deg);
-  }
-  to {
-    -moz-transform: rotate(360deg);
-  }
+.text-shadow-black-orange {
+  text-shadow: 0 1px 0 rgba(39, 19, 3, 0.06);
 }
-@-webkit-keyframes spin {
-  from {
-    -webkit-transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(360deg);
-  }
+
+/* Scroll bar utils */
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+
+/* CSS transition flickering in Firefox */
+
+.grayscale-firefox-fix {
+  filter: grayscale(1%);
 }

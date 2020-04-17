@@ -1,18 +1,32 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { TezosProvider } from "lib/tezos";
-import { ThanosWalletProvider } from "lib/thanos-wallet";
-import PageLayout from "app/layout/PageLayout";
+import { ThanosProvider } from "lib/thanos/front";
+import { AppEnvProvider } from "app/env";
+import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
+import AwaitFonts from "app/a11y/AwaitFonts";
+import BootAnimation from "app/a11y/BootAnimation";
 import ErrorBoundary from "app/ErrorBoundary";
 import Page from "app/Page";
 
-const App: React.FC<{ popup?: boolean }> = ({ popup }) => (
-  <ErrorBoundary>
-    <React.Suspense fallback={<AppSuspenseFallback />}>
-      <AppProvider>
-        <PageLayout popup={popup}>
-          <Page />
-        </PageLayout>
+type AppProps = {
+  env: React.ComponentProps<typeof AppEnvProvider>;
+};
+
+const App: React.FC<AppProps> = ({ env }) => (
+  <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
+    <React.Suspense fallback={null}>
+      <AppProvider env={env}>
+        <DisableOutlinesForClick />
+
+        <AwaitFonts
+          name="Inter"
+          weights={[300, 400, 500, 600]}
+          className="font-inter"
+        >
+          <BootAnimation>
+            <Page />
+          </BootAnimation>
+        </AwaitFonts>
       </AppProvider>
     </React.Suspense>
   </ErrorBoundary>
@@ -20,25 +34,10 @@ const App: React.FC<{ popup?: boolean }> = ({ popup }) => (
 
 export default App;
 
-const AppProvider: React.FC = ({ children }) => (
-  <Woozie.Provider>
-    <TezosProvider>
-      <ThanosWalletProvider>{children}</ThanosWalletProvider>
-    </TezosProvider>
-  </Woozie.Provider>
+const AppProvider: React.FC<AppProps> = ({ children, env }) => (
+  <AppEnvProvider {...env}>
+    <Woozie.Provider>
+      <ThanosProvider>{children}</ThanosProvider>
+    </Woozie.Provider>
+  </AppEnvProvider>
 );
-
-const AppSuspenseFallback: React.FC = () => (
-  <div className="w-full min-h-screen flex items-center justify-center">
-    <div className="p-2 text-lg font-semibold text-gray-600">Loading...</div>
-  </div>
-);
-
-// (async () => {
-//   try {
-//     const reply = await browser.runtime.sendMessage({ kek: "lal" });
-//     console.info(reply);
-//   } catch (err) {
-//     console.error(err);
-//   }
-// })();

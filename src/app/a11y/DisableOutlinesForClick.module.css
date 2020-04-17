@@ -1,0 +1,8 @@
+.focus-disabled :focus {
+  outline: 0 !important;
+}
+
+.focus-disabled :global(.disable-outline-for-click) {
+  outline: 0 !important;
+  box-shadow: none !important;
+}
