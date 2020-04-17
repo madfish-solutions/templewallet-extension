@@ -1,10 +1,6 @@
 import * as React from "react";
 import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
-import {
-  To,
-  createLocationUpdates,
-  useLocationContext
-} from "lib/woozie/location";
+import { To, createLocationUpdates, useLocation } from "lib/woozie/location";
 
 export interface LinkProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -13,7 +9,7 @@ export interface LinkProps
 }
 
 const Link: React.FC<LinkProps> = ({ to, replace, ...rest }) => {
-  const lctn = useLocationContext();
+  const lctn = useLocation();
 
   const { pathname, search, hash, state } = React.useMemo(
     () => createLocationUpdates(to, lctn),
@@ -23,7 +19,7 @@ const Link: React.FC<LinkProps> = ({ to, replace, ...rest }) => {
   const url = React.useMemo(() => createUrl(pathname, search, hash), [
     pathname,
     search,
-    hash
+    hash,
   ]);
 
   const handleNavigate = React.useCallback(() => {
@@ -54,7 +50,7 @@ const LinkAnchor: React.FC<LinkAnchorProps> = ({
   ...rest
 }) => {
   const handleClick = React.useCallback(
-    evt => {
+    (evt) => {
       try {
         if (onClick) {
           onClick(evt);

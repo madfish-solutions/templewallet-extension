@@ -5,15 +5,29 @@ import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
 export enum HistoryAction {
   Pop = "popstate",
   Push = "pushstate",
-  Replace = "replacestate"
+  Replace = "replacestate",
 }
 
-export interface HistoryWithLastAction extends History {
+export interface PatchedHistory extends History {
   lastAction: HistoryAction;
+  position: number;
 }
 
-patchMethod("pushState", HistoryAction.Push);
-patchMethod("replaceState", HistoryAction.Replace);
+export type HistoryListener = () => void;
+
+const listeners = new Set<HistoryListener>();
+
+export function listen(listener: HistoryListener) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+export function useHistory() {
+  const forceUpdate = useForceUpdate();
+  React.useLayoutEffect(() => listen(forceUpdate), [forceUpdate]);
+}
 
 export function changeState(
   action: HistoryAction.Push | HistoryAction.Replace,
@@ -21,6 +35,11 @@ export function changeState(
   url: string
 ) {
   const title = ""; // Deprecated stuff
+
+  if (USE_LOCATION_HASH_AS_URL) {
+    const { pathname, search } = window.location;
+    url = createUrl(pathname, search, url);
+  }
 
   switch (action) {
     case HistoryAction.Push:
@@ -56,49 +75,50 @@ export function createUrl(
   if (hash && !hash.startsWith("#")) {
     hash = `#${hash}`;
   }
-  const url = `${pathname}${search}${hash}`;
-
-  return USE_LOCATION_HASH_AS_URL ? `${window.location.pathname}#${url}` : url;
+  return `${pathname}${search}${hash}`;
 }
 
-export function useHistory() {
-  const forceUpdate = useForceUpdate();
+patchMethod("pushState", HistoryAction.Push);
+patchMethod("replaceState", HistoryAction.Replace);
 
-  React.useEffect(() => {
-    window.addEventListener(HistoryAction.Pop, handlePopstate);
-    window.addEventListener(HistoryAction.Push, handlePushstate);
-    window.addEventListener(HistoryAction.Replace, handleReplacestate);
+window.addEventListener(HistoryAction.Pop, handlePopstate);
+window.addEventListener(HistoryAction.Push, handlePushstate);
+window.addEventListener(HistoryAction.Replace, handleReplacestate);
 
-    return () => {
-      window.removeEventListener(HistoryAction.Pop, handlePopstate);
-      window.removeEventListener(HistoryAction.Push, handlePushstate);
-      window.removeEventListener(HistoryAction.Replace, handleReplacestate);
-    };
+function handlePopstate() {
+  patchHistory(HistoryAction.Pop);
+  notifyListeners();
+}
+function handlePushstate() {
+  patchHistory(HistoryAction.Push);
+  notifyListeners();
+}
+function handleReplacestate() {
+  patchHistory(HistoryAction.Replace);
+  notifyListeners();
+}
 
-    function handlePopstate() {
-      patchLastAction(HistoryAction.Pop);
-      forceUpdate();
-    }
-    function handlePushstate() {
-      patchLastAction(HistoryAction.Push);
-      forceUpdate();
-    }
-    function handleReplacestate() {
-      patchLastAction(HistoryAction.Replace);
-      forceUpdate();
-    }
+function patchHistory(action: HistoryAction) {
+  const patchedHistory = window.history as PatchedHistory;
+  const position =
+    (patchedHistory.position ?? 0) +
+    (action === HistoryAction.Push ? 1 : action === HistoryAction.Pop ? -1 : 0);
 
-    function patchLastAction(action: HistoryAction) {
-      (window.history as HistoryWithLastAction).lastAction = action;
-    }
-  }, [forceUpdate]);
+  Object.assign(patchedHistory, {
+    lastAction: action,
+    position,
+  });
+}
+
+function notifyListeners() {
+  listeners.forEach((listener) => listener());
 }
 
 function patchMethod(method: string, eventType: HistoryAction) {
   const history = window.history as any;
   const original = history[method];
 
-  history[method] = function(state: any) {
+  history[method] = function (state: any) {
     const result = original.apply(this, arguments);
 
     const event = new CustomEvent(eventType);

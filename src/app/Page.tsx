@@ -1,57 +1,104 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { useThanosWalletContext } from "lib/thanos-wallet";
-import ExploreAccount from "app/pages/ExploreAccount";
-import ImportAccountFromFile from "app/pages/ImportAccountFromFile";
-import ImportAccountManual from "app/pages/ImportAccountManual";
-import ReceiveFunds from "app/pages/ReceiveFunds";
-import TransferFunds from "app/pages/TransferFunds";
+import { useThanosClient } from "lib/thanos/front";
+import { useAppEnv, OpenInFullPage } from "app/env";
+import Unlock from "app/pages/Unlock";
+import Welcome from "app/pages/Welcome";
+import ImportWallet from "app/pages/ImportWallet";
+import CreateWallet from "app/pages/CreateWallet";
+import CreateAccount from "app/pages/CreateAccount";
+import ImportAccount from "app/pages/ImportAccount";
+import Explore from "app/pages/Explore";
+import Receive from "app/pages/Receive";
+import Send from "app/pages/Send";
+import Settings from "app/pages/Settings";
 
-const ROUTE_MAP = Woozie.Router.prepare([
+interface RouteContext {
+  appEnv: ReturnType<typeof useAppEnv>;
+  thanos: ReturnType<typeof useThanosClient>;
+}
+
+type RouteFactory = Woozie.Router.ResolveResult<RouteContext>;
+
+const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
-    "/",
-    (_p, authed) => (
-      <Woozie.Redirect to={authed ? "/account" : "/import/manual"} />
-    )
+    "/import-wallet",
+    (_p, { appEnv, thanos }) => {
+      switch (true) {
+        case thanos.ready:
+          return Woozie.Router.SKIP;
+
+        case !appEnv.fullPage:
+          return <OpenInFullPage />;
+
+        default:
+          return <ImportWallet />;
+      }
+    },
   ],
   [
-    "/import/file",
-    (_p, authed) =>
-      !authed ? <ImportAccountFromFile /> : <Woozie.Redirect to="/" />
+    "*",
+    (_p, { appEnv, thanos }) => {
+      switch (true) {
+        case thanos.locked:
+          return <Unlock />;
+
+        case !thanos.ready && !appEnv.fullPage:
+          return <OpenInFullPage />;
+
+        default:
+          return Woozie.Router.SKIP;
+      }
+    },
   ],
+  ["/", (_p, { thanos }) => (thanos.ready ? <Explore /> : <Welcome />)],
+  ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
+  ["/create-account", onlyReady(() => <CreateAccount />)],
+  ["/import-account", onlyReady(() => <ImportAccount />)],
+  ["/receive", onlyReady(() => <Receive />)],
+  ["/send", onlyReady(() => <Send />)],
   [
-    "/import/manual",
-    (_p, authed) =>
-      !authed ? <ImportAccountManual /> : <Woozie.Redirect to="/" />
+    "/settings/:tabSlug?",
+    onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),
   ],
-  [
-    "/account",
-    (_p, authed) => (authed ? <ExploreAccount /> : <Woozie.Redirect to="/" />)
-  ],
-  [
-    "/account/receive",
-    (_p, authed) => (authed ? <ReceiveFunds /> : <Woozie.Redirect to="/" />)
-  ],
-  [
-    "/account/transfer",
-    (_p, authed) => (authed ? <TransferFunds /> : <Woozie.Redirect to="/" />)
-  ],
-  ["*", () => <Woozie.Redirect to="/" />]
+  ["*", () => <Woozie.Redirect to="/" />],
 ]);
 
 const Page: React.FC = () => {
-  const { account } = useThanosWalletContext();
-  const { trigger, pathname } = Woozie.useLocationContext();
+  const { trigger, pathname } = Woozie.useLocation();
 
-  // Scroll to Top after new location pushed
-  React.useEffect(() => {
+  // Scroll to top after new location pushed.
+  React.useLayoutEffect(() => {
     if (trigger === Woozie.HistoryAction.Push) {
       window.scrollTo(0, 0);
     }
-  });
+  }, [trigger, pathname]);
 
-  const authorized = React.useMemo(() => Boolean(account), [account]);
-  return Woozie.Router.resolve(pathname, ROUTE_MAP, authorized);
+  React.useLayoutEffect(() => {
+    if (process.env.TARGET_BROWSER === "firefox") {
+      document.getElementById("root")?.classList.add("grayscale-firefox-fix");
+    }
+  }, []);
+
+  const appEnv = useAppEnv();
+  const thanos = useThanosClient();
+
+  const ctx = React.useMemo<RouteContext>(() => ({ appEnv, thanos }), [
+    appEnv,
+    thanos,
+  ]);
+
+  return Woozie.Router.resolve(ROUTE_MAP, pathname, ctx);
 };
 
 export default Page;
+
+function onlyReady(factory: RouteFactory): RouteFactory {
+  return (params, ctx) =>
+    ctx.thanos.ready ? factory(params, ctx) : Woozie.Router.SKIP;
+}
+
+function onlyNotReady(factory: RouteFactory): RouteFactory {
+  return (params, ctx) =>
+    ctx.thanos.ready ? Woozie.Router.SKIP : factory(params, ctx);
+}

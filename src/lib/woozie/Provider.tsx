@@ -1,8 +1,8 @@
 import * as React from "react";
-import { useLocationContext } from "lib/woozie/location";
+import { LocationProvider } from "lib/woozie/location";
 
 const Provider: React.FC = ({ children }) => (
-  <useLocationContext.Provider>{children}</useLocationContext.Provider>
+  <LocationProvider>{children}</LocationProvider>
 );
 
 export default Provider;

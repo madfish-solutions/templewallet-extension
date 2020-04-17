@@ -1,10 +1,6 @@
-import createUseContext from "constate";
+import constate from "constate";
 import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
-import {
-  HistoryAction,
-  HistoryWithLastAction,
-  useHistory
-} from "lib/woozie/history";
+import { HistoryAction, PatchedHistory, useHistory } from "lib/woozie/history";
 
 export interface LocationState {
   pathname: string;
@@ -14,6 +10,7 @@ export interface LocationState {
   // History based props
   trigger: HistoryAction | null;
   historyLength: number;
+  historyPosition: number;
   // Misc props
   host?: string;
   hostname?: string;
@@ -37,8 +34,9 @@ export function createLocationState(): LocationState {
   const {
     length: historyLength,
     lastAction: trigger = null,
-    state
-  } = window.history as HistoryWithLastAction;
+    position: historyPosition = 0,
+    state,
+  } = window.history as PatchedHistory;
 
   let {
     hash,
@@ -49,7 +47,7 @@ export function createLocationState(): LocationState {
     pathname,
     port,
     protocol,
-    search
+    search,
   } = window.location;
 
   if (USE_LOCATION_HASH_AS_URL) {
@@ -63,6 +61,7 @@ export function createLocationState(): LocationState {
   return {
     trigger,
     historyLength,
+    historyPosition,
     state,
     hash,
     host,
@@ -72,7 +71,7 @@ export function createLocationState(): LocationState {
     pathname,
     port,
     protocol,
-    search
+    search,
   };
 }
 
@@ -92,9 +91,7 @@ export function createLocationUpdates(
   }
 }
 
-export const useLocationContext = createUseContext(useLocation);
-
-export function useLocation() {
+export const [LocationProvider, useLocation] = constate(() => {
   useHistory();
   return createLocationState();
-}
+});
