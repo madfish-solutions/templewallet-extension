@@ -75,30 +75,25 @@ const Receive: React.FC = () => {
             )}
           </button>
 
-          <div className="mb-4 flex flex-col leading-tight">
-            <span className="text-base font-semibold text-gray-700">
-              QRCode
-            </span>
+          <div className="flex flex-col items-center">
+            <div className="mb-2 text-center leading-tight">
+              <span className="text-sm font-semibold text-gray-700">
+                QRCode
+              </span>
+            </div>
 
-            <span
-              className={classNames("mt-1", "text-xs font-light text-gray-600")}
-              style={{ maxWidth: "90%" }}
+            <div
+              className="p-1 bg-gray-100 border-2 border-gray-300 rounded"
+              style={{ maxWidth: "60%" }}
             >
-              Scan a QR code to share your Address easily.
-            </span>
-          </div>
-
-          <div
-            className="p-1 bg-gray-100 border-2 border-gray-300 rounded"
-            style={{ maxWidth: "55%" }}
-          >
-            <QRCode
-              bgColor="#f7fafc"
-              fgColor="#000000"
-              level="Q"
-              style={{ width: "100%" }}
-              value={address}
-            />
+              <QRCode
+                bgColor="#f7fafc"
+                fgColor="#000000"
+                level="Q"
+                style={{ width: "100%" }}
+                value={address}
+              />
+            </div>
           </div>
         </div>
       </div>
