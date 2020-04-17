@@ -133,9 +133,9 @@ export function sign(
         const id = Buffer.from(generateSalt()).toString("hex");
         const search = new URLSearchParams({ id });
 
-        const { screenX, screenY, outerWidth, outerHeight } = window;
-        const top = Math.round(screenY + outerHeight / 2 - CONFIRM_HEIGHT / 2);
-        const left = Math.round(screenX + outerWidth / 2 - CONFIRM_WIDTH / 2);
+        const win = await browser.windows.getCurrent();
+        const top = Math.round(win.top! + win.height! / 2 - CONFIRM_HEIGHT / 2);
+        const left = Math.round(win.left! + win.width! / 2 - CONFIRM_WIDTH / 2);
 
         const confirmWin = await browser.windows.create({
           type: "popup",
