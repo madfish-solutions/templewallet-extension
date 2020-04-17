@@ -4,6 +4,7 @@ import { useRetryableSWR } from "lib/swr";
 import { buf2hex } from "@taquito/utils";
 import toBuffer from "typedarray-to-buffer";
 import { IntercomClient } from "lib/intercom";
+import { useStorage } from "lib/thanos/front/storage";
 import {
   ThanosMessageType,
   ThanosStatus,
@@ -50,6 +51,11 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   const idle = status === ThanosStatus.Idle;
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
+
+  /**
+   * Backup seed phrase flag
+   */
+  const [seedRevealed, setSeedRevealed] = useStorage("seed_revealed", true);
 
   /**
    * Actions
@@ -154,6 +160,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
   return {
     state,
+
     // Aliases
     status,
     networks,
@@ -161,6 +168,11 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     idle,
     locked,
     ready,
+
+    // Misc
+    seedRevealed,
+    setSeedRevealed,
+
     // Actions
     registerWallet,
     unlock,
