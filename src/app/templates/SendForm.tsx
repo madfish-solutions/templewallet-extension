@@ -71,10 +71,7 @@ const SendForm: React.FC = () => {
     reset,
   } = useForm<FormData>({
     mode: "onChange",
-    defaultValues: { fee: recommendedAddFeeTz },
   });
-
-  const amountFieldDirty = formState.dirtyFields.has("amount");
 
   const toValue = watch("to");
   const amountValue = watch("amount");
@@ -83,19 +80,6 @@ const SendForm: React.FC = () => {
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = React.useRef<HTMLInputElement>(null);
   const feeFieldRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (formState.isSubmitted) {
-      const firstInvlaid = [
-        [errors.to, toFieldRef],
-        [errors.amount, amountFieldRef],
-        [errors.fee, feeFieldRef],
-      ].find(([e]) => e);
-      if (firstInvlaid) {
-        (firstInvlaid[1] as any).current?.focus();
-      }
-    }
-  }, [formState.isSubmitted, errors.to, errors.amount, errors.fee]);
 
   const toFilled = React.useMemo(
     () => Boolean(toValue && isAddressValid(toValue)),
@@ -164,13 +148,6 @@ const SendForm: React.FC = () => {
     }
   );
 
-  const maxAmount = React.useMemo(() => {
-    if (!baseFee) return null;
-    if (baseFee === NOT_ENOUGH_FUNDS) return NOT_ENOUGH_FUNDS;
-    const ma = new BigNumber(balanceNum).minus(baseFee).minus(feeValue ?? 0);
-    return ma.isGreaterThan(0) ? ma : NOT_ENOUGH_FUNDS;
-  }, [balanceNum, baseFee, feeValue]);
-
   const maxAddFee = React.useMemo(() => {
     if (baseFee instanceof BigNumber) {
       return new BigNumber(balanceNum)
@@ -180,18 +157,38 @@ const SendForm: React.FC = () => {
     }
   }, [balanceNum, baseFee]);
 
+  const safeFeeValue = React.useMemo(
+    () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
+    [maxAddFee, feeValue]
+  );
+
+  const maxAmount = React.useMemo(() => {
+    if (!baseFee) return null;
+    if (baseFee === NOT_ENOUGH_FUNDS) return NOT_ENOUGH_FUNDS;
+    const ma = new BigNumber(balanceNum)
+      .minus(baseFee)
+      .minus(safeFeeValue ?? 0);
+    return ma.isGreaterThan(0) ? ma : NOT_ENOUGH_FUNDS;
+  }, [balanceNum, baseFee, safeFeeValue]);
+
+  const maxAmountNum = React.useMemo(
+    () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
+    [maxAmount]
+  );
+
   const validateAmount = React.useCallback(
     (v: number) => {
-      if (maxAmount === NOT_ENOUGH_FUNDS)
+      if (maxAmountNum === NOT_ENOUGH_FUNDS)
         return "Not enough funds for this transaction";
       if (!v) return "Required";
-      if (!maxAmount) return true;
+      if (!maxAmountNum) return true;
       const vBN = new BigNumber(v);
       return (
-        vBN.isLessThanOrEqualTo(maxAmount) || `Maximal: ${maxAmount.toString()}`
+        vBN.isLessThanOrEqualTo(maxAmountNum) ||
+        `Maximal: ${maxAmountNum.toString()}`
       );
     },
-    [maxAmount]
+    [maxAmountNum]
   );
 
   const handleFeeFieldChange = React.useCallback(
@@ -200,10 +197,10 @@ const SendForm: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (amountFieldDirty) {
+    if (formState.dirtyFields.has("amount")) {
       triggerValidation("amount");
     }
-  }, [triggerValidation, amountFieldDirty, maxAmount]);
+  }, [formState.dirtyFields, triggerValidation, maxAmountNum]);
 
   const handleSetMaxAmount = React.useCallback(() => {
     if (maxAmount && maxAmount !== NOT_ENOUGH_FUNDS) {
@@ -310,6 +307,7 @@ const SendForm: React.FC = () => {
             validate: validateAddress,
           }}
           onChange={([v]) => v}
+          onFocus={() => toFieldRef.current?.focus()}
           textarea
           rows={2}
           id="send-to"
@@ -373,6 +371,7 @@ const SendForm: React.FC = () => {
                 validate: validateAmount,
               }}
               onChange={([v]) => v}
+              onFocus={() => amountFieldRef.current?.focus()}
               id="send-amount"
               assetSymbol={assetSymbol}
               label="Amount"
@@ -418,7 +417,9 @@ const SendForm: React.FC = () => {
               name="fee"
               as={<AssetField ref={feeFieldRef} />}
               control={control}
+              defaultValue={recommendedAddFeeTz.toString()}
               onChange={handleFeeFieldChange}
+              onFocus={() => feeFieldRef.current?.focus()}
               id="send-fee"
               assetSymbol={assetSymbol}
               label="Additional Fee"
@@ -725,15 +726,3 @@ function mutezToTz(mutez: any) {
 function isAddressValid(address: string) {
   return validateAddress(address) === ValidationResult.VALID;
 }
-
-// function formatEstimate(estimate: any) {
-//   return {
-//     storageLimit: estimate.storageLimit,
-//     burnFeeMutez: estimate.burnFeeMutez,
-//     gasLimit: estimate.gasLimit,
-//     minimalFeeMutez: estimate.minimalFeeMutez,
-//     suggestedFeeMutez: estimate.suggestedFeeMutez,
-//     usingBaseFeeMutez: estimate.usingBaseFeeMutez,
-//     totalCost: estimate.totalCost
-//   };
-// }
