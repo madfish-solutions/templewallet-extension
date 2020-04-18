@@ -1,96 +1,60 @@
 import * as React from "react";
 
-export function getClosestBody(
-  el: Element | HTMLElement | HTMLIFrameElement | null
-): HTMLElement | null {
-  if (!el) {
-    return null;
-  } else if (el.tagName === "BODY") {
-    return el as HTMLElement;
-  } else if (el.tagName === "IFRAME") {
-    const document = (el as HTMLIFrameElement).contentDocument;
-    return document ? document.body : null;
-  } else if (!(el as HTMLElement).offsetParent) {
-    return null;
-  }
+// left: 37, up: 38, right: 39, down: 40,
+// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
+const KEYS = [33, 34, 38, 40];
 
-  return getClosestBody((el as HTMLElement).offsetParent!);
-}
+// modern Chrome requires { passive: false } when adding event
+let supportsPassive = false;
+try {
+  (window as any).addEventListener(
+    "test",
+    null,
+    Object.defineProperty({}, "passive", {
+      get: function () {
+        supportsPassive = true;
+        return null;
+      },
+    })
+  );
+} catch (_err) {}
 
-function preventDefault(rawEvent: TouchEvent): boolean {
-  const e = rawEvent || window.event;
-  // Do not prevent if the event has more than one touch (usually meaning this is a multi touch gesture like pinch to zoom).
-  if (e.touches.length > 1) return true;
+const wheelOpt: any = supportsPassive ? { passive: false } : false;
+const wheelEvent =
+  "onwheel" in document.createElement("div") ? "wheel" : "mousewheel";
 
-  if (e.preventDefault) e.preventDefault();
+export default function useScrollLock(enabled: boolean) {
+  const preventDefault = React.useCallback((evt: any) => {
+    evt.preventDefault();
+  }, []);
 
-  return false;
-}
+  const preventDefaultForScrollKeys = React.useCallback(
+    (evt: any) => {
+      if (KEYS.includes(evt.keyCode)) {
+        preventDefault(evt);
+        return false;
+      }
+    },
+    [preventDefault]
+  );
 
-export interface BodyInfoItem {
-  counter: number;
-  initialOverflow: CSSStyleDeclaration["overflow"];
-}
-
-const isIosDevice =
-  typeof window !== "undefined" &&
-  window.navigator &&
-  window.navigator.platform &&
-  /iP(ad|hone|od)/.test(window.navigator.platform);
-
-const bodies: Map<HTMLElement, BodyInfoItem> = new Map();
-
-let documentListenerAdded = false;
-
-export default function useScrollLock(locked: boolean = true) {
   React.useEffect(() => {
-    const body = document.body;
-    const bodyInfo = bodies.get(body);
+    if (enabled) {
+      window.addEventListener("DOMMouseScroll", preventDefault, false); // older FF
+      window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
+      window.addEventListener("touchmove", preventDefault, wheelOpt); // mobile
+      window.addEventListener("keydown", preventDefaultForScrollKeys, false);
 
-    if (locked) {
-      if (!bodyInfo) {
-        bodies.set(body, {
-          counter: 1,
-          initialOverflow: body.style.overflow,
-        });
-        if (isIosDevice) {
-          if (!documentListenerAdded) {
-            document.addEventListener("touchmove", preventDefault, {
-              passive: false,
-            });
-
-            documentListenerAdded = true;
-          }
-        } else {
-          body.style.overflow = "hidden";
-        }
-      } else {
-        bodies.set(body, {
-          counter: bodyInfo.counter + 1,
-          initialOverflow: bodyInfo.initialOverflow,
-        });
-      }
-    } else {
-      if (bodyInfo) {
-        if (bodyInfo.counter === 1) {
-          bodies.delete(body);
-          if (isIosDevice) {
-            body.ontouchmove = null;
-
-            if (documentListenerAdded) {
-              document.removeEventListener("touchmove", preventDefault);
-              documentListenerAdded = false;
-            }
-          } else {
-            body.style.overflow = bodyInfo.initialOverflow;
-          }
-        } else {
-          bodies.set(body, {
-            counter: bodyInfo.counter - 1,
-            initialOverflow: bodyInfo.initialOverflow,
-          });
-        }
-      }
+      return () => {
+        window.removeEventListener("DOMMouseScroll", preventDefault, false);
+        window.removeEventListener(wheelEvent, preventDefault, wheelOpt);
+        window.removeEventListener("touchmove", preventDefault, wheelOpt);
+        window.removeEventListener(
+          "keydown",
+          preventDefaultForScrollKeys,
+          false
+        );
+      };
     }
-  }, [locked]);
+  }, [enabled, preventDefault, preventDefaultForScrollKeys]);
 }
