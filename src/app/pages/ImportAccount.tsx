@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic } from "bip39";
-import { navigate } from "lib/woozie";
+import { Link, navigate } from "lib/woozie";
 import { useThanosClient, useReadyThanos } from "lib/thanos/front";
 import { MNEMONIC_ERROR_CAPTION } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
@@ -11,31 +11,11 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Alert from "app/atoms/Alert";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 
-type TABS = "privateKey" | "fundraiser";
+type ImportAccountProps = {
+  tabSlug: string | null;
+};
 
-const Tab: React.FC<{
-  active: boolean;
-  className?: string;
-  onClick: () => void;
-}> = ({ children, active, className, onClick }) => (
-  <div
-    className={classNames(
-      "text-center cursor-pointer rounded-md mx-2 py-2 px-4",
-      active
-        ? "text-primary-orange bg-primary-orange-10"
-        : "hover:bg-gray-100 focus:bg-gray-100",
-      "transition ease-in-out duration-200",
-      className
-    )}
-    onClick={onClick}
-  >
-    {children}
-  </div>
-);
-
-const ImportAccount: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState<TABS>("privateKey");
-
+const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
   const { allAccounts, setAccountPkh } = useReadyThanos();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
@@ -48,6 +28,31 @@ const ImportAccount: React.FC = () => {
     prevAccLengthRef.current = accLength;
   }, [allAccounts, setAccountPkh]);
 
+  const allTabs = React.useMemo(
+    () => [
+      {
+        slug: "private-key",
+        name: "Private Key",
+        Form: ByPrivateKeyForm,
+      },
+      // {
+      //   slug: "mnemonic",
+      //   name: "Mnemonic",
+      //   Form: () => null,
+      // },
+      {
+        slug: "fundraiser",
+        name: "Fundraiser",
+        Form: ByFundraiserForm,
+      },
+    ],
+    []
+  );
+  const { slug, Form } = React.useMemo(() => {
+    const tab = tabSlug ? allTabs.find((t) => t.slug === tabSlug) : null;
+    return tab ?? allTabs[0];
+  }, [allTabs, tabSlug]);
+
   return (
     <PageLayout
       pageTitle={
@@ -59,39 +64,47 @@ const ImportAccount: React.FC = () => {
     >
       <div className="py-4">
         <div className="flex text-gray-600 text-base font-light justify-center mb-4">
-          <Tab
-            onClick={() => setActiveTab("privateKey")}
-            active={activeTab === "privateKey"}
-          >
-            Private Key
-          </Tab>
-          <Tab
-            onClick={() => setActiveTab("fundraiser")}
-            active={activeTab === "fundraiser"}
-          >
-            Fundraiser
-          </Tab>
+          {allTabs.map((t) => {
+            const active = slug === t.slug;
+
+            return (
+              <Link
+                key={t.slug}
+                to={`/import-account/${t.slug}`}
+                replace
+                className={classNames(
+                  "text-center cursor-pointer rounded-md mx-2 py-2 px-4",
+                  active
+                    ? "text-primary-orange bg-primary-orange-10"
+                    : "hover:bg-gray-100 focus:bg-gray-100",
+                  "transition ease-in-out duration-200"
+                )}
+              >
+                {t.name}
+              </Link>
+            );
+          })}
         </div>
-        {activeTab === "privateKey" && <ImportPrivateKeyForm />}
-        {activeTab === "fundraiser" && <ImportFundraiser />}
+
+        <Form />
       </div>
     </PageLayout>
   );
 };
 
-interface FormDataPrivateKey {
+interface ByPrivateKeyFormData {
   privateKey: string;
 }
 
-const ImportPrivateKeyForm: React.FC = () => {
+const ByPrivateKeyForm: React.FC = () => {
   const { importAccount } = useThanosClient();
 
   const { register, handleSubmit, errors, formState } = useForm<
-    FormDataPrivateKey
+    ByPrivateKeyFormData
   >();
   const [error, setError] = React.useState<React.ReactNode>(null);
 
-  const onSubmit = React.useCallback<(data: FormDataPrivateKey) => void>(
+  const onSubmit = React.useCallback<(data: ByPrivateKeyFormData) => void>(
     async (data) => {
       if (formState.isSubmitting) return;
 
@@ -137,6 +150,7 @@ const ImportPrivateKeyForm: React.FC = () => {
         labelDescription="The Secret key of the Account you want to import."
         placeholder="e.g. edsk3wfiPMu..."
         errorCaption={errors.privateKey?.message}
+        className="resize-none"
         containerClassName="mb-6"
       />
 
@@ -150,20 +164,20 @@ const ImportPrivateKeyForm: React.FC = () => {
   );
 };
 
-interface FormDataImportFundraiser {
+interface ByFundraiserFormData {
   email: string;
   password: string;
   mnemonic: string;
 }
 
-const ImportFundraiser: React.FC = () => {
+const ByFundraiserForm: React.FC = () => {
   const { importFundraiserAccount } = useThanosClient();
   const { register, errors, handleSubmit, formState } = useForm<
-    FormDataImportFundraiser
+    ByFundraiserFormData
   >();
   const [error, setError] = React.useState<React.ReactNode>(null);
 
-  const onSubmit = React.useCallback<(data: FormDataImportFundraiser) => void>(
+  const onSubmit = React.useCallback<(data: ByFundraiserFormData) => void>(
     async (data) => {
       if (formState.isSubmitting) return;
 

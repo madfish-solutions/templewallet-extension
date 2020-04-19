@@ -54,7 +54,10 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ["/", (_p, { thanos }) => (thanos.ready ? <Explore /> : <Welcome />)],
   ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
   ["/create-account", onlyReady(() => <CreateAccount />)],
-  ["/import-account", onlyReady(() => <ImportAccount />)],
+  [
+    "/import-account/:tabSlug?",
+    onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />),
+  ],
   ["/receive", onlyReady(() => <Receive />)],
   ["/send", onlyReady(() => <Send />)],
   [
