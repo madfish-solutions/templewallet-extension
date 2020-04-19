@@ -71,11 +71,14 @@ const SendForm: React.FC = () => {
     reset,
   } = useForm<FormData>({
     mode: "onChange",
+    defaultValues: {
+      fee: recommendedAddFeeTz,
+    },
   });
 
   const toValue = watch("to");
   const amountValue = watch("amount");
-  const feeValue = watch("fee", recommendedAddFeeTz as any);
+  const feeValue = watch("fee") ?? recommendedAddFeeTz;
 
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = React.useRef<HTMLInputElement>(null);
@@ -218,10 +221,11 @@ const SendForm: React.FC = () => {
 
   const onSubmit = React.useCallback(
     async ({ to, amount, fee: feeVal }: FormData) => {
-      try {
-        if (formState.isSubmitting) return;
-        setSubmitError(null);
+      if (formState.isSubmitting) return;
+      setSubmitError(null);
+      setOperation(null);
 
+      try {
         const estmtn = await tezos.estimate.transfer({ to, amount });
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
@@ -417,7 +421,6 @@ const SendForm: React.FC = () => {
               name="fee"
               as={<AssetField ref={feeFieldRef} />}
               control={control}
-              defaultValue={recommendedAddFeeTz.toString()}
               onChange={handleFeeFieldChange}
               onFocus={() => feeFieldRef.current?.focus()}
               id="send-fee"
