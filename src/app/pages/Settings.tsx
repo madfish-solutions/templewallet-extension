@@ -18,7 +18,7 @@ const RevealSeedPhrase: React.FC = () => <RevealSecret reveal="seed-phrase" />;
 
 const TABS = [
   {
-    slug: "reveal_private_key",
+    slug: "reveal-private-key",
     title: "Reveal Private Key",
     Icon: KeyIcon,
     Component: RevealPrivateKey,
@@ -31,7 +31,7 @@ const TABS = [
     ),
   },
   {
-    slug: "reveal_seed_phrase",
+    slug: "reveal-seed-phrase",
     title: "Reveal Seed Phrase",
     Icon: StickerIcon,
     Component: RevealSeedPhrase,
@@ -44,7 +44,7 @@ const TABS = [
     ),
   },
   {
-    slug: "activate_account",
+    slug: "activate-account",
     title: "Activate Account",
     Icon: OkIcon,
     Component: ActivateAccount,
