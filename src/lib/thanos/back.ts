@@ -110,6 +110,18 @@ async function processRequest(
         };
       });
 
+    case ThanosMessageType.ImportMnemonicAccountRequest:
+      return enqueue(async () => {
+        await Actions.importMnemonicAccount(
+          req.mnemonic,
+          req.password,
+          req.derivationPath
+        );
+        return {
+          type: ThanosMessageType.ImportMnemonicAccountResponse,
+        };
+      });
+
     case ThanosMessageType.ImportFundraiserAccountRequest:
       return enqueue(async () => {
         await Actions.importFundraiserAccount(

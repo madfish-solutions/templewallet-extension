@@ -12,7 +12,6 @@ export const PASSWORD_PATTERN = new RegExp(
 
 export const PASSWORD_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
-    <li>Required</li>
     <li>At least 8 characters</li>
     <li>At least 1 number</li>
     <li>At least 1 lowercase letter</li>
@@ -22,9 +21,12 @@ export const PASSWORD_ERROR_CAPTION = (
 
 export const MNEMONIC_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
-    <li>Required</li>
     <li>12, 15, 18, 21 or 24 words on English</li>
     <li>Each word separated with a single space</li>
     <li>Just valid pre-generated mnemonic</li>
   </ul>
 );
+
+export function formatMnemonic(m: string) {
+  return m.replace(/\n/g, " ").trim();
+}
