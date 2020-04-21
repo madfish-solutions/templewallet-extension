@@ -8,6 +8,7 @@ import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
   MNEMONIC_ERROR_CAPTION,
+  formatMnemonic,
 } from "app/defaults";
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
@@ -54,7 +55,7 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
       try {
         await registerWallet(
           data.password,
-          ownMnemonic ? data.mnemonic!.trim() : undefined
+          ownMnemonic ? formatMnemonic(data.mnemonic!) : undefined
         );
         if (!ownMnemonic) {
           setSeedRevealed(false);
@@ -119,8 +120,9 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
             textarea
             rows={4}
             ref={register({
-              required: true,
-              validate: (val) => validateMnemonic(val.trim()),
+              required: "Required",
+              validate: (val) =>
+                validateMnemonic(formatMnemonic(val)) || MNEMONIC_ERROR_CAPTION,
             })}
             label="Seed phrase"
             labelDescription="Mnemonic. Your secret twelve word phrase."
@@ -128,28 +130,35 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
             name="mnemonic"
             placeholder="e.g. venue sock milk update..."
             spellCheck={false}
-            errorCaption={errors.mnemonic && MNEMONIC_ERROR_CAPTION}
+            errorCaption={errors.mnemonic?.message}
             containerClassName="mb-4"
             className="resize-none"
           />
         )}
 
         <FormField
-          ref={register({ required: true, pattern: PASSWORD_PATTERN })}
+          ref={register({
+            required: "Required",
+            pattern: {
+              value: PASSWORD_PATTERN,
+              message: PASSWORD_ERROR_CAPTION,
+            },
+          })}
           label="Password"
           labelDescription="A password is used to protect the wallet."
           id="newwallet-password"
           type="password"
           name="password"
           placeholder="********"
-          errorCaption={errors.password ? PASSWORD_ERROR_CAPTION : null}
+          errorCaption={errors.password?.message}
           containerClassName="mb-4"
         />
 
         <FormField
           ref={register({
-            required: true,
-            validate: (val) => val === passwordValue,
+            required: "Required",
+            validate: (val) =>
+              val === passwordValue || "Must be equal to password above",
           })}
           label="Repeat Password"
           labelDescription="Please enter the password again."
@@ -157,18 +166,16 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
           type="password"
           name="repassword"
           placeholder="********"
-          errorCaption={
-            errors["repassword"] && "Required, must be equal to password above"
-          }
+          errorCaption={errors.repassword?.message}
           containerClassName="mb-6"
         />
 
         <FormCheckbox
-          ref={register({ validate: Boolean })}
-          errorCaption={
-            errors["termsaccepted"] &&
-            "Unable to continue without confirming Terms of Usage"
-          }
+          ref={register({
+            validate: (val) =>
+              val || "Unable to continue without confirming Terms of Usage",
+          })}
+          errorCaption={errors.termsaccepted?.message}
           name="termsaccepted"
           label="Accept terms"
           labelDescription={
