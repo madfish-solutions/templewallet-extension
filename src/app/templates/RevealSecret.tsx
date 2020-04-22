@@ -43,6 +43,18 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     }
   }, [secret]);
 
+  React.useEffect(() => {
+    if (secret) {
+      const t = setTimeout(() => {
+        setSecret(null);
+      }, 10 * 60_000);
+
+      return () => {
+        clearTimeout(t);
+      };
+    }
+  }, [secret, setSecret]);
+
   const formRef = React.useRef<HTMLFormElement>(null);
 
   const focusPasswordField = React.useCallback(() => {
@@ -100,14 +112,6 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     ]
   );
 
-  const handleSecretFocus = React.useCallback(() => {
-    secretFieldRef.current?.select();
-  }, []);
-
-  const handleSecretBlur = React.useCallback(() => {
-    setSecret(null);
-  }, [setSecret]);
-
   const texts = React.useMemo(() => {
     switch (reveal) {
       case "private-key":
@@ -162,8 +166,6 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
             containerClassName="mb-4"
             className="resize-none notranslate"
             value={secret}
-            onFocus={handleSecretFocus}
-            onBlur={handleSecretBlur}
           />
 
           <Alert
