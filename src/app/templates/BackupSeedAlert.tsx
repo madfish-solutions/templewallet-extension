@@ -2,14 +2,22 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
+import { useAppEnv } from "app/env";
 import { ReactComponent as HistoryIcon } from "app/icons/history.svg";
 
 const BackupSeedPhrase: React.FC = () => {
+  const { fullPage } = useAppEnv();
   const { ready, seedRevealed } = useThanosClient();
 
   return ready && !seedRevealed ? (
     <div className="fixed bottom-0 w-full z-50">
-      <div className="block w-full max-w-screen-sm mx-auto p-4">
+      <div
+        className={classNames(
+          "w-full max-w-screen-sm mx-auto",
+          "py-4",
+          fullPage ? "px-8" : "px-4"
+        )}
+      >
         <Link
           to="/settings/reveal-seed-phrase"
           className={classNames(
