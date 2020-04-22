@@ -104,6 +104,21 @@ export function importAccount(privateKey: string) {
   });
 }
 
+export function importMnemonicAccount(
+  mnemonic: string,
+  password?: string,
+  derivationPath?: string
+) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.importMnemonicAccount(
+      mnemonic,
+      password,
+      derivationPath
+    );
+    accountsUpdated(updatedAccounts);
+  });
+}
+
 export function importFundraiserAccount(
   email: string,
   password: string,

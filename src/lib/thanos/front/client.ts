@@ -152,6 +152,21 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     assertResponse(res.type === ThanosMessageType.ImportAccountResponse);
   }, []);
 
+  const importMnemonicAccount = React.useCallback(
+    async (mnemonic: string, password?: string, derivationPath?: string) => {
+      const res = await request({
+        type: ThanosMessageType.ImportMnemonicAccountRequest,
+        mnemonic,
+        password,
+        derivationPath,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.ImportMnemonicAccountResponse
+      );
+    },
+    []
+  );
+
   const importFundraiserAccount = React.useCallback(
     async (email: string, password: string, mnemonic: string) => {
       const res = await request({
@@ -214,6 +229,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     revealMnemonic,
     editAccountName,
     importAccount,
+    importMnemonicAccount,
     importFundraiserAccount,
     confirmOperation,
     createSigner,
