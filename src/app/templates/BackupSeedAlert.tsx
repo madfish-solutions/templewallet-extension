@@ -11,7 +11,7 @@ const BackupSeedPhrase: React.FC = () => {
     <div className="fixed bottom-0 w-full z-50">
       <div className="block w-full max-w-screen-sm mx-auto p-4">
         <Link
-          to="/settings/reveal_seed_phrase"
+          to="/settings/reveal-seed-phrase"
           className={classNames(
             "block rounded-full",
             "transition ease-in-out duration-300",

@@ -203,6 +203,28 @@ export class Vault {
     });
   }
 
+  async importMnemonicAccount(
+    mnemonic: string,
+    password?: string,
+    derivationPath?: string
+  ) {
+    return withError("Failed to import account", async () => {
+      let seed;
+      try {
+        seed = Bip39.mnemonicToSeedSync(mnemonic, password);
+      } catch (_err) {
+        throw new PublicError("Invalid Mnemonic or Password");
+      }
+
+      if (derivationPath) {
+        seed = deriveSeed(seed, derivationPath);
+      }
+
+      const privateKey = seedToPrivateKey(seed);
+      return this.importAccount(privateKey);
+    });
+  }
+
   async importFundraiserAccount(
     email: string,
     password: string,
@@ -210,11 +232,7 @@ export class Vault {
   ) {
     return withError("Failed to import fundraiser account", async () => {
       const seed = Bip39.mnemonicToSeedSync(mnemonic, `${email}${password}`);
-      const privateKey = TaquitoUtils.b58cencode(
-        seed.slice(0, 32),
-        TaquitoUtils.prefix.edsk2
-      );
-
+      const privateKey = seedToPrivateKey(seed);
       return this.importAccount(privateKey);
     });
   }
@@ -269,15 +287,25 @@ async function createMemorySigner(privateKey: string) {
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
-  const keyNode = Bip32.fromSeed(seed);
-  const keyChild = keyNode.derivePath(
-    `m/44'/${TEZOS_BIP44_COINTYPE}'/${hdAccIndex}'/0/0`
-  );
+  return seedToPrivateKey(deriveSeed(seed, getMainDerivationPath(hdAccIndex)));
+}
 
-  return TaquitoUtils.b58cencode(
-    keyChild.privateKey!.slice(0, 32),
-    TaquitoUtils.prefix.edsk2
-  );
+function getMainDerivationPath(accIndex: number) {
+  return `m/44'/${TEZOS_BIP44_COINTYPE}'/${accIndex}'/0/0`;
+}
+
+function seedToPrivateKey(seed: Buffer) {
+  return TaquitoUtils.b58cencode(seed.slice(0, 32), TaquitoUtils.prefix.edsk2);
+}
+
+function deriveSeed(seed: Buffer, derivationPath: string) {
+  const keyNode = Bip32.fromSeed(seed);
+  try {
+    const keyChild = keyNode.derivePath(derivationPath);
+    return keyChild.privateKey!;
+  } catch (_err) {
+    throw new PublicError("Invalid derivation path");
+  }
 }
 
 function createStorageKey(id: StorageEntity) {
