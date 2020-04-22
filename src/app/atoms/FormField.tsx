@@ -28,6 +28,8 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
       extraButton = null,
       extraInner = null,
       id,
+      value,
+      defaultValue,
       onChange,
       onFocus,
       onBlur,
@@ -41,7 +43,9 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? "textarea" : "input";
 
-    const [value, setValue] = React.useState("");
+    const [localValue, setLocalValue] = React.useState(
+      value ?? defaultValue ?? ""
+    );
     const [focused, setFocused] = React.useState(false);
 
     const handleChange = React.useCallback(
@@ -53,9 +57,9 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
           }
         }
 
-        setValue(evt.target.value);
+        setLocalValue(evt.target.value);
       },
-      [onChange, setValue]
+      [onChange, setLocalValue]
     );
 
     const handleFocus = React.useCallback(
@@ -86,18 +90,33 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
       [onBlur, setFocused]
     );
 
+    const getFieldEl = React.useCallback(() => {
+      const selector = "input, textarea";
+      return rootRef.current?.querySelector<HTMLFormElement>(selector);
+    }, []);
+
+    React.useEffect(() => {
+      if (secret && focused) {
+        const handleBlur = () => {
+          getFieldEl()?.blur();
+        };
+        window.addEventListener("blur", handleBlur);
+        return () => {
+          window.removeEventListener("blur", handleBlur);
+        };
+      }
+    }, [secret, focused, getFieldEl]);
+
     const secretBannerDisplayed = React.useMemo(
-      () => Boolean(secret && value && !focused),
-      [secret, value, focused]
+      () => Boolean(secret && localValue && !focused),
+      [secret, localValue, focused]
     );
 
     const rootRef = React.useRef<HTMLDivElement>(null);
 
     const handleSecretBannerClick = React.useCallback(() => {
-      const selector = "input, textarea";
-      const el = rootRef.current?.querySelector<HTMLFormElement>(selector);
-      el?.focus();
-    }, []);
+      getFieldEl()?.focus();
+    }, [getFieldEl]);
 
     return (
       <div
@@ -147,6 +166,8 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
               className
             )}
             id={id}
+            value={value}
+            defaultValue={defaultValue}
             spellCheck={spellCheck}
             autoComplete={autoComplete}
             onChange={handleChange}
