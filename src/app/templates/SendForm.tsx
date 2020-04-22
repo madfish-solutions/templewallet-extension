@@ -689,10 +689,10 @@ const TransferErrorCaption: React.FC<TransferErrorCaptionProps> = ({
 }) => (
   <Alert
     type={type === "transfer" ? "error" : "warn"}
-    title={zeroBalance ? "No funds to send 😶" : "Failed"}
+    title={zeroBalance ? "Not enough funds 😶" : "Failed"}
     description={
       zeroBalance ? (
-        <>Your Balance is equals to Zero.</>
+        <>Your Balance is zero.</>
       ) : (
         <>
           Unable to {type} transaction to provided Recipient.
