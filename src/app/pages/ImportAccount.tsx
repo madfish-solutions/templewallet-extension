@@ -169,12 +169,10 @@ const DERIVATION_PATHS = [
   {
     type: "none",
     name: "No derivation",
-    value: undefined,
   },
   {
     type: "custom",
     name: "Custom derivation path",
-    value: undefined,
   },
 ];
 
