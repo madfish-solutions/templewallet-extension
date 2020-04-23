@@ -40,7 +40,7 @@ export function useStorage<T = any>(
 export function usePassiveStorage<T = any>(
   key: string,
   fallback?: T
-): [T, React.Dispatch<T>] {
+): [T, React.Dispatch<React.SetStateAction<T>>] {
   const { data } = useRetryableSWR<T>(key, fetchOne, {
     suspense: true,
     revalidateOnFocus: false,
