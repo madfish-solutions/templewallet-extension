@@ -23,16 +23,6 @@ export const NETWORKS: ThanosNetwork[] = [
     disabled: false,
   },
   {
-    id: "babylonnet",
-    name: "Babylon Testnet",
-    description: "Babylon testnet",
-    type: "test",
-    rpcBaseURL: "https://babylonnet.tezos.org.ua",
-    tzStats: TZStatsNetwork.Babylonnet,
-    color: "#ed6663",
-    disabled: false,
-  },
-  {
     id: "labnet",
     name: "Lab Testnet",
     description: "Labnet testnet",
@@ -41,6 +31,16 @@ export const NETWORKS: ThanosNetwork[] = [
     tzStats: TZStatsNetwork.Labnet,
     color: "#f6c90e",
     disabled: false,
+  },
+  {
+    id: "babylonnet",
+    name: "Babylon Testnet",
+    description: "Babylon testnet",
+    type: "test",
+    rpcBaseURL: "https://babylonnet.tezos.org.ua",
+    tzStats: TZStatsNetwork.Babylonnet,
+    color: "#ed6663",
+    disabled: true,
   },
   {
     id: "zeronet",
