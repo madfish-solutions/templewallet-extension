@@ -4,10 +4,12 @@ import { Link } from "lib/woozie";
 import PageLayout from "app/layouts/PageLayout";
 import RevealSecret from "app/templates/RevealSecret";
 import ActivateAccount from "app/templates/ActivateAccount";
+import About from "app/templates/About";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
 import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
 
 type SettingsProps = {
   tabSlug?: string | null;
@@ -56,6 +58,14 @@ const TABS = [
         accounts.
       </>
     ),
+  },
+  {
+    slug: "about",
+    title: "About",
+    Icon: ExtensionIcon,
+    Component: About,
+    color: "#A0AEC0",
+    description: <>Use this section to view meta info about Thanos Wallet.</>,
   },
 ];
 
