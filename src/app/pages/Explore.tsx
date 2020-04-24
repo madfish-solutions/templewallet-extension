@@ -10,10 +10,10 @@ import InUSD from "app/templates/InUSD";
 import Money from "app/atoms/Money";
 import HashChip from "app/atoms/HashChip";
 import Spinner from "app/atoms/Spinner";
+import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
-import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
 import xtzImgUrl from "app/misc/xtz.png";
 import EditableTitle from "./Explore/EditableTitle";
@@ -148,39 +148,6 @@ const Explore: React.FC = () => {
 };
 
 export default Explore;
-
-type SubTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
-
-const SubTitle: React.FC<SubTitleProps> = ({
-  className,
-  children,
-  ...rest
-}) => {
-  const comp = (
-    <span className="text-gray-500 px-1">
-      <ComponentIcon className="h-5 w-auto stroke-current" />
-    </span>
-  );
-
-  return (
-    <h2
-      className={classNames(
-        "mt-10 mb-2",
-        "flex items-center justify-center",
-        "text-gray-700",
-        "text-2xl",
-        "font-light",
-        "uppercase",
-        className
-      )}
-      {...rest}
-    >
-      {comp}
-      {children}
-      {comp}
-    </h2>
-  );
-};
 
 const SpinnerSection: React.FC = () => (
   <div className="my-12 flex justify-center">
