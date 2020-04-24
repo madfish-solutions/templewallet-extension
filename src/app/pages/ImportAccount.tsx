@@ -263,6 +263,7 @@ const ByMnemonicForm: React.FC = () => {
             <span className="text-sm font-light text-gary-600">(optional)</span>
           </>
         }
+        labelDescription="Used for additional mnemonic derivation. That is Not wallet password."
         placeholder="*********"
         errorCaption={errors.password?.message}
         containerClassName="mb-6"

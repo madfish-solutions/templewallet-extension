@@ -51,8 +51,9 @@ const TABS = [
     color: "rgb(131, 179, 0)",
     description: (
       <>
-        Use this section to activate your Tezos account by providing secret
-        phrase.
+        Use this section to activate your selected account by providing secret
+        phrase. It may be necessary for ICO/Fundraiser or testnet faucet
+        accounts.
       </>
     ),
   },
