@@ -21,6 +21,7 @@ const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent")
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const WebpackBar = require("webpackbar");
 const safePostCssParser = require("postcss-safe-parser");
+const pkg = require("./package.json");
 const tsConfig = require("./tsconfig.json");
 
 // Steal ENV vars from .env file
@@ -29,12 +30,13 @@ dotenv.config();
 // Grab NODE_ENV and THANOS_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
 const THANOS_WALLET = /^THANOS_WALLET_/i;
-let {
+const {
   NODE_ENV = "development",
   TARGET_BROWSER = "chrome",
   SOURCE_MAP: SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = "10000",
 } = process.env;
+const VERSION = pkg.version;
 const SOURCE_MAP = NODE_ENV !== "production" && SOURCE_MAP_ENV !== "false";
 const IMAGE_INLINE_SIZE_LIMIT = parseInt(IMAGE_INLINE_SIZE_LIMIT_ENV);
 const CWD_PATH = fs.realpathSync(process.cwd());
@@ -336,6 +338,7 @@ module.exports = {
 
     new webpack.DefinePlugin({
       "process.env.NODE_ENV": JSON.stringify(NODE_ENV),
+      "process.env.VERSION": JSON.stringify(VERSION),
       "process.env.TARGET_BROWSER": JSON.stringify(TARGET_BROWSER),
       ...(() => {
         const appEnvs = {};
