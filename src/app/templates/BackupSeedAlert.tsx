@@ -44,7 +44,7 @@ const BackupSeedPhrase: React.FC = () => {
             <HistoryIcon className="stroke-current stroke-2 h-4 w-auto" />
           </span>
 
-          <span className="mr-2 flex-auto text-left font-semibold">
+          <span className="mr-2 flex-auto text-left text-xs font-semibold">
             Make sure to back up your seed phrase!
           </span>
 

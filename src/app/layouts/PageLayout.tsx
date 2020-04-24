@@ -21,7 +21,12 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   <>
     <DocBg bgClassName="bg-primary-orange" />
 
-    <div className="pb-20">
+    <div
+      className={classNames(
+        "pb-20",
+        process.env.TARGET_BROWSER === "firefox" && "grayscale-firefox-fix"
+      )}
+    >
       <Header />
 
       <ContentPaper>
@@ -35,10 +40,10 @@ const PageLayout: React.FC<PageLayoutProps> = ({
           </ErrorBoundary>
         </div>
       </ContentPaper>
-
-      <BackupSeedAlert />
-      <ConfirmOverlay />
     </div>
+
+    <BackupSeedAlert />
+    <ConfirmOverlay />
   </>
 );
 
