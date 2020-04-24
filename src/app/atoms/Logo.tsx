@@ -5,9 +5,16 @@ import logoUrl from "app/misc/logo.png";
 type LogoProps = React.HTMLAttributes<HTMLDivElement> & {
   hasTitle?: boolean;
   dark?: boolean;
+  imgStyle?: React.CSSProperties;
 };
 
-const Logo: React.FC<LogoProps> = ({ hasTitle, dark, className, ...rest }) => (
+const Logo: React.FC<LogoProps> = ({
+  hasTitle,
+  dark,
+  className,
+  imgStyle = {},
+  ...rest
+}) => (
   <div className={classNames("flex items-center", className)} {...rest}>
     <img
       src={logoUrl}
@@ -17,6 +24,7 @@ const Logo: React.FC<LogoProps> = ({ hasTitle, dark, className, ...rest }) => (
         width: "auto",
         marginTop: 6,
         marginBottom: 6,
+        ...imgStyle,
       }}
     />
 

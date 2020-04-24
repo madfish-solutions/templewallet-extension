@@ -11,6 +11,7 @@
 /**
  * Popper JS
  */
+
 [data-popper-reference-hidden] {
   visibility: hidden;
   pointer-events: none;
@@ -45,7 +46,10 @@
   text-shadow: 0 1px 0 rgba(39, 19, 3, 0.06);
 }
 
-/* Scroll bar utils */
+/**
+ * Scroll bar utils
+ */
+
 .no-scrollbar {
   scrollbar-width: none;
 }
@@ -53,8 +57,11 @@
   display: none;
 }
 
-/* CSS transition flickering in Firefox */
+/**
+ * Misc
+ */
 
+/* Fix CSS transition flickering in Firefox */
 .grayscale-firefox-fix {
   filter: grayscale(1%);
 }
