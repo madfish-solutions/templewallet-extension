@@ -21,7 +21,7 @@ const App: React.FC<AppProps> = ({ env }) => (
         <AwaitFonts
           name="Inter"
           weights={[300, 400, 500, 600]}
-          className="font-inter"
+          className="font-inter antialiased"
         >
           <BootAnimation>
             <Page />

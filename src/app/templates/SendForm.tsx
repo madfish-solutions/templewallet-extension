@@ -71,31 +71,18 @@ const SendForm: React.FC = () => {
     reset,
   } = useForm<FormData>({
     mode: "onChange",
-    defaultValues: { fee: recommendedAddFeeTz },
+    defaultValues: {
+      fee: recommendedAddFeeTz,
+    },
   });
-
-  const amountFieldDirty = formState.dirtyFields.has("amount");
 
   const toValue = watch("to");
   const amountValue = watch("amount");
-  const feeValue = watch("fee", recommendedAddFeeTz as any);
+  const feeValue = watch("fee") ?? recommendedAddFeeTz;
 
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = React.useRef<HTMLInputElement>(null);
   const feeFieldRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (formState.isSubmitted) {
-      const firstInvlaid = [
-        [errors.to, toFieldRef],
-        [errors.amount, amountFieldRef],
-        [errors.fee, feeFieldRef],
-      ].find(([e]) => e);
-      if (firstInvlaid) {
-        (firstInvlaid[1] as any).current?.focus();
-      }
-    }
-  }, [formState.isSubmitted, errors.to, errors.amount, errors.fee]);
 
   const toFilled = React.useMemo(
     () => Boolean(toValue && isAddressValid(toValue)),
@@ -164,13 +151,6 @@ const SendForm: React.FC = () => {
     }
   );
 
-  const maxAmount = React.useMemo(() => {
-    if (!baseFee) return null;
-    if (baseFee === NOT_ENOUGH_FUNDS) return NOT_ENOUGH_FUNDS;
-    const ma = new BigNumber(balanceNum).minus(baseFee).minus(feeValue ?? 0);
-    return ma.isGreaterThan(0) ? ma : NOT_ENOUGH_FUNDS;
-  }, [balanceNum, baseFee, feeValue]);
-
   const maxAddFee = React.useMemo(() => {
     if (baseFee instanceof BigNumber) {
       return new BigNumber(balanceNum)
@@ -180,18 +160,38 @@ const SendForm: React.FC = () => {
     }
   }, [balanceNum, baseFee]);
 
+  const safeFeeValue = React.useMemo(
+    () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
+    [maxAddFee, feeValue]
+  );
+
+  const maxAmount = React.useMemo(() => {
+    if (!baseFee) return null;
+    if (baseFee === NOT_ENOUGH_FUNDS) return NOT_ENOUGH_FUNDS;
+    const ma = new BigNumber(balanceNum)
+      .minus(baseFee)
+      .minus(safeFeeValue ?? 0);
+    return ma.isGreaterThan(0) ? ma : NOT_ENOUGH_FUNDS;
+  }, [balanceNum, baseFee, safeFeeValue]);
+
+  const maxAmountNum = React.useMemo(
+    () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
+    [maxAmount]
+  );
+
   const validateAmount = React.useCallback(
     (v: number) => {
-      if (maxAmount === NOT_ENOUGH_FUNDS)
+      if (maxAmountNum === NOT_ENOUGH_FUNDS)
         return "Not enough funds for this transaction";
       if (!v) return "Required";
-      if (!maxAmount) return true;
+      if (!maxAmountNum) return true;
       const vBN = new BigNumber(v);
       return (
-        vBN.isLessThanOrEqualTo(maxAmount) || `Maximal: ${maxAmount.toString()}`
+        vBN.isLessThanOrEqualTo(maxAmountNum) ||
+        `Maximal: ${maxAmountNum.toString()}`
       );
     },
-    [maxAmount]
+    [maxAmountNum]
   );
 
   const handleFeeFieldChange = React.useCallback(
@@ -200,10 +200,10 @@ const SendForm: React.FC = () => {
   );
 
   React.useEffect(() => {
-    if (amountFieldDirty) {
+    if (formState.dirtyFields.has("amount")) {
       triggerValidation("amount");
     }
-  }, [triggerValidation, amountFieldDirty, maxAmount]);
+  }, [formState.dirtyFields, triggerValidation, maxAmountNum]);
 
   const handleSetMaxAmount = React.useCallback(() => {
     if (maxAmount && maxAmount !== NOT_ENOUGH_FUNDS) {
@@ -221,10 +221,11 @@ const SendForm: React.FC = () => {
 
   const onSubmit = React.useCallback(
     async ({ to, amount, fee: feeVal }: FormData) => {
-      try {
-        if (formState.isSubmitting) return;
-        setSubmitError(null);
+      if (formState.isSubmitting) return;
+      setSubmitError(null);
+      setOperation(null);
 
+      try {
         const estmtn = await tezos.estimate.transfer({ to, amount });
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
@@ -310,6 +311,7 @@ const SendForm: React.FC = () => {
             validate: validateAddress,
           }}
           onChange={([v]) => v}
+          onFocus={() => toFieldRef.current?.focus()}
           textarea
           rows={2}
           id="send-to"
@@ -373,6 +375,7 @@ const SendForm: React.FC = () => {
                 validate: validateAmount,
               }}
               onChange={([v]) => v}
+              onFocus={() => amountFieldRef.current?.focus()}
               id="send-amount"
               assetSymbol={assetSymbol}
               label="Amount"
@@ -419,6 +422,7 @@ const SendForm: React.FC = () => {
               as={<AssetField ref={feeFieldRef} />}
               control={control}
               onChange={handleFeeFieldChange}
+              onFocus={() => feeFieldRef.current?.focus()}
               id="send-fee"
               assetSymbol={assetSymbol}
               label="Additional Fee"
@@ -626,10 +630,10 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     description: React.ReactNode;
   }>(() => ({
     type: "success",
-    title: "Success",
+    title: "Success 🛫",
     description: (
       <>
-        🛫 Transaction request sent! Confirming...
+        Transaction request sent! Confirming...
         {descFooter}
       </>
     ),
@@ -641,9 +645,10 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
       .then(() => {
         setAlert((a) => ({
           ...a,
+          title: "Success ✅",
           description: (
             <>
-              ✅ Transaction successfully processed and confirmed!
+              Transaction successfully processed and confirmed!
               {descFooter}
             </>
           ),
@@ -684,10 +689,10 @@ const TransferErrorCaption: React.FC<TransferErrorCaptionProps> = ({
 }) => (
   <Alert
     type={type === "transfer" ? "error" : "warn"}
-    title={zeroBalance ? "No funds to send 😶" : "Failed"}
+    title={zeroBalance ? "Not enough funds 😶" : "Failed"}
     description={
       zeroBalance ? (
-        <>Your Balance is equals to Zero.</>
+        <>Your Balance is zero.</>
       ) : (
         <>
           Unable to {type} transaction to provided Recipient.
@@ -724,15 +729,3 @@ function mutezToTz(mutez: any) {
 function isAddressValid(address: string) {
   return validateAddress(address) === ValidationResult.VALID;
 }
-
-// function formatEstimate(estimate: any) {
-//   return {
-//     storageLimit: estimate.storageLimit,
-//     burnFeeMutez: estimate.burnFeeMutez,
-//     gasLimit: estimate.gasLimit,
-//     minimalFeeMutez: estimate.minimalFeeMutez,
-//     suggestedFeeMutez: estimate.suggestedFeeMutez,
-//     usingBaseFeeMutez: estimate.usingBaseFeeMutez,
-//     totalCost: estimate.totalCost
-//   };
-// }

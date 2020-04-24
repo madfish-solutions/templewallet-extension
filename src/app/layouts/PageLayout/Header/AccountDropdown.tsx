@@ -107,7 +107,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
 
       <div
         className={classNames(
-          "overflow-y-auto",
+          "overflow-y-auto no-scrollbar",
           "my-2",
           "border border-white-10 shadow-inner rounded"
         )}

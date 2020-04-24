@@ -16,7 +16,11 @@ type RevealSecretProps = {
 };
 
 const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
-  const { revealPrivateKey, revealMnemonic } = useThanosClient();
+  const {
+    revealPrivateKey,
+    revealMnemonic,
+    setSeedRevealed,
+  } = useThanosClient();
   const { accountPkh } = useReadyThanos();
 
   const {
@@ -39,6 +43,18 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     }
   }, [secret]);
 
+  React.useEffect(() => {
+    if (secret) {
+      const t = setTimeout(() => {
+        setSecret(null);
+      }, 10 * 60_000);
+
+      return () => {
+        clearTimeout(t);
+      };
+    }
+  }, [secret, setSecret]);
+
   const formRef = React.useRef<HTMLFormElement>(null);
 
   const focusPasswordField = React.useCallback(() => {
@@ -47,21 +63,29 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       ?.focus();
   }, []);
 
+  React.useLayoutEffect(() => {
+    focusPasswordField();
+  }, [focusPasswordField]);
+
   const onSubmit = React.useCallback(
     async ({ password }) => {
       if (submitting) return;
 
       clearError("password");
       try {
-        const scrt = await (() => {
-          switch (reveal) {
-            case "private-key":
-              return revealPrivateKey(accountPkh, password);
+        let scrt: string;
 
-            case "seed-phrase":
-              return revealMnemonic(password);
-          }
-        })();
+        switch (reveal) {
+          case "private-key":
+            scrt = await revealPrivateKey(accountPkh, password);
+            break;
+
+          case "seed-phrase":
+            scrt = await revealMnemonic(password);
+            setSeedRevealed(true);
+            break;
+        }
+
         setSecret(scrt);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
@@ -82,18 +106,11 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       revealPrivateKey,
       revealMnemonic,
       accountPkh,
+      setSeedRevealed,
       setSecret,
       focusPasswordField,
     ]
   );
-
-  const handleSecretFocus = React.useCallback(() => {
-    secretFieldRef.current?.select();
-  }, []);
-
-  const handleSecretBlur = React.useCallback(() => {
-    setSecret(null);
-  }, [setSecret]);
 
   const texts = React.useMemo(() => {
     switch (reveal) {
@@ -149,8 +166,6 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
             containerClassName="mb-4"
             className="resize-none notranslate"
             value={secret}
-            onFocus={handleSecretFocus}
-            onBlur={handleSecretBlur}
           />
 
           <Alert

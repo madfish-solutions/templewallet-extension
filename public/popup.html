@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html style="width: 360px; height: 600px;">
+<html
+  class="<% if (process.env.TARGET_BROWSER === "firefox") { %>no-scrollbar overflow-x-hidden<% } %>"
+  style="width: 360px; height: 600px;"
+>
   <head>
     <meta charset="utf-8" />
     <meta

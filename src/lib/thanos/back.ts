@@ -110,6 +110,18 @@ async function processRequest(
         };
       });
 
+    case ThanosMessageType.ImportMnemonicAccountRequest:
+      return enqueue(async () => {
+        await Actions.importMnemonicAccount(
+          req.mnemonic,
+          req.password,
+          req.derivationPath
+        );
+        return {
+          type: ThanosMessageType.ImportMnemonicAccountResponse,
+        };
+      });
+
     case ThanosMessageType.ImportFundraiserAccountRequest:
       return enqueue(async () => {
         await Actions.importFundraiserAccount(
@@ -142,7 +154,7 @@ const queue = new Queue(1);
 
 async function enqueue<T>(factory: () => Promise<T>) {
   if (!queue.isAvailable()) {
-    await Actions.closeConfirmWindow();
+    await Actions.stopConfirming();
   }
 
   return new Promise<T>((response, reject) => {

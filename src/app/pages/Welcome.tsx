@@ -35,7 +35,7 @@ const SIGNS = [
     title: "Create a new Wallet",
     description: (
       <>
-        New to Thanos Wallet? Let’s get set up! This will create a new wallet
+        New to Thanos Wallet? Let’s set it up! This will create a new wallet
         and seed phrase
       </>
     ),
@@ -58,7 +58,7 @@ const Welcome: React.FC = () => {
         Welcome to
       </div>
 
-      <div className="mb-8 flex items-center">
+      <div className="flex items-center mb-8">
         <Logo />
 
         <h1
@@ -102,10 +102,10 @@ const Welcome: React.FC = () => {
                       "flex flex-col items-center justify-end"
                     )}
                   >
-                    <Icon className="stroke-current transform scale-125" />
+                    <Icon className="transform scale-125 stroke-current" />
                   </div>
 
-                  <h1 className="pb-1 text-center text-xl font-semibold">
+                  <h1 className="pb-1 text-xl font-semibold text-center">
                     {title}
                   </h1>
 
