@@ -47,6 +47,8 @@ export type ThanosNetworkType = "main" | "test";
 
 export enum ThanosMessageType {
   StateUpdated = "THANOS_STATE_UPDATED",
+  ConfirmRequested = "THANOS_CONFIRM_REQUESTED",
+  ConfirmExpired = "THANOS_CONFIRM_EXPIRED",
   GetStateRequest = "THANOS_GET_STATE_REQUEST",
   GetStateResponse = "THANOS_GET_STATE_RESPONSE",
   NewWalletRequest = "THANOS_NEW_WALLET_REQUEST",
@@ -67,11 +69,14 @@ export enum ThanosMessageType {
   EditAccountResponse = "THANOS_EDIT_ACCOUNT_RESPONSE",
   ImportAccountRequest = "THANOS_IMPORT_ACCOUNT_REQUEST",
   ImportAccountResponse = "THANOS_IMPORT_ACCOUNT_RESPONSE",
+  ImportMnemonicAccountRequest = "THANOS_IMPORT_MNEMONIC_ACCOUNT_REQUEST",
+  ImportMnemonicAccountResponse = "THANOS_IMPORT_MNEMONIC_ACCOUNT_RESPONSE",
   ImportFundraiserAccountRequest = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_REQUEST",
   ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
   SignRequest = "THANOS_SIGN_REQUEST",
   SignResponse = "THANOS_SIGN_RESPONSE",
   ConfirmRequest = "THANOS_CONFIRM_REQUEST",
+  ConfirmResponse = "THANOS_CONFIRM_RESPONSE",
 }
 
 export type ThanosRequest =
@@ -85,6 +90,7 @@ export type ThanosRequest =
   | ThanosRevealMnemonicRequest
   | ThanosEditAccountRequest
   | ThanosImportAccountRequest
+  | ThanosImportMnemonicAccountRequest
   | ThanosImportFundraiserAccountRequest
   | ThanosSignRequest
   | ThanosConfirmRequest;
@@ -100,8 +106,10 @@ export type ThanosResponse =
   | ThanosRevealMnemonicResponse
   | ThanosEditAccountResponse
   | ThanosImportAccountResponse
+  | ThanosImportMnemonicAccountResponse
   | ThanosImportFundraiserAccountResponse
-  | ThanosSignResponse;
+  | ThanosSignResponse
+  | ThanosConfirmResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -202,6 +210,17 @@ export interface ThanosImportAccountResponse extends ThanosMessageBase {
   type: ThanosMessageType.ImportAccountResponse;
 }
 
+export interface ThanosImportMnemonicAccountRequest extends ThanosMessageBase {
+  type: ThanosMessageType.ImportMnemonicAccountRequest;
+  mnemonic: string;
+  password?: string;
+  derivationPath?: string;
+}
+
+export interface ThanosImportMnemonicAccountResponse extends ThanosMessageBase {
+  type: ThanosMessageType.ImportMnemonicAccountResponse;
+}
+
 export interface ThanosImportFundraiserAccountRequest
   extends ThanosMessageBase {
   type: ThanosMessageType.ImportFundraiserAccountRequest;
@@ -232,4 +251,9 @@ export interface ThanosConfirmRequest extends ThanosMessageBase {
   id: string;
   confirm: boolean;
   password?: string;
+}
+
+export interface ThanosConfirmResponse extends ThanosMessageBase {
+  type: ThanosMessageType.ConfirmResponse;
+  id: string;
 }

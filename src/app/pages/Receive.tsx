@@ -29,6 +29,7 @@ const Receive: React.FC = () => {
             textarea
             rows={2}
             ref={fieldRef}
+            id="receive-address"
             label="Address"
             labelDescription={
               <>Your current account address. Share it to receive funds.</>

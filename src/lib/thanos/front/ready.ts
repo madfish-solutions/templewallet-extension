@@ -1,7 +1,7 @@
 import * as React from "react";
 import constate from "constate";
 import { TezosToolkit } from "@taquito/taquito";
-import usePassiveStorage from "lib/thanos/front/usePassiveStorage";
+import { usePassiveStorage } from "lib/thanos/front/storage";
 import { useThanosClient } from "lib/thanos/front/client";
 import { ReadyThanosState, ThanosStatus, ThanosState } from "lib/thanos/types";
 

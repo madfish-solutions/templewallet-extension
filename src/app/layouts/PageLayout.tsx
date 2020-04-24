@@ -5,9 +5,11 @@ import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import DocBg from "app/a11y/DocBg";
 import ContentContainer from "app/layouts/ContentContainer";
+import BackupSeedAlert from "app/templates/BackupSeedAlert";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import Header from "./PageLayout/Header";
+import ConfirmOverlay from "./PageLayout/ConfirmOverlay";
 
 type PageLayoutProps = ToolbarProps;
 
@@ -19,7 +21,12 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   <>
     <DocBg bgClassName="bg-primary-orange" />
 
-    <div className="pb-20">
+    <div
+      className={classNames(
+        "pb-20",
+        process.env.TARGET_BROWSER === "firefox" && "grayscale-firefox-fix"
+      )}
+    >
       <Header />
 
       <ContentPaper>
@@ -34,6 +41,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         </div>
       </ContentPaper>
     </div>
+
+    <BackupSeedAlert />
+    <ConfirmOverlay />
   </>
 );
 

@@ -4,6 +4,7 @@ import { useRetryableSWR } from "lib/swr";
 import { buf2hex } from "@taquito/utils";
 import toBuffer from "typedarray-to-buffer";
 import { IntercomClient } from "lib/intercom";
+import { useStorage } from "lib/thanos/front/storage";
 import {
   ThanosMessageType,
   ThanosStatus,
@@ -24,23 +25,37 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     return res.state;
   }, []);
 
-  const stateSWR = useRetryableSWR("state", fetchState, {
+  const { data, revalidate } = useRetryableSWR("state", fetchState, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
-  const state = stateSWR.data!;
+  const state = data!;
+
+  const [confirmId, setConfirmId] = React.useState<string | null>(null);
+  const waitingConfirmRef = React.useRef(false);
 
   React.useEffect(() => {
     return intercom.subscribe((msg) => {
       switch (msg?.type) {
         case ThanosMessageType.StateUpdated:
-          stateSWR.revalidate();
+          revalidate();
+          break;
+
+        case ThanosMessageType.ConfirmRequested:
+          if (waitingConfirmRef.current) {
+            setConfirmId((msg as any).id);
+          }
+          break;
+
+        case ThanosMessageType.ConfirmExpired:
+          waitingConfirmRef.current = false;
+          setConfirmId(null);
           break;
       }
     });
-  }, [stateSWR]);
+  }, [revalidate, setConfirmId]);
 
   /**
    * Aliases
@@ -50,6 +65,11 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   const idle = status === ThanosStatus.Idle;
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
+
+  /**
+   * Backup seed phrase flag
+   */
+  const [seedRevealed, setSeedRevealed] = useStorage("seed_revealed", true);
 
   /**
    * Actions
@@ -132,6 +152,21 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     assertResponse(res.type === ThanosMessageType.ImportAccountResponse);
   }, []);
 
+  const importMnemonicAccount = React.useCallback(
+    async (mnemonic: string, password?: string, derivationPath?: string) => {
+      const res = await request({
+        type: ThanosMessageType.ImportMnemonicAccountRequest,
+        mnemonic,
+        password,
+        derivationPath,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.ImportMnemonicAccountResponse
+      );
+    },
+    []
+  );
+
   const importFundraiserAccount = React.useCallback(
     async (email: string, password: string, mnemonic: string) => {
       const res = await request({
@@ -147,13 +182,30 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const confirmOperation = React.useCallback(
+    async (id: string, confirm: boolean, password?: string) => {
+      const res = await request({
+        type: ThanosMessageType.ConfirmRequest,
+        id,
+        confirm,
+        password,
+      });
+      assertResponse(res.type === ThanosMessageType.ConfirmResponse);
+    },
+    []
+  );
+
   const createSigner = React.useCallback(
-    (accountPublicKeyHash: string) => new ThanosSigner(accountPublicKeyHash),
+    (accountPublicKeyHash: string) =>
+      new ThanosSigner(accountPublicKeyHash, () => {
+        waitingConfirmRef.current = true;
+      }),
     []
   );
 
   return {
     state,
+
     // Aliases
     status,
     networks,
@@ -161,6 +213,13 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     idle,
     locked,
     ready,
+
+    // Misc
+    confirmId,
+    setConfirmId,
+    seedRevealed,
+    setSeedRevealed,
+
     // Actions
     registerWallet,
     unlock,
@@ -170,13 +229,18 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     revealMnemonic,
     editAccountName,
     importAccount,
+    importMnemonicAccount,
     importFundraiserAccount,
+    confirmOperation,
     createSigner,
   };
 });
 
 class ThanosSigner {
-  constructor(private accountPublicKeyHash: string) {}
+  constructor(
+    private accountPublicKeyHash: string,
+    private onBeforeSign?: () => void
+  ) {}
 
   async publicKeyHash() {
     return this.accountPublicKeyHash;
@@ -196,6 +260,9 @@ class ThanosSigner {
   }
 
   async sign(bytes: string, watermark?: Uint8Array) {
+    if (this.onBeforeSign) {
+      this.onBeforeSign();
+    }
     const res = await request({
       type: ThanosMessageType.SignRequest,
       accountPublicKeyHash: this.accountPublicKeyHash,
@@ -207,7 +274,7 @@ class ThanosSigner {
   }
 }
 
-async function request(req: ThanosRequest) {
+async function request<T extends ThanosRequest>(req: T) {
   const res = await intercom.request(req);
   assertResponse("type" in res);
   return res as ThanosResponse;

@@ -46,7 +46,9 @@
 }
 
 /* Scroll bar utils */
-
+.no-scrollbar {
+  scrollbar-width: none;
+}
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
