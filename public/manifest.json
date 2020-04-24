@@ -1,8 +1,9 @@
 {
   "manifest_version": 2,
   "name": "Thanos Wallet",
-  "version": "1.0.0.1",
-  "version_name": "1.0.0-beta.1",
+  "__chrome__version": "1.0.0.1",
+  "__chrome__version_name": "1.0.0-beta.1",
+  "__firefox__version": "1.0.0-beta.1",
 
   "icons": {
     "16": "misc/icon-16.png",

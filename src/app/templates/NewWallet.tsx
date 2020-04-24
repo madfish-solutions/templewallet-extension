@@ -27,7 +27,10 @@ type NewWalletProps = {
   title: string;
 };
 
-const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
+const NewWallet: React.FC<NewWalletProps> = ({
+  ownMnemonic = false,
+  title,
+}) => {
   const { locked, registerWallet, setSeedRevealed } = useThanosClient();
 
   const {
@@ -57,9 +60,7 @@ const NewWallet: React.FC<NewWalletProps> = ({ ownMnemonic, title }) => {
           data.password,
           ownMnemonic ? formatMnemonic(data.mnemonic!) : undefined
         );
-        if (!ownMnemonic) {
-          setSeedRevealed(false);
-        }
+        setSeedRevealed(ownMnemonic);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);

@@ -23,7 +23,8 @@ const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
         className={classNames(
           "min-h-screen",
           "flex flex-col",
-          !appEnv.fullPage && "bg-primary-white"
+          !appEnv.fullPage && "bg-primary-white",
+          process.env.TARGET_BROWSER === "firefox" && "grayscale-firefox-fix"
         )}
       >
         <div
