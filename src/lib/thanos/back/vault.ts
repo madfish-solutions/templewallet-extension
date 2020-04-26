@@ -1,5 +1,5 @@
 import * as Bip39 from "bip39";
-import * as Bip32 from "bip32";
+import * as Ed25519 from "ed25519-hd-key";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
 import * as Passworder from "lib/thanos/passworder";
@@ -15,6 +15,7 @@ const STORAGE_KEY_PREFIX = "vault";
 
 enum StorageEntity {
   Check = "check",
+  MigrationLevel = "mgrnlvl",
   Mnemonic = "mnemonic",
   AccPrivKey = "accprivkey",
   AccPubKey = "accpubkey",
@@ -22,6 +23,7 @@ enum StorageEntity {
 }
 
 const checkStrgKey = createStorageKey(StorageEntity.Check);
+const migrationLevelStrgKey = createStorageKey(StorageEntity.MigrationLevel);
 const mnemonicStrgKey = createStorageKey(StorageEntity.Mnemonic);
 const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
 const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
@@ -36,6 +38,7 @@ export class Vault {
     const passKey = await Vault.toValidPassKey(password);
     return withError("Failed to unlock wallet", async () => {
       await fetchAndDecryptOne(checkStrgKey, passKey);
+      await Vault.runMigrations(passKey);
       return new Vault(passKey);
     });
   }
@@ -65,6 +68,7 @@ export class Vault {
       await encryptAndSaveMany(
         [
           [checkStrgKey, null],
+          [migrationLevelStrgKey, MIGRATIONS.length],
           [mnemonicStrgKey, mnemonic],
           [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
           [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
@@ -73,6 +77,28 @@ export class Vault {
         passKey
       );
     });
+  }
+
+  static async runMigrations(passKey: CryptoKey) {
+    try {
+      const migrationLevelStored = await isStored(migrationLevelStrgKey);
+      const migrationLevel = migrationLevelStored
+        ? await fetchAndDecryptOne<number>(migrationLevelStrgKey, passKey)
+        : 0;
+      const migrationsToRun = MIGRATIONS.filter((_m, i) => i >= migrationLevel);
+      for (const migrate of migrationsToRun) {
+        await migrate(passKey);
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(err);
+      }
+    } finally {
+      await encryptAndSaveMany(
+        [[migrationLevelStrgKey, MIGRATIONS.length]],
+        passKey
+      );
+    }
   }
 
   static async revealMnemonic(password: string) {
@@ -265,6 +291,57 @@ export class Vault {
   }
 }
 
+/**
+ * Migrations
+ *
+ * -> -> ->
+ */
+
+const MIGRATIONS = [
+  // [0] Fix derivation
+  async (passKey: CryptoKey) => {
+    const [mnemonic, accounts] = await Promise.all([
+      fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
+      fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, passKey),
+    ]);
+    const migratedAccounts = accounts.map((acc) =>
+      acc.type === ThanosAccountType.HD
+        ? {
+            ...acc,
+            type: ThanosAccountType.Imported,
+          }
+        : acc
+    );
+
+    const seed = Bip39.mnemonicToSeedSync(mnemonic);
+    const hdAccIndex = 0;
+    const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
+    const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
+      accPrivateKey
+    );
+
+    const newInitialAccount: ThanosAccount = {
+      type: ThanosAccountType.HD,
+      name: getNewAccountName(accounts),
+      publicKeyHash: accPublicKeyHash,
+    };
+    const newAccounts = [newInitialAccount, ...migratedAccounts];
+
+    await encryptAndSaveMany(
+      [
+        [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
+        [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+        [accountsStrgKey, newAccounts],
+      ],
+      passKey
+    );
+  },
+];
+
+/**
+ * Misc
+ */
+
 function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
   if (current.every((a) => a.publicKeyHash !== newOne.publicKeyHash)) {
     return [...current, newOne];
@@ -291,7 +368,7 @@ function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
 }
 
 function getMainDerivationPath(accIndex: number) {
-  return `m/44'/${TEZOS_BIP44_COINTYPE}'/${accIndex}'/0/0`;
+  return `m/44'/${TEZOS_BIP44_COINTYPE}'/${accIndex}'/0'`;
 }
 
 function seedToPrivateKey(seed: Buffer) {
@@ -299,10 +376,9 @@ function seedToPrivateKey(seed: Buffer) {
 }
 
 function deriveSeed(seed: Buffer, derivationPath: string) {
-  const keyNode = Bip32.fromSeed(seed);
   try {
-    const keyChild = keyNode.derivePath(derivationPath);
-    return keyChild.privateKey!;
+    const { key } = Ed25519.derivePath(derivationPath, seed.toString("hex"));
+    return key;
   } catch (_err) {
     throw new PublicError("Invalid derivation path");
   }
