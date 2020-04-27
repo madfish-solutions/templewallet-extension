@@ -187,7 +187,7 @@ const ByMnemonicForm: React.FC = () => {
 
   const { register, handleSubmit, errors, formState } = useForm<
     ByMnemonicFormData
-  >({ defaultValues: { customDerivationPath: "m/44'/1729'/0'/0/0" } });
+  >({ defaultValues: { customDerivationPath: "m/44'/1729'/0'/0'" } });
   const [error, setError] = React.useState<React.ReactNode>(null);
   const [derivationPath, setDerivationPath] = React.useState(
     DERIVATION_PATHS[0]
