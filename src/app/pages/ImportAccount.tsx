@@ -95,23 +95,24 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
 
 interface ByPrivateKeyFormData {
   privateKey: string;
+  encPassword?: string;
 }
 
 const ByPrivateKeyForm: React.FC = () => {
   const { importAccount } = useThanosClient();
 
-  const { register, handleSubmit, errors, formState } = useForm<
+  const { register, handleSubmit, errors, formState, watch } = useForm<
     ByPrivateKeyFormData
   >();
   const [error, setError] = React.useState<React.ReactNode>(null);
 
-  const onSubmit = React.useCallback<(data: ByPrivateKeyFormData) => void>(
-    async (data) => {
+  const onSubmit = React.useCallback(
+    async ({ privateKey, encPassword }: ByPrivateKeyFormData) => {
       if (formState.isSubmitting) return;
 
       setError(null);
       try {
-        await importAccount(data.privateKey.replace(/\s/g, ""));
+        await importAccount(privateKey.replace(/\s/g, ""), encPassword);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -124,6 +125,11 @@ const ByPrivateKeyForm: React.FC = () => {
     },
     [importAccount, formState.isSubmitting, setError]
   );
+
+  const keyValue = watch("privateKey");
+  const encrypted = React.useMemo(() => keyValue?.substring(2, 3) === "e", [
+    keyValue,
+  ]);
 
   return (
     <form
@@ -154,6 +160,27 @@ const ByPrivateKeyForm: React.FC = () => {
         className="resize-none"
         containerClassName="mb-6"
       />
+
+      {encrypted && (
+        <FormField
+          ref={register}
+          name="encPassword"
+          type="password"
+          id="importacc-password"
+          label={
+            <>
+              Password{" "}
+              <span className="text-sm font-light text-gary-600">
+                (optional)
+              </span>
+            </>
+          }
+          labelDescription="Your private key in encrypted format?"
+          placeholder="*********"
+          errorCaption={errors.encPassword?.message}
+          containerClassName="mb-6"
+        />
+      )}
 
       <FormSubmitButton
         loading={formState.isSubmitting}
@@ -193,8 +220,12 @@ const ByMnemonicForm: React.FC = () => {
     DERIVATION_PATHS[0]
   );
 
-  const onSubmit = React.useCallback<(data: ByMnemonicFormData) => void>(
-    async ({ mnemonic, password, customDerivationPath }) => {
+  const onSubmit = React.useCallback(
+    async ({
+      mnemonic,
+      password,
+      customDerivationPath,
+    }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
       setError(null);
