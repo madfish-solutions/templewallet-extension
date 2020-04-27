@@ -180,7 +180,7 @@ export class Vault {
       const allAccounts = await this.fetchAccounts();
       const signer = await createMemorySigner(accPrivateKey, encPassword);
       const [
-        realAccPtivateKey,
+        realAccPrivateKey,
         accPublicKey,
         accPublicKeyHash,
       ] = await Promise.all([
@@ -198,7 +198,7 @@ export class Vault {
 
       await encryptAndSaveMany(
         [
-          [accPrivKeyStrgKey(accPublicKeyHash), realAccPtivateKey],
+          [accPrivKeyStrgKey(accPublicKeyHash), realAccPrivateKey],
           [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
           [accountsStrgKey, newAllAcounts],
         ],
