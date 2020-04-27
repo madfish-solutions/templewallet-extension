@@ -5,6 +5,7 @@ import { AppEnvProvider } from "app/env";
 import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
 import AwaitFonts from "app/a11y/AwaitFonts";
 import BootAnimation from "app/a11y/BootAnimation";
+import RootSuspenseFallback from "app/a11y/RootSuspenseFallback";
 import ErrorBoundary from "app/ErrorBoundary";
 import Page from "app/Page";
 
@@ -14,7 +15,7 @@ type AppProps = {
 
 const App: React.FC<AppProps> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
-    <React.Suspense fallback={null}>
+    <React.Suspense fallback={<RootSuspenseFallback />}>
       <AppProvider env={env}>
         <DisableOutlinesForClick />
 
