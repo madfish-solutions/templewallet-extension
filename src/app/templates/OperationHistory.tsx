@@ -19,19 +19,20 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
 
   const fetchOperations = React.useCallback(async () => {
     try {
-      return await getAccountWithOperations(network.tzStats, {
+      const { ops } = await getAccountWithOperations(network.tzStats, {
         pkh: accountPkh,
         order: "desc",
         limit: 25,
         offset: 0,
-      }).then((acc) => acc.ops);
+      });
+      return ops;
     } catch (err) {
-      // Human delay
-      await new Promise((r) => setTimeout(r, 300));
-
       if (err?.origin?.response?.status === 404) {
         return [];
       }
+
+      // Human delay
+      await new Promise((r) => setTimeout(r, 300));
       throw err;
     }
   }, [network.tzStats, accountPkh]);

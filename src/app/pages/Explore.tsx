@@ -14,6 +14,7 @@ import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
+import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
 import xtzImgUrl from "app/misc/xtz.png";
 import EditableTitle from "./Explore/EditableTitle";
@@ -133,7 +134,28 @@ const Explore: React.FC = () => {
       >
         <SupportAltIcon className="mb-1 w-16 h-auto stroke-current" />
 
-        <h3 className="text-sm font-light">Coming soon</h3>
+        <h3 className="mb-6 text-sm font-light">Coming soon</h3>
+
+        <Link
+          to="/delegate"
+          className={classNames(
+            "py-2 px-6 rounded",
+            "border-2",
+            "border-orange-500 hover:border-orange-600 focus:border-orange-600",
+            "bg-orange-500 hover:bg-orange-600",
+            "shadow-sm hover:shadow focus:shadow",
+            "flex items-center justify-center",
+            "text-white",
+            "text-base font-semibold",
+            "transition ease-in-out duration-300"
+          )}
+          type="button"
+        >
+          <DiamondIcon
+            className={classNames("-ml-2 mr-2", "h-5 w-auto", "stroke-current")}
+          />
+          Delegate
+        </Link>
       </div>
 
       <SubTitle>Operations</SubTitle>

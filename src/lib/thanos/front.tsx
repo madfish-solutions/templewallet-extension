@@ -8,6 +8,7 @@ export * from "lib/thanos/front/client";
 export * from "lib/thanos/front/ready";
 export * from "lib/thanos/front/balance";
 export * from "lib/thanos/front/usdprice";
+export * from "lib/thanos/front/baking";
 
 export const ThanosProvider: React.FC = ({ children }) => (
   <ThanosClientProvider>

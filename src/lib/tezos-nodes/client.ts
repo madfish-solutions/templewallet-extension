@@ -1,0 +1,28 @@
+import axios from "axios";
+import { TNBakerPreview, TNBaker } from "lib/tezos-nodes/types";
+
+const api = axios.create({ baseURL: "https://api.tezos-nodes.com/v1" });
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (process.env.NODE_ENV === "development") {
+      console.error(err);
+    }
+
+    throw err;
+  }
+);
+
+export async function getAllBakers() {
+  const res = await api.get<TNBakerPreview[]>("/bakers");
+  return res.data.map((baker) =>
+    baker.logo.includes("/storage")
+      ? baker
+      : { ...baker, logo: baker.logo.replace("/images", "/storage/images") }
+  );
+}
+
+export async function getBaker(address: string) {
+  const res = await api.get<TNBaker>(`/baker/${address}`);
+  return res.data;
+}
