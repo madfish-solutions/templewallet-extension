@@ -82,7 +82,7 @@ const ContentPaper: React.FC<ContentPaparProps> = ({
 };
 
 const SpinnerSection: React.FC = () => (
-  <div className="my-8 flex justify-center">
+  <div className="mt-24 flex justify-center">
     <Spinner className="w-20" />
   </div>
 );

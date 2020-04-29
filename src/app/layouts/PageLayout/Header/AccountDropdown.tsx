@@ -146,10 +146,7 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
                   type="bottts"
                   hash={acc.publicKeyHash}
                   size={32}
-                  className="flex-shrink-0"
-                  style={{
-                    boxShadow: "0 0 0 1px rgba(255, 255, 255, 0.05)",
-                  }}
+                  className="flex-shrink-0 shadow-xs-white"
                 />
 
                 <div className="ml-2 flex flex-col items-start">
