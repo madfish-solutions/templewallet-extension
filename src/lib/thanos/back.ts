@@ -104,7 +104,7 @@ async function processRequest(
 
     case ThanosMessageType.ImportAccountRequest:
       return enqueue(async () => {
-        await Actions.importAccount(req.privateKey);
+        await Actions.importAccount(req.privateKey, req.encPassword);
         return {
           type: ThanosMessageType.ImportAccountResponse,
         };

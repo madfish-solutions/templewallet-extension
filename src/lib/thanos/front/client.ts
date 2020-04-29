@@ -144,13 +144,17 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
-  const importAccount = React.useCallback(async (privateKey: string) => {
-    const res = await request({
-      type: ThanosMessageType.ImportAccountRequest,
-      privateKey,
-    });
-    assertResponse(res.type === ThanosMessageType.ImportAccountResponse);
-  }, []);
+  const importAccount = React.useCallback(
+    async (privateKey: string, encPassword?: string) => {
+      const res = await request({
+        type: ThanosMessageType.ImportAccountRequest,
+        privateKey,
+        encPassword,
+      });
+      assertResponse(res.type === ThanosMessageType.ImportAccountResponse);
+    },
+    []
+  );
 
   const importMnemonicAccount = React.useCallback(
     async (mnemonic: string, password?: string, derivationPath?: string) => {

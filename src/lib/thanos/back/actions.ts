@@ -97,9 +97,9 @@ export function editAccount(accPublicKeyHash: string, name: string) {
   });
 }
 
-export function importAccount(privateKey: string) {
+export function importAccount(privateKey: string, encPassword?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importAccount(privateKey);
+    const updatedAccounts = await vault.importAccount(privateKey, encPassword);
     accountsUpdated(updatedAccounts);
   });
 }
