@@ -343,7 +343,7 @@ const DelegateForm: React.FC = () => {
               labelDescription={
                 baseFee instanceof BigNumber && (
                   <>
-                    Base Fee for this transaction is:{" "}
+                    Base Fee for this operation is:{" "}
                     <span className="font-normal">{baseFee.toString()}</span>
                     <br />
                     Additional - speeds up its confirmation,
