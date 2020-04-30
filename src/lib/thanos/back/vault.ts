@@ -197,17 +197,23 @@ export class Vault {
     });
   }
 
-  async importAccount(accPrivateKey: string) {
+  async importAccount(accPrivateKey: string, encPassword?: string) {
     const errMessage =
       "Failed to import account" +
       ".\nThis may happen because provided Key is invalid";
 
     return withError(errMessage, async () => {
       const allAccounts = await this.fetchAccounts();
-
-      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
-        accPrivateKey
-      );
+      const signer = await createMemorySigner(accPrivateKey, encPassword);
+      const [
+        realAccPrivateKey,
+        accPublicKey,
+        accPublicKeyHash,
+      ] = await Promise.all([
+        signer.secretKey(),
+        signer.publicKey(),
+        signer.publicKeyHash(),
+      ]);
 
       const newAccount: ThanosAccount = {
         type: ThanosAccountType.Imported,
@@ -218,7 +224,7 @@ export class Vault {
 
       await encryptAndSaveMany(
         [
-          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
+          [accPrivKeyStrgKey(accPublicKeyHash), realAccPrivateKey],
           [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
           [accountsStrgKey, newAllAcounts],
         ],
@@ -359,8 +365,8 @@ async function getPublicKeyAndHash(privateKey: string) {
   return Promise.all([signer.publicKey(), signer.publicKeyHash()]);
 }
 
-async function createMemorySigner(privateKey: string) {
-  return InMemorySigner.fromSecretKey(privateKey);
+async function createMemorySigner(privateKey: string, encPassword?: string) {
+  return InMemorySigner.fromSecretKey(privateKey, encPassword);
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {

@@ -204,6 +204,7 @@ export interface ThanosEditAccountResponse extends ThanosMessageBase {
 export interface ThanosImportAccountRequest extends ThanosMessageBase {
   type: ThanosMessageType.ImportAccountRequest;
   privateKey: string;
+  encPassword?: string;
 }
 
 export interface ThanosImportAccountResponse extends ThanosMessageBase {
