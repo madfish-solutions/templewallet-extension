@@ -14,15 +14,17 @@ api.interceptors.response.use(
 );
 
 export async function getAllBakers() {
-  const res = await api.get<TNBakerPreview[]>("/bakers");
-  return res.data.map((baker) =>
-    baker.logo.includes("/storage")
-      ? baker
-      : { ...baker, logo: baker.logo.replace("/images", "/storage/images") }
-  );
+  const { data: bakers } = await api.get<TNBakerPreview[]>("/bakers");
+  return bakers.map(fixBakerLogo);
 }
 
 export async function getBaker(address: string) {
-  const res = await api.get<TNBaker>(`/baker/${address}`);
-  return res.data;
+  const { data: baker } = await api.get<TNBaker>(`/baker/${address}`);
+  return fixBakerLogo(baker);
+}
+
+function fixBakerLogo(baker: TNBaker | TNBakerPreview) {
+  return baker.logo.includes("/storage")
+    ? baker
+    : { ...baker, logo: baker.logo.replace("/images", "/storage/images") };
 }
