@@ -37,7 +37,6 @@ export class Vault {
   static async setup(password: string) {
     const passKey = await Vault.toValidPassKey(password);
     return withError("Failed to unlock wallet", async () => {
-      await fetchAndDecryptOne(checkStrgKey, passKey);
       await Vault.runMigrations(passKey);
       return new Vault(passKey);
     });
