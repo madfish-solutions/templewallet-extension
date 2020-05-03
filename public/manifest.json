@@ -20,7 +20,8 @@
     "unlimitedStorage",
     "clipboardWrite",
     "https://*.tzstats.com/",
-    "https://*.tezos.org.ua/"
+    "https://*.tezos.org.ua/",
+    "https://api.tezos-nodes.com/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
