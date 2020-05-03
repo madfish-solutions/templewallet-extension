@@ -34,6 +34,10 @@ export async function encryptAndSaveMany(
   await saveEncrypted(encItems);
 }
 
+export async function removeMany(keys: string[]) {
+  await browser.storage.local.remove(keys);
+}
+
 async function encrypt(stuff: any, passKey: CryptoKey) {
   const salt = Passworder.generateSalt();
   const derivedPassKey = await Passworder.deriveKey(passKey, salt);

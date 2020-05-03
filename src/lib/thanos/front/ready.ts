@@ -72,10 +72,10 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
   );
 
   const activateAccount = React.useCallback(
-    async (secret: string) => {
+    async (publicKeyHash: string, secret: string) => {
       let op;
       try {
-        op = await tezos.tz.activate(accountPkh, secret);
+        op = await tezos.tz.activate(publicKeyHash, secret);
       } catch (err) {
         const invalidActivationError =
           err && err.body && /Invalid activation/.test(err.body);
@@ -91,7 +91,7 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
         typeof op
       ];
     },
-    [accountPkh, tezos]
+    [tezos]
   );
 
   return {

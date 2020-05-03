@@ -61,6 +61,10 @@
  * Misc
  */
 
+.filter-brightness-75 {
+  filter: brightness(0.75);
+}
+
 /* Fix CSS transition flickering in Firefox */
 .grayscale-firefox-fix {
   filter: grayscale(1%);

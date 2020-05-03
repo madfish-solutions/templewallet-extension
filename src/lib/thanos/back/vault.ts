@@ -8,6 +8,7 @@ import {
   isStored,
   fetchAndDecryptOne,
   encryptAndSaveMany,
+  removeMany,
 } from "lib/thanos/back/safe-storage";
 
 const TEZOS_BIP44_COINTYPE = 1729;
@@ -112,6 +113,32 @@ export class Vault {
     return withError("Failed to reveal private key", () =>
       fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), passKey)
     );
+  }
+
+  static async removeAccount(accPublicKeyHash: string, password: string) {
+    const passKey = await Vault.toValidPassKey(password);
+    return withError("Failed to remove account", async (doThrow) => {
+      const allAccounts = await fetchAndDecryptOne<ThanosAccount[]>(
+        accountsStrgKey,
+        passKey
+      );
+      const acc = allAccounts.find((a) => a.publicKeyHash === accPublicKeyHash);
+      if (!acc || acc.type !== ThanosAccountType.Imported) {
+        doThrow();
+      }
+
+      const newAllAcounts = allAccounts.filter(
+        (acc) => acc.publicKeyHash !== accPublicKeyHash
+      );
+      await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], passKey);
+
+      await removeMany([
+        accPrivKeyStrgKey(accPublicKeyHash),
+        accPubKeyStrgKey(accPublicKeyHash),
+      ]);
+
+      return newAllAcounts;
+    });
   }
 
   static async sign(
