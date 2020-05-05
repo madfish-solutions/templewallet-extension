@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { ActivationStatus, useReadyThanos } from "lib/thanos/front";
+import { ActivationStatus, useTezos, useAccount } from "lib/thanos/front";
 import useIsMounted from "lib/ui/useIsMounted";
 import AccountBanner from "app/templates/AccountBanner";
 import Alert from "app/atoms/Alert";
@@ -14,7 +14,8 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 
 const ActivateAccount: React.FC = () => {
-  const { account, activateAccount } = useReadyThanos();
+  const tezos = useTezos();
+  const account = useAccount();
   const isMounted = useIsMounted();
 
   const [success, setSuccessPure] = React.useState<React.ReactNode>(null);
@@ -25,6 +26,29 @@ const ActivateAccount: React.FC = () => {
       }
     },
     [setSuccessPure, isMounted]
+  );
+
+  const activateAccount = React.useCallback(
+    async (address: string, secret: string) => {
+      let op;
+      try {
+        op = await tezos.tz.activate(address, secret);
+      } catch (err) {
+        const invalidActivationError =
+          err && err.body && /Invalid activation/.test(err.body);
+        if (invalidActivationError) {
+          return [ActivationStatus.AlreadyActivated] as [ActivationStatus];
+        }
+
+        throw err;
+      }
+
+      return [ActivationStatus.ActivationRequestSent, op] as [
+        ActivationStatus,
+        typeof op
+      ];
+    },
+    [tezos]
   );
 
   const {
