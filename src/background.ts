@@ -11,10 +11,4 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
   }
 });
 
-export function createNewTab(url: string) {
-  browser.tabs.create({
-    url,
-  });
-}
-
 start();
