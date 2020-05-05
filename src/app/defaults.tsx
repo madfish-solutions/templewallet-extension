@@ -10,7 +10,7 @@ export const PASSWORD_PATTERN = new RegExp(
   ].join("")
 );
 
-export const TEZOS_FAUCET: Object = {
+export const TEZOS_FAUCET = {
   main: "https://faucet.tezos.com/",
   test: "https://faucet.tzalpha.net/",
 };
