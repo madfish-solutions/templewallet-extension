@@ -20,7 +20,6 @@
     "unlimitedStorage",
     "clipboardWrite",
     "https://*.tzstats.com/",
-    "https://*.coinswitch.co/",
     "https://*.thanoswallet.com/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
