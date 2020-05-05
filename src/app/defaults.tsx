@@ -10,6 +10,11 @@ export const PASSWORD_PATTERN = new RegExp(
   ].join("")
 );
 
+export const TEZOS_FAUCET: Object = {
+  main: "https://faucet.tezos.com/",
+  test: "https://faucet.tzalpha.net/",
+};
+
 export const PASSWORD_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
     <li>At least 8 characters</li>
