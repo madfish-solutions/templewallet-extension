@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { useReadyThanos } from "lib/thanos/front";
+import { useAccount } from "lib/thanos/front";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
@@ -19,7 +19,7 @@ import EditableTitle from "./Explore/EditableTitle";
 import BakingSection from "./Explore/BakingSection";
 
 const Explore: React.FC = () => {
-  const { account } = useReadyThanos();
+  const account = useAccount();
   const accountPkh = account.publicKeyHash;
 
   return (

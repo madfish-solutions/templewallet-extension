@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import Popper from "lib/ui/Popper";
 import { Link } from "lib/woozie";
-import { useThanosClient, useReadyThanos } from "lib/thanos/front";
+import { useThanosClient, useAccount } from "lib/thanos/front";
 import { useAppEnv } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
 import Identicon from "app/atoms/Identicon";
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
 export default Header;
 
 const Control: React.FC = () => {
-  const { account } = useReadyThanos();
+  const account = useAccount();
 
   return (
     <>

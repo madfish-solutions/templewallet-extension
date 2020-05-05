@@ -10,7 +10,27 @@ export enum ActivationStatus {
   AlreadyActivated,
 }
 
-export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
+export const [
+  ReadyThanosProvider,
+  useAllNetworks,
+  useSetNetworkId,
+  useNetwork,
+  useAllAccounts,
+  useSetAccountPkh,
+  useAccount,
+  useTezos,
+] = constate(
+  useReadyThanos,
+  (v) => v.allNetworks,
+  (v) => v.setNetworkId,
+  (v) => v.network,
+  (v) => v.allAccounts,
+  (v) => v.setAccountPkh,
+  (v) => v.account,
+  (v) => v.tezos
+);
+
+function useReadyThanos() {
   const thanosFront = useThanosClient();
   assertReady(thanosFront);
 
@@ -24,16 +44,19 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
    * Networks
    */
 
-  const [netIndex, setNetIndex] = usePassiveStorage("network_id", 0);
+  const defaultNet = allNetworks[0];
+  const [networkId, setNetworkId] = usePassiveStorage(
+    "network_id",
+    defaultNet.id
+  );
 
   React.useEffect(() => {
-    if (netIndex >= allNetworks.length) {
-      setNetIndex(0);
+    if (allNetworks.every((a) => a.id !== networkId)) {
+      setNetworkId(defaultNet.id);
     }
-  }, [allNetworks.length, netIndex, setNetIndex]);
+  }, [allNetworks, networkId, setNetworkId, defaultNet]);
 
-  const safeNetIndex = netIndex in allNetworks ? netIndex : 0;
-  const network = allNetworks[safeNetIndex];
+  const network = allNetworks.find((n) => n.id === networkId) ?? defaultNet;
 
   /**
    * Accounts
@@ -59,46 +82,19 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
    */
 
   const tezos = React.useMemo(() => {
-    const t = new TezosToolkit();
+    const checksum = [network.rpcBaseURL, accountPkh].join(",");
+    const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
     const signer = createSigner(accountPkh);
     t.setProvider({ rpc, signer });
     return t;
   }, [createSigner, network.rpcBaseURL, accountPkh]);
 
-  const tezosKey = React.useMemo(
-    () => [network.rpcBaseURL, accountPkh].join(","),
-    [network.rpcBaseURL, accountPkh]
-  );
-
-  const activateAccount = React.useCallback(
-    async (secret: string) => {
-      let op;
-      try {
-        op = await tezos.tz.activate(accountPkh, secret);
-      } catch (err) {
-        const invalidActivationError =
-          err && err.body && /Invalid activation/.test(err.body);
-        if (invalidActivationError) {
-          return [ActivationStatus.AlreadyActivated] as [ActivationStatus];
-        }
-
-        throw err;
-      }
-
-      return [ActivationStatus.ActivationRequestSent, op] as [
-        ActivationStatus,
-        typeof op
-      ];
-    },
-    [accountPkh, tezos]
-  );
-
   return {
     allNetworks,
     network,
-    netIndex,
-    setNetIndex,
+    networkId,
+    setNetworkId,
 
     allAccounts,
     account,
@@ -106,10 +102,14 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
     setAccountPkh,
 
     tezos,
-    tezosKey,
-    activateAccount,
   };
-});
+}
+
+export class ReactiveTezosToolkit extends TezosToolkit {
+  constructor(public checksum: string) {
+    super();
+  }
+}
 
 function assertReady(state: ThanosState): asserts state is ReadyThanosState {
   if (state.status !== ThanosStatus.Ready) {

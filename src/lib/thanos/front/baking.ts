@@ -1,10 +1,10 @@
 import * as React from "react";
 import { getAllBakers, getBaker } from "lib/tezos-nodes";
 import { useRetryableSWR } from "lib/swr";
-import { useReadyThanos } from "lib/thanos/front/ready";
+import { useTezos, useNetwork } from "lib/thanos/front";
 
 export function useDelegate(address: string, suspense?: boolean) {
-  const { tezos, tezosKey } = useReadyThanos();
+  const tezos = useTezos();
 
   const getDelegate = React.useCallback(async () => {
     try {
@@ -18,7 +18,7 @@ export function useDelegate(address: string, suspense?: boolean) {
     }
   }, [address, tezos]);
 
-  return useRetryableSWR(["delegate", address, tezosKey], getDelegate, {
+  return useRetryableSWR(["delegate", address, tezos.checksum], getDelegate, {
     refreshInterval: 120_000,
     dedupingInterval: 60_000,
     suspense,
@@ -26,10 +26,10 @@ export function useDelegate(address: string, suspense?: boolean) {
 }
 
 export function useKnownBaker(address: string, suspense = true) {
-  const { network } = useReadyThanos();
+  const net = useNetwork();
   const fetchBaker = React.useCallback(() => getBaker(address), [address]);
   const { data: baker } = useRetryableSWR(
-    network.type === "main" ? ["baker", address] : null,
+    net.type === "main" ? ["baker", address] : null,
     fetchBaker,
     {
       refreshInterval: 120_000,
@@ -41,9 +41,9 @@ export function useKnownBaker(address: string, suspense = true) {
 }
 
 export function useKnownBakers(suspense = true) {
-  const { network } = useReadyThanos();
+  const net = useNetwork();
   const { data: bakers } = useRetryableSWR(
-    network.type === "main" ? "all-bakers" : null,
+    net.type === "main" ? "all-bakers" : null,
     getAllBakers,
     {
       refreshInterval: 120_000,
