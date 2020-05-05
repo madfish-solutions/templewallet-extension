@@ -4,7 +4,9 @@ import { navigate } from "lib/woozie";
 import {
   ThanosAccountType,
   useThanosClient,
-  useReadyThanos,
+  useAllAccounts,
+  useAccount,
+  useSetAccountPkh,
 } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { useAppEnv, openInFullPage } from "app/env";
@@ -24,7 +26,9 @@ type AccountDropdown = PopperRenderProps;
 const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useThanosClient();
-  const { allAccounts, account, setAccountPkh } = useReadyThanos();
+  const allAccounts = useAllAccounts();
+  const account = useAccount();
+  const setAccountPkh = useSetAccountPkh();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
