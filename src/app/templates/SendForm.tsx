@@ -7,7 +7,9 @@ import { DEFAULT_FEE, Tezos } from "@taquito/taquito";
 import { ValidationResult, validateAddress } from "@taquito/utils";
 import {
   ThanosAccountType,
-  useReadyThanos,
+  useAllAccounts,
+  useAccount,
+  useTezos,
   useBalance,
   fetchBalance,
   getBalanceSWRKey,
@@ -37,8 +39,11 @@ const RECOMMENDED_ADD_FEE = 100;
 const NOT_ENOUGH_FUNDS = Symbol("NOT_ENOUGH_FUNDS");
 
 const SendForm: React.FC = () => {
-  const { accountPkh, allAccounts, tezos, tezosKey } = useReadyThanos();
+  const allAccounts = useAllAccounts();
+  const acc = useAccount();
+  const tezos = useTezos();
 
+  const accountPkh = acc.publicKeyHash;
   const assetSymbol = "XTZ";
 
   const balSWR = useBalance(accountPkh, true);
@@ -99,7 +104,7 @@ const SendForm: React.FC = () => {
   const estimateBaseFee = React.useCallback(async () => {
     try {
       const balanceBN: BigNumber = await mutate(
-        getBalanceSWRKey(accountPkh, tezosKey),
+        getBalanceSWRKey(accountPkh, tezos.checksum),
         fetchBalance(accountPkh, tezos)
       );
       if (balanceBN.isZero()) {
@@ -141,11 +146,13 @@ const SendForm: React.FC = () => {
 
       throw err;
     }
-  }, [toValue, tezos, tezosKey, accountPkh]);
+  }, [tezos, accountPkh, toValue]);
 
   const { data: baseFee, isValidating: estimating } = useSWR(
     () =>
-      toFilled ? ["transfer-base-fee", toValue, tezosKey, accountPkh] : null,
+      toFilled
+        ? ["transfer-base-fee", tezos.checksum, accountPkh, toValue]
+        : null,
     estimateBaseFee,
     {
       dedupingInterval: 30_000,
