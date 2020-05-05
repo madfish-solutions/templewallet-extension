@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { useThanosClient, useAccount } from "lib/thanos/front";
+import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Alert from "app/atoms/Alert";
@@ -38,8 +39,15 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
   const secretFieldRef = React.useRef<HTMLTextAreaElement>(null);
 
   React.useEffect(() => {
+    if (account.publicKeyHash) {
+      return () => setSecret(null);
+    }
+  }, [account.publicKeyHash, setSecret]);
+
+  React.useEffect(() => {
     if (secret) {
       secretFieldRef.current?.focus();
+      secretFieldRef.current?.select();
     }
   }, [secret]);
 
@@ -117,6 +125,18 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       case "private-key":
         return {
           name: "Private Key",
+          accountBanner: (
+            <AccountBanner
+              account={account}
+              labelDescription={
+                <>
+                  If you want to reveal from another - select it in the
+                  top-level account dropdown.
+                </>
+              }
+              className="mb-6"
+            />
+          ),
           attension: (
             <>
               <span className="font-semibold">DO NOT share</span> this set of
@@ -132,6 +152,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       case "seed-phrase":
         return {
           name: "Seed Phrase",
+          accountBanner: null,
           attension: (
             <>
               <span className="font-semibold">DO NOT share</span> this phrase
@@ -147,10 +168,12 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           ),
         };
     }
-  }, [reveal]);
+  }, [reveal, account]);
 
   return (
     <div className="w-full max-w-sm mx-auto p-2">
+      {texts.accountBanner}
+
       {secret ? (
         <>
           <FormField

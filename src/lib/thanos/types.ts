@@ -65,6 +65,8 @@ export enum ThanosMessageType {
   RevealPrivateKeyResponse = "THANOS_REVEAL_PRIVATE_KEY_RESPONSE",
   RevealMnemonicRequest = "THANOS_REVEAL_MNEMONIC_REQUEST",
   RevealMnemonicResponse = "THANOS_REVEAL_MNEMONIC_RESPONSE",
+  RemoveAccountRequest = "THANOS_REMOVE_ACCOUNT_REQUEST",
+  RemoveAccountResponse = "THANOS_REMOVE_ACCOUNT_RESPONSE",
   EditAccountRequest = "THANOS_EDIT_ACCOUNT_REQUEST",
   EditAccountResponse = "THANOS_EDIT_ACCOUNT_RESPONSE",
   ImportAccountRequest = "THANOS_IMPORT_ACCOUNT_REQUEST",
@@ -93,7 +95,8 @@ export type ThanosRequest =
   | ThanosImportMnemonicAccountRequest
   | ThanosImportFundraiserAccountRequest
   | ThanosSignRequest
-  | ThanosConfirmRequest;
+  | ThanosConfirmRequest
+  | ThanosRemoveAccountRequest;
 
 export type ThanosResponse =
   | ThanosGetStateResponse
@@ -109,7 +112,8 @@ export type ThanosResponse =
   | ThanosImportMnemonicAccountResponse
   | ThanosImportFundraiserAccountResponse
   | ThanosSignResponse
-  | ThanosConfirmResponse;
+  | ThanosConfirmResponse
+  | ThanosRemoveAccountResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -189,6 +193,16 @@ export interface ThanosRevealMnemonicRequest extends ThanosMessageBase {
 export interface ThanosRevealMnemonicResponse extends ThanosMessageBase {
   type: ThanosMessageType.RevealMnemonicResponse;
   mnemonic: string;
+}
+
+export interface ThanosRemoveAccountRequest extends ThanosMessageBase {
+  type: ThanosMessageType.RemoveAccountRequest;
+  accountPublicKeyHash: string;
+  password: string;
+}
+
+export interface ThanosRemoveAccountResponse extends ThanosMessageBase {
+  type: ThanosMessageType.RemoveAccountResponse;
 }
 
 export interface ThanosEditAccountRequest extends ThanosMessageBase {

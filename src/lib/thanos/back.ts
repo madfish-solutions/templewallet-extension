@@ -94,6 +94,14 @@ async function processRequest(
         };
       });
 
+    case ThanosMessageType.RemoveAccountRequest:
+      return enqueue(async () => {
+        await Actions.removeAccount(req.accountPublicKeyHash, req.password);
+        return {
+          type: ThanosMessageType.RemoveAccountResponse,
+        };
+      });
+
     case ThanosMessageType.EditAccountRequest:
       return enqueue(async () => {
         await Actions.editAccount(req.accountPublicKeyHash, req.name);
