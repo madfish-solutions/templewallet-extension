@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { useThanosClient, useReadyThanos } from "lib/thanos/front";
+import { useThanosClient, useAccount } from "lib/thanos/front";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Alert from "app/atoms/Alert";
@@ -21,7 +21,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     revealMnemonic,
     setSeedRevealed,
   } = useThanosClient();
-  const { accountPkh } = useReadyThanos();
+  const account = useAccount();
 
   const {
     register,
@@ -77,7 +77,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
 
         switch (reveal) {
           case "private-key":
-            scrt = await revealPrivateKey(accountPkh, password);
+            scrt = await revealPrivateKey(account.publicKeyHash, password);
             break;
 
           case "seed-phrase":
@@ -105,7 +105,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       setError,
       revealPrivateKey,
       revealMnemonic,
-      accountPkh,
+      account.publicKeyHash,
       setSeedRevealed,
       setSecret,
       focusPasswordField,

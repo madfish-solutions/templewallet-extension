@@ -2,7 +2,8 @@ import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import { Link } from "lib/woozie";
-import { useReadyThanos, useDelegate, useKnownBaker } from "lib/thanos/front";
+import { useRetryableSWR } from "lib/swr";
+import { useAccount, useTezos, useKnownBaker } from "lib/thanos/front";
 import Name from "app/atoms/Name";
 import Money from "app/atoms/Money";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
@@ -10,9 +11,30 @@ import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
 import styles from "./BakingSection.module.css";
 
 const BakingSection: React.FC = () => {
-  const { accountPkh } = useReadyThanos();
-  const { data } = useDelegate(accountPkh);
-  const myBakerPkh = data;
+  const acc = useAccount();
+  const tezos = useTezos();
+
+  const getDelegate = React.useCallback(async () => {
+    try {
+      return await tezos.rpc.getDelegate(acc.publicKeyHash);
+    } catch (err) {
+      if (err.status === 404) {
+        return null;
+      }
+
+      throw err;
+    }
+  }, [tezos, acc.publicKeyHash]);
+
+  const { data: myBakerPkh } = useRetryableSWR(
+    ["delegate", tezos.checksum, acc.publicKeyHash],
+    getDelegate,
+    {
+      refreshInterval: 120_000,
+      dedupingInterval: 60_000,
+      suspense: true,
+    }
+  );
 
   return React.useMemo(
     () => (
@@ -70,7 +92,7 @@ type BakerBannerProps = {
   bakerPkh: string;
 };
 
-const BakerBanner: React.FC<BakerBannerProps> = ({ bakerPkh }) => {
+const BakerBanner = React.memo<BakerBannerProps>(({ bakerPkh }) => {
   const baker = useKnownBaker(bakerPkh, true);
   const assetSymbol = "XTZ";
 
@@ -144,4 +166,4 @@ const BakerBanner: React.FC<BakerBannerProps> = ({ bakerPkh }) => {
       {bakerPkh}
     </div>
   );
-};
+});
