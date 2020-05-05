@@ -1,8 +1,8 @@
 import * as React from "react";
-import { useReadyThanos } from "lib/thanos/front/ready";
+import { useTezos } from "lib/thanos/front/ready";
 
 export function useOnBlock(callback: (blockHash: string) => void) {
-  const { tezos } = useReadyThanos();
+  const tezos = useTezos();
 
   React.useEffect(() => {
     const sub = tezos.stream.subscribe("head");
