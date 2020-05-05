@@ -83,6 +83,16 @@ export function revealPublicKey(accPublicKeyHash: string) {
   return withUnlocked(({ vault }) => vault.revealPublicKey(accPublicKeyHash));
 }
 
+export function removeAccount(accPublicKeyHash: string, password: string) {
+  return withUnlocked(async () => {
+    const updatedAccounts = await Vault.removeAccount(
+      accPublicKeyHash,
+      password
+    );
+    accountsUpdated(updatedAccounts);
+  });
+}
+
 export function editAccount(accPublicKeyHash: string, name: string) {
   return withUnlocked(async ({ vault }) => {
     name = name.trim();

@@ -132,6 +132,18 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     return res.mnemonic;
   }, []);
 
+  const removeAccount = React.useCallback(
+    async (accountPublicKeyHash: string, password: string) => {
+      const res = await request({
+        type: ThanosMessageType.RemoveAccountRequest,
+        accountPublicKeyHash,
+        password,
+      });
+      assertResponse(res.type === ThanosMessageType.RemoveAccountResponse);
+    },
+    []
+  );
+
   const editAccountName = React.useCallback(
     async (accountPublicKeyHash: string, name: string) => {
       const res = await request({
@@ -231,6 +243,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     createAccount,
     revealPrivateKey,
     revealMnemonic,
+    removeAccount,
     editAccountName,
     importAccount,
     importMnemonicAccount,
