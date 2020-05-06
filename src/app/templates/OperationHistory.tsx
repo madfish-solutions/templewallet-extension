@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { useRetryableSWR } from "lib/swr";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { TZStatsOperation, getAccountWithOperations } from "lib/tzstats";
-import { useReadyThanos } from "lib/thanos/front";
+import { useNetwork } from "lib/thanos/front";
 import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
 import HashChip from "app/atoms/HashChip";
@@ -15,23 +15,24 @@ interface OperationHistoryProps {
 }
 
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
-  const { network } = useReadyThanos();
+  const network = useNetwork();
 
   const fetchOperations = React.useCallback(async () => {
     try {
-      return await getAccountWithOperations(network.tzStats, {
+      const { ops } = await getAccountWithOperations(network.tzStats, {
         pkh: accountPkh,
         order: "desc",
         limit: 25,
         offset: 0,
-      }).then((acc) => acc.ops);
+      });
+      return ops;
     } catch (err) {
-      // Human delay
-      await new Promise((r) => setTimeout(r, 300));
-
       if (err?.origin?.response?.status === 404) {
         return [];
       }
+
+      // Human delay
+      await new Promise((r) => setTimeout(r, 300));
       throw err;
     }
   }, [network.tzStats, accountPkh]);

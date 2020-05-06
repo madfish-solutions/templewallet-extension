@@ -6,13 +6,13 @@ import BigNumber from "bignumber.js";
 import { DEFAULT_FEE, Tezos } from "@taquito/taquito";
 import { ValidationResult, validateAddress } from "@taquito/utils";
 import {
-  ThanosAccountType,
   useAllAccounts,
   useAccount,
   useTezos,
   useBalance,
   fetchBalance,
   getBalanceSWRKey,
+  useKnownBakers,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import Balance from "app/templates/Balance";
@@ -30,7 +30,6 @@ import xtzImgUrl from "app/misc/xtz.png";
 
 interface FormData {
   to: string;
-  amount: number;
   fee: number;
 }
 
@@ -38,7 +37,7 @@ const MIN_AMOUNT = 0.000001;
 const RECOMMENDED_ADD_FEE = 100;
 const NOT_ENOUGH_FUNDS = Symbol("NOT_ENOUGH_FUNDS");
 
-const SendForm: React.FC = () => {
+const DelegateForm: React.FC = () => {
   const allAccounts = useAllAccounts();
   const acc = useAccount();
   const tezos = useTezos();
@@ -50,6 +49,14 @@ const SendForm: React.FC = () => {
   const balance = balSWR.data!;
   const revalidateBalance = balSWR.revalidate;
   const balanceNum = balance.toNumber();
+
+  const knownBakers = useKnownBakers();
+  const sortedKnownBakers = React.useMemo(
+    () =>
+      knownBakers &&
+      knownBakers.sort((a, b) => b.total_points - a.total_points),
+    [knownBakers]
+  );
 
   const validateAddress = React.useCallback(
     (v: any) => isAddressValid(v) || "Invalid address",
@@ -82,11 +89,8 @@ const SendForm: React.FC = () => {
   });
 
   const toValue = watch("to");
-  const amountValue = watch("amount");
-  const feeValue = watch("fee") ?? recommendedAddFeeTz;
 
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
-  const amountFieldRef = React.useRef<HTMLInputElement>(null);
   const feeFieldRef = React.useRef<HTMLInputElement>(null);
 
   const toFilled = React.useMemo(
@@ -114,18 +118,12 @@ const SendForm: React.FC = () => {
       }
 
       const to = toValue;
-      const estmtn = await tezos.estimate.transfer({ to, amount: MIN_AMOUNT });
-      let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
-      const manager = await tezos.rpc.getManagerKey(accountPkh);
-      if (!hasManager(manager)) {
-        amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
-      }
-      const estmtnMax = await tezos.estimate.transfer({
-        to,
-        amount: amountMax.toNumber(),
+      const estmtn = await tezos.estimate.setDelegate({
+        source: accountPkh,
+        delegate: to,
       });
-
-      let baseFee = mutezToTz(estmtnMax.totalCost);
+      const manager = await tezos.rpc.getManagerKey(accountPkh);
+      let baseFee = mutezToTz(estmtn.totalCost);
       if (!hasManager(manager)) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
@@ -151,7 +149,7 @@ const SendForm: React.FC = () => {
   const { data: baseFee, isValidating: estimating } = useSWR(
     () =>
       toFilled
-        ? ["transfer-base-fee", tezos.checksum, accountPkh, toValue]
+        ? ["delegate-base-fee", tezos.checksum, accountPkh, toValue]
         : null,
     estimateBaseFee,
     {
@@ -168,57 +166,10 @@ const SendForm: React.FC = () => {
     }
   }, [balanceNum, baseFee]);
 
-  const safeFeeValue = React.useMemo(
-    () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
-    [maxAddFee, feeValue]
-  );
-
-  const maxAmount = React.useMemo(() => {
-    if (!baseFee) return null;
-    if (baseFee === NOT_ENOUGH_FUNDS) return NOT_ENOUGH_FUNDS;
-    const ma = new BigNumber(balanceNum)
-      .minus(baseFee)
-      .minus(safeFeeValue ?? 0);
-    return ma.isGreaterThan(0) ? ma : NOT_ENOUGH_FUNDS;
-  }, [balanceNum, baseFee, safeFeeValue]);
-
-  const maxAmountNum = React.useMemo(
-    () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
-    [maxAmount]
-  );
-
-  const validateAmount = React.useCallback(
-    (v: number) => {
-      if (maxAmountNum === NOT_ENOUGH_FUNDS)
-        return "Not enough funds for this transaction";
-      if (!v) return "Required";
-      if (!maxAmountNum) return true;
-      const vBN = new BigNumber(v);
-      return (
-        vBN.isLessThanOrEqualTo(maxAmountNum) ||
-        `Maximal: ${maxAmountNum.toString()}`
-      );
-    },
-    [maxAmountNum]
-  );
-
   const handleFeeFieldChange = React.useCallback(
     ([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v),
     [maxAddFee]
   );
-
-  React.useEffect(() => {
-    if (formState.dirtyFields.has("amount")) {
-      triggerValidation("amount");
-    }
-  }, [formState.dirtyFields, triggerValidation, maxAmountNum]);
-
-  const handleSetMaxAmount = React.useCallback(() => {
-    if (maxAmount && maxAmount !== NOT_ENOUGH_FUNDS) {
-      setValue("amount", maxAmount.toNumber());
-      triggerValidation("amount");
-    }
-  }, [setValue, maxAmount, triggerValidation]);
 
   const handleSetRecommendedFee = React.useCallback(() => {
     setValue("fee", recommendedAddFeeTz);
@@ -228,18 +179,25 @@ const SendForm: React.FC = () => {
   const [operation, setOperation] = useSafeState<any>(null);
 
   const onSubmit = React.useCallback(
-    async ({ to, amount, fee: feeVal }: FormData) => {
+    async ({ to, fee: feeVal }: FormData) => {
       if (formState.isSubmitting) return;
       setSubmitError(null);
       setOperation(null);
 
       try {
-        const estmtn = await tezos.estimate.transfer({ to, amount });
+        const estmtn = await tezos.estimate.setDelegate({
+          source: accountPkh,
+          delegate: to,
+        });
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        const op = await tezos.contract.transfer({ to, amount, fee });
+        const op = await tezos.contract.setDelegate({
+          source: accountPkh,
+          delegate: to,
+          fee,
+        });
         setOperation(op);
-        reset({ to: "", fee: 0.0001 });
+        reset({ to: "", fee: recommendedAddFeeTz });
       } catch (err) {
         if (err.message === "Declined") {
           return;
@@ -254,7 +212,15 @@ const SendForm: React.FC = () => {
         setSubmitError(err);
       }
     },
-    [formState.isSubmitting, tezos, setSubmitError, setOperation, reset]
+    [
+      formState.isSubmitting,
+      tezos,
+      accountPkh,
+      setSubmitError,
+      setOperation,
+      reset,
+      recommendedAddFeeTz,
+    ]
   );
 
   const restFormDisplayed = Boolean(toFilled && baseFee);
@@ -322,8 +288,8 @@ const SendForm: React.FC = () => {
           onFocus={() => toFieldRef.current?.focus()}
           textarea
           rows={2}
-          id="send-to"
-          label="Recipient"
+          id="delegate-to"
+          label="Baker"
           labelDescription={
             filledAccount ? (
               <div className="flex flex-wrap items-center">
@@ -348,7 +314,7 @@ const SendForm: React.FC = () => {
                 )
               </div>
             ) : (
-              `Address to send ${assetSymbol} funds to.`
+              `Address of already registered baker to delegate funds to.`
             )
           }
           placeholder="tz1a9w1S7hN5s..."
@@ -365,7 +331,7 @@ const SendForm: React.FC = () => {
           </div>
         ) : restFormDisplayed ? (
           <>
-            {(maxAmount === NOT_ENOUGH_FUNDS || submitError) && (
+            {(baseFee === NOT_ENOUGH_FUNDS || submitError) && (
               <TransferErrorCaption
                 type={submitError ? "transfer" : "estimate"}
                 zeroBalance={balance.isZero()}
@@ -373,68 +339,18 @@ const SendForm: React.FC = () => {
             )}
 
             <Controller
-              name="amount"
-              as={<AssetField ref={amountFieldRef} />}
-              control={control}
-              rules={{
-                validate: validateAmount,
-              }}
-              onChange={([v]) => v}
-              onFocus={() => amountFieldRef.current?.focus()}
-              id="send-amount"
-              assetSymbol={assetSymbol}
-              label="Amount"
-              labelDescription={
-                maxAmount &&
-                maxAmount !== NOT_ENOUGH_FUNDS && (
-                  <>
-                    Available to send(max):{" "}
-                    <button
-                      type="button"
-                      className={classNames("underline")}
-                      onClick={handleSetMaxAmount}
-                    >
-                      {maxAmount.toString()}
-                    </button>
-                    {amountValue ? (
-                      <>
-                        <br />
-                        <InUSD volume={amountValue}>
-                          {(usdAmount) => (
-                            <div className="mt-1 -mb-3">
-                              ≈{" "}
-                              <span className="font-normal text-gray-700">
-                                <span className="pr-px">$</span>
-                                {usdAmount}
-                              </span>{" "}
-                              in USD
-                            </div>
-                          )}
-                        </InUSD>
-                      </>
-                    ) : null}
-                  </>
-                )
-              }
-              placeholder="e.g. 123.45"
-              errorCaption={errors.amount?.message}
-              containerClassName="mb-4"
-              autoFocus={maxAmount && maxAmount !== NOT_ENOUGH_FUNDS}
-            />
-
-            <Controller
               name="fee"
               as={<AssetField ref={feeFieldRef} />}
               control={control}
               onChange={handleFeeFieldChange}
               onFocus={() => feeFieldRef.current?.focus()}
-              id="send-fee"
+              id="delegate-fee"
               assetSymbol={assetSymbol}
               label="Additional Fee"
               labelDescription={
                 baseFee instanceof BigNumber && (
                   <>
-                    Base Fee for this transaction is:{" "}
+                    Base Fee for this operation is:{" "}
                     <span className="font-normal">{baseFee.toString()}</span>
                     <br />
                     Additional - speeds up its confirmation,
@@ -459,17 +375,17 @@ const SendForm: React.FC = () => {
               loading={formState.isSubmitting}
               disabled={formState.isSubmitting}
             >
-              Send
+              Delegate
             </FormSubmitButton>
           </>
         ) : (
-          allAccounts.length > 1 && (
+          sortedKnownBakers && (
             <div className={classNames("my-6", "flex flex-col")}>
               <h2
                 className={classNames("mb-4", "leading-tight", "flex flex-col")}
               >
                 <span className="text-base font-semibold text-gray-700">
-                  Send to My Accounts
+                  Delegate to Recommended Bakers
                 </span>
 
                 <span
@@ -479,7 +395,17 @@ const SendForm: React.FC = () => {
                   )}
                   style={{ maxWidth: "90%" }}
                 >
-                  Click on Account you want to send funds to.
+                  Click on Baker you want to delegate funds to. This list is
+                  powered by{" "}
+                  <a
+                    href="https://www.tezos-nodes.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-normal underline"
+                  >
+                    Tezos Nodes
+                  </a>
+                  .
                 </span>
               </h2>
 
@@ -491,106 +417,104 @@ const SendForm: React.FC = () => {
                   "text-gray-700 text-sm leading-tight"
                 )}
               >
-                {allAccounts
-                  .filter((acc) => acc.publicKeyHash !== accountPkh)
-                  .map((acc, i, arr) => {
-                    const last = i === arr.length - 1;
-                    const handleAccountClick = () => {
-                      setValue("to", acc.publicKeyHash);
-                      triggerValidation("to");
-                    };
+                {sortedKnownBakers.map((baker, i, arr) => {
+                  const last = i === arr.length - 1;
+                  const handleBakerClick = () => {
+                    setValue("to", baker.address);
+                    triggerValidation("to");
+                  };
 
-                    return (
-                      <button
-                        key={acc.publicKeyHash}
-                        type="button"
+                  return (
+                    <button
+                      key={baker.address}
+                      type="button"
+                      className={classNames(
+                        "block w-full",
+                        "overflow-hidden",
+                        !last && "border-b border-gray-200",
+                        "hover:bg-gray-200 focus:bg-gray-200",
+                        "flex items-strech",
+                        "text-gray-700",
+                        "transition ease-in-out duration-200",
+                        "focus:outline-none",
+                        "opacity-90 hover:opacity-100"
+                      )}
+                      style={{
+                        padding: "0.65rem 0.5rem 0.65rem 0.5rem",
+                      }}
+                      onClick={handleBakerClick}
+                    >
+                      <img
+                        src={baker.logo}
+                        alt={baker.name}
                         className={classNames(
-                          "block w-full",
-                          "overflow-hidden",
-                          !last && "border-b border-gray-200",
-                          "hover:bg-gray-200 focus:bg-gray-200",
-                          "flex items-center",
-                          "text-gray-700",
-                          "transition ease-in-out duration-200",
-                          "focus:outline-none",
-                          "opacity-90 hover:opacity-100"
+                          "flex-shrink-0",
+                          "w-10 h-auto",
+                          "bg-white rounded shadow-xs"
                         )}
-                        style={{
-                          padding: "0.4rem 0.375rem 0.4rem 0.375rem",
-                        }}
-                        onClick={handleAccountClick}
-                      >
-                        <Identicon
-                          type="bottts"
-                          hash={acc.publicKeyHash}
-                          size={32}
-                          className="flex-shrink-0 shadow-xs"
-                        />
+                      />
 
-                        <div className="ml-2 flex flex-col items-start">
-                          <div className="flex flex-wrap items-center">
-                            <Name className="text-sm font-medium leading-tight">
-                              {acc.name}
-                            </Name>
+                      <div className="ml-2 flex flex-col items-start">
+                        <div
+                          className={classNames(
+                            "mb-px",
+                            "flex flex-wrap items-center",
+                            "leading-noneleading-none"
+                          )}
+                        >
+                          <Name className="text-base font-medium pb-1">
+                            {baker.name}
+                          </Name>
 
-                            {acc.type === ThanosAccountType.Imported && (
-                              <span
-                                className={classNames(
-                                  "ml-2",
-                                  "rounded-sm",
-                                  "border border-black-25",
-                                  "px-1 py-px",
-                                  "leading-tight",
-                                  "text-black-50"
-                                )}
-                                style={{ fontSize: "0.6rem" }}
-                              >
-                                Imported
-                              </span>
+                          <span
+                            className={classNames(
+                              "ml-2",
+                              "text-xs text-black-50 pb-px"
                             )}
-                          </div>
+                          >
+                            {baker.lifetime} cycles
+                          </span>
+                        </div>
 
-                          <div className="mt-1 flex flex-wrap items-center">
-                            <div
-                              className={classNames(
-                                "text-xs leading-none",
-                                "text-gray-700"
-                              )}
-                            >
-                              {(() => {
-                                const val = acc.publicKeyHash;
-                                const ln = val.length;
-                                return (
-                                  <>
-                                    {val.slice(0, 7)}
-                                    <span className="opacity-75">...</span>
-                                    {val.slice(ln - 4, ln)}
-                                  </>
-                                );
-                              })()}
-                            </div>
-
-                            <Balance address={acc.publicKeyHash}>
-                              {(bal) => (
-                                <div
-                                  className={classNames(
-                                    "ml-2",
-                                    "text-xs leading-none",
-                                    "text-gray-600"
-                                  )}
-                                >
-                                  <Money>{bal}</Money>{" "}
-                                  <span style={{ fontSize: "0.75em" }}>
-                                    {assetSymbol}
-                                  </span>
-                                </div>
-                              )}
-                            </Balance>
+                        <div
+                          className={classNames(
+                            "mb-1 pl-px",
+                            "flex flex-wrap items-center"
+                          )}
+                        >
+                          <div
+                            className={classNames(
+                              "text-xs font-light leading-none",
+                              "text-gray-600"
+                            )}
+                          >
+                            Fee:{" "}
+                            <span className="font-normal">
+                              {new BigNumber(baker.fee).times(100).toFormat(2)}%
+                            </span>
                           </div>
                         </div>
-                      </button>
-                    );
-                  })}
+
+                        <div className="pl-px flex flex-wrap items-center">
+                          <div
+                            className={classNames(
+                              "text-xs font-light leading-none",
+                              "text-gray-600"
+                            )}
+                          >
+                            Space:{" "}
+                            <span className="font-normal">
+                              <Money>{baker.freespace}</Money>
+                            </span>{" "}
+                            <span style={{ fontSize: "0.75em" }}>
+                              {assetSymbol}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )
@@ -600,7 +524,7 @@ const SendForm: React.FC = () => {
   );
 };
 
-export default SendForm;
+export default DelegateForm;
 
 type OperationStatusProps = {
   operation: any;
@@ -697,7 +621,8 @@ const TransferErrorCaption: React.FC<TransferErrorCaptionProps> = ({
         <>Your Balance is zero.</>
       ) : (
         <>
-          Unable to {type} transaction to provided Recipient.
+          Unable to {type === "transfer" ? "delegate" : "estimate delegation"}{" "}
+          to provided Baker.
           <br />
           This may happen because:
           <ul className="mt-1 ml-2 list-disc list-inside text-xs">

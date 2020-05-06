@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { ActivationStatus, useReadyThanos } from "lib/thanos/front";
+import { ActivationStatus, useTezos, useAccount } from "lib/thanos/front";
 import useIsMounted from "lib/ui/useIsMounted";
+import AccountBanner from "app/templates/AccountBanner";
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -13,7 +14,8 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 
 const ActivateAccount: React.FC = () => {
-  const { activateAccount } = useReadyThanos();
+  const tezos = useTezos();
+  const account = useAccount();
   const isMounted = useIsMounted();
 
   const [success, setSuccessPure] = React.useState<React.ReactNode>(null);
@@ -24,6 +26,29 @@ const ActivateAccount: React.FC = () => {
       }
     },
     [setSuccessPure, isMounted]
+  );
+
+  const activateAccount = React.useCallback(
+    async (address: string, secret: string) => {
+      let op;
+      try {
+        op = await tezos.tz.activate(address, secret);
+      } catch (err) {
+        const invalidActivationError =
+          err && err.body && /Invalid activation/.test(err.body);
+        if (invalidActivationError) {
+          return [ActivationStatus.AlreadyActivated] as [ActivationStatus];
+        }
+
+        throw err;
+      }
+
+      return [ActivationStatus.ActivationRequestSent, op] as [
+        ActivationStatus,
+        typeof op
+      ];
+    },
+    [tezos]
   );
 
   const {
@@ -45,6 +70,7 @@ const ActivateAccount: React.FC = () => {
 
       try {
         const [activationStatus, op] = await activateAccount(
+          account.publicKeyHash,
           data.secret.replace(/\s/g, "")
         );
         switch (activationStatus) {
@@ -71,7 +97,14 @@ const ActivateAccount: React.FC = () => {
         setError("secret", SUBMIT_ERROR_TYPE, mes);
       }
     },
-    [clearError, submitting, setError, setSuccess, activateAccount]
+    [
+      clearError,
+      submitting,
+      setError,
+      setSuccess,
+      activateAccount,
+      account.publicKeyHash,
+    ]
   );
 
   const submit = React.useMemo(() => handleSubmit(onSubmit), [
@@ -91,6 +124,19 @@ const ActivateAccount: React.FC = () => {
 
   return (
     <form className="w-full max-w-sm mx-auto p-2" onSubmit={submit}>
+      <AccountBanner
+        account={account}
+        labelDescription={
+          <>
+            Account that be activated.
+            <br />
+            If you want to activate another - select it in the top-level account
+            dropdown.
+          </>
+        }
+        className="mb-6"
+      />
+
       {success && (
         <Alert
           type="success"
