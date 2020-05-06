@@ -7,8 +7,8 @@ import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
-import FaucetIcon from "app/icons/faucet.svg";
-import ExchangeIcon from "app/icons/exchange.svg";
+import { ReactComponent as FaucetIcon } from "app/misc/faucet.svg";
+import { ReactComponent as ExchangeIcon } from "app/misc/exchange.svg";
 import Name from "app/atoms/Name";
 import SubTitle from "app/atoms/SubTitle";
 
@@ -18,7 +18,7 @@ const ALL_DEPOSITS = [
     type: "exchange",
     title: "Use CoinSwitch",
     link: "https://coinswitch.thanoswallet.com/",
-    iconUrl: ExchangeIcon,
+    icon: <ExchangeIcon />,
     color: "",
   },
   {
@@ -26,7 +26,7 @@ const ALL_DEPOSITS = [
     type: "faucet",
     title: "Tezos Faucet",
     link: "https://faucet.tezos.com/",
-    iconUrl: FaucetIcon,
+    icon: <FaucetIcon />,
     color: "",
   },
   {
@@ -34,7 +34,7 @@ const ALL_DEPOSITS = [
     type: "faucet",
     title: "Tezos Faucet (Alpha)",
     link: "https://faucet.tzalpha.net/",
-    iconUrl: FaucetIcon,
+    icon: <FaucetIcon />,
     color: "",
   },
 ];
@@ -44,9 +44,11 @@ const Receive: React.FC = () => {
   const account = useAccount();
   const address = account.publicKeyHash;
 
-  const deposits = ALL_DEPOSITS.length
-    ? ALL_DEPOSITS.filter((d) => d.networkType === network.type)
-    : [];
+  const deposits = React.useMemo(() => {
+    return ALL_DEPOSITS.length
+      ? ALL_DEPOSITS.filter(d => d.networkType === network.type)
+      : [];
+  }, [network.type]);
 
   const { fieldRef, copy, copied } = useCopyToClipboard();
 
@@ -132,11 +134,32 @@ const Receive: React.FC = () => {
               />
             </div>
             {deposits.length && (
-              <div className="py-4">
-                <SubTitle>Deposit</SubTitle>
+              <div className="my-6 w-full">
+                <h2
+                  className={classNames(
+                    "mb-4",
+                    "leading-tight",
+                    "flex flex-col"
+                  )}
+                >
+                  <span className="text-base font-semibold text-gray-700">
+                    Deposit to your wallet
+                  </span>
+
+                  <span
+                    className={classNames(
+                      "mt-1",
+                      "text-xs font-light text-gray-600"
+                    )}
+                    style={{ maxWidth: "90%" }}
+                  >
+                    Click on deposit method to get money on your wallet. Use
+                    faucet to get free coins!
+                  </span>
+                </h2>
                 <div
                   className={classNames(
-                    "w-64",
+                    "w-full",
                     "rounded-md overflow-hidden",
                     "border-2 bg-gray-100",
                     "flex flex-col",
@@ -168,15 +191,15 @@ const Receive: React.FC = () => {
                         padding: "0.65rem 0.5rem 0.65rem 0.5rem",
                       }}
                     >
-                      <img
-                        src={d.iconUrl}
-                        alt={""}
+                      <div
                         className={classNames(
                           "flex-shrink-0",
-                          "w-10 h-auto",
-                          "bg-white rounded shadow-xs"
+                          "w-auto h-auto",
+                          "rounded shadow-xs"
                         )}
-                      />
+                      >
+                        {d.icon}
+                      </div>
                       <div className="ml-2 flex flex-col items-start justify-center">
                         <div
                           className={classNames(
