@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
-import { useReadyThanos } from "lib/thanos/front";
+import { useNetwork, useAccount } from "lib/thanos/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
@@ -40,12 +40,12 @@ const ALL_DEPOSITS = [
 ];
 
 const Receive: React.FC = () => {
-  const { account, network } = useReadyThanos();
-
+  const network = useNetwork();
+  const account = useAccount();
   const address = account.publicKeyHash;
 
   const deposits = ALL_DEPOSITS.length
-    ? ALL_DEPOSITS.filter(d => d.networkType === network.type)
+    ? ALL_DEPOSITS.filter((d) => d.networkType === network.type)
     : [];
 
   const { fieldRef, copy, copied } = useCopyToClipboard();

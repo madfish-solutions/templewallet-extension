@@ -11,6 +11,7 @@ import ImportAccount from "app/pages/ImportAccount";
 import Explore from "app/pages/Explore";
 import Receive from "app/pages/Receive";
 import Send from "app/pages/Send";
+import Delegate from "app/pages/Delegate";
 import Settings from "app/pages/Settings";
 
 interface RouteContext {
@@ -60,6 +61,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   ["/receive", onlyReady(() => <Receive />)],
   ["/send", onlyReady(() => <Send />)],
+  ["/delegate", onlyReady(() => <Delegate />)],
   [
     "/settings/:tabSlug?",
     onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),

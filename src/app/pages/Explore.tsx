@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { useReadyThanos } from "lib/thanos/front";
+import { useAccount } from "lib/thanos/front";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
@@ -14,12 +14,12 @@ import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
-import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
 import xtzImgUrl from "app/misc/xtz.png";
 import EditableTitle from "./Explore/EditableTitle";
+import BakingSection from "./Explore/BakingSection";
 
 const Explore: React.FC = () => {
-  const { account } = useReadyThanos();
+  const account = useAccount();
   const accountPkh = account.publicKeyHash;
 
   return (
@@ -124,30 +124,29 @@ const Explore: React.FC = () => {
 
       <SubTitle>Baking</SubTitle>
 
-      <div
-        className={classNames(
-          "pt-2 mb-12",
-          "flex flex-col items-center justify-center",
-          "text-gray-500"
-        )}
-      >
-        <SupportAltIcon className="mb-1 w-16 h-auto stroke-current" />
-
-        <h3 className="text-sm font-light">Coming soon</h3>
-      </div>
+      <SuspenseContainer whileMessage="fetching or processing your delegation info">
+        <BakingSection />
+      </SuspenseContainer>
 
       <SubTitle>Operations</SubTitle>
 
-      <ErrorBoundary whileMessage="fetching or processing operation history from TZStats">
-        <React.Suspense fallback={<SpinnerSection />}>
-          <OperationHistory accountPkh={accountPkh} />
-        </React.Suspense>
-      </ErrorBoundary>
+      <SuspenseContainer whileMessage="fetching or processing operation history from TZStats">
+        <OperationHistory accountPkh={accountPkh} />
+      </SuspenseContainer>
     </PageLayout>
   );
 };
 
 export default Explore;
+
+const SuspenseContainer: React.FC<{ whileMessage: string }> = ({
+  whileMessage,
+  children,
+}) => (
+  <ErrorBoundary whileMessage={whileMessage}>
+    <React.Suspense fallback={<SpinnerSection />}>{children}</React.Suspense>
+  </ErrorBoundary>
+);
 
 const SpinnerSection: React.FC = () => (
   <div className="my-12 flex justify-center">

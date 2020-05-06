@@ -3,7 +3,11 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic } from "bip39";
 import { Link, navigate } from "lib/woozie";
-import { useThanosClient, useReadyThanos } from "lib/thanos/front";
+import {
+  useThanosClient,
+  useAllAccounts,
+  useSetAccountPkh,
+} from "lib/thanos/front";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
@@ -16,7 +20,8 @@ type ImportAccountProps = {
 };
 
 const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
-  const { allAccounts, setAccountPkh } = useReadyThanos();
+  const allAccounts = useAllAccounts();
+  const setAccountPkh = useSetAccountPkh();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {

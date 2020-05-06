@@ -2,13 +2,13 @@ import * as React from "react";
 import constate from "constate";
 import { useRetryableSWR } from "lib/swr";
 import { getMarketTickers } from "lib/tzstats";
-import { useReadyThanos } from "lib/thanos/front/ready";
+import { useNetwork } from "lib/thanos/front/ready";
 
 const LIQUIDITY_INTERVAL = 120_000;
 
 export const [USDPriceProvider, useUSDPrice] = constate(() => {
   const mtSWR = useMarketTickers(true);
-  const { network } = useReadyThanos();
+  const network = useNetwork();
 
   return React.useMemo(() => {
     if (!(mtSWR.data && network.type === "main")) {
