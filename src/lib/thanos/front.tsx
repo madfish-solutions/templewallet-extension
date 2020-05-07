@@ -4,6 +4,7 @@ import { ReadyThanosProvider } from "lib/thanos/front/ready";
 import { USDPriceProvider } from "lib/thanos/front/usdprice";
 
 export * from "lib/thanos/types";
+export * from "lib/thanos/helpers";
 export * from "lib/thanos/front/client";
 export * from "lib/thanos/front/ready";
 export * from "lib/thanos/front/balance";

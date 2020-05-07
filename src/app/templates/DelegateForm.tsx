@@ -1,20 +1,27 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import BigNumber from "bignumber.js";
-import { DEFAULT_FEE, Tezos } from "@taquito/taquito";
-import { ValidationResult, validateAddress } from "@taquito/utils";
+import { DEFAULT_FEE } from "@taquito/taquito";
 import {
   useAllAccounts,
   useAccount,
   useTezos,
   useBalance,
-  fetchBalance,
-  getBalanceSWRKey,
   useKnownBakers,
+  fetchBalance,
+  tzToMutez,
+  mutezToTz,
+  isAddressValid,
+  hasManager,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
+import {
+  ArtificialError,
+  NotEnoughFundsError,
+  ZeroBalanceError,
+} from "app/defaults";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import Spinner from "app/atoms/Spinner";
@@ -33,9 +40,8 @@ interface FormData {
   fee: number;
 }
 
-const MIN_AMOUNT = 0.000001;
-const RECOMMENDED_ADD_FEE = 100;
-const NOT_ENOUGH_FUNDS = Symbol("NOT_ENOUGH_FUNDS");
+const PENNY = 0.000001;
+const RECOMMENDED_ADD_FEE = 0.0001;
 
 const DelegateForm: React.FC = () => {
   const allAccounts = useAllAccounts();
@@ -45,10 +51,13 @@ const DelegateForm: React.FC = () => {
   const accountPkh = acc.publicKeyHash;
   const assetSymbol = "XTZ";
 
-  const balSWR = useBalance(accountPkh, true);
-  const balance = balSWR.data!;
-  const revalidateBalance = balSWR.revalidate;
-  const balanceNum = balance.toNumber();
+  const {
+    data: balanceData,
+    revalidate: revalidateBalance,
+    mutate: mutateBalance,
+  } = useBalance(accountPkh, true);
+  const balance = balanceData!;
+  const balanceNum = balance!.toNumber();
 
   const knownBakers = useKnownBakers();
   const sortedKnownBakers = React.useMemo(
@@ -56,16 +65,6 @@ const DelegateForm: React.FC = () => {
       knownBakers &&
       knownBakers.sort((a, b) => b.total_points - a.total_points),
     [knownBakers]
-  );
-
-  const validateAddress = React.useCallback(
-    (v: any) => isAddressValid(v) || "Invalid address",
-    []
-  );
-
-  const recommendedAddFeeTz = React.useMemo(
-    () => mutezToTz(RECOMMENDED_ADD_FEE).toNumber(),
-    []
   );
 
   /**
@@ -84,7 +83,7 @@ const DelegateForm: React.FC = () => {
   } = useForm<FormData>({
     mode: "onChange",
     defaultValues: {
-      fee: recommendedAddFeeTz,
+      fee: RECOMMENDED_ADD_FEE,
     },
   });
 
@@ -107,14 +106,9 @@ const DelegateForm: React.FC = () => {
 
   const estimateBaseFee = React.useCallback(async () => {
     try {
-      const balanceBN: BigNumber = await mutate(
-        getBalanceSWRKey(accountPkh, tezos.checksum),
-        fetchBalance(accountPkh, tezos)
-      );
+      const balanceBN = (await mutateBalance(fetchBalance(accountPkh, tezos)))!;
       if (balanceBN.isZero()) {
-        // Human delay
-        await new Promise((r) => setTimeout(r, 300));
-        return NOT_ENOUGH_FUNDS;
+        throw new ZeroBalanceError();
       }
 
       const to = toValue;
@@ -129,40 +123,59 @@ const DelegateForm: React.FC = () => {
       }
 
       if (baseFee.isGreaterThanOrEqualTo(balanceBN)) {
-        return NOT_ENOUGH_FUNDS;
+        throw new NotEnoughFundsError();
       }
 
       return baseFee;
     } catch (err) {
+      // Human delay
+      await new Promise((r) => setTimeout(r, 300));
+
+      if (err instanceof ArtificialError) {
+        return err;
+      }
+
       if (process.env.NODE_ENV === "development") {
         console.error(err);
       }
 
-      if (err) {
-        return NOT_ENOUGH_FUNDS;
+      switch (true) {
+        case ["delegate.unchanged", "delegate.already_active"].some((t) =>
+          err?.id.includes(t)
+        ):
+          return new UnchangedError(err.message);
+
+        case err?.id.includes("unregistered_delegate"):
+          return new UnregisteredDelegateError(err.message);
+
+        default:
+          throw err;
       }
-
-      throw err;
     }
-  }, [tezos, accountPkh, toValue]);
+  }, [tezos, accountPkh, toValue, mutateBalance]);
 
-  const { data: baseFee, isValidating: estimating } = useSWR(
+  const {
+    data: baseFee,
+    error: estimateBaseFeeError,
+    isValidating: estimating,
+  } = useSWR(
     () =>
       toFilled
         ? ["delegate-base-fee", tezos.checksum, accountPkh, toValue]
         : null,
     estimateBaseFee,
     {
+      shouldRetryOnError: false,
+      focusThrottleInterval: 10_000,
       dedupingInterval: 30_000,
     }
   );
+  const estimationError =
+    baseFee instanceof Error ? baseFee : estimateBaseFeeError;
 
   const maxAddFee = React.useMemo(() => {
     if (baseFee instanceof BigNumber) {
-      return new BigNumber(balanceNum)
-        .minus(baseFee)
-        .minus(MIN_AMOUNT)
-        .toNumber();
+      return new BigNumber(balanceNum).minus(baseFee).minus(PENNY).toNumber();
     }
   }, [balanceNum, baseFee]);
 
@@ -172,11 +185,14 @@ const DelegateForm: React.FC = () => {
   );
 
   const handleSetRecommendedFee = React.useCallback(() => {
-    setValue("fee", recommendedAddFeeTz);
-  }, [setValue, recommendedAddFeeTz]);
+    setValue("fee", RECOMMENDED_ADD_FEE);
+  }, [setValue]);
 
-  const [submitError, setSubmitError] = useSafeState<React.ReactNode>(null);
-  const [operation, setOperation] = useSafeState<any>(null);
+  const [submitError, setSubmitError] = useSafeState<React.ReactNode>(
+    null,
+    tezos.checksum
+  );
+  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
   const onSubmit = React.useCallback(
     async ({ to, fee: feeVal }: FormData) => {
@@ -197,7 +213,7 @@ const DelegateForm: React.FC = () => {
           fee,
         });
         setOperation(op);
-        reset({ to: "", fee: recommendedAddFeeTz });
+        reset({ to: "", fee: RECOMMENDED_ADD_FEE });
       } catch (err) {
         if (err.message === "Declined") {
           return;
@@ -219,13 +235,11 @@ const DelegateForm: React.FC = () => {
       setSubmitError,
       setOperation,
       reset,
-      recommendedAddFeeTz,
     ]
   );
 
-  const restFormDisplayed = Boolean(toFilled && baseFee);
-  const estimateFallbackDisplayed =
-    toFilled && (!baseFee || baseFee === NOT_ENOUGH_FUNDS) && estimating;
+  const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
+  const estimateFallbackDisplayed = toFilled && !baseFee && estimating;
 
   return (
     <>
@@ -282,7 +296,7 @@ const DelegateForm: React.FC = () => {
           control={control}
           rules={{
             required: "Required",
-            validate: validateAddress,
+            validate: validateAddressForm,
           }}
           onChange={([v]) => v}
           onFocus={() => toFieldRef.current?.focus()}
@@ -331,10 +345,10 @@ const DelegateForm: React.FC = () => {
           </div>
         ) : restFormDisplayed ? (
           <>
-            {(baseFee === NOT_ENOUGH_FUNDS || submitError) && (
-              <TransferErrorCaption
-                type={submitError ? "transfer" : "estimate"}
-                zeroBalance={balance.isZero()}
+            {(submitError || estimationError) && (
+              <DelegateErrorAlert
+                type={submitError ? "submit" : "estimation"}
+                error={submitError || estimationError}
               />
             )}
 
@@ -361,7 +375,7 @@ const DelegateForm: React.FC = () => {
                       className={classNames("underline")}
                       onClick={handleSetRecommendedFee}
                     >
-                      {recommendedAddFeeTz}
+                      {RECOMMENDED_ADD_FEE}
                     </button>
                   </>
                 )
@@ -373,7 +387,7 @@ const DelegateForm: React.FC = () => {
 
             <FormSubmitButton
               loading={formState.isSubmitting}
-              disabled={formState.isSubmitting}
+              disabled={formState.isSubmitting || Boolean(estimationError)}
             >
               Delegate
             </FormSubmitButton>
@@ -452,6 +466,9 @@ const DelegateForm: React.FC = () => {
                           "w-10 h-auto",
                           "bg-white rounded shadow-xs"
                         )}
+                        style={{
+                          minHeight: "2.5rem",
+                        }}
                       />
 
                       <div className="ml-2 flex flex-col items-start">
@@ -559,7 +576,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     title: "Success 🛫",
     description: (
       <>
-        Transaction request sent! Confirming...
+        Delegation request sent! Confirming...
         {descFooter}
       </>
     ),
@@ -574,7 +591,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
           title: "Success ✅",
           description: (
             <>
-              Transaction successfully processed and confirmed!
+              Delegation successfully processed and confirmed!
               {descFooter}
             </>
           ),
@@ -604,55 +621,79 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
   );
 };
 
-type TransferErrorCaptionProps = {
-  type: "transfer" | "estimate";
-  zeroBalance?: boolean;
+type DelegateErrorAlertProps = {
+  type: "submit" | "estimation";
+  error: Error;
 };
 
-const TransferErrorCaption: React.FC<TransferErrorCaptionProps> = ({
+const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
   type,
-  zeroBalance,
+  error,
 }) => (
   <Alert
-    type={type === "transfer" ? "error" : "warn"}
-    title={zeroBalance ? "Not enough funds 😶" : "Failed"}
-    description={
-      zeroBalance ? (
-        <>Your Balance is zero.</>
-      ) : (
-        <>
-          Unable to {type === "transfer" ? "delegate" : "estimate delegation"}{" "}
-          to provided Baker.
-          <br />
-          This may happen because:
-          <ul className="mt-1 ml-2 list-disc list-inside text-xs">
-            <li>
-              Minimal fee for this transaction is greater than your balance. A
-              large fee may be due because you sending funds to an empty Manager
-              account. That requires a one-time 0.257 XTZ burn fee;
-            </li>
-            <li>Network or other tech issue.</li>
-          </ul>
-        </>
-      )
-    }
+    type={type === "submit" ? "error" : "warn"}
+    title={(() => {
+      switch (true) {
+        case error instanceof NotEnoughFundsError:
+          return "Not enough funds 😶";
+
+        case [UnchangedError, UnregisteredDelegateError].some(
+          (Err) => error instanceof Err
+        ):
+          return "Not allowed";
+
+        default:
+          return "Failed";
+      }
+    })()}
+    description={(() => {
+      switch (true) {
+        case error instanceof ZeroBalanceError:
+          return <>Your Balance is zero.</>;
+
+        case error instanceof NotEnoughFundsError:
+          return (
+            <>Minimal fee for this transaction is greater than your balance.</>
+          );
+
+        case error instanceof UnchangedError:
+          return (
+            <>
+              Already delegated funds to this baker. Re-delegation is not
+              possible.
+            </>
+          );
+
+        case error instanceof UnregisteredDelegateError:
+          return <>The specified baker is not registered.</>;
+
+        default:
+          return (
+            <>
+              Unable to {type === "submit" ? "delegate" : "estimate delegation"}{" "}
+              to provided Baker.
+              <br />
+              This may happen because:
+              <ul className="mt-1 ml-2 list-disc list-inside text-xs">
+                <li>
+                  Minimal fee for this transaction is greater than your balance.
+                  A large fee may be due because you sending funds to an empty
+                  Manager account. That requires a one-time 0.257 XTZ burn fee;
+                </li>
+                <li>Network or other tech issue.</li>
+              </ul>
+            </>
+          );
+      }
+    })()}
     autoFocus
     className={classNames("mt-6 mb-4")}
   />
 );
 
-function hasManager(manager: any) {
-  return manager && typeof manager === "object" ? !!manager.key : !!manager;
-}
+class UnchangedError extends Error {}
+class UnregisteredDelegateError extends Error {}
 
-function tzToMutez(tz: any) {
-  return Tezos.format("tz", "mutez", tz) as BigNumber;
-}
-
-function mutezToTz(mutez: any) {
-  return Tezos.format("mutez", "tz", mutez) as BigNumber;
-}
-
-function isAddressValid(address: string) {
-  return validateAddress(address) === ValidationResult.VALID;
+function validateAddressForm(value: any) {
+  return isAddressValid(value) || "Invalid address";
 }
