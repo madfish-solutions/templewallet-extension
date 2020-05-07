@@ -1,5 +1,9 @@
 import * as React from "react";
 
+export class ArtificialError extends Error {}
+export class NotEnoughFundsError extends ArtificialError {}
+export class ZeroBalanceError extends NotEnoughFundsError {}
+
 export const PASSWORD_PATTERN = new RegExp(
   [
     "^",
