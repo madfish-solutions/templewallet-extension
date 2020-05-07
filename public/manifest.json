@@ -19,8 +19,8 @@
     "storage",
     "unlimitedStorage",
     "clipboardWrite",
+    "https://*-tezos.giganode.io",
     "https://*.tzstats.com/",
-    "https://*.tezos.org.ua/",
     "https://api.tezos-nodes.com/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
