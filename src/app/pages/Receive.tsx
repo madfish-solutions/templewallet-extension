@@ -1,54 +1,17 @@
 import * as React from "react";
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
-import { useNetwork, useAccount } from "lib/thanos/front";
+import { useAccount } from "lib/thanos/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
-import { ReactComponent as FaucetIcon } from "app/misc/faucet.svg";
-import { ReactComponent as ExchangeIcon } from "app/misc/exchange.svg";
-import Name from "app/atoms/Name";
-import SubTitle from "app/atoms/SubTitle";
-
-const ALL_DEPOSITS = [
-  {
-    networkType: "main",
-    type: "exchange",
-    title: "Use CoinSwitch",
-    link: "https://coinswitch.thanoswallet.com/",
-    icon: <ExchangeIcon />,
-    color: "",
-  },
-  {
-    networkType: "main",
-    type: "faucet",
-    title: "Tezos Faucet",
-    link: "https://faucet.tezos.com/",
-    icon: <FaucetIcon />,
-    color: "",
-  },
-  {
-    networkType: "test",
-    type: "faucet",
-    title: "Tezos Faucet (Alpha)",
-    link: "https://faucet.tzalpha.net/",
-    icon: <FaucetIcon />,
-    color: "",
-  },
-];
+// import Deposit from "./Receive/Deposit";
 
 const Receive: React.FC = () => {
-  const network = useNetwork();
   const account = useAccount();
   const address = account.publicKeyHash;
-
-  const deposits = React.useMemo(() => {
-    return ALL_DEPOSITS.length
-      ? ALL_DEPOSITS.filter(d => d.networkType === network.type)
-      : [];
-  }, [network.type]);
 
   const { fieldRef, copy, copied } = useCopyToClipboard();
 
@@ -133,90 +96,8 @@ const Receive: React.FC = () => {
                 value={address}
               />
             </div>
-            {deposits.length && (
-              <div className="my-6 w-full">
-                <h2
-                  className={classNames(
-                    "mb-4",
-                    "leading-tight",
-                    "flex flex-col"
-                  )}
-                >
-                  <span className="text-base font-semibold text-gray-700">
-                    Deposit to your wallet
-                  </span>
 
-                  <span
-                    className={classNames(
-                      "mt-1",
-                      "text-xs font-light text-gray-600"
-                    )}
-                    style={{ maxWidth: "90%" }}
-                  >
-                    Click on deposit method to get money on your wallet. Use
-                    faucet to get free coins!
-                  </span>
-                </h2>
-                <div
-                  className={classNames(
-                    "w-full",
-                    "rounded-md overflow-hidden",
-                    "border-2 bg-gray-100",
-                    "flex flex-col",
-                    "text-gray-700 text-sm leading-tight"
-                  )}
-                >
-                  {deposits.map((d, index) => (
-                    <a
-                      href={
-                        d.type === "exchange"
-                          ? `${d.link}?to=xtz&address=${address}`
-                          : d.link
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      key={index}
-                      className={classNames(
-                        "block w-full",
-                        "overflow-hidden",
-                        "border-b border-gray-200",
-                        "hover:bg-gray-200 focus:bg-gray-200",
-                        "flex items-strech",
-                        "text-gray-700",
-                        "transition ease-in-out duration-200",
-                        "focus:outline-none",
-                        "opacity-90 hover:opacity-100"
-                      )}
-                      style={{
-                        padding: "0.65rem 0.5rem 0.65rem 0.5rem",
-                      }}
-                    >
-                      <div
-                        className={classNames(
-                          "flex-shrink-0",
-                          "w-auto h-auto",
-                          "rounded shadow-xs"
-                        )}
-                      >
-                        {d.icon}
-                      </div>
-                      <div className="ml-2 flex flex-col items-start justify-center">
-                        <div
-                          className={classNames(
-                            "flex flex-wrap items-center",
-                            "leading-noneleading-none"
-                          )}
-                        >
-                          <Name className="text-base font-medium pb-1">
-                            {d.title}
-                          </Name>
-                        </div>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* <Deposit address={address} /> */}
           </div>
         </div>
       </div>
