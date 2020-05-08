@@ -19,7 +19,7 @@
     "storage",
     "unlimitedStorage",
     "clipboardWrite",
-    "https://*-tezos.giganode.io",
+    "https://*.giganode.io/",
     "https://*.tzstats.com/",
     "https://api.tezos-nodes.com/"
   ],
