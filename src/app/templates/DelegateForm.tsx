@@ -451,6 +451,7 @@ const DelegateForm: React.FC = () => {
                   const handleBakerClick = () => {
                     setValue("to", baker.address);
                     triggerValidation("to");
+                    window.scrollTo(0, 0);
                   };
 
                   return (
