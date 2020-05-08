@@ -380,7 +380,7 @@ const SendForm: React.FC = () => {
               `Address to send ${assetSymbol} funds to.`
             )
           }
-          placeholder="tz1a9w1S7hN5s..."
+          placeholder="e.g. tz1a9w1S7hN5s..."
           errorCaption={errors.to?.message}
           style={{
             resize: "none",
