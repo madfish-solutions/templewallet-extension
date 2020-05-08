@@ -1,6 +1,8 @@
 import * as React from "react";
 import classNames from "clsx";
+import useTippy from "lib/ui/useTippy";
 import { ReactComponent as LockAltIcon } from "app/icons/lock-alt.svg";
+import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = React.InputHTMLAttributes<HTMLInputElement> &
@@ -12,8 +14,10 @@ interface FormFieldProps extends FormFieldAttrs {
   containerClassName?: string;
   textarea?: boolean;
   secret?: boolean;
+  cleanable?: boolean;
   extraButton?: React.ReactNode;
   extraInner?: React.ReactNode;
+  onClean?: () => void;
 }
 
 const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
@@ -25,6 +29,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
       containerClassName,
       textarea,
       secret: secretProp,
+      cleanable,
       extraButton = null,
       extraInner = null,
       id,
@@ -33,6 +38,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
       onChange,
       onFocus,
       onBlur,
+      onClean,
       className,
       spellCheck = false,
       autoComplete = "off",
@@ -117,6 +123,12 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
     const handleSecretBannerClick = React.useCallback(() => {
       getFieldEl()?.focus();
     }, [getFieldEl]);
+
+    const handleCleanClick = React.useCallback(() => {
+      if (onClean) {
+        onClean();
+      }
+    }, [onClean]);
 
     return (
       <div
@@ -241,7 +253,10 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
               </p>
             </div>
           )}
+
+          {cleanable && <CleanButton onClick={handleCleanClick} />}
         </div>
+
         {errorCaption ? (
           <div className="text-xs text-red-500">{errorCaption}</div>
         ) : null}
@@ -251,3 +266,44 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
 );
 
 export default FormField;
+
+type CleanButtonProps = React.HTMLAttributes<HTMLButtonElement>;
+
+const CleanButton: React.FC<CleanButtonProps> = ({
+  className,
+  style = {},
+  ...rest
+}) => {
+  const tippyProps = React.useMemo(
+    () => ({
+      trigger: "mouseenter",
+      hideOnClick: false,
+      content: "Clean",
+      animation: "shift-away-subtle",
+    }),
+    []
+  );
+
+  const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
+
+  return (
+    <button
+      ref={buttonRef}
+      type="button"
+      className={classNames(
+        "absolute",
+        "border rounded-full shadow-sm hover:shadow",
+        "bg-white",
+        "p-px",
+        "flex items-center",
+        "text-xs text-gray-700",
+        "transition ease-in-out duration-200",
+        className
+      )}
+      style={{ right: "0.4rem", bottom: "0.4rem", ...style }}
+      {...rest}
+    >
+      <CloseIcon className="h-4 w-auto stroke-current" />
+    </button>
+  );
+};
