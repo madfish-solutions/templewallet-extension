@@ -22,6 +22,7 @@ import {
   NotEnoughFundsError,
   ZeroBalanceError,
 } from "app/defaults";
+import { useAppEnv } from "app/env";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import Spinner from "app/atoms/Spinner";
@@ -45,6 +46,8 @@ const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 
 const SendForm: React.FC = () => {
+  const { registerBackHandler } = useAppEnv();
+
   const allAccounts = useAllAccounts();
   const acc = useAccount();
   const tezos = useTezos();
@@ -99,6 +102,16 @@ const SendForm: React.FC = () => {
       null,
     [toFilled, allAccounts, toValue]
   );
+
+  const handleToFieldClean = React.useCallback(() => {
+    setValue("to", "");
+  }, [setValue]);
+
+  React.useLayoutEffect(() => {
+    if (toFilled) {
+      return registerBackHandler(handleToFieldClean);
+    }
+  }, [toFilled, registerBackHandler, handleToFieldClean]);
 
   const estimateBaseFee = React.useCallback(async () => {
     try {
@@ -351,6 +364,8 @@ const SendForm: React.FC = () => {
           onFocus={() => toFieldRef.current?.focus()}
           textarea
           rows={2}
+          cleanable={Boolean(toValue)}
+          onClean={handleToFieldClean}
           id="send-to"
           label="Recipient"
           labelDescription={

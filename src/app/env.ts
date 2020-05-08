@@ -12,15 +12,41 @@ export enum WindowType {
   FullPage,
 }
 
+export type BackHandler = () => void;
+
 export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
   const fullPage = env.windowType === WindowType.FullPage;
   const popup = env.windowType === WindowType.Popup;
 
-  return React.useMemo(() => ({ ...env, fullPage, popup }), [
-    env,
+  const handlerRef = React.useRef<BackHandler>();
+  const prevHandlerRef = React.useRef<BackHandler>();
+
+  const onBack = React.useCallback(() => {
+    if (handlerRef.current) {
+      handlerRef.current();
+    }
+  }, []);
+
+  const registerBackHandler = React.useCallback((handler: BackHandler) => {
+    if (handlerRef.current) {
+      prevHandlerRef.current = handlerRef.current;
+    }
+    handlerRef.current = handler;
+
+    return () => {
+      if (handlerRef.current === handler) {
+        handlerRef.current = prevHandlerRef.current;
+      }
+    };
+  }, []);
+
+  return {
+    ...env,
     fullPage,
     popup,
-  ]);
+    onBack,
+    registerBackHandler,
+  };
 });
 
 export const OpenInFullPage: React.FC = () => {
