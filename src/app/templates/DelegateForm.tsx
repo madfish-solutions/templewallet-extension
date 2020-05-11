@@ -5,10 +5,10 @@ import useSWR from "swr";
 import BigNumber from "bignumber.js";
 import { DEFAULT_FEE } from "@taquito/taquito";
 import {
-  useAllAccounts,
   useAccount,
   useTezos,
   useBalance,
+  useKnownBaker,
   useKnownBakers,
   fetchBalance,
   tzToMutez,
@@ -23,17 +23,16 @@ import {
   ZeroBalanceError,
 } from "app/defaults";
 import { useAppEnv } from "app/env";
-import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import Spinner from "app/atoms/Spinner";
 import Money from "app/atoms/Money";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
 import HashChip from "app/atoms/HashChip";
+import BakerBanner from "app/templates/BakerBanner";
 import xtzImgUrl from "app/misc/xtz.png";
 
 const PENNY = 0.000001;
@@ -47,7 +46,6 @@ interface FormData {
 const DelegateForm: React.FC = () => {
   const { registerBackHandler } = useAppEnv();
 
-  const allAccounts = useAllAccounts();
   const acc = useAccount();
   const tezos = useTezos();
 
@@ -98,13 +96,6 @@ const DelegateForm: React.FC = () => {
   const toFilled = React.useMemo(
     () => Boolean(toValue && isAddressValid(toValue)),
     [toValue]
-  );
-
-  const filledAccount = React.useMemo(
-    () =>
-      (toFilled && allAccounts.find((a) => a.publicKeyHash === toValue)) ||
-      null,
-    [toFilled, allAccounts, toValue]
   );
 
   const cleanToField = React.useCallback(() => {
@@ -189,6 +180,11 @@ const DelegateForm: React.FC = () => {
   const estimationError =
     baseFee instanceof Error ? baseFee : estimateBaseFeeError;
 
+  const { data: baker, isValidating: bakerValidating } = useKnownBaker(
+    toFilled ? toValue : null,
+    false
+  );
+
   const maxAddFee = React.useMemo(() => {
     if (baseFee instanceof BigNumber) {
       return new BigNumber(balanceNum).minus(baseFee).minus(PENNY).toNumber();
@@ -255,7 +251,8 @@ const DelegateForm: React.FC = () => {
   );
 
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
-  const estimateFallbackDisplayed = toFilled && !baseFee && estimating;
+  const estimateFallbackDisplayed =
+    toFilled && !baseFee && (estimating || bakerValidating);
 
   return (
     <>
@@ -322,33 +319,7 @@ const DelegateForm: React.FC = () => {
           onClean={cleanToField}
           id="delegate-to"
           label="Baker"
-          labelDescription={
-            filledAccount ? (
-              <div className="flex flex-wrap items-center">
-                <Identicon
-                  type="bottts"
-                  hash={filledAccount.publicKeyHash}
-                  size={14}
-                  className="flex-shrink-0 opacity-75 shadow-xs"
-                />
-                <div className="ml-1 mr-px font-normal">
-                  {filledAccount.name}
-                </div>{" "}
-                (
-                <Balance address={filledAccount.publicKeyHash}>
-                  {(bal) => (
-                    <span className={classNames("text-xs leading-none")}>
-                      <Money>{bal}</Money>{" "}
-                      <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
-                    </span>
-                  )}
-                </Balance>
-                )
-              </div>
-            ) : (
-              `Address of already registered baker to delegate funds to.`
-            )
-          }
+          labelDescription="Address of already registered baker to delegate funds to."
           placeholder="e.g. tz1a9w1S7hN5s..."
           errorCaption={errors.to?.message}
           style={{
@@ -363,12 +334,43 @@ const DelegateForm: React.FC = () => {
           </div>
         ) : restFormDisplayed ? (
           <>
-            {(submitError || estimationError) && (
-              <DelegateErrorAlert
-                type={submitError ? "submit" : "estimation"}
-                error={submitError || estimationError}
-              />
-            )}
+            {(() => {
+              switch (true) {
+                case Boolean(submitError || estimationError):
+                  return (
+                    <DelegateErrorAlert
+                      type={submitError ? "submit" : "estimation"}
+                      error={submitError || estimationError}
+                    />
+                  );
+
+                case Boolean(baker):
+                  return (
+                    <div
+                      className={classNames(
+                        "-mt-2 mb-6", // -mt-6
+                        "flex flex-col items-center"
+                      )}
+                    >
+                      <BakerBanner
+                        bakerPkh={baker!.address}
+                        // className="rounded-t-none border-t-0"
+                        displayAddress={false}
+                      />
+                    </div>
+                  );
+
+                default:
+                  return (
+                    <Alert
+                      type="warn"
+                      title="Unknown baker"
+                      description="This baker is not known as a baker! Delegating funds to him at your own risk."
+                      className="mb-6"
+                    />
+                  );
+              }
+            })()}
 
             <Controller
               name="fee"
@@ -495,7 +497,7 @@ const DelegateForm: React.FC = () => {
                           className={classNames(
                             "mb-px",
                             "flex flex-wrap items-center",
-                            "leading-noneleading-none"
+                            "leading-none"
                           )}
                         >
                           <Name className="text-base font-medium pb-1">

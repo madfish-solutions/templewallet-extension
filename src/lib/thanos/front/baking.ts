@@ -25,11 +25,14 @@ export function useDelegate(address: string, suspense?: boolean) {
   });
 }
 
-export function useKnownBaker(address: string, suspense = true) {
+export function useKnownBaker(address: string | null, suspense = true) {
   const net = useNetwork();
-  const fetchBaker = React.useCallback(() => getBaker(address), [address]);
-  const { data: baker } = useRetryableSWR(
-    net.type === "main" ? ["baker", address] : null,
+  const fetchBaker = React.useCallback(
+    async () => (address ? getBaker(address) : null),
+    [address]
+  );
+  return useRetryableSWR(
+    net.type === "main" && address ? ["baker", address] : null,
     fetchBaker,
     {
       refreshInterval: 120_000,
@@ -37,7 +40,6 @@ export function useKnownBaker(address: string, suspense = true) {
       suspense,
     }
   );
-  return baker;
 }
 
 export function useKnownBakers(suspense = true) {
