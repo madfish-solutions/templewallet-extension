@@ -1,11 +1,9 @@
 import * as React from "react";
 import classNames from "clsx";
-import BigNumber from "bignumber.js";
 import { Link } from "lib/woozie";
 import { useRetryableSWR } from "lib/swr";
-import { useAccount, useTezos, useKnownBaker } from "lib/thanos/front";
-import Name from "app/atoms/Name";
-import Money from "app/atoms/Money";
+import { useAccount, useTezos } from "lib/thanos/front";
+import BakerBanner from "app/templates/BakerBanner";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
 import styles from "./BakingSection.module.css";
@@ -45,7 +43,16 @@ const BakingSection: React.FC = () => {
         )}
       >
         {myBakerPkh ? (
-          <BakerBanner bakerPkh={myBakerPkh} />
+          <>
+            <p
+              className="mb-2 text-sm font-light text-center  text-gray-500"
+              style={{ maxWidth: "20rem" }}
+            >
+              Delegated to:
+            </p>
+
+            <BakerBanner bakerPkh={myBakerPkh} className="mb-6" />
+          </>
         ) : (
           <div className="flex flex-col items-center text-gray-500">
             <SupportAltIcon className="mb-1 w-16 h-auto stroke-current" />
@@ -87,83 +94,3 @@ const BakingSection: React.FC = () => {
 };
 
 export default BakingSection;
-
-type BakerBannerProps = {
-  bakerPkh: string;
-};
-
-const BakerBanner = React.memo<BakerBannerProps>(({ bakerPkh }) => {
-  const baker = useKnownBaker(bakerPkh, true);
-  const assetSymbol = "XTZ";
-
-  return baker ? (
-    <div className={classNames("mb-4 p-4 flex items-stretch", "text-gray-700")}>
-      <div>
-        <img
-          src={baker.logo}
-          alt={baker.name}
-          className={classNames(
-            "flex-shrink-0",
-            "w-10 h-auto",
-            "bg-white rounded shadow-xs"
-          )}
-        />
-      </div>
-
-      <div className="ml-2 flex flex-col items-start">
-        <div
-          className={classNames(
-            "mb-px",
-            "flex flex-wrap items-center",
-            "leading-noneleading-none"
-          )}
-        >
-          <Name className="text-base font-medium pb-1">{baker.name}</Name>
-
-          <span className={classNames("ml-2", "text-xs text-black-50 pb-px")}>
-            {baker.lifetime} cycles
-          </span>
-        </div>
-
-        <div
-          className={classNames("mb-1 pl-px", "flex flex-wrap items-center")}
-        >
-          <div
-            className={classNames(
-              "text-xs font-light leading-none",
-              "text-gray-600"
-            )}
-          >
-            Fee:{" "}
-            <span className="font-normal">
-              {new BigNumber(baker.fee).times(100).toFormat(2)}%
-            </span>
-          </div>
-        </div>
-
-        <div className="pl-px flex flex-wrap items-center">
-          <div
-            className={classNames(
-              "text-xs font-light leading-none",
-              "text-gray-600"
-            )}
-          >
-            Space:{" "}
-            <span className="font-normal">
-              <Money>{baker.freespace}</Money>
-            </span>{" "}
-            <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  ) : (
-    <div
-      className={classNames("p-4", "flex flex-col items-center", "text-center")}
-    >
-      Unknow baker:
-      <br />
-      {bakerPkh}
-    </div>
-  );
-});
