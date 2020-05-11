@@ -107,15 +107,18 @@ const DelegateForm: React.FC = () => {
     [toFilled, allAccounts, toValue]
   );
 
-  const handleToFieldClean = React.useCallback(() => {
+  const cleanToField = React.useCallback(() => {
     setValue("to", "");
   }, [setValue]);
 
   React.useLayoutEffect(() => {
     if (toFilled) {
-      return registerBackHandler(handleToFieldClean);
+      return registerBackHandler(() => {
+        cleanToField();
+        window.scrollTo(0, 0);
+      });
     }
-  }, [toFilled, registerBackHandler, handleToFieldClean]);
+  }, [toFilled, registerBackHandler, cleanToField]);
 
   const estimateBaseFee = React.useCallback(async () => {
     try {
@@ -316,7 +319,7 @@ const DelegateForm: React.FC = () => {
           textarea
           rows={2}
           cleanable={Boolean(toValue)}
-          onClean={handleToFieldClean}
+          onClean={cleanToField}
           id="delegate-to"
           label="Baker"
           labelDescription={
@@ -702,6 +705,7 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
           );
       }
     })()}
+    autoFocus
     className={classNames("mt-6 mb-4")}
   />
 );
