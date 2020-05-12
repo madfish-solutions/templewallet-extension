@@ -50,10 +50,11 @@ const BakerBanner = React.memo<BakerBannerProps>(
               <div className="ml-2 flex-1 flex flex-col items-start">
                 <div
                   className={classNames(
-                    "mb-px w-full",
+                    "w-full",
                     "flex flex-wrap items-center",
                     "leading-none"
                   )}
+                  style={{ marginBottom: "0.125rem" }}
                 >
                   <Name className="text-lg font-medium pb-1 mr-1">
                     {baker.name}
@@ -71,8 +72,11 @@ const BakerBanner = React.memo<BakerBannerProps>(
                   </div>
                 )}
 
-                <div className="flex items-center">
-                  <div className={classNames("flex flex-wrap items-center")}>
+                <div className="flex flex-wrap items-center">
+                  <div
+                    className={classNames("mr-2", "flex items-center")}
+                    style={{ marginBottom: "0.125rem" }}
+                  >
                     <div
                       className={classNames(
                         "text-xs font-light leading-none",
@@ -86,7 +90,10 @@ const BakerBanner = React.memo<BakerBannerProps>(
                     </div>
                   </div>
 
-                  <div className="ml-2 flex flex-wrap items-center">
+                  <div
+                    className={classNames("flex items-center")}
+                    style={{ marginBottom: "0.125rem" }}
+                  >
                     <div
                       className={classNames(
                         "text-xs font-light leading-none",
@@ -107,7 +114,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                   target="_blank"
                   rel="noopener noreferrer"
                   className={classNames(
-                    "mt-1 flex items-center",
+                    "flex items-center",
                     "text-xs text-blue-600 hover:underline"
                   )}
                 >

@@ -4,6 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 import BigNumber from "bignumber.js";
 import { DEFAULT_FEE } from "@taquito/taquito";
+import { useLocation, Link } from "lib/woozie";
 import {
   useAccount,
   useTezos,
@@ -37,6 +38,18 @@ import xtzImgUrl from "app/misc/xtz.png";
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
+const SORT_BAKERS_BY_KEY = "sort_bakers_by";
+const BAKER_SORT_TYPES = [
+  {
+    key: "rank",
+    title: "Rank",
+  },
+  {
+    key: "fee",
+    title: "Fee",
+  },
+  { key: "space", title: "Space" },
+];
 
 interface FormData {
   to: string;
@@ -61,11 +74,33 @@ const DelegateForm: React.FC = () => {
   const balanceNum = balance!.toNumber();
 
   const knownBakers = useKnownBakers();
+
+  const { search } = useLocation();
+  const sortBakersBy = React.useMemo(() => {
+    const usp = new URLSearchParams(search);
+    const val = usp.get(SORT_BAKERS_BY_KEY);
+    return (
+      BAKER_SORT_TYPES.find(({ key }) => key === val) ?? BAKER_SORT_TYPES[0]
+    );
+  }, [search]);
+
   const sortedKnownBakers = React.useMemo(
     () =>
       knownBakers &&
-      knownBakers.sort((a, b) => b.total_points - a.total_points),
-    [knownBakers]
+      knownBakers.sort((a, b) => {
+        switch (sortBakersBy.key) {
+          case "fee":
+            return a.fee - b.fee;
+
+          case "space":
+            return b.freespace - a.freespace;
+
+          case "rank":
+          default:
+            return b.total_points - a.total_points;
+        }
+      }),
+    [knownBakers, sortBakersBy]
   );
 
   /**
@@ -461,6 +496,53 @@ const DelegateForm: React.FC = () => {
                   .
                 </span>
               </h2>
+
+              <div className={classNames("mb-2", "flex items-center")}>
+                <span className={classNames("mr-1", "text-xs text-gray-500")}>
+                  Sort by
+                </span>
+                {BAKER_SORT_TYPES.map(({ key, title }, i, arr) => {
+                  const first = i === 0;
+                  const last = i === arr.length - 1;
+                  const selected = sortBakersBy.key === key;
+
+                  return (
+                    <Link
+                      key={key}
+                      to={{
+                        pathname: "/delegate",
+                        search: `${SORT_BAKERS_BY_KEY}=${key}`,
+                      }}
+                      replace
+                      className={classNames(
+                        (() => {
+                          switch (true) {
+                            case first:
+                              return classNames(
+                                "rounded rounded-r-none",
+                                "border"
+                              );
+
+                            case last:
+                              return classNames(
+                                "rounded rounded-l-none",
+                                "border border-l-0"
+                              );
+
+                            default:
+                              return "border border-l-0";
+                          }
+                        })(),
+                        selected && "bg-gray-100",
+                        "px-2 py-px",
+                        "text-xs text-gray-600"
+                      )}
+                    >
+                      {title}
+                    </Link>
+                  );
+                })}
+              </div>
 
               <div
                 className={classNames(
