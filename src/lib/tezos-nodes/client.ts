@@ -23,7 +23,7 @@ export async function getBaker(address: string) {
   return fixBakerLogo(baker);
 }
 
-function fixBakerLogo(baker: TNBaker | TNBakerPreview) {
+function fixBakerLogo<T extends TNBaker | TNBakerPreview>(baker: T): T {
   return baker.logo.includes("/storage")
     ? baker
     : { ...baker, logo: baker.logo.replace("/images", "/storage/images") };

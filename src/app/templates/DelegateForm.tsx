@@ -346,18 +346,37 @@ const DelegateForm: React.FC = () => {
 
                 case Boolean(baker):
                   return (
-                    <div
-                      className={classNames(
-                        "-mt-2 mb-6", // -mt-6
-                        "flex flex-col items-center"
+                    <>
+                      <div
+                        className={classNames(
+                          "-mt-2 mb-6", // -mt-6
+                          "flex flex-col items-center"
+                        )}
+                      >
+                        <BakerBanner
+                          bakerPkh={baker!.address}
+                          // className="rounded-t-none border-t-0"
+                          displayAddress={false}
+                        />
+                      </div>
+
+                      {baker!.min_delegations_amount > balanceNum && (
+                        <Alert
+                          type="warn"
+                          title="Minimal delegation amount"
+                          description={
+                            <>
+                              Your current balance is less than minimal
+                              delegation amount of this baker. That means until
+                              the balance is less than{" "}
+                              <Money>{baker!.min_delegations_amount}</Money> XTZ
+                              - there will be no payouts.
+                            </>
+                          }
+                          className="mb-6"
+                        />
                       )}
-                    >
-                      <BakerBanner
-                        bakerPkh={baker!.address}
-                        // className="rounded-t-none border-t-0"
-                        displayAddress={false}
-                      />
-                    </div>
+                    </>
                   );
 
                 default:
