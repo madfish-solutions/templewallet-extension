@@ -404,7 +404,12 @@ const DelegateForm: React.FC = () => {
                               Your current balance is less than minimal
                               delegation amount of this baker. That means until
                               the balance is less than{" "}
-                              <Money>{baker!.min_delegations_amount}</Money> XTZ
+                              <span className="font-normal">
+                                <Money>{baker!.min_delegations_amount}</Money>{" "}
+                                <span style={{ fontSize: "0.75em" }}>
+                                  {assetSymbol}
+                                </span>
+                              </span>
                               - there will be no payouts.
                             </>
                           }
