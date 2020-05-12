@@ -409,7 +409,7 @@ const DelegateForm: React.FC = () => {
                                 <span style={{ fontSize: "0.75em" }}>
                                   {assetSymbol}
                                 </span>
-                              </span>
+                              </span>{" "}
                               - there will be no payouts.
                             </>
                           }
