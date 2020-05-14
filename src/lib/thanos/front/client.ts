@@ -4,7 +4,7 @@ import { useRetryableSWR } from "lib/swr";
 import { buf2hex } from "@taquito/utils";
 import toBuffer from "typedarray-to-buffer";
 import { IntercomClient } from "lib/intercom";
-import { useStorage } from "lib/thanos/front/storage";
+import { useStorage } from "lib/thanos/front";
 import {
   ThanosMessageType,
   ThanosStatus,

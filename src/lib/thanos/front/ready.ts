@@ -1,9 +1,13 @@
 import * as React from "react";
 import constate from "constate";
 import { TezosToolkit } from "@taquito/taquito";
-import { usePassiveStorage } from "lib/thanos/front/storage";
-import { useThanosClient } from "lib/thanos/front/client";
-import { ReadyThanosState, ThanosStatus, ThanosState } from "lib/thanos/types";
+import {
+  ReadyThanosState,
+  ThanosStatus,
+  ThanosState,
+  usePassiveStorage,
+  useThanosClient,
+} from "lib/thanos/front";
 
 export enum ActivationStatus {
   ActivationRequestSent,
@@ -89,6 +93,12 @@ function useReadyThanos() {
     t.setProvider({ rpc, signer });
     return t;
   }, [createSigner, network.rpcBaseURL, accountPkh]);
+
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      (window as any).tezos = tezos;
+    }
+  }, [tezos]);
 
   return {
     allNetworks,
