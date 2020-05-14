@@ -3,7 +3,7 @@ import { getAllBakers, getBaker } from "lib/tezos-nodes";
 import { useRetryableSWR } from "lib/swr";
 import { useTezos, useNetwork } from "lib/thanos/front";
 
-export function useDelegate(address: string, suspense?: boolean) {
+export function useDelegate(address: string, suspense = true) {
   const tezos = useTezos();
 
   const getDelegate = React.useCallback(async () => {
@@ -18,9 +18,8 @@ export function useDelegate(address: string, suspense?: boolean) {
     }
   }, [address, tezos]);
 
-  return useRetryableSWR(["delegate", address, tezos.checksum], getDelegate, {
-    refreshInterval: 120_000,
-    dedupingInterval: 60_000,
+  return useRetryableSWR(["delegate", tezos.checksum, address], getDelegate, {
+    dedupingInterval: 20_000,
     suspense,
   });
 }
