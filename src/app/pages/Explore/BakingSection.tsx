@@ -1,8 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { useRetryableSWR } from "lib/swr";
-import { useAccount, useTezos } from "lib/thanos/front";
+import { useAccount, useDelegate } from "lib/thanos/front";
 import BakerBanner from "app/templates/BakerBanner";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
@@ -10,29 +9,7 @@ import styles from "./BakingSection.module.css";
 
 const BakingSection: React.FC = () => {
   const acc = useAccount();
-  const tezos = useTezos();
-
-  const getDelegate = React.useCallback(async () => {
-    try {
-      return await tezos.rpc.getDelegate(acc.publicKeyHash);
-    } catch (err) {
-      if (err.status === 404) {
-        return null;
-      }
-
-      throw err;
-    }
-  }, [tezos, acc.publicKeyHash]);
-
-  const { data: myBakerPkh } = useRetryableSWR(
-    ["delegate", tezos.checksum, acc.publicKeyHash],
-    getDelegate,
-    {
-      refreshInterval: 120_000,
-      dedupingInterval: 60_000,
-      suspense: true,
-    }
-  );
+  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
 
   return React.useMemo(
     () => (
