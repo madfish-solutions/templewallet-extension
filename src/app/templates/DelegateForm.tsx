@@ -25,6 +25,7 @@ import {
 } from "app/defaults";
 import { useAppEnv } from "app/env";
 import InUSD from "app/templates/InUSD";
+import OperationStatus from "app/templates/OperationStatus";
 import Spinner from "app/atoms/Spinner";
 import Money from "app/atoms/Money";
 import NoSpaceField from "app/atoms/NoSpaceField";
@@ -32,7 +33,6 @@ import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
-import HashChip from "app/atoms/HashChip";
 import BakerBanner from "app/templates/BakerBanner";
 import xtzImgUrl from "app/misc/xtz.png";
 
@@ -65,11 +65,7 @@ const DelegateForm: React.FC = () => {
   const accountPkh = acc.publicKeyHash;
   const assetSymbol = "XTZ";
 
-  const {
-    data: balanceData,
-    revalidate: revalidateBalance,
-    mutate: mutateBalance,
-  } = useBalance(accountPkh, true);
+  const { data: balanceData, mutate: mutateBalance } = useBalance(accountPkh);
   const balance = balanceData!;
   const balanceNum = balance!.toNumber();
 
@@ -292,10 +288,7 @@ const DelegateForm: React.FC = () => {
   return (
     <>
       {operation && (
-        <OperationStatus
-          operation={operation}
-          revalidateBalance={revalidateBalance}
-        />
+        <OperationStatus typeTitle="Delegation" operation={operation} />
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -669,84 +662,6 @@ const DelegateForm: React.FC = () => {
 };
 
 export default DelegateForm;
-
-type OperationStatusProps = {
-  operation: any;
-  revalidateBalance?: () => any;
-};
-
-const OperationStatus: React.FC<OperationStatusProps> = ({
-  operation,
-  revalidateBalance,
-}) => {
-  const descFooter = React.useMemo(
-    () => (
-      <div className="mt-2 text-xs">
-        Operation Hash:{" "}
-        <HashChip
-          hash={operation.hash}
-          firstCharsCount={10}
-          lastCharsCount={7}
-          small
-        />
-      </div>
-    ),
-    [operation.hash]
-  );
-
-  const [alert, setAlert] = useSafeState<{
-    type: "success" | "error";
-    title: string;
-    description: React.ReactNode;
-  }>(() => ({
-    type: "success",
-    title: "Success 🛫",
-    description: (
-      <>
-        Delegation request sent! Confirming...
-        {descFooter}
-      </>
-    ),
-  }));
-
-  React.useEffect(() => {
-    operation
-      .confirmation()
-      .then(() => {
-        setAlert((a) => ({
-          ...a,
-          title: "Success ✅",
-          description: (
-            <>
-              Delegation successfully processed and confirmed!
-              {descFooter}
-            </>
-          ),
-        }));
-
-        if (revalidateBalance) {
-          revalidateBalance();
-        }
-      })
-      .catch(() => {
-        setAlert({
-          type: "error",
-          title: "Error",
-          description: "Failed. Something went wrong ;(",
-        });
-      });
-  }, [operation, setAlert, descFooter, revalidateBalance]);
-
-  return (
-    <Alert
-      type={alert.type}
-      title={alert.title}
-      description={alert.description}
-      autoFocus
-      className="mb-8"
-    />
-  );
-};
 
 type DelegateErrorAlertProps = {
   type: "submit" | "estimation";
