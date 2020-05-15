@@ -61,7 +61,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
         setAlert({
           type: "error",
           title: "Error",
-          description: "Failed. Something went wrong ;(",
+          description: "Failed to wait confirmation for operation. Try again.",
         });
       });
   }, [operation, setAlert, descFooter, typeTitle]);

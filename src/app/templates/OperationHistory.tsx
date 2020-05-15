@@ -2,13 +2,24 @@ import * as React from "react";
 import classNames from "clsx";
 import { useRetryableSWR } from "lib/swr";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
-import { TZStatsOperation, getAccountWithOperations } from "lib/tzstats";
-import { useNetwork } from "lib/thanos/front";
+import { getAccountWithOperations } from "lib/tzstats";
+import { useNetwork, usePendingOperations } from "lib/thanos/front";
 import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
 import HashChip from "app/atoms/HashChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
+
+const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
+
+interface OperationPreview {
+  hash: string;
+  type: string;
+  receiver: string;
+  volume: number;
+  status: string;
+  time: string;
+}
 
 interface OperationHistoryProps {
   accountPkh: string;
@@ -16,6 +27,7 @@ interface OperationHistoryProps {
 
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const network = useNetwork();
+  const { pndOps, removePndOps } = usePendingOperations();
 
   const fetchOperations = React.useCallback(async () => {
     try {
@@ -42,26 +54,65 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     fetchOperations,
     {
       suspense: true,
-      refreshInterval: 10_000,
+      refreshInterval: 15_000,
+      dedupingInterval: 10_000,
     }
   );
   const operations = data!;
 
-  const onlyUniqueOps = React.useMemo(() => {
-    const unique: TZStatsOperation[] = [];
+  const pendingOperations = React.useMemo<OperationPreview[]>(
+    () =>
+      pndOps.map((op) => ({
+        hash: op.hash,
+        type: op.kind,
+        receiver: op.destination ?? "",
+        volume: op.amount ?? 0,
+        status: "backtracked",
+        time: op.addedAt,
+      })),
+    [pndOps]
+  );
+
+  const [uniqueOps, nonUniqueOps] = React.useMemo(() => {
+    const unique: OperationPreview[] = [];
+    const nonUnique: OperationPreview[] = [];
+
+    for (const pndOp of pendingOperations) {
+      const expired =
+        new Date(pndOp.time).getTime() + PNDOP_EXPIRE_DELAY < Date.now();
+
+      if (expired || operations.some((op) => opKey(op) === opKey(pndOp))) {
+        nonUnique.push(pndOp);
+      } else {
+        unique.push(pndOp);
+      }
+    }
+
     for (const op of operations) {
       if (unique.every((u) => opKey(u) !== opKey(op))) {
         unique.push(op);
       }
     }
-    return unique;
-  }, [operations]);
+
+    return [
+      unique.sort(
+        (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
+      ),
+      nonUnique,
+    ];
+  }, [operations, pendingOperations]);
+
+  React.useEffect(() => {
+    if (nonUniqueOps.length > 0) {
+      removePndOps(nonUniqueOps);
+    }
+  }, [removePndOps, nonUniqueOps]);
 
   return (
     <div
       className={classNames("mt-8", "w-full max-w-md mx-auto", "flex flex-col")}
     >
-      {onlyUniqueOps.length === 0 && (
+      {uniqueOps.length === 0 && (
         <div
           className={classNames(
             "mb-12",
@@ -75,7 +126,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
         </div>
       )}
 
-      {onlyUniqueOps.map((op) => (
+      {uniqueOps.map((op) => (
         <Operation key={opKey(op)} accountPkh={accountPkh} {...op} />
       ))}
     </div>
@@ -84,7 +135,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
 
 export default OperationHistory;
 
-type OperationProps = TZStatsOperation & {
+type OperationProps = OperationPreview & {
   accountPkh: string;
 };
 
@@ -211,6 +262,6 @@ function formatOperationType(type: string, imReciever: boolean) {
     .join(" ");
 }
 
-function opKey(op: TZStatsOperation) {
+function opKey(op: OperationPreview) {
   return `${op.hash}_${op.type}`;
 }
