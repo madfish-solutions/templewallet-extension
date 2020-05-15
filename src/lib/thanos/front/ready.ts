@@ -86,13 +86,13 @@ function useReadyThanos() {
    */
 
   const tezos = React.useMemo(() => {
-    const checksum = [network.rpcBaseURL, accountPkh].join(",");
+    const checksum = [network.id, accountPkh].join("_");
     const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
     const signer = createSigner(accountPkh);
     t.setProvider({ rpc, signer });
     return t;
-  }, [createSigner, network.rpcBaseURL, accountPkh]);
+  }, [createSigner, network.id, network.rpcBaseURL, accountPkh]);
 
   React.useEffect(() => {
     if (process.env.NODE_ENV === "development") {

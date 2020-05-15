@@ -6,9 +6,11 @@ import BigNumber from "bignumber.js";
 import { DEFAULT_FEE } from "@taquito/taquito";
 import { useLocation, Link } from "lib/woozie";
 import {
+  useNetwork,
   useAccount,
   useTezos,
   useBalance,
+  usePendingOperations,
   useKnownBaker,
   useKnownBakers,
   fetchBalance,
@@ -59,6 +61,7 @@ interface FormData {
 const DelegateForm: React.FC = () => {
   const { registerBackHandler } = useAppEnv();
 
+  const net = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
 
@@ -69,6 +72,7 @@ const DelegateForm: React.FC = () => {
   const balance = balanceData!;
   const balanceNum = balance!.toNumber();
 
+  const { addPndOps } = usePendingOperations();
   const knownBakers = useKnownBakers();
 
   const { search } = useLocation();
@@ -233,7 +237,7 @@ const DelegateForm: React.FC = () => {
 
   const [submitError, setSubmitError] = useSafeState<React.ReactNode>(
     null,
-    tezos.checksum
+    `${tezos.checksum}_${toValue}`
   );
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
@@ -255,7 +259,22 @@ const DelegateForm: React.FC = () => {
           delegate: to,
           fee,
         });
+
         setOperation(op);
+
+        const { hash, results } = op;
+        const pndOps = Array.from(results)
+          .reverse()
+          .map((o) => ({
+            hash,
+            kind: o.kind,
+            amount:
+              (o as any).amount && mutezToTz(+(o as any).amount).toNumber(),
+            destination: (o as any).destination,
+            addedAt: new Date().toString(),
+          }));
+        addPndOps(pndOps);
+
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
       } catch (err) {
         if (err.message === "Declined") {
@@ -277,6 +296,7 @@ const DelegateForm: React.FC = () => {
       accountPkh,
       setSubmitError,
       setOperation,
+      addPndOps,
       reset,
     ]
   );
@@ -284,6 +304,7 @@ const DelegateForm: React.FC = () => {
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
   const estimateFallbackDisplayed =
     toFilled && !baseFee && (estimating || bakerValidating);
+  const tzError = submitError || estimationError;
 
   return (
     <>
@@ -362,67 +383,58 @@ const DelegateForm: React.FC = () => {
           </div>
         ) : restFormDisplayed ? (
           <>
-            {(() => {
-              switch (true) {
-                case Boolean(submitError || estimationError):
-                  return (
-                    <DelegateErrorAlert
-                      type={submitError ? "submit" : "estimation"}
-                      error={submitError || estimationError}
-                    />
-                  );
+            {baker ? (
+              <>
+                <div
+                  className={classNames(
+                    "-mt-2 mb-6", // -mt-6
+                    "flex flex-col items-center"
+                  )}
+                >
+                  <BakerBanner
+                    bakerPkh={baker!.address}
+                    // className="rounded-t-none border-t-0"
+                    displayAddress={false}
+                  />
+                </div>
 
-                case Boolean(baker):
-                  return (
-                    <>
-                      <div
-                        className={classNames(
-                          "-mt-2 mb-6", // -mt-6
-                          "flex flex-col items-center"
-                        )}
-                      >
-                        <BakerBanner
-                          bakerPkh={baker!.address}
-                          // className="rounded-t-none border-t-0"
-                          displayAddress={false}
-                        />
-                      </div>
+                {!tzError && baker!.min_delegations_amount > balanceNum && (
+                  <Alert
+                    type="warn"
+                    title="Minimal delegation amount"
+                    description={
+                      <>
+                        Your current balance is less than minimal delegation
+                        amount of this baker. That means until the balance is
+                        less than{" "}
+                        <span className="font-normal">
+                          <Money>{baker!.min_delegations_amount}</Money>{" "}
+                          <span style={{ fontSize: "0.75em" }}>
+                            {assetSymbol}
+                          </span>
+                        </span>{" "}
+                        - there will be no payouts.
+                      </>
+                    }
+                    className="mb-6"
+                  />
+                )}
+              </>
+            ) : !tzError && net.type === "main" ? (
+              <Alert
+                type="warn"
+                title="Unknown baker"
+                description="This baker is not known as a baker! Delegating funds to him at your own risk."
+                className="mb-6"
+              />
+            ) : null}
 
-                      {baker!.min_delegations_amount > balanceNum && (
-                        <Alert
-                          type="warn"
-                          title="Minimal delegation amount"
-                          description={
-                            <>
-                              Your current balance is less than minimal
-                              delegation amount of this baker. That means until
-                              the balance is less than{" "}
-                              <span className="font-normal">
-                                <Money>{baker!.min_delegations_amount}</Money>{" "}
-                                <span style={{ fontSize: "0.75em" }}>
-                                  {assetSymbol}
-                                </span>
-                              </span>{" "}
-                              - there will be no payouts.
-                            </>
-                          }
-                          className="mb-6"
-                        />
-                      )}
-                    </>
-                  );
-
-                default:
-                  return (
-                    <Alert
-                      type="warn"
-                      title="Unknown baker"
-                      description="This baker is not known as a baker! Delegating funds to him at your own risk."
-                      className="mb-6"
-                    />
-                  );
-              }
-            })()}
+            {tzError && (
+              <DelegateErrorAlert
+                type={submitError ? "submit" : "estimation"}
+                error={tzError}
+              />
+            )}
 
             <Controller
               name="fee"
