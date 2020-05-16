@@ -453,7 +453,7 @@ const DelegateForm: React.FC = () => {
                     <br />
                     Additional - speeds its confirmation up,
                     <br />
-                    Recommended:{" "}
+                    recommended:{" "}
                     <button
                       type="button"
                       className={classNames("underline")}

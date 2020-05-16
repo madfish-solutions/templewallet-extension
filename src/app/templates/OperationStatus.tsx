@@ -61,7 +61,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
         setAlert({
           type: "error",
           title: "Error",
-          description: "Failed to wait confirmation for operation. Try again.",
+          description: "Timed out operation confirmation. You can either wait more time or try again later.",
         });
       });
   }, [operation, setAlert, descFooter, typeTitle]);
