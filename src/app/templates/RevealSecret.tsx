@@ -130,8 +130,8 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
               account={account}
               labelDescription={
                 <>
-                  If you want to reveal from another - select it in the
-                  top-level account dropdown.
+                  If you want to reveal a private key from another account - you should select it in the
+                  top-right dropdown.
                 </>
               }
               className="mb-6"
@@ -140,12 +140,12 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           attension: (
             <>
               <span className="font-semibold">DO NOT share</span> this set of
-              chars with anyone! These string can be used to steal your current
+              chars with anyone! It can be used to steal your current
               account.
             </>
           ),
           fieldDesc: (
-            <>Current account key. Save it somewhere safe and secret.</>
+            <>Current account key. Keep it secret.</>
           ),
         };
 
@@ -156,14 +156,13 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           attension: (
             <>
               <span className="font-semibold">DO NOT share</span> this phrase
-              with anyone! These words can be used to steal all your accounts.
+              with anyone! It can be used to steal all your accounts.
             </>
           ),
           fieldDesc: (
             <>
-              If you ever change browsers or move computers, you will need this
-              seed phrase to access your accounts. Save them somewhere safe and
-              secret.
+              If you ever switch between browsers or devices, you will need this
+              seed phrase to access your accounts. Keep it secret.
             </>
           ),
         };
@@ -171,7 +170,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
   }, [reveal, account]);
 
   return (
-    <div className="w-full max-w-sm mx-auto p-2">
+    <div className="w-full max-w-sm p-2 mx-auto">
       {texts.accountBanner}
 
       {secret ? (

@@ -123,15 +123,14 @@ const ActivateAccount: React.FC = () => {
   );
 
   return (
-    <form className="w-full max-w-sm mx-auto p-2" onSubmit={submit}>
+    <form className="w-full max-w-sm p-2 mx-auto" onSubmit={submit}>
       <AccountBanner
         account={account}
         labelDescription={
           <>
-            Account that be activated.
+            Account to be activated.
             <br />
-            If you want to activate another - select it in the top-level account
-            dropdown.
+            If you want to activate another account - please, select it in the top-right dropdown.
           </>
         }
         className="mb-6"
