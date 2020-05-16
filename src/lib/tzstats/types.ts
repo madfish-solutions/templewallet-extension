@@ -188,7 +188,7 @@ export interface TZStatsOperation {
   hash: string;
   type: string; // it is should be enum
   block: string;
-  time: Date;
+  time: string;
   height: number;
   cycle: number;
   counter: number;

@@ -26,10 +26,14 @@ export function useDelegate(address: string, suspense = true) {
 
 export function useKnownBaker(address: string | null, suspense = true) {
   const net = useNetwork();
-  const fetchBaker = React.useCallback(
-    async () => (address ? getBaker(address) : null),
-    [address]
-  );
+  const fetchBaker = React.useCallback(async () => {
+    if (!address) return null;
+    try {
+      return await getBaker(address);
+    } catch (_err) {
+      return null;
+    }
+  }, [address]);
   return useRetryableSWR(
     net.type === "main" && address ? ["baker", address] : null,
     fetchBaker,
