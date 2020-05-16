@@ -112,13 +112,6 @@ const ADDITIONAL_MODULE_PATHS = [
 ].filter(Boolean);
 const CSS_REGEX = /\.css$/;
 const CSS_MODULE_REGEX = /\.module\.css$/;
-const PURGECSS_OPTIONS = {
-  whitelistPatterns: [/popper/, /tippy/],
-  whitelistPatternsChildren: [/popper/, /tippy/],
-  content: ["./public/**/*.{html,js,mjs}", "./src/**/*.{js,jsx,ts,tsx}"],
-  // Include any special characters you're using in this regular expression
-  defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
-};
 
 module.exports = {
   mode: NODE_ENV,
@@ -539,8 +532,6 @@ function getStyleLoaders(cssOptions = {}) {
               stage: 3,
             }),
             require("tailwindcss"),
-            NODE_ENV === "production" &&
-              require("@fullhuman/postcss-purgecss")(PURGECSS_OPTIONS),
             require("autoprefixer"),
           ].filter(Boolean),
         sourceMap: SOURCE_MAP,
