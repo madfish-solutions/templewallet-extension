@@ -326,7 +326,7 @@ const DelegateForm: React.FC = () => {
               <img
                 src={xtzImgUrl}
                 alt={assetSymbol}
-                className="h-12 w-auto mr-3"
+                className="w-auto h-12 mr-3"
               />
 
               <div className="font-light leading-none">
@@ -368,7 +368,7 @@ const DelegateForm: React.FC = () => {
           onClean={cleanToField}
           id="delegate-to"
           label="Baker"
-          labelDescription="Address of already registered baker to delegate funds to."
+          labelDescription="Address of a registered baker"
           placeholder="e.g. tz1a9w1S7hN5s..."
           errorCaption={errors.to?.message}
           style={{
@@ -378,7 +378,7 @@ const DelegateForm: React.FC = () => {
         />
 
         {estimateFallbackDisplayed ? (
-          <div className="my-8 flex justify-center">
+          <div className="flex justify-center my-8">
             <Spinner className="w-20" />
           </div>
         ) : restFormDisplayed ? (
@@ -393,7 +393,7 @@ const DelegateForm: React.FC = () => {
                 >
                   <BakerBanner
                     bakerPkh={baker!.address}
-                    // className="rounded-t-none border-t-0"
+                    // className="border-t-0 rounded-t-none"
                     displayAddress={false}
                   />
                 </div>
@@ -404,8 +404,8 @@ const DelegateForm: React.FC = () => {
                     title="Minimal delegation amount"
                     description={
                       <>
-                        Your current balance is less than minimal delegation
-                        amount of this baker. That means until the balance is
+                        Your current balance is less than a minimal delegation
+                        amount of this baker. That means while the balance is
                         less than{" "}
                         <span className="font-normal">
                           <Money>{baker!.min_delegations_amount}</Money>{" "}
@@ -424,7 +424,7 @@ const DelegateForm: React.FC = () => {
               <Alert
                 type="warn"
                 title="Unknown baker"
-                description="This baker is not known as a baker! Delegating funds to him at your own risk."
+                description="Provided address is not registered as a baker! Only delegate funds to it at your own risk."
                 className="mb-6"
               />
             ) : null}
@@ -451,9 +451,9 @@ const DelegateForm: React.FC = () => {
                     Base Fee for this operation is:{" "}
                     <span className="font-normal">{baseFee.toString()}</span>
                     <br />
-                    Additional - speeds up its confirmation,
+                    Additional - speeds its confirmation up,
                     <br />
-                    recommended:{" "}
+                    Recommended:{" "}
                     <button
                       type="button"
                       className={classNames("underline")}
@@ -493,7 +493,7 @@ const DelegateForm: React.FC = () => {
                   )}
                   style={{ maxWidth: "90%" }}
                 >
-                  Click on Baker you want to delegate funds to. This list is
+                  Click on the Baker you want to delegate funds to. This list is
                   powered by{" "}
                   <a
                     href="https://www.tezos-nodes.com"
@@ -603,7 +603,7 @@ const DelegateForm: React.FC = () => {
                         }}
                       />
 
-                      <div className="ml-2 flex flex-col items-start">
+                      <div className="flex flex-col items-start ml-2">
                         <div
                           className={classNames(
                             "mb-px",
@@ -611,7 +611,7 @@ const DelegateForm: React.FC = () => {
                             "leading-none"
                           )}
                         >
-                          <Name className="text-base font-medium pb-1">
+                          <Name className="pb-1 text-base font-medium">
                             {baker.name}
                           </Name>
 
@@ -644,7 +644,7 @@ const DelegateForm: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="pl-px flex flex-wrap items-center">
+                        <div className="flex flex-wrap items-center pl-px">
                           <div
                             className={classNames(
                               "text-xs font-light leading-none",
@@ -719,22 +719,22 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
           );
 
         case error instanceof UnregisteredDelegateError:
-          return <>The specified baker is not registered.</>;
+          return <>Specified baker is not registered.</>;
 
         default:
           return (
             <>
               Unable to {type === "submit" ? "delegate" : "estimate delegation"}{" "}
-              to provided Baker.
+              to the provided Baker.
               <br />
               This may happen because:
-              <ul className="mt-1 ml-2 list-disc list-inside text-xs">
+              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
                 <li>
                   Minimal fee for this transaction is greater than your balance.
                   A large fee may be due because you sending funds to an empty
                   Manager account. That requires a one-time 0.257 XTZ burn fee;
                 </li>
-                <li>Network or other tech issue.</li>
+                <li>Network or other technical issue.</li>
               </ul>
             </>
           );
