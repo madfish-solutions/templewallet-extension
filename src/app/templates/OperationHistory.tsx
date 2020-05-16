@@ -83,7 +83,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
 
       if (expired || operations.some((op) => opKey(op) === opKey(pndOp))) {
         nonUnique.push(pndOp);
-      } else {
+      } else if (unique.every((u) => opKey(u) !== opKey(pndOp))) {
         unique.push(pndOp);
       }
     }
