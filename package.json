@@ -15,7 +15,6 @@
     "@dicebear/avatars": "^4.1.0",
     "@dicebear/avatars-bottts-sprites": "^4.1.0",
     "@dicebear/avatars-jdenticon-sprites": "^4.1.0",
-    "@fullhuman/postcss-purgecss": "^2.2.0",
     "@popperjs/core": "^2.4.0",
     "@serh11p/tailwindcss-alpha": "^0.2.0",
     "@svgr/webpack": "^5.4.0",
