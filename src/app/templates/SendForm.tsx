@@ -10,6 +10,7 @@ import {
   useAccount,
   useTezos,
   useBalance,
+  usePendingOperations,
   fetchBalance,
   tzToMutez,
   mutezToTz,
@@ -58,6 +59,8 @@ const SendForm: React.FC = () => {
   const { data: balanceData, mutate: mutateBalance } = useBalance(accountPkh);
   const balance = balanceData!;
   const balanceNum = balance!.toNumber();
+
+  const { addPndOps } = usePendingOperations();
 
   /**
    * Form
@@ -248,7 +251,7 @@ const SendForm: React.FC = () => {
 
   const [submitError, setSubmitError] = useSafeState<React.ReactNode>(
     null,
-    tezos.checksum
+    `${tezos.checksum}_${toValue}`
   );
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
@@ -280,7 +283,22 @@ const SendForm: React.FC = () => {
             throw err;
           }
         }
+
         setOperation(op);
+
+        const { hash, results } = op;
+        const pndOps = Array.from(results)
+          .reverse()
+          .map((o) => ({
+            hash,
+            kind: o.kind,
+            amount:
+              (o as any).amount && mutezToTz(+(o as any).amount).toNumber(),
+            destination: (o as any).destination,
+            addedAt: new Date().toString(),
+          }));
+        addPndOps(pndOps);
+
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
       } catch (err) {
         if (err.message === "Declined") {
@@ -296,7 +314,14 @@ const SendForm: React.FC = () => {
         setSubmitError(err);
       }
     },
-    [formState.isSubmitting, tezos, setSubmitError, setOperation, reset]
+    [
+      formState.isSubmitting,
+      tezos,
+      setSubmitError,
+      setOperation,
+      addPndOps,
+      reset,
+    ]
   );
 
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
