@@ -64,14 +64,13 @@ const RemoveAccount: React.FC = () => {
   );
 
   return (
-    <div className="w-full max-w-sm mx-auto p-2">
+    <div className="w-full max-w-sm p-2 mx-auto">
       <AccountBanner
         account={account}
         labelDescription={
           <>
-            Make sure you want to remove this account. <br />
-            If you want to remove another - select it in the top-level account
-            dropdown.
+            Account to be removed. <br />
+            If you want to remove another account - select it in the top-right dropdown.
           </>
         }
         className="mb-6"
