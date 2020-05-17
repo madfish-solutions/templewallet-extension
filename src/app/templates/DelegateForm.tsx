@@ -84,24 +84,27 @@ const DelegateForm: React.FC = () => {
     );
   }, [search]);
 
-  const sortedKnownBakers = React.useMemo(
-    () =>
-      knownBakers &&
-      knownBakers.sort((a, b) => {
-        switch (sortBakersBy.key) {
-          case "fee":
+  const sortedKnownBakers = React.useMemo(() => {
+    if (!knownBakers) return null;
+
+    const toSort = Array.from(knownBakers);
+    switch (sortBakersBy.key) {
+      case "fee":
+        return toSort.sort((a, b) => a.fee - b.fee);
+
+      case "space":
+        return toSort.sort((a, b) => b.freespace - a.freespace);
+
+      case "rank":
+      default:
+        return toSort.sort((a, b) => {
+          if (a.total_points === b.total_points) {
             return a.fee - b.fee;
-
-          case "space":
-            return b.freespace - a.freespace;
-
-          case "rank":
-          default:
-            return b.total_points - a.total_points;
-        }
-      }),
-    [knownBakers, sortBakersBy]
-  );
+          }
+          return b.total_points - a.total_points;
+        });
+    }
+  }, [knownBakers, sortBakersBy]);
 
   /**
    * Form
