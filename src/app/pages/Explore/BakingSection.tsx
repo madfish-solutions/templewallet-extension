@@ -22,7 +22,7 @@ const BakingSection: React.FC = () => {
         {myBakerPkh ? (
           <>
             <p
-              className="mb-2 text-sm font-light text-center  text-gray-500"
+              className="mb-2 text-sm font-light text-center text-gray-500"
               style={{ maxWidth: "20rem" }}
             >
               Delegated to:
@@ -32,7 +32,7 @@ const BakingSection: React.FC = () => {
           </>
         ) : (
           <div className="flex flex-col items-center text-gray-500">
-            <SupportAltIcon className="mb-1 w-16 h-auto stroke-current" />
+            <SupportAltIcon className="w-16 h-auto mb-1 stroke-current" />
 
             <p
               className="mb-6 text-sm font-light text-center"
@@ -62,7 +62,7 @@ const BakingSection: React.FC = () => {
           <DiamondIcon
             className={classNames("-ml-2 mr-2", "h-5 w-auto", "stroke-current")}
           />
-          Delegate {myBakerPkh ? "new" : "now"}
+          {myBakerPkh ? "Re-delegate" : "Delegate now"}
         </Link>
       </div>
     ),
