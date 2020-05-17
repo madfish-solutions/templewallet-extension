@@ -371,7 +371,7 @@ const DelegateForm: React.FC = () => {
           onClean={cleanToField}
           id="delegate-to"
           label="Baker"
-          labelDescription="Address of a registered baker"
+          labelDescription="Address of a registered baker."
           placeholder="e.g. tz1a9w1S7hN5s..."
           errorCaption={errors.to?.message}
           style={{
