@@ -593,18 +593,20 @@ const DelegateForm: React.FC = () => {
                       }}
                       onClick={handleBakerClick}
                     >
-                      <img
-                        src={baker.logo}
-                        alt={baker.name}
-                        className={classNames(
-                          "flex-shrink-0",
-                          "w-10 h-auto",
-                          "bg-white rounded shadow-xs"
-                        )}
-                        style={{
-                          minHeight: "2.5rem",
-                        }}
-                      />
+                      <div>
+                        <img
+                          src={baker.logo}
+                          alt={baker.name}
+                          className={classNames(
+                            "flex-shrink-0",
+                            "w-10 h-auto",
+                            "bg-white rounded shadow-xs"
+                          )}
+                          style={{
+                            minHeight: "2.5rem",
+                          }}
+                        />
+                      </div>
 
                       <div className="flex flex-col items-start ml-2">
                         <div
