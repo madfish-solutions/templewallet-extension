@@ -20,12 +20,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   <>
     <DocBg bgClassName="bg-primary-orange" />
 
-    <div
-      className={classNames(
-        "pb-20",
-        process.env.TARGET_BROWSER === "firefox" && "grayscale-firefox-fix"
-      )}
-    >
+    <div className="pb-20">
       <Header />
 
       <ContentPaper>
