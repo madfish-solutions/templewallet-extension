@@ -345,7 +345,7 @@ const ByMnemonicForm: React.FC = () => {
                   "overflow-hidden",
                   !last && "border-b border-gray-200",
                   selected
-                    ? "bg-gray-200"
+                    ? "bg-gray-300"
                     : "hover:bg-gray-200 focus:bg-gray-200",
                   "flex items-center",
                   "text-gray-700",
