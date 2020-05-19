@@ -15,7 +15,7 @@ api.interceptors.response.use(
 
 export async function getAllBakers() {
   const { data: bakers } = await api.get<TNBakerPreview[]>("/bakers");
-  return bakers.map(fixBakerLogo);
+  return bakers.filter((t) => t.deletation_status).map(fixBakerLogo);
 }
 
 export async function getBaker(address: string) {
