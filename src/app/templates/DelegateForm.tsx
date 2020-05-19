@@ -427,7 +427,12 @@ const DelegateForm: React.FC = () => {
               <Alert
                 type="warn"
                 title="Unknown baker"
-                description="Provided address is not registered as a baker! Only delegate funds to it at your own risk."
+                description={
+                  <>
+                    Provided address is not known to us as a baker! Only
+                    delegate funds to it at your own risk.
+                  </>
+                }
                 className="mb-6"
               />
             ) : null}

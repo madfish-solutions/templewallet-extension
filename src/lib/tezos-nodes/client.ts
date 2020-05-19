@@ -15,16 +15,21 @@ api.interceptors.response.use(
 
 export async function getAllBakers() {
   const { data: bakers } = await api.get<TNBakerPreview[]>("/bakers");
-  return bakers.filter((t) => t.deletation_status).map(fixBakerLogo);
+  return bakers.filter(isBakerPay).map(fixBakerLogo);
 }
 
 export async function getBaker(address: string) {
   const { data: baker } = await api.get<TNBaker>(`/baker/${address}`);
+  if (!isBakerPay(baker)) return null;
   return fixBakerLogo(baker);
 }
 
-function fixBakerLogo<T extends TNBaker | TNBakerPreview>(baker: T): T {
+function fixBakerLogo<T extends TNBaker | TNBakerPreview>(baker: T) {
   return baker.logo.includes("/storage")
     ? baker
     : { ...baker, logo: baker.logo.replace("/images", "/storage/images") };
+}
+
+function isBakerPay<T extends TNBaker | TNBakerPreview>(baker: T) {
+  return baker.deletation_status;
 }
