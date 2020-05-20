@@ -8,11 +8,14 @@ import {
 import { Vault } from "lib/thanos/back/vault";
 import { toFront, store, inited } from "lib/thanos/back/store";
 import * as Actions from "lib/thanos/back/actions";
+// import { startBeacon } from "lib/thanos/back/beacon";
 
 const intercom = new IntercomServer();
 const frontStore = store.map(toFront);
 
 export async function start() {
+  // startBeacon(intercom);
+
   intercom.onRequest(async (req) => {
     if ("type" in req) {
       return processRequest(req as ThanosRequest);
@@ -153,6 +156,19 @@ async function processRequest(
         return {
           type: ThanosMessageType.SignResponse,
           result,
+        };
+      });
+
+    case ThanosMessageType.BeaconRequest:
+      return enqueue(async () => {
+        const resPayload = await Actions.processBeacon(
+          intercom,
+          req.origin,
+          req.payload
+        );
+        return {
+          type: ThanosMessageType.BeaconResponse,
+          payload: resPayload,
         };
       });
   }
