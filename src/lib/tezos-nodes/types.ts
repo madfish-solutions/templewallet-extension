@@ -10,6 +10,7 @@ export interface TNBakerPreview {
   efficiency_last10cycle: number;
   freespace: number;
   total_points: number;
+  deletation_status: boolean;
 }
 
 export interface TNBaker {
