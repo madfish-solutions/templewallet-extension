@@ -279,6 +279,16 @@ export async function stopConfirming() {
   }
 }
 
+export async function processBeacon(
+  _intercom: IntercomServer,
+  origin: string,
+  payload: string
+) {
+  console.info({ origin, payload });
+  await new Promise((r) => setTimeout(r, 1_000));
+  return "";
+}
+
 // export async function closeConfirmWindow() {
 //   if (currentConfirmWindow?.id) {
 //     try {

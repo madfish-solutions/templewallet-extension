@@ -79,6 +79,9 @@ export enum ThanosMessageType {
   SignResponse = "THANOS_SIGN_RESPONSE",
   ConfirmRequest = "THANOS_CONFIRM_REQUEST",
   ConfirmResponse = "THANOS_CONFIRM_RESPONSE",
+  BeaconRequest = "THANOS_BEACON_REQUEST",
+  BeaconResponse = "THANOS_BEACON_RESPONSE",
+  BeaconMessage = "THANOS_BEACON_MESSAGE",
 }
 
 export type ThanosRequest =
@@ -96,7 +99,8 @@ export type ThanosRequest =
   | ThanosImportFundraiserAccountRequest
   | ThanosSignRequest
   | ThanosConfirmRequest
-  | ThanosRemoveAccountRequest;
+  | ThanosRemoveAccountRequest
+  | ThanosBeaconRequest;
 
 export type ThanosResponse =
   | ThanosGetStateResponse
@@ -113,7 +117,8 @@ export type ThanosResponse =
   | ThanosImportFundraiserAccountResponse
   | ThanosSignResponse
   | ThanosConfirmResponse
-  | ThanosRemoveAccountResponse;
+  | ThanosRemoveAccountResponse
+  | ThanosBeaconResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -271,4 +276,20 @@ export interface ThanosConfirmRequest extends ThanosMessageBase {
 export interface ThanosConfirmResponse extends ThanosMessageBase {
   type: ThanosMessageType.ConfirmResponse;
   id: string;
+}
+
+export interface ThanosBeaconRequest extends ThanosMessageBase {
+  type: ThanosMessageType.BeaconRequest;
+  origin: string;
+  payload: string;
+}
+
+export interface ThanosBeaconResponse extends ThanosMessageBase {
+  type: ThanosMessageType.BeaconResponse;
+  payload: string;
+}
+
+export interface ThanosBeaconMessage extends ThanosMessageBase {
+  type: ThanosMessageType.BeaconMessage;
+  payload: string;
 }
