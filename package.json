@@ -11,7 +11,6 @@
     "build:opera": "cross-env TARGET_BROWSER=opera run-s build"
   },
   "dependencies": {
-    "@airgap/beacon-sdk": "^0.5.0",
     "@babel/core": "^7.9.6",
     "@dicebear/avatars": "^4.1.0",
     "@dicebear/avatars-bottts-sprites": "^4.1.0",
@@ -59,6 +58,7 @@
     "html-webpack-plugin": "^4.3.0",
     "inter-ui": "^3.13.1",
     "mini-css-extract-plugin": "^0.9.0",
+    "nanoid": "^3.1.9",
     "npm-run-all": "^4.1.5",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "postcss-flexbugs-fixes": "^4.2.1",

@@ -1,3 +1,4 @@
+import { Runtime } from "webextension-polyfill-ts";
 import { Queue } from "queue-ts";
 import { IntercomServer } from "lib/intercom/server";
 import {
@@ -8,17 +9,14 @@ import {
 import { Vault } from "lib/thanos/back/vault";
 import { toFront, store, inited } from "lib/thanos/back/store";
 import * as Actions from "lib/thanos/back/actions";
-// import { startBeacon } from "lib/thanos/back/beacon";
 
 const intercom = new IntercomServer();
 const frontStore = store.map(toFront);
 
 export async function start() {
-  // startBeacon(intercom);
-
-  intercom.onRequest(async (req) => {
+  intercom.onRequest(async (req, port) => {
     if ("type" in req) {
-      return processRequest(req as ThanosRequest);
+      return processRequest(req as ThanosRequest, port);
     }
   });
 
@@ -31,7 +29,8 @@ export async function start() {
 }
 
 async function processRequest(
-  req: ThanosRequest
+  req: ThanosRequest,
+  port: Runtime.Port
 ): Promise<ThanosResponse | void> {
   switch (req.type) {
     case ThanosMessageType.GetStateRequest:
@@ -42,31 +41,31 @@ async function processRequest(
       };
 
     case ThanosMessageType.NewWalletRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         await Actions.registerNewWallet(req.password, req.mnemonic);
         return { type: ThanosMessageType.NewWalletResponse };
       });
 
     case ThanosMessageType.UnlockRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         await Actions.unlock(req.password);
         return { type: ThanosMessageType.UnlockResponse };
       });
 
     case ThanosMessageType.LockRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         await Actions.lock();
         return { type: ThanosMessageType.LockResponse };
       });
 
     case ThanosMessageType.CreateAccountRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         await Actions.createHDAccount(req.name);
         return { type: ThanosMessageType.CreateAccountResponse };
       });
 
     case ThanosMessageType.RevealPublicKeyRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         const publicKey = await Actions.revealPublicKey(
           req.accountPublicKeyHash
         );
@@ -77,7 +76,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.RevealPrivateKeyRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         const privateKey = await Actions.revealPrivateKey(
           req.accountPublicKeyHash,
           req.password
@@ -89,7 +88,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.RevealMnemonicRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         const mnemonic = await Actions.revealMnemonic(req.password);
         return {
           type: ThanosMessageType.RevealMnemonicResponse,
@@ -98,7 +97,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.RemoveAccountRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         await Actions.removeAccount(req.accountPublicKeyHash, req.password);
         return {
           type: ThanosMessageType.RemoveAccountResponse,
@@ -106,7 +105,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.EditAccountRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         await Actions.editAccount(req.accountPublicKeyHash, req.name);
         return {
           type: ThanosMessageType.EditAccountResponse,
@@ -114,7 +113,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.ImportAccountRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         await Actions.importAccount(req.privateKey, req.encPassword);
         return {
           type: ThanosMessageType.ImportAccountResponse,
@@ -122,7 +121,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.ImportMnemonicAccountRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         await Actions.importMnemonicAccount(
           req.mnemonic,
           req.password,
@@ -134,7 +133,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.ImportFundraiserAccountRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         await Actions.importFundraiserAccount(
           req.email,
           req.password,
@@ -146,10 +145,11 @@ async function processRequest(
       });
 
     case ThanosMessageType.SignRequest:
-      return enqueue(async () => {
+      return enqueue(port, async () => {
         const result = await Actions.sign(
           intercom,
           req.accountPublicKeyHash,
+          req.id,
           req.bytes,
           req.watermark
         );
@@ -159,15 +159,15 @@ async function processRequest(
         };
       });
 
-    case ThanosMessageType.BeaconRequest:
-      return enqueue(async () => {
-        const resPayload = await Actions.processBeacon(
+    case ThanosMessageType.PageRequest:
+      return enqueue(port, async () => {
+        const resPayload = await Actions.processDApp(
           intercom,
           req.origin,
           req.payload
         );
         return {
-          type: ThanosMessageType.BeaconResponse,
+          type: ThanosMessageType.PageResponse,
           payload: resPayload,
         };
       });
@@ -176,12 +176,18 @@ async function processRequest(
 
 const queue = new Queue(1);
 
-async function enqueue<T>(factory: () => Promise<T>) {
-  if (!queue.isAvailable()) {
-    await Actions.stopConfirming();
-  }
-
+async function enqueue<T>(port: Runtime.Port, factory: () => Promise<T>) {
   return new Promise<T>((response, reject) => {
-    queue.add(() => factory().then(response).catch(reject));
+    queue.add(() =>
+      Promise.race([
+        factory().then(response).catch(reject),
+        new Promise((res) => {
+          port.onDisconnect.addListener(() => {
+            res();
+            reject(new Error("Disconnected"));
+          });
+        }),
+      ])
+    );
   });
 }

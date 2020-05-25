@@ -17,11 +17,18 @@ import {
   unlocked,
   accountsUpdated,
 } from "lib/thanos/back/store";
-// import { Windows, browser } from "webextension-polyfill-ts";
+import {
+  ThanosDAppRequest,
+  ThanosDAppMessageType,
+  ThanosDAppErrorType,
+  ThanosDAppResponse,
+  ThanosDAppPermissionResponse,
+} from "../dapp/types";
+import { /*Windows,*/ browser } from "webextension-polyfill-ts";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
-// const CONFIRM_WIDTH = 320;
-// const CONFIRM_HEIGHT = 320;
+const DAPP_CONFIRM_WIDTH = 360;
+const DAPP_CONFIRM_HEIGHT = 500;
 const AUTODECLINE_AFTER = 60_000;
 
 export async function getFrontState(): Promise<ThanosState> {
@@ -144,39 +151,20 @@ export function importFundraiserAccount(
   });
 }
 
-// let currentConfirmWindow: Windows.Window;
-let stopSign: (() => void) | undefined;
-
 export function sign(
   intercom: IntercomServer,
   accPublicKeyHash: string,
+  id: string,
   bytes: string,
   watermark?: string
 ) {
   return withUnlocked(
     () =>
       new Promise(async (resolve, reject) => {
-        const id = Buffer.from(generateSalt()).toString("hex");
-
         intercom.broadcast({
           type: ThanosMessageType.ConfirmRequested,
           id,
         });
-
-        // const search = new URLSearchParams({ id });
-        // const win = await browser.windows.getCurrent();
-        // const top = Math.round(win.top! + win.height! / 2 - CONFIRM_HEIGHT / 2);
-        // const left = Math.round(win.left! + win.width! / 2 - CONFIRM_WIDTH / 2);
-
-        // const confirmWin = await browser.windows.create({
-        //   type: "popup",
-        //   url: browser.runtime.getURL(`confirm.html?${search}`),
-        //   width: 360,
-        //   height: 360,
-        //   top: Math.max(top, 0),
-        //   left: Math.max(left, 0),
-        // });
-        // currentConfirmWindow = confirmWin;
 
         let stop: any;
         let timeout: any;
@@ -195,54 +183,17 @@ export function sign(
               id,
             });
           } catch (_err) {}
-
-          stopSign = undefined;
-
-          // try {
-          //   const tabs = await browser.tabs.query({
-          //     active: true
-          //   });
-          //   if (tabs.length > 0) {
-          //     await browser.tabs.update(tabs[0].id, {
-          //       active: true,
-          //       highlighted: true
-          //     });
-          //   }
-          // } catch (_err) {}
-
-          // if (confirmWin.id) {
-          //   try {
-          //     const win = await browser.windows.get(confirmWin.id);
-          //     if (win.id) {
-          //       browser.windows.remove(win.id);
-          //     }
-          //   } catch (_err) {}
-          // }
         };
 
         const decline = () => {
           reject(new Error("Declined"));
         };
 
-        // browser.windows.onRemoved.addListener((winId) => {
-        //   if (winId === confirmWin?.id) {
-        //     decline();
-        //     close();
-        //   }
-        // });
-
-        stopSign = () => {
-          decline();
-          close();
-        };
-
-        stop = intercom.onRequest(async (msg) => {
+        stop = intercom.onRequest(async (req: ThanosConfirmRequest) => {
           if (
-            msg?.type === ThanosMessageType.ConfirmRequest &&
-            msg?.id === id
+            req?.type === ThanosMessageType.ConfirmRequest &&
+            req?.id === id
           ) {
-            const req = msg as ThanosConfirmRequest;
-
             if (req.confirm) {
               const result = await Vault.sign(
                 accPublicKeyHash,
@@ -273,20 +224,124 @@ export function sign(
   );
 }
 
-export async function stopConfirming() {
-  if (stopSign) {
-    stopSign();
-  }
-}
+// let currentConfirmWindow: Windows.Window;
 
-export async function processBeacon(
+export async function processDApp(
   _intercom: IntercomServer,
-  origin: string,
-  payload: string
-) {
-  console.info({ origin, payload });
-  await new Promise((r) => setTimeout(r, 1_000));
-  return "";
+  _origin: string,
+  req: ThanosDAppRequest
+): Promise<ThanosDAppResponse | void> {
+  switch (req?.type) {
+    case ThanosDAppMessageType.PermissionRequest:
+      return withInited(
+        async (): Promise<ThanosDAppPermissionResponse> => {
+          // if (!req.force && vault) {
+          //   const dApp = await vault.resolveDApp(origin, network);
+          //   if (dApp) {
+          //     return {
+          //       type: ThanosDAppMessageType.PermissionResponse,
+          //       pkh: dApp.pkh
+          //     }
+          //   }
+          // }
+          return new Promise(async (resolve, reject) => {
+            const id = Buffer.from(generateSalt()).toString("hex");
+            const search = new URLSearchParams({ id, type: req.type });
+            const win = await browser.windows.getCurrent();
+            const top = Math.round(
+              win.top! + win.height! / 2 - DAPP_CONFIRM_HEIGHT / 2
+            );
+            const left = Math.round(
+              win.left! + win.width! / 2 - DAPP_CONFIRM_WIDTH / 2
+            );
+            const confirmWin = await browser.windows.create({
+              type: "popup",
+              url: browser.runtime.getURL(`fullpage.html?${search}`),
+              width: DAPP_CONFIRM_WIDTH,
+              height: DAPP_CONFIRM_HEIGHT,
+              top: Math.max(top, 0),
+              left: Math.max(left, 0),
+            });
+            // currentConfirmWindow = confirmWin;
+            let stop: any;
+            let timeout: any;
+            let closing = false;
+            const close = () => {
+              if (closing) return;
+              closing = true;
+              try {
+                if (stop) stop();
+                if (timeout) clearTimeout(timeout);
+                // closeWindow();
+              } catch (_err) {}
+
+              // try {
+              //   const tabs = await browser.tabs.query({
+              //     active: true
+              //   });
+              //   if (tabs.length > 0) {
+              //     await browser.tabs.update(tabs[0].id, {
+              //       active: true,
+              //       highlighted: true
+              //     });
+              //   }
+              // } catch (_err) {}
+              // if (confirmWin.id) {
+              //   try {
+              //     const win = await browser.windows.get(confirmWin.id);
+              //     if (win.id) {
+              //       browser.windows.remove(win.id);
+              //     }
+              //   } catch (_err) {}
+              // }
+            };
+            const decline = () => {
+              reject(new Error(ThanosDAppErrorType.NotGranted));
+            };
+
+            // stop = intercom.onRequest(async (msg) => {
+            //   if (
+            //     msg?.type === ThanosMessageType.ConfirmRequest &&
+            //     msg?.id === id
+            //   ) {
+            //     const req = msg as ThanosDAppConfirmRequest;
+            //     if (req.confirm) {
+            //       const result = await Vault.(
+            //         accPublicKeyHash,
+            //         req.password!,
+            //         bytes,
+            //         watermark
+            //       );
+            //       resolve(result);
+            //     } else {
+            //       decline();
+            //     }
+            //     close();
+            //     return {
+            //       type: ThanosMessageType.ConfirmResponse,
+            //       id,
+            //     };
+            //   }
+            // });
+            browser.windows.onRemoved.addListener((winId) => {
+              if (winId === confirmWin?.id) {
+                decline();
+                close();
+              }
+            });
+            // Decline after timeout
+            timeout = setTimeout(() => {
+              decline();
+              close();
+            }, AUTODECLINE_AFTER);
+          });
+        }
+      );
+    // return {
+    //   type: ThanosDAppMessageType.PermissionResponse,
+    //   pkh: "",
+    // };
+  }
 }
 
 // export async function closeConfirmWindow() {

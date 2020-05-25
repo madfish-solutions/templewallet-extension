@@ -1,48 +1,58 @@
-import { ExtensionMessage } from "@airgap/beacon-sdk/dist/types/ExtensionMessage";
-import { ExtensionMessageTarget } from "@airgap/beacon-sdk/dist/types/ExtensionMessageTarget";
 import { IntercomClient } from "lib/intercom/client";
+import { ThanosMessageType, ThanosResponse } from "lib/thanos/types";
 import {
-  ThanosMessageType,
-  ThanosResponse,
-  ThanosBeaconRequest,
-  ThanosBeaconMessage,
-} from "lib/thanos/types";
+  ThanosPageMessage,
+  ThanosPageMessageType,
+} from "lib/thanos/dapp/types";
 
-// Handle message from page and redirect to background.js script.
 window.addEventListener(
   "message",
   (evt) => {
-    if (evt.data?.target === ExtensionMessageTarget.EXTENSION) {
-      const { payload } = evt.data as ExtensionMessage<string>;
+    if (
+      evt.source === window &&
+      evt.data?.type === ThanosPageMessageType.Request
+    ) {
+      const { payload, reqId } = evt.data as ThanosPageMessage;
 
       switch (payload) {
-        case "ping":
-          // To detect if extension is installed or not,
-          // we answer pings immediately.
-          window.postMessage(
-            { target: ExtensionMessageTarget.PAGE, payload: "pong" },
-            "*"
+        case "PING":
+          send(
+            {
+              type: ThanosPageMessageType.Response,
+              payload: "PONG",
+            },
+            evt.origin
           );
-          subscribeOne((msg) => {
-            if (msg?.type === ThanosMessageType.BeaconMessage) {
-              redirectMessage((msg as ThanosBeaconMessage).payload);
-            }
-          });
           break;
 
         default:
-          requestBeacon({
-            type: ThanosMessageType.BeaconRequest,
-            origin: evt.origin,
-            payload,
-          })
+          getIntercom()
+            .request({
+              type: ThanosMessageType.PageRequest,
+              origin: evt.origin,
+              payload,
+            })
             .then((res: ThanosResponse) => {
-              if (res?.type === ThanosMessageType.BeaconResponse) {
-                redirectMessage(res.payload);
+              if (res?.type === ThanosMessageType.PageResponse) {
+                send(
+                  {
+                    type: ThanosPageMessageType.Response,
+                    payload: res.payload,
+                    reqId,
+                  },
+                  evt.origin
+                );
               }
             })
             .catch((err) => {
-              throw err;
+              send(
+                {
+                  type: ThanosPageMessageType.ErrorResponse,
+                  payload: err.message,
+                  reqId,
+                },
+                evt.origin
+              );
             });
       }
     }
@@ -50,31 +60,8 @@ window.addEventListener(
   false
 );
 
-function redirectMessage(payload: string) {
-  window.postMessage(
-    {
-      message: {
-        target: ExtensionMessageTarget.PAGE,
-        payload,
-      },
-      sender: {
-        id: "Thanos Wallet",
-      },
-    },
-    "*"
-  );
-}
-
-function requestBeacon(req: ThanosBeaconRequest) {
-  return getIntercom().request(req);
-}
-
-let unsubscribe: () => void;
-function subscribeOne(callback: (data: any) => void) {
-  if (unsubscribe) {
-    unsubscribe();
-  }
-  unsubscribe = getIntercom().subscribe(callback);
+function send(msg: ThanosPageMessage, targetOrigin = "*") {
+  window.postMessage(msg, targetOrigin);
 }
 
 let intercom: IntercomClient;
@@ -84,9 +71,3 @@ function getIntercom() {
   }
   return intercom;
 }
-
-class ThanosWallet {
-  public kek = "KEK";
-}
-
-(window as any).ThanosWallet = ThanosWallet;
