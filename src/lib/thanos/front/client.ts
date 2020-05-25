@@ -1,5 +1,6 @@
 import * as React from "react";
 import constate from "constate";
+import { nanoid } from "nanoid";
 import { useRetryableSWR } from "lib/swr";
 import { buf2hex } from "@taquito/utils";
 import toBuffer from "typedarray-to-buffer";
@@ -34,7 +35,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   const state = data!;
 
   const [confirmId, setConfirmId] = React.useState<string | null>(null);
-  const waitingConfirmRef = React.useRef(false);
+  const waitingConfirmIdRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     return intercom.subscribe((msg) => {
@@ -44,14 +45,16 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
           break;
 
         case ThanosMessageType.ConfirmRequested:
-          if (waitingConfirmRef.current) {
-            setConfirmId((msg as any).id);
+          if (msg?.id === waitingConfirmIdRef.current) {
+            setConfirmId(msg.id);
           }
           break;
 
         case ThanosMessageType.ConfirmExpired:
-          waitingConfirmRef.current = false;
-          setConfirmId(null);
+          if (msg?.id === waitingConfirmIdRef.current) {
+            waitingConfirmIdRef.current = null;
+            setConfirmId(null);
+          }
           break;
       }
     });
@@ -213,8 +216,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
   const createSigner = React.useCallback(
     (accountPublicKeyHash: string) =>
-      new ThanosSigner(accountPublicKeyHash, () => {
-        waitingConfirmRef.current = true;
+      new ThanosSigner(accountPublicKeyHash, (id) => {
+        waitingConfirmIdRef.current = id;
       }),
     []
   );
@@ -256,7 +259,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 class ThanosSigner {
   constructor(
     private accountPublicKeyHash: string,
-    private onBeforeSign?: () => void
+    private onBeforeSign?: (id: string) => void
   ) {}
 
   async publicKeyHash() {
@@ -277,12 +280,14 @@ class ThanosSigner {
   }
 
   async sign(bytes: string, watermark?: Uint8Array) {
+    const id = nanoid();
     if (this.onBeforeSign) {
-      this.onBeforeSign();
+      this.onBeforeSign(id);
     }
     const res = await request({
       type: ThanosMessageType.SignRequest,
       accountPublicKeyHash: this.accountPublicKeyHash,
+      id,
       bytes,
       watermark: buf2hex(toBuffer(watermark)),
     });
