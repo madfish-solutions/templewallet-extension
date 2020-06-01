@@ -7,7 +7,8 @@ import AwaitFonts from "app/a11y/AwaitFonts";
 import BootAnimation from "app/a11y/BootAnimation";
 import RootSuspenseFallback from "app/a11y/RootSuspenseFallback";
 import ErrorBoundary from "app/ErrorBoundary";
-import Page from "app/Page";
+import PageRouter from "app/PageRouter";
+import ConfirmPage from "app/ConfirmPage";
 
 type AppProps = {
   env: React.ComponentProps<typeof AppEnvProvider>;
@@ -25,7 +26,7 @@ const App: React.FC<AppProps> = ({ env }) => (
           className="font-inter antialiased"
         >
           <BootAnimation>
-            <Page />
+            {env.confirmWindow ? <ConfirmPage /> : <PageRouter />}
           </BootAnimation>
         </AwaitFonts>
       </AppProvider>

@@ -7,13 +7,17 @@ import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 
+interface UnlockProps {
+  canImportNew?: boolean;
+}
+
 type FormData = {
   password: string;
 };
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 
-const Unlock: React.FC = () => {
+const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useThanosClient();
 
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -87,24 +91,26 @@ const Unlock: React.FC = () => {
           Unlock
         </FormSubmitButton>
 
-        <div className="my-6">
-          <h3 className="text-gray-600 text-sm font-light">
-            Restore Account? Want to sign in another?
-          </h3>
+        {canImportNew && (
+          <div className="my-6">
+            <h3 className="text-gray-600 text-sm font-light">
+              Restore Account? Want to sign in another?
+            </h3>
 
-          <Link
-            to="/import-wallet"
-            className={classNames(
-              "text-primary-orange",
-              "text-sm font-semibold",
-              "transition duration-200 ease-in-out",
-              "opacity-75 hover:opacity-100 focus:opacity-100",
-              "hover:underline"
-            )}
-          >
-            Import Wallet using Seed Phrase
-          </Link>
-        </div>
+            <Link
+              to="/import-wallet"
+              className={classNames(
+                "text-primary-orange",
+                "text-sm font-semibold",
+                "transition duration-200 ease-in-out",
+                "opacity-75 hover:opacity-100 focus:opacity-100",
+                "hover:underline"
+              )}
+            >
+              Import Wallet using Seed Phrase
+            </Link>
+          </div>
+        )}
       </form>
     </SimplePageLayout>
   );

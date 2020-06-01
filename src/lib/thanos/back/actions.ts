@@ -1,11 +1,14 @@
-import { Buffer } from "buffer";
+import {
+  ThanosDAppRequest,
+  ThanosDAppMessageType,
+  ThanosDAppResponse,
+} from "@thanos-wallet/dapp/dist/types";
 import { IntercomServer } from "lib/intercom/server";
-import { generateSalt } from "lib/thanos/passworder";
 import {
   ThanosState,
   ThanosStatus,
   ThanosMessageType,
-  ThanosConfirmRequest,
+  ThanosRequest,
 } from "lib/thanos/types";
 import { Vault } from "lib/thanos/back/vault";
 import {
@@ -17,18 +20,9 @@ import {
   unlocked,
   accountsUpdated,
 } from "lib/thanos/back/store";
-import {
-  ThanosDAppRequest,
-  ThanosDAppMessageType,
-  ThanosDAppErrorType,
-  ThanosDAppResponse,
-  ThanosDAppPermissionResponse,
-} from "../dapp/types";
-import { /*Windows,*/ browser } from "webextension-polyfill-ts";
+import { requestPermission, requestOperation } from "lib/thanos/back/dapp";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
-const DAPP_CONFIRM_WIDTH = 360;
-const DAPP_CONFIRM_HEIGHT = 500;
 const AUTODECLINE_AFTER = 60_000;
 
 export async function getFrontState(): Promise<ThanosState> {
@@ -189,7 +183,7 @@ export function sign(
           reject(new Error("Declined"));
         };
 
-        stop = intercom.onRequest(async (req: ThanosConfirmRequest) => {
+        stop = intercom.onRequest(async (req: ThanosRequest) => {
           if (
             req?.type === ThanosMessageType.ConfirmRequest &&
             req?.id === id
@@ -224,136 +218,19 @@ export function sign(
   );
 }
 
-// let currentConfirmWindow: Windows.Window;
-
 export async function processDApp(
-  _intercom: IntercomServer,
-  _origin: string,
+  intercom: IntercomServer,
+  origin: string,
   req: ThanosDAppRequest
 ): Promise<ThanosDAppResponse | void> {
   switch (req?.type) {
     case ThanosDAppMessageType.PermissionRequest:
-      return withInited(
-        async (): Promise<ThanosDAppPermissionResponse> => {
-          // if (!req.force && vault) {
-          //   const dApp = await vault.resolveDApp(origin, network);
-          //   if (dApp) {
-          //     return {
-          //       type: ThanosDAppMessageType.PermissionResponse,
-          //       pkh: dApp.pkh
-          //     }
-          //   }
-          // }
-          return new Promise(async (resolve, reject) => {
-            const id = Buffer.from(generateSalt()).toString("hex");
-            const search = new URLSearchParams({ id, type: req.type });
-            const win = await browser.windows.getCurrent();
-            const top = Math.round(
-              win.top! + win.height! / 2 - DAPP_CONFIRM_HEIGHT / 2
-            );
-            const left = Math.round(
-              win.left! + win.width! / 2 - DAPP_CONFIRM_WIDTH / 2
-            );
-            const confirmWin = await browser.windows.create({
-              type: "popup",
-              url: browser.runtime.getURL(`fullpage.html?${search}`),
-              width: DAPP_CONFIRM_WIDTH,
-              height: DAPP_CONFIRM_HEIGHT,
-              top: Math.max(top, 0),
-              left: Math.max(left, 0),
-            });
-            // currentConfirmWindow = confirmWin;
-            let stop: any;
-            let timeout: any;
-            let closing = false;
-            const close = () => {
-              if (closing) return;
-              closing = true;
-              try {
-                if (stop) stop();
-                if (timeout) clearTimeout(timeout);
-                // closeWindow();
-              } catch (_err) {}
+      return withInited(() => requestPermission(origin, req, intercom));
 
-              // try {
-              //   const tabs = await browser.tabs.query({
-              //     active: true
-              //   });
-              //   if (tabs.length > 0) {
-              //     await browser.tabs.update(tabs[0].id, {
-              //       active: true,
-              //       highlighted: true
-              //     });
-              //   }
-              // } catch (_err) {}
-              // if (confirmWin.id) {
-              //   try {
-              //     const win = await browser.windows.get(confirmWin.id);
-              //     if (win.id) {
-              //       browser.windows.remove(win.id);
-              //     }
-              //   } catch (_err) {}
-              // }
-            };
-            const decline = () => {
-              reject(new Error(ThanosDAppErrorType.NotGranted));
-            };
-
-            // stop = intercom.onRequest(async (msg) => {
-            //   if (
-            //     msg?.type === ThanosMessageType.ConfirmRequest &&
-            //     msg?.id === id
-            //   ) {
-            //     const req = msg as ThanosDAppConfirmRequest;
-            //     if (req.confirm) {
-            //       const result = await Vault.(
-            //         accPublicKeyHash,
-            //         req.password!,
-            //         bytes,
-            //         watermark
-            //       );
-            //       resolve(result);
-            //     } else {
-            //       decline();
-            //     }
-            //     close();
-            //     return {
-            //       type: ThanosMessageType.ConfirmResponse,
-            //       id,
-            //     };
-            //   }
-            // });
-            browser.windows.onRemoved.addListener((winId) => {
-              if (winId === confirmWin?.id) {
-                decline();
-                close();
-              }
-            });
-            // Decline after timeout
-            timeout = setTimeout(() => {
-              decline();
-              close();
-            }, AUTODECLINE_AFTER);
-          });
-        }
-      );
-    // return {
-    //   type: ThanosDAppMessageType.PermissionResponse,
-    //   pkh: "",
-    // };
+    case ThanosDAppMessageType.OperationRequest:
+      return withInited(() => requestOperation(origin, req, intercom));
   }
 }
-
-// export async function closeConfirmWindow() {
-//   if (currentConfirmWindow?.id) {
-//     try {
-//       const win = await browser.windows.get(currentConfirmWindow.id);
-//       if (win.id) {
-//         browser.windows.remove(win.id);
-//       }
-//     } catch (_err) {}
-//   }
-// }
 
 function withUnlocked<T>(factory: (state: UnlockedStoreState) => T) {
   const state = store.getState();

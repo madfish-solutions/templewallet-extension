@@ -70,7 +70,7 @@ export class IntercomServer {
           this.respond(port, {
             type: MessageType.Err,
             reqId: msg.reqId,
-            data: "message" in err ? err.message : DEFAULT_ERROR_MESSAGE,
+            data: err?.message ?? DEFAULT_ERROR_MESSAGE,
           });
         }
       })(msg as RequestMessage);

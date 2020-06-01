@@ -15,7 +15,7 @@ const frontStore = store.map(toFront);
 
 export async function start() {
   intercom.onRequest(async (req, port) => {
-    if ("type" in req) {
+    if (req?.type) {
       return processRequest(req as ThanosRequest, port);
     }
   });
@@ -27,6 +27,9 @@ export async function start() {
     intercom.broadcast({ type: ThanosMessageType.StateUpdated });
   });
 }
+
+const queue = new Queue(1);
+const pageQueue = new Queue(1);
 
 async function processRequest(
   req: ThanosRequest,
@@ -41,31 +44,31 @@ async function processRequest(
       };
 
     case ThanosMessageType.NewWalletRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         await Actions.registerNewWallet(req.password, req.mnemonic);
         return { type: ThanosMessageType.NewWalletResponse };
       });
 
     case ThanosMessageType.UnlockRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         await Actions.unlock(req.password);
         return { type: ThanosMessageType.UnlockResponse };
       });
 
     case ThanosMessageType.LockRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         await Actions.lock();
         return { type: ThanosMessageType.LockResponse };
       });
 
     case ThanosMessageType.CreateAccountRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         await Actions.createHDAccount(req.name);
         return { type: ThanosMessageType.CreateAccountResponse };
       });
 
     case ThanosMessageType.RevealPublicKeyRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         const publicKey = await Actions.revealPublicKey(
           req.accountPublicKeyHash
         );
@@ -76,7 +79,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.RevealPrivateKeyRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         const privateKey = await Actions.revealPrivateKey(
           req.accountPublicKeyHash,
           req.password
@@ -88,7 +91,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.RevealMnemonicRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         const mnemonic = await Actions.revealMnemonic(req.password);
         return {
           type: ThanosMessageType.RevealMnemonicResponse,
@@ -97,7 +100,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.RemoveAccountRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         await Actions.removeAccount(req.accountPublicKeyHash, req.password);
         return {
           type: ThanosMessageType.RemoveAccountResponse,
@@ -105,7 +108,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.EditAccountRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         await Actions.editAccount(req.accountPublicKeyHash, req.name);
         return {
           type: ThanosMessageType.EditAccountResponse,
@@ -113,7 +116,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.ImportAccountRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         await Actions.importAccount(req.privateKey, req.encPassword);
         return {
           type: ThanosMessageType.ImportAccountResponse,
@@ -121,7 +124,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.ImportMnemonicAccountRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         await Actions.importMnemonicAccount(
           req.mnemonic,
           req.password,
@@ -133,7 +136,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.ImportFundraiserAccountRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         await Actions.importFundraiserAccount(
           req.email,
           req.password,
@@ -145,7 +148,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.SignRequest:
-      return enqueue(port, async () => {
+      return enqueue(queue, port, async () => {
         const result = await Actions.sign(
           intercom,
           req.accountPublicKeyHash,
@@ -160,7 +163,7 @@ async function processRequest(
       });
 
     case ThanosMessageType.PageRequest:
-      return enqueue(port, async () => {
+      return enqueue(pageQueue, port, async () => {
         const resPayload = await Actions.processDApp(
           intercom,
           req.origin,
@@ -174,18 +177,33 @@ async function processRequest(
   }
 }
 
-const queue = new Queue(1);
-
-async function enqueue<T>(port: Runtime.Port, factory: () => Promise<T>) {
+async function enqueue<T>(
+  q: Queue,
+  port: Runtime.Port,
+  factory: () => Promise<T>
+) {
   return new Promise<T>((response, reject) => {
-    queue.add(() =>
+    let close: () => void;
+
+    q.add(() =>
       Promise.race([
-        factory().then(response).catch(reject),
+        factory()
+          .then((r) => {
+            response(r);
+            close();
+          })
+          .catch((err) => {
+            reject(err);
+            close();
+          }),
         new Promise((res) => {
-          port.onDisconnect.addListener(() => {
+          const handleDisconnect = () => {
             res();
             reject(new Error("Disconnected"));
-          });
+            close();
+          };
+          close = () => port.onDisconnect.removeListener(handleDisconnect);
+          port.onDisconnect.addListener(handleDisconnect);
         }),
       ])
     );

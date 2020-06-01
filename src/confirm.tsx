@@ -2,6 +2,10 @@ import "./main.css";
 
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import Confirm from "app/pages/Confirm";
+import { WindowType } from "app/env";
+import App from "app/App";
 
-ReactDOM.render(<Confirm />, document.getElementById("root"));
+ReactDOM.render(
+  <App env={{ windowType: WindowType.FullPage, confirmWindow: true }} />,
+  document.getElementById("root")
+);
