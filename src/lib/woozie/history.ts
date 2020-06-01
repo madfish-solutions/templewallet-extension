@@ -78,6 +78,11 @@ export function createUrl(
   return `${pathname}${search}${hash}`;
 }
 
+export function resetHistoryPosition() {
+  (window.history as PatchedHistory).position = 0;
+  notifyListeners();
+}
+
 patchMethod("pushState", HistoryAction.Push);
 patchMethod("replaceState", HistoryAction.Replace);
 
