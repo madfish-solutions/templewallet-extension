@@ -214,6 +214,36 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const confirmDAppPermission = React.useCallback(
+    async (id: string, confirm: boolean, pkh?: string) => {
+      const res = await request({
+        type: ThanosMessageType.DAppPermissionConfirmRequest,
+        id,
+        confirm,
+        pkh,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.DAppPermissionConfirmResponse
+      );
+    },
+    []
+  );
+
+  const confirmDAppOperation = React.useCallback(
+    async (id: string, confirm: boolean, password?: string) => {
+      const res = await request({
+        type: ThanosMessageType.DAppOperationConfirmRequest,
+        id,
+        confirm,
+        password,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.DAppOperationConfirmResponse
+      );
+    },
+    []
+  );
+
   const createSigner = React.useCallback(
     (accountPublicKeyHash: string) =>
       new ThanosSigner(accountPublicKeyHash, (id) => {
@@ -252,6 +282,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     importMnemonicAccount,
     importFundraiserAccount,
     confirmOperation,
+    confirmDAppPermission,
+    confirmDAppOperation,
     createSigner,
   };
 });

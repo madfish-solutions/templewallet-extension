@@ -3,7 +3,7 @@ import { ThanosMessageType, ThanosResponse } from "lib/thanos/types";
 import {
   ThanosPageMessage,
   ThanosPageMessageType,
-} from "lib/thanos/dapp/types";
+} from "@thanos-wallet/dapp/dist/types";
 
 window.addEventListener(
   "message",

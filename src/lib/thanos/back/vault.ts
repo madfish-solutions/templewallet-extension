@@ -2,6 +2,7 @@ import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
+import { TezosToolkit, TezosOperationError } from "@taquito/taquito";
 import * as Passworder from "lib/thanos/passworder";
 import { ThanosAccount, ThanosAccountType } from "lib/thanos/types";
 import {
@@ -158,6 +159,38 @@ export class Vault {
         watermark && (TaquitoUtils.hex2buf(watermark) as any);
       return signer.sign(bytes, watermarkBuf);
     });
+  }
+
+  static async sendOperations(
+    accPublicKeyHash: string,
+    rpc: string,
+    password: string,
+    opParams: any[]
+  ) {
+    const passKey = await Vault.toValidPassKey(password);
+    const batch = await withError("Failed to send operations", async () => {
+      const privateKey = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        passKey
+      );
+      const signer = await createMemorySigner(privateKey);
+      const tezos = new TezosToolkit();
+      tezos.setProvider({ rpc, signer });
+      return tezos.batch(opParams);
+    });
+
+    try {
+      const op = await batch.send();
+      return op.hash;
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(err);
+      }
+
+      throw err instanceof TezosOperationError
+        ? err
+        : new PublicError("Failed to send operations");
+    }
   }
 
   private static toValidPassKey(password: string) {

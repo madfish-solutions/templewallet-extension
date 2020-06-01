@@ -81,6 +81,10 @@ export enum ThanosMessageType {
   ConfirmResponse = "THANOS_CONFIRM_RESPONSE",
   PageRequest = "THANOS_PAGE_REQUEST",
   PageResponse = "THANOS_PAGE_RESPONSE",
+  DAppPermissionConfirmRequest = "THANOS_DAPP_PERMISSION_CONFIRM_REQUEST",
+  DAppPermissionConfirmResponse = "THANOS_DAPP_PERMISSION_CONFIRM_RESPONSE",
+  DAppOperationConfirmRequest = "THANOS_DAPP_OPERATION_CONFIRM_REQUEST",
+  DAppOperationConfirmResponse = "THANOS_DAPP_OPERATION_CONFIRM_RESPONSE",
 }
 
 export type ThanosRequest =
@@ -99,7 +103,9 @@ export type ThanosRequest =
   | ThanosSignRequest
   | ThanosConfirmRequest
   | ThanosRemoveAccountRequest
-  | ThanosPageRequest;
+  | ThanosPageRequest
+  | ThanosDAppPermissionConfirmRequest
+  | ThanosDAppOperationConfirmRequest;
 
 export type ThanosResponse =
   | ThanosGetStateResponse
@@ -117,7 +123,9 @@ export type ThanosResponse =
   | ThanosSignResponse
   | ThanosConfirmResponse
   | ThanosRemoveAccountResponse
-  | ThanosPageResponse;
+  | ThanosPageResponse
+  | ThanosDAppPermissionConfirmResponse
+  | ThanosDAppOperationConfirmResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -287,4 +295,28 @@ export interface ThanosPageRequest extends ThanosMessageBase {
 export interface ThanosPageResponse extends ThanosMessageBase {
   type: ThanosMessageType.PageResponse;
   payload: any;
+}
+
+export interface ThanosDAppPermissionConfirmRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppPermissionConfirmRequest;
+  id: string;
+  confirm: boolean;
+  pkh?: string;
+}
+
+export interface ThanosDAppPermissionConfirmResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppPermissionConfirmResponse;
+  id: string;
+}
+
+export interface ThanosDAppOperationConfirmRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppOperationConfirmRequest;
+  id: string;
+  confirm: boolean;
+  password?: string;
+}
+
+export interface ThanosDAppOperationConfirmResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppOperationConfirmResponse;
+  id: string;
 }
