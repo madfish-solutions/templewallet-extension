@@ -79,6 +79,9 @@ const Page: React.FC = () => {
     if (trigger === Woozie.HistoryAction.Push) {
       window.scrollTo(0, 0);
     }
+    if (pathname === "/") {
+      Woozie.resetHistoryPosition();
+    }
   }, [trigger, pathname]);
 
   const appEnv = useAppEnv();
