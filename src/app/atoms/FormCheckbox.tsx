@@ -94,7 +94,7 @@ const FormCheckbox = React.forwardRef<HTMLInputElement, FormCheckboxProps>(
         >
           <div
             className={classNames(
-              "h-6 w-6",
+              "h-6 w-6 flex-shrink-0",
               localChecked ? "bg-primary-orange" : "bg-black-40",
               "border",
               (() => {

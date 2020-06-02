@@ -6,12 +6,14 @@ export interface ReadyThanosState extends ThanosState {
   status: ThanosStatus.Ready;
   accounts: NonEmptyArray<ThanosAccount>;
   networks: NonEmptyArray<ThanosNetwork>;
+  settings: ThanosSettings;
 }
 
 export interface ThanosState {
   status: ThanosStatus;
   accounts: ThanosAccount[];
   networks: ThanosNetwork[];
+  settings: ThanosSettings | null;
 }
 
 export enum ThanosStatus {
@@ -45,6 +47,10 @@ export interface ThanosNetwork {
 
 export type ThanosNetworkType = "main" | "test";
 
+export interface ThanosSettings {
+  dAppEnabled: boolean;
+}
+
 export enum ThanosMessageType {
   StateUpdated = "THANOS_STATE_UPDATED",
   ConfirmRequested = "THANOS_CONFIRM_REQUESTED",
@@ -75,6 +81,8 @@ export enum ThanosMessageType {
   ImportMnemonicAccountResponse = "THANOS_IMPORT_MNEMONIC_ACCOUNT_RESPONSE",
   ImportFundraiserAccountRequest = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_REQUEST",
   ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
+  UpdateSettingsRequest = "THANOS_UPDATE_SETTINGS_REQUEST",
+  UpdateSettingsResponse = "THANOS_UPDATE_SETTINGS_RESPONSE",
   SignRequest = "THANOS_SIGN_REQUEST",
   SignResponse = "THANOS_SIGN_RESPONSE",
   ConfirmRequest = "THANOS_CONFIRM_REQUEST",
@@ -105,7 +113,8 @@ export type ThanosRequest =
   | ThanosRemoveAccountRequest
   | ThanosPageRequest
   | ThanosDAppPermissionConfirmRequest
-  | ThanosDAppOperationConfirmRequest;
+  | ThanosDAppOperationConfirmRequest
+  | ThanosUpdateSettingsRequest;
 
 export type ThanosResponse =
   | ThanosGetStateResponse
@@ -125,7 +134,8 @@ export type ThanosResponse =
   | ThanosRemoveAccountResponse
   | ThanosPageResponse
   | ThanosDAppPermissionConfirmResponse
-  | ThanosDAppOperationConfirmResponse;
+  | ThanosDAppOperationConfirmResponse
+  | ThanosUpdateSettingsResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -259,6 +269,15 @@ export interface ThanosImportFundraiserAccountRequest
 export interface ThanosImportFundraiserAccountResponse
   extends ThanosMessageBase {
   type: ThanosMessageType.ImportFundraiserAccountResponse;
+}
+
+export interface ThanosUpdateSettingsRequest extends ThanosMessageBase {
+  type: ThanosMessageType.UpdateSettingsRequest;
+  settings: Partial<ThanosSettings>;
+}
+
+export interface ThanosUpdateSettingsResponse extends ThanosMessageBase {
+  type: ThanosMessageType.UpdateSettingsResponse;
 }
 
 export interface ThanosSignRequest extends ThanosMessageBase {

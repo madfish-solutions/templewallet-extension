@@ -9,6 +9,7 @@ import {
   ThanosStatus,
   ThanosMessageType,
   ThanosRequest,
+  ThanosSettings,
 } from "lib/thanos/types";
 import { Vault } from "lib/thanos/back/vault";
 import {
@@ -19,6 +20,7 @@ import {
   locked,
   unlocked,
   accountsUpdated,
+  settingsUpdated,
 } from "lib/thanos/back/store";
 import { requestPermission, requestOperation } from "lib/thanos/back/dapp";
 
@@ -51,8 +53,11 @@ export function lock() {
 export function unlock(password: string) {
   return withInited(async () => {
     const vault = await Vault.setup(password);
-    const accounts = await vault.fetchAccounts();
-    unlocked({ vault, accounts });
+    const [accounts, settings] = await Promise.all([
+      vault.fetchAccounts(),
+      vault.fetchSettings(),
+    ]);
+    unlocked({ vault, accounts, settings });
   });
 }
 
@@ -142,6 +147,13 @@ export function importFundraiserAccount(
       mnemonic
     );
     accountsUpdated(updatedAccounts);
+  });
+}
+
+export function updateSettings(settings: Partial<ThanosSettings>) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedSettings = await vault.updateSettings(settings);
+    settingsUpdated(updatedSettings);
   });
 }
 
