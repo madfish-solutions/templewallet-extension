@@ -4,7 +4,11 @@ import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
 import { TezosToolkit } from "@taquito/taquito";
 import * as Passworder from "lib/thanos/passworder";
-import { ThanosAccount, ThanosAccountType } from "lib/thanos/types";
+import {
+  ThanosAccount,
+  ThanosAccountType,
+  ThanosSettings,
+} from "lib/thanos/types";
 import {
   isStored,
   fetchAndDecryptOne,
@@ -14,6 +18,9 @@ import {
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
+const DEFAULT_SETTINGS: ThanosSettings = {
+  dAppEnabled: false,
+};
 
 enum StorageEntity {
   Check = "check",
@@ -22,6 +29,7 @@ enum StorageEntity {
   AccPrivKey = "accprivkey",
   AccPubKey = "accpubkey",
   Accounts = "accounts",
+  Settings = "settings",
 }
 
 const checkStrgKey = createStorageKey(StorageEntity.Check);
@@ -30,6 +38,7 @@ const mnemonicStrgKey = createStorageKey(StorageEntity.Mnemonic);
 const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
 const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
 const accountsStrgKey = createStorageKey(StorageEntity.Accounts);
+const settingsStrgKey = createStorageKey(StorageEntity.Settings);
 
 export class Vault {
   static isExist() {
@@ -216,6 +225,17 @@ export class Vault {
     return fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, this.passKey);
   }
 
+  async fetchSettings() {
+    let saved;
+    try {
+      saved = await fetchAndDecryptOne<ThanosSettings>(
+        settingsStrgKey,
+        this.passKey
+      );
+    } catch {}
+    return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
+  }
+
   async createHDAccount(name?: string) {
     return withError("Failed to create account", async () => {
       const [mnemonic, allAccounts] = await Promise.all([
@@ -349,6 +369,15 @@ export class Vault {
       );
 
       return newAllAcounts;
+    });
+  }
+
+  async updateSettings(settings: Partial<ThanosSettings>) {
+    return withError("Failed to update settings", async () => {
+      const current = await this.fetchSettings();
+      const newSettings = { ...current, ...settings };
+      await encryptAndSaveMany([[settingsStrgKey, newSettings]], this.passKey);
+      return newSettings;
     });
   }
 }

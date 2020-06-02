@@ -147,6 +147,14 @@ async function processRequest(
         };
       });
 
+    case ThanosMessageType.UpdateSettingsRequest:
+      return enqueue(queue, port, async () => {
+        await Actions.updateSettings(req.settings);
+        return {
+          type: ThanosMessageType.UpdateSettingsResponse,
+        };
+      });
+
     case ThanosMessageType.SignRequest:
       return enqueue(queue, port, async () => {
         const result = await Actions.sign(

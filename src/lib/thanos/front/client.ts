@@ -11,6 +11,7 @@ import {
   ThanosStatus,
   ThanosRequest,
   ThanosResponse,
+  ThanosSettings,
 } from "lib/thanos/types";
 
 const intercom = new IntercomClient();
@@ -64,7 +65,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
    * Aliases
    */
 
-  const { status, accounts, networks } = state;
+  const { status, networks, accounts, settings } = state;
   const idle = status === ThanosStatus.Idle;
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
@@ -201,6 +202,17 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const updateSettings = React.useCallback(
+    async (settings: Partial<ThanosSettings>) => {
+      const res = await request({
+        type: ThanosMessageType.UpdateSettingsRequest,
+        settings,
+      });
+      assertResponse(res.type === ThanosMessageType.UpdateSettingsResponse);
+    },
+    []
+  );
+
   const confirmOperation = React.useCallback(
     async (id: string, confirm: boolean, password?: string) => {
       const res = await request({
@@ -259,6 +271,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     status,
     networks,
     accounts,
+    settings,
     idle,
     locked,
     ready,
@@ -281,6 +294,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     importAccount,
     importMnemonicAccount,
     importFundraiserAccount,
+    updateSettings,
     confirmOperation,
     confirmDAppPermission,
     confirmDAppOperation,
