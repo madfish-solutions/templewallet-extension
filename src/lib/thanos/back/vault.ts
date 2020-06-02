@@ -2,7 +2,7 @@ import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
-import { TezosToolkit, TezosOperationError } from "@taquito/taquito";
+import { TezosToolkit } from "@taquito/taquito";
 import * as Passworder from "lib/thanos/passworder";
 import { ThanosAccount, ThanosAccountType } from "lib/thanos/types";
 import {
@@ -186,10 +186,7 @@ export class Vault {
       if (process.env.NODE_ENV === "development") {
         console.error(err);
       }
-
-      throw err instanceof TezosOperationError
-        ? err
-        : new PublicError("Failed to send operations");
+      throw new Error(`__tezos__${err.message}`);
     }
   }
 

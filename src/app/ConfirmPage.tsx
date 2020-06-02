@@ -119,7 +119,7 @@ const ConfirmDAppForm: React.FC = () => {
           return confirmDAppPermission(
             params.id,
             confimed,
-            account.publicKeyHash
+            accountPkhToConnect
           );
 
         case "confirm_operations":
@@ -131,7 +131,7 @@ const ConfirmDAppForm: React.FC = () => {
       params.type,
       confirmDAppPermission,
       confirmDAppOperation,
-      account.publicKeyHash,
+      accountPkhToConnect,
     ]
   );
 
