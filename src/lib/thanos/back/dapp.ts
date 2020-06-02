@@ -1,6 +1,5 @@
 import { browser } from "webextension-polyfill-ts";
 import { nanoid } from "nanoid";
-import { TezosOperationError } from "@taquito/taquito";
 import {
   ThanosDAppMessageType,
   ThanosDAppErrorType,
@@ -125,7 +124,7 @@ export async function requestOperation(
       onDecline: () => {
         reject(new Error(ThanosDAppErrorType.NotGranted));
       },
-      handleIntercomRequest: async (confirmReq, decline, close) => {
+      handleIntercomRequest: async (confirmReq, decline) => {
         if (
           confirmReq?.type === ThanosMessageType.DAppOperationConfirmRequest &&
           confirmReq?.id === id
@@ -133,28 +132,24 @@ export async function requestOperation(
           if (confirmReq.confirm && confirmReq.password) {
             const rpcUrl = getNetworkRPC(dApp.network);
 
-            let opHash;
             try {
-              opHash = await Vault.sendOperations(
+              const opHash = await Vault.sendOperations(
                 dApp.pkh,
                 rpcUrl,
                 confirmReq.password,
                 req.opParams
               );
+              resolve({
+                type: ThanosDAppMessageType.OperationResponse,
+                opHash,
+              });
             } catch (err) {
-              if (err instanceof TezosOperationError) {
+              if (err?.message?.startsWith("__tezos__")) {
                 reject(new Error(err.message));
-                close();
-                return;
+              } else {
+                throw err;
               }
-
-              throw err;
             }
-
-            resolve({
-              type: ThanosDAppMessageType.OperationResponse,
-              opHash,
-            });
           } else {
             decline();
           }
@@ -176,8 +171,7 @@ type RequestConfirmParams = {
   onDecline: () => void;
   handleIntercomRequest: (
     req: ThanosRequest,
-    decline: () => void,
-    close: () => void
+    decline: () => void
   ) => Promise<any>;
 };
 
@@ -231,7 +225,7 @@ async function requestConfirm({
 
   const decline = onDecline;
   stop = intercom.onRequest(async (req: ThanosRequest) => {
-    const result = await handleIntercomRequest(req, decline, close);
+    const result = await handleIntercomRequest(req, decline);
     if (result) {
       close();
       return result;
