@@ -15,6 +15,7 @@ import {
 } from "@thanos-wallet/dapp/dist/types";
 import Unlock from "app/pages/Unlock";
 import ContentContainer from "app/layouts/ContentContainer";
+import AccountBanner from "app/templates/AccountBanner";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
@@ -23,6 +24,7 @@ import FormField from "app/atoms/FormField";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 
 const ConfirmPage: React.FC = () => {
   const { ready } = useThanosClient();
@@ -81,6 +83,10 @@ const ConfirmDAppForm: React.FC = () => {
   const [accountPkhToConnect, setAccountPkhToConnect] = React.useState(
     account.publicKeyHash
   );
+  const connectedAccount = React.useMemo(
+    () => allAccounts.find((a) => a.publicKeyHash === accountPkhToConnect)!,
+    [allAccounts, accountPkhToConnect]
+  );
 
   const loc = useLocation();
   const params = React.useMemo(() => {
@@ -102,15 +108,37 @@ const ConfirmDAppForm: React.FC = () => {
         return {
           title: "Confirm connection",
           actionTitle: "Connect",
+          want: (
+            <p className="mb-2 text-sm text-gray-700 text-center">
+              <span className="font-semibold">{params.origin}</span>
+              <br />
+              would like to connect to your wallet
+            </p>
+          ),
         };
 
       case "confirm_operations":
         return {
           title: "Confirm operations",
           actionTitle: "Confirm",
+          want: (
+            <p className="mb-2 text-sm text-gray-700 text-center">
+              <div className="flex items-center justify-center">
+                <Identicon
+                  hash={params.origin}
+                  size={16}
+                  className="mr-1 shadow-xs"
+                />
+                <Name className="font-semibold" style={{ maxWidth: "7.5rem" }}>
+                  {params.appMeta.name}
+                </Name>
+              </div>
+              requests operations to you
+            </p>
+          ),
         };
     }
-  }, [params.type]);
+  }, [params.type, params.origin, params.appMeta.name]);
 
   const done = React.useCallback(
     (confimed: boolean, password?: string) => {
@@ -134,6 +162,19 @@ const ConfirmDAppForm: React.FC = () => {
       accountPkhToConnect,
     ]
   );
+
+  const rootRef = React.useRef<HTMLFormElement>(null);
+
+  const focusPasswordField = React.useCallback(() => {
+    rootRef.current
+      ?.querySelector<HTMLInputElement>("input[name='password']")
+      ?.focus();
+  }, []);
+
+  React.useLayoutEffect(() => {
+    const t = setTimeout(focusPasswordField, 100);
+    return () => clearTimeout(t);
+  }, [focusPasswordField]);
 
   const {
     register,
@@ -160,9 +201,10 @@ const ConfirmDAppForm: React.FC = () => {
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
         setError("password", SUBMIT_ERROR_TYPE, err.message);
+        focusPasswordField();
       }
     },
-    [submitting, clearError, setError, done]
+    [submitting, clearError, setError, done, focusPasswordField]
   );
 
   const handleCancelClick = React.useCallback(async () => {
@@ -179,12 +221,12 @@ const ConfirmDAppForm: React.FC = () => {
       // Human delay.
       await new Promise((res) => setTimeout(res, 300));
       setError("password", SUBMIT_ERROR_TYPE, err.message);
-      // focusPasswordField();
     }
   }, [submitting, clearError, setError, done]);
 
   return (
     <form
+      ref={rootRef}
       className={classNames(
         "relative bg-white rounded-md shadow overflow-y-auto",
         "flex flex-col"
@@ -210,32 +252,48 @@ const ConfirmDAppForm: React.FC = () => {
       </div>
 
       <div className="flex flex-col items-center px-4 py-2">
-        <SubTitle>{content.title}</SubTitle>
+        <SubTitle
+          className={params.type === "connect" ? "mt-4 mb-6" : "mt-4 mb-2"}
+        >
+          {content.title}
+        </SubTitle>
 
-        <ConnectBanner
-          origin={params.origin}
-          appMeta={params.appMeta}
-          className="mb-4"
-        />
+        {params.type === "connect" && (
+          <ConnectBanner
+            type={params.type}
+            origin={params.origin}
+            appMeta={params.appMeta}
+            className="mb-4"
+          />
+        )}
 
-        <p className="mb-2 text-sm text-gray-700 text-center">
-          <span className="font-semibold">{params.origin}</span>
-          <br />
-          would like to connect to your wallet
-        </p>
+        {content.want}
 
-        <p className="mb-4 text-xs font-light text-gray-700 text-center">
-          This site is requesting access to view your account address. Always
-          make sure you trust the sites you interact with.
-        </p>
+        {params.type === "connect" && (
+          <p className="mb-4 text-xs font-light text-gray-700 text-center">
+            This site is requesting access to view your account address. Always
+            make sure you trust the sites you interact with.
+          </p>
+        )}
+
+        {params.type === "confirm_operations" && (
+          <AccountBanner
+            account={connectedAccount}
+            displayBalance={false}
+            label={null}
+            className="w-full mb-2"
+          />
+        )}
 
         <div className={classNames("w-full", "mb-2", "flex flex-col")}>
           <h2 className={classNames("leading-tight", "flex flex-col")}>
-            <span className="text-base font-semibold text-gray-700">
-              Network
-            </span>
+            {params.type === "connect" && (
+              <span className="mb-1 text-base font-semibold text-gray-700">
+                Network
+              </span>
+            )}
 
-            <div className={classNames("my-1", "flex items-center")}>
+            <div className={classNames("mb-1", "flex items-center")}>
               <div
                 className={classNames(
                   "mr-1 w-3 h-3",
@@ -276,6 +334,35 @@ const ConfirmDAppForm: React.FC = () => {
               </div> */}
           </h2>
         </div>
+
+        {params.type === "confirm_operations" && (
+          <>
+            <h2
+              className={classNames(
+                "w-full mb-2",
+                "text-base font-semibold leading-tight",
+                "text-gray-700"
+              )}
+            >
+              Operations
+            </h2>
+
+            <div
+              className={classNames(
+                "w-full max-w-full mb-4",
+                "rounded-md overflow-auto",
+                "border-2 bg-gray-100",
+                "flex flex-col",
+                "text-gray-700 text-sm leading-tight"
+              )}
+              style={{
+                maxHeight: "8rem",
+              }}
+            >
+              <pre>{JSON.stringify(params.opParams, undefined, 2)}</pre>
+            </div>
+          </>
+        )}
 
         {params.type === "connect" && (
           <div className={classNames("w-full", "mb-2", "flex flex-col")}>
@@ -456,16 +543,20 @@ const ConfirmDAppForm: React.FC = () => {
 };
 
 type ConnectBannerProps = {
+  type: "connect" | "confirm_operations";
   origin: string;
   appMeta: ThanosDAppMetadata;
   className?: string;
 };
 
 const ConnectBanner: React.FC<ConnectBannerProps> = ({
+  type,
   origin,
   appMeta,
   className,
 }) => {
+  const Icon = type === "connect" ? OkIcon : LayersIcon;
+
   return (
     <div
       className={classNames(
@@ -496,13 +587,14 @@ const ConnectBanner: React.FC<ConnectBannerProps> = ({
         <div className="absolute inset-0 flex items-center justify-center">
           <div
             className={classNames(
-              "bg-green-500 rounded-full",
+              type === "connect" ? "bg-green-500" : "bg-orange-500",
+              "rounded-full",
               "p-1",
               "flex items-center justify-center",
               "text-white"
             )}
           >
-            <OkIcon className="h-4 w-auto stroke-2 stroke-current" />
+            <Icon className="h-4 w-auto stroke-2 stroke-current" />
           </div>
         </div>
       </div>
@@ -539,7 +631,6 @@ const SubTitle: React.FC<SubTitleProps> = ({
   return (
     <h2
       className={classNames(
-        "mt-4 mb-6",
         "flex items-center justify-center",
         "text-gray-700",
         "text-lg",
