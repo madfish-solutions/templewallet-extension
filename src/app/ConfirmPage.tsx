@@ -99,7 +99,7 @@ const ConfirmDAppForm: React.FC = () => {
         (a) =>
           a.publicKeyHash ===
           (params.type === "connect" ? accountPkhToConnect : params.sourcePkh)
-      )!,
+      ),
     [params, allAccounts, accountPkhToConnect]
   );
 
@@ -128,7 +128,7 @@ const ConfirmDAppForm: React.FC = () => {
           title: "Confirm operations",
           actionTitle: "Confirm",
           want: (
-            <p className="mb-2 text-sm text-gray-700 text-center">
+            <div className="mb-2 text-sm text-gray-700 text-center">
               <div className="flex items-center justify-center">
                 <Identicon
                   hash={params.origin}
@@ -140,7 +140,7 @@ const ConfirmDAppForm: React.FC = () => {
                 </Name>
               </div>
               requests operations to you
-            </p>
+            </div>
           ),
         };
     }
@@ -282,7 +282,7 @@ const ConfirmDAppForm: React.FC = () => {
           </p>
         )}
 
-        {params.type === "confirm_operations" && (
+        {params.type === "confirm_operations" && connectedAccount && (
           <AccountBanner
             account={connectedAccount}
             displayBalance={false}
