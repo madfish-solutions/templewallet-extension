@@ -171,17 +171,30 @@ async function processRequest(
       });
 
     case ThanosMessageType.PageRequest:
-      return enqueue(pageQueue, port, async () => {
-        const resPayload = await Actions.processDApp(
-          intercom,
-          req.origin,
-          req.payload
-        );
-        return {
-          type: ThanosMessageType.PageResponse,
-          payload: resPayload,
-        };
-      });
+      const dAppEnabled = await Vault.isDAppEnabled();
+      if (dAppEnabled) {
+        if (req.payload === "PING") {
+          return {
+            type: ThanosMessageType.PageResponse,
+            payload: "PONG",
+          };
+        }
+
+        return enqueue(pageQueue, port, async () => {
+          const resPayload = await Actions.processDApp(
+            intercom,
+            req.origin,
+            req.payload
+          );
+          if (resPayload) {
+            return {
+              type: ThanosMessageType.PageResponse,
+              payload: resPayload,
+            };
+          }
+        });
+      }
+      break;
   }
 }
 

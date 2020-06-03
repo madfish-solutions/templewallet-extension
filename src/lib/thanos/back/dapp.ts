@@ -13,6 +13,7 @@ import {
 import { IntercomServer } from "lib/intercom/server";
 import { Vault } from "lib/thanos/back/vault";
 import { NETWORKS } from "lib/thanos/networks";
+import { isAddressValid } from "lib/thanos/helpers";
 import { ThanosMessageType, ThanosRequest } from "lib/thanos/types";
 
 const CONFIRM_WINDOW_WIDTH = 380;
@@ -32,6 +33,15 @@ export async function requestPermission(
   req: ThanosDAppPermissionRequest,
   intercom: IntercomServer
 ): Promise<ThanosDAppPermissionResponse> {
+  if (
+    ![
+      req?.network === "mainnet" || req?.network === "carthagenet",
+      typeof req?.appMeta?.name === "string",
+    ].every(Boolean)
+  ) {
+    throw new Error(ThanosDAppErrorType.InvalidParams);
+  }
+
   if (!req.force && dApps.has(origin)) {
     const dApp = dApps.get(origin)!;
     if (
@@ -97,6 +107,16 @@ export async function requestOperation(
   req: ThanosDAppOperationRequest,
   intercom: IntercomServer
 ): Promise<ThanosDAppOperationResponse> {
+  if (
+    ![
+      isAddressValid(req?.sourcePkh),
+      req?.opParams?.length > 0,
+      req?.opParams?.every((op) => typeof op.kind === "string"),
+    ].every(Boolean)
+  ) {
+    throw new Error(ThanosDAppErrorType.InvalidParams);
+  }
+
   if (!dApps.has(origin)) {
     throw new Error(ThanosDAppErrorType.NotGranted);
   }
