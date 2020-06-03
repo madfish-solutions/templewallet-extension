@@ -47,8 +47,10 @@ export interface ThanosNetwork {
 
 export type ThanosNetworkType = "main" | "test";
 
-export interface ThanosSettings {
-  dAppEnabled: boolean;
+export interface ThanosSettings {}
+
+export enum ThanosSharedStorageKey {
+  DAppEnabled = "dappenabled",
 }
 
 export enum ThanosMessageType {

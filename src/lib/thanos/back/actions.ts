@@ -53,10 +53,8 @@ export function lock() {
 export function unlock(password: string) {
   return withInited(async () => {
     const vault = await Vault.setup(password);
-    const [accounts, settings] = await Promise.all([
-      vault.fetchAccounts(),
-      vault.fetchSettings(),
-    ]);
+    const accounts = await vault.fetchAccounts();
+    const settings = await vault.fetchSettings();
     unlocked({ vault, accounts, settings });
   });
 }

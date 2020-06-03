@@ -8,6 +8,7 @@ import {
   ThanosAccount,
   ThanosAccountType,
   ThanosSettings,
+  ThanosSharedStorageKey,
 } from "lib/thanos/types";
 import {
   isStored,
@@ -15,12 +16,11 @@ import {
   encryptAndSaveMany,
   removeMany,
 } from "lib/thanos/back/safe-storage";
+import { browser } from "webextension-polyfill-ts";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
-const DEFAULT_SETTINGS: ThanosSettings = {
-  dAppEnabled: false,
-};
+const DEFAULT_SETTINGS: ThanosSettings = {};
 
 enum StorageEntity {
   Check = "check",
@@ -168,6 +168,13 @@ export class Vault {
         watermark && (TaquitoUtils.hex2buf(watermark) as any);
       return signer.sign(bytes, watermarkBuf);
     });
+  }
+
+  static async isDAppEnabled() {
+    const items = await browser.storage.local.get([
+      ThanosSharedStorageKey.DAppEnabled,
+    ]);
+    return Boolean(items[ThanosSharedStorageKey.DAppEnabled]);
   }
 
   static async sendOperations(

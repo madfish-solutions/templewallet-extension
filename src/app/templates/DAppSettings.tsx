@@ -1,11 +1,13 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useThanosClient, useSettings } from "lib/thanos/front";
+import { useStorage, ThanosSharedStorageKey } from "lib/thanos/front";
 import FormCheckbox from "app/atoms/FormCheckbox";
 
 const DAppSettings: React.FC = () => {
-  const { updateSettings } = useThanosClient();
-  const { dAppEnabled } = useSettings();
+  const [dAppEnabled, setDAppEnabled] = useStorage(
+    ThanosSharedStorageKey.DAppEnabled,
+    false
+  );
 
   const changingRef = React.useRef(false);
   const [error, setError] = React.useState<any>(null);
@@ -17,14 +19,14 @@ const DAppSettings: React.FC = () => {
       setError(null);
 
       try {
-        await updateSettings({ dAppEnabled: evt.target.checked });
+        setDAppEnabled(evt.target.checked);
       } catch (err) {
         setError(err);
       }
 
       changingRef.current = false;
     },
-    [setError, updateSettings]
+    [setError, setDAppEnabled]
   );
 
   return (

@@ -83,10 +83,6 @@ const ConfirmDAppForm: React.FC = () => {
   const [accountPkhToConnect, setAccountPkhToConnect] = React.useState(
     account.publicKeyHash
   );
-  const connectedAccount = React.useMemo(
-    () => allAccounts.find((a) => a.publicKeyHash === accountPkhToConnect)!,
-    [allAccounts, accountPkhToConnect]
-  );
 
   const loc = useLocation();
   const params = React.useMemo(() => {
@@ -96,6 +92,16 @@ const ConfirmDAppForm: React.FC = () => {
     const payload = JSON.parse(payloadStr) as Payload;
     return { id, ...payload };
   }, [loc.search]);
+
+  const connectedAccount = React.useMemo(
+    () =>
+      allAccounts.find(
+        (a) =>
+          a.publicKeyHash ===
+          (params.type === "connect" ? accountPkhToConnect : params.sourcePkh)
+      )!,
+    [params, allAccounts, accountPkhToConnect]
+  );
 
   const net = React.useMemo(
     () => allNetworks.find((n) => n.id === params.network)!,
@@ -503,6 +509,7 @@ const ConfirmDAppForm: React.FC = () => {
             type="password"
             name="password"
             placeholder="********"
+            labelPaddingClassName="mb-2"
             errorCaption={errors.password && errors.password.message}
           />
         )}
