@@ -1,3 +1,4 @@
+import { browser } from "webextension-polyfill-ts";
 import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import * as TaquitoUtils from "@taquito/utils";
@@ -16,7 +17,6 @@ import {
   encryptAndSaveMany,
   removeMany,
 } from "lib/thanos/back/safe-storage";
-import { browser } from "webextension-polyfill-ts";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
@@ -75,6 +75,9 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
+      await browser.storage.local.set({
+        [ThanosSharedStorageKey.DAppEnabled]: false,
+      });
       await encryptAndSaveMany(
         [
           [checkStrgKey, null],
