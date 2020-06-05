@@ -19,6 +19,7 @@
     "storage",
     "unlimitedStorage",
     "clipboardWrite",
+    "activeTab",
     "https://*.giganode.io/",
     "https://*.tzstats.com/",
     "https://api.tezos-nodes.com/"
@@ -68,7 +69,9 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["scripts/contentScript.js"]
+      "js": ["scripts/contentScript.js"],
+      "run_at": "document_start",
+      "all_frames": true
     }
   ]
 }
