@@ -1,11 +1,15 @@
-import { Buffer } from "buffer";
+import {
+  ThanosDAppRequest,
+  ThanosDAppMessageType,
+  ThanosDAppResponse,
+} from "@thanos-wallet/dapp/dist/types";
 import { IntercomServer } from "lib/intercom/server";
-import { generateSalt } from "lib/thanos/passworder";
 import {
   ThanosState,
   ThanosStatus,
   ThanosMessageType,
-  ThanosConfirmRequest,
+  ThanosRequest,
+  ThanosSettings,
 } from "lib/thanos/types";
 import { Vault } from "lib/thanos/back/vault";
 import {
@@ -16,12 +20,11 @@ import {
   locked,
   unlocked,
   accountsUpdated,
+  settingsUpdated,
 } from "lib/thanos/back/store";
-// import { Windows, browser } from "webextension-polyfill-ts";
+import { requestPermission, requestOperation } from "lib/thanos/back/dapp";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
-// const CONFIRM_WIDTH = 320;
-// const CONFIRM_HEIGHT = 320;
 const AUTODECLINE_AFTER = 60_000;
 
 export async function getFrontState(): Promise<ThanosState> {
@@ -51,7 +54,8 @@ export function unlock(password: string) {
   return withInited(async () => {
     const vault = await Vault.setup(password);
     const accounts = await vault.fetchAccounts();
-    unlocked({ vault, accounts });
+    const settings = await vault.fetchSettings();
+    unlocked({ vault, accounts, settings });
   });
 }
 
@@ -144,39 +148,27 @@ export function importFundraiserAccount(
   });
 }
 
-// let currentConfirmWindow: Windows.Window;
-let stopSign: (() => void) | undefined;
+export function updateSettings(settings: Partial<ThanosSettings>) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedSettings = await vault.updateSettings(settings);
+    settingsUpdated(updatedSettings);
+  });
+}
 
 export function sign(
   intercom: IntercomServer,
   accPublicKeyHash: string,
+  id: string,
   bytes: string,
   watermark?: string
 ) {
   return withUnlocked(
     () =>
       new Promise(async (resolve, reject) => {
-        const id = Buffer.from(generateSalt()).toString("hex");
-
         intercom.broadcast({
           type: ThanosMessageType.ConfirmRequested,
           id,
         });
-
-        // const search = new URLSearchParams({ id });
-        // const win = await browser.windows.getCurrent();
-        // const top = Math.round(win.top! + win.height! / 2 - CONFIRM_HEIGHT / 2);
-        // const left = Math.round(win.left! + win.width! / 2 - CONFIRM_WIDTH / 2);
-
-        // const confirmWin = await browser.windows.create({
-        //   type: "popup",
-        //   url: browser.runtime.getURL(`confirm.html?${search}`),
-        //   width: 360,
-        //   height: 360,
-        //   top: Math.max(top, 0),
-        //   left: Math.max(left, 0),
-        // });
-        // currentConfirmWindow = confirmWin;
 
         let stop: any;
         let timeout: any;
@@ -195,54 +187,17 @@ export function sign(
               id,
             });
           } catch (_err) {}
-
-          stopSign = undefined;
-
-          // try {
-          //   const tabs = await browser.tabs.query({
-          //     active: true
-          //   });
-          //   if (tabs.length > 0) {
-          //     await browser.tabs.update(tabs[0].id, {
-          //       active: true,
-          //       highlighted: true
-          //     });
-          //   }
-          // } catch (_err) {}
-
-          // if (confirmWin.id) {
-          //   try {
-          //     const win = await browser.windows.get(confirmWin.id);
-          //     if (win.id) {
-          //       browser.windows.remove(win.id);
-          //     }
-          //   } catch (_err) {}
-          // }
         };
 
         const decline = () => {
           reject(new Error("Declined"));
         };
 
-        // browser.windows.onRemoved.addListener((winId) => {
-        //   if (winId === confirmWin?.id) {
-        //     decline();
-        //     close();
-        //   }
-        // });
-
-        stopSign = () => {
-          decline();
-          close();
-        };
-
-        stop = intercom.onRequest(async (msg) => {
+        stop = intercom.onRequest(async (req: ThanosRequest) => {
           if (
-            msg?.type === ThanosMessageType.ConfirmRequest &&
-            msg?.id === id
+            req?.type === ThanosMessageType.ConfirmRequest &&
+            req?.id === id
           ) {
-            const req = msg as ThanosConfirmRequest;
-
             if (req.confirm) {
               const result = await Vault.sign(
                 accPublicKeyHash,
@@ -273,22 +228,19 @@ export function sign(
   );
 }
 
-export async function stopConfirming() {
-  if (stopSign) {
-    stopSign();
+export async function processDApp(
+  intercom: IntercomServer,
+  origin: string,
+  req: ThanosDAppRequest
+): Promise<ThanosDAppResponse | void> {
+  switch (req?.type) {
+    case ThanosDAppMessageType.PermissionRequest:
+      return withInited(() => requestPermission(origin, req, intercom));
+
+    case ThanosDAppMessageType.OperationRequest:
+      return withInited(() => requestOperation(origin, req, intercom));
   }
 }
-
-// export async function closeConfirmWindow() {
-//   if (currentConfirmWindow?.id) {
-//     try {
-//       const win = await browser.windows.get(currentConfirmWindow.id);
-//       if (win.id) {
-//         browser.windows.remove(win.id);
-//       }
-//     } catch (_err) {}
-//   }
-// }
 
 function withUnlocked<T>(factory: (state: UnlockedStoreState) => T) {
   const state = store.getState();

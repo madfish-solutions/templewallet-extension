@@ -3,6 +3,7 @@ import classNames from "clsx";
 import { Link } from "lib/woozie";
 import PageLayout from "app/layouts/PageLayout";
 import RevealSecret from "app/templates/RevealSecret";
+import DAppSettings from "app/templates/DAppSettings";
 import ActivateAccount from "app/templates/ActivateAccount";
 import RemoveAccount from "app/templates/RemoveAccount";
 import About from "app/templates/About";
@@ -12,6 +13,7 @@ import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
 import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
+import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
 
 type SettingsProps = {
   tabSlug?: string | null;
@@ -44,6 +46,19 @@ const TABS = [
       <>
         Also known as "Export Wallet", you may need this seed phrase to access
         your wallet and accounts on other devices.
+      </>
+    ),
+  },
+  {
+    slug: "dapps",
+    title: "DApps",
+    Icon: AppsIcon,
+    Component: DAppSettings,
+    color: "#9F7AEA",
+    description: (
+      <>
+        In this section you can enable ability to interact with decentralized
+        applications that support Thanos Wallet.
       </>
     ),
   },

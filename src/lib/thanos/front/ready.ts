@@ -22,6 +22,7 @@ export const [
   useAllAccounts,
   useSetAccountPkh,
   useAccount,
+  useSettings,
   useTezos,
 ] = constate(
   useReadyThanos,
@@ -31,6 +32,7 @@ export const [
   (v) => v.allAccounts,
   (v) => v.setAccountPkh,
   (v) => v.account,
+  (v) => v.settings,
   (v) => v.tezos
 );
 
@@ -41,6 +43,7 @@ function useReadyThanos() {
   const {
     networks: allNetworks,
     accounts: allAccounts,
+    settings,
     createSigner,
   } = thanosFront;
 
@@ -111,6 +114,7 @@ function useReadyThanos() {
     accountPkh,
     setAccountPkh,
 
+    settings,
     tezos,
   };
 }

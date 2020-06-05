@@ -1,9 +1,16 @@
+import { browser } from "webextension-polyfill-ts";
 import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
+import { TezosToolkit } from "@taquito/taquito";
 import * as Passworder from "lib/thanos/passworder";
-import { ThanosAccount, ThanosAccountType } from "lib/thanos/types";
+import {
+  ThanosAccount,
+  ThanosAccountType,
+  ThanosSettings,
+  ThanosSharedStorageKey,
+} from "lib/thanos/types";
 import {
   isStored,
   fetchAndDecryptOne,
@@ -13,6 +20,7 @@ import {
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
+const DEFAULT_SETTINGS: ThanosSettings = {};
 
 enum StorageEntity {
   Check = "check",
@@ -21,6 +29,7 @@ enum StorageEntity {
   AccPrivKey = "accprivkey",
   AccPubKey = "accpubkey",
   Accounts = "accounts",
+  Settings = "settings",
 }
 
 const checkStrgKey = createStorageKey(StorageEntity.Check);
@@ -29,6 +38,7 @@ const mnemonicStrgKey = createStorageKey(StorageEntity.Mnemonic);
 const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
 const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
 const accountsStrgKey = createStorageKey(StorageEntity.Accounts);
+const settingsStrgKey = createStorageKey(StorageEntity.Settings);
 
 export class Vault {
   static isExist() {
@@ -65,6 +75,9 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
+      await browser.storage.local.set({
+        [ThanosSharedStorageKey.DAppEnabled]: false,
+      });
       await encryptAndSaveMany(
         [
           [checkStrgKey, null],
@@ -160,6 +173,42 @@ export class Vault {
     });
   }
 
+  static async isDAppEnabled() {
+    const items = await browser.storage.local.get([
+      ThanosSharedStorageKey.DAppEnabled,
+    ]);
+    return Boolean(items[ThanosSharedStorageKey.DAppEnabled]);
+  }
+
+  static async sendOperations(
+    accPublicKeyHash: string,
+    rpc: string,
+    password: string,
+    opParams: any[]
+  ) {
+    const passKey = await Vault.toValidPassKey(password);
+    const batch = await withError("Failed to send operations", async () => {
+      const privateKey = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        passKey
+      );
+      const signer = await createMemorySigner(privateKey);
+      const tezos = new TezosToolkit();
+      tezos.setProvider({ rpc, signer });
+      return tezos.batch(opParams);
+    });
+
+    try {
+      const op = await batch.send();
+      return op.hash;
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(err);
+      }
+      throw new Error(`__tezos__${err.message}`);
+    }
+  }
+
   private static toValidPassKey(password: string) {
     return withError("Invalid password", async (doThrow) => {
       const passKey = await Passworder.generateKey(password);
@@ -184,6 +233,17 @@ export class Vault {
 
   fetchAccounts() {
     return fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, this.passKey);
+  }
+
+  async fetchSettings() {
+    let saved;
+    try {
+      saved = await fetchAndDecryptOne<ThanosSettings>(
+        settingsStrgKey,
+        this.passKey
+      );
+    } catch {}
+    return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
   async createHDAccount(name?: string) {
@@ -319,6 +379,15 @@ export class Vault {
       );
 
       return newAllAcounts;
+    });
+  }
+
+  async updateSettings(settings: Partial<ThanosSettings>) {
+    return withError("Failed to update settings", async () => {
+      const current = await this.fetchSettings();
+      const newSettings = { ...current, ...settings };
+      await encryptAndSaveMany([[settingsStrgKey, newSettings]], this.passKey);
+      return newSettings;
     });
   }
 }

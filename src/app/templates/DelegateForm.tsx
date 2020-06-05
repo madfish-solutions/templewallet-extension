@@ -215,8 +215,11 @@ const DelegateForm: React.FC = () => {
       dedupingInterval: 30_000,
     }
   );
-  const estimationError =
-    baseFee instanceof Error ? baseFee : estimateBaseFeeError;
+  const estimationError = !estimating
+    ? baseFee instanceof Error
+      ? baseFee
+      : estimateBaseFeeError
+    : null;
 
   const { data: baker, isValidating: bakerValidating } = useKnownBaker(
     toFilled ? toValue : null,

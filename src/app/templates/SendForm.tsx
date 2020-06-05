@@ -187,8 +187,11 @@ const SendForm: React.FC = () => {
       dedupingInterval: 30_000,
     }
   );
-  const estimationError =
-    baseFee instanceof Error ? baseFee : estimateBaseFeeError;
+  const estimationError = !estimating
+    ? baseFee instanceof Error
+      ? baseFee
+      : estimateBaseFeeError
+    : null;
 
   const maxAddFee = React.useMemo(() => {
     if (baseFee instanceof BigNumber) {
