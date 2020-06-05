@@ -18,6 +18,7 @@ interface FormFieldProps extends FormFieldAttrs {
   extraButton?: React.ReactNode;
   extraInner?: React.ReactNode;
   onClean?: () => void;
+  labelPaddingClassName?: string;
 }
 
 const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
@@ -42,6 +43,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
       className,
       spellCheck = false,
       autoComplete = "off",
+      labelPaddingClassName = "mb-4",
       ...rest
     },
     ref
@@ -137,7 +139,11 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
       >
         {label ? (
           <label
-            className={classNames("mb-4", "leading-tight", "flex flex-col")}
+            className={classNames(
+              labelPaddingClassName,
+              "leading-tight",
+              "flex flex-col"
+            )}
             htmlFor={id}
           >
             <span className="text-base font-semibold text-gray-700">

@@ -5,6 +5,7 @@ import { createUrl } from "lib/woozie";
 
 export type AppEnvironment = {
   windowType: WindowType;
+  confirmWindow?: boolean;
 };
 
 export enum WindowType {
@@ -17,6 +18,7 @@ export type BackHandler = () => void;
 export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
   const fullPage = env.windowType === WindowType.FullPage;
   const popup = env.windowType === WindowType.Popup;
+  const confirmWindow = env.confirmWindow ?? false;
 
   const handlerRef = React.useRef<BackHandler>();
   const prevHandlerRef = React.useRef<BackHandler>();
@@ -41,9 +43,9 @@ export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
   }, []);
 
   return {
-    ...env,
     fullPage,
     popup,
+    confirmWindow,
     onBack,
     registerBackHandler,
   };

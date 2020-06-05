@@ -8,12 +8,14 @@ import Name from "app/atoms/Name";
 
 type AccountBannerProps = React.HTMLAttributes<HTMLDivElement> & {
   account: ThanosAccount;
+  displayBalance?: boolean;
   label?: React.ReactNode;
   labelDescription?: React.ReactNode;
 };
 
 const AccountBanner: React.FC<AccountBannerProps> = ({
   account,
+  displayBalance = true,
   className,
   label = "Account",
   labelDescription,
@@ -96,20 +98,22 @@ const AccountBanner: React.FC<AccountBannerProps> = ({
               })()}
             </div>
 
-            <Balance address={account.publicKeyHash}>
-              {(bal) => (
-                <div
-                  className={classNames(
-                    "ml-2",
-                    "text-xs leading-none",
-                    "text-gray-600"
-                  )}
-                >
-                  <Money>{bal}</Money>{" "}
-                  <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
-                </div>
-              )}
-            </Balance>
+            {displayBalance && (
+              <Balance address={account.publicKeyHash}>
+                {(bal) => (
+                  <div
+                    className={classNames(
+                      "ml-2",
+                      "text-xs leading-none",
+                      "text-gray-600"
+                    )}
+                  >
+                    <Money>{bal}</Money>{" "}
+                    <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
+                  </div>
+                )}
+              </Balance>
+            )}
           </div>
         </div>
       </div>
