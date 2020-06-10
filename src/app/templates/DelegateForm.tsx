@@ -17,6 +17,7 @@ import {
   tzToMutez,
   mutezToTz,
   isAddressValid,
+  isKTAddress,
   hasManager,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
@@ -132,13 +133,14 @@ const DelegateForm: React.FC = () => {
   const feeFieldRef = React.useRef<HTMLInputElement>(null);
 
   const toFilled = React.useMemo(
-    () => Boolean(toValue && isAddressValid(toValue)),
+    () => Boolean(toValue && isAddressValid(toValue) && !isKTAddress(toValue)),
     [toValue]
   );
 
   const cleanToField = React.useCallback(() => {
     setValue("to", "");
-  }, [setValue]);
+    triggerValidation("to");
+  }, [setValue, triggerValidation]);
 
   React.useLayoutEffect(() => {
     if (toFilled) {
@@ -363,8 +365,7 @@ const DelegateForm: React.FC = () => {
           as={<NoSpaceField ref={toFieldRef} />}
           control={control}
           rules={{
-            required: "Required",
-            validate: validateAddressForm,
+            validate: validateAddress,
           }}
           onChange={([v]) => v}
           onFocus={() => toFieldRef.current?.focus()}
@@ -761,6 +762,18 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
 class UnchangedError extends Error {}
 class UnregisteredDelegateError extends Error {}
 
-function validateAddressForm(value: any) {
-  return isAddressValid(value) || "Invalid address";
+function validateAddress(value: any) {
+  switch (false) {
+    case value?.length > 0:
+      return true;
+
+    case isAddressValid(value):
+      return "Invalid address";
+
+    case !isKTAddress(value):
+      return "Unable to delegate to KT... contract address";
+
+    default:
+      return true;
+  }
 }
