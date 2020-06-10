@@ -17,3 +17,7 @@ export function mutezToTz(mutez: any) {
 export function isAddressValid(address: string) {
   return validateAddress(address) === ValidationResult.VALID;
 }
+
+export function isKTAddress(address: string) {
+  return address?.startsWith("KT");
+}
