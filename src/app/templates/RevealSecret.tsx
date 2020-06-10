@@ -137,7 +137,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
               className="mb-6"
             />
           ),
-          attension: (
+          attention: (
             <>
               <span className="font-semibold">DO NOT share</span> this set of
               chars with anyone! It can be used to steal your current
@@ -153,7 +153,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
         return {
           name: "Seed Phrase",
           accountBanner: null,
-          attension: (
+          attention: (
             <>
               <span className="font-semibold">DO NOT share</span> this phrase
               with anyone! It can be used to steal all your accounts.
@@ -191,8 +191,8 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           />
 
           <Alert
-            title="Attension!"
-            description={<p>{texts.attension}</p>}
+            title="Attention!"
+            description={<p>{texts.attention}</p>}
             className="my-4"
           />
         </>
