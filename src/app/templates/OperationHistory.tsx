@@ -31,6 +31,8 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
 
   const fetchOperations = React.useCallback(async () => {
     try {
+      if (!network.tzStats) return [];
+
       const { ops } = await getAccountWithOperations(network.tzStats, {
         pkh: accountPkh,
         order: "desc",
@@ -122,7 +124,20 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
         >
           <LayersIcon className="mb-2 w-16 h-auto stroke-current" />
 
-          <h3 className="text-sm font-light">No operations found</h3>
+          <h3
+            className="text-sm font-light text-center"
+            style={{ maxWidth: "20rem" }}
+          >
+            {network.tzStats ? (
+              "No operations found"
+            ) : (
+              <>
+                No operation history is available
+                <br />
+                for local sandbox
+              </>
+            )}
+          </h3>
         </div>
       )}
 

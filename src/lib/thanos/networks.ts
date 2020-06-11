@@ -38,7 +38,7 @@ export const NETWORKS: ThanosNetwork[] = [
     description: "Local Sandbox",
     type: "test",
     rpcBaseURL: "http://localhost:8732",
-    tzStats: TZStatsNetwork.Labnet,
+    tzStats: null,
     color: "#e9e1cc",
     disabled: false,
   },
