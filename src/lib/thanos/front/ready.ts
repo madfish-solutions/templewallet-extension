@@ -63,7 +63,10 @@ function useReadyThanos() {
     }
   }, [allNetworks, networkId, setNetworkId, defaultNet]);
 
-  const network = allNetworks.find((n) => n.id === networkId) ?? defaultNet;
+  const network = React.useMemo(
+    () => allNetworks.find((n) => n.id === networkId) ?? defaultNet,
+    [allNetworks, networkId, defaultNet]
+  );
 
   /**
    * Accounts
@@ -81,8 +84,19 @@ function useReadyThanos() {
     }
   }, [allAccounts, accountPkh, setAccountPkh, defaultAcc]);
 
-  const account =
-    allAccounts.find((a) => a.publicKeyHash === accountPkh) ?? defaultAcc;
+  const account = React.useMemo(
+    () => allAccounts.find((a) => a.publicKeyHash === accountPkh) ?? defaultAcc,
+    [allAccounts, accountPkh, defaultAcc]
+  );
+
+  /**
+   * Error boundary reset
+   */
+
+  React.useLayoutEffect(() => {
+    const evt = new CustomEvent("reseterrorboundary");
+    window.dispatchEvent(evt);
+  }, [networkId, accountPkh]);
 
   /**
    * tezos = TezosToolkit instance

@@ -504,7 +504,7 @@ const ConfirmDAppForm: React.FC = () => {
           <FormField
             ref={register({ required: "Required" })}
             label="Password"
-            labelDescription="Enter passwrod to confirm operations"
+            labelDescription="Enter password to confirm operations"
             id="unlock-password"
             type="password"
             name="password"

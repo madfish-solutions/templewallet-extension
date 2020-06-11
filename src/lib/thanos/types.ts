@@ -40,7 +40,7 @@ export interface ThanosNetwork {
   description: string;
   type: ThanosNetworkType;
   rpcBaseURL: string;
-  tzStats: TZStatsNetwork;
+  tzStats: TZStatsNetwork | null;
   color: string;
   disabled: boolean;
 }
