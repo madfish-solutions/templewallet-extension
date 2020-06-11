@@ -33,6 +33,16 @@ export const NETWORKS: ThanosNetwork[] = [
     disabled: false,
   },
   {
+    id: "localhost",
+    name: "Sandbox",
+    description: "Local Sandbox",
+    type: "test",
+    rpcBaseURL: "http://localhost:8732",
+    tzStats: TZStatsNetwork.Labnet,
+    color: "#e9e1cc",
+    disabled: false,
+  },
+  {
     id: "babylonnet",
     name: "Babylon Testnet",
     description: "Babylon testnet",
