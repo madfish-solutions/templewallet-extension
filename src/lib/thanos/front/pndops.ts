@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useTezos, useStorage } from "lib/thanos/front";
+import { useTezos, useNetwork, useStorage } from "lib/thanos/front";
 
 export interface PendingOperation {
   kind: string;
@@ -11,6 +11,12 @@ export interface PendingOperation {
 
 export function usePendingOperations() {
   const tezos = useTezos();
+  const network = useNetwork();
+
+  const allowed = React.useMemo(() => Boolean(network.tzStats), [
+    network.tzStats,
+  ]);
+
   const [pndOps, setPndOps] = useStorage<PendingOperation[]>(
     `pndops_${tezos.checksum}`,
     []
@@ -18,9 +24,11 @@ export function usePendingOperations() {
 
   const addPndOps = React.useCallback(
     (opsToAdd: PendingOperation[]) => {
-      setPndOps((ops) => [...opsToAdd, ...ops]);
+      if (allowed) {
+        setPndOps((ops) => [...opsToAdd, ...ops]);
+      }
     },
-    [setPndOps]
+    [setPndOps, allowed]
   );
 
   const removePndOps = React.useCallback(
