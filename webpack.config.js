@@ -85,25 +85,15 @@ const ENTRIES = {
   confirm: path.join(SOURCE_PATH, "confirm.tsx"),
   options: path.join(SOURCE_PATH, "options.tsx"),
   background: path.join(SOURCE_PATH, "background.ts"),
-  // contentScript: path.join(SOURCE_PATH, "contentScript.ts")
+  contentScript: path.join(SOURCE_PATH, "contentScript.ts"),
 };
 
-// To public/manifest.json
-//
-// "content_scripts": [
-//   {
-//     "matches": ["http://*/*", "https://*/*"],
-//     "js": ["scripts/contentScript.js"]
-//   }
-// ]
-//
-
 const EXTENSION_ENTRIES = {
-  // contentScript: "contentScript",
+  contentScript: "contentScript",
   background: "background",
   extensionPage: ["commons", "popup", "fullpage", "confirm", "options"],
 };
-const SEPARATED_CHUNKS = new Set(["background" /*, "contentScript"*/]);
+const SEPARATED_CHUNKS = new Set(["background", "contentScript"]);
 const MANIFEST_PATH = path.join(PUBLIC_PATH, "manifest.json");
 const MODULE_FILE_EXTENSIONS = [".js", ".mjs", ".jsx", ".ts", ".tsx", ".json"];
 const ADDITIONAL_MODULE_PATHS = [
@@ -112,13 +102,6 @@ const ADDITIONAL_MODULE_PATHS = [
 ].filter(Boolean);
 const CSS_REGEX = /\.css$/;
 const CSS_MODULE_REGEX = /\.module\.css$/;
-const PURGECSS_OPTIONS = {
-  whitelistPatterns: [/popper/, /tippy/],
-  whitelistPatternsChildren: [/popper/, /tippy/],
-  content: ["./public/**/*.{html,js,mjs}", "./src/**/*.{js,jsx,ts,tsx}"],
-  // Include any special characters you're using in this regular expression
-  defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
-};
 
 module.exports = {
   mode: NODE_ENV,
@@ -539,8 +522,6 @@ function getStyleLoaders(cssOptions = {}) {
               stage: 3,
             }),
             require("tailwindcss"),
-            NODE_ENV === "production" &&
-              require("@fullhuman/postcss-purgecss")(PURGECSS_OPTIONS),
             require("autoprefixer"),
           ].filter(Boolean),
         sourceMap: SOURCE_MAP,

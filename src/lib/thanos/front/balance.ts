@@ -2,10 +2,10 @@ import * as React from "react";
 import { useRetryableSWR } from "lib/swr";
 import { TezosToolkit } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
-import { useReadyThanos } from "lib/thanos/front/ready";
+import { useTezos } from "lib/thanos/front";
 
-export function useBalance(address: string, suspense?: boolean) {
-  const { tezos, tezosKey } = useReadyThanos();
+export function useBalance(address: string, suspense = true) {
+  const tezos = useTezos();
 
   const fetchBalanceLocal = React.useCallback(
     () => fetchBalance(address, tezos),
@@ -13,11 +13,10 @@ export function useBalance(address: string, suspense?: boolean) {
   );
 
   return useRetryableSWR(
-    getBalanceSWRKey(address, tezosKey),
+    ["balance", tezos.checksum, address],
     fetchBalanceLocal,
     {
-      refreshInterval: 10_000,
-      dedupingInterval: 15_000,
+      dedupingInterval: 20_000,
       suspense,
     }
   );
@@ -26,8 +25,4 @@ export function useBalance(address: string, suspense?: boolean) {
 export async function fetchBalance(address: string, tezos: TezosToolkit) {
   const amount = await tezos.tz.getBalance(address);
   return tezos.format("mutez", "tz", amount) as BigNumber;
-}
-
-export function getBalanceSWRKey(address: string, tezosKey: string) {
-  return ["balance", address, tezosKey];
 }

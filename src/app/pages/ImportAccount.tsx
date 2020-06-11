@@ -3,7 +3,11 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic } from "bip39";
 import { Link, navigate } from "lib/woozie";
-import { useThanosClient, useReadyThanos } from "lib/thanos/front";
+import {
+  useThanosClient,
+  useAllAccounts,
+  useSetAccountPkh,
+} from "lib/thanos/front";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
@@ -16,7 +20,8 @@ type ImportAccountProps = {
 };
 
 const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
-  const { allAccounts, setAccountPkh } = useReadyThanos();
+  const allAccounts = useAllAccounts();
+  const setAccountPkh = useSetAccountPkh();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
@@ -95,23 +100,24 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
 
 interface ByPrivateKeyFormData {
   privateKey: string;
+  encPassword?: string;
 }
 
 const ByPrivateKeyForm: React.FC = () => {
   const { importAccount } = useThanosClient();
 
-  const { register, handleSubmit, errors, formState } = useForm<
+  const { register, handleSubmit, errors, formState, watch } = useForm<
     ByPrivateKeyFormData
   >();
   const [error, setError] = React.useState<React.ReactNode>(null);
 
-  const onSubmit = React.useCallback<(data: ByPrivateKeyFormData) => void>(
-    async (data) => {
+  const onSubmit = React.useCallback(
+    async ({ privateKey, encPassword }: ByPrivateKeyFormData) => {
       if (formState.isSubmitting) return;
 
       setError(null);
       try {
-        await importAccount(data.privateKey.replace(/\s/g, ""));
+        await importAccount(privateKey.replace(/\s/g, ""), encPassword);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -124,6 +130,11 @@ const ByPrivateKeyForm: React.FC = () => {
     },
     [importAccount, formState.isSubmitting, setError]
   );
+
+  const keyValue = watch("privateKey");
+  const encrypted = React.useMemo(() => keyValue?.substring(2, 3) === "e", [
+    keyValue,
+  ]);
 
   return (
     <form
@@ -154,6 +165,27 @@ const ByPrivateKeyForm: React.FC = () => {
         className="resize-none"
         containerClassName="mb-6"
       />
+
+      {encrypted && (
+        <FormField
+          ref={register}
+          name="encPassword"
+          type="password"
+          id="importacc-password"
+          label={
+            <>
+              Password{" "}
+              <span className="text-sm font-light text-gary-600">
+                (optional)
+              </span>
+            </>
+          }
+          labelDescription="Your private key in encrypted format?"
+          placeholder="*********"
+          errorCaption={errors.encPassword?.message}
+          containerClassName="mb-6"
+        />
+      )}
 
       <FormSubmitButton
         loading={formState.isSubmitting}
@@ -193,8 +225,12 @@ const ByMnemonicForm: React.FC = () => {
     DERIVATION_PATHS[0]
   );
 
-  const onSubmit = React.useCallback<(data: ByMnemonicFormData) => void>(
-    async ({ mnemonic, password, customDerivationPath }) => {
+  const onSubmit = React.useCallback(
+    async ({
+      mnemonic,
+      password,
+      customDerivationPath,
+    }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
       setError(null);
@@ -309,7 +345,7 @@ const ByMnemonicForm: React.FC = () => {
                   "overflow-hidden",
                   !last && "border-b border-gray-200",
                   selected
-                    ? "bg-gray-200"
+                    ? "bg-gray-300"
                     : "hover:bg-gray-200 focus:bg-gray-200",
                   "flex items-center",
                   "text-gray-700",

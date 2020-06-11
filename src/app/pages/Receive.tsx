@@ -1,15 +1,16 @@
 import * as React from "react";
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
-import { useReadyThanos } from "lib/thanos/front";
+import { useAccount } from "lib/thanos/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
+// import Deposit from "./Receive/Deposit";
 
 const Receive: React.FC = () => {
-  const { account } = useReadyThanos();
+  const account = useAccount();
   const address = account.publicKeyHash;
 
   const { fieldRef, copy, copied } = useCopyToClipboard();
@@ -95,6 +96,8 @@ const Receive: React.FC = () => {
                 value={address}
               />
             </div>
+
+            {/* <Deposit address={address} /> */}
           </div>
         </div>
       </div>

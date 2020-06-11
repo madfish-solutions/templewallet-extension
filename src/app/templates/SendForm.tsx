@@ -1,20 +1,33 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import BigNumber from "bignumber.js";
-import { DEFAULT_FEE, Tezos } from "@taquito/taquito";
-import { ValidationResult, validateAddress } from "@taquito/utils";
+import { DEFAULT_FEE } from "@taquito/taquito";
 import {
   ThanosAccountType,
-  useReadyThanos,
+  useAllAccounts,
+  useAccount,
+  useTezos,
   useBalance,
+  usePendingOperations,
   fetchBalance,
-  getBalanceSWRKey,
+  tzToMutez,
+  mutezToTz,
+  isAddressValid,
+  isKTAddress,
+  hasManager,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
+import {
+  ArtificialError,
+  NotEnoughFundsError,
+  ZeroBalanceError,
+} from "app/defaults";
+import { useAppEnv } from "app/env";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
+import OperationStatus from "app/templates/OperationStatus";
 import Spinner from "app/atoms/Spinner";
 import Money from "app/atoms/Money";
 import NoSpaceField from "app/atoms/NoSpaceField";
@@ -23,7 +36,6 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
-import HashChip from "app/atoms/HashChip";
 import xtzImgUrl from "app/misc/xtz.png";
 
 interface FormData {
@@ -32,29 +44,24 @@ interface FormData {
   fee: number;
 }
 
-const MIN_AMOUNT = 0.000001;
-const RECOMMENDED_ADD_FEE = 100;
-const NOT_ENOUGH_FUNDS = Symbol("NOT_ENOUGH_FUNDS");
+const PENNY = 0.000001;
+const RECOMMENDED_ADD_FEE = 0.0001;
 
 const SendForm: React.FC = () => {
-  const { accountPkh, allAccounts, tezos, tezosKey } = useReadyThanos();
+  const { registerBackHandler } = useAppEnv();
 
+  const allAccounts = useAllAccounts();
+  const acc = useAccount();
+  const tezos = useTezos();
+
+  const accountPkh = acc.publicKeyHash;
   const assetSymbol = "XTZ";
 
-  const balSWR = useBalance(accountPkh, true);
-  const balance = balSWR.data!;
-  const revalidateBalance = balSWR.revalidate;
-  const balanceNum = balance.toNumber();
+  const { data: balanceData, mutate: mutateBalance } = useBalance(accountPkh);
+  const balance = balanceData!;
+  const balanceNum = balance!.toNumber();
 
-  const validateAddress = React.useCallback(
-    (v: any) => isAddressValid(v) || "Invalid address",
-    []
-  );
-
-  const recommendedAddFeeTz = React.useMemo(
-    () => mutezToTz(RECOMMENDED_ADD_FEE).toNumber(),
-    []
-  );
+  const { addPndOps } = usePendingOperations();
 
   /**
    * Form
@@ -72,20 +79,20 @@ const SendForm: React.FC = () => {
   } = useForm<FormData>({
     mode: "onChange",
     defaultValues: {
-      fee: recommendedAddFeeTz,
+      fee: RECOMMENDED_ADD_FEE,
     },
   });
 
   const toValue = watch("to");
   const amountValue = watch("amount");
-  const feeValue = watch("fee") ?? recommendedAddFeeTz;
+  const feeValue = watch("fee") ?? RECOMMENDED_ADD_FEE;
 
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = React.useRef<HTMLInputElement>(null);
   const feeFieldRef = React.useRef<HTMLInputElement>(null);
 
   const toFilled = React.useMemo(
-    () => Boolean(toValue && isAddressValid(toValue)),
+    () => Boolean(toValue && isAddressValid(toValue) && !isKTAddress(toValue)),
     [toValue]
   );
 
@@ -96,20 +103,29 @@ const SendForm: React.FC = () => {
     [toFilled, allAccounts, toValue]
   );
 
+  const cleanToField = React.useCallback(() => {
+    setValue("to", "");
+    triggerValidation("to");
+  }, [setValue, triggerValidation]);
+
+  React.useLayoutEffect(() => {
+    if (toFilled) {
+      return registerBackHandler(() => {
+        cleanToField();
+        window.scrollTo(0, 0);
+      });
+    }
+  }, [toFilled, registerBackHandler, cleanToField]);
+
   const estimateBaseFee = React.useCallback(async () => {
     try {
-      const balanceBN: BigNumber = await mutate(
-        getBalanceSWRKey(accountPkh, tezosKey),
-        fetchBalance(accountPkh, tezos)
-      );
+      const balanceBN = (await mutateBalance(fetchBalance(accountPkh, tezos)))!;
       if (balanceBN.isZero()) {
-        // Human delay
-        await new Promise((r) => setTimeout(r, 300));
-        return NOT_ENOUGH_FUNDS;
+        throw new ZeroBalanceError();
       }
 
       const to = toValue;
-      const estmtn = await tezos.estimate.transfer({ to, amount: MIN_AMOUNT });
+      const estmtn = await tezos.estimate.transfer({ to, amount: PENNY });
       let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
       const manager = await tezos.rpc.getManagerKey(accountPkh);
       if (!hasManager(manager)) {
@@ -126,37 +142,62 @@ const SendForm: React.FC = () => {
       }
 
       if (baseFee.isGreaterThanOrEqualTo(balanceBN)) {
-        return NOT_ENOUGH_FUNDS;
+        throw new NotEnoughFundsError();
       }
 
       return baseFee;
     } catch (err) {
+      // Human delay
+      await new Promise((r) => setTimeout(r, 300));
+
+      if (err instanceof ArtificialError) {
+        return err;
+      }
+
       if (process.env.NODE_ENV === "development") {
         console.error(err);
       }
 
-      if (err) {
-        return NOT_ENOUGH_FUNDS;
+      switch (true) {
+        //  case ["delegate.unchanged", "delegate.already_active"].some((t) =>
+        //    err?.id.includes(t)
+        //  ):
+        //    return new UnchangedError(err.message);
+
+        //  case err?.id.includes("unregistered_delegate"):
+        //    return new UnregisteredDelegateError(err.message);
+
+        default:
+          throw err;
       }
-
-      throw err;
     }
-  }, [toValue, tezos, tezosKey, accountPkh]);
+  }, [tezos, accountPkh, toValue, mutateBalance]);
 
-  const { data: baseFee, isValidating: estimating } = useSWR(
-    () => (toFilled ? ["base-fee", toValue, tezosKey, accountPkh] : null),
+  const {
+    data: baseFee,
+    error: estimateBaseFeeError,
+    isValidating: estimating,
+  } = useSWR(
+    () =>
+      toFilled
+        ? ["transfer-base-fee", tezos.checksum, accountPkh, toValue]
+        : null,
     estimateBaseFee,
     {
+      shouldRetryOnError: false,
+      focusThrottleInterval: 10_000,
       dedupingInterval: 30_000,
     }
   );
+  const estimationError = !estimating
+    ? baseFee instanceof Error
+      ? baseFee
+      : estimateBaseFeeError
+    : null;
 
   const maxAddFee = React.useMemo(() => {
     if (baseFee instanceof BigNumber) {
-      return new BigNumber(balanceNum)
-        .minus(baseFee)
-        .minus(MIN_AMOUNT)
-        .toNumber();
+      return new BigNumber(balanceNum).minus(baseFee).minus(PENNY).toNumber();
     }
   }, [balanceNum, baseFee]);
 
@@ -166,12 +207,11 @@ const SendForm: React.FC = () => {
   );
 
   const maxAmount = React.useMemo(() => {
-    if (!baseFee) return null;
-    if (baseFee === NOT_ENOUGH_FUNDS) return NOT_ENOUGH_FUNDS;
+    if (!(baseFee instanceof BigNumber)) return null;
     const ma = new BigNumber(balanceNum)
       .minus(baseFee)
       .minus(safeFeeValue ?? 0);
-    return ma.isGreaterThan(0) ? ma : NOT_ENOUGH_FUNDS;
+    return BigNumber.max(ma, 0);
   }, [balanceNum, baseFee, safeFeeValue]);
 
   const maxAmountNum = React.useMemo(
@@ -181,8 +221,6 @@ const SendForm: React.FC = () => {
 
   const validateAmount = React.useCallback(
     (v: number) => {
-      if (maxAmountNum === NOT_ENOUGH_FUNDS)
-        return "Not enough funds for this transaction";
       if (!v) return "Required";
       if (!maxAmountNum) return true;
       const vBN = new BigNumber(v);
@@ -206,18 +244,21 @@ const SendForm: React.FC = () => {
   }, [formState.dirtyFields, triggerValidation, maxAmountNum]);
 
   const handleSetMaxAmount = React.useCallback(() => {
-    if (maxAmount && maxAmount !== NOT_ENOUGH_FUNDS) {
+    if (maxAmount) {
       setValue("amount", maxAmount.toNumber());
       triggerValidation("amount");
     }
   }, [setValue, maxAmount, triggerValidation]);
 
   const handleSetRecommendedFee = React.useCallback(() => {
-    setValue("fee", recommendedAddFeeTz);
-  }, [setValue, recommendedAddFeeTz]);
+    setValue("fee", RECOMMENDED_ADD_FEE);
+  }, [setValue]);
 
-  const [submitError, setSubmitError] = useSafeState<React.ReactNode>(null);
-  const [operation, setOperation] = useSafeState<any>(null);
+  const [submitError, setSubmitError] = useSafeState<React.ReactNode>(
+    null,
+    `${tezos.checksum}_${toValue}`
+  );
+  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
   const onSubmit = React.useCallback(
     async ({ to, amount, fee: feeVal }: FormData) => {
@@ -229,9 +270,41 @@ const SendForm: React.FC = () => {
         const estmtn = await tezos.estimate.transfer({ to, amount });
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        const op = await tezos.contract.transfer({ to, amount, fee });
+        let op;
+        try {
+          op = await tezos.contract.transfer({ to, amount, fee });
+        } catch (err) {
+          if (
+            err?.errors?.some((e: any) =>
+              e?.id.includes("empty_implicit_delegated_contract")
+            )
+          ) {
+            op = await tezos.contract.transfer({
+              to,
+              amount,
+              fee: new BigNumber(fee).minus(tzToMutez(PENNY)).toNumber(),
+            });
+          } else {
+            throw err;
+          }
+        }
+
         setOperation(op);
-        reset({ to: "", fee: 0.0001 });
+
+        const { hash, results } = op;
+        const pndOps = Array.from(results)
+          .reverse()
+          .map((o) => ({
+            hash,
+            kind: o.kind,
+            amount:
+              (o as any).amount && mutezToTz(+(o as any).amount).toNumber(),
+            destination: (o as any).destination,
+            addedAt: new Date().toString(),
+          }));
+        addPndOps(pndOps);
+
+        reset({ to: "", fee: RECOMMENDED_ADD_FEE });
       } catch (err) {
         if (err.message === "Declined") {
           return;
@@ -246,20 +319,23 @@ const SendForm: React.FC = () => {
         setSubmitError(err);
       }
     },
-    [formState.isSubmitting, tezos, setSubmitError, setOperation, reset]
+    [
+      formState.isSubmitting,
+      tezos,
+      setSubmitError,
+      setOperation,
+      addPndOps,
+      reset,
+    ]
   );
 
-  const restFormDisplayed = Boolean(toFilled && baseFee);
-  const estimateFallbackDisplayed =
-    toFilled && (!baseFee || baseFee === NOT_ENOUGH_FUNDS) && estimating;
+  const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
+  const estimateFallbackDisplayed = toFilled && !baseFee && estimating;
 
   return (
     <>
       {operation && (
-        <OperationStatus
-          operation={operation}
-          revalidateBalance={revalidateBalance}
-        />
+        <OperationStatus typeTitle="Transaction" operation={operation} />
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -307,15 +383,16 @@ const SendForm: React.FC = () => {
           as={<NoSpaceField ref={toFieldRef} />}
           control={control}
           rules={{
-            required: "Required",
             validate: validateAddress,
           }}
           onChange={([v]) => v}
           onFocus={() => toFieldRef.current?.focus()}
           textarea
           rows={2}
+          cleanable={Boolean(toValue)}
+          onClean={cleanToField}
           id="send-to"
-          label="Recipient address"
+          label="Recipient"
           labelDescription={
             filledAccount ? (
               <div className="flex flex-wrap items-center">
@@ -323,10 +400,7 @@ const SendForm: React.FC = () => {
                   type="bottts"
                   hash={filledAccount.publicKeyHash}
                   size={14}
-                  className="flex-shrink-0 opacity-75"
-                  style={{
-                    boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)",
-                  }}
+                  className="flex-shrink-0 opacity-75 shadow-xs"
                 />
                 <div className="ml-1 mr-px font-normal">
                   {filledAccount.name}
@@ -346,7 +420,7 @@ const SendForm: React.FC = () => {
               `Address to send ${assetSymbol} funds to.`
             )
           }
-          placeholder="tz1a9w1S7hN5s..."
+          placeholder="e.g. tz1a9w1S7hN5s..."
           errorCaption={errors.to?.message}
           style={{
             resize: "none",
@@ -360,10 +434,10 @@ const SendForm: React.FC = () => {
           </div>
         ) : restFormDisplayed ? (
           <>
-            {(maxAmount === NOT_ENOUGH_FUNDS || submitError) && (
-              <TransferErrorCaption
-                type={submitError ? "transfer" : "estimate"}
-                zeroBalance={balance.isZero()}
+            {(submitError || estimationError) && (
+              <SendErrorAlert
+                type={submitError ? "submit" : "estimation"}
+                error={submitError || estimationError}
               />
             )}
 
@@ -380,8 +454,7 @@ const SendForm: React.FC = () => {
               assetSymbol={assetSymbol}
               label="Amount"
               labelDescription={
-                maxAmount &&
-                maxAmount !== NOT_ENOUGH_FUNDS && (
+                maxAmount && (
                   <>
                     Available to send(max):{" "}
                     <button
@@ -414,7 +487,7 @@ const SendForm: React.FC = () => {
               placeholder="e.g. 123.45"
               errorCaption={errors.amount?.message}
               containerClassName="mb-4"
-              autoFocus={maxAmount && maxAmount !== NOT_ENOUGH_FUNDS}
+              autoFocus={Boolean(maxAmount)}
             />
 
             <Controller
@@ -440,7 +513,7 @@ const SendForm: React.FC = () => {
                       className={classNames("underline")}
                       onClick={handleSetRecommendedFee}
                     >
-                      {recommendedAddFeeTz}
+                      {RECOMMENDED_ADD_FEE}
                     </button>
                   </>
                 )
@@ -452,7 +525,7 @@ const SendForm: React.FC = () => {
 
             <FormSubmitButton
               loading={formState.isSubmitting}
-              disabled={formState.isSubmitting}
+              disabled={formState.isSubmitting || Boolean(estimationError)}
             >
               Send
             </FormSubmitButton>
@@ -519,10 +592,7 @@ const SendForm: React.FC = () => {
                           type="bottts"
                           hash={acc.publicKeyHash}
                           size={32}
-                          className="flex-shrink-0"
-                          style={{
-                            boxShadow: "0 0 0 1px rgba(0, 0, 0, 0.05)",
-                          }}
+                          className="flex-shrink-0 shadow-xs"
                         />
 
                         <div className="ml-2 flex flex-col items-start">
@@ -600,132 +670,73 @@ const SendForm: React.FC = () => {
 
 export default SendForm;
 
-type OperationStatusProps = {
-  operation: any;
-  revalidateBalance?: () => any;
+type SendErrorAlertProps = {
+  type: "submit" | "estimation";
+  error: Error;
 };
 
-const OperationStatus: React.FC<OperationStatusProps> = ({
-  operation,
-  revalidateBalance,
-}) => {
-  const descFooter = React.useMemo(
-    () => (
-      <div className="mt-2 text-xs">
-        Operation Hash:{" "}
-        <HashChip
-          hash={operation.hash}
-          firstCharsCount={10}
-          lastCharsCount={7}
-          small
-        />
-      </div>
-    ),
-    [operation.hash]
-  );
-
-  const [alert, setAlert] = useSafeState<{
-    type: "success" | "error";
-    title: string;
-    description: React.ReactNode;
-  }>(() => ({
-    type: "success",
-    title: "Success 🛫",
-    description: (
-      <>
-        Transaction request sent! Confirming...
-        {descFooter}
-      </>
-    ),
-  }));
-
-  React.useEffect(() => {
-    operation
-      .confirmation()
-      .then(() => {
-        setAlert((a) => ({
-          ...a,
-          title: "Success ✅",
-          description: (
-            <>
-              Transaction successfully processed and confirmed!
-              {descFooter}
-            </>
-          ),
-        }));
-
-        if (revalidateBalance) {
-          revalidateBalance();
-        }
-      })
-      .catch(() => {
-        setAlert({
-          type: "error",
-          title: "Error",
-          description: "Failed. Something went wrong ;(",
-        });
-      });
-  }, [operation, setAlert, descFooter, revalidateBalance]);
-
-  return (
-    <Alert
-      type={alert.type}
-      title={alert.title}
-      description={alert.description}
-      autoFocus
-      className="mb-8"
-    />
-  );
-};
-
-type TransferErrorCaptionProps = {
-  type: "transfer" | "estimate";
-  zeroBalance?: boolean;
-};
-
-const TransferErrorCaption: React.FC<TransferErrorCaptionProps> = ({
-  type,
-  zeroBalance,
-}) => (
+const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
   <Alert
-    type={type === "transfer" ? "error" : "warn"}
-    title={zeroBalance ? "Not enough funds 😶" : "Failed"}
-    description={
-      zeroBalance ? (
-        <>Your Balance is zero.</>
-      ) : (
-        <>
-          Unable to {type} transaction to provided Recipient.
-          <br />
-          This may happen because:
-          <ul className="mt-1 ml-2 list-disc list-inside text-xs">
-            <li>
+    type={type === "submit" ? "error" : "warn"}
+    title={(() => {
+      switch (true) {
+        case error instanceof NotEnoughFundsError:
+          return "Not enough funds 😶";
+
+        default:
+          return "Failed";
+      }
+    })()}
+    description={(() => {
+      switch (true) {
+        case error instanceof ZeroBalanceError:
+          return <>Your Balance is zero.</>;
+
+        case error instanceof NotEnoughFundsError:
+          return (
+            <>
               Minimal fee for this transaction is greater than your balance. A
               large fee may be due because you sending funds to an empty Manager
               account. That requires a one-time 0.257 XTZ burn fee;
-            </li>
-            <li>Network or other tech issue.</li>
-          </ul>
-        </>
-      )
-    }
+            </>
+          );
+
+        default:
+          return (
+            <>
+              Unable to {type === "submit" ? "send" : "estimate"} transaction to
+              provided Recipient.
+              <br />
+              This may happen because:
+              <ul className="mt-1 ml-2 list-disc list-inside text-xs">
+                <li>
+                  Minimal fee for this transaction is greater than your balance.
+                  A large fee may be due because you sending funds to an empty
+                  Manager account. That requires a one-time 0.257 XTZ burn fee;
+                </li>
+                <li>Network or other tech issue.</li>
+              </ul>
+            </>
+          );
+      }
+    })()}
     autoFocus
     className={classNames("mt-6 mb-4")}
   />
 );
 
-function hasManager(manager: any) {
-  return manager && typeof manager === "object" ? !!manager.key : !!manager;
-}
+function validateAddress(value: any) {
+  switch (false) {
+    case value?.length > 0:
+      return true;
 
-function tzToMutez(tz: any) {
-  return Tezos.format("tz", "mutez", tz) as BigNumber;
-}
+    case isAddressValid(value):
+      return "Invalid address";
 
-function mutezToTz(mutez: any) {
-  return Tezos.format("mutez", "tz", mutez) as BigNumber;
-}
+    case !isKTAddress(value):
+      return "Unable to transfer to KT... contract address";
 
-function isAddressValid(address: string) {
-  return validateAddress(address) === ValidationResult.VALID;
+    default:
+      return true;
+  }
 }

@@ -9,7 +9,7 @@ import {
 
 const DEFAULT_ERROR_MESSAGE = "Unexpected error occured";
 
-type ReqHandler = (payload: any) => Promise<any>;
+type ReqHandler = (payload: any, port: Runtime.Port) => Promise<any>;
 
 export class IntercomServer {
   private ports = new Set<Runtime.Port>();
@@ -31,7 +31,7 @@ export class IntercomServer {
   /**
    * Callback should return a promise
    */
-  onRequest(handler: (payload: any) => Promise<any>) {
+  onRequest(handler: ReqHandler) {
     this.addReqHandler(handler);
     return () => {
       this.removeReqHandler(handler);
@@ -53,7 +53,7 @@ export class IntercomServer {
       (async (msg) => {
         try {
           for (const handler of this.reqHandlers) {
-            const data = await handler(msg.data);
+            const data = await handler(msg.data, port);
             if (data !== undefined) {
               this.respond(port, {
                 type: MessageType.Res,
@@ -70,7 +70,7 @@ export class IntercomServer {
           this.respond(port, {
             type: MessageType.Err,
             reqId: msg.reqId,
-            data: "message" in err ? err.message : DEFAULT_ERROR_MESSAGE,
+            data: err?.message ?? DEFAULT_ERROR_MESSAGE,
           });
         }
       })(msg as RequestMessage);
@@ -78,7 +78,9 @@ export class IntercomServer {
   }
 
   private respond(port: Runtime.Port, msg: ResponseMessage | ErrorMessage) {
-    port.postMessage(msg);
+    if (this.ports.has(port)) {
+      port.postMessage(msg);
+    }
   }
 
   private addPort(port: Runtime.Port) {

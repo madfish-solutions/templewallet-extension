@@ -1,17 +1,26 @@
+import { browser } from "webextension-polyfill-ts";
 import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
+import { TezosToolkit } from "@taquito/taquito";
 import * as Passworder from "lib/thanos/passworder";
-import { ThanosAccount, ThanosAccountType } from "lib/thanos/types";
+import {
+  ThanosAccount,
+  ThanosAccountType,
+  ThanosSettings,
+  ThanosSharedStorageKey,
+} from "lib/thanos/types";
 import {
   isStored,
   fetchAndDecryptOne,
   encryptAndSaveMany,
+  removeMany,
 } from "lib/thanos/back/safe-storage";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
+const DEFAULT_SETTINGS: ThanosSettings = {};
 
 enum StorageEntity {
   Check = "check",
@@ -20,6 +29,7 @@ enum StorageEntity {
   AccPrivKey = "accprivkey",
   AccPubKey = "accpubkey",
   Accounts = "accounts",
+  Settings = "settings",
 }
 
 const checkStrgKey = createStorageKey(StorageEntity.Check);
@@ -28,6 +38,7 @@ const mnemonicStrgKey = createStorageKey(StorageEntity.Mnemonic);
 const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
 const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
 const accountsStrgKey = createStorageKey(StorageEntity.Accounts);
+const settingsStrgKey = createStorageKey(StorageEntity.Settings);
 
 export class Vault {
   static isExist() {
@@ -37,7 +48,6 @@ export class Vault {
   static async setup(password: string) {
     const passKey = await Vault.toValidPassKey(password);
     return withError("Failed to unlock wallet", async () => {
-      await fetchAndDecryptOne(checkStrgKey, passKey);
       await Vault.runMigrations(passKey);
       return new Vault(passKey);
     });
@@ -65,6 +75,9 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
+      await browser.storage.local.set({
+        [ThanosSharedStorageKey.DAppEnabled]: false,
+      });
       await encryptAndSaveMany(
         [
           [checkStrgKey, null],
@@ -115,6 +128,32 @@ export class Vault {
     );
   }
 
+  static async removeAccount(accPublicKeyHash: string, password: string) {
+    const passKey = await Vault.toValidPassKey(password);
+    return withError("Failed to remove account", async (doThrow) => {
+      const allAccounts = await fetchAndDecryptOne<ThanosAccount[]>(
+        accountsStrgKey,
+        passKey
+      );
+      const acc = allAccounts.find((a) => a.publicKeyHash === accPublicKeyHash);
+      if (!acc || acc.type !== ThanosAccountType.Imported) {
+        doThrow();
+      }
+
+      const newAllAcounts = allAccounts.filter(
+        (acc) => acc.publicKeyHash !== accPublicKeyHash
+      );
+      await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], passKey);
+
+      await removeMany([
+        accPrivKeyStrgKey(accPublicKeyHash),
+        accPubKeyStrgKey(accPublicKeyHash),
+      ]);
+
+      return newAllAcounts;
+    });
+  }
+
   static async sign(
     accPublicKeyHash: string,
     password: string,
@@ -132,6 +171,42 @@ export class Vault {
         watermark && (TaquitoUtils.hex2buf(watermark) as any);
       return signer.sign(bytes, watermarkBuf);
     });
+  }
+
+  static async isDAppEnabled() {
+    const items = await browser.storage.local.get([
+      ThanosSharedStorageKey.DAppEnabled,
+    ]);
+    return Boolean(items[ThanosSharedStorageKey.DAppEnabled]);
+  }
+
+  static async sendOperations(
+    accPublicKeyHash: string,
+    rpc: string,
+    password: string,
+    opParams: any[]
+  ) {
+    const passKey = await Vault.toValidPassKey(password);
+    const batch = await withError("Failed to send operations", async () => {
+      const privateKey = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        passKey
+      );
+      const signer = await createMemorySigner(privateKey);
+      const tezos = new TezosToolkit();
+      tezos.setProvider({ rpc, signer });
+      return tezos.batch(opParams);
+    });
+
+    try {
+      const op = await batch.send();
+      return op.hash;
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(err);
+      }
+      throw new Error(`__tezos__${err.message}`);
+    }
   }
 
   private static toValidPassKey(password: string) {
@@ -158,6 +233,17 @@ export class Vault {
 
   fetchAccounts() {
     return fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, this.passKey);
+  }
+
+  async fetchSettings() {
+    let saved;
+    try {
+      saved = await fetchAndDecryptOne<ThanosSettings>(
+        settingsStrgKey,
+        this.passKey
+      );
+    } catch {}
+    return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
   async createHDAccount(name?: string) {
@@ -197,17 +283,23 @@ export class Vault {
     });
   }
 
-  async importAccount(accPrivateKey: string) {
+  async importAccount(accPrivateKey: string, encPassword?: string) {
     const errMessage =
       "Failed to import account" +
       ".\nThis may happen because provided Key is invalid";
 
     return withError(errMessage, async () => {
       const allAccounts = await this.fetchAccounts();
-
-      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
-        accPrivateKey
-      );
+      const signer = await createMemorySigner(accPrivateKey, encPassword);
+      const [
+        realAccPrivateKey,
+        accPublicKey,
+        accPublicKeyHash,
+      ] = await Promise.all([
+        signer.secretKey(),
+        signer.publicKey(),
+        signer.publicKeyHash(),
+      ]);
 
       const newAccount: ThanosAccount = {
         type: ThanosAccountType.Imported,
@@ -218,7 +310,7 @@ export class Vault {
 
       await encryptAndSaveMany(
         [
-          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
+          [accPrivKeyStrgKey(accPublicKeyHash), realAccPrivateKey],
           [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
           [accountsStrgKey, newAllAcounts],
         ],
@@ -287,6 +379,15 @@ export class Vault {
       );
 
       return newAllAcounts;
+    });
+  }
+
+  async updateSettings(settings: Partial<ThanosSettings>) {
+    return withError("Failed to update settings", async () => {
+      const current = await this.fetchSettings();
+      const newSettings = { ...current, ...settings };
+      await encryptAndSaveMany([[settingsStrgKey, newSettings]], this.passKey);
+      return newSettings;
     });
   }
 }
@@ -359,8 +460,8 @@ async function getPublicKeyAndHash(privateKey: string) {
   return Promise.all([signer.publicKey(), signer.publicKeyHash()]);
 }
 
-async function createMemorySigner(privateKey: string) {
-  return InMemorySigner.fromSecretKey(privateKey);
+async function createMemorySigner(privateKey: string, encPassword?: string) {
+  return InMemorySigner.fromSecretKey(privateKey, encPassword);
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {

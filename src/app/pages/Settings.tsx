@@ -3,13 +3,17 @@ import classNames from "clsx";
 import { Link } from "lib/woozie";
 import PageLayout from "app/layouts/PageLayout";
 import RevealSecret from "app/templates/RevealSecret";
+import DAppSettings from "app/templates/DAppSettings";
 import ActivateAccount from "app/templates/ActivateAccount";
+import RemoveAccount from "app/templates/RemoveAccount";
 import About from "app/templates/About";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
 import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
 import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
+import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
 
 type SettingsProps = {
   tabSlug?: string | null;
@@ -46,6 +50,19 @@ const TABS = [
     ),
   },
   {
+    slug: "dapps",
+    title: "DApps",
+    Icon: AppsIcon,
+    Component: DAppSettings,
+    color: "#9F7AEA",
+    description: (
+      <>
+        In this section you can enable ability to interact with decentralized
+        applications that support Thanos Wallet.
+      </>
+    ),
+  },
+  {
     slug: "activate-account",
     title: "Activate Account",
     Icon: OkIcon,
@@ -56,6 +73,19 @@ const TABS = [
         Use this section to activate your selected account by providing secret
         phrase. It may be necessary for ICO/Fundraiser or testnet faucet
         accounts.
+      </>
+    ),
+  },
+  {
+    slug: "remove-account",
+    title: "Remove Account",
+    Icon: MinusIcon,
+    Component: RemoveAccount,
+    color: "rgb(245, 101, 101)",
+    description: (
+      <>
+        Use this section to remove your selected account. Only imported accounts
+        can be removed.
       </>
     ),
   },
@@ -151,10 +181,11 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
                           to={linkTo}
                           className={classNames(
                             "text-lg leading-6 font-medium",
-                            "text-gray-700 hover:text-gray-800",
+                            "filter-brightness-75",
                             "hover:underline focus:underline",
                             "transition ease-in-out duration-200"
                           )}
+                          style={{ color }}
                         >
                           {title}
                         </Link>

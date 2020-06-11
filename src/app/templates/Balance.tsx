@@ -10,7 +10,7 @@ type BalanceProps = {
 };
 
 const Balance = React.memo<BalanceProps>(({ address, children }) => {
-  const { data: balance } = useBalance(address);
+  const { data: balance } = useBalance(address, false);
   const exist = balance !== undefined;
 
   return React.useMemo(() => {

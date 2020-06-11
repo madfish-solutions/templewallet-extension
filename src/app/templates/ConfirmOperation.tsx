@@ -113,7 +113,7 @@ const ConfirmOperation: React.FC<ConfirmOperationProps> = ({
       <FormField
         ref={register({ required: "Required" })}
         label="Password"
-        labelDescription="Enter passwrod to confirm operation"
+        labelDescription="Enter password to confirm operation"
         id="unlock-password"
         type="password"
         name="password"
