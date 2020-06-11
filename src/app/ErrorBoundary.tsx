@@ -10,27 +10,36 @@ type ErrorBoundaryProps = {
 
 type ErrorBoundaryState = {
   error: Error | null;
-  errorInfo: React.ErrorInfo | null;
 };
 
 export default class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
-  state: ErrorBoundaryState = { error: null, errorInfo: null };
+  state: ErrorBoundaryState = { error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error: error };
+  }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    this.setState({ error, errorInfo }, () => {
-      if (process.env.NODE_ENV === "development") {
-        console.error(error, errorInfo);
+    if (process.env.NODE_ENV === "development") {
+      console.error(error.message, errorInfo.componentStack);
+    }
+  }
+
+  componentDidMount() {
+    window.addEventListener("reseterrorboundary", () => {
+      if (this.state.error) {
+        this.tryAgain();
       }
     });
   }
 
   tryAgain() {
-    const { error } = this.state;
-    if (error && (error as any).swrErrorKey) {
-      cache.set((error as any).swrErrorKey, undefined, false);
+    const err = this.state.error as any;
+    if (err?.swrErrorKey) {
+      cache.delete(err.swrErrorKey, false);
     }
 
-    this.setState({ error: null, errorInfo: null });
+    this.setState({ error: null });
   }
 
   render() {
@@ -82,14 +91,6 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
             >
               Try again
             </button>
-
-            {/* {process.env.NODE_ENV === "development" && (
-              <p className="whitespace-pre-wrap">
-                {this.state.error.toString()}
-                <br />
-                {this.state.errorInfo && this.state.errorInfo.componentStack}
-              </p>
-            )} */}
           </div>
         </div>
       );
