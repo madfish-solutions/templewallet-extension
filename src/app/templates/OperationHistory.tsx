@@ -132,7 +132,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
               "No operations found"
             ) : (
               <>
-                No operation history is available
+                Operation history is not available
                 <br />
                 for local sandbox
               </>
