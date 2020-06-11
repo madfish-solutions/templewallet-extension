@@ -20,6 +20,7 @@
     "unlimitedStorage",
     "clipboardWrite",
     "activeTab",
+    "http://localhost:8732/",
     "https://*.giganode.io/",
     "https://*.tzstats.com/",
     "https://api.tezos-nodes.com/"
