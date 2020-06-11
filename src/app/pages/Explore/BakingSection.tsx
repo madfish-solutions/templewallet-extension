@@ -39,7 +39,7 @@ const BakingSection: React.FC = () => {
               style={{ maxWidth: "20rem" }}
             >
               Delegating your funds to bakers is a great way of earning interest
-              on your balance.{" "}
+              on your balance{" "}
             </p>
           </div>
         )}
