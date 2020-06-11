@@ -1732,10 +1732,10 @@
     bs58check "^2.1.2"
     buffer "^5.2.1"
 
-"@thanos-wallet/dapp@^0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@thanos-wallet/dapp/-/dapp-0.4.1.tgz#21d0e0f57dc643a662efdd8b6294792aaf5da457"
-  integrity sha512-ddDfOItSuMiDyX6ik9btL/ZVNVCQNVDTtE4vfbLnaHI01fyg2beAo/KxJH25HwP2rqA7YckReNUZJ8rRrBdP/Q==
+"@thanos-wallet/dapp@^0.4.4":
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/@thanos-wallet/dapp/-/dapp-0.4.4.tgz#e61e0a75dcc0e2a89c68ba505e5f2b29d56aafd4"
+  integrity sha512-aWHkaHeopI/CHMwoCCocZHUjtv0Uz3RgeWI3M99V3OcajJhjgKIojN1l4x3k5DwuQ0/rYv6JAFVkF8fpOg0Hbg==
   dependencies:
     nanoid "^3.1.9"
 
