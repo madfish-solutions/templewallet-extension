@@ -14,23 +14,17 @@ import ConfirmOverlay from "./PageLayout/ConfirmOverlay";
 type PageLayoutProps = ToolbarProps;
 
 const PageLayout: React.FC<PageLayoutProps> = ({
-  pageTitle,
-  hasBackAction,
   children,
+  ...toolbarProps
 }) => (
   <>
     <DocBg bgClassName="bg-primary-orange" />
 
-    <div
-      className={classNames(
-        "pb-20",
-        process.env.TARGET_BROWSER === "firefox" && "grayscale-firefox-fix"
-      )}
-    >
+    <div className="pb-20">
       <Header />
 
       <ContentPaper>
-        <Toolbar pageTitle={pageTitle} hasBackAction={hasBackAction} />
+        <Toolbar {...toolbarProps} />
 
         <div className="p-4">
           <ErrorBoundary whileMessage="displaying this page">
@@ -82,7 +76,7 @@ const ContentPaper: React.FC<ContentPaparProps> = ({
 };
 
 const SpinnerSection: React.FC = () => (
-  <div className="my-8 flex justify-center">
+  <div className="mt-24 flex justify-center">
     <Spinner className="w-20" />
   </div>
 );
@@ -97,22 +91,24 @@ const Toolbar: React.FC<ToolbarProps> = ({
   hasBackAction = true,
 }) => {
   const { historyPosition, pathname } = useLocation();
-  const appEnv = useAppEnv();
+  const { fullPage, registerBackHandler, onBack } = useAppEnv();
 
   const inHome = pathname === "/";
   const canBack = historyPosition > 0 || !inHome;
 
-  const handleBackAction = React.useCallback(() => {
-    switch (true) {
-      case historyPosition > 0:
-        goBack();
-        break;
+  React.useLayoutEffect(() => {
+    return registerBackHandler(() => {
+      switch (true) {
+        case historyPosition > 0:
+          goBack();
+          break;
 
-      case !inHome:
-        navigate("/", HistoryAction.Replace);
-        break;
-    }
-  }, [historyPosition, inHome]);
+        case !inHome:
+          navigate("/", HistoryAction.Replace);
+          break;
+      }
+    });
+  }, [registerBackHandler, historyPosition, inHome]);
 
   const [sticked, setSticked] = React.useState(false);
 
@@ -140,7 +136,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
       ref={rootRef}
       className={classNames(
         "sticky z-20",
-        appEnv.fullPage && !sticked && "rounded-t",
+        fullPage && !sticked && "rounded-t",
         sticked ? "shadow" : "shadow-sm",
         "bg-gray-100",
         "overflow-hidden",
@@ -169,7 +165,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
               "transition duration-300 ease-in-out",
               "opacity-90 hover:opacity-100"
             )}
-            onClick={handleBackAction}
+            onClick={onBack}
           >
             <ChevronLeftIcon
               className={classNames(

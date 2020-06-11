@@ -11,11 +11,14 @@ import ImportAccount from "app/pages/ImportAccount";
 import Explore from "app/pages/Explore";
 import Receive from "app/pages/Receive";
 import Send from "app/pages/Send";
+import Delegate from "app/pages/Delegate";
 import Settings from "app/pages/Settings";
 
 interface RouteContext {
-  appEnv: ReturnType<typeof useAppEnv>;
-  thanos: ReturnType<typeof useThanosClient>;
+  popup: boolean;
+  fullPage: boolean;
+  ready: boolean;
+  locked: boolean;
 }
 
 type RouteFactory = Woozie.Router.ResolveResult<RouteContext>;
@@ -23,12 +26,12 @@ type RouteFactory = Woozie.Router.ResolveResult<RouteContext>;
 const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
     "/import-wallet",
-    (_p, { appEnv, thanos }) => {
+    (_p, ctx) => {
       switch (true) {
-        case thanos.ready:
+        case ctx.ready:
           return Woozie.Router.SKIP;
 
-        case !appEnv.fullPage:
+        case !ctx.fullPage:
           return <OpenInFullPage />;
 
         default:
@@ -38,12 +41,12 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   [
     "*",
-    (_p, { appEnv, thanos }) => {
+    (_p, ctx) => {
       switch (true) {
-        case thanos.locked:
+        case ctx.locked:
           return <Unlock />;
 
-        case !thanos.ready && !appEnv.fullPage:
+        case !ctx.ready && !ctx.fullPage:
           return <OpenInFullPage />;
 
         default:
@@ -51,7 +54,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
       }
     },
   ],
-  ["/", (_p, { thanos }) => (thanos.ready ? <Explore /> : <Welcome />)],
+  ["/", (_p, ctx) => (ctx.ready ? <Explore /> : <Welcome />)],
   ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
   ["/create-account", onlyReady(() => <CreateAccount />)],
   [
@@ -60,6 +63,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   ["/receive", onlyReady(() => <Receive />)],
   ["/send", onlyReady(() => <Send />)],
+  ["/delegate", onlyReady(() => <Delegate />)],
   [
     "/settings/:tabSlug?",
     onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),
@@ -75,27 +79,38 @@ const Page: React.FC = () => {
     if (trigger === Woozie.HistoryAction.Push) {
       window.scrollTo(0, 0);
     }
+    if (pathname === "/") {
+      Woozie.resetHistoryPosition();
+    }
   }, [trigger, pathname]);
 
   const appEnv = useAppEnv();
   const thanos = useThanosClient();
 
-  const ctx = React.useMemo<RouteContext>(() => ({ appEnv, thanos }), [
-    appEnv,
-    thanos,
-  ]);
+  const ctx = React.useMemo<RouteContext>(
+    () => ({
+      popup: appEnv.popup,
+      fullPage: appEnv.fullPage,
+      ready: thanos.ready,
+      locked: thanos.locked,
+    }),
+    [appEnv.popup, appEnv.fullPage, thanos.ready, thanos.locked]
+  );
 
-  return Woozie.Router.resolve(ROUTE_MAP, pathname, ctx);
+  return React.useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
+    pathname,
+    ctx,
+  ]);
 };
 
 export default Page;
 
 function onlyReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) =>
-    ctx.thanos.ready ? factory(params, ctx) : Woozie.Router.SKIP;
+    ctx.ready ? factory(params, ctx) : Woozie.Router.SKIP;
 }
 
 function onlyNotReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) =>
-    ctx.thanos.ready ? Woozie.Router.SKIP : factory(params, ctx);
+    ctx.ready ? Woozie.Router.SKIP : factory(params, ctx);
 }

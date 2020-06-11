@@ -1,22 +1,49 @@
 import * as React from "react";
 import constate from "constate";
 import { TezosToolkit } from "@taquito/taquito";
-import { usePassiveStorage } from "lib/thanos/front/storage";
-import { useThanosClient } from "lib/thanos/front/client";
-import { ReadyThanosState, ThanosStatus, ThanosState } from "lib/thanos/types";
+import {
+  ReadyThanosState,
+  ThanosStatus,
+  ThanosState,
+  usePassiveStorage,
+  useThanosClient,
+} from "lib/thanos/front";
 
 export enum ActivationStatus {
   ActivationRequestSent,
   AlreadyActivated,
 }
 
-export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
+export const [
+  ReadyThanosProvider,
+  useAllNetworks,
+  useSetNetworkId,
+  useNetwork,
+  useAllAccounts,
+  useSetAccountPkh,
+  useAccount,
+  useSettings,
+  useTezos,
+] = constate(
+  useReadyThanos,
+  (v) => v.allNetworks,
+  (v) => v.setNetworkId,
+  (v) => v.network,
+  (v) => v.allAccounts,
+  (v) => v.setAccountPkh,
+  (v) => v.account,
+  (v) => v.settings,
+  (v) => v.tezos
+);
+
+function useReadyThanos() {
   const thanosFront = useThanosClient();
   assertReady(thanosFront);
 
   const {
     networks: allNetworks,
     accounts: allAccounts,
+    settings,
     createSigner,
   } = thanosFront;
 
@@ -24,16 +51,22 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
    * Networks
    */
 
-  const [netIndex, setNetIndex] = usePassiveStorage("network_id", 0);
+  const defaultNet = allNetworks[0];
+  const [networkId, setNetworkId] = usePassiveStorage(
+    "network_id",
+    defaultNet.id
+  );
 
   React.useEffect(() => {
-    if (netIndex >= allNetworks.length) {
-      setNetIndex(0);
+    if (allNetworks.every((a) => a.id !== networkId)) {
+      setNetworkId(defaultNet.id);
     }
-  }, [allNetworks.length, netIndex, setNetIndex]);
+  }, [allNetworks, networkId, setNetworkId, defaultNet]);
 
-  const safeNetIndex = netIndex in allNetworks ? netIndex : 0;
-  const network = allNetworks[safeNetIndex];
+  const network = React.useMemo(
+    () => allNetworks.find((n) => n.id === networkId) ?? defaultNet,
+    [allNetworks, networkId, defaultNet]
+  );
 
   /**
    * Accounts
@@ -51,65 +84,60 @@ export const [ReadyThanosProvider, useReadyThanos] = constate(() => {
     }
   }, [allAccounts, accountPkh, setAccountPkh, defaultAcc]);
 
-  const account =
-    allAccounts.find((a) => a.publicKeyHash === accountPkh) ?? defaultAcc;
+  const account = React.useMemo(
+    () => allAccounts.find((a) => a.publicKeyHash === accountPkh) ?? defaultAcc,
+    [allAccounts, accountPkh, defaultAcc]
+  );
+
+  /**
+   * Error boundary reset
+   */
+
+  React.useLayoutEffect(() => {
+    const evt = new CustomEvent("reseterrorboundary");
+    window.dispatchEvent(evt);
+  }, [networkId, accountPkh]);
 
   /**
    * tezos = TezosToolkit instance
    */
 
   const tezos = React.useMemo(() => {
-    const t = new TezosToolkit();
+    const checksum = [network.id, accountPkh].join("_");
+    const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
     const signer = createSigner(accountPkh);
     t.setProvider({ rpc, signer });
     return t;
-  }, [createSigner, network.rpcBaseURL, accountPkh]);
+  }, [createSigner, network.id, network.rpcBaseURL, accountPkh]);
 
-  const tezosKey = React.useMemo(
-    () => [network.rpcBaseURL, accountPkh].join(","),
-    [network.rpcBaseURL, accountPkh]
-  );
-
-  const activateAccount = React.useCallback(
-    async (secret: string) => {
-      let op;
-      try {
-        op = await tezos.tz.activate(accountPkh, secret);
-      } catch (err) {
-        const invalidActivationError =
-          err && err.body && /Invalid activation/.test(err.body);
-        if (invalidActivationError) {
-          return [ActivationStatus.AlreadyActivated] as [ActivationStatus];
-        }
-
-        throw err;
-      }
-
-      return [ActivationStatus.ActivationRequestSent, op] as [
-        ActivationStatus,
-        typeof op
-      ];
-    },
-    [accountPkh, tezos]
-  );
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      (window as any).tezos = tezos;
+    }
+  }, [tezos]);
 
   return {
     allNetworks,
     network,
-    netIndex,
-    setNetIndex,
+    networkId,
+    setNetworkId,
 
     allAccounts,
     account,
     accountPkh,
     setAccountPkh,
 
+    settings,
     tezos,
-    tezosKey,
-    activateAccount,
   };
-});
+}
+
+export class ReactiveTezosToolkit extends TezosToolkit {
+  constructor(public checksum: string) {
+    super();
+  }
+}
 
 function assertReady(state: ThanosState): asserts state is ReadyThanosState {
   if (state.status !== ThanosStatus.Ready) {

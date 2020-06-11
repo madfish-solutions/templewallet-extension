@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { useThanosClient, useReadyThanos } from "lib/thanos/front";
+import { useThanosClient, useAccount } from "lib/thanos/front";
+import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Alert from "app/atoms/Alert";
@@ -21,7 +22,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     revealMnemonic,
     setSeedRevealed,
   } = useThanosClient();
-  const { accountPkh } = useReadyThanos();
+  const account = useAccount();
 
   const {
     register,
@@ -38,8 +39,15 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
   const secretFieldRef = React.useRef<HTMLTextAreaElement>(null);
 
   React.useEffect(() => {
+    if (account.publicKeyHash) {
+      return () => setSecret(null);
+    }
+  }, [account.publicKeyHash, setSecret]);
+
+  React.useEffect(() => {
     if (secret) {
       secretFieldRef.current?.focus();
+      secretFieldRef.current?.select();
     }
   }, [secret]);
 
@@ -77,7 +85,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
 
         switch (reveal) {
           case "private-key":
-            scrt = await revealPrivateKey(accountPkh, password);
+            scrt = await revealPrivateKey(account.publicKeyHash, password);
             break;
 
           case "seed-phrase":
@@ -105,7 +113,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       setError,
       revealPrivateKey,
       revealMnemonic,
-      accountPkh,
+      account.publicKeyHash,
       setSeedRevealed,
       setSecret,
       focusPasswordField,
@@ -117,40 +125,54 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       case "private-key":
         return {
           name: "Private Key",
-          attension: (
+          accountBanner: (
+            <AccountBanner
+              account={account}
+              labelDescription={
+                <>
+                  If you want to reveal a private key from another account - you should select it in the
+                  top-right dropdown.
+                </>
+              }
+              className="mb-6"
+            />
+          ),
+          attention: (
             <>
               <span className="font-semibold">DO NOT share</span> this set of
-              chars with anyone! These string can be used to steal your current
+              chars with anyone! It can be used to steal your current
               account.
             </>
           ),
           fieldDesc: (
-            <>Current account key. Save it somewhere safe and secret.</>
+            <>Current account key. Keep it secret.</>
           ),
         };
 
       case "seed-phrase":
         return {
           name: "Seed Phrase",
-          attension: (
+          accountBanner: null,
+          attention: (
             <>
               <span className="font-semibold">DO NOT share</span> this phrase
-              with anyone! These words can be used to steal all your accounts.
+              with anyone! It can be used to steal all your accounts.
             </>
           ),
           fieldDesc: (
             <>
-              If you ever change browsers or move computers, you will need this
-              seed phrase to access your accounts. Save them somewhere safe and
-              secret.
+              If you ever switch between browsers or devices, you will need this
+              seed phrase to access your accounts. Keep it secret.
             </>
           ),
         };
     }
-  }, [reveal]);
+  }, [reveal, account]);
 
   return (
-    <div className="w-full max-w-sm mx-auto p-2">
+    <div className="w-full max-w-sm p-2 mx-auto">
+      {texts.accountBanner}
+
       {secret ? (
         <>
           <FormField
@@ -169,8 +191,8 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           />
 
           <Alert
-            title="Attension!"
-            description={<p>{texts.attension}</p>}
+            title="Attention!"
+            description={<p>{texts.attention}</p>}
             className="my-4"
           />
         </>

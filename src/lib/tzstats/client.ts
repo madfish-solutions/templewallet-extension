@@ -22,10 +22,6 @@ const api = axios.create();
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (process.env.NODE_ENV === "development") {
-      console.error(err);
-    }
-
     const errors: ErrorData[] = (err as AxiosError).response?.data?.errors;
     const finalError = new Error("Failed when querying TZStats API");
     throw Object.assign(finalError, {
