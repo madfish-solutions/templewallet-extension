@@ -33,8 +33,8 @@ export const NETWORKS: ThanosNetwork[] = [
     disabled: false,
   },
   {
-    id: "localhost",
-    name: "Sandbox",
+    id: "sandbox",
+    name: "localhost:8732",
     description: "Local Sandbox",
     type: "test",
     rpcBaseURL: "http://localhost:8732",
@@ -50,16 +50,6 @@ export const NETWORKS: ThanosNetwork[] = [
     rpcBaseURL: "<no public nodes>",
     tzStats: TZStatsNetwork.Babylonnet,
     color: "#ed6663",
-    disabled: true,
-  },
-  {
-    id: "zeronet",
-    name: "Zeronet",
-    description: "Zeronet testnet",
-    type: "test",
-    rpcBaseURL: "<no public nodes>",
-    tzStats: TZStatsNetwork.Zeronet,
-    color: "#e9e1cc",
     disabled: true,
   },
 ];
