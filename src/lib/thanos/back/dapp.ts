@@ -35,7 +35,7 @@ export async function requestPermission(
 ): Promise<ThanosDAppPermissionResponse> {
   if (
     ![
-      req?.network === "mainnet" || req?.network === "carthagenet",
+      isAllowedNetwork(req?.network),
       typeof req?.appMeta?.name === "string",
     ].every(Boolean)
   ) {
@@ -267,4 +267,8 @@ async function requestConfirm({
 
 export function getNetworkRPC(id: string) {
   return NETWORKS.find((net) => net.id === id)!.rpcBaseURL;
+}
+
+function isAllowedNetwork(id: string) {
+  return NETWORKS.some((net) => !net.disabled && net.id === id);
 }
