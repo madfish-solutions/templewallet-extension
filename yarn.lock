@@ -1684,6 +1684,14 @@
   dependencies:
     xhr2-cookies "^1.1.0"
 
+"@taquito/local-forging@^6.3.1-beta.0":
+  version "6.3.1-beta.0"
+  resolved "https://registry.yarnpkg.com/@taquito/local-forging/-/local-forging-6.3.1-beta.0.tgz#a4c75f359d60d91e52460976e5eb25928f898c66"
+  integrity sha512-69e/apCa2D5wJqqry11ZETViSNrKYSZxK5jlGlGigIqmC83NGIYnMhQ7ShF3JwunPXQMt9ugoXBBxnZhxLehbQ==
+  dependencies:
+    "@taquito/utils" "^6.3.1-beta.0"
+    bignumber.js "^9.0.0"
+
 "@taquito/michelson-encoder@^6.3.0-wallet.3":
   version "6.3.0-wallet.3"
   resolved "https://registry.yarnpkg.com/@taquito/michelson-encoder/-/michelson-encoder-6.3.0-wallet.3.tgz#ca32b19dd7020ef100019c5e5e6b43900967fff9"
@@ -1736,6 +1744,15 @@
     blakejs "^1.1.0"
     bs58check "^2.1.2"
     buffer "^5.2.1"
+
+"@taquito/utils@^6.3.1-beta.0":
+  version "6.3.1-beta.0"
+  resolved "https://registry.yarnpkg.com/@taquito/utils/-/utils-6.3.1-beta.0.tgz#edd8fb8f9b83cb27a4b99d7f9a1e4e5b08007cac"
+  integrity sha512-V0v3J3cdEgHjqP0E8/05/RTTSdWutWLmJZ01SwQXjqxtUQdKjy9Vb88F28QS7PktqNXuSiXtpNshwwyLZl0XOA==
+  dependencies:
+    blakejs "^1.1.0"
+    bs58check "^2.1.2"
+    buffer "^5.6.0"
 
 "@thanos-wallet/dapp@^0.4.4":
   version "0.4.4"
