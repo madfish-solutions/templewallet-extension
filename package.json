@@ -21,6 +21,7 @@
     "@svgr/webpack": "^5.4.0",
     "@taquito/taquito": "^6.3.0-wallet.3",
     "@thanos-wallet/dapp": "^0.4.4",
+    "@types/brainhubeu__react-carousel": "^1.15.0",
     "@types/fontfaceobserver": "^0.0.6",
     "@types/node": "^14.0.6",
     "@types/react": "^16.9.35",
@@ -94,8 +95,5 @@
   },
   "resolutions": {
     "caniuse-lite": "1.0.30001079"
-  },
-  "devDependencies": {
-    "@types/brainhubeu__react-carousel": "^1.15.0"
   }
 }
