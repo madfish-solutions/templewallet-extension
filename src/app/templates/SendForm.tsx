@@ -36,7 +36,7 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
-import xtzImgUrl from "app/misc/xtz.png";
+// import xtzImgUrl from "app/misc/xtz.png";
 
 interface FormData {
   to: string;
@@ -339,44 +339,7 @@ const SendForm: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {React.useMemo(
-          () => (
-            <div
-              className={classNames(
-                "mb-6",
-                "border rounded-md",
-                "p-2",
-                "flex items-center"
-              )}
-            >
-              <img
-                src={xtzImgUrl}
-                alt={assetSymbol}
-                className="h-12 w-auto mr-3"
-              />
-
-              <div className="font-light leading-none">
-                <div className="flex items-center">
-                  <div className="flex flex-col">
-                    <span className="text-xl text-gray-700">
-                      <Money>{balance}</Money>{" "}
-                      <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
-                    </span>
-
-                    <InUSD volume={balance}>
-                      {(usdBalance) => (
-                        <div className="mt-1 text-sm text-gray-500">
-                          ${usdBalance}
-                        </div>
-                      )}
-                    </InUSD>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ),
-          [assetSymbol, balance]
-        )}
+        {/* <AssetSelect symbol={assetSymbol} balance={balance} /> */}
 
         <Controller
           name="to"

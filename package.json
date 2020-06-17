@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.10.2",
+    "@brainhubeu/react-carousel": "^1.18.9",
     "@dicebear/avatars": "^4.2.0",
     "@dicebear/avatars-bottts-sprites": "^4.2.0",
     "@dicebear/avatars-jdenticon-sprites": "^4.2.0",
@@ -58,6 +59,7 @@
     "fontfaceobserver": "^2.1.0",
     "html-webpack-plugin": "^4.3.0",
     "inter-ui": "^3.13.1",
+    "mem": "^6.1.0",
     "mini-css-extract-plugin": "^0.9.0",
     "nanoid": "^3.1.9",
     "npm-run-all": "^4.1.5",
@@ -92,5 +94,8 @@
   },
   "resolutions": {
     "caniuse-lite": "1.0.30001079"
+  },
+  "devDependencies": {
+    "@types/brainhubeu__react-carousel": "^1.15.0"
   }
 }
