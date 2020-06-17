@@ -6,6 +6,7 @@ import { NewBlockTriggersProvider } from "lib/thanos/front/chain";
 
 export * from "lib/thanos/types";
 export * from "lib/thanos/helpers";
+// export * from "lib/thanos/assets";
 export * from "lib/thanos/front/storage";
 export * from "lib/thanos/front/client";
 export * from "lib/thanos/front/ready";
@@ -14,9 +15,7 @@ export * from "lib/thanos/front/chain";
 export * from "lib/thanos/front/balance";
 export * from "lib/thanos/front/baking";
 export * from "lib/thanos/front/pndops";
-export * from "lib/thanos/front/contract";
 export * from "lib/thanos/front/tokens";
-// export * from "lib/thanos/front/assets";
 
 export const ThanosProvider: React.FC = ({ children }) => (
   <ThanosClientProvider>
