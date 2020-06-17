@@ -79,17 +79,21 @@ const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
   return (
     <div className={classNames("flex flex-col items-center", className)}>
       <div className={classNames("w-64 mb-2", styles["carousel-container"])}>
-        <Carousel
-          value={localAssetIndex}
-          slides={slides}
-          onChange={setLocalAssetIndex}
-          slidesPerPage={2}
-          centered
-          arrows
-          infinite
-          clickToChange
-          draggable={false}
-        />
+        {assets.length > 1 ? (
+          <Carousel
+            value={localAssetIndex}
+            slides={slides}
+            onChange={setLocalAssetIndex}
+            slidesPerPage={2}
+            centered
+            arrows
+            infinite
+            clickToChange
+            draggable={false}
+          />
+        ) : (
+          slides[0]
+        )}
       </div>
 
       {/* <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" /> */}
