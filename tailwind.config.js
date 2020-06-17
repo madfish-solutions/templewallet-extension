@@ -2,8 +2,8 @@ module.exports = {
   purge: {
     content: ["./public/**/*.{html,js,mjs}", "./src/**/*.{js,jsx,ts,tsx}"],
     options: {
-      whitelistPatterns: [/popper/, /tippy/],
-      whitelistPatternsChildren: [/popper/, /tippy/],
+      whitelistPatterns: [/popper/, /tippy/, /BrainhubCarousel/],
+      whitelistPatternsChildren: [/popper/, /tippy/, /BrainhubCarousel/],
     },
   },
 

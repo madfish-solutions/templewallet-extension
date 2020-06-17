@@ -5,17 +5,14 @@ import { useAccount } from "lib/thanos/front";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
-import Balance from "app/templates/Balance";
-import InUSD from "app/templates/InUSD";
-import Money from "app/atoms/Money";
 import HashChip from "app/atoms/HashChip";
 import Spinner from "app/atoms/Spinner";
 import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
-import xtzImgUrl from "app/misc/xtz.png";
 import EditableTitle from "./Explore/EditableTitle";
+import Assets from "./Explore/Assets";
 import BakingSection from "./Explore/BakingSection";
 
 const Explore: React.FC = () => {
@@ -36,29 +33,9 @@ const Explore: React.FC = () => {
       <hr className="mb-4" />
 
       <div className="flex flex-col items-center">
-        <HashChip hash={accountPkh} className="mb-4" />
+        <HashChip hash={accountPkh} className="mb-6" />
 
-        <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" />
-
-        <Balance address={accountPkh}>
-          {(balance) => (
-            <div className="flex flex-col items-center">
-              <div className="text-gray-800 text-2xl font-light">
-                <Money>{balance}</Money>{" "}
-                <span className="text-lg opacity-90">XTZ</span>
-              </div>
-
-              <InUSD volume={balance}>
-                {(usdBalance) => (
-                  <div className="text-gray-600 text-lg font-light">
-                    <span className="mr-px">$</span>
-                    {usdBalance} <span className="text-sm opacity-75">USD</span>
-                  </div>
-                )}
-              </InUSD>
-            </div>
-          )}
-        </Balance>
+        <Assets accountPkh={accountPkh} />
 
         <div
           className="mt-4 w-full mx-auto flex items-stretch"
