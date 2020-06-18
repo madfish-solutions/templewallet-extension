@@ -1,4 +1,6 @@
 import * as React from "react";
+import { ThanosAsset, ThanosAssetType } from "lib/thanos/types";
+import xtzImgUrl from "app/misc/xtz.png";
 
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
@@ -33,4 +35,10 @@ export const MNEMONIC_ERROR_CAPTION = (
 
 export function formatMnemonic(m: string) {
   return m.replace(/\n/g, " ").trim();
+}
+
+export function getAssetIconUrl(asset: ThanosAsset) {
+  return asset.type === ThanosAssetType.XTZ
+    ? xtzImgUrl
+    : asset.iconUrl ?? xtzImgUrl;
 }

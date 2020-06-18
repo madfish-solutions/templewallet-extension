@@ -71,6 +71,7 @@ export interface ThanosAssetBase {
 
 export interface ThanosTokenBase extends ThanosAssetBase {
   address: string;
+  iconUrl?: string;
 }
 
 export interface ThanosXTZAsset extends ThanosAssetBase {

@@ -1,12 +1,12 @@
 import * as React from "react";
 import classNames from "clsx";
 import Carousel from "@brainhubeu/react-carousel";
-import { usePassiveStorage } from "lib/thanos/front";
+import { useAssets, useCurrentAsset } from "lib/thanos/front";
+import { getAssetIconUrl } from "app/defaults";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import Name from "app/atoms/Name";
 import Money from "app/atoms/Money";
-import xtzImgUrl from "app/misc/xtz.png";
 import styles from "./Assets.module.css";
 
 type AssetsProps = {
@@ -15,47 +15,37 @@ type AssetsProps = {
 };
 
 const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
-  const assets = React.useMemo(
-    () => [
-      {
-        src: xtzImgUrl,
-        alt: "XTZ",
-      },
-      {
-        src:
-          "https://tezblock.io/assets/bakers/img/KT1EctCuorV2NfVb1XTQgvzJ88MQtWP8cMMv.png",
-        alt: "Staker",
-      },
-      {
-        src:
-          "https://tezblock.io/assets/bakers/img/KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn.png",
-        alt: "tzBTC",
-      },
-      {
-        src:
-          "https://tezblock.io/assets/bakers/img/KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9.png",
-        alt: "USD Tez",
-      },
-    ],
-    []
+  const { allAssets, defaultAsset } = useAssets();
+  const { currentAsset, setAssetSymbol } = useCurrentAsset();
+
+  const initialLocalAssetIndex = React.useMemo(() => {
+    const i = allAssets.findIndex((a) => currentAsset.symbol === a.symbol);
+    return i === -1 ? 0 : i;
+  }, [allAssets, currentAsset]);
+  const [localAssetIndex, setLocalAssetIndex] = React.useState(
+    initialLocalAssetIndex
   );
 
-  const [assetIndex, setAssetIndex] = usePassiveStorage("__debug_kek", 0);
-  const [localAssetIndex, setLocalAssetIndex] = React.useState(assetIndex);
+  const handleCarouselChange = React.useCallback(
+    (i: number) => {
+      const index = i % allAssets.length;
+      const symbol =
+        allAssets[index >= 0 ? index : allAssets.length + index]?.symbol ??
+        defaultAsset.symbol;
 
-  React.useEffect(() => {
-    if (localAssetIndex !== assetIndex) {
-      setAssetIndex(localAssetIndex % assets.length);
-    }
-  }, [localAssetIndex, assetIndex, setAssetIndex, assets.length]);
+      setLocalAssetIndex(i);
+      setAssetSymbol(symbol);
+    },
+    [setLocalAssetIndex, setAssetSymbol, allAssets, defaultAsset]
+  );
 
   const slides = React.useMemo(
     () =>
-      assets.map(({ src, alt }, i) => (
+      allAssets.map((asset, i) => (
         <div className="p-2 flex flex-col items-center justify-around">
           <img
-            src={src}
-            alt={alt}
+            src={getAssetIconUrl(asset)}
+            alt={asset.name}
             className={classNames(i === 0 ? "w-16 h-16" : "w-12 h-12")}
             style={{ minHeight: i === 0 ? "4rem" : "3rem" }}
           />
@@ -65,48 +55,52 @@ const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
               className={classNames(
                 "mt-1 w-16",
                 "text-center",
-                "text-sm text-gray-600 font-medium"
+                "text-xs text-gray-600 font-medium leading-none"
               )}
             >
-              {alt}
+              {asset.name}
             </Name>
           )}
         </div>
       )),
-    [assets]
+    [allAssets]
+  );
+
+  const carousel = React.useMemo(
+    () =>
+      slides.length > 1 ? (
+        <Carousel
+          value={localAssetIndex}
+          slides={slides}
+          onChange={handleCarouselChange}
+          slidesPerPage={2}
+          centered
+          arrows
+          infinite
+          clickToChange
+          draggable={false}
+        />
+      ) : (
+        slides[0]
+      ),
+    [slides, localAssetIndex, handleCarouselChange]
   );
 
   return (
     <div className={classNames("flex flex-col items-center", className)}>
       <div className={classNames("w-64 mb-2", styles["carousel-container"])}>
-        {assets.length > 1 ? (
-          <Carousel
-            value={localAssetIndex}
-            slides={slides}
-            onChange={setLocalAssetIndex}
-            slidesPerPage={2}
-            centered
-            arrows
-            infinite
-            clickToChange
-            draggable={false}
-          />
-        ) : (
-          slides[0]
-        )}
+        {carousel}
       </div>
 
-      {/* <img src={xtzImgUrl} alt="xtz" className="mb-2 h-16 w-auto" /> */}
-
-      <Balance address={accountPkh}>
+      <Balance address={accountPkh} asset={currentAsset}>
         {(balance) => (
           <div className="flex flex-col items-center">
             <div className="text-gray-800 text-2xl font-light">
               <Money>{balance}</Money>{" "}
-              <span className="text-lg opacity-90">XTZ</span>
+              <span className="text-lg opacity-90">{currentAsset.symbol}</span>
             </div>
 
-            <InUSD volume={balance}>
+            <InUSD volume={balance} asset={currentAsset}>
               {(usdBalance) => (
                 <div className="text-gray-600 text-lg font-light">
                   <span className="mr-px">$</span>
