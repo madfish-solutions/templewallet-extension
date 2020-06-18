@@ -5,6 +5,7 @@ import useSWR from "swr";
 import BigNumber from "bignumber.js";
 import { DEFAULT_FEE } from "@taquito/taquito";
 import {
+  XTZ_ASSET,
   ThanosAccountType,
   useAllAccounts,
   useAccount,
@@ -57,7 +58,10 @@ const SendForm: React.FC = () => {
   const accountPkh = acc.publicKeyHash;
   const assetSymbol = "XTZ";
 
-  const { data: balanceData, mutate: mutateBalance } = useBalance(accountPkh);
+  const { data: balanceData, mutate: mutateBalance } = useBalance(
+    XTZ_ASSET,
+    accountPkh
+  );
   const balance = balanceData!;
   const balanceNum = balance!.toNumber();
 
@@ -119,7 +123,9 @@ const SendForm: React.FC = () => {
 
   const estimateBaseFee = React.useCallback(async () => {
     try {
-      const balanceBN = (await mutateBalance(fetchBalance(accountPkh, tezos)))!;
+      const balanceBN = (await mutateBalance(
+        fetchBalance(tezos, XTZ_ASSET, accountPkh)
+      ))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }
