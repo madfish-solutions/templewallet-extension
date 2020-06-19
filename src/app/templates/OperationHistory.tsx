@@ -162,7 +162,7 @@ const Operation = React.memo<OperationProps>(
     const pending = status === "backtracked";
 
     return (
-      <div className={classNames("my-3", "flex items-strech")}>
+      <div className={classNames("my-3", "flex items-stretch")}>
         <div className="mr-2">
           <Identicon hash={hash} size={50} className="shadow-xs" />
         </div>
@@ -180,7 +180,7 @@ const Operation = React.memo<OperationProps>(
             <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
           </div>
 
-          <div className="flex items-strech">
+          <div className="flex items-stretch">
             <div className="flex flex-col">
               <span className="mt-1 text-xs text-blue-600 opacity-75">
                 {formatOperationType(type, imReceiver)}
