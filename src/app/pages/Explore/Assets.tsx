@@ -1,12 +1,20 @@
 import * as React from "react";
 import classNames from "clsx";
 import Carousel from "@brainhubeu/react-carousel";
-import { useAssets, useCurrentAsset } from "lib/thanos/front";
+import {
+  ThanosAsset,
+  ThanosAssetType,
+  useAssets,
+  useCurrentAsset,
+} from "lib/thanos/front";
+import useTippy from "lib/ui/useTippy";
 import { getAssetIconUrl } from "app/defaults";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import Name from "app/atoms/Name";
 import Money from "app/atoms/Money";
+import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import { ReactComponent as RemoveIcon } from "app/icons/remove.svg";
 import styles from "./Assets.module.css";
 
 type AssetsProps = {
@@ -18,25 +26,48 @@ const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
   const { allAssets, defaultAsset } = useAssets();
   const { currentAsset, setAssetSymbol } = useCurrentAsset();
 
-  const initialLocalAssetIndex = React.useMemo(() => {
+  const currentAssetIndex = React.useMemo(() => {
     const i = allAssets.findIndex((a) => currentAsset.symbol === a.symbol);
     return i === -1 ? 0 : i;
   }, [allAssets, currentAsset]);
+
   const [localAssetIndex, setLocalAssetIndex] = React.useState(
-    initialLocalAssetIndex
+    currentAssetIndex
   );
+  const localAssetIndexRef = React.useRef(localAssetIndex);
+
+  const toRealAssetIndex = React.useCallback(
+    (i: number) => {
+      const index = i % allAssets.length;
+      return index >= 0 ? index : allAssets.length + index;
+    },
+    [allAssets.length]
+  );
+
+  React.useEffect(() => {
+    if (currentAssetIndex !== toRealAssetIndex(localAssetIndex)) {
+      setLocalAssetIndex(
+        currentAssetIndex === toRealAssetIndex(localAssetIndexRef.current)
+          ? localAssetIndexRef.current
+          : currentAssetIndex
+      );
+    }
+  }, [
+    currentAssetIndex,
+    localAssetIndex,
+    toRealAssetIndex,
+    setLocalAssetIndex,
+  ]);
 
   const handleCarouselChange = React.useCallback(
     (i: number) => {
-      const index = i % allAssets.length;
       const symbol =
-        allAssets[index >= 0 ? index : allAssets.length + index]?.symbol ??
-        defaultAsset.symbol;
+        allAssets[toRealAssetIndex(i)]?.symbol ?? defaultAsset.symbol;
 
-      setLocalAssetIndex(i);
+      localAssetIndexRef.current = i;
       setAssetSymbol(symbol);
     },
-    [setLocalAssetIndex, setAssetSymbol, allAssets, defaultAsset]
+    [toRealAssetIndex, allAssets, defaultAsset, setAssetSymbol]
   );
 
   const slides = React.useMemo(
@@ -69,27 +100,41 @@ const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
   const carousel = React.useMemo(
     () =>
       slides.length > 1 ? (
-        <Carousel
-          value={localAssetIndex}
-          slides={slides}
-          onChange={handleCarouselChange}
-          slidesPerPage={2}
-          centered
-          arrows
-          infinite
-          clickToChange
-          draggable={false}
-        />
+        <div className={classNames("w-64", styles["carousel-container"])}>
+          <Carousel
+            value={localAssetIndex}
+            slides={slides}
+            onChange={handleCarouselChange}
+            slidesPerPage={2}
+            centered
+            arrows
+            infinite
+            clickToChange
+            draggable={false}
+          />
+        </div>
       ) : (
-        slides[0]
+        <div className="-mr-px px-2">{slides[0]}</div>
       ),
     [slides, localAssetIndex, handleCarouselChange]
   );
 
   return (
-    <div className={classNames("flex flex-col items-center", className)}>
-      <div className={classNames("w-64 mb-2", styles["carousel-container"])}>
+    <div className={classNames("w-full flex flex-col items-center", className)}>
+      <div className={classNames("w-full mb-2", "flex items-center")}>
+        <div className="flex-1 flex items-center">
+          <div className="flex-1" />
+
+          {currentAsset.type !== ThanosAssetType.XTZ && (
+            <RemoveTokenButton asset={currentAsset} />
+          )}
+        </div>
+
         {carousel}
+
+        <div className="flex-1 flex items-center">
+          <AddTokenButton />
+        </div>
       </div>
 
       <Balance address={accountPkh} asset={currentAsset}>
@@ -116,3 +161,91 @@ const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
 };
 
 export default Assets;
+
+type RemoveTokenButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
+  asset: ThanosAsset;
+};
+
+const RemoveTokenButton = React.memo<RemoveTokenButtonProps>(
+  ({ asset, className, ...rest }) => {
+    const tippyProps = React.useMemo(
+      () => ({
+        trigger: "mouseenter",
+        hideOnClick: false,
+        content: `Hide "${asset.name}" token`,
+        animation: "shift-away-subtle",
+      }),
+      [asset.name]
+    );
+
+    const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
+
+    return (
+      <button
+        ref={buttonRef}
+        className={classNames(
+          "mr-2 p-1",
+          "rounded-full shadow-xs",
+          "bg-gray-100",
+          "flex items-center",
+          "text-gray-500 text-sm",
+          "transition ease-in-out duration-200",
+          "hover:bg-black-5",
+          "opacity-75 hover:opacity-100 focus:opacity-100",
+          className
+        )}
+        {...rest}
+      >
+        <RemoveIcon
+          className={classNames(
+            "flex-shrink-0",
+            "h-4 w-auto stroke-current stroke-2"
+          )}
+        />
+      </button>
+    );
+  }
+);
+
+type AddTokenButtonProps = React.HTMLAttributes<HTMLButtonElement>;
+
+const AddTokenButton = React.memo<AddTokenButtonProps>(
+  ({ className, ...rest }) => {
+    const tippyProps = React.useMemo(
+      () => ({
+        trigger: "mouseenter",
+        hideOnClick: false,
+        content: "Add Token",
+        animation: "shift-away-subtle",
+      }),
+      []
+    );
+
+    const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
+
+    return (
+      <button
+        ref={buttonRef}
+        className={classNames(
+          "ml-2 p-1",
+          "rounded-full shadow-xs",
+          "bg-gray-100",
+          "flex items-center",
+          "text-gray-500 text-sm",
+          "transition ease-in-out duration-200",
+          "hover:bg-black-5",
+          "opacity-75 hover:opacity-100 focus:opacity-100",
+          className
+        )}
+        {...rest}
+      >
+        <AddIcon
+          className={classNames(
+            "flex-shrink-0",
+            "h-4 w-auto stroke-current stroke-2"
+          )}
+        />
+      </button>
+    );
+  }
+);

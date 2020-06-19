@@ -4,8 +4,9 @@ import {
   MAINNET_TOKENS,
   useNetwork,
   useTokens,
-  usePassiveStorage,
+  useStorage,
 } from "lib/thanos/front";
+import { useAccount } from "./ready";
 
 export function useAssets() {
   const network = useNetwork();
@@ -28,8 +29,9 @@ export function useCurrentAsset() {
   const { allAssets, defaultAsset } = useAssets();
 
   const network = useNetwork();
-  const [assetSymbol, setAssetSymbol] = usePassiveStorage(
-    `assetsymbol_${network.id}`,
+  const account = useAccount();
+  const [assetSymbol, setAssetSymbol] = useStorage(
+    `assetsymbol_${network.id}_${account.publicKeyHash}`,
     defaultAsset.symbol
   );
 
