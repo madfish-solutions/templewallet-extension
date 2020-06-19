@@ -35,7 +35,9 @@ const Explore: React.FC = () => {
       <div className="flex flex-col items-center">
         <HashChip hash={accountPkh} className="mb-6" />
 
-        <Assets accountPkh={accountPkh} />
+        <SuspenseContainer whileMessage="fetching assets data">
+          <Assets accountPkh={accountPkh} />
+        </SuspenseContainer>
 
         <div
           className="mt-4 w-full mx-auto flex items-stretch"
