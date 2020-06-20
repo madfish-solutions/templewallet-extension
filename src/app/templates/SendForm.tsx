@@ -10,9 +10,11 @@ import {
   useAllAccounts,
   useAccount,
   useTezos,
+  useCurrentAsset,
   useBalance,
   usePendingOperations,
   fetchBalance,
+  // toTransferParams,
   tzToMutez,
   mutezToTz,
   isAddressValid,
@@ -26,6 +28,7 @@ import {
   ZeroBalanceError,
 } from "app/defaults";
 import { useAppEnv } from "app/env";
+import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
@@ -56,6 +59,10 @@ const SendForm: React.FC = () => {
   const tezos = useTezos();
 
   const accountPkh = acc.publicKeyHash;
+
+  const { currentAsset } = useCurrentAsset();
+  const [localAsset, setLocalAsset] = React.useState(currentAsset);
+
   const assetSymbol = "XTZ";
 
   const { data: balanceData, mutate: mutateBalance } = useBalance(
@@ -345,7 +352,20 @@ const SendForm: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* <AssetSelect symbol={assetSymbol} balance={balance} /> */}
+        <div className="mb-6">
+          <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+            <span className="text-base font-semibold text-gray-700">Asset</span>
+
+            <span
+              className={classNames("mt-1", "text-xs font-light text-gray-600")}
+              style={{ maxWidth: "90%" }}
+            >
+              Click on area to select another asset or token.
+            </span>
+          </h2>
+
+          <AssetSelect value={localAsset} onChange={setLocalAsset} />
+        </div>
 
         <Controller
           name="to"
