@@ -92,4 +92,32 @@ export async function fetchBalance(
   }
 }
 
-export async function transfer(tezos: TezosToolkit, asset: ThanosAsset) {}
+export async function toTransferParams(
+  tezos: TezosToolkit,
+  asset: ThanosAsset,
+  toPkh: string,
+  amount: number
+) {
+  switch (asset.type) {
+    case ThanosAssetType.XTZ:
+      return {
+        to: toPkh,
+        amount,
+      };
+
+    case ThanosAssetType.Staker:
+    case ThanosAssetType.TzBTC:
+    case ThanosAssetType.FA1_2:
+      const contact = await loadContract(tezos, asset.address);
+      return contact.methods
+        .transfer(
+          await tezos.signer.publicKeyHash(),
+          toPkh,
+          new BigNumber(amount).times(asset.decimals).toString()
+        )
+        .toTransferParams();
+
+    default:
+      throw new Error("Not Supported");
+  }
+}
