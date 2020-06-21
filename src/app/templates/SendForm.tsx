@@ -5,6 +5,7 @@ import useSWR from "swr";
 import BigNumber from "bignumber.js";
 import { DEFAULT_FEE } from "@taquito/taquito";
 import {
+  ThanosAsset,
   XTZ_ASSET,
   ThanosAccountType,
   useAllAccounts,
@@ -14,12 +15,14 @@ import {
   useBalance,
   usePendingOperations,
   fetchBalance,
-  // toTransferParams,
+  toTransferParams,
   tzToMutez,
   mutezToTz,
   isAddressValid,
   isKTAddress,
+  toPenny,
   hasManager,
+  ThanosAssetType,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import {
@@ -52,6 +55,42 @@ const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 
 const SendForm: React.FC = () => {
+  const { currentAsset } = useCurrentAsset();
+  const tezos = useTezos();
+
+  const [localAsset, setLocalAsset] = useSafeState(
+    currentAsset,
+    tezos.checksum
+  );
+  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+
+  return (
+    <>
+      {operation && (
+        <OperationStatus typeTitle="Transaction" operation={operation} />
+      )}
+
+      <AssetSelect
+        value={localAsset}
+        onChange={setLocalAsset}
+        className="mb-6"
+      />
+
+      <React.Suspense fallback={<SpinnerSection />}>
+        <Form localAsset={localAsset} setOperation={setOperation} />
+      </React.Suspense>
+    </>
+  );
+};
+
+export default SendForm;
+
+type FormProps = {
+  localAsset: ThanosAsset;
+  setOperation: React.Dispatch<any>;
+};
+
+const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
 
   const allAccounts = useAllAccounts();
@@ -60,20 +99,19 @@ const SendForm: React.FC = () => {
 
   const accountPkh = acc.publicKeyHash;
 
-  const { currentAsset } = useCurrentAsset();
-  const [localAsset, setLocalAsset] = useSafeState(
-    currentAsset,
-    tezos.checksum
-  );
-
-  const assetSymbol = "XTZ";
-
   const { data: balanceData, mutate: mutateBalance } = useBalance(
-    XTZ_ASSET,
+    localAsset,
     accountPkh
   );
   const balance = balanceData!;
-  const balanceNum = balance!.toNumber();
+  const balanceNum = balance.toNumber();
+
+  const { data: xtzBalanceData, mutate: mutateXtzBalance } = useBalance(
+    XTZ_ASSET,
+    accountPkh
+  );
+  const xtzBalance = xtzBalanceData!;
+  const xtzBalanceNum = xtzBalance.toNumber();
 
   const { addPndOps } = usePendingOperations();
 
@@ -133,31 +171,56 @@ const SendForm: React.FC = () => {
 
   const estimateBaseFee = React.useCallback(async () => {
     try {
+      const to = toValue;
+      const xtz = localAsset.symbol === ThanosAssetType.XTZ;
+
       const balanceBN = (await mutateBalance(
-        fetchBalance(tezos, XTZ_ASSET, accountPkh)
+        fetchBalance(tezos, localAsset, accountPkh)
       ))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }
 
-      const to = toValue;
-      const estmtn = await tezos.estimate.transfer({ to, amount: PENNY });
-      let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
-      const manager = await tezos.rpc.getManagerKey(accountPkh);
-      if (!hasManager(manager)) {
-        amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
+      let xtzBalanceBN: BigNumber;
+      if (!xtz) {
+        xtzBalanceBN = (await mutateXtzBalance(
+          fetchBalance(tezos, XTZ_ASSET, accountPkh)
+        ))!;
+        if (xtzBalanceBN.isZero()) {
+          throw new ZeroBalanceError();
+        }
       }
-      const estmtnMax = await tezos.estimate.transfer({
-        to,
-        amount: amountMax.toNumber(),
-      });
+
+      const [transferParams, manager] = await Promise.all([
+        toTransferParams(tezos, localAsset, to, toPenny(localAsset)),
+        tezos.rpc.getManagerKey(accountPkh),
+      ]);
+
+      let estmtnMax;
+      if (xtz) {
+        const estmtn = await tezos.estimate.transfer(transferParams);
+        let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
+        if (!hasManager(manager)) {
+          amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
+        }
+        estmtnMax = await tezos.estimate.transfer({
+          to,
+          amount: amountMax.toNumber(),
+        });
+      } else {
+        estmtnMax = await tezos.estimate.transfer(transferParams);
+      }
 
       let baseFee = mutezToTz(estmtnMax.totalCost);
       if (!hasManager(manager)) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
-      if (baseFee.isGreaterThanOrEqualTo(balanceBN)) {
+      if (
+        xtz
+          ? baseFee.isGreaterThanOrEqualTo(balanceBN)
+          : baseFee.isGreaterThan(xtzBalanceBN!)
+      ) {
         throw new NotEnoughFundsError();
       }
 
@@ -187,7 +250,7 @@ const SendForm: React.FC = () => {
           throw err;
       }
     }
-  }, [tezos, accountPkh, toValue, mutateBalance]);
+  }, [tezos, localAsset, accountPkh, toValue, mutateBalance, mutateXtzBalance]);
 
   const {
     data: baseFee,
@@ -196,7 +259,13 @@ const SendForm: React.FC = () => {
   } = useSWR(
     () =>
       toFilled
-        ? ["transfer-base-fee", tezos.checksum, accountPkh, toValue]
+        ? [
+            "transfer-base-fee",
+            tezos.checksum,
+            localAsset.symbol,
+            accountPkh,
+            toValue,
+          ]
         : null,
     estimateBaseFee,
     {
@@ -213,9 +282,12 @@ const SendForm: React.FC = () => {
 
   const maxAddFee = React.useMemo(() => {
     if (baseFee instanceof BigNumber) {
-      return new BigNumber(balanceNum).minus(baseFee).minus(PENNY).toNumber();
+      return new BigNumber(xtzBalanceNum)
+        .minus(baseFee)
+        .minus(PENNY)
+        .toNumber();
     }
-  }, [balanceNum, baseFee]);
+  }, [xtzBalanceNum, baseFee]);
 
   const safeFeeValue = React.useMemo(
     () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
@@ -224,11 +296,16 @@ const SendForm: React.FC = () => {
 
   const maxAmount = React.useMemo(() => {
     if (!(baseFee instanceof BigNumber)) return null;
-    const ma = new BigNumber(balanceNum)
-      .minus(baseFee)
-      .minus(safeFeeValue ?? 0);
-    return BigNumber.max(ma, 0);
-  }, [balanceNum, baseFee, safeFeeValue]);
+
+    return localAsset.type === ThanosAssetType.XTZ
+      ? (() => {
+          const ma = new BigNumber(balanceNum)
+            .minus(baseFee)
+            .minus(safeFeeValue ?? 0);
+          return BigNumber.max(ma, 0);
+        })()
+      : new BigNumber(balanceNum);
+  }, [localAsset.type, balanceNum, baseFee, safeFeeValue]);
 
   const maxAmountNum = React.useMemo(
     () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
@@ -274,7 +351,6 @@ const SendForm: React.FC = () => {
     null,
     `${tezos.checksum}_${toValue}`
   );
-  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
   const onSubmit = React.useCallback(
     async ({ to, amount, fee: feeVal }: FormData) => {
@@ -283,12 +359,18 @@ const SendForm: React.FC = () => {
       setOperation(null);
 
       try {
-        const estmtn = await tezos.estimate.transfer({ to, amount });
+        const transferParams = await toTransferParams(
+          tezos,
+          localAsset,
+          to,
+          amount
+        );
+        const estmtn = await tezos.estimate.transfer(transferParams);
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
         let op;
         try {
-          op = await tezos.contract.transfer({ to, amount, fee });
+          op = await tezos.contract.transfer({ ...transferParams, fee });
         } catch (err) {
           if (
             err?.errors?.some((e: any) =>
@@ -338,6 +420,7 @@ const SendForm: React.FC = () => {
     [
       formState.isSubmitting,
       tezos,
+      localAsset,
       setSubmitError,
       setOperation,
       addPndOps,
@@ -349,309 +432,296 @@ const SendForm: React.FC = () => {
   const estimateFallbackDisplayed = toFilled && !baseFee && estimating;
 
   return (
-    <>
-      {operation && (
-        <OperationStatus typeTitle="Transaction" operation={operation} />
-      )}
-
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <AssetSelect
-          value={localAsset}
-          onChange={setLocalAsset}
-          className="mb-6"
-        />
-
-        <Controller
-          name="to"
-          as={<NoSpaceField ref={toFieldRef} />}
-          control={control}
-          rules={{
-            validate: validateAddress,
-          }}
-          onChange={([v]) => v}
-          onFocus={() => toFieldRef.current?.focus()}
-          textarea
-          rows={2}
-          cleanable={Boolean(toValue)}
-          onClean={cleanToField}
-          id="send-to"
-          label="Recipient"
-          labelDescription={
-            filledAccount ? (
-              <div className="flex flex-wrap items-center">
-                <Identicon
-                  type="bottts"
-                  hash={filledAccount.publicKeyHash}
-                  size={14}
-                  className="flex-shrink-0 opacity-75 shadow-xs"
-                />
-                <div className="ml-1 mr-px font-normal">
-                  {filledAccount.name}
-                </div>{" "}
-                (
-                <Balance address={filledAccount.publicKeyHash}>
-                  {(bal) => (
-                    <span className={classNames("text-xs leading-none")}>
-                      <Money>{bal}</Money>{" "}
-                      <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
-                    </span>
-                  )}
-                </Balance>
-                )
-              </div>
-            ) : (
-              `Address to send ${assetSymbol} funds to.`
-            )
-          }
-          placeholder="e.g. tz1a9w1S7hN5s..."
-          errorCaption={errors.to?.message}
-          style={{
-            resize: "none",
-          }}
-          containerClassName="mb-4"
-        />
-
-        {estimateFallbackDisplayed ? (
-          <div className="my-8 flex justify-center">
-            <Spinner className="w-20" />
-          </div>
-        ) : restFormDisplayed ? (
-          <>
-            {(submitError || estimationError) && (
-              <SendErrorAlert
-                type={submitError ? "submit" : "estimation"}
-                error={submitError || estimationError}
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Controller
+        name="to"
+        as={<NoSpaceField ref={toFieldRef} />}
+        control={control}
+        rules={{
+          validate: validateAddress,
+        }}
+        onChange={([v]) => v}
+        onFocus={() => toFieldRef.current?.focus()}
+        textarea
+        rows={2}
+        cleanable={Boolean(toValue)}
+        onClean={cleanToField}
+        id="send-to"
+        label="Recipient"
+        labelDescription={
+          filledAccount ? (
+            <div className="flex flex-wrap items-center">
+              <Identicon
+                type="bottts"
+                hash={filledAccount.publicKeyHash}
+                size={14}
+                className="flex-shrink-0 opacity-75 shadow-xs"
               />
-            )}
-
-            <Controller
-              name="amount"
-              as={<AssetField ref={amountFieldRef} />}
-              control={control}
-              rules={{
-                validate: validateAmount,
-              }}
-              onChange={([v]) => v}
-              onFocus={() => amountFieldRef.current?.focus()}
-              id="send-amount"
-              assetSymbol={assetSymbol}
-              label="Amount"
-              labelDescription={
-                maxAmount && (
-                  <>
-                    Available to send(max):{" "}
-                    <button
-                      type="button"
-                      className={classNames("underline")}
-                      onClick={handleSetMaxAmount}
-                    >
-                      {maxAmount.toString()}
-                    </button>
-                    {amountValue ? (
-                      <>
-                        <br />
-                        <InUSD volume={amountValue}>
-                          {(usdAmount) => (
-                            <div className="mt-1 -mb-3">
-                              ≈{" "}
-                              <span className="font-normal text-gray-700">
-                                <span className="pr-px">$</span>
-                                {usdAmount}
-                              </span>{" "}
-                              in USD
-                            </div>
-                          )}
-                        </InUSD>
-                      </>
-                    ) : null}
-                  </>
-                )
-              }
-              placeholder="e.g. 123.45"
-              errorCaption={errors.amount?.message}
-              containerClassName="mb-4"
-              autoFocus={Boolean(maxAmount)}
-            />
-
-            <Controller
-              name="fee"
-              as={<AssetField ref={feeFieldRef} />}
-              control={control}
-              onChange={handleFeeFieldChange}
-              onFocus={() => feeFieldRef.current?.focus()}
-              id="send-fee"
-              assetSymbol={assetSymbol}
-              label="Additional Fee"
-              labelDescription={
-                baseFee instanceof BigNumber && (
-                  <>
-                    Base Fee for this transaction is:{" "}
-                    <span className="font-normal">{baseFee.toString()}</span>
-                    <br />
-                    Additional - speeds up its confirmation,
-                    <br />
-                    recommended:{" "}
-                    <button
-                      type="button"
-                      className={classNames("underline")}
-                      onClick={handleSetRecommendedFee}
-                    >
-                      {RECOMMENDED_ADD_FEE}
-                    </button>
-                  </>
-                )
-              }
-              placeholder="0"
-              errorCaption={errors.fee?.message}
-              containerClassName="mb-4"
-            />
-
-            <FormSubmitButton
-              loading={formState.isSubmitting}
-              disabled={formState.isSubmitting || Boolean(estimationError)}
-            >
-              Send
-            </FormSubmitButton>
-          </>
-        ) : (
-          allAccounts.length > 1 && (
-            <div className={classNames("my-6", "flex flex-col")}>
-              <h2
-                className={classNames("mb-4", "leading-tight", "flex flex-col")}
-              >
-                <span className="text-base font-semibold text-gray-700">
-                  Send to My Accounts
-                </span>
-
-                <span
-                  className={classNames(
-                    "mt-1",
-                    "text-xs font-light text-gray-600"
-                  )}
-                  style={{ maxWidth: "90%" }}
-                >
-                  Click on Account you want to send funds to.
-                </span>
-              </h2>
-
-              <div
-                className={classNames(
-                  "rounded-md overflow-hidden",
-                  "border-2 bg-gray-100",
-                  "flex flex-col",
-                  "text-gray-700 text-sm leading-tight"
+              <div className="ml-1 mr-px font-normal">{filledAccount.name}</div>{" "}
+              (
+              <Balance asset={localAsset} address={filledAccount.publicKeyHash}>
+                {(bal) => (
+                  <span className={classNames("text-xs leading-none")}>
+                    <Money>{bal}</Money>{" "}
+                    <span style={{ fontSize: "0.75em" }}>
+                      {localAsset.symbol}
+                    </span>
+                  </span>
                 )}
-              >
-                {allAccounts
-                  .filter((acc) => acc.publicKeyHash !== accountPkh)
-                  .map((acc, i, arr) => {
-                    const last = i === arr.length - 1;
-                    const handleAccountClick = () => {
-                      setValue("to", acc.publicKeyHash);
-                      triggerValidation("to");
-                    };
+              </Balance>
+              )
+            </div>
+          ) : (
+            `Address to send ${localAsset.symbol} funds to.`
+          )
+        }
+        placeholder="e.g. tz1a9w1S7hN5s..."
+        errorCaption={errors.to?.message}
+        style={{
+          resize: "none",
+        }}
+        containerClassName="mb-4"
+      />
 
-                    return (
-                      <button
-                        key={acc.publicKeyHash}
-                        type="button"
-                        className={classNames(
-                          "block w-full",
-                          "overflow-hidden",
-                          !last && "border-b border-gray-200",
-                          "hover:bg-gray-200 focus:bg-gray-200",
-                          "flex items-center",
-                          "text-gray-700",
-                          "transition ease-in-out duration-200",
-                          "focus:outline-none",
-                          "opacity-90 hover:opacity-100"
+      {estimateFallbackDisplayed ? (
+        <SpinnerSection />
+      ) : restFormDisplayed ? (
+        <>
+          {(submitError || estimationError) && (
+            <SendErrorAlert
+              type={submitError ? "submit" : "estimation"}
+              error={submitError || estimationError}
+            />
+          )}
+
+          <Controller
+            name="amount"
+            as={<AssetField ref={amountFieldRef} />}
+            control={control}
+            rules={{
+              validate: validateAmount,
+            }}
+            onChange={([v]) => v}
+            onFocus={() => amountFieldRef.current?.focus()}
+            id="send-amount"
+            assetSymbol={localAsset.symbol}
+            label="Amount"
+            labelDescription={
+              maxAmount && (
+                <>
+                  Available to send(max):{" "}
+                  <button
+                    type="button"
+                    className={classNames("underline")}
+                    onClick={handleSetMaxAmount}
+                  >
+                    {maxAmount.toString()}
+                  </button>
+                  {amountValue ? (
+                    <>
+                      <br />
+                      <InUSD volume={amountValue}>
+                        {(usdAmount) => (
+                          <div className="mt-1 -mb-3">
+                            ≈{" "}
+                            <span className="font-normal text-gray-700">
+                              <span className="pr-px">$</span>
+                              {usdAmount}
+                            </span>{" "}
+                            in USD
+                          </div>
                         )}
-                        style={{
-                          padding: "0.4rem 0.375rem 0.4rem 0.375rem",
-                        }}
-                        onClick={handleAccountClick}
-                      >
-                        <Identicon
-                          type="bottts"
-                          hash={acc.publicKeyHash}
-                          size={32}
-                          className="flex-shrink-0 shadow-xs"
-                        />
+                      </InUSD>
+                    </>
+                  ) : null}
+                </>
+              )
+            }
+            placeholder="e.g. 123.45"
+            errorCaption={errors.amount?.message}
+            containerClassName="mb-4"
+            autoFocus={Boolean(maxAmount)}
+          />
 
-                        <div className="ml-2 flex flex-col items-start">
-                          <div className="flex flex-wrap items-center">
-                            <Name className="text-sm font-medium leading-tight">
-                              {acc.name}
-                            </Name>
+          <Controller
+            name="fee"
+            as={<AssetField ref={feeFieldRef} />}
+            control={control}
+            onChange={handleFeeFieldChange}
+            onFocus={() => feeFieldRef.current?.focus()}
+            id="send-fee"
+            assetSymbol={XTZ_ASSET.symbol}
+            label="Additional Fee"
+            labelDescription={
+              baseFee instanceof BigNumber && (
+                <>
+                  Base Fee for this transaction is:{" "}
+                  <span className="font-normal">{baseFee.toString()}</span>
+                  <br />
+                  Additional - speeds up its confirmation,
+                  <br />
+                  recommended:{" "}
+                  <button
+                    type="button"
+                    className={classNames("underline")}
+                    onClick={handleSetRecommendedFee}
+                  >
+                    {RECOMMENDED_ADD_FEE}
+                  </button>
+                </>
+              )
+            }
+            placeholder="0"
+            errorCaption={errors.fee?.message}
+            containerClassName="mb-4"
+          />
 
-                            {acc.type === ThanosAccountType.Imported && (
-                              <span
+          <FormSubmitButton
+            loading={formState.isSubmitting}
+            disabled={formState.isSubmitting || Boolean(estimationError)}
+          >
+            Send
+          </FormSubmitButton>
+        </>
+      ) : (
+        allAccounts.length > 1 && (
+          <div className={classNames("my-6", "flex flex-col")}>
+            <h2
+              className={classNames("mb-4", "leading-tight", "flex flex-col")}
+            >
+              <span className="text-base font-semibold text-gray-700">
+                Send to My Accounts
+              </span>
+
+              <span
+                className={classNames(
+                  "mt-1",
+                  "text-xs font-light text-gray-600"
+                )}
+                style={{ maxWidth: "90%" }}
+              >
+                Click on Account you want to send funds to.
+              </span>
+            </h2>
+
+            <div
+              className={classNames(
+                "rounded-md overflow-hidden",
+                "border-2 bg-gray-100",
+                "flex flex-col",
+                "text-gray-700 text-sm leading-tight"
+              )}
+            >
+              {allAccounts
+                .filter((acc) => acc.publicKeyHash !== accountPkh)
+                .map((acc, i, arr) => {
+                  const last = i === arr.length - 1;
+                  const handleAccountClick = () => {
+                    setValue("to", acc.publicKeyHash);
+                    triggerValidation("to");
+                  };
+
+                  return (
+                    <button
+                      key={acc.publicKeyHash}
+                      type="button"
+                      className={classNames(
+                        "block w-full",
+                        "overflow-hidden",
+                        !last && "border-b border-gray-200",
+                        "hover:bg-gray-200 focus:bg-gray-200",
+                        "flex items-center",
+                        "text-gray-700",
+                        "transition ease-in-out duration-200",
+                        "focus:outline-none",
+                        "opacity-90 hover:opacity-100"
+                      )}
+                      style={{
+                        padding: "0.4rem 0.375rem 0.4rem 0.375rem",
+                      }}
+                      onClick={handleAccountClick}
+                    >
+                      <Identicon
+                        type="bottts"
+                        hash={acc.publicKeyHash}
+                        size={32}
+                        className="flex-shrink-0 shadow-xs"
+                      />
+
+                      <div className="ml-2 flex flex-col items-start">
+                        <div className="flex flex-wrap items-center">
+                          <Name className="text-sm font-medium leading-tight">
+                            {acc.name}
+                          </Name>
+
+                          {acc.type === ThanosAccountType.Imported && (
+                            <span
+                              className={classNames(
+                                "ml-2",
+                                "rounded-sm",
+                                "border border-black-25",
+                                "px-1 py-px",
+                                "leading-tight",
+                                "text-black-50"
+                              )}
+                              style={{ fontSize: "0.6rem" }}
+                            >
+                              Imported
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="mt-1 flex flex-wrap items-center">
+                          <div
+                            className={classNames(
+                              "text-xs leading-none",
+                              "text-gray-700"
+                            )}
+                          >
+                            {(() => {
+                              const val = acc.publicKeyHash;
+                              const ln = val.length;
+                              return (
+                                <>
+                                  {val.slice(0, 7)}
+                                  <span className="opacity-75">...</span>
+                                  {val.slice(ln - 4, ln)}
+                                </>
+                              );
+                            })()}
+                          </div>
+
+                          <Balance
+                            asset={localAsset}
+                            address={acc.publicKeyHash}
+                          >
+                            {(bal) => (
+                              <div
                                 className={classNames(
                                   "ml-2",
-                                  "rounded-sm",
-                                  "border border-black-25",
-                                  "px-1 py-px",
-                                  "leading-tight",
-                                  "text-black-50"
+                                  "text-xs leading-none",
+                                  "text-gray-600"
                                 )}
-                                style={{ fontSize: "0.6rem" }}
                               >
-                                Imported
-                              </span>
+                                <Money>{bal}</Money>{" "}
+                                <span style={{ fontSize: "0.75em" }}>
+                                  {localAsset.symbol}
+                                </span>
+                              </div>
                             )}
-                          </div>
-
-                          <div className="mt-1 flex flex-wrap items-center">
-                            <div
-                              className={classNames(
-                                "text-xs leading-none",
-                                "text-gray-700"
-                              )}
-                            >
-                              {(() => {
-                                const val = acc.publicKeyHash;
-                                const ln = val.length;
-                                return (
-                                  <>
-                                    {val.slice(0, 7)}
-                                    <span className="opacity-75">...</span>
-                                    {val.slice(ln - 4, ln)}
-                                  </>
-                                );
-                              })()}
-                            </div>
-
-                            <Balance address={acc.publicKeyHash}>
-                              {(bal) => (
-                                <div
-                                  className={classNames(
-                                    "ml-2",
-                                    "text-xs leading-none",
-                                    "text-gray-600"
-                                  )}
-                                >
-                                  <Money>{bal}</Money>{" "}
-                                  <span style={{ fontSize: "0.75em" }}>
-                                    {assetSymbol}
-                                  </span>
-                                </div>
-                              )}
-                            </Balance>
-                          </div>
+                          </Balance>
                         </div>
-                      </button>
-                    );
-                  })}
-              </div>
+                      </div>
+                    </button>
+                  );
+                })}
             </div>
-          )
-        )}
-      </form>
-    </>
+          </div>
+        )
+      )}
+    </form>
   );
 };
-
-export default SendForm;
 
 type SendErrorAlertProps = {
   type: "submit" | "estimation";
@@ -723,3 +793,9 @@ function validateAddress(value: any) {
       return true;
   }
 }
+
+const SpinnerSection: React.FC = () => (
+  <div className="my-8 flex justify-center">
+    <Spinner className="w-20" />
+  </div>
+);
