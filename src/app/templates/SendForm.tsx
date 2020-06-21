@@ -61,7 +61,10 @@ const SendForm: React.FC = () => {
   const accountPkh = acc.publicKeyHash;
 
   const { currentAsset } = useCurrentAsset();
-  const [localAsset, setLocalAsset] = React.useState(currentAsset);
+  const [localAsset, setLocalAsset] = useSafeState(
+    currentAsset,
+    tezos.checksum
+  );
 
   const assetSymbol = "XTZ";
 
@@ -352,20 +355,11 @@ const SendForm: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="mb-6">
-          <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-            <span className="text-base font-semibold text-gray-700">Asset</span>
-
-            <span
-              className={classNames("mt-1", "text-xs font-light text-gray-600")}
-              style={{ maxWidth: "90%" }}
-            >
-              Click on area to select another asset or token.
-            </span>
-          </h2>
-
-          <AssetSelect value={localAsset} onChange={setLocalAsset} />
-        </div>
+        <AssetSelect
+          value={localAsset}
+          onChange={setLocalAsset}
+          className="mb-6"
+        />
 
         <Controller
           name="to"
