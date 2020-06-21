@@ -121,3 +121,7 @@ export async function toTransferParams(
       throw new Error("Not Supported");
   }
 }
+
+export function toPenny(asset: ThanosAsset) {
+  return new BigNumber(1).div(10 ** asset.decimals).toNumber();
+}
