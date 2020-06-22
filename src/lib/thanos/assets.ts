@@ -11,6 +11,7 @@ export const XTZ_ASSET: ThanosAsset = {
   symbol: "XTZ",
   decimals: 6,
   fungible: true,
+  default: true,
 };
 
 export const MAINNET_TOKENS: ThanosToken[] = [
@@ -22,6 +23,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     decimals: 6,
     fungible: true,
     iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
+    default: true,
   },
   {
     type: ThanosAssetType.Staker,
@@ -32,6 +34,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     fungible: true,
     iconUrl:
       "https://miro.medium.com/fit/c/160/160/1*LzmHCYryGmuN9ZR7JX951w.png",
+    default: true,
   },
   {
     type: ThanosAssetType.TzBTC,
@@ -42,6 +45,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     fungible: true,
     iconUrl:
       "https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg",
+    default: true,
   },
 ];
 
@@ -113,7 +117,7 @@ export async function toTransferParams(
         .transfer(
           await tezos.signer.publicKeyHash(),
           toPkh,
-          new BigNumber(amount).times(asset.decimals).toString()
+          new BigNumber(amount).times(10 ** asset.decimals).toString()
         )
         .toTransferParams();
 
