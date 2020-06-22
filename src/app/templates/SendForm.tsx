@@ -29,6 +29,7 @@ import {
   ArtificialError,
   NotEnoughFundsError,
   ZeroBalanceError,
+  ZeroXTZBalanceError,
 } from "app/defaults";
 import { useAppEnv } from "app/env";
 import AssetSelect from "app/templates/AssetSelect";
@@ -187,7 +188,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
           fetchBalance(tezos, XTZ_ASSET, accountPkh)
         ))!;
         if (xtzBalanceBN.isZero()) {
-          throw new ZeroBalanceError();
+          throw new ZeroXTZBalanceError();
         }
       }
 
@@ -735,7 +736,9 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
     title={(() => {
       switch (true) {
         case error instanceof NotEnoughFundsError:
-          return "Not enough funds 😶";
+          return `Not enough ${
+            error instanceof ZeroXTZBalanceError ? "XTZ " : ""
+          }funds 😶`;
 
         default:
           return "Failed";
@@ -745,6 +748,14 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
       switch (true) {
         case error instanceof ZeroBalanceError:
           return <>Your Balance is zero.</>;
+
+        case error instanceof ZeroXTZBalanceError:
+          return (
+            <>
+              Your XTZ(main asset) balance is zero. XTZ funds are required for
+              the fee.
+            </>
+          );
 
         case error instanceof NotEnoughFundsError:
           return (

@@ -87,7 +87,7 @@ const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
               className={classNames(
                 "mt-1 w-16",
                 "text-center",
-                "text-xs text-gray-600 font-medium leading-none"
+                "text-xs text-gray-600 font-medium leading-tight"
               )}
             >
               {asset.name}
