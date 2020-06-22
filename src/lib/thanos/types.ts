@@ -67,6 +67,7 @@ export interface ThanosAssetBase {
   symbol: string;
   name: string;
   fungible: boolean;
+  default?: boolean;
 }
 
 export interface ThanosTokenBase extends ThanosAssetBase {

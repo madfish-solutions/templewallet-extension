@@ -505,6 +505,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             onFocus={() => amountFieldRef.current?.focus()}
             id="send-amount"
             assetSymbol={localAsset.symbol}
+            assetDecimals={localAsset.decimals}
             label="Amount"
             labelDescription={
               maxAmount && (

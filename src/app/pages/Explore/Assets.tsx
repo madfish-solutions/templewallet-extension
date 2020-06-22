@@ -1,10 +1,11 @@
 import * as React from "react";
 import classNames from "clsx";
 import Carousel from "@brainhubeu/react-carousel";
+import { navigate } from "lib/woozie";
 import {
-  ThanosAsset,
-  ThanosAssetType,
+  ThanosToken,
   useAssets,
+  useTokens,
   useCurrentAsset,
 } from "lib/thanos/front";
 import useTippy from "lib/ui/useTippy";
@@ -125,8 +126,8 @@ const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
         <div className="flex-1 flex items-center">
           <div className="flex-1" />
 
-          {currentAsset.type !== ThanosAssetType.XTZ && (
-            <RemoveTokenButton asset={currentAsset} />
+          {!currentAsset.default && (
+            <RemoveTokenButton asset={currentAsset as ThanosToken} />
           )}
         </div>
 
@@ -163,11 +164,13 @@ const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
 export default Assets;
 
 type RemoveTokenButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
-  asset: ThanosAsset;
+  asset: ThanosToken;
 };
 
 const RemoveTokenButton = React.memo<RemoveTokenButtonProps>(
   ({ asset, className, ...rest }) => {
+    const { removeToken } = useTokens();
+
     const tippyProps = React.useMemo(
       () => ({
         trigger: "mouseenter",
@@ -179,6 +182,10 @@ const RemoveTokenButton = React.memo<RemoveTokenButtonProps>(
     );
 
     const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
+
+    const handleClick = React.useCallback(() => {
+      removeToken(asset);
+    }, [removeToken, asset]);
 
     return (
       <button
@@ -195,6 +202,7 @@ const RemoveTokenButton = React.memo<RemoveTokenButtonProps>(
           className
         )}
         {...rest}
+        onClick={handleClick}
       >
         <RemoveIcon
           className={classNames(
@@ -223,6 +231,10 @@ const AddTokenButton = React.memo<AddTokenButtonProps>(
 
     const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
 
+    const handleClick = React.useCallback(() => {
+      navigate("/add-token");
+    }, []);
+
     return (
       <button
         ref={buttonRef}
@@ -238,6 +250,7 @@ const AddTokenButton = React.memo<AddTokenButtonProps>(
           className
         )}
         {...rest}
+        onClick={handleClick}
       >
         <AddIcon
           className={classNames(
