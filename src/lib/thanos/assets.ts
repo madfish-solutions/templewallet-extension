@@ -126,6 +126,30 @@ export async function toTransferParams(
   }
 }
 
+export function tryParseParameters(asset: ThanosAsset, parameters: any) {
+  switch (asset.type) {
+    case ThanosAssetType.Staker:
+    case ThanosAssetType.TzBTC:
+    case ThanosAssetType.FA1_2:
+      try {
+        const [{ args }, { int }] = parameters.value.args;
+        const sender = args[0].string as string;
+        const receiver = args[1].string as string;
+        const volume = new BigNumber(int).div(10 ** asset.decimals).toNumber();
+        return {
+          sender,
+          receiver,
+          volume,
+        };
+      } catch (_err) {
+        return null;
+      }
+
+    default:
+      return null;
+  }
+}
+
 export function toPenny(asset: ThanosAsset) {
   return new BigNumber(1).div(10 ** asset.decimals).toNumber();
 }
