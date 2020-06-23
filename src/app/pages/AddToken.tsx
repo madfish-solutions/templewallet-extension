@@ -4,10 +4,15 @@ import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
   ThanosToken,
+  ThanosAssetType,
   useTokens,
   useAssets,
   useCurrentAsset,
-  ThanosAssetType,
+  useTezos,
+  isAddressValid,
+  isKTAddress,
+  loadContract,
+  fetchBalance,
 } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
@@ -30,6 +35,7 @@ const AddToken: React.FC = () => (
 
 export default AddToken;
 
+const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
 const TOKEN_TYPES = [
   {
     type: ThanosAssetType.FA1_2,
@@ -55,6 +61,7 @@ const Form: React.FC = () => {
   const { addToken } = useTokens();
   const { allAssets } = useAssets();
   const { setAssetSymbol } = useCurrentAsset();
+  const tezos = useTezos();
 
   const prevAssetsLengthRef = React.useRef(allAssets.length);
   React.useEffect(() => {
@@ -78,15 +85,37 @@ const Form: React.FC = () => {
 
       setError(null);
       try {
+        let contract;
+        try {
+          contract = await loadContract(tezos, address);
+        } catch (_err) {
+          throw new Error(
+            "The contract at this address is not available." +
+              " Does it exist on this network?"
+          );
+        }
+
         const token: ThanosToken = {
           type: tokenType.type as any,
           address,
           symbol,
           name,
-          decimals,
-          iconUrl,
+          decimals: decimals || 0,
+          iconUrl: iconUrl || undefined,
           fungible: true,
         };
+
+        try {
+          if (typeof contract.methods.transfer !== "function") {
+            throw new Error("No transfer method");
+          }
+          await fetchBalance(tezos, token, STUB_TEZOS_ADDRESS);
+        } catch (_err) {
+          throw new Error(
+            "Provided token contract doesn't match FA1.2 standard"
+          );
+        }
+
         addToken(token);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
@@ -98,7 +127,7 @@ const Form: React.FC = () => {
         setError(err.message);
       }
     },
-    [tokenType, formState.isSubmitting, addToken, setError]
+    [tokenType, formState.isSubmitting, tezos, addToken, setError]
   );
 
   return (
@@ -180,7 +209,7 @@ const Form: React.FC = () => {
       </div>
 
       <FormField
-        ref={register({ required: "Required" })}
+        ref={register({ required: "Required", validate: validateAddress })}
         name="address"
         id="addtoken-address"
         label="Address"
@@ -191,41 +220,64 @@ const Form: React.FC = () => {
       />
 
       <FormField
-        ref={register({ required: "Required" })}
+        ref={register({
+          required: "Required",
+          pattern: {
+            value: /^[a-zA-Z0-9]{2,7}$/,
+            message: "Only a-z, A-Z, 0-9 chars allowed, 2-7 length",
+          },
+        })}
         name="symbol"
         id="addtoken-symbol"
         label="Symbol"
-        labelDescription="Token symbol, like USD for United States Dollar."
+        labelDescription="Token symbol, like 'USD' for United States Dollar."
         placeholder="e.g. WEW, BOW, LAL etc."
         errorCaption={errors.symbol?.message}
         containerClassName="mb-4"
       />
 
       <FormField
-        ref={register({ required: "Required" })}
+        ref={register({
+          required: "Required",
+          pattern: {
+            value: /^[a-zA-Z0-9 _-]{3,12}$/,
+            message: "No special characters, 3-12 length",
+          },
+        })}
         name="name"
         id="addtoken-name"
         label="Name"
-        labelDescription="Token name, like Bitcoin for BTC."
+        labelDescription="Token name, like 'Bitcoin' for BTC asset."
         placeholder="e.g. MySuperToken"
         errorCaption={errors.name?.message}
         containerClassName="mb-4"
       />
 
       <FormField
-        ref={register({ required: "Required" })}
+        ref={register({ min: { value: 0, message: "Integer, 0 or greater" } })}
         type="number"
         name="decimals"
         id="addtoken-decimals"
         label="Decimals"
-        labelDescription="Asset decimals."
+        labelDescription="A number of decimal places after point. For example: 8 for BTC, 2 for USD."
         placeholder="0"
-        errorCaption={errors.name?.message}
+        errorCaption={errors.decimals?.message}
         containerClassName="mb-4"
       />
 
       <FormField
-        ref={register}
+        ref={register({
+          pattern: {
+            value: /(https:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i,
+            message: (
+              <ul className="list-disc list-inside">
+                <li>Valid image URL</li>
+                <li>Only HTTPS</li>
+                <li>Only .png, .jpg, .jpeg, .gif, .webp images allowed</li>
+              </ul>
+            ),
+          },
+        })}
         name="iconUrl"
         id="addtoken-iconUrl"
         label={
@@ -249,3 +301,16 @@ const Form: React.FC = () => {
     </form>
   );
 };
+
+function validateAddress(value: any) {
+  switch (false) {
+    case isAddressValid(value):
+      return "Invalid address";
+
+    case isKTAddress(value):
+      return "Only KT... contract address allowed";
+
+    default:
+      return true;
+  }
+}

@@ -10,9 +10,16 @@ export function useTokens() {
 
   const addToken = React.useCallback(
     (token: ThanosToken) => {
+      if (tokens.some((t) => t.symbol === token.symbol)) {
+        throw new Error(`Token with '${token.symbol}' symbol already exists.`);
+      }
+      if (tokens.some((t) => t.name === token.name)) {
+        throw new Error(`Token with '${token.name}' name already exists.`);
+      }
+
       setTokens((tkns) => [...tkns, token]);
     },
-    [setTokens]
+    [tokens, setTokens]
   );
 
   const removeToken = React.useCallback(

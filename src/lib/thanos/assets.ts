@@ -87,7 +87,8 @@ export async function fetchBalance(
 
     case ThanosAssetType.FA1_2:
       const fa1_2 = await loadContract(tezos, asset.address);
-      ledger = (await fa1_2.storage<any>()).ledger;
+      const storage = await fa1_2.storage<any>();
+      ledger = storage.ledger || storage.accounts;
       nat = (await ledger.get(accountPkh))?.balance;
       return nat ? nat.div(10 ** asset.decimals) : new BigNumber(0);
 
