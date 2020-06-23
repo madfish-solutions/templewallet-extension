@@ -24,7 +24,7 @@ export function useTokens() {
 
   const removeToken = React.useCallback(
     (token: ThanosToken) => {
-      setTokens((tkns) => tkns.filter((t) => t.address !== token.address));
+      setTokens((tkns) => tkns.filter((t) => t.symbol !== token.symbol));
     },
     [setTokens]
   );
