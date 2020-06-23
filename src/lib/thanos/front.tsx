@@ -7,6 +7,7 @@ import { NewBlockTriggersProvider } from "lib/thanos/front/chain";
 export * from "lib/thanos/types";
 export * from "lib/thanos/helpers";
 export * from "lib/thanos/assets";
+export * from "lib/thanos/contract";
 export * from "lib/thanos/front/storage";
 export * from "lib/thanos/front/client";
 export * from "lib/thanos/front/ready";
