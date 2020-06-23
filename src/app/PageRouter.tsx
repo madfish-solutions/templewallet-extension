@@ -65,7 +65,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ["/receive", onlyReady(() => <Receive />)],
   ["/send", onlyReady(() => <Send />)],
   ["/delegate", onlyReady(() => <Delegate />)],
-  ["/add-token", onlyReady(() => <AddToken />)],
+  ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
   [
     "/settings/:tabSlug?",
     onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),
@@ -115,4 +115,9 @@ function onlyReady(factory: RouteFactory): RouteFactory {
 function onlyNotReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) =>
     ctx.ready ? Woozie.Router.SKIP : factory(params, ctx);
+}
+
+function onlyInFullPage(factory: RouteFactory): RouteFactory {
+  return (params, ctx) =>
+    !ctx.fullPage ? <OpenInFullPage /> : factory(params, ctx);
 }
