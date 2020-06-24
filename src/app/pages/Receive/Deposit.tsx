@@ -86,7 +86,7 @@ const Deposit: React.FC<DepositProps> = ({ address }) => {
               "overflow-hidden",
               "border-b border-gray-200",
               "hover:bg-gray-200 focus:bg-gray-200",
-              "flex items-strech",
+              "flex items-stretch",
               "text-gray-700",
               "transition ease-in-out duration-200",
               "focus:outline-none",

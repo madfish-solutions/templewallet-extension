@@ -1,9 +1,17 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useRetryableSWR } from "lib/swr";
+import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
+import { useRetryableSWR } from "lib/swr";
 import { getAccountWithOperations } from "lib/tzstats";
-import { useNetwork, usePendingOperations } from "lib/thanos/front";
+import {
+  ThanosAsset,
+  ThanosAssetType,
+  XTZ_ASSET,
+  useNetwork,
+  usePendingOperations,
+  useAssets,
+} from "lib/thanos/front";
 import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
 import HashChip from "app/atoms/HashChip";
@@ -19,6 +27,7 @@ interface OperationPreview {
   volume: number;
   status: string;
   time: string;
+  parameters?: any;
 }
 
 interface OperationHistoryProps {
@@ -155,93 +164,128 @@ type OperationProps = OperationPreview & {
 };
 
 const Operation = React.memo<OperationProps>(
-  ({ accountPkh, hash, type, receiver, volume, status, time }) => {
-    const volumeExists = volume !== 0;
+  ({ accountPkh, hash, type, receiver, volume, status, time, parameters }) => {
+    const { allAssets } = useAssets();
+
+    const token = React.useMemo(
+      () =>
+        (parameters &&
+          allAssets.find(
+            (a) => a.type !== ThanosAssetType.XTZ && a.address === receiver
+          )) ||
+        null,
+      [allAssets, parameters, receiver]
+    );
+
+    const tokenParsed = React.useMemo(
+      () => token && tryParseParameters(token, parameters),
+      [token, parameters]
+    );
+
+    const finalReceiver = tokenParsed ? tokenParsed.receiver : receiver;
+    const finalVolume = tokenParsed ? tokenParsed.volume : volume;
+
+    const volumeExists = finalVolume !== 0;
     const typeTx = type === "transaction";
-    const imReceiver = receiver === accountPkh;
+    const imReceiver = finalReceiver === accountPkh;
     const pending = status === "backtracked";
 
-    return (
-      <div className={classNames("my-3", "flex items-strech")}>
-        <div className="mr-2">
-          <Identicon hash={hash} size={50} className="shadow-xs" />
-        </div>
-
-        <div className="flex-1">
-          <div className="flex items-center">
-            <HashChip
-              hash={hash}
-              firstCharsCount={10}
-              lastCharsCount={7}
-              small
-              className="mr-2"
-            />
-
-            <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
+    return React.useMemo(
+      () => (
+        <div className={classNames("my-3", "flex items-stretch")}>
+          <div className="mr-2">
+            <Identicon hash={hash} size={50} className="shadow-xs" />
           </div>
 
-          <div className="flex items-strech">
-            <div className="flex flex-col">
-              <span className="mt-1 text-xs text-blue-600 opacity-75">
-                {formatOperationType(type, imReceiver)}
-              </span>
+          <div className="flex-1">
+            <div className="flex items-center">
+              <HashChip
+                hash={hash}
+                firstCharsCount={10}
+                lastCharsCount={7}
+                small
+                className="mr-2"
+              />
 
-              {pending ? (
-                <span className="text-xs text-yellow-600 font-light">
-                  pending...
-                </span>
-              ) : (
-                <Time
-                  children={() => (
-                    <span className="text-xs text-gray-500 font-light">
-                      {formatDistanceToNow(new Date(time), {
-                        includeSeconds: true,
-                        addSuffix: true,
-                      })}
-                    </span>
-                  )}
-                />
-              )}
+              <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
             </div>
 
-            <div className="flex-1" />
+            <div className="flex items-stretch">
+              <div className="flex flex-col">
+                <span className="mt-1 text-xs text-blue-600 opacity-75">
+                  {formatOperationType(type, imReceiver)}
+                </span>
 
-            {volumeExists && (
-              <div className="flex-shrink-0 flex flex-col items-end">
-                <div
-                  className={classNames(
-                    "text-sm",
-                    (() => {
-                      switch (true) {
-                        case pending:
-                          return "text-yellow-600";
-
-                        case typeTx:
-                          return imReceiver ? "text-green-500" : "text-red-700";
-
-                        default:
-                          return "text-gray-800";
-                      }
-                    })()
-                  )}
-                >
-                  {typeTx && (imReceiver ? "+" : "-")}
-                  <Money>{volume}</Money> ꜩ
-                </div>
-
-                <InUSD volume={volume}>
-                  {(usdVolume) => (
-                    <div className="text-xs text-gray-500">
-                      <span className="mr-px">$</span>
-                      {usdVolume}
-                    </div>
-                  )}
-                </InUSD>
+                {pending ? (
+                  <span className="text-xs text-yellow-600 font-light">
+                    pending...
+                  </span>
+                ) : (
+                  <Time
+                    children={() => (
+                      <span className="text-xs text-gray-500 font-light">
+                        {formatDistanceToNow(new Date(time), {
+                          includeSeconds: true,
+                          addSuffix: true,
+                        })}
+                      </span>
+                    )}
+                  />
+                )}
               </div>
-            )}
+
+              <div className="flex-1" />
+
+              {volumeExists && (
+                <div className="flex-shrink-0 flex flex-col items-end">
+                  <div
+                    className={classNames(
+                      "text-sm",
+                      (() => {
+                        switch (true) {
+                          case pending:
+                            return "text-yellow-600";
+
+                          case typeTx:
+                            return imReceiver
+                              ? "text-green-500"
+                              : "text-red-700";
+
+                          default:
+                            return "text-gray-800";
+                        }
+                      })()
+                    )}
+                  >
+                    {typeTx && (imReceiver ? "+" : "-")}
+                    <Money>{finalVolume}</Money> {token ? token.symbol : "ꜩ"}
+                  </div>
+
+                  <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
+                    {(usdVolume) => (
+                      <div className="text-xs text-gray-500">
+                        <span className="mr-px">$</span>
+                        {usdVolume}
+                      </div>
+                    )}
+                  </InUSD>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      ),
+      [
+        hash,
+        finalVolume,
+        imReceiver,
+        pending,
+        time,
+        token,
+        type,
+        typeTx,
+        volumeExists,
+      ]
     );
   }
 );
@@ -279,4 +323,30 @@ function formatOperationType(type: string, imReciever: boolean) {
 
 function opKey(op: OperationPreview) {
   return `${op.hash}_${op.type}`;
+}
+
+function tryParseParameters(asset: ThanosAsset, parameters: any) {
+  switch (asset.type) {
+    case ThanosAssetType.Staker:
+    case ThanosAssetType.TzBTC:
+    case ThanosAssetType.FA1_2:
+      try {
+        const args = parameters.value.transfer;
+        const sender = args["0@address"] as string;
+        const receiver = args["1@address"] as string;
+        const volume = new BigNumber(args["2@nat"])
+          .div(10 ** asset.decimals)
+          .toNumber();
+        return {
+          sender,
+          receiver,
+          volume,
+        };
+      } catch (_err) {
+        return null;
+      }
+
+    default:
+      return null;
+  }
 }

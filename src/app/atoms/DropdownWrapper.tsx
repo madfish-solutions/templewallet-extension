@@ -4,10 +4,12 @@ import CSSTransition from "react-transition-group/CSSTransition";
 
 type DropdownWrapperProps = React.HTMLAttributes<HTMLDivElement> & {
   opened: boolean;
+  hiddenOverflow?: boolean;
 };
 
 const DropdownWrapper: React.FC<DropdownWrapperProps> = ({
   opened,
+  hiddenOverflow = true,
   className,
   style = {},
   ...rest
@@ -32,9 +34,10 @@ const DropdownWrapper: React.FC<DropdownWrapperProps> = ({
       className={classNames(
         "mt-2",
         "border",
-        "rounded-md overflow-hidden",
+        "rounded-md",
         "shadow-xl",
         "p-2",
+        hiddenOverflow && "overflow-hidden",
         process.env.TARGET_BROWSER === "firefox" && "grayscale-firefox-fix",
         className
       )}

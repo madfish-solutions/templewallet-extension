@@ -12,6 +12,7 @@ import Explore from "app/pages/Explore";
 import Receive from "app/pages/Receive";
 import Send from "app/pages/Send";
 import Delegate from "app/pages/Delegate";
+import AddToken from "app/pages/AddToken";
 import Settings from "app/pages/Settings";
 
 interface RouteContext {
@@ -64,6 +65,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ["/receive", onlyReady(() => <Receive />)],
   ["/send", onlyReady(() => <Send />)],
   ["/delegate", onlyReady(() => <Delegate />)],
+  ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
   [
     "/settings/:tabSlug?",
     onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),
@@ -113,4 +115,9 @@ function onlyReady(factory: RouteFactory): RouteFactory {
 function onlyNotReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) =>
     ctx.ready ? Woozie.Router.SKIP : factory(params, ctx);
+}
+
+function onlyInFullPage(factory: RouteFactory): RouteFactory {
+  return (params, ctx) =>
+    !ctx.fullPage ? <OpenInFullPage /> : factory(params, ctx);
 }

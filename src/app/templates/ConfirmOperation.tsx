@@ -123,7 +123,7 @@ const ConfirmOperation: React.FC<ConfirmOperationProps> = ({
 
       <div className="flex-1" />
 
-      <div className="w-full flex items-strech">
+      <div className="w-full flex items-stretch">
         <div className="w-1/2 pr-2">
           <FormSecondaryButton
             type="button"

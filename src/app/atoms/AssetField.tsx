@@ -6,6 +6,7 @@ type AssetFieldProps = React.ComponentProps<typeof FormField> & {
   min?: number;
   max?: number;
   assetSymbol?: React.ReactNode;
+  assetDecimals?: number;
   onChange?: (v?: number) => void;
 };
 
@@ -16,6 +17,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
       min = 0,
       max = Number.MAX_SAFE_INTEGER,
       assetSymbol,
+      assetDecimals = 6,
       onChange,
       onFocus,
       onBlur,
@@ -39,12 +41,11 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
 
     const handleChange = React.useCallback(
       (evt) => {
-        const decimals = 6;
         let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
         let numVal = +val;
         const indexOfDot = val.indexOf(".");
-        if (indexOfDot !== -1 && val.length - indexOfDot > decimals + 1) {
-          val = val.substring(0, indexOfDot + decimals + 1);
+        if (indexOfDot !== -1 && val.length - indexOfDot > assetDecimals + 1) {
+          val = val.substring(0, indexOfDot + assetDecimals + 1);
           numVal = +val;
         }
 
@@ -55,7 +56,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
           }
         }
       },
-      [setLocalValue, min, max, onChange]
+      [assetDecimals, setLocalValue, min, max, onChange]
     );
 
     const handleFocus = React.useCallback(
