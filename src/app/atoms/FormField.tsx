@@ -171,7 +171,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
               "appearance-none",
               "w-full",
               "py-3 pl-4",
-              extraInner ? "pr-16" : "pr-4",
+              extraInner ? "pr-20" : "pr-4",
               "border-2",
               errorCaption ? "border-red-500" : "border-gray-300",
               "focus:border-primary-orange",
@@ -198,13 +198,13 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
             <div
               className={classNames(
                 "overflow-hidden",
-                "absolute inset-y-0 right-0 w-16",
-                "flex items-center justify-center",
+                "absolute inset-y-0 right-0 w-20",
+                "flex items-center justify-end",
                 "opacity-50",
                 "pointer-events-none"
               )}
             >
-              <span className="text-gray-900 text-lg font-light">
+              <span className="mx-4 text-gray-900 text-lg font-light">
                 {extraInner}
               </span>
             </div>

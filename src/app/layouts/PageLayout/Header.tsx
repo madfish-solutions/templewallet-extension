@@ -26,7 +26,7 @@ const Header: React.FC = () => {
     >
       <ContentContainer className="py-4">
         <div className={classNames(appEnv.fullPage && "px-4")}>
-          <div className="flex items-strech">
+          <div className="flex items-stretch">
             <Link to="/" className="flex-shrink-0 pr-4">
               <Logo hasTitle={appEnv.fullPage} />
             </Link>

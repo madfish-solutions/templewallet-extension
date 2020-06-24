@@ -521,7 +521,7 @@ const ConfirmDAppForm: React.FC = () => {
         className={classNames(
           "sticky bottom-0 w-full",
           "bg-white shadow-md",
-          "flex items-strech",
+          "flex items-stretch",
           "px-4 pt-2 pb-4"
         )}
       >

@@ -2,20 +2,26 @@ import * as React from "react";
 import constate from "constate";
 import { trigger } from "swr";
 import { Subscription } from "@taquito/taquito";
-import { useTezos, useAllAccounts } from "lib/thanos/front";
+import { useTezos, useAllAccounts, useAssets } from "lib/thanos/front";
 
 export const [NewBlockTriggersProvider] = constate(useNewBlockTriggers);
 
 function useNewBlockTriggers() {
   const tezos = useTezos();
+  const { allAssets } = useAssets();
   const allAccounts = useAllAccounts();
 
   const handleNewBlock = React.useCallback(() => {
     for (const acc of allAccounts) {
-      trigger(["balance", tezos.checksum, acc.publicKeyHash], true);
+      for (const asset of allAssets) {
+        trigger(
+          ["balance", tezos.checksum, asset.symbol, acc.publicKeyHash],
+          true
+        );
+      }
       trigger(["delegate", tezos.checksum, acc.publicKeyHash], true);
     }
-  }, [allAccounts, tezos.checksum]);
+  }, [allAccounts, allAssets, tezos.checksum]);
 
   useOnBlock(handleNewBlock);
 }

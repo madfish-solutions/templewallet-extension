@@ -1,8 +1,12 @@
 import * as React from "react";
+import { ThanosAsset, ThanosAssetType } from "lib/thanos/types";
+import xtzImgUrl from "app/misc/xtz.png";
+import anyTokenImgUrl from "app/misc/anytoken.png";
 
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
 export class ZeroBalanceError extends NotEnoughFundsError {}
+export class ZeroXTZBalanceError extends NotEnoughFundsError {}
 
 export const PASSWORD_PATTERN = new RegExp(
   [
@@ -33,4 +37,10 @@ export const MNEMONIC_ERROR_CAPTION = (
 
 export function formatMnemonic(m: string) {
   return m.replace(/\n/g, " ").trim();
+}
+
+export function getAssetIconUrl(asset: ThanosAsset) {
+  return asset.type === ThanosAssetType.XTZ
+    ? xtzImgUrl
+    : asset.iconUrl ?? anyTokenImgUrl;
 }
