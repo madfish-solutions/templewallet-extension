@@ -45,6 +45,56 @@ export interface ThanosNetwork {
   disabled: boolean;
 }
 
+export type ThanosAsset = ThanosXTZAsset | ThanosToken;
+
+export type ThanosToken =
+  | ThanosTzBTCAsset
+  | ThanosStakerAsset
+  | ThanosFA1_2Asset
+  | ThanosFA2Asset;
+
+export enum ThanosAssetType {
+  XTZ = "XTZ",
+  TzBTC = "TzBTC",
+  Staker = "STAKER",
+  FA1_2 = "FA1_2",
+  FA2 = "FA2",
+}
+
+export interface ThanosAssetBase {
+  type: ThanosAssetType;
+  decimals: number;
+  symbol: string;
+  name: string;
+  fungible: boolean;
+  default?: boolean;
+}
+
+export interface ThanosTokenBase extends ThanosAssetBase {
+  address: string;
+  iconUrl?: string;
+}
+
+export interface ThanosXTZAsset extends ThanosAssetBase {
+  type: ThanosAssetType.XTZ;
+}
+
+export interface ThanosTzBTCAsset extends ThanosTokenBase {
+  type: ThanosAssetType.TzBTC;
+}
+
+export interface ThanosStakerAsset extends ThanosTokenBase {
+  type: ThanosAssetType.Staker;
+}
+
+export interface ThanosFA1_2Asset extends ThanosTokenBase {
+  type: ThanosAssetType.FA1_2;
+}
+
+export interface ThanosFA2Asset extends ThanosTokenBase {
+  type: ThanosAssetType.FA2;
+}
+
 export type ThanosNetworkType = "main" | "test";
 
 export interface ThanosSettings {}
