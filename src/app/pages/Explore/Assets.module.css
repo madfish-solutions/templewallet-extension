@@ -1,0 +1,27 @@
+.carousel-container :global(.BrainhubCarousel__trackContainer) {
+  border-left: 1px solid #cbd5e0;
+  border-right: 1px solid #cbd5e0;
+}
+.carousel-container :global(.BrainhubCarouselItem) {
+  opacity: 0.5;
+}
+.carousel-container :global(.BrainhubCarouselItem):hover {
+  opacity: 0.75;
+}
+.carousel-container
+  :global(.BrainhubCarouselItem.BrainhubCarouselItem--active) {
+  opacity: 1;
+}
+.carousel-container :global(.BrainhubCarousel__arrows) {
+  background-color: transparent;
+}
+.carousel-container :global(.BrainhubCarousel__arrows):hover {
+  background-color: transparent;
+}
+.carousel-container :global(.BrainhubCarousel__arrows) span {
+  border-color: #cbd5e0;
+  border-width: 2px 2px 0 0;
+}
+.carousel-container :global(.BrainhubCarousel__arrows):hover span {
+  border-color: #a0aec0;
+}
