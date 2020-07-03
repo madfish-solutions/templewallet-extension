@@ -1,4 +1,5 @@
 import * as React from "react";
+import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { useThanosClient, useAccount } from "lib/thanos/front";
 import AccountBanner from "app/templates/AccountBanner";
@@ -130,29 +131,62 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
               account={account}
               labelDescription={
                 <>
-                  If you want to reveal a private key from another account - you should select it in the
-                  top-right dropdown.
+                  If you want to reveal a private key from another account - you
+                  should select it in the top-right dropdown.
                 </>
               }
               className="mb-6"
             />
           ),
+          derivationPathBanner: null,
           attention: (
             <>
               <span className="font-semibold">DO NOT share</span> this set of
-              chars with anyone! It can be used to steal your current
-              account.
+              chars with anyone! It can be used to steal your current account.
             </>
           ),
-          fieldDesc: (
-            <>Current account key. Keep it secret.</>
-          ),
+          fieldDesc: <>Current account key. Keep it secret.</>,
         };
 
       case "seed-phrase":
         return {
           name: "Seed Phrase",
           accountBanner: null,
+          derivationPathBanner: (
+            <div className={classNames("mb-6", "flex flex-col")}>
+              <h2
+                className={classNames("mb-4", "leading-tight", "flex flex-col")}
+              >
+                <span className="text-base font-semibold text-gray-700">
+                  Derivation path
+                </span>
+
+                <span
+                  className={classNames(
+                    "mt-1",
+                    "text-xs font-light text-gray-600"
+                  )}
+                  style={{ maxWidth: "90%" }}
+                >
+                  for HD acccounts. This is the thing you use to recover all
+                  your accounts from your seed phrase.
+                </span>
+              </h2>
+
+              <div
+                className={classNames(
+                  "w-full",
+                  "border rounded-md",
+                  "p-2",
+                  "flex items-center"
+                )}
+              >
+                <span className="text-gray-800 text-sm font-medium">
+                  {"m/44'/1729'/<account_index>'/0'"}
+                </span>
+              </div>
+            </div>
+          ),
           attention: (
             <>
               <span className="font-semibold">DO NOT share</span> this phrase
@@ -172,6 +206,8 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
   return (
     <div className="w-full max-w-sm p-2 mx-auto">
       {texts.accountBanner}
+
+      {texts.derivationPathBanner}
 
       {secret ? (
         <>
