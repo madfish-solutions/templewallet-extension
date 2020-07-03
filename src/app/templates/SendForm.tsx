@@ -348,7 +348,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     setValue("fee", RECOMMENDED_ADD_FEE);
   }, [setValue]);
 
-  const [submitError, setSubmitError] = useSafeState<React.ReactNode>(
+  const [submitError, setSubmitError] = useSafeState<any>(
     null,
     `${tezos.checksum}_${toValue}`
   );
@@ -488,12 +488,36 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         <SpinnerSection />
       ) : restFormDisplayed ? (
         <>
-          {(submitError || estimationError) && (
-            <SendErrorAlert
-              type={submitError ? "submit" : "estimation"}
-              error={submitError || estimationError}
-            />
-          )}
+          {(() => {
+            switch (true) {
+              case Boolean(submitError):
+                return <SendErrorAlert type="submit" error={submitError} />;
+
+              case Boolean(estimationError):
+                return (
+                  <SendErrorAlert type="estimation" error={estimationError} />
+                );
+
+              case toValue === accountPkh:
+                return (
+                  <Alert
+                    type="warn"
+                    title="Attension!"
+                    description={
+                      <>
+                        You're trying to transfer funds to yourself.
+                        <br />
+                        Please, ensure that it's exactly what you want.
+                      </>
+                    }
+                    className="mt-6 mb-4"
+                  />
+                );
+
+              default:
+                return null;
+            }
+          })()}
 
           <Controller
             name="amount"
