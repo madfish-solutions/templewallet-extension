@@ -5,6 +5,7 @@ import {
   useNetwork,
   useTokens,
   useStorage,
+  ThanosAsset,
 } from "lib/thanos/front";
 import { useAccount } from "./ready";
 
@@ -36,7 +37,10 @@ export function useCurrentAsset() {
   );
 
   const currentAsset = React.useMemo(
-    () => allAssets.find((a) => a.symbol === assetSymbol) ?? defaultAsset,
+    () =>
+      formatAsset(
+        allAssets.find((a) => a.symbol === assetSymbol) ?? defaultAsset
+      ),
     [allAssets, assetSymbol, defaultAsset]
   );
 
@@ -45,4 +49,8 @@ export function useCurrentAsset() {
     setAssetSymbol,
     currentAsset,
   };
+}
+
+function formatAsset(asset: ThanosAsset) {
+  return { ...asset, decimals: +asset.decimals };
 }
