@@ -181,7 +181,9 @@ const NewWallet: React.FC<NewWalletProps> = ({
           label="Accept terms"
           labelDescription={
             <>
-              I have read and agree to the{" "}
+              I have read and agree to
+              <br />
+              the{" "}
               <a
                 href="https://thanoswallet.com/terms"
                 target="_blank"
@@ -189,6 +191,15 @@ const NewWallet: React.FC<NewWalletProps> = ({
                 className="text-secondary underline"
               >
                 Terms of Usage
+              </a>{" "}
+              and{" "}
+              <a
+                href="https://thanoswallet.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-secondary underline"
+              >
+                Privacy Policy
               </a>
             </>
           }
