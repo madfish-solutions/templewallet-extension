@@ -3,10 +3,12 @@ import { useNetwork, useStorage, ThanosToken } from "lib/thanos/front";
 
 export function useTokens() {
   const network = useNetwork();
-  const [tokens, setTokens] = useStorage<ThanosToken[]>(
+  const [tokensPure, setTokens] = useStorage<ThanosToken[]>(
     `tokens_${network.id}`,
     []
   );
+
+  const tokens = React.useMemo(() => tokensPure.map(formatSaved), [tokensPure]);
 
   const addToken = React.useCallback(
     (token: ThanosToken) => {
@@ -35,4 +37,8 @@ export function useTokens() {
     addToken,
     removeToken,
   };
+}
+
+function formatSaved(t: ThanosToken) {
+  return { ...t, decimals: +t.decimals };
 }
