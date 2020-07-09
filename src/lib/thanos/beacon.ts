@@ -102,13 +102,13 @@ export function decodeMessage<T = unknown>(encoded: string): T {
 export function formatOpParams(op: any) {
   const { fee, gas_limit, storage_limit, ...rest } = op;
   if (op.kind === "transaction") {
-    const { destination, amount, parameters, ...txRest } = rest;
+    const { to, destination, amount, parameter, parameters, ...txRest } = rest;
     return {
       ...txRest,
-      to: destination,
+      to: to ?? destination,
       amount: +amount,
       mutez: true,
-      parameter: parameters,
+      parameter: parameter ?? parameters,
     };
   }
   return rest;
