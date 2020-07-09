@@ -87,7 +87,8 @@ export async function requestPermission(
               type: ThanosDAppMessageType.PermissionResponse,
               pkh: confirmReq.pkh,
               rpc: getNetworkRPC(req.network),
-            });
+              publicKey: confirmReq.publicKey,
+            } as any);
           } else {
             decline();
           }

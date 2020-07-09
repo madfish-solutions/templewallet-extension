@@ -178,14 +178,17 @@ async function processRequest(
             type: ThanosMessageType.PageResponse,
             payload: "PONG",
           };
+        } else if (req.beacon && req.payload === "ping") {
+          return {
+            type: ThanosMessageType.PageResponse,
+            payload: "pong",
+          };
         }
 
         return enqueue(pageQueue, port, async () => {
-          const resPayload = await Actions.processDApp(
-            intercom,
-            req.origin,
-            req.payload
-          );
+          const resPayload = await (req.beacon
+            ? Actions.processBeacon
+            : Actions.processDApp)(intercom, req.origin, req.payload);
           if (resPayload) {
             return {
               type: ThanosMessageType.PageResponse,

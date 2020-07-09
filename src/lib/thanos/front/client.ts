@@ -227,12 +227,13 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   );
 
   const confirmDAppPermission = React.useCallback(
-    async (id: string, confirm: boolean, pkh?: string) => {
+    async (id: string, confirm: boolean, pkh?: string, publicKey?: string) => {
       const res = await request({
         type: ThanosMessageType.DAppPermissionConfirmRequest,
         id,
         confirm,
         pkh,
+        publicKey,
       });
       assertResponse(
         res.type === ThanosMessageType.DAppPermissionConfirmResponse
@@ -299,6 +300,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     confirmDAppPermission,
     confirmDAppOperation,
     createSigner,
+    getPublicKey,
   };
 });
 
@@ -313,12 +315,7 @@ class ThanosSigner {
   }
 
   async publicKey(): Promise<string> {
-    const res = await request({
-      type: ThanosMessageType.RevealPublicKeyRequest,
-      accountPublicKeyHash: this.accountPublicKeyHash,
-    });
-    assertResponse(res.type === ThanosMessageType.RevealPublicKeyResponse);
-    return res.publicKey;
+    return getPublicKey(this.accountPublicKeyHash);
   }
 
   async secretKey(): Promise<string> {
@@ -340,6 +337,15 @@ class ThanosSigner {
     assertResponse(res.type === ThanosMessageType.SignResponse);
     return res.result;
   }
+}
+
+async function getPublicKey(accountPublicKeyHash: string) {
+  const res = await request({
+    type: ThanosMessageType.RevealPublicKeyRequest,
+    accountPublicKeyHash,
+  });
+  assertResponse(res.type === ThanosMessageType.RevealPublicKeyResponse);
+  return res.publicKey;
 }
 
 async function request<T extends ThanosRequest>(req: T) {
