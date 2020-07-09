@@ -80,7 +80,7 @@ window.addEventListener(
             );
           }
         })
-        .catch(() => {});
+        .catch((err) => console.error(err));
     }
   },
   false
