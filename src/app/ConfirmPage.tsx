@@ -75,7 +75,11 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 
 const ConfirmDAppForm: React.FC = () => {
-  const { confirmDAppPermission, confirmDAppOperation } = useThanosClient();
+  const {
+    confirmDAppPermission,
+    confirmDAppOperation,
+    getPublicKey,
+  } = useThanosClient();
   const allNetworks = useAllNetworks();
   const allAccounts = useAllAccounts();
   const account = useAccount();
@@ -147,13 +151,14 @@ const ConfirmDAppForm: React.FC = () => {
   }, [params.type, params.origin, params.appMeta.name]);
 
   const done = React.useCallback(
-    (confimed: boolean, password?: string) => {
+    async (confimed: boolean, password?: string) => {
       switch (params.type) {
         case "connect":
           return confirmDAppPermission(
             params.id,
             confimed,
-            accountPkhToConnect
+            accountPkhToConnect,
+            await getPublicKey(accountPkhToConnect)
           );
 
         case "confirm_operations":
@@ -163,6 +168,7 @@ const ConfirmDAppForm: React.FC = () => {
     [
       params.id,
       params.type,
+      getPublicKey,
       confirmDAppPermission,
       confirmDAppOperation,
       accountPkhToConnect,

@@ -1,6 +1,8 @@
+import { browser } from "webextension-polyfill-ts";
 import {
-  ThanosDAppRequest,
   ThanosDAppMessageType,
+  ThanosDAppErrorType,
+  ThanosDAppRequest,
   ThanosDAppResponse,
 } from "@thanos-wallet/dapp/dist/types";
 import { IntercomServer } from "lib/intercom/server";
@@ -23,9 +25,11 @@ import {
   settingsUpdated,
 } from "lib/thanos/back/store";
 import { requestPermission, requestOperation } from "lib/thanos/back/dapp";
+import * as Beacon from "lib/thanos/beacon";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
+const BEACON_ID = `thanos_wallet_${browser.runtime.id}`;
 
 export async function getFrontState(): Promise<ThanosState> {
   const state = store.getState();
@@ -240,6 +244,107 @@ export async function processDApp(
     case ThanosDAppMessageType.OperationRequest:
       return withInited(() => requestOperation(origin, req, intercom));
   }
+}
+
+export async function processBeacon(
+  intercom: IntercomServer,
+  origin: string,
+  msg: string
+) {
+  const req = Beacon.decodeMessage<Beacon.Request>(msg);
+  const resBase = {
+    version: req.version,
+    beaconId: BEACON_ID,
+    id: req.id,
+  };
+
+  const res = await (async (): Promise<Beacon.Response> => {
+    try {
+      if (req.network.type === "custom") {
+        throw new Error(Beacon.ErrorType.NETWORK_NOT_SUPPORTED);
+      }
+      const network = req.network.type;
+
+      try {
+        const thanosReq = ((): ThanosDAppRequest | void => {
+          switch (req.type) {
+            case Beacon.MessageType.PermissionRequest:
+              return {
+                type: ThanosDAppMessageType.PermissionRequest,
+                network,
+                appMeta: req.appMetadata,
+              };
+
+            case Beacon.MessageType.OperationRequest:
+              return {
+                type: ThanosDAppMessageType.OperationRequest,
+                sourcePkh: req.sourceAddress,
+                opParams: req.operationDetails.map(Beacon.formatOpParams),
+              };
+          }
+        })();
+
+        if (thanosReq) {
+          const thanosRes = await processDApp(intercom, origin, thanosReq);
+
+          if (thanosRes) {
+            // Map Thanos DApp response to Beacon response
+            switch (thanosRes.type) {
+              case ThanosDAppMessageType.PermissionResponse:
+                return {
+                  ...resBase,
+                  type: Beacon.MessageType.PermissionResponse,
+                  publicKey: (thanosRes as any).publicKey,
+                  network: { type: network },
+                  scopes: [Beacon.PermissionScope.OPERATION_REQUEST],
+                };
+
+              case ThanosDAppMessageType.OperationResponse:
+                return {
+                  ...resBase,
+                  type: Beacon.MessageType.OperationResponse,
+                  transactionHash: thanosRes.opHash,
+                };
+            }
+          }
+        }
+
+        throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
+      } catch (err) {
+        // Map Thanos DApp error to Beacon error
+        const beaconErrorType = (() => {
+          if (err?.message.startsWith("__tezos__")) {
+            return Beacon.ErrorType.BROADCAST_ERROR;
+          }
+
+          switch (err?.message) {
+            case ThanosDAppErrorType.InvalidParams:
+              return Beacon.ErrorType.PARAMETERS_INVALID_ERROR;
+
+            case ThanosDAppErrorType.NotFound:
+            case ThanosDAppErrorType.NotGranted:
+              return Beacon.ErrorType.NOT_GRANTED_ERROR;
+
+            default:
+              return err?.message;
+          }
+        })();
+
+        throw new Error(beaconErrorType);
+      }
+    } catch (err) {
+      return {
+        ...resBase,
+        type: Beacon.MessageType.Error,
+        errorType:
+          err?.message in Beacon.ErrorType
+            ? err.message
+            : Beacon.ErrorType.UNKNOWN_ERROR,
+      };
+    }
+  })();
+
+  return Beacon.encodeMessage<Beacon.Response>(res);
 }
 
 function withUnlocked<T>(factory: (state: UnlockedStoreState) => T) {

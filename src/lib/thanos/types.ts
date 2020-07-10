@@ -361,6 +361,7 @@ export interface ThanosPageRequest extends ThanosMessageBase {
   type: ThanosMessageType.PageRequest;
   origin: string;
   payload: any;
+  beacon?: boolean;
 }
 
 export interface ThanosPageResponse extends ThanosMessageBase {
@@ -373,6 +374,7 @@ export interface ThanosDAppPermissionConfirmRequest extends ThanosMessageBase {
   id: string;
   confirm: boolean;
   pkh?: string;
+  publicKey?: string;
 }
 
 export interface ThanosDAppPermissionConfirmResponse extends ThanosMessageBase {
