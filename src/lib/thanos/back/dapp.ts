@@ -24,6 +24,7 @@ interface DAppPermission {
   network: ThanosDAppNetwork;
   appMeta: ThanosDAppMetadata;
   pkh: string;
+  publicKey?: string;
 }
 
 const dApps = new Map<string, DAppPermission>();
@@ -51,8 +52,9 @@ export async function requestPermission(
       return {
         type: ThanosDAppMessageType.PermissionResponse,
         pkh: dApp.pkh,
+        publicKey: dApp.publicKey,
         rpc: getNetworkRPC(req.network),
-      };
+      } as any;
     }
   }
 
@@ -82,12 +84,13 @@ export async function requestPermission(
               network: req.network,
               appMeta: req.appMeta,
               pkh: confirmReq.pkh,
+              publicKey: confirmReq.publicKey,
             });
             resolve({
               type: ThanosDAppMessageType.PermissionResponse,
               pkh: confirmReq.pkh,
-              rpc: getNetworkRPC(req.network),
               publicKey: confirmReq.publicKey,
+              rpc: getNetworkRPC(req.network),
             } as any);
           } else {
             decline();
