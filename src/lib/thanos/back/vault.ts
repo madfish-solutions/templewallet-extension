@@ -195,7 +195,7 @@ export class Vault {
       const signer = await createMemorySigner(privateKey);
       const tezos = new TezosToolkit();
       tezos.setProvider({ rpc, signer });
-      return tezos.batch(opParams);
+      return tezos.batch(opParams.map(formatOpParams));
     });
 
     try {
@@ -442,6 +442,17 @@ const MIGRATIONS = [
 /**
  * Misc
  */
+
+function formatOpParams(params: any) {
+  if (params.kind === "origination" && params.script) {
+    const newParams = { ...params, ...params.script };
+    newParams.init = newParams.storage;
+    delete newParams.script;
+    delete newParams.storage;
+    return newParams;
+  }
+  return params;
+}
 
 function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
   if (current.every((a) => a.publicKeyHash !== newOne.publicKeyHash)) {
