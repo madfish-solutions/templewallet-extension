@@ -12,6 +12,9 @@
   :global(.BrainhubCarouselItem.BrainhubCarouselItem--active) {
   opacity: 1;
 }
+.carousel-container :global(.BrainhubCarousel__trackContainer) {
+  min-width: 10.625rem;
+}
 .carousel-container :global(.BrainhubCarousel__arrows) {
   background-color: transparent;
 }
