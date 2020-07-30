@@ -121,7 +121,7 @@ const ConfirmForm: React.FC = () => {
 
         <h1
           className={classNames(
-            "ml-1",
+            "ml-2",
             "text-2xl font-semibold tracking-tight",
             "text-gray-700"
           )}
