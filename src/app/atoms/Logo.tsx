@@ -31,7 +31,7 @@ const Logo: React.FC<LogoProps> = ({
     {hasTitle && (
       <span
         className={classNames(
-          "ml-1",
+          "ml-2",
           "text-xl font-semibold tracking-tight",
           dark ? "text-gray-600" : "text-white"
         )}
