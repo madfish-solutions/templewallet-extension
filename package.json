@@ -43,7 +43,7 @@
     "clean-webpack-plugin": "^3.0.0",
     "clsx": "^1.1.1",
     "constate": "^2.0.0",
-    "copy-webpack-plugin": "5.x.x",
+    "copy-webpack-plugin": "^6.0.3",
     "cross-env": "^7.0.2",
     "css-loader": "^3.6.0",
     "date-fns": "^2.15.0",
