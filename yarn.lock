@@ -4078,12 +4078,10 @@ ed25519-hd-key@^1.1.2:
     create-hmac "1.1.7"
     tweetnacl "1.0.3"
 
-effector@^20.17.2:
-  version "20.17.2"
-  resolved "https://registry.yarnpkg.com/effector/-/effector-20.17.2.tgz#825987cdbf91b062e01074b5b47bcca9720efe94"
-  integrity sha512-Msbq6xem+Dal9BzReq6qqSKcb3ey4gVeJzG9S3wRVSPmErs8886STqGFGz9BbxrBR7Xy52cEMfI7KsBmmT1K7A==
-  dependencies:
-    symbol-observable "^1.2.0"
+effector@^21.2.0:
+  version "21.2.0"
+  resolved "https://registry.yarnpkg.com/effector/-/effector-21.2.0.tgz#7f5e17bfbd41f9a8fb07f6fe8d6b2a14fc63e451"
+  integrity sha512-au0EgLnAeuSvJ/PnWP6rZ/nfP/5Phn9rRwN0RK6GgU9zmXKcXKVSpu2zj1VE9ha9oCpAh4yeScBMNdwc2NNYDQ==
 
 electron-to-chromium@^1.3.322:
   version "1.3.322"
@@ -9034,11 +9032,6 @@ swr@^0.2.0:
   integrity sha512-8IZCdM0deUPhDiqOmyaj0BsnNjav1fu83nD0d07PEAzOHOn+lxcJOxwXeDBShwF6qCeZ8u8ab+a2yXkjD8yT3A==
   dependencies:
     fast-deep-equal "2.0.1"
-
-symbol-observable@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
-  integrity sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
 
 table@^5.2.3:
   version "5.4.6"
