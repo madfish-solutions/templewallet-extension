@@ -49,7 +49,7 @@
     "date-fns": "^2.15.0",
     "dotenv": "^8.2.0",
     "ed25519-hd-key": "^1.1.2",
-    "effector": "^20.17.2",
+    "effector": "^21.2.0",
     "eslint": "6.x",
     "eslint-config-react-app": "^5.2.1",
     "eslint-loader": "^4.0.2",
