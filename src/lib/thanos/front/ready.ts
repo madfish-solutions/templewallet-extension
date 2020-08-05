@@ -5,6 +5,7 @@ import {
   ReadyThanosState,
   ThanosStatus,
   ThanosState,
+  ThanosAsset,
   usePassiveStorage,
   useThanosClient,
 } from "lib/thanos/front";
@@ -24,6 +25,7 @@ export const [
   useAccount,
   useSettings,
   useTezos,
+  useAllAssetsRef,
 ] = constate(
   useReadyThanos,
   (v) => v.allNetworks,
@@ -33,7 +35,8 @@ export const [
   (v) => v.setAccountPkh,
   (v) => v.account,
   (v) => v.settings,
-  (v) => v.tezos
+  (v) => v.tezos,
+  (v) => v.allAssetsRef
 );
 
 function useReadyThanos() {
@@ -117,6 +120,11 @@ function useReadyThanos() {
     }
   }, [tezos]);
 
+  /**
+   * All assets reference(cache), needed for pretty network reselect
+   */
+  const allAssetsRef = React.useRef<ThanosAsset[]>([]);
+
   return {
     allNetworks,
     network,
@@ -130,6 +138,7 @@ function useReadyThanos() {
 
     settings,
     tezos,
+    allAssetsRef,
   };
 }
 
