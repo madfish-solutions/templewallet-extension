@@ -22,10 +22,10 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
           <h2
             className={classNames(
               "mb-2",
-              "border-b border-white-25",
+              "border-b border-white border-opacity-25",
               "px-1 pb-1",
               "flex items-center",
-              "text-white-90 text-sm text-center"
+              "text-white text-opacity-90 text-sm text-center"
             )}
           >
             <SignalAltIcon className="mr-1 h-4 w-auto stroke-current" />
@@ -43,7 +43,10 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   "mb-1",
                   "rounded",
                   "transition easy-in-out duration-200",
-                  !disabled && (selected ? "bg-white-10" : "hover:bg-white-5"),
+                  !disabled &&
+                    (selected
+                      ? "bg-white bg-opacity-10"
+                      : "hover:bg-white hover:bg-opacity-5"),
                   disabled ? "cursor-default" : "cursor-pointer",
                   "flex items-center",
                   disabled && "opacity-25"
@@ -86,8 +89,8 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
           ref={ref}
           className={classNames(
             "px-2 py-1",
-            "bg-white-10 rounded",
-            "border border-primary-orange-25",
+            "bg-white bg-opacity-10 rounded",
+            "border border-primary-orange border-opacity-25",
             "text-primary-white text-shadow-black",
             "text-xs font-medium",
             "transition ease-in-out duration-200",

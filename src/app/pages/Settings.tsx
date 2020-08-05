@@ -163,7 +163,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
                           className={classNames(
                             "block",
                             "h-12 w-12",
-                            "border-2 border-white-25",
+                            "border-2 border-white border-opacity-25",
                             "rounded-full",
                             "flex items-center justify-center",
                             "text-white",
