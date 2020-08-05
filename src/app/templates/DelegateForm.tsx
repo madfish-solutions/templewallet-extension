@@ -400,13 +400,12 @@ const DelegateForm: React.FC = () => {
               <>
                 <div
                   className={classNames(
-                    "-mt-2 mb-6", // -mt-6
+                    "-mt-2 mb-6",
                     "flex flex-col items-center"
                   )}
                 >
                   <BakerBanner
                     bakerPkh={baker!.address}
-                    // className="border-t-0 rounded-t-none"
                     displayAddress={false}
                   />
                 </div>
@@ -638,7 +637,7 @@ const DelegateForm: React.FC = () => {
                           <span
                             className={classNames(
                               "ml-2",
-                              "text-xs text-black-50 pb-px"
+                              "text-xs text-black text-opacity-50 pb-px"
                             )}
                           >
                             {baker.lifetime} cycles
