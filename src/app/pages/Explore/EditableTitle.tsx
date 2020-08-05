@@ -116,7 +116,7 @@ const EditableTitle: React.FC = () => {
                 "rounded overflow-hidden",
                 "text-gray-600 text-sm",
                 "transition ease-in-out duration-200",
-                "hover:bg-black-5",
+                "hover:bg-black hover:bg-opacity-5",
                 "opacity-75 hover:opacity-100 focus:opacity-100"
               )}
               onClick={handleCancelClick}
@@ -131,7 +131,7 @@ const EditableTitle: React.FC = () => {
                 "rounded overflow-hidden",
                 "text-gray-600 text-sm",
                 "transition ease-in-out duration-200",
-                "hover:bg-black-5",
+                "hover:bg-black hover:bg-opacity-5",
                 "opacity-75 hover:opacity-100 focus:opacity-100"
               )}
             >
@@ -160,7 +160,7 @@ const EditableTitle: React.FC = () => {
             "flex items-center",
             "text-gray-600 text-sm",
             "transition ease-in-out duration-200",
-            "hover:bg-black-5",
+            "hover:bg-black hover:bg-opacity-5",
             "opacity-75 hover:opacity-100 focus:opacity-100"
           )}
           onClick={handleEditClick}

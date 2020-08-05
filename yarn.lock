@@ -1628,13 +1628,6 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.4.4.tgz#11d5db19bd178936ec89cd84519c4de439574398"
   integrity sha512-1oO6+dN5kdIA3sKPZhRGJTfGVP4SWV6KqlMOwry4J3HfyD68sl/3KmG7DeYUzvN+RbhXDnv/D8vNNB8168tAMg==
 
-"@serh11p/tailwindcss-alpha@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@serh11p/tailwindcss-alpha/-/tailwindcss-alpha-0.2.0.tgz#af798ee9c8ad02a793bd9e62a3cb1f4acf4adeba"
-  integrity sha512-LTDPYSJfXYbd+ELnUre/5h87H1QJMCa7UohBedfkn6TiAD197eiImau4eZlAGj6BH2Ztsxw0hCite7hXPZHEyQ==
-  dependencies:
-    color "^3.0.0"
-
 "@svgr/babel-plugin-add-jsx-attribute@^5.4.0":
   version "5.4.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-5.4.0.tgz#81ef61947bb268eb9d50523446f9c638fb355906"
