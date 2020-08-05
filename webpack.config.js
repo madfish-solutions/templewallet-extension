@@ -386,21 +386,19 @@ module.exports = {
       formatter: typescriptFormatter,
     }),
 
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: PUBLIC_PATH,
-          to: OUTPUT_PATH,
-        },
-        {
-          from: MANIFEST_PATH,
-          to: path.join(OUTPUT_PATH, "manifest.json"),
-          toType: "file",
-          transform: (content) =>
-            wextManifest[TARGET_BROWSER](JSON.parse(content)).content,
-        },
-      ],
-    }),
+    new CopyWebpackPlugin([
+      {
+        from: PUBLIC_PATH,
+        to: OUTPUT_PATH,
+      },
+      {
+        from: MANIFEST_PATH,
+        to: path.join(OUTPUT_PATH, "manifest.json"),
+        toType: "file",
+        transform: (content) =>
+          wextManifest[TARGET_BROWSER](JSON.parse(content)).content,
+      },
+    ]),
 
     new WebpackBar({
       name: "Thanos Wallet",
