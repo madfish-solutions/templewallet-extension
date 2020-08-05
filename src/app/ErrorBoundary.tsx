@@ -79,7 +79,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
                 "mb-6",
                 "px-4 py-1",
                 "bg-red-500 rounded",
-                "border border-black-5",
+                "border border-black border-opacity-5",
                 "flex items-center",
                 "text-white text-shadow-black",
                 "text-sm font-semibold",

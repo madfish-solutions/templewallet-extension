@@ -161,7 +161,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
               "flex items-center",
               "text-gray-600 text-shadow-black",
               "text-sm font-semibold leading-none",
-              "hover:bg-black-5",
+              "hover:bg-black hover:bg-opacity-5",
               "transition duration-300 ease-in-out",
               "opacity-90 hover:opacity-100"
             )}

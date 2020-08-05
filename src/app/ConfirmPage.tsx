@@ -455,10 +455,10 @@ const ConfirmDAppForm: React.FC = () => {
                             className={classNames(
                               "ml-2",
                               "rounded-sm",
-                              "border border-black-25",
+                              "border border-black border-opacity-25",
                               "px-1 py-px",
                               "leading-tight",
-                              "text-black-50"
+                              "text-black text-opacity-50"
                             )}
                             style={{ fontSize: "0.6rem" }}
                           >

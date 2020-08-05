@@ -255,7 +255,7 @@ const ControlButton = React.memo<ControlButton>(
               "flex items-center",
               "text-gray-500 text-sm",
               "transition ease-in-out duration-200",
-              "hover:bg-black-5",
+              "hover:bg-black hover:bg-opacity-5",
               "opacity-75 hover:opacity-100 focus:opacity-100",
               className
             )}

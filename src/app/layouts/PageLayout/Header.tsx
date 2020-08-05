@@ -75,8 +75,8 @@ const Control: React.FC = () => {
             ref={ref}
             className={classNames(
               "ml-2 flex-shrink-0 flex",
-              "bg-white-10",
-              "border border-white-25",
+              "bg-white bg-opacity-10",
+              "border border-white border-opacity-25",
               "rounded-md",
               "p-px",
               "transition ease-in-out duration-200",

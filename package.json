@@ -17,7 +17,6 @@
     "@dicebear/avatars-bottts-sprites": "^4.2.5",
     "@dicebear/avatars-jdenticon-sprites": "^4.2.5",
     "@popperjs/core": "^2.4.4",
-    "@serh11p/tailwindcss-alpha": "^0.2.0",
     "@svgr/webpack": "^5.4.0",
     "@taquito/local-forging": "^6.3.5-beta.0",
     "@taquito/taquito": "^6.3.5-beta.0",
