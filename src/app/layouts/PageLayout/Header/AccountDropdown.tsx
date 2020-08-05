@@ -1,12 +1,13 @@
 import * as React from "react";
 import classNames from "clsx";
-import { navigate } from "lib/woozie";
+import { Link } from "lib/woozie";
 import {
   ThanosAccountType,
   useThanosClient,
   useAllAccounts,
   useAccount,
   useSetAccountPkh,
+  useNetwork,
 } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { useAppEnv, openInFullPage } from "app/env";
@@ -18,56 +19,82 @@ import Balance from "app/templates/Balance";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
+import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
-type AccountDropdown = PopperRenderProps;
+type ExcludesFalse = <T>(x: T | false) => x is T;
+type AccountDropdownProps = PopperRenderProps;
 
-const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
+const AccountDropdown: React.FC<AccountDropdownProps> = ({
+  opened,
+  setOpened,
+}) => {
   const appEnv = useAppEnv();
   const { lock } = useThanosClient();
+  const network = useNetwork();
   const allAccounts = useAllAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
 
-  const prevAccLengthRef = React.useRef(allAccounts.length);
-  React.useEffect(() => {
-    const accLength = allAccounts.length;
-    if (prevAccLengthRef.current < accLength) {
-      setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
-      setOpened(false);
-      navigate("/");
-    }
-    prevAccLengthRef.current = accLength;
-  }, [allAccounts, setAccountPkh, setOpened]);
+  const closeDropdown = React.useCallback(() => {
+    setOpened(false);
+  }, [setOpened]);
 
   const handleLogoutClick = React.useCallback(() => {
     lock();
   }, [lock]);
-
-  const handleCreateAccountClick = React.useCallback(() => {
-    navigate("/create-account");
-    setOpened(false);
-  }, [setOpened]);
-
-  const handleSettingsClick = React.useCallback(() => {
-    navigate("/settings");
-    setOpened(false);
-  }, [setOpened]);
-
-  const handleImportAccountClick = React.useCallback(() => {
-    navigate("/import-account");
-    setOpened(false);
-  }, [setOpened]);
 
   const handleMaximiseViewClick = React.useCallback(() => {
     openInFullPage();
     if (appEnv.popup) {
       window.close();
     } else {
-      setOpened(false);
+      closeDropdown();
     }
-  }, [appEnv.popup, setOpened]);
+  }, [appEnv.popup, closeDropdown]);
+
+  const actions = React.useMemo(
+    () =>
+      [
+        {
+          key: "create-account",
+          Icon: AddIcon,
+          content: "Create account",
+          linkTo: "/create-account",
+          onClick: closeDropdown,
+        },
+        {
+          key: "import-account",
+          Icon: DownloadIcon,
+          content: "Import account",
+          linkTo: "/import-account",
+          onClick: closeDropdown,
+        },
+        network.type === "test" && {
+          key: "import-faucet-file",
+          Icon: CodeAltIcon,
+          content: "Import Faucet file",
+          linkTo: "/import-faucet-file",
+          onClick: closeDropdown,
+        },
+        {
+          key: "settings",
+          Icon: SettingsIcon,
+          content: "Settings",
+          linkTo: "/settings",
+          onClick: closeDropdown,
+        },
+        {
+          key: "maximise",
+          Icon: MaximiseIcon,
+          content: appEnv.fullPage ? "Open new tab" : "Maximise view",
+          linkTo: null,
+          onClick: handleMaximiseViewClick,
+        },
+      ].filter((Boolean as any) as ExcludesFalse),
+    [network.type, appEnv.fullPage, closeDropdown, handleMaximiseViewClick]
+  );
 
   return (
     <DropdownWrapper
@@ -197,60 +224,41 @@ const AccountDropdown: React.FC<AccountDropdown> = ({ opened, setOpened }) => {
       </div>
 
       <div className="my-2">
-        {[
-          {
-            Icon: AddIcon,
-            content: "Create account",
-            onClick: handleCreateAccountClick,
-          },
-          {
-            Icon: DownloadIcon,
-            content: "Import account",
-            onClick: handleImportAccountClick,
-          },
-          {
-            Icon: SettingsIcon,
-            content: "Settings",
-            onClick: handleSettingsClick,
-          },
-          {
-            Icon: MaximiseIcon,
-            content: appEnv.fullPage ? "Open new tab" : "Maximise view",
-            onClick: handleMaximiseViewClick,
-          },
-        ]
-          .filter(Boolean)
-          .map((item, i) => {
-            if (!item) return null;
-            const { Icon, content, onClick } = item;
-
-            return (
-              <button
-                key={i}
-                className={classNames(
-                  "block w-full",
-                  "my-1",
-                  "rounded overflow-hidden",
-                  "flex items-center",
-                  "px-2",
-                  "transition ease-in-out duration-200",
-                  "hover:bg-white-10",
-                  "text-white text-shadow-black text-sm"
-                )}
-                style={{
-                  paddingTop: "0.375rem",
-                  paddingBottom: "0.375rem",
-                }}
-                onClick={onClick}
-              >
+        {actions.map(({ key, Icon, content, linkTo, onClick }) => {
+          const baseProps = {
+            key,
+            className: classNames(
+              "block w-full",
+              "my-1",
+              "rounded overflow-hidden",
+              "flex items-center",
+              "px-2",
+              "transition ease-in-out duration-200",
+              "hover:bg-white-10",
+              "text-white text-shadow-black text-sm"
+            ),
+            style: {
+              paddingTop: "0.375rem",
+              paddingBottom: "0.375rem",
+            },
+            onClick,
+            children: (
+              <>
                 <div className="w-8 flex items-center">
                   <Icon className="h-6 w-auto stroke-current" />
                 </div>
 
                 {content}
-              </button>
-            );
-          })}
+              </>
+            ),
+          };
+
+          return linkTo ? (
+            <Link {...baseProps} to={linkTo} />
+          ) : (
+            <button {...baseProps} />
+          );
+        })}
       </div>
     </DropdownWrapper>
   );
