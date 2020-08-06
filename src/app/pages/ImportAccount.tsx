@@ -98,6 +98,8 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
   );
 };
 
+export default ImportAccount;
+
 interface ByPrivateKeyFormData {
   privateKey: string;
   encPassword?: string;
@@ -514,5 +516,3 @@ const ByFundraiserForm: React.FC = () => {
     </form>
   );
 };
-
-export default ImportAccount;
