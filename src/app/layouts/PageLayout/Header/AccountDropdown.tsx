@@ -236,7 +236,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
               "flex items-center",
               "px-2",
               "transition ease-in-out duration-200",
-              "hover:bg-white-10",
+              "hover:bg-white hover:bg-opacity-10",
               "text-white text-shadow-black text-sm"
             ),
             style: {
