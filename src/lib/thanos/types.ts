@@ -1,3 +1,7 @@
+import {
+  ThanosDAppNetwork,
+  ThanosDAppMetadata,
+} from "@thanos-wallet/dapp/dist/types";
 import { TZStatsNetwork } from "lib/tzstats";
 
 type NonEmptyArray<T> = [T, ...T[]];
@@ -103,10 +107,41 @@ export enum ThanosSharedStorageKey {
   DAppEnabled = "dappenabled",
 }
 
+/**
+ * DApp payloads
+ */
+
+export interface ThanosDAppPayloadBase {
+  type: string;
+  origin: string;
+  network: ThanosDAppNetwork;
+  appMeta: ThanosDAppMetadata;
+}
+
+export interface ThanosDAppConnectPayload extends ThanosDAppPayloadBase {
+  type: "connect";
+}
+
+export interface ThanosDAppOperationsPayload extends ThanosDAppPayloadBase {
+  type: "confirm_operations";
+  sourcePkh: string;
+  opParams: any[];
+}
+
+export type ThanosDAppPayload =
+  | ThanosDAppConnectPayload
+  | ThanosDAppOperationsPayload;
+
+/**
+ * Messages
+ */
+
 export enum ThanosMessageType {
+  // Notifications
   StateUpdated = "THANOS_STATE_UPDATED",
   ConfirmationRequested = "THANOS_CONFIRMATION_REQUESTED",
   ConfirmationExpired = "THANOS_CONFIRMATION_EXPIRED",
+  // Request-Response pairs
   GetStateRequest = "THANOS_GET_STATE_REQUEST",
   GetStateResponse = "THANOS_GET_STATE_RESPONSE",
   NewWalletRequest = "THANOS_NEW_WALLET_REQUEST",
@@ -137,14 +172,16 @@ export enum ThanosMessageType {
   UpdateSettingsResponse = "THANOS_UPDATE_SETTINGS_RESPONSE",
   SignRequest = "THANOS_SIGN_REQUEST",
   SignResponse = "THANOS_SIGN_RESPONSE",
-  ConfirmationRequest = "THANOS_CONFIRM_REQUEST",
-  ConfirmationResponse = "THANOS_CONFIRM_RESPONSE",
+  ConfirmationRequest = "THANOS_CONFIRMATION_REQUEST",
+  ConfirmationResponse = "THANOS_CONFIRMATION_RESPONSE",
   PageRequest = "THANOS_PAGE_REQUEST",
   PageResponse = "THANOS_PAGE_RESPONSE",
-  DAppPermissionConfirmRequest = "THANOS_DAPP_PERMISSION_CONFIRM_REQUEST",
-  DAppPermissionConfirmResponse = "THANOS_DAPP_PERMISSION_CONFIRM_RESPONSE",
-  DAppOperationConfirmRequest = "THANOS_DAPP_OPERATION_CONFIRM_REQUEST",
-  DAppOperationConfirmResponse = "THANOS_DAPP_OPERATION_CONFIRM_RESPONSE",
+  DAppGetPayloadRequest = "THANOS_DAPP_GET_PAYLOAD_REQUEST",
+  DAppGetPayloadResponse = "THANOS_DAPP_GET_PAYLOAD_RESPONSE",
+  DAppPermConfirmationRequest = "THANOS_DAPP_PERM_CONFIRMATION_REQUEST",
+  DAppPermConfirmationResponse = "THANOS_DAPP_PERM_CONFIRMATION_RESPONSE",
+  DAppOpsConfirmationRequest = "THANOS_DAPP_OPS_CONFIRMATION_REQUEST",
+  DAppOpsConfirmationResponse = "THANOS_DAPP_OPS_CONFIRMATION_RESPONSE",
 }
 
 export type ThanosNotification =
@@ -169,8 +206,9 @@ export type ThanosRequest =
   | ThanosConfirmationRequest
   | ThanosRemoveAccountRequest
   | ThanosPageRequest
-  | ThanosDAppPermissionConfirmRequest
-  | ThanosDAppOperationConfirmRequest
+  | ThanosDAppGetPayloadRequest
+  | ThanosDAppPermConfirmationRequest
+  | ThanosDAppOpsConfirmationRequest
   | ThanosUpdateSettingsRequest;
 
 export type ThanosResponse =
@@ -190,8 +228,9 @@ export type ThanosResponse =
   | ThanosConfirmationResponse
   | ThanosRemoveAccountResponse
   | ThanosPageResponse
-  | ThanosDAppPermissionConfirmResponse
-  | ThanosDAppOperationConfirmResponse
+  | ThanosDAppGetPayloadResponse
+  | ThanosDAppPermConfirmationResponse
+  | ThanosDAppOpsConfirmationResponse
   | ThanosUpdateSettingsResponse;
 
 export interface ThanosMessageBase {
@@ -386,27 +425,34 @@ export interface ThanosPageResponse extends ThanosMessageBase {
   payload: any;
 }
 
-export interface ThanosDAppPermissionConfirmRequest extends ThanosMessageBase {
-  type: ThanosMessageType.DAppPermissionConfirmRequest;
-  id: string;
-  confirm: boolean;
-  pkh?: string;
-  publicKey?: string;
-}
-
-export interface ThanosDAppPermissionConfirmResponse extends ThanosMessageBase {
-  type: ThanosMessageType.DAppPermissionConfirmResponse;
+export interface ThanosDAppGetPayloadRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppGetPayloadRequest;
   id: string;
 }
 
-export interface ThanosDAppOperationConfirmRequest extends ThanosMessageBase {
-  type: ThanosMessageType.DAppOperationConfirmRequest;
-  id: string;
-  confirm: boolean;
-  password?: string;
+export interface ThanosDAppGetPayloadResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppGetPayloadResponse;
+  payload: ThanosDAppPayload;
 }
 
-export interface ThanosDAppOperationConfirmResponse extends ThanosMessageBase {
-  type: ThanosMessageType.DAppOperationConfirmResponse;
+export interface ThanosDAppPermConfirmationRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppPermConfirmationRequest;
   id: string;
+  confirmed: boolean;
+  accountPublicKey: string;
+  accountPublicKeyHash: string;
+}
+
+export interface ThanosDAppPermConfirmationResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppPermConfirmationResponse;
+}
+
+export interface ThanosDAppOpsConfirmationRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppOpsConfirmationRequest;
+  id: string;
+  confirmed: boolean;
+}
+
+export interface ThanosDAppOpsConfirmationResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppOpsConfirmationResponse;
 }

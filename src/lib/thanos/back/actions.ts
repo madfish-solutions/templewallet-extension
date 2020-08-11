@@ -7,7 +7,6 @@ import {
 } from "@thanos-wallet/dapp/dist/types";
 import {
   ThanosState,
-  ThanosStatus,
   ThanosMessageType,
   ThanosRequest,
   ThanosSettings,
@@ -15,8 +14,6 @@ import {
 } from "lib/thanos/types";
 import { intercom } from "lib/thanos/back/intercom";
 import {
-  StoreState,
-  UnlockedStoreState,
   toFront,
   store,
   inited,
@@ -24,6 +21,8 @@ import {
   unlocked,
   accountsUpdated,
   settingsUpdated,
+  withInited,
+  withUnlocked,
 } from "lib/thanos/back/store";
 import { Vault } from "lib/thanos/back/vault";
 import { requestPermission, requestOperation } from "lib/thanos/back/dapp";
@@ -181,7 +180,7 @@ export function sign(
   watermark?: string
 ) {
   return withUnlocked(
-    ({ vault }) =>
+    () =>
       new Promise(async (resolve, reject) => {
         intercom.notify(port, {
           type: ThanosMessageType.ConfirmationRequested,
@@ -221,10 +220,8 @@ export function sign(
               req?.id === id
             ) {
               if (req.confirmed) {
-                const result = await vault.sign(
-                  accPublicKeyHash,
-                  bytes,
-                  watermark
+                const result = await withUnlocked(({ vault }) =>
+                  vault.sign(accPublicKeyHash, bytes, watermark)
                 );
                 resolve(result);
               } else {
@@ -360,31 +357,4 @@ export async function processBeacon(origin: string, msg: string) {
   })();
 
   return Beacon.encodeMessage<Beacon.Response>(res);
-}
-
-function withUnlocked<T>(factory: (state: UnlockedStoreState) => T) {
-  const state = store.getState();
-  assertUnlocked(state);
-  return factory(state);
-}
-
-function withInited<T>(factory: (state: StoreState) => T) {
-  const state = store.getState();
-  assertInited(state);
-  return factory(state);
-}
-
-function assertUnlocked(
-  state: StoreState
-): asserts state is UnlockedStoreState {
-  assertInited(state);
-  if (state.status !== ThanosStatus.Ready) {
-    throw new Error("Not ready");
-  }
-}
-
-function assertInited(state: StoreState) {
-  if (!state.inited) {
-    throw new Error("Not initialized");
-  }
 }

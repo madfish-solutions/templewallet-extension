@@ -151,35 +151,6 @@ export class Vault {
     });
   }
 
-  static async sendOperations(
-    accPublicKeyHash: string,
-    rpc: string,
-    password: string,
-    opParams: any[]
-  ) {
-    const passKey = await Vault.toValidPassKey(password);
-    const batch = await withError("Failed to send operations", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        passKey
-      );
-      const signer = await createMemorySigner(privateKey);
-      const tezos = new TezosToolkit();
-      tezos.setProvider({ rpc, signer });
-      return tezos.batch(opParams.map(formatOpParams));
-    });
-
-    try {
-      const op = await batch.send();
-      return op.hash;
-    } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
-      throw new Error(`__tezos__${err.message}`);
-    }
-  }
-
   private static toValidPassKey(password: string) {
     return withError("Invalid password", async (doThrow) => {
       const passKey = await Passworder.generateKey(password);
@@ -373,6 +344,29 @@ export class Vault {
         watermark && (TaquitoUtils.hex2buf(watermark) as any);
       return signer.sign(bytes, watermarkBuf);
     });
+  }
+
+  async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
+    const batch = await withError("Failed to send operations", async () => {
+      const privateKey = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        this.passKey
+      );
+      const signer = await createMemorySigner(privateKey);
+      const tezos = new TezosToolkit();
+      tezos.setProvider({ rpc, signer });
+      return tezos.batch(opParams.map(formatOpParams));
+    });
+
+    try {
+      const op = await batch.send();
+      return op.hash;
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(err);
+      }
+      throw new Error(`__tezos__${err.message}`);
+    }
   }
 }
 

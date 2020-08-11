@@ -231,32 +231,40 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const getDAppPayload = React.useCallback(async (id: string) => {
+    const res = await request({
+      type: ThanosMessageType.DAppGetPayloadRequest,
+      id,
+    });
+    assertResponse(res.type === ThanosMessageType.DAppGetPayloadResponse);
+    return res.payload;
+  }, []);
+
   const confirmDAppPermission = React.useCallback(
-    async (id: string, confirm: boolean, pkh?: string, publicKey?: string) => {
+    async (id: string, confirmed: boolean, pkh: string) => {
       const res = await request({
-        type: ThanosMessageType.DAppPermissionConfirmRequest,
+        type: ThanosMessageType.DAppPermConfirmationRequest,
         id,
-        confirm,
-        pkh,
-        publicKey,
+        confirmed,
+        accountPublicKeyHash: pkh,
+        accountPublicKey: await getPublicKey(pkh),
       });
       assertResponse(
-        res.type === ThanosMessageType.DAppPermissionConfirmResponse
+        res.type === ThanosMessageType.DAppPermConfirmationResponse
       );
     },
     []
   );
 
   const confirmDAppOperation = React.useCallback(
-    async (id: string, confirm: boolean, password?: string) => {
+    async (id: string, confirmed: boolean) => {
       const res = await request({
-        type: ThanosMessageType.DAppOperationConfirmRequest,
+        type: ThanosMessageType.DAppOpsConfirmationRequest,
         id,
-        confirm,
-        password,
+        confirmed,
       });
       assertResponse(
-        res.type === ThanosMessageType.DAppOperationConfirmResponse
+        res.type === ThanosMessageType.DAppOpsConfirmationResponse
       );
     },
     []
@@ -302,10 +310,10 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     importFundraiserAccount,
     updateSettings,
     confirmInternal,
+    getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
     createSigner,
-    getPublicKey,
   };
 });
 
