@@ -5,30 +5,27 @@ import { useThanosClient } from "lib/thanos/front";
 import useScrollLock from "lib/ui/useScrollLock";
 import Portal from "lib/ui/Portal";
 import ContentContainer from "app/layouts/ContentContainer";
-import ConfirmOperation from "app/templates/ConfirmOperation";
+import InternalConfiramtion from "app/templates/InternalConfiramtion";
 
-const ConfirmOverlay: React.FC = () => {
-  const { confirmId, setConfirmId, confirmOperation } = useThanosClient();
-  const displayed = Boolean(confirmId);
+const ConfirmationOverlay: React.FC = () => {
+  const {
+    confirmationId,
+    resetConfirmationId,
+    confirmInternal,
+  } = useThanosClient();
+  const displayed = Boolean(confirmationId);
 
   useScrollLock(displayed);
 
   const handleConfirm = React.useCallback(
-    async (password) => {
-      if (confirmId) {
-        await confirmOperation(confirmId, true, password);
+    async (confirmed: boolean) => {
+      if (confirmationId) {
+        await confirmInternal(confirmationId, confirmed);
       }
-      setConfirmId(null);
+      resetConfirmationId();
     },
-    [confirmId, confirmOperation, setConfirmId]
+    [confirmationId, confirmInternal, resetConfirmationId]
   );
-
-  const handleDecline = React.useCallback(async () => {
-    if (confirmId) {
-      await confirmOperation(confirmId, false);
-    }
-    setConfirmId(null);
-  }, [confirmId, confirmOperation, setConfirmId]);
 
   return (
     <Portal>
@@ -53,10 +50,7 @@ const ConfirmOverlay: React.FC = () => {
               "flex flex-col items-center justify-center"
             )}
           >
-            <ConfirmOperation
-              onConfirm={handleConfirm}
-              onDecline={handleDecline}
-            />
+            <InternalConfiramtion onConfirm={handleConfirm} />
           </ContentContainer>
         </div>
       </CSSTransition>
@@ -64,4 +58,4 @@ const ConfirmOverlay: React.FC = () => {
   );
 };
 
-export default ConfirmOverlay;
+export default ConfirmationOverlay;

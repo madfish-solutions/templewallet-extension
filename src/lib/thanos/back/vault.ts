@@ -9,7 +9,6 @@ import {
   ThanosAccount,
   ThanosAccountType,
   ThanosSettings,
-  ThanosSharedStorageKey,
 } from "lib/thanos/types";
 import {
   isStored,
@@ -75,9 +74,7 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
-      await browser.storage.local.set({
-        [ThanosSharedStorageKey.DAppEnabled]: false,
-      });
+      await browser.storage.local.clear();
       await encryptAndSaveMany(
         [
           [checkStrgKey, null],
@@ -152,32 +149,6 @@ export class Vault {
 
       return newAllAcounts;
     });
-  }
-
-  static async sign(
-    accPublicKeyHash: string,
-    password: string,
-    bytes: string,
-    watermark?: string
-  ) {
-    const passKey = await Vault.toValidPassKey(password);
-    return withError("Failed to sign", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        passKey
-      );
-      const signer = await createMemorySigner(privateKey);
-      const watermarkBuf =
-        watermark && (TaquitoUtils.hex2buf(watermark) as any);
-      return signer.sign(bytes, watermarkBuf);
-    });
-  }
-
-  static async isDAppEnabled() {
-    const items = await browser.storage.local.get([
-      ThanosSharedStorageKey.DAppEnabled,
-    ]);
-    return Boolean(items[ThanosSharedStorageKey.DAppEnabled]);
   }
 
   static async sendOperations(
@@ -388,6 +359,19 @@ export class Vault {
       const newSettings = { ...current, ...settings };
       await encryptAndSaveMany([[settingsStrgKey, newSettings]], this.passKey);
       return newSettings;
+    });
+  }
+
+  async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {
+    return withError("Failed to sign", async () => {
+      const privateKey = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        this.passKey
+      );
+      const signer = await createMemorySigner(privateKey);
+      const watermarkBuf =
+        watermark && (TaquitoUtils.hex2buf(watermark) as any);
+      return signer.sign(bytes, watermarkBuf);
     });
   }
 }

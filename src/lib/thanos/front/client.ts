@@ -11,6 +11,7 @@ import {
   ThanosStatus,
   ThanosRequest,
   ThanosResponse,
+  ThanosNotification,
   ThanosSettings,
 } from "lib/thanos/types";
 
@@ -35,31 +36,36 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   });
   const state = data!;
 
-  const [confirmId, setConfirmId] = React.useState<string | null>(null);
-  const waitingConfirmIdRef = React.useRef<string | null>(null);
+  const [confirmationId, setConfirmationId] = React.useState<string | null>(
+    null
+  );
+  const confirmationIdRef = React.useRef(confirmationId);
+  const resetConfirmationId = React.useCallback(() => {
+    confirmationIdRef.current = null;
+    setConfirmationId(null);
+  }, [setConfirmationId]);
 
   React.useEffect(() => {
-    return intercom.subscribe((msg) => {
+    return intercom.subscribe((msg: ThanosNotification) => {
       switch (msg?.type) {
         case ThanosMessageType.StateUpdated:
           revalidate();
           break;
 
-        case ThanosMessageType.ConfirmRequested:
-          if (msg?.id === waitingConfirmIdRef.current) {
-            setConfirmId(msg.id);
+        case ThanosMessageType.ConfirmationRequested:
+          if (msg.id === confirmationIdRef.current) {
+            setConfirmationId(msg.id);
           }
           break;
 
-        case ThanosMessageType.ConfirmExpired:
-          if (msg?.id === waitingConfirmIdRef.current) {
-            waitingConfirmIdRef.current = null;
-            setConfirmId(null);
+        case ThanosMessageType.ConfirmationExpired:
+          if (msg.id === confirmationIdRef.current) {
+            resetConfirmationId();
           }
           break;
       }
     });
-  }, [revalidate, setConfirmId]);
+  }, [revalidate, setConfirmationId, resetConfirmationId]);
 
   /**
    * Aliases
@@ -213,15 +219,14 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
-  const confirmOperation = React.useCallback(
-    async (id: string, confirm: boolean, password?: string) => {
+  const confirmInternal = React.useCallback(
+    async (id: string, confirmed: boolean) => {
       const res = await request({
-        type: ThanosMessageType.ConfirmRequest,
+        type: ThanosMessageType.ConfirmationRequest,
         id,
-        confirm,
-        password,
+        confirmed,
       });
-      assertResponse(res.type === ThanosMessageType.ConfirmResponse);
+      assertResponse(res.type === ThanosMessageType.ConfirmationResponse);
     },
     []
   );
@@ -260,7 +265,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   const createSigner = React.useCallback(
     (accountPublicKeyHash: string) =>
       new ThanosSigner(accountPublicKeyHash, (id) => {
-        waitingConfirmIdRef.current = id;
+        confirmationIdRef.current = id;
       }),
     []
   );
@@ -278,8 +283,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     ready,
 
     // Misc
-    confirmId,
-    setConfirmId,
+    confirmationId,
+    resetConfirmationId,
     seedRevealed,
     setSeedRevealed,
 
@@ -296,7 +301,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     importMnemonicAccount,
     importFundraiserAccount,
     updateSettings,
-    confirmOperation,
+    confirmInternal,
     confirmDAppPermission,
     confirmDAppOperation,
     createSigner,

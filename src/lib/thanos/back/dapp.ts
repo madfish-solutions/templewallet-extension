@@ -10,7 +10,7 @@ import {
   ThanosDAppNetwork,
   ThanosDAppMetadata,
 } from "@thanos-wallet/dapp/dist/types";
-import { IntercomServer } from "lib/intercom/server";
+import { intercom } from "lib/thanos/back/intercom";
 import { Vault } from "lib/thanos/back/vault";
 import { NETWORKS } from "lib/thanos/networks";
 import { isAddressValid } from "lib/thanos/helpers";
@@ -31,8 +31,7 @@ const dApps = new Map<string, DAppPermission>();
 
 export async function requestPermission(
   origin: string,
-  req: ThanosDAppPermissionRequest,
-  intercom: IntercomServer
+  req: ThanosDAppPermissionRequest
 ): Promise<ThanosDAppPermissionResponse> {
   if (
     ![
@@ -70,7 +69,6 @@ export async function requestPermission(
     await requestConfirm({
       id,
       payload,
-      intercom,
       onDecline: () => {
         reject(new Error(ThanosDAppErrorType.NotGranted));
       },
@@ -108,8 +106,7 @@ export async function requestPermission(
 
 export async function requestOperation(
   origin: string,
-  req: ThanosDAppOperationRequest,
-  intercom: IntercomServer
+  req: ThanosDAppOperationRequest
 ): Promise<ThanosDAppOperationResponse> {
   if (
     ![
@@ -144,7 +141,6 @@ export async function requestOperation(
     await requestConfirm({
       id,
       payload,
-      intercom,
       onDecline: () => {
         reject(new Error(ThanosDAppErrorType.NotGranted));
       },
@@ -191,7 +187,6 @@ export async function requestOperation(
 type RequestConfirmParams = {
   id: string;
   payload: string;
-  intercom: IntercomServer;
   onDecline: () => void;
   handleIntercomRequest: (
     req: ThanosRequest,
@@ -201,7 +196,6 @@ type RequestConfirmParams = {
 
 async function requestConfirm({
   id,
-  intercom,
   payload,
   onDecline,
   handleIntercomRequest,
