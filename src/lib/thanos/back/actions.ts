@@ -172,10 +172,86 @@ export function updateSettings(settings: Partial<ThanosSettings>) {
   });
 }
 
+export function processOperations(
+  port: Runtime.Port,
+  id: string,
+  accPublicKeyHash: string,
+  opParams: any[]
+) {
+  return withUnlocked(
+    () =>
+      new Promise(async (resolve, reject) => {
+        intercom.notify(port, {
+          type: ThanosMessageType.ConfirmationRequested,
+          id,
+        });
+
+        let closing = false;
+        const close = () => {
+          if (closing) return;
+          closing = true;
+
+          try {
+            stopTimeout();
+            stopRequestListening();
+            stopDisconnectListening();
+
+            intercom.notify(port, {
+              type: ThanosMessageType.ConfirmationExpired,
+              id,
+            });
+          } catch (_err) {}
+        };
+
+        const decline = () => {
+          reject(new Error("Declined"));
+        };
+        const declineAndClose = () => {
+          decline();
+          close();
+        };
+
+        const stopRequestListening = intercom.onRequest(
+          async (req: ThanosRequest, reqPort) => {
+            if (
+              reqPort === port &&
+              req?.type === ThanosMessageType.ConfirmationRequest &&
+              req?.id === id
+            ) {
+              if (req.confirmed) {
+                const opHash = await withUnlocked(({ vault }) =>
+                  vault.sendOperations(accPublicKeyHash)
+                );
+                resolve(opHash);
+              } else {
+                decline();
+              }
+
+              close();
+
+              return {
+                type: ThanosMessageType.ConfirmationResponse,
+              };
+            }
+          }
+        );
+
+        const stopDisconnectListening = intercom.onDisconnect(
+          port,
+          declineAndClose
+        );
+
+        // Decline after timeout
+        const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
+        const stopTimeout = () => clearTimeout(t);
+      })
+  );
+}
+
 export function sign(
   port: Runtime.Port,
-  accPublicKeyHash: string,
   id: string,
+  accPublicKeyHash: string,
   bytes: string,
   watermark?: string
 ) {

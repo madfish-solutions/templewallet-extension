@@ -1,8 +1,17 @@
 import * as React from "react";
 import constate from "constate";
+import {
+  WalletProvider,
+  createOriginationOperation,
+  createSetDelegateOperation,
+  createTransferOperation,
+  WalletDelegateParams,
+  WalletOriginateParams,
+  WalletTransferParams,
+} from "@taquito/taquito";
+import { buf2hex } from "@taquito/utils";
 import { nanoid } from "nanoid";
 import { useRetryableSWR } from "lib/swr";
-import { buf2hex } from "@taquito/utils";
 import toBuffer from "typedarray-to-buffer";
 import { IntercomClient } from "lib/intercom";
 import { useStorage } from "lib/thanos/front";
@@ -270,6 +279,14 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const createWallet = React.useCallback(
+    (accountPublicKeyHash: string) =>
+      new TaquitoWallet(accountPublicKeyHash, (id) => {
+        confirmationIdRef.current = id;
+      }),
+    []
+  );
+
   const createSigner = React.useCallback(
     (accountPublicKeyHash: string) =>
       new ThanosSigner(accountPublicKeyHash, (id) => {
@@ -313,6 +330,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
+    createWallet,
     createSigner,
   };
 });
@@ -350,6 +368,59 @@ class ThanosSigner {
     assertResponse(res.type === ThanosMessageType.SignResponse);
     return res.result;
   }
+}
+
+class TaquitoWallet implements WalletProvider {
+  constructor(
+    private pkh: string,
+    private onBeforeSend?: (id: string) => void
+  ) {}
+
+  async getPKH() {
+    return this.pkh;
+  }
+
+  async mapTransferParamsToWalletParams(params: WalletTransferParams) {
+    return createTransferOperation(params);
+  }
+
+  async mapOriginateParamsToWalletParams(params: WalletOriginateParams) {
+    return createOriginationOperation(params as any);
+  }
+
+  async mapDelegateParamsToWalletParams(params: WalletDelegateParams) {
+    return createSetDelegateOperation(params as any);
+  }
+
+  async sendOperations(opParams: any[]) {
+    const id = nanoid();
+    if (this.onBeforeSend) {
+      this.onBeforeSend(id);
+    }
+    const res = await request({
+      type: ThanosMessageType.OperationsRequest,
+      id,
+      accountPublicKeyHash: this.pkh,
+      opParams: opParams.map(formatOpParams),
+    });
+    assertResponse(res.type === ThanosMessageType.OperationsResponse);
+    return res.opHash;
+  }
+}
+
+function formatOpParams(op: any) {
+  const { fee, gas_limit, storage_limit, ...rest } = op;
+  if (op.kind === "transaction") {
+    const { destination, amount, parameters, ...txRest } = rest;
+    return {
+      ...txRest,
+      to: destination,
+      amount: +amount,
+      mutez: true,
+      parameter: parameters,
+    };
+  }
+  return rest;
 }
 
 async function getPublicKey(accountPublicKeyHash: string) {
