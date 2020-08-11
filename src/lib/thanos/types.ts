@@ -170,6 +170,8 @@ export enum ThanosMessageType {
   ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
   UpdateSettingsRequest = "THANOS_UPDATE_SETTINGS_REQUEST",
   UpdateSettingsResponse = "THANOS_UPDATE_SETTINGS_RESPONSE",
+  OperationsRequest = "THANOS_OPERATIONS_REQUEST",
+  OperationsResponse = "THANOS_OPERATIONS_RESPONSE",
   SignRequest = "THANOS_SIGN_REQUEST",
   SignResponse = "THANOS_SIGN_RESPONSE",
   ConfirmationRequest = "THANOS_CONFIRMATION_REQUEST",
@@ -202,6 +204,7 @@ export type ThanosRequest =
   | ThanosImportAccountRequest
   | ThanosImportMnemonicAccountRequest
   | ThanosImportFundraiserAccountRequest
+  | ThanosOperationsRequest
   | ThanosSignRequest
   | ThanosConfirmationRequest
   | ThanosRemoveAccountRequest
@@ -224,6 +227,7 @@ export type ThanosResponse =
   | ThanosImportAccountResponse
   | ThanosImportMnemonicAccountResponse
   | ThanosImportFundraiserAccountResponse
+  | ThanosOperationsResponse
   | ThanosSignResponse
   | ThanosConfirmationResponse
   | ThanosRemoveAccountResponse
@@ -388,6 +392,18 @@ export interface ThanosUpdateSettingsRequest extends ThanosMessageBase {
 
 export interface ThanosUpdateSettingsResponse extends ThanosMessageBase {
   type: ThanosMessageType.UpdateSettingsResponse;
+}
+
+export interface ThanosOperationsRequest extends ThanosMessageBase {
+  type: ThanosMessageType.OperationsRequest;
+  id: string;
+  accountPublicKeyHash: string;
+  opParams: any[];
+}
+
+export interface ThanosOperationsResponse extends ThanosMessageBase {
+  type: ThanosMessageType.OperationsResponse;
+  opHash: string;
 }
 
 export interface ThanosSignRequest extends ThanosMessageBase {

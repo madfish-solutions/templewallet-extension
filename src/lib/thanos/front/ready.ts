@@ -47,7 +47,7 @@ function useReadyThanos() {
     networks: allNetworks,
     accounts: allAccounts,
     settings,
-    createSigner,
+    createWallet,
   } = thanosFront;
 
   /**
@@ -109,10 +109,10 @@ function useReadyThanos() {
     const checksum = [network.id, accountPkh].join("_");
     const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
-    const signer = createSigner(accountPkh);
-    t.setProvider({ rpc, signer });
+    const wallet = createWallet(accountPkh);
+    t.setProvider({ rpc, wallet });
     return t;
-  }, [createSigner, network.id, network.rpcBaseURL, accountPkh]);
+  }, [createWallet, network.id, network.rpcBaseURL, accountPkh]);
 
   React.useEffect(() => {
     if (process.env.NODE_ENV === "development") {
