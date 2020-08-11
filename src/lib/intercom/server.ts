@@ -16,7 +16,6 @@ export class IntercomServer {
   private reqHandlers: Array<ReqHandler> = [];
 
   constructor() {
-    /* handling of new incoming and closed connections */
     browser.runtime.onConnect.addListener((port) => {
       this.addPort(port);
 
@@ -28,9 +27,6 @@ export class IntercomServer {
     this.handleMessage = this.handleMessage.bind(this);
   }
 
-  /**
-   * Callback should return a promise
-   */
   onRequest(handler: ReqHandler) {
     this.addReqHandler(handler);
     return () => {
@@ -45,6 +41,15 @@ export class IntercomServer {
     });
   }
 
+  notify(port: Runtime.Port, data: any) {
+    this.send(port, { type: MessageType.Sub, data });
+  }
+
+  onDisconnect(port: Runtime.Port, listener: () => void) {
+    port.onDisconnect.addListener(listener);
+    return () => port.onDisconnect.removeListener(listener);
+  }
+
   private handleMessage(msg: any, port: Runtime.Port) {
     if (
       port.sender?.id === browser.runtime.id &&
@@ -55,7 +60,7 @@ export class IntercomServer {
           for (const handler of this.reqHandlers) {
             const data = await handler(msg.data, port);
             if (data !== undefined) {
-              this.respond(port, {
+              this.send(port, {
                 type: MessageType.Res,
                 reqId: msg.reqId,
                 data,
@@ -67,7 +72,7 @@ export class IntercomServer {
 
           throw new Error("Not Found");
         } catch (err) {
-          this.respond(port, {
+          this.send(port, {
             type: MessageType.Err,
             reqId: msg.reqId,
             data: err?.message ?? DEFAULT_ERROR_MESSAGE,
@@ -77,7 +82,10 @@ export class IntercomServer {
     }
   }
 
-  private respond(port: Runtime.Port, msg: ResponseMessage | ErrorMessage) {
+  private send(
+    port: Runtime.Port,
+    msg: ResponseMessage | SubscriptionMessage | ErrorMessage
+  ) {
     if (this.ports.has(port)) {
       port.postMessage(msg);
     }

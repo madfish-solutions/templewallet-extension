@@ -1,98 +1,61 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useForm } from "react-hook-form";
+import useSafeState from "lib/ui/useSafeState";
 import Logo from "app/atoms/Logo";
-import FormField from "app/atoms/FormField";
+import Alert from "app/atoms/Alert";
+// import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 
-type FormData = {
-  password: string;
+type InternalConfiramtionProps = {
+  onConfirm: (confirmed: boolean) => Promise<void>;
 };
 
-const SUBMIT_ERROR_TYPE = "submit-error";
-
-type ConfirmOperationProps = {
-  onConfirm: (password: string) => Promise<void>;
-  onDecline: () => Promise<void>;
-};
-
-const ConfirmOperation: React.FC<ConfirmOperationProps> = ({
+const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   onConfirm,
-  onDecline,
 }) => {
-  const rootRef = React.useRef<HTMLFormElement>(null);
+  const [error, setError] = useSafeState<any>(null);
+  const [confirming, setConfirming] = useSafeState(false);
+  const [declining, setDeclining] = useSafeState(false);
 
-  const focusPasswordField = React.useCallback(() => {
-    rootRef.current
-      ?.querySelector<HTMLInputElement>("input[name='password']")
-      ?.focus();
-  }, []);
-
-  React.useLayoutEffect(() => {
-    const t = setTimeout(focusPasswordField, 100);
-    return () => clearTimeout(t);
-  }, [focusPasswordField]);
-
-  const {
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearError,
-    formState,
-  } = useForm<FormData>();
-  const submitting = formState.isSubmitting;
-
-  const onSubmit = React.useCallback(
-    async ({ password }) => {
-      if (submitting) return;
-
-      clearError("password");
+  const confirm = React.useCallback(
+    async (confirmed: boolean) => {
+      setError(null);
       try {
-        await onConfirm(password);
+        await onConfirm(confirmed);
       } catch (err) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
-
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
-        setError("password", SUBMIT_ERROR_TYPE, err.message);
-        focusPasswordField();
+        setError(err);
       }
     },
-    [submitting, clearError, setError, onConfirm, focusPasswordField]
+    [onConfirm, setError]
   );
 
+  const handleConfirmClick = React.useCallback(async () => {
+    if (confirming || declining) return;
+
+    setConfirming(true);
+    await confirm(true);
+    setConfirming(false);
+  }, [confirming, declining, setConfirming, confirm]);
+
   const handleDeclineClick = React.useCallback(async () => {
-    if (submitting) return;
-    clearError("password");
+    if (confirming || declining) return;
 
-    try {
-      await onDecline();
-    } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
-
-      // Human delay.
-      await new Promise((res) => setTimeout(res, 300));
-      setError("password", SUBMIT_ERROR_TYPE, err.message);
-      focusPasswordField();
-    }
-  }, [submitting, clearError, setError, onDecline, focusPasswordField]);
+    setDeclining(true);
+    await confirm(false);
+    setDeclining(false);
+  }, [confirming, declining, setDeclining, confirm]);
 
   return (
-    <form
-      ref={rootRef}
+    <div
       className="flex flex-col items-center py-2"
       style={{
-        height: 320,
         width: 320,
+        height: 320,
       }}
-      onSubmit={handleSubmit(onSubmit)}
     >
       <div className="mb-2 flex items-center">
         <Logo />
@@ -108,9 +71,18 @@ const ConfirmOperation: React.FC<ConfirmOperationProps> = ({
         </h1>
       </div>
 
-      <SubTitle>Confirm operation</SubTitle>
+      <SubTitle>Confirm operations</SubTitle>
 
-      <FormField
+      {error && (
+        <Alert
+          type="error"
+          title="Error"
+          description={error?.message ?? "Something went wrong"}
+          className="mb-6"
+        />
+      )}
+
+      {/* <FormField
         ref={register({ required: "Required" })}
         label="Password"
         labelDescription="Enter password to confirm operation"
@@ -119,7 +91,7 @@ const ConfirmOperation: React.FC<ConfirmOperationProps> = ({
         name="password"
         placeholder="********"
         errorCaption={errors.password && errors.password.message}
-      />
+      /> */}
 
       <div className="flex-1" />
 
@@ -128,6 +100,8 @@ const ConfirmOperation: React.FC<ConfirmOperationProps> = ({
           <FormSecondaryButton
             type="button"
             className="w-full justify-center"
+            loading={declining}
+            disabled={declining}
             onClick={handleDeclineClick}
           >
             Decline
@@ -136,19 +110,21 @@ const ConfirmOperation: React.FC<ConfirmOperationProps> = ({
 
         <div className="w-1/2 pl-2">
           <FormSubmitButton
+            type="button"
             className="w-full justify-center"
-            loading={submitting}
-            disabled={submitting}
+            loading={confirming}
+            disabled={confirming}
+            onClick={handleConfirmClick}
           >
             Confirm
           </FormSubmitButton>
         </div>
       </div>
-    </form>
+    </div>
   );
 };
 
-export default ConfirmOperation;
+export default InternalConfiramtion;
 
 type SubTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
 

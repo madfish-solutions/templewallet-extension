@@ -1,35 +1,42 @@
-import { browser } from "webextension-polyfill-ts";
+import { browser, Runtime } from "webextension-polyfill-ts";
 import {
   ThanosDAppMessageType,
   ThanosDAppErrorType,
   ThanosDAppRequest,
   ThanosDAppResponse,
 } from "@thanos-wallet/dapp/dist/types";
-import { IntercomServer } from "lib/intercom/server";
 import {
   ThanosState,
   ThanosStatus,
   ThanosMessageType,
   ThanosRequest,
   ThanosSettings,
+  ThanosSharedStorageKey,
 } from "lib/thanos/types";
-import { Vault } from "lib/thanos/back/vault";
+import { intercom } from "lib/thanos/back/intercom";
 import {
   StoreState,
   UnlockedStoreState,
   toFront,
   store,
+  inited,
   locked,
   unlocked,
   accountsUpdated,
   settingsUpdated,
 } from "lib/thanos/back/store";
+import { Vault } from "lib/thanos/back/vault";
 import { requestPermission, requestOperation } from "lib/thanos/back/dapp";
 import * as Beacon from "lib/thanos/beacon";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `thanos_wallet_${browser.runtime.id}`;
+
+export async function init() {
+  const vaultExist = await Vault.isExist();
+  inited(vaultExist);
+}
 
 export async function getFrontState(): Promise<ThanosState> {
   const state = store.getState();
@@ -39,6 +46,13 @@ export async function getFrontState(): Promise<ThanosState> {
     await new Promise((r) => setTimeout(r, 10));
     return getFrontState();
   }
+}
+
+export async function isDAppEnabled() {
+  const items = await browser.storage.local.get([
+    ThanosSharedStorageKey.DAppEnabled,
+  ]);
+  return Boolean(items[ThanosSharedStorageKey.DAppEnabled]);
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {
@@ -160,22 +174,19 @@ export function updateSettings(settings: Partial<ThanosSettings>) {
 }
 
 export function sign(
-  intercom: IntercomServer,
+  port: Runtime.Port,
   accPublicKeyHash: string,
   id: string,
   bytes: string,
   watermark?: string
 ) {
   return withUnlocked(
-    () =>
+    ({ vault }) =>
       new Promise(async (resolve, reject) => {
-        intercom.broadcast({
-          type: ThanosMessageType.ConfirmRequested,
+        intercom.notify(port, {
+          type: ThanosMessageType.ConfirmationRequested,
           id,
         });
-
-        let stop: any;
-        let timeout: any;
 
         let closing = false;
         const close = () => {
@@ -183,11 +194,12 @@ export function sign(
           closing = true;
 
           try {
-            if (stop) stop();
-            if (timeout) clearTimeout(timeout);
+            stopTimeout();
+            stopRequestListening();
+            stopDisconnectListening();
 
-            intercom.broadcast({
-              type: ThanosMessageType.ConfirmExpired,
+            intercom.notify(port, {
+              type: ThanosMessageType.ConfirmationExpired,
               id,
             });
           } catch (_err) {}
@@ -196,61 +208,64 @@ export function sign(
         const decline = () => {
           reject(new Error("Declined"));
         };
-
-        stop = intercom.onRequest(async (req: ThanosRequest) => {
-          if (
-            req?.type === ThanosMessageType.ConfirmRequest &&
-            req?.id === id
-          ) {
-            if (req.confirm) {
-              const result = await Vault.sign(
-                accPublicKeyHash,
-                req.password!,
-                bytes,
-                watermark
-              );
-              resolve(result);
-            } else {
-              decline();
-            }
-
-            close();
-
-            return {
-              type: ThanosMessageType.ConfirmResponse,
-              id,
-            };
-          }
-        });
-
-        // Decline after timeout
-        timeout = setTimeout(() => {
+        const declineAndClose = () => {
           decline();
           close();
-        }, AUTODECLINE_AFTER);
+        };
+
+        const stopRequestListening = intercom.onRequest(
+          async (req: ThanosRequest, reqPort) => {
+            if (
+              reqPort === port &&
+              req?.type === ThanosMessageType.ConfirmationRequest &&
+              req?.id === id
+            ) {
+              if (req.confirmed) {
+                const result = await vault.sign(
+                  accPublicKeyHash,
+                  bytes,
+                  watermark
+                );
+                resolve(result);
+              } else {
+                decline();
+              }
+
+              close();
+
+              return {
+                type: ThanosMessageType.ConfirmationResponse,
+              };
+            }
+          }
+        );
+
+        const stopDisconnectListening = intercom.onDisconnect(
+          port,
+          declineAndClose
+        );
+
+        // Decline after timeout
+        const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
+        const stopTimeout = () => clearTimeout(t);
       })
   );
 }
 
 export async function processDApp(
-  intercom: IntercomServer,
   origin: string,
   req: ThanosDAppRequest
 ): Promise<ThanosDAppResponse | void> {
   switch (req?.type) {
     case ThanosDAppMessageType.PermissionRequest:
-      return withInited(() => requestPermission(origin, req, intercom));
+      return withInited(() => requestPermission(origin, req));
 
     case ThanosDAppMessageType.OperationRequest:
-      return withInited(() => requestOperation(origin, req, intercom));
+      return withInited(() => requestOperation(origin, req));
   }
 }
 
-export async function processBeacon(
-  intercom: IntercomServer,
-  origin: string,
-  msg: string
-) {
+export async function processBeacon(origin: string, msg: string) {
   const req = Beacon.decodeMessage<Beacon.Request>(msg);
   const resBase = {
     version: req.version,
@@ -285,7 +300,7 @@ export async function processBeacon(
         })();
 
         if (thanosReq) {
-          const thanosRes = await processDApp(intercom, origin, thanosReq);
+          const thanosRes = await processDApp(origin, thanosReq);
 
           if (thanosRes) {
             // Map Thanos DApp response to Beacon response

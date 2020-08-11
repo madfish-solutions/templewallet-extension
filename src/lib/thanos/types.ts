@@ -105,8 +105,8 @@ export enum ThanosSharedStorageKey {
 
 export enum ThanosMessageType {
   StateUpdated = "THANOS_STATE_UPDATED",
-  ConfirmRequested = "THANOS_CONFIRM_REQUESTED",
-  ConfirmExpired = "THANOS_CONFIRM_EXPIRED",
+  ConfirmationRequested = "THANOS_CONFIRMATION_REQUESTED",
+  ConfirmationExpired = "THANOS_CONFIRMATION_EXPIRED",
   GetStateRequest = "THANOS_GET_STATE_REQUEST",
   GetStateResponse = "THANOS_GET_STATE_RESPONSE",
   NewWalletRequest = "THANOS_NEW_WALLET_REQUEST",
@@ -137,8 +137,8 @@ export enum ThanosMessageType {
   UpdateSettingsResponse = "THANOS_UPDATE_SETTINGS_RESPONSE",
   SignRequest = "THANOS_SIGN_REQUEST",
   SignResponse = "THANOS_SIGN_RESPONSE",
-  ConfirmRequest = "THANOS_CONFIRM_REQUEST",
-  ConfirmResponse = "THANOS_CONFIRM_RESPONSE",
+  ConfirmationRequest = "THANOS_CONFIRM_REQUEST",
+  ConfirmationResponse = "THANOS_CONFIRM_RESPONSE",
   PageRequest = "THANOS_PAGE_REQUEST",
   PageResponse = "THANOS_PAGE_RESPONSE",
   DAppPermissionConfirmRequest = "THANOS_DAPP_PERMISSION_CONFIRM_REQUEST",
@@ -146,6 +146,11 @@ export enum ThanosMessageType {
   DAppOperationConfirmRequest = "THANOS_DAPP_OPERATION_CONFIRM_REQUEST",
   DAppOperationConfirmResponse = "THANOS_DAPP_OPERATION_CONFIRM_RESPONSE",
 }
+
+export type ThanosNotification =
+  | ThanosStateUpdated
+  | ThanosConfirmationRequested
+  | ThanosConfirmationExpired;
 
 export type ThanosRequest =
   | ThanosGetStateRequest
@@ -161,7 +166,7 @@ export type ThanosRequest =
   | ThanosImportMnemonicAccountRequest
   | ThanosImportFundraiserAccountRequest
   | ThanosSignRequest
-  | ThanosConfirmRequest
+  | ThanosConfirmationRequest
   | ThanosRemoveAccountRequest
   | ThanosPageRequest
   | ThanosDAppPermissionConfirmRequest
@@ -182,7 +187,7 @@ export type ThanosResponse =
   | ThanosImportMnemonicAccountResponse
   | ThanosImportFundraiserAccountResponse
   | ThanosSignResponse
-  | ThanosConfirmResponse
+  | ThanosConfirmationResponse
   | ThanosRemoveAccountResponse
   | ThanosPageResponse
   | ThanosDAppPermissionConfirmResponse
@@ -191,6 +196,20 @@ export type ThanosResponse =
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
+}
+
+export interface ThanosStateUpdated extends ThanosMessageBase {
+  type: ThanosMessageType.StateUpdated;
+}
+
+export interface ThanosConfirmationRequested extends ThanosMessageBase {
+  type: ThanosMessageType.ConfirmationRequested;
+  id: string;
+}
+
+export interface ThanosConfirmationExpired extends ThanosMessageBase {
+  type: ThanosMessageType.ConfirmationExpired;
+  id: string;
 }
 
 export interface ThanosGetStateRequest extends ThanosMessageBase {
@@ -345,16 +364,14 @@ export interface ThanosSignResponse extends ThanosMessageBase {
   result: any;
 }
 
-export interface ThanosConfirmRequest extends ThanosMessageBase {
-  type: ThanosMessageType.ConfirmRequest;
+export interface ThanosConfirmationRequest extends ThanosMessageBase {
+  type: ThanosMessageType.ConfirmationRequest;
   id: string;
-  confirm: boolean;
-  password?: string;
+  confirmed: boolean;
 }
 
-export interface ThanosConfirmResponse extends ThanosMessageBase {
-  type: ThanosMessageType.ConfirmResponse;
-  id: string;
+export interface ThanosConfirmationResponse extends ThanosMessageBase {
+  type: ThanosMessageType.ConfirmationResponse;
 }
 
 export interface ThanosPageRequest extends ThanosMessageBase {
