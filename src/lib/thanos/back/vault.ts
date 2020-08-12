@@ -3,7 +3,8 @@ import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
-import { TezosToolkit } from "@taquito/taquito";
+import { TezosToolkit, CompositeForger, RpcForger } from "@taquito/taquito";
+import { localForger } from "@taquito/local-forging";
 import * as Passworder from "lib/thanos/passworder";
 import {
   ThanosAccount,
@@ -354,13 +355,16 @@ export class Vault {
       );
       const signer = await createMemorySigner(privateKey);
       const tezos = new TezosToolkit();
-      tezos.setProvider({ rpc, signer });
+      const forger = new CompositeForger([
+        tezos.getFactory(RpcForger)(),
+        localForger,
+      ]);
+      tezos.setProvider({ rpc, signer, forger });
       return tezos.batch(opParams.map(formatOpParams));
     });
 
     try {
-      const op = await batch.send();
-      return op.hash;
+      return await batch.send();
     } catch (err) {
       if (process.env.NODE_ENV === "development") {
         console.error(err);

@@ -9,22 +9,22 @@ import InternalConfiramtion from "app/templates/InternalConfiramtion";
 
 const ConfirmationOverlay: React.FC = () => {
   const {
-    confirmationId,
-    resetConfirmationId,
+    confirmation,
+    resetConfirmation,
     confirmInternal,
   } = useThanosClient();
-  const displayed = Boolean(confirmationId);
+  const displayed = Boolean(confirmation);
 
   useScrollLock(displayed);
 
   const handleConfirm = React.useCallback(
     async (confirmed: boolean) => {
-      if (confirmationId) {
-        await confirmInternal(confirmationId, confirmed);
+      if (confirmation) {
+        await confirmInternal(confirmation.id, confirmed);
       }
-      resetConfirmationId();
+      resetConfirmation();
     },
-    [confirmationId, confirmInternal, resetConfirmationId]
+    [confirmation, confirmInternal, resetConfirmation]
   );
 
   return (
@@ -50,7 +50,12 @@ const ConfirmationOverlay: React.FC = () => {
               "flex flex-col items-center justify-center"
             )}
           >
-            <InternalConfiramtion onConfirm={handleConfirm} />
+            {confirmation && (
+              <InternalConfiramtion
+                payload={confirmation.payload}
+                onConfirm={handleConfirm}
+              />
+            )}
           </ContentContainer>
         </div>
       </CSSTransition>

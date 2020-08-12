@@ -159,12 +159,12 @@ export async function requestOperation(
             const rpcUrl = getNetworkRPC(dApp.network);
 
             try {
-              const opHash = await withUnlocked(({ vault }) =>
+              const op = await withUnlocked(({ vault }) =>
                 vault.sendOperations(dApp.pkh, rpcUrl, req.opParams)
               );
               resolve({
                 type: ThanosDAppMessageType.OperationResponse,
-                opHash,
+                opHash: op.hash,
               });
             } catch (err) {
               if (err?.message?.startsWith("__tezos__")) {

@@ -6,5 +6,5 @@ export const loadContract = mem(fetchContract, {
 });
 
 export function fetchContract(tezos: TezosToolkit, address: string) {
-  return tezos.contract.at(address);
+  return tezos.wallet.at(address);
 }
