@@ -1,5 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
+import { ThanosConfirmationPayload } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import Logo from "app/atoms/Logo";
 import Alert from "app/atoms/Alert";
@@ -9,10 +10,12 @@ import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 
 type InternalConfiramtionProps = {
+  payload: ThanosConfirmationPayload;
   onConfirm: (confirmed: boolean) => Promise<void>;
 };
 
 const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
+  payload,
   onConfirm,
 }) => {
   const [error, setError] = useSafeState<any>(null);
@@ -72,6 +75,35 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
       </div>
 
       <SubTitle>Confirm operations</SubTitle>
+
+      {payload.type === "operations" && (
+        <>
+          <h2
+            className={classNames(
+              "w-full mb-2",
+              "text-base font-semibold leading-tight",
+              "text-gray-700"
+            )}
+          >
+            Operations
+          </h2>
+
+          <div
+            className={classNames(
+              "w-full max-w-full mb-4",
+              "rounded-md overflow-auto",
+              "border-2 bg-gray-100",
+              "flex flex-col",
+              "text-gray-700 text-sm leading-tight"
+            )}
+            style={{
+              maxHeight: "8rem",
+            }}
+          >
+            <pre>{JSON.stringify(payload.opParams, undefined, 2)}</pre>
+          </div>
+        </>
+      )}
 
       {error && (
         <Alert

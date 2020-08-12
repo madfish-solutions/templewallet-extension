@@ -16,6 +16,7 @@ import toBuffer from "typedarray-to-buffer";
 import { IntercomClient } from "lib/intercom";
 import { useStorage } from "lib/thanos/front";
 import {
+  ThanosConfirmationPayload,
   ThanosMessageType,
   ThanosStatus,
   ThanosRequest,
@@ -23,6 +24,11 @@ import {
   ThanosNotification,
   ThanosSettings,
 } from "lib/thanos/types";
+
+type Confirmation = {
+  id: string;
+  payload: ThanosConfirmationPayload;
+};
 
 const intercom = new IntercomClient();
 
@@ -45,14 +51,14 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   });
   const state = data!;
 
-  const [confirmationId, setConfirmationId] = React.useState<string | null>(
+  const [confirmation, setConfirmation] = React.useState<Confirmation | null>(
     null
   );
-  const confirmationIdRef = React.useRef(confirmationId);
-  const resetConfirmationId = React.useCallback(() => {
+  const confirmationIdRef = React.useRef<string | null>(null);
+  const resetConfirmation = React.useCallback(() => {
     confirmationIdRef.current = null;
-    setConfirmationId(null);
-  }, [setConfirmationId]);
+    setConfirmation(null);
+  }, [setConfirmation]);
 
   React.useEffect(() => {
     return intercom.subscribe((msg: ThanosNotification) => {
@@ -63,18 +69,18 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
         case ThanosMessageType.ConfirmationRequested:
           if (msg.id === confirmationIdRef.current) {
-            setConfirmationId(msg.id);
+            setConfirmation({ id: msg.id, payload: msg.payload });
           }
           break;
 
         case ThanosMessageType.ConfirmationExpired:
           if (msg.id === confirmationIdRef.current) {
-            resetConfirmationId();
+            resetConfirmation();
           }
           break;
       }
     });
-  }, [revalidate, setConfirmationId, resetConfirmationId]);
+  }, [revalidate, setConfirmation, resetConfirmation]);
 
   /**
    * Aliases
@@ -280,16 +286,23 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   );
 
   const createWallet = React.useCallback(
-    (accountPublicKeyHash: string) =>
-      new TaquitoWallet(accountPublicKeyHash, (id) => {
-        confirmationIdRef.current = id;
+    (
+      sourcePkh: string,
+      networkRpc: string,
+      onAfterSend?: (opHash: string, opResults: any[]) => void
+    ) =>
+      new TaquitoWallet(sourcePkh, networkRpc, {
+        onBeforeSend: (id) => {
+          confirmationIdRef.current = id;
+        },
+        onAfterSend,
       }),
     []
   );
 
   const createSigner = React.useCallback(
-    (accountPublicKeyHash: string) =>
-      new ThanosSigner(accountPublicKeyHash, (id) => {
+    (sourcePkh: string) =>
+      new ThanosSigner(sourcePkh, (id) => {
         confirmationIdRef.current = id;
       }),
     []
@@ -308,8 +321,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     ready,
 
     // Misc
-    confirmationId,
-    resetConfirmationId,
+    confirmation,
+    resetConfirmation,
     seedRevealed,
     setSeedRevealed,
 
@@ -335,45 +348,16 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   };
 });
 
-class ThanosSigner {
-  constructor(
-    private accountPublicKeyHash: string,
-    private onBeforeSign?: (id: string) => void
-  ) {}
-
-  async publicKeyHash() {
-    return this.accountPublicKeyHash;
-  }
-
-  async publicKey(): Promise<string> {
-    return getPublicKey(this.accountPublicKeyHash);
-  }
-
-  async secretKey(): Promise<string> {
-    throw new Error("Secret key cannot be exposed");
-  }
-
-  async sign(bytes: string, watermark?: Uint8Array) {
-    const id = nanoid();
-    if (this.onBeforeSign) {
-      this.onBeforeSign(id);
-    }
-    const res = await request({
-      type: ThanosMessageType.SignRequest,
-      accountPublicKeyHash: this.accountPublicKeyHash,
-      id,
-      bytes,
-      watermark: buf2hex(toBuffer(watermark)),
-    });
-    assertResponse(res.type === ThanosMessageType.SignResponse);
-    return res.result;
-  }
-}
+type TaquitoWalletOps = {
+  onBeforeSend?: (id: string) => void;
+  onAfterSend?: (opHash: string, opResults: any[]) => void;
+};
 
 class TaquitoWallet implements WalletProvider {
   constructor(
     private pkh: string,
-    private onBeforeSend?: (id: string) => void
+    private rpc: string,
+    private opts: TaquitoWalletOps = {}
   ) {}
 
   async getPKH() {
@@ -394,24 +378,62 @@ class TaquitoWallet implements WalletProvider {
 
   async sendOperations(opParams: any[]) {
     const id = nanoid();
-    if (this.onBeforeSend) {
-      this.onBeforeSend(id);
+    if (this.opts.onBeforeSend) {
+      this.opts.onBeforeSend(id);
     }
     const res = await request({
       type: ThanosMessageType.OperationsRequest,
       id,
-      accountPublicKeyHash: this.pkh,
+      sourcePkh: this.pkh,
+      networkRpc: this.rpc,
       opParams: opParams.map(formatOpParams),
     });
     assertResponse(res.type === ThanosMessageType.OperationsResponse);
+    if (this.opts.onAfterSend) {
+      this.opts.onAfterSend(res.opHash, res.opResults);
+    }
     return res.opHash;
   }
 }
 
+class ThanosSigner {
+  constructor(
+    private pkh: string,
+    private onBeforeSign?: (id: string) => void
+  ) {}
+
+  async publicKeyHash() {
+    return this.pkh;
+  }
+
+  async publicKey(): Promise<string> {
+    return getPublicKey(this.pkh);
+  }
+
+  async secretKey(): Promise<string> {
+    throw new Error("Secret key cannot be exposed");
+  }
+
+  async sign(bytes: string, watermark?: Uint8Array) {
+    const id = nanoid();
+    if (this.onBeforeSign) {
+      this.onBeforeSign(id);
+    }
+    const res = await request({
+      type: ThanosMessageType.SignRequest,
+      sourcePkh: this.pkh,
+      id,
+      bytes,
+      watermark: buf2hex(toBuffer(watermark)),
+    });
+    assertResponse(res.type === ThanosMessageType.SignResponse);
+    return res.result;
+  }
+}
+
 function formatOpParams(op: any) {
-  const { fee, gas_limit, storage_limit, ...rest } = op;
   if (op.kind === "transaction") {
-    const { destination, amount, parameters, ...txRest } = rest;
+    const { destination, amount, parameters, ...txRest } = op;
     return {
       ...txRest,
       to: destination,
@@ -420,7 +442,7 @@ function formatOpParams(op: any) {
       parameter: parameters,
     };
   }
-  return rest;
+  return op;
 }
 
 async function getPublicKey(accountPublicKeyHash: string) {
