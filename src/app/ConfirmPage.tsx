@@ -16,6 +16,7 @@ import ErrorBoundary from "app/ErrorBoundary";
 import Unlock from "app/pages/Unlock";
 import ContentContainer from "app/layouts/ContentContainer";
 import AccountBanner from "app/templates/AccountBanner";
+import OperationsBanner from "app/templates/OperationsBanner";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
@@ -196,7 +197,7 @@ const ConfirmDAppForm: React.FC = () => {
   return (
     <div
       className={classNames(
-        "relative bg-white rounded-md shadow overflow-y-auto",
+        "relative bg-white rounded-md shadow-md overflow-y-auto",
         "flex flex-col"
       )}
       style={{
@@ -247,18 +248,22 @@ const ConfirmDAppForm: React.FC = () => {
           <AccountBanner
             account={connectedAccount}
             displayBalance={false}
-            label={null}
-            className="w-full mb-2"
+            labelIndent="sm"
+            className="w-full mb-4"
           />
         )}
 
-        <div className={classNames("w-full", "mb-2", "flex flex-col")}>
+        <div
+          className={classNames(
+            "w-full",
+            params.type === "confirm_operations" ? "mb-4" : "mb-2",
+            "flex flex-col"
+          )}
+        >
           <h2 className={classNames("leading-tight", "flex flex-col")}>
-            {params.type === "connect" && (
-              <span className="mb-1 text-base font-semibold text-gray-700">
-                Network
-              </span>
-            )}
+            <span className="mb-1 text-base font-semibold text-gray-700">
+              Network
+            </span>
 
             <div className={classNames("mb-1", "flex items-center")}>
               <div
@@ -303,32 +308,7 @@ const ConfirmDAppForm: React.FC = () => {
         </div>
 
         {params.type === "confirm_operations" && (
-          <>
-            <h2
-              className={classNames(
-                "w-full mb-2",
-                "text-base font-semibold leading-tight",
-                "text-gray-700"
-              )}
-            >
-              Operations
-            </h2>
-
-            <div
-              className={classNames(
-                "w-full max-w-full mb-4",
-                "rounded-md overflow-auto",
-                "border-2 bg-gray-100",
-                "flex flex-col",
-                "text-gray-700 text-sm leading-tight"
-              )}
-              style={{
-                maxHeight: "8rem",
-              }}
-            >
-              <pre>{JSON.stringify(params.opParams, undefined, 2)}</pre>
-            </div>
-          </>
+          <OperationsBanner opParams={params.opParams} />
         )}
 
         {params.type === "connect" && (

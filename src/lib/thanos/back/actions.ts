@@ -226,13 +226,21 @@ export function sendOperations(
               req?.id === id
             ) {
               if (req.confirmed) {
-                const op = await withUnlocked(({ vault }) =>
-                  vault.sendOperations(sourcePkh, networkRpc, opParams)
-                );
-                resolve({
-                  opHash: op.hash,
-                  opResults: op.results,
-                });
+                try {
+                  const op = await withUnlocked(({ vault }) =>
+                    vault.sendOperations(sourcePkh, networkRpc, opParams)
+                  );
+                  resolve({
+                    opHash: op.hash,
+                    opResults: op.results,
+                  });
+                } catch (err) {
+                  if (err?.message?.startsWith("__tezos__")) {
+                    reject(new Error(err.message));
+                  } else {
+                    throw err;
+                  }
+                }
               } else {
                 decline();
               }
