@@ -172,10 +172,104 @@ export function updateSettings(settings: Partial<ThanosSettings>) {
   });
 }
 
+export function sendOperations(
+  port: Runtime.Port,
+  id: string,
+  sourcePkh: string,
+  networkRpc: string,
+  opParams: any[]
+): Promise<{ opHash: string; opResults: any[] }> {
+  return withUnlocked(
+    () =>
+      new Promise(async (resolve, reject) => {
+        intercom.notify(port, {
+          type: ThanosMessageType.ConfirmationRequested,
+          id,
+          payload: {
+            type: "operations",
+            sourcePkh,
+            networkRpc,
+            opParams,
+          },
+        });
+
+        let closing = false;
+        const close = () => {
+          if (closing) return;
+          closing = true;
+
+          try {
+            stopTimeout();
+            stopRequestListening();
+            stopDisconnectListening();
+
+            intercom.notify(port, {
+              type: ThanosMessageType.ConfirmationExpired,
+              id,
+            });
+          } catch (_err) {}
+        };
+
+        const decline = () => {
+          reject(new Error("Declined"));
+        };
+        const declineAndClose = () => {
+          decline();
+          close();
+        };
+
+        const stopRequestListening = intercom.onRequest(
+          async (req: ThanosRequest, reqPort) => {
+            if (
+              reqPort === port &&
+              req?.type === ThanosMessageType.ConfirmationRequest &&
+              req?.id === id
+            ) {
+              if (req.confirmed) {
+                try {
+                  const op = await withUnlocked(({ vault }) =>
+                    vault.sendOperations(sourcePkh, networkRpc, opParams)
+                  );
+                  resolve({
+                    opHash: op.hash,
+                    opResults: op.results,
+                  });
+                } catch (err) {
+                  if (err?.message?.startsWith("__tezos__")) {
+                    reject(new Error(err.message));
+                  } else {
+                    throw err;
+                  }
+                }
+              } else {
+                decline();
+              }
+
+              close();
+
+              return {
+                type: ThanosMessageType.ConfirmationResponse,
+              };
+            }
+          }
+        );
+
+        const stopDisconnectListening = intercom.onDisconnect(
+          port,
+          declineAndClose
+        );
+
+        // Decline after timeout
+        const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
+        const stopTimeout = () => clearTimeout(t);
+      })
+  );
+}
+
 export function sign(
   port: Runtime.Port,
-  accPublicKeyHash: string,
   id: string,
+  sourcePkh: string,
   bytes: string,
   watermark?: string
 ) {
@@ -185,6 +279,12 @@ export function sign(
         intercom.notify(port, {
           type: ThanosMessageType.ConfirmationRequested,
           id,
+          payload: {
+            type: "sign",
+            sourcePkh,
+            bytes,
+            watermark,
+          },
         });
 
         let closing = false;
@@ -221,7 +321,7 @@ export function sign(
             ) {
               if (req.confirmed) {
                 const result = await withUnlocked(({ vault }) =>
-                  vault.sign(accPublicKeyHash, bytes, watermark)
+                  vault.sign(sourcePkh, bytes, watermark)
                 );
                 resolve(result);
               } else {

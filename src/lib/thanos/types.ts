@@ -108,7 +108,33 @@ export enum ThanosSharedStorageKey {
 }
 
 /**
- * DApp payloads
+ * Internal confirmation payloads
+ */
+export interface ThanosConfirmationPayloadBase {
+  type: string;
+  sourcePkh: string;
+}
+
+export interface ThanosSignConfirmationPayload
+  extends ThanosConfirmationPayloadBase {
+  type: "sign";
+  bytes: string;
+  watermark?: string;
+}
+
+export interface ThanosOpsConfirmationPayload
+  extends ThanosConfirmationPayloadBase {
+  type: "operations";
+  networkRpc: string;
+  opParams: any[];
+}
+
+export type ThanosConfirmationPayload =
+  | ThanosSignConfirmationPayload
+  | ThanosOpsConfirmationPayload;
+
+/**
+ * DApp confirmation payloads
  */
 
 export interface ThanosDAppPayloadBase {
@@ -170,6 +196,8 @@ export enum ThanosMessageType {
   ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
   UpdateSettingsRequest = "THANOS_UPDATE_SETTINGS_REQUEST",
   UpdateSettingsResponse = "THANOS_UPDATE_SETTINGS_RESPONSE",
+  OperationsRequest = "THANOS_OPERATIONS_REQUEST",
+  OperationsResponse = "THANOS_OPERATIONS_RESPONSE",
   SignRequest = "THANOS_SIGN_REQUEST",
   SignResponse = "THANOS_SIGN_RESPONSE",
   ConfirmationRequest = "THANOS_CONFIRMATION_REQUEST",
@@ -202,6 +230,7 @@ export type ThanosRequest =
   | ThanosImportAccountRequest
   | ThanosImportMnemonicAccountRequest
   | ThanosImportFundraiserAccountRequest
+  | ThanosOperationsRequest
   | ThanosSignRequest
   | ThanosConfirmationRequest
   | ThanosRemoveAccountRequest
@@ -224,6 +253,7 @@ export type ThanosResponse =
   | ThanosImportAccountResponse
   | ThanosImportMnemonicAccountResponse
   | ThanosImportFundraiserAccountResponse
+  | ThanosOperationsResponse
   | ThanosSignResponse
   | ThanosConfirmationResponse
   | ThanosRemoveAccountResponse
@@ -244,6 +274,7 @@ export interface ThanosStateUpdated extends ThanosMessageBase {
 export interface ThanosConfirmationRequested extends ThanosMessageBase {
   type: ThanosMessageType.ConfirmationRequested;
   id: string;
+  payload: ThanosConfirmationPayload;
 }
 
 export interface ThanosConfirmationExpired extends ThanosMessageBase {
@@ -390,10 +421,24 @@ export interface ThanosUpdateSettingsResponse extends ThanosMessageBase {
   type: ThanosMessageType.UpdateSettingsResponse;
 }
 
+export interface ThanosOperationsRequest extends ThanosMessageBase {
+  type: ThanosMessageType.OperationsRequest;
+  id: string;
+  sourcePkh: string;
+  networkRpc: string;
+  opParams: any[];
+}
+
+export interface ThanosOperationsResponse extends ThanosMessageBase {
+  type: ThanosMessageType.OperationsResponse;
+  opHash: string;
+  opResults: any[];
+}
+
 export interface ThanosSignRequest extends ThanosMessageBase {
   type: ThanosMessageType.SignRequest;
-  accountPublicKeyHash: string;
   id: string;
+  sourcePkh: string;
   bytes: string;
   watermark?: string;
 }

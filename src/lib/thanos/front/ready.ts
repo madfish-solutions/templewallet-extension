@@ -8,6 +8,8 @@ import {
   ThanosAsset,
   usePassiveStorage,
   useThanosClient,
+  addPendingOperations,
+  mutezToTz,
 } from "lib/thanos/front";
 
 export enum ActivationStatus {
@@ -48,6 +50,7 @@ function useReadyThanos() {
     accounts: allAccounts,
     settings,
     createSigner,
+    createWallet,
   } = thanosFront;
 
   /**
@@ -110,9 +113,15 @@ function useReadyThanos() {
     const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
     const signer = createSigner(accountPkh);
-    t.setProvider({ rpc, signer });
+    const wallet = createWallet(accountPkh, rpc, (opHash, opResults) => {
+      try {
+        const pndOps = toPendingOperations(opHash, opResults);
+        addPendingOperations(network, checksum, pndOps);
+      } catch (_err) {}
+    });
+    t.setProvider({ rpc, signer, wallet });
     return t;
-  }, [createSigner, network.id, network.rpcBaseURL, accountPkh]);
+  }, [createSigner, createWallet, network, accountPkh]);
 
   React.useEffect(() => {
     if (process.env.NODE_ENV === "development") {
@@ -152,4 +161,15 @@ function assertReady(state: ThanosState): asserts state is ReadyThanosState {
   if (state.status !== ThanosStatus.Ready) {
     throw new Error("Thanos not ready");
   }
+}
+
+function toPendingOperations(opHash: string, opResults: any[]) {
+  return opResults.reverse().map((o) => ({
+    ...o,
+    hash: opHash,
+    kind: o.kind,
+    amount: (o as any).amount && mutezToTz(+(o as any).amount).toNumber(),
+    destination: (o as any).destination,
+    addedAt: new Date().toString(),
+  }));
 }
