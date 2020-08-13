@@ -1,12 +1,22 @@
 import * as React from "react";
 import constate from "constate";
+import {
+  WalletProvider,
+  createOriginationOperation,
+  createSetDelegateOperation,
+  createTransferOperation,
+  WalletDelegateParams,
+  WalletOriginateParams,
+  WalletTransferParams,
+} from "@taquito/taquito";
+import { buf2hex } from "@taquito/utils";
 import { nanoid } from "nanoid";
 import { useRetryableSWR } from "lib/swr";
-import { buf2hex } from "@taquito/utils";
 import toBuffer from "typedarray-to-buffer";
 import { IntercomClient } from "lib/intercom";
 import { useStorage } from "lib/thanos/front";
 import {
+  ThanosConfirmationPayload,
   ThanosMessageType,
   ThanosStatus,
   ThanosRequest,
@@ -14,6 +24,11 @@ import {
   ThanosNotification,
   ThanosSettings,
 } from "lib/thanos/types";
+
+type Confirmation = {
+  id: string;
+  payload: ThanosConfirmationPayload;
+};
 
 const intercom = new IntercomClient();
 
@@ -36,14 +51,14 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   });
   const state = data!;
 
-  const [confirmationId, setConfirmationId] = React.useState<string | null>(
+  const [confirmation, setConfirmation] = React.useState<Confirmation | null>(
     null
   );
-  const confirmationIdRef = React.useRef(confirmationId);
-  const resetConfirmationId = React.useCallback(() => {
+  const confirmationIdRef = React.useRef<string | null>(null);
+  const resetConfirmation = React.useCallback(() => {
     confirmationIdRef.current = null;
-    setConfirmationId(null);
-  }, [setConfirmationId]);
+    setConfirmation(null);
+  }, [setConfirmation]);
 
   React.useEffect(() => {
     return intercom.subscribe((msg: ThanosNotification) => {
@@ -54,18 +69,18 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
         case ThanosMessageType.ConfirmationRequested:
           if (msg.id === confirmationIdRef.current) {
-            setConfirmationId(msg.id);
+            setConfirmation({ id: msg.id, payload: msg.payload });
           }
           break;
 
         case ThanosMessageType.ConfirmationExpired:
           if (msg.id === confirmationIdRef.current) {
-            resetConfirmationId();
+            resetConfirmation();
           }
           break;
       }
     });
-  }, [revalidate, setConfirmationId, resetConfirmationId]);
+  }, [revalidate, setConfirmation, resetConfirmation]);
 
   /**
    * Aliases
@@ -270,9 +285,24 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const createWallet = React.useCallback(
+    (
+      sourcePkh: string,
+      networkRpc: string,
+      onAfterSend?: (opHash: string, opResults: any[]) => void
+    ) =>
+      new TaquitoWallet(sourcePkh, networkRpc, {
+        onBeforeSend: (id) => {
+          confirmationIdRef.current = id;
+        },
+        onAfterSend,
+      }),
+    []
+  );
+
   const createSigner = React.useCallback(
-    (accountPublicKeyHash: string) =>
-      new ThanosSigner(accountPublicKeyHash, (id) => {
+    (sourcePkh: string) =>
+      new ThanosSigner(sourcePkh, (id) => {
         confirmationIdRef.current = id;
       }),
     []
@@ -291,8 +321,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     ready,
 
     // Misc
-    confirmationId,
-    resetConfirmationId,
+    confirmation,
+    resetConfirmation,
     seedRevealed,
     setSeedRevealed,
 
@@ -313,22 +343,71 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
+    createWallet,
     createSigner,
   };
 });
 
+type TaquitoWalletOps = {
+  onBeforeSend?: (id: string) => void;
+  onAfterSend?: (opHash: string, opResults: any[]) => void;
+};
+
+class TaquitoWallet implements WalletProvider {
+  constructor(
+    private pkh: string,
+    private rpc: string,
+    private opts: TaquitoWalletOps = {}
+  ) {}
+
+  async getPKH() {
+    return this.pkh;
+  }
+
+  async mapTransferParamsToWalletParams(params: WalletTransferParams) {
+    return createTransferOperation(params);
+  }
+
+  async mapOriginateParamsToWalletParams(params: WalletOriginateParams) {
+    return createOriginationOperation(params as any);
+  }
+
+  async mapDelegateParamsToWalletParams(params: WalletDelegateParams) {
+    return createSetDelegateOperation(params as any);
+  }
+
+  async sendOperations(opParams: any[]) {
+    const id = nanoid();
+    if (this.opts.onBeforeSend) {
+      this.opts.onBeforeSend(id);
+    }
+    const res = await request({
+      type: ThanosMessageType.OperationsRequest,
+      id,
+      sourcePkh: this.pkh,
+      networkRpc: this.rpc,
+      opParams: opParams.map(formatOpParams),
+    });
+    assertResponse(res.type === ThanosMessageType.OperationsResponse);
+    if (this.opts.onAfterSend) {
+      this.opts.onAfterSend(res.opHash, res.opResults);
+    }
+    return res.opHash;
+  }
+}
+
 class ThanosSigner {
   constructor(
-    private accountPublicKeyHash: string,
+    private pkh: string,
     private onBeforeSign?: (id: string) => void
   ) {}
 
   async publicKeyHash() {
-    return this.accountPublicKeyHash;
+    return this.pkh;
   }
 
   async publicKey(): Promise<string> {
-    return getPublicKey(this.accountPublicKeyHash);
+    return getPublicKey(this.pkh);
   }
 
   async secretKey(): Promise<string> {
@@ -342,7 +421,7 @@ class ThanosSigner {
     }
     const res = await request({
       type: ThanosMessageType.SignRequest,
-      accountPublicKeyHash: this.accountPublicKeyHash,
+      sourcePkh: this.pkh,
       id,
       bytes,
       watermark: buf2hex(toBuffer(watermark)),
@@ -350,6 +429,20 @@ class ThanosSigner {
     assertResponse(res.type === ThanosMessageType.SignResponse);
     return res.result;
   }
+}
+
+function formatOpParams(op: any) {
+  if (op.kind === "transaction") {
+    const { destination, amount, parameters, ...txRest } = op;
+    return {
+      ...txRest,
+      to: destination,
+      amount: +amount,
+      mutez: true,
+      parameter: parameters,
+    };
+  }
+  return op;
 }
 
 async function getPublicKey(accountPublicKeyHash: string) {

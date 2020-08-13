@@ -11,7 +11,6 @@ import {
   useAccount,
   useTezos,
   useBalance,
-  usePendingOperations,
   useKnownBaker,
   useKnownBakers,
   fetchBalance,
@@ -77,7 +76,6 @@ const DelegateForm: React.FC = () => {
   const balance = balanceData!;
   const balanceNum = balance!.toNumber();
 
-  const { addPndOps } = usePendingOperations();
   const knownBakers = useKnownBakers();
 
   const { search } = useLocation();
@@ -268,27 +266,15 @@ const DelegateForm: React.FC = () => {
         });
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        const op = await tezos.contract.setDelegate({
-          source: accountPkh,
-          delegate: to,
-          fee,
-        });
+        const op = await tezos.wallet
+          .setDelegate({
+            source: accountPkh,
+            delegate: to,
+            fee,
+          } as any)
+          .send();
 
         setOperation(op);
-
-        const { hash, results } = op;
-        const pndOps = Array.from(results)
-          .reverse()
-          .map((o) => ({
-            hash,
-            kind: o.kind,
-            amount:
-              (o as any).amount && mutezToTz(+(o as any).amount).toNumber(),
-            destination: (o as any).destination,
-            addedAt: new Date().toString(),
-          }));
-        addPndOps(pndOps);
-
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
       } catch (err) {
         if (err.message === "Declined") {
@@ -310,7 +296,6 @@ const DelegateForm: React.FC = () => {
       accountPkh,
       setSubmitError,
       setOperation,
-      addPndOps,
       reset,
     ]
   );

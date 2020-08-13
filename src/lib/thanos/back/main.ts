@@ -115,11 +115,25 @@ async function processRequest(
         type: ThanosMessageType.UpdateSettingsResponse,
       };
 
+    case ThanosMessageType.OperationsRequest:
+      const { opHash, opResults } = await Actions.sendOperations(
+        port,
+        req.id,
+        req.sourcePkh,
+        req.networkRpc,
+        req.opParams
+      );
+      return {
+        type: ThanosMessageType.OperationsResponse,
+        opHash,
+        opResults,
+      };
+
     case ThanosMessageType.SignRequest:
       const result = await Actions.sign(
         port,
-        req.accountPublicKeyHash,
         req.id,
+        req.sourcePkh,
         req.bytes,
         req.watermark
       );

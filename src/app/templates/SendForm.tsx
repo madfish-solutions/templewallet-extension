@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 import BigNumber from "bignumber.js";
-import { DEFAULT_FEE } from "@taquito/taquito";
+import { DEFAULT_FEE, TransactionWalletOperation } from "@taquito/taquito";
 import {
   ThanosAsset,
   XTZ_ASSET,
@@ -13,7 +13,6 @@ import {
   useTezos,
   useCurrentAsset,
   useBalance,
-  usePendingOperations,
   fetchBalance,
   toTransferParams,
   tzToMutez,
@@ -44,7 +43,6 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
-// import xtzImgUrl from "app/misc/xtz.png";
 
 interface FormData {
   to: string;
@@ -113,8 +111,6 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   );
   const xtzBalance = xtzBalanceData!;
   const xtzBalanceNum = xtzBalance.toNumber();
-
-  const { addPndOps } = usePendingOperations();
 
   /**
    * Form
@@ -239,14 +235,6 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
 
       switch (true) {
-        //  case ["delegate.unchanged", "delegate.already_active"].some((t) =>
-        //    err?.id.includes(t)
-        //  ):
-        //    return new UnchangedError(err.message);
-
-        //  case err?.id.includes("unregistered_delegate"):
-        //    return new UnregisteredDelegateError(err.message);
-
         default:
           throw err;
       }
@@ -360,7 +348,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       setOperation(null);
 
       try {
-        const transferParams = await toTransferParams(
+        let transferParams = await toTransferParams(
           tezos,
           localAsset,
           to,
@@ -369,40 +357,29 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         const estmtn = await tezos.estimate.transfer(transferParams);
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        let op;
+        let op: TransactionWalletOperation;
         try {
-          op = await tezos.contract.transfer({ ...transferParams, fee });
+          transferParams = { ...transferParams, fee };
+          op = await tezos.wallet.transfer(transferParams as any).send();
         } catch (err) {
           if (
             err?.errors?.some((e: any) =>
               e?.id.includes("empty_implicit_delegated_contract")
             )
           ) {
-            op = await tezos.contract.transfer({
-              to,
-              amount,
-              fee: new BigNumber(fee).minus(tzToMutez(PENNY)).toNumber(),
-            });
+            transferParams = {
+              ...transferParams,
+              amount:
+                transferParams.amount &&
+                new BigNumber(transferParams.amount).minus(PENNY).toNumber(),
+            };
+            op = await tezos.wallet.transfer(transferParams as any).send();
           } else {
             throw err;
           }
         }
 
         setOperation(op);
-
-        const { hash, results } = op;
-        const pndOps = Array.from(results)
-          .reverse()
-          .map((o) => ({
-            hash,
-            kind: o.kind,
-            amount:
-              (o as any).amount && mutezToTz(+(o as any).amount).toNumber(),
-            destination: (o as any).destination,
-            addedAt: new Date().toString(),
-          }));
-        addPndOps(pndOps);
-
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
       } catch (err) {
         if (err.message === "Declined") {
@@ -424,7 +401,6 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       localAsset,
       setSubmitError,
       setOperation,
-      addPndOps,
       reset,
     ]
   );
