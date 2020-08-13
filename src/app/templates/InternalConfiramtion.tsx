@@ -1,10 +1,13 @@
 import * as React from "react";
 import classNames from "clsx";
-import { ThanosConfirmationPayload } from "lib/thanos/front";
+import { ThanosConfirmationPayload, useAllAccounts } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
+import { useAppEnv } from "app/env";
+import AccountBanner from "app/templates/AccountBanner";
+import OperationsBanner from "app/templates/OperationsBanner";
+import NetworkBanner from "app/templates/NetworkBanner";
 import Logo from "app/atoms/Logo";
 import Alert from "app/atoms/Alert";
-// import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
@@ -18,6 +21,14 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   payload,
   onConfirm,
 }) => {
+  const { popup } = useAppEnv();
+
+  const allAccounts = useAllAccounts();
+  const account = React.useMemo(
+    () => allAccounts.find((a) => a.publicKeyHash === payload.sourcePkh)!,
+    [allAccounts, payload.sourcePkh]
+  );
+
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
@@ -54,102 +65,100 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
 
   return (
     <div
-      className="flex flex-col items-center py-2"
-      style={{
-        width: 320,
-        height: 320,
-      }}
+      className={classNames(
+        "h-full w-full",
+        "max-w-sm mx-auto",
+        "flex flex-col",
+        !popup && "justify-center px-2"
+      )}
     >
-      <div className="mb-2 flex items-center">
-        <Logo />
+      <div
+        className={classNames(
+          "flex flex-col items-center justify-center",
+          popup && "flex-1"
+        )}
+      >
+        <div className="my-4 flex items-center">
+          <Logo />
 
-        <h1
-          className={classNames(
-            "ml-2",
-            "text-2xl font-semibold tracking-tight",
-            "text-gray-700"
-          )}
-        >
-          Thanos
-        </h1>
-      </div>
-
-      <SubTitle>Confirm operations</SubTitle>
-
-      {payload.type === "operations" && (
-        <>
-          <h2
+          <h1
             className={classNames(
-              "w-full mb-2",
-              "text-base font-semibold leading-tight",
+              "ml-2",
+              "text-2xl font-semibold tracking-tight",
               "text-gray-700"
             )}
           >
-            Operations
-          </h2>
+            Thanos
+          </h1>
+        </div>
+      </div>
 
-          <div
-            className={classNames(
-              "w-full max-w-full mb-4",
-              "rounded-md overflow-auto",
-              "border-2 bg-gray-100",
-              "flex flex-col",
-              "text-gray-700 text-sm leading-tight"
-            )}
-            style={{
-              maxHeight: "8rem",
-            }}
-          >
-            <pre>{JSON.stringify(payload.opParams, undefined, 2)}</pre>
-          </div>
-        </>
-      )}
+      <div
+        className={classNames(
+          "relative bg-white shadow-md",
+          !popup && "rounded-md",
+          "overflow-y-auto"
+        )}
+        style={{ maxHeight: "32rem" }}
+      >
+        <div className={classNames("flex flex-col", "px-4 pt-4")}>
+          <SubTitle>Confirm operations</SubTitle>
 
-      {error && (
-        <Alert
-          type="error"
-          title="Error"
-          description={error?.message ?? "Something went wrong"}
-          className="mb-6"
-        />
-      )}
+          <AccountBanner
+            account={account}
+            labelIndent="sm"
+            className="w-full mb-4"
+          />
 
-      {/* <FormField
-        ref={register({ required: "Required" })}
-        label="Password"
-        labelDescription="Enter password to confirm operation"
-        id="unlock-password"
-        type="password"
-        name="password"
-        placeholder="********"
-        errorCaption={errors.password && errors.password.message}
-      /> */}
+          {payload.type === "operations" && (
+            <>
+              <NetworkBanner rpc={payload.networkRpc} />
+              <OperationsBanner opParams={payload.opParams} />
+            </>
+          )}
 
-      <div className="flex-1" />
-
-      <div className="w-full flex items-stretch">
-        <div className="w-1/2 pr-2">
-          <FormSecondaryButton
-            type="button"
-            className="w-full justify-center"
-            loading={declining}
-            disabled={declining}
-            onClick={handleDeclineClick}
-          >
-            Decline
-          </FormSecondaryButton>
+          {error && (
+            <Alert
+              type="error"
+              title="Error"
+              description={error?.message ?? "Something went wrong"}
+              className="mb-6"
+              autoFocus
+            />
+          )}
         </div>
 
-        <div className="w-1/2 pl-2">
-          <FormSubmitButton
-            type="button"
-            className="w-full justify-center"
-            loading={confirming}
-            disabled={confirming}
-            onClick={handleConfirmClick}
-          >
-            Confirm
-          </FormSubmitButton>
+        <div
+          className={classNames(
+            "sticky bottom-0 w-full",
+            "bg-white shadow-md",
+            "flex items-stretch",
+            "px-4 pt-2 pb-4"
+          )}
+        >
+          <div className="w-1/2 pr-2">
+            <FormSecondaryButton
+              type="button"
+              className="w-full justify-center"
+              loading={declining}
+              disabled={declining}
+              onClick={handleDeclineClick}
+            >
+              Decline
+            </FormSecondaryButton>
+          </div>
+
+          <div className="w-1/2 pl-2">
+            <FormSubmitButton
+              type="button"
+              className="w-full justify-center"
+              loading={confirming}
+              disabled={confirming}
+              onClick={handleConfirmClick}
+            >
+              Confirm
+            </FormSubmitButton>
+          </div>
         </div>
       </div>
     </div>
