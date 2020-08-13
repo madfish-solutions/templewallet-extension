@@ -159,12 +159,12 @@ export async function requestOperation(
             const rpcUrl = getNetworkRPC(dApp.network);
 
             try {
-              const opHash = await withUnlocked(({ vault }) =>
+              const op = await withUnlocked(({ vault }) =>
                 vault.sendOperations(dApp.pkh, rpcUrl, req.opParams)
               );
               resolve({
                 type: ThanosDAppMessageType.OperationResponse,
-                opHash,
+                opHash: op.hash,
               });
             } catch (err) {
               if (err?.message?.startsWith("__tezos__")) {
@@ -232,17 +232,18 @@ async function requestConfirm({
   let knownPort: Runtime.Port | undefined;
   const stopRequestListening = intercom.onRequest(
     async (req: ThanosRequest, port) => {
+      if (!knownPort) knownPort = port;
+      if (knownPort !== port) return;
+
       if (
-        !knownPort &&
         req?.type === ThanosMessageType.DAppGetPayloadRequest &&
         req.id === id
       ) {
-        knownPort = port;
         return {
           type: ThanosMessageType.DAppGetPayloadResponse,
           payload,
         };
-      } else if (port === knownPort) {
+      } else {
         const result = await handleIntercomRequest(req, onDecline);
         if (result) {
           close();

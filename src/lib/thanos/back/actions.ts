@@ -172,18 +172,25 @@ export function updateSettings(settings: Partial<ThanosSettings>) {
   });
 }
 
-export function processOperations(
+export function sendOperations(
   port: Runtime.Port,
   id: string,
-  accPublicKeyHash: string,
+  sourcePkh: string,
+  networkRpc: string,
   opParams: any[]
-) {
+): Promise<{ opHash: string; opResults: any[] }> {
   return withUnlocked(
     () =>
       new Promise(async (resolve, reject) => {
         intercom.notify(port, {
           type: ThanosMessageType.ConfirmationRequested,
           id,
+          payload: {
+            type: "operations",
+            sourcePkh,
+            networkRpc,
+            opParams,
+          },
         });
 
         let closing = false;
@@ -219,10 +226,21 @@ export function processOperations(
               req?.id === id
             ) {
               if (req.confirmed) {
-                const opHash = await withUnlocked(({ vault }) =>
-                  vault.sendOperations(accPublicKeyHash)
-                );
-                resolve(opHash);
+                try {
+                  const op = await withUnlocked(({ vault }) =>
+                    vault.sendOperations(sourcePkh, networkRpc, opParams)
+                  );
+                  resolve({
+                    opHash: op.hash,
+                    opResults: op.results,
+                  });
+                } catch (err) {
+                  if (err?.message?.startsWith("__tezos__")) {
+                    reject(new Error(err.message));
+                  } else {
+                    throw err;
+                  }
+                }
               } else {
                 decline();
               }
@@ -251,7 +269,7 @@ export function processOperations(
 export function sign(
   port: Runtime.Port,
   id: string,
-  accPublicKeyHash: string,
+  sourcePkh: string,
   bytes: string,
   watermark?: string
 ) {
@@ -261,6 +279,12 @@ export function sign(
         intercom.notify(port, {
           type: ThanosMessageType.ConfirmationRequested,
           id,
+          payload: {
+            type: "sign",
+            sourcePkh,
+            bytes,
+            watermark,
+          },
         });
 
         let closing = false;
@@ -297,7 +321,7 @@ export function sign(
             ) {
               if (req.confirmed) {
                 const result = await withUnlocked(({ vault }) =>
-                  vault.sign(accPublicKeyHash, bytes, watermark)
+                  vault.sign(sourcePkh, bytes, watermark)
                 );
                 resolve(result);
               } else {
