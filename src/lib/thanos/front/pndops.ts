@@ -1,5 +1,7 @@
 import * as React from "react";
+import { browser } from "webextension-polyfill-ts";
 import { useTezos, useNetwork, useStorage } from "lib/thanos/front";
+import { ThanosNetwork } from "../types";
 
 export interface PendingOperation {
   kind: string;
@@ -13,12 +15,10 @@ export function usePendingOperations() {
   const tezos = useTezos();
   const network = useNetwork();
 
-  const allowed = React.useMemo(() => Boolean(network.tzStats), [
-    network.tzStats,
-  ]);
+  const allowed = React.useMemo(() => isAllowed(network), [network]);
 
   const [pndOps, setPndOps] = useStorage<PendingOperation[]>(
-    `pndops_${tezos.checksum}`,
+    getKey(tezos.checksum),
     []
   );
 
@@ -46,4 +46,28 @@ export function usePendingOperations() {
     addPndOps,
     removePndOps,
   };
+}
+
+export async function addPendingOperations(
+  network: ThanosNetwork,
+  tezosChecksum: string,
+  opsToAdd: PendingOperation[]
+) {
+  if (isAllowed(network)) {
+    const key = getKey(tezosChecksum);
+    const items = await browser.storage.local.get([key]);
+    if (key in items) {
+      await browser.storage.local.set({
+        [key]: [...opsToAdd, ...items[key]],
+      });
+    }
+  }
+}
+
+function isAllowed(network: ThanosNetwork) {
+  return Boolean(network.tzStats);
+}
+
+function getKey(tezosChecksum: string) {
+  return `pndops_${tezosChecksum}`;
 }
