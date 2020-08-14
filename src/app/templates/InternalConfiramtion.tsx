@@ -96,7 +96,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
       <div
         className={classNames(
           "relative bg-white shadow-md",
-          !popup && "rounded-md",
+          popup ? "border-t border-gray-200" : "rounded-md",
           "overflow-y-auto"
         )}
         style={{ maxHeight: "32rem" }}
