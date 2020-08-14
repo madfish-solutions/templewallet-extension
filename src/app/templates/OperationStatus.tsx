@@ -12,19 +12,18 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
   typeTitle,
   operation,
 }) => {
+  const hash = React.useMemo(() => operation.hash || operation.opHash, [
+    operation,
+  ]);
+
   const descFooter = React.useMemo(
     () => (
       <div className="mt-2 text-xs">
         Operation Hash:{" "}
-        <HashChip
-          hash={operation.hash}
-          firstCharsCount={10}
-          lastCharsCount={7}
-          small
-        />
+        <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small />
       </div>
     ),
-    [operation.hash]
+    [hash]
   );
 
   const [alert, setAlert] = useSafeState<{
@@ -61,7 +60,8 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
         setAlert({
           type: "error",
           title: "Error",
-          description: "Timed out operation confirmation. You can either wait more time or try again later.",
+          description:
+            "Timed out operation confirmation. You can either wait more time or try again later.",
         });
       });
   }, [operation, setAlert, descFooter, typeTitle]);

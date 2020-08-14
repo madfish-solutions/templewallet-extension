@@ -3,13 +3,13 @@ import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
-import { TezosToolkit } from "@taquito/taquito";
+import { TezosToolkit, CompositeForger, RpcForger } from "@taquito/taquito";
+import { localForger } from "@taquito/local-forging";
 import * as Passworder from "lib/thanos/passworder";
 import {
   ThanosAccount,
   ThanosAccountType,
   ThanosSettings,
-  ThanosSharedStorageKey,
 } from "lib/thanos/types";
 import {
   isStored,
@@ -75,9 +75,7 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
-      await browser.storage.local.set({
-        [ThanosSharedStorageKey.DAppEnabled]: false,
-      });
+      await browser.storage.local.clear();
       await encryptAndSaveMany(
         [
           [checkStrgKey, null],
@@ -152,61 +150,6 @@ export class Vault {
 
       return newAllAcounts;
     });
-  }
-
-  static async sign(
-    accPublicKeyHash: string,
-    password: string,
-    bytes: string,
-    watermark?: string
-  ) {
-    const passKey = await Vault.toValidPassKey(password);
-    return withError("Failed to sign", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        passKey
-      );
-      const signer = await createMemorySigner(privateKey);
-      const watermarkBuf =
-        watermark && (TaquitoUtils.hex2buf(watermark) as any);
-      return signer.sign(bytes, watermarkBuf);
-    });
-  }
-
-  static async isDAppEnabled() {
-    const items = await browser.storage.local.get([
-      ThanosSharedStorageKey.DAppEnabled,
-    ]);
-    return Boolean(items[ThanosSharedStorageKey.DAppEnabled]);
-  }
-
-  static async sendOperations(
-    accPublicKeyHash: string,
-    rpc: string,
-    password: string,
-    opParams: any[]
-  ) {
-    const passKey = await Vault.toValidPassKey(password);
-    const batch = await withError("Failed to send operations", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        passKey
-      );
-      const signer = await createMemorySigner(privateKey);
-      const tezos = new TezosToolkit();
-      tezos.setProvider({ rpc, signer });
-      return tezos.batch(opParams.map(formatOpParams));
-    });
-
-    try {
-      const op = await batch.send();
-      return op.hash;
-    } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
-      throw new Error(`__tezos__${err.message}`);
-    }
   }
 
   private static toValidPassKey(password: string) {
@@ -389,6 +332,45 @@ export class Vault {
       await encryptAndSaveMany([[settingsStrgKey, newSettings]], this.passKey);
       return newSettings;
     });
+  }
+
+  async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {
+    return withError("Failed to sign", async () => {
+      const privateKey = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        this.passKey
+      );
+      const signer = await createMemorySigner(privateKey);
+      const watermarkBuf =
+        watermark && (TaquitoUtils.hex2buf(watermark) as any);
+      return signer.sign(bytes, watermarkBuf);
+    });
+  }
+
+  async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
+    const batch = await withError("Failed to send operations", async () => {
+      const privateKey = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        this.passKey
+      );
+      const signer = await createMemorySigner(privateKey);
+      const tezos = new TezosToolkit();
+      const forger = new CompositeForger([
+        tezos.getFactory(RpcForger)(),
+        localForger,
+      ]);
+      tezos.setProvider({ rpc, signer, forger });
+      return tezos.batch(opParams.map(formatOpParams));
+    });
+
+    try {
+      return await batch.send();
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(err);
+      }
+      throw new Error(`__tezos__${err.message}`);
+    }
   }
 }
 
