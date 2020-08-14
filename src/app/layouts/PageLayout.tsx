@@ -9,7 +9,7 @@ import BackupSeedAlert from "app/templates/BackupSeedAlert";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import Header from "./PageLayout/Header";
-import ConfirmOverlay from "./PageLayout/ConfirmOverlay";
+import ConfirmationOverlay from "./PageLayout/ConfirmationOverlay";
 
 type PageLayoutProps = ToolbarProps;
 
@@ -37,7 +37,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
     </div>
 
     <BackupSeedAlert />
-    <ConfirmOverlay />
+    <ConfirmationOverlay />
   </>
 );
 
