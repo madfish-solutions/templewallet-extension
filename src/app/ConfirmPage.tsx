@@ -4,7 +4,6 @@ import { useLocation } from "lib/woozie";
 import {
   useThanosClient,
   useAccount,
-  useAllNetworks,
   useAllAccounts,
   ThanosAccountType,
   ThanosDAppPayload,
@@ -16,6 +15,7 @@ import ErrorBoundary from "app/ErrorBoundary";
 import Unlock from "app/pages/Unlock";
 import ContentContainer from "app/layouts/ContentContainer";
 import AccountBanner from "app/templates/AccountBanner";
+import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
@@ -60,7 +60,6 @@ const ConfirmDAppForm: React.FC = () => {
     confirmDAppPermission,
     confirmDAppOperation,
   } = useThanosClient();
-  const allNetworks = useAllNetworks();
   const allAccounts = useAllAccounts();
   const account = useAccount();
 
@@ -84,25 +83,20 @@ const ConfirmDAppForm: React.FC = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
-  const params = data!;
+  const payload = data!;
 
   const connectedAccount = React.useMemo(
     () =>
       allAccounts.find(
         (a) =>
           a.publicKeyHash ===
-          (params.type === "connect" ? accountPkhToConnect : params.sourcePkh)
+          (payload.type === "connect" ? accountPkhToConnect : payload.sourcePkh)
       ),
-    [params, allAccounts, accountPkhToConnect]
-  );
-
-  const net = React.useMemo(
-    () => allNetworks.find((n) => n.id === params.network)!,
-    [allNetworks, params.network]
+    [payload, allAccounts, accountPkhToConnect]
   );
 
   const content = React.useMemo(() => {
-    switch (params.type) {
+    switch (payload.type) {
       case "connect":
         return {
           title: "Confirm connection",
@@ -110,7 +104,7 @@ const ConfirmDAppForm: React.FC = () => {
           confirmActionTitle: "Connect",
           want: (
             <p className="mb-2 text-sm text-gray-700 text-center">
-              <span className="font-semibold">{params.origin}</span>
+              <span className="font-semibold">{payload.origin}</span>
               <br />
               would like to connect to your wallet
             </p>
@@ -126,12 +120,12 @@ const ConfirmDAppForm: React.FC = () => {
             <div className="mb-2 text-sm text-gray-700 text-center">
               <div className="flex items-center justify-center">
                 <Identicon
-                  hash={params.origin}
+                  hash={payload.origin}
                   size={16}
                   className="mr-1 shadow-xs"
                 />
                 <Name className="font-semibold" style={{ maxWidth: "7.5rem" }}>
-                  {params.appMeta.name}
+                  {payload.appMeta.name}
                 </Name>
               </div>
               requests operations to you
@@ -139,11 +133,11 @@ const ConfirmDAppForm: React.FC = () => {
           ),
         };
     }
-  }, [params.type, params.origin, params.appMeta.name]);
+  }, [payload.type, payload.origin, payload.appMeta.name]);
 
   const onConfirm = React.useCallback(
     async (confimed: boolean) => {
-      switch (params.type) {
+      switch (payload.type) {
         case "connect":
           return confirmDAppPermission(id, confimed, accountPkhToConnect);
 
@@ -153,7 +147,7 @@ const ConfirmDAppForm: React.FC = () => {
     },
     [
       id,
-      params.type,
+      payload.type,
       confirmDAppPermission,
       confirmDAppOperation,
       accountPkhToConnect,
@@ -221,30 +215,30 @@ const ConfirmDAppForm: React.FC = () => {
 
       <div className="flex flex-col items-center px-4 py-2">
         <SubTitle
-          className={params.type === "connect" ? "mt-4 mb-6" : "mt-4 mb-2"}
+          className={payload.type === "connect" ? "mt-4 mb-6" : "mt-4 mb-2"}
         >
           {content.title}
         </SubTitle>
 
-        {params.type === "connect" && (
+        {payload.type === "connect" && (
           <ConnectBanner
-            type={params.type}
-            origin={params.origin}
-            appMeta={params.appMeta}
+            type={payload.type}
+            origin={payload.origin}
+            appMeta={payload.appMeta}
             className="mb-4"
           />
         )}
 
         {content.want}
 
-        {params.type === "connect" && (
+        {payload.type === "connect" && (
           <p className="mb-4 text-xs font-light text-gray-700 text-center">
             This site is requesting access to view your account address. Always
             make sure you trust the sites you interact with.
           </p>
         )}
 
-        {params.type === "confirm_operations" && connectedAccount && (
+        {payload.type === "confirm_operations" && connectedAccount && (
           <AccountBanner
             account={connectedAccount}
             displayBalance={false}
@@ -253,65 +247,16 @@ const ConfirmDAppForm: React.FC = () => {
           />
         )}
 
-        <div
-          className={classNames(
-            "w-full",
-            params.type === "confirm_operations" ? "mb-4" : "mb-2",
-            "flex flex-col"
-          )}
-        >
-          <h2 className={classNames("leading-tight", "flex flex-col")}>
-            <span className="mb-1 text-base font-semibold text-gray-700">
-              Network
-            </span>
+        <NetworkBanner
+          rpc={payload.networkRpc}
+          narrow={payload.type === "connect"}
+        />
 
-            <div className={classNames("mb-1", "flex items-center")}>
-              <div
-                className={classNames(
-                  "mr-1 w-3 h-3",
-                  "border border-primary-white",
-                  "rounded-full",
-                  "shadow-xs"
-                )}
-                style={{ backgroundColor: net.color }}
-              />
-
-              <span className="text-gray-700 text-sm">{net.name}</span>
-            </div>
-
-            {/* <div className="my-1">
-                <div className={classNames("mb-1", "flex items-center")}>
-                  <div
-                    className={classNames(
-                      "flex-shrink-0",
-                      "mr-1 w-3 h-3",
-                      "bg-red-500",
-                      "border border-primary-white",
-                      "rounded-full",
-                      "shadow-xs"
-                    )}
-                  />
-
-                  <span className="text-gray-700 text-sm flex items-center">
-                    Custom (<Name>{net.name!}</Name>)
-                  </span>
-                </div>
-
-                <Name
-                  className="text-xs font-mono italic"
-                  style={{ maxWidth: "100%" }}
-                >
-                  {net.rpcUrl!}
-                </Name>
-              </div> */}
-          </h2>
-        </div>
-
-        {params.type === "confirm_operations" && (
-          <OperationsBanner opParams={params.opParams} />
+        {payload.type === "confirm_operations" && (
+          <OperationsBanner opParams={payload.opParams} />
         )}
 
-        {params.type === "connect" && (
+        {payload.type === "connect" && (
           <div className={classNames("w-full", "mb-2", "flex flex-col")}>
             <h2
               className={classNames("mb-2", "leading-tight", "flex flex-col")}

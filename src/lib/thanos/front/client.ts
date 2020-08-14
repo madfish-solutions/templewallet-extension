@@ -285,7 +285,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
-  const createWallet = React.useCallback(
+  const createTaquitoWallet = React.useCallback(
     (
       sourcePkh: string,
       networkRpc: string,
@@ -300,7 +300,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
-  const createSigner = React.useCallback(
+  const createTaquitoSigner = React.useCallback(
     (sourcePkh: string) =>
       new ThanosSigner(sourcePkh, (id) => {
         confirmationIdRef.current = id;
@@ -343,8 +343,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
-    createWallet,
-    createSigner,
+    createTaquitoWallet,
+    createTaquitoSigner,
   };
 });
 

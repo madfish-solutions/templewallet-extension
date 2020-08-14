@@ -46,17 +46,19 @@ export async function requestPermission(
     throw new Error(ThanosDAppErrorType.InvalidParams);
   }
 
+  const networkRpc = getNetworkRPC(req.network);
+
   if (!req.force && dApps.has(origin)) {
     const dApp = dApps.get(origin)!;
     if (
-      req.network === dApp.network &&
+      isNetworkEquals(req.network, dApp.network) &&
       req.appMeta.name === dApp.appMeta.name
     ) {
       return {
         type: ThanosDAppMessageType.PermissionResponse,
         pkh: dApp.pkh,
         publicKey: dApp.publicKey,
-        rpc: getNetworkRPC(req.network),
+        rpc: networkRpc,
       } as any;
     }
   }
@@ -69,7 +71,7 @@ export async function requestPermission(
       payload: {
         type: "connect",
         origin,
-        network: req.network,
+        networkRpc,
         appMeta: req.appMeta,
       },
       onDecline: () => {
@@ -96,7 +98,7 @@ export async function requestPermission(
               type: ThanosDAppMessageType.PermissionResponse,
               pkh: accountPublicKeyHash,
               publicKey: accountPublicKey,
-              rpc: getNetworkRPC(req.network),
+              rpc: networkRpc,
             } as any);
           } else {
             decline();
@@ -136,13 +138,14 @@ export async function requestOperation(
 
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
+    const networkRpc = getNetworkRPC(dApp.network);
 
     await requestConfirm({
       id,
       payload: {
         type: "confirm_operations",
         origin,
-        network: dApp.network,
+        networkRpc,
         appMeta: dApp.appMeta,
         sourcePkh: req.sourcePkh,
         opParams: req.opParams,
@@ -156,11 +159,9 @@ export async function requestOperation(
           confirmReq?.id === id
         ) {
           if (confirmReq.confirmed) {
-            const rpcUrl = getNetworkRPC(dApp.network);
-
             try {
               const op = await withUnlocked(({ vault }) =>
-                vault.sendOperations(dApp.pkh, rpcUrl, req.opParams)
+                vault.sendOperations(dApp.pkh, networkRpc, req.opParams)
               );
               resolve({
                 type: ThanosDAppMessageType.OperationResponse,
@@ -285,10 +286,20 @@ async function requestConfirm({
   const stopTimeout = () => clearTimeout(t);
 }
 
-export function getNetworkRPC(id: string) {
-  return NETWORKS.find((net) => net.id === id)!.rpcBaseURL;
+export function getNetworkRPC(net: ThanosDAppNetwork) {
+  return typeof net === "string"
+    ? NETWORKS.find((n) => n.id === net)!.rpcBaseURL
+    : net.rpc;
 }
 
-function isAllowedNetwork(id: string) {
-  return NETWORKS.some((net) => !net.disabled && net.id === id);
+function isAllowedNetwork(net: ThanosDAppNetwork) {
+  return typeof net === "string"
+    ? NETWORKS.some((n) => !n.disabled && n.id === net)
+    : Boolean(net?.rpc);
+}
+
+function isNetworkEquals(fNet: ThanosDAppNetwork, sNet: ThanosDAppNetwork) {
+  return typeof fNet !== "string" && typeof sNet !== "string"
+    ? fNet?.rpc === sNet?.rpc
+    : fNet === sNet;
 }

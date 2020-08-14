@@ -1,7 +1,4 @@
-import {
-  ThanosDAppNetwork,
-  ThanosDAppMetadata,
-} from "@thanos-wallet/dapp/dist/types";
+import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
 import { TZStatsNetwork } from "lib/tzstats";
 
 type NonEmptyArray<T> = [T, ...T[]];
@@ -140,7 +137,7 @@ export type ThanosConfirmationPayload =
 export interface ThanosDAppPayloadBase {
   type: string;
   origin: string;
-  network: ThanosDAppNetwork;
+  networkRpc: string;
   appMeta: ThanosDAppMetadata;
 }
 
