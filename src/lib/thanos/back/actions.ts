@@ -372,10 +372,13 @@ export async function processBeacon(origin: string, msg: string) {
 
   const res = await (async (): Promise<Beacon.Response> => {
     try {
-      if (req.network.type === "custom") {
-        throw new Error(Beacon.ErrorType.NETWORK_NOT_SUPPORTED);
-      }
-      const network = req.network.type;
+      const network =
+        req.network.type === "custom"
+          ? {
+              name: req.network.name!,
+              rpc: req.network.rpcUrl!,
+            }
+          : req.network.type;
 
       try {
         const thanosReq = ((): ThanosDAppRequest | void => {
@@ -407,7 +410,7 @@ export async function processBeacon(origin: string, msg: string) {
                   ...resBase,
                   type: Beacon.MessageType.PermissionResponse,
                   publicKey: (thanosRes as any).publicKey,
-                  network: { type: network },
+                  network: req.network,
                   scopes: [Beacon.PermissionScope.OPERATION_REQUEST],
                 };
 
