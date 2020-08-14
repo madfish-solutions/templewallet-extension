@@ -6,6 +6,7 @@ import { useAppEnv } from "app/env";
 import AccountBanner from "app/templates/AccountBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import NetworkBanner from "app/templates/NetworkBanner";
+import FormField from "app/atoms/FormField";
 import Logo from "app/atoms/Logo";
 import Alert from "app/atoms/Alert";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -102,7 +103,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         style={{ maxHeight: "32rem" }}
       >
         <div className={classNames("flex flex-col", "px-4 pt-4")}>
-          <SubTitle>Confirm operations</SubTitle>
+          <SubTitle>Confirm {payload.type}</SubTitle>
 
           <AccountBanner
             account={account}
@@ -115,6 +116,22 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               <NetworkBanner rpc={payload.networkRpc} />
               <OperationsBanner opParams={payload.opParams} />
             </>
+          )}
+
+          {payload.type === "sign" && (
+            <FormField
+              textarea
+              rows={7}
+              id="sign-payload"
+              label="Payload to sign"
+              value={payload.bytes}
+              spellCheck={false}
+              readOnly
+              className="mb-4"
+              style={{
+                resize: "none",
+              }}
+            />
           )}
 
           {error && (
