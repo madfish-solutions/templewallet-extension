@@ -33,6 +33,10 @@ interface DAppPermission {
 
 const dApps = new Map<string, DAppPermission>();
 
+export async function cleanDApps() {
+  dApps.clear();
+}
+
 export async function requestPermission(
   origin: string,
   req: ThanosDAppPermissionRequest

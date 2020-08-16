@@ -25,7 +25,11 @@ import {
   withUnlocked,
 } from "lib/thanos/back/store";
 import { Vault } from "lib/thanos/back/vault";
-import { requestPermission, requestOperation } from "lib/thanos/back/dapp";
+import {
+  cleanDApps,
+  requestPermission,
+  requestOperation,
+} from "lib/thanos/back/dapp";
 import * as Beacon from "lib/thanos/beacon";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
@@ -57,6 +61,7 @@ export async function isDAppEnabled() {
 export function registerNewWallet(password: string, mnemonic?: string) {
   return withInited(async () => {
     await Vault.spawn(password, mnemonic);
+    cleanDApps();
     await unlock(password);
   });
 }
