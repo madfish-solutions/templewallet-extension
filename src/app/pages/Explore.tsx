@@ -35,8 +35,11 @@ const Explore: React.FC = () => {
       <div className="flex flex-col items-center">
         <HashChip hash={accountPkh} className="mb-6" />
 
-        <div style={{ minHeight: "10rem" }}>
-          <SuspenseContainer whileMessage="fetching assets data">
+        <div style={{ minHeight: "12rem" }}>
+          <SuspenseContainer
+            whileMessage="fetching assets data"
+            fallback={null}
+          >
             <Assets accountPkh={accountPkh} />
           </SuspenseContainer>
         </div>
@@ -120,12 +123,18 @@ const Explore: React.FC = () => {
 
 export default Explore;
 
-const SuspenseContainer: React.FC<{ whileMessage: string }> = ({
+type SuspenseContainerProps = {
+  whileMessage: string;
+  fallback?: React.ReactNode;
+};
+
+const SuspenseContainer: React.FC<SuspenseContainerProps> = ({
   whileMessage,
+  fallback = <SpinnerSection />,
   children,
 }) => (
   <ErrorBoundary whileMessage={whileMessage}>
-    <React.Suspense fallback={<SpinnerSection />}>{children}</React.Suspense>
+    <React.Suspense fallback={fallback}>{children}</React.Suspense>
   </ErrorBoundary>
 );
 

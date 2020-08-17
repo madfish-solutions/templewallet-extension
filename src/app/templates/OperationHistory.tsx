@@ -74,6 +74,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const pendingOperations = React.useMemo<OperationPreview[]>(
     () =>
       pndOps.map((op) => ({
+        ...op,
         hash: op.hash,
         type: op.kind,
         receiver: op.destination ?? "",
@@ -331,17 +332,34 @@ function tryParseParameters(asset: ThanosAsset, parameters: any) {
     case ThanosAssetType.TzBTC:
     case ThanosAssetType.FA1_2:
       try {
-        const args = parameters.value.transfer;
-        const sender = args["0@address"] as string;
-        const receiver = args["1@address"] as string;
-        const volume = new BigNumber(args["2@nat"])
-          .div(10 ** asset.decimals)
-          .toNumber();
-        return {
-          sender,
-          receiver,
-          volume,
-        };
+        if ("transfer" in parameters.value) {
+          const {
+            from: sender,
+            to: receiver,
+            value,
+          } = parameters.value.transfer;
+          const volume = new BigNumber(value)
+            .div(10 ** asset.decimals)
+            .toNumber();
+
+          return {
+            sender,
+            receiver,
+            volume,
+          };
+        } else {
+          const [fromArgs, { args: toArgs }] = parameters.value.args;
+          const sender = fromArgs.string as string;
+          const receiver = toArgs[0].string as string;
+          const volume = new BigNumber(toArgs[1].int)
+            .div(10 ** asset.decimals)
+            .toNumber();
+          return {
+            sender,
+            receiver,
+            volume,
+          };
+        }
       } catch (_err) {
         return null;
       }
