@@ -8,18 +8,21 @@ import {
   useAssets,
   useTokens,
   useCurrentAsset,
+  ThanosAssetType,
 } from "lib/thanos/front";
+import Popper from "lib/ui/Popper";
+import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import { getAssetIconUrl } from "app/defaults";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import Name from "app/atoms/Name";
 import Money from "app/atoms/Money";
 import { ReactComponent as EllypsisIcon } from "app/icons/ellypsis.svg";
+import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import { ReactComponent as RemoveIcon } from "app/icons/remove.svg";
-import styles from "./Assets.module.css";
-import Popper from "lib/ui/Popper";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
+import styles from "./Assets.module.css";
 
 type AssetsProps = {
   accountPkh: string;
@@ -237,6 +240,10 @@ const ControlButton = React.memo<ControlButton>(
                   Add new Token
                 </Link>
 
+                {asset.type !== ThanosAssetType.XTZ && (
+                  <CopyTokenAddress asset={asset} />
+                )}
+
                 <button
                   className={classNames(
                     "block items-centerw-full",
@@ -303,3 +310,50 @@ const ControlButton = React.memo<ControlButton>(
     );
   }
 );
+
+type CopyTokenAddressProps = {
+  asset: ThanosToken;
+};
+
+const CopyTokenAddress: React.FC<CopyTokenAddressProps> = ({ asset }) => {
+  const { fieldRef, copy, copied } = useCopyToClipboard();
+
+  return (
+    <>
+      <button
+        className={classNames(
+          "block w-full",
+          "mb-1 px-2 py-1",
+          "text-sm font-medium text-gray-600",
+          "rounded",
+          "transition easy-in-out duration-200",
+          "hover:bg-gray-100",
+          "flex items-center"
+        )}
+        onClick={copy}
+      >
+        <CopyIcon
+          className={classNames(
+            "mr-2 flex-shrink-0",
+            "h-4 w-auto stroke-current stroke-2",
+            "opacity-75"
+          )}
+        />
+
+        <div className="relative">
+          <span className={classNames(copied && "text-transparent")}>
+            Copy "{asset.symbol}" address
+          </span>
+          {copied && <div className="absolute inset-0 text-left">Copied.</div>}
+        </div>
+      </button>
+
+      <input
+        ref={fieldRef}
+        value={asset.address}
+        readOnly
+        className="sr-only"
+      />
+    </>
+  );
+};
