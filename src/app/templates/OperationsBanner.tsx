@@ -35,7 +35,7 @@ const OperationsBanner: React.FC<OperationsBanner> = ({ opParams }) => (
         name={null}
         iconStyle="square"
         indentWidth={4}
-        collapsed={2}
+        collapsed={false}
         collapseStringsAfterLength={36}
         enableClipboard={false}
         displayObjectSize={false}
