@@ -1,26 +1,27 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useForm } from "react-hook-form";
 import { useLocation } from "lib/woozie";
 import {
   useThanosClient,
   useAccount,
-  useAllNetworks,
   useAllAccounts,
   ThanosAccountType,
+  ThanosDAppPayload,
 } from "lib/thanos/front";
-import {
-  ThanosDAppNetwork,
-  ThanosDAppMetadata,
-} from "@thanos-wallet/dapp/dist/types";
+import { useRetryableSWR } from "lib/swr";
+import useSafeState from "lib/ui/useSafeState";
+import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
+import ErrorBoundary from "app/ErrorBoundary";
 import Unlock from "app/pages/Unlock";
 import ContentContainer from "app/layouts/ContentContainer";
 import AccountBanner from "app/templates/AccountBanner";
+import NetworkBanner from "app/templates/NetworkBanner";
+import OperationsBanner from "app/templates/OperationsBanner";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import Alert from "app/atoms/Alert";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import FormField from "app/atoms/FormField";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
@@ -38,7 +39,11 @@ const ConfirmPage: React.FC = () => {
             "flex flex-col items-center justify-center"
           )}
         >
-          <ConfirmDAppForm />
+          <ErrorBoundary whileMessage="fetching confirmation details">
+            <React.Suspense fallback={null}>
+              <ConfirmDAppForm />
+            </React.Suspense>
+          </ErrorBoundary>
         </ContentContainer>
       ) : (
         <Unlock canImportNew={false} />
@@ -49,38 +54,12 @@ const ConfirmPage: React.FC = () => {
 
 export default ConfirmPage;
 
-interface PayloadBase {
-  type: string;
-  origin: string;
-  network: ThanosDAppNetwork;
-  appMeta: ThanosDAppMetadata;
-}
-
-interface ConnectPayload extends PayloadBase {
-  type: "connect";
-}
-
-interface OperationsPayload extends PayloadBase {
-  type: "confirm_operations";
-  sourcePkh: string;
-  opParams: any[];
-}
-
-type Payload = ConnectPayload | OperationsPayload;
-
-type FormData = {
-  password?: string;
-};
-
-const SUBMIT_ERROR_TYPE = "submit-error";
-
 const ConfirmDAppForm: React.FC = () => {
   const {
+    getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
-    getPublicKey,
   } = useThanosClient();
-  const allNetworks = useAllNetworks();
   const allAccounts = useAllAccounts();
   const account = useAccount();
 
@@ -89,38 +68,43 @@ const ConfirmDAppForm: React.FC = () => {
   );
 
   const loc = useLocation();
-  const params = React.useMemo(() => {
+  const id = React.useMemo(() => {
     const usp = new URLSearchParams(loc.search);
-    const id = usp.get("id")!;
-    const payloadStr = usp.get("payload")!;
-    const payload = JSON.parse(payloadStr) as Payload;
-    return { id, ...payload };
+    const id = usp.get("id");
+    if (!id) {
+      throw new Error("Not identified");
+    }
+    return id;
   }, [loc.search]);
+
+  const { data } = useRetryableSWR<ThanosDAppPayload>([id], getDAppPayload, {
+    suspense: true,
+    shouldRetryOnError: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+  const payload = data!;
 
   const connectedAccount = React.useMemo(
     () =>
       allAccounts.find(
         (a) =>
           a.publicKeyHash ===
-          (params.type === "connect" ? accountPkhToConnect : params.sourcePkh)
+          (payload.type === "connect" ? accountPkhToConnect : payload.sourcePkh)
       ),
-    [params, allAccounts, accountPkhToConnect]
-  );
-
-  const net = React.useMemo(
-    () => allNetworks.find((n) => n.id === params.network)!,
-    [allNetworks, params.network]
+    [payload, allAccounts, accountPkhToConnect]
   );
 
   const content = React.useMemo(() => {
-    switch (params.type) {
+    switch (payload.type) {
       case "connect":
         return {
           title: "Confirm connection",
-          actionTitle: "Connect",
+          declineActionTitle: "Cancel",
+          confirmActionTitle: "Connect",
           want: (
             <p className="mb-2 text-sm text-gray-700 text-center">
-              <span className="font-semibold">{params.origin}</span>
+              <span className="font-semibold">{payload.origin}</span>
               <br />
               would like to connect to your wallet
             </p>
@@ -130,17 +114,18 @@ const ConfirmDAppForm: React.FC = () => {
       case "confirm_operations":
         return {
           title: "Confirm operations",
-          actionTitle: "Confirm",
+          declineActionTitle: "Reject",
+          confirmActionTitle: "Confirm",
           want: (
             <div className="mb-2 text-sm text-gray-700 text-center">
               <div className="flex items-center justify-center">
                 <Identicon
-                  hash={params.origin}
+                  hash={payload.origin}
                   size={16}
                   className="mr-1 shadow-xs"
                 />
                 <Name className="font-semibold" style={{ maxWidth: "7.5rem" }}>
-                  {params.appMeta.name}
+                  {payload.appMeta.name}
                 </Name>
               </div>
               requests operations to you
@@ -148,106 +133,71 @@ const ConfirmDAppForm: React.FC = () => {
           ),
         };
     }
-  }, [params.type, params.origin, params.appMeta.name]);
+  }, [payload.type, payload.origin, payload.appMeta.name]);
 
-  const done = React.useCallback(
-    async (confimed: boolean, password?: string) => {
-      switch (params.type) {
+  const onConfirm = React.useCallback(
+    async (confimed: boolean) => {
+      switch (payload.type) {
         case "connect":
-          return confirmDAppPermission(
-            params.id,
-            confimed,
-            accountPkhToConnect,
-            await getPublicKey(accountPkhToConnect)
-          );
+          return confirmDAppPermission(id, confimed, accountPkhToConnect);
 
         case "confirm_operations":
-          return confirmDAppOperation(params.id, confimed, password);
+          return confirmDAppOperation(id, confimed);
       }
     },
     [
-      params.id,
-      params.type,
-      getPublicKey,
+      id,
+      payload.type,
       confirmDAppPermission,
       confirmDAppOperation,
       accountPkhToConnect,
     ]
   );
 
-  const rootRef = React.useRef<HTMLFormElement>(null);
+  const [error, setError] = useSafeState<any>(null);
+  const [confirming, setConfirming] = useSafeState(false);
+  const [declining, setDeclining] = useSafeState(false);
 
-  const focusPasswordField = React.useCallback(() => {
-    rootRef.current
-      ?.querySelector<HTMLInputElement>("input[name='password']")
-      ?.focus();
-  }, []);
-
-  React.useLayoutEffect(() => {
-    const t = setTimeout(focusPasswordField, 100);
-    return () => clearTimeout(t);
-  }, [focusPasswordField]);
-
-  const {
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearError,
-    formState,
-  } = useForm<FormData>();
-  const submitting = formState.isSubmitting;
-
-  const onSubmit = React.useCallback(
-    async ({ password }: FormData) => {
-      if (submitting) return;
-      clearError("password");
-
+  const confirm = React.useCallback(
+    async (confirmed: boolean) => {
+      setError(null);
       try {
-        await done(true, password);
+        await onConfirm(confirmed);
       } catch (err) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
-
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
-        setError("password", SUBMIT_ERROR_TYPE, err.message);
-        focusPasswordField();
+        setError(err);
       }
     },
-    [submitting, clearError, setError, done, focusPasswordField]
+    [onConfirm, setError]
   );
 
-  const handleCancelClick = React.useCallback(async () => {
-    if (submitting) return;
-    clearError("password");
+  const handleConfirmClick = React.useCallback(async () => {
+    if (confirming || declining) return;
 
-    try {
-      await done(false);
-    } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
+    setConfirming(true);
+    await confirm(true);
+    setConfirming(false);
+  }, [confirming, declining, setConfirming, confirm]);
 
-      // Human delay.
-      await new Promise((res) => setTimeout(res, 300));
-      setError("password", SUBMIT_ERROR_TYPE, err.message);
-    }
-  }, [submitting, clearError, setError, done]);
+  const handleDeclineClick = React.useCallback(async () => {
+    if (confirming || declining) return;
+
+    setDeclining(true);
+    await confirm(false);
+    setDeclining(false);
+  }, [confirming, declining, setDeclining, confirm]);
 
   return (
-    <form
-      ref={rootRef}
+    <div
       className={classNames(
-        "relative bg-white rounded-md shadow overflow-y-auto",
+        "relative bg-white rounded-md shadow-md overflow-y-auto",
         "flex flex-col"
       )}
       style={{
         width: 380,
         height: 578,
       }}
-      onSubmit={handleSubmit(onSubmit)}
     >
       <div className={classNames("absolute top-0 right-0", "p-1")}>
         <div
@@ -265,118 +215,48 @@ const ConfirmDAppForm: React.FC = () => {
 
       <div className="flex flex-col items-center px-4 py-2">
         <SubTitle
-          className={params.type === "connect" ? "mt-4 mb-6" : "mt-4 mb-2"}
+          className={payload.type === "connect" ? "mt-4 mb-6" : "mt-4 mb-2"}
         >
           {content.title}
         </SubTitle>
 
-        {params.type === "connect" && (
+        {payload.type === "connect" && (
           <ConnectBanner
-            type={params.type}
-            origin={params.origin}
-            appMeta={params.appMeta}
+            type={payload.type}
+            origin={payload.origin}
+            appMeta={payload.appMeta}
             className="mb-4"
           />
         )}
 
         {content.want}
 
-        {params.type === "connect" && (
+        {payload.type === "connect" && (
           <p className="mb-4 text-xs font-light text-gray-700 text-center">
             This site is requesting access to view your account address. Always
             make sure you trust the sites you interact with.
           </p>
         )}
 
-        {params.type === "confirm_operations" && connectedAccount && (
+        {payload.type === "confirm_operations" && connectedAccount && (
           <AccountBanner
             account={connectedAccount}
             displayBalance={false}
-            label={null}
-            className="w-full mb-2"
+            labelIndent="sm"
+            className="w-full mb-4"
           />
         )}
 
-        <div className={classNames("w-full", "mb-2", "flex flex-col")}>
-          <h2 className={classNames("leading-tight", "flex flex-col")}>
-            {params.type === "connect" && (
-              <span className="mb-1 text-base font-semibold text-gray-700">
-                Network
-              </span>
-            )}
+        <NetworkBanner
+          rpc={payload.networkRpc}
+          narrow={payload.type === "connect"}
+        />
 
-            <div className={classNames("mb-1", "flex items-center")}>
-              <div
-                className={classNames(
-                  "mr-1 w-3 h-3",
-                  "border border-primary-white",
-                  "rounded-full",
-                  "shadow-xs"
-                )}
-                style={{ backgroundColor: net.color }}
-              />
-
-              <span className="text-gray-700 text-sm">{net.name}</span>
-            </div>
-
-            {/* <div className="my-1">
-                <div className={classNames("mb-1", "flex items-center")}>
-                  <div
-                    className={classNames(
-                      "flex-shrink-0",
-                      "mr-1 w-3 h-3",
-                      "bg-red-500",
-                      "border border-primary-white",
-                      "rounded-full",
-                      "shadow-xs"
-                    )}
-                  />
-
-                  <span className="text-gray-700 text-sm flex items-center">
-                    Custom (<Name>{net.name!}</Name>)
-                  </span>
-                </div>
-
-                <Name
-                  className="text-xs font-mono italic"
-                  style={{ maxWidth: "100%" }}
-                >
-                  {net.rpcUrl!}
-                </Name>
-              </div> */}
-          </h2>
-        </div>
-
-        {params.type === "confirm_operations" && (
-          <>
-            <h2
-              className={classNames(
-                "w-full mb-2",
-                "text-base font-semibold leading-tight",
-                "text-gray-700"
-              )}
-            >
-              Operations
-            </h2>
-
-            <div
-              className={classNames(
-                "w-full max-w-full mb-4",
-                "rounded-md overflow-auto",
-                "border-2 bg-gray-100",
-                "flex flex-col",
-                "text-gray-700 text-sm leading-tight"
-              )}
-              style={{
-                maxHeight: "8rem",
-              }}
-            >
-              <pre>{JSON.stringify(params.opParams, undefined, 2)}</pre>
-            </div>
-          </>
+        {payload.type === "confirm_operations" && (
+          <OperationsBanner opParams={payload.opParams} />
         )}
 
-        {params.type === "connect" && (
+        {payload.type === "connect" && (
           <div className={classNames("w-full", "mb-2", "flex flex-col")}>
             <h2
               className={classNames("mb-2", "leading-tight", "flex flex-col")}
@@ -455,10 +335,10 @@ const ConfirmDAppForm: React.FC = () => {
                             className={classNames(
                               "ml-2",
                               "rounded-sm",
-                              "border border-black-25",
+                              "border border-black border-opacity-25",
                               "px-1 py-px",
                               "leading-tight",
-                              "text-black-50"
+                              "text-black text-opacity-50"
                             )}
                             style={{ fontSize: "0.6rem" }}
                           >
@@ -505,21 +385,16 @@ const ConfirmDAppForm: React.FC = () => {
             </div>
           </div>
         )}
-
-        {params.type === "confirm_operations" && (
-          <FormField
-            ref={register({ required: "Required" })}
-            label="Password"
-            labelDescription="Enter password to confirm operations"
-            id="unlock-password"
-            type="password"
-            name="password"
-            placeholder="********"
-            labelPaddingClassName="mb-2"
-            errorCaption={errors.password && errors.password.message}
-          />
-        )}
       </div>
+
+      {error && (
+        <Alert
+          type="error"
+          title="Error"
+          description={error?.message ?? "Something went wrong"}
+          className="mb-6"
+        />
+      )}
 
       <div className="flex-1" />
 
@@ -535,23 +410,27 @@ const ConfirmDAppForm: React.FC = () => {
           <FormSecondaryButton
             type="button"
             className="w-full justify-center"
-            onClick={handleCancelClick}
+            loading={declining}
+            disabled={declining}
+            onClick={handleDeclineClick}
           >
-            Cancel
+            {content.declineActionTitle}
           </FormSecondaryButton>
         </div>
 
         <div className="w-1/2 pl-2">
           <FormSubmitButton
+            type="button"
             className="w-full justify-center"
-            loading={submitting}
-            disabled={submitting}
+            loading={confirming}
+            disabled={confirming}
+            onClick={handleConfirmClick}
           >
-            {content.actionTitle}
+            {content.confirmActionTitle}
           </FormSubmitButton>
         </div>
       </div>
-    </form>
+    </div>
   );
 };
 

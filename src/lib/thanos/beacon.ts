@@ -62,6 +62,17 @@ export interface PermissionResponse extends BaseMessage {
   };
 }
 
+export interface SignPayloadRequest extends BaseMessage {
+  type: MessageType.SignPayloadRequest;
+  sourceAddress: string;
+  payload: string;
+}
+
+export interface SignPayloadResponse extends BaseMessage {
+  type: MessageType.SignPayloadResponse;
+  signature: string;
+}
+
 export interface OperationRequest extends BaseMessage {
   type: MessageType.OperationRequest;
   network: Network;

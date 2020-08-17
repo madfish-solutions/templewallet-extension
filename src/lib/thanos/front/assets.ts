@@ -5,12 +5,14 @@ import {
   useNetwork,
   useTokens,
   useStorage,
+  useAllAssetsRef,
 } from "lib/thanos/front";
 import { useAccount } from "./ready";
 
 export function useAssets() {
   const network = useNetwork();
   const { tokens } = useTokens();
+  const allAssetsRef = useAllAssetsRef();
 
   const allAssets = React.useMemo(
     () => [
@@ -20,6 +22,11 @@ export function useAssets() {
     ],
     [network.type, tokens]
   );
+
+  React.useEffect(() => {
+    allAssetsRef.current = allAssets;
+  }, [allAssetsRef, allAssets]);
+
   const defaultAsset = React.useMemo(() => allAssets[0], [allAssets]);
 
   return { allAssets, defaultAsset };

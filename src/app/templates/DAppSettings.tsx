@@ -6,7 +6,7 @@ import FormCheckbox from "app/atoms/FormCheckbox";
 const DAppSettings: React.FC = () => {
   const [dAppEnabled, setDAppEnabled] = useStorage(
     ThanosSharedStorageKey.DAppEnabled,
-    false
+    true
   );
 
   const changingRef = React.useRef(false);

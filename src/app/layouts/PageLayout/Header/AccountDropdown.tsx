@@ -109,7 +109,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           className={classNames(
             "mx-1",
             "flex items-center",
-            "text-sm text-white-90"
+            "text-sm text-white text-opacity-90"
           )}
         >
           Accounts
@@ -126,7 +126,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             "flex items-center",
             "text-white text-shadow-black",
             "text-sm",
-            "hover:bg-white-5",
+            "hover:bg-white hover:bg-opacity-5",
             "transition duration-300 ease-in-out",
             "opacity-90 hover:opacity-100"
           )}
@@ -140,7 +140,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
         className={classNames(
           "overflow-y-auto no-scrollbar",
           "my-2",
-          "border border-white-10 shadow-inner rounded"
+          "border border-white border-opacity-10 shadow-inner rounded"
         )}
         style={{ maxHeight: "10rem" }}
       >
@@ -164,7 +164,9 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                   "text-white text-shadow-black",
                   "transition ease-in-out duration-200",
                   selected && "shadow",
-                  selected ? "bg-white-10" : "hover:bg-white-5",
+                  selected
+                    ? "bg-white bg-opacity-10"
+                    : "hover:bg-white hover:bg-opacity-5",
                   !selected && "opacity-75 hover:opacity-100"
                 )}
                 style={{
@@ -191,7 +193,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                         <span
                           className={classNames(
                             "text-xs leading-tight",
-                            "text-white-75"
+                            "text-white text-opacity-75"
                           )}
                         >
                           <Money>{bal}</Money>{" "}
@@ -205,10 +207,10 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                         className={classNames(
                           "ml-2",
                           "rounded-sm",
-                          "border border-white-25",
+                          "border border-white border-opacity-25",
                           "px-1 py-px",
                           "leading-tight",
-                          "text-white-50"
+                          "text-white text-opacity-50"
                         )}
                         style={{ fontSize: "0.6rem" }}
                       >
@@ -234,7 +236,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
               "flex items-center",
               "px-2",
               "transition ease-in-out duration-200",
-              "hover:bg-white-10",
+              "hover:bg-white hover:bg-opacity-10",
               "text-white text-shadow-black text-sm"
             ),
             style: {

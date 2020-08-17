@@ -11,6 +11,7 @@ type AccountBannerProps = React.HTMLAttributes<HTMLDivElement> & {
   displayBalance?: boolean;
   label?: React.ReactNode;
   labelDescription?: React.ReactNode;
+  labelIndent?: "sm" | "md";
 };
 
 const AccountBanner: React.FC<AccountBannerProps> = ({
@@ -18,6 +19,7 @@ const AccountBanner: React.FC<AccountBannerProps> = ({
   displayBalance = true,
   className,
   label = "Account",
+  labelIndent = "md",
   labelDescription,
 }) => {
   const assetSymbol = "XTZ";
@@ -25,7 +27,13 @@ const AccountBanner: React.FC<AccountBannerProps> = ({
   return (
     <div className={classNames("flex flex-col", className)}>
       {(label || labelDescription) && (
-        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+        <h2
+          className={classNames(
+            labelIndent === "md" ? "mb-4" : "mb-2",
+            "leading-tight",
+            "flex flex-col"
+          )}
+        >
           {label && (
             <span className="text-base font-semibold text-gray-700">
               {label}
@@ -69,10 +77,10 @@ const AccountBanner: React.FC<AccountBannerProps> = ({
                 className={classNames(
                   "ml-2",
                   "rounded-sm",
-                  "border border-black-25",
+                  "border border-black border-opacity-25",
                   "px-1 py-px",
                   "leading-tight",
-                  "text-black-50"
+                  "text-black text-opacity-50"
                 )}
                 style={{ fontSize: "0.6rem" }}
               >
