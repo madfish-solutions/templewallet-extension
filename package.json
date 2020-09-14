@@ -11,7 +11,7 @@
     "build:opera": "cross-env TARGET_BROWSER=opera run-s build"
   },
   "dependencies": {
-    "@babel/core": "7.11.1",
+    "@babel/core": "7.11.6",
     "@brainhubeu/react-carousel": "1.19.26",
     "@dicebear/avatars": "4.2.5",
     "@dicebear/avatars-bottts-sprites": "4.2.5",
