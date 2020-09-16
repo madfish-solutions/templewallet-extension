@@ -103,7 +103,7 @@ const ConfirmDAppForm: React.FC = () => {
           declineActionTitle: "Cancel",
           confirmActionTitle: "Connect",
           want: (
-            <p className="mb-2 text-sm text-gray-700 text-center">
+            <p className="mb-2 text-sm text-center text-gray-700">
               <span className="font-semibold">{payload.origin}</span>
               <br />
               would like to connect to your wallet
@@ -117,17 +117,21 @@ const ConfirmDAppForm: React.FC = () => {
           declineActionTitle: "Reject",
           confirmActionTitle: "Confirm",
           want: (
-            <div className="mb-2 text-sm text-gray-700 text-center">
+            <div
+              className={classNames(
+                "mb-2 text-sm text-center text-gray-700",
+                "flex flex-col items-center"
+              )}
+            >
               <div className="flex items-center justify-center">
-                <Identicon
-                  hash={payload.origin}
-                  size={16}
-                  className="mr-1 shadow-xs"
-                />
+                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
                 <Name className="font-semibold" style={{ maxWidth: "7.5rem" }}>
                   {payload.appMeta.name}
                 </Name>
               </div>
+              <Name className="max-w-full text-xs italic">
+                {payload.origin}
+              </Name>
               requests operations to you
             </div>
           ),
@@ -232,7 +236,7 @@ const ConfirmDAppForm: React.FC = () => {
         {content.want}
 
         {payload.type === "connect" && (
-          <p className="mb-4 text-xs font-light text-gray-700 text-center">
+          <p className="mb-4 text-xs font-light text-center text-gray-700">
             This site is requesting access to view your account address. Always
             make sure you trust the sites you interact with.
           </p>
@@ -324,7 +328,7 @@ const ConfirmDAppForm: React.FC = () => {
                       className="flex-shrink-0 shadow-xs"
                     />
 
-                    <div className="ml-2 flex flex-col items-start">
+                    <div className="flex flex-col items-start ml-2">
                       <div className="flex flex-wrap items-center">
                         <Name className="text-sm font-medium leading-tight">
                           {acc.name}
@@ -347,7 +351,7 @@ const ConfirmDAppForm: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="mt-1 flex flex-wrap items-center">
+                      <div className="flex flex-wrap items-center mt-1">
                         <div
                           className={classNames(
                             "text-xs leading-none",
@@ -409,7 +413,7 @@ const ConfirmDAppForm: React.FC = () => {
         <div className="w-1/2 pr-2">
           <FormSecondaryButton
             type="button"
-            className="w-full justify-center"
+            className="justify-center w-full"
             loading={declining}
             disabled={declining}
             onClick={handleDeclineClick}
@@ -421,7 +425,7 @@ const ConfirmDAppForm: React.FC = () => {
         <div className="w-1/2 pl-2">
           <FormSubmitButton
             type="button"
-            className="w-full justify-center"
+            className="justify-center w-full"
             loading={confirming}
             disabled={confirming}
             onClick={handleConfirmClick}
@@ -464,11 +468,7 @@ const ConnectBanner: React.FC<ConnectBannerProps> = ({
           "p-2"
         )}
       >
-        <Identicon
-          hash={origin}
-          size={32}
-          className="mb-1 flex-shrink-0 shadow-xs"
-        />
+        <DAppLogo origin={origin} size={32} className="flex-shrink-0 mb-1" />
 
         <span className="text-xs font-semibold text-gray-700">
           <Name style={{ maxWidth: "7.5rem" }}>{appMeta.name}</Name>
@@ -486,7 +486,7 @@ const ConnectBanner: React.FC<ConnectBannerProps> = ({
               "text-white"
             )}
           >
-            <Icon className="h-4 w-auto stroke-2 stroke-current" />
+            <Icon className="w-auto h-4 stroke-current stroke-2" />
           </div>
         </div>
       </div>
@@ -515,8 +515,8 @@ const SubTitle: React.FC<SubTitleProps> = ({
   ...rest
 }) => {
   const comp = (
-    <span className="text-gray-500 px-1">
-      <ComponentIcon className="h-5 w-auto stroke-current" />
+    <span className="px-1 text-gray-500">
+      <ComponentIcon className="w-auto h-5 stroke-current" />
     </span>
   );
 
@@ -538,3 +538,37 @@ const SubTitle: React.FC<SubTitleProps> = ({
     </h2>
   );
 };
+
+type DAppLogoProps = {
+  origin: string;
+  size: number;
+  className?: string;
+};
+
+const DAppLogo = React.memo<DAppLogoProps>(({ origin, size, className }) => {
+  const faviconSrc = React.useMemo(() => `${origin}/favicon.ico`, [origin]);
+  const [faviconShowed, setFaviconShowed] = React.useState(true);
+  const handleFaviconError = React.useCallback(() => {
+    setFaviconShowed(false);
+  }, [setFaviconShowed]);
+
+  return faviconShowed ? (
+    <div
+      className={classNames("overflow-hidden", className)}
+      style={{ width: size, height: size }}
+    >
+      <img
+        src={faviconSrc}
+        alt={origin}
+        style={{ width: size, height: size }}
+        onError={handleFaviconError}
+      />
+    </div>
+  ) : (
+    <Identicon
+      hash={origin}
+      size={size}
+      className={classNames("shadow-xs", className)}
+    />
+  );
+});
