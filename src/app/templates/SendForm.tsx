@@ -164,6 +164,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         window.scrollTo(0, 0);
       });
     }
+    return;
   }, [toFilled, registerBackHandler, cleanToField]);
 
   const estimateBaseFee = React.useCallback(async () => {
@@ -276,6 +277,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         .minus(PENNY)
         .toNumber();
     }
+    return;
   }, [xtzBalanceNum, baseFee]);
 
   const safeFeeValue = React.useMemo(
@@ -432,7 +434,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                 type="bottts"
                 hash={filledAccount.publicKeyHash}
                 size={14}
-                className="flex-shrink-0 opacity-75 shadow-xs"
+                className="flex-shrink-0 shadow-xs opacity-75"
               />
               <div className="ml-1 mr-px font-normal">{filledAccount.name}</div>{" "}
               (
@@ -650,7 +652,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                         className="flex-shrink-0 shadow-xs"
                       />
 
-                      <div className="ml-2 flex flex-col items-start">
+                      <div className="flex flex-col items-start ml-2">
                         <div className="flex flex-wrap items-center">
                           <Name className="text-sm font-medium leading-tight">
                             {acc.name}
@@ -673,7 +675,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                           )}
                         </div>
 
-                        <div className="mt-1 flex flex-wrap items-center">
+                        <div className="flex flex-wrap items-center mt-1">
                           <div
                             className={classNames(
                               "text-xs leading-none",
@@ -773,7 +775,7 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
               provided Recipient.
               <br />
               This may happen because:
-              <ul className="mt-1 ml-2 list-disc list-inside text-xs">
+              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
                 <li>
                   Minimal fee for this transaction is greater than your balance.
                   A large fee may be due because you sending funds to an empty
@@ -807,7 +809,7 @@ function validateAddress(value: any) {
 }
 
 const SpinnerSection: React.FC = () => (
-  <div className="my-8 flex justify-center">
+  <div className="flex justify-center my-8">
     <Spinner className="w-20" />
   </div>
 );

@@ -113,6 +113,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
           window.removeEventListener("blur", handleBlur);
         };
       }
+      return;
     }, [secret, focused, getFieldEl]);
 
     const secretBannerDisplayed = React.useMemo(
@@ -204,7 +205,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
                 "pointer-events-none"
               )}
             >
-              <span className="mx-4 text-gray-900 text-lg font-light">
+              <span className="mx-4 text-lg font-light text-gray-900">
                 {extraInner}
               </span>
             </div>
@@ -309,7 +310,7 @@ const CleanButton: React.FC<CleanButtonProps> = ({
       style={{ right: "0.4rem", bottom: "0.4rem", ...style }}
       {...rest}
     >
-      <CloseIcon className="h-4 w-auto stroke-current" />
+      <CloseIcon className="w-auto h-4 stroke-current" />
     </button>
   );
 };

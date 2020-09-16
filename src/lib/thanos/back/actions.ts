@@ -255,6 +255,7 @@ export function sendOperations(
                 type: ThanosMessageType.ConfirmationResponse,
               };
             }
+            return;
           }
         );
 
@@ -338,6 +339,7 @@ export function sign(
                 type: ThanosMessageType.ConfirmationResponse,
               };
             }
+            return;
           }
         );
 

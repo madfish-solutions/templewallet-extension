@@ -43,6 +43,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     if (account.publicKeyHash) {
       return () => setSecret(null);
     }
+    return;
   }, [account.publicKeyHash, setSecret]);
 
   React.useEffect(() => {
@@ -62,6 +63,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
         clearTimeout(t);
       };
     }
+    return;
   }, [secret, setSecret]);
 
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -181,7 +183,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
                   "flex items-center"
                 )}
               >
-                <span className="text-gray-800 text-sm font-medium">
+                <span className="text-sm font-medium text-gray-800">
                   {"m/44'/1729'/<account_index>'/0'"}
                 </span>
               </div>
