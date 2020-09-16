@@ -117,7 +117,11 @@ function useReadyThanos() {
       try {
         const pndOps = toPendingOperations(opHash, opResults);
         addPendingOperations(network, checksum, pndOps);
-      } catch (_err) {}
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+      }
     });
     t.setProvider({ rpc, signer, wallet });
     return t;

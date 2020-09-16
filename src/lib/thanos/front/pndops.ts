@@ -56,11 +56,9 @@ export async function addPendingOperations(
   if (isAllowed(network)) {
     const key = getKey(tezosChecksum);
     const items = await browser.storage.local.get([key]);
-    if (key in items) {
-      await browser.storage.local.set({
-        [key]: [...opsToAdd, ...items[key]],
-      });
-    }
+    await browser.storage.local.set({
+      [key]: [...opsToAdd, ...(key in items ? items[key] : [])],
+    });
   }
 }
 
