@@ -151,6 +151,7 @@ const DelegateForm: React.FC = () => {
         window.scrollTo(0, 0);
       });
     }
+    return;
   }, [toFilled, registerBackHandler, cleanToField]);
 
   const estimateBaseFee = React.useCallback(async () => {
@@ -236,6 +237,7 @@ const DelegateForm: React.FC = () => {
     if (baseFee instanceof BigNumber) {
       return new BigNumber(balanceNum).minus(baseFee).minus(PENNY).toNumber();
     }
+    return;
   }, [balanceNum, baseFee]);
 
   const handleFeeFieldChange = React.useCallback(
