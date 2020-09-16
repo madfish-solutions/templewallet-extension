@@ -7,6 +7,7 @@ import {
   useAllAccounts,
   ThanosAccountType,
   ThanosDAppPayload,
+  XTZ_ASSET,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
@@ -17,10 +18,12 @@ import ContentContainer from "app/layouts/ContentContainer";
 import AccountBanner from "app/templates/AccountBanner";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
+import Balance from "app/templates/Balance";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
+import Money from "app/atoms/Money";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
@@ -245,7 +248,7 @@ const ConfirmDAppForm: React.FC = () => {
         {payload.type === "confirm_operations" && connectedAccount && (
           <AccountBanner
             account={connectedAccount}
-            displayBalance={false}
+            networkRpc={payload.networkRpc}
             labelIndent="sm"
             className="w-full mb-4"
           />
@@ -370,6 +373,26 @@ const ConfirmDAppForm: React.FC = () => {
                             );
                           })()}
                         </div>
+
+                        <Balance
+                          address={acc.publicKeyHash}
+                          networkRpc={payload.networkRpc}
+                        >
+                          {(bal) => (
+                            <div
+                              className={classNames(
+                                "ml-2",
+                                "text-xs leading-none",
+                                "text-gray-600"
+                              )}
+                            >
+                              <Money>{bal}</Money>{" "}
+                              <span style={{ fontSize: "0.75em" }}>
+                                {XTZ_ASSET.symbol}
+                              </span>
+                            </div>
+                          )}
+                        </Balance>
                       </div>
                     </div>
 
