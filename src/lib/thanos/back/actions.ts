@@ -392,6 +392,7 @@ export async function processBeacon(origin: string, msg: string) {
                 type: ThanosDAppMessageType.PermissionRequest,
                 network,
                 appMeta: req.appMetadata,
+                force: true,
               };
 
             case Beacon.MessageType.OperationRequest:
