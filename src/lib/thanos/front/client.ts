@@ -313,7 +313,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
     // Aliases
     status,
-    networks,
+    networks: [...networks, ...(settings?.customNetworks || [])],
     accounts,
     settings,
     idle,
