@@ -112,6 +112,7 @@ export async function requestPermission(
             type: ThanosMessageType.DAppPermConfirmationResponse,
           };
         }
+        return;
       },
     });
   });
@@ -186,6 +187,7 @@ export async function requestOperation(
             type: ThanosMessageType.DAppOpsConfirmationResponse,
           };
         }
+        return;
       },
     });
   });

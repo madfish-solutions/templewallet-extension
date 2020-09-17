@@ -168,6 +168,7 @@ async function processRequest(
               payload: resPayload,
             };
           }
+          return;
         });
       }
       break;
