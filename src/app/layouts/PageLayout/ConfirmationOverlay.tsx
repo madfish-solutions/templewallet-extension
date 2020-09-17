@@ -25,6 +25,7 @@ const ConfirmationOverlay: React.FC = () => {
         document.body.classList.remove("no-scrollbar", "overscroll-y-none");
       };
     }
+    return;
   }, [displayed]);
 
   const handleConfirm = React.useCallback(
@@ -55,7 +56,7 @@ const ConfirmationOverlay: React.FC = () => {
           }}
           unmountOnExit
         >
-          <div className="fixed z-50 inset-0 overflow-y-auto bg-primary-white">
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-primary-white">
             {confirmation && (
               <InternalConfiramtion
                 payload={confirmation.payload}

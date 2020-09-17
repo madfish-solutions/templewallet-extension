@@ -17,12 +17,13 @@ const RootSuspenseFallback: React.FC = () => {
       const t = setTimeout(forceUpdate, DELAY - (Date.now() - startedAt));
       return () => clearTimeout(t);
     }
+    return;
   }, [forceUpdate]);
 
   const spinnerDisplayed = startedAt && Date.now() > startedAt + 1_000;
 
   return spinnerDisplayed ? (
-    <div className="h-screen flex justify-center items-center">
+    <div className="flex items-center justify-center h-screen">
       <div>
         <Spinner theme="gray" className="w-20" />
       </div>
