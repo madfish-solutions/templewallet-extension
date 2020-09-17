@@ -4,9 +4,11 @@ import { Link } from "lib/woozie";
 import PageLayout from "app/layouts/PageLayout";
 import RevealSecret from "app/templates/RevealSecret";
 import DAppSettings from "app/templates/DAppSettings";
+import CustomNetworksSettings from "app/templates/CustomNetworksSettings";
 import ActivateAccount from "app/templates/ActivateAccount";
 import RemoveAccount from "app/templates/RemoveAccount";
 import About from "app/templates/About";
+import { ReactComponent as NetworkIcon } from "app/icons/network.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
 import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
@@ -14,6 +16,7 @@ import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
 import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
+import clsx from "clsx";
 
 type SettingsProps = {
   tabSlug?: string | null;
@@ -61,6 +64,18 @@ const TABS = [
         applications that support Thanos Wallet.
       </>
     ),
+  },
+  {
+    slug: "custom-networks",
+    title: "Custom networks",
+    Icon: (props: React.SVGProps<SVGSVGElement>) => <NetworkIcon {...props} className={clsx('fill-current', props.className)} />,
+    Component: CustomNetworksSettings,
+    color: "#F6C90E",
+    description: (
+      <>
+        In this section you can add or delete custom Tezos networks.
+      </>
+    )
   },
   {
     slug: "activate-account",
