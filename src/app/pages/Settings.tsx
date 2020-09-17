@@ -1,5 +1,6 @@
+import classNames from "clsx";
 import * as React from "react";
-
+import { Link } from "lib/woozie";
 import About from "app/templates/About";
 import ActivateAccount from "app/templates/ActivateAccount";
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
@@ -7,7 +8,6 @@ import CustomNetworksSettings from "app/templates/CustomNetworksSettings";
 import DAppSettings from "app/templates/DAppSettings";
 import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
-import { Link } from "lib/woozie";
 import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import PageLayout from "app/layouts/PageLayout";
@@ -16,7 +16,6 @@ import RevealSecret from "app/templates/RevealSecret";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
-import classNames from "clsx";
 
 type SettingsProps = {
   tabSlug?: string | null;
