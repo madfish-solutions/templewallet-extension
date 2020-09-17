@@ -56,14 +56,14 @@ const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
       <Balance address={accountPkh} asset={currentAsset}>
         {(balance) => (
           <div className="flex flex-col items-center">
-            <div className="text-gray-800 text-2xl font-light">
+            <div className="text-2xl font-light text-gray-800">
               <Money>{balance}</Money>{" "}
               <span className="text-lg opacity-90">{currentAsset.symbol}</span>
             </div>
 
             <InUSD volume={balance} asset={currentAsset}>
               {(usdBalance) => (
-                <div className="text-gray-600 text-lg font-light">
+                <div className="text-lg font-light text-gray-600">
                   <span className="mr-px">$</span>
                   {usdBalance} <span className="text-sm opacity-75">USD</span>
                 </div>
@@ -133,6 +133,7 @@ const AssetCarousel = React.memo(() => {
       const t = setTimeout(() => setLocalAssetIndex(currentAssetIndex), 0);
       return () => clearTimeout(t);
     }
+    return;
   }, [toRealAssetIndex, currentAssetIndex, setLocalAssetIndex]);
 
   const handleCarouselChange = React.useCallback(
@@ -146,7 +147,7 @@ const AssetCarousel = React.memo(() => {
   const slides = React.useMemo(
     () =>
       allAssets.map((asset, i) => (
-        <div className="p-2 flex flex-col items-center justify-around">
+        <div className="flex flex-col items-center justify-around p-2">
           <img
             src={getAssetIconUrl(asset)}
             alt={asset.name}
@@ -187,7 +188,7 @@ const AssetCarousel = React.memo(() => {
           />
         </div>
       ) : (
-        <div className="mb-2 -mr-px px-2" style={{ paddingTop: 2 }}>
+        <div className="px-2 mb-2 -mr-px" style={{ paddingTop: 2 }}>
           {slides[0]}
         </div>
       ),
