@@ -76,7 +76,7 @@ const ContentPaper: React.FC<ContentPaparProps> = ({
 };
 
 const SpinnerSection: React.FC = () => (
-  <div className="mt-24 flex justify-center">
+  <div className="flex justify-center mt-24">
     <Spinner className="w-20" />
   </div>
 );
@@ -129,6 +129,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
         observer.unobserve(toolbarEl);
       };
     }
+    return;
   }, [setSticked]);
 
   return (
