@@ -14,6 +14,7 @@ import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Alert from "app/atoms/Alert";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
+import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 
 type ImportAccountProps = {
   tabSlug: string | null;
@@ -361,6 +362,15 @@ const ByMnemonicForm: React.FC = () => {
                 onClick={handleClick}
               >
                 {dp.name}
+                <div className="flex-1" />
+                {selected && (
+                  <OkIcon
+                    className={classNames("mx-2 h-5 w-auto stroke-2")}
+                    style={{
+                      stroke: "#777",
+                    }}
+                  />
+                )}
               </button>
             );
           })}
