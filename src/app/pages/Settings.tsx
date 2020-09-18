@@ -1,19 +1,21 @@
-import * as React from "react";
 import classNames from "clsx";
+import * as React from "react";
 import { Link } from "lib/woozie";
-import PageLayout from "app/layouts/PageLayout";
-import RevealSecret from "app/templates/RevealSecret";
-import DAppSettings from "app/templates/DAppSettings";
-import ActivateAccount from "app/templates/ActivateAccount";
-import RemoveAccount from "app/templates/RemoveAccount";
 import About from "app/templates/About";
-import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
-import { ReactComponent as KeyIcon } from "app/icons/key.svg";
-import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
-import { ReactComponent as OkIcon } from "app/icons/ok.svg";
-import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
-import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
+import ActivateAccount from "app/templates/ActivateAccount";
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
+import CustomNetworksSettings from "app/templates/CustomNetworksSettings";
+import DAppSettings from "app/templates/DAppSettings";
+import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
+import { ReactComponent as KeyIcon } from "app/icons/key.svg";
+import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
+import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import PageLayout from "app/layouts/PageLayout";
+import RemoveAccount from "app/templates/RemoveAccount";
+import RevealSecret from "app/templates/RevealSecret";
+import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
+import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
+import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
 
 type SettingsProps = {
   tabSlug?: string | null;
@@ -60,6 +62,16 @@ const TABS = [
         In this section you can enable ability to interact with decentralized
         applications that support Thanos Wallet.
       </>
+    ),
+  },
+  {
+    slug: "networks",
+    title: "Networks",
+    Icon: SignalAltIcon,
+    Component: CustomNetworksSettings,
+    color: "#F6C90E",
+    description: (
+      <>In this section you can add or delete custom Tezos networks.</>
     ),
   },
   {
