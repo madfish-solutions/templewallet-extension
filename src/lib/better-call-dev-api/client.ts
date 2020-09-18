@@ -2,9 +2,7 @@ import axios, { AxiosError } from "axios";
 import {
   TokenTransfersQueryParams,
   ContractsQueryParams,
-  TokenVolumeSeriesQueryParams,
   RawPageableTokenContracts,
-  TokenSeries,
   RawPageableTokenTransfers,
   PageableTokenContracts,
   PageableTokenTransfers,
@@ -41,15 +39,6 @@ export const getContracts = makeQuery<
     })),
   })
 );
-
-export const getTokenVolumeSeries = makeQuery<
-  TokenVolumeSeriesQueryParams,
-  TokenSeries
->((params) => `/tokens/${params.network}/series`, [
-  "address",
-  "period",
-  "token_id",
-]);
 
 export const getTokenTransfers = makeQuery<
   TokenTransfersQueryParams,

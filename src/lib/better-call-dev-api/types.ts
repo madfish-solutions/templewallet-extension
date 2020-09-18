@@ -50,8 +50,6 @@ export interface PageableTokenContracts {
   total: number;
 }
 
-export type TokenSeries = number[][];
-
 export interface RawTokenTransfer {
   amount: number;
   contract: string;
@@ -87,13 +85,6 @@ export type ContractsQueryParams = {
   last_id?: string;
   size?: number;
   faversion?: string;
-};
-
-export type TokenVolumeSeriesQueryParams = {
-  network: Network;
-  period: Period;
-  address: string;
-  token_id: number;
 };
 
 export type TokenTransfersQueryParams = {
