@@ -15,7 +15,7 @@ export interface BcdTokenMethodStats {
   call_count: number;
 }
 
-export interface BcdRawTokenContract {
+export interface BcdTokenContract {
   address: string;
   alias: string;
   balance: number;
@@ -31,25 +31,13 @@ export interface BcdRawTokenContract {
   type: BcdContractType;
 }
 
-export interface BcdTokenContract
-  extends Omit<BcdRawTokenContract, "last_action" | "timestamp"> {
-  last_action: Date;
-  timestamp: Date;
-}
-
-export interface BcdRawPageableTokenContracts {
-  last_id: number;
-  tokens: BcdRawTokenContract[];
-  total: number;
-}
-
 export interface BcdPageableTokenContracts {
   last_id: number;
   tokens: BcdTokenContract[];
   total: number;
 }
 
-export interface BcdRawTokenTransfer {
+export interface BcdTokenTransfer {
   amount: number;
   contract: string;
   counter: number;
@@ -63,16 +51,6 @@ export interface BcdRawTokenTransfer {
   status: string;
   timestamp: string;
   to: string;
-}
-
-export interface BcdTokenTransfer
-  extends Omit<BcdRawTokenTransfer, "timestamp"> {
-  timestamp: Date;
-}
-
-export interface BcdRawPageableTokenTransfers {
-  last_id?: string;
-  transfers: BcdRawTokenTransfer[];
 }
 
 export interface BcdPageableTokenTransfers {
