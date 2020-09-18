@@ -7,13 +7,9 @@ import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Name from "app/atoms/Name";
+import { NETWORKS } from "lib/thanos/networks";
 
 type FormData = Pick<ThanosNetwork, "name" | "rpcBaseURL">;
-
-interface NetworksListItemProps extends ThanosNetwork {
-  onRemoveClick: (baseUrl: string) => void;
-  last: boolean;
-}
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 const URL_PATTERN = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
@@ -72,6 +68,15 @@ const CustomNetworksSettings: React.FC = () => {
     ]
   );
 
+  const rpcURLIsUnique = useCallback(
+    (url: string) => {
+      return ![...NETWORKS, ...customNetworks].some(
+        ({ rpcBaseURL }) => rpcBaseURL === url
+      );
+    },
+    [customNetworks]
+  );
+
   const handleRemoveClick = useCallback(
     (baseUrl: string) => {
       if (!window.confirm("Are you sure you want to delete this network?")) {
@@ -112,8 +117,7 @@ const CustomNetworksSettings: React.FC = () => {
             required: "Required",
             pattern: { value: URL_PATTERN, message: "Must be a valid URL" },
             validate: {
-              unique: (url: string) =>
-                !customNetworks.some(({ rpcBaseURL }) => rpcBaseURL === url),
+              unique: rpcURLIsUnique,
             },
           })}
           label="RPC URL"
@@ -132,27 +136,46 @@ const CustomNetworksSettings: React.FC = () => {
         </FormSubmitButton>
       </form>
 
-      {customNetworks.length > 0 ? (
-        <div className="rounded-md overflow-hidden border-2 bg-gray-100 flex flex-col text-gray-700 text-sm leading-tight mt-8">
-          {customNetworks.map((network, index) => (
-            <NetworksListItem
-              {...network}
-              last={index === customNetworks.length - 1}
-              key={network.rpcBaseURL}
-              onRemoveClick={handleRemoveClick}
-            />
-          ))}
-        </div>
-      ) : null}
+      <div className="rounded-md overflow-hidden border-2 bg-gray-100 flex flex-col text-gray-700 text-sm leading-tight mt-8">
+        {customNetworks.map((network) => (
+          <NetworksListItem
+            canRemove
+            network={network}
+            last={false}
+            key={network.rpcBaseURL}
+            onRemoveClick={handleRemoveClick}
+          />
+        ))}
+        {NETWORKS.map((network, index) => (
+          <NetworksListItem
+            canRemove={false}
+            key={network.rpcBaseURL}
+            last={index === NETWORKS.length - 1}
+            network={network}
+          />
+        ))}
+      </div>
     </div>
   );
 };
 
 export default CustomNetworksSettings;
 
-const NetworksListItem = (props: NetworksListItemProps) => {
-  const { name, rpcBaseURL, color, onRemoveClick, last } = props;
-  const handleRemoveClick = useCallback(() => onRemoveClick(rpcBaseURL), [
+type NetworksListItemProps = {
+  canRemove: boolean;
+  network: ThanosNetwork;
+  onRemoveClick?: (baseUrl: string) => void;
+  last: boolean;
+};
+
+const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
+  const {
+    network: { name, rpcBaseURL, color },
+    canRemove,
+    onRemoveClick,
+    last,
+  } = props;
+  const handleRemoveClick = useCallback(() => onRemoveClick?.(rpcBaseURL), [
     onRemoveClick,
     rpcBaseURL,
   ]);
@@ -184,13 +207,15 @@ const NetworksListItem = (props: NetworksListItemProps) => {
           {rpcBaseURL}
         </div>
       </div>
-      <button className="flex-none" onClick={handleRemoveClick}>
-        <CloseIcon
-          className="mx-2 h-5 w-auto stroke-2"
-          stroke="#777"
-          title="Delete"
-        />
-      </button>
+      {canRemove && (
+        <button className="flex-none" onClick={handleRemoveClick}>
+          <CloseIcon
+            className="mx-2 h-5 w-auto stroke-2"
+            stroke="#777"
+            title="Delete"
+          />
+        </button>
+      )}
     </div>
   );
 };
