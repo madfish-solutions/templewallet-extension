@@ -31,7 +31,7 @@ const ImportFaucetFile: React.FC = () => {
     <PageLayout
       pageTitle={
         <>
-          <CodeAlt className="mr-1 h-4 w-auto stroke-current" />
+          <CodeAlt className="w-auto h-4 mr-1 stroke-current" />
           Import Faucet File
         </>
       }
@@ -54,6 +54,7 @@ interface FaucetData {
 
 const Form: React.FC = () => {
   const { importFundraiserAccount } = useThanosClient();
+  const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
 
   const activateAccount = React.useCallback(
@@ -141,11 +142,21 @@ const Form: React.FC = () => {
           await op!.confirmation();
         }
 
-        await importFundraiserAccount(
-          data.email,
-          data.password,
-          data.mnemonic.join(" ")
-        );
+        try {
+          await importFundraiserAccount(
+            data.email,
+            data.password,
+            data.mnemonic.join(" ")
+          );
+        } catch (err) {
+          if (/Account already exists/.test(err?.message)) {
+            setAccountPkh(data.pkh);
+            navigate("/");
+            return;
+          }
+
+          throw err;
+        }
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -166,13 +177,14 @@ const Form: React.FC = () => {
       setAlert,
       activateAccount,
       importFundraiserAccount,
+      setAccountPkh,
     ]
   );
 
   return (
     <form
       ref={formRef}
-      className="mt-6 mb-8 w-full max-w-sm mx-auto"
+      className="w-full max-w-sm mx-auto mt-6 mb-8"
       onSubmit={handleFormSubmit}
     >
       {alert && (
@@ -188,7 +200,7 @@ const Form: React.FC = () => {
         />
       )}
 
-      <div className="w-full flex flex-col">
+      <div className="flex flex-col w-full">
         <label className={classNames("mb-4", "leading-tight", "flex flex-col")}>
           <span className="text-base font-semibold text-gray-700">
             Faucet file
@@ -212,7 +224,7 @@ const Form: React.FC = () => {
           </span>
         </label>
 
-        <div className="w-full mb-2 relative">
+        <div className="relative w-full mb-2">
           <input
             className={classNames(
               "appearance-none",
@@ -253,7 +265,7 @@ const Form: React.FC = () => {
               strokeLinecap="round"
               fill="none"
               color="#e2e8f0"
-              className="mx-auto m-4"
+              className="m-4 mx-auto"
             >
               <title>{"Upload"}</title>
               <path d="M12 4v13M7 8l5-5 5 5M20 21H4" />

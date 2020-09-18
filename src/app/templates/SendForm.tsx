@@ -18,7 +18,6 @@ import {
   tzToMutez,
   mutezToTz,
   isAddressValid,
-  isKTAddress,
   toPenny,
   hasManager,
   ThanosAssetType,
@@ -141,7 +140,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const feeFieldRef = React.useRef<HTMLInputElement>(null);
 
   const toFilled = React.useMemo(
-    () => Boolean(toValue && isAddressValid(toValue) && !isKTAddress(toValue)),
+    () => Boolean(toValue && isAddressValid(toValue)),
     [toValue]
   );
 
@@ -799,9 +798,6 @@ function validateAddress(value: any) {
 
     case isAddressValid(value):
       return "Invalid address";
-
-    case !isKTAddress(value):
-      return "Unable to transfer to KT... contract address";
 
     default:
       return true;
