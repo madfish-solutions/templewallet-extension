@@ -1,5 +1,11 @@
-export type Network = "carthagenet" | "dalphanet" | "mainnet" | "delphinet";
+export type Network =
+  | "carthagenet"
+  | "dalphanet"
+  | "mainnet"
+  | "delphinet"
+  | "dalphanet";
 export type Period = "year" | "month" | "week" | "day";
+export type ContractType = "fa1" | "fa12";
 
 export interface ApiError {
   message: string;
@@ -10,7 +16,7 @@ export interface TokenMethodStats {
   call_count: number;
 }
 
-export interface TokenContract {
+export interface RawTokenContract {
   address: string;
   alias: string;
   balance: number;
@@ -23,7 +29,19 @@ export interface TokenContract {
   network: Network;
   timestamp: string;
   tx_count: number;
-  type: string;
+  type: ContractType;
+}
+
+export interface TokenContract
+  extends Omit<RawTokenContract, "last_action" | "timestamp"> {
+  last_action: Date;
+  timestamp: Date;
+}
+
+export interface RawPageableTokenContracts {
+  last_id: number;
+  tokens: RawTokenContract[];
+  total: number;
 }
 
 export interface PageableTokenContracts {
@@ -34,7 +52,7 @@ export interface PageableTokenContracts {
 
 export type TokenSeries = number[][];
 
-export interface TokenTransfer {
+export interface RawTokenTransfer {
   amount: number;
   contract: string;
   counter: number;
@@ -48,6 +66,15 @@ export interface TokenTransfer {
   status: string;
   timestamp: string;
   to: string;
+}
+
+export interface TokenTransfer extends Omit<RawTokenTransfer, "timestamp"> {
+  timestamp: Date;
+}
+
+export interface RawPageableTokenTransfers {
+  last_id?: string;
+  transfers: RawTokenTransfer[];
 }
 
 export interface PageableTokenTransfers {
@@ -66,7 +93,7 @@ export type TokenVolumeSeriesQueryParams = {
   network: Network;
   period: Period;
   address: string;
-  token_id: string;
+  token_id: number;
 };
 
 export type TokenTransfersQueryParams = {
