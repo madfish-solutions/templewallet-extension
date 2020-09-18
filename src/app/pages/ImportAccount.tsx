@@ -62,13 +62,13 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
     <PageLayout
       pageTitle={
         <>
-          <DownloadIcon className="mr-1 h-4 w-auto stroke-current" />
+          <DownloadIcon className="w-auto h-4 mr-1 stroke-current" />
           Import Account
         </>
       }
     >
       <div className="py-4">
-        <div className="mb-4 flex flex-wrap items-center justify-center">
+        <div className="flex flex-wrap items-center justify-center mb-4">
           {allTabs.map((t) => {
             const active = slug === t.slug;
 
@@ -140,7 +140,7 @@ const ByPrivateKeyForm: React.FC = () => {
 
   return (
     <form
-      className="my-8 w-full mx-auto max-w-sm"
+      className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
       {error && (
@@ -189,10 +189,7 @@ const ByPrivateKeyForm: React.FC = () => {
         />
       )}
 
-      <FormSubmitButton
-        loading={formState.isSubmitting}
-        disabled={formState.isSubmitting}
-      >
+      <FormSubmitButton loading={formState.isSubmitting}>
         Import account
       </FormSubmitButton>
     </form>
@@ -257,7 +254,7 @@ const ByMnemonicForm: React.FC = () => {
 
   return (
     <form
-      className="my-8 w-full mx-auto max-w-sm"
+      className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
       {error && (
@@ -382,11 +379,7 @@ const ByMnemonicForm: React.FC = () => {
         />
       )}
 
-      <FormSubmitButton
-        loading={formState.isSubmitting}
-        disabled={formState.isSubmitting}
-        className="mt-8"
-      >
+      <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
         Import account
       </FormSubmitButton>
     </form>
@@ -453,7 +446,7 @@ const ByFundraiserForm: React.FC = () => {
 
   return (
     <form
-      className="my-8 w-full mx-auto max-w-sm"
+      className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
       {error && (
@@ -507,10 +500,7 @@ const ByFundraiserForm: React.FC = () => {
         className="resize-none"
       />
 
-      <FormSubmitButton
-        loading={formState.isSubmitting}
-        disabled={formState.isSubmitting}
-      >
+      <FormSubmitButton loading={formState.isSubmitting}>
         Import account
       </FormSubmitButton>
     </form>

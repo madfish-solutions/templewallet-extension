@@ -131,9 +131,7 @@ const CustomNetworksSettings: React.FC = () => {
           containerClassName="mb-6"
         />
 
-        <FormSubmitButton loading={submitting} disabled={submitting}>
-          Add network
-        </FormSubmitButton>
+        <FormSubmitButton loading={submitting}>Add network</FormSubmitButton>
       </form>
 
       <div className="flex flex-col my-8">
