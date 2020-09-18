@@ -1,21 +1,21 @@
-export type Network =
+export type BcdNetwork =
   | "carthagenet"
   | "dalphanet"
   | "mainnet"
   | "delphinet"
   | "dalphanet";
-export type ContractType = "fa1" | "fa12";
+export type BcdContractType = "fa1" | "fa12";
 
-export interface ApiError {
+export interface BcdApiError {
   message: string;
 }
 
-export interface TokenMethodStats {
+export interface BcdTokenMethodStats {
   average_consumed_gas: number;
   call_count: number;
 }
 
-export interface RawTokenContract {
+export interface BcdRawTokenContract {
   address: string;
   alias: string;
   balance: number;
@@ -24,39 +24,39 @@ export interface RawTokenContract {
   last_action: string;
   level: number;
   manager: string;
-  methods: Record<string, TokenMethodStats>;
-  network: Network;
+  methods: Record<string, BcdTokenMethodStats>;
+  network: BcdNetwork;
   timestamp: string;
   tx_count: number;
-  type: ContractType;
+  type: BcdContractType;
 }
 
-export interface TokenContract
-  extends Omit<RawTokenContract, "last_action" | "timestamp"> {
+export interface BcdTokenContract
+  extends Omit<BcdRawTokenContract, "last_action" | "timestamp"> {
   last_action: Date;
   timestamp: Date;
 }
 
-export interface RawPageableTokenContracts {
+export interface BcdRawPageableTokenContracts {
   last_id: number;
-  tokens: RawTokenContract[];
+  tokens: BcdRawTokenContract[];
   total: number;
 }
 
-export interface PageableTokenContracts {
+export interface BcdPageableTokenContracts {
   last_id: number;
-  tokens: TokenContract[];
+  tokens: BcdTokenContract[];
   total: number;
 }
 
-export interface RawTokenTransfer {
+export interface BcdRawTokenTransfer {
   amount: number;
   contract: string;
   counter: number;
   from: string;
   hash: string;
   level: number;
-  network: Network;
+  network: BcdNetwork;
   nonce: number;
   protocol: string;
   source: string;
@@ -65,29 +65,30 @@ export interface RawTokenTransfer {
   to: string;
 }
 
-export interface TokenTransfer extends Omit<RawTokenTransfer, "timestamp"> {
+export interface BcdTokenTransfer
+  extends Omit<BcdRawTokenTransfer, "timestamp"> {
   timestamp: Date;
 }
 
-export interface RawPageableTokenTransfers {
+export interface BcdRawPageableTokenTransfers {
   last_id?: string;
-  transfers: RawTokenTransfer[];
+  transfers: BcdRawTokenTransfer[];
 }
 
-export interface PageableTokenTransfers {
+export interface BcdPageableTokenTransfers {
   last_id?: string;
-  transfers: TokenTransfer[];
+  transfers: BcdTokenTransfer[];
 }
 
-export type ContractsQueryParams = {
-  network: Network;
+export type BcdContractsQueryParams = {
+  network: BcdNetwork;
   last_id?: string;
   size?: number;
   faversion?: string;
 };
 
-export type TokenTransfersQueryParams = {
-  network: Network;
+export type BcdTokenTransfersQueryParams = {
+  network: BcdNetwork;
   address: string;
   last_id?: string;
   size?: number;
