@@ -4,7 +4,7 @@ import {
   BcdContractsQueryParams,
   BcdPageableTokenContracts,
   BcdPageableTokenTransfers,
-} from "lib/better-call-dev-api/types";
+} from "lib/better-call-dev/types";
 
 const api = axios.create({ baseURL: "https://api.better-call.dev/v1" });
 api.interceptors.response.use(
