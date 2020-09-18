@@ -98,10 +98,10 @@ const CustomNetworksSettings: React.FC = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormField
           ref={register({ required: "Required", maxLength: 35 })}
-          label="Name of network"
-          id="name-of-network"
+          label="Name"
+          id="name"
           name="name"
-          placeholder="My network"
+          placeholder="My custom network"
           errorCaption={errors.name?.message}
           containerClassName="mb-4"
           maxLength={35}
@@ -116,7 +116,7 @@ const CustomNetworksSettings: React.FC = () => {
                 !customNetworks.some(({ rpcBaseURL }) => rpcBaseURL === url),
             },
           })}
-          label="RPC URL"
+          label="RPC base URL"
           id="rpc-base-url"
           name="rpcBaseURL"
           placeholder="http://localhost:8545"
@@ -133,15 +133,38 @@ const CustomNetworksSettings: React.FC = () => {
       </form>
 
       {customNetworks.length > 0 ? (
-        <div className="rounded-md overflow-hidden border-2 bg-gray-100 flex flex-col text-gray-700 text-sm leading-tight mt-8">
-          {customNetworks.map((network, index) => (
-            <NetworksListItem
-              {...network}
-              last={index === customNetworks.length - 1}
-              key={network.rpcBaseURL}
-              onRemoveClick={handleRemoveClick}
-            />
-          ))}
+        <div className="flex flex-col my-8">
+          <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+            <span className="text-base font-semibold text-gray-700">
+              Current networks
+            </span>
+
+            <span
+              className={classNames("mt-1", "text-xs font-light text-gray-600")}
+              style={{ maxWidth: "90%" }}
+            >
+              Click on the X icon to delete the network. If you want to edit
+              network, just delete it and add another with new params.
+            </span>
+          </h2>
+
+          <div
+            className={classNames(
+              "rounded-md overflow-hidden",
+              "border-2 bg-gray-100",
+              "flex flex-col",
+              "text-gray-700 text-sm leading-tight"
+            )}
+          >
+            {customNetworks.map((network, index) => (
+              <NetworksListItem
+                {...network}
+                last={index === customNetworks.length - 1}
+                key={network.rpcBaseURL}
+                onRemoveClick={handleRemoveClick}
+              />
+            ))}
+          </div>
         </div>
       ) : null}
     </div>
@@ -175,18 +198,18 @@ const NetworksListItem = (props: NetworksListItemProps) => {
       }}
     >
       <div
-        className="ml-1 mr-3 w-3 h-3 border border-primary-white rounded-full shadow-xs"
+        className="w-3 h-3 ml-1 mr-3 border rounded-full shadow-xs border-primary-white"
         style={{ background: color }}
       />
-      <div className="flex-1 flex flex-col justify-between">
+      <div className="flex flex-col justify-between flex-1">
         <Name className="text-sm font-medium leading-tight">{name}</Name>
-        <div className="text-xs leading-none text-gray-700 mt-1">
+        <div className="mt-1 text-xs leading-none text-gray-700">
           {rpcBaseURL}
         </div>
       </div>
       <button className="flex-none" onClick={handleRemoveClick}>
         <CloseIcon
-          className="mx-2 h-5 w-auto stroke-2"
+          className="w-auto h-5 mx-2 stroke-2"
           stroke="#777"
           title="Delete"
         />
