@@ -365,7 +365,7 @@ const ByMnemonicForm: React.FC = () => {
                 <div className="flex-1" />
                 {selected && (
                   <OkIcon
-                    className={classNames("mx-2 h-5 w-auto stroke-2")}
+                    className={classNames("mx-2 h-4 w-auto stroke-2")}
                     style={{
                       stroke: "#777",
                     }}
