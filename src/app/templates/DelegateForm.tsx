@@ -475,7 +475,7 @@ const DelegateForm: React.FC = () => {
 
             <FormSubmitButton
               loading={formState.isSubmitting}
-              disabled={formState.isSubmitting || Boolean(estimationError)}
+              disabled={Boolean(estimationError)}
             >
               Delegate
             </FormSubmitButton>
