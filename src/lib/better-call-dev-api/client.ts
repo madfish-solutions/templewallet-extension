@@ -1,11 +1,11 @@
 import axios, { AxiosError } from "axios";
 import {
-  TokenTransfersQueryParams,
-  ContractsQueryParams,
-  RawPageableTokenContracts,
-  RawPageableTokenTransfers,
-  PageableTokenContracts,
-  PageableTokenTransfers,
+  BcdTokenTransfersQueryParams,
+  BcdContractsQueryParams,
+  BcdRawPageableTokenContracts,
+  BcdRawPageableTokenTransfers,
+  BcdPageableTokenContracts,
+  BcdPageableTokenTransfers,
 } from "lib/better-call-dev-api/types";
 
 const api = axios.create({ baseURL: "https://api.better-call.dev/v1" });
@@ -20,16 +20,16 @@ api.interceptors.response.use(
 const identityFn = (x: any) => x;
 
 export const getContracts = makeQuery<
-  ContractsQueryParams,
-  RawPageableTokenContracts,
-  PageableTokenContracts
+  BcdContractsQueryParams,
+  BcdRawPageableTokenContracts,
+  BcdPageableTokenContracts
 >(
   (params) =>
     `/tokens/${params.network}${
       params.faversion ? `/version/${params.faversion}` : ""
     }`,
   ["last_id", "size"],
-  ({ tokens, last_id, total }: RawPageableTokenContracts) => ({
+  ({ tokens, last_id, total }) => ({
     last_id,
     total,
     tokens: tokens.map(({ last_action, timestamp, ...restTokenProps }) => ({
@@ -41,9 +41,9 @@ export const getContracts = makeQuery<
 );
 
 export const getTokenTransfers = makeQuery<
-  TokenTransfersQueryParams,
-  RawPageableTokenTransfers,
-  PageableTokenTransfers
+  BcdTokenTransfersQueryParams,
+  BcdRawPageableTokenTransfers,
+  BcdPageableTokenTransfers
 >(
   (params) => `/tokens/${params.network}/transfers/${params.address}`,
   ["last_id", "size"],
