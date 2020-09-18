@@ -12,11 +12,8 @@ const api = axios.create({ baseURL: "https://api.better-call.dev/v1" });
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    throw new Error(
-      `Failed when querying Better Call API: ${
-        (err as AxiosError).response?.data.message
-      }`
-    );
+    const { message } = (err as AxiosError).response?.data;
+    throw new Error(`Failed when querying Better Call API: ${message}`);
   }
 );
 
@@ -48,16 +45,14 @@ export const getTokenTransfers = makeQuery<
   "size",
 ]);
 
-function makeQuery<P extends {}, R>(
+function makeQuery<P extends Record<string, unknown>, R>(
   url: (params: P) => string,
-  paramsKeys: Array<keyof P>
+  searchParamsKeys: Array<keyof P>
 ) {
   return (params: P) =>
     api.get<R>(url(params), {
       params: Object.fromEntries(
-        Object.entries(params).filter(([key]) =>
-          paramsKeys.includes(key as any)
-        )
+        Object.entries(params).filter(([key]) => searchParamsKeys.includes(key))
       ),
     });
 }

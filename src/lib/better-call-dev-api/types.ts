@@ -1,3 +1,6 @@
+export type Network = "carthagenet" | "dalphanet" | "mainnet" | "delphinet";
+export type Period = "year" | "month" | "week" | "day";
+
 export interface ApiError {
   message: string;
 }
@@ -17,7 +20,7 @@ export interface TokenContract {
   level: number;
   manager: string;
   methods: Record<string, TokenMethodStats>;
-  network: string;
+  network: Network;
   timestamp: string;
   tx_count: number;
   type: string;
@@ -38,7 +41,7 @@ export interface TokenTransfer {
   from: string;
   hash: string;
   level: number;
-  network: string;
+  network: Network;
   nonce: number;
   protocol: string;
   source: string;
@@ -52,23 +55,23 @@ export interface PageableTokenTransfers {
   transfers: TokenTransfer[];
 }
 
-export interface ContractsQueryParams {
-  network: string;
+export type ContractsQueryParams = {
+  network: Network;
   last_id?: string;
   size?: number;
   faversion?: string;
-}
+};
 
-export interface TokenVolumeSeriesQueryParams {
-  network: string;
-  period: string;
+export type TokenVolumeSeriesQueryParams = {
+  network: Network;
+  period: Period;
   address: string;
   token_id: string;
-}
+};
 
-export interface TokenTransfersQueryParams {
-  network: string;
+export type TokenTransfersQueryParams = {
+  network: Network;
   address: string;
   last_id?: string;
   size?: number;
-}
+};
