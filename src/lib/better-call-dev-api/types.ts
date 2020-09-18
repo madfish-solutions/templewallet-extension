@@ -4,7 +4,6 @@ export type Network =
   | "mainnet"
   | "delphinet"
   | "dalphanet";
-export type Period = "year" | "month" | "week" | "day";
 export type ContractType = "fa1" | "fa12";
 
 export interface ApiError {
