@@ -3,6 +3,7 @@ import classNames from "clsx";
 import { useAllNetworks, useNetwork, useSetNetworkId } from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
+import Name from "app/atoms/Name";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 
@@ -28,7 +29,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
               "text-white text-opacity-90 text-sm text-center"
             )}
           >
-            <SignalAltIcon className="mr-1 h-4 w-auto stroke-current" />
+            <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
             Networks
           </h2>
 
@@ -75,7 +76,10 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   style={{ backgroundColor: color }}
                 />
 
-                <span className="text-white text-sm text-shadow-black">
+                <span
+                  className="overflow-hidden text-sm text-white whitespace-no-wrap text-shadow-black"
+                  style={{ textOverflow: "ellipsis", maxWidth: "10rem" }}
+                >
                   {name}
                 </span>
               </button>
@@ -114,7 +118,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             style={{ backgroundColor: network.color }}
           />
 
-          <span>{network.name}</span>
+          <Name style={{ maxWidth: "7rem" }}>{network.name}</Name>
 
           <ChevronDownIcon
             className="ml-1 -mr-1 stroke-current stroke-2"

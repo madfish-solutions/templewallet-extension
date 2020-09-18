@@ -98,7 +98,9 @@ export interface ThanosFA2Asset extends ThanosTokenBase {
 
 export type ThanosNetworkType = "main" | "test";
 
-export interface ThanosSettings {}
+export interface ThanosSettings {
+  customNetworks?: ThanosNetwork[];
+}
 
 export enum ThanosSharedStorageKey {
   DAppEnabled = "dappenabled",
