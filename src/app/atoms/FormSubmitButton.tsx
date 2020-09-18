@@ -18,8 +18,10 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
     className={classNames(
       "relative",
       "px-8",
-      "bg-primary-orange rounded",
-      "border-2 border-primary-orange",
+      "rounded border-2",
+      disabled
+        ? "bg-gray-400 border-gray-400"
+        : "bg-primary-orange border-primary-orange",
       "flex items-center",
       loading ? "text-transparent" : "text-primary-orange-lighter",
       "text-base font-semibold",
@@ -27,9 +29,7 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
       loading || disabled
         ? "opacity-75"
         : "opacity-90 hover:opacity-100 focus:opacity-100",
-      loading || disabled
-        ? "shadow-inner"
-        : "shadow-sm hover:shadow focus:shadow",
+      loading || disabled ? "" : "shadow-sm hover:shadow focus:shadow",
       className
     )}
     style={{ paddingTop: "0.625rem", paddingBottom: "0.625rem", ...style }}
