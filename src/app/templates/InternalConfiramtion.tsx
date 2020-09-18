@@ -79,7 +79,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           popup && "flex-1"
         )}
       >
-        <div className="my-4 flex items-center">
+        <div className="flex items-center my-4">
           <Logo />
 
           <h1
@@ -156,7 +156,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           <div className="w-1/2 pr-2">
             <FormSecondaryButton
               type="button"
-              className="w-full justify-center"
+              className="justify-center w-full"
               loading={declining}
               disabled={declining}
               onClick={handleDeclineClick}
@@ -168,9 +168,8 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           <div className="w-1/2 pl-2">
             <FormSubmitButton
               type="button"
-              className="w-full justify-center"
+              className="justify-center w-full"
               loading={confirming}
-              disabled={confirming}
               onClick={handleConfirmClick}
             >
               Confirm
@@ -192,8 +191,8 @@ const SubTitle: React.FC<SubTitleProps> = ({
   ...rest
 }) => {
   const comp = (
-    <span className="text-gray-500 px-1">
-      <ComponentIcon className="h-5 w-auto stroke-current" />
+    <span className="px-1 text-gray-500">
+      <ComponentIcon className="w-auto h-5 stroke-current" />
     </span>
   );
 

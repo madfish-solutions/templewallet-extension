@@ -581,7 +581,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
           <FormSubmitButton
             loading={formState.isSubmitting}
-            disabled={formState.isSubmitting || Boolean(estimationError)}
+            disabled={Boolean(estimationError)}
           >
             Send
           </FormSubmitButton>
