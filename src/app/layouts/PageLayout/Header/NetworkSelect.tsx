@@ -75,7 +75,10 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   style={{ backgroundColor: color }}
                 />
 
-                <span className="text-white text-sm text-shadow-black">
+                <span
+                  className="text-white text-sm text-shadow-black overflow-hidden whitespace-no-wrap"
+                  style={{ textOverflow: "ellipsis", maxWidth: "10rem" }}
+                >
                   {name}
                 </span>
               </button>
