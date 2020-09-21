@@ -130,7 +130,8 @@ const ActivateAccount: React.FC = () => {
           <>
             Account to be activated.
             <br />
-            If you want to activate another account - please, select it in the top-right dropdown.
+            If you want to activate another account - please, select it in the
+            top-right dropdown.
           </>
         }
         className="mb-6"
@@ -161,9 +162,7 @@ const ActivateAccount: React.FC = () => {
         onKeyPress={handleSecretFieldKeyPress}
       />
 
-      <FormSubmitButton loading={submitting} disabled={submitting}>
-        Activate
-      </FormSubmitButton>
+      <FormSubmitButton loading={submitting}>Activate</FormSubmitButton>
     </form>
   );
 };

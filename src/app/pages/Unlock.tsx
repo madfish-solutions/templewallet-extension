@@ -71,7 +71,7 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
     >
       <form
         ref={formRef}
-        className="my-8 w-full mx-auto max-w-sm"
+        className="w-full max-w-sm mx-auto my-8"
         onSubmit={handleSubmit(onSubmit)}
       >
         <FormField
@@ -87,13 +87,11 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
           autoFocus
         />
 
-        <FormSubmitButton loading={submitting} disabled={submitting}>
-          Unlock
-        </FormSubmitButton>
+        <FormSubmitButton loading={submitting}>Unlock</FormSubmitButton>
 
         {canImportNew && (
           <div className="my-6">
-            <h3 className="text-gray-600 text-sm font-light">
+            <h3 className="text-sm font-light text-gray-600">
               Restore Account? Want to sign in another?
             </h3>
 
