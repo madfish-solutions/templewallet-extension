@@ -7,7 +7,7 @@ export type OptionRenderProps<T> = {
   index: number;
 };
 
-export type SelectMenuProps<T, K extends string | number> = {
+export type CustomSelectProps<T, K extends string | number> = {
   activeItemId?: K;
   getItemId: (item: T) => K;
   id?: string;
@@ -15,12 +15,12 @@ export type SelectMenuProps<T, K extends string | number> = {
   maxHeight?: string;
   padding?: React.CSSProperties["padding"];
   onSelect: (itemId: K) => void;
-  Icon?: React.ComponentType<OptionRenderProps<T>>;
-  Content: React.ComponentType<OptionRenderProps<T>>;
+  OptionIcon?: React.ComponentType<OptionRenderProps<T>>;
+  OptionContent: React.ComponentType<OptionRenderProps<T>>;
 };
 
-const SelectMenu = <T extends {}, K extends string | number>(
-  props: SelectMenuProps<T, K>
+const CustomSelect = <T extends {}, K extends string | number>(
+  props: CustomSelectProps<T, K>
 ) => {
   const {
     activeItemId,
@@ -30,8 +30,8 @@ const SelectMenu = <T extends {}, K extends string | number>(
     maxHeight,
     onSelect,
     padding = "0.4rem 0.375rem 0.4rem 0.375rem",
-    Icon,
-    Content,
+    OptionIcon,
+    OptionContent,
   } = props;
 
   return (
@@ -47,7 +47,7 @@ const SelectMenu = <T extends {}, K extends string | number>(
         const itemId = getItemId(item);
 
         return (
-          <SelectMenuItem
+          <CustomSelectItem
             key={itemId}
             active={itemId === activeItemId}
             last={index === items.length - 1}
@@ -56,8 +56,8 @@ const SelectMenu = <T extends {}, K extends string | number>(
             item={item}
             onSelect={onSelect}
             padding={padding}
-            Icon={Icon}
-            Content={Content}
+            OptionIcon={OptionIcon}
+            OptionContent={OptionContent}
           />
         );
       })}
@@ -65,11 +65,11 @@ const SelectMenu = <T extends {}, K extends string | number>(
   );
 };
 
-export default SelectMenu;
+export default CustomSelect;
 
-type SelectMenuItemProps<T, K extends string | number> = Pick<
-  SelectMenuProps<T, K>,
-  "onSelect" | "Icon" | "Content" | "padding"
+type CustomSelectItemProps<T, K extends string | number> = Pick<
+  CustomSelectProps<T, K>,
+  "onSelect" | "OptionIcon" | "OptionContent" | "padding"
 > & {
   active?: boolean;
   last?: boolean;
@@ -78,8 +78,8 @@ type SelectMenuItemProps<T, K extends string | number> = Pick<
   item: T;
 };
 
-const SelectMenuItem = <T extends {}, K extends string | number>(
-  props: SelectMenuItemProps<T, K>
+const CustomSelectItem = <T extends {}, K extends string | number>(
+  props: CustomSelectItemProps<T, K>
 ) => {
   const {
     active,
@@ -89,8 +89,8 @@ const SelectMenuItem = <T extends {}, K extends string | number>(
     last,
     onSelect,
     padding,
-    Icon,
-    Content,
+    OptionIcon,
+    OptionContent,
   } = props;
 
   const handleSelect = useCallback(() => onSelect(itemId), [itemId, onSelect]);
@@ -109,10 +109,15 @@ const SelectMenuItem = <T extends {}, K extends string | number>(
       autoFocus={active}
       onClick={handleSelect}
     >
-      {Icon && <Icon item={item} index={index} />}
+      {OptionIcon && <OptionIcon item={item} index={index} />}
 
-      <div className={classNames("flex flex-col items-start", Icon && "ml-2")}>
-        <Content item={item} index={index} />
+      <div
+        className={classNames(
+          "flex flex-col items-start",
+          OptionIcon && "ml-2"
+        )}
+      >
+        <OptionContent item={item} index={index} />
       </div>
 
       <div className="flex-1" />

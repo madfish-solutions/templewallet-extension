@@ -20,7 +20,7 @@ import AccountBanner from "app/templates/AccountBanner";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import Balance from "app/templates/Balance";
-import SelectMenu, { OptionRenderProps } from "app/templates/SelectMenu";
+import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
@@ -292,14 +292,14 @@ const ConfirmDAppForm: React.FC = () => {
               </span>
             </h2>
 
-            <SelectMenu
+            <CustomSelect
               activeItemId={accountPkhToConnect}
               getItemId={getPkh}
               items={allAccounts}
               maxHeight="8rem"
               onSelect={setAccountPkhToConnect}
-              Icon={AccountIcon}
-              Content={AccountOptionContent}
+              OptionIcon={AccountIcon}
+              OptionContent={AccountOptionContent}
             />
           </div>
         )}
