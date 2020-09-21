@@ -32,12 +32,15 @@ import OperationStatus from "app/templates/OperationStatus";
 import Spinner from "app/atoms/Spinner";
 import Money from "app/atoms/Money";
 import NoSpaceField from "app/atoms/NoSpaceField";
-import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
 import BakerBanner from "app/templates/BakerBanner";
 import xtzImgUrl from "app/misc/xtz.png";
+import AdditionalFeeInput, {
+  UnchangedError,
+  UnregisteredDelegateError,
+} from "./AdditionalFeeInput";
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
@@ -132,7 +135,6 @@ const DelegateForm: React.FC = () => {
   const toValue = watch("to");
 
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
-  const feeFieldRef = React.useRef<HTMLInputElement>(null);
 
   const toFilled = React.useMemo(
     () => Boolean(toValue && isAddressValid(toValue) && !isKTAddress(toValue)),
@@ -244,10 +246,6 @@ const DelegateForm: React.FC = () => {
     ([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v),
     [maxAddFee]
   );
-
-  const handleSetRecommendedFee = React.useCallback(() => {
-    setValue("fee", RECOMMENDED_ADD_FEE);
-  }, [setValue]);
 
   const [submitError, setSubmitError] = useSafeState<React.ReactNode>(
     null,
@@ -440,37 +438,14 @@ const DelegateForm: React.FC = () => {
               />
             )}
 
-            <Controller
+            <AdditionalFeeInput
               name="fee"
-              as={<AssetField ref={feeFieldRef} />}
               control={control}
               onChange={handleFeeFieldChange}
-              onFocus={() => feeFieldRef.current?.focus()}
-              id="delegate-fee"
               assetSymbol={assetSymbol}
-              label="Additional Fee"
-              labelDescription={
-                baseFee instanceof BigNumber && (
-                  <>
-                    Base Fee for this operation is:{" "}
-                    <span className="font-normal">{baseFee.toString()}</span>
-                    <br />
-                    Additional - speeds its confirmation up,
-                    <br />
-                    recommended:{" "}
-                    <button
-                      type="button"
-                      className={classNames("underline")}
-                      onClick={handleSetRecommendedFee}
-                    >
-                      {RECOMMENDED_ADD_FEE}
-                    </button>
-                  </>
-                )
-              }
-              placeholder="0"
-              errorCaption={errors.fee?.message}
-              containerClassName="mb-4"
+              baseFee={baseFee}
+              error={errors.fee}
+              id="delegate-fee"
             />
 
             <FormSubmitButton
@@ -750,9 +725,6 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
     className={classNames("mt-6 mb-4")}
   />
 );
-
-class UnchangedError extends Error {}
-class UnregisteredDelegateError extends Error {}
 
 function validateAddress(value: any) {
   switch (false) {
