@@ -329,7 +329,6 @@ const ConfirmDAppForm: React.FC = () => {
             type="button"
             className="justify-center w-full"
             loading={declining}
-            disabled={declining}
             onClick={handleDeclineClick}
           >
             {content.declineActionTitle}
@@ -341,7 +340,6 @@ const ConfirmDAppForm: React.FC = () => {
             type="button"
             className="justify-center w-full"
             loading={confirming}
-            disabled={confirming}
             onClick={handleConfirmClick}
           >
             {content.confirmActionTitle}

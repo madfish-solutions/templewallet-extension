@@ -98,7 +98,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
 
       {!backupData ? (
         <form
-          className="my-8 w-full mx-auto max-w-sm"
+          className="w-full max-w-sm mx-auto my-8"
           onSubmit={handleSubmit(onSubmit)}
         >
           {locked && (
@@ -201,7 +201,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
                   href="https://thanoswallet.com/terms"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-secondary underline"
+                  className="underline text-secondary"
                 >
                   Terms of Usage
                 </a>{" "}
@@ -210,7 +210,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
                   href="https://thanoswallet.com/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-secondary underline"
+                  className="underline text-secondary"
                 >
                   Privacy Policy
                 </a>
@@ -219,9 +219,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
             containerClassName="mb-6"
           />
 
-          <FormSubmitButton loading={submitting} disabled={submitting}>
-            Create
-          </FormSubmitButton>
+          <FormSubmitButton loading={submitting}>Create</FormSubmitButton>
         </form>
       ) : (
         <Backup data={backupData} />
@@ -270,7 +268,7 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
   ]);
 
   return (
-    <div className="my-8 w-full mx-auto max-w-sm">
+    <div className="w-full max-w-sm mx-auto my-8">
       <Alert
         title={""}
         description={
@@ -312,7 +310,7 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
         value={data.mnemonic}
       />
 
-      <form className="mt-8 w-full" onSubmit={handleSubmit(onSubmit)}>
+      <form className="w-full mt-8" onSubmit={handleSubmit(onSubmit)}>
         <FormCheckbox
           ref={register({
             validate: (val) => val || "Unable to continue without confirming ",
@@ -330,9 +328,7 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
           containerClassName="mb-6"
         />
 
-        <FormSubmitButton loading={submitting} disabled={submitting}>
-          Continue
-        </FormSubmitButton>
+        <FormSubmitButton loading={submitting}>Continue</FormSubmitButton>
       </form>
     </div>
   );

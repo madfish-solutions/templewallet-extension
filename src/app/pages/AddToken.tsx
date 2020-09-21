@@ -24,7 +24,7 @@ const AddToken: React.FC = () => (
   <PageLayout
     pageTitle={
       <>
-        <AddIcon className="mr-1 h-4 w-auto stroke-current" />
+        <AddIcon className="w-auto h-4 mr-1 stroke-current" />
         Add Token
       </>
     }
@@ -132,7 +132,7 @@ const Form: React.FC = () => {
 
   return (
     <form
-      className="my-8 w-full mx-auto max-w-sm"
+      className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
       {error && (
@@ -292,10 +292,7 @@ const Form: React.FC = () => {
         containerClassName="mb-6"
       />
 
-      <FormSubmitButton
-        loading={formState.isSubmitting}
-        disabled={formState.isSubmitting}
-      >
+      <FormSubmitButton loading={formState.isSubmitting}>
         Add Token
       </FormSubmitButton>
     </form>
