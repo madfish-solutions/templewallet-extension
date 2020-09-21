@@ -4,16 +4,12 @@ import { Controller, ControllerProps, FieldError } from "react-hook-form";
 import BigNumber from "bignumber.js";
 import { XTZ_ASSET } from "lib/thanos/front";
 import AssetField from "app/atoms/AssetField";
-import { ArtificialError } from "app/defaults";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { ReactComponent as CoffeeIcon } from "app/icons/coffee.svg";
 import { ReactComponent as CupIcon } from "app/icons/cup.svg";
 import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
 import Name from "app/atoms/Name";
 import Money from "app/atoms/Money";
-
-export class UnchangedError extends Error {}
-export class UnregisteredDelegateError extends Error {}
 
 type AssetFieldProps = typeof AssetField extends React.ForwardRefExoticComponent<
   infer T
@@ -26,12 +22,7 @@ export type AdditionalFeeInputProps = Pick<
   "name" | "control" | "onChange"
 > & {
   assetSymbol: string;
-  baseFee:
-    | BigNumber
-    | ArtificialError
-    | UnchangedError
-    | UnregisteredDelegateError
-    | undefined;
+  baseFee?: BigNumber | Error;
   error?: FieldError;
   id: string;
 };
