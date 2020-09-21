@@ -37,10 +37,7 @@ import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
 import BakerBanner from "app/templates/BakerBanner";
 import xtzImgUrl from "app/misc/xtz.png";
-import AdditionalFeeInput, {
-  UnchangedError,
-  UnregisteredDelegateError,
-} from "./AdditionalFeeInput";
+import AdditionalFeeInput from "./AdditionalFeeInput";
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
@@ -725,6 +722,9 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
     className={classNames("mt-6 mb-4")}
   />
 );
+
+class UnchangedError extends Error {}
+class UnregisteredDelegateError extends Error {}
 
 function validateAddress(value: any) {
   switch (false) {
