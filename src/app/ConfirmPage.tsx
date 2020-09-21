@@ -300,6 +300,7 @@ const ConfirmDAppForm: React.FC = () => {
               onSelect={setAccountPkhToConnect}
               OptionIcon={AccountIcon}
               OptionContent={AccountOptionContent}
+              autoFocus
             />
           </div>
         )}
