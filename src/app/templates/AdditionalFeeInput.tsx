@@ -5,7 +5,7 @@ import BigNumber from "bignumber.js";
 import { XTZ_ASSET } from "lib/thanos/front";
 import AssetField from "app/atoms/AssetField";
 import { ArtificialError } from "app/defaults";
-import SelectMenu, { OptionRenderProps } from "app/templates/SelectMenu";
+import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { ReactComponent as CoffeeIcon } from "app/icons/coffee.svg";
 import { ReactComponent as CupIcon } from "app/icons/cup.svg";
 import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
@@ -76,7 +76,6 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
       }
       placeholder="0"
       errorCaption={error?.message}
-      containerClassName="mb-4"
     />
   );
 };
@@ -137,15 +136,15 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
           "flex flex-col items-stretch"
         )}
       >
-        <SelectMenu
+        <CustomSelect
           activeItemId={selectedPreset}
           getItemId={getFeeOptionId}
           id={`${id}-select`}
           items={feeOptions}
           onSelect={handlePresetSelected}
           padding="0.2rem 0.375rem 0.2rem 0.375rem"
-          Icon={FeeOptionIcon}
-          Content={FeeOptionContent}
+          OptionIcon={FeeOptionIcon}
+          OptionContent={FeeOptionContent}
         />
 
         <AssetField
@@ -156,8 +155,8 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
           id={id}
           onChange={onChange}
           assetSymbol={assetSymbol}
-          {...restProps}
           value={value}
+          {...restProps}
         />
       </div>
     </div>
