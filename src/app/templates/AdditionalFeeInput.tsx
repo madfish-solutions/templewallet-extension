@@ -30,12 +30,12 @@ export type AdditionalFeeInputProps = Pick<
 type FeeOption = {
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   description: string;
-  type: "slow" | "fast" | "rocket" | "custom";
+  type: "minimal" | "fast" | "rocket" | "custom";
   amount?: number;
 };
 
 const feeOptions: FeeOption[] = [
-  { Icon: CoffeeIcon, description: "Slow", type: "slow", amount: 1e-4 },
+  { Icon: CoffeeIcon, description: "Minimal", type: "minimal", amount: 1e-4 },
   { Icon: CupIcon, description: "Fast", type: "fast", amount: 3e-4 },
   { Icon: RocketIcon, description: "Rocket", type: "rocket", amount: 5e-4 },
   { description: "Custom", type: "custom" },
@@ -61,7 +61,7 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
             Base Fee for this operation is:{" "}
             <span className="font-normal">{baseFee.toString()}</span>
             <br />
-            Additional - speeds its confirmation up
+            Additional - speeds up its confirmation
           </>
         )
       }
@@ -161,12 +161,12 @@ const FeeOptionIcon: React.FC<OptionRenderProps<FeeOption>> = ({
     return (
       <Icon
         className="inline-block stroke-current"
-        style={{ width: 32, height: 32 }}
+        style={{ width: 24, height: 24 }}
       />
     );
   }
 
-  return <div className="inline-block" style={{ width: 32, height: 32 }} />;
+  return <div style={{ width: 24, height: 24 }} />;
 };
 
 const FeeOptionContent: React.FC<OptionRenderProps<FeeOption>> = ({
@@ -175,20 +175,15 @@ const FeeOptionContent: React.FC<OptionRenderProps<FeeOption>> = ({
   return (
     <>
       <div className="flex flex-wrap items-center">
-        <Name className="text-sm font-medium leading-tight">{description}</Name>
-      </div>
+        <Name className="text-sm font-medium leading-tight w-16 text-left">
+          {description}
+        </Name>
 
-      <div
-        className="flex flex-wrap items-center mt-1"
-        text-xs
-        leading-none
-        text-gray-700
-      >
         {amount && (
-          <>
+          <div className="ml-2 leading-none text-gray-600">
             <Money>{amount}</Money>{" "}
-            <span className="text-xs">{XTZ_ASSET.symbol}</span>
-          </>
+            <span style={{ fontSize: "0.75em" }}>{XTZ_ASSET.symbol}</span>
+          </div>
         )}
       </div>
     </>
