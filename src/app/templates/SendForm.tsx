@@ -42,6 +42,7 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
+import AdditionalFeeInput from "./AdditionalFeeInput";
 
 interface FormData {
   to: string;
@@ -137,7 +138,6 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = React.useRef<HTMLInputElement>(null);
-  const feeFieldRef = React.useRef<HTMLInputElement>(null);
 
   const toFilled = React.useMemo(
     () => Boolean(toValue && isAddressValid(toValue)),
@@ -332,10 +332,6 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       triggerValidation("amount");
     }
   }, [setValue, maxAmount, triggerValidation]);
-
-  const handleSetRecommendedFee = React.useCallback(() => {
-    setValue("fee", RECOMMENDED_ADD_FEE);
-  }, [setValue]);
 
   const [submitError, setSubmitError] = useSafeState<any>(
     null,
@@ -546,37 +542,14 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             autoFocus={Boolean(maxAmount)}
           />
 
-          <Controller
+          <AdditionalFeeInput
             name="fee"
-            as={<AssetField ref={feeFieldRef} />}
             control={control}
             onChange={handleFeeFieldChange}
-            onFocus={() => feeFieldRef.current?.focus()}
-            id="send-fee"
             assetSymbol={XTZ_ASSET.symbol}
-            label="Additional Fee"
-            labelDescription={
-              baseFee instanceof BigNumber && (
-                <>
-                  Base Fee for this transaction is:{" "}
-                  <span className="font-normal">{baseFee.toString()}</span>
-                  <br />
-                  Additional - speeds up its confirmation,
-                  <br />
-                  recommended:{" "}
-                  <button
-                    type="button"
-                    className={classNames("underline")}
-                    onClick={handleSetRecommendedFee}
-                  >
-                    {RECOMMENDED_ADD_FEE}
-                  </button>
-                </>
-              )
-            }
-            placeholder="0"
-            errorCaption={errors.fee?.message}
-            containerClassName="mb-4"
+            baseFee={baseFee}
+            error={errors.fee}
+            id="send-fee"
           />
 
           <FormSubmitButton
