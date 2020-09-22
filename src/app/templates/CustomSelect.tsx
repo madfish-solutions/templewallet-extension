@@ -9,6 +9,7 @@ export type OptionRenderProps<T> = {
 
 export type CustomSelectProps<T, K extends string | number> = {
   activeItemId?: K;
+  className?: string;
   getItemId: (item: T) => K;
   id?: string;
   items: T[];
@@ -24,6 +25,7 @@ const CustomSelect = <T extends {}, K extends string | number>(
 ) => {
   const {
     activeItemId,
+    className,
     getItemId,
     id,
     items,
@@ -38,7 +40,8 @@ const CustomSelect = <T extends {}, K extends string | number>(
     <div
       className={classNames(
         "rounded-md overflow-y-auto border-2 bg-gray-100",
-        "flex flex-col text-gray-700 text-sm leading-tight"
+        "flex flex-col text-gray-700 text-sm leading-tight",
+        className
       )}
       id={id}
       style={{ maxHeight }}
