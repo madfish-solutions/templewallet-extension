@@ -8,6 +8,7 @@ import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { ReactComponent as CoffeeIcon } from "app/icons/coffee.svg";
 import { ReactComponent as CupIcon } from "app/icons/cup.svg";
 import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
+import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import Name from "app/atoms/Name";
 import Money from "app/atoms/Money";
 
@@ -36,9 +37,28 @@ type FeeOption = {
 
 const feeOptions: FeeOption[] = [
   { Icon: CoffeeIcon, description: "Minimal", type: "minimal", amount: 1e-4 },
-  { Icon: CupIcon, description: "Fast", type: "fast", amount: 3e-4 },
+  {
+    Icon: ({ className, ...rest }) => (
+      <CupIcon
+        className={classNames("transform scale-95", className)}
+        {...rest}
+      />
+    ),
+    description: "Fast",
+    type: "fast",
+    amount: 3e-4,
+  },
   { Icon: RocketIcon, description: "Rocket", type: "rocket", amount: 5e-4 },
-  { description: "Custom", type: "custom" },
+  {
+    Icon: ({ className, ...rest }) => (
+      <SettingsIcon
+        className={classNames("transform scale-95", className)}
+        {...rest}
+      />
+    ),
+    description: "Custom",
+    type: "custom",
+  },
 ];
 
 const getFeeOptionId = (option: FeeOption) => option.type;
@@ -101,10 +121,10 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
   );
 
   return (
-    <div className="w-full flex flex-col mb-2">
+    <div className="flex flex-col w-full mb-2">
       {label ? (
         <label
-          className="mb-4 leading-tight flex flex-col"
+          className="flex flex-col mb-4 leading-tight"
           htmlFor={`${id}-select`}
         >
           <span className="text-base font-semibold text-gray-700">{label}</span>
@@ -150,12 +170,12 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
 };
 
 const FeeOptionIcon: React.FC<OptionRenderProps<FeeOption>> = ({
-  item: { Icon },
+  item: { Icon, type },
 }) => {
   if (Icon) {
     return (
       <Icon
-        className="inline-block stroke-current"
+        className={classNames("inline-block stroke-current", "opacity-90")}
         style={{ width: 24, height: 24 }}
       />
     );
@@ -170,7 +190,7 @@ const FeeOptionContent: React.FC<OptionRenderProps<FeeOption>> = ({
   return (
     <>
       <div className="flex flex-wrap items-center">
-        <Name className="text-sm font-medium leading-tight w-16 text-left">
+        <Name className="w-16 text-sm font-medium leading-tight text-left">
           {description}
         </Name>
 
