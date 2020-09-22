@@ -1,16 +1,8 @@
 import * as React from "react";
 import { useTezos, useNetwork, useStorage } from "lib/thanos/front";
 import { ThanosNetwork } from "lib/thanos/types";
-import { append, remove } from "lib/thanos/pndops";
+import { append, PendingOperation, remove } from "lib/thanos/pndops";
 import { useAccount } from "lib/thanos/front/ready";
-
-export interface PendingOperation {
-  kind: string;
-  hash: string;
-  amount?: number;
-  destination?: string;
-  addedAt: string;
-}
 
 export function usePendingOperations() {
   const tezos = useTezos();
