@@ -1,7 +1,8 @@
 import * as React from "react";
-import { browser } from "webextension-polyfill-ts";
 import { useTezos, useNetwork, useStorage } from "lib/thanos/front";
-import { ThanosNetwork } from "../types";
+import { ThanosNetwork } from "lib/thanos/types";
+import { append, remove } from "lib/thanos/pndops";
+import { useAccount } from "lib/thanos/front/ready";
 
 export interface PendingOperation {
   kind: string;
@@ -13,9 +14,8 @@ export interface PendingOperation {
 
 export function usePendingOperations() {
   const tezos = useTezos();
+  const account = useAccount();
   const network = useNetwork();
-
-  const allowed = React.useMemo(() => isAllowed(network), [network]);
 
   const [pndOps, setPndOps] = useStorage<PendingOperation[]>(
     getKey(tezos.checksum),
@@ -24,20 +24,20 @@ export function usePendingOperations() {
 
   const addPndOps = React.useCallback(
     (opsToAdd: PendingOperation[]) => {
-      if (allowed) {
-        setPndOps((ops) => [...opsToAdd, ...ops]);
-      }
+      append(account.publicKeyHash, network.id, opsToAdd);
     },
-    [setPndOps, allowed]
+    [account.publicKeyHash, network.id]
   );
 
   const removePndOps = React.useCallback(
     (opsToRemove: { hash: string }[]) => {
-      setPndOps((ops) =>
-        ops.filter((o) => opsToRemove.every((otr) => otr.hash !== o.hash))
+      remove(
+        account.publicKeyHash,
+        network.id,
+        opsToRemove.map(({ hash }) => hash)
       );
     },
-    [setPndOps]
+    [account.publicKeyHash, network.id]
   );
 
   return {
@@ -50,15 +50,11 @@ export function usePendingOperations() {
 
 export async function addPendingOperations(
   network: ThanosNetwork,
-  tezosChecksum: string,
+  accPkh: string,
   opsToAdd: PendingOperation[]
 ) {
   if (isAllowed(network)) {
-    const key = getKey(tezosChecksum);
-    const items = await browser.storage.local.get([key]);
-    await browser.storage.local.set({
-      [key]: [...opsToAdd, ...(key in items ? items[key] : [])],
-    });
+    await append(accPkh, network.id, opsToAdd);
   }
 }
 

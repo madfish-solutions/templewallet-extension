@@ -116,7 +116,7 @@ function useReadyThanos() {
     const wallet = createTaquitoWallet(accountPkh, rpc, (opHash, opResults) => {
       try {
         const pndOps = toPendingOperations(opHash, opResults);
-        addPendingOperations(network, checksum, pndOps);
+        addPendingOperations(network, accountPkh, pndOps);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
