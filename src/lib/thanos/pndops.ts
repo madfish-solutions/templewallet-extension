@@ -1,17 +1,18 @@
 import { browser } from "webextension-polyfill-ts";
-import { PendingOperation } from "lib/thanos/front";
+
+export interface PendingOperation {
+  kind: string;
+  hash: string;
+  amount?: number;
+  destination?: string;
+  addedAt: string;
+}
 
 export async function getAll(accPkh: string, netId: string) {
-  const storageKey = `pndops_${netId}_${accPkh}`;
+  const storageKey = getKey(accPkh, netId);
   const pendingOperations: PendingOperation[] =
     (await browser.storage.local.get([storageKey]))[storageKey] || [];
   return pendingOperations;
-}
-
-function set(accPkh: string, netId: string, ops: PendingOperation[]) {
-  return browser.storage.local.set({
-    [`pndops_${netId}_${accPkh}`]: ops,
-  });
 }
 
 export async function append(
@@ -30,4 +31,14 @@ export async function remove(accPkh: string, netId: string, opIds: string[]) {
     netId,
     oldItems.filter(({ hash }) => !opIds.includes(hash))
   );
+}
+
+function set(accPkh: string, netId: string, ops: PendingOperation[]) {
+  return browser.storage.local.set({
+    [getKey(accPkh, netId)]: ops,
+  });
+}
+
+function getKey(accPkh: string, netId: string) {
+  return `pndops_${netId}_${accPkh}`;
 }
