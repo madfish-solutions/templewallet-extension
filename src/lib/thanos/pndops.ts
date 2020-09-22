@@ -20,16 +20,16 @@ export async function append(
   netId: string,
   ops: PendingOperation[]
 ) {
-  const oldItems = await getAll(accPkh, netId);
-  await set(accPkh, netId, [...ops, ...(oldItems || [])]);
+  const currentItems = await getAll(accPkh, netId);
+  await set(accPkh, netId, [...ops, ...currentItems]);
 }
 
 export async function remove(accPkh: string, netId: string, opIds: string[]) {
-  const oldItems = await getAll(accPkh, netId);
+  const currentItems = await getAll(accPkh, netId);
   await set(
     accPkh,
     netId,
-    oldItems.filter(({ hash }) => !opIds.includes(hash))
+    currentItems.filter(({ hash }) => !opIds.includes(hash))
   );
 }
 
