@@ -39,15 +39,15 @@ interface TzktOperationBase {
   level?: number;
   timestamp?: string;
   block?: string;
-  hash?: string;
-  counter?: number;
-  sender?: TzktAlias;
-  gasLimit?: number;
-  gasUsed?: number;
-  bakerFee?: number;
+  hash: string;
+  counter: number;
+  sender: TzktAlias;
+  gasLimit: number;
+  gasUsed: number;
+  bakerFee: number;
   quote?: TzktQuote;
   errors?: TzktOperationError[] | null;
-  status?: TzktOperationStatus;
+  status: TzktOperationStatus;
 }
 
 export type TzktGetOperationsParams = {
@@ -76,12 +76,12 @@ export interface TzktTransactionOperation extends TzktOperationBase {
   type: "transaction";
   initiator?: TzktAlias;
   nonce?: number;
-  storageLimit?: number;
-  storageUsed?: number;
-  storageFee?: number;
-  allocationFee?: number;
-  target?: TzktAlias;
-  amount?: number;
+  storageLimit: number;
+  storageUsed: number;
+  storageFee: number;
+  allocationFee: number;
+  target: TzktAlias;
+  amount: number;
   parameters?: string;
   hasInternals: boolean;
 }
