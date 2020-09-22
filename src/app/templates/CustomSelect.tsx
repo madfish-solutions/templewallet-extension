@@ -15,6 +15,7 @@ export type CustomSelectProps<T, K extends string | number> = {
   items: T[];
   maxHeight?: string;
   padding?: React.CSSProperties["padding"];
+  autoFocus?: boolean;
   onSelect: (itemId: K) => void;
   OptionIcon?: React.ComponentType<OptionRenderProps<T>>;
   OptionContent: React.ComponentType<OptionRenderProps<T>>;
@@ -32,6 +33,7 @@ const CustomSelect = <T extends {}, K extends string | number>(
     maxHeight,
     onSelect,
     padding = "0.4rem 0.375rem 0.4rem 0.375rem",
+    autoFocus = false,
     OptionIcon,
     OptionContent,
   } = props;
@@ -59,6 +61,7 @@ const CustomSelect = <T extends {}, K extends string | number>(
             item={item}
             onSelect={onSelect}
             padding={padding}
+            autoFocus={autoFocus}
             OptionIcon={OptionIcon}
             OptionContent={OptionContent}
           />
@@ -72,7 +75,7 @@ export default CustomSelect;
 
 type CustomSelectItemProps<T, K extends string | number> = Pick<
   CustomSelectProps<T, K>,
-  "onSelect" | "OptionIcon" | "OptionContent" | "padding"
+  "onSelect" | "OptionIcon" | "OptionContent" | "padding" | "autoFocus"
 > & {
   active?: boolean;
   last?: boolean;
@@ -92,6 +95,7 @@ const CustomSelectItem = <T extends {}, K extends string | number>(
     last,
     onSelect,
     padding,
+    autoFocus,
     OptionIcon,
     OptionContent,
   } = props;
@@ -109,7 +113,7 @@ const CustomSelectItem = <T extends {}, K extends string | number>(
         "focus:outline-none opacity-90 hover:opacity-100"
       )}
       style={{ padding }}
-      autoFocus={active}
+      autoFocus={autoFocus && active}
       onClick={handleSelect}
     >
       {OptionIcon && <OptionIcon item={item} index={index} />}
@@ -127,7 +131,7 @@ const CustomSelectItem = <T extends {}, K extends string | number>(
 
       {active && (
         <OkIcon
-          className="mx-2 h-5 w-auto stroke-2"
+          className="w-auto h-5 mx-2 stroke-2"
           style={{
             stroke: "#777",
           }}
