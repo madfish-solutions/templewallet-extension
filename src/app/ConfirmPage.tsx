@@ -8,6 +8,7 @@ import {
   ThanosAccountType,
   ThanosDAppPayload,
   XTZ_ASSET,
+  ThanosAccount,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
@@ -19,6 +20,7 @@ import AccountBanner from "app/templates/AccountBanner";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import Balance from "app/templates/Balance";
+import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
@@ -56,6 +58,8 @@ const ConfirmPage: React.FC = () => {
 };
 
 export default ConfirmPage;
+
+const getPkh = (account: ThanosAccount) => account.publicKeyHash;
 
 const ConfirmDAppForm: React.FC = () => {
   const {
@@ -141,6 +145,11 @@ const ConfirmDAppForm: React.FC = () => {
         };
     }
   }, [payload.type, payload.origin, payload.appMeta.name]);
+
+  const AccountOptionContent = React.useMemo(
+    () => AccountOptionContentHOC(payload.networkRpc),
+    [payload.networkRpc]
+  );
 
   const onConfirm = React.useCallback(
     async (confimed: boolean) => {
@@ -283,133 +292,16 @@ const ConfirmDAppForm: React.FC = () => {
               </span>
             </h2>
 
-            <div
-              className={classNames(
-                "rounded-md overflow-y-auto",
-                "border-2 bg-gray-100",
-                "flex flex-col",
-                "text-gray-700 text-sm leading-tight"
-              )}
-              style={{
-                maxHeight: "8rem",
-              }}
-            >
-              {allAccounts.map((acc, i, arr) => {
-                const last = i === arr.length - 1;
-                const selected = accountPkhToConnect === acc.publicKeyHash;
-                const handleAccountClick = () => {
-                  setAccountPkhToConnect(acc.publicKeyHash);
-                };
-
-                return (
-                  <button
-                    key={acc.publicKeyHash}
-                    type="button"
-                    className={classNames(
-                      "w-full flex-shrink-0",
-                      "overflow-hidden",
-                      !last && "border-b border-gray-200",
-                      selected
-                        ? "bg-gray-300"
-                        : "hover:bg-gray-200 focus:bg-gray-200",
-                      "flex items-center",
-                      "text-gray-700",
-                      "transition ease-in-out duration-200",
-                      "focus:outline-none",
-                      "opacity-90 hover:opacity-100"
-                    )}
-                    style={{
-                      padding: "0.4rem 0.375rem 0.4rem 0.375rem",
-                    }}
-                    autoFocus={selected}
-                    onClick={handleAccountClick}
-                  >
-                    <Identicon
-                      type="bottts"
-                      hash={acc.publicKeyHash}
-                      size={32}
-                      className="flex-shrink-0 shadow-xs"
-                    />
-
-                    <div className="flex flex-col items-start ml-2">
-                      <div className="flex flex-wrap items-center">
-                        <Name className="text-sm font-medium leading-tight">
-                          {acc.name}
-                        </Name>
-
-                        {acc.type === ThanosAccountType.Imported && (
-                          <span
-                            className={classNames(
-                              "ml-2",
-                              "rounded-sm",
-                              "border border-black border-opacity-25",
-                              "px-1 py-px",
-                              "leading-tight",
-                              "text-black text-opacity-50"
-                            )}
-                            style={{ fontSize: "0.6rem" }}
-                          >
-                            Imported
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap items-center mt-1">
-                        <div
-                          className={classNames(
-                            "text-xs leading-none",
-                            "text-gray-700"
-                          )}
-                        >
-                          {(() => {
-                            const val = acc.publicKeyHash;
-                            const ln = val.length;
-                            return (
-                              <>
-                                {val.slice(0, 7)}
-                                <span className="opacity-75">...</span>
-                                {val.slice(ln - 4, ln)}
-                              </>
-                            );
-                          })()}
-                        </div>
-
-                        <Balance
-                          address={acc.publicKeyHash}
-                          networkRpc={payload.networkRpc}
-                        >
-                          {(bal) => (
-                            <div
-                              className={classNames(
-                                "ml-2",
-                                "text-xs leading-none",
-                                "text-gray-600"
-                              )}
-                            >
-                              <Money>{bal}</Money>{" "}
-                              <span style={{ fontSize: "0.75em" }}>
-                                {XTZ_ASSET.symbol}
-                              </span>
-                            </div>
-                          )}
-                        </Balance>
-                      </div>
-                    </div>
-
-                    <div className="flex-1" />
-
-                    {selected && (
-                      <OkIcon
-                        className={classNames("mx-2 h-5 w-auto stroke-2")}
-                        style={{
-                          stroke: "#777",
-                        }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+            <CustomSelect
+              activeItemId={accountPkhToConnect}
+              getItemId={getPkh}
+              items={allAccounts}
+              maxHeight="8rem"
+              onSelect={setAccountPkhToConnect}
+              OptionIcon={AccountIcon}
+              OptionContent={AccountOptionContent}
+              autoFocus
+            />
           </div>
         )}
       </div>
@@ -457,6 +349,72 @@ const ConfirmDAppForm: React.FC = () => {
       </div>
     </div>
   );
+};
+
+const AccountIcon: React.FC<OptionRenderProps<ThanosAccount>> = ({ item }) => (
+  <Identicon
+    type="bottts"
+    hash={item.publicKeyHash}
+    size={32}
+    className="flex-shrink-0 shadow-xs"
+  />
+);
+
+const AccountOptionContentHOC = (networkRpc: string) => {
+  return React.memo<OptionRenderProps<ThanosAccount>>(({ item: acc }) => (
+    <>
+      <div className="flex flex-wrap items-center">
+        <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
+
+        {acc.type === ThanosAccountType.Imported && (
+          <span
+            className={classNames(
+              "ml-2",
+              "rounded-sm",
+              "border border-black border-opacity-25",
+              "px-1 py-px",
+              "leading-tight",
+              "text-black text-opacity-50"
+            )}
+            style={{ fontSize: "0.6rem" }}
+          >
+            Imported
+          </span>
+        )}
+      </div>
+
+      <div className="flex flex-wrap items-center mt-1">
+        <div className={classNames("text-xs leading-none", "text-gray-700")}>
+          {(() => {
+            const val = acc.publicKeyHash;
+            const ln = val.length;
+            return (
+              <>
+                {val.slice(0, 7)}
+                <span className="opacity-75">...</span>
+                {val.slice(ln - 4, ln)}
+              </>
+            );
+          })()}
+        </div>
+
+        <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
+          {(bal) => (
+            <div
+              className={classNames(
+                "ml-2",
+                "text-xs leading-none",
+                "text-gray-600"
+              )}
+            >
+              <Money>{bal}</Money>{" "}
+              <span style={{ fontSize: "0.75em" }}>{XTZ_ASSET.symbol}</span>
+            </div>
+          )}
+        </Balance>
+      </div>
+    </>
+  ));
 };
 
 type ConnectBannerProps = {
