@@ -120,15 +120,10 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
         </label>
       ) : null}
 
-      <div
-        className={classNames(
-          "relative",
-          "mb-2",
-          "flex flex-col items-stretch"
-        )}
-      >
+      <div className="relative flex flex-col items-stretch">
         <CustomSelect
           activeItemId={selectedPreset}
+          className="mb-4"
           getItemId={getFeeOptionId}
           id={`${id}-select`}
           items={feeOptions}
@@ -141,7 +136,7 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
         <AssetField
           containerClassName={classNames(
             selectedPreset !== "custom" && "hidden",
-            "mt-6"
+            "mb-2"
           )}
           id={id}
           onChange={onChange}
