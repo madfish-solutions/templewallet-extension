@@ -30,6 +30,7 @@ import {
   requestPermission,
   requestOperation,
   requestSign,
+  requestBroadcast,
 } from "lib/thanos/back/dapp";
 import * as Beacon from "lib/thanos/beacon";
 
@@ -369,6 +370,9 @@ export async function processDApp(
 
     case ThanosDAppMessageType.SignRequest:
       return withInited(() => requestSign(origin, req));
+
+    case ThanosDAppMessageType.BroadcastRequest:
+      return withInited(() => requestBroadcast(origin, req));
   }
 }
 
@@ -414,6 +418,12 @@ export async function processBeacon(origin: string, msg: string) {
                 sourcePkh: req.sourceAddress,
                 payload: req.payload,
               };
+
+            case Beacon.MessageType.BroadcastRequest:
+              return {
+                type: ThanosDAppMessageType.BroadcastRequest,
+                signedOpBytes: req.signedTransaction,
+              };
           }
         })();
 
@@ -447,6 +457,13 @@ export async function processBeacon(origin: string, msg: string) {
                   ...resBase,
                   type: Beacon.MessageType.SignPayloadResponse,
                   signature: thanosRes.signature,
+                };
+
+              case ThanosDAppMessageType.BroadcastResponse:
+                return {
+                  ...resBase,
+                  type: Beacon.MessageType.BroadcastResponse,
+                  transactionHash: thanosRes.opHash,
                 };
             }
           }

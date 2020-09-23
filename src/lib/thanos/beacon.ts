@@ -15,13 +15,18 @@ export interface Network {
   rpcUrl?: string;
 }
 
-export type Request = PermissionRequest | OperationRequest | SignRequest;
+export type Request =
+  | PermissionRequest
+  | OperationRequest
+  | SignRequest
+  | BroadcastRequest;
 
 export type Response =
   | ErrorResponse
   | PermissionResponse
   | OperationResponse
-  | SignResponse;
+  | SignResponse
+  | BroadcastResponse;
 
 export enum MessageType {
   Error = "error",
@@ -66,6 +71,18 @@ export interface PermissionResponse extends BaseMessage {
   };
 }
 
+export interface OperationRequest extends BaseMessage {
+  type: MessageType.OperationRequest;
+  network: Network;
+  operationDetails: any[];
+  sourceAddress: string;
+}
+
+export interface OperationResponse extends BaseMessage {
+  type: MessageType.OperationResponse;
+  transactionHash: string;
+}
+
 export interface SignRequest extends BaseMessage {
   type: MessageType.SignPayloadRequest;
   sourceAddress: string;
@@ -77,16 +94,15 @@ export interface SignResponse extends BaseMessage {
   signature: string;
 }
 
-export interface OperationRequest extends BaseMessage {
-  type: MessageType.OperationRequest;
-  network: Network;
-  operationDetails: any[];
-  sourceAddress: string;
+export interface BroadcastRequest extends BaseMessage {
+  type: MessageType.BroadcastRequest;
+  network: Network; // Network on which the transaction will be broadcast
+  signedTransaction: string; // Signed transaction that will be broadcast
 }
 
-export interface OperationResponse extends BaseMessage {
-  type: MessageType.OperationResponse;
-  transactionHash: string;
+export interface BroadcastResponse extends BaseMessage {
+  type: MessageType.BroadcastResponse;
+  transactionHash: string; // Hash of the broadcast transaction
 }
 
 export enum ErrorType {
