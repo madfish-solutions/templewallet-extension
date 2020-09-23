@@ -36,9 +36,11 @@ function makeQuery<P extends Record<string, unknown>, R>(
   searchParams: (params: P) => Record<string, unknown>
 ) {
   return (network: TzktNetwork, params: P) => {
-    return api.get<R>(url(params), {
-      baseURL: baseUrls[network],
-      params: searchParams(params),
-    });
+    return api
+      .get<R>(url(params), {
+        baseURL: baseUrls[network],
+        params: searchParams(params),
+      })
+      .then((res) => res.data);
   };
 }

@@ -12,14 +12,14 @@ export interface BcdTokenMethodStats {
 
 export interface BcdTokenContract {
   address: string;
-  alias: string;
+  alias?: string;
   balance: number;
-  delegate: string;
-  delegate_alias: string;
+  delegate?: string;
+  delegate_alias?: string;
   last_action: string;
   level: number;
   manager: string;
-  methods: Record<string, BcdTokenMethodStats>;
+  methods?: Record<string, BcdTokenMethodStats>;
   network: BcdNetwork;
   timestamp: string;
   tx_count: number;
@@ -27,7 +27,7 @@ export interface BcdTokenContract {
 }
 
 export interface BcdPageableTokenContracts {
-  last_id: number;
+  last_id?: number;
   tokens: BcdTokenContract[];
   total: number;
 }
@@ -55,7 +55,7 @@ export interface BcdPageableTokenTransfers {
 
 export type BcdContractsQueryParams = {
   network: BcdNetwork;
-  last_id?: string;
+  last_id?: number;
   size?: number;
   faversion?: string;
 };
@@ -65,4 +65,15 @@ export type BcdTokenTransfersQueryParams = {
   address: string;
   last_id?: string;
   size?: number;
+};
+
+const bcdSupportedNetworks: BcdNetwork[] = [
+  "mainnet",
+  "carthagenet",
+  "dalphanet",
+];
+export const isBcdSupportedNetwork = (
+  networkId: string
+): networkId is BcdNetwork => {
+  return bcdSupportedNetworks.includes(networkId as BcdNetwork);
 };

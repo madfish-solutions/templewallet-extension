@@ -3,7 +3,19 @@ import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
-import { getAccountWithOperations } from "lib/tzstats";
+import {
+  BcdContractType,
+  BcdTokenContract,
+  getContracts,
+  getTokenTransfers,
+  isBcdSupportedNetwork,
+} from "lib/better-call-dev";
+import {
+  getOperations,
+  isDelegation,
+  isTransaction,
+  isTzktSupportedNetwork,
+} from "lib/tzkt";
 import {
   ThanosAsset,
   ThanosAssetType,
@@ -11,6 +23,7 @@ import {
   useNetwork,
   usePendingOperations,
   useAssets,
+  ThanosToken,
 } from "lib/thanos/front";
 import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
@@ -21,34 +34,81 @@ import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 
 interface OperationPreview {
+  contractAddress?: string;
   hash: string;
+  newDelegate?: string;
   type: string;
   receiver: string;
   volume: number;
+  sender: string;
   status: string;
   time: string;
-  parameters?: any;
+  parameters?: string;
 }
 
 interface OperationHistoryProps {
   accountPkh: string;
 }
 
+const tokensTypes: Record<
+  BcdContractType,
+  Exclude<ThanosAssetType, ThanosAssetType.XTZ>
+> = {
+  fa1: ThanosAssetType.FA1,
+  fa2: ThanosAssetType.FA2,
+  fa12: ThanosAssetType.FA1_2,
+};
+
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
+  const { allAssets } = useAssets();
   const network = useNetwork();
   const { pndOps, removePndOps } = usePendingOperations();
 
-  const fetchOperations = React.useCallback(async () => {
-    try {
-      if (!network.tzStats) return [];
+  const fetchBcdOperations = React.useCallback(async () => {
+    if (!isBcdSupportedNetwork(network.id)) {
+      return { transfers: [] };
+    }
 
-      const { ops } = await getAccountWithOperations(network.tzStats, {
-        pkh: accountPkh,
-        order: "desc",
-        limit: 25,
-        offset: 0,
-      });
-      return ops;
+    return getTokenTransfers({
+      address: accountPkh,
+      network: network.id,
+    });
+  }, [network.id, accountPkh]);
+
+  const fetchTzktOperations = React.useCallback(async () => {
+    if (!isTzktSupportedNetwork(network.id)) {
+      return [];
+    }
+
+    return getOperations(network.id, {
+      address: accountPkh,
+    });
+  }, [network.id, accountPkh]);
+
+  const fetchBcdTokens = React.useCallback(async () => {
+    try {
+      if (network.id === "carthagenet" || !isBcdSupportedNetwork(network.id)) {
+        return [];
+      }
+
+      let last_id: number | undefined;
+      let total = Infinity;
+      let tokens: BcdTokenContract[] = [];
+      while (total > tokens.length) {
+        const {
+          last_id: newLastId,
+          tokens: tokensPart,
+          total: newTotal,
+        } = await getContracts({
+          network: network.id,
+          last_id,
+        });
+        last_id = newLastId;
+        total = newTotal;
+        tokens = [...tokens, ...tokensPart];
+      }
+
+      return tokens;
     } catch (err) {
       if (err?.origin?.response?.status === 404) {
         return [];
@@ -58,10 +118,66 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       await new Promise((r) => setTimeout(r, 300));
       throw err;
     }
-  }, [network.tzStats, accountPkh]);
+  }, [network.id]);
+
+  const fetchOperations = React.useCallback(async () => {
+    try {
+      const { transfers: bcdOps } = await fetchBcdOperations();
+      const tzktOps = await fetchTzktOperations();
+
+      return [
+        ...bcdOps.map((operation) => ({
+          contractAddress: operation.contract,
+          hash: operation.hash,
+          type: "transaction",
+          receiver: operation.to,
+          sender: operation.source,
+          volume: operation.amount,
+          status: operation.status,
+          time: operation.timestamp,
+        })),
+        ...tzktOps
+          .filter((operation) => {
+            if (!isTransaction(operation)) {
+              return true;
+            }
+
+            const parsedParams =
+              operation.parameters &&
+              tryParseParameters(null, operation.parameters);
+            return !parsedParams || isTransferParameters(parsedParams);
+          })
+          .map((operation) => ({
+            hash: operation.hash,
+            parameters: isTransaction(operation)
+              ? operation.parameters
+              : undefined,
+            newDelegate: isDelegation(operation)
+              ? operation.newDelegate?.address
+              : undefined,
+            type: operation.type,
+            sender: operation.sender.address,
+            receiver: isTransaction(operation) ? operation.target.address : "",
+            volume: isTransaction(operation) ? operation.amount : 0,
+            status: operation.status,
+            time: operation.timestamp || new Date().toISOString(),
+          })),
+      ].sort((a, b) => {
+        return new Date(b.time).getTime() - new Date(a.time).getTime();
+      });
+    } catch (err) {
+      if (err?.origin?.response?.status === 404) {
+        return [];
+      }
+
+      // Human delay
+      await new Promise((r) => setTimeout(r, 300));
+      throw err;
+    }
+  }, [fetchBcdOperations, fetchTzktOperations]);
 
   const { data } = useRetryableSWR(
-    ["operation-history", network.tzStats, accountPkh],
+    ["operation-history", network.id, accountPkh],
     fetchOperations,
     {
       suspense: true,
@@ -69,7 +185,38 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       dedupingInterval: 10_000,
     }
   );
+  const { data: bcdTokens } = useRetryableSWR(
+    ["tokens", network.id],
+    fetchBcdTokens,
+    {
+      suspense: true,
+      dedupingInterval: 10_000,
+    }
+  );
   const operations = data!;
+
+  const onlyBcdKnownTokens = React.useMemo<ThanosToken[]>(
+    () =>
+      bcdTokens!
+        .filter(
+          (token) =>
+            token.network !== "mainnet" ||
+            !allAssets.find(
+              (asset) =>
+                asset.type !== ThanosAssetType.XTZ &&
+                asset.address === token.address
+            )
+        )
+        .map((token) => ({
+          address: token.address,
+          type: tokensTypes[token.type],
+          decimals: 0,
+          symbol: token.alias || token.address.substr(2, 3),
+          name: token.alias || token.address.substr(2, 3),
+          fungible: false,
+        })),
+    [bcdTokens, allAssets]
+  );
 
   const pendingOperations = React.useMemo<OperationPreview[]>(
     () =>
@@ -77,12 +224,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
         ...op,
         hash: op.hash,
         type: op.kind,
+        sender: accountPkh,
         receiver: op.destination ?? "",
         volume: op.amount ?? 0,
         status: "backtracked",
         time: op.addedAt,
       })),
-    [pndOps]
+    [pndOps, accountPkh]
   );
 
   const [uniqueOps, nonUniqueOps] = React.useMemo(() => {
@@ -152,7 +300,12 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       )}
 
       {uniqueOps.map((op) => (
-        <Operation key={opKey(op)} accountPkh={accountPkh} {...op} />
+        <Operation
+          key={opKey(op)}
+          accountPkh={accountPkh}
+          onlyBcdKnownTokens={onlyBcdKnownTokens}
+          {...op}
+        />
       ))}
     </div>
   );
@@ -162,29 +315,53 @@ export default OperationHistory;
 
 type OperationProps = OperationPreview & {
   accountPkh: string;
+  onlyBcdKnownTokens: ThanosToken[];
 };
 
 const Operation = React.memo<OperationProps>(
-  ({ accountPkh, hash, type, receiver, volume, status, time, parameters }) => {
+  ({
+    accountPkh,
+    onlyBcdKnownTokens,
+    contractAddress,
+    hash,
+    type,
+    receiver,
+    volume,
+    status,
+    time,
+    parameters,
+  }) => {
     const { allAssets } = useAssets();
 
     const token = React.useMemo(
       () =>
         (parameters &&
           allAssets.find(
-            (a) => a.type !== ThanosAssetType.XTZ && a.address === receiver
+            (a) =>
+              a.type !== ThanosAssetType.XTZ && a.address === contractAddress
           )) ||
+        onlyBcdKnownTokens.find(({ address }) => address === contractAddress) ||
         null,
-      [allAssets, parameters, receiver]
+      [allAssets, parameters, contractAddress, onlyBcdKnownTokens]
     );
 
     const tokenParsed = React.useMemo(
-      () => token && tryParseParameters(token, parameters),
+      () =>
+        (parameters &&
+          (tryParseParameters(
+            token,
+            parameters
+          ) as ParsedTransferParameters)) ||
+        null,
       [token, parameters]
     );
 
     const finalReceiver = tokenParsed ? tokenParsed.receiver : receiver;
-    const finalVolume = tokenParsed ? tokenParsed.volume : volume;
+    const finalVolume = tokenParsed
+      ? tokenParsed.volume
+      : contractAddress
+      ? volume
+      : new BigNumber(volume).div(1e6).toNumber();
 
     const volumeExists = finalVolume !== 0;
     const typeTx = type === "transaction";
@@ -259,7 +436,10 @@ const Operation = React.memo<OperationProps>(
                     )}
                   >
                     {typeTx && (imReceiver ? "+" : "-")}
-                    <Money>{finalVolume}</Money> {token ? token.symbol : "ꜩ"}
+                    <Money>{finalVolume}</Money>{" "}
+                    {contractAddress
+                      ? token?.symbol || contractAddress.substr(2, 3)
+                      : "ꜩ"}
                   </div>
 
                   <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
@@ -277,6 +457,7 @@ const Operation = React.memo<OperationProps>(
         </div>
       ),
       [
+        contractAddress,
         hash,
         finalVolume,
         imReceiver,
@@ -326,45 +507,62 @@ function opKey(op: OperationPreview) {
   return `${op.hash}_${op.type}`;
 }
 
-function tryParseParameters(asset: ThanosAsset, parameters: any) {
-  switch (asset.type) {
-    case ThanosAssetType.Staker:
-    case ThanosAssetType.TzBTC:
-    case ThanosAssetType.FA1_2:
-      try {
-        if ("transfer" in parameters.value) {
-          const {
-            from: sender,
-            to: receiver,
-            value,
-          } = parameters.value.transfer;
-          const volume = new BigNumber(value)
-            .div(10 ** asset.decimals)
-            .toNumber();
+type ParsedTransferParameters = {
+  sender: string;
+  receiver: string;
+  volume: number;
+  entrypoint: "transfer";
+};
+type ParsedNonTransferParameters = { entrypoint: string; [key: string]: any };
+type ParsedParameters = ParsedTransferParameters | ParsedNonTransferParameters;
 
-          return {
-            sender,
-            receiver,
-            volume,
-          };
-        } else {
-          const [fromArgs, { args: toArgs }] = parameters.value.args;
-          const sender = fromArgs.string as string;
-          const receiver = toArgs[0].string as string;
-          const volume = new BigNumber(toArgs[1].int)
-            .div(10 ** asset.decimals)
-            .toNumber();
-          return {
-            sender,
-            receiver,
-            volume,
-          };
-        }
-      } catch (_err) {
-        return null;
+function isTransferParameters(
+  parameters: ParsedParameters
+): parameters is ParsedTransferParameters {
+  return parameters.entrypoint === "transfer";
+}
+
+function tryParseParameters(
+  asset: ThanosAsset | null,
+  parameters: string
+): ParsedParameters | null {
+  try {
+    const parsedParameters = JSON.parse(parameters);
+    if (
+      typeof parsedParameters !== "object" ||
+      parsedParameters instanceof Array
+    ) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(
+          "cannot process parameters ",
+          parsedParameters,
+          " for now"
+        );
       }
 
-    default:
       return null;
+    }
+
+    if (parsedParameters.entrypoint !== "transfer") {
+      return parsedParameters;
+    }
+
+    const { args } = parsedParameters.value;
+    const firstArgIsSender = !!args[0].string;
+    const volumeArg = firstArgIsSender ? args[1].args[1] : args[1];
+    const senderArg = firstArgIsSender ? args[0] : args[0].args[0];
+    const receiverArg = firstArgIsSender ? args[1].args[0] : args[0].args[1];
+    const receiver: string = receiverArg.string;
+    const sender: string = senderArg.string;
+    const volume = new BigNumber(volumeArg.int)
+      .div(10 ** (asset?.decimals || 0))
+      .toNumber();
+    return { sender, receiver, volume, entrypoint: "transfer" };
+  } catch (e) {
+    if (process.env.NODE_ENV === "development") {
+      console.error(e);
+    }
+
+    return null;
   }
 }

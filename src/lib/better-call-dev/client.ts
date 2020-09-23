@@ -43,6 +43,8 @@ function makeQuery<P extends Record<string, unknown>, R>(
       Object.entries(params).filter(([key]) => searchParamsKeys.includes(key))
     );
 
-    return api.get<R>(url(params), { params: searchParams });
+    return api
+      .get<R>(url(params), { params: searchParams })
+      .then((res) => res.data);
   };
 }

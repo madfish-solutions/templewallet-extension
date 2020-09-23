@@ -95,6 +95,14 @@ export type TzktOperation =
   | TzktTransactionOperation
   | TzktRevealOperation;
 
+const tzktSupportedNetworks: TzktNetwork[] = [
+  "mainnet",
+  "babylonnet",
+  "carthagenet",
+  "zeronet",
+  "delphinet",
+];
+
 export const isDelegation = (
   operation: TzktOperation
 ): operation is TzktDelegationOperation => {
@@ -111,4 +119,10 @@ export const isReveal = (
   operation: TzktOperation
 ): operation is TzktRevealOperation => {
   return operation.type === "reveal";
+};
+
+export const isTzktSupportedNetwork = (
+  networkId: string
+): networkId is TzktNetwork => {
+  return tzktSupportedNetworks.includes(networkId as TzktNetwork);
 };
