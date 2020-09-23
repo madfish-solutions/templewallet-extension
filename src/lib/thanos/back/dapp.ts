@@ -1,5 +1,6 @@
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { nanoid } from "nanoid";
+import { RpcClient } from "@taquito/rpc";
 import { localForger } from "@taquito/local-forging";
 import {
   ThanosDAppMessageType,
@@ -10,6 +11,8 @@ import {
   ThanosDAppOperationResponse,
   ThanosDAppSignRequest,
   ThanosDAppSignResponse,
+  ThanosDAppBroadcastRequest,
+  ThanosDAppBroadcastResponse,
   ThanosDAppNetwork,
   ThanosDAppMetadata,
 } from "@thanos-wallet/dapp/dist/types";
@@ -273,6 +276,31 @@ export async function requestSign(
       },
     });
   });
+}
+
+export async function requestBroadcast(
+  origin: string,
+  req: ThanosDAppBroadcastRequest
+): Promise<ThanosDAppBroadcastResponse> {
+  if (![req?.signedOpBytes?.length > 0].every(Boolean)) {
+    throw new Error(ThanosDAppErrorType.InvalidParams);
+  }
+
+  if (!dApps.has(origin)) {
+    throw new Error(ThanosDAppErrorType.NotGranted);
+  }
+  const dApp = dApps.get(origin)!;
+
+  try {
+    const rpc = new RpcClient(getNetworkRPC(dApp.network));
+    const opHash = await rpc.injectOperation(req.signedOpBytes);
+    return {
+      type: ThanosDAppMessageType.BroadcastResponse,
+      opHash,
+    };
+  } catch (err) {
+    throw new Error(`__tezos__${err.message}`);
+  }
 }
 
 type RequestConfirmParams = {
