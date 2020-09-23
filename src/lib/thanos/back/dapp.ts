@@ -1,5 +1,6 @@
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { nanoid } from "nanoid";
+import { localForger } from "@taquito/local-forging";
 import {
   ThanosDAppMessageType,
   ThanosDAppErrorType,
@@ -7,6 +8,8 @@ import {
   ThanosDAppPermissionResponse,
   ThanosDAppOperationRequest,
   ThanosDAppOperationResponse,
+  ThanosDAppSignRequest,
+  ThanosDAppSignResponse,
   ThanosDAppNetwork,
   ThanosDAppMetadata,
 } from "@thanos-wallet/dapp/dist/types";
@@ -185,6 +188,85 @@ export async function requestOperation(
 
           return {
             type: ThanosMessageType.DAppOpsConfirmationResponse,
+          };
+        }
+        return;
+      },
+    });
+  });
+}
+
+export async function requestSign(
+  origin: string,
+  req: ThanosDAppSignRequest
+): Promise<ThanosDAppSignResponse> {
+  if (
+    ![isAddressValid(req?.sourcePkh), req?.payload?.length > 0].every(Boolean)
+  ) {
+    throw new Error(ThanosDAppErrorType.InvalidParams);
+  }
+
+  if (!dApps.has(origin)) {
+    throw new Error(ThanosDAppErrorType.NotGranted);
+  }
+
+  const dApp = dApps.get(origin)!;
+  if (req.sourcePkh !== dApp.pkh) {
+    throw new Error(ThanosDAppErrorType.NotFound);
+  }
+
+  return new Promise(async (resolve, reject) => {
+    const id = nanoid();
+    const networkRpc = getNetworkRPC(dApp.network);
+
+    let preview: any;
+    try {
+      preview = await localForger.parse(req.payload);
+    } catch {
+      preview = null;
+    }
+
+    await requestConfirm({
+      id,
+      payload: {
+        type: "sign",
+        origin,
+        networkRpc,
+        appMeta: dApp.appMeta,
+        sourcePkh: req.sourcePkh,
+        payload: req.payload,
+        preview,
+      },
+      onDecline: () => {
+        reject(new Error(ThanosDAppErrorType.NotGranted));
+      },
+      handleIntercomRequest: async (confirmReq, decline) => {
+        if (
+          confirmReq?.type === ThanosMessageType.DAppSignConfirmationRequest &&
+          confirmReq?.id === id
+        ) {
+          if (confirmReq.confirmed) {
+            try {
+              const { sig: signature } = await withUnlocked(({ vault }) =>
+                vault.sign(dApp.pkh, req.payload)
+              );
+              resolve({
+                type: ThanosDAppMessageType.SignResponse,
+                signature,
+              });
+            } catch (err) {
+              if (err?.message?.startsWith("__tezos__")) {
+                reject(new Error(err.message));
+              } else {
+                throw err;
+              }
+            }
+          } else {
+            decline();
+          }
+
+          return {
+            type: ThanosMessageType.DAppSignConfirmationResponse,
           };
         }
         return;

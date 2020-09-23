@@ -153,9 +153,17 @@ export interface ThanosDAppOperationsPayload extends ThanosDAppPayloadBase {
   opParams: any[];
 }
 
+export interface ThanosDAppSignPayload extends ThanosDAppPayloadBase {
+  type: "sign";
+  sourcePkh: string;
+  payload: string;
+  preview: any;
+}
+
 export type ThanosDAppPayload =
   | ThanosDAppConnectPayload
-  | ThanosDAppOperationsPayload;
+  | ThanosDAppOperationsPayload
+  | ThanosDAppSignPayload;
 
 /**
  * Messages
@@ -209,6 +217,8 @@ export enum ThanosMessageType {
   DAppPermConfirmationResponse = "THANOS_DAPP_PERM_CONFIRMATION_RESPONSE",
   DAppOpsConfirmationRequest = "THANOS_DAPP_OPS_CONFIRMATION_REQUEST",
   DAppOpsConfirmationResponse = "THANOS_DAPP_OPS_CONFIRMATION_RESPONSE",
+  DAppSignConfirmationRequest = "THANOS_DAPP_SIGN_CONFIRMATION_REQUEST",
+  DAppSignConfirmationResponse = "THANOS_DAPP_SIGN_CONFIRMATION_RESPONSE",
 }
 
 export type ThanosNotification =
@@ -237,6 +247,7 @@ export type ThanosRequest =
   | ThanosDAppGetPayloadRequest
   | ThanosDAppPermConfirmationRequest
   | ThanosDAppOpsConfirmationRequest
+  | ThanosDAppSignConfirmationRequest
   | ThanosUpdateSettingsRequest;
 
 export type ThanosResponse =
@@ -260,6 +271,7 @@ export type ThanosResponse =
   | ThanosDAppGetPayloadResponse
   | ThanosDAppPermConfirmationResponse
   | ThanosDAppOpsConfirmationResponse
+  | ThanosDAppSignConfirmationResponse
   | ThanosUpdateSettingsResponse;
 
 export interface ThanosMessageBase {
@@ -499,4 +511,14 @@ export interface ThanosDAppOpsConfirmationRequest extends ThanosMessageBase {
 
 export interface ThanosDAppOpsConfirmationResponse extends ThanosMessageBase {
   type: ThanosMessageType.DAppOpsConfirmationResponse;
+}
+
+export interface ThanosDAppSignConfirmationRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppSignConfirmationRequest;
+  id: string;
+  confirmed: boolean;
+}
+
+export interface ThanosDAppSignConfirmationResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppSignConfirmationResponse;
 }

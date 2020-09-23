@@ -285,6 +285,20 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const confirmDAppSign = React.useCallback(
+    async (id: string, confirmed: boolean) => {
+      const res = await request({
+        type: ThanosMessageType.DAppSignConfirmationRequest,
+        id,
+        confirmed,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.DAppSignConfirmationResponse
+      );
+    },
+    []
+  );
+
   const createTaquitoWallet = React.useCallback(
     (
       sourcePkh: string,
@@ -343,6 +357,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
+    confirmDAppSign,
     createTaquitoWallet,
     createTaquitoSigner,
   };
