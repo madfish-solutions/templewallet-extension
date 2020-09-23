@@ -60,7 +60,6 @@ const tokensTypes: Record<
 };
 
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
-  const { allAssets } = useAssets();
   const network = useNetwork();
   const { pndOps, removePndOps } = usePendingOperations();
 
@@ -195,27 +194,17 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   );
   const operations = data!;
 
-  const onlyBcdKnownTokens = React.useMemo<ThanosToken[]>(
+  const transformedBcdTokens = React.useMemo<ThanosToken[]>(
     () =>
-      bcdTokens!
-        .filter(
-          (token) =>
-            token.network !== "mainnet" ||
-            !allAssets.find(
-              (asset) =>
-                asset.type !== ThanosAssetType.XTZ &&
-                asset.address === token.address
-            )
-        )
-        .map((token) => ({
-          address: token.address,
-          type: tokensTypes[token.type],
-          decimals: 0,
-          symbol: token.alias || token.address.substr(2, 3),
-          name: token.alias || token.address.substr(2, 3),
-          fungible: false,
-        })),
-    [bcdTokens, allAssets]
+      bcdTokens!.map((token) => ({
+        address: token.address,
+        type: tokensTypes[token.type],
+        decimals: 0,
+        symbol: token.alias || token.address.substr(2, 3),
+        name: token.alias || token.address.substr(2, 3),
+        fungible: false,
+      })),
+    [bcdTokens]
   );
 
   const pendingOperations = React.useMemo<OperationPreview[]>(
@@ -303,7 +292,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
         <Operation
           key={opKey(op)}
           accountPkh={accountPkh}
-          onlyBcdKnownTokens={onlyBcdKnownTokens}
+          bcdTokens={transformedBcdTokens}
           {...op}
         />
       ))}
@@ -315,14 +304,13 @@ export default OperationHistory;
 
 type OperationProps = OperationPreview & {
   accountPkh: string;
-  onlyBcdKnownTokens: ThanosToken[];
+  bcdTokens: ThanosToken[];
 };
 
 const Operation = React.memo<OperationProps>(
   ({
     accountPkh,
-    onlyBcdKnownTokens,
-    contractAddress,
+    bcdTokens,
     hash,
     type,
     receiver,
@@ -337,13 +325,25 @@ const Operation = React.memo<OperationProps>(
       () =>
         (parameters &&
           allAssets.find(
-            (a) =>
-              a.type !== ThanosAssetType.XTZ && a.address === contractAddress
+            (a) => a.type !== ThanosAssetType.XTZ && a.address === receiver
           )) ||
-        onlyBcdKnownTokens.find(({ address }) => address === contractAddress) ||
+        bcdTokens.find(({ address }) => address === receiver) ||
         null,
-      [allAssets, parameters, contractAddress, onlyBcdKnownTokens]
+      [allAssets, parameters, receiver, bcdTokens]
     );
+
+    if (hash === "opJgbbaJEuQamoQ36wR4sLikvjZY5CBo1vwLNxJ5eXGjuwgTHmz") {
+      console.log(
+        hash,
+        receiver,
+        type,
+        receiver,
+        volume,
+        status,
+        time,
+        parameters
+      );
+    }
 
     const tokenParsed = React.useMemo(
       () =>
@@ -356,10 +356,11 @@ const Operation = React.memo<OperationProps>(
       [token, parameters]
     );
 
+    const receiverIsContract = receiver.startsWith("KT");
     const finalReceiver = tokenParsed ? tokenParsed.receiver : receiver;
     const finalVolume = tokenParsed
       ? tokenParsed.volume
-      : contractAddress
+      : receiverIsContract
       ? volume
       : new BigNumber(volume).div(1e6).toNumber();
 
@@ -437,8 +438,8 @@ const Operation = React.memo<OperationProps>(
                   >
                     {typeTx && (imReceiver ? "+" : "-")}
                     <Money>{finalVolume}</Money>{" "}
-                    {contractAddress
-                      ? token?.symbol || contractAddress.substr(2, 3)
+                    {receiverIsContract
+                      ? token?.symbol || receiver.substr(2, 3)
                       : "ꜩ"}
                   </div>
 
@@ -457,7 +458,8 @@ const Operation = React.memo<OperationProps>(
         </div>
       ),
       [
-        contractAddress,
+        receiver,
+        receiverIsContract,
         hash,
         finalVolume,
         imReceiver,
