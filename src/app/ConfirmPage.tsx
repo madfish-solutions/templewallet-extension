@@ -21,6 +21,7 @@ import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import Balance from "app/templates/Balance";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import FormField from "app/atoms/FormField";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
@@ -31,6 +32,21 @@ import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
+import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
+import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+
+const SIGN_PAYLOAD_FORMATS = [
+  {
+    key: "preview",
+    name: "Preview",
+    Icon: EyeIcon,
+  },
+  {
+    key: "raw",
+    name: "Raw",
+    Icon: CodeAltIcon,
+  },
+];
 
 const ConfirmPage: React.FC = () => {
   const { ready } = useThanosClient();
@@ -66,6 +82,7 @@ const ConfirmDAppForm: React.FC = () => {
     getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
+    confirmDAppSign,
   } = useThanosClient();
   const allAccounts = useAllAccounts();
   const account = useAccount();
@@ -132,7 +149,7 @@ const ConfirmDAppForm: React.FC = () => {
             >
               <div className="flex items-center justify-center">
                 <DAppLogo origin={payload.origin} size={16} className="mr-1" />
-                <Name className="font-semibold" style={{ maxWidth: "7.5rem" }}>
+                <Name className="font-semibold" style={{ maxWidth: "10rem" }}>
                   {payload.appMeta.name}
                 </Name>
               </div>
@@ -140,6 +157,32 @@ const ConfirmDAppForm: React.FC = () => {
                 {payload.origin}
               </Name>
               requests operations to you
+            </div>
+          ),
+        };
+
+      case "sign":
+        return {
+          title: "Confirm sign",
+          declineActionTitle: "Reject",
+          confirmActionTitle: "Sign",
+          want: (
+            <div
+              className={classNames(
+                "mb-2 text-sm text-center text-gray-700",
+                "flex flex-col items-center"
+              )}
+            >
+              <div className="flex items-center justify-center">
+                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <Name className="font-semibold" style={{ maxWidth: "10rem" }}>
+                  {payload.appMeta.name}
+                </Name>
+              </div>
+              <Name className="max-w-full text-xs italic">
+                {payload.origin}
+              </Name>
+              requests you to sign
             </div>
           ),
         };
@@ -159,6 +202,9 @@ const ConfirmDAppForm: React.FC = () => {
 
         case "confirm_operations":
           return confirmDAppOperation(id, confimed);
+
+        case "sign":
+          return confirmDAppSign(id, confimed);
       }
     },
     [
@@ -166,6 +212,7 @@ const ConfirmDAppForm: React.FC = () => {
       payload.type,
       confirmDAppPermission,
       confirmDAppOperation,
+      confirmDAppSign,
       accountPkhToConnect,
     ]
   );
@@ -203,6 +250,8 @@ const ConfirmDAppForm: React.FC = () => {
     await confirm(false);
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
+
+  const [spFormat, setSpFormat] = React.useState(SIGN_PAYLOAD_FORMATS[0]);
 
   return (
     <div
@@ -254,7 +303,7 @@ const ConfirmDAppForm: React.FC = () => {
           </p>
         )}
 
-        {payload.type === "confirm_operations" && connectedAccount && (
+        {payload.type !== "connect" && connectedAccount && (
           <AccountBanner
             account={connectedAccount}
             networkRpc={payload.networkRpc}
@@ -265,7 +314,7 @@ const ConfirmDAppForm: React.FC = () => {
 
         <NetworkBanner
           rpc={payload.networkRpc}
-          narrow={payload.type === "connect"}
+          narrow={payload.type !== "confirm_operations"}
         />
 
         {payload.type === "confirm_operations" && (
@@ -304,6 +353,114 @@ const ConfirmDAppForm: React.FC = () => {
             />
           </div>
         )}
+
+        {payload.type === "sign" &&
+          (() => {
+            if (payload.preview) {
+              return (
+                <div className="flex flex-col w-full">
+                  <h2
+                    className={classNames(
+                      "mb-4",
+                      "leading-tight",
+                      "flex items-center"
+                    )}
+                  >
+                    <span className="mr-2 text-base font-semibold text-gray-700">
+                      Payload to sign
+                    </span>
+
+                    <div className="flex-1" />
+
+                    <div className={classNames("flex items-center")}>
+                      {SIGN_PAYLOAD_FORMATS.map((spf, i, arr) => {
+                        const first = i === 0;
+                        const last = i === arr.length - 1;
+                        const selected = spFormat.key === spf.key;
+                        const handleClick = () => setSpFormat(spf);
+
+                        return (
+                          <button
+                            key={spf.key}
+                            className={classNames(
+                              (() => {
+                                switch (true) {
+                                  case first:
+                                    return classNames(
+                                      "rounded rounded-r-none",
+                                      "border"
+                                    );
+
+                                  case last:
+                                    return classNames(
+                                      "rounded rounded-l-none",
+                                      "border border-l-0"
+                                    );
+
+                                  default:
+                                    return "border border-l-0";
+                                }
+                              })(),
+                              selected && "bg-gray-100",
+                              "px-2 py-1",
+                              "text-xs text-gray-600",
+                              "flex items-center"
+                            )}
+                            onClick={handleClick}
+                          >
+                            <spf.Icon
+                              className={classNames(
+                                "h-4 w-auto mr-1",
+                                "stroke-current"
+                              )}
+                            />
+                            {spf.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </h2>
+
+                  <OperationsBanner
+                    opParams={payload.preview}
+                    label={null}
+                    className={classNames(
+                      spFormat.key !== "preview" && "hidden"
+                    )}
+                  />
+
+                  <FormField
+                    textarea
+                    rows={6}
+                    id="sign-payload"
+                    value={payload.payload}
+                    spellCheck={false}
+                    readOnly
+                    className={classNames(spFormat.key !== "raw" && "hidden")}
+                    style={{
+                      resize: "none",
+                    }}
+                  />
+                </div>
+              );
+            }
+
+            return (
+              <FormField
+                textarea
+                rows={6}
+                id="sign-payload"
+                label="Payload to sign"
+                value={payload.payload}
+                spellCheck={false}
+                readOnly
+                className="mb-2"
+                style={{
+                  resize: "none",
+                }}
+              />
+            );
+          })()}
       </div>
 
       {error && (

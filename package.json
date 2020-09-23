@@ -20,7 +20,7 @@
     "@svgr/webpack": "5.4.0",
     "@taquito/local-forging": "6.3.5-beta.0",
     "@taquito/taquito": "6.3.5-beta.0",
-    "@thanos-wallet/dapp": "0.6.0",
+    "@thanos-wallet/dapp": "madfish-solutions/thanoswallet-dapp#feat-sign-request",
     "@types/brainhubeu__react-carousel": "1.15.0",
     "@types/fontfaceobserver": "0.0.6",
     "@types/node": "14.0.27",

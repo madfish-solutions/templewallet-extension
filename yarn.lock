@@ -1399,10 +1399,9 @@
     bs58check "^2.1.2"
     buffer "^5.6.0"
 
-"@thanos-wallet/dapp@0.6.0":
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/@thanos-wallet/dapp/-/dapp-0.6.0.tgz#88aafaccd788730420723fee9611078d0b592dbf"
-  integrity sha512-M9Y5lA+NH2UPbedddQZ4UOY5ltpm8oVjbO8fD09EDx/+csKtyNrWGeTJtlzOk8NHToA0htiTidI8KMzptcdvGg==
+"@thanos-wallet/dapp@madfish-solutions/thanoswallet-dapp#feat-sign-request":
+  version "0.5.0"
+  resolved "https://codeload.github.com/madfish-solutions/thanoswallet-dapp/tar.gz/cac53a94116a971966bb210258a625ad6c4be644"
   dependencies:
     nanoid "^3.1.10"
 

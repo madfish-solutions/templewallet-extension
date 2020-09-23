@@ -4,27 +4,35 @@ import ReactJson from "react-json-view";
 
 type OperationsBanner = {
   opParams: any[];
+  label?: string | null;
   className?: string;
 };
 
-const OperationsBanner: React.FC<OperationsBanner> = ({ opParams }) => (
+const OperationsBanner: React.FC<OperationsBanner> = ({
+  opParams,
+  label = "Operations",
+  className,
+}) => (
   <>
-    <h2
-      className={classNames(
-        "w-full mb-2",
-        "text-base font-semibold leading-tight",
-        "text-gray-700"
-      )}
-    >
-      Operations
-    </h2>
+    {label && (
+      <h2
+        className={classNames(
+          "w-full mb-2",
+          "text-base font-semibold leading-tight",
+          "text-gray-700"
+        )}
+      >
+        {label}
+      </h2>
+    )}
 
     <div
       className={classNames(
-        "block w-full max-w-full mb-4 p-1",
+        "block w-full max-w-full mb-2 p-1",
         "rounded-md overflow-auto",
         "border-2 bg-gray-100 bg-opacity-50",
-        "text-base leading-tight font-medium whitespace-no-wrap"
+        "text-base leading-tight font-medium whitespace-no-wrap",
+        className
       )}
       style={{
         height: "10rem",

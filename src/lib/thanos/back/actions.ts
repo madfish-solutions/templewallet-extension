@@ -29,6 +29,7 @@ import {
   cleanDApps,
   requestPermission,
   requestOperation,
+  requestSign,
 } from "lib/thanos/back/dapp";
 import * as Beacon from "lib/thanos/beacon";
 
@@ -365,6 +366,9 @@ export async function processDApp(
 
     case ThanosDAppMessageType.OperationRequest:
       return withInited(() => requestOperation(origin, req));
+
+    case ThanosDAppMessageType.SignRequest:
+      return withInited(() => requestSign(origin, req));
   }
 }
 
@@ -378,18 +382,18 @@ export async function processBeacon(origin: string, msg: string) {
 
   const res = await (async (): Promise<Beacon.Response> => {
     try {
-      const network =
-        req.network.type === "custom"
-          ? {
-              name: req.network.name!,
-              rpc: req.network.rpcUrl!,
-            }
-          : req.network.type;
-
       try {
         const thanosReq = ((): ThanosDAppRequest | void => {
           switch (req.type) {
             case Beacon.MessageType.PermissionRequest:
+              const network =
+                req.network.type === "custom"
+                  ? {
+                      name: req.network.name!,
+                      rpc: req.network.rpcUrl!,
+                    }
+                  : req.network.type;
+
               return {
                 type: ThanosDAppMessageType.PermissionRequest,
                 network,
@@ -402,6 +406,13 @@ export async function processBeacon(origin: string, msg: string) {
                 type: ThanosDAppMessageType.OperationRequest,
                 sourcePkh: req.sourceAddress,
                 opParams: req.operationDetails.map(Beacon.formatOpParams),
+              };
+
+            case Beacon.MessageType.SignPayloadRequest:
+              return {
+                type: ThanosDAppMessageType.SignRequest,
+                sourcePkh: req.sourceAddress,
+                payload: req.payload,
               };
           }
         })();
@@ -417,8 +428,11 @@ export async function processBeacon(origin: string, msg: string) {
                   ...resBase,
                   type: Beacon.MessageType.PermissionResponse,
                   publicKey: (thanosRes as any).publicKey,
-                  network: req.network,
-                  scopes: [Beacon.PermissionScope.OPERATION_REQUEST],
+                  network: (req as Beacon.PermissionRequest).network,
+                  scopes: [
+                    Beacon.PermissionScope.OPERATION_REQUEST,
+                    Beacon.PermissionScope.SIGN,
+                  ],
                 };
 
               case ThanosDAppMessageType.OperationResponse:
@@ -426,6 +440,13 @@ export async function processBeacon(origin: string, msg: string) {
                   ...resBase,
                   type: Beacon.MessageType.OperationResponse,
                   transactionHash: thanosRes.opHash,
+                };
+
+              case ThanosDAppMessageType.SignResponse:
+                return {
+                  ...resBase,
+                  type: Beacon.MessageType.SignPayloadResponse,
+                  signature: thanosRes.signature,
                 };
             }
           }

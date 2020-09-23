@@ -15,9 +15,13 @@ export interface Network {
   rpcUrl?: string;
 }
 
-export type Request = PermissionRequest | OperationRequest;
+export type Request = PermissionRequest | OperationRequest | SignRequest;
 
-export type Response = ErrorResponse | PermissionResponse | OperationResponse;
+export type Response =
+  | ErrorResponse
+  | PermissionResponse
+  | OperationResponse
+  | SignResponse;
 
 export enum MessageType {
   Error = "error",
@@ -62,13 +66,13 @@ export interface PermissionResponse extends BaseMessage {
   };
 }
 
-export interface SignPayloadRequest extends BaseMessage {
+export interface SignRequest extends BaseMessage {
   type: MessageType.SignPayloadRequest;
   sourceAddress: string;
   payload: string;
 }
 
-export interface SignPayloadResponse extends BaseMessage {
+export interface SignResponse extends BaseMessage {
   type: MessageType.SignPayloadResponse;
   signature: string;
 }
