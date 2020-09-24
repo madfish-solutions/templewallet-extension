@@ -37,6 +37,17 @@ import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
 import useInfiniteList from "lib/useInfiniteList";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import {
+  hasAmount,
+  hasReceiver,
+  isTokenTransaction,
+  isTzktTransaction,
+  ThanosHistoricalOperation,
+  ThanosHistoricalTokenTransaction,
+  ThanosHistoricalTzktOperation,
+  ThanosOperation,
+  ThanosPendingOperation,
+} from "lib/transactionHistoryTypings";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const TZKT_BASE_URLS = new Map([
@@ -45,22 +56,9 @@ const TZKT_BASE_URLS = new Map([
   ["NetXyQaSHznzV1r", "https://delphi.tzkt.io"],
 ]);
 
-interface OperationPreview {
-  contractAddress?: string;
-  hash: string;
-  newDelegate?: string;
-  type: string;
-  receiver: string;
-  volume: string;
-  sender: string;
-  status: string;
-  time: string;
-  parameters?: string;
-}
-
-interface OperationHistoryProps {
+type OperationHistoryProps = {
   accountPkh: string;
-}
+};
 
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const { getAllPndOps, removePndOps } = useThanosClient();
@@ -177,18 +175,21 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     loadMoreTzktOperations,
   ]);
 
-  const operations = useMemo<OperationPreview[]>(() => {
+  const operations = useMemo<ThanosHistoricalOperation[]>(() => {
     return [
-      ...bcdOperations.map((operation) => ({
-        contractAddress: operation.contract,
-        hash: operation.hash,
-        type: "transaction",
-        receiver: operation.to,
-        sender: operation.source,
-        volume: String(operation.amount),
-        status: operation.status,
-        time: operation.timestamp,
-      })),
+      ...bcdOperations.map<ThanosHistoricalTokenTransaction>(
+        ({ contract, hash, to, source, amount, status, timestamp }) => ({
+          contract: contract,
+          hash: hash,
+          type: "transaction",
+          receiver: to,
+          sender: source,
+          amount: amount,
+          status: status,
+          time: timestamp,
+          isThanosPending: false,
+        })
+      ),
       ...tzktOperations
         .filter((operation) => {
           if (!isTransaction(operation)) {
@@ -200,21 +201,75 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             tryParseParameters(null, operation.parameters);
           return !parsedParams || isTransferParameters(parsedParams);
         })
-        .map((operation) => ({
-          hash: operation.hash,
-          parameters: isTransaction(operation)
-            ? operation.parameters
-            : undefined,
-          newDelegate: isDelegation(operation)
-            ? operation.newDelegate?.address
-            : undefined,
-          type: operation.type,
-          sender: operation.sender.address,
-          receiver: isTransaction(operation) ? operation.target.address : "",
-          volume: String(isTransaction(operation) ? operation.amount : 0),
-          status: operation.status,
-          time: operation.timestamp || new Date().toISOString(),
-        })),
+        .map<ThanosHistoricalTzktOperation>((operation) => {
+          const {
+            bakerFee,
+            errors,
+            gasLimit,
+            gasUsed,
+            hash,
+            type,
+            status,
+            sender,
+            timestamp,
+          } = operation;
+          const baseProps = {
+            bakerFee,
+            errors,
+            gasLimit,
+            gasUsed,
+            hash,
+            type,
+            status,
+            sender: sender.address,
+            time: timestamp || new Date().toISOString(),
+            isThanosPending: false as const,
+          };
+
+          if (isTransaction(operation)) {
+            const {
+              parameters,
+              amount,
+              initiator,
+              storageFee,
+              storageLimit,
+              storageUsed,
+              allocationFee,
+              target,
+            } = operation;
+
+            return {
+              ...baseProps,
+              parameters: parameters,
+              amount: amount,
+              initiator: initiator,
+              storageFee: storageFee,
+              storageLimit: storageLimit,
+              storageUsed: storageUsed,
+              allocationFee: allocationFee,
+              receiver: target.address,
+              type: "transaction",
+            };
+          }
+
+          if (isDelegation(operation)) {
+            const { amount, initiator, prevDelegate, newDelegate } = operation;
+
+            return {
+              ...baseProps,
+              amount: amount,
+              initiator: initiator,
+              prevDelegate: prevDelegate,
+              newDelegate: newDelegate,
+              type: "delegation",
+            };
+          }
+
+          return {
+            ...baseProps,
+            type: "reveal",
+          };
+        }),
     ];
   }, [bcdOperations, tzktOperations]);
 
@@ -233,10 +288,11 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     }
   }, [getOperationsError]);
 
-  const pendingOperations = useMemo<OperationPreview[]>(
+  type t1 = keyof ThanosPendingOperation;
+  const pendingOperations = useMemo<ThanosPendingOperation[]>(
     () =>
+      // @ts-ignore
       pndOps.map((op) => ({
-        ...op,
         hash: op.hash,
         type: op.kind,
         sender: accountPkh,
@@ -250,8 +306,8 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   );
 
   const [uniqueOps, nonUniqueOps] = useMemo(() => {
-    const unique: OperationPreview[] = [];
-    const nonUnique: OperationPreview[] = [];
+    const unique: ThanosOperation[] = [];
+    const nonUnique: ThanosOperation[] = [];
 
     for (const pndOp of pendingOperations) {
       const expired =
@@ -323,7 +379,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
           accountPkh={accountPkh}
           withExplorer={withExplorer}
           explorerBaseUrl={explorerBaseUrl}
-          {...op}
+          operation={op}
         />
       ))}
 
@@ -409,26 +465,24 @@ function parseOperationsFetcherQueryKey(queryKey: string) {
   };
 }
 
-type OperationProps = OperationPreview & {
+type OperationProps = {
+  operation: ThanosOperation;
   accountPkh: string;
   withExplorer: boolean;
   explorerBaseUrl: string | null;
 };
 
 const Operation = React.memo<OperationProps>(
-  ({
-    accountPkh,
-    contractAddress,
-    hash,
-    withExplorer,
-    explorerBaseUrl,
-    type,
-    receiver,
-    volume,
-    status,
-    time,
-    parameters,
-  }) => {
+  ({ accountPkh, operation, withExplorer, explorerBaseUrl }) => {
+    const { hash, type, status, time } = operation;
+    const parameters = isTzktTransaction(operation)
+      ? operation.parameters
+      : undefined;
+    const contractAddress = isTokenTransaction(operation)
+      ? operation.contract
+      : undefined;
+    const receiver = hasReceiver(operation) ? operation.receiver : undefined;
+    const amount = (hasAmount(operation) && operation.amount) || 0;
     const { allAssets } = useAssets();
 
     const token = useMemo(
@@ -458,8 +512,8 @@ const Operation = React.memo<OperationProps>(
     const finalVolume = tokenParsed
       ? tokenParsed.volume
       : contractAddress
-      ? volume
-      : new BigNumber(volume).div(1e6).toNumber();
+      ? amount
+      : new BigNumber(amount).div(1e6).toNumber();
 
     const volumeExists = finalVolume !== 0;
     const typeTx = type === "transaction";
@@ -564,10 +618,7 @@ const Operation = React.memo<OperationProps>(
                     )}
                   >
                     {typeTx && (imReceiver ? "+" : "-")}
-                    <Money>{finalVolume}</Money>{" "}
-                    {contractAddress
-                      ? token?.symbol || contractAddress.substr(2, 3)
-                      : "ꜩ"}
+                    <Money>{finalVolume}</Money> {token ? token.symbol : "ꜩ"}
                   </div>
 
                   <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
@@ -585,7 +636,6 @@ const Operation = React.memo<OperationProps>(
         </div>
       ),
       [
-        contractAddress,
         hash,
         finalVolume,
         imReceiver,
@@ -678,7 +728,7 @@ function formatOperationType(type: string, imReciever: boolean) {
     .join(" ");
 }
 
-function opKey(op: OperationPreview) {
+function opKey(op: ThanosOperation) {
   return `${op.hash}_${op.type}`;
 }
 
