@@ -2,12 +2,13 @@ import { useSWRInfinite } from "swr";
 import { fetcherFn } from "swr/esm/types";
 import { useCallback, useMemo } from "react";
 
-export interface InfiniteListParams<PageData, Result> {
+export interface InfiniteListParams<
+  PageData,
+  Result,
+  Key extends string | any[] | null
+> {
   getDataLength: (pageData: PageData) => number;
-  getKey: (
-    index: number,
-    previousPageData: PageData | null
-  ) => string | any[] | null;
+  getKey: (index: number, previousPageData: PageData | null) => Key;
   fetcher: fetcherFn<PageData>;
   transformFn: (pagesData: PageData[]) => Result;
   itemsPerPage: number;
@@ -26,8 +27,12 @@ export interface InfiniteListResponseInterface<Result> {
   clear: () => void;
 }
 
-export default function useInfiniteList<PageData, Result>(
-  params: InfiniteListParams<PageData, Result>
+export default function useInfiniteList<
+  PageData,
+  Result,
+  Key extends string | any[] | null
+>(
+  params: InfiniteListParams<PageData, Result, Key>
 ): InfiniteListResponseInterface<Result> {
   const { getDataLength, getKey, fetcher, transformFn, itemsPerPage } = params;
 

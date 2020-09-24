@@ -1,14 +1,10 @@
-import * as React from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
-import { useRetryableSWR } from "lib/swr";
 import {
-  BcdContractType,
   BcdPageableTokenTransfers,
-  BcdTokenContract,
   BcdTokenTransfer,
-  getContracts,
   getTokenTransfers,
   isBcdSupportedNetwork,
 } from "lib/better-call-dev";
@@ -26,7 +22,6 @@ import {
   useNetwork,
   usePendingOperations,
   useAssets,
-  ThanosToken,
 } from "lib/thanos/front";
 import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
@@ -55,45 +50,38 @@ interface OperationHistoryProps {
   accountPkh: string;
 }
 
-const tokensTypes: Record<
-  BcdContractType,
-  Exclude<ThanosAssetType, ThanosAssetType.XTZ>
-> = {
-  fa1: ThanosAssetType.FA1,
-  fa2: ThanosAssetType.FA2,
-  fa12: ThanosAssetType.FA1_2,
-};
-
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const network = useNetwork();
   const { pndOps, removePndOps } = usePendingOperations();
 
-  const bcdOperationsFetcher = React.useCallback(
-    async (lastId: string | any[]) => {
-      if (!isBcdSupportedNetwork(network.id)) {
-        return { transfers: [] };
+  const bcdOperationsGetKey = useCallback(
+    (index: number, previousPageData: BcdPageableTokenTransfers | null) => {
+      if (!previousPageData) {
+        return `bcdOperations,${network.id},${accountPkh}`;
       }
 
-      return getTokenTransfers({
-        address: accountPkh,
-        network: network.id,
-        last_id: typeof lastId === "string" ? lastId : undefined,
-      });
+      if (previousPageData.last_id) {
+        return `bcdOperations,${network.id},${accountPkh},${previousPageData.last_id}`;
+      }
+
+      return null;
     },
     [network.id, accountPkh]
   );
 
-  const tzktOperationsFetcher = React.useCallback(
-    async (lastId: string | any[]) => {
-      if (!isTzktSupportedNetwork(network.id)) {
-        return [];
+  const tzktOperationsGetKey = useCallback(
+    (index: number, previousOperations: TzktOperation[] | null) => {
+      if (!previousOperations) {
+        return `tzktOperations,${network.id},${accountPkh}`;
       }
 
-      return getOperations(network.id, {
-        address: accountPkh,
-        lastId: typeof lastId === "string" ? Number(lastId) : undefined,
-        limit: 10,
-      });
+      if (previousOperations.length === 0) {
+        return null;
+      }
+
+      return `tzktOperations,${network.id},${accountPkh},${
+        previousOperations[previousOperations.length - 1].id
+      }`;
     },
     [network.id, accountPkh]
   );
@@ -136,7 +124,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const isReachingEnd =
     isReachingBcdOperationsEnd && isReachingTzktOperationsEnd;
   const isRefreshing = isRefreshingBcdOperations || isRefreshingTzktOperations;
-  const loadMore = React.useCallback(() => {
+  const loadMore = useCallback(() => {
     if (!isReachingTzktOperationsEnd) {
       loadMoreTzktOperations();
     }
@@ -150,42 +138,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     loadMoreTzktOperations,
   ]);
 
-  const fetchBcdTokens = React.useCallback(async () => {
-    try {
-      if (network.id === "carthagenet" || !isBcdSupportedNetwork(network.id)) {
-        return [];
-      }
-
-      let last_id: number | undefined;
-      let total = Infinity;
-      let tokens: BcdTokenContract[] = [];
-      while (total > tokens.length) {
-        const {
-          last_id: newLastId,
-          tokens: tokensPart,
-          total: newTotal,
-        } = await getContracts({
-          network: network.id,
-          last_id,
-        });
-        last_id = newLastId;
-        total = newTotal;
-        tokens = [...tokens, ...tokensPart];
-      }
-
-      return tokens;
-    } catch (err) {
-      if (err?.origin?.response?.status === 404) {
-        return [];
-      }
-
-      // Human delay
-      await new Promise((r) => setTimeout(r, 300));
-      throw err;
-    }
-  }, [network.id]);
-
-  const operations = React.useMemo<OperationPreview[]>(() => {
+  const operations = useMemo<OperationPreview[]>(() => {
     return [
       ...bcdOperations.map((operation) => ({
         contractAddress: operation.contract,
@@ -226,7 +179,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     ];
   }, [bcdOperations, tzktOperations]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       refreshBcdOperations();
       refreshTzktOperations();
@@ -235,35 +188,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     return () => clearInterval(interval);
   }, [refreshBcdOperations, refreshTzktOperations]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (getOperationsError) {
       throw getOperationsError;
     }
   }, [getOperationsError]);
 
-  const { data: bcdTokens } = useRetryableSWR(
-    ["tokens", network.id],
-    fetchBcdTokens,
-    {
-      suspense: true,
-      dedupingInterval: 10_000,
-    }
-  );
-
-  const transformedBcdTokens = React.useMemo<ThanosToken[]>(
-    () =>
-      bcdTokens!.map((token) => ({
-        address: token.address,
-        type: tokensTypes[token.type],
-        decimals: 0,
-        symbol: token.alias || token.address.substr(2, 3),
-        name: token.alias || token.address.substr(2, 3),
-        fungible: false,
-      })),
-    [bcdTokens]
-  );
-
-  const pendingOperations = React.useMemo<OperationPreview[]>(
+  const pendingOperations = useMemo<OperationPreview[]>(
     () =>
       pndOps.map((op) => ({
         ...op,
@@ -278,7 +209,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     [pndOps, accountPkh]
   );
 
-  const [uniqueOps, nonUniqueOps] = React.useMemo(() => {
+  const [uniqueOps, nonUniqueOps] = useMemo(() => {
     const unique: OperationPreview[] = [];
     const nonUnique: OperationPreview[] = [];
 
@@ -307,13 +238,11 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     ];
   }, [operations, pendingOperations]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (nonUniqueOps.length > 0) {
       removePndOps(nonUniqueOps);
     }
   }, [removePndOps, nonUniqueOps]);
-
-  console.log(bcdOperations);
 
   return (
     <div
@@ -347,12 +276,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       )}
 
       {uniqueOps.map((op) => (
-        <Operation
-          key={opKey(op)}
-          accountPkh={accountPkh}
-          bcdTokens={transformedBcdTokens}
-          {...op}
-        />
+        <Operation key={opKey(op)} accountPkh={accountPkh} {...op} />
       ))}
 
       {!getOperationsError && (
@@ -376,11 +300,19 @@ function bcdGetDataLength(pageData: BcdPageableTokenTransfers) {
   return pageData.transfers.length;
 }
 
-function bcdOperationsGetKey(
-  index: number,
-  previousPageData: BcdPageableTokenTransfers | null
-) {
-  return previousPageData?.last_id || [1];
+async function bcdOperationsFetcher(queryKey: string) {
+  const { networkId, accountPkh, lastId } = parseOperationsFetcherQueryKey(
+    queryKey
+  );
+  if (!isBcdSupportedNetwork(networkId)) {
+    return { transfers: [] };
+  }
+
+  return getTokenTransfers({
+    address: accountPkh,
+    network: networkId,
+    last_id: lastId,
+  });
 }
 
 function bcdOperationsTransformFn(pagesData: BcdPageableTokenTransfers[]) {
@@ -394,12 +326,19 @@ function tzktGetDataLength(pageData: TzktOperation[]) {
   return pageData.length;
 }
 
-function tzktOperationsGetKey(
-  index: number,
-  previousOperations: TzktOperation[] | null
-) {
-  const id = previousOperations?.[previousOperations?.length - 1].id;
-  return id ? String(id) : [2];
+async function tzktOperationsFetcher(queryKey: string) {
+  const { networkId, accountPkh, lastId } = parseOperationsFetcherQueryKey(
+    queryKey
+  );
+  if (!isTzktSupportedNetwork(networkId)) {
+    return [];
+  }
+
+  return getOperations(networkId, {
+    address: accountPkh,
+    lastId: lastId !== undefined ? Number(lastId) : undefined,
+    limit: 10,
+  });
 }
 
 function tzktOperationsTransformFn(pagesData: TzktOperation[][]) {
@@ -409,20 +348,28 @@ function tzktOperationsTransformFn(pagesData: TzktOperation[][]) {
   );
 }
 
+function parseOperationsFetcherQueryKey(queryKey: string) {
+  const [queryName, networkId, accountPkh, lastId] = queryKey.split(",");
+
+  return {
+    queryName,
+    networkId,
+    accountPkh,
+    lastId,
+  };
+}
+
 type OperationProps = OperationPreview & {
   accountPkh: string;
-  bcdTokens: ThanosToken[];
 };
 
 const Operation = React.memo<OperationProps>(
   ({
     accountPkh,
-    bcdTokens,
     contractAddress,
     hash,
     type,
     receiver,
-    sender,
     volume,
     status,
     time,
@@ -430,19 +377,18 @@ const Operation = React.memo<OperationProps>(
   }) => {
     const { allAssets } = useAssets();
 
-    const token = React.useMemo(
+    const token = useMemo(
       () =>
         (parameters &&
           allAssets.find(
             (a) =>
               a.type !== ThanosAssetType.XTZ && a.address === contractAddress
           )) ||
-        bcdTokens.find(({ address }) => address === contractAddress) ||
         null,
-      [allAssets, parameters, contractAddress, bcdTokens]
+      [allAssets, parameters, contractAddress]
     );
 
-    const tokenParsed = React.useMemo(
+    const tokenParsed = useMemo(
       () =>
         (parameters &&
           (tryParseParameters(
@@ -466,7 +412,7 @@ const Operation = React.memo<OperationProps>(
     const imReceiver = finalReceiver === accountPkh;
     const pending = status === "backtracked";
 
-    return React.useMemo(
+    return useMemo(
       () => (
         <div className={classNames("my-3", "flex items-stretch")}>
           <div className="mr-2">
@@ -575,9 +521,9 @@ type TimeProps = {
 };
 
 const Time: React.FC<TimeProps> = ({ children }) => {
-  const [value, setValue] = React.useState(children);
+  const [value, setValue] = useState(children);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setValue(children());
     }, 5_000);
@@ -589,10 +535,6 @@ const Time: React.FC<TimeProps> = ({ children }) => {
 
   return value;
 };
-
-function isContractAddress(address: string) {
-  return address.startsWith("KT");
-}
 
 function formatOperationType(type: string, imReciever: boolean) {
   if (type === "transaction") {
