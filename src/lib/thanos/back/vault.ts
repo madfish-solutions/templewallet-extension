@@ -5,6 +5,8 @@ import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
 import { TezosToolkit, CompositeForger, RpcForger } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
+import { LedgerSigner, DerivationType } from "@taquito/ledger-signer";
+import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
 import * as Passworder from "lib/thanos/passworder";
 import {
   ThanosAccount,
@@ -70,6 +72,7 @@ export class Vault {
         type: ThanosAccountType.HD,
         name: "Account 1",
         publicKeyHash: accPublicKeyHash,
+        hdIndex: hdAccIndex,
       };
       const newAccounts = [initialAccount];
 
@@ -210,6 +213,7 @@ export class Vault {
         type: ThanosAccountType.HD,
         name: name || getNewAccountName(allAccounts),
         publicKeyHash: accPublicKeyHash,
+        hdIndex: hdAccIndex,
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 
@@ -297,6 +301,13 @@ export class Vault {
       return this.importAccount(privateKey);
     });
   }
+
+  // async connectLedgerAccount() {
+  //   return withError("Failed to connect Ledger account", async () => {
+  //     const ledgerSigner = await createLedgerSigner();
+
+  //   });
+  // }
 
   async editAccountName(accPublicKeyHash: string, name: string) {
     return withError("Failed to edit account name", async () => {
@@ -407,6 +418,7 @@ const MIGRATIONS = [
       type: ThanosAccountType.HD,
       name: getNewAccountName(accounts),
       publicKeyHash: accPublicKeyHash,
+      hdIndex: hdAccIndex,
     };
     const newAccounts = [newInitialAccount, ...migratedAccounts];
 
@@ -457,6 +469,16 @@ async function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
 }
 
+async function createLedgerSigner(hdAccIndex: number) {
+  const transport = await TransportWebAuthn.create();
+  return new LedgerSigner(
+    transport,
+    getMainDerivationPath(hdAccIndex),
+    true,
+    DerivationType.tz1
+  );
+}
+
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
   return seedToPrivateKey(deriveSeed(seed, getMainDerivationPath(hdAccIndex)));
 }
@@ -505,3 +527,16 @@ async function withError<T>(
 }
 
 class PublicError extends Error {}
+
+// setTimeout(async () => {
+//   try {
+//     const signer = await createLedgerSigner(0);
+//     const tezos = new TezosToolkit();
+//     tezos.setProvider({ signer });
+//     const publicKey = await tezos.signer.publicKey();
+//     const publicKeyHash = await tezos.signer.publicKeyHash();
+//     console.info({ publicKey, publicKeyHash });
+//   } catch (err) {
+//     console.error(err);
+//   }
+// }, 10_000);
