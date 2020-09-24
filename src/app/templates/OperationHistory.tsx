@@ -40,7 +40,7 @@ import {
   ThanosHistoricalTzktOperation,
   ThanosOperation,
   ThanosPendingOperation,
-} from "lib/transactionHistoryTypings";
+} from "lib/thanos/types";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 
