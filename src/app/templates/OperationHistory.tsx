@@ -30,25 +30,23 @@ import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import useInfiniteList from "lib/useInfiniteList";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import {
+  hasAmount,
+  hasReceiver,
+  isTokenTransaction,
+  isTzktTransaction,
+  ThanosHistoricalOperation,
+  ThanosHistoricalTokenTransaction,
+  ThanosHistoricalTzktOperation,
+  ThanosOperation,
+  ThanosPendingOperation,
+} from "lib/transactionHistoryTypings";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 
-interface OperationPreview {
-  contractAddress?: string;
-  hash: string;
-  newDelegate?: string;
-  type: string;
-  receiver: string;
-  volume: number;
-  sender: string;
-  status: string;
-  time: string;
-  parameters?: string;
-}
-
-interface OperationHistoryProps {
+type OperationHistoryProps = {
   accountPkh: string;
-}
+};
 
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const network = useNetwork();
@@ -138,18 +136,21 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     loadMoreTzktOperations,
   ]);
 
-  const operations = useMemo<OperationPreview[]>(() => {
+  const operations = useMemo<ThanosHistoricalOperation[]>(() => {
     return [
-      ...bcdOperations.map((operation) => ({
-        contractAddress: operation.contract,
-        hash: operation.hash,
-        type: "transaction",
-        receiver: operation.to,
-        sender: operation.source,
-        volume: operation.amount,
-        status: operation.status,
-        time: operation.timestamp,
-      })),
+      ...bcdOperations.map<ThanosHistoricalTokenTransaction>(
+        ({ contract, hash, to, source, amount, status, timestamp }) => ({
+          contract: contract,
+          hash: hash,
+          type: "transaction",
+          receiver: to,
+          sender: source,
+          amount: amount,
+          status: status,
+          time: timestamp,
+          isThanosPending: false,
+        })
+      ),
       ...tzktOperations
         .filter((operation) => {
           if (!isTransaction(operation)) {
@@ -161,21 +162,75 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             tryParseParameters(null, operation.parameters);
           return !parsedParams || isTransferParameters(parsedParams);
         })
-        .map((operation) => ({
-          hash: operation.hash,
-          parameters: isTransaction(operation)
-            ? operation.parameters
-            : undefined,
-          newDelegate: isDelegation(operation)
-            ? operation.newDelegate?.address
-            : undefined,
-          type: operation.type,
-          sender: operation.sender.address,
-          receiver: isTransaction(operation) ? operation.target.address : "",
-          volume: isTransaction(operation) ? operation.amount : 0,
-          status: operation.status,
-          time: operation.timestamp || new Date().toISOString(),
-        })),
+        .map<ThanosHistoricalTzktOperation>((operation) => {
+          const {
+            bakerFee,
+            errors,
+            gasLimit,
+            gasUsed,
+            hash,
+            type,
+            status,
+            sender,
+            timestamp,
+          } = operation;
+          const baseProps = {
+            bakerFee,
+            errors,
+            gasLimit,
+            gasUsed,
+            hash,
+            type,
+            status,
+            sender: sender.address,
+            time: timestamp || new Date().toISOString(),
+            isThanosPending: false as const,
+          };
+
+          if (isTransaction(operation)) {
+            const {
+              parameters,
+              amount,
+              initiator,
+              storageFee,
+              storageLimit,
+              storageUsed,
+              allocationFee,
+              target,
+            } = operation;
+
+            return {
+              ...baseProps,
+              parameters: parameters,
+              amount: amount,
+              initiator: initiator,
+              storageFee: storageFee,
+              storageLimit: storageLimit,
+              storageUsed: storageUsed,
+              allocationFee: allocationFee,
+              receiver: target.address,
+              type: "transaction",
+            };
+          }
+
+          if (isDelegation(operation)) {
+            const { amount, initiator, prevDelegate, newDelegate } = operation;
+
+            return {
+              ...baseProps,
+              amount: amount,
+              initiator: initiator,
+              prevDelegate: prevDelegate,
+              newDelegate: newDelegate,
+              type: "delegation",
+            };
+          }
+
+          return {
+            ...baseProps,
+            type: "reveal",
+          };
+        }),
     ];
   }, [bcdOperations, tzktOperations]);
 
@@ -194,15 +249,16 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     }
   }, [getOperationsError]);
 
-  const pendingOperations = useMemo<OperationPreview[]>(
+  type t1 = keyof ThanosPendingOperation;
+  const pendingOperations = useMemo<ThanosPendingOperation[]>(
     () =>
+      // @ts-ignore
       pndOps.map((op) => ({
-        ...op,
         hash: op.hash,
         type: op.kind,
         sender: accountPkh,
         receiver: op.destination ?? "",
-        volume: op.amount ?? 0,
+        amount: op.amount ?? 0,
         status: "backtracked",
         time: op.addedAt,
       })),
@@ -210,8 +266,8 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   );
 
   const [uniqueOps, nonUniqueOps] = useMemo(() => {
-    const unique: OperationPreview[] = [];
-    const nonUnique: OperationPreview[] = [];
+    const unique: ThanosOperation[] = [];
+    const nonUnique: ThanosOperation[] = [];
 
     for (const pndOp of pendingOperations) {
       const expired =
@@ -276,7 +332,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       )}
 
       {uniqueOps.map((op) => (
-        <Operation key={opKey(op)} accountPkh={accountPkh} {...op} />
+        <Operation key={opKey(op)} accountPkh={accountPkh} operation={op} />
       ))}
 
       {!getOperationsError && (
@@ -359,162 +415,154 @@ function parseOperationsFetcherQueryKey(queryKey: string) {
   };
 }
 
-type OperationProps = OperationPreview & {
+type OperationProps = {
+  operation: ThanosOperation;
   accountPkh: string;
 };
 
-const Operation = React.memo<OperationProps>(
-  ({
-    accountPkh,
-    contractAddress,
-    hash,
-    type,
-    receiver,
-    volume,
-    status,
-    time,
-    parameters,
-  }) => {
-    const { allAssets } = useAssets();
+const Operation = React.memo<OperationProps>(({ accountPkh, operation }) => {
+  const { hash, type, status, time } = operation;
+  const parameters = isTzktTransaction(operation)
+    ? operation.parameters
+    : undefined;
+  const contractAddress = isTokenTransaction(operation)
+    ? operation.contract
+    : undefined;
+  const receiver = hasReceiver(operation) ? operation.receiver : undefined;
+  const amount = (hasAmount(operation) && operation.amount) || 0;
+  const { allAssets } = useAssets();
 
-    const token = useMemo(
-      () =>
-        (parameters &&
-          allAssets.find(
-            (a) =>
-              a.type !== ThanosAssetType.XTZ && a.address === contractAddress
-          )) ||
-        null,
-      [allAssets, parameters, contractAddress]
-    );
+  const token = useMemo(
+    () =>
+      (parameters &&
+        allAssets.find(
+          (a) => a.type !== ThanosAssetType.XTZ && a.address === contractAddress
+        )) ||
+      null,
+    [allAssets, parameters, contractAddress]
+  );
 
-    const tokenParsed = useMemo(
-      () =>
-        (parameters &&
-          (tryParseParameters(
-            token,
-            parameters
-          ) as ParsedTransferParameters)) ||
-        null,
-      [token, parameters]
-    );
+  const tokenParsed = useMemo(
+    () =>
+      (parameters &&
+        (tryParseParameters(token, parameters) as ParsedTransferParameters)) ||
+      null,
+    [token, parameters]
+  );
 
-    const finalReceiver =
-      contractAddress && tokenParsed ? tokenParsed.receiver : receiver;
-    const finalVolume = tokenParsed
-      ? tokenParsed.volume
-      : contractAddress
-      ? volume
-      : new BigNumber(volume).div(1e6).toNumber();
+  const finalReceiver =
+    contractAddress && tokenParsed ? tokenParsed.receiver : receiver;
+  const finalVolume = tokenParsed
+    ? tokenParsed.volume
+    : contractAddress
+    ? amount
+    : new BigNumber(amount).div(1e6).toNumber();
 
-    const volumeExists = finalVolume !== 0;
-    const typeTx = type === "transaction";
-    const imReceiver = finalReceiver === accountPkh;
-    const pending = status === "backtracked";
+  const volumeExists = finalVolume !== 0;
+  const typeTx = type === "transaction";
+  const imReceiver = finalReceiver === accountPkh;
+  const pending = status === "backtracked";
 
-    return useMemo(
-      () => (
-        <div className={classNames("my-3", "flex items-stretch")}>
-          <div className="mr-2">
-            <Identicon hash={hash} size={50} className="shadow-xs" />
+  return useMemo(
+    () => (
+      <div className={classNames("my-3", "flex items-stretch")}>
+        <div className="mr-2">
+          <Identicon hash={hash} size={50} className="shadow-xs" />
+        </div>
+
+        <div className="flex-1">
+          <div className="flex items-center">
+            <HashChip
+              hash={hash}
+              firstCharsCount={10}
+              lastCharsCount={7}
+              small
+              className="mr-2"
+            />
+
+            <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
           </div>
 
-          <div className="flex-1">
-            <div className="flex items-center">
-              <HashChip
-                hash={hash}
-                firstCharsCount={10}
-                lastCharsCount={7}
-                small
-                className="mr-2"
-              />
+          <div className="flex items-stretch">
+            <div className="flex flex-col">
+              <span className="mt-1 text-xs text-blue-600 opacity-75">
+                {formatOperationType(type, imReceiver)}
+              </span>
 
-              <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
-            </div>
-
-            <div className="flex items-stretch">
-              <div className="flex flex-col">
-                <span className="mt-1 text-xs text-blue-600 opacity-75">
-                  {formatOperationType(type, imReceiver)}
+              {pending ? (
+                <span className="text-xs text-yellow-600 font-light">
+                  pending...
                 </span>
-
-                {pending ? (
-                  <span className="text-xs text-yellow-600 font-light">
-                    pending...
-                  </span>
-                ) : (
-                  <Time
-                    children={() => (
-                      <span className="text-xs text-gray-500 font-light">
-                        {formatDistanceToNow(new Date(time), {
-                          includeSeconds: true,
-                          addSuffix: true,
-                        })}
-                      </span>
-                    )}
-                  />
-                )}
-              </div>
-
-              <div className="flex-1" />
-
-              {volumeExists && (
-                <div className="flex-shrink-0 flex flex-col items-end">
-                  <div
-                    className={classNames(
-                      "text-sm",
-                      (() => {
-                        switch (true) {
-                          case pending:
-                            return "text-yellow-600";
-
-                          case typeTx:
-                            return imReceiver
-                              ? "text-green-500"
-                              : "text-red-700";
-
-                          default:
-                            return "text-gray-800";
-                        }
-                      })()
-                    )}
-                  >
-                    {typeTx && (imReceiver ? "+" : "-")}
-                    <Money>{finalVolume}</Money>{" "}
-                    {contractAddress
-                      ? token?.symbol || contractAddress.substr(2, 3)
-                      : "ꜩ"}
-                  </div>
-
-                  <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
-                    {(usdVolume) => (
-                      <div className="text-xs text-gray-500">
-                        <span className="mr-px">$</span>
-                        {usdVolume}
-                      </div>
-                    )}
-                  </InUSD>
-                </div>
+              ) : (
+                <Time
+                  children={() => (
+                    <span className="text-xs text-gray-500 font-light">
+                      {formatDistanceToNow(new Date(time), {
+                        includeSeconds: true,
+                        addSuffix: true,
+                      })}
+                    </span>
+                  )}
+                />
               )}
             </div>
+
+            <div className="flex-1" />
+
+            {volumeExists && (
+              <div className="flex-shrink-0 flex flex-col items-end">
+                <div
+                  className={classNames(
+                    "text-sm",
+                    (() => {
+                      switch (true) {
+                        case pending:
+                          return "text-yellow-600";
+
+                        case typeTx:
+                          return imReceiver ? "text-green-500" : "text-red-700";
+
+                        default:
+                          return "text-gray-800";
+                      }
+                    })()
+                  )}
+                >
+                  {typeTx && (imReceiver ? "+" : "-")}
+                  <Money>{finalVolume}</Money>{" "}
+                  {contractAddress
+                    ? token?.symbol || contractAddress.substr(2, 3)
+                    : "ꜩ"}
+                </div>
+
+                <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
+                  {(usdVolume) => (
+                    <div className="text-xs text-gray-500">
+                      <span className="mr-px">$</span>
+                      {usdVolume}
+                    </div>
+                  )}
+                </InUSD>
+              </div>
+            )}
           </div>
         </div>
-      ),
-      [
-        contractAddress,
-        hash,
-        finalVolume,
-        imReceiver,
-        pending,
-        time,
-        token,
-        type,
-        typeTx,
-        volumeExists,
-      ]
-    );
-  }
-);
+      </div>
+    ),
+    [
+      contractAddress,
+      hash,
+      finalVolume,
+      imReceiver,
+      pending,
+      time,
+      token,
+      type,
+      typeTx,
+      volumeExists,
+    ]
+  );
+});
 
 type TimeProps = {
   children: () => React.ReactElement;
@@ -547,7 +595,7 @@ function formatOperationType(type: string, imReciever: boolean) {
     .join(" ");
 }
 
-function opKey(op: OperationPreview) {
+function opKey(op: ThanosOperation) {
   return `${op.hash}_${op.type}`;
 }
 
