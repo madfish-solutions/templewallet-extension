@@ -47,7 +47,7 @@ import {
   ThanosHistoricalTzktOperation,
   ThanosOperation,
   ThanosPendingOperation,
-} from "lib/transactionHistoryTypings";
+} from "lib/thanos/types";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const TZKT_BASE_URLS = new Map([
@@ -282,13 +282,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   type t1 = keyof ThanosPendingOperation;
   const pendingOperations = useMemo<ThanosPendingOperation[]>(
     () =>
-      // @ts-ignore
       pndOps.map((op) => ({
+        isThanosPending: true,
         hash: op.hash,
         type: op.kind,
         sender: accountPkh,
         receiver: op.kind === OpKind.TRANSACTION ? op.destination : "",
-        volume: op.kind === OpKind.TRANSACTION ? op.amount : "0",
+        amount: +(op.kind === OpKind.TRANSACTION ? op.amount : "0"),
         status: "backtracked",
         parameters: "",
         time: op.addedAt,
