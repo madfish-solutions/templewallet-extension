@@ -1,4 +1,4 @@
-import { useSWRInfinite } from "swr";
+import { SWRInfiniteConfigInterface, useSWRInfinite } from "swr";
 import { fetcherFn } from "swr/esm/types";
 import { useCallback, useMemo } from "react";
 
@@ -7,6 +7,7 @@ export interface InfiniteListParams<
   Result,
   Key extends string | any[] | null
 > {
+  additionalConfig?: SWRInfiniteConfigInterface<PageData, any>;
   getDataLength: (pageData: PageData) => number;
   getKey: (index: number, previousPageData: PageData | null) => Key;
   fetcher: fetcherFn<PageData>;
@@ -34,11 +35,18 @@ export default function useInfiniteList<
 >(
   params: InfiniteListParams<PageData, Result, Key>
 ): InfiniteListResponseInterface<Result> {
-  const { getDataLength, getKey, fetcher, transformFn, itemsPerPage } = params;
+  const {
+    additionalConfig,
+    getDataLength,
+    getKey,
+    fetcher,
+    transformFn,
+    itemsPerPage,
+  } = params;
 
   const { isValidating, error, data, mutate, setSize, size } = useSWRInfinite<
     PageData
-  >(getKey, fetcher, { shouldRetryOnError: false });
+  >(getKey, fetcher, { shouldRetryOnError: false, ...additionalConfig });
 
   const isLoadingInitialData = !data && !error;
   const isLoadingMore =

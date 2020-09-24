@@ -91,8 +91,8 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     isReachingEnd: isReachingBcdOperationsEnd,
     loadMore: loadMoreBcdOperations,
     isRefreshing: isRefreshingBcdOperations,
-    refresh: refreshBcdOperations,
   } = useInfiniteList({
+    additionalConfig: { refreshInterval: 15000 },
     getDataLength: bcdGetDataLength,
     getKey: bcdOperationsGetKey,
     fetcher: bcdOperationsFetcher,
@@ -107,8 +107,8 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     isReachingEnd: isReachingTzktOperationsEnd,
     loadMore: loadMoreTzktOperations,
     isRefreshing: isRefreshingTzktOperations,
-    refresh: refreshTzktOperations,
   } = useInfiniteList({
+    additionalConfig: { refreshInterval: 15000 },
     getDataLength: tzktGetDataLength,
     getKey: tzktOperationsGetKey,
     fetcher: tzktOperationsFetcher,
@@ -233,15 +233,6 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
         }),
     ];
   }, [bcdOperations, tzktOperations]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refreshBcdOperations();
-      refreshTzktOperations();
-    }, 15_000);
-
-    return () => clearInterval(interval);
-  }, [refreshBcdOperations, refreshTzktOperations]);
 
   useEffect(() => {
     if (getOperationsError) {
