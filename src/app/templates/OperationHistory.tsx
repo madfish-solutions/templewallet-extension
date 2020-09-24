@@ -8,7 +8,9 @@ import { TZSTATS_CHAINS } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
 import {
   BcdContractType,
+  BcdPageableTokenTransfers,
   BcdTokenContract,
+  BcdTokenTransfer,
   getContracts,
   getTokenTransfers,
   isBcdSupportedNetwork,
@@ -18,6 +20,7 @@ import {
   isDelegation,
   isTransaction,
   isTzktSupportedNetwork,
+  TzktOperation,
 } from "lib/tzkt";
 import {
   ThanosAsset,
@@ -36,6 +39,8 @@ import HashChip from "app/atoms/HashChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
+import useInfiniteList from "lib/useInfiniteList";
+import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const TZKT_BASE_URLS = new Map([
@@ -101,28 +106,89 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     [chainId]
   );
 
-  const fetchBcdOperations = React.useCallback(async () => {
-    if (!isBcdSupportedNetwork(network.id)) {
-      return { transfers: [] };
-    }
+  const bcdOperationsFetcher = React.useCallback(
+    async (lastId: string | any[]) => {
+      if (!isBcdSupportedNetwork(network.id)) {
+        return { transfers: [] };
+      }
 
-    return getTokenTransfers({
-      address: accountPkh,
-      network: network.id,
-    });
-  }, [network.id, accountPkh]);
-
-  const fetchTzktOperations = React.useCallback(async () => {
-    if (!isTzktSupportedNetwork(network.id)) {
-      return [];
-    }
-
-    return (
-      await getOperations(network.id, {
+      return getTokenTransfers({
         address: accountPkh,
-      })
-    ).data;
-  }, [network.id, accountPkh]);
+        network: network.id,
+        last_id: typeof lastId === "string" ? lastId : undefined,
+      });
+    },
+    [network.id, accountPkh]
+  );
+
+  const tzktOperationsFetcher = React.useCallback(
+    async (lastId: string | any[]) => {
+      if (!isTzktSupportedNetwork(network.id)) {
+        return [];
+      }
+
+      return (
+        await getOperations(network.id, {
+          address: accountPkh,
+          lastId: typeof lastId === "string" ? Number(lastId) : undefined,
+          limit: 10,
+        })
+      ).data;
+    },
+    [network.id, accountPkh]
+  );
+
+  const {
+    result: bcdOperations,
+    error: bcdError,
+    isLoadingMore: isLoadingMoreBcdOperations,
+    isReachingEnd: isReachingBcdOperationsEnd,
+    loadMore: loadMoreBcdOperations,
+    isRefreshing: isRefreshingBcdOperations,
+    refresh: refreshBcdOperations,
+  } = useInfiniteList({
+    getDataLength: bcdGetDataLength,
+    getKey: bcdOperationsGetKey,
+    fetcher: bcdOperationsFetcher,
+    transformFn: bcdOperationsTransformFn,
+    itemsPerPage: 10,
+  });
+
+  const {
+    result: tzktOperations,
+    error: tzktError,
+    isLoadingMore: isLoadingMoreTzktOperations,
+    isReachingEnd: isReachingTzktOperationsEnd,
+    loadMore: loadMoreTzktOperations,
+    isRefreshing: isRefreshingTzktOperations,
+    refresh: refreshTzktOperations,
+  } = useInfiniteList({
+    getDataLength: tzktGetDataLength,
+    getKey: tzktOperationsGetKey,
+    fetcher: tzktOperationsFetcher,
+    transformFn: tzktOperationsTransformFn,
+    itemsPerPage: 10,
+  });
+
+  const getOperationsError = bcdError || tzktError;
+  const isLoadingMore =
+    isLoadingMoreBcdOperations || isLoadingMoreTzktOperations;
+  const isReachingEnd =
+    isReachingBcdOperationsEnd && isReachingTzktOperationsEnd;
+  const isRefreshing = isRefreshingBcdOperations || isRefreshingTzktOperations;
+  const loadMore = React.useCallback(() => {
+    if (!isReachingTzktOperationsEnd) {
+      loadMoreTzktOperations();
+    }
+    if (!isReachingBcdOperationsEnd) {
+      loadMoreBcdOperations();
+    }
+  }, [
+    isReachingTzktOperationsEnd,
+    isReachingBcdOperationsEnd,
+    loadMoreBcdOperations,
+    loadMoreTzktOperations,
+  ]);
 
   const fetchBcdTokens = React.useCallback(async () => {
     try {
@@ -159,71 +225,62 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     }
   }, [network.id]);
 
-  const fetchOperations = React.useCallback(async () => {
-    try {
-      const { transfers: bcdOps } = await fetchBcdOperations();
-      const tzktOps = await fetchTzktOperations();
+  const operations = React.useMemo<OperationPreview[]>(() => {
+    return [
+      ...bcdOperations.map((operation) => ({
+        contractAddress: operation.contract,
+        hash: operation.hash,
+        type: "transaction",
+        receiver: operation.to,
+        sender: operation.source,
+        volume: String(operation.amount),
+        status: operation.status,
+        time: operation.timestamp,
+      })),
+      ...tzktOperations
+        .filter((operation) => {
+          if (!isTransaction(operation)) {
+            return true;
+          }
 
-      return [
-        ...bcdOps.map((operation) => ({
-          contractAddress: operation.contract,
+          const parsedParams =
+            operation.parameters &&
+            tryParseParameters(null, operation.parameters);
+          return !parsedParams || isTransferParameters(parsedParams);
+        })
+        .map((operation) => ({
           hash: operation.hash,
-          type: "transaction",
-          receiver: operation.to,
-          sender: operation.source,
-          volume: String(operation.amount),
+          parameters: isTransaction(operation)
+            ? operation.parameters
+            : undefined,
+          newDelegate: isDelegation(operation)
+            ? operation.newDelegate?.address
+            : undefined,
+          type: operation.type,
+          sender: operation.sender.address,
+          receiver: isTransaction(operation) ? operation.target.address : "",
+          volume: String(isTransaction(operation) ? operation.amount : 0),
           status: operation.status,
-          time: operation.timestamp,
+          time: operation.timestamp || new Date().toISOString(),
         })),
-        ...tzktOps
-          .filter((operation) => {
-            if (!isTransaction(operation)) {
-              return true;
-            }
+    ];
+  }, [bcdOperations, tzktOperations]);
 
-            const parsedParams =
-              operation.parameters &&
-              tryParseParameters(null, operation.parameters);
-            return !parsedParams || isTransferParameters(parsedParams);
-          })
-          .map((operation) => ({
-            hash: operation.hash,
-            parameters: isTransaction(operation)
-              ? operation.parameters
-              : undefined,
-            newDelegate: isDelegation(operation)
-              ? operation.newDelegate?.address
-              : undefined,
-            type: operation.type,
-            sender: operation.sender.address,
-            receiver: isTransaction(operation) ? operation.target.address : "",
-            volume: String(isTransaction(operation) ? operation.amount : 0),
-            status: operation.status,
-            time: operation.timestamp || new Date().toISOString(),
-          })),
-      ].sort((a, b) => {
-        return new Date(b.time).getTime() - new Date(a.time).getTime();
-      });
-    } catch (err) {
-      if (err?.origin?.response?.status === 404) {
-        return [];
-      }
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      refreshBcdOperations();
+      refreshTzktOperations();
+    }, 15_000);
 
-      // Human delay
-      await new Promise((r) => setTimeout(r, 300));
-      throw err;
+    return () => clearInterval(interval);
+  }, [refreshBcdOperations, refreshTzktOperations]);
+
+  React.useEffect(() => {
+    if (getOperationsError) {
+      throw getOperationsError;
     }
-  }, [fetchBcdOperations, fetchTzktOperations]);
+  }, [getOperationsError]);
 
-  const { data } = useRetryableSWR(
-    ["operation-history", network.id, accountPkh],
-    fetchOperations,
-    {
-      suspense: true,
-      refreshInterval: 15_000,
-      dedupingInterval: 10_000,
-    }
-  );
   const { data: bcdTokens } = useRetryableSWR(
     ["tokens", network.id],
     fetchBcdTokens,
@@ -232,7 +289,6 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       dedupingInterval: 10_000,
     }
   );
-  const operations = data!;
 
   const transformedBcdTokens = React.useMemo<ThanosToken[]>(
     () =>
@@ -308,6 +364,8 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     [chainId]
   );
 
+  console.log(bcdOperations);
+
   return (
     <div
       className={classNames("mt-8", "w-full max-w-md mx-auto", "flex flex-col")}
@@ -341,11 +399,60 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
           {...op}
         />
       ))}
+
+      {!getOperationsError && (
+        <div className="w-full flex justify-center py-4">
+          <FormSecondaryButton
+            disabled={isRefreshing || isLoadingMore || isReachingEnd}
+            loading={isRefreshing || isLoadingMore}
+            onClick={loadMore}
+          >
+            {isReachingEnd ? "There are no more items" : "Load more"}
+          </FormSecondaryButton>
+        </div>
+      )}
     </div>
   );
 };
 
 export default OperationHistory;
+
+function bcdGetDataLength(pageData: BcdPageableTokenTransfers) {
+  return pageData.transfers.length;
+}
+
+function bcdOperationsGetKey(
+  index: number,
+  previousPageData: BcdPageableTokenTransfers | null
+) {
+  return previousPageData?.last_id || [1];
+}
+
+function bcdOperationsTransformFn(pagesData: BcdPageableTokenTransfers[]) {
+  return pagesData.reduce(
+    (operations, { transfers }) => [...operations, ...transfers],
+    [] as BcdTokenTransfer[]
+  );
+}
+
+function tzktGetDataLength(pageData: TzktOperation[]) {
+  return pageData.length;
+}
+
+function tzktOperationsGetKey(
+  index: number,
+  previousOperations: TzktOperation[] | null
+) {
+  const id = previousOperations?.[previousOperations?.length - 1].id;
+  return id ? String(id) : [2];
+}
+
+function tzktOperationsTransformFn(pagesData: TzktOperation[][]) {
+  return pagesData.reduce(
+    (resultPart, pageData) => [...resultPart, ...pageData],
+    [] as TzktOperation[]
+  );
+}
 
 type OperationProps = OperationPreview & {
   accountPkh: string;
@@ -358,11 +465,13 @@ const Operation = React.memo<OperationProps>(
   ({
     accountPkh,
     bcdTokens,
+    contractAddress,
     hash,
     withExplorer,
     explorerBaseUrl,
     type,
     receiver,
+    sender,
     volume,
     status,
     time,
@@ -374,25 +483,13 @@ const Operation = React.memo<OperationProps>(
       () =>
         (parameters &&
           allAssets.find(
-            (a) => a.type !== ThanosAssetType.XTZ && a.address === receiver
+            (a) =>
+              a.type !== ThanosAssetType.XTZ && a.address === contractAddress
           )) ||
-        bcdTokens.find(({ address }) => address === receiver) ||
+        bcdTokens.find(({ address }) => address === contractAddress) ||
         null,
-      [allAssets, parameters, receiver, bcdTokens]
+      [allAssets, parameters, contractAddress, bcdTokens]
     );
-
-    if (hash === "opJgbbaJEuQamoQ36wR4sLikvjZY5CBo1vwLNxJ5eXGjuwgTHmz") {
-      console.log(
-        hash,
-        receiver,
-        type,
-        receiver,
-        volume,
-        status,
-        time,
-        parameters
-      );
-    }
 
     const tokenParsed = React.useMemo(
       () =>
@@ -405,11 +502,11 @@ const Operation = React.memo<OperationProps>(
       [token, parameters]
     );
 
-    const receiverIsContract = receiver.startsWith("KT");
-    const finalReceiver = tokenParsed ? tokenParsed.receiver : receiver;
+    const finalReceiver =
+      contractAddress && tokenParsed ? tokenParsed.receiver : receiver;
     const finalVolume = tokenParsed
       ? tokenParsed.volume
-      : receiverIsContract
+      : contractAddress
       ? volume
       : new BigNumber(volume).div(1e6).toNumber();
 
@@ -517,8 +614,8 @@ const Operation = React.memo<OperationProps>(
                   >
                     {typeTx && (imReceiver ? "+" : "-")}
                     <Money>{finalVolume}</Money>{" "}
-                    {receiverIsContract
-                      ? token?.symbol || receiver.substr(2, 3)
+                    {contractAddress
+                      ? token?.symbol || contractAddress.substr(2, 3)
                       : "ꜩ"}
                   </div>
 
@@ -537,8 +634,7 @@ const Operation = React.memo<OperationProps>(
         </div>
       ),
       [
-        receiver,
-        receiverIsContract,
+        contractAddress,
         hash,
         finalVolume,
         imReceiver,
@@ -688,6 +784,7 @@ function tryParseParameters(
     return { sender, receiver, volume, entrypoint: "transfer" };
   } catch (e) {
     if (process.env.NODE_ENV === "development") {
+      console.error("Error while parsing parameters ", parameters);
       console.error(e);
     }
 

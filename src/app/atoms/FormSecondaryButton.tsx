@@ -28,7 +28,9 @@ const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
       loading ? "text-transparent" : "text-primary-orange",
       "text-base font-semibold",
       "transition duration-200 ease-in-out",
-      loading || disabled ? "opacity-75" : "opacity-90 hover:opacity-100",
+      loading || disabled
+        ? "opacity-75 pointer-events-none"
+        : "opacity-90 hover:opacity-100",
       loading || disabled
         ? "shadow-inner"
         : "shadow-sm hover:shadow focus:shadow",
