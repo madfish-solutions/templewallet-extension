@@ -28,16 +28,14 @@ const DAppSettings: React.FC = () => {
     true
   );
   const { getAllDAppSessions, removeDAppSession } = useThanosClient();
-  const { data } = useRetryableSWR<Record<string, ThanosDAppSession>>(
-    ["getAllDAppSessions"],
-    getAllDAppSessions,
-    {
-      suspense: true,
-      shouldRetryOnError: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
+  const { data, revalidate } = useRetryableSWR<
+    Record<string, ThanosDAppSession>
+  >(["getAllDAppSessions"], getAllDAppSessions, {
+    suspense: true,
+    shouldRetryOnError: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
   const dAppSessions = data!;
 
   const changingRef = React.useRef(false);
@@ -61,12 +59,13 @@ const DAppSettings: React.FC = () => {
   );
 
   const handleRemoveClick = React.useCallback(
-    (origin: string) => {
+    async (origin: string) => {
       if (window.confirm("Are you sure you want to reset permissions?")) {
-        removeDAppSession(origin);
+        await removeDAppSession(origin);
+        revalidate();
       }
     },
-    [removeDAppSession]
+    [removeDAppSession, revalidate]
   );
 
   const dAppEntries = Object.entries(dAppSessions);
