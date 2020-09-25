@@ -10,6 +10,7 @@ import {
   useNetwork,
 } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
+import { t } from "lib/i18n";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
@@ -60,35 +61,35 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
         {
           key: "create-account",
           Icon: AddIcon,
-          content: "Create account",
+          content: t("createAccount"),
           linkTo: "/create-account",
           onClick: closeDropdown,
         },
         {
           key: "import-account",
           Icon: DownloadIcon,
-          content: "Import account",
+          content: t("importAccount"),
           linkTo: "/import-account",
           onClick: closeDropdown,
         },
         network.type === "test" && {
           key: "import-faucet-file",
           Icon: CodeAltIcon,
-          content: "Import Faucet file",
+          content: t("importFaucetFile"),
           linkTo: "/import-faucet-file",
           onClick: closeDropdown,
         },
         {
           key: "settings",
           Icon: SettingsIcon,
-          content: "Settings",
+          content: t("settings"),
           linkTo: "/settings",
           onClick: closeDropdown,
         },
         {
           key: "maximise",
           Icon: MaximiseIcon,
-          content: appEnv.fullPage ? "Open new tab" : "Maximise view",
+          content: t(appEnv.fullPage ? "openNewTab" : "maximiseView"),
           linkTo: null,
           onClick: handleMaximiseViewClick,
         },
