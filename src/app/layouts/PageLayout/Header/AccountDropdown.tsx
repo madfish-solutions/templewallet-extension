@@ -10,7 +10,7 @@ import {
   useNetwork,
 } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
-import { I18nKeys, getMessage } from "app/i18n";
+import { t } from "lib/i18n";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
@@ -61,37 +61,35 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
         {
           key: "create-account",
           Icon: AddIcon,
-          content: getMessage(I18nKeys.CREATE_ACCOUNT),
+          content: t("createAccount"),
           linkTo: "/create-account",
           onClick: closeDropdown,
         },
         {
           key: "import-account",
           Icon: DownloadIcon,
-          content: getMessage(I18nKeys.IMPORT_ACCOUNT),
+          content: t("importAccount"),
           linkTo: "/import-account",
           onClick: closeDropdown,
         },
         network.type === "test" && {
           key: "import-faucet-file",
           Icon: CodeAltIcon,
-          content: getMessage(I18nKeys.IMPORT_FAUCET_FILE),
+          content: t("importFaucetFile"),
           linkTo: "/import-faucet-file",
           onClick: closeDropdown,
         },
         {
           key: "settings",
           Icon: SettingsIcon,
-          content: getMessage(I18nKeys.SETTINGS),
+          content: t("settings"),
           linkTo: "/settings",
           onClick: closeDropdown,
         },
         {
           key: "maximise",
           Icon: MaximiseIcon,
-          content: getMessage(
-            appEnv.fullPage ? I18nKeys.OPEN_NEW_TAB : I18nKeys.MAXIMISE_VIEW
-          ),
+          content: t(appEnv.fullPage ? "openNewTab" : "maximiseView"),
           linkTo: null,
           onClick: handleMaximiseViewClick,
         },
