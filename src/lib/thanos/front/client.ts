@@ -322,6 +322,23 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const getAllDAppSessions = React.useCallback(async () => {
+    const res = await request({
+      type: ThanosMessageType.DAppGetAllSessionsRequest,
+    });
+    assertResponse(res.type === ThanosMessageType.DAppGetAllSessionsResponse);
+    return res.sessions;
+  }, []);
+
+  const removeDAppSession = React.useCallback(async (origin: string) => {
+    const res = await request({
+      type: ThanosMessageType.DAppRemoveSessionRequest,
+      origin,
+    });
+    assertResponse(res.type === ThanosMessageType.DAppRemoveSessionResponse);
+    return res.sessions;
+  }, []);
+
   return {
     state,
 
@@ -360,6 +377,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     confirmDAppSign,
     createTaquitoWallet,
     createTaquitoSigner,
+    getAllDAppSessions,
+    removeDAppSession,
   };
 });
 
