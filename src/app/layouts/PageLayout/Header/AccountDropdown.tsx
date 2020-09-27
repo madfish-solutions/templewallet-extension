@@ -20,6 +20,7 @@ import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
@@ -69,6 +70,13 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           Icon: DownloadIcon,
           content: "Import account",
           linkTo: "/import-account",
+          onClick: closeDropdown,
+        },
+        {
+          key: "connect-ledger",
+          Icon: LinkIcon,
+          content: "Connect ledger",
+          linkTo: "/connect-ledger",
           onClick: closeDropdown,
         },
         network.type === "test" && {
