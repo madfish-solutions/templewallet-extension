@@ -12,18 +12,9 @@ export function useStorage<T = any>(
     revalidateOnReconnect: false,
   });
 
+  useOnStorageChanged(revalidate);
+
   const value = fallback !== undefined ? data ?? fallback : data!;
-
-  React.useEffect(() => {
-    browser.storage.onChanged.addListener(handleStorageChanged);
-    return () => {
-      browser.storage.onChanged.removeListener(handleStorageChanged);
-    };
-
-    function handleStorageChanged() {
-      revalidate();
-    }
-  }, [revalidate]);
 
   const setValue = React.useCallback(
     (val: React.SetStateAction<T>) => {
@@ -59,6 +50,13 @@ export function usePassiveStorage<T = any>(
   }, [key, value]);
 
   return [value, setValue];
+}
+
+export function useOnStorageChanged(handleStorageChanged: () => void) {
+  React.useEffect(() => {
+    browser.storage.onChanged.addListener(handleStorageChanged);
+    return () => browser.storage.onChanged.removeListener(handleStorageChanged);
+  }, [handleStorageChanged]);
 }
 
 async function fetchOne(key: string) {
