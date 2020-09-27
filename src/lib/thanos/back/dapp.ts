@@ -22,9 +22,10 @@ import {
   ThanosDAppPayload,
 } from "lib/thanos/types";
 import { intercom } from "lib/thanos/back/intercom";
+import * as PndOps from "lib/thanos/back/pndops";
 import { withUnlocked } from "lib/thanos/back/store";
 import { NETWORKS } from "lib/thanos/networks";
-import { isAddressValid } from "lib/thanos/helpers";
+import { loadChainId, isAddressValid } from "lib/thanos/helpers";
 
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 600;
@@ -174,6 +175,13 @@ export async function requestOperation(
               const op = await withUnlocked(({ vault }) =>
                 vault.sendOperations(dApp.pkh, networkRpc, req.opParams)
               );
+
+              try {
+                const chainId = await loadChainId(networkRpc);
+                const pndOps = PndOps.fromOpResults(op.results, op.hash);
+                await PndOps.append(dApp.pkh, chainId, pndOps);
+              } catch {}
+
               resolve({
                 type: ThanosDAppMessageType.OperationResponse,
                 opHash: op.hash,
