@@ -12,6 +12,7 @@ import {
   ThanosSettings,
   ThanosSharedStorageKey,
 } from "lib/thanos/types";
+import { loadChainId } from "lib/thanos/helpers";
 import { intercom } from "lib/thanos/back/intercom";
 import {
   toFront,
@@ -32,6 +33,7 @@ import {
   requestSign,
   requestBroadcast,
 } from "lib/thanos/back/dapp";
+import * as PndOps from "lib/thanos/back/pndops";
 import * as Beacon from "lib/thanos/beacon";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
@@ -192,7 +194,7 @@ export function sendOperations(
   sourcePkh: string,
   networkRpc: string,
   opParams: any[]
-): Promise<{ opHash: string; opResults: any[] }> {
+): Promise<{ opHash: string }> {
   return withUnlocked(
     () =>
       new Promise(async (resolve, reject) => {
@@ -244,10 +246,14 @@ export function sendOperations(
                   const op = await withUnlocked(({ vault }) =>
                     vault.sendOperations(sourcePkh, networkRpc, opParams)
                   );
-                  resolve({
-                    opHash: op.hash,
-                    opResults: op.results,
-                  });
+
+                  try {
+                    const chainId = await loadChainId(networkRpc);
+                    const pndOps = PndOps.fromOpResults(op.results, op.hash);
+                    await PndOps.append(sourcePkh, chainId, pndOps);
+                  } catch {}
+
+                  resolve({ opHash: op.hash });
                 } catch (err) {
                   if (err?.message?.startsWith("__tezos__")) {
                     reject(new Error(err.message));
