@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useAllNetworks, useNetwork, useSetNetworkId } from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
+import { T } from "lib/ui/i18n";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Name from "app/atoms/Name";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
@@ -30,7 +31,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             )}
           >
             <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
-            Networks
+            <T name="networks">{(networks) => <>{networks}</>}</T>
           </h2>
 
           {allNetworks.map(({ id, name, color, disabled }) => {

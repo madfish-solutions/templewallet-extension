@@ -1,6 +1,7 @@
 import classNames from "clsx";
 import * as React from "react";
 import { Link } from "lib/woozie";
+import { T } from "lib/ui/i18n";
 import About from "app/templates/About";
 import ActivateAccount from "app/templates/ActivateAccount";
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
@@ -27,87 +28,59 @@ const RevealSeedPhrase: React.FC = () => <RevealSecret reveal="seed-phrase" />;
 const TABS = [
   {
     slug: "reveal-private-key",
-    title: "Reveal Private Key",
+    titleI18nKey: "revealPrivateKey",
     Icon: KeyIcon,
     Component: RevealPrivateKey,
     color: "#3182CE",
-    description: (
-      <>
-        Also known as "Export Account", reveals private key for your selected
-        account.
-      </>
-    ),
+    descriptionI18nKey: "revealPrivateKeyDescription",
   },
   {
     slug: "reveal-seed-phrase",
-    title: "Reveal Seed Phrase",
+    titleI18nKey: "revealSeedPhrase",
     Icon: StickerIcon,
     Component: RevealSeedPhrase,
     color: "#F6AD55",
-    description: (
-      <>
-        Also known as "Export Wallet", you may need this seed phrase to access
-        your wallet and accounts on other devices.
-      </>
-    ),
+    descriptionI18nKey: "revealSeedPhraseDescription",
   },
   {
     slug: "dapps",
-    title: "DApps",
+    titleI18nKey: "dApps",
     Icon: AppsIcon,
     Component: DAppSettings,
     color: "#9F7AEA",
-    description: (
-      <>
-        In this section you can enable ability to interact with decentralized
-        applications that support Thanos Wallet.
-      </>
-    ),
+    descriptionI18nKey: "dAppsDescription",
   },
   {
     slug: "networks",
-    title: "Networks",
+    titleI18nKey: "networks",
     Icon: SignalAltIcon,
     Component: CustomNetworksSettings,
     color: "#F6C90E",
-    description: (
-      <>In this section you can add or delete custom Tezos networks.</>
-    ),
+    descriptionI18nKey: "networksDescription",
   },
   {
     slug: "activate-account",
-    title: "Activate Account",
+    titleI18nKey: "activateAccount",
     Icon: OkIcon,
     Component: ActivateAccount,
     color: "rgb(131, 179, 0)",
-    description: (
-      <>
-        Use this section to activate your selected account by providing secret
-        phrase. It may be necessary for ICO/Fundraiser or testnet faucet
-        accounts.
-      </>
-    ),
+    descriptionI18nKey: "activateAccountDescription",
   },
   {
     slug: "remove-account",
-    title: "Remove Account",
+    titleI18nKey: "removeAccount",
     Icon: MinusIcon,
     Component: RemoveAccount,
     color: "rgb(245, 101, 101)",
-    description: (
-      <>
-        Use this section to remove your selected account. Only imported accounts
-        can be removed.
-      </>
-    ),
+    descriptionI18nKey: "removeAccountDescription",
   },
   {
     slug: "about",
-    title: "About",
+    titleI18nKey: "about",
     Icon: ExtensionIcon,
     Component: About,
     color: "#A0AEC0",
-    description: <>Use this section to view meta info about Thanos Wallet.</>,
+    descriptionI18nKey: "aboutDescription",
   },
 ];
 
@@ -137,15 +110,19 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
               )}
             >
               {(() => {
-                const { Icon, color, title } = activeTab;
+                const { Icon, color, titleI18nKey } = activeTab;
                 return (
-                  <>
-                    <Icon
-                      className="mr-2 h-8 w-auto stroke-current"
-                      style={{ stroke: color }}
-                    />
-                    {title}
-                  </>
+                  <T name={titleI18nKey}>
+                    {(message) => (
+                      <>
+                        <Icon
+                          className="mr-2 h-8 w-auto stroke-current"
+                          style={{ stroke: color }}
+                        />
+                        {message}
+                      </>
+                    )}
+                  </T>
                 );
               })()}
             </h1>
@@ -159,57 +136,70 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
             <activeTab.Component />
           ) : (
             <ul className="md:grid md:grid-cols-2 md:col-gap-8 md:row-gap-10">
-              {TABS.map(({ slug, title, description, Icon, color }, i) => {
-                const first = i === 0;
-                const linkTo = `/settings/${slug}`;
+              {TABS.map(
+                (
+                  { slug, titleI18nKey, descriptionI18nKey, Icon, color },
+                  i
+                ) => {
+                  const first = i === 0;
+                  const linkTo = `/settings/${slug}`;
 
-                return (
-                  <li
-                    key={slug}
-                    className={classNames(!first && "mt-10 md:mt-0")}
-                  >
-                    <div className="flex">
-                      <div className="ml-2 flex-shrink-0">
-                        <Link
-                          to={linkTo}
-                          className={classNames(
-                            "block",
-                            "h-12 w-12",
-                            "border-2 border-white border-opacity-25",
-                            "rounded-full",
-                            "flex items-center justify-center",
-                            "text-white",
-                            "transition ease-in-out duration-200",
-                            "opacity-90 hover:opacity-100 focus:opacity-100"
-                          )}
-                          style={{ backgroundColor: color }}
-                        >
-                          <Icon className="h-8 w-8 stroke-current" />
-                        </Link>
+                  return (
+                    <li
+                      key={slug}
+                      className={classNames(!first && "mt-10 md:mt-0")}
+                    >
+                      <div className="flex">
+                        <div className="ml-2 flex-shrink-0">
+                          <Link
+                            to={linkTo}
+                            className={classNames(
+                              "block",
+                              "h-12 w-12",
+                              "border-2 border-white border-opacity-25",
+                              "rounded-full",
+                              "flex items-center justify-center",
+                              "text-white",
+                              "transition ease-in-out duration-200",
+                              "opacity-90 hover:opacity-100 focus:opacity-100"
+                            )}
+                            style={{ backgroundColor: color }}
+                          >
+                            <Icon className="h-8 w-8 stroke-current" />
+                          </Link>
+                        </div>
+
+                        <div className="ml-4">
+                          <T name={titleI18nKey}>
+                            {(message) => (
+                              <Link
+                                to={linkTo}
+                                className={classNames(
+                                  "text-lg leading-6 font-medium",
+                                  "filter-brightness-75",
+                                  "hover:underline focus:underline",
+                                  "transition ease-in-out duration-200"
+                                )}
+                                style={{ color }}
+                              >
+                                {message}
+                              </Link>
+                            )}
+                          </T>
+
+                          <T name={descriptionI18nKey}>
+                            {(message) => (
+                              <p className="mt-1 text-sm font-light leading-5 text-gray-600">
+                                {message}
+                              </p>
+                            )}
+                          </T>
+                        </div>
                       </div>
-
-                      <div className="ml-4">
-                        <Link
-                          to={linkTo}
-                          className={classNames(
-                            "text-lg leading-6 font-medium",
-                            "filter-brightness-75",
-                            "hover:underline focus:underline",
-                            "transition ease-in-out duration-200"
-                          )}
-                          style={{ color }}
-                        >
-                          {title}
-                        </Link>
-
-                        <p className="mt-1 text-sm font-light leading-5 text-gray-600">
-                          {description}
-                        </p>
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
+                    </li>
+                  );
+                }
+              )}
             </ul>
           )}
         </div>
