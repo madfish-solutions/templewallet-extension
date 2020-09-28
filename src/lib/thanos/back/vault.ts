@@ -12,6 +12,7 @@ import {
   ThanosAccount,
   ThanosAccountType,
   ThanosSettings,
+  ThanosDAppSession,
 } from "lib/thanos/types";
 import {
   isStored,
@@ -32,6 +33,7 @@ enum StorageEntity {
   AccPubKey = "accpubkey",
   Accounts = "accounts",
   Settings = "settings",
+  DApps = "dapps",
 }
 
 const checkStrgKey = createStorageKey(StorageEntity.Check);
@@ -41,6 +43,7 @@ const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
 const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
 const accountsStrgKey = createStorageKey(StorageEntity.Accounts);
 const settingsStrgKey = createStorageKey(StorageEntity.Settings);
+const dAppsStrgKey = createStorageKey(StorageEntity.DApps);
 
 export class Vault {
   static isExist() {
@@ -190,6 +193,51 @@ export class Vault {
       );
     } catch {}
     return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
+  }
+
+  async getAllDApps() {
+    try {
+      return await fetchAndDecryptOne<Record<string, ThanosDAppSession>>(
+        dAppsStrgKey,
+        this.passKey
+      );
+    } catch {
+      return {};
+    }
+  }
+
+  async getDApp(origin: string) {
+    try {
+      return (await this.getAllDApps())[origin];
+    } catch {
+      return undefined;
+    }
+  }
+
+  async setDApp(origin: string, permissions: ThanosDAppSession) {
+    return withError("Failed to update permissions", async () => {
+      const current = await this.getAllDApps();
+      const newDApps = { ...current, [origin]: permissions };
+      await encryptAndSaveMany([[dAppsStrgKey, newDApps]], this.passKey);
+      return newDApps;
+    });
+  }
+
+  async removeDApp(origin: string) {
+    return withError("Failed to remove permissions", async () => {
+      const {
+        [origin]: permissionsToRemove,
+        ...restDApps
+      } = await this.getAllDApps();
+      await encryptAndSaveMany([[dAppsStrgKey, restDApps]], this.passKey);
+      return restDApps;
+    });
+  }
+
+  async cleanDApps() {
+    return withError("Failed to reset permissions", () => {
+      return encryptAndSaveMany([[dAppsStrgKey, {}]], this.passKey);
+    });
   }
 
   async createHDAccount(name?: string) {
@@ -506,7 +554,8 @@ function createStorageKey(id: StorageEntity) {
 
 function createDynamicStorageKey(id: StorageEntity) {
   const keyBase = combineStorageKey(STORAGE_KEY_PREFIX, id);
-  return (subKey: number | string) => combineStorageKey(keyBase, subKey);
+  return (...subKeys: (number | string)[]) =>
+    combineStorageKey(keyBase, ...subKeys);
 }
 
 function combineStorageKey(...parts: (string | number)[]) {

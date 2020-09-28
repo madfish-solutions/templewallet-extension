@@ -6,6 +6,7 @@ import {
   useAllAccounts,
   useSetAccountPkh,
 } from "lib/thanos/front";
+import { T } from "lib/ui/i18n";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -71,7 +72,7 @@ const CreateAccount: React.FC = () => {
       pageTitle={
         <>
           <AddIcon className="w-auto h-4 mr-1 stroke-current" />
-          Create Account
+          <T name="createAccount" />
         </>
       }
     >
