@@ -64,7 +64,7 @@ export async function isDAppEnabled() {
 export function registerNewWallet(password: string, mnemonic?: string) {
   return withInited(async () => {
     await Vault.spawn(password, mnemonic);
-    cleanDApps();
+    await cleanDApps();
     await unlock(password);
   });
 }
@@ -178,6 +178,14 @@ export function updateSettings(settings: Partial<ThanosSettings>) {
     const updatedSettings = await vault.updateSettings(settings);
     settingsUpdated(updatedSettings);
   });
+}
+
+export function getAllDAppSessions() {
+  return withUnlocked(({ vault }) => vault.getAllDApps());
+}
+
+export function removeDAppSession(origin: string) {
+  return withUnlocked(async ({ vault }) => vault.removeDApp(origin));
 }
 
 export function sendOperations(

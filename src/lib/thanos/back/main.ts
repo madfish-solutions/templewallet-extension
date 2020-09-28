@@ -158,6 +158,20 @@ async function processRequest(
         result,
       };
 
+    case ThanosMessageType.DAppGetAllSessionsRequest:
+      const allSessions = await Actions.getAllDAppSessions();
+      return {
+        type: ThanosMessageType.DAppGetAllSessionsResponse,
+        sessions: allSessions,
+      };
+
+    case ThanosMessageType.DAppRemoveSessionRequest:
+      const sessions = await Actions.removeDAppSession(req.origin);
+      return {
+        type: ThanosMessageType.DAppRemoveSessionResponse,
+        sessions,
+      };
+
     case ThanosMessageType.PageRequest:
       const dAppEnabled = await Actions.isDAppEnabled();
       if (dAppEnabled) {
