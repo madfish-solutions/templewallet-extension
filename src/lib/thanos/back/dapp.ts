@@ -14,7 +14,6 @@ import {
   ThanosDAppBroadcastRequest,
   ThanosDAppBroadcastResponse,
   ThanosDAppNetwork,
-  ThanosDAppMetadata,
 } from "@thanos-wallet/dapp/dist/types";
 import {
   ThanosMessageType,
@@ -22,26 +21,14 @@ import {
   ThanosDAppPayload,
 } from "lib/thanos/types";
 import { intercom } from "lib/thanos/back/intercom";
+import * as PndOps from "lib/thanos/back/pndops";
 import { withUnlocked } from "lib/thanos/back/store";
 import { NETWORKS } from "lib/thanos/networks";
-import { isAddressValid } from "lib/thanos/helpers";
+import { loadChainId, isAddressValid } from "lib/thanos/helpers";
 
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 600;
 const AUTODECLINE_AFTER = 120_000;
-
-interface DAppPermission {
-  network: ThanosDAppNetwork;
-  appMeta: ThanosDAppMetadata;
-  pkh: string;
-  publicKey?: string;
-}
-
-const dApps = new Map<string, DAppPermission>();
-
-export async function cleanDApps() {
-  dApps.clear();
-}
 
 export async function requestPermission(
   origin: string,
@@ -57,20 +44,20 @@ export async function requestPermission(
   }
 
   const networkRpc = getNetworkRPC(req.network);
+  const dApp = await getDApp(origin);
 
-  if (!req.force && dApps.has(origin)) {
-    const dApp = dApps.get(origin)!;
-    if (
-      isNetworkEquals(req.network, dApp.network) &&
-      req.appMeta.name === dApp.appMeta.name
-    ) {
-      return {
-        type: ThanosDAppMessageType.PermissionResponse,
-        pkh: dApp.pkh,
-        publicKey: dApp.publicKey,
-        rpc: networkRpc,
-      } as any;
-    }
+  if (
+    !req.force &&
+    dApp &&
+    isNetworkEquals(req.network, dApp.network) &&
+    req.appMeta.name === dApp.appMeta.name
+  ) {
+    return {
+      type: ThanosDAppMessageType.PermissionResponse,
+      pkh: dApp.pkh,
+      publicKey: dApp.publicKey,
+      rpc: networkRpc,
+    } as any;
   }
 
   return new Promise(async (resolve, reject) => {
@@ -98,11 +85,13 @@ export async function requestPermission(
             accountPublicKey,
           } = confirmReq;
           if (confirmed && accountPublicKeyHash && accountPublicKey) {
-            dApps.set(origin, {
-              network: req.network,
-              appMeta: req.appMeta,
-              pkh: accountPublicKeyHash,
-              publicKey: accountPublicKey,
+            await withUnlocked(async ({ vault }) => {
+              vault.setDApp(origin, {
+                network: req.network,
+                appMeta: req.appMeta,
+                pkh: accountPublicKeyHash,
+                publicKey: accountPublicKey,
+              });
             });
             resolve({
               type: ThanosDAppMessageType.PermissionResponse,
@@ -138,11 +127,12 @@ export async function requestOperation(
     throw new Error(ThanosDAppErrorType.InvalidParams);
   }
 
-  if (!dApps.has(origin)) {
+  const dApp = await getDApp(origin);
+
+  if (!dApp) {
     throw new Error(ThanosDAppErrorType.NotGranted);
   }
 
-  const dApp = dApps.get(origin)!;
   if (req.sourcePkh !== dApp.pkh) {
     throw new Error(ThanosDAppErrorType.NotFound);
   }
@@ -174,6 +164,13 @@ export async function requestOperation(
               const op = await withUnlocked(({ vault }) =>
                 vault.sendOperations(dApp.pkh, networkRpc, req.opParams)
               );
+
+              try {
+                const chainId = await loadChainId(networkRpc);
+                const pndOps = PndOps.fromOpResults(op.results, op.hash);
+                await PndOps.append(dApp.pkh, chainId, pndOps);
+              } catch {}
+
               resolve({
                 type: ThanosDAppMessageType.OperationResponse,
                 opHash: op.hash,
@@ -209,11 +206,12 @@ export async function requestSign(
     throw new Error(ThanosDAppErrorType.InvalidParams);
   }
 
-  if (!dApps.has(origin)) {
+  const dApp = await getDApp(origin);
+
+  if (!dApp) {
     throw new Error(ThanosDAppErrorType.NotGranted);
   }
 
-  const dApp = dApps.get(origin)!;
   if (req.sourcePkh !== dApp.pkh) {
     throw new Error(ThanosDAppErrorType.NotFound);
   }
@@ -286,10 +284,11 @@ export async function requestBroadcast(
     throw new Error(ThanosDAppErrorType.InvalidParams);
   }
 
-  if (!dApps.has(origin)) {
+  const dApp = await getDApp(origin);
+
+  if (!dApp) {
     throw new Error(ThanosDAppErrorType.NotGranted);
   }
-  const dApp = dApps.get(origin)!;
 
   try {
     const rpc = new RpcClient(getNetworkRPC(dApp.network));
@@ -301,6 +300,14 @@ export async function requestBroadcast(
   } catch (err) {
     throw new Error(`__tezos__${err.message}`);
   }
+}
+
+export function getDApp(origin: string) {
+  return withUnlocked(({ vault }) => vault.getDApp(origin));
+}
+
+export function cleanDApps() {
+  return withUnlocked(({ vault }) => vault.cleanDApps());
 }
 
 type RequestConfirmParams = {

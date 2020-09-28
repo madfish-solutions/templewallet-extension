@@ -1,4 +1,8 @@
-import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
+import { OperationContentsAndResult } from "@taquito/rpc";
+import {
+  ThanosDAppMetadata,
+  ThanosDAppNetwork,
+} from "@thanos-wallet/dapp/dist/types";
 import { TZStatsNetwork } from "lib/tzstats";
 
 type NonEmptyArray<T> = [T, ...T[]];
@@ -8,6 +12,13 @@ export interface ReadyThanosState extends ThanosState {
   accounts: NonEmptyArray<ThanosAccount>;
   networks: NonEmptyArray<ThanosNetwork>;
   settings: ThanosSettings;
+}
+
+export interface ThanosDAppSession {
+  network: ThanosDAppNetwork;
+  appMeta: ThanosDAppMetadata;
+  pkh: string;
+  publicKey?: string;
 }
 
 export interface ThanosState {
@@ -125,6 +136,11 @@ export enum ThanosSharedStorageKey {
   DAppEnabled = "dappenabled",
 }
 
+export type ThanosPendingOperation = OperationContentsAndResult & {
+  hash: string;
+  addedAt: string;
+};
+
 /**
  * Internal confirmation payloads
  */
@@ -222,6 +238,10 @@ export enum ThanosMessageType {
   ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
   UpdateSettingsRequest = "THANOS_UPDATE_SETTINGS_REQUEST",
   UpdateSettingsResponse = "THANOS_UPDATE_SETTINGS_RESPONSE",
+  GetAllPndOpsRequest = "THANOS_GET_ALL_PND_OPS_REQUEST",
+  GetAllPndOpsResponse = "THANOS_GET_ALL_PND_OPS_RESPONSE",
+  RemovePndOpsRequest = "THANOS_REMOVE_PND_OPS_REQUEST",
+  RemovePndOpsResponse = "THANOS_REMOVE_PND_OPS_RESPONSE",
   OperationsRequest = "THANOS_OPERATIONS_REQUEST",
   OperationsResponse = "THANOS_OPERATIONS_RESPONSE",
   SignRequest = "THANOS_SIGN_REQUEST",
@@ -238,6 +258,10 @@ export enum ThanosMessageType {
   DAppOpsConfirmationResponse = "THANOS_DAPP_OPS_CONFIRMATION_RESPONSE",
   DAppSignConfirmationRequest = "THANOS_DAPP_SIGN_CONFIRMATION_REQUEST",
   DAppSignConfirmationResponse = "THANOS_DAPP_SIGN_CONFIRMATION_RESPONSE",
+  DAppGetAllSessionsRequest = "THANOS_DAPP_GET_ALL_SESSIONS_REQUEST",
+  DAppGetAllSessionsResponse = "THANOS_DAPP_GET_ALL_SESSIONS_RESPONSE",
+  DAppRemoveSessionRequest = "THANOS_DAPP_REMOVE_SESSION_REQUEST",
+  DAppRemoveSessionResponse = "THANOS_DAPP_REMOVE_SESSION_RESPONSE",
 }
 
 export type ThanosNotification =
@@ -267,7 +291,11 @@ export type ThanosRequest =
   | ThanosDAppPermConfirmationRequest
   | ThanosDAppOpsConfirmationRequest
   | ThanosDAppSignConfirmationRequest
-  | ThanosUpdateSettingsRequest;
+  | ThanosUpdateSettingsRequest
+  | ThanosGetAllDAppSessionsRequest
+  | ThanosRemoveDAppSessionRequest
+  | ThanosGetAllPndOpsRequest
+  | ThanosRemovePndOpsRequest;
 
 export type ThanosResponse =
   | ThanosGetStateResponse
@@ -291,7 +319,11 @@ export type ThanosResponse =
   | ThanosDAppPermConfirmationResponse
   | ThanosDAppOpsConfirmationResponse
   | ThanosDAppSignConfirmationResponse
-  | ThanosUpdateSettingsResponse;
+  | ThanosUpdateSettingsResponse
+  | ThanosGetAllDAppSessionsResponse
+  | ThanosRemoveDAppSessionResponse
+  | ThanosGetAllPndOpsResponse
+  | ThanosRemovePndOpsResponse;
 
 export interface ThanosMessageBase {
   type: ThanosMessageType;
@@ -451,6 +483,28 @@ export interface ThanosUpdateSettingsResponse extends ThanosMessageBase {
   type: ThanosMessageType.UpdateSettingsResponse;
 }
 
+export interface ThanosGetAllPndOpsRequest extends ThanosMessageBase {
+  type: ThanosMessageType.GetAllPndOpsRequest;
+  accountPublicKeyHash: string;
+  netId: string;
+}
+
+export interface ThanosGetAllPndOpsResponse extends ThanosMessageBase {
+  type: ThanosMessageType.GetAllPndOpsResponse;
+  operations: ThanosPendingOperation[];
+}
+
+export interface ThanosRemovePndOpsRequest extends ThanosMessageBase {
+  type: ThanosMessageType.RemovePndOpsRequest;
+  accountPublicKeyHash: string;
+  netId: string;
+  opHashes: string[];
+}
+
+export interface ThanosRemovePndOpsResponse extends ThanosMessageBase {
+  type: ThanosMessageType.RemovePndOpsResponse;
+}
+
 export interface ThanosOperationsRequest extends ThanosMessageBase {
   type: ThanosMessageType.OperationsRequest;
   id: string;
@@ -462,7 +516,6 @@ export interface ThanosOperationsRequest extends ThanosMessageBase {
 export interface ThanosOperationsResponse extends ThanosMessageBase {
   type: ThanosMessageType.OperationsResponse;
   opHash: string;
-  opResults: any[];
 }
 
 export interface ThanosSignRequest extends ThanosMessageBase {
@@ -540,4 +593,23 @@ export interface ThanosDAppSignConfirmationRequest extends ThanosMessageBase {
 
 export interface ThanosDAppSignConfirmationResponse extends ThanosMessageBase {
   type: ThanosMessageType.DAppSignConfirmationResponse;
+}
+
+export interface ThanosGetAllDAppSessionsRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppGetAllSessionsRequest;
+}
+
+export interface ThanosGetAllDAppSessionsResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppGetAllSessionsResponse;
+  sessions: Record<string, ThanosDAppSession>;
+}
+
+export interface ThanosRemoveDAppSessionRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppRemoveSessionRequest;
+  origin: string;
+}
+
+export interface ThanosRemoveDAppSessionResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppRemoveSessionResponse;
+  sessions: Record<string, ThanosDAppSession>;
 }

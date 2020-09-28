@@ -12,7 +12,7 @@ import { NETWORKS } from "lib/thanos/networks";
 type FormData = Pick<ThanosNetwork, "name" | "rpcBaseURL">;
 
 const SUBMIT_ERROR_TYPE = "submit-error";
-const URL_PATTERN = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
+const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http:\/\/localhost:[0-9]+)$/;
 
 const CustomNetworksSettings: React.FC = () => {
   const { updateSettings } = useThanosClient();
