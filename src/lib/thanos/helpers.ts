@@ -1,6 +1,18 @@
 import BigNumber from "bignumber.js";
+import memoize from "micro-memoize";
 import { Tezos } from "@taquito/taquito";
+import { RpcClient } from "@taquito/rpc";
 import { ValidationResult, validateAddress } from "@taquito/utils";
+
+export const loadChainId = memoize(fetchChainId, {
+  isPromise: true,
+  maxSize: 100,
+});
+
+export function fetchChainId(rpcUrl: string) {
+  const rpc = new RpcClient(rpcUrl);
+  return rpc.getChainId();
+}
 
 export function hasManager(manager: any) {
   return manager && typeof manager === "object" ? !!manager.key : !!manager;

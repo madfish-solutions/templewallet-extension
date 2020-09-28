@@ -8,6 +8,7 @@ import {
 import { intercom } from "lib/thanos/back/intercom";
 import { store, toFront } from "lib/thanos/back/store";
 import * as Actions from "lib/thanos/back/actions";
+import * as PndOps from "lib/thanos/back/pndops";
 
 const frontStore = store.map(toFront);
 
@@ -115,8 +116,24 @@ async function processRequest(
         type: ThanosMessageType.UpdateSettingsResponse,
       };
 
+    case ThanosMessageType.GetAllPndOpsRequest:
+      const operations = await PndOps.getAll(
+        req.accountPublicKeyHash,
+        req.netId
+      );
+      return {
+        type: ThanosMessageType.GetAllPndOpsResponse,
+        operations,
+      };
+
+    case ThanosMessageType.RemovePndOpsRequest:
+      await PndOps.remove(req.accountPublicKeyHash, req.netId, req.opHashes);
+      return {
+        type: ThanosMessageType.RemovePndOpsResponse,
+      };
+
     case ThanosMessageType.OperationsRequest:
-      const { opHash, opResults } = await Actions.sendOperations(
+      const { opHash } = await Actions.sendOperations(
         port,
         req.id,
         req.sourcePkh,
@@ -126,7 +143,6 @@ async function processRequest(
       return {
         type: ThanosMessageType.OperationsResponse,
         opHash,
-        opResults,
       };
 
     case ThanosMessageType.SignRequest:
