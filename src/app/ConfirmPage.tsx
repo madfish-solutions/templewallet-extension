@@ -34,6 +34,7 @@ import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import DAppLogo from "./templates/DAppLogo";
 
 const SIGN_PAYLOAD_FORMATS = [
   {
@@ -341,9 +342,10 @@ const ConfirmDAppForm: React.FC = () => {
               </span>
             </h2>
 
-            <CustomSelect
+            <CustomSelect<ThanosAccount, string>
               activeItemId={accountPkhToConnect}
               getItemId={getPkh}
+              iconClassName="h-6"
               items={allAccounts}
               maxHeight="8rem"
               onSelect={setAccountPkhToConnect}
@@ -674,37 +676,3 @@ const SubTitle: React.FC<SubTitleProps> = ({
     </h2>
   );
 };
-
-type DAppLogoProps = {
-  origin: string;
-  size: number;
-  className?: string;
-};
-
-const DAppLogo = React.memo<DAppLogoProps>(({ origin, size, className }) => {
-  const faviconSrc = React.useMemo(() => `${origin}/favicon.ico`, [origin]);
-  const [faviconShowed, setFaviconShowed] = React.useState(true);
-  const handleFaviconError = React.useCallback(() => {
-    setFaviconShowed(false);
-  }, [setFaviconShowed]);
-
-  return faviconShowed ? (
-    <div
-      className={classNames("overflow-hidden", className)}
-      style={{ width: size, height: size }}
-    >
-      <img
-        src={faviconSrc}
-        alt={origin}
-        style={{ width: size, height: size }}
-        onError={handleFaviconError}
-      />
-    </div>
-  ) : (
-    <Identicon
-      hash={origin}
-      size={size}
-      className={classNames("shadow-xs", className)}
-    />
-  );
-});

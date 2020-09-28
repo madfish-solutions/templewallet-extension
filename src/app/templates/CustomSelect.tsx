@@ -2,32 +2,51 @@ import classNames from "clsx";
 import React, { useCallback } from "react";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 
-export type OptionRenderProps<T> = {
+type Actions<K extends string | number> = { [key: string]: (id: K) => void };
+
+export type OptionRenderProps<
+  T,
+  K extends string | number = string | number,
+  A extends Actions<K> = {}
+> = {
+  actions?: A;
   item: T;
   index: number;
 };
 
-export type CustomSelectProps<T, K extends string | number> = {
+export type CustomSelectProps<
+  T,
+  K extends string | number = string | number,
+  A extends Actions<K> = {}
+> = {
   activeItemId?: K;
+  actions?: A;
   className?: string;
   getItemId: (item: T) => K;
+  iconClassName?: string;
   id?: string;
   items: T[];
   maxHeight?: string;
   padding?: React.CSSProperties["padding"];
   autoFocus?: boolean;
-  onSelect: (itemId: K) => void;
-  OptionIcon?: React.ComponentType<OptionRenderProps<T>>;
-  OptionContent: React.ComponentType<OptionRenderProps<T>>;
+  onSelect?: (itemId: K) => void;
+  OptionIcon?: React.ComponentType<OptionRenderProps<T, K, A>>;
+  OptionContent: React.ComponentType<OptionRenderProps<T, K, A>>;
 };
 
-const CustomSelect = <T extends {}, K extends string | number>(
-  props: CustomSelectProps<T, K>
+const CustomSelect = <
+  T extends {},
+  K extends string | number = string | number,
+  A extends Actions<K> = {}
+>(
+  props: CustomSelectProps<T, K, A>
 ) => {
   const {
+    actions,
     activeItemId,
     className,
     getItemId,
+    iconClassName,
     id,
     items,
     maxHeight,
@@ -54,8 +73,10 @@ const CustomSelect = <T extends {}, K extends string | number>(
         return (
           <CustomSelectItem
             key={itemId}
+            actions={actions}
             active={itemId === activeItemId}
             last={index === items.length - 1}
+            iconClassName={iconClassName}
             itemId={itemId}
             index={index}
             item={item}
@@ -73,9 +94,19 @@ const CustomSelect = <T extends {}, K extends string | number>(
 
 export default CustomSelect;
 
-type CustomSelectItemProps<T, K extends string | number> = Pick<
-  CustomSelectProps<T, K>,
-  "onSelect" | "OptionIcon" | "OptionContent" | "padding" | "autoFocus"
+type CustomSelectItemProps<
+  T,
+  K extends string | number,
+  A extends Actions<K>
+> = Pick<
+  CustomSelectProps<T, K, A>,
+  | "onSelect"
+  | "OptionIcon"
+  | "OptionContent"
+  | "padding"
+  | "autoFocus"
+  | "actions"
+  | "iconClassName"
 > & {
   active?: boolean;
   last?: boolean;
@@ -84,11 +115,17 @@ type CustomSelectItemProps<T, K extends string | number> = Pick<
   item: T;
 };
 
-const CustomSelectItem = <T extends {}, K extends string | number>(
-  props: CustomSelectItemProps<T, K>
+const CustomSelectItem = <
+  T extends {},
+  K extends string | number,
+  A extends Actions<K>
+>(
+  props: CustomSelectItemProps<T, K, A>
 ) => {
   const {
     active,
+    actions,
+    iconClassName,
     itemId,
     item,
     index,
@@ -100,10 +137,15 @@ const CustomSelectItem = <T extends {}, K extends string | number>(
     OptionContent,
   } = props;
 
-  const handleSelect = useCallback(() => onSelect(itemId), [itemId, onSelect]);
+  const handleSelect = useCallback(() => onSelect?.(itemId), [
+    itemId,
+    onSelect,
+  ]);
+
+  const ItemComponent = onSelect ? "button" : "div";
 
   return (
-    <button
+    <ItemComponent
       type="button"
       className={classNames(
         "w-full flex-shrink-0 overflow-hidden",
@@ -116,27 +158,27 @@ const CustomSelectItem = <T extends {}, K extends string | number>(
       autoFocus={autoFocus && active}
       onClick={handleSelect}
     >
-      {OptionIcon && <OptionIcon item={item} index={index} />}
+      {OptionIcon && <OptionIcon actions={actions} item={item} index={index} />}
 
       <div
         className={classNames(
-          "flex flex-col items-start",
+          "w-full flex flex-col items-start",
           OptionIcon && "ml-2"
         )}
       >
-        <OptionContent item={item} index={index} />
+        <OptionContent actions={actions} item={item} index={index} />
       </div>
 
       <div className="flex-1" />
 
       {active && (
         <OkIcon
-          className="w-auto h-5 mx-2 stroke-2"
+          className={classNames("w-auto h-5 mx-2 stroke-2", iconClassName)}
           style={{
             stroke: "#777",
           }}
         />
       )}
-    </button>
+    </ItemComponent>
   );
 };

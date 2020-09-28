@@ -1,5 +1,8 @@
 import { OperationContentsAndResult } from "@taquito/rpc";
-import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
+import {
+  ThanosDAppMetadata,
+  ThanosDAppNetwork,
+} from "@thanos-wallet/dapp/dist/types";
 import { TZStatsNetwork } from "lib/tzstats";
 
 type NonEmptyArray<T> = [T, ...T[]];
@@ -9,6 +12,13 @@ export interface ReadyThanosState extends ThanosState {
   accounts: NonEmptyArray<ThanosAccount>;
   networks: NonEmptyArray<ThanosNetwork>;
   settings: ThanosSettings;
+}
+
+export interface ThanosDAppSession {
+  network: ThanosDAppNetwork;
+  appMeta: ThanosDAppMetadata;
+  pkh: string;
+  publicKey?: string;
 }
 
 export interface ThanosState {
@@ -229,6 +239,10 @@ export enum ThanosMessageType {
   DAppOpsConfirmationResponse = "THANOS_DAPP_OPS_CONFIRMATION_RESPONSE",
   DAppSignConfirmationRequest = "THANOS_DAPP_SIGN_CONFIRMATION_REQUEST",
   DAppSignConfirmationResponse = "THANOS_DAPP_SIGN_CONFIRMATION_RESPONSE",
+  DAppGetAllSessionsRequest = "THANOS_DAPP_GET_ALL_SESSIONS_REQUEST",
+  DAppGetAllSessionsResponse = "THANOS_DAPP_GET_ALL_SESSIONS_RESPONSE",
+  DAppRemoveSessionRequest = "THANOS_DAPP_REMOVE_SESSION_REQUEST",
+  DAppRemoveSessionResponse = "THANOS_DAPP_REMOVE_SESSION_RESPONSE",
 }
 
 export type ThanosNotification =
@@ -259,6 +273,8 @@ export type ThanosRequest =
   | ThanosDAppOpsConfirmationRequest
   | ThanosDAppSignConfirmationRequest
   | ThanosUpdateSettingsRequest
+  | ThanosGetAllDAppSessionsRequest
+  | ThanosRemoveDAppSessionRequest
   | ThanosGetAllPndOpsRequest
   | ThanosRemovePndOpsRequest;
 
@@ -285,6 +301,8 @@ export type ThanosResponse =
   | ThanosDAppOpsConfirmationResponse
   | ThanosDAppSignConfirmationResponse
   | ThanosUpdateSettingsResponse
+  | ThanosGetAllDAppSessionsResponse
+  | ThanosRemoveDAppSessionResponse
   | ThanosGetAllPndOpsResponse
   | ThanosRemovePndOpsResponse;
 
@@ -556,4 +574,23 @@ export interface ThanosDAppSignConfirmationRequest extends ThanosMessageBase {
 
 export interface ThanosDAppSignConfirmationResponse extends ThanosMessageBase {
   type: ThanosMessageType.DAppSignConfirmationResponse;
+}
+
+export interface ThanosGetAllDAppSessionsRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppGetAllSessionsRequest;
+}
+
+export interface ThanosGetAllDAppSessionsResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppGetAllSessionsResponse;
+  sessions: Record<string, ThanosDAppSession>;
+}
+
+export interface ThanosRemoveDAppSessionRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppRemoveSessionRequest;
+  origin: string;
+}
+
+export interface ThanosRemoveDAppSessionResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppRemoveSessionResponse;
+  sessions: Record<string, ThanosDAppSession>;
 }

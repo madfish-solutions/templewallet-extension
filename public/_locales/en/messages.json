@@ -397,5 +397,11 @@
   },
   "importWalletUsingSeedPhrase": {
     "message": "Import Wallet using Seed Phrase"
+  },
+  "authorizedDApps": {
+    "message": "Authorized DApps"
+  },
+  "clickIconToResetPermissions": {
+    "message": "Click on the X icon to reset DApp permissions."
   }
 }
