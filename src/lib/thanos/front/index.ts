@@ -10,6 +10,5 @@ export * from "lib/thanos/front/usdprice";
 export * from "lib/thanos/front/chain";
 export * from "lib/thanos/front/balance";
 export * from "lib/thanos/front/baking";
-export * from "lib/thanos/front/pndops";
 export * from "lib/thanos/front/tokens";
 export * from "lib/thanos/front/assets";

@@ -15,13 +15,17 @@ import {
   isTzktSupportedNetwork,
   TzktOperation,
 } from "lib/tzkt";
+import { useRetryableSWR } from "lib/swr";
+import { loadChainId } from "lib/thanos/helpers";
 import {
   ThanosAsset,
   ThanosAssetType,
   XTZ_ASSET,
+  useThanosClient,
   useNetwork,
-  usePendingOperations,
   useAssets,
+  useOnStorageChanged,
+  mutezToTz,
 } from "lib/thanos/front";
 import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
@@ -49,8 +53,8 @@ type OperationHistoryProps = {
 };
 
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
+  const { getAllPndOps, removePndOps } = useThanosClient();
   const network = useNetwork();
-  const { pndOps, removePndOps } = usePendingOperations();
 
   const bcdOperationsGetKey = useCallback(
     (index: number, previousPageData: BcdPageableTokenTransfers | null) => {
@@ -240,16 +244,29 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     }
   }, [getOperationsError]);
 
-  type t1 = keyof ThanosPendingOperation;
-  const pendingOperations = useMemo<ThanosPendingOperation[]>(
+  const fetchPendingOperations = React.useCallback(async () => {
+    const chainId = await loadChainId(network.rpcBaseURL);
+    const pndOps = await getAllPndOps(accountPkh, chainId);
+    return { pndOps, chainId };
+  }, [getAllPndOps, network.rpcBaseURL, accountPkh]);
+
+  const pndOpsSWR = useRetryableSWR(
+    ["pndops", network.rpcBaseURL, accountPkh],
+    fetchPendingOperations,
+    { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
+  );
+  useOnStorageChanged(pndOpsSWR.revalidate);
+  const { pndOps, chainId } = pndOpsSWR.data!;
+
+  const pendingOperations = React.useMemo<ThanosPendingOperation[]>(
     () =>
-      // @ts-ignore
       pndOps.map((op) => ({
         hash: op.hash,
+        isThanosPending: true,
         type: op.kind,
         sender: accountPkh,
-        receiver: op.destination ?? "",
-        amount: op.amount ?? 0,
+        receiver: op.kind === "transaction" ? op.destination : "",
+        amount: op.kind === "transaction" ? +op.amount : 0,
         status: "backtracked",
         time: op.addedAt,
       })),
@@ -287,9 +304,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
 
   useEffect(() => {
     if (nonUniqueOps.length > 0) {
-      removePndOps(nonUniqueOps);
+      removePndOps(
+        accountPkh,
+        chainId,
+        nonUniqueOps.map((o) => o.hash)
+      );
     }
-  }, [removePndOps, nonUniqueOps]);
+  }, [removePndOps, accountPkh, chainId, nonUniqueOps]);
 
   return (
     <div
@@ -303,7 +324,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             "text-gray-500"
           )}
         >
-          <LayersIcon className="mb-2 w-16 h-auto stroke-current" />
+          <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
 
           <h3
             className="text-sm font-light text-center"
@@ -447,7 +468,7 @@ const Operation = React.memo<OperationProps>(({ accountPkh, operation }) => {
     ? tokenParsed.volume
     : contractAddress
     ? amount
-    : new BigNumber(amount).div(1e6).toNumber();
+    : mutezToTz(amount).toNumber();
 
   const volumeExists = finalVolume !== 0;
   const typeTx = type === "transaction";
@@ -481,13 +502,13 @@ const Operation = React.memo<OperationProps>(({ accountPkh, operation }) => {
               </span>
 
               {pending ? (
-                <span className="text-xs text-yellow-600 font-light">
+                <span className="text-xs font-light text-yellow-600">
                   pending...
                 </span>
               ) : (
                 <Time
                   children={() => (
-                    <span className="text-xs text-gray-500 font-light">
+                    <span className="text-xs font-light text-gray-500">
                       {formatDistanceToNow(new Date(time), {
                         includeSeconds: true,
                         addSuffix: true,
@@ -501,7 +522,7 @@ const Operation = React.memo<OperationProps>(({ accountPkh, operation }) => {
             <div className="flex-1" />
 
             {volumeExists && (
-              <div className="flex-shrink-0 flex flex-col items-end">
+              <div className="flex flex-col items-end flex-shrink-0">
                 <div
                   className={classNames(
                     "text-sm",
@@ -520,10 +541,7 @@ const Operation = React.memo<OperationProps>(({ accountPkh, operation }) => {
                   )}
                 >
                   {typeTx && (imReceiver ? "+" : "-")}
-                  <Money>{finalVolume}</Money>{" "}
-                  {contractAddress
-                    ? token?.symbol || contractAddress.substr(2, 3)
-                    : "ꜩ"}
+                  <Money>{finalVolume}</Money> {token ? token.symbol : "ꜩ"}
                 </div>
 
                 <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
@@ -541,7 +559,6 @@ const Operation = React.memo<OperationProps>(({ accountPkh, operation }) => {
       </div>
     ),
     [
-      contractAddress,
       hash,
       finalVolume,
       imReceiver,
