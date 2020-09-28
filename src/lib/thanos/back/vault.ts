@@ -10,6 +10,7 @@ import {
   ThanosAccount,
   ThanosAccountType,
   ThanosSettings,
+  ThanosDAppSession,
 } from "lib/thanos/types";
 import {
   isStored,
@@ -17,7 +18,6 @@ import {
   encryptAndSaveMany,
   removeMany,
 } from "lib/thanos/back/safe-storage";
-import { ThanosDAppSession } from "lib/thanos/types";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";

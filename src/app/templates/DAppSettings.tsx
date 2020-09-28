@@ -68,7 +68,9 @@ const DAppSettings: React.FC = () => {
     [removeDAppSession, revalidate]
   );
 
-  const dAppEntries = Object.entries(dAppSessions);
+  const dAppEntries = React.useMemo(() => Object.entries(dAppSessions), [
+    dAppSessions,
+  ]);
 
   return (
     <div className="my-8 w-full mx-auto max-w-sm">
