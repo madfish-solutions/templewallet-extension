@@ -5,7 +5,7 @@ import { ReactComponent as DangerIcon } from "app/icons/danger.svg";
 
 type ErrorBoundaryProps = {
   className?: string;
-  whileMessage?: React.ReactNode;
+  whileMessage?: string;
 };
 
 type ErrorBoundaryState = {
