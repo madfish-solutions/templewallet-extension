@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
+import { T } from "lib/ui/i18n";
 import { useAccount, useDelegate } from "lib/thanos/front";
 import BakerBanner from "app/templates/BakerBanner";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
@@ -21,12 +22,16 @@ const BakingSection: React.FC = () => {
       >
         {myBakerPkh ? (
           <>
-            <p
-              className="mb-2 text-sm font-light text-center text-gray-500"
-              style={{ maxWidth: "20rem" }}
-            >
-              Delegated to:
-            </p>
+            <T name="delegatedTo">
+              {(message) => (
+                <p
+                  className="mb-2 text-sm font-light text-center text-gray-500"
+                  style={{ maxWidth: "20rem" }}
+                >
+                  {message}
+                </p>
+              )}
+            </T>
 
             <BakerBanner bakerPkh={myBakerPkh} className="mb-6" />
           </>
@@ -34,13 +39,16 @@ const BakingSection: React.FC = () => {
           <div className="flex flex-col items-center text-gray-500">
             <SupportAltIcon className="w-16 h-auto mb-1 stroke-current" />
 
-            <p
-              className="mb-6 text-sm font-light text-center"
-              style={{ maxWidth: "20rem" }}
-            >
-              Delegating your funds to bakers is a great way of earning interest
-              on your balance{" "}
-            </p>
+            <T name="delegatingMotivation">
+              {(message) => (
+                <p
+                  className="mb-6 text-sm font-light text-center"
+                  style={{ maxWidth: "20rem" }}
+                >
+                  {message}
+                </p>
+              )}
+            </T>
           </div>
         )}
 
@@ -62,7 +70,9 @@ const BakingSection: React.FC = () => {
           <DiamondIcon
             className={classNames("-ml-2 mr-2", "h-5 w-auto", "stroke-current")}
           />
-          {myBakerPkh ? "Re-delegate" : "Delegate now"}
+          <T name={myBakerPkh ? "reDelegate" : "delegateNow"}>
+            {(message) => <>{message}</>}
+          </T>
         </Link>
       </div>
     ),
