@@ -22,5 +22,380 @@
   },
   "maximiseView": {
     "message": "Maximise view"
+  },
+  "protectedFormField": {
+    "message": "Protected"
+  },
+  "clickToRevealOrEditField": {
+    "message": "Click to reveal or edit this field"
+  },
+  "copiedHash": {
+    "message": "Copied."
+  },
+  "copyHashToClipboard": {
+    "message": "Copy to clipboard"
+  },
+  "accounts": {
+    "message": "Accounts"
+  },
+  "logOut": {
+    "message": "Log out"
+  },
+  "importedAccount": {
+    "message": "Imported"
+  },
+  "networks": {
+    "message": "Networks"
+  },
+  "back": {
+    "message": "Back"
+  },
+  "addNewToken": {
+    "message": "Add new Token"
+  },
+  "hideSomeToken": {
+    "message": "Hide \"$tokenName$\" token",
+    "placeholders": {
+      "tokenName": {
+        "content": "$1"
+      }
+    }
+  },
+  "copySomeTokenAddress": {
+    "message": "Copy \"$tokenSymbol$\" address",
+    "placeholders": {
+      "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "copiedTokenAddress": {
+    "message": "Copied."
+  },
+  "delegatedTo": {
+    "message": "Delegated to:"
+  },
+  "delegatingMotivation": {
+    "message": "Delegating your funds to bakers is a great way of earning interest on your balance"
+  },
+  "reDelegate": {
+    "message": "Re-delegate"
+  },
+  "delegateNow": {
+    "message": "Delegate now"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "edit": {
+    "message": "Edit"
+  },
+  "useCoinSwitch": {
+    "message": "Use CoinSwitch"
+  },
+  "tezosFaucet": {
+    "message": "Tezos Faucet"
+  },
+  "tezosFaucetAlpha": {
+    "message": "Tezos Faucet (Alpha)"
+  },
+  "depositToWallet": {
+    "message": "Deposit to your wallet"
+  },
+  "depositToWalletDescription": {
+    "message": "Click on deposit method to get money on your wallet. Use faucet to get free coins!"
+  },
+  "addToken": {
+    "message": "Add Token"
+  },
+  "contractNotAvailable": {
+    "message": "The contract at this address is not available. Does it exist on this network?"
+  },
+  "noTransferMethod": {
+    "message": "No transfer method"
+  },
+  "tokenDoesNotMatchStandard": {
+    "message": "Provided token contract doesn't match FA1.2 standard"
+  },
+  "error": {
+    "message": "Error"
+  },
+  "tokenType": {
+    "message": "Token type"
+  },
+  "comingSoonComment": {
+    "message": "(coming soon)"
+  },
+  "required": {
+    "message": "Required"
+  },
+  "address": {
+    "message": "Address"
+  },
+  "addressOfDeployedTokenContract": {
+    "message": "Address of a deployed token contract."
+  },
+  "tokenContractPlaceholder": {
+    "message": "e.g. KT1v9CmPy..."
+  },
+  "tokenSymbolPatternDescription": {
+    "message": "Only a-z, A-Z, 0-9 chars allowed, 2-7 length"
+  },
+  "symbol": {
+    "message": "Symbol"
+  },
+  "tokenSymbolInputDescription": {
+    "message": "Token symbol, like 'USD' for United States Dollar."
+  },
+  "tokenSymbolInputPlaceholder": {
+    "message": "e.g. WEW, BOW, LAL etc."
+  },
+  "tokenNamePatternDescription": {
+    "message": "No special characters, 3-12 length"
+  },
+  "name": {
+    "message": "Name"
+  },
+  "tokenNameInputDescription": {
+    "message": "Token name, like 'Bitcoin' for BTC asset."
+  },
+  "tokenNameInputPlaceholder": {
+    "message": "e.g. MySuperToken"
+  },
+  "nonNegativeIntMessage": {
+    "message": "Integer, 0 or greater"
+  },
+  "decimals": {
+    "message": "Decimals"
+  },
+  "decimalsInputDescription": {
+    "message": "A number of decimal places after point. For example: 8 for BTC, 2 for USD."
+  },
+  "validImageURL": {
+    "message": "Valid image URL"
+  },
+  "onlyHTTPS": {
+    "message": "Only HTTPS"
+  },
+  "formatsAllowed": {
+    "message": "Only .png, .jpg, .jpeg, .gif, .webp images allowed"
+  },
+  "iconURL": {
+    "message": "Icon URL"
+  },
+  "optionalComment": {
+    "message": "(optional)"
+  },
+  "iconURLInputDescription": {
+    "message": "Image URL for token logo."
+  },
+  "invalidAddress": {
+    "message": "Invalid address"
+  },
+  "onlyKTContractAddressAllowed": {
+    "message": "Only KT... contract address allowed"
+  },
+  "alert": {
+    "message": "Alert"
+  },
+  "accountNameInputTitle": {
+    "message": "1-16 characters, no special"
+  },
+  "defaultAccountName": {
+    "message": "Account $accountNumber$",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountName": {
+    "message": "Account name"
+  },
+  "accountNameInputDescription": {
+    "message": "What will be the name of the new account?"
+  },
+  "createNewWallet": {
+    "message": "Create new Wallet"
+  },
+  "delegate": {
+    "message": "Delegate"
+  },
+  "explore": {
+    "message": "Explore"
+  },
+  "assetsWhileMessage": {
+    "message": "fetching assets data"
+  },
+  "receive": {
+    "message": "Receive"
+  },
+  "send": {
+    "message": "Send"
+  },
+  "baking": {
+    "message": "Baking"
+  },
+  "operations": {
+    "message": "Operations"
+  },
+  "delegationInfoWhileMessage": {
+    "message": "fetching or processing your delegation info"
+  },
+  "operationHistoryWhileMessage": {
+    "message": "fetching or processing operation history from TZStats"
+  },
+  "privateKey": {
+    "message": "Private Key"
+  },
+  "mnemonic": {
+    "message": "Mnemonic"
+  },
+  "fundraiser": {
+    "message": "Fundraiser"
+  },
+  "privateKeyInputDescription": {
+    "message": "The Secret key of the Account you want to import."
+  },
+  "privateKeyInputPlaceholder": {
+    "message": "e.g. edsk3wfiPMu..."
+  },
+  "password": {
+    "message": "Password"
+  },
+  "isPrivateKeyEncrypted": {
+    "message": "Your private key in encrypted format?"
+  },
+  "noDerivation": {
+    "message": "No derivation"
+  },
+  "customDerivationPath": {
+    "message": "Custom derivation path"
+  },
+  "mnemonicInputLabel": {
+    "message": "Seed phrase"
+  },
+  "mnemonicInputDescription": {
+    "message": "Mnemonic. Your secret twelve word phrase."
+  },
+  "mnemonicInputPlaceholder": {
+    "message": "e.g. venue sock milk update..."
+  },
+  "passwordInputDescription": {
+    "message": "Used for additional mnemonic derivation. That is Not wallet password."
+  },
+  "derivation": {
+    "message": "Derivation"
+  },
+  "addDerivationPathPrompt": {
+    "message": "By default derivation isn't used. Click on 'Custom derivation path' to add it."
+  },
+  "derivationPathMustStartWithM": {
+    "message": "Must start with 'm'"
+  },
+  "derivationSeparatorMustBeSlash": {
+    "message": "Separator must be '/'"
+  },
+  "invalidPath": {
+    "message": "Invalid path"
+  },
+  "email": {
+    "message": "Email"
+  },
+  "unexpectedOrInvalidFile": {
+    "message": "Unexpected or invalid file"
+  },
+  "confirmingActivationRequest": {
+    "message": "🛫 Activation request sent! Confirming..."
+  },
+  "success": {
+    "message": "Success"
+  },
+  "smthWentWrong": {
+    "message": "Something went wrong"
+  },
+  "faucetFileInputPrompt": {
+    "message": "Drag & drop a file or select it manually by clicking on the area below. You can download it from "
+  },
+  "processing": {
+    "message": "Processing..."
+  },
+  "selectFileOfFormat": {
+    "message": "Select %ch file"
+  },
+  "restoreWalletWithSeedPhrase": {
+    "message": "Restore your Wallet with Seed Phrase"
+  },
+  "accountAddressLabel": {
+    "message": "Your current account address. Share it to receive funds."
+  },
+  "copiedAddress": {
+    "message": "Copied."
+  },
+  "copyAddressToClipboard": {
+    "message": "Copy to clipboard"
+  },
+  "qrCode": {
+    "message": "QRCode"
+  },
+  "revealPrivateKey": {
+    "message": "Reveal Private Key"
+  },
+  "revealPrivateKeyDescription": {
+    "message": "Also known as \"Export Account\", reveals private key for your selected account."
+  },
+  "revealSeedPhrase": {
+    "message": "Reveal Seed Phrase"
+  },
+  "revealSeedPhraseDescription": {
+    "message": "Also known as \"Export Wallet\", you may need this seed phrase to access your wallet and accounts on other devices."
+  },
+  "dApps": {
+    "message": "DApps"
+  },
+  "dAppsDescription": {
+    "message": "In this section you can enable ability to interact with decentralized applications that support Thanos Wallet."
+  },
+  "networksDescription": {
+    "message": "In this section you can add or delete custom Tezos networks."
+  },
+  "activateAccount": {
+    "message": "Activate Account"
+  },
+  "activateAccountDescription": {
+    "message": "Use this section to activate your selected account by providing secret phrase. It may be necessary for ICO/Fundraiser or testnet faucet accounts."
+  },
+  "removeAccount": {
+    "message": "Remove Account"
+  },
+  "removeAccountDescription": {
+    "message": "Use this section to remove your selected account. Only imported accounts can be removed."
+  },
+  "about": {
+    "message": "About"
+  },
+  "aboutDescription": {
+    "message": "Use this section to view meta info about Thanos Wallet."
+  },
+  "unlockWallet": {
+    "message": "Unlock the Wallet"
+  },
+  "toContinue": {
+    "message": "to continue"
+  },
+  "unlockPasswordInputDescription": {
+    "message": "A password is used to protect the wallet."
+  },
+  "unlock": {
+    "message": "Unlock"
+  },
+  "importNewAccountTitle": {
+    "message": "Restore Account? Want to sign in another?"
+  },
+  "importWalletUsingSeedPhrase": {
+    "message": "Import Wallet using Seed Phrase"
   }
 }

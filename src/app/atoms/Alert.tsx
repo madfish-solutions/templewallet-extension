@@ -1,5 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
+import { t } from "lib/i18n";
 
 type AlertProps = React.HTMLAttributes<HTMLDivElement> & {
   type?: "success" | "warn" | "error";
@@ -49,7 +50,7 @@ const Alert: React.FC<AlertProps> = ({
       )}
       tabIndex={-1}
       role="alert"
-      aria-label="Alert"
+      aria-label={t("alert")}
       {...rest}
     >
       {title && <h2 className="text-lg font-semibold mb-1">{title}</h2>}

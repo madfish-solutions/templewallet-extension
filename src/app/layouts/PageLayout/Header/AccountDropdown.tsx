@@ -10,7 +10,7 @@ import {
   useNetwork,
 } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
-import { t } from "lib/i18n";
+import { T } from "lib/ui/i18n";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
@@ -61,35 +61,35 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
         {
           key: "create-account",
           Icon: AddIcon,
-          content: t("createAccount"),
+          i18nKey: "createAccount",
           linkTo: "/create-account",
           onClick: closeDropdown,
         },
         {
           key: "import-account",
           Icon: DownloadIcon,
-          content: t("importAccount"),
+          i18nKey: "importAccount",
           linkTo: "/import-account",
           onClick: closeDropdown,
         },
         network.type === "test" && {
           key: "import-faucet-file",
           Icon: CodeAltIcon,
-          content: t("importFaucetFile"),
+          i18nKey: "importFaucetFile",
           linkTo: "/import-faucet-file",
           onClick: closeDropdown,
         },
         {
           key: "settings",
           Icon: SettingsIcon,
-          content: t("settings"),
+          i18nKey: "settings",
           linkTo: "/settings",
           onClick: closeDropdown,
         },
         {
           key: "maximise",
           Icon: MaximiseIcon,
-          content: t(appEnv.fullPage ? "openNewTab" : "maximiseView"),
+          i18nKey: appEnv.fullPage ? "openNewTab" : "maximiseView",
           linkTo: null,
           onClick: handleMaximiseViewClick,
         },
@@ -113,7 +113,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             "text-sm text-white text-opacity-90"
           )}
         >
-          Accounts
+          <T name="accounts">{(message) => <>{message}</>}</T>
           <PeopleIcon className="ml-1 h-6 w-auto stroke-current" />
         </h3>
 
@@ -133,7 +133,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           )}
           onClick={handleLogoutClick}
         >
-          Log out
+          <T name="logOut">{(message) => <>{message}</>}</T>
         </button>
       </div>
 
@@ -215,7 +215,9 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                         )}
                         style={{ fontSize: "0.6rem" }}
                       >
-                        Imported
+                        <T name="importedAccount">
+                          {(message) => <>{message}</>}
+                        </T>
                       </span>
                     )}
                   </div>
@@ -227,7 +229,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
       </div>
 
       <div className="my-2">
-        {actions.map(({ key, Icon, content, linkTo, onClick }) => {
+        {actions.map(({ key, Icon, i18nKey, linkTo, onClick }) => {
           const baseProps = {
             key,
             className: classNames(
@@ -251,7 +253,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                   <Icon className="h-6 w-auto stroke-current" />
                 </div>
 
-                {content}
+                <T name={i18nKey}>{(message) => <>{message}</>}</T>
               </>
             ),
           };

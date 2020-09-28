@@ -3,6 +3,7 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic } from "bip39";
 import { Link, navigate } from "lib/woozie";
+import { t, T } from "lib/ui/i18n";
 import {
   useThanosClient,
   useAllAccounts,
@@ -38,17 +39,17 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
     () => [
       {
         slug: "private-key",
-        name: "Private Key",
+        i18nKey: "privateKey",
         Form: ByPrivateKeyForm,
       },
       {
         slug: "mnemonic",
-        name: "Mnemonic",
+        i18nKey: "mnemonic",
         Form: ByMnemonicForm,
       },
       {
         slug: "fundraiser",
-        name: "Fundraiser",
+        i18nKey: "fundraiser",
         Form: ByFundraiserForm,
       },
     ],
@@ -64,7 +65,9 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
       pageTitle={
         <>
           <DownloadIcon className="w-auto h-4 mr-1 stroke-current" />
-          Import Account
+          <T name="importAccount">
+            {(message) => <span className="capitalize">{message}</span>}
+          </T>
         </>
       }
     >
@@ -74,21 +77,24 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
             const active = slug === t.slug;
 
             return (
-              <Link
-                key={t.slug}
-                to={`/import-account/${t.slug}`}
-                replace
-                className={classNames(
-                  "text-center cursor-pointer rounded-md mx-1 py-2 px-3",
-                  "text-gray-600 text-sm",
-                  active
-                    ? "text-primary-orange bg-primary-orange bg-opacity-10"
-                    : "hover:bg-gray-100 focus:bg-gray-100",
-                  "transition ease-in-out duration-200"
+              <T key={t.slug} name={t.i18nKey}>
+                {(message) => (
+                  <Link
+                    to={`/import-account/${t.slug}`}
+                    replace
+                    className={classNames(
+                      "text-center cursor-pointer rounded-md mx-1 py-2 px-3",
+                      "text-gray-600 text-sm",
+                      active
+                        ? "text-primary-orange bg-primary-orange bg-opacity-10"
+                        : "hover:bg-gray-100 focus:bg-gray-100",
+                      "transition ease-in-out duration-200"
+                    )}
+                  >
+                    {message}
+                  </Link>
                 )}
-              >
-                {t.name}
-              </Link>
+              </T>
             );
           })}
         </div>
@@ -161,9 +167,9 @@ const ByPrivateKeyForm: React.FC = () => {
         rows={4}
         name="privateKey"
         id="importacc-privatekey"
-        label="Private Key"
-        labelDescription="The Secret key of the Account you want to import."
-        placeholder="e.g. edsk3wfiPMu..."
+        label={t("privateKey")}
+        labelDescription={t("privateKeyInputDescription")}
+        placeholder={t("privateKeyInputPlaceholder")}
         errorCaption={errors.privateKey?.message}
         className="resize-none"
         containerClassName="mb-6"
@@ -177,13 +183,17 @@ const ByPrivateKeyForm: React.FC = () => {
           id="importacc-password"
           label={
             <>
-              Password{" "}
-              <span className="text-sm font-light text-gary-600">
-                (optional)
-              </span>
+              <T name="password">{(message) => <>{message}</>}</T>{" "}
+              <T name="optionalComment">
+                {(message) => (
+                  <span className="text-sm font-light text-gary-600">
+                    {message}
+                  </span>
+                )}
+              </T>
             </>
           }
-          labelDescription="Your private key in encrypted format?"
+          labelDescription={t("isPrivateKeyEncrypted")}
           placeholder="*********"
           errorCaption={errors.encPassword?.message}
           containerClassName="mb-6"
@@ -191,7 +201,7 @@ const ByPrivateKeyForm: React.FC = () => {
       )}
 
       <FormSubmitButton loading={formState.isSubmitting}>
-        Import account
+        {t("importAccount")}
       </FormSubmitButton>
     </form>
   );
@@ -200,11 +210,11 @@ const ByPrivateKeyForm: React.FC = () => {
 const DERIVATION_PATHS = [
   {
     type: "none",
-    name: "No derivation",
+    i18nKey: "noDerivation",
   },
   {
     type: "custom",
-    name: "Custom derivation path",
+    i18nKey: "customDerivationPath",
   },
 ];
 
@@ -261,7 +271,7 @@ const ByMnemonicForm: React.FC = () => {
       {error && (
         <Alert
           type="error"
-          title="Error"
+          title={t("error")}
           autoFocus
           description={error}
           className="mb-6"
@@ -274,15 +284,15 @@ const ByMnemonicForm: React.FC = () => {
         rows={4}
         name="mnemonic"
         ref={register({
-          required: "Required",
+          required: t("required"),
           validate: (val) =>
             validateMnemonic(formatMnemonic(val)) || MNEMONIC_ERROR_CAPTION,
         })}
         errorCaption={errors.mnemonic?.message}
-        label="Seed phrase"
-        labelDescription="Mnemonic. Your secret twelve word phrase."
+        label={t("mnemonicInputLabel")}
+        labelDescription={t("mnemonicInputDescription")}
         id="importfundacc-mnemonic"
-        placeholder="e.g. venue sock milk update..."
+        placeholder={t("mnemonicInputPlaceholder")}
         spellCheck={false}
         containerClassName="mb-4"
         className="resize-none"
@@ -295,11 +305,17 @@ const ByMnemonicForm: React.FC = () => {
         id="importfundacc-password"
         label={
           <>
-            Password{" "}
-            <span className="text-sm font-light text-gary-600">(optional)</span>
+            <T name="password">{(message) => <>{message}</>}</T>{" "}
+            <T name="optionalComment">
+              {(message) => (
+                <span className="text-sm font-light text-gary-600">
+                  {message}
+                </span>
+              )}
+            </T>
           </>
         }
-        labelDescription="Used for additional mnemonic derivation. That is Not wallet password."
+        labelDescription={t("passwordInputDescription")}
         placeholder="*********"
         errorCaption={errors.password?.message}
         containerClassName="mb-6"
@@ -308,17 +324,29 @@ const ByMnemonicForm: React.FC = () => {
       <div className={classNames("mb-4", "flex flex-col")}>
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
           <span className="text-base font-semibold text-gray-700">
-            Derivation{" "}
-            <span className="text-sm font-light text-gary-600">(optional)</span>
+            <T name="derivation">{(message) => <>{message}</>}</T>{" "}
+            <T name="optionalComment">
+              {(message) => (
+                <span className="text-sm font-light text-gary-600">
+                  {message}
+                </span>
+              )}
+            </T>
           </span>
 
-          <span
-            className={classNames("mt-1", "text-xs font-light text-gray-600")}
-            style={{ maxWidth: "90%" }}
-          >
-            By default derivation isn't used. Click on 'Custom derivation path'
-            to add it.
-          </span>
+          <T name="addDerivationPathPrompt">
+            {(message) => (
+              <span
+                className={classNames(
+                  "mt-1",
+                  "text-xs font-light text-gray-600"
+                )}
+                style={{ maxWidth: "90%" }}
+              >
+                {message}
+              </span>
+            )}
+          </T>
         </h2>
 
         <div
@@ -358,7 +386,7 @@ const ByMnemonicForm: React.FC = () => {
                 }}
                 onClick={handleClick}
               >
-                {dp.name}
+                <T name={dp.i18nKey}>{(message) => <>{message}</>}</T>
                 <div className="flex-1" />
                 {selected && (
                   <OkIcon
@@ -377,31 +405,35 @@ const ByMnemonicForm: React.FC = () => {
       {derivationPath.type === "custom" && (
         <FormField
           ref={register({
-            required: "Required",
+            required: t("required"),
             validate: validateDerivationPath,
           })}
           name="customDerivationPath"
           id="importacc-cdp"
-          label="Custom derivation path"
+          label={t("customDerivationPath")}
           placeholder="e.g. m/44'/1729'/..."
           errorCaption={errors.customDerivationPath?.message}
           containerClassName="mb-6"
         />
       )}
 
-      <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
-        Import account
-      </FormSubmitButton>
+      <T name="importAccount">
+        {(message) => (
+          <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
+            {message}
+          </FormSubmitButton>
+        )}
+      </T>
     </form>
   );
 };
 
 function validateDerivationPath(p: string) {
   if (!p.startsWith("m")) {
-    return "Must be start with 'm'";
+    return t("derivationPathMustStartWithM");
   }
   if (p.length > 1 && p[1] !== "/") {
-    return "Separator must be '/'";
+    return t("derivationSeparatorMustBeSlash");
   }
 
   const parts = p.replace("m", "").split("/").filter(Boolean);
@@ -411,7 +443,7 @@ function validateDerivationPath(p: string) {
       return Number.isSafeInteger(pNum) && pNum >= 0;
     })
   ) {
-    return "Invalid path";
+    return t("invalidPath");
   }
 
   return true;
@@ -462,7 +494,7 @@ const ByFundraiserForm: React.FC = () => {
       {error && (
         <Alert
           type="error"
-          title="Error"
+          title={t("error")}
           description={error}
           autoFocus
           className="mb-6"
@@ -470,21 +502,21 @@ const ByFundraiserForm: React.FC = () => {
       )}
 
       <FormField
-        ref={register({ required: "Required" })}
+        ref={register({ required: t("required") })}
         name="email"
         id="importfundacc-email"
-        label="Email"
+        label={t("email")}
         placeholder="email@example.com"
         errorCaption={errors.email?.message}
         containerClassName="mb-4"
       />
 
       <FormField
-        ref={register({ required: "Required" })}
+        ref={register({ required: t("required") })}
         name="password"
         type="password"
         id="importfundacc-password"
-        label="Password"
+        label={t("password")}
         placeholder="*********"
         errorCaption={errors.password?.message}
         containerClassName="mb-4"
@@ -496,22 +528,22 @@ const ByFundraiserForm: React.FC = () => {
         rows={4}
         name="mnemonic"
         ref={register({
-          required: "Required",
+          required: t("required"),
           validate: (val) =>
             validateMnemonic(formatMnemonic(val)) || MNEMONIC_ERROR_CAPTION,
         })}
         errorCaption={errors.mnemonic?.message}
-        label="Seed phrase"
-        labelDescription="Mnemonic. Your secret twelve word phrase."
+        label={t("mnemonicInputLabel")}
+        labelDescription={t("mnemonicInputDescription")}
         id="importfundacc-mnemonic"
-        placeholder="e.g. venue sock milk update..."
+        placeholder={t("mnemonicInputPlaceholder")}
         spellCheck={false}
         containerClassName="mb-6"
         className="resize-none"
       />
 
       <FormSubmitButton loading={formState.isSubmitting}>
-        Import account
+        {t("importAccount")}
       </FormSubmitButton>
     </form>
   );
