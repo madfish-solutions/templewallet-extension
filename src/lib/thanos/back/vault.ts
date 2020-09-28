@@ -532,7 +532,8 @@ function createStorageKey(id: StorageEntity) {
 
 function createDynamicStorageKey(id: StorageEntity) {
   const keyBase = combineStorageKey(STORAGE_KEY_PREFIX, id);
-  return (subKey: number | string) => combineStorageKey(keyBase, subKey);
+  return (...subKeys: (number | string)[]) =>
+    combineStorageKey(keyBase, ...subKeys);
 }
 
 function combineStorageKey(...parts: (string | number)[]) {

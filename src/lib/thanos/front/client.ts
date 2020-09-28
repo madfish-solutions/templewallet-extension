@@ -86,10 +86,18 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
    * Aliases
    */
 
-  const { status, networks, accounts, settings } = state;
+  const { status, networks: defaultNetworks, accounts, settings } = state;
   const idle = status === ThanosStatus.Idle;
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
+
+  const customNetworks = React.useMemo(() => settings?.customNetworks ?? [], [
+    settings,
+  ]);
+  const networks = React.useMemo(
+    () => [...defaultNetworks, ...customNetworks],
+    [defaultNetworks, customNetworks]
+  );
 
   /**
    * Backup seed phrase flag
@@ -234,6 +242,32 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const getAllPndOps = React.useCallback(
+    async (accountPublicKeyHash: string, netId: string) => {
+      const res = await request({
+        type: ThanosMessageType.GetAllPndOpsRequest,
+        accountPublicKeyHash,
+        netId,
+      });
+      assertResponse(res.type === ThanosMessageType.GetAllPndOpsResponse);
+      return res.operations;
+    },
+    []
+  );
+
+  const removePndOps = React.useCallback(
+    async (accountPublicKeyHash: string, netId: string, opHashes: string[]) => {
+      const res = await request({
+        type: ThanosMessageType.RemovePndOpsRequest,
+        accountPublicKeyHash,
+        netId,
+        opHashes,
+      });
+      assertResponse(res.type === ThanosMessageType.RemovePndOpsResponse);
+    },
+    []
+  );
+
   const confirmInternal = React.useCallback(
     async (id: string, confirmed: boolean) => {
       const res = await request({
@@ -300,16 +334,11 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   );
 
   const createTaquitoWallet = React.useCallback(
-    (
-      sourcePkh: string,
-      networkRpc: string,
-      onAfterSend?: (opHash: string, opResults: any[]) => void
-    ) =>
+    (sourcePkh: string, networkRpc: string) =>
       new TaquitoWallet(sourcePkh, networkRpc, {
         onBeforeSend: (id) => {
           confirmationIdRef.current = id;
         },
-        onAfterSend,
       }),
     []
   );
@@ -344,7 +373,9 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
     // Aliases
     status,
-    networks: [...networks, ...(settings?.customNetworks || [])],
+    defaultNetworks,
+    customNetworks,
+    networks,
     accounts,
     settings,
     idle,
@@ -370,6 +401,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     importMnemonicAccount,
     importFundraiserAccount,
     updateSettings,
+    getAllPndOps,
+    removePndOps,
     confirmInternal,
     getDAppPayload,
     confirmDAppPermission,
@@ -384,7 +417,6 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
 type TaquitoWalletOps = {
   onBeforeSend?: (id: string) => void;
-  onAfterSend?: (opHash: string, opResults: any[]) => void;
 };
 
 class TaquitoWallet implements WalletProvider {
@@ -423,9 +455,6 @@ class TaquitoWallet implements WalletProvider {
       opParams: opParams.map(formatOpParams),
     });
     assertResponse(res.type === ThanosMessageType.OperationsResponse);
-    if (this.opts.onAfterSend) {
-      this.opts.onAfterSend(res.opHash, res.opResults);
-    }
     return res.opHash;
   }
 }
