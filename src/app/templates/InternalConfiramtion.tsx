@@ -139,7 +139,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               type="error"
               title="Error"
               description={error?.message ?? "Something went wrong"}
-              className="mb-6"
+              className="my-4"
               autoFocus
             />
           )}

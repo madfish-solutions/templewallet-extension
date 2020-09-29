@@ -40,7 +40,7 @@ export type ThanosAccount =
   | ThanosLedgerAccount;
 
 export interface ThanosLedgerAccount extends ThanosAccountBase {
-  type: ThanosAccountType.Imported;
+  type: ThanosAccountType.Ledger;
   hdIndex: number;
 }
 
@@ -57,6 +57,7 @@ export interface ThanosAccountBase {
   type: ThanosAccountType;
   name: string;
   publicKeyHash: string;
+  hdIndex?: number;
 }
 
 export enum ThanosAccountType {
@@ -236,6 +237,8 @@ export enum ThanosMessageType {
   ImportMnemonicAccountResponse = "THANOS_IMPORT_MNEMONIC_ACCOUNT_RESPONSE",
   ImportFundraiserAccountRequest = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_REQUEST",
   ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
+  CreateLedgerAccountRequest = "THANOS_CREATE_LEDGER_ACCOUNT_REQUEST",
+  CreateLedgerAccountResponse = "THANOS_CREATE_LEDGER_ACCOUNT_RESPONSE",
   UpdateSettingsRequest = "THANOS_UPDATE_SETTINGS_REQUEST",
   UpdateSettingsResponse = "THANOS_UPDATE_SETTINGS_RESPONSE",
   GetAllPndOpsRequest = "THANOS_GET_ALL_PND_OPS_REQUEST",
@@ -282,6 +285,7 @@ export type ThanosRequest =
   | ThanosImportAccountRequest
   | ThanosImportMnemonicAccountRequest
   | ThanosImportFundraiserAccountRequest
+  | ThanosCreateLedgerAccountRequest
   | ThanosOperationsRequest
   | ThanosSignRequest
   | ThanosConfirmationRequest
@@ -310,6 +314,7 @@ export type ThanosResponse =
   | ThanosImportAccountResponse
   | ThanosImportMnemonicAccountResponse
   | ThanosImportFundraiserAccountResponse
+  | ThanosCreateLedgerAccountResponse
   | ThanosOperationsResponse
   | ThanosSignResponse
   | ThanosConfirmationResponse
@@ -472,6 +477,16 @@ export interface ThanosImportFundraiserAccountRequest
 export interface ThanosImportFundraiserAccountResponse
   extends ThanosMessageBase {
   type: ThanosMessageType.ImportFundraiserAccountResponse;
+}
+
+export interface ThanosCreateLedgerAccountRequest extends ThanosMessageBase {
+  type: ThanosMessageType.CreateLedgerAccountRequest;
+  name: string;
+  hdIndex: number;
+}
+
+export interface ThanosCreateLedgerAccountResponse extends ThanosMessageBase {
+  type: ThanosMessageType.CreateLedgerAccountResponse;
 }
 
 export interface ThanosUpdateSettingsRequest extends ThanosMessageBase {

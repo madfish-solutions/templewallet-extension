@@ -462,16 +462,17 @@ const ConfirmDAppForm: React.FC = () => {
               />
             );
           })()}
-      </div>
 
-      {error && (
-        <Alert
-          type="error"
-          title="Error"
-          description={error?.message ?? "Something went wrong"}
-          className="mb-6"
-        />
-      )}
+        {error && (
+          <Alert
+            type="error"
+            title="Error"
+            description={error?.message ?? "Something went wrong"}
+            className="my-4"
+            autoFocus
+          />
+        )}
+      </div>
 
       <div className="flex-1" />
 
