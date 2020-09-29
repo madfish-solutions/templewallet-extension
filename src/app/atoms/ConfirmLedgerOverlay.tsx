@@ -27,7 +27,7 @@ const ConfirmLedgerOverlay: React.FC<ConfirmLedgerOverlayProps> = ({
       className={classNames(
         "absolute inset-0",
         "bg-white bg-opacity-90",
-        "p-16",
+        "p-8",
         "flex flex-col items-center justify-center"
       )}
     >
@@ -45,7 +45,7 @@ const ConfirmLedgerOverlay: React.FC<ConfirmLedgerOverlayProps> = ({
 
       <LedgerNanoIcon
         className="animate-pulse"
-        style={{ width: "75%", height: "auto" }}
+        style={{ width: "10rem", height: "auto" }}
       />
     </div>
   </CSSTransition>
