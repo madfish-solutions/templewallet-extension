@@ -1,0 +1,54 @@
+import * as React from "react";
+import classNames from "clsx";
+import CSSTransition from "react-transition-group/CSSTransition";
+import { ReactComponent as LedgerNanoIcon } from "app/misc/ledger.svg";
+
+type ConfirmLedgerOverlayProps = {
+  displayed: boolean;
+};
+
+const ConfirmLedgerOverlay: React.FC<ConfirmLedgerOverlayProps> = ({
+  displayed,
+}) => (
+  <CSSTransition
+    in={displayed}
+    timeout={500}
+    classNames={{
+      enter: "opacity-0",
+      enterActive: classNames(
+        "opacity-100",
+        "transition ease-out duration-500"
+      ),
+      exit: classNames("opacity-0", "transition ease-in duration-500"),
+    }}
+    unmountOnExit
+  >
+    <div
+      className={classNames(
+        "absolute inset-0",
+        "bg-white bg-opacity-90",
+        "p-16",
+        "flex flex-col items-center justify-center"
+      )}
+    >
+      <h1
+        className={classNames(
+          "mb-8",
+          "text-center",
+          "text-xl font-medium tracking-tight text-gray-600"
+        )}
+      >
+        <span className="text-base font-normal">Confirm the action on</span>
+        <br />
+        <span className="text-gray-700">Ledger Nano</span> device
+      </h1>
+
+      <LedgerNanoIcon
+        className="animate-pulse"
+        style={{ width: "75%", height: "auto" }}
+      />
+    </div>
+  </CSSTransition>
+);
+
+export default ConfirmLedgerOverlay;

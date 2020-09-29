@@ -11,7 +11,9 @@ import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormField from "app/atoms/FormField";
 import AssetField from "app/atoms/AssetField";
+import Alert from "app/atoms/Alert";
 import { ReactComponent as LinkIcon } from "app/icons/link.svg";
+import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 
 type FormData = {
   name: string;
@@ -48,9 +50,12 @@ const ConnectLedger: React.FC = () => {
   });
   const submitting = formState.isSubmitting;
 
+  const [error, setError] = React.useState<React.ReactNode>(null);
+
   const onSubmit = React.useCallback(
     async ({ name, hdIndex }: FormData) => {
       if (submitting) return;
+      setError(null);
 
       try {
         await createLedgerAccount(name, hdIndex);
@@ -61,10 +66,10 @@ const ConnectLedger: React.FC = () => {
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
-        alert(err.message);
+        setError(err.message);
       }
     },
-    [submitting, createLedgerAccount]
+    [submitting, createLedgerAccount, setError]
   );
 
   return (
@@ -76,8 +81,18 @@ const ConnectLedger: React.FC = () => {
         </>
       }
     >
-      <div className="w-full max-w-sm mx-auto mt-6">
+      <div className="relative w-full max-w-sm mx-auto mt-6 mb-8">
         <form onSubmit={handleSubmit(onSubmit)}>
+          {error && (
+            <Alert
+              type="error"
+              title="Error"
+              autoFocus
+              description={error}
+              className="mb-6"
+            />
+          )}
+
           <FormField
             ref={register({
               pattern: {
@@ -114,6 +129,8 @@ const ConnectLedger: React.FC = () => {
             Add Ledger Account
           </FormSubmitButton>
         </form>
+
+        <ConfirmLedgerOverlay displayed={submitting} />
       </div>
     </PageLayout>
   );

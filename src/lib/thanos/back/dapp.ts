@@ -356,18 +356,19 @@ async function requestConfirm({
   let knownPort: Runtime.Port | undefined;
   const stopRequestListening = intercom.onRequest(
     async (req: ThanosRequest, port) => {
-      if (!knownPort) knownPort = port;
-      if (knownPort !== port) return;
-
       if (
         req?.type === ThanosMessageType.DAppGetPayloadRequest &&
         req.id === id
       ) {
+        knownPort = port;
+
         return {
           type: ThanosMessageType.DAppGetPayloadResponse,
           payload,
         };
       } else {
+        if (knownPort !== port) return;
+
         const result = await handleIntercomRequest(req, onDecline);
         if (result) {
           close();

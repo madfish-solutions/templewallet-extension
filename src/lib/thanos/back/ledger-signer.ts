@@ -53,16 +53,26 @@ export class ThanosLedgerSigner extends LedgerSigner {
   }
 
   async publicKey() {
-    return this.accPublicKey ?? super.publicKey();
+    return (
+      this.accPublicKey ??
+      super.publicKey().catch((err) => {
+        throw toLedgerError(err);
+      })
+    );
   }
 
   async publicKeyHash() {
-    return this.accPublicKeyHash ?? super.publicKeyHash();
+    return (
+      this.accPublicKeyHash ??
+      super.publicKeyHash().catch((err) => {
+        throw toLedgerError(err);
+      })
+    );
   }
 
   async sign(bytes: string, watermark?: Uint8Array) {
     const result = await super.sign(bytes, watermark).catch((err) => {
-      throw new PublicError(err.message);
+      throw toLedgerError(err);
     });
 
     let bb = hex2buf(bytes);
@@ -76,10 +86,12 @@ export class ThanosLedgerSigner extends LedgerSigner {
     );
 
     if (!signatureVerified) {
-      throw new PublicError(
-        "Signature failed verification against public key." +
-          " Maybe the account on your device does not match" +
-          " the account from which you are trying to perform the action."
+      throw toLedgerError(
+        new Error(
+          "Signature failed verification against public key." +
+            " Maybe the account on your device does not match" +
+            " the account from which you are trying to perform the action."
+        )
       );
     }
 
@@ -167,4 +179,8 @@ export class ThanosLedgerSigner extends LedgerSigner {
 
     throw new Error(`Curve '${curve}' not supported`);
   }
+}
+
+function toLedgerError(err: any) {
+  return new PublicError(`Ledger error. ${err.message}`);
 }
