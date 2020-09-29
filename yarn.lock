@@ -1259,7 +1259,7 @@
     node-hid "1.3.0"
     usb "^1.6.3"
 
-"@ledgerhq/hw-transport-webauthn@^5.25.0":
+"@ledgerhq/hw-transport-webauthn@5.25.0":
   version "5.25.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-webauthn/-/hw-transport-webauthn-5.25.0.tgz#62e22a45a67ac51664fb91a4af0f2f586adbdfa9"
   integrity sha512-+3zKnQgSfjFST4O6QhNbwPHH0ZE3Rs9abgdTkYi5AB7WPX/s+u1HM//8mnGdcJeuniMe90DBwCjcuZd0o6ebWQ==
@@ -1612,7 +1612,7 @@
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
 
-"@types/elliptic@^6.4.12":
+"@types/elliptic@6.4.12":
   version "6.4.12"
   resolved "https://registry.yarnpkg.com/@types/elliptic/-/elliptic-6.4.12.tgz#e8add831f9cc9a88d9d84b3733ff669b68eaa124"
   integrity sha512-gP1KsqoouLJGH6IJa28x7PXb3cRqh83X8HCLezd2dF+XcAIMKYv53KV+9Zn6QA561E120uOqZBQ+Jy/cl+fviw==
@@ -1680,7 +1680,7 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
-"@types/libsodium-wrappers@^0.7.8":
+"@types/libsodium-wrappers@0.7.8":
   version "0.7.8"
   resolved "https://registry.yarnpkg.com/@types/libsodium-wrappers/-/libsodium-wrappers-0.7.8.tgz#34575d7692fdbb7a7fdb63afcde381db86ec0de2"
   integrity sha512-vkDSj6enD3K0+Ep83wnoGUk+f7sqsO4alsqxxEZ8BcTJhFmcY4UehYH3rTf4M3JGHXNhdpGFDdMbWFMgyvw/fA==
