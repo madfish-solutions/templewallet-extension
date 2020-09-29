@@ -20,7 +20,7 @@ import {
   ThanosRequest,
   ThanosDAppPayload,
 } from "lib/thanos/types";
-import { intercom } from "lib/thanos/back/intercom";
+import { intercom } from "lib/thanos/back/defaults";
 import * as PndOps from "lib/thanos/back/pndops";
 import { withUnlocked } from "lib/thanos/back/store";
 import { NETWORKS } from "lib/thanos/networks";

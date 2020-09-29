@@ -1,33 +1,71 @@
+import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
-import React from "react";
-import { ReactComponent as LinkIcon } from "app/icons/link.svg";
+import { navigate } from "lib/woozie";
+import {
+  useThanosClient,
+  useSetAccountPkh,
+  useAllAccounts,
+  ThanosAccountType,
+} from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormField from "app/atoms/FormField";
 import AssetField from "app/atoms/AssetField";
+import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 
 type FormData = {
   name: string;
-  accountIndex: number;
+  hdIndex: number;
 };
 
 const ConnectLedger: React.FC = () => {
-  const allLedgers = [];
+  const { createLedgerAccount } = useThanosClient();
+  const allAccounts = useAllAccounts();
+  const setAccountPkh = useSetAccountPkh();
+  const allLedgers = React.useMemo(
+    () => allAccounts.filter((acc) => acc.type === ThanosAccountType.Ledger),
+    [allAccounts]
+  );
 
   const defaultName = React.useMemo(() => `Ledger ${allLedgers.length + 1}`, [
     allLedgers.length,
   ]);
 
+  const prevAccLengthRef = React.useRef(allAccounts.length);
+  React.useEffect(() => {
+    const accLength = allAccounts.length;
+    if (prevAccLengthRef.current < accLength) {
+      setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
+      navigate("/");
+    }
+    prevAccLengthRef.current = accLength;
+  }, [allAccounts, setAccountPkh]);
+
   const { control, register, handleSubmit, errors, formState } = useForm<
     FormData
   >({
-    defaultValues: { name: defaultName, accountIndex: 0 },
+    defaultValues: { name: defaultName, hdIndex: 0 },
   });
   const submitting = formState.isSubmitting;
 
-  const onSubmit = React.useCallback((formData: FormData) => {
-    console.log("TODO: add ledger", formData);
-  }, []);
+  const onSubmit = React.useCallback(
+    async ({ name, hdIndex }: FormData) => {
+      if (submitting) return;
+
+      try {
+        await createLedgerAccount(name, hdIndex);
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+
+        // Human delay.
+        await new Promise((res) => setTimeout(res, 300));
+        alert(err.message);
+      }
+    },
+    [submitting, createLedgerAccount]
+  );
 
   return (
     <PageLayout
@@ -58,7 +96,7 @@ const ConnectLedger: React.FC = () => {
           />
 
           <Controller
-            name="accountIndex"
+            name="hdIndex"
             as={AssetField}
             control={control}
             onChange={([v]) => v}
@@ -68,12 +106,12 @@ const ConnectLedger: React.FC = () => {
             label="HD Account Index"
             labelDescription="What is the last number in derivation path?"
             placeholder="0"
-            errorCaption={errors.accountIndex?.message}
+            errorCaption={errors.hdIndex?.message}
             containerClassName="mb-4"
           />
 
           <FormSubmitButton loading={submitting}>
-            Create Account
+            Add Ledger Account
           </FormSubmitButton>
         </form>
       </div>

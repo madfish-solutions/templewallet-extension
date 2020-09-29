@@ -5,8 +5,8 @@ import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
 import { TezosToolkit, CompositeForger, RpcForger } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
-import { LedgerSigner, DerivationType } from "@taquito/ledger-signer";
-import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
+import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
+import { DerivationType } from "@taquito/ledger-signer";
 import * as Passworder from "lib/thanos/passworder";
 import {
   ThanosAccount,
@@ -14,12 +14,14 @@ import {
   ThanosSettings,
   ThanosDAppSession,
 } from "lib/thanos/types";
+import { PublicError } from "lib/thanos/back/defaults";
 import {
   isStored,
   fetchAndDecryptOne,
   encryptAndSaveMany,
   removeMany,
 } from "lib/thanos/back/safe-storage";
+import { ThanosLedgerSigner } from "lib/thanos/back/ledger-signer";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
@@ -350,12 +352,32 @@ export class Vault {
     });
   }
 
-  // async connectLedgerAccount() {
-  //   return withError("Failed to connect Ledger account", async () => {
-  //     const ledgerSigner = await createLedgerSigner();
+  async createLedgerAccount(name: string, hdIndex: number) {
+    return withError("Failed to connect Ledger account", async () => {
+      const ledgerSigner = await createLedgerSigner(hdIndex);
+      const accPublicKey = await ledgerSigner.publicKey();
+      const accPublicKeyHash = await ledgerSigner.publicKeyHash();
 
-  //   });
-  // }
+      const newAccount: ThanosAccount = {
+        type: ThanosAccountType.Ledger,
+        name,
+        publicKeyHash: accPublicKeyHash,
+        hdIndex,
+      };
+      const allAccounts = await this.fetchAccounts();
+      const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+      await encryptAndSaveMany(
+        [
+          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+          [accountsStrgKey, newAllAcounts],
+        ],
+        this.passKey
+      );
+
+      return newAllAcounts;
+    });
+  }
 
   async editAccountName(accPublicKeyHash: string, name: string) {
     return withError("Failed to edit account name", async () => {
@@ -395,24 +417,17 @@ export class Vault {
 
   async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {
     return withError("Failed to sign", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        this.passKey
-      );
-      const signer = await createMemorySigner(privateKey);
-      const watermarkBuf =
-        watermark && (TaquitoUtils.hex2buf(watermark) as any);
+      const signer = await this.getSigner(accPublicKeyHash);
+      const watermarkBuf = watermark
+        ? TaquitoUtils.hex2buf(watermark)
+        : undefined;
       return signer.sign(bytes, watermarkBuf);
     });
   }
 
   async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
     const batch = await withError("Failed to send operations", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        this.passKey
-      );
-      const signer = await createMemorySigner(privateKey);
+      const signer = await this.getSigner(accPublicKeyHash);
       const tezos = new TezosToolkit();
       const forger = new CompositeForger([
         tezos.getFactory(RpcForger)(),
@@ -428,7 +443,33 @@ export class Vault {
       if (process.env.NODE_ENV === "development") {
         console.error(err);
       }
-      throw new Error(`__tezos__${err.message}`);
+
+      throw err instanceof PublicError
+        ? err
+        : new Error(`__tezos__${err.message}`);
+    }
+  }
+
+  private async getSigner(accPublicKeyHash: string) {
+    const allAccounts = await this.fetchAccounts();
+    const acc = allAccounts.find(
+      (acc) => acc.publicKeyHash === accPublicKeyHash
+    );
+    if (!acc) {
+      throw new PublicError("Account not found");
+    }
+
+    switch (acc.type) {
+      case ThanosAccountType.Ledger:
+        const publicKey = await this.revealPublicKey(accPublicKeyHash);
+        return createLedgerSigner(acc.hdIndex, publicKey, accPublicKeyHash);
+
+      default:
+        const privateKey = await fetchAndDecryptOne<string>(
+          accPrivKeyStrgKey(accPublicKeyHash),
+          this.passKey
+        );
+        return createMemorySigner(privateKey);
     }
   }
 }
@@ -479,6 +520,23 @@ const MIGRATIONS = [
       passKey
     );
   },
+
+  // [1] Add hdIndex prop to HD Accounts
+  async (passKey: CryptoKey) => {
+    const accounts = await fetchAndDecryptOne<ThanosAccount[]>(
+      accountsStrgKey,
+      passKey
+    );
+
+    let hdAccIndex = 0;
+    const newAccounts = accounts.map((acc) =>
+      acc.type === ThanosAccountType.HD
+        ? { ...acc, hdIndex: hdAccIndex++ }
+        : acc
+    );
+
+    await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
+  },
 ];
 
 /**
@@ -517,13 +575,19 @@ async function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
 }
 
-async function createLedgerSigner(hdAccIndex: number) {
-  const transport = await TransportWebAuthn.create();
-  return new LedgerSigner(
+async function createLedgerSigner(
+  hdAccIndex: number,
+  publicKey?: string,
+  publicKeyHash?: string
+) {
+  const transport = await LedgerWebAuthnTransport.create();
+  return new ThanosLedgerSigner(
     transport,
     getMainDerivationPath(hdAccIndex),
     true,
-    DerivationType.tz1
+    DerivationType.tz1,
+    publicKey,
+    publicKeyHash
   );
 }
 
@@ -574,18 +638,3 @@ async function withError<T>(
     throw err instanceof PublicError ? err : new Error(errMessage);
   }
 }
-
-class PublicError extends Error {}
-
-// setTimeout(async () => {
-//   try {
-//     const signer = await createLedgerSigner(0);
-//     const tezos = new TezosToolkit();
-//     tezos.setProvider({ signer });
-//     const publicKey = await tezos.signer.publicKey();
-//     const publicKeyHash = await tezos.signer.publicKeyHash();
-//     console.info({ publicKey, publicKeyHash });
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }, 10_000);
