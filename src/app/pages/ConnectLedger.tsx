@@ -81,54 +81,56 @@ const ConnectLedger: React.FC = () => {
         </>
       }
     >
-      <div className="relative w-full max-w-sm mx-auto mt-6 mb-8">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {error && (
-            <Alert
-              type="error"
-              title="Error"
-              autoFocus
-              description={error}
-              className="mb-6"
+      <div className="relative w-full">
+        <div className="w-full max-w-sm mx-auto mt-6 mb-8">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {error && (
+              <Alert
+                type="error"
+                title="Error"
+                autoFocus
+                description={error}
+                className="mb-6"
+              />
+            )}
+
+            <FormField
+              ref={register({
+                pattern: {
+                  value: /^[a-zA-Z0-9 _-]{0,16}$/,
+                  message: "1-16 characters, no special",
+                },
+              })}
+              label="Ledger name"
+              labelDescription="What will be the name of the new ledger?"
+              id="create-ledger-name"
+              type="text"
+              name="name"
+              placeholder={defaultName}
+              errorCaption={errors.name?.message}
+              containerClassName="mb-4"
             />
-          )}
 
-          <FormField
-            ref={register({
-              pattern: {
-                value: /^[a-zA-Z0-9 _-]{0,16}$/,
-                message: "1-16 characters, no special",
-              },
-            })}
-            label="Ledger name"
-            labelDescription="What will be the name of the new ledger?"
-            id="create-ledger-name"
-            type="text"
-            name="name"
-            placeholder={defaultName}
-            errorCaption={errors.name?.message}
-            containerClassName="mb-4"
-          />
+            <Controller
+              name="hdIndex"
+              as={AssetField}
+              control={control}
+              onChange={([v]) => v}
+              id="create-ledger-account-index"
+              assetDecimals={0}
+              min={0}
+              label="HD Account Index"
+              labelDescription="What is the last number in derivation path?"
+              placeholder="0"
+              errorCaption={errors.hdIndex?.message}
+              containerClassName="mb-4"
+            />
 
-          <Controller
-            name="hdIndex"
-            as={AssetField}
-            control={control}
-            onChange={([v]) => v}
-            id="create-ledger-account-index"
-            assetDecimals={0}
-            min={0}
-            label="HD Account Index"
-            labelDescription="What is the last number in derivation path?"
-            placeholder="0"
-            errorCaption={errors.hdIndex?.message}
-            containerClassName="mb-4"
-          />
-
-          <FormSubmitButton loading={submitting}>
-            Add Ledger Account
-          </FormSubmitButton>
-        </form>
+            <FormSubmitButton loading={submitting}>
+              Add Ledger Account
+            </FormSubmitButton>
+          </form>
+        </div>
 
         <ConfirmLedgerOverlay displayed={submitting} />
       </div>
