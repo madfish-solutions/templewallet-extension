@@ -23,6 +23,7 @@ import {
   ThanosAssetType,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
+import { T, t } from "lib/ui/i18n";
 import {
   ArtificialError,
   NotEnoughFundsError,
@@ -66,7 +67,7 @@ const SendForm: React.FC = () => {
   return (
     <>
       {operation && (
-        <OperationStatus typeTitle="Transaction" operation={operation} />
+        <OperationStatus typeTitle={t("transaction")} operation={operation} />
       )}
 
       <AssetSelect
@@ -421,7 +422,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         cleanable={Boolean(toValue)}
         onClean={cleanToField}
         id="send-to"
-        label="Recipient"
+        label={t("recipient")}
         labelDescription={
           filledAccount ? (
             <div className="flex flex-wrap items-center">
@@ -446,10 +447,15 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
               )
             </div>
           ) : (
-            `Address to send ${localAsset.symbol} funds to.`
+            <T
+              name="tokensRecepientInputDescription"
+              substitutions={localAsset.symbol}
+            >
+              {(message) => <>{message}</>}
+            </T>
           )
         }
-        placeholder="e.g. tz1a9w1S7hN5s..."
+        placeholder={t("recipientInputPlaceholder")}
         errorCaption={errors.to?.message}
         style={{
           resize: "none",
@@ -475,14 +481,8 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                 return (
                   <Alert
                     type="warn"
-                    title="Attension!"
-                    description={
-                      <>
-                        You're trying to transfer funds to yourself.
-                        <br />
-                        Please, ensure that it's exactly what you want.
-                      </>
-                    }
+                    title={t("attentionExclamation")}
+                    description={t("tryingToTransferToYourself")}
                     className="mt-6 mb-4"
                   />
                 );
@@ -504,11 +504,11 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             id="send-amount"
             assetSymbol={localAsset.symbol}
             assetDecimals={localAsset.decimals}
-            label="Amount"
+            label={t("amount")}
             labelDescription={
               maxAmount && (
                 <>
-                  Available to send(max):{" "}
+                  <T name="availableToSend">{(message) => <>{message}</>}</T>{" "}
                   <button
                     type="button"
                     className={classNames("underline")}
@@ -527,7 +527,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                               <span className="pr-px">$</span>
                               {usdAmount}
                             </span>{" "}
-                            in USD
+                            <T name="inUSD">{(message) => <>{message}</>}</T>
                           </div>
                         )}
                       </InUSD>
@@ -536,7 +536,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                 </>
               )
             }
-            placeholder="e.g. 123.45"
+            placeholder={t("amountPlaceholder")}
             errorCaption={errors.amount?.message}
             containerClassName="mb-4"
             autoFocus={Boolean(maxAmount)}
@@ -552,12 +552,16 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             id="send-fee"
           />
 
-          <FormSubmitButton
-            loading={formState.isSubmitting}
-            disabled={Boolean(estimationError)}
-          >
-            Send
-          </FormSubmitButton>
+          <T name="send">
+            {(message) => (
+              <FormSubmitButton
+                loading={formState.isSubmitting}
+                disabled={Boolean(estimationError)}
+              >
+                {message}
+              </FormSubmitButton>
+            )}
+          </T>
         </>
       ) : (
         allAccounts.length > 1 && (
@@ -565,19 +569,27 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             <h2
               className={classNames("mb-4", "leading-tight", "flex flex-col")}
             >
-              <span className="text-base font-semibold text-gray-700">
-                Send to My Accounts
-              </span>
-
-              <span
-                className={classNames(
-                  "mt-1",
-                  "text-xs font-light text-gray-600"
+              <T name="sendToMyAccounts">
+                {(message) => (
+                  <span className="text-base font-semibold text-gray-700">
+                    {message}
+                  </span>
                 )}
-                style={{ maxWidth: "90%" }}
-              >
-                Click on Account you want to send funds to.
-              </span>
+              </T>
+
+              <T name="clickOnRecipientAccount">
+                {(message) => (
+                  <span
+                    className={classNames(
+                      "mt-1",
+                      "text-xs font-light text-gray-600"
+                    )}
+                    style={{ maxWidth: "90%" }}
+                  >
+                    {message}
+                  </span>
+                )}
+              </T>
             </h2>
 
             <div
@@ -631,19 +643,23 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                           </Name>
 
                           {acc.type === ThanosAccountType.Imported && (
-                            <span
-                              className={classNames(
-                                "ml-2",
-                                "rounded-sm",
-                                "border border-black border-opacity-25",
-                                "px-1 py-px",
-                                "leading-tight",
-                                "text-black text-opacity-50"
+                            <T name="importedAccount">
+                              {(message) => (
+                                <span
+                                  className={classNames(
+                                    "ml-2",
+                                    "rounded-sm",
+                                    "border border-black border-opacity-25",
+                                    "px-1 py-px",
+                                    "leading-tight",
+                                    "text-black text-opacity-50"
+                                  )}
+                                  style={{ fontSize: "0.6rem" }}
+                                >
+                                  {message}
+                                </span>
                               )}
-                              style={{ fontSize: "0.6rem" }}
-                            >
-                              Imported
-                            </span>
+                            </T>
                           )}
                         </div>
 
@@ -710,50 +726,45 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
     title={(() => {
       switch (true) {
         case error instanceof NotEnoughFundsError:
-          return `Not enough ${
+          return t(
+            "notEnoughFunds",
             error instanceof ZeroXTZBalanceError ? "XTZ " : ""
-          }funds 😶`;
-
+          );
         default:
-          return "Failed";
+          return t("failed");
       }
     })()}
     description={(() => {
       switch (true) {
         case error instanceof ZeroBalanceError:
-          return <>Your Balance is zero.</>;
+          return t("yourBalanceIsZero");
 
         case error instanceof ZeroXTZBalanceError:
-          return (
-            <>
-              Your XTZ(main asset) balance is zero. XTZ funds are required for
-              the fee.
-            </>
-          );
+          return t("mainAssetBalanceIsZero");
 
         case error instanceof NotEnoughFundsError:
-          return (
-            <>
-              Minimal fee for this transaction is greater than your balance. A
-              large fee may be due because you sending funds to an empty Manager
-              account. That requires a one-time 0.257 XTZ burn fee;
-            </>
-          );
+          return t("minimalFeeGreaterThanBalanceVerbose");
 
         default:
           return (
             <>
-              Unable to {type === "submit" ? "send" : "estimate"} transaction to
-              provided Recipient.
+              <T
+                name="unableToPerformTransactionAction"
+                substitutions={t(
+                  type === "submit" ? "send" : "estimate"
+                ).toLowerCase()}
+              >
+                {(message) => <>{message}</>}
+              </T>
               <br />
-              This may happen because:
+              <T name="thisMayHappenBecause">{(message) => <>{message}</>}</T>
               <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                <li>
-                  Minimal fee for this transaction is greater than your balance.
-                  A large fee may be due because you sending funds to an empty
-                  Manager account. That requires a one-time 0.257 XTZ burn fee;
-                </li>
-                <li>Network or other tech issue.</li>
+                <T name="minimalFeeGreaterThanBalanceVerbose">
+                  {(message) => <li>{message}</li>}
+                </T>
+                <T name="networkOrOtherIssue">
+                  {(message) => <li>{message}</li>}
+                </T>
               </ul>
             </>
           );
@@ -770,7 +781,7 @@ function validateAddress(value: any) {
       return true;
 
     case isAddressValid(value):
-      return "Invalid address";
+      return t("invalidAddress");
 
     default:
       return true;

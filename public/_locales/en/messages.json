@@ -219,7 +219,10 @@
     "message": "What will be the name of the new account?"
   },
   "createNewWallet": {
-    "message": "Create new Wallet"
+    "message": "Create a new Wallet"
+  },
+  "createNewWalletDescription": {
+    "message": "New to Thanos Wallet? Let’s set it up! This will create a new wallet and seed phrase"
   },
   "delegate": {
     "message": "Delegate"
@@ -308,8 +311,13 @@
   "unexpectedOrInvalidFile": {
     "message": "Unexpected or invalid file"
   },
-  "confirmingActivationRequest": {
-    "message": "🛫 Activation request sent! Confirming..."
+  "activationRequestSent": {
+    "message": "$type$ request sent! Confirming...",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
   },
   "success": {
     "message": "Success"
@@ -324,7 +332,7 @@
     "message": "Processing..."
   },
   "selectFileOfFormat": {
-    "message": "Select %ch file"
+    "message": "Select %format% file"
   },
   "restoreWalletWithSeedPhrase": {
     "message": "Restore your Wallet with Seed Phrase"
@@ -403,5 +411,504 @@
   },
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset DApp permissions."
+  },
+  "importExistingWallet": {
+    "message": "Import existing Wallet"
+  },
+  "importExistingWalletDescription": {
+    "message": "Already have a seed phrase? Import your existing wallet using a 12 or more mnemonic words"
+  },
+  "versionLabel": {
+    "message": "version: %version%"
+  },
+  "madeWithLove": {
+    "message": "Made with %loveIcon% by %companyName%"
+  },
+  "links": {
+    "message": "Links"
+  },
+  "website": {
+    "message": "Website"
+  },
+  "repo": {
+    "message": "Repository"
+  },
+  "privacyPolicy": {
+    "message": "Privacy Policy"
+  },
+  "termsOfUse": {
+    "message": "Terms of Use"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "accountAlreadyActivated": {
+    "message": "🏁 Your Account already activated."
+  },
+  "accountActivated": {
+    "message": "✅ Your account successfully activated!"
+  },
+  "failureSecretMayBeInvalid": {
+    "message": "Failed. This may happen because provided Secret is invalid"
+  },
+  "accountToBeActivated": {
+    "message": "Account to be activated."
+  },
+  "ifYouWantToActivateAnotherAccount": {
+    "message": "If you want to activate another account - please, select it in the top-right dropdown."
+  },
+  "activateAccountSecret": {
+    "message": "Secret"
+  },
+  "activateAccountSecretDescription": {
+    "message": "'secret' field from Fundraiser Account or Faucet"
+  },
+  "activateAccountSecretPlaceholder": {
+    "message": "e.g. n4hs7sd3..."
+  },
+  "activate": {
+    "message": "Activate"
+  },
+  "minimalFeeDescription": {
+    "message": "Minimal"
+  },
+  "fastFeeDescription": {
+    "message": "Fast"
+  },
+  "rocketFeeDescription": {
+    "message": "Rocket"
+  },
+  "customFeeDescription": {
+    "message": "Custom"
+  },
+  "additionalFee": {
+    "message": "Additional Fee"
+  },
+  "feeInputDescription": {
+    "message": "Base Fee for this operation is: %fee%Additional - speeds up its confirmation"
+  },
+  "asset": {
+    "message": "Asset"
+  },
+  "selectAnotherAssetPrompt": {
+    "message": "Click on area to select another asset or token."
+  },
+  "resetPermissionsConfirmation": {
+    "message": "Are you sure you want to reset permissions?"
+  },
+  "disable": {
+    "message": "disable"
+  },
+  "enable": {
+    "message": "enable"
+  },
+  "dAppsCheckmarkPrompt": {
+    "message": "Click on the checkmark to $action$ DApps interaction feature. It’s still in Alpha, but it can be used for testing and development purposes.",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "dAppsInteraction": {
+    "message": "DApps interaction"
+  },
+  "dAppsInteractionEnabled": {
+    "message": "Enabled"
+  },
+  "dAppsInteractionDisabled": {
+    "message": "Disabled"
+  },
+  "networkLabel": {
+    "message": "Network: $network$",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "pkhLabel": {
+    "message": "PKH: %pkh%"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "rank": {
+    "message": "Rank"
+  },
+  "fee": {
+    "message": "Fee"
+  },
+  "space": {
+    "message": "Space"
+  },
+  "delegation": {
+    "message": "Delegation"
+  },
+  "baker": {
+    "message": "Baker"
+  },
+  "bakerInputDescription": {
+    "message": "Address of a registered baker."
+  },
+  "bakerInputPlaceholder": {
+    "message": "e.g. tz1a9w1S7hN5s..."
+  },
+  "minDelegationAmountTitle": {
+    "message": "Minimal delegation amount"
+  },
+  "minDelegationAmountDescription": {
+    "message": "Your current balance is less than a minimal delegation amount of this baker. That means while the balance is less than %minAmount% - there will be no payouts."
+  },
+  "unknownBakerTitle": {
+    "message": "Unknown baker"
+  },
+  "unknownBakerDescription": {
+    "message": "Provided address is not known to us as a baker! Only delegate funds to it at your own risk."
+  },
+  "delegateToRecommendedBakers": {
+    "message": "Delegate to Recommended Bakers"
+  },
+  "clickOnBakerPrompt": {
+    "message": "Click on the Baker you want to delegate funds to. This list is powered by %link%"
+  },
+  "sortBy": {
+    "message": "Sort by"
+  },
+  "cycles_one": {
+    "message": "$amount$ cycle",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_other": {
+    "message": "$amount$ cycles",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "notEnoughFunds": {
+    "message": "Not enough $currency$funds 😶",
+    "placeholders": {
+      "currency": {
+        "content": "$1"
+      }
+    }
+  },
+  "notAllowed": {
+    "message": "Not allowed"
+  },
+  "failed": {
+    "message": "Failed"
+  },
+  "yourBalanceIsZero": {
+    "message": "Your Balance is zero."
+  },
+  "minimalFeeGreaterThanBalance": {
+    "message": "Minimal fee for this transaction is greater than your balance."
+  },
+  "alreadyDelegatedFundsToBaker": {
+    "message": "Already delegated funds to this baker. Re-delegation is not possible."
+  },
+  "bakerNotRegistered": {
+    "message": "Specified baker is not registered."
+  },
+  "unableToPerformActionToBaker": {
+    "message": "Unable to $action$ to the provided Baker.",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "estimateDelegation": {
+    "message": "Estimate delegation"
+  },
+  "thisMayHappenBecause": {
+    "message": "This may happen because:"
+  },
+  "minimalFeeGreaterThanBalanceVerbose": {
+    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be due because you sending funds to an empty Manager account. That requires a one-time 0.257 XTZ burn fee;"
+  },
+  "networkOrOtherIssue": {
+    "message": "Network or other technical issue."
+  },
+  "unableToDelegateToKTAddress": {
+    "message": "Unable to delegate to KT... contract address"
+  },
+  "confirmAction": {
+    "message": "Confirm $action$",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "payloadToSign": {
+    "message": "Payload to sign"
+  },
+  "decline": {
+    "message": "Decline"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "network": {
+    "message": "Network"
+  },
+  "unknownNetwork": {
+    "message": "Unknown:"
+  },
+  "backupNewSeedPhrase": {
+    "message": "Backup new Seed Phrase"
+  },
+  "attentionExclamation": {
+    "message": "Attention!"
+  },
+  "lockedWallet": {
+    "message": "Locked wallet"
+  },
+  "alreadyExistsWallet": {
+    "message": "already exists"
+  },
+  "importingNewWalletWill": {
+    "message": "Importing a new one will"
+  },
+  "willDestroyTheExisting": {
+    "message": "destroy the existing"
+  },
+  "unlockWalletPrompt": {
+    "message": "If you want to save something from already existing wallet - %link% and unlock it."
+  },
+  "backToUnlockPage": {
+    "message": "back to Unlock page"
+  },
+  "mustBeEqualToPasswordAbove": {
+    "message": "Must be equal to password above"
+  },
+  "repeatPassword": {
+    "message": "Repeat Password"
+  },
+  "repeatPasswordInputDescription": {
+    "message": "Please enter the password again."
+  },
+  "confirmTermsError": {
+    "message": "Unable to continue without confirming Terms of Usage"
+  },
+  "acceptTerms": {
+    "message": "Accept terms"
+  },
+  "acceptTermsInputDescription": {
+    "message": "I have read and agree to\nthe %termsOfUsageLink% and %privacyPolicyLink%"
+  },
+  "termsOfUsage": {
+    "message": "Terms of Usage"
+  },
+  "create": {
+    "message": "Create"
+  },
+  "clickOnAreaBelow": {
+    "message": "Click on area below"
+  },
+  "toRevealNewSeedPhrase": {
+    "message": " to reveal your new Seed Phrase."
+  },
+  "writePhraseOnPieceOfPaper": {
+    "message": "Then, write this phrase on a piece of paper and"
+  },
+  "storePhraseInSecureLocation": {
+    "message": "store in a secure location"
+  },
+  "orYouCanMemorizePhrase": {
+    "message": "Or you can memorize it."
+  },
+  "doNotShareEmphasized": {
+    "message": "DO NOT share"
+  },
+  "doNotSharePhrase": {
+    "message": "%doNotShare% this phrase with anyone! It can be used to steal all your accounts."
+  },
+  "youWillNeedThisSeedPhrase": {
+    "message": "If you ever switch between browsers or devices, you will need this seed phrase to access your accounts."
+  },
+  "unableToContinueWithoutConfirming": {
+    "message": "Unable to continue without confirming"
+  },
+  "backupedInputLabel": {
+    "message": "I made Seed Phrase backup"
+  },
+  "backupedInputDescription": {
+    "message": "And accept the risks that if I lose the phrase,\nmy funds may be lost."
+  },
+  "continue": {
+    "message": "Continue"
+  },
+  "operationHistoryUnavailableForSandbox": {
+    "message": "Operation history is not available\nfor local sandbox"
+  },
+  "noOperationsFound": {
+    "message": "No operations found"
+  },
+  "pending": {
+    "message": "pending..."
+  },
+  "operationHash": {
+    "message": "Operation Hash: %hash%"
+  },
+  "operationSuccessfullyProcessed": {
+    "message": "$type$ successfully processed and confirmed!",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "timedOutOperationConfirmation": {
+    "message": "Timed out operation confirmation. You can either wait more time or try again later."
+  },
+  "accountToBeRemoved": {
+    "message": "Account to be removed."
+  },
+  "ifYouWantToRemoveAnotherAccount": {
+    "message": "If you want to remove another account - select it in the top-right dropdown."
+  },
+  "cannotBeRemoved": {
+    "message": "Cannot be removed"
+  },
+  "onlyImportedAccountsCanBeRemoved": {
+    "message": "Only %importedPlural% accounts can be removed."
+  },
+  "importedPlural": {
+    "message": "imported"
+  },
+  "enterPasswordToRemoveAccount": {
+    "message": "Enter password to remove the Account."
+  },
+  "remove": {
+    "message": "Remove"
+  },
+  "ifYouWantToRevealPrivateKeyFromOtherAccount": {
+    "message": "If you want to reveal a private key from another account - you should select it in the top-right dropdown."
+  },
+  "doNotSharePrivateKey": {
+    "message": "%doNotShare% this set of chars with anyone! It can be used to steal your current account."
+  },
+  "privateKeyFieldDescription": {
+    "message": "Current account key. Keep it secret."
+  },
+  "derivationPath": {
+    "message": "Derivation path"
+  },
+  "seedPhrase": {
+    "message": "Seed Phrase"
+  },
+  "pathForHDAccounts": {
+    "message": "for HD acccounts. This is the thing you use to recover all your accounts from your seed phrase."
+  },
+  "derivationPathExample": {
+    "message": "m/44'/1729'/<account_index>'/0'"
+  },
+  "keepSeedPhraseSecret": {
+    "message": "Keep it secret."
+  },
+  "revealSecretPasswordInputDescription": {
+    "message": "Enter password to reveal the $secretName$.",
+    "placeholders": {
+      "secretName": {
+        "content": "$1"
+      }
+    }
+  },
+  "reveal": {
+    "message": "Reveal"
+  },
+  "transaction": {
+    "message": "Transaction"
+  },
+  "recipient": {
+    "message": "Recipient"
+  },
+  "tokensRecepientInputDescription": {
+    "message": "Address to send $assetSymbol$ funds to.",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "recipientInputPlaceholder": {
+    "message": "e.g. tz1a9w1S7hN5s..."
+  },
+  "tryingToTransferToYourself": {
+    "message": "You're trying to transfer funds to yourself.\nPlease, ensure that it's exactly what you want."
+  },
+  "amount": {
+    "message": "Amount"
+  },
+  "availableToSend": {
+    "message": "Available to send(max):"
+  },
+  "inUSD": {
+    "message": "in USD"
+  },
+  "amountPlaceholder": {
+    "message": "e.g. 123.45"
+  },
+  "sendToMyAccounts": {
+    "message": "Send to My Accounts"
+  },
+  "clickOnRecipientAccount": {
+    "message": "Click on Account you want to send funds to."
+  },
+  "mainAssetBalanceIsZero": {
+    "message": "Your XTZ(main asset) balance is zero. XTZ funds are required for the fee."
+  },
+  "estimate": {
+    "message": "Estimate"
+  },
+  "unableToPerformTransactionAction": {
+    "message": "Unable to $actionName$ transaction to provided Recipient.",
+    "placeholders": {
+      "actionName": {
+        "content": "$1"
+      }
+    }
+  },
+  "makeSureToBackupSeedPhrase": {
+    "message": "Make sure to back up your seed phrase!"
+  },
+  "exploreMore": {
+    "message": "Explore more..."
+  },
+  "selfComment": {
+    "message": "(self)"
+  },
+  "deleteNetworkConfirm": {
+    "message": "Are you sure you want to delete this network?"
+  },
+  "networkNamePlaceholder": {
+    "message": "My custom network"
+  },
+  "mustBeValidURL": {
+    "message": "Must be a valid URL"
+  },
+  "rpcBaseURL": {
+    "message": "RPC base URL"
+  },
+  "mustBeUnique": {
+    "message": "Must be unique"
+  },
+  "addNetwork": {
+    "message": "Add network"
+  },
+  "currentNetworks": {
+    "message": "Current networks"
+  },
+  "deleteNetworkHint": {
+    "message": "Click on the X icon to delete the network. If you want to edit network, just delete it and add another with new params."
   }
 }

@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { ThanosConfirmationPayload, useAllAccounts } from "lib/thanos/front";
+import { t, T } from "lib/ui/i18n";
 import useSafeState from "lib/ui/useSafeState";
 import { useAppEnv } from "app/env";
 import AccountBanner from "app/templates/AccountBanner";
@@ -103,7 +104,9 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         style={{ maxHeight: "32rem" }}
       >
         <div className={classNames("flex flex-col", "px-4 pt-4")}>
-          <SubTitle>Confirm {payload.type}</SubTitle>
+          <T name="confirmAction" substitutions={payload.type}>
+            {(message) => <SubTitle>{message}</SubTitle>}
+          </T>
 
           <AccountBanner
             account={account}
@@ -123,7 +126,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               textarea
               rows={7}
               id="sign-payload"
-              label="Payload to sign"
+              label={t("payloadToSign")}
               value={payload.bytes}
               spellCheck={false}
               readOnly
@@ -137,8 +140,8 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           {error && (
             <Alert
               type="error"
-              title="Error"
-              description={error?.message ?? "Something went wrong"}
+              title={t("error")}
+              description={error?.message ?? t("smthWentWrong")}
               className="mb-6"
               autoFocus
             />
@@ -154,26 +157,34 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           )}
         >
           <div className="w-1/2 pr-2">
-            <FormSecondaryButton
-              type="button"
-              className="justify-center w-full"
-              loading={declining}
-              disabled={declining}
-              onClick={handleDeclineClick}
-            >
-              Decline
-            </FormSecondaryButton>
+            <T name="decline">
+              {(message) => (
+                <FormSecondaryButton
+                  type="button"
+                  className="justify-center w-full"
+                  loading={declining}
+                  disabled={declining}
+                  onClick={handleDeclineClick}
+                >
+                  {message}
+                </FormSecondaryButton>
+              )}
+            </T>
           </div>
 
           <div className="w-1/2 pl-2">
-            <FormSubmitButton
-              type="button"
-              className="justify-center w-full"
-              loading={confirming}
-              onClick={handleConfirmClick}
-            >
-              Confirm
-            </FormSubmitButton>
+            <T name="confirm">
+              {(message) => (
+                <FormSubmitButton
+                  type="button"
+                  className="justify-center w-full"
+                  loading={confirming}
+                  onClick={handleConfirmClick}
+                >
+                  {message}
+                </FormSubmitButton>
+              )}
+            </T>
           </div>
         </div>
       </div>

@@ -141,7 +141,7 @@ const Form: React.FC = () => {
         );
 
         if (activationStatus === ActivationStatus.ActivationRequestSent) {
-          setAlert(t("confirmingActivationRequest"));
+          setAlert(t("activationRequestSent", "🛫 Activation"));
           await op!.confirmation();
         }
 

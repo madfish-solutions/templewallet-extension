@@ -1,4 +1,5 @@
 import * as React from "react";
+import { t, T } from "lib/ui/i18n";
 import useSafeState from "lib/ui/useSafeState";
 import Alert from "app/atoms/Alert";
 import HashChip from "app/atoms/HashChip";
@@ -18,10 +19,20 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
 
   const descFooter = React.useMemo(
     () => (
-      <div className="mt-2 text-xs">
-        Operation Hash:{" "}
-        <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small />
-      </div>
+      <T
+        name="operationHash"
+        substitutions={[
+          <HashChip
+            hash={hash}
+            firstCharsCount={10}
+            lastCharsCount={7}
+            small
+            key="hash"
+          />,
+        ]}
+      >
+        {(message) => <div className="mt-2 text-xs">{message}</div>}
+      </T>
     ),
     [hash]
   );
@@ -32,10 +43,12 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     description: React.ReactNode;
   }>(() => ({
     type: "success",
-    title: "Success 🛫",
+    title: `${t("success")} 🛫`,
     description: (
       <>
-        {typeTitle} request sent! Confirming...
+        <T name="activationRequestSent" substitutions={typeTitle}>
+          {(message) => <>{message}</>}
+        </T>
         {descFooter}
       </>
     ),
@@ -50,7 +63,12 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
           title: "Success ✅",
           description: (
             <>
-              {typeTitle} successfully processed and confirmed!
+              <T
+                name="operationSuccessfullyProcessed"
+                substitutions={typeTitle}
+              >
+                {(message) => <>{message}</>}
+              </T>
               {descFooter}
             </>
           ),
@@ -60,8 +78,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
         setAlert({
           type: "error",
           title: "Error",
-          description:
-            "Timed out operation confirmation. You can either wait more time or try again later.",
+          description: t("timedOutOperationConfirmation"),
         });
       });
   }, [operation, setAlert, descFooter, typeTitle]);

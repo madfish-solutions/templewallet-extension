@@ -23,7 +23,6 @@ export type CustomSelectProps<
   actions?: A;
   className?: string;
   getItemId: (item: T) => K;
-  iconClassName?: string;
   id?: string;
   items: T[];
   maxHeight?: string;
@@ -46,7 +45,6 @@ const CustomSelect = <
     activeItemId,
     className,
     getItemId,
-    iconClassName,
     id,
     items,
     maxHeight,
@@ -76,7 +74,6 @@ const CustomSelect = <
             actions={actions}
             active={itemId === activeItemId}
             last={index === items.length - 1}
-            iconClassName={iconClassName}
             itemId={itemId}
             index={index}
             item={item}
@@ -106,7 +103,6 @@ type CustomSelectItemProps<
   | "padding"
   | "autoFocus"
   | "actions"
-  | "iconClassName"
 > & {
   active?: boolean;
   last?: boolean;
@@ -125,7 +121,6 @@ const CustomSelectItem = <
   const {
     active,
     actions,
-    iconClassName,
     itemId,
     item,
     index,
@@ -173,7 +168,7 @@ const CustomSelectItem = <
 
       {active && (
         <OkIcon
-          className={classNames("w-auto h-5 mx-2 stroke-2", iconClassName)}
+          className="w-auto h-5 mx-2 stroke-2 flex-none"
           style={{
             stroke: "#777",
           }}

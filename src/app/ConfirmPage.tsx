@@ -345,7 +345,6 @@ const ConfirmDAppForm: React.FC = () => {
             <CustomSelect<ThanosAccount, string>
               activeItemId={accountPkhToConnect}
               getItemId={getPkh}
-              iconClassName="h-6"
               items={allAccounts}
               maxHeight="8rem"
               onSelect={setAccountPkhToConnect}

@@ -4,6 +4,7 @@ import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
 import { useAppEnv } from "app/env";
 import { ReactComponent as HistoryIcon } from "app/icons/history.svg";
+import { T } from "lib/ui/i18n";
 
 const BackupSeedPhrase: React.FC = () => {
   const { fullPage } = useAppEnv();
@@ -44,9 +45,13 @@ const BackupSeedPhrase: React.FC = () => {
             <HistoryIcon className="stroke-current stroke-2 h-4 w-auto" />
           </span>
 
-          <span className="mr-2 flex-auto text-left text-xs font-semibold">
-            Make sure to back up your seed phrase!
-          </span>
+          <T name="makeSureToBackupSeedPhrase">
+            {(message) => (
+              <span className="mr-2 flex-auto text-left text-xs font-semibold">
+                {message}
+              </span>
+            )}
+          </T>
 
           <svg
             className="fill-current opacity-75 h-4 w-4"
