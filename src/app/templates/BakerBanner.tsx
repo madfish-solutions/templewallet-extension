@@ -6,6 +6,7 @@ import Name from "app/atoms/Name";
 import HashChip from "app/atoms/HashChip";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
+import { T } from "lib/ui/i18n";
 
 type BakerBannerProps = React.HTMLAttributes<HTMLDivElement> & {
   bakerPkh: string;
@@ -83,7 +84,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                         "text-gray-600"
                       )}
                     >
-                      Fee:{" "}
+                      <T name="fee">{(message) => <>{message}</>}</T>:{" "}
                       <span className="font-normal">
                         {new BigNumber(baker.fee).times(100).toFormat(2)}%
                       </span>
@@ -100,7 +101,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                         "text-gray-600"
                       )}
                     >
-                      Space:{" "}
+                      <T name="space">{(message) => <>{message}</>}</T>:{" "}
                       <span className="font-normal">
                         <Money>{baker.freespace}</Money>
                       </span>{" "}
@@ -109,17 +110,21 @@ const BakerBanner = React.memo<BakerBannerProps>(
                   </div>
                 </div>
 
-                <a
-                  href={exploreBakerUrl(baker.address)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={classNames(
-                    "flex items-center",
-                    "text-xs text-blue-600 hover:underline"
+                <T name="exploreMore">
+                  {(message) => (
+                    <a
+                      href={exploreBakerUrl(baker.address)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={classNames(
+                        "flex items-center",
+                        "text-xs text-blue-600 hover:underline"
+                      )}
+                    >
+                      {message}
+                    </a>
                   )}
-                >
-                  Explore more...
-                </a>
+                </T>
               </div>
             </div>
           </>
@@ -147,14 +152,26 @@ const BakerBanner = React.memo<BakerBannerProps>(
                     <>
                       {bakerAcc.name}
                       {bakerAcc.publicKeyHash === account.publicKeyHash && (
-                        <>
-                          {""}
-                          <span className="font-light opacity-75">(self)</span>
-                        </>
+                        <T name="selfComment">
+                          {(message) => (
+                            <>
+                              {" "}
+                              <span className="font-light opacity-75">
+                                {message}
+                              </span>
+                            </>
+                          )}
+                        </T>
                       )}
                     </>
                   ) : (
-                    <span className="font-normal">unknown baker</span>
+                    <T name="unknownBakerTitle">
+                      {(message) => (
+                        <span className="font-normal">
+                          {(message as string).toLowerCase()}
+                        </span>
+                      )}
+                    </T>
                   )}
                 </Name>
               </div>

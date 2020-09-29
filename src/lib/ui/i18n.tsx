@@ -16,7 +16,7 @@ export const T = React.memo<TProps>(({ name, substitutions, children }) => {
   ) : (
     <>
       {t(name)
-        ?.split("%ch")
+        ?.split(/%[a-z0-9_]+%/i)
         .map((fragment, index) => (
           <React.Fragment key={index}>
             {fragment}
@@ -25,6 +25,11 @@ export const T = React.memo<TProps>(({ name, substitutions, children }) => {
         ))}
     </>
   );
+
+  if (process.env.NODE_ENV === "development" && !t(name)) {
+    console.error(`could not find translation for key ${name}`);
+  }
+
   return children ? children(message) : <>{message}</>;
 });
 

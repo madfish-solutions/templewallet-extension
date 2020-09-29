@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useAllNetworks } from "lib/thanos/front";
 import Name from "app/atoms/Name";
+import { T } from "lib/ui/i18n";
 
 type NetworkBannerProps = {
   rpc: string;
@@ -27,14 +28,18 @@ const NetworkBanner: React.FC<NetworkBannerProps> = ({
       )}
     >
       <h2 className={classNames("leading-tight", "flex flex-col")}>
-        <span
-          className={classNames(
-            narrow ? "mb-1" : "mb-2",
-            "text-base font-semibold text-gray-700"
+        <T name="network">
+          {(message) => (
+            <span
+              className={classNames(
+                narrow ? "mb-1" : "mb-2",
+                "text-base font-semibold text-gray-700"
+              )}
+            >
+              {message}
+            </span>
           )}
-        >
-          Network
-        </span>
+        </T>
 
         {knownNetwork ? (
           <div className={classNames("mb-1", "flex items-center")}>
@@ -65,21 +70,27 @@ const NetworkBanner: React.FC<NetworkBannerProps> = ({
               )}
             />
 
-            <span
-              className={classNames(
-                "flex-shrink-0 mr-2",
-                "text-xs font-medium uppercase text-red-500"
-              )}
-            >
-              Unknown:
-            </span>
+            <T name="unknownNetwork">
+              {(message) => (
+                <>
+                  <span
+                    className={classNames(
+                      "flex-shrink-0 mr-2",
+                      "text-xs font-medium uppercase text-red-500"
+                    )}
+                  >
+                    {message}
+                  </span>
 
-            <Name
-              className="text-xs font-mono italic text-gray-900"
-              style={{ maxWidth: "15rem" }}
-            >
-              {rpc}
-            </Name>
+                  <Name
+                    className="text-xs font-mono italic text-gray-900"
+                    style={{ maxWidth: "15rem" }}
+                  >
+                    {rpc}
+                  </Name>
+                </>
+              )}
+            </T>
           </div>
         )}
       </h2>
