@@ -171,9 +171,12 @@ export function importFundraiserAccount(
   });
 }
 
-export function craeteLedgerAccount(name: string, hdIndex: number) {
+export function craeteLedgerAccount(name: string, derivationPath?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.createLedgerAccount(name, hdIndex);
+    const updatedAccounts = await vault.createLedgerAccount(
+      name,
+      derivationPath
+    );
     accountsUpdated(updatedAccounts);
   });
 }
