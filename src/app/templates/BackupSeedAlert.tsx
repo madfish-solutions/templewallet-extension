@@ -5,7 +5,6 @@ import { useThanosClient } from "lib/thanos/front";
 import { T } from "lib/ui/i18n";
 import { useAppEnv } from "app/env";
 import { ReactComponent as HistoryIcon } from "app/icons/history.svg";
-import { T } from "lib/ui/i18n";
 
 const BackupSeedPhrase: React.FC = () => {
   const { fullPage } = useAppEnv();

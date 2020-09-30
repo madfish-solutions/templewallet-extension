@@ -1,5 +1,5 @@
 import * as React from "react";
-import { t } from "lib/i18n";
+import { t } from "lib/ui/i18n";
 import PageLayout from "app/layouts/PageLayout";
 import SendForm from "app/templates/SendForm";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
