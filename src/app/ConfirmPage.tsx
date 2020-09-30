@@ -183,6 +183,10 @@ const ConfirmDAppForm: React.FC = () => {
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
+  const handleErrorAlertClose = React.useCallback(() => setError(null), [
+    setError,
+  ]);
+
   const [spFormat, setSpFormat] = React.useState(SIGN_PAYLOAD_FORMATS[0]);
 
   const content = React.useMemo(() => {
@@ -307,6 +311,8 @@ const ConfirmDAppForm: React.FC = () => {
 
         {error ? (
           <Alert
+            closable
+            onClose={handleErrorAlertClose}
             type="error"
             title="Error"
             description={error?.message ?? "Something went wrong"}
