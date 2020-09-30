@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { ThanosAccount, XTZ_ASSET } from "lib/thanos/front";
+import { t } from "lib/ui/i18n";
 import Balance from "app/templates/Balance";
 import Money from "app/atoms/Money";
 import Identicon from "app/atoms/Identicon";
@@ -21,7 +22,7 @@ const AccountBanner: React.FC<AccountBannerProps> = ({
   displayBalance = true,
   networkRpc,
   className,
-  label = "Account",
+  label = t("account"),
   labelIndent = "md",
   labelDescription,
 }) => (

@@ -7,7 +7,6 @@ import Name from "app/atoms/Name";
 import HashChip from "app/atoms/HashChip";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
-import { T } from "lib/ui/i18n";
 
 type BakerBannerProps = React.HTMLAttributes<HTMLDivElement> & {
   bakerPkh: string;
