@@ -1,10 +1,11 @@
 import * as React from "react";
 import classNames from "clsx";
-import { ThanosAccount, ThanosAccountType, XTZ_ASSET } from "lib/thanos/front";
+import { ThanosAccount, XTZ_ASSET } from "lib/thanos/front";
 import Balance from "app/templates/Balance";
 import Money from "app/atoms/Money";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 
 type AccountBannerProps = React.HTMLAttributes<HTMLDivElement> & {
   account: ThanosAccount;
@@ -69,21 +70,7 @@ const AccountBanner: React.FC<AccountBannerProps> = ({
             {account.name}
           </Name>
 
-          {account.type === ThanosAccountType.Imported && (
-            <span
-              className={classNames(
-                "ml-2",
-                "rounded-sm",
-                "border border-black border-opacity-25",
-                "px-1 py-px",
-                "leading-tight",
-                "text-black text-opacity-50"
-              )}
-              style={{ fontSize: "0.6rem" }}
-            >
-              Imported
-            </span>
-          )}
+          <AccountTypeBadge account={account} />
         </div>
 
         <div className="flex flex-wrap items-center mt-1">
