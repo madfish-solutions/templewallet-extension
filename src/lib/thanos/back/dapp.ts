@@ -19,6 +19,8 @@ import {
   ThanosMessageType,
   ThanosRequest,
   ThanosDAppPayload,
+  ThanosDAppSession,
+  ThanosDAppSessions,
 } from "lib/thanos/types";
 import { intercom } from "lib/thanos/back/intercom";
 import * as PndOps from "lib/thanos/back/pndops";
@@ -29,6 +31,7 @@ import { loadChainId, isAddressValid } from "lib/thanos/helpers";
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 600;
 const AUTODECLINE_AFTER = 120_000;
+const STORAGE_KEY = "dApps";
 
 export async function requestPermission(
   origin: string,
@@ -85,13 +88,11 @@ export async function requestPermission(
             accountPublicKey,
           } = confirmReq;
           if (confirmed && accountPublicKeyHash && accountPublicKey) {
-            await withUnlocked(async ({ vault }) => {
-              vault.setDApp(origin, {
-                network: req.network,
-                appMeta: req.appMeta,
-                pkh: accountPublicKeyHash,
-                publicKey: accountPublicKey,
-              });
+            await setDApp(origin, {
+              network: req.network,
+              appMeta: req.appMeta,
+              pkh: accountPublicKeyHash,
+              publicKey: accountPublicKey,
             });
             resolve({
               type: ThanosDAppMessageType.PermissionResponse,
@@ -302,12 +303,37 @@ export async function requestBroadcast(
   }
 }
 
-export function getDApp(origin: string) {
-  return withUnlocked(({ vault }) => vault.getDApp(origin));
+export async function getAllDApps() {
+  const dAppsSessions: ThanosDAppSessions =
+    (await browser.storage.local.get([STORAGE_KEY]))[STORAGE_KEY] || {};
+  return dAppsSessions;
+}
+
+export async function getDApp(
+  origin: string
+): Promise<ThanosDAppSession | undefined> {
+  return (await getAllDApps())[origin];
+}
+
+export async function setDApp(origin: string, permissions: ThanosDAppSession) {
+  const current = await getAllDApps();
+  const newDApps = { ...current, [origin]: permissions };
+  await setDApps(newDApps);
+  return newDApps;
+}
+
+export async function removeDApp(origin: string) {
+  const { [origin]: permissionsToRemove, ...restDApps } = await getAllDApps();
+  await setDApps(restDApps);
+  return restDApps;
 }
 
 export function cleanDApps() {
-  return withUnlocked(({ vault }) => vault.cleanDApps());
+  return setDApps({});
+}
+
+function setDApps(newDApps: ThanosDAppSessions) {
+  return browser.storage.local.set({ [STORAGE_KEY]: newDApps });
 }
 
 type RequestConfirmParams = {

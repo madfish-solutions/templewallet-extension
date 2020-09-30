@@ -32,6 +32,8 @@ import {
   requestOperation,
   requestSign,
   requestBroadcast,
+  getAllDApps,
+  removeDApp,
 } from "lib/thanos/back/dapp";
 import * as PndOps from "lib/thanos/back/pndops";
 import * as Beacon from "lib/thanos/beacon";
@@ -181,11 +183,11 @@ export function updateSettings(settings: Partial<ThanosSettings>) {
 }
 
 export function getAllDAppSessions() {
-  return withUnlocked(({ vault }) => vault.getAllDApps());
+  return getAllDApps();
 }
 
 export function removeDAppSession(origin: string) {
-  return withUnlocked(async ({ vault }) => vault.removeDApp(origin));
+  return removeDApp(origin);
 }
 
 export function sendOperations(
