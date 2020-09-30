@@ -21,6 +21,7 @@ import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
@@ -72,6 +73,13 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           linkTo: "/import-account",
           onClick: closeDropdown,
         },
+        {
+          key: "connect-ledger",
+          Icon: LinkIcon,
+          content: "Connect Ledger",
+          linkTo: "/connect-ledger",
+          onClick: closeDropdown,
+        },
         network.type === "test" && {
           key: "import-faucet-file",
           Icon: CodeAltIcon,
@@ -105,7 +113,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
         minWidth: "16rem",
       }}
     >
-      <div className="mb-2 flex items-end">
+      <div className="flex items-end mb-2">
         <h3
           className={classNames(
             "mx-1",
@@ -114,7 +122,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           )}
         >
           Accounts
-          <PeopleIcon className="ml-1 h-6 w-auto stroke-current" />
+          <PeopleIcon className="w-auto h-6 ml-1 stroke-current" />
         </h3>
 
         <div className="flex-1" />
@@ -183,7 +191,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                   className="flex-shrink-0 shadow-xs-white"
                 />
 
-                <div className="ml-2 flex flex-col items-start">
+                <div className="flex flex-col items-start ml-2">
                   <Name className="text-sm font-medium leading-tight">
                     {acc.name}
                   </Name>
@@ -247,8 +255,8 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             onClick,
             children: (
               <>
-                <div className="w-8 flex items-center">
-                  <Icon className="h-6 w-auto stroke-current" />
+                <div className="flex items-center w-8">
+                  <Icon className="w-auto h-6 stroke-current" />
                 </div>
 
                 {content}

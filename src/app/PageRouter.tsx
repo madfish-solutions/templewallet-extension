@@ -15,6 +15,7 @@ import Send from "app/pages/Send";
 import Delegate from "app/pages/Delegate";
 import AddToken from "app/pages/AddToken";
 import Settings from "app/pages/Settings";
+import ConnectLedger from "app/pages/ConnectLedger";
 
 interface RouteContext {
   popup: boolean;
@@ -63,6 +64,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     "/import-account/:tabSlug?",
     onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />),
   ],
+  ["/connect-ledger", onlyReady(() => <ConnectLedger />)],
   ["/import-faucet-file", onlyReady(() => <ImportFaucetFile />)],
   ["/receive", onlyReady(() => <Receive />)],
   ["/send", onlyReady(() => <Send />)],

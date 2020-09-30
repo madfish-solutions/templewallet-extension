@@ -13,7 +13,7 @@ import {
   ThanosSharedStorageKey,
 } from "lib/thanos/types";
 import { loadChainId } from "lib/thanos/helpers";
-import { intercom } from "lib/thanos/back/intercom";
+import { intercom } from "lib/thanos/back/defaults";
 import {
   toFront,
   store,
@@ -27,7 +27,6 @@ import {
 } from "lib/thanos/back/store";
 import { Vault } from "lib/thanos/back/vault";
 import {
-  cleanDApps,
   requestPermission,
   requestOperation,
   requestSign,
@@ -64,7 +63,6 @@ export async function isDAppEnabled() {
 export function registerNewWallet(password: string, mnemonic?: string) {
   return withInited(async () => {
     await Vault.spawn(password, mnemonic);
-    await cleanDApps();
     await unlock(password);
   });
 }
@@ -169,6 +167,13 @@ export function importFundraiserAccount(
       password,
       mnemonic
     );
+    accountsUpdated(updatedAccounts);
+  });
+}
+
+export function craeteLedgerAccount(name: string, hdIndex: number) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.createLedgerAccount(name, hdIndex);
     accountsUpdated(updatedAccounts);
   });
 }
