@@ -1,5 +1,5 @@
 import * as React from "react";
-import { t } from "lib/i18n";
+import { t } from "lib/ui/i18n";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy from "lib/ui/useTippy";
 import classNames from "clsx";

@@ -1,8 +1,8 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useAllNetworks } from "lib/thanos/front";
-import Name from "app/atoms/Name";
 import { T } from "lib/ui/i18n";
+import Name from "app/atoms/Name";
 
 type NetworkBannerProps = {
   rpc: string;

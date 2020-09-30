@@ -2,11 +2,11 @@ import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import { useAllAccounts, useAccount, useKnownBaker } from "lib/thanos/front";
+import { T } from "lib/ui/i18n";
 import Name from "app/atoms/Name";
 import HashChip from "app/atoms/HashChip";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
-import { T } from "lib/ui/i18n";
 
 type BakerBannerProps = React.HTMLAttributes<HTMLDivElement> & {
   bakerPkh: string;

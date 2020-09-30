@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import { t } from "lib/i18n";
+import { t } from "lib/ui/i18n";
 
 type AlertProps = React.HTMLAttributes<HTMLDivElement> & {
   type?: "success" | "warn" | "error";

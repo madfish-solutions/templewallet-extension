@@ -1,8 +1,8 @@
 import * as React from "react";
+import { T } from "lib/ui/i18n";
 import PageLayout from "app/layouts/PageLayout";
 import DelegateForm from "app/templates/DelegateForm";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
-import { T } from "lib/ui/i18n";
 
 const Delegate: React.FC = () => (
   <PageLayout
