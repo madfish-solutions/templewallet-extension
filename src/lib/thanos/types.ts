@@ -41,7 +41,7 @@ export type ThanosAccount =
 
 export interface ThanosLedgerAccount extends ThanosAccountBase {
   type: ThanosAccountType.Ledger;
-  hdIndex: number;
+  derivationPath: string;
 }
 
 export interface ThanosImportedAccount extends ThanosAccountBase {
@@ -58,6 +58,7 @@ export interface ThanosAccountBase {
   name: string;
   publicKeyHash: string;
   hdIndex?: number;
+  derivationPath?: string;
 }
 
 export enum ThanosAccountType {
@@ -482,7 +483,7 @@ export interface ThanosImportFundraiserAccountResponse
 export interface ThanosCreateLedgerAccountRequest extends ThanosMessageBase {
   type: ThanosMessageType.CreateLedgerAccountRequest;
   name: string;
-  hdIndex: number;
+  derivationPath?: string;
 }
 
 export interface ThanosCreateLedgerAccountResponse extends ThanosMessageBase {
