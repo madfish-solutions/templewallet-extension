@@ -1,24 +1,37 @@
 import * as React from "react";
-import { Controller, useForm } from "react-hook-form";
+import classNames from "clsx";
+import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
   useThanosClient,
   useSetAccountPkh,
   useAllAccounts,
   ThanosAccountType,
+  validateDerivationPath,
 } from "lib/thanos/front";
 import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormField from "app/atoms/FormField";
-import AssetField from "app/atoms/AssetField";
 import Alert from "app/atoms/Alert";
 import { ReactComponent as LinkIcon } from "app/icons/link.svg";
+import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 
 type FormData = {
   name: string;
-  hdIndex: number;
+  customDerivationPath: string;
 };
+
+const DERIVATION_PATHS = [
+  {
+    type: "default",
+    name: "Default account",
+  },
+  {
+    type: "custom",
+    name: "Custom derivation path",
+  },
+];
 
 const ConnectLedger: React.FC = () => {
   const { createLedgerAccount } = useThanosClient();
@@ -43,22 +56,26 @@ const ConnectLedger: React.FC = () => {
     prevAccLengthRef.current = accLength;
   }, [allAccounts, setAccountPkh]);
 
-  const { control, register, handleSubmit, errors, formState } = useForm<
-    FormData
-  >({
-    defaultValues: { name: defaultName, hdIndex: 0 },
+  const { register, handleSubmit, errors, formState } = useForm<FormData>({
+    defaultValues: {
+      name: defaultName,
+      customDerivationPath: "m/44'/1729'/0'/0'",
+    },
   });
   const submitting = formState.isSubmitting;
 
   const [error, setError] = React.useState<React.ReactNode>(null);
+  const [derivationPath, setDerivationPath] = React.useState(
+    DERIVATION_PATHS[0]
+  );
 
   const onSubmit = React.useCallback(
-    async ({ name, hdIndex }: FormData) => {
+    async ({ name, customDerivationPath }: FormData) => {
       if (submitting) return;
       setError(null);
 
       try {
-        await createLedgerAccount(name, hdIndex);
+        await createLedgerAccount(name, customDerivationPath);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -101,8 +118,8 @@ const ConnectLedger: React.FC = () => {
                   message: "1-16 characters, no special",
                 },
               })}
-              label="Ledger name"
-              labelDescription="What will be the name of the new ledger?"
+              label="Account name"
+              labelDescription="What will be the name of the new Ledger account?"
               id="create-ledger-name"
               type="text"
               name="name"
@@ -111,22 +128,98 @@ const ConnectLedger: React.FC = () => {
               containerClassName="mb-4"
             />
 
-            <Controller
-              name="hdIndex"
-              as={AssetField}
-              control={control}
-              onChange={([v]) => v}
-              id="create-ledger-account-index"
-              assetDecimals={0}
-              min={0}
-              label="HD Account Index"
-              labelDescription="What is the last number in derivation path?"
-              placeholder="0"
-              errorCaption={errors.hdIndex?.message}
-              containerClassName="mb-4"
-            />
+            <div className={classNames("mb-4", "flex flex-col")}>
+              <h2
+                className={classNames("mb-4", "leading-tight", "flex flex-col")}
+              >
+                <span className="text-base font-semibold text-gray-700">
+                  Derivation{" "}
+                  <span className="text-sm font-light text-gary-600">
+                    (optional)
+                  </span>
+                </span>
 
-            <FormSubmitButton loading={submitting}>
+                <span
+                  className={classNames(
+                    "mt-1",
+                    "text-xs font-light text-gray-600"
+                  )}
+                  style={{ maxWidth: "90%" }}
+                >
+                  By default <b>44'/1729'/0'/0'</b> derivation is used.
+                  <br />
+                  Click on 'Custom derivation path' to customize it.
+                </span>
+              </h2>
+              <div
+                className={classNames(
+                  "rounded-md overflow-hidden",
+                  "border-2 bg-gray-100",
+                  "flex flex-col",
+                  "text-gray-700 text-sm leading-tight"
+                )}
+              >
+                {DERIVATION_PATHS.map((dp, i, arr) => {
+                  const last = i === arr.length - 1;
+                  const selected = derivationPath.type === dp.type;
+                  const handleClick = () => {
+                    setDerivationPath(dp);
+                  };
+
+                  return (
+                    <button
+                      key={dp.type}
+                      type="button"
+                      className={classNames(
+                        "block w-full",
+                        "overflow-hidden",
+                        !last && "border-b border-gray-200",
+                        selected
+                          ? "bg-gray-300"
+                          : "hover:bg-gray-200 focus:bg-gray-200",
+                        "flex items-center",
+                        "text-gray-700",
+                        "transition ease-in-out duration-200",
+                        "focus:outline-none",
+                        "opacity-90 hover:opacity-100"
+                      )}
+                      style={{
+                        padding: "0.4rem 0.375rem 0.4rem 0.375rem",
+                      }}
+                      onClick={handleClick}
+                    >
+                      {dp.name}
+                      <div className="flex-1" />
+                      {selected && (
+                        <OkIcon
+                          className={classNames("mx-2 h-4 w-auto stroke-2")}
+                          style={{
+                            stroke: "#777",
+                          }}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {derivationPath.type === "custom" && (
+              <FormField
+                ref={register({
+                  required: "Required",
+                  validate: validateDerivationPath,
+                })}
+                name="customDerivationPath"
+                id="importacc-cdp"
+                label="Custom derivation path"
+                placeholder="e.g. m/44'/1729'/..."
+                errorCaption={errors.customDerivationPath?.message}
+                containerClassName="mb-6"
+              />
+            )}
+
+            <FormSubmitButton loading={submitting} className="mt-8">
               Add Ledger Account
             </FormSubmitButton>
           </form>
