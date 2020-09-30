@@ -143,6 +143,8 @@ export type ThanosPendingOperation = OperationContentsAndResult & {
   addedAt: string;
 };
 
+export type ThanosDAppSessions = Record<string, ThanosDAppSession>;
+
 /**
  * Internal confirmation payloads
  */
@@ -617,7 +619,7 @@ export interface ThanosGetAllDAppSessionsRequest extends ThanosMessageBase {
 
 export interface ThanosGetAllDAppSessionsResponse extends ThanosMessageBase {
   type: ThanosMessageType.DAppGetAllSessionsResponse;
-  sessions: Record<string, ThanosDAppSession>;
+  sessions: ThanosDAppSessions;
 }
 
 export interface ThanosRemoveDAppSessionRequest extends ThanosMessageBase {
@@ -627,5 +629,5 @@ export interface ThanosRemoveDAppSessionRequest extends ThanosMessageBase {
 
 export interface ThanosRemoveDAppSessionResponse extends ThanosMessageBase {
   type: ThanosMessageType.DAppRemoveSessionResponse;
-  sessions: Record<string, ThanosDAppSession>;
+  sessions: ThanosDAppSessions;
 }

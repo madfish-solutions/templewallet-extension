@@ -49,34 +49,5 @@
       <ellipse id="Oval" fill="#5C585C" cx="1654.5" cy="185" rx="154.5" ry="101"></ellipse>
       <ellipse id="Oval" fill="#0F0B0F" cx="1652.5" cy="186" rx="135.5" ry="85"></ellipse>
     </g>
-    <g id="Black-on-white" opacity="0.164457775"
-      transform="translate(1053.774591, 558.808093) rotate(-33.000000) translate(-1053.774591, -558.808093) translate(840.774591, 393.308093)">
-      <g id="Group-4" transform="translate(0.362070, 0.632158)">
-        <mask id="mask-6" fill="white">
-          <use xlink:href="#path-5"></use>
-        </mask>
-        <g id="Clip-3"></g>
-        <polygon id="Fill-2" fill="#000000" mask="url(#mask-6)"
-          points="-9.42593823 -9.64912281 434.588043 -9.64912281 434.588043 339.564867 -9.42593823 339.564867">
-        </polygon>
-      </g>
-      <g id="Group-7" transform="translate(95.286340, 31.609005)">
-        <mask id="mask-8" fill="white">
-          <use xlink:href="#path-7"></use>
-        </mask>
-        <g id="Clip-6"></g>
-        <polygon id="Fill-5" fill="#000000" mask="url(#mask-8)"
-          points="-9.68985803 -9.41347996 245.402099 -9.41347996 245.402099 274.149704 -9.68985803 274.149704">
-        </polygon>
-      </g>
-      <g id="Group-10" transform="translate(175.641666, 127.717639)">
-        <mask id="mask-10" fill="white">
-          <use xlink:href="#path-9"></use>
-        </mask>
-        <g id="Clip-9"></g>
-        <polygon id="Fill-8" fill="#000000" mask="url(#mask-10)"
-          points="-9.365 -9.34576772 84.0948077 -9.34576772 84.0948077 84.0859104 -9.365 84.0859104"></polygon>
-      </g>
-    </g>
   </g>
 </svg>
