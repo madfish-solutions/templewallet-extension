@@ -3,7 +3,6 @@ import classNames from "clsx";
 import { useAllNetworks } from "lib/thanos/front";
 import { T } from "lib/ui/i18n";
 import Name from "app/atoms/Name";
-import { T } from "lib/ui/i18n";
 
 type NetworkBannerProps = {
   rpc: string;
