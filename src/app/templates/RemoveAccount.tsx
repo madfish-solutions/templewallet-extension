@@ -70,13 +70,14 @@ const RemoveAccount: React.FC = () => {
         labelDescription={
           <>
             Account to be removed. <br />
-            If you want to remove another account - select it in the top-right dropdown.
+            If you want to remove another account - select it in the top-right
+            dropdown.
           </>
         }
         className="mb-6"
       />
 
-      {account.type !== ThanosAccountType.Imported ? (
+      {account.type === ThanosAccountType.HD ? (
         <Alert
           title="Cannot be removed"
           description={

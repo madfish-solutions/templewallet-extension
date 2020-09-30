@@ -1,5 +1,8 @@
 import { OperationContentsAndResult } from "@taquito/rpc";
-import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
+import {
+  ThanosDAppMetadata,
+  ThanosDAppNetwork,
+} from "@thanos-wallet/dapp/dist/types";
 import { TZStatsNetwork } from "lib/tzstats";
 import { BcdTokenTransfer } from "lib/better-call-dev";
 import {
@@ -18,6 +21,13 @@ export interface ReadyThanosState extends ThanosState {
   settings: ThanosSettings;
 }
 
+export interface ThanosDAppSession {
+  network: ThanosDAppNetwork;
+  appMeta: ThanosDAppMetadata;
+  pkh: string;
+  publicKey?: string;
+}
+
 export interface ThanosState {
   status: ThanosStatus;
   accounts: ThanosAccount[];
@@ -31,16 +41,37 @@ export enum ThanosStatus {
   Ready,
 }
 
-export interface ThanosAccount {
+export type ThanosAccount =
+  | ThanosHDAccount
+  | ThanosImportedAccount
+  | ThanosLedgerAccount;
+
+export interface ThanosLedgerAccount extends ThanosAccountBase {
+  type: ThanosAccountType.Ledger;
+  derivationPath: string;
+}
+
+export interface ThanosImportedAccount extends ThanosAccountBase {
+  type: ThanosAccountType.Imported;
+}
+
+export interface ThanosHDAccount extends ThanosAccountBase {
+  type: ThanosAccountType.HD;
+  hdIndex: number;
+}
+
+export interface ThanosAccountBase {
   type: ThanosAccountType;
   name: string;
   publicKeyHash: string;
+  hdIndex?: number;
+  derivationPath?: string;
 }
 
 export enum ThanosAccountType {
   HD,
   Imported,
-  Connected,
+  Ledger,
 }
 
 export interface ThanosNetwork {
@@ -214,6 +245,8 @@ export enum ThanosMessageType {
   ImportMnemonicAccountResponse = "THANOS_IMPORT_MNEMONIC_ACCOUNT_RESPONSE",
   ImportFundraiserAccountRequest = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_REQUEST",
   ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
+  CreateLedgerAccountRequest = "THANOS_CREATE_LEDGER_ACCOUNT_REQUEST",
+  CreateLedgerAccountResponse = "THANOS_CREATE_LEDGER_ACCOUNT_RESPONSE",
   UpdateSettingsRequest = "THANOS_UPDATE_SETTINGS_REQUEST",
   UpdateSettingsResponse = "THANOS_UPDATE_SETTINGS_RESPONSE",
   GetAllPndOpsRequest = "THANOS_GET_ALL_PND_OPS_REQUEST",
@@ -236,6 +269,10 @@ export enum ThanosMessageType {
   DAppOpsConfirmationResponse = "THANOS_DAPP_OPS_CONFIRMATION_RESPONSE",
   DAppSignConfirmationRequest = "THANOS_DAPP_SIGN_CONFIRMATION_REQUEST",
   DAppSignConfirmationResponse = "THANOS_DAPP_SIGN_CONFIRMATION_RESPONSE",
+  DAppGetAllSessionsRequest = "THANOS_DAPP_GET_ALL_SESSIONS_REQUEST",
+  DAppGetAllSessionsResponse = "THANOS_DAPP_GET_ALL_SESSIONS_RESPONSE",
+  DAppRemoveSessionRequest = "THANOS_DAPP_REMOVE_SESSION_REQUEST",
+  DAppRemoveSessionResponse = "THANOS_DAPP_REMOVE_SESSION_RESPONSE",
 }
 
 export type ThanosNotification =
@@ -256,6 +293,7 @@ export type ThanosRequest =
   | ThanosImportAccountRequest
   | ThanosImportMnemonicAccountRequest
   | ThanosImportFundraiserAccountRequest
+  | ThanosCreateLedgerAccountRequest
   | ThanosOperationsRequest
   | ThanosSignRequest
   | ThanosConfirmationRequest
@@ -266,6 +304,8 @@ export type ThanosRequest =
   | ThanosDAppOpsConfirmationRequest
   | ThanosDAppSignConfirmationRequest
   | ThanosUpdateSettingsRequest
+  | ThanosGetAllDAppSessionsRequest
+  | ThanosRemoveDAppSessionRequest
   | ThanosGetAllPndOpsRequest
   | ThanosRemovePndOpsRequest;
 
@@ -282,6 +322,7 @@ export type ThanosResponse =
   | ThanosImportAccountResponse
   | ThanosImportMnemonicAccountResponse
   | ThanosImportFundraiserAccountResponse
+  | ThanosCreateLedgerAccountResponse
   | ThanosOperationsResponse
   | ThanosSignResponse
   | ThanosConfirmationResponse
@@ -292,6 +333,8 @@ export type ThanosResponse =
   | ThanosDAppOpsConfirmationResponse
   | ThanosDAppSignConfirmationResponse
   | ThanosUpdateSettingsResponse
+  | ThanosGetAllDAppSessionsResponse
+  | ThanosRemoveDAppSessionResponse
   | ThanosGetAllPndOpsResponse
   | ThanosRemovePndOpsResponse;
 
@@ -444,6 +487,16 @@ export interface ThanosImportFundraiserAccountResponse
   type: ThanosMessageType.ImportFundraiserAccountResponse;
 }
 
+export interface ThanosCreateLedgerAccountRequest extends ThanosMessageBase {
+  type: ThanosMessageType.CreateLedgerAccountRequest;
+  name: string;
+  derivationPath?: string;
+}
+
+export interface ThanosCreateLedgerAccountResponse extends ThanosMessageBase {
+  type: ThanosMessageType.CreateLedgerAccountResponse;
+}
+
 export interface ThanosUpdateSettingsRequest extends ThanosMessageBase {
   type: ThanosMessageType.UpdateSettingsRequest;
   settings: Partial<ThanosSettings>;
@@ -563,6 +616,25 @@ export interface ThanosDAppSignConfirmationRequest extends ThanosMessageBase {
 
 export interface ThanosDAppSignConfirmationResponse extends ThanosMessageBase {
   type: ThanosMessageType.DAppSignConfirmationResponse;
+}
+
+export interface ThanosGetAllDAppSessionsRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppGetAllSessionsRequest;
+}
+
+export interface ThanosGetAllDAppSessionsResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppGetAllSessionsResponse;
+  sessions: Record<string, ThanosDAppSession>;
+}
+
+export interface ThanosRemoveDAppSessionRequest extends ThanosMessageBase {
+  type: ThanosMessageType.DAppRemoveSessionRequest;
+  origin: string;
+}
+
+export interface ThanosRemoveDAppSessionResponse extends ThanosMessageBase {
+  type: ThanosMessageType.DAppRemoveSessionResponse;
+  sessions: Record<string, ThanosDAppSession>;
 }
 
 interface ThanosOperationBase {

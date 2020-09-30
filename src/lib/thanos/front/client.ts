@@ -231,6 +231,20 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const createLedgerAccount = React.useCallback(
+    async (name: string, derivationPath?: string) => {
+      const res = await request({
+        type: ThanosMessageType.CreateLedgerAccountRequest,
+        name,
+        derivationPath,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.CreateLedgerAccountResponse
+      );
+    },
+    []
+  );
+
   const updateSettings = React.useCallback(
     async (settings: Partial<ThanosSettings>) => {
       const res = await request({
@@ -351,6 +365,23 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const getAllDAppSessions = React.useCallback(async () => {
+    const res = await request({
+      type: ThanosMessageType.DAppGetAllSessionsRequest,
+    });
+    assertResponse(res.type === ThanosMessageType.DAppGetAllSessionsResponse);
+    return res.sessions;
+  }, []);
+
+  const removeDAppSession = React.useCallback(async (origin: string) => {
+    const res = await request({
+      type: ThanosMessageType.DAppRemoveSessionRequest,
+      origin,
+    });
+    assertResponse(res.type === ThanosMessageType.DAppRemoveSessionResponse);
+    return res.sessions;
+  }, []);
+
   return {
     state,
 
@@ -383,6 +414,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     importAccount,
     importMnemonicAccount,
     importFundraiserAccount,
+    createLedgerAccount,
     updateSettings,
     getAllPndOps,
     removePndOps,
@@ -393,6 +425,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     confirmDAppSign,
     createTaquitoWallet,
     createTaquitoSigner,
+    getAllDAppSessions,
+    removeDAppSession,
   };
 });
 

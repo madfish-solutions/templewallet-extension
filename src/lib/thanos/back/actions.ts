@@ -13,7 +13,7 @@ import {
   ThanosSharedStorageKey,
 } from "lib/thanos/types";
 import { loadChainId } from "lib/thanos/helpers";
-import { intercom } from "lib/thanos/back/intercom";
+import { intercom } from "lib/thanos/back/defaults";
 import {
   toFront,
   store,
@@ -27,7 +27,6 @@ import {
 } from "lib/thanos/back/store";
 import { Vault } from "lib/thanos/back/vault";
 import {
-  cleanDApps,
   requestPermission,
   requestOperation,
   requestSign,
@@ -64,7 +63,6 @@ export async function isDAppEnabled() {
 export function registerNewWallet(password: string, mnemonic?: string) {
   return withInited(async () => {
     await Vault.spawn(password, mnemonic);
-    cleanDApps();
     await unlock(password);
   });
 }
@@ -173,11 +171,29 @@ export function importFundraiserAccount(
   });
 }
 
+export function craeteLedgerAccount(name: string, derivationPath?: string) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.createLedgerAccount(
+      name,
+      derivationPath
+    );
+    accountsUpdated(updatedAccounts);
+  });
+}
+
 export function updateSettings(settings: Partial<ThanosSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
     settingsUpdated(updatedSettings);
   });
+}
+
+export function getAllDAppSessions() {
+  return withUnlocked(({ vault }) => vault.getAllDApps());
+}
+
+export function removeDAppSession(origin: string) {
+  return withUnlocked(async ({ vault }) => vault.removeDApp(origin));
 }
 
 export function sendOperations(

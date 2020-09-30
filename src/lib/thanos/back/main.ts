@@ -5,7 +5,7 @@ import {
   ThanosRequest,
   ThanosResponse,
 } from "lib/thanos/types";
-import { intercom } from "lib/thanos/back/intercom";
+import { intercom } from "lib/thanos/back/defaults";
 import { store, toFront } from "lib/thanos/back/store";
 import * as Actions from "lib/thanos/back/actions";
 import * as PndOps from "lib/thanos/back/pndops";
@@ -110,6 +110,12 @@ async function processRequest(
         type: ThanosMessageType.ImportFundraiserAccountResponse,
       };
 
+    case ThanosMessageType.CreateLedgerAccountRequest:
+      await Actions.craeteLedgerAccount(req.name, req.derivationPath);
+      return {
+        type: ThanosMessageType.CreateLedgerAccountResponse,
+      };
+
     case ThanosMessageType.UpdateSettingsRequest:
       await Actions.updateSettings(req.settings);
       return {
@@ -156,6 +162,20 @@ async function processRequest(
       return {
         type: ThanosMessageType.SignResponse,
         result,
+      };
+
+    case ThanosMessageType.DAppGetAllSessionsRequest:
+      const allSessions = await Actions.getAllDAppSessions();
+      return {
+        type: ThanosMessageType.DAppGetAllSessionsResponse,
+        sessions: allSessions,
+      };
+
+    case ThanosMessageType.DAppRemoveSessionRequest:
+      const sessions = await Actions.removeDAppSession(req.origin);
+      return {
+        type: ThanosMessageType.DAppRemoveSessionResponse,
+        sessions,
       };
 
     case ThanosMessageType.PageRequest:
