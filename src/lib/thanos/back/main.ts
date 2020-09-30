@@ -111,7 +111,7 @@ async function processRequest(
       };
 
     case ThanosMessageType.CreateLedgerAccountRequest:
-      await Actions.craeteLedgerAccount(req.name, req.hdIndex);
+      await Actions.craeteLedgerAccount(req.name, req.derivationPath);
       return {
         type: ThanosMessageType.CreateLedgerAccountResponse,
       };

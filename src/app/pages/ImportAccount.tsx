@@ -7,6 +7,7 @@ import {
   useThanosClient,
   useAllAccounts,
   useSetAccountPkh,
+  validateDerivationPath,
 } from "lib/thanos/front";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
@@ -395,27 +396,6 @@ const ByMnemonicForm: React.FC = () => {
     </form>
   );
 };
-
-function validateDerivationPath(p: string) {
-  if (!p.startsWith("m")) {
-    return "Must be start with 'm'";
-  }
-  if (p.length > 1 && p[1] !== "/") {
-    return "Separator must be '/'";
-  }
-
-  const parts = p.replace("m", "").split("/").filter(Boolean);
-  if (
-    !parts.every((p) => {
-      const pNum = +(p.includes("'") ? p.replace("'", "") : p);
-      return Number.isSafeInteger(pNum) && pNum >= 0;
-    })
-  ) {
-    return "Invalid path";
-  }
-
-  return true;
-}
 
 interface ByFundraiserFormData {
   email: string;

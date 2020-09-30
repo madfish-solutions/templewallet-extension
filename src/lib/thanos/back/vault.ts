@@ -352,9 +352,11 @@ export class Vault {
     });
   }
 
-  async createLedgerAccount(name: string, hdIndex: number) {
+  async createLedgerAccount(name: string, derivationPath?: string) {
     return withError("Failed to connect Ledger account", async () => {
-      const ledgerSigner = await createLedgerSigner(hdIndex);
+      if (!derivationPath) derivationPath = getMainDerivationPath(0);
+
+      const ledgerSigner = await createLedgerSigner(derivationPath);
       const accPublicKey = await ledgerSigner.publicKey();
       const accPublicKeyHash = await ledgerSigner.publicKeyHash();
 
@@ -362,7 +364,7 @@ export class Vault {
         type: ThanosAccountType.Ledger,
         name,
         publicKeyHash: accPublicKeyHash,
-        hdIndex,
+        derivationPath,
       };
       const allAccounts = await this.fetchAccounts();
       const newAllAcounts = concatAccount(allAccounts, newAccount);
@@ -462,7 +464,11 @@ export class Vault {
     switch (acc.type) {
       case ThanosAccountType.Ledger:
         const publicKey = await this.revealPublicKey(accPublicKeyHash);
-        return createLedgerSigner(acc.hdIndex, publicKey, accPublicKeyHash);
+        return createLedgerSigner(
+          acc.derivationPath,
+          publicKey,
+          accPublicKeyHash
+        );
 
       default:
         const privateKey = await fetchAndDecryptOne<string>(
@@ -576,14 +582,14 @@ async function createMemorySigner(privateKey: string, encPassword?: string) {
 }
 
 async function createLedgerSigner(
-  hdAccIndex: number,
+  derivationPath: string,
   publicKey?: string,
   publicKeyHash?: string
 ) {
   const transport = await LedgerWebAuthnTransport.create();
   return new ThanosLedgerSigner(
     transport,
-    getMainDerivationPath(hdAccIndex),
+    derivationPath,
     true,
     DerivationType.tz1,
     publicKey,
