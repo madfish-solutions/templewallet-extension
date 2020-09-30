@@ -175,7 +175,7 @@ const FeeOptionIcon: React.FC<OptionRenderProps<FeeOption>> = ({
   if (Icon) {
     return (
       <Icon
-        className={classNames("inline-block stroke-current", "opacity-90")}
+        className="inline-block stroke-current opacity-90 flex-none"
         style={{ width: 24, height: 24 }}
       />
     );
