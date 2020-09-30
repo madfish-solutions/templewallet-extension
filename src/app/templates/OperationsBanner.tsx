@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import ReactJson from "react-json-view";
-import { t } from "lib/i18n";
+import { t } from "lib/ui/i18n";
 
 type OperationsBanner = {
   opParams: any[];
