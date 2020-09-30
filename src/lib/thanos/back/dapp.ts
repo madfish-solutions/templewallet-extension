@@ -20,7 +20,7 @@ import {
   ThanosRequest,
   ThanosDAppPayload,
 } from "lib/thanos/types";
-import { intercom } from "lib/thanos/back/intercom";
+import { intercom } from "lib/thanos/back/defaults";
 import * as PndOps from "lib/thanos/back/pndops";
 import { withUnlocked } from "lib/thanos/back/store";
 import { NETWORKS } from "lib/thanos/networks";
@@ -356,18 +356,19 @@ async function requestConfirm({
   let knownPort: Runtime.Port | undefined;
   const stopRequestListening = intercom.onRequest(
     async (req: ThanosRequest, port) => {
-      if (!knownPort) knownPort = port;
-      if (knownPort !== port) return;
-
       if (
         req?.type === ThanosMessageType.DAppGetPayloadRequest &&
         req.id === id
       ) {
+        knownPort = port;
+
         return {
           type: ThanosMessageType.DAppGetPayloadResponse,
           payload,
         };
       } else {
+        if (knownPort !== port) return;
+
         const result = await handleIntercomRequest(req, onDecline);
         if (result) {
           close();

@@ -80,7 +80,7 @@ const RemoveAccount: React.FC = () => {
         className="mb-6"
       />
 
-      {account.type !== ThanosAccountType.Imported ? (
+      {account.type === ThanosAccountType.HD ? (
         <Alert
           title={t("cannotBeRemoved")}
           description={
