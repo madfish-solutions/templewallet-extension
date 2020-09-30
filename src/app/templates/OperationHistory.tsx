@@ -5,6 +5,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
 import { getAccountWithOperations } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
+import { getDateFnsLocale, T } from "lib/ui/i18n";
 import {
   ThanosAsset,
   ThanosAssetType,
@@ -160,13 +161,24 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             style={{ maxWidth: "20rem" }}
           >
             {network.tzStats ? (
-              "No operations found"
+              <T name="noOperationsFound">{(message) => <>{message}</>}</T>
             ) : (
-              <>
-                Operation history is not available
-                <br />
-                for local sandbox
-              </>
+              <T name="operationHistoryUnavailableForSandbox">
+                {(message) => {
+                  const [
+                    messagePart1,
+                    messagePart2,
+                  ] = (message as string).split("\n");
+
+                  return (
+                    <>
+                      {messagePart1}
+                      <br />
+                      {messagePart2}
+                    </>
+                  );
+                }}
+              </T>
             )}
           </h3>
         </div>
@@ -239,9 +251,13 @@ const Operation = React.memo<OperationProps>(
                 </span>
 
                 {pending ? (
-                  <span className="text-xs font-light text-yellow-600">
-                    pending...
-                  </span>
+                  <T name="pending">
+                    {(message) => (
+                      <span className="text-xs font-light text-yellow-600">
+                        {message}
+                      </span>
+                    )}
+                  </T>
                 ) : (
                   <Time
                     children={() => (
@@ -249,6 +265,7 @@ const Operation = React.memo<OperationProps>(
                         {formatDistanceToNow(new Date(time), {
                           includeSeconds: true,
                           addSuffix: true,
+                          locale: getDateFnsLocale(),
                         })}
                       </span>
                     )}

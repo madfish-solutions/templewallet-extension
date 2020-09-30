@@ -8,6 +8,7 @@ import {
   useAllAccounts,
   useAccount,
 } from "lib/thanos/front";
+import { t, T } from "lib/ui/i18n";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -69,8 +70,11 @@ const RemoveAccount: React.FC = () => {
         account={account}
         labelDescription={
           <>
-            Account to be removed. <br />
-            If you want to remove another account - select it in the top-right dropdown.
+            <T name="accountToBeRemoved">{(message) => <>{message}</>}</T>
+            <br />
+            <T name="ifYouWantToRemoveAnotherAccount">
+              {(message) => <>{message}</>}
+            </T>
           </>
         }
         className="mb-6"
@@ -78,23 +82,33 @@ const RemoveAccount: React.FC = () => {
 
       {account.type !== ThanosAccountType.Imported ? (
         <Alert
-          title="Cannot be removed"
+          title={t("cannotBeRemoved")}
           description={
-            <p>
-              Only{" "}
-              <span
-                className={classNames(
-                  "rounded-sm",
-                  "border",
-                  "px-1 py-px",
-                  "font-normal leading-tight"
-                )}
-                style={{ fontSize: "0.75em", borderColor: "currentColor" }}
-              >
-                Imported
-              </span>{" "}
-              accounts can be removed.
-            </p>
+            <T
+              name="onlyImportedAccountsCanBeRemoved"
+              substitutions={[
+                <T key="imported" name="importedPlural">
+                  {(message) => (
+                    <span
+                      className={classNames(
+                        "rounded-sm",
+                        "border",
+                        "px-1 py-px",
+                        "font-normal leading-tight"
+                      )}
+                      style={{
+                        fontSize: "0.75em",
+                        borderColor: "currentColor",
+                      }}
+                    >
+                      {message}
+                    </span>
+                  )}
+                </T>,
+              ]}
+            >
+              {(message) => <p>{message}</p>}
+            </T>
           }
           className="my-4"
         />
@@ -102,8 +116,8 @@ const RemoveAccount: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormField
             ref={register({ required: "Required" })}
-            label="Password"
-            labelDescription={`Enter password to remove the Account.`}
+            label={t("password")}
+            labelDescription={t("enterPasswordToRemoveAccount")}
             id="removeacc-secret-password"
             type="password"
             name="password"
@@ -112,9 +126,13 @@ const RemoveAccount: React.FC = () => {
             containerClassName="mb-4"
           />
 
-          <FormSubmitButton loading={submitting} disabled={submitting}>
-            Remove
-          </FormSubmitButton>
+          <T name="remove">
+            {(message) => (
+              <FormSubmitButton loading={submitting} disabled={submitting}>
+                {message}
+              </FormSubmitButton>
+            )}
+          </T>
         </form>
       )}
     </div>

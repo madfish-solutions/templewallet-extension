@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
+import { T, t } from "lib/ui/i18n";
 import { useThanosClient, useAccount } from "lib/thanos/front";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
@@ -127,52 +128,68 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     switch (reveal) {
       case "private-key":
         return {
-          name: "Private Key",
+          name: t("privateKey"),
           accountBanner: (
             <AccountBanner
               account={account}
-              labelDescription={
-                <>
-                  If you want to reveal a private key from another account - you
-                  should select it in the top-right dropdown.
-                </>
-              }
+              labelDescription={t(
+                "ifYouWantToRevealPrivateKeyFromOtherAccount"
+              )}
               className="mb-6"
             />
           ),
           derivationPathBanner: null,
           attention: (
-            <>
-              <span className="font-semibold">DO NOT share</span> this set of
-              chars with anyone! It can be used to steal your current account.
-            </>
+            <T
+              name="doNotSharePrivateKey"
+              substitutions={[
+                <T name="doNotShareEmphasized" key="doNotShare">
+                  {(message) => (
+                    <span className="font-semibold">{message}</span>
+                  )}
+                </T>,
+              ]}
+            >
+              {(message) => <>{message}</>}
+            </T>
           ),
-          fieldDesc: <>Current account key. Keep it secret.</>,
+          fieldDesc: (
+            <T name="privateKeyFieldDescription">
+              {(message) => <>{message}</>}
+            </T>
+          ),
         };
 
       case "seed-phrase":
         return {
-          name: "Seed Phrase",
+          name: t("seedPhrase"),
           accountBanner: null,
           derivationPathBanner: (
             <div className={classNames("mb-6", "flex flex-col")}>
               <h2
                 className={classNames("mb-4", "leading-tight", "flex flex-col")}
               >
-                <span className="text-base font-semibold text-gray-700">
-                  Derivation path
-                </span>
-
-                <span
-                  className={classNames(
-                    "mt-1",
-                    "text-xs font-light text-gray-600"
+                <T name="derivationPath">
+                  {(message) => (
+                    <span className="text-base font-semibold text-gray-700">
+                      {message}
+                    </span>
                   )}
-                  style={{ maxWidth: "90%" }}
-                >
-                  for HD acccounts. This is the thing you use to recover all
-                  your accounts from your seed phrase.
-                </span>
+                </T>
+
+                <T name="pathForHDAccounts">
+                  {(message) => (
+                    <span
+                      className={classNames(
+                        "mt-1",
+                        "text-xs font-light text-gray-600"
+                      )}
+                      style={{ maxWidth: "90%" }}
+                    >
+                      {message}
+                    </span>
+                  )}
+                </T>
               </h2>
 
               <div
@@ -183,22 +200,36 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
                   "flex items-center"
                 )}
               >
-                <span className="text-sm font-medium text-gray-800">
-                  {"m/44'/1729'/<account_index>'/0'"}
-                </span>
+                <T name="derivationPathExample">
+                  {(message) => (
+                    <span className="text-sm font-medium text-gray-800">
+                      {message}
+                    </span>
+                  )}
+                </T>
               </div>
             </div>
           ),
           attention: (
-            <>
-              <span className="font-semibold">DO NOT share</span> this phrase
-              with anyone! It can be used to steal all your accounts.
-            </>
+            <T
+              name="doNotSharePhrase"
+              substitutions={[
+                <T key="doNotShare" name="doNotShareEmphasized">
+                  {(message) => (
+                    <span className="font-semibold">{message}</span>
+                  )}
+                </T>,
+              ]}
+            >
+              {(message) => <>{message}</>}
+            </T>
           ),
           fieldDesc: (
             <>
-              If you ever switch between browsers or devices, you will need this
-              seed phrase to access your accounts. Keep it secret.
+              <T name="youWillNeedThisSeedPhrase">
+                {(message) => <>{message}</>}
+              </T>{" "}
+              <T name="keepSeedPhraseSecret">{(message) => <>{message}</>}</T>
             </>
           ),
         };
@@ -229,7 +260,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           />
 
           <Alert
-            title="Attention!"
+            title={t("attentionExclamation")}
             description={<p>{texts.attention}</p>}
             className="my-4"
           />
@@ -238,8 +269,11 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
         <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
           <FormField
             ref={register({ required: "Required" })}
-            label="Password"
-            labelDescription={`Enter password to reveal the ${texts.name}.`}
+            label={t("password")}
+            labelDescription={t(
+              "revealSecretPasswordInputDescription",
+              texts.name
+            )}
             id="reveal-secret-password"
             type="password"
             name="password"
@@ -248,7 +282,13 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
             containerClassName="mb-4"
           />
 
-          <FormSubmitButton loading={submitting}>Reveal</FormSubmitButton>
+          <T name="reveal">
+            {(message) => (
+              <FormSubmitButton loading={submitting}>
+                {message}
+              </FormSubmitButton>
+            )}
+          </T>
         </form>
       )}
     </div>

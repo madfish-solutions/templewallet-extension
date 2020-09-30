@@ -3,6 +3,7 @@ import React, { useCallback, useState } from "react";
 import { Controller, ControllerProps, FieldError } from "react-hook-form";
 import BigNumber from "bignumber.js";
 import { XTZ_ASSET } from "lib/thanos/front";
+import { t, T } from "lib/ui/i18n";
 import AssetField from "app/atoms/AssetField";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { ReactComponent as CoffeeIcon } from "app/icons/coffee.svg";
@@ -30,13 +31,18 @@ export type AdditionalFeeInputProps = Pick<
 
 type FeeOption = {
   Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-  description: string;
+  descriptionI18nKey: string;
   type: "minimal" | "fast" | "rocket" | "custom";
   amount?: number;
 };
 
 const feeOptions: FeeOption[] = [
-  { Icon: CoffeeIcon, description: "Minimal", type: "minimal", amount: 1e-4 },
+  {
+    Icon: CoffeeIcon,
+    descriptionI18nKey: "minimalFeeDescription",
+    type: "minimal",
+    amount: 1e-4,
+  },
   {
     Icon: ({ className, ...rest }) => (
       <CupIcon
@@ -44,11 +50,16 @@ const feeOptions: FeeOption[] = [
         {...rest}
       />
     ),
-    description: "Fast",
+    descriptionI18nKey: "fastFeeDescription",
     type: "fast",
     amount: 3e-4,
   },
-  { Icon: RocketIcon, description: "Rocket", type: "rocket", amount: 5e-4 },
+  {
+    Icon: RocketIcon,
+    descriptionI18nKey: "rocketFeeDescription",
+    type: "rocket",
+    amount: 5e-4,
+  },
   {
     Icon: ({ className, ...rest }) => (
       <SettingsIcon
@@ -56,7 +67,7 @@ const feeOptions: FeeOption[] = [
         {...rest}
       />
     ),
-    description: "Custom",
+    descriptionI18nKey: "customFeeDescription",
     type: "custom",
   },
 ];
@@ -74,15 +85,20 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
       onChange={onChange}
       id={id}
       assetSymbol={assetSymbol}
-      label="Additional Fee"
+      label={t("additionalFee")}
       labelDescription={
         baseFee instanceof BigNumber && (
-          <>
-            Base Fee for this operation is:{" "}
-            <span className="font-normal">{baseFee.toString()}</span>
-            <br />
-            Additional - speeds up its confirmation
-          </>
+          <T
+            name="feeInputDescription"
+            substitutions={[
+              <React.Fragment key={0}>
+                <span className="font-normal">{baseFee.toString()}</span>
+                <br />
+              </React.Fragment>,
+            ]}
+          >
+            {(message) => <>{message}</>}
+          </T>
         )
       }
       placeholder="0"
@@ -170,12 +186,12 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
 };
 
 const FeeOptionIcon: React.FC<OptionRenderProps<FeeOption>> = ({
-  item: { Icon, type },
+  item: { Icon },
 }) => {
   if (Icon) {
     return (
       <Icon
-        className={classNames("inline-block stroke-current", "opacity-90")}
+        className="inline-block stroke-current opacity-90 flex-none"
         style={{ width: 24, height: 24 }}
       />
     );
@@ -185,14 +201,18 @@ const FeeOptionIcon: React.FC<OptionRenderProps<FeeOption>> = ({
 };
 
 const FeeOptionContent: React.FC<OptionRenderProps<FeeOption>> = ({
-  item: { description, amount },
+  item: { descriptionI18nKey, amount },
 }) => {
   return (
     <>
       <div className="flex flex-wrap items-center">
-        <Name className="w-16 text-sm font-medium leading-tight text-left">
-          {description}
-        </Name>
+        <T name={descriptionI18nKey}>
+          {(message) => (
+            <Name className="w-16 text-sm font-medium leading-tight text-left">
+              {message}
+            </Name>
+          )}
+        </T>
 
         {amount && (
           <div className="ml-2 leading-none text-gray-600">
