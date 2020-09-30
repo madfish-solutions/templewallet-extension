@@ -12,6 +12,7 @@ import {
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
+import { T, t } from "lib/ui/i18n";
 import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
 import ErrorBoundary from "app/ErrorBoundary";
 import Unlock from "app/pages/Unlock";
@@ -41,12 +42,12 @@ import DAppLogo from "./templates/DAppLogo";
 const SIGN_PAYLOAD_FORMATS = [
   {
     key: "preview",
-    name: "Preview",
+    name: t("preview"),
     Icon: EyeIcon,
   },
   {
     key: "raw",
-    name: "Raw",
+    name: t("raw"),
     Icon: CodeAltIcon,
   },
 ];
@@ -63,7 +64,7 @@ const ConfirmPage: React.FC = () => {
             "flex flex-col items-center justify-center"
           )}
         >
-          <ErrorBoundary whileMessage="fetching confirmation details">
+          <ErrorBoundary whileMessage={t("fetchingConfirmationDetails")}>
             <React.Suspense fallback={null}>
               <ConfirmDAppForm />
             </React.Suspense>
@@ -99,7 +100,7 @@ const ConfirmDAppForm: React.FC = () => {
     const usp = new URLSearchParams(loc.search);
     const id = usp.get("id");
     if (!id) {
-      throw new Error("Not identified");
+      throw new Error(t("notIdentified"));
     }
     return id;
   }, [loc.search]);
@@ -194,23 +195,33 @@ const ConfirmDAppForm: React.FC = () => {
     switch (payload.type) {
       case "connect":
         return {
-          title: "Confirm connection",
-          declineActionTitle: "Cancel",
-          confirmActionTitle: error ? "Retry" : "Connect",
+          title: t("confirmAction", t("connection").toLowerCase()),
+          declineActionTitle: t("cancel"),
+          confirmActionTitle: error ? t("retry") : t("connect"),
           want: (
-            <p className="mb-2 text-sm text-center text-gray-700">
-              <span className="font-semibold">{payload.origin}</span>
-              <br />
-              would like to connect to your wallet
-            </p>
+            <T
+              name="appWouldLikeToConnectToYourWallet"
+              substitutions={[
+                <React.Fragment key="appName">
+                  <span className="font-semibold">{payload.origin}</span>
+                  <br />
+                </React.Fragment>,
+              ]}
+            >
+              {(message) => (
+                <p className="mb-2 text-sm text-center text-gray-700">
+                  {message}
+                </p>
+              )}
+            </T>
           ),
         };
 
       case "confirm_operations":
         return {
-          title: "Confirm operations",
-          declineActionTitle: "Reject",
-          confirmActionTitle: error ? "Retry" : "Confirm",
+          title: t("confirmAction", t("operations").toLowerCase()),
+          declineActionTitle: t("reject"),
+          confirmActionTitle: error ? t("retry") : t("confirm"),
           want: (
             <div
               className={classNames(
@@ -224,19 +235,25 @@ const ConfirmDAppForm: React.FC = () => {
                   {payload.appMeta.name}
                 </Name>
               </div>
-              <Name className="max-w-full text-xs italic">
-                {payload.origin}
-              </Name>
-              requests operations to you
+              <T
+                name="appRequestOperationToYou"
+                substitutions={[
+                  <Name className="max-w-full text-xs italic" key="origin">
+                    {payload.origin}
+                  </Name>,
+                ]}
+              >
+                {(message) => <>{message}</>}
+              </T>
             </div>
           ),
         };
 
       case "sign":
         return {
-          title: "Confirm sign",
-          declineActionTitle: "Reject",
-          confirmActionTitle: "Sign",
+          title: t("confirmAction", t("signAction").toLowerCase()),
+          declineActionTitle: t("reject"),
+          confirmActionTitle: t("signAction"),
           want: (
             <div
               className={classNames(
@@ -250,10 +267,16 @@ const ConfirmDAppForm: React.FC = () => {
                   {payload.appMeta.name}
                 </Name>
               </div>
-              <Name className="max-w-full text-xs italic">
-                {payload.origin}
-              </Name>
-              requests you to sign
+              <T
+                name="appRequestsToSign"
+                substitutions={[
+                  <Name className="max-w-full text-xs italic" key="origin">
+                    {payload.origin}
+                  </Name>,
+                ]}
+              >
+                {(message) => <>{message}</>}
+              </T>
             </div>
           ),
         };
@@ -272,17 +295,21 @@ const ConfirmDAppForm: React.FC = () => {
       }}
     >
       <div className={classNames("absolute top-0 right-0", "p-1")}>
-        <div
-          className={classNames(
-            "bg-red-500",
-            "shadow",
-            "rounded-sm",
-            "px-2 py-px",
-            "text-xs font-medium text-white"
+        <T name="alpha">
+          {(message) => (
+            <div
+              className={classNames(
+                "bg-red-500",
+                "shadow",
+                "rounded-sm",
+                "px-2 py-px",
+                "text-xs font-medium text-white"
+              )}
+            >
+              {message}
+            </div>
           )}
-        >
-          Alpha
-        </div>
+        </T>
       </div>
 
       <div className="flex flex-col items-center px-4 py-2">
@@ -304,10 +331,13 @@ const ConfirmDAppForm: React.FC = () => {
         {content.want}
 
         {payload.type === "connect" && (
-          <p className="mb-4 text-xs font-light text-center text-gray-700">
-            This site is requesting access to view your account address. Always
-            make sure you trust the sites you interact with.
-          </p>
+          <T name="viewAccountAddressWarning">
+            {(message) => (
+              <p className="mb-4 text-xs font-light text-center text-gray-700">
+                {message}
+              </p>
+            )}
+          </T>
         )}
 
         {error ? (
@@ -349,19 +379,27 @@ const ConfirmDAppForm: React.FC = () => {
                     "flex flex-col"
                   )}
                 >
-                  <span className="text-base font-semibold text-gray-700">
-                    Account
-                  </span>
-
-                  <span
-                    className={classNames(
-                      "mt-px",
-                      "text-xs font-light text-gray-600"
+                  <T name="account">
+                    {(message) => (
+                      <span className="text-base font-semibold text-gray-700">
+                        {message}
+                      </span>
                     )}
-                    style={{ maxWidth: "90%" }}
-                  >
-                    to be connected with dApp.
-                  </span>
+                  </T>
+
+                  <T name="toBeConnectedWithDApp">
+                    {(message) => (
+                      <span
+                        className={classNames(
+                          "mt-px",
+                          "text-xs font-light text-gray-600"
+                        )}
+                        style={{ maxWidth: "90%" }}
+                      >
+                        {message}
+                      </span>
+                    )}
+                  </T>
                 </h2>
 
                 <CustomSelect<ThanosAccount, string>
@@ -480,7 +518,7 @@ const ConfirmDAppForm: React.FC = () => {
                     textarea
                     rows={6}
                     id="sign-payload"
-                    label="Payload to sign"
+                    label={t("payloadToSign")}
                     value={payload.payload}
                     spellCheck={false}
                     readOnly
