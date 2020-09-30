@@ -232,11 +232,11 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   );
 
   const createLedgerAccount = React.useCallback(
-    async (name: string, hdIndex: number) => {
+    async (name: string, derivationPath?: string) => {
       const res = await request({
         type: ThanosMessageType.CreateLedgerAccountRequest,
         name,
-        hdIndex,
+        derivationPath,
       });
       assertResponse(
         res.type === ThanosMessageType.CreateLedgerAccountResponse
