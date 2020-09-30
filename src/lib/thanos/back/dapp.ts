@@ -31,7 +31,7 @@ import { loadChainId, isAddressValid } from "lib/thanos/helpers";
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 600;
 const AUTODECLINE_AFTER = 120_000;
-const STORAGE_KEY = "dApps";
+const STORAGE_KEY = "dapp_sessions";
 
 export async function requestPermission(
   origin: string,
