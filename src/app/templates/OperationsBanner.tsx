@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import ReactJson from "react-json-view";
+import { t } from "lib/ui/i18n";
 
 type OperationsBanner = {
   opParams: any[];
@@ -10,7 +11,7 @@ type OperationsBanner = {
 
 const OperationsBanner: React.FC<OperationsBanner> = ({
   opParams,
-  label = "Operations",
+  label = t("operations"),
   className,
 }) => (
   <>

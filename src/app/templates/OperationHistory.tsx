@@ -5,6 +5,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
 import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
+import { getDateFnsLocale, T } from "lib/ui/i18n";
 import {
   ThanosAsset,
   ThanosAssetType,
@@ -185,7 +186,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             className="text-sm font-light text-center"
             style={{ maxWidth: "20rem" }}
           >
-            No operations found
+            <T name="noOperationsFound">{(message) => <>{message}</>}</T>
           </h3>
         </div>
       )}
@@ -292,6 +293,7 @@ const Operation = React.memo<OperationProps>(
                           {formatDistanceToNow(new Date(time), {
                             includeSeconds: true,
                             addSuffix: true,
+                            locale: getDateFnsLocale(),
                           })}
                         </span>
                       )}
@@ -312,9 +314,13 @@ const Operation = React.memo<OperationProps>(
 
                     case pending:
                       return (
-                        <span className="text-xs font-light text-yellow-600">
-                          pending...
-                        </span>
+                        <T name="pending">
+                          {(message) => (
+                            <span className="text-xs font-light text-yellow-600">
+                              {message}
+                            </span>
+                          )}
+                        </T>
                       );
 
                     default:

@@ -5,8 +5,8 @@ import {
   ThanosSharedStorageKey,
   useThanosClient,
 } from "lib/thanos/front";
-import { T } from "lib/ui/i18n";
 import { ThanosDAppSession, ThanosDAppSessions } from "lib/thanos/types";
+import { t, T } from "lib/ui/i18n";
 import { useRetryableSWR } from "lib/swr";
 import DAppLogo from "app/templates/DAppLogo";
 import FormCheckbox from "app/atoms/FormCheckbox";
@@ -61,11 +61,7 @@ const DAppSettings: React.FC = () => {
 
   const handleRemoveClick = React.useCallback(
     async (origin: string) => {
-      if (
-        window.confirm(
-          `Are you sure you want to reset permissions for\n${origin}?`
-        )
-      ) {
+      if (window.confirm(t("resetPermissionsConfirmation", origin))) {
         await removeDAppSession(origin);
         revalidate();
       }
@@ -82,22 +78,29 @@ const DAppSettings: React.FC = () => {
       <h2
         className={classNames("w-full mb-4", "leading-tight", "flex flex-col")}
       >
-        <span
-          className={classNames("text-xs font-light text-gray-600")}
-          style={{ maxWidth: "90%" }}
+        <T
+          name="dAppsCheckmarkPrompt"
+          substitutions={t(dAppEnabled ? "disable" : "enable")}
         >
-          Click on the checkmark to {dAppEnabled ? "disable" : "enable"} DApps
-          interaction feature. It’s still in Alpha, but it can be used for
-          testing and development purposes.
-        </span>
+          {(message) => (
+            <span
+              className={classNames("text-xs font-light text-gray-600")}
+              style={{ maxWidth: "90%" }}
+            >
+              {message}
+            </span>
+          )}
+        </T>
       </h2>
 
       <FormCheckbox
         checked={dAppEnabled}
         onChange={handleChange}
         name="dAppEnabled"
-        label={dAppEnabled ? "Enabled" : "Disabled"}
-        labelDescription="DApps interaction"
+        label={t(
+          dAppEnabled ? "dAppsInteractionEnabled" : "dAppsInteractionDisabled"
+        )}
+        labelDescription={t("dAppsInteraction")}
         errorCaption={error?.message}
         containerClassName="mb-4"
       />
@@ -156,7 +159,7 @@ const DAppDescription: React.FC<OptionRenderProps<
 >> = (props) => {
   const {
     actions,
-    item: [origin, session],
+    item: [origin, { appMeta, network, pkh }],
   } = props;
   const { remove: onRemove } = actions!;
 
@@ -169,7 +172,7 @@ const DAppDescription: React.FC<OptionRenderProps<
   );
 
   const pkhPreviewNode = React.useMemo(() => {
-    const val = session.pkh;
+    const val = pkh;
     const ln = val.length;
     return (
       <>
@@ -178,34 +181,39 @@ const DAppDescription: React.FC<OptionRenderProps<
         {val.slice(ln - 4, ln)}
       </>
     );
-  }, [session.pkh]);
+  }, [pkh]);
 
   return (
     <div className="flex flex-1 w-full">
       <div className="flex flex-col justify-between flex-1">
-        <Name className="mb-1 text-sm font-medium leading-tight text-left">
-          {session.appMeta.name}
+        <Name className="text-sm font-medium leading-tight text-left">
+          {appMeta.name}
         </Name>
 
-        <div className="text-xs font-light leading-tight text-gray-600">
-          Network:{" "}
-          <span className="font-normal capitalize">
-            {typeof session.network === "string"
-              ? session.network
-              : session.network.name}
-          </span>
-        </div>
+        <T
+          name="networkLabel"
+          substitutions={typeof network === "object" ? network.name : network}
+        >
+          {(message) => <div className="text-gray-600">{message}</div>}
+        </T>
 
-        <div className="text-xs font-light leading-tight text-gray-600">
-          Account: <span className="font-normal">{pkhPreviewNode}</span>
-        </div>
+        <T name="pkhLabel" substitutions={[pkhPreviewNode]}>
+          {(message) => (
+            <div
+              className="text-gray-600 overflow-hidden whitespace-no-wrap"
+              style={{ textOverflow: "ellipsis" }}
+            >
+              {message}
+            </div>
+          )}
+        </T>
       </div>
 
       <button className="flex-none" onClick={handleRemoveClick}>
         <CloseIcon
           className="w-auto h-5 mx-2 stroke-2"
           stroke="#777"
-          title="Delete"
+          title={t("delete")}
         />
       </button>
     </div>
