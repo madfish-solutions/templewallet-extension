@@ -69,6 +69,10 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
+  const handleErrorAlertClose = React.useCallback(() => setError(null), [
+    setError,
+  ]);
+
   return (
     <div
       className={classNames(
@@ -113,6 +117,8 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
 
           {error ? (
             <Alert
+              closable
+              onClose={handleErrorAlertClose}
               type="error"
               title="Error"
               description={error?.message ?? "Something went wrong"}
