@@ -1,7 +1,11 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { useThanosClient, useAccount } from "lib/thanos/front";
+import {
+  useThanosClient,
+  useAccount,
+  ThanosAccountType,
+} from "lib/thanos/front";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -205,13 +209,38 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     }
   }, [reveal, account]);
 
-  return (
-    <div className="w-full max-w-sm p-2 mx-auto">
-      {texts.accountBanner}
+  const forbidPrivateKeyRevealing =
+    account.type === ThanosAccountType.Ledger && reveal === "private-key";
 
-      {texts.derivationPathBanner}
+  const mainContent = React.useMemo(() => {
+    if (forbidPrivateKeyRevealing) {
+      return (
+        <Alert
+          title="Private key cannot be revealed"
+          description={
+            <p>
+              You cannot get private key from{" "}
+              <span
+                className={classNames(
+                  "rounded-sm",
+                  "border",
+                  "px-1 py-px",
+                  "font-normal leading-tight"
+                )}
+                style={{ fontSize: "0.75em", borderColor: "currentColor" }}
+              >
+                Ledger
+              </span>{" "}
+              accounts.
+            </p>
+          }
+          className="my-4"
+        />
+      );
+    }
 
-      {secret ? (
+    if (secret) {
+      return (
         <>
           <FormField
             ref={secretFieldRef}
@@ -234,23 +263,44 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
             className="my-4"
           />
         </>
-      ) : (
-        <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-          <FormField
-            ref={register({ required: "Required" })}
-            label="Password"
-            labelDescription={`Enter password to reveal the ${texts.name}.`}
-            id="reveal-secret-password"
-            type="password"
-            name="password"
-            placeholder="********"
-            errorCaption={errors.password?.message}
-            containerClassName="mb-4"
-          />
+      );
+    }
 
-          <FormSubmitButton loading={submitting}>Reveal</FormSubmitButton>
-        </form>
-      )}
+    return (
+      <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+        <FormField
+          ref={register({ required: "Required" })}
+          label="Password"
+          labelDescription={`Enter password to reveal the ${texts.name}.`}
+          id="reveal-secret-password"
+          type="password"
+          name="password"
+          placeholder="********"
+          errorCaption={errors.password?.message}
+          containerClassName="mb-4"
+        />
+
+        <FormSubmitButton loading={submitting}>Reveal</FormSubmitButton>
+      </form>
+    );
+  }, [
+    forbidPrivateKeyRevealing,
+    errors,
+    handleSubmit,
+    onSubmit,
+    register,
+    secret,
+    texts,
+    submitting,
+  ]);
+
+  return (
+    <div className="w-full max-w-sm p-2 mx-auto">
+      {texts.accountBanner}
+
+      {texts.derivationPathBanner}
+
+      {mainContent}
     </div>
   );
 };
