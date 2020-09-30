@@ -168,7 +168,7 @@ const CustomSelectItem = <
 
       {active && (
         <OkIcon
-          className="w-auto h-5 mx-2 stroke-2"
+          className="w-auto h-5 mx-2 stroke-2 flex-none"
           style={{
             stroke: "#777",
           }}
