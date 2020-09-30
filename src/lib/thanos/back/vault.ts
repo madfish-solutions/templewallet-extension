@@ -142,7 +142,7 @@ export class Vault {
         passKey
       );
       const acc = allAccounts.find((a) => a.publicKeyHash === accPublicKeyHash);
-      if (!acc || acc.type !== ThanosAccountType.Imported) {
+      if (!acc || acc.type === ThanosAccountType.HD) {
         doThrow();
       }
 
