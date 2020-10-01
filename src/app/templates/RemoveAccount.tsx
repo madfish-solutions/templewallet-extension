@@ -132,7 +132,7 @@ const RemoveAccount: React.FC = () => {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormField
-            ref={register({ required: "Required" })}
+            ref={register({ required: t("required") })}
             label={t("password")}
             labelDescription={t("enterPasswordToRemoveAccount")}
             id="removeacc-secret-password"
