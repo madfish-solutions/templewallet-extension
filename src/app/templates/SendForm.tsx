@@ -312,15 +312,15 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const validateAmount = React.useCallback(
     (v?: number) => {
-      if (v === undefined) return "Required";
+      if (v === undefined) return t("required");
       if (!isKTAddress(toValue) && v === 0) {
-        return "Must be positive";
+        return t("amountMustBePositive");
       }
       if (!maxAmountNum) return true;
       const vBN = new BigNumber(v);
       return (
         vBN.isLessThanOrEqualTo(maxAmountNum) ||
-        `Maximal: ${maxAmountNum.toString()}`
+        t("maximalAmount", maxAmountNum.toString())
       );
     },
     [maxAmountNum, toValue]

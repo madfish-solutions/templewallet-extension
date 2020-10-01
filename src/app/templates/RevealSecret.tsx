@@ -247,7 +247,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     if (forbidPrivateKeyRevealing) {
       return (
         <Alert
-          title="Private key cannot be revealed"
+          title={t("privateKeyCannotBeRevealed")}
           description={
             <T
               name="youCannotGetPrivateKeyFromLedgerAccounts"

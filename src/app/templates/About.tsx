@@ -9,7 +9,11 @@ const About: React.FC = () => (
       <Logo imgStyle={{ height: 60 }} />
 
       <div className="ml-4">
-        <h4 className="text-2xl text-gray-700 font-semibold">Thanos Wallet</h4>
+        <T name="appName">
+          {(message) => (
+            <h4 className="text-2xl text-gray-700 font-semibold">{message}</h4>
+          )}
+        </T>
         <T
           name="versionLabel"
           substitutions={[
