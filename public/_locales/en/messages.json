@@ -1054,5 +1054,8 @@
         "content": "$1"
       }
     }
+  },
+  "connectLedger": {
+    "message": "Connect Ledger"
   }
 }

@@ -2,7 +2,6 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import {
-  ThanosAccountType,
   useThanosClient,
   useAllAccounts,
   useAccount,
@@ -15,12 +14,14 @@ import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Money from "app/atoms/Money";
 import Balance from "app/templates/Balance";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
@@ -72,6 +73,14 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           linkTo: "/import-account",
           onClick: closeDropdown,
         },
+        {
+          key: "connect-ledger",
+          Icon: LinkIcon,
+          content: "Connect Ledger",
+          i18nKey: "connectLedger",
+          linkTo: "/connect-ledger",
+          onClick: closeDropdown,
+        },
         network.type === "test" && {
           key: "import-faucet-file",
           Icon: CodeAltIcon,
@@ -105,7 +114,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
         minWidth: "16rem",
       }}
     >
-      <div className="mb-2 flex items-end">
+      <div className="flex items-end mb-2">
         <h3
           className={classNames(
             "mx-1",
@@ -114,7 +123,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           )}
         >
           <T name="accounts">{(message) => <>{message}</>}</T>
-          <PeopleIcon className="ml-1 h-6 w-auto stroke-current" />
+          <PeopleIcon className="w-auto h-6 ml-1 stroke-current" />
         </h3>
 
         <div className="flex-1" />
@@ -183,8 +192,11 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                   className="flex-shrink-0 shadow-xs-white"
                 />
 
-                <div className="ml-2 flex flex-col items-start">
-                  <Name className="text-sm font-medium leading-tight">
+                <div className="flex flex-col items-start ml-2">
+                  <Name
+                    className="text-sm font-medium leading-none"
+                    style={{ paddingBottom: 3 }}
+                  >
                     {acc.name}
                   </Name>
 
@@ -203,23 +215,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                       )}
                     </Balance>
 
-                    {acc.type === ThanosAccountType.Imported && (
-                      <span
-                        className={classNames(
-                          "ml-2",
-                          "rounded-sm",
-                          "border border-white border-opacity-25",
-                          "px-1 py-px",
-                          "leading-tight",
-                          "text-white text-opacity-50"
-                        )}
-                        style={{ fontSize: "0.6rem" }}
-                      >
-                        <T name="importedAccount">
-                          {(message) => <>{message}</>}
-                        </T>
-                      </span>
-                    )}
+                    <AccountTypeBadge account={acc} darkTheme />
                   </div>
                 </div>
               </button>
@@ -249,8 +245,8 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             onClick,
             children: (
               <>
-                <div className="w-8 flex items-center">
-                  <Icon className="h-6 w-auto stroke-current" />
+                <div className="flex items-center w-8">
+                  <Icon className="w-auto h-6 stroke-current" />
                 </div>
 
                 <T name={i18nKey}>{(message) => <>{message}</>}</T>

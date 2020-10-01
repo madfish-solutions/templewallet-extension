@@ -5,19 +5,22 @@ import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
 import { TezosToolkit, CompositeForger, RpcForger } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
+import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
+import { DerivationType } from "@taquito/ledger-signer";
 import * as Passworder from "lib/thanos/passworder";
 import {
   ThanosAccount,
   ThanosAccountType,
   ThanosSettings,
-  ThanosDAppSession,
 } from "lib/thanos/types";
+import { PublicError } from "lib/thanos/back/defaults";
 import {
   isStored,
   fetchAndDecryptOne,
   encryptAndSaveMany,
   removeMany,
 } from "lib/thanos/back/safe-storage";
+import { ThanosLedgerSigner } from "lib/thanos/back/ledger-signer";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
@@ -31,7 +34,6 @@ enum StorageEntity {
   AccPubKey = "accpubkey",
   Accounts = "accounts",
   Settings = "settings",
-  DApps = "dapps",
 }
 
 const checkStrgKey = createStorageKey(StorageEntity.Check);
@@ -41,7 +43,6 @@ const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
 const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
 const accountsStrgKey = createStorageKey(StorageEntity.Accounts);
 const settingsStrgKey = createStorageKey(StorageEntity.Settings);
-const dAppsStrgKey = createStorageKey(StorageEntity.DApps);
 
 export class Vault {
   static isExist() {
@@ -73,6 +74,7 @@ export class Vault {
         type: ThanosAccountType.HD,
         name: "Account 1",
         publicKeyHash: accPublicKeyHash,
+        hdIndex: hdAccIndex,
       };
       const newAccounts = [initialAccount];
 
@@ -137,7 +139,7 @@ export class Vault {
         passKey
       );
       const acc = allAccounts.find((a) => a.publicKeyHash === accPublicKeyHash);
-      if (!acc || acc.type !== ThanosAccountType.Imported) {
+      if (!acc || acc.type === ThanosAccountType.HD) {
         doThrow();
       }
 
@@ -192,51 +194,6 @@ export class Vault {
     return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
-  async getAllDApps() {
-    try {
-      return await fetchAndDecryptOne<Record<string, ThanosDAppSession>>(
-        dAppsStrgKey,
-        this.passKey
-      );
-    } catch {
-      return {};
-    }
-  }
-
-  async getDApp(origin: string) {
-    try {
-      return (await this.getAllDApps())[origin];
-    } catch {
-      return undefined;
-    }
-  }
-
-  async setDApp(origin: string, permissions: ThanosDAppSession) {
-    return withError("Failed to update permissions", async () => {
-      const current = await this.getAllDApps();
-      const newDApps = { ...current, [origin]: permissions };
-      await encryptAndSaveMany([[dAppsStrgKey, newDApps]], this.passKey);
-      return newDApps;
-    });
-  }
-
-  async removeDApp(origin: string) {
-    return withError("Failed to remove permissions", async () => {
-      const {
-        [origin]: permissionsToRemove,
-        ...restDApps
-      } = await this.getAllDApps();
-      await encryptAndSaveMany([[dAppsStrgKey, restDApps]], this.passKey);
-      return restDApps;
-    });
-  }
-
-  async cleanDApps() {
-    return withError("Failed to reset permissions", () => {
-      return encryptAndSaveMany([[dAppsStrgKey, {}]], this.passKey);
-    });
-  }
-
   async createHDAccount(name?: string) {
     return withError("Failed to create account", async () => {
       const [mnemonic, allAccounts] = await Promise.all([
@@ -258,6 +215,7 @@ export class Vault {
         type: ThanosAccountType.HD,
         name: name || getNewAccountName(allAccounts),
         publicKeyHash: accPublicKeyHash,
+        hdIndex: hdAccIndex,
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 
@@ -346,6 +304,35 @@ export class Vault {
     });
   }
 
+  async createLedgerAccount(name: string, derivationPath?: string) {
+    return withError("Failed to connect Ledger account", async () => {
+      if (!derivationPath) derivationPath = getMainDerivationPath(0);
+
+      const ledgerSigner = await createLedgerSigner(derivationPath);
+      const accPublicKey = await ledgerSigner.publicKey();
+      const accPublicKeyHash = await ledgerSigner.publicKeyHash();
+
+      const newAccount: ThanosAccount = {
+        type: ThanosAccountType.Ledger,
+        name,
+        publicKeyHash: accPublicKeyHash,
+        derivationPath,
+      };
+      const allAccounts = await this.fetchAccounts();
+      const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+      await encryptAndSaveMany(
+        [
+          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+          [accountsStrgKey, newAllAcounts],
+        ],
+        this.passKey
+      );
+
+      return newAllAcounts;
+    });
+  }
+
   async editAccountName(accPublicKeyHash: string, name: string) {
     return withError("Failed to edit account name", async () => {
       const allAccounts = await this.fetchAccounts();
@@ -384,24 +371,17 @@ export class Vault {
 
   async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {
     return withError("Failed to sign", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        this.passKey
-      );
-      const signer = await createMemorySigner(privateKey);
-      const watermarkBuf =
-        watermark && (TaquitoUtils.hex2buf(watermark) as any);
+      const signer = await this.getSigner(accPublicKeyHash);
+      const watermarkBuf = watermark
+        ? TaquitoUtils.hex2buf(watermark)
+        : undefined;
       return signer.sign(bytes, watermarkBuf);
     });
   }
 
   async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
     const batch = await withError("Failed to send operations", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        this.passKey
-      );
-      const signer = await createMemorySigner(privateKey);
+      const signer = await this.getSigner(accPublicKeyHash);
       const tezos = new TezosToolkit();
       const forger = new CompositeForger([
         tezos.getFactory(RpcForger)(),
@@ -417,7 +397,37 @@ export class Vault {
       if (process.env.NODE_ENV === "development") {
         console.error(err);
       }
-      throw new Error(`__tezos__${err.message}`);
+
+      throw err instanceof PublicError
+        ? err
+        : new Error(`__tezos__${err.message}`);
+    }
+  }
+
+  private async getSigner(accPublicKeyHash: string) {
+    const allAccounts = await this.fetchAccounts();
+    const acc = allAccounts.find(
+      (acc) => acc.publicKeyHash === accPublicKeyHash
+    );
+    if (!acc) {
+      throw new PublicError("Account not found");
+    }
+
+    switch (acc.type) {
+      case ThanosAccountType.Ledger:
+        const publicKey = await this.revealPublicKey(accPublicKeyHash);
+        return createLedgerSigner(
+          acc.derivationPath,
+          publicKey,
+          accPublicKeyHash
+        );
+
+      default:
+        const privateKey = await fetchAndDecryptOne<string>(
+          accPrivKeyStrgKey(accPublicKeyHash),
+          this.passKey
+        );
+        return createMemorySigner(privateKey);
     }
   }
 }
@@ -455,6 +465,7 @@ const MIGRATIONS = [
       type: ThanosAccountType.HD,
       name: getNewAccountName(accounts),
       publicKeyHash: accPublicKeyHash,
+      hdIndex: hdAccIndex,
     };
     const newAccounts = [newInitialAccount, ...migratedAccounts];
 
@@ -466,6 +477,23 @@ const MIGRATIONS = [
       ],
       passKey
     );
+  },
+
+  // [1] Add hdIndex prop to HD Accounts
+  async (passKey: CryptoKey) => {
+    const accounts = await fetchAndDecryptOne<ThanosAccount[]>(
+      accountsStrgKey,
+      passKey
+    );
+
+    let hdAccIndex = 0;
+    const newAccounts = accounts.map((acc) =>
+      acc.type === ThanosAccountType.HD
+        ? { ...acc, hdIndex: hdAccIndex++ }
+        : acc
+    );
+
+    await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
   },
 ];
 
@@ -503,6 +531,22 @@ async function getPublicKeyAndHash(privateKey: string) {
 
 async function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
+}
+
+async function createLedgerSigner(
+  derivationPath: string,
+  publicKey?: string,
+  publicKeyHash?: string
+) {
+  const transport = await LedgerWebAuthnTransport.create();
+  return new ThanosLedgerSigner(
+    transport,
+    derivationPath,
+    true,
+    DerivationType.tz1,
+    publicKey,
+    publicKeyHash
+  );
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
@@ -552,5 +596,3 @@ async function withError<T>(
     throw err instanceof PublicError ? err : new Error(errMessage);
   }
 }
-
-class PublicError extends Error {}

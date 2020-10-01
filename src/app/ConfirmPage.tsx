@@ -26,10 +26,12 @@ import FormField from "app/atoms/FormField";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import Money from "app/atoms/Money";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
@@ -121,98 +123,6 @@ const ConfirmDAppForm: React.FC = () => {
     [payload, allAccounts, accountPkhToConnect]
   );
 
-  const content = React.useMemo(() => {
-    switch (payload.type) {
-      case "connect":
-        return {
-          title: t("confirmAction", t("connection").toLowerCase()),
-          declineActionTitle: t("cancel"),
-          confirmActionTitle: t("connect"),
-          want: (
-            <T
-              name="appWouldLikeToConnectToYourWallet"
-              substitutions={[
-                <React.Fragment key="appName">
-                  <span className="font-semibold">{payload.origin}</span>
-                  <br />
-                </React.Fragment>,
-              ]}
-            >
-              {(message) => (
-                <p className="mb-2 text-sm text-center text-gray-700">
-                  {message}
-                </p>
-              )}
-            </T>
-          ),
-        };
-
-      case "confirm_operations":
-        return {
-          title: t("confirmAction", t("operations").toLowerCase()),
-          declineActionTitle: t("reject"),
-          confirmActionTitle: t("confirm"),
-          want: (
-            <div
-              className={classNames(
-                "mb-2 text-sm text-center text-gray-700",
-                "flex flex-col items-center"
-              )}
-            >
-              <div className="flex items-center justify-center">
-                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
-                <Name className="font-semibold" style={{ maxWidth: "10rem" }}>
-                  {payload.appMeta.name}
-                </Name>
-              </div>
-              <T
-                name="appRequestOperationToYou"
-                substitutions={[
-                  <Name className="max-w-full text-xs italic" key="origin">
-                    {payload.origin}
-                  </Name>,
-                ]}
-              >
-                {(message) => <>{message}</>}
-              </T>
-            </div>
-          ),
-        };
-
-      case "sign":
-        return {
-          title: t("confirmAction", t("signAction").toLowerCase()),
-          declineActionTitle: t("reject"),
-          confirmActionTitle: t("signAction"),
-          want: (
-            <div
-              className={classNames(
-                "mb-2 text-sm text-center text-gray-700",
-                "flex flex-col items-center"
-              )}
-            >
-              <div className="flex items-center justify-center">
-                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
-                <Name className="font-semibold" style={{ maxWidth: "10rem" }}>
-                  {payload.appMeta.name}
-                </Name>
-              </div>
-              <T
-                name="appRequestsToSign"
-                substitutions={[
-                  <Name className="max-w-full text-xs italic" key="origin">
-                    {payload.origin}
-                  </Name>,
-                ]}
-              >
-                {(message) => <>{message}</>}
-              </T>
-            </div>
-          ),
-        };
-    }
-  }, [payload.type, payload.origin, payload.appMeta.name]);
-
   const AccountOptionContent = React.useMemo(
     () => AccountOptionContentHOC(payload.networkRpc),
     [payload.networkRpc]
@@ -275,7 +185,103 @@ const ConfirmDAppForm: React.FC = () => {
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
+  const handleErrorAlertClose = React.useCallback(() => setError(null), [
+    setError,
+  ]);
+
   const [spFormat, setSpFormat] = React.useState(SIGN_PAYLOAD_FORMATS[0]);
+
+  const content = React.useMemo(() => {
+    switch (payload.type) {
+      case "connect":
+        return {
+          title: t("confirmAction", t("connection").toLowerCase()),
+          declineActionTitle: t("cancel"),
+          confirmActionTitle: t(error ? "retry" : "connect"),
+          want: (
+            <T
+              name="appWouldLikeToConnectToYourWallet"
+              substitutions={[
+                <React.Fragment key="appName">
+                  <span className="font-semibold">{payload.origin}</span>
+                  <br />
+                </React.Fragment>,
+              ]}
+            >
+              {(message) => (
+                <p className="mb-2 text-sm text-center text-gray-700">
+                  {message}
+                </p>
+              )}
+            </T>
+          ),
+        };
+
+      case "confirm_operations":
+        return {
+          title: t("confirmAction", t("operations").toLowerCase()),
+          declineActionTitle: t("reject"),
+          confirmActionTitle: t(error ? "retry" : "confirm"),
+          want: (
+            <div
+              className={classNames(
+                "mb-2 text-sm text-center text-gray-700",
+                "flex flex-col items-center"
+              )}
+            >
+              <div className="flex items-center justify-center">
+                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <Name className="font-semibold" style={{ maxWidth: "10rem" }}>
+                  {payload.appMeta.name}
+                </Name>
+              </div>
+              <T
+                name="appRequestOperationToYou"
+                substitutions={[
+                  <Name className="max-w-full text-xs italic" key="origin">
+                    {payload.origin}
+                  </Name>,
+                ]}
+              >
+                {(message) => <>{message}</>}
+              </T>
+            </div>
+          ),
+        };
+
+      case "sign":
+        return {
+          title: t("confirmAction", t("signAction").toLowerCase()),
+          declineActionTitle: t("reject"),
+          confirmActionTitle: t("signAction"),
+          want: (
+            <div
+              className={classNames(
+                "mb-2 text-sm text-center text-gray-700",
+                "flex flex-col items-center"
+              )}
+            >
+              <div className="flex items-center justify-center">
+                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <Name className="font-semibold" style={{ maxWidth: "10rem" }}>
+                  {payload.appMeta.name}
+                </Name>
+              </div>
+              <T
+                name="appRequestsToSign"
+                substitutions={[
+                  <Name className="max-w-full text-xs italic" key="origin">
+                    {payload.origin}
+                  </Name>,
+                ]}
+              >
+                {(message) => <>{message}</>}
+              </T>
+            </div>
+          ),
+        };
+    }
+  }, [payload.type, payload.origin, payload.appMeta.name, error]);
 
   return (
     <div
@@ -334,186 +340,194 @@ const ConfirmDAppForm: React.FC = () => {
           </T>
         )}
 
-        {payload.type !== "connect" && connectedAccount && (
-          <AccountBanner
-            account={connectedAccount}
-            networkRpc={payload.networkRpc}
-            labelIndent="sm"
-            className="w-full mb-4"
+        {error ? (
+          <Alert
+            closable
+            onClose={handleErrorAlertClose}
+            type="error"
+            title="Error"
+            description={error?.message ?? "Something went wrong"}
+            className="my-4"
+            autoFocus
           />
-        )}
+        ) : (
+          <>
+            {payload.type !== "connect" && connectedAccount && (
+              <AccountBanner
+                account={connectedAccount}
+                networkRpc={payload.networkRpc}
+                labelIndent="sm"
+                className="w-full mb-4"
+              />
+            )}
 
-        <NetworkBanner
-          rpc={payload.networkRpc}
-          narrow={payload.type !== "confirm_operations"}
-        />
-
-        {payload.type === "confirm_operations" && (
-          <OperationsBanner opParams={payload.opParams} />
-        )}
-
-        {payload.type === "connect" && (
-          <div className={classNames("w-full", "mb-2", "flex flex-col")}>
-            <h2
-              className={classNames("mb-2", "leading-tight", "flex flex-col")}
-            >
-              <T name="account">
-                {(message) => (
-                  <span className="text-base font-semibold text-gray-700">
-                    {message}
-                  </span>
-                )}
-              </T>
-
-              <T name="toBeConnectedWithDApp">
-                {(message) => (
-                  <span
-                    className={classNames(
-                      "mt-px",
-                      "text-xs font-light text-gray-600"
-                    )}
-                    style={{ maxWidth: "90%" }}
-                  >
-                    {message}
-                  </span>
-                )}
-              </T>
-            </h2>
-
-            <CustomSelect<ThanosAccount, string>
-              activeItemId={accountPkhToConnect}
-              getItemId={getPkh}
-              items={allAccounts}
-              maxHeight="8rem"
-              onSelect={setAccountPkhToConnect}
-              OptionIcon={AccountIcon}
-              OptionContent={AccountOptionContent}
-              autoFocus
+            <NetworkBanner
+              rpc={payload.networkRpc}
+              narrow={payload.type !== "confirm_operations"}
             />
-          </div>
-        )}
 
-        {payload.type === "sign" &&
-          (() => {
-            if (payload.preview) {
-              return (
-                <div className="flex flex-col w-full">
-                  <h2
-                    className={classNames(
-                      "mb-4",
-                      "leading-tight",
-                      "flex items-center"
+            {payload.type === "confirm_operations" && (
+              <OperationsBanner opParams={payload.opParams} />
+            )}
+
+            {payload.type === "connect" && (
+              <div className={classNames("w-full", "mb-2", "flex flex-col")}>
+                <h2
+                  className={classNames(
+                    "mb-2",
+                    "leading-tight",
+                    "flex flex-col"
+                  )}
+                >
+                  <span className="text-base font-semibold text-gray-700">
+                    Account
+                  </span>
+
+                  <T name="toBeConnectedWithDApp">
+                    {(message) => (
+                      <span
+                        className={classNames(
+                          "mt-px",
+                          "text-xs font-light text-gray-600"
+                        )}
+                        style={{ maxWidth: "90%" }}
+                      >
+                        {message}
+                      </span>
                     )}
-                  >
-                    <T name="payloadToSign">
-                      {(message) => (
-                        <span className="mr-2 text-base font-semibold text-gray-700">
-                          {message}
+                  </T>
+                </h2>
+
+                <CustomSelect<ThanosAccount, string>
+                  activeItemId={accountPkhToConnect}
+                  getItemId={getPkh}
+                  items={allAccounts}
+                  maxHeight="8rem"
+                  onSelect={setAccountPkhToConnect}
+                  OptionIcon={AccountIcon}
+                  OptionContent={AccountOptionContent}
+                  autoFocus
+                />
+              </div>
+            )}
+
+            {payload.type === "sign" &&
+              (() => {
+                if (payload.preview) {
+                  return (
+                    <div className="flex flex-col w-full">
+                      <h2
+                        className={classNames(
+                          "mb-4",
+                          "leading-tight",
+                          "flex items-center"
+                        )}
+                      >
+                        <span
+                          className={classNames(
+                            "mr-2",
+                            "text-base font-semibold text-gray-700"
+                          )}
+                        >
+                          Payload to sign
                         </span>
-                      )}
-                    </T>
 
-                    <div className="flex-1" />
+                        <div className="flex-1" />
 
-                    <div className={classNames("flex items-center")}>
-                      {SIGN_PAYLOAD_FORMATS.map((spf, i, arr) => {
-                        const first = i === 0;
-                        const last = i === arr.length - 1;
-                        const selected = spFormat.key === spf.key;
-                        const handleClick = () => setSpFormat(spf);
+                        <div className={classNames("flex items-center")}>
+                          {SIGN_PAYLOAD_FORMATS.map((spf, i, arr) => {
+                            const first = i === 0;
+                            const last = i === arr.length - 1;
+                            const selected = spFormat.key === spf.key;
+                            const handleClick = () => setSpFormat(spf);
 
-                        return (
-                          <button
-                            key={spf.key}
-                            className={classNames(
-                              (() => {
-                                switch (true) {
-                                  case first:
-                                    return classNames(
-                                      "rounded rounded-r-none",
-                                      "border"
-                                    );
+                            return (
+                              <button
+                                key={spf.key}
+                                className={classNames(
+                                  (() => {
+                                    switch (true) {
+                                      case first:
+                                        return classNames(
+                                          "rounded rounded-r-none",
+                                          "border"
+                                        );
 
-                                  case last:
-                                    return classNames(
-                                      "rounded rounded-l-none",
-                                      "border border-l-0"
-                                    );
+                                      case last:
+                                        return classNames(
+                                          "rounded rounded-l-none",
+                                          "border border-l-0"
+                                        );
 
-                                  default:
-                                    return "border border-l-0";
-                                }
-                              })(),
-                              selected && "bg-gray-100",
-                              "px-2 py-1",
-                              "text-xs text-gray-600",
-                              "flex items-center"
-                            )}
-                            onClick={handleClick}
-                          >
-                            <spf.Icon
-                              className={classNames(
-                                "h-4 w-auto mr-1",
-                                "stroke-current"
-                              )}
-                            />
-                            {spf.name}
-                          </button>
-                        );
-                      })}
+                                      default:
+                                        return "border border-l-0";
+                                    }
+                                  })(),
+                                  selected && "bg-gray-100",
+                                  "px-2 py-1",
+                                  "text-xs text-gray-600",
+                                  "flex items-center"
+                                )}
+                                onClick={handleClick}
+                              >
+                                <spf.Icon
+                                  className={classNames(
+                                    "h-4 w-auto mr-1",
+                                    "stroke-current"
+                                  )}
+                                />
+                                {spf.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </h2>
+
+                      <OperationsBanner
+                        opParams={payload.preview}
+                        label={null}
+                        className={classNames(
+                          spFormat.key !== "preview" && "hidden"
+                        )}
+                      />
+
+                      <FormField
+                        textarea
+                        rows={6}
+                        id="sign-payload"
+                        value={payload.payload}
+                        spellCheck={false}
+                        readOnly
+                        className={classNames(
+                          spFormat.key !== "raw" && "hidden"
+                        )}
+                        style={{
+                          resize: "none",
+                        }}
+                      />
                     </div>
-                  </h2>
+                  );
+                }
 
-                  <OperationsBanner
-                    opParams={payload.preview}
-                    label={null}
-                    className={classNames(
-                      spFormat.key !== "preview" && "hidden"
-                    )}
-                  />
-
+                return (
                   <FormField
                     textarea
                     rows={6}
                     id="sign-payload"
+                    label={t("payloadToSign")}
                     value={payload.payload}
                     spellCheck={false}
                     readOnly
-                    className={classNames(spFormat.key !== "raw" && "hidden")}
+                    className="mb-2"
                     style={{
                       resize: "none",
                     }}
                   />
-                </div>
-              );
-            }
-
-            return (
-              <FormField
-                textarea
-                rows={6}
-                id="sign-payload"
-                label={t("payloadToSign")}
-                value={payload.payload}
-                spellCheck={false}
-                readOnly
-                className="mb-2"
-                style={{
-                  resize: "none",
-                }}
-              />
-            );
-          })()}
+                );
+              })()}
+          </>
+        )}
       </div>
-
-      {error && (
-        <Alert
-          type="error"
-          title={t("error")}
-          description={error?.message ?? t("smthWentWrong")}
-          className="mb-6"
-        />
-      )}
 
       <div className="flex-1" />
 
@@ -547,6 +561,10 @@ const ConfirmDAppForm: React.FC = () => {
           </FormSubmitButton>
         </div>
       </div>
+
+      <ConfirmLedgerOverlay
+        displayed={confirming && account.type === ThanosAccountType.Ledger}
+      />
     </div>
   );
 };
@@ -565,26 +583,7 @@ const AccountOptionContentHOC = (networkRpc: string) => {
     <>
       <div className="flex flex-wrap items-center">
         <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
-
-        {acc.type === ThanosAccountType.Imported && (
-          <T name="importedAccount">
-            {(message) => (
-              <span
-                className={classNames(
-                  "ml-2",
-                  "rounded-sm",
-                  "border border-black border-opacity-25",
-                  "px-1 py-px",
-                  "leading-tight",
-                  "text-black text-opacity-50"
-                )}
-                style={{ fontSize: "0.6rem" }}
-              >
-                {message}
-              </span>
-            )}
-          </T>
-        )}
+        <AccountTypeBadge account={acc} />
       </div>
 
       <div className="flex flex-wrap items-center mt-1">
