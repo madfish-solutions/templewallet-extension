@@ -14,7 +14,7 @@ import InUSD from "app/templates/InUSD";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Money from "app/atoms/Money";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
-import Balance from "./Balance";
+import Balance from "app/templates/Balance";
 
 type AssetSelectProps = {
   value: ThanosAsset;

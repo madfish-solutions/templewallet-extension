@@ -29,10 +29,6 @@ export const T = React.memo<TProps>(({ name, substitutions, children }) => {
     </>
   );
 
-  if (process.env.NODE_ENV === "development" && !t(name)) {
-    console.error(`could not find translation for key ${name}`);
-  }
-
   return children ? children(message) : <>{message}</>;
 });
 
