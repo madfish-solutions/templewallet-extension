@@ -6,7 +6,7 @@ import {
   useThanosClient,
 } from "lib/thanos/front";
 import { t, T } from "lib/ui/i18n";
-import { ThanosDAppSession } from "lib/thanos/types";
+import { ThanosDAppSession, ThanosDAppSessions } from "lib/thanos/types";
 import { useRetryableSWR } from "lib/swr";
 import DAppLogo from "app/templates/DAppLogo";
 import FormCheckbox from "app/atoms/FormCheckbox";
@@ -28,14 +28,16 @@ const DAppSettings: React.FC = () => {
     true
   );
   const { getAllDAppSessions, removeDAppSession } = useThanosClient();
-  const { data, revalidate } = useRetryableSWR<
-    Record<string, ThanosDAppSession>
-  >(["getAllDAppSessions"], getAllDAppSessions, {
-    suspense: true,
-    shouldRetryOnError: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const { data, revalidate } = useRetryableSWR<ThanosDAppSessions>(
+    ["getAllDAppSessions"],
+    getAllDAppSessions,
+    {
+      suspense: true,
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
   const dAppSessions = data!;
 
   const changingRef = React.useRef(false);

@@ -155,7 +155,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
               textarea
               rows={4}
               ref={register({
-                required: "Required",
+                required: t("required"),
                 validate: (val) =>
                   validateMnemonic(formatMnemonic(val)) ||
                   MNEMONIC_ERROR_CAPTION,

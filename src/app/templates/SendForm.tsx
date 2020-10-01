@@ -7,7 +7,6 @@ import { DEFAULT_FEE, TransactionWalletOperation } from "@taquito/taquito";
 import {
   ThanosAsset,
   XTZ_ASSET,
-  ThanosAccountType,
   useAllAccounts,
   useAccount,
   useTezos,
@@ -42,6 +41,7 @@ import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import AdditionalFeeInput from "./AdditionalFeeInput";
 
@@ -305,12 +305,12 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const validateAmount = React.useCallback(
     (v: number) => {
-      if (!v) return "Required";
+      if (!v) return t("required");
       if (!maxAmountNum) return true;
       const vBN = new BigNumber(v);
       return (
         vBN.isLessThanOrEqualTo(maxAmountNum) ||
-        `Maximal: ${maxAmountNum.toString()}`
+        t("maximalAmount", maxAmountNum.toString())
       );
     },
     [maxAmountNum]
@@ -642,25 +642,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                             {acc.name}
                           </Name>
 
-                          {acc.type === ThanosAccountType.Imported && (
-                            <T name="importedAccount">
-                              {(message) => (
-                                <span
-                                  className={classNames(
-                                    "ml-2",
-                                    "rounded-sm",
-                                    "border border-black border-opacity-25",
-                                    "px-1 py-px",
-                                    "leading-tight",
-                                    "text-black text-opacity-50"
-                                  )}
-                                  style={{ fontSize: "0.6rem" }}
-                                >
-                                  {message}
-                                </span>
-                              )}
-                            </T>
-                          )}
+                          <AccountTypeBadge account={acc} />
                         </div>
 
                         <div className="flex flex-wrap items-center mt-1">

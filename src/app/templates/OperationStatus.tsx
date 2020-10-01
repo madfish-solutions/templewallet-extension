@@ -46,7 +46,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     title: `${t("success")} 🛫`,
     description: (
       <>
-        <T name="activationRequestSent" substitutions={typeTitle}>
+        <T name="requestSent" substitutions={typeTitle}>
           {(message) => <>{message}</>}
         </T>
         {descFooter}
@@ -60,7 +60,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
       .then(() => {
         setAlert((a) => ({
           ...a,
-          title: "Success ✅",
+          title: `${t("success")} ✅`,
           description: (
             <>
               <T
@@ -77,7 +77,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
       .catch(() => {
         setAlert({
           type: "error",
-          title: "Error",
+          title: t("error"),
           description: t("timedOutOperationConfirmation"),
         });
       });

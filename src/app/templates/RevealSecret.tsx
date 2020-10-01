@@ -2,7 +2,11 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { T, t } from "lib/ui/i18n";
-import { useThanosClient, useAccount } from "lib/thanos/front";
+import {
+  useThanosClient,
+  useAccount,
+  ThanosAccountType,
+} from "lib/thanos/front";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -236,13 +240,49 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     }
   }, [reveal, account]);
 
-  return (
-    <div className="w-full max-w-sm p-2 mx-auto">
-      {texts.accountBanner}
+  const forbidPrivateKeyRevealing =
+    account.type === ThanosAccountType.Ledger && reveal === "private-key";
 
-      {texts.derivationPathBanner}
+  const mainContent = React.useMemo(() => {
+    if (forbidPrivateKeyRevealing) {
+      return (
+        <Alert
+          title={t("privateKeyCannotBeRevealed")}
+          description={
+            <T
+              name="youCannotGetPrivateKeyFromLedgerAccounts"
+              substitutions={[
+                <T name="ledger">
+                  {(message) => (
+                    <span
+                      className={classNames(
+                        "rounded-sm",
+                        "border",
+                        "px-1 py-px",
+                        "font-normal leading-tight"
+                      )}
+                      key="ledger"
+                      style={{
+                        fontSize: "0.75em",
+                        borderColor: "currentColor",
+                      }}
+                    >
+                      {message}
+                    </span>
+                  )}
+                </T>,
+              ]}
+            >
+              {(message) => <p>{message}</p>}
+            </T>
+          }
+          className="my-4"
+        />
+      );
+    }
 
-      {secret ? (
+    if (secret) {
+      return (
         <>
           <FormField
             ref={secretFieldRef}
@@ -265,32 +305,51 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
             className="my-4"
           />
         </>
-      ) : (
-        <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-          <FormField
-            ref={register({ required: "Required" })}
-            label={t("password")}
-            labelDescription={t(
-              "revealSecretPasswordInputDescription",
-              texts.name
-            )}
-            id="reveal-secret-password"
-            type="password"
-            name="password"
-            placeholder="********"
-            errorCaption={errors.password?.message}
-            containerClassName="mb-4"
-          />
+      );
+    }
 
-          <T name="reveal">
-            {(message) => (
-              <FormSubmitButton loading={submitting}>
-                {message}
-              </FormSubmitButton>
-            )}
-          </T>
-        </form>
-      )}
+    return (
+      <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+        <FormField
+          ref={register({ required: t("required") })}
+          label={t("password")}
+          labelDescription={t(
+            "revealSecretPasswordInputDescription",
+            texts.name
+          )}
+          id="reveal-secret-password"
+          type="password"
+          name="password"
+          placeholder="********"
+          errorCaption={errors.password?.message}
+          containerClassName="mb-4"
+        />
+
+        <T name="reveal">
+          {(message) => (
+            <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
+          )}
+        </T>
+      </form>
+    );
+  }, [
+    forbidPrivateKeyRevealing,
+    errors,
+    handleSubmit,
+    onSubmit,
+    register,
+    secret,
+    texts,
+    submitting,
+  ]);
+
+  return (
+    <div className="w-full max-w-sm p-2 mx-auto">
+      {texts.accountBanner}
+
+      {texts.derivationPathBanner}
+
+      {mainContent}
     </div>
   );
 };
