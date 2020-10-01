@@ -85,9 +85,27 @@ const RemoveAccount: React.FC = () => {
           title={t("cannotBeRemoved")}
           description={
             <T
-              name="onlyImportedAccountsCanBeRemoved"
+              name="accountsToRemoveConstraint"
               substitutions={[
                 <T key="imported" name="importedPlural">
+                  {(message) => (
+                    <span
+                      className={classNames(
+                        "rounded-sm",
+                        "border",
+                        "px-1 py-px",
+                        "font-normal leading-tight"
+                      )}
+                      style={{
+                        fontSize: "0.75em",
+                        borderColor: "currentColor",
+                      }}
+                    >
+                      {message}
+                    </span>
+                  )}
+                </T>,
+                <T key="ledger" name="ledger">
                   {(message) => (
                     <span
                       className={classNames(
@@ -115,7 +133,7 @@ const RemoveAccount: React.FC = () => {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormField
-            ref={register({ required: "Required" })}
+            ref={register({ required: t("required") })}
             label={t("password")}
             labelDescription={t("enterPasswordToRemoveAccount")}
             id="removeacc-secret-password"
