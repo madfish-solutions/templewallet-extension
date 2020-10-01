@@ -495,7 +495,7 @@
   "unexpectedOrInvalidFile": {
     "message": "Unexpected or invalid file"
   },
-  "activationRequestSent": {
+  "requestSent": {
     "message": "$type$ request sent! Confirming...",
     "placeholders": {
       "type": {
@@ -946,8 +946,8 @@
   "cannotBeRemoved": {
     "message": "Cannot be removed"
   },
-  "onlyImportedAccountsCanBeRemoved": {
-    "message": "Only %importedPlural% accounts can be removed."
+  "accountsToRemoveConstraint": {
+    "message": "Only %importedPlural% or %ledger% accounts can be removed."
   },
   "importedPlural": {
     "message": "imported"
@@ -1201,5 +1201,22 @@
   },
   "retry": {
     "message": "Retry"
+  },
+  "ledger": {
+    "message": "Ledger"
+  },
+  "privateKeyCannotBeRevealed": {
+    "message": "Private key cannot be revealed"
+  },
+  "youCannotGetPrivateKeyFromLedgerAccounts": {
+    "message": "You cannot get private key from %ledger% accounts."
+  },
+  "maximalAmount": {
+    "message": "Maximal: $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
   }
 }
