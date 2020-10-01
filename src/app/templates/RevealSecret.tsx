@@ -247,23 +247,34 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     if (forbidPrivateKeyRevealing) {
       return (
         <Alert
-          title="Private key cannot be revealed"
+          title={t("privateKeyCannotBeRevealed")}
           description={
-            <p>
-              You cannot get private key from{" "}
-              <span
-                className={classNames(
-                  "rounded-sm",
-                  "border",
-                  "px-1 py-px",
-                  "font-normal leading-tight"
-                )}
-                style={{ fontSize: "0.75em", borderColor: "currentColor" }}
-              >
-                Ledger
-              </span>{" "}
-              accounts.
-            </p>
+            <T
+              name="youCannotGetPrivateKeyFromLedgerAccounts"
+              substitutions={[
+                <T name="ledger">
+                  {(message) => (
+                    <span
+                      className={classNames(
+                        "rounded-sm",
+                        "border",
+                        "px-1 py-px",
+                        "font-normal leading-tight"
+                      )}
+                      key="ledger"
+                      style={{
+                        fontSize: "0.75em",
+                        borderColor: "currentColor",
+                      }}
+                    >
+                      {message}
+                    </span>
+                  )}
+                </T>,
+              ]}
+            >
+              {(message) => <p>{message}</p>}
+            </T>
           }
           className="my-4"
         />

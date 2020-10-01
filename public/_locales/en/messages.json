@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Thanos Wallet"
+  },
   "showIncomingTransactions": {
     "message": "Show Incoming Transactions"
   },
@@ -311,7 +314,7 @@
   "unexpectedOrInvalidFile": {
     "message": "Unexpected or invalid file"
   },
-  "activationRequestSent": {
+  "requestSent": {
     "message": "$type$ request sent! Confirming...",
     "placeholders": {
       "type": {
@@ -1034,5 +1037,22 @@
   },
   "ledger": {
     "message": "Ledger"
+  },
+  "retry": {
+    "message": "Retry"
+  },
+  "privateKeyCannotBeRevealed": {
+    "message": "Private key cannot be revealed"
+  },
+  "youCannotGetPrivateKeyFromLedgerAccounts": {
+    "message": "You cannot get private key from %ledger% accounts."
+  },
+  "maximalAmount": {
+    "message": "Maximal: $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
   }
 }
