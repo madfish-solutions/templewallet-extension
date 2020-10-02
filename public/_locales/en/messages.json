@@ -1054,5 +1054,11 @@
         "content": "$1"
       }
     }
+  },
+  "backtracked": {
+    "message": "backtracked"
+  },
+  "skipped": {
+    "message": "skipped"
   }
 }
