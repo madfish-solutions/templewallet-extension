@@ -26,7 +26,7 @@ export const NETWORKS: ThanosNetwork[] = [
     type: "test",
     rpcBaseURL: "https://dalphanet-tezos.giganode.io",
     color: "#ed6663",
-    disabled: false,
+    disabled: true,
   },
   {
     id: "sandbox",
