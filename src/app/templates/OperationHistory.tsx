@@ -15,13 +15,20 @@ import {
   useOnStorageChanged,
   mutezToTz,
 } from "lib/thanos/front";
+import useTippy from "lib/ui/useTippy";
 import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
 import HashChip from "app/atoms/HashChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
+import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
+const TZKT_BASE_URLS = new Map([
+  ["NetXdQprcVkpaWU", "https://tzkt.io"],
+  ["NetXjD3HPJJjmcd", "https://carthage.tzkt.io"],
+  ["NetXyQaSHznzV1r", "https://delphi.tzkt.io"],
+]);
 
 interface OperationPreview {
   hash: string;
@@ -155,6 +162,10 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   }, [removePndOps, accountPkh, chainId, nonUniqueOps]);
 
   const withExplorer = Boolean(tzStatsNetwork);
+  const explorerBaseUrl = React.useMemo(
+    () => TZKT_BASE_URLS.get(chainId) ?? null,
+    [chainId]
+  );
 
   return (
     <div
@@ -184,6 +195,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
           key={opKey(op)}
           accountPkh={accountPkh}
           withExplorer={withExplorer}
+          explorerBaseUrl={explorerBaseUrl}
           {...op}
         />
       ))}
@@ -196,12 +208,14 @@ export default OperationHistory;
 type OperationProps = OperationPreview & {
   accountPkh: string;
   withExplorer: boolean;
+  explorerBaseUrl: string | null;
 };
 
 const Operation = React.memo<OperationProps>(
   ({
     accountPkh,
     withExplorer,
+    explorerBaseUrl,
     hash,
     type,
     receiver,
@@ -252,6 +266,14 @@ const Operation = React.memo<OperationProps>(
                 small
                 className="mr-2"
               />
+
+              {explorerBaseUrl && (
+                <OpenInExplorerChip
+                  baseUrl={explorerBaseUrl}
+                  opHash={hash}
+                  className="mr-2"
+                />
+              )}
 
               <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
             </div>
@@ -348,10 +370,55 @@ const Operation = React.memo<OperationProps>(
         type,
         typeTx,
         volumeExists,
+        explorerBaseUrl,
       ]
     );
   }
 );
+
+type OpenInExplorerChipProps = {
+  baseUrl: string;
+  opHash: string;
+  className?: string;
+};
+
+const OpenInExplorerChip: React.FC<OpenInExplorerChipProps> = ({
+  baseUrl,
+  opHash,
+  className,
+}) => {
+  const tippyProps = React.useMemo(
+    () => ({
+      trigger: "mouseenter",
+      hideOnClick: false,
+      content: "View on block explorer",
+      animation: "shift-away-subtle",
+    }),
+    []
+  );
+
+  const ref = useTippy<HTMLAnchorElement>(tippyProps);
+
+  return (
+    <a
+      ref={ref}
+      href={`${baseUrl}/${opHash}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={classNames(
+        "bg-gray-100 hover:bg-gray-200",
+        "rounded-sm shadow-xs",
+        "text-xs p-1",
+        "text-gray-600 leading-none select-none",
+        "transition ease-in-out duration-300",
+        "flex items-center",
+        className
+      )}
+    >
+      <ArrowRightTopIcon className="w-auto h-3 stroke-current stroke-2" />
+    </a>
+  );
+};
 
 type TimeProps = {
   children: () => React.ReactElement;
