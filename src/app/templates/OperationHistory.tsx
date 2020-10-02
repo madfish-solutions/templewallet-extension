@@ -285,12 +285,29 @@ const Operation = React.memo<OperationProps>(
                 </span>
 
                 {(() => {
+                  const timeNode = (
+                    <Time
+                      children={() => (
+                        <span className="text-xs font-light text-gray-500">
+                          {formatDistanceToNow(new Date(time), {
+                            includeSeconds: true,
+                            addSuffix: true,
+                          })}
+                        </span>
+                      )}
+                    />
+                  );
+
                   switch (true) {
                     case failed:
                       return (
-                        <span className="text-xs font-light text-red-600">
-                          {status}
-                        </span>
+                        <div className="flex items-center">
+                          <span className="mr-1 text-xs font-light text-red-600">
+                            {status}
+                          </span>
+
+                          {timeNode}
+                        </div>
                       );
 
                     case pending:
@@ -301,25 +318,14 @@ const Operation = React.memo<OperationProps>(
                       );
 
                     default:
-                      return (
-                        <Time
-                          children={() => (
-                            <span className="text-xs font-light text-gray-500">
-                              {formatDistanceToNow(new Date(time), {
-                                includeSeconds: true,
-                                addSuffix: true,
-                              })}
-                            </span>
-                          )}
-                        />
-                      );
+                      return timeNode;
                   }
                 })()}
               </div>
 
               <div className="flex-1" />
 
-              {volumeExists && (
+              {volumeExists && !failed && (
                 <div className="flex flex-col items-end flex-shrink-0">
                   <div
                     className={classNames(
