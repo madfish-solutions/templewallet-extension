@@ -10,6 +10,12 @@ import {
   TZStatsMarketTicker,
 } from "lib/tzstats/types";
 
+export const TZSTATS_CHAINS = new Map([
+  ["NetXdQprcVkpaWU", TZStatsNetwork.Mainnet],
+  ["NetXjD3HPJJjmcd", TZStatsNetwork.Carthagenet],
+  ["NetXyQaSHznzV1r", TZStatsNetwork.Dalphanet],
+]);
+
 export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;
 
 export type Query<T> = (
