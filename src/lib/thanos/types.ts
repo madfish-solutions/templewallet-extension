@@ -3,7 +3,6 @@ import {
   ThanosDAppMetadata,
   ThanosDAppNetwork,
 } from "@thanos-wallet/dapp/dist/types";
-import { TZStatsNetwork } from "lib/tzstats";
 
 type NonEmptyArray<T> = [T, ...T[]];
 
@@ -73,7 +72,6 @@ export interface ThanosNetwork {
   description: string;
   type: ThanosNetworkType;
   rpcBaseURL: string;
-  tzStats: TZStatsNetwork | null;
   color: string;
   disabled: boolean;
 }

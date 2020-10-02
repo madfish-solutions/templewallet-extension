@@ -3,7 +3,7 @@ import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
-import { getAccountWithOperations } from "lib/tzstats";
+import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
 import { getDateFnsLocale, T } from "lib/ui/i18n";
 import {
@@ -42,38 +42,9 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
   const { getAllPndOps, removePndOps } = useThanosClient();
   const network = useNetwork();
 
-  const fetchOperations = React.useCallback(async () => {
-    try {
-      if (!network.tzStats) return [];
-
-      const { ops } = await getAccountWithOperations(network.tzStats, {
-        pkh: accountPkh,
-        order: "desc",
-        limit: 25,
-        offset: 0,
-      });
-      return ops;
-    } catch (err) {
-      if (err?.origin?.response?.status === 404) {
-        return [];
-      }
-
-      // Human delay
-      await new Promise((r) => setTimeout(r, 300));
-      throw err;
-    }
-  }, [network.tzStats, accountPkh]);
-
-  const { data } = useRetryableSWR(
-    ["operation-history", network.tzStats, accountPkh],
-    fetchOperations,
-    {
-      suspense: true,
-      refreshInterval: 15_000,
-      dedupingInterval: 10_000,
-    }
-  );
-  const operations = data!;
+  /**
+   * Pending operations
+   */
 
   const fetchPendingOperations = React.useCallback(async () => {
     const chainId = await loadChainId(network.rpcBaseURL);
@@ -97,11 +68,53 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
         type: op.kind,
         receiver: op.kind === "transaction" ? op.destination : "",
         volume: op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
-        status: "backtracked",
+        status: "pending",
         time: op.addedAt,
       })),
     [pndOps]
   );
+
+  /**
+   * Operation history from TZStats
+   */
+
+  const tzStatsNetwork = React.useMemo(
+    () => TZSTATS_CHAINS.get(chainId) ?? null,
+    [chainId]
+  );
+
+  const fetchOperations = React.useCallback(async () => {
+    try {
+      if (!tzStatsNetwork) return [];
+
+      const { ops } = await getAccountWithOperations(tzStatsNetwork, {
+        pkh: accountPkh,
+        order: "desc",
+        limit: 30,
+        offset: 0,
+      });
+      return ops;
+    } catch (err) {
+      if (err?.origin?.response?.status === 404) {
+        return [];
+      }
+
+      // Human delay
+      await new Promise((r) => setTimeout(r, 300));
+      throw err;
+    }
+  }, [tzStatsNetwork, accountPkh]);
+
+  const { data } = useRetryableSWR(
+    ["operation-history", tzStatsNetwork, accountPkh],
+    fetchOperations,
+    {
+      suspense: true,
+      refreshInterval: 15_000,
+      dedupingInterval: 10_000,
+    }
+  );
+  const operations = data!;
 
   const [uniqueOps, nonUniqueOps] = React.useMemo(() => {
     const unique: OperationPreview[] = [];
@@ -142,6 +155,8 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     }
   }, [removePndOps, accountPkh, chainId, nonUniqueOps]);
 
+  const withExplorer = Boolean(tzStatsNetwork);
+
   return (
     <div
       className={classNames("mt-8", "w-full max-w-md mx-auto", "flex flex-col")}
@@ -160,32 +175,18 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             className="text-sm font-light text-center"
             style={{ maxWidth: "20rem" }}
           >
-            {network.tzStats ? (
-              <T name="noOperationsFound">{(message) => <>{message}</>}</T>
-            ) : (
-              <T name="operationHistoryUnavailableForSandbox">
-                {(message) => {
-                  const [
-                    messagePart1,
-                    messagePart2,
-                  ] = (message as string).split("\n");
-
-                  return (
-                    <>
-                      {messagePart1}
-                      <br />
-                      {messagePart2}
-                    </>
-                  );
-                }}
-              </T>
-            )}
+            <T name="noOperationsFound">{(message) => <>{message}</>}</T>
           </h3>
         </div>
       )}
 
       {uniqueOps.map((op) => (
-        <Operation key={opKey(op)} accountPkh={accountPkh} {...op} />
+        <Operation
+          key={opKey(op)}
+          accountPkh={accountPkh}
+          withExplorer={withExplorer}
+          {...op}
+        />
       ))}
     </div>
   );
@@ -195,10 +196,21 @@ export default OperationHistory;
 
 type OperationProps = OperationPreview & {
   accountPkh: string;
+  withExplorer: boolean;
 };
 
 const Operation = React.memo<OperationProps>(
-  ({ accountPkh, hash, type, receiver, volume, status, time, parameters }) => {
+  ({
+    accountPkh,
+    withExplorer,
+    hash,
+    type,
+    receiver,
+    volume,
+    status,
+    time,
+    parameters,
+  }) => {
     const { allAssets } = useAssets();
 
     const token = React.useMemo(
@@ -222,7 +234,8 @@ const Operation = React.memo<OperationProps>(
     const volumeExists = finalVolume !== 0;
     const typeTx = type === "transaction";
     const imReceiver = finalReceiver === accountPkh;
-    const pending = status === "backtracked";
+    const pending = withExplorer && status === "pending";
+    const failed = ["failed", "backtracked", "skipped"].includes(status);
 
     return React.useMemo(
       () => (
@@ -250,27 +263,46 @@ const Operation = React.memo<OperationProps>(
                   {formatOperationType(type, imReceiver)}
                 </span>
 
-                {pending ? (
-                  <T name="pending">
-                    {(message) => (
-                      <span className="text-xs font-light text-yellow-600">
-                        {message}
-                      </span>
-                    )}
-                  </T>
-                ) : (
-                  <Time
-                    children={() => (
-                      <span className="text-xs font-light text-gray-500">
-                        {formatDistanceToNow(new Date(time), {
-                          includeSeconds: true,
-                          addSuffix: true,
-                          locale: getDateFnsLocale(),
-                        })}
-                      </span>
-                    )}
-                  />
-                )}
+                {(() => {
+                  switch (true) {
+                    case failed:
+                      return (
+                        <T name={status}>
+                          {(message) => (
+                            <span className="text-xs font-light text-red-600">
+                              {message}
+                            </span>
+                          )}
+                        </T>
+                      );
+
+                    case pending:
+                      return (
+                        <T name="pending">
+                          {(message) => (
+                            <span className="text-xs font-light text-yellow-600">
+                              {message}
+                            </span>
+                          )}
+                        </T>
+                      );
+
+                    default:
+                      return (
+                        <Time
+                          children={() => (
+                            <span className="text-xs font-light text-gray-500">
+                              {formatDistanceToNow(new Date(time), {
+                                includeSeconds: true,
+                                addSuffix: true,
+                                locale: getDateFnsLocale(),
+                              })}
+                            </span>
+                          )}
+                        />
+                      );
+                  }
+                })()}
               </div>
 
               <div className="flex-1" />
@@ -319,6 +351,8 @@ const Operation = React.memo<OperationProps>(
         finalVolume,
         imReceiver,
         pending,
+        failed,
+        status,
         time,
         token,
         type,

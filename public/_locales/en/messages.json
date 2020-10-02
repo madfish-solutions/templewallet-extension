@@ -252,7 +252,7 @@
     "message": "fetching or processing your delegation info"
   },
   "operationHistoryWhileMessage": {
-    "message": "fetching or processing operation history from TZStats"
+    "message": "fetching or processing operation history"
   },
   "privateKey": {
     "message": "Private Key"
