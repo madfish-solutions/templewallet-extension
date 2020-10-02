@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 import BigNumber from "bignumber.js";
-import { DEFAULT_FEE, TransactionWalletOperation } from "@taquito/taquito";
+import { DEFAULT_FEE } from "@taquito/taquito";
 import {
   ThanosAsset,
   XTZ_ASSET,
@@ -12,6 +12,7 @@ import {
   useTezos,
   useCurrentAsset,
   useBalance,
+  useDelegate,
   fetchBalance,
   toTransferParams,
   tzToMutez,
@@ -111,6 +112,8 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   );
   const xtzBalance = xtzBalanceData!;
   const xtzBalanceNum = xtzBalance.toNumber();
+
+  const { data: myBakerPkh } = useDelegate(accountPkh);
 
   /**
    * Form
@@ -289,13 +292,16 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
     return localAsset.type === ThanosAssetType.XTZ
       ? (() => {
-          const ma = new BigNumber(balanceNum)
+          let ma = new BigNumber(balanceNum)
             .minus(baseFee)
             .minus(safeFeeValue ?? 0);
+          if (myBakerPkh) {
+            ma = ma.minus(PENNY);
+          }
           return BigNumber.max(ma, 0);
         })()
       : new BigNumber(balanceNum);
-  }, [localAsset.type, balanceNum, baseFee, safeFeeValue]);
+  }, [localAsset.type, balanceNum, baseFee, safeFeeValue, myBakerPkh]);
 
   const maxAmountNum = React.useMemo(
     () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
@@ -345,7 +351,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       setOperation(null);
 
       try {
-        let transferParams = await toTransferParams(
+        const transferParams = await toTransferParams(
           tezos,
           localAsset,
           to,
@@ -354,28 +360,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         const estmtn = await tezos.estimate.transfer(transferParams);
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        let op: TransactionWalletOperation;
-        try {
-          transferParams = { ...transferParams, fee };
-          op = await tezos.wallet.transfer(transferParams as any).send();
-        } catch (err) {
-          if (
-            err?.errors?.some((e: any) =>
-              e?.id.includes("empty_implicit_delegated_contract")
-            )
-          ) {
-            transferParams = {
-              ...transferParams,
-              amount:
-                transferParams.amount &&
-                new BigNumber(transferParams.amount).minus(PENNY).toNumber(),
-            };
-            op = await tezos.wallet.transfer(transferParams as any).send();
-          } else {
-            throw err;
-          }
-        }
-
+        const op = await tezos.wallet
+          .transfer({ ...transferParams, fee } as any)
+          .send();
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
       } catch (err) {
