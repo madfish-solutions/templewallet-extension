@@ -25,6 +25,7 @@ import FormField from "app/atoms/FormField";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import Money from "app/atoms/Money";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -183,6 +184,10 @@ const ConfirmDAppForm: React.FC = () => {
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
+  const handleErrorAlertClose = React.useCallback(() => setError(null), [
+    setError,
+  ]);
+
   const [spFormat, setSpFormat] = React.useState(SIGN_PAYLOAD_FORMATS[0]);
 
   const content = React.useMemo(() => {
@@ -307,6 +312,8 @@ const ConfirmDAppForm: React.FC = () => {
 
         {error ? (
           <Alert
+            closable
+            onClose={handleErrorAlertClose}
             type="error"
             title="Error"
             description={error?.message ?? "Something went wrong"}
@@ -542,22 +549,7 @@ const AccountOptionContentHOC = (networkRpc: string) => {
     <>
       <div className="flex flex-wrap items-center">
         <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
-
-        {acc.type === ThanosAccountType.Imported && (
-          <span
-            className={classNames(
-              "ml-2",
-              "rounded-sm",
-              "border border-black border-opacity-25",
-              "px-1 py-px",
-              "leading-tight",
-              "text-black text-opacity-50"
-            )}
-            style={{ fontSize: "0.6rem" }}
-          >
-            Imported
-          </span>
-        )}
+        <AccountTypeBadge account={acc} />
       </div>
 
       <div className="flex flex-wrap items-center mt-1">

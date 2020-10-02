@@ -2,7 +2,6 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import {
-  ThanosAccountType,
   useThanosClient,
   useAllAccounts,
   useAccount,
@@ -15,6 +14,7 @@ import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Money from "app/atoms/Money";
 import Balance from "app/templates/Balance";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
@@ -192,7 +192,10 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                 />
 
                 <div className="flex flex-col items-start ml-2">
-                  <Name className="text-sm font-medium leading-tight">
+                  <Name
+                    className="text-sm font-medium leading-none"
+                    style={{ paddingBottom: 3 }}
+                  >
                     {acc.name}
                   </Name>
 
@@ -211,21 +214,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                       )}
                     </Balance>
 
-                    {acc.type === ThanosAccountType.Imported && (
-                      <span
-                        className={classNames(
-                          "ml-2",
-                          "rounded-sm",
-                          "border border-white border-opacity-25",
-                          "px-1 py-px",
-                          "leading-tight",
-                          "text-white text-opacity-50"
-                        )}
-                        style={{ fontSize: "0.6rem" }}
-                      >
-                        Imported
-                      </span>
-                    )}
+                    <AccountTypeBadge account={acc} darkTheme />
                   </div>
                 </div>
               </button>

@@ -45,6 +45,7 @@ import {
   ThanosOperation,
   ThanosPendingOperation,
 } from "lib/thanos/types";
+import { TZSTATS_CHAINS } from "lib/tzstats";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 
@@ -185,7 +186,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             gasUsed,
             hash,
             type,
-            status,
+            status: status === "backtracked" ? "pending" : status,
             sender: sender.address,
             time: timestamp || new Date().toISOString(),
             isThanosPending: false as const,
@@ -243,6 +244,9 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       throw getOperationsError;
     }
   }, [getOperationsError]);
+  /**
+   * Pending operations
+   */
 
   const fetchPendingOperations = React.useCallback(async () => {
     const chainId = await loadChainId(network.rpcBaseURL);
@@ -266,8 +270,8 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
         type: op.kind,
         sender: accountPkh,
         receiver: op.kind === "transaction" ? op.destination : "",
-        amount: op.kind === "transaction" ? +op.amount : 0,
-        status: "backtracked",
+        amount: op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
+        status: "pending",
         time: op.addedAt,
       })),
     [pndOps, accountPkh]
@@ -312,6 +316,12 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     }
   }, [removePndOps, accountPkh, chainId, nonUniqueOps]);
 
+  const tzStatsNetwork = React.useMemo(
+    () => TZSTATS_CHAINS.get(chainId) ?? null,
+    [chainId]
+  );
+  const withExplorer = Boolean(tzStatsNetwork);
+
   return (
     <div
       className={classNames("mt-8", "w-full max-w-md mx-auto", "flex flex-col")}
@@ -330,21 +340,18 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             className="text-sm font-light text-center"
             style={{ maxWidth: "20rem" }}
           >
-            {network.tzStats ? (
-              "No operations found"
-            ) : (
-              <>
-                Operation history is not available
-                <br />
-                for local sandbox
-              </>
-            )}
+            No operations found
           </h3>
         </div>
       )}
 
       {uniqueOps.map((op) => (
-        <Operation key={opKey(op)} accountPkh={accountPkh} operation={op} />
+        <Operation
+          key={opKey(op)}
+          accountPkh={accountPkh}
+          withExplorer={withExplorer}
+          operation={op}
+        />
       ))}
 
       {!getOperationsError && (
@@ -430,147 +437,175 @@ function parseOperationsFetcherQueryKey(queryKey: string) {
 type OperationProps = {
   operation: ThanosOperation;
   accountPkh: string;
+  withExplorer: boolean;
 };
 
-const Operation = React.memo<OperationProps>(({ accountPkh, operation }) => {
-  const { hash, type, status, time } = operation;
-  const parameters = isTzktTransaction(operation)
-    ? operation.parameters
-    : undefined;
-  const contractAddress = isTokenTransaction(operation)
-    ? operation.contract
-    : undefined;
-  const receiver = hasReceiver(operation) ? operation.receiver : undefined;
-  const amount = (hasAmount(operation) && operation.amount) || 0;
-  const { allAssets } = useAssets();
+const Operation = React.memo<OperationProps>(
+  ({ accountPkh, operation, withExplorer }) => {
+    const { hash, type, status, time } = operation;
+    const parameters = isTzktTransaction(operation)
+      ? operation.parameters
+      : undefined;
+    const contractAddress = isTokenTransaction(operation)
+      ? operation.contract
+      : undefined;
+    const receiver = hasReceiver(operation) ? operation.receiver : undefined;
+    const amount = (hasAmount(operation) && operation.amount) || 0;
+    const { allAssets } = useAssets();
 
-  const token = useMemo(
-    () =>
-      (parameters &&
-        allAssets.find(
-          (a) => a.type !== ThanosAssetType.XTZ && a.address === contractAddress
-        )) ||
-      null,
-    [allAssets, parameters, contractAddress]
-  );
+    const token = useMemo(
+      () =>
+        (parameters &&
+          allAssets.find(
+            (a) =>
+              a.type !== ThanosAssetType.XTZ && a.address === contractAddress
+          )) ||
+        null,
+      [allAssets, parameters, contractAddress]
+    );
 
-  const tokenParsed = useMemo(
-    () =>
-      (parameters &&
-        (tryParseParameters(token, parameters) as ParsedTransferParameters)) ||
-      null,
-    [token, parameters]
-  );
+    const pending = withExplorer && status === "pending";
+    const failed = ["failed", "backtracked", "skipped"].includes(status);
 
-  const finalReceiver =
-    contractAddress && tokenParsed ? tokenParsed.receiver : receiver;
-  const finalVolume = tokenParsed
-    ? tokenParsed.volume
-    : contractAddress
-    ? amount
-    : mutezToTz(amount).toNumber();
+    const tokenParsed = useMemo(
+      () =>
+        (parameters &&
+          (tryParseParameters(
+            token,
+            parameters
+          ) as ParsedTransferParameters)) ||
+        null,
+      [token, parameters]
+    );
 
-  const volumeExists = finalVolume !== 0;
-  const typeTx = type === "transaction";
-  const imReceiver = finalReceiver === accountPkh;
-  const pending = status === "backtracked";
+    const finalReceiver =
+      contractAddress && tokenParsed ? tokenParsed.receiver : receiver;
+    const finalVolume = tokenParsed
+      ? tokenParsed.volume
+      : contractAddress
+      ? amount
+      : mutezToTz(amount).toNumber();
 
-  return useMemo(
-    () => (
-      <div className={classNames("my-3", "flex items-stretch")}>
-        <div className="mr-2">
-          <Identicon hash={hash} size={50} className="shadow-xs" />
-        </div>
+    const volumeExists = finalVolume !== 0;
+    const typeTx = type === "transaction";
+    const imReceiver = finalReceiver === accountPkh;
 
-        <div className="flex-1">
-          <div className="flex items-center">
-            <HashChip
-              hash={hash}
-              firstCharsCount={10}
-              lastCharsCount={7}
-              small
-              className="mr-2"
-            />
-
-            <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
+    return useMemo(
+      () => (
+        <div className={classNames("my-3", "flex items-stretch")}>
+          <div className="mr-2">
+            <Identicon hash={hash} size={50} className="shadow-xs" />
           </div>
 
-          <div className="flex items-stretch">
-            <div className="flex flex-col">
-              <span className="mt-1 text-xs text-blue-600 opacity-75">
-                {formatOperationType(type, imReceiver)}
-              </span>
+          <div className="flex-1">
+            <div className="flex items-center">
+              <HashChip
+                hash={hash}
+                firstCharsCount={10}
+                lastCharsCount={7}
+                small
+                className="mr-2"
+              />
 
-              {pending ? (
-                <span className="text-xs font-light text-yellow-600">
-                  pending...
-                </span>
-              ) : (
-                <Time
-                  children={() => (
-                    <span className="text-xs font-light text-gray-500">
-                      {formatDistanceToNow(new Date(time), {
-                        includeSeconds: true,
-                        addSuffix: true,
-                      })}
-                    </span>
-                  )}
-                />
-              )}
+              <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
             </div>
 
-            <div className="flex-1" />
+            <div className="flex items-stretch">
+              <div className="flex flex-col">
+                <span className="mt-1 text-xs text-blue-600 opacity-75">
+                  {formatOperationType(type, imReceiver)}
+                </span>
 
-            {volumeExists && (
-              <div className="flex flex-col items-end flex-shrink-0">
-                <div
-                  className={classNames(
-                    "text-sm",
-                    (() => {
-                      switch (true) {
-                        case pending:
-                          return "text-yellow-600";
+                {(() => {
+                  switch (true) {
+                    case failed:
+                      return (
+                        <span className="text-xs font-light text-red-600">
+                          {status}
+                        </span>
+                      );
 
-                        case typeTx:
-                          return imReceiver ? "text-green-500" : "text-red-700";
+                    case pending:
+                      return (
+                        <span className="text-xs font-light text-yellow-600">
+                          pending...
+                        </span>
+                      );
 
-                        default:
-                          return "text-gray-800";
-                      }
-                    })()
-                  )}
-                >
-                  {typeTx && (imReceiver ? "+" : "-")}
-                  <Money>{finalVolume}</Money> {token ? token.symbol : "ꜩ"}
-                </div>
-
-                <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
-                  {(usdVolume) => (
-                    <div className="text-xs text-gray-500">
-                      <span className="mr-px">$</span>
-                      {usdVolume}
-                    </div>
-                  )}
-                </InUSD>
+                    default:
+                      return (
+                        <Time
+                          children={() => (
+                            <span className="text-xs font-light text-gray-500">
+                              {formatDistanceToNow(new Date(time), {
+                                includeSeconds: true,
+                                addSuffix: true,
+                              })}
+                            </span>
+                          )}
+                        />
+                      );
+                  }
+                })()}
               </div>
-            )}
+
+              <div className="flex-1" />
+
+              {volumeExists && (
+                <div className="flex flex-col items-end flex-shrink-0">
+                  <div
+                    className={classNames(
+                      "text-sm",
+                      (() => {
+                        switch (true) {
+                          case pending:
+                            return "text-yellow-600";
+
+                          case typeTx:
+                            return imReceiver
+                              ? "text-green-500"
+                              : "text-red-700";
+
+                          default:
+                            return "text-gray-800";
+                        }
+                      })()
+                    )}
+                  >
+                    {typeTx && (imReceiver ? "+" : "-")}
+                    <Money>{finalVolume}</Money> {token ? token.symbol : "ꜩ"}
+                  </div>
+
+                  <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
+                    {(usdVolume) => (
+                      <div className="text-xs text-gray-500">
+                        <span className="mr-px">$</span>
+                        {usdVolume}
+                      </div>
+                    )}
+                  </InUSD>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    ),
-    [
-      hash,
-      finalVolume,
-      imReceiver,
-      pending,
-      time,
-      token,
-      type,
-      typeTx,
-      volumeExists,
-    ]
-  );
-});
+      ),
+      [
+        hash,
+        finalVolume,
+        imReceiver,
+        pending,
+        failed,
+        status,
+        time,
+        token,
+        type,
+        typeTx,
+        volumeExists,
+      ]
+    );
+  }
+);
 
 type TimeProps = {
   children: () => React.ReactElement;

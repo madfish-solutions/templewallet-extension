@@ -3,7 +3,6 @@ import {
   ThanosDAppMetadata,
   ThanosDAppNetwork,
 } from "@thanos-wallet/dapp/dist/types";
-import { TZStatsNetwork } from "lib/tzstats";
 import { BcdTokenTransfer } from "lib/better-call-dev";
 import {
   TzktOperation,
@@ -80,7 +79,6 @@ export interface ThanosNetwork {
   description: string;
   type: ThanosNetworkType;
   rpcBaseURL: string;
-  tzStats: TZStatsNetwork | null;
   color: string;
   disabled: boolean;
 }
@@ -149,6 +147,8 @@ export type RawThanosPendingOperation = OperationContentsAndResult & {
   hash: string;
   addedAt: string;
 };
+
+export type ThanosDAppSessions = Record<string, ThanosDAppSession>;
 
 /**
  * Internal confirmation payloads
@@ -624,7 +624,7 @@ export interface ThanosGetAllDAppSessionsRequest extends ThanosMessageBase {
 
 export interface ThanosGetAllDAppSessionsResponse extends ThanosMessageBase {
   type: ThanosMessageType.DAppGetAllSessionsResponse;
-  sessions: Record<string, ThanosDAppSession>;
+  sessions: ThanosDAppSessions;
 }
 
 export interface ThanosRemoveDAppSessionRequest extends ThanosMessageBase {
@@ -634,7 +634,7 @@ export interface ThanosRemoveDAppSessionRequest extends ThanosMessageBase {
 
 export interface ThanosRemoveDAppSessionResponse extends ThanosMessageBase {
   type: ThanosMessageType.DAppRemoveSessionResponse;
-  sessions: Record<string, ThanosDAppSession>;
+  sessions: ThanosDAppSessions;
 }
 
 interface ThanosOperationBase {
@@ -648,7 +648,7 @@ interface ThanosOperationBase {
 
 export interface ThanosPendingOperation extends ThanosOperationBase {
   amount: number;
-  status: "backtracked";
+  status: "pending";
   isThanosPending: true;
 }
 
