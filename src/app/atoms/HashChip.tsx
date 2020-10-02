@@ -55,7 +55,7 @@ const HashChip: React.FC<HashChipProps> = ({
           "bg-gray-100 hover:bg-gray-200",
           "rounded-sm shadow-xs",
           small ? "text-xs p-1" : "text-sm py-1 px-2",
-          "text-gray-600 leading-none select-none",
+          "font-tnum text-gray-600 leading-none select-none",
           "transition ease-in-out duration-300",
           className
         )}
