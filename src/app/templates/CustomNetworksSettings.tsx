@@ -144,7 +144,7 @@ const CustomNetworksSettings: React.FC = () => {
             style={{ maxWidth: "90%" }}
           >
             Click on the X icon to delete the network. If you want to edit
-            network, just delete it and add another with new params.
+            network, just delete it and add another with new parameters.
           </span>
         </h2>
 
