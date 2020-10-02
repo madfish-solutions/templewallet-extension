@@ -45,7 +45,6 @@ const CustomNetworksSettings: React.FC = () => {
               disabled: false,
               color: COLORS[Math.floor(Math.random() * COLORS.length)],
               id: data.rpcBaseURL,
-              tzStats: null,
             },
           ],
         });
