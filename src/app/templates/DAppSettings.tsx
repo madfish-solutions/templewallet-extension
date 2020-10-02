@@ -13,7 +13,6 @@ import FormCheckbox from "app/atoms/FormCheckbox";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import Name from "app/atoms/Name";
-import HashChip from "app/atoms/HashChip";
 
 type DAppEntry = [string, ThanosDAppSession];
 type DAppActions = {
@@ -62,7 +61,11 @@ const DAppSettings: React.FC = () => {
 
   const handleRemoveClick = React.useCallback(
     async (origin: string) => {
-      if (window.confirm("Are you sure you want to reset permissions?")) {
+      if (
+        window.confirm(
+          `Are you sure you want to reset permissions for\n${origin}?`
+        )
+      ) {
         await removeDAppSession(origin);
         revalidate();
       }
@@ -75,7 +78,7 @@ const DAppSettings: React.FC = () => {
   ]);
 
   return (
-    <div className="my-8 w-full mx-auto max-w-sm">
+    <div className="w-full max-w-sm mx-auto my-8">
       <h2
         className={classNames("w-full mb-4", "leading-tight", "flex flex-col")}
       >
@@ -142,7 +145,9 @@ export default DAppSettings;
 
 const DAppIcon: React.FC<OptionRenderProps<DAppEntry, string, DAppActions>> = (
   props
-) => <DAppLogo className="flex-none ml-2" origin={props.item[0]} size={20} />;
+) => (
+  <DAppLogo className="flex-none ml-2 mr-1" origin={props.item[0]} size={36} />
+);
 
 const DAppDescription: React.FC<OptionRenderProps<
   DAppEntry,
@@ -163,20 +168,36 @@ const DAppDescription: React.FC<OptionRenderProps<
     [onRemove, origin]
   );
 
+  const pkhPreviewNode = React.useMemo(() => {
+    const val = session.pkh;
+    const ln = val.length;
+    return (
+      <>
+        {val.slice(0, 7)}
+        <span className="opacity-75">...</span>
+        {val.slice(ln - 4, ln)}
+      </>
+    );
+  }, [session.pkh]);
+
   return (
-    <div className="w-full flex flex-1">
+    <div className="flex flex-1 w-full">
       <div className="flex flex-col justify-between flex-1">
-        <Name className="text-sm font-medium leading-tight text-left">
+        <Name className="mb-1 text-sm font-medium leading-tight text-left">
           {session.appMeta.name}
         </Name>
 
-        <div className="text-gray-600">Network: {session.network}</div>
+        <div className="text-xs font-light leading-tight text-gray-600">
+          Network:{" "}
+          <span className="font-normal capitalize">
+            {typeof session.network === "string"
+              ? session.network
+              : session.network.name}
+          </span>
+        </div>
 
-        <div
-          className="text-gray-600 overflow-hidden w-48 whitespace-no-wrap"
-          style={{ textOverflow: "ellipsis" }}
-        >
-          PKH: <HashChip hash={session.pkh} small />
+        <div className="text-xs font-light leading-tight text-gray-600">
+          Account: <span className="font-normal">{pkhPreviewNode}</span>
         </div>
       </div>
 
