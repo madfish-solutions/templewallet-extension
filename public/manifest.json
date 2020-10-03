@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Thanos Wallet",
-  "version": "1.0.0.16",
-  "__chrome__version_name": "1.0.0-beta.16",
+  "version": "1.0.0.17",
+  "__chrome__version_name": "1.0.0-beta.17",
 
   "icons": {
     "16": "misc/icon-16.png",
@@ -67,10 +67,12 @@
     "__chrome|opera__persistent": true
   },
 
-  "content_scripts": [{
-    "matches": ["http://*/*", "https://*/*"],
-    "js": ["scripts/contentScript.js"],
-    "run_at": "document_start",
-    "all_frames": true
-  }]
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["scripts/contentScript.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
 }
