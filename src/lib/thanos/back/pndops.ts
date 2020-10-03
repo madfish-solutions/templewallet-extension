@@ -56,7 +56,10 @@ export function fromOpResults(
   hash: string,
   addedAt = new Date().toString()
 ): ThanosPendingOperation[] {
-  return opResults.map((opResult) => ({ ...opResult, hash, addedAt }));
+  return opResults
+    .concat()
+    .reverse()
+    .map((opResult) => ({ ...opResult, hash, addedAt }));
 }
 
 export function getKey(accPkh: string, netId: string) {
