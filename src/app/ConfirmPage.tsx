@@ -7,6 +7,8 @@ import {
   useAllAccounts,
   ThanosAccountType,
   ThanosDAppPayload,
+  XTZ_ASSET,
+  ThanosAccount,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
@@ -17,15 +19,37 @@ import ContentContainer from "app/layouts/ContentContainer";
 import AccountBanner from "app/templates/AccountBanner";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
+import Balance from "app/templates/Balance";
+import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import FormField from "app/atoms/FormField";
 import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
+import Money from "app/atoms/Money";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
+import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
+import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import DAppLogo from "./templates/DAppLogo";
+
+const SIGN_PAYLOAD_FORMATS = [
+  {
+    key: "preview",
+    name: "Preview",
+    Icon: EyeIcon,
+  },
+  {
+    key: "raw",
+    name: "Raw",
+    Icon: CodeAltIcon,
+  },
+];
 
 const ConfirmPage: React.FC = () => {
   const { ready } = useThanosClient();
@@ -54,11 +78,14 @@ const ConfirmPage: React.FC = () => {
 
 export default ConfirmPage;
 
+const getPkh = (account: ThanosAccount) => account.publicKeyHash;
+
 const ConfirmDAppForm: React.FC = () => {
   const {
     getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
+    confirmDAppSign,
   } = useThanosClient();
   const allAccounts = useAllAccounts();
   const account = useAccount();
@@ -95,45 +122,10 @@ const ConfirmDAppForm: React.FC = () => {
     [payload, allAccounts, accountPkhToConnect]
   );
 
-  const content = React.useMemo(() => {
-    switch (payload.type) {
-      case "connect":
-        return {
-          title: "Confirm connection",
-          declineActionTitle: "Cancel",
-          confirmActionTitle: "Connect",
-          want: (
-            <p className="mb-2 text-sm text-gray-700 text-center">
-              <span className="font-semibold">{payload.origin}</span>
-              <br />
-              would like to connect to your wallet
-            </p>
-          ),
-        };
-
-      case "confirm_operations":
-        return {
-          title: "Confirm operations",
-          declineActionTitle: "Reject",
-          confirmActionTitle: "Confirm",
-          want: (
-            <div className="mb-2 text-sm text-gray-700 text-center">
-              <div className="flex items-center justify-center">
-                <Identicon
-                  hash={payload.origin}
-                  size={16}
-                  className="mr-1 shadow-xs"
-                />
-                <Name className="font-semibold" style={{ maxWidth: "7.5rem" }}>
-                  {payload.appMeta.name}
-                </Name>
-              </div>
-              requests operations to you
-            </div>
-          ),
-        };
-    }
-  }, [payload.type, payload.origin, payload.appMeta.name]);
+  const AccountOptionContent = React.useMemo(
+    () => AccountOptionContentHOC(payload.networkRpc),
+    [payload.networkRpc]
+  );
 
   const onConfirm = React.useCallback(
     async (confimed: boolean) => {
@@ -143,6 +135,9 @@ const ConfirmDAppForm: React.FC = () => {
 
         case "confirm_operations":
           return confirmDAppOperation(id, confimed);
+
+        case "sign":
+          return confirmDAppSign(id, confimed);
       }
     },
     [
@@ -150,6 +145,7 @@ const ConfirmDAppForm: React.FC = () => {
       payload.type,
       confirmDAppPermission,
       confirmDAppOperation,
+      confirmDAppSign,
       accountPkhToConnect,
     ]
   );
@@ -187,6 +183,82 @@ const ConfirmDAppForm: React.FC = () => {
     await confirm(false);
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
+
+  const handleErrorAlertClose = React.useCallback(() => setError(null), [
+    setError,
+  ]);
+
+  const [spFormat, setSpFormat] = React.useState(SIGN_PAYLOAD_FORMATS[0]);
+
+  const content = React.useMemo(() => {
+    switch (payload.type) {
+      case "connect":
+        return {
+          title: "Confirm connection",
+          declineActionTitle: "Cancel",
+          confirmActionTitle: error ? "Retry" : "Connect",
+          want: (
+            <p className="mb-2 text-sm text-center text-gray-700">
+              <span className="font-semibold">{payload.origin}</span>
+              <br />
+              would like to connect to your wallet
+            </p>
+          ),
+        };
+
+      case "confirm_operations":
+        return {
+          title: "Confirm operations",
+          declineActionTitle: "Reject",
+          confirmActionTitle: error ? "Retry" : "Confirm",
+          want: (
+            <div
+              className={classNames(
+                "mb-2 text-sm text-center text-gray-700",
+                "flex flex-col items-center"
+              )}
+            >
+              <div className="flex items-center justify-center">
+                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <Name className="font-semibold" style={{ maxWidth: "10rem" }}>
+                  {payload.appMeta.name}
+                </Name>
+              </div>
+              <Name className="max-w-full text-xs italic">
+                {payload.origin}
+              </Name>
+              requests operations to you
+            </div>
+          ),
+        };
+
+      case "sign":
+        return {
+          title: "Confirm sign",
+          declineActionTitle: "Reject",
+          confirmActionTitle: "Sign",
+          want: (
+            <div
+              className={classNames(
+                "mb-2 text-sm text-center text-gray-700",
+                "flex flex-col items-center"
+              )}
+            >
+              <div className="flex items-center justify-center">
+                <DAppLogo origin={payload.origin} size={16} className="mr-1" />
+                <Name className="font-semibold" style={{ maxWidth: "10rem" }}>
+                  {payload.appMeta.name}
+                </Name>
+              </div>
+              <Name className="max-w-full text-xs italic">
+                {payload.origin}
+              </Name>
+              requests you to sign
+            </div>
+          ),
+        };
+    }
+  }, [payload.type, payload.origin, payload.appMeta.name, error]);
 
   return (
     <div
@@ -232,169 +304,196 @@ const ConfirmDAppForm: React.FC = () => {
         {content.want}
 
         {payload.type === "connect" && (
-          <p className="mb-4 text-xs font-light text-gray-700 text-center">
+          <p className="mb-4 text-xs font-light text-center text-gray-700">
             This site is requesting access to view your account address. Always
             make sure you trust the sites you interact with.
           </p>
         )}
 
-        {payload.type === "confirm_operations" && connectedAccount && (
-          <AccountBanner
-            account={connectedAccount}
-            displayBalance={false}
-            labelIndent="sm"
-            className="w-full mb-4"
+        {error ? (
+          <Alert
+            closable
+            onClose={handleErrorAlertClose}
+            type="error"
+            title="Error"
+            description={error?.message ?? "Something went wrong"}
+            className="my-4"
+            autoFocus
           />
-        )}
+        ) : (
+          <>
+            {payload.type !== "connect" && connectedAccount && (
+              <AccountBanner
+                account={connectedAccount}
+                networkRpc={payload.networkRpc}
+                labelIndent="sm"
+                className="w-full mb-4"
+              />
+            )}
 
-        <NetworkBanner
-          rpc={payload.networkRpc}
-          narrow={payload.type === "connect"}
-        />
+            <NetworkBanner
+              rpc={payload.networkRpc}
+              narrow={payload.type !== "confirm_operations"}
+            />
 
-        {payload.type === "confirm_operations" && (
-          <OperationsBanner opParams={payload.opParams} />
-        )}
+            {payload.type === "confirm_operations" && (
+              <OperationsBanner opParams={payload.opParams} />
+            )}
 
-        {payload.type === "connect" && (
-          <div className={classNames("w-full", "mb-2", "flex flex-col")}>
-            <h2
-              className={classNames("mb-2", "leading-tight", "flex flex-col")}
-            >
-              <span className="text-base font-semibold text-gray-700">
-                Account
-              </span>
+            {payload.type === "connect" && (
+              <div className={classNames("w-full", "mb-2", "flex flex-col")}>
+                <h2
+                  className={classNames(
+                    "mb-2",
+                    "leading-tight",
+                    "flex flex-col"
+                  )}
+                >
+                  <span className="text-base font-semibold text-gray-700">
+                    Account
+                  </span>
 
-              <span
-                className={classNames(
-                  "mt-px",
-                  "text-xs font-light text-gray-600"
-                )}
-                style={{ maxWidth: "90%" }}
-              >
-                to be connected with dApp.
-              </span>
-            </h2>
-
-            <div
-              className={classNames(
-                "rounded-md overflow-y-auto",
-                "border-2 bg-gray-100",
-                "flex flex-col",
-                "text-gray-700 text-sm leading-tight"
-              )}
-              style={{
-                maxHeight: "8rem",
-              }}
-            >
-              {allAccounts.map((acc, i, arr) => {
-                const last = i === arr.length - 1;
-                const selected = accountPkhToConnect === acc.publicKeyHash;
-                const handleAccountClick = () => {
-                  setAccountPkhToConnect(acc.publicKeyHash);
-                };
-
-                return (
-                  <button
-                    key={acc.publicKeyHash}
-                    type="button"
+                  <span
                     className={classNames(
-                      "w-full flex-shrink-0",
-                      "overflow-hidden",
-                      !last && "border-b border-gray-200",
-                      selected
-                        ? "bg-gray-300"
-                        : "hover:bg-gray-200 focus:bg-gray-200",
-                      "flex items-center",
-                      "text-gray-700",
-                      "transition ease-in-out duration-200",
-                      "focus:outline-none",
-                      "opacity-90 hover:opacity-100"
+                      "mt-px",
+                      "text-xs font-light text-gray-600"
                     )}
-                    style={{
-                      padding: "0.4rem 0.375rem 0.4rem 0.375rem",
-                    }}
-                    autoFocus={selected}
-                    onClick={handleAccountClick}
+                    style={{ maxWidth: "90%" }}
                   >
-                    <Identicon
-                      type="bottts"
-                      hash={acc.publicKeyHash}
-                      size={32}
-                      className="flex-shrink-0 shadow-xs"
-                    />
+                    to be connected with dApp.
+                  </span>
+                </h2>
 
-                    <div className="ml-2 flex flex-col items-start">
-                      <div className="flex flex-wrap items-center">
-                        <Name className="text-sm font-medium leading-tight">
-                          {acc.name}
-                        </Name>
+                <CustomSelect<ThanosAccount, string>
+                  activeItemId={accountPkhToConnect}
+                  getItemId={getPkh}
+                  items={allAccounts}
+                  maxHeight="8rem"
+                  onSelect={setAccountPkhToConnect}
+                  OptionIcon={AccountIcon}
+                  OptionContent={AccountOptionContent}
+                  autoFocus
+                />
+              </div>
+            )}
 
-                        {acc.type === ThanosAccountType.Imported && (
-                          <span
-                            className={classNames(
-                              "ml-2",
-                              "rounded-sm",
-                              "border border-black border-opacity-25",
-                              "px-1 py-px",
-                              "leading-tight",
-                              "text-black text-opacity-50"
-                            )}
-                            style={{ fontSize: "0.6rem" }}
-                          >
-                            Imported
-                          </span>
+            {payload.type === "sign" &&
+              (() => {
+                if (payload.preview) {
+                  return (
+                    <div className="flex flex-col w-full">
+                      <h2
+                        className={classNames(
+                          "mb-4",
+                          "leading-tight",
+                          "flex items-center"
                         )}
-                      </div>
-
-                      <div className="mt-1 flex flex-wrap items-center">
-                        <div
+                      >
+                        <span
                           className={classNames(
-                            "text-xs leading-none",
-                            "text-gray-700"
+                            "mr-2",
+                            "text-base font-semibold text-gray-700"
                           )}
                         >
-                          {(() => {
-                            const val = acc.publicKeyHash;
-                            const ln = val.length;
+                          Payload to sign
+                        </span>
+
+                        <div className="flex-1" />
+
+                        <div className={classNames("flex items-center")}>
+                          {SIGN_PAYLOAD_FORMATS.map((spf, i, arr) => {
+                            const first = i === 0;
+                            const last = i === arr.length - 1;
+                            const selected = spFormat.key === spf.key;
+                            const handleClick = () => setSpFormat(spf);
+
                             return (
-                              <>
-                                {val.slice(0, 7)}
-                                <span className="opacity-75">...</span>
-                                {val.slice(ln - 4, ln)}
-                              </>
+                              <button
+                                key={spf.key}
+                                className={classNames(
+                                  (() => {
+                                    switch (true) {
+                                      case first:
+                                        return classNames(
+                                          "rounded rounded-r-none",
+                                          "border"
+                                        );
+
+                                      case last:
+                                        return classNames(
+                                          "rounded rounded-l-none",
+                                          "border border-l-0"
+                                        );
+
+                                      default:
+                                        return "border border-l-0";
+                                    }
+                                  })(),
+                                  selected && "bg-gray-100",
+                                  "px-2 py-1",
+                                  "text-xs text-gray-600",
+                                  "flex items-center"
+                                )}
+                                onClick={handleClick}
+                              >
+                                <spf.Icon
+                                  className={classNames(
+                                    "h-4 w-auto mr-1",
+                                    "stroke-current"
+                                  )}
+                                />
+                                {spf.name}
+                              </button>
                             );
-                          })()}
+                          })}
                         </div>
-                      </div>
-                    </div>
+                      </h2>
 
-                    <div className="flex-1" />
+                      <OperationsBanner
+                        opParams={payload.preview}
+                        label={null}
+                        className={classNames(
+                          spFormat.key !== "preview" && "hidden"
+                        )}
+                      />
 
-                    {selected && (
-                      <OkIcon
-                        className={classNames("mx-2 h-5 w-auto stroke-2")}
+                      <FormField
+                        textarea
+                        rows={6}
+                        id="sign-payload"
+                        value={payload.payload}
+                        spellCheck={false}
+                        readOnly
+                        className={classNames(
+                          spFormat.key !== "raw" && "hidden"
+                        )}
                         style={{
-                          stroke: "#777",
+                          resize: "none",
                         }}
                       />
-                    )}
-                  </button>
+                    </div>
+                  );
+                }
+
+                return (
+                  <FormField
+                    textarea
+                    rows={6}
+                    id="sign-payload"
+                    label="Payload to sign"
+                    value={payload.payload}
+                    spellCheck={false}
+                    readOnly
+                    className="mb-2"
+                    style={{
+                      resize: "none",
+                    }}
+                  />
                 );
-              })}
-            </div>
-          </div>
+              })()}
+          </>
         )}
       </div>
-
-      {error && (
-        <Alert
-          type="error"
-          title="Error"
-          description={error?.message ?? "Something went wrong"}
-          className="mb-6"
-        />
-      )}
 
       <div className="flex-1" />
 
@@ -409,9 +508,8 @@ const ConfirmDAppForm: React.FC = () => {
         <div className="w-1/2 pr-2">
           <FormSecondaryButton
             type="button"
-            className="w-full justify-center"
+            className="justify-center w-full"
             loading={declining}
-            disabled={declining}
             onClick={handleDeclineClick}
           >
             {content.declineActionTitle}
@@ -421,17 +519,71 @@ const ConfirmDAppForm: React.FC = () => {
         <div className="w-1/2 pl-2">
           <FormSubmitButton
             type="button"
-            className="w-full justify-center"
+            className="justify-center w-full"
             loading={confirming}
-            disabled={confirming}
             onClick={handleConfirmClick}
           >
             {content.confirmActionTitle}
           </FormSubmitButton>
         </div>
       </div>
+
+      <ConfirmLedgerOverlay
+        displayed={confirming && account.type === ThanosAccountType.Ledger}
+      />
     </div>
   );
+};
+
+const AccountIcon: React.FC<OptionRenderProps<ThanosAccount>> = ({ item }) => (
+  <Identicon
+    type="bottts"
+    hash={item.publicKeyHash}
+    size={32}
+    className="flex-shrink-0 shadow-xs"
+  />
+);
+
+const AccountOptionContentHOC = (networkRpc: string) => {
+  return React.memo<OptionRenderProps<ThanosAccount>>(({ item: acc }) => (
+    <>
+      <div className="flex flex-wrap items-center">
+        <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
+        <AccountTypeBadge account={acc} />
+      </div>
+
+      <div className="flex flex-wrap items-center mt-1">
+        <div className={classNames("text-xs leading-none", "text-gray-700")}>
+          {(() => {
+            const val = acc.publicKeyHash;
+            const ln = val.length;
+            return (
+              <>
+                {val.slice(0, 7)}
+                <span className="opacity-75">...</span>
+                {val.slice(ln - 4, ln)}
+              </>
+            );
+          })()}
+        </div>
+
+        <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
+          {(bal) => (
+            <div
+              className={classNames(
+                "ml-2",
+                "text-xs leading-none",
+                "text-gray-600"
+              )}
+            >
+              <Money>{bal}</Money>{" "}
+              <span style={{ fontSize: "0.75em" }}>{XTZ_ASSET.symbol}</span>
+            </div>
+          )}
+        </Balance>
+      </div>
+    </>
+  ));
 };
 
 type ConnectBannerProps = {
@@ -464,11 +616,7 @@ const ConnectBanner: React.FC<ConnectBannerProps> = ({
           "p-2"
         )}
       >
-        <Identicon
-          hash={origin}
-          size={32}
-          className="mb-1 flex-shrink-0 shadow-xs"
-        />
+        <DAppLogo origin={origin} size={32} className="flex-shrink-0 mb-1" />
 
         <span className="text-xs font-semibold text-gray-700">
           <Name style={{ maxWidth: "7.5rem" }}>{appMeta.name}</Name>
@@ -486,7 +634,7 @@ const ConnectBanner: React.FC<ConnectBannerProps> = ({
               "text-white"
             )}
           >
-            <Icon className="h-4 w-auto stroke-2 stroke-current" />
+            <Icon className="w-auto h-4 stroke-current stroke-2" />
           </div>
         </div>
       </div>
@@ -515,8 +663,8 @@ const SubTitle: React.FC<SubTitleProps> = ({
   ...rest
 }) => {
   const comp = (
-    <span className="text-gray-500 px-1">
-      <ComponentIcon className="h-5 w-auto stroke-current" />
+    <span className="px-1 text-gray-500">
+      <ComponentIcon className="w-auto h-5 stroke-current" />
     </span>
   );
 

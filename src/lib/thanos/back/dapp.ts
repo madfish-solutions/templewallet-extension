@@ -1,5 +1,7 @@
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { nanoid } from "nanoid";
+import { RpcClient } from "@taquito/rpc";
+import { localForger } from "@taquito/local-forging";
 import {
   ThanosDAppMessageType,
   ThanosDAppErrorType,
@@ -7,35 +9,29 @@ import {
   ThanosDAppPermissionResponse,
   ThanosDAppOperationRequest,
   ThanosDAppOperationResponse,
+  ThanosDAppSignRequest,
+  ThanosDAppSignResponse,
+  ThanosDAppBroadcastRequest,
+  ThanosDAppBroadcastResponse,
   ThanosDAppNetwork,
-  ThanosDAppMetadata,
 } from "@thanos-wallet/dapp/dist/types";
 import {
   ThanosMessageType,
   ThanosRequest,
   ThanosDAppPayload,
+  ThanosDAppSession,
+  ThanosDAppSessions,
 } from "lib/thanos/types";
-import { intercom } from "lib/thanos/back/intercom";
+import { intercom } from "lib/thanos/back/defaults";
+import * as PndOps from "lib/thanos/back/pndops";
 import { withUnlocked } from "lib/thanos/back/store";
 import { NETWORKS } from "lib/thanos/networks";
-import { isAddressValid } from "lib/thanos/helpers";
+import { loadChainId, isAddressValid } from "lib/thanos/helpers";
 
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 600;
 const AUTODECLINE_AFTER = 120_000;
-
-interface DAppPermission {
-  network: ThanosDAppNetwork;
-  appMeta: ThanosDAppMetadata;
-  pkh: string;
-  publicKey?: string;
-}
-
-const dApps = new Map<string, DAppPermission>();
-
-export async function cleanDApps() {
-  dApps.clear();
-}
+const STORAGE_KEY = "dapp_sessions";
 
 export async function requestPermission(
   origin: string,
@@ -51,20 +47,20 @@ export async function requestPermission(
   }
 
   const networkRpc = getNetworkRPC(req.network);
+  const dApp = await getDApp(origin);
 
-  if (!req.force && dApps.has(origin)) {
-    const dApp = dApps.get(origin)!;
-    if (
-      isNetworkEquals(req.network, dApp.network) &&
-      req.appMeta.name === dApp.appMeta.name
-    ) {
-      return {
-        type: ThanosDAppMessageType.PermissionResponse,
-        pkh: dApp.pkh,
-        publicKey: dApp.publicKey,
-        rpc: networkRpc,
-      } as any;
-    }
+  if (
+    !req.force &&
+    dApp &&
+    isNetworkEquals(req.network, dApp.network) &&
+    req.appMeta.name === dApp.appMeta.name
+  ) {
+    return {
+      type: ThanosDAppMessageType.PermissionResponse,
+      pkh: dApp.pkh,
+      publicKey: dApp.publicKey,
+      rpc: networkRpc,
+    } as any;
   }
 
   return new Promise(async (resolve, reject) => {
@@ -92,7 +88,7 @@ export async function requestPermission(
             accountPublicKey,
           } = confirmReq;
           if (confirmed && accountPublicKeyHash && accountPublicKey) {
-            dApps.set(origin, {
+            await setDApp(origin, {
               network: req.network,
               appMeta: req.appMeta,
               pkh: accountPublicKeyHash,
@@ -132,11 +128,12 @@ export async function requestOperation(
     throw new Error(ThanosDAppErrorType.InvalidParams);
   }
 
-  if (!dApps.has(origin)) {
+  const dApp = await getDApp(origin);
+
+  if (!dApp) {
     throw new Error(ThanosDAppErrorType.NotGranted);
   }
 
-  const dApp = dApps.get(origin)!;
   if (req.sourcePkh !== dApp.pkh) {
     throw new Error(ThanosDAppErrorType.NotFound);
   }
@@ -168,6 +165,13 @@ export async function requestOperation(
               const op = await withUnlocked(({ vault }) =>
                 vault.sendOperations(dApp.pkh, networkRpc, req.opParams)
               );
+
+              try {
+                const chainId = await loadChainId(networkRpc);
+                const pndOps = PndOps.fromOpResults(op.results, op.hash);
+                await PndOps.append(dApp.pkh, chainId, pndOps);
+              } catch {}
+
               resolve({
                 type: ThanosDAppMessageType.OperationResponse,
                 opHash: op.hash,
@@ -191,6 +195,145 @@ export async function requestOperation(
       },
     });
   });
+}
+
+export async function requestSign(
+  origin: string,
+  req: ThanosDAppSignRequest
+): Promise<ThanosDAppSignResponse> {
+  if (
+    ![isAddressValid(req?.sourcePkh), req?.payload?.length > 0].every(Boolean)
+  ) {
+    throw new Error(ThanosDAppErrorType.InvalidParams);
+  }
+
+  const dApp = await getDApp(origin);
+
+  if (!dApp) {
+    throw new Error(ThanosDAppErrorType.NotGranted);
+  }
+
+  if (req.sourcePkh !== dApp.pkh) {
+    throw new Error(ThanosDAppErrorType.NotFound);
+  }
+
+  return new Promise(async (resolve, reject) => {
+    const id = nanoid();
+    const networkRpc = getNetworkRPC(dApp.network);
+
+    let preview: any;
+    try {
+      preview = await localForger.parse(req.payload);
+    } catch {
+      preview = null;
+    }
+
+    await requestConfirm({
+      id,
+      payload: {
+        type: "sign",
+        origin,
+        networkRpc,
+        appMeta: dApp.appMeta,
+        sourcePkh: req.sourcePkh,
+        payload: req.payload,
+        preview,
+      },
+      onDecline: () => {
+        reject(new Error(ThanosDAppErrorType.NotGranted));
+      },
+      handleIntercomRequest: async (confirmReq, decline) => {
+        if (
+          confirmReq?.type === ThanosMessageType.DAppSignConfirmationRequest &&
+          confirmReq?.id === id
+        ) {
+          if (confirmReq.confirmed) {
+            try {
+              const { sig: signature } = await withUnlocked(({ vault }) =>
+                vault.sign(dApp.pkh, req.payload)
+              );
+              resolve({
+                type: ThanosDAppMessageType.SignResponse,
+                signature,
+              });
+            } catch (err) {
+              if (err?.message?.startsWith("__tezos__")) {
+                reject(new Error(err.message));
+              } else {
+                throw err;
+              }
+            }
+          } else {
+            decline();
+          }
+
+          return {
+            type: ThanosMessageType.DAppSignConfirmationResponse,
+          };
+        }
+        return;
+      },
+    });
+  });
+}
+
+export async function requestBroadcast(
+  origin: string,
+  req: ThanosDAppBroadcastRequest
+): Promise<ThanosDAppBroadcastResponse> {
+  if (![req?.signedOpBytes?.length > 0].every(Boolean)) {
+    throw new Error(ThanosDAppErrorType.InvalidParams);
+  }
+
+  const dApp = await getDApp(origin);
+
+  if (!dApp) {
+    throw new Error(ThanosDAppErrorType.NotGranted);
+  }
+
+  try {
+    const rpc = new RpcClient(getNetworkRPC(dApp.network));
+    const opHash = await rpc.injectOperation(req.signedOpBytes);
+    return {
+      type: ThanosDAppMessageType.BroadcastResponse,
+      opHash,
+    };
+  } catch (err) {
+    throw new Error(`__tezos__${err.message}`);
+  }
+}
+
+export async function getAllDApps() {
+  const dAppsSessions: ThanosDAppSessions =
+    (await browser.storage.local.get([STORAGE_KEY]))[STORAGE_KEY] || {};
+  return dAppsSessions;
+}
+
+export async function getDApp(
+  origin: string
+): Promise<ThanosDAppSession | undefined> {
+  return (await getAllDApps())[origin];
+}
+
+export async function setDApp(origin: string, permissions: ThanosDAppSession) {
+  const current = await getAllDApps();
+  const newDApps = { ...current, [origin]: permissions };
+  await setDApps(newDApps);
+  return newDApps;
+}
+
+export async function removeDApp(origin: string) {
+  const { [origin]: permissionsToRemove, ...restDApps } = await getAllDApps();
+  await setDApps(restDApps);
+  return restDApps;
+}
+
+export function cleanDApps() {
+  return setDApps({});
+}
+
+function setDApps(newDApps: ThanosDAppSessions) {
+  return browser.storage.local.set({ [STORAGE_KEY]: newDApps });
 }
 
 type RequestConfirmParams = {
@@ -239,18 +382,19 @@ async function requestConfirm({
   let knownPort: Runtime.Port | undefined;
   const stopRequestListening = intercom.onRequest(
     async (req: ThanosRequest, port) => {
-      if (!knownPort) knownPort = port;
-      if (knownPort !== port) return;
-
       if (
         req?.type === ThanosMessageType.DAppGetPayloadRequest &&
         req.id === id
       ) {
+        knownPort = port;
+
         return {
           type: ThanosMessageType.DAppGetPayloadResponse,
           payload,
         };
       } else {
+        if (knownPort !== port) return;
+
         const result = await handleIntercomRequest(req, onDecline);
         if (result) {
           close();

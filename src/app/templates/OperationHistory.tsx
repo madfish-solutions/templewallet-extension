@@ -3,22 +3,32 @@ import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
-import { getAccountWithOperations } from "lib/tzstats";
+import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
+import { loadChainId } from "lib/thanos/helpers";
 import {
   ThanosAsset,
   ThanosAssetType,
   XTZ_ASSET,
+  useThanosClient,
   useNetwork,
-  usePendingOperations,
   useAssets,
+  useOnStorageChanged,
+  mutezToTz,
 } from "lib/thanos/front";
+import useTippy from "lib/ui/useTippy";
 import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
 import HashChip from "app/atoms/HashChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
+import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
+const TZKT_BASE_URLS = new Map([
+  ["NetXdQprcVkpaWU", "https://tzkt.io"],
+  ["NetXjD3HPJJjmcd", "https://carthage.tzkt.io"],
+  ["NetXyQaSHznzV1r", "https://delphi.tzkt.io"],
+]);
 
 interface OperationPreview {
   hash: string;
@@ -35,17 +45,58 @@ interface OperationHistoryProps {
 }
 
 const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
+  const { getAllPndOps, removePndOps } = useThanosClient();
   const network = useNetwork();
-  const { pndOps, removePndOps } = usePendingOperations();
+
+  /**
+   * Pending operations
+   */
+
+  const fetchPendingOperations = React.useCallback(async () => {
+    const chainId = await loadChainId(network.rpcBaseURL);
+    const pndOps = await getAllPndOps(accountPkh, chainId);
+    return { pndOps, chainId };
+  }, [getAllPndOps, network.rpcBaseURL, accountPkh]);
+
+  const pndOpsSWR = useRetryableSWR(
+    ["pndops", network.rpcBaseURL, accountPkh],
+    fetchPendingOperations,
+    { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
+  );
+  useOnStorageChanged(pndOpsSWR.revalidate);
+  const { pndOps, chainId } = pndOpsSWR.data!;
+
+  const pendingOperations = React.useMemo<OperationPreview[]>(
+    () =>
+      pndOps.map((op) => ({
+        ...op,
+        hash: op.hash,
+        type: op.kind,
+        receiver: op.kind === "transaction" ? op.destination : "",
+        volume: op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
+        status: "pending",
+        time: op.addedAt,
+      })),
+    [pndOps]
+  );
+
+  /**
+   * Operation history from TZStats
+   */
+
+  const tzStatsNetwork = React.useMemo(
+    () => TZSTATS_CHAINS.get(chainId) ?? null,
+    [chainId]
+  );
 
   const fetchOperations = React.useCallback(async () => {
     try {
-      if (!network.tzStats) return [];
+      if (!tzStatsNetwork) return [];
 
-      const { ops } = await getAccountWithOperations(network.tzStats, {
+      const { ops } = await getAccountWithOperations(tzStatsNetwork, {
         pkh: accountPkh,
         order: "desc",
-        limit: 25,
+        limit: 30,
         offset: 0,
       });
       return ops;
@@ -58,10 +109,10 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
       await new Promise((r) => setTimeout(r, 300));
       throw err;
     }
-  }, [network.tzStats, accountPkh]);
+  }, [tzStatsNetwork, accountPkh]);
 
   const { data } = useRetryableSWR(
-    ["operation-history", network.tzStats, accountPkh],
+    ["operation-history", tzStatsNetwork, accountPkh],
     fetchOperations,
     {
       suspense: true,
@@ -70,20 +121,6 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
     }
   );
   const operations = data!;
-
-  const pendingOperations = React.useMemo<OperationPreview[]>(
-    () =>
-      pndOps.map((op) => ({
-        ...op,
-        hash: op.hash,
-        type: op.kind,
-        receiver: op.destination ?? "",
-        volume: op.amount ?? 0,
-        status: "backtracked",
-        time: op.addedAt,
-      })),
-    [pndOps]
-  );
 
   const [uniqueOps, nonUniqueOps] = React.useMemo(() => {
     const unique: OperationPreview[] = [];
@@ -116,9 +153,19 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
 
   React.useEffect(() => {
     if (nonUniqueOps.length > 0) {
-      removePndOps(nonUniqueOps);
+      removePndOps(
+        accountPkh,
+        chainId,
+        nonUniqueOps.map((o) => o.hash)
+      );
     }
-  }, [removePndOps, nonUniqueOps]);
+  }, [removePndOps, accountPkh, chainId, nonUniqueOps]);
+
+  const withExplorer = Boolean(tzStatsNetwork);
+  const explorerBaseUrl = React.useMemo(
+    () => TZKT_BASE_URLS.get(chainId) ?? null,
+    [chainId]
+  );
 
   return (
     <div
@@ -132,27 +179,25 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             "text-gray-500"
           )}
         >
-          <LayersIcon className="mb-2 w-16 h-auto stroke-current" />
+          <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
 
           <h3
             className="text-sm font-light text-center"
             style={{ maxWidth: "20rem" }}
           >
-            {network.tzStats ? (
-              "No operations found"
-            ) : (
-              <>
-                Operation history is not available
-                <br />
-                for local sandbox
-              </>
-            )}
+            No operations found
           </h3>
         </div>
       )}
 
       {uniqueOps.map((op) => (
-        <Operation key={opKey(op)} accountPkh={accountPkh} {...op} />
+        <Operation
+          key={opKey(op)}
+          accountPkh={accountPkh}
+          withExplorer={withExplorer}
+          explorerBaseUrl={explorerBaseUrl}
+          {...op}
+        />
       ))}
     </div>
   );
@@ -162,10 +207,23 @@ export default OperationHistory;
 
 type OperationProps = OperationPreview & {
   accountPkh: string;
+  withExplorer: boolean;
+  explorerBaseUrl: string | null;
 };
 
 const Operation = React.memo<OperationProps>(
-  ({ accountPkh, hash, type, receiver, volume, status, time, parameters }) => {
+  ({
+    accountPkh,
+    withExplorer,
+    explorerBaseUrl,
+    hash,
+    type,
+    receiver,
+    volume,
+    status,
+    time,
+    parameters,
+  }) => {
     const { allAssets } = useAssets();
 
     const token = React.useMemo(
@@ -189,7 +247,8 @@ const Operation = React.memo<OperationProps>(
     const volumeExists = finalVolume !== 0;
     const typeTx = type === "transaction";
     const imReceiver = finalReceiver === accountPkh;
-    const pending = status === "backtracked";
+    const pending = withExplorer && status === "pending";
+    const failed = ["failed", "backtracked", "skipped"].includes(status);
 
     return React.useMemo(
       () => (
@@ -208,6 +267,14 @@ const Operation = React.memo<OperationProps>(
                 className="mr-2"
               />
 
+              {explorerBaseUrl && (
+                <OpenInExplorerChip
+                  baseUrl={explorerBaseUrl}
+                  opHash={hash}
+                  className="mr-2"
+                />
+              )}
+
               <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
             </div>
 
@@ -217,28 +284,49 @@ const Operation = React.memo<OperationProps>(
                   {formatOperationType(type, imReceiver)}
                 </span>
 
-                {pending ? (
-                  <span className="text-xs text-yellow-600 font-light">
-                    pending...
-                  </span>
-                ) : (
-                  <Time
-                    children={() => (
-                      <span className="text-xs text-gray-500 font-light">
-                        {formatDistanceToNow(new Date(time), {
-                          includeSeconds: true,
-                          addSuffix: true,
-                        })}
-                      </span>
-                    )}
-                  />
-                )}
+                {(() => {
+                  const timeNode = (
+                    <Time
+                      children={() => (
+                        <span className="text-xs font-light text-gray-500">
+                          {formatDistanceToNow(new Date(time), {
+                            includeSeconds: true,
+                            addSuffix: true,
+                          })}
+                        </span>
+                      )}
+                    />
+                  );
+
+                  switch (true) {
+                    case failed:
+                      return (
+                        <div className="flex items-center">
+                          <span className="mr-1 text-xs font-light text-red-600">
+                            {status}
+                          </span>
+
+                          {timeNode}
+                        </div>
+                      );
+
+                    case pending:
+                      return (
+                        <span className="text-xs font-light text-yellow-600">
+                          pending...
+                        </span>
+                      );
+
+                    default:
+                      return timeNode;
+                  }
+                })()}
               </div>
 
               <div className="flex-1" />
 
-              {volumeExists && (
-                <div className="flex-shrink-0 flex flex-col items-end">
+              {volumeExists && !failed && (
+                <div className="flex flex-col items-end flex-shrink-0">
                   <div
                     className={classNames(
                       "text-sm",
@@ -281,15 +369,62 @@ const Operation = React.memo<OperationProps>(
         finalVolume,
         imReceiver,
         pending,
+        failed,
+        status,
         time,
         token,
         type,
         typeTx,
         volumeExists,
+        explorerBaseUrl,
       ]
     );
   }
 );
+
+type OpenInExplorerChipProps = {
+  baseUrl: string;
+  opHash: string;
+  className?: string;
+};
+
+const OpenInExplorerChip: React.FC<OpenInExplorerChipProps> = ({
+  baseUrl,
+  opHash,
+  className,
+}) => {
+  const tippyProps = React.useMemo(
+    () => ({
+      trigger: "mouseenter",
+      hideOnClick: false,
+      content: "View on block explorer",
+      animation: "shift-away-subtle",
+    }),
+    []
+  );
+
+  const ref = useTippy<HTMLAnchorElement>(tippyProps);
+
+  return (
+    <a
+      ref={ref}
+      href={`${baseUrl}/${opHash}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={classNames(
+        "bg-gray-100 hover:bg-gray-200",
+        "rounded-sm shadow-xs",
+        "text-xs p-1",
+        "text-gray-600 leading-none select-none",
+        "transition ease-in-out duration-300",
+        "flex items-center",
+        className
+      )}
+    >
+      <ArrowRightTopIcon className="w-auto h-3 stroke-current stroke-2" />
+    </a>
+  );
+};
 
 type TimeProps = {
   children: () => React.ReactElement;

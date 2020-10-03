@@ -1,6 +1,10 @@
 import * as React from "react";
 import classNames from "clsx";
-import { ThanosConfirmationPayload, useAllAccounts } from "lib/thanos/front";
+import {
+  ThanosAccountType,
+  ThanosConfirmationPayload,
+  useAllAccounts,
+} from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { useAppEnv } from "app/env";
 import AccountBanner from "app/templates/AccountBanner";
@@ -11,6 +15,7 @@ import Logo from "app/atoms/Logo";
 import Alert from "app/atoms/Alert";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 
 type InternalConfiramtionProps = {
@@ -64,6 +69,10 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
+  const handleErrorAlertClose = React.useCallback(() => setError(null), [
+    setError,
+  ]);
+
   return (
     <div
       className={classNames(
@@ -79,7 +88,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           popup && "flex-1"
         )}
       >
-        <div className="my-4 flex items-center">
+        <div className="flex items-center my-4">
           <Logo />
 
           <h1
@@ -98,52 +107,59 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         className={classNames(
           "relative bg-white shadow-md",
           popup ? "border-t border-gray-200" : "rounded-md",
-          "overflow-y-auto"
+          "overflow-y-auto",
+          "flex flex-col"
         )}
-        style={{ maxHeight: "32rem" }}
+        style={{ height: "32rem" }}
       >
-        <div className={classNames("flex flex-col", "px-4 pt-4")}>
+        <div className="px-4 pt-4">
           <SubTitle>Confirm {payload.type}</SubTitle>
 
-          <AccountBanner
-            account={account}
-            labelIndent="sm"
-            className="w-full mb-4"
-          />
-
-          {payload.type === "operations" && (
-            <>
-              <NetworkBanner rpc={payload.networkRpc} />
-              <OperationsBanner opParams={payload.opParams} />
-            </>
-          )}
-
-          {payload.type === "sign" && (
-            <FormField
-              textarea
-              rows={7}
-              id="sign-payload"
-              label="Payload to sign"
-              value={payload.bytes}
-              spellCheck={false}
-              readOnly
-              className="mb-4"
-              style={{
-                resize: "none",
-              }}
-            />
-          )}
-
-          {error && (
+          {error ? (
             <Alert
+              closable
+              onClose={handleErrorAlertClose}
               type="error"
               title="Error"
               description={error?.message ?? "Something went wrong"}
-              className="mb-6"
+              className="my-4"
               autoFocus
             />
+          ) : (
+            <>
+              <AccountBanner
+                account={account}
+                labelIndent="sm"
+                className="w-full mb-4"
+              />
+
+              {payload.type === "operations" && (
+                <>
+                  <NetworkBanner rpc={payload.networkRpc} />
+                  <OperationsBanner opParams={payload.opParams} />
+                </>
+              )}
+
+              {payload.type === "sign" && (
+                <FormField
+                  textarea
+                  rows={7}
+                  id="sign-payload"
+                  label="Payload to sign"
+                  value={payload.bytes}
+                  spellCheck={false}
+                  readOnly
+                  className="mb-4"
+                  style={{
+                    resize: "none",
+                  }}
+                />
+              )}
+            </>
           )}
         </div>
+
+        <div className="flex-1" />
 
         <div
           className={classNames(
@@ -156,7 +172,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           <div className="w-1/2 pr-2">
             <FormSecondaryButton
               type="button"
-              className="w-full justify-center"
+              className="justify-center w-full"
               loading={declining}
               disabled={declining}
               onClick={handleDeclineClick}
@@ -168,15 +184,18 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           <div className="w-1/2 pl-2">
             <FormSubmitButton
               type="button"
-              className="w-full justify-center"
+              className="justify-center w-full"
               loading={confirming}
-              disabled={confirming}
               onClick={handleConfirmClick}
             >
-              Confirm
+              {error ? "Retry" : "Confirm"}
             </FormSubmitButton>
           </div>
         </div>
+
+        <ConfirmLedgerOverlay
+          displayed={confirming && account.type === ThanosAccountType.Ledger}
+        />
       </div>
     </div>
   );
@@ -192,8 +211,8 @@ const SubTitle: React.FC<SubTitleProps> = ({
   ...rest
 }) => {
   const comp = (
-    <span className="text-gray-500 px-1">
-      <ComponentIcon className="h-5 w-auto stroke-current" />
+    <span className="px-1 text-gray-500">
+      <ComponentIcon className="w-auto h-5 stroke-current" />
     </span>
   );
 

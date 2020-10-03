@@ -6,6 +6,7 @@ import {
   useAllAccounts,
   useSetAccountPkh,
 } from "lib/thanos/front";
+import { T } from "lib/ui/i18n";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -70,12 +71,12 @@ const CreateAccount: React.FC = () => {
     <PageLayout
       pageTitle={
         <>
-          <AddIcon className="mr-1 h-4 w-auto stroke-current" />
-          Create Account
+          <AddIcon className="w-auto h-4 mr-1 stroke-current" />
+          <T name="createAccount" />
         </>
       }
     >
-      <div className="mt-6 w-full max-w-sm mx-auto">
+      <div className="w-full max-w-sm mx-auto mt-6">
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormField
             ref={register({
@@ -94,7 +95,7 @@ const CreateAccount: React.FC = () => {
             containerClassName="mb-4"
           />
 
-          <FormSubmitButton loading={submitting} disabled={submitting}>
+          <FormSubmitButton loading={submitting}>
             Create Account
           </FormSubmitButton>
         </form>

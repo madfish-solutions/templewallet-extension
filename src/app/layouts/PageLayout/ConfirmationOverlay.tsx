@@ -18,10 +18,11 @@ const ConfirmationOverlay: React.FC = () => {
     if (displayed) {
       const x = window.scrollX;
       const y = window.scrollY;
-      document.body.classList.add("no-scrollbar");
+      document.body.classList.add("overscroll-y-none");
+
       return () => {
         window.scrollTo(x, y);
-        document.body.classList.remove("no-scrollbar");
+        document.body.classList.remove("overscroll-y-none");
       };
     }
     return;

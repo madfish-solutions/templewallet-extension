@@ -12,7 +12,8 @@ import {
   ThanosSettings,
   ThanosSharedStorageKey,
 } from "lib/thanos/types";
-import { intercom } from "lib/thanos/back/intercom";
+import { loadChainId } from "lib/thanos/helpers";
+import { intercom } from "lib/thanos/back/defaults";
 import {
   toFront,
   store,
@@ -26,10 +27,14 @@ import {
 } from "lib/thanos/back/store";
 import { Vault } from "lib/thanos/back/vault";
 import {
-  cleanDApps,
   requestPermission,
   requestOperation,
+  requestSign,
+  requestBroadcast,
+  getAllDApps,
+  removeDApp,
 } from "lib/thanos/back/dapp";
+import * as PndOps from "lib/thanos/back/pndops";
 import * as Beacon from "lib/thanos/beacon";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
@@ -60,7 +65,6 @@ export async function isDAppEnabled() {
 export function registerNewWallet(password: string, mnemonic?: string) {
   return withInited(async () => {
     await Vault.spawn(password, mnemonic);
-    cleanDApps();
     await unlock(password);
   });
 }
@@ -169,11 +173,29 @@ export function importFundraiserAccount(
   });
 }
 
+export function craeteLedgerAccount(name: string, derivationPath?: string) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.createLedgerAccount(
+      name,
+      derivationPath
+    );
+    accountsUpdated(updatedAccounts);
+  });
+}
+
 export function updateSettings(settings: Partial<ThanosSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
     settingsUpdated(updatedSettings);
   });
+}
+
+export function getAllDAppSessions() {
+  return getAllDApps();
+}
+
+export function removeDAppSession(origin: string) {
+  return removeDApp(origin);
 }
 
 export function sendOperations(
@@ -182,7 +204,7 @@ export function sendOperations(
   sourcePkh: string,
   networkRpc: string,
   opParams: any[]
-): Promise<{ opHash: string; opResults: any[] }> {
+): Promise<{ opHash: string }> {
   return withUnlocked(
     () =>
       new Promise(async (resolve, reject) => {
@@ -234,10 +256,14 @@ export function sendOperations(
                   const op = await withUnlocked(({ vault }) =>
                     vault.sendOperations(sourcePkh, networkRpc, opParams)
                   );
-                  resolve({
-                    opHash: op.hash,
-                    opResults: op.results,
-                  });
+
+                  try {
+                    const chainId = await loadChainId(networkRpc);
+                    const pndOps = PndOps.fromOpResults(op.results, op.hash);
+                    await PndOps.append(sourcePkh, chainId, pndOps);
+                  } catch {}
+
+                  resolve({ opHash: op.hash });
                 } catch (err) {
                   if (err?.message?.startsWith("__tezos__")) {
                     reject(new Error(err.message));
@@ -365,6 +391,12 @@ export async function processDApp(
 
     case ThanosDAppMessageType.OperationRequest:
       return withInited(() => requestOperation(origin, req));
+
+    case ThanosDAppMessageType.SignRequest:
+      return withInited(() => requestSign(origin, req));
+
+    case ThanosDAppMessageType.BroadcastRequest:
+      return withInited(() => requestBroadcast(origin, req));
   }
 }
 
@@ -378,18 +410,18 @@ export async function processBeacon(origin: string, msg: string) {
 
   const res = await (async (): Promise<Beacon.Response> => {
     try {
-      const network =
-        req.network.type === "custom"
-          ? {
-              name: req.network.name!,
-              rpc: req.network.rpcUrl!,
-            }
-          : req.network.type;
-
       try {
         const thanosReq = ((): ThanosDAppRequest | void => {
           switch (req.type) {
             case Beacon.MessageType.PermissionRequest:
+              const network =
+                req.network.type === "custom"
+                  ? {
+                      name: req.network.name!,
+                      rpc: req.network.rpcUrl!,
+                    }
+                  : req.network.type;
+
               return {
                 type: ThanosDAppMessageType.PermissionRequest,
                 network,
@@ -402,6 +434,19 @@ export async function processBeacon(origin: string, msg: string) {
                 type: ThanosDAppMessageType.OperationRequest,
                 sourcePkh: req.sourceAddress,
                 opParams: req.operationDetails.map(Beacon.formatOpParams),
+              };
+
+            case Beacon.MessageType.SignPayloadRequest:
+              return {
+                type: ThanosDAppMessageType.SignRequest,
+                sourcePkh: req.sourceAddress,
+                payload: req.payload,
+              };
+
+            case Beacon.MessageType.BroadcastRequest:
+              return {
+                type: ThanosDAppMessageType.BroadcastRequest,
+                signedOpBytes: req.signedTransaction,
               };
           }
         })();
@@ -417,14 +462,31 @@ export async function processBeacon(origin: string, msg: string) {
                   ...resBase,
                   type: Beacon.MessageType.PermissionResponse,
                   publicKey: (thanosRes as any).publicKey,
-                  network: req.network,
-                  scopes: [Beacon.PermissionScope.OPERATION_REQUEST],
+                  network: (req as Beacon.PermissionRequest).network,
+                  scopes: [
+                    Beacon.PermissionScope.OPERATION_REQUEST,
+                    Beacon.PermissionScope.SIGN,
+                  ],
                 };
 
               case ThanosDAppMessageType.OperationResponse:
                 return {
                   ...resBase,
                   type: Beacon.MessageType.OperationResponse,
+                  transactionHash: thanosRes.opHash,
+                };
+
+              case ThanosDAppMessageType.SignResponse:
+                return {
+                  ...resBase,
+                  type: Beacon.MessageType.SignPayloadResponse,
+                  signature: thanosRes.signature,
+                };
+
+              case ThanosDAppMessageType.BroadcastResponse:
+                return {
+                  ...resBase,
+                  type: Beacon.MessageType.BroadcastResponse,
                   transactionHash: thanosRes.opHash,
                 };
             }

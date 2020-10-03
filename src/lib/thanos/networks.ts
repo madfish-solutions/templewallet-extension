@@ -1,4 +1,3 @@
-import { TZStatsNetwork } from "lib/tzstats";
 import { ThanosNetwork } from "lib/thanos/types";
 
 export const NETWORKS: ThanosNetwork[] = [
@@ -8,7 +7,6 @@ export const NETWORKS: ThanosNetwork[] = [
     description: "Carthage mainnet",
     type: "main",
     rpcBaseURL: "https://mainnet-tezos.giganode.io",
-    tzStats: TZStatsNetwork.Mainnet,
     color: "#83b300",
     disabled: false,
   },
@@ -18,19 +16,17 @@ export const NETWORKS: ThanosNetwork[] = [
     description: "Carthage testnet",
     type: "test",
     rpcBaseURL: "https://testnet-tezos.giganode.io",
-    tzStats: TZStatsNetwork.Carthagenet,
     color: "#0f4c81",
     disabled: false,
   },
   {
-    id: "labnet",
-    name: "Lab Testnet",
-    description: "Labnet testnet",
+    id: "dalphanet",
+    name: "Dalpha Testnet (soon)",
+    description: "Dalpha testnet",
     type: "test",
-    rpcBaseURL: "https://labnet-tezos.giganode.io",
-    tzStats: TZStatsNetwork.Labnet,
-    color: "#f6c90e",
-    disabled: false,
+    rpcBaseURL: "https://dalphanet-tezos.giganode.io",
+    color: "#ed6663",
+    disabled: true,
   },
   {
     id: "sandbox",
@@ -38,18 +34,7 @@ export const NETWORKS: ThanosNetwork[] = [
     description: "Local Sandbox",
     type: "test",
     rpcBaseURL: "http://localhost:8732",
-    tzStats: null,
     color: "#e9e1cc",
     disabled: false,
-  },
-  {
-    id: "babylonnet",
-    name: "Babylon Testnet",
-    description: "Babylon testnet",
-    type: "test",
-    rpcBaseURL: "<no public nodes>",
-    tzStats: TZStatsNetwork.Babylonnet,
-    color: "#ed6663",
-    disabled: true,
   },
 ];

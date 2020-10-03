@@ -3,22 +3,21 @@ import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 import BigNumber from "bignumber.js";
-import { DEFAULT_FEE, TransactionWalletOperation } from "@taquito/taquito";
+import { DEFAULT_FEE } from "@taquito/taquito";
 import {
   ThanosAsset,
   XTZ_ASSET,
-  ThanosAccountType,
   useAllAccounts,
   useAccount,
   useTezos,
   useCurrentAsset,
   useBalance,
+  useDelegate,
   fetchBalance,
   toTransferParams,
   tzToMutez,
   mutezToTz,
   isAddressValid,
-  isKTAddress,
   toPenny,
   hasManager,
   ThanosAssetType,
@@ -42,7 +41,9 @@ import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
+import AdditionalFeeInput from "./AdditionalFeeInput";
 
 interface FormData {
   to: string;
@@ -112,6 +113,8 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const xtzBalance = xtzBalanceData!;
   const xtzBalanceNum = xtzBalance.toNumber();
 
+  const { data: myBakerPkh } = useDelegate(accountPkh);
+
   /**
    * Form
    */
@@ -138,10 +141,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = React.useRef<HTMLInputElement>(null);
-  const feeFieldRef = React.useRef<HTMLInputElement>(null);
 
   const toFilled = React.useMemo(
-    () => Boolean(toValue && isAddressValid(toValue) && !isKTAddress(toValue)),
+    () => Boolean(toValue && isAddressValid(toValue)),
     [toValue]
   );
 
@@ -290,13 +292,16 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
     return localAsset.type === ThanosAssetType.XTZ
       ? (() => {
-          const ma = new BigNumber(balanceNum)
+          let ma = new BigNumber(balanceNum)
             .minus(baseFee)
             .minus(safeFeeValue ?? 0);
+          if (myBakerPkh) {
+            ma = ma.minus(PENNY);
+          }
           return BigNumber.max(ma, 0);
         })()
       : new BigNumber(balanceNum);
-  }, [localAsset.type, balanceNum, baseFee, safeFeeValue]);
+  }, [localAsset.type, balanceNum, baseFee, safeFeeValue, myBakerPkh]);
 
   const maxAmountNum = React.useMemo(
     () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
@@ -334,10 +339,6 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     }
   }, [setValue, maxAmount, triggerValidation]);
 
-  const handleSetRecommendedFee = React.useCallback(() => {
-    setValue("fee", RECOMMENDED_ADD_FEE);
-  }, [setValue]);
-
   const [submitError, setSubmitError] = useSafeState<any>(
     null,
     `${tezos.checksum}_${toValue}`
@@ -350,7 +351,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       setOperation(null);
 
       try {
-        let transferParams = await toTransferParams(
+        const transferParams = await toTransferParams(
           tezos,
           localAsset,
           to,
@@ -359,28 +360,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         const estmtn = await tezos.estimate.transfer(transferParams);
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        let op: TransactionWalletOperation;
-        try {
-          transferParams = { ...transferParams, fee };
-          op = await tezos.wallet.transfer(transferParams as any).send();
-        } catch (err) {
-          if (
-            err?.errors?.some((e: any) =>
-              e?.id.includes("empty_implicit_delegated_contract")
-            )
-          ) {
-            transferParams = {
-              ...transferParams,
-              amount:
-                transferParams.amount &&
-                new BigNumber(transferParams.amount).minus(PENNY).toNumber(),
-            };
-            op = await tezos.wallet.transfer(transferParams as any).send();
-          } else {
-            throw err;
-          }
-        }
-
+        const op = await tezos.wallet
+          .transfer({ ...transferParams, fee } as any)
+          .send();
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
       } catch (err) {
@@ -547,42 +529,19 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             autoFocus={Boolean(maxAmount)}
           />
 
-          <Controller
+          <AdditionalFeeInput
             name="fee"
-            as={<AssetField ref={feeFieldRef} />}
             control={control}
             onChange={handleFeeFieldChange}
-            onFocus={() => feeFieldRef.current?.focus()}
-            id="send-fee"
             assetSymbol={XTZ_ASSET.symbol}
-            label="Additional Fee"
-            labelDescription={
-              baseFee instanceof BigNumber && (
-                <>
-                  Base Fee for this transaction is:{" "}
-                  <span className="font-normal">{baseFee.toString()}</span>
-                  <br />
-                  Additional - speeds up its confirmation,
-                  <br />
-                  recommended:{" "}
-                  <button
-                    type="button"
-                    className={classNames("underline")}
-                    onClick={handleSetRecommendedFee}
-                  >
-                    {RECOMMENDED_ADD_FEE}
-                  </button>
-                </>
-              )
-            }
-            placeholder="0"
-            errorCaption={errors.fee?.message}
-            containerClassName="mb-4"
+            baseFee={baseFee}
+            error={errors.fee}
+            id="send-fee"
           />
 
           <FormSubmitButton
             loading={formState.isSubmitting}
-            disabled={formState.isSubmitting || Boolean(estimationError)}
+            disabled={Boolean(estimationError)}
           >
             Send
           </FormSubmitButton>
@@ -658,21 +617,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                             {acc.name}
                           </Name>
 
-                          {acc.type === ThanosAccountType.Imported && (
-                            <span
-                              className={classNames(
-                                "ml-2",
-                                "rounded-sm",
-                                "border border-black border-opacity-25",
-                                "px-1 py-px",
-                                "leading-tight",
-                                "text-black text-opacity-50"
-                              )}
-                              style={{ fontSize: "0.6rem" }}
-                            >
-                              Imported
-                            </span>
-                          )}
+                          <AccountTypeBadge account={acc} />
                         </div>
 
                         <div className="flex flex-wrap items-center mt-1">
@@ -799,9 +744,6 @@ function validateAddress(value: any) {
 
     case isAddressValid(value):
       return "Invalid address";
-
-    case !isKTAddress(value):
-      return "Unable to transfer to KT... contract address";
 
     default:
       return true;
