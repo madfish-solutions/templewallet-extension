@@ -86,10 +86,18 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
    * Aliases
    */
 
-  const { status, networks, accounts, settings } = state;
+  const { status, networks: defaultNetworks, accounts, settings } = state;
   const idle = status === ThanosStatus.Idle;
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
+
+  const customNetworks = React.useMemo(() => settings?.customNetworks ?? [], [
+    settings,
+  ]);
+  const networks = React.useMemo(
+    () => [...defaultNetworks, ...customNetworks],
+    [defaultNetworks, customNetworks]
+  );
 
   /**
    * Backup seed phrase flag
@@ -223,6 +231,20 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const createLedgerAccount = React.useCallback(
+    async (name: string, derivationPath?: string) => {
+      const res = await request({
+        type: ThanosMessageType.CreateLedgerAccountRequest,
+        name,
+        derivationPath,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.CreateLedgerAccountResponse
+      );
+    },
+    []
+  );
+
   const updateSettings = React.useCallback(
     async (settings: Partial<ThanosSettings>) => {
       const res = await request({
@@ -230,6 +252,32 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
         settings,
       });
       assertResponse(res.type === ThanosMessageType.UpdateSettingsResponse);
+    },
+    []
+  );
+
+  const getAllPndOps = React.useCallback(
+    async (accountPublicKeyHash: string, netId: string) => {
+      const res = await request({
+        type: ThanosMessageType.GetAllPndOpsRequest,
+        accountPublicKeyHash,
+        netId,
+      });
+      assertResponse(res.type === ThanosMessageType.GetAllPndOpsResponse);
+      return res.operations;
+    },
+    []
+  );
+
+  const removePndOps = React.useCallback(
+    async (accountPublicKeyHash: string, netId: string, opHashes: string[]) => {
+      const res = await request({
+        type: ThanosMessageType.RemovePndOpsRequest,
+        accountPublicKeyHash,
+        netId,
+        opHashes,
+      });
+      assertResponse(res.type === ThanosMessageType.RemovePndOpsResponse);
     },
     []
   );
@@ -285,17 +333,26 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const confirmDAppSign = React.useCallback(
+    async (id: string, confirmed: boolean) => {
+      const res = await request({
+        type: ThanosMessageType.DAppSignConfirmationRequest,
+        id,
+        confirmed,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.DAppSignConfirmationResponse
+      );
+    },
+    []
+  );
+
   const createTaquitoWallet = React.useCallback(
-    (
-      sourcePkh: string,
-      networkRpc: string,
-      onAfterSend?: (opHash: string, opResults: any[]) => void
-    ) =>
+    (sourcePkh: string, networkRpc: string) =>
       new TaquitoWallet(sourcePkh, networkRpc, {
         onBeforeSend: (id) => {
           confirmationIdRef.current = id;
         },
-        onAfterSend,
       }),
     []
   );
@@ -308,11 +365,30 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const getAllDAppSessions = React.useCallback(async () => {
+    const res = await request({
+      type: ThanosMessageType.DAppGetAllSessionsRequest,
+    });
+    assertResponse(res.type === ThanosMessageType.DAppGetAllSessionsResponse);
+    return res.sessions;
+  }, []);
+
+  const removeDAppSession = React.useCallback(async (origin: string) => {
+    const res = await request({
+      type: ThanosMessageType.DAppRemoveSessionRequest,
+      origin,
+    });
+    assertResponse(res.type === ThanosMessageType.DAppRemoveSessionResponse);
+    return res.sessions;
+  }, []);
+
   return {
     state,
 
     // Aliases
     status,
+    defaultNetworks,
+    customNetworks,
     networks,
     accounts,
     settings,
@@ -338,19 +414,24 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     importAccount,
     importMnemonicAccount,
     importFundraiserAccount,
+    createLedgerAccount,
     updateSettings,
+    getAllPndOps,
+    removePndOps,
     confirmInternal,
     getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
+    confirmDAppSign,
     createTaquitoWallet,
     createTaquitoSigner,
+    getAllDAppSessions,
+    removeDAppSession,
   };
 });
 
 type TaquitoWalletOps = {
   onBeforeSend?: (id: string) => void;
-  onAfterSend?: (opHash: string, opResults: any[]) => void;
 };
 
 class TaquitoWallet implements WalletProvider {
@@ -389,9 +470,6 @@ class TaquitoWallet implements WalletProvider {
       opParams: opParams.map(formatOpParams),
     });
     assertResponse(res.type === ThanosMessageType.OperationsResponse);
-    if (this.opts.onAfterSend) {
-      this.opts.onAfterSend(res.opHash, res.opResults);
-    }
     return res.opHash;
   }
 }

@@ -23,7 +23,7 @@ const Explore: React.FC = () => {
     <PageLayout
       pageTitle={
         <>
-          <ExploreIcon className="mr-1 h-4 w-auto stroke-current" />
+          <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
           Explore
         </>
       }
@@ -45,7 +45,7 @@ const Explore: React.FC = () => {
         </div>
 
         <div
-          className="mt-4 w-full mx-auto flex items-stretch"
+          className="flex items-stretch w-full mx-auto mt-4"
           style={{ maxWidth: "18rem" }}
         >
           <div className="w-1/2 p-2">
@@ -114,7 +114,7 @@ const Explore: React.FC = () => {
 
       <SubTitle>Operations</SubTitle>
 
-      <SuspenseContainer whileMessage="fetching or processing operation history from TZStats">
+      <SuspenseContainer whileMessage="fetching or processing operation history">
         <OperationHistory accountPkh={accountPkh} />
       </SuspenseContainer>
     </PageLayout>
@@ -139,7 +139,7 @@ const SuspenseContainer: React.FC<SuspenseContainerProps> = ({
 );
 
 const SpinnerSection: React.FC = () => (
-  <div className="my-12 flex justify-center">
+  <div className="flex justify-center my-12">
     <Spinner theme="gray" className="w-20" />
   </div>
 );

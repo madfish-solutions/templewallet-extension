@@ -5,9 +5,10 @@ import {
   ThanosRequest,
   ThanosResponse,
 } from "lib/thanos/types";
-import { intercom } from "lib/thanos/back/intercom";
+import { intercom } from "lib/thanos/back/defaults";
 import { store, toFront } from "lib/thanos/back/store";
 import * as Actions from "lib/thanos/back/actions";
+import * as PndOps from "lib/thanos/back/pndops";
 
 const frontStore = store.map(toFront);
 
@@ -109,14 +110,36 @@ async function processRequest(
         type: ThanosMessageType.ImportFundraiserAccountResponse,
       };
 
+    case ThanosMessageType.CreateLedgerAccountRequest:
+      await Actions.craeteLedgerAccount(req.name, req.derivationPath);
+      return {
+        type: ThanosMessageType.CreateLedgerAccountResponse,
+      };
+
     case ThanosMessageType.UpdateSettingsRequest:
       await Actions.updateSettings(req.settings);
       return {
         type: ThanosMessageType.UpdateSettingsResponse,
       };
 
+    case ThanosMessageType.GetAllPndOpsRequest:
+      const operations = await PndOps.getAll(
+        req.accountPublicKeyHash,
+        req.netId
+      );
+      return {
+        type: ThanosMessageType.GetAllPndOpsResponse,
+        operations,
+      };
+
+    case ThanosMessageType.RemovePndOpsRequest:
+      await PndOps.remove(req.accountPublicKeyHash, req.netId, req.opHashes);
+      return {
+        type: ThanosMessageType.RemovePndOpsResponse,
+      };
+
     case ThanosMessageType.OperationsRequest:
-      const { opHash, opResults } = await Actions.sendOperations(
+      const { opHash } = await Actions.sendOperations(
         port,
         req.id,
         req.sourcePkh,
@@ -126,7 +149,6 @@ async function processRequest(
       return {
         type: ThanosMessageType.OperationsResponse,
         opHash,
-        opResults,
       };
 
     case ThanosMessageType.SignRequest:
@@ -140,6 +162,20 @@ async function processRequest(
       return {
         type: ThanosMessageType.SignResponse,
         result,
+      };
+
+    case ThanosMessageType.DAppGetAllSessionsRequest:
+      const allSessions = await Actions.getAllDAppSessions();
+      return {
+        type: ThanosMessageType.DAppGetAllSessionsResponse,
+        sessions: allSessions,
+      };
+
+    case ThanosMessageType.DAppRemoveSessionRequest:
+      const sessions = await Actions.removeDAppSession(req.origin);
+      return {
+        type: ThanosMessageType.DAppRemoveSessionResponse,
+        sessions,
       };
 
     case ThanosMessageType.PageRequest:

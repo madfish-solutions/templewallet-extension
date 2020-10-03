@@ -7,6 +7,7 @@ import {
   useThanosClient,
   useAllAccounts,
   useSetAccountPkh,
+  validateDerivationPath,
 } from "lib/thanos/front";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
@@ -14,6 +15,7 @@ import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Alert from "app/atoms/Alert";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
+import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 
 type ImportAccountProps = {
   tabSlug: string | null;
@@ -62,13 +64,13 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
     <PageLayout
       pageTitle={
         <>
-          <DownloadIcon className="mr-1 h-4 w-auto stroke-current" />
+          <DownloadIcon className="w-auto h-4 mr-1 stroke-current" />
           Import Account
         </>
       }
     >
       <div className="py-4">
-        <div className="mb-4 flex flex-wrap items-center justify-center">
+        <div className="flex flex-wrap items-center justify-center mb-4">
           {allTabs.map((t) => {
             const active = slug === t.slug;
 
@@ -140,7 +142,7 @@ const ByPrivateKeyForm: React.FC = () => {
 
   return (
     <form
-      className="my-8 w-full mx-auto max-w-sm"
+      className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
       {error && (
@@ -189,10 +191,7 @@ const ByPrivateKeyForm: React.FC = () => {
         />
       )}
 
-      <FormSubmitButton
-        loading={formState.isSubmitting}
-        disabled={formState.isSubmitting}
-      >
+      <FormSubmitButton loading={formState.isSubmitting}>
         Import account
       </FormSubmitButton>
     </form>
@@ -257,7 +256,7 @@ const ByMnemonicForm: React.FC = () => {
 
   return (
     <form
-      className="my-8 w-full mx-auto max-w-sm"
+      className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
       {error && (
@@ -361,6 +360,15 @@ const ByMnemonicForm: React.FC = () => {
                 onClick={handleClick}
               >
                 {dp.name}
+                <div className="flex-1" />
+                {selected && (
+                  <OkIcon
+                    className={classNames("mx-2 h-4 w-auto stroke-2")}
+                    style={{
+                      stroke: "#777",
+                    }}
+                  />
+                )}
               </button>
             );
           })}
@@ -382,37 +390,12 @@ const ByMnemonicForm: React.FC = () => {
         />
       )}
 
-      <FormSubmitButton
-        loading={formState.isSubmitting}
-        disabled={formState.isSubmitting}
-        className="mt-8"
-      >
+      <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
         Import account
       </FormSubmitButton>
     </form>
   );
 };
-
-function validateDerivationPath(p: string) {
-  if (!p.startsWith("m")) {
-    return "Must be start with 'm'";
-  }
-  if (p.length > 1 && p[1] !== "/") {
-    return "Separator must be '/'";
-  }
-
-  const parts = p.replace("m", "").split("/").filter(Boolean);
-  if (
-    !parts.every((p) => {
-      const pNum = +(p.includes("'") ? p.replace("'", "") : p);
-      return Number.isSafeInteger(pNum) && pNum >= 0;
-    })
-  ) {
-    return "Invalid path";
-  }
-
-  return true;
-}
 
 interface ByFundraiserFormData {
   email: string;
@@ -453,7 +436,7 @@ const ByFundraiserForm: React.FC = () => {
 
   return (
     <form
-      className="my-8 w-full mx-auto max-w-sm"
+      className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
       {error && (
@@ -507,10 +490,7 @@ const ByFundraiserForm: React.FC = () => {
         className="resize-none"
       />
 
-      <FormSubmitButton
-        loading={formState.isSubmitting}
-        disabled={formState.isSubmitting}
-      >
+      <FormSubmitButton loading={formState.isSubmitting}>
         Import account
       </FormSubmitButton>
     </form>
