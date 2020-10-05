@@ -497,7 +497,12 @@
     "message": "Click on area to select another asset or token."
   },
   "resetPermissionsConfirmation": {
-    "message": "Are you sure you want to reset permissions?"
+    "message": "Are you sure you want to reset permissions for $origin$?",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
   },
   "disable": {
     "message": "disable"
@@ -523,15 +528,10 @@
     "message": "Disabled"
   },
   "networkLabel": {
-    "message": "Network: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
+    "message": "Network: %network%"
   },
   "pkhLabel": {
-    "message": "PKH: %pkh%"
+    "message": "Account: %pkh%"
   },
   "delete": {
     "message": "Delete"
