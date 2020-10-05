@@ -12,7 +12,7 @@ import { NETWORKS } from "lib/thanos/networks";
 type FormData = Pick<ThanosNetwork, "name" | "rpcBaseURL">;
 
 const SUBMIT_ERROR_TYPE = "submit-error";
-const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http:\/\/localhost:[0-9]+)$/;
+const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
 
 const CustomNetworksSettings: React.FC = () => {
   const { updateSettings } = useThanosClient();
@@ -144,7 +144,7 @@ const CustomNetworksSettings: React.FC = () => {
             style={{ maxWidth: "90%" }}
           >
             Click on the X icon to delete the network. If you want to edit
-            network, just delete it and add another with new params.
+            network, just delete it and add another with new parameters.
           </span>
         </h2>
 
