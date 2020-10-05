@@ -502,7 +502,7 @@ class ThanosSigner {
       sourcePkh: this.pkh,
       id,
       bytes,
-      watermark: buf2hex(toBuffer(watermark)),
+      watermark: watermark ? buf2hex(toBuffer(watermark)) : undefined,
     });
     assertResponse(res.type === ThanosMessageType.SignResponse);
     return res.result;
