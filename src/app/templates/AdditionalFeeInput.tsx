@@ -158,6 +158,7 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
             selectedPreset !== "custom" && "hidden",
             "mb-2"
           )}
+          gt={0}
           id={id}
           onChange={onChange}
           assetSymbol={assetSymbol}

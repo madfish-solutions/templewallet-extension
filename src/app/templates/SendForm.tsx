@@ -309,8 +309,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   );
 
   const validateAmount = React.useCallback(
-    (v: number) => {
-      if (!v) return "Required";
+    (v?: number) => {
+      if (v === undefined) return "Required";
+      // if (v < 0) return "Cannot be negative";
       if (!maxAmountNum) return true;
       const vBN = new BigNumber(v);
       return (

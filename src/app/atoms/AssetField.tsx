@@ -4,6 +4,7 @@ import FormField from "app/atoms/FormField";
 type AssetFieldProps = React.ComponentProps<typeof FormField> & {
   value?: number;
   min?: number;
+  gt?: number;
   max?: number;
   assetSymbol?: React.ReactNode;
   assetDecimals?: number;
@@ -21,14 +22,12 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
       onChange,
       onFocus,
       onBlur,
+      gt,
       ...rest
     },
     ref
   ) => {
-    const valueStr = React.useMemo(
-      () => (value !== undefined && value !== 0 ? value.toString() : ""),
-      [value]
-    );
+    const valueStr = React.useMemo(() => value?.toString() || "", [value]);
 
     const [localValue, setLocalValue] = React.useState(valueStr);
     const [focused, setFocused] = React.useState(false);
@@ -49,14 +48,18 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
           numVal = +val;
         }
 
-        if (!isNaN(numVal) && numVal >= min && numVal < max) {
+        if (
+          !isNaN(numVal) &&
+          (gt !== undefined ? numVal > gt : numVal >= min) &&
+          numVal < max
+        ) {
           setLocalValue(val);
           if (onChange) {
             onChange(numVal);
           }
         }
       },
-      [assetDecimals, setLocalValue, min, max, onChange]
+      [assetDecimals, setLocalValue, min, gt, max, onChange]
     );
 
     const handleFocus = React.useCallback(
