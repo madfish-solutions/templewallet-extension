@@ -352,15 +352,19 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       setOperation(null);
 
       try {
+        console.log("toTransferParams", tezos, localAsset, to, amount);
         const transferParams = await toTransferParams(
           tezos,
           localAsset,
           to,
           amount
         );
+        console.log("transferParams", transferParams);
         const estmtn = await tezos.estimate.transfer(transferParams);
+        console.log("estimation", estmtn);
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
+        console.log("transfer", { ...transferParams, fee });
         const op = await tezos.wallet
           .transfer({ ...transferParams, fee } as any)
           .send();
