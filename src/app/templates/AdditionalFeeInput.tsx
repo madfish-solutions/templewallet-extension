@@ -66,6 +66,16 @@ const getFeeOptionId = (option: FeeOption) => option.type;
 const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
   const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
 
+  const validateAdditionalFee = useCallback((v?: number) => {
+    if (v === undefined) {
+      return "Required";
+    }
+    if (v <= 0) {
+      return "Must be positive";
+    }
+    return true;
+  }, []);
+
   return (
     <Controller
       name={name}
@@ -87,6 +97,9 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
       }
       placeholder="0"
       errorCaption={error?.message}
+      rules={{
+        validate: validateAdditionalFee,
+      }}
     />
   );
 };
@@ -158,7 +171,6 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
             selectedPreset !== "custom" && "hidden",
             "mb-2"
           )}
-          gt={0}
           id={id}
           onChange={onChange}
           assetSymbol={assetSymbol}

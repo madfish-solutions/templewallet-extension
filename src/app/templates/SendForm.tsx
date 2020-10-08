@@ -21,6 +21,7 @@ import {
   toPenny,
   hasManager,
   ThanosAssetType,
+  isKTAddress,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import {
@@ -311,7 +312,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const validateAmount = React.useCallback(
     (v?: number) => {
       if (v === undefined) return "Required";
-      // if (v < 0) return "Cannot be negative";
+      if (!isKTAddress(toValue) && v === 0) {
+        return "Must be positive";
+      }
       if (!maxAmountNum) return true;
       const vBN = new BigNumber(v);
       return (
@@ -319,7 +322,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         `Maximal: ${maxAmountNum.toString()}`
       );
     },
-    [maxAmountNum]
+    [maxAmountNum, toValue]
   );
 
   const handleFeeFieldChange = React.useCallback(
@@ -352,19 +355,15 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       setOperation(null);
 
       try {
-        console.log("toTransferParams", tezos, localAsset, to, amount);
         const transferParams = await toTransferParams(
           tezos,
           localAsset,
           to,
           amount
         );
-        console.log("transferParams", transferParams);
         const estmtn = await tezos.estimate.transfer(transferParams);
-        console.log("estimation", estmtn);
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        console.log("transfer", { ...transferParams, fee });
         const op = await tezos.wallet
           .transfer({ ...transferParams, fee } as any)
           .send();
