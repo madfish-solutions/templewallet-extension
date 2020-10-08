@@ -25,10 +25,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
     },
     ref
   ) => {
-    const valueStr = React.useMemo(
-      () => (value !== undefined && value !== 0 ? value.toString() : ""),
-      [value]
-    );
+    const valueStr = React.useMemo(() => value?.toString() || "", [value]);
 
     const [localValue, setLocalValue] = React.useState(valueStr);
     const [focused, setFocused] = React.useState(false);
@@ -52,7 +49,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
         if (!isNaN(numVal) && numVal >= min && numVal < max) {
           setLocalValue(val);
           if (onChange) {
-            onChange(numVal);
+            onChange(val !== "" ? numVal : undefined);
           }
         }
       },
