@@ -21,6 +21,7 @@ import {
   toPenny,
   hasManager,
   ThanosAssetType,
+  isKTAddress,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import {
@@ -309,8 +310,11 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   );
 
   const validateAmount = React.useCallback(
-    (v: number) => {
-      if (!v) return "Required";
+    (v?: number) => {
+      if (v === undefined) return "Required";
+      if (!isKTAddress(toValue) && v === 0) {
+        return "Must be positive";
+      }
       if (!maxAmountNum) return true;
       const vBN = new BigNumber(v);
       return (
@@ -318,7 +322,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         `Maximal: ${maxAmountNum.toString()}`
       );
     },
-    [maxAmountNum]
+    [maxAmountNum, toValue]
   );
 
   const handleFeeFieldChange = React.useCallback(
