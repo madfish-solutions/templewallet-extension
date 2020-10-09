@@ -64,7 +64,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
           }
         }
       },
-      [assetDecimals, setLocalValue, min, max, onChange]
+      [assetDecimals, setLocalValue, min, max, onChange, canChangeToUndefined]
     );
 
     const handleFocus = React.useCallback(
