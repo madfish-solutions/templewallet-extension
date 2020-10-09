@@ -1,5 +1,5 @@
 import classNames from "clsx";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Controller, ControllerProps, FieldError } from "react-hook-form";
 import BigNumber from "bignumber.js";
 import { XTZ_ASSET } from "lib/thanos/front";
@@ -66,12 +66,20 @@ const getFeeOptionId = (option: FeeOption) => option.type;
 const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
   const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
 
+  const customFeeInputRef = useRef<HTMLInputElement>(null);
+  const focusCustomFeeInput = useCallback(() => {
+    console.log("x1");
+    customFeeInputRef.current?.focus();
+  }, []);
+
   return (
     <Controller
       name={name}
       as={AdditionalFeeInputContent}
       control={control}
+      customFeeInputRef={customFeeInputRef}
       onChange={onChange}
+      onFocus={focusCustomFeeInput}
       id={id}
       assetSymbol={assetSymbol}
       label="Additional Fee"
@@ -85,6 +93,7 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
           </>
         )
       }
+      rules={{ required: "Required" }}
       placeholder="0"
       errorCaption={error?.message}
     />
@@ -93,10 +102,17 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
 
 export default AdditionalFeeInput;
 
-const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
+type AdditionalFeeInputContentProps = AssetFieldProps & {
+  customFeeInputRef: React.MutableRefObject<HTMLInputElement | null>;
+};
+
+const AdditionalFeeInputContent: React.FC<AdditionalFeeInputContentProps> = (
+  props
+) => {
   const {
     className,
     containerClassName,
+    customFeeInputRef,
     onChange,
     assetSymbol,
     id,
@@ -154,12 +170,14 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
         />
 
         <AssetField
+          canChangeToUndefined
           containerClassName={classNames(
             selectedPreset !== "custom" && "hidden",
             "mb-2"
           )}
           id={id}
           onChange={onChange}
+          ref={customFeeInputRef}
           assetSymbol={assetSymbol}
           value={value}
           {...restProps}

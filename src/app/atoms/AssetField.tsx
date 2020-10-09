@@ -2,6 +2,7 @@ import * as React from "react";
 import FormField from "app/atoms/FormField";
 
 type AssetFieldProps = React.ComponentProps<typeof FormField> & {
+  canChangeToUndefined?: boolean;
   value?: number;
   min?: number;
   max?: number;
@@ -20,6 +21,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
       assetDecimals = 6,
       onChange,
       onFocus,
+      canChangeToUndefined,
       onBlur,
       ...rest
     },
@@ -44,6 +46,12 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
         let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
         let numVal = +val;
         const indexOfDot = val.indexOf(".");
+
+        if (val === "" && canChangeToUndefined) {
+          onChange?.(undefined);
+          return;
+        }
+
         if (indexOfDot !== -1 && val.length - indexOfDot > assetDecimals + 1) {
           val = val.substring(0, indexOfDot + assetDecimals + 1);
           numVal = +val;
