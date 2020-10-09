@@ -1072,6 +1072,9 @@
   "derivationPathExample": {
     "message": "m/44'/1729'/<account_index>'/0'"
   },
+  "derivationPathExample2": {
+    "message": "e.g. m/44'/1729'/..."
+  },
   "keepSeedPhraseSecret": {
     "message": "Keep it secret."
   },
@@ -1311,5 +1314,49 @@
         "content": "$1"
       }
     }
+  },
+  "confirmActionOnDevice": {
+    "message": "Confirm the action on"
+  },
+  "deviceName": {
+    "message": "%device% device"
+  },
+  "ledgerNano": {
+    "message": "Ledger Nano"
+  },
+  "defaultLedgerName": {
+    "message": "Ledger $number$",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledgerNameConstraint": {
+    "message": "1-16 characters, no special"
+  },
+  "ledgerNameInputDescription": {
+    "message": "What will be the name of the new Ledger account?"
+  },
+  "defaultDerivationPathLabel": {
+    "message": "By default %path% derivation is used."
+  },
+  "clickOnCustomDerivationPath": {
+    "message": "Click on 'Custom derivation path' to customize it."
+  },
+  "addLedgerAccount": {
+    "message": "Add Ledger Account"
+  },
+  "firefoxLedgerConnectionError": {
+    "message": "%sorry% Connection to the %device% device via %browser% is temporarily %unavailable%."
+  },
+  "connectionUnavailable": {
+    "message": "Unavailable"
+  },
+  "sorry": {
+    "message": "Sorry!"
+  },
+  "upload": {
+    "message": "Upload"
   }
 }
