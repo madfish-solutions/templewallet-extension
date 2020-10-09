@@ -194,7 +194,7 @@ const DAppDescription: React.FC<OptionRenderProps<
           name="networkLabel"
           substitutions={[
             <span className="font-normal capitalize" key="network">
-              {typeof network === "object" ? network.name : network}
+              {typeof network === "string" ? network : network.name}
             </span>,
           ]}
         >
@@ -205,12 +205,16 @@ const DAppDescription: React.FC<OptionRenderProps<
           )}
         </T>
 
-        <T name="pkhLabel" substitutions={[pkhPreviewNode]}>
+        <T
+          name="pkhLabel"
+          substitutions={[
+            <span className="font-normal" key="pkh">
+              {pkhPreviewNode}
+            </span>,
+          ]}
+        >
           {(message) => (
-            <div
-              className="text-gray-600 overflow-hidden whitespace-no-wrap"
-              style={{ textOverflow: "ellipsis" }}
-            >
+            <div className="text-xs font-light leading-tight text-gray-600">
               {message}
             </div>
           )}
