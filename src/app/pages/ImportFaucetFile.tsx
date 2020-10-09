@@ -269,7 +269,7 @@ const Form: React.FC = () => {
               color="#e2e8f0"
               className="m-4 mx-auto"
             >
-              <title>{"Upload"}</title>
+              <T name="upload">{(message) => <title>{message}</title>}</T>
               <path d="M12 4v13M7 8l5-5 5 5M20 21H4" />
             </svg>
             <div className="w-full text-center">

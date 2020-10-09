@@ -154,7 +154,7 @@ const ByPrivateKeyForm: React.FC = () => {
       {error && (
         <Alert
           type="error"
-          title="Error"
+          title={t("error")}
           autoFocus
           description={error}
           className="mb-6"
@@ -162,7 +162,7 @@ const ByPrivateKeyForm: React.FC = () => {
       )}
 
       <FormField
-        ref={register({ required: "Required" })}
+        ref={register({ required: t("required") })}
         secret
         textarea
         rows={4}
@@ -412,7 +412,7 @@ const ByMnemonicForm: React.FC = () => {
           name="customDerivationPath"
           id="importacc-cdp"
           label={t("customDerivationPath")}
-          placeholder="e.g. m/44'/1729'/..."
+          placeholder={t("derivationPathExample2")}
           errorCaption={errors.customDerivationPath?.message}
           containerClassName="mb-6"
         />

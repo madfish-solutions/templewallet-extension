@@ -21,7 +21,7 @@ const Receive: React.FC = () => {
       pageTitle={
         <>
           <QRIcon className="mr-1 h-4 w-auto stroke-current" />
-          Receive
+          <T name="receive">{(message) => <>{message}</>}</T>
         </>
       }
     >
@@ -32,7 +32,7 @@ const Receive: React.FC = () => {
             rows={2}
             ref={fieldRef}
             id="receive-address"
-            label="Address"
+            label={t("address")}
             labelDescription={t("accountAddressLabel")}
             value={address}
             size={36}
