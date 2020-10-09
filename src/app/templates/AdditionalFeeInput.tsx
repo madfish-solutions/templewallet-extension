@@ -68,7 +68,6 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
 
   const customFeeInputRef = useRef<HTMLInputElement>(null);
   const focusCustomFeeInput = useCallback(() => {
-    console.log("x1");
     customFeeInputRef.current?.focus();
   }, []);
 
