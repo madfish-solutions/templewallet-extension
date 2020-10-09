@@ -346,7 +346,7 @@ const ConfirmDAppForm: React.FC = () => {
             onClose={handleErrorAlertClose}
             type="error"
             title="Error"
-            description={error?.message ?? "Something went wrong"}
+            description={error?.message ?? t("smthWentWrong")}
             className="my-4"
             autoFocus
           />
@@ -379,9 +379,13 @@ const ConfirmDAppForm: React.FC = () => {
                     "flex flex-col"
                   )}
                 >
-                  <span className="text-base font-semibold text-gray-700">
-                    Account
-                  </span>
+                  <T name="account">
+                    {(message) => (
+                      <span className="text-base font-semibold text-gray-700">
+                        {message}
+                      </span>
+                    )}
+                  </T>
 
                   <T name="toBeConnectedWithDApp">
                     {(message) => (
@@ -423,14 +427,18 @@ const ConfirmDAppForm: React.FC = () => {
                           "flex items-center"
                         )}
                       >
-                        <span
-                          className={classNames(
-                            "mr-2",
-                            "text-base font-semibold text-gray-700"
+                        <T name="payloadToSign">
+                          {(message) => (
+                            <span
+                              className={classNames(
+                                "mr-2",
+                                "text-base font-semibold text-gray-700"
+                              )}
+                            >
+                              {message}
+                            </span>
                           )}
-                        >
-                          Payload to sign
-                        </span>
+                        </T>
 
                         <div className="flex-1" />
 
