@@ -413,7 +413,7 @@
     "message": "Authorized DApps"
   },
   "clickIconToResetPermissions": {
-    "message": "Click on the X icon to reset DApp permissions."
+    "message": "Click on the X icon to reset permissions."
   },
   "importExistingWallet": {
     "message": "Import existing Wallet"
@@ -497,7 +497,12 @@
     "message": "Click on area to select another asset or token."
   },
   "resetPermissionsConfirmation": {
-    "message": "Are you sure you want to reset permissions?"
+    "message": "Are you sure you want to reset permissions for\n$origin$?",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
   },
   "disable": {
     "message": "disable"
@@ -531,7 +536,7 @@
     }
   },
   "pkhLabel": {
-    "message": "PKH: %pkh%"
+    "message": "Account: %pkh%"
   },
   "delete": {
     "message": "Delete"
