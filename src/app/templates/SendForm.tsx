@@ -473,7 +473,24 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                   <Alert
                     type="warn"
                     title={t("attentionExclamation")}
-                    description={t("tryingToTransferToYourself")}
+                    description={
+                      <T name="tryingToTransferToYourself">
+                        {(message) => {
+                          const [
+                            phrasePart1,
+                            phrasePart2,
+                          ] = (message as string).split("\n");
+
+                          return (
+                            <>
+                              {phrasePart1}
+                              <br />
+                              {phrasePart2}
+                            </>
+                          );
+                        }}
+                      </T>
+                    }
                     className="mt-6 mb-4"
                   />
                 );
