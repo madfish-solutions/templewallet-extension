@@ -429,13 +429,11 @@ async function tzktOperationsFetcher(queryKey: string) {
     return [];
   }
 
-  return (
-    await getOperations(networkId, {
-      address: accountPkh,
-      lastId: lastId !== undefined ? Number(lastId) : undefined,
-      limit: 10,
-    })
-  ).data;
+  return getOperations(networkId, {
+    address: accountPkh,
+    lastId: lastId !== undefined ? Number(lastId) : undefined,
+    limit: 10,
+  });
 }
 
 function tzktOperationsTransformFn(pagesData: TzktOperation[][]) {

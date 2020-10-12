@@ -3,7 +3,6 @@ import {
   ThanosDAppMetadata,
   ThanosDAppNetwork,
 } from "@thanos-wallet/dapp/dist/types";
-import { TZStatsNetwork } from "lib/tzstats";
 import { BcdTokenTransfer } from "lib/better-call-dev";
 import {
   TzktOperation,
