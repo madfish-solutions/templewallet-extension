@@ -705,8 +705,11 @@
   "acceptTerms": {
     "message": "Accept terms"
   },
-  "acceptTermsInputDescription": {
-    "message": "I have read and agree to\nthe %termsOfUsageLink% and %privacyPolicyLink%"
+  "acceptTermsInputDescriptionPart1": {
+    "message": "I have read and agree to"
+  },
+  "acceptTermsInputDescriptionPart2": {
+    "message": "the %termsOfUsageLink% and %privacyPolicyLink%"
   },
   "termsOfUsage": {
     "message": "Terms of Usage"
