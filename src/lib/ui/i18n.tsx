@@ -1,8 +1,5 @@
-import enUS from "date-fns/locale/en-US";
-import enGB from "date-fns/locale/en-GB";
 import * as React from "react";
 import { t } from "lib/i18n";
-import { browser } from "webextension-polyfill-ts";
 
 export * from "lib/i18n";
 
@@ -31,12 +28,6 @@ export const T = React.memo<TProps>(({ name, substitutions, children }) => {
 
   return children ? children(message) : <>{message}</>;
 });
-
-const availableNonDefaultLocales: Record<string, Locale> = {
-  en_GB: enGB,
-};
-export const getDateFnsLocale = () =>
-  availableNonDefaultLocales[browser.i18n.getUILanguage()] || enUS;
 
 function isBrowserI18nCompatibleSubstitutions(
   substitutions: TProps["substitutions"]

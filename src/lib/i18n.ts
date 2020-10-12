@@ -25,4 +25,4 @@ const dateFnsLocales: Record<string, Locale> = {
   en_GB: enGB,
 };
 
-export const getDateFnsLocale = () => dateFnsLocales[getUILanguage()];
+export const getDateFnsLocale = () => dateFnsLocales[getUILanguage()] || enUS;
