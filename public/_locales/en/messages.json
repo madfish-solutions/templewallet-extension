@@ -782,8 +782,8 @@
   "cannotBeRemoved": {
     "message": "Cannot be removed"
   },
-  "onlyImportedAccountsCanBeRemoved": {
-    "message": "Only %importedPlural% accounts can be removed."
+  "accountsToRemoveConstraint": {
+    "message": "Only %importedPlural% or %ledger% accounts can be removed."
   },
   "importedPlural": {
     "message": "imported"
