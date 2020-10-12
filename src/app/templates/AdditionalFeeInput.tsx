@@ -1,5 +1,5 @@
 import classNames from "clsx";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Controller, ControllerProps, FieldError } from "react-hook-form";
 import BigNumber from "bignumber.js";
 import { XTZ_ASSET } from "lib/thanos/front";
@@ -76,14 +76,21 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
     return true;
   }, []);
 
+  const customFeeInputRef = useRef<HTMLInputElement>(null);
+  const focusCustomFeeInput = useCallback(() => {
+    customFeeInputRef.current?.focus();
+  }, []);
+
   return (
     <Controller
       name={name}
       as={AdditionalFeeInputContent}
       control={control}
+      customFeeInputRef={customFeeInputRef}
       onChange={onChange}
       id={id}
       assetSymbol={assetSymbol}
+      onFocus={focusCustomFeeInput}
       label="Additional Fee"
       labelDescription={
         baseFee instanceof BigNumber && (
@@ -106,10 +113,17 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
 
 export default AdditionalFeeInput;
 
-const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
+type AdditionalFeeInputContentProps = AssetFieldProps & {
+  customFeeInputRef: React.MutableRefObject<HTMLInputElement | null>;
+};
+
+const AdditionalFeeInputContent: React.FC<AdditionalFeeInputContentProps> = (
+  props
+) => {
   const {
     className,
     containerClassName,
+    customFeeInputRef,
     onChange,
     assetSymbol,
     id,
@@ -173,6 +187,7 @@ const AdditionalFeeInputContent: React.FC<AssetFieldProps> = (props) => {
           )}
           id={id}
           onChange={onChange}
+          ref={customFeeInputRef}
           assetSymbol={assetSymbol}
           value={value}
           {...restProps}
