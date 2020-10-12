@@ -507,7 +507,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                   >
                     {maxAmount.toString()}
                   </button>
-                  {amountValue ? (
+                  {amountValue && localAsset.type === ThanosAssetType.XTZ ? (
                     <>
                       <br />
                       <InUSD volume={amountValue}>
