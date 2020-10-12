@@ -528,12 +528,7 @@
     "message": "Disabled"
   },
   "networkLabel": {
-    "message": "Network: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
+    "message": "Network: %network%"
   },
   "pkhLabel": {
     "message": "Account: %pkh%"

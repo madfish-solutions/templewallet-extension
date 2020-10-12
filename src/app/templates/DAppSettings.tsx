@@ -192,9 +192,17 @@ const DAppDescription: React.FC<OptionRenderProps<
 
         <T
           name="networkLabel"
-          substitutions={typeof network === "object" ? network.name : network}
+          substitutions={[
+            <span className="font-normal capitalize" key="network">
+              {typeof network === "object" ? network.name : network}
+            </span>,
+          ]}
         >
-          {(message) => <div className="text-gray-600">{message}</div>}
+          {(message) => (
+            <div className="text-xs font-light leading-tight text-gray-600">
+              {message}
+            </div>
+          )}
         </T>
 
         <T name="pkhLabel" substitutions={[pkhPreviewNode]}>
