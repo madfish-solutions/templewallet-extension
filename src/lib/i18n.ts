@@ -1,23 +1,19 @@
 import { browser } from "webextension-polyfill-ts";
 
-const {
-  getAcceptLanguages: importedGetAcceptLanguages,
-  getUILanguage: importedGetUILanguage,
-  getMessage: importedGetMessage,
-} = browser.i18n;
+export const SUPPORTED_LOCALES = ["en", "ru"];
 
-export const supportedLocales = ["en", "ru"];
-export const getAcceptLanguages = importedGetAcceptLanguages;
-export const getUILanguage = importedGetUILanguage;
-export const getMessage = importedGetMessage;
-export const getUILanguageFallback = () => {
+const { getAcceptLanguages, getUILanguage, getMessage } = browser.i18n;
+
+export { getAcceptLanguages, getUILanguage, getMessage };
+
+export function getUILanguageFallback() {
   const locale = getUILanguage();
-  if (supportedLocales.includes(locale)) {
+  if (SUPPORTED_LOCALES.includes(locale)) {
     return locale;
   }
   const localeWithoutCountry = locale.split("_")[0];
-  if (supportedLocales.includes(localeWithoutCountry)) {
+  if (SUPPORTED_LOCALES.includes(localeWithoutCountry)) {
     return localeWithoutCountry;
   }
   return "en";
-};
+}

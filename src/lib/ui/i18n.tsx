@@ -1,7 +1,7 @@
 import { enUS, enGB, ru } from "date-fns/locale";
 import React, { useCallback, useMemo } from "react";
 import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
-import { getMessage, supportedLocales } from "lib/i18n";
+import { SUPPORTED_LOCALES, getMessage } from "lib/i18n";
 import { useRetryableSWR } from "lib/swr";
 
 export * from "lib/i18n";
@@ -29,11 +29,11 @@ export type LocalesMessages = {
 const fetchMessages = (_k: string, locale: string) => {
   return Promise.all([
     (() => {
-      if (supportedLocales.includes(locale)) {
+      if (SUPPORTED_LOCALES.includes(locale)) {
         return fetch(`./_locales/${locale}/messages.json`);
       }
       const localeWithoutCountry = locale.split("_")[0];
-      if (supportedLocales.includes(localeWithoutCountry)) {
+      if (SUPPORTED_LOCALES.includes(localeWithoutCountry)) {
         return fetch(`./_locales/${localeWithoutCountry}/messages.json`);
       }
       return undefined;

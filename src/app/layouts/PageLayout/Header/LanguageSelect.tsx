@@ -1,6 +1,6 @@
 import classNames from "clsx";
 import React, { useCallback } from "react";
-import { getUILanguageFallback, supportedLocales } from "lib/ui/i18n";
+import { SUPPORTED_LOCALES, getUILanguageFallback } from "lib/ui/i18n";
 import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
@@ -83,7 +83,7 @@ const LanguageSelectMenu: React.FC<LanguageSelectMenuProps> = (props) => {
 
   return (
     <DropdownWrapper opened={opened} className="origin-top-right">
-      {supportedLocales.map((localeCode) => (
+      {SUPPORTED_LOCALES.map((localeCode) => (
         <LocaleOption
           key={localeCode}
           locale={localeCode}
