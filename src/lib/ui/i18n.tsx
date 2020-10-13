@@ -75,8 +75,6 @@ export const useTranslation = () => {
         return substitutions;
       })();
 
-      console.log(name);
-
       if (!current && !fallback) {
         return getMessage(name, substitutions);
       }
@@ -105,17 +103,11 @@ export const useTranslation = () => {
 
       const messageLines = messageDescriptor.message.split("\n");
       messageLines.forEach((line, index) => {
-        console.log("line", line);
         let prevIndex = 0;
         let prevEntryLength = 0;
         let placeholderEntry = placeholderRegex.exec(line);
         while (placeholderEntry) {
-          console.log("iteration", placeholderEntry);
           const currentIndex = placeholderEntry.index;
-          console.log(
-            "new part",
-            line.substring(prevIndex + prevEntryLength, currentIndex)
-          );
           appendPart(line.substring(prevIndex + prevEntryLength, currentIndex));
           const placeholderStr = placeholderEntry[0];
           const placeholderName = placeholderStr.substring(
@@ -125,13 +117,11 @@ export const useTranslation = () => {
           const contentDescriptor = messageDescriptor!.placeholders?.[
             placeholderName
           ]?.content;
-          console.log(placeholderName, contentDescriptor);
           const substitutionIndex =
             contentDescriptor && contentDescriptorRegex.test(contentDescriptor)
               ? +contentDescriptor.substring(1) - 1
               : -1;
           const substitution = normalizedSubstitutions[substitutionIndex];
-          console.log(substitutionIndex, normalizedSubstitutions);
           const normalizedSubstitution =
             typeof substitution === "number"
               ? String(substitution)
@@ -146,7 +136,6 @@ export const useTranslation = () => {
           placeholderEntry = placeholderRegex.exec(line);
         }
         const finalPart = line.substring(prevIndex + prevEntryLength);
-        console.log("final part", finalPart);
         const isLastLine = index === messageLines.length - 1;
         if (typeof result === "string") {
           result = `${result.concat(finalPart)}${isLastLine ? "" : "\n"}`;
