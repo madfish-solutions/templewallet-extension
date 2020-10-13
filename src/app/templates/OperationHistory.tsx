@@ -5,7 +5,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
 import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
-import { T, t, useTranslation } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import {
   ThanosAsset,
   ThanosAssetType,

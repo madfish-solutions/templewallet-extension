@@ -71,7 +71,7 @@ export const useTranslation = () => {
   const { current, fallback } = useLocalesMessages();
 
   const t = useCallback(
-    (name: string, substitutions?: any) => {
+    (name: string, substitutions?: any, forceUseBreaks?: boolean) => {
       const normalizedSubstitutions = (() => {
         if (substitutions == null) {
           return [];
@@ -94,9 +94,10 @@ export const useTranslation = () => {
         return null;
       }
 
-      const resultShouldBeString = normalizedSubstitutions.every((value) => {
-        return typeof value === "string" || typeof value === "number";
-      });
+      const resultShouldBeString =
+        normalizedSubstitutions.every((value) => {
+          return typeof value === "string" || typeof value === "number";
+        }) && !forceUseBreaks;
       let result: string | React.ReactChild[] = resultShouldBeString ? "" : [];
       const appendPart = (part: string | React.ReactChild[]) => {
         if (typeof result === "string") {
@@ -163,7 +164,7 @@ export const useTranslation = () => {
 
 export const T = React.memo<TProps>(({ name, substitutions, children }) => {
   const { t } = useTranslation();
-  const message = useMemo(() => t(name, substitutions), [
+  const message = useMemo(() => t(name, substitutions, true), [
     t,
     name,
     substitutions,
