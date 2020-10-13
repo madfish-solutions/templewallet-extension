@@ -1,5 +1,4 @@
 import { browser } from "webextension-polyfill-ts";
-import { enUS, enGB } from "date-fns/locale";
 
 const {
   getAcceptLanguages: importedGetAcceptLanguages,
@@ -22,11 +21,3 @@ export const getUILanguageFallback = () => {
   }
   return "en";
 };
-
-const dateFnsLocales: Record<string, Locale> = {
-  en: enUS,
-  en_US: enUS,
-  en_GB: enGB,
-};
-
-export const getDateFnsLocale = () => dateFnsLocales[getUILanguage()] || enUS;

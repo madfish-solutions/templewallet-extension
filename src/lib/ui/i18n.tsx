@@ -1,3 +1,4 @@
+import { enUS, enGB, ru } from "date-fns/locale";
 import React, { useCallback, useMemo } from "react";
 import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
 import { getMessage, supportedLocales } from "lib/i18n";
@@ -57,6 +58,12 @@ const useLocalesMessages = () => {
   return data;
 };
 
+const dateFnsLocales: Record<string, Locale> = {
+  en: enUS,
+  en_US: enUS,
+  en_GB: enGB,
+  ru,
+};
 const placeholderRegex = /\$[a-z0-9_@]+\$/gi;
 const contentDescriptorRegex = /^\$[0-9]+$/;
 export const useTranslation = () => {
@@ -151,7 +158,7 @@ export const useTranslation = () => {
     [current, fallback]
   );
 
-  return { locale, t };
+  return { locale, t, dateFnsLocale: dateFnsLocales[locale] || enUS };
 };
 
 export const T = React.memo<TProps>(({ name, substitutions, children }) => {
