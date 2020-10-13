@@ -1,6 +1,6 @@
 import classNames from "clsx";
 import React, { useCallback } from "react";
-import { getUILanguageWithFallback, supportedLocales } from "lib/ui/i18n";
+import { getUILanguageFallback, supportedLocales } from "lib/ui/i18n";
 import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
@@ -12,7 +12,7 @@ type LanguageSelectProps = React.HTMLAttributes<HTMLDivElement>;
 const LanguageSelect: React.FC<LanguageSelectProps> = () => {
   const [selectedLocale, setLocale] = useStorage(
     ThanosSharedStorageKey.LocaleCode,
-    getUILanguageWithFallback()
+    getUILanguageFallback()
   );
 
   return (

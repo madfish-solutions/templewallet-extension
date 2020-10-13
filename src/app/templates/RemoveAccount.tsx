@@ -8,7 +8,7 @@ import {
   useAllAccounts,
   useAccount,
 } from "lib/thanos/front";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -24,6 +24,7 @@ const RemoveAccount: React.FC = () => {
   const { removeAccount } = useThanosClient();
   const allAccounts = useAllAccounts();
   const account = useAccount();
+  const { t } = useTranslation();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
@@ -82,7 +83,7 @@ const RemoveAccount: React.FC = () => {
 
       {account.type === ThanosAccountType.HD ? (
         <Alert
-          title={t("cannotBeRemoved")}
+          title={t("cannotBeRemoved") as string}
           description={
             <T
               name="accountsToRemoveConstraint"

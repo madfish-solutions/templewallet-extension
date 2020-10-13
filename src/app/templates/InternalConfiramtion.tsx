@@ -6,7 +6,7 @@ import {
   useAllAccounts,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import { useAppEnv } from "app/env";
 import AccountBanner from "app/templates/AccountBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
@@ -29,6 +29,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   onConfirm,
 }) => {
   const { popup } = useAppEnv();
+  const { t } = useTranslation();
 
   const allAccounts = useAllAccounts();
   const account = React.useMemo(
@@ -128,7 +129,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               closable
               onClose={handleErrorAlertClose}
               type="error"
-              title={t("error")}
+              title={t("error") as string}
               description={error?.message ?? t("smthWentWrong")}
               className="my-4"
               autoFocus

@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { ThanosNetwork, useSettings, useThanosClient } from "lib/thanos/front";
 import { COLORS } from "lib/ui/colors";
-import { T, t } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -18,6 +18,7 @@ const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$
 const CustomNetworksSettings: React.FC = () => {
   const { updateSettings } = useThanosClient();
   const { customNetworks = [] } = useSettings();
+  const { t } = useTranslation();
 
   const {
     register,
@@ -79,7 +80,7 @@ const CustomNetworksSettings: React.FC = () => {
 
   const handleRemoveClick = useCallback(
     (baseUrl: string) => {
-      if (!window.confirm(t("deleteNetworkConfirm"))) {
+      if (!window.confirm(t("deleteNetworkConfirm") as string)) {
         return;
       }
 
@@ -95,18 +96,18 @@ const CustomNetworksSettings: React.FC = () => {
         setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message);
       });
     },
-    [customNetworks, setError, updateSettings]
+    [customNetworks, setError, updateSettings, t]
   );
 
   return (
     <div className="w-full max-w-sm p-2 pb-4 mx-auto">
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormField
-          ref={register({ required: t("required"), maxLength: 35 })}
+          ref={register({ required: t("required") as string, maxLength: 35 })}
           label={t("name")}
           id="name"
           name="name"
-          placeholder={t("networkNamePlaceholder")}
+          placeholder={t("networkNamePlaceholder") as string}
           errorCaption={errors.name?.message}
           containerClassName="mb-4"
           maxLength={35}
@@ -114,8 +115,11 @@ const CustomNetworksSettings: React.FC = () => {
 
         <FormField
           ref={register({
-            required: t("required"),
-            pattern: { value: URL_PATTERN, message: t("mustBeValidURL") },
+            required: t("required") as string,
+            pattern: {
+              value: URL_PATTERN,
+              message: t("mustBeValidURL") as string,
+            },
             validate: {
               unique: rpcURLIsUnique,
             },
@@ -214,6 +218,7 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
     onRemoveClick,
     rpcBaseURL,
   ]);
+  const { t } = useTranslation();
 
   return (
     <div
@@ -247,7 +252,7 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
           <CloseIcon
             className="w-auto h-5 mx-2 stroke-2"
             stroke="#777"
-            title={t("delete")}
+            title={t("delete") as string}
           />
         </button>
       )}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import useSafeState from "lib/ui/useSafeState";
 import Alert from "app/atoms/Alert";
 import HashChip from "app/atoms/HashChip";
@@ -13,6 +13,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
   typeTitle,
   operation,
 }) => {
+  const { t } = useTranslation();
   const hash = React.useMemo(() => operation.hash || operation.opHash, [
     operation,
   ]);
@@ -77,11 +78,11 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
       .catch(() => {
         setAlert({
           type: "error",
-          title: t("error"),
+          title: t("error") as string,
           description: t("timedOutOperationConfirmation"),
         });
       });
-  }, [operation, setAlert, descFooter, typeTitle]);
+  }, [operation, setAlert, descFooter, typeTitle, t]);
 
   return (
     <Alert

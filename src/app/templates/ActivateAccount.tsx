@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import { ActivationStatus, useTezos, useAccount } from "lib/thanos/front";
 import useIsMounted from "lib/ui/useIsMounted";
 import AccountBanner from "app/templates/AccountBanner";
@@ -18,6 +18,7 @@ const ActivateAccount: React.FC = () => {
   const tezos = useTezos();
   const account = useAccount();
   const isMounted = useIsMounted();
+  const { t } = useTranslation();
 
   const [success, setSuccessPure] = React.useState<React.ReactNode>(null);
   const setSuccess = React.useCallback<typeof setSuccessPure>(
@@ -94,7 +95,7 @@ const ActivateAccount: React.FC = () => {
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
         const mes = t("failureSecretMayBeInvalid");
-        setError("secret", SUBMIT_ERROR_TYPE, mes);
+        setError("secret", SUBMIT_ERROR_TYPE, mes as string);
       }
     },
     [
@@ -104,6 +105,7 @@ const ActivateAccount: React.FC = () => {
       setSuccess,
       activateAccount,
       account.publicKeyHash,
+      t,
     ]
   );
 
@@ -141,7 +143,7 @@ const ActivateAccount: React.FC = () => {
       {success && (
         <Alert
           type="success"
-          title={t("success")}
+          title={t("success") as string}
           description={success}
           autoFocus
           className="mb-4"
@@ -151,12 +153,12 @@ const ActivateAccount: React.FC = () => {
       <FormField
         textarea
         rows={2}
-        ref={register({ required: t("required") })}
+        ref={register({ required: t("required") as string })}
         name="secret"
         id="activateaccount-secret"
         label={t("activateAccountSecret")}
         labelDescription={t("activateAccountSecretDescription")}
-        placeholder={t("activateAccountSecretPlaceholder")}
+        placeholder={t("activateAccountSecretPlaceholder") as string}
         errorCaption={errors.secret?.message}
         style={{ resize: "none" }}
         containerClassName="mb-4"

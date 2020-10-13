@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
-import { supportedLocales } from "lib/i18n";
+import { getMessage, supportedLocales } from "lib/i18n";
+import { useRetryableSWR } from "lib/swr";
 
 export * from "lib/i18n";
 
-type BrowserI18nCompatibleSubstitutions = string | string[] | undefined;
 export type TProps = {
   name: string;
   substitutions?: any;
@@ -25,33 +25,36 @@ export type LocalesMessages = {
   fallback?: LocaleMessages;
 };
 
+const fetchMessages = (_k: string, locale: string) => {
+  return Promise.all([
+    (() => {
+      if (supportedLocales.includes(locale)) {
+        return fetch(`./_locales/${locale}/messages.json`);
+      }
+      const localeWithoutCountry = locale.split("_")[0];
+      if (supportedLocales.includes(localeWithoutCountry)) {
+        return fetch(`./_locales/${localeWithoutCountry}/messages.json`);
+      }
+      return undefined;
+    })(),
+    fetch(`./_locales/${fallbackLocale}/messages.json`),
+  ])
+    .then((responses) => Promise.all(responses.map((res) => res?.json())))
+    .then(([currentLocaleMessages, fallbackMessages]) => ({
+      current: currentLocaleMessages,
+      fallback: fallbackMessages,
+    }));
+};
+
 const fallbackLocale = "en";
 const useLocalesMessages = () => {
   const [locale] = useStorage(ThanosSharedStorageKey.LocaleCode, "en");
-  const [localeMessages, setLocaleMessages] = useState<LocalesMessages>({});
-  useEffect(() => {
-    Promise.all([
-      (() => {
-        if (supportedLocales.includes(locale)) {
-          return fetch(`./_locales/${locale}/messages.json`);
-        }
-        const localeWithoutCountry = locale.split("_")[0];
-        if (supportedLocales.includes(localeWithoutCountry)) {
-          return fetch(`./_locales/${localeWithoutCountry}/messages.json`);
-        }
-        return undefined;
-      })(),
-      fetch(`./_locales/${fallbackLocale}/messages.json`),
-    ])
-      .then((responses) => Promise.all(responses.map((res) => res?.json())))
-      .then(([currentLocaleMessages, fallbackMessages]) =>
-        setLocaleMessages({
-          current: currentLocaleMessages,
-          fallback: fallbackMessages,
-        })
-      );
-  }, [locale]);
-  return localeMessages;
+  const { data = {} } = useRetryableSWR<LocalesMessages>(
+    ["fetch-messages", locale],
+    fetchMessages
+  );
+
+  return data;
 };
 
 const placeholderRegex = /\$[a-z0-9_@]+\$/gi;
@@ -59,7 +62,6 @@ const contentDescriptorRegex = /^\$[0-9]+$/;
 export const useTranslation = () => {
   const [locale] = useStorage(ThanosSharedStorageKey.LocaleCode, "en");
   const { current, fallback } = useLocalesMessages();
-  console.log(current, fallback);
 
   const t = useCallback(
     (name: string, substitutions?: any) => {
@@ -74,6 +76,11 @@ export const useTranslation = () => {
       })();
 
       console.log(name);
+
+      if (!current && !fallback) {
+        return getMessage(name, substitutions);
+      }
+
       const messageDescriptor = current?.[name] || fallback?.[name];
       if (!messageDescriptor && process.env.NODE_ENV === "development") {
         console.error(`Missing translation for key ${name}`);
@@ -89,8 +96,10 @@ export const useTranslation = () => {
       const appendPart = (part: string | React.ReactChild[]) => {
         if (typeof result === "string") {
           result = result.concat(part as string);
-        } else {
+        } else if (part instanceof Array) {
           result.push(...(part as React.ReactChild[]));
+        } else {
+          result.push(part);
         }
       };
 
@@ -103,8 +112,11 @@ export const useTranslation = () => {
         while (placeholderEntry) {
           console.log("iteration", placeholderEntry);
           const currentIndex = placeholderEntry.index;
-          console.log("new part", line.substring(prevIndex, currentIndex));
-          appendPart(line.substring(prevIndex, currentIndex));
+          console.log(
+            "new part",
+            line.substring(prevIndex + prevEntryLength, currentIndex)
+          );
+          appendPart(line.substring(prevIndex + prevEntryLength, currentIndex));
           const placeholderStr = placeholderEntry[0];
           const placeholderName = placeholderStr.substring(
             1,
@@ -116,11 +128,19 @@ export const useTranslation = () => {
           console.log(placeholderName, contentDescriptor);
           const substitutionIndex =
             contentDescriptor && contentDescriptorRegex.test(contentDescriptor)
-              ? +contentDescriptor.substring(1)
+              ? +contentDescriptor.substring(1) - 1
               : -1;
           const substitution = normalizedSubstitutions[substitutionIndex];
           console.log(substitutionIndex, normalizedSubstitutions);
-          appendPart(substitution != null ? substitution : placeholderStr);
+          const normalizedSubstitution =
+            typeof substitution === "number"
+              ? String(substitution)
+              : substitution;
+          appendPart(
+            normalizedSubstitution != null
+              ? normalizedSubstitution
+              : placeholderStr
+          );
           prevEntryLength = placeholderStr.length;
           prevIndex = currentIndex;
           placeholderEntry = placeholderRegex.exec(line);
@@ -133,7 +153,7 @@ export const useTranslation = () => {
         } else {
           result.push(finalPart);
           if (!isLastLine) {
-            result.push(<br />);
+            result.push(<br key={result.length} />);
           }
         }
       });

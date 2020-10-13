@@ -24,7 +24,7 @@ import {
   isKTAddress,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
-import { T, t } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import {
   ArtificialError,
   NotEnoughFundsError,
@@ -58,6 +58,7 @@ const RECOMMENDED_ADD_FEE = 0.0001;
 
 const SendForm: React.FC = () => {
   const { currentAsset } = useCurrentAsset();
+  const { t } = useTranslation();
   const tezos = useTezos();
 
   const [localAsset, setLocalAsset] = useSafeState(
@@ -69,7 +70,10 @@ const SendForm: React.FC = () => {
   return (
     <>
       {operation && (
-        <OperationStatus typeTitle={t("transaction")} operation={operation} />
+        <OperationStatus
+          typeTitle={t("transaction") as string}
+          operation={operation}
+        />
       )}
 
       <AssetSelect
@@ -94,6 +98,7 @@ type FormProps = {
 
 const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
+  const { t } = useTranslation();
 
   const allAccounts = useAllAccounts();
   const acc = useAccount();
@@ -312,18 +317,18 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const validateAmount = React.useCallback(
     (v?: number) => {
-      if (v === undefined) return t("required");
+      if (v === undefined) return t("required") as string;
       if (!isKTAddress(toValue) && v === 0) {
-        return t("amountMustBePositive");
+        return t("amountMustBePositive") as string;
       }
       if (!maxAmountNum) return true;
       const vBN = new BigNumber(v);
       return (
         vBN.isLessThanOrEqualTo(maxAmountNum) ||
-        t("maximalAmount", maxAmountNum.toString())
+        (t("maximalAmount", maxAmountNum.toString()) as string)
       );
     },
-    [maxAmountNum, toValue]
+    [maxAmountNum, toValue, t]
   );
 
   const handleFeeFieldChange = React.useCallback(
@@ -447,7 +452,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
           )
         }
         placeholder={t("recipientInputPlaceholder")}
-        errorCaption={errors.to?.message}
+        errorCaption={errors.to?.message && t(errors.to?.message.toString())}
         style={{
           resize: "none",
         }}
@@ -472,25 +477,8 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                 return (
                   <Alert
                     type="warn"
-                    title={t("attentionExclamation")}
-                    description={
-                      <T name="tryingToTransferToYourself">
-                        {(message) => {
-                          const [
-                            phrasePart1,
-                            phrasePart2,
-                          ] = (message as string).split("\n");
-
-                          return (
-                            <>
-                              {phrasePart1}
-                              <br />
-                              {phrasePart2}
-                            </>
-                          );
-                        }}
-                      </T>
-                    }
+                    title={t("attentionExclamation") as string}
+                    description={<T name="tryingToTransferToYourself" />}
                     className="mt-6 mb-4"
                   />
                 );
@@ -710,60 +698,63 @@ type SendErrorAlertProps = {
   error: Error;
 };
 
-const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
-  <Alert
-    type={type === "submit" ? "error" : "warn"}
-    title={(() => {
-      switch (true) {
-        case error instanceof NotEnoughFundsError:
-          return t(
-            "notEnoughFunds",
-            error instanceof ZeroXTZBalanceError ? "XTZ " : ""
-          );
-        default:
-          return t("failed");
-      }
-    })()}
-    description={(() => {
-      switch (true) {
-        case error instanceof ZeroBalanceError:
-          return t("yourBalanceIsZero");
+const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => {
+  const { t } = useTranslation();
+  return (
+    <Alert
+      type={type === "submit" ? "error" : "warn"}
+      title={(() => {
+        switch (true) {
+          case error instanceof NotEnoughFundsError:
+            return t(
+              "notEnoughFunds",
+              error instanceof ZeroXTZBalanceError ? "XTZ " : ""
+            ) as string;
+          default:
+            return t("failed") as string;
+        }
+      })()}
+      description={(() => {
+        switch (true) {
+          case error instanceof ZeroBalanceError:
+            return t("yourBalanceIsZero");
 
-        case error instanceof ZeroXTZBalanceError:
-          return t("mainAssetBalanceIsZero");
+          case error instanceof ZeroXTZBalanceError:
+            return t("mainAssetBalanceIsZero");
 
-        case error instanceof NotEnoughFundsError:
-          return t("minimalFeeGreaterThanBalanceVerbose");
+          case error instanceof NotEnoughFundsError:
+            return t("minimalFeeGreaterThanBalanceVerbose");
 
-        default:
-          return (
-            <>
-              <T
-                name="unableToPerformTransactionAction"
-                substitutions={t(
-                  type === "submit" ? "send" : "estimate"
-                ).toLowerCase()}
-              >
-                {(message) => <>{message}</>}
-              </T>
-              <br />
-              <T name="thisMayHappenBecause">{(message) => <>{message}</>}</T>
-              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                <T name="minimalFeeGreaterThanBalanceVerbose">
-                  {(message) => <li>{message}</li>}
+          default:
+            return (
+              <>
+                <T
+                  name="unableToPerformTransactionAction"
+                  substitutions={(t(
+                    type === "submit" ? "send" : "estimate"
+                  ) as string).toLowerCase()}
+                >
+                  {(message) => <>{message}</>}
                 </T>
-                <T name="networkOrOtherIssue">
-                  {(message) => <li>{message}</li>}
-                </T>
-              </ul>
-            </>
-          );
-      }
-    })()}
-    autoFocus
-    className={classNames("mt-6 mb-4")}
-  />
-);
+                <br />
+                <T name="thisMayHappenBecause">{(message) => <>{message}</>}</T>
+                <ul className="mt-1 ml-2 text-xs list-disc list-inside">
+                  <T name="minimalFeeGreaterThanBalanceVerbose">
+                    {(message) => <li>{message}</li>}
+                  </T>
+                  <T name="networkOrOtherIssue">
+                    {(message) => <li>{message}</li>}
+                  </T>
+                </ul>
+              </>
+            );
+        }
+      })()}
+      autoFocus
+      className={classNames("mt-6 mb-4")}
+    />
+  );
+};
 
 function validateAddress(value: any) {
   switch (false) {
@@ -771,7 +762,7 @@ function validateAddress(value: any) {
       return true;
 
     case isAddressValid(value):
-      return t("invalidAddress");
+      return "invalidAddress";
 
     default:
       return true;

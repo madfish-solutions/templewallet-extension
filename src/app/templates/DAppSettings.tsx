@@ -6,7 +6,7 @@ import {
   useThanosClient,
 } from "lib/thanos/front";
 import { ThanosDAppSession, ThanosDAppSessions } from "lib/thanos/types";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import { useRetryableSWR } from "lib/swr";
 import DAppLogo from "app/templates/DAppLogo";
 import FormCheckbox from "app/atoms/FormCheckbox";
@@ -26,6 +26,7 @@ const DAppSettings: React.FC = () => {
     ThanosSharedStorageKey.DAppEnabled,
     true
   );
+  const { t } = useTranslation();
   const { getAllDAppSessions, removeDAppSession } = useThanosClient();
   const { data, revalidate } = useRetryableSWR<ThanosDAppSessions>(
     ["getAllDAppSessions"],
@@ -61,12 +62,12 @@ const DAppSettings: React.FC = () => {
 
   const handleRemoveClick = React.useCallback(
     async (origin: string) => {
-      if (window.confirm(t("resetPermissionsConfirmation", origin))) {
+      if (window.confirm(t("resetPermissionsConfirmation", origin) as string)) {
         await removeDAppSession(origin);
         revalidate();
       }
     },
-    [removeDAppSession, revalidate]
+    [removeDAppSession, revalidate, t]
   );
 
   const dAppEntries = React.useMemo(() => Object.entries(dAppSessions), [
@@ -162,6 +163,7 @@ const DAppDescription: React.FC<OptionRenderProps<
     item: [origin, { appMeta, network, pkh }],
   } = props;
   const { remove: onRemove } = actions!;
+  const { t } = useTranslation();
 
   const handleRemoveClick = React.useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -221,7 +223,7 @@ const DAppDescription: React.FC<OptionRenderProps<
         <CloseIcon
           className="w-auto h-5 mx-2 stroke-2"
           stroke="#777"
-          title={t("delete")}
+          title={t("delete") as string}
         />
       </button>
     </div>
