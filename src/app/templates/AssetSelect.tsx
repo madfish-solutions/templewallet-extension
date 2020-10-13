@@ -8,12 +8,13 @@ import {
   ThanosAssetType,
 } from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
+import { T } from "lib/ui/i18n";
 import { getAssetIconUrl } from "app/defaults";
 import InUSD from "app/templates/InUSD";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Money from "app/atoms/Money";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
-import Balance from "./Balance";
+import Balance from "app/templates/Balance";
 
 type AssetSelectProps = {
   value: ThanosAsset;
@@ -33,14 +34,27 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
       {allAssets.length > 1 ? (
         <>
           <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-            <span className="text-base font-semibold text-gray-700">Asset</span>
+            <T name="asset">
+              {(message) => (
+                <span className="text-base font-semibold text-gray-700">
+                  {message}
+                </span>
+              )}
+            </T>
 
-            <span
-              className={classNames("mt-1", "text-xs font-light text-gray-600")}
-              style={{ maxWidth: "90%" }}
-            >
-              Click on area to select another asset or token.
-            </span>
+            <T name="selectAnotherAssetPrompt">
+              {(message) => (
+                <span
+                  className={classNames(
+                    "mt-1",
+                    "text-xs font-light text-gray-600"
+                  )}
+                  style={{ maxWidth: "90%" }}
+                >
+                  {message}
+                </span>
+              )}
+            </T>
           </h2>
 
           <Popper
