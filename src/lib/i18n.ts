@@ -4,12 +4,14 @@ import { enUS, enGB } from "date-fns/locale";
 const {
   getAcceptLanguages: importedGetAcceptLanguages,
   getUILanguage: importedGetUILanguage,
+  getMessage: importedGetMessage,
 } = browser.i18n;
 
 export const supportedLocales = ["en", "ru"];
 export const getAcceptLanguages = importedGetAcceptLanguages;
 export const getUILanguage = importedGetUILanguage;
-export const getUILanguageWithFallback = () => {
+export const getMessage = importedGetMessage;
+export const getUILanguageFallback = () => {
   const locale = getUILanguage();
   if (supportedLocales.includes(locale)) {
     return locale;
@@ -18,7 +20,7 @@ export const getUILanguageWithFallback = () => {
   if (supportedLocales.includes(localeWithoutCountry)) {
     return localeWithoutCountry;
   }
-  return;
+  return "en";
 };
 
 const dateFnsLocales: Record<string, Locale> = {

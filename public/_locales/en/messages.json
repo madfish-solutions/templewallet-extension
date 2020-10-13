@@ -335,7 +335,12 @@
     "message": "Processing..."
   },
   "selectFileOfFormat": {
-    "message": "Select %format% file"
+    "message": "Select $format$ file",
+    "placeholders": {
+      "format": {
+        "content": "$1"
+      }
+    }
   },
   "restoreWalletWithSeedPhrase": {
     "message": "Restore your Wallet with Seed Phrase"
@@ -422,10 +427,23 @@
     "message": "Already have a seed phrase? Import your existing wallet using a 12 or more mnemonic words"
   },
   "versionLabel": {
-    "message": "version: %version%"
+    "message": "version: $version$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "madeWithLove": {
-    "message": "Made with %loveIcon% by %companyName%"
+    "message": "Made with $loveIcon$ by $companyName$",
+    "placeholders": {
+      "loveIcon": {
+        "content": "$1"
+      },
+      "companyName": {
+        "content": "$2"
+      }
+    }
   },
   "links": {
     "message": "Links"
@@ -488,7 +506,12 @@
     "message": "Additional Fee"
   },
   "feeInputDescription": {
-    "message": "Base Fee for this operation is: %fee%Additional - speeds up its confirmation"
+    "message": "Base Fee for this operation is: $fee$\nAdditional - speeds up its confirmation",
+    "placeholders": {
+      "fee": {
+        "content": "$1"
+      }
+    }
   },
   "asset": {
     "message": "Asset"
@@ -528,10 +551,20 @@
     "message": "Disabled"
   },
   "networkLabel": {
-    "message": "Network: %network%"
+    "message": "Network: $network$",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
   },
   "pkhLabel": {
-    "message": "Account: %pkh%"
+    "message": "Account: $pkh$",
+    "placeholders": {
+      "pkh": {
+        "content": "$1"
+      }
+    }
   },
   "delete": {
     "message": "Delete"
@@ -561,7 +594,12 @@
     "message": "Minimal delegation amount"
   },
   "minDelegationAmountDescription": {
-    "message": "Your current balance is less than a minimal delegation amount of this baker. That means while the balance is less than %minAmount% - there will be no payouts."
+    "message": "Your current balance is less than a minimal delegation amount of this baker. That means while the balance is less than $minAmount$ - there will be no payouts.",
+    "placeholders": {
+      "minAmount": {
+        "content": "$1"
+      }
+    }
   },
   "unknownBakerTitle": {
     "message": "Unknown baker"
@@ -573,7 +611,12 @@
     "message": "Delegate to Recommended Bakers"
   },
   "clickOnBakerPrompt": {
-    "message": "Click on the Baker you want to delegate funds to. This list is powered by %link%"
+    "message": "Click on the Baker you want to delegate funds to. This list is powered by $link$",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "sortBy": {
     "message": "Sort by"
@@ -685,7 +728,12 @@
     "message": "destroy the existing"
   },
   "unlockWalletPrompt": {
-    "message": "If you want to save something from already existing wallet - %link% and unlock it."
+    "message": "If you want to save something from already existing wallet - $link$ and unlock it.",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "backToUnlockPage": {
     "message": "back to Unlock page"
@@ -705,11 +753,16 @@
   "acceptTerms": {
     "message": "Accept terms"
   },
-  "acceptTermsInputDescriptionPart1": {
-    "message": "I have read and agree to"
-  },
-  "acceptTermsInputDescriptionPart2": {
-    "message": "the %termsOfUsageLink% and %privacyPolicyLink%"
+  "acceptTermsInputDescription": {
+    "message": "I have read and agree to\nthe $termsOfUsageLink$ and $privacyPolicyLink$",
+    "placeholders": {
+      "termsOfUsageLink": {
+        "content": "$1"
+      },
+      "privacyPolicyLink": {
+        "content": "$2"
+      }
+    }
   },
   "termsOfUsage": {
     "message": "Terms of Usage"
@@ -736,7 +789,12 @@
     "message": "DO NOT share"
   },
   "doNotSharePhrase": {
-    "message": "%doNotShare% this phrase with anyone! It can be used to steal all your accounts."
+    "message": "$doNotShare$ this phrase with anyone! It can be used to steal all your accounts.",
+    "placeholders": {
+      "doNotShare": {
+        "content": "$1"
+      }
+    }
   },
   "youWillNeedThisSeedPhrase": {
     "message": "If you ever switch between browsers or devices, you will need this seed phrase to access your accounts."
@@ -763,7 +821,12 @@
     "message": "pending..."
   },
   "operationHash": {
-    "message": "Operation Hash: %hash%"
+    "message": "Operation Hash: $hash$",
+    "placeholders": {
+      "hash": {
+        "content": "$1"
+      }
+    }
   },
   "operationSuccessfullyProcessed": {
     "message": "$type$ successfully processed and confirmed!",
@@ -786,7 +849,15 @@
     "message": "Cannot be removed"
   },
   "accountsToRemoveConstraint": {
-    "message": "Only %importedPlural% or %ledger% accounts can be removed."
+    "message": "Only $importedPlural$ or $ledger$ accounts can be removed.",
+    "placeholders": {
+      "importedPlural": {
+        "content": "$1"
+      },
+      "ledger": {
+        "content": "$2"
+      }
+    }
   },
   "importedPlural": {
     "message": "imported"
@@ -801,7 +872,12 @@
     "message": "If you want to reveal a private key from another account - you should select it in the top-right dropdown."
   },
   "doNotSharePrivateKey": {
-    "message": "%doNotShare% this set of chars with anyone! It can be used to steal your current account."
+    "message": "$doNotShare$ this set of chars with anyone! It can be used to steal your current account.",
+    "placeholders": {
+      "doNotShare": {
+        "content": "$1"
+      }
+    }
   },
   "privateKeyFieldDescription": {
     "message": "Current account key. Keep it secret."
@@ -936,10 +1012,20 @@
     "message": "Connect"
   },
   "appWouldLikeToConnectToYourWallet": {
-    "message": "%origin% would like to connect to your wallet"
+    "message": "$origin$ would like to connect to your wallet",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
   },
   "appRequestOperationToYou": {
-    "message": "%origin% requests operations to you"
+    "message": "$origin$ requests operations to you",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
   },
   "reject": {
     "message": "Reject"
@@ -948,7 +1034,12 @@
     "message": "Sign"
   },
   "appRequestsToSign": {
-    "message": "%origin% requests you to sign"
+    "message": "$origin$ requests you to sign",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
   },
   "alpha": {
     "message": "Alpha"
@@ -1048,7 +1139,12 @@
     "message": "Private key cannot be revealed"
   },
   "youCannotGetPrivateKeyFromLedgerAccounts": {
-    "message": "You cannot get private key from %ledger% accounts."
+    "message": "You cannot get private key from $ledger$ accounts.",
+    "placeholders": {
+      "ledger": {
+        "content": "$1"
+      }
+    }
   },
   "maximalAmount": {
     "message": "Maximal: $amount$",

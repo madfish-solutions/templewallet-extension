@@ -6,7 +6,7 @@ import {
   useAccount,
   ThanosAccountType,
 } from "lib/thanos/front";
-import { T, t } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -29,6 +29,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     setSeedRevealed,
   } = useThanosClient();
   const account = useAccount();
+  const { t } = useTranslation();
 
   const {
     register,
@@ -238,7 +239,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           ),
         };
     }
-  }, [reveal, account]);
+  }, [reveal, account, t]);
 
   const forbidPrivateKeyRevealing =
     account.type === ThanosAccountType.Ledger && reveal === "private-key";
@@ -247,7 +248,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     if (forbidPrivateKeyRevealing) {
       return (
         <Alert
-          title={t("privateKeyCannotBeRevealed")}
+          title={t("privateKeyCannotBeRevealed") as string}
           description={
             <T
               name="youCannotGetPrivateKeyFromLedgerAccounts"
@@ -299,7 +300,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           />
 
           <Alert
-            title={t("attentionExclamation")}
+            title={t("attentionExclamation") as string}
             description={<p>{texts.attention}</p>}
             className="my-4"
           />
@@ -310,7 +311,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     return (
       <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
         <FormField
-          ref={register({ required: t("required") })}
+          ref={register({ required: t("required") as string })}
           label={t("password")}
           labelDescription={t(
             "revealSecretPasswordInputDescription",
@@ -340,6 +341,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     secret,
     texts,
     submitting,
+    t,
   ]);
 
   return (

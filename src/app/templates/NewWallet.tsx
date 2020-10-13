@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { validateMnemonic, generateMnemonic } from "bip39";
 import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
-import { T, t } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
@@ -38,6 +38,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
   title,
 }) => {
   const { locked, registerWallet, setSeedRevealed } = useThanosClient();
+  const { t } = useTranslation();
 
   const {
     watch,
@@ -104,7 +105,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
         >
           {locked && (
             <Alert
-              title={t("attentionExclamation")}
+              title={t("attentionExclamation") as string}
               description={
                 <>
                   <p>
@@ -155,7 +156,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
               textarea
               rows={4}
               ref={register({
-                required: t("required"),
+                required: t("required") as string,
                 validate: (val) =>
                   validateMnemonic(formatMnemonic(val)) ||
                   MNEMONIC_ERROR_CAPTION,
@@ -164,7 +165,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
               labelDescription={t("mnemonicInputDescription")}
               id="newwallet-mnemonic"
               name="mnemonic"
-              placeholder={t("mnemonicInputPlaceholder")}
+              placeholder={t("mnemonicInputPlaceholder") as string}
               spellCheck={false}
               errorCaption={errors.mnemonic?.message}
               containerClassName="mb-4"
@@ -174,7 +175,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
 
           <FormField
             ref={register({
-              required: t("required"),
+              required: t("required") as string,
               pattern: {
                 value: PASSWORD_PATTERN,
                 message: PASSWORD_ERROR_CAPTION,
@@ -192,9 +193,10 @@ const NewWallet: React.FC<NewWalletProps> = ({
 
           <FormField
             ref={register({
-              required: t("required"),
+              required: t("required") as string,
               validate: (val) =>
-                val === passwordValue || t("mustBeEqualToPasswordAbove"),
+                val === passwordValue ||
+                (t("mustBeEqualToPasswordAbove") as string),
             })}
             label={t("repeatPassword")}
             labelDescription={t("repeatPasswordInputDescription")}
@@ -215,12 +217,8 @@ const NewWallet: React.FC<NewWalletProps> = ({
             label={t("acceptTerms")}
             labelDescription={
               <>
-                <T name="acceptTermsInputDescriptionPart1">
-                  {(message) => <>{message}</>}
-                </T>
-                <br />
                 <T
-                  name="acceptTermsInputDescriptionPart2"
+                  name="acceptTermsInputDescription"
                   substitutions={[
                     <T name="termsOfUsage" key="termsLink">
                       {(message) => (
@@ -247,9 +245,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
                       )}
                     </T>,
                   ]}
-                >
-                  {(message) => <>{message}</>}
-                </T>
+                />
               </>
             }
             containerClassName="mb-6"
@@ -281,6 +277,7 @@ type BackupProps = {
 };
 
 const Backup: React.FC<BackupProps> = ({ data }) => {
+  const { t } = useTranslation();
   const { registerWallet, setSeedRevealed } = useThanosClient();
 
   const { register, handleSubmit, errors, formState } = useForm<
