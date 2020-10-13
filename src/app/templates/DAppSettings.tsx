@@ -177,11 +177,11 @@ const DAppDescription: React.FC<OptionRenderProps<
     const val = pkh;
     const ln = val.length;
     return (
-      <>
+      <React.Fragment key="previewNode">
         {val.slice(0, 7)}
         <span className="opacity-75">...</span>
         {val.slice(ln - 4, ln)}
-      </>
+      </React.Fragment>
     );
   }, [pkh]);
 
