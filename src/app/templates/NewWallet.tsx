@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { validateMnemonic, generateMnemonic } from "bip39";
 import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
+import { T, t } from "lib/ui/i18n";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
@@ -91,7 +92,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
           "text-2xl font-light text-gray-700 text-center"
         )}
       >
-        {backupData ? "Backup new Seed Phrase" : title}
+        {backupData ? t("backupNewSeedPhrase") : title}
       </h1>
 
       <hr className="my-4" />
@@ -103,24 +104,45 @@ const NewWallet: React.FC<NewWalletProps> = ({
         >
           {locked && (
             <Alert
-              title="Attension!"
+              title={t("attentionExclamation")}
               description={
                 <>
                   <p>
-                    Locked wallet{" "}
-                    <span className="font-semibold">already exist</span>
+                    <T name="lockedWallet">{(message) => <>{message}</>}</T>{" "}
+                    <T name="alreadyExistsWallet">
+                      {(message) => (
+                        <span className="font-semibold">{message}</span>
+                      )}
+                    </T>
                     .
                     <br />
-                    Importing a new one will{" "}
-                    <span className="font-semibold">destroy the existing</span>.
+                    <T name="importingNewWalletWill">
+                      {(message) => <>{message}</>}
+                    </T>{" "}
+                    <T name="willDestroyTheExisting">
+                      {(message) => (
+                        <span className="font-semibold">{message}</span>
+                      )}
+                    </T>
+                    .
                   </p>
-                  <p className="mt-1">
-                    If you want to save something from already existing wallet -{" "}
-                    <Link to="/" className="font-semibold hover:underline">
-                      back to Unlock page
-                    </Link>{" "}
-                    and unlock it.
-                  </p>
+                  <T
+                    name="unlockWalletPrompt"
+                    substitutions={[
+                      <T name="backToUnlockPage" key="link">
+                        {(linkLabel) => (
+                          <Link
+                            to="/"
+                            className="font-semibold hover:underline"
+                          >
+                            {linkLabel}
+                          </Link>
+                        )}
+                      </T>,
+                    ]}
+                  >
+                    {(message) => <p className="mt-1">{message}</p>}
+                  </T>
                 </>
               }
               className="my-6"
@@ -133,16 +155,16 @@ const NewWallet: React.FC<NewWalletProps> = ({
               textarea
               rows={4}
               ref={register({
-                required: "Required",
+                required: t("required"),
                 validate: (val) =>
                   validateMnemonic(formatMnemonic(val)) ||
                   MNEMONIC_ERROR_CAPTION,
               })}
-              label="Seed phrase"
-              labelDescription="Mnemonic. Your secret twelve word phrase."
+              label={t("mnemonicInputLabel")}
+              labelDescription={t("mnemonicInputDescription")}
               id="newwallet-mnemonic"
               name="mnemonic"
-              placeholder="e.g. venue sock milk update..."
+              placeholder={t("mnemonicInputPlaceholder")}
               spellCheck={false}
               errorCaption={errors.mnemonic?.message}
               containerClassName="mb-4"
@@ -152,14 +174,14 @@ const NewWallet: React.FC<NewWalletProps> = ({
 
           <FormField
             ref={register({
-              required: "Required",
+              required: t("required"),
               pattern: {
                 value: PASSWORD_PATTERN,
                 message: PASSWORD_ERROR_CAPTION,
               },
             })}
-            label="Password"
-            labelDescription="A password is used to protect the wallet."
+            label={t("password")}
+            labelDescription={t("unlockPasswordInputDescription")}
             id="newwallet-password"
             type="password"
             name="password"
@@ -170,12 +192,12 @@ const NewWallet: React.FC<NewWalletProps> = ({
 
           <FormField
             ref={register({
-              required: "Required",
+              required: t("required"),
               validate: (val) =>
-                val === passwordValue || "Must be equal to password above",
+                val === passwordValue || t("mustBeEqualToPasswordAbove"),
             })}
-            label="Repeat Password"
-            labelDescription="Please enter the password again."
+            label={t("repeatPassword")}
+            labelDescription={t("repeatPasswordInputDescription")}
             id="newwallet-repassword"
             type="password"
             name="repassword"
@@ -186,40 +208,60 @@ const NewWallet: React.FC<NewWalletProps> = ({
 
           <FormCheckbox
             ref={register({
-              validate: (val) =>
-                val || "Unable to continue without confirming Terms of Usage",
+              validate: (val) => val || t("confirmTermsError"),
             })}
             errorCaption={errors.termsaccepted?.message}
             name="termsaccepted"
-            label="Accept terms"
+            label={t("acceptTerms")}
             labelDescription={
               <>
-                I have read and agree to
+                <T name="acceptTermsInputDescriptionPart1">
+                  {(message) => <>{message}</>}
+                </T>
                 <br />
-                the{" "}
-                <a
-                  href="https://thanoswallet.com/terms"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline text-secondary"
+                <T
+                  name="acceptTermsInputDescriptionPart2"
+                  substitutions={[
+                    <T name="termsOfUsage" key="termsLink">
+                      {(message) => (
+                        <a
+                          href="https://thanoswallet.com/terms"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline text-secondary"
+                        >
+                          {message}
+                        </a>
+                      )}
+                    </T>,
+                    <T name="privacyPolicy" key="privacyPolicyLink">
+                      {(message) => (
+                        <a
+                          href="https://thanoswallet.com/privacy"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline text-secondary"
+                        >
+                          {message}
+                        </a>
+                      )}
+                    </T>,
+                  ]}
                 >
-                  Terms of Usage
-                </a>{" "}
-                and{" "}
-                <a
-                  href="https://thanoswallet.com/privacy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline text-secondary"
-                >
-                  Privacy Policy
-                </a>
+                  {(message) => <>{message}</>}
+                </T>
               </>
             }
             containerClassName="mb-6"
           />
 
-          <FormSubmitButton loading={submitting}>Create</FormSubmitButton>
+          <T name="create">
+            {(message) => (
+              <FormSubmitButton loading={submitting}>
+                {message}
+              </FormSubmitButton>
+            )}
+          </T>
         </form>
       ) : (
         <Backup data={backupData} />
@@ -274,18 +316,33 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
         description={
           <>
             <p className="mb-2">
-              <span className="font-semibold">Click on area below</span> to
-              reveal your new Seed Phrase.
+              <T name="clickOnAreaBelow">
+                {(message) => <span className="font-semibold">{message}</span>}
+              </T>
+              <T name="toRevealNewSeedPhrase">{(message) => <>{message}</>}</T>
               <br />
-              Then, write this phrase on a piece of paper and{" "}
-              <span className="font-semibold">store in a secure location</span>.
-              Or you can memorize it.
+              <T name="writePhraseOnPieceOfPaper">
+                {(message) => <>{message}</>}
+              </T>{" "}
+              <T name="storePhraseInSecureLocation">
+                {(message) => <span className="font-semibold">{message}</span>}
+              </T>
+              .
+              <T name="orYouCanMemorizePhrase">{(message) => <>{message}</>}</T>
             </p>
 
-            <p>
-              <span className="font-semibold">DO NOT share</span> this phrase
-              with anyone! It can be used to steal all your accounts.
-            </p>
+            <T
+              name="doNotSharePhrase"
+              substitutions={[
+                <T key="doNotShare" name="doNotShareEmphasized">
+                  {(message) => (
+                    <span className="font-semibold">{message}</span>
+                  )}
+                </T>,
+              ]}
+            >
+              {(message) => <p>{message}</p>}
+            </T>
           </>
         }
         className="mt-4 mb-8"
@@ -296,13 +353,8 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
         textarea
         rows={4}
         readOnly
-        label="Seed Phrase"
-        labelDescription={
-          <>
-            If you ever switch between browsers or devices, you will need this
-            seed phrase to access your accounts.
-          </>
-        }
+        label={t("mnemonicInputLabel")}
+        labelDescription={t("youWillNeedThisSeedPhrase")}
         id="backup-mnemonic"
         spellCheck={false}
         containerClassName="mb-4"
@@ -313,22 +365,36 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
       <form className="w-full mt-8" onSubmit={handleSubmit(onSubmit)}>
         <FormCheckbox
           ref={register({
-            validate: (val) => val || "Unable to continue without confirming ",
+            validate: (val) => val || t("unableToContinueWithoutConfirming"),
           })}
           errorCaption={errors.backuped?.message}
           name="backuped"
-          label="I made Seed Phrase backup"
+          label={t("backupedInputLabel")}
           labelDescription={
-            <>
-              And accept the risks that if I lose the phrase,
-              <br />
-              my funds may be lost.
-            </>
+            <T name="backupedInputDescription">
+              {(message) => {
+                const [phrasePart1, phrasePart2] = (message as string).split(
+                  "\n"
+                );
+
+                return (
+                  <>
+                    {phrasePart1}
+                    <br />
+                    {phrasePart2}
+                  </>
+                );
+              }}
+            </T>
           }
           containerClassName="mb-6"
         />
 
-        <FormSubmitButton loading={submitting}>Continue</FormSubmitButton>
+        <T name="continue">
+          {(message) => (
+            <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
+          )}
+        </T>
       </form>
     </div>
   );
