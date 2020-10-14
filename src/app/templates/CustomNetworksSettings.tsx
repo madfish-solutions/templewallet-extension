@@ -209,7 +209,7 @@ type NetworksListItemProps = {
 
 const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
   const {
-    network: { name, rpcBaseURL, color },
+    network: { name, nameI18nKey, rpcBaseURL, color },
     canRemove,
     onRemoveClick,
     last,
@@ -242,7 +242,9 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
         style={{ background: color }}
       />
       <div className="flex flex-col justify-between flex-1">
-        <Name className="text-sm font-medium leading-tight">{name}</Name>
+        <Name className="text-sm font-medium leading-tight">
+          {(nameI18nKey && <T id={nameI18nKey} />) || name}
+        </Name>
         <div className="mt-1 text-xs leading-none text-gray-700">
           {rpcBaseURL}
         </div>
