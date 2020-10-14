@@ -62,7 +62,7 @@ const DAppSettings: React.FC = () => {
 
   const handleRemoveClick = React.useCallback(
     async (origin: string) => {
-      if (window.confirm(t("resetPermissionsConfirmation", origin) as string)) {
+      if (window.confirm(t("resetPermissionsConfirmation", origin))) {
         await removeDAppSession(origin);
         revalidate();
       }
@@ -223,7 +223,7 @@ const DAppDescription: React.FC<OptionRenderProps<
         <CloseIcon
           className="w-auto h-5 mx-2 stroke-2"
           stroke="#777"
-          title={t("delete") as string}
+          title={t("delete")}
         />
       </button>
     </div>

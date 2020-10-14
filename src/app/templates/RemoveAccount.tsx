@@ -83,7 +83,7 @@ const RemoveAccount: React.FC = () => {
 
       {account.type === ThanosAccountType.HD ? (
         <Alert
-          title={t("cannotBeRemoved") as string}
+          title={t("cannotBeRemoved")}
           description={
             <T
               name="accountsToRemoveConstraint"

@@ -1,5 +1,5 @@
 import { enUS, enGB, ru } from "date-fns/locale";
-import React, { useCallback, useMemo } from "react";
+import React, { ReactElement, useCallback, useMemo } from "react";
 import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
 import { SUPPORTED_LOCALES, getMessage } from "lib/i18n";
 import { useRetryableSWR } from "lib/swr";
@@ -7,6 +7,7 @@ import { useRetryableSWR } from "lib/swr";
 export * from "lib/i18n";
 
 export type TProps = {
+  forceUseBreaks?: boolean;
   name: string;
   substitutions?: any;
   children?: (m: React.ReactElement | string | null) => React.ReactElement;
@@ -58,6 +59,24 @@ const useLocalesMessages = () => {
   return data;
 };
 
+type PlainSubstitutions = (string | number)[] | string | number;
+
+type TranslationFunction = ((
+  name: string,
+  substitutions?: PlainSubstitutions,
+  forceUseBreaks?: false
+) => string) &
+  ((
+    name: string,
+    substitutions?: PlainSubstitutions,
+    forceUseBreaks?: true
+  ) => React.ReactElement) &
+  ((
+    name: string,
+    substitutions: React.ReactElement[],
+    forceUseBreaks?: boolean
+  ) => React.ReactElement);
+
 const dateFnsLocales: Record<string, Locale> = {
   en: enUS,
   en_US: enUS,
@@ -70,8 +89,13 @@ export const useTranslation = () => {
   const [locale] = useStorage(ThanosSharedStorageKey.LocaleCode, "en");
   const { current, fallback } = useLocalesMessages();
 
-  const t = useCallback(
-    (name: string, substitutions?: any, forceUseBreaks?: boolean) => {
+  const t = useCallback<TranslationFunction>(
+    // @ts-ignore
+    (
+      name: string,
+      substitutions: (string | number | ReactElement)[],
+      forceUseBreaks?: boolean
+    ) => {
       const normalizedSubstitutions = (() => {
         if (substitutions == null) {
           return [];
@@ -99,7 +123,9 @@ export const useTranslation = () => {
           return typeof value === "string" || typeof value === "number";
         }) && !forceUseBreaks;
       let result: string | React.ReactChild[] = resultShouldBeString ? "" : [];
-      const appendPart = (part: string | React.ReactChild[]) => {
+      const appendPart = (
+        part: string | React.ReactChild | React.ReactChild[]
+      ) => {
         if (typeof result === "string") {
           result = result.concat(part as string);
         } else if (part instanceof Array) {
@@ -162,13 +188,16 @@ export const useTranslation = () => {
   return { locale, t, dateFnsLocale: dateFnsLocales[locale] || enUS };
 };
 
-export const T = React.memo<TProps>(({ name, substitutions, children }) => {
-  const { t } = useTranslation();
-  const message = useMemo(() => t(name, substitutions, true), [
-    t,
-    name,
-    substitutions,
-  ]);
+export const T = React.memo<TProps>(
+  ({ forceUseBreaks = true, name, substitutions, children }) => {
+    const { t } = useTranslation();
+    const message = useMemo(() => t(name, substitutions, forceUseBreaks), [
+      forceUseBreaks,
+      t,
+      name,
+      substitutions,
+    ]);
 
-  return children ? children(message) : <>{message}</>;
-});
+    return children ? children(message) : <>{message}</>;
+  }
+);

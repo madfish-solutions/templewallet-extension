@@ -129,7 +129,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               closable
               onClose={handleErrorAlertClose}
               type="error"
-              title={t("error") as string}
+              title={t("error")}
               description={error?.message ?? t("smthWentWrong")}
               className="my-4"
               autoFocus

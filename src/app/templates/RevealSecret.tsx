@@ -248,7 +248,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     if (forbidPrivateKeyRevealing) {
       return (
         <Alert
-          title={t("privateKeyCannotBeRevealed") as string}
+          title={t("privateKeyCannotBeRevealed")}
           description={
             <T
               name="youCannotGetPrivateKeyFromLedgerAccounts"
@@ -300,7 +300,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           />
 
           <Alert
-            title={t("attentionExclamation") as string}
+            title={t("attentionExclamation")}
             description={<p>{texts.attention}</p>}
             className="my-4"
           />
@@ -311,7 +311,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     return (
       <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
         <FormField
-          ref={register({ required: t("required") as string })}
+          ref={register({ required: t("required") })}
           label={t("password")}
           labelDescription={t(
             "revealSecretPasswordInputDescription",

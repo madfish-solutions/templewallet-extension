@@ -80,7 +80,7 @@ const CustomNetworksSettings: React.FC = () => {
 
   const handleRemoveClick = useCallback(
     (baseUrl: string) => {
-      if (!window.confirm(t("deleteNetworkConfirm") as string)) {
+      if (!window.confirm(t("deleteNetworkConfirm"))) {
         return;
       }
 
@@ -103,11 +103,11 @@ const CustomNetworksSettings: React.FC = () => {
     <div className="w-full max-w-sm p-2 pb-4 mx-auto">
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormField
-          ref={register({ required: t("required") as string, maxLength: 35 })}
+          ref={register({ required: t("required"), maxLength: 35 })}
           label={t("name")}
           id="name"
           name="name"
-          placeholder={t("networkNamePlaceholder") as string}
+          placeholder={t("networkNamePlaceholder")}
           errorCaption={errors.name?.message}
           containerClassName="mb-4"
           maxLength={35}
@@ -115,10 +115,10 @@ const CustomNetworksSettings: React.FC = () => {
 
         <FormField
           ref={register({
-            required: t("required") as string,
+            required: t("required"),
             pattern: {
               value: URL_PATTERN,
-              message: t("mustBeValidURL") as string,
+              message: t("mustBeValidURL"),
             },
             validate: {
               unique: rpcURLIsUnique,
@@ -252,7 +252,7 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
           <CloseIcon
             className="w-auto h-5 mx-2 stroke-2"
             stroke="#777"
-            title={t("delete") as string}
+            title={t("delete")}
           />
         </button>
       )}

@@ -95,7 +95,7 @@ const ActivateAccount: React.FC = () => {
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
         const mes = t("failureSecretMayBeInvalid");
-        setError("secret", SUBMIT_ERROR_TYPE, mes as string);
+        setError("secret", SUBMIT_ERROR_TYPE, mes);
       }
     },
     [
@@ -143,7 +143,7 @@ const ActivateAccount: React.FC = () => {
       {success && (
         <Alert
           type="success"
-          title={t("success") as string}
+          title={t("success")}
           description={success}
           autoFocus
           className="mb-4"
@@ -153,12 +153,12 @@ const ActivateAccount: React.FC = () => {
       <FormField
         textarea
         rows={2}
-        ref={register({ required: t("required") as string })}
+        ref={register({ required: t("required") })}
         name="secret"
         id="activateaccount-secret"
         label={t("activateAccountSecret")}
         labelDescription={t("activateAccountSecretDescription")}
-        placeholder={t("activateAccountSecretPlaceholder") as string}
+        placeholder={t("activateAccountSecretPlaceholder")}
         errorCaption={errors.secret?.message}
         style={{ resize: "none" }}
         containerClassName="mb-4"
