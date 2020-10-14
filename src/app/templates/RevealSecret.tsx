@@ -154,13 +154,9 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
                   )}
                 </T>,
               ]}
-            >
-              {(message) => <>{message}</>}
-            </T>
+            />
           ),
-          fieldDesc: (
-            <T id="privateKeyFieldDescription">{(message) => <>{message}</>}</T>
-          ),
+          fieldDesc: <T id="privateKeyFieldDescription" />,
         };
 
       case "seed-phrase":
@@ -223,16 +219,12 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
                   )}
                 </T>,
               ]}
-            >
-              {(message) => <>{message}</>}
-            </T>
+            />
           ),
           fieldDesc: (
             <>
-              <T id="youWillNeedThisSeedPhrase">
-                {(message) => <>{message}</>}
-              </T>{" "}
-              <T id="keepSeedPhraseSecret">{(message) => <>{message}</>}</T>
+              <T id="youWillNeedThisSeedPhrase" />{" "}
+              <T id="keepSeedPhraseSecret" />
             </>
           ),
         };

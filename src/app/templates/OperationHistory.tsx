@@ -186,7 +186,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             className="text-sm font-light text-center"
             style={{ maxWidth: "20rem" }}
           >
-            <T id="noOperationsFound">{(message) => <>{message}</>}</T>
+            <T id="noOperationsFound" />
           </h3>
         </div>
       )}

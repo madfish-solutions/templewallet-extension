@@ -71,11 +71,9 @@ const RemoveAccount: React.FC = () => {
         account={account}
         labelDescription={
           <>
-            <T id="accountToBeRemoved">{(message) => <>{message}</>}</T>
+            <T id="accountToBeRemoved" />
             <br />
-            <T id="ifYouWantToRemoveAnotherAccount">
-              {(message) => <>{message}</>}
-            </T>
+            <T id="ifYouWantToRemoveAnotherAccount" />
           </>
         }
         className="mb-6"
