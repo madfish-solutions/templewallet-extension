@@ -135,7 +135,7 @@ const CustomNetworksSettings: React.FC = () => {
           containerClassName="mb-6"
         />
 
-        <T name="addNetwork">
+        <T id="addNetwork">
           {(message) => (
             <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
           )}
@@ -144,7 +144,7 @@ const CustomNetworksSettings: React.FC = () => {
 
       <div className="flex flex-col my-8">
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-          <T name="currentNetworks">
+          <T id="currentNetworks">
             {(message) => (
               <span className="text-base font-semibold text-gray-700">
                 {message}
@@ -152,7 +152,7 @@ const CustomNetworksSettings: React.FC = () => {
             )}
           </T>
 
-          <T name="deleteNetworkHint">
+          <T id="deleteNetworkHint">
             {(message) => (
               <span
                 className={classNames(

@@ -28,7 +28,7 @@ const NetworkBanner: React.FC<NetworkBannerProps> = ({
       )}
     >
       <h2 className={classNames("leading-tight", "flex flex-col")}>
-        <T name="network">
+        <T id="network">
           {(message) => (
             <span
               className={classNames(
@@ -70,7 +70,7 @@ const NetworkBanner: React.FC<NetworkBannerProps> = ({
               )}
             />
 
-            <T name="unknownNetwork">
+            <T id="unknownNetwork">
               {(message) => (
                 <>
                   <span

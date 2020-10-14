@@ -406,7 +406,7 @@ const DelegateForm: React.FC = () => {
                     title={t("minDelegationAmountTitle")}
                     description={
                       <T
-                        name="minDelegationAmountDescription"
+                        id="minDelegationAmountDescription"
                         substitutions={[
                           <span
                             className="font-normal"
@@ -465,7 +465,7 @@ const DelegateForm: React.FC = () => {
               <h2
                 className={classNames("mb-4", "leading-tight", "flex flex-col")}
               >
-                <T name="delegateToRecommendedBakers">
+                <T id="delegateToRecommendedBakers">
                   {(message) => (
                     <span className="text-base font-semibold text-gray-700">
                       {message}
@@ -474,7 +474,7 @@ const DelegateForm: React.FC = () => {
                 </T>
 
                 <T
-                  name="clickOnBakerPrompt"
+                  id="clickOnBakerPrompt"
                   substitutions={[
                     <a
                       href="https://www.tezos-nodes.com"
@@ -502,7 +502,7 @@ const DelegateForm: React.FC = () => {
               </h2>
 
               <div className={classNames("mb-2", "flex items-center")}>
-                <T name="sortBy">
+                <T id="sortBy">
                   {(message) => (
                     <span
                       className={classNames("mr-1", "text-xs text-gray-500")}
@@ -618,9 +618,7 @@ const DelegateForm: React.FC = () => {
                           </Name>
 
                           <T
-                            name={`cycles_${pluralRules.select(
-                              baker.lifetime
-                            )}`}
+                            id={`cycles_${pluralRules.select(baker.lifetime)}`}
                             substitutions={String(baker.lifetime)}
                           >
                             {(message) => (
@@ -642,7 +640,7 @@ const DelegateForm: React.FC = () => {
                             "flex flex-wrap items-center"
                           )}
                         >
-                          <T name="fee">
+                          <T id="fee">
                             {(message) => (
                               <div
                                 className={classNames(
@@ -663,7 +661,7 @@ const DelegateForm: React.FC = () => {
                         </div>
 
                         <div className="flex flex-wrap items-center pl-px">
-                          <T name="space">
+                          <T id="space">
                             {(message) => (
                               <div
                                 className={classNames(
@@ -743,7 +741,7 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
             return (
               <>
                 <T
-                  name="unableToPerformActionToBaker"
+                  id="unableToPerformActionToBaker"
                   substitutions={t(
                     type === "submit" ? "delegate" : "estimateDelegation"
                   ).toLowerCase()}
@@ -751,12 +749,12 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
                   {(message) => <>{message}</>}
                 </T>
                 <br />
-                <T name="thisMayHappenBecause">{(message) => <>{message}</>}</T>
+                <T id="thisMayHappenBecause">{(message) => <>{message}</>}</T>
                 <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                  <T name="minimalFeeGreaterThanBalanceVerbose">
+                  <T id="minimalFeeGreaterThanBalanceVerbose">
                     {(message) => <li>{message}</li>}
                   </T>
-                  <T name="networkOrOtherIssue">
+                  <T id="networkOrOtherIssue">
                     {(message) => <li>{message}</li>}
                   </T>
                 </ul>

@@ -107,7 +107,7 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
       labelDescription={
         baseFee instanceof BigNumber && (
           <T
-            name="feeInputDescription"
+            id="feeInputDescription"
             substitutions={[
               <React.Fragment key={0}>
                 <span className="font-normal">{baseFee.toString()}</span>
@@ -219,7 +219,7 @@ const FeeOptionIcon: React.FC<OptionRenderProps<FeeOption>> = ({
   if (Icon) {
     return (
       <Icon
-        className="inline-block stroke-current opacity-90 flex-none"
+        className="flex-none inline-block stroke-current opacity-90"
         style={{ width: 24, height: 24 }}
       />
     );
@@ -234,7 +234,7 @@ const FeeOptionContent: React.FC<OptionRenderProps<FeeOption>> = ({
   return (
     <>
       <div className="flex flex-wrap items-center">
-        <T name={descriptionI18nKey}>
+        <T id={descriptionI18nKey}>
           {(message) => (
             <Name className="w-16 text-sm font-medium leading-tight text-left">
               {message}

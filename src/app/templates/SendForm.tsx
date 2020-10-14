@@ -441,7 +441,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             </div>
           ) : (
             <T
-              name="tokensRecepientInputDescription"
+              id="tokensRecepientInputDescription"
               substitutions={localAsset.symbol}
             >
               {(message) => <>{message}</>}
@@ -475,7 +475,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                   <Alert
                     type="warn"
                     title={t("attentionExclamation")}
-                    description={<T name="tryingToTransferToYourself" />}
+                    description={<T id="tryingToTransferToYourself" />}
                     className="mt-6 mb-4"
                   />
                 );
@@ -501,7 +501,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             labelDescription={
               maxAmount && (
                 <>
-                  <T name="availableToSend">{(message) => <>{message}</>}</T>{" "}
+                  <T id="availableToSend">{(message) => <>{message}</>}</T>{" "}
                   <button
                     type="button"
                     className={classNames("underline")}
@@ -520,7 +520,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                               <span className="pr-px">$</span>
                               {usdAmount}
                             </span>{" "}
-                            <T name="inUSD">{(message) => <>{message}</>}</T>
+                            <T id="inUSD">{(message) => <>{message}</>}</T>
                           </div>
                         )}
                       </InUSD>
@@ -545,7 +545,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             id="send-fee"
           />
 
-          <T name="send">
+          <T id="send">
             {(message) => (
               <FormSubmitButton
                 loading={formState.isSubmitting}
@@ -562,7 +562,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             <h2
               className={classNames("mb-4", "leading-tight", "flex flex-col")}
             >
-              <T name="sendToMyAccounts">
+              <T id="sendToMyAccounts">
                 {(message) => (
                   <span className="text-base font-semibold text-gray-700">
                     {message}
@@ -570,7 +570,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                 )}
               </T>
 
-              <T name="clickOnRecipientAccount">
+              <T id="clickOnRecipientAccount">
                 {(message) => (
                   <span
                     className={classNames(
@@ -726,7 +726,7 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => {
             return (
               <>
                 <T
-                  name="unableToPerformTransactionAction"
+                  id="unableToPerformTransactionAction"
                   substitutions={t(
                     type === "submit" ? "send" : "estimate"
                   ).toLowerCase()}
@@ -734,12 +734,12 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => {
                   {(message) => <>{message}</>}
                 </T>
                 <br />
-                <T name="thisMayHappenBecause">{(message) => <>{message}</>}</T>
+                <T id="thisMayHappenBecause">{(message) => <>{message}</>}</T>
                 <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                  <T name="minimalFeeGreaterThanBalanceVerbose">
+                  <T id="minimalFeeGreaterThanBalanceVerbose">
                     {(message) => <li>{message}</li>}
                   </T>
-                  <T name="networkOrOtherIssue">
+                  <T id="networkOrOtherIssue">
                     {(message) => <li>{message}</li>}
                   </T>
                 </ul>
