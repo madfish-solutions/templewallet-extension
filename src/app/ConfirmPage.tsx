@@ -12,7 +12,7 @@ import {
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
-import { T, t } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
 import ErrorBoundary from "app/ErrorBoundary";
 import Unlock from "app/pages/Unlock";
@@ -39,21 +39,10 @@ import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import DAppLogo from "./templates/DAppLogo";
 
-const SIGN_PAYLOAD_FORMATS = [
-  {
-    key: "preview",
-    name: t("preview"),
-    Icon: EyeIcon,
-  },
-  {
-    key: "raw",
-    name: t("raw"),
-    Icon: CodeAltIcon,
-  },
-];
-
 const ConfirmPage: React.FC = () => {
+  const { t } = useTranslation();
   const { ready } = useThanosClient();
+
   return React.useMemo(
     () =>
       ready ? (
@@ -73,7 +62,7 @@ const ConfirmPage: React.FC = () => {
       ) : (
         <Unlock canImportNew={false} />
       ),
-    [ready]
+    [ready, t]
   );
 };
 
@@ -90,6 +79,7 @@ const ConfirmDAppForm: React.FC = () => {
   } = useThanosClient();
   const allAccounts = useAllAccounts();
   const account = useAccount();
+  const { t } = useTranslation();
 
   const [accountPkhToConnect, setAccountPkhToConnect] = React.useState(
     account.publicKeyHash
@@ -103,7 +93,7 @@ const ConfirmDAppForm: React.FC = () => {
       throw new Error(t("notIdentified"));
     }
     return id;
-  }, [loc.search]);
+  }, [loc.search, t]);
 
   const { data } = useRetryableSWR<ThanosDAppPayload>([id], getDAppPayload, {
     suspense: true,
@@ -189,7 +179,23 @@ const ConfirmDAppForm: React.FC = () => {
     setError,
   ]);
 
-  const [spFormat, setSpFormat] = React.useState(SIGN_PAYLOAD_FORMATS[0]);
+  const signPayloadFormats = React.useMemo(
+    () => [
+      {
+        key: "preview",
+        name: t("preview"),
+        Icon: EyeIcon,
+      },
+      {
+        key: "raw",
+        name: t("raw"),
+        Icon: CodeAltIcon,
+      },
+    ],
+    [t]
+  );
+
+  const [spFormat, setSpFormat] = React.useState(signPayloadFormats[0]);
 
   const content = React.useMemo(() => {
     switch (payload.type) {
@@ -200,7 +206,7 @@ const ConfirmDAppForm: React.FC = () => {
           confirmActionTitle: error ? t("retry") : t("connect"),
           want: (
             <T
-              name="appWouldLikeToConnectToYourWallet"
+              id="appWouldLikeToConnectToYourWallet"
               substitutions={[
                 <React.Fragment key="appName">
                   <span className="font-semibold">{payload.origin}</span>
@@ -236,15 +242,13 @@ const ConfirmDAppForm: React.FC = () => {
                 </Name>
               </div>
               <T
-                name="appRequestOperationToYou"
+                id="appRequestOperationToYou"
                 substitutions={[
                   <Name className="max-w-full text-xs italic" key="origin">
                     {payload.origin}
                   </Name>,
                 ]}
-              >
-                {(message) => <>{message}</>}
-              </T>
+              />
             </div>
           ),
         };
@@ -268,20 +272,18 @@ const ConfirmDAppForm: React.FC = () => {
                 </Name>
               </div>
               <T
-                name="appRequestsToSign"
+                id="appRequestsToSign"
                 substitutions={[
                   <Name className="max-w-full text-xs italic" key="origin">
                     {payload.origin}
                   </Name>,
                 ]}
-              >
-                {(message) => <>{message}</>}
-              </T>
+              />
             </div>
           ),
         };
     }
-  }, [payload.type, payload.origin, payload.appMeta.name, error]);
+  }, [payload.type, payload.origin, payload.appMeta.name, error, t]);
 
   return (
     <div
@@ -295,7 +297,7 @@ const ConfirmDAppForm: React.FC = () => {
       }}
     >
       <div className={classNames("absolute top-0 right-0", "p-1")}>
-        <T name="alpha">
+        <T id="alpha">
           {(message) => (
             <div
               className={classNames(
@@ -331,7 +333,7 @@ const ConfirmDAppForm: React.FC = () => {
         {content.want}
 
         {payload.type === "connect" && (
-          <T name="viewAccountAddressWarning">
+          <T id="viewAccountAddressWarning">
             {(message) => (
               <p className="mb-4 text-xs font-light text-center text-gray-700">
                 {message}
@@ -379,7 +381,7 @@ const ConfirmDAppForm: React.FC = () => {
                     "flex flex-col"
                   )}
                 >
-                  <T name="account">
+                  <T id="account">
                     {(message) => (
                       <span className="text-base font-semibold text-gray-700">
                         {message}
@@ -387,7 +389,7 @@ const ConfirmDAppForm: React.FC = () => {
                     )}
                   </T>
 
-                  <T name="toBeConnectedWithDApp">
+                  <T id="toBeConnectedWithDApp">
                     {(message) => (
                       <span
                         className={classNames(
@@ -427,7 +429,7 @@ const ConfirmDAppForm: React.FC = () => {
                           "flex items-center"
                         )}
                       >
-                        <T name="payloadToSign">
+                        <T id="payloadToSign">
                           {(message) => (
                             <span
                               className={classNames(
@@ -443,7 +445,7 @@ const ConfirmDAppForm: React.FC = () => {
                         <div className="flex-1" />
 
                         <div className={classNames("flex items-center")}>
-                          {SIGN_PAYLOAD_FORMATS.map((spf, i, arr) => {
+                          {signPayloadFormats.map((spf, i, arr) => {
                             const first = i === 0;
                             const last = i === arr.length - 1;
                             const selected = spFormat.key === spf.key;

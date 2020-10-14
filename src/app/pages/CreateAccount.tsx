@@ -6,7 +6,7 @@ import {
   useAllAccounts,
   useSetAccountPkh,
 } from "lib/thanos/front";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -22,10 +22,11 @@ const CreateAccount: React.FC = () => {
   const { createAccount } = useThanosClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
+  const { t } = useTranslation();
 
   const defaultName = React.useMemo(
     () => t("defaultAccountName", String(allAccounts.length + 1)),
-    [allAccounts.length]
+    [allAccounts.length, t]
   );
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
@@ -73,7 +74,7 @@ const CreateAccount: React.FC = () => {
       pageTitle={
         <>
           <AddIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T name="createAccount" />
+          <T id="createAccount" />
         </>
       }
     >
@@ -96,7 +97,7 @@ const CreateAccount: React.FC = () => {
             containerClassName="mb-4"
           />
 
-          <T name="createAccount">
+          <T id="createAccount">
             {(message) => (
               <FormSubmitButton className="capitalize" loading={submitting}>
                 {message}

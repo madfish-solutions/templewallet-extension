@@ -22,7 +22,7 @@ const BakingSection: React.FC = () => {
       >
         {myBakerPkh ? (
           <>
-            <T name="delegatedTo">
+            <T id="delegatedTo">
               {(message) => (
                 <p
                   className="mb-2 text-sm font-light text-center text-gray-500"
@@ -39,7 +39,7 @@ const BakingSection: React.FC = () => {
           <div className="flex flex-col items-center text-gray-500">
             <SupportAltIcon className="w-16 h-auto mb-1 stroke-current" />
 
-            <T name="delegatingMotivation">
+            <T id="delegatingMotivation">
               {(message) => (
                 <p
                   className="mb-6 text-sm font-light text-center"
@@ -70,9 +70,7 @@ const BakingSection: React.FC = () => {
           <DiamondIcon
             className={classNames("-ml-2 mr-2", "h-5 w-auto", "stroke-current")}
           />
-          <T name={myBakerPkh ? "reDelegate" : "delegateNow"}>
-            {(message) => <>{message}</>}
-          </T>
+          <T id={myBakerPkh ? "reDelegate" : "delegateNow"} />
         </Link>
       </div>
     ),

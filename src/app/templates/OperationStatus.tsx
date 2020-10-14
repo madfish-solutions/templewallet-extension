@@ -1,5 +1,5 @@
 import * as React from "react";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import useSafeState from "lib/ui/useSafeState";
 import Alert from "app/atoms/Alert";
 import HashChip from "app/atoms/HashChip";
@@ -13,6 +13,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
   typeTitle,
   operation,
 }) => {
+  const { t } = useTranslation();
   const hash = React.useMemo(() => operation.hash || operation.opHash, [
     operation,
   ]);
@@ -20,7 +21,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
   const descFooter = React.useMemo(
     () => (
       <T
-        name="operationHash"
+        id="operationHash"
         substitutions={[
           <HashChip
             hash={hash}
@@ -46,9 +47,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     title: `${t("success")} 🛫`,
     description: (
       <>
-        <T name="requestSent" substitutions={typeTitle}>
-          {(message) => <>{message}</>}
-        </T>
+        <T id="requestSent" substitutions={typeTitle} />
         {descFooter}
       </>
     ),
@@ -64,11 +63,9 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
           description: (
             <>
               <T
-                name="operationSuccessfullyProcessed"
+                id="operationSuccessfullyProcessed"
                 substitutions={typeTitle}
-              >
-                {(message) => <>{message}</>}
-              </T>
+              />
               {descFooter}
             </>
           ),
@@ -81,7 +78,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
           description: t("timedOutOperationConfirmation"),
         });
       });
-  }, [operation, setAlert, descFooter, typeTitle]);
+  }, [operation, setAlert, descFooter, typeTitle, t]);
 
   return (
     <Alert

@@ -5,8 +5,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
 import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
-import { getDateFnsLocale } from "lib/i18n";
-import { T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import {
   ThanosAsset,
   ThanosAssetType,
@@ -187,7 +186,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             className="text-sm font-light text-center"
             style={{ maxWidth: "20rem" }}
           >
-            <T name="noOperationsFound">{(message) => <>{message}</>}</T>
+            <T id="noOperationsFound" />
           </h3>
         </div>
       )}
@@ -227,6 +226,7 @@ const Operation = React.memo<OperationProps>(
     parameters,
   }) => {
     const { allAssets } = useAssets();
+    const { dateFnsLocale } = useTranslation();
 
     const token = React.useMemo(
       () =>
@@ -294,7 +294,7 @@ const Operation = React.memo<OperationProps>(
                           {formatDistanceToNow(new Date(time), {
                             includeSeconds: true,
                             addSuffix: true,
-                            locale: getDateFnsLocale(),
+                            locale: dateFnsLocale,
                           })}
                         </span>
                       )}
@@ -305,7 +305,7 @@ const Operation = React.memo<OperationProps>(
                     case failed:
                       return (
                         <div className="flex items-center">
-                          <T name={status}>
+                          <T id={status}>
                             {(message) => (
                               <span className="mr-1 text-xs font-light text-red-600">
                                 {message}
@@ -319,7 +319,7 @@ const Operation = React.memo<OperationProps>(
 
                     case pending:
                       return (
-                        <T name="pending">
+                        <T id="pending">
                           {(message) => (
                             <span className="text-xs font-light text-yellow-600">
                               {message}
@@ -376,6 +376,7 @@ const Operation = React.memo<OperationProps>(
         </div>
       ),
       [
+        dateFnsLocale,
         hash,
         finalVolume,
         imReceiver,
@@ -495,8 +496,8 @@ function tryParseParameters(asset: ThanosAsset, parameters: any) {
           };
         } else {
           const [fromArgs, { args: toArgs }] = parameters.value.args;
-          const sender = fromArgs.string as string;
-          const receiver = toArgs[0].string as string;
+          const sender: string = fromArgs.string;
+          const receiver: string = toArgs[0].string;
           const volume = new BigNumber(toArgs[1].int)
             .div(10 ** asset.decimals)
             .toNumber();

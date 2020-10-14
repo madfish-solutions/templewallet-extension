@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
 import { useAccount } from "lib/thanos/front";
-import { T, t } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
@@ -13,7 +13,7 @@ import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 const Receive: React.FC = () => {
   const account = useAccount();
   const address = account.publicKeyHash;
-
+  const { t } = useTranslation();
   const { fieldRef, copy, copied } = useCopyToClipboard();
 
   return (
@@ -21,7 +21,7 @@ const Receive: React.FC = () => {
       pageTitle={
         <>
           <QRIcon className="mr-1 h-4 w-auto stroke-current" />
-          <T name="receive">{(message) => <>{message}</>}</T>
+          <T id="receive" />
         </>
       }
     >
@@ -61,7 +61,7 @@ const Receive: React.FC = () => {
             onClick={copy}
           >
             {copied ? (
-              <T name="copiedAddress">{(message) => <>{message}</>}</T>
+              <T id="copiedAddress" />
             ) : (
               <>
                 <CopyIcon
@@ -71,16 +71,14 @@ const Receive: React.FC = () => {
                     "stroke-current stroke-2"
                   )}
                 />
-                <T name="copyAddressToClipboard">
-                  {(message) => <>{message}</>}
-                </T>
+                <T id="copyAddressToClipboard" />
               </>
             )}
           </button>
 
           <div className="flex flex-col items-center">
             <div className="mb-2 text-center leading-tight">
-              <T name="qrCode">
+              <T id="qrCode">
                 {(message) => (
                   <span className="text-sm font-semibold text-gray-700">
                     {message}

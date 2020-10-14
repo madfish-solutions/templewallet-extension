@@ -84,7 +84,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                         "text-gray-600"
                       )}
                     >
-                      <T name="fee">{(message) => <>{message}</>}</T>:{" "}
+                      <T id="fee" />:{" "}
                       <span className="font-normal">
                         {new BigNumber(baker.fee).times(100).toFormat(2)}%
                       </span>
@@ -101,7 +101,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                         "text-gray-600"
                       )}
                     >
-                      <T name="space">{(message) => <>{message}</>}</T>:{" "}
+                      <T id="space" />:{" "}
                       <span className="font-normal">
                         <Money>{baker.freespace}</Money>
                       </span>{" "}
@@ -110,7 +110,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                   </div>
                 </div>
 
-                <T name="exploreMore">
+                <T id="exploreMore">
                   {(message) => (
                     <a
                       href={exploreBakerUrl(baker.address)}
@@ -152,7 +152,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                     <>
                       {bakerAcc.name}
                       {bakerAcc.publicKeyHash === account.publicKeyHash && (
-                        <T name="selfComment">
+                        <T id="selfComment">
                           {(message) => (
                             <>
                               {" "}
@@ -165,7 +165,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                       )}
                     </>
                   ) : (
-                    <T name="unknownBakerTitle">
+                    <T id="unknownBakerTitle" forceUseBreaks={false}>
                       {(message) => (
                         <span className="font-normal">
                           {(message as string).toLowerCase()}

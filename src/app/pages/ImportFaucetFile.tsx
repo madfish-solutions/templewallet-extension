@@ -8,7 +8,7 @@ import {
   useThanosClient,
   useTezos,
 } from "lib/thanos/front";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import useSafeState from "lib/ui/useSafeState";
 import PageLayout from "app/layouts/PageLayout";
 import Alert from "app/atoms/Alert";
@@ -33,7 +33,7 @@ const ImportFaucetFile: React.FC = () => {
       pageTitle={
         <>
           <CodeAlt className="w-auto h-4 mr-1 stroke-current" />
-          <T name="importFaucetFile">
+          <T id="importFaucetFile">
             {(message) => <span className="capitalize">{message}</span>}
           </T>
         </>
@@ -59,6 +59,7 @@ const Form: React.FC = () => {
   const { importFundraiserAccount } = useThanosClient();
   const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
+  const { t } = useTranslation();
 
   const activateAccount = React.useCallback(
     async (address: string, secret: string) => {
@@ -181,6 +182,7 @@ const Form: React.FC = () => {
       activateAccount,
       importFundraiserAccount,
       setAccountPkh,
+      t,
     ]
   );
 
@@ -269,7 +271,7 @@ const Form: React.FC = () => {
               color="#e2e8f0"
               className="m-4 mx-auto"
             >
-              <T name="upload">{(message) => <title>{message}</title>}</T>
+              <T id="upload">{(message) => <title>{message}</title>}</T>
               <path d="M12 4v13M7 8l5-5 5 5M20 21H4" />
             </svg>
             <div className="w-full text-center">
@@ -277,11 +279,9 @@ const Form: React.FC = () => {
                 t("processing")
               ) : (
                 <T
-                  name="selectFileOfFormat"
+                  id="selectFileOfFormat"
                   substitutions={[<b key="JSON">JSON</b>]}
-                >
-                  {(message) => <>{message}</>}
-                </T>
+                />
               )}
             </div>
           </div>

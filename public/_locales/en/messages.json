@@ -26,14 +26,6 @@
   "maximiseView": {
     "message": "Maximise view"
   },
-  "requestSent": {
-    "message": "$type$ request sent! Confirming...",
-    "placeholders": {
-      "type": {
-        "content": "$1"
-      }
-    }
-  },
   "authorizedDApps": {
     "message": "Authorized DApps"
   },
@@ -93,18 +85,6 @@
         "content": "$1"
       }
     }
-  },
-  "networkLabel": {
-    "message": "Network: %network%"
-  },
-  "pkhLabel": {
-    "message": "Account: %pkh%"
-  },
-  "acceptTermsInputDescriptionPart1": {
-    "message": "I have read and agree to"
-  },
-  "acceptTermsInputDescriptionPart2": {
-    "message": "the %termsOfUsageLink% and %privacyPolicyLink%"
   },
   "copiedTokenAddress": {
     "message": "Copied."
@@ -249,150 +229,6 @@
       }
     }
   },
-  "accountsToRemoveConstraint": {
-    "message": "Only %importedPlural% or %ledger% accounts can be removed."
-  },
-  "preview": {
-    "message": "Preview"
-  },
-  "raw": {
-    "message": "Raw"
-  },
-  "fetchingConfirmationDetails": {
-    "message": "fetching confirmation details"
-  },
-  "notIdentified": {
-    "message": "Not identified"
-  },
-  "connection": {
-    "message": "Connection"
-  },
-  "connect": {
-    "message": "Connect"
-  },
-  "appWouldLikeToConnectToYourWallet": {
-    "message": "%origin% would like to connect to your wallet"
-  },
-  "appRequestOperationToYou": {
-    "message": "%origin% requests operations to you"
-  },
-  "reject": {
-    "message": "Reject"
-  },
-  "signAction": {
-    "message": "Sign"
-  },
-  "appRequestsToSign": {
-    "message": "%origin% requests you to sign"
-  },
-  "alpha": {
-    "message": "Alpha"
-  },
-  "viewAccountAddressWarning": {
-    "message": "This site is requesting access to view your account address. Always make sure you trust the sites you interact with."
-  },
-  "account": {
-    "message": "Account"
-  },
-  "toBeConnectedWithDApp": {
-    "message": "to be connected with dApp."
-  },
-  "atLeast8Characters": {
-    "message": "At least 8 characters"
-  },
-  "atLeast1Number": {
-    "message": "At least 1 number"
-  },
-  "atLeast1LowercaseLetter": {
-    "message": "At least 1 lowercase letter"
-  },
-  "atLeast1UppercaseLetter": {
-    "message": "At least 1 uppercase letter"
-  },
-  "mnemonicWordsAmountConstraint": {
-    "message": "12, 15, 18, 21 or 24 words on English"
-  },
-  "mnemonicSpacingConstraint": {
-    "message": "Each word separated with a single space"
-  },
-  "justValidPreGeneratedMnemonic": {
-    "message": "Just valid pre-generated mnemonic"
-  },
-  "oops": {
-    "message": "Oops!"
-  },
-  "smthWentWrongWhile": {
-    "message": "Something went wrong while $action$",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "mayHappenBecauseYouAreOffline": {
-    "message": "This may happen because you are currently offline"
-  },
-  "tryAgain": {
-    "message": "Try again"
-  },
-  "tezosMainnet": {
-    "message": "Tezos Mainnet"
-  },
-  "tezosMainnetDescription": {
-    "message": "Tezos mainnet"
-  },
-  "carthageTestnet": {
-    "message": "Carthage Testnet"
-  },
-  "carthageTestnetDescription": {
-    "message": "Carthage testnet"
-  },
-  "dAlphaTestnet": {
-    "message": "Dalpha Testnet (soon)"
-  },
-  "dAlphaTestnetDescription": {
-    "message": "Dalpha testnet"
-  },
-  "localSandbox": {
-    "message": "Local Sandbox"
-  },
-  "thanosWalletOptions": {
-    "message": "ThanosWallet | Options"
-  },
-  "resetExtension": {
-    "message": "Reset Extension"
-  },
-  "resetExtensionConfirmation": {
-    "message": "Are you sure you want to reset the ThanosWallet?\nAs a result, all your data will be deleted."
-  },
-  "failedToResetExtension": {
-    "message": "Failed to reset extension: $errorMessage$",
-    "placeholders": {
-      "errorMessage": {
-        "content": "$1"
-      }
-    }
-  },
-  "ledger": {
-    "message": "Ledger"
-  },
-  "retry": {
-    "message": "Retry"
-  },
-  "privateKeyCannotBeRevealed": {
-    "message": "Private key cannot be revealed"
-  },
-  "youCannotGetPrivateKeyFromLedgerAccounts": {
-    "message": "You cannot get private key from %ledger% accounts."
-  },
-  "maximalAmount": {
-    "message": "Maximal: $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
   "amountMustBePositive": {
     "message": "Must be positive"
   },
@@ -516,7 +352,12 @@
     "message": "Processing..."
   },
   "selectFileOfFormat": {
-    "message": "Select %format% file"
+    "message": "Select $format$ file",
+    "placeholders": {
+      "format": {
+        "content": "$1"
+      }
+    }
   },
   "restoreWalletWithSeedPhrase": {
     "message": "Restore your Wallet with Seed Phrase"
@@ -600,10 +441,23 @@
     "message": "Already have a seed phrase? Import your existing wallet using a 12 or more mnemonic words"
   },
   "versionLabel": {
-    "message": "version: %version%"
+    "message": "version: $version$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "madeWithLove": {
-    "message": "Made with %loveIcon% by %companyName%"
+    "message": "Made with $loveIcon$ by $companyName$",
+    "placeholders": {
+      "loveIcon": {
+        "content": "$1"
+      },
+      "companyName": {
+        "content": "$2"
+      }
+    }
   },
   "links": {
     "message": "Links"
@@ -666,7 +520,12 @@
     "message": "Additional Fee"
   },
   "feeInputDescription": {
-    "message": "Base Fee for this operation is: %fee%Additional - speeds up its confirmation"
+    "message": "Base Fee for this operation is: $fee$\nAdditional - speeds up its confirmation",
+    "placeholders": {
+      "fee": {
+        "content": "$1"
+      }
+    }
   },
   "asset": {
     "message": "Asset"
@@ -697,6 +556,22 @@
   "dAppsInteractionDisabled": {
     "message": "Disabled"
   },
+  "networkLabel": {
+    "message": "Network: $network$",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "pkhLabel": {
+    "message": "Account: $pkh$",
+    "placeholders": {
+      "pkh": {
+        "content": "$1"
+      }
+    }
+  },
   "delete": {
     "message": "Delete"
   },
@@ -725,7 +600,12 @@
     "message": "Minimal delegation amount"
   },
   "minDelegationAmountDescription": {
-    "message": "Your current balance is less than a minimal delegation amount of this baker. That means while the balance is less than %minAmount% - there will be no payouts."
+    "message": "Your current balance is less than a minimal delegation amount of this baker. That means while the balance is less than $minAmount$ - there will be no payouts.",
+    "placeholders": {
+      "minAmount": {
+        "content": "$1"
+      }
+    }
   },
   "unknownBakerTitle": {
     "message": "Unknown baker"
@@ -737,7 +617,12 @@
     "message": "Delegate to Recommended Bakers"
   },
   "clickOnBakerPrompt": {
-    "message": "Click on the Baker you want to delegate funds to. This list is powered by %link%"
+    "message": "Click on the Baker you want to delegate funds to. This list is powered by $link$",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "sortBy": {
     "message": "Sort by"
@@ -849,7 +734,12 @@
     "message": "destroy the existing"
   },
   "unlockWalletPrompt": {
-    "message": "If you want to save something from already existing wallet - %link% and unlock it."
+    "message": "If you want to save something from already existing wallet - $link$ and unlock it.",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "backToUnlockPage": {
     "message": "back to Unlock page"
@@ -870,7 +760,15 @@
     "message": "Accept terms"
   },
   "acceptTermsInputDescription": {
-    "message": "I have read and agree to\nthe %termsOfUsageLink% and %privacyPolicyLink%"
+    "message": "I have read and agree to\nthe $termsOfUsageLink$ and $privacyPolicyLink$",
+    "placeholders": {
+      "termsOfUsageLink": {
+        "content": "$1"
+      },
+      "privacyPolicyLink": {
+        "content": "$2"
+      }
+    }
   },
   "termsOfUsage": {
     "message": "Terms of Usage"
@@ -897,7 +795,12 @@
     "message": "DO NOT share"
   },
   "doNotSharePhrase": {
-    "message": "%doNotShare% this phrase with anyone! It can be used to steal all your accounts."
+    "message": "$doNotShare$ this phrase with anyone! It can be used to steal all your accounts.",
+    "placeholders": {
+      "doNotShare": {
+        "content": "$1"
+      }
+    }
   },
   "youWillNeedThisSeedPhrase": {
     "message": "If you ever switch between browsers or devices, you will need this seed phrase to access your accounts."
@@ -924,7 +827,12 @@
     "message": "pending..."
   },
   "operationHash": {
-    "message": "Operation Hash: %hash%"
+    "message": "Operation Hash: $hash$",
+    "placeholders": {
+      "hash": {
+        "content": "$1"
+      }
+    }
   },
   "operationSuccessfullyProcessed": {
     "message": "$type$ successfully processed and confirmed!",
@@ -947,7 +855,15 @@
     "message": "Cannot be removed"
   },
   "accountsToRemoveConstraint": {
-    "message": "Only %importedPlural% or %ledger% accounts can be removed."
+    "message": "Only $importedPlural$ or $ledger$ accounts can be removed.",
+    "placeholders": {
+      "importedPlural": {
+        "content": "$1"
+      },
+      "ledger": {
+        "content": "$2"
+      }
+    }
   },
   "importedPlural": {
     "message": "imported"
@@ -962,7 +878,12 @@
     "message": "If you want to reveal a private key from another account - you should select it in the top-right dropdown."
   },
   "doNotSharePrivateKey": {
-    "message": "%doNotShare% this set of chars with anyone! It can be used to steal your current account."
+    "message": "$doNotShare$ this set of chars with anyone! It can be used to steal your current account.",
+    "placeholders": {
+      "doNotShare": {
+        "content": "$1"
+      }
+    }
   },
   "privateKeyFieldDescription": {
     "message": "Current account key. Keep it secret."
@@ -1100,10 +1021,20 @@
     "message": "Connect"
   },
   "appWouldLikeToConnectToYourWallet": {
-    "message": "%origin% would like to connect to your wallet"
+    "message": "$origin$ would like to connect to your wallet",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
   },
   "appRequestOperationToYou": {
-    "message": "%origin% requests operations to you"
+    "message": "$origin$ requests operations to you",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
   },
   "reject": {
     "message": "Reject"
@@ -1112,7 +1043,12 @@
     "message": "Sign"
   },
   "appRequestsToSign": {
-    "message": "%origin% requests you to sign"
+    "message": "$origin$ requests you to sign",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
   },
   "alpha": {
     "message": "Alpha"
@@ -1212,7 +1148,12 @@
     "message": "Private key cannot be revealed"
   },
   "youCannotGetPrivateKeyFromLedgerAccounts": {
-    "message": "You cannot get private key from %ledger% accounts."
+    "message": "You cannot get private key from $ledger$ accounts.",
+    "placeholders": {
+      "ledger": {
+        "content": "$1"
+      }
+    }
   },
   "maximalAmount": {
     "message": "Maximal: $amount$",
@@ -1226,7 +1167,12 @@
     "message": "Confirm the action on"
   },
   "deviceName": {
-    "message": "%device% device"
+    "message": "$device$ device",
+    "placeholders": {
+      "device": {
+        "content": "$1"
+      }
+    }
   },
   "ledgerNano": {
     "message": "Ledger Nano"
@@ -1246,7 +1192,12 @@
     "message": "What will be the name of the new Ledger account?"
   },
   "defaultDerivationPathLabel": {
-    "message": "By default %path% derivation is used."
+    "message": "By default $path$ derivation is used.",
+    "placeholders": {
+      "path": {
+        "content": "$1"
+      }
+    }
   },
   "clickOnCustomDerivationPath": {
     "message": "Click on 'Custom derivation path' to customize it."
@@ -1255,7 +1206,21 @@
     "message": "Add Ledger Account"
   },
   "firefoxLedgerConnectionError": {
-    "message": "%sorry% Connection to the %device% device via %browser% is temporarily %unavailable%."
+    "message": "$sorry$ Connection to the $device$ device via $browser$ is temporarily $unavailable$.",
+    "placeholders": {
+      "sorry": {
+        "content": "$1"
+      },
+      "device": {
+        "content": "$2"
+      },
+      "browser": {
+        "content": "$3"
+      },
+      "unavailable": {
+        "content": "$4"
+      }
+    }
   },
   "connectionUnavailable": {
     "message": "Unavailable"

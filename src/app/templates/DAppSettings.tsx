@@ -6,7 +6,7 @@ import {
   useThanosClient,
 } from "lib/thanos/front";
 import { ThanosDAppSession, ThanosDAppSessions } from "lib/thanos/types";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import { useRetryableSWR } from "lib/swr";
 import DAppLogo from "app/templates/DAppLogo";
 import FormCheckbox from "app/atoms/FormCheckbox";
@@ -26,6 +26,7 @@ const DAppSettings: React.FC = () => {
     ThanosSharedStorageKey.DAppEnabled,
     true
   );
+  const { t } = useTranslation();
   const { getAllDAppSessions, removeDAppSession } = useThanosClient();
   const { data, revalidate } = useRetryableSWR<ThanosDAppSessions>(
     ["getAllDAppSessions"],
@@ -66,7 +67,7 @@ const DAppSettings: React.FC = () => {
         revalidate();
       }
     },
-    [removeDAppSession, revalidate]
+    [removeDAppSession, revalidate, t]
   );
 
   const dAppEntries = React.useMemo(() => Object.entries(dAppSessions), [
@@ -79,7 +80,7 @@ const DAppSettings: React.FC = () => {
         className={classNames("w-full mb-4", "leading-tight", "flex flex-col")}
       >
         <T
-          name="dAppsCheckmarkPrompt"
+          id="dAppsCheckmarkPrompt"
           substitutions={t(dAppEnabled ? "disable" : "enable")}
         >
           {(message) => (
@@ -108,7 +109,7 @@ const DAppSettings: React.FC = () => {
       {dAppEntries.length > 0 && (
         <>
           <h2>
-            <T name="authorizedDApps">
+            <T id="authorizedDApps">
               {(message) => (
                 <span className="text-base font-semibold text-gray-700">
                   {message}
@@ -118,7 +119,7 @@ const DAppSettings: React.FC = () => {
           </h2>
 
           <div className="mb-4">
-            <T name="clickIconToResetPermissions">
+            <T id="clickIconToResetPermissions">
               {(message) => (
                 <span
                   className="text-xs font-light text-gray-600"
@@ -162,6 +163,7 @@ const DAppDescription: React.FC<OptionRenderProps<
     item: [origin, { appMeta, network, pkh }],
   } = props;
   const { remove: onRemove } = actions!;
+  const { t } = useTranslation();
 
   const handleRemoveClick = React.useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -175,11 +177,11 @@ const DAppDescription: React.FC<OptionRenderProps<
     const val = pkh;
     const ln = val.length;
     return (
-      <>
+      <React.Fragment key="previewNode">
         {val.slice(0, 7)}
         <span className="opacity-75">...</span>
         {val.slice(ln - 4, ln)}
-      </>
+      </React.Fragment>
     );
   }, [pkh]);
 
@@ -191,7 +193,7 @@ const DAppDescription: React.FC<OptionRenderProps<
         </Name>
 
         <T
-          name="networkLabel"
+          id="networkLabel"
           substitutions={[
             <span className="font-normal capitalize" key="network">
               {typeof network === "string" ? network : network.name}
@@ -205,16 +207,12 @@ const DAppDescription: React.FC<OptionRenderProps<
           )}
         </T>
 
-        <T
-          name="pkhLabel"
-          substitutions={[
-            <span className="font-normal" key="pkh">
-              {pkhPreviewNode}
-            </span>,
-          ]}
-        >
+        <T id="pkhLabel" substitutions={[pkhPreviewNode]}>
           {(message) => (
-            <div className="text-xs font-light leading-tight text-gray-600">
+            <div
+              className="overflow-hidden text-gray-600 whitespace-no-wrap"
+              style={{ textOverflow: "ellipsis" }}
+            >
               {message}
             </div>
           )}

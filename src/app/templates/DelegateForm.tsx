@@ -20,7 +20,7 @@ import {
   isKTAddress,
   hasManager,
 } from "lib/thanos/front";
-import { T, t, getUILanguage } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import useSafeState from "lib/ui/useSafeState";
 import {
   ArtificialError,
@@ -43,19 +43,6 @@ import AdditionalFeeInput from "./AdditionalFeeInput";
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 const SORT_BAKERS_BY_KEY = "sort_bakers_by";
-const BAKER_SORT_TYPES = [
-  {
-    key: "rank",
-    title: t("rank"),
-  },
-  {
-    key: "fee",
-    title: t("fee"),
-  },
-  { key: "space", title: t("space") },
-];
-
-const pluralRules = new Intl.PluralRules(getUILanguage());
 
 interface FormData {
   to: string;
@@ -82,13 +69,31 @@ const DelegateForm: React.FC = () => {
   const knownBakers = useKnownBakers();
 
   const { search } = useLocation();
+
+  const { t, locale } = useTranslation();
+  const bakerSortTypes = React.useMemo(
+    () => [
+      {
+        key: "rank",
+        title: t("rank"),
+      },
+      {
+        key: "fee",
+        title: t("fee"),
+      },
+      { key: "space", title: t("space") },
+    ],
+    [t]
+  );
   const sortBakersBy = React.useMemo(() => {
     const usp = new URLSearchParams(search);
     const val = usp.get(SORT_BAKERS_BY_KEY);
-    return (
-      BAKER_SORT_TYPES.find(({ key }) => key === val) ?? BAKER_SORT_TYPES[0]
-    );
-  }, [search]);
+    return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
+  }, [search, bakerSortTypes]);
+
+  const pluralRules = React.useMemo(() => new Intl.PluralRules(locale), [
+    locale,
+  ]);
 
   const sortedKnownBakers = React.useMemo(() => {
     if (!knownBakers) return null;
@@ -368,7 +373,7 @@ const DelegateForm: React.FC = () => {
           label={t("baker")}
           labelDescription={t("bakerInputDescription")}
           placeholder={t("bakerInputPlaceholder")}
-          errorCaption={errors.to?.message}
+          errorCaption={errors.to?.message && t(errors.to?.message.toString())}
           style={{
             resize: "none",
           }}
@@ -401,7 +406,7 @@ const DelegateForm: React.FC = () => {
                     title={t("minDelegationAmountTitle")}
                     description={
                       <T
-                        name="minDelegationAmountDescription"
+                        id="minDelegationAmountDescription"
                         substitutions={[
                           <span
                             className="font-normal"
@@ -413,9 +418,7 @@ const DelegateForm: React.FC = () => {
                             </span>
                           </span>,
                         ]}
-                      >
-                        {(message) => <>{message}</>}
-                      </T>
+                      />
                     }
                     className="mb-6"
                   />
@@ -460,7 +463,7 @@ const DelegateForm: React.FC = () => {
               <h2
                 className={classNames("mb-4", "leading-tight", "flex flex-col")}
               >
-                <T name="delegateToRecommendedBakers">
+                <T id="delegateToRecommendedBakers">
                   {(message) => (
                     <span className="text-base font-semibold text-gray-700">
                       {message}
@@ -469,7 +472,7 @@ const DelegateForm: React.FC = () => {
                 </T>
 
                 <T
-                  name="clickOnBakerPrompt"
+                  id="clickOnBakerPrompt"
                   substitutions={[
                     <a
                       href="https://www.tezos-nodes.com"
@@ -497,7 +500,7 @@ const DelegateForm: React.FC = () => {
               </h2>
 
               <div className={classNames("mb-2", "flex items-center")}>
-                <T name="sortBy">
+                <T id="sortBy">
                   {(message) => (
                     <span
                       className={classNames("mr-1", "text-xs text-gray-500")}
@@ -506,7 +509,7 @@ const DelegateForm: React.FC = () => {
                     </span>
                   )}
                 </T>
-                {BAKER_SORT_TYPES.map(({ key, title }, i, arr) => {
+                {bakerSortTypes.map(({ key, title }, i, arr) => {
                   const first = i === 0;
                   const last = i === arr.length - 1;
                   const selected = sortBakersBy.key === key;
@@ -613,9 +616,7 @@ const DelegateForm: React.FC = () => {
                           </Name>
 
                           <T
-                            name={`cycles_${pluralRules.select(
-                              baker.lifetime
-                            )}`}
+                            id={`cycles_${pluralRules.select(baker.lifetime)}`}
                             substitutions={String(baker.lifetime)}
                           >
                             {(message) => (
@@ -637,7 +638,7 @@ const DelegateForm: React.FC = () => {
                             "flex flex-wrap items-center"
                           )}
                         >
-                          <T name="fee">
+                          <T id="fee">
                             {(message) => (
                               <div
                                 className={classNames(
@@ -658,7 +659,7 @@ const DelegateForm: React.FC = () => {
                         </div>
 
                         <div className="flex flex-wrap items-center pl-px">
-                          <T name="space">
+                          <T id="space">
                             {(message) => (
                               <div
                                 className={classNames(
@@ -700,66 +701,68 @@ type DelegateErrorAlertProps = {
 const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
   type,
   error,
-}) => (
-  <Alert
-    type={type === "submit" ? "error" : "warn"}
-    title={(() => {
-      switch (true) {
-        case error instanceof NotEnoughFundsError:
-          return t("notEnoughFunds", "");
+}) => {
+  const { t } = useTranslation();
 
-        case [UnchangedError, UnregisteredDelegateError].some(
-          (Err) => error instanceof Err
-        ):
-          return t("notAllowed");
+  return (
+    <Alert
+      type={type === "submit" ? "error" : "warn"}
+      title={(() => {
+        switch (true) {
+          case error instanceof NotEnoughFundsError:
+            return t("notEnoughFunds", "");
 
-        default:
-          return t("failed");
-      }
-    })()}
-    description={(() => {
-      switch (true) {
-        case error instanceof ZeroBalanceError:
-          return t("yourBalanceIsZero");
+          case [UnchangedError, UnregisteredDelegateError].some(
+            (Err) => error instanceof Err
+          ):
+            return t("notAllowed");
 
-        case error instanceof NotEnoughFundsError:
-          return t("minimalFeeGreaterThanBalance");
+          default:
+            return t("failed");
+        }
+      })()}
+      description={(() => {
+        switch (true) {
+          case error instanceof ZeroBalanceError:
+            return t("yourBalanceIsZero");
 
-        case error instanceof UnchangedError:
-          return t("alreadyDelegatedFundsToBaker");
+          case error instanceof NotEnoughFundsError:
+            return t("minimalFeeGreaterThanBalance");
 
-        case error instanceof UnregisteredDelegateError:
-          return t("bakerNotRegistered");
+          case error instanceof UnchangedError:
+            return t("alreadyDelegatedFundsToBaker");
 
-        default:
-          return (
-            <>
-              <T
-                name="unableToPerformActionToBaker"
-                substitutions={t(
-                  type === "submit" ? "delegate" : "estimateDelegation"
-                ).toLowerCase()}
-              >
-                {(message) => <>{message}</>}
-              </T>
-              <br />
-              <T name="thisMayHappenBecause">{(message) => <>{message}</>}</T>
-              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                <T name="minimalFeeGreaterThanBalanceVerbose">
-                  {(message) => <li>{message}</li>}
-                </T>
-                <T name="networkOrOtherIssue">
-                  {(message) => <li>{message}</li>}
-                </T>
-              </ul>
-            </>
-          );
-      }
-    })()}
-    autoFocus
-    className={classNames("mt-6 mb-4")}
-  />
-);
+          case error instanceof UnregisteredDelegateError:
+            return t("bakerNotRegistered");
+
+          default:
+            return (
+              <>
+                <T
+                  id="unableToPerformActionToBaker"
+                  substitutions={t(
+                    type === "submit" ? "delegate" : "estimateDelegation"
+                  ).toLowerCase()}
+                />
+                <br />
+                <T id="thisMayHappenBecause" />
+                <ul className="mt-1 ml-2 text-xs list-disc list-inside">
+                  <T id="minimalFeeGreaterThanBalanceVerbose">
+                    {(message) => <li>{message}</li>}
+                  </T>
+                  <T id="networkOrOtherIssue">
+                    {(message) => <li>{message}</li>}
+                  </T>
+                </ul>
+              </>
+            );
+        }
+      })()}
+      autoFocus
+      className={classNames("mt-6 mb-4")}
+    />
+  );
+};
 
 class UnchangedError extends Error {}
 class UnregisteredDelegateError extends Error {}
@@ -770,10 +773,10 @@ function validateAddress(value: any) {
       return true;
 
     case isAddressValid(value):
-      return t("invalidAddress");
+      return "invalidAddress";
 
     case !isKTAddress(value):
-      return t("unableToDelegateToKTAddress");
+      return "unableToDelegateToKTAddress";
 
     default:
       return true;

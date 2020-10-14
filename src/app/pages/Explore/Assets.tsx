@@ -239,7 +239,7 @@ const ControlButton = React.memo<ControlButton>(
                       "opacity-75"
                     )}
                   />
-                  <T name="addNewToken">{(message) => <>{message}</>}</T>
+                  <T id="addNewToken" />
                 </Link>
 
                 {asset.type !== ThanosAssetType.XTZ && (
@@ -274,9 +274,7 @@ const ControlButton = React.memo<ControlButton>(
                       "opacity-75"
                     )}
                   />
-                  <T name="hideSomeToken" substitutions={asset.name}>
-                    {(message) => <>{message}</>}
-                  </T>
+                  <T id="hideSomeToken" substitutions={asset.name} />
                 </button>
               </div>
             </DropdownWrapper>
@@ -345,7 +343,7 @@ const CopyTokenAddress: React.FC<CopyTokenAddressProps> = ({ asset }) => {
         />
 
         <div className="relative">
-          <T name="copySomeTokenAddress" substitutions={asset.symbol}>
+          <T id="copySomeTokenAddress" substitutions={asset.symbol}>
             {(message) => (
               <span className={classNames(copied && "text-transparent")}>
                 {message}
@@ -353,7 +351,7 @@ const CopyTokenAddress: React.FC<CopyTokenAddressProps> = ({ asset }) => {
             )}
           </T>
           {copied && (
-            <T name="copiedTokenAddress">
+            <T id="copiedTokenAddress">
               {(message) => (
                 <div className="absolute inset-0 text-left">{message}</div>
               )}

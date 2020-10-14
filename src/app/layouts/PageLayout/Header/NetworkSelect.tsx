@@ -31,7 +31,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             )}
           >
             <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
-            <T name="networks">{(networks) => <>{networks}</>}</T>
+            <T id="networks">{(networks) => <>{networks}</>}</T>
           </h2>
 
           {allNetworks.map(({ id, name, color, disabled }) => {

@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useAccount } from "lib/thanos/front";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
@@ -19,11 +19,12 @@ import BakingSection from "app/pages/Explore/BakingSection";
 const Explore: React.FC = () => {
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
+  const { t } = useTranslation();
 
   return (
     <PageLayout
       pageTitle={
-        <T name="explore">
+        <T id="explore">
           {(message) => (
             <>
               <ExploreIcon className="mr-1 h-4 w-auto stroke-current" />
@@ -76,7 +77,7 @@ const Explore: React.FC = () => {
                   "stroke-current"
                 )}
               />
-              <T name="receive">{(message) => <>{message}</>}</T>
+              <T id="receive" />
             </Link>
           </div>
 
@@ -105,19 +106,19 @@ const Explore: React.FC = () => {
                   "stroke-current"
                 )}
               />
-              <T name="send">{(message) => <>{message}</>}</T>
+              <T id="send" />
             </Link>
           </div>
         </div>
       </div>
 
-      <T name="baking">{(message) => <SubTitle>{message}</SubTitle>}</T>
+      <T id="baking">{(message) => <SubTitle>{message}</SubTitle>}</T>
 
       <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
         <BakingSection />
       </SuspenseContainer>
 
-      <T name="operations">{(message) => <SubTitle>{message}</SubTitle>}</T>
+      <T id="operations">{(message) => <SubTitle>{message}</SubTitle>}</T>
 
       <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
         <OperationHistory accountPkh={accountPkh} />

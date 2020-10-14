@@ -39,22 +39,20 @@ const ConfirmLedgerOverlay: React.FC<ConfirmLedgerOverlayProps> = ({
           "text-xl font-medium tracking-tight text-gray-600"
         )}
       >
-        <T name="confirmActionOnDevice">
+        <T id="confirmActionOnDevice">
           {(message) => (
             <span className="text-base font-normal">{message}</span>
           )}
         </T>
         <br />
         <T
-          name="deviceName"
+          id="deviceName"
           substitutions={[
-            <T name="ledgerNano" key="ledgerNano">
+            <T id="ledgerNano" key="ledgerNano">
               {(message) => <span className="text-gray-700">{message}</span>}
             </T>,
           ]}
-        >
-          {(message) => <>{message}</>}
-        </T>
+        />
       </h1>
 
       <LedgerNanoIcon

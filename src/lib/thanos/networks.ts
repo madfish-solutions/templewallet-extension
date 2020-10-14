@@ -1,11 +1,11 @@
 import { ThanosNetwork } from "lib/thanos/types";
-import { t } from "lib/ui/i18n";
+import { getMessage } from "lib/ui/i18n";
 
 export const NETWORKS: ThanosNetwork[] = [
   {
     id: "mainnet",
-    name: t("tezosMainnet"),
-    description: t("tezosMainnetDescription"),
+    name: getMessage("tezosMainnet"),
+    description: getMessage("tezosMainnetDescription"),
     type: "main",
     rpcBaseURL: "https://mainnet-tezos.giganode.io",
     color: "#83b300",
@@ -13,8 +13,8 @@ export const NETWORKS: ThanosNetwork[] = [
   },
   {
     id: "carthagenet",
-    name: t("carthageTestnet"),
-    description: t("carthageTestnetDescription"),
+    name: getMessage("carthageTestnet"),
+    description: getMessage("carthageTestnetDescription"),
     type: "test",
     rpcBaseURL: "https://testnet-tezos.giganode.io",
     color: "#0f4c81",
@@ -22,8 +22,8 @@ export const NETWORKS: ThanosNetwork[] = [
   },
   {
     id: "dalphanet",
-    name: t("dAlphaTestnet"),
-    description: t("dAlphaTestnetDescription"),
+    name: getMessage("dAlphaTestnet"),
+    description: getMessage("dAlphaTestnetDescription"),
     type: "test",
     rpcBaseURL: "https://dalphanet-tezos.giganode.io",
     color: "#ed6663",
@@ -32,7 +32,7 @@ export const NETWORKS: ThanosNetwork[] = [
   {
     id: "sandbox",
     name: "localhost:8732",
-    description: t("localSandbox"),
+    description: getMessage("localSandbox"),
     type: "test",
     rpcBaseURL: "http://localhost:8732",
     color: "#e9e1cc",

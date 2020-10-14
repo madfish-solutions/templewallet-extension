@@ -3,7 +3,7 @@ import React, { useCallback, useRef, useState } from "react";
 import { Controller, ControllerProps, FieldError } from "react-hook-form";
 import BigNumber from "bignumber.js";
 import { XTZ_ASSET } from "lib/thanos/front";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import AssetField from "app/atoms/AssetField";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { ReactComponent as CoffeeIcon } from "app/icons/coffee.svg";
@@ -76,6 +76,7 @@ const getFeeOptionId = (option: FeeOption) => option.type;
 
 const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
   const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
+  const { t } = useTranslation();
 
   const validateAdditionalFee = useCallback((v?: number) => {
     if (v === undefined) {
@@ -106,16 +107,13 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
       labelDescription={
         baseFee instanceof BigNumber && (
           <T
-            name="feeInputDescription"
+            id="feeInputDescription"
             substitutions={[
               <React.Fragment key={0}>
                 <span className="font-normal">{baseFee.toString()}</span>
-                <br />
               </React.Fragment>,
             ]}
-          >
-            {(message) => <>{message}</>}
-          </T>
+          />
         )
       }
       placeholder="0"
@@ -219,7 +217,7 @@ const FeeOptionIcon: React.FC<OptionRenderProps<FeeOption>> = ({
   if (Icon) {
     return (
       <Icon
-        className="inline-block stroke-current opacity-90 flex-none"
+        className="flex-none inline-block stroke-current opacity-90"
         style={{ width: 24, height: 24 }}
       />
     );
@@ -234,7 +232,7 @@ const FeeOptionContent: React.FC<OptionRenderProps<FeeOption>> = ({
   return (
     <>
       <div className="flex flex-wrap items-center">
-        <T name={descriptionI18nKey}>
+        <T id={descriptionI18nKey}>
           {(message) => (
             <Name className="w-16 text-sm font-medium leading-tight text-left">
               {message}

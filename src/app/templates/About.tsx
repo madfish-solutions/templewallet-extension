@@ -9,13 +9,13 @@ const About: React.FC = () => (
       <Logo imgStyle={{ height: 60 }} />
 
       <div className="ml-4">
-        <T name="appName">
+        <T id="appName">
           {(message) => (
-            <h4 className="text-2xl text-gray-700 font-semibold">{message}</h4>
+            <h4 className="text-2xl font-semibold text-gray-700">{message}</h4>
           )}
         </T>
         <T
-          name="versionLabel"
+          id="versionLabel"
           substitutions={[
             <span className="font-bold" key="version">
               {process.env.VERSION}
@@ -30,7 +30,7 @@ const About: React.FC = () => (
     </div>
 
     <T
-      name="madeWithLove"
+      id="madeWithLove"
       substitutions={[
         <span role="img" aria-label="love" key="heart">
           ❤️
@@ -52,7 +52,7 @@ const About: React.FC = () => (
       )}
     </T>
 
-    <T name="links">{(message) => <SubTitle>{message}</SubTitle>}</T>
+    <T id="links">{(message) => <SubTitle>{message}</SubTitle>}</T>
 
     <div className="text-center">
       {[
@@ -77,7 +77,7 @@ const About: React.FC = () => (
           link: "https://thanoswallet.com/contact",
         },
       ].map(({ key, link }) => (
-        <T name={key} key={key}>
+        <T id={key} key={key}>
           {(message) => (
             <a
               key={key}

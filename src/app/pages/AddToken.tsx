@@ -14,7 +14,7 @@ import {
   loadContract,
   fetchBalance,
 } from "lib/thanos/front";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -26,7 +26,7 @@ const AddToken: React.FC = () => (
     pageTitle={
       <>
         <AddIcon className="w-auto h-4 mr-1 stroke-current" />
-        <T name="addToken">{(message) => <>{message}</>}</T>
+        <T id="addToken" />
       </>
     }
   >
@@ -63,6 +63,7 @@ const Form: React.FC = () => {
   const { allAssets } = useAssets();
   const { setAssetSymbol } = useCurrentAsset();
   const tezos = useTezos();
+  const { t } = useTranslation();
 
   const prevAssetsLengthRef = React.useRef(allAssets.length);
   React.useEffect(() => {
@@ -123,7 +124,7 @@ const Form: React.FC = () => {
         setError(err.message);
       }
     },
-    [tokenType, formState.isSubmitting, tezos, addToken, setError]
+    [tokenType, formState.isSubmitting, tezos, addToken, setError, t]
   );
 
   return (
@@ -143,7 +144,7 @@ const Form: React.FC = () => {
 
       <div className={classNames("mb-6", "flex flex-col")}>
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-          <T name="tokenType">
+          <T id="tokenType">
             {(message) => (
               <span className="text-base font-semibold text-gray-700">
                 {message}
@@ -200,7 +201,7 @@ const Form: React.FC = () => {
               >
                 {tt.name}
                 {tt.comingSoon && (
-                  <T name="comingSoonComment">
+                  <T id="comingSoonComment">
                     {(message) => (
                       <span className="ml-1 text-xs font-light">{message}</span>
                     )}
@@ -219,7 +220,9 @@ const Form: React.FC = () => {
         label={t("address")}
         labelDescription={t("addressOfDeployedTokenContract")}
         placeholder={t("tokenContractPlaceholder")}
-        errorCaption={errors.address?.message}
+        errorCaption={
+          errors.address?.message && t(errors.address?.message.toString())
+        }
         containerClassName="mb-4"
       />
 
@@ -277,9 +280,9 @@ const Form: React.FC = () => {
             value: /(https:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i,
             message: (
               <ul className="list-disc list-inside">
-                <T name="validImageURL">{(message) => <li>{message}</li>}</T>
-                <T name="onlyHTTPS">{(message) => <li>{message}</li>}</T>
-                <T name="formatsAllowed">{(message) => <li>{message}</li>}</T>
+                <T id="validImageURL">{(message) => <li>{message}</li>}</T>
+                <T id="onlyHTTPS">{(message) => <li>{message}</li>}</T>
+                <T id="formatsAllowed">{(message) => <li>{message}</li>}</T>
               </ul>
             ),
           },
@@ -288,8 +291,8 @@ const Form: React.FC = () => {
         id="addtoken-iconUrl"
         label={
           <>
-            <T name="iconURL">{(message) => <>{message}</>}</T>{" "}
-            <T name="optionalComment">
+            <T id="iconURL" />{" "}
+            <T id="optionalComment">
               {(message) => (
                 <span className="text-sm font-light text-gary-600">
                   {message}
@@ -304,7 +307,7 @@ const Form: React.FC = () => {
         containerClassName="mb-6"
       />
 
-      <T name="addToken">
+      <T id="addToken">
         {(message) => (
           <FormSubmitButton loading={formState.isSubmitting}>
             {message}
@@ -318,10 +321,10 @@ const Form: React.FC = () => {
 function validateAddress(value: any) {
   switch (false) {
     case isAddressValid(value):
-      return t("invalidAddress");
+      return "invalidAddress";
 
     case isKTAddress(value):
-      return t("onlyKTContractAddressAllowed");
+      return "onlyKTContractAddressAllowed";
 
     default:
       return true;

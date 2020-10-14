@@ -95,7 +95,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
       pageTitle={
         <>
           <SettingsIcon className="mr-1 h-4 w-auto stroke-current" />
-          <T name="settings">{(message) => <>{message}</>}</T>
+          <T id="settings" />
         </>
       }
     >
@@ -112,7 +112,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
               {(() => {
                 const { Icon, color, titleI18nKey } = activeTab;
                 return (
-                  <T name={titleI18nKey}>
+                  <T id={titleI18nKey}>
                     {(message) => (
                       <>
                         <Icon
@@ -170,7 +170,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
                         </div>
 
                         <div className="ml-4">
-                          <T name={titleI18nKey}>
+                          <T id={titleI18nKey}>
                             {(message) => (
                               <Link
                                 to={linkTo}
@@ -187,7 +187,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
                             )}
                           </T>
 
-                          <T name={descriptionI18nKey}>
+                          <T id={descriptionI18nKey}>
                             {(message) => (
                               <p className="mt-1 text-sm font-light leading-5 text-gray-600">
                                 {message}

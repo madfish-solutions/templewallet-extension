@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { ThanosNetwork, useSettings, useThanosClient } from "lib/thanos/front";
 import { COLORS } from "lib/ui/colors";
-import { T, t } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -18,6 +18,7 @@ const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$
 const CustomNetworksSettings: React.FC = () => {
   const { updateSettings } = useThanosClient();
   const { customNetworks = [] } = useSettings();
+  const { t } = useTranslation();
 
   const {
     register,
@@ -95,7 +96,7 @@ const CustomNetworksSettings: React.FC = () => {
         setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message);
       });
     },
-    [customNetworks, setError, updateSettings]
+    [customNetworks, setError, updateSettings, t]
   );
 
   return (
@@ -115,7 +116,10 @@ const CustomNetworksSettings: React.FC = () => {
         <FormField
           ref={register({
             required: t("required"),
-            pattern: { value: URL_PATTERN, message: t("mustBeValidURL") },
+            pattern: {
+              value: URL_PATTERN,
+              message: t("mustBeValidURL"),
+            },
             validate: {
               unique: rpcURLIsUnique,
             },
@@ -131,7 +135,7 @@ const CustomNetworksSettings: React.FC = () => {
           containerClassName="mb-6"
         />
 
-        <T name="addNetwork">
+        <T id="addNetwork">
           {(message) => (
             <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
           )}
@@ -140,7 +144,7 @@ const CustomNetworksSettings: React.FC = () => {
 
       <div className="flex flex-col my-8">
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-          <T name="currentNetworks">
+          <T id="currentNetworks">
             {(message) => (
               <span className="text-base font-semibold text-gray-700">
                 {message}
@@ -148,7 +152,7 @@ const CustomNetworksSettings: React.FC = () => {
             )}
           </T>
 
-          <T name="deleteNetworkHint">
+          <T id="deleteNetworkHint">
             {(message) => (
               <span
                 className={classNames(
@@ -214,6 +218,7 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
     onRemoveClick,
     rpcBaseURL,
   ]);
+  const { t } = useTranslation();
 
   return (
     <div

@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { ThanosAccount, ThanosAccountType } from "lib/thanos/front";
-import { t } from "lib/i18n";
+import { useTranslation } from "lib/ui/i18n";
 
 type AccountTypeBadgeProps = {
   account: ThanosAccount;
@@ -10,6 +10,8 @@ type AccountTypeBadgeProps = {
 
 const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
   ({ account, darkTheme = false }) => {
+    const { t } = useTranslation();
+
     if (account.type === ThanosAccountType.HD) return null;
 
     return (

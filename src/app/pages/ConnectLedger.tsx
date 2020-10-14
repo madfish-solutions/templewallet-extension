@@ -9,7 +9,7 @@ import {
   ThanosAccountType,
   validateDerivationPath,
 } from "lib/thanos/front";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormField from "app/atoms/FormField";
@@ -38,6 +38,7 @@ const ConnectLedger: React.FC = () => {
   const { createLedgerAccount } = useThanosClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
+  const { t } = useTranslation();
   const allLedgers = React.useMemo(
     () => allAccounts.filter((acc) => acc.type === ThanosAccountType.Ledger),
     [allAccounts]
@@ -45,7 +46,7 @@ const ConnectLedger: React.FC = () => {
 
   const defaultName = React.useMemo(
     () => t("defaultLedgerName", String(allLedgers.length + 1)),
-    [allLedgers.length]
+    [allLedgers.length, t]
   );
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
@@ -94,7 +95,7 @@ const ConnectLedger: React.FC = () => {
   return (
     <PageLayout
       pageTitle={
-        <T name="connectLedger">
+        <T id="connectLedger">
           {(message) => (
             <>
               <LinkIcon className="w-auto h-4 mr-1 stroke-current" />
@@ -139,8 +140,8 @@ const ConnectLedger: React.FC = () => {
                 className={classNames("mb-4", "leading-tight", "flex flex-col")}
               >
                 <span className="text-base font-semibold text-gray-700">
-                  <T name="derivation">{(message) => <>{message}</>}</T>{" "}
-                  <T name="optionalComment">
+                  <T id="derivation" />{" "}
+                  <T id="optionalComment">
                     {(message) => (
                       <span className="text-sm font-light text-gary-600">
                         {message}
@@ -157,15 +158,11 @@ const ConnectLedger: React.FC = () => {
                   style={{ maxWidth: "90%" }}
                 >
                   <T
-                    name="defaultDerivationPathLabel"
+                    id="defaultDerivationPathLabel"
                     substitutions={[<b>44'/1729'/0'/0'</b>]}
-                  >
-                    {(message) => <>{message}</>}
-                  </T>
+                  />
                   <br />
-                  <T name="clickOnCustomDerivationPath">
-                    {(message) => <>{message}</>}
-                  </T>
+                  <T id="clickOnCustomDerivationPath" />
                 </span>
               </h2>
               <div
@@ -231,12 +228,15 @@ const ConnectLedger: React.FC = () => {
                 id="importacc-cdp"
                 label={t("customDerivationPath")}
                 placeholder={t("derivationPathExample2")}
-                errorCaption={errors.customDerivationPath?.message}
+                errorCaption={
+                  errors.customDerivationPath?.message &&
+                  t(errors.customDerivationPath.message.toString())
+                }
                 containerClassName="mb-6"
               />
             )}
 
-            <T name="addLedgerAccount">
+            <T id="addLedgerAccount">
               {(message) => (
                 <FormSubmitButton loading={submitting} className="mt-8">
                   {message}
@@ -265,14 +265,14 @@ const ConnectLedger: React.FC = () => {
               )}
             >
               <T
-                name="firefoxLedgerConnectionError"
+                id="firefoxLedgerConnectionError"
                 substitutions={[
-                  <T name="sorry" key="sorry">
+                  <T id="sorry" key="sorry">
                     {(message) => (
                       <span className="text-gray-700">{message}</span>
                     )}
                   </T>,
-                  <T name="ledgerNano" key="ledgerNano">
+                  <T id="ledgerNano" key="ledgerNano">
                     {(message) => (
                       <span className="text-gray-700">{message}</span>
                     )}
@@ -280,7 +280,7 @@ const ConnectLedger: React.FC = () => {
                   <span className="text-gray-700" key="firefox">
                     Firefox
                   </span>,
-                  <T name="connectionUnavailable" key="connectionUnavailable">
+                  <T id="connectionUnavailable" key="connectionUnavailable">
                     {(message) => (
                       <span className="text-gray-700">{message}</span>
                     )}
