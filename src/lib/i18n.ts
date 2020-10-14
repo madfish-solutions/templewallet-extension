@@ -1,28 +1,19 @@
 import { browser } from "webextension-polyfill-ts";
-import { enUS, enGB } from "date-fns/locale";
 
-const {
-  getAcceptLanguages: importedGetAcceptLanguages,
-  getMessage,
-  getUILanguage: importedGetUILanguage,
-} = browser.i18n;
+export const SUPPORTED_LOCALES = ["en", "ru"];
 
-// TODO: add signatures which would provide 'substitutions' argument type control
-export function t(messageName: string, substitutions?: string | string[]) {
-  const message = getMessage(messageName, substitutions);
-  if (!message && process.env.NODE_ENV === "development") {
-    console.error(`Missing translation for key ${messageName}`);
+const { getAcceptLanguages, getUILanguage, getMessage } = browser.i18n;
+
+export { getAcceptLanguages, getUILanguage, getMessage };
+
+export function getUILanguageFallback() {
+  const locale = getUILanguage();
+  if (SUPPORTED_LOCALES.includes(locale)) {
+    return locale;
   }
-  return message;
+  const localeWithoutCountry = locale.split("_")[0];
+  if (SUPPORTED_LOCALES.includes(localeWithoutCountry)) {
+    return localeWithoutCountry;
+  }
+  return "en";
 }
-
-export const getAcceptLanguages = importedGetAcceptLanguages;
-export const getUILanguage = importedGetUILanguage;
-
-const dateFnsLocales: Record<string, Locale> = {
-  en: enUS,
-  en_US: enUS,
-  en_GB: enGB,
-};
-
-export const getDateFnsLocale = () => dateFnsLocales[getUILanguage()] || enUS;

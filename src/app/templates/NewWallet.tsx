@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { validateMnemonic, generateMnemonic } from "bip39";
 import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
-import { T, t } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
@@ -38,6 +38,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
   title,
 }) => {
   const { locked, registerWallet, setSeedRevealed } = useThanosClient();
+  const { t } = useTranslation();
 
   const {
     watch,
@@ -108,18 +109,16 @@ const NewWallet: React.FC<NewWalletProps> = ({
               description={
                 <>
                   <p>
-                    <T name="lockedWallet">{(message) => <>{message}</>}</T>{" "}
-                    <T name="alreadyExistsWallet">
+                    <T id="lockedWallet" />{" "}
+                    <T id="alreadyExistsWallet">
                       {(message) => (
                         <span className="font-semibold">{message}</span>
                       )}
                     </T>
                     .
                     <br />
-                    <T name="importingNewWalletWill">
-                      {(message) => <>{message}</>}
-                    </T>{" "}
-                    <T name="willDestroyTheExisting">
+                    <T id="importingNewWalletWill" />{" "}
+                    <T id="willDestroyTheExisting">
                       {(message) => (
                         <span className="font-semibold">{message}</span>
                       )}
@@ -127,9 +126,9 @@ const NewWallet: React.FC<NewWalletProps> = ({
                     .
                   </p>
                   <T
-                    name="unlockWalletPrompt"
+                    id="unlockWalletPrompt"
                     substitutions={[
-                      <T name="backToUnlockPage" key="link">
+                      <T id="backToUnlockPage" key="link">
                         {(linkLabel) => (
                           <Link
                             to="/"
@@ -215,14 +214,10 @@ const NewWallet: React.FC<NewWalletProps> = ({
             label={t("acceptTerms")}
             labelDescription={
               <>
-                <T name="acceptTermsInputDescriptionPart1">
-                  {(message) => <>{message}</>}
-                </T>
-                <br />
                 <T
-                  name="acceptTermsInputDescriptionPart2"
+                  id="acceptTermsInputDescription"
                   substitutions={[
-                    <T name="termsOfUsage" key="termsLink">
+                    <T id="termsOfUsage" key="termsLink">
                       {(message) => (
                         <a
                           href="https://thanoswallet.com/terms"
@@ -234,7 +229,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
                         </a>
                       )}
                     </T>,
-                    <T name="privacyPolicy" key="privacyPolicyLink">
+                    <T id="privacyPolicy" key="privacyPolicyLink">
                       {(message) => (
                         <a
                           href="https://thanoswallet.com/privacy"
@@ -247,15 +242,13 @@ const NewWallet: React.FC<NewWalletProps> = ({
                       )}
                     </T>,
                   ]}
-                >
-                  {(message) => <>{message}</>}
-                </T>
+                />
               </>
             }
             containerClassName="mb-6"
           />
 
-          <T name="create">
+          <T id="create">
             {(message) => (
               <FormSubmitButton loading={submitting}>
                 {message}
@@ -281,6 +274,7 @@ type BackupProps = {
 };
 
 const Backup: React.FC<BackupProps> = ({ data }) => {
+  const { t } = useTranslation();
   const { registerWallet, setSeedRevealed } = useThanosClient();
 
   const { register, handleSubmit, errors, formState } = useForm<
@@ -316,25 +310,22 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
         description={
           <>
             <p className="mb-2">
-              <T name="clickOnAreaBelow">
+              <T id="clickOnAreaBelow">
                 {(message) => <span className="font-semibold">{message}</span>}
               </T>
-              <T name="toRevealNewSeedPhrase">{(message) => <>{message}</>}</T>
+              <T id="toRevealNewSeedPhrase" />
               <br />
-              <T name="writePhraseOnPieceOfPaper">
-                {(message) => <>{message}</>}
-              </T>{" "}
-              <T name="storePhraseInSecureLocation">
+              <T id="writePhraseOnPieceOfPaper" />{" "}
+              <T id="storePhraseInSecureLocation">
                 {(message) => <span className="font-semibold">{message}</span>}
               </T>
-              .
-              <T name="orYouCanMemorizePhrase">{(message) => <>{message}</>}</T>
+              .<T id="orYouCanMemorizePhrase" />
             </p>
 
             <T
-              name="doNotSharePhrase"
+              id="doNotSharePhrase"
               substitutions={[
-                <T key="doNotShare" name="doNotShareEmphasized">
+                <T key="doNotShare" id="doNotShareEmphasized">
                   {(message) => (
                     <span className="font-semibold">{message}</span>
                   )}
@@ -370,27 +361,11 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
           errorCaption={errors.backuped?.message}
           name="backuped"
           label={t("backupedInputLabel")}
-          labelDescription={
-            <T name="backupedInputDescription">
-              {(message) => {
-                const [phrasePart1, phrasePart2] = (message as string).split(
-                  "\n"
-                );
-
-                return (
-                  <>
-                    {phrasePart1}
-                    <br />
-                    {phrasePart2}
-                  </>
-                );
-              }}
-            </T>
-          }
+          labelDescription={<T id="backupedInputDescription" />}
           containerClassName="mb-6"
         />
 
-        <T name="continue">
+        <T id="continue">
           {(message) => (
             <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
           )}

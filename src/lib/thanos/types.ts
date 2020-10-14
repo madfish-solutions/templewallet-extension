@@ -134,6 +134,7 @@ export interface ThanosSettings {
 
 export enum ThanosSharedStorageKey {
   DAppEnabled = "dappenabled",
+  LocaleCode = "localecode",
 }
 
 export type ThanosPendingOperation = OperationContentsAndResult & {
