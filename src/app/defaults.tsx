@@ -21,22 +21,18 @@ export const PASSWORD_PATTERN = new RegExp(
 
 export const PASSWORD_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
-    <T name="atLeast8Characters">{(message) => <li>{message}</li>}</T>
-    <T name="atLeast1Number">{(message) => <li>{message}</li>}</T>
-    <T name="atLeast1LowercaseLetter">{(message) => <li>{message}</li>}</T>
-    <T name="atLeast1UppercaseLetter">{(message) => <li>{message}</li>}</T>
+    <T id="atLeast8Characters">{(message) => <li>{message}</li>}</T>
+    <T id="atLeast1Number">{(message) => <li>{message}</li>}</T>
+    <T id="atLeast1LowercaseLetter">{(message) => <li>{message}</li>}</T>
+    <T id="atLeast1UppercaseLetter">{(message) => <li>{message}</li>}</T>
   </ul>
 );
 
 export const MNEMONIC_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
-    <T name="mnemonicWordsAmountConstraint">
-      {(message) => <li>{message}</li>}
-    </T>
-    <T name="mnemonicSpacingConstraint">{(message) => <li>{message}</li>}</T>
-    <T name="justValidPreGeneratedMnemonic">
-      {(message) => <li>{message}</li>}
-    </T>
+    <T id="mnemonicWordsAmountConstraint">{(message) => <li>{message}</li>}</T>
+    <T id="mnemonicSpacingConstraint">{(message) => <li>{message}</li>}</T>
+    <T id="justValidPreGeneratedMnemonic">{(message) => <li>{message}</li>}</T>
   </ul>
 );
 

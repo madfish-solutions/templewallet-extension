@@ -177,7 +177,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 "stroke-2"
               )}
             />
-            <T name="back">{(message) => <>{message}</>}</T>
+            <T id="back">{(message) => <>{message}</>}</T>
           </button>
         )}
       </div>

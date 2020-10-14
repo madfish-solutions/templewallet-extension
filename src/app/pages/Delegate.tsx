@@ -7,7 +7,7 @@ import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 const Delegate: React.FC = () => (
   <PageLayout
     pageTitle={
-      <T name="delegate">
+      <T id="delegate">
         {(message) => (
           <>
             <DiamondIcon className="mr-1 h-4 w-auto stroke-current" /> {message}
