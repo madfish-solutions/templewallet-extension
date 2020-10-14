@@ -21,7 +21,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
   const descFooter = React.useMemo(
     () => (
       <T
-        name="operationHash"
+        id="operationHash"
         substitutions={[
           <HashChip
             hash={hash}
@@ -47,7 +47,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     title: `${t("success")} 🛫`,
     description: (
       <>
-        <T name="requestSent" substitutions={typeTitle}>
+        <T id="requestSent" substitutions={typeTitle}>
           {(message) => <>{message}</>}
         </T>
         {descFooter}
@@ -64,10 +64,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
           title: `${t("success")} ✅`,
           description: (
             <>
-              <T
-                name="operationSuccessfullyProcessed"
-                substitutions={typeTitle}
-              >
+              <T id="operationSuccessfullyProcessed" substitutions={typeTitle}>
                 {(message) => <>{message}</>}
               </T>
               {descFooter}

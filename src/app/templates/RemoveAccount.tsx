@@ -71,9 +71,9 @@ const RemoveAccount: React.FC = () => {
         account={account}
         labelDescription={
           <>
-            <T name="accountToBeRemoved">{(message) => <>{message}</>}</T>
+            <T id="accountToBeRemoved">{(message) => <>{message}</>}</T>
             <br />
-            <T name="ifYouWantToRemoveAnotherAccount">
+            <T id="ifYouWantToRemoveAnotherAccount">
               {(message) => <>{message}</>}
             </T>
           </>
@@ -86,9 +86,9 @@ const RemoveAccount: React.FC = () => {
           title={t("cannotBeRemoved")}
           description={
             <T
-              name="accountsToRemoveConstraint"
+              id="accountsToRemoveConstraint"
               substitutions={[
-                <T key="imported" name="importedPlural">
+                <T key="imported" id="importedPlural">
                   {(message) => (
                     <span
                       className={classNames(
@@ -106,7 +106,7 @@ const RemoveAccount: React.FC = () => {
                     </span>
                   )}
                 </T>,
-                <T key="ledger" name="ledger">
+                <T key="ledger" id="ledger">
                   {(message) => (
                     <span
                       className={classNames(
@@ -145,7 +145,7 @@ const RemoveAccount: React.FC = () => {
             containerClassName="mb-4"
           />
 
-          <T name="remove">
+          <T id="remove">
             {(message) => (
               <FormSubmitButton loading={submitting} disabled={submitting}>
                 {message}

@@ -130,9 +130,9 @@ const ActivateAccount: React.FC = () => {
         account={account}
         labelDescription={
           <>
-            <T name="accountToBeActivated">{(message) => <>{message}</>}</T>
+            <T id="accountToBeActivated">{(message) => <>{message}</>}</T>
             <br />
-            <T name="ifYouWantToActivateAnotherAccount">
+            <T id="ifYouWantToActivateAnotherAccount">
               {(message) => <>{message}</>}
             </T>
           </>
@@ -165,7 +165,7 @@ const ActivateAccount: React.FC = () => {
         onKeyPress={handleSecretFieldKeyPress}
       />
 
-      <T name="activate">
+      <T id="activate">
         {(message) => (
           <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
         )}

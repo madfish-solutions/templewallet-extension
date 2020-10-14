@@ -186,7 +186,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             className="text-sm font-light text-center"
             style={{ maxWidth: "20rem" }}
           >
-            <T name="noOperationsFound">{(message) => <>{message}</>}</T>
+            <T id="noOperationsFound">{(message) => <>{message}</>}</T>
           </h3>
         </div>
       )}
@@ -315,7 +315,7 @@ const Operation = React.memo<OperationProps>(
 
                     case pending:
                       return (
-                        <T name="pending">
+                        <T id="pending">
                           {(message) => (
                             <span className="text-xs font-light text-yellow-600">
                               {message}

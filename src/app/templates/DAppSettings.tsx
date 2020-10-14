@@ -80,7 +80,7 @@ const DAppSettings: React.FC = () => {
         className={classNames("w-full mb-4", "leading-tight", "flex flex-col")}
       >
         <T
-          name="dAppsCheckmarkPrompt"
+          id="dAppsCheckmarkPrompt"
           substitutions={t(dAppEnabled ? "disable" : "enable")}
         >
           {(message) => (
@@ -109,7 +109,7 @@ const DAppSettings: React.FC = () => {
       {dAppEntries.length > 0 && (
         <>
           <h2>
-            <T name="authorizedDApps">
+            <T id="authorizedDApps">
               {(message) => (
                 <span className="text-base font-semibold text-gray-700">
                   {message}
@@ -119,7 +119,7 @@ const DAppSettings: React.FC = () => {
           </h2>
 
           <div className="mb-4">
-            <T name="clickIconToResetPermissions">
+            <T id="clickIconToResetPermissions">
               {(message) => (
                 <span
                   className="text-xs font-light text-gray-600"
@@ -193,7 +193,7 @@ const DAppDescription: React.FC<OptionRenderProps<
         </Name>
 
         <T
-          name="networkLabel"
+          id="networkLabel"
           substitutions={[
             <span className="font-normal capitalize" key="network">
               {typeof network === "object" ? network.name : network}
@@ -207,10 +207,10 @@ const DAppDescription: React.FC<OptionRenderProps<
           )}
         </T>
 
-        <T name="pkhLabel" substitutions={[pkhPreviewNode]}>
+        <T id="pkhLabel" substitutions={[pkhPreviewNode]}>
           {(message) => (
             <div
-              className="text-gray-600 overflow-hidden whitespace-no-wrap"
+              className="overflow-hidden text-gray-600 whitespace-no-wrap"
               style={{ textOverflow: "ellipsis" }}
             >
               {message}

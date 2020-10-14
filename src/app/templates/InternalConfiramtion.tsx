@@ -116,7 +116,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
       >
         <div className="px-4 pt-4">
           <T
-            name="confirmAction"
+            id="confirmAction"
             substitutions={t(
               payload.type === "sign" ? "signAction" : "operations"
             )}
@@ -179,7 +179,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           )}
         >
           <div className="w-1/2 pr-2">
-            <T name="decline">
+            <T id="decline">
               {(message) => (
                 <FormSecondaryButton
                   type="button"
@@ -195,7 +195,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           </div>
 
           <div className="w-1/2 pl-2">
-            <T name={error ? "retry" : "confirm"}>
+            <T id={error ? "retry" : "confirm"}>
               {(message) => (
                 <FormSubmitButton
                   type="button"

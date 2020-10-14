@@ -6,13 +6,6 @@ import { useRetryableSWR } from "lib/swr";
 
 export * from "lib/i18n";
 
-export type TProps = {
-  forceUseBreaks?: boolean;
-  name: string;
-  substitutions?: any;
-  children?: (m: React.ReactElement | string | null) => React.ReactElement;
-};
-
 export type LocaleMessages = Record<
   string,
   {
@@ -188,14 +181,21 @@ export const useTranslation = () => {
   return { locale, t, dateFnsLocale: dateFnsLocales[locale] || enUS };
 };
 
+export type TProps = {
+  id: string;
+  substitutions?: any;
+  forceUseBreaks?: boolean;
+  children?: (m: React.ReactElement | string | null) => React.ReactElement;
+};
+
 export const T = React.memo<TProps>(
-  ({ forceUseBreaks = true, name, substitutions, children }) => {
+  ({ id, substitutions, forceUseBreaks = true, children }) => {
     const { t } = useTranslation();
-    const message = useMemo(() => t(name, substitutions, forceUseBreaks), [
-      forceUseBreaks,
+    const message = useMemo(() => t(id, substitutions, forceUseBreaks), [
       t,
-      name,
+      id,
       substitutions,
+      forceUseBreaks,
     ]);
 
     return children ? children(message) : <>{message}</>;
