@@ -134,8 +134,8 @@ export function tryParseParameters(asset: ThanosAsset, parameters: any) {
     case ThanosAssetType.FA1_2:
       try {
         const [{ args }, { int }] = parameters.value.args;
-        const sender = args[0].string;
-        const receiver = args[1].string;
+        const sender: string = args[0].string;
+        const receiver: string = args[1].string;
         const volume = new BigNumber(int).div(10 ** asset.decimals).toNumber();
         return {
           sender,
