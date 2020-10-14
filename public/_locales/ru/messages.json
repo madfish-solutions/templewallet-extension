@@ -23,14 +23,6 @@
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset permissions."
   },
-  "defaultLedgerName": {
-    "message": "Леджер $number$",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
-  },
   "tezosMainnet": {
     "message": "Главная сеть Tezos"
   },
