@@ -281,9 +281,7 @@ const Form: React.FC = () => {
                 <T
                   id="selectFileOfFormat"
                   substitutions={[<b key="JSON">JSON</b>]}
-                >
-                  {(message) => <>{message}</>}
-                </T>
+                />
               )}
             </div>
           </div>

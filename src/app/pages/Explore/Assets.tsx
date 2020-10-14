@@ -239,7 +239,7 @@ const ControlButton = React.memo<ControlButton>(
                       "opacity-75"
                     )}
                   />
-                  <T id="addNewToken">{(message) => <>{message}</>}</T>
+                  <T id="addNewToken" />
                 </Link>
 
                 {asset.type !== ThanosAssetType.XTZ && (
@@ -274,9 +274,7 @@ const ControlButton = React.memo<ControlButton>(
                       "opacity-75"
                     )}
                   />
-                  <T id="hideSomeToken" substitutions={asset.name}>
-                    {(message) => <>{message}</>}
-                  </T>
+                  <T id="hideSomeToken" substitutions={asset.name} />
                 </button>
               </div>
             </DropdownWrapper>

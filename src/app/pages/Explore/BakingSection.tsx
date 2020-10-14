@@ -70,9 +70,7 @@ const BakingSection: React.FC = () => {
           <DiamondIcon
             className={classNames("-ml-2 mr-2", "h-5 w-auto", "stroke-current")}
           />
-          <T id={myBakerPkh ? "reDelegate" : "delegateNow"}>
-            {(message) => <>{message}</>}
-          </T>
+          <T id={myBakerPkh ? "reDelegate" : "delegateNow"} />
         </Link>
       </div>
     ),

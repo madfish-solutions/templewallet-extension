@@ -95,7 +95,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
       pageTitle={
         <>
           <SettingsIcon className="mr-1 h-4 w-auto stroke-current" />
-          <T id="settings">{(message) => <>{message}</>}</T>
+          <T id="settings" />
         </>
       }
     >

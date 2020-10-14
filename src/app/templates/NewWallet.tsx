@@ -241,9 +241,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
                     )}
                   </T>,
                 ]}
-              >
-                {(message) => <>{message}</>}
-              </T>
+              />
             }
             containerClassName="mb-6"
           />
