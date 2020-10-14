@@ -34,7 +34,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             <T id="networks">{(networks) => <>{networks}</>}</T>
           </h2>
 
-          {allNetworks.map(({ id, name, color, disabled }) => {
+          {allNetworks.map(({ id, name, color, disabled, nameI18nKey }) => {
             const selected = id === network.id;
 
             return (
@@ -81,7 +81,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   className="overflow-hidden text-sm text-white whitespace-no-wrap text-shadow-black"
                   style={{ textOverflow: "ellipsis", maxWidth: "10rem" }}
                 >
-                  {name}
+                  {(nameI18nKey && <T id={nameI18nKey} />) || name}
                 </span>
               </button>
             );
@@ -119,7 +119,10 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             style={{ backgroundColor: network.color }}
           />
 
-          <Name style={{ maxWidth: "7rem" }}>{network.name}</Name>
+          <Name style={{ maxWidth: "7rem" }}>
+            {(network.nameI18nKey && <T id={network.nameI18nKey} />) ||
+              network.name}
+          </Name>
 
           <ChevronDownIcon
             className="ml-1 -mr-1 stroke-current stroke-2"
