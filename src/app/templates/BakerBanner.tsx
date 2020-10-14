@@ -84,7 +84,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                         "text-gray-600"
                       )}
                     >
-                      <T id="fee">{(message) => <>{message}</>}</T>:{" "}
+                      <T id="fee" />:{" "}
                       <span className="font-normal">
                         {new BigNumber(baker.fee).times(100).toFormat(2)}%
                       </span>
@@ -101,7 +101,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                         "text-gray-600"
                       )}
                     >
-                      <T id="space">{(message) => <>{message}</>}</T>:{" "}
+                      <T id="space" />:{" "}
                       <span className="font-normal">
                         <Money>{baker.freespace}</Money>
                       </span>{" "}

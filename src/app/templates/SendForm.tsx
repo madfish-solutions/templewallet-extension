@@ -443,9 +443,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             <T
               id="tokensRecepientInputDescription"
               substitutions={localAsset.symbol}
-            >
-              {(message) => <>{message}</>}
-            </T>
+            />
           )
         }
         placeholder={t("recipientInputPlaceholder")}
@@ -501,7 +499,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             labelDescription={
               maxAmount && (
                 <>
-                  <T id="availableToSend">{(message) => <>{message}</>}</T>{" "}
+                  <T id="availableToSend" />{" "}
                   <button
                     type="button"
                     className={classNames("underline")}
@@ -520,7 +518,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                               <span className="pr-px">$</span>
                               {usdAmount}
                             </span>{" "}
-                            <T id="inUSD">{(message) => <>{message}</>}</T>
+                            <T id="inUSD" />
                           </div>
                         )}
                       </InUSD>
@@ -730,11 +728,9 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => {
                   substitutions={t(
                     type === "submit" ? "send" : "estimate"
                   ).toLowerCase()}
-                >
-                  {(message) => <>{message}</>}
-                </T>
+                />
                 <br />
-                <T id="thisMayHappenBecause">{(message) => <>{message}</>}</T>
+                <T id="thisMayHappenBecause" />
                 <ul className="mt-1 ml-2 text-xs list-disc list-inside">
                   <T id="minimalFeeGreaterThanBalanceVerbose">
                     {(message) => <li>{message}</li>}

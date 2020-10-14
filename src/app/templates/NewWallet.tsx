@@ -109,7 +109,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
               description={
                 <>
                   <p>
-                    <T id="lockedWallet">{(message) => <>{message}</>}</T>{" "}
+                    <T id="lockedWallet" />{" "}
                     <T id="alreadyExistsWallet">
                       {(message) => (
                         <span className="font-semibold">{message}</span>
@@ -117,9 +117,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
                     </T>
                     .
                     <br />
-                    <T id="importingNewWalletWill">
-                      {(message) => <>{message}</>}
-                    </T>{" "}
+                    <T id="importingNewWalletWill" />{" "}
                     <T id="willDestroyTheExisting">
                       {(message) => (
                         <span className="font-semibold">{message}</span>
@@ -315,15 +313,13 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
               <T id="clickOnAreaBelow">
                 {(message) => <span className="font-semibold">{message}</span>}
               </T>
-              <T id="toRevealNewSeedPhrase">{(message) => <>{message}</>}</T>
+              <T id="toRevealNewSeedPhrase" />
               <br />
-              <T id="writePhraseOnPieceOfPaper">
-                {(message) => <>{message}</>}
-              </T>{" "}
+              <T id="writePhraseOnPieceOfPaper" />{" "}
               <T id="storePhraseInSecureLocation">
                 {(message) => <span className="font-semibold">{message}</span>}
               </T>
-              .<T id="orYouCanMemorizePhrase">{(message) => <>{message}</>}</T>
+              .<T id="orYouCanMemorizePhrase" />
             </p>
 
             <T

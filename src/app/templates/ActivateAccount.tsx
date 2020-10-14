@@ -130,11 +130,9 @@ const ActivateAccount: React.FC = () => {
         account={account}
         labelDescription={
           <>
-            <T id="accountToBeActivated">{(message) => <>{message}</>}</T>
+            <T id="accountToBeActivated" />
             <br />
-            <T id="ifYouWantToActivateAnotherAccount">
-              {(message) => <>{message}</>}
-            </T>
+            <T id="ifYouWantToActivateAnotherAccount" />
           </>
         }
         className="mb-6"

@@ -47,9 +47,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     title: `${t("success")} 🛫`,
     description: (
       <>
-        <T id="requestSent" substitutions={typeTitle}>
-          {(message) => <>{message}</>}
-        </T>
+        <T id="requestSent" substitutions={typeTitle} />
         {descFooter}
       </>
     ),
@@ -64,9 +62,10 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
           title: `${t("success")} ✅`,
           description: (
             <>
-              <T id="operationSuccessfullyProcessed" substitutions={typeTitle}>
-                {(message) => <>{message}</>}
-              </T>
+              <T
+                id="operationSuccessfullyProcessed"
+                substitutions={typeTitle}
+              />
               {descFooter}
             </>
           ),

@@ -113,9 +113,7 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
                 <span className="font-normal">{baseFee.toString()}</span>
               </React.Fragment>,
             ]}
-          >
-            {(message) => <>{message}</>}
-          </T>
+          />
         )
       }
       placeholder="0"

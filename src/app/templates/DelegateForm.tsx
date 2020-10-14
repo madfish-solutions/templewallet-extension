@@ -418,9 +418,7 @@ const DelegateForm: React.FC = () => {
                             </span>
                           </span>,
                         ]}
-                      >
-                        {(message) => <>{message}</>}
-                      </T>
+                      />
                     }
                     className="mb-6"
                   />
@@ -745,11 +743,9 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
                   substitutions={t(
                     type === "submit" ? "delegate" : "estimateDelegation"
                   ).toLowerCase()}
-                >
-                  {(message) => <>{message}</>}
-                </T>
+                />
                 <br />
-                <T id="thisMayHappenBecause">{(message) => <>{message}</>}</T>
+                <T id="thisMayHappenBecause" />
                 <ul className="mt-1 ml-2 text-xs list-disc list-inside">
                   <T id="minimalFeeGreaterThanBalanceVerbose">
                     {(message) => <li>{message}</li>}
