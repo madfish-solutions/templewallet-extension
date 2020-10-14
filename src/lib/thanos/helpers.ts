@@ -3,7 +3,7 @@ import memoize from "micro-memoize";
 import { Tezos } from "@taquito/taquito";
 import { RpcClient } from "@taquito/rpc";
 import { ValidationResult, validateAddress } from "@taquito/utils";
-import { t } from "lib/i18n";
+import { getMessage } from "lib/ui/i18n";
 
 export const loadChainId = memoize(fetchChainId, {
   isPromise: true,
@@ -37,10 +37,10 @@ export function isKTAddress(address: string) {
 
 export function validateDerivationPath(p: string) {
   if (!p.startsWith("m")) {
-    return t("derivationPathMustStartWithM");
+    return getMessage("derivationPathMustStartWithM");
   }
   if (p.length > 1 && p[1] !== "/") {
-    return t("derivationSeparatorMustBeSlash");
+    return getMessage("derivationSeparatorMustBeSlash");
   }
 
   const parts = p.replace("m", "").split("/").filter(Boolean);
@@ -50,7 +50,7 @@ export function validateDerivationPath(p: string) {
       return Number.isSafeInteger(pNum) && pNum >= 0;
     })
   ) {
-    return t("invalidPath");
+    return getMessage("invalidPath");
   }
 
   return true;

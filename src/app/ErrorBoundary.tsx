@@ -66,23 +66,23 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
           >
             <DangerIcon className="h-16 w-auto stroke-current" />
 
-            <T name="oops">
+            <T id="oops">
               {(message) => <h2 className="mb-1 text-2xl">{message}</h2>}
             </T>
 
             <p className="mb-4 text-sm opacity-90 text-center font-light">
               {this.props.whileMessage ? (
                 <T
-                  name="smthWentWrongWhile"
+                  id="smthWentWrongWhile"
                   substitutions={this.props.whileMessage}
                 >
                   {(message) => <>{message}</>}
                 </T>
               ) : (
-                <T name="smthWentWrong">{(message) => <>{message}</>}</T>
+                <T id="smthWentWrong">{(message) => <>{message}</>}</T>
               )}
               {!online && (
-                <T name="mayHappenBecauseYouAreOffline">
+                <T id="mayHappenBecauseYouAreOffline">
                   {(message) => (
                     <>
                       {". "}
@@ -93,7 +93,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
               )}
             </p>
 
-            <T name="tryAgain">
+            <T id="tryAgain">
               {(message) => (
                 <button
                   className={classNames(

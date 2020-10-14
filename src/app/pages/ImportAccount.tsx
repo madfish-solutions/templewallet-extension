@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic } from "bip39";
 import { Link, navigate } from "lib/woozie";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import {
   useThanosClient,
   useAllAccounts,
@@ -66,7 +66,7 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
       pageTitle={
         <>
           <DownloadIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T name="importAccount">
+          <T id="importAccount">
             {(message) => <span className="capitalize">{message}</span>}
           </T>
         </>
@@ -78,7 +78,7 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
             const active = slug === t.slug;
 
             return (
-              <T key={t.slug} name={t.i18nKey}>
+              <T key={t.slug} id={t.i18nKey}>
                 {(message) => (
                   <Link
                     to={`/import-account/${t.slug}`}
@@ -115,6 +115,7 @@ interface ByPrivateKeyFormData {
 
 const ByPrivateKeyForm: React.FC = () => {
   const { importAccount } = useThanosClient();
+  const { t } = useTranslation();
 
   const { register, handleSubmit, errors, formState, watch } = useForm<
     ByPrivateKeyFormData
@@ -184,8 +185,8 @@ const ByPrivateKeyForm: React.FC = () => {
           id="importacc-password"
           label={
             <>
-              <T name="password">{(message) => <>{message}</>}</T>{" "}
-              <T name="optionalComment">
+              <T id="password">{(message) => <>{message}</>}</T>{" "}
+              <T id="optionalComment">
                 {(message) => (
                   <span className="text-sm font-light text-gary-600">
                     {message}
@@ -227,6 +228,7 @@ interface ByMnemonicFormData {
 
 const ByMnemonicForm: React.FC = () => {
   const { importMnemonicAccount } = useThanosClient();
+  const { t } = useTranslation();
 
   const { register, handleSubmit, errors, formState } = useForm<
     ByMnemonicFormData
@@ -306,8 +308,8 @@ const ByMnemonicForm: React.FC = () => {
         id="importfundacc-password"
         label={
           <>
-            <T name="password">{(message) => <>{message}</>}</T>{" "}
-            <T name="optionalComment">
+            <T id="password">{(message) => <>{message}</>}</T>{" "}
+            <T id="optionalComment">
               {(message) => (
                 <span className="text-sm font-light text-gary-600">
                   {message}
@@ -325,8 +327,8 @@ const ByMnemonicForm: React.FC = () => {
       <div className={classNames("mb-4", "flex flex-col")}>
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
           <span className="text-base font-semibold text-gray-700">
-            <T name="derivation">{(message) => <>{message}</>}</T>{" "}
-            <T name="optionalComment">
+            <T id="derivation">{(message) => <>{message}</>}</T>{" "}
+            <T id="optionalComment">
               {(message) => (
                 <span className="text-sm font-light text-gary-600">
                   {message}
@@ -335,7 +337,7 @@ const ByMnemonicForm: React.FC = () => {
             </T>
           </span>
 
-          <T name="addDerivationPathPrompt">
+          <T id="addDerivationPathPrompt">
             {(message) => (
               <span
                 className={classNames(
@@ -387,7 +389,7 @@ const ByMnemonicForm: React.FC = () => {
                 }}
                 onClick={handleClick}
               >
-                <T name={dp.i18nKey}>{(message) => <>{message}</>}</T>
+                <T id={dp.i18nKey}>{(message) => <>{message}</>}</T>
                 <div className="flex-1" />
                 {selected && (
                   <OkIcon
@@ -418,7 +420,7 @@ const ByMnemonicForm: React.FC = () => {
         />
       )}
 
-      <T name="importAccount">
+      <T id="importAccount">
         {(message) => (
           <FormSubmitButton loading={formState.isSubmitting} className="mt-8">
             {message}
@@ -441,6 +443,7 @@ const ByFundraiserForm: React.FC = () => {
     ByFundraiserFormData
   >();
   const [error, setError] = React.useState<React.ReactNode>(null);
+  const { t } = useTranslation();
 
   const onSubmit = React.useCallback<(data: ByFundraiserFormData) => void>(
     async (data) => {

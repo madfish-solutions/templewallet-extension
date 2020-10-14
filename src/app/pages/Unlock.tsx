@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { Link } from "lib/woozie";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import { useThanosClient } from "lib/thanos/front";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
@@ -20,6 +20,7 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 
 const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useThanosClient();
+  const { t } = useTranslation();
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
@@ -64,9 +65,9 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
     <SimplePageLayout
       title={
         <>
-          <T name="unlockWallet">{(message) => <>{message}</>}</T>
+          <T id="unlockWallet">{(message) => <>{message}</>}</T>
           <br />
-          <T name="toContinue">
+          <T id="toContinue">
             {(message) => <span style={{ fontSize: "0.9em" }}>{message}</span>}
           </T>
         </>
@@ -94,13 +95,13 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
 
         {canImportNew && (
           <div className="my-6">
-            <T name="importNewAccountTitle">
+            <T id="importNewAccountTitle">
               {(message) => (
                 <h3 className="text-sm font-light text-gray-600">{message}</h3>
               )}
             </T>
 
-            <T name="importWalletUsingSeedPhrase">
+            <T id="importWalletUsingSeedPhrase">
               {(message) => (
                 <Link
                   to="/import-wallet"

@@ -97,7 +97,7 @@ const Welcome: React.FC = () => {
                       <Icon className="transform scale-125 stroke-current" />
                     </div>
 
-                    <T name={titleI18nKey}>
+                    <T id={titleI18nKey}>
                       {(message) => (
                         <h1 className="pb-1 text-xl font-semibold text-center">
                           {message}
@@ -106,7 +106,7 @@ const Welcome: React.FC = () => {
                     </T>
 
                     <div className="flex-1">
-                      <T name={descriptionI18nKey}>
+                      <T id={descriptionI18nKey}>
                         {(message) => (
                           <p
                             className={classNames(

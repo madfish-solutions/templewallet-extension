@@ -4,16 +4,16 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
-import { t, T } from "lib/ui/i18n";
+import { getMessage, T } from "lib/ui/i18n";
 
 const Options: React.FC = () => (
   <div className="p-4">
-    <T name="thanosWalletOptions">
+    <T id="thanosWalletOptions">
       {(message) => <h1 className="text-xl font-semibold mb-2">{message}</h1>}
     </T>
 
     <div className="my-6">
-      <T name="resetExtension">
+      <T id="resetExtension">
         {(message) => (
           <button
             className={classNames(
@@ -45,14 +45,14 @@ function handleReset() {
   if (resetting) return;
   resetting = true;
 
-  const confirmed = window.confirm(t("resetExtensionConfirmation"));
+  const confirmed = window.confirm(getMessage("resetExtensionConfirmation"));
   if (confirmed) {
     (async () => {
       try {
         await browser.storage.local.clear();
         browser.runtime.reload();
       } catch (err) {
-        alert(t("failedToResetExtension", err.message));
+        alert(getMessage("failedToResetExtension", err.message));
       }
     })();
   }

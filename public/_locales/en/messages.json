@@ -34,14 +34,6 @@
       }
     }
   },
-  "requestSent": {
-    "message": "$type$ request sent! Confirming...",
-    "placeholders": {
-      "type": {
-        "content": "$1"
-      }
-    }
-  },
   "authorizedDApps": {
     "message": "Authorized DApps"
   },
@@ -357,24 +349,6 @@
         "content": "$1"
       }
     }
-  },
-  "preview": {
-    "message": "Preview"
-  },
-  "raw": {
-    "message": "Raw"
-  },
-  "fetchingConfirmationDetails": {
-    "message": "fetching confirmation details"
-  },
-  "notIdentified": {
-    "message": "Not identified"
-  },
-  "connection": {
-    "message": "Connection"
-  },
-  "connect": {
-    "message": "Connect"
   },
   "appWouldLikeToConnectToYourWallet": {
     "message": "$origin$ would like to connect to your wallet",
@@ -1042,9 +1016,6 @@
   "cannotBeRemoved": {
     "message": "Cannot be removed"
   },
-  "accountsToRemoveConstraint": {
-    "message": "Only %importedPlural% or %ledger% accounts can be removed."
-  },
   "importedPlural": {
     "message": "imported"
   },
@@ -1191,129 +1162,6 @@
   },
   "connect": {
     "message": "Connect"
-  },
-  "appWouldLikeToConnectToYourWallet": {
-    "message": "%origin% would like to connect to your wallet"
-  },
-  "appRequestOperationToYou": {
-    "message": "%origin% requests operations to you"
-  },
-  "reject": {
-    "message": "Reject"
-  },
-  "signAction": {
-    "message": "Sign"
-  },
-  "appRequestsToSign": {
-    "message": "%origin% requests you to sign"
-  },
-  "alpha": {
-    "message": "Alpha"
-  },
-  "viewAccountAddressWarning": {
-    "message": "This site is requesting access to view your account address. Always make sure you trust the sites you interact with."
-  },
-  "account": {
-    "message": "Account"
-  },
-  "toBeConnectedWithDApp": {
-    "message": "to be connected with dApp."
-  },
-  "atLeast8Characters": {
-    "message": "At least 8 characters"
-  },
-  "atLeast1Number": {
-    "message": "At least 1 number"
-  },
-  "atLeast1LowercaseLetter": {
-    "message": "At least 1 lowercase letter"
-  },
-  "atLeast1UppercaseLetter": {
-    "message": "At least 1 uppercase letter"
-  },
-  "mnemonicWordsAmountConstraint": {
-    "message": "12, 15, 18, 21 or 24 words on English"
-  },
-  "mnemonicSpacingConstraint": {
-    "message": "Each word separated with a single space"
-  },
-  "justValidPreGeneratedMnemonic": {
-    "message": "Just valid pre-generated mnemonic"
-  },
-  "oops": {
-    "message": "Oops!"
-  },
-  "smthWentWrongWhile": {
-    "message": "Something went wrong while $action$",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "mayHappenBecauseYouAreOffline": {
-    "message": "This may happen because you are currently offline"
-  },
-  "tryAgain": {
-    "message": "Try again"
-  },
-  "tezosMainnet": {
-    "message": "Tezos Mainnet"
-  },
-  "tezosMainnetDescription": {
-    "message": "Tezos mainnet"
-  },
-  "carthageTestnet": {
-    "message": "Carthage Testnet"
-  },
-  "carthageTestnetDescription": {
-    "message": "Carthage testnet"
-  },
-  "dAlphaTestnet": {
-    "message": "Dalpha Testnet (soon)"
-  },
-  "dAlphaTestnetDescription": {
-    "message": "Dalpha testnet"
-  },
-  "localSandbox": {
-    "message": "Local Sandbox"
-  },
-  "thanosWalletOptions": {
-    "message": "ThanosWallet | Options"
-  },
-  "resetExtension": {
-    "message": "Reset Extension"
-  },
-  "resetExtensionConfirmation": {
-    "message": "Are you sure you want to reset the ThanosWallet?\nAs a result, all your data will be deleted."
-  },
-  "failedToResetExtension": {
-    "message": "Failed to reset extension: $errorMessage$",
-    "placeholders": {
-      "errorMessage": {
-        "content": "$1"
-      }
-    }
-  },
-  "retry": {
-    "message": "Retry"
-  },
-  "ledger": {
-    "message": "Ledger"
-  },
-  "privateKeyCannotBeRevealed": {
-    "message": "Private key cannot be revealed"
-  },
-  "youCannotGetPrivateKeyFromLedgerAccounts": {
-    "message": "You cannot get private key from %ledger% accounts."
-  },
-  "maximalAmount": {
-    "message": "Maximal: $amount$",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
   },
   "confirmActionOnDevice": {
     "message": "Confirm the action on"

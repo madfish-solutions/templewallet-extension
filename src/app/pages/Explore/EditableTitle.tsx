@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useThanosClient, useAccount } from "lib/thanos/front";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import Name from "app/atoms/Name";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
@@ -9,6 +9,7 @@ import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 const EditableTitle: React.FC = () => {
   const { editAccountName } = useThanosClient();
   const account = useAccount();
+  const { t } = useTranslation();
 
   const [editing, setEditing] = React.useState(false);
 
@@ -109,7 +110,7 @@ const EditableTitle: React.FC = () => {
           />
 
           <div className="mb-2 flex items-stretch">
-            <T name="cancel">
+            <T id="cancel">
               {(message) => (
                 <button
                   type="button"
@@ -129,7 +130,7 @@ const EditableTitle: React.FC = () => {
               )}
             </T>
 
-            <T name="save">
+            <T id="save">
               {(message) => (
                 <button
                   className={classNames(
@@ -179,7 +180,7 @@ const EditableTitle: React.FC = () => {
               "-ml-1 mr-1 h-4 w-auto stroke-current stroke-2"
             )}
           />
-          <T name="edit">{(message) => <>{message}</>}</T>
+          <T id="edit">{(message) => <>{message}</>}</T>
         </button>
       )}
     </div>

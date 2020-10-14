@@ -247,7 +247,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
                     "stroke-current stroke-2"
                   )}
                 />
-                <T name="protectedFormField">
+                <T id="protectedFormField">
                   {(message) => <span>{message}</span>}
                 </T>
               </p>
@@ -259,7 +259,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
                   "text-gray-500 text-sm"
                 )}
               >
-                <T name="clickToRevealOrEditField">
+                <T id="clickToRevealOrEditField">
                   {(message) => <span>{message}</span>}
                 </T>
               </p>

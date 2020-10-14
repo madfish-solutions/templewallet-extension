@@ -305,7 +305,7 @@ const Operation = React.memo<OperationProps>(
                     case failed:
                       return (
                         <div className="flex items-center">
-                          <T name={status}>
+                          <T id={status}>
                             {(message) => (
                               <span className="mr-1 text-xs font-light text-red-600">
                                 {message}

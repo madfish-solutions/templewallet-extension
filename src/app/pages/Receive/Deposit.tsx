@@ -51,7 +51,7 @@ const Deposit: React.FC<DepositProps> = ({ address }) => {
   return (
     <div className="mt-8 w-full">
       <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-        <T name="depositToWallet">
+        <T id="depositToWallet">
           {(message) => (
             <span className="text-base font-semibold text-gray-700">
               {message}
@@ -59,7 +59,7 @@ const Deposit: React.FC<DepositProps> = ({ address }) => {
           )}
         </T>
 
-        <T name="depositToWalletDescription">
+        <T id="depositToWalletDescription">
           {(message) => (
             <span
               className={classNames("mt-1", "text-xs font-light text-gray-600")}
@@ -120,7 +120,7 @@ const Deposit: React.FC<DepositProps> = ({ address }) => {
                   "leading-noneleading-none"
                 )}
               >
-                <T name={d.titleName}>
+                <T id={d.titleName}>
                   {(message) => (
                     <Name className="text-base font-medium pb-1">
                       {message}
