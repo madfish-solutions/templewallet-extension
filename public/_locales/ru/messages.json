@@ -1,0 +1,26 @@
+{
+  "showIncomingTransactions": {
+    "message": "Show Incoming Transactions"
+  },
+  "appDesc": {
+    "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
+  },
+  "importAccount": {
+    "message": "Импортировать аккаунт"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "openNewTab": {
+    "message": "Open new tab"
+  },
+  "maximiseView": {
+    "message": "Maximise view"
+  },
+  "authorizedDApps": {
+    "message": "Authorized DApps"
+  },
+  "clickIconToResetPermissions": {
+    "message": "Click on the X icon to reset permissions."
+  }
+}

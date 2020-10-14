@@ -6,7 +6,7 @@ import {
   useAccount,
   ThanosAccountType,
 } from "lib/thanos/front";
-import { T, t } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -29,6 +29,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     setSeedRevealed,
   } = useThanosClient();
   const account = useAccount();
+  const { t } = useTranslation();
 
   const {
     register,
@@ -145,23 +146,17 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           derivationPathBanner: null,
           attention: (
             <T
-              name="doNotSharePrivateKey"
+              id="doNotSharePrivateKey"
               substitutions={[
-                <T name="doNotShareEmphasized" key="doNotShare">
+                <T id="doNotShareEmphasized" key="doNotShare">
                   {(message) => (
                     <span className="font-semibold">{message}</span>
                   )}
                 </T>,
               ]}
-            >
-              {(message) => <>{message}</>}
-            </T>
+            />
           ),
-          fieldDesc: (
-            <T name="privateKeyFieldDescription">
-              {(message) => <>{message}</>}
-            </T>
-          ),
+          fieldDesc: <T id="privateKeyFieldDescription" />,
         };
 
       case "seed-phrase":
@@ -173,7 +168,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
               <h2
                 className={classNames("mb-4", "leading-tight", "flex flex-col")}
               >
-                <T name="derivationPath">
+                <T id="derivationPath">
                   {(message) => (
                     <span className="text-base font-semibold text-gray-700">
                       {message}
@@ -181,7 +176,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
                   )}
                 </T>
 
-                <T name="pathForHDAccounts">
+                <T id="pathForHDAccounts">
                   {(message) => (
                     <span
                       className={classNames(
@@ -204,7 +199,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
                   "flex items-center"
                 )}
               >
-                <T name="derivationPathExample">
+                <T id="derivationPathExample">
                   {(message) => (
                     <span className="text-sm font-medium text-gray-800">
                       {message}
@@ -216,29 +211,25 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           ),
           attention: (
             <T
-              name="doNotSharePhrase"
+              id="doNotSharePhrase"
               substitutions={[
-                <T key="doNotShare" name="doNotShareEmphasized">
+                <T key="doNotShare" id="doNotShareEmphasized">
                   {(message) => (
                     <span className="font-semibold">{message}</span>
                   )}
                 </T>,
               ]}
-            >
-              {(message) => <>{message}</>}
-            </T>
+            />
           ),
           fieldDesc: (
             <>
-              <T name="youWillNeedThisSeedPhrase">
-                {(message) => <>{message}</>}
-              </T>{" "}
-              <T name="keepSeedPhraseSecret">{(message) => <>{message}</>}</T>
+              <T id="youWillNeedThisSeedPhrase" />{" "}
+              <T id="keepSeedPhraseSecret" />
             </>
           ),
         };
     }
-  }, [reveal, account]);
+  }, [reveal, account, t]);
 
   const forbidPrivateKeyRevealing =
     account.type === ThanosAccountType.Ledger && reveal === "private-key";
@@ -250,9 +241,9 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           title={t("privateKeyCannotBeRevealed")}
           description={
             <T
-              name="youCannotGetPrivateKeyFromLedgerAccounts"
+              id="youCannotGetPrivateKeyFromLedgerAccounts"
               substitutions={[
-                <T key="ledger" name="ledger">
+                <T key="ledger" id="ledger">
                   {(message) => (
                     <span
                       className={classNames(
@@ -324,7 +315,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           containerClassName="mb-4"
         />
 
-        <T name="reveal">
+        <T id="reveal">
           {(message) => (
             <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
           )}
@@ -340,6 +331,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     secret,
     texts,
     submitting,
+    t,
   ]);
 
   return (

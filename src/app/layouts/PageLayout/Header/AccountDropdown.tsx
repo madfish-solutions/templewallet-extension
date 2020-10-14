@@ -9,7 +9,7 @@ import {
   useNetwork,
 } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
-import { t } from "lib/i18n";
+import { useTranslation } from "lib/ui/i18n";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
@@ -38,6 +38,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
   const allAccounts = useAllAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
+  const { t } = useTranslation();
 
   const closeDropdown = React.useCallback(() => {
     setOpened(false);
@@ -102,7 +103,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           onClick: handleMaximiseViewClick,
         },
       ].filter((Boolean as any) as ExcludesFalse),
-    [network.type, appEnv.fullPage, closeDropdown, handleMaximiseViewClick]
+    [network.type, appEnv.fullPage, closeDropdown, handleMaximiseViewClick, t]
   );
 
   return (

@@ -72,7 +72,7 @@ const CreateAccount: React.FC = () => {
       pageTitle={
         <>
           <AddIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T name="createAccount" />
+          <T id="createAccount" />
         </>
       }
     >

@@ -34,7 +34,7 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
       {allAssets.length > 1 ? (
         <>
           <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-            <T name="asset">
+            <T id="asset">
               {(message) => (
                 <span className="text-base font-semibold text-gray-700">
                   {message}
@@ -42,7 +42,7 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
               )}
             </T>
 
-            <T name="selectAnotherAssetPrompt">
+            <T id="selectAnotherAssetPrompt">
               {(message) => (
                 <span
                   className={classNames(

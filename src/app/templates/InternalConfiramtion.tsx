@@ -6,7 +6,7 @@ import {
   useAllAccounts,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
-import { t, T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import { useAppEnv } from "app/env";
 import AccountBanner from "app/templates/AccountBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
@@ -29,6 +29,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   onConfirm,
 }) => {
   const { popup } = useAppEnv();
+  const { t } = useTranslation();
 
   const allAccounts = useAllAccounts();
   const account = React.useMemo(
@@ -115,7 +116,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
       >
         <div className="px-4 pt-4">
           <T
-            name="confirmAction"
+            id="confirmAction"
             substitutions={t(
               payload.type === "sign" ? "signAction" : "operations"
             )}
@@ -178,7 +179,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           )}
         >
           <div className="w-1/2 pr-2">
-            <T name="decline">
+            <T id="decline">
               {(message) => (
                 <FormSecondaryButton
                   type="button"
@@ -194,7 +195,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           </div>
 
           <div className="w-1/2 pl-2">
-            <T name={error ? "retry" : "confirm"}>
+            <T id={error ? "retry" : "confirm"}>
               {(message) => (
                 <FormSubmitButton
                   type="button"
