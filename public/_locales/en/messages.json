@@ -1167,7 +1167,12 @@
     "message": "Confirm the action on"
   },
   "deviceName": {
-    "message": "%device% device"
+    "message": "$device$ device",
+    "placeholders": {
+      "device": {
+        "content": "$1"
+      }
+    }
   },
   "ledgerNano": {
     "message": "Ledger Nano"
@@ -1187,7 +1192,12 @@
     "message": "What will be the name of the new Ledger account?"
   },
   "defaultDerivationPathLabel": {
-    "message": "By default %path% derivation is used."
+    "message": "By default $path$ derivation is used.",
+    "placeholders": {
+      "path": {
+        "content": "$1"
+      }
+    }
   },
   "clickOnCustomDerivationPath": {
     "message": "Click on 'Custom derivation path' to customize it."
@@ -1196,7 +1206,21 @@
     "message": "Add Ledger Account"
   },
   "firefoxLedgerConnectionError": {
-    "message": "%sorry% Connection to the %device% device via %browser% is temporarily %unavailable%."
+    "message": "$sorry$ Connection to the $device$ device via $browser$ is temporarily $unavailable$.",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      },
+      "device": {
+        "content": "$2"
+      },
+      "browser": {
+        "content": "$3"
+      },
+      "unavailable": {
+        "content": "$4"
+      }
+    }
   },
   "connectionUnavailable": {
     "message": "Unavailable"
