@@ -70,10 +70,7 @@ const SendForm: React.FC = () => {
   return (
     <>
       {operation && (
-        <OperationStatus
-          typeTitle={t("transaction") as string}
-          operation={operation}
-        />
+        <OperationStatus typeTitle={t("transaction")} operation={operation} />
       )}
 
       <AssetSelect
@@ -317,15 +314,15 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const validateAmount = React.useCallback(
     (v?: number) => {
-      if (v === undefined) return t("required") as string;
+      if (v === undefined) return t("required");
       if (!isKTAddress(toValue) && v === 0) {
-        return t("amountMustBePositive") as string;
+        return t("amountMustBePositive");
       }
       if (!maxAmountNum) return true;
       const vBN = new BigNumber(v);
       return (
         vBN.isLessThanOrEqualTo(maxAmountNum) ||
-        (t("maximalAmount", maxAmountNum.toString()) as string)
+        t("maximalAmount", maxAmountNum.toString())
       );
     },
     [maxAmountNum, toValue, t]
@@ -477,7 +474,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                 return (
                   <Alert
                     type="warn"
-                    title={t("attentionExclamation") as string}
+                    title={t("attentionExclamation")}
                     description={<T name="tryingToTransferToYourself" />}
                     className="mt-6 mb-4"
                   />
@@ -709,9 +706,9 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => {
             return t(
               "notEnoughFunds",
               error instanceof ZeroXTZBalanceError ? "XTZ " : ""
-            ) as string;
+            );
           default:
-            return t("failed") as string;
+            return t("failed");
         }
       })()}
       description={(() => {
@@ -730,9 +727,9 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => {
               <>
                 <T
                   name="unableToPerformTransactionAction"
-                  substitutions={(t(
+                  substitutions={t(
                     type === "submit" ? "send" : "estimate"
-                  ) as string).toLowerCase()}
+                  ).toLowerCase()}
                 >
                   {(message) => <>{message}</>}
                 </T>

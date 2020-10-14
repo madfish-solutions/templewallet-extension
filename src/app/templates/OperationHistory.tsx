@@ -492,8 +492,8 @@ function tryParseParameters(asset: ThanosAsset, parameters: any) {
           };
         } else {
           const [fromArgs, { args: toArgs }] = parameters.value.args;
-          const sender = fromArgs.string as string;
-          const receiver = toArgs[0].string as string;
+          const sender: string = fromArgs.string;
+          const receiver: string = toArgs[0].string;
           const volume = new BigNumber(toArgs[1].int)
             .div(10 ** asset.decimals)
             .toNumber();

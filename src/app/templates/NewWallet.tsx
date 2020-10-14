@@ -105,7 +105,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
         >
           {locked && (
             <Alert
-              title={t("attentionExclamation") as string}
+              title={t("attentionExclamation")}
               description={
                 <>
                   <p>
@@ -156,7 +156,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
               textarea
               rows={4}
               ref={register({
-                required: t("required") as string,
+                required: t("required"),
                 validate: (val) =>
                   validateMnemonic(formatMnemonic(val)) ||
                   MNEMONIC_ERROR_CAPTION,
@@ -165,7 +165,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
               labelDescription={t("mnemonicInputDescription")}
               id="newwallet-mnemonic"
               name="mnemonic"
-              placeholder={t("mnemonicInputPlaceholder") as string}
+              placeholder={t("mnemonicInputPlaceholder")}
               spellCheck={false}
               errorCaption={errors.mnemonic?.message}
               containerClassName="mb-4"
@@ -175,7 +175,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
 
           <FormField
             ref={register({
-              required: t("required") as string,
+              required: t("required"),
               pattern: {
                 value: PASSWORD_PATTERN,
                 message: PASSWORD_ERROR_CAPTION,
@@ -193,10 +193,9 @@ const NewWallet: React.FC<NewWalletProps> = ({
 
           <FormField
             ref={register({
-              required: t("required") as string,
+              required: t("required"),
               validate: (val) =>
-                val === passwordValue ||
-                (t("mustBeEqualToPasswordAbove") as string),
+                val === passwordValue || t("mustBeEqualToPasswordAbove"),
             })}
             label={t("repeatPassword")}
             labelDescription={t("repeatPasswordInputDescription")}
@@ -367,23 +366,7 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
           errorCaption={errors.backuped?.message}
           name="backuped"
           label={t("backupedInputLabel")}
-          labelDescription={
-            <T name="backupedInputDescription">
-              {(message) => {
-                const [phrasePart1, phrasePart2] = (message as string).split(
-                  "\n"
-                );
-
-                return (
-                  <>
-                    {phrasePart1}
-                    <br />
-                    {phrasePart2}
-                  </>
-                );
-              }}
-            </T>
-          }
+          labelDescription={<T name="backupedInputDescription" />}
           containerClassName="mb-6"
         />
 

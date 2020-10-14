@@ -313,10 +313,7 @@ const DelegateForm: React.FC = () => {
   return (
     <>
       {operation && (
-        <OperationStatus
-          typeTitle={t("delegation") as string}
-          operation={operation}
-        />
+        <OperationStatus typeTitle={t("delegation")} operation={operation} />
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -406,7 +403,7 @@ const DelegateForm: React.FC = () => {
                 {!tzError && baker!.min_delegations_amount > balanceNum && (
                   <Alert
                     type="warn"
-                    title={t("minDelegationAmountTitle") as string}
+                    title={t("minDelegationAmountTitle")}
                     description={
                       <T
                         name="minDelegationAmountDescription"
@@ -432,7 +429,7 @@ const DelegateForm: React.FC = () => {
             ) : !tzError && net.type === "main" ? (
               <Alert
                 type="warn"
-                title={t("unknownBakerTitle") as string}
+                title={t("unknownBakerTitle")}
                 description={t("unknownBakerDescription")}
                 className="mb-6"
               />
@@ -717,15 +714,15 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
       title={(() => {
         switch (true) {
           case error instanceof NotEnoughFundsError:
-            return t("notEnoughFunds", "") as string;
+            return t("notEnoughFunds", "");
 
           case [UnchangedError, UnregisteredDelegateError].some(
             (Err) => error instanceof Err
           ):
-            return t("notAllowed") as string;
+            return t("notAllowed");
 
           default:
-            return t("failed") as string;
+            return t("failed");
         }
       })()}
       description={(() => {
@@ -747,9 +744,9 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
               <>
                 <T
                   name="unableToPerformActionToBaker"
-                  substitutions={(t(
+                  substitutions={t(
                     type === "submit" ? "delegate" : "estimateDelegation"
-                  ) as string).toLowerCase()}
+                  ).toLowerCase()}
                 >
                   {(message) => <>{message}</>}
                 </T>

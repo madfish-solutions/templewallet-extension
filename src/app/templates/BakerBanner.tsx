@@ -165,7 +165,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                       )}
                     </>
                   ) : (
-                    <T name="unknownBakerTitle">
+                    <T name="unknownBakerTitle" forceUseBreaks={false}>
                       {(message) => (
                         <span className="font-normal">
                           {(message as string).toLowerCase()}

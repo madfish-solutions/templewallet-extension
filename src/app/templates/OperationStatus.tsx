@@ -78,7 +78,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
       .catch(() => {
         setAlert({
           type: "error",
-          title: t("error") as string,
+          title: t("error"),
           description: t("timedOutOperationConfirmation"),
         });
       });
