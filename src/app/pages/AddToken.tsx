@@ -26,7 +26,7 @@ const AddToken: React.FC = () => (
     pageTitle={
       <>
         <AddIcon className="w-auto h-4 mr-1 stroke-current" />
-        <T id="addToken">{(message) => <>{message}</>}</T>
+        <T id="addToken" />
       </>
     }
   >
@@ -289,7 +289,7 @@ const Form: React.FC = () => {
         id="addtoken-iconUrl"
         label={
           <>
-            <T id="iconURL">{(message) => <>{message}</>}</T>{" "}
+            <T id="iconURL" />{" "}
             <T id="optionalComment">
               {(message) => (
                 <span className="text-sm font-light text-gary-600">

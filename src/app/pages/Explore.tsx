@@ -77,7 +77,7 @@ const Explore: React.FC = () => {
                   "stroke-current"
                 )}
               />
-              <T id="receive">{(message) => <>{message}</>}</T>
+              <T id="receive" />
             </Link>
           </div>
 
@@ -106,7 +106,7 @@ const Explore: React.FC = () => {
                   "stroke-current"
                 )}
               />
-              <T id="send">{(message) => <>{message}</>}</T>
+              <T id="send" />
             </Link>
           </div>
         </div>

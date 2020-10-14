@@ -22,7 +22,7 @@ const Receive: React.FC = () => {
       pageTitle={
         <>
           <QRIcon className="mr-1 h-4 w-auto stroke-current" />
-          <T id="receive">{(message) => <>{message}</>}</T>
+          <T id="receive" />
         </>
       }
     >
@@ -62,7 +62,7 @@ const Receive: React.FC = () => {
             onClick={copy}
           >
             {copied ? (
-              <T id="copiedAddress">{(message) => <>{message}</>}</T>
+              <T id="copiedAddress" />
             ) : (
               <>
                 <CopyIcon
@@ -72,7 +72,7 @@ const Receive: React.FC = () => {
                     "stroke-current stroke-2"
                   )}
                 />
-                <T id="copyAddressToClipboard">{(message) => <>{message}</>}</T>
+                <T id="copyAddressToClipboard" />
               </>
             )}
           </button>

@@ -247,9 +247,7 @@ const ConfirmDAppForm: React.FC = () => {
                     {payload.origin}
                   </Name>,
                 ]}
-              >
-                {(message) => <>{message}</>}
-              </T>
+              />
             </div>
           ),
         };
@@ -279,9 +277,7 @@ const ConfirmDAppForm: React.FC = () => {
                     {payload.origin}
                   </Name>,
                 ]}
-              >
-                {(message) => <>{message}</>}
-              </T>
+              />
             </div>
           ),
         };

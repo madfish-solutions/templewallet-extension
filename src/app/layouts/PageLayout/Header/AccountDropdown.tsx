@@ -121,7 +121,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             "text-sm text-white text-opacity-90"
           )}
         >
-          <T id="accounts">{(message) => <>{message}</>}</T>
+          <T id="accounts" />
           <PeopleIcon className="ml-1 h-6 w-auto stroke-current" />
         </h3>
 
@@ -141,7 +141,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           )}
           onClick={handleLogoutClick}
         >
-          <T id="logOut">{(message) => <>{message}</>}</T>
+          <T id="logOut" />
         </button>
       </div>
 
@@ -248,7 +248,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                   <Icon className="w-auto h-6 stroke-current" />
                 </div>
 
-                <T id={i18nKey}>{(message) => <>{message}</>}</T>
+                <T id={i18nKey} />
               </>
             ),
           };

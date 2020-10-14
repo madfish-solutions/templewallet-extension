@@ -75,11 +75,9 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
                 <T
                   id="smthWentWrongWhile"
                   substitutions={this.props.whileMessage}
-                >
-                  {(message) => <>{message}</>}
-                </T>
+                />
               ) : (
-                <T id="smthWentWrong">{(message) => <>{message}</>}</T>
+                <T id="smthWentWrong" />
               )}
               {!online && (
                 <T id="mayHappenBecauseYouAreOffline">

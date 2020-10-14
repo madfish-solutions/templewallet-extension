@@ -140,7 +140,7 @@ const ConnectLedger: React.FC = () => {
                 className={classNames("mb-4", "leading-tight", "flex flex-col")}
               >
                 <span className="text-base font-semibold text-gray-700">
-                  <T id="derivation">{(message) => <>{message}</>}</T>{" "}
+                  <T id="derivation" />{" "}
                   <T id="optionalComment">
                     {(message) => (
                       <span className="text-sm font-light text-gary-600">
@@ -160,13 +160,9 @@ const ConnectLedger: React.FC = () => {
                   <T
                     id="defaultDerivationPathLabel"
                     substitutions={[<b>44'/1729'/0'/0'</b>]}
-                  >
-                    {(message) => <>{message}</>}
-                  </T>
+                  />
                   <br />
-                  <T id="clickOnCustomDerivationPath">
-                    {(message) => <>{message}</>}
-                  </T>
+                  <T id="clickOnCustomDerivationPath" />
                 </span>
               </h2>
               <div

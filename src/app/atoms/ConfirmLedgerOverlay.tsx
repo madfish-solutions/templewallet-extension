@@ -52,9 +52,7 @@ const ConfirmLedgerOverlay: React.FC<ConfirmLedgerOverlayProps> = ({
               {(message) => <span className="text-gray-700">{message}</span>}
             </T>,
           ]}
-        >
-          {(message) => <>{message}</>}
-        </T>
+        />
       </h1>
 
       <LedgerNanoIcon

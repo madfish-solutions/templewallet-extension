@@ -65,7 +65,7 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
     <SimplePageLayout
       title={
         <>
-          <T id="unlockWallet">{(message) => <>{message}</>}</T>
+          <T id="unlockWallet" />
           <br />
           <T id="toContinue">
             {(message) => <span style={{ fontSize: "0.9em" }}>{message}</span>}

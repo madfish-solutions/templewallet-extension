@@ -185,7 +185,7 @@ const ByPrivateKeyForm: React.FC = () => {
           id="importacc-password"
           label={
             <>
-              <T id="password">{(message) => <>{message}</>}</T>{" "}
+              <T id="password" />{" "}
               <T id="optionalComment">
                 {(message) => (
                   <span className="text-sm font-light text-gary-600">
@@ -308,7 +308,7 @@ const ByMnemonicForm: React.FC = () => {
         id="importfundacc-password"
         label={
           <>
-            <T id="password">{(message) => <>{message}</>}</T>{" "}
+            <T id="password" />{" "}
             <T id="optionalComment">
               {(message) => (
                 <span className="text-sm font-light text-gary-600">
@@ -327,7 +327,7 @@ const ByMnemonicForm: React.FC = () => {
       <div className={classNames("mb-4", "flex flex-col")}>
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
           <span className="text-base font-semibold text-gray-700">
-            <T id="derivation">{(message) => <>{message}</>}</T>{" "}
+            <T id="derivation" />{" "}
             <T id="optionalComment">
               {(message) => (
                 <span className="text-sm font-light text-gary-600">
@@ -389,7 +389,7 @@ const ByMnemonicForm: React.FC = () => {
                 }}
                 onClick={handleClick}
               >
-                <T id={dp.i18nKey}>{(message) => <>{message}</>}</T>
+                <T id={dp.i18nKey} />
                 <div className="flex-1" />
                 {selected && (
                   <OkIcon

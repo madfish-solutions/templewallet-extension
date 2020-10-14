@@ -180,7 +180,7 @@ const EditableTitle: React.FC = () => {
               "-ml-1 mr-1 h-4 w-auto stroke-current stroke-2"
             )}
           />
-          <T id="edit">{(message) => <>{message}</>}</T>
+          <T id="edit" />
         </button>
       )}
     </div>
