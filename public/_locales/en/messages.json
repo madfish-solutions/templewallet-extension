@@ -1208,7 +1208,7 @@
   "firefoxLedgerConnectionError": {
     "message": "$sorry$ Connection to the $device$ device via $browser$ is temporarily $unavailable$.",
     "placeholders": {
-      "number": {
+      "sorry": {
         "content": "$1"
       },
       "device": {
