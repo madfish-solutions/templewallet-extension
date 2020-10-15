@@ -5,7 +5,6 @@ import {
   TzktNetwork,
   isValidTzktNetwork,
   TzktRelatedContract,
-  TzktContract,
 } from "./types";
 
 const baseUrls: Record<TzktNetwork, string> = {
@@ -54,7 +53,7 @@ export const getUsersContracts = async (
   _k: string,
   networkId: string,
   ...accounts: string[]
-): Promise<TzktContract[]> => {
+) => {
   if (!isValidTzktNetwork(networkId)) {
     console.warn(`${networkId} is not a valid Tzkt network`);
     return [];
@@ -66,10 +65,7 @@ export const getUsersContracts = async (
         account,
       });
 
-      return userContracts.map((contract) => ({
-        ...contract,
-        owner: account,
-      }));
+      return userContracts;
     })
   );
 

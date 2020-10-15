@@ -113,10 +113,6 @@ export type TzktRelatedContract = {
   creationTime: string;
 };
 
-export type TzktContract = TzktRelatedContract & {
-  owner: string;
-};
-
 export const isDelegation = (
   operation: TzktOperation
 ): operation is TzktDelegationOperation => {

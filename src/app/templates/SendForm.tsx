@@ -157,16 +157,24 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     [toFilled, allAccounts, toValue]
   );
 
-  const owner = React.useMemo(
-    () =>
-      isKTAddress(acc.publicKeyHash)
-        ? allAccounts.find(
-            ({ publicKeyHash }) =>
-              acc.type === ThanosAccountType.Contract &&
-              acc.owner === publicKeyHash
-          )
-        : undefined,
-    [allAccounts, acc]
+  const getAccountContract = React.useCallback(
+    async (
+      _k: string,
+      address: string,
+      _rpcUrl: string,
+      accountType: ThanosAccountType
+    ) => {
+      if (accountType !== ThanosAccountType.Contract) {
+        return undefined;
+      }
+
+      return tezos.contract.at(address);
+    },
+    [tezos]
+  );
+  const { data: accountContract } = useSWR(
+    ["get-account-contract", accountPkh, tezos.rpc.getRpcUrl(), acc.type],
+    getAccountContract
   );
 
   const cleanToField = React.useCallback(() => {
@@ -206,20 +214,23 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         }
       }
 
+      const storage = await accountContract?.storage();
+      const owner = typeof storage === "string" ? storage : undefined;
       if (isKTAddress(accountPkh) && !owner) {
         throw new Error("The contract doesn't belong to any of user accounts");
       }
 
       const [transferParams, manager] = await Promise.all([
         toTransferParams(tezos, localAsset, to, toPenny(localAsset)),
-        tezos.rpc.getManagerKey(
-          isKTAddress(accountPkh) ? owner!.publicKeyHash : accountPkh
-        ),
+        tezos.rpc.getManagerKey(isKTAddress(accountPkh) ? owner! : accountPkh),
       ]);
 
       let estmtnMax;
       if (isKTAddress(accountPkh)) {
-        estmtnMax = { totalCost: 0 };
+        const tp = await accountContract!.methods
+          .do(transferImplicit(to, balanceBN))
+          .toTransferParams({ amount: 0 });
+        estmtnMax = await tezos.estimate.transfer(tp);
       } else if (xtz) {
         const estmtn = await tezos.estimate.transfer(transferParams);
         let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
@@ -272,7 +283,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     toValue,
     mutateBalance,
     mutateXtzBalance,
-    owner,
+    accountContract,
   ]);
 
   const {
@@ -314,8 +325,13 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   }, [xtzBalanceNum, baseFee]);
 
   const safeFeeValue = React.useMemo(
-    () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
-    [maxAddFee, feeValue]
+    () =>
+      isKTAddress(accountPkh)
+        ? 0
+        : maxAddFee && feeValue > maxAddFee
+        ? maxAddFee
+        : feeValue,
+    [maxAddFee, feeValue, accountPkh]
   );
 
   const maxAmount = React.useMemo(() => {
@@ -387,8 +403,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       try {
         let op;
         if (isKTAddress(acc.publicKeyHash)) {
-          const contract = await tezos.contract.at(acc.publicKeyHash);
-          op = await contract.methods
+          op = await accountContract!.methods
             .do(transferImplicit(to, tzToMutez(amount)))
             .send({ amount: 0 });
         } else {
@@ -422,6 +437,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
     },
     [
+      accountContract,
       acc.publicKeyHash,
       formState.isSubmitting,
       tezos,
