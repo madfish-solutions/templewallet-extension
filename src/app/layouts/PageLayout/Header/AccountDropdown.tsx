@@ -9,7 +9,7 @@ import {
   useNetwork,
 } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
-import { useTranslation } from "lib/ui/i18n";
+import { T } from "lib/ui/i18n";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
@@ -38,7 +38,6 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
   const allAccounts = useAllAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
-  const { t } = useTranslation();
 
   const closeDropdown = React.useCallback(() => {
     setOpened(false);
@@ -63,47 +62,47 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
         {
           key: "create-account",
           Icon: AddIcon,
-          content: t("createAccount"),
+          i18nKey: "createAccount",
           linkTo: "/create-account",
           onClick: closeDropdown,
         },
         {
           key: "import-account",
           Icon: DownloadIcon,
-          content: t("importAccount"),
+          i18nKey: "importAccount",
           linkTo: "/import-account",
           onClick: closeDropdown,
         },
         {
           key: "connect-ledger",
           Icon: LinkIcon,
-          content: "Connect Ledger",
+          i18nKey: "connectLedger",
           linkTo: "/connect-ledger",
           onClick: closeDropdown,
         },
         network.type === "test" && {
           key: "import-faucet-file",
           Icon: CodeAltIcon,
-          content: t("importFaucetFile"),
+          i18nKey: "importFaucetFile",
           linkTo: "/import-faucet-file",
           onClick: closeDropdown,
         },
         {
           key: "settings",
           Icon: SettingsIcon,
-          content: t("settings"),
+          i18nKey: "settings",
           linkTo: "/settings",
           onClick: closeDropdown,
         },
         {
           key: "maximise",
           Icon: MaximiseIcon,
-          content: t(appEnv.fullPage ? "openNewTab" : "maximiseView"),
+          i18nKey: appEnv.fullPage ? "openNewTab" : "maximiseView",
           linkTo: null,
           onClick: handleMaximiseViewClick,
         },
       ].filter((Boolean as any) as ExcludesFalse),
-    [network.type, appEnv.fullPage, closeDropdown, handleMaximiseViewClick, t]
+    [network.type, appEnv.fullPage, closeDropdown, handleMaximiseViewClick]
   );
 
   return (
@@ -122,8 +121,8 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             "text-sm text-white text-opacity-90"
           )}
         >
-          Accounts
-          <PeopleIcon className="w-auto h-6 ml-1 stroke-current" />
+          <T id="accounts" />
+          <PeopleIcon className="ml-1 h-6 w-auto stroke-current" />
         </h3>
 
         <div className="flex-1" />
@@ -142,7 +141,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           )}
           onClick={handleLogoutClick}
         >
-          Log out
+          <T id="logOut" />
         </button>
       </div>
 
@@ -225,7 +224,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
       </div>
 
       <div className="my-2">
-        {actions.map(({ key, Icon, content, linkTo, onClick }) => {
+        {actions.map(({ key, Icon, i18nKey, linkTo, onClick }) => {
           const baseProps = {
             key,
             className: classNames(
@@ -249,7 +248,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                   <Icon className="w-auto h-6 stroke-current" />
                 </div>
 
-                {content}
+                <T id={i18nKey} />
               </>
             ),
           };

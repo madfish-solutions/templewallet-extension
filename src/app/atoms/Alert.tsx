@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
+import { useTranslation } from "lib/ui/i18n";
 
 type AlertProps = React.HTMLAttributes<HTMLDivElement> & {
   type?: "success" | "warn" | "error";
@@ -21,6 +22,7 @@ const Alert: React.FC<AlertProps> = ({
   onClose,
   ...rest
 }) => {
+  const { t } = useTranslation();
   const ref = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -54,7 +56,7 @@ const Alert: React.FC<AlertProps> = ({
       )}
       tabIndex={-1}
       role="alert"
-      aria-label="Alert"
+      aria-label={t("alert")}
       {...rest}
     >
       {title && <h2 className="text-lg font-semibold mb-1">{title}</h2>}

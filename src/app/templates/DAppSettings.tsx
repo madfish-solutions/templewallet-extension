@@ -196,7 +196,7 @@ const DAppDescription: React.FC<OptionRenderProps<
           id="networkLabel"
           substitutions={[
             <span className="font-normal capitalize" key="network">
-              {typeof network === "object" ? network.name : network}
+              {typeof network === "string" ? network : network.name}
             </span>,
           ]}
         >

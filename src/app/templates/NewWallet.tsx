@@ -213,37 +213,35 @@ const NewWallet: React.FC<NewWalletProps> = ({
             name="termsaccepted"
             label={t("acceptTerms")}
             labelDescription={
-              <>
-                <T
-                  id="acceptTermsInputDescription"
-                  substitutions={[
-                    <T id="termsOfUsage" key="termsLink">
-                      {(message) => (
-                        <a
-                          href="https://thanoswallet.com/terms"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline text-secondary"
-                        >
-                          {message}
-                        </a>
-                      )}
-                    </T>,
-                    <T id="privacyPolicy" key="privacyPolicyLink">
-                      {(message) => (
-                        <a
-                          href="https://thanoswallet.com/privacy"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline text-secondary"
-                        >
-                          {message}
-                        </a>
-                      )}
-                    </T>,
-                  ]}
-                />
-              </>
+              <T
+                id="acceptTermsInputDescription"
+                substitutions={[
+                  <T id="termsOfUsage" key="termsLink">
+                    {(message) => (
+                      <a
+                        href="https://thanoswallet.com/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-secondary"
+                      >
+                        {message}
+                      </a>
+                    )}
+                  </T>,
+                  <T id="privacyPolicy" key="privacyPolicyLink">
+                    {(message) => (
+                      <a
+                        href="https://thanoswallet.com/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-secondary"
+                      >
+                        {message}
+                      </a>
+                    )}
+                  </T>,
+                ]}
+              />
             }
             containerClassName="mb-6"
           />

@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
+import { T } from "lib/ui/i18n";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import DocBg from "app/a11y/DocBg";
@@ -8,8 +9,8 @@ import ContentContainer from "app/layouts/ContentContainer";
 import BackupSeedAlert from "app/templates/BackupSeedAlert";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
-import Header from "./PageLayout/Header";
-import ConfirmationOverlay from "./PageLayout/ConfirmationOverlay";
+import Header from "app/layouts/PageLayout/Header";
+import ConfirmationOverlay from "app/layouts/PageLayout/ConfirmationOverlay";
 
 type PageLayoutProps = ToolbarProps;
 
@@ -176,7 +177,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 "stroke-2"
               )}
             />
-            Back
+            <T id="back" />
           </button>
         )}
       </div>
