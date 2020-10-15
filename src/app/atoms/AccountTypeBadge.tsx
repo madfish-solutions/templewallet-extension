@@ -32,8 +32,8 @@ const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
             case ThanosAccountType.Ledger:
               return "Ledger";
 
-            default:
-              return "";
+            case ThanosAccountType.Contract:
+              return "Contract";
           }
         })()}
       </span>

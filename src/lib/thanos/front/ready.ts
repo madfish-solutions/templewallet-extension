@@ -142,14 +142,17 @@ function useReadyThanos() {
    */
 
   const tezos = React.useMemo(() => {
+    const { publicKeyHash: accountPkh } = account;
     const checksum = [network.id, accountPkh].join("_");
     const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
-    const signer = createTaquitoSigner(accountPkh);
+    const signer = createTaquitoSigner(
+      account.type === ThanosAccountType.Contract ? account.owner : accountPkh
+    );
     const wallet = createTaquitoWallet(accountPkh, rpc);
     t.setProvider({ rpc, signer, wallet });
     return t;
-  }, [createTaquitoSigner, createTaquitoWallet, network, accountPkh]);
+  }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
   React.useEffect(() => {
     if (process.env.NODE_ENV === "development") {
