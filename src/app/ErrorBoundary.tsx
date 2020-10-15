@@ -46,7 +46,6 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
   render() {
     if (this.state.error) {
       const online = getOnlineStatus();
-      console.log(this.props.whileMessage);
 
       return (
         <div

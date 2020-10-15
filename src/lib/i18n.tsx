@@ -106,9 +106,6 @@ export function getMessage(
   forceUseBreaks?: boolean
 ): string | React.ReactElement | null {
   const { current, fallback } = localesMessages;
-  if (name === "tezosMainnet") {
-    console.log("locales messages", localesMessages);
-  }
   const normalizedSubstitutions = (() => {
     if (substitutions == null) {
       return [];
