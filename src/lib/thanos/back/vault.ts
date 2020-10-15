@@ -5,7 +5,13 @@ import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
 import { TezosToolkit, CompositeForger, RpcForger } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
-import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
+// import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
+import Transport from "@ledgerhq/hw-transport";
+import {
+  BridgeExchangeRequest,
+  BridgeMessageType,
+  BridgeResponse,
+} from "@thanos-wallet/ledger-bridge";
 import { DerivationType } from "@taquito/ledger-signer";
 import * as Passworder from "lib/thanos/passworder";
 import {
@@ -538,7 +544,7 @@ async function createLedgerSigner(
   publicKey?: string,
   publicKeyHash?: string
 ) {
-  const transport = await LedgerWebAuthnTransport.create();
+  const transport = await LedgerThanosBridgeTransport.open();
   return new ThanosLedgerSigner(
     transport,
     derivationPath,
@@ -594,5 +600,102 @@ async function withError<T>(
     });
   } catch (err) {
     throw err instanceof PublicError ? err : new Error(errMessage);
+  }
+}
+
+/**
+ * SHITSHITSHITSHITSHITSHITSHIT
+ * SHITSHITSHITSHITSHITSHITSHIT
+ */
+
+class LedgerThanosBridgeTransport extends Transport {
+  static async isSupported() {
+    return true;
+  }
+
+  // this transport is not discoverable
+  static async list() {
+    return [];
+  }
+
+  // this transport is not discoverable
+  static listen() {
+    return {
+      unsubscribe: () => {},
+    };
+  }
+
+  static async open() {
+    const bridgeUrl = "https://thanoswallet.com/ledger-bridge";
+    const iframe = document.createElement("iframe");
+    iframe.src = bridgeUrl;
+    document.head.appendChild(iframe);
+    await new Promise((res) => {
+      const handleLoad = () => {
+        res();
+        iframe.removeEventListener("load", handleLoad);
+      };
+      iframe.addEventListener("load", handleLoad);
+    });
+    return new LedgerThanosBridgeTransport(iframe, bridgeUrl);
+  }
+
+  scrambleKey?: Buffer;
+  unwrap?: boolean;
+
+  constructor(private iframe: HTMLIFrameElement, private bridgeUrl: string) {
+    super();
+  }
+
+  exchange(apdu: Buffer) {
+    return new Promise<Buffer>(async (resolve, reject) => {
+      const msg: BridgeExchangeRequest = {
+        type: BridgeMessageType.ExchangeRequest,
+        apdu: apdu.toString("hex"),
+        scrambleKey: this.scrambleKey?.toString("ascii"),
+        exchangeTimeout: (this as any).exchangeTimeout,
+      };
+      this.iframe.contentWindow?.postMessage(msg, "*");
+
+      const handleMessage = (evt: MessageEvent) => {
+        console.info("gott", evt.data);
+        if (evt.origin !== this.getOrigin()) {
+          return;
+        }
+
+        const res: BridgeResponse = evt.data;
+        switch (res?.type) {
+          case BridgeMessageType.ExchangeResponse:
+            resolve(Buffer.from(res.result, "hex"));
+            break;
+
+          case BridgeMessageType.ErrorResponse:
+            reject(res.message);
+            break;
+        }
+
+        window.removeEventListener("message", handleMessage);
+      };
+
+      window.addEventListener("message", handleMessage);
+    });
+  }
+
+  setScrambleKey(scrambleKey: string) {
+    this.scrambleKey = Buffer.from(scrambleKey, "ascii");
+  }
+
+  setUnwrap(unwrap: boolean) {
+    this.unwrap = unwrap;
+  }
+
+  async close() {
+    document.head.removeChild(this.iframe);
+  }
+
+  private getOrigin() {
+    const tmp = this.bridgeUrl.split("/");
+    tmp.splice(-1, 1);
+    return tmp.join("/");
   }
 }
