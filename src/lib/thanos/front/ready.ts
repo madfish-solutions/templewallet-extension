@@ -9,6 +9,13 @@ import {
   usePassiveStorage,
   useThanosClient,
 } from "lib/thanos/front";
+import { useRetryableSWR } from "lib/swr";
+import { getUsersContracts } from "lib/tzkt";
+import {
+  ThanosAccount,
+  ThanosAccountType,
+  ThanosContractAccount,
+} from "lib/thanos/types";
 
 export enum ActivationStatus {
   ActivationRequestSent,
@@ -45,7 +52,7 @@ function useReadyThanos() {
 
   const {
     networks: allNetworks,
-    accounts: allAccounts,
+    accounts: userAccounts,
     settings,
     createTaquitoSigner,
     createTaquitoWallet,
@@ -70,6 +77,34 @@ function useReadyThanos() {
   const network = React.useMemo(
     () => allNetworks.find((n) => n.id === networkId) ?? defaultNet,
     [allNetworks, networkId, defaultNet]
+  );
+
+  const usersContractsQueryKey = React.useMemo(
+    () => [
+      "usersContracts",
+      network.id,
+      ...userAccounts.map(({ publicKeyHash }) => publicKeyHash),
+    ],
+    [network.id, userAccounts]
+  );
+  const { data: usersContracts = [] } = useRetryableSWR(
+    usersContractsQueryKey,
+    getUsersContracts
+  );
+
+  const allAccounts = React.useMemo<ThanosAccount[]>(
+    () => [
+      ...userAccounts,
+      ...usersContracts?.map<ThanosContractAccount>(
+        ({ owner, alias, address }, index) => ({
+          type: ThanosAccountType.Contract,
+          owner,
+          name: alias || `Contract ${index + 1}`,
+          publicKeyHash: address,
+        })
+      ),
+    ],
+    [userAccounts, usersContracts]
   );
 
   /**

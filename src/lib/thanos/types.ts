@@ -33,10 +33,12 @@ export enum ThanosStatus {
   Ready,
 }
 
-export type ThanosAccount =
+export type ThanosUserAccount =
   | ThanosHDAccount
   | ThanosImportedAccount
   | ThanosLedgerAccount;
+
+export type ThanosAccount = ThanosUserAccount | ThanosContractAccount;
 
 export interface ThanosLedgerAccount extends ThanosAccountBase {
   type: ThanosAccountType.Ledger;
@@ -52,6 +54,11 @@ export interface ThanosHDAccount extends ThanosAccountBase {
   hdIndex: number;
 }
 
+export interface ThanosContractAccount extends ThanosAccountBase {
+  type: ThanosAccountType.Contract;
+  owner: string;
+}
+
 export interface ThanosAccountBase {
   type: ThanosAccountType;
   name: string;
@@ -64,6 +71,7 @@ export enum ThanosAccountType {
   HD,
   Imported,
   Ledger,
+  Contract,
 }
 
 export interface ThanosNetwork {
