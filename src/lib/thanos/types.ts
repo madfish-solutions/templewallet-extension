@@ -56,7 +56,6 @@ export interface ThanosHDAccount extends ThanosAccountBase {
 
 export interface ThanosContractAccount extends ThanosAccountBase {
   type: ThanosAccountType.Contract;
-  owner: string;
 }
 
 export interface ThanosAccountBase {

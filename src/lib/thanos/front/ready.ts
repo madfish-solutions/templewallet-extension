@@ -96,9 +96,8 @@ function useReadyThanos() {
     () => [
       ...userAccounts,
       ...usersContracts?.map<ThanosContractAccount>(
-        ({ owner, alias, address }, index) => ({
+        ({ alias, address }, index) => ({
           type: ThanosAccountType.Contract,
-          owner,
           name: alias || `Contract ${index + 1}`,
           publicKeyHash: address,
         })
@@ -128,6 +127,33 @@ function useReadyThanos() {
     [allAccounts, accountPkh, defaultAcc]
   );
 
+  const getAccountOwner = React.useCallback(
+    async (
+      _k: string,
+      address: string,
+      networkId: string,
+      accountType: ThanosAccountType
+    ) => {
+      if (accountType !== ThanosAccountType.Contract) {
+        return undefined;
+      }
+
+      const checksum = [networkId, address].join("_");
+      const t = new ReactiveTezosToolkit(checksum);
+      t.setRpcProvider(
+        allNetworks.find((network) => network.id === networkId)!.rpcBaseURL
+      );
+      const contract = await t.contract.at(address);
+      const storage = await contract.storage();
+      return typeof storage === "string" ? storage : undefined;
+    },
+    [allNetworks]
+  );
+  const { data: accountOwner } = useRetryableSWR(
+    ["get-account-owner", accountPkh, networkId, account.type],
+    getAccountOwner
+  );
+
   /**
    * Error boundary reset
    */
@@ -147,12 +173,18 @@ function useReadyThanos() {
     const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
     const signer = createTaquitoSigner(
-      account.type === ThanosAccountType.Contract ? account.owner : accountPkh
+      account.type === ThanosAccountType.Contract ? accountOwner! : accountPkh
     );
     const wallet = createTaquitoWallet(accountPkh, rpc);
     t.setProvider({ rpc, signer, wallet });
     return t;
-  }, [createTaquitoSigner, createTaquitoWallet, network, account]);
+  }, [
+    createTaquitoSigner,
+    createTaquitoWallet,
+    network,
+    account,
+    accountOwner,
+  ]);
 
   React.useEffect(() => {
     if (process.env.NODE_ENV === "development") {
