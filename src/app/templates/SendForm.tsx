@@ -134,7 +134,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   } = useForm<FormData>({
     mode: "onChange",
     defaultValues: {
-      fee: RECOMMENDED_ADD_FEE,
+      fee: isKTAddress(accountPkh) ? 0 : RECOMMENDED_ADD_FEE,
     },
   });
 
@@ -572,15 +572,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             autoFocus={Boolean(maxAmount)}
           />
 
-          <AdditionalFeeInput
-            name="fee"
-            control={control}
-            onChange={handleFeeFieldChange}
-            assetSymbol={XTZ_ASSET.symbol}
-            baseFee={baseFee}
-            error={errors.fee}
-            id="send-fee"
-          />
+          {!isKTAddress(accountPkh) && (
+            <AdditionalFeeInput
+              name="fee"
+              control={control}
+              onChange={handleFeeFieldChange}
+              assetSymbol={XTZ_ASSET.symbol}
+              baseFee={baseFee}
+              error={errors.fee}
+              id="send-fee"
+            />
+          )}
 
           <FormSubmitButton
             loading={formState.isSubmitting}
