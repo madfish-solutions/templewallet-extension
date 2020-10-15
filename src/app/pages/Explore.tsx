@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useAccount } from "lib/thanos/front";
+import { T, useTranslation } from "lib/ui/i18n";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
@@ -11,21 +12,26 @@ import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
-import EditableTitle from "./Explore/EditableTitle";
-import Assets from "./Explore/Assets";
-import BakingSection from "./Explore/BakingSection";
+import EditableTitle from "app/pages/Explore/EditableTitle";
+import Assets from "app/pages/Explore/Assets";
+import BakingSection from "app/pages/Explore/BakingSection";
 
 const Explore: React.FC = () => {
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
+  const { t } = useTranslation();
 
   return (
     <PageLayout
       pageTitle={
-        <>
-          <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
-          Explore
-        </>
+        <T id="explore">
+          {(message) => (
+            <>
+              <ExploreIcon className="mr-1 h-4 w-auto stroke-current" />
+              {message}
+            </>
+          )}
+        </T>
       }
     >
       <EditableTitle />
@@ -37,7 +43,7 @@ const Explore: React.FC = () => {
 
         <div style={{ minHeight: "12rem" }}>
           <SuspenseContainer
-            whileMessage="fetching assets data"
+            whileMessage={t("assetsWhileMessage")}
             fallback={null}
           >
             <Assets accountPkh={accountPkh} />
@@ -71,7 +77,7 @@ const Explore: React.FC = () => {
                   "stroke-current"
                 )}
               />
-              Receive
+              <T id="receive" />
             </Link>
           </div>
 
@@ -100,21 +106,21 @@ const Explore: React.FC = () => {
                   "stroke-current"
                 )}
               />
-              Send
+              <T id="send" />
             </Link>
           </div>
         </div>
       </div>
 
-      <SubTitle>Baking</SubTitle>
+      <T id="baking">{(message) => <SubTitle>{message}</SubTitle>}</T>
 
-      <SuspenseContainer whileMessage="fetching or processing your delegation info">
+      <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
         <BakingSection />
       </SuspenseContainer>
 
-      <SubTitle>Operations</SubTitle>
+      <T id="operations">{(message) => <SubTitle>{message}</SubTitle>}</T>
 
-      <SuspenseContainer whileMessage="fetching or processing operation history">
+      <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
         <OperationHistory accountPkh={accountPkh} />
       </SuspenseContainer>
     </PageLayout>

@@ -8,6 +8,7 @@ import {
   useThanosClient,
   useTezos,
 } from "lib/thanos/front";
+import { T, useTranslation } from "lib/ui/i18n";
 import useSafeState from "lib/ui/useSafeState";
 import PageLayout from "app/layouts/PageLayout";
 import Alert from "app/atoms/Alert";
@@ -32,7 +33,9 @@ const ImportFaucetFile: React.FC = () => {
       pageTitle={
         <>
           <CodeAlt className="w-auto h-4 mr-1 stroke-current" />
-          Import Faucet File
+          <T id="importFaucetFile">
+            {(message) => <span className="capitalize">{message}</span>}
+          </T>
         </>
       }
     >
@@ -56,6 +59,7 @@ const Form: React.FC = () => {
   const { importFundraiserAccount } = useThanosClient();
   const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
+  const { t } = useTranslation();
 
   const activateAccount = React.useCallback(
     async (address: string, secret: string) => {
@@ -129,7 +133,7 @@ const Form: React.FC = () => {
             reader.readAsText(evt.target.files[0]);
           });
         } catch (_err) {
-          throw new Error("Unexpected or invalid file");
+          throw new Error(t("unexpectedOrInvalidFile"));
         }
 
         const [activationStatus, op] = await activateAccount(
@@ -138,7 +142,7 @@ const Form: React.FC = () => {
         );
 
         if (activationStatus === ActivationStatus.ActivationRequestSent) {
-          setAlert("🛫 Activation request sent! Confirming...");
+          setAlert(t("activationRequestSent", "🛫 Activation"));
           await op!.confirmation();
         }
 
@@ -178,6 +182,7 @@ const Form: React.FC = () => {
       activateAccount,
       importFundraiserAccount,
       setAccountPkh,
+      t,
     ]
   );
 
@@ -190,10 +195,10 @@ const Form: React.FC = () => {
       {alert && (
         <Alert
           type={alert instanceof Error ? "error" : "success"}
-          title={alert instanceof Error ? "Error" : "Success"}
+          title={t(alert instanceof Error ? "error" : "success")}
           description={
             alert instanceof Error
-              ? alert?.message ?? "Something went wrong"
+              ? alert?.message ?? t("smthWentWrong")
               : alert
           }
           className="mb-6"
@@ -210,8 +215,7 @@ const Form: React.FC = () => {
             className={classNames("mt-1", "text-xs font-light text-gray-600")}
             style={{ maxWidth: "90%" }}
           >
-            Drag & drop a file or select it manually by clicking on the area
-            below. You can download it from{" "}
+            {t("faucetFileInputPrompt")}
             <a
               href="https://faucet.tzalpha.net/"
               target="_blank"
@@ -267,16 +271,17 @@ const Form: React.FC = () => {
               color="#e2e8f0"
               className="m-4 mx-auto"
             >
-              <title>{"Upload"}</title>
+              <T id="upload">{(message) => <title>{message}</title>}</T>
               <path d="M12 4v13M7 8l5-5 5 5M20 21H4" />
             </svg>
             <div className="w-full text-center">
               {processing ? (
-                "Processing..."
+                t("processing")
               ) : (
-                <>
-                  Select <b>JSON</b> file
-                </>
+                <T
+                  id="selectFileOfFormat"
+                  substitutions={[<b key="JSON">JSON</b>]}
+                />
               )}
             </div>
           </div>

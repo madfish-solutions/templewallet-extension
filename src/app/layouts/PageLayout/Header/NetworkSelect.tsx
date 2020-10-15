@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useAllNetworks, useNetwork, useSetNetworkId } from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
+import { T } from "lib/ui/i18n";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Name from "app/atoms/Name";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
@@ -30,10 +31,10 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             )}
           >
             <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
-            Networks
+            <T id="networks">{(networks) => <>{networks}</>}</T>
           </h2>
 
-          {allNetworks.map(({ id, name, color, disabled }) => {
+          {allNetworks.map(({ id, name, color, disabled, nameI18nKey }) => {
             const selected = id === network.id;
 
             return (
@@ -80,7 +81,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   className="overflow-hidden text-sm text-white whitespace-no-wrap text-shadow-black"
                   style={{ textOverflow: "ellipsis", maxWidth: "10rem" }}
                 >
-                  {name}
+                  {(nameI18nKey && <T id={nameI18nKey} />) || name}
                 </span>
               </button>
             );
@@ -118,7 +119,10 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             style={{ backgroundColor: network.color }}
           />
 
-          <Name style={{ maxWidth: "7rem" }}>{network.name}</Name>
+          <Name style={{ maxWidth: "7rem" }}>
+            {(network.nameI18nKey && <T id={network.nameI18nKey} />) ||
+              network.name}
+          </Name>
 
           <ChevronDownIcon
             className="ml-1 -mr-1 stroke-current stroke-2"

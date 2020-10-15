@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { ThanosAccount, ThanosAccountType } from "lib/thanos/front";
+import { useTranslation } from "lib/ui/i18n";
 
 type AccountTypeBadgeProps = {
   account: ThanosAccount;
@@ -9,6 +10,7 @@ type AccountTypeBadgeProps = {
 
 const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
   ({ account, darkTheme = false }) => {
+    const { t } = useTranslation();
     if (account.type === ThanosAccountType.HD) return null;
 
     return (
@@ -27,10 +29,10 @@ const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
         {(() => {
           switch (account.type) {
             case ThanosAccountType.Imported:
-              return "Imported";
+              return t("importedAccount");
 
             case ThanosAccountType.Ledger:
-              return "Ledger";
+              return t("ledger");
           }
         })()}
       </span>

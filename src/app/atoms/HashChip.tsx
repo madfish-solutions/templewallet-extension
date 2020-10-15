@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "lib/ui/i18n";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy from "lib/ui/useTippy";
 import classNames from "clsx";
@@ -18,6 +19,7 @@ const HashChip: React.FC<HashChipProps> = ({
   className,
   ...rest
 }) => {
+  const { t } = useTranslation();
   const shortHash = React.useMemo(() => {
     const ln = hash.length;
     return (
@@ -35,13 +37,13 @@ const HashChip: React.FC<HashChipProps> = ({
     () => ({
       trigger: "mouseenter",
       hideOnClick: false,
-      content: copied ? "Copied." : "Copy to clipboard",
+      content: copied ? t("copiedHash") : t("copyHashToClipboard"),
       animation: "shift-away-subtle",
       onHidden() {
         setCopied(false);
       },
     }),
-    [copied, setCopied]
+    [copied, setCopied, t]
   );
 
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);

@@ -22,5 +22,20 @@
   },
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset permissions."
+  },
+  "tezosMainnet": {
+    "message": "Главная сеть Tezos"
+  },
+  "resetExtensionConfirmation": {
+    "message": "Вы уверены, что хотите сбросить ThanosWallet?\nВ результате все Ваши данные будут удалены."
+  },
+  "importedAccount": {
+    "message": "Импортированный"
+  },
+  "copiedHash": {
+    "message": "Скопировано"
+  },
+  "copyHashToClipboard": {
+    "message": "Скопировать хэш в буфер обмена"
   }
 }

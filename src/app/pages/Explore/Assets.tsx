@@ -11,6 +11,7 @@ import {
   ThanosAssetType,
 } from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
+import { T } from "lib/ui/i18n";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import { getAssetIconUrl } from "app/defaults";
 import Balance from "app/templates/Balance";
@@ -238,7 +239,7 @@ const ControlButton = React.memo<ControlButton>(
                       "opacity-75"
                     )}
                   />
-                  Add new Token
+                  <T id="addNewToken" />
                 </Link>
 
                 {asset.type !== ThanosAssetType.XTZ && (
@@ -273,7 +274,7 @@ const ControlButton = React.memo<ControlButton>(
                       "opacity-75"
                     )}
                   />
-                  Hide "{asset.name}" token
+                  <T id="hideSomeToken" substitutions={asset.name} />
                 </button>
               </div>
             </DropdownWrapper>
@@ -342,10 +343,20 @@ const CopyTokenAddress: React.FC<CopyTokenAddressProps> = ({ asset }) => {
         />
 
         <div className="relative">
-          <span className={classNames(copied && "text-transparent")}>
-            Copy "{asset.symbol}" address
-          </span>
-          {copied && <div className="absolute inset-0 text-left">Copied.</div>}
+          <T id="copySomeTokenAddress" substitutions={asset.symbol}>
+            {(message) => (
+              <span className={classNames(copied && "text-transparent")}>
+                {message}
+              </span>
+            )}
+          </T>
+          {copied && (
+            <T id="copiedTokenAddress">
+              {(message) => (
+                <div className="absolute inset-0 text-left">{message}</div>
+              )}
+            </T>
+          )}
         </div>
       </button>
 

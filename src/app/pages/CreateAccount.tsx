@@ -6,7 +6,7 @@ import {
   useAllAccounts,
   useSetAccountPkh,
 } from "lib/thanos/front";
-import { T } from "lib/ui/i18n";
+import { T, useTranslation } from "lib/ui/i18n";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -22,10 +22,12 @@ const CreateAccount: React.FC = () => {
   const { createAccount } = useThanosClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
+  const { t } = useTranslation();
 
-  const defaultName = React.useMemo(() => `Account ${allAccounts.length + 1}`, [
-    allAccounts.length,
-  ]);
+  const defaultName = React.useMemo(
+    () => t("defaultAccountName", String(allAccounts.length + 1)),
+    [allAccounts.length, t]
+  );
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
@@ -82,11 +84,11 @@ const CreateAccount: React.FC = () => {
             ref={register({
               pattern: {
                 value: /^[a-zA-Z0-9 _-]{0,16}$/,
-                message: "1-16 characters, no special",
+                message: t("accountNameInputTitle"),
               },
             })}
-            label="Account name"
-            labelDescription={`What will be the name of the new account?`}
+            label={t("accountName")}
+            labelDescription={t("accountNameInputDescription")}
             id="create-account-name"
             type="text"
             name="name"
@@ -95,9 +97,13 @@ const CreateAccount: React.FC = () => {
             containerClassName="mb-4"
           />
 
-          <FormSubmitButton loading={submitting}>
-            Create Account
-          </FormSubmitButton>
+          <T id="createAccount">
+            {(message) => (
+              <FormSubmitButton className="capitalize" loading={submitting}>
+                {message}
+              </FormSubmitButton>
+            )}
+          </T>
         </form>
       </div>
     </PageLayout>
