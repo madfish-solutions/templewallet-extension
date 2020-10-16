@@ -1,7 +1,7 @@
 import * as React from "react";
 import useSafeState from "lib/ui/useSafeState";
 import Alert from "app/atoms/Alert";
-import HashChip from "app/atoms/HashChip";
+import HashChip from "app/layouts/HashChip";
 
 type OperationStatusProps = {
   typeTitle: string;
