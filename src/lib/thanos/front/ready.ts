@@ -8,8 +8,8 @@ import {
   ThanosAsset,
   usePassiveStorage,
   useThanosClient,
+  domainsResolverFactory,
 } from "lib/thanos/front";
-import { domainsResolverFactory } from "./tzdns";
 
 export enum ActivationStatus {
   ActivationRequestSent,
