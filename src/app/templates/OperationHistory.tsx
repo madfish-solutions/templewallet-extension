@@ -18,7 +18,7 @@ import {
 import useTippy from "lib/ui/useTippy";
 import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
-import HashChip from "app/atoms/HashChip";
+import HashChip from "app/layouts/HashChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";

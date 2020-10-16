@@ -9,6 +9,7 @@ import {
   usePassiveStorage,
   useThanosClient,
 } from "lib/thanos/front";
+import { domainsResolverFactory } from "./tzdns";
 
 export enum ActivationStatus {
   ActivationRequestSent,
@@ -25,7 +26,7 @@ export const [
   useAccount,
   useSettings,
   useTezos,
-  useAllAssetsRef,
+  useTezosDomains,
 ] = constate(
   useReadyThanos,
   (v) => v.allNetworks,
@@ -36,7 +37,7 @@ export const [
   (v) => v.account,
   (v) => v.settings,
   (v) => v.tezos,
-  (v) => v.allAssetsRef
+  (v) => v.tezosDomains
 );
 
 function useReadyThanos() {
@@ -116,16 +117,16 @@ function useReadyThanos() {
     return t;
   }, [createTaquitoSigner, createTaquitoWallet, network, accountPkh]);
 
+  const tezosDomains = React.useMemo(
+    () => domainsResolverFactory(tezos, network.id),
+    [tezos, network.id]
+  );
+
   React.useEffect(() => {
     if (process.env.NODE_ENV === "development") {
       (window as any).tezos = tezos;
     }
   }, [tezos]);
-
-  /**
-   * All assets reference(cache), needed for pretty network reselect
-   */
-  const allAssetsRef = React.useRef<ThanosAsset[]>([]);
 
   return {
     allNetworks,
@@ -140,8 +141,22 @@ function useReadyThanos() {
 
     settings,
     tezos,
-    allAssetsRef,
+    tezosDomains,
   };
+}
+
+export const [ThanosRefsProvider, useAllAssetsRef] = constate(
+  useRefs,
+  (v) => v.allAssetsRef
+);
+
+function useRefs() {
+  /**
+   * All assets reference(cache), needed for pretty network reselect
+   */
+  const allAssetsRef = React.useRef<ThanosAsset[]>([]);
+
+  return { allAssetsRef };
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {

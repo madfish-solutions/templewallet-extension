@@ -1,11 +1,17 @@
 import * as React from "react";
 import classNames from "clsx";
+import useSWR from "swr";
 import { Link } from "lib/woozie";
-import { useAccount } from "lib/thanos/front";
+import {
+  resolveReverseName,
+  useAccount,
+  useTezosDomains,
+} from "lib/thanos/front";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
-import HashChip from "app/atoms/HashChip";
+import CopyButton from "app/atoms/CopyButton";
+import HashChip from "app/layouts/HashChip";
 import Spinner from "app/atoms/Spinner";
 import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
@@ -18,6 +24,12 @@ import BakingSection from "./Explore/BakingSection";
 const Explore: React.FC = () => {
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
+  const tezosDomains = useTezosDomains();
+  const { data: reverseName } = useSWR(
+    () => ["resolve-reverse-name", accountPkh, tezosDomains],
+    resolveReverseName,
+    { shouldRetryOnError: false }
+  );
 
   return (
     <PageLayout
@@ -33,7 +45,15 @@ const Explore: React.FC = () => {
       <hr className="mb-4" />
 
       <div className="flex flex-col items-center">
-        <HashChip hash={accountPkh} className="mb-6" />
+        <div className="flex flex-row items-center mb-6">
+          {reverseName && (
+            <CopyButton className="mr-2" text={reverseName}>
+              {reverseName}
+            </CopyButton>
+          )}
+
+          <HashChip hash={accountPkh} />
+        </div>
 
         <div style={{ minHeight: "12rem" }}>
           <SuspenseContainer
