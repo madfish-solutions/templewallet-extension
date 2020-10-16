@@ -11,7 +11,7 @@ import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
 import CopyButton from "app/atoms/CopyButton";
-import HashChip from "app/layouts/HashChip";
+import HashChip from "app/templates/HashChip";
 import Spinner from "app/atoms/Spinner";
 import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
