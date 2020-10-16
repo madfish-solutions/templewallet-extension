@@ -3,7 +3,7 @@ import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import { useAllAccounts, useAccount, useKnownBaker } from "lib/thanos/front";
 import Name from "app/atoms/Name";
-import HashChip from "app/layouts/HashChip";
+import HashChip from "app/templates/HashChip";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
 
