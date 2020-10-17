@@ -841,7 +841,7 @@
     }
   },
   "notEnoughFunds": {
-    "message": "Not enough $currency$funds 😶",
+    "message": "Not enough $currency$ funds 😶",
     "placeholders": {
       "currency": {
         "content": "$1"
