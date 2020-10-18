@@ -3,12 +3,17 @@ import { FetchedLocaleMessages, LocaleMessages, Substitutions } from "./types";
 import { areLocalesEqual, processTemplate, toList } from "./helpers";
 import { getSavedLocale } from "./saving";
 
-const fetchedLocaleMessages: FetchedLocaleMessages = {
+let fetchedLocaleMessages: FetchedLocaleMessages = {
   target: null,
   fallback: null,
 };
 
 export async function init() {
+  const refetched: FetchedLocaleMessages = {
+    target: null,
+    fallback: null,
+  };
+
   const saved = getSavedLocale();
 
   if (saved) {
@@ -18,18 +23,20 @@ export async function init() {
       // Fetch target locale messages if needed
       (async () => {
         if (!areLocalesEqual(saved, native)) {
-          fetchedLocaleMessages.target = await fetchLocaleMessages(saved);
+          refetched.target = await fetchLocaleMessages(saved);
         }
       })(),
       // Fetch fallback locale messages if needed
       (async () => {
         const deflt = getDefaultLocale();
         if (!areLocalesEqual(deflt, native) && !areLocalesEqual(deflt, saved)) {
-          fetchedLocaleMessages.fallback = await fetchLocaleMessages(deflt);
+          refetched.fallback = await fetchLocaleMessages(deflt);
         }
       })(),
     ]);
   }
+
+  fetchedLocaleMessages = refetched;
 }
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {
