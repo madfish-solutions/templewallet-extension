@@ -3,15 +3,21 @@ import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
-import { TezosToolkit, CompositeForger, RpcForger } from "@taquito/taquito";
+import {
+  TezosToolkit,
+  CompositeForger,
+  RpcForger,
+  Signer,
+} from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
-// import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
+// import { LedgerThanosBridgeTransport } from "@thanos-wallet/ledger-bridge";
 import Transport from "@ledgerhq/hw-transport";
 import {
   BridgeExchangeRequest,
   BridgeMessageType,
   BridgeResponse,
 } from "@thanos-wallet/ledger-bridge";
+
 import { DerivationType } from "@taquito/ledger-signer";
 import * as Passworder from "lib/thanos/passworder";
 import {
@@ -314,28 +320,33 @@ export class Vault {
     return withError("Failed to connect Ledger account", async () => {
       if (!derivationPath) derivationPath = getMainDerivationPath(0);
 
-      const ledgerSigner = await createLedgerSigner(derivationPath);
-      const accPublicKey = await ledgerSigner.publicKey();
-      const accPublicKeyHash = await ledgerSigner.publicKeyHash();
+      const { signer, cleanup } = await createLedgerSigner(derivationPath);
 
-      const newAccount: ThanosAccount = {
-        type: ThanosAccountType.Ledger,
-        name,
-        publicKeyHash: accPublicKeyHash,
-        derivationPath,
-      };
-      const allAccounts = await this.fetchAccounts();
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
+      try {
+        const accPublicKey = await signer.publicKey();
+        const accPublicKeyHash = await signer.publicKeyHash();
 
-      await encryptAndSaveMany(
-        [
-          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-          [accountsStrgKey, newAllAcounts],
-        ],
-        this.passKey
-      );
+        const newAccount: ThanosAccount = {
+          type: ThanosAccountType.Ledger,
+          name,
+          publicKeyHash: accPublicKeyHash,
+          derivationPath,
+        };
+        const allAccounts = await this.fetchAccounts();
+        const newAllAcounts = concatAccount(allAccounts, newAccount);
 
-      return newAllAcounts;
+        await encryptAndSaveMany(
+          [
+            [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+            [accountsStrgKey, newAllAcounts],
+          ],
+          this.passKey
+        );
+
+        return newAllAcounts;
+      } finally {
+        cleanup();
+      }
     });
   }
 
@@ -376,37 +387,51 @@ export class Vault {
   }
 
   async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {
-    return withError("Failed to sign", async () => {
-      const signer = await this.getSigner(accPublicKeyHash);
-      const watermarkBuf = watermark
-        ? TaquitoUtils.hex2buf(watermark)
-        : undefined;
-      return signer.sign(bytes, watermarkBuf);
-    });
+    return withError("Failed to sign", () =>
+      this.withSigner(accPublicKeyHash, async (signer) => {
+        const watermarkBuf = watermark
+          ? TaquitoUtils.hex2buf(watermark)
+          : undefined;
+        return signer.sign(bytes, watermarkBuf);
+      })
+    );
   }
 
   async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
-    const batch = await withError("Failed to send operations", async () => {
-      const signer = await this.getSigner(accPublicKeyHash);
-      const tezos = new TezosToolkit();
-      const forger = new CompositeForger([
-        tezos.getFactory(RpcForger)(),
-        localForger,
-      ]);
-      tezos.setProvider({ rpc, signer, forger });
-      return tezos.batch(opParams.map(formatOpParams));
-    });
+    return this.withSigner(accPublicKeyHash, async (signer) => {
+      const batch = await withError("Failed to send operations", async () => {
+        const tezos = new TezosToolkit();
+        const forger = new CompositeForger([
+          tezos.getFactory(RpcForger)(),
+          localForger,
+        ]);
+        tezos.setProvider({ rpc, signer, forger });
+        return tezos.batch(opParams.map(formatOpParams));
+      });
 
-    try {
-      return await batch.send();
-    } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
+      try {
+        return await batch.send();
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+
+        throw err instanceof PublicError
+          ? err
+          : new Error(`__tezos__${err.message}`);
       }
+    });
+  }
 
-      throw err instanceof PublicError
-        ? err
-        : new Error(`__tezos__${err.message}`);
+  private async withSigner<T>(
+    accPublicKeyHash: string,
+    factory: (signer: Signer) => Promise<T>
+  ) {
+    const { signer, cleanup } = await this.getSigner(accPublicKeyHash);
+    try {
+      return await factory(signer);
+    } finally {
+      cleanup();
     }
   }
 
@@ -433,7 +458,10 @@ export class Vault {
           accPrivKeyStrgKey(accPublicKeyHash),
           this.passKey
         );
-        return createMemorySigner(privateKey);
+        return createMemorySigner(privateKey).then((signer) => ({
+          signer,
+          cleanup: () => {},
+        }));
     }
   }
 }
@@ -544,15 +572,30 @@ async function createLedgerSigner(
   publicKey?: string,
   publicKeyHash?: string
 ) {
-  const transport = await LedgerThanosBridgeTransport.open();
-  return new ThanosLedgerSigner(
-    transport,
-    derivationPath,
-    true,
-    DerivationType.tz1,
-    publicKey,
-    publicKeyHash
-  );
+  try {
+    const bridgeUrl = process.env.THANOS_WALLET_LEDGER_BRIDGE_URL;
+    if (!bridgeUrl) {
+      throw new Error(
+        "Require a 'THANOS_WALLET_LEDGER_BRIDGE_URL' environment variable to be set"
+      );
+    }
+
+    const transport = await LedgerThanosBridgeTransport.open(bridgeUrl);
+    const cleanup = () => transport.close();
+    const signer = new ThanosLedgerSigner(
+      transport,
+      derivationPath,
+      true,
+      DerivationType.tz1,
+      publicKey,
+      publicKeyHash
+    );
+
+    return { signer, cleanup };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
@@ -599,16 +642,11 @@ async function withError<T>(
       throw new Error("<stub>");
     });
   } catch (err) {
-    throw err instanceof PublicError ? err : new Error(errMessage);
+    throw err instanceof PublicError ? err : new PublicError(errMessage);
   }
 }
 
-/**
- * SHITSHITSHITSHITSHITSHITSHIT
- * SHITSHITSHITSHITSHITSHITSHIT
- */
-
-class LedgerThanosBridgeTransport extends Transport {
+export class LedgerThanosBridgeTransport extends Transport {
   static async isSupported() {
     return true;
   }
@@ -625,8 +663,7 @@ class LedgerThanosBridgeTransport extends Transport {
     };
   }
 
-  static async open() {
-    const bridgeUrl = "https://thanoswallet.com/ledger-bridge";
+  static async open(bridgeUrl: string) {
     const iframe = document.createElement("iframe");
     iframe.src = bridgeUrl;
     document.head.appendChild(iframe);
@@ -637,29 +674,35 @@ class LedgerThanosBridgeTransport extends Transport {
       };
       iframe.addEventListener("load", handleLoad);
     });
-    return new LedgerThanosBridgeTransport(iframe, bridgeUrl);
+    return new LedgerThanosBridgeTransport(iframe);
   }
 
   scrambleKey?: Buffer;
-  unwrap?: boolean;
 
-  constructor(private iframe: HTMLIFrameElement, private bridgeUrl: string) {
+  constructor(private iframe: HTMLIFrameElement) {
     super();
+  }
+
+  get origin() {
+    const tmp = this.iframe.src.split("/");
+    tmp.splice(-1, 1);
+    return tmp.join("/");
   }
 
   exchange(apdu: Buffer) {
     return new Promise<Buffer>(async (resolve, reject) => {
+      const exchangeTimeout: number = (this as any).exchangeTimeout;
       const msg: BridgeExchangeRequest = {
         type: BridgeMessageType.ExchangeRequest,
         apdu: apdu.toString("hex"),
         scrambleKey: this.scrambleKey?.toString("ascii"),
-        exchangeTimeout: (this as any).exchangeTimeout,
+        exchangeTimeout,
       };
+
       this.iframe.contentWindow?.postMessage(msg, "*");
 
       const handleMessage = (evt: MessageEvent) => {
-        console.info("gott", evt.data);
-        if (evt.origin !== this.getOrigin()) {
+        if (evt.origin !== this.origin) {
           return;
         }
 
@@ -685,17 +728,7 @@ class LedgerThanosBridgeTransport extends Transport {
     this.scrambleKey = Buffer.from(scrambleKey, "ascii");
   }
 
-  setUnwrap(unwrap: boolean) {
-    this.unwrap = unwrap;
-  }
-
   async close() {
     document.head.removeChild(this.iframe);
-  }
-
-  private getOrigin() {
-    const tmp = this.bridgeUrl.split("/");
-    tmp.splice(-1, 1);
-    return tmp.join("/");
   }
 }

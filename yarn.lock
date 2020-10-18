@@ -1215,15 +1215,6 @@
     "@ledgerhq/logs" "^5.23.0"
     rxjs "^6.6.3"
 
-"@ledgerhq/devices@^5.25.0":
-  version "5.25.0"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/devices/-/devices-5.25.0.tgz#c9522d7495e7be41fad59eb7d5e4e3e1030fd205"
-  integrity sha512-3wsxVDkUYd5ERA5KVy99wEGbHAkfsuWbQ8b2ruzr8JX9wIxUS8mu1XkdoDt5M+H4jXP9C8ZGj9YT3VsiiIzfxg==
-  dependencies:
-    "@ledgerhq/errors" "^5.25.0"
-    "@ledgerhq/logs" "^5.25.0"
-    rxjs "^6.6.3"
-
 "@ledgerhq/devices@^5.26.0":
   version "5.26.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/devices/-/devices-5.26.0.tgz#6c25ee48d0d2f49a8fa1abc11f3efd888f3fea68"
@@ -1237,11 +1228,6 @@
   version "5.23.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-5.23.0.tgz#30a0338dafba8264556011604abed08bf24979f3"
   integrity sha512-qtpX8aFrUUlYfOMu7BxTvxqUa8CniE+tEBpVEjYUhVbFdVJjM4ouwJD++RtQkMAU2c5jE7xb12WnUnf5BlAgLQ==
-
-"@ledgerhq/errors@^5.25.0":
-  version "5.25.0"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-5.25.0.tgz#2a24b7ad6a88719046de4fcdf0b4c27b9ba79523"
-  integrity sha512-+FyyweA9odaWRwRkS35Wf0n2gC4tGsBlgW6VMhT7m1kcwVzUqNFyQzqMKqYvYEAga0P0X59wE+IAlqokkG7Usg==
 
 "@ledgerhq/errors@^5.26.0":
   version "5.26.0"
@@ -1273,15 +1259,15 @@
     node-hid "1.3.0"
     usb "^1.6.3"
 
-"@ledgerhq/hw-transport-webauthn@5.25.0":
-  version "5.25.0"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-webauthn/-/hw-transport-webauthn-5.25.0.tgz#62e22a45a67ac51664fb91a4af0f2f586adbdfa9"
-  integrity sha512-+3zKnQgSfjFST4O6QhNbwPHH0ZE3Rs9abgdTkYi5AB7WPX/s+u1HM//8mnGdcJeuniMe90DBwCjcuZd0o6ebWQ==
+"@ledgerhq/hw-transport-webauthn@^5.26.0":
+  version "5.26.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-webauthn/-/hw-transport-webauthn-5.26.0.tgz#82ff0968598c36c091d22ef26ca1a70a61a55bef"
+  integrity sha512-W0ggl473hMWXPHqpFPLl2UipMXXhnpAc/Fyxqi/lz8Mk+i1oWAL2l9fWLxzOKS8GP6QV4Jc7YLB0usjQHH47ZA==
   dependencies:
-    "@ledgerhq/devices" "^5.25.0"
-    "@ledgerhq/errors" "^5.25.0"
-    "@ledgerhq/hw-transport" "^5.25.0"
-    "@ledgerhq/logs" "^5.25.0"
+    "@ledgerhq/devices" "^5.26.0"
+    "@ledgerhq/errors" "^5.26.0"
+    "@ledgerhq/hw-transport" "^5.26.0"
+    "@ledgerhq/logs" "^5.26.0"
 
 "@ledgerhq/hw-transport@^5.21.0", "@ledgerhq/hw-transport@^5.23.0":
   version "5.23.0"
@@ -1290,15 +1276,6 @@
   dependencies:
     "@ledgerhq/devices" "^5.23.0"
     "@ledgerhq/errors" "^5.23.0"
-    events "^3.2.0"
-
-"@ledgerhq/hw-transport@^5.25.0":
-  version "5.25.0"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport/-/hw-transport-5.25.0.tgz#e04e2130fedcb433ee68f25125e6ac49efa0aede"
-  integrity sha512-q6hhWWwbSZPmzdTaQMowY+uQYwCC4xRqRQFQFgF6BjZFn2n+AwGOEU9mDmHnjL6XxkQfj8CjWuPJSRRv5OLmlg==
-  dependencies:
-    "@ledgerhq/devices" "^5.25.0"
-    "@ledgerhq/errors" "^5.25.0"
     events "^3.2.0"
 
 "@ledgerhq/hw-transport@^5.26.0":
@@ -1314,11 +1291,6 @@
   version "5.23.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/logs/-/logs-5.23.0.tgz#7a86b1e6479c8aa8e8b9affe00eb8e369efdbc3b"
   integrity sha512-88M8RkVHl44k6MAhfrYhx25opnJV24/2XpuTUVklID11f9rBdE+6RZ9OMs39dyX2sDv7TuzIPi5nTRoCqZMDYw==
-
-"@ledgerhq/logs@^5.25.0":
-  version "5.25.0"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/logs/-/logs-5.25.0.tgz#94dd930a33fd05e3897532f554e31397a45247b6"
-  integrity sha512-OPlkvufjwJWQR+Jp7C6GaEeub+ZHzh3x0xyQMVLL62O7VGrhpzjwq2il/aLNt687k7mKJ+Vg6lFL1B6gO1ZiIg==
 
 "@ledgerhq/logs@^5.26.0":
   version "5.26.0"
@@ -1616,18 +1588,13 @@
   dependencies:
     nanoid "^3.1.10"
 
-"@thanos-wallet/ledger-bridge@madfish-solutions/thanoswallet-ledger-bridge#80cd84d0296dd6430d2ffce6b6b19b089b3a245c":
+"@thanos-wallet/ledger-bridge@0.1.0":
   version "0.1.0"
-  resolved "https://codeload.github.com/madfish-solutions/thanoswallet-ledger-bridge/tar.gz/80cd84d0296dd6430d2ffce6b6b19b089b3a245c"
+  resolved "https://registry.yarnpkg.com/@thanos-wallet/ledger-bridge/-/ledger-bridge-0.1.0.tgz#d3c5607544f893effae3277fb72b742beda9ce87"
+  integrity sha512-oCidNmHlCPPv2XbmGOj+1JanjQ4xSdoKNMK5q1JcdK/6c1ZiKIKocCjO5nULt8QgGxKbG6J3NXy39rUtwodH1A==
   dependencies:
     "@ledgerhq/hw-transport" "^5.26.0"
     "@types/ledgerhq__hw-transport" "^4.21.3"
-
-"@thanos-wallet/ledger-bridge@madfish-solutions/thanoswallet-ledger-bridge#a74ae7cc0a1b2477e141b827a5454d07f47ebbe2":
-  version "0.1.0"
-  resolved "https://codeload.github.com/madfish-solutions/thanoswallet-ledger-bridge/tar.gz/a74ae7cc0a1b2477e141b827a5454d07f47ebbe2"
-  dependencies:
-    "@ledgerhq/hw-transport" "^5.26.0"
 
 "@types/anymatch@*":
   version "1.3.1"
