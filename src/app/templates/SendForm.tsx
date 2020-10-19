@@ -397,7 +397,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       if (isDomainNameValid(value)) {
         const resolved = await resolveDomainName("", value, tezosDomains);
         if (!resolved) {
-          return `Domain ${value} didn't resolve to an address`;
+          return `Domain "${value}" doesn't resolve to an address`;
         }
 
         value = resolved;
