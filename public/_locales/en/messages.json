@@ -1230,5 +1230,14 @@
   },
   "upload": {
     "message": "Upload"
+  },
+  "languageAndCountry": {
+    "message": "Language and country"
+  },
+  "generalSettings": {
+    "message": "General Settings"
+  },
+  "generalSettingsDescription": {
+    "message": "General application settings."
   }
 }

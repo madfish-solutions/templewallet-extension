@@ -32,6 +32,7 @@ const DropdownWrapper: React.FC<DropdownWrapperProps> = ({
   >
     <div
       className={classNames(
+        "bg-white",
         "mt-2",
         "border",
         "rounded-md",
@@ -41,11 +42,7 @@ const DropdownWrapper: React.FC<DropdownWrapperProps> = ({
         process.env.TARGET_BROWSER === "firefox" && "grayscale-firefox-fix",
         className
       )}
-      style={{
-        backgroundColor: "#1b262c",
-        borderColor: "#212e36",
-        ...style,
-      }}
+      style={style}
       {...rest}
     />
   </CSSTransition>
