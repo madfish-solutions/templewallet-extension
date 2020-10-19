@@ -3,6 +3,7 @@ import CopyButton from "app/atoms/CopyButton";
 
 type HashChipProps = React.HTMLAttributes<HTMLButtonElement> & {
   hash: string;
+  trimAfter?: number;
   firstCharsCount?: number;
   lastCharsCount?: number;
   small?: boolean;
@@ -10,24 +11,27 @@ type HashChipProps = React.HTMLAttributes<HTMLButtonElement> & {
 
 const HashChip: React.FC<HashChipProps> = ({
   hash,
+  trimAfter = 20,
   firstCharsCount = 7,
   lastCharsCount = 4,
   ...rest
 }) => {
-  const shortHash = React.useMemo(() => {
+  const trimmedHash = React.useMemo(() => {
     const ln = hash.length;
-    return (
+    return ln > trimAfter ? (
       <>
         {hash.slice(0, firstCharsCount)}
         <span className="opacity-75">...</span>
         {hash.slice(ln - lastCharsCount, ln)}
       </>
+    ) : (
+      hash
     );
-  }, [hash, firstCharsCount, lastCharsCount]);
+  }, [hash, trimAfter, firstCharsCount, lastCharsCount]);
 
   return (
     <CopyButton text={hash} {...rest}>
-      {shortHash}
+      {trimmedHash}
     </CopyButton>
   );
 };
