@@ -13,7 +13,7 @@ import Money from "app/atoms/Money";
 import Balance from "app/templates/Balance";
 import IconifiedSelect, {
   IconifiedSelectOptionRenderProps,
-} from "./IconifiedSelect";
+} from "app/templates/IconifiedSelect";
 
 type AssetSelectProps = {
   value: ThanosAsset;
@@ -58,6 +58,7 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
 
   return (
     <IconifiedSelect
+      iconContainerClassName="h-8 w-8"
       Icon={AssetIcon}
       OptionInMenuContent={AssetInMenuContent}
       OptionSelectedContent={AssetSelectedContent}

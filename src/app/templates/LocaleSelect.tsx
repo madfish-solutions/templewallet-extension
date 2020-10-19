@@ -2,11 +2,11 @@ import React, { useMemo, useCallback } from "react";
 import classNames from "clsx";
 import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
 import { getUILanguageFallback, T } from "lib/ui/i18n";
-import { ReactComponent as USFlag } from "app/misc/country-flags/us.svg";
-import { ReactComponent as RUFlag } from "app/misc/country-flags/ru.svg";
 import IconifiedSelect, {
   IconifiedSelectOptionRenderProps,
 } from "./IconifiedSelect";
+import Flag from "app/atoms/Flag";
+import { browser } from "webextension-polyfill-ts";
 
 type LocaleSelectProps = {
   className?: string;
@@ -14,19 +14,19 @@ type LocaleSelectProps = {
 
 type LocaleOption = {
   code: string;
-  Flag: React.ComponentType<React.HTMLAttributes<unknown>>;
+  flagName: string;
   label: string;
 };
 
 const localeOptions: LocaleOption[] = [
   {
     code: "en",
-    Flag: USFlag,
+    flagName: "us",
     label: "English",
   },
   {
     code: "ru",
-    Flag: RUFlag,
+    flagName: "ru",
     label: "Russian (Русский)",
   },
 ];
@@ -82,8 +82,13 @@ const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
 export default LocaleSelect;
 
 const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
-  option: { Flag },
-}) => <Flag className="h-8 w-auto" />;
+  option: { flagName, code },
+}) => (
+  <Flag
+    alt={code}
+    src={browser.runtime.getURL(`/misc/country-flags/${flagName}.svg`)}
+  />
+);
 
 const LocaleInMenuContent: React.FC<IconifiedSelectOptionRenderProps<
   LocaleOption

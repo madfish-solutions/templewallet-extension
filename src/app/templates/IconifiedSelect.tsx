@@ -15,6 +15,7 @@ type IconifiedSelectRenderComponent<T> = React.ComponentType<
 >;
 
 type IconifiedSelectProps<T> = {
+  iconContainerClassName?: string;
   Icon: IconifiedSelectRenderComponent<T>;
   OptionInMenuContent: IconifiedSelectRenderComponent<T>;
   OptionSelectedContent: IconifiedSelectRenderComponent<T>;
@@ -36,6 +37,7 @@ const IconifiedSelect = <T extends unknown>({
   onChange,
   className,
   title,
+  iconContainerClassName,
 }: IconifiedSelectProps<T>) => {
   return (
     <div className={className}>
@@ -49,6 +51,7 @@ const IconifiedSelect = <T extends unknown>({
             modifiers={[sameWidth]}
             popup={({ opened, setOpened, toggleOpened }) => (
               <IconifiedSelectMenu
+                iconContainerClassName={iconContainerClassName}
                 opened={opened}
                 setOpened={setOpened}
                 toggleOpened={toggleOpened}
@@ -63,6 +66,7 @@ const IconifiedSelect = <T extends unknown>({
           >
             {({ ref, toggleOpened }) => (
               <SelectButton
+                iconContainerClassName={iconContainerClassName}
                 ref={ref}
                 Content={OptionSelectedContent}
                 Icon={Icon}
@@ -76,6 +80,7 @@ const IconifiedSelect = <T extends unknown>({
       ) : (
         <SelectButton
           Icon={Icon}
+          iconContainerClassName={iconContainerClassName}
           Content={OptionSelectedContent}
           value={value}
         />
@@ -96,6 +101,7 @@ const IconifiedSelectMenu = <T extends unknown>(
   props: IconifiedSelectMenuProps<T>
 ) => {
   const {
+    iconContainerClassName,
     opened,
     setOpened,
     onChange,
@@ -123,6 +129,7 @@ const IconifiedSelectMenu = <T extends unknown>(
     >
       {options.map((option) => (
         <IconifiedSelectOption
+          iconContainerClassName={iconContainerClassName}
           key={getKey(option)}
           value={option}
           selected={getKey(option) === getKey(value)}
@@ -137,7 +144,7 @@ const IconifiedSelectMenu = <T extends unknown>(
 
 type IconifiedSelectOptionProps<T> = Pick<
   IconifiedSelectProps<T>,
-  "Icon" | "OptionInMenuContent" | "value"
+  "Icon" | "OptionInMenuContent" | "value" | "iconContainerClassName"
 > & {
   value: T;
   selected: boolean;
@@ -147,7 +154,14 @@ type IconifiedSelectOptionProps<T> = Pick<
 const IconifiedSelectOption = <T extends unknown>(
   props: IconifiedSelectOptionProps<T>
 ) => {
-  const { value, selected, onClick, Icon, OptionInMenuContent } = props;
+  const {
+    iconContainerClassName,
+    value,
+    selected,
+    onClick,
+    Icon,
+    OptionInMenuContent,
+  } = props;
 
   const handleClick = useCallback(() => {
     onClick?.(value);
@@ -171,7 +185,7 @@ const IconifiedSelectOption = <T extends unknown>(
       autoFocus={selected}
       onClick={handleClick}
     >
-      <div className="mr-3">
+      <div className={classNames("mr-3", iconContainerClassName)}>
         <Icon option={value} />
       </div>
 
@@ -181,13 +195,27 @@ const IconifiedSelectOption = <T extends unknown>(
 };
 
 type SelectButtonProps = React.HTMLAttributes<HTMLButtonElement> &
-  Pick<IconifiedSelectProps<any>, "Icon" | "value"> & {
+  Pick<
+    IconifiedSelectProps<any>,
+    "Icon" | "value" | "iconContainerClassName"
+  > & {
     Content: IconifiedSelectProps<any>["OptionSelectedContent"];
     dropdown?: boolean;
   };
 
 const SelectButton = React.forwardRef<HTMLButtonElement, SelectButtonProps>(
-  ({ Content, Icon, value, dropdown, className, ...rest }, ref) => {
+  (
+    {
+      Content,
+      Icon,
+      value,
+      dropdown,
+      iconContainerClassName,
+      className,
+      ...rest
+    },
+    ref
+  ) => {
     return (
       <button
         ref={ref}
@@ -201,7 +229,7 @@ const SelectButton = React.forwardRef<HTMLButtonElement, SelectButtonProps>(
         )}
         {...rest}
       >
-        <div className="mr-3">
+        <div className={classNames("mr-3", iconContainerClassName)}>
           <Icon option={value} />
         </div>
 
