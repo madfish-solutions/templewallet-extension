@@ -116,7 +116,11 @@ const IconifiedSelectMenu = <T extends unknown>(
   );
 
   return (
-    <DropdownWrapper opened={opened} className="origin-top-right">
+    <DropdownWrapper
+      opened={opened}
+      className="origin-top-right"
+      style={{ background: "white", border: "none" }}
+    >
       {options.map((option) => (
         <IconifiedSelectOption
           key={getKey(option)}

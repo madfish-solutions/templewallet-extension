@@ -2,8 +2,8 @@ import React, { useMemo, useCallback } from "react";
 import classNames from "clsx";
 import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
 import { getUILanguageFallback, T } from "lib/ui/i18n";
-import { ReactComponent as USFlag } from "app/country-flags/us.svg";
-import { ReactComponent as RUFlag } from "app/country-flags/ru.svg";
+import { ReactComponent as USFlag } from "app/misc/country-flags/us.svg";
+import { ReactComponent as RUFlag } from "app/misc/country-flags/ru.svg";
 import IconifiedSelect, {
   IconifiedSelectOptionRenderProps,
 } from "./IconifiedSelect";
