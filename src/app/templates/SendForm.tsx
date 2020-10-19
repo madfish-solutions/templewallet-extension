@@ -498,7 +498,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
               )
             </div>
           ) : (
-            `Address to send ${localAsset.symbol} funds to.`
+            `Address or Tezos domain to send ${localAsset.symbol} funds to.`
           )
         }
         placeholder={
@@ -514,8 +514,15 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       />
 
       {resolvedAddress && (
-        <div className="mb-4 text-gray-700">
-          Resolved address: {resolvedAddress}
+        <div
+          className={classNames(
+            "mb-4 -mt-3",
+            "text-xs font-light text-gray-600",
+            "flex flex-wrap items-center"
+          )}
+        >
+          <span className="mr-1 whitespace-no-wrap">Resolved address:</span>
+          <span className="font-normal">{resolvedAddress}</span>
         </div>
       )}
 
