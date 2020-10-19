@@ -1563,7 +1563,7 @@
     rx-sandbox "^1.0.3"
     rxjs "^6.6.2"
 
-"@taquito/utils@^6.3.5-beta.0":
+"@taquito/utils@6.3.5-beta.0", "@taquito/utils@^6.3.5-beta.0":
   version "6.3.5-beta.0"
   resolved "https://registry.yarnpkg.com/@taquito/utils/-/utils-6.3.5-beta.0.tgz#a4101d384ccc966591b38db77456cb2a36a13963"
   integrity sha512-EFzDnTXMctbIEnt3yfgqPmogwxR2jTYnAZqxGOgfycYlZQWGNAfvgW5KFMlhYPAfYEAU/2euvE5BYMgnexBIOA==
