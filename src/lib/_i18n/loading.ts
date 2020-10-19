@@ -1,6 +1,6 @@
 import { browser } from "webextension-polyfill-ts";
 import { init } from "./core";
-import { setSavedLocale } from "./saving";
+import { saveLocale } from "./saving";
 
 export const REFRESH_MSGTYPE = "THANOS_I18N_REFRESH";
 
@@ -21,7 +21,7 @@ export function onInited(callback: () => void) {
 }
 
 export function updateLocale(locale: string) {
-  setSavedLocale(locale);
+  saveLocale(locale);
   refresh();
 }
 
