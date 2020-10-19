@@ -23,8 +23,8 @@ import {
   ThanosAssetType,
   isKTAddress,
   useTezosDomains,
+  resolveDomainAddress,
   isDomainNameValid,
-  resolveDomainName,
   useNetwork,
   isTzdnsSupportedNetwork,
 } from "lib/thanos/front";
@@ -161,10 +161,14 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     [toValue]
   );
 
+  const domainAddressFactory = React.useCallback(
+    () => resolveDomainAddress(tezosDomains, toValue),
+    [tezosDomains, toValue]
+  );
   const { data: resolvedAddress } = useSWR(
-    ["resolve-domain", toValue, tezosDomains],
-    resolveDomainName,
-    { shouldRetryOnError: false }
+    ["tzdns-address", tezos.checksum, toValue],
+    domainAddressFactory,
+    { shouldRetryOnError: false, revalidateOnFocus: false }
   );
 
   const toFilled = React.useMemo(
@@ -395,7 +399,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
 
       if (isDomainNameValid(value)) {
-        const resolved = await resolveDomainName("", value, tezosDomains);
+        const resolved = await resolveDomainAddress(tezosDomains, value);
         if (!resolved) {
           return `Domain "${value}" doesn't resolve to an address`;
         }
