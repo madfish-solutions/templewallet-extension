@@ -40,7 +40,7 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
   return (
     <div className={classNames("flex items-center", className)}>
       {reverseName && domainDisplayed ? (
-        <HashChip hash={reverseName} firstCharsCount={5} lastCharsCount={8} />
+        <HashChip hash={reverseName} firstCharsCount={7} lastCharsCount={10} />
       ) : (
         <HashChip hash={pkh} />
       )}
