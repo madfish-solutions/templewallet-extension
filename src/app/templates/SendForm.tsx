@@ -537,7 +537,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                 return (
                   <Alert
                     type="warn"
-                    title="Attension!"
+                    title="Attention!"
                     description={
                       <>
                         You're trying to transfer funds to yourself.
