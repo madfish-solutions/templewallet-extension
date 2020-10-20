@@ -3,6 +3,7 @@ import * as Woozie from "lib/woozie";
 import { ThanosProvider } from "lib/thanos/front";
 import { AppEnvProvider } from "app/env";
 import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
+import AwaitI18N from "app/a11y/AwaitI18N";
 import AwaitFonts from "app/a11y/AwaitFonts";
 import BootAnimation from "app/a11y/BootAnimation";
 import RootSuspenseFallback from "app/a11y/RootSuspenseFallback";
@@ -20,10 +21,12 @@ const App: React.FC<AppProps> = ({ env }) => (
       <AppProvider env={env}>
         <DisableOutlinesForClick />
 
+        <AwaitI18N />
+
         <AwaitFonts
           name="Inter"
           weights={[300, 400, 500, 600]}
-          className="font-inter antialiased"
+          className="antialiased font-inter"
         >
           <BootAnimation>
             {env.confirmWindow ? <ConfirmPage /> : <PageRouter />}

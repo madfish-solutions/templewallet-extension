@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { Link } from "lib/woozie";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import { useThanosClient } from "lib/thanos/front";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
@@ -20,7 +20,6 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 
 const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useThanosClient();
-  const { t } = useTranslation();
 
   const formRef = React.useRef<HTMLFormElement>(null);
 

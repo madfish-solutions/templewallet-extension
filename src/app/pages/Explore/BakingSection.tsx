@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import { useAccount, useDelegate } from "lib/thanos/front";
 import BakerBanner from "app/templates/BakerBanner";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";

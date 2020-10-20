@@ -1,5 +1,5 @@
 import * as React from "react";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import PageLayout from "app/layouts/PageLayout";
 import DelegateForm from "app/templates/DelegateForm";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";

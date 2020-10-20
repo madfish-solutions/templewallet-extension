@@ -6,7 +6,7 @@ import {
   useAccount,
   ThanosAccountType,
 } from "lib/thanos/front";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -29,7 +29,6 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     setSeedRevealed,
   } = useThanosClient();
   const account = useAccount();
-  const { t } = useTranslation();
 
   const {
     register,
@@ -229,7 +228,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           ),
         };
     }
-  }, [reveal, account, t]);
+  }, [reveal, account]);
 
   const forbidPrivateKeyRevealing =
     account.type === ThanosAccountType.Ledger && reveal === "private-key";
@@ -331,7 +330,6 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     secret,
     texts,
     submitting,
-    t,
   ]);
 
   return (

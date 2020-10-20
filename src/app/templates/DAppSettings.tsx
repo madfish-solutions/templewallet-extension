@@ -6,7 +6,7 @@ import {
   useThanosClient,
 } from "lib/thanos/front";
 import { ThanosDAppSession, ThanosDAppSessions } from "lib/thanos/types";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import DAppLogo from "app/templates/DAppLogo";
 import FormCheckbox from "app/atoms/FormCheckbox";
@@ -22,12 +22,8 @@ type DAppActions = {
 const getDAppKey = (entry: DAppEntry) => entry[0];
 
 const DAppSettings: React.FC = () => {
-  const [dAppEnabled, setDAppEnabled] = useStorage(
-    ThanosSharedStorageKey.DAppEnabled,
-    true
-  );
-  const { t } = useTranslation();
   const { getAllDAppSessions, removeDAppSession } = useThanosClient();
+
   const { data, revalidate } = useRetryableSWR<ThanosDAppSessions>(
     ["getAllDAppSessions"],
     getAllDAppSessions,
@@ -39,6 +35,11 @@ const DAppSettings: React.FC = () => {
     }
   );
   const dAppSessions = data!;
+
+  const [dAppEnabled, setDAppEnabled] = useStorage(
+    ThanosSharedStorageKey.DAppEnabled,
+    true
+  );
 
   const changingRef = React.useRef(false);
   const [error, setError] = React.useState<any>(null);
@@ -67,7 +68,7 @@ const DAppSettings: React.FC = () => {
         revalidate();
       }
     },
-    [removeDAppSession, revalidate, t]
+    [removeDAppSession, revalidate]
   );
 
   const dAppEntries = React.useMemo(() => Object.entries(dAppSessions), [
@@ -163,7 +164,6 @@ const DAppDescription: React.FC<OptionRenderProps<
     item: [origin, { appMeta, network, pkh }],
   } = props;
   const { remove: onRemove } = actions!;
-  const { t } = useTranslation();
 
   const handleRemoveClick = React.useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

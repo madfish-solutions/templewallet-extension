@@ -3,7 +3,7 @@ import memoize from "micro-memoize";
 import { Tezos } from "@taquito/taquito";
 import { RpcClient } from "@taquito/rpc";
 import { ValidationResult, validateAddress } from "@taquito/utils";
-import { getMessage } from "lib/ui/i18n";
+import { getMessage } from "lib/i18n";
 
 export const loadChainId = memoize(fetchChainId, {
   isPromise: true,

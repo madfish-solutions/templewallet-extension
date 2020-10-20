@@ -1,6 +1,6 @@
 import React from "react";
 import { browser } from "webextension-polyfill-ts";
-import { ThanosSharedStorageKey } from "./thanos/types";
+import { ThanosSharedStorageKey } from "lib/thanos/types";
 
 export const SUPPORTED_LOCALES = ["en", "ru"];
 export const DEFAULT_LOCALE = ["en"];
