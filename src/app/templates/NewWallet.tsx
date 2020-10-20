@@ -103,7 +103,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
         >
           {locked && (
             <Alert
-              title="Attension!"
+              title="Attention!"
               description={
                 <>
                   <p>
