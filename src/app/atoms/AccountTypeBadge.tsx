@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { ThanosAccount, ThanosAccountType } from "lib/thanos/front";
 
 type AccountTypeBadgeProps = {
-  account: ThanosAccount;
+  account: Pick<ThanosAccount, "type">;
   darkTheme?: boolean;
 };
 
@@ -33,7 +33,7 @@ const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
               return "Ledger";
 
             case ThanosAccountType.Contract:
-              return "Contract";
+              return "Managed KT";
           }
         })()}
       </span>

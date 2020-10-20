@@ -11,12 +11,7 @@ import {
   domainsResolverFactory,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
-import { getUsersContracts } from "lib/tzkt";
-import {
-  ThanosAccount,
-  ThanosAccountType,
-  ThanosContractAccount,
-} from "lib/thanos/types";
+import { ThanosAccountType } from "lib/thanos/types";
 
 export enum ActivationStatus {
   ActivationRequestSent,
@@ -53,7 +48,7 @@ function useReadyThanos() {
 
   const {
     networks: allNetworks,
-    accounts: userAccounts,
+    accounts: allAccounts,
     settings,
     createTaquitoSigner,
     createTaquitoWallet,
@@ -78,33 +73,6 @@ function useReadyThanos() {
   const network = React.useMemo(
     () => allNetworks.find((n) => n.id === networkId) ?? defaultNet,
     [allNetworks, networkId, defaultNet]
-  );
-
-  const usersContractsQueryKey = React.useMemo(
-    () => [
-      "usersContracts",
-      network.id,
-      ...userAccounts.map(({ publicKeyHash }) => publicKeyHash),
-    ],
-    [network.id, userAccounts]
-  );
-  const { data: usersContracts = [] } = useRetryableSWR(
-    usersContractsQueryKey,
-    getUsersContracts
-  );
-
-  const allAccounts = React.useMemo<ThanosAccount[]>(
-    () => [
-      ...userAccounts,
-      ...usersContracts?.map<ThanosContractAccount>(
-        ({ alias, address }, index) => ({
-          type: ThanosAccountType.Contract,
-          name: alias || `Contract ${index + 1}`,
-          publicKeyHash: address,
-        })
-      ),
-    ],
-    [userAccounts, usersContracts]
   );
 
   /**
@@ -227,6 +195,36 @@ function useRefs() {
   const allAssetsRef = React.useRef<ThanosAsset[]>([]);
 
   return { allAssetsRef };
+}
+
+export function useRelevantAccounts() {
+  const { tezos, networkId, allAccounts } = useReadyThanos();
+
+  const getChainId = React.useCallback(async () => {
+    try {
+      return tezos.rpc.getChainId();
+    } catch (e) {
+      console.error(e);
+      return undefined;
+    }
+  }, [tezos]);
+
+  const { data: chainId } = useRetryableSWR(
+    ["get-chain-id", networkId],
+    getChainId,
+    { suspense: true }
+  );
+
+  const relevantAccounts = React.useMemo(() => {
+    return allAccounts.filter((account) => {
+      if (account.type !== ThanosAccountType.Contract) {
+        return true;
+      }
+      return account.chainId === chainId;
+    });
+  }, [allAccounts, chainId]);
+
+  return relevantAccounts;
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {

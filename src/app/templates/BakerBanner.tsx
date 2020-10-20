@@ -1,7 +1,11 @@
 import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
-import { useAllAccounts, useAccount, useKnownBaker } from "lib/thanos/front";
+import {
+  useRelevantAccounts,
+  useAccount,
+  useKnownBaker,
+} from "lib/thanos/front";
 import Name from "app/atoms/Name";
 import HashChip from "app/templates/HashChip";
 import Identicon from "app/atoms/Identicon";
@@ -14,7 +18,7 @@ type BakerBannerProps = React.HTMLAttributes<HTMLDivElement> & {
 
 const BakerBanner = React.memo<BakerBannerProps>(
   ({ bakerPkh, displayAddress = true, className, style }) => {
-    const allAccounts = useAllAccounts();
+    const allAccounts = useRelevantAccounts();
     const account = useAccount();
     const { data: baker } = useKnownBaker(bakerPkh);
     const assetSymbol = "XTZ";
