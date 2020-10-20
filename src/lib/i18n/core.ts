@@ -39,8 +39,6 @@ export async function init() {
   fetchedLocaleMessages = refetched;
 }
 
-(window as any).getMessage = getMessage;
-
 export function getMessage(messageName: string, substitutions?: Substitutions) {
   const val =
     fetchedLocaleMessages.target?.[messageName] ??
@@ -84,7 +82,8 @@ export function getDefaultLocale(): string {
 }
 
 export async function fetchLocaleMessages(locale: string) {
-  const url = browser.runtime.getURL(`_locales/${locale}/messages.json`);
+  const dirName = locale.replace("-", "_");
+  const url = browser.runtime.getURL(`_locales/${dirName}/messages.json`);
 
   try {
     const res = await fetch(url);
