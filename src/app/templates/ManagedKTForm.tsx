@@ -9,6 +9,7 @@ import {
   useTezos,
   XTZ_ASSET,
   useThanosClient,
+  useChainId,
 } from "lib/thanos/front";
 import { getUsersContracts, TzktRelatedContract } from "lib/tzkt";
 import { useRetryableSWR } from "lib/swr";
@@ -33,6 +34,8 @@ const ManagedKTForm: React.FC = () => {
   const tezos = useTezos();
   const { importKTManagedAccount } = useThanosClient();
   const network = useNetwork();
+  const chainId = useChainId();
+
   const [error, setError] = useState<React.ReactNode>(null);
 
   const queryKey = useMemo(
@@ -110,10 +113,7 @@ const ManagedKTForm: React.FC = () => {
         if (!accounts.some(({ publicKeyHash }) => publicKeyHash === owner)) {
           throw new Error("You are not a contract manager");
         }
-        await importKTManagedAccount(
-          contractAddress,
-          await tezos.rpc.getChainId()
-        );
+        await importKTManagedAccount(contractAddress, chainId!);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -124,7 +124,7 @@ const ManagedKTForm: React.FC = () => {
         setError(err.message);
       }
     },
-    [formState, tezos, accounts, importKTManagedAccount]
+    [formState, tezos, accounts, importKTManagedAccount, chainId]
   );
 
   const handleKnownContractSelect = useCallback(
