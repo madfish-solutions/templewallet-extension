@@ -6,6 +6,7 @@ import {
   useRelevantAccounts,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
+import { T, t } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
 import AccountBanner from "app/templates/AccountBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
@@ -113,15 +114,22 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         style={{ height: "32rem" }}
       >
         <div className="px-4 pt-4">
-          <SubTitle>Confirm {payload.type}</SubTitle>
+          <T
+            id="confirmAction"
+            substitutions={t(
+              payload.type === "sign" ? "signAction" : "operations"
+            )}
+          >
+            {(message) => <SubTitle>{message}</SubTitle>}
+          </T>
 
           {error ? (
             <Alert
               closable
               onClose={handleErrorAlertClose}
               type="error"
-              title="Error"
-              description={error?.message ?? "Something went wrong"}
+              title={t("error")}
+              description={error?.message ?? t("smthWentWrong")}
               className="my-4"
               autoFocus
             />
@@ -145,7 +153,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                   textarea
                   rows={7}
                   id="sign-payload"
-                  label="Payload to sign"
+                  label={t("payloadToSign")}
                   value={payload.bytes}
                   spellCheck={false}
                   readOnly
@@ -170,26 +178,34 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           )}
         >
           <div className="w-1/2 pr-2">
-            <FormSecondaryButton
-              type="button"
-              className="justify-center w-full"
-              loading={declining}
-              disabled={declining}
-              onClick={handleDeclineClick}
-            >
-              Decline
-            </FormSecondaryButton>
+            <T id="decline">
+              {(message) => (
+                <FormSecondaryButton
+                  type="button"
+                  className="justify-center w-full"
+                  loading={declining}
+                  disabled={declining}
+                  onClick={handleDeclineClick}
+                >
+                  {message}
+                </FormSecondaryButton>
+              )}
+            </T>
           </div>
 
           <div className="w-1/2 pl-2">
-            <FormSubmitButton
-              type="button"
-              className="justify-center w-full"
-              loading={confirming}
-              onClick={handleConfirmClick}
-            >
-              {error ? "Retry" : "Confirm"}
-            </FormSubmitButton>
+            <T id={error ? "retry" : "confirm"}>
+              {(message) => (
+                <FormSubmitButton
+                  type="button"
+                  className="justify-center w-full"
+                  loading={confirming}
+                  onClick={handleConfirmClick}
+                >
+                  {message}
+                </FormSubmitButton>
+              )}
+            </T>
           </div>
         </div>
 

@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useAccount } from "lib/thanos/front";
+import { T, t } from "lib/i18n/react";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
@@ -22,10 +23,14 @@ const Explore: React.FC = () => {
   return (
     <PageLayout
       pageTitle={
-        <>
-          <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
-          Explore
-        </>
+        <T id="explore">
+          {(message) => (
+            <>
+              <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
+              {message}
+            </>
+          )}
+        </T>
       }
     >
       <EditableTitle />
@@ -37,7 +42,7 @@ const Explore: React.FC = () => {
 
         <div style={{ minHeight: "12rem" }}>
           <SuspenseContainer
-            whileMessage="fetching assets data"
+            whileMessage={t("assetsWhileMessage")}
             fallback={null}
           >
             <Assets accountPkh={accountPkh} />
@@ -71,7 +76,7 @@ const Explore: React.FC = () => {
                   "stroke-current"
                 )}
               />
-              Receive
+              <T id="receive" />
             </Link>
           </div>
 
@@ -100,21 +105,21 @@ const Explore: React.FC = () => {
                   "stroke-current"
                 )}
               />
-              Send
+              <T id="send" />
             </Link>
           </div>
         </div>
       </div>
 
-      <SubTitle>Baking</SubTitle>
+      <T id="baking">{(message) => <SubTitle>{message}</SubTitle>}</T>
 
-      <SuspenseContainer whileMessage="fetching or processing your delegation info">
+      <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
         <BakingSection />
       </SuspenseContainer>
 
-      <SubTitle>Operations</SubTitle>
+      <T id="operations">{(message) => <SubTitle>{message}</SubTitle>}</T>
 
-      <SuspenseContainer whileMessage="fetching or processing operation history">
+      <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
         <OperationHistory accountPkh={accountPkh} />
       </SuspenseContainer>
     </PageLayout>

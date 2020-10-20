@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { ThanosAccount, ThanosAccountType } from "lib/thanos/front";
+import { t } from "lib/i18n/react";
 
 type AccountTypeBadgeProps = {
   account: Pick<ThanosAccount, "type">;
@@ -27,13 +28,13 @@ const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
         {(() => {
           switch (account.type) {
             case ThanosAccountType.Imported:
-              return "Imported";
+              return t("importedAccount");
 
             case ThanosAccountType.Ledger:
-              return "Ledger";
+              return t("ledger");
 
             case ThanosAccountType.Contract:
-              return "Managed KT";
+              return t("managedKTAccount");
           }
         })()}
       </span>

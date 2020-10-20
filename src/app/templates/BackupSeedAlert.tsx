@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
+import { T } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
 import { ReactComponent as HistoryIcon } from "app/icons/history.svg";
 
@@ -44,9 +45,13 @@ const BackupSeedPhrase: React.FC = () => {
             <HistoryIcon className="stroke-current stroke-2 h-4 w-auto" />
           </span>
 
-          <span className="mr-2 flex-auto text-left text-xs font-semibold">
-            Make sure to back up your seed phrase!
-          </span>
+          <T id="makeSureToBackupSeedPhrase">
+            {(message) => (
+              <span className="mr-2 flex-auto text-left text-xs font-semibold">
+                {message}
+              </span>
+            )}
+          </T>
 
           <svg
             className="fill-current opacity-75 h-4 w-4"
