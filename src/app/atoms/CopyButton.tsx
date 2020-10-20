@@ -1,4 +1,5 @@
 import * as React from "react";
+import { t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy from "lib/ui/useTippy";
 import classNames from "clsx";
@@ -25,7 +26,7 @@ const HashChip: React.FC<HashChipProps> = ({
     () => ({
       trigger: "mouseenter",
       hideOnClick: false,
-      content: copied ? "Copied." : "Copy to clipboard",
+      content: copied ? t("copiedHash") : t("copyHashToClipboard"),
       animation: "shift-away-subtle",
       onHidden() {
         setCopied(false);

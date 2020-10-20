@@ -6,6 +6,7 @@ import {
   useAccount,
   useKnownBaker,
 } from "lib/thanos/front";
+import { T } from "lib/i18n/react";
 import Name from "app/atoms/Name";
 import HashChip from "app/templates/HashChip";
 import Identicon from "app/atoms/Identicon";
@@ -51,7 +52,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                 />
               </div>
 
-              <div className="ml-2 flex-1 flex flex-col items-start">
+              <div className="flex flex-col items-start flex-1 ml-2">
                 <div
                   className={classNames(
                     "w-full",
@@ -60,7 +61,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                   )}
                   style={{ marginBottom: "0.125rem" }}
                 >
-                  <Name className="text-lg font-medium pb-1 mr-1">
+                  <Name className="pb-1 mr-1 text-lg font-medium">
                     {baker.name}
                   </Name>
                 </div>
@@ -87,7 +88,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                         "text-gray-600"
                       )}
                     >
-                      Fee:{" "}
+                      <T id="fee" />:{" "}
                       <span className="font-normal">
                         {new BigNumber(baker.fee).times(100).toFormat(2)}%
                       </span>
@@ -104,7 +105,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                         "text-gray-600"
                       )}
                     >
-                      Space:{" "}
+                      <T id="space" />:{" "}
                       <span className="font-normal">
                         <Money>{baker.freespace}</Money>
                       </span>{" "}
@@ -113,17 +114,21 @@ const BakerBanner = React.memo<BakerBannerProps>(
                   </div>
                 </div>
 
-                <a
-                  href={exploreBakerUrl(baker.address)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={classNames(
-                    "flex items-center",
-                    "text-xs text-blue-600 hover:underline"
+                <T id="exploreMore">
+                  {(message) => (
+                    <a
+                      href={exploreBakerUrl(baker.address)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={classNames(
+                        "flex items-center",
+                        "text-xs text-blue-600 hover:underline"
+                      )}
+                    >
+                      {message}
+                    </a>
                   )}
-                >
-                  Explore more...
-                </a>
+                </T>
               </div>
             </div>
           </>
@@ -138,7 +143,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
               />
             </div>
 
-            <div className="ml-2 flex-1 flex flex-col items-start">
+            <div className="flex flex-col items-start flex-1 ml-2">
               <div
                 className={classNames(
                   "mb-px w-full",
@@ -146,19 +151,33 @@ const BakerBanner = React.memo<BakerBannerProps>(
                   "leading-none"
                 )}
               >
-                <Name className="text-lg font-medium pb-1 mr-1">
+                <Name className="pb-1 mr-1 text-lg font-medium">
                   {bakerAcc ? (
                     <>
                       {bakerAcc.name}
                       {bakerAcc.publicKeyHash === account.publicKeyHash && (
-                        <>
-                          {""}
-                          <span className="font-light opacity-75">(self)</span>
-                        </>
+                        <T id="selfComment">
+                          {(message) => (
+                            <>
+                              {" "}
+                              <span className="font-light opacity-75">
+                                {message}
+                              </span>
+                            </>
+                          )}
+                        </T>
                       )}
                     </>
                   ) : (
-                    <span className="font-normal">unknown baker</span>
+                    <T id="unknownBakerTitle">
+                      {(message) => (
+                        <span className="font-normal">
+                          {typeof message === "string"
+                            ? message.toLowerCase()
+                            : message}
+                        </span>
+                      )}
+                    </T>
                   )}
                 </Name>
               </div>
