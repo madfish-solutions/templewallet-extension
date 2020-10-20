@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
 import { useAccount } from "lib/thanos/front";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
@@ -15,13 +15,12 @@ const Receive: React.FC = () => {
   const address = account.publicKeyHash;
 
   const { fieldRef, copy, copied } = useCopyToClipboard();
-  const { t } = useTranslation();
 
   return (
     <PageLayout
       pageTitle={
         <>
-          <QRIcon className="mr-1 h-4 w-auto stroke-current" />
+          <QRIcon className="w-auto h-4 mr-1 stroke-current" />
           <T id="receive" />
         </>
       }
@@ -78,7 +77,7 @@ const Receive: React.FC = () => {
           </button>
 
           <div className="flex flex-col items-center">
-            <div className="mb-2 text-center leading-tight">
+            <div className="mb-2 leading-tight text-center">
               <T id="qrCode">
                 {(message) => (
                   <span className="text-sm font-semibold text-gray-700">

@@ -5,7 +5,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
 import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import {
   ThanosAsset,
   ThanosAssetType,
@@ -226,7 +226,6 @@ const Operation = React.memo<OperationProps>(
     parameters,
   }) => {
     const { allAssets } = useAssets();
-    const { dateFnsLocale } = useTranslation();
 
     const token = React.useMemo(
       () =>
@@ -294,7 +293,8 @@ const Operation = React.memo<OperationProps>(
                           {formatDistanceToNow(new Date(time), {
                             includeSeconds: true,
                             addSuffix: true,
-                            locale: dateFnsLocale,
+                            // @TODO Add dateFnsLocale
+                            // locale: dateFnsLocale,
                           })}
                         </span>
                       )}
@@ -376,7 +376,6 @@ const Operation = React.memo<OperationProps>(
         </div>
       ),
       [
-        dateFnsLocale,
         hash,
         finalVolume,
         imReceiver,

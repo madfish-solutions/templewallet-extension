@@ -1,5 +1,5 @@
 import * as React from "react";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import Logo from "app/atoms/Logo";
 import SubTitle from "app/atoms/SubTitle";
 

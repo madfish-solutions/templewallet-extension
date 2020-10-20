@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ThanosAsset, ThanosAssetType } from "lib/thanos/types";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import xtzImgUrl from "app/misc/xtz.png";
 import anyTokenImgUrl from "app/misc/anytoken.png";
 

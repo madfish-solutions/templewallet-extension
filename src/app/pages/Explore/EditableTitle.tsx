@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useThanosClient, useAccount } from "lib/thanos/front";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import Name from "app/atoms/Name";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
@@ -9,7 +9,6 @@ import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 const EditableTitle: React.FC = () => {
   const { editAccountName } = useThanosClient();
   const account = useAccount();
-  const { t } = useTranslation();
 
   const [editing, setEditing] = React.useState(false);
 
@@ -86,10 +85,10 @@ const EditableTitle: React.FC = () => {
   }, [setEditing]);
 
   return (
-    <div className="relative pt-4 flex items-center justify-center">
+    <div className="relative flex items-center justify-center pt-4">
       {editing ? (
         <form
-          className="flex-1 flex flex-col items-center"
+          className="flex flex-col items-center flex-1"
           onSubmit={handleEditSubmit}
         >
           <FormField
@@ -109,7 +108,7 @@ const EditableTitle: React.FC = () => {
             onBlur={handleEditFieldBlur}
           />
 
-          <div className="mb-2 flex items-stretch">
+          <div className="flex items-stretch mb-2">
             <T id="cancel">
               {(message) => (
                 <button

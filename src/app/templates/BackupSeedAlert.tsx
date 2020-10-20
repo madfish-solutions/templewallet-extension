@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
 import { ReactComponent as HistoryIcon } from "app/icons/history.svg";
 

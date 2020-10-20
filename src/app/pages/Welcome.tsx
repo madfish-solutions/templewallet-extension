@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import { Link } from "lib/woozie";
 import Logo from "app/atoms/Logo";
 import { ReactComponent as EntranceIcon } from "app/icons/entrance.svg";
