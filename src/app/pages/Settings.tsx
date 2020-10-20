@@ -12,6 +12,7 @@ import { ReactComponent as KeyIcon } from "app/icons/key.svg";
 import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import PageLayout from "app/layouts/PageLayout";
+import GeneralSettings from "app/templates/GeneralSettings";
 import RemoveAccount from "app/templates/RemoveAccount";
 import RevealSecret from "app/templates/RevealSecret";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
@@ -26,6 +27,14 @@ const RevealPrivateKey: React.FC = () => <RevealSecret reveal="private-key" />;
 const RevealSeedPhrase: React.FC = () => <RevealSecret reveal="seed-phrase" />;
 
 const TABS = [
+  {
+    slug: "general-settings",
+    titleI18nKey: "generalSettings",
+    Icon: SettingsIcon,
+    Component: GeneralSettings,
+    color: "#667EEA",
+    descriptionI18nKey: "generalSettingsDescription",
+  },
   {
     slug: "reveal-private-key",
     titleI18nKey: "revealPrivateKey",

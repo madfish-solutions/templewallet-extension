@@ -841,6 +841,9 @@
     }
   },
   "notEnoughFunds": {
+    "message": "Not enough funds 😶"
+  },
+  "notEnoughCurrencyFunds": {
     "message": "Not enough $currency$ funds 😶",
     "placeholders": {
       "currency": {
@@ -1230,5 +1233,14 @@
   },
   "upload": {
     "message": "Upload"
+  },
+  "languageAndCountry": {
+    "message": "Language and country"
+  },
+  "generalSettings": {
+    "message": "General Settings"
+  },
+  "generalSettingsDescription": {
+    "message": "General application settings."
   }
 }

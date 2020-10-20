@@ -49,7 +49,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
   }
 
   try {
-    if (substitutions) {
+    if (val.placeholders) {
       const params = toList(substitutions).reduce((prms, sub, i) => {
         const pKey = val.placeholderList?.[i] ?? i;
         return pKey ? { ...prms, [pKey]: sub } : prms;
@@ -82,7 +82,8 @@ export function getDefaultLocale(): string {
 }
 
 export async function fetchLocaleMessages(locale: string) {
-  const url = browser.runtime.getURL(`_locales/${locale}/messages.json`);
+  const dirName = locale.replace("-", "_");
+  const url = browser.runtime.getURL(`_locales/${dirName}/messages.json`);
 
   try {
     const res = await fetch(url);
