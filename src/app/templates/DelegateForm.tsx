@@ -20,6 +20,7 @@ import {
   isKTAddress,
   hasManager,
 } from "lib/thanos/front";
+import { T, t, getCurrentLocale } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
 import {
   ArtificialError,
@@ -42,17 +43,6 @@ import AdditionalFeeInput from "./AdditionalFeeInput";
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 const SORT_BAKERS_BY_KEY = "sort_bakers_by";
-const BAKER_SORT_TYPES = [
-  {
-    key: "rank",
-    title: "Rank",
-  },
-  {
-    key: "fee",
-    title: "Fee",
-  },
-  { key: "space", title: "Space" },
-];
 
 interface FormData {
   to: string;
@@ -79,13 +69,32 @@ const DelegateForm: React.FC = () => {
   const knownBakers = useKnownBakers();
 
   const { search } = useLocation();
+
+  const bakerSortTypes = React.useMemo(
+    () => [
+      {
+        key: "rank",
+        title: t("rank"),
+      },
+      {
+        key: "fee",
+        title: t("fee"),
+      },
+      { key: "space", title: t("space") },
+    ],
+    []
+  );
+
   const sortBakersBy = React.useMemo(() => {
     const usp = new URLSearchParams(search);
     const val = usp.get(SORT_BAKERS_BY_KEY);
-    return (
-      BAKER_SORT_TYPES.find(({ key }) => key === val) ?? BAKER_SORT_TYPES[0]
-    );
-  }, [search]);
+    return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
+  }, [search, bakerSortTypes]);
+
+  const pluralRules = React.useMemo(
+    () => new Intl.PluralRules(getCurrentLocale()),
+    []
+  );
 
   const sortedKnownBakers = React.useMemo(() => {
     if (!knownBakers) return null;
@@ -305,7 +314,7 @@ const DelegateForm: React.FC = () => {
   return (
     <>
       {operation && (
-        <OperationStatus typeTitle="Delegation" operation={operation} />
+        <OperationStatus typeTitle={t("delegation")} operation={operation} />
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -362,10 +371,10 @@ const DelegateForm: React.FC = () => {
           cleanable={Boolean(toValue)}
           onClean={cleanToField}
           id="delegate-to"
-          label="Baker"
-          labelDescription="Address of a registered baker."
-          placeholder="e.g. tz1a9w1S7hN5s..."
-          errorCaption={errors.to?.message}
+          label={t("baker")}
+          labelDescription={t("bakerInputDescription")}
+          placeholder={t("bakerInputPlaceholder")}
+          errorCaption={errors.to?.message && t(errors.to?.message.toString())}
           style={{
             resize: "none",
           }}
@@ -395,20 +404,22 @@ const DelegateForm: React.FC = () => {
                 {!tzError && baker!.min_delegations_amount > balanceNum && (
                   <Alert
                     type="warn"
-                    title="Minimal delegation amount"
+                    title={t("minDelegationAmountTitle")}
                     description={
-                      <>
-                        Your current balance is less than a minimal delegation
-                        amount of this baker. That means while the balance is
-                        less than{" "}
-                        <span className="font-normal">
-                          <Money>{baker!.min_delegations_amount}</Money>{" "}
-                          <span style={{ fontSize: "0.75em" }}>
-                            {assetSymbol}
-                          </span>
-                        </span>{" "}
-                        - there will be no payouts.
-                      </>
+                      <T
+                        id="minDelegationAmountDescription"
+                        substitutions={[
+                          <span
+                            className="font-normal"
+                            key="minDelegationsAmount"
+                          >
+                            <Money>{baker!.min_delegations_amount}</Money>{" "}
+                            <span style={{ fontSize: "0.75em" }}>
+                              {assetSymbol}
+                            </span>
+                          </span>,
+                        ]}
+                      />
                     }
                     className="mb-6"
                   />
@@ -417,13 +428,8 @@ const DelegateForm: React.FC = () => {
             ) : !tzError && net.type === "main" ? (
               <Alert
                 type="warn"
-                title="Unknown baker"
-                description={
-                  <>
-                    Provided address is not known to us as a baker! Only
-                    delegate funds to it at your own risk.
-                  </>
-                }
+                title={t("unknownBakerTitle")}
+                description={t("unknownBakerDescription")}
                 className="mb-6"
               />
             ) : null}
@@ -449,7 +455,7 @@ const DelegateForm: React.FC = () => {
               loading={formState.isSubmitting}
               disabled={Boolean(estimationError)}
             >
-              Delegate
+              {t("delegate")}
             </FormSubmitButton>
           </>
         ) : (
@@ -458,36 +464,53 @@ const DelegateForm: React.FC = () => {
               <h2
                 className={classNames("mb-4", "leading-tight", "flex flex-col")}
               >
-                <span className="text-base font-semibold text-gray-700">
-                  Delegate to Recommended Bakers
-                </span>
-
-                <span
-                  className={classNames(
-                    "mt-1",
-                    "text-xs font-light text-gray-600"
+                <T id="delegateToRecommendedBakers">
+                  {(message) => (
+                    <span className="text-base font-semibold text-gray-700">
+                      {message}
+                    </span>
                   )}
-                  style={{ maxWidth: "90%" }}
+                </T>
+
+                <T
+                  id="clickOnBakerPrompt"
+                  substitutions={[
+                    <a
+                      href="https://www.tezos-nodes.com"
+                      key="link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-normal underline"
+                    >
+                      Tezos Nodes
+                    </a>,
+                  ]}
                 >
-                  Click on the Baker you want to delegate funds to. This list is
-                  powered by{" "}
-                  <a
-                    href="https://www.tezos-nodes.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-normal underline"
-                  >
-                    Tezos Nodes
-                  </a>
-                  .
-                </span>
+                  {(message) => (
+                    <span
+                      className={classNames(
+                        "mt-1",
+                        "text-xs font-light text-gray-600"
+                      )}
+                      style={{ maxWidth: "90%" }}
+                    >
+                      {message}
+                    </span>
+                  )}
+                </T>
               </h2>
 
               <div className={classNames("mb-2", "flex items-center")}>
-                <span className={classNames("mr-1", "text-xs text-gray-500")}>
-                  Sort by
-                </span>
-                {BAKER_SORT_TYPES.map(({ key, title }, i, arr) => {
+                <T id="sortBy">
+                  {(message) => (
+                    <span
+                      className={classNames("mr-1", "text-xs text-gray-500")}
+                    >
+                      {message}
+                    </span>
+                  )}
+                </T>
+                {bakerSortTypes.map(({ key, title }, i, arr) => {
                   const first = i === 0;
                   const last = i === arr.length - 1;
                   const selected = sortBakersBy.key === key;
@@ -593,14 +616,21 @@ const DelegateForm: React.FC = () => {
                             {baker.name}
                           </Name>
 
-                          <span
-                            className={classNames(
-                              "ml-2",
-                              "text-xs text-black text-opacity-50 pb-px"
-                            )}
+                          <T
+                            id={`cycles_${pluralRules.select(baker.lifetime)}`}
+                            substitutions={String(baker.lifetime)}
                           >
-                            {baker.lifetime} cycles
-                          </span>
+                            {(message) => (
+                              <span
+                                className={classNames(
+                                  "ml-2",
+                                  "text-xs text-black text-opacity-50 pb-px"
+                                )}
+                              >
+                                {message}
+                              </span>
+                            )}
+                          </T>
                         </div>
 
                         <div
@@ -609,34 +639,45 @@ const DelegateForm: React.FC = () => {
                             "flex flex-wrap items-center"
                           )}
                         >
-                          <div
-                            className={classNames(
-                              "text-xs font-light leading-none",
-                              "text-gray-600"
+                          <T id="fee">
+                            {(message) => (
+                              <div
+                                className={classNames(
+                                  "text-xs font-light leading-none",
+                                  "text-gray-600"
+                                )}
+                              >
+                                {message}:{" "}
+                                <span className="font-normal">
+                                  {new BigNumber(baker.fee)
+                                    .times(100)
+                                    .toFormat(2)}
+                                  %
+                                </span>
+                              </div>
                             )}
-                          >
-                            Fee:{" "}
-                            <span className="font-normal">
-                              {new BigNumber(baker.fee).times(100).toFormat(2)}%
-                            </span>
-                          </div>
+                          </T>
                         </div>
 
                         <div className="flex flex-wrap items-center pl-px">
-                          <div
-                            className={classNames(
-                              "text-xs font-light leading-none",
-                              "text-gray-600"
+                          <T id="space">
+                            {(message) => (
+                              <div
+                                className={classNames(
+                                  "text-xs font-light leading-none",
+                                  "text-gray-600"
+                                )}
+                              >
+                                {message}:{" "}
+                                <span className="font-normal">
+                                  <Money>{baker.freespace}</Money>
+                                </span>{" "}
+                                <span style={{ fontSize: "0.75em" }}>
+                                  {assetSymbol}
+                                </span>
+                              </div>
                             )}
-                          >
-                            Space:{" "}
-                            <span className="font-normal">
-                              <Money>{baker.freespace}</Money>
-                            </span>{" "}
-                            <span style={{ fontSize: "0.75em" }}>
-                              {assetSymbol}
-                            </span>
-                          </div>
+                          </T>
                         </div>
                       </div>
                     </button>
@@ -667,52 +708,49 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
     title={(() => {
       switch (true) {
         case error instanceof NotEnoughFundsError:
-          return "Not enough funds 😶";
+          return t("notEnoughFunds", "");
 
         case [UnchangedError, UnregisteredDelegateError].some(
           (Err) => error instanceof Err
         ):
-          return "Not allowed";
+          return t("notAllowed");
 
         default:
-          return "Failed";
+          return t("failed");
       }
     })()}
     description={(() => {
       switch (true) {
         case error instanceof ZeroBalanceError:
-          return <>Your Balance is zero.</>;
+          return t("yourBalanceIsZero");
 
         case error instanceof NotEnoughFundsError:
-          return (
-            <>Minimal fee for this transaction is greater than your balance.</>
-          );
+          return t("minimalFeeGreaterThanBalance");
 
         case error instanceof UnchangedError:
-          return (
-            <>
-              Already delegated funds to this baker. Re-delegation is not
-              possible.
-            </>
-          );
+          return t("alreadyDelegatedFundsToBaker");
 
         case error instanceof UnregisteredDelegateError:
-          return <>Specified baker is not registered.</>;
+          return t("bakerNotRegistered");
 
         default:
           return (
             <>
-              Unable to {type === "submit" ? "delegate" : "estimate delegation"}{" "}
-              to the provided Baker.
+              <T
+                id="unableToPerformActionToBaker"
+                substitutions={t(
+                  type === "submit" ? "delegate" : "estimateDelegation"
+                ).toLowerCase()}
+              />
               <br />
-              This may happen because:
+              <T id="thisMayHappenBecause" />
               <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                <li>
-                  Minimal fee for this transaction is greater than your balance.
-                  A large fee may be due because you sending funds to an empty
-                  Manager account. That requires a one-time 0.257 XTZ burn fee;
-                </li>
-                <li>Network or other technical issue.</li>
+                <T id="minimalFeeGreaterThanBalanceVerbose">
+                  {(message) => <li>{message}</li>}
+                </T>
+                <T id="networkOrOtherIssue">
+                  {(message) => <li>{message}</li>}
+                </T>
               </ul>
             </>
           );
@@ -732,10 +770,10 @@ function validateAddress(value: any) {
       return true;
 
     case isAddressValid(value):
-      return "Invalid address";
+      return "invalidAddress";
 
     case !isKTAddress(value):
-      return "Unable to delegate to KT... contract address";
+      return "unableToDelegateToKTAddress";
 
     default:
       return true;
