@@ -5,7 +5,7 @@ import { navigate } from "lib/woozie";
 import {
   ThanosAccountType,
   useThanosClient,
-  useAllAccounts,
+  useRelevantAccounts,
   useAccount,
 } from "lib/thanos/front";
 import AccountBanner from "app/templates/AccountBanner";
@@ -21,7 +21,7 @@ type FormData = {
 
 const RemoveAccount: React.FC = () => {
   const { removeAccount } = useThanosClient();
-  const allAccounts = useAllAccounts();
+  const allAccounts = useRelevantAccounts();
   const account = useAccount();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);

@@ -304,6 +304,26 @@ export class Vault {
     });
   }
 
+  async importManagedKTAccount(accPublicKeyHash: string, chainId: string) {
+    return withError("Failed to import Managed KT account", async () => {
+      const allAccounts = await this.fetchAccounts();
+      const newAccount: ThanosAccount = {
+        type: ThanosAccountType.Contract,
+        name: getNewAccountName(allAccounts),
+        publicKeyHash: accPublicKeyHash,
+        chainId,
+      };
+      const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+      await encryptAndSaveMany(
+        [[accountsStrgKey, newAllAcounts]],
+        this.passKey
+      );
+
+      return newAllAcounts;
+    });
+  }
+
   async createLedgerAccount(name: string, derivationPath?: string) {
     return withError("Failed to connect Ledger account", async () => {
       if (!derivationPath) derivationPath = getMainDerivationPath(0);

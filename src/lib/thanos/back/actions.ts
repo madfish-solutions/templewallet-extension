@@ -173,6 +173,16 @@ export function importFundraiserAccount(
   });
 }
 
+export function importManagedKTAccount(address: string, chainId: string) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.importManagedKTAccount(
+      address,
+      chainId
+    );
+    accountsUpdated(updatedAccounts);
+  });
+}
+
 export function craeteLedgerAccount(name: string, derivationPath?: string) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.createLedgerAccount(

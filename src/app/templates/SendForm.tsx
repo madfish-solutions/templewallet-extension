@@ -7,7 +7,7 @@ import { DEFAULT_FEE } from "@taquito/taquito";
 import {
   ThanosAsset,
   XTZ_ASSET,
-  useAllAccounts,
+  useRelevantAccounts,
   useAccount,
   useTezos,
   useCurrentAsset,
@@ -101,7 +101,7 @@ type FormProps = {
 const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
 
-  const allAccounts = useAllAccounts();
+  const allAccounts = useRelevantAccounts();
   const acc = useAccount();
   const tezos = useTezos();
   const tezosDomains = useTezosDomains();

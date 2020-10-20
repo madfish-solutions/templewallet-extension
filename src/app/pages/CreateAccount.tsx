@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
   useThanosClient,
-  useAllAccounts,
+  useRelevantAccounts,
   useSetAccountPkh,
 } from "lib/thanos/front";
 import { T } from "lib/ui/i18n";
@@ -20,7 +20,7 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 
 const CreateAccount: React.FC = () => {
   const { createAccount } = useThanosClient();
-  const allAccounts = useAllAccounts();
+  const allAccounts = useRelevantAccounts();
   const setAccountPkh = useSetAccountPkh();
 
   const defaultName = React.useMemo(() => `Account ${allAccounts.length + 1}`, [
