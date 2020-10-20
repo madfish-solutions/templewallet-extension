@@ -14,8 +14,8 @@
   "importAccount": {
     "message": "Import account"
   },
-  "importFaucetFile": {
-    "message": "Import Faucet file"
+  "faucetFile": {
+    "message": "Faucet File"
   },
   "settings": {
     "message": "Settings"

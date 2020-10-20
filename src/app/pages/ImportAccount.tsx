@@ -59,12 +59,12 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
       },
       {
         slug: "faucet",
-        name: "Faucet File",
+        i18nKey: "faucetFile",
         Form: FromFaucetForm,
       },
       {
         slug: "managed-kt",
-        name: "Managed KT",
+        i18nKey: "managedKTAccount",
         Form: ManagedKTForm,
       },
     ],
