@@ -5,13 +5,13 @@ import { useAccount } from "lib/thanos/front";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
-import HashChip from "app/atoms/HashChip";
 import Spinner from "app/atoms/Spinner";
 import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import EditableTitle from "./Explore/EditableTitle";
+import AddressChip from "./Explore/AddressChip";
 import Assets from "./Explore/Assets";
 import BakingSection from "./Explore/BakingSection";
 
@@ -33,7 +33,7 @@ const Explore: React.FC = () => {
       <hr className="mb-4" />
 
       <div className="flex flex-col items-center">
-        <HashChip hash={accountPkh} className="mb-6" />
+        <AddressChip pkh={accountPkh} className="mb-6" />
 
         <div style={{ minHeight: "12rem" }}>
           <SuspenseContainer
