@@ -1,3 +1,4 @@
+import { TezosToolkit } from "@taquito/taquito";
 import {
   DomainNameValidator,
   DomainNameValidationResult,
@@ -7,7 +8,6 @@ import {
   NullNameResovler,
   TezosDomainsResolver,
 } from "@tezos-domains/resolver";
-import { ReactiveTezosToolkit } from "./ready";
 
 // TODO: add mainnet when valid contracts addresses appear here
 // https://gitlab.com/tezos-domains/client/-/blob/master/packages/core/src/address-book/built-in-addresses.ts#L4
@@ -27,10 +27,7 @@ export function isDomainNameValid(name: string) {
   );
 }
 
-export function domainsResolverFactory(
-  tezos: ReactiveTezosToolkit,
-  networkId: string
-) {
+export function domainsResolverFactory(tezos: TezosToolkit, networkId: string) {
   if (!isTzdnsSupportedNetwork(networkId)) {
     return new NullNameResovler();
   }
@@ -43,21 +40,12 @@ export function domainsResolverFactory(
   });
 }
 
-export function resolveReverseName(
-  _k: string,
-  accountPkh: string,
-  tezosDomains: NameResolver
+export async function resolveDomainAddress(
+  tezosDomains: NameResolver,
+  name: string
 ) {
-  return tezosDomains.reverseResolveName(accountPkh);
-}
-
-export async function resolveDomainName(
-  _k: string,
-  domainName: string,
-  tezosDomains: NameResolver
-) {
-  if (isDomainNameValid(domainName)) {
-    return tezosDomains.resolveAddress(domainName);
+  if (isDomainNameValid(name)) {
+    return tezosDomains.resolveAddress(name);
   }
   return null;
 }
