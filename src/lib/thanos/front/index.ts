@@ -2,6 +2,7 @@ export * from "lib/thanos/types";
 export * from "lib/thanos/helpers";
 export * from "lib/thanos/assets";
 export * from "lib/thanos/contract";
+export * from "lib/thanos/front/tzdns";
 export * from "lib/thanos/front/provider";
 export * from "lib/thanos/front/storage";
 export * from "lib/thanos/front/client";
