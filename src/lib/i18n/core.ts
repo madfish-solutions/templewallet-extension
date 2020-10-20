@@ -18,8 +18,6 @@ export async function init() {
 
   if (saved) {
     const native = getNativeLocale();
-    console.log("saved", saved);
-    console.log("native", native);
 
     await Promise.all([
       // Fetch target locale messages if needed
@@ -31,7 +29,6 @@ export async function init() {
       // Fetch fallback locale messages if needed
       (async () => {
         const deflt = getDefaultLocale();
-        console.log("default", deflt);
         if (!areLocalesEqual(deflt, native) && !areLocalesEqual(deflt, saved)) {
           refetched.fallback = await fetchLocaleMessages(deflt);
         }
@@ -41,6 +38,8 @@ export async function init() {
 
   fetchedLocaleMessages = refetched;
 }
+
+(window as any).getMessage = getMessage;
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {
   const val =
@@ -52,7 +51,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
   }
 
   try {
-    if (substitutions) {
+    if (val.placeholders) {
       const params = toList(substitutions).reduce((prms, sub, i) => {
         const pKey = val.placeholderList?.[i] ?? i;
         return pKey ? { ...prms, [pKey]: sub } : prms;
