@@ -11,7 +11,6 @@ import Logo from "app/atoms/Logo";
 import styles from "./Header.module.css";
 import NetworkSelect from "./Header/NetworkSelect";
 import AccountDropdown from "./Header/AccountDropdown";
-import LanguageSelect from "./Header/LanguageSelect";
 
 const Header: React.FC = () => {
   const appEnv = useAppEnv();
@@ -63,11 +62,7 @@ const Control: React.FC = () => {
 
         <div className="flex-1" />
 
-        <div className="flex">
-          <LanguageSelect />
-
-          <NetworkSelect />
-        </div>
+        <NetworkSelect />
       </div>
 
       <Popper
