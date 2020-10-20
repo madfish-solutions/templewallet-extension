@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 import classNames from "clsx";
 import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
-import { getUILanguageFallback, T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import IconifiedSelect, {
   IconifiedSelectOptionRenderProps,
 } from "./IconifiedSelect";
@@ -36,7 +36,7 @@ const getLocaleCode = ({ code }: LocaleOption) => code;
 const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
   const [selectedLocale, setLocale] = useStorage(
     ThanosSharedStorageKey.LocaleCode,
-    getUILanguageFallback()
+    "en"
   );
 
   const value = useMemo(
@@ -67,6 +67,7 @@ const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
   return (
     <IconifiedSelect
       Icon={LocaleIcon}
+      OptionSelectedIcon={LocaleIcon}
       OptionInMenuContent={LocaleInMenuContent}
       OptionSelectedContent={LocaleSelectContent}
       getKey={getLocaleCode}
@@ -86,6 +87,7 @@ const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
 }) => (
   <Flag
     alt={code}
+    className="mr-3"
     src={browser.runtime.getURL(`/misc/country-flags/${flagName}.svg`)}
   />
 );

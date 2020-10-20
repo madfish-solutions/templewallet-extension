@@ -58,8 +58,8 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
 
   return (
     <IconifiedSelect
-      iconContainerClassName="h-8 w-8"
       Icon={AssetIcon}
+      OptionSelectedIcon={AssetSelectedIcon}
       OptionInMenuContent={AssetInMenuContent}
       OptionSelectedContent={AssetSelectedContent}
       getKey={getAssetKey}
@@ -74,15 +74,31 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
 
 export default AssetSelect;
 
-const AssetIcon: React.FC<IconifiedSelectOptionRenderProps<ThanosAsset>> = ({
-  option,
-}) => (
-  <img src={getAssetIconUrl(option)} alt={option.name} className="h-8 w-auto" />
+type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<
+  ThanosAsset
+>;
+
+const AssetIcon: React.FC<AssetSelectOptionRenderProps> = ({ option }) => (
+  <img
+    src={getAssetIconUrl(option)}
+    alt={option.name}
+    className="h-8 w-auto mr-3"
+  />
 );
 
-const AssetInMenuContent: React.FC<IconifiedSelectOptionRenderProps<
-  ThanosAsset
->> = ({ option }) => {
+const AssetSelectedIcon: React.FC<AssetSelectOptionRenderProps> = ({
+  option,
+}) => (
+  <img
+    src={getAssetIconUrl(option)}
+    alt={option.name}
+    className="h-12 w-auto mr-3"
+  />
+);
+
+const AssetInMenuContent: React.FC<AssetSelectOptionRenderProps> = ({
+  option,
+}) => {
   return option.type === ThanosAssetType.XTZ ? (
     <span className="text-gray-700 text-lg">{option.name}</span>
   ) : (
@@ -96,9 +112,9 @@ const AssetInMenuContent: React.FC<IconifiedSelectOptionRenderProps<
   );
 };
 
-const AssetSelectedContent: React.FC<IconifiedSelectOptionRenderProps<
-  ThanosAsset
->> = ({ option: asset }) => {
+const AssetSelectedContent: React.FC<AssetSelectOptionRenderProps> = ({
+  option: asset,
+}) => {
   const account = useAccount();
 
   return (
