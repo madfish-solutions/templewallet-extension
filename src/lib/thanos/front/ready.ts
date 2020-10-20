@@ -197,8 +197,8 @@ function useRefs() {
   return { allAssetsRef };
 }
 
-export function useRelevantAccounts() {
-  const { tezos, networkId, allAccounts } = useReadyThanos();
+export function useChainId() {
+  const { tezos, networkId } = useReadyThanos();
 
   const getChainId = React.useCallback(async () => {
     try {
@@ -214,6 +214,13 @@ export function useRelevantAccounts() {
     getChainId,
     { suspense: true }
   );
+
+  return chainId;
+}
+
+export function useRelevantAccounts() {
+  const allAccounts = useAllAccounts();
+  const chainId = useChainId();
 
   const relevantAccounts = React.useMemo(() => {
     return allAccounts.filter((account) => {
