@@ -24,7 +24,7 @@ import {
   isKTAddress,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import {
   ArtificialError,
   NotEnoughFundsError,
@@ -58,7 +58,6 @@ const RECOMMENDED_ADD_FEE = 0.0001;
 
 const SendForm: React.FC = () => {
   const { currentAsset } = useCurrentAsset();
-  const { t } = useTranslation();
   const tezos = useTezos();
 
   const [localAsset, setLocalAsset] = useSafeState(
@@ -95,7 +94,6 @@ type FormProps = {
 
 const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
-  const { t } = useTranslation();
 
   const allAccounts = useAllAccounts();
   const acc = useAccount();
@@ -325,7 +323,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         t("maximalAmount", maxAmountNum.toString())
       );
     },
-    [maxAmountNum, toValue, t]
+    [maxAmountNum, toValue]
   );
 
   const handleFeeFieldChange = React.useCallback(
@@ -693,61 +691,58 @@ type SendErrorAlertProps = {
   error: Error;
 };
 
-const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => {
-  const { t } = useTranslation();
-  return (
-    <Alert
-      type={type === "submit" ? "error" : "warn"}
-      title={(() => {
-        switch (true) {
-          case error instanceof NotEnoughFundsError:
-            return t(
-              "notEnoughFunds",
-              error instanceof ZeroXTZBalanceError ? "XTZ " : ""
-            );
-          default:
-            return t("failed");
-        }
-      })()}
-      description={(() => {
-        switch (true) {
-          case error instanceof ZeroBalanceError:
-            return t("yourBalanceIsZero");
+const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
+  <Alert
+    type={type === "submit" ? "error" : "warn"}
+    title={(() => {
+      switch (true) {
+        case error instanceof NotEnoughFundsError:
+          return t(
+            "notEnoughFunds",
+            error instanceof ZeroXTZBalanceError ? "XTZ " : ""
+          );
+        default:
+          return t("failed");
+      }
+    })()}
+    description={(() => {
+      switch (true) {
+        case error instanceof ZeroBalanceError:
+          return t("yourBalanceIsZero");
 
-          case error instanceof ZeroXTZBalanceError:
-            return t("mainAssetBalanceIsZero");
+        case error instanceof ZeroXTZBalanceError:
+          return t("mainAssetBalanceIsZero");
 
-          case error instanceof NotEnoughFundsError:
-            return t("minimalFeeGreaterThanBalanceVerbose");
+        case error instanceof NotEnoughFundsError:
+          return t("minimalFeeGreaterThanBalanceVerbose");
 
-          default:
-            return (
-              <>
-                <T
-                  id="unableToPerformTransactionAction"
-                  substitutions={t(
-                    type === "submit" ? "send" : "estimate"
-                  ).toLowerCase()}
-                />
-                <br />
-                <T id="thisMayHappenBecause" />
-                <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                  <T id="minimalFeeGreaterThanBalanceVerbose">
-                    {(message) => <li>{message}</li>}
-                  </T>
-                  <T id="networkOrOtherIssue">
-                    {(message) => <li>{message}</li>}
-                  </T>
-                </ul>
-              </>
-            );
-        }
-      })()}
-      autoFocus
-      className={classNames("mt-6 mb-4")}
-    />
-  );
-};
+        default:
+          return (
+            <>
+              <T
+                id="unableToPerformTransactionAction"
+                substitutions={t(
+                  type === "submit" ? "send" : "estimate"
+                ).toLowerCase()}
+              />
+              <br />
+              <T id="thisMayHappenBecause" />
+              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
+                <T id="minimalFeeGreaterThanBalanceVerbose">
+                  {(message) => <li>{message}</li>}
+                </T>
+                <T id="networkOrOtherIssue">
+                  {(message) => <li>{message}</li>}
+                </T>
+              </ul>
+            </>
+          );
+      }
+    })()}
+    autoFocus
+    className={classNames("mt-6 mb-4")}
+  />
+);
 
 function validateAddress(value: any) {
   switch (false) {

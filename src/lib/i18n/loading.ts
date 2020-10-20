@@ -6,13 +6,9 @@ export const REFRESH_MSGTYPE = "THANOS_I18N_REFRESH";
 
 const initPromise = init();
 
-browser.runtime.onMessage.addListener(async (msg) => {
+browser.runtime.onMessage.addListener((msg) => {
   if (msg?.type === REFRESH_MSGTYPE) {
-    if (await isBackgroundScript()) {
-      init();
-    } else {
-      window.location.reload();
-    }
+    refresh();
   }
 });
 
@@ -22,11 +18,20 @@ export function onInited(callback: () => void) {
 
 export function updateLocale(locale: string) {
   saveLocale(locale);
+  notifyOthers();
   refresh();
 }
 
-function refresh() {
+function notifyOthers() {
   browser.runtime.sendMessage({ type: REFRESH_MSGTYPE });
+}
+
+async function refresh() {
+  if (await isBackgroundScript()) {
+    init();
+  } else {
+    window.location.reload();
+  }
 }
 
 async function isBackgroundScript() {

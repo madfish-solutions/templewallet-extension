@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import DocBg from "app/a11y/DocBg";

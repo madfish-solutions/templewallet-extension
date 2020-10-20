@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { validateMnemonic } from "bip39";
 import { Link, navigate } from "lib/woozie";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import {
   useThanosClient,
   useAllAccounts,
@@ -115,7 +115,6 @@ interface ByPrivateKeyFormData {
 
 const ByPrivateKeyForm: React.FC = () => {
   const { importAccount } = useThanosClient();
-  const { t } = useTranslation();
 
   const { register, handleSubmit, errors, formState, watch } = useForm<
     ByPrivateKeyFormData
@@ -228,7 +227,6 @@ interface ByMnemonicFormData {
 
 const ByMnemonicForm: React.FC = () => {
   const { importMnemonicAccount } = useThanosClient();
-  const { t } = useTranslation();
 
   const { register, handleSubmit, errors, formState } = useForm<
     ByMnemonicFormData
@@ -443,7 +441,6 @@ const ByFundraiserForm: React.FC = () => {
     ByFundraiserFormData
   >();
   const [error, setError] = React.useState<React.ReactNode>(null);
-  const { t } = useTranslation();
 
   const onSubmit = React.useCallback<(data: ByFundraiserFormData) => void>(
     async (data) => {
