@@ -6,7 +6,7 @@ import {
   useAccount,
   ThanosAssetType,
 } from "lib/thanos/front";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import { getAssetIconUrl } from "app/defaults";
 import InUSD from "app/templates/InUSD";
 import Money from "app/atoms/Money";

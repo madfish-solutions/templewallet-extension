@@ -4,6 +4,6 @@ export function getSavedLocale() {
   return localStorage.getItem(STORAGE_KEY);
 }
 
-export function setSavedLocale(locale: string) {
+export function saveLocale(locale: string) {
   return localStorage.setItem(STORAGE_KEY, locale);
 }

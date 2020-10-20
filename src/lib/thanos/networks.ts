@@ -1,5 +1,5 @@
 import { ThanosNetwork } from "lib/thanos/types";
-import { getMessage } from "lib/ui/i18n";
+import { getMessage } from "lib/i18n";
 
 export const NETWORKS: ThanosNetwork[] = [
   {

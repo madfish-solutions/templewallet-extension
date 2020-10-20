@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import useTippy from "lib/ui/useTippy";
 import { ReactComponent as LockAltIcon } from "app/icons/lock-alt.svg";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";

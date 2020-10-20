@@ -11,7 +11,7 @@ import {
   ThanosAssetType,
 } from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import { getAssetIconUrl } from "app/defaults";
 import Balance from "app/templates/Balance";

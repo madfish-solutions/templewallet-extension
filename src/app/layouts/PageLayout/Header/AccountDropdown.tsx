@@ -9,7 +9,7 @@ import {
   useNetwork,
 } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";

@@ -8,7 +8,7 @@ import {
   useThanosClient,
   useTezos,
 } from "lib/thanos/front";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
 import PageLayout from "app/layouts/PageLayout";
 import Alert from "app/atoms/Alert";
@@ -59,7 +59,6 @@ const Form: React.FC = () => {
   const { importFundraiserAccount } = useThanosClient();
   const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
-  const { t } = useTranslation();
 
   const activateAccount = React.useCallback(
     async (address: string, secret: string) => {
@@ -182,7 +181,6 @@ const Form: React.FC = () => {
       activateAccount,
       importFundraiserAccount,
       setAccountPkh,
-      t,
     ]
   );
 

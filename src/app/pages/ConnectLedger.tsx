@@ -9,7 +9,7 @@ import {
   ThanosAccountType,
   validateDerivationPath,
 } from "lib/thanos/front";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormField from "app/atoms/FormField";
@@ -38,7 +38,7 @@ const ConnectLedger: React.FC = () => {
   const { createLedgerAccount } = useThanosClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
-  const { t } = useTranslation();
+
   const allLedgers = React.useMemo(
     () => allAccounts.filter((acc) => acc.type === ThanosAccountType.Ledger),
     [allAccounts]
@@ -46,7 +46,7 @@ const ConnectLedger: React.FC = () => {
 
   const defaultName = React.useMemo(
     () => t("defaultLedgerName", String(allLedgers.length + 1)),
-    [allLedgers.length, t]
+    [allLedgers.length]
   );
 
   const prevAccLengthRef = React.useRef(allAccounts.length);

@@ -6,9 +6,9 @@ import {
   addLocalesChangedListener,
   removeLocalesChangedListener,
   TranslationFn,
-} from "lib/i18n";
+} from "./index";
 
-export * from "lib/i18n";
+export * from "./index";
 
 const dateFnsLocales: Record<string, Locale> = {
   en: enUS,

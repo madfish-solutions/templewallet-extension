@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useAccount } from "lib/thanos/front";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
@@ -19,7 +19,6 @@ import BakingSection from "app/pages/Explore/BakingSection";
 const Explore: React.FC = () => {
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
-  const { t } = useTranslation();
 
   return (
     <PageLayout
@@ -27,7 +26,7 @@ const Explore: React.FC = () => {
         <T id="explore">
           {(message) => (
             <>
-              <ExploreIcon className="mr-1 h-4 w-auto stroke-current" />
+              <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
               {message}
             </>
           )}

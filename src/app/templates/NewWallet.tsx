@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { validateMnemonic, generateMnemonic } from "bip39";
 import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
@@ -38,7 +38,6 @@ const NewWallet: React.FC<NewWalletProps> = ({
   title,
 }) => {
   const { locked, registerWallet, setSeedRevealed } = useThanosClient();
-  const { t } = useTranslation();
 
   const {
     watch,
@@ -272,7 +271,6 @@ type BackupProps = {
 };
 
 const Backup: React.FC<BackupProps> = ({ data }) => {
-  const { t } = useTranslation();
   const { registerWallet, setSeedRevealed } = useThanosClient();
 
   const { register, handleSubmit, errors, formState } = useForm<

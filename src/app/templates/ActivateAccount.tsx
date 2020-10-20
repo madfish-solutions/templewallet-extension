@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import { ActivationStatus, useTezos, useAccount } from "lib/thanos/front";
 import useIsMounted from "lib/ui/useIsMounted";
 import AccountBanner from "app/templates/AccountBanner";
@@ -18,7 +18,6 @@ const ActivateAccount: React.FC = () => {
   const tezos = useTezos();
   const account = useAccount();
   const isMounted = useIsMounted();
-  const { t } = useTranslation();
 
   const [success, setSuccessPure] = React.useState<React.ReactNode>(null);
   const setSuccess = React.useCallback<typeof setSuccessPure>(
@@ -105,7 +104,6 @@ const ActivateAccount: React.FC = () => {
       setSuccess,
       activateAccount,
       account.publicKeyHash,
-      t,
     ]
   );
 

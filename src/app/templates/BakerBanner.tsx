@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import { useAllAccounts, useAccount, useKnownBaker } from "lib/thanos/front";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import Name from "app/atoms/Name";
 import HashChip from "app/atoms/HashChip";
 import Identicon from "app/atoms/Identicon";
@@ -48,7 +48,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                 />
               </div>
 
-              <div className="ml-2 flex-1 flex flex-col items-start">
+              <div className="flex flex-col items-start flex-1 ml-2">
                 <div
                   className={classNames(
                     "w-full",
@@ -57,7 +57,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                   )}
                   style={{ marginBottom: "0.125rem" }}
                 >
-                  <Name className="text-lg font-medium pb-1 mr-1">
+                  <Name className="pb-1 mr-1 text-lg font-medium">
                     {baker.name}
                   </Name>
                 </div>
@@ -139,7 +139,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
               />
             </div>
 
-            <div className="ml-2 flex-1 flex flex-col items-start">
+            <div className="flex flex-col items-start flex-1 ml-2">
               <div
                 className={classNames(
                   "mb-px w-full",
@@ -147,7 +147,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
                   "leading-none"
                 )}
               >
-                <Name className="text-lg font-medium pb-1 mr-1">
+                <Name className="pb-1 mr-1 text-lg font-medium">
                   {bakerAcc ? (
                     <>
                       {bakerAcc.name}
@@ -165,10 +165,12 @@ const BakerBanner = React.memo<BakerBannerProps>(
                       )}
                     </>
                   ) : (
-                    <T id="unknownBakerTitle" forceUseBreaks={false}>
+                    <T id="unknownBakerTitle">
                       {(message) => (
                         <span className="font-normal">
-                          {(message as string).toLowerCase()}
+                          {typeof message === "string"
+                            ? message.toLowerCase()
+                            : message}
                         </span>
                       )}
                     </T>
