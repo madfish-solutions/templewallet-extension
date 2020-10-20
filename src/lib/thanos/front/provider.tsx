@@ -1,6 +1,9 @@
 import * as React from "react";
 import { ThanosClientProvider, useThanosClient } from "lib/thanos/front/client";
-import { ReadyThanosProvider } from "lib/thanos/front/ready";
+import {
+  ReadyThanosProvider,
+  ThanosRefsProvider,
+} from "lib/thanos/front/ready";
 import { USDPriceProvider } from "lib/thanos/front/usdprice";
 import { NewBlockTriggersProvider } from "lib/thanos/front/chain";
 
@@ -17,9 +20,11 @@ const ConditionalReadyThanos: React.FC = ({ children }) => {
     () =>
       ready ? (
         <ReadyThanosProvider>
-          <USDPriceProvider>
-            <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
-          </USDPriceProvider>
+          <ThanosRefsProvider>
+            <USDPriceProvider>
+              <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+            </USDPriceProvider>
+          </ThanosRefsProvider>
         </ReadyThanosProvider>
       ) : (
         <>{children}</>

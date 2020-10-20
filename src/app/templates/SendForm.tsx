@@ -23,6 +23,11 @@ import {
   ThanosAssetType,
   isKTAddress,
   ThanosAccountType,
+  useTezosDomains,
+  resolveDomainAddress,
+  isDomainNameValid,
+  useNetwork,
+  isTzdnsSupportedNetwork,
 } from "lib/thanos/front";
 import { transferImplicit } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
@@ -99,7 +104,10 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const allAccounts = useAllAccounts();
   const acc = useAccount();
   const tezos = useTezos();
+  const tezosDomains = useTezosDomains();
+  const { id: networkId } = useNetwork();
 
+  const canUseDomainNames = isTzdnsSupportedNetwork(networkId);
   const accountPkh = acc.publicKeyHash;
 
   const { data: balanceData, mutate: mutateBalance } = useBalance(
@@ -145,16 +153,41 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = React.useRef<HTMLInputElement>(null);
 
-  const toFilled = React.useMemo(
+  const toFilledWithAddress = React.useMemo(
     () => Boolean(toValue && isAddressValid(toValue)),
     [toValue]
   );
 
+  const toFilledWithDomain = React.useMemo(
+    () => toValue && isDomainNameValid(toValue),
+    [toValue]
+  );
+
+  const domainAddressFactory = React.useCallback(
+    () => resolveDomainAddress(tezosDomains, toValue),
+    [tezosDomains, toValue]
+  );
+  const { data: resolvedAddress } = useSWR(
+    ["tzdns-address", tezos.checksum, toValue],
+    domainAddressFactory,
+    { shouldRetryOnError: false, revalidateOnFocus: false }
+  );
+
+  const toFilled = React.useMemo(
+    () => (resolvedAddress ? toFilledWithDomain : toFilledWithAddress),
+    [toFilledWithAddress, toFilledWithDomain, resolvedAddress]
+  );
+
+  const toResolved = React.useMemo(() => resolvedAddress || toValue, [
+    resolvedAddress,
+    toValue,
+  ]);
+
   const filledAccount = React.useMemo(
     () =>
-      (toFilled && allAccounts.find((a) => a.publicKeyHash === toValue)) ||
+      (toResolved && allAccounts.find((a) => a.publicKeyHash === toResolved)) ||
       null,
-    [toFilled, allAccounts, toValue]
+    [allAccounts, toResolved]
   );
 
   const getAccountContract = React.useCallback(
@@ -194,7 +227,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const estimateBaseFee = React.useCallback(async () => {
     try {
-      const to = toValue;
+      const to = toResolved;
       const xtz = localAsset.symbol === ThanosAssetType.XTZ;
 
       const balanceBN = (await mutateBalance(
@@ -280,10 +313,10 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     tezos,
     localAsset,
     accountPkh,
-    toValue,
+    accountContract,
+    toResolved,
     mutateBalance,
     mutateXtzBalance,
-    accountContract,
   ]);
 
   const {
@@ -298,7 +331,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             tezos.checksum,
             localAsset.symbol,
             accountPkh,
-            toValue,
+            toResolved,
           ]
         : null,
     estimateBaseFee,
@@ -391,11 +424,35 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const [submitError, setSubmitError] = useSafeState<any>(
     null,
-    `${tezos.checksum}_${toValue}`
+    `${tezos.checksum}_${toResolved}`
+  );
+
+  const validateRecipient = React.useCallback(
+    async (value: any) => {
+      if (!value?.length || value.length < 0) {
+        return false;
+      }
+
+      if (!canUseDomainNames) {
+        return validateAddress(value);
+      }
+
+      if (isDomainNameValid(value)) {
+        const resolved = await resolveDomainAddress(tezosDomains, value);
+        if (!resolved) {
+          return `Domain "${value}" doesn't resolve to an address`;
+        }
+
+        value = resolved;
+      }
+
+      return isAddressValid(value) ? true : "Invalid address or domain name";
+    },
+    [tezosDomains, canUseDomainNames]
   );
 
   const onSubmit = React.useCallback(
-    async ({ to, amount, fee: feeVal }: FormData) => {
+    async ({ amount, fee: feeVal }: FormData) => {
       if (formState.isSubmitting) return;
       setSubmitError(null);
       setOperation(null);
@@ -404,13 +461,13 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         let op;
         if (isKTAddress(acc.publicKeyHash)) {
           op = await accountContract!.methods
-            .do(transferImplicit(to, tzToMutez(amount)))
+            .do(transferImplicit(toResolved, tzToMutez(amount)))
             .send({ amount: 0 });
         } else {
           const transferParams = await toTransferParams(
             tezos,
             localAsset,
-            to,
+            toResolved,
             amount
           );
           const estmtn = await tezos.estimate.transfer(transferParams);
@@ -445,6 +502,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       setSubmitError,
       setOperation,
       reset,
+      toResolved,
     ]
   );
 
@@ -458,7 +516,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         as={<NoSpaceField ref={toFieldRef} />}
         control={control}
         rules={{
-          validate: validateAddress,
+          validate: validateRecipient,
         }}
         onChange={([v]) => v}
         onFocus={() => toFieldRef.current?.focus()}
@@ -492,16 +550,33 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
               )
             </div>
           ) : (
-            `Address to send ${localAsset.symbol} funds to.`
+            `Address or Tezos domain to send ${localAsset.symbol} funds to.`
           )
         }
-        placeholder="e.g. tz1a9w1S7hN5s..."
+        placeholder={
+          canUseDomainNames
+            ? "e.g. alice.tez or tz1a9w1S7hN5s..."
+            : "e.g. tz1a9w1S7hN5s..."
+        }
         errorCaption={errors.to?.message}
         style={{
           resize: "none",
         }}
         containerClassName="mb-4"
       />
+
+      {resolvedAddress && (
+        <div
+          className={classNames(
+            "mb-4 -mt-3",
+            "text-xs font-light text-gray-600",
+            "flex flex-wrap items-center"
+          )}
+        >
+          <span className="mr-1 whitespace-no-wrap">Resolved address:</span>
+          <span className="font-normal">{resolvedAddress}</span>
+        </div>
+      )}
 
       {estimateFallbackDisplayed ? (
         <SpinnerSection />
@@ -517,11 +592,11 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                   <SendErrorAlert type="estimation" error={estimationError} />
                 );
 
-              case toValue === accountPkh:
+              case toResolved === accountPkh:
                 return (
                   <Alert
                     type="warn"
-                    title="Attension!"
+                    title="Attention!"
                     description={
                       <>
                         You're trying to transfer funds to yourself.
