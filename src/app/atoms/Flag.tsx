@@ -12,9 +12,8 @@ const Flag: React.FC<FlagProps> = (props) => {
   const [error, setError] = useState(false);
 
   const handleError = useCallback(() => {
-    console.error("error");
     setError(true);
-  }, []);
+  }, [setError]);
 
   if (!src) {
     return <FlagStub className="w-6 h-auto" />;
