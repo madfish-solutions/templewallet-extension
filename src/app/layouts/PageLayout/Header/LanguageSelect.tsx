@@ -1,19 +1,17 @@
 import classNames from "clsx";
 import React, { useCallback } from "react";
-import { SUPPORTED_LOCALES, getUILanguageFallback } from "lib/ui/i18n";
-import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
+import { getCurrentLocale, updateLocale } from "lib/i18n";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import Name from "app/atoms/Name";
 
+const SUPPORTED_LOCALES = ["en", "ru"];
+
 type LanguageSelectProps = React.HTMLAttributes<HTMLDivElement>;
 
 const LanguageSelect: React.FC<LanguageSelectProps> = () => {
-  const [selectedLocale, setLocale] = useStorage(
-    ThanosSharedStorageKey.LocaleCode,
-    getUILanguageFallback()
-  );
+  const selectedLocale = getCurrentLocale();
 
   return (
     <Popper
@@ -24,7 +22,7 @@ const LanguageSelect: React.FC<LanguageSelectProps> = () => {
           opened={opened}
           setOpened={setOpened}
           toggleOpened={toggleOpened}
-          onChange={setLocale}
+          onChange={updateLocale}
           selectedLocale={selectedLocale}
         />
       )}

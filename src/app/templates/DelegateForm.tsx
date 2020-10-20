@@ -20,7 +20,7 @@ import {
   isKTAddress,
   hasManager,
 } from "lib/thanos/front";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t, getCurrentLocale } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
 import {
   ArtificialError,
@@ -70,7 +70,6 @@ const DelegateForm: React.FC = () => {
 
   const { search } = useLocation();
 
-  const { t, locale } = useTranslation();
   const bakerSortTypes = React.useMemo(
     () => [
       {
@@ -83,17 +82,19 @@ const DelegateForm: React.FC = () => {
       },
       { key: "space", title: t("space") },
     ],
-    [t]
+    []
   );
+
   const sortBakersBy = React.useMemo(() => {
     const usp = new URLSearchParams(search);
     const val = usp.get(SORT_BAKERS_BY_KEY);
     return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
   }, [search, bakerSortTypes]);
 
-  const pluralRules = React.useMemo(() => new Intl.PluralRules(locale), [
-    locale,
-  ]);
+  const pluralRules = React.useMemo(
+    () => new Intl.PluralRules(getCurrentLocale()),
+    []
+  );
 
   const sortedKnownBakers = React.useMemo(() => {
     if (!knownBakers) return null;
@@ -701,68 +702,64 @@ type DelegateErrorAlertProps = {
 const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
   type,
   error,
-}) => {
-  const { t } = useTranslation();
+}) => (
+  <Alert
+    type={type === "submit" ? "error" : "warn"}
+    title={(() => {
+      switch (true) {
+        case error instanceof NotEnoughFundsError:
+          return t("notEnoughFunds", "");
 
-  return (
-    <Alert
-      type={type === "submit" ? "error" : "warn"}
-      title={(() => {
-        switch (true) {
-          case error instanceof NotEnoughFundsError:
-            return t("notEnoughFunds", "");
+        case [UnchangedError, UnregisteredDelegateError].some(
+          (Err) => error instanceof Err
+        ):
+          return t("notAllowed");
 
-          case [UnchangedError, UnregisteredDelegateError].some(
-            (Err) => error instanceof Err
-          ):
-            return t("notAllowed");
+        default:
+          return t("failed");
+      }
+    })()}
+    description={(() => {
+      switch (true) {
+        case error instanceof ZeroBalanceError:
+          return t("yourBalanceIsZero");
 
-          default:
-            return t("failed");
-        }
-      })()}
-      description={(() => {
-        switch (true) {
-          case error instanceof ZeroBalanceError:
-            return t("yourBalanceIsZero");
+        case error instanceof NotEnoughFundsError:
+          return t("minimalFeeGreaterThanBalance");
 
-          case error instanceof NotEnoughFundsError:
-            return t("minimalFeeGreaterThanBalance");
+        case error instanceof UnchangedError:
+          return t("alreadyDelegatedFundsToBaker");
 
-          case error instanceof UnchangedError:
-            return t("alreadyDelegatedFundsToBaker");
+        case error instanceof UnregisteredDelegateError:
+          return t("bakerNotRegistered");
 
-          case error instanceof UnregisteredDelegateError:
-            return t("bakerNotRegistered");
-
-          default:
-            return (
-              <>
-                <T
-                  id="unableToPerformActionToBaker"
-                  substitutions={t(
-                    type === "submit" ? "delegate" : "estimateDelegation"
-                  ).toLowerCase()}
-                />
-                <br />
-                <T id="thisMayHappenBecause" />
-                <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                  <T id="minimalFeeGreaterThanBalanceVerbose">
-                    {(message) => <li>{message}</li>}
-                  </T>
-                  <T id="networkOrOtherIssue">
-                    {(message) => <li>{message}</li>}
-                  </T>
-                </ul>
-              </>
-            );
-        }
-      })()}
-      autoFocus
-      className={classNames("mt-6 mb-4")}
-    />
-  );
-};
+        default:
+          return (
+            <>
+              <T
+                id="unableToPerformActionToBaker"
+                substitutions={t(
+                  type === "submit" ? "delegate" : "estimateDelegation"
+                ).toLowerCase()}
+              />
+              <br />
+              <T id="thisMayHappenBecause" />
+              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
+                <T id="minimalFeeGreaterThanBalanceVerbose">
+                  {(message) => <li>{message}</li>}
+                </T>
+                <T id="networkOrOtherIssue">
+                  {(message) => <li>{message}</li>}
+                </T>
+              </ul>
+            </>
+          );
+      }
+    })()}
+    autoFocus
+    className={classNames("mt-6 mb-4")}
+  />
+);
 
 class UnchangedError extends Error {}
 class UnregisteredDelegateError extends Error {}
