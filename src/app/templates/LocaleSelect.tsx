@@ -1,13 +1,11 @@
 import React, { useMemo, useCallback } from "react";
 import classNames from "clsx";
-import { ThanosSharedStorageKey, useStorage } from "lib/thanos/front";
-import { T } from "lib/i18n/react";
+import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
 import IconifiedSelect, {
   IconifiedSelectOptionRenderProps,
 } from "./IconifiedSelect";
 import Flag from "app/atoms/Flag";
 import { browser } from "webextension-polyfill-ts";
-
 type LocaleSelectProps = {
   className?: string;
 };
@@ -34,10 +32,7 @@ const localeOptions: LocaleOption[] = [
 const getLocaleCode = ({ code }: LocaleOption) => code;
 
 const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
-  const [selectedLocale, setLocale] = useStorage(
-    ThanosSharedStorageKey.LocaleCode,
-    "en"
-  );
+  const selectedLocale = getCurrentLocale();
 
   const value = useMemo(
     () =>
@@ -57,12 +52,9 @@ const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
     []
   );
 
-  const handleLocaleChange = useCallback(
-    (option: LocaleOption) => {
-      setLocale(option.code);
-    },
-    [setLocale]
-  );
+  const handleLocaleChange = useCallback((option: LocaleOption) => {
+    updateLocale(option.code);
+  }, []);
 
   return (
     <IconifiedSelect
