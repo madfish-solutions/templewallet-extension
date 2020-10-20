@@ -3,11 +3,12 @@ import React, { useCallback, useState } from "react";
 
 export type FlagProps = {
   alt: string;
+  className?: string;
   src?: string;
 };
 
 const Flag: React.FC<FlagProps> = (props) => {
-  const { alt, src } = props;
+  const { alt, className, src } = props;
   const [error, setError] = useState(false);
 
   const handleError = useCallback(() => {
@@ -21,7 +22,7 @@ const Flag: React.FC<FlagProps> = (props) => {
 
   return (
     <div
-      className="w-6 flex justify-center items-center"
+      className={classNames("w-6 flex justify-center items-center", className)}
       style={{ height: "1.3125rem" }}
     >
       {src ? (
