@@ -12,7 +12,7 @@ import {
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
 import ErrorBoundary from "app/ErrorBoundary";
 import Unlock from "app/pages/Unlock";
@@ -41,7 +41,7 @@ import DAppLogo from "./templates/DAppLogo";
 
 const ConfirmPage: React.FC = () => {
   const { ready } = useThanosClient();
-  const { t } = useTranslation();
+
   return React.useMemo(
     () =>
       ready ? (
@@ -61,7 +61,7 @@ const ConfirmPage: React.FC = () => {
       ) : (
         <Unlock canImportNew={false} />
       ),
-    [ready, t]
+    [ready]
   );
 };
 
@@ -78,7 +78,6 @@ const ConfirmDAppForm: React.FC = () => {
   } = useThanosClient();
   const allAccounts = useAllAccounts();
   const account = useAccount();
-  const { t } = useTranslation();
 
   const [accountPkhToConnect, setAccountPkhToConnect] = React.useState(
     account.publicKeyHash
@@ -92,7 +91,7 @@ const ConfirmDAppForm: React.FC = () => {
       throw new Error(t("notIdentified"));
     }
     return id;
-  }, [loc.search, t]);
+  }, [loc.search]);
 
   const signPayloadFormats = React.useMemo(
     () => [
@@ -107,7 +106,7 @@ const ConfirmDAppForm: React.FC = () => {
         Icon: CodeAltIcon,
       },
     ],
-    [t]
+    []
   );
 
   const { data } = useRetryableSWR<ThanosDAppPayload>([id], getDAppPayload, {
@@ -282,7 +281,7 @@ const ConfirmDAppForm: React.FC = () => {
           ),
         };
     }
-  }, [payload.type, payload.origin, payload.appMeta.name, error, t]);
+  }, [payload.type, payload.origin, payload.appMeta.name, error]);
 
   return (
     <div

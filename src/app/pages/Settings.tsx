@@ -1,7 +1,7 @@
 import classNames from "clsx";
 import * as React from "react";
 import { Link } from "lib/woozie";
-import { T } from "lib/ui/i18n";
+import { T } from "lib/i18n/react";
 import About from "app/templates/About";
 import ActivateAccount from "app/templates/ActivateAccount";
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";

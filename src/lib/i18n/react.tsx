@@ -44,15 +44,15 @@ export function t(messageName: string, substitutions?: any): any {
   return (
     <>
       {tmp.split("$$").map((part, i) => (
-        <>
+        <React.Fragment key={`part_${i}`}>
           {part.split("\n").map((subPart, j) => (
-            <>
+            <React.Fragment key={`subpart_${j}`}>
               {j > 0 && <br />}
               {subPart}
-            </>
+            </React.Fragment>
           ))}
           {subList[i]}
-        </>
+        </React.Fragment>
       ))}
     </>
   );

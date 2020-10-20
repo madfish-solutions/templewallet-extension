@@ -14,7 +14,7 @@ import {
   loadContract,
   fetchBalance,
 } from "lib/thanos/front";
-import { getMessage, T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -63,7 +63,6 @@ const Form: React.FC = () => {
   const { allAssets } = useAssets();
   const { setAssetSymbol } = useCurrentAsset();
   const tezos = useTezos();
-  const { t } = useTranslation();
 
   const prevAssetsLengthRef = React.useRef(allAssets.length);
   React.useEffect(() => {
@@ -124,7 +123,7 @@ const Form: React.FC = () => {
         setError(err.message);
       }
     },
-    [tokenType, formState.isSubmitting, tezos, addToken, setError, t]
+    [tokenType, formState.isSubmitting, tezos, addToken, setError]
   );
 
   return (
@@ -319,10 +318,10 @@ const Form: React.FC = () => {
 function validateAddress(value: any) {
   switch (false) {
     case isAddressValid(value):
-      return getMessage("invalidAddress");
+      return t("invalidAddress");
 
     case isKTAddress(value):
-      return getMessage("onlyKTContractAddressAllowed");
+      return t("onlyKTContractAddressAllowed");
 
     default:
       return true;

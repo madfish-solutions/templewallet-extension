@@ -3,7 +3,7 @@ import React, { useCallback, useRef, useState } from "react";
 import { Controller, ControllerProps, FieldError } from "react-hook-form";
 import BigNumber from "bignumber.js";
 import { XTZ_ASSET } from "lib/thanos/front";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import AssetField from "app/atoms/AssetField";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { ReactComponent as CoffeeIcon } from "app/icons/coffee.svg";
@@ -76,7 +76,6 @@ const getFeeOptionId = (option: FeeOption) => option.type;
 
 const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
   const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
-  const { t } = useTranslation();
 
   const validateAdditionalFee = useCallback((v?: number) => {
     if (v === undefined) {

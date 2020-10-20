@@ -68,6 +68,10 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
   }
 }
 
+export function getCurrentLocale() {
+  return getSavedLocale() || getNativeLocale();
+}
+
 export function getNativeLocale() {
   return browser.i18n.getUILanguage();
 }

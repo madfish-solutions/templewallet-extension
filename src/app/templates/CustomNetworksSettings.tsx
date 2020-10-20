@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { ThanosNetwork, useSettings, useThanosClient } from "lib/thanos/front";
 import { COLORS } from "lib/ui/colors";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -18,7 +18,6 @@ const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$
 const CustomNetworksSettings: React.FC = () => {
   const { updateSettings } = useThanosClient();
   const { customNetworks = [] } = useSettings();
-  const { t } = useTranslation();
 
   const {
     register,
@@ -96,7 +95,7 @@ const CustomNetworksSettings: React.FC = () => {
         setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message);
       });
     },
-    [customNetworks, setError, updateSettings, t]
+    [customNetworks, setError, updateSettings]
   );
 
   return (
@@ -218,7 +217,6 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
     onRemoveClick,
     rpcBaseURL,
   ]);
-  const { t } = useTranslation();
 
   return (
     <div

@@ -6,7 +6,7 @@ import {
   useAllAccounts,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
-import { T, useTranslation } from "lib/ui/i18n";
+import { T, t } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
 import AccountBanner from "app/templates/AccountBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
@@ -29,7 +29,6 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   onConfirm,
 }) => {
   const { popup } = useAppEnv();
-  const { t } = useTranslation();
 
   const allAccounts = useAllAccounts();
   const account = React.useMemo(
