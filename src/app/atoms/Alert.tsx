@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
+import { t } from "lib/i18n/react";
 
 type AlertProps = React.HTMLAttributes<HTMLDivElement> & {
   type?: "success" | "warn" | "error";
@@ -54,10 +55,10 @@ const Alert: React.FC<AlertProps> = ({
       )}
       tabIndex={-1}
       role="alert"
-      aria-label="Alert"
+      aria-label={t("alert")}
       {...rest}
     >
-      {title && <h2 className="text-lg font-semibold mb-1">{title}</h2>}
+      {title && <h2 className="mb-1 text-lg font-semibold">{title}</h2>}
       {description && (
         <div className="text-sm font-light break-words">{description}</div>
       )}
