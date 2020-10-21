@@ -203,7 +203,6 @@ const DelegateForm: React.FC = () => {
         isKTAddress(accountPkh) ? owner! : accountPkh
       );
       let baseFee = mutezToTz(estmtn.totalCost);
-      console.log(estmtn, baseFee.toString());
       if (!hasManager(manager) && !isKTAddress(accountPkh)) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
