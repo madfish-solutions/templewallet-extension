@@ -22,14 +22,14 @@ import {
   hasManager,
   ThanosAssetType,
   isKTAddress,
-  ThanosAccountType,
   useTezosDomains,
   resolveDomainAddress,
   isDomainNameValid,
   useNetwork,
   isTzdnsSupportedNetwork,
+  useAccountContract,
 } from "lib/thanos/front";
-import { transferImplicit } from "lib/michelson";
+import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
 import {
@@ -191,25 +191,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     [allAccounts, toResolved]
   );
 
-  const getAccountContract = React.useCallback(
-    async (
-      _k: string,
-      address: string,
-      _rpcUrl: string,
-      accountType: ThanosAccountType
-    ) => {
-      if (accountType !== ThanosAccountType.Contract) {
-        return undefined;
-      }
-
-      return tezos.contract.at(address);
-    },
-    [tezos]
-  );
-  const { data: accountContract } = useSWR(
-    ["get-account-contract", accountPkh, tezos.rpc.getRpcUrl(), acc.type],
-    getAccountContract
-  );
+  const accountContract = useAccountContract();
 
   const cleanToField = React.useCallback(() => {
     setValue("to", "");
@@ -251,7 +233,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       const storage = await accountContract?.storage();
       const owner = typeof storage === "string" ? storage : undefined;
       if (isKTAddress(accountPkh) && !owner) {
-        throw new Error("The contract doesn't belong to any of user accounts");
+        throw new Error("Error while getting contract owner");
       }
 
       const [transferParams, manager] = await Promise.all([
@@ -261,8 +243,11 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
       let estmtnMax;
       if (isKTAddress(accountPkh)) {
+        const michelsonLambda = isKTAddress(to)
+          ? transferToContract
+          : transferImplicit;
         const op = await accountContract!.methods
-          .do(transferImplicit(to, tzToMutez(balanceBN)))
+          .do(michelsonLambda(to, tzToMutez(balanceBN)))
           .toTransferParams({});
         estmtnMax = await tezos.estimate.transfer(op);
       } else if (xtz) {
@@ -463,8 +448,11 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       try {
         let op;
         if (isKTAddress(acc.publicKeyHash)) {
+          const michelsonLambda = isKTAddress(toResolved)
+            ? transferToContract
+            : transferImplicit;
           op = await accountContract!.methods
-            .do(transferImplicit(toResolved, tzToMutez(amount)))
+            .do(michelsonLambda(toResolved, tzToMutez(amount)))
             .send({ amount: 0 });
         } else {
           const transferParams = await toTransferParams(
