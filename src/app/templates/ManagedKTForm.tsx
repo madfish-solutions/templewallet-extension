@@ -81,6 +81,28 @@ const ManagedKTForm: React.FC = () => {
     []
   );
 
+  const validateContractAddress = React.useCallback(
+    (value?: any) => {
+      switch (false) {
+        case value?.length > 0:
+          return true;
+
+        case isAddressValid(value):
+          return t("invalidAddress");
+
+        case value.startsWith("KT"):
+          return t("notContractAddress");
+
+        case accounts.every(({ publicKeyHash }) => publicKeyHash !== value):
+          return t("contractAlreadyImported");
+
+        default:
+          return true;
+      }
+    },
+    [accounts]
+  );
+
   const contractAddress = watch("contractAddress");
   const cleanContractAddressField = useCallback(() => {
     setValue("contractAddress", "");
@@ -233,22 +255,6 @@ const ManagedKTForm: React.FC = () => {
 };
 
 export default ManagedKTForm;
-
-function validateContractAddress(value?: any) {
-  switch (false) {
-    case value?.length > 0:
-      return true;
-
-    case isAddressValid(value):
-      return t("invalidAddress");
-
-    case value.startsWith("KT"):
-      return t("notContractAddress");
-
-    default:
-      return true;
-  }
-}
 
 type ContractOptionRenderProps = OptionRenderProps<TzktRelatedContract, string>;
 

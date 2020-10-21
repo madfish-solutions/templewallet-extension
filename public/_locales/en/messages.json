@@ -1288,5 +1288,8 @@
   },
   "notContractAddress": {
     "message": "Not a contract address"
+  },
+  "contractAlreadyImported": {
+    "message": "This contract has already been imported"
   }
 }
