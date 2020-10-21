@@ -191,14 +191,8 @@ const DelegateForm: React.FC = () => {
         throw new ZeroBalanceError();
       }
 
-      const storage = await accountContract?.storage();
-      const owner = typeof storage === "string" ? storage : undefined;
-      if (isKTAddress(accountPkh) && !owner) {
-        throw new Error("Error while getting contract owner");
-      }
-
+      const owner = await accountContract?.storage<string>();
       const estmtn = await getEstimation(toValue);
-
       const manager = tezos.rpc.getManagerKey(
         isKTAddress(accountPkh) ? owner! : accountPkh
       );

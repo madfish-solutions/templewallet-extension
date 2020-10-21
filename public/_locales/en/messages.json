@@ -14,8 +14,11 @@
   "importAccount": {
     "message": "Import account"
   },
-  "faucetFile": {
+  "faucetFileTitle": {
     "message": "Faucet File"
+  },
+  "faucetFile": {
+    "message": "Faucet file"
   },
   "settings": {
     "message": "Settings"
@@ -610,7 +613,12 @@
     "message": "Something went wrong"
   },
   "faucetFileInputPrompt": {
-    "message": "Drag & drop a file or select it manually by clicking on the area below. You can download it from "
+    "message": "Drag & drop a file or select it manually by clicking on the area below. You can download it from $link$.",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "processing": {
     "message": "Processing..."
@@ -1256,5 +1264,29 @@
   },
   "managedKTAccount": {
     "message": "Managed KT"
+  },
+  "activationOperationType": {
+    "message": "Activation"
+  },
+  "youAreNotContractManager": {
+    "message": "You are not a contract manager"
+  },
+  "contract": {
+    "message": "Contract"
+  },
+  "contractAddressInputDescription": {
+    "message": "Address of the contract to connect."
+  },
+  "contractAddressInputPlaceholder": {
+    "message": "e.g. KT1a9w1S7hN5s..."
+  },
+  "addKnownContract": {
+    "message": "Add known contract"
+  },
+  "clickOnContractToImport": {
+    "message": "Click on Contract you want to import."
+  },
+  "notContractAddress": {
+    "message": "Not a contract address"
   }
 }

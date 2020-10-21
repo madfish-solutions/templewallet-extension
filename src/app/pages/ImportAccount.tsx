@@ -59,7 +59,7 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
       },
       {
         slug: "faucet",
-        i18nKey: "faucetFile",
+        i18nKey: "faucetFileTitle",
         Form: FromFaucetForm,
       },
       {
@@ -629,7 +629,7 @@ const FromFaucetForm: React.FC = () => {
             reader.readAsText(evt.target.files[0]);
           });
         } catch (_err) {
-          throw new Error("Unexpected or invalid file");
+          throw new Error(t("unexpectedOrInvalidFile"));
         }
 
         const [activationStatus, op] = await activateAccount(
@@ -638,7 +638,7 @@ const FromFaucetForm: React.FC = () => {
         );
 
         if (activationStatus === ActivationStatus.ActivationRequestSent) {
-          setAlert("🛫 Activation request sent! Confirming...");
+          setAlert(`🛫 ${t("requestSent", t("activationOperationType"))}`);
           await op!.confirmation();
         }
 
@@ -690,10 +690,10 @@ const FromFaucetForm: React.FC = () => {
       {alert && (
         <Alert
           type={alert instanceof Error ? "error" : "success"}
-          title={alert instanceof Error ? "Error" : "Success"}
+          title={alert instanceof Error ? "Error" : t("success")}
           description={
             alert instanceof Error
-              ? alert?.message ?? "Something went wrong"
+              ? alert?.message ?? t("smthWentWrong")
               : alert
           }
           className="mb-6"
@@ -703,24 +703,27 @@ const FromFaucetForm: React.FC = () => {
       <div className="flex flex-col w-full">
         <label className={classNames("mb-4", "leading-tight", "flex flex-col")}>
           <span className="text-base font-semibold text-gray-700">
-            Faucet file
+            <T id="faucetFile" />
           </span>
 
           <span
             className={classNames("mt-1", "text-xs font-light text-gray-600")}
             style={{ maxWidth: "90%" }}
           >
-            Drag &amp; drop a file or select it manually by clicking on the area
-            below. You can download it from{" "}
-            <a
-              href="https://faucet.tzalpha.net/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-normal underline"
-            >
-              https://faucet.tzalpha.net
-            </a>
-            .
+            <T
+              id="faucetFileInputPrompt"
+              substitutions={[
+                <a
+                  href="https://faucet.tzalpha.net/"
+                  key="link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-normal underline"
+                >
+                  https://faucet.tzalpha.net
+                </a>,
+              ]}
+            />
           </span>
         </label>
 
@@ -772,11 +775,12 @@ const FromFaucetForm: React.FC = () => {
             </svg>
             <div className="w-full text-center">
               {processing ? (
-                "Processing..."
+                <T id="processing" />
               ) : (
-                <>
-                  Select <b>JSON</b> file
-                </>
+                <T
+                  id="selectFileOfFormat"
+                  substitutions={[<b key="format">JSON</b>]}
+                />
               )}
             </div>
           </div>
