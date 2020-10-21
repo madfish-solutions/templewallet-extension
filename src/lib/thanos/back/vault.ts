@@ -308,7 +308,7 @@ export class Vault {
     return withError("Failed to import Managed KT account", async () => {
       const allAccounts = await this.fetchAccounts();
       const newAccount: ThanosAccount = {
-        type: ThanosAccountType.Contract,
+        type: ThanosAccountType.ManagedKT,
         name: getNewAccountName(allAccounts),
         publicKeyHash: accPublicKeyHash,
         chainId,

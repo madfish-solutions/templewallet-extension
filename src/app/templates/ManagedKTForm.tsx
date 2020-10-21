@@ -44,7 +44,7 @@ const ManagedKTForm: React.FC = () => {
       "get-accounts-contracts",
       network.id,
       ...accounts
-        .filter(({ type }) => type !== ThanosAccountType.Contract)
+        .filter(({ type }) => type !== ThanosAccountType.ManagedKT)
         .map(({ publicKeyHash }) => publicKeyHash),
     ],
     [accounts, network]
@@ -279,7 +279,7 @@ const ContractOptionContent: React.FC<ContractOptionRenderProps> = (props) => {
           <T id="contract" />
         </Name>
 
-        <AccountTypeBadge account={{ type: ThanosAccountType.Contract }} />
+        <AccountTypeBadge account={{ type: ThanosAccountType.ManagedKT }} />
       </div>
 
       <div className="flex flex-wrap items-center mt-1">

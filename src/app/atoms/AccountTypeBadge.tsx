@@ -33,7 +33,7 @@ const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
             case ThanosAccountType.Ledger:
               return t("ledger");
 
-            case ThanosAccountType.Contract:
+            case ThanosAccountType.ManagedKT:
               return t("managedKTAccount");
           }
         })()}

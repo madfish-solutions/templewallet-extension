@@ -28,6 +28,7 @@ import {
   useNetwork,
   isTzdnsSupportedNetwork,
   useAccountContract,
+  ThanosAccountType,
 } from "lib/thanos/front";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
@@ -230,26 +231,24 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         }
       }
 
-      const storage = await accountContract?.storage();
-      const owner = typeof storage === "string" ? storage : undefined;
-      if (isKTAddress(accountPkh) && !owner) {
-        throw new Error("Error while getting contract owner");
-      }
+      const owner = await accountContract?.storage<string>();
 
       const [transferParams, manager] = await Promise.all([
         toTransferParams(tezos, localAsset, to, toPenny(localAsset)),
-        tezos.rpc.getManagerKey(isKTAddress(accountPkh) ? owner! : accountPkh),
+        tezos.rpc.getManagerKey(
+          acc.type === ThanosAccountType.ManagedKT ? owner! : accountPkh
+        ),
       ]);
 
       let estmtnMax;
-      if (isKTAddress(accountPkh)) {
+      if (acc.type === ThanosAccountType.ManagedKT) {
         const michelsonLambda = isKTAddress(to)
           ? transferToContract
           : transferImplicit;
-        const op = await accountContract!.methods
+        const transferParams = await accountContract!.methods
           .do(michelsonLambda(to, tzToMutez(balanceBN)))
           .toTransferParams({});
-        estmtnMax = await tezos.estimate.transfer(op);
+        estmtnMax = await tezos.estimate.transfer(transferParams);
       } else if (xtz) {
         const estmtn = await tezos.estimate.transfer(transferParams);
         let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
@@ -296,6 +295,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
     }
   }, [
+    acc.type,
     tezos,
     localAsset,
     accountPkh,
@@ -353,9 +353,12 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
     return localAsset.type === ThanosAssetType.XTZ
       ? (() => {
-          let ma = isKTAddress(accountPkh)
-            ? new BigNumber(balanceNum)
-            : new BigNumber(balanceNum).minus(baseFee).minus(safeFeeValue ?? 0);
+          let ma =
+            acc.type === ThanosAccountType.ManagedKT
+              ? new BigNumber(balanceNum)
+              : new BigNumber(balanceNum)
+                  .minus(baseFee)
+                  .minus(safeFeeValue ?? 0);
           if (myBakerPkh) {
             ma = ma.minus(PENNY);
           }
@@ -363,12 +366,12 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         })()
       : new BigNumber(balanceNum);
   }, [
+    acc.type,
     localAsset.type,
     balanceNum,
     baseFee,
     safeFeeValue,
     myBakerPkh,
-    accountPkh,
   ]);
 
   const maxAmountNum = React.useMemo(
