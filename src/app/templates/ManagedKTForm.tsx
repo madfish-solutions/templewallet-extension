@@ -12,6 +12,7 @@ import {
   useChainId,
 } from "lib/thanos/front";
 import { getUsersContracts, TzktRelatedContract } from "lib/tzkt";
+import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import Balance from "app/templates/Balance";
@@ -108,10 +109,9 @@ const ManagedKTForm: React.FC = () => {
       setError(null);
       try {
         const contract = await tezos.contract.at(contractAddress);
-        const storage = await contract.storage();
-        const owner = typeof storage === "string" ? storage : undefined;
+        const owner = await contract.storage<string>();
         if (!accounts.some(({ publicKeyHash }) => publicKeyHash === owner)) {
-          throw new Error("You are not a contract manager");
+          throw new Error(t("youAreNotContractManager"));
         }
         await importKTManagedAccount(contractAddress, chainId!);
       } catch (err) {
@@ -165,7 +165,7 @@ const ManagedKTForm: React.FC = () => {
         cleanable={Boolean(contractAddress)}
         onClean={cleanContractAddressField}
         id="contract-address"
-        label="Recipient"
+        label={t("contract")}
         labelDescription={
           filledAccount ? (
             <div className="flex flex-wrap items-center">
@@ -175,7 +175,10 @@ const ManagedKTForm: React.FC = () => {
                 size={14}
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
-              <div className="ml-1 mr-px font-normal">Contract</div> (
+              <div className="ml-1 mr-px font-normal">
+                <T id="contract" />
+              </div>{" "}
+              (
               <Balance asset={XTZ_ASSET} address={filledAccount.address}>
                 {(bal) => (
                   <span className={classNames("text-xs leading-none")}>
@@ -187,10 +190,10 @@ const ManagedKTForm: React.FC = () => {
               )
             </div>
           ) : (
-            `Address of the contract to connect.`
+            t("contractAddressInputDescription")
           )
         }
-        placeholder="e.g. KT1a9w1S7hN5s..."
+        placeholder={t("contractAddressInputPlaceholder")}
         errorCaption={errors.contractAddress?.message}
         style={{
           resize: "none",
@@ -202,14 +205,14 @@ const ManagedKTForm: React.FC = () => {
         <div className={classNames("my-6", "flex flex-col")}>
           <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
             <span className="text-base font-semibold text-gray-700">
-              Add Known contract
+              <T id="addKnownContract" />
             </span>
 
             <span
               className={classNames("mt-1", "text-xs font-light text-gray-600")}
               style={{ maxWidth: "90%" }}
             >
-              Click on Contract you want to import.
+              <T id="clickOnContractToImport" />
             </span>
           </h2>
           <CustomSelect
@@ -223,7 +226,7 @@ const ManagedKTForm: React.FC = () => {
         </div>
       )}
       <FormSubmitButton loading={formState.isSubmitting}>
-        Import account
+        <T id="importAccount" />
       </FormSubmitButton>
     </form>
   );
@@ -237,10 +240,10 @@ function validateContractAddress(value?: any) {
       return true;
 
     case isAddressValid(value):
-      return "Invalid address";
+      return t("invalidAddress");
 
     case value.startsWith("KT"):
-      return "Not a contract address";
+      return t("notContractAddress");
 
     default:
       return true;
@@ -266,7 +269,9 @@ const ContractOptionContent: React.FC<ContractOptionRenderProps> = (props) => {
   return (
     <>
       <div className="flex flex-wrap items-center">
-        <Name className="text-sm font-medium leading-tight">Contract</Name>
+        <Name className="text-sm font-medium leading-tight">
+          <T id="contract" />
+        </Name>
 
         <AccountTypeBadge account={{ type: ThanosAccountType.Contract }} />
       </div>
