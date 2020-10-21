@@ -231,7 +231,7 @@ export function useAccountContract() {
 }
 
 export function useChainId() {
-  const { tezos, networkId } = useReadyThanos();
+  const tezos = useTezos();
 
   const getChainId = React.useCallback(async () => {
     try {
@@ -243,7 +243,7 @@ export function useChainId() {
   }, [tezos]);
 
   const { data: chainId } = useRetryableSWR(
-    ["get-chain-id", networkId],
+    ["get-chain-id", tezos.checksum],
     getChainId,
     { suspense: true }
   );
@@ -252,8 +252,11 @@ export function useChainId() {
 }
 
 export function useRelevantAccounts() {
+  const setAccountPkh = useSetAccountPkh();
+  const account = useAccount();
   const allAccounts = useAllAccounts();
   const chainId = useChainId();
+  const prevChainId = React.useRef(chainId);
 
   const relevantAccounts = React.useMemo(() => {
     return allAccounts.filter((account) => {
@@ -263,6 +266,15 @@ export function useRelevantAccounts() {
       return account.chainId === chainId;
     });
   }, [allAccounts, chainId]);
+
+  React.useEffect(() => {
+    if (
+      relevantAccounts.every((a) => a.publicKeyHash !== account.publicKeyHash)
+    ) {
+      setAccountPkh(relevantAccounts[0].publicKeyHash);
+    }
+    prevChainId.current = chainId;
+  }, [relevantAccounts, chainId, setAccountPkh, account]);
 
   return relevantAccounts;
 }
