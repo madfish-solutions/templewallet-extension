@@ -19,8 +19,10 @@ import {
   isAddressValid,
   isKTAddress,
   hasManager,
+  useAccountContract,
 } from "lib/thanos/front";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
+import { setDelegate } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
 import {
   ArtificialError,
@@ -55,6 +57,7 @@ const DelegateForm: React.FC = () => {
   const net = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
+  const accountContract = useAccountContract();
 
   const accountPkh = acc.publicKeyHash;
   const assetSymbol = "XTZ";
@@ -147,6 +150,23 @@ const DelegateForm: React.FC = () => {
     [toValue]
   );
 
+  const getEstimation = React.useCallback(
+    async (to: string) => {
+      if (isKTAddress(accountPkh)) {
+        const op = await accountContract!.methods
+          .do(setDelegate(to))
+          .toTransferParams({});
+        return tezos.estimate.transfer(op);
+      } else {
+        return tezos.estimate.setDelegate({
+          source: accountPkh,
+          delegate: to,
+        });
+      }
+    },
+    [accountContract, tezos, accountPkh]
+  );
+
   const cleanToField = React.useCallback(() => {
     setValue("to", "");
     triggerValidation("to");
@@ -171,14 +191,20 @@ const DelegateForm: React.FC = () => {
         throw new ZeroBalanceError();
       }
 
-      const to = toValue;
-      const estmtn = await tezos.estimate.setDelegate({
-        source: accountPkh,
-        delegate: to,
-      });
-      const manager = await tezos.rpc.getManagerKey(accountPkh);
+      const storage = await accountContract?.storage();
+      const owner = typeof storage === "string" ? storage : undefined;
+      if (isKTAddress(accountPkh) && !owner) {
+        throw new Error("Error while getting contract owner");
+      }
+
+      const estmtn = await getEstimation(toValue);
+
+      const manager = tezos.rpc.getManagerKey(
+        isKTAddress(accountPkh) ? owner! : accountPkh
+      );
       let baseFee = mutezToTz(estmtn.totalCost);
-      if (!hasManager(manager)) {
+      console.log(estmtn, baseFee.toString());
+      if (!hasManager(manager) && !isKTAddress(accountPkh)) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
@@ -212,7 +238,14 @@ const DelegateForm: React.FC = () => {
           throw err;
       }
     }
-  }, [tezos, accountPkh, toValue, mutateBalance]);
+  }, [
+    tezos,
+    accountPkh,
+    toValue,
+    mutateBalance,
+    accountContract,
+    getEstimation,
+  ]);
 
   const {
     data: baseFee,
@@ -266,19 +299,23 @@ const DelegateForm: React.FC = () => {
       setOperation(null);
 
       try {
-        const estmtn = await tezos.estimate.setDelegate({
-          source: accountPkh,
-          delegate: to,
-        });
+        const estmtn = await getEstimation(to);
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        const op = await tezos.wallet
-          .setDelegate({
-            source: accountPkh,
-            delegate: to,
-            fee,
-          } as any)
-          .send();
+        let op;
+        if (isKTAddress(accountPkh)) {
+          op = await accountContract!.methods
+            .do(setDelegate(to))
+            .send({ amount: 0 });
+        } else {
+          op = await tezos.wallet
+            .setDelegate({
+              source: accountPkh,
+              delegate: to,
+              fee,
+            } as any)
+            .send();
+        }
 
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
@@ -303,6 +340,8 @@ const DelegateForm: React.FC = () => {
       setSubmitError,
       setOperation,
       reset,
+      getEstimation,
+      accountContract,
     ]
   );
 

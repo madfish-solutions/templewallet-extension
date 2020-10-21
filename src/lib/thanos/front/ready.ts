@@ -197,6 +197,39 @@ function useRefs() {
   return { allAssetsRef };
 }
 
+export function useAccountContract() {
+  const { tezos, account } = useReadyThanos();
+
+  const getAccountContract = React.useCallback(
+    async (
+      _k: string,
+      address: string,
+      _rpcUrl: string,
+      accountType: ThanosAccountType
+    ) => {
+      if (accountType !== ThanosAccountType.Contract) {
+        return undefined;
+      }
+
+      return tezos.contract.at(address);
+    },
+    [tezos]
+  );
+
+  const { data: accountContract } = useRetryableSWR(
+    [
+      "get-account-contract",
+      account.publicKeyHash,
+      tezos.rpc.getRpcUrl(),
+      account.type,
+      tezos.checksum,
+    ],
+    getAccountContract
+  );
+
+  return accountContract;
+}
+
 export function useChainId() {
   const { tezos, networkId } = useReadyThanos();
 
