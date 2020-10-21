@@ -103,7 +103,7 @@ function useReadyThanos() {
       networkId: string,
       accountType: ThanosAccountType
     ) => {
-      if (accountType !== ThanosAccountType.Contract) {
+      if (accountType !== ThanosAccountType.ManagedKT) {
         return undefined;
       }
 
@@ -142,7 +142,7 @@ function useReadyThanos() {
     const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
     const signer = createTaquitoSigner(
-      account.type === ThanosAccountType.Contract ? accountOwner! : accountPkh
+      account.type === ThanosAccountType.ManagedKT ? accountOwner! : accountPkh
     );
     const wallet = createTaquitoWallet(accountPkh, rpc);
     t.setProvider({ rpc, signer, wallet });
@@ -207,7 +207,7 @@ export function useAccountContract() {
       _rpcUrl: string,
       accountType: ThanosAccountType
     ) => {
-      if (accountType !== ThanosAccountType.Contract) {
+      if (accountType !== ThanosAccountType.ManagedKT) {
         return undefined;
       }
 
@@ -257,7 +257,7 @@ export function useRelevantAccounts() {
 
   const relevantAccounts = React.useMemo(() => {
     return allAccounts.filter((account) => {
-      if (account.type !== ThanosAccountType.Contract) {
+      if (account.type !== ThanosAccountType.ManagedKT) {
         return true;
       }
       return account.chainId === chainId;

@@ -20,6 +20,7 @@ import {
   isKTAddress,
   hasManager,
   useAccountContract,
+  ThanosAccountType,
 } from "lib/thanos/front";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
@@ -152,11 +153,11 @@ const DelegateForm: React.FC = () => {
 
   const getEstimation = React.useCallback(
     async (to: string) => {
-      if (isKTAddress(accountPkh)) {
-        const op = await accountContract!.methods
+      if (acc.type === ThanosAccountType.ManagedKT) {
+        const transferParams = await accountContract!.methods
           .do(setDelegate(to))
           .toTransferParams({});
-        return tezos.estimate.transfer(op);
+        return tezos.estimate.transfer(transferParams);
       } else {
         return tezos.estimate.setDelegate({
           source: accountPkh,
@@ -164,7 +165,7 @@ const DelegateForm: React.FC = () => {
         });
       }
     },
-    [accountContract, tezos, accountPkh]
+    [accountContract, tezos, accountPkh, acc.type]
   );
 
   const cleanToField = React.useCallback(() => {
@@ -194,10 +195,10 @@ const DelegateForm: React.FC = () => {
       const owner = await accountContract?.storage<string>();
       const estmtn = await getEstimation(toValue);
       const manager = tezos.rpc.getManagerKey(
-        isKTAddress(accountPkh) ? owner! : accountPkh
+        acc.type === ThanosAccountType.ManagedKT ? owner! : accountPkh
       );
       let baseFee = mutezToTz(estmtn.totalCost);
-      if (!hasManager(manager) && !isKTAddress(accountPkh)) {
+      if (!hasManager(manager) && acc.type !== ThanosAccountType.ManagedKT) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
@@ -238,6 +239,7 @@ const DelegateForm: React.FC = () => {
     mutateBalance,
     accountContract,
     getEstimation,
+    acc.type,
   ]);
 
   const {
@@ -296,7 +298,7 @@ const DelegateForm: React.FC = () => {
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
         let op;
-        if (isKTAddress(accountPkh)) {
+        if (acc.type === ThanosAccountType.ManagedKT) {
           op = await accountContract!.methods
             .do(setDelegate(to))
             .send({ amount: 0 });
@@ -327,6 +329,7 @@ const DelegateForm: React.FC = () => {
       }
     },
     [
+      acc.type,
       formState.isSubmitting,
       tezos,
       accountPkh,

@@ -34,7 +34,7 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
   const { allAssets } = useAssets();
   const relevantAssets = React.useMemo(
     () =>
-      account.type === ThanosAccountType.Contract ? [XTZ_ASSET] : allAssets,
+      account.type === ThanosAccountType.ManagedKT ? [XTZ_ASSET] : allAssets,
     [account.type, allAssets]
   );
 
