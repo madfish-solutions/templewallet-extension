@@ -143,7 +143,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   } = useForm<FormData>({
     mode: "onChange",
     defaultValues: {
-      fee: isKTAddress(accountPkh) ? 0 : RECOMMENDED_ADD_FEE,
+      fee: RECOMMENDED_ADD_FEE,
     },
   });
 
@@ -261,10 +261,10 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
       let estmtnMax;
       if (isKTAddress(accountPkh)) {
-        const tp = await accountContract!.methods
-          .do(transferImplicit(to, balanceBN))
-          .toTransferParams({ amount: 0 });
-        estmtnMax = await tezos.estimate.transfer(tp);
+        const op = await accountContract!.methods
+          .do(transferImplicit(to, tzToMutez(balanceBN)))
+          .toTransferParams({});
+        estmtnMax = await tezos.estimate.transfer(op);
       } else if (xtz) {
         const estmtn = await tezos.estimate.transfer(transferParams);
         let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
@@ -359,13 +359,8 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   }, [xtzBalanceNum, baseFee]);
 
   const safeFeeValue = React.useMemo(
-    () =>
-      isKTAddress(accountPkh)
-        ? 0
-        : maxAddFee && feeValue > maxAddFee
-        ? maxAddFee
-        : feeValue,
-    [maxAddFee, feeValue, accountPkh]
+    () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
+    [maxAddFee, feeValue]
   );
 
   const maxAmount = React.useMemo(() => {
@@ -373,16 +368,23 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
     return localAsset.type === ThanosAssetType.XTZ
       ? (() => {
-          let ma = new BigNumber(balanceNum)
-            .minus(baseFee)
-            .minus(safeFeeValue ?? 0);
+          let ma = isKTAddress(accountPkh)
+            ? new BigNumber(balanceNum)
+            : new BigNumber(balanceNum).minus(baseFee).minus(safeFeeValue ?? 0);
           if (myBakerPkh) {
             ma = ma.minus(PENNY);
           }
           return BigNumber.max(ma, 0);
         })()
       : new BigNumber(balanceNum);
-  }, [localAsset.type, balanceNum, baseFee, safeFeeValue, myBakerPkh]);
+  }, [
+    localAsset.type,
+    balanceNum,
+    baseFee,
+    safeFeeValue,
+    myBakerPkh,
+    accountPkh,
+  ]);
 
   const maxAmountNum = React.useMemo(
     () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
@@ -665,17 +667,15 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             autoFocus={Boolean(maxAmount)}
           />
 
-          {!isKTAddress(accountPkh) && (
-            <AdditionalFeeInput
-              name="fee"
-              control={control}
-              onChange={handleFeeFieldChange}
-              assetSymbol={XTZ_ASSET.symbol}
-              baseFee={baseFee}
-              error={errors.fee}
-              id="send-fee"
-            />
-          )}
+          <AdditionalFeeInput
+            name="fee"
+            control={control}
+            onChange={handleFeeFieldChange}
+            assetSymbol={XTZ_ASSET.symbol}
+            baseFee={baseFee}
+            error={errors.fee}
+            id="send-fee"
+          />
 
           <T id="send">
             {(message) => (
