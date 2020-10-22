@@ -82,49 +82,9 @@ const RemoveAccount: React.FC = () => {
         <Alert
           title={t("cannotBeRemoved")}
           description={
-            <T
-              id="accountsToRemoveConstraint"
-              substitutions={[
-                <T key="imported" id="importedPlural">
-                  {(message) => (
-                    <span
-                      className={classNames(
-                        "rounded-sm",
-                        "border",
-                        "px-1 py-px",
-                        "font-normal leading-tight"
-                      )}
-                      style={{
-                        fontSize: "0.75em",
-                        borderColor: "currentColor",
-                      }}
-                    >
-                      {message}
-                    </span>
-                  )}
-                </T>,
-                <T key="ledger" id="ledger">
-                  {(message) => (
-                    <span
-                      className={classNames(
-                        "rounded-sm",
-                        "border",
-                        "px-1 py-px",
-                        "font-normal leading-tight"
-                      )}
-                      style={{
-                        fontSize: "0.75em",
-                        borderColor: "currentColor",
-                      }}
-                    >
-                      {message}
-                    </span>
-                  )}
-                </T>,
-              ]}
-            >
-              {(message) => <p>{message}</p>}
-            </T>
+            <p>
+              <T id="accountsToRemoveConstraint" />
+            </p>
           }
           className="my-4"
         />
