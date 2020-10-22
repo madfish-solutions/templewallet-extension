@@ -335,15 +335,7 @@
     }
   },
   "accountsToRemoveConstraint": {
-    "message": "Only $importedPlural$ or $ledger$ accounts can be removed.",
-    "placeholders": {
-      "importedPlural": {
-        "content": "$1"
-      },
-      "ledger": {
-        "content": "$2"
-      }
-    }
+    "message": "HD accounts cannot be removed."
   },
   "doNotSharePrivateKey": {
     "message": "$doNotShare$ this set of chars with anyone! It can be used to steal your current account.",
