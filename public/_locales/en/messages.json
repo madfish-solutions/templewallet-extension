@@ -1253,5 +1253,19 @@
   },
   "generalSettingsDescription": {
     "message": "General application settings."
+  },
+  "swapNoun": {
+    "message": "Swap"
+  },
+  "transfers": {
+    "message": "Transfers"
+  },
+  "someUnknownToken": {
+    "message": "unknown token $token$",
+    "placeholders": {
+      "token": {
+        "content": "$1"
+      }
+    }
   }
 }
