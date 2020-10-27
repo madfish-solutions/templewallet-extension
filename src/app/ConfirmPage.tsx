@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import * as React from "react";
 import classNames from "clsx";
 import { useLocation } from "lib/woozie";
@@ -9,12 +10,9 @@ import {
   ThanosDAppPayload,
   XTZ_ASSET,
   ThanosAccount,
-  ThanosDAppOperationsPayload,
-  useTezos,
-  useAssets,
-  ContractStorage,
-  tryParseSwapOperations,
-  ThanosAssetType,
+  ThanosAsset,
+  useSwapData,
+  Swap,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
@@ -38,12 +36,15 @@ import Money from "app/atoms/Money";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
+import { ReactComponent as ArrowRightIcon } from "app/icons/arrow-right.svg";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import { ReactComponent as SwapIcon } from "app/icons/swap.svg";
 import DAppLogo from "app/templates/DAppLogo";
+import { getAssetIconUrl } from "app/defaults";
 
 const ConfirmPage: React.FC = () => {
   const { ready } = useThanosClient();
@@ -501,41 +502,43 @@ type OperationViewProps = {
 
 const OperationView: React.FC<OperationViewProps> = (props) => {
   const { payload } = props;
-
-  const signPayloadFormats = React.useMemo(
-    () =>
-      payload.type === "sign"
-        ? [
-            {
-              key: "preview",
-              name: t("preview"),
-              Icon: EyeIcon,
-            },
-            {
-              key: "raw",
-              name: t("raw"),
-              Icon: CodeAltIcon,
-            },
-            {
-              key: "pretty",
-              name: "Pretty",
-              Icon: EyeIcon,
-            },
-          ]
-        : [
-            {
-              key: "preview",
-              name: t("preview"),
-              Icon: EyeIcon,
-            },
-            {
-              key: "pretty",
-              name: "Pretty",
-              Icon: EyeIcon,
-            },
-          ],
-    [payload.type]
+  const swapData = useSwapData(
+    payload.type === "confirm_operations" ? payload.opParams : []
   );
+
+  const signPayloadFormats = React.useMemo(() => {
+    const previewFormat = {
+      key: "preview",
+      name: t("preview"),
+      Icon: EyeIcon,
+    };
+    if (payload.type === "confirm_operations" && swapData) {
+      return [
+        previewFormat,
+        {
+          key: "swap",
+          name: "Swap",
+          Icon: SwapIcon,
+        },
+      ];
+    }
+    if (payload.type === "confirm_operations") {
+      return [previewFormat];
+    }
+    return [
+      previewFormat,
+      {
+        key: "raw",
+        name: t("raw"),
+        Icon: CodeAltIcon,
+      },
+      {
+        key: "pretty",
+        name: "Pretty",
+        Icon: EyeIcon,
+      },
+    ];
+  }, [payload.type, swapData]);
 
   const [spFormat, setSpFormat] = React.useState(signPayloadFormats[0]);
 
@@ -612,11 +615,13 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
 
           <div className="flex-1" />
 
-          <ViewsSwitcher
-            activeItem={spFormat}
-            items={signPayloadFormats}
-            onChange={setSpFormat}
-          />
+          {signPayloadFormats.length > 1 && (
+            <ViewsSwitcher
+              activeItem={spFormat}
+              items={signPayloadFormats}
+              onChange={setSpFormat}
+            />
+          )}
         </h2>
 
         <OperationsBanner
@@ -625,8 +630,8 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
           label={null}
         />
 
-        <div className={classNames(spFormat.key !== "pretty" && "hidden")}>
-          <DAppOperationsPrettyView payload={payload} />
+        <div className={classNames(spFormat.key !== "swap" && "hidden")}>
+          <SwapView swap={swapData} />
         </div>
       </div>
     );
@@ -635,146 +640,69 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
   return null;
 };
 
-type DAppOperationsPrettyViewProps = {
-  payload: ThanosDAppOperationsPayload;
+type SwapViewProps = {
+  swap?: Swap;
 };
 
-const DAppOperationsPrettyView: React.FC<DAppOperationsPrettyViewProps> = (
-  props
-) => {
-  const {
-    payload: { opParams },
-  } = props;
+const SwapView: React.FC<SwapViewProps> = (props) => {
+  const { swap } = props;
 
-  const { allAssets } = useAssets();
-  const tezos = useTezos();
-  const parsedData = React.useMemo(() => tryParseSwapOperations(opParams), [
-    opParams,
-  ]);
-
-  const getContractStorage = React.useCallback(
-    async (_k: string, _checksum: string, contractAddress: string) => {
-      if (!contractAddress) {
-        return null;
-      }
-      const contract = await tezos.contract.at(contractAddress);
-      const storage = await contract.storage<ContractStorage>();
-      return storage;
-    },
-    [tezos]
-  );
-  const findAsset = React.useCallback(
-    (address?: string) => {
-      return allAssets.find(
-        (asset) =>
-          asset.type !== ThanosAssetType.XTZ && asset.address === address
-      );
-    },
-    [allAssets]
-  );
-  const contractOutAddress = React.useMemo(() => {
-    if (!parsedData || parsedData.type === "tokenToXtz") {
-      return undefined;
-    }
-    return parsedData.contractOutAddress;
-  }, [parsedData]);
-  const { data: storage } = useRetryableSWR(
-    ["get-contract-storage", tezos.checksum, contractOutAddress],
-    getContractStorage,
-    { suspense: true }
-  );
-  const tokenOutAddress = storage?.storage.tokenAddress;
-  console.log(tokenOutAddress, parsedData);
-  const outAsset = React.useMemo(() => findAsset(tokenOutAddress), [
-    findAsset,
-    tokenOutAddress,
-  ]);
-  const outAssetDecimals = outAsset?.decimals ?? 0;
-  const inAsset = React.useMemo(
-    () =>
-      !parsedData || parsedData.type === "xtzToToken"
-        ? undefined
-        : findAsset(parsedData.tokenInAddress),
-    [parsedData, findAsset]
-  );
-  const inAssetDecimals = inAsset?.decimals ?? 0;
-  const ultimateSwapData = React.useMemo(() => {
-    if (!parsedData) {
-      return undefined;
-    }
-    if (parsedData.type === "xtzToToken") {
-      const { contractOutAddress, tokenOutAmount, ...restProps } = parsedData;
-      return {
-        tokenOutAddress,
-        tokenOutAmount: tokenOutAmount.div(10 ** outAssetDecimals),
-        ...restProps,
-      };
-    }
-    if (parsedData.type === "tokenToToken") {
-      const {
-        contractOutAddress,
-        tokenOutAmount,
-        tokenInAmount,
-        ...restProps
-      } = parsedData;
-      return {
-        tokenOutAddress,
-        tokenOutAmount: tokenOutAmount.div(10 ** outAssetDecimals),
-        tokenInAmount: tokenInAmount.div(10 ** inAssetDecimals),
-        ...restProps,
-      };
-    }
-
-    const { tokenInAmount, ...restProps } = parsedData;
-    return {
-      tokenInAmount: tokenInAmount.div(10 ** inAssetDecimals),
-      ...restProps,
-    };
-  }, [parsedData, tokenOutAddress, outAssetDecimals, inAssetDecimals]);
-
-  if (!ultimateSwapData) {
-    return <p>Not available</p>;
+  if (!swap) {
+    return null;
   }
   return (
     <>
-      <p>
-        Assets to be sent:{" "}
-        <Money>
-          {ultimateSwapData.type === "xtzToToken"
-            ? ultimateSwapData.xtzAmount
-            : ultimateSwapData.tokenInAmount}
-        </Money>{" "}
-        {(() => {
-          switch (true) {
-            case ultimateSwapData.type === "xtzToToken":
-              return "XTZ";
-            case !!inAsset:
-              return inAsset!.symbol;
-            default:
-              // @ts-ignore
-              return `(unknown token ${parsedData.tokenInAddress})`;
-          }
-        })()}
+      <p className="mb-2 text-base font-semibold text-gray-700 text-center">
+        Swap
       </p>
-      <p>
-        Assets to be received:{" "}
-        <Money>
-          {ultimateSwapData.type === "tokenToXtz"
-            ? ultimateSwapData.xtzAmount
-            : ultimateSwapData.tokenOutAmount}
-        </Money>{" "}
-        {(() => {
-          switch (true) {
-            case ultimateSwapData.type === "tokenToXtz":
-              return "XTZ";
-            case !!outAsset:
-              return outAsset!.symbol;
-            default:
-              return `(unknown token ${tokenOutAddress})`;
+      <div className="flex flex-no-wrap">
+        <SwapAssetView
+          amount={
+            swap.type === "xtzToToken" ? swap.xtzAmount : swap.tokenInAmount
           }
-        })()}
-      </p>
+          asset={swap.type === "xtzToToken" ? XTZ_ASSET : swap.tokenIn}
+        />
+        <div className="flex-none flex items-center">
+          <ArrowRightIcon className="w-6 h-auto" title="to" />
+        </div>
+        <SwapAssetView
+          amount={
+            swap.type === "tokenToXtz" ? swap.xtzAmount : swap.tokenOutAmount
+          }
+          asset={swap.type === "tokenToXtz" ? XTZ_ASSET : swap.tokenOut}
+        />
+      </div>
     </>
+  );
+};
+
+type SwapAssetViewProps = {
+  asset: ThanosAsset | string;
+  amount: BigNumber;
+};
+
+const SwapAssetView: React.FC<SwapAssetViewProps> = (props) => {
+  const { asset, amount } = props;
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center">
+      {typeof asset === "string" ? (
+        <span className="text-base font-semibold text-gray-700">
+          <Money>{amount}</Money> (unknown token ${asset})
+        </span>
+      ) : (
+        <>
+          <img
+            className="h-8 w-auto mb-2"
+            alt={asset.symbol}
+            src={getAssetIconUrl(asset)}
+          />
+          <span className="text-base font-semibold text-gray-700">
+            <Money>{amount}</Money> {asset.symbol}
+          </span>
+        </>
+      )}
+    </div>
   );
 };
 
