@@ -496,12 +496,19 @@ type OperationViewProps = {
 
 const OperationView: React.FC<OperationViewProps> = (props) => {
   const { payload } = props;
-  const swapData = useSwapData(
-    payload.type === "confirm_operations" ? payload.opParams : []
-  );
-  const transfersData = useTransfersData(
-    payload.type === "confirm_operations" ? payload.opParams : []
-  );
+  const contentToParse = React.useMemo(() => {
+    switch (payload.type) {
+      case "confirm_operations":
+        return payload.opParams;
+      case "sign":
+        return payload.preview;
+      default:
+        return [];
+    }
+  }, [payload]);
+  const swapData = useSwapData(contentToParse);
+  const transfersData = useTransfersData(contentToParse);
+  console.log(swapData, transfersData);
 
   const signPayloadFormats = React.useMemo(() => {
     const previewFormat = {
@@ -509,29 +516,31 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
       name: t("preview"),
       Icon: EyeIcon,
     };
-    if (payload.type === "confirm_operations" && swapData) {
-      return [
-        previewFormat,
-        {
-          key: "swap",
-          name: t("swapNoun"),
-          Icon: SwapIcon,
-        },
-      ];
-    }
-    if (payload.type === "confirm_operations" && transfersData.length > 0) {
-      return [
-        previewFormat,
-        {
-          key: "transfers",
-          name: t("transfers"),
-          Icon: SendIcon,
-        },
-      ];
-    }
+    const prettyViewFormats = [
+      swapData
+        ? {
+            key: "swap",
+            name: t("swapNoun"),
+            Icon: SwapIcon,
+          }
+        : undefined,
+      transfersData.length > 0 && !swapData
+        ? {
+            key: "transfers",
+            name: t("transfers"),
+            Icon: SendIcon,
+          }
+        : undefined,
+    ].filter((item): item is ViewsSwitcherItemProps => !!item);
+
     if (payload.type === "confirm_operations") {
-      return [previewFormat];
+      return [previewFormat, ...prettyViewFormats];
     }
+
+    if (payload.type === "connect") {
+      return [];
+    }
+
     return [
       previewFormat,
       {
@@ -539,11 +548,7 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
         name: t("raw"),
         Icon: CodeAltIcon,
       },
-      {
-        key: "pretty",
-        name: "Pretty",
-        Icon: EyeIcon,
-      },
+      ...prettyViewFormats,
     ];
   }, [payload.type, swapData, transfersData]);
 
@@ -588,8 +593,12 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
           className={classNames(spFormat.key !== "raw" && "hidden")}
         />
 
-        <div className={classNames(spFormat.key !== "pretty" && "hidden")}>
-          TODO: add pretty view
+        <div className={classNames(spFormat.key !== "swap" && "hidden")}>
+          <SwapView swap={swapData} />
+        </div>
+
+        <div className={classNames(spFormat.key !== "transfers" && "hidden")}>
+          <TransfersView transfers={transfersData} />
         </div>
       </div>
     );
@@ -729,7 +738,6 @@ type TransfersViewProps = {
 
 const TransfersView = React.memo<TransfersViewProps>((props) => {
   const { transfers } = props;
-  const account = useAccount();
 
   if (!transfers) {
     return null;
@@ -740,7 +748,7 @@ const TransfersView = React.memo<TransfersViewProps>((props) => {
       {transfers.map((transfer, index) => (
         <React.Fragment key={index}>
           <div className="mb-2 flex flex-no-wrap">
-            <TransferSideView accountPkh={account.publicKeyHash} />
+            <TransferSideView accountPkh={transfer.from} />
             <div className="flex-none flex items-center mx-2">
               <ArrowRightIcon
                 className="w-6 h-auto stroke-current"
