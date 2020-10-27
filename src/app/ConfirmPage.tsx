@@ -9,6 +9,12 @@ import {
   ThanosDAppPayload,
   XTZ_ASSET,
   ThanosAccount,
+  ThanosDAppOperationsPayload,
+  useTezos,
+  useAssets,
+  ContractStorage,
+  tryParseSwapOperations,
+  ThanosAssetType,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
@@ -37,7 +43,7 @@ import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import DAppLogo from "./templates/DAppLogo";
+import DAppLogo from "app/templates/DAppLogo";
 
 const ConfirmPage: React.FC = () => {
   const { ready } = useThanosClient();
@@ -92,22 +98,6 @@ const ConfirmDAppForm: React.FC = () => {
     }
     return id;
   }, [loc.search]);
-
-  const signPayloadFormats = React.useMemo(
-    () => [
-      {
-        key: "preview",
-        name: t("preview"),
-        Icon: EyeIcon,
-      },
-      {
-        key: "raw",
-        name: t("raw"),
-        Icon: CodeAltIcon,
-      },
-    ],
-    []
-  );
 
   const { data } = useRetryableSWR<ThanosDAppPayload>([id], getDAppPayload, {
     suspense: true,
@@ -192,8 +182,6 @@ const ConfirmDAppForm: React.FC = () => {
   const handleErrorAlertClose = React.useCallback(() => setError(null), [
     setError,
   ]);
-
-  const [spFormat, setSpFormat] = React.useState(signPayloadFormats[0]);
 
   const content = React.useMemo(() => {
     switch (payload.type) {
@@ -366,10 +354,6 @@ const ConfirmDAppForm: React.FC = () => {
               narrow={payload.type !== "confirm_operations"}
             />
 
-            {payload.type === "confirm_operations" && (
-              <OperationsBanner opParams={payload.opParams} />
-            )}
-
             {payload.type === "connect" && (
               <div className={classNames("w-full", "mb-2", "flex flex-col")}>
                 <h2
@@ -415,124 +399,7 @@ const ConfirmDAppForm: React.FC = () => {
               </div>
             )}
 
-            {payload.type === "sign" &&
-              (() => {
-                if (payload.preview) {
-                  return (
-                    <div className="flex flex-col w-full">
-                      <h2
-                        className={classNames(
-                          "mb-4",
-                          "leading-tight",
-                          "flex items-center"
-                        )}
-                      >
-                        <T id="payloadToSign">
-                          {(message) => (
-                            <span
-                              className={classNames(
-                                "mr-2",
-                                "text-base font-semibold text-gray-700"
-                              )}
-                            >
-                              {message}
-                            </span>
-                          )}
-                        </T>
-
-                        <div className="flex-1" />
-
-                        <div className={classNames("flex items-center")}>
-                          {signPayloadFormats.map((spf, i, arr) => {
-                            const first = i === 0;
-                            const last = i === arr.length - 1;
-                            const selected = spFormat.key === spf.key;
-                            const handleClick = () => setSpFormat(spf);
-
-                            return (
-                              <button
-                                key={spf.key}
-                                className={classNames(
-                                  (() => {
-                                    switch (true) {
-                                      case first:
-                                        return classNames(
-                                          "rounded rounded-r-none",
-                                          "border"
-                                        );
-
-                                      case last:
-                                        return classNames(
-                                          "rounded rounded-l-none",
-                                          "border border-l-0"
-                                        );
-
-                                      default:
-                                        return "border border-l-0";
-                                    }
-                                  })(),
-                                  selected && "bg-gray-100",
-                                  "px-2 py-1",
-                                  "text-xs text-gray-600",
-                                  "flex items-center"
-                                )}
-                                onClick={handleClick}
-                              >
-                                <spf.Icon
-                                  className={classNames(
-                                    "h-4 w-auto mr-1",
-                                    "stroke-current"
-                                  )}
-                                />
-                                {spf.name}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </h2>
-
-                      <OperationsBanner
-                        opParams={payload.preview}
-                        label={null}
-                        className={classNames(
-                          spFormat.key !== "preview" && "hidden"
-                        )}
-                      />
-
-                      <FormField
-                        textarea
-                        rows={6}
-                        id="sign-payload"
-                        value={payload.payload}
-                        spellCheck={false}
-                        readOnly
-                        className={classNames(
-                          spFormat.key !== "raw" && "hidden"
-                        )}
-                        style={{
-                          resize: "none",
-                        }}
-                      />
-                    </div>
-                  );
-                }
-
-                return (
-                  <FormField
-                    textarea
-                    rows={6}
-                    id="sign-payload"
-                    label={t("payloadToSign")}
-                    value={payload.payload}
-                    spellCheck={false}
-                    readOnly
-                    className="mb-2"
-                    style={{
-                      resize: "none",
-                    }}
-                  />
-                );
-              })()}
+            <OperationView payload={payload} />
           </>
         )}
       </div>
@@ -627,6 +494,371 @@ const AccountOptionContentHOC = (networkRpc: string) => {
     </>
   ));
 };
+
+type OperationViewProps = {
+  payload: ThanosDAppPayload;
+};
+
+const OperationView: React.FC<OperationViewProps> = (props) => {
+  const { payload } = props;
+
+  const signPayloadFormats = React.useMemo(
+    () =>
+      payload.type === "sign"
+        ? [
+            {
+              key: "preview",
+              name: t("preview"),
+              Icon: EyeIcon,
+            },
+            {
+              key: "raw",
+              name: t("raw"),
+              Icon: CodeAltIcon,
+            },
+            {
+              key: "pretty",
+              name: "Pretty",
+              Icon: EyeIcon,
+            },
+          ]
+        : [
+            {
+              key: "preview",
+              name: t("preview"),
+              Icon: EyeIcon,
+            },
+            {
+              key: "pretty",
+              name: "Pretty",
+              Icon: EyeIcon,
+            },
+          ],
+    [payload.type]
+  );
+
+  const [spFormat, setSpFormat] = React.useState(signPayloadFormats[0]);
+
+  if (payload.type === "sign" && payload.preview) {
+    return (
+      <div className="flex flex-col w-full">
+        <h2
+          className={classNames("mb-4", "leading-tight", "flex items-center")}
+        >
+          <T id="payloadToSign">
+            {(message) => (
+              <span
+                className={classNames(
+                  "mr-2",
+                  "text-base font-semibold text-gray-700"
+                )}
+              >
+                {message}
+              </span>
+            )}
+          </T>
+
+          <div className="flex-1" />
+
+          <ViewsSwitcher
+            activeItem={spFormat}
+            items={signPayloadFormats}
+            onChange={setSpFormat}
+          />
+        </h2>
+
+        <OperationsBanner
+          opParams={payload.preview}
+          label={null}
+          className={classNames(spFormat.key !== "preview" && "hidden")}
+        />
+
+        <RawPayloadView
+          payload={payload.payload}
+          className={classNames(spFormat.key !== "raw" && "hidden")}
+        />
+
+        <div className={classNames(spFormat.key !== "pretty" && "hidden")}>
+          TODO: add pretty view
+        </div>
+      </div>
+    );
+  }
+
+  if (payload.type === "sign") {
+    return (
+      <RawPayloadView
+        label={t("payloadToSign")}
+        payload={payload.payload}
+        className="mb-2"
+      />
+    );
+  }
+
+  if (payload.type === "confirm_operations") {
+    return (
+      <div className="flex flex-col w-full">
+        <h2
+          className={classNames("mb-4", "leading-tight", "flex items-center")}
+        >
+          <span
+            className={classNames(
+              "mr-2",
+              "text-base font-semibold text-gray-700"
+            )}
+          >
+            <T id="operations" />
+          </span>
+
+          <div className="flex-1" />
+
+          <ViewsSwitcher
+            activeItem={spFormat}
+            items={signPayloadFormats}
+            onChange={setSpFormat}
+          />
+        </h2>
+
+        <OperationsBanner
+          opParams={payload.opParams}
+          className={classNames(spFormat.key !== "preview" && "hidden")}
+          label={null}
+        />
+
+        <div className={classNames(spFormat.key !== "pretty" && "hidden")}>
+          <DAppOperationsPrettyView payload={payload} />
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+type DAppOperationsPrettyViewProps = {
+  payload: ThanosDAppOperationsPayload;
+};
+
+const DAppOperationsPrettyView: React.FC<DAppOperationsPrettyViewProps> = (
+  props
+) => {
+  const {
+    payload: { opParams },
+  } = props;
+
+  const { allAssets } = useAssets();
+  const tezos = useTezos();
+  const parsedData = React.useMemo(() => tryParseSwapOperations(opParams), [
+    opParams,
+  ]);
+
+  const getContractStorage = React.useCallback(
+    async (_k: string, _checksum: string, contractAddress: string) => {
+      if (!contractAddress) {
+        return null;
+      }
+      const contract = await tezos.contract.at(contractAddress);
+      const storage = await contract.storage<ContractStorage>();
+      return storage;
+    },
+    [tezos]
+  );
+  const findAsset = React.useCallback(
+    (address?: string) => {
+      return allAssets.find(
+        (asset) =>
+          asset.type !== ThanosAssetType.XTZ && asset.address === address
+      );
+    },
+    [allAssets]
+  );
+  const contractOutAddress = React.useMemo(() => {
+    if (!parsedData || parsedData.type === "tokenToXtz") {
+      return undefined;
+    }
+    return parsedData.contractOutAddress;
+  }, [parsedData]);
+  const { data: storage } = useRetryableSWR(
+    ["get-contract-storage", tezos.checksum, contractOutAddress],
+    getContractStorage,
+    { suspense: true }
+  );
+  const tokenOutAddress = storage?.storage.tokenAddress;
+  console.log(tokenOutAddress, parsedData);
+  const outAsset = React.useMemo(() => findAsset(tokenOutAddress), [
+    findAsset,
+    tokenOutAddress,
+  ]);
+  const outAssetDecimals = outAsset?.decimals ?? 0;
+  const inAsset = React.useMemo(
+    () =>
+      !parsedData || parsedData.type === "xtzToToken"
+        ? undefined
+        : findAsset(parsedData.tokenInAddress),
+    [parsedData, findAsset]
+  );
+  const inAssetDecimals = inAsset?.decimals ?? 0;
+  const ultimateSwapData = React.useMemo(() => {
+    if (!parsedData) {
+      return undefined;
+    }
+    if (parsedData.type === "xtzToToken") {
+      const { contractOutAddress, tokenOutAmount, ...restProps } = parsedData;
+      return {
+        tokenOutAddress,
+        tokenOutAmount: tokenOutAmount.div(10 ** outAssetDecimals),
+        ...restProps,
+      };
+    }
+    if (parsedData.type === "tokenToToken") {
+      const {
+        contractOutAddress,
+        tokenOutAmount,
+        tokenInAmount,
+        ...restProps
+      } = parsedData;
+      return {
+        tokenOutAddress,
+        tokenOutAmount: tokenOutAmount.div(10 ** outAssetDecimals),
+        tokenInAmount: tokenInAmount.div(10 ** inAssetDecimals),
+        ...restProps,
+      };
+    }
+
+    const { tokenInAmount, ...restProps } = parsedData;
+    return {
+      tokenInAmount: tokenInAmount.div(10 ** inAssetDecimals),
+      ...restProps,
+    };
+  }, [parsedData, tokenOutAddress, outAssetDecimals, inAssetDecimals]);
+
+  if (!ultimateSwapData) {
+    return <p>Not available</p>;
+  }
+  return (
+    <>
+      <p>
+        Assets to be sent:{" "}
+        <Money>
+          {ultimateSwapData.type === "xtzToToken"
+            ? ultimateSwapData.xtzAmount
+            : ultimateSwapData.tokenInAmount}
+        </Money>{" "}
+        {(() => {
+          switch (true) {
+            case ultimateSwapData.type === "xtzToToken":
+              return "XTZ";
+            case !!inAsset:
+              return inAsset!.symbol;
+            default:
+              // @ts-ignore
+              return `(unknown token ${parsedData.tokenInAddress})`;
+          }
+        })()}
+      </p>
+      <p>
+        Assets to be received:{" "}
+        <Money>
+          {ultimateSwapData.type === "tokenToXtz"
+            ? ultimateSwapData.xtzAmount
+            : ultimateSwapData.tokenOutAmount}
+        </Money>{" "}
+        {(() => {
+          switch (true) {
+            case ultimateSwapData.type === "tokenToXtz":
+              return "XTZ";
+            case !!outAsset:
+              return outAsset!.symbol;
+            default:
+              return `(unknown token ${tokenOutAddress})`;
+          }
+        })()}
+      </p>
+    </>
+  );
+};
+
+type RawPayloadViewProps = {
+  label?: string;
+  payload: string;
+  className?: string;
+};
+
+const RawPayloadView = React.memo(
+  ({ className, payload, label }: RawPayloadViewProps) => (
+    <FormField
+      textarea
+      rows={6}
+      id="sign-payload"
+      label={label}
+      value={payload}
+      spellCheck={false}
+      readOnly
+      className={className}
+      style={{
+        resize: "none",
+      }}
+    />
+  )
+);
+
+type ViewsSwitcherItemProps = {
+  Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+  key: string;
+  name: string;
+};
+
+type ViewsSwitcherProps = {
+  activeItem: ViewsSwitcherItemProps;
+  items: ViewsSwitcherItemProps[];
+  onChange: (item: ViewsSwitcherItemProps) => void;
+};
+
+const ViewsSwitcher = React.memo(
+  ({ activeItem, items, onChange }: ViewsSwitcherProps) => (
+    <div className={classNames("flex items-center")}>
+      {items.map((spf, i, arr) => {
+        const first = i === 0;
+        const last = i === arr.length - 1;
+        const selected = activeItem.key === spf.key;
+        const handleClick = () => onChange(spf);
+
+        return (
+          <button
+            key={spf.key}
+            className={classNames(
+              (() => {
+                switch (true) {
+                  case first:
+                    return classNames("rounded rounded-r-none", "border");
+
+                  case last:
+                    return classNames(
+                      "rounded rounded-l-none",
+                      "border border-l-0"
+                    );
+
+                  default:
+                    return "border border-l-0";
+                }
+              })(),
+              selected && "bg-gray-100",
+              "px-2 py-1",
+              "text-xs text-gray-600",
+              "flex items-center"
+            )}
+            onClick={handleClick}
+          >
+            <spf.Icon
+              className={classNames("h-4 w-auto mr-1", "stroke-current")}
+            />
+            {spf.name}
+          </button>
+        );
+      })}
+    </div>
+  )
+);
 
 type ConnectBannerProps = {
   type: "connect" | "confirm_operations";
