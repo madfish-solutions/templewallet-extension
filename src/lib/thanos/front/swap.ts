@@ -7,13 +7,10 @@ import { ThanosAssetType, ThanosToken } from "../types";
 import { useRetryableSWR } from "lib/swr";
 
 function tryParseUseOperation(operation: any) {
-	let args = operation.parameter?.value?.args?.[1].args;
-	console.log(args);
-	while (args?.[0]?.prim) {
-		args = args?.[0]?.args;
-		console.log(args);
-	}
-	console.log(args);
+  let args = operation.parameter?.value?.args?.[1].args;
+  while (args?.[0]?.prim) {
+    args = args?.[0]?.args;
+  }
 
   return {
     rawXtzAmount: operation.amount,
@@ -74,7 +71,6 @@ function tryParseSwapOperations(operations: any[]): RawSwap | undefined {
       args,
     } = tryParseUseOperation(operation);
     const rawTokenAmount = args?.[0]?.int;
-    console.log(rawXtzAmount, contractOutAddress, args);
     if (
       typeof rawXtzAmount !== "number" ||
       typeof rawTokenAmount !== "string" ||

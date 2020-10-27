@@ -13,6 +13,8 @@ import {
   ThanosAsset,
   useSwapData,
   Swap,
+  useTransfersData,
+  Transfer,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
@@ -36,6 +38,7 @@ import Money from "app/atoms/Money";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
+import HashShortView from "app/atoms/HashShortView";
 import { ReactComponent as ArrowRightIcon } from "app/icons/arrow-right.svg";
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
@@ -43,6 +46,7 @@ import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as SwapIcon } from "app/icons/swap.svg";
+import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import DAppLogo from "app/templates/DAppLogo";
 import { getAssetIconUrl } from "app/defaults";
 
@@ -464,17 +468,7 @@ const AccountOptionContentHOC = (networkRpc: string) => {
 
       <div className="flex flex-wrap items-center mt-1">
         <div className={classNames("text-xs leading-none", "text-gray-700")}>
-          {(() => {
-            const val = acc.publicKeyHash;
-            const ln = val.length;
-            return (
-              <>
-                {val.slice(0, 7)}
-                <span className="opacity-75">...</span>
-                {val.slice(ln - 4, ln)}
-              </>
-            );
-          })()}
+          <HashShortView hash={acc.publicKeyHash} />
         </div>
 
         <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
@@ -505,6 +499,9 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
   const swapData = useSwapData(
     payload.type === "confirm_operations" ? payload.opParams : []
   );
+  const transfersData = useTransfersData(
+    payload.type === "confirm_operations" ? payload.opParams : []
+  );
 
   const signPayloadFormats = React.useMemo(() => {
     const previewFormat = {
@@ -517,8 +514,18 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
         previewFormat,
         {
           key: "swap",
-          name: "Swap",
+          name: t("swapNoun"),
           Icon: SwapIcon,
+        },
+      ];
+    }
+    if (payload.type === "confirm_operations" && transfersData.length > 0) {
+      return [
+        previewFormat,
+        {
+          key: "transfers",
+          name: t("transfers"),
+          Icon: SendIcon,
         },
       ];
     }
@@ -538,7 +545,7 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
         Icon: EyeIcon,
       },
     ];
-  }, [payload.type, swapData]);
+  }, [payload.type, swapData, transfersData]);
 
   const [spFormat, setSpFormat] = React.useState(signPayloadFormats[0]);
 
@@ -633,6 +640,10 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
         <div className={classNames(spFormat.key !== "swap" && "hidden")}>
           <SwapView swap={swapData} />
         </div>
+
+        <div className={classNames(spFormat.key !== "transfers" && "hidden")}>
+          <TransfersView transfers={transfersData} />
+        </div>
       </div>
     );
   }
@@ -653,7 +664,7 @@ const SwapView: React.FC<SwapViewProps> = (props) => {
   return (
     <>
       <p className="mb-2 text-base font-semibold text-gray-700 text-center">
-        Swap
+        <T id="swapNoun" />
       </p>
       <div className="flex flex-no-wrap">
         <SwapAssetView
@@ -662,8 +673,8 @@ const SwapView: React.FC<SwapViewProps> = (props) => {
           }
           asset={swap.type === "xtzToToken" ? XTZ_ASSET : swap.tokenIn}
         />
-        <div className="flex-none flex items-center">
-          <ArrowRightIcon className="w-6 h-auto" title="to" />
+        <div className="flex-none flex items-center mx-2">
+          <ArrowRightIcon className="w-6 h-auto stroke-current" title="to" />
         </div>
         <SwapAssetView
           amount={
@@ -687,8 +698,13 @@ const SwapAssetView: React.FC<SwapAssetViewProps> = (props) => {
   return (
     <div className="flex-1 flex flex-col items-center justify-center">
       {typeof asset === "string" ? (
-        <span className="text-base font-semibold text-gray-700">
-          <Money>{amount}</Money> (unknown token ${asset})
+        <span className="text-base text-gray-700">
+          <Money>{amount}</Money> (
+          <T
+            id="someUnknownToken"
+            substitutions={<HashShortView hash={asset} />}
+          />
+          )
         </span>
       ) : (
         <>
@@ -697,11 +713,80 @@ const SwapAssetView: React.FC<SwapAssetViewProps> = (props) => {
             alt={asset.symbol}
             src={getAssetIconUrl(asset)}
           />
-          <span className="text-base font-semibold text-gray-700">
-            <Money>{amount}</Money> {asset.symbol}
+          <span className="text-xl text-gray-700">
+            <Money>{amount}</Money>{" "}
+            <span className="text-base">{asset.symbol}</span>
           </span>
         </>
       )}
+    </div>
+  );
+};
+
+type TransfersViewProps = {
+  transfers?: Transfer[];
+};
+
+const TransfersView = React.memo<TransfersViewProps>((props) => {
+  const { transfers } = props;
+  const account = useAccount();
+
+  if (!transfers) {
+    return null;
+  }
+
+  return (
+    <>
+      {transfers.map((transfer, index) => (
+        <React.Fragment key={index}>
+          <div className="mb-2 flex flex-no-wrap">
+            <TransferSideView accountPkh={account.publicKeyHash} />
+            <div className="flex-none flex items-center mx-2">
+              <ArrowRightIcon
+                className="w-6 h-auto stroke-current"
+                title="to"
+              />
+            </div>
+            <TransferSideView accountPkh={transfer.to} />
+          </div>
+          <p className="text-xl mb-2 text-center text-gray-700">
+            <Money>{transfer.amount}</Money>{" "}
+            <span className="text-base">
+              {transfer.type === "transferToken" &&
+                (typeof transfer.token === "string" ? (
+                  <>
+                    (
+                    <T
+                      id="someUnknownToken"
+                      substitutions={<HashShortView hash={transfer.token} />}
+                    />
+                    )
+                  </>
+                ) : (
+                  transfer.token.symbol
+                ))}
+              {transfer.type === "transferXTZ" && "XTZ"}
+            </span>
+          </p>
+        </React.Fragment>
+      ))}
+    </>
+  );
+});
+
+type TransferSideViewProps = {
+  accountPkh: string;
+};
+
+const TransferSideView: React.FC<TransferSideViewProps> = (props) => {
+  const { accountPkh } = props;
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center">
+      <Identicon className="mb-2" hash={accountPkh} size={32} />
+      <span>
+        <HashShortView hash={accountPkh} />
+      </span>
     </div>
   );
 };
