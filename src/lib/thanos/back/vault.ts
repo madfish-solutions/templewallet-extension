@@ -10,6 +10,8 @@ import {
   Signer,
 } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
+import LedgerTransport from "@ledgerhq/hw-transport";
+import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
 import { LedgerThanosBridgeTransport } from "@thanos-wallet/ledger-bridge";
 import { DerivationType } from "@taquito/ledger-signer";
 import * as Passworder from "lib/thanos/passworder";
@@ -565,7 +567,11 @@ async function createLedgerSigner(
   publicKey?: string,
   publicKeyHash?: string
 ) {
-  try {
+  let transport: LedgerTransport;
+
+  if (process.env.TARGET_BROWSER === "chrome") {
+    transport = await LedgerWebAuthnTransport.create();
+  } else {
     const bridgeUrl = process.env.THANOS_WALLET_LEDGER_BRIDGE_URL;
     if (!bridgeUrl) {
       throw new Error(
@@ -573,22 +579,20 @@ async function createLedgerSigner(
       );
     }
 
-    const transport = await LedgerThanosBridgeTransport.open(bridgeUrl);
-    const cleanup = () => transport.close();
-    const signer = new ThanosLedgerSigner(
-      transport,
-      derivationPath,
-      true,
-      DerivationType.tz1,
-      publicKey,
-      publicKeyHash
-    );
-
-    return { signer, cleanup };
-  } catch (err) {
-    console.error(err);
-    throw err;
+    transport = await LedgerThanosBridgeTransport.open(bridgeUrl);
   }
+
+  const cleanup = () => transport.close();
+  const signer = new ThanosLedgerSigner(
+    transport,
+    derivationPath,
+    true,
+    DerivationType.tz1,
+    publicKey,
+    publicKeyHash
+  );
+
+  return { signer, cleanup };
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
