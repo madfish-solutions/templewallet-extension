@@ -3,9 +3,11 @@ import * as React from "react";
 import { mutezToTz } from "../helpers";
 import { ThanosAssetType, ThanosToken } from "../types";
 import { useAssets } from "./assets";
+import { useAccount } from "./ready";
 
 interface TransferBase {
   type: "transferXTZ" | "transferToken";
+  from?: string;
   to: string;
   amount: BigNumber;
 }
@@ -21,15 +23,19 @@ interface RawTransferToken extends TransferBase {
 
 type RawTransfer = RawTransferXTZ | RawTransferToken;
 
-function tryParseTransfers(operations: any[]): RawTransfer[] {
-  return operations
-    .map((operation) => {
+type Operations = any[] | { branch: string; contents: any[] };
+
+function tryParseTransfers(operations: Operations): RawTransfer[] {
+  const operationsAsArray = operations instanceof Array ? operations : operations.contents;
+  return operationsAsArray
+    .map<RawTransfer | undefined>((operation) => {
       if (typeof operation !== "object") {
         return undefined;
       }
       if (!operation.parameter) {
         const rawAmount = operation.amount;
         const to = operation.to || operation.destination;
+        const from: string | undefined = operation.source;
         if (
           (typeof rawAmount !== "number" && typeof rawAmount !== "string") ||
           typeof to !== "string"
@@ -38,6 +44,7 @@ function tryParseTransfers(operations: any[]): RawTransfer[] {
         }
         return {
           type: "transferXTZ",
+          from,
           to,
           amount:
             operation.mutez === false
@@ -69,33 +76,42 @@ function tryParseTransfers(operations: any[]): RawTransfer[] {
     );
 }
 
-export type TransferXTZ = RawTransferXTZ;
+export type TransferXTZ = RawTransferXTZ & {
+  from: string;
+};
 export type TransferToken = Omit<RawTransferToken, "tokenAddress"> & {
   token: ThanosToken | string;
+  from: string;
 };
 export type Transfer = TransferXTZ | TransferToken;
 
-export function useTransfersData(operations: any[]): Transfer[] {
+export function useTransfersData(operations: Operations): Transfer[] {
   const { allAssets } = useAssets();
+  const account = useAccount();
   const transfers = React.useMemo(
     () =>
       tryParseTransfers(operations).map((operation) => {
         if (operation.type === "transferXTZ") {
-          return operation;
+          const { from, ...restProps } = operation;
+          return {
+            from: from || account.publicKeyHash,
+            ...restProps
+          };
         }
-        const { tokenAddress, amount, ...restProps } = operation;
+        const { from, tokenAddress, amount, ...restProps } = operation;
         const token = allAssets.find(
           (asset) =>
             asset.type !== ThanosAssetType.XTZ && asset.address === tokenAddress
         ) as ThanosToken;
 
         return {
+          from: from || account.publicKeyHash,
           token: token || tokenAddress,
           amount: token ? amount.div(10 ** token.decimals) : amount,
           ...restProps,
         };
       }),
-    [operations, allAssets]
+    [operations, allAssets, account.publicKeyHash]
   );
 
   return transfers;

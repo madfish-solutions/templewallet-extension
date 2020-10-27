@@ -55,13 +55,16 @@ interface RawTokenToTokenSwap extends SwapBase {
 
 type RawSwap = RawXTZToTokenSwap | RawTokenToXTZSwap | RawTokenToTokenSwap;
 
-function tryParseSwapOperations(operations: any[]): RawSwap | undefined {
-  if (!operations.every((operation) => typeof operation === "object")) {
+type Operations = any[] | { branch: string; contents: any[] };
+
+function tryParseSwapOperations(operations: Operations): RawSwap | undefined {
+  const operationsAsArray = operations instanceof Array ? operations : operations.contents;
+  if (!operationsAsArray.every((operation) => typeof operation === "object")) {
     return undefined;
   }
 
-  if (operations.length === 1) {
-    const operation = operations[0];
+  if (operationsAsArray.length === 1) {
+    const operation = operationsAsArray[0];
     if (operation.parameter?.entrypoint !== "use") {
       return undefined;
     }
@@ -88,8 +91,8 @@ function tryParseSwapOperations(operations: any[]): RawSwap | undefined {
       contractOutAddress,
     };
   }
-  if (operations.length === 2) {
-    const [swapApproveOperation, useOperation] = operations;
+  if (operationsAsArray.length === 2) {
+    const [swapApproveOperation, useOperation] = operationsAsArray;
     if (
       swapApproveOperation.parameter?.entrypoint !== "approve" ||
       useOperation.parameter?.entrypoint !== "use"
@@ -120,8 +123,8 @@ function tryParseSwapOperations(operations: any[]): RawSwap | undefined {
       tokenInAmount: new BigNumber(rawTokenAmount),
     };
   }
-  if (operations.length === 3) {
-    const [approveOperation, useOperationIn, useOperationOut] = operations;
+  if (operationsAsArray.length === 3) {
+    const [approveOperation, useOperationIn, useOperationOut] = operationsAsArray;
     if (
       approveOperation.parameter?.entrypoint !== "approve" ||
       useOperationIn.parameter?.entrypoint !== "use" ||
@@ -208,7 +211,7 @@ export type TokenToXTZSwap = Omit<RawTokenToXTZSwap, "tokenInAddress"> & {
 };
 export type Swap = XTZToTokenSwap | TokenToXTZSwap | TokenToTokenSwap;
 
-export function useSwapData(operations: any[]): Swap | undefined {
+export function useSwapData(operations: Operations): Swap | undefined {
   const { allAssets } = useAssets();
   const tezos = useTezos();
   const parsedData = React.useMemo(() => tryParseSwapOperations(operations), [

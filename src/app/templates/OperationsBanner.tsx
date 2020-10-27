@@ -4,7 +4,7 @@ import ReactJson from "react-json-view";
 import { t } from "lib/i18n/react";
 
 type OperationsBanner = {
-  opParams: any[];
+  opParams: any[] | { branch: string; contents: any[] };
   label?: React.ReactNode;
   className?: string;
 };
