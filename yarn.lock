@@ -1588,11 +1588,12 @@
   dependencies:
     nanoid "^3.1.10"
 
-"@thanos-wallet/ledger-bridge@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@thanos-wallet/ledger-bridge/-/ledger-bridge-0.5.0.tgz#1852240155a3da7704f8a3a7aa89102498feae36"
-  integrity sha512-95bpENHp/0JSf4h/vVxpyrdU/s5GdEptW7v/+Sl9m7XRdN96YGyUQDYBIzC2ckfjxBIAMy5iSI1Pfq3pxT2UmA==
+"@thanos-wallet/ledger-bridge@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@thanos-wallet/ledger-bridge/-/ledger-bridge-0.6.0.tgz#dd0b61565a15a037921f6df15bc77f02a97df182"
+  integrity sha512-hAqm8BiBXKiU9ipwlu1QLqcKNlIkkXBElrVMKju46zB8ab8/ItrN5nBAAHVwHvqN/OVcv6T5EgCXWE7F9+o1EA==
   dependencies:
+    "@ledgerhq/errors" "^5.26.0"
     "@ledgerhq/hw-transport" "^5.26.0"
     "@types/ledgerhq__hw-transport" "^4.21.3"
 

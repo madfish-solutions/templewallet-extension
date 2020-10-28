@@ -227,7 +227,7 @@ const ConnectLedger: React.FC = () => {
 
         <ConfirmLedgerOverlay displayed={submitting} />
 
-        {process.env.TARGET_BROWSER === "firefox" && (
+        {/* {process.env.TARGET_BROWSER === "firefox" && (
           <div
             className={classNames(
               "absolute inset-0",
@@ -252,7 +252,7 @@ const ConnectLedger: React.FC = () => {
               </span>
             </h1>
           </div>
-        )}
+        )} */}
       </div>
     </PageLayout>
   );
