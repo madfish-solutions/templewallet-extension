@@ -1,9 +1,13 @@
 import BigNumber from "bignumber.js";
 import * as React from "react";
-import { mutezToTz } from "../helpers";
-import { ThanosAssetType, ThanosToken } from "../types";
-import { useAssets } from "./assets";
-import { useAccount } from "./ready";
+import { mutezToTz } from "lib/thanos/helpers";
+import {
+  OperationsPreview,
+  ThanosAssetType,
+  ThanosToken,
+  useAssets,
+  useAccount,
+} from "lib/thanos/front";
 
 interface TransferBase {
   type: "transferXTZ" | "transferToken";
@@ -23,10 +27,9 @@ interface RawTransferToken extends TransferBase {
 
 type RawTransfer = RawTransferXTZ | RawTransferToken;
 
-type Operations = any[] | { branch: string; contents: any[] };
-
-function tryParseTransfers(operations: Operations): RawTransfer[] {
-  const operationsAsArray = operations instanceof Array ? operations : operations.contents;
+function tryParseTransfers(operations: OperationsPreview): RawTransfer[] {
+  const operationsAsArray =
+    operations instanceof Array ? operations : operations.contents;
   return operationsAsArray
     .map<RawTransfer | undefined>((operation) => {
       if (typeof operation !== "object") {
@@ -83,9 +86,9 @@ export type TransferToken = Omit<RawTransferToken, "tokenAddress"> & {
   token: ThanosToken | string;
   from: string;
 };
-export type Transfer = TransferXTZ | TransferToken;
+export type Transfer = TransferToken | TransferXTZ;
 
-export function useTransfersData(operations: Operations): Transfer[] {
+export function useTransfersData(operations: OperationsPreview): Transfer[] {
   const { allAssets } = useAssets();
   const account = useAccount();
   const transfers = React.useMemo(
@@ -95,7 +98,7 @@ export function useTransfersData(operations: Operations): Transfer[] {
           const { from, ...restProps } = operation;
           return {
             from: from || account.publicKeyHash,
-            ...restProps
+            ...restProps,
           };
         }
         const { from, tokenAddress, amount, ...restProps } = operation;

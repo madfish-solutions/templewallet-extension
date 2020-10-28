@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
 import * as React from "react";
 import classNames from "clsx";
+import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
 import { useLocation } from "lib/woozie";
 import {
   useThanosClient,
@@ -19,7 +20,6 @@ import {
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
-import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
 import ErrorBoundary from "app/ErrorBoundary";
 import Unlock from "app/pages/Unlock";
 import ContentContainer from "app/layouts/ContentContainer";
