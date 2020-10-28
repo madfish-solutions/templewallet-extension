@@ -1267,5 +1267,8 @@
         "content": "$1"
       }
     }
+  },
+  "expenses": {
+    "message": "Expenses"
   }
 }
