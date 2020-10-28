@@ -6,7 +6,8 @@ export type RawOperationAssetExpense = {
   amount: BigNumber;
 };
 export type RawOperationExpenses = {
-  type: string;
+	type: string;
+	isEntrypointInteraction: boolean;
   expenses: RawOperationAssetExpense[];
 };
 
@@ -20,13 +21,15 @@ export function tryParseExpenses(
     .map((operation) => {
       const { kind, source: from, amount } = operation;
       const entrypoint = operation.parameter?.entrypoint;
-      const type = entrypoint || kind;
+			const type = entrypoint || kind;
+			const isEntrypointInteraction = !!entrypoint;
       if (!kind) {
         return undefined;
       }
       if (from && from !== accountAddress) {
         return {
-          type,
+					type,
+					isEntrypointInteraction,
           expenses: [],
         };
       }
@@ -53,7 +56,8 @@ export function tryParseExpenses(
       }
 
       return {
-        type,
+				type,
+				isEntrypointInteraction,
         expenses,
       };
     })
