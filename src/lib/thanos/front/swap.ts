@@ -92,7 +92,7 @@ function tryParseSwapOperations(
         operation.mutez === false
           ? new BigNumber(rawXtzAmount)
           : mutezToTz(new BigNumber(rawXtzAmount)),
-      tokenOutAmount: new BigNumber(rawTokenAmount).plus(1),
+      tokenOutAmount: new BigNumber(rawTokenAmount),
       contractOutAddress,
     };
   }
@@ -166,7 +166,7 @@ function tryParseSwapOperations(
       tokenInAddress,
       tokenInAmount: new BigNumber(rawTokenInAmount),
       contractOutAddress,
-      tokenOutAmount: new BigNumber(rawTokenOutAmount).plus(1),
+      tokenOutAmount: new BigNumber(rawTokenOutAmount),
     };
   }
   return undefined;
