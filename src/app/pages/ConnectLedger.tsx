@@ -226,33 +226,6 @@ const ConnectLedger: React.FC = () => {
         </div>
 
         <ConfirmLedgerOverlay displayed={submitting} />
-
-        {/* {process.env.TARGET_BROWSER === "firefox" && (
-          <div
-            className={classNames(
-              "absolute inset-0",
-              "bg-white bg-opacity-90",
-              "p-4",
-              "flex flex-col items-center justify-center"
-            )}
-          >
-            <h1
-              className={classNames(
-                "mb-8",
-                "text-center",
-                "text-xl font-medium tracking-tight text-gray-600"
-              )}
-            >
-              <span className="text-base font-normal">
-                <span className="text-gray-700">Sorry!</span> Connection to the{" "}
-                <span className="text-gray-700">Ledger Nano</span>
-                <br />
-                device via <span className="text-gray-700">Firefox</span> is
-                temporarily <span className="text-gray-700">unavailable</span>.
-              </span>
-            </h1>
-          </div>
-        )} */}
       </div>
     </PageLayout>
   );
