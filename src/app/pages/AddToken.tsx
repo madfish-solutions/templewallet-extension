@@ -14,6 +14,7 @@ import {
   loadContract,
   fetchBalance,
 } from "lib/thanos/front";
+import { T, t } from "lib/i18n/react";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -25,7 +26,7 @@ const AddToken: React.FC = () => (
     pageTitle={
       <>
         <AddIcon className="w-auto h-4 mr-1 stroke-current" />
-        Add Token
+        <T id="addToken" />
       </>
     }
   >
@@ -89,10 +90,7 @@ const Form: React.FC = () => {
         try {
           contract = await loadContract(tezos, address);
         } catch (_err) {
-          throw new Error(
-            "The contract at this address is not available." +
-              " Does it exist on this network?"
-          );
+          throw new Error(t("contractNotAvailable"));
         }
 
         const token: ThanosToken = {
@@ -107,13 +105,11 @@ const Form: React.FC = () => {
 
         try {
           if (typeof contract.methods.transfer !== "function") {
-            throw new Error("No transfer method");
+            throw new Error(t("noTransferMethod"));
           }
           await fetchBalance(tezos, token, STUB_TEZOS_ADDRESS);
         } catch (_err) {
-          throw new Error(
-            "Provided token contract doesn't match FA1.2 standard"
-          );
+          throw new Error(t("tokenDoesNotMatchStandard"));
         }
 
         addToken(token);
@@ -138,7 +134,7 @@ const Form: React.FC = () => {
       {error && (
         <Alert
           type="error"
-          title="Error"
+          title={t("error")}
           autoFocus
           description={error}
           className="mb-6"
@@ -147,9 +143,13 @@ const Form: React.FC = () => {
 
       <div className={classNames("mb-6", "flex flex-col")}>
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-          <span className="text-base font-semibold text-gray-700">
-            Token type
-          </span>
+          <T id="tokenType">
+            {(message) => (
+              <span className="text-base font-semibold text-gray-700">
+                {message}
+              </span>
+            )}
+          </T>
 
           {/* <span
             className={classNames("mt-1", "text-xs font-light text-gray-600")}
@@ -200,7 +200,11 @@ const Form: React.FC = () => {
               >
                 {tt.name}
                 {tt.comingSoon && (
-                  <span className="ml-1 text-xs font-light">(coming soon)</span>
+                  <T id="comingSoonComment">
+                    {(message) => (
+                      <span className="ml-1 text-xs font-light">{message}</span>
+                    )}
+                  </T>
                 )}
               </button>
             );
@@ -209,57 +213,59 @@ const Form: React.FC = () => {
       </div>
 
       <FormField
-        ref={register({ required: "Required", validate: validateAddress })}
+        ref={register({ required: t("required"), validate: validateAddress })}
         name="address"
         id="addtoken-address"
-        label="Address"
-        labelDescription="Address of a deployed token contract."
-        placeholder="e.g. KT1v9CmPy..."
+        label={t("address")}
+        labelDescription={t("addressOfDeployedTokenContract")}
+        placeholder={t("tokenContractPlaceholder")}
         errorCaption={errors.address?.message}
         containerClassName="mb-4"
       />
 
       <FormField
         ref={register({
-          required: "Required",
+          required: t("required"),
           pattern: {
             value: /^[a-zA-Z0-9]{2,7}$/,
-            message: "Only a-z, A-Z, 0-9 chars allowed, 2-7 length",
+            message: t("tokenSymbolPatternDescription"),
           },
         })}
         name="symbol"
         id="addtoken-symbol"
-        label="Symbol"
-        labelDescription="Token symbol, like 'USD' for United States Dollar."
-        placeholder="e.g. WEW, BOW, LAL etc."
+        label={t("symbol")}
+        labelDescription={t("tokenSymbolInputDescription")}
+        placeholder={t("tokenSymbolInputPlaceholder")}
         errorCaption={errors.symbol?.message}
         containerClassName="mb-4"
       />
 
       <FormField
         ref={register({
-          required: "Required",
+          required: t("required"),
           pattern: {
             value: /^[a-zA-Z0-9 _-]{3,12}$/,
-            message: "No special characters, 3-12 length",
+            message: t("tokenNamePatternDescription"),
           },
         })}
         name="name"
         id="addtoken-name"
-        label="Name"
-        labelDescription="Token name, like 'Bitcoin' for BTC asset."
-        placeholder="e.g. MySuperToken"
+        label={t("name")}
+        labelDescription={t("tokenNameInputDescription")}
+        placeholder={t("tokenNameInputPlaceholder")}
         errorCaption={errors.name?.message}
         containerClassName="mb-4"
       />
 
       <FormField
-        ref={register({ min: { value: 0, message: "Integer, 0 or greater" } })}
+        ref={register({
+          min: { value: 0, message: t("nonNegativeIntMessage") },
+        })}
         type="number"
         name="decimals"
         id="addtoken-decimals"
-        label="Decimals"
-        labelDescription="A number of decimal places after point. For example: 8 for BTC, 2 for USD."
+        label={t("decimals")}
+        labelDescription={t("decimalsInputDescription")}
         placeholder="0"
         errorCaption={errors.decimals?.message}
         containerClassName="mb-4"
@@ -271,9 +277,9 @@ const Form: React.FC = () => {
             value: /(https:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i,
             message: (
               <ul className="list-disc list-inside">
-                <li>Valid image URL</li>
-                <li>Only HTTPS</li>
-                <li>Only .png, .jpg, .jpeg, .gif, .webp images allowed</li>
+                <T id="validImageURL">{(message) => <li>{message}</li>}</T>
+                <T id="onlyHTTPS">{(message) => <li>{message}</li>}</T>
+                <T id="formatsAllowed">{(message) => <li>{message}</li>}</T>
               </ul>
             ),
           },
@@ -282,19 +288,29 @@ const Form: React.FC = () => {
         id="addtoken-iconUrl"
         label={
           <>
-            Icon URL{" "}
-            <span className="text-sm font-light text-gary-600">(optional)</span>
+            <T id="iconURL" />{" "}
+            <T id="optionalComment">
+              {(message) => (
+                <span className="text-sm font-light text-gary-600">
+                  {message}
+                </span>
+              )}
+            </T>
           </>
         }
-        labelDescription="Image URL for token logo."
+        labelDescription={t("iconURLInputDescription")}
         placeholder="e.g. https://cdn.com/mytoken.png"
         errorCaption={errors.iconUrl?.message}
         containerClassName="mb-6"
       />
 
-      <FormSubmitButton loading={formState.isSubmitting}>
-        Add Token
-      </FormSubmitButton>
+      <T id="addToken">
+        {(message) => (
+          <FormSubmitButton loading={formState.isSubmitting}>
+            {message}
+          </FormSubmitButton>
+        )}
+      </T>
     </form>
   );
 };
@@ -302,10 +318,10 @@ const Form: React.FC = () => {
 function validateAddress(value: any) {
   switch (false) {
     case isAddressValid(value):
-      return "Invalid address";
+      return t("invalidAddress");
 
     case isKTAddress(value):
-      return "Only KT... contract address allowed";
+      return t("onlyKTContractAddressAllowed");
 
     default:
       return true;

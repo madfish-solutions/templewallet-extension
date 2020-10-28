@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
 import { useAccount } from "lib/thanos/front";
+import { T, t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
@@ -19,8 +20,8 @@ const Receive: React.FC = () => {
     <PageLayout
       pageTitle={
         <>
-          <QRIcon className="mr-1 h-4 w-auto stroke-current" />
-          Receive
+          <QRIcon className="w-auto h-4 mr-1 stroke-current" />
+          <T id="receive" />
         </>
       }
     >
@@ -31,10 +32,8 @@ const Receive: React.FC = () => {
             rows={2}
             ref={fieldRef}
             id="receive-address"
-            label="Address"
-            labelDescription={
-              <>Your current account address. Share it to receive funds.</>
-            }
+            label={t("address")}
+            labelDescription={t("accountAddressLabel")}
             value={address}
             size={36}
             spellCheck={false}
@@ -62,7 +61,7 @@ const Receive: React.FC = () => {
             onClick={copy}
           >
             {copied ? (
-              "Copied."
+              <T id="copiedAddress" />
             ) : (
               <>
                 <CopyIcon
@@ -72,16 +71,20 @@ const Receive: React.FC = () => {
                     "stroke-current stroke-2"
                   )}
                 />
-                Copy to clipboard
+                <T id="copyAddressToClipboard" />
               </>
             )}
           </button>
 
           <div className="flex flex-col items-center">
-            <div className="mb-2 text-center leading-tight">
-              <span className="text-sm font-semibold text-gray-700">
-                QRCode
-              </span>
+            <div className="mb-2 leading-tight text-center">
+              <T id="qrCode">
+                {(message) => (
+                  <span className="text-sm font-semibold text-gray-700">
+                    {message}
+                  </span>
+                )}
+              </T>
             </div>
 
             <div

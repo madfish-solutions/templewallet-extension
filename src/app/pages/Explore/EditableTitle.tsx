@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useThanosClient, useAccount } from "lib/thanos/front";
+import { T, t } from "lib/i18n/react";
 import Name from "app/atoms/Name";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
@@ -84,10 +85,10 @@ const EditableTitle: React.FC = () => {
   }, [setEditing]);
 
   return (
-    <div className="relative pt-4 flex items-center justify-center">
+    <div className="relative flex items-center justify-center pt-4">
       {editing ? (
         <form
-          className="flex-1 flex flex-col items-center"
+          className="flex flex-col items-center flex-1"
           onSubmit={handleEditSubmit}
         >
           <FormField
@@ -96,7 +97,7 @@ const EditableTitle: React.FC = () => {
             defaultValue={account.name}
             maxLength={16}
             pattern="^[a-zA-Z0-9 _-]{1,16}$"
-            title="1-16 characters, no special"
+            title={t("accountNameInputTitle")}
             spellCheck={false}
             className={classNames(
               "w-full mx-auto max-w-xs",
@@ -107,36 +108,44 @@ const EditableTitle: React.FC = () => {
             onBlur={handleEditFieldBlur}
           />
 
-          <div className="mb-2 flex items-stretch">
-            <button
-              type="button"
-              className={classNames(
-                "mx-1",
-                "px-2 py-1",
-                "rounded overflow-hidden",
-                "text-gray-600 text-sm",
-                "transition ease-in-out duration-200",
-                "hover:bg-black hover:bg-opacity-5",
-                "opacity-75 hover:opacity-100 focus:opacity-100"
+          <div className="flex items-stretch mb-2">
+            <T id="cancel">
+              {(message) => (
+                <button
+                  type="button"
+                  className={classNames(
+                    "mx-1",
+                    "px-2 py-1",
+                    "rounded overflow-hidden",
+                    "text-gray-600 text-sm",
+                    "transition ease-in-out duration-200",
+                    "hover:bg-black hover:bg-opacity-5",
+                    "opacity-75 hover:opacity-100 focus:opacity-100"
+                  )}
+                  onClick={handleCancelClick}
+                >
+                  {message}
+                </button>
               )}
-              onClick={handleCancelClick}
-            >
-              Cancel
-            </button>
+            </T>
 
-            <button
-              className={classNames(
-                "mx-1",
-                "px-2 py-1",
-                "rounded overflow-hidden",
-                "text-gray-600 text-sm",
-                "transition ease-in-out duration-200",
-                "hover:bg-black hover:bg-opacity-5",
-                "opacity-75 hover:opacity-100 focus:opacity-100"
+            <T id="save">
+              {(message) => (
+                <button
+                  className={classNames(
+                    "mx-1",
+                    "px-2 py-1",
+                    "rounded overflow-hidden",
+                    "text-gray-600 text-sm",
+                    "transition ease-in-out duration-200",
+                    "hover:bg-black hover:bg-opacity-5",
+                    "opacity-75 hover:opacity-100 focus:opacity-100"
+                  )}
+                >
+                  {message}
+                </button>
               )}
-            >
-              Save
-            </button>
+            </T>
           </div>
         </form>
       ) : (
@@ -170,7 +179,7 @@ const EditableTitle: React.FC = () => {
               "-ml-1 mr-1 h-4 w-auto stroke-current stroke-2"
             )}
           />
-          Edit
+          <T id="edit" />
         </button>
       )}
     </div>
