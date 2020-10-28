@@ -1,9 +1,13 @@
 import BigNumber from "bignumber.js";
 import * as React from "react";
 import { mutezToTz } from "lib/thanos/helpers";
-import { useAssets } from "./assets";
-import { useTezos } from "./ready";
-import { ThanosAssetType, ThanosToken } from "../types";
+import {
+  useAssets,
+  useTezos,
+  ThanosAssetType,
+  ThanosToken,
+  OperationsPreview,
+} from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 
 function tryParseUseOperation(operation: any) {
@@ -55,10 +59,11 @@ interface RawTokenToTokenSwap extends SwapBase {
 
 type RawSwap = RawXTZToTokenSwap | RawTokenToXTZSwap | RawTokenToTokenSwap;
 
-type Operations = any[] | { branch: string; contents: any[] };
-
-function tryParseSwapOperations(operations: Operations): RawSwap | undefined {
-  const operationsAsArray = operations instanceof Array ? operations : operations.contents;
+function tryParseSwapOperations(
+  operations: OperationsPreview
+): RawSwap | undefined {
+  const operationsAsArray =
+    operations instanceof Array ? operations : operations.contents;
   if (!operationsAsArray.every((operation) => typeof operation === "object")) {
     return undefined;
   }
@@ -124,7 +129,11 @@ function tryParseSwapOperations(operations: Operations): RawSwap | undefined {
     };
   }
   if (operationsAsArray.length === 3) {
-    const [approveOperation, useOperationIn, useOperationOut] = operationsAsArray;
+    const [
+      approveOperation,
+      useOperationIn,
+      useOperationOut,
+    ] = operationsAsArray;
     if (
       approveOperation.parameter?.entrypoint !== "approve" ||
       useOperationIn.parameter?.entrypoint !== "use" ||
@@ -211,7 +220,7 @@ export type TokenToXTZSwap = Omit<RawTokenToXTZSwap, "tokenInAddress"> & {
 };
 export type Swap = XTZToTokenSwap | TokenToXTZSwap | TokenToTokenSwap;
 
-export function useSwapData(operations: Operations): Swap | undefined {
+export function useSwapData(operations: OperationsPreview): Swap | undefined {
   const { allAssets } = useAssets();
   const tezos = useTezos();
   const parsedData = React.useMemo(() => tryParseSwapOperations(operations), [
