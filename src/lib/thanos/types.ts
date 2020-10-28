@@ -76,7 +76,9 @@ export enum ThanosAccountType {
 export interface ThanosNetwork {
   id: string;
   name: string;
+  nameI18nKey?: string;
   description: string;
+  descriptionI18nKey?: string;
   type: ThanosNetworkType;
   rpcBaseURL: string;
   color: string;
@@ -141,6 +143,7 @@ export interface ThanosSettings {
 
 export enum ThanosSharedStorageKey {
   DAppEnabled = "dappenabled",
+  LocaleCode = "localecode",
 }
 
 export type RawThanosPendingOperation = OperationContentsAndResult & {

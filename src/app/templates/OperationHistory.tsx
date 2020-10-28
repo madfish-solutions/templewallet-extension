@@ -6,6 +6,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
 import { TZSTATS_CHAINS } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
+import { T } from "lib/i18n/react";
 import {
   BcdPageableTokenTransfers,
   BcdTokenTransfer,
@@ -31,7 +32,7 @@ import {
 import useTippy from "lib/ui/useTippy";
 import InUSD from "app/templates/InUSD";
 import Identicon from "app/atoms/Identicon";
-import HashChip from "app/atoms/HashChip";
+import HashChip from "app/templates/HashChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
@@ -359,7 +360,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
             className="text-sm font-light text-center"
             style={{ maxWidth: "20rem" }}
           >
-            No operations found
+            <T id="noOperationsFound" />
           </h3>
         </div>
       )}
@@ -552,6 +553,8 @@ const Operation = React.memo<OperationProps>(
                           {formatDistanceToNow(new Date(time), {
                             includeSeconds: true,
                             addSuffix: true,
+                            // @TODO Add dateFnsLocale
+                            // locale: dateFnsLocale,
                           })}
                         </span>
                       )}
@@ -562,9 +565,13 @@ const Operation = React.memo<OperationProps>(
                     case failed:
                       return (
                         <div className="flex items-center">
-                          <span className="mr-1 text-xs font-light text-red-600">
-                            {status}
-                          </span>
+                          <T id={status}>
+                            {(message) => (
+                              <span className="mr-1 text-xs font-light text-red-600">
+                                {message}
+                              </span>
+                            )}
+                          </T>
 
                           {timeNode}
                         </div>
@@ -572,9 +579,13 @@ const Operation = React.memo<OperationProps>(
 
                     case pending:
                       return (
-                        <span className="text-xs font-light text-yellow-600">
-                          pending...
-                        </span>
+                        <T id="pending">
+                          {(message) => (
+                            <span className="text-xs font-light text-yellow-600">
+                              {message}
+                            </span>
+                          )}
+                        </T>
                       );
 
                     default:

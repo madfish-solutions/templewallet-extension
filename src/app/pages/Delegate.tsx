@@ -1,4 +1,5 @@
 import * as React from "react";
+import { T } from "lib/i18n/react";
 import PageLayout from "app/layouts/PageLayout";
 import DelegateForm from "app/templates/DelegateForm";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
@@ -6,9 +7,13 @@ import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 const Delegate: React.FC = () => (
   <PageLayout
     pageTitle={
-      <>
-        <DiamondIcon className="mr-1 h-4 w-auto stroke-current" /> Delegate
-      </>
+      <T id="delegate">
+        {(message) => (
+          <>
+            <DiamondIcon className="mr-1 h-4 w-auto stroke-current" /> {message}
+          </>
+        )}
+      </T>
     }
   >
     <div className="py-4">
