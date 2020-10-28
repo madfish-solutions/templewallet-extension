@@ -1259,7 +1259,7 @@
     node-hid "1.3.0"
     usb "^1.6.3"
 
-"@ledgerhq/hw-transport-webauthn@^5.26.0":
+"@ledgerhq/hw-transport-webauthn@5.26.0":
   version "5.26.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-webauthn/-/hw-transport-webauthn-5.26.0.tgz#82ff0968598c36c091d22ef26ca1a70a61a55bef"
   integrity sha512-W0ggl473hMWXPHqpFPLl2UipMXXhnpAc/Fyxqi/lz8Mk+i1oWAL2l9fWLxzOKS8GP6QV4Jc7YLB0usjQHH47ZA==
@@ -1588,7 +1588,7 @@
   dependencies:
     nanoid "^3.1.10"
 
-"@thanos-wallet/ledger-bridge@^0.6.0":
+"@thanos-wallet/ledger-bridge@0.6.0":
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/@thanos-wallet/ledger-bridge/-/ledger-bridge-0.6.0.tgz#dd0b61565a15a037921f6df15bc77f02a97df182"
   integrity sha512-hAqm8BiBXKiU9ipwlu1QLqcKNlIkkXBElrVMKju46zB8ab8/ItrN5nBAAHVwHvqN/OVcv6T5EgCXWE7F9+o1EA==
