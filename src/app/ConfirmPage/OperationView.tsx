@@ -5,6 +5,7 @@ import {
   ThanosAsset,
   ThanosDAppPayload,
   XTZ_ASSET,
+  RawOperationExpenses,
   RawOperationAssetExpense,
   tryParseExpenses,
   useAccount,
@@ -25,8 +26,7 @@ import { getAssetIconUrl } from "app/defaults";
 type OperationAssetExpense = Omit<RawOperationAssetExpense, "tokenAddress"> & {
   asset: ThanosAsset | string;
 };
-type OperationExpenses = {
-  type: string;
+type OperationExpenses = Omit<RawOperationExpenses, "expenses"> & {
   expenses: OperationAssetExpense[];
 };
 
@@ -54,8 +54,7 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
     [contentToParse, account.publicKeyHash]
   );
   const expensesData = React.useMemo(() => {
-    return rawExpensesData.map(({ type, expenses }) => ({
-      type,
+    return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, ...restProps }) => ({
         asset: tokenAddress
           ? allAssets.find(
@@ -66,6 +65,7 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
           : XTZ_ASSET,
         ...restProps,
       })),
+      ...restProps,
     }));
   }, [allAssets, rawExpensesData]);
 
@@ -236,16 +236,21 @@ const ExpenseViewContent: React.FC<OptionRenderProps<OperationExpenses>> = ({
 }) => {
   const operationTypeLabel = React.useMemo(() => {
     switch (item.type) {
-      // TODO: add processing of other operations types
+      // TODO: add translations for other operations types
       case "transaction":
       case "transfer":
-        return "Transfer";
+        return t("transfer");
       case "approve":
-        return "Approve expense";
+        return t("approveExpense");
       case "delegation":
-        return "Delegation";
+        return t("delegation");
       default:
-        return `Interaction with entrypoint '${item.type}'`;
+        return t(
+          item.isEntrypointInteraction
+            ? "interactionWithSomeEntrypoint"
+            : "transactionOfSomeType",
+          item.type
+        );
     }
   }, [item]);
   return (
