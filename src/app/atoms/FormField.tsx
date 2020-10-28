@@ -1,5 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
+import { T } from "lib/i18n/react";
 import useTippy from "lib/ui/useTippy";
 import { ReactComponent as LockAltIcon } from "app/icons/lock-alt.svg";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
@@ -246,7 +247,9 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
                     "stroke-current stroke-2"
                   )}
                 />
-                <span>Protected</span>
+                <T id="protectedFormField">
+                  {(message) => <span>{message}</span>}
+                </T>
               </p>
 
               <p
@@ -256,7 +259,9 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
                   "text-gray-500 text-sm"
                 )}
               >
-                <span>Click to reveal or edit this field</span>
+                <T id="clickToRevealOrEditField">
+                  {(message) => <span>{message}</span>}
+                </T>
               </p>
             </div>
           )}

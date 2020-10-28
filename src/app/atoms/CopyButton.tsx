@@ -1,41 +1,32 @@
 import * as React from "react";
+import { t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy from "lib/ui/useTippy";
 import classNames from "clsx";
 
 type HashChipProps = React.HTMLAttributes<HTMLButtonElement> & {
-  hash: string;
+  text: string;
   firstCharsCount?: number;
   lastCharsCount?: number;
   small?: boolean;
 };
 
 const HashChip: React.FC<HashChipProps> = ({
-  hash,
+  children,
+  text,
   firstCharsCount = 7,
   lastCharsCount = 4,
   small = false,
   className,
   ...rest
 }) => {
-  const shortHash = React.useMemo(() => {
-    const ln = hash.length;
-    return (
-      <>
-        {hash.slice(0, firstCharsCount)}
-        <span className="opacity-75">...</span>
-        {hash.slice(ln - lastCharsCount, ln)}
-      </>
-    );
-  }, [hash, firstCharsCount, lastCharsCount]);
-
   const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
 
   const tippyProps = React.useMemo(
     () => ({
       trigger: "mouseenter",
       hideOnClick: false,
-      content: copied ? "Copied." : "Copy to clipboard",
+      content: copied ? t("copiedHash") : t("copyHashToClipboard"),
       animation: "shift-away-subtle",
       onHidden() {
         setCopied(false);
@@ -62,10 +53,10 @@ const HashChip: React.FC<HashChipProps> = ({
         {...rest}
         onClick={copy}
       >
-        {shortHash}
+        {children}
       </button>
 
-      <input ref={fieldRef} value={hash} readOnly className="sr-only" />
+      <input ref={fieldRef} value={text} readOnly className="sr-only" />
     </>
   );
 };

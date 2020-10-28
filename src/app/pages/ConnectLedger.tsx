@@ -9,6 +9,7 @@ import {
   ThanosAccountType,
   validateDerivationPath,
 } from "lib/thanos/front";
+import { T, t } from "lib/i18n/react";
 import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormField from "app/atoms/FormField";
@@ -37,14 +38,16 @@ const ConnectLedger: React.FC = () => {
   const { createLedgerAccount } = useThanosClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
+
   const allLedgers = React.useMemo(
     () => allAccounts.filter((acc) => acc.type === ThanosAccountType.Ledger),
     [allAccounts]
   );
 
-  const defaultName = React.useMemo(() => `Ledger ${allLedgers.length + 1}`, [
-    allLedgers.length,
-  ]);
+  const defaultName = React.useMemo(
+    () => t("defaultLedgerName", String(allLedgers.length + 1)),
+    [allLedgers.length]
+  );
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
@@ -92,10 +95,14 @@ const ConnectLedger: React.FC = () => {
   return (
     <PageLayout
       pageTitle={
-        <>
-          <LinkIcon className="w-auto h-4 mr-1 stroke-current" />
-          Connect Ledger
-        </>
+        <T id="connectLedger">
+          {(message) => (
+            <>
+              <LinkIcon className="w-auto h-4 mr-1 stroke-current" />
+              {message}
+            </>
+          )}
+        </T>
       }
     >
       <div className="relative w-full">
@@ -104,7 +111,7 @@ const ConnectLedger: React.FC = () => {
             {error && (
               <Alert
                 type="error"
-                title="Error"
+                title={t("error")}
                 autoFocus
                 description={error}
                 className="mb-6"
@@ -115,11 +122,11 @@ const ConnectLedger: React.FC = () => {
               ref={register({
                 pattern: {
                   value: /^[a-zA-Z0-9 _-]{0,16}$/,
-                  message: "1-16 characters, no special",
+                  message: t("ledgerNameConstraint"),
                 },
               })}
-              label="Account name"
-              labelDescription="What will be the name of the new Ledger account?"
+              label={t("accountName")}
+              labelDescription={t("ledgerNameInputDescription")}
               id="create-ledger-name"
               type="text"
               name="name"
@@ -133,10 +140,14 @@ const ConnectLedger: React.FC = () => {
                 className={classNames("mb-4", "leading-tight", "flex flex-col")}
               >
                 <span className="text-base font-semibold text-gray-700">
-                  Derivation{" "}
-                  <span className="text-sm font-light text-gary-600">
-                    (optional)
-                  </span>
+                  <T id="derivation" />{" "}
+                  <T id="optionalComment">
+                    {(message) => (
+                      <span className="text-sm font-light text-gary-600">
+                        {message}
+                      </span>
+                    )}
+                  </T>
                 </span>
 
                 <span
@@ -146,9 +157,12 @@ const ConnectLedger: React.FC = () => {
                   )}
                   style={{ maxWidth: "90%" }}
                 >
-                  By default <b>44'/1729'/0'/0'</b> derivation is used.
+                  <T
+                    id="defaultDerivationPathLabel"
+                    substitutions={[<b>44'/1729'/0'/0'</b>]}
+                  />
                   <br />
-                  Click on 'Custom derivation path' to customize it.
+                  <T id="clickOnCustomDerivationPath" />
                 </span>
               </h2>
               <div
@@ -207,21 +221,25 @@ const ConnectLedger: React.FC = () => {
             {derivationPath.type === "custom" && (
               <FormField
                 ref={register({
-                  required: "Required",
+                  required: t("required"),
                   validate: validateDerivationPath,
                 })}
                 name="customDerivationPath"
                 id="importacc-cdp"
-                label="Custom derivation path"
-                placeholder="e.g. m/44'/1729'/..."
+                label={t("customDerivationPath")}
+                placeholder={t("derivationPathExample2")}
                 errorCaption={errors.customDerivationPath?.message}
                 containerClassName="mb-6"
               />
             )}
 
-            <FormSubmitButton loading={submitting} className="mt-8">
-              Add Ledger Account
-            </FormSubmitButton>
+            <T id="addLedgerAccount">
+              {(message) => (
+                <FormSubmitButton loading={submitting} className="mt-8">
+                  {message}
+                </FormSubmitButton>
+              )}
+            </T>
           </form>
         </div>
 

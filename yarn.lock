@@ -1563,7 +1563,7 @@
     rx-sandbox "^1.0.3"
     rxjs "^6.6.2"
 
-"@taquito/utils@^6.3.5-beta.0":
+"@taquito/utils@6.3.5-beta.0", "@taquito/utils@^6.3.5-beta.0":
   version "6.3.5-beta.0"
   resolved "https://registry.yarnpkg.com/@taquito/utils/-/utils-6.3.5-beta.0.tgz#a4101d384ccc966591b38db77456cb2a36a13963"
   integrity sha512-EFzDnTXMctbIEnt3yfgqPmogwxR2jTYnAZqxGOgfycYlZQWGNAfvgW5KFMlhYPAfYEAU/2euvE5BYMgnexBIOA==
@@ -1580,6 +1580,22 @@
     blakejs "^1.1.0"
     bs58check "^2.1.2"
     buffer "^5.6.0"
+
+"@tezos-domains/core@1.0.0-beta.13", "@tezos-domains/core@^1.0.0-beta.13":
+  version "1.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.0.0-beta.13.tgz#1d26f03437d8b28cc6bacb39f794a2d7889abb4f"
+  integrity sha512-K0YRNT4B3QQTBxoEC0gqyo7hS+ZUCMF4mS92YZOJdTA3dFZsFzWY3gqiSDmmUaAlpXtZwq0N8FKX7fC1C89B7Q==
+  dependencies:
+    bignumber.js "^9.0.0"
+    node-cache "^5.1.2"
+
+"@tezos-domains/resolver@1.0.0-beta.13":
+  version "1.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.0.0-beta.13.tgz#9ba43320cf8dfe763b7b0a376b0f590b07acec7d"
+  integrity sha512-1o0Vh5iednohOHCli5FkUVR3xhC8YGEi6VpMxht2gqqc0OfwgsoYE4/IelqnWuz09HlSCNTbbWcDWRe78hOFvQ==
+  dependencies:
+    "@tezos-domains/core" "^1.0.0-beta.13"
+    node-cache "^5.1.2"
 
 "@thanos-wallet/dapp@0.7.0":
   version "0.7.0"
@@ -3031,6 +3047,11 @@ clone-deep@^0.2.4:
     kind-of "^3.0.2"
     lazy-cache "^1.0.3"
     shallow-clone "^0.1.2"
+
+clone@2.x:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/clone/-/clone-2.1.2.tgz#1b7f4b9f591f1e8f83670401600345a02887435f"
+  integrity sha1-G39Ln1kfHo+DZwQBYANFoCiHQ18=
 
 clsx@1.1.1:
   version "1.1.1"
@@ -6347,6 +6368,13 @@ node-abi@^2.18.0, node-abi@^2.7.0:
   integrity sha512-HbtmIuByq44yhAzK7b9j/FelKlHYISKQn0mtvcBrU5QBkhoCMp5bu8Hv5AI34DcKfOAcJBcOEMwLlwO62FFu9A==
   dependencies:
     semver "^5.4.1"
+
+node-cache@^5.1.2:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/node-cache/-/node-cache-5.1.2.tgz#f264dc2ccad0a780e76253a694e9fd0ed19c398d"
+  integrity sha512-t1QzWwnk4sjLWaQAS8CHgOJ+RAfmHpxFWmc36IWTiWHQfs0w5JDMBS1b1ZxQteo0vVVuWJvIUKHDkkeK7vIGCg==
+  dependencies:
+    clone "2.x"
 
 node-emoji@^1.8.1:
   version "1.10.0"

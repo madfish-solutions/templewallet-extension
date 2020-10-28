@@ -68,7 +68,7 @@ export const store = createStore<StoreState>({
     networks: NETWORKS,
   }))
   .on(locked, () => ({
-    // Attension!
+    // Attention!
     // Security stuff!
     // Don't merge new state to exisitng!
     // Build a new state from scratch

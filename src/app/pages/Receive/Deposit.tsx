@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useNetwork } from "lib/thanos/front";
+import { T } from "lib/i18n/react";
 import Name from "app/atoms/Name";
 import { ReactComponent as FaucetIcon } from "app/misc/faucet.svg";
 import { ReactComponent as ExchangeIcon } from "app/misc/exchange.svg";
@@ -9,7 +10,7 @@ const ALL_DEPOSITS = [
   {
     networkType: "main",
     type: "exchange",
-    title: "Use CoinSwitch",
+    titleName: "useCoinSwitch",
     link: "https://coinswitch.thanoswallet.com/",
     icon: <ExchangeIcon />,
     color: "",
@@ -17,7 +18,7 @@ const ALL_DEPOSITS = [
   {
     networkType: "main",
     type: "faucet",
-    title: "Tezos Faucet",
+    titleName: "tezosFaucet",
     link: "https://faucet.tezos.com/",
     icon: <FaucetIcon />,
     color: "",
@@ -25,7 +26,7 @@ const ALL_DEPOSITS = [
   {
     networkType: "test",
     type: "faucet",
-    title: "Tezos Faucet (Alpha)",
+    titleName: "tezosFaucetAlpha",
     link: "https://faucet.tzalpha.net/",
     icon: <FaucetIcon />,
     color: "",
@@ -50,17 +51,24 @@ const Deposit: React.FC<DepositProps> = ({ address }) => {
   return (
     <div className="mt-8 w-full">
       <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-        <span className="text-base font-semibold text-gray-700">
-          Deposit to your wallet
-        </span>
+        <T id="depositToWallet">
+          {(message) => (
+            <span className="text-base font-semibold text-gray-700">
+              {message}
+            </span>
+          )}
+        </T>
 
-        <span
-          className={classNames("mt-1", "text-xs font-light text-gray-600")}
-          style={{ maxWidth: "90%" }}
-        >
-          Click on deposit method to get money on your wallet. Use faucet to get
-          free coins!
-        </span>
+        <T id="depositToWalletDescription">
+          {(message) => (
+            <span
+              className={classNames("mt-1", "text-xs font-light text-gray-600")}
+              style={{ maxWidth: "90%" }}
+            >
+              {message}
+            </span>
+          )}
+        </T>
       </h2>
       <div
         className={classNames(
@@ -112,7 +120,13 @@ const Deposit: React.FC<DepositProps> = ({ address }) => {
                   "leading-noneleading-none"
                 )}
               >
-                <Name className="text-base font-medium pb-1">{d.title}</Name>
+                <T id={d.titleName}>
+                  {(message) => (
+                    <Name className="text-base font-medium pb-1">
+                      {message}
+                    </Name>
+                  )}
+                </T>
               </div>
             </div>
           </a>
