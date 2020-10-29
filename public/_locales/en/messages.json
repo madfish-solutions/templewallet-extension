@@ -1273,5 +1273,11 @@
   },
   "noActiveNetLambdaWarningContent": {
     "message": "No lambda contract for the current network was specified. You can add it in the form below or click 'Deploy new' to deploy a new one and add automatically."
+  },
+  "add": {
+    "message": "Add"
+  },
+  "deployNew": {
+    "message": "Deploy new"
   }
 }
