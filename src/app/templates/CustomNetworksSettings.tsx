@@ -234,18 +234,7 @@ const CustomNetworksSettings: React.FC = () => {
                 validate: validateLambdaContract,
                 required: true,
               })}
-              label={
-                <>
-                  <T id="lambdaContract" />
-                  <T id="optionalComment">
-                    {(message) => (
-                      <span className="ml-1 text-sm font-light text-gray-600">
-                        {message}
-                      </span>
-                    )}
-                  </T>
-                </>
-              }
+              label={t("lambdaContract")}
               id="current-network-lambda-contract"
               name="lambdaContract"
               placeholder={t("lambdaContractPlaceholder")}
