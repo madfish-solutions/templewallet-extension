@@ -1,16 +1,26 @@
 import classNames from "clsx";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
-import { ThanosNetwork, useSettings, useThanosClient } from "lib/thanos/front";
+import {
+  ThanosNetwork,
+  useNetwork,
+  useSettings,
+  useTezos,
+  useThanosClient,
+  validateContractAddress,
+} from "lib/thanos/front";
 import { COLORS } from "lib/ui/colors";
 import { T, t } from "lib/i18n/react";
+import { viewLambda } from "lib/michelson";
+import { NETWORKS } from "lib/thanos/networks";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Name from "app/atoms/Name";
-import { NETWORKS } from "lib/thanos/networks";
+import HashShortView from "app/atoms/HashShortView";
+import Alert from "app/atoms/Alert";
 
-type FormData = Pick<ThanosNetwork, "name" | "rpcBaseURL">;
+type FormData = Pick<ThanosNetwork, "name" | "rpcBaseURL" | "lambdaContract">;
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
@@ -18,6 +28,9 @@ const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$
 const CustomNetworksSettings: React.FC = () => {
   const { updateSettings } = useThanosClient();
   const { customNetworks = [] } = useSettings();
+  const network = useNetwork();
+  const [showNoLambdaWarning, setShowNoLambdaWarning] = useState(false);
+  const tezos = useTezos();
 
   const {
     register,
@@ -34,6 +47,12 @@ const CustomNetworksSettings: React.FC = () => {
     async (data: FormData) => {
       if (submitting) return;
       clearError();
+
+      if (!showNoLambdaWarning && !data.lambdaContract) {
+        setShowNoLambdaWarning(true);
+        return;
+      }
+      setShowNoLambdaWarning(false);
 
       try {
         await updateSettings({
@@ -65,6 +84,7 @@ const CustomNetworksSettings: React.FC = () => {
       submitting,
       setError,
       updateSettings,
+      showNoLambdaWarning,
     ]
   );
 
@@ -131,6 +151,27 @@ const CustomNetworksSettings: React.FC = () => {
             errors.rpcBaseURL?.message ||
             (errors.rpcBaseURL?.type === "unique" ? t("mustBeUnique") : "")
           }
+          containerClassName="mb-4"
+        />
+
+        <FormField
+          ref={register({ validate: validateLambdaContract })}
+          label={
+            <>
+              <T id="lambdaContract" />
+              <T id="optionalComment">
+                {(message) => (
+                  <span className="ml-1 text-sm font-light text-gray-600">
+                    {message}
+                  </span>
+                )}
+              </T>
+            </>
+          }
+          id="lambda-contract"
+          name="lambdaContract"
+          placeholder={t("lambdaContractPlaceholder")}
+          errorCaption={errors.lambdaContract?.message}
           containerClassName="mb-6"
         />
 
@@ -140,6 +181,14 @@ const CustomNetworksSettings: React.FC = () => {
           )}
         </T>
       </form>
+
+      {showNoLambdaWarning && (
+        <Alert
+          className="mt-6"
+          title={t("attentionExclamation")}
+          description={t("noLambdaWarningContent")}
+        />
+      )}
 
       <div className="flex flex-col my-8">
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
@@ -208,7 +257,7 @@ type NetworksListItemProps = {
 
 const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
   const {
-    network: { name, nameI18nKey, rpcBaseURL, color },
+    network: { name, nameI18nKey, rpcBaseURL, color, lambdaContract },
     canRemove,
     onRemoveClick,
     last,
@@ -246,6 +295,14 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
         <div className="mt-1 text-xs leading-none text-gray-700">
           {rpcBaseURL}
         </div>
+        {lambdaContract && (
+          <div className="mt-1 text-xs leading-none text-gray-700">
+            <T
+              id="someLambda"
+              substitutions={<HashShortView hash={lambdaContract} />}
+            />
+          </div>
+        )}
       </div>
       {canRemove && (
         <button className="flex-none" onClick={handleRemoveClick}>
@@ -259,3 +316,7 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
     </div>
   );
 };
+
+function validateLambdaContract(value: any) {
+  return value ? validateContractAddress(value) : true;
+}

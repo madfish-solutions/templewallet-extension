@@ -143,7 +143,7 @@ const ConnectLedger: React.FC = () => {
                   <T id="derivation" />{" "}
                   <T id="optionalComment">
                     {(message) => (
-                      <span className="text-sm font-light text-gary-600">
+                      <span className="text-sm font-light text-gray-600">
                         {message}
                       </span>
                     )}
