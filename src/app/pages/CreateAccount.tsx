@@ -2,8 +2,9 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
+  ThanosAccountType,
   useThanosClient,
-  useRelevantAccounts,
+  useAllAccounts,
   useSetAccountPkh,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
@@ -20,12 +21,20 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 
 const CreateAccount: React.FC = () => {
   const { createAccount } = useThanosClient();
-  const allAccounts = useRelevantAccounts();
+  const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
+  const allHDOrImported = React.useMemo(
+    () =>
+      allAccounts.filter((acc) =>
+        [ThanosAccountType.HD, ThanosAccountType.Imported].includes(acc.type)
+      ),
+    [allAccounts]
+  );
+
   const defaultName = React.useMemo(
-    () => t("defaultAccountName", String(allAccounts.length + 1)),
-    [allAccounts.length]
+    () => t("defaultAccountName", String(allHDOrImported.length + 1)),
+    [allHDOrImported.length]
   );
 
   const prevAccLengthRef = React.useRef(allAccounts.length);

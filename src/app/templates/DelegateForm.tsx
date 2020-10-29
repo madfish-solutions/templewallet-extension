@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 import BigNumber from "bignumber.js";
-import { DEFAULT_FEE } from "@taquito/taquito";
+import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import { useLocation, Link } from "lib/woozie";
 import {
   XTZ_ASSET,
@@ -19,8 +19,8 @@ import {
   isAddressValid,
   isKTAddress,
   hasManager,
-  useAccountContract,
   ThanosAccountType,
+  loadContract,
 } from "lib/thanos/front";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
@@ -58,7 +58,6 @@ const DelegateForm: React.FC = () => {
   const net = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
-  const accountContract = useAccountContract();
 
   const accountPkh = acc.publicKeyHash;
   const assetSymbol = "XTZ";
@@ -154,9 +153,10 @@ const DelegateForm: React.FC = () => {
   const getEstimation = React.useCallback(
     async (to: string) => {
       if (acc.type === ThanosAccountType.ManagedKT) {
-        const transferParams = await accountContract!.methods
+        const contract = await loadContract(tezos, accountPkh);
+        const transferParams = contract.methods
           .do(setDelegate(to))
-          .toTransferParams({});
+          .toTransferParams();
         return tezos.estimate.transfer(transferParams);
       } else {
         return tezos.estimate.setDelegate({
@@ -165,7 +165,7 @@ const DelegateForm: React.FC = () => {
         });
       }
     },
-    [accountContract, tezos, accountPkh, acc.type]
+    [tezos, accountPkh, acc.type]
   );
 
   const cleanToField = React.useCallback(() => {
@@ -192,10 +192,9 @@ const DelegateForm: React.FC = () => {
         throw new ZeroBalanceError();
       }
 
-      const owner = await accountContract?.storage<string>();
       const estmtn = await getEstimation(toValue);
       const manager = tezos.rpc.getManagerKey(
-        acc.type === ThanosAccountType.ManagedKT ? owner! : accountPkh
+        acc.type === ThanosAccountType.ManagedKT ? acc.owner : accountPkh
       );
       let baseFee = mutezToTz(estmtn.totalCost);
       if (!hasManager(manager) && acc.type !== ThanosAccountType.ManagedKT) {
@@ -232,15 +231,7 @@ const DelegateForm: React.FC = () => {
           throw err;
       }
     }
-  }, [
-    tezos,
-    accountPkh,
-    toValue,
-    mutateBalance,
-    accountContract,
-    getEstimation,
-    acc.type,
-  ]);
+  }, [tezos, accountPkh, toValue, mutateBalance, getEstimation, acc]);
 
   const {
     data: baseFee,
@@ -297,11 +288,10 @@ const DelegateForm: React.FC = () => {
         const estmtn = await getEstimation(to);
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        let op;
+        let op: WalletOperation;
         if (acc.type === ThanosAccountType.ManagedKT) {
-          op = await accountContract!.methods
-            .do(setDelegate(to))
-            .send({ amount: 0 });
+          const contract = await loadContract(tezos, acc.publicKeyHash);
+          op = await contract.methods.do(setDelegate(to)).send({ amount: 0 });
         } else {
           op = await tezos.wallet
             .setDelegate({
@@ -329,7 +319,7 @@ const DelegateForm: React.FC = () => {
       }
     },
     [
-      acc.type,
+      acc,
       formState.isSubmitting,
       tezos,
       accountPkh,
@@ -337,7 +327,6 @@ const DelegateForm: React.FC = () => {
       setOperation,
       reset,
       getEstimation,
-      accountContract,
     ]
   );
 
