@@ -256,7 +256,7 @@ const ExpenseViewContent: React.FC<OptionRenderProps<OperationExpenses>> = ({
   return (
     <>
       <p className="text-xs text-gray-700">{operationTypeLabel}</p>
-      <div className="flex">
+      <div className="flex flex-wrap">
         {item.expenses.map(({ asset, amount }, index) => (
           <div
             className="mt-4 mr-4 flex flex-col items-center justify-center"
