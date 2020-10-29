@@ -9,7 +9,6 @@ import {
   useTezos,
   XTZ_ASSET,
   useThanosClient,
-  useChainId,
 } from "lib/thanos/front";
 import { getUsersContracts, TzktRelatedContract } from "lib/tzkt";
 import { T, t } from "lib/i18n/react";
@@ -35,7 +34,6 @@ const ManagedKTForm: React.FC = () => {
   const tezos = useTezos();
   const { importKTManagedAccount } = useThanosClient();
   const network = useNetwork();
-  const chainId = useChainId();
 
   const [error, setError] = useState<React.ReactNode>(null);
 
@@ -131,11 +129,17 @@ const ManagedKTForm: React.FC = () => {
       setError(null);
       try {
         const contract = await tezos.contract.at(contractAddress);
-        const owner = await contract.storage<string>();
+        const owner = await contract.storage();
+        if (typeof owner !== "string") {
+          throw new Error("Invalid managed contract");
+        }
+
         if (!accounts.some(({ publicKeyHash }) => publicKeyHash === owner)) {
           throw new Error(t("youAreNotContractManager"));
         }
-        await importKTManagedAccount(contractAddress, chainId!);
+
+        const chainId = await tezos.rpc.getChainId();
+        await importKTManagedAccount(contractAddress, chainId, owner);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -146,7 +150,7 @@ const ManagedKTForm: React.FC = () => {
         setError(err.message);
       }
     },
-    [formState, tezos, accounts, importKTManagedAccount, chainId]
+    [formState, tezos, accounts, importKTManagedAccount]
   );
 
   const handleKnownContractSelect = useCallback(
@@ -223,8 +227,12 @@ const ManagedKTForm: React.FC = () => {
         containerClassName="mb-4"
       />
 
-      {remainingUsersContracts.length > 0 && (
-        <div className={classNames("my-6", "flex flex-col")}>
+      <FormSubmitButton loading={formState.isSubmitting}>
+        <T id="importAccount" />
+      </FormSubmitButton>
+
+      {remainingUsersContracts.length > 0 && !contractAddressFilled && (
+        <div className={classNames("mt-8 mb-6", "flex flex-col")}>
           <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
             <span className="text-base font-semibold text-gray-700">
               <T id="addKnownContract" />
@@ -237,19 +245,17 @@ const ManagedKTForm: React.FC = () => {
               <T id="clickOnContractToImport" />
             </span>
           </h2>
+
           <CustomSelect
             getItemId={getContractAddress}
             items={remainingUsersContracts}
-            maxHeight="8rem"
+            maxHeight="11rem"
             onSelect={handleKnownContractSelect}
             OptionIcon={ContractIcon}
             OptionContent={ContractOptionContent}
           />
         </div>
       )}
-      <FormSubmitButton loading={formState.isSubmitting}>
-        <T id="importAccount" />
-      </FormSubmitButton>
     </form>
   );
 };

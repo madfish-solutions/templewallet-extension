@@ -7,12 +7,12 @@ import { TezosToolkit, CompositeForger, RpcForger } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
 import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
 import { DerivationType } from "@taquito/ledger-signer";
-import * as Passworder from "lib/thanos/passworder";
 import {
   ThanosAccount,
   ThanosAccountType,
   ThanosSettings,
 } from "lib/thanos/types";
+import * as Passworder from "lib/thanos/passworder";
 import { PublicError } from "lib/thanos/back/defaults";
 import {
   isStored,
@@ -304,7 +304,11 @@ export class Vault {
     });
   }
 
-  async importManagedKTAccount(accPublicKeyHash: string, chainId: string) {
+  async importManagedKTAccount(
+    accPublicKeyHash: string,
+    chainId: string,
+    owner: string
+  ) {
     return withError("Failed to import Managed KT account", async () => {
       const allAccounts = await this.fetchAccounts();
       const newAccount: ThanosAccount = {
@@ -312,6 +316,7 @@ export class Vault {
         name: getNewAccountName(allAccounts),
         publicKeyHash: accPublicKeyHash,
         chainId,
+        owner,
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 
@@ -426,9 +431,7 @@ export class Vault {
 
   private async getSigner(accPublicKeyHash: string) {
     const allAccounts = await this.fetchAccounts();
-    const acc = allAccounts.find(
-      (acc) => acc.publicKeyHash === accPublicKeyHash
-    );
+    const acc = allAccounts.find((a) => a.publicKeyHash === accPublicKeyHash);
     if (!acc) {
       throw new PublicError("Account not found");
     }

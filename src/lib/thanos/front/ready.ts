@@ -3,6 +3,7 @@ import constate from "constate";
 import { TezosToolkit } from "@taquito/taquito";
 import {
   ReadyThanosState,
+  ThanosAccountType,
   ThanosStatus,
   ThanosState,
   ThanosAsset,
@@ -11,7 +12,7 @@ import {
   domainsResolverFactory,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
-import { ThanosAccountType } from "lib/thanos/types";
+import { loadChainId } from "../helpers";
 
 export enum ActivationStatus {
   ActivationRequestSent,
@@ -96,33 +97,6 @@ function useReadyThanos() {
     [allAccounts, accountPkh, defaultAcc]
   );
 
-  const getAccountOwner = React.useCallback(
-    async (
-      _k: string,
-      address: string,
-      networkId: string,
-      accountType: ThanosAccountType
-    ) => {
-      if (accountType !== ThanosAccountType.ManagedKT) {
-        return undefined;
-      }
-
-      const checksum = [networkId, address].join("_");
-      const t = new ReactiveTezosToolkit(checksum);
-      t.setRpcProvider(
-        allNetworks.find((network) => network.id === networkId)!.rpcBaseURL
-      );
-      const contract = await t.contract.at(address);
-      const storage = await contract.storage();
-      return typeof storage === "string" ? storage : undefined;
-    },
-    [allNetworks]
-  );
-  const { data: accountOwner } = useRetryableSWR(
-    ["get-account-owner", accountPkh, networkId, account.type],
-    getAccountOwner
-  );
-
   /**
    * Error boundary reset
    */
@@ -137,34 +111,50 @@ function useReadyThanos() {
    */
 
   const tezos = React.useMemo(() => {
-    const { publicKeyHash: accountPkh } = account;
-    const checksum = [network.id, accountPkh].join("_");
+    const checksum = [network.id, account.publicKeyHash].join("_");
     const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
-    const signer = createTaquitoSigner(
-      account.type === ThanosAccountType.ManagedKT ? accountOwner! : accountPkh
-    );
-    const wallet = createTaquitoWallet(accountPkh, rpc);
+    const pkh =
+      account.type === ThanosAccountType.ManagedKT
+        ? account.owner
+        : account.publicKeyHash;
+    const signer = createTaquitoSigner(pkh);
+    const wallet = createTaquitoWallet(pkh, rpc);
     t.setProvider({ rpc, signer, wallet });
     return t;
-  }, [
-    createTaquitoSigner,
-    createTaquitoWallet,
-    network,
-    account,
-    accountOwner,
-  ]);
-
-  const tezosDomains = React.useMemo(
-    () => domainsResolverFactory(tezos, network.id),
-    [tezos, network.id]
-  );
+  }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
   React.useEffect(() => {
     if (process.env.NODE_ENV === "development") {
       (window as any).tezos = tezos;
     }
   }, [tezos]);
+
+  /**
+   * Tezos domains
+   */
+
+  const tezosDomains = React.useMemo(
+    () => domainsResolverFactory(tezos, network.id),
+    [tezos, network.id]
+  );
+
+  /**
+   * Lazy chain ID (network hash)
+   */
+
+  const fetchChainId = React.useCallback(async () => {
+    try {
+      return await loadChainId(tezos.rpc.getRpcUrl());
+    } catch {
+      return null;
+    }
+  }, [tezos]);
+  const { data: lazyChainId = null } = useRetryableSWR(
+    ["lazy-chain-id", tezos.checksum],
+    fetchChainId,
+    { revalidateOnFocus: false }
+  );
 
   return {
     allNetworks,
@@ -180,7 +170,32 @@ function useReadyThanos() {
     settings,
     tezos,
     tezosDomains,
+    lazyChainId,
   };
+}
+
+export function useRelevantAccounts(withManagedKT = true) {
+  const { lazyChainId, allAccounts } = useReadyThanos();
+
+  const relevantAccounts = React.useMemo(
+    () =>
+      allAccounts.filter((acc) =>
+        acc.type === ThanosAccountType.ManagedKT
+          ? withManagedKT && acc.chainId === lazyChainId
+          : true
+      ),
+    [allAccounts, lazyChainId, withManagedKT]
+  );
+
+  // React.useEffect(() => {
+  //   if (
+  //     relevantAccounts.every((a) => a.publicKeyHash !== account.publicKeyHash)
+  //   ) {
+  //     setAccountPkh(relevantAccounts[0].publicKeyHash);
+  //   }
+  // }, [relevantAccounts, account, setAccountPkh]);
+
+  return React.useMemo(() => relevantAccounts, [relevantAccounts]);
 }
 
 export const [ThanosRefsProvider, useAllAssetsRef] = constate(
@@ -195,88 +210,6 @@ function useRefs() {
   const allAssetsRef = React.useRef<ThanosAsset[]>([]);
 
   return { allAssetsRef };
-}
-
-export function useAccountContract() {
-  const { tezos, account } = useReadyThanos();
-
-  const getAccountContract = React.useCallback(
-    async (
-      _k: string,
-      address: string,
-      _rpcUrl: string,
-      accountType: ThanosAccountType
-    ) => {
-      if (accountType !== ThanosAccountType.ManagedKT) {
-        return undefined;
-      }
-
-      return tezos.contract.at(address);
-    },
-    [tezos]
-  );
-
-  const { data: accountContract } = useRetryableSWR(
-    [
-      "get-account-contract",
-      account.publicKeyHash,
-      tezos.rpc.getRpcUrl(),
-      account.type,
-      tezos.checksum,
-    ],
-    getAccountContract
-  );
-
-  return accountContract;
-}
-
-export function useChainId() {
-  const tezos = useTezos();
-
-  const getChainId = React.useCallback(async () => {
-    try {
-      return tezos.rpc.getChainId();
-    } catch (e) {
-      console.error(e);
-      return undefined;
-    }
-  }, [tezos]);
-
-  const { data: chainId } = useRetryableSWR(
-    ["get-chain-id", tezos.checksum],
-    getChainId,
-    { suspense: true }
-  );
-
-  return chainId;
-}
-
-export function useRelevantAccounts() {
-  const setAccountPkh = useSetAccountPkh();
-  const account = useAccount();
-  const allAccounts = useAllAccounts();
-  const chainId = useChainId();
-  const prevChainId = React.useRef(chainId);
-
-  const relevantAccounts = React.useMemo(() => {
-    return allAccounts.filter((account) => {
-      if (account.type !== ThanosAccountType.ManagedKT) {
-        return true;
-      }
-      return account.chainId === chainId;
-    });
-  }, [allAccounts, chainId]);
-
-  React.useEffect(() => {
-    if (
-      relevantAccounts.every((a) => a.publicKeyHash !== account.publicKeyHash)
-    ) {
-      setAccountPkh(relevantAccounts[0].publicKeyHash);
-    }
-    prevChainId.current = chainId;
-  }, [relevantAccounts, chainId, setAccountPkh, account]);
-
-  return relevantAccounts;
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {

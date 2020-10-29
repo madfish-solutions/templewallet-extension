@@ -57,6 +57,7 @@ export interface ThanosHDAccount extends ThanosAccountBase {
 export interface ThanosManagedKTAccount extends ThanosAccountBase {
   type: ThanosAccountType.ManagedKT;
   chainId: string;
+  owner: string;
 }
 
 export interface ThanosAccountBase {
@@ -499,6 +500,7 @@ export interface ThanosImportManagedKTAccountRequest extends ThanosMessageBase {
   type: ThanosMessageType.ImportManagedKTAccountRequest;
   address: string;
   chainId: string;
+  owner: string;
 }
 
 export interface ThanosImportManagedKTAccountResponse
