@@ -4,7 +4,7 @@ import { useLocation } from "lib/woozie";
 import {
   useThanosClient,
   useAccount,
-  useAllAccounts,
+  useRelevantAccounts,
   ThanosAccountType,
   ThanosDAppPayload,
   XTZ_ASSET,
@@ -76,7 +76,7 @@ const ConfirmDAppForm: React.FC = () => {
     confirmDAppOperation,
     confirmDAppSign,
   } = useThanosClient();
-  const allAccounts = useAllAccounts();
+  const allAccounts = useRelevantAccounts(false);
   const account = useAccount();
 
   const [accountPkhToConnect, setAccountPkhToConnect] = React.useState(
