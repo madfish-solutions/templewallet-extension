@@ -114,7 +114,9 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
           })}
         </div>
 
-        <Form />
+        <div className="w-full pb-1">
+          <Form />
+        </div>
       </div>
     </PageLayout>
   );
