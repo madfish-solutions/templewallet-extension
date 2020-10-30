@@ -173,11 +173,16 @@ export function importFundraiserAccount(
   });
 }
 
-export function importManagedKTAccount(address: string, chainId: string) {
+export function importManagedKTAccount(
+  address: string,
+  chainId: string,
+  owner: string
+) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.importManagedKTAccount(
       address,
-      chainId
+      chainId,
+      owner
     );
     accountsUpdated(updatedAccounts);
   });

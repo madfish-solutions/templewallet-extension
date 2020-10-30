@@ -7,12 +7,12 @@ import { TezosToolkit, CompositeForger, RpcForger } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
 import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
 import { DerivationType } from "@taquito/ledger-signer";
-import * as Passworder from "lib/thanos/passworder";
 import {
   ThanosAccount,
   ThanosAccountType,
   ThanosSettings,
 } from "lib/thanos/types";
+import * as Passworder from "lib/thanos/passworder";
 import { PublicError } from "lib/thanos/back/defaults";
 import {
   isStored,
@@ -21,6 +21,7 @@ import {
   removeMany,
 } from "lib/thanos/back/safe-storage";
 import { ThanosLedgerSigner } from "lib/thanos/back/ledger-signer";
+import { getMessage } from "lib/i18n";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
@@ -304,14 +305,22 @@ export class Vault {
     });
   }
 
-  async importManagedKTAccount(accPublicKeyHash: string, chainId: string) {
+  async importManagedKTAccount(
+    accPublicKeyHash: string,
+    chainId: string,
+    owner: string
+  ) {
     return withError("Failed to import Managed KT account", async () => {
       const allAccounts = await this.fetchAccounts();
       const newAccount: ThanosAccount = {
         type: ThanosAccountType.ManagedKT,
-        name: getNewAccountName(allAccounts),
+        name: getNewAccountName(
+          allAccounts.filter(({ type }) => type === ThanosAccountType.ManagedKT),
+          "defaultManagedKTAccountName"
+        ),
         publicKeyHash: accPublicKeyHash,
         chainId,
+        owner,
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 
@@ -426,9 +435,7 @@ export class Vault {
 
   private async getSigner(accPublicKeyHash: string) {
     const allAccounts = await this.fetchAccounts();
-    const acc = allAccounts.find(
-      (acc) => acc.publicKeyHash === accPublicKeyHash
-    );
+    const acc = allAccounts.find((a) => a.publicKeyHash === accPublicKeyHash);
     if (!acc) {
       throw new PublicError("Account not found");
     }
@@ -540,8 +547,8 @@ function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
   throw new PublicError("Account already exists");
 }
 
-function getNewAccountName(allAccounts: ThanosAccount[]) {
-  return `Account ${allAccounts.length + 1}`;
+function getNewAccountName(allAccounts: ThanosAccount[], templateI18nKey = "defaultAccountName") {
+  return getMessage(templateI18nKey, String(allAccounts.length + 1));
 }
 
 async function getPublicKeyAndHash(privateKey: string) {

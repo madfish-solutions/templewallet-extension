@@ -111,7 +111,7 @@ async function processRequest(
       };
 
     case ThanosMessageType.ImportManagedKTAccountRequest:
-      await Actions.importManagedKTAccount(req.address, req.chainId);
+      await Actions.importManagedKTAccount(req.address, req.chainId, req.owner);
       return {
         type: ThanosMessageType.ImportManagedKTAccountResponse,
       };

@@ -6,11 +6,11 @@ import { Link, navigate } from "lib/woozie";
 import { T, t } from "lib/i18n/react";
 import {
   useThanosClient,
-  useRelevantAccounts,
   useSetAccountPkh,
   validateDerivationPath,
   useTezos,
   ActivationStatus,
+  useAllAccounts,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
@@ -27,7 +27,7 @@ type ImportAccountProps = {
 };
 
 const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
-  const allAccounts = useRelevantAccounts();
+  const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
@@ -98,7 +98,7 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
                     to={`/import-account/${t.slug}`}
                     replace
                     className={classNames(
-                      "text-center cursor-pointer rounded-md mx-1 py-2 px-3",
+                      "text-center cursor-pointer rounded-md mx-1 py-2 px-3 mb-1",
                       "text-gray-600 text-sm",
                       active
                         ? "text-primary-orange bg-primary-orange bg-opacity-10"

@@ -76,7 +76,7 @@ const ConfirmDAppForm: React.FC = () => {
     confirmDAppOperation,
     confirmDAppSign,
   } = useThanosClient();
-  const allAccounts = useRelevantAccounts();
+  const allAccounts = useRelevantAccounts(false);
   const account = useAccount();
 
   const [accountPkhToConnect, setAccountPkhToConnect] = React.useState(
