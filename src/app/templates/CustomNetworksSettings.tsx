@@ -97,10 +97,8 @@ const CustomNetworksSettings: React.FC = () => {
         });
         resetNetworkForm();
       } catch (err) {
-        await withErrorHumanDelay(
-          () =>
-            setNetworkFormError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message),
-          err
+        await withErrorHumanDelay(err, () =>
+          setNetworkFormError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message)
         );
       }
     },
@@ -131,14 +129,8 @@ const CustomNetworksSettings: React.FC = () => {
         });
         resetLambdaForm();
       } catch (err) {
-        await withErrorHumanDelay(
-          () =>
-            setLambdaFormError(
-              "lambdaContract",
-              SUBMIT_ERROR_TYPE,
-              err.message
-            ),
-          err
+        await withErrorHumanDelay(err, () =>
+          setLambdaFormError("lambdaContract", SUBMIT_ERROR_TYPE, err.message)
         );
       }
     },
@@ -175,7 +167,7 @@ const CustomNetworksSettings: React.FC = () => {
         },
       });
     } catch (err) {
-      await withErrorHumanDelay(() => setLambdaDeploymentError(err), err);
+      await withErrorHumanDelay(err, () => setLambdaDeploymentError(err));
     } finally {
       setLambdaContractDeploying(false);
     }
