@@ -98,7 +98,7 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
                     to={`/import-account/${t.slug}`}
                     replace
                     className={classNames(
-                      "text-center cursor-pointer rounded-md mx-1 py-2 px-3",
+                      "text-center cursor-pointer rounded-md mx-1 py-2 px-3 mb-1",
                       "text-gray-600 text-sm",
                       active
                         ? "text-primary-orange bg-primary-orange bg-opacity-10"
@@ -114,9 +114,7 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
           })}
         </div>
 
-        <div className="w-full pb-1">
-          <Form />
-        </div>
+        <Form />
       </div>
     </PageLayout>
   );
