@@ -4,7 +4,7 @@ import { ThanosAccount, ThanosAccountType } from "lib/thanos/front";
 import { t } from "lib/i18n/react";
 
 type AccountTypeBadgeProps = {
-  account: ThanosAccount;
+  account: Pick<ThanosAccount, "type">;
   darkTheme?: boolean;
 };
 
@@ -32,6 +32,9 @@ const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
 
             case ThanosAccountType.Ledger:
               return t("ledger");
+
+            case ThanosAccountType.ManagedKT:
+              return t("managedKTAccount");
           }
         })()}
       </span>

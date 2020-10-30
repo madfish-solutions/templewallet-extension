@@ -5,6 +5,8 @@ import {
   useAssets,
   useAccount,
   ThanosAssetType,
+  ThanosAccountType,
+  XTZ_ASSET,
 } from "lib/thanos/front";
 import { T } from "lib/i18n/react";
 import { getAssetIconUrl } from "app/defaults";
@@ -28,7 +30,13 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
   onChange,
   className,
 }) => {
+  const account = useAccount();
   const { allAssets } = useAssets();
+  const relevantAssets = React.useMemo(
+    () =>
+      account.type === ThanosAccountType.ManagedKT ? [XTZ_ASSET] : allAssets,
+    [account.type, allAssets]
+  );
 
   const title = React.useMemo(
     () => (
@@ -63,7 +71,7 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
       OptionInMenuContent={AssetInMenuContent}
       OptionSelectedContent={AssetSelectedContent}
       getKey={getAssetKey}
-      options={allAssets}
+      options={relevantAssets}
       value={value}
       onChange={onChange}
       title={title}
