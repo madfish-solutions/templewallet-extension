@@ -334,6 +334,14 @@
       }
     }
   },
+  "defaultManagedKTAccountName": {
+    "message": "Managed KT $accountNumber$",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
   "accountsToRemoveConstraint": {
     "message": "HD accounts cannot be removed."
   },
