@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+
 export const transferImplicit = (key: string, mutez: BigNumber) => {
   return [
     { prim: "DROP" },
@@ -17,6 +18,7 @@ export const transferImplicit = (key: string, mutez: BigNumber) => {
     { prim: "CONS" },
   ];
 };
+
 export const transferToContract = (key: string, mutez: BigNumber) => {
   return [
     { prim: "DROP" },
@@ -41,6 +43,7 @@ export const transferToContract = (key: string, mutez: BigNumber) => {
     { prim: "CONS" },
   ];
 };
+
 export const setDelegate = (key: string) => {
   return [
     { prim: "DROP" },
