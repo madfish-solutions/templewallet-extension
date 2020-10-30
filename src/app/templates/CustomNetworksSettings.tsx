@@ -156,7 +156,7 @@ const CustomNetworksSettings: React.FC = () => {
         .originate({
           balance: "0",
           code: viewLambda,
-          init: { unit: null },
+          init: { prim: "Unit" },
         })
         .send();
       const contract = await op.contract();
@@ -167,7 +167,13 @@ const CustomNetworksSettings: React.FC = () => {
         },
       });
     } catch (err) {
-      await withErrorHumanDelay(err, () => setLambdaDeploymentError(err));
+      let error = err;
+      if (err.message?.includes("[object Object]") && err.node) {
+        error = new Error(
+          err.message.replace("[object Object]", JSON.stringify(err.node))
+        );
+      }
+      await withErrorHumanDelay(error, () => setLambdaDeploymentError(error));
     } finally {
       setLambdaContractDeploying(false);
     }
@@ -239,12 +245,16 @@ const CustomNetworksSettings: React.FC = () => {
               containerClassName="mb-6"
             />
             <div className="flex justify-between">
-              <FormSubmitButton loading={lambdaFormLoading}>
+              <FormSubmitButton
+                loading={lambdaFormSubmitting}
+                disabled={lambdaContractDeploying}
+              >
                 <T id="add" />
               </FormSubmitButton>
 
               <FormSecondaryButton
-                loading={lambdaFormLoading}
+                disabled={lambdaFormSubmitting}
+                loading={lambdaContractDeploying}
                 onClick={onLambdaDeployClick}
               >
                 <T id="deployNew" />
@@ -308,8 +318,16 @@ const CustomNetworksSettings: React.FC = () => {
           name="lambdaContract"
           placeholder={t("lambdaContractPlaceholder")}
           errorCaption={networkFormErrors.lambdaContract?.message}
-          containerClassName="mb-6"
+          containerClassName="mb-4"
         />
+
+        {showNoLambdaWarning && (
+          <Alert
+            className="mb-6"
+            title={t("attentionExclamation")}
+            description={t("noLambdaWarningContent")}
+          />
+        )}
 
         <T id="addNetwork">
           {(message) => (
@@ -319,14 +337,6 @@ const CustomNetworksSettings: React.FC = () => {
           )}
         </T>
       </form>
-
-      {showNoLambdaWarning && (
-        <Alert
-          className="mt-6"
-          title={t("attentionExclamation")}
-          description={t("noLambdaWarningContent")}
-        />
-      )}
 
       <div className="flex flex-col my-8">
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
