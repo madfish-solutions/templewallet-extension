@@ -3,10 +3,9 @@ import classNames from "clsx";
 import { Link } from "lib/woozie";
 import {
   useThanosClient,
-  useAllAccounts,
+  useRelevantAccounts,
   useAccount,
   useSetAccountPkh,
-  useNetwork,
 } from "lib/thanos/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { T } from "lib/i18n/react";
@@ -20,7 +19,6 @@ import Balance from "app/templates/Balance";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
-import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
@@ -34,8 +32,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
 }) => {
   const appEnv = useAppEnv();
   const { lock } = useThanosClient();
-  const network = useNetwork();
-  const allAccounts = useAllAccounts();
+  const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
 
@@ -80,13 +77,6 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           linkTo: "/connect-ledger",
           onClick: closeDropdown,
         },
-        network.type === "test" && {
-          key: "import-faucet-file",
-          Icon: CodeAltIcon,
-          i18nKey: "importFaucetFile",
-          linkTo: "/import-faucet-file",
-          onClick: closeDropdown,
-        },
         {
           key: "settings",
           Icon: SettingsIcon,
@@ -102,7 +92,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           onClick: handleMaximiseViewClick,
         },
       ].filter((Boolean as any) as ExcludesFalse),
-    [network.type, appEnv.fullPage, closeDropdown, handleMaximiseViewClick]
+    [appEnv.fullPage, closeDropdown, handleMaximiseViewClick]
   );
 
   return (
