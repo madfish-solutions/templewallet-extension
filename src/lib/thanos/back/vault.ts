@@ -21,6 +21,7 @@ import {
   removeMany,
 } from "lib/thanos/back/safe-storage";
 import { ThanosLedgerSigner } from "lib/thanos/back/ledger-signer";
+import { getMessage } from "lib/i18n";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
@@ -313,7 +314,10 @@ export class Vault {
       const allAccounts = await this.fetchAccounts();
       const newAccount: ThanosAccount = {
         type: ThanosAccountType.ManagedKT,
-        name: getNewAccountName(allAccounts),
+        name: getNewAccountName(
+          allAccounts.filter(({ type }) => type === ThanosAccountType.ManagedKT),
+          "defaultManagedKTAccountName"
+        ),
         publicKeyHash: accPublicKeyHash,
         chainId,
         owner,
@@ -543,8 +547,8 @@ function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
   throw new PublicError("Account already exists");
 }
 
-function getNewAccountName(allAccounts: ThanosAccount[]) {
-  return `Account ${allAccounts.length + 1}`;
+function getNewAccountName(allAccounts: ThanosAccount[], templateI18nKey = "defaultAccountName") {
+  return getMessage(templateI18nKey, String(allAccounts.length + 1));
 }
 
 async function getPublicKeyAndHash(privateKey: string) {
