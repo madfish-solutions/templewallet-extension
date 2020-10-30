@@ -47,14 +47,13 @@ const ManagedKTForm: React.FC = () => {
     ],
     [accounts, network]
   );
-  const { data: usersContracts } = useRetryableSWR(
+  const { data: usersContracts = [] } = useRetryableSWR(
     queryKey,
-    getUsersContracts,
-    { suspense: true }
+    getUsersContracts
   );
 
   const remainingUsersContracts = useMemo(() => {
-    return usersContracts!.filter(
+    return usersContracts.filter(
       ({ address }) =>
         !accounts.some(({ publicKeyHash }) => publicKeyHash === address)
     );
