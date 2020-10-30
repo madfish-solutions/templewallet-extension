@@ -139,6 +139,29 @@ function useReadyThanos() {
     [tezos, network.id]
   );
 
+  return {
+    allNetworks,
+    network,
+    networkId,
+    setNetworkId,
+
+    allAccounts,
+    account,
+    accountPkh,
+    setAccountPkh,
+
+    settings,
+    tezos,
+    tezosDomains,
+  };
+}
+
+export function useRelevantAccounts(withManagedKT = true) {
+  const tezos = useTezos();
+  const allAccounts = useAllAccounts();
+  const account = useAccount();
+  const setAccountPkh = useSetAccountPkh();
+
   /**
    * Lazy chain ID (network hash)
    */
@@ -156,27 +179,6 @@ function useReadyThanos() {
     { revalidateOnFocus: false }
   );
 
-  return {
-    allNetworks,
-    network,
-    networkId,
-    setNetworkId,
-
-    allAccounts,
-    account,
-    accountPkh,
-    setAccountPkh,
-
-    settings,
-    tezos,
-    tezosDomains,
-    lazyChainId,
-  };
-}
-
-export function useRelevantAccounts(withManagedKT = true) {
-  const { lazyChainId, allAccounts } = useReadyThanos();
-
   const relevantAccounts = React.useMemo(
     () =>
       allAccounts.filter((acc) =>
@@ -187,13 +189,13 @@ export function useRelevantAccounts(withManagedKT = true) {
     [allAccounts, lazyChainId, withManagedKT]
   );
 
-  // React.useEffect(() => {
-  //   if (
-  //     relevantAccounts.every((a) => a.publicKeyHash !== account.publicKeyHash)
-  //   ) {
-  //     setAccountPkh(relevantAccounts[0].publicKeyHash);
-  //   }
-  // }, [relevantAccounts, account, setAccountPkh]);
+  React.useEffect(() => {
+    if (
+      relevantAccounts.every((a) => a.publicKeyHash !== account.publicKeyHash) && lazyChainId
+    ) {
+      setAccountPkh(relevantAccounts[0].publicKeyHash);
+    }
+  }, [relevantAccounts, account, setAccountPkh, lazyChainId]);
 
   return React.useMemo(() => relevantAccounts, [relevantAccounts]);
 }
