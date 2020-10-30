@@ -1,8 +1,8 @@
 const DELAY = 300;
 
 export async function withErrorHumanDelay(
-	err: any,
-	callback: () => void | Promise<void>,
+  err: any,
+  callback: () => void | Promise<void>,
 ) {
   if (process.env.NODE_ENV === "development") {
     console.error(err);
