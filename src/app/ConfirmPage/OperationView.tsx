@@ -233,6 +233,7 @@ const ExpensesView: React.FC<ExpensesViewProps> = (props) => {
 
 const ExpenseViewContent: React.FC<OptionRenderProps<OperationExpenses>> = ({
   item,
+  index,
 }) => {
   const operationTypeLabel = React.useMemo(() => {
     switch (item.type) {
@@ -241,7 +242,7 @@ const ExpenseViewContent: React.FC<OptionRenderProps<OperationExpenses>> = ({
       case "transfer":
         return t("transfer");
       case "approve":
-        return t("approveExpense");
+        return t("approveToken");
       case "delegation":
         return t("delegation");
       default:
@@ -255,16 +256,15 @@ const ExpenseViewContent: React.FC<OptionRenderProps<OperationExpenses>> = ({
   }, [item]);
   return (
     <>
-      <p className="text-xs text-gray-700">{operationTypeLabel}</p>
-      <div className="flex flex-wrap">
+      <p className="text-xs text-gray-700">
+        {index + 1}. {operationTypeLabel}
+      </p>
+      <div className="flex flex-col">
         {item.expenses.map(({ asset, amount }, index) => (
-          <div
-            className="mt-4 mr-4 flex flex-col items-center justify-center"
-            key={index}
-          >
+          <div className="mt-2 flex flex-wrap items-center" key={index}>
             {typeof asset === "string" ? (
               <>
-                <Identicon className="h-8 w-auto mb-2" size={32} hash={asset} />
+                <Identicon className="h-8 w-auto mr-2" size={32} hash={asset} />
                 <span className="text-xl text-gray-700">
                   <Money>{amount}</Money>{" "}
                   <span className="text-base">
@@ -280,7 +280,7 @@ const ExpenseViewContent: React.FC<OptionRenderProps<OperationExpenses>> = ({
             ) : (
               <>
                 <img
-                  className="h-8 w-auto mb-2"
+                  className="h-8 w-auto mr-2"
                   alt={asset.symbol}
                   src={getAssetIconUrl(asset)}
                 />

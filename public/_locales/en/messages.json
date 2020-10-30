@@ -1290,7 +1290,7 @@
       }
     }
   },
-  "approveExpense": {
-    "message": "Approve expense"
+  "approveToken": {
+    "message": "Approve Token"
   }
 }
