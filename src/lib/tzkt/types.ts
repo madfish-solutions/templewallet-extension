@@ -23,6 +23,8 @@ export type TzktOperationStatus =
   | "backtracked"
   | "skipped";
 
+export type TzktContractType = "delegator_contract" | "smart_contract";
+
 export interface TzktAlias {
   alias?: string;
   address: string;
@@ -95,6 +97,22 @@ export type TzktOperation =
   | TzktTransactionOperation
   | TzktRevealOperation;
 
+export type TzktDelegateInfo = {
+  alias?: string;
+  address: string;
+  active: boolean;
+};
+
+export type TzktRelatedContract = {
+  kind: TzktContractType;
+  alias?: string;
+  address: string;
+  balance: number;
+  delegate?: TzktDelegateInfo;
+  creationLevel: number;
+  creationTime: string;
+};
+
 export const isDelegation = (
   operation: TzktOperation
 ): operation is TzktDelegationOperation => {
@@ -111,4 +129,17 @@ export const isReveal = (
   operation: TzktOperation
 ): operation is TzktRevealOperation => {
   return operation.type === "reveal";
+};
+
+const validTzktNetworks = [
+  "mainnet",
+  "babylonnet",
+  "carthagenet",
+  "zeronet",
+  "delphinet",
+];
+export const isValidTzktNetwork = (
+  networkId: string
+): networkId is TzktNetwork => {
+  return validTzktNetworks.includes(networkId);
 };

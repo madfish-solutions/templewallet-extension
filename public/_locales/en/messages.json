@@ -14,8 +14,11 @@
   "importAccount": {
     "message": "Import account"
   },
-  "importFaucetFile": {
-    "message": "Import Faucet file"
+  "faucetFileTitle": {
+    "message": "Faucet File"
+  },
+  "faucetFile": {
+    "message": "Faucet file"
   },
   "settings": {
     "message": "Settings"
@@ -331,16 +334,16 @@
       }
     }
   },
-  "accountsToRemoveConstraint": {
-    "message": "Only $importedPlural$ or $ledger$ accounts can be removed.",
+  "defaultManagedKTAccountName": {
+    "message": "Managed KT $accountNumber$",
     "placeholders": {
-      "importedPlural": {
+      "accountNumber": {
         "content": "$1"
-      },
-      "ledger": {
-        "content": "$2"
       }
     }
+  },
+  "accountsToRemoveConstraint": {
+    "message": "HD accounts cannot be removed."
   },
   "doNotSharePrivateKey": {
     "message": "$doNotShare$ this set of chars with anyone! It can be used to steal your current account.",
@@ -610,7 +613,12 @@
     "message": "Something went wrong"
   },
   "faucetFileInputPrompt": {
-    "message": "Drag & drop a file or select it manually by clicking on the area below. You can download it from "
+    "message": "Drag & drop a file or select it manually by clicking on the area below. You can download it from $link$.",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "processing": {
     "message": "Processing..."
@@ -1292,5 +1300,35 @@
   },
   "approveToken": {
     "message": "Approve Token"
+  },
+  "managedKTAccount": {
+    "message": "Managed KT"
+  },
+  "activationOperationType": {
+    "message": "Activation"
+  },
+  "youAreNotContractManager": {
+    "message": "You are not a contract manager"
+  },
+  "contract": {
+    "message": "Contract"
+  },
+  "contractAddressInputDescription": {
+    "message": "Address of the contract to connect."
+  },
+  "contractAddressInputPlaceholder": {
+    "message": "e.g. KT1a9w1S7hN5s..."
+  },
+  "addKnownContract": {
+    "message": "Add known contract"
+  },
+  "clickOnContractToImport": {
+    "message": "Click on Contract you want to import."
+  },
+  "notContractAddress": {
+    "message": "Not a contract address"
+  },
+  "contractAlreadyImported": {
+    "message": "This contract has already been imported"
   }
 }

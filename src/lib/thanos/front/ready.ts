@@ -3,6 +3,7 @@ import constate from "constate";
 import { TezosToolkit } from "@taquito/taquito";
 import {
   ReadyThanosState,
+  ThanosAccountType,
   ThanosStatus,
   ThanosState,
   ThanosAsset,
@@ -10,6 +11,8 @@ import {
   useThanosClient,
   domainsResolverFactory,
 } from "lib/thanos/front";
+import { useRetryableSWR } from "lib/swr";
+import { loadChainId } from "../helpers";
 
 export enum ActivationStatus {
   ActivationRequestSent,
@@ -108,25 +111,33 @@ function useReadyThanos() {
    */
 
   const tezos = React.useMemo(() => {
-    const checksum = [network.id, accountPkh].join("_");
+    const checksum = [network.id, account.publicKeyHash].join("_");
     const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
-    const signer = createTaquitoSigner(accountPkh);
-    const wallet = createTaquitoWallet(accountPkh, rpc);
+    const pkh =
+      account.type === ThanosAccountType.ManagedKT
+        ? account.owner
+        : account.publicKeyHash;
+    const signer = createTaquitoSigner(pkh);
+    const wallet = createTaquitoWallet(pkh, rpc);
     t.setProvider({ rpc, signer, wallet });
     return t;
-  }, [createTaquitoSigner, createTaquitoWallet, network, accountPkh]);
-
-  const tezosDomains = React.useMemo(
-    () => domainsResolverFactory(tezos, network.id),
-    [tezos, network.id]
-  );
+  }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
   React.useEffect(() => {
     if (process.env.NODE_ENV === "development") {
       (window as any).tezos = tezos;
     }
   }, [tezos]);
+
+  /**
+   * Tezos domains
+   */
+
+  const tezosDomains = React.useMemo(
+    () => domainsResolverFactory(tezos, network.id),
+    [tezos, network.id]
+  );
 
   return {
     allNetworks,
@@ -143,6 +154,50 @@ function useReadyThanos() {
     tezos,
     tezosDomains,
   };
+}
+
+export function useRelevantAccounts(withManagedKT = true) {
+  const tezos = useTezos();
+  const allAccounts = useAllAccounts();
+  const account = useAccount();
+  const setAccountPkh = useSetAccountPkh();
+
+  /**
+   * Lazy chain ID (network hash)
+   */
+
+  const fetchChainId = React.useCallback(async () => {
+    try {
+      return await loadChainId(tezos.rpc.getRpcUrl());
+    } catch {
+      return null;
+    }
+  }, [tezos]);
+  const { data: lazyChainId = null } = useRetryableSWR(
+    ["lazy-chain-id", tezos.checksum],
+    fetchChainId,
+    { revalidateOnFocus: false }
+  );
+
+  const relevantAccounts = React.useMemo(
+    () =>
+      allAccounts.filter((acc) =>
+        acc.type === ThanosAccountType.ManagedKT
+          ? withManagedKT && acc.chainId === lazyChainId
+          : true
+      ),
+    [allAccounts, lazyChainId, withManagedKT]
+  );
+
+  React.useEffect(() => {
+    if (
+      relevantAccounts.every((a) => a.publicKeyHash !== account.publicKeyHash) && lazyChainId
+    ) {
+      setAccountPkh(relevantAccounts[0].publicKeyHash);
+    }
+  }, [relevantAccounts, account, setAccountPkh, lazyChainId]);
+
+  return React.useMemo(() => relevantAccounts, [relevantAccounts]);
 }
 
 export const [ThanosRefsProvider, useAllAssetsRef] = constate(

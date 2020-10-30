@@ -110,6 +110,12 @@ async function processRequest(
         type: ThanosMessageType.ImportFundraiserAccountResponse,
       };
 
+    case ThanosMessageType.ImportManagedKTAccountRequest:
+      await Actions.importManagedKTAccount(req.address, req.chainId, req.owner);
+      return {
+        type: ThanosMessageType.ImportManagedKTAccountResponse,
+      };
+
     case ThanosMessageType.CreateLedgerAccountRequest:
       await Actions.craeteLedgerAccount(req.name, req.derivationPath);
       return {
