@@ -1,11 +1,10 @@
 import * as React from "react";
-import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
   ThanosAccountType,
   useThanosClient,
-  useAllAccounts,
+  useRelevantAccounts,
   useAccount,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
@@ -22,7 +21,7 @@ type FormData = {
 
 const RemoveAccount: React.FC = () => {
   const { removeAccount } = useThanosClient();
-  const allAccounts = useAllAccounts();
+  const allAccounts = useRelevantAccounts();
   const account = useAccount();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
@@ -82,49 +81,9 @@ const RemoveAccount: React.FC = () => {
         <Alert
           title={t("cannotBeRemoved")}
           description={
-            <T
-              id="accountsToRemoveConstraint"
-              substitutions={[
-                <T key="imported" id="importedPlural">
-                  {(message) => (
-                    <span
-                      className={classNames(
-                        "rounded-sm",
-                        "border",
-                        "px-1 py-px",
-                        "font-normal leading-tight"
-                      )}
-                      style={{
-                        fontSize: "0.75em",
-                        borderColor: "currentColor",
-                      }}
-                    >
-                      {message}
-                    </span>
-                  )}
-                </T>,
-                <T key="ledger" id="ledger">
-                  {(message) => (
-                    <span
-                      className={classNames(
-                        "rounded-sm",
-                        "border",
-                        "px-1 py-px",
-                        "font-normal leading-tight"
-                      )}
-                      style={{
-                        fontSize: "0.75em",
-                        borderColor: "currentColor",
-                      }}
-                    >
-                      {message}
-                    </span>
-                  )}
-                </T>,
-              ]}
-            >
-              {(message) => <p>{message}</p>}
-            </T>
+            <p>
+              <T id="accountsToRemoveConstraint" />
+            </p>
           }
           className="my-4"
         />

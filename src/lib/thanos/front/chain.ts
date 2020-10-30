@@ -2,13 +2,17 @@ import * as React from "react";
 import constate from "constate";
 import { trigger } from "swr";
 import { Subscription } from "@taquito/taquito";
-import { useTezos, useAllAccounts, useAllAssetsRef } from "lib/thanos/front";
+import {
+  useTezos,
+  useRelevantAccounts,
+  useAllAssetsRef,
+} from "lib/thanos/front";
 
 export const [NewBlockTriggersProvider] = constate(useNewBlockTriggers);
 
 function useNewBlockTriggers() {
   const tezos = useTezos();
-  const allAccounts = useAllAccounts();
+  const allAccounts = useRelevantAccounts();
   const allAssetsRef = useAllAssetsRef();
 
   const handleNewBlock = React.useCallback(() => {
