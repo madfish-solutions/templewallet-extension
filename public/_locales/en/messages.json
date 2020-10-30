@@ -1317,5 +1317,11 @@
   },
   "contractAlreadyImported": {
     "message": "This contract has already been imported"
+  },
+  "waitWhileContractBeingDeployed": {
+    "message": "Please don't leave this page or close window while contract is being deployed, it may take a while. The form and this alert will disappear as soon as it is successfully deployed."
+  },
+  "justAMinute": {
+    "message": "Just a minute..."
   }
 }

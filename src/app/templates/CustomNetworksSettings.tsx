@@ -37,36 +37,22 @@ const CustomNetworksSettings: React.FC = () => {
   const { lambdaContracts = {} } = useSettings();
   const network = useNetwork();
   const [showNoLambdaWarning, setShowNoLambdaWarning] = useState(false);
-  const tezos = useTezos();
 
   const {
-    register: networkFormRegister,
-    reset: resetNetworkForm,
-    handleSubmit: handleNetworkFormSubmit,
-    formState: networkFormState,
-    clearError: clearNetworkFormError,
-    setError: setNetworkFormError,
-    errors: networkFormErrors,
+    register,
+    reset: resetForm,
+    handleSubmit,
+    formState,
+    clearError,
+    setError,
+    errors,
   } = useForm<NetworkFormData>();
-  const networkFormSubmitting = networkFormState.isSubmitting;
-  const {
-    register: lambdaFormRegister,
-    reset: resetLambdaForm,
-    handleSubmit: handleLambdaFormSubmit,
-    formState: lambdaFormState,
-    clearError: clearLambdaFormError,
-    setError: setLambdaFormError,
-    errors: lambdaFormErrors,
-  } = useForm<LambdaFormData>();
-  const lambdaFormSubmitting = lambdaFormState.isSubmitting;
-  const [lambdaContractDeploying, setLambdaContractDeploying] = useState(false);
-  const [lambdaDeploymentError, setLambdaDeploymentError] = useState<Error>();
-  const lambdaFormLoading = lambdaFormSubmitting || lambdaContractDeploying;
+  const submitting = formState.isSubmitting;
 
   const onNetworkFormSubmit = useCallback(
     async ({ rpcBaseURL, name, lambdaContract }: NetworkFormData) => {
-      if (networkFormSubmitting) return;
-      clearNetworkFormError();
+      if (submitting) return;
+      clearError();
 
       if (!showNoLambdaWarning && !lambdaContract) {
         setShowNoLambdaWarning(true);
@@ -95,24 +81,212 @@ const CustomNetworksSettings: React.FC = () => {
               }
             : lambdaContracts,
         });
-        resetNetworkForm();
+        resetForm();
       } catch (err) {
         await withErrorHumanDelay(err, () =>
-          setNetworkFormError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message)
+          setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message)
         );
       }
     },
     [
-      clearNetworkFormError,
+      clearError,
       customNetworks,
       lambdaContracts,
-      resetNetworkForm,
-      networkFormSubmitting,
-      setNetworkFormError,
+      resetForm,
+      submitting,
+      setError,
       updateSettings,
       showNoLambdaWarning,
     ]
   );
+
+  const rpcURLIsUnique = useCallback(
+    (url: string) => {
+      return ![...defaultNetworks, ...customNetworks].some(
+        ({ rpcBaseURL }) => rpcBaseURL === url
+      );
+    },
+    [customNetworks, defaultNetworks]
+  );
+
+  const handleRemoveClick = useCallback(
+    (baseUrl: string) => {
+      if (!window.confirm(t("deleteNetworkConfirm"))) {
+        return;
+      }
+
+      const {
+        [baseUrl]: lambdaToRemove,
+        ...restLambdaContracts
+      } = lambdaContracts;
+      updateSettings({
+        customNetworks: customNetworks.filter(
+          ({ rpcBaseURL }) => rpcBaseURL !== baseUrl
+        ),
+        lambdaContracts: restLambdaContracts,
+      }).catch(async (err) => {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+        await new Promise((res) => setTimeout(res, 300));
+        setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message);
+      });
+    },
+    [customNetworks, setError, updateSettings, lambdaContracts]
+  );
+
+  return (
+    <div className="w-full max-w-sm p-2 pb-4 mx-auto">
+      {!network.lambdaContract && <LambdaContractSection />}
+      <form onSubmit={handleSubmit(onNetworkFormSubmit)}>
+        <FormField
+          ref={register({ required: t("required"), maxLength: 35 })}
+          label={t("name")}
+          id="name"
+          name="name"
+          placeholder={t("networkNamePlaceholder")}
+          errorCaption={errors.name?.message}
+          containerClassName="mb-4"
+          maxLength={35}
+        />
+
+        <FormField
+          ref={register({
+            required: t("required"),
+            pattern: {
+              value: URL_PATTERN,
+              message: t("mustBeValidURL"),
+            },
+            validate: {
+              unique: rpcURLIsUnique,
+            },
+          })}
+          label={t("rpcBaseURL")}
+          id="rpc-base-url"
+          name="rpcBaseURL"
+          placeholder="http://localhost:8545"
+          errorCaption={
+            errors.rpcBaseURL?.message ||
+            (errors.rpcBaseURL?.type === "unique" ? t("mustBeUnique") : "")
+          }
+          containerClassName="mb-4"
+        />
+
+        <FormField
+          ref={register({ validate: validateLambdaContract })}
+          label={
+            <>
+              <T id="lambdaContract" />
+              <T id="optionalComment">
+                {(message) => (
+                  <span className="ml-1 text-sm font-light text-gray-600">
+                    {message}
+                  </span>
+                )}
+              </T>
+            </>
+          }
+          id="lambda-contract"
+          name="lambdaContract"
+          placeholder={t("lambdaContractPlaceholder")}
+          errorCaption={errors.lambdaContract?.message}
+          containerClassName="mb-4"
+        />
+
+        {showNoLambdaWarning && (
+          <Alert
+            className="mb-6"
+            title={t("attentionExclamation")}
+            description={t("noLambdaWarningContent")}
+          />
+        )}
+
+        <T id="addNetwork">
+          {(message) => (
+            <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
+          )}
+        </T>
+      </form>
+
+      <div className="flex flex-col my-8">
+        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+          <T id="currentNetworks">
+            {(message) => (
+              <span className="text-base font-semibold text-gray-700">
+                {message}
+              </span>
+            )}
+          </T>
+
+          <T id="deleteNetworkHint">
+            {(message) => (
+              <span
+                className={classNames(
+                  "mt-1",
+                  "text-xs font-light text-gray-600"
+                )}
+                style={{ maxWidth: "90%" }}
+              >
+                {message}
+              </span>
+            )}
+          </T>
+        </h2>
+
+        <div
+          className={classNames(
+            "rounded-md overflow-hidden",
+            "border-2 bg-gray-100",
+            "flex flex-col",
+            "text-gray-700 text-sm leading-tight"
+          )}
+        >
+          {customNetworks.map((network) => (
+            <NetworksListItem
+              canRemove
+              network={network}
+              last={false}
+              key={network.rpcBaseURL}
+              onRemoveClick={handleRemoveClick}
+            />
+          ))}
+          {defaultNetworks.map((network, index) => (
+            <NetworksListItem
+              canRemove={false}
+              key={network.rpcBaseURL}
+              last={index === defaultNetworks.length - 1}
+              network={network}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CustomNetworksSettings;
+
+type LambdaContractSectionProps = {};
+
+const LambdaContractSection: React.FC<LambdaContractSectionProps> = (props) => {
+  const { updateSettings } = useThanosClient();
+  const tezos = useTezos();
+  const network = useNetwork();
+  const { lambdaContracts = {} } = useSettings();
+
+  const {
+    register: lambdaFormRegister,
+    reset: resetLambdaForm,
+    handleSubmit: handleLambdaFormSubmit,
+    formState: lambdaFormState,
+    clearError: clearLambdaFormError,
+    setError: setLambdaFormError,
+    errors: lambdaFormErrors,
+  } = useForm<LambdaFormData>();
+  const lambdaFormSubmitting = lambdaFormState.isSubmitting;
+  const [lambdaContractDeploying, setLambdaContractDeploying] = useState(false);
+  const [lambdaDeploymentError, setLambdaDeploymentError] = useState<Error>();
+  const lambdaFormLoading = lambdaFormSubmitting || lambdaContractDeploying;
 
   const onLambdaFormSubmit = useCallback(
     async (data: LambdaFormData) => {
@@ -179,222 +353,64 @@ const CustomNetworksSettings: React.FC = () => {
     }
   }, [lambdaFormLoading, lambdaContracts, network.id, tezos, updateSettings]);
 
-  const rpcURLIsUnique = useCallback(
-    (url: string) => {
-      return ![...defaultNetworks, ...customNetworks].some(
-        ({ rpcBaseURL }) => rpcBaseURL === url
-      );
-    },
-    [customNetworks, defaultNetworks]
-  );
-
-  const handleRemoveClick = useCallback(
-    (baseUrl: string) => {
-      if (!window.confirm(t("deleteNetworkConfirm"))) {
-        return;
-      }
-
-      const {
-        [baseUrl]: lambdaToRemove,
-        ...restLambdaContracts
-      } = lambdaContracts;
-      updateSettings({
-        customNetworks: customNetworks.filter(
-          ({ rpcBaseURL }) => rpcBaseURL !== baseUrl
-        ),
-        lambdaContracts: restLambdaContracts,
-      }).catch(async (err) => {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
-        await new Promise((res) => setTimeout(res, 300));
-        setNetworkFormError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message);
-      });
-    },
-    [customNetworks, setNetworkFormError, updateSettings, lambdaContracts]
-  );
-
   return (
-    <div className="w-full max-w-sm p-2 pb-4 mx-auto">
-      {!network.lambdaContract && (
-        <>
-          <Alert
-            className="mb-4"
-            title={t("attentionExclamation")}
-            description={t("noActiveNetLambdaWarningContent")}
-          />
-          {lambdaDeploymentError && (
-            <Alert
-              className="mb-4"
-              type="error"
-              title={t("error")}
-              description={lambdaDeploymentError.message}
-            />
-          )}
-          <form onSubmit={handleLambdaFormSubmit(onLambdaFormSubmit)}>
-            <FormField
-              ref={lambdaFormRegister({
-                validate: validateLambdaContract,
-                required: true,
-              })}
-              label={t("lambdaContract")}
-              id="current-network-lambda-contract"
-              name="lambdaContract"
-              placeholder={t("lambdaContractPlaceholder")}
-              errorCaption={lambdaFormErrors.lambdaContract?.message}
-              containerClassName="mb-6"
-            />
-            <div className="flex justify-between">
-              <FormSubmitButton
-                loading={lambdaFormSubmitting}
-                disabled={lambdaContractDeploying}
-              >
-                <T id="add" />
-              </FormSubmitButton>
-
-              <FormSecondaryButton
-                disabled={lambdaFormSubmitting}
-                loading={lambdaContractDeploying}
-                onClick={onLambdaDeployClick}
-              >
-                <T id="deployNew" />
-              </FormSecondaryButton>
-            </div>
-          </form>
-          <div className="my-4 w-full h-px bg-gray-200" />
-        </>
+    <>
+      {lambdaContractDeploying ? (
+        <Alert
+          className="mb-4"
+          title={t("justAMinute")}
+          description={t("waitWhileContractBeingDeployed")}
+          type="success"
+        />
+      ) : (
+        <Alert
+          className="mb-4"
+          title={t("attentionExclamation")}
+          description={t("noActiveNetLambdaWarningContent")}
+        />
       )}
-      <form onSubmit={handleNetworkFormSubmit(onNetworkFormSubmit)}>
-        <FormField
-          ref={networkFormRegister({ required: t("required"), maxLength: 35 })}
-          label={t("name")}
-          id="name"
-          name="name"
-          placeholder={t("networkNamePlaceholder")}
-          errorCaption={networkFormErrors.name?.message}
-          containerClassName="mb-4"
-          maxLength={35}
+      {lambdaDeploymentError && (
+        <Alert
+          className="mb-4"
+          type="error"
+          title={t("error")}
+          description={lambdaDeploymentError.message}
         />
-
+      )}
+      <form onSubmit={handleLambdaFormSubmit(onLambdaFormSubmit)}>
         <FormField
-          ref={networkFormRegister({
-            required: t("required"),
-            pattern: {
-              value: URL_PATTERN,
-              message: t("mustBeValidURL"),
-            },
-            validate: {
-              unique: rpcURLIsUnique,
-            },
+          ref={lambdaFormRegister({
+            validate: validateLambdaContract,
+            required: true,
           })}
-          label={t("rpcBaseURL")}
-          id="rpc-base-url"
-          name="rpcBaseURL"
-          placeholder="http://localhost:8545"
-          errorCaption={
-            networkFormErrors.rpcBaseURL?.message ||
-            (networkFormErrors.rpcBaseURL?.type === "unique"
-              ? t("mustBeUnique")
-              : "")
-          }
-          containerClassName="mb-4"
-        />
-
-        <FormField
-          ref={networkFormRegister({ validate: validateLambdaContract })}
-          label={
-            <>
-              <T id="lambdaContract" />
-              <T id="optionalComment">
-                {(message) => (
-                  <span className="ml-1 text-sm font-light text-gray-600">
-                    {message}
-                  </span>
-                )}
-              </T>
-            </>
-          }
-          id="lambda-contract"
+          label={t("lambdaContract")}
+          id="current-network-lambda-contract"
           name="lambdaContract"
           placeholder={t("lambdaContractPlaceholder")}
-          errorCaption={networkFormErrors.lambdaContract?.message}
-          containerClassName="mb-4"
+          errorCaption={lambdaFormErrors.lambdaContract?.message}
+          containerClassName="mb-6"
         />
+        <div className="flex justify-between">
+          <FormSubmitButton
+            loading={lambdaFormSubmitting}
+            disabled={lambdaContractDeploying}
+          >
+            <T id="add" />
+          </FormSubmitButton>
 
-        {showNoLambdaWarning && (
-          <Alert
-            className="mb-6"
-            title={t("attentionExclamation")}
-            description={t("noLambdaWarningContent")}
-          />
-        )}
-
-        <T id="addNetwork">
-          {(message) => (
-            <FormSubmitButton loading={networkFormSubmitting}>
-              {message}
-            </FormSubmitButton>
-          )}
-        </T>
-      </form>
-
-      <div className="flex flex-col my-8">
-        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-          <T id="currentNetworks">
-            {(message) => (
-              <span className="text-base font-semibold text-gray-700">
-                {message}
-              </span>
-            )}
-          </T>
-
-          <T id="deleteNetworkHint">
-            {(message) => (
-              <span
-                className={classNames(
-                  "mt-1",
-                  "text-xs font-light text-gray-600"
-                )}
-                style={{ maxWidth: "90%" }}
-              >
-                {message}
-              </span>
-            )}
-          </T>
-        </h2>
-
-        <div
-          className={classNames(
-            "rounded-md overflow-hidden",
-            "border-2 bg-gray-100",
-            "flex flex-col",
-            "text-gray-700 text-sm leading-tight"
-          )}
-        >
-          {customNetworks.map((network) => (
-            <NetworksListItem
-              canRemove
-              network={network}
-              last={false}
-              key={network.rpcBaseURL}
-              onRemoveClick={handleRemoveClick}
-            />
-          ))}
-          {defaultNetworks.map((network, index) => (
-            <NetworksListItem
-              canRemove={false}
-              key={network.rpcBaseURL}
-              last={index === defaultNetworks.length - 1}
-              network={network}
-            />
-          ))}
+          <FormSecondaryButton
+            disabled={lambdaFormSubmitting}
+            loading={lambdaContractDeploying}
+            onClick={onLambdaDeployClick}
+          >
+            <T id="deployNew" />
+          </FormSecondaryButton>
         </div>
-      </div>
-    </div>
+      </form>
+      <div className="my-4 w-full h-px bg-gray-200" />
+    </>
   );
 };
-
-export default CustomNetworksSettings;
 
 type NetworksListItemProps = {
   canRemove: boolean;
