@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { useAccount } from "lib/thanos/front";
+import { ThanosAccountType, useAccount } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
@@ -120,7 +120,14 @@ const Explore: React.FC = () => {
       <T id="operations">{(message) => <SubTitle>{message}</SubTitle>}</T>
 
       <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
-        <OperationHistory accountPkh={accountPkh} />
+        <OperationHistory
+          accountPkh={accountPkh}
+          accountOwner={
+            account.type === ThanosAccountType.ManagedKT
+              ? account.owner
+              : undefined
+          }
+        />
       </SuspenseContainer>
     </PageLayout>
   );

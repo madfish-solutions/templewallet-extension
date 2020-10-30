@@ -3,11 +3,12 @@ import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 import BigNumber from "bignumber.js";
-import { DEFAULT_FEE } from "@taquito/taquito";
+import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
+import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import {
   ThanosAsset,
   XTZ_ASSET,
-  useAllAccounts,
+  useRelevantAccounts,
   useAccount,
   useTezos,
   useCurrentAsset,
@@ -27,7 +28,10 @@ import {
   isDomainNameValid,
   useNetwork,
   isTzdnsSupportedNetwork,
+  ThanosAccountType,
+  loadContract,
 } from "lib/thanos/front";
+import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
 import {
@@ -100,7 +104,7 @@ type FormProps = {
 const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
 
-  const allAccounts = useAllAccounts();
+  const allAccounts = useRelevantAccounts();
   const acc = useAccount();
   const tezos = useTezos();
   const tezosDomains = useTezosDomains();
@@ -227,12 +231,30 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
 
       const [transferParams, manager] = await Promise.all([
-        toTransferParams(tezos, localAsset, to, toPenny(localAsset)),
-        tezos.rpc.getManagerKey(accountPkh),
+        toTransferParams(
+          tezos,
+          localAsset,
+          accountPkh,
+          to,
+          toPenny(localAsset)
+        ),
+        tezos.rpc.getManagerKey(
+          acc.type === ThanosAccountType.ManagedKT ? acc.owner : accountPkh
+        ),
       ]);
 
-      let estmtnMax;
-      if (xtz) {
+      let estmtnMax: Estimate;
+      if (acc.type === ThanosAccountType.ManagedKT) {
+        const michelsonLambda = isKTAddress(to)
+          ? transferToContract
+          : transferImplicit;
+
+        const contract = await loadContract(tezos, acc.publicKeyHash);
+        const transferParams = contract.methods
+          .do(michelsonLambda(to, tzToMutez(balanceBN)))
+          .toTransferParams();
+        estmtnMax = await tezos.estimate.transfer(transferParams);
+      } else if (xtz) {
         const estmtn = await tezos.estimate.transfer(transferParams);
         let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
         if (!hasManager(manager)) {
@@ -278,6 +300,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
     }
   }, [
+    acc,
     tezos,
     localAsset,
     accountPkh,
@@ -334,16 +357,26 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
     return localAsset.type === ThanosAssetType.XTZ
       ? (() => {
-          let ma = new BigNumber(balanceNum)
-            .minus(baseFee)
-            .minus(safeFeeValue ?? 0);
+          let ma =
+            acc.type === ThanosAccountType.ManagedKT
+              ? new BigNumber(balanceNum)
+              : new BigNumber(balanceNum)
+                  .minus(baseFee)
+                  .minus(safeFeeValue ?? 0);
           if (myBakerPkh) {
             ma = ma.minus(PENNY);
           }
           return BigNumber.max(ma, 0);
         })()
       : new BigNumber(balanceNum);
-  }, [localAsset.type, balanceNum, baseFee, safeFeeValue, myBakerPkh]);
+  }, [
+    acc.type,
+    localAsset.type,
+    balanceNum,
+    baseFee,
+    safeFeeValue,
+    myBakerPkh,
+  ]);
 
   const maxAmountNum = React.useMemo(
     () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
@@ -420,18 +453,31 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       setOperation(null);
 
       try {
-        const transferParams = await toTransferParams(
-          tezos,
-          localAsset,
-          toResolved,
-          amount
-        );
-        const estmtn = await tezos.estimate.transfer(transferParams);
-        const addFee = tzToMutez(feeVal ?? 0);
-        const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        const op = await tezos.wallet
-          .transfer({ ...transferParams, fee } as any)
-          .send();
+        let op: WalletOperation;
+        if (isKTAddress(acc.publicKeyHash)) {
+          const michelsonLambda = isKTAddress(toResolved)
+            ? transferToContract
+            : transferImplicit;
+
+          const contract = await loadContract(tezos, acc.publicKeyHash);
+          op = await contract.methods
+            .do(michelsonLambda(toResolved, tzToMutez(amount)))
+            .send({ amount: 0 });
+        } else {
+          const transferParams = await toTransferParams(
+            tezos,
+            localAsset,
+            accountPkh,
+            toResolved,
+            amount
+          );
+          const estmtn = await tezos.estimate.transfer(transferParams);
+          const addFee = tzToMutez(feeVal ?? 0);
+          const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
+          op = await tezos.wallet
+            .transfer({ ...transferParams, fee } as any)
+            .send();
+        }
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
       } catch (err) {
@@ -449,12 +495,14 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
     },
     [
+      acc,
       formState.isSubmitting,
       tezos,
       localAsset,
       setSubmitError,
       setOperation,
       reset,
+      accountPkh,
       toResolved,
     ]
   );
