@@ -1,11 +1,12 @@
 import React, { useMemo, useCallback } from "react";
 import classNames from "clsx";
+import { browser } from "webextension-polyfill-ts";
 import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
+import Flag from "app/atoms/Flag";
 import IconifiedSelect, {
   IconifiedSelectOptionRenderProps,
 } from "./IconifiedSelect";
-import Flag from "app/atoms/Flag";
-import { browser } from "webextension-polyfill-ts";
+
 type LocaleSelectProps = {
   className?: string;
 };
@@ -79,7 +80,7 @@ const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
 }) => (
   <Flag
     alt={code}
-    className="mr-3"
+    className="ml-2 mr-3"
     src={browser.runtime.getURL(`/misc/country-flags/${flagName}.svg`)}
   />
 );
@@ -87,14 +88,14 @@ const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
 const LocaleInMenuContent: React.FC<IconifiedSelectOptionRenderProps<
   LocaleOption
 >> = ({ option }) => {
-  return <span className="text-gray-700 text-lg">{option.label}</span>;
+  return <span className="text-lg text-gray-700">{option.label}</span>;
 };
 
 const LocaleSelectContent: React.FC<IconifiedSelectOptionRenderProps<
   LocaleOption
 >> = ({ option }) => {
   return (
-    <div className="flex flex-col items-start">
+    <div className="flex flex-col items-start py-2">
       <span className="text-xl text-gray-700">{option.label}</span>
     </div>
   );
