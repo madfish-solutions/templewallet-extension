@@ -100,6 +100,7 @@ export async function fetchBalance(
 export async function toTransferParams(
   tezos: TezosToolkit,
   asset: ThanosAsset,
+  fromPkh: string,
   toPkh: string,
   amount: number
 ) {
@@ -116,7 +117,7 @@ export async function toTransferParams(
       const contact = await loadContract(tezos, asset.address);
       return contact.methods
         .transfer(
-          await tezos.signer.publicKeyHash(),
+          fromPkh,
           toPkh,
           new BigNumber(amount).times(10 ** asset.decimals).toString()
         )

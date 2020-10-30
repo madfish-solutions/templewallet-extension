@@ -232,11 +232,12 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   );
 
   const importKTManagedAccount = React.useCallback(
-    async (address: string, chainId: string) => {
+    async (address: string, chainId: string, owner: string) => {
       const res = await request({
         type: ThanosMessageType.ImportManagedKTAccountRequest,
         address,
         chainId,
+        owner,
       });
       assertResponse(
         res.type === ThanosMessageType.ImportManagedKTAccountResponse

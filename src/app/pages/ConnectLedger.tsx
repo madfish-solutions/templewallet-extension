@@ -5,7 +5,7 @@ import { navigate } from "lib/woozie";
 import {
   useThanosClient,
   useSetAccountPkh,
-  useRelevantAccounts,
+  useAllAccounts,
   ThanosAccountType,
   validateDerivationPath,
 } from "lib/thanos/front";
@@ -36,7 +36,7 @@ const DERIVATION_PATHS = [
 
 const ConnectLedger: React.FC = () => {
   const { createLedgerAccount } = useThanosClient();
-  const allAccounts = useRelevantAccounts();
+  const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
   const allLedgers = React.useMemo(
