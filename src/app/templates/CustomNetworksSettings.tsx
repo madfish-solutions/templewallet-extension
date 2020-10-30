@@ -188,10 +188,15 @@ const CustomNetworksSettings: React.FC = () => {
         return;
       }
 
+      const {
+        [baseUrl]: lambdaToRemove,
+        ...restLambdaContracts
+      } = lambdaContracts;
       updateSettings({
         customNetworks: customNetworks.filter(
           ({ rpcBaseURL }) => rpcBaseURL !== baseUrl
         ),
+        lambdaContracts: restLambdaContracts,
       }).catch(async (err) => {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -200,7 +205,7 @@ const CustomNetworksSettings: React.FC = () => {
         setNetworkFormError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message);
       });
     },
-    [customNetworks, setNetworkFormError, updateSettings]
+    [customNetworks, setNetworkFormError, updateSettings, lambdaContracts]
   );
 
   return (
