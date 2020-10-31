@@ -558,6 +558,10 @@ const MIGRATIONS = [
  * Misc
  */
 
+function removeMFromDerivationPath(dPath: string) {
+  return dPath.startsWith("m/") ? dPath.substring(2) : dPath;
+}
+
 function formatOpParams(params: any) {
   if (params.kind === "origination" && params.script) {
     const newParams = { ...params, ...params.script };
@@ -616,7 +620,7 @@ async function createLedgerSigner(
   const cleanup = () => transport.close();
   const signer = new ThanosLedgerSigner(
     transport,
-    derivationPath,
+    removeMFromDerivationPath(derivationPath),
     true,
     DerivationType.ED25519,
     publicKey,
