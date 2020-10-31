@@ -26,12 +26,12 @@ export const NETWORKS: ThanosNetwork[] = [
   },
   {
     id: "delphinet",
-    name: "Delphi Testnet (soon)",
+    name: "Delphi Testnet",
     description: "Delphi testnet",
     type: "test",
     rpcBaseURL: "https://delphinet-tezos.giganode.io",
     color: "#ed6663",
-    disabled: true,
+    disabled: false,
   },
   {
     id: "sandbox",

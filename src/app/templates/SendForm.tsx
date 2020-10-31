@@ -268,6 +268,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         estmtnMax = await tezos.estimate.transfer(transferParams);
       }
 
+      // console.info({
+      //   burnFeeMutez: estmtnMax.burnFeeMutez,
+      //   consumedMilligas: estmtnMax.consumedMilligas,
+      //   gasLimit: estmtnMax.gasLimit,
+      //   minimalFeeMutez: estmtnMax.minimalFeeMutez,
+      //   storageLimit: estmtnMax.storageLimit,
+      //   suggestedFeeMutez: estmtnMax.suggestedFeeMutez,
+      //   totalCost: estmtnMax.totalCost,
+      //   usingBaseFeeMutez: estmtnMax.usingBaseFeeMutez,
+      // });
+
       let baseFee = mutezToTz(estmtnMax.totalCost);
       if (!hasManager(manager)) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));

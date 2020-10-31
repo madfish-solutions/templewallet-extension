@@ -21,7 +21,7 @@ export function useBalance(
   const tezos = React.useMemo(() => {
     if (ops.networkRpc) {
       const rpc = ops.networkRpc;
-      const t = new ReactiveTezosToolkit(rpc);
+      const t = new ReactiveTezosToolkit(rpc, rpc);
       t.setProvider({ rpc });
       return t;
     }

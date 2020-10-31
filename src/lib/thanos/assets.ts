@@ -4,6 +4,7 @@ import { Uint8ArrayConsumer } from "@taquito/local-forging/dist/lib/uint8array-c
 import { valueDecoder } from "@taquito/local-forging/dist/lib/michelson/codec";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
 import { loadContract } from "lib/thanos/contract";
+import { mutezToTz } from "lib/thanos/helpers";
 
 export const XTZ_ASSET: ThanosAsset = {
   type: ThanosAssetType.XTZ,
@@ -58,7 +59,7 @@ export async function fetchBalance(
   switch (asset.type) {
     case ThanosAssetType.XTZ:
       const amount = await tezos.tz.getBalance(accountPkh);
-      return tezos.format("mutez", "tz", amount) as BigNumber;
+      return mutezToTz(amount);
 
     case ThanosAssetType.Staker:
       const staker = await loadContract(tezos, asset.address);
