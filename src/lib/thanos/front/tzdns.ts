@@ -45,7 +45,7 @@ export async function resolveDomainAddress(
   name: string
 ) {
   if (isDomainNameValid(name)) {
-    return tezosDomains.resolveAddress(name);
+    return tezosDomains.resolveNameToAddress(name);
   }
   return null;
 }

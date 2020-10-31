@@ -28,7 +28,7 @@ const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const TZKT_BASE_URLS = new Map([
   ["NetXdQprcVkpaWU", "https://tzkt.io"],
   ["NetXjD3HPJJjmcd", "https://carthage.tzkt.io"],
-  ["NetXyQaSHznzV1r", "https://delphi.tzkt.io"],
+  ["NetXm8tYqnMWky1", "https://delphi.tzkt.io"],
 ]);
 
 interface OperationPreview {

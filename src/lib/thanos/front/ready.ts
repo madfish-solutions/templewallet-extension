@@ -112,15 +112,15 @@ function useReadyThanos() {
 
   const tezos = React.useMemo(() => {
     const checksum = [network.id, account.publicKeyHash].join("_");
-    const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
     const pkh =
       account.type === ThanosAccountType.ManagedKT
         ? account.owner
         : account.publicKeyHash;
-    const signer = createTaquitoSigner(pkh);
-    const wallet = createTaquitoWallet(pkh, rpc);
-    t.setProvider({ rpc, signer, wallet });
+
+    const t = new ReactiveTezosToolkit(rpc, checksum);
+    t.setSignerProvider(createTaquitoSigner(pkh));
+    t.setWalletProvider(createTaquitoWallet(pkh, rpc));
     return t;
   }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
@@ -191,7 +191,10 @@ export function useRelevantAccounts(withManagedKT = true) {
 
   React.useEffect(() => {
     if (
-      relevantAccounts.every((a) => a.publicKeyHash !== account.publicKeyHash) && lazyChainId
+      relevantAccounts.every(
+        (a) => a.publicKeyHash !== account.publicKeyHash
+      ) &&
+      lazyChainId
     ) {
       setAccountPkh(relevantAccounts[0].publicKeyHash);
     }
@@ -215,8 +218,8 @@ function useRefs() {
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {
-  constructor(public checksum: string) {
-    super();
+  constructor(rpc: string, public checksum: string) {
+    super(rpc);
   }
 }
 
