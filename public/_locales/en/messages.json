@@ -793,6 +793,15 @@
   "dAppsInteractionDisabled": {
     "message": "Disabled"
   },
+  "enablePopup": {
+    "message": "Enable popup"
+  },
+  "popupEnabled": {
+    "message": "Enabled"
+  },
+  "popupDisabled": {
+    "message": "Disabled"
+  },
   "delete": {
     "message": "Delete"
   },
