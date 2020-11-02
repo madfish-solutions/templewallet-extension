@@ -1,6 +1,7 @@
+import BigNumber from "bignumber.js";
 import * as React from "react";
 import classNames from "clsx";
-import { useForm } from "react-hook-form";
+import { FormContextValues, useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
   ThanosToken,
@@ -13,12 +14,16 @@ import {
   isKTAddress,
   loadContract,
   fetchBalance,
+  getTokenData,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
+import useSafeState from "lib/ui/useSafeState";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Alert from "app/atoms/Alert";
+import NoSpaceField from "app/atoms/NoSpaceField";
+import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 
 const AddToken: React.FC = () => (
@@ -74,11 +79,72 @@ const Form: React.FC = () => {
     prevAssetsLengthRef.current = assetsLength;
   }, [allAssets, setAssetSymbol]);
 
-  const { register, handleSubmit, errors, formState } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    errors,
+    formState,
+    watch,
+    setValue,
+    triggerValidation,
+  } = useForm<FormData>({
     defaultValues: { decimals: 0 },
   });
+  const contractAddress = watch("address");
   const [error, setError] = React.useState<React.ReactNode>(null);
   const [tokenType, setTokenType] = React.useState(TOKEN_TYPES[0]);
+  const [bottomSectionVisible, setBottomSectionVisible] = useSafeState(false);
+  const [loadingToken, setLoadingToken] = React.useState(false);
+
+  React.useEffect(() => {
+    if (validateAddress(contractAddress) !== true) {
+      setBottomSectionVisible(false);
+      return;
+    }
+    (async () => {
+      try {
+        setLoadingToken(true);
+        const tokenData = await getTokenData(tezos, contractAddress);
+        if (typeof tokenData !== "object") {
+          throw new Error("Invalid storage");
+        }
+        const { symbol, name, description, decimals, onetoken } = tokenData;
+        const tokenSymbol = typeof symbol === "string" ? symbol : "";
+        const tokenName =
+          (typeof name === "string" && name) ||
+          (typeof description === "string" && description) ||
+          "";
+        const tokenDecimals =
+          (decimals instanceof BigNumber && decimals.toNumber()) ||
+          (onetoken instanceof BigNumber &&
+            Math.round(Math.log10(onetoken.toNumber()))) ||
+          0;
+
+        const formDataChanges: Partial<Record<keyof FormData, any>>[] = [
+          { symbol: tokenSymbol.substr(0, 5) },
+          { name: tokenName.substr(0, 50) },
+          { decimals: tokenDecimals },
+        ];
+
+        setValue(formDataChanges);
+        console.log(tokenData, formDataChanges);
+        setBottomSectionVisible(true);
+      } catch (e) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(e);
+        }
+        setBottomSectionVisible(false);
+        setError(e.message);
+      } finally {
+        setLoadingToken(false);
+      }
+    })();
+  }, [contractAddress, tezos, setValue, setBottomSectionVisible]);
+
+  const cleanContractAddress = React.useCallback(() => {
+    setValue("address", "");
+    triggerValidation("address");
+  }, [setValue, triggerValidation]);
 
   const onSubmit = React.useCallback(
     async ({ address, symbol, name, decimals, iconUrl }: FormData) => {
@@ -212,10 +278,14 @@ const Form: React.FC = () => {
         </div>
       </div>
 
-      <FormField
+      <NoSpaceField
         ref={register({ required: t("required"), validate: validateAddress })}
         name="address"
         id="addtoken-address"
+        textarea
+        rows={2}
+        cleanable={Boolean(contractAddress)}
+        onClean={cleanContractAddress}
         label={t("address")}
         labelDescription={t("addressOfDeployedTokenContract")}
         placeholder={t("tokenContractPlaceholder")}
@@ -223,6 +293,39 @@ const Form: React.FC = () => {
         containerClassName="mb-4"
       />
 
+      <div
+        className={classNames("w-full", {
+          hidden: !bottomSectionVisible || loadingToken,
+        })}
+      >
+        <BottomSection
+          register={register}
+          errors={errors}
+          formState={formState}
+        />
+      </div>
+
+      {loadingToken && !bottomSectionVisible && (
+        <div className="w-full flex items-center justify-center pb-4">
+          <div>
+            <Spinner theme="gray" className="w-20" />
+          </div>
+        </div>
+      )}
+    </form>
+  );
+};
+
+type BottomSectionProps = Pick<
+  FormContextValues,
+  "register" | "errors" | "formState"
+>;
+
+const BottomSection: React.FC<BottomSectionProps> = (props) => {
+  const { register, errors, formState } = props;
+
+  return (
+    <>
       <FormField
         ref={register({
           required: t("required"),
@@ -244,7 +347,7 @@ const Form: React.FC = () => {
         ref={register({
           required: t("required"),
           pattern: {
-            value: /^[a-zA-Z0-9 _-]{3,12}$/,
+            value: /^[a-zA-Z0-9 _-]{3,50}$/,
             message: t("tokenNamePatternDescription"),
           },
         })}
@@ -311,7 +414,7 @@ const Form: React.FC = () => {
           </FormSubmitButton>
         )}
       </T>
-    </form>
+    </>
   );
 };
 

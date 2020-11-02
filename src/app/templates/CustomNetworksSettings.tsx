@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { ThanosNetwork, useSettings, useThanosClient } from "lib/thanos/front";
 import { COLORS } from "lib/ui/colors";
 import { T, t } from "lib/i18n/react";
+import { URL_PATTERN } from "app/defaults";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -13,7 +14,6 @@ import { NETWORKS } from "lib/thanos/networks";
 type FormData = Pick<ThanosNetwork, "name" | "rpcBaseURL">;
 
 const SUBMIT_ERROR_TYPE = "submit-error";
-const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
 
 const CustomNetworksSettings: React.FC = () => {
   const { updateSettings } = useThanosClient();
