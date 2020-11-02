@@ -19,6 +19,8 @@ export const PASSWORD_PATTERN = new RegExp(
   ].join("")
 );
 
+export const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
+
 export const PASSWORD_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
     <T id="atLeast8Characters">{(message) => <li>{message}</li>}</T>
