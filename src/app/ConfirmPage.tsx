@@ -29,9 +29,9 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import HashShortView from "app/atoms/HashShortView";
+import SubTitle from "app/atoms/SubTitle";
 import DAppLogo from "app/templates/DAppLogo";
 import OperationView from "app/ConfirmPage/OperationView";
-import SubTitle from "app/ConfirmPage/SubTitle";
 import ConnectBanner from "app/ConfirmPage/ConnectBanner";
 
 const ConfirmPage: React.FC = () => {
