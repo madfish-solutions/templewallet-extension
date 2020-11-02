@@ -156,28 +156,33 @@ function useReadyThanos() {
   };
 }
 
-export function useRelevantAccounts(withManagedKT = true) {
+export function useLazyChainId() {
   const tezos = useTezos();
-  const allAccounts = useAllAccounts();
-  const account = useAccount();
-  const setAccountPkh = useSetAccountPkh();
 
-  /**
-   * Lazy chain ID (network hash)
-   */
+  const rpcUrl = React.useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
 
   const fetchChainId = React.useCallback(async () => {
     try {
-      return await loadChainId(tezos.rpc.getRpcUrl());
+      return await loadChainId(rpcUrl);
     } catch {
       return null;
     }
-  }, [tezos]);
+  }, [rpcUrl]);
+
   const { data: lazyChainId = null } = useRetryableSWR(
     ["lazy-chain-id", tezos.checksum],
     fetchChainId,
     { revalidateOnFocus: false }
   );
+
+  return React.useMemo(() => lazyChainId, [lazyChainId]);
+}
+
+export function useRelevantAccounts(withManagedKT = true) {
+  const allAccounts = useAllAccounts();
+  const account = useAccount();
+  const setAccountPkh = useSetAccountPkh();
+  const lazyChainId = useLazyChainId();
 
   const relevantAccounts = React.useMemo(
     () =>

@@ -30,6 +30,7 @@ import {
   isTzdnsSupportedNetwork,
   ThanosAccountType,
   loadContract,
+  useLazyChainId,
 } from "lib/thanos/front";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
@@ -64,6 +65,7 @@ interface FormData {
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
+const DELPHINET_CHAIN_ID = "NetXm8tYqnMWky1";
 
 const SendForm: React.FC = () => {
   const { currentAsset } = useCurrentAsset();
@@ -128,6 +130,14 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const xtzBalanceNum = xtzBalance.toNumber();
 
   const { data: myBakerPkh } = useDelegate(accountPkh);
+
+  const lazyChainId = useLazyChainId();
+  const deplhiNetwork = React.useMemo(
+    () => lazyChainId === DELPHINET_CHAIN_ID,
+    [lazyChainId]
+  );
+
+  const storageUsedRef = React.useRef(false);
 
   /**
    * Form
@@ -279,6 +289,10 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       //   usingBaseFeeMutez: estmtnMax.usingBaseFeeMutez,
       // });
 
+      if (estmtnMax.storageLimit > 0) {
+        storageUsedRef.current = true;
+      }
+
       let baseFee = mutezToTz(estmtnMax.totalCost);
       if (!hasManager(manager)) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
@@ -374,7 +388,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
               : new BigNumber(balanceNum)
                   .minus(baseFee)
                   .minus(safeFeeValue ?? 0);
-          if (myBakerPkh) {
+          if (myBakerPkh || (deplhiNetwork && storageUsedRef.current)) {
             ma = ma.minus(PENNY);
           }
           return BigNumber.max(ma, 0);
@@ -387,6 +401,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     baseFee,
     safeFeeValue,
     myBakerPkh,
+    deplhiNetwork,
   ]);
 
   const maxAmountNum = React.useMemo(

@@ -106,6 +106,7 @@
   },
   "resolutions": {
     "@taquito/**/braces": "2.3.1",
-    "react-json-view/**/node-fetch": "2.6.1"
+    "react-json-view/**/node-fetch": "2.6.1",
+    "@tezos-domains/resolver/**/idna-uts46-hx": "hexonet/idna-uts46#6a61636c4930930076c562b10639c25c81058d44"
   }
 }
