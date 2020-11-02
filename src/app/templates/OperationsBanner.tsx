@@ -1,7 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
 import ReactJson from "react-json-view";
-import { t } from "lib/i18n/react";
 
 type OperationsBanner = {
   opParams: any[] | { branch: string; contents: any[] };
@@ -10,7 +9,7 @@ type OperationsBanner = {
 };
 
 const OperationsBanner = React.memo<OperationsBanner>(
-  ({ opParams, label = t("operations"), className }) => (
+  ({ opParams, label, className }) => (
     <>
       {label && (
         <h2
