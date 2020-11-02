@@ -52,7 +52,9 @@ const About: React.FC = () => (
       )}
     </T>
 
-    <T id="links">{(message) => <SubTitle>{message}</SubTitle>}</T>
+    <T id="links">
+      {(message) => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}
+    </T>
 
     <div className="text-center">
       {[
