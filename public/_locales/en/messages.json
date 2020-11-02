@@ -663,7 +663,7 @@
     "message": "Activate Account"
   },
   "activateAccountDescription": {
-    "message": "Use this section to activate your selected account by providing secret phrase. It may be necessary for ICO/Fundraiser or testnet faucet accounts."
+    "message": "It may be necessary for ICO/Fundraiser or testnet faucet accounts."
   },
   "removeAccount": {
     "message": "Remove Account"
@@ -1254,13 +1254,13 @@
     "message": "Upload"
   },
   "languageAndCountry": {
-    "message": "Language and country"
+    "message": "Language"
   },
   "generalSettings": {
-    "message": "General Settings"
+    "message": "General"
   },
   "generalSettingsDescription": {
-    "message": "General application settings."
+    "message": "Here you can make the Thanos Wallet more convenient for you."
   },
   "swapNoun": {
     "message": "Swap"
