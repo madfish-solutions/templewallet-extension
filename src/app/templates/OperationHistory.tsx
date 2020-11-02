@@ -316,7 +316,7 @@ const Operation = React.memo<OperationProps>(
                         <div className="flex items-center">
                           <T id={status}>
                             {(message) => (
-                              <span className="mr-1 text-xs font-light text-red-600">
+                              <span className="mr-1 text-xs font-light text-red-700">
                                 {message}
                               </span>
                             )}
