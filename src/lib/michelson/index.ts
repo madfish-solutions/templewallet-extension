@@ -1,22 +1,29 @@
 import BigNumber from "bignumber.js";
+
 export const viewLambda = [
   {
-    prim: 'parameter',
+    prim: "parameter",
     args: [
       {
-        prim: 'lambda',
+        prim: "lambda",
         args: [
-          { prim: 'unit' },
+          { prim: "unit" },
           {
-            prim: 'pair',
-            args: [{ prim: 'list', args: [{ prim: 'operation' }] }, { prim: 'unit' }],
+            prim: "pair",
+            args: [
+              { prim: "list", args: [{ prim: "operation" }] },
+              { prim: "unit" },
+            ],
           },
         ],
       },
     ],
   },
-  { prim: 'storage', args: [{ prim: 'unit' }] },
-  { prim: 'code', args: [[{ prim: 'CAR' }, { prim: 'UNIT' }, { prim: 'EXEC' }]] },
+  { prim: "storage", args: [{ prim: "unit" }] },
+  {
+    prim: "code",
+    args: [[{ prim: "CAR" }, { prim: "UNIT" }, { prim: "EXEC" }]],
+  },
 ];
 
 export const transferImplicit = (key: string, mutez: BigNumber) => {
