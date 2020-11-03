@@ -22,12 +22,19 @@ export function isTzdnsSupportedNetwork(
   return SUPPORTED_NETWORKS.includes(networkId);
 }
 
-const getValidator = memoize((networkId: string) => {
-  const config: TezosDomainsConfig | undefined = isTzdnsSupportedNetwork(networkId) ? ({ network: networkId } as DefaultNetworkConfig) : undefined;
-  return new DomainNameValidator(config);
-}, {
-  maxSize: 100
-});
+const getValidator = memoize(
+  (networkId: string) => {
+    const config: TezosDomainsConfig | undefined = isTzdnsSupportedNetwork(
+      networkId
+    )
+      ? ({ network: networkId } as DefaultNetworkConfig)
+      : undefined;
+    return new DomainNameValidator(config);
+  },
+  {
+    maxSize: 100,
+  }
+);
 
 export function isDomainNameValid(name: string, networkId: string) {
   const validator = getValidator(networkId);
