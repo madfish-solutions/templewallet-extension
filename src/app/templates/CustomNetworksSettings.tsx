@@ -156,7 +156,7 @@ const CustomNetworksSettings: React.FC = () => {
     <div className="w-full max-w-sm p-2 pb-4 mx-auto">
       {!network.lambdaContract && <LambdaContractSection />}
 
-      <div className="flex flex-col my-8">
+      <div className="flex flex-col mb-8">
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
           <T id="currentNetworks">
             {(message) => (
@@ -288,9 +288,7 @@ const CustomNetworksSettings: React.FC = () => {
 
 export default CustomNetworksSettings;
 
-type LambdaContractSectionProps = {};
-
-const LambdaContractSection: React.FC<LambdaContractSectionProps> = (props) => {
+const LambdaContractSection: React.FC = () => {
   const { updateSettings } = useThanosClient();
   const tezos = useTezos();
   const network = useNetwork();
