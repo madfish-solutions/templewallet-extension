@@ -10,7 +10,7 @@ import {
   useStorage,
   useAllAssetsRef,
   ReactiveTezosToolkit,
-  useAccount
+  useAccount,
 } from "lib/thanos/front";
 import { isAddressValid } from "lib/thanos/helpers";
 import { URL_PATTERN } from "app/defaults";
@@ -72,7 +72,11 @@ function hexToUTF8(str1: string) {
 
 const OTHER_CONTRACT_KEY_REGEX = /^\/\/(KT[A-z0-9]+)\/([^/]+)/;
 
-export async function getTokenData(tezos: ReactiveTezosToolkit, contractAddress: string, key?: string): Promise<any> {
+export async function getTokenData(
+  tezos: ReactiveTezosToolkit,
+  contractAddress: string,
+  key?: string
+): Promise<any> {
   const contract = await loadContract(tezos, contractAddress);
   const storage = await contract.storage<any>();
   if (storage.metadata instanceof BigMapAbstraction) {
@@ -82,9 +86,15 @@ export async function getTokenData(tezos: ReactiveTezosToolkit, contractAddress:
       if (typeof rawStorageKeyHex !== "string") {
         return metadata;
       }
-      const rawStorageKey = hexToUTF8(rawStorageKeyHex).replace("tezos-storage:", "");
+      const rawStorageKey = hexToUTF8(rawStorageKeyHex).replace(
+        "tezos-storage:",
+        ""
+      );
       if (URL_PATTERN.test(rawStorageKey)) {
-        return axios.get(rawStorageKey).then(response => response.data).catch(() => storage);
+        return axios
+          .get(rawStorageKey)
+          .then((response) => response.data)
+          .catch(() => storage);
       }
       const contractKeyResult = OTHER_CONTRACT_KEY_REGEX.exec(rawStorageKey);
       if (contractKeyResult) {
@@ -95,9 +105,13 @@ export async function getTokenData(tezos: ReactiveTezosToolkit, contractAddress:
         }
         return getTokenData(tezos, contractAddress, storageKey);
       }
-      return JSON.parse(hexToUTF8(await metadata.get(decodeURIComponent(rawStorageKey)) as string));
+      return JSON.parse(
+        hexToUTF8(
+          (await metadata.get(decodeURIComponent(rawStorageKey))) as string
+        )
+      );
     }
-    return hexToUTF8(await metadata.get(decodeURIComponent(key)) as string);
+    return hexToUTF8((await metadata.get(decodeURIComponent(key))) as string);
   }
   if (storage.token_metadata instanceof BigMapAbstraction) {
     const metadata: BigMapAbstraction = storage.token_metadata;
