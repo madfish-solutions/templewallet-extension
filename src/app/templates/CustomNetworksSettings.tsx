@@ -19,6 +19,7 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Name from "app/atoms/Name";
 import HashShortView from "app/atoms/HashShortView";
 import Alert from "app/atoms/Alert";
+import SubTitle from "app/atoms/SubTitle";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 
 type NetworkFormData = Pick<
@@ -138,6 +139,64 @@ const CustomNetworksSettings: React.FC = () => {
   return (
     <div className="w-full max-w-sm p-2 pb-4 mx-auto">
       {!network.lambdaContract && <LambdaContractSection />}
+
+      <div className="flex flex-col my-8">
+        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+          <T id="currentNetworks">
+            {(message) => (
+              <span className="text-base font-semibold text-gray-700">
+                {message}
+              </span>
+            )}
+          </T>
+
+          <T id="deleteNetworkHint">
+            {(message) => (
+              <span
+                className={classNames(
+                  "mt-1",
+                  "text-xs font-light text-gray-600"
+                )}
+                style={{ maxWidth: "90%" }}
+              >
+                {message}
+              </span>
+            )}
+          </T>
+        </h2>
+
+        <div
+          className={classNames(
+            "rounded-md overflow-hidden",
+            "border-2 bg-gray-100",
+            "flex flex-col",
+            "text-gray-700 text-sm leading-tight"
+          )}
+        >
+          {customNetworks.map((network) => (
+            <NetworksListItem
+              canRemove
+              network={network}
+              last={false}
+              key={network.rpcBaseURL}
+              onRemoveClick={handleRemoveClick}
+            />
+          ))}
+          {defaultNetworks.map((network, index) => (
+            <NetworksListItem
+              canRemove={false}
+              key={network.rpcBaseURL}
+              last={index === defaultNetworks.length - 1}
+              network={network}
+            />
+          ))}
+        </div>
+      </div>
+
+      <SubTitle>
+        <T id="AddNetwork" />
+      </SubTitle>
+
       <form onSubmit={handleSubmit(onNetworkFormSubmit)}>
         <FormField
           ref={register({ required: t("required"), maxLength: 35 })}
@@ -207,59 +266,6 @@ const CustomNetworksSettings: React.FC = () => {
           )}
         </T>
       </form>
-
-      <div className="flex flex-col my-8">
-        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-          <T id="currentNetworks">
-            {(message) => (
-              <span className="text-base font-semibold text-gray-700">
-                {message}
-              </span>
-            )}
-          </T>
-
-          <T id="deleteNetworkHint">
-            {(message) => (
-              <span
-                className={classNames(
-                  "mt-1",
-                  "text-xs font-light text-gray-600"
-                )}
-                style={{ maxWidth: "90%" }}
-              >
-                {message}
-              </span>
-            )}
-          </T>
-        </h2>
-
-        <div
-          className={classNames(
-            "rounded-md overflow-hidden",
-            "border-2 bg-gray-100",
-            "flex flex-col",
-            "text-gray-700 text-sm leading-tight"
-          )}
-        >
-          {customNetworks.map((network) => (
-            <NetworksListItem
-              canRemove
-              network={network}
-              last={false}
-              key={network.rpcBaseURL}
-              onRemoveClick={handleRemoveClick}
-            />
-          ))}
-          {defaultNetworks.map((network, index) => (
-            <NetworksListItem
-              canRemove={false}
-              key={network.rpcBaseURL}
-              last={index === defaultNetworks.length - 1}
-              network={network}
-            />
-          ))}
-        </div>
-      </div>
     </div>
   );
 };
@@ -285,7 +291,7 @@ const LambdaContractSection: React.FC<LambdaContractSectionProps> = (props) => {
   } = useForm<LambdaFormData>();
   const lambdaFormSubmitting = lambdaFormState.isSubmitting;
   const [lambdaContractDeploying, setLambdaContractDeploying] = useState(false);
-  const [lambdaDeploymentError, setLambdaDeploymentError] = useState<Error>();
+  const [lambdaDeploymentError, setLambdaDeploymentError] = useState<any>(null);
   const lambdaFormLoading = lambdaFormSubmitting || lambdaContractDeploying;
 
   const onLambdaFormSubmit = useCallback(
@@ -353,31 +359,51 @@ const LambdaContractSection: React.FC<LambdaContractSectionProps> = (props) => {
     }
   }, [lambdaFormLoading, lambdaContracts, network.id, tezos, updateSettings]);
 
+  const handleErrorAlertClose = React.useCallback(() => {
+    setLambdaDeploymentError(null);
+  }, [setLambdaDeploymentError]);
+
   return (
     <>
-      {lambdaContractDeploying ? (
-        <Alert
-          className="mb-4"
-          title={t("justAMinute")}
-          description={t("waitWhileContractBeingDeployed")}
-          type="success"
-        />
-      ) : (
-        <Alert
-          className="mb-4"
-          title={t("attentionExclamation")}
-          description={t("noActiveNetLambdaWarningContent")}
-        />
-      )}
-      {lambdaDeploymentError && (
-        <Alert
-          className="mb-4"
-          type="error"
-          title={t("error")}
-          description={lambdaDeploymentError.message}
-        />
-      )}
-      <form onSubmit={handleLambdaFormSubmit(onLambdaFormSubmit)}>
+      {(() => {
+        switch (true) {
+          case lambdaContractDeploying:
+            return (
+              <Alert
+                className="mb-4"
+                title={t("justAMinute")}
+                description={t("waitWhileContractBeingDeployed")}
+                type="success"
+              />
+            );
+
+          case lambdaDeploymentError instanceof Error:
+            return (
+              <Alert
+                className="mb-4"
+                type="error"
+                title={t("error")}
+                description={lambdaDeploymentError!.message}
+                closable
+                onClose={handleErrorAlertClose}
+              />
+            );
+
+          default:
+            return (
+              <Alert
+                className="mb-4"
+                title={t("attentionExclamation")}
+                description={t("noActiveNetLambdaWarningContent")}
+              />
+            );
+        }
+      })()}
+
+      <form
+        onSubmit={handleLambdaFormSubmit(onLambdaFormSubmit)}
+        className="mb-8"
+      >
         <FormField
           ref={lambdaFormRegister({
             validate: validateLambdaContract,
@@ -407,7 +433,6 @@ const LambdaContractSection: React.FC<LambdaContractSectionProps> = (props) => {
           </FormSecondaryButton>
         </div>
       </form>
-      <div className="my-4 w-full h-px bg-gray-200" />
     </>
   );
 };
