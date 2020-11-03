@@ -1515,20 +1515,20 @@
     bs58check "^2.1.2"
     buffer "^5.6.0"
 
-"@tezos-domains/core@1.0.0-beta.15", "@tezos-domains/core@^1.0.0-beta.15":
-  version "1.0.0-beta.15"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.0.0-beta.15.tgz#ae83e461a1d71dd356465b4579b0fc27e79a59e4"
-  integrity sha512-d4jGtLaUp4nxDVYeUFeoHSfy8C5qIdB8yOTF1VFDP/+HbQt8uNazLmIRB8PAsa4I+ZeuC5Xo5e8YIXURLvmeFQ==
+"@tezos-domains/core@1.0.0-beta.17", "@tezos-domains/core@^1.0.0-beta.17":
+  version "1.0.0-beta.17"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.0.0-beta.17.tgz#1483423cb1a47e0eeced623ca9b6754d563c32b0"
+  integrity sha512-QxcKnaxa4AcsGi1X2fSyDMGYtUazbbPpDfo4hwijn4xUEyJ4ws4Tw70BFuXy/dKBzyvzz8tefuUh9D/pc39sDQ==
   dependencies:
     bignumber.js "^9.0.1"
     node-cache "^5.1.2"
 
-"@tezos-domains/resolver@1.0.0-beta.15":
-  version "1.0.0-beta.15"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.0.0-beta.15.tgz#4e67beadc26f2476088837f64cc1a4b7ac5528bb"
-  integrity sha512-N8j4WT29lguJzljlEi0CzBxnQYS/YnEb8eLT4bZ/nOSML79jCxEUgUHj/TaW9jVZky7EQBR1rV4P1Lr5AAZS/g==
+"@tezos-domains/resolver@1.0.0-beta.17":
+  version "1.0.0-beta.17"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.0.0-beta.17.tgz#e874ac9b253ec73f8765803d99b57423b32c38c1"
+  integrity sha512-XB+axmTch0WfngU4v84d4P8nAToi0WvXqdgujfcBgfNXGQjoi5dHH7dhXg9bknNsCoODGqWCAQwGC3cbCJvClw==
   dependencies:
-    "@tezos-domains/core" "^1.0.0-beta.15"
+    "@tezos-domains/core" "^1.0.0-beta.17"
     idna-uts46-hx "^3.3.0"
     node-cache "^5.1.2"
 
