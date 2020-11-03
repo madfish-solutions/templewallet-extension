@@ -24,7 +24,6 @@ export function isTzdnsSupportedNetwork(
 
 const getValidator = memoize((networkId: string) => {
   const config: TezosDomainsConfig | undefined = isTzdnsSupportedNetwork(networkId) ? ({ network: networkId } as DefaultNetworkConfig) : undefined;
-  console.log("oy-vey, constructing!");
   return new DomainNameValidator(config);
 }, {
   maxSize: 100
