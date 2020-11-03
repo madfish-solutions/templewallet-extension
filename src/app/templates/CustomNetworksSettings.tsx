@@ -2,6 +2,7 @@ import classNames from "clsx";
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+  loadChainId,
   ThanosNetwork,
   useNetwork,
   useSettings,
@@ -32,6 +33,11 @@ type LambdaFormData = {
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
+const KNOWN_LAMBDA_CONTRACTS = new Map([
+  ["NetXdQprcVkpaWU", "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
+  ["NetXjD3HPJJjmcd", "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
+  // ["NetXyQaSHznzV1r": ""]
+]);
 
 const CustomNetworksSettings: React.FC = () => {
   const { updateSettings, customNetworks, defaultNetworks } = useThanosClient();
@@ -55,6 +61,15 @@ const CustomNetworksSettings: React.FC = () => {
       if (submitting) return;
       clearError();
 
+      if (!lambdaContract) {
+        let chainId;
+        try {
+          chainId = await loadChainId(rpcBaseURL);
+        } catch {}
+
+        lambdaContract = chainId && KNOWN_LAMBDA_CONTRACTS.get(chainId);
+      }
+
       if (!showNoLambdaWarning && !lambdaContract) {
         setShowNoLambdaWarning(true);
         return;
@@ -73,6 +88,7 @@ const CustomNetworksSettings: React.FC = () => {
               disabled: false,
               color: COLORS[Math.floor(Math.random() * COLORS.length)],
               id: rpcBaseURL,
+              lambdaContract,
             },
           ],
           lambdaContracts: lambdaContract
@@ -102,11 +118,10 @@ const CustomNetworksSettings: React.FC = () => {
   );
 
   const rpcURLIsUnique = useCallback(
-    (url: string) => {
-      return ![...defaultNetworks, ...customNetworks].some(
+    (url: string) =>
+      ![...defaultNetworks, ...customNetworks].some(
         ({ rpcBaseURL }) => rpcBaseURL === url
-      );
-    },
+      ),
     [customNetworks, defaultNetworks]
   );
 
@@ -120,6 +135,7 @@ const CustomNetworksSettings: React.FC = () => {
         [baseUrl]: lambdaToRemove,
         ...restLambdaContracts
       } = lambdaContracts;
+
       updateSettings({
         customNetworks: customNetworks.filter(
           ({ rpcBaseURL }) => rpcBaseURL !== baseUrl
