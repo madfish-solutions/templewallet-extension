@@ -330,7 +330,7 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
         ref={register({
           required: t("required"),
           pattern: {
-            value: /^[a-zA-Z0-9]{2,7}$/,
+            value: /^[a-zA-Z0-9]{2,5}$/,
             message: t("tokenSymbolPatternDescription"),
           },
         })}

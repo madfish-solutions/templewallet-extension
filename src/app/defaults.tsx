@@ -2,7 +2,6 @@ import * as React from "react";
 import { ThanosAsset, ThanosAssetType } from "lib/thanos/types";
 import { T } from "lib/i18n/react";
 import xtzImgUrl from "app/misc/xtz.png";
-import anyTokenImgUrl from "app/misc/anytoken.png";
 
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
@@ -45,5 +44,6 @@ export function formatMnemonic(m: string) {
 export function getAssetIconUrl(asset: ThanosAsset) {
   return asset.type === ThanosAssetType.XTZ
     ? xtzImgUrl
-    : asset.iconUrl ?? anyTokenImgUrl;
+    : asset.iconUrl ??
+        `https://avatars.dicebear.com/api/initials/${asset.symbol}.svg`;
 }
