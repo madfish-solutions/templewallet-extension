@@ -30,6 +30,7 @@ export const NETWORKS: ThanosNetwork[] = [
     id: "delphinet",
     name: "Delphi Testnet",
     description: "Delphi testnet",
+    lambdaContract: "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM",
     type: "test",
     rpcBaseURL: "https://delphinet-tezos.giganode.io",
     color: "#ed6663",
