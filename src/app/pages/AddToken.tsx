@@ -9,10 +9,9 @@ import {
   useAssets,
   useCurrentAsset,
   useTezos,
-  isAddressValid,
-  isKTAddress,
   loadContract,
   fetchBalance,
+  validateContractAddress,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import PageLayout from "app/layouts/PageLayout";
@@ -213,7 +212,10 @@ const Form: React.FC = () => {
       </div>
 
       <FormField
-        ref={register({ required: t("required"), validate: validateAddress })}
+        ref={register({
+          required: t("required"),
+          validate: validateContractAddress,
+        })}
         name="address"
         id="addtoken-address"
         label={t("address")}
@@ -291,7 +293,7 @@ const Form: React.FC = () => {
             <T id="iconURL" />{" "}
             <T id="optionalComment">
               {(message) => (
-                <span className="text-sm font-light text-gary-600">
+                <span className="text-sm font-light text-gray-600">
                   {message}
                 </span>
               )}
@@ -314,16 +316,3 @@ const Form: React.FC = () => {
     </form>
   );
 };
-
-function validateAddress(value: any) {
-  switch (false) {
-    case isAddressValid(value):
-      return t("invalidAddress");
-
-    case isKTAddress(value):
-      return t("onlyKTContractAddressAllowed");
-
-    default:
-      return true;
-  }
-}

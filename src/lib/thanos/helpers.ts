@@ -55,3 +55,16 @@ export function validateDerivationPath(p: string) {
 
   return true;
 }
+
+export function validateContractAddress(value: any) {
+  switch (false) {
+    case isAddressValid(value):
+      return getMessage("invalidAddress");
+
+    case isKTAddress(value):
+      return getMessage("onlyKTContractAddressAllowed");
+
+    default:
+      return true;
+  }
+}
