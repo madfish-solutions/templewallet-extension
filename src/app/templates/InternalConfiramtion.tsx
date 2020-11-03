@@ -3,7 +3,7 @@ import classNames from "clsx";
 import {
   ThanosAccountType,
   ThanosConfirmationPayload,
-  useAllAccounts,
+  useRelevantAccounts,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
@@ -30,7 +30,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
 }) => {
   const { popup } = useAppEnv();
 
-  const allAccounts = useAllAccounts();
+  const allAccounts = useRelevantAccounts();
   const account = React.useMemo(
     () => allAccounts.find((a) => a.publicKeyHash === payload.sourcePkh)!,
     [allAccounts, payload.sourcePkh]

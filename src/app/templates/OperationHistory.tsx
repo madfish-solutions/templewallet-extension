@@ -59,9 +59,13 @@ const TZKT_BASE_URLS = new Map([
 
 type OperationHistoryProps = {
   accountPkh: string;
+  accountOwner?: string;
 };
 
-const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
+const OperationHistory: React.FC<OperationHistoryProps> = ({
+  accountPkh,
+  accountOwner,
+}) => {
   const { getAllPndOps, removePndOps } = useThanosClient();
   const network = useNetwork();
 
@@ -71,12 +75,17 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({ accountPkh }) => {
 
   const fetchPendingOperations = React.useCallback(async () => {
     const chainId = await loadChainId(network.rpcBaseURL);
-    const pndOps = await getAllPndOps(accountPkh, chainId);
-    return { pndOps, chainId };
-  }, [getAllPndOps, network.rpcBaseURL, accountPkh]);
+    const sendPndOps = await getAllPndOps(accountPkh, chainId);
+    const receivePndOps = accountOwner
+      ? (await getAllPndOps(accountOwner, chainId)).filter(
+          (op) => op.kind === "transaction" && op.destination === accountPkh
+        )
+      : [];
+    return { pndOps: [...sendPndOps, ...receivePndOps], chainId };
+  }, [getAllPndOps, network.rpcBaseURL, accountPkh, accountOwner]);
 
   const pndOpsSWR = useRetryableSWR(
-    ["pndops", network.rpcBaseURL, accountPkh],
+    ["pndops", network.rpcBaseURL, accountPkh, accountOwner],
     fetchPendingOperations,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );

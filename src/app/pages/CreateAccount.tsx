@@ -2,6 +2,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
+  ThanosAccountType,
   useThanosClient,
   useAllAccounts,
   useSetAccountPkh,
@@ -23,9 +24,17 @@ const CreateAccount: React.FC = () => {
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
+  const allHDOrImported = React.useMemo(
+    () =>
+      allAccounts.filter((acc) =>
+        [ThanosAccountType.HD, ThanosAccountType.Imported].includes(acc.type)
+      ),
+    [allAccounts]
+  );
+
   const defaultName = React.useMemo(
-    () => t("defaultAccountName", String(allAccounts.length + 1)),
-    [allAccounts.length]
+    () => t("defaultAccountName", String(allHDOrImported.length + 1)),
+    [allHDOrImported.length]
   );
 
   const prevAccLengthRef = React.useRef(allAccounts.length);

@@ -244,53 +244,6 @@ const ConnectLedger: React.FC = () => {
         </div>
 
         <ConfirmLedgerOverlay displayed={submitting} />
-
-        {process.env.TARGET_BROWSER === "firefox" && (
-          <div
-            className={classNames(
-              "absolute inset-0",
-              "bg-white bg-opacity-90",
-              "p-4",
-              "flex flex-col items-center justify-center"
-            )}
-          >
-            <h1
-              className={classNames(
-                "mb-8",
-                "text-center",
-                "text-xl font-medium tracking-tight text-gray-600"
-              )}
-            >
-              <T
-                id="firefoxLedgerConnectionError"
-                substitutions={[
-                  <T id="sorry" key="sorry">
-                    {(message) => (
-                      <span className="text-gray-700">{message}</span>
-                    )}
-                  </T>,
-                  <T id="ledgerNano" key="ledgerNano">
-                    {(message) => (
-                      <span className="text-gray-700">{message}</span>
-                    )}
-                  </T>,
-                  <span className="text-gray-700" key="firefox">
-                    Firefox
-                  </span>,
-                  <T id="connectionUnavailable" key="connectionUnavailable">
-                    {(message) => (
-                      <span className="text-gray-700">{message}</span>
-                    )}
-                  </T>,
-                ]}
-              >
-                {(message) => (
-                  <span className="text-base font-normal">{message}</span>
-                )}
-              </T>
-            </h1>
-          </div>
-        )}
       </div>
     </PageLayout>
   );
