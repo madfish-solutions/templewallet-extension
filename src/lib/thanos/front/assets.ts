@@ -62,14 +62,6 @@ export function useCurrentAsset() {
   };
 }
 
-type BigMapStorage = {
-  metadata: BigMapAbstraction;
-}
-
-function isBigMapStorage(storage: any): storage is BigMapStorage {
-  return storage.metadata instanceof BigMapAbstraction;
-}
-
 function hexToUTF8(str1: string) {
   const bytes = [];
   for (let i = 0; i < str1.length; i += 2) {
@@ -83,8 +75,8 @@ const OTHER_CONTRACT_KEY_REGEX = /^\/\/(KT[A-z0-9]+)\/([^/]+)/;
 export async function getTokenData(tezos: ReactiveTezosToolkit, contractAddress: string, key?: string): Promise<any> {
   const contract = await loadContract(tezos, contractAddress);
   const storage = await contract.storage<any>();
-  if (isBigMapStorage(storage)) {
-    const { metadata } = storage;
+  if (storage.metadata instanceof BigMapAbstraction) {
+    const metadata = storage.metadata;
     if (key === undefined) {
       const rawStorageKeyHex = await metadata.get("");
       if (typeof rawStorageKeyHex !== "string") {
@@ -107,18 +99,12 @@ export async function getTokenData(tezos: ReactiveTezosToolkit, contractAddress:
     }
     return hexToUTF8(await metadata.get(decodeURIComponent(key)) as string);
   }
+  if (storage.token_metadata instanceof BigMapAbstraction) {
+    const metadata: BigMapAbstraction = storage.token_metadata;
+    return metadata.get("0");
+  }
   if (key) {
     return storage[key];
   }
   return storage;
 }
-
-/* export async function getTokenData(tezos: ReactiveTezosToolkit, contractAddress: string) {
-  const rawBigMapData = await getRawTokenData(tezos, contractAddress);
-  if (typeof rawBigMapData === "string") {
-    try {
-      return JSON.parse(rawBigMapData);
-    } catch (e) {}
-  }
-  return rawBigMapData;
-} */
