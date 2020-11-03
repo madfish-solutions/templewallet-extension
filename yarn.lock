@@ -1532,10 +1532,10 @@
     idna-uts46-hx "^3.3.0"
     node-cache "^5.1.2"
 
-"@thanos-wallet/dapp@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@thanos-wallet/dapp/-/dapp-1.0.0.tgz#2a8429cd7d64866f0c377453700ee5e14351ba5b"
-  integrity sha512-eLf4dmkdQ+/rVH+KmEKVSmr5oiE8L0kHXmd1CTpYqqE41plWTTM9y86aG3jYPCuLunlMtYU6TRbOYoQmnCFoTA==
+"@thanos-wallet/dapp@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@thanos-wallet/dapp/-/dapp-1.0.1.tgz#b0637ca5e5457f3a3dcb38e28027f1677e451422"
+  integrity sha512-kqh0g/KBffaUJhIiew5CiKZQz2DDJ7OC3Vg0P7sxeY8EPiyRyCp143SjYiXOzMMOG5KSw2io6+Hh4YbDJWeyCQ==
   dependencies:
     nanoid "^3.1.10"
 
