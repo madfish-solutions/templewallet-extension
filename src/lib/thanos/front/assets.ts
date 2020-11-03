@@ -80,7 +80,7 @@ function hexToUTF8(str1: string) {
 
 const OTHER_CONTRACT_KEY_REGEX = /^\/\/(KT[A-z0-9]+)\/([^/]+)/;
 
-async function getRawTokenData(tezos: ReactiveTezosToolkit, contractAddress: string, key?: string): Promise<any> {
+export async function getTokenData(tezos: ReactiveTezosToolkit, contractAddress: string, key?: string): Promise<any> {
   const contract = await loadContract(tezos, contractAddress);
   const storage = await contract.storage<any>();
   if (isBigMapStorage(storage)) {
@@ -101,16 +101,19 @@ async function getRawTokenData(tezos: ReactiveTezosToolkit, contractAddress: str
         if (!isAddressValid(contractAddress)) {
           throw new Error(`Invalid contract address ${contractAddress}`);
         }
-        return getRawTokenData(tezos, contractAddress, storageKey);
+        return getTokenData(tezos, contractAddress, storageKey);
       }
-      return hexToUTF8(await metadata.get(decodeURIComponent(rawStorageKey)) as string);
+      return JSON.parse(hexToUTF8(await metadata.get(decodeURIComponent(rawStorageKey)) as string));
     }
     return hexToUTF8(await metadata.get(decodeURIComponent(key)) as string);
+  }
+  if (key) {
+    return storage[key];
   }
   return storage;
 }
 
-export async function getTokenData(tezos: ReactiveTezosToolkit, contractAddress: string) {
+/* export async function getTokenData(tezos: ReactiveTezosToolkit, contractAddress: string) {
   const rawBigMapData = await getRawTokenData(tezos, contractAddress);
   if (typeof rawBigMapData === "string") {
     try {
@@ -118,4 +121,4 @@ export async function getTokenData(tezos: ReactiveTezosToolkit, contractAddress:
     } catch (e) {}
   }
   return rawBigMapData;
-}
+} */

@@ -25,6 +25,7 @@ import Alert from "app/atoms/Alert";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import { withErrorHumanDelay } from "lib/ui/humanDelay";
 
 const AddToken: React.FC = () => (
   <PageLayout
@@ -105,9 +106,6 @@ const Form: React.FC = () => {
       try {
         setLoadingToken(true);
         const tokenData = await getTokenData(tezos, contractAddress);
-        if (typeof tokenData !== "object") {
-          throw new Error("Invalid storage");
-        }
         const { symbol, name, description, decimals, onetoken } = tokenData;
         const tokenSymbol = typeof symbol === "string" ? symbol : "";
         const tokenName =
@@ -120,21 +118,17 @@ const Form: React.FC = () => {
             Math.round(Math.log10(onetoken.toNumber()))) ||
           0;
 
-        const formDataChanges: Partial<Record<keyof FormData, any>>[] = [
+        setValue([
           { symbol: tokenSymbol.substr(0, 5) },
           { name: tokenName.substr(0, 50) },
           { decimals: tokenDecimals },
-        ];
-
-        setValue(formDataChanges);
-        console.log(tokenData, formDataChanges);
+        ]);
         setBottomSectionVisible(true);
       } catch (e) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(e);
-        }
-        setBottomSectionVisible(false);
-        setError(e.message);
+        withErrorHumanDelay(e, () => {
+          setBottomSectionVisible(false);
+          setError(e.message);
+        });
       } finally {
         setLoadingToken(false);
       }
