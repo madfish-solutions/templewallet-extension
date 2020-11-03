@@ -26,7 +26,7 @@
     "@taquito/utils": "7.0.0-beta.0",
     "@tezos-domains/core": "1.0.0-beta.15",
     "@tezos-domains/resolver": "1.0.0-beta.15",
-    "@thanos-wallet/dapp": "0.7.0",
+    "@thanos-wallet/dapp": "1.0.0",
     "@thanos-wallet/ledger-bridge": "0.6.0",
     "@types/brainhubeu__react-carousel": "1.15.0",
     "@types/elliptic": "6.4.12",
