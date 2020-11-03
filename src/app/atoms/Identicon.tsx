@@ -42,7 +42,8 @@ const Identicon: React.FC<IdenticonProps> = ({
         type === "initials"
           ? {
               ...basicOpts,
-              chars: 2,
+              chars: 4,
+              radius: 50,
             }
           : basicOpts;
       const imgSrc = icons[type].create(hash, opts);
