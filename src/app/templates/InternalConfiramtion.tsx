@@ -46,7 +46,10 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
       case "operations":
         return payload.opParams || [];
       case "sign":
-        const unsignedBytes = payload.bytes.substr(-128);
+        const unsignedBytes = payload.bytes.substr(
+          0,
+          payload.bytes.length - 128
+        );
         try {
           return (await localForger.parse(unsignedBytes)) || [];
         } catch (err) {
