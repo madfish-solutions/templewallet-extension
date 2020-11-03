@@ -10,11 +10,10 @@ import {
   useAssets,
   useCurrentAsset,
   useTezos,
-  isAddressValid,
-  isKTAddress,
   loadContract,
   fetchBalance,
   getTokenData,
+  validateContractAddress,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
@@ -98,7 +97,7 @@ const Form: React.FC = () => {
   const [loadingToken, setLoadingToken] = React.useState(false);
 
   React.useEffect(() => {
-    if (validateAddress(contractAddress) !== true) {
+    if (validateContractAddress(contractAddress) !== true) {
       setBottomSectionVisible(false);
       return;
     }
@@ -273,7 +272,10 @@ const Form: React.FC = () => {
       </div>
 
       <NoSpaceField
-        ref={register({ required: t("required"), validate: validateAddress })}
+        ref={register({
+          required: t("required"),
+          validate: validateContractAddress,
+        })}
         name="address"
         id="addtoken-address"
         textarea
@@ -388,7 +390,7 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
             <T id="iconURL" />{" "}
             <T id="optionalComment">
               {(message) => (
-                <span className="text-sm font-light text-gary-600">
+                <span className="text-sm font-light text-gray-600">
                   {message}
                 </span>
               )}
@@ -411,16 +413,3 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
     </>
   );
 };
-
-function validateAddress(value: any) {
-  switch (false) {
-    case isAddressValid(value):
-      return t("invalidAddress");
-
-    case isKTAddress(value):
-      return t("onlyKTContractAddressAllowed");
-
-    default:
-      return true;
-  }
-}
