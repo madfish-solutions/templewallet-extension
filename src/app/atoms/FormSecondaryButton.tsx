@@ -49,7 +49,7 @@ const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
           "flex items-center justify-center"
         )}
       >
-        <Spinner theme="white" style={{ width: "3rem" }} />
+        <Spinner theme="primary" style={{ width: "3rem" }} />
       </div>
     )}
   </button>

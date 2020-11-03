@@ -88,6 +88,7 @@ export interface ThanosNetwork {
   nameI18nKey?: string;
   description: string;
   descriptionI18nKey?: string;
+  lambdaContract?: string;
   type: ThanosNetworkType;
   rpcBaseURL: string;
   color: string;
@@ -148,6 +149,7 @@ export type ThanosNetworkType = "main" | "test";
 
 export interface ThanosSettings {
   customNetworks?: ThanosNetwork[];
+  lambdaContracts?: Record<string, string>;
 }
 
 export enum ThanosSharedStorageKey {
