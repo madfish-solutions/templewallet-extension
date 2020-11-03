@@ -42,8 +42,5 @@ export function formatMnemonic(m: string) {
 }
 
 export function getAssetIconUrl(asset: ThanosAsset) {
-  return asset.type === ThanosAssetType.XTZ
-    ? xtzImgUrl
-    : asset.iconUrl ??
-        `https://avatars.dicebear.com/api/initials/${asset.symbol}.svg`;
+  return asset.type === ThanosAssetType.XTZ ? xtzImgUrl : asset.iconUrl;
 }

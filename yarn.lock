@@ -1163,7 +1163,7 @@
   resolved "https://registry.yarnpkg.com/@dicebear/avatars-bottts-sprites/-/avatars-bottts-sprites-4.2.5.tgz#8661c26e18825e893d531d33ce1ae0bbd808dd72"
   integrity sha512-nMrIZGiWEC1Ezbg1MLmi9o/iR1WX+bGSRn2yFftAsxr8jeUBOA7PC4K/r7jYSv5/LAm3nB0kPhQZOYALUg645Q==
 
-"@dicebear/avatars-initials-sprites@^4.2.5":
+"@dicebear/avatars-initials-sprites@4.2.5":
   version "4.2.5"
   resolved "https://registry.yarnpkg.com/@dicebear/avatars-initials-sprites/-/avatars-initials-sprites-4.2.5.tgz#0bf7e9747f413887be18b745f26d6dc27c4e6ad4"
   integrity sha512-Ov0enRhrMqjjnh00c8emEl34eqx7cUsoRuDvRzlZQYK6ENHaBrj7/S5uWHqPe6a01W82lLYSGLsMUXC2iN/2Lg==

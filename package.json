@@ -15,7 +15,7 @@
     "@brainhubeu/react-carousel": "1.19.26",
     "@dicebear/avatars": "4.2.5",
     "@dicebear/avatars-bottts-sprites": "4.2.5",
-    "@dicebear/avatars-initials-sprites": "^4.2.5",
+    "@dicebear/avatars-initials-sprites": "4.2.5",
     "@dicebear/avatars-jdenticon-sprites": "4.2.5",
     "@ledgerhq/hw-transport-webauthn": "5.26.0",
     "@popperjs/core": "2.4.4",
