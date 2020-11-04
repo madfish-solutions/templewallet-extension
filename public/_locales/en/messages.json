@@ -1019,6 +1019,9 @@
   "pending": {
     "message": "pending..."
   },
+  "backtracked": {
+    "message": "backtracked"
+  },
   "operationSuccessfullyProcessed": {
     "message": "$type$ successfully processed and confirmed!",
     "placeholders": {

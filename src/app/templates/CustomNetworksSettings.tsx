@@ -36,7 +36,7 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 const KNOWN_LAMBDA_CONTRACTS = new Map([
   ["NetXdQprcVkpaWU", "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
   ["NetXjD3HPJJjmcd", "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
-  // ["NetXyQaSHznzV1r": ""]
+  ["NetXyQaSHznzV1r", "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
 ]);
 
 const CustomNetworksSettings: React.FC = () => {

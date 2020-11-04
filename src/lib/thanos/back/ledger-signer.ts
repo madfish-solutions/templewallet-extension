@@ -45,7 +45,7 @@ export class ThanosLedgerSigner extends LedgerSigner {
     transport: LedgerTransport,
     path: string = "44'/1729'/0'/0'",
     prompt: boolean = true,
-    derivationType: DerivationType = DerivationType.tz1,
+    derivationType: DerivationType = DerivationType.ED25519,
     private accPublicKey?: string,
     private accPublicKeyHash?: string
   ) {
