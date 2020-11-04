@@ -247,6 +247,9 @@
   "tokenContractPlaceholder": {
     "message": "e.g. KT1v9CmPy..."
   },
+  "lambdaContractPlaceholder": {
+    "message": "e.g. KT1v9CmPy..."
+  },
   "tokenSymbolPatternDescription": {
     "message": "Only a-z, A-Z, 0-9 chars allowed, 2-7 length"
   },
@@ -793,6 +796,15 @@
   "dAppsInteractionDisabled": {
     "message": "Disabled"
   },
+  "enablePopup": {
+    "message": "Enable popup"
+  },
+  "popupEnabled": {
+    "message": "Enabled"
+  },
+  "popupDisabled": {
+    "message": "Disabled"
+  },
   "delete": {
     "message": "Delete"
   },
@@ -1006,6 +1018,9 @@
   },
   "pending": {
     "message": "pending..."
+  },
+  "backtracked": {
+    "message": "backtracked"
   },
   "operationSuccessfullyProcessed": {
     "message": "$type$ successfully processed and confirmed!",
@@ -1279,6 +1294,17 @@
       }
     }
   },
+  "lambdaContract": {
+    "message": "Lambda View contract"
+  },
+  "someLambda": {
+    "message": "Lambda View: $lambda$",
+    "placeholders": {
+      "lambda": {
+        "content": "$1"
+      }
+    }
+  },
   "expenses": {
     "message": "Expenses"
   },
@@ -1300,6 +1326,18 @@
   },
   "approveToken": {
     "message": "Approve Token"
+  },
+  "noLambdaWarningContent": {
+    "message": "No Lambda View contract was specified. Some functionality may not work without it. Press 'Add network' button if you want to proceed."
+  },
+  "noActiveNetLambdaWarningContent": {
+    "message": "No Lambda View contract for the current network was specified. You can add it in the form below or click 'Deploy new' to deploy a new one and add automatically."
+  },
+  "add": {
+    "message": "Add"
+  },
+  "deployNew": {
+    "message": "Deploy new"
   },
   "managedKTAccount": {
     "message": "Managed KT"
@@ -1330,5 +1368,11 @@
   },
   "contractAlreadyImported": {
     "message": "This contract has already been imported"
+  },
+  "waitWhileContractBeingDeployed": {
+    "message": "Please don't leave this page or close window while contract is being deployed, it may take a while. The form and this alert will disappear as soon as it is successfully deployed."
+  },
+  "justAMinute": {
+    "message": "Just a minute..."
   }
 }
