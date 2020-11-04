@@ -83,7 +83,7 @@ const Identicon: React.FC<IdenticonProps> = ({
 export default Identicon;
 
 function estimateOptimalFontSize(hash: string) {
-  const initialsLength = Math.max(initials(hash).length, MAX_INITIALS_LENGTH);
+  const initialsLength = Math.min(initials(hash).length, MAX_INITIALS_LENGTH);
   if (initialsLength > 2) {
     const n = initialsLength;
     const multiplier = Math.sqrt(
