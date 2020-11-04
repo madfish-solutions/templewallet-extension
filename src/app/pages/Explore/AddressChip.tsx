@@ -16,7 +16,7 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
   const tezos = useTezos();
 
   const resolveDomainReverseName = React.useCallback(
-    () => tezosDomains.reverseResolveName(pkh),
+    () => tezosDomains.resolveAddressToName(pkh),
     [tezosDomains, pkh]
   );
 
