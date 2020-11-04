@@ -26,6 +26,7 @@ import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
+import { getTokenSourceMapRange } from "typescript";
 
 const AddToken: React.FC = () => (
   <PageLayout
@@ -94,6 +95,9 @@ const Form: React.FC = () => {
   });
   const contractAddress = watch("address");
   const [error, setError] = React.useState<React.ReactNode>(null);
+  const [getTokenDataError, setGetTokenDataError] = React.useState<
+    React.ReactNode
+  >(null);
   const [tokenType, setTokenType] = React.useState(TOKEN_TYPES[0]);
   const [bottomSectionVisible, setBottomSectionVisible] = useSafeState(false);
   const [loadingToken, setLoadingToken] = React.useState(false);
@@ -105,6 +109,7 @@ const Form: React.FC = () => {
     }
     (async () => {
       try {
+        setGetTokenDataError(null);
         setLoadingToken(true);
         const tokenData = await getTokenData(tezos, contractAddress, networkId);
         const { symbol, name, description, decimals, onetoken } = tokenData;
@@ -128,7 +133,7 @@ const Form: React.FC = () => {
       } catch (e) {
         withErrorHumanDelay(e, () => {
           setBottomSectionVisible(false);
-          setError(e.message);
+          setGetTokenDataError(e.message);
         });
       } finally {
         setLoadingToken(false);
@@ -290,6 +295,16 @@ const Form: React.FC = () => {
         errorCaption={errors.address?.message}
         containerClassName="mb-4"
       />
+
+      {getTokenDataError && (
+        <Alert
+          type="error"
+          title={t("error")}
+          autoFocus
+          description={getTokenDataError}
+          className="mb-4"
+        />
+      )}
 
       <div
         className={classNames("w-full", {

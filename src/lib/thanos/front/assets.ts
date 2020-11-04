@@ -1,6 +1,7 @@
 import { BigMapAbstraction } from "@taquito/taquito";
 import axios from "axios";
 import * as React from "react";
+import { getMessage } from "lib/i18n";
 import {
   XTZ_ASSET,
   MAINNET_TOKENS,
@@ -12,7 +13,7 @@ import {
   ReactiveTezosToolkit,
   useAccount,
 } from "lib/thanos/front";
-import { isAddressValid, loadChainId } from "lib/thanos/helpers";
+import { validateContractAddress, loadChainId } from "lib/thanos/helpers";
 import { URL_PATTERN } from "app/defaults";
 
 const utf8Decoder = new TextDecoder("utf-8");
@@ -107,8 +108,10 @@ export async function getTokenData(
           rawNetworkTag,
           storageKey,
         ] = contractKeyResult;
-        if (!isAddressValid(contractAddress)) {
-          throw new Error(`Invalid contract address ${contractAddress}`);
+        if (validateContractAddress(contractAddress) !== true) {
+          throw new Error(
+            getMessage("someInvalidContactAddress", contractAddress)
+          );
         }
         const networkTag = rawNetworkTag?.substr(1);
         const networkTagIsChainId =
@@ -120,7 +123,12 @@ export async function getTokenData(
             (!networkTagIsChainId && networkId !== networkTag))
         ) {
           throw new Error(
-            `${networkTag} network was specified, which is not current network`
+            getMessage(
+              networkTagIsChainId
+                ? "someNetworkWithChainIdIsNotCurrent"
+                : "someNetworkIsNotCurrent",
+              networkTag
+            )
           );
         }
         return getTokenData(tezos, contractAddress, networkId, storageKey);
