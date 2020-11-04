@@ -28,7 +28,7 @@ const AssetIcon = React.memo((props: AssetIconProps) => {
   return (
     <Identicon
       type="initials"
-      hash={asset.name}
+      hash={asset.symbol}
       className={className}
       style={style}
       size={size}

@@ -26,7 +26,6 @@ import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
-import { getTokenSourceMapRange } from "typescript";
 
 const AddToken: React.FC = () => (
   <PageLayout
