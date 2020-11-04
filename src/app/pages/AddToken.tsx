@@ -14,6 +14,7 @@ import {
   fetchBalance,
   getTokenData,
   validateContractAddress,
+  useNetwork,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
@@ -68,6 +69,7 @@ const Form: React.FC = () => {
   const { allAssets } = useAssets();
   const { setAssetSymbol } = useCurrentAsset();
   const tezos = useTezos();
+  const { id: networkId } = useNetwork();
 
   const prevAssetsLengthRef = React.useRef(allAssets.length);
   React.useEffect(() => {
@@ -104,7 +106,7 @@ const Form: React.FC = () => {
     (async () => {
       try {
         setLoadingToken(true);
-        const tokenData = await getTokenData(tezos, contractAddress);
+        const tokenData = await getTokenData(tezos, contractAddress, networkId);
         const { symbol, name, description, decimals, onetoken } = tokenData;
         const tokenSymbol = typeof symbol === "string" ? symbol : "";
         const tokenName =
@@ -132,7 +134,7 @@ const Form: React.FC = () => {
         setLoadingToken(false);
       }
     })();
-  }, [contractAddress, tezos, setValue, setBottomSectionVisible]);
+  }, [contractAddress, tezos, setValue, setBottomSectionVisible, networkId]);
 
   const cleanContractAddress = React.useCallback(() => {
     setValue("address", "");

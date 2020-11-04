@@ -12,7 +12,7 @@ import {
   ReactiveTezosToolkit,
   useAccount,
 } from "lib/thanos/front";
-import { isAddressValid } from "lib/thanos/helpers";
+import { isAddressValid, loadChainId } from "lib/thanos/helpers";
 import { URL_PATTERN } from "app/defaults";
 
 const utf8Decoder = new TextDecoder("utf-8");
@@ -70,11 +70,13 @@ function hexToUTF8(str1: string) {
   return utf8Decoder.decode(Uint8Array.from(bytes));
 }
 
-const OTHER_CONTRACT_KEY_REGEX = /^\/\/(KT[A-z0-9]+)\/([^/]+)/;
+const OTHER_CONTRACT_KEY_REGEX = /^\/\/(KT[A-z0-9]+)(\.[A-z0-9]+)?\/([^/]+)/;
+const RPC_ID_TAG_REGEX = /^Net[A-z0-9]{12}$/;
 
 export async function getTokenData(
   tezos: ReactiveTezosToolkit,
   contractAddress: string,
+  networkId: string,
   key?: string
 ): Promise<any> {
   const contract = await loadContract(tezos, contractAddress);
@@ -98,12 +100,30 @@ export async function getTokenData(
       }
       const contractKeyResult = OTHER_CONTRACT_KEY_REGEX.exec(rawStorageKey);
       if (contractKeyResult) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [_, contractAddress, storageKey] = contractKeyResult;
+        const [
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          _,
+          contractAddress,
+          rawNetworkTag,
+          storageKey,
+        ] = contractKeyResult;
         if (!isAddressValid(contractAddress)) {
           throw new Error(`Invalid contract address ${contractAddress}`);
         }
-        return getTokenData(tezos, contractAddress, storageKey);
+        const networkTag = rawNetworkTag?.substr(1);
+        const networkTagIsChainId =
+          !!networkTag && RPC_ID_TAG_REGEX.test(networkTag);
+        const rpcChainId = await loadChainId(tezos.rpc.getRpcUrl());
+        if (
+          networkTag &&
+          ((networkTagIsChainId && rpcChainId !== networkTag) ||
+            (!networkTagIsChainId && networkId !== networkTag))
+        ) {
+          throw new Error(
+            `${networkTag} network was specified, which is not current network`
+          );
+        }
+        return getTokenData(tezos, contractAddress, networkId, storageKey);
       }
       return JSON.parse(
         hexToUTF8(
