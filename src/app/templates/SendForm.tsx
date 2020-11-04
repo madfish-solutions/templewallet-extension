@@ -30,6 +30,7 @@ import {
   isTzdnsSupportedNetwork,
   ThanosAccountType,
   loadContract,
+  useLazyChainId,
 } from "lib/thanos/front";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
@@ -64,6 +65,7 @@ interface FormData {
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
+const DELPHINET_CHAIN_ID = "NetXm8tYqnMWky1";
 
 const SendForm: React.FC = () => {
   const { currentAsset } = useCurrentAsset();
@@ -129,6 +131,14 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const { data: myBakerPkh } = useDelegate(accountPkh);
 
+  const lazyChainId = useLazyChainId();
+  const deplhiNetwork = React.useMemo(
+    () => lazyChainId === DELPHINET_CHAIN_ID,
+    [lazyChainId]
+  );
+
+  const storageUsedRef = React.useRef(false);
+
   /**
    * Form
    */
@@ -162,16 +172,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   );
 
   const toFilledWithDomain = React.useMemo(
-    () => toValue && isDomainNameValid(toValue),
-    [toValue]
+    () => toValue && isDomainNameValid(toValue, networkId),
+    [toValue, networkId]
   );
 
   const domainAddressFactory = React.useCallback(
-    () => resolveDomainAddress(tezosDomains, toValue),
-    [tezosDomains, toValue]
+    (_k: string, _checksum: string, toValue: string, networkId: string) =>
+      resolveDomainAddress(tezosDomains, toValue, networkId),
+    [tezosDomains]
   );
   const { data: resolvedAddress } = useSWR(
-    ["tzdns-address", tezos.checksum, toValue],
+    ["tzdns-address", tezos.checksum, toValue, networkId],
     domainAddressFactory,
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
@@ -266,6 +277,21 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         });
       } else {
         estmtnMax = await tezos.estimate.transfer(transferParams);
+      }
+
+      // console.info({
+      //   burnFeeMutez: estmtnMax.burnFeeMutez,
+      //   consumedMilligas: estmtnMax.consumedMilligas,
+      //   gasLimit: estmtnMax.gasLimit,
+      //   minimalFeeMutez: estmtnMax.minimalFeeMutez,
+      //   storageLimit: estmtnMax.storageLimit,
+      //   suggestedFeeMutez: estmtnMax.suggestedFeeMutez,
+      //   totalCost: estmtnMax.totalCost,
+      //   usingBaseFeeMutez: estmtnMax.usingBaseFeeMutez,
+      // });
+
+      if (estmtnMax.storageLimit > 0) {
+        storageUsedRef.current = true;
       }
 
       let baseFee = mutezToTz(estmtnMax.totalCost);
@@ -363,7 +389,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
               : new BigNumber(balanceNum)
                   .minus(baseFee)
                   .minus(safeFeeValue ?? 0);
-          if (myBakerPkh) {
+          if (myBakerPkh || (deplhiNetwork && storageUsedRef.current)) {
             ma = ma.minus(PENNY);
           }
           return BigNumber.max(ma, 0);
@@ -376,6 +402,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     baseFee,
     safeFeeValue,
     myBakerPkh,
+    deplhiNetwork,
   ]);
 
   const maxAmountNum = React.useMemo(
@@ -432,8 +459,12 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         return validateAddress(value);
       }
 
-      if (isDomainNameValid(value)) {
-        const resolved = await resolveDomainAddress(tezosDomains, value);
+      if (isDomainNameValid(value, networkId)) {
+        const resolved = await resolveDomainAddress(
+          tezosDomains,
+          value,
+          networkId
+        );
         if (!resolved) {
           return `Domain "${value}" doesn't resolve to an address`;
         }
@@ -443,7 +474,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
       return isAddressValid(value) ? true : "Invalid address or domain name";
     },
-    [tezosDomains, canUseDomainNames]
+    [tezosDomains, canUseDomainNames, networkId]
   );
 
   const onSubmit = React.useCallback(
