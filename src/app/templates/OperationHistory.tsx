@@ -21,13 +21,16 @@ import {
   TzktOperation,
 } from "lib/tzkt";
 import {
-  ThanosAsset,
   ThanosAssetType,
   XTZ_ASSET,
   useThanosClient,
   useNetwork,
   useAssets,
   useOnStorageChanged,
+  tryParseExpenses,
+  tryParseIncomes,
+  RawOperationAssetExpense,
+  RawOperationAssetIncome,
 } from "lib/thanos/front";
 import useTippy from "lib/ui/useTippy";
 import InUSD from "app/templates/InUSD";
@@ -39,8 +42,9 @@ import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.s
 import useInfiniteList from "lib/useInfiniteList";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import {
-  hasAmount,
   hasReceiver,
+  isDelegationOperation,
+  isThanosPendingOperation,
   isTokenTransaction,
   isTzktTransaction,
   ThanosHistoricalOperation,
@@ -49,6 +53,7 @@ import {
   ThanosOperation,
   ThanosPendingOperation,
 } from "lib/thanos/types";
+import HashShortView from "app/atoms/HashShortView";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const TZKT_BASE_URLS = new Map([
@@ -206,10 +211,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
             return true;
           }
 
-          const parsedParams =
-            operation.parameters &&
-            tryParseParameters(null, operation.parameters);
-          return !parsedParams || isTransferParameters(parsedParams);
+          return !operation.parameters;
         })
         .map<ThanosHistoricalTzktOperation>((operation) => {
           const {
@@ -289,7 +291,6 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     }
   }, [getOperationsError]);
 
-  type t1 = keyof ThanosPendingOperation;
   const pendingOperations = useMemo<ThanosPendingOperation[]>(
     () =>
       pndOps.map((op) => ({
@@ -473,50 +474,87 @@ type OperationProps = {
 
 const Operation = React.memo<OperationProps>(
   ({ accountPkh, operation, withExplorer, explorerBaseUrl }) => {
+    const { expense, income } = useMemo<{
+      expense?: RawOperationAssetExpense;
+      income?: RawOperationAssetIncome;
+    }>(() => {
+      if (isThanosPendingOperation(operation)) {
+        return {
+          expense:
+            operation.type === OpKind.TRANSACTION
+              ? { amount: new BigNumber(operation.amount) }
+              : undefined,
+          income: undefined,
+        };
+      }
+
+      if (isTzktTransaction(operation)) {
+        const operations = [
+          {
+            amount: String(operation.amount),
+            kind: operation.type,
+            source: operation.sender,
+            parameter: operation.parameters && JSON.parse(operation.parameters),
+            to: hasReceiver(operation) ? operation.receiver : undefined,
+          },
+        ];
+        return {
+          expense: tryParseExpenses(operations, accountPkh)[0]?.expenses?.[0],
+          income: tryParseIncomes(operations, accountPkh)[0]?.incomes?.[0],
+        };
+      }
+
+      if (isTokenTransaction(operation)) {
+        const { contract, amount, sender, receiver } = operation;
+        const transactionData = {
+          tokenAddress: contract,
+          amount: new BigNumber(amount),
+        };
+        const sureImSender = sender === accountPkh;
+        const sureImReceiver = receiver === accountPkh;
+        return {
+          expense:
+            sureImSender || (!sureImReceiver && !sender)
+              ? transactionData
+              : undefined,
+          income:
+            sureImReceiver || (!sureImSender && !receiver)
+              ? transactionData
+              : undefined,
+        };
+      }
+
+      return {
+        expense: undefined,
+        income: undefined,
+      };
+    }, [operation, accountPkh]);
+
     const { hash, type, status, time } = operation;
-    const parameters = isTzktTransaction(operation)
-      ? operation.parameters
-      : undefined;
-    const contractAddress = isTokenTransaction(operation)
-      ? operation.contract
-      : undefined;
-    const receiver = hasReceiver(operation) ? operation.receiver : undefined;
-    const amount = (hasAmount(operation) && operation.amount) || 0;
     const { allAssets } = useAssets();
 
+    const tokenAddress = expense?.tokenAddress || income?.tokenAddress;
     const token = useMemo(
       () =>
-        (parameters &&
-          allAssets.find(
-            (a) =>
-              a.type !== ThanosAssetType.XTZ && a.address === contractAddress
-          )) ||
-        null,
-      [allAssets, parameters, contractAddress]
+        allAssets.find(
+          (a) => a.type !== ThanosAssetType.XTZ && a.address === tokenAddress
+        ) || null,
+      [allAssets, tokenAddress]
     );
 
-    const tokenParsed = useMemo(
-      () =>
-        (parameters &&
-          (tryParseParameters(
-            token,
-            parameters
-          ) as ParsedTransferParameters)) ||
-        null,
-      [token, parameters]
-    );
-
-    const finalReceiver =
-      contractAddress && tokenParsed ? tokenParsed.receiver : receiver;
-    const finalVolume = tokenParsed
-      ? tokenParsed.volume
-      : contractAddress
-      ? amount
-      : new BigNumber(amount).div(1e6).toNumber();
+    const amount =
+      expense?.amount ||
+      income?.amount ||
+      new BigNumber(
+        (isDelegationOperation(operation) && operation.amount) || 0
+      );
+    const finalVolume = tokenAddress
+      ? amount.div(10 ** (token?.decimals || 0))
+      : amount.div(1e6).toNumber();
 
     const volumeExists = finalVolume !== 0;
     const typeTx = type === "transaction";
-    const imReceiver = finalReceiver === accountPkh;
+    const imReceiver = !!income;
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
 
@@ -627,7 +665,16 @@ const Operation = React.memo<OperationProps>(
                     )}
                   >
                     {typeTx && (imReceiver ? "+" : "-")}
-                    <Money>{finalVolume}</Money> {token ? token.symbol : "ꜩ"}
+                    <Money>{finalVolume}</Money>{" "}
+                    {token ? (
+                      token.symbol
+                    ) : tokenAddress ? (
+                      <>
+                        (unknown token <HashShortView hash={tokenAddress} />)
+                      </>
+                    ) : (
+                      "ꜩ"
+                    )}
                   </div>
 
                   <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
@@ -653,6 +700,7 @@ const Operation = React.memo<OperationProps>(
         status,
         time,
         token,
+        tokenAddress,
         type,
         typeTx,
         volumeExists,
@@ -739,65 +787,4 @@ function formatOperationType(type: string, imReciever: boolean) {
 
 function opKey(op: ThanosOperation) {
   return `${op.hash}_${op.type}`;
-}
-
-type ParsedTransferParameters = {
-  sender: string;
-  receiver: string;
-  volume: number;
-  entrypoint: "transfer";
-};
-type ParsedNonTransferParameters = { entrypoint: string; [key: string]: any };
-type ParsedParameters = ParsedTransferParameters | ParsedNonTransferParameters;
-
-function isTransferParameters(
-  parameters: ParsedParameters
-): parameters is ParsedTransferParameters {
-  return parameters.entrypoint === "transfer";
-}
-
-function tryParseParameters(
-  asset: ThanosAsset | null,
-  parameters: string
-): ParsedParameters | null {
-  try {
-    const parsedParameters = JSON.parse(parameters);
-    if (
-      typeof parsedParameters !== "object" ||
-      parsedParameters instanceof Array
-    ) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(
-          "cannot process parameters ",
-          parsedParameters,
-          " for now"
-        );
-      }
-
-      return null;
-    }
-
-    if (parsedParameters.entrypoint !== "transfer") {
-      return parsedParameters;
-    }
-
-    const { args } = parsedParameters.value;
-    const firstArgIsSender = !!args[0].string;
-    const volumeArg = firstArgIsSender ? args[1].args[1] : args[1];
-    const senderArg = firstArgIsSender ? args[0] : args[0].args[0];
-    const receiverArg = firstArgIsSender ? args[1].args[0] : args[0].args[1];
-    const receiver: string = receiverArg.string;
-    const sender: string = senderArg.string;
-    const volume = new BigNumber(volumeArg.int)
-      .div(10 ** (asset?.decimals || 0))
-      .toNumber();
-    return { sender, receiver, volume, entrypoint: "transfer" };
-  } catch (e) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("Error while parsing parameters ", parameters);
-      console.error(e);
-    }
-
-    return null;
-  }
 }

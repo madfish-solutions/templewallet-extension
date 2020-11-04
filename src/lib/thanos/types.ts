@@ -805,3 +805,5 @@ export function hasAmount(
     isDelegationOperation(operation)
   );
 }
+
+export type OperationsPreview = any[] | { branch: string; contents: any[] };
