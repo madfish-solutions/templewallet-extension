@@ -64,7 +64,8 @@ const Identicon: React.FC<IdenticonProps> = ({
     <div
       className={classNames(
         "inline-block",
-        "bg-gray-100 bg-no-repeat bg-center",
+        type === "initials" ? "bg-transparent" : "bg-gray-100",
+        "bg-no-repeat bg-center",
         "overflow-hidden",
         className
       )}
