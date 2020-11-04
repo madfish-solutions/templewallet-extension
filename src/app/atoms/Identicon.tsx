@@ -47,7 +47,7 @@ const Identicon: React.FC<IdenticonProps> = ({
         type === "initials"
           ? {
               ...basicOpts,
-              chars: 4,
+              chars: MAX_INITIALS_LENGTH,
               radius: 50,
               fontSize: estimateOptimalFontSize(hash),
             }
