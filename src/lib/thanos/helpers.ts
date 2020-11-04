@@ -1,6 +1,5 @@
 import BigNumber from "bignumber.js";
 import memoize from "micro-memoize";
-import { Tezos } from "@taquito/taquito";
 import { RpcClient } from "@taquito/rpc";
 import { ValidationResult, validateAddress } from "@taquito/utils";
 import { getMessage } from "lib/i18n";
@@ -20,11 +19,15 @@ export function hasManager(manager: any) {
 }
 
 export function tzToMutez(tz: any) {
-  return Tezos.format("tz", "mutez", tz) as BigNumber;
+  const bigNum = new BigNumber(tz);
+  if (bigNum.isNaN()) return bigNum;
+  return bigNum.times(10 ** 6).integerValue();
 }
 
 export function mutezToTz(mutez: any) {
-  return Tezos.format("mutez", "tz", mutez) as BigNumber;
+  const bigNum = new BigNumber(mutez);
+  if (bigNum.isNaN()) return bigNum;
+  return bigNum.integerValue().div(10 ** 6);
 }
 
 export function isAddressValid(address: string) {
@@ -54,4 +57,17 @@ export function validateDerivationPath(p: string) {
   }
 
   return true;
+}
+
+export function validateContractAddress(value: any) {
+  switch (false) {
+    case isAddressValid(value):
+      return getMessage("invalidAddress");
+
+    case isKTAddress(value):
+      return getMessage("onlyKTContractAddressAllowed");
+
+    default:
+      return true;
+  }
 }
