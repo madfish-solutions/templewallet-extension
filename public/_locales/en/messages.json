@@ -1335,5 +1335,29 @@
   },
   "justAMinute": {
     "message": "Just a minute..."
+  },
+  "someInvalidContactAddress": {
+    "message": "Invalid contract address $address$",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "someNetworkIsNotCurrent": {
+    "message": "$network$ network was specified, which is not current network",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "someNetworkWithChainIdIsNotCurrent": {
+    "message": "Chain ID $chainId$ was specified, which is not chain ID of current network",
+    "placeholders": {
+      "chainId": {
+        "content": "$1"
+      }
+    }
   }
 }
