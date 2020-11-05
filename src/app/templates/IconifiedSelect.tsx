@@ -20,6 +20,7 @@ type IconifiedSelectProps<T> = {
   OptionInMenuContent: IconifiedSelectRenderComponent<T>;
   OptionSelectedContent: IconifiedSelectRenderComponent<T>;
   getKey: (option: T) => string | number | undefined;
+  isDisabled?: (option: T) => boolean;
   options: T[];
   value: T;
   onChange?: (a: T) => void;
@@ -33,6 +34,7 @@ const IconifiedSelect = <T extends unknown>({
   OptionSelectedIcon,
   OptionSelectedContent,
   getKey,
+  isDisabled,
   options,
   value,
   onChange,
@@ -51,6 +53,7 @@ const IconifiedSelect = <T extends unknown>({
             modifiers={[sameWidth]}
             popup={({ opened, setOpened, toggleOpened }) => (
               <IconifiedSelectMenu
+                isDisabled={isDisabled}
                 opened={opened}
                 setOpened={setOpened}
                 toggleOpened={toggleOpened}
@@ -98,6 +101,7 @@ const IconifiedSelectMenu = <T extends unknown>(
   props: IconifiedSelectMenuProps<T>
 ) => {
   const {
+    isDisabled,
     opened,
     setOpened,
     onChange,
@@ -129,6 +133,7 @@ const IconifiedSelectMenu = <T extends unknown>(
     >
       {options.map((option) => (
         <IconifiedSelectOption
+          disabled={isDisabled?.(option)}
           key={getKey(option)}
           value={option}
           selected={getKey(option) === getKey(value)}
@@ -145,6 +150,7 @@ type IconifiedSelectOptionProps<T> = Pick<
   IconifiedSelectProps<T>,
   "Icon" | "OptionInMenuContent" | "value"
 > & {
+  disabled?: boolean;
   value: T;
   selected: boolean;
   onClick?: IconifiedSelectProps<T>["onChange"];
@@ -153,7 +159,14 @@ type IconifiedSelectOptionProps<T> = Pick<
 const IconifiedSelectOption = <T extends unknown>(
   props: IconifiedSelectOptionProps<T>
 ) => {
-  const { value, selected, onClick, Icon, OptionInMenuContent } = props;
+  const {
+    disabled,
+    value,
+    selected,
+    onClick,
+    Icon,
+    OptionInMenuContent,
+  } = props;
 
   const handleClick = useCallback(() => {
     onClick?.(value);
@@ -167,15 +180,18 @@ const IconifiedSelectOption = <T extends unknown>(
         "mb-1",
         "rounded",
         "transition easy-in-out duration-200",
-        selected ? "bg-gray-200" : "hover:bg-gray-100",
-        "cursor-pointer",
-        "flex items-center"
+        selected ? "bg-gray-200" : !disabled && "hover:bg-gray-100",
+        "flex items-center",
+        disabled && "opacity-25",
+        disabled ? "cursor-default" : "cursor-pointer",
+        "text-left"
       )}
+      disabled={disabled}
       style={{
         padding: "0.375rem 1.5rem 0.375rem 0.5rem",
       }}
       autoFocus={selected}
-      onClick={handleClick}
+      onClick={disabled ? undefined : handleClick}
     >
       <Icon option={value} />
 
