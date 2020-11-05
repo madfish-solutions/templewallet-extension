@@ -1,6 +1,6 @@
 import React from "react";
 import { isPopupModeEnabled, setPopupMode } from "lib/popup-mode";
-import { t } from "lib/i18n/react";
+import { t, T } from "lib/i18n/react";
 import FormCheckbox from "app/atoms/FormCheckbox";
 
 const PopupSettings: React.FC<{}> = () => {
@@ -28,15 +28,14 @@ const PopupSettings: React.FC<{}> = () => {
         htmlFor="popupEnabled"
       >
         <span className="text-base font-semibold text-gray-700">
-          Popup settings
+          <T id="popupSettings" />
         </span>
 
         <span
           className="mt-1 text-xs font-light text-gray-600"
           style={{ maxWidth: "90%" }}
         >
-          Here you can configure the popup which appears on plugin's icon click
-          in extensions panel.
+          <T id="popupSettingsDescription" />
         </span>
       </label>
 
