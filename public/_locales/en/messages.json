@@ -235,6 +235,9 @@
   "comingSoonComment": {
     "message": "(coming soon)"
   },
+  "soonComment": {
+    "message": "(soon)"
+  },
   "required": {
     "message": "Required"
   },
@@ -1359,5 +1362,11 @@
         "content": "$1"
       }
     }
+  },
+  "popupSettings": {
+    "message": "Popup settings"
+  },
+  "popupSettingsDescription": {
+    "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
   }
 }
