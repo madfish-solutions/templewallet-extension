@@ -22,15 +22,34 @@ const PopupSettings: React.FC<{}> = () => {
   );
 
   return (
-    <FormCheckbox
-      checked={popupEnabled}
-      onChange={handlePopupModeChange}
-      name="popupEnabled"
-      label={t(popupEnabled ? "popupEnabled" : "popupDisabled")}
-      labelDescription={t("enablePopup")}
-      errorCaption={error?.message}
-      containerClassName="mb-4"
-    />
+    <>
+      <label
+        className="mb-4 leading-tight flex flex-col"
+        htmlFor="popupEnabled"
+      >
+        <span className="text-base font-semibold text-gray-700">
+          Popup settings
+        </span>
+
+        <span
+          className="mt-1 text-xs font-light text-gray-600"
+          style={{ maxWidth: "90%" }}
+        >
+          Here you can configure the popup which appears on plugin's icon click
+          in extensions panel.
+        </span>
+      </label>
+
+      <FormCheckbox
+        checked={popupEnabled}
+        onChange={handlePopupModeChange}
+        name="popupEnabled"
+        label={t(popupEnabled ? "popupEnabled" : "popupDisabled")}
+        labelDescription={t("enablePopup")}
+        errorCaption={error?.message}
+        containerClassName="mb-4"
+      />
+    </>
   );
 };
 
