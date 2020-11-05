@@ -8,6 +8,7 @@ export interface InfiniteListParams<
   Key extends string | any[] | null
 > {
   additionalConfig?: SWRInfiniteConfigInterface<PageData, any>;
+  customReachingEnd?: (pageData: PageData) => boolean;
   getDataLength: (pageData: PageData) => number;
   getKey: (index: number, previousPageData: PageData | null) => Key;
   fetcher: fetcherFn<PageData>;
@@ -37,6 +38,7 @@ export default function useInfiniteList<
 ): InfiniteListResponseInterface<Result> {
   const {
     additionalConfig,
+    customReachingEnd,
     getDataLength,
     getKey,
     fetcher,
@@ -53,11 +55,12 @@ export default function useInfiniteList<
     isLoadingInitialData ||
     (size > 0 && data && typeof data[size - 1] === "undefined");
   const isEmpty = data?.[0] && getDataLength(data[0]) === 0;
-  const isReachingEnd =
-    isEmpty ||
-    (data &&
-      data[data.length - 1] &&
-      getDataLength(data[data.length - 1]) < itemsPerPage);
+  const isReachingEnd = customReachingEnd
+    ? data && customReachingEnd(data[0])
+    : isEmpty ||
+      (data &&
+        data[data.length - 1] &&
+        getDataLength(data[data.length - 1]) < itemsPerPage);
   const isRefreshing = isValidating && data && data.length === size;
 
   const load = useCallback(() => setSize(1), [setSize]);

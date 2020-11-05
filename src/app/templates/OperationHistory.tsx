@@ -62,6 +62,11 @@ const TZKT_BASE_URLS = new Map([
   ["NetXm8tYqnMWky1", "https://delphi.tzkt.io"],
 ]);
 
+type MixedPage = {
+  bcd: BcdPageableTokenTransfers;
+  tzkt: TzktOperation[];
+};
+
 type OperationHistoryProps = {
   accountPkh: string;
   accountOwner?: string;
@@ -106,93 +111,59 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     [chainId]
   );
 
-  const bcdOperationsGetKey = useCallback(
-    (index: number, previousPageData: BcdPageableTokenTransfers | null) => {
+  const getKey = useCallback(
+    (index: number, previousPageData: MixedPage | null) => {
       if (!previousPageData) {
-        return `bcdOperations,${network.id},${accountPkh}`;
+        return ["mixedOperations", network.id, accountPkh];
       }
 
-      if (previousPageData.last_id) {
-        return `bcdOperations,${network.id},${accountPkh},${previousPageData.last_id}`;
-      }
-
-      return null;
-    },
-    [network.id, accountPkh]
-  );
-
-  const tzktOperationsGetKey = useCallback(
-    (index: number, previousOperations: TzktOperation[] | null) => {
-      if (!previousOperations) {
-        return `tzktOperations,${network.id},${accountPkh}`;
-      }
-
-      if (previousOperations.length === 0) {
+      const { bcd, tzkt } = previousPageData;
+      if (!bcd.last_id && tzkt.length === 0) {
         return null;
       }
 
-      return `tzktOperations,${network.id},${accountPkh},${
-        previousOperations[previousOperations.length - 1].id
-      }`;
+      return [
+        "mixedOperations",
+        network.id,
+        accountPkh,
+        bcd.last_id,
+        tzkt[tzkt.length - 1]?.id,
+      ];
     },
     [network.id, accountPkh]
   );
 
   const {
-    result: bcdOperations,
-    error: bcdError,
-    isLoadingMore: isLoadingMoreBcdOperations,
-    isReachingEnd: isReachingBcdOperationsEnd,
-    loadMore: loadMoreBcdOperations,
-    isRefreshing: isRefreshingBcdOperations,
-  } = useInfiniteList({
+    result: mixedOperations,
+    error: getOperationsError,
+    isLoadingMore,
+    isReachingEnd,
+    loadMore: loadMoreOperations,
+    isRefreshing,
+  } = useInfiniteList<
+    MixedPage,
+    { bcd: BcdTokenTransfer[]; tzkt: TzktOperation[] },
+    any[] | null
+  >({
     additionalConfig: { refreshInterval: 15000 },
-    getDataLength: bcdGetDataLength,
-    getKey: bcdOperationsGetKey,
-    fetcher: bcdOperationsFetcher,
-    transformFn: bcdOperationsTransformFn,
-    itemsPerPage: 10,
+    getDataLength: getDataLength,
+    getKey: getKey,
+    fetcher: operationsFetcher,
+    transformFn: operationsTransformFn,
+    itemsPerPage: 20,
+    customReachingEnd: operationsReachingEnd,
   });
+  console.log(mixedOperations);
 
-  const {
-    result: tzktOperations,
-    error: tzktError,
-    isLoadingMore: isLoadingMoreTzktOperations,
-    isReachingEnd: isReachingTzktOperationsEnd,
-    loadMore: loadMoreTzktOperations,
-    isRefreshing: isRefreshingTzktOperations,
-  } = useInfiniteList({
-    additionalConfig: { refreshInterval: 15000 },
-    getDataLength: tzktGetDataLength,
-    getKey: tzktOperationsGetKey,
-    fetcher: tzktOperationsFetcher,
-    transformFn: tzktOperationsTransformFn,
-    itemsPerPage: 10,
-  });
-
-  const getOperationsError = bcdError || tzktError;
-  const isLoadingMore =
-    isLoadingMoreBcdOperations || isLoadingMoreTzktOperations;
-  const isReachingEnd =
-    isReachingBcdOperationsEnd && isReachingTzktOperationsEnd;
-  const isRefreshing = isRefreshingBcdOperations || isRefreshingTzktOperations;
   const loadMore = useCallback(() => {
-    if (!isReachingTzktOperationsEnd) {
-      loadMoreTzktOperations();
+    if (!isReachingEnd) {
+      loadMoreOperations();
     }
-    if (!isReachingBcdOperationsEnd) {
-      loadMoreBcdOperations();
-    }
-  }, [
-    isReachingTzktOperationsEnd,
-    isReachingBcdOperationsEnd,
-    loadMoreBcdOperations,
-    loadMoreTzktOperations,
-  ]);
+  }, [isReachingEnd, loadMoreOperations]);
 
   const operations = useMemo<ThanosHistoricalOperation[]>(() => {
     return [
-      ...bcdOperations.map<ThanosHistoricalTokenTransaction>(
+      ...mixedOperations.bcd.map<ThanosHistoricalTokenTransaction>(
         ({ contract, hash, to, source, amount, status, timestamp }) => ({
           contract: contract,
           hash: hash,
@@ -205,7 +176,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
           isThanosPending: false,
         })
       ),
-      ...tzktOperations
+      ...mixedOperations.tzkt
         .filter((operation) => {
           if (!isTransaction(operation)) {
             return true;
@@ -283,7 +254,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
           };
         }),
     ];
-  }, [bcdOperations, tzktOperations]);
+  }, [mixedOperations]);
 
   useEffect(() => {
     if (getOperationsError) {
@@ -402,67 +373,48 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
 export default OperationHistory;
 
-function bcdGetDataLength(pageData: BcdPageableTokenTransfers) {
-  return pageData.transfers.length;
+function getDataLength(pageData: MixedPage) {
+  return pageData.bcd.transfers.length + pageData.tzkt.length;
 }
 
-async function bcdOperationsFetcher(queryKey: string) {
-  const { networkId, accountPkh, lastId } = parseOperationsFetcherQueryKey(
-    queryKey
-  );
-  if (!isBcdSupportedNetwork(networkId)) {
-    return { transfers: [] };
-  }
-
-  return getTokenTransfers({
-    address: accountPkh,
-    network: networkId,
-    last_id: lastId,
-  });
+function operationsReachingEnd(pageData: MixedPage) {
+  return pageData.bcd.transfers.length < 10 && pageData.tzkt.length < 10;
 }
 
-function bcdOperationsTransformFn(pagesData: BcdPageableTokenTransfers[]) {
-  return pagesData.reduce(
-    (operations, { transfers }) => [...operations, ...transfers],
-    [] as BcdTokenTransfer[]
-  );
-}
-
-function tzktGetDataLength(pageData: TzktOperation[]) {
-  return pageData.length;
-}
-
-async function tzktOperationsFetcher(queryKey: string) {
-  const { networkId, accountPkh, lastId } = parseOperationsFetcherQueryKey(
-    queryKey
-  );
-  if (!isTzktSupportedNetwork(networkId)) {
-    return [];
-  }
-
-  return getOperations(networkId, {
-    address: accountPkh,
-    lastId: lastId !== undefined ? Number(lastId) : undefined,
-    limit: 10,
-  });
-}
-
-function tzktOperationsTransformFn(pagesData: TzktOperation[][]) {
-  return pagesData.reduce(
-    (resultPart, pageData) => [...resultPart, ...pageData],
-    [] as TzktOperation[]
-  );
-}
-
-function parseOperationsFetcherQueryKey(queryKey: string) {
-  const [queryName, networkId, accountPkh, lastId] = queryKey.split(",");
-
+async function operationsFetcher(
+  _k: string,
+  networkId: string,
+  accountPkh: string,
+  bcdLastId?: string,
+  tzktLastId?: string
+) {
   return {
-    queryName,
-    networkId,
-    accountPkh,
-    lastId,
+    bcd: isBcdSupportedNetwork(networkId)
+      ? await getTokenTransfers({
+          address: accountPkh,
+          network: networkId,
+          last_id: bcdLastId,
+          size: 10,
+        })
+      : { transfers: [] },
+    tzkt: isTzktSupportedNetwork(networkId)
+      ? await getOperations(networkId, {
+          address: accountPkh,
+          lastId: tzktLastId !== undefined ? Number(tzktLastId) : undefined,
+          limit: 10,
+        })
+      : [],
   };
+}
+
+function operationsTransformFn(pagesData: MixedPage[]) {
+  return pagesData.reduce<{ bcd: BcdTokenTransfer[]; tzkt: TzktOperation[] }>(
+    (acc, pageData) => ({
+      bcd: [...acc.bcd, ...pageData.bcd.transfers],
+      tzkt: [...acc.tzkt, ...pageData.tzkt],
+    }),
+    { bcd: [], tzkt: [] }
+  );
 }
 
 type OperationProps = {
