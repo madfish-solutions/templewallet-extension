@@ -235,6 +235,9 @@
   "comingSoonComment": {
     "message": "(coming soon)"
   },
+  "soonComment": {
+    "message": "(soon)"
+  },
   "required": {
     "message": "Required"
   },
