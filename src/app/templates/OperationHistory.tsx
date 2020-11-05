@@ -153,7 +153,6 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     itemsPerPage: 20,
     customReachingEnd: operationsReachingEnd,
   });
-  console.log(mixedOperations);
 
   const loadMore = useCallback(() => {
     if (!isReachingEnd) {
