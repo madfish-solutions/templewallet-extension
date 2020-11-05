@@ -1163,13 +1163,6 @@
   resolved "https://registry.yarnpkg.com/@dicebear/avatars-bottts-sprites/-/avatars-bottts-sprites-4.2.5.tgz#8661c26e18825e893d531d33ce1ae0bbd808dd72"
   integrity sha512-nMrIZGiWEC1Ezbg1MLmi9o/iR1WX+bGSRn2yFftAsxr8jeUBOA7PC4K/r7jYSv5/LAm3nB0kPhQZOYALUg645Q==
 
-"@dicebear/avatars-initials-sprites@4.2.5":
-  version "4.2.5"
-  resolved "https://registry.yarnpkg.com/@dicebear/avatars-initials-sprites/-/avatars-initials-sprites-4.2.5.tgz#0bf7e9747f413887be18b745f26d6dc27c4e6ad4"
-  integrity sha512-Ov0enRhrMqjjnh00c8emEl34eqx7cUsoRuDvRzlZQYK6ENHaBrj7/S5uWHqPe6a01W82lLYSGLsMUXC2iN/2Lg==
-  dependencies:
-    initials "^3.0.1"
-
 "@dicebear/avatars-jdenticon-sprites@4.2.5":
   version "4.2.5"
   resolved "https://registry.yarnpkg.com/@dicebear/avatars-jdenticon-sprites/-/avatars-jdenticon-sprites-4.2.5.tgz#3c232de0e3e60502eae9f2003ff0f5f5a6c8acd3"
@@ -5111,11 +5104,6 @@ ini@^1.3.4, ini@^1.3.5, ini@~1.3.0:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
   integrity sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
-
-initials@^3.0.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/initials/-/initials-3.1.1.tgz#a63395b2c46bc56207b4b964a6eb185dbd8458e6"
-  integrity sha512-imRkwIpCUer+w9NB41dTENhJrTQTGOJthRa3URF0O9+L7MOMBPmN8njwkiX4u8YnzxbjEp4Is0ohiW6NSA8ZCw==
 
 inquirer@7.0.4:
   version "7.0.4"

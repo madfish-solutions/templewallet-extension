@@ -1,10 +1,9 @@
 import * as React from "react";
 import classNames from "clsx";
-import initials from "initials";
 import Avatars from "@dicebear/avatars";
 import jdenticonSpirtes from "@dicebear/avatars-jdenticon-sprites";
 import botttsSprites from "@dicebear/avatars-bottts-sprites";
-import initialsSprites from "@dicebear/avatars-initials-sprites";
+import initialsSprites from "lib/avatars-initials-sprites";
 
 type IdenticonProps = React.HTMLAttributes<HTMLDivElement> & {
   type?: "jdenticon" | "bottts" | "initials";
@@ -12,7 +11,7 @@ type IdenticonProps = React.HTMLAttributes<HTMLDivElement> & {
   size?: number;
 };
 
-const MAX_INITIALS_LENGTH = 4;
+const MAX_INITIALS_LENGTH = 5;
 const DEFAULT_FONT_SIZE = 50;
 
 const cache = new Map<string, string>();
@@ -49,7 +48,9 @@ const Identicon: React.FC<IdenticonProps> = ({
               ...basicOpts,
               chars: MAX_INITIALS_LENGTH,
               radius: 50,
-              fontSize: estimateOptimalFontSize(hash),
+              fontSize: estimateOptimalFontSize(
+                hash.slice(0, MAX_INITIALS_LENGTH).length
+              ),
             }
           : basicOpts;
       const imgSrc = icons[type].create(hash, opts);
@@ -83,8 +84,8 @@ const Identicon: React.FC<IdenticonProps> = ({
 
 export default Identicon;
 
-function estimateOptimalFontSize(hash: string) {
-  const initialsLength = Math.min(initials(hash).length, MAX_INITIALS_LENGTH);
+function estimateOptimalFontSize(length: number) {
+  const initialsLength = Math.min(length, MAX_INITIALS_LENGTH);
   if (initialsLength > 2) {
     const n = initialsLength;
     const multiplier = Math.sqrt(
