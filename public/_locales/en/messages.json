@@ -319,12 +319,7 @@
     "message": "Only KT... contract address allowed"
   },
   "operationHash": {
-    "message": "Operation Hash: $hash$",
-    "placeholders": {
-      "hash": {
-        "content": "$1"
-      }
-    }
+    "message": "Operation Hash"
   },
   "alert": {
     "message": "Alert"
