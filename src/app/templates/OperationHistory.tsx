@@ -16,20 +16,15 @@ import {
   useOnStorageChanged,
   mutezToTz,
 } from "lib/thanos/front";
-import useTippy from "lib/ui/useTippy";
 import InUSD from "app/templates/InUSD";
-import Identicon from "app/atoms/Identicon";
 import HashChip from "app/templates/HashChip";
+import Identicon from "app/atoms/Identicon";
+import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
-import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
+import { TZKT_BASE_URLS } from "lib/tzkt";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
-const TZKT_BASE_URLS = new Map([
-  ["NetXdQprcVkpaWU", "https://tzkt.io"],
-  ["NetXjD3HPJJjmcd", "https://carthage.tzkt.io"],
-  ["NetXm8tYqnMWky1", "https://delphi.tzkt.io"],
-]);
 
 interface OperationPreview {
   hash: string;
@@ -401,50 +396,6 @@ const Operation = React.memo<OperationProps>(
     );
   }
 );
-
-type OpenInExplorerChipProps = {
-  baseUrl: string;
-  opHash: string;
-  className?: string;
-};
-
-const OpenInExplorerChip: React.FC<OpenInExplorerChipProps> = ({
-  baseUrl,
-  opHash,
-  className,
-}) => {
-  const tippyProps = React.useMemo(
-    () => ({
-      trigger: "mouseenter",
-      hideOnClick: false,
-      content: "View on block explorer",
-      animation: "shift-away-subtle",
-    }),
-    []
-  );
-
-  const ref = useTippy<HTMLAnchorElement>(tippyProps);
-
-  return (
-    <a
-      ref={ref}
-      href={`${baseUrl}/${opHash}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={classNames(
-        "bg-gray-100 hover:bg-gray-200",
-        "rounded-sm shadow-xs",
-        "text-xs p-1",
-        "text-gray-600 leading-none select-none",
-        "transition ease-in-out duration-300",
-        "flex items-center",
-        className
-      )}
-    >
-      <ArrowRightTopIcon className="w-auto h-3 stroke-current stroke-2" />
-    </a>
-  );
-};
 
 type TimeProps = {
   children: () => React.ReactElement;
