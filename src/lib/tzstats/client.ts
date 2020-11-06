@@ -57,9 +57,10 @@ export const getAccountWithOperations = explore<
   }
 >(({ pkh, ...rest }) => [`/explorer/account/${pkh}/op`, rest]);
 
-export const getOneUserManagedContracts = explore<TZStatsContract[], { account: string }>(
-  ({ account }) => [`/explorer/account/${account}/managed`, {}]
-);
+export const getOneUserManagedContracts = explore<
+  TZStatsContract[],
+  { account: string }
+>(({ account }) => [`/explorer/account/${account}/managed`, {}]);
 
 export const getOperationTable = wrapQuery(
   query<OperationRowTuple[]>("/tables/op"),

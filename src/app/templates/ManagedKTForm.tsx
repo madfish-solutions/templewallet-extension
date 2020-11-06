@@ -307,7 +307,7 @@ const ContractOptionContent: React.FC<ContractOptionRenderProps> = (props) => {
     <>
       <div className="flex flex-wrap items-center">
         <Name className="text-sm font-medium leading-tight">
-          <T id="managedContract" />
+          <T id="contract" />
         </Name>
 
         <AccountTypeBadge account={{ type: ThanosAccountType.ManagedKT }} />
