@@ -9,6 +9,12 @@ const baseUrls: Record<TzktNetwork, string> = {
   delphinet: "https://api.delphi.tzkt.io/v1",
 };
 
+export const TZKT_BASE_URLS = new Map([
+  ["NetXdQprcVkpaWU", "https://tzkt.io"],
+  ["NetXjD3HPJJjmcd", "https://carthage.tzkt.io"],
+  ["NetXm8tYqnMWky1", "https://delphi.tzkt.io"],
+]);
+
 const api = axios.create();
 api.interceptors.response.use(
   (res) => res,
