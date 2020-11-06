@@ -211,7 +211,7 @@ const ManagedKTForm: React.FC = () => {
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
               <div className="ml-1 mr-px font-normal">
-                <T id="managedContract" />
+                <T id="contract" />
               </div>{" "}
               (
               <Balance asset={XTZ_ASSET} address={filledAccount.address}>
