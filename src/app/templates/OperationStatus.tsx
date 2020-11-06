@@ -29,29 +29,20 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
 
   const descFooter = React.useMemo(
     () => (
-      <T
-        id="operationHash"
-        substitutions={[
-          <React.Fragment key="hash">
-            <HashChip
-              hash={hash}
-              firstCharsCount={10}
-              lastCharsCount={7}
-              small
-              key="hash"
-              className="ml-2 mr-2"
-            />
-
-            {explorerBaseUrl && (
-              <OpenInExplorerChip baseUrl={explorerBaseUrl} opHash={hash} />
-            )}
-          </React.Fragment>,
-        ]}
-      >
-        {(message) => (
-          <div className="mt-2 text-xs flex items-center">{message}</div>
+      <div className="mt-2 text-xs flex items-center">
+        <T id="operationHash" />:{" "}
+        <HashChip
+          hash={hash}
+          firstCharsCount={10}
+          lastCharsCount={7}
+          small
+          key="hash"
+          className="ml-2 mr-2"
+        />
+        {explorerBaseUrl && (
+          <OpenInExplorerChip baseUrl={explorerBaseUrl} opHash={hash} />
         )}
-      </T>
+      </div>
     ),
     [hash, explorerBaseUrl]
   );
