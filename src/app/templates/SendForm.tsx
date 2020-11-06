@@ -30,7 +30,7 @@ import {
   isTzdnsSupportedNetwork,
   ThanosAccountType,
   loadContract,
-  useLazyChainId,
+  useChainId,
 } from "lib/thanos/front";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
@@ -131,7 +131,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const { data: myBakerPkh } = useDelegate(accountPkh);
 
-  const lazyChainId = useLazyChainId();
+  const lazyChainId = useChainId();
   const deplhiNetwork = React.useMemo(
     () => lazyChainId === DELPHINET_CHAIN_ID,
     [lazyChainId]
