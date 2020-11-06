@@ -156,7 +156,7 @@ function useReadyThanos() {
   };
 }
 
-export function useChainId(lazy = true) {
+export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
 
   const rpcUrl = React.useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
@@ -172,7 +172,7 @@ export function useChainId(lazy = true) {
   const { data: lazyChainId = null } = useRetryableSWR(
     ["lazy-chain-id", tezos.checksum],
     fetchChainId,
-    { revalidateOnFocus: false, suspense: !lazy }
+    { revalidateOnFocus: false, suspense }
   );
 
   return React.useMemo(() => lazyChainId, [lazyChainId]);

@@ -1321,8 +1321,8 @@
   "contractAddressInputPlaceholder": {
     "message": "e.g. KT1a9w1S7hN5s..."
   },
-  "addKnownContract": {
-    "message": "Add known contract"
+  "addKnownManagedContract": {
+    "message": "Add known Managed contract"
   },
   "clickOnContractToImport": {
     "message": "Click on Contract you want to import."
@@ -1344,5 +1344,8 @@
   },
   "popupSettingsDescription": {
     "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
+  },
+  "managedContract": {
+    "message": "Managed Contract"
   }
 }

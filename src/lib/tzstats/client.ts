@@ -57,25 +57,9 @@ export const getAccountWithOperations = explore<
   }
 >(({ pkh, ...rest }) => [`/explorer/account/${pkh}/op`, rest]);
 
-const getOneUserContracts = explore<TZStatsContract[], { account: string }>(
+export const getOneUserManagedContracts = explore<TZStatsContract[], { account: string }>(
   ({ account }) => [`/explorer/account/${account}/managed`, {}]
 );
-
-export const getUsersContracts = async (
-  _k: string,
-  networkId: TZStatsNetwork,
-  ...accounts: string[]
-) => {
-  const contractsChunks = await Promise.all(
-    accounts.map((account) =>
-      getOneUserContracts(networkId, { account }).catch(() => [])
-    )
-  );
-  return contractsChunks.reduce(
-    (contracts, chunk) => [...contracts, ...chunk],
-    []
-  );
-};
 
 export const getOperationTable = wrapQuery(
   query<OperationRowTuple[]>("/tables/op"),
