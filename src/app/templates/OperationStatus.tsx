@@ -4,7 +4,7 @@ import useSafeState from "lib/ui/useSafeState";
 import Alert from "app/atoms/Alert";
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import HashChip from "app/templates/HashChip";
-import { useLazyChainId } from "lib/thanos/front";
+import { useChainId } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 
 type OperationStatusProps = {
@@ -20,7 +20,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     operation,
   ]);
 
-  const chainId = useLazyChainId();
+  const chainId = useChainId();
 
   const explorerBaseUrl = React.useMemo(
     () => (chainId && TZKT_BASE_URLS.get(chainId)) ?? null,
