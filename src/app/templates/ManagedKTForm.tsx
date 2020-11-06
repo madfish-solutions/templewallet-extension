@@ -3,14 +3,18 @@ import classNames from "clsx";
 import { Controller, useForm } from "react-hook-form";
 import {
   ThanosAccountType,
-  useNetwork,
   isAddressValid,
   useRelevantAccounts,
   useTezos,
   XTZ_ASSET,
   useThanosClient,
+  useChainId,
 } from "lib/thanos/front";
-import { getUsersContracts, TzktRelatedContract } from "lib/tzkt";
+import {
+  getUsersContracts,
+  TZStatsContract,
+  TZSTATS_CHAINS,
+} from "lib/tzstats";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
@@ -27,25 +31,30 @@ type ImportKTAccountFormData = {
   contractAddress: string;
 };
 
-const getContractAddress = (contract: TzktRelatedContract) => contract.address;
+const getContractAddress = (contract: TZStatsContract) => contract.address;
 
 const ManagedKTForm: React.FC = () => {
   const accounts = useRelevantAccounts();
   const tezos = useTezos();
   const { importKTManagedAccount } = useThanosClient();
-  const network = useNetwork();
+  const chainId = useChainId(false);
 
   const [error, setError] = useState<React.ReactNode>(null);
+
+  const tzStatsNetwork = React.useMemo(
+    () => (chainId && TZSTATS_CHAINS.get(chainId)) ?? null,
+    [chainId]
+  );
 
   const queryKey = useMemo(
     () => [
       "get-accounts-contracts",
-      network.id,
+      tzStatsNetwork,
       ...accounts
         .filter(({ type }) => type !== ThanosAccountType.ManagedKT)
         .map(({ publicKeyHash }) => publicKeyHash),
     ],
-    [accounts, network]
+    [accounts, tzStatsNetwork]
   );
   const { data: usersContracts = [] } = useRetryableSWR(
     queryKey,
@@ -261,7 +270,7 @@ const ManagedKTForm: React.FC = () => {
 
 export default ManagedKTForm;
 
-type ContractOptionRenderProps = OptionRenderProps<TzktRelatedContract, string>;
+type ContractOptionRenderProps = OptionRenderProps<TZStatsContract, string>;
 
 const ContractIcon: React.FC<ContractOptionRenderProps> = (props) => {
   return (
