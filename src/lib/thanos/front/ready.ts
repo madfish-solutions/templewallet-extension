@@ -156,7 +156,7 @@ function useReadyThanos() {
   };
 }
 
-export function useLazyChainId() {
+export function useChainId(lazy = true) {
   const tezos = useTezos();
 
   const rpcUrl = React.useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
@@ -172,7 +172,7 @@ export function useLazyChainId() {
   const { data: lazyChainId = null } = useRetryableSWR(
     ["lazy-chain-id", tezos.checksum],
     fetchChainId,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false, suspense: !lazy }
   );
 
   return React.useMemo(() => lazyChainId, [lazyChainId]);
@@ -182,7 +182,7 @@ export function useRelevantAccounts(withManagedKT = true) {
   const allAccounts = useAllAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
-  const lazyChainId = useLazyChainId();
+  const lazyChainId = useChainId();
 
   const relevantAccounts = React.useMemo(
     () =>
