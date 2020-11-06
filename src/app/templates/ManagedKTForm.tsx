@@ -11,8 +11,9 @@ import {
   useChainId,
 } from "lib/thanos/front";
 import {
-  getUsersContracts,
+  getOneUserManagedContracts,
   TZStatsContract,
+  TZStatsNetwork,
   TZSTATS_CHAINS,
 } from "lib/tzstats";
 import { T, t } from "lib/i18n/react";
@@ -37,7 +38,7 @@ const ManagedKTForm: React.FC = () => {
   const accounts = useRelevantAccounts();
   const tezos = useTezos();
   const { importKTManagedAccount } = useThanosClient();
-  const chainId = useChainId(false);
+  const chainId = useChainId(true);
 
   const [error, setError] = useState<React.ReactNode>(null);
 
@@ -199,7 +200,7 @@ const ManagedKTForm: React.FC = () => {
         cleanable={Boolean(contractAddress)}
         onClean={cleanContractAddressField}
         id="contract-address"
-        label={t("contract")}
+        label={t("managedContract")}
         labelDescription={
           filledAccount ? (
             <div className="flex flex-wrap items-center">
@@ -210,7 +211,7 @@ const ManagedKTForm: React.FC = () => {
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
               <div className="ml-1 mr-px font-normal">
-                <T id="contract" />
+                <T id="managedContract" />
               </div>{" "}
               (
               <Balance asset={XTZ_ASSET} address={filledAccount.address}>
@@ -243,7 +244,7 @@ const ManagedKTForm: React.FC = () => {
         <div className={classNames("mt-8 mb-6", "flex flex-col")}>
           <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
             <span className="text-base font-semibold text-gray-700">
-              <T id="addKnownContract" />
+              <T id="addKnownManagedContract" />
             </span>
 
             <span
@@ -270,6 +271,22 @@ const ManagedKTForm: React.FC = () => {
 
 export default ManagedKTForm;
 
+export const getUsersContracts = async (
+  _k: string,
+  networkId: TZStatsNetwork,
+  ...accounts: string[]
+) => {
+  const contractsChunks = await Promise.all(
+    accounts.map((account) =>
+      getOneUserManagedContracts(networkId, { account }).catch(() => [])
+    )
+  );
+  return contractsChunks.reduce(
+    (contracts, chunk) => [...contracts, ...chunk],
+    []
+  );
+};
+
 type ContractOptionRenderProps = OptionRenderProps<TZStatsContract, string>;
 
 const ContractIcon: React.FC<ContractOptionRenderProps> = (props) => {
@@ -290,7 +307,7 @@ const ContractOptionContent: React.FC<ContractOptionRenderProps> = (props) => {
     <>
       <div className="flex flex-wrap items-center">
         <Name className="text-sm font-medium leading-tight">
-          <T id="contract" />
+          <T id="managedContract" />
         </Name>
 
         <AccountTypeBadge account={{ type: ThanosAccountType.ManagedKT }} />
