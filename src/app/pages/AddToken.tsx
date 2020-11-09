@@ -15,7 +15,6 @@ import {
   ThanosToken,
   ThanosAssetType,
   useTokens,
-  useAssets,
   useCurrentAsset,
   useTezos,
   loadContract,
@@ -73,20 +72,9 @@ type FormData = {
 
 const Form: React.FC = () => {
   const { addToken } = useTokens();
-  const { allAssets } = useAssets();
   const { setAssetSymbol } = useCurrentAsset();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
-
-  const prevAssetsLengthRef = React.useRef(allAssets.length);
-  React.useEffect(() => {
-    const assetsLength = allAssets.length;
-    if (prevAssetsLengthRef.current < assetsLength) {
-      setAssetSymbol(allAssets[assetsLength - 1].symbol);
-      navigate("/");
-    }
-    prevAssetsLengthRef.current = assetsLength;
-  }, [allAssets, setAssetSymbol]);
 
   const {
     register,
@@ -248,6 +236,9 @@ const Form: React.FC = () => {
           iconUrl: iconUrl || undefined,
           fungible: true,
         });
+
+        setAssetSymbol(symbol);
+        setTimeout(() => navigate("/"), 50);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -258,7 +249,7 @@ const Form: React.FC = () => {
         setSubmitError(err.message);
       }
     },
-    [tokenType, formState.isSubmitting, addToken]
+    [tokenType, formState.isSubmitting, addToken, setAssetSymbol]
   );
 
   const error = tokenValidationError || tokenDataError || submitError;
