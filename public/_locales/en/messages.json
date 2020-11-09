@@ -235,6 +235,9 @@
   "comingSoonComment": {
     "message": "(coming soon)"
   },
+  "soonComment": {
+    "message": "(soon)"
+  },
   "required": {
     "message": "Required"
   },
@@ -316,12 +319,7 @@
     "message": "Only KT... contract address allowed"
   },
   "operationHash": {
-    "message": "Operation Hash: $hash$",
-    "placeholders": {
-      "hash": {
-        "content": "$1"
-      }
-    }
+    "message": "Operation Hash"
   },
   "alert": {
     "message": "Alert"
@@ -1357,8 +1355,8 @@
   "contractAddressInputPlaceholder": {
     "message": "e.g. KT1a9w1S7hN5s..."
   },
-  "addKnownContract": {
-    "message": "Add known contract"
+  "addKnownManagedContract": {
+    "message": "Add known Managed contract"
   },
   "clickOnContractToImport": {
     "message": "Click on Contract you want to import."
@@ -1374,5 +1372,14 @@
   },
   "justAMinute": {
     "message": "Just a minute..."
+  },
+  "popupSettings": {
+    "message": "Popup settings"
+  },
+  "popupSettingsDescription": {
+    "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
+  },
+  "managedContract": {
+    "message": "Managed Contract"
   }
 }
