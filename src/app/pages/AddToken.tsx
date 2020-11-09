@@ -118,6 +118,7 @@ const Form: React.FC = () => {
     }
     (async () => {
       try {
+        setBottomSectionVisible(false);
         setTokenDataError(null);
         setTokenValidationError(null);
         setSubmitError(null);
@@ -173,6 +174,7 @@ const Form: React.FC = () => {
         withErrorHumanDelay(e, () => {
           if (e instanceof TokenValidationError) {
             setTokenValidationError(e.message);
+            setBottomSectionVisible(false);
             return;
           }
           let errorMessage = e.message;
@@ -261,7 +263,7 @@ const Form: React.FC = () => {
     [tokenType, formState.isSubmitting, addToken]
   );
 
-  const error = tokenValidationError || tokenDataError || submitError;
+  const tokenError = tokenValidationError || tokenDataError;
 
   return (
     <form
@@ -357,12 +359,12 @@ const Form: React.FC = () => {
         containerClassName="mb-4"
       />
 
-      {error && (
+      {tokenError && (
         <Alert
           type="error"
           title={t("error")}
           autoFocus
-          description={error}
+          description={tokenError}
           className="mb-4"
         />
       )}
@@ -376,10 +378,11 @@ const Form: React.FC = () => {
           register={register}
           errors={errors}
           formState={formState}
+          submitError={submitError}
         />
       </div>
 
-      {loadingToken && !bottomSectionVisible && (
+      {loadingToken && (
         <div className="w-full flex items-center justify-center pb-4">
           <div>
             <Spinner theme="gray" className="w-20" />
@@ -393,10 +396,12 @@ const Form: React.FC = () => {
 type BottomSectionProps = Pick<
   FormContextValues,
   "register" | "errors" | "formState"
->;
+> & {
+  submitError?: React.ReactNode;
+};
 
 const BottomSection: React.FC<BottomSectionProps> = (props) => {
-  const { register, errors, formState } = props;
+  const { register, errors, formState, submitError } = props;
 
   return (
     <>
@@ -478,8 +483,18 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
         labelDescription={t("iconURLInputDescription")}
         placeholder="e.g. https://cdn.com/mytoken.png"
         errorCaption={errors.iconUrl?.message}
-        containerClassName="mb-6"
+        containerClassName="mb-4"
       />
+
+      {submitError && (
+        <Alert
+          type="error"
+          title={t("error")}
+          autoFocus
+          description={submitError}
+          className="mb-6"
+        />
+      )}
 
       <T id="addToken">
         {(message) => (
