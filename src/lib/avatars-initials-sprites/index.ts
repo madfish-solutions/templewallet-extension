@@ -45,7 +45,7 @@ export default function (random: Random, options: Options = {}) {
 
   let backgroundColor = random.pickone(backgroundColors);
   let seedInitials = random.seed.trim().slice(0, options.chars);
-  let fontFamily = "Arial,sans-serif";
+  let fontFamily = "Menlo,Monaco,monospace";
 
   // prettier-ignore
   let svg = [
