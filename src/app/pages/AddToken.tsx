@@ -100,13 +100,12 @@ const Form: React.FC = () => {
   const [loadingToken, setLoadingToken] = React.useState(false);
 
   React.useEffect(() => {
+    setBottomSectionVisible(false);
     if (validateContractAddress(contractAddress) !== true) {
-      setBottomSectionVisible(false);
       return;
     }
     (async () => {
       try {
-        setBottomSectionVisible(false);
         setTokenDataError(null);
         setTokenValidationError(null);
         setSubmitError(null);
@@ -162,7 +161,6 @@ const Form: React.FC = () => {
         withErrorHumanDelay(e, () => {
           if (e instanceof TokenValidationError) {
             setTokenValidationError(e.message);
-            setBottomSectionVisible(false);
             return;
           }
           let errorMessage = e.message;
