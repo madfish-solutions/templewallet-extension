@@ -1,6 +1,5 @@
 import {
   MetadataParseError,
-  MetadataParseErrorCode,
   getTokenMetadata,
   InvalidRpcIdError,
   InvalidNetworkNameError,
@@ -139,41 +138,37 @@ const Form: React.FC = () => {
         setBottomSectionVisible(true);
       } catch (e) {
         withErrorHumanDelay(e, () => {
-          setBottomSectionVisible(false);
           let errorMessage = e.message;
           if (e instanceof MetadataParseError) {
-            switch (e.code) {
-              case MetadataParseErrorCode.INVALID_CONTRACT_ADDRESS:
-                errorMessage = (
-                  <T
-                    id="someInvalidContactAddress"
-                    substitutions={
-                      (e as InvalidContractAddressError).payload.contractAddress
-                    }
-                  />
-                );
-                break;
-              case MetadataParseErrorCode.INVALID_NETWORK_NAME:
-                errorMessage = (
-                  <T
-                    id="someNetworkIsNotCurrent"
-                    substitutions={(e as InvalidNetworkNameError).payload.name}
-                  />
-                );
-                break;
-              case MetadataParseErrorCode.INVALID_NETWORK_RPC_ID:
-                errorMessage = (
-                  <T
-                    id="someNetworkWithChainIdIsNotCurrent"
-                    substitutions={(e as InvalidRpcIdError).payload.chainId}
-                  />
-                );
+            if (e instanceof InvalidContractAddressError) {
+              errorMessage = (
+                <T
+                  id="someInvalidContactAddress"
+                  substitutions={e.payload.contractAddress}
+                />
+              );
+            } else if (e instanceof InvalidNetworkNameError) {
+              errorMessage = (
+                <T
+                  id="someNetworkIsNotCurrent"
+                  substitutions={e.payload.name}
+                />
+              );
+            } else if (e instanceof InvalidRpcIdError) {
+              errorMessage = (
+                <T
+                  id="someNetworkWithChainIdIsNotCurrent"
+                  substitutions={e.payload.chainId}
+                />
+              );
             }
           }
+          setValue([{ symbol: "" }, { name: "" }, { decimals: 0 }]);
           setGetTokenDataError(errorMessage);
         });
       } finally {
         setLoadingToken(false);
+        setBottomSectionVisible(true);
       }
     })();
   }, [contractAddress, tezos, setValue, setBottomSectionVisible, networkId]);
