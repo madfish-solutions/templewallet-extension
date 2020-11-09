@@ -1,3 +1,11 @@
+import {
+  MetadataParseError,
+  MetadataParseErrorCode,
+  getTokenMetadata,
+  InvalidRpcIdError,
+  InvalidNetworkNameError,
+  InvalidContractAddressError,
+} from "@thanos-wallet/tokens";
 import BigNumber from "bignumber.js";
 import * as React from "react";
 import classNames from "clsx";
@@ -12,7 +20,6 @@ import {
   useTezos,
   loadContract,
   fetchBalance,
-  getTokenData,
   validateContractAddress,
   useNetwork,
 } from "lib/thanos/front";
@@ -110,7 +117,8 @@ const Form: React.FC = () => {
       try {
         setGetTokenDataError(null);
         setLoadingToken(true);
-        const tokenData = await getTokenData(tezos, contractAddress, networkId);
+        const tokenData =
+          (await getTokenMetadata(tezos, contractAddress, networkId)) || {};
         const { symbol, name, description, decimals, onetoken } = tokenData;
         const tokenSymbol = typeof symbol === "string" ? symbol : "";
         const tokenName =
@@ -132,7 +140,37 @@ const Form: React.FC = () => {
       } catch (e) {
         withErrorHumanDelay(e, () => {
           setBottomSectionVisible(false);
-          setGetTokenDataError(e.message);
+          let errorMessage = e.message;
+          if (e instanceof MetadataParseError) {
+            switch (e.code) {
+              case MetadataParseErrorCode.INVALID_CONTRACT_ADDRESS:
+                errorMessage = (
+                  <T
+                    id="someInvalidContactAddress"
+                    substitutions={
+                      (e as InvalidContractAddressError).payload.contractAddress
+                    }
+                  />
+                );
+                break;
+              case MetadataParseErrorCode.INVALID_NETWORK_NAME:
+                errorMessage = (
+                  <T
+                    id="someNetworkIsNotCurrent"
+                    substitutions={(e as InvalidNetworkNameError).payload.name}
+                  />
+                );
+                break;
+              case MetadataParseErrorCode.INVALID_NETWORK_RPC_ID:
+                errorMessage = (
+                  <T
+                    id="someNetworkWithChainIdIsNotCurrent"
+                    substitutions={(e as InvalidRpcIdError).payload.chainId}
+                  />
+                );
+            }
+          }
+          setGetTokenDataError(errorMessage);
         });
       } finally {
         setLoadingToken(false);
