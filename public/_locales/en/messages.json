@@ -1334,8 +1334,8 @@
   "justAMinute": {
     "message": "Just a minute..."
   },
-  "someInvalidContactAddress": {
-    "message": "Invalid contract address $address$",
+  "referredByTokenContactAddressInvalid": {
+    "message": "Contract address $address$, which is referred by token contract to, is invalid.",
     "placeholders": {
       "address": {
         "content": "$1"
@@ -1366,5 +1366,16 @@
   },
   "managedContract": {
     "message": "Managed Contract"
+  },
+  "referredByTokenContractNotFound": {
+    "message": "Contract $address$, which is referred by token contract to, was not found.",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "tokenContractNotFound": {
+    "message": "The contract was not found."
   }
 }

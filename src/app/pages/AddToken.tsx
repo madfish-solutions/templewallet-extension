@@ -4,6 +4,7 @@ import {
   InvalidRpcIdError,
   InvalidNetworkNameError,
   InvalidContractAddressError,
+  ContractNotFoundError,
 } from "@thanos-wallet/tokens";
 import BigNumber from "bignumber.js";
 import * as React from "react";
@@ -143,7 +144,7 @@ const Form: React.FC = () => {
             if (e instanceof InvalidContractAddressError) {
               errorMessage = (
                 <T
-                  id="someInvalidContactAddress"
+                  id="referredByTokenContactAddressInvalid"
                   substitutions={e.payload.contractAddress}
                 />
               );
@@ -161,6 +162,17 @@ const Form: React.FC = () => {
                   substitutions={e.payload.chainId}
                 />
               );
+            } else if (e instanceof ContractNotFoundError) {
+              const { contractAddress: notFoundContractAddress } = e.payload;
+              errorMessage =
+                notFoundContractAddress === contractAddress ? (
+                  <T id="tokenContractNotFound" />
+                ) : (
+                  <T
+                    id="referredByTokenContractNotFound"
+                    substitutions={notFoundContractAddress}
+                  />
+                );
             }
           }
           setValue([{ symbol: "" }, { name: "" }, { decimals: 0 }]);
