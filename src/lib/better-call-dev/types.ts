@@ -1,6 +1,10 @@
 export type BcdNetwork = "mainnet" | "carthagenet" | "dalphanet";
 export type BcdContractType = "fa1" | "fa12" | "fa2";
 
+export function isBcdSupportedNetwork(networkId: string): networkId is BcdNetwork {
+  return ["mainnet", "carthagenet", "dalphanet"].includes(networkId);
+}
+
 export interface BcdApiError {
   message: string;
 }
@@ -38,6 +42,7 @@ export interface BcdTokenTransfer {
   counter: number;
   from: string;
   hash: string;
+  indexed_time: number;
   level: number;
   network: BcdNetwork;
   nonce: number;
