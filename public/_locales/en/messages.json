@@ -1377,5 +1377,11 @@
   },
   "tokenContractNotFound": {
     "message": "The contract was not found."
+  },
+  "failedToParseMetadata": {
+    "message": "Failed to parse metadata"
+  },
+  "unknownParseErrorOccurred": {
+    "message": "An unknown parsing error occurred."
   }
 }
