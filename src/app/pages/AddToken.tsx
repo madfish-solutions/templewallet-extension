@@ -120,6 +120,7 @@ const Form: React.FC = () => {
       try {
         setTokenDataError(null);
         setTokenValidationError(null);
+        setSubmitError(null);
         setLoadingToken(true);
 
         let contract;
