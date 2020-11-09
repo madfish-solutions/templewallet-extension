@@ -104,6 +104,7 @@ const Form: React.FC = () => {
     if (validateContractAddress(contractAddress) !== true) {
       return;
     }
+    triggerValidation("address");
     (async () => {
       try {
         setTokenDataError(null);
@@ -197,7 +198,11 @@ const Form: React.FC = () => {
                     substitutions={notFoundContractAddress}
                   />
                 );
+            } else {
+              errorMessage = <T id="unknownParseErrorOccurred" />;
             }
+          } else {
+            errorMessage = <T id="unknownParseErrorOccurred" />;
           }
           setValue([{ symbol: "" }, { name: "" }, { decimals: 0 }]);
           setTokenDataError(errorMessage);
@@ -214,6 +219,7 @@ const Form: React.FC = () => {
     setBottomSectionVisible,
     networkId,
     tokenType.type,
+    triggerValidation,
   ]);
 
   const cleanContractAddress = React.useCallback(() => {
@@ -251,8 +257,6 @@ const Form: React.FC = () => {
     },
     [tokenType, formState.isSubmitting, addToken, setAssetSymbol]
   );
-
-  const tokenError = tokenValidationError || tokenDataError;
 
   return (
     <form
@@ -348,13 +352,23 @@ const Form: React.FC = () => {
         containerClassName="mb-4"
       />
 
-      {tokenError && (
+      {tokenValidationError && (
         <Alert
           type="error"
           title={t("error")}
           autoFocus
-          description={tokenError}
-          className="mb-4"
+          description={tokenValidationError}
+          className="mb-8"
+        />
+      )}
+
+      {tokenDataError && (
+        <Alert
+          type="error"
+          title={t("failedToParseMetadata")}
+          autoFocus
+          description={tokenDataError}
+          className="mb-8"
         />
       )}
 
