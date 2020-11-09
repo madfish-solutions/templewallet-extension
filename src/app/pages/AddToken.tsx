@@ -25,6 +25,7 @@ import {
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
+import { withErrorHumanDelay } from "lib/ui/humanDelay";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -32,7 +33,6 @@ import Alert from "app/atoms/Alert";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
-import { withErrorHumanDelay } from "lib/ui/humanDelay";
 
 const AddToken: React.FC = () => (
   <PageLayout
@@ -52,12 +52,12 @@ export default AddToken;
 const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
 const TOKEN_TYPES = [
   {
-    type: ThanosAssetType.FA1_2,
+    type: ThanosAssetType.FA1_2 as const,
     name: "FA 1.2",
     comingSoon: false,
   },
   {
-    type: ThanosAssetType.FA2,
+    type: ThanosAssetType.FA2 as const,
     name: "FA 2",
     comingSoon: true,
   },
@@ -100,8 +100,11 @@ const Form: React.FC = () => {
     defaultValues: { decimals: 0 },
   });
   const contractAddress = watch("address");
-  const [error, setError] = React.useState<React.ReactNode>(null);
-  const [getTokenDataError, setGetTokenDataError] = React.useState<
+  const [submitError, setSubmitError] = React.useState<React.ReactNode>(null);
+  const [tokenDataError, setTokenDataError] = React.useState<React.ReactNode>(
+    null
+  );
+  const [tokenValidationError, setTokenValidationError] = React.useState<
     React.ReactNode
   >(null);
   const [tokenType, setTokenType] = React.useState(TOKEN_TYPES[0]);
@@ -115,8 +118,36 @@ const Form: React.FC = () => {
     }
     (async () => {
       try {
-        setGetTokenDataError(null);
+        setTokenDataError(null);
+        setTokenValidationError(null);
         setLoadingToken(true);
+
+        let contract;
+        try {
+          contract = await loadContract(tezos, contractAddress);
+        } catch (_err) {
+          throw new TokenValidationError(t("contractNotAvailable"));
+        }
+
+        const token: ThanosToken = {
+          type: tokenType.type,
+          address: contractAddress,
+          symbol: "",
+          name: "",
+          decimals: 0,
+          iconUrl: undefined,
+          fungible: true,
+        };
+
+        try {
+          if (typeof contract.methods.transfer !== "function") {
+            throw new TokenValidationError(t("noTransferMethod"));
+          }
+          await fetchBalance(tezos, token, STUB_TEZOS_ADDRESS);
+        } catch (_err) {
+          throw new TokenValidationError(t("tokenDoesNotMatchStandard"));
+        }
+
         const tokenData =
           (await getTokenMetadata(tezos, contractAddress, networkId)) || {};
         const { symbol, name, description, decimals, onetoken } = tokenData;
@@ -139,6 +170,10 @@ const Form: React.FC = () => {
         setBottomSectionVisible(true);
       } catch (e) {
         withErrorHumanDelay(e, () => {
+          if (e instanceof TokenValidationError) {
+            setTokenValidationError(e.message);
+            return;
+          }
           let errorMessage = e.message;
           if (e instanceof MetadataParseError) {
             if (e instanceof InvalidContractAddressError) {
@@ -176,14 +211,21 @@ const Form: React.FC = () => {
             }
           }
           setValue([{ symbol: "" }, { name: "" }, { decimals: 0 }]);
-          setGetTokenDataError(errorMessage);
+          setTokenDataError(errorMessage);
+          setBottomSectionVisible(true);
         });
       } finally {
         setLoadingToken(false);
-        setBottomSectionVisible(true);
       }
     })();
-  }, [contractAddress, tezos, setValue, setBottomSectionVisible, networkId]);
+  }, [
+    contractAddress,
+    tezos,
+    setValue,
+    setBottomSectionVisible,
+    networkId,
+    tokenType.type,
+  ]);
 
   const cleanContractAddress = React.useCallback(() => {
     setValue("address", "");
@@ -194,35 +236,17 @@ const Form: React.FC = () => {
     async ({ address, symbol, name, decimals, iconUrl }: FormData) => {
       if (formState.isSubmitting) return;
 
-      setError(null);
+      setSubmitError(null);
       try {
-        let contract;
-        try {
-          contract = await loadContract(tezos, address);
-        } catch (_err) {
-          throw new Error(t("contractNotAvailable"));
-        }
-
-        const token: ThanosToken = {
-          type: tokenType.type as any,
+        addToken({
+          type: tokenType.type,
           address,
           symbol,
           name,
           decimals: decimals || 0,
           iconUrl: iconUrl || undefined,
           fungible: true,
-        };
-
-        try {
-          if (typeof contract.methods.transfer !== "function") {
-            throw new Error(t("noTransferMethod"));
-          }
-          await fetchBalance(tezos, token, STUB_TEZOS_ADDRESS);
-        } catch (_err) {
-          throw new Error(t("tokenDoesNotMatchStandard"));
-        }
-
-        addToken(token);
+        });
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -230,27 +254,19 @@ const Form: React.FC = () => {
 
         // Human delay
         await new Promise((r) => setTimeout(r, 300));
-        setError(err.message);
+        setSubmitError(err.message);
       }
     },
-    [tokenType, formState.isSubmitting, tezos, addToken, setError]
+    [tokenType, formState.isSubmitting, addToken]
   );
+
+  const error = tokenValidationError || tokenDataError || submitError;
 
   return (
     <form
       className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
-      {error && (
-        <Alert
-          type="error"
-          title={t("error")}
-          autoFocus
-          description={error}
-          className="mb-6"
-        />
-      )}
-
       <div className={classNames("mb-6", "flex flex-col")}>
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
           <T id="tokenType">
@@ -340,12 +356,12 @@ const Form: React.FC = () => {
         containerClassName="mb-4"
       />
 
-      {getTokenDataError && (
+      {error && (
         <Alert
           type="error"
           title={t("error")}
           autoFocus
-          description={getTokenDataError}
+          description={error}
           className="mb-4"
         />
       )}
@@ -474,3 +490,5 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
     </>
   );
 };
+
+class TokenValidationError extends Error {}
