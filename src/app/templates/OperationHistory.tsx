@@ -7,7 +7,6 @@ import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
 import { T } from "lib/i18n/react";
 import {
-  ThanosAsset,
   ThanosAssetType,
   XTZ_ASSET,
   useThanosClient,
@@ -23,8 +22,21 @@ import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import { TZKT_BASE_URLS } from "lib/tzkt";
+import {
+  BcdPageableTokenTransfers,
+  BcdTokenTransfer,
+  getTokenTransfers,
+  isBcdSupportedNetwork,
+} from "lib/better-call-dev";
+import { AxiosResponse } from "axios";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
+const OPERATIONS_LIMIT = 30;
+
+type BcdOperationData = Pick<
+  BcdTokenTransfer,
+  "amount" | "contract" | "from" | "source" | "to"
+>;
 
 interface OperationPreview {
   hash: string;
@@ -34,6 +46,7 @@ interface OperationPreview {
   status: string;
   time: string;
   parameters?: any;
+  bcdData?: BcdOperationData;
 }
 
 interface OperationHistoryProps {
@@ -101,10 +114,44 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       const { ops } = await getAccountWithOperations(tzStatsNetwork, {
         pkh: accountPkh,
         order: "desc",
-        limit: 30,
+        limit: OPERATIONS_LIMIT,
         offset: 0,
       });
-      return ops;
+
+      let bcdOps: Record<string, BcdTokenTransfer> = {};
+      if (isBcdSupportedNetwork(network.id) && ops.length > 0) {
+        const response: AxiosResponse<BcdPageableTokenTransfers> = await getTokenTransfers(
+          {
+            network: network.id,
+            address: accountPkh,
+            size: OPERATIONS_LIMIT,
+          }
+        );
+        const {
+          data: { transfers },
+        } = response;
+        bcdOps = transfers.reduce(
+          (newTransfers, transfer) => ({
+            ...newTransfers,
+            [transfer.hash]: transfer,
+          }),
+          {}
+        );
+      }
+
+      return ops.map((op) => {
+        const rawBcdData = bcdOps[op.hash];
+        return {
+          ...op,
+          bcdData: rawBcdData && {
+            amount: rawBcdData.amount,
+            contract: rawBcdData.contract,
+            from: rawBcdData.from,
+            source: rawBcdData.source,
+            to: rawBcdData.to,
+          },
+        };
+      });
     } catch (err) {
       if (err?.origin?.response?.status === 404) {
         return [];
@@ -114,10 +161,10 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       await new Promise((r) => setTimeout(r, 300));
       throw err;
     }
-  }, [tzStatsNetwork, accountPkh]);
+  }, [tzStatsNetwork, accountPkh, network.id]);
 
   const { data } = useRetryableSWR(
-    ["operation-history", tzStatsNetwork, accountPkh],
+    ["operation-history", tzStatsNetwork, accountPkh, network.id],
     fetchOperations,
     {
       suspense: true,
@@ -227,27 +274,25 @@ const Operation = React.memo<OperationProps>(
     volume,
     status,
     time,
-    parameters,
+    bcdData,
   }) => {
     const { allAssets } = useAssets();
 
     const token = React.useMemo(
       () =>
-        (parameters &&
+        (bcdData &&
           allAssets.find(
-            (a) => a.type !== ThanosAssetType.XTZ && a.address === receiver
+            (a) =>
+              a.type !== ThanosAssetType.XTZ && a.address === bcdData.contract
           )) ||
         null,
-      [allAssets, parameters, receiver]
+      [allAssets, bcdData]
     );
 
-    const tokenParsed = React.useMemo(
-      () => token && tryParseParameters(token, parameters),
-      [token, parameters]
-    );
-
-    const finalReceiver = tokenParsed ? tokenParsed.receiver : receiver;
-    const finalVolume = tokenParsed ? tokenParsed.volume : volume;
+    const finalReceiver = bcdData ? bcdData.to : receiver;
+    const finalVolume = bcdData
+      ? new BigNumber(bcdData.amount).div(10 ** (token?.decimals || 0))
+      : volume;
 
     const volumeExists = finalVolume !== 0;
     const typeTx = type === "transaction";
@@ -362,7 +407,8 @@ const Operation = React.memo<OperationProps>(
                     )}
                   >
                     {typeTx && (imReceiver ? "+" : "-")}
-                    <Money>{finalVolume}</Money> {token ? token.symbol : "ꜩ"}
+                    <Money>{finalVolume}</Money>{" "}
+                    {bcdData ? token?.symbol || "???" : "ꜩ"}
                   </div>
 
                   <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
@@ -392,6 +438,7 @@ const Operation = React.memo<OperationProps>(
         typeTx,
         volumeExists,
         explorerBaseUrl,
+        bcdData,
       ]
     );
   }
@@ -430,47 +477,4 @@ function formatOperationType(type: string, imReciever: boolean) {
 
 function opKey(op: OperationPreview) {
   return `${op.hash}_${op.type}`;
-}
-
-function tryParseParameters(asset: ThanosAsset, parameters: any) {
-  switch (asset.type) {
-    case ThanosAssetType.Staker:
-    case ThanosAssetType.TzBTC:
-    case ThanosAssetType.FA1_2:
-      try {
-        if ("transfer" in parameters.value) {
-          const {
-            from: sender,
-            to: receiver,
-            value,
-          } = parameters.value.transfer;
-          const volume = new BigNumber(value)
-            .div(10 ** asset.decimals)
-            .toNumber();
-
-          return {
-            sender,
-            receiver,
-            volume,
-          };
-        } else {
-          const [fromArgs, { args: toArgs }] = parameters.value.args;
-          const sender: string = fromArgs.string;
-          const receiver: string = toArgs[0].string;
-          const volume = new BigNumber(toArgs[1].int)
-            .div(10 ** asset.decimals)
-            .toNumber();
-          return {
-            sender,
-            receiver,
-            volume,
-          };
-        }
-      } catch (_err) {
-        return null;
-      }
-
-    default:
-      return null;
-  }
 }
