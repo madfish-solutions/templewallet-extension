@@ -42,7 +42,6 @@ export interface BcdTokenTransfer {
   counter: number;
   from: string;
   hash: string;
-  indexed_time: number;
   level: number;
   network: BcdNetwork;
   nonce: number;
