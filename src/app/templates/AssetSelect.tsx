@@ -9,8 +9,8 @@ import {
   XTZ_ASSET,
 } from "lib/thanos/front";
 import { T } from "lib/i18n/react";
-import { getAssetIconUrl } from "app/defaults";
 import InUSD from "app/templates/InUSD";
+import GenericAssetIcon from "app/templates/AssetIcon";
 import Money from "app/atoms/Money";
 import Balance from "app/templates/Balance";
 import IconifiedSelect, {
@@ -87,21 +87,13 @@ type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<
 >;
 
 const AssetIcon: React.FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <img
-    src={getAssetIconUrl(option)}
-    alt={option.name}
-    className="h-8 w-auto mr-3"
-  />
+  <GenericAssetIcon asset={option} className="h-8 w-auto mr-3" size={32} />
 );
 
 const AssetSelectedIcon: React.FC<AssetSelectOptionRenderProps> = ({
   option,
 }) => (
-  <img
-    src={getAssetIconUrl(option)}
-    alt={option.name}
-    className="h-12 w-auto mr-3"
-  />
+  <GenericAssetIcon asset={option} className="h-12 w-auto mr-3" size={48} />
 );
 
 const AssetInMenuContent: React.FC<AssetSelectOptionRenderProps> = ({

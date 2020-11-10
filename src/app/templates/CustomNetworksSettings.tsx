@@ -13,6 +13,7 @@ import {
 import { COLORS } from "lib/ui/colors";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
 import { T, t } from "lib/i18n/react";
+import { URL_PATTERN } from "app/defaults";
 import { viewLambda } from "lib/michelson";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import FormField from "app/atoms/FormField";
@@ -32,7 +33,6 @@ type LambdaFormData = {
 };
 
 const SUBMIT_ERROR_TYPE = "submit-error";
-const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
 const KNOWN_LAMBDA_CONTRACTS = new Map([
   ["NetXdQprcVkpaWU", "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
   ["NetXjD3HPJJjmcd", "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
