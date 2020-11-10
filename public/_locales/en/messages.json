@@ -124,6 +124,14 @@
       }
     }
   },
+  "originLabel": {
+    "message": "Origin: $origin$",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
   "networkLabel": {
     "message": "Network: $network$",
     "placeholders": {
