@@ -16,6 +16,7 @@ import {
   useOnStorageChanged,
   mutezToTz,
   isKnownChainId,
+  ThanosAsset,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
@@ -303,14 +304,16 @@ const Operation = React.memo<OperationProps>(
     explorerBaseUrl,
     hash,
     type,
+    parameters,
     receiver,
     volume,
     status,
     time,
-    tokenAddress,
+    tokenAddress: tokenAddressFromBcd,
   }) => {
     const { allAssets } = useAssets();
 
+    const tokenAddress = tokenAddressFromBcd || (parameters && receiver);
     const token = React.useMemo(
       () =>
         (tokenAddress &&
@@ -321,13 +324,29 @@ const Operation = React.memo<OperationProps>(
       [allAssets, tokenAddress]
     );
 
-    const finalVolume = tokenAddress
-      ? new BigNumber(volume).div(10 ** (token?.decimals || 0))
-      : volume;
+    const parsedParameters = React.useMemo(() => {
+      if (parameters && token && !tokenAddressFromBcd) {
+        return tryParseParameters(token, parameters);
+      }
+      return null;
+    }, [parameters, token, tokenAddressFromBcd]);
+
+    const finalReceiver = parsedParameters
+      ? parsedParameters.receiver
+      : receiver;
+    let finalVolume = volume;
+    if (tokenAddressFromBcd) {
+      finalVolume = new BigNumber(volume)
+        .div(10 ** (token?.decimals || 0))
+        .toNumber();
+    }
+    if (parsedParameters) {
+      finalVolume = parsedParameters.volume;
+    }
 
     const volumeExists = finalVolume !== 0;
     const typeTx = type === "transaction";
-    const imReceiver = receiver === accountPkh;
+    const imReceiver = finalReceiver === accountPkh;
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
 
@@ -508,4 +527,45 @@ function formatOperationType(type: string, imReciever: boolean) {
 
 function opKey(op: OperationPreview) {
   return `${op.hash}_${op.type}`;
+}
+
+function tryParseParameters(asset: ThanosAsset, parameters: any) {
+  switch (asset.type) {
+    case ThanosAssetType.Staker:
+    case ThanosAssetType.TzBTC:
+    case ThanosAssetType.FA1_2:
+      try {
+        if ("transfer" in parameters.value) {
+          const {
+            from: sender,
+            to: receiver,
+            value,
+          } = parameters.value.transfer;
+          const volume = new BigNumber(value)
+            .div(10 ** asset.decimals)
+            .toNumber();
+
+          return {
+            sender,
+            receiver,
+            volume,
+          };
+        } else {
+          const [fromArgs, { args: toArgs }] = parameters.value.args;
+          const sender: string = fromArgs.string;
+          const receiver: string = toArgs[0].string;
+          const volume = new BigNumber(toArgs[1].int).toNumber();
+          return {
+            sender,
+            receiver,
+            volume,
+          };
+        }
+      } catch (_err) {
+        return null;
+      }
+
+    default:
+      return null;
+  }
 }
