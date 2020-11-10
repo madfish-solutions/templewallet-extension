@@ -13,6 +13,7 @@ import FormCheckbox from "app/atoms/FormCheckbox";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import Name from "app/atoms/Name";
+import HashShortView from "app/atoms/HashShortView";
 
 type DAppEntry = [string, ThanosDAppSession];
 type DAppActions = {
@@ -151,7 +152,12 @@ export default DAppSettings;
 const DAppIcon: React.FC<OptionRenderProps<DAppEntry, string, DAppActions>> = (
   props
 ) => (
-  <DAppLogo className="flex-none ml-2 mr-1" origin={props.item[0]} size={36} />
+  <DAppLogo
+    className="flex-none ml-2 mr-1 my-1"
+    style={{ alignSelf: "flex-start" }}
+    origin={props.item[0]}
+    size={36}
+  />
 );
 
 const DAppDescription: React.FC<OptionRenderProps<
@@ -173,17 +179,29 @@ const DAppDescription: React.FC<OptionRenderProps<
     [onRemove, origin]
   );
 
-  const pkhPreviewNode = React.useMemo(() => {
-    const val = pkh;
-    const ln = val.length;
-    return (
-      <React.Fragment key="previewNode">
-        {val.slice(0, 7)}
-        <span className="opacity-75">...</span>
-        {val.slice(ln - 4, ln)}
-      </React.Fragment>
-    );
-  }, [pkh]);
+  const dAppAttributes = React.useMemo(
+    () => [
+      {
+        key: "originLabel",
+        value: origin,
+        Component: Name,
+      },
+      {
+        key: "networkLabel",
+        value:
+          typeof network === "string" ? network : network.name || network.rpc,
+        valueClassName:
+          (typeof network === "string" || network.name) && "capitalize",
+        Component: Name,
+      },
+      {
+        key: "pkhLabel",
+        value: <HashShortView hash={pkh} />,
+        Component: "span",
+      },
+    ],
+    [origin, network, pkh]
+  );
 
   return (
     <div className="flex flex-1 w-full">
@@ -192,31 +210,28 @@ const DAppDescription: React.FC<OptionRenderProps<
           {appMeta.name}
         </Name>
 
-        <T
-          id="networkLabel"
-          substitutions={[
-            <span className="font-normal capitalize" key="network">
-              {typeof network === "string" ? network : network.name}
-            </span>,
-          ]}
-        >
-          {(message) => (
-            <div className="text-xs font-light leading-tight text-gray-600">
-              {message}
-            </div>
-          )}
-        </T>
-
-        <T id="pkhLabel" substitutions={[pkhPreviewNode]}>
-          {(message) => (
-            <div
-              className="overflow-hidden text-gray-600 whitespace-no-wrap"
-              style={{ textOverflow: "ellipsis" }}
-            >
-              {message}
-            </div>
-          )}
-        </T>
+        {dAppAttributes.map(({ key, value, valueClassName, Component }) => (
+          <div
+            className="text-xs font-light leading-tight text-gray-600"
+            key={key}
+          >
+            <T
+              id={key}
+              substitutions={[
+                <Component
+                  key={key}
+                  className={classNames(
+                    "font-normal text-sm inline-flex",
+                    valueClassName
+                  )}
+                  style={{ maxWidth: "10rem" }}
+                >
+                  {value}
+                </Component>,
+              ]}
+            />
+          </div>
+        ))}
       </div>
 
       <button className="flex-none" onClick={handleRemoveClick}>

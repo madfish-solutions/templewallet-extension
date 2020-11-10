@@ -25,6 +25,30 @@ const localeOptions: LocaleOption[] = [
     label: "English",
   },
   {
+    code: "en_GB",
+    flagName: "gb",
+    label: "English ‒ United Kingdom",
+    disabled: true,
+  },
+  {
+    code: "fr",
+    flagName: "fr",
+    label: "French (Français)",
+    disabled: true,
+  },
+  {
+    code: "uk",
+    flagName: "ua",
+    label: "Ukrainian (Українська)",
+    disabled: true,
+  },
+  {
+    code: "ru",
+    flagName: "ru",
+    label: "Russian (Русский)",
+    disabled: true,
+  },
+  {
     code: "zh_CN",
     flagName: "cn",
     label: "Chinese ‒ China (普通话)",
@@ -37,18 +61,6 @@ const localeOptions: LocaleOption[] = [
     disabled: true,
   },
   {
-    code: "fr",
-    flagName: "fr",
-    label: "French (Français)",
-    disabled: true,
-  },
-  {
-    code: "en_GB",
-    flagName: "gb",
-    label: "English ‒ United Kingdom",
-    disabled: true,
-  },
-  {
     code: "ja",
     flagName: "jp",
     label: "Japanese (日本語)",
@@ -58,18 +70,6 @@ const localeOptions: LocaleOption[] = [
     code: "ko",
     flagName: "kr",
     label: "Korean",
-    disabled: true,
-  },
-  {
-    code: "ru",
-    flagName: "ru",
-    label: "Russian (Русский)",
-    disabled: true,
-  },
-  {
-    code: "uk",
-    flagName: "ua",
-    label: "Ukrainian (Українська)",
     disabled: true,
   },
 ];
@@ -136,9 +136,29 @@ const LocaleInMenuContent: React.FC<IconifiedSelectOptionRenderProps<
   LocaleOption
 >> = ({ option: { disabled, label } }) => {
   return (
-    <span className={classNames("text-lg text-gray-700")}>
-      {label} {disabled && <T id="soonComment" />}
-    </span>
+    <div className={classNames("relative w-full text-lg text-gray-700")}>
+      {label}
+
+      {disabled && (
+        <div
+          className={classNames(
+            "absolute top-0 bottom-0 right-0",
+            "flex items-center"
+          )}
+        >
+          <div
+            className={classNames(
+              "mr-2 px-1",
+              "bg-orange-500 rounded-sm shadow-md",
+              "text-white",
+              "text-xs font-semibold uppercase"
+            )}
+          >
+            <T id="soon" />
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
