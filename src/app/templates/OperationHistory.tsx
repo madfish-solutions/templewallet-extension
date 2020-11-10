@@ -34,11 +34,6 @@ import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const OPERATIONS_LIMIT = 30;
 
-type BcdOperationMetadata = Pick<
-  BcdTokenTransfer,
-  "amount" | "contract" | "from" | "source" | "to"
->;
-
 interface OperationPreview {
   hash: string;
   type: string;
@@ -47,7 +42,7 @@ interface OperationPreview {
   status: string;
   time: string;
   parameters?: any;
-  bcdData?: BcdOperationMetadata;
+  tokenAddress?: string;
 }
 
 interface OperationHistoryProps {
@@ -117,7 +112,9 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     [chainId]
   );
 
-  const fetchOperations = React.useCallback(async () => {
+  const fetchOperations = React.useCallback<
+    () => Promise<OperationPreview[]>
+  >(async () => {
     try {
       if (!tzStatsNetwork) return [];
 
@@ -129,7 +126,8 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       });
 
       let bcdOps: Record<string, BcdTokenTransfer> = {};
-      if (networkId && ops.length > 0) {
+      const lastTzStatsOp = ops[ops.length - 1];
+      if (networkId) {
         const response: AxiosResponse<BcdPageableTokenTransfers> = await getTokenTransfers(
           {
             network: networkId,
@@ -140,28 +138,51 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         const {
           data: { transfers },
         } = response;
-        bcdOps = transfers.reduce(
-          (newTransfers, transfer) => ({
-            ...newTransfers,
-            [transfer.hash]: transfer,
-          }),
-          {}
-        );
+        bcdOps = transfers
+          .filter((transfer) =>
+            lastTzStatsOp
+              ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
+              : true
+          )
+          .reduce(
+            (newTransfers, transfer) => ({
+              ...newTransfers,
+              [transfer.hash]: transfer,
+            }),
+            {}
+          );
       }
 
-      return ops.map((op) => {
+      const tzStatsOpsWithReplacements = ops.map((op) => {
         const rawBcdData = bcdOps[op.hash];
+
+        if (!rawBcdData) {
+          return op;
+        }
+
+        delete bcdOps[op.hash];
         return {
           ...op,
-          bcdData: rawBcdData && {
-            amount: rawBcdData.amount,
-            contract: rawBcdData.contract,
-            from: rawBcdData.from,
-            source: rawBcdData.source,
-            to: rawBcdData.to,
-          },
+          volume: rawBcdData.amount,
+          tokenAddress: rawBcdData.contract,
+          sender: rawBcdData.from,
+          receiver: rawBcdData.to,
         };
       });
+
+      return [
+        ...tzStatsOpsWithReplacements,
+        ...Object.values(bcdOps).map((bcdOp) => ({
+          volume: bcdOp.amount,
+          tokenAddress: bcdOp.contract,
+          sender: bcdOp.from,
+          receiver: bcdOp.to,
+          hash: bcdOp.hash,
+          status: bcdOp.status,
+          time: bcdOp.timestamp,
+          type: "transaction",
+        })),
+      ];
     } catch (err) {
       if (err?.origin?.response?.status === 404) {
         return [];
@@ -286,29 +307,27 @@ const Operation = React.memo<OperationProps>(
     volume,
     status,
     time,
-    bcdData,
+    tokenAddress,
   }) => {
     const { allAssets } = useAssets();
 
     const token = React.useMemo(
       () =>
-        (bcdData &&
+        (tokenAddress &&
           allAssets.find(
-            (a) =>
-              a.type !== ThanosAssetType.XTZ && a.address === bcdData.contract
+            (a) => a.type !== ThanosAssetType.XTZ && a.address === tokenAddress
           )) ||
         null,
-      [allAssets, bcdData]
+      [allAssets, tokenAddress]
     );
 
-    const finalReceiver = bcdData ? bcdData.to : receiver;
-    const finalVolume = bcdData
-      ? new BigNumber(bcdData.amount).div(10 ** (token?.decimals || 0))
+    const finalVolume = tokenAddress
+      ? new BigNumber(volume).div(10 ** (token?.decimals || 0))
       : volume;
 
     const volumeExists = finalVolume !== 0;
     const typeTx = type === "transaction";
-    const imReceiver = finalReceiver === accountPkh;
+    const imReceiver = receiver === accountPkh;
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
 
@@ -420,7 +439,7 @@ const Operation = React.memo<OperationProps>(
                   >
                     {typeTx && (imReceiver ? "+" : "-")}
                     <Money>{finalVolume}</Money>{" "}
-                    {bcdData ? token?.symbol || "???" : "ꜩ"}
+                    {tokenAddress ? token?.symbol || "???" : "ꜩ"}
                   </div>
 
                   <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
@@ -450,7 +469,7 @@ const Operation = React.memo<OperationProps>(
         typeTx,
         volumeExists,
         explorerBaseUrl,
-        bcdData,
+        tokenAddress,
       ]
     );
   }
