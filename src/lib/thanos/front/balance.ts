@@ -3,6 +3,7 @@ import { useRetryableSWR } from "lib/swr";
 import {
   ThanosAsset,
   useTezos,
+  useSettings,
   fetchBalance,
   ReactiveTezosToolkit,
 } from "lib/thanos/front";
@@ -18,15 +19,19 @@ export function useBalance(
   ops: UseBalanceOptions = {}
 ) {
   const nativeTezos = useTezos();
+  const settings = useSettings();
+
   const tezos = React.useMemo(() => {
     if (ops.networkRpc) {
       const rpc = ops.networkRpc;
-      const t = new ReactiveTezosToolkit(rpc);
-      t.setProvider({ rpc });
-      return t;
+      return new ReactiveTezosToolkit(
+        rpc,
+        rpc,
+        settings.lambdaContracts?.[rpc]
+      );
     }
     return nativeTezos;
-  }, [ops.networkRpc, nativeTezos]);
+  }, [ops.networkRpc, nativeTezos, settings.lambdaContracts]);
 
   const fetchBalanceLocal = React.useCallback(
     () => fetchBalance(tezos, asset, address),
@@ -37,8 +42,9 @@ export function useBalance(
     ["balance", tezos.checksum, asset.symbol, address],
     fetchBalanceLocal,
     {
-      dedupingInterval: 20_000,
       suspense: ops.suspense ?? true,
+      revalidateOnFocus: false,
+      dedupingInterval: 20_000,
     }
   );
 }

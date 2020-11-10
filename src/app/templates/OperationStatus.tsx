@@ -2,7 +2,10 @@ import * as React from "react";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
 import Alert from "app/atoms/Alert";
+import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import HashChip from "app/templates/HashChip";
+import { isKnownChainId, useChainId } from "lib/thanos/front";
+import { TZKT_BASE_URLS } from "lib/tzkt";
 
 type OperationStatusProps = {
   typeTitle: string;
@@ -17,24 +20,34 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     operation,
   ]);
 
+  const chainId = useChainId();
+
+  const explorerBaseUrl = React.useMemo(
+    () =>
+      (chainId &&
+        (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined)) ??
+      null,
+    [chainId]
+  );
+
   const descFooter = React.useMemo(
     () => (
-      <T
-        id="operationHash"
-        substitutions={[
-          <HashChip
-            hash={hash}
-            firstCharsCount={10}
-            lastCharsCount={7}
-            small
-            key="hash"
-          />,
-        ]}
-      >
-        {(message) => <div className="mt-2 text-xs">{message}</div>}
-      </T>
+      <div className="mt-2 text-xs flex items-center">
+        <T id="operationHash" />:{" "}
+        <HashChip
+          hash={hash}
+          firstCharsCount={10}
+          lastCharsCount={7}
+          small
+          key="hash"
+          className="ml-2 mr-2"
+        />
+        {explorerBaseUrl && (
+          <OpenInExplorerChip baseUrl={explorerBaseUrl} opHash={hash} />
+        )}
+      </div>
     ),
-    [hash]
+    [hash, explorerBaseUrl]
   );
 
   const [alert, setAlert] = useSafeState<{
@@ -48,6 +61,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
       <>
         <T id="requestSent" substitutions={typeTitle} />
         {descFooter}
+        <div className="flex-1" />
       </>
     ),
   }));
