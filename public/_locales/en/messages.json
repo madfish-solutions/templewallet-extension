@@ -1383,5 +1383,13 @@
   },
   "unknownParseErrorOccurred": {
     "message": "An unknown parsing error occurred."
+  },
+  "errorWhileFetchingUrl": {
+    "message": "Error occurred while fetching from $url$",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
   }
 }

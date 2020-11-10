@@ -5,6 +5,7 @@ import {
   InvalidNetworkNameError,
   InvalidContractAddressError,
   ContractNotFoundError,
+  FetchURLError,
 } from "@thanos-wallet/tokens";
 import BigNumber from "bignumber.js";
 import * as React from "react";
@@ -32,6 +33,11 @@ import Alert from "app/atoms/Alert";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import { URL_PATTERN } from "app/defaults";
+
+const INCLUDES_URL_PATTERN = new RegExp(
+  URL_PATTERN.source.substring(1, URL_PATTERN.source.length - 1)
+);
 
 const AddToken: React.FC = () => (
   <PageLayout
@@ -198,6 +204,17 @@ const Form: React.FC = () => {
                     substitutions={notFoundContractAddress}
                   />
                 );
+            } else if (e instanceof FetchURLError) {
+              const url =
+                e.payload.response?.url ||
+                INCLUDES_URL_PATTERN.exec(e.message)?.[0];
+              if (url) {
+                errorMessage = (
+                  <T id="errorWhileFetchingUrl" substitutions={url} />
+                );
+              } else {
+                errorMessage = <T id="unknownParseErrorOccurred" />;
+              }
             } else {
               errorMessage = <T id="unknownParseErrorOccurred" />;
             }
@@ -364,7 +381,7 @@ const Form: React.FC = () => {
 
       {tokenDataError && (
         <Alert
-          type="error"
+          type="warn"
           title={t("failedToParseMetadata")}
           autoFocus
           description={tokenDataError}
