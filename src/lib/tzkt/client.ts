@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { ThanosChainId } from "lib/thanos/types";
 import { TzktGetOperationsParams, TzktOperation, TzktNetwork } from "./types";
 
 const baseUrls: Record<TzktNetwork, string> = {
@@ -10,9 +11,9 @@ const baseUrls: Record<TzktNetwork, string> = {
 };
 
 export const TZKT_BASE_URLS = new Map([
-  ["NetXdQprcVkpaWU", "https://tzkt.io"],
-  ["NetXjD3HPJJjmcd", "https://carthage.tzkt.io"],
-  ["NetXm8tYqnMWky1", "https://delphi.tzkt.io"],
+  [ThanosChainId.Mainnet, "https://tzkt.io"],
+  [ThanosChainId.Carthagenet, "https://carthage.tzkt.io"],
+  [ThanosChainId.Delphinet, "https://delphi.tzkt.io"],
 ]);
 
 const api = axios.create();
