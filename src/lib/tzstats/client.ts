@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { ThanosChainId } from "lib/thanos/types";
 import {
   TZStatsNetwork,
   ErrorData,
@@ -12,9 +13,9 @@ import {
 } from "lib/tzstats/types";
 
 export const TZSTATS_CHAINS = new Map([
-  ["NetXdQprcVkpaWU", TZStatsNetwork.Mainnet],
-  ["NetXjD3HPJJjmcd", TZStatsNetwork.Carthagenet],
-  ["NetXm8tYqnMWky1", TZStatsNetwork.Delphinet],
+  [ThanosChainId.Mainnet, TZStatsNetwork.Mainnet],
+  [ThanosChainId.Carthagenet, TZStatsNetwork.Carthagenet],
+  [ThanosChainId.Delphinet, TZStatsNetwork.Delphinet],
 ]);
 
 export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;

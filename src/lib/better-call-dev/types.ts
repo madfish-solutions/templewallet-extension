@@ -1,4 +1,4 @@
-export type BcdNetwork = "mainnet" | "carthagenet" | "dalphanet";
+export type BcdNetwork = "mainnet" | "carthagenet" | "delphinet";
 export type BcdContractType = "fa1" | "fa12" | "fa2";
 
 export interface BcdApiError {
