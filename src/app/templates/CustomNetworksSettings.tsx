@@ -2,7 +2,9 @@ import classNames from "clsx";
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
+  isKnownChainId,
   loadChainId,
+  ThanosChainId,
   ThanosNetwork,
   useNetwork,
   useSettings,
@@ -34,9 +36,9 @@ type LambdaFormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
 const KNOWN_LAMBDA_CONTRACTS = new Map([
-  ["NetXdQprcVkpaWU", "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
-  ["NetXjD3HPJJjmcd", "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
-  ["NetXyQaSHznzV1r", "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
+  [ThanosChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
+  [ThanosChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
+  [ThanosChainId.Dalphanet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
 ]);
 
 const CustomNetworksSettings: React.FC = () => {
@@ -67,7 +69,11 @@ const CustomNetworksSettings: React.FC = () => {
           chainId = await loadChainId(rpcBaseURL);
         } catch {}
 
-        lambdaContract = chainId && KNOWN_LAMBDA_CONTRACTS.get(chainId);
+        lambdaContract =
+          chainId &&
+          (isKnownChainId(chainId)
+            ? KNOWN_LAMBDA_CONTRACTS.get(chainId)
+            : undefined);
       }
 
       if (!showNoLambdaWarning && !lambdaContract) {
