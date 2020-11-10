@@ -1,9 +1,5 @@
-export type BcdNetwork = "mainnet" | "carthagenet" | "dalphanet";
+export type BcdNetwork = "mainnet" | "carthagenet" | "delphinet" | "dalphanet";
 export type BcdContractType = "fa1" | "fa12" | "fa2";
-
-export function isBcdSupportedNetwork(networkId: string): networkId is BcdNetwork {
-  return ["mainnet", "carthagenet", "dalphanet"].includes(networkId);
-}
 
 export interface BcdApiError {
   message: string;

@@ -15,13 +15,14 @@ import {
   useAssets,
   useOnStorageChanged,
   mutezToTz,
+  isKnownChainId,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
   BcdPageableTokenTransfers,
   BcdTokenTransfer,
+  BCD_NETWORKS_NAMES,
   getTokenTransfers,
-  isBcdSupportedNetwork,
 } from "lib/better-call-dev";
 import InUSD from "app/templates/InUSD";
 import HashChip from "app/templates/HashChip";
@@ -103,7 +104,16 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
    */
 
   const tzStatsNetwork = React.useMemo(
-    () => TZSTATS_CHAINS.get(chainId) ?? null,
+    () =>
+      (isKnownChainId(chainId) ? TZSTATS_CHAINS.get(chainId) : undefined) ??
+      null,
+    [chainId]
+  );
+
+  const networkId = React.useMemo(
+    () =>
+      (isKnownChainId(chainId) ? BCD_NETWORKS_NAMES.get(chainId) : undefined) ??
+      null,
     [chainId]
   );
 
@@ -119,10 +129,10 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       });
 
       let bcdOps: Record<string, BcdTokenTransfer> = {};
-      if (isBcdSupportedNetwork(network.id) && ops.length > 0) {
+      if (networkId && ops.length > 0) {
         const response: AxiosResponse<BcdPageableTokenTransfers> = await getTokenTransfers(
           {
-            network: network.id,
+            network: networkId,
             address: accountPkh,
             size: OPERATIONS_LIMIT,
           }
@@ -161,10 +171,10 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       await new Promise((r) => setTimeout(r, 300));
       throw err;
     }
-  }, [tzStatsNetwork, accountPkh, network.id]);
+  }, [tzStatsNetwork, accountPkh, networkId]);
 
   const { data } = useRetryableSWR(
-    ["operation-history", tzStatsNetwork, accountPkh, network.id],
+    ["operation-history", tzStatsNetwork, accountPkh, networkId],
     fetchOperations,
     {
       suspense: true,
@@ -215,7 +225,9 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
   const withExplorer = Boolean(tzStatsNetwork);
   const explorerBaseUrl = React.useMemo(
-    () => TZKT_BASE_URLS.get(chainId) ?? null,
+    () =>
+      (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined) ??
+      null,
     [chainId]
   );
 
