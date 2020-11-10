@@ -2,7 +2,6 @@ import * as React from "react";
 import { ThanosAsset, ThanosAssetType } from "lib/thanos/types";
 import { T } from "lib/i18n/react";
 import xtzImgUrl from "app/misc/xtz.png";
-import anyTokenImgUrl from "app/misc/anytoken.png";
 
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
@@ -18,6 +17,8 @@ export const PASSWORD_PATTERN = new RegExp(
     "(?=.{8,})", // Must be eight characters or longer
   ].join("")
 );
+
+export const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
 
 export const PASSWORD_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
@@ -41,7 +42,5 @@ export function formatMnemonic(m: string) {
 }
 
 export function getAssetIconUrl(asset: ThanosAsset) {
-  return asset.type === ThanosAssetType.XTZ
-    ? xtzImgUrl
-    : asset.iconUrl ?? anyTokenImgUrl;
+  return asset.type === ThanosAssetType.XTZ ? xtzImgUrl : asset.iconUrl;
 }
