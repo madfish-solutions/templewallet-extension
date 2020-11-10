@@ -1,10 +1,11 @@
 import { OpKind } from "@taquito/rpc";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { AxiosResponse } from "axios";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
-import { TZSTATS_CHAINS } from "lib/tzstats";
+import { getAccountWithOperations, TZSTATS_CHAINS } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
 import { T } from "lib/i18n/react";
 import {
@@ -12,6 +13,7 @@ import {
   BcdTokenTransfer,
   getTokenTransfers,
   isBcdSupportedNetwork,
+  BCD_NETWORKS_NAMES,
 } from "lib/better-call-dev";
 import {
   getOperations,
@@ -31,7 +33,11 @@ import {
   tryParseIncomes,
   RawOperationAssetExpense,
   RawOperationAssetIncome,
+  mutezToTz,
+  isKnownChainId,
+  ThanosAsset,
 } from "lib/thanos/front";
+import { TZKT_BASE_URLS } from "lib/tzkt";
 import InUSD from "app/templates/InUSD";
 import HashChip from "app/templates/HashChip";
 import Identicon from "app/atoms/Identicon";
@@ -53,14 +59,25 @@ import {
   ThanosPendingOperation,
 } from "lib/thanos/types";
 import HashShortView from "app/atoms/HashShortView";
-import { TZKT_BASE_URLS } from "lib/tzkt";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
+const OPERATIONS_LIMIT = 30;
 
 type MixedPage = {
   bcd: BcdPageableTokenTransfers;
   tzkt: TzktOperation[];
 };
+
+interface OperationPreview {
+  hash: string;
+  type: string;
+  receiver: string;
+  volume: number;
+  status: string;
+  time: string;
+  parameters?: any;
+  tokenAddress?: string;
+}
 
 type OperationHistoryProps = {
   accountPkh: string;
@@ -102,9 +119,96 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
    */
 
   const tzStatsNetwork = React.useMemo(
-    () => TZSTATS_CHAINS.get(chainId) ?? null,
+    () =>
+      (isKnownChainId(chainId) ? TZSTATS_CHAINS.get(chainId) : undefined) ??
+      null,
     [chainId]
   );
+
+  const networkId = React.useMemo(
+    () =>
+      (isKnownChainId(chainId) ? BCD_NETWORKS_NAMES.get(chainId) : undefined) ??
+      null,
+    [chainId]
+  );
+
+  const fetchOperations = React.useCallback<
+    () => Promise<OperationPreview[]>
+  >(async () => {
+    try {
+      if (!tzStatsNetwork) return [];
+
+      const { ops } = await getAccountWithOperations(tzStatsNetwork, {
+        pkh: accountPkh,
+        order: "desc",
+        limit: OPERATIONS_LIMIT,
+        offset: 0,
+      });
+
+      let bcdOps: Record<string, BcdTokenTransfer> = {};
+      const lastTzStatsOp = ops[ops.length - 1];
+      if (networkId) {
+        const response: BcdPageableTokenTransfers = await getTokenTransfers({
+          network: networkId,
+          address: accountPkh,
+          size: OPERATIONS_LIMIT,
+        });
+        const { transfers } = response;
+        bcdOps = transfers
+          .filter((transfer) =>
+            lastTzStatsOp
+              ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
+              : true
+          )
+          .reduce(
+            (newTransfers, transfer) => ({
+              ...newTransfers,
+              [transfer.hash]: transfer,
+            }),
+            {}
+          );
+      }
+
+      const tzStatsOpsWithReplacements = ops.map((op) => {
+        const rawBcdData = bcdOps[op.hash];
+
+        if (!rawBcdData) {
+          return op;
+        }
+
+        delete bcdOps[op.hash];
+        return {
+          ...op,
+          volume: rawBcdData.amount,
+          tokenAddress: rawBcdData.contract,
+          sender: rawBcdData.from,
+          receiver: rawBcdData.to,
+        };
+      });
+
+      return [
+        ...tzStatsOpsWithReplacements,
+        ...Object.values(bcdOps).map((bcdOp) => ({
+          volume: bcdOp.amount,
+          tokenAddress: bcdOp.contract,
+          sender: bcdOp.from,
+          receiver: bcdOp.to,
+          hash: bcdOp.hash,
+          status: bcdOp.status,
+          time: bcdOp.timestamp,
+          type: "transaction",
+        })),
+      ];
+    } catch (err) {
+      if (err?.origin?.response?.status === 404) {
+        return [];
+      }
+
+      // Human delay
+      await new Promise((r) => setTimeout(r, 300));
+      throw err;
+    }
+  }, [tzStatsNetwork, accountPkh, networkId]);
 
   const getKey = useCallback(
     (index: number, previousPageData: MixedPage | null) => {
@@ -250,6 +354,16 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     ];
   }, [mixedOperations]);
 
+  const { data } = useRetryableSWR(
+    ["operation-history", tzStatsNetwork, accountPkh, networkId],
+    fetchOperations,
+    {
+      suspense: true,
+      refreshInterval: 15_000,
+      dedupingInterval: 10_000,
+    }
+  );
+
   useEffect(() => {
     if (getOperationsError) {
       throw getOperationsError;
@@ -313,7 +427,9 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
   const withExplorer = Boolean(tzStatsNetwork);
   const explorerBaseUrl = React.useMemo(
-    () => TZKT_BASE_URLS.get(chainId) ?? null,
+    () =>
+      (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined) ??
+      null,
     [chainId]
   );
 
@@ -612,15 +728,7 @@ const Operation = React.memo<OperationProps>(
                   >
                     {typeTx && (imReceiver ? "+" : "-")}
                     <Money>{finalVolume}</Money>{" "}
-                    {token ? (
-                      token.symbol
-                    ) : tokenAddress ? (
-                      <>
-                        (unknown token <HashShortView hash={tokenAddress} />)
-                      </>
-                    ) : (
-                      "ꜩ"
-                    )}
+                    {tokenAddress ? token?.symbol || "???" : "ꜩ"}
                   </div>
 
                   <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>

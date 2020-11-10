@@ -9,6 +9,7 @@ import {
   XTZ_ASSET,
   useThanosClient,
   useChainId,
+  isKnownChainId,
 } from "lib/thanos/front";
 import {
   getOneUserManagedContracts,
@@ -43,7 +44,10 @@ const ManagedKTForm: React.FC = () => {
   const [error, setError] = useState<React.ReactNode>(null);
 
   const tzStatsNetwork = React.useMemo(
-    () => (chainId && TZSTATS_CHAINS.get(chainId)) ?? null,
+    () =>
+      (chainId &&
+        (isKnownChainId(chainId) ? TZSTATS_CHAINS.get(chainId) : undefined)) ??
+      null,
     [chainId]
   );
 

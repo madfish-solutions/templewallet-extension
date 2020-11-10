@@ -34,6 +34,16 @@ export interface ThanosState {
   settings: ThanosSettings | null;
 }
 
+export enum ThanosChainId {
+  Mainnet = "NetXdQprcVkpaWU",
+  Carthagenet = "NetXjD3HPJJjmcd",
+  Delphinet = "NetXm8tYqnMWky1",
+}
+
+export function isKnownChainId(chainId: string): chainId is ThanosChainId {
+  return Object.values(ThanosChainId).includes(chainId as ThanosChainId);
+}
+
 export enum ThanosStatus {
   Idle,
   Locked,

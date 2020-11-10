@@ -4,7 +4,9 @@ import {
   BcdContractsQueryParams,
   BcdPageableTokenContracts,
   BcdPageableTokenTransfers,
+  BcdNetwork,
 } from "lib/better-call-dev/types";
+import { ThanosChainId } from "lib/thanos/types";
 
 const api = axios.create({ baseURL: "https://api.better-call.dev/v1" });
 api.interceptors.response.use(
@@ -14,6 +16,12 @@ api.interceptors.response.use(
     throw new Error(`Failed when querying Better Call API: ${message}`);
   }
 );
+
+export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
+  [ThanosChainId.Mainnet, "mainnet"],
+  [ThanosChainId.Carthagenet, "carthagenet"],
+  [ThanosChainId.Delphinet, "delphinet"],
+]);
 
 export const getContracts = makeQuery<
   BcdContractsQueryParams,

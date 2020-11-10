@@ -124,6 +124,14 @@
       }
     }
   },
+  "originLabel": {
+    "message": "Origin: $origin$",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
   "networkLabel": {
     "message": "Network: $network$",
     "placeholders": {
@@ -235,8 +243,8 @@
   "comingSoonComment": {
     "message": "(coming soon)"
   },
-  "soonComment": {
-    "message": "(soon)"
+  "soon": {
+    "message": "soon"
   },
   "required": {
     "message": "Required"
@@ -254,7 +262,7 @@
     "message": "e.g. KT1v9CmPy..."
   },
   "tokenSymbolPatternDescription": {
-    "message": "Only a-z, A-Z, 0-9 chars allowed, 2-7 length"
+    "message": "Only a-z, A-Z, 0-9 chars allowed, 2-5 length"
   },
   "symbol": {
     "message": "Symbol"
@@ -1334,13 +1342,62 @@
   "justAMinute": {
     "message": "Just a minute..."
   },
+  "referredByTokenContactAddressInvalid": {
+    "message": "Contract address $address$, which is referred by token contract to, is invalid.",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "someNetworkIsNotCurrent": {
+    "message": "$network$ network was specified, which is not current network",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "someNetworkWithChainIdIsNotCurrent": {
+    "message": "Chain ID $chainId$ was specified, which is not chain ID of current network",
+    "placeholders": {
+      "chainId": {
+        "content": "$1"
+      }
+    }
+  },
   "popupSettings": {
-    "message": "Popup settings"
+    "message": "Popup mode"
   },
   "popupSettingsDescription": {
     "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
   },
   "managedContract": {
     "message": "Managed Contract"
+  },
+  "referredByTokenContractNotFound": {
+    "message": "Contract $address$, which is referred by token contract to, was not found.",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "tokenContractNotFound": {
+    "message": "The contract was not found."
+  },
+  "failedToParseMetadata": {
+    "message": "Failed to parse metadata"
+  },
+  "unknownParseErrorOccurred": {
+    "message": "An unknown parsing error occurred."
+  },
+  "errorWhileFetchingUrl": {
+    "message": "Error occurred while fetching from $url$",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
   }
 }
