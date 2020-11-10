@@ -6,8 +6,8 @@ import {
   useTokens,
   useStorage,
   useAllAssetsRef,
+  useAccount,
 } from "lib/thanos/front";
-import { useAccount } from "./ready";
 
 export function useAssets() {
   const network = useNetwork();

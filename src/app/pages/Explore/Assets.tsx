@@ -13,11 +13,11 @@ import {
 import Popper from "lib/ui/Popper";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
-import { getAssetIconUrl } from "app/defaults";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import Name from "app/atoms/Name";
 import Money from "app/atoms/Money";
+import AssetIcon from "app/templates/AssetIcon";
 import { ReactComponent as EllypsisIcon } from "app/icons/ellypsis.svg";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
@@ -149,11 +149,11 @@ const AssetCarousel = React.memo(() => {
     () =>
       allAssets.map((asset, i) => (
         <div className="flex flex-col items-center justify-around p-2">
-          <img
-            src={getAssetIconUrl(asset)}
-            alt={asset.name}
+          <AssetIcon
+            asset={asset}
             className={classNames(i === 0 ? "w-16 h-16" : "w-12 h-12")}
             style={{ minHeight: i === 0 ? "4rem" : "3rem" }}
+            size={i === 0 ? 64 : 48}
           />
 
           {i !== 0 && (
