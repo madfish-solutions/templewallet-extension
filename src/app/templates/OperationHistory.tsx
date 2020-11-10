@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
@@ -15,12 +16,6 @@ import {
   useOnStorageChanged,
   mutezToTz,
 } from "lib/thanos/front";
-import InUSD from "app/templates/InUSD";
-import HashChip from "app/templates/HashChip";
-import Identicon from "app/atoms/Identicon";
-import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
-import Money from "app/atoms/Money";
-import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
   BcdPageableTokenTransfers,
@@ -28,12 +23,17 @@ import {
   getTokenTransfers,
   isBcdSupportedNetwork,
 } from "lib/better-call-dev";
-import { AxiosResponse } from "axios";
+import InUSD from "app/templates/InUSD";
+import HashChip from "app/templates/HashChip";
+import Identicon from "app/atoms/Identicon";
+import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
+import Money from "app/atoms/Money";
+import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const OPERATIONS_LIMIT = 30;
 
-type BcdOperationData = Pick<
+type BcdOperationMetadata = Pick<
   BcdTokenTransfer,
   "amount" | "contract" | "from" | "source" | "to"
 >;
@@ -46,7 +46,7 @@ interface OperationPreview {
   status: string;
   time: string;
   parameters?: any;
-  bcdData?: BcdOperationData;
+  bcdData?: BcdOperationMetadata;
 }
 
 interface OperationHistoryProps {
