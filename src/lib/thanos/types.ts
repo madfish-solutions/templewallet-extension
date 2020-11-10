@@ -27,6 +27,16 @@ export interface ThanosState {
   settings: ThanosSettings | null;
 }
 
+export enum ThanosChainId {
+  Mainnet = "NetXdQprcVkpaWU",
+  Carthagenet = "NetXjD3HPJJjmcd",
+  Delphinet = "NetXm8tYqnMWky1",
+}
+
+export function isKnownChainId(chainId: string): chainId is ThanosChainId {
+  return Object.values(ThanosChainId).includes(chainId as ThanosChainId);
+}
+
 export enum ThanosStatus {
   Idle,
   Locked,
@@ -81,6 +91,7 @@ export interface ThanosNetwork {
   nameI18nKey?: string;
   description: string;
   descriptionI18nKey?: string;
+  lambdaContract?: string;
   type: ThanosNetworkType;
   rpcBaseURL: string;
   color: string;
@@ -141,6 +152,7 @@ export type ThanosNetworkType = "main" | "test";
 
 export interface ThanosSettings {
   customNetworks?: ThanosNetwork[];
+  lambdaContracts?: Record<string, string>;
 }
 
 export enum ThanosSharedStorageKey {

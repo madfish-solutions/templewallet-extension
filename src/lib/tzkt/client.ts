@@ -1,11 +1,6 @@
 import axios, { AxiosError } from "axios";
-import {
-  TzktGetOperationsParams,
-  TzktOperation,
-  TzktNetwork,
-  isValidTzktNetwork,
-  TzktRelatedContract,
-} from "./types";
+import { ThanosChainId } from "lib/thanos/types";
+import { TzktGetOperationsParams, TzktOperation, TzktNetwork } from "./types";
 
 const baseUrls: Record<TzktNetwork, string> = {
   mainnet: "https://api.tzkt.io/v1",
@@ -14,6 +9,12 @@ const baseUrls: Record<TzktNetwork, string> = {
   zeronet: "https://api.zeronet.tzkt.io/v1",
   delphinet: "https://api.delphi.tzkt.io/v1",
 };
+
+export const TZKT_BASE_URLS = new Map([
+  [ThanosChainId.Mainnet, "https://tzkt.io"],
+  [ThanosChainId.Carthagenet, "https://carthage.tzkt.io"],
+  [ThanosChainId.Delphinet, "https://delphi.tzkt.io"],
+]);
 
 const api = axios.create();
 api.interceptors.response.use(
@@ -36,44 +37,6 @@ export const getOperations = makeQuery<
     ...restParams,
   })
 );
-
-type GetUserContractsParams = {
-  account: string;
-};
-
-const getUserContracts = makeQuery<
-  GetUserContractsParams,
-  TzktRelatedContract[]
->(
-  ({ account }) => `/accounts/${account}/contracts`,
-  () => ({})
-);
-
-export const getUsersContracts = async (
-  _k: string,
-  networkId: string,
-  ...accounts: string[]
-) => {
-  if (!isValidTzktNetwork(networkId)) {
-    console.warn(`${networkId} is not a valid Tzkt network`);
-    return [];
-  }
-
-  const contractsChunks = await Promise.all(
-    accounts.map(async (account) => {
-      const { data: userContracts } = await getUserContracts(networkId, {
-        account,
-      });
-
-      return userContracts;
-    })
-  );
-
-  return contractsChunks.reduce(
-    (contracts, chunk) => [...contracts, ...chunk],
-    []
-  );
-};
 
 function makeQuery<P extends Record<string, unknown>, R>(
   url: (params: P) => string,

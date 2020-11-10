@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
@@ -7,7 +8,6 @@ import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
 import { T } from "lib/i18n/react";
 import {
-  ThanosAsset,
   ThanosAssetType,
   XTZ_ASSET,
   useThanosClient,
@@ -15,21 +15,25 @@ import {
   useAssets,
   useOnStorageChanged,
   mutezToTz,
+  isKnownChainId,
+  ThanosAsset,
 } from "lib/thanos/front";
-import useTippy from "lib/ui/useTippy";
+import { TZKT_BASE_URLS } from "lib/tzkt";
+import {
+  BcdPageableTokenTransfers,
+  BcdTokenTransfer,
+  BCD_NETWORKS_NAMES,
+  getTokenTransfers,
+} from "lib/better-call-dev";
 import InUSD from "app/templates/InUSD";
-import Identicon from "app/atoms/Identicon";
 import HashChip from "app/templates/HashChip";
+import Identicon from "app/atoms/Identicon";
+import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
-import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
-const TZKT_BASE_URLS = new Map([
-  ["NetXdQprcVkpaWU", "https://tzkt.io"],
-  ["NetXjD3HPJJjmcd", "https://carthage.tzkt.io"],
-  ["NetXyQaSHznzV1r", "https://delphi.tzkt.io"],
-]);
+const OPERATIONS_LIMIT = 30;
 
 interface OperationPreview {
   hash: string;
@@ -39,6 +43,7 @@ interface OperationPreview {
   status: string;
   time: string;
   parameters?: any;
+  tokenAddress?: string;
 }
 
 interface OperationHistoryProps {
@@ -95,21 +100,90 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
    */
 
   const tzStatsNetwork = React.useMemo(
-    () => TZSTATS_CHAINS.get(chainId) ?? null,
+    () =>
+      (isKnownChainId(chainId) ? TZSTATS_CHAINS.get(chainId) : undefined) ??
+      null,
     [chainId]
   );
 
-  const fetchOperations = React.useCallback(async () => {
+  const networkId = React.useMemo(
+    () =>
+      (isKnownChainId(chainId) ? BCD_NETWORKS_NAMES.get(chainId) : undefined) ??
+      null,
+    [chainId]
+  );
+
+  const fetchOperations = React.useCallback<
+    () => Promise<OperationPreview[]>
+  >(async () => {
     try {
       if (!tzStatsNetwork) return [];
 
       const { ops } = await getAccountWithOperations(tzStatsNetwork, {
         pkh: accountPkh,
         order: "desc",
-        limit: 30,
+        limit: OPERATIONS_LIMIT,
         offset: 0,
       });
-      return ops;
+
+      let bcdOps: Record<string, BcdTokenTransfer> = {};
+      const lastTzStatsOp = ops[ops.length - 1];
+      if (networkId) {
+        const response: AxiosResponse<BcdPageableTokenTransfers> = await getTokenTransfers(
+          {
+            network: networkId,
+            address: accountPkh,
+            size: OPERATIONS_LIMIT,
+          }
+        );
+        const {
+          data: { transfers },
+        } = response;
+        bcdOps = transfers
+          .filter((transfer) =>
+            lastTzStatsOp
+              ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
+              : true
+          )
+          .reduce(
+            (newTransfers, transfer) => ({
+              ...newTransfers,
+              [transfer.hash]: transfer,
+            }),
+            {}
+          );
+      }
+
+      const tzStatsOpsWithReplacements = ops.map((op) => {
+        const rawBcdData = bcdOps[op.hash];
+
+        if (!rawBcdData) {
+          return op;
+        }
+
+        delete bcdOps[op.hash];
+        return {
+          ...op,
+          volume: rawBcdData.amount,
+          tokenAddress: rawBcdData.contract,
+          sender: rawBcdData.from,
+          receiver: rawBcdData.to,
+        };
+      });
+
+      return [
+        ...tzStatsOpsWithReplacements,
+        ...Object.values(bcdOps).map((bcdOp) => ({
+          volume: bcdOp.amount,
+          tokenAddress: bcdOp.contract,
+          sender: bcdOp.from,
+          receiver: bcdOp.to,
+          hash: bcdOp.hash,
+          status: bcdOp.status,
+          time: bcdOp.timestamp,
+          type: "transaction",
+        })),
+      ];
     } catch (err) {
       if (err?.origin?.response?.status === 404) {
         return [];
@@ -119,10 +193,10 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       await new Promise((r) => setTimeout(r, 300));
       throw err;
     }
-  }, [tzStatsNetwork, accountPkh]);
+  }, [tzStatsNetwork, accountPkh, networkId]);
 
   const { data } = useRetryableSWR(
-    ["operation-history", tzStatsNetwork, accountPkh],
+    ["operation-history", tzStatsNetwork, accountPkh, networkId],
     fetchOperations,
     {
       suspense: true,
@@ -173,7 +247,9 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
   const withExplorer = Boolean(tzStatsNetwork);
   const explorerBaseUrl = React.useMemo(
-    () => TZKT_BASE_URLS.get(chainId) ?? null,
+    () =>
+      (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined) ??
+      null,
     [chainId]
   );
 
@@ -228,31 +304,45 @@ const Operation = React.memo<OperationProps>(
     explorerBaseUrl,
     hash,
     type,
+    parameters,
     receiver,
     volume,
     status,
     time,
-    parameters,
+    tokenAddress: tokenAddressFromBcd,
   }) => {
     const { allAssets } = useAssets();
 
+    const tokenAddress = tokenAddressFromBcd || (parameters && receiver);
     const token = React.useMemo(
       () =>
-        (parameters &&
+        (tokenAddress &&
           allAssets.find(
-            (a) => a.type !== ThanosAssetType.XTZ && a.address === receiver
+            (a) => a.type !== ThanosAssetType.XTZ && a.address === tokenAddress
           )) ||
         null,
-      [allAssets, parameters, receiver]
+      [allAssets, tokenAddress]
     );
 
-    const tokenParsed = React.useMemo(
-      () => token && tryParseParameters(token, parameters),
-      [token, parameters]
-    );
+    const parsedParameters = React.useMemo(() => {
+      if (parameters && token && !tokenAddressFromBcd) {
+        return tryParseParameters(token, parameters);
+      }
+      return null;
+    }, [parameters, token, tokenAddressFromBcd]);
 
-    const finalReceiver = tokenParsed ? tokenParsed.receiver : receiver;
-    const finalVolume = tokenParsed ? tokenParsed.volume : volume;
+    const finalReceiver = parsedParameters
+      ? parsedParameters.receiver
+      : receiver;
+    let finalVolume = volume;
+    if (tokenAddressFromBcd) {
+      finalVolume = new BigNumber(volume)
+        .div(10 ** (token?.decimals || 0))
+        .toNumber();
+    }
+    if (parsedParameters) {
+      finalVolume = parsedParameters.volume;
+    }
 
     const volumeExists = finalVolume !== 0;
     const typeTx = type === "transaction";
@@ -316,7 +406,7 @@ const Operation = React.memo<OperationProps>(
                         <div className="flex items-center">
                           <T id={status}>
                             {(message) => (
-                              <span className="mr-1 text-xs font-light text-red-600">
+                              <span className="mr-1 text-xs font-light text-red-700">
                                 {message}
                               </span>
                             )}
@@ -367,7 +457,8 @@ const Operation = React.memo<OperationProps>(
                     )}
                   >
                     {typeTx && (imReceiver ? "+" : "-")}
-                    <Money>{finalVolume}</Money> {token ? token.symbol : "ꜩ"}
+                    <Money>{finalVolume}</Money>{" "}
+                    {tokenAddress ? token?.symbol || "???" : "ꜩ"}
                   </div>
 
                   <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
@@ -397,54 +488,11 @@ const Operation = React.memo<OperationProps>(
         typeTx,
         volumeExists,
         explorerBaseUrl,
+        tokenAddress,
       ]
     );
   }
 );
-
-type OpenInExplorerChipProps = {
-  baseUrl: string;
-  opHash: string;
-  className?: string;
-};
-
-const OpenInExplorerChip: React.FC<OpenInExplorerChipProps> = ({
-  baseUrl,
-  opHash,
-  className,
-}) => {
-  const tippyProps = React.useMemo(
-    () => ({
-      trigger: "mouseenter",
-      hideOnClick: false,
-      content: "View on block explorer",
-      animation: "shift-away-subtle",
-    }),
-    []
-  );
-
-  const ref = useTippy<HTMLAnchorElement>(tippyProps);
-
-  return (
-    <a
-      ref={ref}
-      href={`${baseUrl}/${opHash}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={classNames(
-        "bg-gray-100 hover:bg-gray-200",
-        "rounded-sm shadow-xs",
-        "text-xs p-1",
-        "text-gray-600 leading-none select-none",
-        "transition ease-in-out duration-300",
-        "flex items-center",
-        className
-      )}
-    >
-      <ArrowRightTopIcon className="w-auto h-3 stroke-current stroke-2" />
-    </a>
-  );
-};
 
 type TimeProps = {
   children: () => React.ReactElement;

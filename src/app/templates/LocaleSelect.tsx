@@ -13,6 +13,7 @@ type LocaleSelectProps = {
 
 type LocaleOption = {
   code: string;
+  disabled?: boolean;
   flagName: string;
   label: string;
 };
@@ -24,11 +25,56 @@ const localeOptions: LocaleOption[] = [
     label: "English",
   },
   {
+    code: "en_GB",
+    flagName: "gb",
+    label: "English ‒ United Kingdom",
+    disabled: true,
+  },
+  {
+    code: "fr",
+    flagName: "fr",
+    label: "French (Français)",
+    disabled: true,
+  },
+  {
+    code: "uk",
+    flagName: "ua",
+    label: "Ukrainian (Українська)",
+    disabled: true,
+  },
+  {
     code: "ru",
     flagName: "ru",
     label: "Russian (Русский)",
+    disabled: true,
+  },
+  {
+    code: "zh_CN",
+    flagName: "cn",
+    label: "Chinese ‒ China (普通话)",
+    disabled: true,
+  },
+  {
+    code: "zh_TW",
+    flagName: "tw",
+    label: "Chinese ‒ Taiwan (臺灣話)",
+    disabled: true,
+  },
+  {
+    code: "ja",
+    flagName: "jp",
+    label: "Japanese (日本語)",
+    disabled: true,
+  },
+  {
+    code: "ko",
+    flagName: "kr",
+    label: "Korean",
+    disabled: true,
   },
 ];
+
+const localeIsDisabled = ({ disabled }: LocaleOption) => !!disabled;
 
 const getLocaleCode = ({ code }: LocaleOption) => code;
 
@@ -64,6 +110,7 @@ const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
       OptionInMenuContent={LocaleInMenuContent}
       OptionSelectedContent={LocaleSelectContent}
       getKey={getLocaleCode}
+      isDisabled={localeIsDisabled}
       options={localeOptions}
       value={value}
       onChange={handleLocaleChange}
@@ -87,8 +134,32 @@ const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
 
 const LocaleInMenuContent: React.FC<IconifiedSelectOptionRenderProps<
   LocaleOption
->> = ({ option }) => {
-  return <span className="text-lg text-gray-700">{option.label}</span>;
+>> = ({ option: { disabled, label } }) => {
+  return (
+    <div className={classNames("relative w-full text-lg text-gray-700")}>
+      {label}
+
+      {disabled && (
+        <div
+          className={classNames(
+            "absolute top-0 bottom-0 right-0",
+            "flex items-center"
+          )}
+        >
+          <div
+            className={classNames(
+              "mr-2 px-1",
+              "bg-orange-500 rounded-sm shadow-md",
+              "text-white",
+              "text-xs font-semibold uppercase"
+            )}
+          >
+            <T id="soon" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const LocaleSelectContent: React.FC<IconifiedSelectOptionRenderProps<

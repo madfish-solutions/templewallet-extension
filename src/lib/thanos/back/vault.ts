@@ -322,7 +322,9 @@ export class Vault {
       const newAccount: ThanosAccount = {
         type: ThanosAccountType.ManagedKT,
         name: getNewAccountName(
-          allAccounts.filter(({ type }) => type === ThanosAccountType.ManagedKT),
+          allAccounts.filter(
+            ({ type }) => type === ThanosAccountType.ManagedKT
+          ),
           "defaultManagedKTAccountName"
         ),
         publicKeyHash: accPublicKeyHash,
@@ -424,12 +426,11 @@ export class Vault {
   async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
     return this.withSigner(accPublicKeyHash, async (signer) => {
       const batch = await withError("Failed to send operations", async () => {
-        const tezos = new TezosToolkit();
-        const forger = new CompositeForger([
-          tezos.getFactory(RpcForger)(),
-          localForger,
-        ]);
-        tezos.setProvider({ rpc, signer, forger });
+        const tezos = new TezosToolkit(rpc);
+        tezos.setSignerProvider(signer);
+        tezos.setForgerProvider(
+          new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
+        );
         return tezos.batch(opParams.map(formatOpParams));
       });
 
@@ -557,6 +558,10 @@ const MIGRATIONS = [
  * Misc
  */
 
+function removeMFromDerivationPath(dPath: string) {
+  return dPath.startsWith("m/") ? dPath.substring(2) : dPath;
+}
+
 function formatOpParams(params: any) {
   if (params.kind === "origination" && params.script) {
     const newParams = { ...params, ...params.script };
@@ -576,7 +581,10 @@ function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
   throw new PublicError("Account already exists");
 }
 
-function getNewAccountName(allAccounts: ThanosAccount[], templateI18nKey = "defaultAccountName") {
+function getNewAccountName(
+  allAccounts: ThanosAccount[],
+  templateI18nKey = "defaultAccountName"
+) {
   return getMessage(templateI18nKey, String(allAccounts.length + 1));
 }
 
@@ -612,9 +620,9 @@ async function createLedgerSigner(
   const cleanup = () => transport.close();
   const signer = new ThanosLedgerSigner(
     transport,
-    derivationPath,
+    removeMFromDerivationPath(derivationPath),
     true,
-    DerivationType.tz1,
+    DerivationType.ED25519,
     publicKey,
     publicKeyHash
   );

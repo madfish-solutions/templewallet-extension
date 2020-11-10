@@ -10,9 +10,9 @@ import {
   usePassiveStorage,
   useThanosClient,
   domainsResolverFactory,
+  loadChainId,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
-import { loadChainId } from "../helpers";
 
 export enum ActivationStatus {
   ActivationRequestSent,
@@ -112,15 +112,15 @@ function useReadyThanos() {
 
   const tezos = React.useMemo(() => {
     const checksum = [network.id, account.publicKeyHash].join("_");
-    const t = new ReactiveTezosToolkit(checksum);
     const rpc = network.rpcBaseURL;
     const pkh =
       account.type === ThanosAccountType.ManagedKT
         ? account.owner
         : account.publicKeyHash;
-    const signer = createTaquitoSigner(pkh);
-    const wallet = createTaquitoWallet(pkh, rpc);
-    t.setProvider({ rpc, signer, wallet });
+
+    const t = new ReactiveTezosToolkit(rpc, checksum, network.lambdaContract);
+    t.setSignerProvider(createTaquitoSigner(pkh));
+    t.setWalletProvider(createTaquitoWallet(pkh, rpc));
     return t;
   }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
@@ -156,28 +156,33 @@ function useReadyThanos() {
   };
 }
 
-export function useRelevantAccounts(withManagedKT = true) {
+export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
-  const allAccounts = useAllAccounts();
-  const account = useAccount();
-  const setAccountPkh = useSetAccountPkh();
 
-  /**
-   * Lazy chain ID (network hash)
-   */
+  const rpcUrl = React.useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
 
   const fetchChainId = React.useCallback(async () => {
     try {
-      return await loadChainId(tezos.rpc.getRpcUrl());
+      return await loadChainId(rpcUrl);
     } catch {
       return null;
     }
-  }, [tezos]);
+  }, [rpcUrl]);
+
   const { data: lazyChainId = null } = useRetryableSWR(
     ["lazy-chain-id", tezos.checksum],
     fetchChainId,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false, suspense }
   );
+
+  return React.useMemo(() => lazyChainId, [lazyChainId]);
+}
+
+export function useRelevantAccounts(withManagedKT = true) {
+  const allAccounts = useAllAccounts();
+  const account = useAccount();
+  const setAccountPkh = useSetAccountPkh();
+  const lazyChainId = useChainId();
 
   const relevantAccounts = React.useMemo(
     () =>
@@ -191,7 +196,10 @@ export function useRelevantAccounts(withManagedKT = true) {
 
   React.useEffect(() => {
     if (
-      relevantAccounts.every((a) => a.publicKeyHash !== account.publicKeyHash) && lazyChainId
+      relevantAccounts.every(
+        (a) => a.publicKeyHash !== account.publicKeyHash
+      ) &&
+      lazyChainId
     ) {
       setAccountPkh(relevantAccounts[0].publicKeyHash);
     }
@@ -215,8 +223,12 @@ function useRefs() {
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {
-  constructor(public checksum: string) {
-    super();
+  constructor(
+    rpc: string,
+    public checksum: string,
+    public lambdaContract?: string
+  ) {
+    super(rpc);
   }
 }
 

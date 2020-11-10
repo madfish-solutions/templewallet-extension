@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { ThanosChainId } from "lib/thanos/types";
 import {
   TZStatsNetwork,
   ErrorData,
@@ -8,12 +9,13 @@ import {
   OperationRow,
   TZStatsAccountOp,
   TZStatsMarketTicker,
+  TZStatsContract,
 } from "lib/tzstats/types";
 
 export const TZSTATS_CHAINS = new Map([
-  ["NetXdQprcVkpaWU", TZStatsNetwork.Mainnet],
-  ["NetXjD3HPJJjmcd", TZStatsNetwork.Carthagenet],
-  ["NetXyQaSHznzV1r", TZStatsNetwork.Dalphanet],
+  [ThanosChainId.Mainnet, TZStatsNetwork.Mainnet],
+  [ThanosChainId.Carthagenet, TZStatsNetwork.Carthagenet],
+  [ThanosChainId.Delphinet, TZStatsNetwork.Delphinet],
 ]);
 
 export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;
@@ -55,6 +57,11 @@ export const getAccountWithOperations = explore<
     order: "asc" | "desc";
   }
 >(({ pkh, ...rest }) => [`/explorer/account/${pkh}/op`, rest]);
+
+export const getOneUserManagedContracts = explore<
+  TZStatsContract[],
+  { account: string }
+>(({ account }) => [`/explorer/account/${account}/managed`, {}]);
 
 export const getOperationTable = wrapQuery(
   query<OperationRowTuple[]>("/tables/op"),
