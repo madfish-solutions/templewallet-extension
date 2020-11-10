@@ -21,7 +21,7 @@
     "@svgr/webpack": "5.4.0",
     "@taquito/ledger-signer": "7.1.0-preview-lambdaview.0",
     "@taquito/local-forging": "7.1.0-preview-lambdaview.0",
-    "@taquito/signer": "7.0.0-beta.0",
+    "@taquito/signer": "7.1.0-preview-lambdaview.0",
     "@taquito/taquito": "7.1.0-preview-lambdaview.0",
     "@taquito/utils": "7.1.0-preview-lambdaview.0",
     "@tezos-domains/core": "1.0.0-beta.17",
