@@ -21,7 +21,6 @@ export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
   [ThanosChainId.Mainnet, "mainnet"],
   [ThanosChainId.Carthagenet, "carthagenet"],
   [ThanosChainId.Delphinet, "delphinet"],
-  [ThanosChainId.Dalphanet, "dalphanet"]
 ]);
 
 export const getContracts = makeQuery<

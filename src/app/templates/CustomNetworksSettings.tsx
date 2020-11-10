@@ -38,7 +38,6 @@ const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$
 const KNOWN_LAMBDA_CONTRACTS = new Map([
   [ThanosChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
   [ThanosChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
-  [ThanosChainId.Dalphanet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
 ]);
 
 const CustomNetworksSettings: React.FC = () => {

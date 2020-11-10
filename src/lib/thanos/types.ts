@@ -31,7 +31,6 @@ export enum ThanosChainId {
   Mainnet = "NetXdQprcVkpaWU",
   Carthagenet = "NetXjD3HPJJjmcd",
   Delphinet = "NetXm8tYqnMWky1",
-  Dalphanet = "NetXyQaSHznzV1r"
 }
 
 export function isKnownChainId(chainId: string): chainId is ThanosChainId {
