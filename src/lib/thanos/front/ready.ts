@@ -10,9 +10,9 @@ import {
   usePassiveStorage,
   useThanosClient,
   domainsResolverFactory,
+  loadChainId,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
-import { loadChainId } from "../helpers";
 
 export enum ActivationStatus {
   ActivationRequestSent,
@@ -118,7 +118,7 @@ function useReadyThanos() {
         ? account.owner
         : account.publicKeyHash;
 
-    const t = new ReactiveTezosToolkit(rpc, checksum);
+    const t = new ReactiveTezosToolkit(rpc, checksum, network.lambdaContract);
     t.setSignerProvider(createTaquitoSigner(pkh));
     t.setWalletProvider(createTaquitoWallet(pkh, rpc));
     return t;
@@ -223,7 +223,11 @@ function useRefs() {
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {
-  constructor(rpc: string, public checksum: string) {
+  constructor(
+    rpc: string,
+    public checksum: string,
+    public lambdaContract?: string
+  ) {
     super(rpc);
   }
 }
