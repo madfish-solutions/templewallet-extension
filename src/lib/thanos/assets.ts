@@ -79,12 +79,10 @@ const FA12_METHODS_ASSERTIONS = [
   },
   {
     name: "getAllowance",
-    assertion: (contract: WalletContract) =>
-      contract.methods.getAllowance(
-        STUB_TEZOS_ADDRESS,
-        STUB_TEZOS_ADDRESS,
-        contract
-      ),
+    assertion: (contract: WalletContract, tezos: TezosToolkit) =>
+      contract.views
+        .getAllowance(STUB_TEZOS_ADDRESS, STUB_TEZOS_ADDRESS)
+        .read((tezos as any).lambdaContract),
   },
   {
     name: "getBalance",
