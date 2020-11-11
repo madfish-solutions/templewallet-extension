@@ -1,7 +1,11 @@
 import * as React from "react";
 import classNames from "clsx";
 import useSWR from "swr";
-import { usePassiveStorage, useTezosDomains, useTezos } from "lib/thanos/front";
+import {
+  usePassiveStorage,
+  useTezos,
+  useTezosDomainsClient,
+} from "lib/thanos/front";
 import HashChip from "app/templates/HashChip";
 import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
@@ -12,12 +16,12 @@ type AddressChipProps = {
 };
 
 const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
-  const tezosDomains = useTezosDomains();
   const tezos = useTezos();
+  const { resolver: domainsResolver } = useTezosDomainsClient();
 
   const resolveDomainReverseName = React.useCallback(
-    () => tezosDomains.resolveAddressToName(pkh),
-    [tezosDomains, pkh]
+    () => domainsResolver.resolveAddressToName(pkh),
+    [domainsResolver, pkh]
   );
 
   const { data: reverseName } = useSWR(
