@@ -54,12 +54,12 @@ const ExpenseViewContent: React.FC<OptionRenderProps<OperationExpenses>> = ({
       case "delegation":
         return t("delegation");
       default:
-        return t(
-          item.isEntrypointInteraction
-            ? "interactionWithSomeEntrypoint"
-            : "transactionOfSomeType",
-          item.type
-        );
+        return item.isEntrypointInteraction
+          ? t("interactionWithSomeEntrypoint", [
+              item.type,
+              <HashShortView hash={item.contractAddress!} />,
+            ])
+          : t("transactionOfSomeType", item.type);
     }
   }, [item]);
   return (
