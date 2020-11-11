@@ -18,7 +18,6 @@ const SubTitle: React.FC<SubTitleProps> = ({
   return (
     <h2
       className={classNames(
-        "mt-10 mb-2",
         "flex items-center justify-center",
         "text-gray-700",
         "text-2xl",
