@@ -95,40 +95,36 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   }, [allAssets, rawExpensesData]);
 
   const signPayloadFormats = React.useMemo(() => {
-    const previewFormat = {
-      key: "preview",
-      name: t("preview"),
-      Icon: EyeIcon,
-    };
-    const someExpenses =
-      expensesData.reduce(
-        (sum, operationExpenses) => sum + operationExpenses.expenses.length,
-        0
-      ) > 0;
-    const prettyViewFormats = someExpenses
-      ? [
-          {
-            key: "expenses",
-            name: t("expenses"),
-            Icon: DollarIcon,
-          },
-        ]
-      : [];
-
     if (payload.type === "operations") {
-      return [...prettyViewFormats, previewFormat];
+      return [
+        {
+          key: "expenses",
+          name: t("expenses"),
+          Icon: DollarIcon,
+        },
+        {
+          key: "preview",
+          name: t("preview"),
+          Icon: EyeIcon,
+        },
+      ];
     }
 
     return [
-      ...prettyViewFormats,
+      {
+        key: "expenses",
+        name: t("expenses"),
+        Icon: DollarIcon,
+      },
       {
         key: "raw",
         name: t("raw"),
         Icon: CodeAltIcon,
       },
     ];
-  }, [payload.type, expensesData]);
+  }, [payload.type]);
 
+  console.log(signPayloadFormats);
   const [spFormat, setSpFormat] = useSafeState(signPayloadFormats[0]);
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
