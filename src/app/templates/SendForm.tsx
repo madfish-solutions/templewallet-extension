@@ -181,7 +181,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     [domainsClient]
   );
   const { data: resolvedAddress } = useSWR(
-    ["tzdns-address", tezos.checksum, toValue, networkId, accountPkh],
+    ["tzdns-address", tezos.checksum, toValue],
     domainAddressFactory,
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
