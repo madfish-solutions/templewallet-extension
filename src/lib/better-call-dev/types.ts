@@ -38,6 +38,7 @@ export interface BcdTokenTransfer {
   counter: number;
   from: string;
   hash: string;
+  indexed_time: number;
   level: number;
   network: BcdNetwork;
   nonce: number;
@@ -70,7 +71,7 @@ export type BcdTokenTransfersQueryParams = {
 const bcdSupportedNetworks: BcdNetwork[] = [
   "mainnet",
   "carthagenet",
-  "dalphanet",
+  "delphinet",
 ];
 export const isBcdSupportedNetwork = (
   networkId: string

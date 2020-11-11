@@ -1,27 +1,14 @@
 import { OpKind } from "@taquito/rpc";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { AxiosResponse } from "axios";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
-import { getAccountWithOperations, TZSTATS_CHAINS } from "lib/tzstats";
+import { TZSTATS_CHAINS } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
 import { T } from "lib/i18n/react";
-import {
-  BcdPageableTokenTransfers,
-  BcdTokenTransfer,
-  getTokenTransfers,
-  isBcdSupportedNetwork,
-  BCD_NETWORKS_NAMES,
-} from "lib/better-call-dev";
-import {
-  getOperations,
-  isDelegation,
-  isTransaction,
-  isTzktSupportedNetwork,
-  TzktOperation,
-} from "lib/tzkt";
+import { BcdPageableTokenTransfers } from "lib/better-call-dev";
+import { isDelegation, isTransaction, TzktOperation } from "lib/tzkt";
 import {
   ThanosAssetType,
   XTZ_ASSET,
@@ -33,9 +20,7 @@ import {
   tryParseIncomes,
   RawOperationAssetExpense,
   RawOperationAssetIncome,
-  mutezToTz,
   isKnownChainId,
-  ThanosAsset,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import InUSD from "app/templates/InUSD";
@@ -44,7 +29,6 @@ import Identicon from "app/atoms/Identicon";
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
-import useInfiniteList from "lib/useInfiniteList";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import {
   hasReceiver,
@@ -58,10 +42,9 @@ import {
   ThanosOperation,
   ThanosPendingOperation,
 } from "lib/thanos/types";
-import HashShortView from "app/atoms/HashShortView";
+import { useOperations } from "lib/thanos/front/operations";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
-const OPERATIONS_LIMIT = 30;
 
 type MixedPage = {
   bcd: BcdPageableTokenTransfers;
@@ -125,143 +108,25 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     [chainId]
   );
 
-  const networkId = React.useMemo(
-    () =>
-      (isKnownChainId(chainId) ? BCD_NETWORKS_NAMES.get(chainId) : undefined) ??
-      null,
-    [chainId]
-  );
-
-  const fetchOperations = React.useCallback<
-    () => Promise<OperationPreview[]>
-  >(async () => {
-    try {
-      if (!tzStatsNetwork) return [];
-
-      const { ops } = await getAccountWithOperations(tzStatsNetwork, {
-        pkh: accountPkh,
-        order: "desc",
-        limit: OPERATIONS_LIMIT,
-        offset: 0,
-      });
-
-      let bcdOps: Record<string, BcdTokenTransfer> = {};
-      const lastTzStatsOp = ops[ops.length - 1];
-      if (networkId) {
-        const response: BcdPageableTokenTransfers = await getTokenTransfers({
-          network: networkId,
-          address: accountPkh,
-          size: OPERATIONS_LIMIT,
-        });
-        const { transfers } = response;
-        bcdOps = transfers
-          .filter((transfer) =>
-            lastTzStatsOp
-              ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
-              : true
-          )
-          .reduce(
-            (newTransfers, transfer) => ({
-              ...newTransfers,
-              [transfer.hash]: transfer,
-            }),
-            {}
-          );
-      }
-
-      const tzStatsOpsWithReplacements = ops.map((op) => {
-        const rawBcdData = bcdOps[op.hash];
-
-        if (!rawBcdData) {
-          return op;
-        }
-
-        delete bcdOps[op.hash];
-        return {
-          ...op,
-          volume: rawBcdData.amount,
-          tokenAddress: rawBcdData.contract,
-          sender: rawBcdData.from,
-          receiver: rawBcdData.to,
-        };
-      });
-
-      return [
-        ...tzStatsOpsWithReplacements,
-        ...Object.values(bcdOps).map((bcdOp) => ({
-          volume: bcdOp.amount,
-          tokenAddress: bcdOp.contract,
-          sender: bcdOp.from,
-          receiver: bcdOp.to,
-          hash: bcdOp.hash,
-          status: bcdOp.status,
-          time: bcdOp.timestamp,
-          type: "transaction",
-        })),
-      ];
-    } catch (err) {
-      if (err?.origin?.response?.status === 404) {
-        return [];
-      }
-
-      // Human delay
-      await new Promise((r) => setTimeout(r, 300));
-      throw err;
-    }
-  }, [tzStatsNetwork, accountPkh, networkId]);
-
-  const getKey = useCallback(
-    (index: number, previousPageData: MixedPage | null) => {
-      if (!previousPageData) {
-        return ["mixedOperations", network.id, accountPkh];
-      }
-
-      const { bcd, tzkt } = previousPageData;
-      if (!bcd.last_id && tzkt.length === 0) {
-        return null;
-      }
-
-      return [
-        "mixedOperations",
-        network.id,
-        accountPkh,
-        bcd.last_id,
-        tzkt[tzkt.length - 1]?.id,
-      ];
-    },
-    [network.id, accountPkh]
-  );
-
   const {
-    result: mixedOperations,
     error: getOperationsError,
+    loadMore: experimentalLoadMore,
     isLoadingMore,
+    tzktOperations,
+    bcdOperations,
     isReachingEnd,
-    loadMore: loadMoreOperations,
     isRefreshing,
-  } = useInfiniteList<
-    MixedPage,
-    { bcd: BcdTokenTransfer[]; tzkt: TzktOperation[] },
-    any[] | null
-  >({
-    additionalConfig: { refreshInterval: 15000 },
-    getDataLength: getDataLength,
-    getKey: getKey,
-    fetcher: operationsFetcher,
-    transformFn: operationsTransformFn,
-    itemsPerPage: 20,
-    customReachingEnd: operationsReachingEnd,
-  });
+  } = useOperations();
 
   const loadMore = useCallback(() => {
     if (!isReachingEnd) {
-      loadMoreOperations();
+      experimentalLoadMore();
     }
-  }, [isReachingEnd, loadMoreOperations]);
+  }, [isReachingEnd, experimentalLoadMore]);
 
   const operations = useMemo<ThanosHistoricalOperation[]>(() => {
     return [
-      ...mixedOperations.bcd.map<ThanosHistoricalTokenTransaction>(
+      ...bcdOperations.map<ThanosHistoricalTokenTransaction>(
         ({ contract, hash, to, source, amount, status, timestamp }) => ({
           contract: contract,
           hash: hash,
@@ -274,95 +139,77 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
           isThanosPending: false,
         })
       ),
-      ...mixedOperations.tzkt
-        .filter((operation) => {
-          if (!isTransaction(operation)) {
-            return true;
-          }
+      ...tzktOperations.map<ThanosHistoricalTzktOperation>((operation) => {
+        const {
+          bakerFee,
+          errors,
+          gasLimit,
+          gasUsed,
+          hash,
+          type,
+          status,
+          sender,
+          timestamp,
+        } = operation;
+        const baseProps = {
+          bakerFee,
+          errors,
+          gasLimit,
+          gasUsed,
+          hash,
+          type,
+          status,
+          sender: sender.address,
+          time: timestamp || new Date().toISOString(),
+          isThanosPending: false as const,
+        };
 
-          return !operation.parameters;
-        })
-        .map<ThanosHistoricalTzktOperation>((operation) => {
+        if (isTransaction(operation)) {
           const {
-            bakerFee,
-            errors,
-            gasLimit,
-            gasUsed,
-            hash,
-            type,
-            status,
-            sender,
-            timestamp,
+            parameters,
+            amount,
+            initiator,
+            storageFee,
+            storageLimit,
+            storageUsed,
+            allocationFee,
+            target,
           } = operation;
-          const baseProps = {
-            bakerFee,
-            errors,
-            gasLimit,
-            gasUsed,
-            hash,
-            type,
-            status,
-            sender: sender.address,
-            time: timestamp || new Date().toISOString(),
-            isThanosPending: false as const,
-          };
-
-          if (isTransaction(operation)) {
-            const {
-              parameters,
-              amount,
-              initiator,
-              storageFee,
-              storageLimit,
-              storageUsed,
-              allocationFee,
-              target,
-            } = operation;
-
-            return {
-              ...baseProps,
-              parameters: parameters,
-              amount: amount,
-              initiator: initiator,
-              storageFee: storageFee,
-              storageLimit: storageLimit,
-              storageUsed: storageUsed,
-              allocationFee: allocationFee,
-              receiver: target.address,
-              type: "transaction",
-            };
-          }
-
-          if (isDelegation(operation)) {
-            const { amount, initiator, prevDelegate, newDelegate } = operation;
-
-            return {
-              ...baseProps,
-              amount: amount,
-              initiator: initiator,
-              prevDelegate: prevDelegate,
-              newDelegate: newDelegate,
-              type: "delegation",
-            };
-          }
 
           return {
             ...baseProps,
-            type: "reveal",
+            parameters: parameters,
+            amount: amount,
+            initiator: initiator,
+            storageFee: storageFee,
+            storageLimit: storageLimit,
+            storageUsed: storageUsed,
+            allocationFee: allocationFee,
+            receiver: target.address,
+            type: "transaction",
           };
-        }),
-    ];
-  }, [mixedOperations]);
+        }
 
-  const { data } = useRetryableSWR(
-    ["operation-history", tzStatsNetwork, accountPkh, networkId],
-    fetchOperations,
-    {
-      suspense: true,
-      refreshInterval: 15_000,
-      dedupingInterval: 10_000,
-    }
-  );
+        if (isDelegation(operation)) {
+          const { amount, initiator, prevDelegate, newDelegate } = operation;
+
+          return {
+            ...baseProps,
+            amount: amount,
+            initiator: initiator,
+            prevDelegate: prevDelegate,
+            newDelegate: newDelegate,
+            type: "delegation",
+          };
+        }
+
+        return {
+          ...baseProps,
+          type: "reveal",
+        };
+      }),
+    ];
+  }, [bcdOperations, tzktOperations]);
 
   useEffect(() => {
     if (getOperationsError) {
@@ -432,6 +279,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       null,
     [chainId]
   );
+  console.log(uniqueOps.length);
 
   return (
     <div
@@ -482,50 +330,6 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 };
 
 export default OperationHistory;
-
-function getDataLength(pageData: MixedPage) {
-  return pageData.bcd.transfers.length + pageData.tzkt.length;
-}
-
-function operationsReachingEnd(pageData: MixedPage) {
-  return pageData.bcd.transfers.length < 10 && pageData.tzkt.length < 10;
-}
-
-async function operationsFetcher(
-  _k: string,
-  networkId: string,
-  accountPkh: string,
-  bcdLastId?: string,
-  tzktLastId?: string
-) {
-  return {
-    bcd: isBcdSupportedNetwork(networkId)
-      ? await getTokenTransfers({
-          address: accountPkh,
-          network: networkId,
-          last_id: bcdLastId,
-          size: 10,
-        })
-      : { transfers: [] },
-    tzkt: isTzktSupportedNetwork(networkId)
-      ? await getOperations(networkId, {
-          address: accountPkh,
-          lastId: tzktLastId !== undefined ? Number(tzktLastId) : undefined,
-          limit: 10,
-        })
-      : [],
-  };
-}
-
-function operationsTransformFn(pagesData: MixedPage[]) {
-  return pagesData.reduce<{ bcd: BcdTokenTransfer[]; tzkt: TzktOperation[] }>(
-    (acc, pageData) => ({
-      bcd: [...acc.bcd, ...pageData.bcd.transfers],
-      tzkt: [...acc.tzkt, ...pageData.tzkt],
-    }),
-    { bcd: [], tzkt: [] }
-  );
-}
 
 type OperationProps = {
   operation: ThanosOperation;
