@@ -127,7 +127,6 @@ const Form: React.FC = () => {
         try {
           await assertFA12Token(contract);
         } catch (_err) {
-          console.error(_err);
           throw new TokenValidationError(t("tokenDoesNotMatchStandard"));
         }
 
