@@ -4,7 +4,6 @@ import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 import BigNumber from "bignumber.js";
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
-import { isTezosDomainsSupportedNetwork } from "@tezos-domains/core";
 import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import {
   ThanosAsset,
@@ -26,7 +25,6 @@ import {
   ThanosAssetType,
   isKTAddress,
   isDomainNameValid,
-  useNetwork,
   ThanosAccountType,
   loadContract,
   useChainId,
@@ -108,10 +106,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const allAccounts = useRelevantAccounts();
   const acc = useAccount();
   const tezos = useTezos();
-  const { id: networkId } = useNetwork();
   const domainsClient = useTezosDomainsClient();
 
-  const canUseDomainNames = isTezosDomainsSupportedNetwork(networkId);
+  const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
 
   const { data: balanceData, mutate: mutateBalance } = useBalance(
