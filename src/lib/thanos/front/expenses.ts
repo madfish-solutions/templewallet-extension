@@ -8,6 +8,7 @@ export type RawOperationAssetExpense = {
 export type RawOperationExpenses = {
   type: string;
   isEntrypointInteraction: boolean;
+  contractAddress?: string;
   expenses: RawOperationAssetExpense[];
 };
 
@@ -18,8 +19,9 @@ export function tryParseExpenses(
   const operationsAsArray =
     operations instanceof Array ? operations : operations.contents;
   return operationsAsArray
-    .map((operation) => {
-      const { kind, source: from, amount } = operation;
+    .map<RawOperationExpenses | undefined>((operation) => {
+      console.log(operation);
+      const { kind, source: from, to, amount } = operation;
       const entrypoint = operation.parameter?.entrypoint;
       const type = entrypoint || kind;
       const isEntrypointInteraction = !!entrypoint;
@@ -58,6 +60,7 @@ export function tryParseExpenses(
       return {
         type,
         isEntrypointInteraction,
+        contractAddress: isEntrypointInteraction ? to : undefined,
         expenses,
       };
     })

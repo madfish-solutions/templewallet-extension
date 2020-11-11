@@ -1315,10 +1315,13 @@
     "message": "Expenses"
   },
   "interactionWithSomeEntrypoint": {
-    "message": "Interaction with entrypoint '$entrypoint$'",
+    "message": "Interaction with entrypoint '$entrypoint$' of contract $contractAddress$",
     "placeholders": {
       "entrypoint": {
         "content": "$1"
+      },
+      "contractAddress": {
+        "content": "$2"
       }
     }
   },
