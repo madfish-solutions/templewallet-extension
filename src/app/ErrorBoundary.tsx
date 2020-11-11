@@ -37,7 +37,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
   tryAgain() {
     const err = this.state.error as any;
     if (err?.swrErrorKey) {
-      cache.delete(err.swrErrorKey);
+      cache.delete(err.swrErrorKey, false);
     }
 
     this.setState({ error: null });

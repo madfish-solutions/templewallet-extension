@@ -19,20 +19,20 @@ export function tryParseIncomes(
     operations instanceof Array ? operations : operations.contents;
   return operationsAsArray
     .map((operation) => {
-			const { kind, amount, to } = operation;
+      const { kind, amount, to } = operation;
       const entrypoint = operation.parameter?.entrypoint;
       const type = entrypoint || kind;
       const isEntrypointInteraction = !!entrypoint;
       if (!kind) {
         return undefined;
-			}
+      }
 
-			const incomes: RawOperationAssetIncome[] = [];
-			if (operation.parameter) {
-				console.warn("TODO: implement parsing tokens incomes");
-			} else if (to === accountAddress) {
-				incomes.push({ amount: new BigNumber(amount) });
-			}
+      const incomes: RawOperationAssetIncome[] = [];
+      if (operation.parameter) {
+        console.warn("TODO: implement parsing tokens incomes");
+      } else if (to === accountAddress) {
+        incomes.push({ amount: new BigNumber(amount) });
+      }
 
       return {
         type,

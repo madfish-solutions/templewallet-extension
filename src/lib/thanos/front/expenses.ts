@@ -25,7 +25,7 @@ export function tryParseExpenses(
       const isEntrypointInteraction = !!entrypoint;
       if (!kind) {
         return undefined;
-			}
+      }
       if (from && from !== accountAddress) {
         return {
           type,
