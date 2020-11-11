@@ -3,6 +3,7 @@ import { TezosToolkit, WalletContract } from "@taquito/taquito";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
 import { loadContract } from "lib/thanos/contract";
 import { mutezToTz } from "lib/thanos/helpers";
+import assert from "assert";
 
 export const XTZ_ASSET: ThanosAsset = {
   type: ThanosAssetType.XTZ,
@@ -52,11 +53,27 @@ const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
 const FA12_METHODS_ASSERTIONS = [
   {
     name: "transfer",
-    additionalAssertion: () => true,
+    additionalAssertion: (contract: WalletContract) => {
+      const transferInterface: Record<string, any> = contract.entrypoints.entrypoints.transfer;
+      assert(transferInterface.prim === "pair");
+      assert(transferInterface.args?.length === 2);
+      assert(transferInterface.args[0].prim === "address");
+      const restArgs = transferInterface.args[1];
+      assert(restArgs.prim === "pair");
+      assert(restArgs.args?.length === 2);
+      assert(restArgs.args[0].prim === "address");
+      assert(restArgs.args[1].prim === "nat");
+    },
   },
   {
     name: "approve",
-    additionalAssertion: () => true,
+    additionalAssertion: (contract: WalletContract) => {
+      const approveInterface: Record<string, any> = contract.entrypoints.entrypoints.approve;
+      assert(approveInterface.prim === "pair");
+      assert(approveInterface.args?.length === 2);
+      assert(approveInterface.args[0].prim === "address");
+      assert(approveInterface.args[1].prim === "nat");
+    },
   },
   {
     name: "getAllowance",
