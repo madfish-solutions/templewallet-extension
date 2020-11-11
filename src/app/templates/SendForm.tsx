@@ -15,6 +15,7 @@ import {
   useCurrentAsset,
   useBalance,
   useDelegate,
+  useTezosDomainsClient,
   fetchBalance,
   toTransferParams,
   tzToMutez,
@@ -24,7 +25,6 @@ import {
   hasManager,
   ThanosAssetType,
   isKTAddress,
-  resolveDomainAddress,
   isDomainNameValid,
   useNetwork,
   ThanosAccountType,
@@ -109,6 +109,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const acc = useAccount();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
+  const domainsClient = useTezosDomainsClient();
 
   const canUseDomainNames = isTezosDomainsSupportedNetwork(networkId);
   const accountPkh = acc.publicKeyHash;
@@ -170,17 +171,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   );
 
   const toFilledWithDomain = React.useMemo(
-    () => toValue && isDomainNameValid(toValue, networkId, tezos),
-    [toValue, networkId, tezos]
+    () => toValue && isDomainNameValid(toValue, domainsClient),
+    [toValue, domainsClient]
   );
 
   const domainAddressFactory = React.useCallback(
-    (_k: string, _checksum: string, toValue: string, networkId: string) =>
-      resolveDomainAddress(toValue, networkId, tezos),
-    [tezos]
+    (_k: string, _checksum: string, toValue: string) =>
+      domainsClient.resolver.resolveNameToAddress(toValue),
+    [domainsClient]
   );
   const { data: resolvedAddress } = useSWR(
-    ["tzdns-address", tezos.checksum, toValue, networkId],
+    ["tzdns-address", tezos.checksum, toValue, networkId, accountPkh],
     domainAddressFactory,
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
@@ -457,8 +458,10 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         return validateAddress(value);
       }
 
-      if (isDomainNameValid(value, networkId, tezos)) {
-        const resolved = await resolveDomainAddress(value, networkId, tezos);
+      if (isDomainNameValid(value, domainsClient)) {
+        const resolved = await domainsClient.resolver.resolveNameToAddress(
+          value
+        );
         if (!resolved) {
           return `Domain "${value}" doesn't resolve to an address`;
         }
@@ -468,7 +471,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
       return isAddressValid(value) ? true : "Invalid address or domain name";
     },
-    [tezos, canUseDomainNames, networkId]
+    [canUseDomainNames, domainsClient]
   );
 
   const onSubmit = React.useCallback(
