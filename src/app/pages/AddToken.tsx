@@ -7,21 +7,21 @@ import {
   ContractNotFoundError,
   FetchURLError,
 } from "@thanos-wallet/tokens";
+import { WalletContract } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 import * as React from "react";
 import classNames from "clsx";
 import { FormContextValues, useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
-  ThanosToken,
   ThanosAssetType,
   useTokens,
   useCurrentAsset,
   useTezos,
   loadContract,
-  fetchBalance,
   validateContractAddress,
   useNetwork,
+  assertFA12Token,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
@@ -54,7 +54,6 @@ const AddToken: React.FC = () => (
 
 export default AddToken;
 
-const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
 const TOKEN_TYPES = [
   {
     type: ThanosAssetType.FA1_2 as const,
@@ -118,29 +117,17 @@ const Form: React.FC = () => {
         setSubmitError(null);
         setLoadingToken(true);
 
-        let contract;
+        let contract: WalletContract;
         try {
           contract = await loadContract(tezos, contractAddress);
         } catch (_err) {
           throw new TokenValidationError(t("contractNotAvailable"));
         }
 
-        const token: ThanosToken = {
-          type: tokenType.type,
-          address: contractAddress,
-          symbol: "",
-          name: "",
-          decimals: 0,
-          iconUrl: undefined,
-          fungible: true,
-        };
-
         try {
-          if (typeof contract.methods.transfer !== "function") {
-            throw new TokenValidationError(t("noTransferMethod"));
-          }
-          await fetchBalance(tezos, token, STUB_TEZOS_ADDRESS);
+          await assertFA12Token(contract);
         } catch (_err) {
+          console.error(_err);
           throw new TokenValidationError(t("tokenDoesNotMatchStandard"));
         }
 
