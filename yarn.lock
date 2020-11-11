@@ -1542,7 +1542,7 @@
     bignumber.js "^9.0.1"
     sha.js "^2.4.11"
 
-"@tezos-domains/resolver@1.0.0-beta.21", "@tezos-domains/resolver@^1.0.0-beta.21":
+"@tezos-domains/resolver@^1.0.0-beta.21":
   version "1.0.0-beta.21"
   resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.0.0-beta.21.tgz#dbe17ba40785b96b5aa3d5e0271dba879fffb977"
   integrity sha512-gr5pByTRNetQMa8vu5fmbJAA3OGcAYR0tNXpKnom0zur7TsksenaeS+xGpfX+3jOPhBE3MNQ0r4liw23nFISiw==
