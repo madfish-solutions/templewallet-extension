@@ -20,7 +20,6 @@ export function tryParseExpenses(
     operations instanceof Array ? operations : operations.contents;
   return operationsAsArray
     .map<RawOperationExpenses | undefined>((operation) => {
-      console.log(operation);
       const { kind, source: from, to, amount } = operation;
       const entrypoint = operation.parameter?.entrypoint;
       const type = entrypoint || kind;
