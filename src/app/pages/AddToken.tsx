@@ -389,7 +389,7 @@ const Form: React.FC = () => {
       </div>
 
       {loadingToken && (
-        <div className="w-full flex items-center justify-center pb-4">
+        <div className="my-8 w-full flex items-center justify-center pb-4">
           <div>
             <Spinner theme="gray" className="w-20" />
           </div>
@@ -489,7 +489,7 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
         labelDescription={t("iconURLInputDescription")}
         placeholder="e.g. https://cdn.com/mytoken.png"
         errorCaption={errors.iconUrl?.message}
-        containerClassName="mb-4"
+        containerClassName="mb-6"
       />
 
       {submitError && (
