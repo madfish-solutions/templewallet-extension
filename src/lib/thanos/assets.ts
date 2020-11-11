@@ -3,7 +3,7 @@ import { TezosToolkit, WalletContract } from "@taquito/taquito";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
 import { loadContract } from "lib/thanos/contract";
 import { mutezToTz } from "lib/thanos/helpers";
-import assert from "assert";
+import assert from "lib/assert";
 
 export const XTZ_ASSET: ThanosAsset = {
   type: ThanosAssetType.XTZ,
@@ -53,8 +53,9 @@ const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
 const FA12_METHODS_ASSERTIONS = [
   {
     name: "transfer",
-    additionalAssertion: (contract: WalletContract) => {
-      const transferInterface: Record<string, any> = contract.entrypoints.entrypoints.transfer;
+    assertion: (contract: WalletContract) => {
+      const transferInterface: Record<string, any> =
+        contract.entrypoints.entrypoints.transfer;
       assert(transferInterface.prim === "pair");
       assert(transferInterface.args?.length === 2);
       assert(transferInterface.args[0].prim === "address");
@@ -67,8 +68,9 @@ const FA12_METHODS_ASSERTIONS = [
   },
   {
     name: "approve",
-    additionalAssertion: (contract: WalletContract) => {
-      const approveInterface: Record<string, any> = contract.entrypoints.entrypoints.approve;
+    assertion: (contract: WalletContract) => {
+      const approveInterface: Record<string, any> =
+        contract.entrypoints.entrypoints.approve;
       assert(approveInterface.prim === "pair");
       assert(approveInterface.args?.length === 2);
       assert(approveInterface.args[0].prim === "address");
@@ -77,7 +79,7 @@ const FA12_METHODS_ASSERTIONS = [
   },
   {
     name: "getAllowance",
-    additionalAssertion: (contract: WalletContract) =>
+    assertion: (contract: WalletContract) =>
       contract.methods.getAllowance(
         STUB_TEZOS_ADDRESS,
         STUB_TEZOS_ADDRESS,
@@ -86,23 +88,28 @@ const FA12_METHODS_ASSERTIONS = [
   },
   {
     name: "getBalance",
-    additionalAssertion: (contract: WalletContract) =>
-      contract.methods.getBalance(STUB_TEZOS_ADDRESS, contract),
+    assertion: (contract: WalletContract, tezos: TezosToolkit) =>
+      contract.views
+        .getBalance(STUB_TEZOS_ADDRESS)
+        .read((tezos as any).lambdaContract),
   },
   {
     name: "getTotalSupply",
-    additionalAssertion: (contract: WalletContract) =>
-      contract.methods.getTotalSupply(contract.address, contract),
+    assertion: (contract: WalletContract, tezos: TezosToolkit) =>
+      contract.views.getTotalSupply("unit").read((tezos as any).lambdaContract),
   },
 ];
 
-export async function assertFA12Token(contract: WalletContract) {
+export async function assertFA12Token(
+  contract: WalletContract,
+  tezos: TezosToolkit
+) {
   await Promise.all(
-    FA12_METHODS_ASSERTIONS.map(async ({ name, additionalAssertion }) => {
+    FA12_METHODS_ASSERTIONS.map(async ({ name, assertion }) => {
       if (typeof contract.methods[name] !== "function") {
         throw new Error(`'${name}' method isn't defined in contract`);
       }
-      await additionalAssertion(contract);
+      await assertion(contract, tezos);
     })
   );
 }

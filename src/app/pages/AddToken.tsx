@@ -119,13 +119,13 @@ const Form: React.FC = () => {
 
         let contract: WalletContract;
         try {
-          contract = await loadContract(tezos, contractAddress);
+          contract = await loadContract(tezos, contractAddress, false);
         } catch (_err) {
           throw new TokenValidationError(t("contractNotAvailable"));
         }
 
         try {
-          await assertFA12Token(contract);
+          await assertFA12Token(contract, tezos);
         } catch (_err) {
           throw new TokenValidationError(t("tokenDoesNotMatchStandard"));
         }
