@@ -1,68 +1,47 @@
 import { TezosToolkit } from "@taquito/taquito";
 import {
-  DomainNameValidator,
-  DomainNameValidationResult,
-  DefaultNetworkConfig,
-  TezosDomainsConfig,
-} from "@tezos-domains/core";
+  TezosDomainsClient
+} from "@tezos-domains/client";
 import {
-  NameResolver,
-  NullNameResovler,
-  TezosDomainsResolver,
-} from "@tezos-domains/resolver";
+  DomainNameValidationResult,
+  isTezosDomainsSupportedNetwork,
+} from "@tezos-domains/core";
 import memoize from "micro-memoize";
 
-// TODO: add mainnet when valid contracts addresses appear here
-// https://gitlab.com/tezos-domains/client/-/blob/master/packages/core/src/address-book/built-in-addresses.ts#L4
-type TzdnsSupportedNetwork = "carthagenet" | "delphinet";
-const SUPPORTED_NETWORKS = ["carthagenet", "delphinet"];
-export function isTzdnsSupportedNetwork(
-  networkId: string
-): networkId is TzdnsSupportedNetwork {
-  return SUPPORTED_NETWORKS.includes(networkId);
-}
+const getClient = memoize(
+  (networkId: string, tezos: TezosToolkit) => {
+    if (isTezosDomainsSupportedNetwork(networkId)) {
+      return new TezosDomainsClient({ network: networkId, tezos });
+    }
 
-const getValidator = memoize(
-  (networkId: string) => {
-    const config: TezosDomainsConfig | undefined = isTzdnsSupportedNetwork(
-      networkId
-    )
-      ? ({ network: networkId } as DefaultNetworkConfig)
-      : undefined;
-    return new DomainNameValidator(config);
+    return TezosDomainsClient.Unsupported;
   },
   {
-    maxSize: 100,
+    maxSize: 100
   }
 );
 
-export function isDomainNameValid(name: string, networkId: string) {
-  const validator = getValidator(networkId);
+export function isDomainNameValid(name: string, networkId: string, tezos: TezosToolkit) {
+  const client = getClient(networkId, tezos);
   return (
-    validator.validateDomainName(name) === DomainNameValidationResult.VALID
+    client.validator.validateDomainName(name) === DomainNameValidationResult.VALID
   );
 }
 
-export function domainsResolverFactory(tezos: TezosToolkit, networkId: string) {
-  if (!isTzdnsSupportedNetwork(networkId)) {
-    return new NullNameResovler();
-  }
-
-  return new TezosDomainsResolver({
-    network: networkId,
-    tezos,
-    caching: { enabled: true },
-    // contractAddresses: networkId === "delphinet" ? DELPHINET_CONTRACT_ADDRESSES : undefined
-  });
+export async function resolveDomainAddress(
+  name: string,
+  networkId: string,
+  tezos: TezosToolkit
+) {
+  const client = getClient(networkId, tezos);
+  return client.resolver.resolveNameToAddress(name);
 }
 
-export async function resolveDomainAddress(
-  tezosDomains: NameResolver,
-  name: string,
-  networkId: string
+export async function resolveAddressToName(
+  address: string,
+  networkId: string,
+  tezos: TezosToolkit
 ) {
-  if (isDomainNameValid(name, networkId)) {
-    return tezosDomains.resolveNameToAddress(name);
-  }
-  return null;
+  const client = getClient(networkId, tezos);
+  return client.resolver.resolveAddressToName(address);
 }
