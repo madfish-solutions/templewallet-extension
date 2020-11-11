@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { TezosToolkit } from "@taquito/taquito";
+import { TezosToolkit, WalletContract } from "@taquito/taquito";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
 import { loadContract } from "lib/thanos/contract";
 import { mutezToTz } from "lib/thanos/helpers";
@@ -47,6 +47,48 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     default: true,
   },
 ];
+
+const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
+const FA12_METHODS_ASSERTIONS = [
+  {
+    name: "transfer",
+    additionalAssertion: () => true,
+  },
+  {
+    name: "approve",
+    additionalAssertion: () => true,
+  },
+  {
+    name: "getAllowance",
+    additionalAssertion: (contract: WalletContract) =>
+      contract.methods.getAllowance(
+        STUB_TEZOS_ADDRESS,
+        STUB_TEZOS_ADDRESS,
+        contract
+      ),
+  },
+  {
+    name: "getBalance",
+    additionalAssertion: (contract: WalletContract) =>
+      contract.methods.getBalance(STUB_TEZOS_ADDRESS, contract),
+  },
+  {
+    name: "getTotalSupply",
+    additionalAssertion: (contract: WalletContract) =>
+      contract.methods.getTotalSupply(contract.address, contract),
+  },
+];
+
+export async function assertFA12Token(contract: WalletContract) {
+  await Promise.all(
+    FA12_METHODS_ASSERTIONS.map(async ({ name, additionalAssertion }) => {
+      if (typeof contract.methods[name] !== "function") {
+        throw new Error(`'${name}' method isn't defined in contract`);
+      }
+      await additionalAssertion(contract);
+    })
+  );
+}
 
 export async function fetchBalance(
   tezos: TezosToolkit,
