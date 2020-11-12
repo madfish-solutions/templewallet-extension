@@ -14,6 +14,7 @@ import {
 } from "lib/tzkt";
 
 const OPERATIONS_PER_PAGE = 20;
+const REFRESH_INTERVAL = 15000;
 
 type OperationEntry =
   | {
@@ -39,30 +40,31 @@ export function useOperations() {
   const lastTzktIdRef = useRef<number>();
   const rawOperationsRef = useRef<Record<string, OperationEntry>>({});
 
-  useEffect(() => {
-    rawOperationsRef.current = rawOperations;
-  }, [rawOperations]);
-
   const refresh = useCallback(async () => {
     setIsRefreshing(true);
     const newBcdOperations: BcdTokenTransfer[] = [];
     let outOfBcdOperations = false;
     let lastBcdId: string | undefined;
     const bcdOperationsNeeded = Math.floor(OPERATIONS_PER_PAGE / 2);
-    const minTimestampAcceptable = Object.values(rawOperationsRef.current).reduce(
-      (timestamp, operation) => {
-        const { timestamp: newTimestamp } = operation.operation;
-        if (newTimestamp && new Date(newTimestamp).getTime() < timestamp) {
-          return new Date(newTimestamp).getTime();
-        }
-        return timestamp;
-      },
-      Infinity
-    );
+    const minUnixTimeAcceptable =
+      Object.values(rawOperationsRef.current).length === 0
+        ? 0
+        : Object.values(rawOperationsRef.current).reduce(
+            (maxUnixTime, { operation }) => {
+              const opUnixTime = operationUnixTime(operation);
+              if (opUnixTime && opUnixTime > maxUnixTime) {
+                return opUnixTime;
+              }
+              return maxUnixTime;
+            },
+            Infinity
+          );
+    let lastNewBcdOperation: BcdTokenTransfer | undefined;
     while (
-      (newBcdOperations[newBcdOperations.length - 1]?.indexed_time || 0) >=
-        minTimestampAcceptable &&
-      !outOfBcdOperations
+      !(lastNewBcdOperation = newBcdOperations[newBcdOperations.length - 1]) ||
+      ((operationUnixTime(lastNewBcdOperation) || Infinity) >=
+        minUnixTimeAcceptable &&
+        !outOfBcdOperations)
     ) {
       if (!isBcdSupportedNetwork(networkId)) {
         outOfBcdOperations = true;
@@ -74,15 +76,84 @@ export function useOperations() {
         last_id: lastBcdId,
         size: bcdOperationsNeeded,
       });
-      outOfBcdOperations = bcdTransfers.length < bcdOperationsNeeded;
+      outOfBcdOperations = bcdTransfers.length === 0;
       newBcdOperations.push(...bcdTransfers);
       lastBcdId = last_id;
     }
-    const newBcdOperationsSlice = newBcdOperations.filter(
-      ({ timestamp }) =>
-        timestamp && new Date(timestamp).getTime() >= minTimestampAcceptable
-    );
-    console.log(newBcdOperationsSlice);
+    const newBcdOperationsSlice = newBcdOperations.filter((operation) => {
+      let opUnixTime = operationUnixTime(operation);
+      return !opUnixTime || opUnixTime >= minUnixTimeAcceptable;
+    });
+    console.log("update BCD operations", newBcdOperationsSlice);
+    const newTzktOperations: TzktOperation[] = [];
+    let outOfTzktOperations = false;
+    let lastTzktId: number | undefined;
+    const tzktOperationsNeeded =
+      OPERATIONS_PER_PAGE - newBcdOperationsSlice.length;
+    let lastNewTzktOperation: TzktOperation | undefined;
+    while (
+      !(lastNewTzktOperation =
+        newTzktOperations[newTzktOperations.length - 1]) ||
+      ((operationUnixTime(lastNewTzktOperation) || Infinity) >=
+        minUnixTimeAcceptable &&
+        !outOfTzktOperations)
+    ) {
+      if (!isTzktSupportedNetwork(networkId)) {
+        outOfTzktOperations = true;
+        break;
+      }
+      const fetchedTzktOperations = await getTzktOperations(networkId, {
+        address: accountPkh,
+        lastId: lastTzktId,
+        limit: tzktOperationsNeeded,
+      });
+      outOfTzktOperations = fetchedTzktOperations.length === 0;
+      newTzktOperations.push(
+        ...fetchedTzktOperations.filter(
+          (operation) =>
+            !newBcdOperations.find((op) => op.hash === operation.hash) &&
+            !(
+              (isTransaction(operation) || isDelegation(operation)) &&
+              operation.initiator?.address === accountPkh
+            )
+        )
+      );
+      lastTzktId = fetchedTzktOperations[fetchedTzktOperations.length - 1]?.id;
+    }
+    const newTzktOperationsSlice = newTzktOperations.filter((operation) => {
+      let opUnixTime = operationUnixTime(operation);
+      return !opUnixTime || opUnixTime >= minUnixTimeAcceptable;
+    });
+    console.log("update TZKT operations", newTzktOperationsSlice);
+    const total = {
+      ...newTzktOperationsSlice.reduce<
+        Record<string, { type: "tzkt"; operation: TzktOperation }>
+      >(
+        (part, operation) => ({
+          ...part,
+          [operation.hash]: {
+            type: "tzkt",
+            operation,
+          },
+        }),
+        {}
+      ),
+      ...rawOperationsRef.current,
+      ...newBcdOperationsSlice.reduce<
+        Record<string, { type: "bcd"; operation: BcdTokenTransfer }>
+      >(
+        (part, operation) => ({
+          ...part,
+          [operation.hash]: {
+            type: "bcd",
+            operation,
+          },
+        }),
+        {}
+      ),
+    };
+    setRawOperations(total);
+    rawOperationsRef.current = total;
     setIsRefreshing(false);
   }, [networkId, accountPkh]);
 
@@ -90,7 +161,7 @@ export function useOperations() {
     try {
       setIsLoadingMore(true);
       const newBcdOperations: BcdTokenTransfer[] = [];
-      let bcdOperationsForReplacement: BcdTokenTransfer[] = [];
+      const bcdOperationsForReplacement: BcdTokenTransfer[] = [];
       let outOfBcdOperations = false;
       let newBcdLastId = lastBcdIdRef.current;
       const bcdOperationsNeeded = Math.floor(OPERATIONS_PER_PAGE / 2);
@@ -156,7 +227,7 @@ export function useOperations() {
         const fetchedTzktOperations = await getTzktOperations(networkId, {
           address: accountPkh,
           lastId: newTzktLastId,
-          limit: 10,
+          limit: tzktOperationsNeeded,
         });
         outOfTzktOperations = fetchedTzktOperations.length === 0;
         newTzktOperations.push(
@@ -164,7 +235,10 @@ export function useOperations() {
             (operation) =>
               !rawOperationsRef.current[operation.hash] &&
               !newBcdOperations.find((op) => op.hash === operation.hash) &&
-              !((isTransaction(operation) || isDelegation(operation)) && (operation.initiator?.address === accountPkh))
+              !(
+                (isTransaction(operation) || isDelegation(operation)) &&
+                operation.initiator?.address === accountPkh
+              )
           )
         );
         newTzktLastId =
@@ -203,6 +277,7 @@ export function useOperations() {
         ),
       };
       setRawOperations(total);
+      rawOperationsRef.current = total;
       setError(undefined);
     } catch (error) {
       setError(error);
@@ -213,7 +288,12 @@ export function useOperations() {
 
   useEffect(() => {
     loadMore();
-  }, [accountPkh, networkId, loadMore]);
+  }, [loadMore]);
+
+  useEffect(() => {
+    const intervalDescriptor = setInterval(() => refresh(), REFRESH_INTERVAL);
+    return () => clearInterval(intervalDescriptor);
+  }, [refresh]);
 
   const { bcdOperations, tzktOperations } = useMemo(() => {
     const result = {
@@ -240,4 +320,10 @@ export function useOperations() {
     isRefreshing,
     isReachingEnd,
   };
+}
+
+function operationUnixTime(operation: BcdTokenTransfer | TzktOperation) {
+  return operation.timestamp === undefined
+    ? undefined
+    : new Date(operation.timestamp).getTime();
 }
