@@ -122,7 +122,7 @@ export function useOperations() {
               !(
                 (isTransaction(operation) || isDelegation(operation)) &&
                 operation.initiator?.address === accountPkh
-              )
+              ) && (operation.status !== "backtracked")
           )
         );
         lastTzktId =
@@ -249,7 +249,7 @@ export function useOperations() {
               !(
                 (isTransaction(operation) || isDelegation(operation)) &&
                 operation.initiator?.address === accountPkh
-              )
+              ) && (operation.status !== "backtracked")
           )
         );
         newTzktLastId =

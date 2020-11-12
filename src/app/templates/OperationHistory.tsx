@@ -1,5 +1,5 @@
 import { OpKind } from "@taquito/rpc";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
@@ -36,6 +36,7 @@ import {
   isThanosPendingOperation,
   isTokenTransaction,
   isTzktTransaction,
+  ThanosAsset,
   ThanosHistoricalOperation,
   ThanosHistoricalTokenTransaction,
   ThanosHistoricalTzktOperation,
@@ -220,8 +221,8 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         sender: accountPkh,
         receiver: op.kind === OpKind.TRANSACTION ? op.destination : "",
         amount: +(op.kind === OpKind.TRANSACTION ? op.amount : "0"),
-        status: "backtracked",
-        parameters: "",
+        status: "pending",
+        parameters: (op as any).parameters,
         time: op.addedAt,
       })),
     [pndOps, accountPkh]
@@ -333,16 +334,37 @@ type OperationProps = {
 
 const Operation = React.memo<OperationProps>(
   ({ accountPkh, operation, withExplorer, explorerBaseUrl }) => {
+    const { allAssets } = useAssets();
+
     const { expense, income } = useMemo<{
       expense?: RawOperationAssetExpense;
       income?: RawOperationAssetIncome;
     }>(() => {
-      if (isThanosPendingOperation(operation)) {
+      if (isThanosPendingOperation(operation) && !operation.parameters) {
         return {
           expense:
             operation.type === OpKind.TRANSACTION
               ? { amount: new BigNumber(operation.amount) }
               : undefined,
+          income: undefined,
+        };
+      }
+
+      if (isThanosPendingOperation(operation)) {
+        const tokenAddress =
+          operation.type === OpKind.TRANSACTION
+            ? operation.receiver
+            : undefined;
+        const token =
+          allAssets.find(
+            (a) => a.type !== ThanosAssetType.XTZ && a.address === tokenAddress
+          ) || null;
+        const parseResult = tryParseParameters(token, operation.parameters);
+
+        return {
+          expense: parseResult
+            ? { amount: new BigNumber(parseResult.volume), tokenAddress }
+            : undefined,
           income: undefined,
         };
       }
@@ -387,10 +409,9 @@ const Operation = React.memo<OperationProps>(
         expense: undefined,
         income: undefined,
       };
-    }, [operation, accountPkh]);
+    }, [operation, accountPkh, allAssets]);
 
     const { hash, type, status, time } = operation;
-    const { allAssets } = useAssets();
 
     const tokenAddress = expense?.tokenAddress || income?.tokenAddress;
     const token = useMemo(
@@ -594,4 +615,48 @@ function formatOperationType(type: string, imReciever: boolean) {
 
 function opKey(op: ThanosOperation) {
   return `${op.hash}_${op.type}`;
+}
+
+function tryParseParameters(asset: ThanosAsset | null, parameters: any) {
+  const assetType = asset?.type || ThanosAssetType.FA1_2;
+  switch (assetType) {
+    case ThanosAssetType.Staker:
+    case ThanosAssetType.TzBTC:
+    case ThanosAssetType.FA1_2:
+      try {
+        if ("transfer" in parameters.value) {
+          const {
+            from: sender,
+            to: receiver,
+            value,
+          } = parameters.value.transfer;
+          const volume = new BigNumber(value)
+            .div(10 ** (asset?.decimals || 0))
+            .toNumber();
+
+          return {
+            sender,
+            receiver,
+            volume,
+          };
+        } else {
+          const [fromArgs, { args: toArgs }] = parameters.value.args;
+          const sender: string = fromArgs.string;
+          const receiver: string = toArgs[0].string;
+          const volume = new BigNumber(toArgs[1].int)
+            .div(10 ** (asset?.decimals || 0))
+            .toNumber();
+          return {
+            sender,
+            receiver,
+            volume,
+          };
+        }
+      } catch (_err) {
+        return null;
+      }
+
+    default:
+      return null;
+  }
 }

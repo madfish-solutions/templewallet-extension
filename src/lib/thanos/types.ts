@@ -688,8 +688,10 @@ interface ThanosOperationBase {
 
 export interface ThanosPendingOperation extends ThanosOperationBase {
   amount: number;
-  status: "backtracked";
+  parameters?: any;
+  status: "pending";
   isThanosPending: true;
+  receiver?: string;
 }
 
 interface ThanosHistoricalOperationBase extends ThanosOperationBase {
