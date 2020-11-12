@@ -131,7 +131,7 @@ const ManagedKTForm: React.FC = () => {
         const contract = await tezos.contract.at(contractAddress);
         const owner = await contract.storage();
         if (typeof owner !== "string") {
-          throw new Error("Invalid managed contract");
+          throw new Error(t("invalidManagedContract"));
         }
 
         if (!accounts.some(({ publicKeyHash }) => publicKeyHash === owner)) {
