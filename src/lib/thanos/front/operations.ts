@@ -35,6 +35,11 @@ export function useOperations() {
   const [isReachingEnd, setIsReachingEnd] = useState(false);
   const lastBcdIdRef = useRef<string>();
   const lastTzktIdRef = useRef<number>();
+  const rawOperationsRef = useRef<Record<string, OperationEntry>>({});
+
+  useEffect(() => {
+    rawOperationsRef.current = rawOperations;
+  }, [rawOperations]);
 
   const refresh = useCallback(async () => {
     setIsRefreshing(true);
@@ -42,7 +47,7 @@ export function useOperations() {
     let outOfBcdOperations = false;
     let lastBcdId: string | undefined;
     const bcdOperationsNeeded = Math.floor(OPERATIONS_PER_PAGE / 2);
-    const minTimestampAcceptable = Object.values(rawOperations).reduce(
+    const minTimestampAcceptable = Object.values(rawOperationsRef.current).reduce(
       (timestamp, operation) => {
         const { timestamp: newTimestamp } = operation.operation;
         if (newTimestamp && new Date(newTimestamp).getTime() < timestamp) {
@@ -77,7 +82,7 @@ export function useOperations() {
     );
     console.log(newBcdOperationsSlice);
     setIsRefreshing(false);
-  }, [networkId, accountPkh, rawOperations]);
+  }, [networkId, accountPkh]);
 
   const loadMore = useCallback(async () => {
     try {
@@ -104,7 +109,7 @@ export function useOperations() {
         });
         outOfBcdOperations = bcdTransfers.length === 0;
         bcdTransfers.forEach((transfer) => {
-          if (rawOperations[transfer.hash]) {
+          if (rawOperationsRef.current[transfer.hash]) {
             bcdOperationsForReplacement.push(transfer);
           } else {
             newBcdOperations.push(transfer);
@@ -155,7 +160,7 @@ export function useOperations() {
         newTzktOperations.push(
           ...fetchedTzktOperations.filter(
             (operation) =>
-              !rawOperations[operation.hash] &&
+              !rawOperationsRef.current[operation.hash] &&
               !newBcdOperations.find((op) => op.hash === operation.hash)
           )
         );
@@ -180,7 +185,7 @@ export function useOperations() {
           }),
           {}
         ),
-        ...rawOperations,
+        ...rawOperationsRef.current,
         ...[...newBcdOperationsSlice, ...bcdOperationsForReplacement].reduce<
           Record<string, { type: "bcd"; operation: BcdTokenTransfer }>
         >(
@@ -201,12 +206,11 @@ export function useOperations() {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [rawOperations, accountPkh, networkId]);
+  }, [accountPkh, networkId]);
 
   useEffect(() => {
     loadMore();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountPkh, networkId]);
+  }, [accountPkh, networkId, loadMore]);
 
   const { bcdOperations, tzktOperations } = useMemo(() => {
     const result = {
