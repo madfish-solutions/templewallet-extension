@@ -23,6 +23,7 @@ import {
   toPenny,
   hasManager,
   ThanosAssetType,
+  ThanosChainId,
   isKTAddress,
   isDomainNameValid,
   ThanosAccountType,
@@ -62,7 +63,6 @@ interface FormData {
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
-const DELPHINET_CHAIN_ID = "NetXm8tYqnMWky1";
 
 const SendForm: React.FC = () => {
   const { currentAsset } = useCurrentAsset();
@@ -129,7 +129,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const lazyChainId = useChainId();
   const deplhiNetwork = React.useMemo(
-    () => lazyChainId === DELPHINET_CHAIN_ID,
+    () =>
+      lazyChainId === ThanosChainId.Delphinet ||
+      lazyChainId === ThanosChainId.Mainnet,
     [lazyChainId]
   );
 
