@@ -109,7 +109,7 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
             id="feeInputDescription"
             substitutions={[
               <React.Fragment key={0}>
-                <span className="font-normal">{baseFee.toString()}</span>
+                <span className="font-normal">{baseFee.toFixed()}</span>
               </React.Fragment>,
             ]}
           />
