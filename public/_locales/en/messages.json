@@ -1399,5 +1399,8 @@
         "content": "$1"
       }
     }
+  },
+  "invalidManagedContract": {
+    "message": "Invalid managed contract"
   }
 }

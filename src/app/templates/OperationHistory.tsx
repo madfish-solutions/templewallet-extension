@@ -110,19 +110,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
   const {
     error: getOperationsError,
-    loadMore: experimentalLoadMore,
+    loadMore,
     isLoadingMore,
     tzktOperations,
     bcdOperations,
     isReachingEnd,
     isRefreshing,
   } = useOperations();
-
-  const loadMore = useCallback(() => {
-    if (!isReachingEnd) {
-      experimentalLoadMore();
-    }
-  }, [isReachingEnd, experimentalLoadMore]);
 
   const operations = useMemo<ThanosHistoricalOperation[]>(() => {
     return [

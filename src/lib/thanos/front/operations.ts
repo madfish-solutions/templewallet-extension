@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNetwork, useAccount } from "lib/thanos/front";
+import { useAccount } from "lib/thanos/front";
 import {
   BcdTokenTransfer,
+  BCD_NETWORKS_NAMES,
   getTokenTransfers,
-  isBcdSupportedNetwork,
 } from "lib/better-call-dev";
 import {
   getOperations as getTzktOperations,
   isDelegation,
   isTransaction,
-  isTzktSupportedNetwork,
   TzktOperation,
 } from "lib/tzkt";
+import { useChainId } from "./ready";
+import { isKnownChainId } from "../types";
 
 const OPERATIONS_PER_PAGE = 20;
 const REFRESH_INTERVAL = 15000;
@@ -27,7 +28,7 @@ type OperationEntry =
     };
 
 export function useOperations() {
-  const { id: networkId } = useNetwork();
+  const chainId = useChainId(true);
   const { publicKeyHash: accountPkh } = useAccount();
   const [rawOperations, setRawOperations] = useState<
     Record<string, OperationEntry>
@@ -39,123 +40,133 @@ export function useOperations() {
   const lastBcdIdRef = useRef<string>();
   const lastTzktIdRef = useRef<number>();
   const rawOperationsRef = useRef<Record<string, OperationEntry>>({});
+  const networkId = isKnownChainId(chainId!)
+    ? BCD_NETWORKS_NAMES.get(chainId)
+    : undefined;
 
   const refresh = useCallback(async () => {
     setIsRefreshing(true);
-    const newBcdOperations: BcdTokenTransfer[] = [];
-    let outOfBcdOperations = false;
-    let lastBcdId: string | undefined;
-    const bcdOperationsNeeded = Math.floor(OPERATIONS_PER_PAGE / 2);
-    const minUnixTimeAcceptable =
-      Object.values(rawOperationsRef.current).length === 0
-        ? 0
-        : Object.values(rawOperationsRef.current).reduce(
-            (maxUnixTime, { operation }) => {
-              const opUnixTime = operationUnixTime(operation);
-              if (opUnixTime && opUnixTime > maxUnixTime) {
-                return opUnixTime;
-              }
-              return maxUnixTime;
+    try {
+      const newBcdOperations: BcdTokenTransfer[] = [];
+      let outOfBcdOperations = false;
+      let lastBcdId: string | undefined;
+      const bcdOperationsNeeded = Math.floor(OPERATIONS_PER_PAGE / 2);
+      const minUnixTimeAcceptable =
+        Object.values(rawOperationsRef.current).length === 0
+          ? 0
+          : Object.values(rawOperationsRef.current).reduce(
+              (maxUnixTime, { operation }) => {
+                const opUnixTime = operationUnixTime(operation);
+                if (opUnixTime && opUnixTime > maxUnixTime) {
+                  return opUnixTime;
+                }
+                return maxUnixTime;
+              },
+              Infinity
+            );
+      let lastNewBcdOperation: BcdTokenTransfer | undefined;
+      while (
+        !(lastNewBcdOperation =
+          newBcdOperations[newBcdOperations.length - 1]) ||
+        ((operationUnixTime(lastNewBcdOperation) || Infinity) >=
+          minUnixTimeAcceptable &&
+          !outOfBcdOperations)
+      ) {
+        if (!networkId) {
+          outOfBcdOperations = true;
+          break;
+        }
+
+        const { transfers: bcdTransfers, last_id } = await getTokenTransfers({
+          address: accountPkh,
+          network: networkId,
+          last_id: lastBcdId,
+          size: bcdOperationsNeeded,
+        });
+        outOfBcdOperations = bcdTransfers.length === 0;
+        newBcdOperations.push(...bcdTransfers);
+        lastBcdId = last_id;
+      }
+      const newBcdOperationsSlice = newBcdOperations.filter((operation) => {
+        let opUnixTime = operationUnixTime(operation);
+        return !opUnixTime || opUnixTime >= minUnixTimeAcceptable;
+      });
+      console.log("update BCD operations", newBcdOperationsSlice);
+      const newTzktOperations: TzktOperation[] = [];
+      let outOfTzktOperations = false;
+      let lastTzktId: number | undefined;
+      const tzktOperationsNeeded =
+        OPERATIONS_PER_PAGE - newBcdOperationsSlice.length;
+      let lastNewTzktOperation: TzktOperation | undefined;
+      while (
+        !(lastNewTzktOperation =
+          newTzktOperations[newTzktOperations.length - 1]) ||
+        ((operationUnixTime(lastNewTzktOperation) || Infinity) >=
+          minUnixTimeAcceptable &&
+          !outOfTzktOperations)
+      ) {
+        if (!isKnownChainId(chainId!)) {
+          outOfTzktOperations = true;
+          break;
+        }
+        const fetchedTzktOperations = await getTzktOperations(chainId, {
+          address: accountPkh,
+          lastId: lastTzktId,
+          limit: tzktOperationsNeeded,
+        });
+        outOfTzktOperations = fetchedTzktOperations.length === 0;
+        newTzktOperations.push(
+          ...fetchedTzktOperations.filter(
+            (operation) =>
+              !newBcdOperations.find((op) => op.hash === operation.hash) &&
+              !(
+                (isTransaction(operation) || isDelegation(operation)) &&
+                operation.initiator?.address === accountPkh
+              )
+          )
+        );
+        lastTzktId =
+          fetchedTzktOperations[fetchedTzktOperations.length - 1]?.id;
+      }
+      const newTzktOperationsSlice = newTzktOperations.filter((operation) => {
+        let opUnixTime = operationUnixTime(operation);
+        return !opUnixTime || opUnixTime >= minUnixTimeAcceptable;
+      });
+      console.log("update TZKT operations", newTzktOperationsSlice);
+      const total = {
+        ...newTzktOperationsSlice.reduce<
+          Record<string, { type: "tzkt"; operation: TzktOperation }>
+        >(
+          (part, operation) => ({
+            ...part,
+            [operation.hash]: {
+              type: "tzkt",
+              operation,
             },
-            Infinity
-          );
-    let lastNewBcdOperation: BcdTokenTransfer | undefined;
-    while (
-      !(lastNewBcdOperation = newBcdOperations[newBcdOperations.length - 1]) ||
-      ((operationUnixTime(lastNewBcdOperation) || Infinity) >=
-        minUnixTimeAcceptable &&
-        !outOfBcdOperations)
-    ) {
-      if (!isBcdSupportedNetwork(networkId)) {
-        outOfBcdOperations = true;
-        break;
-      }
-      const { transfers: bcdTransfers, last_id } = await getTokenTransfers({
-        address: accountPkh,
-        network: networkId,
-        last_id: lastBcdId,
-        size: bcdOperationsNeeded,
-      });
-      outOfBcdOperations = bcdTransfers.length === 0;
-      newBcdOperations.push(...bcdTransfers);
-      lastBcdId = last_id;
+          }),
+          {}
+        ),
+        ...rawOperationsRef.current,
+        ...newBcdOperationsSlice.reduce<
+          Record<string, { type: "bcd"; operation: BcdTokenTransfer }>
+        >(
+          (part, operation) => ({
+            ...part,
+            [operation.hash]: {
+              type: "bcd",
+              operation,
+            },
+          }),
+          {}
+        ),
+      };
+      setRawOperations(total);
+      rawOperationsRef.current = total;
+    } catch (e) {
+      setError(e);
     }
-    const newBcdOperationsSlice = newBcdOperations.filter((operation) => {
-      let opUnixTime = operationUnixTime(operation);
-      return !opUnixTime || opUnixTime >= minUnixTimeAcceptable;
-    });
-    console.log("update BCD operations", newBcdOperationsSlice);
-    const newTzktOperations: TzktOperation[] = [];
-    let outOfTzktOperations = false;
-    let lastTzktId: number | undefined;
-    const tzktOperationsNeeded =
-      OPERATIONS_PER_PAGE - newBcdOperationsSlice.length;
-    let lastNewTzktOperation: TzktOperation | undefined;
-    while (
-      !(lastNewTzktOperation =
-        newTzktOperations[newTzktOperations.length - 1]) ||
-      ((operationUnixTime(lastNewTzktOperation) || Infinity) >=
-        minUnixTimeAcceptable &&
-        !outOfTzktOperations)
-    ) {
-      if (!isTzktSupportedNetwork(networkId)) {
-        outOfTzktOperations = true;
-        break;
-      }
-      const fetchedTzktOperations = await getTzktOperations(networkId, {
-        address: accountPkh,
-        lastId: lastTzktId,
-        limit: tzktOperationsNeeded,
-      });
-      outOfTzktOperations = fetchedTzktOperations.length === 0;
-      newTzktOperations.push(
-        ...fetchedTzktOperations.filter(
-          (operation) =>
-            !newBcdOperations.find((op) => op.hash === operation.hash) &&
-            !(
-              (isTransaction(operation) || isDelegation(operation)) &&
-              operation.initiator?.address === accountPkh
-            )
-        )
-      );
-      lastTzktId = fetchedTzktOperations[fetchedTzktOperations.length - 1]?.id;
-    }
-    const newTzktOperationsSlice = newTzktOperations.filter((operation) => {
-      let opUnixTime = operationUnixTime(operation);
-      return !opUnixTime || opUnixTime >= minUnixTimeAcceptable;
-    });
-    console.log("update TZKT operations", newTzktOperationsSlice);
-    const total = {
-      ...newTzktOperationsSlice.reduce<
-        Record<string, { type: "tzkt"; operation: TzktOperation }>
-      >(
-        (part, operation) => ({
-          ...part,
-          [operation.hash]: {
-            type: "tzkt",
-            operation,
-          },
-        }),
-        {}
-      ),
-      ...rawOperationsRef.current,
-      ...newBcdOperationsSlice.reduce<
-        Record<string, { type: "bcd"; operation: BcdTokenTransfer }>
-      >(
-        (part, operation) => ({
-          ...part,
-          [operation.hash]: {
-            type: "bcd",
-            operation,
-          },
-        }),
-        {}
-      ),
-    };
-    setRawOperations(total);
-    rawOperationsRef.current = total;
     setIsRefreshing(false);
-  }, [networkId, accountPkh]);
+  }, [networkId, accountPkh, chainId]);
 
   const loadMore = useCallback(async () => {
     try {
@@ -169,7 +180,7 @@ export function useOperations() {
         newBcdOperations.length < bcdOperationsNeeded &&
         !outOfBcdOperations
       ) {
-        if (!isBcdSupportedNetwork(networkId)) {
+        if (!networkId) {
           outOfBcdOperations = true;
           break;
         }
@@ -220,11 +231,11 @@ export function useOperations() {
         newTzktOperations.length < tzktOperationsNeeded &&
         !outOfTzktOperations
       ) {
-        if (!isTzktSupportedNetwork(networkId)) {
+        if (!isKnownChainId(chainId!)) {
           outOfTzktOperations = true;
           break;
         }
-        const fetchedTzktOperations = await getTzktOperations(networkId, {
+        const fetchedTzktOperations = await getTzktOperations(chainId, {
           address: accountPkh,
           lastId: newTzktLastId,
           limit: tzktOperationsNeeded,
@@ -284,7 +295,7 @@ export function useOperations() {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [accountPkh, networkId]);
+  }, [accountPkh, networkId, chainId]);
 
   useEffect(() => {
     loadMore();

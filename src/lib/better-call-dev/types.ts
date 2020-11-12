@@ -67,14 +67,3 @@ export type BcdTokenTransfersQueryParams = {
   last_id?: string;
   size?: number;
 };
-
-const bcdSupportedNetworks: BcdNetwork[] = [
-  "mainnet",
-  "carthagenet",
-  "delphinet",
-];
-export const isBcdSupportedNetwork = (
-  networkId: string
-): networkId is BcdNetwork => {
-  return bcdSupportedNetworks.includes(networkId as BcdNetwork);
-};

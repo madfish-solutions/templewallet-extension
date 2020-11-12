@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import * as React from "react";
 import FormField from "app/atoms/FormField";
 
@@ -25,7 +26,10 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
     },
     ref
   ) => {
-    const valueStr = React.useMemo(() => value?.toString() || "", [value]);
+    const valueStr = React.useMemo(
+      () => (value === undefined ? "" : new BigNumber(value).toFixed()),
+      [value]
+    );
 
     const [localValue, setLocalValue] = React.useState(valueStr);
     const [focused, setFocused] = React.useState(false);
