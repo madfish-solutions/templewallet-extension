@@ -413,10 +413,11 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         return t("amountMustBePositive");
       }
       if (!maxAmountNum) return true;
+      const maxAmount = new BigNumber(maxAmountNum);
       const vBN = new BigNumber(v);
       return (
-        vBN.isLessThanOrEqualTo(maxAmountNum) ||
-        t("maximalAmount", maxAmountNum.toString())
+        vBN.isLessThanOrEqualTo(maxAmount) ||
+        t("maximalAmount", maxAmount.toFixed())
       );
     },
     [maxAmountNum, toValue]
@@ -662,7 +663,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                     className={classNames("underline")}
                     onClick={handleSetMaxAmount}
                   >
-                    {maxAmount.toString()}
+                    {maxAmount.toFixed()}
                   </button>
                   {amountValue && localAsset.type === ThanosAssetType.XTZ ? (
                     <>
