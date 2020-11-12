@@ -7,6 +7,8 @@ import {
 } from "lib/better-call-dev";
 import {
   getOperations as getTzktOperations,
+  isDelegation,
+  isTransaction,
   isTzktSupportedNetwork,
   TzktOperation,
 } from "lib/tzkt";
@@ -161,7 +163,8 @@ export function useOperations() {
           ...fetchedTzktOperations.filter(
             (operation) =>
               !rawOperationsRef.current[operation.hash] &&
-              !newBcdOperations.find((op) => op.hash === operation.hash)
+              !newBcdOperations.find((op) => op.hash === operation.hash) &&
+              !((isTransaction(operation) || isDelegation(operation)) && (operation.initiator?.address === accountPkh))
           )
         );
         newTzktLastId =

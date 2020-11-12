@@ -279,7 +279,6 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       null,
     [chainId]
   );
-  console.log(uniqueOps.length);
 
   return (
     <div
