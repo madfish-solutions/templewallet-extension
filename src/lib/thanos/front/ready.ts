@@ -7,9 +7,9 @@ import {
   ThanosStatus,
   ThanosState,
   ThanosAsset,
+  getClient,
   usePassiveStorage,
   useThanosClient,
-  domainsResolverFactory,
   loadChainId,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
@@ -29,7 +29,7 @@ export const [
   useAccount,
   useSettings,
   useTezos,
-  useTezosDomains,
+  useTezosDomainsClient,
 ] = constate(
   useReadyThanos,
   (v) => v.allNetworks,
@@ -40,7 +40,7 @@ export const [
   (v) => v.account,
   (v) => v.settings,
   (v) => v.tezos,
-  (v) => v.tezosDomains
+  (v) => v.tezosDomainsClient
 );
 
 function useReadyThanos() {
@@ -133,11 +133,7 @@ function useReadyThanos() {
   /**
    * Tezos domains
    */
-
-  const tezosDomains = React.useMemo(
-    () => domainsResolverFactory(tezos, network.id),
-    [tezos, network.id]
-  );
+  const tezosDomainsClient = React.useMemo(() => getClient(networkId, tezos), [networkId, tezos]);
 
   return {
     allNetworks,
@@ -152,7 +148,7 @@ function useReadyThanos() {
 
     settings,
     tezos,
-    tezosDomains,
+    tezosDomainsClient,
   };
 }
 

@@ -1515,20 +1515,39 @@
     bs58check "^2.1.2"
     buffer "^5.6.0"
 
-"@tezos-domains/core@1.0.0-beta.17", "@tezos-domains/core@^1.0.0-beta.17":
-  version "1.0.0-beta.17"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.0.0-beta.17.tgz#1483423cb1a47e0eeced623ca9b6754d563c32b0"
-  integrity sha512-QxcKnaxa4AcsGi1X2fSyDMGYtUazbbPpDfo4hwijn4xUEyJ4ws4Tw70BFuXy/dKBzyvzz8tefuUh9D/pc39sDQ==
+"@tezos-domains/client@1.0.0-beta.21":
+  version "1.0.0-beta.21"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/client/-/client-1.0.0-beta.21.tgz#4651180f7ef21f26e6fb2705eac1e2d50bac0260"
+  integrity sha512-DLK5epo92dvAwyPS135Q9BlbcHUcNwjCwn7AtIpT6AS616qOkC3auNJhT4KSlR/1i0VzYoF16rPraMquaztocQ==
+  dependencies:
+    "@tezos-domains/core" "^1.0.0-beta.21"
+    "@tezos-domains/manager" "^1.0.0-beta.21"
+    "@tezos-domains/resolver" "^1.0.0-beta.21"
+
+"@tezos-domains/core@1.0.0-beta.21", "@tezos-domains/core@^1.0.0-beta.21":
+  version "1.0.0-beta.21"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.0.0-beta.21.tgz#21bca80be23d49afee381aed916e0d73401330c8"
+  integrity sha512-qBJiMYsSbaWmqL0vVZ05hDkSEGYBcPlAMxccW5CB6rrLlm87QOdaSX76LxtyPKHTpwKW1NNvAIOp3H5WPy0Fsw==
   dependencies:
     bignumber.js "^9.0.1"
     node-cache "^5.1.2"
 
-"@tezos-domains/resolver@1.0.0-beta.17":
-  version "1.0.0-beta.17"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.0.0-beta.17.tgz#e874ac9b253ec73f8765803d99b57423b32c38c1"
-  integrity sha512-XB+axmTch0WfngU4v84d4P8nAToi0WvXqdgujfcBgfNXGQjoi5dHH7dhXg9bknNsCoODGqWCAQwGC3cbCJvClw==
+"@tezos-domains/manager@^1.0.0-beta.21":
+  version "1.0.0-beta.21"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.0.0-beta.21.tgz#fa47a4a80e8fe29d856f3e5262917b80c3d7d9af"
+  integrity sha512-7g0PHRbVWpA17QauvI99RDnXsJv6wzCE6Hfs0M/rVOYMXt4QSRth2pzAVL+8fnRsCYfAoZtAwt5e70uqnwAuNg==
   dependencies:
-    "@tezos-domains/core" "^1.0.0-beta.17"
+    "@tezos-domains/core" "^1.0.0-beta.21"
+    "@types/sha.js" "^2.4.0"
+    bignumber.js "^9.0.1"
+    sha.js "^2.4.11"
+
+"@tezos-domains/resolver@^1.0.0-beta.21":
+  version "1.0.0-beta.21"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.0.0-beta.21.tgz#dbe17ba40785b96b5aa3d5e0271dba879fffb977"
+  integrity sha512-gr5pByTRNetQMa8vu5fmbJAA3OGcAYR0tNXpKnom0zur7TsksenaeS+xGpfX+3jOPhBE3MNQ0r4liw23nFISiw==
+  dependencies:
+    "@tezos-domains/core" "^1.0.0-beta.21"
     idna-uts46-hx "^3.3.0"
     node-cache "^5.1.2"
 
@@ -1728,6 +1747,13 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^3.0.2"
+
+"@types/sha.js@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@types/sha.js/-/sha.js-2.4.0.tgz#bce682ef860b40f419d024fa08600c3b8d24bb01"
+  integrity sha512-amxKgPy6WJTKuw8mpUwjX2BSxuBtBmZfRwIUDIuPJKNwGN8CWDli8JTg5ONTWOtcTkHIstvT7oAhhYXqEjStHQ==
+  dependencies:
+    "@types/node" "*"
 
 "@types/source-list-map@*":
   version "0.1.2"
@@ -8405,7 +8431,7 @@ setimmediate@^1.0.4, setimmediate@^1.0.5:
   resolved "https://registry.yarnpkg.com/setimmediate/-/setimmediate-1.0.5.tgz#290cbb232e306942d7d7ea9b83732ab7856f8285"
   integrity sha1-KQy7Iy4waULX1+qbg3Mqt4VvgoU=
 
-sha.js@^2.4.0, sha.js@^2.4.8:
+sha.js@^2.4.0, sha.js@^2.4.11, sha.js@^2.4.8:
   version "2.4.11"
   resolved "https://registry.yarnpkg.com/sha.js/-/sha.js-2.4.11.tgz#37a5cf0b81ecbc6943de109ba2960d1b26584ae7"
   integrity sha512-QMEp5B7cftE7APOjk5Y6xgrbWu+WkLVQwk8JNjZ8nKRciZaByEW6MubieAiToS7+dwvrjGhH8jRXz3MVd0AYqQ==
