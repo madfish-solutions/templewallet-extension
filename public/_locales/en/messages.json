@@ -1281,7 +1281,7 @@
     "message": "General"
   },
   "generalSettingsDescription": {
-    "message": "Here you can make the Thanos Wallet more convenient for you."
+    "message": "Here you can manage languages preferences and display mode."
   },
   "lambdaContract": {
     "message": "Lambda View contract"
