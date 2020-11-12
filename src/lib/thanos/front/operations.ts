@@ -91,7 +91,6 @@ export function useOperations() {
         let opUnixTime = operationUnixTime(operation);
         return !opUnixTime || opUnixTime >= minUnixTimeAcceptable;
       });
-      console.log("update BCD operations", newBcdOperationsSlice);
       const newTzktOperations: TzktOperation[] = [];
       let outOfTzktOperations = false;
       let lastTzktId: number | undefined;
@@ -132,7 +131,6 @@ export function useOperations() {
         let opUnixTime = operationUnixTime(operation);
         return !opUnixTime || opUnixTime >= minUnixTimeAcceptable;
       });
-      console.log("update TZKT operations", newTzktOperationsSlice);
       const total = {
         ...newTzktOperationsSlice.reduce<
           Record<string, { type: "tzkt"; operation: TzktOperation }>
