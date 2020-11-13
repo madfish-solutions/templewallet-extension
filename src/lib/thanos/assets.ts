@@ -49,6 +49,48 @@ export const MAINNET_TOKENS: ThanosToken[] = [
   },
 ];
 
+type InterfaceTypeDescriptor = (string | InterfaceTypeDescriptor)[];
+
+function assertArgsTypes(
+  fnInterface: Record<string, any>,
+  types: string | InterfaceTypeDescriptor
+) {
+  if (typeof types === "string") {
+    assert(fnInterface.prim === types);
+    return;
+  }
+  if (types.length < 2) {
+    return;
+  }
+  if (fnInterface.prim === "pair") {
+    assert(fnInterface.args.length === 2);
+    assert(fnInterface.args[0].prim === types[0]);
+    if (types.length === 2) {
+      assert(fnInterface.args[1].prim === types[1]);
+    } else {
+      assertArgsTypes(fnInterface.args[1], types.slice(1));
+    }
+  } else if (fnInterface.prim === "list") {
+    assert(fnInterface.args.length === 1);
+    assertArgsTypes(fnInterface.args[0], types.slice(1));
+  } else if (fnInterface.prim === "or") {
+    const variants = fnInterface.args;
+    const expectedVariants = types[1];
+    assert(variants.length > 0);
+    assert(variants.length === expectedVariants.length);
+    for (let i = 0; i < variants.length; i++) {
+      let matched = false;
+      for (let j = 0; j < expectedVariants.length; j++) {
+        try {
+          assertArgsTypes(variants[i], expectedVariants[j]);
+          matched = true;
+        } catch (e) {}
+      }
+      assert(matched);
+    }
+  }
+}
+
 const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
 const FA12_METHODS_ASSERTIONS = [
   {
@@ -56,14 +98,7 @@ const FA12_METHODS_ASSERTIONS = [
     assertion: (contract: WalletContract) => {
       const transferInterface: Record<string, any> =
         contract.entrypoints.entrypoints.transfer;
-      assert(transferInterface.prim === "pair");
-      assert(transferInterface.args?.length === 2);
-      assert(transferInterface.args[0].prim === "address");
-      const restArgs = transferInterface.args[1];
-      assert(restArgs.prim === "pair");
-      assert(restArgs.args?.length === 2);
-      assert(restArgs.args[0].prim === "address");
-      assert(restArgs.args[1].prim === "nat");
+      assertArgsTypes(transferInterface, ["address", "address", "nat"]);
     },
   },
   {
@@ -71,10 +106,7 @@ const FA12_METHODS_ASSERTIONS = [
     assertion: (contract: WalletContract) => {
       const approveInterface: Record<string, any> =
         contract.entrypoints.entrypoints.approve;
-      assert(approveInterface.prim === "pair");
-      assert(approveInterface.args?.length === 2);
-      assert(approveInterface.args[0].prim === "address");
-      assert(approveInterface.args[1].prim === "nat");
+      assertArgsTypes(approveInterface, ["address", "nat"]);
     },
   },
   {
@@ -97,13 +129,35 @@ const FA12_METHODS_ASSERTIONS = [
       contract.views.getTotalSupply("unit").read((tezos as any).lambdaContract),
   },
 ];
+const FA2_METHODS_ASSERTIONS = [
+  {
+    name: "update_operators",
+    assertion: (contract: WalletContract) => {
+      const transferInterface: Record<string, any> =
+        contract.entrypoints.entrypoints.update_operators;
+      assertArgsTypes(transferInterface, [
+        "list",
+        "or",
+        [
+          ["address", "address", "nat"],
+          ["address", "address", "nat"],
+        ],
+      ]);
+    },
+  },
+];
 
-export async function assertFA12Token(
+export async function assertTokenType(
+  tokenType: ThanosAssetType.FA1_2 | ThanosAssetType.FA2,
   contract: WalletContract,
   tezos: TezosToolkit
 ) {
+  const assertions =
+    tokenType === ThanosAssetType.FA1_2
+      ? FA12_METHODS_ASSERTIONS
+      : FA2_METHODS_ASSERTIONS;
   await Promise.all(
-    FA12_METHODS_ASSERTIONS.map(async ({ name, assertion }) => {
+    assertions.map(async ({ name, assertion }) => {
       if (typeof contract.methods[name] !== "function") {
         throw new Error(`'${name}' method isn't defined in contract`);
       }
@@ -130,6 +184,12 @@ export async function fetchBalance(
         .getBalance(accountPkh)
         .read((tezos as any).lambdaContract);
       return nat.div(10 ** asset.decimals);
+    case ThanosAssetType.FA2:
+      const fa2Contract: any = await loadContract(tezos, asset.address, false);
+      const response = await fa2Contract.views
+        .balance_of([{ owner: accountPkh, token_id: asset.id }])
+        .read((tezos as any).lambdaContract);
+      return response[0].balance;
 
     default:
       throw new Error("Not Supported");
