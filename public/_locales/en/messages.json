@@ -240,6 +240,12 @@
   "tokenType": {
     "message": "Token type"
   },
+  "tokenId": {
+    "message": "Token ID"
+  },
+  "tokenIdInputDescription": {
+    "message": "A non-negative integer number that identifies the token inside FA2 contract"
+  },
   "comingSoonComment": {
     "message": "(coming soon)"
   },
