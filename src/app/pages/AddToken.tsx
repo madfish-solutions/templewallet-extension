@@ -92,7 +92,7 @@ const Form: React.FC = () => {
     setValue,
     triggerValidation,
   } = useForm<FormData>({
-    defaultValues: { decimals: 0, type: TOKEN_TYPES[0].type },
+    defaultValues: { decimals: 0, type: TOKEN_TYPES[0].type, id: 0 },
   });
   const contractAddress = watch("address");
   const tokenType = watch("type");
@@ -320,7 +320,10 @@ const Form: React.FC = () => {
         <FormField
           ref={register({
             min: { value: 0, message: t("nonNegativeIntMessage") },
+            required:
+              tokenType === ThanosAssetType.FA1_2 ? undefined : t("required"),
           })}
+          min={0}
           type="number"
           name="id"
           id="token-id"
