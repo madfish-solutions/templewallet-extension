@@ -189,7 +189,7 @@ export async function fetchBalance(
       const response = await fa2Contract.views
         .balance_of([{ owner: accountPkh, token_id: asset.id }])
         .read((tezos as any).lambdaContract);
-      return response[0].balance;
+      return response[0].balance.div(10 ** asset.decimals);
 
     default:
       throw new Error("Not Supported");
@@ -213,13 +213,18 @@ export async function toTransferParams(
     case ThanosAssetType.Staker:
     case ThanosAssetType.TzBTC:
     case ThanosAssetType.FA1_2:
+    case ThanosAssetType.FA2:
       const contact = await loadContract(tezos, asset.address);
+      const pennyAmount = new BigNumber(amount).times(10 ** asset.decimals).toString();
+      const methodArgs = asset.type === ThanosAssetType.FA2 ? [
+        [{ from_: fromPkh, txs: [{ to_: toPkh, token_id: asset.id, amount: pennyAmount }]}]
+      ] : [
+        fromPkh,
+        toPkh,
+        pennyAmount
+      ];
       return contact.methods
-        .transfer(
-          fromPkh,
-          toPkh,
-          new BigNumber(amount).times(10 ** asset.decimals).toString()
-        )
+        .transfer(...methodArgs)
         .toTransferParams();
 
     default:

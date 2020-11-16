@@ -262,7 +262,7 @@ const Form: React.FC = () => {
         } else {
           addToken({
             type: ThanosAssetType.FA2,
-            id: id!,
+            id: String(id!),
             ...tokenCommonProps,
           });
         }

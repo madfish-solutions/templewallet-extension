@@ -146,7 +146,7 @@ export interface ThanosFA1_2Asset extends ThanosTokenBase {
 
 export interface ThanosFA2Asset extends ThanosTokenBase {
   type: ThanosAssetType.FA2;
-  id: number;
+  id: string;
 }
 
 export type ThanosNetworkType = "main" | "test";
