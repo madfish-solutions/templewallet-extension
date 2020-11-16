@@ -96,6 +96,7 @@ const Form: React.FC = () => {
   });
   const contractAddress = watch("address");
   const tokenType = watch("type");
+  const tokenId = watch("id");
   const [submitError, setSubmitError] = React.useState<React.ReactNode>(null);
   const [tokenDataError, setTokenDataError] = React.useState<React.ReactNode>(
     null
@@ -127,7 +128,11 @@ const Form: React.FC = () => {
         }
 
         try {
-          await assertTokenType(tokenType, contract, tezos);
+          if (tokenType === ThanosAssetType.FA1_2) {
+            await assertTokenType(tokenType, contract, tezos);
+          } else {
+            await assertTokenType(tokenType, contract, tezos, tokenId!);
+          }
         } catch (_err) {
           throw new TokenValidationError(t("tokenDoesNotMatchStandard"));
         }
@@ -225,6 +230,7 @@ const Form: React.FC = () => {
     networkId,
     tokenType,
     triggerValidation,
+    tokenId,
   ]);
 
   const cleanContractAddress = React.useCallback(() => {
@@ -262,7 +268,7 @@ const Form: React.FC = () => {
         } else {
           addToken({
             type: ThanosAssetType.FA2,
-            id: String(id!),
+            id: Number(id!),
             ...tokenCommonProps,
           });
         }
