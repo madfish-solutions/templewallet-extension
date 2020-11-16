@@ -87,6 +87,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     () =>
       pndOps.map((op) => {
         const parameters = (op as any).parameters;
+        let guessedTokenType: OperationPreview["guessedTokenType"];
+        if (parameters && op.kind === "transaction") {
+          guessedTokenType =
+            parameters.value instanceof Array
+              ? ThanosAssetType.FA2
+              : ThanosAssetType.FA1_2;
+        }
 
         return {
           ...op,
@@ -97,11 +104,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
             op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
           status: "pending",
           time: op.addedAt,
-          guessedTokenType:
-            parameters &&
-            (parameters.value instanceof Array
-              ? ThanosAssetType.FA2
-              : ThanosAssetType.FA1_2),
+          guessedTokenType,
         };
       }),
     [pndOps]
