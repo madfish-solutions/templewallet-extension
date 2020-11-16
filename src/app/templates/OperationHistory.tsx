@@ -17,13 +17,15 @@ import {
   mutezToTz,
   isKnownChainId,
   ThanosAsset,
+  ThanosXTZAsset,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
-  BcdPageableTokenTransfers,
-  BcdTokenTransfer,
+  BcdOperationsSearchItem,
+  BcdOperationsSearchResponse,
   BCD_NETWORKS_NAMES,
-  getTokenTransfers,
+  searchOperations,
+  SEARCH_PAGE_SIZE,
 } from "lib/better-call-dev";
 import InUSD from "app/templates/InUSD";
 import HashChip from "app/templates/HashChip";
@@ -43,7 +45,7 @@ interface OperationPreview {
   status: string;
   time: string;
   parameters?: any;
-  tokenAddress?: string;
+  guessedTokenType?: ThanosAssetType.FA1_2 | ThanosAssetType.FA2;
 }
 
 interface OperationHistoryProps {
@@ -83,15 +85,25 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
   const pendingOperations = React.useMemo<OperationPreview[]>(
     () =>
-      pndOps.map((op) => ({
-        ...op,
-        hash: op.hash,
-        type: op.kind,
-        receiver: op.kind === "transaction" ? op.destination : "",
-        volume: op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
-        status: "pending",
-        time: op.addedAt,
-      })),
+      pndOps.map((op) => {
+        const parameters = (op as any).parameters;
+
+        return {
+          ...op,
+          hash: op.hash,
+          type: op.kind,
+          receiver: op.kind === "transaction" ? op.destination : "",
+          volume:
+            op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
+          status: "pending",
+          time: op.addedAt,
+          guessedTokenType:
+            parameters &&
+            (parameters.value instanceof Array
+              ? ThanosAssetType.FA2
+              : ThanosAssetType.FA1_2),
+        };
+      }),
     [pndOps]
   );
 
@@ -126,35 +138,47 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         offset: 0,
       });
 
-      let bcdOps: Record<string, BcdTokenTransfer> = {};
+      let bcdOps: Record<string, BcdOperationsSearchItem> = {};
       const lastTzStatsOp = ops[ops.length - 1];
       if (networkId) {
-        const response: AxiosResponse<BcdPageableTokenTransfers> = await getTokenTransfers(
-          {
-            network: networkId,
-            address: accountPkh,
-            size: OPERATIONS_LIMIT,
-          }
+        const baseBcdSearchParams = {
+          network: networkId,
+          address: accountPkh,
+          since: Math.floor(
+            new Date(lastTzStatsOp?.time || 0).getTime() / 1000
+          ),
+        };
+        const firstBcdSearchResponse: AxiosResponse<BcdOperationsSearchResponse> = await searchOperations(
+          baseBcdSearchParams
         );
         const {
-          data: { transfers },
-        } = response;
-        bcdOps = transfers
-          .filter((transfer) =>
-            lastTzStatsOp
-              ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
-              : true
+          data: { count, items: firstBcdOps },
+        } = firstBcdSearchResponse;
+        const rawBcdOps = [...firstBcdOps];
+        for (let i = 1; i < Math.ceil(count / SEARCH_PAGE_SIZE); i++) {
+          const response: AxiosResponse<BcdOperationsSearchResponse> = await searchOperations(
+            {
+              ...baseBcdSearchParams,
+              offset: i * SEARCH_PAGE_SIZE,
+            }
+          );
+          rawBcdOps.push(...response.data.items);
+        }
+        bcdOps = rawBcdOps
+          .filter(
+            ({ body: { kind, entrypoint, amount } }) =>
+              kind === "transaction" && entrypoint === "transfer" && !amount
           )
           .reduce(
             (newTransfers, transfer) => ({
               ...newTransfers,
-              [transfer.hash]: transfer,
+              [transfer.body.hash]: transfer,
             }),
             {}
           );
       }
 
-      const tzStatsOpsWithReplacements = ops.map((op) => {
+      const tzStatsOpsWithReplacements = ops.map<OperationPreview>((op) => {
         const rawBcdData = bcdOps[op.hash];
 
         if (!rawBcdData) {
@@ -162,27 +186,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         }
 
         delete bcdOps[op.hash];
-        return {
-          ...op,
-          volume: rawBcdData.amount,
-          tokenAddress: rawBcdData.contract,
-          sender: rawBcdData.from,
-          receiver: rawBcdData.to,
-        };
+
+        return searchItemToOperationPreview(rawBcdData);
       });
 
       return [
         ...tzStatsOpsWithReplacements,
-        ...Object.values(bcdOps).map((bcdOp) => ({
-          volume: bcdOp.amount,
-          tokenAddress: bcdOp.contract,
-          sender: bcdOp.from,
-          receiver: bcdOp.to,
-          hash: bcdOp.hash,
-          status: bcdOp.status,
-          time: bcdOp.timestamp,
-          type: "transaction",
-        })),
+        ...Object.values(bcdOps).map(searchItemToOperationPreview),
       ];
     } catch (err) {
       if (err?.origin?.response?.status === 404) {
@@ -291,6 +301,27 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
 export default OperationHistory;
 
+export function searchItemToOperationPreview(
+  item: BcdOperationsSearchItem
+): OperationPreview {
+  const {
+    body: { hash, status, timestamp, destination, parameters, tags },
+  } = item;
+
+  return {
+    status,
+    hash,
+    parameters,
+    type: "transaction",
+    time: timestamp,
+    receiver: destination,
+    volume: 0,
+    guessedTokenType: tags?.includes("fa12")
+      ? ThanosAssetType.FA1_2
+      : ThanosAssetType.FA2,
+  };
+}
+
 type OperationProps = OperationPreview & {
   accountPkh: string;
   withExplorer: boolean;
@@ -302,6 +333,7 @@ const Operation = React.memo<OperationProps>(
     accountPkh,
     withExplorer,
     explorerBaseUrl,
+    guessedTokenType,
     hash,
     type,
     parameters,
@@ -309,46 +341,29 @@ const Operation = React.memo<OperationProps>(
     volume,
     status,
     time,
-    tokenAddress: tokenAddressFromBcd,
   }) => {
-    const { allAssets } = useAssets();
+    const tokenAddress = volume ? undefined : parameters && receiver;
 
-    const tokenAddress = tokenAddressFromBcd || (parameters && receiver);
-    const token = React.useMemo(
-      () =>
-        (tokenAddress &&
-          allAssets.find(
-            (a) => a.type !== ThanosAssetType.XTZ && a.address === tokenAddress
-          )) ||
-        null,
-      [allAssets, tokenAddress]
-    );
-
-    const parsedParameters = React.useMemo(() => {
-      if (parameters && token && !tokenAddressFromBcd) {
-        return tryParseParameters(token, parameters);
+    const transfersFromParameters = React.useMemo(() => {
+      if (parameters) {
+        return tryParseParameters(
+          guessedTokenType,
+          typeof parameters === "string" ? JSON.parse(parameters) : parameters
+        );
       }
       return null;
-    }, [parameters, token, tokenAddressFromBcd]);
+    }, [parameters, guessedTokenType]);
 
-    const finalReceiver = parsedParameters
-      ? parsedParameters.receiver
-      : receiver;
-    let finalVolume = volume;
-    if (tokenAddressFromBcd) {
-      finalVolume = new BigNumber(volume)
-        .div(10 ** (token?.decimals || 0))
-        .toNumber();
-    }
-    if (parsedParameters) {
-      finalVolume = parsedParameters.volume;
-    }
-
-    const volumeExists = finalVolume !== 0;
-    const typeTx = type === "transaction";
-    const imReceiver = finalReceiver === accountPkh;
+    const imReceiver = transfersFromParameters
+      ? transfersFromParameters.some(
+          (transfer) => transfer.receiver === accountPkh
+        )
+      : receiver === accountPkh;
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
+    const volumeExists = volume > 0;
+    const hasTokenTransfers =
+      transfersFromParameters && transfersFromParameters.length > 0;
 
     return React.useMemo(
       () => (
@@ -435,40 +450,34 @@ const Operation = React.memo<OperationProps>(
 
               <div className="flex-1" />
 
-              {volumeExists && !failed && (
+              {!failed && (
                 <div className="flex flex-col items-end flex-shrink-0">
-                  <div
-                    className={classNames(
-                      "text-sm",
-                      (() => {
-                        switch (true) {
-                          case pending:
-                            return "text-yellow-600";
-
-                          case typeTx:
-                            return imReceiver
-                              ? "text-green-500"
-                              : "text-red-700";
-
-                          default:
-                            return "text-gray-800";
-                        }
-                      })()
-                    )}
-                  >
-                    {typeTx && (imReceiver ? "+" : "-")}
-                    <Money>{finalVolume}</Money>{" "}
-                    {tokenAddress ? token?.symbol || "???" : "ꜩ"}
-                  </div>
-
-                  <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
-                    {(usdVolume) => (
-                      <div className="text-xs text-gray-500">
-                        <span className="mr-px">$</span>
-                        {usdVolume}
-                      </div>
-                    )}
-                  </InUSD>
+                  {hasTokenTransfers
+                    ? transfersFromParameters!.map(
+                        ({ receiver, tokenId, volume: tokenVolume }, index) => (
+                          <BalanceUpdateDisplay
+                            key={index}
+                            type={receiver === accountPkh ? "receive" : "send"}
+                            tokenId={tokenId}
+                            tokenAddress={tokenAddress}
+                            pending={pending}
+                            volume={tokenVolume}
+                          />
+                        )
+                      )
+                    : volumeExists && (
+                        <BalanceUpdateDisplay
+                          type={
+                            type === "transaction"
+                              ? receiver === accountPkh
+                                ? "receive"
+                                : "send"
+                              : "other"
+                          }
+                          pending={pending}
+                          volume={new BigNumber(volume)}
+                        />
+                      )}
                 </div>
               )}
             </div>
@@ -477,22 +486,88 @@ const Operation = React.memo<OperationProps>(
       ),
       [
         hash,
-        finalVolume,
+        hasTokenTransfers,
+        transfersFromParameters,
         imReceiver,
         pending,
         failed,
         status,
         time,
-        token,
         type,
-        typeTx,
         volumeExists,
         explorerBaseUrl,
+        volume,
+        receiver,
+        accountPkh,
         tokenAddress,
       ]
     );
   }
 );
+
+type BalanceUpdateDisplayProps = {
+  type: "send" | "receive" | "other";
+  tokenAddress?: string;
+  tokenId?: string;
+  pending: boolean;
+  volume: BigNumber;
+};
+
+const BalanceUpdateDisplay: React.FC<BalanceUpdateDisplayProps> = (props) => {
+  const { type, tokenId, tokenAddress, pending, volume } = props;
+
+  const { allAssets } = useAssets();
+  const token = React.useMemo(
+    () =>
+      tokenAddress
+        ? allAssets.find(
+            (a): a is Exclude<ThanosAsset, ThanosXTZAsset> =>
+              a.type !== ThanosAssetType.XTZ &&
+              a.address === tokenAddress &&
+              (a.type !== ThanosAssetType.FA2 || tokenId === a.id)
+          )
+        : undefined,
+    [allAssets, tokenAddress, tokenId]
+  );
+
+  const isTransaction = type !== "other";
+
+  return (
+    <>
+      <div
+        className={classNames(
+          "text-sm",
+          (() => {
+            switch (true) {
+              case pending:
+                return "text-yellow-600";
+
+              case isTransaction:
+                return type === "receive" ? "text-green-500" : "text-red-700";
+
+              default:
+                return "text-gray-800";
+            }
+          })()
+        )}
+      >
+        {isTransaction && (type === "receive" ? "+" : "-")}
+        <Money>{volume}</Money> {tokenAddress ? token?.symbol || "???" : "ꜩ"}
+      </div>
+
+      {(!tokenAddress || token) && (
+        <InUSD volume={volume} asset={token || XTZ_ASSET}>
+          {(usdVolume) => (
+            <div className="text-xs text-gray-500">
+              <span className="mr-px">$</span>
+              {usdVolume}
+            </div>
+          )}
+        </InUSD>
+      )}
+    </>
+  );
+};
 
 type TimeProps = {
   children: () => React.ReactElement;
@@ -529,10 +604,17 @@ function opKey(op: OperationPreview) {
   return `${op.hash}_${op.type}`;
 }
 
-function tryParseParameters(asset: ThanosAsset, parameters: any) {
-  switch (asset.type) {
-    case ThanosAssetType.Staker:
-    case ThanosAssetType.TzBTC:
+type TransferFromParameters = {
+  sender: string;
+  receiver: string;
+  volume: BigNumber;
+  tokenId?: string;
+};
+function tryParseParameters(
+  guessedTokenType: OperationPreview["guessedTokenType"],
+  parameters: any
+): TransferFromParameters[] | null {
+  switch (guessedTokenType) {
     case ThanosAssetType.FA1_2:
       try {
         if ("transfer" in parameters.value) {
@@ -541,28 +623,53 @@ function tryParseParameters(asset: ThanosAsset, parameters: any) {
             to: receiver,
             value,
           } = parameters.value.transfer;
-          const volume = new BigNumber(value)
-            .div(10 ** asset.decimals)
-            .toNumber();
+          const volume = new BigNumber(value);
 
-          return {
-            sender,
-            receiver,
-            volume,
-          };
+          return [
+            {
+              sender,
+              receiver,
+              volume,
+            },
+          ];
         } else {
           const [fromArgs, { args: toArgs }] = parameters.value.args;
           const sender: string = fromArgs.string;
           const receiver: string = toArgs[0].string;
-          const volume = new BigNumber(toArgs[1].int)
-            .div(10 ** asset.decimals)
-            .toNumber();
-          return {
-            sender,
-            receiver,
-            volume,
-          };
+          const volume = new BigNumber(toArgs[1].int);
+          return [
+            {
+              sender,
+              receiver,
+              volume,
+            },
+          ];
         }
+      } catch (_err) {
+        return null;
+      }
+    case ThanosAssetType.FA2:
+      try {
+        const parsedTransfers: TransferFromParameters[] = [];
+        parameters.value.forEach(
+          ({ args: transfersBatchArgs }: Record<string, any>) => {
+            const sender = transfersBatchArgs[0].string;
+            const transfers = transfersBatchArgs[1];
+            transfers.forEach(({ args: transferArgs }: Record<string, any>) => {
+              const receiver = transferArgs[0].string;
+              const tokenId = transferArgs[1].args[0].int;
+              const rawAmount = transferArgs[1].args[1].int;
+              const volume = new BigNumber(rawAmount);
+              parsedTransfers.push({
+                sender,
+                receiver,
+                volume,
+                tokenId,
+              });
+            });
+          }
+        );
+        return parsedTransfers;
       } catch (_err) {
         return null;
       }
