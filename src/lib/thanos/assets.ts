@@ -52,105 +52,153 @@ export const MAINNET_TOKENS: ThanosToken[] = [
 type InterfaceTypeDescriptor = (string | InterfaceTypeDescriptor)[];
 
 function assertArgsTypes(
-  fnInterface: Record<string, any>,
-  types: string | InterfaceTypeDescriptor
+  entrypointInterface: Record<string, any>,
+  typeDescriptor: string | InterfaceTypeDescriptor
 ) {
-  if (typeof types === "string") {
-    assert(fnInterface.prim === types);
+  if (typeof typeDescriptor === "string") {
+    assert(entrypointInterface.prim === typeDescriptor);
     return;
   }
-  if (types.length < 2) {
-    return;
-  }
-  if (fnInterface.prim === "pair") {
-    assert(fnInterface.args.length === 2);
-    assert(fnInterface.args[0].prim === types[0]);
-    if (types.length === 2) {
-      assert(fnInterface.args[1].prim === types[1]);
-    } else {
-      assertArgsTypes(fnInterface.args[1], types.slice(1));
-    }
-  } else if (fnInterface.prim === "list") {
-    assert(fnInterface.args.length === 1);
-    assertArgsTypes(fnInterface.args[0], types.slice(1));
-  } else if (fnInterface.prim === "or") {
-    const variants = fnInterface.args;
-    const expectedVariants = types[1];
-    assert(variants.length > 0);
-    assert(variants.length === expectedVariants.length);
-    for (let i = 0; i < variants.length; i++) {
-      let matched = false;
-      for (let j = 0; j < expectedVariants.length; j++) {
-        try {
-          assertArgsTypes(variants[i], expectedVariants[j]);
-          matched = true;
-        } catch (e) {}
+  switch (typeDescriptor.length) {
+    case 0:
+      return;
+    case 1:
+      assert(entrypointInterface.prim === typeDescriptor[0]);
+      return;
+    default:
+      if (entrypointInterface.prim === "pair") {
+        assert(entrypointInterface.args.length === 2);
+        assert(entrypointInterface.args[0].prim === typeDescriptor[0]);
+        if (typeDescriptor.length === 2) {
+          assert(entrypointInterface.args[1].prim === typeDescriptor[1]);
+        } else {
+          assertArgsTypes(entrypointInterface.args[1], typeDescriptor.slice(1));
+        }
+      } else if (entrypointInterface.prim === "list") {
+        assert(entrypointInterface.args.length === 1);
+        assertArgsTypes(entrypointInterface.args[0], typeDescriptor.slice(1));
+      } else if (entrypointInterface.prim === "or") {
+        const variants = entrypointInterface.args;
+        const expectedVariants = typeDescriptor[1];
+        assert(variants.length > 0);
+        assert(variants.length === expectedVariants.length);
+        for (let i = 0; i < variants.length; i++) {
+          let matched = false;
+          for (let j = 0; j < expectedVariants.length; j++) {
+            try {
+              assertArgsTypes(variants[i], expectedVariants[j]);
+              matched = true;
+            } catch (e) {}
+          }
+          assert(matched);
+        }
       }
-      assert(matched);
-    }
   }
+}
+
+function entrypointAssertionFactory(
+  name: string,
+  typeDescriptor: InterfaceTypeDescriptor
+) {
+  return (contract: WalletContract) => {
+    const entrypointInterface: Record<string, any> =
+      contract.entrypoints.entrypoints[name];
+    assertArgsTypes(entrypointInterface, typeDescriptor);
+  };
+}
+
+function viewSuccessAssertionFactory(name: string, args: any[]) {
+  return async (contract: WalletContract, tezos: TezosToolkit) => {
+    await contract.views[name](...args).read((tezos as any).lambdaContract);
+  };
 }
 
 const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
 const FA12_METHODS_ASSERTIONS = [
   {
     name: "transfer",
-    assertion: (contract: WalletContract) => {
-      const transferInterface: Record<string, any> =
-        contract.entrypoints.entrypoints.transfer;
-      assertArgsTypes(transferInterface, ["address", "address", "nat"]);
-    },
+    assertion: entrypointAssertionFactory("transfer", [
+      "address",
+      "address",
+      "nat",
+    ]),
   },
   {
     name: "approve",
-    assertion: (contract: WalletContract) => {
-      const approveInterface: Record<string, any> =
-        contract.entrypoints.entrypoints.approve;
-      assertArgsTypes(approveInterface, ["address", "nat"]);
-    },
+    assertion: entrypointAssertionFactory("approve", ["address", "nat"]),
   },
   {
     name: "getAllowance",
-    assertion: (contract: WalletContract, tezos: TezosToolkit) =>
-      contract.views
-        .getAllowance(STUB_TEZOS_ADDRESS, STUB_TEZOS_ADDRESS)
-        .read((tezos as any).lambdaContract),
+    assertion: viewSuccessAssertionFactory("getAllowance", [
+      STUB_TEZOS_ADDRESS,
+      STUB_TEZOS_ADDRESS,
+    ]),
   },
   {
     name: "getBalance",
-    assertion: (contract: WalletContract, tezos: TezosToolkit) =>
-      contract.views
-        .getBalance(STUB_TEZOS_ADDRESS)
-        .read((tezos as any).lambdaContract),
+    assertion: viewSuccessAssertionFactory("getBalance", [STUB_TEZOS_ADDRESS]),
   },
   {
     name: "getTotalSupply",
-    assertion: (contract: WalletContract, tezos: TezosToolkit) =>
-      contract.views.getTotalSupply("unit").read((tezos as any).lambdaContract),
+    assertion: viewSuccessAssertionFactory("getTotalSupply", ["unit"]),
   },
 ];
 const FA2_METHODS_ASSERTIONS = [
   {
     name: "update_operators",
-    assertion: (contract: WalletContract) => {
-      const transferInterface: Record<string, any> =
-        contract.entrypoints.entrypoints.update_operators;
-      assertArgsTypes(transferInterface, [
-        "list",
-        "or",
-        [
-          ["address", "address", "nat"],
-          ["address", "address", "nat"],
-        ],
-      ]);
-    },
+    assertion: entrypointAssertionFactory("update_operators", [
+      "list",
+      "or",
+      [
+        ["address", "address", "nat"],
+        ["address", "address", "nat"],
+      ],
+    ]),
+  },
+  {
+    name: "transfer",
+    assertion: entrypointAssertionFactory("transfer", [
+      "list",
+      "address",
+      "list",
+      "address",
+      "nat",
+      "nat",
+    ]),
+  },
+  {
+    name: "balance_of",
+    assertion: (
+      contract: WalletContract,
+      tezos: TezosToolkit,
+      tokenId: number
+    ) =>
+      viewSuccessAssertionFactory("balance_of", [
+        [{ owner: STUB_TEZOS_ADDRESS, token_id: String(tokenId) }],
+      ])(contract, tezos),
+  },
+  {
+    name: "token_metadata_registry",
+    assertion: entrypointAssertionFactory("token_metadata_registry", ["contract"])
   },
 ];
 
 export async function assertTokenType(
-  tokenType: ThanosAssetType.FA1_2 | ThanosAssetType.FA2,
+  tokenType: ThanosAssetType.FA1_2,
   contract: WalletContract,
   tezos: TezosToolkit
+): Promise<void>;
+export async function assertTokenType(
+  tokenType: ThanosAssetType.FA2,
+  contract: WalletContract,
+  tezos: TezosToolkit,
+  tokenId: number
+): Promise<void>;
+export async function assertTokenType(
+  tokenType: ThanosAssetType.FA1_2 | ThanosAssetType.FA2,
+  contract: WalletContract,
+  tezos: TezosToolkit,
+  tokenId?: number
 ) {
   const assertions =
     tokenType === ThanosAssetType.FA1_2
@@ -161,7 +209,9 @@ export async function assertTokenType(
       if (typeof contract.methods[name] !== "function") {
         throw new Error(`'${name}' method isn't defined in contract`);
       }
-      await assertion(contract, tezos);
+      console.log(`trying ${name}`);
+      await assertion(contract, tezos, tokenId!);
+      console.log(`${name} passed`);
     })
   );
 }
@@ -215,17 +265,23 @@ export async function toTransferParams(
     case ThanosAssetType.FA1_2:
     case ThanosAssetType.FA2:
       const contact = await loadContract(tezos, asset.address);
-      const pennyAmount = new BigNumber(amount).times(10 ** asset.decimals).toString();
-      const methodArgs = asset.type === ThanosAssetType.FA2 ? [
-        [{ from_: fromPkh, txs: [{ to_: toPkh, token_id: asset.id, amount: pennyAmount }]}]
-      ] : [
-        fromPkh,
-        toPkh,
-        pennyAmount
-      ];
-      return contact.methods
-        .transfer(...methodArgs)
-        .toTransferParams();
+      const pennyAmount = new BigNumber(amount)
+        .times(10 ** asset.decimals)
+        .toString();
+      const methodArgs =
+        asset.type === ThanosAssetType.FA2
+          ? [
+              [
+                {
+                  from_: fromPkh,
+                  txs: [
+                    { to_: toPkh, token_id: asset.id, amount: pennyAmount },
+                  ],
+                },
+              ],
+            ]
+          : [fromPkh, toPkh, pennyAmount];
+      return contact.methods.transfer(...methodArgs).toTransferParams();
 
     default:
       throw new Error("Not Supported");

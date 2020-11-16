@@ -511,7 +511,7 @@ const Operation = React.memo<OperationProps>(
 type BalanceUpdateDisplayProps = {
   type: "send" | "receive" | "other";
   tokenAddress?: string;
-  tokenId?: string;
+  tokenId?: number;
   pending: boolean;
   volume: BigNumber;
 };
@@ -611,7 +611,7 @@ type TransferFromParameters = {
   sender: string;
   receiver: string;
   volume: BigNumber;
-  tokenId?: string;
+  tokenId?: number;
 };
 function tryParseParameters(
   guessedTokenType: OperationPreview["guessedTokenType"],
@@ -660,7 +660,7 @@ function tryParseParameters(
             const transfers = transfersBatchArgs[1];
             transfers.forEach(({ args: transferArgs }: Record<string, any>) => {
               const receiver = transferArgs[0].string;
-              const tokenId = transferArgs[1].args[0].int;
+              const tokenId = Number(transferArgs[1].args[0].int);
               const rawAmount = transferArgs[1].args[1].int;
               const volume = new BigNumber(rawAmount);
               parsedTransfers.push({
