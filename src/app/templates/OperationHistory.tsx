@@ -12,11 +12,11 @@ import {
   XTZ_ASSET,
   useThanosClient,
   useNetwork,
-  useAssets,
   useOnStorageChanged,
   mutezToTz,
   isKnownChainId,
   ThanosAsset,
+  useAllAssetsRef,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
@@ -311,17 +311,17 @@ const Operation = React.memo<OperationProps>(
     time,
     tokenAddress: tokenAddressFromBcd,
   }) => {
-    const { allAssets } = useAssets();
+    const allAssetsRef = useAllAssetsRef();
 
     const tokenAddress = tokenAddressFromBcd || (parameters && receiver);
     const token = React.useMemo(
       () =>
         (tokenAddress &&
-          allAssets.find(
+          allAssetsRef.current.find(
             (a) => a.type !== ThanosAssetType.XTZ && a.address === tokenAddress
           )) ||
         null,
-      [allAssets, tokenAddress]
+      [allAssetsRef, tokenAddress]
     );
 
     const parsedParameters = React.useMemo(() => {
@@ -461,14 +461,16 @@ const Operation = React.memo<OperationProps>(
                     {tokenAddress ? token?.symbol || "???" : "ꜩ"}
                   </div>
 
-                  <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
-                    {(usdVolume) => (
-                      <div className="text-xs text-gray-500">
-                        <span className="mr-px">$</span>
-                        {usdVolume}
-                      </div>
-                    )}
-                  </InUSD>
+                  {!tokenAddress && (
+                    <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
+                      {(usdVolume) => (
+                        <div className="text-xs text-gray-500">
+                          <span className="mr-px">$</span>
+                          {usdVolume}
+                        </div>
+                      )}
+                    </InUSD>
+                  )}
                 </div>
               )}
             </div>
