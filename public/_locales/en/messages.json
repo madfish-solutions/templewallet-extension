@@ -1440,5 +1440,8 @@
         "content": "$1"
       }
     }
+  },
+  "incorrectTokenIdErrorMessage": {
+    "message": "Failed while processing token with provided data. Please make sure that token ID is correct."
   }
 }

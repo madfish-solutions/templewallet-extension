@@ -265,13 +265,8 @@ export async function assertTokenType(
           throw new NotMatchingStandardError(
             getMessage("someMethodSignatureDoesNotMatchStandard", name)
           );
-        } else if (!isFA12Token && name === "balance_of") {
-          throw new Error(
-            `${getMessage(
-              "unknownErrorCheckingSomeEntrypoint",
-              name
-            )} ${getMessage("makeSureTokenIdIsCorrect")}`
-          );
+        } else if (e.value?.string === "FA2_TOKEN_UNDEFINED") {
+          throw new Error(getMessage("incorrectTokenIdErrorMessage"));
         } else {
           throw new Error(
             getMessage("unknownErrorCheckingSomeEntrypoint", name)

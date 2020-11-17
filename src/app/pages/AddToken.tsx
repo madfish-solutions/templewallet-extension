@@ -152,7 +152,12 @@ const Form: React.FC = () => {
         }
 
         const tokenData =
-          (await getTokenMetadata(tezos, contractAddress, networkId)) || {};
+          (await getTokenMetadata(
+            tezos,
+            contractAddress,
+            networkId,
+            tokenId === undefined ? undefined : String(tokenId)
+          )) || {};
         const { symbol, name, description, decimals, onetoken } = tokenData;
         const tokenSymbol = typeof symbol === "string" ? symbol : "";
         const tokenName =
@@ -307,12 +312,7 @@ const Form: React.FC = () => {
       className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div
-        className={classNames(
-          tokenType === ThanosAssetType.FA2 ? "mb-4" : "mb-6",
-          "flex flex-col"
-        )}
-      >
+      <div className="mb-4 flex flex-col">
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
           <span className="text-base font-semibold text-gray-700">
             <T id="tokenType" />
@@ -330,9 +330,27 @@ const Form: React.FC = () => {
         <Controller name="type" as={TokenTypeSelect} control={control} />
       </div>
 
+      <NoSpaceField
+        ref={register({
+          required: t("required"),
+          validate: validateContractAddress,
+        })}
+        name="address"
+        id="addtoken-address"
+        textarea
+        rows={2}
+        cleanable={Boolean(contractAddress)}
+        onClean={cleanContractAddress}
+        label={t("address")}
+        labelDescription={t("addressOfDeployedTokenContract")}
+        placeholder={t("tokenContractPlaceholder")}
+        errorCaption={errors.address?.message}
+        containerClassName="mb-4"
+      />
+
       <div
         className={classNames(
-          "mb-6",
+          "mb-4",
           "flex flex-col",
           tokenType === ThanosAssetType.FA1_2 && "hidden"
         )}
@@ -353,24 +371,6 @@ const Form: React.FC = () => {
           errorCaption={errors.id?.message}
         />
       </div>
-
-      <NoSpaceField
-        ref={register({
-          required: t("required"),
-          validate: validateContractAddress,
-        })}
-        name="address"
-        id="addtoken-address"
-        textarea
-        rows={2}
-        cleanable={Boolean(contractAddress)}
-        onClean={cleanContractAddress}
-        label={t("address")}
-        labelDescription={t("addressOfDeployedTokenContract")}
-        placeholder={t("tokenContractPlaceholder")}
-        errorCaption={errors.address?.message}
-        containerClassName="mb-4"
-      />
 
       {tokenValidationError && (
         <Alert
