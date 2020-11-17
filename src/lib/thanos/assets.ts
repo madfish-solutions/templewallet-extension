@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import { TezosToolkit, WalletContract } from "@taquito/taquito";
+import { MichelsonV1ExpressionExtended } from "@taquito/rpc";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
 import { loadContract } from "lib/thanos/contract";
 import { mutezToTz } from "lib/thanos/helpers";
@@ -49,61 +50,38 @@ export const MAINNET_TOKENS: ThanosToken[] = [
   },
 ];
 
-type InterfaceTypeDescriptor = (string | InterfaceTypeDescriptor)[];
+type MichelsonArgsExpression = Omit<MichelsonV1ExpressionExtended, "args"> & {
+  args?: MichelsonArgsExpression[];
+};
 
 function assertArgsTypes(
   entrypointInterface: Record<string, any>,
-  typeDescriptor: string | InterfaceTypeDescriptor
+  expression: MichelsonArgsExpression
 ) {
-  if (typeof typeDescriptor === "string") {
-    assert(entrypointInterface.prim === typeDescriptor);
-    return;
-  }
-  switch (typeDescriptor.length) {
-    case 0:
-      return;
-    case 1:
-      assert(entrypointInterface.prim === typeDescriptor[0]);
-      return;
-    default:
-      if (entrypointInterface.prim === "pair") {
-        assert(entrypointInterface.args.length === 2);
-        assert(entrypointInterface.args[0].prim === typeDescriptor[0]);
-        if (typeDescriptor.length === 2) {
-          assert(entrypointInterface.args[1].prim === typeDescriptor[1]);
-        } else {
-          assertArgsTypes(entrypointInterface.args[1], typeDescriptor.slice(1));
-        }
-      } else if (entrypointInterface.prim === "list") {
-        assert(entrypointInterface.args.length === 1);
-        assertArgsTypes(entrypointInterface.args[0], typeDescriptor.slice(1));
-      } else if (entrypointInterface.prim === "or") {
-        const variants = entrypointInterface.args;
-        const expectedVariants = typeDescriptor[1];
-        assert(variants.length > 0);
-        assert(variants.length === expectedVariants.length);
-        for (let i = 0; i < variants.length; i++) {
-          let matched = false;
-          for (let j = 0; j < expectedVariants.length; j++) {
-            try {
-              assertArgsTypes(variants[i], expectedVariants[j]);
-              matched = true;
-            } catch (e) {}
-          }
-          assert(matched);
-        }
-      }
+  assert(entrypointInterface.prim === expression.prim);
+  const receivedArgs = entrypointInterface.args;
+  const expectedArgs = expression.args;
+  assert(receivedArgs?.length === expectedArgs?.length);
+  receivedArgs?.forEach((receivedArg: Record<string, any>, index: number) => {
+    assertArgsTypes(receivedArg, expectedArgs![index]);
+  });
+  if (expression.annots) {
+    assert(
+      expression.annots.every((requiredAnnot) => {
+        return entrypointInterface.annots?.includes(requiredAnnot);
+      })
+    );
   }
 }
 
 function entrypointAssertionFactory(
   name: string,
-  typeDescriptor: InterfaceTypeDescriptor
+  expression: MichelsonArgsExpression
 ) {
   return (contract: WalletContract) => {
     const entrypointInterface: Record<string, any> =
       contract.entrypoints.entrypoints[name];
-    assertArgsTypes(entrypointInterface, typeDescriptor);
+    assertArgsTypes(entrypointInterface, expression);
   };
 }
 
@@ -117,15 +95,23 @@ const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
 const FA12_METHODS_ASSERTIONS = [
   {
     name: "transfer",
-    assertion: entrypointAssertionFactory("transfer", [
-      "address",
-      "address",
-      "nat",
-    ]),
+    assertion: entrypointAssertionFactory("transfer", {
+      prim: "pair",
+      args: [
+        { prim: "address" },
+        {
+          prim: "pair",
+          args: [{ prim: "address" }, { prim: "nat" }],
+        },
+      ],
+    }),
   },
   {
     name: "approve",
-    assertion: entrypointAssertionFactory("approve", ["address", "nat"]),
+    assertion: entrypointAssertionFactory("approve", {
+      prim: "pair",
+      args: [{ prim: "address" }, { prim: "nat" }],
+    }),
   },
   {
     name: "getAllowance",
@@ -146,25 +132,65 @@ const FA12_METHODS_ASSERTIONS = [
 const FA2_METHODS_ASSERTIONS = [
   {
     name: "update_operators",
-    assertion: entrypointAssertionFactory("update_operators", [
-      "list",
-      "or",
-      [
-        ["address", "address", "nat"],
-        ["address", "address", "nat"],
+    assertion: entrypointAssertionFactory("update_operators", {
+      prim: "list",
+      args: [
+        {
+          prim: "or",
+          args: [
+            {
+              prim: "pair",
+              args: [
+                { prim: "address" },
+                {
+                  prim: "pair",
+                  args: [{ prim: "address" }, { prim: "nat" }],
+                },
+              ],
+            },
+            {
+              prim: "pair",
+              args: [
+                { prim: "address" },
+                {
+                  prim: "pair",
+                  args: [{ prim: "address" }, { prim: "nat" }],
+                },
+              ],
+            },
+          ],
+        },
       ],
-    ]),
+    }),
   },
   {
     name: "transfer",
-    assertion: entrypointAssertionFactory("transfer", [
-      "list",
-      "address",
-      "list",
-      "address",
-      "nat",
-      "nat",
-    ]),
+    assertion: entrypointAssertionFactory("transfer", {
+      prim: "list",
+      args: [
+        {
+          prim: "pair",
+          args: [
+            { prim: "address" },
+            {
+              prim: "list",
+              args: [
+                {
+                  prim: "pair",
+                  args: [
+                    { prim: "address" },
+                    {
+                      prim: "pair",
+                      args: [{ prim: "nat" }, { prim: "nat" }],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }),
   },
   {
     name: "balance_of",
@@ -179,7 +205,10 @@ const FA2_METHODS_ASSERTIONS = [
   },
   {
     name: "token_metadata_registry",
-    assertion: entrypointAssertionFactory("token_metadata_registry", ["contract"])
+    assertion: entrypointAssertionFactory("token_metadata_registry", {
+      prim: "contract",
+      args: [{ prim: "address" }],
+    }),
   },
 ];
 
@@ -209,9 +238,7 @@ export async function assertTokenType(
       if (typeof contract.methods[name] !== "function") {
         throw new Error(`'${name}' method isn't defined in contract`);
       }
-      console.log(`trying ${name}`);
       await assertion(contract, tezos, tokenId!);
-      console.log(`${name} passed`);
     })
   );
 }
