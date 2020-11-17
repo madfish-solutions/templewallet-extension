@@ -4,7 +4,8 @@ import { MichelsonV1ExpressionExtended } from "@taquito/rpc";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
 import { loadContract } from "lib/thanos/contract";
 import { mutezToTz } from "lib/thanos/helpers";
-import assert from "lib/assert";
+import assert, { AssertionError } from "lib/assert";
+import { getMessage } from "lib/i18n";
 
 export const XTZ_ASSET: ThanosAsset = {
   type: ThanosAssetType.XTZ,
@@ -244,16 +245,31 @@ export async function assertTokenType(
   tezos: TezosToolkit,
   tokenId?: number
 ) {
+  const isFA12Token = tokenType === ThanosAssetType.FA1_2;
   const assertions =
-    tokenType === ThanosAssetType.FA1_2
+    isFA12Token
       ? FA12_METHODS_ASSERTIONS
       : FA2_METHODS_ASSERTIONS;
   await Promise.all(
     assertions.map(async ({ name, assertion }) => {
       if (typeof contract.methods[name] !== "function") {
-        throw new Error(`'${name}' method isn't defined in contract`);
+        throw new NotMatchingStandardError(
+          getMessage("someMethodNotDefinedInContract", name)
+        );
       }
-      await assertion(contract, tezos, tokenId!);
+      try {
+        await assertion(contract, tezos, tokenId!);
+      } catch (e) {
+        if (e instanceof AssertionError) {
+          throw new NotMatchingStandardError(
+            getMessage("someMethodSignatureDoesNotMatchStandard", name)
+          );
+        } else if (!isFA12Token && name === "balance_of") {
+          throw new Error(`${getMessage("unknownErrorCheckingSomeEntrypoint", name)} ${getMessage("makeSureTokenIdIsCorrect")}`);
+        } else {
+          throw new Error(getMessage("unknownErrorCheckingSomeEntrypoint", name));
+        }
+      }
     })
   );
 }
@@ -357,3 +373,5 @@ export function tryParseParameters(asset: ThanosAsset, parameters: any) {
 export function toPenny(asset: ThanosAsset) {
   return new BigNumber(1).div(10 ** asset.decimals).toNumber();
 }
+
+export class NotMatchingStandardError extends Error {}

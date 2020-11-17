@@ -22,6 +22,7 @@ import {
   validateContractAddress,
   useNetwork,
   assertTokenType,
+  NotMatchingStandardError,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
@@ -108,15 +109,20 @@ const Form: React.FC = () => {
   const [loadingToken, setLoadingToken] = React.useState(false);
 
   React.useEffect(() => {
+    setTokenValidationError(null);
     setBottomSectionVisible(false);
-    if (validateContractAddress(contractAddress) !== true) {
+    if (
+      validateContractAddress(contractAddress) !== true ||
+      tokenId === undefined ||
+      String(tokenId) === ""
+    ) {
+      console.log("escape");
       return;
     }
     triggerValidation("address");
     (async () => {
       try {
         setTokenDataError(null);
-        setTokenValidationError(null);
         setSubmitError(null);
         setLoadingToken(true);
 
@@ -133,13 +139,17 @@ const Form: React.FC = () => {
           } else {
             await assertTokenType(tokenType, contract, tezos, tokenId!);
           }
-        } catch (_err) {
-          throw new TokenValidationError(
-            t(
-              "tokenDoesNotMatchStandard",
-              tokenType === ThanosAssetType.FA1_2 ? "FA1.2" : "FA2"
-            )
-          );
+        } catch (err) {
+          if (err instanceof NotMatchingStandardError) {
+            throw new TokenValidationError(
+              `${t(
+                "tokenDoesNotMatchStandard",
+                tokenType === ThanosAssetType.FA1_2 ? "FA1.2" : "FA2"
+              )}: ${err.message}`
+            );
+          } else {
+            throw new TokenValidationError(err.message);
+          }
         }
 
         const tokenData =
