@@ -253,9 +253,7 @@ export async function assertTokenType(
       if (typeof contract.methods[name] !== "function") {
         throw new Error(`'${name}' method isn't defined in contract`);
       }
-      console.log(`trying ${name}`);
       await assertion(contract, tezos, tokenId!);
-      console.log(`${name} passed`);
     })
   );
 }
