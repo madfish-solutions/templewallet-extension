@@ -63,7 +63,20 @@ function assertArgsTypes(
   const expectedArgs = expression.args;
   assert(receivedArgs?.length === expectedArgs?.length);
   receivedArgs?.forEach((receivedArg: Record<string, any>, index: number) => {
-    assertArgsTypes(receivedArg, expectedArgs![index]);
+    if (expression.prim) {
+      assert(
+        expectedArgs!.some((expectedArg) => {
+          try {
+            assertArgsTypes(receivedArg, expectedArg);
+            return true;
+          } catch {
+            return false;
+          }
+        })
+      );
+    } else {
+      assertArgsTypes(receivedArg, expectedArgs![index]);
+    }
   });
   if (expression.annots) {
     assert(
@@ -147,6 +160,7 @@ const FA2_METHODS_ASSERTIONS = [
                   args: [{ prim: "address" }, { prim: "nat" }],
                 },
               ],
+              annots: ["%remove_operator"],
             },
             {
               prim: "pair",
@@ -157,6 +171,7 @@ const FA2_METHODS_ASSERTIONS = [
                   args: [{ prim: "address" }, { prim: "nat" }],
                 },
               ],
+              annots: ["%add_operator"],
             },
           ],
         },
@@ -238,7 +253,9 @@ export async function assertTokenType(
       if (typeof contract.methods[name] !== "function") {
         throw new Error(`'${name}' method isn't defined in contract`);
       }
+      console.log(`trying ${name}`);
       await assertion(contract, tezos, tokenId!);
+      console.log(`${name} passed`);
     })
   );
 }

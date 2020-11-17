@@ -232,7 +232,12 @@
     "message": "No transfer method"
   },
   "tokenDoesNotMatchStandard": {
-    "message": "Provided token contract doesn't match FA1.2 standard"
+    "message": "Provided token contract doesn't match $standard$ standard",
+    "placeholders": {
+      "standard": {
+        "content": "$1"
+      }
+    }
   },
   "error": {
     "message": "Error"
