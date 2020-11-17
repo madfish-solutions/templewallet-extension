@@ -116,7 +116,6 @@ const Form: React.FC = () => {
       tokenId === undefined ||
       String(tokenId) === ""
     ) {
-      console.log("escape");
       return;
     }
     triggerValidation("address");
