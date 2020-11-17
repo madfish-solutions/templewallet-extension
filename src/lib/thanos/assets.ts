@@ -246,10 +246,9 @@ export async function assertTokenType(
   tokenId?: number
 ) {
   const isFA12Token = tokenType === ThanosAssetType.FA1_2;
-  const assertions =
-    isFA12Token
-      ? FA12_METHODS_ASSERTIONS
-      : FA2_METHODS_ASSERTIONS;
+  const assertions = isFA12Token
+    ? FA12_METHODS_ASSERTIONS
+    : FA2_METHODS_ASSERTIONS;
   await Promise.all(
     assertions.map(async ({ name, assertion }) => {
       if (typeof contract.methods[name] !== "function") {
@@ -265,9 +264,16 @@ export async function assertTokenType(
             getMessage("someMethodSignatureDoesNotMatchStandard", name)
           );
         } else if (!isFA12Token && name === "balance_of") {
-          throw new Error(`${getMessage("unknownErrorCheckingSomeEntrypoint", name)} ${getMessage("makeSureTokenIdIsCorrect")}`);
+          throw new Error(
+            `${getMessage(
+              "unknownErrorCheckingSomeEntrypoint",
+              name
+            )} ${getMessage("makeSureTokenIdIsCorrect")}`
+          );
         } else {
-          throw new Error(getMessage("unknownErrorCheckingSomeEntrypoint", name));
+          throw new Error(
+            getMessage("unknownErrorCheckingSomeEntrypoint", name)
+          );
         }
       }
     })
