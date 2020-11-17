@@ -1,10 +1,13 @@
-import { AxiosResponse } from "axios";
 import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
-import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
+import {
+  TZSTATS_CHAINS,
+  getAccountWithOperations,
+  TZStatsOperation,
+} from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
 import { T } from "lib/i18n/react";
 import {
@@ -22,7 +25,6 @@ import {
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
   BcdOperationsSearchItem,
-  BcdOperationsSearchResponse,
   BCD_NETWORKS_NAMES,
   searchOperations,
   SEARCH_PAGE_SIZE,
@@ -97,7 +99,6 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
         return {
           ...op,
-          hash: op.hash,
           type: op.kind,
           receiver: op.kind === "transaction" ? op.destination : "",
           volume:
@@ -111,7 +112,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
   );
 
   /**
-   * Operation history from TZStats
+   * Operation history from TZStats and BCD
    */
 
   const tzStatsNetwork = React.useMemo(
@@ -132,16 +133,16 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     () => Promise<OperationPreview[]>
   >(async () => {
     try {
-      if (!tzStatsNetwork) return [];
+      const { ops } = tzStatsNetwork
+        ? await getAccountWithOperations(tzStatsNetwork, {
+            pkh: accountPkh,
+            order: "desc",
+            limit: OPERATIONS_LIMIT,
+            offset: 0,
+          })
+        : { ops: [] as TZStatsOperation[] };
 
-      const { ops } = await getAccountWithOperations(tzStatsNetwork, {
-        pkh: accountPkh,
-        order: "desc",
-        limit: OPERATIONS_LIMIT,
-        offset: 0,
-      });
-
-      let bcdOps: Record<string, BcdOperationsSearchItem> = {};
+      const bcdOps: Record<string, BcdOperationsSearchItem> = {};
       const lastTzStatsOp = ops[ops.length - 1];
       if (networkId) {
         const baseBcdSearchParams = {
@@ -151,34 +152,29 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
             new Date(lastTzStatsOp?.time || 0).getTime() / 1000
           ),
         };
-        const firstBcdSearchResponse: AxiosResponse<BcdOperationsSearchResponse> = await searchOperations(
-          baseBcdSearchParams
-        );
-        const {
-          data: { count, items: firstBcdOps },
-        } = firstBcdSearchResponse;
-        const rawBcdOps = [...firstBcdOps];
-        for (let i = 1; i < Math.ceil(count / SEARCH_PAGE_SIZE); i++) {
-          const response: AxiosResponse<BcdOperationsSearchResponse> = await searchOperations(
-            {
-              ...baseBcdSearchParams,
-              offset: i * SEARCH_PAGE_SIZE,
+        let count = Infinity;
+        for (let offset = 0; offset < count; offset += SEARCH_PAGE_SIZE) {
+          const response = await searchOperations({
+            ...baseBcdSearchParams,
+            offset,
+          });
+          const {
+            data: { count: newCount, items },
+          } = response;
+          count = newCount;
+          items.forEach((item) => {
+            const {
+              body: { hash, kind, entrypoint, amount },
+            } = item;
+            if (
+              kind === "transaction" &&
+              entrypoint === "transfer" &&
+              !amount
+            ) {
+              bcdOps[hash] = item;
             }
-          );
-          rawBcdOps.push(...response.data.items);
+          });
         }
-        bcdOps = rawBcdOps
-          .filter(
-            ({ body: { kind, entrypoint, amount } }) =>
-              kind === "transaction" && entrypoint === "transfer" && !amount
-          )
-          .reduce(
-            (newTransfers, transfer) => ({
-              ...newTransfers,
-              [transfer.body.hash]: transfer,
-            }),
-            {}
-          );
       }
 
       const tzStatsOpsWithReplacements = ops.map<OperationPreview>((op) => {
@@ -368,147 +364,127 @@ const Operation = React.memo<OperationProps>(
     const hasTokenTransfers =
       transfersFromParameters && transfersFromParameters.length > 0;
 
-    return React.useMemo(
-      () => (
-        <div className={classNames("my-3", "flex items-stretch")}>
-          <div className="mr-2">
-            <Identicon hash={hash} size={50} className="shadow-xs" />
-          </div>
+    return (
+      <div className={classNames("my-3", "flex items-stretch")}>
+        <div className="mr-2">
+          <Identicon hash={hash} size={50} className="shadow-xs" />
+        </div>
 
-          <div className="flex-1">
-            <div className="flex items-center">
-              <HashChip
-                hash={hash}
-                firstCharsCount={10}
-                lastCharsCount={7}
-                small
+        <div className="flex-1">
+          <div className="flex items-center">
+            <HashChip
+              hash={hash}
+              firstCharsCount={10}
+              lastCharsCount={7}
+              small
+              className="mr-2"
+            />
+
+            {explorerBaseUrl && (
+              <OpenInExplorerChip
+                baseUrl={explorerBaseUrl}
+                opHash={hash}
                 className="mr-2"
               />
+            )}
 
-              {explorerBaseUrl && (
-                <OpenInExplorerChip
-                  baseUrl={explorerBaseUrl}
-                  opHash={hash}
-                  className="mr-2"
-                />
-              )}
+            <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
+          </div>
 
-              <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
-            </div>
+          <div className="flex items-stretch">
+            <div className="flex flex-col">
+              <span className="mt-1 text-xs text-blue-600 opacity-75">
+                {formatOperationType(type, imReceiver)}
+              </span>
 
-            <div className="flex items-stretch">
-              <div className="flex flex-col">
-                <span className="mt-1 text-xs text-blue-600 opacity-75">
-                  {formatOperationType(type, imReceiver)}
-                </span>
+              {(() => {
+                const timeNode = (
+                  <Time
+                    children={() => (
+                      <span className="text-xs font-light text-gray-500">
+                        {formatDistanceToNow(new Date(time), {
+                          includeSeconds: true,
+                          addSuffix: true,
+                          // @TODO Add dateFnsLocale
+                          // locale: dateFnsLocale,
+                        })}
+                      </span>
+                    )}
+                  />
+                );
 
-                {(() => {
-                  const timeNode = (
-                    <Time
-                      children={() => (
-                        <span className="text-xs font-light text-gray-500">
-                          {formatDistanceToNow(new Date(time), {
-                            includeSeconds: true,
-                            addSuffix: true,
-                            // @TODO Add dateFnsLocale
-                            // locale: dateFnsLocale,
-                          })}
-                        </span>
-                      )}
-                    />
-                  );
-
-                  switch (true) {
-                    case failed:
-                      return (
-                        <div className="flex items-center">
-                          <T id={status}>
-                            {(message) => (
-                              <span className="mr-1 text-xs font-light text-red-700">
-                                {message}
-                              </span>
-                            )}
-                          </T>
-
-                          {timeNode}
-                        </div>
-                      );
-
-                    case pending:
-                      return (
-                        <T id="pending">
+                switch (true) {
+                  case failed:
+                    return (
+                      <div className="flex items-center">
+                        <T id={status}>
                           {(message) => (
-                            <span className="text-xs font-light text-yellow-600">
+                            <span className="mr-1 text-xs font-light text-red-700">
                               {message}
                             </span>
                           )}
                         </T>
-                      );
 
-                    default:
-                      return timeNode;
-                  }
-                })()}
-              </div>
+                        {timeNode}
+                      </div>
+                    );
 
-              <div className="flex-1" />
+                  case pending:
+                    return (
+                      <T id="pending">
+                        {(message) => (
+                          <span className="text-xs font-light text-yellow-600">
+                            {message}
+                          </span>
+                        )}
+                      </T>
+                    );
 
-              {!failed && (
-                <div className="flex flex-col items-end flex-shrink-0">
-                  {hasTokenTransfers
-                    ? transfersFromParameters!.map(
-                        ({ receiver, tokenId, volume: tokenVolume }, index) => (
-                          <BalanceUpdateDisplay
-                            key={index}
-                            type={receiver === accountPkh ? "receive" : "send"}
-                            tokenId={tokenId}
-                            tokenAddress={tokenAddress}
-                            pending={pending}
-                            volume={tokenVolume}
-                          />
-                        )
-                      )
-                    : volumeExists && (
-                        <BalanceUpdateDisplay
-                          type={
-                            type === "transaction"
-                              ? receiver === accountPkh
-                                ? "receive"
-                                : "send"
-                              : "other"
-                          }
-                          pending={pending}
-                          volume={new BigNumber(volume)}
-                        />
-                      )}
-                </div>
-              )}
+                  default:
+                    return timeNode;
+                }
+              })()}
             </div>
+
+            <div className="flex-1" />
+
+            {!failed && (
+              <div className="flex flex-col items-end flex-shrink-0">
+                {hasTokenTransfers
+                  ? transfersFromParameters!.map(
+                      ({ receiver, tokenId, volume: tokenVolume }, index) => (
+                        <OperationVolumeDisplay
+                          key={index}
+                          type={receiver === accountPkh ? "receive" : "send"}
+                          tokenId={tokenId}
+                          tokenAddress={tokenAddress}
+                          pending={pending}
+                          volume={tokenVolume}
+                        />
+                      )
+                    )
+                  : volumeExists && (
+                      <OperationVolumeDisplay
+                        type={(() => {
+                          if (type === "transaction") {
+                            return receiver === accountPkh ? "receive" : "send";
+                          }
+                          return "other";
+                        })()}
+                        pending={pending}
+                        volume={new BigNumber(volume)}
+                      />
+                    )}
+              </div>
+            )}
           </div>
         </div>
-      ),
-      [
-        hash,
-        hasTokenTransfers,
-        transfersFromParameters,
-        imReceiver,
-        pending,
-        failed,
-        status,
-        time,
-        type,
-        volumeExists,
-        explorerBaseUrl,
-        volume,
-        receiver,
-        accountPkh,
-        tokenAddress,
-      ]
+      </div>
     );
   }
 );
 
-type BalanceUpdateDisplayProps = {
+type OperationVolumeDisplayProps = {
   type: "send" | "receive" | "other";
   tokenAddress?: string;
   tokenId?: number;
@@ -516,7 +492,9 @@ type BalanceUpdateDisplayProps = {
   volume: BigNumber;
 };
 
-const BalanceUpdateDisplay: React.FC<BalanceUpdateDisplayProps> = (props) => {
+const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
+  props
+) => {
   const { type, tokenId, tokenAddress, pending, volume } = props;
 
   const { allAssets } = useAssets();
