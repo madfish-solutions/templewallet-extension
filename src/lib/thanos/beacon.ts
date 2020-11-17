@@ -1,5 +1,7 @@
-import * as bs58check from "bs58check";
+import { browser } from "webextension-polyfill-ts";
 import { Buffer } from "buffer";
+import * as sodium from "libsodium-wrappers";
+import * as bs58check from "bs58check";
 
 export interface AppMetadata {
   beaconId: string;
@@ -19,17 +21,18 @@ export type Request =
   | PermissionRequest
   | OperationRequest
   | SignRequest
-  | BroadcastRequest;
+  | BroadcastRequest
+  | PostMessagePairingRequest;
 
 export type Response =
   | ErrorResponse
   | PermissionResponse
   | OperationResponse
   | SignResponse
-  | BroadcastResponse;
+  | BroadcastResponse
+  | PostMessagePairingResponse;
 
 export enum MessageType {
-  Error = "error",
   PermissionRequest = "permission_request",
   SignPayloadRequest = "sign_payload_request",
   OperationRequest = "operation_request",
@@ -38,6 +41,8 @@ export enum MessageType {
   SignPayloadResponse = "sign_payload_response",
   OperationResponse = "operation_response",
   BroadcastResponse = "broadcast_response",
+  Disconnect = "disconnect",
+  Error = "error",
 }
 
 export interface BaseMessage {
@@ -114,12 +119,31 @@ export enum ErrorType {
   PARAMETERS_INVALID_ERROR = "PARAMETERS_INVALID_ERROR", // Operation Request: Will be returned if any of the parameters are invalid.
   TOO_MANY_OPERATIONS = "TOO_MANY_OPERATIONS", // Operation Request: Will be returned if too many operations were in the request and they were not able to fit into a single operation group.
   TRANSACTION_INVALID_ERROR = "TRANSACTION_INVALID_ERROR", // Broadcast: Will be returned if the transaction is not parsable or is rejected by the node.
+  ABORTED_ERROR = "ABORTED_ERROR", // Permission | Operation Request | Sign Request | Broadcast: Will be returned if the request was aborted by the user or the wallet.
   UNKNOWN_ERROR = "UNKNOWN_ERROR", // Used as a wildcard if an unexpected error occured.
 }
 
 export interface ErrorResponse extends BaseMessage {
   type: MessageType.Error;
   errorType: ErrorType;
+}
+
+export interface DisconnectMessage extends BaseMessage {
+  type: MessageType.Disconnect;
+}
+
+export interface PostMessagePairingRequest {
+  name: string;
+  icon?: string; // TODO: Should this be a URL or base64 image?
+  appUrl?: string;
+  publicKey: string;
+}
+
+export interface PostMessagePairingResponse {
+  name: string;
+  icon?: string; // TODO: Should this be a URL or base64 image?
+  appUrl?: string;
+  publicKey: string;
 }
 
 export function encodeMessage<T = unknown>(msg: T): string {
@@ -143,4 +167,64 @@ export function formatOpParams(op: any) {
     };
   }
   return rest;
+}
+
+export const PAIRING_RESPONSE_BASE = {
+  version: "2",
+  name: "Thanos Wallet",
+  icon: browser.runtime.getURL("misc/icon-128.png"),
+  appUrl: browser.runtime.getURL("fullpage.html"),
+};
+
+export const KEYPAIR_SEED_STORAGE_KEY = "beacon_keypair_seed";
+
+let keyPair: sodium.KeyPair;
+export async function getOrCreateKeyPair() {
+  const items = await browser.storage.local.get([KEYPAIR_SEED_STORAGE_KEY]);
+  const exist = KEYPAIR_SEED_STORAGE_KEY in items;
+
+  if (exist && keyPair) {
+    return keyPair;
+  }
+
+  let seed: string;
+  if (exist) {
+    seed = items[KEYPAIR_SEED_STORAGE_KEY];
+  } else {
+    const newSeed = generateNewSeed();
+    await browser.storage.local.set({ [KEYPAIR_SEED_STORAGE_KEY]: newSeed });
+    seed = newSeed;
+  }
+
+  await sodium.ready;
+  keyPair = sodium.crypto_sign_seed_keypair(
+    sodium.crypto_generichash(32, sodium.from_string(seed))
+  );
+  return keyPair;
+}
+
+export async function getDAppPublicKey(origin: string) {
+  const key = toPubKeyStorageKey(origin);
+  const items = await browser.storage.local.get([key]);
+  return key in items ? (items[key] as string) : null;
+}
+
+export async function saveDAppPublicKey(origin: string, publicKey: string) {
+  await browser.storage.local.set({
+    [toPubKeyStorageKey(origin)]: publicKey,
+  });
+}
+
+export function generateNewSeed() {
+  const view = new Uint8Array(32);
+  crypto.getRandomValues(view);
+  return toHex(view);
+}
+
+export function toHex(term: Uint8Array | Buffer) {
+  return Buffer.from(term).toString("hex");
+}
+
+function toPubKeyStorageKey(origin: string) {
+  return `beacon_${origin}_pubkey`;
 }
