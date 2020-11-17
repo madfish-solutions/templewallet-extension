@@ -134,7 +134,12 @@ const Form: React.FC = () => {
             await assertTokenType(tokenType, contract, tezos, tokenId!);
           }
         } catch (_err) {
-          throw new TokenValidationError(t("tokenDoesNotMatchStandard"));
+          throw new TokenValidationError(
+            t(
+              "tokenDoesNotMatchStandard",
+              tokenType === ThanosAssetType.FA1_2 ? "FA1.2" : "FA2"
+            )
+          );
         }
 
         const tokenData =
