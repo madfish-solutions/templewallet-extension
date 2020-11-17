@@ -1413,5 +1413,32 @@
   },
   "invalidManagedContract": {
     "message": "Invalid managed contract"
+  },
+  "someMethodNotDefinedInContract": {
+    "message": "'$name$' method isn't defined in contract.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "someMethodSignatureDoesNotMatchStandard": {
+    "message": "'$name$' method's signature doesn't match the standard.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "makeSureTokenIdIsCorrect": {
+    "message": "Please make sure that token ID is correct."
+  },
+  "unknownErrorCheckingSomeEntrypoint": {
+    "message": "An unknown error while checking '$name$' entrypoint occurred.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
   }
 }
