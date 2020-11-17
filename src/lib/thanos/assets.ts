@@ -6,6 +6,7 @@ import { loadContract } from "lib/thanos/contract";
 import { mutezToTz } from "lib/thanos/helpers";
 import assert, { AssertionError } from "lib/assert";
 import { getMessage } from "lib/i18n";
+import { ReactiveTezosToolkit } from "lib/thanos/front";
 
 export const XTZ_ASSET: ThanosAsset = {
   type: ThanosAssetType.XTZ,
@@ -100,8 +101,8 @@ function entrypointAssertionFactory(
 }
 
 function viewSuccessAssertionFactory(name: string, args: any[]) {
-  return async (contract: WalletContract, tezos: TezosToolkit) => {
-    await contract.views[name](...args).read((tezos as any).lambdaContract);
+  return async (contract: WalletContract, tezos: ReactiveTezosToolkit) => {
+    await contract.views[name](...args).read(tezos.lambdaContract);
   };
 }
 
@@ -143,6 +144,7 @@ const FA12_METHODS_ASSERTIONS = [
     assertion: viewSuccessAssertionFactory("getTotalSupply", ["unit"]),
   },
 ];
+
 const FA2_METHODS_ASSERTIONS = [
   {
     name: "update_operators",
@@ -212,7 +214,7 @@ const FA2_METHODS_ASSERTIONS = [
     name: "balance_of",
     assertion: (
       contract: WalletContract,
-      tezos: TezosToolkit,
+      tezos: ReactiveTezosToolkit,
       tokenId: number
     ) =>
       viewSuccessAssertionFactory("balance_of", [
@@ -231,18 +233,18 @@ const FA2_METHODS_ASSERTIONS = [
 export async function assertTokenType(
   tokenType: ThanosAssetType.FA1_2,
   contract: WalletContract,
-  tezos: TezosToolkit
+  tezos: ReactiveTezosToolkit
 ): Promise<void>;
 export async function assertTokenType(
   tokenType: ThanosAssetType.FA2,
   contract: WalletContract,
-  tezos: TezosToolkit,
+  tezos: ReactiveTezosToolkit,
   tokenId: number
 ): Promise<void>;
 export async function assertTokenType(
   tokenType: ThanosAssetType.FA1_2 | ThanosAssetType.FA2,
   contract: WalletContract,
-  tezos: TezosToolkit,
+  tezos: ReactiveTezosToolkit,
   tokenId?: number
 ) {
   const isFA12Token = tokenType === ThanosAssetType.FA1_2;
@@ -281,7 +283,7 @@ export async function assertTokenType(
 }
 
 export async function fetchBalance(
-  tezos: TezosToolkit,
+  tezos: ReactiveTezosToolkit,
   asset: ThanosAsset,
   accountPkh: string
 ) {
@@ -296,13 +298,13 @@ export async function fetchBalance(
       const contract: any = await loadContract(tezos, asset.address, false);
       const nat: BigNumber = await contract.views
         .getBalance(accountPkh)
-        .read((tezos as any).lambdaContract);
+        .read(tezos.lambdaContract);
       return nat.div(10 ** asset.decimals);
     case ThanosAssetType.FA2:
       const fa2Contract: any = await loadContract(tezos, asset.address, false);
       const response = await fa2Contract.views
         .balance_of([{ owner: accountPkh, token_id: asset.id }])
-        .read((tezos as any).lambdaContract);
+        .read(tezos.lambdaContract);
       return response[0].balance.div(10 ** asset.decimals);
 
     default:
