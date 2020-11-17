@@ -416,7 +416,23 @@ export async function processDApp(
 }
 
 export async function processBeacon(origin: string, msg: string) {
+  console.info({ msg });
   const req = Beacon.decodeMessage<Beacon.Request>(msg);
+  console.info({ req });
+
+  if (!("type" in req)) {
+    if (req.publicKey) {
+      await Beacon.saveDAppPublicKey(origin, req.publicKey);
+    }
+
+    const keyPair = await Beacon.getOrCreateKeyPair();
+    const res = Beacon.encodeMessage<Beacon.PostMessagePairingResponse>({
+      ...Beacon.PAIRING_RESPONSE_BASE,
+      publicKey: Beacon.toHex(keyPair.publicKey),
+    });
+    return res;
+  }
+
   const resBase = {
     version: req.version,
     beaconId: BEACON_ID,
