@@ -461,7 +461,7 @@ const Operation = React.memo<OperationProps>(
                     {tokenAddress ? token?.symbol || "???" : "ꜩ"}
                   </div>
 
-                  {!tokenAddress && (
+                  {!tokenAddress || token ? (
                     <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
                       {(usdVolume) => (
                         <div className="text-xs text-gray-500">
@@ -470,7 +470,7 @@ const Operation = React.memo<OperationProps>(
                         </div>
                       )}
                     </InUSD>
-                  )}
+                  ) : null}
                 </div>
               )}
             </div>
