@@ -307,6 +307,8 @@ const Form: React.FC = () => {
     [formState.isSubmitting, addToken, setAssetSymbol]
   );
 
+  const isFA12Token = tokenType === ThanosAssetType.FA1_2;
+
   return (
     <form
       className="w-full max-w-sm mx-auto my-8"
@@ -345,21 +347,16 @@ const Form: React.FC = () => {
         labelDescription={t("addressOfDeployedTokenContract")}
         placeholder={t("tokenContractPlaceholder")}
         errorCaption={errors.address?.message}
-        containerClassName="mb-4"
+        containerClassName={isFA12Token ? "mb-6" : "mb-4"}
       />
 
       <div
-        className={classNames(
-          "mb-4",
-          "flex flex-col",
-          tokenType === ThanosAssetType.FA1_2 && "hidden"
-        )}
+        className={classNames("mb-6", "flex flex-col", isFA12Token && "hidden")}
       >
         <FormField
           ref={register({
             min: { value: 0, message: t("nonNegativeIntMessage") },
-            required:
-              tokenType === ThanosAssetType.FA1_2 ? undefined : t("required"),
+            required: isFA12Token ? undefined : t("required"),
           })}
           min={0}
           type="number"
