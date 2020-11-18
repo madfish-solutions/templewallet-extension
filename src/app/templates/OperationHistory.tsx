@@ -93,7 +93,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         if (
           parameters &&
           op.kind === "transaction" &&
-          (op as any).entrypoint === "transfer"
+          parameters.entrypoint === "transfer"
         ) {
           guessedTokenType =
             parameters.value instanceof Array
