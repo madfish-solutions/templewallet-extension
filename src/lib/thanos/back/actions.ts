@@ -415,22 +415,36 @@ export async function processDApp(
   }
 }
 
-export async function processBeacon(origin: string, msg: string) {
-  console.info({ msg });
+export async function processBeacon(
+  origin: string,
+  msg: string,
+  encrypted = false
+) {
+  let recipientPubKey: string | null = null;
+  if (encrypted) {
+    recipientPubKey = await Beacon.getDAppPublicKey(origin);
+    if (recipientPubKey) {
+      msg = await Beacon.decryptMessage(msg, recipientPubKey);
+    }
+  }
+
   const req = Beacon.decodeMessage<Beacon.Request>(msg);
-  console.info({ req });
 
   if (!("type" in req)) {
     if (req.publicKey) {
       await Beacon.saveDAppPublicKey(origin, req.publicKey);
-    }
 
-    const keyPair = await Beacon.getOrCreateKeyPair();
-    const res = Beacon.encodeMessage<Beacon.PostMessagePairingResponse>({
-      ...Beacon.PAIRING_RESPONSE_BASE,
-      publicKey: Beacon.toHex(keyPair.publicKey),
-    });
-    return res;
+      const keyPair = await Beacon.getOrCreateKeyPair();
+      return Beacon.sealCryptobox(
+        JSON.stringify({
+          ...Beacon.PAIRING_RESPONSE_BASE,
+          publicKey: Beacon.toHex(keyPair.publicKey),
+        }),
+        Beacon.fromHex(req.publicKey)
+      );
+    } else {
+      return Beacon.encodeMessage(null);
+    }
   }
 
   const resBase = {
@@ -559,5 +573,9 @@ export async function processBeacon(origin: string, msg: string) {
     }
   })();
 
-  return Beacon.encodeMessage<Beacon.Response>(res);
+  const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
+  if (encrypted && recipientPubKey) {
+    return Beacon.encryptMessage(resMsg, recipientPubKey);
+  }
+  return resMsg;
 }

@@ -602,6 +602,7 @@ export interface ThanosPageRequest extends ThanosMessageBase {
   origin: string;
   payload: any;
   beacon?: boolean;
+  encrypted?: boolean;
 }
 
 export interface ThanosPageResponse extends ThanosMessageBase {

@@ -169,6 +169,10 @@ export function formatOpParams(op: any) {
   return rest;
 }
 
+/**
+ * Beacon V2
+ */
+
 export const PAIRING_RESPONSE_BASE = {
   version: "2",
   name: "Thanos Wallet",
@@ -177,6 +181,133 @@ export const PAIRING_RESPONSE_BASE = {
 };
 
 export const KEYPAIR_SEED_STORAGE_KEY = "beacon_keypair_seed";
+
+export async function encryptMessage(
+  message: string,
+  recipientPublicKey: string
+): Promise<string> {
+  const keyPair = await getOrCreateKeyPair();
+  const { sharedTx } = await createCryptoBoxClient(
+    recipientPublicKey,
+    keyPair.privateKey
+  );
+
+  return encryptCryptoboxPayload(message, sharedTx);
+}
+
+export async function decryptMessage(payload: string, senderPublicKey: string) {
+  const keyPair = await getOrCreateKeyPair();
+  const { sharedRx } = await createCryptoBoxServer(
+    senderPublicKey,
+    keyPair.privateKey
+  );
+
+  const hexPayload = Buffer.from(payload, "hex");
+
+  if (
+    hexPayload.length >=
+    sodium.crypto_secretbox_NONCEBYTES + sodium.crypto_secretbox_MACBYTES
+  ) {
+    try {
+      return await decryptCryptoboxPayload(hexPayload, sharedRx);
+    } catch (decryptionError) {
+      /* NO-OP. We try to decode every message, but some might not be addressed to us. */
+    }
+  }
+
+  throw new Error("Could not decrypt message");
+}
+
+export async function sealCryptobox(
+  payload: string | Buffer,
+  publicKey: Uint8Array
+): Promise<string> {
+  await sodium.ready;
+
+  const kxSelfPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(
+    Buffer.from(publicKey)
+  ); // Secret bytes to scalar bytes
+  const encryptedMessage = sodium.crypto_box_seal(payload, kxSelfPublicKey);
+
+  return toHex(encryptedMessage);
+}
+
+export async function encryptCryptoboxPayload(
+  message: string,
+  sharedKey: Uint8Array
+): Promise<string> {
+  await sodium.ready;
+
+  const nonce = Buffer.from(
+    sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES)
+  );
+  const combinedPayload = Buffer.concat([
+    nonce,
+    Buffer.from(
+      sodium.crypto_secretbox_easy(
+        Buffer.from(message, "utf8"),
+        nonce,
+        sharedKey
+      )
+    ),
+  ]);
+
+  return toHex(combinedPayload);
+}
+
+export async function decryptCryptoboxPayload(
+  payload: Uint8Array,
+  sharedKey: Uint8Array
+): Promise<string> {
+  await sodium.ready;
+
+  const nonce = payload.slice(0, sodium.crypto_secretbox_NONCEBYTES);
+  const ciphertext = payload.slice(sodium.crypto_secretbox_NONCEBYTES);
+
+  return Buffer.from(
+    sodium.crypto_secretbox_open_easy(ciphertext, nonce, sharedKey)
+  ).toString("utf8");
+}
+
+export async function createCryptoBoxServer(
+  otherPublicKey: string,
+  selfPrivateKey: Uint8Array
+): Promise<sodium.CryptoKX> {
+  const keys = await createCryptoBox(otherPublicKey, selfPrivateKey);
+
+  return sodium.crypto_kx_server_session_keys(...keys);
+}
+
+export async function createCryptoBoxClient(
+  otherPublicKey: string,
+  selfPrivateKey: Uint8Array
+): Promise<sodium.CryptoKX> {
+  const keys = await createCryptoBox(otherPublicKey, selfPrivateKey);
+
+  return sodium.crypto_kx_client_session_keys(...keys);
+}
+
+export async function createCryptoBox(
+  otherPublicKey: string,
+  selfPrivateKey: Uint8Array
+): Promise<[Uint8Array, Uint8Array, Uint8Array]> {
+  // TODO: Don't calculate it every time?
+  const kxSelfPrivateKey = sodium.crypto_sign_ed25519_sk_to_curve25519(
+    Buffer.from(selfPrivateKey)
+  ); // Secret bytes to scalar bytes
+  const kxSelfPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(
+    Buffer.from(selfPrivateKey).slice(32, 64)
+  ); // Secret bytes to scalar bytes
+  const kxOtherPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(
+    Buffer.from(otherPublicKey, "hex")
+  ); // Secret bytes to scalar bytes
+
+  return [
+    Buffer.from(kxSelfPublicKey),
+    Buffer.from(kxSelfPrivateKey),
+    Buffer.from(kxOtherPublicKey),
+  ];
+}
 
 let keyPair: sodium.KeyPair;
 export async function getOrCreateKeyPair() {
@@ -223,6 +354,10 @@ export function generateNewSeed() {
 
 export function toHex(term: Uint8Array | Buffer) {
   return Buffer.from(term).toString("hex");
+}
+
+export function fromHex(term: string) {
+  return Buffer.from(term, "hex");
 }
 
 function toPubKeyStorageKey(origin: string) {
