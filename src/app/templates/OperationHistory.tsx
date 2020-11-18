@@ -84,15 +84,29 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
   const pendingOperations = React.useMemo<OperationPreview[]>(
     () =>
-      pndOps.map((op) => ({
-        ...op,
-        hash: op.hash,
-        type: op.kind,
-        receiver: op.kind === "transaction" ? op.destination : "",
-        volume: op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
-        status: "pending",
-        time: op.addedAt,
-      })),
+      pndOps.map((op) => {
+        const parameters = (op as any).parameters;
+        let tokenId = undefined;
+        if (
+          op.kind === "transaction" &&
+          parameters?.entrypoint === "transfer" &&
+          parameters.value instanceof Array
+        ) {
+          tokenId = Number(parameters.value[0].args[1][0].args[1].args[0].int);
+        }
+
+        return {
+          ...op,
+          hash: op.hash,
+          type: op.kind,
+          receiver: op.kind === "transaction" ? op.destination : "",
+          volume:
+            op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
+          status: "pending",
+          time: op.addedAt,
+          tokenId,
+        };
+      }),
     [pndOps]
   );
 
@@ -327,16 +341,12 @@ const Operation = React.memo<OperationProps>(
             }
             return (
               a.address === tokenAddress &&
-              (tokenId === undefined ||
-                (a.type === ThanosAssetType.FA2 && a.id === tokenId))
+              (a.type !== ThanosAssetType.FA2 || a.id === tokenId)
             );
           })) ||
         null,
       [allAssets, tokenAddress, tokenId]
     );
-    if (status === "pending") {
-      console.log(tokenAddress, token);
-    }
 
     const parsedParameters = React.useMemo(() => {
       if (parameters && token && !tokenAddressFromBcd) {
@@ -358,7 +368,6 @@ const Operation = React.memo<OperationProps>(
     }
 
     const volumeExists = !finalVolume.eq(0);
-    const typeTx = type === "transaction";
     const imReceiver = finalReceiver === accountPkh;
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
