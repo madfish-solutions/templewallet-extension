@@ -20,12 +20,12 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
   const { resolver: domainsResolver } = useTezosDomainsClient();
 
   const resolveDomainReverseName = React.useCallback(
-    () => domainsResolver.resolveAddressToName(pkh),
-    [domainsResolver, pkh]
+    (_k: string, pkh: string) => domainsResolver.resolveAddressToName(pkh),
+    [domainsResolver]
   );
 
   const { data: reverseName } = useSWR(
-    () => ["tzdns-reverse-name", tezos.checksum],
+    () => ["tzdns-reverse-name", pkh, tezos.checksum],
     resolveDomainReverseName,
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
