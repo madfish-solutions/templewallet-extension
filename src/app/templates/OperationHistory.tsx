@@ -16,8 +16,6 @@ import {
   mutezToTz,
   isKnownChainId,
   ThanosAsset,
-  ThanosXTZAsset,
-  useAllAssetsRef,
   useAssets,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
@@ -336,6 +334,9 @@ const Operation = React.memo<OperationProps>(
         null,
       [allAssets, tokenAddress, tokenId]
     );
+    if (status === "pending") {
+      console.log(tokenAddress, token);
+    }
 
     const parsedParameters = React.useMemo(() => {
       if (parameters && token && !tokenAddressFromBcd) {
@@ -451,7 +452,7 @@ const Operation = React.memo<OperationProps>(
                 {tokenAddress ? (
                   <OperationVolumeDisplay
                     type={imReceiver ? "receive" : "send"}
-                    tokenId={tokenId}
+                    token={token || undefined}
                     tokenAddress={tokenAddress}
                     pending={pending}
                     volume={finalVolume}
@@ -482,7 +483,7 @@ const Operation = React.memo<OperationProps>(
 type OperationVolumeDisplayProps = {
   type: "send" | "receive" | "other";
   tokenAddress?: string;
-  tokenId?: number;
+  token?: ThanosAsset;
   pending: boolean;
   volume: BigNumber;
 };
@@ -490,21 +491,7 @@ type OperationVolumeDisplayProps = {
 const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
   props
 ) => {
-  const { type, tokenId, tokenAddress, pending, volume: rawVolume } = props;
-
-  const allAssetsRef = useAllAssetsRef();
-  const token = React.useMemo(
-    () =>
-      tokenAddress
-        ? allAssetsRef.current.find(
-            (a): a is Exclude<ThanosAsset, ThanosXTZAsset> =>
-              a.type !== ThanosAssetType.XTZ &&
-              a.address === tokenAddress &&
-              (a.type !== ThanosAssetType.FA2 || tokenId === a.id)
-          )
-        : undefined,
-    [allAssetsRef, tokenAddress, tokenId]
-  );
+  const { type, token, tokenAddress, pending, volume: rawVolume } = props;
 
   const volume = rawVolume.div(10 ** (token?.decimals || 0));
   const isTransaction = type !== "other";
