@@ -430,6 +430,7 @@ export async function processBeacon(
 
   const req = Beacon.decodeMessage<Beacon.Request>(msg);
 
+  // Process handshake
   if (!("type" in req)) {
     if (req.publicKey) {
       await Beacon.saveDAppPublicKey(origin, req.publicKey);
@@ -443,8 +444,15 @@ export async function processBeacon(
         Beacon.fromHex(req.publicKey)
       );
     } else {
-      return Beacon.encodeMessage(null);
+      return;
     }
+  }
+
+  // Process Disconnect
+  if (req.type === Beacon.MessageType.Disconnect) {
+    await Beacon.removeDAppPublicKey(origin);
+    await removeDApp(origin);
+    return;
   }
 
   const resBase = {
