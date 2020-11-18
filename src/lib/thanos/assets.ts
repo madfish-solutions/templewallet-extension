@@ -3,7 +3,9 @@ import { TezosToolkit, WalletContract } from "@taquito/taquito";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
 import { loadContract } from "lib/thanos/contract";
 import { mutezToTz } from "lib/thanos/helpers";
-import assert from "lib/assert";
+import assert, { AssertionError } from "lib/assert";
+import { getMessage } from "lib/i18n";
+import { ReactiveTezosToolkit } from "lib/thanos/front";
 
 export const XTZ_ASSET: ThanosAsset = {
   type: ThanosAssetType.XTZ,
@@ -49,71 +51,125 @@ export const MAINNET_TOKENS: ThanosToken[] = [
   },
 ];
 
+function signatureAssertionFactory(name: string, args: string[]) {
+  return (contract: WalletContract) => {
+    const signatures = contract.parameterSchema.ExtractSignatures();
+    const receivedSignature = signatures.find(signature => signature[0] === name);
+    assert(receivedSignature);
+    const receivedArgs = receivedSignature.slice(1);
+    assert(receivedArgs.length === args.length);
+    receivedArgs.forEach((receivedArg, index) => assert(receivedArg === args[index]));
+  }
+}
+
+function viewSuccessAssertionFactory(name: string, args: any[]) {
+  return async (contract: WalletContract, tezos: ReactiveTezosToolkit) => {
+    await contract.views[name](...args).read(tezos.lambdaContract);
+  };
+}
+
 const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
 const FA12_METHODS_ASSERTIONS = [
   {
     name: "transfer",
-    assertion: (contract: WalletContract) => {
-      const transferInterface: Record<string, any> =
-        contract.entrypoints.entrypoints.transfer;
-      assert(transferInterface.prim === "pair");
-      assert(transferInterface.args?.length === 2);
-      assert(transferInterface.args[0].prim === "address");
-      const restArgs = transferInterface.args[1];
-      assert(restArgs.prim === "pair");
-      assert(restArgs.args?.length === 2);
-      assert(restArgs.args[0].prim === "address");
-      assert(restArgs.args[1].prim === "nat");
-    },
+    assertion: signatureAssertionFactory("transfer", ["address", "address", "nat"]),
   },
   {
     name: "approve",
-    assertion: (contract: WalletContract) => {
-      const approveInterface: Record<string, any> =
-        contract.entrypoints.entrypoints.approve;
-      assert(approveInterface.prim === "pair");
-      assert(approveInterface.args?.length === 2);
-      assert(approveInterface.args[0].prim === "address");
-      assert(approveInterface.args[1].prim === "nat");
-    },
+    assertion: signatureAssertionFactory("approve", ["address", "nat"]),
   },
   {
     name: "getAllowance",
-    assertion: (contract: WalletContract, tezos: TezosToolkit) =>
-      contract.views
-        .getAllowance(STUB_TEZOS_ADDRESS, STUB_TEZOS_ADDRESS)
-        .read((tezos as any).lambdaContract),
+    assertion: viewSuccessAssertionFactory("getAllowance", [
+      STUB_TEZOS_ADDRESS,
+      STUB_TEZOS_ADDRESS,
+    ]),
   },
   {
     name: "getBalance",
-    assertion: (contract: WalletContract, tezos: TezosToolkit) =>
-      contract.views
-        .getBalance(STUB_TEZOS_ADDRESS)
-        .read((tezos as any).lambdaContract),
+    assertion: viewSuccessAssertionFactory("getBalance", [STUB_TEZOS_ADDRESS]),
   },
   {
     name: "getTotalSupply",
-    assertion: (contract: WalletContract, tezos: TezosToolkit) =>
-      contract.views.getTotalSupply("unit").read((tezos as any).lambdaContract),
+    assertion: viewSuccessAssertionFactory("getTotalSupply", ["unit"]),
   },
 ];
 
-export async function assertFA12Token(
+const FA2_METHODS_ASSERTIONS = [
+  {
+    name: "update_operators",
+    assertion: signatureAssertionFactory("update_operators", ["list"]),
+  },
+  {
+    name: "transfer",
+    assertion: signatureAssertionFactory("transfer", ["list"]),
+  },
+  {
+    name: "balance_of",
+    assertion: (
+      contract: WalletContract,
+      tezos: ReactiveTezosToolkit,
+      tokenId: number
+    ) =>
+      viewSuccessAssertionFactory("balance_of", [
+        [{ owner: STUB_TEZOS_ADDRESS, token_id: String(tokenId) }],
+      ])(contract, tezos),
+  },
+  {
+    name: "token_metadata_registry",
+    assertion: signatureAssertionFactory("token_metadata_registry", ["contract"]),
+  },
+];
+
+export async function assertTokenType(
+  tokenType: ThanosAssetType.FA1_2,
   contract: WalletContract,
-  tezos: TezosToolkit
+  tezos: ReactiveTezosToolkit
+): Promise<void>;
+export async function assertTokenType(
+  tokenType: ThanosAssetType.FA2,
+  contract: WalletContract,
+  tezos: ReactiveTezosToolkit,
+  tokenId: number
+): Promise<void>;
+export async function assertTokenType(
+  tokenType: ThanosAssetType.FA1_2 | ThanosAssetType.FA2,
+  contract: WalletContract,
+  tezos: ReactiveTezosToolkit,
+  tokenId?: number
 ) {
+  const isFA12Token = tokenType === ThanosAssetType.FA1_2;
+  const assertions = isFA12Token
+    ? FA12_METHODS_ASSERTIONS
+    : FA2_METHODS_ASSERTIONS;
   await Promise.all(
-    FA12_METHODS_ASSERTIONS.map(async ({ name, assertion }) => {
+    assertions.map(async ({ name, assertion }) => {
       if (typeof contract.methods[name] !== "function") {
-        throw new Error(`'${name}' method isn't defined in contract`);
+        throw new NotMatchingStandardError(
+          getMessage("someMethodNotDefinedInContract", name)
+        );
       }
-      await assertion(contract, tezos);
+      try {
+        await assertion(contract, tezos, tokenId!);
+      } catch (e) {
+        if (e instanceof AssertionError) {
+          throw new NotMatchingStandardError(
+            getMessage("someMethodSignatureDoesNotMatchStandard", name)
+          );
+        } else if (e.value?.string === "FA2_TOKEN_UNDEFINED") {
+          throw new Error(getMessage("incorrectTokenIdErrorMessage"));
+        } else {
+          throw new Error(
+            getMessage("unknownErrorCheckingSomeEntrypoint", name)
+          );
+        }
+      }
     })
   );
 }
 
 export async function fetchBalance(
-  tezos: TezosToolkit,
+  tezos: ReactiveTezosToolkit,
   asset: ThanosAsset,
   accountPkh: string
 ) {
@@ -128,8 +184,14 @@ export async function fetchBalance(
       const contract: any = await loadContract(tezos, asset.address, false);
       const nat: BigNumber = await contract.views
         .getBalance(accountPkh)
-        .read((tezos as any).lambdaContract);
+        .read(tezos.lambdaContract);
       return nat.div(10 ** asset.decimals);
+    case ThanosAssetType.FA2:
+      const fa2Contract: any = await loadContract(tezos, asset.address, false);
+      const response = await fa2Contract.views
+        .balance_of([{ owner: accountPkh, token_id: asset.id }])
+        .read(tezos.lambdaContract);
+      return response[0].balance.div(10 ** asset.decimals);
 
     default:
       throw new Error("Not Supported");
@@ -153,14 +215,25 @@ export async function toTransferParams(
     case ThanosAssetType.Staker:
     case ThanosAssetType.TzBTC:
     case ThanosAssetType.FA1_2:
+    case ThanosAssetType.FA2:
       const contact = await loadContract(tezos, asset.address);
-      return contact.methods
-        .transfer(
-          fromPkh,
-          toPkh,
-          new BigNumber(amount).times(10 ** asset.decimals).toString()
-        )
-        .toTransferParams();
+      const pennyAmount = new BigNumber(amount)
+        .times(10 ** asset.decimals)
+        .toString();
+      const methodArgs =
+        asset.type === ThanosAssetType.FA2
+          ? [
+              [
+                {
+                  from_: fromPkh,
+                  txs: [
+                    { to_: toPkh, token_id: asset.id, amount: pennyAmount },
+                  ],
+                },
+              ],
+            ]
+          : [fromPkh, toPkh, pennyAmount];
+      return contact.methods.transfer(...methodArgs).toTransferParams();
 
     default:
       throw new Error("Not Supported");
@@ -194,3 +267,5 @@ export function tryParseParameters(asset: ThanosAsset, parameters: any) {
 export function toPenny(asset: ThanosAsset) {
   return new BigNumber(1).div(10 ** asset.decimals).toNumber();
 }
+
+export class NotMatchingStandardError extends Error {}
