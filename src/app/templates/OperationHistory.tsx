@@ -90,7 +90,11 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       pndOps.map((op) => {
         const parameters = (op as any).parameters;
         let guessedTokenType: OperationPreview["guessedTokenType"];
-        if (parameters && op.kind === "transaction") {
+        if (
+          parameters &&
+          op.kind === "transaction" &&
+          (op as any).entrypoint === "transfer"
+        ) {
           guessedTokenType =
             parameters.value instanceof Array
               ? ThanosAssetType.FA2
