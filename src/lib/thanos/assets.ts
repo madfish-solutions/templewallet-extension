@@ -1,6 +1,5 @@
 import BigNumber from "bignumber.js";
 import { TezosToolkit, WalletContract } from "@taquito/taquito";
-import { MichelsonV1ExpressionExtended } from "@taquito/rpc";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
 import { loadContract } from "lib/thanos/contract";
 import { mutezToTz } from "lib/thanos/helpers";
@@ -52,52 +51,15 @@ export const MAINNET_TOKENS: ThanosToken[] = [
   },
 ];
 
-type MichelsonArgsExpression = Omit<MichelsonV1ExpressionExtended, "args"> & {
-  args?: MichelsonArgsExpression[];
-};
-
-function assertArgsTypes(
-  entrypointInterface: Record<string, any>,
-  expression: MichelsonArgsExpression
-) {
-  assert(entrypointInterface.prim === expression.prim);
-  const receivedArgs = entrypointInterface.args;
-  const expectedArgs = expression.args;
-  assert(receivedArgs?.length === expectedArgs?.length);
-  receivedArgs?.forEach((receivedArg: Record<string, any>, index: number) => {
-    if (expression.prim) {
-      assert(
-        expectedArgs!.some((expectedArg) => {
-          try {
-            assertArgsTypes(receivedArg, expectedArg);
-            return true;
-          } catch {
-            return false;
-          }
-        })
-      );
-    } else {
-      assertArgsTypes(receivedArg, expectedArgs![index]);
-    }
-  });
-  if (expression.annots) {
-    assert(
-      expression.annots.every((requiredAnnot) => {
-        return entrypointInterface.annots?.includes(requiredAnnot);
-      })
-    );
-  }
-}
-
-function entrypointAssertionFactory(
-  name: string,
-  expression: MichelsonArgsExpression
-) {
+function signatureAssertionFactory(name: string, args: string[]) {
   return (contract: WalletContract) => {
-    const entrypointInterface: Record<string, any> =
-      contract.entrypoints.entrypoints[name];
-    assertArgsTypes(entrypointInterface, expression);
-  };
+    const signatures = contract.parameterSchema.ExtractSignatures();
+    const receivedSignature = signatures.find(signature => signature[0] === name);
+    assert(receivedSignature);
+    const receivedArgs = receivedSignature.slice(1);
+    assert(receivedArgs.length === args.length);
+    receivedArgs.forEach((receivedArg, index) => assert(receivedArg === args[index]));
+  }
 }
 
 function viewSuccessAssertionFactory(name: string, args: any[]) {
@@ -110,23 +72,11 @@ const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
 const FA12_METHODS_ASSERTIONS = [
   {
     name: "transfer",
-    assertion: entrypointAssertionFactory("transfer", {
-      prim: "pair",
-      args: [
-        { prim: "address" },
-        {
-          prim: "pair",
-          args: [{ prim: "address" }, { prim: "nat" }],
-        },
-      ],
-    }),
+    assertion: signatureAssertionFactory("transfer", ["address", "address", "nat"]),
   },
   {
     name: "approve",
-    assertion: entrypointAssertionFactory("approve", {
-      prim: "pair",
-      args: [{ prim: "address" }, { prim: "nat" }],
-    }),
+    assertion: signatureAssertionFactory("approve", ["address", "nat"]),
   },
   {
     name: "getAllowance",
@@ -148,67 +98,11 @@ const FA12_METHODS_ASSERTIONS = [
 const FA2_METHODS_ASSERTIONS = [
   {
     name: "update_operators",
-    assertion: entrypointAssertionFactory("update_operators", {
-      prim: "list",
-      args: [
-        {
-          prim: "or",
-          args: [
-            {
-              prim: "pair",
-              args: [
-                { prim: "address" },
-                {
-                  prim: "pair",
-                  args: [{ prim: "address" }, { prim: "nat" }],
-                },
-              ],
-              annots: ["%remove_operator"],
-            },
-            {
-              prim: "pair",
-              args: [
-                { prim: "address" },
-                {
-                  prim: "pair",
-                  args: [{ prim: "address" }, { prim: "nat" }],
-                },
-              ],
-              annots: ["%add_operator"],
-            },
-          ],
-        },
-      ],
-    }),
+    assertion: signatureAssertionFactory("update_operators", ["list"]),
   },
   {
     name: "transfer",
-    assertion: entrypointAssertionFactory("transfer", {
-      prim: "list",
-      args: [
-        {
-          prim: "pair",
-          args: [
-            { prim: "address" },
-            {
-              prim: "list",
-              args: [
-                {
-                  prim: "pair",
-                  args: [
-                    { prim: "address" },
-                    {
-                      prim: "pair",
-                      args: [{ prim: "nat" }, { prim: "nat" }],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }),
+    assertion: signatureAssertionFactory("transfer", ["list"]),
   },
   {
     name: "balance_of",
@@ -223,10 +117,7 @@ const FA2_METHODS_ASSERTIONS = [
   },
   {
     name: "token_metadata_registry",
-    assertion: entrypointAssertionFactory("token_metadata_registry", {
-      prim: "contract",
-      args: [{ prim: "address" }],
-    }),
+    assertion: signatureAssertionFactory("token_metadata_registry", ["contract"]),
   },
 ];
 

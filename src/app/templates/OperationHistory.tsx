@@ -499,7 +499,7 @@ type OperationVolumeDisplayProps = {
 const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
   props
 ) => {
-  const { type, tokenId, tokenAddress, pending, volume } = props;
+  const { type, tokenId, tokenAddress, pending, volume: rawVolume } = props;
 
   const allAssetsRef = useAllAssetsRef();
   const token = React.useMemo(
@@ -515,6 +515,7 @@ const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
     [allAssetsRef, tokenAddress, tokenId]
   );
 
+  const volume = rawVolume.div(10 ** (token?.decimals || 0));
   const isTransaction = type !== "other";
 
   return (
