@@ -71,21 +71,23 @@ window.addEventListener(
       evt.data?.target === BeaconMessageTarget.Extension &&
       (evt.data?.targetId === SENDER.id || !evt.data?.targetId)
     ) {
+      const encrypted = Boolean(evt.data.encryptedPayload);
+
       getIntercom()
         .request({
           type: ThanosMessageType.PageRequest,
           origin: evt.origin,
-          payload: evt.data.payload ?? evt.data.encryptedPayload,
+          payload: encrypted ? evt.data.encryptedPayload : evt.data.payload,
           beacon: true,
+          encrypted,
         })
         .then((res: ThanosResponse) => {
           if (res?.type === ThanosMessageType.PageResponse) {
-            const payloadKey = evt.data.encryptedPayload
-              ? "encryptedPayload"
-              : "payload";
-            const message: any = {
+            const message = {
               target: BeaconMessageTarget.Page,
-              [payloadKey]: res.payload,
+              ...(encrypted
+                ? { encryptedPayload: res.payload }
+                : { payload: res.payload }),
             };
             send(
               res.payload === "pong"
