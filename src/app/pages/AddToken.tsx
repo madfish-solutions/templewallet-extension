@@ -152,7 +152,12 @@ const Form: React.FC = () => {
         }
 
         const tokenData =
-          (await getTokenMetadata(tezos, contractAddress, networkId)) || {};
+          (await getTokenMetadata(
+            tezos,
+            contractAddress,
+            networkId,
+            tokenId === undefined ? undefined : String(tokenId)
+          )) || {};
         const { symbol, name, description, decimals, onetoken } = tokenData;
         const tokenSymbol = typeof symbol === "string" ? symbol : "";
         const tokenName =
@@ -302,17 +307,14 @@ const Form: React.FC = () => {
     [formState.isSubmitting, addToken, setAssetSymbol]
   );
 
+  const isFA12Token = tokenType === ThanosAssetType.FA1_2;
+
   return (
     <form
       className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div
-        className={classNames(
-          tokenType === ThanosAssetType.FA2 ? "mb-4" : "mb-6",
-          "flex flex-col"
-        )}
-      >
+      <div className="mb-4 flex flex-col">
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
           <span className="text-base font-semibold text-gray-700">
             <T id="tokenType" />
@@ -330,30 +332,6 @@ const Form: React.FC = () => {
         <Controller name="type" as={TokenTypeSelect} control={control} />
       </div>
 
-      <div
-        className={classNames(
-          "mb-6",
-          "flex flex-col",
-          tokenType === ThanosAssetType.FA1_2 && "hidden"
-        )}
-      >
-        <FormField
-          ref={register({
-            min: { value: 0, message: t("nonNegativeIntMessage") },
-            required:
-              tokenType === ThanosAssetType.FA1_2 ? undefined : t("required"),
-          })}
-          min={0}
-          type="number"
-          name="id"
-          id="token-id"
-          label={t("tokenId")}
-          labelDescription={t("tokenIdInputDescription")}
-          placeholder="0"
-          errorCaption={errors.id?.message}
-        />
-      </div>
-
       <NoSpaceField
         ref={register({
           required: t("required"),
@@ -369,8 +347,27 @@ const Form: React.FC = () => {
         labelDescription={t("addressOfDeployedTokenContract")}
         placeholder={t("tokenContractPlaceholder")}
         errorCaption={errors.address?.message}
-        containerClassName="mb-4"
+        containerClassName={isFA12Token ? "mb-6" : "mb-4"}
       />
+
+      <div
+        className={classNames("mb-6", "flex flex-col", isFA12Token && "hidden")}
+      >
+        <FormField
+          ref={register({
+            min: { value: 0, message: t("nonNegativeIntMessage") },
+            required: isFA12Token ? undefined : t("required"),
+          })}
+          min={0}
+          type="number"
+          name="id"
+          id="token-id"
+          label={t("tokenId")}
+          labelDescription={t("tokenIdInputDescription")}
+          placeholder="0"
+          errorCaption={errors.id?.message}
+        />
+      </div>
 
       {tokenValidationError && (
         <Alert
