@@ -82,7 +82,7 @@ window.addEventListener(
           encrypted,
         })
         .then((res: ThanosResponse) => {
-          if (res?.type === ThanosMessageType.PageResponse) {
+          if (res?.type === ThanosMessageType.PageResponse && res.payload) {
             const message = {
               target: BeaconMessageTarget.Page,
               ...(encrypted
