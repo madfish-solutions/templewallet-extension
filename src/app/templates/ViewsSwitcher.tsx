@@ -2,7 +2,7 @@ import classNames from "clsx";
 import React from "react";
 
 export type ViewsSwitcherItemProps = {
-  Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+  Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   key: string;
   name: string;
 };
@@ -44,15 +44,13 @@ const ViewsSwitcher = React.memo(
               selected && "bg-gray-100",
               "px-2 py-1",
               "text-xs text-gray-600",
-              "h-full flex items-center"
+              "flex items-center"
             )}
             onClick={handleClick}
           >
-            {spf.Icon && (
-              <spf.Icon
-                className={classNames("h-4 w-auto mr-1", "stroke-current")}
-              />
-            )}
+            <spf.Icon
+              className={classNames("h-4 w-auto mr-1", "stroke-current")}
+            />
             {spf.name}
           </button>
         );
