@@ -22,6 +22,7 @@ export type Request =
   | OperationRequest
   | SignRequest
   | BroadcastRequest
+  | DisconnectRequest
   | PostMessagePairingRequest;
 
 export type Response =
@@ -128,7 +129,7 @@ export interface ErrorResponse extends BaseMessage {
   errorType: ErrorType;
 }
 
-export interface DisconnectMessage extends BaseMessage {
+export interface DisconnectRequest extends BaseMessage {
   type: MessageType.Disconnect;
 }
 
@@ -344,6 +345,10 @@ export async function saveDAppPublicKey(origin: string, publicKey: string) {
   await browser.storage.local.set({
     [toPubKeyStorageKey(origin)]: publicKey,
   });
+}
+
+export async function removeDAppPublicKey(origin: string) {
+  await browser.storage.local.remove([toPubKeyStorageKey(origin)]);
 }
 
 export function generateNewSeed() {

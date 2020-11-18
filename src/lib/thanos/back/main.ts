@@ -204,13 +204,10 @@ async function processRequest(
             ? Actions.processBeacon(req.origin, req.payload, req.encrypted)
             : Actions.processDApp(req.origin, req.payload));
 
-          if (resPayload) {
-            return {
-              type: ThanosMessageType.PageResponse,
-              payload: resPayload,
-            };
-          }
-          return;
+          return {
+            type: ThanosMessageType.PageResponse,
+            payload: resPayload ?? null,
+          };
         });
       }
       break;
