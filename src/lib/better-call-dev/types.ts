@@ -49,6 +49,40 @@ export interface BcdTokenTransfer {
   token_id?: number;
 }
 
+export interface BcdBalanceUpdate {
+  kind: string;
+  change: number;
+  [key: string]: any;
+}
+
+export interface BcdOperationsSearchItem {
+  type: "operation";
+  value: string;
+  body: {
+    indexed_time: number;
+    hash: string;
+    status: string;
+    timestamp: string;
+    kind: string;
+    source: string;
+    fee: number;
+    gas_limit: number;
+    storage_limit: number;
+    amount?: number;
+    destination: string;
+    parameters: string;
+    entrypoint?: string;
+    parameter_strings: string[];
+    storage_strings: string[];
+    tags?: string[];
+  };
+}
+
+export interface BcdOperationsSearchResponse {
+  count: number;
+  items: BcdOperationsSearchItem[];
+}
+
 export interface BcdPageableTokenTransfers {
   last_id?: string;
   transfers: BcdTokenTransfer[];
@@ -66,4 +100,11 @@ export type BcdTokenTransfersQueryParams = {
   address: string;
   last_id?: string;
   size?: number;
+};
+
+export type BcdOperationsSearchQueryParams = {
+  network: BcdNetwork;
+  address: string;
+  offset?: number;
+  since?: number;
 };

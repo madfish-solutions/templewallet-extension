@@ -4,6 +4,8 @@ import {
   BcdContractsQueryParams,
   BcdPageableTokenContracts,
   BcdPageableTokenTransfers,
+  BcdOperationsSearchQueryParams,
+  BcdOperationsSearchResponse,
   BcdNetwork,
 } from "lib/better-call-dev/types";
 import { ThanosChainId } from "lib/thanos/types";
@@ -17,6 +19,7 @@ api.interceptors.response.use(
   }
 );
 
+export const SEARCH_PAGE_SIZE = 10;
 export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
   [ThanosChainId.Mainnet, "mainnet"],
   [ThanosChainId.Carthagenet, "carthagenet"],
@@ -42,14 +45,35 @@ export const getTokenTransfers = makeQuery<
   "size",
 ]);
 
+export const searchOperations = makeQuery<
+  BcdOperationsSearchQueryParams,
+  BcdOperationsSearchResponse
+>(
+  () => "/search",
+  undefined,
+  ({ network, address, offset, since = 0 }) => ({
+    q: address,
+    i: "operation",
+    n: network,
+    g: 1,
+    s: since,
+    o: offset,
+  })
+);
+
 function makeQuery<P extends Record<string, unknown>, R>(
   url: (params: P) => string,
-  searchParamsKeys: Array<keyof P>
+  searchParamsKeys: Array<keyof P> = [],
+  searchParamsFactory?: (params: P) => Record<string, unknown>
 ) {
   return (params: P) => {
-    const searchParams = Object.fromEntries(
-      Object.entries(params).filter(([key]) => searchParamsKeys.includes(key))
-    );
+    const searchParams = searchParamsFactory
+      ? searchParamsFactory(params)
+      : Object.fromEntries(
+          Object.entries(params).filter(([key]) =>
+            searchParamsKeys.includes(key)
+          )
+        );
 
     return api.get<R>(url(params), { params: searchParams });
   };
