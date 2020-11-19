@@ -425,41 +425,52 @@ export async function processBeacon(
     recipientPubKey = await Beacon.getDAppPublicKey(origin);
     if (recipientPubKey) {
       msg = await Beacon.decryptMessage(msg, recipientPubKey);
+    } else {
+      return Beacon.encodeMessage<Beacon.Response>({
+        version: "2",
+        senderId: Beacon.SENDER_ID,
+        id: "stub",
+        type: Beacon.MessageType.Disconnect,
+      });
     }
   }
 
-  const req = Beacon.decodeMessage<Beacon.Request>(msg);
-
-  // Process handshake
-  if (!("type" in req)) {
-    if (req.publicKey) {
-      await Beacon.saveDAppPublicKey(origin, req.publicKey);
-
-      const keyPair = await Beacon.getOrCreateKeyPair();
-      return Beacon.sealCryptobox(
-        JSON.stringify({
-          ...Beacon.PAIRING_RESPONSE_BASE,
-          publicKey: Beacon.toHex(keyPair.publicKey),
-        }),
-        Beacon.fromHex(req.publicKey)
-      );
-    } else {
-      return;
-    }
+  let req: Beacon.Request;
+  try {
+    req = Beacon.decodeMessage<Beacon.Request>(msg);
+  } catch {
+    return;
   }
 
   // Process Disconnect
   if (req.type === Beacon.MessageType.Disconnect) {
-    await Beacon.removeDAppPublicKey(origin);
     await removeDApp(origin);
     return;
   }
 
   const resBase = {
     version: req.version,
-    beaconId: BEACON_ID,
     id: req.id,
+    ...(req.beaconId
+      ? { beaconId: BEACON_ID }
+      : {
+          senderId: Beacon.SENDER_ID,
+        }),
   };
+
+  // Process handshake
+  if (req.type === Beacon.MessageType.HandshakeRequest) {
+    await Beacon.saveDAppPublicKey(origin, req.publicKey);
+    const keyPair = await Beacon.getOrCreateKeyPair();
+    return Beacon.sealCryptobox(
+      JSON.stringify({
+        ...resBase,
+        ...Beacon.PAIRING_RESPONSE_BASE,
+        publicKey: Beacon.toHex(keyPair.publicKey),
+      }),
+      Beacon.fromHex(req.publicKey)
+    );
+  }
 
   const res = await (async (): Promise<Beacon.Response> => {
     try {
@@ -560,7 +571,9 @@ export async function processBeacon(
 
             case ThanosDAppErrorType.NotFound:
             case ThanosDAppErrorType.NotGranted:
-              return Beacon.ErrorType.NOT_GRANTED_ERROR;
+              return req.beaconId
+                ? Beacon.ErrorType.NOT_GRANTED_ERROR
+                : Beacon.ErrorType.ABORTED_ERROR;
 
             default:
               return err?.message;

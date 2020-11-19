@@ -28,7 +28,7 @@ type BeaconPageMessage =
 const SENDER = {
   id: browser.runtime.id,
   name: "Thanos Wallet",
-  iconUrl: browser.runtime.getURL("misc/icon-128.png"),
+  iconUrl: process.env.THANOS_WALLET_LOGO_URL || undefined,
 };
 
 window.addEventListener(
