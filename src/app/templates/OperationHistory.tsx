@@ -15,7 +15,6 @@ import {
   useOnStorageChanged,
   mutezToTz,
   isKnownChainId,
-  ThanosAsset,
   useAssets,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
@@ -35,16 +34,22 @@ import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const OPERATIONS_LIMIT = 30;
 
+interface InternalTransfer {
+  volume: BigNumber;
+  tokenId?: number;
+  sender: string;
+  receiver: string;
+}
+
 interface OperationPreview {
   hash: string;
   type: string;
-  receiver: string;
-  volume: number;
   status: string;
   time: string;
   parameters?: any;
   tokenAddress?: string;
-  tokenId?: number;
+  internalTransfers: InternalTransfer[];
+  volume: number;
 }
 
 interface OperationHistoryProps {
@@ -86,28 +91,38 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     () =>
       pndOps.map((op) => {
         const parameters = (op as any).parameters;
-        let tokenId = undefined;
-        if (
-          op.kind === "transaction" &&
-          parameters?.entrypoint === "transfer" &&
-          parameters.value instanceof Array
-        ) {
-          tokenId = Number(parameters.value[0].args[1][0].args[1].args[0].int);
+        let internalTransfers: InternalTransfer[] = [];
+        let tokenAddress = undefined;
+        if (op.kind === "transaction") {
+          if (parameters?.entrypoint === "transfer") {
+            internalTransfers = tryGetTransfers(parameters) || [];
+            if (internalTransfers.length > 0) {
+              tokenAddress = op.destination;
+            }
+          } else if (op.amount) {
+            internalTransfers = [
+              {
+                volume: mutezToTz(op.amount),
+                receiver: op.destination,
+                sender: accountPkh,
+              },
+            ];
+          }
         }
 
         return {
           ...op,
           hash: op.hash,
           type: op.kind,
-          receiver: op.kind === "transaction" ? op.destination : "",
-          volume:
-            op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
           status: "pending",
           time: op.addedAt,
-          tokenId,
+          internalTransfers,
+          tokenAddress,
+          volume:
+            op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
         };
       }),
-    [pndOps]
+    [pndOps, accountPkh]
   );
 
   /**
@@ -141,7 +156,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         offset: 0,
       });
 
-      let bcdOps: Record<string, BcdTokenTransfer> = {};
+      let bcdOps: Record<string, BcdTokenTransfer[]> = {};
       const lastTzStatsOp = ops[ops.length - 1];
       if (networkId) {
         const response: AxiosResponse<BcdPageableTokenTransfers> = await getTokenTransfers(
@@ -160,45 +175,51 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
               ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
               : true
           )
-          .reduce(
+          .reduce<Record<string, BcdTokenTransfer[]>>(
             (newTransfers, transfer) => ({
               ...newTransfers,
-              [transfer.hash]: transfer,
+              [transfer.hash]: [
+                ...(newTransfers[transfer.hash] || []),
+                transfer,
+              ],
             }),
             {}
           );
       }
 
-      const tzStatsOpsWithReplacements = ops.map((op) => {
-        const rawBcdData = bcdOps[op.hash];
-
-        if (!rawBcdData) {
-          return op;
-        }
-
-        delete bcdOps[op.hash];
-        return {
-          ...op,
-          volume: rawBcdData.amount,
-          tokenAddress: rawBcdData.contract,
-          sender: rawBcdData.from,
-          receiver: rawBcdData.to,
-          tokenId: rawBcdData.token_id,
-        };
-      });
+      const pureTzStatsOps = ops.filter((op) => !bcdOps[op.hash]);
 
       return [
-        ...tzStatsOpsWithReplacements,
-        ...Object.values(bcdOps).map((bcdOp) => ({
-          volume: bcdOp.amount,
-          tokenAddress: bcdOp.contract,
-          sender: bcdOp.from,
-          receiver: bcdOp.to,
-          hash: bcdOp.hash,
-          status: bcdOp.status,
-          time: bcdOp.timestamp,
+        ...pureTzStatsOps.map((op) => ({
+          internalTransfers:
+            op.type === "transaction"
+              ? [
+                  {
+                    volume: new BigNumber(op.volume),
+                    sender: op.sender,
+                    receiver: op.receiver,
+                  },
+                ]
+              : [],
+          hash: op.hash,
+          status: op.status,
+          time: op.time,
+          type: op.type,
+          volume: op.volume,
+        })),
+        ...Object.values(bcdOps).map((bcdOpsChunk) => ({
+          internalTransfers: bcdOpsChunk.map((bcdOp) => ({
+            volume: new BigNumber(bcdOp.amount),
+            tokenId: bcdOp.token_id,
+            sender: bcdOp.from,
+            receiver: bcdOp.to,
+          })),
+          tokenAddress: bcdOpsChunk[0].contract,
+          hash: bcdOpsChunk[0].hash,
+          status: bcdOpsChunk[0].status,
+          time: bcdOpsChunk[0].timestamp,
           type: "transaction",
-          tokenId: bcdOp.token_id,
+          volume: 0,
         })),
       ];
     } catch (err) {
@@ -321,54 +342,15 @@ const Operation = React.memo<OperationProps>(
     explorerBaseUrl,
     hash,
     type,
-    parameters,
-    receiver,
-    volume,
     status,
     time,
-    tokenAddress: tokenAddressFromBcd,
-    tokenId,
+    tokenAddress,
+    internalTransfers,
+    volume,
   }) => {
-    const { allAssets } = useAssets();
-
-    const tokenAddress = tokenAddressFromBcd || (parameters && receiver);
-    const token = React.useMemo(
-      () =>
-        (tokenAddress &&
-          allAssets.find((a) => {
-            if (a.type === ThanosAssetType.XTZ) {
-              return false;
-            }
-            return (
-              a.address === tokenAddress &&
-              (a.type !== ThanosAssetType.FA2 || a.id === tokenId)
-            );
-          })) ||
-        null,
-      [allAssets, tokenAddress, tokenId]
+    const imReceiver = internalTransfers.some(
+      ({ receiver }) => receiver === accountPkh
     );
-
-    const parsedParameters = React.useMemo(() => {
-      if (parameters && token && !tokenAddressFromBcd) {
-        return tryParseParameters(token, parameters);
-      }
-      return null;
-    }, [parameters, token, tokenAddressFromBcd]);
-
-    const finalReceiver =
-      parsedParameters && parsedParameters.length > 0
-        ? parsedParameters[0].receiver
-        : receiver;
-    let finalVolume = new BigNumber(volume);
-    if (tokenAddressFromBcd) {
-      finalVolume = new BigNumber(volume).div(10 ** (token?.decimals || 0));
-    }
-    if (parsedParameters && parsedParameters.length > 0) {
-      finalVolume = parsedParameters[0].volume;
-    }
-
-    const volumeExists = !finalVolume.eq(0);
-    const imReceiver = finalReceiver === accountPkh;
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
 
@@ -458,27 +440,22 @@ const Operation = React.memo<OperationProps>(
 
             {!failed && (
               <div className="flex flex-col items-end flex-shrink-0">
-                {tokenAddress ? (
+                {internalTransfers.map((transfer, index) => (
                   <OperationVolumeDisplay
-                    type={imReceiver ? "receive" : "send"}
-                    token={token || undefined}
+                    accountPkh={accountPkh}
+                    key={index}
                     tokenAddress={tokenAddress}
+                    transfer={transfer}
                     pending={pending}
-                    volume={finalVolume}
+                    volume={0}
                   />
-                ) : (
-                  volumeExists && (
-                    <OperationVolumeDisplay
-                      type={(() => {
-                        if (type === "transaction") {
-                          return receiver === accountPkh ? "receive" : "send";
-                        }
-                        return "other";
-                      })()}
-                      pending={pending}
-                      volume={new BigNumber(volume)}
-                    />
-                  )
+                ))}
+                {internalTransfers.length === 0 && volume && (
+                  <OperationVolumeDisplay
+                    accountPkh={accountPkh}
+                    pending={pending}
+                    volume={volume}
+                  />
                 )}
               </div>
             )}
@@ -490,20 +467,42 @@ const Operation = React.memo<OperationProps>(
 );
 
 type OperationVolumeDisplayProps = {
-  type: "send" | "receive" | "other";
+  accountPkh: string;
   tokenAddress?: string;
-  token?: ThanosAsset;
+  transfer?: InternalTransfer;
   pending: boolean;
-  volume: BigNumber;
+  volume: number;
 };
 
 const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
   props
 ) => {
-  const { type, token, tokenAddress, pending, volume: rawVolume } = props;
+  const { accountPkh, tokenAddress, pending, transfer, volume } = props;
 
-  const volume = rawVolume.div(10 ** (token?.decimals || 0));
-  const isTransaction = type !== "other";
+  const { allAssets } = useAssets();
+  const token = React.useMemo(() => {
+    if (!transfer || !tokenAddress) {
+      return undefined;
+    }
+    return allAssets.find((asset) => {
+      return (
+        asset.type !== ThanosAssetType.XTZ &&
+        asset.address === tokenAddress &&
+        (asset.type !== ThanosAssetType.FA2 || asset.id === transfer.tokenId)
+      );
+    });
+  }, [allAssets, transfer, tokenAddress]);
+
+  const finalVolume = transfer
+    ? transfer.volume.div(10 ** (token?.decimals || 0))
+    : volume;
+  const type = React.useMemo(() => {
+    if (transfer) {
+      return transfer.receiver === accountPkh ? "receive" : "send";
+    }
+    return "other";
+  }, [accountPkh, transfer]);
+  const isTransaction = type === "receive" || type === "send";
 
   return (
     <>
@@ -525,11 +524,12 @@ const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
         )}
       >
         {isTransaction && (type === "receive" ? "+" : "-")}
-        <Money>{volume}</Money> {tokenAddress ? token?.symbol || "???" : "ꜩ"}
+        <Money>{finalVolume}</Money>{" "}
+        {tokenAddress ? token?.symbol || "???" : "ꜩ"}
       </div>
 
       {(!tokenAddress || token) && (
-        <InUSD volume={volume} asset={token || XTZ_ASSET}>
+        <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
           {(usdVolume) => (
             <div className="text-xs text-gray-500">
               <span className="mr-px">$</span>
@@ -577,79 +577,54 @@ function opKey(op: OperationPreview) {
   return `${op.hash}_${op.type}`;
 }
 
-type TransferFromParameters = {
-  sender: string;
-  receiver: string;
-  volume: BigNumber;
-  tokenId?: number;
-};
-function tryParseParameters(
-  asset: ThanosAsset,
-  parameters: any
-): TransferFromParameters[] | null {
-  switch (asset.type) {
-    case ThanosAssetType.Staker:
-    case ThanosAssetType.TzBTC:
-    case ThanosAssetType.FA1_2:
-      try {
-        if ("transfer" in parameters.value) {
-          const {
-            from: sender,
-            to: receiver,
-            value,
-          } = parameters.value.transfer;
-          const volume = new BigNumber(value);
-
-          return [
-            {
+function tryGetTransfers(parameters: any): InternalTransfer[] | null {
+  try {
+    if (parameters.value instanceof Array) {
+      const parsedTransfers: InternalTransfer[] = [];
+      parameters.value.forEach(
+        ({ args: transfersBatchArgs }: Record<string, any>) => {
+          const sender = transfersBatchArgs[0].string;
+          const transfers = transfersBatchArgs[1];
+          transfers.forEach(({ args: transferArgs }: Record<string, any>) => {
+            const receiver = transferArgs[0].string;
+            const tokenId = Number(transferArgs[1].args[0].int);
+            const rawAmount = transferArgs[1].args[1].int;
+            const volume = new BigNumber(rawAmount);
+            parsedTransfers.push({
               sender,
               receiver,
               volume,
-            },
-          ];
-        } else {
-          const [fromArgs, { args: toArgs }] = parameters.value.args;
-          const sender: string = fromArgs.string;
-          const receiver: string = toArgs[0].string;
-          const volume = new BigNumber(toArgs[1].int);
-          return [
-            {
-              sender,
-              receiver,
-              volume,
-            },
-          ];
-        }
-      } catch (_err) {
-        return null;
-      }
-    case ThanosAssetType.FA2:
-      try {
-        const parsedTransfers: TransferFromParameters[] = [];
-        parameters.value.forEach(
-          ({ args: transfersBatchArgs }: Record<string, any>) => {
-            const sender = transfersBatchArgs[0].string;
-            const transfers = transfersBatchArgs[1];
-            transfers.forEach(({ args: transferArgs }: Record<string, any>) => {
-              const receiver = transferArgs[0].string;
-              const tokenId = Number(transferArgs[1].args[0].int);
-              const rawAmount = transferArgs[1].args[1].int;
-              const volume = new BigNumber(rawAmount);
-              parsedTransfers.push({
-                sender,
-                receiver,
-                volume,
-                tokenId,
-              });
+              tokenId,
             });
-          }
-        );
-        return parsedTransfers;
-      } catch (_err) {
-        return null;
-      }
+          });
+        }
+      );
+      return parsedTransfers;
+    } else if ("transfer" in parameters.value) {
+      const { from: sender, to: receiver, value } = parameters.value.transfer;
+      const volume = new BigNumber(value);
 
-    default:
-      return null;
+      return [
+        {
+          sender,
+          receiver,
+          volume,
+        },
+      ];
+    } else {
+      const [fromArgs, { args: toArgs }] = parameters.value.args;
+      const sender: string = fromArgs.string;
+      const receiver: string = toArgs[0].string;
+      const volume = new BigNumber(toArgs[1].int);
+      return [
+        {
+          sender,
+          receiver,
+          volume,
+        },
+      ];
+    }
+  } catch (_err) {
+    return null;
   }
 }
