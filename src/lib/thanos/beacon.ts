@@ -4,7 +4,7 @@ import * as sodium from "libsodium-wrappers";
 import * as bs58check from "bs58check";
 
 export interface AppMetadata {
-  beaconId: string;
+  senderId: string;
   name: string;
   icon?: string;
 }
@@ -22,7 +22,7 @@ export type Request =
   | OperationRequest
   | SignRequest
   | BroadcastRequest
-  | DisconnectRequest
+  | DisconnectMessage
   | PostMessagePairingRequest;
 
 export type Response =
@@ -31,6 +31,7 @@ export type Response =
   | OperationResponse
   | SignResponse
   | BroadcastResponse
+  | DisconnectMessage
   | PostMessagePairingResponse;
 
 export enum MessageType {
@@ -44,13 +45,17 @@ export enum MessageType {
   BroadcastResponse = "broadcast_response",
   Disconnect = "disconnect",
   Error = "error",
+  // Handshake
+  HandshakeRequest = "postmessage-pairing-request",
+  HandshakeResponse = "postmessage-pairing-response",
 }
 
 export interface BaseMessage {
   type: MessageType;
   version: string;
   id: string; // ID of the message. The same ID is used in the request and response
-  beaconId: string; // ID of the sender. This is used to identify the sender of the message
+  beaconId?: string;
+  senderId?: string; // ID of the sender. This is used to identify the sender of the message
 }
 
 export enum PermissionScope {
@@ -129,18 +134,20 @@ export interface ErrorResponse extends BaseMessage {
   errorType: ErrorType;
 }
 
-export interface DisconnectRequest extends BaseMessage {
+export interface DisconnectMessage extends BaseMessage {
   type: MessageType.Disconnect;
 }
 
-export interface PostMessagePairingRequest {
+export interface PostMessagePairingRequest extends BaseMessage {
+  type: MessageType.HandshakeRequest;
   name: string;
   icon?: string; // TODO: Should this be a URL or base64 image?
   appUrl?: string;
   publicKey: string;
 }
 
-export interface PostMessagePairingResponse {
+export interface PostMessagePairingResponse extends BaseMessage {
+  type: MessageType.HandshakeResponse;
   name: string;
   icon?: string; // TODO: Should this be a URL or base64 image?
   appUrl?: string;
@@ -173,11 +180,12 @@ export function formatOpParams(op: any) {
 /**
  * Beacon V2
  */
+export const SENDER_ID = browser.runtime.id;
 
-export const PAIRING_RESPONSE_BASE = {
-  version: "2",
+export const PAIRING_RESPONSE_BASE: Partial<PostMessagePairingResponse> = {
+  type: MessageType.HandshakeResponse,
   name: "Thanos Wallet",
-  icon: browser.runtime.getURL("misc/icon-128.png"),
+  icon: process.env.THANOS_WALLET_LOGO_URL || undefined,
   appUrl: browser.runtime.getURL("fullpage.html"),
 };
 
