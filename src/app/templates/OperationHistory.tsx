@@ -187,12 +187,17 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
           );
       }
 
-      const pureTzStatsOps = ops.filter((op) => !bcdOps[op.hash]);
+      const nonBcdOps = ops.filter((op) => !bcdOps[op.hash]);
 
       return [
-        ...pureTzStatsOps.map((op) => ({
-          internalTransfers:
-            op.type === "transaction"
+        ...nonBcdOps.map((op) => {
+          const transfersFromParams =
+            op.type === "transaction" &&
+            (op.parameters as any)?.entrypoint === "transfer"
+              ? tryGetTransfers(op.parameters)
+              : null;
+          const transfersFromVolumeProp =
+            op.type === "transaction" && !op.parameters
               ? [
                   {
                     volume: new BigNumber(op.volume),
@@ -200,13 +205,17 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
                     receiver: op.receiver,
                   },
                 ]
-              : [],
-          hash: op.hash,
-          status: op.status,
-          time: op.time,
-          type: op.type,
-          volume: op.volume,
-        })),
+              : [];
+          return {
+            internalTransfers: transfersFromParams || transfersFromVolumeProp,
+            hash: op.hash,
+            status: op.status,
+            time: op.time,
+            type: op.type,
+            volume: op.volume,
+            tokenAddress: transfersFromParams ? op.receiver : undefined,
+          };
+        }),
         ...Object.values(bcdOps).map((bcdOpsChunk) => ({
           internalTransfers: bcdOpsChunk.map((bcdOp) => ({
             volume: new BigNumber(bcdOp.amount),
@@ -450,7 +459,7 @@ const Operation = React.memo<OperationProps>(
                     volume={0}
                   />
                 ))}
-                {internalTransfers.length === 0 && volume && (
+                {internalTransfers.length === 0 && (volume || undefined) && (
                   <OperationVolumeDisplay
                     accountPkh={accountPkh}
                     pending={pending}
@@ -595,6 +604,24 @@ function tryGetTransfers(parameters: any): InternalTransfer[] | null {
               receiver,
               volume,
               tokenId,
+            });
+          });
+        }
+      );
+      return parsedTransfers;
+    } else if (
+      "transfer" in parameters.value &&
+      parameters.value.transfer instanceof Array
+    ) {
+      const parsedTransfers: InternalTransfer[] = [];
+      parameters.value.transfer.forEach(
+        ({ from_, txs }: Record<string, any>) => {
+          txs.forEach(({ amount, to_, token_id }: Record<string, any>) => {
+            parsedTransfers.push({
+              sender: from_,
+              receiver: to_,
+              volume: new BigNumber(amount),
+              tokenId: Number(token_id),
             });
           });
         }
