@@ -425,7 +425,7 @@ const Operation = React.memo<OperationProps>(
           return { iconHash: receivers[0], iconType: "bottts" };
         case isReceivingTransfer:
           return { iconHash: sender, iconType: "bottts" };
-        case type === "delegation" && delegate:
+        case type === "delegation" && !!delegate:
           return { iconHash: delegate!, iconType: "bottts" };
         case moreExactType === "interaction":
           return { iconHash: receiver, iconType: "jdenticon" };
