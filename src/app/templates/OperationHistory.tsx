@@ -4,7 +4,16 @@ import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
-import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
+import {
+  TZSTATS_CHAINS,
+  getAccountWithOperations,
+  TZStatsOperation,
+} from "lib/tzstats";
+import {
+  getOperations as getTzktOperations,
+  TzktOperation,
+  TzktTransactionOperation,
+} from "lib/tzkt";
 import { loadChainId } from "lib/thanos/helpers";
 import { T } from "lib/i18n/react";
 import {
@@ -147,17 +156,32 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     () => Promise<OperationPreview[]>
   >(async () => {
     try {
-      if (!tzStatsNetwork) return [];
+      let tzStatsOps: TZStatsOperation[] = [];
+      let tzktOps: TzktOperation[] = [];
+      if (tzStatsNetwork) {
+        try {
+          const response = await getAccountWithOperations(tzStatsNetwork, {
+            pkh: accountPkh,
+            order: "desc",
+            limit: OPERATIONS_LIMIT,
+            offset: 0,
+          });
+          tzStatsOps = response.ops;
+        } catch {}
+      }
 
-      const { ops } = await getAccountWithOperations(tzStatsNetwork, {
-        pkh: accountPkh,
-        order: "desc",
-        limit: OPERATIONS_LIMIT,
-        offset: 0,
-      });
+      if (isKnownChainId(chainId)) {
+        try {
+          tzktOps = await getTzktOperations(chainId, {
+            address: accountPkh,
+            limit: OPERATIONS_LIMIT,
+          });
+        } catch {}
+      }
 
       let bcdOps: Record<string, BcdTokenTransfer[]> = {};
-      const lastTzStatsOp = ops[ops.length - 1];
+      const lastTzStatsOp = tzStatsOps[tzStatsOps.length - 1];
+      const lastTzktOp = tzktOps[tzktOps.length - 1];
       if (networkId) {
         const response: AxiosResponse<BcdPageableTokenTransfers> = await getTokenTransfers(
           {
@@ -169,12 +193,23 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         const {
           data: { transfers },
         } = response;
+        const minDate =
+          lastTzStatsOp || lastTzktOp
+            ? new Date(
+                Math.min(
+                  lastTzStatsOp
+                    ? new Date(lastTzStatsOp.time).getTime()
+                    : Infinity,
+                  lastTzktOp?.timestamp
+                    ? new Date(lastTzktOp.timestamp).getTime()
+                    : Infinity
+                )
+              )
+            : new Date(0);
         bcdOps = transfers
-          .filter((transfer) =>
-            lastTzStatsOp
-              ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
-              : true
-          )
+          .filter((transfer) => {
+            return new Date(transfer.timestamp) >= minDate;
+          })
           .reduce<Record<string, BcdTokenTransfer[]>>(
             (newTransfers, transfer) => ({
               ...newTransfers,
@@ -187,7 +222,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
           );
       }
 
-      const nonBcdOps = ops.filter((op) => !bcdOps[op.hash]);
+      const nonBcdOps = tzStatsOps.filter((op) => !bcdOps[op.hash]);
+      const onlyTzktOps = tzktOps.filter(
+        (rawOp) =>
+          !bcdOps[rawOp.hash] &&
+          !nonBcdOps.find(({ hash }) => hash === rawOp.hash) &&
+          rawOp.status !== "backtracked"
+      );
 
       return [
         ...nonBcdOps.map((op) => {
@@ -216,6 +257,37 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
             tokenAddress: transfersFromParams ? op.receiver : undefined,
           };
         }),
+        ...onlyTzktOps.map((op) => {
+          let transfersFromParams: InternalTransfer[] | null = null;
+          if (op.type === "transaction" && op.parameters) {
+            try {
+              const parsedParams = JSON.parse(op.parameters);
+              transfersFromParams = tryGetTransfers(parsedParams);
+            } catch {}
+          }
+          const transfersFromVolumeProp =
+            op.type === "transaction" && !op.parameters
+              ? [
+                  {
+                    volume: mutezToTz(op.amount),
+                    sender: op.sender.address,
+                    receiver: op.target.address,
+                  },
+                ]
+              : [];
+          return {
+            internalTransfers: transfersFromParams || transfersFromVolumeProp,
+            hash: op.hash,
+            status: op.status,
+            time: op.timestamp || new Date().toISOString(),
+            type: op.type,
+            volume:
+              op.type === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
+            tokenAddress: transfersFromParams
+              ? (op as TzktTransactionOperation).target.address
+              : undefined,
+          };
+        }),
         ...Object.values(bcdOps).map((bcdOpsChunk) => ({
           internalTransfers: bcdOpsChunk.map((bcdOp) => ({
             volume: new BigNumber(bcdOp.amount),
@@ -240,7 +312,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       await new Promise((r) => setTimeout(r, 300));
       throw err;
     }
-  }, [tzStatsNetwork, accountPkh, networkId]);
+  }, [tzStatsNetwork, accountPkh, networkId, chainId]);
 
   const { data } = useRetryableSWR(
     ["operation-history", tzStatsNetwork, accountPkh, networkId],
