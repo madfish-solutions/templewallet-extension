@@ -4,18 +4,14 @@ import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy from "lib/ui/useTippy";
 import classNames from "clsx";
 
-type HashChipProps = React.HTMLAttributes<HTMLButtonElement> & {
+export type CopyButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
   text: string;
-  firstCharsCount?: number;
-  lastCharsCount?: number;
   small?: boolean;
 };
 
-const HashChip: React.FC<HashChipProps> = ({
+const CopyButton: React.FC<CopyButtonProps> = ({
   children,
   text,
-  firstCharsCount = 7,
-  lastCharsCount = 4,
   small = false,
   className,
   ...rest
@@ -61,4 +57,4 @@ const HashChip: React.FC<HashChipProps> = ({
   );
 };
 
-export default HashChip;
+export default CopyButton;
