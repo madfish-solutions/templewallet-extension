@@ -9,7 +9,7 @@ import {
   TZStatsOperation,
 } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
-import { T } from "lib/i18n/react";
+import { T, TProps } from "lib/i18n/react";
 import {
   ThanosAssetType,
   XTZ_ASSET,
@@ -482,53 +482,28 @@ const Operation = React.memo<OperationProps>(
                 {formatOperationType(moreExactType, imReceiver)}
               </div>
               {isReceivingTransfer && (
-                <span className="font-light text-gray-500 text-xs">
-                  <T
-                    id="transferFromSmb"
-                    substitutions={<HashChip type="link" hash={sender} />}
-                  />
-                </span>
+                <OperationArgumentDisplay
+                  i18nKey="transferFromSmb"
+                  arg={[sender]}
+                />
               )}
               {isSendingTransfer && (
-                <span className="text-xs text-blue-600 opacity-75">
-                  <T
-                    id="transferToSmb"
-                    substitutions={receivers.map((receiver, index) => (
-                      <>
-                        <HashChip key={receiver} hash={receiver} type="link" />
-                        {index === receivers.length - 1 ? null : ", "}
-                      </>
-                    ))}
-                  />
-                </span>
+                <OperationArgumentDisplay
+                  i18nKey="transferToSmb"
+                  arg={receivers}
+                />
               )}
               {moreExactType === "interaction" && (
-                <span className="font-light text-gray-500 text-xs">
-                  <T
-                    id="interactionWithContract"
-                    substitutions={
-                      <HashChip
-                        type="link"
-                        hash={receiver}
-                        className="text-blue-600"
-                      />
-                    }
-                  />
-                </span>
+                <OperationArgumentDisplay
+                  i18nKey="interactionWithContract"
+                  arg={[receiver]}
+                />
               )}
               {moreExactType === "delegation" && (
-                <span className="font-light text-gray-500 text-xs">
-                  <T
-                    id="delegationToSmb"
-                    substitutions={
-                      <HashChip
-                        type="link"
-                        hash={delegate!}
-                        className="text-blue-600"
-                      />
-                    }
-                  />
-                </span>
+                <OperationArgumentDisplay
+                  i18nKey="delegationToSmb"
+                  arg={[delegate!]}
+                />
               )}
 
               {(() => {
@@ -616,6 +591,32 @@ const Operation = React.memo<OperationProps>(
       </div>
     );
   }
+);
+
+type OperationArgumentDisplayProps = {
+  i18nKey: TProps["id"];
+  arg: string[];
+};
+
+const OperationArgumentDisplay = React.memo<OperationArgumentDisplayProps>(
+  ({ i18nKey, arg }) => (
+    <span className="font-light text-gray-500 text-xs">
+      <T
+        id={i18nKey}
+        substitutions={arg.map((value, index) => (
+          <>
+            <HashChip
+              className="text-blue-600 opacity-75"
+              key={index}
+              hash={value}
+              type="link"
+            />
+            {index === arg.length - 1 ? null : ", "}
+          </>
+        ))}
+      />
+    </span>
+  )
 );
 
 type OperationVolumeDisplayProps = {
