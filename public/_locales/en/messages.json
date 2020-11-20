@@ -124,6 +124,14 @@
       }
     }
   },
+  "copySomeTokenId": {
+    "message": "Copy \"$tokenSymbol$\" ID",
+    "placeholders": {
+      "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
   "originLabel": {
     "message": "Origin: $origin$",
     "placeholders": {
@@ -184,6 +192,9 @@
     }
   },
   "copiedTokenAddress": {
+    "message": "Copied."
+  },
+  "copiedTokenId": {
     "message": "Copied."
   },
   "delegatedTo": {

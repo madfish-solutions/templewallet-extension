@@ -5,6 +5,7 @@ import { Link } from "lib/woozie";
 import {
   ThanosAsset,
   ThanosToken,
+  ThanosFA2Asset,
   useAssets,
   useTokens,
   useCurrentAsset,
@@ -246,6 +247,10 @@ const ControlButton = React.memo<ControlButton>(
                   <CopyTokenAddress asset={asset} />
                 )}
 
+                {asset.type === ThanosAssetType.FA2 && (
+                  <CopyTokenId asset={asset} />
+                )}
+
                 <button
                   className={classNames(
                     "block items-centerw-full",
@@ -366,6 +371,58 @@ const CopyTokenAddress: React.FC<CopyTokenAddressProps> = ({ asset }) => {
         readOnly
         className="sr-only"
       />
+    </>
+  );
+};
+
+type CopyTokenIdProps = {
+  asset: ThanosFA2Asset;
+};
+
+const CopyTokenId: React.FC<CopyTokenIdProps> = ({ asset }) => {
+  const { fieldRef, copy, copied } = useCopyToClipboard();
+
+  return (
+    <>
+      <button
+        className={classNames(
+          "block w-full",
+          "mb-1 px-2 py-1",
+          "text-sm font-medium text-gray-600",
+          "rounded",
+          "transition easy-in-out duration-200",
+          "hover:bg-gray-100",
+          "flex items-center"
+        )}
+        onClick={copy}
+      >
+        <CopyIcon
+          className={classNames(
+            "mr-2 flex-shrink-0",
+            "h-4 w-auto stroke-current stroke-2",
+            "opacity-75"
+          )}
+        />
+
+        <div className="relative">
+          <T id="copySomeTokenId" substitutions={asset.symbol}>
+            {(message) => (
+              <span className={classNames(copied && "text-transparent")}>
+                {message}
+              </span>
+            )}
+          </T>
+          {copied && (
+            <T id="copiedTokenId">
+              {(message) => (
+                <div className="absolute inset-0 text-left">{message}</div>
+              )}
+            </T>
+          )}
+        </div>
+      </button>
+
+      <input ref={fieldRef} value={asset.id} readOnly className="sr-only" />
     </>
   );
 };
