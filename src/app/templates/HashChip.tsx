@@ -1,5 +1,6 @@
 import * as React from "react";
 import CopyButton from "app/atoms/CopyButton";
+import HashShortView from "app/atoms/HashShortView";
 
 type HashChipProps = React.HTMLAttributes<HTMLButtonElement> & {
   hash: string;
@@ -7,6 +8,7 @@ type HashChipProps = React.HTMLAttributes<HTMLButtonElement> & {
   firstCharsCount?: number;
   lastCharsCount?: number;
   small?: boolean;
+  type?: "button" | "link";
 };
 
 const HashChip: React.FC<HashChipProps> = ({
@@ -14,24 +16,16 @@ const HashChip: React.FC<HashChipProps> = ({
   trimAfter = 20,
   firstCharsCount = 7,
   lastCharsCount = 4,
+  type = "button",
   ...rest
 }) => {
-  const trimmedHash = React.useMemo(() => {
-    const ln = hash.length;
-    return ln > trimAfter ? (
-      <>
-        {hash.slice(0, firstCharsCount)}
-        <span className="opacity-75">...</span>
-        {hash.slice(ln - lastCharsCount, ln)}
-      </>
-    ) : (
-      hash
-    );
-  }, [hash, trimAfter, firstCharsCount, lastCharsCount]);
-
   return (
-    <CopyButton text={hash} {...rest}>
-      {trimmedHash}
+    <CopyButton text={hash} type={type} {...rest}>
+      <HashShortView
+        hash={hash}
+        firstCharsCount={firstCharsCount}
+        lastCharsCount={lastCharsCount}
+      />
     </CopyButton>
   );
 };
