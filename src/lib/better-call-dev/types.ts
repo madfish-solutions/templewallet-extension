@@ -46,6 +46,7 @@ export interface BcdTokenTransfer {
   status: string;
   timestamp: string;
   to: string;
+  token_id?: number;
 }
 
 export interface BcdBalanceUpdate {
