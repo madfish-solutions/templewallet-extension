@@ -1443,5 +1443,40 @@
   },
   "incorrectTokenIdErrorMessage": {
     "message": "Failed while processing token with provided data. Please make sure that token ID is correct."
+  },
+  "transfer": {
+    "message": "Transfer"
+  },
+  "transferFromSmb": {
+    "message": "from $sender$",
+    "placeholders": {
+      "sender": {
+        "content": "$1"
+      }
+    }
+  },
+  "transferToSmb": {
+    "message": "to $receiver$",
+    "placeholders": {
+      "receiver": {
+        "content": "$1"
+      }
+    }
+  },
+  "interactionWithContract": {
+    "message": "with $contract$",
+    "placeholders": {
+      "contract": {
+        "content": "$1"
+      }
+    }
+  },
+  "delegationToSmb": {
+    "message": "to $delegate$",
+    "placeholders": {
+      "delegate": {
+        "content": "$1"
+      }
+    }
   }
 }

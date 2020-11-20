@@ -35,13 +35,16 @@ import Identicon from "app/atoms/Identicon";
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import Money from "app/atoms/Money";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
+import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const OPERATIONS_LIMIT = 30;
 
 interface OperationPreview {
+  delegate?: string;
   hash: string;
   type: string;
+  sender: string;
   receiver: string;
   volume: number;
   status: string;
@@ -105,6 +108,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
           ...op,
           type: op.kind,
           receiver: op.kind === "transaction" ? op.destination : "",
+          sender: accountPkh,
           volume:
             op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
           status: "pending",
@@ -112,7 +116,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
           guessedTokenType,
         };
       }),
-    [pndOps]
+    [pndOps, accountPkh]
   );
 
   /**
@@ -308,7 +312,7 @@ export function searchItemToOperationPreview(
   item: BcdOperationsSearchItem
 ): OperationPreview {
   const {
-    body: { hash, status, timestamp, destination, parameters, tags },
+    body: { hash, status, timestamp, destination, parameters, source, tags },
   } = item;
 
   return {
@@ -318,6 +322,7 @@ export function searchItemToOperationPreview(
     type: "transaction",
     time: timestamp,
     receiver: destination,
+    sender: source,
     volume: 0,
     guessedTokenType: tags?.includes("fa12")
       ? ThanosAssetType.FA1_2
@@ -334,12 +339,14 @@ type OperationProps = OperationPreview & {
 const Operation = React.memo<OperationProps>(
   ({
     accountPkh,
+    delegate,
     withExplorer,
     explorerBaseUrl,
     guessedTokenType,
     hash,
     type,
     parameters,
+    sender,
     receiver,
     volume,
     status,
@@ -362,16 +369,90 @@ const Operation = React.memo<OperationProps>(
           (transfer) => transfer.receiver === accountPkh
         )
       : receiver === accountPkh;
+    const relevantTokenTransfers = imReceiver
+      ? transfersFromParameters?.filter(
+          ({ receiver }) => receiver === accountPkh
+        )
+      : transfersFromParameters;
+
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
     const volumeExists = volume > 0;
     const hasTokenTransfers =
-      transfersFromParameters && transfersFromParameters.length > 0;
+      relevantTokenTransfers && relevantTokenTransfers.length > 0;
+    const isTransfer =
+      hasTokenTransfers || (volumeExists && type === "transaction");
+    const isSendingTransfer = isTransfer && !imReceiver;
+    const isReceivingTransfer = isTransfer && imReceiver;
+    const moreExactType = React.useMemo(() => {
+      switch (true) {
+        case isTransfer:
+          return "transfer";
+        case type === "delegation":
+          return delegate ? "delegation" : "undelegation";
+        case type === "transaction" && receiver.startsWith("KT"):
+          return "interaction";
+        default:
+          return type;
+      }
+    }, [isTransfer, receiver, type, delegate]);
+
+    const receivers = React.useMemo(() => {
+      switch (true) {
+        case isSendingTransfer && hasTokenTransfers:
+          const uniqueReceivers = new Set(
+            relevantTokenTransfers!.map((transfer) => transfer.receiver)
+          );
+          return [...uniqueReceivers];
+        case isSendingTransfer:
+          return [receiver];
+        default:
+          return [];
+      }
+    }, [
+      hasTokenTransfers,
+      isSendingTransfer,
+      receiver,
+      relevantTokenTransfers,
+    ]);
+
+    const { iconHash, iconType } = React.useMemo<{
+      iconHash: string;
+      iconType: "bottts" | "jdenticon";
+    }>(() => {
+      switch (true) {
+        case isSendingTransfer:
+          return { iconHash: receivers[0], iconType: "bottts" };
+        case isReceivingTransfer:
+          return { iconHash: sender, iconType: "bottts" };
+        case type === "delegation" && delegate:
+          return { iconHash: delegate!, iconType: "bottts" };
+        case moreExactType === "interaction":
+          return { iconHash: receiver, iconType: "jdenticon" };
+        default:
+          return { iconHash: hash, iconType: "jdenticon" };
+      }
+    }, [
+      delegate,
+      hash,
+      type,
+      moreExactType,
+      isReceivingTransfer,
+      receivers,
+      isSendingTransfer,
+      receiver,
+      sender,
+    ]);
 
     return (
       <div className={classNames("my-3", "flex items-stretch")}>
         <div className="mr-2">
-          <Identicon hash={hash} size={50} className="shadow-xs" />
+          <Identicon
+            hash={iconHash}
+            type={iconType}
+            size={50}
+            className="shadow-xs"
+          />
         </div>
 
         <div className="flex-1">
@@ -397,9 +478,58 @@ const Operation = React.memo<OperationProps>(
 
           <div className="flex items-stretch">
             <div className="flex flex-col">
-              <span className="mt-1 text-xs text-blue-600 opacity-75">
-                {formatOperationType(type, imReceiver)}
-              </span>
+              <div className="flex items-center mt-1 text-xs text-blue-600 opacity-75">
+                {formatOperationType(moreExactType, imReceiver)}
+              </div>
+              {isReceivingTransfer && (
+                <span className="font-light text-gray-500 text-xs">
+                  <T
+                    id="transferFromSmb"
+                    substitutions={<HashChip type="link" hash={sender} />}
+                  />
+                </span>
+              )}
+              {isSendingTransfer && (
+                <span className="text-xs text-blue-600 opacity-75">
+                  <T
+                    id="transferToSmb"
+                    substitutions={receivers.map((receiver, index) => (
+                      <>
+                        <HashChip key={receiver} hash={receiver} type="link" />
+                        {index === receivers.length - 1 ? null : ", "}
+                      </>
+                    ))}
+                  />
+                </span>
+              )}
+              {moreExactType === "interaction" && (
+                <span className="font-light text-gray-500 text-xs">
+                  <T
+                    id="interactionWithContract"
+                    substitutions={
+                      <HashChip
+                        type="link"
+                        hash={receiver}
+                        className="text-blue-600"
+                      />
+                    }
+                  />
+                </span>
+              )}
+              {moreExactType === "delegation" && (
+                <span className="font-light text-gray-500 text-xs">
+                  <T
+                    id="delegationToSmb"
+                    substitutions={
+                      <HashChip
+                        type="link"
+                        hash={delegate!}
+                        className="text-blue-600"
+                      />
+                    }
+                  />
+                </span>
+              )}
 
               {(() => {
                 const timeNode = (
@@ -455,11 +585,11 @@ const Operation = React.memo<OperationProps>(
             {!failed && (
               <div className="flex flex-col items-end flex-shrink-0">
                 {hasTokenTransfers
-                  ? transfersFromParameters!.map(
-                      ({ receiver, tokenId, volume: tokenVolume }, index) => (
+                  ? relevantTokenTransfers!.map(
+                      ({ tokenId, volume: tokenVolume }, index) => (
                         <OperationVolumeDisplay
                           key={index}
-                          type={receiver === accountPkh ? "receive" : "send"}
+                          type={imReceiver ? "receive" : "send"}
                           tokenId={tokenId}
                           tokenAddress={tokenAddress}
                           pending={pending}
@@ -470,8 +600,8 @@ const Operation = React.memo<OperationProps>(
                   : volumeExists && (
                       <OperationVolumeDisplay
                         type={(() => {
-                          if (type === "transaction") {
-                            return receiver === accountPkh ? "receive" : "send";
+                          if (isTransfer) {
+                            return isSendingTransfer ? "send" : "receive";
                           }
                           return "other";
                         })()}
@@ -576,14 +706,23 @@ const Time: React.FC<TimeProps> = ({ children }) => {
 };
 
 function formatOperationType(type: string, imReciever: boolean) {
-  if (type === "transaction") {
+  if (type === "transaction" || type === "transfer") {
     type = `${imReciever ? "↓" : "↑"}_${type}`;
   }
 
-  return type
+  const operationTypeText = type
     .split("_")
     .map((w) => `${w.charAt(0).toUpperCase()}${w.substring(1)}`)
     .join(" ");
+
+  return (
+    <>
+      {type === "interaction" && (
+        <ClipboardIcon className="mr-1 h-3 w-auto stroke-current inline align-text-top" />
+      )}
+      {operationTypeText}
+    </>
+  );
 }
 
 function opKey(op: OperationPreview) {
