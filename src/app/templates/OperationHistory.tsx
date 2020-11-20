@@ -241,7 +241,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
               ? tryGetTransfers(op.parameters)
               : null;
           const transfersFromVolumeProp =
-            op.type === "transaction" && !op.parameters
+            op.type === "transaction" && !op.parameters && op.volume
               ? [
                   {
                     volume: new BigNumber(op.volume),
@@ -267,11 +267,14 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
           if (op.type === "transaction" && op.parameters) {
             try {
               const parsedParams = JSON.parse(op.parameters);
-              transfersFromParams = tryGetTransfers(parsedParams);
+              transfersFromParams =
+                parsedParams?.entrypoint === "transfer"
+                  ? tryGetTransfers(parsedParams)
+                  : null;
             } catch {}
           }
           const transfersFromVolumeProp =
-            op.type === "transaction" && !op.parameters
+            op.type === "transaction" && !op.parameters && op.amount
               ? [
                   {
                     volume: mutezToTz(op.amount),
@@ -281,13 +284,19 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
                 ]
               : [];
           return {
+            delegate:
+              op.type === "delegation" ? op.newDelegate?.address : undefined,
             internalTransfers: transfersFromParams || transfersFromVolumeProp,
             hash: op.hash,
             status: op.status,
             time: op.timestamp || new Date().toISOString(),
             type: op.type,
             volume:
-              op.type === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
+              op.type === "transaction" || op.type === "delegation"
+                ? mutezToTz(op.amount).toNumber()
+                : 0,
+            rawReceiver:
+              op.type === "transaction" ? op.target.address : undefined,
             tokenAddress: transfersFromParams
               ? (op as TzktTransactionOperation).target.address
               : undefined,
