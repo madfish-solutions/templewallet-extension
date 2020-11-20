@@ -170,16 +170,14 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
             offset: 0,
           });
           tzStatsOps = response.ops;
-        } catch {}
-      }
-
-      if (isKnownChainId(chainId)) {
-        try {
-          tzktOps = await getTzktOperations(chainId, {
-            address: accountPkh,
-            limit: OPERATIONS_LIMIT,
-          });
-        } catch {}
+        } catch {
+          if (isKnownChainId(chainId)) {
+            tzktOps = await getTzktOperations(chainId, {
+              address: accountPkh,
+              limit: OPERATIONS_LIMIT,
+            });
+          }
+        }
       }
 
       let bcdOps: Record<string, BcdTokenTransfer[]> = {};
