@@ -7,6 +7,7 @@ import classNames from "clsx";
 export type CopyButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
   text: string;
   small?: boolean;
+  type?: "button" | "link";
 };
 
 const CopyButton: React.FC<CopyButtonProps> = ({
@@ -14,6 +15,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({
   text,
   small = false,
   className,
+  type = "button",
   ...rest
 }) => {
   const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
@@ -38,14 +40,18 @@ const CopyButton: React.FC<CopyButtonProps> = ({
       <button
         ref={buttonRef}
         type="button"
-        className={classNames(
-          "bg-gray-100 hover:bg-gray-200",
-          "rounded-sm shadow-xs",
-          small ? "text-xs p-1" : "text-sm py-1 px-2",
-          "font-tnum text-gray-600 leading-none select-none",
-          "transition ease-in-out duration-300",
-          className
-        )}
+        className={
+          type === "button"
+            ? classNames(
+                "bg-gray-100 hover:bg-gray-200",
+                "rounded-sm shadow-xs",
+                small ? "text-xs p-1" : "text-sm py-1 px-2",
+                "font-tnum text-gray-600 leading-none select-none",
+                "transition ease-in-out duration-300",
+                className
+              )
+            : classNames("hover:underline", className)
+        }
         {...rest}
         onClick={copy}
       >

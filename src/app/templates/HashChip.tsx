@@ -1,6 +1,5 @@
-import classNames from "clsx";
 import * as React from "react";
-import CopyButton, { CopyButtonProps } from "app/atoms/CopyButton";
+import CopyButton from "app/atoms/CopyButton";
 import HashShortView from "app/atoms/HashShortView";
 
 type HashChipProps = React.HTMLAttributes<HTMLButtonElement> & {
@@ -20,27 +19,15 @@ const HashChip: React.FC<HashChipProps> = ({
   type = "button",
   ...rest
 }) => {
-  const HashShortViewWrapper = type === "button" ? CopyButton : HashLinkWrapper;
-
   return (
-    <HashShortViewWrapper text={hash} {...rest}>
+    <CopyButton text={hash} type={type} {...rest}>
       <HashShortView
         hash={hash}
         firstCharsCount={firstCharsCount}
         lastCharsCount={lastCharsCount}
       />
-    </HashShortViewWrapper>
+    </CopyButton>
   );
 };
 
 export default HashChip;
-
-const HashLinkWrapper = React.memo<CopyButtonProps>(
-  ({ className, children, ...restProps }) => {
-    return (
-      <span className={classNames(className, "hover:underline")} {...restProps}>
-        {children}
-      </span>
-    );
-  }
-);
