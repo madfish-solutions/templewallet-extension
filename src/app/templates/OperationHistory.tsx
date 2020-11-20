@@ -1,13 +1,10 @@
+import { AxiosResponse } from "axios";
 import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
-import {
-  TZSTATS_CHAINS,
-  getAccountWithOperations,
-  TZStatsOperation,
-} from "lib/tzstats";
+import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
 import { T } from "lib/i18n/react";
 import {
@@ -18,16 +15,14 @@ import {
   useOnStorageChanged,
   mutezToTz,
   isKnownChainId,
-  ThanosAsset,
-  ThanosXTZAsset,
-  useAllAssetsRef,
+  useAssets,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
-  BcdOperationsSearchItem,
+  BcdPageableTokenTransfers,
+  BcdTokenTransfer,
   BCD_NETWORKS_NAMES,
-  searchOperations,
-  SEARCH_PAGE_SIZE,
+  getTokenTransfers,
 } from "lib/better-call-dev";
 import InUSD from "app/templates/InUSD";
 import HashChip from "app/templates/HashChip";
@@ -39,15 +34,22 @@ import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const OPERATIONS_LIMIT = 30;
 
+interface InternalTransfer {
+  volume: BigNumber;
+  tokenId?: number;
+  sender: string;
+  receiver: string;
+}
+
 interface OperationPreview {
   hash: string;
   type: string;
-  receiver: string;
-  volume: number;
   status: string;
   time: string;
   parameters?: any;
-  guessedTokenType?: ThanosAssetType.FA1_2 | ThanosAssetType.FA2;
+  tokenAddress?: string;
+  internalTransfers: InternalTransfer[];
+  volume: number;
 }
 
 interface OperationHistoryProps {
@@ -89,30 +91,38 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     () =>
       pndOps.map((op) => {
         const parameters = (op as any).parameters;
-        let guessedTokenType: OperationPreview["guessedTokenType"];
-        if (
-          parameters &&
-          op.kind === "transaction" &&
-          parameters.entrypoint === "transfer"
-        ) {
-          guessedTokenType =
-            parameters.value instanceof Array
-              ? ThanosAssetType.FA2
-              : ThanosAssetType.FA1_2;
+        let internalTransfers: InternalTransfer[] = [];
+        let tokenAddress = undefined;
+        if (op.kind === "transaction") {
+          if (parameters?.entrypoint === "transfer") {
+            internalTransfers = tryGetTransfers(parameters) || [];
+            if (internalTransfers.length > 0) {
+              tokenAddress = op.destination;
+            }
+          } else if (op.amount) {
+            internalTransfers = [
+              {
+                volume: mutezToTz(op.amount),
+                receiver: op.destination,
+                sender: accountPkh,
+              },
+            ];
+          }
         }
 
         return {
           ...op,
+          hash: op.hash,
           type: op.kind,
-          receiver: op.kind === "transaction" ? op.destination : "",
-          volume:
-            op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
           status: "pending",
           time: op.addedAt,
-          guessedTokenType,
+          internalTransfers,
+          tokenAddress,
+          volume:
+            op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
         };
       }),
-    [pndOps]
+    [pndOps, accountPkh]
   );
 
   /**
@@ -137,65 +147,89 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     () => Promise<OperationPreview[]>
   >(async () => {
     try {
-      const { ops } = tzStatsNetwork
-        ? await getAccountWithOperations(tzStatsNetwork, {
-            pkh: accountPkh,
-            order: "desc",
-            limit: OPERATIONS_LIMIT,
-            offset: 0,
-          })
-        : { ops: [] as TZStatsOperation[] };
+      if (!tzStatsNetwork) return [];
 
-      const bcdOps: Record<string, BcdOperationsSearchItem> = {};
-      const lastTzStatsOp = ops[ops.length - 1];
-      if (networkId) {
-        const baseBcdSearchParams = {
-          network: networkId,
-          address: accountPkh,
-          since: Math.floor(
-            new Date(lastTzStatsOp?.time || 0).getTime() / 1000
-          ),
-        };
-        let count = Infinity;
-        for (let offset = 0; offset < count; offset += SEARCH_PAGE_SIZE) {
-          const response = await searchOperations({
-            ...baseBcdSearchParams,
-            offset,
-          });
-          const {
-            data: { count: newCount, items },
-          } = response;
-          count = newCount;
-          items.forEach((item) => {
-            const {
-              body: { hash, kind, entrypoint, amount },
-            } = item;
-            if (
-              kind === "transaction" &&
-              entrypoint === "transfer" &&
-              !amount
-            ) {
-              bcdOps[hash] = item;
-            }
-          });
-        }
-      }
-
-      const tzStatsOpsWithReplacements = ops.map<OperationPreview>((op) => {
-        const rawBcdData = bcdOps[op.hash];
-
-        if (!rawBcdData) {
-          return op;
-        }
-
-        delete bcdOps[op.hash];
-
-        return searchItemToOperationPreview(rawBcdData);
+      const { ops } = await getAccountWithOperations(tzStatsNetwork, {
+        pkh: accountPkh,
+        order: "desc",
+        limit: OPERATIONS_LIMIT,
+        offset: 0,
       });
 
+      let bcdOps: Record<string, BcdTokenTransfer[]> = {};
+      const lastTzStatsOp = ops[ops.length - 1];
+      if (networkId) {
+        const response: AxiosResponse<BcdPageableTokenTransfers> = await getTokenTransfers(
+          {
+            network: networkId,
+            address: accountPkh,
+            size: OPERATIONS_LIMIT,
+          }
+        );
+        const {
+          data: { transfers },
+        } = response;
+        bcdOps = transfers
+          .filter((transfer) =>
+            lastTzStatsOp
+              ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
+              : true
+          )
+          .reduce<Record<string, BcdTokenTransfer[]>>(
+            (newTransfers, transfer) => ({
+              ...newTransfers,
+              [transfer.hash]: [
+                ...(newTransfers[transfer.hash] || []),
+                transfer,
+              ],
+            }),
+            {}
+          );
+      }
+
+      const nonBcdOps = ops.filter((op) => !bcdOps[op.hash]);
+
       return [
-        ...tzStatsOpsWithReplacements,
-        ...Object.values(bcdOps).map(searchItemToOperationPreview),
+        ...nonBcdOps.map((op) => {
+          const transfersFromParams =
+            op.type === "transaction" &&
+            (op.parameters as any)?.entrypoint === "transfer"
+              ? tryGetTransfers(op.parameters)
+              : null;
+          const transfersFromVolumeProp =
+            op.type === "transaction" && !op.parameters
+              ? [
+                  {
+                    volume: new BigNumber(op.volume),
+                    sender: op.sender,
+                    receiver: op.receiver,
+                  },
+                ]
+              : [];
+          return {
+            internalTransfers: transfersFromParams || transfersFromVolumeProp,
+            hash: op.hash,
+            status: op.status,
+            time: op.time,
+            type: op.type,
+            volume: op.volume,
+            tokenAddress: transfersFromParams ? op.receiver : undefined,
+          };
+        }),
+        ...Object.values(bcdOps).map((bcdOpsChunk) => ({
+          internalTransfers: bcdOpsChunk.map((bcdOp) => ({
+            volume: new BigNumber(bcdOp.amount),
+            tokenId: bcdOp.token_id,
+            sender: bcdOp.from,
+            receiver: bcdOp.to,
+          })),
+          tokenAddress: bcdOpsChunk[0].contract,
+          hash: bcdOpsChunk[0].hash,
+          status: bcdOpsChunk[0].status,
+          time: bcdOpsChunk[0].timestamp,
+          type: "transaction",
+          volume: 0,
+        })),
       ];
     } catch (err) {
       if (err?.origin?.response?.status === 404) {
@@ -304,27 +338,6 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
 export default OperationHistory;
 
-export function searchItemToOperationPreview(
-  item: BcdOperationsSearchItem
-): OperationPreview {
-  const {
-    body: { hash, status, timestamp, destination, parameters, tags },
-  } = item;
-
-  return {
-    status,
-    hash,
-    parameters,
-    type: "transaction",
-    time: timestamp,
-    receiver: destination,
-    volume: 0,
-    guessedTokenType: tags?.includes("fa12")
-      ? ThanosAssetType.FA1_2
-      : ThanosAssetType.FA2,
-  };
-}
-
 type OperationProps = OperationPreview & {
   accountPkh: string;
   withExplorer: boolean;
@@ -336,37 +349,19 @@ const Operation = React.memo<OperationProps>(
     accountPkh,
     withExplorer,
     explorerBaseUrl,
-    guessedTokenType,
     hash,
     type,
-    parameters,
-    receiver,
-    volume,
     status,
     time,
+    tokenAddress,
+    internalTransfers,
+    volume,
   }) => {
-    const tokenAddress = volume ? undefined : parameters && receiver;
-
-    const transfersFromParameters = React.useMemo(() => {
-      if (parameters) {
-        return tryParseParameters(
-          guessedTokenType,
-          typeof parameters === "string" ? JSON.parse(parameters) : parameters
-        );
-      }
-      return null;
-    }, [parameters, guessedTokenType]);
-
-    const imReceiver = transfersFromParameters
-      ? transfersFromParameters.some(
-          (transfer) => transfer.receiver === accountPkh
-        )
-      : receiver === accountPkh;
+    const imReceiver = internalTransfers.some(
+      ({ receiver }) => receiver === accountPkh
+    );
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
-    const volumeExists = volume > 0;
-    const hasTokenTransfers =
-      transfersFromParameters && transfersFromParameters.length > 0;
 
     return (
       <div className={classNames("my-3", "flex items-stretch")}>
@@ -454,31 +449,23 @@ const Operation = React.memo<OperationProps>(
 
             {!failed && (
               <div className="flex flex-col items-end flex-shrink-0">
-                {hasTokenTransfers
-                  ? transfersFromParameters!.map(
-                      ({ receiver, tokenId, volume: tokenVolume }, index) => (
-                        <OperationVolumeDisplay
-                          key={index}
-                          type={receiver === accountPkh ? "receive" : "send"}
-                          tokenId={tokenId}
-                          tokenAddress={tokenAddress}
-                          pending={pending}
-                          volume={tokenVolume}
-                        />
-                      )
-                    )
-                  : volumeExists && (
-                      <OperationVolumeDisplay
-                        type={(() => {
-                          if (type === "transaction") {
-                            return receiver === accountPkh ? "receive" : "send";
-                          }
-                          return "other";
-                        })()}
-                        pending={pending}
-                        volume={new BigNumber(volume)}
-                      />
-                    )}
+                {internalTransfers.map((transfer, index) => (
+                  <OperationVolumeDisplay
+                    accountPkh={accountPkh}
+                    key={index}
+                    tokenAddress={tokenAddress}
+                    transfer={transfer}
+                    pending={pending}
+                    volume={0}
+                  />
+                ))}
+                {internalTransfers.length === 0 && (volume || undefined) && (
+                  <OperationVolumeDisplay
+                    accountPkh={accountPkh}
+                    pending={pending}
+                    volume={volume}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -489,34 +476,42 @@ const Operation = React.memo<OperationProps>(
 );
 
 type OperationVolumeDisplayProps = {
-  type: "send" | "receive" | "other";
+  accountPkh: string;
   tokenAddress?: string;
-  tokenId?: number;
+  transfer?: InternalTransfer;
   pending: boolean;
-  volume: BigNumber;
+  volume: number;
 };
 
 const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
   props
 ) => {
-  const { type, tokenId, tokenAddress, pending, volume: rawVolume } = props;
+  const { accountPkh, tokenAddress, pending, transfer, volume } = props;
 
-  const allAssetsRef = useAllAssetsRef();
-  const token = React.useMemo(
-    () =>
-      tokenAddress
-        ? allAssetsRef.current.find(
-            (a): a is Exclude<ThanosAsset, ThanosXTZAsset> =>
-              a.type !== ThanosAssetType.XTZ &&
-              a.address === tokenAddress &&
-              (a.type !== ThanosAssetType.FA2 || tokenId === a.id)
-          )
-        : undefined,
-    [allAssetsRef, tokenAddress, tokenId]
-  );
+  const { allAssets } = useAssets();
+  const token = React.useMemo(() => {
+    if (!transfer || !tokenAddress) {
+      return undefined;
+    }
+    return allAssets.find((asset) => {
+      return (
+        asset.type !== ThanosAssetType.XTZ &&
+        asset.address === tokenAddress &&
+        (asset.type !== ThanosAssetType.FA2 || asset.id === transfer.tokenId)
+      );
+    });
+  }, [allAssets, transfer, tokenAddress]);
 
-  const volume = rawVolume.div(10 ** (token?.decimals || 0));
-  const isTransaction = type !== "other";
+  const finalVolume = transfer
+    ? transfer.volume.div(10 ** (token?.decimals || 0))
+    : volume;
+  const type = React.useMemo(() => {
+    if (transfer) {
+      return transfer.receiver === accountPkh ? "receive" : "send";
+    }
+    return "other";
+  }, [accountPkh, transfer]);
+  const isTransaction = type === "receive" || type === "send";
 
   return (
     <>
@@ -538,11 +533,12 @@ const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
         )}
       >
         {isTransaction && (type === "receive" ? "+" : "-")}
-        <Money>{volume}</Money> {tokenAddress ? token?.symbol || "???" : "ꜩ"}
+        <Money>{finalVolume}</Money>{" "}
+        {tokenAddress ? token?.symbol || "???" : "ꜩ"}
       </div>
 
       {(!tokenAddress || token) && (
-        <InUSD volume={volume} asset={token || XTZ_ASSET}>
+        <InUSD volume={finalVolume} asset={token || XTZ_ASSET}>
           {(usdVolume) => (
             <div className="text-xs text-gray-500">
               <span className="mr-px">$</span>
@@ -590,77 +586,72 @@ function opKey(op: OperationPreview) {
   return `${op.hash}_${op.type}`;
 }
 
-type TransferFromParameters = {
-  sender: string;
-  receiver: string;
-  volume: BigNumber;
-  tokenId?: number;
-};
-function tryParseParameters(
-  guessedTokenType: OperationPreview["guessedTokenType"],
-  parameters: any
-): TransferFromParameters[] | null {
-  switch (guessedTokenType) {
-    case ThanosAssetType.FA1_2:
-      try {
-        if ("transfer" in parameters.value) {
-          const {
-            from: sender,
-            to: receiver,
-            value,
-          } = parameters.value.transfer;
-          const volume = new BigNumber(value);
-
-          return [
-            {
+function tryGetTransfers(parameters: any): InternalTransfer[] | null {
+  try {
+    if (parameters.value instanceof Array) {
+      const parsedTransfers: InternalTransfer[] = [];
+      parameters.value.forEach(
+        ({ args: transfersBatchArgs }: Record<string, any>) => {
+          const sender = transfersBatchArgs[0].string;
+          const transfers = transfersBatchArgs[1];
+          transfers.forEach(({ args: transferArgs }: Record<string, any>) => {
+            const receiver = transferArgs[0].string;
+            const tokenId = Number(transferArgs[1].args[0].int);
+            const rawAmount = transferArgs[1].args[1].int;
+            const volume = new BigNumber(rawAmount);
+            parsedTransfers.push({
               sender,
               receiver,
               volume,
-            },
-          ];
-        } else {
-          const [fromArgs, { args: toArgs }] = parameters.value.args;
-          const sender: string = fromArgs.string;
-          const receiver: string = toArgs[0].string;
-          const volume = new BigNumber(toArgs[1].int);
-          return [
-            {
-              sender,
-              receiver,
-              volume,
-            },
-          ];
-        }
-      } catch (_err) {
-        return null;
-      }
-    case ThanosAssetType.FA2:
-      try {
-        const parsedTransfers: TransferFromParameters[] = [];
-        parameters.value.forEach(
-          ({ args: transfersBatchArgs }: Record<string, any>) => {
-            const sender = transfersBatchArgs[0].string;
-            const transfers = transfersBatchArgs[1];
-            transfers.forEach(({ args: transferArgs }: Record<string, any>) => {
-              const receiver = transferArgs[0].string;
-              const tokenId = Number(transferArgs[1].args[0].int);
-              const rawAmount = transferArgs[1].args[1].int;
-              const volume = new BigNumber(rawAmount);
-              parsedTransfers.push({
-                sender,
-                receiver,
-                volume,
-                tokenId,
-              });
+              tokenId,
             });
-          }
-        );
-        return parsedTransfers;
-      } catch (_err) {
-        return null;
-      }
+          });
+        }
+      );
+      return parsedTransfers;
+    } else if (
+      "transfer" in parameters.value &&
+      parameters.value.transfer instanceof Array
+    ) {
+      const parsedTransfers: InternalTransfer[] = [];
+      parameters.value.transfer.forEach(
+        ({ from_, txs }: Record<string, any>) => {
+          txs.forEach(({ amount, to_, token_id }: Record<string, any>) => {
+            parsedTransfers.push({
+              sender: from_,
+              receiver: to_,
+              volume: new BigNumber(amount),
+              tokenId: Number(token_id),
+            });
+          });
+        }
+      );
+      return parsedTransfers;
+    } else if ("transfer" in parameters.value) {
+      const { from: sender, to: receiver, value } = parameters.value.transfer;
+      const volume = new BigNumber(value);
 
-    default:
-      return null;
+      return [
+        {
+          sender,
+          receiver,
+          volume,
+        },
+      ];
+    } else {
+      const [fromArgs, { args: toArgs }] = parameters.value.args;
+      const sender: string = fromArgs.string;
+      const receiver: string = toArgs[0].string;
+      const volume = new BigNumber(toArgs[1].int);
+      return [
+        {
+          sender,
+          receiver,
+          volume,
+        },
+      ];
+    }
+  } catch (_err) {
+    return null;
   }
 }
