@@ -20,7 +20,7 @@ import {
   isKnownChainId,
   ThanosAsset,
   ThanosXTZAsset,
-  useAllAssetsRef,
+  useAssets,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
@@ -632,18 +632,18 @@ const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
 ) => {
   const { type, tokenId, tokenAddress, pending, volume: rawVolume } = props;
 
-  const allAssetsRef = useAllAssetsRef();
+  const { allAssets } = useAssets();
   const token = React.useMemo(
     () =>
       tokenAddress
-        ? allAssetsRef.current.find(
+        ? allAssets.find(
             (a): a is Exclude<ThanosAsset, ThanosXTZAsset> =>
               a.type !== ThanosAssetType.XTZ &&
               a.address === tokenAddress &&
               (a.type !== ThanosAssetType.FA2 || tokenId === a.id)
           )
         : undefined,
-    [allAssetsRef, tokenAddress, tokenId]
+    [allAssets, tokenAddress, tokenId]
   );
 
   const volume = rawVolume.div(10 ** (token?.decimals || 0));
