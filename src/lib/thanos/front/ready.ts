@@ -12,6 +12,7 @@ import {
   useThanosClient,
   loadChainId,
 } from "lib/thanos/front";
+import { FastRpcClient } from "lib/taquito-fast-rpc";
 import { useRetryableSWR } from "lib/swr";
 
 export enum ActivationStatus {
@@ -118,7 +119,11 @@ function useReadyThanos() {
         ? account.owner
         : account.publicKeyHash;
 
-    const t = new ReactiveTezosToolkit(rpc, checksum, network.lambdaContract);
+    const t = new ReactiveTezosToolkit(
+      new FastRpcClient(rpc),
+      checksum,
+      network.lambdaContract
+    );
     t.setSignerProvider(createTaquitoSigner(pkh));
     t.setWalletProvider(createTaquitoWallet(pkh, rpc));
     return t;
@@ -133,7 +138,10 @@ function useReadyThanos() {
   /**
    * Tezos domains
    */
-  const tezosDomainsClient = React.useMemo(() => getClient(networkId, tezos), [networkId, tezos]);
+  const tezosDomainsClient = React.useMemo(() => getClient(networkId, tezos), [
+    networkId,
+    tezos,
+  ]);
 
   return {
     allNetworks,
@@ -220,7 +228,7 @@ function useRefs() {
 
 export class ReactiveTezosToolkit extends TezosToolkit {
   constructor(
-    rpc: string,
+    rpc: string | FastRpcClient,
     public checksum: string,
     public lambdaContract?: string
   ) {
