@@ -22,7 +22,7 @@ export class FastRpcClient extends RpcClient {
     if (wantsHead(opts) && this.latestBlock) {
       return this.latestBlock.hash;
     }
-    return super.getBlockHash(opts);
+    return this.getBlockHashPure(opts);
   }
 
   async getBalance(address: string, opts?: RPCOptions) {
@@ -153,7 +153,7 @@ export class FastRpcClient extends RpcClient {
 
   getChainId = memoize(super.getChainId.bind(this));
 
-  private loadLatestBlock = debouncePromise(async (opts?: RPCOptions) => {
+  private async loadLatestBlock(opts?: RPCOptions) {
     const head = wantsHead(opts);
     if (!head) return opts;
 
@@ -161,12 +161,17 @@ export class FastRpcClient extends RpcClient {
       !this.latestBlock ||
       Date.now() - this.latestBlock.refreshedAt > DEFAULT_REFRESH_INTERVAL
     ) {
-      const hash = await super.getBlockHash();
+      const hash = await this.getBlockHashPure();
       this.latestBlock = { hash, refreshedAt: Date.now() };
     }
 
     return { block: this.latestBlock.hash };
-  }, 500);
+  }
+
+  private getBlockHashPure = debouncePromise(
+    super.getBlockHash.bind(this),
+    500
+  );
 }
 
 function wantsHead(opts?: RPCOptions) {
