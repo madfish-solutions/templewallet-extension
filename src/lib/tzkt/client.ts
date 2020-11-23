@@ -1,14 +1,16 @@
 import axios, { AxiosError } from "axios";
 import { ThanosChainId } from "lib/thanos/types";
-import { TzktGetOperationsParams, TzktOperation, TzktNetwork } from "./types";
+import {
+  TzktGetOperationsParams,
+  TzktOperation,
+  TzktRelatedContract,
+} from "./types";
 
-const baseUrls: Record<TzktNetwork, string> = {
-  mainnet: "https://api.tzkt.io/v1",
-  carthagenet: "https://api.carthage.tzkt.io/v1",
-  babylonnet: "https://api.babylon.tzkt.io/v1",
-  zeronet: "https://api.zeronet.tzkt.io/v1",
-  delphinet: "https://api.delphi.tzkt.io/v1",
-};
+const TZKT_API_BASE_URLS = new Map([
+  [ThanosChainId.Mainnet, "https://api.tzkt.io/v1"],
+  [ThanosChainId.Carthagenet, "https://api.carthage.tzkt.io/v1"],
+  [ThanosChainId.Delphinet, "https://api.delphi.tzkt.io/v1"],
+]);
 
 export const TZKT_BASE_URLS = new Map([
   [ThanosChainId.Mainnet, "https://tzkt.io"],
@@ -38,14 +40,28 @@ export const getOperations = makeQuery<
   })
 );
 
+type GetUserContractsParams = {
+  account: string;
+};
+
+export const getOneUserContracts = makeQuery<
+  GetUserContractsParams,
+  TzktRelatedContract[]
+>(
+  ({ account }) => `/accounts/${account}/contracts`,
+  () => ({})
+);
+
 function makeQuery<P extends Record<string, unknown>, R>(
   url: (params: P) => string,
   searchParams: (params: P) => Record<string, unknown>
 ) {
-  return (network: TzktNetwork, params: P) => {
-    return api.get<R>(url(params), {
-      baseURL: baseUrls[network],
+  return async (chainId: ThanosChainId, params: P) => {
+    const { data } = await api.get<R>(url(params), {
+      baseURL: TZKT_API_BASE_URLS.get(chainId),
       params: searchParams(params),
     });
+
+    return data;
   };
 }

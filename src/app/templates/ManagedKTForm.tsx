@@ -11,12 +11,7 @@ import {
   useChainId,
   isKnownChainId,
 } from "lib/thanos/front";
-import {
-  getOneUserManagedContracts,
-  TZStatsContract,
-  TZStatsNetwork,
-  TZSTATS_CHAINS,
-} from "lib/tzstats";
+import { getOneUserContracts, TzktRelatedContract } from "lib/tzkt";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
@@ -33,7 +28,7 @@ type ImportKTAccountFormData = {
   contractAddress: string;
 };
 
-const getContractAddress = (contract: TZStatsContract) => contract.address;
+const getContractAddress = (contract: TzktRelatedContract) => contract.address;
 
 const ManagedKTForm: React.FC = () => {
   const accounts = useRelevantAccounts();
@@ -43,23 +38,15 @@ const ManagedKTForm: React.FC = () => {
 
   const [error, setError] = useState<React.ReactNode>(null);
 
-  const tzStatsNetwork = React.useMemo(
-    () =>
-      (chainId &&
-        (isKnownChainId(chainId) ? TZSTATS_CHAINS.get(chainId) : undefined)) ??
-      null,
-    [chainId]
-  );
-
   const queryKey = useMemo(
     () => [
       "get-accounts-contracts",
-      tzStatsNetwork,
+      chainId,
       ...accounts
         .filter(({ type }) => type !== ThanosAccountType.ManagedKT)
         .map(({ publicKeyHash }) => publicKeyHash),
     ],
-    [accounts, tzStatsNetwork]
+    [accounts, chainId]
   );
   const { data: usersContracts = [] } = useRetryableSWR(
     queryKey,
@@ -144,7 +131,7 @@ const ManagedKTForm: React.FC = () => {
         const contract = await tezos.contract.at(contractAddress);
         const owner = await contract.storage();
         if (typeof owner !== "string") {
-          throw new Error("Invalid managed contract");
+          throw new Error(t("invalidManagedContract"));
         }
 
         if (!accounts.some(({ publicKeyHash }) => publicKeyHash === owner)) {
@@ -277,21 +264,28 @@ export default ManagedKTForm;
 
 export const getUsersContracts = async (
   _k: string,
-  networkId: TZStatsNetwork,
+  chainId: string,
   ...accounts: string[]
 ) => {
+  if (!isKnownChainId(chainId)) {
+    return [];
+  }
+
   const contractsChunks = await Promise.all(
-    accounts.map((account) =>
-      getOneUserManagedContracts(networkId, { account }).catch(() => [])
+    accounts.map<Promise<TzktRelatedContract[]>>((account) =>
+      getOneUserContracts(chainId, { account }).catch(() => [])
     )
   );
   return contractsChunks.reduce(
-    (contracts, chunk) => [...contracts, ...chunk],
+    (contracts, chunk) => [
+      ...contracts,
+      ...chunk.filter(({ kind }) => kind === "delegator_contract"),
+    ],
     []
   );
 };
 
-type ContractOptionRenderProps = OptionRenderProps<TZStatsContract, string>;
+type ContractOptionRenderProps = OptionRenderProps<TzktRelatedContract, string>;
 
 const ContractIcon: React.FC<ContractOptionRenderProps> = (props) => {
   return (

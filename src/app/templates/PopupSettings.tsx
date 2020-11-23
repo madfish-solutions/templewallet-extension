@@ -44,7 +44,7 @@ const PopupSettings: React.FC<{}> = () => {
         onChange={handlePopupModeChange}
         name="popupEnabled"
         label={t(popupEnabled ? "popupEnabled" : "popupDisabled")}
-        labelDescription={t("enablePopup")}
+        // labelDescription={t("enablePopup")}
         errorCaption={error?.message}
         containerClassName="mb-4"
       />
