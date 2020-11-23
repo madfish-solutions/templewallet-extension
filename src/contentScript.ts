@@ -1,3 +1,4 @@
+import { browser } from "webextension-polyfill-ts";
 import { IntercomClient } from "lib/intercom/client";
 import { ThanosMessageType, ThanosResponse } from "lib/thanos/types";
 import {
@@ -10,14 +11,25 @@ enum BeaconMessageTarget {
   Extension = "toExtension",
 }
 
-interface BeaconMessage {
-  target: BeaconMessageTarget;
-  payload: any;
-}
+type BeaconMessage =
+  | {
+      target: BeaconMessageTarget;
+      payload: any;
+    }
+  | {
+      target: BeaconMessageTarget;
+      encryptedPayload: any;
+    };
 
 type BeaconPageMessage =
   | BeaconMessage
   | { message: BeaconMessage; sender: { id: string } };
+
+const SENDER = {
+  id: browser.runtime.id,
+  name: "Thanos Wallet",
+  iconUrl: process.env.THANOS_WALLET_LOGO_URL || undefined,
+};
 
 window.addEventListener(
   "message",
@@ -55,26 +67,34 @@ window.addEventListener(
             evt.origin
           );
         });
-    } else if (evt.data?.target === BeaconMessageTarget.Extension) {
+    } else if (
+      evt.data?.target === BeaconMessageTarget.Extension &&
+      (evt.data?.targetId === SENDER.id || !evt.data?.targetId)
+    ) {
+      const encrypted = Boolean(evt.data.encryptedPayload);
+
       getIntercom()
         .request({
           type: ThanosMessageType.PageRequest,
           origin: evt.origin,
-          payload: evt.data.payload,
+          payload: encrypted ? evt.data.encryptedPayload : evt.data.payload,
           beacon: true,
+          encrypted,
         })
         .then((res: ThanosResponse) => {
-          if (res?.type === ThanosMessageType.PageResponse) {
+          if (res?.type === ThanosMessageType.PageResponse && res.payload) {
             const message = {
               target: BeaconMessageTarget.Page,
-              payload: res.payload,
+              ...(encrypted
+                ? { encryptedPayload: res.payload }
+                : { payload: res.payload }),
             };
             send(
               res.payload === "pong"
-                ? message
+                ? { ...message, sender: SENDER }
                 : {
                     message,
-                    sender: { id: "Thanos Wallet" },
+                    sender: { id: SENDER.id },
                   },
               evt.origin
             );
