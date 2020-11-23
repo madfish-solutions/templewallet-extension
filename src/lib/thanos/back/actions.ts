@@ -415,13 +415,62 @@ export async function processDApp(
   }
 }
 
-export async function processBeacon(origin: string, msg: string) {
-  const req = Beacon.decodeMessage<Beacon.Request>(msg);
+export async function processBeacon(
+  origin: string,
+  msg: string,
+  encrypted = false
+) {
+  let recipientPubKey: string | null = null;
+  if (encrypted) {
+    recipientPubKey = await Beacon.getDAppPublicKey(origin);
+    if (recipientPubKey) {
+      msg = await Beacon.decryptMessage(msg, recipientPubKey);
+    } else {
+      return Beacon.encodeMessage<Beacon.Response>({
+        version: "2",
+        senderId: Beacon.SENDER_ID,
+        id: "stub",
+        type: Beacon.MessageType.Disconnect,
+      });
+    }
+  }
+
+  let req: Beacon.Request;
+  try {
+    req = Beacon.decodeMessage<Beacon.Request>(msg);
+  } catch {
+    return;
+  }
+
+  // Process Disconnect
+  if (req.type === Beacon.MessageType.Disconnect) {
+    await removeDApp(origin);
+    return;
+  }
+
   const resBase = {
     version: req.version,
-    beaconId: BEACON_ID,
     id: req.id,
+    ...(req.beaconId
+      ? { beaconId: BEACON_ID }
+      : {
+          senderId: Beacon.SENDER_ID,
+        }),
   };
+
+  // Process handshake
+  if (req.type === Beacon.MessageType.HandshakeRequest) {
+    await Beacon.saveDAppPublicKey(origin, req.publicKey);
+    const keyPair = await Beacon.getOrCreateKeyPair();
+    return Beacon.sealCryptobox(
+      JSON.stringify({
+        ...resBase,
+        ...Beacon.PAIRING_RESPONSE_BASE,
+        publicKey: Beacon.toHex(keyPair.publicKey),
+      }),
+      Beacon.fromHex(req.publicKey)
+    );
+  }
 
   const res = await (async (): Promise<Beacon.Response> => {
     try {
@@ -522,7 +571,9 @@ export async function processBeacon(origin: string, msg: string) {
 
             case ThanosDAppErrorType.NotFound:
             case ThanosDAppErrorType.NotGranted:
-              return Beacon.ErrorType.NOT_GRANTED_ERROR;
+              return req.beaconId
+                ? Beacon.ErrorType.NOT_GRANTED_ERROR
+                : Beacon.ErrorType.ABORTED_ERROR;
 
             default:
               return err?.message;
@@ -543,5 +594,9 @@ export async function processBeacon(origin: string, msg: string) {
     }
   })();
 
-  return Beacon.encodeMessage<Beacon.Response>(res);
+  const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
+  if (encrypted && recipientPubKey) {
+    return Beacon.encryptMessage(resMsg, recipientPubKey);
+  }
+  return resMsg;
 }
