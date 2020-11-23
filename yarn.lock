@@ -1596,6 +1596,11 @@
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
 
+"@types/debounce-promise@3.1.3":
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/@types/debounce-promise/-/debounce-promise-3.1.3.tgz#dd0d6b96ee61da0dd4c413e3ea03a425ffa36b3f"
+  integrity sha512-mjcCf//DAUQ6YLQMhqYJAv/+a4BsE1GQFmy1el5K62wLJJmQwGi3TsnshhOFynPpuBF9Gh2Vvb+5ImPi47KaZw==
+
 "@types/elliptic@6.4.12":
   version "6.4.12"
   resolved "https://registry.yarnpkg.com/@types/elliptic/-/elliptic-6.4.12.tgz#e8add831f9cc9a88d9d84b3733ff669b68eaa124"
@@ -3569,6 +3574,11 @@ date-fns@2.15.0:
   version "2.15.0"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.15.0.tgz#424de6b3778e4e69d3ff27046ec136af58ae5d5f"
   integrity sha512-ZCPzAMJZn3rNUvvQIMlXhDr4A+Ar07eLeGsGREoWU19a3Pqf5oYa+ccd+B3F6XVtQY6HANMFdOQ8A+ipFnvJdQ==
+
+debounce-promise@3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/debounce-promise/-/debounce-promise-3.1.2.tgz#320fb8c7d15a344455cd33cee5ab63530b6dc7c5"
+  integrity sha512-rZHcgBkbYavBeD9ej6sP56XfG53d51CD4dnaw989YX/nZ/ZJfgRx/9ePKmTNiUiyQvh4mtrMoS3OAWW+yoYtpg==
 
 debug@=3.1.0:
   version "3.1.0"
@@ -6679,11 +6689,6 @@ os-tmpdir@~1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
   integrity sha1-u+Z0BseaqFxc/sdm/lc0VV36EnQ=
-
-p-debounce@2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/p-debounce/-/p-debounce-2.1.0.tgz#e79f70c6e325cbb9bddbcbec0b81025084671ad3"
-  integrity sha512-M9bMt62TTnozdZhqFgs+V7XD2MnuKCaz+7fZdlu2/T7xruI3uIE5CicQ0vx1hV7HIUYF0jF+4/R1AgfOkl74Qw==
 
 p-defer@^1.0.0:
   version "1.0.0"
