@@ -15,6 +15,16 @@ export const NETWORKS: ThanosNetwork[] = [
     disabled: false,
   },
   {
+    id: "delphinet",
+    name: "Delphi Testnet",
+    description: "Delphi testnet",
+    lambdaContract: "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM",
+    type: "test",
+    rpcBaseURL: "https://delphinet-tezos.giganode.io",
+    color: "#ed6663",
+    disabled: false,
+  },
+  {
     id: "carthagenet",
     name: getMessage("carthageTestnet"),
     nameI18nKey: "carthageTestnet",
@@ -24,16 +34,6 @@ export const NETWORKS: ThanosNetwork[] = [
     type: "test",
     rpcBaseURL: "https://testnet-tezos.giganode.io",
     color: "#0f4c81",
-    disabled: false,
-  },
-  {
-    id: "delphinet",
-    name: "Delphi Testnet",
-    description: "Delphi testnet",
-    lambdaContract: "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM",
-    type: "test",
-    rpcBaseURL: "https://delphinet-tezos.giganode.io",
-    color: "#ed6663",
     disabled: false,
   },
   {

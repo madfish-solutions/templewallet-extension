@@ -124,6 +124,14 @@
       }
     }
   },
+  "copySomeTokenId": {
+    "message": "Copy \"$tokenSymbol$\" ID",
+    "placeholders": {
+      "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
   "originLabel": {
     "message": "Origin: $origin$",
     "placeholders": {
@@ -186,6 +194,9 @@
   "copiedTokenAddress": {
     "message": "Copied."
   },
+  "copiedTokenId": {
+    "message": "Copied."
+  },
   "delegatedTo": {
     "message": "Delegated to:"
   },
@@ -232,13 +243,24 @@
     "message": "No transfer method"
   },
   "tokenDoesNotMatchStandard": {
-    "message": "Provided token contract doesn't match FA1.2 standard"
+    "message": "Provided token contract doesn't match $standard$ standard",
+    "placeholders": {
+      "standard": {
+        "content": "$1"
+      }
+    }
   },
   "error": {
     "message": "Error"
   },
   "tokenType": {
     "message": "Token type"
+  },
+  "tokenId": {
+    "message": "Token ID"
+  },
+  "tokenIdInputDescription": {
+    "message": "A non-negative integer number that identifies the token inside FA2 contract"
   },
   "comingSoonComment": {
     "message": "(coming soon)"
@@ -1281,7 +1303,7 @@
     "message": "General"
   },
   "generalSettingsDescription": {
-    "message": "Here you can make the Thanos Wallet more convenient for you."
+    "message": "Here you can manage languages preferences and display mode."
   },
   "swapNoun": {
     "message": "Swap"
@@ -1438,6 +1460,74 @@
     "message": "Error occurred while fetching from $url$",
     "placeholders": {
       "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "invalidManagedContract": {
+    "message": "Invalid managed contract"
+  },
+  "someMethodNotDefinedInContract": {
+    "message": "'$name$' method isn't defined in contract.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "someMethodSignatureDoesNotMatchStandard": {
+    "message": "'$name$' method's signature doesn't match the standard.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "makeSureTokenIdIsCorrect": {
+    "message": "Please make sure that token ID is correct."
+  },
+  "unknownErrorCheckingSomeEntrypoint": {
+    "message": "An unknown error while checking '$name$' entrypoint occurred.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "incorrectTokenIdErrorMessage": {
+    "message": "Failed while processing token with provided data. Please make sure that token ID is correct."
+  },
+  "transfer": {
+    "message": "Transfer"
+  },
+  "transferFromSmb": {
+    "message": "from $sender$",
+    "placeholders": {
+      "sender": {
+        "content": "$1"
+      }
+    }
+  },
+  "transferToSmb": {
+    "message": "to $receiver$",
+    "placeholders": {
+      "receiver": {
+        "content": "$1"
+      }
+    }
+  },
+  "interactionWithContract": {
+    "message": "with $contract$",
+    "placeholders": {
+      "contract": {
+        "content": "$1"
+      }
+    }
+  },
+  "delegationToSmb": {
+    "message": "to $delegate$",
+    "placeholders": {
+      "delegate": {
         "content": "$1"
       }
     }

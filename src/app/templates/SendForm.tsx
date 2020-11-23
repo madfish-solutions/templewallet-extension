@@ -14,6 +14,7 @@ import {
   useCurrentAsset,
   useBalance,
   useDelegate,
+  useTezosDomainsClient,
   fetchBalance,
   toTransferParams,
   tzToMutez,
@@ -22,12 +23,9 @@ import {
   toPenny,
   hasManager,
   ThanosAssetType,
+  ThanosChainId,
   isKTAddress,
-  useTezosDomains,
-  resolveDomainAddress,
   isDomainNameValid,
-  useNetwork,
-  isTzdnsSupportedNetwork,
   ThanosAccountType,
   loadContract,
   useChainId,
@@ -65,7 +63,6 @@ interface FormData {
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
-const DELPHINET_CHAIN_ID = "NetXm8tYqnMWky1";
 
 const SendForm: React.FC = () => {
   const { currentAsset } = useCurrentAsset();
@@ -109,10 +106,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const allAccounts = useRelevantAccounts();
   const acc = useAccount();
   const tezos = useTezos();
-  const tezosDomains = useTezosDomains();
-  const { id: networkId } = useNetwork();
+  const domainsClient = useTezosDomainsClient();
 
-  const canUseDomainNames = isTzdnsSupportedNetwork(networkId);
+  const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
 
   const { data: balanceData, mutate: mutateBalance } = useBalance(
@@ -133,7 +129,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const lazyChainId = useChainId();
   const deplhiNetwork = React.useMemo(
-    () => lazyChainId === DELPHINET_CHAIN_ID,
+    () =>
+      lazyChainId === ThanosChainId.Delphinet ||
+      lazyChainId === ThanosChainId.Mainnet,
     [lazyChainId]
   );
 
@@ -172,17 +170,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   );
 
   const toFilledWithDomain = React.useMemo(
-    () => toValue && isDomainNameValid(toValue, networkId),
-    [toValue, networkId]
+    () => toValue && isDomainNameValid(toValue, domainsClient),
+    [toValue, domainsClient]
   );
 
   const domainAddressFactory = React.useCallback(
-    (_k: string, _checksum: string, toValue: string, networkId: string) =>
-      resolveDomainAddress(tezosDomains, toValue, networkId),
-    [tezosDomains]
+    (_k: string, _checksum: string, toValue: string) =>
+      domainsClient.resolver.resolveNameToAddress(toValue),
+    [domainsClient]
   );
   const { data: resolvedAddress } = useSWR(
-    ["tzdns-address", tezos.checksum, toValue, networkId],
+    ["tzdns-address", tezos.checksum, toValue],
     domainAddressFactory,
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
@@ -417,10 +415,11 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         return t("amountMustBePositive");
       }
       if (!maxAmountNum) return true;
+      const maxAmount = new BigNumber(maxAmountNum);
       const vBN = new BigNumber(v);
       return (
-        vBN.isLessThanOrEqualTo(maxAmountNum) ||
-        t("maximalAmount", maxAmountNum.toString())
+        vBN.isLessThanOrEqualTo(maxAmount) ||
+        t("maximalAmount", maxAmount.toFixed())
       );
     },
     [maxAmountNum, toValue]
@@ -459,11 +458,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         return validateAddress(value);
       }
 
-      if (isDomainNameValid(value, networkId)) {
-        const resolved = await resolveDomainAddress(
-          tezosDomains,
-          value,
-          networkId
+      if (isDomainNameValid(value, domainsClient)) {
+        const resolved = await domainsClient.resolver.resolveNameToAddress(
+          value
         );
         if (!resolved) {
           return `Domain "${value}" doesn't resolve to an address`;
@@ -474,7 +471,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
       return isAddressValid(value) ? true : "Invalid address or domain name";
     },
-    [tezosDomains, canUseDomainNames, networkId]
+    [canUseDomainNames, domainsClient]
   );
 
   const onSubmit = React.useCallback(
@@ -668,7 +665,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                     className={classNames("underline")}
                     onClick={handleSetMaxAmount}
                   >
-                    {maxAmount.toString()}
+                    {maxAmount.toFixed()}
                   </button>
                   {amountValue && localAsset.type === ThanosAssetType.XTZ ? (
                     <>

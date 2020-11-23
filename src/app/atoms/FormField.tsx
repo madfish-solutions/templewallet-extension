@@ -9,6 +9,7 @@ type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = React.InputHTMLAttributes<HTMLInputElement> &
   React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 interface FormFieldProps extends FormFieldAttrs {
+  extraSection?: React.ReactNode;
   label?: React.ReactNode;
   labelDescription?: React.ReactNode;
   errorCaption?: React.ReactNode;
@@ -25,6 +26,7 @@ interface FormFieldProps extends FormFieldAttrs {
 const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
   (
     {
+      extraSection,
       label,
       labelDescription,
       errorCaption,
@@ -165,6 +167,8 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
             )}
           </label>
         ) : null}
+
+        {extraSection}
 
         <div className={classNames("relative", "mb-2", "flex items-stretch")}>
           <Field
