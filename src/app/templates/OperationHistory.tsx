@@ -368,18 +368,6 @@ const Operation = React.memo<OperationProps>(
     tokenAddress,
     volume,
   }) => {
-    if (hash === "ooVhKgWf9SoPmoPLguRxgmDx9M5Y11rFtLQRR2bmWXA4CFU2ysc") {
-      console.log(
-        hash,
-        rawReceiver,
-        type,
-        status,
-        time,
-        internalTransfers,
-        tokenAddress,
-        volume
-      );
-    }
     const imReceiver = internalTransfers.some(
       ({ receiver }) => receiver === accountPkh
     );
