@@ -3,13 +3,14 @@ import classNames from "clsx";
 import ReactJson from "react-json-view";
 
 type OperationsBanner = {
+  containerStyle?: React.CSSProperties;
   opParams: any[] | { branch: string; contents: any[] };
   label?: React.ReactNode;
   className?: string;
 };
 
 const OperationsBanner = React.memo<OperationsBanner>(
-  ({ opParams, label, className }) => (
+  ({ containerStyle, opParams, label, className }) => (
     <>
       {label && (
         <h2
@@ -33,6 +34,7 @@ const OperationsBanner = React.memo<OperationsBanner>(
         )}
         style={{
           height: "10rem",
+          ...containerStyle,
         }}
       >
         <ReactJson

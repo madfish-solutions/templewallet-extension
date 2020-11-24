@@ -35,7 +35,7 @@ const ExpensesView: React.FC<ExpensesViewProps> = (props) => {
   return (
     <div
       className={classNames(
-        "rounded-md overflow-y-auto border-2 bg-gray-100",
+        "rounded-md overflow-y-auto border",
         "flex flex-col text-gray-700 text-sm leading-tight",
         "h-40"
       )}
