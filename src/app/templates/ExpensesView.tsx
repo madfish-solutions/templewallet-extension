@@ -217,34 +217,35 @@ type OperationVolumeDisplayProps = {
   volume?: number;
 };
 
-const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
-  props
-) => {
-  const { expense, volume } = props;
+const OperationVolumeDisplay = React.memo<OperationVolumeDisplayProps>(
+  (props) => {
+    const { expense, volume } = props;
 
-  const asset = typeof expense?.asset === "object" ? expense.asset : undefined;
+    const asset =
+      typeof expense?.asset === "object" ? expense.asset : undefined;
 
-  const finalVolume = expense
-    ? expense.amount.div(10 ** (asset?.decimals || 0))
-    : volume;
+    const finalVolume = expense
+      ? expense.amount.div(10 ** (asset?.decimals || 0))
+      : volume;
 
-  return (
-    <>
-      <div className="text-sm">
-        <Money>{finalVolume || 0}</Money>{" "}
-        {expense?.asset ? asset?.symbol || "???" : "ꜩ"}
-      </div>
+    return (
+      <>
+        <div className="text-sm">
+          <Money>{finalVolume || 0}</Money>{" "}
+          {expense?.asset ? asset?.symbol || "???" : "ꜩ"}
+        </div>
 
-      {(!expense?.asset || asset) && (
-        <InUSD volume={finalVolume || 0} asset={asset || XTZ_ASSET}>
-          {(usdVolume) => (
-            <div className="text-xs text-gray-500">
-              <span className="mr-px">$</span>
-              {usdVolume}
-            </div>
-          )}
-        </InUSD>
-      )}
-    </>
-  );
-};
+        {(!expense?.asset || asset) && (
+          <InUSD volume={finalVolume || 0} asset={asset || XTZ_ASSET}>
+            {(usdVolume) => (
+              <div className="text-xs text-gray-500 ml-1">
+                (<span className="mr-px">$</span>
+                {usdVolume})
+              </div>
+            )}
+          </InUSD>
+        )}
+      </>
+    );
+  }
+);
