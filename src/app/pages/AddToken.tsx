@@ -18,11 +18,11 @@ import {
   useTokens,
   useCurrentAsset,
   useTezos,
-  loadContract,
   validateContractAddress,
   useNetwork,
   assertTokenType,
   NotMatchingStandardError,
+  loadContractForCallLambdaView,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
@@ -102,9 +102,10 @@ const Form: React.FC = () => {
   const [tokenDataError, setTokenDataError] = React.useState<React.ReactNode>(
     null
   );
-  const [tokenValidationError, setTokenValidationError] = React.useState<
-    React.ReactNode
-  >(null);
+  const [
+    tokenValidationError,
+    setTokenValidationError,
+  ] = React.useState<React.ReactNode>(null);
   const [bottomSectionVisible, setBottomSectionVisible] = useSafeState(false);
   const [loadingToken, setLoadingToken] = React.useState(false);
 
@@ -127,7 +128,10 @@ const Form: React.FC = () => {
 
         let contract: WalletContract;
         try {
-          contract = await loadContract(tezos, contractAddress, false);
+          contract = await loadContractForCallLambdaView(
+            tezos,
+            contractAddress
+          );
         } catch (_err) {
           throw new TokenValidationError(t("contractNotAvailable"));
         }

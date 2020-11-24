@@ -200,17 +200,14 @@ async function processRequest(
         }
 
         return enqueueDAppPrecessing(port, async () => {
-          const action = req.beacon
-            ? Actions.processBeacon
-            : Actions.processDApp;
-          const resPayload = await action(req.origin, req.payload);
-          if (resPayload) {
-            return {
-              type: ThanosMessageType.PageResponse,
-              payload: resPayload,
-            };
-          }
-          return;
+          const resPayload = await (req.beacon
+            ? Actions.processBeacon(req.origin, req.payload, req.encrypted)
+            : Actions.processDApp(req.origin, req.payload));
+
+          return {
+            type: ThanosMessageType.PageResponse,
+            payload: resPayload ?? null,
+          };
         });
       }
       break;

@@ -93,19 +93,18 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
   const customNetworks = React.useMemo(() => {
     const customNetworksWithoutLambdaContracts = settings?.customNetworks ?? [];
-    return customNetworksWithoutLambdaContracts.map(network => {
+    return customNetworksWithoutLambdaContracts.map((network) => {
       return {
-      ...network,
-      lambdaContract: settings?.lambdaContracts?.[network.id]
-    };
-  })
-  }, [
-    settings,
-  ]);
+        ...network,
+        lambdaContract: settings?.lambdaContracts?.[network.id],
+      };
+    });
+  }, [settings]);
   const defaultNetworksWithLambdaContracts = React.useMemo(() => {
-    return defaultNetworks.map(network => ({
+    return defaultNetworks.map((network) => ({
       ...network,
-      lambdaContract: network.lambdaContract || settings?.lambdaContracts?.[network.id]
+      lambdaContract:
+        network.lambdaContract || settings?.lambdaContracts?.[network.id],
     }));
   }, [settings, defaultNetworks]);
   const networks = React.useMemo(
