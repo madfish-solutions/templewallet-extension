@@ -254,7 +254,14 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               {payload.type === "operations" && spFormat.key === "preview" && (
                 <>
                   <NetworkBanner rpc={payload.networkRpc} />
-                  <OperationsBanner opParams={payload.opParams} />
+                  <OperationsBanner
+                    opParams={payload.opParams}
+                    containerStyle={
+                      signPayloadFormats.length > 1
+                        ? { height: "9.5rem" }
+                        : undefined
+                    }
+                  />
                 </>
               )}
 
