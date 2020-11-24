@@ -33,6 +33,7 @@ const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 600;
 const AUTODECLINE_AFTER = 120_000;
 const STORAGE_KEY = "dapp_sessions";
+const HEX_PATTERN = /^[0-9a-fA-F]+$/;
 
 export async function requestPermission(
   origin: string,
@@ -203,7 +204,9 @@ export async function requestSign(
   req: ThanosDAppSignRequest
 ): Promise<ThanosDAppSignResponse> {
   if (
-    ![isAddressValid(req?.sourcePkh), req?.payload?.length > 0].every(Boolean)
+    ![isAddressValid(req?.sourcePkh), HEX_PATTERN.test(req?.payload)].every(
+      Boolean
+    )
   ) {
     throw new Error(ThanosDAppErrorType.InvalidParams);
   }
@@ -224,7 +227,10 @@ export async function requestSign(
 
     let preview: any;
     try {
-      preview = await localForger.parse(req.payload);
+      const parsed = await localForger.parse(req.payload);
+      if (parsed.contents.length > 0) {
+        preview = parsed;
+      }
     } catch {
       preview = null;
     }
