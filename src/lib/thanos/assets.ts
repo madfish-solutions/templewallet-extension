@@ -1,8 +1,10 @@
 import BigNumber from "bignumber.js";
 import { TezosToolkit, WalletContract } from "@taquito/taquito";
-import { Queue } from "queue-ts";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
-import { loadContract } from "lib/thanos/contract";
+import {
+  loadContract,
+  loadContractForCallLambdaView,
+} from "lib/thanos/contract";
 import { mutezToTz } from "lib/thanos/helpers";
 import assert, { AssertionError } from "lib/assert";
 import { getMessage } from "lib/i18n";
@@ -178,18 +180,7 @@ export async function assertTokenType(
   );
 }
 
-const fetchBalanceQueue = new Queue(1);
-
-export const fetchBalance: typeof fetchBalancePlain = (...args) =>
-  new Promise((response, reject) => {
-    fetchBalanceQueue.add(() =>
-      fetchBalancePlain(...args)
-        .then(response)
-        .catch(reject)
-    );
-  });
-
-export async function fetchBalancePlain(
+export async function fetchBalance(
   tezos: TezosToolkit,
   asset: ThanosAsset,
   accountPkh: string
@@ -204,7 +195,10 @@ export async function fetchBalancePlain(
     case ThanosAssetType.Staker:
     case ThanosAssetType.TzBTC:
     case ThanosAssetType.FA1_2:
-      const contract: any = await loadContract(tezos, asset.address, false);
+      const contract = await loadContractForCallLambdaView(
+        tezos,
+        asset.address
+      );
 
       try {
         nat = await contract.views
@@ -219,7 +213,10 @@ export async function fetchBalancePlain(
       return nat.div(10 ** asset.decimals);
 
     case ThanosAssetType.FA2:
-      const fa2Contract: any = await loadContract(tezos, asset.address, false);
+      const fa2Contract = await loadContractForCallLambdaView(
+        tezos,
+        asset.address
+      );
 
       try {
         const response = await fa2Contract.views
