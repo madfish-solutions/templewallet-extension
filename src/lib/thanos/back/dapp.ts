@@ -24,6 +24,7 @@ import {
 } from "lib/thanos/types";
 import { intercom } from "lib/thanos/back/defaults";
 import * as PndOps from "lib/thanos/back/pndops";
+import * as Beacon from "lib/thanos/beacon";
 import { withUnlocked } from "lib/thanos/back/store";
 import { NETWORKS } from "lib/thanos/networks";
 import { loadChainId, isAddressValid } from "lib/thanos/helpers";
@@ -325,6 +326,7 @@ export async function setDApp(origin: string, permissions: ThanosDAppSession) {
 export async function removeDApp(origin: string) {
   const { [origin]: permissionsToRemove, ...restDApps } = await getAllDApps();
   await setDApps(restDApps);
+  await Beacon.removeDAppPublicKey(origin);
   return restDApps;
 }
 

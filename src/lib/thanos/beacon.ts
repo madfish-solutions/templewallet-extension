@@ -1,8 +1,10 @@
-import * as bs58check from "bs58check";
+import { browser } from "webextension-polyfill-ts";
 import { Buffer } from "buffer";
+import * as sodium from "libsodium-wrappers";
+import * as bs58check from "bs58check";
 
 export interface AppMetadata {
-  beaconId: string;
+  senderId: string;
   name: string;
   icon?: string;
 }
@@ -19,17 +21,20 @@ export type Request =
   | PermissionRequest
   | OperationRequest
   | SignRequest
-  | BroadcastRequest;
+  | BroadcastRequest
+  | DisconnectMessage
+  | PostMessagePairingRequest;
 
 export type Response =
   | ErrorResponse
   | PermissionResponse
   | OperationResponse
   | SignResponse
-  | BroadcastResponse;
+  | BroadcastResponse
+  | DisconnectMessage
+  | PostMessagePairingResponse;
 
 export enum MessageType {
-  Error = "error",
   PermissionRequest = "permission_request",
   SignPayloadRequest = "sign_payload_request",
   OperationRequest = "operation_request",
@@ -38,13 +43,19 @@ export enum MessageType {
   SignPayloadResponse = "sign_payload_response",
   OperationResponse = "operation_response",
   BroadcastResponse = "broadcast_response",
+  Disconnect = "disconnect",
+  Error = "error",
+  // Handshake
+  HandshakeRequest = "postmessage-pairing-request",
+  HandshakeResponse = "postmessage-pairing-response",
 }
 
 export interface BaseMessage {
   type: MessageType;
   version: string;
   id: string; // ID of the message. The same ID is used in the request and response
-  beaconId: string; // ID of the sender. This is used to identify the sender of the message
+  beaconId?: string;
+  senderId?: string; // ID of the sender. This is used to identify the sender of the message
 }
 
 export enum PermissionScope {
@@ -114,12 +125,33 @@ export enum ErrorType {
   PARAMETERS_INVALID_ERROR = "PARAMETERS_INVALID_ERROR", // Operation Request: Will be returned if any of the parameters are invalid.
   TOO_MANY_OPERATIONS = "TOO_MANY_OPERATIONS", // Operation Request: Will be returned if too many operations were in the request and they were not able to fit into a single operation group.
   TRANSACTION_INVALID_ERROR = "TRANSACTION_INVALID_ERROR", // Broadcast: Will be returned if the transaction is not parsable or is rejected by the node.
+  ABORTED_ERROR = "ABORTED_ERROR", // Permission | Operation Request | Sign Request | Broadcast: Will be returned if the request was aborted by the user or the wallet.
   UNKNOWN_ERROR = "UNKNOWN_ERROR", // Used as a wildcard if an unexpected error occured.
 }
 
 export interface ErrorResponse extends BaseMessage {
   type: MessageType.Error;
   errorType: ErrorType;
+}
+
+export interface DisconnectMessage extends BaseMessage {
+  type: MessageType.Disconnect;
+}
+
+export interface PostMessagePairingRequest extends BaseMessage {
+  type: MessageType.HandshakeRequest;
+  name: string;
+  icon?: string; // TODO: Should this be a URL or base64 image?
+  appUrl?: string;
+  publicKey: string;
+}
+
+export interface PostMessagePairingResponse extends BaseMessage {
+  type: MessageType.HandshakeResponse;
+  name: string;
+  icon?: string; // TODO: Should this be a URL or base64 image?
+  appUrl?: string;
+  publicKey: string;
 }
 
 export function encodeMessage<T = unknown>(msg: T): string {
@@ -143,4 +175,204 @@ export function formatOpParams(op: any) {
     };
   }
   return rest;
+}
+
+/**
+ * Beacon V2
+ */
+export const SENDER_ID = browser.runtime.id;
+
+export const PAIRING_RESPONSE_BASE: Partial<PostMessagePairingResponse> = {
+  type: MessageType.HandshakeResponse,
+  name: "Thanos Wallet",
+  icon: process.env.THANOS_WALLET_LOGO_URL || undefined,
+  appUrl: browser.runtime.getURL("fullpage.html"),
+};
+
+export const KEYPAIR_SEED_STORAGE_KEY = "beacon_keypair_seed";
+
+export async function encryptMessage(
+  message: string,
+  recipientPublicKey: string
+): Promise<string> {
+  const keyPair = await getOrCreateKeyPair();
+  const { sharedTx } = await createCryptoBoxClient(
+    recipientPublicKey,
+    keyPair.privateKey
+  );
+
+  return encryptCryptoboxPayload(message, sharedTx);
+}
+
+export async function decryptMessage(payload: string, senderPublicKey: string) {
+  const keyPair = await getOrCreateKeyPair();
+  const { sharedRx } = await createCryptoBoxServer(
+    senderPublicKey,
+    keyPair.privateKey
+  );
+
+  const hexPayload = Buffer.from(payload, "hex");
+
+  if (
+    hexPayload.length >=
+    sodium.crypto_secretbox_NONCEBYTES + sodium.crypto_secretbox_MACBYTES
+  ) {
+    try {
+      return await decryptCryptoboxPayload(hexPayload, sharedRx);
+    } catch (decryptionError) {
+      /* NO-OP. We try to decode every message, but some might not be addressed to us. */
+    }
+  }
+
+  throw new Error("Could not decrypt message");
+}
+
+export async function sealCryptobox(
+  payload: string | Buffer,
+  publicKey: Uint8Array
+): Promise<string> {
+  await sodium.ready;
+
+  const kxSelfPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(
+    Buffer.from(publicKey)
+  ); // Secret bytes to scalar bytes
+  const encryptedMessage = sodium.crypto_box_seal(payload, kxSelfPublicKey);
+
+  return toHex(encryptedMessage);
+}
+
+export async function encryptCryptoboxPayload(
+  message: string,
+  sharedKey: Uint8Array
+): Promise<string> {
+  await sodium.ready;
+
+  const nonce = Buffer.from(
+    sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES)
+  );
+  const combinedPayload = Buffer.concat([
+    nonce,
+    Buffer.from(
+      sodium.crypto_secretbox_easy(
+        Buffer.from(message, "utf8"),
+        nonce,
+        sharedKey
+      )
+    ),
+  ]);
+
+  return toHex(combinedPayload);
+}
+
+export async function decryptCryptoboxPayload(
+  payload: Uint8Array,
+  sharedKey: Uint8Array
+): Promise<string> {
+  await sodium.ready;
+
+  const nonce = payload.slice(0, sodium.crypto_secretbox_NONCEBYTES);
+  const ciphertext = payload.slice(sodium.crypto_secretbox_NONCEBYTES);
+
+  return Buffer.from(
+    sodium.crypto_secretbox_open_easy(ciphertext, nonce, sharedKey)
+  ).toString("utf8");
+}
+
+export async function createCryptoBoxServer(
+  otherPublicKey: string,
+  selfPrivateKey: Uint8Array
+): Promise<sodium.CryptoKX> {
+  const keys = await createCryptoBox(otherPublicKey, selfPrivateKey);
+
+  return sodium.crypto_kx_server_session_keys(...keys);
+}
+
+export async function createCryptoBoxClient(
+  otherPublicKey: string,
+  selfPrivateKey: Uint8Array
+): Promise<sodium.CryptoKX> {
+  const keys = await createCryptoBox(otherPublicKey, selfPrivateKey);
+
+  return sodium.crypto_kx_client_session_keys(...keys);
+}
+
+export async function createCryptoBox(
+  otherPublicKey: string,
+  selfPrivateKey: Uint8Array
+): Promise<[Uint8Array, Uint8Array, Uint8Array]> {
+  // TODO: Don't calculate it every time?
+  const kxSelfPrivateKey = sodium.crypto_sign_ed25519_sk_to_curve25519(
+    Buffer.from(selfPrivateKey)
+  ); // Secret bytes to scalar bytes
+  const kxSelfPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(
+    Buffer.from(selfPrivateKey).slice(32, 64)
+  ); // Secret bytes to scalar bytes
+  const kxOtherPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(
+    Buffer.from(otherPublicKey, "hex")
+  ); // Secret bytes to scalar bytes
+
+  return [
+    Buffer.from(kxSelfPublicKey),
+    Buffer.from(kxSelfPrivateKey),
+    Buffer.from(kxOtherPublicKey),
+  ];
+}
+
+let keyPair: sodium.KeyPair;
+export async function getOrCreateKeyPair() {
+  const items = await browser.storage.local.get([KEYPAIR_SEED_STORAGE_KEY]);
+  const exist = KEYPAIR_SEED_STORAGE_KEY in items;
+
+  if (exist && keyPair) {
+    return keyPair;
+  }
+
+  let seed: string;
+  if (exist) {
+    seed = items[KEYPAIR_SEED_STORAGE_KEY];
+  } else {
+    const newSeed = generateNewSeed();
+    await browser.storage.local.set({ [KEYPAIR_SEED_STORAGE_KEY]: newSeed });
+    seed = newSeed;
+  }
+
+  await sodium.ready;
+  keyPair = sodium.crypto_sign_seed_keypair(
+    sodium.crypto_generichash(32, sodium.from_string(seed))
+  );
+  return keyPair;
+}
+
+export async function getDAppPublicKey(origin: string) {
+  const key = toPubKeyStorageKey(origin);
+  const items = await browser.storage.local.get([key]);
+  return key in items ? (items[key] as string) : null;
+}
+
+export async function saveDAppPublicKey(origin: string, publicKey: string) {
+  await browser.storage.local.set({
+    [toPubKeyStorageKey(origin)]: publicKey,
+  });
+}
+
+export async function removeDAppPublicKey(origin: string) {
+  await browser.storage.local.remove([toPubKeyStorageKey(origin)]);
+}
+
+export function generateNewSeed() {
+  const view = new Uint8Array(32);
+  crypto.getRandomValues(view);
+  return toHex(view);
+}
+
+export function toHex(term: Uint8Array | Buffer) {
+  return Buffer.from(term).toString("hex");
+}
+
+export function fromHex(term: string) {
+  return Buffer.from(term, "hex");
+}
+
+function toPubKeyStorageKey(origin: string) {
+  return `beacon_${origin}_pubkey`;
 }
