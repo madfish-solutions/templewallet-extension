@@ -43,6 +43,7 @@ interface InternalTransfer {
 }
 
 interface OperationPreview {
+  entrypoint?: string;
   rawReceiver?: string;
   delegate?: string;
   hash: string;
@@ -114,6 +115,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
         return {
           ...op,
+          entrypoint: parameters?.entrypoint,
           hash: op.hash,
           type: op.kind,
           status: "pending",
@@ -211,6 +213,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
               : [];
           return {
             delegate: op.type === "delegation" ? op.delegate : undefined,
+            entrypoint: (op.parameters as any)?.entrypoint,
             internalTransfers: transfersFromParams || transfersFromVolumeProp,
             hash: op.hash,
             status: op.status,
@@ -353,6 +356,7 @@ const Operation = React.memo<OperationProps>(
   ({
     accountPkh,
     delegate,
+    entrypoint,
     withExplorer,
     explorerBaseUrl,
     hash,
@@ -373,7 +377,8 @@ const Operation = React.memo<OperationProps>(
     const hasTokenTransfers = tokenAddress && internalTransfers.length > 0;
     const sender = internalTransfers[0]?.sender;
     const isTransfer =
-      hasTokenTransfers || (volumeExists && type === "transaction");
+      (hasTokenTransfers || (volumeExists && type === "transaction")) &&
+      (!entrypoint || entrypoint === "transfer");
     const isSendingTransfer = isTransfer && !imReceiver;
     const isReceivingTransfer = isTransfer && imReceiver;
     const moreExactType = React.useMemo(() => {
@@ -551,13 +556,15 @@ const Operation = React.memo<OperationProps>(
                     volume={0}
                   />
                 ))}
-                {internalTransfers.length === 0 && (volume || undefined) && (
-                  <OperationVolumeDisplay
-                    accountPkh={accountPkh}
-                    pending={pending}
-                    volume={volume}
-                  />
-                )}
+                {internalTransfers.length === 0 &&
+                  (volume || undefined) &&
+                  (isTransfer || type === "delegation") && (
+                    <OperationVolumeDisplay
+                      accountPkh={accountPkh}
+                      pending={pending}
+                      volume={volume}
+                    />
+                  )}
               </div>
             )}
           </div>
