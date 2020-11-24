@@ -7,6 +7,7 @@ import {
   ThanosConfirmationPayload,
   tryParseExpenses,
   useAssets,
+  useNetwork,
   useRelevantAccounts,
   XTZ_ASSET,
 } from "lib/thanos/front";
@@ -19,6 +20,7 @@ import OperationsBanner from "app/templates/OperationsBanner";
 import NetworkBanner from "app/templates/NetworkBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
 import ViewsSwitcher from "app/templates/ViewsSwitcher";
+import ExpensesView from "app/templates/ExpensesView";
 import Logo from "app/atoms/Logo";
 import Alert from "app/atoms/Alert";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -28,7 +30,6 @@ import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as DollarIcon } from "app/icons/dollar.svg";
-import ExpensesView from "./ExpensesView";
 
 type InternalConfiramtionProps = {
   payload: ThanosConfirmationPayload;
@@ -39,6 +40,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   payload,
   onConfirm,
 }) => {
+  const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
 
   const getContentToParse = React.useCallback(async () => {
@@ -230,6 +232,14 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                 className="w-full mb-4"
               />
 
+              <NetworkBanner
+                rpc={
+                  payload.type === "operations"
+                    ? payload.networkRpc
+                    : currentNetworkRpc
+                }
+              />
+
               {signPayloadFormats.length > 1 && (
                 <div className="w-full flex justify-end mb-4 items-center">
                   <span
@@ -252,26 +262,25 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               )}
 
               {payload.type === "operations" && spFormat.key === "preview" && (
-                <>
-                  <NetworkBanner rpc={payload.networkRpc} />
-                  <OperationsBanner
-                    opParams={payload.opParams}
-                    jsonViewStyle={
-                      signPayloadFormats.length > 1
-                        ? { height: "9.5rem" }
-                        : undefined
-                    }
-                  />
-                </>
+                <OperationsBanner
+                  opParams={payload.opParams}
+                  jsonViewStyle={
+                    signPayloadFormats.length > 1
+                      ? { height: "9.5rem" }
+                      : undefined
+                  }
+                />
               )}
 
               {payload.type === "sign" && spFormat.key === "raw" && (
-                <RawPayloadView
-                  rows={7}
-                  label={t("payloadToSign")}
-                  payload={payload.bytes}
-                  className="mb-4"
-                />
+                <>
+                  <RawPayloadView
+                    rows={7}
+                    label={t("payloadToSign")}
+                    payload={payload.bytes}
+                    className="mb-4"
+                  />
+                </>
               )}
 
               {spFormat.key === "expenses" && (
