@@ -1311,9 +1311,6 @@
   "transfers": {
     "message": "Transfers"
   },
-  "transfer": {
-    "message": "Transfer"
-  },
   "someUnknownToken": {
     "message": "unknown token $token$",
     "placeholders": {
@@ -1516,6 +1513,9 @@
       }
     }
   },
+  "interaction": {
+    "message": "Interaction"
+  },
   "interactionWithContract": {
     "message": "with $contract$",
     "placeholders": {
@@ -1531,5 +1531,16 @@
         "content": "$1"
       }
     }
+  },
+  "approveForSmb": {
+    "message": "for $spender$",
+    "placeholders": {
+      "spender": {
+        "content": "$1"
+      }
+    }
+  },
+  "undelegation": {
+    "message": "Undelegation"
   }
 }

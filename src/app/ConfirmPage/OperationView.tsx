@@ -102,7 +102,7 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
     return (
       <div className="flex flex-col w-full">
         <h2
-          className={classNames("mb-4", "leading-tight", "flex items-center")}
+          className={classNames("mb-3", "leading-tight", "flex items-center")}
         >
           <T id="payloadToSign">
             {(message) => (
@@ -159,7 +159,7 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
     return (
       <div className="flex flex-col w-full">
         <h2
-          className={classNames("mb-4", "leading-tight", "flex items-center")}
+          className={classNames("mb-3", "leading-tight", "flex items-center")}
         >
           <span
             className={classNames(

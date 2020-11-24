@@ -3,9 +3,13 @@ import { OperationsPreview } from "lib/thanos/front";
 
 export type RawOperationAssetExpense = {
   tokenAddress?: string;
+  tokenId?: number;
   amount: BigNumber;
+  to: string;
 };
 export type RawOperationExpenses = {
+  amount?: number;
+  delegate?: string;
   type: string;
   isEntrypointInteraction: boolean;
   contractAddress?: string;
@@ -24,11 +28,22 @@ export function tryParseExpenses(
       const entrypoint = operation.parameter?.entrypoint;
       const type = entrypoint || kind;
       const isEntrypointInteraction = !!entrypoint;
+      const parsedAmount = amount !== undefined ? Number(amount) : undefined;
       if (!kind) {
         return undefined;
       }
+      if (kind === "delegation") {
+        return {
+          amount: 0,
+          delegate: operation.delegate,
+          type,
+          isEntrypointInteraction: false,
+          expenses: [],
+        };
+      }
       if (from && from !== accountAddress) {
         return {
+          amount: parsedAmount,
           type,
           isEntrypointInteraction,
           expenses: [],
@@ -36,27 +51,43 @@ export function tryParseExpenses(
       }
       const expenses: RawOperationAssetExpense[] = [];
       if (amount) {
-        expenses.push({ amount: new BigNumber(amount) });
+        expenses.push({ amount: new BigNumber(amount), to });
       }
       if (["transfer", "approve"].includes(type)) {
-        const tokenAddress = operation.to;
-        let args = operation.parameter?.value?.args;
-        while (args?.[0]?.prim) {
-          args = args?.[0]?.args;
-        }
-        const to = args?.[0]?.string;
-        const amount = args?.[1]?.int;
-        if (
-          [tokenAddress, to, amount].every((value) => typeof value === "string")
-        ) {
-          expenses.push({
-            tokenAddress,
-            amount: new BigNumber(amount),
+        if (type === "transfer" && (operation.parameter?.value instanceof Array)) {
+          const internalTransfers = operation.parameter.value;
+          internalTransfers.forEach((transfersBatch: any) => {
+            transfersBatch.args[1].forEach((transfer: any) => {
+              expenses.push({
+                tokenAddress: operation.to,
+                amount: new BigNumber(transfer.args[1].args[1].int),
+                tokenId: Number(transfer.args[1].args[0].int),
+                to: transfer.args[0].string
+              });
+            });
           });
+        } else {
+          const tokenAddress = operation.to;
+          let args = operation.parameter?.value?.args;
+          while (args?.[0]?.prim) {
+            args = args?.[0]?.args;
+          }
+          const to = args?.[0]?.string;
+          const amount = args?.[1]?.int;
+          if (
+            [tokenAddress, to, amount].every((value) => typeof value === "string")
+          ) {
+            expenses.push({
+              tokenAddress,
+              amount: new BigNumber(amount),
+              to,
+            });
+          }
         }
       }
 
       return {
+        amount: parsedAmount,
         type,
         isEntrypointInteraction,
         contractAddress: isEntrypointInteraction ? to : undefined,

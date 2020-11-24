@@ -124,7 +124,6 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
     ];
   }, [payload.type]);
 
-  console.log(signPayloadFormats);
   const [spFormat, setSpFormat] = useSafeState(signPayloadFormats[0]);
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
