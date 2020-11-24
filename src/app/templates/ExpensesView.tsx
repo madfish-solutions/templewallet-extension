@@ -146,38 +146,40 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item }) => {
         />
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 flex-col">
         <div className="flex items-center">
-          <div className={classNames("flex-1", "h-px", "bg-gray-200")} />
+          <div className="flex mr-1 text-xs items-center text-blue-600 opacity-75">
+            {operationTypeLabel}
+          </div>
+          {argumentDisplayProps && (
+            <OperationArgumentDisplay {...argumentDisplayProps} />
+          )}
         </div>
-
-        <div className="flex items-stretch">
-          <div className="flex flex-col">
-            <div className="flex items-center mt-1 text-xs text-blue-600 opacity-75">
-              {operationTypeLabel}
-            </div>
-            {argumentDisplayProps && (
-              <OperationArgumentDisplay {...argumentDisplayProps} />
-            )}
-          </div>
-
-          <div className="flex-1" />
-          <div className="flex flex-col items-end flex-shrink-0">
-            {item.expenses.map((expense, index) => (
-              <OperationVolumeDisplay
-                key={index}
-                expense={expense}
-                operationType={item.type}
-                volume={item.amount}
-              />
-            ))}
-            {item.expenses.length === 0 && (item.amount || undefined) && (
-              <OperationVolumeDisplay
-                volume={item.amount!}
-                operationType={item.type}
-              />
-            )}
-          </div>
+        <div
+          className={classNames(
+            "flex items-end flex-shrink-0",
+            (() => {
+              switch (item.type) {
+                case "transaction":
+                case "transfer":
+                  return "text-red-700";
+                case "approve":
+                  return "text-yellow-600";
+                default:
+                  return "text-gray-800";
+              }
+            })()
+          )}
+        >
+          {item.expenses.map((expense, index) => (
+            <React.Fragment key={index}>
+              <OperationVolumeDisplay expense={expense} volume={item.amount} />
+              {index === item.expenses.length - 1 ? null : ", "}
+            </React.Fragment>
+          ))}
+          {item.expenses.length === 0 && (item.amount || undefined) && (
+            <OperationVolumeDisplay volume={item.amount!} />
+          )}
         </div>
       </div>
     </div>
@@ -213,13 +215,12 @@ const OperationArgumentDisplay = React.memo<OperationArgumentDisplayProps>(
 type OperationVolumeDisplayProps = {
   expense?: OperationAssetExpense;
   volume?: number;
-  operationType: string;
 };
 
 const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
   props
 ) => {
-  const { expense, volume, operationType } = props;
+  const { expense, volume } = props;
 
   const asset = typeof expense?.asset === "object" ? expense.asset : undefined;
 
@@ -229,22 +230,7 @@ const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
 
   return (
     <>
-      <div
-        className={classNames(
-          "text-sm",
-          (() => {
-            switch (operationType) {
-              case "transaction":
-              case "transfer":
-                return "text-red-700";
-              case "approve":
-                return "text-yellow-600";
-              default:
-                return "text-gray-800";
-            }
-          })()
-        )}
-      >
+      <div className="text-sm">
         <Money>{finalVolume || 0}</Money>{" "}
         {expense?.asset ? asset?.symbol || "???" : "ꜩ"}
       </div>
