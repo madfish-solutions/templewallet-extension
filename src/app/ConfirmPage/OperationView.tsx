@@ -129,6 +129,7 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
         <OperationsBanner
           opParams={payload.preview}
           className={classNames(spFormat.key !== "preview" && "hidden")}
+          jsonViewStyle={{ height: "9.5rem" }}
         />
 
         <RawPayloadView
@@ -184,6 +185,9 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
         <OperationsBanner
           opParams={payload.opParams}
           className={classNames(spFormat.key !== "preview" && "hidden")}
+          jsonViewStyle={
+            signPayloadFormats.length > 1 ? { height: "9.5rem" } : undefined
+          }
           label={null}
         />
 

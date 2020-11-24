@@ -256,7 +256,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                   <NetworkBanner rpc={payload.networkRpc} />
                   <OperationsBanner
                     opParams={payload.opParams}
-                    containerStyle={
+                    jsonViewStyle={
                       signPayloadFormats.length > 1
                         ? { height: "9.5rem" }
                         : undefined
