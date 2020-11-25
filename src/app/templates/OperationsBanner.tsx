@@ -1,16 +1,16 @@
 import * as React from "react";
 import classNames from "clsx";
 import ReactJson from "react-json-view";
-import { t } from "lib/i18n/react";
 
 type OperationsBanner = {
-  opParams: any[];
+  jsonViewStyle?: React.CSSProperties;
+  opParams: any[] | { branch: string; contents: any[] };
   label?: React.ReactNode;
   className?: string;
 };
 
 const OperationsBanner = React.memo<OperationsBanner>(
-  ({ opParams, label = t("operations"), className }) => (
+  ({ jsonViewStyle, opParams, label, className }) => (
     <>
       {label && (
         <h2
@@ -34,6 +34,7 @@ const OperationsBanner = React.memo<OperationsBanner>(
         )}
         style={{
           height: "10rem",
+          ...jsonViewStyle,
         }}
       >
         <ReactJson

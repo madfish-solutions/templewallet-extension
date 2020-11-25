@@ -671,3 +671,5 @@ export interface ThanosRemoveDAppSessionResponse extends ThanosMessageBase {
   type: ThanosMessageType.DAppRemoveSessionResponse;
   sessions: ThanosDAppSessions;
 }
+
+export type OperationsPreview = any[] | { branch: string; contents: any[] };
