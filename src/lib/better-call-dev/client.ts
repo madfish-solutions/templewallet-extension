@@ -1,35 +1,28 @@
-import axios, { AxiosError } from "axios";
+import { HttpBackend } from "@taquito/http-utils";
 import {
+  BcdRequestParams,
+  BcdAccountQueryParams,
+  BcdAccountInfo,
   BcdTokenTransfersQueryParams,
   BcdContractsQueryParams,
   BcdPageableTokenContracts,
   BcdPageableTokenTransfers,
   BcdOperationsSearchQueryParams,
   BcdOperationsSearchResponse,
-  BcdNetwork,
-} from "lib/better-call-dev/types";
-import { ThanosChainId } from "lib/thanos/types";
+} from "./types";
 
-const api = axios.create({ baseURL: "https://api.better-call.dev/v1" });
-api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    const { message } = (err as AxiosError).response?.data;
-    throw new Error(`Failed when querying Better Call API: ${message}`);
-  }
+export const getAccount = makeQuery<BcdAccountQueryParams, BcdAccountInfo>(
+  "GET",
+  (params) => `/account/${params.network}/${params.address}`
 );
 
 export const SEARCH_PAGE_SIZE = 10;
-export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
-  [ThanosChainId.Mainnet, "mainnet"],
-  [ThanosChainId.Carthagenet, "carthagenet"],
-  [ThanosChainId.Delphinet, "delphinet"],
-]);
 
 export const getContracts = makeQuery<
   BcdContractsQueryParams,
   BcdPageableTokenContracts
 >(
+  "GET",
   (params) =>
     `/tokens/${params.network}${
       params.faversion ? `/version/${params.faversion}` : ""
@@ -40,7 +33,7 @@ export const getContracts = makeQuery<
 export const getTokenTransfers = makeQuery<
   BcdTokenTransfersQueryParams,
   BcdPageableTokenTransfers
->((params) => `/tokens/${params.network}/transfers/${params.address}`, [
+>("GET", (params) => `/tokens/${params.network}/transfers/${params.address}`, [
   "last_id",
   "size",
 ]);
@@ -48,33 +41,45 @@ export const getTokenTransfers = makeQuery<
 export const searchOperations = makeQuery<
   BcdOperationsSearchQueryParams,
   BcdOperationsSearchResponse
->(
-  () => "/search",
-  undefined,
-  ({ network, address, offset, since = 0 }) => ({
-    q: address,
-    i: "operation",
-    n: network,
-    g: 1,
-    s: since,
-    o: offset,
-  })
-);
+>("GET", "/search", ({ network, address, offset, since = 0 }) => ({
+  q: address,
+  i: "operation",
+  n: network,
+  g: 1,
+  s: since,
+  o: offset,
+}));
 
-function makeQuery<P extends Record<string, unknown>, R>(
-  url: (params: P) => string,
-  searchParamsKeys: Array<keyof P> = [],
-  searchParamsFactory?: (params: P) => Record<string, unknown>
+/**
+ * Base
+ */
+
+export const BASE_URL = "https://api.better-call.dev/v1";
+
+const backend = new HttpBackend();
+
+export function makeQuery<P extends Record<string, unknown>, R = any>(
+  method: "GET" | "POST",
+  path: ((params: BcdRequestParams<P>) => string) | string,
+  toQueryParams?:
+    | ((params: BcdRequestParams<P>) => Record<string, unknown>)
+    | Array<keyof P>
 ) {
-  return (params: P) => {
-    const searchParams = searchParamsFactory
-      ? searchParamsFactory(params)
-      : Object.fromEntries(
-          Object.entries(params).filter(([key]) =>
-            searchParamsKeys.includes(key)
+  return (params: BcdRequestParams<P>) => {
+    const pathStr = typeof path === "function" ? path(params) : path;
+    const url = `${BASE_URL}${pathStr}`;
+    const query =
+      typeof toQueryParams === "function"
+        ? toQueryParams(params)
+        : toQueryParams
+        ? Object.fromEntries(
+            Object.entries(params).filter(([key]) =>
+              toQueryParams.includes(key)
+            )
           )
-        );
+        : undefined;
+    const { headers, timeout } = params;
 
-    return api.get<R>(url(params), { params: searchParams });
+    return backend.createRequest<R>({ method, url, query, headers, timeout });
   };
 }
