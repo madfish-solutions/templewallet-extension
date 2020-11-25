@@ -1,4 +1,5 @@
 import * as React from "react";
+import { browser } from "webextension-polyfill-ts";
 import {
   XTZ_ASSET,
   MAINNET_TOKENS,
@@ -46,10 +47,26 @@ export function useCurrentAsset() {
     () => allAssets.find((a) => a.symbol === assetSymbol) ?? defaultAsset,
     [allAssets, assetSymbol, defaultAsset]
   );
-
   return {
     assetSymbol,
     setAssetSymbol,
     currentAsset,
   };
+}
+
+export function useSetAssetSymbol() {
+  const network = useNetwork();
+  const account = useAccount();
+
+  const key = React.useMemo(
+    () => `assetsymbol_${network.id}_${account.publicKeyHash}`,
+    [network.id, account.publicKeyHash]
+  );
+
+  return React.useCallback(
+    (symbol: string) => {
+      browser.storage.local.set({ [key]: symbol });
+    },
+    [key]
+  );
 }

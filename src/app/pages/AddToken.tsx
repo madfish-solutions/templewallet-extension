@@ -16,7 +16,7 @@ import { navigate } from "lib/woozie";
 import {
   ThanosAssetType,
   useTokens,
-  useCurrentAsset,
+  useSetAssetSymbol,
   useTezos,
   validateContractAddress,
   useNetwork,
@@ -79,7 +79,7 @@ type FormData = {
 
 const Form: React.FC = () => {
   const { addToken } = useTokens();
-  const { setAssetSymbol } = useCurrentAsset();
+  const setAssetSymbol = useSetAssetSymbol();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
 

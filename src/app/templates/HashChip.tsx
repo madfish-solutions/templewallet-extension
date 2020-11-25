@@ -13,9 +13,9 @@ type HashChipProps = React.HTMLAttributes<HTMLButtonElement> & {
 
 const HashChip: React.FC<HashChipProps> = ({
   hash,
-  trimAfter = 20,
-  firstCharsCount = 7,
-  lastCharsCount = 4,
+  trimAfter,
+  firstCharsCount,
+  lastCharsCount,
   type = "button",
   ...rest
 }) => {
@@ -23,6 +23,7 @@ const HashChip: React.FC<HashChipProps> = ({
     <CopyButton text={hash} type={type} {...rest}>
       <HashShortView
         hash={hash}
+        trimAfter={trimAfter}
         firstCharsCount={firstCharsCount}
         lastCharsCount={lastCharsCount}
       />
