@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
@@ -9,6 +8,7 @@ import { loadChainId } from "lib/thanos/helpers";
 import { T, TProps } from "lib/i18n/react";
 import {
   ThanosAssetType,
+  ThanosChainId,
   XTZ_ASSET,
   useThanosClient,
   useNetwork,
@@ -19,9 +19,9 @@ import {
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
+  BcdNetwork,
   BcdPageableTokenTransfers,
   BcdTokenTransfer,
-  BCD_NETWORKS_NAMES,
   getTokenTransfers,
 } from "lib/better-call-dev";
 import InUSD from "app/templates/InUSD";
@@ -34,6 +34,11 @@ import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const OPERATIONS_LIMIT = 30;
+const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
+  [ThanosChainId.Mainnet, "mainnet"],
+  [ThanosChainId.Carthagenet, "carthagenet"],
+  [ThanosChainId.Delphinet, "delphinet"],
+]);
 
 interface InternalTransfer {
   volume: BigNumber;
@@ -43,6 +48,7 @@ interface InternalTransfer {
 }
 
 interface OperationPreview {
+  entrypoint?: string;
   rawReceiver?: string;
   delegate?: string;
   hash: string;
@@ -114,6 +120,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
         return {
           ...op,
+          entrypoint: parameters?.entrypoint,
           hash: op.hash,
           type: op.kind,
           status: "pending",
@@ -162,16 +169,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       let bcdOps: Record<string, BcdTokenTransfer[]> = {};
       const lastTzStatsOp = ops[ops.length - 1];
       if (networkId) {
-        const response: AxiosResponse<BcdPageableTokenTransfers> = await getTokenTransfers(
-          {
-            network: networkId,
-            address: accountPkh,
-            size: OPERATIONS_LIMIT,
-          }
-        );
         const {
-          data: { transfers },
-        } = response;
+          transfers,
+        }: BcdPageableTokenTransfers = await getTokenTransfers({
+          network: networkId,
+          address: accountPkh,
+          size: OPERATIONS_LIMIT,
+        });
         bcdOps = transfers
           .filter((transfer) =>
             lastTzStatsOp
@@ -211,6 +215,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
               : [];
           return {
             delegate: op.type === "delegation" ? op.delegate : undefined,
+            entrypoint: (op.parameters as any)?.entrypoint,
             internalTransfers: transfersFromParams || transfersFromVolumeProp,
             hash: op.hash,
             status: op.status,
@@ -353,6 +358,7 @@ const Operation = React.memo<OperationProps>(
   ({
     accountPkh,
     delegate,
+    entrypoint,
     withExplorer,
     explorerBaseUrl,
     hash,
@@ -373,7 +379,8 @@ const Operation = React.memo<OperationProps>(
     const hasTokenTransfers = tokenAddress && internalTransfers.length > 0;
     const sender = internalTransfers[0]?.sender;
     const isTransfer =
-      hasTokenTransfers || (volumeExists && type === "transaction");
+      (hasTokenTransfers || (volumeExists && type === "transaction")) &&
+      (!entrypoint || entrypoint === "transfer");
     const isSendingTransfer = isTransfer && !imReceiver;
     const isReceivingTransfer = isTransfer && imReceiver;
     const moreExactType = React.useMemo(() => {
@@ -551,13 +558,15 @@ const Operation = React.memo<OperationProps>(
                     volume={0}
                   />
                 ))}
-                {internalTransfers.length === 0 && (volume || undefined) && (
-                  <OperationVolumeDisplay
-                    accountPkh={accountPkh}
-                    pending={pending}
-                    volume={volume}
-                  />
-                )}
+                {internalTransfers.length === 0 &&
+                  (volume || undefined) &&
+                  (isTransfer || type === "delegation") && (
+                    <OperationVolumeDisplay
+                      accountPkh={accountPkh}
+                      pending={pending}
+                      volume={volume}
+                    />
+                  )}
               </div>
             )}
           </div>

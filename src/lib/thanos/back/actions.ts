@@ -428,7 +428,7 @@ export async function processBeacon(
     } else {
       return Beacon.encodeMessage<Beacon.Response>({
         version: "2",
-        senderId: Beacon.SENDER_ID,
+        senderId: await Beacon.getSenderId(),
         id: "stub",
         type: Beacon.MessageType.Disconnect,
       });
@@ -453,9 +453,7 @@ export async function processBeacon(
     id: req.id,
     ...(req.beaconId
       ? { beaconId: BEACON_ID }
-      : {
-          senderId: Beacon.SENDER_ID,
-        }),
+      : { senderId: await Beacon.getSenderId() }),
   };
 
   // Process handshake

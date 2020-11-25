@@ -1,8 +1,30 @@
+export type BcdRequestParams<T> = T & {
+  headers?: { [key: string]: string };
+  timeout?: number;
+};
+
 export type BcdNetwork = "mainnet" | "carthagenet" | "delphinet";
 export type BcdContractType = "fa1" | "fa12" | "fa2";
 
 export interface BcdApiError {
   message: string;
+}
+
+export interface BcdAccountInfo {
+  address: string;
+  alias: string;
+  balance: number;
+  last_action: string;
+  network: string;
+  tokens: {
+    balance: number;
+    contract: string;
+    decimals: number;
+    name: string;
+    symbol: string;
+    token_id: number;
+  }[];
+  tx_count: number;
 }
 
 export interface BcdTokenMethodStats {
@@ -87,6 +109,11 @@ export interface BcdPageableTokenTransfers {
   last_id?: string;
   transfers: BcdTokenTransfer[];
 }
+
+export type BcdAccountQueryParams = {
+  network: BcdNetwork;
+  address: string;
+};
 
 export type BcdContractsQueryParams = {
   network: BcdNetwork;

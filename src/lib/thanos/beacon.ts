@@ -180,8 +180,6 @@ export function formatOpParams(op: any) {
 /**
  * Beacon V2
  */
-export const SENDER_ID = browser.runtime.id;
-
 export const PAIRING_RESPONSE_BASE: Partial<PostMessagePairingResponse> = {
   type: MessageType.HandshakeResponse,
   name: "Thanos Wallet",
@@ -190,6 +188,13 @@ export const PAIRING_RESPONSE_BASE: Partial<PostMessagePairingResponse> = {
 };
 
 export const KEYPAIR_SEED_STORAGE_KEY = "beacon_keypair_seed";
+
+export async function getSenderId(): Promise<string> {
+  await sodium.ready;
+  const keyPair = await getOrCreateKeyPair();
+  const buffer = Buffer.from(sodium.crypto_generichash(5, keyPair.publicKey));
+  return bs58check.encode(buffer);
+}
 
 export async function encryptMessage(
   message: string,
