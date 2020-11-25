@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
@@ -9,6 +8,7 @@ import { loadChainId } from "lib/thanos/helpers";
 import { T, TProps } from "lib/i18n/react";
 import {
   ThanosAssetType,
+  ThanosChainId,
   XTZ_ASSET,
   useThanosClient,
   useNetwork,
@@ -19,9 +19,9 @@ import {
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
+  BcdNetwork,
   BcdPageableTokenTransfers,
   BcdTokenTransfer,
-  BCD_NETWORKS_NAMES,
   getTokenTransfers,
 } from "lib/better-call-dev";
 import InUSD from "app/templates/InUSD";
@@ -34,6 +34,11 @@ import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const OPERATIONS_LIMIT = 30;
+export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
+  [ThanosChainId.Mainnet, "mainnet"],
+  [ThanosChainId.Carthagenet, "carthagenet"],
+  [ThanosChainId.Delphinet, "delphinet"],
+]);
 
 interface InternalTransfer {
   volume: BigNumber;
@@ -164,16 +169,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       let bcdOps: Record<string, BcdTokenTransfer[]> = {};
       const lastTzStatsOp = ops[ops.length - 1];
       if (networkId) {
-        const response: AxiosResponse<BcdPageableTokenTransfers> = await getTokenTransfers(
-          {
-            network: networkId,
-            address: accountPkh,
-            size: OPERATIONS_LIMIT,
-          }
-        );
         const {
-          data: { transfers },
-        } = response;
+          transfers,
+        }: BcdPageableTokenTransfers = await getTokenTransfers({
+          network: networkId,
+          address: accountPkh,
+          size: OPERATIONS_LIMIT,
+        });
         bcdOps = transfers
           .filter((transfer) =>
             lastTzStatsOp
