@@ -24,6 +24,10 @@ export function tryParseExpenses(
     operations instanceof Array ? operations : operations.contents;
   return operationsAsArray
     .map<RawOperationExpenses | undefined>((operation) => {
+      if (operation.destination) {
+        operation = { ...operation, to: operation.destination };
+      }
+
       const { kind, source: from, to, amount } = operation;
       const entrypoint = operation.parameter?.entrypoint;
       const type = entrypoint || kind;
@@ -54,7 +58,10 @@ export function tryParseExpenses(
         expenses.push({ amount: new BigNumber(amount), to });
       }
       if (["transfer", "approve"].includes(type)) {
-        if (type === "transfer" && (operation.parameter?.value instanceof Array)) {
+        if (
+          type === "transfer" &&
+          operation.parameter?.value instanceof Array
+        ) {
           const internalTransfers = operation.parameter.value;
           internalTransfers.forEach((transfersBatch: any) => {
             transfersBatch.args[1].forEach((transfer: any) => {
@@ -62,7 +69,7 @@ export function tryParseExpenses(
                 tokenAddress: operation.to,
                 amount: new BigNumber(transfer.args[1].args[1].int),
                 tokenId: Number(transfer.args[1].args[0].int),
-                to: transfer.args[0].string
+                to: transfer.args[0].string,
               });
             });
           });
@@ -75,7 +82,9 @@ export function tryParseExpenses(
           const to = args?.[0]?.string;
           const amount = args?.[1]?.int;
           if (
-            [tokenAddress, to, amount].every((value) => typeof value === "string")
+            [tokenAddress, to, amount].every(
+              (value) => typeof value === "string"
+            )
           ) {
             expenses.push({
               tokenAddress,
