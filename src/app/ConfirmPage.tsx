@@ -31,8 +31,8 @@ import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import HashShortView from "app/atoms/HashShortView";
 import SubTitle from "app/atoms/SubTitle";
 import DAppLogo from "app/templates/DAppLogo";
-import OperationView from "app/ConfirmPage/OperationView";
-import ConnectBanner from "app/ConfirmPage/ConnectBanner";
+import OperationView from "app/templates/OperationView";
+import ConnectBanner from "app/templates/ConnectBanner";
 
 const ConfirmPage: React.FC = () => {
   const { ready } = useThanosClient();

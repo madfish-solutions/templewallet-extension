@@ -29,7 +29,7 @@ import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import { ReactComponent as TextIcon } from "app/icons/text.svg";
+import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 
 type InternalConfiramtionProps = {
   payload: ThanosConfirmationPayload;
@@ -121,7 +121,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
       {
         key: "bytes",
         name: t("bytes"),
-        Icon: TextIcon,
+        Icon: HashIcon,
       },
     ];
   }, [payload.type]);

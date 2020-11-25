@@ -13,7 +13,7 @@ import OperationsBanner from "app/templates/OperationsBanner";
 import ViewsSwitcher from "app/templates/ViewsSwitcher";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import { ReactComponent as TextIcon } from "app/icons/text.svg";
+import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 import RawPayloadView from "app/templates/RawPayloadView";
 import ExpensesView from "app/templates/ExpensesView";
 
@@ -91,7 +91,7 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
       {
         key: "bytes",
         name: t("bytes"),
-        Icon: TextIcon,
+        Icon: HashIcon,
       },
     ];
   }, [payload.type, expensesData]);
