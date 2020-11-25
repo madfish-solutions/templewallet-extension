@@ -34,7 +34,7 @@ import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const OPERATIONS_LIMIT = 30;
-export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
+const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
   [ThanosChainId.Mainnet, "mainnet"],
   [ThanosChainId.Carthagenet, "carthagenet"],
   [ThanosChainId.Delphinet, "delphinet"],
