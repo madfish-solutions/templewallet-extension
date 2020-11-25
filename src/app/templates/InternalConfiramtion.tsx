@@ -29,7 +29,7 @@ import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import { ReactComponent as DollarIcon } from "app/icons/dollar.svg";
+import { ReactComponent as TextIcon } from "app/icons/text.svg";
 
 type InternalConfiramtionProps = {
   payload: ThanosConfirmationPayload;
@@ -100,28 +100,28 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
     if (payload.type === "operations") {
       return [
         {
-          key: "expenses",
-          name: t("expenses"),
-          Icon: DollarIcon,
-        },
-        {
           key: "preview",
           name: t("preview"),
           Icon: EyeIcon,
+        },
+        {
+          key: "raw",
+          name: t("raw"),
+          Icon: CodeAltIcon,
         },
       ];
     }
 
     return [
       {
-        key: "expenses",
-        name: t("expenses"),
-        Icon: DollarIcon,
+        key: "preview",
+        name: t("preview"),
+        Icon: EyeIcon,
       },
       {
-        key: "raw",
-        name: t("raw"),
-        Icon: CodeAltIcon,
+        key: "bytes",
+        name: t("bytes"),
+        Icon: TextIcon,
       },
     ];
   }, [payload.type]);
@@ -261,7 +261,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                 </div>
               )}
 
-              {payload.type === "operations" && spFormat.key === "preview" && (
+              {payload.type === "operations" && spFormat.key === "raw" && (
                 <OperationsBanner
                   opParams={payload.opParams}
                   jsonViewStyle={
@@ -272,7 +272,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                 />
               )}
 
-              {payload.type === "sign" && spFormat.key === "raw" && (
+              {payload.type === "sign" && spFormat.key === "bytes" && (
                 <>
                   <RawPayloadView
                     rows={7}
@@ -283,7 +283,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                 </>
               )}
 
-              {spFormat.key === "expenses" && (
+              {spFormat.key === "preview" && (
                 <ExpensesView expenses={expensesData} />
               )}
             </>
