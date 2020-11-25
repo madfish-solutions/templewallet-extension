@@ -482,7 +482,6 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
         "block w-full",
         "overflow-hidden",
         !last && "border-b border-gray-200",
-        // "hover:bg-gray-100 focus:bg-gray-100",
         "flex items-stretch",
         "text-gray-700",
         "transition ease-in-out duration-200",
