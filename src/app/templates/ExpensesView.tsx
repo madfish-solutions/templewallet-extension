@@ -36,12 +36,16 @@ const ExpensesView: React.FC<ExpensesViewProps> = (props) => {
     <div
       className={classNames(
         "rounded-md overflow-y-auto border",
-        "flex flex-col text-gray-700 text-sm leading-tight",
-        "h-40"
+        "flex flex-col text-gray-700 text-sm leading-tight"
       )}
+      style={{ height: "9.5rem" }}
     >
-      {expenses.map((item, index) => (
-        <ExpenseViewItem item={item} key={index} />
+      {expenses.map((item, index, arr) => (
+        <ExpenseViewItem
+          key={index}
+          item={item}
+          last={index === arr.length - 1}
+        />
       ))}
     </div>
   );
@@ -51,9 +55,10 @@ export default ExpensesView;
 
 type ExpenseViewItemProps = {
   item: OperationExpenses;
+  last: boolean;
 };
 
-const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item }) => {
+const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item, last }) => {
   const operationTypeLabel = React.useMemo(() => {
     switch (item.type) {
       // TODO: add translations for other operations types
@@ -75,6 +80,7 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item }) => {
         );
     }
   }, [item]);
+
   const { iconHash, iconType, argumentDisplayProps } = React.useMemo<{
     iconHash: string;
     iconType: "bottts" | "jdenticon";
@@ -83,6 +89,7 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item }) => {
     const receivers = [
       ...new Set(item.expenses.map(({ to }) => to).filter((value) => !!value)),
     ];
+
     switch (item.type) {
       case "transaction":
       case "transfer":
@@ -94,15 +101,17 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item }) => {
             arg: receivers,
           },
         };
+
       case "approve":
         return {
           iconHash: item.expenses[0]?.to || "unknown",
-          iconType: "bottts",
+          iconType: "jdenticon",
           argumentDisplayProps: {
             i18nKey: "approveForSmb",
             arg: receivers,
           },
         };
+
       case "delegation":
         if (item.delegate) {
           return {
@@ -114,10 +123,12 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item }) => {
             },
           };
         }
+
         return {
           iconHash: "none",
           iconType: "jdenticon",
         };
+
       default:
         return item.isEntrypointInteraction
           ? {
@@ -135,26 +146,38 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item }) => {
     }
   }, [item]);
 
+  const withdrawal = React.useMemo(
+    () => ["transaction", "transfer"].includes(item.type),
+    [item.type]
+  );
+
   return (
-    <div className="my-3 px-2 flex items-stretch">
+    <div
+      className={classNames(
+        "pt-3 pb-2 px-2 flex items-stretch",
+        !last && "border-b border-gray-200"
+      )}
+    >
       <div className="mr-2">
         <Identicon
           hash={iconHash}
           type={iconType}
-          size={50}
+          size={40}
           className="shadow-xs"
         />
       </div>
 
       <div className="flex-1 flex-col">
-        <div className="flex items-center">
+        <div className="mb-1 flex items-center">
           <div className="flex mr-1 text-xs items-center text-blue-600 opacity-75">
             {operationTypeLabel}
           </div>
+
           {argumentDisplayProps && (
             <OperationArgumentDisplay {...argumentDisplayProps} />
           )}
         </div>
+
         <div
           className={classNames(
             "flex items-end flex-shrink-0",
@@ -163,8 +186,10 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item }) => {
                 case "transaction":
                 case "transfer":
                   return "text-red-700";
+
                 case "approve":
                   return "text-yellow-600";
+
                 default:
                   return "text-gray-800";
               }
@@ -173,10 +198,15 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item }) => {
         >
           {item.expenses.map((expense, index) => (
             <React.Fragment key={index}>
-              <OperationVolumeDisplay expense={expense} volume={item.amount} />
+              <OperationVolumeDisplay
+                expense={expense}
+                volume={item.amount}
+                withdrawal={withdrawal}
+              />
               {index === item.expenses.length - 1 ? null : ", "}
             </React.Fragment>
           ))}
+
           {item.expenses.length === 0 && (item.amount || undefined) && (
             <OperationVolumeDisplay volume={item.amount!} />
           )}
@@ -215,12 +245,11 @@ const OperationArgumentDisplay = React.memo<OperationArgumentDisplayProps>(
 type OperationVolumeDisplayProps = {
   expense?: OperationAssetExpense;
   volume?: number;
+  withdrawal?: boolean;
 };
 
 const OperationVolumeDisplay = React.memo<OperationVolumeDisplayProps>(
-  (props) => {
-    const { expense, volume } = props;
-
+  ({ expense, volume, withdrawal }) => {
     const asset =
       typeof expense?.asset === "object" ? expense.asset : undefined;
 
@@ -231,6 +260,7 @@ const OperationVolumeDisplay = React.memo<OperationVolumeDisplayProps>(
     return (
       <>
         <div className="text-sm">
+          {withdrawal && "-"}
           <Money>{finalVolume || 0}</Money>{" "}
           {expense?.asset ? asset?.symbol || "???" : "ꜩ"}
         </div>

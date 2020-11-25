@@ -241,7 +241,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               />
 
               {signPayloadFormats.length > 1 && (
-                <div className="w-full flex justify-end mb-4 items-center">
+                <div className="w-full flex justify-end mb-3 items-center">
                   <span
                     className={classNames(
                       "mr-2",
