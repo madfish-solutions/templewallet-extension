@@ -12,8 +12,8 @@ import DAppLogo from "app/templates/DAppLogo";
 import FormCheckbox from "app/atoms/FormCheckbox";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import HashChip from "app/templates/HashChip";
 import Name from "app/atoms/Name";
-import HashShortView from "app/atoms/HashShortView";
 
 type DAppEntry = [string, ThanosDAppSession];
 type DAppActions = {
@@ -140,6 +140,8 @@ const DAppSettings: React.FC = () => {
             items={dAppEntries}
             OptionIcon={DAppIcon}
             OptionContent={DAppDescription}
+            light
+            hoverable={false}
           />
         </>
       )}
@@ -160,11 +162,9 @@ const DAppIcon: React.FC<OptionRenderProps<DAppEntry, string, DAppActions>> = (
   />
 );
 
-const DAppDescription: React.FC<OptionRenderProps<
-  DAppEntry,
-  string,
-  DAppActions
->> = (props) => {
+const DAppDescription: React.FC<
+  OptionRenderProps<DAppEntry, string, DAppActions>
+> = (props) => {
   const {
     actions,
     item: [origin, { appMeta, network, pkh }],
@@ -184,7 +184,19 @@ const DAppDescription: React.FC<OptionRenderProps<
       {
         key: "originLabel",
         value: origin,
-        Component: Name,
+        Component: ({
+          className,
+          ...rest
+        }: React.ComponentProps<typeof Name>) => (
+          <a
+            href={origin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={classNames("text-blue-700 hover:underline", className)}
+          >
+            <Name {...rest} />
+          </a>
+        ),
       },
       {
         key: "networkLabel",
@@ -196,7 +208,7 @@ const DAppDescription: React.FC<OptionRenderProps<
       },
       {
         key: "pkhLabel",
-        value: <HashShortView hash={pkh} />,
+        value: <HashChip hash={pkh} type="link" small />,
         Component: "span",
       },
     ],
@@ -234,10 +246,16 @@ const DAppDescription: React.FC<OptionRenderProps<
         ))}
       </div>
 
-      <button className="flex-none" onClick={handleRemoveClick}>
+      <button
+        className={classNames(
+          "flex-none p-2",
+          "text-gray-500 hover:text-gray-600",
+          "transition ease-in-out duration-200"
+        )}
+        onClick={handleRemoveClick}
+      >
         <CloseIcon
-          className="w-auto h-5 mx-2 stroke-2"
-          stroke="#777"
+          className="w-auto h-5 stroke-current stroke-2"
           title={t("delete")}
         />
       </button>
