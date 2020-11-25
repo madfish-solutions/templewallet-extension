@@ -41,18 +41,14 @@ export const getTokenTransfers = makeQuery<
 export const searchOperations = makeQuery<
   BcdOperationsSearchQueryParams,
   BcdOperationsSearchResponse
->(
-  "GET",
-  () => "/search",
-  ({ network, address, offset, since = 0 }) => ({
-    q: address,
-    i: "operation",
-    n: network,
-    g: 1,
-    s: since,
-    o: offset,
-  })
-);
+>("GET", "/search", ({ network, address, offset, since = 0 }) => ({
+  q: address,
+  i: "operation",
+  n: network,
+  g: 1,
+  s: since,
+  o: offset,
+}));
 
 /**
  * Base
