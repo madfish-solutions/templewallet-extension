@@ -13,7 +13,7 @@ import OperationsBanner from "app/templates/OperationsBanner";
 import ViewsSwitcher from "app/templates/ViewsSwitcher";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import { ReactComponent as DollarIcon } from "app/icons/dollar.svg";
+import { ReactComponent as TextIcon } from "app/icons/text.svg";
 import RawPayloadView from "app/templates/RawPayloadView";
 import ExpensesView from "app/templates/ExpensesView";
 
@@ -57,10 +57,10 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
   }, [allAssets, rawExpensesData]);
 
   const signPayloadFormats = React.useMemo(() => {
-    const previewFormat = {
-      key: "preview",
-      name: t("preview"),
-      Icon: EyeIcon,
+    const rawFormat = {
+      key: "raw",
+      name: t("raw"),
+      Icon: CodeAltIcon,
     };
     const someExpenses =
       expensesData.reduce(
@@ -70,15 +70,15 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
     const prettyViewFormats = someExpenses
       ? [
           {
-            key: "expenses",
-            name: t("expenses"),
-            Icon: DollarIcon,
+            key: "preview",
+            name: t("preview"),
+            Icon: EyeIcon,
           },
         ]
       : [];
 
     if (payload.type === "confirm_operations") {
-      return [...prettyViewFormats, previewFormat];
+      return [...prettyViewFormats, rawFormat];
     }
 
     if (payload.type === "connect") {
@@ -87,11 +87,11 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
 
     return [
       ...prettyViewFormats,
-      previewFormat,
+      rawFormat,
       {
-        key: "raw",
-        name: t("raw"),
-        Icon: CodeAltIcon,
+        key: "bytes",
+        name: t("bytes"),
+        Icon: TextIcon,
       },
     ];
   }, [payload.type, expensesData]);
@@ -128,17 +128,17 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
 
         <OperationsBanner
           opParams={payload.preview}
-          className={classNames(spFormat.key !== "preview" && "hidden")}
+          className={classNames(spFormat.key !== "raw" && "hidden")}
           jsonViewStyle={{ height: "9.5rem" }}
         />
 
         <RawPayloadView
           rows={6}
           payload={payload.payload}
-          className={classNames(spFormat.key !== "raw" && "hidden")}
+          className={classNames(spFormat.key !== "bytes" && "hidden")}
         />
 
-        <div className={classNames(spFormat.key !== "expenses" && "hidden")}>
+        <div className={classNames(spFormat.key !== "preview" && "hidden")}>
           <ExpensesView expenses={expensesData} />
         </div>
       </div>
@@ -184,14 +184,14 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
 
         <OperationsBanner
           opParams={payload.opParams}
-          className={classNames(spFormat.key !== "preview" && "hidden")}
+          className={classNames(spFormat.key !== "raw" && "hidden")}
           jsonViewStyle={
             signPayloadFormats.length > 1 ? { height: "9.5rem" } : undefined
           }
           label={null}
         />
 
-        <div className={classNames(spFormat.key !== "expenses" && "hidden")}>
+        <div className={classNames(spFormat.key !== "preview" && "hidden")}>
           <ExpensesView expenses={expensesData} />
         </div>
       </div>
