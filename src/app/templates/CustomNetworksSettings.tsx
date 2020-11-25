@@ -18,10 +18,10 @@ import { T, t } from "lib/i18n/react";
 import { URL_PATTERN } from "app/defaults";
 import { viewLambda } from "lib/michelson";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
+import HashChip from "app/templates/HashChip";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Name from "app/atoms/Name";
-import HashShortView from "app/atoms/HashShortView";
 import Alert from "app/atoms/Alert";
 import SubTitle from "app/atoms/SubTitle";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
@@ -190,7 +190,7 @@ const CustomNetworksSettings: React.FC = () => {
         <div
           className={classNames(
             "rounded-md overflow-hidden",
-            "border-2 bg-gray-100",
+            "border",
             "flex flex-col",
             "text-gray-700 text-sm leading-tight"
           )}
@@ -482,8 +482,8 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
         "block w-full",
         "overflow-hidden",
         !last && "border-b border-gray-200",
-        "hover:bg-gray-200 focus:bg-gray-200",
-        "flex items-center",
+        // "hover:bg-gray-100 focus:bg-gray-100",
+        "flex items-stretch",
         "text-gray-700",
         "transition ease-in-out duration-200",
         "focus:outline-none",
@@ -494,30 +494,60 @@ const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
       }}
     >
       <div
-        className="w-3 h-3 ml-1 mr-3 border rounded-full shadow-xs border-primary-white"
+        className={classNames(
+          "mt-1 ml-2 mr-3",
+          "w-3 h-3",
+          "border border-primary-white",
+          "rounded-full shadow-xs"
+        )}
         style={{ background: color }}
       />
+
       <div className="flex flex-col justify-between flex-1">
-        <Name className="text-sm font-medium leading-tight">
+        <Name className="mb-1 text-sm font-medium leading-tight">
           {(nameI18nKey && <T id={nameI18nKey} />) || name}
         </Name>
-        <div className="mt-1 text-xs leading-none text-gray-700">
-          {rpcBaseURL}
+
+        <div
+          className={classNames(
+            "text-xs text-gray-700 font-light",
+            "flex items-center"
+          )}
+          style={{
+            marginBottom: "0.125rem",
+          }}
+        >
+          RPC:<Name className="ml-1 font-normal">{rpcBaseURL}</Name>
         </div>
+
         {lambdaContract && (
-          <div className="mt-1 text-xs leading-none text-gray-700">
+          <div className="text-xs text-gray-700 font-light">
             <T
               id="someLambda"
-              substitutions={<HashShortView hash={lambdaContract} />}
+              substitutions={
+                <HashChip
+                  hash={lambdaContract}
+                  type="link"
+                  small
+                  className="font-normal"
+                />
+              }
             />
           </div>
         )}
       </div>
+
       {canRemove && (
-        <button className="flex-none" onClick={handleRemoveClick}>
+        <button
+          className={classNames(
+            "flex-none p-2",
+            "text-gray-500 hover:text-gray-600",
+            "transition ease-in-out duration-200"
+          )}
+          onClick={handleRemoveClick}
+        >
           <CloseIcon
-            className="w-auto h-5 mx-2 stroke-2"
-            stroke="#777"
+            className="w-auto h-5 stroke-current stroke-2"
             title={t("delete")}
           />
         </button>

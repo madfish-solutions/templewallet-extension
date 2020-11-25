@@ -28,6 +28,8 @@ export type CustomSelectProps<
   maxHeight?: string;
   padding?: React.CSSProperties["padding"];
   autoFocus?: boolean;
+  light?: boolean;
+  hoverable?: boolean;
   onSelect?: (itemId: K) => void;
   OptionIcon?: React.ComponentType<OptionRenderProps<T, K, A>>;
   OptionContent: React.ComponentType<OptionRenderProps<T, K, A>>;
@@ -51,6 +53,8 @@ const CustomSelect = <
     onSelect,
     padding = "0.4rem 0.375rem 0.4rem 0.375rem",
     autoFocus = false,
+    light = false,
+    hoverable = true,
     OptionIcon,
     OptionContent,
   } = props;
@@ -58,7 +62,8 @@ const CustomSelect = <
   return (
     <div
       className={classNames(
-        "rounded-md overflow-y-auto border-2 bg-gray-100",
+        "rounded-md overflow-y-auto",
+        light ? "border" : "border-2 bg-gray-100",
         "flex flex-col text-gray-700 text-sm leading-tight",
         className
       )}
@@ -80,6 +85,8 @@ const CustomSelect = <
             onSelect={onSelect}
             padding={padding}
             autoFocus={autoFocus}
+            light={light}
+            hoverable={hoverable}
             OptionIcon={OptionIcon}
             OptionContent={OptionContent}
           />
@@ -102,6 +109,8 @@ type CustomSelectItemProps<
   | "OptionContent"
   | "padding"
   | "autoFocus"
+  | "light"
+  | "hoverable"
   | "actions"
 > & {
   active?: boolean;
@@ -128,6 +137,8 @@ const CustomSelectItem = <
     onSelect,
     padding,
     autoFocus,
+    light,
+    hoverable,
     OptionIcon,
     OptionContent,
   } = props;
@@ -145,7 +156,20 @@ const CustomSelectItem = <
       className={classNames(
         "w-full flex-shrink-0 overflow-hidden",
         !last && "border-b border-gray-200",
-        active ? "bg-gray-300" : "hover:bg-gray-200 focus:bg-gray-200",
+        (() => {
+          switch (true) {
+            case active:
+              return light ? "bg-gray-200" : "bg-gray-300";
+
+            case hoverable:
+              return light
+                ? "hover:bg-gray-100 focus:bg-gray-100"
+                : "hover:bg-gray-200 focus:bg-gray-200";
+
+            default:
+              return "";
+          }
+        })(),
         "flex items-center text-gray-700 transition ease-in-out duration-200",
         "focus:outline-none opacity-90 hover:opacity-100"
       )}
