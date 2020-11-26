@@ -41,7 +41,8 @@ import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
 import BakerBanner from "app/templates/BakerBanner";
 import xtzImgUrl from "app/misc/xtz.png";
-import AdditionalFeeInput from "./AdditionalFeeInput";
+import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
@@ -580,7 +581,7 @@ const DelegateForm: React.FC = () => {
               <div
                 className={classNames(
                   "rounded-md overflow-hidden",
-                  "border-2 bg-gray-100",
+                  "border",
                   "flex flex-col",
                   "text-gray-700 text-sm leading-tight"
                 )}
@@ -598,10 +599,11 @@ const DelegateForm: React.FC = () => {
                       key={baker.address}
                       type="button"
                       className={classNames(
+                        "relative",
                         "block w-full",
                         "overflow-hidden",
                         !last && "border-b border-gray-200",
-                        "hover:bg-gray-200 focus:bg-gray-200",
+                        "hover:bg-gray-100 focus:bg-gray-100",
                         "flex items-stretch",
                         "text-gray-700",
                         "transition ease-in-out duration-200",
@@ -703,6 +705,17 @@ const DelegateForm: React.FC = () => {
                             )}
                           </T>
                         </div>
+                      </div>
+
+                      <div
+                        className={classNames(
+                          "absolute right-0 top-0 bottom-0",
+                          "flex items-center",
+                          "pr-2",
+                          "text-gray-500"
+                        )}
+                      >
+                        <ChevronRightIcon className="h-5 w-auto stroke-current" />
                       </div>
                     </button>
                   );
