@@ -20,7 +20,11 @@ const AssetIcon = React.memo((props: AssetIconProps) => {
         src={assetIconUrl}
         alt={asset.name}
         className={className}
-        style={style}
+        style={{
+          width: size,
+          height: size,
+          ...style,
+        }}
       />
     );
   }
