@@ -1,23 +1,35 @@
 import * as React from "react";
 import classNames from "clsx";
+import { localForger } from "@taquito/local-forging";
 import {
   ThanosAccountType,
+  ThanosAssetType,
   ThanosConfirmationPayload,
+  tryParseExpenses,
+  useAssets,
+  useNetwork,
   useRelevantAccounts,
+  XTZ_ASSET,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import { useAppEnv } from "app/env";
 import AccountBanner from "app/templates/AccountBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import NetworkBanner from "app/templates/NetworkBanner";
-import FormField from "app/atoms/FormField";
+import RawPayloadView from "app/templates/RawPayloadView";
+import ViewsSwitcher from "app/templates/ViewsSwitcher";
+import ExpensesView from "app/templates/ExpensesView";
 import Logo from "app/atoms/Logo";
 import Alert from "app/atoms/Alert";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
-import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
+import SubTitle from "app/atoms/SubTitle";
+import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
+import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 
 type InternalConfiramtionProps = {
   payload: ThanosConfirmationPayload;
@@ -28,14 +40,93 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   payload,
   onConfirm,
 }) => {
+  const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
 
+  const getContentToParse = React.useCallback(async () => {
+    switch (payload.type) {
+      case "operations":
+        return payload.opParams || [];
+      case "sign":
+        const unsignedBytes = payload.bytes.substr(
+          0,
+          payload.bytes.length - 128
+        );
+        try {
+          return (await localForger.parse(unsignedBytes)) || [];
+        } catch (err) {
+          if (process.env.NODE_ENV === "development") {
+            console.error(err);
+          }
+          return [];
+        }
+      default:
+        return [];
+    }
+  }, [payload]);
+  const { data: contentToParse } = useRetryableSWR(
+    ["content-to-parse"],
+    getContentToParse,
+    { suspense: true }
+  );
+
   const allAccounts = useRelevantAccounts();
+  const { allAssets } = useAssets();
   const account = React.useMemo(
     () => allAccounts.find((a) => a.publicKeyHash === payload.sourcePkh)!,
     [allAccounts, payload.sourcePkh]
   );
+  const rawExpensesData = React.useMemo(
+    () => tryParseExpenses(contentToParse!, account.publicKeyHash),
+    [contentToParse, account.publicKeyHash]
+  );
+  const expensesData = React.useMemo(() => {
+    return rawExpensesData.map(({ expenses, ...restProps }) => ({
+      expenses: expenses.map(({ tokenAddress, ...restProps }) => ({
+        asset: tokenAddress
+          ? allAssets.find(
+              (asset) =>
+                asset.type !== ThanosAssetType.XTZ &&
+                asset.address === tokenAddress
+            ) || tokenAddress
+          : XTZ_ASSET,
+        ...restProps,
+      })),
+      ...restProps,
+    }));
+  }, [allAssets, rawExpensesData]);
 
+  const signPayloadFormats = React.useMemo(() => {
+    if (payload.type === "operations") {
+      return [
+        {
+          key: "preview",
+          name: t("preview"),
+          Icon: EyeIcon,
+        },
+        {
+          key: "raw",
+          name: t("raw"),
+          Icon: CodeAltIcon,
+        },
+      ];
+    }
+
+    return [
+      {
+        key: "preview",
+        name: t("preview"),
+        Icon: EyeIcon,
+      },
+      {
+        key: "bytes",
+        name: t("bytes"),
+        Icon: HashIcon,
+      },
+    ];
+  }, [payload.type]);
+
+  const [spFormat, setSpFormat] = useSafeState(signPayloadFormats[0]);
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
@@ -114,14 +205,14 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         style={{ height: "32rem" }}
       >
         <div className="px-4 pt-4">
-          <T
-            id="confirmAction"
-            substitutions={t(
-              payload.type === "sign" ? "signAction" : "operations"
-            )}
-          >
-            {(message) => <SubTitle>{message}</SubTitle>}
-          </T>
+          <SubTitle className="mb-6">
+            <T
+              id="confirmAction"
+              substitutions={t(
+                payload.type === "sign" ? "signAction" : "operations"
+              )}
+            />
+          </SubTitle>
 
           {error ? (
             <Alert
@@ -141,27 +232,59 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                 className="w-full mb-4"
               />
 
-              {payload.type === "operations" && (
+              <NetworkBanner
+                rpc={
+                  payload.type === "operations"
+                    ? payload.networkRpc
+                    : currentNetworkRpc
+                }
+              />
+
+              {signPayloadFormats.length > 1 && (
+                <div className="w-full flex justify-end mb-3 items-center">
+                  <span
+                    className={classNames(
+                      "mr-2",
+                      "text-base font-semibold text-gray-700"
+                    )}
+                  >
+                    <T id="operations" />
+                  </span>
+
+                  <div className="flex-1" />
+
+                  <ViewsSwitcher
+                    activeItem={spFormat}
+                    items={signPayloadFormats}
+                    onChange={setSpFormat}
+                  />
+                </div>
+              )}
+
+              {payload.type === "operations" && spFormat.key === "raw" && (
+                <OperationsBanner
+                  opParams={payload.opParams}
+                  jsonViewStyle={
+                    signPayloadFormats.length > 1
+                      ? { height: "9.5rem" }
+                      : undefined
+                  }
+                />
+              )}
+
+              {payload.type === "sign" && spFormat.key === "bytes" && (
                 <>
-                  <NetworkBanner rpc={payload.networkRpc} />
-                  <OperationsBanner opParams={payload.opParams} />
+                  <RawPayloadView
+                    rows={7}
+                    label={t("payloadToSign")}
+                    payload={payload.bytes}
+                    className="mb-4"
+                  />
                 </>
               )}
 
-              {payload.type === "sign" && (
-                <FormField
-                  textarea
-                  rows={7}
-                  id="sign-payload"
-                  label={t("payloadToSign")}
-                  value={payload.bytes}
-                  spellCheck={false}
-                  readOnly
-                  className="mb-4"
-                  style={{
-                    resize: "none",
-                  }}
-                />
+              {spFormat.key === "preview" && (
+                <ExpensesView expenses={expensesData} />
               )}
             </>
           )}
@@ -218,36 +341,3 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
 };
 
 export default InternalConfiramtion;
-
-type SubTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
-
-const SubTitle: React.FC<SubTitleProps> = ({
-  className,
-  children,
-  ...rest
-}) => {
-  const comp = (
-    <span className="px-1 text-gray-500">
-      <ComponentIcon className="w-auto h-5 stroke-current" />
-    </span>
-  );
-
-  return (
-    <h2
-      className={classNames(
-        "mb-6",
-        "flex items-center justify-center",
-        "text-gray-700",
-        "text-lg",
-        "font-light",
-        "uppercase",
-        className
-      )}
-      {...rest}
-    >
-      {comp}
-      {children}
-      {comp}
-    </h2>
-  );
-};

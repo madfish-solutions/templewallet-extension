@@ -112,13 +112,17 @@ const Explore: React.FC = () => {
         </div>
       </div>
 
-      <T id="baking">{(message) => <SubTitle>{message}</SubTitle>}</T>
+      <T id="baking">
+        {(message) => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}
+      </T>
 
       <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
         <BakingSection />
       </SuspenseContainer>
 
-      <T id="operations">{(message) => <SubTitle>{message}</SubTitle>}</T>
+      <T id="operations">
+        {(message) => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}
+      </T>
 
       <AddUnknownTokens />
 

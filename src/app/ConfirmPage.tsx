@@ -13,17 +13,13 @@ import {
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
-import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
 import ErrorBoundary from "app/ErrorBoundary";
 import Unlock from "app/pages/Unlock";
 import ContentContainer from "app/layouts/ContentContainer";
 import AccountBanner from "app/templates/AccountBanner";
 import NetworkBanner from "app/templates/NetworkBanner";
-import OperationsBanner from "app/templates/OperationsBanner";
 import Balance from "app/templates/Balance";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
-import FormField from "app/atoms/FormField";
-import Logo from "app/atoms/Logo";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
@@ -32,12 +28,11 @@ import Money from "app/atoms/Money";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
-import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
-import { ReactComponent as OkIcon } from "app/icons/ok.svg";
-import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
-import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
-import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import DAppLogo from "./templates/DAppLogo";
+import HashShortView from "app/atoms/HashShortView";
+import SubTitle from "app/atoms/SubTitle";
+import DAppLogo from "app/templates/DAppLogo";
+import OperationView from "app/templates/OperationView";
+import ConnectBanner from "app/templates/ConnectBanner";
 
 const ConfirmPage: React.FC = () => {
   const { ready } = useThanosClient();
@@ -92,22 +87,6 @@ const ConfirmDAppForm: React.FC = () => {
     }
     return id;
   }, [loc.search]);
-
-  const signPayloadFormats = React.useMemo(
-    () => [
-      {
-        key: "preview",
-        name: t("preview"),
-        Icon: EyeIcon,
-      },
-      {
-        key: "raw",
-        name: t("raw"),
-        Icon: CodeAltIcon,
-      },
-    ],
-    []
-  );
 
   const { data } = useRetryableSWR<ThanosDAppPayload>([id], getDAppPayload, {
     suspense: true,
@@ -192,8 +171,6 @@ const ConfirmDAppForm: React.FC = () => {
   const handleErrorAlertClose = React.useCallback(() => setError(null), [
     setError,
   ]);
-
-  const [spFormat, setSpFormat] = React.useState(signPayloadFormats[0]);
 
   const content = React.useMemo(() => {
     switch (payload.type) {
@@ -366,10 +343,6 @@ const ConfirmDAppForm: React.FC = () => {
               narrow={payload.type !== "confirm_operations"}
             />
 
-            {payload.type === "confirm_operations" && (
-              <OperationsBanner opParams={payload.opParams} />
-            )}
-
             {payload.type === "connect" && (
               <div className={classNames("w-full", "mb-2", "flex flex-col")}>
                 <h2
@@ -415,124 +388,7 @@ const ConfirmDAppForm: React.FC = () => {
               </div>
             )}
 
-            {payload.type === "sign" &&
-              (() => {
-                if (payload.preview) {
-                  return (
-                    <div className="flex flex-col w-full">
-                      <h2
-                        className={classNames(
-                          "mb-4",
-                          "leading-tight",
-                          "flex items-center"
-                        )}
-                      >
-                        <T id="payloadToSign">
-                          {(message) => (
-                            <span
-                              className={classNames(
-                                "mr-2",
-                                "text-base font-semibold text-gray-700"
-                              )}
-                            >
-                              {message}
-                            </span>
-                          )}
-                        </T>
-
-                        <div className="flex-1" />
-
-                        <div className={classNames("flex items-center")}>
-                          {signPayloadFormats.map((spf, i, arr) => {
-                            const first = i === 0;
-                            const last = i === arr.length - 1;
-                            const selected = spFormat.key === spf.key;
-                            const handleClick = () => setSpFormat(spf);
-
-                            return (
-                              <button
-                                key={spf.key}
-                                className={classNames(
-                                  (() => {
-                                    switch (true) {
-                                      case first:
-                                        return classNames(
-                                          "rounded rounded-r-none",
-                                          "border"
-                                        );
-
-                                      case last:
-                                        return classNames(
-                                          "rounded rounded-l-none",
-                                          "border border-l-0"
-                                        );
-
-                                      default:
-                                        return "border border-l-0";
-                                    }
-                                  })(),
-                                  selected && "bg-gray-100",
-                                  "px-2 py-1",
-                                  "text-xs text-gray-600",
-                                  "flex items-center"
-                                )}
-                                onClick={handleClick}
-                              >
-                                <spf.Icon
-                                  className={classNames(
-                                    "h-4 w-auto mr-1",
-                                    "stroke-current"
-                                  )}
-                                />
-                                {spf.name}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </h2>
-
-                      <OperationsBanner
-                        opParams={payload.preview}
-                        label={null}
-                        className={classNames(
-                          spFormat.key !== "preview" && "hidden"
-                        )}
-                      />
-
-                      <FormField
-                        textarea
-                        rows={6}
-                        id="sign-payload"
-                        value={payload.payload}
-                        spellCheck={false}
-                        readOnly
-                        className={classNames(
-                          spFormat.key !== "raw" && "hidden"
-                        )}
-                        style={{
-                          resize: "none",
-                        }}
-                      />
-                    </div>
-                  );
-                }
-
-                return (
-                  <FormField
-                    textarea
-                    rows={6}
-                    id="sign-payload"
-                    label={t("payloadToSign")}
-                    value={payload.payload}
-                    spellCheck={false}
-                    readOnly
-                    className="mb-2"
-                    style={{
-                      resize: "none",
-                    }}
-                  />
-                );
-              })()}
+            <OperationView payload={payload} />
           </>
         )}
       </div>
@@ -596,17 +452,7 @@ const AccountOptionContentHOC = (networkRpc: string) => {
 
       <div className="flex flex-wrap items-center mt-1">
         <div className={classNames("text-xs leading-none", "text-gray-700")}>
-          {(() => {
-            const val = acc.publicKeyHash;
-            const ln = val.length;
-            return (
-              <>
-                {val.slice(0, 7)}
-                <span className="opacity-75">...</span>
-                {val.slice(ln - 4, ln)}
-              </>
-            );
-          })()}
+          <HashShortView hash={acc.publicKeyHash} />
         </div>
 
         <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
@@ -626,105 +472,4 @@ const AccountOptionContentHOC = (networkRpc: string) => {
       </div>
     </>
   ));
-};
-
-type ConnectBannerProps = {
-  type: "connect" | "confirm_operations";
-  origin: string;
-  appMeta: ThanosDAppMetadata;
-  className?: string;
-};
-
-const ConnectBanner: React.FC<ConnectBannerProps> = ({
-  type,
-  origin,
-  appMeta,
-  className,
-}) => {
-  const Icon = type === "connect" ? OkIcon : LayersIcon;
-
-  return (
-    <div
-      className={classNames(
-        "w-full flex items-center justify-around",
-        className
-      )}
-    >
-      <div
-        className={classNames(
-          "w-32",
-          "border border-gray-200 rounded",
-          "flex flex-col items-center",
-          "p-2"
-        )}
-      >
-        <DAppLogo origin={origin} size={32} className="flex-shrink-0 mb-1" />
-
-        <span className="text-xs font-semibold text-gray-700">
-          <Name style={{ maxWidth: "7.5rem" }}>{appMeta.name}</Name>
-        </span>
-      </div>
-
-      <div className="relative flex-1 h-px bg-gray-300">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div
-            className={classNames(
-              type === "connect" ? "bg-green-500" : "bg-orange-500",
-              "rounded-full",
-              "p-1",
-              "flex items-center justify-center",
-              "text-white"
-            )}
-          >
-            <Icon className="w-auto h-4 stroke-current stroke-2" />
-          </div>
-        </div>
-      </div>
-
-      <div
-        className={classNames(
-          "w-32",
-          "border border-gray-200 rounded",
-          "flex flex-col items-center",
-          "p-2"
-        )}
-      >
-        <Logo className="mb-1" imgStyle={{ height: 32, margin: "auto" }} />
-
-        <span className="text-xs font-semibold text-gray-700">Thanos</span>
-      </div>
-    </div>
-  );
-};
-
-type SubTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
-
-const SubTitle: React.FC<SubTitleProps> = ({
-  className,
-  children,
-  ...rest
-}) => {
-  const comp = (
-    <span className="px-1 text-gray-500">
-      <ComponentIcon className="w-auto h-5 stroke-current" />
-    </span>
-  );
-
-  return (
-    <h2
-      className={classNames(
-        "flex items-center justify-center",
-        "text-gray-700",
-        "text-lg",
-        "font-light",
-        "uppercase",
-        className
-      )}
-      {...rest}
-    >
-      {comp}
-      {children}
-      {comp}
-    </h2>
-  );
 };
