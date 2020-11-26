@@ -16,7 +16,7 @@ import { navigate } from "lib/woozie";
 import {
   ThanosAssetType,
   useTokens,
-  useSetAssetSymbol,
+  useSetAssetData,
   useTezos,
   validateContractAddress,
   useNetwork,
@@ -79,7 +79,7 @@ type FormData = {
 
 const Form: React.FC = () => {
   const { addToken } = useTokens();
-  const setAssetSymbol = useSetAssetSymbol();
+  const setAssetData = useSetAssetData();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
 
@@ -296,7 +296,7 @@ const Form: React.FC = () => {
           });
         }
 
-        setAssetSymbol(symbol);
+        setAssetData({ address, tokenId: id });
         setTimeout(() => navigate("/"), 50);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
@@ -308,7 +308,7 @@ const Form: React.FC = () => {
         setSubmitError(err.message);
       }
     },
-    [formState.isSubmitting, addToken, setAssetSymbol]
+    [formState.isSubmitting, addToken, setAssetData]
   );
 
   const isFA12Token = tokenType === ThanosAssetType.FA1_2;

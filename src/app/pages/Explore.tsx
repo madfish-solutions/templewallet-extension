@@ -15,7 +15,7 @@ import EditableTitle from "./Explore/EditableTitle";
 import AddressChip from "./Explore/AddressChip";
 import Assets from "./Explore/Assets";
 import BakingSection from "./Explore/BakingSection";
-import AddUnknownTokens from "lib/thanos/front/AddUnknownTokens";
+import AddUnknownTokens from "./Explore/AddUnknownTokens";
 
 const Explore: React.FC = () => {
   const account = useAccount();
