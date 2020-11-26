@@ -22,7 +22,7 @@ export type CustomSelectProps<
   activeItemId?: K;
   actions?: A;
   className?: string;
-  getItemId: (item: T) => K;
+  getItemId?: (item: T) => K;
   id?: string;
   items: T[];
   maxHeight?: string;
@@ -66,7 +66,7 @@ const CustomSelect = <
       style={{ maxHeight }}
     >
       {items.map((item, index) => {
-        const itemId = getItemId(item);
+        const itemId = getItemId ? getItemId(item) : index;
 
         return (
           <CustomSelectItem
@@ -74,7 +74,7 @@ const CustomSelect = <
             actions={actions}
             active={itemId === activeItemId}
             last={index === items.length - 1}
-            itemId={itemId}
+            itemId={itemId as K}
             index={index}
             item={item}
             onSelect={onSelect}

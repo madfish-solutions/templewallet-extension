@@ -209,6 +209,12 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   React.useLayoutEffect(() => {
     if (toFilled) {
+      toFieldRef.current?.scrollIntoView({ block: "center" });
+    }
+  }, [toFilled]);
+
+  React.useLayoutEffect(() => {
+    if (toFilled) {
       return registerBackHandler(() => {
         cleanToField();
         window.scrollTo(0, 0);
@@ -443,6 +449,11 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     }
   }, [setValue, maxAmount, triggerValidation]);
 
+  const handleAmountFieldFocus = React.useCallback((evt) => {
+    evt.preventDefault();
+    amountFieldRef.current?.focus({ preventScroll: true });
+  }, []);
+
   const [submitError, setSubmitError] = useSafeState<any>(
     null,
     `${tezos.checksum}_${toResolved}`
@@ -645,7 +656,12 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
           <Controller
             name="amount"
-            as={<AssetField ref={amountFieldRef} />}
+            as={
+              <AssetField
+                ref={amountFieldRef}
+                onFocus={handleAmountFieldFocus}
+              />
+            }
             control={control}
             rules={{
               validate: validateAmount,

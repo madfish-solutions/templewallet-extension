@@ -1305,6 +1305,20 @@
   "generalSettingsDescription": {
     "message": "Here you can manage languages preferences and display mode."
   },
+  "swapNoun": {
+    "message": "Swap"
+  },
+  "transfers": {
+    "message": "Transfers"
+  },
+  "someUnknownToken": {
+    "message": "unknown token $token$",
+    "placeholders": {
+      "token": {
+        "content": "$1"
+      }
+    }
+  },
   "lambdaContract": {
     "message": "Lambda View contract"
   },
@@ -1315,6 +1329,28 @@
         "content": "$1"
       }
     }
+  },
+  "interactionWithSomeEntrypoint": {
+    "message": "Interaction with entrypoint '$entrypoint$' of contract $contractAddress$",
+    "placeholders": {
+      "entrypoint": {
+        "content": "$1"
+      },
+      "contractAddress": {
+        "content": "$2"
+      }
+    }
+  },
+  "transactionOfSomeType": {
+    "message": "Transaction of type '$type$'",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "approveToken": {
+    "message": "Approve Token"
   },
   "noLambdaWarningContent": {
     "message": "No Lambda View contract was specified. Some functionality may not work without it. Press 'Add network' button if you want to proceed."
@@ -1474,6 +1510,9 @@
       }
     }
   },
+  "interaction": {
+    "message": "Interaction"
+  },
   "interactionWithContract": {
     "message": "with $contract$",
     "placeholders": {
@@ -1508,5 +1547,19 @@
         "content": "$1"
       }
     }
+  },
+  "approveForSmb": {
+    "message": "for $spender$",
+    "placeholders": {
+      "spender": {
+        "content": "$1"
+      }
+    }
+  },
+  "undelegation": {
+    "message": "Undelegation"
+  },
+  "bytes": {
+    "message": "Bytes"
   }
 }
