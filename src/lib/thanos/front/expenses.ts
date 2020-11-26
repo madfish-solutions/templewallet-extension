@@ -88,6 +88,9 @@ export function tryParseExpensesPure(
           while (args?.[0]?.prim) {
             args = args?.[0]?.args;
           }
+          while (args?.[1]?.prim) {
+            args = args?.[1]?.args;
+          }
           const to = args?.[0]?.string;
           const amount = args?.[1]?.int;
           if (
