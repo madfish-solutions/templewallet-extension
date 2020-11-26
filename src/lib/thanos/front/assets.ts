@@ -15,12 +15,14 @@ export function assetsAreSame(asset1: ThanosAsset, asset2: ThanosAsset) {
   switch (asset1.type) {
     case ThanosAssetType.XTZ:
       return asset2.type === ThanosAssetType.XTZ;
+
     case ThanosAssetType.FA2:
       return (
         asset2.type === ThanosAssetType.FA2 &&
         asset1.address === asset2.address &&
         asset1.id === asset2.id
       );
+
     default:
       return (
         asset2.type !== ThanosAssetType.XTZ && asset1.address === asset2.address
@@ -58,13 +60,9 @@ export function useAssets() {
 
 export function useCurrentAsset() {
   const { allAssets, defaultAsset } = useAssets();
+  const key = useAssetDataKey();
 
-  const network = useNetwork();
-  const account = useAccount();
-  const [assetData, setAssetData] = useStorage<AssetData>(
-    `assetData_${network.id}_${account.publicKeyHash}`,
-    {}
-  );
+  const [assetData, setAssetData] = useStorage<AssetData>(key, {});
 
   const currentAsset = React.useMemo(
     () =>
@@ -80,6 +78,7 @@ export function useCurrentAsset() {
       }) ?? defaultAsset,
     [allAssets, assetData, defaultAsset]
   );
+
   return {
     assetData,
     setAssetData,
@@ -87,19 +86,23 @@ export function useCurrentAsset() {
   };
 }
 
-export function useSetAssetSymbol() {
+export function useSetAssetData() {
+  const key = useAssetDataKey();
+
+  return React.useCallback(
+    (assetData: AssetData) => {
+      browser.storage.local.set({ [key]: assetData });
+    },
+    [key]
+  );
+}
+
+export function useAssetDataKey() {
   const network = useNetwork();
   const account = useAccount();
 
-  const key = React.useMemo(
-    () => `assetsymbol_${network.id}_${account.publicKeyHash}`,
+  return React.useMemo(
+    () => `asset_data_${network.id}_${account.publicKeyHash}`,
     [network.id, account.publicKeyHash]
-  );
-
-  return React.useCallback(
-    (symbol: string) => {
-      browser.storage.local.set({ [key]: symbol });
-    },
-    [key]
   );
 }
