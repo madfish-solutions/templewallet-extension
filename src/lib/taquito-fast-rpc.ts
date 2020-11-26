@@ -181,10 +181,7 @@ export class FastRpcClient extends RpcClient {
     return { block: this.latestBlock.hash };
   }
 
-  private getLatestBlockHash = debouncePromise(
-    super.getBlockHash.bind(this),
-    100
-  );
+  private getLatestBlockHash = debouncePromise(() => super.getBlockHash(), 100);
 }
 
 function wantsHead(opts?: RPCOptions) {

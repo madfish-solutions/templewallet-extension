@@ -44,6 +44,7 @@ import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import Spinner from "app/atoms/Spinner";
 import Money from "app/atoms/Money";
 import NoSpaceField from "app/atoms/NoSpaceField";
@@ -53,7 +54,7 @@ import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
-import AdditionalFeeInput from "./AdditionalFeeInput";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 
 interface FormData {
   to: string;
@@ -762,7 +763,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             <div
               className={classNames(
                 "rounded-md overflow-hidden",
-                "border-2 bg-gray-100",
+                "border",
                 "flex flex-col",
                 "text-gray-700 text-sm leading-tight"
               )}
@@ -781,19 +782,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                       key={acc.publicKeyHash}
                       type="button"
                       className={classNames(
+                        "relative",
                         "block w-full",
                         "overflow-hidden",
                         !last && "border-b border-gray-200",
-                        "hover:bg-gray-200 focus:bg-gray-200",
-                        "flex items-center",
+                        "hover:bg-gray-100 focus:bg-gray-100",
+                        "flex items-center p-2",
                         "text-gray-700",
                         "transition ease-in-out duration-200",
                         "focus:outline-none",
                         "opacity-90 hover:opacity-100"
                       )}
-                      style={{
-                        padding: "0.4rem 0.375rem 0.4rem 0.375rem",
-                      }}
                       onClick={handleAccountClick}
                     >
                       <Identicon
@@ -852,6 +851,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                             )}
                           </Balance>
                         </div>
+                      </div>
+
+                      <div
+                        className={classNames(
+                          "absolute right-0 top-0 bottom-0",
+                          "flex items-center",
+                          "pr-2",
+                          "text-gray-500"
+                        )}
+                      >
+                        <ChevronRightIcon className="h-5 w-auto stroke-current" />
                       </div>
                     </button>
                   );
