@@ -1529,6 +1529,25 @@
       }
     }
   },
+  "fa2TokenAlreadyExists": {
+    "message": "Token with address $address$ and ID $tokenId$ already exists.",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      },
+      "tokenId": {
+        "content": "$2"
+      }
+    }
+  },
+  "nonFa2TokenAlreadyExists": {
+    "message": "Token with address $address$ already exists.",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
   "approveForSmb": {
     "message": "for $spender$",
     "placeholders": {
