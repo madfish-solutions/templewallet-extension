@@ -60,9 +60,7 @@ const AddUnknownTokens: React.FC = () => {
               tezos
             );
             isFA12Token = true;
-          } catch (e) {
-            console.error(e);
-          }
+          } catch {}
           const baseTokenProps = {
             address: token.contract,
             decimals: token.decimals,
@@ -71,7 +69,6 @@ const AddUnknownTokens: React.FC = () => {
             name: token.name,
           };
           if (isFA12Token) {
-            console.log("Not known yet FA1.2 token found", token);
             addToken({
               ...baseTokenProps,
               type: ThanosAssetType.FA1_2,
@@ -82,7 +79,6 @@ const AddUnknownTokens: React.FC = () => {
               id: token.token_id,
               type: ThanosAssetType.FA2,
             });
-            console.log("Not known yet FA2 token found", token);
           }
         }
       });
