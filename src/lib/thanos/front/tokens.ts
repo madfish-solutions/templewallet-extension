@@ -28,9 +28,7 @@ export function useTokens() {
             t("fa2TokenAlreadyExists", [token.address, token.id])
           );
         } else {
-          throw new Error(
-            t("nonFa2TokenAlreadyExists", token.address)
-          );
+          throw new Error(t("nonFa2TokenAlreadyExists", token.address));
         }
       }
 
