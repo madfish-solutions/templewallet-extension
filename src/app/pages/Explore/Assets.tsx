@@ -13,6 +13,7 @@ import {
   assetsAreSame,
 } from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
+import useIsMounted from "lib/ui/useIsMounted";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import Balance from "app/templates/Balance";
@@ -34,6 +35,13 @@ type AssetsProps = {
 
 const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
   const { currentAsset } = useCurrentAsset();
+
+  // Fix React Carousel blinking
+  const isMounted = useIsMounted();
+  const mounted = isMounted();
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div
