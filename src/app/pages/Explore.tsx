@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { ThanosAccountType, useAccount } from "lib/thanos/front";
+import { ThanosAccountType, useAccount, XTZ_ASSET } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
@@ -13,7 +13,7 @@ import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import EditableTitle from "./Explore/EditableTitle";
 import AddressChip from "./Explore/AddressChip";
-import Assets from "./Explore/Assets";
+import MainAssetBanner from "./Explore/MainAssetBanner";
 import BakingSection from "./Explore/BakingSection";
 import AddUnknownTokens from "./Explore/AddUnknownTokens";
 
@@ -41,14 +41,7 @@ const Explore: React.FC = () => {
       <div className="flex flex-col items-center">
         <AddressChip pkh={accountPkh} className="mb-6" />
 
-        <div style={{ minHeight: "12rem" }}>
-          <SuspenseContainer
-            whileMessage={t("assetsWhileMessage")}
-            fallback={null}
-          >
-            <Assets accountPkh={accountPkh} />
-          </SuspenseContainer>
-        </div>
+        <MainAssetBanner accountPkh={accountPkh} asset={XTZ_ASSET} />
 
         <div
           className="flex items-stretch w-full mx-auto mt-4"

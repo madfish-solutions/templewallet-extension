@@ -106,3 +106,16 @@ export function useAssetDataKey() {
     [network.id, account.publicKeyHash]
   );
 }
+
+export function getAssetKey(asset: ThanosAsset) {
+  switch (asset.type) {
+    case ThanosAssetType.XTZ:
+      return "xtz";
+
+    case ThanosAssetType.FA2:
+      return `${asset.address}_${asset.id}`;
+
+    default:
+      return asset.address;
+  }
+}

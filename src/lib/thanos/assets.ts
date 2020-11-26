@@ -11,7 +11,7 @@ import { getMessage } from "lib/i18n";
 
 export const XTZ_ASSET: ThanosAsset = {
   type: ThanosAssetType.XTZ,
-  name: "XTZ",
+  name: "Tezos",
   symbol: "XTZ",
   decimals: 6,
   fungible: true,
