@@ -8,7 +8,6 @@ import { loadChainId } from "lib/thanos/helpers";
 import { T, TProps } from "lib/i18n/react";
 import {
   ThanosAssetType,
-  ThanosChainId,
   XTZ_ASSET,
   useThanosClient,
   useNetwork,
@@ -19,7 +18,7 @@ import {
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
-  BcdNetwork,
+  BCD_NETWORKS_NAMES,
   BcdPageableTokenTransfers,
   BcdTokenTransfer,
   getTokenTransfers,
@@ -34,11 +33,6 @@ import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 const OPERATIONS_LIMIT = 30;
-const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
-  [ThanosChainId.Mainnet, "mainnet"],
-  [ThanosChainId.Carthagenet, "carthagenet"],
-  [ThanosChainId.Delphinet, "delphinet"],
-]);
 
 interface InternalTransfer {
   volume: BigNumber;
