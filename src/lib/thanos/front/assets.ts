@@ -16,9 +16,15 @@ export function assetsAreSame(asset1: ThanosAsset, asset2: ThanosAsset) {
     case ThanosAssetType.XTZ:
       return asset2.type === ThanosAssetType.XTZ;
     case ThanosAssetType.FA2:
-      return asset2.type === ThanosAssetType.FA2 && (asset1.address === asset2.address) && (asset1.id === asset2.id);
+      return (
+        asset2.type === ThanosAssetType.FA2 &&
+        asset1.address === asset2.address &&
+        asset1.id === asset2.id
+      );
     default:
-      return asset2.type !== ThanosAssetType.XTZ && (asset1.address === asset2.address);
+      return (
+        asset2.type !== ThanosAssetType.XTZ && asset1.address === asset2.address
+      );
   }
 }
 
@@ -61,12 +67,17 @@ export function useCurrentAsset() {
   );
 
   const currentAsset = React.useMemo(
-    () => allAssets.find((a) => {
-      if (!assetData.address) {
-        return a.type === ThanosAssetType.XTZ;
-      }
-      return (a.type !== ThanosAssetType.XTZ) && (a.address === assetData.address) && ((a.type !== ThanosAssetType.FA2) || (a.id === assetData.tokenId));
-    }) ?? defaultAsset,
+    () =>
+      allAssets.find((a) => {
+        if (!assetData.address) {
+          return a.type === ThanosAssetType.XTZ;
+        }
+        return (
+          a.type !== ThanosAssetType.XTZ &&
+          a.address === assetData.address &&
+          (a.type !== ThanosAssetType.FA2 || a.id === assetData.tokenId)
+        );
+      }) ?? defaultAsset,
     [allAssets, assetData, defaultAsset]
   );
   return {
