@@ -19,6 +19,15 @@ export type RawOperationExpenses = {
 export function tryParseExpenses(
   operations: OperationsPreview,
   accountAddress: string
+) {
+  const r = tryParseExpensesPure(operations, accountAddress);
+  console.info(r);
+  return r;
+}
+
+export function tryParseExpensesPure(
+  operations: OperationsPreview,
+  accountAddress: string
 ): RawOperationExpenses[] {
   const operationsAsArray =
     operations instanceof Array ? operations : operations.contents;
