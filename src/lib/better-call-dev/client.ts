@@ -1,4 +1,5 @@
 import { HttpBackend } from "@taquito/http-utils";
+import { ThanosChainId } from "lib/thanos/types";
 import {
   BcdRequestParams,
   BcdAccountQueryParams,
@@ -9,7 +10,14 @@ import {
   BcdPageableTokenTransfers,
   BcdOperationsSearchQueryParams,
   BcdOperationsSearchResponse,
-} from "./types";
+  BcdNetwork,
+} from "lib/better-call-dev";
+
+export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
+  [ThanosChainId.Mainnet, "mainnet"],
+  [ThanosChainId.Carthagenet, "carthagenet"],
+  [ThanosChainId.Delphinet, "delphinet"],
+]);
 
 export const getAccount = makeQuery<BcdAccountQueryParams, BcdAccountInfo>(
   "GET",

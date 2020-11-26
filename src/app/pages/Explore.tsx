@@ -15,6 +15,7 @@ import EditableTitle from "./Explore/EditableTitle";
 import AddressChip from "./Explore/AddressChip";
 import Assets from "./Explore/Assets";
 import BakingSection from "./Explore/BakingSection";
+import AddUnknownTokens from "./Explore/AddUnknownTokens";
 
 const Explore: React.FC = () => {
   const account = useAccount();
@@ -122,6 +123,8 @@ const Explore: React.FC = () => {
       <T id="operations">
         {(message) => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}
       </T>
+
+      <AddUnknownTokens />
 
       <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
         <OperationHistory
