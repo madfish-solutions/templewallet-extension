@@ -15,6 +15,7 @@ import EditableTitle from "./Explore/EditableTitle";
 import AddressChip from "./Explore/AddressChip";
 import Assets from "./Explore/Assets";
 import BakingSection from "./Explore/BakingSection";
+import AddUnknownTokens from "lib/thanos/front/AddUnknownTokens";
 
 const Explore: React.FC = () => {
   const account = useAccount();
@@ -118,6 +119,8 @@ const Explore: React.FC = () => {
       </SuspenseContainer>
 
       <T id="operations">{(message) => <SubTitle>{message}</SubTitle>}</T>
+
+      <AddUnknownTokens />
 
       <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
         <OperationHistory

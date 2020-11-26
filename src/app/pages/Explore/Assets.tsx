@@ -10,6 +10,7 @@ import {
   useTokens,
   useCurrentAsset,
   ThanosAssetType,
+  assetsAreSame,
 } from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
 import { T } from "lib/i18n/react";
@@ -82,7 +83,7 @@ export default Assets;
 
 const AssetCarousel = React.memo(() => {
   const { allAssets, defaultAsset } = useAssets();
-  const { currentAsset, setAssetSymbol } = useCurrentAsset();
+  const { currentAsset, setAssetData } = useCurrentAsset();
 
   /**
    * Helpers
@@ -90,7 +91,7 @@ const AssetCarousel = React.memo(() => {
 
   const toAssetIndex = React.useCallback(
     (asset: ThanosAsset) => {
-      const i = allAssets.findIndex((a) => asset.symbol === a.symbol);
+      const i = allAssets.findIndex((a) => assetsAreSame(a, asset));
       return i === -1 ? 0 : i;
     },
     [allAssets]
@@ -141,9 +142,16 @@ const AssetCarousel = React.memo(() => {
   const handleCarouselChange = React.useCallback(
     (i: number) => {
       setLocalAssetIndex(i);
-      setAssetSymbol(toAsset(i).symbol);
+      const newAsset = toAsset(i);
+      if (newAsset.type === ThanosAssetType.XTZ) {
+        setAssetData({});
+      } else if (newAsset.type === ThanosAssetType.FA2) {
+        setAssetData({ address: newAsset.address, tokenId: newAsset.id });
+      } else {
+        setAssetData({ address: newAsset.address });
+      }
     },
-    [setLocalAssetIndex, setAssetSymbol, toAsset]
+    [setLocalAssetIndex, setAssetData, toAsset]
   );
 
   const slides = React.useMemo(

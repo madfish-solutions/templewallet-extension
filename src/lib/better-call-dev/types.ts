@@ -10,20 +10,22 @@ export interface BcdApiError {
   message: string;
 }
 
+export interface BcdAccountToken {
+  balance: number;
+  contract: string;
+  decimals: number;
+  name?: string;
+  symbol?: string;
+  token_id: number;
+}
+
 export interface BcdAccountInfo {
   address: string;
   alias: string;
   balance: number;
   last_action: string;
   network: string;
-  tokens: {
-    balance: number;
-    contract: string;
-    decimals: number;
-    name: string;
-    symbol: string;
-    token_id: number;
-  }[];
+  tokens: BcdAccountToken[];
   tx_count: number;
 }
 

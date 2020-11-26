@@ -220,7 +220,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const estimateBaseFee = React.useCallback(async () => {
     try {
       const to = toResolved;
-      const xtz = localAsset.symbol === ThanosAssetType.XTZ;
+      const xtz = localAsset.type === ThanosAssetType.XTZ;
 
       const balanceBN = (await mutateBalance(
         fetchBalance(tezos, localAsset, accountPkh)
