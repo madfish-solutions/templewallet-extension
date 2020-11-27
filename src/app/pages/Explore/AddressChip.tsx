@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import useSWR from "swr";
 import {
-  usePassiveStorage,
+  // usePassiveStorage,
   useTezos,
   useTezosDomainsClient,
 } from "lib/thanos/front";
@@ -30,10 +30,11 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
 
-  const [domainDisplayed, setDomainDisplayed] = usePassiveStorage(
-    "domain-displayed",
-    true
-  );
+  // const [domainDisplayed, setDomainDisplayed] = usePassiveStorage(
+  //   "domain-displayed",
+  //   true
+  // );
+  const [domainDisplayed, setDomainDisplayed] = React.useState(true);
 
   const handleToggleDomainClick = React.useCallback(() => {
     setDomainDisplayed((d) => !d);

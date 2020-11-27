@@ -175,7 +175,9 @@ const ListItem = React.memo<ListItemProps>(
               )}
             </Balance>
 
-            <div className={classNames("text-xs font-light")}>{asset.name}</div>
+            <div className={classNames("text-xs font-light text-gray-600")}>
+              {asset.name}
+            </div>
           </div>
         </div>
 

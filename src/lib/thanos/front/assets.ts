@@ -107,6 +107,15 @@ export function useAssetDataKey() {
   );
 }
 
+export function useAssetBySlug(slug?: string | null) {
+  const { allAssets } = useAssets();
+  const asset = React.useMemo(
+    () => allAssets.find((a) => getAssetKey(a) === slug) ?? null,
+    [allAssets, slug]
+  );
+  return React.useMemo(() => asset, [asset]);
+}
+
 export function getAssetKey(asset: ThanosAsset) {
   switch (asset.type) {
     case ThanosAssetType.XTZ:
