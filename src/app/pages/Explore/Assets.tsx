@@ -102,73 +102,96 @@ type ListItemProps = {
 };
 
 const ListItem = React.memo<ListItemProps>(
-  ({ asset, slug, last, accountPkh }) => (
-    <Link
-      to={`/explore/${slug}`}
-      className={classNames(
-        "relative",
-        "block w-full",
-        "overflow-hidden",
-        !last && "border-b border-gray-200",
-        "hover:bg-gray-100 focus:bg-gray-100",
-        "flex items-center py-2 px-3",
-        "text-gray-700",
-        "transition ease-in-out duration-200",
-        "focus:outline-none",
-        "opacity-90 hover:opacity-100"
-      )}
-    >
-      <AssetIcon asset={asset} size={32} className="mr-3" />
+  ({ asset, slug, last, accountPkh }) => {
+    const toDisplayRef = React.useRef<HTMLDivElement>(null);
+    const [displayed, setDisplayed] = React.useState(false);
 
-      <div className="flex items-center">
-        <Balance address={accountPkh} asset={asset}>
-          {(balance) => (
-            <div className="flex flex-col">
-              <div className="flex items-center">
-                <span className="text-base font-normal text-gray-700">
-                  <Money>{balance}</Money>{" "}
-                  <span
-                    className="opacity-90 font-light"
-                    style={{ fontSize: "0.75em" }}
-                  >
-                    {asset.symbol}
-                  </span>
-                </span>
+    React.useEffect(() => {
+      const el = toDisplayRef.current;
+      if (!displayed && "IntersectionObserver" in window && el) {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              setDisplayed(true);
+            }
+          },
+          { rootMargin: "0px" }
+        );
 
-                <InUSD asset={asset} volume={balance}>
-                  {(usdBalance) => (
-                    <div
-                      className={classNames(
-                        "ml-2",
-                        "text-sm font-light text-gray-600"
-                      )}
-                    >
-                      ${usdBalance}
-                    </div>
-                  )}
-                </InUSD>
-              </div>
+        observer.observe(el);
+        return () => {
+          observer.unobserve(el);
+        };
+      }
+      return;
+    }, [displayed, setDisplayed]);
 
-              <div className={classNames("text-xs font-light")}>
-                {asset.name}
-              </div>
-            </div>
-          )}
-        </Balance>
-      </div>
-
-      <div
+    return (
+      <Link
+        to={`/explore/${slug}`}
         className={classNames(
-          "absolute right-0 top-0 bottom-0",
-          "flex items-center",
-          "pr-2",
-          "text-gray-500"
+          "relative",
+          "block w-full",
+          "overflow-hidden",
+          !last && "border-b border-gray-200",
+          "hover:bg-gray-100 focus:bg-gray-100",
+          "flex items-center py-2 px-3",
+          "text-gray-700",
+          "transition ease-in-out duration-200",
+          "focus:outline-none",
+          "opacity-90 hover:opacity-100"
         )}
       >
-        <ChevronRightIcon className="h-5 w-auto stroke-current" />
-      </div>
-    </Link>
-  )
+        <AssetIcon asset={asset} size={32} className="mr-3" />
+
+        <div ref={toDisplayRef} className="flex items-center">
+          <div className="flex flex-col">
+            <Balance address={accountPkh} asset={asset} displayed={displayed}>
+              {(balance) => (
+                <div className="flex items-center">
+                  <span className="text-base font-normal text-gray-700">
+                    <Money>{balance}</Money>{" "}
+                    <span
+                      className="opacity-90 font-light"
+                      style={{ fontSize: "0.75em" }}
+                    >
+                      {asset.symbol}
+                    </span>
+                  </span>
+
+                  <InUSD asset={asset} volume={balance}>
+                    {(usdBalance) => (
+                      <div
+                        className={classNames(
+                          "ml-2",
+                          "text-sm font-light text-gray-600"
+                        )}
+                      >
+                        ${usdBalance}
+                      </div>
+                    )}
+                  </InUSD>
+                </div>
+              )}
+            </Balance>
+
+            <div className={classNames("text-xs font-light")}>{asset.name}</div>
+          </div>
+        </div>
+
+        <div
+          className={classNames(
+            "absolute right-0 top-0 bottom-0",
+            "flex items-center",
+            "pr-2",
+            "text-gray-500"
+          )}
+        >
+          <ChevronRightIcon className="h-5 w-auto stroke-current" />
+        </div>
+      </Link>
+    );
+  }
 );
 
 const SearchField: React.FC = () => {
@@ -197,7 +220,7 @@ const SearchField: React.FC = () => {
             "py-2 pl-8 pr-4",
             "bg-gray-100 focus:bg-transparent",
             "border border-transparent",
-            "focus:outline-none focus:border-gray-200",
+            "focus:outline-none focus:border-gray-300",
             "transition ease-in-out duration-200",
             "rounded-md",
             "text-gray-700 text-sm leading-tight",
