@@ -11,23 +11,8 @@ import {
 } from "lib/thanos/front";
 import { ThanosAsset, ThanosAssetType } from "../types";
 
-export function assetsAreSame(asset1: ThanosAsset, asset2: ThanosAsset) {
-  switch (asset1.type) {
-    case ThanosAssetType.XTZ:
-      return asset2.type === ThanosAssetType.XTZ;
-
-    case ThanosAssetType.FA2:
-      return (
-        asset2.type === ThanosAssetType.FA2 &&
-        asset1.address === asset2.address &&
-        asset1.id === asset2.id
-      );
-
-    default:
-      return (
-        asset2.type !== ThanosAssetType.XTZ && asset1.address === asset2.address
-      );
-  }
+export function assetsAreSame(aAsset: ThanosAsset, bAsset: ThanosAsset) {
+  return getAssetKey(aAsset) === getAssetKey(bAsset);
 }
 
 type AssetData = {
@@ -125,6 +110,6 @@ export function getAssetKey(asset: ThanosAsset) {
       return `${asset.address}_${asset.id}`;
 
     default:
-      return asset.address;
+      return `${asset.address}_0`;
   }
 }
