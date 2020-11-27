@@ -1,7 +1,12 @@
 import * as React from "react";
 import classNames from "clsx";
-import { Link, useLocation } from "lib/woozie";
-import { ThanosAccountType, useAccount, XTZ_ASSET } from "lib/thanos/front";
+import { Link, Redirect, useLocation } from "lib/woozie";
+import {
+  ThanosAccountType,
+  useAccount,
+  useAssetBySlug,
+  XTZ_ASSET,
+} from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
@@ -9,6 +14,7 @@ import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import EditableTitle from "./Explore/EditableTitle";
@@ -16,24 +22,36 @@ import AddressChip from "./Explore/AddressChip";
 import MainAssetBanner from "./Explore/MainAssetBanner";
 import BakingSection from "./Explore/BakingSection";
 import Assets from "./Explore/Assets";
-import AddUnknownTokens from "./Explore/AddUnknownTokens";
+// import AddUnknownTokens from "./Explore/AddUnknownTokens";
 
-const Explore: React.FC = () => {
+type ExploreProps = {
+  assetSlug?: string | null;
+};
+
+const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
   const { fullPage } = useAppEnv();
   const account = useAccount();
+  const asset = useAssetBySlug(assetSlug);
+
+  if (assetSlug && !asset) {
+    return <Redirect to="/" />;
+  }
+
   const accountPkh = account.publicKeyHash;
 
   return (
     <PageLayout
       pageTitle={
-        <T id="explore">
-          {(message) => (
+        <>
+          <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
+          <T id="explore" />
+          {asset && (
             <>
-              <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
-              {message}
+              <ChevronRightIcon className="w-auto h-4 mx-px stroke-current opacity-75" />
+              <span className="font-normal">{asset.symbol}</span>
             </>
           )}
-        </T>
+        </>
       }
     >
       {fullPage && (
@@ -116,7 +134,7 @@ const Explore: React.FC = () => {
       </div>
 
       <SecondarySection />
-      <AddUnknownTokens />
+      {/* <AddUnknownTokens /> */}
     </PageLayout>
   );
 };

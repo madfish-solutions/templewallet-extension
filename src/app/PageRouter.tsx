@@ -57,6 +57,10 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     },
   ],
   ["/", (_p, ctx) => (ctx.ready ? <Explore /> : <Welcome />)],
+  [
+    "/explore/:assetSlug?",
+    onlyReady(({ assetSlug }) => <Explore assetSlug={assetSlug} />),
+  ],
   ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
   ["/create-account", onlyReady(() => <CreateAccount />)],
   [
