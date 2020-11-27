@@ -57,11 +57,13 @@ interface OperationPreview {
 interface OperationHistoryProps {
   accountPkh: string;
   accountOwner?: string;
+  className?: string;
 }
 
 const OperationHistory: React.FC<OperationHistoryProps> = ({
   accountPkh,
   accountOwner,
+  className,
 }) => {
   const { getAllPndOps, removePndOps } = useThanosClient();
   const network = useNetwork();
@@ -306,7 +308,11 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
 
   return (
     <div
-      className={classNames("mt-8", "w-full max-w-md mx-auto", "flex flex-col")}
+      className={classNames(
+        "w-full max-w-md mx-auto",
+        "flex flex-col",
+        className
+      )}
     >
       {uniqueOps.length === 0 && (
         <div
