@@ -51,3 +51,8 @@ export function useBalance(
     }
   );
 }
+
+export function useBalanceSWRKey(asset: ThanosAsset, address: string) {
+  const tezos = useTezos();
+  return ["balance", tezos.checksum, asset.symbol, address];
+}

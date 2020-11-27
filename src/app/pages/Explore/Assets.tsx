@@ -1,11 +1,13 @@
 import * as React from "react";
 import classNames from "clsx";
+import { cache } from "swr";
 import { Link } from "lib/woozie";
 import { T } from "lib/i18n/react";
 import {
   useAssets,
   getAssetKey,
   useAccount,
+  useBalanceSWRKey,
   ThanosAsset,
 } from "lib/thanos/front";
 import Money from "app/atoms/Money";
@@ -103,8 +105,13 @@ type ListItemProps = {
 
 const ListItem = React.memo<ListItemProps>(
   ({ asset, slug, last, accountPkh }) => {
+    const balanceSWRKey = useBalanceSWRKey(asset, accountPkh);
+    const balanceAlreadyLoaded = React.useMemo(() => cache.has(balanceSWRKey), [
+      balanceSWRKey,
+    ]);
+
     const toDisplayRef = React.useRef<HTMLDivElement>(null);
-    const [displayed, setDisplayed] = React.useState(false);
+    const [displayed, setDisplayed] = React.useState(balanceAlreadyLoaded);
 
     React.useEffect(() => {
       const el = toDisplayRef.current;
@@ -138,8 +145,7 @@ const ListItem = React.memo<ListItemProps>(
           "flex items-center py-2 px-3",
           "text-gray-700",
           "transition ease-in-out duration-200",
-          "focus:outline-none",
-          "opacity-90 hover:opacity-100"
+          "focus:outline-none"
         )}
       >
         <AssetIcon asset={asset} size={32} className="mr-3" />

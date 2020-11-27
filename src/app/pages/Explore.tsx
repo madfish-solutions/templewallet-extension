@@ -3,6 +3,7 @@ import classNames from "clsx";
 import { Link, Redirect, useLocation } from "lib/woozie";
 import {
   ThanosAccountType,
+  ThanosAsset,
   useAccount,
   useAssetBySlug,
   XTZ_ASSET,
@@ -22,7 +23,7 @@ import AddressChip from "./Explore/AddressChip";
 import MainAssetBanner from "./Explore/MainAssetBanner";
 import BakingSection from "./Explore/BakingSection";
 import Assets from "./Explore/Assets";
-// import AddUnknownTokens from "./Explore/AddUnknownTokens";
+import AddUnknownTokens from "./Explore/AddUnknownTokens";
 
 type ExploreProps = {
   assetSlug?: string | null;
@@ -69,7 +70,7 @@ const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
       >
         <AddressChip pkh={accountPkh} className="mb-6" />
 
-        <MainAssetBanner accountPkh={accountPkh} asset={XTZ_ASSET} />
+        <MainAssetBanner accountPkh={accountPkh} asset={asset ?? XTZ_ASSET} />
 
         <div
           className="flex items-stretch w-full mx-auto mt-4"
@@ -133,8 +134,9 @@ const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
         </div>
       </div>
 
-      <SecondarySection />
-      {/* <AddUnknownTokens /> */}
+      <SecondarySection asset={asset} />
+
+      <AddUnknownTokens />
     </PageLayout>
   );
 };
@@ -164,24 +166,6 @@ const Activity: React.FC = () => {
   );
 };
 
-const EXPLORE_TABS = [
-  {
-    slug: "assets",
-    title: "Assets",
-    Component: Assets,
-  },
-  {
-    slug: "delegation",
-    title: "Delegation",
-    Component: Delegation,
-  },
-  {
-    slug: "activity",
-    title: "Activity",
-    Component: Activity,
-  },
-];
-
 function useTabSlug() {
   const { search } = useLocation();
   const tabSlug = React.useMemo(() => {
@@ -192,22 +176,61 @@ function useTabSlug() {
 }
 
 type SecondarySectionProps = {
+  asset: ThanosAsset | null;
   className?: string;
 };
 
-const SecondarySection: React.FC<SecondarySectionProps> = ({ className }) => {
+const SecondarySection: React.FC<SecondarySectionProps> = ({
+  asset,
+  className,
+}) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
+  const tabs = React.useMemo(
+    () =>
+      asset
+        ? [
+            {
+              slug: "activity",
+              title: "Activity",
+              Component: Activity,
+            },
+            {
+              slug: "about",
+              title: "About",
+              Component: () => <h1>{asset.name}</h1>,
+            },
+          ]
+        : [
+            {
+              slug: "assets",
+              title: "Assets",
+              Component: Assets,
+            },
+            {
+              slug: "delegation",
+              title: "Delegation",
+              Component: Delegation,
+            },
+            {
+              slug: "activity",
+              title: "Activity",
+              Component: Activity,
+            },
+          ],
+    [asset]
+  );
+
   const { slug, Component } = React.useMemo(() => {
-    const tab = tabSlug ? EXPLORE_TABS.find((t) => t.slug === tabSlug) : null;
-    return tab ?? EXPLORE_TABS[0];
-  }, [tabSlug]);
+    const tab = tabSlug ? tabs.find((t) => t.slug === tabSlug) : null;
+    return tab ?? tabs[0];
+  }, [tabSlug, tabs]);
 
   return (
     <div
       className={classNames("-mx-4", "shadow-top-light", className)}
-      style={{ minHeight: "18rem" }}
+      style={{ minHeight: "20rem" }}
     >
       <div
         className={classNames(
@@ -215,13 +238,13 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({ className }) => {
           "flex flex-wrap items-center justify-center"
         )}
       >
-        {EXPLORE_TABS.map((t) => {
+        {tabs.map((t) => {
           const active = slug === t.slug;
 
           return (
             <Link
-              key={t.slug}
-              to={`/?tab=${t.slug}`}
+              key={asset ? `asset_${t.slug}` : t.slug}
+              to={(lctn) => ({ ...lctn, search: `?tab=${t.slug}` })}
               replace
               className={classNames(
                 "w-1/3",
