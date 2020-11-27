@@ -11,19 +11,20 @@ import {
 type UseBalanceOptions = {
   suspense?: boolean;
   networkRpc?: string;
+  displayed?: boolean;
 };
 
 export function useBalance(
   asset: ThanosAsset,
   address: string,
-  ops: UseBalanceOptions = {}
+  opts: UseBalanceOptions = {}
 ) {
   const nativeTezos = useTezos();
   const settings = useSettings();
 
   const tezos = React.useMemo(() => {
-    if (ops.networkRpc) {
-      const rpc = ops.networkRpc;
+    if (opts.networkRpc) {
+      const rpc = opts.networkRpc;
       return new ReactiveTezosToolkit(
         rpc,
         rpc,
@@ -31,18 +32,20 @@ export function useBalance(
       );
     }
     return nativeTezos;
-  }, [ops.networkRpc, nativeTezos, settings.lambdaContracts]);
+  }, [opts.networkRpc, nativeTezos, settings.lambdaContracts]);
 
   const fetchBalanceLocal = React.useCallback(
     () => fetchBalance(tezos, asset, address),
     [tezos, asset, address]
   );
 
+  const displayed = opts.displayed ?? true;
+
   return useRetryableSWR(
-    ["balance", tezos.checksum, asset.symbol, address],
+    displayed ? ["balance", tezos.checksum, asset.symbol, address] : null,
     fetchBalanceLocal,
     {
-      suspense: ops.suspense ?? true,
+      suspense: opts.suspense ?? true,
       revalidateOnFocus: false,
       dedupingInterval: 180_000,
     }
