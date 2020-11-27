@@ -15,7 +15,8 @@ import EditableTitle from "./Explore/EditableTitle";
 import AddressChip from "./Explore/AddressChip";
 import MainAssetBanner from "./Explore/MainAssetBanner";
 import BakingSection from "./Explore/BakingSection";
-// import AddUnknownTokens from "./Explore/AddUnknownTokens";
+import Assets from "./Explore/Assets";
+import AddUnknownTokens from "./Explore/AddUnknownTokens";
 
 const Explore: React.FC = () => {
   const { fullPage } = useAppEnv();
@@ -115,31 +116,7 @@ const Explore: React.FC = () => {
       </div>
 
       <SecondarySection />
-
-      {/* <T id="baking">
-        {(message) => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}
-      </T>
-
-      <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
-        <BakingSection />
-      </SuspenseContainer>
-
-      <T id="operations">
-        {(message) => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}
-      </T>
-
       <AddUnknownTokens />
-
-      <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
-        <OperationHistory
-          accountPkh={accountPkh}
-          accountOwner={
-            account.type === ThanosAccountType.ManagedKT
-              ? account.owner
-              : undefined
-          }
-        />
-      </SuspenseContainer> */}
     </PageLayout>
   );
 };
@@ -173,7 +150,7 @@ const EXPLORE_TABS = [
   {
     slug: "assets",
     title: "Assets",
-    Component: null,
+    Component: Assets,
   },
   {
     slug: "delegation",
@@ -201,6 +178,7 @@ type SecondarySectionProps = {
 };
 
 const SecondarySection: React.FC<SecondarySectionProps> = ({ className }) => {
+  const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
   const { slug, Component } = React.useMemo(() => {
@@ -224,6 +202,7 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({ className }) => {
 
           return (
             <Link
+              key={t.slug}
               to={`/?tab=${t.slug}`}
               replace
               className={classNames(
@@ -233,9 +212,6 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({ className }) => {
                 "border-t-2",
                 active ? "border-primary-orange" : "border-transparent",
                 active ? "text-primary-orange" : "hover:text-primary-orange",
-                // active
-                //   ? "text-primary-orange bg-primary-orange bg-opacity-10"
-                //   : "hover:bg-gray-100 focus:bg-gray-100",
                 "transition ease-in-out duration-300"
               )}
             >
@@ -245,7 +221,9 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({ className }) => {
         })}
       </div>
 
-      <div className="my-4 mx-4">{Component && <Component />}</div>
+      <div className={classNames("mx-4 mb-4", fullPage ? "mt-8" : "mt-4")}>
+        {Component && <Component />}
+      </div>
     </div>
   );
 };

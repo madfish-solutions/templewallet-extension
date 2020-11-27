@@ -1561,5 +1561,8 @@
   },
   "bytes": {
     "message": "Bytes"
+  },
+  "clean": {
+    "message": "Clean"
   }
 }

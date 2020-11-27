@@ -22,7 +22,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
   {
     type: ThanosAssetType.FA1_2,
     address: "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-    name: "USD Tez",
+    name: "USD Tezos",
     symbol: "USDtz",
     decimals: 6,
     fungible: true,
@@ -43,7 +43,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
   {
     type: ThanosAssetType.TzBTC,
     address: "KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn",
-    name: "tzBTC",
+    name: "Tezos BTC",
     symbol: "tzBTC",
     decimals: 8,
     fungible: true,
