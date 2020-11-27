@@ -1,13 +1,13 @@
 import * as React from "react";
 import classNames from "clsx";
-import { Link } from "lib/woozie";
+import { Link, useLocation } from "lib/woozie";
 import { ThanosAccountType, useAccount, XTZ_ASSET } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
+import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
 import Spinner from "app/atoms/Spinner";
-import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
@@ -15,9 +15,10 @@ import EditableTitle from "./Explore/EditableTitle";
 import AddressChip from "./Explore/AddressChip";
 import MainAssetBanner from "./Explore/MainAssetBanner";
 import BakingSection from "./Explore/BakingSection";
-import AddUnknownTokens from "./Explore/AddUnknownTokens";
+// import AddUnknownTokens from "./Explore/AddUnknownTokens";
 
 const Explore: React.FC = () => {
+  const { fullPage } = useAppEnv();
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
 
@@ -34,11 +35,19 @@ const Explore: React.FC = () => {
         </T>
       }
     >
-      <EditableTitle />
+      {fullPage && (
+        <>
+          <EditableTitle />
+          <hr className="mb-6" />
+        </>
+      )}
 
-      <hr className="mb-4" />
-
-      <div className="flex flex-col items-center">
+      <div
+        className={classNames(
+          "flex flex-col items-center",
+          fullPage ? "mb-10" : "mb-6"
+        )}
+      >
         <AddressChip pkh={accountPkh} className="mb-6" />
 
         <MainAssetBanner accountPkh={accountPkh} asset={XTZ_ASSET} />
@@ -105,7 +114,9 @@ const Explore: React.FC = () => {
         </div>
       </div>
 
-      <T id="baking">
+      <SecondarySection />
+
+      {/* <T id="baking">
         {(message) => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}
       </T>
 
@@ -128,12 +139,116 @@ const Explore: React.FC = () => {
               : undefined
           }
         />
-      </SuspenseContainer>
+      </SuspenseContainer> */}
     </PageLayout>
   );
 };
 
 export default Explore;
+
+const Delegation: React.FC = () => (
+  <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
+    <BakingSection />
+  </SuspenseContainer>
+);
+
+const Activity: React.FC = () => {
+  const account = useAccount();
+
+  return (
+    <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
+      <OperationHistory
+        accountPkh={account.publicKeyHash}
+        accountOwner={
+          account.type === ThanosAccountType.ManagedKT
+            ? account.owner
+            : undefined
+        }
+      />
+    </SuspenseContainer>
+  );
+};
+
+const EXPLORE_TABS = [
+  {
+    slug: "assets",
+    title: "Assets",
+    Component: null,
+  },
+  {
+    slug: "delegation",
+    title: "Delegation",
+    Component: Delegation,
+  },
+  {
+    slug: "activity",
+    title: "Activity",
+    Component: Activity,
+  },
+];
+
+function useTabSlug() {
+  const { search } = useLocation();
+  const tabSlug = React.useMemo(() => {
+    const usp = new URLSearchParams(search);
+    return usp.get("tab");
+  }, [search]);
+  return React.useMemo(() => tabSlug, [tabSlug]);
+}
+
+type SecondarySectionProps = {
+  className?: string;
+};
+
+const SecondarySection: React.FC<SecondarySectionProps> = ({ className }) => {
+  const tabSlug = useTabSlug();
+
+  const { slug, Component } = React.useMemo(() => {
+    const tab = tabSlug ? EXPLORE_TABS.find((t) => t.slug === tabSlug) : null;
+    return tab ?? EXPLORE_TABS[0];
+  }, [tabSlug]);
+
+  return (
+    <div
+      className={classNames("-mx-4", "shadow-top-light", className)}
+      style={{ minHeight: "18rem" }}
+    >
+      <div
+        className={classNames(
+          "w-full max-w-sm mx-auto",
+          "flex flex-wrap items-center justify-center"
+        )}
+      >
+        {EXPLORE_TABS.map((t) => {
+          const active = slug === t.slug;
+
+          return (
+            <Link
+              to={`/?tab=${t.slug}`}
+              replace
+              className={classNames(
+                "w-1/3",
+                "text-center cursor-pointer py-2 px-3",
+                "text-gray-500 text-sm font-medium",
+                "border-t-2",
+                active ? "border-primary-orange" : "border-transparent",
+                active ? "text-primary-orange" : "hover:text-primary-orange",
+                // active
+                //   ? "text-primary-orange bg-primary-orange bg-opacity-10"
+                //   : "hover:bg-gray-100 focus:bg-gray-100",
+                "transition ease-in-out duration-300"
+              )}
+            >
+              {t.title}
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="my-4 mx-4">{Component && <Component />}</div>
+    </div>
+  );
+};
 
 type SuspenseContainerProps = {
   whileMessage: string;
