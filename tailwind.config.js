@@ -222,8 +222,7 @@ module.exports = {
       "xs-white": "0 0 0 1px rgba(255, 255, 255, 0.05)",
       xs: "0 0 0 1px rgba(0, 0, 0, 0.05)",
       sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-      "top-light":
-        "0px -1px 0 0 rgba(0, 0, 0, 0.06), 0 -1px 2px 0 rgba(0, 0, 0, 0.06)",
+      "top-light": "0 -1px 2px 0 rgba(0, 0, 0, 0.1)",
       default:
         "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
       md:

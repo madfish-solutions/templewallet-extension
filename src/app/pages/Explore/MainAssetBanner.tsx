@@ -43,7 +43,7 @@ const MainAssetBanner: React.FC<MainAssetBannerProps> = ({
             "flex justify-center"
           )}
         >
-          <p
+          <div
             className={classNames(
               "-mt-4 py-1 px-2",
               "bg-white rounded-full",
@@ -52,7 +52,7 @@ const MainAssetBanner: React.FC<MainAssetBannerProps> = ({
             )}
           >
             <Name style={{ maxWidth: "13rem" }}>{asset.name}</Name>
-          </p>
+          </div>
         </div>
 
         <AssetIcon asset={asset} size={48} className="mr-3" />
