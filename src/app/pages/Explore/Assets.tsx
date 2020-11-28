@@ -260,10 +260,7 @@ const ListItem = React.memo<ListItemProps>(
                 <div className="flex items-center">
                   <span className="text-base font-normal text-gray-700">
                     <Money>{balance}</Money>{" "}
-                    <span
-                      className="opacity-90 font-light"
-                      style={{ fontSize: "0.75em" }}
-                    >
+                    <span className="opacity-90" style={{ fontSize: "0.75em" }}>
                       {asset.symbol}
                     </span>
                   </span>
