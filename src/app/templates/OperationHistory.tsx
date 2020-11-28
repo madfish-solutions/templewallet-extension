@@ -317,7 +317,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       {uniqueOps.length === 0 && (
         <div
           className={classNames(
-            "mb-12",
+            "mt-4 mb-12",
             "flex flex-col items-center justify-center",
             "text-gray-500"
           )}
