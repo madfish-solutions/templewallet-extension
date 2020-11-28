@@ -67,7 +67,6 @@ const Assets: React.FC = () => {
     if (!activeAssetKey) return;
 
     const handleKeyup = (evt: KeyboardEvent) => {
-      console.info(evt.key);
       switch (evt.key) {
         case "Enter":
           navigate(toExploreAssetLink(activeAssetKey));

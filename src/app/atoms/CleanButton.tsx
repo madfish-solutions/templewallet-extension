@@ -41,6 +41,7 @@ const CleanButton: React.FC<CleanButtonProps> = ({
         className
       )}
       style={{ right: "0.4rem", bottom: bottomOffset, ...style }}
+      tabIndex={-1}
       {...rest}
     >
       <CloseIcon className="w-auto h-4 stroke-current" />
