@@ -1,24 +1,16 @@
 import * as React from "react";
-import { browser } from "webextension-polyfill-ts";
 import {
   XTZ_ASSET,
   MAINNET_TOKENS,
   useNetwork,
   useTokens,
-  useStorage,
   useAllAssetsRef,
-  useAccount,
 } from "lib/thanos/front";
 import { ThanosAsset, ThanosAssetType } from "../types";
 
 export function assetsAreSame(aAsset: ThanosAsset, bAsset: ThanosAsset) {
   return getAssetKey(aAsset) === getAssetKey(bAsset);
 }
-
-type AssetData = {
-  address?: string;
-  tokenId?: number;
-};
 
 export function useAssets() {
   const network = useNetwork();
@@ -41,55 +33,6 @@ export function useAssets() {
   const defaultAsset = React.useMemo(() => allAssets[0], [allAssets]);
 
   return { allAssets, defaultAsset };
-}
-
-export function useCurrentAsset() {
-  const { allAssets, defaultAsset } = useAssets();
-  const key = useAssetDataKey();
-
-  const [assetData, setAssetData] = useStorage<AssetData>(key, {});
-
-  const currentAsset = React.useMemo(
-    () =>
-      allAssets.find((a) => {
-        if (!assetData.address) {
-          return a.type === ThanosAssetType.XTZ;
-        }
-        return (
-          a.type !== ThanosAssetType.XTZ &&
-          a.address === assetData.address &&
-          (a.type !== ThanosAssetType.FA2 || a.id === assetData.tokenId)
-        );
-      }) ?? defaultAsset,
-    [allAssets, assetData, defaultAsset]
-  );
-
-  return {
-    assetData,
-    setAssetData,
-    currentAsset,
-  };
-}
-
-export function useSetAssetData() {
-  const key = useAssetDataKey();
-
-  return React.useCallback(
-    (assetData: AssetData) => {
-      browser.storage.local.set({ [key]: assetData });
-    },
-    [key]
-  );
-}
-
-export function useAssetDataKey() {
-  const network = useNetwork();
-  const account = useAccount();
-
-  return React.useMemo(
-    () => `asset_data_${network.id}_${account.publicKeyHash}`,
-    [network.id, account.publicKeyHash]
-  );
 }
 
 export function useAssetBySlug(slug?: string | null) {

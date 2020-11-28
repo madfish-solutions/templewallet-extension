@@ -1,6 +1,11 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useAllNetworks, useNetwork, useSetNetworkId } from "lib/thanos/front";
+import {
+  useAllNetworks,
+  useNetwork,
+  useSetNetworkId,
+  preloadTokens,
+} from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
 import { T } from "lib/i18n/react";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
@@ -14,6 +19,25 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
   const allNetworks = useAllNetworks();
   const network = useNetwork();
   const setNetworkId = useSetNetworkId();
+
+  const handleNetworkSelect = React.useCallback(
+    async (
+      netId: string,
+      selected: boolean,
+      setOpened: (o: boolean) => void
+    ) => {
+      if (!selected) {
+        try {
+          await preloadTokens(netId);
+        } catch (_err) {}
+
+        setNetworkId(netId);
+      }
+
+      setOpened(false);
+    },
+    [setNetworkId]
+  );
 
   return (
     <Popper
@@ -60,10 +84,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                 autoFocus={selected}
                 onClick={() => {
                   if (!disabled) {
-                    if (!selected) {
-                      setNetworkId(id);
-                    }
-                    setOpened(false);
+                    handleNetworkSelect(id, selected, setOpened);
                   }
                 }}
               >
