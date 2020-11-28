@@ -123,13 +123,11 @@ const AssetSelectedContent: React.FC<AssetSelectOptionRenderProps> = ({
             <span style={{ fontSize: "0.75em" }}>{asset.symbol}</span>
           </span>
 
-          {asset.type === ThanosAssetType.XTZ && (
-            <InUSD volume={balance}>
-              {(usdBalance) => (
-                <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>
-              )}
-            </InUSD>
-          )}
+          <InUSD asset={asset} volume={balance}>
+            {(usdBalance) => (
+              <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>
+            )}
+          </InUSD>
         </div>
       )}
     </Balance>
