@@ -229,7 +229,12 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
 
   return (
     <div
-      className={classNames("-mx-4", "shadow-top-light", className)}
+      className={classNames(
+        "-mx-4",
+        "shadow-top-light",
+        fullPage && "rounded-t-md",
+        className
+      )}
       style={{ minHeight: "20rem" }}
     >
       <div

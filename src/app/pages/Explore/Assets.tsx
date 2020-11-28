@@ -175,7 +175,7 @@ const Assets: React.FC = () => {
             className={classNames(
               "mb-2",
               "flex items-center justify-center",
-              "text-base font-light"
+              "text-gray-600 text-base font-light"
             )}
           >
             {searchValueExist && (
