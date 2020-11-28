@@ -248,7 +248,7 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
               replace
               className={classNames(
                 "w-1/3",
-                "text-center cursor-pointer py-2 px-3",
+                "text-center cursor-pointer mb-1 pb-1 pt-2 px-3",
                 "text-gray-500 text-sm font-medium",
                 "border-t-2",
                 active ? "border-primary-orange" : "border-transparent",
