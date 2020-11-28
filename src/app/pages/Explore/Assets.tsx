@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { cache } from "swr";
-import { Link } from "lib/woozie";
+import { Link, navigate } from "lib/woozie";
 import { T } from "lib/i18n/react";
 import {
   useAssets,
@@ -24,10 +24,81 @@ const Assets: React.FC = () => {
   const account = useAccount();
   const { allAssets } = useAssets();
 
+  const [searchValue, setSearchValue] = React.useState("");
+  const [searchFocused, setSearchFocused] = React.useState(false);
+  const [activeIndex, setActiveIndex] = React.useState(0);
+
+  const searchValueExist = React.useMemo(() => Boolean(searchValue), [
+    searchValue,
+  ]);
+
+  const filteredAssets = React.useMemo(() => {
+    if (!searchValue) return allAssets;
+
+    const loweredSearchValue = searchValue.toLowerCase();
+    return allAssets.filter(
+      (a) =>
+        a.symbol.toLowerCase().includes(loweredSearchValue) ||
+        a.name.toLowerCase().includes(loweredSearchValue)
+    );
+  }, [allAssets, searchValue]);
+
+  const activeAssetKey = React.useMemo(() => {
+    return searchFocused && searchValueExist && filteredAssets[activeIndex]
+      ? getAssetKey(filteredAssets[activeIndex])
+      : null;
+  }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
+
+  React.useEffect(() => {
+    if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
+      setActiveIndex(0);
+    }
+  }, [activeIndex, filteredAssets.length]);
+
+  const handleSearchFieldFocus = React.useCallback(() => {
+    setSearchFocused(true);
+  }, [setSearchFocused]);
+
+  const handleSearchFieldBlur = React.useCallback(() => {
+    setSearchFocused(false);
+  }, [setSearchFocused]);
+
+  React.useEffect(() => {
+    if (!activeAssetKey) return;
+
+    const handleKeyup = (evt: KeyboardEvent) => {
+      console.info(evt.key);
+      switch (evt.key) {
+        case "Enter":
+          navigate(toExploreAssetLink(activeAssetKey));
+          break;
+
+        case "ArrowDown":
+          setActiveIndex((i) => i + 1);
+          break;
+
+        case "ArrowUp":
+          setActiveIndex((i) => (i > 0 ? i - 1 : 0));
+          break;
+      }
+    };
+
+    window.addEventListener("keyup", handleKeyup);
+    return () => {
+      window.removeEventListener("keyup", handleKeyup);
+    };
+  }, [activeAssetKey, setActiveIndex]);
+
   return (
     <div className={classNames("w-full max-w-sm mx-auto")}>
       <div className="mt-1 mb-3 w-full flex items-strech">
-        <SearchField />
+        <SearchField
+          value={searchValue}
+          onValueChange={setSearchValue}
+          onFocus={handleSearchFieldFocus}
+          onBlur={handleSearchFieldBlur}
+          // autoFocus={searchValueExist}
+        />
 
         <button
           className={classNames(
@@ -75,9 +146,10 @@ const Assets: React.FC = () => {
           "text-gray-700 text-sm leading-tight"
         )}
       >
-        {allAssets.map((asset, i, arr) => {
+        {filteredAssets.map((asset, i, arr) => {
           const last = i === arr.length - 1;
           const key = getAssetKey(asset);
+          const active = activeAssetKey ? key === activeAssetKey : false;
 
           return (
             <ListItem
@@ -85,6 +157,7 @@ const Assets: React.FC = () => {
               asset={asset}
               slug={key}
               last={last}
+              active={active}
               accountPkh={account.publicKeyHash}
             />
           );
@@ -100,11 +173,12 @@ type ListItemProps = {
   asset: ThanosAsset;
   slug: string;
   last: boolean;
+  active: boolean;
   accountPkh: string;
 };
 
 const ListItem = React.memo<ListItemProps>(
-  ({ asset, slug, last, accountPkh }) => {
+  ({ asset, slug, last, active, accountPkh }) => {
     const balanceSWRKey = useBalanceSWRKey(asset, accountPkh);
     const balanceAlreadyLoaded = React.useMemo(() => cache.has(balanceSWRKey), [
       balanceSWRKey,
@@ -135,13 +209,13 @@ const ListItem = React.memo<ListItemProps>(
 
     return (
       <Link
-        to={`/explore/${slug}`}
+        to={toExploreAssetLink(slug)}
         className={classNames(
           "relative",
           "block w-full",
           "overflow-hidden",
           !last && "border-b border-gray-200",
-          "hover:bg-gray-100 focus:bg-gray-100",
+          active ? "bg-gray-100" : "hover:bg-gray-100 focus:bg-gray-100",
           "flex items-center py-2 px-3",
           "text-gray-700",
           "transition ease-in-out duration-200",
@@ -202,19 +276,26 @@ const ListItem = React.memo<ListItemProps>(
   }
 );
 
-const SearchField: React.FC = () => {
-  const [value, setValue] = React.useState("");
+type SearchFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  value: string;
+  onValueChange: (v: string) => void;
+};
 
+const SearchField: React.FC<SearchFieldProps> = ({
+  value,
+  onValueChange,
+  ...rest
+}) => {
   const handleChange = React.useCallback(
     (evt) => {
-      setValue(evt.target.value);
+      onValueChange(evt.target.value);
     },
-    [setValue]
+    [onValueChange]
   );
 
   const handleClean = React.useCallback(() => {
-    setValue("");
-  }, [setValue]);
+    onValueChange("");
+  }, [onValueChange]);
 
   return (
     <div className={classNames("w-full flex flex-col")}>
@@ -238,6 +319,7 @@ const SearchField: React.FC = () => {
           spellCheck={false}
           autoComplete="off"
           onChange={handleChange}
+          {...rest}
         />
 
         <div
@@ -257,3 +339,7 @@ const SearchField: React.FC = () => {
     </div>
   );
 };
+
+function toExploreAssetLink(key: string) {
+  return `/explore/${key}`;
+}
