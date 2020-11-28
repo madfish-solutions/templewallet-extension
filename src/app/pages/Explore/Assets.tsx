@@ -138,31 +138,61 @@ const Assets: React.FC = () => {
         </Link>
       </div>
 
-      <div
-        className={classNames(
-          "w-full",
-          "border rounded-md",
-          "flex flex-col",
-          "text-gray-700 text-sm leading-tight"
-        )}
-      >
-        {filteredAssets.map((asset, i, arr) => {
-          const last = i === arr.length - 1;
-          const key = getAssetKey(asset);
-          const active = activeAssetKey ? key === activeAssetKey : false;
+      {filteredAssets.length > 0 ? (
+        <div
+          className={classNames(
+            "w-full",
+            "border rounded-md",
+            "flex flex-col",
+            "text-gray-700 text-sm leading-tight"
+          )}
+        >
+          {filteredAssets.map((asset, i, arr) => {
+            const last = i === arr.length - 1;
+            const key = getAssetKey(asset);
+            const active = activeAssetKey ? key === activeAssetKey : false;
 
-          return (
-            <ListItem
-              key={key}
-              asset={asset}
-              slug={key}
-              last={last}
-              active={active}
-              accountPkh={account.publicKeyHash}
-            />
-          );
-        })}
-      </div>
+            return (
+              <ListItem
+                key={key}
+                asset={asset}
+                slug={key}
+                last={last}
+                active={active}
+                accountPkh={account.publicKeyHash}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <div
+          className={classNames(
+            "my-8",
+            "flex flex-col items-center justify-center",
+            "text-gray-500"
+          )}
+        >
+          <p
+            className={classNames(
+              "mb-2",
+              "flex items-center justify-center",
+              "text-base font-light"
+            )}
+          >
+            {searchValueExist && (
+              <SearchIcon className="w-5 h-auto mr-1 stroke-current" />
+            )}
+
+            <span className="">No assets found</span>
+          </p>
+
+          <p className={classNames("text-center text-xs font-light")}>
+            If you don't see your asset,
+            <br />
+            try to click <b>Edit</b> or <b>Add</b>.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
