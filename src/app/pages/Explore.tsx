@@ -112,7 +112,7 @@ const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
                 "py-2 px-4 rounded",
                 "border-2",
                 "border-blue-500 hover:border-blue-600 focus:border-blue-600",
-                "bg-blue-500 hover:bg-blue-600",
+                "bg-blue-500 hover:bg-blue-600 focus:bg-blue-600",
                 "shadow-sm hover:shadow focus:shadow",
                 "flex items-center justify-center",
                 "text-white",
