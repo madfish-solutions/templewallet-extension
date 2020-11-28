@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link, Redirect, useLocation } from "lib/woozie";
 import {
+  getAssetKey,
   ThanosAccountType,
   ThanosAsset,
   useAccount,
@@ -105,7 +106,7 @@ const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
 
           <div className="w-1/2 p-2">
             <Link
-              to="/send"
+              to={asset ? `/send/${getAssetKey(asset)}` : "/send"}
               className={classNames(
                 "w-full",
                 "py-2 px-4 rounded",

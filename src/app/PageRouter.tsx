@@ -69,7 +69,10 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   ["/connect-ledger", onlyReady(() => <ConnectLedger />)],
   ["/receive", onlyReady(() => <Receive />)],
-  ["/send", onlyReady(() => <Send />)],
+  [
+    "/send/:assetSlug?",
+    onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />),
+  ],
   ["/delegate", onlyReady(() => <Delegate />)],
   ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
   [
