@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@babel/core": "7.11.6",
-    "@brainhubeu/react-carousel": "1.19.26",
     "@dicebear/avatars": "4.2.5",
     "@dicebear/avatars-bottts-sprites": "4.2.5",
     "@dicebear/avatars-jdenticon-sprites": "4.2.5",
@@ -29,7 +28,6 @@
     "@thanos-wallet/dapp": "1.0.1",
     "@thanos-wallet/ledger-bridge": "0.6.0",
     "@thanos-wallet/tokens": "0.3.0",
-    "@types/brainhubeu__react-carousel": "1.15.0",
     "@types/debounce-promise": "3.1.3",
     "@types/elliptic": "6.4.12",
     "@types/fontfaceobserver": "0.0.6",
