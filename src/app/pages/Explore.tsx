@@ -150,7 +150,11 @@ const Delegation: React.FC = () => (
   </SuspenseContainer>
 );
 
-const Activity: React.FC = () => {
+type ActivityProps = {
+  asset?: ThanosAsset;
+};
+
+const Activity: React.FC<ActivityProps> = ({ asset }) => {
   const account = useAccount();
 
   return (
@@ -162,6 +166,7 @@ const Activity: React.FC = () => {
             ? account.owner
             : undefined
         }
+        asset={asset}
       />
     </SuspenseContainer>
   );
@@ -188,14 +193,20 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
-  const tabs = React.useMemo(
+  const tabs = React.useMemo<
+    {
+      slug: string;
+      title: string;
+      Component: React.FC;
+    }[]
+  >(
     () =>
       asset
         ? [
             {
               slug: "activity",
               title: "Activity",
-              Component: Activity,
+              Component: () => <Activity asset={asset} />,
             },
             {
               slug: "about",
