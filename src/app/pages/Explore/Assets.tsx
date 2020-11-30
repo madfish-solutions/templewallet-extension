@@ -18,6 +18,8 @@ import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 
+const ASSET_FIELDS_TO_SEARCH = ["symbol", "name", "address"];
+
 const Assets: React.FC = () => {
   const account = useAccount();
   const { allAssets } = useAssets();
@@ -34,10 +36,10 @@ const Assets: React.FC = () => {
     if (!searchValue) return allAssets;
 
     const loweredSearchValue = searchValue.toLowerCase();
-    return allAssets.filter(
-      (a) =>
-        a.symbol.toLowerCase().includes(loweredSearchValue) ||
-        a.name.toLowerCase().includes(loweredSearchValue)
+    return allAssets.filter((a) =>
+      ASSET_FIELDS_TO_SEARCH.some((field) =>
+        (a as any)[field]?.toLowerCase().includes(loweredSearchValue)
+      )
     );
   }, [allAssets, searchValue]);
 
@@ -117,7 +119,7 @@ const Assets: React.FC = () => {
       {filteredAssets.length > 0 ? (
         <div
           className={classNames(
-            "w-full",
+            "w-full overflow-hidden",
             "border rounded-md",
             "flex flex-col",
             "text-gray-700 text-sm leading-tight"
@@ -165,7 +167,7 @@ const Assets: React.FC = () => {
           <p className={classNames("text-center text-xs font-light")}>
             If you don't see your asset,
             <br />
-            try to click <b>Edit</b> or <b>Add</b>.
+            try to click <b>Manage</b>.
           </p>
         </div>
       )}
