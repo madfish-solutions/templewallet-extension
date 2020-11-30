@@ -225,7 +225,7 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
     const activity = {
       slug: "activity",
       title: "Activity",
-      Component: Activity,
+      Component: () => <Activity asset={asset} />,
     };
 
     if (asset.type === ThanosAssetType.XTZ) {
