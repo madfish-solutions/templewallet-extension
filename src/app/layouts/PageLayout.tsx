@@ -21,7 +21,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
   <>
     <DocBg bgClassName="bg-primary-orange" />
 
-    <div className="pb-20">
+    <div>
       <Header />
 
       <ContentPaper>
