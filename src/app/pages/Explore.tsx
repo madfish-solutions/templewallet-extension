@@ -5,6 +5,7 @@ import {
   getAssetKey,
   ThanosAccountType,
   ThanosAsset,
+  ThanosAssetType,
   useAccount,
   useAssetBySlug,
   XTZ_ASSET,
@@ -14,6 +15,7 @@ import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
+import AssetInfo from "app/templates/AssetInfo";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
@@ -199,40 +201,46 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
       title: string;
       Component: React.FC;
     }[]
-  >(
-    () =>
-      asset
-        ? [
-            {
-              slug: "activity",
-              title: "Activity",
-              Component: () => <Activity asset={asset} />,
-            },
-            {
-              slug: "about",
-              title: "About",
-              Component: () => <h1>{asset.name}</h1>,
-            },
-          ]
-        : [
-            {
-              slug: "assets",
-              title: "Assets",
-              Component: Assets,
-            },
-            {
-              slug: "delegation",
-              title: "Delegation",
-              Component: Delegation,
-            },
-            {
-              slug: "activity",
-              title: "Activity",
-              Component: Activity,
-            },
-          ],
-    [asset]
-  );
+  >(() => {
+    if (!asset) {
+      return [
+        {
+          slug: "assets",
+          title: "Assets",
+          Component: Assets,
+        },
+        {
+          slug: "delegation",
+          title: "Delegation",
+          Component: Delegation,
+        },
+        {
+          slug: "activity",
+          title: "Activity",
+          Component: Activity,
+        },
+      ];
+    }
+
+    const activity = {
+      slug: "activity",
+      title: "Activity",
+      Component: Activity,
+    };
+
+    if (asset.type === ThanosAssetType.XTZ) {
+      return [activity];
+    }
+
+    return [
+      activity,
+      {
+        slug: "about",
+        title: "About",
+        Component: () => <AssetInfo asset={asset} />,
+      },
+    ];
+  }, [asset]);
 
   const { slug, Component } = React.useMemo(() => {
     const tab = tabSlug ? tabs.find((t) => t.slug === tabSlug) : null;
