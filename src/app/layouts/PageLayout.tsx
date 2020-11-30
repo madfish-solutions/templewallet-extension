@@ -17,30 +17,34 @@ type PageLayoutProps = ToolbarProps;
 const PageLayout: React.FC<PageLayoutProps> = ({
   children,
   ...toolbarProps
-}) => (
-  <>
-    <DocBg bgClassName="bg-primary-orange" />
+}) => {
+  const { fullPage } = useAppEnv();
 
-    <div>
-      <Header />
+  return (
+    <>
+      <DocBg bgClassName="bg-primary-orange" />
 
-      <ContentPaper>
-        <Toolbar {...toolbarProps} />
+      <div className={classNames(fullPage && "pb-20")}>
+        <Header />
 
-        <div className="p-4">
-          <ErrorBoundary whileMessage="displaying this page">
-            <React.Suspense fallback={<SpinnerSection />}>
-              {children}
-            </React.Suspense>
-          </ErrorBoundary>
-        </div>
-      </ContentPaper>
-    </div>
+        <ContentPaper>
+          <Toolbar {...toolbarProps} />
 
-    <BackupSeedAlert />
-    <ConfirmationOverlay />
-  </>
-);
+          <div className="p-4">
+            <ErrorBoundary whileMessage="displaying this page">
+              <React.Suspense fallback={<SpinnerSection />}>
+                {children}
+              </React.Suspense>
+            </ErrorBoundary>
+          </div>
+        </ContentPaper>
+      </div>
+
+      <BackupSeedAlert />
+      <ConfirmationOverlay />
+    </>
+  );
+};
 
 export default PageLayout;
 
