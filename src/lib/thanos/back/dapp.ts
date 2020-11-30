@@ -203,6 +203,10 @@ export async function requestSign(
   origin: string,
   req: ThanosDAppSignRequest
 ): Promise<ThanosDAppSignResponse> {
+  if (req?.payload?.startsWith("0x")) {
+    req = { ...req, payload: req.payload.substring(2) };
+  }
+
   if (
     ![isAddressValid(req?.sourcePkh), HEX_PATTERN.test(req?.payload)].every(
       Boolean
