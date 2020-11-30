@@ -2,7 +2,6 @@ import * as React from "react";
 import classNames from "clsx";
 import { cache } from "swr";
 import { Link, navigate } from "lib/woozie";
-import { T } from "lib/i18n/react";
 import {
   useAssets,
   getAssetKey,
@@ -15,7 +14,6 @@ import CleanButton from "app/atoms/CleanButton";
 import AssetIcon from "app/templates/AssetIcon";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
-import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
@@ -83,9 +81,7 @@ const Assets: React.FC = () => {
     };
 
     window.addEventListener("keyup", handleKeyup);
-    return () => {
-      window.removeEventListener("keyup", handleKeyup);
-    };
+    return () => window.removeEventListener("keyup", handleKeyup);
   }, [activeAssetKey, setActiveIndex]);
 
   return (
@@ -96,26 +92,7 @@ const Assets: React.FC = () => {
           onValueChange={setSearchValue}
           onFocus={handleSearchFieldFocus}
           onBlur={handleSearchFieldBlur}
-          // autoFocus={searchValueExist}
         />
-
-        <button
-          className={classNames(
-            "ml-2 flex-shrink-0",
-            "px-3 py-1",
-            "rounded overflow-hidden",
-            "flex items-center",
-            "text-gray-600 text-sm",
-            "transition ease-in-out duration-200",
-            "hover:bg-gray-100",
-            "opacity-75 hover:opacity-100 focus:opacity-100"
-          )}
-        >
-          <EditIcon
-            className={classNames("mr-1 h-4 w-auto stroke-current stroke-2")}
-          />
-          <T id="edit" />
-        </button>
 
         <Link
           to="/add-token"
@@ -133,7 +110,7 @@ const Assets: React.FC = () => {
           <AddToListIcon
             className={classNames("mr-1 h-5 w-auto stroke-current stroke-2")}
           />
-          Add
+          Manage
         </Link>
       </div>
 

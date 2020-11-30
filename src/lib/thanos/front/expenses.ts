@@ -21,7 +21,6 @@ export function tryParseExpenses(
   accountAddress: string
 ) {
   const r = tryParseExpensesPure(operations, accountAddress);
-  console.info(r);
   return r;
 }
 
