@@ -5,20 +5,19 @@ import { Link, navigate } from "lib/woozie";
 import {
   useAssets,
   getAssetKey,
+  searchAssets,
   useAccount,
   useBalanceSWRKey,
   ThanosAsset,
 } from "lib/thanos/front";
 import Money from "app/atoms/Money";
-import CleanButton from "app/atoms/CleanButton";
 import AssetIcon from "app/templates/AssetIcon";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
+import SearchAssetField from "app/templates/SearchAssetField";
 import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
-
-const ASSET_FIELDS_TO_SEARCH = ["symbol", "name", "address"];
 
 const Assets: React.FC = () => {
   const account = useAccount();
@@ -32,16 +31,10 @@ const Assets: React.FC = () => {
     searchValue,
   ]);
 
-  const filteredAssets = React.useMemo(() => {
-    if (!searchValue) return allAssets;
-
-    const loweredSearchValue = searchValue.toLowerCase();
-    return allAssets.filter((a) =>
-      ASSET_FIELDS_TO_SEARCH.some((field) =>
-        (a as any)[field]?.toLowerCase().includes(loweredSearchValue)
-      )
-    );
-  }, [allAssets, searchValue]);
+  const filteredAssets = React.useMemo(
+    () => searchAssets(allAssets, searchValue),
+    [allAssets, searchValue]
+  );
 
   const activeAssetKey = React.useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex]
@@ -89,7 +82,7 @@ const Assets: React.FC = () => {
   return (
     <div className={classNames("w-full max-w-sm mx-auto")}>
       <div className="mt-1 mb-3 w-full flex items-strech">
-        <SearchField
+        <SearchAssetField
           value={searchValue}
           onValueChange={setSearchValue}
           onFocus={handleSearchFieldFocus}
@@ -280,70 +273,6 @@ const ListItem = React.memo<ListItemProps>(
     );
   }
 );
-
-type SearchFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  value: string;
-  onValueChange: (v: string) => void;
-};
-
-const SearchField: React.FC<SearchFieldProps> = ({
-  value,
-  onValueChange,
-  ...rest
-}) => {
-  const handleChange = React.useCallback(
-    (evt) => {
-      onValueChange(evt.target.value);
-    },
-    [onValueChange]
-  );
-
-  const handleClean = React.useCallback(() => {
-    onValueChange("");
-  }, [onValueChange]);
-
-  return (
-    <div className={classNames("w-full flex flex-col")}>
-      <div className={classNames("relative", "flex items-stretch")}>
-        <input
-          type="text"
-          placeholder="Search assets..."
-          className={classNames(
-            "appearance-none",
-            "w-full",
-            "py-2 pl-8 pr-4",
-            "bg-gray-100 focus:bg-transparent",
-            "border border-transparent",
-            "focus:outline-none focus:border-gray-300",
-            "transition ease-in-out duration-200",
-            "rounded-md",
-            "text-gray-700 text-sm leading-tight",
-            "placeholder-alphagray"
-          )}
-          value={value}
-          spellCheck={false}
-          autoComplete="off"
-          onChange={handleChange}
-          {...rest}
-        />
-
-        <div
-          className={classNames(
-            "absolute left-0 top-0 bottom-0",
-            "px-2 flex items-center",
-            "text-gray-500"
-          )}
-        >
-          <SearchIcon className="h-5 w-auto stroke-current" />
-        </div>
-
-        {Boolean(value) && (
-          <CleanButton bottomOffset="0.45rem" onClick={handleClean} />
-        )}
-      </div>
-    </div>
-  );
-};
 
 function toExploreAssetLink(key: string) {
   return `/explore/${key}`;
