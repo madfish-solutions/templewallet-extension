@@ -60,7 +60,7 @@ export function useTokens() {
   const removeToken = React.useCallback(
     (token: ThanosToken) => {
       setTokens((tkns) => tkns.filter((t) => !assetsAreSame(t, token)));
-      setHiddenTokens((tkns) => [...tkns, token]);
+      setHiddenTokens((tkns) => [token, ...tkns]);
     },
     [setTokens, setHiddenTokens]
   );

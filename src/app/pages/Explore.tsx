@@ -255,7 +255,6 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
         fullPage && "rounded-t-md",
         className
       )}
-      style={{ minHeight: "20rem" }}
     >
       <div
         className={classNames(
