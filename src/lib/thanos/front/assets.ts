@@ -4,6 +4,7 @@ import {
   useTokens,
   useAllAssetsRef,
   getAssetKey,
+  ThanosAsset,
 } from "lib/thanos/front";
 
 export function useAssets() {
@@ -30,4 +31,20 @@ export function useAssetBySlug(slug?: string | null) {
     [allAssets, slug]
   );
   return React.useMemo(() => asset, [asset]);
+}
+
+export const ASSET_FIELDS_TO_SEARCH = ["symbol", "name", "address"];
+
+export function searchAssets<T extends ThanosAsset>(
+  assets: T[],
+  searchValue: string
+) {
+  if (!searchValue) return assets;
+
+  const loweredSearchValue = searchValue.toLowerCase();
+  return assets.filter((a) =>
+    ASSET_FIELDS_TO_SEARCH.some((field) =>
+      (a as any)[field]?.toLowerCase().includes(loweredSearchValue)
+    )
+  );
 }
