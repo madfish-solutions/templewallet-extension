@@ -302,6 +302,38 @@ export function tryParseParameters(asset: ThanosAsset, parameters: any) {
   }
 }
 
+export function mergeAssets<T extends ThanosAsset>(base: T[], ...rest: T[][]) {
+  const uniques = new Set<string>();
+  return base.concat(...rest).filter((a) => {
+    const key = getAssetKey(a);
+    if (uniques.has(key)) return false;
+    uniques.add(key);
+    return true;
+  });
+}
+
+export function omitAssets<T extends ThanosAsset>(base: T[], toRemove: T[]) {
+  const toRemoveSet = new Set(toRemove.map(getAssetKey));
+  return base.filter((a) => !toRemoveSet.has(getAssetKey(a)));
+}
+
+export function assetsAreSame(aAsset: ThanosAsset, bAsset: ThanosAsset) {
+  return getAssetKey(aAsset) === getAssetKey(bAsset);
+}
+
+export function getAssetKey(asset: ThanosAsset) {
+  switch (asset.type) {
+    case ThanosAssetType.XTZ:
+      return "xtz";
+
+    case ThanosAssetType.FA2:
+      return `${asset.address}_${asset.id}`;
+
+    default:
+      return `${asset.address}_0`;
+  }
+}
+
 export function toPenny(asset: ThanosAsset) {
   return new BigNumber(1).div(10 ** asset.decimals).toNumber();
 }

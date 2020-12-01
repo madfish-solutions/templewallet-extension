@@ -12,6 +12,7 @@ import Explore from "app/pages/Explore";
 import Receive from "app/pages/Receive";
 import Send from "app/pages/Send";
 import Delegate from "app/pages/Delegate";
+import ManageAssets from "app/pages/ManageAssets";
 import AddToken from "app/pages/AddToken";
 import Settings from "app/pages/Settings";
 import ConnectLedger from "app/pages/ConnectLedger";
@@ -74,6 +75,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />),
   ],
   ["/delegate", onlyReady(() => <Delegate />)],
+  ["/manage-assets", onlyReady(() => <ManageAssets />)],
   ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
   [
     "/settings/:tabSlug?",

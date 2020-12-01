@@ -7,6 +7,9 @@ import {
   ThanosAssetType,
   fetchFromStorage,
   assetsAreSame,
+  mergeAssets,
+  omitAssets,
+  MAINNET_TOKENS,
 } from "lib/thanos/front";
 import { t } from "lib/i18n/react";
 
@@ -25,6 +28,16 @@ export function useTokens() {
   const hiddenTokens = React.useMemo(() => hiddenTokensPure.map(formatSaved), [
     hiddenTokensPure,
   ]);
+
+  const allTokens = React.useMemo(
+    () => mergeAssets(network.type === "main" ? MAINNET_TOKENS : [], tokens),
+    [network.type, tokens]
+  );
+
+  const displayedTokens = React.useMemo(
+    () => omitAssets(allTokens, hiddenTokens),
+    [allTokens, hiddenTokens]
+  );
 
   const addToken = React.useCallback(
     (token: ThanosToken) => {
@@ -55,6 +68,8 @@ export function useTokens() {
   return {
     tokens,
     hiddenTokens,
+    allTokens,
+    displayedTokens,
     setTokens,
     addToken,
     removeToken,

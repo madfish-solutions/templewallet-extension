@@ -97,7 +97,7 @@ const Assets: React.FC = () => {
         />
 
         <Link
-          to="/add-token"
+          to="/manage-assets"
           className={classNames(
             "ml-2 flex-shrink-0",
             "px-3 py-1",
