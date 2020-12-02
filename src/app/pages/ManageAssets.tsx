@@ -85,7 +85,7 @@ const ManageAssetsContent: React.FC = () => {
   );
 
   return (
-    <div className={classNames("w-full max-w-sm mx-auto")}>
+    <div className="w-full max-w-sm mx-auto mb-6">
       <div className="mt-1 mb-3 w-full flex items-strech">
         <SearchAssetField value={searchValue} onValueChange={setSearchValue} />
 
