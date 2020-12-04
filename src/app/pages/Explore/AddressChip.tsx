@@ -2,9 +2,10 @@ import * as React from "react";
 import classNames from "clsx";
 import useSWR from "swr";
 import {
-  // usePassiveStorage,
   useTezos,
   useTezosDomainsClient,
+  fetchFromStorage,
+  putToStorage,
 } from "lib/thanos/front";
 import HashChip from "app/templates/HashChip";
 import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
@@ -30,15 +31,25 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
 
-  // const [domainDisplayed, setDomainDisplayed] = usePassiveStorage(
-  //   "domain-displayed",
-  //   true
-  // );
-  const [domainDisplayed, setDomainDisplayed] = React.useState(true);
+  const [domainDisplayed, setDomainDisplayed] = React.useState(false);
+  const domainDisplayedKey = React.useMemo(() => "domain-displayed", []);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const val = await fetchFromStorage(domainDisplayedKey);
+        setDomainDisplayed(val ?? true);
+      } catch {}
+    })();
+  }, [domainDisplayedKey, setDomainDisplayed]);
 
   const handleToggleDomainClick = React.useCallback(() => {
-    setDomainDisplayed((d) => !d);
-  }, [setDomainDisplayed]);
+    setDomainDisplayed((d) => {
+      const newValue = !d;
+      putToStorage(domainDisplayedKey, newValue);
+      return newValue;
+    });
+  }, [setDomainDisplayed, domainDisplayedKey]);
 
   const Icon = domainDisplayed ? HashIcon : LanguageIcon;
 

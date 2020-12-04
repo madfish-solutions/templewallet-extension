@@ -206,17 +206,17 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
       return [
         {
           slug: "assets",
-          title: "Assets",
+          title: t("assets"),
           Component: Assets,
         },
         {
           slug: "delegation",
-          title: "Delegation",
+          title: t("delegation"),
           Component: Delegation,
         },
         {
           slug: "activity",
-          title: "Activity",
+          title: t("activity"),
           Component: Activity,
         },
       ];
@@ -224,7 +224,7 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
 
     const activity = {
       slug: "activity",
-      title: "Activity",
+      title: t("activity"),
       Component: () => <Activity asset={asset} />,
     };
 
@@ -236,7 +236,7 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
       activity,
       {
         slug: "about",
-        title: "About",
+        title: t("about"),
         Component: () => <AssetInfo asset={asset} />,
       },
     ];

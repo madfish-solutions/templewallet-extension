@@ -1,5 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
+import { t } from "lib/i18n/react";
 import CleanButton from "app/atoms/CleanButton";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 
@@ -29,7 +30,7 @@ const SearchAssetField: React.FC<SearchAssetFieldProps> = ({
       <div className={classNames("relative", "flex items-stretch")}>
         <input
           type="text"
-          placeholder="Search assets..."
+          placeholder={t("searchAssets")}
           className={classNames(
             "appearance-none",
             "w-full",

@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
+import { T } from "lib/i18n/react";
 import {
   useTokens,
   getAssetKey,
@@ -23,7 +24,7 @@ const ManageAssets: React.FC = () => (
     pageTitle={
       <>
         <ControlCentreIcon className="w-auto h-4 mr-1 stroke-current" />
-        Manage Assets
+        <T id="manageAssets" />
       </>
     }
   >
@@ -105,7 +106,7 @@ const ManageAssetsContent: React.FC = () => {
           <AddIcon
             className={classNames("mr-1 h-5 w-auto stroke-current stroke-2")}
           />
-          Add Token
+          <T id="addToken" />
         </Link>
       </div>
 
@@ -167,13 +168,20 @@ const ManageAssetsContent: React.FC = () => {
               <SearchIcon className="w-5 h-auto mr-1 stroke-current" />
             )}
 
-            <span className="">No assets found</span>
+            <span>
+              <T id="noAssetsFound" />
+            </span>
           </p>
 
           <p className={classNames("text-center text-xs font-light")}>
-            If you don't see your asset,
-            <br />
-            try to click <b>Add Token</b>.
+            <T
+              id="ifYouDontSeeYourAsset"
+              substitutions={[
+                <b>
+                  <T id="addToken" />
+                </b>,
+              ]}
+            />
           </p>
         </div>
       )}

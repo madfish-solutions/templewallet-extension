@@ -19,8 +19,10 @@ const AssetInfo: React.FC<AssetInfoProps> = ({ asset }) => {
         textarea
         rows={2}
         id="contract-address"
-        label="Contract"
-        labelDescription={`Address of a ${asset.symbol} token contract.`}
+        label={<T id="contract" />}
+        labelDescription={
+          <T id="addressOfTokenContract" substitutions={[asset.symbol]} />
+        }
         value={asset.address}
         size={36}
         style={{
@@ -29,7 +31,7 @@ const AssetInfo: React.FC<AssetInfoProps> = ({ asset }) => {
       />
 
       {asset.type === ThanosAssetType.FA2 && (
-        <InfoField id="token-id" label="Token ID" value={asset.id} />
+        <InfoField id="token-id" label={<T id="tokenId" />} value={asset.id} />
       )}
     </div>
   );
