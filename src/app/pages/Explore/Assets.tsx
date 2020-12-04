@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { cache } from "swr";
 import { Link, navigate } from "lib/woozie";
+import { T } from "lib/i18n/react";
 import {
   useAssets,
   getAssetKey,
@@ -105,7 +106,7 @@ const Assets: React.FC = () => {
           <AddToListIcon
             className={classNames("mr-1 h-5 w-auto stroke-current stroke-2")}
           />
-          Manage
+          <T id="manage" />
         </Link>
       </div>
 
@@ -154,13 +155,20 @@ const Assets: React.FC = () => {
               <SearchIcon className="w-5 h-auto mr-1 stroke-current" />
             )}
 
-            <span className="">No assets found</span>
+            <span>
+              <T id="noAssetsFound" />
+            </span>
           </p>
 
           <p className={classNames("text-center text-xs font-light")}>
-            If you don't see your asset,
-            <br />
-            try to click <b>Manage</b>.
+            <T
+              id="ifYouDontSeeYourAsset"
+              substitutions={[
+                <b>
+                  <T id="manage" />
+                </b>,
+              ]}
+            />
           </p>
         </div>
       )}

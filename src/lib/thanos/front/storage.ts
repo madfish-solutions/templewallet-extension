@@ -18,9 +18,7 @@ export function useStorage<T = any>(
 
   const setValue = React.useCallback(
     (val: React.SetStateAction<T>) => {
-      browser.storage.local.set({
-        [key]: typeof val === "function" ? (val as any)(value) : val,
-      });
+      putToStorage(key, typeof val === "function" ? (val as any)(value) : val);
     },
     [key, value]
   );
@@ -44,7 +42,7 @@ export function usePassiveStorage<T = any>(
 
   React.useEffect(() => {
     if (prevValue.current !== value) {
-      browser.storage.local.set({ [key]: value });
+      putToStorage(key, value);
     }
     prevValue.current = value;
   }, [key, value]);
@@ -66,4 +64,8 @@ export async function fetchFromStorage(key: string) {
   } else {
     return null;
   }
+}
+
+export async function putToStorage<T = any>(key: string, value: T) {
+  return browser.storage.local.set({ [key]: value });
 }
