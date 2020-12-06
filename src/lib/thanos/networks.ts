@@ -25,6 +25,16 @@ export const NETWORKS: ThanosNetwork[] = [
     disabled: false,
   },
   {
+    id: "edonet",
+    name: "Edo Testnet",
+    description: "Edo testnet",
+    lambdaContract: "KT1QtbEVQ3tHPhL2GPTgWJPvhCER4gavWUun",
+    type: "test",
+    rpcBaseURL: "https://edonet-tezos.giganode.io",
+    color: "#FBBF24",
+    disabled: false,
+  },
+  {
     id: "carthagenet",
     name: getMessage("carthageTestnet"),
     nameI18nKey: "carthageTestnet",

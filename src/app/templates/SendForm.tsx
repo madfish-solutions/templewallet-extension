@@ -14,7 +14,6 @@ import {
   useTezos,
   useAssetBySlug,
   useBalance,
-  useDelegate,
   useTezosDomainsClient,
   fetchBalance,
   toTransferParams,
@@ -24,12 +23,10 @@ import {
   toPenny,
   hasManager,
   ThanosAssetType,
-  ThanosChainId,
   isKTAddress,
   isDomainNameValid,
   ThanosAccountType,
   loadContract,
-  useChainId,
   getAssetKey,
 } from "lib/thanos/front";
 import { transferImplicit, transferToContract } from "lib/michelson";
@@ -130,18 +127,6 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   );
   const xtzBalance = xtzBalanceData!;
   const xtzBalanceNum = xtzBalance.toNumber();
-
-  const { data: myBakerPkh } = useDelegate(accountPkh);
-
-  const lazyChainId = useChainId();
-  const deplhiNetwork = React.useMemo(
-    () =>
-      lazyChainId === ThanosChainId.Delphinet ||
-      lazyChainId === ThanosChainId.Mainnet,
-    [lazyChainId]
-  );
-
-  const storageUsedRef = React.useRef(false);
 
   /**
    * Form
@@ -300,10 +285,6 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       //   usingBaseFeeMutez: estmtnMax.usingBaseFeeMutez,
       // });
 
-      if (estmtnMax.storageLimit > 0) {
-        storageUsedRef.current = true;
-      }
-
       let baseFee = mutezToTz(estmtnMax.totalCost);
       if (!hasManager(manager)) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
@@ -398,22 +379,12 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
               ? new BigNumber(balanceNum)
               : new BigNumber(balanceNum)
                   .minus(baseFee)
-                  .minus(safeFeeValue ?? 0);
-          if (myBakerPkh || (deplhiNetwork && storageUsedRef.current)) {
-            ma = ma.minus(PENNY);
-          }
+                  .minus(safeFeeValue ?? 0)
+                  .minus(PENNY);
           return BigNumber.max(ma, 0);
         })()
       : new BigNumber(balanceNum);
-  }, [
-    acc.type,
-    localAsset.type,
-    balanceNum,
-    baseFee,
-    safeFeeValue,
-    myBakerPkh,
-    deplhiNetwork,
-  ]);
+  }, [acc.type, localAsset.type, balanceNum, baseFee, safeFeeValue]);
 
   const maxAmountNum = React.useMemo(
     () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
