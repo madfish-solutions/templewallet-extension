@@ -14,8 +14,9 @@ import {
 
 export const TZSTATS_CHAINS = new Map([
   [ThanosChainId.Mainnet, TZStatsNetwork.Mainnet],
-  [ThanosChainId.Carthagenet, TZStatsNetwork.Carthagenet],
   [ThanosChainId.Delphinet, TZStatsNetwork.Delphinet],
+  [ThanosChainId.Edonet, TZStatsNetwork.Edonet],
+  [ThanosChainId.Carthagenet, TZStatsNetwork.Carthagenet],
 ]);
 
 export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;

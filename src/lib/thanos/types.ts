@@ -29,8 +29,9 @@ export interface ThanosState {
 
 export enum ThanosChainId {
   Mainnet = "NetXdQprcVkpaWU",
-  Carthagenet = "NetXjD3HPJJjmcd",
   Delphinet = "NetXm8tYqnMWky1",
+  Edonet = "NetXSp4gfdanies",
+  Carthagenet = "NetXjD3HPJJjmcd",
 }
 
 export function isKnownChainId(chainId: string): chainId is ThanosChainId {

@@ -2,6 +2,7 @@ export enum TZStatsNetwork {
   Mainnet = "https://api.tzstats.com",
   Carthagenet = "https://api.carthagenet.tzstats.com",
   Delphinet = "https://api.delphi.tzstats.com",
+  Edonet = "https://api.edo.tzstats.com",
 }
 
 export interface ErrorData {
