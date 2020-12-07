@@ -27,6 +27,7 @@ import {
 } from "lib/thanos/back/store";
 import { Vault } from "lib/thanos/back/vault";
 import {
+  getCurrentPermission,
   requestPermission,
   requestOperation,
   requestSign,
@@ -401,6 +402,9 @@ export async function processDApp(
   req: ThanosDAppRequest
 ): Promise<ThanosDAppResponse | void> {
   switch (req?.type) {
+    case ThanosDAppMessageType.GetCurrentPermissionRequest:
+      return withInited(() => getCurrentPermission(origin));
+
     case ThanosDAppMessageType.PermissionRequest:
       return withInited(() => requestPermission(origin, req));
 

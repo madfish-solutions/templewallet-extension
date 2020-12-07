@@ -5,6 +5,7 @@ import { localForger } from "@taquito/local-forging";
 import {
   ThanosDAppMessageType,
   ThanosDAppErrorType,
+  ThanosDAppGetCurrentPermissionResponse,
   ThanosDAppPermissionRequest,
   ThanosDAppPermissionResponse,
   ThanosDAppOperationRequest,
@@ -34,6 +35,22 @@ const CONFIRM_WINDOW_HEIGHT = 600;
 const AUTODECLINE_AFTER = 120_000;
 const STORAGE_KEY = "dapp_sessions";
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
+
+export async function getCurrentPermission(
+  origin: string
+): Promise<ThanosDAppGetCurrentPermissionResponse> {
+  const dApp = await getDApp(origin);
+  const permission = dApp
+    ? {
+        pkh: dApp.pkh,
+        rpc: getNetworkRPC(dApp.network),
+      }
+    : null;
+  return {
+    type: ThanosDAppMessageType.GetCurrentPermissionResponse,
+    permission,
+  };
+}
 
 export async function requestPermission(
   origin: string,
