@@ -11,7 +11,7 @@ import { getMessage } from "lib/i18n";
 
 export const XTZ_ASSET: ThanosAsset = {
   type: ThanosAssetType.XTZ,
-  name: "XTZ",
+  name: "Tezos",
   symbol: "XTZ",
   decimals: 6,
   fungible: true,
@@ -22,7 +22,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
   {
     type: ThanosAssetType.FA1_2,
     address: "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-    name: "USD Tez",
+    name: "USD Tezos",
     symbol: "USDtz",
     decimals: 6,
     fungible: true,
@@ -43,7 +43,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
   {
     type: ThanosAssetType.TzBTC,
     address: "KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn",
-    name: "tzBTC",
+    name: "Tezos BTC",
     symbol: "tzBTC",
     decimals: 8,
     fungible: true,
@@ -299,6 +299,38 @@ export function tryParseParameters(asset: ThanosAsset, parameters: any) {
 
     default:
       return null;
+  }
+}
+
+export function mergeAssets<T extends ThanosAsset>(base: T[], ...rest: T[][]) {
+  const uniques = new Set<string>();
+  return base.concat(...rest).filter((a) => {
+    const key = getAssetKey(a);
+    if (uniques.has(key)) return false;
+    uniques.add(key);
+    return true;
+  });
+}
+
+export function omitAssets<T extends ThanosAsset>(base: T[], toRemove: T[]) {
+  const toRemoveSet = new Set(toRemove.map(getAssetKey));
+  return base.filter((a) => !toRemoveSet.has(getAssetKey(a)));
+}
+
+export function assetsAreSame(aAsset: ThanosAsset, bAsset: ThanosAsset) {
+  return getAssetKey(aAsset) === getAssetKey(bAsset);
+}
+
+export function getAssetKey(asset: ThanosAsset) {
+  switch (asset.type) {
+    case ThanosAssetType.XTZ:
+      return "xtz";
+
+    case ThanosAssetType.FA2:
+      return `${asset.address}_${asset.id}`;
+
+    default:
+      return `${asset.address}_0`;
   }
 }
 

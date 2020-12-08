@@ -1,9 +1,8 @@
 import * as React from "react";
 import classNames from "clsx";
 import { T } from "lib/i18n/react";
-import useTippy from "lib/ui/useTippy";
+import CleanButton from "app/atoms/CleanButton";
 import { ReactComponent as LockAltIcon } from "app/icons/lock-alt.svg";
-import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = React.InputHTMLAttributes<HTMLInputElement> &
@@ -282,44 +281,3 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
 );
 
 export default FormField;
-
-type CleanButtonProps = React.HTMLAttributes<HTMLButtonElement>;
-
-const CleanButton: React.FC<CleanButtonProps> = ({
-  className,
-  style = {},
-  ...rest
-}) => {
-  const tippyProps = React.useMemo(
-    () => ({
-      trigger: "mouseenter",
-      hideOnClick: false,
-      content: "Clean",
-      animation: "shift-away-subtle",
-    }),
-    []
-  );
-
-  const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
-
-  return (
-    <button
-      ref={buttonRef}
-      type="button"
-      className={classNames(
-        "absolute",
-        "border rounded-full shadow-sm hover:shadow",
-        "bg-white",
-        "p-px",
-        "flex items-center",
-        "text-xs text-gray-700",
-        "transition ease-in-out duration-200",
-        className
-      )}
-      style={{ right: "0.4rem", bottom: "0.4rem", ...style }}
-      {...rest}
-    >
-      <CloseIcon className="w-auto h-4 stroke-current" />
-    </button>
-  );
-};

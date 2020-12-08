@@ -1361,6 +1361,40 @@
   "add": {
     "message": "Add"
   },
+  "assets": {
+    "message": "Assets"
+  },
+  "activity": {
+    "message": "Activity"
+  },
+  "manage": {
+    "message": "Manage"
+  },
+  "manageAssets": {
+    "message": "Manage Assets"
+  },
+  "noAssetsFound": {
+    "message": "No assets found"
+  },
+  "ifYouDontSeeYourAsset": {
+    "message": "If you don't see your asset,\ntry to click $toClick$.",
+    "placeholders": {
+      "toClick": {
+        "content": "$1"
+      }
+    }
+  },
+  "addressOfTokenContract": {
+    "message": "Address of a $assetSymbol$ token contract.",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "searchAssets": {
+    "message": "Search assets..."
+  },
   "deployNew": {
     "message": "Deploy new"
   },
@@ -1561,5 +1595,8 @@
   },
   "bytes": {
     "message": "Bytes"
+  },
+  "clean": {
+    "message": "Clean"
   }
 }

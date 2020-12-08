@@ -4,7 +4,11 @@ import PageLayout from "app/layouts/PageLayout";
 import SendForm from "app/templates/SendForm";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
 
-const Send: React.FC = () => (
+type SendProps = {
+  assetSlug?: string | null;
+};
+
+const Send: React.FC<SendProps> = ({ assetSlug }) => (
   <PageLayout
     pageTitle={
       <>
@@ -14,7 +18,7 @@ const Send: React.FC = () => (
   >
     <div className="py-4">
       <div className="w-full max-w-sm mx-auto">
-        <SendForm />
+        <SendForm assetSlug={assetSlug} />
       </div>
     </div>
   </PageLayout>

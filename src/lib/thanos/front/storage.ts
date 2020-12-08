@@ -6,7 +6,7 @@ export function useStorage<T = any>(
   key: string,
   fallback?: T
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
-  const { data, revalidate } = useRetryableSWR<T>(key, fetchOne, {
+  const { data, revalidate } = useRetryableSWR<T>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -18,9 +18,7 @@ export function useStorage<T = any>(
 
   const setValue = React.useCallback(
     (val: React.SetStateAction<T>) => {
-      browser.storage.local.set({
-        [key]: typeof val === "function" ? (val as any)(value) : val,
-      });
+      putToStorage(key, typeof val === "function" ? (val as any)(value) : val);
     },
     [key, value]
   );
@@ -32,7 +30,7 @@ export function usePassiveStorage<T = any>(
   key: string,
   fallback?: T
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
-  const { data } = useRetryableSWR<T>(key, fetchOne, {
+  const { data } = useRetryableSWR<T>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -44,7 +42,7 @@ export function usePassiveStorage<T = any>(
 
   React.useEffect(() => {
     if (prevValue.current !== value) {
-      browser.storage.local.set({ [key]: value });
+      putToStorage(key, value);
     }
     prevValue.current = value;
   }, [key, value]);
@@ -59,11 +57,15 @@ export function useOnStorageChanged(handleStorageChanged: () => void) {
   }, [handleStorageChanged]);
 }
 
-async function fetchOne(key: string) {
+export async function fetchFromStorage(key: string) {
   const items = await browser.storage.local.get([key]);
   if (key in items) {
     return items[key];
   } else {
     return null;
   }
+}
+
+export async function putToStorage<T = any>(key: string, value: T) {
+  return browser.storage.local.set({ [key]: value });
 }

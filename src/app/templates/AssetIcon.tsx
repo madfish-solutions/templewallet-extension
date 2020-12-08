@@ -2,6 +2,7 @@ import React from "react";
 import { ThanosAsset } from "lib/thanos/types";
 import { getAssetIconUrl } from "app/defaults";
 import Identicon from "app/atoms/Identicon";
+// import { getAssetKey } from "lib/thanos/front";
 
 export type AssetIconProps = {
   asset: ThanosAsset;
@@ -20,7 +21,11 @@ const AssetIcon = React.memo((props: AssetIconProps) => {
         src={assetIconUrl}
         alt={asset.name}
         className={className}
-        style={style}
+        style={{
+          width: size,
+          height: size,
+          ...style,
+        }}
       />
     );
   }
