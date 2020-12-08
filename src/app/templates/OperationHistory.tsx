@@ -8,6 +8,7 @@ import { loadChainId } from "lib/thanos/helpers";
 import { T, TProps } from "lib/i18n/react";
 import {
   ThanosAssetType,
+  ThanosAsset,
   XTZ_ASSET,
   useThanosClient,
   useNetwork,
@@ -57,11 +58,15 @@ interface OperationPreview {
 interface OperationHistoryProps {
   accountPkh: string;
   accountOwner?: string;
+  asset?: ThanosAsset;
+  className?: string;
 }
 
 const OperationHistory: React.FC<OperationHistoryProps> = ({
   accountPkh,
   accountOwner,
+  asset,
+  className,
 }) => {
   const { getAllPndOps, removePndOps } = useThanosClient();
   const network = useNetwork();
@@ -304,14 +309,30 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     [chainId]
   );
 
+  const finalOps = React.useMemo(() => {
+    if (!asset) {
+      return uniqueOps;
+    }
+
+    if (asset.type === ThanosAssetType.XTZ) {
+      return uniqueOps.filter((op) => op.volume > 0);
+    }
+
+    return uniqueOps.filter((op) => op.tokenAddress === asset.address);
+  }, [uniqueOps, asset]);
+
   return (
     <div
-      className={classNames("mt-8", "w-full max-w-md mx-auto", "flex flex-col")}
+      className={classNames(
+        "w-full max-w-md mx-auto",
+        "flex flex-col",
+        className
+      )}
     >
-      {uniqueOps.length === 0 && (
+      {finalOps.length === 0 && (
         <div
           className={classNames(
-            "mb-12",
+            "mt-4 mb-12",
             "flex flex-col items-center justify-center",
             "text-gray-500"
           )}
@@ -327,7 +348,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         </div>
       )}
 
-      {uniqueOps.map((op) => (
+      {finalOps.map((op) => (
         <Operation
           key={opKey(op)}
           accountPkh={accountPkh}
@@ -614,11 +635,11 @@ const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
     if (!transfer || !tokenAddress) {
       return undefined;
     }
-    return allAssets.find((asset) => {
+    return allAssets.find((a) => {
       return (
-        asset.type !== ThanosAssetType.XTZ &&
-        asset.address === tokenAddress &&
-        (asset.type !== ThanosAssetType.FA2 || asset.id === transfer.tokenId)
+        a.type !== ThanosAssetType.XTZ &&
+        a.address === tokenAddress &&
+        (a.type !== ThanosAssetType.FA2 || a.id === transfer.tokenId)
       );
     });
   }, [allAssets, transfer, tokenAddress]);

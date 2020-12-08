@@ -14,15 +14,16 @@ import classNames from "clsx";
 import { Controller, FormContextValues, useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
+  ThanosToken,
   ThanosAssetType,
   useTokens,
-  useSetAssetData,
   useTezos,
   validateContractAddress,
   useNetwork,
   assertTokenType,
   NotMatchingStandardError,
   loadContractForCallLambdaView,
+  getAssetKey,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
@@ -79,7 +80,6 @@ type FormData = {
 
 const Form: React.FC = () => {
   const { addToken } = useTokens();
-  const setAssetData = useSetAssetData();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
 
@@ -283,21 +283,25 @@ const Form: React.FC = () => {
           iconUrl: iconUrl || undefined,
           fungible: true,
         };
-        if (tokenType === ThanosAssetType.FA1_2) {
-          addToken({
-            type: ThanosAssetType.FA1_2,
-            ...tokenCommonProps,
-          });
-        } else {
-          addToken({
-            type: ThanosAssetType.FA2,
-            id: Number(id!),
-            ...tokenCommonProps,
-          });
-        }
 
-        setAssetData({ address, tokenId: id });
-        setTimeout(() => navigate("/"), 50);
+        const newToken: ThanosToken =
+          tokenType === ThanosAssetType.FA1_2
+            ? {
+                type: ThanosAssetType.FA1_2,
+                ...tokenCommonProps,
+              }
+            : {
+                type: ThanosAssetType.FA2,
+                id: Number(id!),
+                ...tokenCommonProps,
+              };
+
+        addToken(newToken);
+        const assetKey = getAssetKey(newToken);
+
+        // Wait a little bit while the tokens updated
+        await new Promise((r) => setTimeout(r, 300));
+        navigate(`/explore/${assetKey}`);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -308,7 +312,7 @@ const Form: React.FC = () => {
         setSubmitError(err.message);
       }
     },
-    [formState.isSubmitting, addToken, setAssetData]
+    [formState.isSubmitting, addToken]
   );
 
   const isFA12Token = tokenType === ThanosAssetType.FA1_2;
@@ -323,14 +327,6 @@ const Form: React.FC = () => {
           <span className="text-base font-semibold text-gray-700">
             <T id="tokenType" />
           </span>
-
-          {/* <span
-            className={classNames("mt-1", "text-xs font-light text-gray-600")}
-            style={{ maxWidth: "90%" }}
-          >
-            By default derivation isn't used. Click on 'Custom derivation path'
-            to add it.
-          </span> */}
         </h2>
 
         <Controller name="type" as={TokenTypeSelect} control={control} />

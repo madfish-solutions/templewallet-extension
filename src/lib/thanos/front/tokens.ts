@@ -1,17 +1,26 @@
 import * as React from "react";
-import { useNetwork, useStorage, ThanosToken } from "lib/thanos/front";
-import { ThanosAssetType } from "../types";
+import { cache, mutate } from "swr";
+import {
+  useNetwork,
+  useStorage,
+  ThanosToken,
+  ThanosAssetType,
+  fetchFromStorage,
+  assetsAreSame,
+  mergeAssets,
+  omitAssets,
+  MAINNET_TOKENS,
+} from "lib/thanos/front";
 import { t } from "lib/i18n/react";
-import { assetsAreSame } from "./assets";
 
 export function useTokens() {
   const network = useNetwork();
   const [tokensPure, setTokens] = useStorage<ThanosToken[]>(
-    `tokens_${network.id}`,
+    getTokensSWRKey(network.id),
     []
   );
   const [hiddenTokensPure, setHiddenTokens] = useStorage<ThanosToken[]>(
-    `hidden_tokens_${network.id}`,
+    getHiddenTokensSWRKey(network.id),
     []
   );
 
@@ -19,6 +28,16 @@ export function useTokens() {
   const hiddenTokens = React.useMemo(() => hiddenTokensPure.map(formatSaved), [
     hiddenTokensPure,
   ]);
+
+  const allTokens = React.useMemo(
+    () => mergeAssets(network.type === "main" ? MAINNET_TOKENS : [], tokens),
+    [network.type, tokens]
+  );
+
+  const displayedTokens = React.useMemo(
+    () => omitAssets(allTokens, hiddenTokens),
+    [allTokens, hiddenTokens]
+  );
 
   const addToken = React.useCallback(
     (token: ThanosToken) => {
@@ -41,7 +60,7 @@ export function useTokens() {
   const removeToken = React.useCallback(
     (token: ThanosToken) => {
       setTokens((tkns) => tkns.filter((t) => !assetsAreSame(t, token)));
-      setHiddenTokens((tkns) => [...tkns, token]);
+      setHiddenTokens((tkns) => [token, ...tkns]);
     },
     [setTokens, setHiddenTokens]
   );
@@ -49,10 +68,33 @@ export function useTokens() {
   return {
     tokens,
     hiddenTokens,
+    allTokens,
+    displayedTokens,
     setTokens,
     addToken,
     removeToken,
   };
+}
+
+export async function preloadTokens(netId: string) {
+  const tokensKey = getTokensSWRKey(netId);
+  const hiddenTokensKey = getHiddenTokensSWRKey(netId);
+  if (!cache.has(tokensKey) || !cache.has(hiddenTokensKey)) {
+    await Promise.all([
+      mutate(getTokensSWRKey(netId), () => fetchFromStorage(tokensKey)),
+      mutate(getHiddenTokensSWRKey(netId), () =>
+        fetchFromStorage(hiddenTokensKey)
+      ),
+    ]);
+  }
+}
+
+export function getTokensSWRKey(netId: string) {
+  return `tokens_${netId}`;
+}
+
+export function getHiddenTokensSWRKey(netId: string) {
+  return `hidden_tokens_${netId}`;
 }
 
 function formatSaved(t: ThanosToken) {

@@ -1,436 +1,287 @@
 import * as React from "react";
 import classNames from "clsx";
-import Carousel from "@brainhubeu/react-carousel";
-import { Link } from "lib/woozie";
-import {
-  ThanosAsset,
-  ThanosToken,
-  ThanosFA2Asset,
-  useAssets,
-  useTokens,
-  useCurrentAsset,
-  ThanosAssetType,
-  assetsAreSame,
-} from "lib/thanos/front";
-import Popper from "lib/ui/Popper";
+import { cache } from "swr";
+import { Link, navigate } from "lib/woozie";
 import { T } from "lib/i18n/react";
-import useCopyToClipboard from "lib/ui/useCopyToClipboard";
-import Balance from "app/templates/Balance";
-import InUSD from "app/templates/InUSD";
-import Name from "app/atoms/Name";
+import {
+  useAssets,
+  getAssetKey,
+  searchAssets,
+  useAccount,
+  useBalanceSWRKey,
+  ThanosAsset,
+} from "lib/thanos/front";
 import Money from "app/atoms/Money";
 import AssetIcon from "app/templates/AssetIcon";
-import { ReactComponent as EllypsisIcon } from "app/icons/ellypsis.svg";
-import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
-import { ReactComponent as AddIcon } from "app/icons/add.svg";
-import { ReactComponent as RemoveIcon } from "app/icons/remove.svg";
-import DropdownWrapper from "app/atoms/DropdownWrapper";
-import styles from "./Assets.module.css";
+import Balance from "app/templates/Balance";
+import InUSD from "app/templates/InUSD";
+import SearchAssetField from "app/templates/SearchAssetField";
+import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
+import { ReactComponent as SearchIcon } from "app/icons/search.svg";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 
-type AssetsProps = {
-  accountPkh: string;
-  className?: string;
-};
+const Assets: React.FC = () => {
+  const account = useAccount();
+  const { allAssets } = useAssets();
 
-const Assets: React.FC<AssetsProps> = ({ accountPkh, className }) => {
-  const { currentAsset } = useCurrentAsset();
+  const [searchValue, setSearchValue] = React.useState("");
+  const [searchFocused, setSearchFocused] = React.useState(false);
+  const [activeIndex, setActiveIndex] = React.useState(0);
+
+  const searchValueExist = React.useMemo(() => Boolean(searchValue), [
+    searchValue,
+  ]);
+
+  const filteredAssets = React.useMemo(
+    () => searchAssets(allAssets, searchValue),
+    [allAssets, searchValue]
+  );
+
+  const activeAssetKey = React.useMemo(() => {
+    return searchFocused && searchValueExist && filteredAssets[activeIndex]
+      ? getAssetKey(filteredAssets[activeIndex])
+      : null;
+  }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
+
+  React.useEffect(() => {
+    if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
+      setActiveIndex(0);
+    }
+  }, [activeIndex, filteredAssets.length]);
+
+  const handleSearchFieldFocus = React.useCallback(() => {
+    setSearchFocused(true);
+  }, [setSearchFocused]);
+
+  const handleSearchFieldBlur = React.useCallback(() => {
+    setSearchFocused(false);
+  }, [setSearchFocused]);
+
+  React.useEffect(() => {
+    if (!activeAssetKey) return;
+
+    const handleKeyup = (evt: KeyboardEvent) => {
+      switch (evt.key) {
+        case "Enter":
+          navigate(toExploreAssetLink(activeAssetKey));
+          break;
+
+        case "ArrowDown":
+          setActiveIndex((i) => i + 1);
+          break;
+
+        case "ArrowUp":
+          setActiveIndex((i) => (i > 0 ? i - 1 : 0));
+          break;
+      }
+    };
+
+    window.addEventListener("keyup", handleKeyup);
+    return () => window.removeEventListener("keyup", handleKeyup);
+  }, [activeAssetKey, setActiveIndex]);
 
   return (
-    <div
-      className={classNames(
-        "w-full flex flex-col items-center",
-        styles["root"],
-        className
-      )}
-    >
-      <div className={classNames("flex flex-col items-stretch")}>
-        <div
-          className={classNames("mb-2", "flex items-center")}
-          style={{ minWidth: "9rem" }}
+    <div className={classNames("w-full max-w-sm mx-auto")}>
+      <div className="mt-1 mb-3 w-full flex items-strech">
+        <SearchAssetField
+          value={searchValue}
+          onValueChange={setSearchValue}
+          onFocus={handleSearchFieldFocus}
+          onBlur={handleSearchFieldBlur}
+        />
+
+        <Link
+          to="/manage-assets"
+          className={classNames(
+            "ml-2 flex-shrink-0",
+            "px-3 py-1",
+            "rounded overflow-hidden",
+            "flex items-center",
+            "text-gray-600 text-sm",
+            "transition ease-in-out duration-200",
+            "hover:bg-gray-100",
+            "opacity-75 hover:opacity-100 focus:opacity-100"
+          )}
         >
-          <div className="flex-1" />
-
-          <ControlButton asset={currentAsset} />
-        </div>
-
-        <AssetCarousel />
+          <AddToListIcon
+            className={classNames("mr-1 h-5 w-auto stroke-current stroke-2")}
+          />
+          <T id="manage" />
+        </Link>
       </div>
 
-      <Balance address={accountPkh} asset={currentAsset}>
-        {(balance) => (
-          <div className="flex flex-col items-center">
-            <div className="text-2xl font-light text-gray-800">
-              <Money>{balance}</Money>{" "}
-              <span className="text-lg opacity-90">{currentAsset.symbol}</span>
-            </div>
+      {filteredAssets.length > 0 ? (
+        <div
+          className={classNames(
+            "w-full overflow-hidden",
+            "border rounded-md",
+            "flex flex-col",
+            "text-gray-700 text-sm leading-tight"
+          )}
+        >
+          {filteredAssets.map((asset, i, arr) => {
+            const last = i === arr.length - 1;
+            const key = getAssetKey(asset);
+            const active = activeAssetKey ? key === activeAssetKey : false;
 
-            <InUSD volume={balance} asset={currentAsset}>
-              {(usdBalance) => (
-                <div className="text-lg font-light text-gray-600">
-                  <span className="mr-px">$</span>
-                  {usdBalance} <span className="text-sm opacity-75">USD</span>
-                </div>
-              )}
-            </InUSD>
-          </div>
-        )}
-      </Balance>
+            return (
+              <ListItem
+                key={key}
+                asset={asset}
+                slug={key}
+                last={last}
+                active={active}
+                accountPkh={account.publicKeyHash}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <div
+          className={classNames(
+            "my-8",
+            "flex flex-col items-center justify-center",
+            "text-gray-500"
+          )}
+        >
+          <p
+            className={classNames(
+              "mb-2",
+              "flex items-center justify-center",
+              "text-gray-600 text-base font-light"
+            )}
+          >
+            {searchValueExist && (
+              <SearchIcon className="w-5 h-auto mr-1 stroke-current" />
+            )}
+
+            <span>
+              <T id="noAssetsFound" />
+            </span>
+          </p>
+
+          <p className={classNames("text-center text-xs font-light")}>
+            <T
+              id="ifYouDontSeeYourAsset"
+              substitutions={[
+                <b>
+                  <T id="manage" />
+                </b>,
+              ]}
+            />
+          </p>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Assets;
 
-const AssetCarousel = React.memo(() => {
-  const { allAssets, defaultAsset } = useAssets();
-  const { currentAsset, setAssetData } = useCurrentAsset();
-
-  /**
-   * Helpers
-   */
-
-  const toAssetIndex = React.useCallback(
-    (asset: ThanosAsset) => {
-      const i = allAssets.findIndex((a) => assetsAreSame(a, asset));
-      return i === -1 ? 0 : i;
-    },
-    [allAssets]
-  );
-
-  const toRealAssetIndex = React.useCallback(
-    (i: number) => {
-      const index = i % allAssets.length;
-      return index >= 0 ? index : allAssets.length + index;
-    },
-    [allAssets.length]
-  );
-
-  const toAsset = React.useCallback(
-    (i: number) => allAssets[toRealAssetIndex(i)] ?? defaultAsset,
-    [toRealAssetIndex, allAssets, defaultAsset]
-  );
-
-  /**
-   * Flow
-   */
-
-  const currentAssetIndex = React.useMemo(() => toAssetIndex(currentAsset), [
-    toAssetIndex,
-    currentAsset,
-  ]);
-
-  const [localAssetIndex, setLocalAssetIndexPure] = React.useState(
-    currentAssetIndex
-  );
-  const localAssetIndexRef = React.useRef(localAssetIndex);
-  const setLocalAssetIndex = React.useCallback(
-    (i: number) => {
-      localAssetIndexRef.current = i;
-      setLocalAssetIndexPure(i);
-    },
-    [setLocalAssetIndexPure]
-  );
-
-  React.useEffect(() => {
-    if (currentAssetIndex !== toRealAssetIndex(localAssetIndexRef.current)) {
-      const t = setTimeout(() => setLocalAssetIndex(currentAssetIndex), 0);
-      return () => clearTimeout(t);
-    }
-    return;
-  }, [toRealAssetIndex, currentAssetIndex, setLocalAssetIndex]);
-
-  const handleCarouselChange = React.useCallback(
-    (i: number) => {
-      setLocalAssetIndex(i);
-      const newAsset = toAsset(i);
-      if (newAsset.type === ThanosAssetType.XTZ) {
-        setAssetData({});
-      } else if (newAsset.type === ThanosAssetType.FA2) {
-        setAssetData({ address: newAsset.address, tokenId: newAsset.id });
-      } else {
-        setAssetData({ address: newAsset.address });
-      }
-    },
-    [setLocalAssetIndex, setAssetData, toAsset]
-  );
-
-  const slides = React.useMemo(
-    () =>
-      allAssets.map((asset, i) => (
-        <div className="flex flex-col items-center justify-around p-2">
-          <AssetIcon
-            asset={asset}
-            className={classNames(i === 0 ? "w-16 h-16" : "w-12 h-12")}
-            style={{ minHeight: i === 0 ? "4rem" : "3rem" }}
-            size={i === 0 ? 64 : 48}
-          />
-
-          {i !== 0 && (
-            <Name
-              className={classNames(
-                "mt-1 w-16",
-                "text-center",
-                "text-xs text-gray-600 font-medium leading-tight"
-              )}
-            >
-              {asset.name}
-            </Name>
-          )}
-        </div>
-      )),
-    [allAssets]
-  );
-
-  return React.useMemo(
-    () =>
-      slides.length > 1 ? (
-        <div className={classNames("w-64 mb-2", styles["carousel-container"])}>
-          <Carousel
-            value={localAssetIndex}
-            slides={slides}
-            onChange={handleCarouselChange}
-            slidesPerPage={2}
-            centered
-            arrows
-            infinite
-            clickToChange
-            draggable={false}
-          />
-        </div>
-      ) : (
-        <div className="px-2 mb-2 -mr-px" style={{ paddingTop: 2 }}>
-          {slides[0]}
-        </div>
-      ),
-    [slides, localAssetIndex, handleCarouselChange]
-  );
-});
-
-type ControlButton = React.HTMLAttributes<HTMLButtonElement> & {
+type ListItemProps = {
   asset: ThanosAsset;
+  slug: string;
+  last: boolean;
+  active: boolean;
+  accountPkh: string;
 };
 
-const ControlButton = React.memo<ControlButton>(
-  ({ asset, className, ...rest }) => {
-    const { removeToken } = useTokens();
+const ListItem = React.memo<ListItemProps>(
+  ({ asset, slug, last, active, accountPkh }) => {
+    const balanceSWRKey = useBalanceSWRKey(asset, accountPkh);
+    const balanceAlreadyLoaded = React.useMemo(() => cache.has(balanceSWRKey), [
+      balanceSWRKey,
+    ]);
+
+    const toDisplayRef = React.useRef<HTMLDivElement>(null);
+    const [displayed, setDisplayed] = React.useState(balanceAlreadyLoaded);
+
+    React.useEffect(() => {
+      const el = toDisplayRef.current;
+      if (!displayed && "IntersectionObserver" in window && el) {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              setDisplayed(true);
+            }
+          },
+          { rootMargin: "0px" }
+        );
+
+        observer.observe(el);
+        return () => {
+          observer.unobserve(el);
+        };
+      }
+      return;
+    }, [displayed, setDisplayed]);
 
     return (
-      <Popper
-        placement="bottom-end"
-        strategy="fixed"
-        popup={({ opened, setOpened }) => (
-          <>
-            <DropdownWrapper
-              opened={opened}
-              className="origin-top-right"
-              style={{
-                backgroundColor: "white",
-                borderColor: "#edf2f7",
-              }}
-            >
-              <div className="flex flex-col items-start">
-                <Link
-                  to="/add-token"
-                  className={classNames(
-                    "block w-full",
-                    "mb-1 px-2 py-1",
-                    "text-sm font-medium text-gray-600",
-                    "rounded",
-                    "transition easy-in-out duration-200",
-                    "hover:bg-gray-100",
-                    "flex items-center"
-                  )}
-                >
-                  <AddIcon
-                    className={classNames(
-                      "mr-2 flex-shrink-0",
-                      "h-4 w-auto stroke-current stroke-2",
-                      "opacity-75"
-                    )}
-                  />
-                  <T id="addNewToken" />
-                </Link>
-
-                {asset.type !== ThanosAssetType.XTZ && (
-                  <CopyTokenAddress asset={asset} />
-                )}
-
-                {asset.type === ThanosAssetType.FA2 && (
-                  <CopyTokenId asset={asset} />
-                )}
-
-                <button
-                  className={classNames(
-                    "block items-centerw-full",
-                    "mb-1 px-2 py-1",
-                    "text-left",
-                    "text-sm font-medium text-gray-600",
-                    "rounded",
-                    "transition easy-in-out duration-200",
-                    "flex items-center",
-                    !asset.default && "hover:bg-gray-100",
-                    asset.default ? "cursor-default" : "cursor-pointer",
-                    asset.default && "opacity-50"
-                  )}
-                  disabled={asset.default}
-                  onClick={() => {
-                    if (asset.default) return;
-
-                    removeToken(asset as ThanosToken);
-                    setOpened(false);
-                  }}
-                >
-                  <RemoveIcon
-                    className={classNames(
-                      "mr-2 flex-shrink-0",
-                      "h-4 w-auto stroke-current stroke-2",
-                      "opacity-75"
-                    )}
-                  />
-                  <T id="hideSomeToken" substitutions={asset.name} />
-                </button>
-              </div>
-            </DropdownWrapper>
-
-            <div className={styles["control-arrow"]} data-popper-arrow />
-          </>
+      <Link
+        to={toExploreAssetLink(slug)}
+        className={classNames(
+          "relative",
+          "block w-full",
+          "overflow-hidden",
+          !last && "border-b border-gray-200",
+          active ? "bg-gray-100" : "hover:bg-gray-100 focus:bg-gray-100",
+          "flex items-center py-2 px-3",
+          "text-gray-700",
+          "transition ease-in-out duration-200",
+          "focus:outline-none"
         )}
       >
-        {({ ref, toggleOpened }) => (
-          <button
-            ref={ref}
-            className={classNames(
-              "p-1",
-              "rounded-full shadow-xs",
-              "bg-gray-100",
-              "flex items-center",
-              "text-gray-500 text-sm",
-              "transition ease-in-out duration-200",
-              "hover:bg-black hover:bg-opacity-5",
-              "opacity-75 hover:opacity-100 focus:opacity-100",
-              className
-            )}
-            {...rest}
-            onClick={toggleOpened}
-          >
-            <EllypsisIcon
-              className={classNames(
-                "flex-shrink-0",
-                "h-5 w-auto stroke-current stroke-2"
+        <AssetIcon asset={asset} size={32} className="mr-3" />
+
+        <div ref={toDisplayRef} className="flex items-center">
+          <div className="flex flex-col">
+            <Balance address={accountPkh} asset={asset} displayed={displayed}>
+              {(balance) => (
+                <div className="flex items-center">
+                  <span className="text-base font-normal text-gray-700">
+                    <Money>{balance}</Money>{" "}
+                    <span className="opacity-90" style={{ fontSize: "0.75em" }}>
+                      {asset.symbol}
+                    </span>
+                  </span>
+
+                  <InUSD asset={asset} volume={balance}>
+                    {(usdBalance) => (
+                      <div
+                        className={classNames(
+                          "ml-2",
+                          "text-sm font-light text-gray-600"
+                        )}
+                      >
+                        ${usdBalance}
+                      </div>
+                    )}
+                  </InUSD>
+                </div>
               )}
-            />
-          </button>
-        )}
-      </Popper>
+            </Balance>
+
+            <div className={classNames("text-xs font-light text-gray-600")}>
+              {asset.name}
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={classNames(
+            "absolute right-0 top-0 bottom-0",
+            "flex items-center",
+            "pr-2",
+            "text-gray-500"
+          )}
+        >
+          <ChevronRightIcon className="h-5 w-auto stroke-current" />
+        </div>
+      </Link>
     );
   }
 );
 
-type CopyTokenAddressProps = {
-  asset: ThanosToken;
-};
-
-const CopyTokenAddress: React.FC<CopyTokenAddressProps> = ({ asset }) => {
-  const { fieldRef, copy, copied } = useCopyToClipboard();
-
-  return (
-    <>
-      <button
-        className={classNames(
-          "block w-full",
-          "mb-1 px-2 py-1",
-          "text-sm font-medium text-gray-600",
-          "rounded",
-          "transition easy-in-out duration-200",
-          "hover:bg-gray-100",
-          "flex items-center"
-        )}
-        onClick={copy}
-      >
-        <CopyIcon
-          className={classNames(
-            "mr-2 flex-shrink-0",
-            "h-4 w-auto stroke-current stroke-2",
-            "opacity-75"
-          )}
-        />
-
-        <div className="relative">
-          <T id="copySomeTokenAddress" substitutions={asset.symbol}>
-            {(message) => (
-              <span className={classNames(copied && "text-transparent")}>
-                {message}
-              </span>
-            )}
-          </T>
-          {copied && (
-            <T id="copiedTokenAddress">
-              {(message) => (
-                <div className="absolute inset-0 text-left">{message}</div>
-              )}
-            </T>
-          )}
-        </div>
-      </button>
-
-      <input
-        ref={fieldRef}
-        value={asset.address}
-        readOnly
-        className="sr-only"
-      />
-    </>
-  );
-};
-
-type CopyTokenIdProps = {
-  asset: ThanosFA2Asset;
-};
-
-const CopyTokenId: React.FC<CopyTokenIdProps> = ({ asset }) => {
-  const { fieldRef, copy, copied } = useCopyToClipboard();
-
-  return (
-    <>
-      <button
-        className={classNames(
-          "block w-full",
-          "mb-1 px-2 py-1",
-          "text-sm font-medium text-gray-600",
-          "rounded",
-          "transition easy-in-out duration-200",
-          "hover:bg-gray-100",
-          "flex items-center"
-        )}
-        onClick={copy}
-      >
-        <CopyIcon
-          className={classNames(
-            "mr-2 flex-shrink-0",
-            "h-4 w-auto stroke-current stroke-2",
-            "opacity-75"
-          )}
-        />
-
-        <div className="relative">
-          <T id="copySomeTokenId" substitutions={asset.symbol}>
-            {(message) => (
-              <span className={classNames(copied && "text-transparent")}>
-                {message}
-              </span>
-            )}
-          </T>
-          {copied && (
-            <T id="copiedTokenId">
-              {(message) => (
-                <div className="absolute inset-0 text-left">{message}</div>
-              )}
-            </T>
-          )}
-        </div>
-      </button>
-
-      <input ref={fieldRef} value={asset.id} readOnly className="sr-only" />
-    </>
-  );
-};
+function toExploreAssetLink(key: string) {
+  return `/explore/${key}`;
+}

@@ -6,6 +6,7 @@ import {
   useAccount,
   ThanosAssetType,
   ThanosAccountType,
+  getAssetKey,
   XTZ_ASSET,
 } from "lib/thanos/front";
 import { T } from "lib/i18n/react";
@@ -22,8 +23,6 @@ type AssetSelectProps = {
   onChange?: (a: ThanosAsset) => void;
   className?: string;
 };
-
-const getAssetKey = (asset: ThanosAsset) => asset.symbol;
 
 const AssetSelect: React.FC<AssetSelectProps> = ({
   value,
@@ -82,9 +81,7 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
 
 export default AssetSelect;
 
-type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<
-  ThanosAsset
->;
+type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<ThanosAsset>;
 
 const AssetIcon: React.FC<AssetSelectOptionRenderProps> = ({ option }) => (
   <GenericAssetIcon asset={option} className="h-8 w-auto mr-3" size={32} />
@@ -126,13 +123,11 @@ const AssetSelectedContent: React.FC<AssetSelectOptionRenderProps> = ({
             <span style={{ fontSize: "0.75em" }}>{asset.symbol}</span>
           </span>
 
-          {asset.type === ThanosAssetType.XTZ && (
-            <InUSD volume={balance}>
-              {(usdBalance) => (
-                <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>
-              )}
-            </InUSD>
-          )}
+          <InUSD asset={asset} volume={balance}>
+            {(usdBalance) => (
+              <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>
+            )}
+          </InUSD>
         </div>
       )}
     </Balance>

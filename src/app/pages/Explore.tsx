@@ -1,54 +1,79 @@
 import * as React from "react";
 import classNames from "clsx";
-import { Link } from "lib/woozie";
-import { ThanosAccountType, useAccount } from "lib/thanos/front";
+import { Link, Redirect, useLocation } from "lib/woozie";
+import {
+  getAssetKey,
+  ThanosAccountType,
+  ThanosAsset,
+  ThanosAssetType,
+  useAccount,
+  useAssetBySlug,
+  XTZ_ASSET,
+} from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
+import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
 import OperationHistory from "app/templates/OperationHistory";
+import AssetInfo from "app/templates/AssetInfo";
 import Spinner from "app/atoms/Spinner";
-import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import EditableTitle from "./Explore/EditableTitle";
 import AddressChip from "./Explore/AddressChip";
-import Assets from "./Explore/Assets";
+import MainAssetBanner from "./Explore/MainAssetBanner";
 import BakingSection from "./Explore/BakingSection";
+import Assets from "./Explore/Assets";
 import AddUnknownTokens from "./Explore/AddUnknownTokens";
 
-const Explore: React.FC = () => {
+type ExploreProps = {
+  assetSlug?: string | null;
+};
+
+const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
+  const { fullPage } = useAppEnv();
   const account = useAccount();
+  const asset = useAssetBySlug(assetSlug);
+
+  if (assetSlug && !asset) {
+    return <Redirect to="/" />;
+  }
+
   const accountPkh = account.publicKeyHash;
 
   return (
     <PageLayout
       pageTitle={
-        <T id="explore">
-          {(message) => (
+        <>
+          <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
+          <T id="explore" />
+          {asset && (
             <>
-              <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
-              {message}
+              <ChevronRightIcon className="w-auto h-4 mx-px stroke-current opacity-75" />
+              <span className="font-normal">{asset.symbol}</span>
             </>
           )}
-        </T>
+        </>
       }
     >
-      <EditableTitle />
+      {fullPage && (
+        <>
+          <EditableTitle />
+          <hr className="mb-6" />
+        </>
+      )}
 
-      <hr className="mb-4" />
-
-      <div className="flex flex-col items-center">
+      <div
+        className={classNames(
+          "flex flex-col items-center",
+          fullPage ? "mb-10" : "mb-6"
+        )}
+      >
         <AddressChip pkh={accountPkh} className="mb-6" />
 
-        <div style={{ minHeight: "12rem" }}>
-          <SuspenseContainer
-            whileMessage={t("assetsWhileMessage")}
-            fallback={null}
-          >
-            <Assets accountPkh={accountPkh} />
-          </SuspenseContainer>
-        </div>
+        <MainAssetBanner accountPkh={accountPkh} asset={asset ?? XTZ_ASSET} />
 
         <div
           className="flex items-stretch w-full mx-auto mt-4"
@@ -83,13 +108,13 @@ const Explore: React.FC = () => {
 
           <div className="w-1/2 p-2">
             <Link
-              to="/send"
+              to={asset ? `/send/${getAssetKey(asset)}` : "/send"}
               className={classNames(
                 "w-full",
                 "py-2 px-4 rounded",
                 "border-2",
                 "border-blue-500 hover:border-blue-600 focus:border-blue-600",
-                "bg-blue-500 hover:bg-blue-600",
+                "bg-blue-500 hover:bg-blue-600 focus:bg-blue-600",
                 "shadow-sm hover:shadow focus:shadow",
                 "flex items-center justify-center",
                 "text-white",
@@ -112,35 +137,161 @@ const Explore: React.FC = () => {
         </div>
       </div>
 
-      <T id="baking">
-        {(message) => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}
-      </T>
-
-      <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
-        <BakingSection />
-      </SuspenseContainer>
-
-      <T id="operations">
-        {(message) => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}
-      </T>
+      <SecondarySection asset={asset} />
 
       <AddUnknownTokens />
-
-      <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
-        <OperationHistory
-          accountPkh={accountPkh}
-          accountOwner={
-            account.type === ThanosAccountType.ManagedKT
-              ? account.owner
-              : undefined
-          }
-        />
-      </SuspenseContainer>
     </PageLayout>
   );
 };
 
 export default Explore;
+
+const Delegation: React.FC = () => (
+  <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
+    <BakingSection />
+  </SuspenseContainer>
+);
+
+type ActivityProps = {
+  asset?: ThanosAsset;
+};
+
+const Activity: React.FC<ActivityProps> = ({ asset }) => {
+  const account = useAccount();
+
+  return (
+    <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
+      <OperationHistory
+        accountPkh={account.publicKeyHash}
+        accountOwner={
+          account.type === ThanosAccountType.ManagedKT
+            ? account.owner
+            : undefined
+        }
+        asset={asset}
+      />
+    </SuspenseContainer>
+  );
+};
+
+function useTabSlug() {
+  const { search } = useLocation();
+  const tabSlug = React.useMemo(() => {
+    const usp = new URLSearchParams(search);
+    return usp.get("tab");
+  }, [search]);
+  return React.useMemo(() => tabSlug, [tabSlug]);
+}
+
+type SecondarySectionProps = {
+  asset: ThanosAsset | null;
+  className?: string;
+};
+
+const SecondarySection: React.FC<SecondarySectionProps> = ({
+  asset,
+  className,
+}) => {
+  const { fullPage } = useAppEnv();
+  const tabSlug = useTabSlug();
+
+  const tabs = React.useMemo<
+    {
+      slug: string;
+      title: string;
+      Component: React.FC;
+    }[]
+  >(() => {
+    if (!asset) {
+      return [
+        {
+          slug: "assets",
+          title: t("assets"),
+          Component: Assets,
+        },
+        {
+          slug: "delegation",
+          title: t("delegation"),
+          Component: Delegation,
+        },
+        {
+          slug: "activity",
+          title: t("activity"),
+          Component: Activity,
+        },
+      ];
+    }
+
+    const activity = {
+      slug: "activity",
+      title: t("activity"),
+      Component: () => <Activity asset={asset} />,
+    };
+
+    if (asset.type === ThanosAssetType.XTZ) {
+      return [activity];
+    }
+
+    return [
+      activity,
+      {
+        slug: "about",
+        title: t("about"),
+        Component: () => <AssetInfo asset={asset} />,
+      },
+    ];
+  }, [asset]);
+
+  const { slug, Component } = React.useMemo(() => {
+    const tab = tabSlug ? tabs.find((t) => t.slug === tabSlug) : null;
+    return tab ?? tabs[0];
+  }, [tabSlug, tabs]);
+
+  return (
+    <div
+      className={classNames(
+        "-mx-4",
+        "shadow-top-light",
+        fullPage && "rounded-t-md",
+        className
+      )}
+    >
+      <div
+        className={classNames(
+          "w-full max-w-sm mx-auto",
+          "flex flex-wrap items-center justify-center"
+        )}
+      >
+        {tabs.map((t) => {
+          const active = slug === t.slug;
+
+          return (
+            <Link
+              key={asset ? `asset_${t.slug}` : t.slug}
+              to={(lctn) => ({ ...lctn, search: `?tab=${t.slug}` })}
+              replace
+              className={classNames(
+                "w-1/3",
+                "text-center cursor-pointer mb-1 pb-1 pt-2 px-3",
+                "text-gray-500 text-sm font-medium",
+                "border-t-2",
+                active ? "border-primary-orange" : "border-transparent",
+                active ? "text-primary-orange" : "hover:text-primary-orange",
+                "transition ease-in-out duration-300"
+              )}
+            >
+              {t.title}
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className={classNames("mx-4 mb-4", fullPage ? "mt-8" : "mt-4")}>
+        {Component && <Component />}
+      </div>
+    </div>
+  );
+};
 
 type SuspenseContainerProps = {
   whileMessage: string;

@@ -6,6 +6,7 @@ import {
 } from "lib/thanos/front/ready";
 import { USDPriceProvider } from "lib/thanos/front/usdprice";
 import { NewBlockTriggersProvider } from "lib/thanos/front/chain";
+import { useAssets } from "lib/thanos/front/assets";
 
 export const ThanosProvider: React.FC = ({ children }) => (
   <ThanosClientProvider>
@@ -24,6 +25,8 @@ const ConditionalReadyThanos: React.FC = ({ children }) => {
             <USDPriceProvider>
               <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
             </USDPriceProvider>
+
+            <PreloadAssets />
           </ThanosRefsProvider>
         </ReadyThanosProvider>
       ) : (
@@ -31,4 +34,9 @@ const ConditionalReadyThanos: React.FC = ({ children }) => {
       ),
     [children, ready]
   );
+};
+
+const PreloadAssets: React.FC = () => {
+  useAssets();
+  return null;
 };

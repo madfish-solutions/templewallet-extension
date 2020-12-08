@@ -367,7 +367,7 @@ const DelegateForm: React.FC = () => {
                       <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
                     </span>
 
-                    <InUSD volume={balance}>
+                    <InUSD asset={XTZ_ASSET} volume={balance}>
                       {(usdBalance) => (
                         <div className="mt-1 text-sm text-gray-500">
                           ${usdBalance}

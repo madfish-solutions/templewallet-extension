@@ -5,13 +5,14 @@ import useSWR from "swr";
 import BigNumber from "bignumber.js";
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
+import { navigate, HistoryAction } from "lib/woozie";
 import {
   ThanosAsset,
   XTZ_ASSET,
   useRelevantAccounts,
   useAccount,
   useTezos,
-  useCurrentAsset,
+  useAssetBySlug,
   useBalance,
   useTezosDomainsClient,
   fetchBalance,
@@ -26,6 +27,7 @@ import {
   isDomainNameValid,
   ThanosAccountType,
   loadContract,
+  getAssetKey,
 } from "lib/thanos/front";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
@@ -62,15 +64,18 @@ interface FormData {
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 
-const SendForm: React.FC = () => {
-  const { currentAsset } = useCurrentAsset();
-  const tezos = useTezos();
+type SendFormProps = {
+  assetSlug?: string | null;
+};
 
-  const [localAsset, setLocalAsset] = useSafeState(
-    currentAsset,
-    tezos.checksum
-  );
+const SendForm: React.FC<SendFormProps> = ({ assetSlug }) => {
+  const asset = useAssetBySlug(assetSlug) ?? XTZ_ASSET;
+  const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+
+  const handleAssetChange = React.useCallback((a: ThanosAsset) => {
+    navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
+  }, []);
 
   return (
     <>
@@ -79,13 +84,13 @@ const SendForm: React.FC = () => {
       )}
 
       <AssetSelect
-        value={localAsset}
-        onChange={setLocalAsset}
+        value={asset}
+        onChange={handleAssetChange}
         className="mb-6"
       />
 
       <React.Suspense fallback={<SpinnerSection />}>
-        <Form localAsset={localAsset} setOperation={setOperation} />
+        <Form localAsset={asset} setOperation={setOperation} />
       </React.Suspense>
     </>
   );
