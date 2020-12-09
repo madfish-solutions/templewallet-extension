@@ -342,6 +342,30 @@ export class Vault {
     });
   }
 
+  async importWatchOnlyAccount(accPublicKeyHash: string) {
+    return withError("Failed to import Watch Only account", async () => {
+      const allAccounts = await this.fetchAccounts();
+      const newAccount: ThanosAccount = {
+        type: ThanosAccountType.WatchOnly,
+        name: getNewAccountName(
+          allAccounts.filter(
+            ({ type }) => type === ThanosAccountType.WatchOnly
+          ),
+          "defaultWatchOnlyAccountName"
+        ),
+        publicKeyHash: accPublicKeyHash,
+      };
+      const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+      await encryptAndSaveMany(
+        [[accountsStrgKey, newAllAcounts]],
+        this.passKey
+      );
+
+      return newAllAcounts;
+    });
+  }
+
   async createLedgerAccount(name: string, derivationPath?: string) {
     return withError("Failed to connect Ledger account", async () => {
       if (!derivationPath) derivationPath = getMainDerivationPath(0);
@@ -475,6 +499,9 @@ export class Vault {
           publicKey,
           accPublicKeyHash
         );
+
+      case ThanosAccountType.WatchOnly:
+        throw new PublicError("Cannot sign Watch-only account");
 
       default:
         const privateKey = await fetchAndDecryptOne<string>(

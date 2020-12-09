@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import useSWR from "swr";
 import { validateMnemonic } from "bip39";
 import { Link, navigate } from "lib/woozie";
 import { T, t } from "lib/i18n/react";
@@ -11,6 +12,9 @@ import {
   useTezos,
   ActivationStatus,
   useAllAccounts,
+  isAddressValid,
+  isDomainNameValid,
+  useTezosDomainsClient,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
@@ -18,6 +22,7 @@ import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Alert from "app/atoms/Alert";
+import NoSpaceField from "app/atoms/NoSpaceField";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import ManagedKTForm from "app/templates/ManagedKTForm";
@@ -67,6 +72,11 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
         i18nKey: "managedKTAccount",
         Form: ManagedKTForm,
       },
+      {
+        slug: "watch-only",
+        i18nKey: "watchOnlyAccount",
+        Form: WatchOnlyForm,
+      },
     ],
     []
   );
@@ -87,7 +97,13 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
       }
     >
       <div className="py-4">
-        <div className="flex flex-wrap items-center justify-center mb-4">
+        <div
+          className={classNames(
+            "w-full max-w-md mx-auto",
+            "mb-4",
+            "flex flex-wrap items-center justify-center"
+          )}
+        >
           {allTabs.map((t) => {
             const active = slug === t.slug;
 
@@ -130,9 +146,13 @@ interface ByPrivateKeyFormData {
 const ByPrivateKeyForm: React.FC = () => {
   const { importAccount } = useThanosClient();
 
-  const { register, handleSubmit, errors, formState, watch } = useForm<
-    ByPrivateKeyFormData
-  >();
+  const {
+    register,
+    handleSubmit,
+    errors,
+    formState,
+    watch,
+  } = useForm<ByPrivateKeyFormData>();
   const [error, setError] = React.useState<React.ReactNode>(null);
 
   const onSubmit = React.useCallback(
@@ -242,9 +262,14 @@ interface ByMnemonicFormData {
 const ByMnemonicForm: React.FC = () => {
   const { importMnemonicAccount } = useThanosClient();
 
-  const { register, handleSubmit, errors, formState } = useForm<
-    ByMnemonicFormData
-  >({ defaultValues: { customDerivationPath: "m/44'/1729'/0'/0'" } });
+  const {
+    register,
+    handleSubmit,
+    errors,
+    formState,
+  } = useForm<ByMnemonicFormData>({
+    defaultValues: { customDerivationPath: "m/44'/1729'/0'/0'" },
+  });
   const [error, setError] = React.useState<React.ReactNode>(null);
   const [derivationPath, setDerivationPath] = React.useState(
     DERIVATION_PATHS[0]
@@ -451,9 +476,12 @@ interface ByFundraiserFormData {
 
 const ByFundraiserForm: React.FC = () => {
   const { importFundraiserAccount } = useThanosClient();
-  const { register, errors, handleSubmit, formState } = useForm<
-    ByFundraiserFormData
-  >();
+  const {
+    register,
+    errors,
+    handleSubmit,
+    formState,
+  } = useForm<ByFundraiserFormData>();
   const [error, setError] = React.useState<React.ReactNode>(null);
 
   const onSubmit = React.useCallback<(data: ByFundraiserFormData) => void>(
@@ -789,3 +817,181 @@ const FromFaucetForm: React.FC = () => {
     </form>
   );
 };
+
+interface WatchOnlyFormData {
+  address: string;
+}
+
+const WatchOnlyForm: React.FC = () => {
+  const { importWatchOnlyAccount } = useThanosClient();
+  const tezos = useTezos();
+  const domainsClient = useTezosDomainsClient();
+  const canUseDomainNames = domainsClient.isSupported;
+
+  const {
+    watch,
+    handleSubmit,
+    errors,
+    control,
+    formState,
+    setValue,
+    triggerValidation,
+  } = useForm<WatchOnlyFormData>({ mode: "onChange" });
+  const [error, setError] = React.useState<React.ReactNode>(null);
+
+  const addressFieldRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const addressValue = watch("address");
+
+  const domainAddressFactory = React.useCallback(
+    (_k: string, _checksum: string, addressValue: string) =>
+      domainsClient.resolver.resolveNameToAddress(addressValue),
+    [domainsClient]
+  );
+  const { data: resolvedAddress } = useSWR(
+    ["tzdns-address", tezos.checksum, addressValue],
+    domainAddressFactory,
+    { shouldRetryOnError: false, revalidateOnFocus: false }
+  );
+
+  const finalAddress = React.useMemo(() => resolvedAddress || addressValue, [
+    resolvedAddress,
+    addressValue,
+  ]);
+
+  const cleanToField = React.useCallback(() => {
+    setValue("to", "");
+    triggerValidation("to");
+  }, [setValue, triggerValidation]);
+
+  const validateAddressField = React.useCallback(
+    async (value: any) => {
+      if (!value?.length || value.length < 0) {
+        return false;
+      }
+
+      if (!canUseDomainNames) {
+        return validateAddress(value);
+      }
+
+      if (isDomainNameValid(value, domainsClient)) {
+        const resolved = await domainsClient.resolver.resolveNameToAddress(
+          value
+        );
+        if (!resolved) {
+          return `Domain "${value}" doesn't resolve to an address`;
+        }
+
+        value = resolved;
+      }
+
+      return isAddressValid(value) ? true : "Invalid address or domain name";
+    },
+    [canUseDomainNames, domainsClient]
+  );
+
+  const onSubmit = React.useCallback(async () => {
+    if (formState.isSubmitting) return;
+
+    setError(null);
+    try {
+      if (!isAddressValid(finalAddress)) {
+        throw new Error("Invalid address");
+      }
+
+      await importWatchOnlyAccount(finalAddress);
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(err);
+      }
+
+      // Human delay
+      await new Promise((r) => setTimeout(r, 300));
+      setError(err.message);
+    }
+  }, [importWatchOnlyAccount, finalAddress, formState.isSubmitting, setError]);
+
+  return (
+    <form
+      className="w-full max-w-sm mx-auto my-8"
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      {error && (
+        <Alert
+          type="error"
+          title={t("error")}
+          description={error}
+          autoFocus
+          className="mb-6"
+        />
+      )}
+
+      <Controller
+        name="address"
+        as={<NoSpaceField ref={addressFieldRef} />}
+        control={control}
+        rules={{
+          required: "Required",
+          validate: validateAddressField,
+        }}
+        onChange={([v]) => v}
+        onFocus={() => addressFieldRef.current?.focus()}
+        textarea
+        rows={2}
+        cleanable={Boolean(addressValue)}
+        onClean={cleanToField}
+        id="send-to"
+        label={t("address")}
+        labelDescription={
+          <T
+            id={
+              canUseDomainNames
+                ? "addressInputDescriptionWithDomain"
+                : "addressInputDescription"
+            }
+          />
+        }
+        placeholder={t(
+          canUseDomainNames
+            ? "recipientInputPlaceholderWithDomain"
+            : "recipientInputPlaceholder"
+        )}
+        errorCaption={errors.address?.message}
+        style={{
+          resize: "none",
+        }}
+        containerClassName="mb-4"
+      />
+
+      {resolvedAddress && (
+        <div
+          className={classNames(
+            "mb-4 -mt-3",
+            "text-xs font-light text-gray-600",
+            "flex flex-wrap items-center"
+          )}
+        >
+          <span className="mr-1 whitespace-no-wrap">Resolved address:</span>
+          <span className="font-normal">{resolvedAddress}</span>
+        </div>
+      )}
+
+      <FormSubmitButton loading={formState.isSubmitting}>
+        {t("importAccount")}
+      </FormSubmitButton>
+    </form>
+  );
+};
+
+function validateAddress(value: any) {
+  switch (false) {
+    case value?.length > 0:
+      return true;
+
+    case isAddressValid(value):
+      return "invalidAddress";
+
+    default:
+      return true;
+  }
+}

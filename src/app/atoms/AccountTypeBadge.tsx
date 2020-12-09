@@ -35,6 +35,9 @@ const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
 
             case ThanosAccountType.ManagedKT:
               return t("managedKTAccount");
+
+            case ThanosAccountType.WatchOnly:
+              return t("watchOnlyAccount");
           }
         })()}
       </span>
