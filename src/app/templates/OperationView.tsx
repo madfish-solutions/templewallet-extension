@@ -133,9 +133,11 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
         />
 
         <RawPayloadView
-          rows={6}
           payload={payload.payload}
+          rows={6}
           className={classNames(spFormat.key !== "bytes" && "hidden")}
+          style={{ marginBottom: 0 }}
+          fieldWrapperBottomMargin={false}
         />
 
         <div className={classNames(spFormat.key !== "preview" && "hidden")}>
@@ -149,9 +151,10 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
     return (
       <RawPayloadView
         label={t("payloadToSign")}
-        payload={payload.payload}
-        className="mb-2"
         rows={6}
+        payload={payload.payload}
+        style={{ marginBottom: 0 }}
+        fieldWrapperBottomMargin={false}
       />
     );
   }
