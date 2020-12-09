@@ -3,7 +3,7 @@
 Cryptocurrency wallet for [Tezos blockchain](https://tezos.com) as Web Extension for your Browser.<br>
 Providing ability to manage NFT, XTZ tokens and interact with dApps.
 
-![Thanos Wallet](https://user-images.githubusercontent.com/11996139/88958026-866f4800-d2a8-11ea-8762-9bce3f5f6756.png)
+![Thanos Wallet](https://user-images.githubusercontent.com/11996139/101657370-79c7e100-3a4c-11eb-97e8-eb630eeef633.png)
 
 <hr />
 
