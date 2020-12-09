@@ -373,6 +373,14 @@
       }
     }
   },
+  "defaultWatchOnlyAccountName": {
+    "message": "Watch-only $accountNumber$",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
   "accountsToRemoveConstraint": {
     "message": "HD accounts cannot be removed."
   },
@@ -1136,6 +1144,12 @@
       }
     }
   },
+  "addressInputDescription": {
+    "message": "Address of Tezos account or smart contract."
+  },
+  "addressInputDescriptionWithDomain": {
+    "message": "Address or Tezos domain of the account or smart contract."
+  },
   "recipientInputPlaceholder": {
     "message": "e.g. tz1a9w1S7hN5s..."
   },
@@ -1400,6 +1414,9 @@
   },
   "managedKTAccount": {
     "message": "Managed KT"
+  },
+  "watchOnlyAccount": {
+    "message": "Watch-only"
   },
   "activationOperationType": {
     "message": "Activation"
