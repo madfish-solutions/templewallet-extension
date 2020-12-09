@@ -271,24 +271,6 @@ const ConfirmDAppForm: React.FC = () => {
         height: 578,
       }}
     >
-      <div className={classNames("absolute top-0 right-0", "p-1")}>
-        <T id="alpha">
-          {(message) => (
-            <div
-              className={classNames(
-                "bg-red-500",
-                "shadow",
-                "rounded-sm",
-                "px-2 py-px",
-                "text-xs font-medium text-white"
-              )}
-            >
-              {message}
-            </div>
-          )}
-        </T>
-      </div>
-
       <div className="flex flex-col items-center px-4 py-2">
         <SubTitle
           className={payload.type === "connect" ? "mt-4 mb-6" : "mt-4 mb-2"}
@@ -340,11 +322,11 @@ const ConfirmDAppForm: React.FC = () => {
 
             <NetworkBanner
               rpc={payload.networkRpc}
-              narrow={payload.type !== "confirm_operations"}
+              narrow={payload.type === "connect"}
             />
 
-            {payload.type === "connect" && (
-              <div className={classNames("w-full", "mb-2", "flex flex-col")}>
+            {payload.type === "connect" ? (
+              <div className={classNames("w-full", "flex flex-col")}>
                 <h2
                   className={classNames(
                     "mb-2",
@@ -386,9 +368,9 @@ const ConfirmDAppForm: React.FC = () => {
                   autoFocus
                 />
               </div>
+            ) : (
+              <OperationView payload={payload} />
             )}
-
-            <OperationView payload={payload} />
           </>
         )}
       </div>
