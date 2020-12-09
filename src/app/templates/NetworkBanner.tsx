@@ -23,7 +23,7 @@ const NetworkBanner: React.FC<NetworkBannerProps> = ({
     <div
       className={classNames(
         "w-full",
-        narrow ? "mb-2" : "mb-4",
+        narrow ? "-mt-1 mb-2" : "mb-4",
         "flex flex-col"
       )}
     >
