@@ -19,6 +19,7 @@ interface FormFieldProps extends FormFieldAttrs {
   extraButton?: React.ReactNode;
   extraInner?: React.ReactNode;
   onClean?: () => void;
+  fieldWrapperBottomMargin?: boolean;
   labelPaddingClassName?: string;
 }
 
@@ -45,6 +46,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
       className,
       spellCheck = false,
       autoComplete = "off",
+      fieldWrapperBottomMargin = true,
       labelPaddingClassName = "mb-4",
       ...rest
     },
@@ -169,7 +171,13 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
 
         {extraSection}
 
-        <div className={classNames("relative", "mb-2", "flex items-stretch")}>
+        <div
+          className={classNames(
+            "relative",
+            fieldWrapperBottomMargin && "mb-2",
+            "flex items-stretch"
+          )}
+        >
           <Field
             ref={ref as any}
             className={classNames(
