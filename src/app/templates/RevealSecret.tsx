@@ -1,6 +1,12 @@
 import * as React from "react";
+import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { useThanosClient, useAccount } from "lib/thanos/front";
+import {
+  useThanosClient,
+  useAccount,
+  ThanosAccountType,
+} from "lib/thanos/front";
+import { T, t } from "lib/i18n/react";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -42,6 +48,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     if (account.publicKeyHash) {
       return () => setSecret(null);
     }
+    return;
   }, [account.publicKeyHash, setSecret]);
 
   React.useEffect(() => {
@@ -61,6 +68,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
         clearTimeout(t);
       };
     }
+    return;
   }, [secret, setSecret]);
 
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -124,56 +132,146 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     switch (reveal) {
       case "private-key":
         return {
-          name: "Private Key",
+          name: t("privateKey"),
           accountBanner: (
             <AccountBanner
               account={account}
-              labelDescription={
-                <>
-                  If you want to reveal a private key from another account - you should select it in the
-                  top-right dropdown.
-                </>
-              }
+              labelDescription={t(
+                "ifYouWantToRevealPrivateKeyFromOtherAccount"
+              )}
               className="mb-6"
             />
           ),
+          derivationPathBanner: null,
           attention: (
-            <>
-              <span className="font-semibold">DO NOT share</span> this set of
-              chars with anyone! It can be used to steal your current
-              account.
-            </>
+            <T
+              id="doNotSharePrivateKey"
+              substitutions={[
+                <T id="doNotShareEmphasized" key="doNotShare">
+                  {(message) => (
+                    <span className="font-semibold">{message}</span>
+                  )}
+                </T>,
+              ]}
+            />
           ),
-          fieldDesc: (
-            <>Current account key. Keep it secret.</>
-          ),
+          fieldDesc: <T id="privateKeyFieldDescription" />,
         };
 
       case "seed-phrase":
         return {
-          name: "Seed Phrase",
+          name: t("seedPhrase"),
           accountBanner: null,
+          derivationPathBanner: (
+            <div className={classNames("mb-6", "flex flex-col")}>
+              <h2
+                className={classNames("mb-4", "leading-tight", "flex flex-col")}
+              >
+                <T id="derivationPath">
+                  {(message) => (
+                    <span className="text-base font-semibold text-gray-700">
+                      {message}
+                    </span>
+                  )}
+                </T>
+
+                <T id="pathForHDAccounts">
+                  {(message) => (
+                    <span
+                      className={classNames(
+                        "mt-1",
+                        "text-xs font-light text-gray-600"
+                      )}
+                      style={{ maxWidth: "90%" }}
+                    >
+                      {message}
+                    </span>
+                  )}
+                </T>
+              </h2>
+
+              <div
+                className={classNames(
+                  "w-full",
+                  "border rounded-md",
+                  "p-2",
+                  "flex items-center"
+                )}
+              >
+                <T id="derivationPathExample">
+                  {(message) => (
+                    <span className="text-sm font-medium text-gray-800">
+                      {message}
+                    </span>
+                  )}
+                </T>
+              </div>
+            </div>
+          ),
           attention: (
-            <>
-              <span className="font-semibold">DO NOT share</span> this phrase
-              with anyone! It can be used to steal all your accounts.
-            </>
+            <T
+              id="doNotSharePhrase"
+              substitutions={[
+                <T key="doNotShare" id="doNotShareEmphasized">
+                  {(message) => (
+                    <span className="font-semibold">{message}</span>
+                  )}
+                </T>,
+              ]}
+            />
           ),
           fieldDesc: (
             <>
-              If you ever switch between browsers or devices, you will need this
-              seed phrase to access your accounts. Keep it secret.
+              <T id="youWillNeedThisSeedPhrase" />{" "}
+              <T id="keepSeedPhraseSecret" />
             </>
           ),
         };
     }
   }, [reveal, account]);
 
-  return (
-    <div className="w-full max-w-sm p-2 mx-auto">
-      {texts.accountBanner}
+  const forbidPrivateKeyRevealing =
+    account.type === ThanosAccountType.Ledger && reveal === "private-key";
 
-      {secret ? (
+  const mainContent = React.useMemo(() => {
+    if (forbidPrivateKeyRevealing) {
+      return (
+        <Alert
+          title={t("privateKeyCannotBeRevealed")}
+          description={
+            <T
+              id="youCannotGetPrivateKeyFromLedgerAccounts"
+              substitutions={[
+                <T key="ledger" id="ledger">
+                  {(message) => (
+                    <span
+                      className={classNames(
+                        "rounded-sm",
+                        "border",
+                        "px-1 py-px",
+                        "font-normal leading-tight"
+                      )}
+                      style={{
+                        fontSize: "0.75em",
+                        borderColor: "currentColor",
+                      }}
+                    >
+                      {message}
+                    </span>
+                  )}
+                </T>,
+              ]}
+            >
+              {(message) => <p>{message}</p>}
+            </T>
+          }
+          className="my-4"
+        />
+      );
+    }
+
+    if (secret) {
+      return (
         <>
           <FormField
             ref={secretFieldRef}
@@ -191,30 +289,56 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
           />
 
           <Alert
-            title="Attention!"
+            title={t("attentionExclamation")}
             description={<p>{texts.attention}</p>}
             className="my-4"
           />
         </>
-      ) : (
-        <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-          <FormField
-            ref={register({ required: "Required" })}
-            label="Password"
-            labelDescription={`Enter password to reveal the ${texts.name}.`}
-            id="reveal-secret-password"
-            type="password"
-            name="password"
-            placeholder="********"
-            errorCaption={errors.password?.message}
-            containerClassName="mb-4"
-          />
+      );
+    }
 
-          <FormSubmitButton loading={submitting} disabled={submitting}>
-            Reveal
-          </FormSubmitButton>
-        </form>
-      )}
+    return (
+      <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+        <FormField
+          ref={register({ required: t("required") })}
+          label={t("password")}
+          labelDescription={t(
+            "revealSecretPasswordInputDescription",
+            texts.name
+          )}
+          id="reveal-secret-password"
+          type="password"
+          name="password"
+          placeholder="********"
+          errorCaption={errors.password?.message}
+          containerClassName="mb-4"
+        />
+
+        <T id="reveal">
+          {(message) => (
+            <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
+          )}
+        </T>
+      </form>
+    );
+  }, [
+    forbidPrivateKeyRevealing,
+    errors,
+    handleSubmit,
+    onSubmit,
+    register,
+    secret,
+    texts,
+    submitting,
+  ]);
+
+  return (
+    <div className="w-full max-w-sm p-2 mx-auto">
+      {texts.accountBanner}
+
+      {texts.derivationPathBanner}
+
+      {mainContent}
     </div>
   );
 };

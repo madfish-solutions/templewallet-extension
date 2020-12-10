@@ -1,13 +1,14 @@
 import * as React from "react";
 import classNames from "clsx";
-import useTippy from "lib/ui/useTippy";
+import { T } from "lib/i18n/react";
+import CleanButton from "app/atoms/CleanButton";
 import { ReactComponent as LockAltIcon } from "app/icons/lock-alt.svg";
-import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = React.InputHTMLAttributes<HTMLInputElement> &
   React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 interface FormFieldProps extends FormFieldAttrs {
+  extraSection?: React.ReactNode;
   label?: React.ReactNode;
   labelDescription?: React.ReactNode;
   errorCaption?: React.ReactNode;
@@ -18,12 +19,14 @@ interface FormFieldProps extends FormFieldAttrs {
   extraButton?: React.ReactNode;
   extraInner?: React.ReactNode;
   onClean?: () => void;
+  fieldWrapperBottomMargin?: boolean;
   labelPaddingClassName?: string;
 }
 
 const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
   (
     {
+      extraSection,
       label,
       labelDescription,
       errorCaption,
@@ -43,6 +46,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
       className,
       spellCheck = false,
       autoComplete = "off",
+      fieldWrapperBottomMargin = true,
       labelPaddingClassName = "mb-4",
       ...rest
     },
@@ -113,6 +117,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
           window.removeEventListener("blur", handleBlur);
         };
       }
+      return;
     }, [secret, focused, getFieldEl]);
 
     const secretBannerDisplayed = React.useMemo(
@@ -164,7 +169,15 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
           </label>
         ) : null}
 
-        <div className={classNames("relative", "mb-2", "flex items-stretch")}>
+        {extraSection}
+
+        <div
+          className={classNames(
+            "relative",
+            fieldWrapperBottomMargin && "mb-2",
+            "flex items-stretch"
+          )}
+        >
           <Field
             ref={ref as any}
             className={classNames(
@@ -204,7 +217,7 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
                 "pointer-events-none"
               )}
             >
-              <span className="mx-4 text-gray-900 text-lg font-light">
+              <span className="mx-4 text-lg font-light text-gray-900">
                 {extraInner}
               </span>
             </div>
@@ -245,7 +258,9 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
                     "stroke-current stroke-2"
                   )}
                 />
-                <span>Protected</span>
+                <T id="protectedFormField">
+                  {(message) => <span>{message}</span>}
+                </T>
               </p>
 
               <p
@@ -255,7 +270,9 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
                   "text-gray-500 text-sm"
                 )}
               >
-                <span>Click to reveal or edit this field</span>
+                <T id="clickToRevealOrEditField">
+                  {(message) => <span>{message}</span>}
+                </T>
               </p>
             </div>
           )}
@@ -272,44 +289,3 @@ const FormField = React.forwardRef<FormFieldRef, FormFieldProps>(
 );
 
 export default FormField;
-
-type CleanButtonProps = React.HTMLAttributes<HTMLButtonElement>;
-
-const CleanButton: React.FC<CleanButtonProps> = ({
-  className,
-  style = {},
-  ...rest
-}) => {
-  const tippyProps = React.useMemo(
-    () => ({
-      trigger: "mouseenter",
-      hideOnClick: false,
-      content: "Clean",
-      animation: "shift-away-subtle",
-    }),
-    []
-  );
-
-  const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
-
-  return (
-    <button
-      ref={buttonRef}
-      type="button"
-      className={classNames(
-        "absolute",
-        "border rounded-full shadow-sm hover:shadow",
-        "bg-white",
-        "p-px",
-        "flex items-center",
-        "text-xs text-gray-700",
-        "transition ease-in-out duration-200",
-        className
-      )}
-      style={{ right: "0.4rem", bottom: "0.4rem", ...style }}
-      {...rest}
-    >
-      <CloseIcon className="h-4 w-auto stroke-current" />
-    </button>
-  );
-};

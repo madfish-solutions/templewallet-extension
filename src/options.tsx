@@ -4,10 +4,13 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
+import { getMessage } from "lib/i18n";
 
 const Options: React.FC = () => (
   <div className="p-4">
-    <h1 className="text-xl font-semibold mb-2">ThanosWallet | Options</h1>
+    <h1 className="mb-2 text-xl font-semibold">
+      {getMessage("thanosWalletOptions")}
+    </h1>
 
     <div className="my-6">
       <button
@@ -25,7 +28,7 @@ const Options: React.FC = () => (
         )}
         onClick={handleReset}
       >
-        Reset Extension
+        {getMessage("resetExtension")}
       </button>
     </div>
   </div>
@@ -38,17 +41,14 @@ function handleReset() {
   if (resetting) return;
   resetting = true;
 
-  const confirmed = window.confirm(
-    "Are you sure you want to reset the ThanosWallet?" +
-      "\nAs a result, all your data will be deleted."
-  );
+  const confirmed = window.confirm(getMessage("resetExtensionConfirmation"));
   if (confirmed) {
     (async () => {
       try {
         await browser.storage.local.clear();
         browser.runtime.reload();
       } catch (err) {
-        alert(`Failed to reset Extension: ${err.message}`);
+        alert(getMessage("failedToResetExtension", err.message));
       }
     })();
   }

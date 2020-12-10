@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
+import { T, t } from "lib/i18n/react";
 import { ActivationStatus, useTezos, useAccount } from "lib/thanos/front";
 import useIsMounted from "lib/ui/useIsMounted";
 import AccountBanner from "app/templates/AccountBanner";
@@ -75,13 +76,13 @@ const ActivateAccount: React.FC = () => {
         );
         switch (activationStatus) {
           case ActivationStatus.AlreadyActivated:
-            setSuccess("🏁 Your Account already activated.");
+            setSuccess(t("accountAlreadyActivated"));
             break;
 
           case ActivationStatus.ActivationRequestSent:
-            setSuccess("🛫 Activation request sent! Confirming...");
+            setSuccess(t("requestSent", "🛫 Activation"));
             op!.confirmation().then(() => {
-              setSuccess("✅ Your account successfully activated!");
+              setSuccess(t("accountActivated"));
             });
             break;
         }
@@ -92,8 +93,7 @@ const ActivateAccount: React.FC = () => {
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
-        const mes =
-          "Failed. This may happen because provided Secret is invalid";
+        const mes = t("failureSecretMayBeInvalid");
         setError("secret", SUBMIT_ERROR_TYPE, mes);
       }
     },
@@ -128,9 +128,9 @@ const ActivateAccount: React.FC = () => {
         account={account}
         labelDescription={
           <>
-            Account to be activated.
+            <T id="accountToBeActivated" />
             <br />
-            If you want to activate another account - please, select it in the top-right dropdown.
+            <T id="ifYouWantToActivateAnotherAccount" />
           </>
         }
         className="mb-6"
@@ -139,7 +139,7 @@ const ActivateAccount: React.FC = () => {
       {success && (
         <Alert
           type="success"
-          title="Success"
+          title={t("success")}
           description={success}
           autoFocus
           className="mb-4"
@@ -149,21 +149,23 @@ const ActivateAccount: React.FC = () => {
       <FormField
         textarea
         rows={2}
-        ref={register({ required: "Required" })}
+        ref={register({ required: t("required") })}
         name="secret"
         id="activateaccount-secret"
-        label="Secret"
-        labelDescription="'secret' field from Fundraiser Account or Faucet"
-        placeholder="e.g. n4hs7sd3..."
+        label={t("activateAccountSecret")}
+        labelDescription={t("activateAccountSecretDescription")}
+        placeholder={t("activateAccountSecretPlaceholder")}
         errorCaption={errors.secret?.message}
         style={{ resize: "none" }}
         containerClassName="mb-4"
         onKeyPress={handleSecretFieldKeyPress}
       />
 
-      <FormSubmitButton loading={submitting} disabled={submitting}>
-        Activate
-      </FormSubmitButton>
+      <T id="activate">
+        {(message) => (
+          <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
+        )}
+      </T>
     </form>
   );
 };

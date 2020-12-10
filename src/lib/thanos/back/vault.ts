@@ -3,20 +3,32 @@ import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
-import { TezosToolkit } from "@taquito/taquito";
-import * as Passworder from "lib/thanos/passworder";
+import {
+  TezosToolkit,
+  CompositeForger,
+  RpcForger,
+  Signer,
+} from "@taquito/taquito";
+import { localForger } from "@taquito/local-forging";
+import LedgerTransport from "@ledgerhq/hw-transport";
+import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
+import { LedgerThanosBridgeTransport } from "@thanos-wallet/ledger-bridge";
+import { DerivationType } from "@taquito/ledger-signer";
 import {
   ThanosAccount,
   ThanosAccountType,
   ThanosSettings,
-  ThanosSharedStorageKey,
 } from "lib/thanos/types";
+import * as Passworder from "lib/thanos/passworder";
+import { PublicError } from "lib/thanos/back/defaults";
 import {
   isStored,
   fetchAndDecryptOne,
   encryptAndSaveMany,
   removeMany,
 } from "lib/thanos/back/safe-storage";
+import { ThanosLedgerSigner } from "lib/thanos/back/ledger-signer";
+import { getMessage } from "lib/i18n";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
@@ -70,14 +82,13 @@ export class Vault {
         type: ThanosAccountType.HD,
         name: "Account 1",
         publicKeyHash: accPublicKeyHash,
+        hdIndex: hdAccIndex,
       };
       const newAccounts = [initialAccount];
 
       const passKey = await Passworder.generateKey(password);
 
-      await browser.storage.local.set({
-        [ThanosSharedStorageKey.DAppEnabled]: false,
-      });
+      await browser.storage.local.clear();
       await encryptAndSaveMany(
         [
           [checkStrgKey, null],
@@ -136,7 +147,7 @@ export class Vault {
         passKey
       );
       const acc = allAccounts.find((a) => a.publicKeyHash === accPublicKeyHash);
-      if (!acc || acc.type !== ThanosAccountType.Imported) {
+      if (!acc || acc.type === ThanosAccountType.HD) {
         doThrow();
       }
 
@@ -152,61 +163,6 @@ export class Vault {
 
       return newAllAcounts;
     });
-  }
-
-  static async sign(
-    accPublicKeyHash: string,
-    password: string,
-    bytes: string,
-    watermark?: string
-  ) {
-    const passKey = await Vault.toValidPassKey(password);
-    return withError("Failed to sign", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        passKey
-      );
-      const signer = await createMemorySigner(privateKey);
-      const watermarkBuf =
-        watermark && (TaquitoUtils.hex2buf(watermark) as any);
-      return signer.sign(bytes, watermarkBuf);
-    });
-  }
-
-  static async isDAppEnabled() {
-    const items = await browser.storage.local.get([
-      ThanosSharedStorageKey.DAppEnabled,
-    ]);
-    return Boolean(items[ThanosSharedStorageKey.DAppEnabled]);
-  }
-
-  static async sendOperations(
-    accPublicKeyHash: string,
-    rpc: string,
-    password: string,
-    opParams: any[]
-  ) {
-    const passKey = await Vault.toValidPassKey(password);
-    const batch = await withError("Failed to send operations", async () => {
-      const privateKey = await fetchAndDecryptOne<string>(
-        accPrivKeyStrgKey(accPublicKeyHash),
-        passKey
-      );
-      const signer = await createMemorySigner(privateKey);
-      const tezos = new TezosToolkit();
-      tezos.setProvider({ rpc, signer });
-      return tezos.batch(opParams);
-    });
-
-    try {
-      const op = await batch.send();
-      return op.hash;
-    } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
-      throw new Error(`__tezos__${err.message}`);
-    }
   }
 
   private static toValidPassKey(password: string) {
@@ -267,6 +223,7 @@ export class Vault {
         type: ThanosAccountType.HD,
         name: name || getNewAccountName(allAccounts),
         publicKeyHash: accPublicKeyHash,
+        hdIndex: hdAccIndex,
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 
@@ -355,6 +312,70 @@ export class Vault {
     });
   }
 
+  async importManagedKTAccount(
+    accPublicKeyHash: string,
+    chainId: string,
+    owner: string
+  ) {
+    return withError("Failed to import Managed KT account", async () => {
+      const allAccounts = await this.fetchAccounts();
+      const newAccount: ThanosAccount = {
+        type: ThanosAccountType.ManagedKT,
+        name: getNewAccountName(
+          allAccounts.filter(
+            ({ type }) => type === ThanosAccountType.ManagedKT
+          ),
+          "defaultManagedKTAccountName"
+        ),
+        publicKeyHash: accPublicKeyHash,
+        chainId,
+        owner,
+      };
+      const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+      await encryptAndSaveMany(
+        [[accountsStrgKey, newAllAcounts]],
+        this.passKey
+      );
+
+      return newAllAcounts;
+    });
+  }
+
+  async createLedgerAccount(name: string, derivationPath?: string) {
+    return withError("Failed to connect Ledger account", async () => {
+      if (!derivationPath) derivationPath = getMainDerivationPath(0);
+
+      const { signer, cleanup } = await createLedgerSigner(derivationPath);
+
+      try {
+        const accPublicKey = await signer.publicKey();
+        const accPublicKeyHash = await signer.publicKeyHash();
+
+        const newAccount: ThanosAccount = {
+          type: ThanosAccountType.Ledger,
+          name,
+          publicKeyHash: accPublicKeyHash,
+          derivationPath,
+        };
+        const allAccounts = await this.fetchAccounts();
+        const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+        await encryptAndSaveMany(
+          [
+            [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+            [accountsStrgKey, newAllAcounts],
+          ],
+          this.passKey
+        );
+
+        return newAllAcounts;
+      } finally {
+        cleanup();
+      }
+    });
+  }
+
   async editAccountName(accPublicKeyHash: string, name: string) {
     return withError("Failed to edit account name", async () => {
       const allAccounts = await this.fetchAccounts();
@@ -389,6 +410,82 @@ export class Vault {
       await encryptAndSaveMany([[settingsStrgKey, newSettings]], this.passKey);
       return newSettings;
     });
+  }
+
+  async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {
+    return withError("Failed to sign", () =>
+      this.withSigner(accPublicKeyHash, async (signer) => {
+        const watermarkBuf = watermark
+          ? TaquitoUtils.hex2buf(watermark)
+          : undefined;
+        return signer.sign(bytes, watermarkBuf);
+      })
+    );
+  }
+
+  async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
+    return this.withSigner(accPublicKeyHash, async (signer) => {
+      const batch = await withError("Failed to send operations", async () => {
+        const tezos = new TezosToolkit(rpc);
+        tezos.setSignerProvider(signer);
+        tezos.setForgerProvider(
+          new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
+        );
+        return tezos.batch(opParams.map(formatOpParams));
+      });
+
+      try {
+        return await batch.send();
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+
+        throw err instanceof PublicError
+          ? err
+          : new Error(`__tezos__${err.message}`);
+      }
+    });
+  }
+
+  private async withSigner<T>(
+    accPublicKeyHash: string,
+    factory: (signer: Signer) => Promise<T>
+  ) {
+    const { signer, cleanup } = await this.getSigner(accPublicKeyHash);
+    try {
+      return await factory(signer);
+    } finally {
+      cleanup();
+    }
+  }
+
+  private async getSigner(accPublicKeyHash: string) {
+    const allAccounts = await this.fetchAccounts();
+    const acc = allAccounts.find((a) => a.publicKeyHash === accPublicKeyHash);
+    if (!acc) {
+      throw new PublicError("Account not found");
+    }
+
+    switch (acc.type) {
+      case ThanosAccountType.Ledger:
+        const publicKey = await this.revealPublicKey(accPublicKeyHash);
+        return createLedgerSigner(
+          acc.derivationPath,
+          publicKey,
+          accPublicKeyHash
+        );
+
+      default:
+        const privateKey = await fetchAndDecryptOne<string>(
+          accPrivKeyStrgKey(accPublicKeyHash),
+          this.passKey
+        );
+        return createMemorySigner(privateKey).then((signer) => ({
+          signer,
+          cleanup: () => {},
+        }));
+    }
   }
 }
 
@@ -425,6 +522,7 @@ const MIGRATIONS = [
       type: ThanosAccountType.HD,
       name: getNewAccountName(accounts),
       publicKeyHash: accPublicKeyHash,
+      hdIndex: hdAccIndex,
     };
     const newAccounts = [newInitialAccount, ...migratedAccounts];
 
@@ -437,11 +535,43 @@ const MIGRATIONS = [
       passKey
     );
   },
+
+  // [1] Add hdIndex prop to HD Accounts
+  async (passKey: CryptoKey) => {
+    const accounts = await fetchAndDecryptOne<ThanosAccount[]>(
+      accountsStrgKey,
+      passKey
+    );
+
+    let hdAccIndex = 0;
+    const newAccounts = accounts.map((acc) =>
+      acc.type === ThanosAccountType.HD
+        ? { ...acc, hdIndex: hdAccIndex++ }
+        : acc
+    );
+
+    await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
+  },
 ];
 
 /**
  * Misc
  */
+
+function removeMFromDerivationPath(dPath: string) {
+  return dPath.startsWith("m/") ? dPath.substring(2) : dPath;
+}
+
+function formatOpParams(params: any) {
+  if (params.kind === "origination" && params.script) {
+    const newParams = { ...params, ...params.script };
+    newParams.init = newParams.storage;
+    delete newParams.script;
+    delete newParams.storage;
+    return newParams;
+  }
+  return params;
+}
 
 function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
   if (current.every((a) => a.publicKeyHash !== newOne.publicKeyHash)) {
@@ -451,8 +581,11 @@ function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
   throw new PublicError("Account already exists");
 }
 
-function getNewAccountName(allAccounts: ThanosAccount[]) {
-  return `Account ${allAccounts.length + 1}`;
+function getNewAccountName(
+  allAccounts: ThanosAccount[],
+  templateI18nKey = "defaultAccountName"
+) {
+  return getMessage(templateI18nKey, String(allAccounts.length + 1));
 }
 
 async function getPublicKeyAndHash(privateKey: string) {
@@ -462,6 +595,39 @@ async function getPublicKeyAndHash(privateKey: string) {
 
 async function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
+}
+
+async function createLedgerSigner(
+  derivationPath: string,
+  publicKey?: string,
+  publicKeyHash?: string
+) {
+  let transport: LedgerTransport;
+
+  if (process.env.TARGET_BROWSER === "chrome") {
+    transport = await LedgerWebAuthnTransport.create();
+  } else {
+    const bridgeUrl = process.env.THANOS_WALLET_LEDGER_BRIDGE_URL;
+    if (!bridgeUrl) {
+      throw new Error(
+        "Require a 'THANOS_WALLET_LEDGER_BRIDGE_URL' environment variable to be set"
+      );
+    }
+
+    transport = await LedgerThanosBridgeTransport.open(bridgeUrl);
+  }
+
+  const cleanup = () => transport.close();
+  const signer = new ThanosLedgerSigner(
+    transport,
+    removeMFromDerivationPath(derivationPath),
+    true,
+    DerivationType.ED25519,
+    publicKey,
+    publicKeyHash
+  );
+
+  return { signer, cleanup };
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
@@ -491,7 +657,8 @@ function createStorageKey(id: StorageEntity) {
 
 function createDynamicStorageKey(id: StorageEntity) {
   const keyBase = combineStorageKey(STORAGE_KEY_PREFIX, id);
-  return (subKey: number | string) => combineStorageKey(keyBase, subKey);
+  return (...subKeys: (number | string)[]) =>
+    combineStorageKey(keyBase, ...subKeys);
 }
 
 function combineStorageKey(...parts: (string | number)[]) {
@@ -507,8 +674,6 @@ async function withError<T>(
       throw new Error("<stub>");
     });
   } catch (err) {
-    throw err instanceof PublicError ? err : new Error(errMessage);
+    throw err instanceof PublicError ? err : new PublicError(errMessage);
   }
 }
-
-class PublicError extends Error {}

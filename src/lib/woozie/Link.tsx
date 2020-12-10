@@ -1,4 +1,5 @@
 import * as React from "react";
+import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
 import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 import { To, createLocationUpdates, useLocation } from "lib/woozie/location";
 
@@ -22,6 +23,12 @@ const Link: React.FC<LinkProps> = ({ to, replace, ...rest }) => {
     hash,
   ]);
 
+  const href = React.useMemo(
+    () =>
+      USE_LOCATION_HASH_AS_URL ? `${window.location.pathname}#${url}` : url,
+    [url]
+  );
+
   const handleNavigate = React.useCallback(() => {
     const action =
       replace || url === createUrl(lctn.pathname, lctn.search, lctn.hash)
@@ -30,7 +37,7 @@ const Link: React.FC<LinkProps> = ({ to, replace, ...rest }) => {
     changeState(action, state, url);
   }, [replace, state, url, lctn]);
 
-  return <LinkAnchor {...rest} href={url} onNavigate={handleNavigate} />;
+  return <LinkAnchor {...rest} href={href} onNavigate={handleNavigate} />;
 };
 
 export default Link;

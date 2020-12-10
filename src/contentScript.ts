@@ -1,3 +1,4 @@
+import { browser } from "webextension-polyfill-ts";
 import { IntercomClient } from "lib/intercom/client";
 import { ThanosMessageType, ThanosResponse } from "lib/thanos/types";
 import {
@@ -5,13 +6,37 @@ import {
   ThanosPageMessageType,
 } from "@thanos-wallet/dapp/dist/types";
 
+enum BeaconMessageTarget {
+  Page = "toPage",
+  Extension = "toExtension",
+}
+
+type BeaconMessage =
+  | {
+      target: BeaconMessageTarget;
+      payload: any;
+    }
+  | {
+      target: BeaconMessageTarget;
+      encryptedPayload: any;
+    };
+
+type BeaconPageMessage =
+  | BeaconMessage
+  | { message: BeaconMessage; sender: { id: string } };
+
+const SENDER = {
+  id: browser.runtime.id,
+  name: "Thanos Wallet",
+  iconUrl: process.env.THANOS_WALLET_LOGO_URL || undefined,
+};
+
 window.addEventListener(
   "message",
   (evt) => {
-    if (
-      evt.source === window &&
-      evt.data?.type === ThanosPageMessageType.Request
-    ) {
+    if (evt.source !== window) return;
+
+    if (evt.data?.type === ThanosPageMessageType.Request) {
       const { payload, reqId } = evt.data as ThanosPageMessage;
 
       getIntercom()
@@ -42,12 +67,46 @@ window.addEventListener(
             evt.origin
           );
         });
+    } else if (
+      evt.data?.target === BeaconMessageTarget.Extension &&
+      (evt.data?.targetId === SENDER.id || !evt.data?.targetId)
+    ) {
+      const encrypted = Boolean(evt.data.encryptedPayload);
+
+      getIntercom()
+        .request({
+          type: ThanosMessageType.PageRequest,
+          origin: evt.origin,
+          payload: encrypted ? evt.data.encryptedPayload : evt.data.payload,
+          beacon: true,
+          encrypted,
+        })
+        .then((res: ThanosResponse) => {
+          if (res?.type === ThanosMessageType.PageResponse && res.payload) {
+            const message = {
+              target: BeaconMessageTarget.Page,
+              ...(encrypted
+                ? { encryptedPayload: res.payload }
+                : { payload: res.payload }),
+            };
+            send(
+              res.payload === "pong"
+                ? { ...message, sender: SENDER }
+                : {
+                    message,
+                    sender: { id: SENDER.id },
+                  },
+              evt.origin
+            );
+          }
+        })
+        .catch((err) => console.error(err));
     }
   },
   false
 );
 
-function send(msg: ThanosPageMessage, targetOrigin = "*") {
+function send(msg: ThanosPageMessage | BeaconPageMessage, targetOrigin = "*") {
   window.postMessage(msg, targetOrigin);
 }
 

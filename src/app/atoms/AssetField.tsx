@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import * as React from "react";
 import FormField from "app/atoms/FormField";
 
@@ -26,7 +27,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
     ref
   ) => {
     const valueStr = React.useMemo(
-      () => (value !== undefined && value !== 0 ? value.toString() : ""),
+      () => (value === undefined ? "" : new BigNumber(value).toFixed()),
       [value]
     );
 
@@ -52,7 +53,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
         if (!isNaN(numVal) && numVal >= min && numVal < max) {
           setLocalValue(val);
           if (onChange) {
-            onChange(numVal);
+            onChange(val !== "" ? numVal : undefined);
           }
         }
       },

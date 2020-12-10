@@ -3,16 +3,24 @@ import classNames from "clsx";
 import Avatars from "@dicebear/avatars";
 import jdenticonSpirtes from "@dicebear/avatars-jdenticon-sprites";
 import botttsSprites from "@dicebear/avatars-bottts-sprites";
+import initialsSprites from "lib/avatars-initials-sprites";
 
 type IdenticonProps = React.HTMLAttributes<HTMLDivElement> & {
-  type?: "jdenticon" | "bottts";
+  type?: "jdenticon" | "bottts" | "initials";
   hash: string;
   size?: number;
 };
 
+const MAX_INITIALS_LENGTH = 5;
+const DEFAULT_FONT_SIZE = 50;
+
 const cache = new Map<string, string>();
-const jdenticonIcons = new Avatars(jdenticonSpirtes);
-const botttsIcons = new Avatars(botttsSprites);
+
+const icons: Record<NonNullable<IdenticonProps["type"]>, Avatars<{}>> = {
+  jdenticon: new Avatars(jdenticonSpirtes),
+  bottts: new Avatars(botttsSprites),
+  initials: new Avatars(initialsSprites),
+};
 
 const Identicon: React.FC<IdenticonProps> = ({
   type = "jdenticon",
@@ -27,16 +35,25 @@ const Identicon: React.FC<IdenticonProps> = ({
     if (cache.has(key)) {
       return cache.get(key);
     } else {
-      const opts = {
+      const basicOpts = {
         base64: true,
         width: size,
         height: size,
         margin: 4,
       };
-      const imgSrc =
-        type === "jdenticon"
-          ? jdenticonIcons.create(hash, opts)
-          : botttsIcons.create(hash, opts);
+
+      const opts =
+        type === "initials"
+          ? {
+              ...basicOpts,
+              chars: MAX_INITIALS_LENGTH,
+              radius: 50,
+              fontSize: estimateOptimalFontSize(
+                hash.slice(0, MAX_INITIALS_LENGTH).length
+              ),
+            }
+          : basicOpts;
+      const imgSrc = icons[type].create(hash, opts);
 
       const bi = `url('${imgSrc}')`;
       cache.set(key, bi);
@@ -48,7 +65,8 @@ const Identicon: React.FC<IdenticonProps> = ({
     <div
       className={classNames(
         "inline-block",
-        "bg-gray-100 bg-no-repeat bg-center",
+        type === "initials" ? "bg-transparent" : "bg-gray-100",
+        "bg-no-repeat bg-center",
         "overflow-hidden",
         className
       )}
@@ -65,3 +83,15 @@ const Identicon: React.FC<IdenticonProps> = ({
 };
 
 export default Identicon;
+
+function estimateOptimalFontSize(length: number) {
+  const initialsLength = Math.min(length, MAX_INITIALS_LENGTH);
+  if (initialsLength > 2) {
+    const n = initialsLength;
+    const multiplier = Math.sqrt(
+      10000 / ((32 * n + 4 * (n - 1)) ** 2 + 36 ** 2)
+    );
+    return Math.floor(DEFAULT_FONT_SIZE * multiplier);
+  }
+  return DEFAULT_FONT_SIZE;
+}

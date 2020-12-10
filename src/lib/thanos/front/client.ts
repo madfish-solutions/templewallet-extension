@@ -1,18 +1,34 @@
 import * as React from "react";
 import constate from "constate";
+import {
+  WalletProvider,
+  createOriginationOperation,
+  createSetDelegateOperation,
+  createTransferOperation,
+  WalletDelegateParams,
+  WalletOriginateParams,
+  WalletTransferParams,
+} from "@taquito/taquito";
+import { buf2hex } from "@taquito/utils";
 import { nanoid } from "nanoid";
 import { useRetryableSWR } from "lib/swr";
-import { buf2hex } from "@taquito/utils";
 import toBuffer from "typedarray-to-buffer";
 import { IntercomClient } from "lib/intercom";
 import { useStorage } from "lib/thanos/front";
 import {
+  ThanosConfirmationPayload,
   ThanosMessageType,
   ThanosStatus,
   ThanosRequest,
   ThanosResponse,
+  ThanosNotification,
   ThanosSettings,
 } from "lib/thanos/types";
+
+type Confirmation = {
+  id: string;
+  payload: ThanosConfirmationPayload;
+};
 
 const intercom = new IntercomClient();
 
@@ -35,40 +51,66 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   });
   const state = data!;
 
-  const [confirmId, setConfirmId] = React.useState<string | null>(null);
-  const waitingConfirmIdRef = React.useRef<string | null>(null);
+  const [confirmation, setConfirmation] = React.useState<Confirmation | null>(
+    null
+  );
+  const confirmationIdRef = React.useRef<string | null>(null);
+  const resetConfirmation = React.useCallback(() => {
+    confirmationIdRef.current = null;
+    setConfirmation(null);
+  }, [setConfirmation]);
 
   React.useEffect(() => {
-    return intercom.subscribe((msg) => {
+    return intercom.subscribe((msg: ThanosNotification) => {
       switch (msg?.type) {
         case ThanosMessageType.StateUpdated:
           revalidate();
           break;
 
-        case ThanosMessageType.ConfirmRequested:
-          if (msg?.id === waitingConfirmIdRef.current) {
-            setConfirmId(msg.id);
+        case ThanosMessageType.ConfirmationRequested:
+          if (msg.id === confirmationIdRef.current) {
+            setConfirmation({ id: msg.id, payload: msg.payload });
           }
           break;
 
-        case ThanosMessageType.ConfirmExpired:
-          if (msg?.id === waitingConfirmIdRef.current) {
-            waitingConfirmIdRef.current = null;
-            setConfirmId(null);
+        case ThanosMessageType.ConfirmationExpired:
+          if (msg.id === confirmationIdRef.current) {
+            resetConfirmation();
           }
           break;
       }
     });
-  }, [revalidate, setConfirmId]);
+  }, [revalidate, setConfirmation, resetConfirmation]);
 
   /**
    * Aliases
    */
 
-  const { status, networks, accounts, settings } = state;
+  const { status, networks: defaultNetworks, accounts, settings } = state;
   const idle = status === ThanosStatus.Idle;
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
+
+  const customNetworks = React.useMemo(() => {
+    const customNetworksWithoutLambdaContracts = settings?.customNetworks ?? [];
+    return customNetworksWithoutLambdaContracts.map((network) => {
+      return {
+        ...network,
+        lambdaContract: settings?.lambdaContracts?.[network.id],
+      };
+    });
+  }, [settings]);
+  const defaultNetworksWithLambdaContracts = React.useMemo(() => {
+    return defaultNetworks.map((network) => ({
+      ...network,
+      lambdaContract:
+        network.lambdaContract || settings?.lambdaContracts?.[network.id],
+    }));
+  }, [settings, defaultNetworks]);
+  const networks = React.useMemo(
+    () => [...defaultNetworksWithLambdaContracts, ...customNetworks],
+    [defaultNetworksWithLambdaContracts, customNetworks]
+  );
 
   /**
    * Backup seed phrase flag
@@ -202,6 +244,35 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const importKTManagedAccount = React.useCallback(
+    async (address: string, chainId: string, owner: string) => {
+      const res = await request({
+        type: ThanosMessageType.ImportManagedKTAccountRequest,
+        address,
+        chainId,
+        owner,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.ImportManagedKTAccountResponse
+      );
+    },
+    []
+  );
+
+  const createLedgerAccount = React.useCallback(
+    async (name: string, derivationPath?: string) => {
+      const res = await request({
+        type: ThanosMessageType.CreateLedgerAccountRequest,
+        name,
+        derivationPath,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.CreateLedgerAccountResponse
+      );
+    },
+    []
+  );
+
   const updateSettings = React.useCallback(
     async (settings: Partial<ThanosSettings>) => {
       const res = await request({
@@ -213,62 +284,139 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
-  const confirmOperation = React.useCallback(
-    async (id: string, confirm: boolean, password?: string) => {
+  const getAllPndOps = React.useCallback(
+    async (accountPublicKeyHash: string, netId: string) => {
       const res = await request({
-        type: ThanosMessageType.ConfirmRequest,
-        id,
-        confirm,
-        password,
+        type: ThanosMessageType.GetAllPndOpsRequest,
+        accountPublicKeyHash,
+        netId,
       });
-      assertResponse(res.type === ThanosMessageType.ConfirmResponse);
+      assertResponse(res.type === ThanosMessageType.GetAllPndOpsResponse);
+      return res.operations;
     },
     []
   );
 
-  const confirmDAppPermission = React.useCallback(
-    async (id: string, confirm: boolean, pkh?: string) => {
+  const removePndOps = React.useCallback(
+    async (accountPublicKeyHash: string, netId: string, opHashes: string[]) => {
       const res = await request({
-        type: ThanosMessageType.DAppPermissionConfirmRequest,
+        type: ThanosMessageType.RemovePndOpsRequest,
+        accountPublicKeyHash,
+        netId,
+        opHashes,
+      });
+      assertResponse(res.type === ThanosMessageType.RemovePndOpsResponse);
+    },
+    []
+  );
+
+  const confirmInternal = React.useCallback(
+    async (id: string, confirmed: boolean) => {
+      const res = await request({
+        type: ThanosMessageType.ConfirmationRequest,
         id,
-        confirm,
-        pkh,
+        confirmed,
+      });
+      assertResponse(res.type === ThanosMessageType.ConfirmationResponse);
+    },
+    []
+  );
+
+  const getDAppPayload = React.useCallback(async (id: string) => {
+    const res = await request({
+      type: ThanosMessageType.DAppGetPayloadRequest,
+      id,
+    });
+    assertResponse(res.type === ThanosMessageType.DAppGetPayloadResponse);
+    return res.payload;
+  }, []);
+
+  const confirmDAppPermission = React.useCallback(
+    async (id: string, confirmed: boolean, pkh: string) => {
+      const res = await request({
+        type: ThanosMessageType.DAppPermConfirmationRequest,
+        id,
+        confirmed,
+        accountPublicKeyHash: pkh,
+        accountPublicKey: await getPublicKey(pkh),
       });
       assertResponse(
-        res.type === ThanosMessageType.DAppPermissionConfirmResponse
+        res.type === ThanosMessageType.DAppPermConfirmationResponse
       );
     },
     []
   );
 
   const confirmDAppOperation = React.useCallback(
-    async (id: string, confirm: boolean, password?: string) => {
+    async (id: string, confirmed: boolean) => {
       const res = await request({
-        type: ThanosMessageType.DAppOperationConfirmRequest,
+        type: ThanosMessageType.DAppOpsConfirmationRequest,
         id,
-        confirm,
-        password,
+        confirmed,
       });
       assertResponse(
-        res.type === ThanosMessageType.DAppOperationConfirmResponse
+        res.type === ThanosMessageType.DAppOpsConfirmationResponse
       );
     },
     []
   );
 
-  const createSigner = React.useCallback(
-    (accountPublicKeyHash: string) =>
-      new ThanosSigner(accountPublicKeyHash, (id) => {
-        waitingConfirmIdRef.current = id;
+  const confirmDAppSign = React.useCallback(
+    async (id: string, confirmed: boolean) => {
+      const res = await request({
+        type: ThanosMessageType.DAppSignConfirmationRequest,
+        id,
+        confirmed,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.DAppSignConfirmationResponse
+      );
+    },
+    []
+  );
+
+  const createTaquitoWallet = React.useCallback(
+    (sourcePkh: string, networkRpc: string) =>
+      new TaquitoWallet(sourcePkh, networkRpc, {
+        onBeforeSend: (id) => {
+          confirmationIdRef.current = id;
+        },
       }),
     []
   );
+
+  const createTaquitoSigner = React.useCallback(
+    (sourcePkh: string) =>
+      new ThanosSigner(sourcePkh, (id) => {
+        confirmationIdRef.current = id;
+      }),
+    []
+  );
+
+  const getAllDAppSessions = React.useCallback(async () => {
+    const res = await request({
+      type: ThanosMessageType.DAppGetAllSessionsRequest,
+    });
+    assertResponse(res.type === ThanosMessageType.DAppGetAllSessionsResponse);
+    return res.sessions;
+  }, []);
+
+  const removeDAppSession = React.useCallback(async (origin: string) => {
+    const res = await request({
+      type: ThanosMessageType.DAppRemoveSessionRequest,
+      origin,
+    });
+    assertResponse(res.type === ThanosMessageType.DAppRemoveSessionResponse);
+    return res.sessions;
+  }, []);
 
   return {
     state,
 
     // Aliases
     status,
+    defaultNetworks: defaultNetworksWithLambdaContracts,
+    customNetworks,
     networks,
     accounts,
     settings,
@@ -277,8 +425,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     ready,
 
     // Misc
-    confirmId,
-    setConfirmId,
+    confirmation,
+    resetConfirmation,
     seedRevealed,
     setSeedRevealed,
 
@@ -294,31 +442,79 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     importAccount,
     importMnemonicAccount,
     importFundraiserAccount,
+    importKTManagedAccount,
+    createLedgerAccount,
     updateSettings,
-    confirmOperation,
+    getAllPndOps,
+    removePndOps,
+    confirmInternal,
+    getDAppPayload,
     confirmDAppPermission,
     confirmDAppOperation,
-    createSigner,
+    confirmDAppSign,
+    createTaquitoWallet,
+    createTaquitoSigner,
+    getAllDAppSessions,
+    removeDAppSession,
   };
 });
 
+type TaquitoWalletOps = {
+  onBeforeSend?: (id: string) => void;
+};
+
+class TaquitoWallet implements WalletProvider {
+  constructor(
+    private pkh: string,
+    private rpc: string,
+    private opts: TaquitoWalletOps = {}
+  ) {}
+
+  async getPKH() {
+    return this.pkh;
+  }
+
+  async mapTransferParamsToWalletParams(params: WalletTransferParams) {
+    return createTransferOperation(params);
+  }
+
+  async mapOriginateParamsToWalletParams(params: WalletOriginateParams) {
+    return createOriginationOperation(params as any);
+  }
+
+  async mapDelegateParamsToWalletParams(params: WalletDelegateParams) {
+    return createSetDelegateOperation(params as any);
+  }
+
+  async sendOperations(opParams: any[]) {
+    const id = nanoid();
+    if (this.opts.onBeforeSend) {
+      this.opts.onBeforeSend(id);
+    }
+    const res = await request({
+      type: ThanosMessageType.OperationsRequest,
+      id,
+      sourcePkh: this.pkh,
+      networkRpc: this.rpc,
+      opParams: opParams.map(formatOpParams),
+    });
+    assertResponse(res.type === ThanosMessageType.OperationsResponse);
+    return res.opHash;
+  }
+}
+
 class ThanosSigner {
   constructor(
-    private accountPublicKeyHash: string,
+    private pkh: string,
     private onBeforeSign?: (id: string) => void
   ) {}
 
   async publicKeyHash() {
-    return this.accountPublicKeyHash;
+    return this.pkh;
   }
 
   async publicKey(): Promise<string> {
-    const res = await request({
-      type: ThanosMessageType.RevealPublicKeyRequest,
-      accountPublicKeyHash: this.accountPublicKeyHash,
-    });
-    assertResponse(res.type === ThanosMessageType.RevealPublicKeyResponse);
-    return res.publicKey;
+    return getPublicKey(this.pkh);
   }
 
   async secretKey(): Promise<string> {
@@ -332,14 +528,37 @@ class ThanosSigner {
     }
     const res = await request({
       type: ThanosMessageType.SignRequest,
-      accountPublicKeyHash: this.accountPublicKeyHash,
+      sourcePkh: this.pkh,
       id,
       bytes,
-      watermark: buf2hex(toBuffer(watermark)),
+      watermark: watermark ? buf2hex(toBuffer(watermark)) : undefined,
     });
     assertResponse(res.type === ThanosMessageType.SignResponse);
     return res.result;
   }
+}
+
+function formatOpParams(op: any) {
+  if (op.kind === "transaction") {
+    const { destination, amount, parameters, ...txRest } = op;
+    return {
+      ...txRest,
+      to: destination,
+      amount: +amount,
+      mutez: true,
+      parameter: parameters,
+    };
+  }
+  return op;
+}
+
+async function getPublicKey(accountPublicKeyHash: string) {
+  const res = await request({
+    type: ThanosMessageType.RevealPublicKeyRequest,
+    accountPublicKeyHash,
+  });
+  assertResponse(res.type === ThanosMessageType.RevealPublicKeyResponse);
+  return res.publicKey;
 }
 
 async function request<T extends ThanosRequest>(req: T) {

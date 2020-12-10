@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { Link } from "lib/woozie";
+import { T, t } from "lib/i18n/react";
 import { useThanosClient } from "lib/thanos/front";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
@@ -63,21 +64,23 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
     <SimplePageLayout
       title={
         <>
-          Unlock the Wallet
+          <T id="unlockWallet" />
           <br />
-          <span style={{ fontSize: "0.9em" }}>to continue</span>
+          <T id="toContinue">
+            {(message) => <span style={{ fontSize: "0.9em" }}>{message}</span>}
+          </T>
         </>
       }
     >
       <form
         ref={formRef}
-        className="my-8 w-full mx-auto max-w-sm"
+        className="w-full max-w-sm mx-auto my-8"
         onSubmit={handleSubmit(onSubmit)}
       >
         <FormField
-          ref={register({ required: "Required" })}
-          label="Password"
-          labelDescription="A password is used to protect the wallet."
+          ref={register({ required: t("required") })}
+          label={t("password")}
+          labelDescription={t("unlockPasswordInputDescription")}
           id="unlock-password"
           type="password"
           name="password"
@@ -87,28 +90,32 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
           autoFocus
         />
 
-        <FormSubmitButton loading={submitting} disabled={submitting}>
-          Unlock
-        </FormSubmitButton>
+        <FormSubmitButton loading={submitting}>{t("unlock")}</FormSubmitButton>
 
         {canImportNew && (
           <div className="my-6">
-            <h3 className="text-gray-600 text-sm font-light">
-              Restore Account? Want to sign in another?
-            </h3>
-
-            <Link
-              to="/import-wallet"
-              className={classNames(
-                "text-primary-orange",
-                "text-sm font-semibold",
-                "transition duration-200 ease-in-out",
-                "opacity-75 hover:opacity-100 focus:opacity-100",
-                "hover:underline"
+            <T id="importNewAccountTitle">
+              {(message) => (
+                <h3 className="text-sm font-light text-gray-600">{message}</h3>
               )}
-            >
-              Import Wallet using Seed Phrase
-            </Link>
+            </T>
+
+            <T id="importWalletUsingSeedPhrase">
+              {(message) => (
+                <Link
+                  to="/import-wallet"
+                  className={classNames(
+                    "text-primary-orange",
+                    "text-sm font-semibold",
+                    "transition duration-200 ease-in-out",
+                    "opacity-75 hover:opacity-100 focus:opacity-100",
+                    "hover:underline"
+                  )}
+                >
+                  {message}
+                </Link>
+              )}
+            </T>
           </div>
         )}
       </form>

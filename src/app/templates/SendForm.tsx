@@ -3,28 +3,35 @@ import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 import BigNumber from "bignumber.js";
-import { DEFAULT_FEE } from "@taquito/taquito";
+import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
+import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
+import { navigate, HistoryAction } from "lib/woozie";
 import {
   ThanosAsset,
   XTZ_ASSET,
-  ThanosAccountType,
-  useAllAccounts,
+  useRelevantAccounts,
   useAccount,
   useTezos,
-  useCurrentAsset,
+  useAssetBySlug,
   useBalance,
-  usePendingOperations,
+  useTezosDomainsClient,
   fetchBalance,
   toTransferParams,
   tzToMutez,
   mutezToTz,
   isAddressValid,
-  isKTAddress,
   toPenny,
   hasManager,
   ThanosAssetType,
+  isKTAddress,
+  isDomainNameValid,
+  ThanosAccountType,
+  loadContract,
+  getAssetKey,
 } from "lib/thanos/front";
+import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
+import { T, t } from "lib/i18n/react";
 import {
   ArtificialError,
   NotEnoughFundsError,
@@ -36,6 +43,7 @@ import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import Spinner from "app/atoms/Spinner";
 import Money from "app/atoms/Money";
 import NoSpaceField from "app/atoms/NoSpaceField";
@@ -43,8 +51,9 @@ import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
-// import xtzImgUrl from "app/misc/xtz.png";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 
 interface FormData {
   to: string;
@@ -55,30 +64,33 @@ interface FormData {
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 
-const SendForm: React.FC = () => {
-  const { currentAsset } = useCurrentAsset();
-  const tezos = useTezos();
+type SendFormProps = {
+  assetSlug?: string | null;
+};
 
-  const [localAsset, setLocalAsset] = useSafeState(
-    currentAsset,
-    tezos.checksum
-  );
+const SendForm: React.FC<SendFormProps> = ({ assetSlug }) => {
+  const asset = useAssetBySlug(assetSlug) ?? XTZ_ASSET;
+  const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+
+  const handleAssetChange = React.useCallback((a: ThanosAsset) => {
+    navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
+  }, []);
 
   return (
     <>
       {operation && (
-        <OperationStatus typeTitle="Transaction" operation={operation} />
+        <OperationStatus typeTitle={t("transaction")} operation={operation} />
       )}
 
       <AssetSelect
-        value={localAsset}
-        onChange={setLocalAsset}
+        value={asset}
+        onChange={handleAssetChange}
         className="mb-6"
       />
 
       <React.Suspense fallback={<SpinnerSection />}>
-        <Form localAsset={localAsset} setOperation={setOperation} />
+        <Form localAsset={asset} setOperation={setOperation} />
       </React.Suspense>
     </>
   );
@@ -94,10 +106,12 @@ type FormProps = {
 const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
 
-  const allAccounts = useAllAccounts();
+  const allAccounts = useRelevantAccounts();
   const acc = useAccount();
   const tezos = useTezos();
+  const domainsClient = useTezosDomainsClient();
 
+  const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
 
   const { data: balanceData, mutate: mutateBalance } = useBalance(
@@ -113,8 +127,6 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   );
   const xtzBalance = xtzBalanceData!;
   const xtzBalanceNum = xtzBalance.toNumber();
-
-  const { addPndOps } = usePendingOperations();
 
   /**
    * Form
@@ -142,18 +154,43 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = React.useRef<HTMLInputElement>(null);
-  const feeFieldRef = React.useRef<HTMLInputElement>(null);
 
-  const toFilled = React.useMemo(
-    () => Boolean(toValue && isAddressValid(toValue) && !isKTAddress(toValue)),
+  const toFilledWithAddress = React.useMemo(
+    () => Boolean(toValue && isAddressValid(toValue)),
     [toValue]
   );
 
+  const toFilledWithDomain = React.useMemo(
+    () => toValue && isDomainNameValid(toValue, domainsClient),
+    [toValue, domainsClient]
+  );
+
+  const domainAddressFactory = React.useCallback(
+    (_k: string, _checksum: string, toValue: string) =>
+      domainsClient.resolver.resolveNameToAddress(toValue),
+    [domainsClient]
+  );
+  const { data: resolvedAddress } = useSWR(
+    ["tzdns-address", tezos.checksum, toValue],
+    domainAddressFactory,
+    { shouldRetryOnError: false, revalidateOnFocus: false }
+  );
+
+  const toFilled = React.useMemo(
+    () => (resolvedAddress ? toFilledWithDomain : toFilledWithAddress),
+    [toFilledWithAddress, toFilledWithDomain, resolvedAddress]
+  );
+
+  const toResolved = React.useMemo(() => resolvedAddress || toValue, [
+    resolvedAddress,
+    toValue,
+  ]);
+
   const filledAccount = React.useMemo(
     () =>
-      (toFilled && allAccounts.find((a) => a.publicKeyHash === toValue)) ||
+      (toResolved && allAccounts.find((a) => a.publicKeyHash === toResolved)) ||
       null,
-    [toFilled, allAccounts, toValue]
+    [allAccounts, toResolved]
   );
 
   const cleanToField = React.useCallback(() => {
@@ -163,17 +200,24 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   React.useLayoutEffect(() => {
     if (toFilled) {
+      toFieldRef.current?.scrollIntoView({ block: "center" });
+    }
+  }, [toFilled]);
+
+  React.useLayoutEffect(() => {
+    if (toFilled) {
       return registerBackHandler(() => {
         cleanToField();
         window.scrollTo(0, 0);
       });
     }
+    return;
   }, [toFilled, registerBackHandler, cleanToField]);
 
   const estimateBaseFee = React.useCallback(async () => {
     try {
-      const to = toValue;
-      const xtz = localAsset.symbol === ThanosAssetType.XTZ;
+      const to = toResolved;
+      const xtz = localAsset.type === ThanosAssetType.XTZ;
 
       const balanceBN = (await mutateBalance(
         fetchBalance(tezos, localAsset, accountPkh)
@@ -193,12 +237,30 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
 
       const [transferParams, manager] = await Promise.all([
-        toTransferParams(tezos, localAsset, to, toPenny(localAsset)),
-        tezos.rpc.getManagerKey(accountPkh),
+        toTransferParams(
+          tezos,
+          localAsset,
+          accountPkh,
+          to,
+          toPenny(localAsset)
+        ),
+        tezos.rpc.getManagerKey(
+          acc.type === ThanosAccountType.ManagedKT ? acc.owner : accountPkh
+        ),
       ]);
 
-      let estmtnMax;
-      if (xtz) {
+      let estmtnMax: Estimate;
+      if (acc.type === ThanosAccountType.ManagedKT) {
+        const michelsonLambda = isKTAddress(to)
+          ? transferToContract
+          : transferImplicit;
+
+        const contract = await loadContract(tezos, acc.publicKeyHash);
+        const transferParams = contract.methods
+          .do(michelsonLambda(to, tzToMutez(balanceBN)))
+          .toTransferParams();
+        estmtnMax = await tezos.estimate.transfer(transferParams);
+      } else if (xtz) {
         const estmtn = await tezos.estimate.transfer(transferParams);
         let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
         if (!hasManager(manager)) {
@@ -211,6 +273,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       } else {
         estmtnMax = await tezos.estimate.transfer(transferParams);
       }
+
+      // console.info({
+      //   burnFeeMutez: estmtnMax.burnFeeMutez,
+      //   consumedMilligas: estmtnMax.consumedMilligas,
+      //   gasLimit: estmtnMax.gasLimit,
+      //   minimalFeeMutez: estmtnMax.minimalFeeMutez,
+      //   storageLimit: estmtnMax.storageLimit,
+      //   suggestedFeeMutez: estmtnMax.suggestedFeeMutez,
+      //   totalCost: estmtnMax.totalCost,
+      //   usingBaseFeeMutez: estmtnMax.usingBaseFeeMutez,
+      // });
 
       let baseFee = mutezToTz(estmtnMax.totalCost);
       if (!hasManager(manager)) {
@@ -239,19 +312,19 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
 
       switch (true) {
-        //  case ["delegate.unchanged", "delegate.already_active"].some((t) =>
-        //    err?.id.includes(t)
-        //  ):
-        //    return new UnchangedError(err.message);
-
-        //  case err?.id.includes("unregistered_delegate"):
-        //    return new UnregisteredDelegateError(err.message);
-
         default:
           throw err;
       }
     }
-  }, [tezos, localAsset, accountPkh, toValue, mutateBalance, mutateXtzBalance]);
+  }, [
+    acc,
+    tezos,
+    localAsset,
+    accountPkh,
+    toResolved,
+    mutateBalance,
+    mutateXtzBalance,
+  ]);
 
   const {
     data: baseFee,
@@ -265,7 +338,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             tezos.checksum,
             localAsset.symbol,
             accountPkh,
-            toValue,
+            toResolved,
           ]
         : null,
     estimateBaseFee,
@@ -288,6 +361,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         .minus(PENNY)
         .toNumber();
     }
+    return;
   }, [xtzBalanceNum, baseFee]);
 
   const safeFeeValue = React.useMemo(
@@ -300,13 +374,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
     return localAsset.type === ThanosAssetType.XTZ
       ? (() => {
-          const ma = new BigNumber(balanceNum)
-            .minus(baseFee)
-            .minus(safeFeeValue ?? 0);
+          let ma =
+            acc.type === ThanosAccountType.ManagedKT
+              ? new BigNumber(balanceNum)
+              : new BigNumber(balanceNum)
+                  .minus(baseFee)
+                  .minus(safeFeeValue ?? 0)
+                  .minus(PENNY);
           return BigNumber.max(ma, 0);
         })()
       : new BigNumber(balanceNum);
-  }, [localAsset.type, balanceNum, baseFee, safeFeeValue]);
+  }, [acc.type, localAsset.type, balanceNum, baseFee, safeFeeValue]);
 
   const maxAmountNum = React.useMemo(
     () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
@@ -314,16 +392,20 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   );
 
   const validateAmount = React.useCallback(
-    (v: number) => {
-      if (!v) return "Required";
+    (v?: number) => {
+      if (v === undefined) return t("required");
+      if (!isKTAddress(toValue) && v === 0) {
+        return t("amountMustBePositive");
+      }
       if (!maxAmountNum) return true;
+      const maxAmount = new BigNumber(maxAmountNum);
       const vBN = new BigNumber(v);
       return (
-        vBN.isLessThanOrEqualTo(maxAmountNum) ||
-        `Maximal: ${maxAmountNum.toString()}`
+        vBN.isLessThanOrEqualTo(maxAmount) ||
+        t("maximalAmount", maxAmount.toFixed())
       );
     },
-    [maxAmountNum]
+    [maxAmountNum, toValue]
   );
 
   const handleFeeFieldChange = React.useCallback(
@@ -344,65 +426,75 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     }
   }, [setValue, maxAmount, triggerValidation]);
 
-  const handleSetRecommendedFee = React.useCallback(() => {
-    setValue("fee", RECOMMENDED_ADD_FEE);
-  }, [setValue]);
+  const handleAmountFieldFocus = React.useCallback((evt) => {
+    evt.preventDefault();
+    amountFieldRef.current?.focus({ preventScroll: true });
+  }, []);
 
-  const [submitError, setSubmitError] = useSafeState<React.ReactNode>(
+  const [submitError, setSubmitError] = useSafeState<any>(
     null,
-    `${tezos.checksum}_${toValue}`
+    `${tezos.checksum}_${toResolved}`
+  );
+
+  const validateRecipient = React.useCallback(
+    async (value: any) => {
+      if (!value?.length || value.length < 0) {
+        return false;
+      }
+
+      if (!canUseDomainNames) {
+        return validateAddress(value);
+      }
+
+      if (isDomainNameValid(value, domainsClient)) {
+        const resolved = await domainsClient.resolver.resolveNameToAddress(
+          value
+        );
+        if (!resolved) {
+          return `Domain "${value}" doesn't resolve to an address`;
+        }
+
+        value = resolved;
+      }
+
+      return isAddressValid(value) ? true : "Invalid address or domain name";
+    },
+    [canUseDomainNames, domainsClient]
   );
 
   const onSubmit = React.useCallback(
-    async ({ to, amount, fee: feeVal }: FormData) => {
+    async ({ amount, fee: feeVal }: FormData) => {
       if (formState.isSubmitting) return;
       setSubmitError(null);
       setOperation(null);
 
       try {
-        const transferParams = await toTransferParams(
-          tezos,
-          localAsset,
-          to,
-          amount
-        );
-        const estmtn = await tezos.estimate.transfer(transferParams);
-        const addFee = tzToMutez(feeVal ?? 0);
-        const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-        let op;
-        try {
-          op = await tezos.contract.transfer({ ...transferParams, fee });
-        } catch (err) {
-          if (
-            err?.errors?.some((e: any) =>
-              e?.id.includes("empty_implicit_delegated_contract")
-            )
-          ) {
-            op = await tezos.contract.transfer({
-              to,
-              amount,
-              fee: new BigNumber(fee).minus(tzToMutez(PENNY)).toNumber(),
-            });
-          } else {
-            throw err;
-          }
+        let op: WalletOperation;
+        if (isKTAddress(acc.publicKeyHash)) {
+          const michelsonLambda = isKTAddress(toResolved)
+            ? transferToContract
+            : transferImplicit;
+
+          const contract = await loadContract(tezos, acc.publicKeyHash);
+          op = await contract.methods
+            .do(michelsonLambda(toResolved, tzToMutez(amount)))
+            .send({ amount: 0 });
+        } else {
+          const transferParams = await toTransferParams(
+            tezos,
+            localAsset,
+            accountPkh,
+            toResolved,
+            amount
+          );
+          const estmtn = await tezos.estimate.transfer(transferParams);
+          const addFee = tzToMutez(feeVal ?? 0);
+          const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
+          op = await tezos.wallet
+            .transfer({ ...transferParams, fee } as any)
+            .send();
         }
-
         setOperation(op);
-
-        const { hash, results } = op;
-        const pndOps = Array.from(results)
-          .reverse()
-          .map((o) => ({
-            hash,
-            kind: o.kind,
-            amount:
-              (o as any).amount && mutezToTz(+(o as any).amount).toNumber(),
-            destination: (o as any).destination,
-            addedAt: new Date().toString(),
-          }));
-        addPndOps(pndOps);
-
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
       } catch (err) {
         if (err.message === "Declined") {
@@ -419,13 +511,15 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
     },
     [
+      acc,
       formState.isSubmitting,
       tezos,
       localAsset,
       setSubmitError,
       setOperation,
-      addPndOps,
       reset,
+      accountPkh,
+      toResolved,
     ]
   );
 
@@ -439,7 +533,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         as={<NoSpaceField ref={toFieldRef} />}
         control={control}
         rules={{
-          validate: validateAddress,
+          validate: validateRecipient,
         }}
         onChange={([v]) => v}
         onFocus={() => toFieldRef.current?.focus()}
@@ -448,7 +542,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         cleanable={Boolean(toValue)}
         onClean={cleanToField}
         id="send-to"
-        label="Recipient"
+        label={t("recipient")}
         labelDescription={
           filledAccount ? (
             <div className="flex flex-wrap items-center">
@@ -456,7 +550,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                 type="bottts"
                 hash={filledAccount.publicKeyHash}
                 size={14}
-                className="flex-shrink-0 opacity-75 shadow-xs"
+                className="flex-shrink-0 shadow-xs opacity-75"
               />
               <div className="ml-1 mr-px font-normal">{filledAccount.name}</div>{" "}
               (
@@ -473,10 +567,21 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
               )
             </div>
           ) : (
-            `Address to send ${localAsset.symbol} funds to.`
+            <T
+              id={
+                canUseDomainNames
+                  ? "tokensRecepientInputDescriptionWithDomain"
+                  : "tokensRecepientInputDescription"
+              }
+              substitutions={localAsset.symbol}
+            />
           )
         }
-        placeholder="e.g. tz1a9w1S7hN5s..."
+        placeholder={t(
+          canUseDomainNames
+            ? "recipientInputPlaceholderWithDomain"
+            : "recipientInputPlaceholder"
+        )}
         errorCaption={errors.to?.message}
         style={{
           resize: "none",
@@ -484,20 +589,56 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         containerClassName="mb-4"
       />
 
+      {resolvedAddress && (
+        <div
+          className={classNames(
+            "mb-4 -mt-3",
+            "text-xs font-light text-gray-600",
+            "flex flex-wrap items-center"
+          )}
+        >
+          <span className="mr-1 whitespace-no-wrap">Resolved address:</span>
+          <span className="font-normal">{resolvedAddress}</span>
+        </div>
+      )}
+
       {estimateFallbackDisplayed ? (
         <SpinnerSection />
       ) : restFormDisplayed ? (
         <>
-          {(submitError || estimationError) && (
-            <SendErrorAlert
-              type={submitError ? "submit" : "estimation"}
-              error={submitError || estimationError}
-            />
-          )}
+          {(() => {
+            switch (true) {
+              case Boolean(submitError):
+                return <SendErrorAlert type="submit" error={submitError} />;
+
+              case Boolean(estimationError):
+                return (
+                  <SendErrorAlert type="estimation" error={estimationError} />
+                );
+
+              case toResolved === accountPkh:
+                return (
+                  <Alert
+                    type="warn"
+                    title={t("attentionExclamation")}
+                    description={<T id="tryingToTransferToYourself" />}
+                    className="mt-6 mb-4"
+                  />
+                );
+
+              default:
+                return null;
+            }
+          })()}
 
           <Controller
             name="amount"
-            as={<AssetField ref={amountFieldRef} />}
+            as={
+              <AssetField
+                ref={amountFieldRef}
+                onFocus={handleAmountFieldFocus}
+              />
+            }
             control={control}
             rules={{
               validate: validateAmount,
@@ -507,19 +648,19 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             id="send-amount"
             assetSymbol={localAsset.symbol}
             assetDecimals={localAsset.decimals}
-            label="Amount"
+            label={t("amount")}
             labelDescription={
               maxAmount && (
                 <>
-                  Available to send(max):{" "}
+                  <T id="availableToSend" />{" "}
                   <button
                     type="button"
                     className={classNames("underline")}
                     onClick={handleSetMaxAmount}
                   >
-                    {maxAmount.toString()}
+                    {maxAmount.toFixed()}
                   </button>
-                  {amountValue ? (
+                  {amountValue && localAsset.type === ThanosAssetType.XTZ ? (
                     <>
                       <br />
                       <InUSD volume={amountValue}>
@@ -530,7 +671,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                               <span className="pr-px">$</span>
                               {usdAmount}
                             </span>{" "}
-                            in USD
+                            <T id="inUSD" />
                           </div>
                         )}
                       </InUSD>
@@ -539,51 +680,32 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                 </>
               )
             }
-            placeholder="e.g. 123.45"
+            placeholder={t("amountPlaceholder")}
             errorCaption={errors.amount?.message}
             containerClassName="mb-4"
             autoFocus={Boolean(maxAmount)}
           />
 
-          <Controller
+          <AdditionalFeeInput
             name="fee"
-            as={<AssetField ref={feeFieldRef} />}
             control={control}
             onChange={handleFeeFieldChange}
-            onFocus={() => feeFieldRef.current?.focus()}
-            id="send-fee"
             assetSymbol={XTZ_ASSET.symbol}
-            label="Additional Fee"
-            labelDescription={
-              baseFee instanceof BigNumber && (
-                <>
-                  Base Fee for this transaction is:{" "}
-                  <span className="font-normal">{baseFee.toString()}</span>
-                  <br />
-                  Additional - speeds up its confirmation,
-                  <br />
-                  recommended:{" "}
-                  <button
-                    type="button"
-                    className={classNames("underline")}
-                    onClick={handleSetRecommendedFee}
-                  >
-                    {RECOMMENDED_ADD_FEE}
-                  </button>
-                </>
-              )
-            }
-            placeholder="0"
-            errorCaption={errors.fee?.message}
-            containerClassName="mb-4"
+            baseFee={baseFee}
+            error={errors.fee}
+            id="send-fee"
           />
 
-          <FormSubmitButton
-            loading={formState.isSubmitting}
-            disabled={formState.isSubmitting || Boolean(estimationError)}
-          >
-            Send
-          </FormSubmitButton>
+          <T id="send">
+            {(message) => (
+              <FormSubmitButton
+                loading={formState.isSubmitting}
+                disabled={Boolean(estimationError)}
+              >
+                {message}
+              </FormSubmitButton>
+            )}
+          </T>
         </>
       ) : (
         allAccounts.length > 1 && (
@@ -591,25 +713,33 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             <h2
               className={classNames("mb-4", "leading-tight", "flex flex-col")}
             >
-              <span className="text-base font-semibold text-gray-700">
-                Send to My Accounts
-              </span>
-
-              <span
-                className={classNames(
-                  "mt-1",
-                  "text-xs font-light text-gray-600"
+              <T id="sendToMyAccounts">
+                {(message) => (
+                  <span className="text-base font-semibold text-gray-700">
+                    {message}
+                  </span>
                 )}
-                style={{ maxWidth: "90%" }}
-              >
-                Click on Account you want to send funds to.
-              </span>
+              </T>
+
+              <T id="clickOnRecipientAccount">
+                {(message) => (
+                  <span
+                    className={classNames(
+                      "mt-1",
+                      "text-xs font-light text-gray-600"
+                    )}
+                    style={{ maxWidth: "90%" }}
+                  >
+                    {message}
+                  </span>
+                )}
+              </T>
             </h2>
 
             <div
               className={classNames(
                 "rounded-md overflow-hidden",
-                "border-2 bg-gray-100",
+                "border",
                 "flex flex-col",
                 "text-gray-700 text-sm leading-tight"
               )}
@@ -628,19 +758,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                       key={acc.publicKeyHash}
                       type="button"
                       className={classNames(
+                        "relative",
                         "block w-full",
                         "overflow-hidden",
                         !last && "border-b border-gray-200",
-                        "hover:bg-gray-200 focus:bg-gray-200",
-                        "flex items-center",
+                        "hover:bg-gray-100 focus:bg-gray-100",
+                        "flex items-center p-2",
                         "text-gray-700",
                         "transition ease-in-out duration-200",
                         "focus:outline-none",
                         "opacity-90 hover:opacity-100"
                       )}
-                      style={{
-                        padding: "0.4rem 0.375rem 0.4rem 0.375rem",
-                      }}
                       onClick={handleAccountClick}
                     >
                       <Identicon
@@ -650,30 +778,16 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                         className="flex-shrink-0 shadow-xs"
                       />
 
-                      <div className="ml-2 flex flex-col items-start">
+                      <div className="flex flex-col items-start ml-2">
                         <div className="flex flex-wrap items-center">
                           <Name className="text-sm font-medium leading-tight">
                             {acc.name}
                           </Name>
 
-                          {acc.type === ThanosAccountType.Imported && (
-                            <span
-                              className={classNames(
-                                "ml-2",
-                                "rounded-sm",
-                                "border border-black-25",
-                                "px-1 py-px",
-                                "leading-tight",
-                                "text-black-50"
-                              )}
-                              style={{ fontSize: "0.6rem" }}
-                            >
-                              Imported
-                            </span>
-                          )}
+                          <AccountTypeBadge account={acc} />
                         </div>
 
-                        <div className="mt-1 flex flex-wrap items-center">
+                        <div className="flex flex-wrap items-center mt-1">
                           <div
                             className={classNames(
                               "text-xs leading-none",
@@ -714,6 +828,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                           </Balance>
                         </div>
                       </div>
+
+                      <div
+                        className={classNames(
+                          "absolute right-0 top-0 bottom-0",
+                          "flex items-center",
+                          "pr-2",
+                          "text-gray-500"
+                        )}
+                      >
+                        <ChevronRightIcon className="h-5 w-auto stroke-current" />
+                      </div>
                     </button>
                   );
                 })}
@@ -736,50 +861,43 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
     title={(() => {
       switch (true) {
         case error instanceof NotEnoughFundsError:
-          return `Not enough ${
-            error instanceof ZeroXTZBalanceError ? "XTZ " : ""
-          }funds 😶`;
+          return error instanceof ZeroXTZBalanceError
+            ? t("notEnoughCurrencyFunds", "XTZ")
+            : t("notEnoughFunds");
 
         default:
-          return "Failed";
+          return t("failed");
       }
     })()}
     description={(() => {
       switch (true) {
         case error instanceof ZeroBalanceError:
-          return <>Your Balance is zero.</>;
+          return t("yourBalanceIsZero");
 
         case error instanceof ZeroXTZBalanceError:
-          return (
-            <>
-              Your XTZ(main asset) balance is zero. XTZ funds are required for
-              the fee.
-            </>
-          );
+          return t("mainAssetBalanceIsZero");
 
         case error instanceof NotEnoughFundsError:
-          return (
-            <>
-              Minimal fee for this transaction is greater than your balance. A
-              large fee may be due because you sending funds to an empty Manager
-              account. That requires a one-time 0.257 XTZ burn fee;
-            </>
-          );
+          return t("minimalFeeGreaterThanBalanceVerbose");
 
         default:
           return (
             <>
-              Unable to {type === "submit" ? "send" : "estimate"} transaction to
-              provided Recipient.
+              <T
+                id="unableToPerformTransactionAction"
+                substitutions={t(
+                  type === "submit" ? "send" : "estimate"
+                ).toLowerCase()}
+              />
               <br />
-              This may happen because:
-              <ul className="mt-1 ml-2 list-disc list-inside text-xs">
-                <li>
-                  Minimal fee for this transaction is greater than your balance.
-                  A large fee may be due because you sending funds to an empty
-                  Manager account. That requires a one-time 0.257 XTZ burn fee;
-                </li>
-                <li>Network or other tech issue.</li>
+              <T id="thisMayHappenBecause" />
+              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
+                <T id="minimalFeeGreaterThanBalanceVerbose">
+                  {(message) => <li>{message}</li>}
+                </T>
+                <T id="networkOrOtherIssue">
+                  {(message) => <li>{message}</li>}
+                </T>
               </ul>
             </>
           );
@@ -796,10 +914,7 @@ function validateAddress(value: any) {
       return true;
 
     case isAddressValid(value):
-      return "Invalid address";
-
-    case !isKTAddress(value):
-      return "Unable to transfer to KT... contract address";
+      return "invalidAddress";
 
     default:
       return true;
@@ -807,7 +922,7 @@ function validateAddress(value: any) {
 }
 
 const SpinnerSection: React.FC = () => (
-  <div className="my-8 flex justify-center">
+  <div className="flex justify-center my-8">
     <Spinner className="w-20" />
   </div>
 );

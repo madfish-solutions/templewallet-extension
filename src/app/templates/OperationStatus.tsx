@@ -1,7 +1,11 @@
 import * as React from "react";
+import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
 import Alert from "app/atoms/Alert";
-import HashChip from "app/atoms/HashChip";
+import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
+import HashChip from "app/templates/HashChip";
+import { isKnownChainId, useChainId } from "lib/thanos/front";
+import { TZKT_BASE_URLS } from "lib/tzkt";
 
 type OperationStatusProps = {
   typeTitle: string;
@@ -12,19 +16,38 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
   typeTitle,
   operation,
 }) => {
+  const hash = React.useMemo(() => operation.hash || operation.opHash, [
+    operation,
+  ]);
+
+  const chainId = useChainId();
+
+  const explorerBaseUrl = React.useMemo(
+    () =>
+      (chainId &&
+        (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined)) ??
+      null,
+    [chainId]
+  );
+
   const descFooter = React.useMemo(
     () => (
-      <div className="mt-2 text-xs">
-        Operation Hash:{" "}
+      <div className="mt-2 text-xs flex items-center">
+        <T id="operationHash" />:{" "}
         <HashChip
-          hash={operation.hash}
+          hash={hash}
           firstCharsCount={10}
           lastCharsCount={7}
           small
+          key="hash"
+          className="ml-2 mr-2"
         />
+        {explorerBaseUrl && (
+          <OpenInExplorerChip baseUrl={explorerBaseUrl} opHash={hash} />
+        )}
       </div>
     ),
-    [operation.hash]
+    [hash, explorerBaseUrl]
   );
 
   const [alert, setAlert] = useSafeState<{
@@ -33,11 +56,12 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     description: React.ReactNode;
   }>(() => ({
     type: "success",
-    title: "Success 🛫",
+    title: `${t("success")} 🛫`,
     description: (
       <>
-        {typeTitle} request sent! Confirming...
+        <T id="requestSent" substitutions={typeTitle} />
         {descFooter}
+        <div className="flex-1" />
       </>
     ),
   }));
@@ -48,10 +72,13 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
       .then(() => {
         setAlert((a) => ({
           ...a,
-          title: "Success ✅",
+          title: `${t("success")} ✅`,
           description: (
             <>
-              {typeTitle} successfully processed and confirmed!
+              <T
+                id="operationSuccessfullyProcessed"
+                substitutions={typeTitle}
+              />
               {descFooter}
             </>
           ),
@@ -60,8 +87,8 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
       .catch(() => {
         setAlert({
           type: "error",
-          title: "Error",
-          description: "Timed out operation confirmation. You can either wait more time or try again later.",
+          title: t("error"),
+          description: t("timedOutOperationConfirmation"),
         });
       });
   }, [operation, setAlert, descFooter, typeTitle]);

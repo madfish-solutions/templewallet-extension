@@ -1,11 +1,15 @@
 import * as React from "react";
 import classNames from "clsx";
+import { ReactComponent as CloseIcon } from "app/icons/close.svg";
+import { t } from "lib/i18n/react";
 
 type AlertProps = React.HTMLAttributes<HTMLDivElement> & {
   type?: "success" | "warn" | "error";
   title: React.ReactNode;
   description: React.ReactNode;
   autoFocus?: boolean;
+  closable?: boolean;
+  onClose?: () => void;
 };
 
 const Alert: React.FC<AlertProps> = ({
@@ -14,6 +18,8 @@ const Alert: React.FC<AlertProps> = ({
   description,
   autoFocus,
   className,
+  closable,
+  onClose,
   ...rest
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -39,7 +45,7 @@ const Alert: React.FC<AlertProps> = ({
     <div
       ref={ref}
       className={classNames(
-        "w-full px-4 py-3",
+        "relative w-full px-4 py-3",
         bgColorClassName,
         "border",
         borderColorClassName,
@@ -49,11 +55,21 @@ const Alert: React.FC<AlertProps> = ({
       )}
       tabIndex={-1}
       role="alert"
-      aria-label="Alert"
+      aria-label={t("alert")}
       {...rest}
     >
-      {title && <h2 className="text-lg font-semibold mb-1">{title}</h2>}
-      {description && <div className="text-sm font-light">{description}</div>}
+      {title && <h2 className="mb-1 text-lg font-semibold">{title}</h2>}
+      {description && (
+        <div className="text-sm font-light break-words">{description}</div>
+      )}
+      {closable && (
+        <button className="absolute top-3 right-3" onClick={onClose}>
+          <CloseIcon
+            className="w-auto h-5 stroke-current"
+            style={{ strokeWidth: 2 }}
+          />
+        </button>
+      )}
     </div>
   );
 };

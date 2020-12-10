@@ -1,6 +1,7 @@
 export interface TNBakerPreview {
   rank: number;
   logo: string;
+  logo_min: string;
   name: string;
   address: string;
   fee: number;
@@ -9,12 +10,14 @@ export interface TNBakerPreview {
   efficiency: number;
   efficiency_last10cycle: number;
   freespace: number;
+  freespace_min: string;
   total_points: number;
   deletation_status: boolean;
 }
 
 export interface TNBaker {
   logo: string;
+  logo_min: string;
   name: string;
   address: string;
   fee: number;
