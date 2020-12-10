@@ -129,15 +129,12 @@ type SendButtonProps = {
 };
 
 const SendButton = React.memo<SendButtonProps>(({ canSend, asset }) => {
-  const tippyProps = React.useMemo(
-    () => ({
-      trigger: "mouseenter",
-      hideOnClick: false,
-      content: t("disabledForWatchOnlyAccount"),
-      animation: "shift-away-subtle",
-    }),
-    []
-  );
+  const tippyProps = {
+    trigger: "mouseenter",
+    hideOnClick: false,
+    content: t("disabledForWatchOnlyAccount"),
+    animation: "shift-away-subtle",
+  };
 
   const sendButtonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonSendButtonProps = {
