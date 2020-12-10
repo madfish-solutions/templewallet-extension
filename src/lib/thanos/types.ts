@@ -73,6 +73,7 @@ export interface ThanosManagedKTAccount extends ThanosAccountBase {
 
 export interface ThanosWatchOnlyAccount extends ThanosAccountBase {
   type: ThanosAccountType.WatchOnly;
+  chainId?: string;
 }
 
 export interface ThanosAccountBase {
@@ -534,6 +535,7 @@ export interface ThanosImportManagedKTAccountResponse
 export interface ThanosImportWatchOnlyAccountRequest extends ThanosMessageBase {
   type: ThanosMessageType.ImportWatchOnlyAccountRequest;
   address: string;
+  chainId?: string;
 }
 
 export interface ThanosImportWatchOnlyAccountResponse

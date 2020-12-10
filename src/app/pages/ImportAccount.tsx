@@ -15,6 +15,7 @@ import {
   isAddressValid,
   isDomainNameValid,
   useTezosDomainsClient,
+  isKTAddress,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
@@ -899,7 +900,21 @@ const WatchOnlyForm: React.FC = () => {
         throw new Error("Invalid address");
       }
 
-      await importWatchOnlyAccount(finalAddress);
+      let chainId: string | undefined;
+
+      if (isKTAddress(finalAddress)) {
+        try {
+          await tezos.contract.at(finalAddress);
+        } catch {
+          throw new Error(
+            "This smart contract doesn't exist on current network"
+          );
+        }
+
+        chainId = await tezos.rpc.getChainId();
+      }
+
+      await importWatchOnlyAccount(finalAddress, chainId);
     } catch (err) {
       if (process.env.NODE_ENV === "development") {
         console.error(err);
@@ -909,7 +924,13 @@ const WatchOnlyForm: React.FC = () => {
       await new Promise((r) => setTimeout(r, 300));
       setError(err.message);
     }
-  }, [importWatchOnlyAccount, finalAddress, formState.isSubmitting, setError]);
+  }, [
+    importWatchOnlyAccount,
+    finalAddress,
+    tezos,
+    formState.isSubmitting,
+    setError,
+  ]);
 
   return (
     <form

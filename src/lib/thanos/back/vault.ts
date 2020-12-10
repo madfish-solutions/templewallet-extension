@@ -342,7 +342,7 @@ export class Vault {
     });
   }
 
-  async importWatchOnlyAccount(accPublicKeyHash: string) {
+  async importWatchOnlyAccount(accPublicKeyHash: string, chainId?: string) {
     return withError("Failed to import Watch Only account", async () => {
       const allAccounts = await this.fetchAccounts();
       const newAccount: ThanosAccount = {
@@ -354,6 +354,7 @@ export class Vault {
           "defaultWatchOnlyAccountName"
         ),
         publicKeyHash: accPublicKeyHash,
+        chainId,
       };
       const newAllAcounts = concatAccount(allAccounts, newAccount);
 
