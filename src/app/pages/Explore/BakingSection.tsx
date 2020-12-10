@@ -1,8 +1,9 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { T } from "lib/i18n/react";
-import { useAccount, useDelegate } from "lib/thanos/front";
+import { T, t } from "lib/i18n/react";
+import { useAccount, useDelegate, ThanosAccountType } from "lib/thanos/front";
+import useTippy from "lib/ui/useTippy";
 import BakerBanner from "app/templates/BakerBanner";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
@@ -11,6 +12,49 @@ import styles from "./BakingSection.module.css";
 const BakingSection: React.FC = () => {
   const acc = useAccount();
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
+  const canDelegate = acc.type !== ThanosAccountType.WatchOnly;
+
+  const tippyProps = React.useMemo(
+    () => ({
+      trigger: "mouseenter",
+      hideOnClick: false,
+      content: t("disabledForWatchOnlyAccount"),
+      animation: "shift-away-subtle",
+    }),
+    []
+  );
+
+  const delegateButtonRef = useTippy<HTMLButtonElement>(tippyProps);
+  const commonDelegateButtonProps = React.useMemo(
+    () => ({
+      className: classNames(
+        "py-2 px-6 rounded",
+        "border-2",
+        "border-indigo-500",
+        canDelegate && "hover:border-indigo-600 focus:border-indigo-600",
+        "bg-indigo-500",
+        canDelegate && "hover:bg-indigo-600 focus:bg-indigo-600",
+        "flex items-center justify-center",
+        "text-white",
+        "text-base font-semibold",
+        "transition ease-in-out duration-300",
+        canDelegate &&
+          (myBakerPkh
+            ? "shadow-sm hover:shadow focus:shadow"
+            : styles["delegate-button"]),
+        !canDelegate && "opacity-50"
+      ),
+      children: (
+        <>
+          <DiamondIcon
+            className={classNames("-ml-2 mr-2", "h-5 w-auto", "stroke-current")}
+          />
+          <T id={myBakerPkh ? "reDelegate" : "delegateNow"} />
+        </>
+      ),
+    }),
+    [canDelegate, myBakerPkh]
+  );
 
   return React.useMemo(
     () => (
@@ -52,29 +96,14 @@ const BakingSection: React.FC = () => {
           </div>
         )}
 
-        <Link
-          to="/delegate"
-          className={classNames(
-            "py-2 px-6 rounded",
-            "border-2",
-            "border-indigo-500 hover:border-indigo-600 focus:border-indigo-600",
-            "bg-indigo-500 hover:bg-indigo-600",
-            "flex items-center justify-center",
-            "text-white",
-            "text-base font-semibold",
-            "transition ease-in-out duration-300",
-            myBakerPkh ? "shadow-sm" : styles["delegate-button"]
-          )}
-          type="button"
-        >
-          <DiamondIcon
-            className={classNames("-ml-2 mr-2", "h-5 w-auto", "stroke-current")}
-          />
-          <T id={myBakerPkh ? "reDelegate" : "delegateNow"} />
-        </Link>
+        {canDelegate ? (
+          <Link to="/delegate" type="button" {...commonDelegateButtonProps} />
+        ) : (
+          <button ref={delegateButtonRef} {...commonDelegateButtonProps} />
+        )}
       </div>
     ),
-    [myBakerPkh]
+    [myBakerPkh, canDelegate, commonDelegateButtonProps, delegateButtonRef]
   );
 };
 

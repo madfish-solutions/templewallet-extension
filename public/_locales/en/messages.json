@@ -345,6 +345,9 @@
   "invalidAddress": {
     "message": "Invalid address"
   },
+  "contractNotExistOnNetwork": {
+    "message": "This smart contract doesn't exist on current network"
+  },
   "onlyKTContractAddressAllowed": {
     "message": "Only KT... contract address allowed"
   },
@@ -1417,6 +1420,9 @@
   },
   "watchOnlyAccount": {
     "message": "Watch-only"
+  },
+  "disabledForWatchOnlyAccount": {
+    "message": "Disabled for watch-only account"
   },
   "activationOperationType": {
     "message": "Activation"
