@@ -719,7 +719,7 @@ const FromFaucetForm: React.FC = () => {
       {alert && (
         <Alert
           type={alert instanceof Error ? "error" : "success"}
-          title={alert instanceof Error ? "Error" : t("success")}
+          title={alert instanceof Error ? t("error") : t("success")}
           description={
             alert instanceof Error
               ? alert?.message ?? t("smthWentWrong")
