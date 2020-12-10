@@ -12,8 +12,10 @@ import Explore from "app/pages/Explore";
 import Receive from "app/pages/Receive";
 import Send from "app/pages/Send";
 import Delegate from "app/pages/Delegate";
+import ManageAssets from "app/pages/ManageAssets";
 import AddToken from "app/pages/AddToken";
 import Settings from "app/pages/Settings";
+import ConnectLedger from "app/pages/ConnectLedger";
 
 interface RouteContext {
   popup: boolean;
@@ -56,15 +58,24 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     },
   ],
   ["/", (_p, ctx) => (ctx.ready ? <Explore /> : <Welcome />)],
+  [
+    "/explore/:assetSlug?",
+    onlyReady(({ assetSlug }) => <Explore assetSlug={assetSlug} />),
+  ],
   ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
   ["/create-account", onlyReady(() => <CreateAccount />)],
   [
     "/import-account/:tabSlug?",
     onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />),
   ],
+  ["/connect-ledger", onlyReady(() => <ConnectLedger />)],
   ["/receive", onlyReady(() => <Receive />)],
-  ["/send", onlyReady(() => <Send />)],
+  [
+    "/send/:assetSlug?",
+    onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />),
+  ],
   ["/delegate", onlyReady(() => <Delegate />)],
+  ["/manage-assets", onlyReady(() => <ManageAssets />)],
   ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
   [
     "/settings/:tabSlug?",
@@ -75,15 +86,27 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 
 const Page: React.FC = () => {
   const { trigger, pathname } = Woozie.useLocation();
+  const prevPathnameRef = React.useRef(pathname);
 
   // Scroll to top after new location pushed.
   React.useLayoutEffect(() => {
     if (trigger === Woozie.HistoryAction.Push) {
-      window.scrollTo(0, 0);
+      if (
+        (prevPathnameRef.current === "/" ||
+          prevPathnameRef.current.includes("explore")) &&
+        pathname.includes("explore")
+      ) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        window.scrollTo(0, 0);
+      }
     }
+
     if (pathname === "/") {
       Woozie.resetHistoryPosition();
     }
+
+    prevPathnameRef.current = pathname;
   }, [trigger, pathname]);
 
   const appEnv = useAppEnv();

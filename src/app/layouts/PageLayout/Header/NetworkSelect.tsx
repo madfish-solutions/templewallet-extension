@@ -1,8 +1,15 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useAllNetworks, useNetwork, useSetNetworkId } from "lib/thanos/front";
+import {
+  useAllNetworks,
+  useNetwork,
+  useSetNetworkId,
+  preloadTokens,
+} from "lib/thanos/front";
 import Popper from "lib/ui/Popper";
+import { T } from "lib/i18n/react";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
+import Name from "app/atoms/Name";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 
@@ -13,6 +20,25 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
   const network = useNetwork();
   const setNetworkId = useSetNetworkId();
 
+  const handleNetworkSelect = React.useCallback(
+    async (
+      netId: string,
+      selected: boolean,
+      setOpened: (o: boolean) => void
+    ) => {
+      if (!selected) {
+        try {
+          await preloadTokens(netId);
+        } catch (_err) {}
+
+        setNetworkId(netId);
+      }
+
+      setOpened(false);
+    },
+    [setNetworkId]
+  );
+
   return (
     <Popper
       placement="bottom-end"
@@ -22,17 +48,17 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
           <h2
             className={classNames(
               "mb-2",
-              "border-b border-white-25",
+              "border-b border-white border-opacity-25",
               "px-1 pb-1",
               "flex items-center",
-              "text-white-90 text-sm text-center"
+              "text-white text-opacity-90 text-sm text-center"
             )}
           >
-            <SignalAltIcon className="mr-1 h-4 w-auto stroke-current" />
-            Networks
+            <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
+            <T id="networks">{(networks) => <>{networks}</>}</T>
           </h2>
 
-          {allNetworks.map(({ id, name, color, disabled }) => {
+          {allNetworks.map(({ id, name, color, disabled, nameI18nKey }) => {
             const selected = id === network.id;
 
             return (
@@ -43,7 +69,10 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   "mb-1",
                   "rounded",
                   "transition easy-in-out duration-200",
-                  !disabled && (selected ? "bg-white-10" : "hover:bg-white-5"),
+                  !disabled &&
+                    (selected
+                      ? "bg-white bg-opacity-10"
+                      : "hover:bg-white hover:bg-opacity-5"),
                   disabled ? "cursor-default" : "cursor-pointer",
                   "flex items-center",
                   disabled && "opacity-25"
@@ -55,10 +84,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                 autoFocus={selected}
                 onClick={() => {
                   if (!disabled) {
-                    if (!selected) {
-                      setNetworkId(id);
-                    }
-                    setOpened(false);
+                    handleNetworkSelect(id, selected, setOpened);
                   }
                 }}
               >
@@ -72,8 +98,11 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   style={{ backgroundColor: color }}
                 />
 
-                <span className="text-white text-sm text-shadow-black">
-                  {name}
+                <span
+                  className="overflow-hidden text-sm text-white whitespace-no-wrap text-shadow-black"
+                  style={{ textOverflow: "ellipsis", maxWidth: "10rem" }}
+                >
+                  {(nameI18nKey && <T id={nameI18nKey} />) || name}
                 </span>
               </button>
             );
@@ -86,8 +115,8 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
           ref={ref}
           className={classNames(
             "px-2 py-1",
-            "bg-white-10 rounded",
-            "border border-primary-orange-25",
+            "bg-white bg-opacity-10 rounded",
+            "border border-primary-orange border-opacity-25",
             "text-primary-white text-shadow-black",
             "text-xs font-medium",
             "transition ease-in-out duration-200",
@@ -111,7 +140,10 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             style={{ backgroundColor: network.color }}
           />
 
-          <span>{network.name}</span>
+          <Name style={{ maxWidth: "7rem" }}>
+            {(network.nameI18nKey && <T id={network.nameI18nKey} />) ||
+              network.name}
+          </Name>
 
           <ChevronDownIcon
             className="ml-1 -mr-1 stroke-current stroke-2"

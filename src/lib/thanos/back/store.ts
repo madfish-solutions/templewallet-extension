@@ -68,7 +68,7 @@ export const store = createStore<StoreState>({
     networks: NETWORKS,
   }))
   .on(locked, () => ({
-    // Attension!
+    // Attention!
     // Security stuff!
     // Don't merge new state to exisitng!
     // Build a new state from scratch
@@ -95,3 +95,34 @@ export const store = createStore<StoreState>({
     ...state,
     settings,
   }));
+
+/**
+ * Helpers
+ */
+
+export function withUnlocked<T>(factory: (state: UnlockedStoreState) => T) {
+  const state = store.getState();
+  assertUnlocked(state);
+  return factory(state);
+}
+
+export function withInited<T>(factory: (state: StoreState) => T) {
+  const state = store.getState();
+  assertInited(state);
+  return factory(state);
+}
+
+export function assertUnlocked(
+  state: StoreState
+): asserts state is UnlockedStoreState {
+  assertInited(state);
+  if (state.status !== ThanosStatus.Ready) {
+    throw new Error("Not ready");
+  }
+}
+
+export function assertInited(state: StoreState) {
+  if (!state.inited) {
+    throw new Error("Not initialized");
+  }
+}

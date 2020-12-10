@@ -25,9 +25,7 @@ export async function getBaker(address: string) {
 }
 
 function fixBakerLogo<T extends TNBaker | TNBakerPreview>(baker: T) {
-  return baker.logo.includes("/storage")
-    ? baker
-    : { ...baker, logo: baker.logo.replace("/images", "/storage/images") };
+  return { ...baker, logo: baker.logo_min ?? baker.logo };
 }
 
 function isBakerPay<T extends TNBaker | TNBakerPreview>(baker: T) {

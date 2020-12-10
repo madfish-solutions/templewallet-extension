@@ -1,11 +1,12 @@
 import * as React from "react";
 import classNames from "clsx";
 import { cache } from "swr";
+import { T } from "lib/i18n/react";
 import { ReactComponent as DangerIcon } from "app/icons/danger.svg";
 
 type ErrorBoundaryProps = {
   className?: string;
-  whileMessage?: React.ReactNode;
+  whileMessage?: string;
 };
 
 type ErrorBoundaryState = {
@@ -64,33 +65,52 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
           >
             <DangerIcon className="h-16 w-auto stroke-current" />
 
-            <h2 className="mb-1 text-2xl">Oops!</h2>
+            <T id="oops">
+              {(message) => <h2 className="mb-1 text-2xl">{message}</h2>}
+            </T>
 
             <p className="mb-4 text-sm opacity-90 text-center font-light">
-              Something went wrong
               {this.props.whileMessage ? (
-                <> while {this.props.whileMessage}</>
-              ) : null}
-              {!online && ". This may happen because you are currently offline"}
+                <T
+                  id="smthWentWrongWhile"
+                  substitutions={this.props.whileMessage}
+                />
+              ) : (
+                <T id="smthWentWrong" />
+              )}
+              {!online && (
+                <T id="mayHappenBecauseYouAreOffline">
+                  {(message) => (
+                    <>
+                      {". "}
+                      {message}
+                    </>
+                  )}
+                </T>
+              )}
             </p>
 
-            <button
-              className={classNames(
-                "mb-6",
-                "px-4 py-1",
-                "bg-red-500 rounded",
-                "border border-black-5",
-                "flex items-center",
-                "text-white text-shadow-black",
-                "text-sm font-semibold",
-                "transition duration-300 ease-in-out",
-                "opacity-90 hover:opacity-100",
-                "shadow-sm hover:shadow"
+            <T id="tryAgain">
+              {(message) => (
+                <button
+                  className={classNames(
+                    "mb-6",
+                    "px-4 py-1",
+                    "bg-red-500 rounded",
+                    "border border-black border-opacity-5",
+                    "flex items-center",
+                    "text-white text-shadow-black",
+                    "text-sm font-semibold",
+                    "transition duration-300 ease-in-out",
+                    "opacity-90 hover:opacity-100",
+                    "shadow-sm hover:shadow"
+                  )}
+                  onClick={() => this.tryAgain()}
+                >
+                  {message}
+                </button>
               )}
-              onClick={() => this.tryAgain()}
-            >
-              Try again
-            </button>
+            </T>
           </div>
         </div>
       );

@@ -2,10 +2,12 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
+  ThanosAccountType,
   useThanosClient,
   useAllAccounts,
   useSetAccountPkh,
 } from "lib/thanos/front";
+import { T, t } from "lib/i18n/react";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -22,9 +24,18 @@ const CreateAccount: React.FC = () => {
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
-  const defaultName = React.useMemo(() => `Account ${allAccounts.length + 1}`, [
-    allAccounts.length,
-  ]);
+  const allHDOrImported = React.useMemo(
+    () =>
+      allAccounts.filter((acc) =>
+        [ThanosAccountType.HD, ThanosAccountType.Imported].includes(acc.type)
+      ),
+    [allAccounts]
+  );
+
+  const defaultName = React.useMemo(
+    () => t("defaultAccountName", String(allHDOrImported.length + 1)),
+    [allHDOrImported.length]
+  );
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
   React.useEffect(() => {
@@ -70,22 +81,22 @@ const CreateAccount: React.FC = () => {
     <PageLayout
       pageTitle={
         <>
-          <AddIcon className="mr-1 h-4 w-auto stroke-current" />
-          Create Account
+          <AddIcon className="w-auto h-4 mr-1 stroke-current" />
+          <T id="createAccount" />
         </>
       }
     >
-      <div className="mt-6 w-full max-w-sm mx-auto">
+      <div className="w-full max-w-sm mx-auto mt-6">
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormField
             ref={register({
               pattern: {
                 value: /^[a-zA-Z0-9 _-]{0,16}$/,
-                message: "1-16 characters, no special",
+                message: t("accountNameInputTitle"),
               },
             })}
-            label="Account name"
-            labelDescription={`What will be the name of the new account?`}
+            label={t("accountName")}
+            labelDescription={t("accountNameInputDescription")}
             id="create-account-name"
             type="text"
             name="name"
@@ -94,9 +105,13 @@ const CreateAccount: React.FC = () => {
             containerClassName="mb-4"
           />
 
-          <FormSubmitButton loading={submitting} disabled={submitting}>
-            Create Account
-          </FormSubmitButton>
+          <T id="createAccount">
+            {(message) => (
+              <FormSubmitButton className="capitalize" loading={submitting}>
+                {message}
+              </FormSubmitButton>
+            )}
+          </T>
         </form>
       </div>
     </PageLayout>

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ThanosAsset, ThanosAssetType } from "lib/thanos/types";
+import { T } from "lib/i18n/react";
 import xtzImgUrl from "app/misc/xtz.png";
-import anyTokenImgUrl from "app/misc/anytoken.png";
 
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
@@ -18,20 +18,22 @@ export const PASSWORD_PATTERN = new RegExp(
   ].join("")
 );
 
+export const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
+
 export const PASSWORD_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
-    <li>At least 8 characters</li>
-    <li>At least 1 number</li>
-    <li>At least 1 lowercase letter</li>
-    <li>At least 1 uppercase letter</li>
+    <T id="atLeast8Characters">{(message) => <li>{message}</li>}</T>
+    <T id="atLeast1Number">{(message) => <li>{message}</li>}</T>
+    <T id="atLeast1LowercaseLetter">{(message) => <li>{message}</li>}</T>
+    <T id="atLeast1UppercaseLetter">{(message) => <li>{message}</li>}</T>
   </ul>
 );
 
 export const MNEMONIC_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
-    <li>12, 15, 18, 21 or 24 words on English</li>
-    <li>Each word separated with a single space</li>
-    <li>Just valid pre-generated mnemonic</li>
+    <T id="mnemonicWordsAmountConstraint">{(message) => <li>{message}</li>}</T>
+    <T id="mnemonicSpacingConstraint">{(message) => <li>{message}</li>}</T>
+    <T id="justValidPreGeneratedMnemonic">{(message) => <li>{message}</li>}</T>
   </ul>
 );
 
@@ -40,7 +42,5 @@ export function formatMnemonic(m: string) {
 }
 
 export function getAssetIconUrl(asset: ThanosAsset) {
-  return asset.type === ThanosAssetType.XTZ
-    ? xtzImgUrl
-    : asset.iconUrl ?? anyTokenImgUrl;
+  return asset.type === ThanosAssetType.XTZ ? xtzImgUrl : asset.iconUrl;
 }

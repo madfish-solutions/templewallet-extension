@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
+import { T } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import DocBg from "app/a11y/DocBg";
@@ -8,38 +9,42 @@ import ContentContainer from "app/layouts/ContentContainer";
 import BackupSeedAlert from "app/templates/BackupSeedAlert";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
-import Header from "./PageLayout/Header";
-import ConfirmOverlay from "./PageLayout/ConfirmOverlay";
+import Header from "app/layouts/PageLayout/Header";
+import ConfirmationOverlay from "app/layouts/PageLayout/ConfirmationOverlay";
 
 type PageLayoutProps = ToolbarProps;
 
 const PageLayout: React.FC<PageLayoutProps> = ({
   children,
   ...toolbarProps
-}) => (
-  <>
-    <DocBg bgClassName="bg-primary-orange" />
+}) => {
+  const { fullPage } = useAppEnv();
 
-    <div className="pb-20">
-      <Header />
+  return (
+    <>
+      <DocBg bgClassName="bg-primary-orange" />
 
-      <ContentPaper>
-        <Toolbar {...toolbarProps} />
+      <div className={classNames(fullPage && "pb-20")}>
+        <Header />
 
-        <div className="p-4">
-          <ErrorBoundary whileMessage="displaying this page">
-            <React.Suspense fallback={<SpinnerSection />}>
-              {children}
-            </React.Suspense>
-          </ErrorBoundary>
-        </div>
-      </ContentPaper>
-    </div>
+        <ContentPaper>
+          <Toolbar {...toolbarProps} />
 
-    <BackupSeedAlert />
-    <ConfirmOverlay />
-  </>
-);
+          <div className="p-4">
+            <ErrorBoundary whileMessage="displaying this page">
+              <React.Suspense fallback={<SpinnerSection />}>
+                {children}
+              </React.Suspense>
+            </ErrorBoundary>
+          </div>
+        </ContentPaper>
+      </div>
+
+      <BackupSeedAlert />
+      <ConfirmationOverlay />
+    </>
+  );
+};
 
 export default PageLayout;
 
@@ -76,7 +81,7 @@ const ContentPaper: React.FC<ContentPaparProps> = ({
 };
 
 const SpinnerSection: React.FC = () => (
-  <div className="mt-24 flex justify-center">
+  <div className="flex justify-center mt-24">
     <Spinner className="w-20" />
   </div>
 );
@@ -129,6 +134,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
         observer.unobserve(toolbarEl);
       };
     }
+    return;
   }, [setSticked]);
 
   return (
@@ -161,7 +167,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
               "flex items-center",
               "text-gray-600 text-shadow-black",
               "text-sm font-semibold leading-none",
-              "hover:bg-black-5",
+              "hover:bg-black hover:bg-opacity-5",
               "transition duration-300 ease-in-out",
               "opacity-90 hover:opacity-100"
             )}
@@ -175,7 +181,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 "stroke-2"
               )}
             />
-            Back
+            <T id="back" />
           </button>
         )}
       </div>

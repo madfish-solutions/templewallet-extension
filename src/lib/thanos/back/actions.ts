@@ -1,31 +1,51 @@
+import { browser, Runtime } from "webextension-polyfill-ts";
 import {
-  ThanosDAppRequest,
   ThanosDAppMessageType,
+  ThanosDAppErrorType,
+  ThanosDAppRequest,
   ThanosDAppResponse,
 } from "@thanos-wallet/dapp/dist/types";
-import { IntercomServer } from "lib/intercom/server";
 import {
   ThanosState,
-  ThanosStatus,
   ThanosMessageType,
   ThanosRequest,
   ThanosSettings,
+  ThanosSharedStorageKey,
 } from "lib/thanos/types";
-import { Vault } from "lib/thanos/back/vault";
+import { loadChainId } from "lib/thanos/helpers";
+import { intercom } from "lib/thanos/back/defaults";
 import {
-  StoreState,
-  UnlockedStoreState,
   toFront,
   store,
+  inited,
   locked,
   unlocked,
   accountsUpdated,
   settingsUpdated,
+  withInited,
+  withUnlocked,
 } from "lib/thanos/back/store";
-import { requestPermission, requestOperation } from "lib/thanos/back/dapp";
+import { Vault } from "lib/thanos/back/vault";
+import {
+  getCurrentPermission,
+  requestPermission,
+  requestOperation,
+  requestSign,
+  requestBroadcast,
+  getAllDApps,
+  removeDApp,
+} from "lib/thanos/back/dapp";
+import * as PndOps from "lib/thanos/back/pndops";
+import * as Beacon from "lib/thanos/beacon";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
+const BEACON_ID = `thanos_wallet_${browser.runtime.id}`;
+
+export async function init() {
+  const vaultExist = await Vault.isExist();
+  inited(vaultExist);
+}
 
 export async function getFrontState(): Promise<ThanosState> {
   const state = store.getState();
@@ -35,6 +55,12 @@ export async function getFrontState(): Promise<ThanosState> {
     await new Promise((r) => setTimeout(r, 10));
     return getFrontState();
   }
+}
+
+export async function isDAppEnabled() {
+  const key = ThanosSharedStorageKey.DAppEnabled;
+  const items = await browser.storage.local.get([key]);
+  return key in items ? items[key] : true;
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {
@@ -148,6 +174,31 @@ export function importFundraiserAccount(
   });
 }
 
+export function importManagedKTAccount(
+  address: string,
+  chainId: string,
+  owner: string
+) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.importManagedKTAccount(
+      address,
+      chainId,
+      owner
+    );
+    accountsUpdated(updatedAccounts);
+  });
+}
+
+export function craeteLedgerAccount(name: string, derivationPath?: string) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.createLedgerAccount(
+      name,
+      derivationPath
+    );
+    accountsUpdated(updatedAccounts);
+  });
+}
+
 export function updateSettings(settings: Partial<ThanosSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
@@ -155,23 +206,34 @@ export function updateSettings(settings: Partial<ThanosSettings>) {
   });
 }
 
-export function sign(
-  intercom: IntercomServer,
-  accPublicKeyHash: string,
+export function getAllDAppSessions() {
+  return getAllDApps();
+}
+
+export function removeDAppSession(origin: string) {
+  return removeDApp(origin);
+}
+
+export function sendOperations(
+  port: Runtime.Port,
   id: string,
-  bytes: string,
-  watermark?: string
-) {
+  sourcePkh: string,
+  networkRpc: string,
+  opParams: any[]
+): Promise<{ opHash: string }> {
   return withUnlocked(
     () =>
       new Promise(async (resolve, reject) => {
-        intercom.broadcast({
-          type: ThanosMessageType.ConfirmRequested,
+        intercom.notify(port, {
+          type: ThanosMessageType.ConfirmationRequested,
           id,
+          payload: {
+            type: "operations",
+            sourcePkh,
+            networkRpc,
+            opParams,
+          },
         });
-
-        let stop: any;
-        let timeout: any;
 
         let closing = false;
         const close = () => {
@@ -179,11 +241,12 @@ export function sign(
           closing = true;
 
           try {
-            if (stop) stop();
-            if (timeout) clearTimeout(timeout);
+            stopTimeout();
+            stopRequestListening();
+            stopDisconnectListening();
 
-            intercom.broadcast({
-              type: ThanosMessageType.ConfirmExpired,
+            intercom.notify(port, {
+              type: ThanosMessageType.ConfirmationExpired,
               id,
             });
           } catch (_err) {}
@@ -192,79 +255,350 @@ export function sign(
         const decline = () => {
           reject(new Error("Declined"));
         };
-
-        stop = intercom.onRequest(async (req: ThanosRequest) => {
-          if (
-            req?.type === ThanosMessageType.ConfirmRequest &&
-            req?.id === id
-          ) {
-            if (req.confirm) {
-              const result = await Vault.sign(
-                accPublicKeyHash,
-                req.password!,
-                bytes,
-                watermark
-              );
-              resolve(result);
-            } else {
-              decline();
-            }
-
-            close();
-
-            return {
-              type: ThanosMessageType.ConfirmResponse,
-              id,
-            };
-          }
-        });
-
-        // Decline after timeout
-        timeout = setTimeout(() => {
+        const declineAndClose = () => {
           decline();
           close();
-        }, AUTODECLINE_AFTER);
+        };
+
+        const stopRequestListening = intercom.onRequest(
+          async (req: ThanosRequest, reqPort) => {
+            if (
+              reqPort === port &&
+              req?.type === ThanosMessageType.ConfirmationRequest &&
+              req?.id === id
+            ) {
+              if (req.confirmed) {
+                try {
+                  const op = await withUnlocked(({ vault }) =>
+                    vault.sendOperations(sourcePkh, networkRpc, opParams)
+                  );
+
+                  try {
+                    const chainId = await loadChainId(networkRpc);
+                    const pndOps = PndOps.fromOpResults(op.results, op.hash);
+                    await PndOps.append(sourcePkh, chainId, pndOps);
+                  } catch {}
+
+                  resolve({ opHash: op.hash });
+                } catch (err) {
+                  if (err?.message?.startsWith("__tezos__")) {
+                    reject(new Error(err.message));
+                  } else {
+                    throw err;
+                  }
+                }
+              } else {
+                decline();
+              }
+
+              close();
+
+              return {
+                type: ThanosMessageType.ConfirmationResponse,
+              };
+            }
+            return;
+          }
+        );
+
+        const stopDisconnectListening = intercom.onDisconnect(
+          port,
+          declineAndClose
+        );
+
+        // Decline after timeout
+        const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
+        const stopTimeout = () => clearTimeout(t);
+      })
+  );
+}
+
+export function sign(
+  port: Runtime.Port,
+  id: string,
+  sourcePkh: string,
+  bytes: string,
+  watermark?: string
+) {
+  return withUnlocked(
+    () =>
+      new Promise(async (resolve, reject) => {
+        intercom.notify(port, {
+          type: ThanosMessageType.ConfirmationRequested,
+          id,
+          payload: {
+            type: "sign",
+            sourcePkh,
+            bytes,
+            watermark,
+          },
+        });
+
+        let closing = false;
+        const close = () => {
+          if (closing) return;
+          closing = true;
+
+          try {
+            stopTimeout();
+            stopRequestListening();
+            stopDisconnectListening();
+
+            intercom.notify(port, {
+              type: ThanosMessageType.ConfirmationExpired,
+              id,
+            });
+          } catch (_err) {}
+        };
+
+        const decline = () => {
+          reject(new Error("Declined"));
+        };
+        const declineAndClose = () => {
+          decline();
+          close();
+        };
+
+        const stopRequestListening = intercom.onRequest(
+          async (req: ThanosRequest, reqPort) => {
+            if (
+              reqPort === port &&
+              req?.type === ThanosMessageType.ConfirmationRequest &&
+              req?.id === id
+            ) {
+              if (req.confirmed) {
+                const result = await withUnlocked(({ vault }) =>
+                  vault.sign(sourcePkh, bytes, watermark)
+                );
+                resolve(result);
+              } else {
+                decline();
+              }
+
+              close();
+
+              return {
+                type: ThanosMessageType.ConfirmationResponse,
+              };
+            }
+            return;
+          }
+        );
+
+        const stopDisconnectListening = intercom.onDisconnect(
+          port,
+          declineAndClose
+        );
+
+        // Decline after timeout
+        const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
+        const stopTimeout = () => clearTimeout(t);
       })
   );
 }
 
 export async function processDApp(
-  intercom: IntercomServer,
   origin: string,
   req: ThanosDAppRequest
 ): Promise<ThanosDAppResponse | void> {
   switch (req?.type) {
+    case ThanosDAppMessageType.GetCurrentPermissionRequest:
+      return withInited(() => getCurrentPermission(origin));
+
     case ThanosDAppMessageType.PermissionRequest:
-      return withInited(() => requestPermission(origin, req, intercom));
+      return withInited(() => requestPermission(origin, req));
 
     case ThanosDAppMessageType.OperationRequest:
-      return withInited(() => requestOperation(origin, req, intercom));
+      return withInited(() => requestOperation(origin, req));
+
+    case ThanosDAppMessageType.SignRequest:
+      return withInited(() => requestSign(origin, req));
+
+    case ThanosDAppMessageType.BroadcastRequest:
+      return withInited(() => requestBroadcast(origin, req));
   }
 }
 
-function withUnlocked<T>(factory: (state: UnlockedStoreState) => T) {
-  const state = store.getState();
-  assertUnlocked(state);
-  return factory(state);
-}
-
-function withInited<T>(factory: (state: StoreState) => T) {
-  const state = store.getState();
-  assertInited(state);
-  return factory(state);
-}
-
-function assertUnlocked(
-  state: StoreState
-): asserts state is UnlockedStoreState {
-  assertInited(state);
-  if (state.status !== ThanosStatus.Ready) {
-    throw new Error("Not ready");
+export async function processBeacon(
+  origin: string,
+  msg: string,
+  encrypted = false
+) {
+  let recipientPubKey: string | null = null;
+  if (encrypted) {
+    recipientPubKey = await Beacon.getDAppPublicKey(origin);
+    if (recipientPubKey) {
+      msg = await Beacon.decryptMessage(msg, recipientPubKey);
+    } else {
+      return Beacon.encodeMessage<Beacon.Response>({
+        version: "2",
+        senderId: await Beacon.getSenderId(),
+        id: "stub",
+        type: Beacon.MessageType.Disconnect,
+      });
+    }
   }
-}
 
-function assertInited(state: StoreState) {
-  if (!state.inited) {
-    throw new Error("Not initialized");
+  let req: Beacon.Request;
+  try {
+    req = Beacon.decodeMessage<Beacon.Request>(msg);
+  } catch {
+    return;
   }
+
+  // Process Disconnect
+  if (req.type === Beacon.MessageType.Disconnect) {
+    await removeDApp(origin);
+    return;
+  }
+
+  const resBase = {
+    version: req.version,
+    id: req.id,
+    ...(req.beaconId
+      ? { beaconId: BEACON_ID }
+      : { senderId: await Beacon.getSenderId() }),
+  };
+
+  // Process handshake
+  if (req.type === Beacon.MessageType.HandshakeRequest) {
+    await Beacon.saveDAppPublicKey(origin, req.publicKey);
+    const keyPair = await Beacon.getOrCreateKeyPair();
+    return Beacon.sealCryptobox(
+      JSON.stringify({
+        ...resBase,
+        ...Beacon.PAIRING_RESPONSE_BASE,
+        publicKey: Beacon.toHex(keyPair.publicKey),
+      }),
+      Beacon.fromHex(req.publicKey)
+    );
+  }
+
+  const res = await (async (): Promise<Beacon.Response> => {
+    try {
+      try {
+        const thanosReq = ((): ThanosDAppRequest | void => {
+          switch (req.type) {
+            case Beacon.MessageType.PermissionRequest:
+              const network =
+                req.network.type === "custom"
+                  ? {
+                      name: req.network.name!,
+                      rpc: req.network.rpcUrl!,
+                    }
+                  : req.network.type;
+
+              return {
+                type: ThanosDAppMessageType.PermissionRequest,
+                network,
+                appMeta: req.appMetadata,
+                force: true,
+              };
+
+            case Beacon.MessageType.OperationRequest:
+              return {
+                type: ThanosDAppMessageType.OperationRequest,
+                sourcePkh: req.sourceAddress,
+                opParams: req.operationDetails.map(Beacon.formatOpParams),
+              };
+
+            case Beacon.MessageType.SignPayloadRequest:
+              return {
+                type: ThanosDAppMessageType.SignRequest,
+                sourcePkh: req.sourceAddress,
+                payload: req.payload,
+              };
+
+            case Beacon.MessageType.BroadcastRequest:
+              return {
+                type: ThanosDAppMessageType.BroadcastRequest,
+                signedOpBytes: req.signedTransaction,
+              };
+          }
+        })();
+
+        if (thanosReq) {
+          const thanosRes = await processDApp(origin, thanosReq);
+
+          if (thanosRes) {
+            // Map Thanos DApp response to Beacon response
+            switch (thanosRes.type) {
+              case ThanosDAppMessageType.PermissionResponse:
+                return {
+                  ...resBase,
+                  type: Beacon.MessageType.PermissionResponse,
+                  publicKey: (thanosRes as any).publicKey,
+                  network: (req as Beacon.PermissionRequest).network,
+                  scopes: [
+                    Beacon.PermissionScope.OPERATION_REQUEST,
+                    Beacon.PermissionScope.SIGN,
+                  ],
+                };
+
+              case ThanosDAppMessageType.OperationResponse:
+                return {
+                  ...resBase,
+                  type: Beacon.MessageType.OperationResponse,
+                  transactionHash: thanosRes.opHash,
+                };
+
+              case ThanosDAppMessageType.SignResponse:
+                return {
+                  ...resBase,
+                  type: Beacon.MessageType.SignPayloadResponse,
+                  signature: thanosRes.signature,
+                };
+
+              case ThanosDAppMessageType.BroadcastResponse:
+                return {
+                  ...resBase,
+                  type: Beacon.MessageType.BroadcastResponse,
+                  transactionHash: thanosRes.opHash,
+                };
+            }
+          }
+        }
+
+        throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
+      } catch (err) {
+        // Map Thanos DApp error to Beacon error
+        const beaconErrorType = (() => {
+          if (err?.message.startsWith("__tezos__")) {
+            return Beacon.ErrorType.BROADCAST_ERROR;
+          }
+
+          switch (err?.message) {
+            case ThanosDAppErrorType.InvalidParams:
+              return Beacon.ErrorType.PARAMETERS_INVALID_ERROR;
+
+            case ThanosDAppErrorType.NotFound:
+            case ThanosDAppErrorType.NotGranted:
+              return req.beaconId
+                ? Beacon.ErrorType.NOT_GRANTED_ERROR
+                : Beacon.ErrorType.ABORTED_ERROR;
+
+            default:
+              return err?.message;
+          }
+        })();
+
+        throw new Error(beaconErrorType);
+      }
+    } catch (err) {
+      return {
+        ...resBase,
+        type: Beacon.MessageType.Error,
+        errorType:
+          err?.message in Beacon.ErrorType
+            ? err.message
+            : Beacon.ErrorType.UNKNOWN_ERROR,
+      };
+    }
+  })();
+
+  const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
+  if (encrypted && recipientPubKey) {
+    return Beacon.encryptMessage(resMsg, recipientPubKey);
+  }
+  return resMsg;
 }

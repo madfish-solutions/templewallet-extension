@@ -6,13 +6,19 @@ import { ThanosAsset, XTZ_ASSET, useBalance } from "lib/thanos/front";
 
 type BalanceProps = {
   address: string;
-  asset?: ThanosAsset;
   children: (b: BigNumber) => React.ReactElement;
+  asset?: ThanosAsset;
+  networkRpc?: string;
+  displayed?: boolean;
 };
 
 const Balance = React.memo<BalanceProps>(
-  ({ address, asset = XTZ_ASSET, children }) => {
-    const { data: balance } = useBalance(asset, address, false);
+  ({ address, children, asset = XTZ_ASSET, networkRpc, displayed }) => {
+    const { data: balance } = useBalance(asset, address, {
+      networkRpc,
+      suspense: false,
+      displayed,
+    });
     const exist = balance !== undefined;
 
     return React.useMemo(() => {

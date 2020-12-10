@@ -1,9 +1,10 @@
 import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { validateMnemonic } from "bip39";
+import { validateMnemonic, generateMnemonic } from "bip39";
 import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
+import { T, t } from "lib/i18n/react";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
@@ -20,6 +21,11 @@ interface FormData {
   password: string;
   repassword: string;
   termsaccepted: boolean;
+}
+
+interface BackupData {
+  mnemonic: string;
+  password: string;
 }
 
 type NewWalletProps = {
@@ -51,16 +57,22 @@ const NewWallet: React.FC<NewWalletProps> = ({
     }
   }, [triggerValidation, formState.dirtyFields, passwordValue]);
 
+  const [backupData, setBackupData] = React.useState<BackupData | null>(null);
+
   const onSubmit = React.useCallback(
     async (data: FormData) => {
       if (submitting) return;
 
       try {
-        await registerWallet(
-          data.password,
-          ownMnemonic ? formatMnemonic(data.mnemonic!) : undefined
-        );
-        setSeedRevealed(ownMnemonic);
+        if (ownMnemonic) {
+          await registerWallet(data.password, formatMnemonic(data.mnemonic!));
+          setSeedRevealed(true);
+        } else {
+          setBackupData({
+            mnemonic: generateMnemonic(128),
+            password: data.password,
+          });
+        }
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -69,7 +81,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
         alert(err.message);
       }
     },
-    [submitting, ownMnemonic, registerWallet, setSeedRevealed]
+    [submitting, ownMnemonic, setBackupData, registerWallet, setSeedRevealed]
   );
 
   return (
@@ -80,127 +92,281 @@ const NewWallet: React.FC<NewWalletProps> = ({
           "text-2xl font-light text-gray-700 text-center"
         )}
       >
-        {title}
+        {backupData ? t("backupNewSeedPhrase") : title}
       </h1>
 
       <hr className="my-4" />
 
-      <form
-        className="my-8 w-full mx-auto max-w-sm"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        {locked && (
-          <Alert
-            title="Attension!"
-            description={
-              <>
-                <p>
-                  Locked wallet{" "}
-                  <span className="font-semibold">already exist</span>
-                  .
-                  <br />
-                  Importing a new one will{" "}
-                  <span className="font-semibold">destroy the existing</span>.
-                </p>
-                <p className="mt-1">
-                  If you want to save something from already existing wallet -{" "}
-                  <Link to="/" className="font-semibold hover:underline">
-                    back to Unlock page
-                  </Link>{" "}
-                  and unlock it.
-                </p>
-              </>
-            }
-            className="my-6"
-          />
-        )}
+      {!backupData ? (
+        <form
+          className="w-full max-w-sm mx-auto my-8"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          {locked && (
+            <Alert
+              title={t("attentionExclamation")}
+              description={
+                <>
+                  <p>
+                    <T id="lockedWallet" />{" "}
+                    <T id="alreadyExistsWallet">
+                      {(message) => (
+                        <span className="font-semibold">{message}</span>
+                      )}
+                    </T>
+                    .
+                    <br />
+                    <T id="importingNewWalletWill" />{" "}
+                    <T id="willDestroyTheExisting">
+                      {(message) => (
+                        <span className="font-semibold">{message}</span>
+                      )}
+                    </T>
+                    .
+                  </p>
+                  <T
+                    id="unlockWalletPrompt"
+                    substitutions={[
+                      <T id="backToUnlockPage" key="link">
+                        {(linkLabel) => (
+                          <Link
+                            to="/"
+                            className="font-semibold hover:underline"
+                          >
+                            {linkLabel}
+                          </Link>
+                        )}
+                      </T>,
+                    ]}
+                  >
+                    {(message) => <p className="mt-1">{message}</p>}
+                  </T>
+                </>
+              }
+              className="my-6"
+            />
+          )}
 
-        {ownMnemonic && (
+          {ownMnemonic && (
+            <FormField
+              secret
+              textarea
+              rows={4}
+              ref={register({
+                required: t("required"),
+                validate: (val) =>
+                  validateMnemonic(formatMnemonic(val)) ||
+                  MNEMONIC_ERROR_CAPTION,
+              })}
+              label={t("mnemonicInputLabel")}
+              labelDescription={t("mnemonicInputDescription")}
+              id="newwallet-mnemonic"
+              name="mnemonic"
+              placeholder={t("mnemonicInputPlaceholder")}
+              spellCheck={false}
+              errorCaption={errors.mnemonic?.message}
+              containerClassName="mb-4"
+              className="resize-none"
+            />
+          )}
+
           <FormField
-            secret
-            textarea
-            rows={4}
             ref={register({
-              required: "Required",
-              validate: (val) =>
-                validateMnemonic(formatMnemonic(val)) || MNEMONIC_ERROR_CAPTION,
+              required: t("required"),
+              pattern: {
+                value: PASSWORD_PATTERN,
+                message: PASSWORD_ERROR_CAPTION,
+              },
             })}
-            label="Seed phrase"
-            labelDescription="Mnemonic. Your secret twelve word phrase."
-            id="newwallet-mnemonic"
-            name="mnemonic"
-            placeholder="e.g. venue sock milk update..."
-            spellCheck={false}
-            errorCaption={errors.mnemonic?.message}
+            label={t("password")}
+            labelDescription={t("unlockPasswordInputDescription")}
+            id="newwallet-password"
+            type="password"
+            name="password"
+            placeholder="********"
+            errorCaption={errors.password?.message}
             containerClassName="mb-4"
-            className="resize-none"
           />
-        )}
 
-        <FormField
-          ref={register({
-            required: "Required",
-            pattern: {
-              value: PASSWORD_PATTERN,
-              message: PASSWORD_ERROR_CAPTION,
-            },
-          })}
-          label="Password"
-          labelDescription="A password is used to protect the wallet."
-          id="newwallet-password"
-          type="password"
-          name="password"
-          placeholder="********"
-          errorCaption={errors.password?.message}
-          containerClassName="mb-4"
-        />
+          <FormField
+            ref={register({
+              required: t("required"),
+              validate: (val) =>
+                val === passwordValue || t("mustBeEqualToPasswordAbove"),
+            })}
+            label={t("repeatPassword")}
+            labelDescription={t("repeatPasswordInputDescription")}
+            id="newwallet-repassword"
+            type="password"
+            name="repassword"
+            placeholder="********"
+            errorCaption={errors.repassword?.message}
+            containerClassName="mb-6"
+          />
 
-        <FormField
-          ref={register({
-            required: "Required",
-            validate: (val) =>
-              val === passwordValue || "Must be equal to password above",
-          })}
-          label="Repeat Password"
-          labelDescription="Please enter the password again."
-          id="newwallet-repassword"
-          type="password"
-          name="repassword"
-          placeholder="********"
-          errorCaption={errors.repassword?.message}
-          containerClassName="mb-6"
-        />
+          <FormCheckbox
+            ref={register({
+              validate: (val) => val || t("confirmTermsError"),
+            })}
+            errorCaption={errors.termsaccepted?.message}
+            name="termsaccepted"
+            label={t("acceptTerms")}
+            labelDescription={
+              <T
+                id="acceptTermsInputDescription"
+                substitutions={[
+                  <T id="termsOfUsage" key="termsLink">
+                    {(message) => (
+                      <a
+                        href="https://thanoswallet.com/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-secondary"
+                      >
+                        {message}
+                      </a>
+                    )}
+                  </T>,
+                  <T id="privacyPolicy" key="privacyPolicyLink">
+                    {(message) => (
+                      <a
+                        href="https://thanoswallet.com/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline text-secondary"
+                      >
+                        {message}
+                      </a>
+                    )}
+                  </T>,
+                ]}
+              />
+            }
+            containerClassName="mb-6"
+          />
 
-        <FormCheckbox
-          ref={register({
-            validate: (val) =>
-              val || "Unable to continue without confirming Terms of Usage",
-          })}
-          errorCaption={errors.termsaccepted?.message}
-          name="termsaccepted"
-          label="Accept terms"
-          labelDescription={
-            <>
-              I have read and agree to the{" "}
-              <a
-                href="https://thanoswallet.com/terms"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-secondary underline"
-              >
-                Terms of Usage
-              </a>
-            </>
-          }
-          containerClassName="mb-6"
-        />
-
-        <FormSubmitButton loading={submitting} disabled={submitting}>
-          Create
-        </FormSubmitButton>
-      </form>
+          <T id="create">
+            {(message) => (
+              <FormSubmitButton loading={submitting}>
+                {message}
+              </FormSubmitButton>
+            )}
+          </T>
+        </form>
+      ) : (
+        <Backup data={backupData} />
+      )}
     </div>
   );
 };
 
 export default NewWallet;
+
+interface BackupFormData {
+  backuped: boolean;
+}
+
+type BackupProps = {
+  data: BackupData;
+};
+
+const Backup: React.FC<BackupProps> = ({ data }) => {
+  const { registerWallet, setSeedRevealed } = useThanosClient();
+
+  const { register, handleSubmit, errors, formState } = useForm<
+    BackupFormData
+  >();
+  const submitting = formState.isSubmitting;
+
+  const onSubmit = React.useCallback(async () => {
+    if (submitting) return;
+
+    try {
+      await registerWallet(data.password, data.mnemonic);
+      setSeedRevealed(true);
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(err);
+      }
+
+      alert(err.message);
+    }
+  }, [
+    submitting,
+    registerWallet,
+    setSeedRevealed,
+    data.password,
+    data.mnemonic,
+  ]);
+
+  return (
+    <div className="w-full max-w-sm mx-auto my-8">
+      <Alert
+        title={""}
+        description={
+          <>
+            <p className="mb-2">
+              <T id="clickOnAreaBelow">
+                {(message) => <span className="font-semibold">{message}</span>}
+              </T>
+              <T id="toRevealNewSeedPhrase" />
+              <br />
+              <T id="writePhraseOnPieceOfPaper" />{" "}
+              <T id="storePhraseInSecureLocation">
+                {(message) => <span className="font-semibold">{message}</span>}
+              </T>
+              .<T id="orYouCanMemorizePhrase" />
+            </p>
+
+            <T
+              id="doNotSharePhrase"
+              substitutions={[
+                <T key="doNotShare" id="doNotShareEmphasized">
+                  {(message) => (
+                    <span className="font-semibold">{message}</span>
+                  )}
+                </T>,
+              ]}
+            >
+              {(message) => <p>{message}</p>}
+            </T>
+          </>
+        }
+        className="mt-4 mb-8"
+      />
+
+      <FormField
+        secret
+        textarea
+        rows={4}
+        readOnly
+        label={t("mnemonicInputLabel")}
+        labelDescription={t("youWillNeedThisSeedPhrase")}
+        id="backup-mnemonic"
+        spellCheck={false}
+        containerClassName="mb-4"
+        className="resize-none notranslate"
+        value={data.mnemonic}
+      />
+
+      <form className="w-full mt-8" onSubmit={handleSubmit(onSubmit)}>
+        <FormCheckbox
+          ref={register({
+            validate: (val) => val || t("unableToContinueWithoutConfirming"),
+          })}
+          errorCaption={errors.backuped?.message}
+          name="backuped"
+          label={t("backupedInputLabel")}
+          labelDescription={<T id="backupedInputDescription" />}
+          containerClassName="mb-6"
+        />
+
+        <T id="continue">
+          {(message) => (
+            <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
+          )}
+        </T>
+      </form>
+    </div>
+  );
+};
