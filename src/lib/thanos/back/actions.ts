@@ -189,9 +189,12 @@ export function importManagedKTAccount(
   });
 }
 
-export function importWatchOnlyAccount(address: string) {
+export function importWatchOnlyAccount(address: string, chainId?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importWatchOnlyAccount(address);
+    const updatedAccounts = await vault.importWatchOnlyAccount(
+      address,
+      chainId
+    );
     accountsUpdated(updatedAccounts);
   });
 }

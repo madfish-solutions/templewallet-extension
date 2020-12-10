@@ -117,7 +117,7 @@ async function processRequest(
       };
 
     case ThanosMessageType.ImportWatchOnlyAccountRequest:
-      await Actions.importWatchOnlyAccount(req.address);
+      await Actions.importWatchOnlyAccount(req.address, req.chainId);
       return {
         type: ThanosMessageType.ImportWatchOnlyAccountResponse,
       };

@@ -182,7 +182,7 @@ export function useChainId(suspense?: boolean) {
   return React.useMemo(() => lazyChainId, [lazyChainId]);
 }
 
-export function useRelevantAccounts(withManagedKT = true) {
+export function useRelevantAccounts(withExtraTypes = true) {
   const allAccounts = useAllAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
@@ -190,12 +190,21 @@ export function useRelevantAccounts(withManagedKT = true) {
 
   const relevantAccounts = React.useMemo(
     () =>
-      allAccounts.filter((acc) =>
-        acc.type === ThanosAccountType.ManagedKT
-          ? withManagedKT && acc.chainId === lazyChainId
-          : true
-      ),
-    [allAccounts, lazyChainId, withManagedKT]
+      allAccounts.filter((acc) => {
+        switch (acc.type) {
+          case ThanosAccountType.ManagedKT:
+            return withExtraTypes && acc.chainId === lazyChainId;
+
+          case ThanosAccountType.WatchOnly:
+            return (
+              withExtraTypes && (!acc.chainId || acc.chainId === lazyChainId)
+            );
+
+          default:
+            return true;
+        }
+      }),
+    [allAccounts, lazyChainId, withExtraTypes]
   );
 
   React.useEffect(() => {
