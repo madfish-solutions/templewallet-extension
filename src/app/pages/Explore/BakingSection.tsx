@@ -9,20 +9,17 @@ import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
 import styles from "./BakingSection.module.css";
 
-const BakingSection: React.FC = () => {
+const BakingSection = React.memo(() => {
   const acc = useAccount();
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
   const canDelegate = acc.type !== ThanosAccountType.WatchOnly;
 
-  const tippyProps = React.useMemo(
-    () => ({
-      trigger: "mouseenter",
-      hideOnClick: false,
-      content: t("disabledForWatchOnlyAccount"),
-      animation: "shift-away-subtle",
-    }),
-    []
-  );
+  const tippyProps = {
+    trigger: "mouseenter",
+    hideOnClick: false,
+    content: t("disabledForWatchOnlyAccount"),
+    animation: "shift-away-subtle",
+  };
 
   const delegateButtonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonDelegateButtonProps = React.useMemo(
@@ -105,6 +102,6 @@ const BakingSection: React.FC = () => {
     ),
     [myBakerPkh, canDelegate, commonDelegateButtonProps, delegateButtonRef]
   );
-};
+});
 
 export default BakingSection;
