@@ -897,7 +897,7 @@ const WatchOnlyForm: React.FC = () => {
     setError(null);
     try {
       if (!isAddressValid(finalAddress)) {
-        throw new Error("Invalid address");
+        throw new Error(t("invalidAddress"));
       }
 
       let chainId: string | undefined;
@@ -906,9 +906,7 @@ const WatchOnlyForm: React.FC = () => {
         try {
           await tezos.contract.at(finalAddress);
         } catch {
-          throw new Error(
-            "This smart contract doesn't exist on current network"
-          );
+          throw new Error(t("contractNotExistOnNetwork"));
         }
 
         chainId = await tezos.rpc.getChainId();

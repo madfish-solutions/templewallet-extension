@@ -11,6 +11,7 @@ import {
   XTZ_ASSET,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
+import useTippy from "lib/ui/useTippy";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageLayout from "app/layouts/PageLayout";
@@ -108,38 +109,7 @@ const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
           </div>
 
           <div className="w-1/2 p-2">
-            <Link
-              to={asset ? `/send/${getAssetKey(asset)}` : "/send"}
-              className={classNames(
-                "w-full",
-                "py-2 px-4 rounded",
-                "border-2",
-                "border-blue-500",
-                canSend && "hover:border-blue-600 focus:border-blue-600",
-                "bg-blue-500",
-                canSend && "hover:bg-blue-600 focus:bg-blue-600",
-                "shadow-sm",
-                canSend && "hover:shadow focus:shadow",
-                !canSend && "opacity-50",
-                "flex items-center justify-center",
-                "text-white",
-                "text-base font-semibold",
-                "transition ease-in-out duration-300"
-              )}
-              type="button"
-              aria-disabled={!canSend}
-              onClick={canSend ? undefined : (e) => e.preventDefault()}
-            >
-              <SendIcon
-                className={classNames(
-                  "-ml-3 -mt-1 mr-1",
-                  "h-5 w-auto",
-                  "transform -rotate-45",
-                  "stroke-current"
-                )}
-              />
-              <T id="send" />
-            </Link>
+            <SendButton canSend={canSend} asset={asset} />
           </div>
         </div>
       </div>
@@ -152,6 +122,65 @@ const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
 };
 
 export default Explore;
+
+type SendButtonProps = {
+  canSend: boolean;
+  asset: ThanosAsset | null;
+};
+
+const SendButton = React.memo<SendButtonProps>(({ canSend, asset }) => {
+  const tippyProps = React.useMemo(
+    () => ({
+      trigger: "mouseenter",
+      hideOnClick: false,
+      content: t("disabledForWatchOnlyAccount"),
+      animation: "shift-away-subtle",
+    }),
+    []
+  );
+
+  const sendButtonRef = useTippy<HTMLButtonElement>(tippyProps);
+  const commonSendButtonProps = {
+    className: classNames(
+      "w-full",
+      "py-2 px-4 rounded",
+      "border-2",
+      "border-blue-500",
+      canSend && "hover:border-blue-600 focus:border-blue-600",
+      "bg-blue-500",
+      canSend && "hover:bg-blue-600 focus:bg-blue-600",
+      canSend && "shadow-sm hover:shadow focus:shadow",
+      !canSend && "opacity-50",
+      "flex items-center justify-center",
+      "text-white",
+      "text-base font-semibold",
+      "transition ease-in-out duration-300"
+    ),
+    children: (
+      <>
+        <SendIcon
+          className={classNames(
+            "-ml-3 -mt-1 mr-1",
+            "h-5 w-auto",
+            "transform -rotate-45",
+            "stroke-current"
+          )}
+        />
+        <T id="send" />
+      </>
+    ),
+  };
+
+  return canSend ? (
+    <Link
+      to={asset ? `/send/${getAssetKey(asset)}` : "/send"}
+      type="button"
+      {...commonSendButtonProps}
+    />
+  ) : (
+    <button ref={sendButtonRef} {...commonSendButtonProps} />
+  );
+});
 
 const Delegation: React.FC = () => (
   <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
