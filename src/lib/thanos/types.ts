@@ -610,6 +610,7 @@ export interface ThanosPageRequest extends ThanosMessageBase {
 export interface ThanosPageResponse extends ThanosMessageBase {
   type: ThanosMessageType.PageResponse;
   payload: any;
+  encrypted?: boolean;
 }
 
 export interface ThanosDAppGetPayloadRequest extends ThanosMessageBase {
