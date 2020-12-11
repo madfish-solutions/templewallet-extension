@@ -44,12 +44,12 @@ export enum ThanosStatus {
   Ready,
 }
 
-export type ThanosUserAccount =
+export type ThanosAccount =
   | ThanosHDAccount
   | ThanosImportedAccount
-  | ThanosLedgerAccount;
-
-export type ThanosAccount = ThanosUserAccount | ThanosManagedKTAccount;
+  | ThanosLedgerAccount
+  | ThanosManagedKTAccount
+  | ThanosWatchOnlyAccount;
 
 export interface ThanosLedgerAccount extends ThanosAccountBase {
   type: ThanosAccountType.Ledger;
@@ -71,6 +71,11 @@ export interface ThanosManagedKTAccount extends ThanosAccountBase {
   owner: string;
 }
 
+export interface ThanosWatchOnlyAccount extends ThanosAccountBase {
+  type: ThanosAccountType.WatchOnly;
+  chainId?: string;
+}
+
 export interface ThanosAccountBase {
   type: ThanosAccountType;
   name: string;
@@ -84,6 +89,7 @@ export enum ThanosAccountType {
   Imported,
   Ledger,
   ManagedKT,
+  WatchOnly,
 }
 
 export interface ThanosNetwork {
@@ -266,6 +272,8 @@ export enum ThanosMessageType {
   ImportFundraiserAccountResponse = "THANOS_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
   ImportManagedKTAccountRequest = "THANOS_IMPORT_MANAGED_KT_ACCOUNT_REQUEST",
   ImportManagedKTAccountResponse = "THANOS_IMPORT_MANAGED_KT_ACCOUNT_RESPONSE",
+  ImportWatchOnlyAccountRequest = "THANOS_IMPORT_WATCH_ONLY_ACCOUNT_REQUEST",
+  ImportWatchOnlyAccountResponse = "THANOS_IMPORT_WATCH_ONLY_ACCOUNT_RESPONSE",
   CreateLedgerAccountRequest = "THANOS_CREATE_LEDGER_ACCOUNT_REQUEST",
   CreateLedgerAccountResponse = "THANOS_CREATE_LEDGER_ACCOUNT_RESPONSE",
   UpdateSettingsRequest = "THANOS_UPDATE_SETTINGS_REQUEST",
@@ -315,6 +323,7 @@ export type ThanosRequest =
   | ThanosImportMnemonicAccountRequest
   | ThanosImportFundraiserAccountRequest
   | ThanosImportManagedKTAccountRequest
+  | ThanosImportWatchOnlyAccountRequest
   | ThanosCreateLedgerAccountRequest
   | ThanosOperationsRequest
   | ThanosSignRequest
@@ -345,6 +354,7 @@ export type ThanosResponse =
   | ThanosImportMnemonicAccountResponse
   | ThanosImportFundraiserAccountResponse
   | ThanosImportManagedKTAccountResponse
+  | ThanosImportWatchOnlyAccountResponse
   | ThanosCreateLedgerAccountResponse
   | ThanosOperationsResponse
   | ThanosSignResponse
@@ -520,6 +530,17 @@ export interface ThanosImportManagedKTAccountRequest extends ThanosMessageBase {
 export interface ThanosImportManagedKTAccountResponse
   extends ThanosMessageBase {
   type: ThanosMessageType.ImportManagedKTAccountResponse;
+}
+
+export interface ThanosImportWatchOnlyAccountRequest extends ThanosMessageBase {
+  type: ThanosMessageType.ImportWatchOnlyAccountRequest;
+  address: string;
+  chainId?: string;
+}
+
+export interface ThanosImportWatchOnlyAccountResponse
+  extends ThanosMessageBase {
+  type: ThanosMessageType.ImportWatchOnlyAccountResponse;
 }
 
 export interface ThanosCreateLedgerAccountRequest extends ThanosMessageBase {

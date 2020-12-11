@@ -1,6 +1,11 @@
 import * as React from "react";
-import { ThanosAsset, ThanosAssetType } from "lib/thanos/types";
-import { T } from "lib/i18n/react";
+import {
+  ThanosAccount,
+  ThanosAsset,
+  ThanosAssetType,
+  ThanosAccountType,
+} from "lib/thanos/types";
+import { T, t } from "lib/i18n/react";
 import xtzImgUrl from "app/misc/xtz.png";
 
 export class ArtificialError extends Error {}
@@ -43,4 +48,23 @@ export function formatMnemonic(m: string) {
 
 export function getAssetIconUrl(asset: ThanosAsset) {
   return asset.type === ThanosAssetType.XTZ ? xtzImgUrl : asset.iconUrl;
+}
+
+export function getAccountBadgeTitle(account: Pick<ThanosAccount, "type">) {
+  switch (account.type) {
+    case ThanosAccountType.Imported:
+      return t("importedAccount");
+
+    case ThanosAccountType.Ledger:
+      return t("ledger");
+
+    case ThanosAccountType.ManagedKT:
+      return t("managedKTAccount");
+
+    case ThanosAccountType.WatchOnly:
+      return t("watchOnlyAccount");
+
+    default:
+      return null;
+  }
 }

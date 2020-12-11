@@ -345,6 +345,9 @@
   "invalidAddress": {
     "message": "Invalid address"
   },
+  "contractNotExistOnNetwork": {
+    "message": "This smart contract doesn't exist on current network"
+  },
   "onlyKTContractAddressAllowed": {
     "message": "Only KT... contract address allowed"
   },
@@ -367,6 +370,14 @@
   },
   "defaultManagedKTAccountName": {
     "message": "Managed KT $accountNumber$",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultWatchOnlyAccountName": {
+    "message": "Watch-only $accountNumber$",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -511,10 +522,10 @@
   "privateKeyCannotBeRevealed": {
     "message": "Private key cannot be revealed"
   },
-  "youCannotGetPrivateKeyFromLedgerAccounts": {
-    "message": "You cannot get private key from $ledger$ accounts.",
+  "youCannotGetPrivateKeyFromThisAccountType": {
+    "message": "You cannot get private key from $accountType$ accounts.",
     "placeholders": {
-      "ledger": {
+      "accountType": {
         "content": "$1"
       }
     }
@@ -1136,6 +1147,12 @@
       }
     }
   },
+  "addressInputDescription": {
+    "message": "Address of Tezos account or smart contract."
+  },
+  "addressInputDescriptionWithDomain": {
+    "message": "Address or Tezos domain of the account or smart contract."
+  },
   "recipientInputPlaceholder": {
     "message": "e.g. tz1a9w1S7hN5s..."
   },
@@ -1400,6 +1417,12 @@
   },
   "managedKTAccount": {
     "message": "Managed KT"
+  },
+  "watchOnlyAccount": {
+    "message": "Watch-only"
+  },
+  "disabledForWatchOnlyAccount": {
+    "message": "Disabled for watch-only account"
   },
   "activationOperationType": {
     "message": "Activation"
