@@ -7,6 +7,7 @@ import {
   ThanosAccountType,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
+import { getAccountBadgeTitle } from "app/defaults";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -231,7 +232,12 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
   }, [reveal, account]);
 
   const forbidPrivateKeyRevealing =
-    account.type === ThanosAccountType.Ledger && reveal === "private-key";
+    reveal === "private-key" &&
+    [
+      ThanosAccountType.Ledger,
+      ThanosAccountType.ManagedKT,
+      ThanosAccountType.WatchOnly,
+    ].includes(account.type);
 
   const mainContent = React.useMemo(() => {
     if (forbidPrivateKeyRevealing) {
@@ -239,31 +245,28 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
         <Alert
           title={t("privateKeyCannotBeRevealed")}
           description={
-            <T
-              id="youCannotGetPrivateKeyFromLedgerAccounts"
-              substitutions={[
-                <T key="ledger" id="ledger">
-                  {(message) => (
-                    <span
-                      className={classNames(
-                        "rounded-sm",
-                        "border",
-                        "px-1 py-px",
-                        "font-normal leading-tight"
-                      )}
-                      style={{
-                        fontSize: "0.75em",
-                        borderColor: "currentColor",
-                      }}
-                    >
-                      {message}
-                    </span>
-                  )}
-                </T>,
-              ]}
-            >
-              {(message) => <p>{message}</p>}
-            </T>
+            <p>
+              <T
+                id="youCannotGetPrivateKeyFromThisAccountType"
+                substitutions={[
+                  <span
+                    key="account-type"
+                    className={classNames(
+                      "rounded-sm",
+                      "border",
+                      "px-1 py-px",
+                      "font-normal leading-tight"
+                    )}
+                    style={{
+                      fontSize: "0.75em",
+                      borderColor: "currentColor",
+                    }}
+                  >
+                    {getAccountBadgeTitle(account)}
+                  </span>,
+                ]}
+              />
+            </p>
           }
           className="my-4"
         />
@@ -322,6 +325,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       </form>
     );
   }, [
+    account,
     forbidPrivateKeyRevealing,
     errors,
     handleSubmit,

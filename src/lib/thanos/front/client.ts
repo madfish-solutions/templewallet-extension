@@ -259,6 +259,20 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     []
   );
 
+  const importWatchOnlyAccount = React.useCallback(
+    async (address: string, chainId?: string) => {
+      const res = await request({
+        type: ThanosMessageType.ImportWatchOnlyAccountRequest,
+        address,
+        chainId,
+      });
+      assertResponse(
+        res.type === ThanosMessageType.ImportWatchOnlyAccountResponse
+      );
+    },
+    []
+  );
+
   const createLedgerAccount = React.useCallback(
     async (name: string, derivationPath?: string) => {
       const res = await request({
@@ -443,6 +457,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     importMnemonicAccount,
     importFundraiserAccount,
     importKTManagedAccount,
+    importWatchOnlyAccount,
     createLedgerAccount,
     updateSettings,
     getAllPndOps,
