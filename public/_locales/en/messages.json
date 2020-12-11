@@ -522,10 +522,10 @@
   "privateKeyCannotBeRevealed": {
     "message": "Private key cannot be revealed"
   },
-  "youCannotGetPrivateKeyFromLedgerAccounts": {
-    "message": "You cannot get private key from $ledger$ accounts.",
+  "youCannotGetPrivateKeyFromThisAccountType": {
+    "message": "You cannot get private key from $accountType$ accounts.",
     "placeholders": {
-      "ledger": {
+      "accountType": {
         "content": "$1"
       }
     }

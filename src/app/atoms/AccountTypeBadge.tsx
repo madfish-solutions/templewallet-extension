@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
-import { ThanosAccount, ThanosAccountType } from "lib/thanos/front";
-import { t } from "lib/i18n/react";
+import { ThanosAccount } from "lib/thanos/front";
+import { getAccountBadgeTitle } from "app/defaults";
 
 type AccountTypeBadgeProps = {
   account: Pick<ThanosAccount, "type">;
@@ -10,9 +10,9 @@ type AccountTypeBadgeProps = {
 
 const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
   ({ account, darkTheme = false }) => {
-    if (account.type === ThanosAccountType.HD) return null;
+    const title = getAccountBadgeTitle(account);
 
-    return (
+    return title ? (
       <span
         className={classNames(
           "ml-2",
@@ -25,23 +25,9 @@ const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
         )}
         style={{ fontSize: "0.6rem" }}
       >
-        {(() => {
-          switch (account.type) {
-            case ThanosAccountType.Imported:
-              return t("importedAccount");
-
-            case ThanosAccountType.Ledger:
-              return t("ledger");
-
-            case ThanosAccountType.ManagedKT:
-              return t("managedKTAccount");
-
-            case ThanosAccountType.WatchOnly:
-              return t("watchOnlyAccount");
-          }
-        })()}
+        {title}
       </span>
-    );
+    ) : null;
   }
 );
 
