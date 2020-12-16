@@ -11,7 +11,7 @@ import { WalletContract } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 import * as React from "react";
 import classNames from "clsx";
-import { Controller, FormContextValues, useForm } from "react-hook-form";
+import { FormContextValues, useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
   ThanosToken,
@@ -24,6 +24,7 @@ import {
   NotMatchingStandardError,
   loadContractForCallLambdaView,
   getAssetKey,
+  UndefinedTokenError,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
@@ -56,17 +57,6 @@ const AddToken: React.FC = () => (
 
 export default AddToken;
 
-const TOKEN_TYPES = [
-  {
-    type: ThanosAssetType.FA1_2 as const,
-    name: "FA 1.2",
-  },
-  {
-    type: ThanosAssetType.FA2 as const,
-    name: "FA 2",
-  },
-];
-
 type ThanosCustomTokenType = ThanosAssetType.FA1_2 | ThanosAssetType.FA2;
 type FormData = {
   address: string;
@@ -75,7 +65,6 @@ type FormData = {
   name: string;
   decimals: number;
   iconUrl: string;
-  type: ThanosCustomTokenType;
 };
 
 const Form: React.FC = () => {
@@ -84,7 +73,6 @@ const Form: React.FC = () => {
   const { id: networkId } = useNetwork();
 
   const {
-    control,
     register,
     handleSubmit,
     errors,
@@ -93,15 +81,18 @@ const Form: React.FC = () => {
     setValue,
     triggerValidation,
   } = useForm<FormData>({
-    defaultValues: { decimals: 0, type: TOKEN_TYPES[0].type, id: 0 },
+    defaultValues: { decimals: 0, id: 0 },
   });
   const contractAddress = watch("address");
-  const tokenType = watch("type");
+  const previousAddressRef = React.useRef<string>();
   const tokenId = watch("id");
+  const previousTokenIdRef = React.useRef<number | undefined>(0);
   const [submitError, setSubmitError] = React.useState<React.ReactNode>(null);
   const [tokenDataError, setTokenDataError] = React.useState<React.ReactNode>(
     null
   );
+  const [tokenType, setTokenType] = React.useState<ThanosCustomTokenType>();
+  const tokenTypeRef = React.useRef<ThanosCustomTokenType>();
   const [
     tokenValidationError,
     setTokenValidationError,
@@ -112,11 +103,7 @@ const Form: React.FC = () => {
   React.useEffect(() => {
     setTokenValidationError(null);
     setBottomSectionVisible(false);
-    if (
-      validateContractAddress(contractAddress) !== true ||
-      tokenId === undefined ||
-      String(tokenId) === ""
-    ) {
+    if (validateContractAddress(contractAddress) !== true) {
       return;
     }
     triggerValidation("address");
@@ -136,22 +123,52 @@ const Form: React.FC = () => {
           throw new TokenValidationError(t("contractNotAvailable"));
         }
 
-        try {
-          if (tokenType === ThanosAssetType.FA1_2) {
-            await assertTokenType(tokenType, contract, tezos);
-          } else {
-            await assertTokenType(tokenType, contract, tezos, tokenId!);
+        if (previousAddressRef.current !== contractAddress) {
+          try {
+            await assertTokenType(ThanosAssetType.FA1_2, contract, tezos);
+            tokenTypeRef.current = ThanosAssetType.FA1_2;
+            setTokenType(ThanosAssetType.FA1_2);
+          } catch (fa12Error) {
+            try {
+              await assertTokenType(ThanosAssetType.FA2, contract, tezos, 0);
+              tokenTypeRef.current = ThanosAssetType.FA2;
+              setTokenType(ThanosAssetType.FA2);
+              setValue("id", 0);
+            } catch (fa2Error) {
+              if (fa2Error instanceof UndefinedTokenError) {
+                tokenTypeRef.current = ThanosAssetType.FA2;
+                setTokenType(ThanosAssetType.FA2);
+                setValue("id", undefined);
+              } else {
+                tokenTypeRef.current = undefined;
+                setTokenType(undefined);
+                setValue("id", 0);
+                if (fa2Error instanceof NotMatchingStandardError) {
+                  throw new TokenValidationError(
+                    t("tokenDoesNotMatchAnyStandard", [
+                      fa12Error.message as string,
+                      fa2Error.message,
+                    ])
+                  );
+                } else {
+                  throw new TokenValidationError(fa2Error.message);
+                }
+              }
+            }
           }
-        } catch (err) {
-          if (err instanceof NotMatchingStandardError) {
-            throw new TokenValidationError(
-              `${t(
-                "tokenDoesNotMatchStandard",
-                tokenType === ThanosAssetType.FA1_2 ? "FA1.2" : "FA2"
-              )}: ${err.message}`
+        } else if (
+          previousTokenIdRef.current !== tokenId &&
+          tokenTypeRef.current === ThanosAssetType.FA2
+        ) {
+          try {
+            await assertTokenType(
+              ThanosAssetType.FA2,
+              contract,
+              tezos,
+              tokenId!
             );
-          } else {
-            throw new TokenValidationError(err.message);
+          } catch (e) {
+            throw new TokenValidationError(e.message);
           }
         }
 
@@ -160,7 +177,10 @@ const Form: React.FC = () => {
             tezos,
             contractAddress,
             networkId,
-            tokenId === undefined ? undefined : String(tokenId)
+            tokenId === undefined ||
+              tokenTypeRef.current === ThanosAssetType.FA1_2
+              ? undefined
+              : String(tokenId)
           )) || {};
         const { symbol, name, description, decimals, onetoken } = tokenData;
         const tokenSymbol = typeof symbol === "string" ? symbol : "";
@@ -243,6 +263,8 @@ const Form: React.FC = () => {
         });
       } finally {
         setLoadingToken(false);
+        previousAddressRef.current = contractAddress;
+        previousTokenIdRef.current = tokenId;
       }
     })();
   }, [
@@ -251,7 +273,6 @@ const Form: React.FC = () => {
     setValue,
     setBottomSectionVisible,
     networkId,
-    tokenType,
     triggerValidation,
     tokenId,
   ]);
@@ -262,16 +283,10 @@ const Form: React.FC = () => {
   }, [setValue, triggerValidation]);
 
   const onSubmit = React.useCallback(
-    async ({
-      address,
-      symbol,
-      name,
-      decimals,
-      iconUrl,
-      type: tokenType,
-      id,
-    }: FormData) => {
-      if (formState.isSubmitting) return;
+    async ({ address, symbol, name, decimals, iconUrl, id }: FormData) => {
+      if (formState.isSubmitting || !tokenTypeRef.current) {
+        return;
+      }
 
       setSubmitError(null);
       try {
@@ -285,7 +300,7 @@ const Form: React.FC = () => {
         };
 
         const newToken: ThanosToken =
-          tokenType === ThanosAssetType.FA1_2
+          tokenTypeRef.current === ThanosAssetType.FA1_2
             ? {
                 type: ThanosAssetType.FA1_2,
                 ...tokenCommonProps,
@@ -315,7 +330,7 @@ const Form: React.FC = () => {
     [formState.isSubmitting, addToken]
   );
 
-  const isFA12Token = tokenType === ThanosAssetType.FA1_2;
+  const isFA2Token = tokenType === ThanosAssetType.FA2;
 
   return (
     <form
@@ -323,13 +338,11 @@ const Form: React.FC = () => {
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="mb-4 flex flex-col">
-        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+        <h2 className="leading-tight flex flex-col">
           <span className="text-base font-semibold text-gray-700">
             <T id="tokenType" />
           </span>
         </h2>
-
-        <Controller name="type" as={TokenTypeSelect} control={control} />
       </div>
 
       <NoSpaceField
@@ -347,16 +360,16 @@ const Form: React.FC = () => {
         labelDescription={t("addressOfDeployedTokenContract")}
         placeholder={t("tokenContractPlaceholder")}
         errorCaption={errors.address?.message}
-        containerClassName={isFA12Token ? "mb-6" : "mb-4"}
+        containerClassName={isFA2Token ? "mb-4" : "mb-6"}
       />
 
       <div
-        className={classNames("mb-6", "flex flex-col", isFA12Token && "hidden")}
+        className={classNames("mb-6", "flex flex-col", !isFA2Token && "hidden")}
       >
         <FormField
           ref={register({
             min: { value: 0, message: t("nonNegativeIntMessage") },
-            required: isFA12Token ? undefined : t("required"),
+            required: isFA2Token ? t("required") : undefined,
           })}
           min={0}
           type="number"
@@ -410,72 +423,6 @@ const Form: React.FC = () => {
         </div>
       )}
     </form>
-  );
-};
-
-type TokenTypeSelectProps = {
-  value?: ThanosCustomTokenType;
-  onChange: (newValue: ThanosCustomTokenType) => void;
-};
-
-const TokenTypeSelect = React.memo<TokenTypeSelectProps>((props) => {
-  const { value, onChange } = props;
-
-  return (
-    <div
-      className={classNames(
-        "rounded-md overflow-hidden",
-        "border-2 bg-gray-100",
-        "flex flex-col",
-        "text-gray-700 text-sm leading-tight"
-      )}
-    >
-      {TOKEN_TYPES.map(({ type: tokenType }, index) => (
-        <TokenTypeOption
-          key={tokenType}
-          active={tokenType === value}
-          last={index === TOKEN_TYPES.length - 1}
-          value={tokenType}
-          onClick={onChange}
-        />
-      ))}
-    </div>
-  );
-});
-
-type TokenTypeOptionProps = {
-  active: boolean;
-  last: boolean;
-  value: ThanosCustomTokenType;
-  onClick: (value: ThanosCustomTokenType) => void;
-};
-
-const TokenTypeOption: React.FC<TokenTypeOptionProps> = (props) => {
-  const { active, last, value, onClick } = props;
-
-  const handleClick = React.useCallback(() => onClick(value), [onClick, value]);
-
-  return (
-    <button
-      type="button"
-      className={classNames(
-        "block w-full",
-        "overflow-hidden",
-        !last && "border-b border-gray-200",
-        active ? "bg-gray-300" : "hover:bg-gray-200 focus:bg-gray-200",
-        "flex items-center",
-        "text-gray-700 font-medium",
-        "transition ease-in-out duration-200",
-        "focus:outline-none",
-        "opacity-90 hover:opacity-100"
-      )}
-      style={{
-        padding: "0.4rem 0.375rem 0.4rem 0.375rem",
-      }}
-      onClick={handleClick}
-    >
-      {TOKEN_TYPES.find(({ type }) => type === value)!.name}
-    </button>
   );
 };
 

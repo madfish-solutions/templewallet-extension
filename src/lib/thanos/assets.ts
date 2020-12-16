@@ -115,6 +115,12 @@ const FA2_METHODS_ASSERTIONS = [
     assertion: signatureAssertionFactory("transfer", ["list"]),
   },
   {
+    name: "token_metadata_registry",
+    assertion: signatureAssertionFactory("token_metadata_registry", [
+      "contract",
+    ]),
+  },
+  {
     name: "balance_of",
     assertion: (
       contract: WalletContract,
@@ -124,12 +130,6 @@ const FA2_METHODS_ASSERTIONS = [
       viewSuccessAssertionFactory("balance_of", [
         [{ owner: STUB_TEZOS_ADDRESS, token_id: String(tokenId) }],
       ])(contract, tezos),
-  },
-  {
-    name: "token_metadata_registry",
-    assertion: signatureAssertionFactory("token_metadata_registry", [
-      "contract",
-    ]),
   },
 ];
 
@@ -169,7 +169,9 @@ export async function assertTokenType(
             getMessage("someMethodSignatureDoesNotMatchStandard", name)
           );
         } else if (e.value?.string === "FA2_TOKEN_UNDEFINED") {
-          throw new Error(getMessage("incorrectTokenIdErrorMessage"));
+          throw new UndefinedTokenError(
+            getMessage("incorrectTokenIdErrorMessage")
+          );
         } else {
           throw new Error(
             getMessage("unknownErrorCheckingSomeEntrypoint", name)
@@ -339,3 +341,4 @@ export function toPenny(asset: ThanosAsset) {
 }
 
 export class NotMatchingStandardError extends Error {}
+export class UndefinedTokenError extends Error {}

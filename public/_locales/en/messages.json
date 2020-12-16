@@ -242,11 +242,14 @@
   "noTransferMethod": {
     "message": "No transfer method"
   },
-  "tokenDoesNotMatchStandard": {
-    "message": "Provided token contract doesn't match $standard$ standard",
+  "tokenDoesNotMatchAnyStandard": {
+    "message": "Provided token contract doesn't match FA1.2 ($fa12Error$) or FA2 standard ($fa2Error$)",
     "placeholders": {
-      "standard": {
+      "fa12Error": {
         "content": "$1"
+      },
+      "fa2Error": {
+        "content": "$2"
       }
     }
   },
@@ -1519,7 +1522,7 @@
     "message": "Invalid managed contract"
   },
   "someMethodNotDefinedInContract": {
-    "message": "'$name$' method isn't defined in contract.",
+    "message": "'$name$' method isn't defined in contract",
     "placeholders": {
       "name": {
         "content": "$1"
@@ -1527,7 +1530,7 @@
     }
   },
   "someMethodSignatureDoesNotMatchStandard": {
-    "message": "'$name$' method's signature doesn't match the standard.",
+    "message": "'$name$' method's signature doesn't match the standard",
     "placeholders": {
       "name": {
         "content": "$1"
@@ -1538,7 +1541,7 @@
     "message": "Please make sure that token ID is correct."
   },
   "unknownErrorCheckingSomeEntrypoint": {
-    "message": "An unknown error while checking '$name$' entrypoint occurred.",
+    "message": "An unknown error while checking '$name$' entrypoint occurred",
     "placeholders": {
       "name": {
         "content": "$1"
