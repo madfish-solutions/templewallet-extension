@@ -337,14 +337,6 @@ const Form: React.FC = () => {
       className="w-full max-w-sm mx-auto my-8"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div className="mb-4 flex flex-col">
-        <h2 className="leading-tight flex flex-col">
-          <span className="text-base font-semibold text-gray-700">
-            <T id="tokenType" />
-          </span>
-        </h2>
-      </div>
-
       <NoSpaceField
         ref={register({
           required: t("required"),
