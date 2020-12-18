@@ -3,7 +3,11 @@ import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useRetryableSWR } from "lib/swr";
-import { TZSTATS_CHAINS, getAccountWithOperations } from "lib/tzstats";
+import {
+  TZSTATS_CHAINS,
+  getAccountWithOperations,
+  TZStatsNetwork,
+} from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
 import { T, TProps } from "lib/i18n/react";
 import {
@@ -16,6 +20,8 @@ import {
   mutezToTz,
   isKnownChainId,
   useAssets,
+  ThanosToken,
+  useChainId,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import {
@@ -68,102 +74,84 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
   asset,
   className,
 }) => {
-  const { getAllPndOps, removePndOps } = useThanosClient();
-  const network = useNetwork();
-
-  /**
-   * Pending operations
-   */
-
-  const fetchPendingOperations = React.useCallback(async () => {
-    const chainId = await loadChainId(network.rpcBaseURL);
-    const sendPndOps = await getAllPndOps(accountPkh, chainId);
-    const receivePndOps = accountOwner
-      ? (await getAllPndOps(accountOwner, chainId)).filter(
-          (op) => op.kind === "transaction" && op.destination === accountPkh
-        )
-      : [];
-    return { pndOps: [...sendPndOps, ...receivePndOps], chainId };
-  }, [getAllPndOps, network.rpcBaseURL, accountPkh, accountOwner]);
-
-  const pndOpsSWR = useRetryableSWR(
-    ["pndops", network.rpcBaseURL, accountPkh, accountOwner],
-    fetchPendingOperations,
-    { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
-  );
-  useOnStorageChanged(pndOpsSWR.revalidate);
-  const { pndOps, chainId } = pndOpsSWR.data!;
-
-  const pendingOperations = React.useMemo<OperationPreview[]>(
-    () =>
-      pndOps.map((op) => {
-        const parameters = (op as any).parameters;
-        let internalTransfers: InternalTransfer[] = [];
-        let tokenAddress = undefined;
-        if (op.kind === "transaction") {
-          if (parameters?.entrypoint === "transfer") {
-            internalTransfers = tryGetTransfers(parameters) || [];
-            if (internalTransfers.length > 0) {
-              tokenAddress = op.destination;
-            }
-          } else if (op.amount) {
-            internalTransfers = [
-              {
-                volume: mutezToTz(op.amount),
-                receiver: op.destination,
-                sender: accountPkh,
-              },
-            ];
-          }
-        }
-
-        return {
-          ...op,
-          entrypoint: parameters?.entrypoint,
-          hash: op.hash,
-          type: op.kind,
-          status: "pending",
-          time: op.addedAt,
-          internalTransfers,
-          tokenAddress,
-          rawReceiver: op.kind === "transaction" ? op.destination : undefined,
-          volume:
-            op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
-        };
-      }),
-    [pndOps, accountPkh]
-  );
-
-  /**
-   * Operation history from TZStats and BCD
-   */
-
+  const chainId = useChainId();
   const tzStatsNetwork = React.useMemo(
     () =>
-      (isKnownChainId(chainId) ? TZSTATS_CHAINS.get(chainId) : undefined) ??
-      null,
+      (chainId && isKnownChainId(chainId)
+        ? TZSTATS_CHAINS.get(chainId)
+        : undefined) ?? null,
     [chainId]
   );
 
   const networkId = React.useMemo(
     () =>
-      (isKnownChainId(chainId) ? BCD_NETWORKS_NAMES.get(chainId) : undefined) ??
-      null,
+      (chainId && isKnownChainId(chainId)
+        ? BCD_NETWORKS_NAMES.get(chainId)
+        : undefined) ?? null,
     [chainId]
   );
 
+  return (
+    <div
+      className={classNames(
+        "w-full max-w-md mx-auto",
+        "flex flex-col",
+        className
+      )}
+    >
+      {!asset || asset.type === ThanosAssetType.XTZ ? (
+        <AllOperationsList
+          accountPkh={accountPkh}
+          accountOwner={accountOwner}
+          tzStatsNetwork={tzStatsNetwork}
+          networkId={networkId}
+          xtzOnly={!!asset}
+        />
+      ) : (
+        <TokenOperationsList
+          accountPkh={accountPkh}
+          accountOwner={accountOwner}
+          asset={asset}
+          tzStatsNetwork={tzStatsNetwork}
+          networkId={networkId}
+        />
+      )}
+    </div>
+  );
+};
+
+export default OperationHistory;
+
+type BaseOperationsListProps = {
+  accountPkh: string;
+  accountOwner?: string;
+  tzStatsNetwork: TZStatsNetwork | null;
+  networkId: "mainnet" | "carthagenet" | "delphinet" | null;
+};
+
+type AllOperationsListProps = BaseOperationsListProps & {
+  xtzOnly?: boolean;
+};
+
+const AllOperationsList: React.FC<AllOperationsListProps> = ({
+  accountPkh,
+  accountOwner,
+  tzStatsNetwork,
+  networkId,
+  xtzOnly,
+}) => {
   const fetchOperations = React.useCallback<
     () => Promise<OperationPreview[]>
   >(async () => {
     try {
-      if (!tzStatsNetwork) return [];
-
-      const { ops } = await getAccountWithOperations(tzStatsNetwork, {
-        pkh: accountPkh,
-        order: "desc",
-        limit: OPERATIONS_LIMIT,
-        offset: 0,
-      });
+      const { ops } = tzStatsNetwork
+        ? await getAccountWithOperations(tzStatsNetwork, {
+            pkh: accountPkh,
+            order: "desc",
+            limit: OPERATIONS_LIMIT,
+            offset: 0,
+          })
+        : { ops: [] };
 
       let bcdOps: Record<string, BcdTokenTransfer[]> = {};
       const lastTzStatsOp = ops[ops.length - 1];
@@ -225,20 +213,22 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
             tokenAddress: transfersFromParams ? op.receiver : undefined,
           };
         }),
-        ...Object.values(bcdOps).map((bcdOpsChunk) => ({
-          internalTransfers: bcdOpsChunk.map((bcdOp) => ({
-            volume: new BigNumber(bcdOp.amount),
-            tokenId: bcdOp.token_id,
-            sender: bcdOp.from,
-            receiver: bcdOp.to,
-          })),
-          tokenAddress: bcdOpsChunk[0].contract,
-          hash: bcdOpsChunk[0].hash,
-          status: bcdOpsChunk[0].status,
-          time: bcdOpsChunk[0].timestamp,
-          type: "transaction",
-          volume: 0,
-        })),
+        ...(xtzOnly
+          ? []
+          : Object.values(bcdOps).map((bcdOpsChunk) => ({
+              internalTransfers: bcdOpsChunk.map((bcdOp) => ({
+                volume: new BigNumber(bcdOp.amount),
+                tokenId: bcdOp.token_id,
+                sender: bcdOp.from,
+                receiver: bcdOp.to,
+              })),
+              tokenAddress: bcdOpsChunk[0].contract,
+              hash: bcdOpsChunk[0].hash,
+              status: bcdOpsChunk[0].status,
+              time: bcdOpsChunk[0].timestamp,
+              type: "transaction",
+              volume: 0,
+            }))),
       ];
     } catch (err) {
       if (err?.origin?.response?.status === 404) {
@@ -249,10 +239,10 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
       await new Promise((r) => setTimeout(r, 300));
       throw err;
     }
-  }, [tzStatsNetwork, accountPkh, networkId]);
+  }, [tzStatsNetwork, accountPkh, networkId, xtzOnly]);
 
   const { data } = useRetryableSWR(
-    ["operation-history", tzStatsNetwork, accountPkh, networkId],
+    ["operation-history", tzStatsNetwork, accountPkh, networkId, xtzOnly],
     fetchOperations,
     {
       suspense: true,
@@ -261,6 +251,168 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     }
   );
   const operations = data!;
+
+  return (
+    <GenericOperationsList
+      accountPkh={accountPkh}
+      operations={operations}
+      accountOwner={accountOwner}
+      withExplorer={!!tzStatsNetwork}
+    />
+  );
+};
+
+type TokenOperationsListProps = BaseOperationsListProps & {
+  asset: ThanosToken;
+};
+
+const TokenOperationsList: React.FC<TokenOperationsListProps> = ({
+  accountPkh,
+  accountOwner,
+  asset,
+  tzStatsNetwork,
+  networkId,
+}) => {
+  const fetchOperations = React.useCallback<
+    () => Promise<OperationPreview[]>
+  >(async () => {
+    try {
+      const { transfers: rawBcdOps } = networkId
+        ? await getTokenTransfers({
+            network: networkId,
+            address: accountPkh,
+            size: OPERATIONS_LIMIT,
+            contracts: asset.address,
+          })
+        : { transfers: [] };
+      const groupedBcdOps = rawBcdOps.reduce<
+        Record<string, BcdTokenTransfer[]>
+      >(
+        (newTransfers, transfer) => ({
+          ...newTransfers,
+          [transfer.hash]: [...(newTransfers[transfer.hash] || []), transfer],
+        }),
+        {}
+      );
+      return Object.values(groupedBcdOps).map((bcdOpsChunk) => ({
+        internalTransfers: bcdOpsChunk.map((bcdOp) => ({
+          volume: new BigNumber(bcdOp.amount),
+          tokenId: bcdOp.token_id,
+          sender: bcdOp.from,
+          receiver: bcdOp.to,
+        })),
+        tokenAddress: bcdOpsChunk[0].contract,
+        hash: bcdOpsChunk[0].hash,
+        status: bcdOpsChunk[0].status,
+        time: bcdOpsChunk[0].timestamp,
+        type: "transaction",
+        volume: 0,
+      }));
+    } catch (err) {
+      if (err?.origin?.response?.status === 404) {
+        return [];
+      }
+
+      // Human delay
+      await new Promise((r) => setTimeout(r, 300));
+      throw err;
+    }
+  }, [accountPkh, networkId, asset.address]);
+
+  const { data } = useRetryableSWR(
+    ["operation-history", accountPkh, networkId, asset.address],
+    fetchOperations,
+    {
+      suspense: true,
+      refreshInterval: 15_000,
+      dedupingInterval: 10_000,
+    }
+  );
+  const operations = data!;
+
+  return (
+    <GenericOperationsList
+      accountPkh={accountPkh}
+      operations={operations}
+      accountOwner={accountOwner}
+      withExplorer={!!tzStatsNetwork}
+    />
+  );
+};
+
+type GenericOperationsListProps = {
+  accountPkh: string;
+  operations: OperationPreview[];
+  accountOwner?: string;
+  withExplorer: boolean;
+};
+
+const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
+  accountPkh,
+  operations,
+  accountOwner,
+  withExplorer,
+}) => {
+  const { getAllPndOps, removePndOps } = useThanosClient();
+  const network = useNetwork();
+  const fetchPendingOperations = React.useCallback(async () => {
+    const chainId = await loadChainId(network.rpcBaseURL);
+    const sendPndOps = await getAllPndOps(accountPkh, chainId);
+    const receivePndOps = accountOwner
+      ? (await getAllPndOps(accountOwner, chainId)).filter(
+          (op) => op.kind === "transaction" && op.destination === accountPkh
+        )
+      : [];
+    return { pndOps: [...sendPndOps, ...receivePndOps], chainId };
+  }, [getAllPndOps, network.rpcBaseURL, accountPkh, accountOwner]);
+
+  const pndOpsSWR = useRetryableSWR(
+    ["pndops", network.rpcBaseURL, accountPkh, accountOwner],
+    fetchPendingOperations,
+    { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
+  );
+  useOnStorageChanged(pndOpsSWR.revalidate);
+  const { pndOps, chainId } = pndOpsSWR.data!;
+
+  const pendingOperations = React.useMemo<OperationPreview[]>(
+    () =>
+      pndOps.map((op) => {
+        const parameters = (op as any).parameters;
+        let internalTransfers: InternalTransfer[] = [];
+        let tokenAddress = undefined;
+        if (op.kind === "transaction") {
+          if (parameters?.entrypoint === "transfer") {
+            internalTransfers = tryGetTransfers(parameters) || [];
+            if (internalTransfers.length > 0) {
+              tokenAddress = op.destination;
+            }
+          } else if (op.amount) {
+            internalTransfers = [
+              {
+                volume: mutezToTz(op.amount),
+                receiver: op.destination,
+                sender: accountPkh,
+              },
+            ];
+          }
+        }
+
+        return {
+          ...op,
+          entrypoint: parameters?.entrypoint,
+          hash: op.hash,
+          type: op.kind,
+          status: "pending",
+          time: op.addedAt,
+          internalTransfers,
+          tokenAddress,
+          rawReceiver: op.kind === "transaction" ? op.destination : undefined,
+          volume:
+            op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
+        };
+      }),
+    [pndOps, accountPkh]
+  );
 
   const [uniqueOps, nonUniqueOps] = React.useMemo(() => {
     const unique: OperationPreview[] = [];
@@ -301,7 +453,6 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     }
   }, [removePndOps, accountPkh, chainId, nonUniqueOps]);
 
-  const withExplorer = Boolean(tzStatsNetwork);
   const explorerBaseUrl = React.useMemo(
     () =>
       (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined) ??
@@ -309,27 +460,9 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     [chainId]
   );
 
-  const finalOps = React.useMemo(() => {
-    if (!asset) {
-      return uniqueOps;
-    }
-
-    if (asset.type === ThanosAssetType.XTZ) {
-      return uniqueOps.filter((op) => op.volume > 0);
-    }
-
-    return uniqueOps.filter((op) => op.tokenAddress === asset.address);
-  }, [uniqueOps, asset]);
-
   return (
-    <div
-      className={classNames(
-        "w-full max-w-md mx-auto",
-        "flex flex-col",
-        className
-      )}
-    >
-      {finalOps.length === 0 && (
+    <>
+      {uniqueOps.length === 0 && (
         <div
           className={classNames(
             "mt-4 mb-12",
@@ -348,7 +481,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         </div>
       )}
 
-      {finalOps.map((op) => (
+      {uniqueOps.map((op) => (
         <Operation
           key={opKey(op)}
           accountPkh={accountPkh}
@@ -357,11 +490,9 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
           {...op}
         />
       ))}
-    </div>
+    </>
   );
 };
-
-export default OperationHistory;
 
 type OperationProps = OperationPreview & {
   accountPkh: string;
