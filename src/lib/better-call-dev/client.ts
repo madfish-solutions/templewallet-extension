@@ -44,6 +44,7 @@ export const getTokenTransfers = makeQuery<
 >("GET", (params) => `/tokens/${params.network}/transfers/${params.address}`, [
   "last_id",
   "size",
+  "contracts"
 ]);
 
 export const searchOperations = makeQuery<
