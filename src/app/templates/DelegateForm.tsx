@@ -43,6 +43,7 @@ import BakerBanner from "app/templates/BakerBanner";
 import xtzImgUrl from "app/misc/xtz.png";
 import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import { ReactComponent as ArrowUpIcon } from "app/icons/arrow-up.svg";
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
@@ -576,6 +577,16 @@ const DelegateForm: React.FC = () => {
                     </Link>
                   );
                 })}
+
+                <div className="flex-1" />
+
+                <div className="text-xs text-gray-500 flex items-center">
+                  <ArrowUpIcon
+                    className="h-3 w-auto stroke-current stroke-2"
+                    style={{ marginRight: "0.125rem" }}
+                  />
+                  <T id="highestIsBetter" />
+                </div>
               </div>
 
               <div
