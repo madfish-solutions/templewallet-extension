@@ -18,6 +18,19 @@ export const XTZ_ASSET: ThanosAsset = {
   default: true,
 };
 
+export const TESTNET_TOKENS: ThanosToken[] = [
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT1M9ThoXP9uGaUD7MvHKMbHqtj5i9VndHog",
+    name: "Kolibri",
+    symbol: "kUSD",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
+    default: true,
+  } 
+]
+
 export const MAINNET_TOKENS: ThanosToken[] = [
   {
     type: ThanosAssetType.FA1_2,
