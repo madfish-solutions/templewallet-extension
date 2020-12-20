@@ -15,6 +15,16 @@ export const NETWORKS: ThanosNetwork[] = [
     disabled: false,
   },
   {
+    id: "tzbeta-testnet",
+    name: "Blockscale Testnet",
+    description: "TZBeta Testnet",
+    type: "test",
+    rpcBaseURL: "https://rpctest.tzbeta.net",
+    color: "#ed6663",
+    disabled: false,
+    hidden: true,
+  },
+  {
     id: "delphinet",
     name: "Delphi Testnet",
     description: "Delphi testnet",
