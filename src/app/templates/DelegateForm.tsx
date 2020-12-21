@@ -756,7 +756,7 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
     title={(() => {
       switch (true) {
         case error instanceof NotEnoughFundsError:
-          return t("notEnoughFunds", "");
+          return `${t("notEnoughFunds")} 😶`;
 
         case [UnchangedError, UnregisteredDelegateError].some(
           (Err) => error instanceof Err
