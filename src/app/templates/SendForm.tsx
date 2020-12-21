@@ -862,8 +862,8 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
       switch (true) {
         case error instanceof NotEnoughFundsError:
           return error instanceof ZeroXTZBalanceError
-            ? t("notEnoughCurrencyFunds", "XTZ")
-            : t("notEnoughFunds");
+            ? `${t("notEnoughCurrencyFunds", "XTZ")} 😶`
+            : `${t("notEnoughFunds")} 😶`;
 
         default:
           return t("failed");

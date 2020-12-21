@@ -76,13 +76,13 @@ const ActivateAccount: React.FC = () => {
         );
         switch (activationStatus) {
           case ActivationStatus.AlreadyActivated:
-            setSuccess(t("accountAlreadyActivated"));
+            setSuccess(`🏁 ${t("accountAlreadyActivated")}`);
             break;
 
           case ActivationStatus.ActivationRequestSent:
             setSuccess(t("requestSent", "🛫 Activation"));
             op!.confirmation().then(() => {
-              setSuccess(t("accountActivated"));
+              setSuccess(`✅ ${t("accountActivated")}`);
             });
             break;
         }
