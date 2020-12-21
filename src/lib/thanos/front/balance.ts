@@ -5,6 +5,7 @@ import {
   useTezos,
   useSettings,
   fetchBalance,
+  getAssetKey,
   ReactiveTezosToolkit,
 } from "lib/thanos/front";
 
@@ -42,7 +43,7 @@ export function useBalance(
   const displayed = opts.displayed ?? true;
 
   return useRetryableSWR(
-    displayed ? ["balance", tezos.checksum, asset.symbol, address] : null,
+    displayed ? getBalanceSWRKey(tezos, asset, address) : null,
     fetchBalanceLocal,
     {
       suspense: opts.suspense ?? true,
@@ -54,5 +55,13 @@ export function useBalance(
 
 export function useBalanceSWRKey(asset: ThanosAsset, address: string) {
   const tezos = useTezos();
-  return ["balance", tezos.checksum, asset.symbol, address];
+  return getBalanceSWRKey(tezos, asset, address);
+}
+
+export function getBalanceSWRKey(
+  tezos: ReactiveTezosToolkit,
+  asset: ThanosAsset,
+  address: string
+) {
+  return ["balance", tezos.checksum, getAssetKey(asset), address];
 }
