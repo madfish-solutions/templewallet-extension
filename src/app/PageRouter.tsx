@@ -86,27 +86,16 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 
 const Page: React.FC = () => {
   const { trigger, pathname } = Woozie.useLocation();
-  const prevPathnameRef = React.useRef(pathname);
 
   // Scroll to top after new location pushed.
   React.useLayoutEffect(() => {
     if (trigger === Woozie.HistoryAction.Push) {
-      if (
-        (prevPathnameRef.current === "/" ||
-          prevPathnameRef.current.includes("explore")) &&
-        pathname.includes("explore")
-      ) {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        window.scrollTo(0, 0);
-      }
+      window.scrollTo(0, 0);
     }
 
     if (pathname === "/") {
       Woozie.resetHistoryPosition();
     }
-
-    prevPathnameRef.current = pathname;
   }, [trigger, pathname]);
 
   const appEnv = useAppEnv();
