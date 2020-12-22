@@ -103,6 +103,7 @@ export interface ThanosNetwork {
   rpcBaseURL: string;
   color: string;
   disabled: boolean;
+  hidden?: boolean;
 }
 
 export type ThanosAsset = ThanosXTZAsset | ThanosToken;
