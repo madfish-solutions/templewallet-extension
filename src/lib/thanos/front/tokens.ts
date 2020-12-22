@@ -10,14 +10,14 @@ import {
   mergeAssets,
   omitAssets,
   MAINNET_TOKENS,
-  TESTNET_TOKENS,
+  DELPHINET_TOKENS,
 } from "lib/thanos/front";
 import { t } from "lib/i18n/react";
 
-const networkTokenMap = {
-  "main": MAINNET_TOKENS,
-  "test": TESTNET_TOKENS
-}
+const NETWORK_TOKEN_MAP = new Map([
+  ["mainnet", MAINNET_TOKENS],
+  ["delphinet", DELPHINET_TOKENS],
+]);
 
 export function useTokens() {
   const network = useNetwork();
@@ -36,8 +36,8 @@ export function useTokens() {
   ]);
 
   const allTokens = React.useMemo(
-    () => mergeAssets(networkTokenMap[network.type], tokens),
-    [network.type, tokens]
+    () => mergeAssets(NETWORK_TOKEN_MAP.get(network.id) ?? [], tokens),
+    [network.id, tokens]
   );
 
   const displayedTokens = React.useMemo(

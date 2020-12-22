@@ -58,58 +58,58 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             <T id="networks">{(networks) => <>{networks}</>}</T>
           </h2>
 
-          {allNetworks.map(({ id, name, color, disabled, nameI18nKey, hidden }) => {
-            const selected = id === network.id;
-            
+          {allNetworks
             // Don't show hidden (but known) nodes on the dropdown
-            if (hidden){ return }
+            .filter((n) => !n.hidden)
+            .map(({ id, name, color, disabled, nameI18nKey }) => {
+              const selected = id === network.id;
 
-            return (
-              <button
-                key={id}
-                className={classNames(
-                  "w-full",
-                  "mb-1",
-                  "rounded",
-                  "transition easy-in-out duration-200",
-                  !disabled &&
-                    (selected
-                      ? "bg-white bg-opacity-10"
-                      : "hover:bg-white hover:bg-opacity-5"),
-                  disabled ? "cursor-default" : "cursor-pointer",
-                  "flex items-center",
-                  disabled && "opacity-25"
-                )}
-                style={{
-                  padding: "0.375rem 1.5rem 0.375rem 0.5rem",
-                }}
-                disabled={disabled}
-                autoFocus={selected}
-                onClick={() => {
-                  if (!disabled) {
-                    handleNetworkSelect(id, selected, setOpened);
-                  }
-                }}
-              >
-                <div
+              return (
+                <button
+                  key={id}
                   className={classNames(
-                    "mr-2 w-3 h-3",
-                    "border border-primary-white",
-                    "rounded-full",
-                    "shadow-xs"
+                    "w-full",
+                    "mb-1",
+                    "rounded",
+                    "transition easy-in-out duration-200",
+                    !disabled &&
+                      (selected
+                        ? "bg-white bg-opacity-10"
+                        : "hover:bg-white hover:bg-opacity-5"),
+                    disabled ? "cursor-default" : "cursor-pointer",
+                    "flex items-center",
+                    disabled && "opacity-25"
                   )}
-                  style={{ backgroundColor: color }}
-                />
-
-                <span
-                  className="overflow-hidden text-sm text-white whitespace-no-wrap text-shadow-black"
-                  style={{ textOverflow: "ellipsis", maxWidth: "10rem" }}
+                  style={{
+                    padding: "0.375rem 1.5rem 0.375rem 0.5rem",
+                  }}
+                  disabled={disabled}
+                  autoFocus={selected}
+                  onClick={() => {
+                    if (!disabled) {
+                      handleNetworkSelect(id, selected, setOpened);
+                    }
+                  }}
                 >
-                  {(nameI18nKey && <T id={nameI18nKey} />) || name}
-                </span>
-              </button>
-            );
-          })}
+                  <div
+                    className={classNames(
+                      "mr-2 w-3 h-3",
+                      "border border-primary-white",
+                      "rounded-full",
+                      "shadow-xs"
+                    )}
+                    style={{ backgroundColor: color }}
+                  />
+
+                  <span
+                    className="overflow-hidden text-sm text-white whitespace-no-wrap text-shadow-black"
+                    style={{ textOverflow: "ellipsis", maxWidth: "10rem" }}
+                  >
+                    {(nameI18nKey && <T id={nameI18nKey} />) || name}
+                  </span>
+                </button>
+              );
+            })}
         </DropdownWrapper>
       )}
     >
