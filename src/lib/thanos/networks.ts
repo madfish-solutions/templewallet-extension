@@ -44,6 +44,7 @@ export const NETWORKS: ThanosNetwork[] = [
     color: "#e9e1cc",
     disabled: false,
   },
+  // Hidden
   {
     id: "tzbeta-mainnet",
     name: "Tezos Mainnet",
