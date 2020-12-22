@@ -58,8 +58,11 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
             <T id="networks">{(networks) => <>{networks}</>}</T>
           </h2>
 
-          {allNetworks.map(({ id, name, color, disabled, nameI18nKey }) => {
+          {allNetworks.map(({ id, name, color, disabled, nameI18nKey, hidden }) => {
             const selected = id === network.id;
+            
+            // Don't show hidden (but known) nodes on the dropdown
+            if (hidden){ return }
 
             return (
               <button
