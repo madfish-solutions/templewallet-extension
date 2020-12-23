@@ -36,7 +36,7 @@ export const DELPHINET_TOKENS: ThanosToken[] = [
     symbol: "wXTZ",
     decimals: 6,
     fungible: true,
-    iconUrl: "",
+    iconUrl: "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
     default: true,
   },
 ];
@@ -81,7 +81,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     symbol: "wXTZ",
     decimals: 6,
     fungible: true,
-    iconUrl: "",
+    iconUrl: "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
     default: true,
   },
 ];
