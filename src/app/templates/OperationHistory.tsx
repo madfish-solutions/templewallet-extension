@@ -806,7 +806,11 @@ const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
         )}
       >
         {isTransaction && (type === "receive" ? "+" : "-")}
-        <Money>{finalVolume}</Money>{" "}
+        {BigNumber.isBigNumber(finalVolume) && finalVolume.isNaN() ? (
+          "?"
+        ) : (
+          <Money>{finalVolume}</Money>
+        )}{" "}
         {tokenAddress ? token?.symbol || "???" : "ꜩ"}
       </div>
 

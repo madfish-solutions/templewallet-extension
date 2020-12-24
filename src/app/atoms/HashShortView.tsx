@@ -16,7 +16,9 @@ const HashShortView = React.memo<HashShortViewProps>(
     firstCharsCount = 7,
     lastCharsCount = 4,
   }) => {
-    const trimmedHash = React.useMemo(() => {
+    if (!hash) return null;
+
+    const trimmedHash = (() => {
       if (!trim) return hash;
 
       const ln = hash.length;
@@ -29,7 +31,7 @@ const HashShortView = React.memo<HashShortViewProps>(
       ) : (
         hash
       );
-    }, [hash, trim, trimAfter, firstCharsCount, lastCharsCount]);
+    })();
 
     return <>{trimmedHash}</>;
   }
