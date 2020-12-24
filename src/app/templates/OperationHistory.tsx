@@ -184,35 +184,47 @@ const AllOperationsList: React.FC<AllOperationsListProps> = ({
       const nonBcdOps = ops.filter((op) => !bcdOps[op.hash]);
 
       return [
-        ...nonBcdOps.map((op) => {
-          const transfersFromParams =
-            op.type === "transaction" &&
-            (op.parameters as any)?.entrypoint === "transfer"
-              ? tryGetTransfers(op.parameters)
-              : null;
-          const transfersFromVolumeProp =
-            op.type === "transaction" && !op.parameters
-              ? [
-                  {
-                    volume: new BigNumber(op.volume),
-                    sender: op.sender,
-                    receiver: op.receiver,
-                  },
-                ]
-              : [];
-          return {
-            delegate: op.type === "delegation" ? op.delegate : undefined,
-            entrypoint: (op.parameters as any)?.entrypoint,
-            internalTransfers: transfersFromParams || transfersFromVolumeProp,
-            hash: op.hash,
-            status: op.status,
-            time: op.time,
-            type: op.type,
-            volume: op.volume,
-            rawReceiver: op.receiver,
-            tokenAddress: transfersFromParams ? op.receiver : undefined,
-          };
-        }),
+        ...nonBcdOps
+          .map((op) => {
+            const transfersFromParams =
+              op.type === "transaction" &&
+              (op.parameters as any)?.entrypoint === "transfer"
+                ? tryGetTransfers(op.parameters)
+                : null;
+            const transfersFromVolumeProp =
+              op.type === "transaction" && !op.parameters
+                ? [
+                    {
+                      volume: new BigNumber(op.volume),
+                      sender: op.sender,
+                      receiver: op.receiver,
+                    },
+                  ]
+                : [];
+            return {
+              delegate: op.type === "delegation" ? op.delegate : undefined,
+              entrypoint: (op.parameters as any)?.entrypoint,
+              internalTransfers: transfersFromParams || transfersFromVolumeProp,
+              hash: op.hash,
+              status: op.status,
+              time: op.time,
+              type: op.type,
+              volume: op.volume,
+              rawReceiver: op.receiver,
+              tokenAddress: transfersFromParams ? op.receiver : undefined,
+            };
+          })
+          .filter(({ volume, type, entrypoint }) => {
+            if (!xtzOnly) {
+              return true;
+            }
+            return (
+              volume > 0 &&
+              (type !== "transaction" ||
+                !entrypoint ||
+                entrypoint === "transfer")
+            );
+          }),
         ...(xtzOnly
           ? []
           : Object.values(bcdOps).map((bcdOpsChunk) => ({
