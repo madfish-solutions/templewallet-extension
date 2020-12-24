@@ -118,7 +118,6 @@ export enum ThanosAssetType {
   XTZ = "XTZ",
   TzBTC = "TzBTC",
   Staker = "STAKER",
-  wXTZ = "WXTZ",
   FA1_2 = "FA1_2",
   FA2 = "FA2",
 }

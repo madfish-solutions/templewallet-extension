@@ -36,7 +36,8 @@ export const DELPHINET_TOKENS: ThanosToken[] = [
     symbol: "wXTZ",
     decimals: 6,
     fungible: true,
-    iconUrl: "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
+    iconUrl:
+      "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
     default: true,
   },
 ];
@@ -75,13 +76,14 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     default: true,
   },
   {
-    type: ThanosAssetType.wXTZ,
+    type: ThanosAssetType.FA1_2,
     address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
     name: "Wrapped Tezos",
     symbol: "wXTZ",
     decimals: 6,
     fungible: true,
-    iconUrl: "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
+    iconUrl:
+      "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
     default: true,
   },
 ];
@@ -237,7 +239,7 @@ export async function fetchBalance(
         nat = await contract.views
           .getBalance(accountPkh)
           .read((tezos as any).lambdaContract);
-      } catch { }
+      } catch {}
 
       if (!nat || nat.isNaN()) {
         nat = new BigNumber(0);
@@ -256,7 +258,7 @@ export async function fetchBalance(
           .balance_of([{ owner: accountPkh, token_id: asset.id }])
           .read((tezos as any).lambdaContract);
         nat = response[0].balance;
-      } catch { }
+      } catch {}
 
       if (!nat || nat.isNaN()) {
         nat = new BigNumber(0);
@@ -294,15 +296,15 @@ export async function toTransferParams(
       const methodArgs =
         asset.type === ThanosAssetType.FA2
           ? [
-            [
-              {
-                from_: fromPkh,
-                txs: [
-                  { to_: toPkh, token_id: asset.id, amount: pennyAmount },
-                ],
-              },
-            ],
-          ]
+              [
+                {
+                  from_: fromPkh,
+                  txs: [
+                    { to_: toPkh, token_id: asset.id, amount: pennyAmount },
+                  ],
+                },
+              ],
+            ]
           : [fromPkh, toPkh, pennyAmount];
       return contact.methods.transfer(...methodArgs).toTransferParams();
 
@@ -371,4 +373,4 @@ export function toPenny(asset: ThanosAsset) {
   return new BigNumber(1).div(10 ** asset.decimals).toNumber();
 }
 
-export class NotMatchingStandardError extends Error { }
+export class NotMatchingStandardError extends Error {}
