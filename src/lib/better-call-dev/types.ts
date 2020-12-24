@@ -129,6 +129,7 @@ export type BcdTokenTransfersQueryParams = {
   address: string;
   last_id?: string;
   size?: number;
+  contracts?: string;
 };
 
 export type BcdOperationsSearchQueryParams = {
