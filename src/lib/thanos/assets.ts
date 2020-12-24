@@ -29,6 +29,17 @@ export const DELPHINET_TOKENS: ThanosToken[] = [
     iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
     default: true,
   },
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT1TDHL9ipKL8WW3TMPvutbLh9uZBdY9BU59",
+    name: "Wrapped Tezos",
+    symbol: "wXTZ",
+    decimals: 6,
+    fungible: true,
+    iconUrl:
+      "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
+    default: true,
+  },
 ];
 
 export const MAINNET_TOKENS: ThanosToken[] = [
@@ -62,6 +73,17 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     fungible: true,
     iconUrl:
       "https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg",
+    default: true,
+  },
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
+    name: "Wrapped Tezos",
+    symbol: "wXTZ",
+    decimals: 6,
+    fungible: true,
+    iconUrl:
+      "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
     default: true,
   },
 ];
