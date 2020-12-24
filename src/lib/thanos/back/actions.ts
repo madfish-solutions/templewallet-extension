@@ -58,9 +58,16 @@ export async function getFrontState(): Promise<ThanosState> {
 }
 
 export async function isDAppEnabled() {
-  const key = ThanosSharedStorageKey.DAppEnabled;
-  const items = await browser.storage.local.get([key]);
-  return key in items ? items[key] : true;
+  const bools = await Promise.all([
+    Vault.isExist(),
+    (async () => {
+      const key = ThanosSharedStorageKey.DAppEnabled;
+      const items = await browser.storage.local.get([key]);
+      return key in items ? items[key] : true;
+    })(),
+  ]);
+
+  return bools.every(Boolean);
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {

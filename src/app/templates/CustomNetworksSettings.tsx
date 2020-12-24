@@ -37,8 +37,15 @@ type LambdaFormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 const KNOWN_LAMBDA_CONTRACTS = new Map([
   [ThanosChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
-  [ThanosChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
   [ThanosChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
+  [ThanosChainId.Edonet, "KT1QtbEVQ3tHPhL2GPTgWJPvhCER4gavWUun"],
+  [ThanosChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
+]);
+const NETWORK_IDS = new Map<string, string>([
+  [ThanosChainId.Mainnet, "mainnet"],
+  [ThanosChainId.Delphinet, "delphinet"],
+  [ThanosChainId.Edonet, "edonet"],
+  [ThanosChainId.Carthagenet, "carthagenet"],
 ]);
 
 const CustomNetworksSettings: React.FC = () => {
@@ -63,12 +70,14 @@ const CustomNetworksSettings: React.FC = () => {
       if (submitting) return;
       clearError();
 
-      if (!lambdaContract) {
-        let chainId;
-        try {
-          chainId = await loadChainId(rpcBaseURL);
-        } catch {}
+      let chainId;
+      try {
+        chainId = await loadChainId(rpcBaseURL);
+      } catch {
+        throw new Error("Invalid RPC: Cannot get chain id");
+      }
 
+      if (!lambdaContract) {
         lambdaContract =
           chainId &&
           (isKnownChainId(chainId)
@@ -83,6 +92,7 @@ const CustomNetworksSettings: React.FC = () => {
       setShowNoLambdaWarning(false);
 
       try {
+        const networkId = NETWORK_IDS.get(chainId) ?? rpcBaseURL;
         await updateSettings({
           customNetworks: [
             ...customNetworks,
@@ -90,10 +100,10 @@ const CustomNetworksSettings: React.FC = () => {
               rpcBaseURL,
               name,
               description: name,
-              type: "test",
+              type: networkId === "mainnet" ? "main" : "test",
               disabled: false,
               color: COLORS[Math.floor(Math.random() * COLORS.length)],
-              id: rpcBaseURL,
+              id: networkId,
               lambdaContract,
             },
           ],

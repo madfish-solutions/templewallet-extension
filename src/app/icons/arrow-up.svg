@@ -1,0 +1,8 @@
+<svg role="img" xmlns="http://www.w3.org/2000/svg" width="48px" height="48px" viewBox="0 0 24 24"
+  aria-labelledby="arrowUpIconTitle" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+  fill="none">
+  <title id="arrowUpIconTitle">Arrow Up</title>
+  <path d="M18 9l-6-6-6 6" />
+  <path d="M12 21V4" />
+  <path stroke-linecap="round" d="M12 3v1" />
+</svg>
