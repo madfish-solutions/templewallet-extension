@@ -87,7 +87,6 @@ window.addEventListener(
                 ? { encryptedPayload: res.payload }
                 : { payload: res.payload }),
             };
-            console.info({ message });
             send(
               res.payload === "pong"
                 ? { ...message, sender: SENDER }

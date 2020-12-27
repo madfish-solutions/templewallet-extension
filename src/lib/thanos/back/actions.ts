@@ -430,9 +430,14 @@ export async function processBeacon(
     try {
       recipientPubKey = await Beacon.getDAppPublicKey(origin);
       if (!recipientPubKey) throw new Error("<stub>");
-      msg = await Beacon.decryptMessage(msg, recipientPubKey);
+
+      try {
+        msg = await Beacon.decryptMessage(msg, recipientPubKey);
+      } catch (err) {
+        await Beacon.removeDAppPublicKey(origin);
+        throw err;
+      }
     } catch {
-      console.info("DISCONNECT");
       return {
         payload: Beacon.encodeMessage<Beacon.Response>({
           version: "2",
