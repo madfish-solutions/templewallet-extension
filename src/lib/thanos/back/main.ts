@@ -206,14 +206,27 @@ async function processRequest(
         }
 
         return enqueueDAppPrecessing(port, async () => {
-          const resPayload = await (req.beacon
-            ? Actions.processBeacon(req.origin, req.payload, req.encrypted)
-            : Actions.processDApp(req.origin, req.payload));
-
-          return {
-            type: ThanosMessageType.PageResponse,
-            payload: resPayload ?? null,
-          };
+          if (!req.beacon) {
+            const resPayload = await Actions.processDApp(
+              req.origin,
+              req.payload
+            );
+            return {
+              type: ThanosMessageType.PageResponse,
+              payload: resPayload ?? null,
+            };
+          } else {
+            const res = await Actions.processBeacon(
+              req.origin,
+              req.payload,
+              req.encrypted
+            );
+            return {
+              type: ThanosMessageType.PageResponse,
+              payload: res?.payload ?? null,
+              encrypted: res?.encrypted,
+            };
+          }
         });
       }
       break;
