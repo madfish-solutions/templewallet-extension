@@ -442,17 +442,27 @@ export async function processBeacon(
   encrypted = false
 ) {
   let recipientPubKey: string | null = null;
+
   if (encrypted) {
-    recipientPubKey = await Beacon.getDAppPublicKey(origin);
-    if (recipientPubKey) {
-      msg = await Beacon.decryptMessage(msg, recipientPubKey);
-    } else {
-      return Beacon.encodeMessage<Beacon.Response>({
-        version: "2",
-        senderId: await Beacon.getSenderId(),
-        id: "stub",
-        type: Beacon.MessageType.Disconnect,
-      });
+    try {
+      recipientPubKey = await Beacon.getDAppPublicKey(origin);
+      if (!recipientPubKey) throw new Error("<stub>");
+
+      try {
+        msg = await Beacon.decryptMessage(msg, recipientPubKey);
+      } catch (err) {
+        await Beacon.removeDAppPublicKey(origin);
+        throw err;
+      }
+    } catch {
+      return {
+        payload: Beacon.encodeMessage<Beacon.Response>({
+          version: "2",
+          senderId: await Beacon.getSenderId(),
+          id: "stub",
+          type: Beacon.MessageType.Disconnect,
+        }),
+      };
     }
   }
 
@@ -481,14 +491,16 @@ export async function processBeacon(
   if (req.type === Beacon.MessageType.HandshakeRequest) {
     await Beacon.saveDAppPublicKey(origin, req.publicKey);
     const keyPair = await Beacon.getOrCreateKeyPair();
-    return Beacon.sealCryptobox(
-      JSON.stringify({
-        ...resBase,
-        ...Beacon.PAIRING_RESPONSE_BASE,
-        publicKey: Beacon.toHex(keyPair.publicKey),
-      }),
-      Beacon.fromHex(req.publicKey)
-    );
+    return {
+      payload: await Beacon.sealCryptobox(
+        JSON.stringify({
+          ...resBase,
+          ...Beacon.PAIRING_RESPONSE_BASE,
+          publicKey: Beacon.toHex(keyPair.publicKey),
+        }),
+        Beacon.fromHex(req.publicKey)
+      ),
+    };
   }
 
   const res = await (async (): Promise<Beacon.Response> => {
@@ -615,7 +627,10 @@ export async function processBeacon(
 
   const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
   if (encrypted && recipientPubKey) {
-    return Beacon.encryptMessage(resMsg, recipientPubKey);
+    return {
+      payload: await Beacon.encryptMessage(resMsg, recipientPubKey),
+      encrypted: true,
+    };
   }
-  return resMsg;
+  return { payload: resMsg };
 }
