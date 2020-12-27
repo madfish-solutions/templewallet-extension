@@ -221,15 +221,6 @@ async function processRequest(
               encrypted: res?.encrypted,
             };
           }
-
-          // const resPayload = await (req.beacon
-          //   ? Actions.processBeacon(req.origin, req.payload, req.encrypted)
-          //   : Actions.processDApp(req.origin, req.payload));
-
-          // return {
-          //   type: ThanosMessageType.PageResponse,
-          //   payload: resPayload ?? null,
-          // };
         });
       }
       break;
