@@ -269,6 +269,7 @@ const AllOperationsList: React.FC<AllOperationsListProps> = ({
       accountPkh={accountPkh}
       operations={operations}
       accountOwner={accountOwner}
+      asset={xtzOnly ? XTZ_ASSET : undefined}
       withExplorer={!!tzStatsNetwork}
     />
   );
@@ -347,6 +348,7 @@ const TokenOperationsList: React.FC<TokenOperationsListProps> = ({
       accountPkh={accountPkh}
       operations={operations}
       accountOwner={accountOwner}
+      asset={asset}
       withExplorer={!!tzStatsNetwork}
     />
   );
@@ -356,6 +358,7 @@ type GenericOperationsListProps = {
   accountPkh: string;
   operations: OperationPreview[];
   accountOwner?: string;
+  asset?: ThanosAsset;
   withExplorer: boolean;
 };
 
@@ -364,6 +367,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
   operations,
   accountOwner,
   withExplorer,
+  asset,
 }) => {
   const { getAllPndOps, removePndOps } = useThanosClient();
   const network = useNetwork();
@@ -388,42 +392,50 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
 
   const pendingOperations = React.useMemo<OperationPreview[]>(
     () =>
-      pndOps.map((op) => {
-        const parameters = (op as any).parameters;
-        let internalTransfers: InternalTransfer[] = [];
-        let tokenAddress = undefined;
-        if (op.kind === "transaction") {
-          if (parameters?.entrypoint === "transfer") {
-            internalTransfers = tryGetTransfers(parameters) || [];
-            if (internalTransfers.length > 0) {
-              tokenAddress = op.destination;
+      pndOps
+        .map((op) => {
+          const parameters = (op as any).parameters;
+          let internalTransfers: InternalTransfer[] = [];
+          let tokenAddress = undefined;
+          if (op.kind === "transaction") {
+            if (parameters?.entrypoint === "transfer") {
+              internalTransfers = tryGetTransfers(parameters) || [];
+              if (internalTransfers.length > 0) {
+                tokenAddress = op.destination;
+              }
+            } else if (op.amount) {
+              internalTransfers = [
+                {
+                  volume: mutezToTz(op.amount),
+                  receiver: op.destination,
+                  sender: accountPkh,
+                },
+              ];
             }
-          } else if (op.amount) {
-            internalTransfers = [
-              {
-                volume: mutezToTz(op.amount),
-                receiver: op.destination,
-                sender: accountPkh,
-              },
-            ];
           }
-        }
 
-        return {
-          ...op,
-          entrypoint: parameters?.entrypoint,
-          hash: op.hash,
-          type: op.kind,
-          status: "pending",
-          time: op.addedAt,
-          internalTransfers,
-          tokenAddress,
-          rawReceiver: op.kind === "transaction" ? op.destination : undefined,
-          volume:
-            op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
-        };
-      }),
-    [pndOps, accountPkh]
+          return {
+            ...op,
+            entrypoint: parameters?.entrypoint,
+            hash: op.hash,
+            type: op.kind,
+            status: "pending",
+            time: op.addedAt,
+            internalTransfers,
+            tokenAddress,
+            rawReceiver: op.kind === "transaction" ? op.destination : undefined,
+            volume:
+              op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
+          };
+        })
+        .filter((op) => {
+          if (!asset) return true;
+
+          return asset.type === ThanosAssetType.XTZ
+            ? op.volume > 0
+            : op.tokenAddress === asset.address;
+        }),
+    [pndOps, accountPkh, asset]
   );
 
   const [uniqueOps, nonUniqueOps] = React.useMemo(() => {
