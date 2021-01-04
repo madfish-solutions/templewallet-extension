@@ -111,10 +111,20 @@ const Page: React.FC = () => {
     [appEnv.popup, appEnv.fullPage, thanos.ready, thanos.locked]
   );
 
-  return React.useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
-    pathname,
-    ctx,
-  ]);
+  const content = React.useMemo(
+    () => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx),
+    [pathname, ctx]
+  );
+
+  if (appEnv.popup) {
+    return (
+      <div className="overflow-y-auto" style={{ height: window.innerHeight }}>
+        {content}
+      </div>
+    );
+  }
+
+  return content;
 };
 
 export default Page;
