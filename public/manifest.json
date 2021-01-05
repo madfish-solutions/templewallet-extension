@@ -11,7 +11,7 @@
     "128": "misc/icon-128.png"
   },
 
-  "description": "🔐💰__MSG_appDesc__",
+  "description": "__MSG_appDesc__",
   "homepage_url": "https://github.com/madfish-solutions/thanos",
   "short_name": "Thanos Wallet",
 
