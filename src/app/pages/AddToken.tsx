@@ -11,7 +11,7 @@ import { WalletContract } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 import * as React from "react";
 import classNames from "clsx";
-import { FormContextValues, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
   ThanosToken,
@@ -27,7 +27,6 @@ import {
   UndefinedTokenError,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
-import useSafeState from "lib/ui/useSafeState";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
@@ -37,6 +36,7 @@ import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import { URL_PATTERN } from "app/defaults";
+import AssetField from "app/atoms/AssetField";
 
 const INCLUDES_URL_PATTERN = new RegExp(
   URL_PATTERN.source.substring(1, URL_PATTERN.source.length - 1)
@@ -58,36 +58,31 @@ const AddToken: React.FC = () => (
 export default AddToken;
 
 type ThanosCustomTokenType = ThanosAssetType.FA1_2 | ThanosAssetType.FA2;
-type FormData = {
+type TopFormData = {
   address: string;
   id?: number;
-  symbol: string;
-  name: string;
-  decimals: number;
-  iconUrl: string;
 };
 
 const Form: React.FC = () => {
-  const { addToken } = useTokens();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
 
   const {
+    control,
     register,
-    handleSubmit,
     errors,
-    formState,
     watch,
     setValue,
     triggerValidation,
-  } = useForm<FormData>({
-    defaultValues: { decimals: 0, id: 0 },
+  } = useForm<TopFormData>({
+    defaultValues: { id: 0 },
+    reValidateMode: "onBlur",
   });
   const contractAddress = watch("address");
   const previousAddressRef = React.useRef<string>();
   const tokenId = watch("id");
   const previousTokenIdRef = React.useRef<number | undefined>(0);
-  const [submitError, setSubmitError] = React.useState<React.ReactNode>(null);
+
   const [tokenDataError, setTokenDataError] = React.useState<React.ReactNode>(
     null
   );
@@ -97,20 +92,27 @@ const Form: React.FC = () => {
     tokenValidationError,
     setTokenValidationError,
   ] = React.useState<React.ReactNode>(null);
-  const [bottomSectionVisible, setBottomSectionVisible] = useSafeState(false);
   const [loadingToken, setLoadingToken] = React.useState(false);
+  const [bottomFormInitialData, setBottomFormInitialData] = React.useState<
+    Partial<BottomFormData>
+  >();
 
   React.useEffect(() => {
     setTokenValidationError(null);
-    setBottomSectionVisible(false);
+    setBottomFormInitialData(undefined);
     if (validateContractAddress(contractAddress) !== true) {
+      console.log("resettingTokenType");
+      setTokenType(undefined);
+      tokenTypeRef.current = undefined;
+      previousAddressRef.current = undefined;
+      previousTokenIdRef.current = 0;
+      setBottomFormInitialData(undefined);
       return;
     }
     triggerValidation("address");
     (async () => {
       try {
         setTokenDataError(null);
-        setSubmitError(null);
         setLoadingToken(true);
 
         let contract: WalletContract;
@@ -123,6 +125,7 @@ const Form: React.FC = () => {
           throw new TokenValidationError(t("contractNotAvailable"));
         }
 
+        console.log(previousTokenIdRef.current, tokenId, tokenTypeRef.current);
         if (previousAddressRef.current !== contractAddress) {
           try {
             await assertTokenType(ThanosAssetType.FA1_2, contract, tezos);
@@ -140,9 +143,9 @@ const Form: React.FC = () => {
                 setTokenType(ThanosAssetType.FA2);
                 setValue("id", undefined);
               } else {
-                tokenTypeRef.current = undefined;
                 setTokenType(undefined);
                 setValue("id", 0);
+                setBottomFormInitialData(undefined);
                 if (fa2Error instanceof NotMatchingStandardError) {
                   throw new TokenValidationError(
                     t("tokenDoesNotMatchAnyStandard", [
@@ -160,16 +163,28 @@ const Form: React.FC = () => {
           previousTokenIdRef.current !== tokenId &&
           tokenTypeRef.current === ThanosAssetType.FA2
         ) {
-          try {
-            await assertTokenType(
-              ThanosAssetType.FA2,
-              contract,
-              tezos,
-              tokenId!
-            );
-          } catch (e) {
-            throw new TokenValidationError(e.message);
+          if (tokenId === undefined) {
+            setBottomFormInitialData(undefined);
+            setLoadingToken(false);
+            previousAddressRef.current = contractAddress;
+            previousTokenIdRef.current = tokenId;
+            return;
+          } else {
+            try {
+              await assertTokenType(
+                ThanosAssetType.FA2,
+                contract,
+                tezos,
+                tokenId!
+              );
+            } catch (e) {
+              throw new TokenValidationError(e.message);
+            }
           }
+        } else {
+          previousAddressRef.current = contractAddress;
+          previousTokenIdRef.current = tokenId;
+          return;
         }
 
         const tokenData =
@@ -194,12 +209,11 @@ const Form: React.FC = () => {
             Math.round(Math.log10(onetoken.toNumber()))) ||
           0;
 
-        setValue([
-          { symbol: tokenSymbol.substr(0, 5) },
-          { name: tokenName.substr(0, 50) },
-          { decimals: tokenDecimals },
-        ]);
-        setBottomSectionVisible(true);
+        setBottomFormInitialData({
+          symbol: tokenSymbol.substr(0, 5),
+          name: tokenName.substr(0, 50),
+          decimals: tokenDecimals,
+        });
       } catch (e) {
         withErrorHumanDelay(e, () => {
           if (e instanceof TokenValidationError) {
@@ -257,9 +271,8 @@ const Form: React.FC = () => {
           } else {
             errorMessage = <T id="unknownParseErrorOccurred" />;
           }
-          setValue([{ symbol: "" }, { name: "" }, { decimals: 0 }]);
+          setBottomFormInitialData(undefined);
           setTokenDataError(errorMessage);
-          setBottomSectionVisible(true);
         });
       } finally {
         setLoadingToken(false);
@@ -271,10 +284,10 @@ const Form: React.FC = () => {
     contractAddress,
     tezos,
     setValue,
-    setBottomSectionVisible,
     networkId,
     triggerValidation,
     tokenId,
+    tokenType,
   ]);
 
   const cleanContractAddress = React.useCallback(() => {
@@ -282,9 +295,141 @@ const Form: React.FC = () => {
     triggerValidation("address");
   }, [setValue, triggerValidation]);
 
+  const isFA2Token = tokenType === ThanosAssetType.FA2;
+
+  return (
+    <div className="w-full max-w-sm mx-auto my-8">
+      <div className="mb-4 flex flex-col">
+        <h2 className="leading-tight flex flex-col">
+          <span className="text-base font-semibold text-gray-700">
+            <T id="tokenType" />
+          </span>
+        </h2>
+      </div>
+
+      <form>
+        <NoSpaceField
+          ref={register({
+            required: t("required"),
+            validate: validateContractAddress,
+          })}
+          name="address"
+          id="addtoken-address"
+          textarea
+          rows={2}
+          cleanable={Boolean(contractAddress)}
+          onClean={cleanContractAddress}
+          label={t("address")}
+          labelDescription={t("addressOfDeployedTokenContract")}
+          placeholder={t("tokenContractPlaceholder")}
+          errorCaption={errors.address?.message}
+          containerClassName={isFA2Token ? "mb-4" : "mb-6"}
+        />
+
+        <div
+          className={classNames(
+            "mb-6",
+            "flex flex-col",
+            !isFA2Token && "hidden"
+          )}
+        >
+          <Controller
+            as={AssetField}
+            control={control}
+            rules={{
+              min: { value: 0, message: t("nonNegativeIntMessage") },
+              required: isFA2Token ? t("required") : undefined,
+            }}
+            name="id"
+            id="token-id"
+            label={t("tokenId")}
+            labelDescription={t("tokenIdInputDescription")}
+            placeholder="0"
+            errorCaption={errors.id?.message}
+          />
+        </div>
+      </form>
+
+      {tokenValidationError && (
+        <Alert
+          type="error"
+          title={t("error")}
+          autoFocus
+          description={tokenValidationError}
+          className="mb-8"
+        />
+      )}
+
+      {tokenDataError && (
+        <Alert
+          type="warn"
+          title={t("failedToParseMetadata")}
+          autoFocus
+          description={tokenDataError}
+          className="mb-8"
+        />
+      )}
+
+      <BottomForm
+        hidden={!bottomFormInitialData}
+        address={contractAddress}
+        initialData={bottomFormInitialData}
+        tokenType={tokenType}
+        id={tokenId}
+      />
+
+      {loadingToken && (
+        <div className="my-8 w-full flex items-center justify-center pb-4">
+          <div>
+            <Spinner theme="gray" className="w-20" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+type BottomFormData = {
+  symbol: string;
+  name: string;
+  decimals: number;
+  iconUrl: string;
+};
+type BottomFormProps = {
+  address?: string;
+  hidden?: boolean;
+  initialData?: Partial<BottomFormData>;
+  tokenType?: ThanosCustomTokenType;
+  id?: number;
+};
+
+const BottomForm: React.FC<BottomFormProps> = (props) => {
+  const { address, hidden, initialData, tokenType, id } = props;
+  const {
+    handleSubmit,
+    register,
+    errors,
+    formState,
+    reset,
+  } = useForm<BottomFormData>({
+    defaultValues: initialData,
+  });
+  const prevInitialDataRef = React.useRef(initialData);
+
+  const { addToken } = useTokens();
+  const [submitError, setSubmitError] = React.useState<React.ReactNode>(null);
+
+  React.useEffect(() => {
+    if (prevInitialDataRef.current !== initialData) {
+      reset(initialData);
+      setSubmitError(null);
+    }
+    prevInitialDataRef.current = initialData;
+  }, [initialData, reset]);
+
   const onSubmit = React.useCallback(
-    async ({ address, symbol, name, decimals, iconUrl, id }: FormData) => {
-      if (formState.isSubmitting || !tokenTypeRef.current) {
+    async ({ symbol, name, decimals, iconUrl }: BottomFormData) => {
+      if (formState.isSubmitting || !tokenType || !address) {
         return;
       }
 
@@ -300,7 +445,7 @@ const Form: React.FC = () => {
         };
 
         const newToken: ThanosToken =
-          tokenTypeRef.current === ThanosAssetType.FA1_2
+          tokenType === ThanosAssetType.FA1_2
             ? {
                 type: ThanosAssetType.FA1_2,
                 ...tokenCommonProps,
@@ -327,117 +472,14 @@ const Form: React.FC = () => {
         setSubmitError(err.message);
       }
     },
-    [formState.isSubmitting, addToken]
+    [formState.isSubmitting, address, id, tokenType, addToken]
   );
-
-  const isFA2Token = tokenType === ThanosAssetType.FA2;
 
   return (
     <form
-      className="w-full max-w-sm mx-auto my-8"
+      className={classNames("w-full", { hidden })}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div className="mb-4 flex flex-col">
-        <h2 className="leading-tight flex flex-col">
-          <span className="text-base font-semibold text-gray-700">
-            <T id="tokenType" />
-          </span>
-        </h2>
-      </div>
-
-      <NoSpaceField
-        ref={register({
-          required: t("required"),
-          validate: validateContractAddress,
-        })}
-        name="address"
-        id="addtoken-address"
-        textarea
-        rows={2}
-        cleanable={Boolean(contractAddress)}
-        onClean={cleanContractAddress}
-        label={t("address")}
-        labelDescription={t("addressOfDeployedTokenContract")}
-        placeholder={t("tokenContractPlaceholder")}
-        errorCaption={errors.address?.message}
-        containerClassName={isFA2Token ? "mb-4" : "mb-6"}
-      />
-
-      <div
-        className={classNames("mb-6", "flex flex-col", !isFA2Token && "hidden")}
-      >
-        <FormField
-          ref={register({
-            min: { value: 0, message: t("nonNegativeIntMessage") },
-            required: isFA2Token ? t("required") : undefined,
-          })}
-          min={0}
-          type="number"
-          name="id"
-          id="token-id"
-          label={t("tokenId")}
-          labelDescription={t("tokenIdInputDescription")}
-          placeholder="0"
-          errorCaption={errors.id?.message}
-        />
-      </div>
-
-      {tokenValidationError && (
-        <Alert
-          type="error"
-          title={t("error")}
-          autoFocus
-          description={tokenValidationError}
-          className="mb-8"
-        />
-      )}
-
-      {tokenDataError && (
-        <Alert
-          type="warn"
-          title={t("failedToParseMetadata")}
-          autoFocus
-          description={tokenDataError}
-          className="mb-8"
-        />
-      )}
-
-      <div
-        className={classNames("w-full", {
-          hidden: !bottomSectionVisible || loadingToken,
-        })}
-      >
-        <BottomSection
-          register={register}
-          errors={errors}
-          formState={formState}
-          submitError={submitError}
-        />
-      </div>
-
-      {loadingToken && (
-        <div className="my-8 w-full flex items-center justify-center pb-4">
-          <div>
-            <Spinner theme="gray" className="w-20" />
-          </div>
-        </div>
-      )}
-    </form>
-  );
-};
-
-type BottomSectionProps = Pick<
-  FormContextValues,
-  "register" | "errors" | "formState"
-> & {
-  submitError?: React.ReactNode;
-};
-
-const BottomSection: React.FC<BottomSectionProps> = (props) => {
-  const { register, errors, formState, submitError } = props;
-
-  return (
-    <>
       <FormField
         ref={register({
           required: t("required"),
@@ -536,7 +578,7 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
           </FormSubmitButton>
         )}
       </T>
-    </>
+    </form>
   );
 };
 
