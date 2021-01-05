@@ -21,7 +21,7 @@ export const XTZ_ASSET: ThanosAsset = {
 export const DELPHINET_TOKENS: ThanosToken[] = [
   {
     type: ThanosAssetType.FA1_2,
-    address: "KT1M9ThoXP9uGaUD7MvHKMbHqtj5i9VndHog",
+    address: "KT1RXpLtz22YgX24QQhxKVyKvtKZFaAVtTB9",
     name: "Kolibri",
     symbol: "kUSD",
     decimals: 18,
