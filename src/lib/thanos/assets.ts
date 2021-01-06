@@ -1,5 +1,6 @@
-import BigNumber from "bignumber.js";
+import { browser } from "webextension-polyfill-ts";
 import { TezosToolkit, WalletContract } from "@taquito/taquito";
+import BigNumber from "bignumber.js";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
 import {
   loadContract,
@@ -44,27 +45,6 @@ export const DELPHINET_TOKENS: ThanosToken[] = [
 
 export const MAINNET_TOKENS: ThanosToken[] = [
   {
-    type: ThanosAssetType.FA1_2,
-    address: "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-    name: "USD Tezos",
-    symbol: "USDtz",
-    decimals: 6,
-    fungible: true,
-    iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
-    default: true,
-  },
-  {
-    type: ThanosAssetType.Staker,
-    address: "KT1EctCuorV2NfVb1XTQgvzJ88MQtWP8cMMv",
-    name: "Staker",
-    symbol: "STKR",
-    decimals: 0,
-    fungible: true,
-    iconUrl:
-      "https://miro.medium.com/fit/c/160/160/1*LzmHCYryGmuN9ZR7JX951w.png",
-    default: true,
-  },
-  {
     type: ThanosAssetType.TzBTC,
     address: "KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn",
     name: "Tezos BTC",
@@ -84,6 +64,37 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     fungible: true,
     iconUrl:
       "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
+    default: true,
+  },
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
+    name: "USD Tez",
+    symbol: "USDtz",
+    decimals: 6,
+    fungible: true,
+    iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
+    default: true,
+  },
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT19at7rQUvyjxnZ2fBv7D9zc8rkyG7gAoU8",
+    name: "ETH Tez",
+    symbol: "ETHtz",
+    decimals: 18,
+    fungible: true,
+    iconUrl: browser.runtime.getURL("misc/token-logos/ethtz.png"),
+    default: true,
+  },
+  {
+    type: ThanosAssetType.Staker,
+    address: "KT1EctCuorV2NfVb1XTQgvzJ88MQtWP8cMMv",
+    name: "Staker",
+    symbol: "STKR",
+    decimals: 0,
+    fungible: true,
+    iconUrl:
+      "https://miro.medium.com/fit/c/160/160/1*LzmHCYryGmuN9ZR7JX951w.png",
     default: true,
   },
 ];
