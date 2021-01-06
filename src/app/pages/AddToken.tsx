@@ -80,6 +80,7 @@ const Form: React.FC = () => {
   });
   const contractAddress = watch("address");
   const previousAddressRef = React.useRef<string>();
+  const previousNetworkIdRef = React.useRef(networkId);
   const tokenId = watch("id");
   const previousTokenIdRef = React.useRef<number | undefined>(0);
 
@@ -101,12 +102,12 @@ const Form: React.FC = () => {
     setTokenValidationError(null);
     setBottomFormInitialData(undefined);
     if (validateContractAddress(contractAddress) !== true) {
-      console.log("resettingTokenType");
       setTokenType(undefined);
       tokenTypeRef.current = undefined;
       previousAddressRef.current = undefined;
       previousTokenIdRef.current = 0;
       setBottomFormInitialData(undefined);
+      previousNetworkIdRef.current = networkId;
       return;
     }
     triggerValidation("address");
@@ -125,8 +126,10 @@ const Form: React.FC = () => {
           throw new TokenValidationError(t("contractNotAvailable"));
         }
 
-        console.log(previousTokenIdRef.current, tokenId, tokenTypeRef.current);
-        if (previousAddressRef.current !== contractAddress) {
+        if (
+          previousAddressRef.current !== contractAddress ||
+          previousNetworkIdRef.current !== networkId
+        ) {
           try {
             await assertTokenType(ThanosAssetType.FA1_2, contract, tezos);
             tokenTypeRef.current = ThanosAssetType.FA1_2;
@@ -278,6 +281,7 @@ const Form: React.FC = () => {
         setLoadingToken(false);
         previousAddressRef.current = contractAddress;
         previousTokenIdRef.current = tokenId;
+        previousNetworkIdRef.current = networkId;
       }
     })();
   }, [
