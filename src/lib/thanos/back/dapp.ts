@@ -42,8 +42,9 @@ export async function getCurrentPermission(
   const dApp = await getDApp(origin);
   const permission = dApp
     ? {
-        pkh: dApp.pkh,
         rpc: getNetworkRPC(dApp.network),
+        pkh: dApp.pkh,
+        publicKey: dApp.publicKey,
       }
     : null;
   return {
@@ -76,10 +77,10 @@ export async function requestPermission(
   ) {
     return {
       type: ThanosDAppMessageType.PermissionResponse,
+      rpc: networkRpc,
       pkh: dApp.pkh,
       publicKey: dApp.publicKey,
-      rpc: networkRpc,
-    } as any;
+    };
   }
 
   return new Promise(async (resolve, reject) => {
@@ -118,7 +119,7 @@ export async function requestPermission(
               pkh: accountPublicKeyHash,
               publicKey: accountPublicKey,
               rpc: networkRpc,
-            } as any);
+            });
           } else {
             decline();
           }

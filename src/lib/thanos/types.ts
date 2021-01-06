@@ -17,7 +17,7 @@ export interface ThanosDAppSession {
   network: ThanosDAppNetwork;
   appMeta: ThanosDAppMetadata;
   pkh: string;
-  publicKey?: string;
+  publicKey: string;
 }
 
 export interface ThanosState {
