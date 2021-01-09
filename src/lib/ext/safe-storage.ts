@@ -1,6 +1,8 @@
 import { browser } from "webextension-polyfill-ts";
 import { createQueue } from "lib/queue";
 
+export type Items = { [key: string]: unknown } | [string, unknown][];
+
 export const transact = createQueue();
 
 export async function isStored(key: string) {
@@ -21,9 +23,7 @@ export function putOne<T>(key: string, value: T) {
   return browser.storage.local.set({ [key]: value });
 }
 
-export function putMany(
-  items: { [key: string]: unknown } | [string, unknown][]
-) {
+export function putMany(items: Items) {
   if (Array.isArray(items)) {
     items = iterToObj(items);
   }
