@@ -28,6 +28,7 @@ import {
   ThanosAccountType,
   loadContract,
   getAssetKey,
+  useUSDPrice,
 } from "lib/thanos/front";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
@@ -54,6 +55,8 @@ import Name from "app/atoms/Name";
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
+import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 
 interface FormData {
   to: string;
@@ -105,6 +108,7 @@ type FormProps = {
 
 const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
+  const xtzPrice = useUSDPrice();
 
   const allAccounts = useRelevantAccounts();
   const acc = useAccount();
@@ -128,6 +132,12 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const xtzBalance = xtzBalanceData!;
   const xtzBalanceNum = xtzBalance.toNumber();
 
+  const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
+
+  const canToggleUsd =
+    localAsset.type === ThanosAssetType.XTZ && xtzPrice !== null;
+  const prevCanToggleUsd = React.useRef(canToggleUsd);
+
   /**
    * Form
    */
@@ -141,12 +151,40 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     setValue,
     triggerValidation,
     reset,
+    getValues,
   } = useForm<FormData>({
     mode: "onChange",
     defaultValues: {
       fee: RECOMMENDED_ADD_FEE,
     },
   });
+
+  const handleUsdToggle = React.useCallback(() => {
+    const newShouldUseUsd = !shouldUseUsd;
+    setShouldUseUsd(newShouldUseUsd);
+    if (!getValues().amount) {
+      return;
+    }
+    const amount = new BigNumber(getValues().amount);
+    setValue(
+      "amount",
+      Number(
+        (newShouldUseUsd
+          ? amount.multipliedBy(xtzPrice!)
+          : amount.div(xtzPrice!)
+        ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
+          decimalSeparator: ".",
+        })
+      )
+    );
+  }, [setShouldUseUsd, shouldUseUsd, getValues, xtzPrice, setValue]);
+  React.useEffect(() => {
+    if (!canToggleUsd && prevCanToggleUsd.current && shouldUseUsd) {
+      setShouldUseUsd(false);
+      setValue("amount", undefined);
+    }
+    prevCanToggleUsd.current = canToggleUsd;
+  }, [setShouldUseUsd, canToggleUsd, shouldUseUsd, setValue]);
 
   const toValue = watch("to");
   const amountValue = watch("amount");
@@ -381,10 +419,26 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                   .minus(baseFee)
                   .minus(safeFeeValue ?? 0)
                   .minus(PENNY);
-          return BigNumber.max(ma, 0);
+          const maxAmountXtz = BigNumber.max(ma, 0);
+          const maxAmountUsd = xtzPrice
+            ? new BigNumber(
+                maxAmountXtz
+                  .multipliedBy(xtzPrice)
+                  .toFormat(2, BigNumber.ROUND_FLOOR, { decimalSeparator: "." })
+              )
+            : new BigNumber(0);
+          return shouldUseUsd ? maxAmountUsd : maxAmountXtz;
         })()
       : new BigNumber(balanceNum);
-  }, [acc.type, localAsset.type, balanceNum, baseFee, safeFeeValue]);
+  }, [
+    acc.type,
+    localAsset.type,
+    balanceNum,
+    baseFee,
+    safeFeeValue,
+    shouldUseUsd,
+    xtzPrice,
+  ]);
 
   const maxAmountNum = React.useMemo(
     () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
@@ -480,12 +534,13 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             .do(michelsonLambda(toResolved, tzToMutez(amount)))
             .send({ amount: 0 });
         } else {
+          const actualAmount = shouldUseUsd ? amount / xtzPrice! : amount;
           const transferParams = await toTransferParams(
             tezos,
             localAsset,
             accountPkh,
             toResolved,
-            amount
+            actualAmount
           );
           const estmtn = await tezos.estimate.transfer(transferParams);
           const addFee = tzToMutez(feeVal ?? 0);
@@ -520,6 +575,8 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       reset,
       accountPkh,
       toResolved,
+      shouldUseUsd,
+      xtzPrice,
     ]
   );
 
@@ -646,8 +703,21 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             onChange={([v]) => v}
             onFocus={() => amountFieldRef.current?.focus()}
             id="send-amount"
-            assetSymbol={localAsset.symbol}
-            assetDecimals={localAsset.decimals}
+            assetSymbol={
+              <div
+                onClick={handleUsdToggle}
+                className="cursor-pointer pointer-events-auto flex items-center"
+              >
+                {shouldUseUsd ? "USD" : localAsset.symbol}
+                {canToggleUsd && (
+                  <div className="ml-1 h-4 flex flex-col justify-between">
+                    <ChevronUpIcon className="h-2 w-auto stroke-current stroke-2" />
+                    <ChevronDownIcon className="h-2 w-auto stroke-current stroke-2" />
+                  </div>
+                )}
+              </div>
+            }
+            assetDecimals={shouldUseUsd ? 2 : localAsset.decimals}
             label={t("amount")}
             labelDescription={
               maxAmount && (
@@ -660,10 +730,15 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                   >
                     {maxAmount.toFixed()}
                   </button>
-                  {amountValue && localAsset.type === ThanosAssetType.XTZ ? (
+                  {amountValue &&
+                  localAsset.type === ThanosAssetType.XTZ &&
+                  !shouldUseUsd ? (
                     <>
                       <br />
-                      <InUSD volume={amountValue}>
+                      <InUSD
+                        volume={amountValue}
+                        roundingMode={BigNumber.ROUND_FLOOR}
+                      >
                         {(usdAmount) => (
                           <div className="mt-1 -mb-3">
                             ≈{" "}
