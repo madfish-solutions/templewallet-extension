@@ -5,12 +5,18 @@ type MoneyProps = {
   children: number | string | BigNumber;
   fiat?: boolean;
   cryptoDecimals?: number;
+  roundingMode?: BigNumber.RoundingMode;
 };
 
 const DEFAULT_CRYPTO_DECIMALS = 4;
 
 const Money = React.memo<MoneyProps>(
-  ({ children, fiat, cryptoDecimals = DEFAULT_CRYPTO_DECIMALS }) => {
+  ({
+    children,
+    fiat,
+    cryptoDecimals = DEFAULT_CRYPTO_DECIMALS,
+    roundingMode = BigNumber.ROUND_UP,
+  }) => {
     const bn = new BigNumber(children);
     const decimals = fiat
       ? 2
@@ -18,7 +24,7 @@ const Money = React.memo<MoneyProps>(
           const current = bn.decimalPlaces();
           return current > cryptoDecimals ? cryptoDecimals : current;
         })();
-    const result = bn.toFormat(decimals, BigNumber.ROUND_UP);
+    const result = bn.toFormat(decimals, roundingMode);
     const indexOfDot = result.indexOf(".");
 
     return (
