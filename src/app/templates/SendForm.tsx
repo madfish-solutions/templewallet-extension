@@ -159,25 +159,30 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     },
   });
 
-  const handleUsdToggle = React.useCallback(() => {
-    const newShouldUseUsd = !shouldUseUsd;
-    setShouldUseUsd(newShouldUseUsd);
-    if (!getValues().amount) {
-      return;
-    }
-    const amount = new BigNumber(getValues().amount);
-    setValue(
-      "amount",
-      Number(
-        (newShouldUseUsd
-          ? amount.multipliedBy(xtzPrice!)
-          : amount.div(xtzPrice!)
-        ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
-          decimalSeparator: ".",
-        })
-      )
-    );
-  }, [setShouldUseUsd, shouldUseUsd, getValues, xtzPrice, setValue]);
+  const handleUsdToggle = React.useCallback(
+    (evt) => {
+      evt.preventDefault();
+
+      const newShouldUseUsd = !shouldUseUsd;
+      setShouldUseUsd(newShouldUseUsd);
+      if (!getValues().amount) {
+        return;
+      }
+      const amount = new BigNumber(getValues().amount);
+      setValue(
+        "amount",
+        Number(
+          (newShouldUseUsd
+            ? amount.multipliedBy(xtzPrice!)
+            : amount.div(xtzPrice!)
+          ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
+            decimalSeparator: ".",
+          })
+        )
+      );
+    },
+    [setShouldUseUsd, shouldUseUsd, getValues, xtzPrice, setValue]
+  );
   React.useEffect(() => {
     if (!canToggleUsd && prevCanToggleUsd.current && shouldUseUsd) {
       setShouldUseUsd(false);
@@ -490,6 +495,16 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     `${tezos.checksum}_${toResolved}`
   );
 
+  const toXTZAmount = React.useCallback(
+    (usdAmount: number) =>
+      +new BigNumber(usdAmount)
+        .dividedBy(xtzPrice ?? 1)
+        .toFormat(6, BigNumber.ROUND_FLOOR, {
+          decimalSeparator: ".",
+        }),
+    [xtzPrice]
+  );
+
   const validateRecipient = React.useCallback(
     async (value: any) => {
       if (!value?.length || value.length < 0) {
@@ -534,7 +549,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             .do(michelsonLambda(toResolved, tzToMutez(amount)))
             .send({ amount: 0 });
         } else {
-          const actualAmount = shouldUseUsd ? amount / xtzPrice! : amount;
+          const actualAmount = shouldUseUsd ? toXTZAmount(amount) : amount;
           const transferParams = await toTransferParams(
             tezos,
             localAsset,
@@ -576,7 +591,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       accountPkh,
       toResolved,
       shouldUseUsd,
-      xtzPrice,
+      toXTZAmount,
     ]
   );
 
@@ -704,9 +719,16 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             onFocus={() => amountFieldRef.current?.focus()}
             id="send-amount"
             assetSymbol={
-              <div
+              <button
                 onClick={handleUsdToggle}
-                className="cursor-pointer pointer-events-auto flex items-center"
+                className={classNames(
+                  "px-1 rounded-md",
+                  "flex items-center",
+                  "font-light",
+                  "hover:bg-black hover:bg-opacity-5",
+                  "trasition ease-in-out duration-200",
+                  "cursor-pointer pointer-events-auto"
+                )}
               >
                 {shouldUseUsd ? "USD" : localAsset.symbol}
                 {canToggleUsd && (
@@ -715,7 +737,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                     <ChevronDownIcon className="h-2 w-auto stroke-current stroke-2" />
                   </div>
                 )}
-              </div>
+              </button>
             }
             assetDecimals={shouldUseUsd ? 2 : localAsset.decimals}
             label={t("amount")}
@@ -728,28 +750,37 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                     className={classNames("underline")}
                     onClick={handleSetMaxAmount}
                   >
+                    {shouldUseUsd ? <span className="pr-px">$</span> : null}
                     {maxAmount.toFixed()}
                   </button>
-                  {amountValue &&
-                  localAsset.type === ThanosAssetType.XTZ &&
-                  !shouldUseUsd ? (
+                  {amountValue && localAsset.type === ThanosAssetType.XTZ ? (
                     <>
                       <br />
-                      <InUSD
-                        volume={amountValue}
-                        roundingMode={BigNumber.ROUND_FLOOR}
-                      >
-                        {(usdAmount) => (
-                          <div className="mt-1 -mb-3">
-                            ≈{" "}
-                            <span className="font-normal text-gray-700">
-                              <span className="pr-px">$</span>
-                              {usdAmount}
-                            </span>{" "}
-                            <T id="inUSD" />
-                          </div>
-                        )}
-                      </InUSD>
+                      {shouldUseUsd ? (
+                        <div className="mt-1 -mb-3">
+                          ≈{" "}
+                          <span className="font-normal text-gray-700">
+                            {toXTZAmount(amountValue)}
+                          </span>{" "}
+                          <T id="inXTZ" />
+                        </div>
+                      ) : (
+                        <InUSD
+                          volume={amountValue}
+                          roundingMode={BigNumber.ROUND_FLOOR}
+                        >
+                          {(usdAmount) => (
+                            <div className="mt-1 -mb-3">
+                              ≈{" "}
+                              <span className="font-normal text-gray-700">
+                                <span className="pr-px">$</span>
+                                {usdAmount}
+                              </span>{" "}
+                              <T id="inUSD" />
+                            </div>
+                          )}
+                        </InUSD>
+                      )}
                     </>
                   ) : null}
                 </>
