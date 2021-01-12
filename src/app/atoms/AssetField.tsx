@@ -35,7 +35,6 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
     const [focused, setFocused] = React.useState(false);
 
     React.useEffect(() => {
-      console.log(focused);
       if (!focused) {
         setLocalValue(valueStr);
       }
