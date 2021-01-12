@@ -12,16 +12,22 @@ type InUSDProps = {
   volume: BigNumber | number | string;
   asset?: ThanosAsset;
   children: (usdVolume: React.ReactNode) => React.ReactElement;
+  roundingMode?: BigNumber.RoundingMode;
 };
 
 const InUSD: React.FC<InUSDProps> = ({
   volume,
   asset = XTZ_ASSET,
   children,
+  roundingMode,
 }) => {
   const price = useUSDPrice();
   return asset.type === ThanosAssetType.XTZ && price !== null
-    ? children(<Money fiat>{new BigNumber(volume).times(price)}</Money>)
+    ? children(
+        <Money fiat roundingMode={roundingMode}>
+          {new BigNumber(volume).times(price)}
+        </Money>
+      )
     : null;
 };
 
