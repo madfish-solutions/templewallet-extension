@@ -12,7 +12,7 @@ type MoneyProps = {
   roundingMode?: BigNumber.RoundingMode;
 };
 
-const DEFAULT_CRYPTO_DECIMALS = 4;
+const DEFAULT_CRYPTO_DECIMALS = 6;
 
 const Money = React.memo<MoneyProps>(
   ({
@@ -28,14 +28,17 @@ const Money = React.memo<MoneyProps>(
           const current = bn.decimalPlaces();
           return current > cryptoDecimals ? cryptoDecimals : current;
         })();
-    const result = bn.toFormat(decimals, roundingMode);
-    const indexOfDot = result.indexOf(".");
+    let result = bn.toFormat(decimals, roundingMode);
+    let indexOfDot = result.indexOf(".");
 
     switch (true) {
       case indexOfDot === -1:
         return <>{result}</>;
 
-      case !fiat && bn.decimalPlaces() > decimals:
+      case !fiat && bn.decimalPlaces() > cryptoDecimals:
+        result = bn.toFormat(cryptoDecimals - 2, roundingMode);
+        indexOfDot = result.indexOf(".");
+
         return (
           <FullAmountTippy
             fullAmunt={bn}
