@@ -720,6 +720,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             id="send-amount"
             assetSymbol={
               <button
+                type="button"
                 onClick={handleUsdToggle}
                 className={classNames(
                   "px-1 rounded-md",
