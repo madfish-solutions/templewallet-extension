@@ -45,9 +45,9 @@ const MainAssetBanner: React.FC<MainAssetBannerProps> = ({
         >
           <div
             className={classNames(
-              "-mt-4 py-1 px-2",
+              "-mt-3 py-1 px-2",
               "bg-white rounded-full",
-              "text-sm font-light text-center",
+              "text-sm font-light leading-none text-center",
               "text-gray-500"
             )}
           >
