@@ -10,6 +10,7 @@ import RootSuspenseFallback from "app/a11y/RootSuspenseFallback";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageRouter from "app/PageRouter";
 import ConfirmPage from "app/ConfirmPage";
+import { MessageContextProvider, MessagesProvider } from "lib/ui/messages";
 
 type AppProps = {
   env: React.ComponentProps<typeof AppEnvProvider>;
@@ -17,23 +18,27 @@ type AppProps = {
 
 const App: React.FC<AppProps> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
-    <React.Suspense fallback={<RootSuspenseFallback />}>
-      <AppProvider env={env}>
-        <DisableOutlinesForClick />
+    <MessageContextProvider>
+      <MessagesProvider>
+        <React.Suspense fallback={<RootSuspenseFallback />}>
+          <AppProvider env={env}>
+            <DisableOutlinesForClick />
 
-        <AwaitI18N />
+            <AwaitI18N />
 
-        <AwaitFonts
-          name="Inter"
-          weights={[300, 400, 500, 600]}
-          className="antialiased font-inter"
-        >
-          <BootAnimation>
-            {env.confirmWindow ? <ConfirmPage /> : <PageRouter />}
-          </BootAnimation>
-        </AwaitFonts>
-      </AppProvider>
-    </React.Suspense>
+            <AwaitFonts
+              name="Inter"
+              weights={[300, 400, 500, 600]}
+              className="antialiased font-inter"
+            >
+              <BootAnimation>
+                {env.confirmWindow ? <ConfirmPage /> : <PageRouter />}
+              </BootAnimation>
+            </AwaitFonts>
+          </AppProvider>
+        </React.Suspense>
+      </MessagesProvider>
+    </MessageContextProvider>
   </ErrorBoundary>
 );
 
