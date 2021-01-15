@@ -67,7 +67,7 @@ async function handleReset(alert: AlertFn, confirm: ConfirmFn) {
   resetting = true;
 
   const confirmed = await confirm({
-    title: "Please confirm action",
+    title: getMessage("actionConfirmation"),
     children: getMessage("resetExtensionConfirmation"),
   });
   if (confirmed) {

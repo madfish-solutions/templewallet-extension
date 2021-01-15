@@ -7,6 +7,7 @@ import {
 } from "lib/thanos/front";
 import { ThanosDAppSession, ThanosDAppSessions } from "lib/thanos/types";
 import { T, t } from "lib/i18n/react";
+import { useConfirm } from "lib/ui/messages";
 import { useRetryableSWR } from "lib/swr";
 import DAppLogo from "app/templates/DAppLogo";
 import FormCheckbox from "app/atoms/FormCheckbox";
@@ -24,6 +25,7 @@ const getDAppKey = (entry: DAppEntry) => entry[0];
 
 const DAppSettings: React.FC = () => {
   const { getAllDAppSessions, removeDAppSession } = useThanosClient();
+  const confirm = useConfirm();
 
   const { data, revalidate } = useRetryableSWR<ThanosDAppSessions>(
     ["getAllDAppSessions"],
@@ -64,12 +66,17 @@ const DAppSettings: React.FC = () => {
 
   const handleRemoveClick = React.useCallback(
     async (origin: string) => {
-      if (window.confirm(t("resetPermissionsConfirmation", origin))) {
+      if (
+        await confirm({
+          title: t("actionConfirmation"),
+          children: t("resetPermissionsConfirmation", origin),
+        })
+      ) {
         await removeDAppSession(origin);
         revalidate();
       }
     },
-    [removeDAppSession, revalidate]
+    [removeDAppSession, revalidate, confirm]
   );
 
   const dAppEntries = React.useMemo(() => Object.entries(dAppSessions), [

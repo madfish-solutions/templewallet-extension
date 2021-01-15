@@ -1,6 +1,9 @@
 import React from "react";
+import { t } from "lib/i18n/react";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import ModalWithTitle, { ModalWithTitleProps } from "./ModalWithTitle";
+import ModalWithTitle, {
+  ModalWithTitleProps,
+} from "app/templates/ModalWithTitle";
 
 export type AlertModalProps = ModalWithTitleProps;
 
@@ -13,7 +16,7 @@ const AlertModal: React.FC<AlertModalProps> = (props) => {
         <div className="mb-8">{children}</div>
         <div className="flex justify-end">
           <FormSubmitButton type="button" onClick={onRequestClose}>
-            OK
+            {t("ok")}
           </FormSubmitButton>
         </div>
       </div>
