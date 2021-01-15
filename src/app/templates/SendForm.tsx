@@ -719,26 +719,28 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             onFocus={() => amountFieldRef.current?.focus()}
             id="send-amount"
             assetSymbol={
-              <button
-                type="button"
-                onClick={handleUsdToggle}
-                className={classNames(
-                  "px-1 rounded-md",
-                  "flex items-center",
-                  "font-light",
-                  "hover:bg-black hover:bg-opacity-5",
-                  "trasition ease-in-out duration-200",
-                  "cursor-pointer pointer-events-auto"
-                )}
-              >
-                {shouldUseUsd ? "USD" : localAsset.symbol}
-                {canToggleUsd && (
+              canToggleUsd ? (
+                <button
+                  type="button"
+                  onClick={handleUsdToggle}
+                  className={classNames(
+                    "px-1 rounded-md",
+                    "flex items-center",
+                    "font-light",
+                    "hover:bg-black hover:bg-opacity-5",
+                    "trasition ease-in-out duration-200",
+                    "cursor-pointer pointer-events-auto"
+                  )}
+                >
+                  {shouldUseUsd ? "USD" : localAsset.symbol}
                   <div className="ml-1 h-4 flex flex-col justify-between">
                     <ChevronUpIcon className="h-2 w-auto stroke-current stroke-2" />
                     <ChevronDownIcon className="h-2 w-auto stroke-current stroke-2" />
                   </div>
-                )}
-              </button>
+                </button>
+              ) : (
+                localAsset.symbol
+              )
             }
             assetDecimals={shouldUseUsd ? 2 : localAsset.decimals}
             label={t("amount")}
