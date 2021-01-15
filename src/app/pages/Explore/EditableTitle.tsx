@@ -70,7 +70,7 @@ const EditableTitle: React.FC = () => {
           }
 
           await alert({
-            title: "Error while changing account name",
+            title: t("errorChangingAccountName"),
             children: err.message,
           });
         }

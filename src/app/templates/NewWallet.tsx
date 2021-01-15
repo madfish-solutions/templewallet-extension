@@ -5,6 +5,7 @@ import { validateMnemonic, generateMnemonic } from "bip39";
 import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
+import { useAlert } from "lib/ui/messages";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
@@ -38,6 +39,7 @@ const NewWallet: React.FC<NewWalletProps> = ({
   title,
 }) => {
   const { locked, registerWallet, setSeedRevealed } = useThanosClient();
+  const alert = useAlert();
 
   const {
     watch,
@@ -78,10 +80,20 @@ const NewWallet: React.FC<NewWalletProps> = ({
           console.error(err);
         }
 
-        alert(err.message);
+        await alert({
+          title: t("actionConfirmation"),
+          children: err.message,
+        });
       }
     },
-    [submitting, ownMnemonic, setBackupData, registerWallet, setSeedRevealed]
+    [
+      submitting,
+      ownMnemonic,
+      setBackupData,
+      registerWallet,
+      setSeedRevealed,
+      alert,
+    ]
   );
 
   return (
@@ -273,9 +285,12 @@ type BackupProps = {
 const Backup: React.FC<BackupProps> = ({ data }) => {
   const { registerWallet, setSeedRevealed } = useThanosClient();
 
-  const { register, handleSubmit, errors, formState } = useForm<
-    BackupFormData
-  >();
+  const {
+    register,
+    handleSubmit,
+    errors,
+    formState,
+  } = useForm<BackupFormData>();
   const submitting = formState.isSubmitting;
 
   const onSubmit = React.useCallback(async () => {
