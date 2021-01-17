@@ -103,7 +103,7 @@ const CustomNetworksSettings: React.FC = () => {
               type: networkId === "mainnet" ? "main" : "test",
               disabled: false,
               color: COLORS[Math.floor(Math.random() * COLORS.length)],
-              id: networkId,
+              id: rpcBaseURL,
               lambdaContract,
             },
           ],
