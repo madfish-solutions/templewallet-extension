@@ -6,6 +6,7 @@ import {
   useTezos,
   useRelevantAccounts,
   useAllAssetsRef,
+  getBalanceSWRKey,
 } from "lib/thanos/front";
 
 export const [NewBlockTriggersProvider] = constate(useNewBlockTriggers);
@@ -18,14 +19,11 @@ function useNewBlockTriggers() {
   const handleNewBlock = React.useCallback(() => {
     for (const acc of allAccounts) {
       for (const asset of allAssetsRef.current) {
-        trigger(
-          ["balance", tezos.checksum, asset.symbol, acc.publicKeyHash],
-          true
-        );
+        trigger(getBalanceSWRKey(tezos, asset, acc.publicKeyHash), true);
       }
       trigger(["delegate", tezos.checksum, acc.publicKeyHash], true);
     }
-  }, [allAccounts, allAssetsRef, tezos.checksum]);
+  }, [allAccounts, allAssetsRef, tezos]);
 
   useOnBlock(handleNewBlock);
 }
