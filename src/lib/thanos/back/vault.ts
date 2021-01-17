@@ -134,9 +134,14 @@ export class Vault {
 
   static async revealPrivateKey(accPublicKeyHash: string, password: string) {
     const passKey = await Vault.toValidPassKey(password);
-    return withError("Failed to reveal private key", () =>
-      fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), passKey)
-    );
+    return withError("Failed to reveal private key", async () => {
+      const privateKeySeed = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        passKey
+      );
+      const signer = await createMemorySigner(privateKeySeed);
+      return signer.secretKey();
+    });
   }
 
   static async removeAccount(accPublicKeyHash: string, password: string) {
