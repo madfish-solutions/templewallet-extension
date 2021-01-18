@@ -7,6 +7,7 @@ import {
   TZSTATS_CHAINS,
   getAccountWithOperations,
   TZStatsNetwork,
+  TZStatsOperation,
 } from "lib/tzstats";
 import { loadChainId } from "lib/thanos/helpers";
 import { T, TProps } from "lib/i18n/react";
@@ -46,6 +47,7 @@ interface InternalTransfer {
   tokenId?: number;
   sender: string;
   receiver: string;
+  tokenAddress?: string;
 }
 
 interface OperationPreview {
@@ -56,7 +58,6 @@ interface OperationPreview {
   type: string;
   status: string;
   time: string;
-  tokenAddress?: string;
   internalTransfers: InternalTransfer[];
   volume: number;
 }
@@ -151,7 +152,14 @@ const AllOperationsList: React.FC<AllOperationsListProps> = ({
             limit: OPERATIONS_LIMIT,
             offset: 0,
           })
-        : { ops: [] };
+        : { ops: [] as TZStatsOperation[] };
+      const tzStatsOps = ops.reduce<Record<string, TZStatsOperation[]>>(
+        (newOps, op) => ({
+          ...newOps,
+          [op.hash]: [...(newOps[op.hash] || []), op],
+        }),
+        {}
+      );
 
       let bcdOps: Record<string, BcdTokenTransfer[]> = {};
       const lastTzStatsOp = ops[ops.length - 1];
@@ -181,39 +189,76 @@ const AllOperationsList: React.FC<AllOperationsListProps> = ({
           );
       }
 
-      const nonBcdOps = ops.filter((op) => !bcdOps[op.hash]);
+      const pureBcdOps = Object.keys(bcdOps).reduce<
+        Record<string, BcdTokenTransfer[]>
+      >((transfers, hash) => {
+        if (tzStatsOps[hash]) {
+          return transfers;
+        }
+        return {
+          ...transfers,
+          [hash]: bcdOps[hash],
+        };
+      }, {});
 
       return [
-        ...nonBcdOps
-          .map((op) => {
-            const transfersFromParams =
-              op.type === "transaction" &&
-              (op.parameters as any)?.entrypoint === "transfer"
-                ? tryGetTransfers(op.parameters)
-                : null;
-            const transfersFromVolumeProp =
-              op.type === "transaction" && !op.parameters
-                ? [
-                    {
-                      volume: new BigNumber(op.volume),
-                      sender: op.sender,
-                      receiver: op.receiver,
-                    },
-                  ]
-                : [];
-            return {
-              delegate: op.type === "delegation" ? op.delegate : undefined,
-              entrypoint: (op.parameters as any)?.entrypoint,
-              internalTransfers: transfersFromParams || transfersFromVolumeProp,
-              hash: op.hash,
-              status: op.status,
-              time: op.time,
-              type: op.type,
-              volume: op.volume,
-              rawReceiver: op.receiver,
-              tokenAddress: transfersFromParams ? op.receiver : undefined,
-            };
-          })
+        ...Object.keys(tzStatsOps)
+          .reduce<OperationPreview[]>((mergedOps, opHash) => {
+            const opsChunk = tzStatsOps[opHash];
+            const bcdOpsChunk = bcdOps[opHash] || [];
+            return opsChunk.reduce<OperationPreview[]>(
+              (mergedOpsFromChunk, op) => {
+                const transfersFromParams =
+                  op.type === "transaction" &&
+                  (op.parameters as any)?.entrypoint === "transfer"
+                    ? tryGetTransfers(op.parameters)
+                    : null;
+                const transfersFromVolumeProp =
+                  op.type === "transaction" &&
+                  (!op.parameters || bcdOps[op.hash])
+                    ? [
+                        {
+                          volume: new BigNumber(op.volume),
+                          sender: op.sender,
+                          receiver: op.receiver,
+                        },
+                      ]
+                    : [];
+                return [
+                  ...mergedOpsFromChunk,
+                  {
+                    delegate:
+                      op.type === "delegation" ? op.delegate : undefined,
+                    entrypoint: (op.parameters as any)?.entrypoint,
+                    internalTransfers: [
+                      ...(transfersFromParams || transfersFromVolumeProp).map(
+                        (transfer) => ({
+                          ...transfer,
+                          tokenAddress: transfersFromParams
+                            ? op.receiver
+                            : undefined,
+                        })
+                      ),
+                      ...bcdOpsChunk.map((bcdOp) => ({
+                        volume: new BigNumber(bcdOp.amount),
+                        tokenId: bcdOp.token_id,
+                        sender: bcdOp.from,
+                        receiver: bcdOp.to,
+                        tokenAddress: bcdOp.contract,
+                      })),
+                    ],
+                    hash: op.hash,
+                    status: op.status,
+                    time: op.time,
+                    type: op.type,
+                    volume: op.volume,
+                    rawReceiver: op.receiver,
+                  },
+                ];
+              },
+              mergedOps
+            );
+          }, [])
           .filter(({ volume, type, entrypoint }) => {
             if (!xtzOnly) {
               return true;
@@ -227,14 +272,14 @@ const AllOperationsList: React.FC<AllOperationsListProps> = ({
           }),
         ...(xtzOnly
           ? []
-          : Object.values(bcdOps).map((bcdOpsChunk) => ({
+          : Object.values(pureBcdOps).map((bcdOpsChunk) => ({
               internalTransfers: bcdOpsChunk.map((bcdOp) => ({
                 volume: new BigNumber(bcdOp.amount),
                 tokenId: bcdOp.token_id,
                 sender: bcdOp.from,
                 receiver: bcdOp.to,
+                tokenAddress: bcdOp.contract,
               })),
-              tokenAddress: bcdOpsChunk[0].contract,
               hash: bcdOpsChunk[0].hash,
               status: bcdOpsChunk[0].status,
               time: bcdOpsChunk[0].timestamp,
@@ -313,8 +358,8 @@ const TokenOperationsList: React.FC<TokenOperationsListProps> = ({
           tokenId: bcdOp.token_id,
           sender: bcdOp.from,
           receiver: bcdOp.to,
+          tokenAddress: bcdOpsChunk[0].contract,
         })),
-        tokenAddress: bcdOpsChunk[0].contract,
         hash: bcdOpsChunk[0].hash,
         status: bcdOpsChunk[0].status,
         time: bcdOpsChunk[0].timestamp,
@@ -396,7 +441,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
         .map((op) => {
           const parameters = (op as any).parameters;
           let internalTransfers: InternalTransfer[] = [];
-          let tokenAddress = undefined;
+          let tokenAddress: string | undefined = undefined;
           if (op.kind === "transaction") {
             if (parameters?.entrypoint === "transfer") {
               internalTransfers = tryGetTransfers(parameters) || [];
@@ -421,8 +466,10 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
             type: op.kind,
             status: "pending",
             time: op.addedAt,
-            internalTransfers,
-            tokenAddress,
+            internalTransfers: internalTransfers.map((transfer) => ({
+              ...transfer,
+              tokenAddress,
+            })),
             rawReceiver: op.kind === "transaction" ? op.destination : undefined,
             volume:
               op.kind === "transaction" ? mutezToTz(op.amount).toNumber() : 0,
@@ -433,7 +480,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
 
           return asset.type === ThanosAssetType.XTZ
             ? op.volume > 0
-            : op.tokenAddress === asset.address;
+            : op.internalTransfers[0].tokenAddress === asset.address;
         }),
     [pndOps, accountPkh, asset]
   );
@@ -537,7 +584,6 @@ const Operation = React.memo<OperationProps>(
     status,
     time,
     internalTransfers,
-    tokenAddress,
     volume,
   }) => {
     const imReceiver = internalTransfers.some(
@@ -546,7 +592,9 @@ const Operation = React.memo<OperationProps>(
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
     const volumeExists = volume > 0;
-    const hasTokenTransfers = tokenAddress && internalTransfers.length > 0;
+    const hasTokenTransfers = internalTransfers.some(
+      ({ tokenAddress }) => !!tokenAddress
+    );
     const sender = internalTransfers[0]?.sender;
     const isTransfer =
       (hasTokenTransfers || (volumeExists && type === "transaction")) &&
@@ -722,7 +770,7 @@ const Operation = React.memo<OperationProps>(
                   <OperationVolumeDisplay
                     accountPkh={accountPkh}
                     key={index}
-                    tokenAddress={tokenAddress}
+                    tokenAddress={transfer.tokenAddress}
                     transfer={transfer}
                     pending={pending}
                     volume={0}
