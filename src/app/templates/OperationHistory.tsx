@@ -483,7 +483,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
 
           return asset.type === ThanosAssetType.XTZ
             ? op.volume > 0
-            : op.internalTransfers[0].tokenAddress === asset.address;
+            : op.internalTransfers[0]?.tokenAddress === asset.address;
         }),
     [pndOps, accountPkh, asset]
   );
