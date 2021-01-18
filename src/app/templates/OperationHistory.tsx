@@ -239,7 +239,10 @@ const AllOperationsList: React.FC<AllOperationsListProps> = ({
                             : undefined,
                         })
                       ),
-                      ...bcdOpsChunk.map((bcdOp) => ({
+                      ...(transfersFromParams?.length === bcdOpsChunk.length
+                        ? []
+                        : bcdOpsChunk
+                      ).map((bcdOp) => ({
                         volume: new BigNumber(bcdOp.amount),
                         tokenId: bcdOp.token_id,
                         sender: bcdOp.from,
@@ -596,25 +599,37 @@ const Operation = React.memo<OperationProps>(
       ({ tokenAddress }) => !!tokenAddress
     );
     const sender = internalTransfers[0]?.sender;
+    const hasReceival = internalTransfers.some(
+      ({ receiver }) => receiver === accountPkh
+    );
+    const hasSending = internalTransfers.some(
+      ({ sender }) => sender === accountPkh
+    );
     const isTransfer =
       (hasTokenTransfers || (volumeExists && type === "transaction")) &&
-      (!entrypoint || entrypoint === "transfer");
+      (!entrypoint || entrypoint === "transfer") &&
+      !(internalTransfers.length > 1 && hasSending && hasReceival);
     const isSendingTransfer = isTransfer && !imReceiver;
     const isReceivingTransfer = isTransfer && imReceiver;
     const moreExactType = React.useMemo(() => {
+      const rawReceiverIsContract =
+        !!rawReceiver && rawReceiver.startsWith("KT");
+      const isMultipleTransfersInteraction =
+        internalTransfers.length > 1 &&
+        internalTransfers.some(({ sender }) => sender.startsWith("KT")) &&
+        internalTransfers.some(({ receiver }) => receiver.startsWith("KT"));
       switch (true) {
         case isTransfer:
           return "transfer";
         case type === "delegation":
           return delegate ? "delegation" : "undelegation";
         case type === "transaction" &&
-          !!rawReceiver &&
-          rawReceiver.startsWith("KT"):
+          (rawReceiverIsContract || isMultipleTransfersInteraction):
           return "interaction";
         default:
           return type;
       }
-    }, [isTransfer, rawReceiver, type, delegate]);
+    }, [isTransfer, rawReceiver, type, delegate, internalTransfers]);
 
     const receivers = React.useMemo(() => {
       const uniqueReceivers = new Set(
