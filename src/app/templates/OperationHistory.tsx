@@ -451,7 +451,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
               if (internalTransfers.length > 0) {
                 tokenAddress = op.destination;
               }
-            } else if (op.amount) {
+            } else if (Number(op.amount || 0)) {
               internalTransfers = [
                 {
                   volume: mutezToTz(op.amount),
