@@ -1,7 +1,12 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { T, t } from "lib/i18n/react";
-import { ActivationStatus, useTezos, useAccount } from "lib/thanos/front";
+import {
+  ActivationStatus,
+  useTezos,
+  useAccount,
+  confirmOperation,
+} from "lib/thanos/front";
 import useIsMounted from "lib/ui/useIsMounted";
 import AccountBanner from "app/templates/AccountBanner";
 import Alert from "app/atoms/Alert";
@@ -81,7 +86,7 @@ const ActivateAccount: React.FC = () => {
 
           case ActivationStatus.ActivationRequestSent:
             setSuccess(t("requestSent", "🛫 Activation"));
-            op!.confirmation().then(() => {
+            confirmOperation(tezos, op!.hash).then(() => {
               setSuccess(`✅ ${t("accountActivated")}`);
             });
             break;
@@ -104,6 +109,7 @@ const ActivateAccount: React.FC = () => {
       setSuccess,
       activateAccount,
       account.publicKeyHash,
+      tezos,
     ]
   );
 
