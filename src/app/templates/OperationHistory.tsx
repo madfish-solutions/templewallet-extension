@@ -569,7 +569,6 @@ function opKey(op: OperationPreview) {
 }
 
 function tryGetTransfers(parameters: any): InternalTransfer[] | null {
-  console.log(parameters);
   try {
     if (parameters.value instanceof Array) {
       const parsedTransfers: InternalTransfer[] = [];
