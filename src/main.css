@@ -33,12 +33,25 @@
   transition: opacity 200ms ease-in-out;
 }
 
+.ReactModal__Content {
+  transform: scale(0.75);
+  transition: transform 200ms ease-in-out;
+}
+
 .ReactModal__Overlay--after-open {
   opacity: 1;
 }
 
 .ReactModal__Overlay--before-close {
   opacity: 0;
+}
+
+.ReactModal__Overlay--after-open .ReactModal__Content {
+  transform: scale(1);
+}
+
+.ReactModal__Overlay--before-close .ReactModal__Content {
+  transform: scale(0.75);
 }
 
 /**
