@@ -314,7 +314,7 @@ const Operation = React.memo<OperationProps>(
             <div className="flex-1" />
 
             {!failed && (
-              <div className="flex flex-col items-end flex-shrink-0">
+              <div className="flex flex-col items-end">
                 {internalTransfersStats.map((transferStats, index) => (
                   <OperationVolumeDisplay
                     {...transferStats}
@@ -381,7 +381,7 @@ const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
   const asset = tokenAddress ? token : XTZ_ASSET;
 
   return (
-    <>
+    <div className="inline-flex flex-wrap justify-end items-baseline">
       <div
         className={classNames(
           "text-sm",
@@ -404,21 +404,22 @@ const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
           "?"
         ) : (
           <Money>{delta}</Money>
-        )}{" "}
+        )}
+        &nbsp;
         {tokenAddress ? token?.symbol || "???" : "ꜩ"}
       </div>
 
       {asset && (
         <InUSD volume={delta.abs()} asset={asset}>
           {(usdVolume) => (
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 ml-1">
               <span className="mr-px">$</span>
               {usdVolume}
             </div>
           )}
         </InUSD>
       )}
-    </>
+    </div>
   );
 };
 
