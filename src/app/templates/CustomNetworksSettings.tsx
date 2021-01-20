@@ -11,6 +11,8 @@ import {
   useTezos,
   useThanosClient,
   validateContractAddress,
+  confirmOperation,
+  getOriginatedContractAddress,
 } from "lib/thanos/front";
 import { COLORS } from "lib/ui/colors";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
@@ -105,7 +107,7 @@ const CustomNetworksSettings: React.FC = () => {
               type: networkId === "mainnet" ? "main" : "test",
               disabled: false,
               color: COLORS[Math.floor(Math.random() * COLORS.length)],
-              id: networkId,
+              id: rpcBaseURL,
               lambdaContract,
             },
           ],
@@ -376,11 +378,14 @@ const LambdaContractSection: React.FC = () => {
           init: { prim: "Unit" },
         })
         .send();
-      const contract = await op.contract();
+      const opEntry = await confirmOperation(tezos, op.opHash);
+      const contractAddress = getOriginatedContractAddress(opEntry);
+      if (!contractAddress) throw new Error("Contract not originated");
+
       await updateSettings({
         lambdaContracts: {
           ...lambdaContracts,
-          [network.id]: contract.address,
+          [network.id]: contractAddress,
         },
       });
     } catch (err) {
