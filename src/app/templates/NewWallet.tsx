@@ -5,7 +5,7 @@ import { validateMnemonic, generateMnemonic } from "bip39";
 import { Link } from "lib/woozie";
 import { useThanosClient } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
-import { useAlert } from "lib/ui/messages";
+import { useAlert } from "lib/ui/dialog";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
