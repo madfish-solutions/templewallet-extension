@@ -1,5 +1,5 @@
+import * as React from "react";
 import classNames from "clsx";
-import React from "react";
 import Modal from "react-modal";
 
 export type CustomModalProps = Modal.Props & {
@@ -12,15 +12,22 @@ const CustomModal: React.FC<CustomModalProps> = (props) => {
   return (
     <Modal
       {...restProps}
-      className={classNames(
-        "bg-white border border-gray-500 rounded z-30",
-        className
-      )}
+      className={classNames("bg-white rounded-md z-30 shadow-2xl", className)}
       appElement={document.getElementById("root")!}
+      closeTimeoutMS={200}
       overlayClassName={classNames(
-        "fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-30",
+        "fixed inset-0 z-30",
+        "bg-black bg-opacity-75",
+        "flex items-center justify-center",
+        "p-6",
         overlayClassName
       )}
+      onAfterOpen={() => {
+        document.body.classList.add("overscroll-y-none");
+      }}
+      onAfterClose={() => {
+        document.body.classList.remove("overscroll-y-none");
+      }}
     />
   );
 };

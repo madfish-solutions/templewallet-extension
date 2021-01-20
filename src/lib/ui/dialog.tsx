@@ -3,6 +3,25 @@ import { AlertModalProps } from "app/templates/AlertModal";
 import { ConfirmationModalProps } from "app/templates/ConfirmationModal";
 import { useCallback, useMemo, useState } from "react";
 
+type AlertParams = Omit<AlertModalProps, "onRequestClose">;
+type ConfirmParams = Omit<
+  ConfirmationModalProps,
+  "onRequestClose" | "onConfirm"
+>;
+
+export type AlertFn = (params: Omit<AlertParams, "isOpen">) => Promise<void>;
+export type ConfirmFn = (
+  params: Omit<ConfirmParams, "isOpen">
+) => Promise<boolean>;
+
+type DummyEventListener = (e: Event) => void;
+
+const ALERT_CLOSE_EVENT_NAME = "alertclosed";
+const CONFIRM_CLOSE_EVENT_NAME = "confirmclosed";
+
+class AlertClosedEvent extends CustomEvent<void> {}
+class ConfirmClosedEvent extends CustomEvent<boolean> {}
+
 export const [
   DialogsProvider,
   useAlert,
@@ -15,38 +34,26 @@ export const [
   (v) => v.modalsParams
 );
 
-type AlertParams = Omit<AlertModalProps, "onRequestClose" | "isOpen">;
-type ConfirmParams = Omit<
-  ConfirmationModalProps,
-  "onRequestClose" | "onConfirm" | "isOpen"
->;
-export type AlertFn = (params: AlertParams) => Promise<void>;
-export type ConfirmFn = (params: ConfirmParams) => Promise<boolean>;
-const ALERT_CLOSE_EVENT_NAME = "alertclosed";
-const CONFIRM_CLOSE_EVENT_NAME = "confirmclosed";
-
-type DummyEventListener = (e: Event) => void;
-
-class AlertClosedEvent extends CustomEvent<void> {}
-
-class ConfirmClosedEvent extends CustomEvent<boolean> {}
-
 function useDialogs() {
-  const [alertParams, setAlertParams] = useState<AlertParams>();
-  const [confirmParams, setConfirmParams] = useState<ConfirmParams>();
+  const [alertParams, setAlertParams] = useState<AlertParams>({
+    isOpen: false,
+  });
+  const [confirmParams, setConfirmParams] = useState<ConfirmParams>({
+    isOpen: false,
+  });
 
-  const alert = useCallback(async (params: AlertParams) => {
-    setAlertParams(params);
+  const alert = useCallback(async (params: Omit<AlertParams, "isOpen">) => {
+    setAlertParams({ ...params, isOpen: true });
     await waitForEvent<AlertClosedEvent>(ALERT_CLOSE_EVENT_NAME);
-    setAlertParams(undefined);
+    setAlertParams({ ...params, isOpen: false });
   }, []);
 
-  const confirm = useCallback(async (params: ConfirmParams) => {
-    setConfirmParams(params);
+  const confirm = useCallback(async (params: Omit<ConfirmParams, "isOpen">) => {
+    setConfirmParams({ ...params, isOpen: true });
     const result = await waitForEvent<ConfirmClosedEvent>(
       CONFIRM_CLOSE_EVENT_NAME
     );
-    setConfirmParams(undefined);
+    setConfirmParams({ ...params, isOpen: false });
     return result;
   }, []);
 

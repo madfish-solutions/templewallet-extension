@@ -12,12 +12,14 @@ import {
   useAlert,
   useConfirm,
 } from "lib/ui/dialog";
+import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
 import Dialogs from "app/layouts/Dialogs";
 
 const OptionsWrapper: React.FC = () => (
   <DialogsProvider>
     <Options />
     <Dialogs />
+    <DisableOutlinesForClick />
   </DialogsProvider>
 );
 
