@@ -13,6 +13,7 @@ type MoneyProps = {
 };
 
 const DEFAULT_CRYPTO_DECIMALS = 6;
+const ENOUGH_INT_LENGTH = 4;
 
 const Money = React.memo<MoneyProps>(
   ({
@@ -22,12 +23,17 @@ const Money = React.memo<MoneyProps>(
     roundingMode = BigNumber.ROUND_DOWN,
   }) => {
     const bn = new BigNumber(children);
+    const decimalsLength = bn.decimalPlaces();
+    const intLength = bn.integerValue().toString().length;
+    if (intLength >= ENOUGH_INT_LENGTH) {
+      cryptoDecimals = Math.max(cryptoDecimals - 2, 1);
+    }
+
     const decimals = fiat
       ? 2
-      : (() => {
-          const current = bn.decimalPlaces();
-          return current > cryptoDecimals ? cryptoDecimals : current;
-        })();
+      : decimalsLength > cryptoDecimals
+      ? cryptoDecimals
+      : decimalsLength;
     let result = bn.toFormat(decimals, roundingMode);
     let indexOfDot = result.indexOf(".");
 
@@ -35,7 +41,7 @@ const Money = React.memo<MoneyProps>(
       case indexOfDot === -1:
         return <>{result}</>;
 
-      case !fiat && bn.decimalPlaces() > cryptoDecimals:
+      case !fiat && decimalsLength > cryptoDecimals:
         result = bn.toFormat(cryptoDecimals - 2, roundingMode);
         indexOfDot = result.indexOf(".");
 
@@ -52,7 +58,7 @@ const Money = React.memo<MoneyProps>(
             {result.slice(0, indexOfDot + 1)}
             <span style={{ fontSize: "0.9em" }}>
               {result.slice(indexOfDot + 1, result.length)}
-              <span className="opacity-75">...</span>
+              <span className="opacity-75 tracking-tighter">...</span>
             </span>
           </FullAmountTippy>
         );
