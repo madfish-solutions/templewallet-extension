@@ -16,6 +16,7 @@ import {
   isDomainNameValid,
   useTezosDomainsClient,
   isKTAddress,
+  confirmOperation,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
@@ -668,7 +669,7 @@ const FromFaucetForm: React.FC = () => {
 
         if (activationStatus === ActivationStatus.ActivationRequestSent) {
           setAlert(`🛫 ${t("requestSent", t("activationOperationType"))}`);
-          await op!.confirmation();
+          await confirmOperation(tezos, op!.hash);
         }
 
         try {
@@ -701,6 +702,7 @@ const FromFaucetForm: React.FC = () => {
       }
     },
     [
+      tezos,
       processing,
       setProcessing,
       setAlert,

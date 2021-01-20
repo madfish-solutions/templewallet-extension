@@ -183,7 +183,13 @@ export function useChainId(suspense?: boolean) {
 }
 
 export function useCustomChainId(rpcUrl: string, suspense?: boolean) {
-  const fetchChainId = React.useCallback(() => loadChainId(rpcUrl), [rpcUrl]);
+  const fetchChainId = React.useCallback(async () => {
+    try {
+      return await loadChainId(rpcUrl);
+    } catch (_err) {
+      return null;
+    }
+  }, [rpcUrl]);
 
   const { data: chainId } = useRetryableSWR(
     ["custom-chain-id", rpcUrl],
