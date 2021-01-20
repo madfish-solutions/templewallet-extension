@@ -1627,5 +1627,20 @@
   },
   "clean": {
     "message": "Clean"
+  },
+  "errorChangingAccountName": {
+    "message": "An error occurred while changing account name"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "yes": {
+    "message": "Yes"
+  },
+  "no": {
+    "message": "No"
+  },
+  "actionConfirmation": {
+    "message": "Confirm the action"
   }
 }
