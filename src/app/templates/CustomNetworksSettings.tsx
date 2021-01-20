@@ -16,6 +16,7 @@ import {
 } from "lib/thanos/front";
 import { COLORS } from "lib/ui/colors";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
+import { useConfirm } from "lib/ui/dialog";
 import { T, t } from "lib/i18n/react";
 import { URL_PATTERN } from "app/defaults";
 import { viewLambda } from "lib/michelson";
@@ -55,6 +56,7 @@ const CustomNetworksSettings: React.FC = () => {
   const { lambdaContracts = {} } = useSettings();
   const network = useNetwork();
   const [showNoLambdaWarning, setShowNoLambdaWarning] = useState(false);
+  const confirm = useConfirm();
 
   const {
     register,
@@ -144,8 +146,13 @@ const CustomNetworksSettings: React.FC = () => {
   );
 
   const handleRemoveClick = useCallback(
-    (baseUrl: string) => {
-      if (!window.confirm(t("deleteNetworkConfirm"))) {
+    async (baseUrl: string) => {
+      if (
+        !(await confirm({
+          title: t("actionConfirmation"),
+          children: t("deleteNetworkConfirm"),
+        }))
+      ) {
         return;
       }
 
@@ -167,7 +174,7 @@ const CustomNetworksSettings: React.FC = () => {
         setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message);
       });
     },
-    [customNetworks, setError, updateSettings, lambdaContracts]
+    [customNetworks, setError, updateSettings, lambdaContracts, confirm]
   );
 
   return (

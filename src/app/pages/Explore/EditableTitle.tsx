@@ -2,6 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { useThanosClient, useAccount } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
+import { useAlert } from "lib/ui/dialog";
 import Name from "app/atoms/Name";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
@@ -9,6 +10,7 @@ import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 const EditableTitle: React.FC = () => {
   const { editAccountName } = useThanosClient();
   const account = useAccount();
+  const alert = useAlert();
 
   const [editing, setEditing] = React.useState(false);
 
@@ -67,11 +69,14 @@ const EditableTitle: React.FC = () => {
             console.error(err);
           }
 
-          alert(err.message);
+          await alert({
+            title: t("errorChangingAccountName"),
+            children: err.message,
+          });
         }
       })();
     },
-    [account.name, editAccountName, account.publicKeyHash]
+    [account.name, editAccountName, account.publicKeyHash, alert]
   );
 
   const handleEditFieldFocus = React.useCallback(() => {
