@@ -15,8 +15,18 @@ const ModalWithTitle: React.FC<ModalWithTitleProps> = (props) => {
       className={classNames("px-6 pb-4 pt-5 w-full max-w-md", className)}
     >
       <>
-        {title ? <h1 className="text-base font-bold pb-8">{title}</h1> : null}
-        {children}
+        {title ? (
+          <h1
+            className={classNames(
+              "mb-4 text-lg font-semibold",
+              "text-gray-700"
+            )}
+          >
+            {title}
+          </h1>
+        ) : null}
+
+        <div className="text-gray-600 text-sm">{children}</div>
       </>
     </CustomModal>
   );

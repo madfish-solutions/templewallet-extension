@@ -22,15 +22,10 @@ const Dialogs: React.FC = () => {
     <>
       <ConfirmationModal
         {...confirmParams}
-        isOpen={!!confirmParams}
         onRequestClose={handleConfirmationModalClose}
         onConfirm={handleConfirmation}
       />
-      <AlertModal
-        {...alertParams}
-        isOpen={!!alertParams}
-        onRequestClose={dispatchAlertClose}
-      />
+      <AlertModal {...alertParams} onRequestClose={dispatchAlertClose} />
     </>
   );
 };
