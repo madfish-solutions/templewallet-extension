@@ -1174,6 +1174,9 @@
   "inUSD": {
     "message": "in USD"
   },
+  "inXTZ": {
+    "message": "in XTZ"
+  },
   "amountPlaceholder": {
     "message": "e.g. 123.45"
   },

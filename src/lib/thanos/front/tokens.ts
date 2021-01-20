@@ -5,22 +5,37 @@ import {
   useStorage,
   ThanosToken,
   ThanosAssetType,
+  useCustomChainId,
   fetchFromStorage,
   assetsAreSame,
   mergeAssets,
   omitAssets,
+  loadChainId,
+  ThanosChainId,
   MAINNET_TOKENS,
   DELPHINET_TOKENS,
 } from "lib/thanos/front";
 import { t } from "lib/i18n/react";
+import { useAllNetworks } from "./ready";
 
 const NETWORK_TOKEN_MAP = new Map([
-  ["mainnet", MAINNET_TOKENS],
-  ["delphinet", DELPHINET_TOKENS],
+  [ThanosChainId.Mainnet, MAINNET_TOKENS],
+  [ThanosChainId.Delphinet, DELPHINET_TOKENS],
 ]);
 
-export function useTokens() {
-  const network = useNetwork();
+export function useTokens(networkRpc?: string) {
+  const allNetworks = useAllNetworks();
+  const selectedNetwork = useNetwork();
+
+  const network = React.useMemo(() => {
+    if (!networkRpc) return selectedNetwork;
+    return (
+      allNetworks.find(
+        (n) => n.rpcBaseURL === networkRpc || n.id === networkRpc
+      ) ?? selectedNetwork
+    );
+  }, [allNetworks, selectedNetwork, networkRpc]);
+
   const [tokensPure, setTokens] = useStorage<ThanosToken[]>(
     getTokensSWRKey(network.id),
     []
@@ -30,14 +45,20 @@ export function useTokens() {
     []
   );
 
+  const chainId = useCustomChainId(network.rpcBaseURL, true);
+
   const tokens = React.useMemo(() => tokensPure.map(formatSaved), [tokensPure]);
   const hiddenTokens = React.useMemo(() => hiddenTokensPure.map(formatSaved), [
     hiddenTokensPure,
   ]);
 
   const allTokens = React.useMemo(
-    () => mergeAssets(NETWORK_TOKEN_MAP.get(network.id) ?? [], tokens),
-    [network.id, tokens]
+    () =>
+      mergeAssets(
+        (chainId && NETWORK_TOKEN_MAP.get(chainId as ThanosChainId)) || [],
+        tokens
+      ),
+    [chainId, tokens]
   );
 
   const displayedTokens = React.useMemo(
@@ -82,17 +103,28 @@ export function useTokens() {
   };
 }
 
-export async function preloadTokens(netId: string) {
+export async function preloadTokens(netId: string, rpcUrl: string) {
   const tokensKey = getTokensSWRKey(netId);
   const hiddenTokensKey = getHiddenTokensSWRKey(netId);
-  if (!cache.has(tokensKey) || !cache.has(hiddenTokensKey)) {
-    await Promise.all([
-      mutate(getTokensSWRKey(netId), () => fetchFromStorage(tokensKey)),
-      mutate(getHiddenTokensSWRKey(netId), () =>
-        fetchFromStorage(hiddenTokensKey)
-      ),
-    ]);
-  }
+
+  await Promise.all(
+    [
+      {
+        key: tokensKey,
+        factory: () => fetchFromStorage(tokensKey),
+      },
+      {
+        key: hiddenTokensKey,
+        factory: () => fetchFromStorage(hiddenTokensKey),
+      },
+      {
+        key: getCustomChainIdSWRKey(rpcUrl),
+        factory: () => loadChainId(rpcUrl),
+      },
+    ]
+      .filter(({ key }) => !cache.has(key))
+      .map(({ key, factory }) => mutate(key, factory))
+  );
 }
 
 export function getTokensSWRKey(netId: string) {
@@ -101,6 +133,10 @@ export function getTokensSWRKey(netId: string) {
 
 export function getHiddenTokensSWRKey(netId: string) {
   return `hidden_tokens_${netId}`;
+}
+
+export function getCustomChainIdSWRKey(rpcUrl: string) {
+  return ["custom-chain-id", rpcUrl];
 }
 
 function formatSaved(t: ThanosToken) {

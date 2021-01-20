@@ -23,18 +23,19 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
   const handleNetworkSelect = React.useCallback(
     async (
       netId: string,
+      rpcUrl: string,
       selected: boolean,
       setOpened: (o: boolean) => void
     ) => {
+      setOpened(false);
+
       if (!selected) {
         try {
-          await preloadTokens(netId);
+          await preloadTokens(netId, rpcUrl);
         } catch (_err) {}
 
         setNetworkId(netId);
       }
-
-      setOpened(false);
     },
     [setNetworkId]
   );
@@ -61,7 +62,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
           {allNetworks
             // Don't show hidden (but known) nodes on the dropdown
             .filter((n) => !n.hidden)
-            .map(({ id, name, color, disabled, nameI18nKey }) => {
+            .map(({ id, rpcBaseURL, name, color, disabled, nameI18nKey }) => {
               const selected = id === network.id;
 
               return (
@@ -87,7 +88,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
                   autoFocus={selected}
                   onClick={() => {
                     if (!disabled) {
-                      handleNetworkSelect(id, selected, setOpened);
+                      handleNetworkSelect(id, rpcBaseURL, selected, setOpened);
                     }
                   }}
                 >

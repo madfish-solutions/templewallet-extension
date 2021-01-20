@@ -6,8 +6,8 @@ import {
   XTZ_ASSET,
   tryParseExpenses,
   useAccount,
-  useAssets,
   ThanosAssetType,
+  useTokens,
 } from "lib/thanos/front";
 import OperationsBanner from "app/templates/OperationsBanner";
 import ViewsSwitcher from "app/templates/ViewsSwitcher";
@@ -19,10 +19,13 @@ import ExpensesView from "app/templates/ExpensesView";
 
 type OperationViewProps = {
   payload: ThanosDAppPayload;
+  networkRpc?: string;
 };
 
-const OperationView: React.FC<OperationViewProps> = (props) => {
-  const { payload } = props;
+const OperationView: React.FC<OperationViewProps> = ({
+  payload,
+  networkRpc,
+}) => {
   const contentToParse = React.useMemo(() => {
     switch (payload.type) {
       case "confirm_operations":
@@ -34,27 +37,29 @@ const OperationView: React.FC<OperationViewProps> = (props) => {
     }
   }, [payload]);
   const account = useAccount();
-  const { allAssets } = useAssets();
+  const { allTokens } = useTokens(networkRpc);
 
   const rawExpensesData = React.useMemo(
     () => tryParseExpenses(contentToParse, account.publicKeyHash),
     [contentToParse, account.publicKeyHash]
   );
   const expensesData = React.useMemo(() => {
-    return rawExpensesData.map(({ expenses, ...restProps }) => ({
-      expenses: expenses.map(({ tokenAddress, ...restProps }) => ({
+    return rawExpensesData.map(({ expenses, ...restRaw }) => ({
+      expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
         asset: tokenAddress
-          ? allAssets.find(
-              (asset) =>
-                asset.type !== ThanosAssetType.XTZ &&
-                asset.address === tokenAddress
+          ? allTokens.find((token) =>
+              token.type === ThanosAssetType.FA2
+                ? token.address === tokenAddress && token.id === tokenId
+                : token.address === tokenAddress
             ) || tokenAddress
           : XTZ_ASSET,
+        tokenAddress,
+        tokenId,
         ...restProps,
       })),
-      ...restProps,
+      ...restRaw,
     }));
-  }, [allAssets, rawExpensesData]);
+  }, [allTokens, rawExpensesData]);
 
   const signPayloadFormats = React.useMemo(() => {
     const rawFormat = {
