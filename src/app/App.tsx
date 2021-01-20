@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
 import { ThanosProvider } from "lib/thanos/front";
+import { DialogsProvider } from "lib/ui/dialog";
 import { AppEnvProvider } from "app/env";
 import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
 import AwaitI18N from "app/a11y/AwaitI18N";
@@ -10,7 +11,7 @@ import RootSuspenseFallback from "app/a11y/RootSuspenseFallback";
 import ErrorBoundary from "app/ErrorBoundary";
 import PageRouter from "app/PageRouter";
 import ConfirmPage from "app/ConfirmPage";
-import { MessageContextProvider, MessagesProvider } from "lib/ui/messages";
+import Dialogs from "app/layouts/Dialogs";
 
 type AppProps = {
   env: React.ComponentProps<typeof AppEnvProvider>;
@@ -18,27 +19,27 @@ type AppProps = {
 
 const App: React.FC<AppProps> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
-    <MessageContextProvider>
-      <MessagesProvider>
-        <React.Suspense fallback={<RootSuspenseFallback />}>
-          <AppProvider env={env}>
-            <DisableOutlinesForClick />
+    <DialogsProvider>
+      <React.Suspense fallback={<RootSuspenseFallback />}>
+        <AppProvider env={env}>
+          <Dialogs />
 
-            <AwaitI18N />
+          <DisableOutlinesForClick />
 
-            <AwaitFonts
-              name="Inter"
-              weights={[300, 400, 500, 600]}
-              className="antialiased font-inter"
-            >
-              <BootAnimation>
-                {env.confirmWindow ? <ConfirmPage /> : <PageRouter />}
-              </BootAnimation>
-            </AwaitFonts>
-          </AppProvider>
-        </React.Suspense>
-      </MessagesProvider>
-    </MessageContextProvider>
+          <AwaitI18N />
+
+          <AwaitFonts
+            name="Inter"
+            weights={[300, 400, 500, 600]}
+            className="antialiased font-inter"
+          >
+            <BootAnimation>
+              {env.confirmWindow ? <ConfirmPage /> : <PageRouter />}
+            </BootAnimation>
+          </AwaitFonts>
+        </AppProvider>
+      </React.Suspense>
+    </DialogsProvider>
   </ErrorBoundary>
 );
 

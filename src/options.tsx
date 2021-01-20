@@ -8,18 +8,17 @@ import { getMessage } from "lib/i18n";
 import {
   AlertFn,
   ConfirmFn,
-  MessageContextProvider,
-  MessagesProvider,
+  DialogsProvider,
   useAlert,
   useConfirm,
-} from "lib/ui/messages";
+} from "lib/ui/dialog";
+import Dialogs from "app/layouts/Dialogs";
 
 const OptionsWrapper: React.FC = () => (
-  <MessageContextProvider>
-    <MessagesProvider>
-      <Options />
-    </MessagesProvider>
-  </MessageContextProvider>
+  <DialogsProvider>
+    <Options />
+    <Dialogs />
+  </DialogsProvider>
 );
 
 const Options: React.FC = () => {

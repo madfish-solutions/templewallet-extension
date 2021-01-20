@@ -16,7 +16,7 @@ import {
 } from "lib/thanos/front";
 import { COLORS } from "lib/ui/colors";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
-import { useConfirm } from "lib/ui/messages";
+import { useConfirm } from "lib/ui/dialog";
 import { T, t } from "lib/i18n/react";
 import { URL_PATTERN } from "app/defaults";
 import { viewLambda } from "lib/michelson";

@@ -7,7 +7,7 @@ import {
 } from "lib/thanos/front";
 import { ThanosDAppSession, ThanosDAppSessions } from "lib/thanos/types";
 import { T, t } from "lib/i18n/react";
-import { useConfirm } from "lib/ui/messages";
+import { useConfirm } from "lib/ui/dialog";
 import { useRetryableSWR } from "lib/swr";
 import DAppLogo from "app/templates/DAppLogo";
 import FormCheckbox from "app/atoms/FormCheckbox";
