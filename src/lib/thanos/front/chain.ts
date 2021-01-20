@@ -7,16 +7,19 @@ import {
   useRelevantAccounts,
   useAllAssetsRef,
   getBalanceSWRKey,
+  confirmOperation,
 } from "lib/thanos/front";
 
-export const [NewBlockTriggersProvider] = constate(useNewBlockTriggers);
+export const [NewBlockTriggersProvider, useBlockTriggers] = constate(
+  useNewBlockTriggers
+);
 
 function useNewBlockTriggers() {
   const tezos = useTezos();
   const allAccounts = useRelevantAccounts();
   const allAssetsRef = useAllAssetsRef();
 
-  const handleNewBlock = React.useCallback(() => {
+  const triggerNewBlock = React.useCallback(() => {
     for (const acc of allAccounts) {
       for (const asset of allAssetsRef.current) {
         trigger(getBalanceSWRKey(tezos, asset, acc.publicKeyHash), true);
@@ -25,7 +28,23 @@ function useNewBlockTriggers() {
     }
   }, [allAccounts, allAssetsRef, tezos]);
 
-  useOnBlock(handleNewBlock);
+  useOnBlock(triggerNewBlock);
+
+  const confirmOperationAndTriggerNewBlock = React.useCallback<
+    typeof confirmOperation
+  >(
+    async (...args) => {
+      const result = await confirmOperation(...args);
+      triggerNewBlock();
+      return result;
+    },
+    [triggerNewBlock]
+  );
+
+  return {
+    triggerNewBlock,
+    confirmOperationAndTriggerNewBlock,
+  };
 }
 
 export function useOnBlock(callback: (blockHash: string) => void) {

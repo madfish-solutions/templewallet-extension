@@ -1,6 +1,7 @@
 import * as React from "react";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
+import { useTezos, useBlockTriggers } from "lib/thanos/front";
 import Alert from "app/atoms/Alert";
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import HashChip from "app/templates/HashChip";
@@ -16,6 +17,9 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
   typeTitle,
   operation,
 }) => {
+  const tezos = useTezos();
+  const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
+
   const hash = React.useMemo(() => operation.hash || operation.opHash, [
     operation,
   ]);
@@ -67,8 +71,11 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
   }));
 
   React.useEffect(() => {
-    operation
-      .confirmation()
+    const abortCtrl = new AbortController();
+
+    confirmOperationAndTriggerNewBlock(tezos, hash, {
+      signal: abortCtrl.signal,
+    })
       .then(() => {
         setAlert((a) => ({
           ...a,
@@ -91,7 +98,16 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
           description: t("timedOutOperationConfirmation"),
         });
       });
-  }, [operation, setAlert, descFooter, typeTitle]);
+
+    return () => abortCtrl.abort();
+  }, [
+    confirmOperationAndTriggerNewBlock,
+    tezos,
+    hash,
+    setAlert,
+    descFooter,
+    typeTitle,
+  ]);
 
   return (
     <Alert
