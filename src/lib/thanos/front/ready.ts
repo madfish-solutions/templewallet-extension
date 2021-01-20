@@ -182,6 +182,23 @@ export function useChainId(suspense?: boolean) {
   return React.useMemo(() => lazyChainId, [lazyChainId]);
 }
 
+export function useCustomChainId(rpcUrl: string, suspense?: boolean) {
+  const fetchChainId = React.useCallback(async () => {
+    try {
+      return await loadChainId(rpcUrl);
+    } catch (_err) {
+      return null;
+    }
+  }, [rpcUrl]);
+
+  const { data: chainId } = useRetryableSWR(
+    ["custom-chain-id", rpcUrl],
+    fetchChainId,
+    { revalidateOnFocus: false, suspense }
+  );
+  return chainId;
+}
+
 export function useRelevantAccounts(withExtraTypes = true) {
   const allAccounts = useAllAccounts();
   const account = useAccount();

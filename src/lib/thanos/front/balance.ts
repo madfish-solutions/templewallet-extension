@@ -48,7 +48,7 @@ export function useBalance(
     {
       suspense: opts.suspense ?? true,
       revalidateOnFocus: false,
-      dedupingInterval: 180_000,
+      dedupingInterval: 30_000,
     }
   );
 }
