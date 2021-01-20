@@ -1,18 +1,29 @@
 import classNames from "clsx";
-import React from "react";
+import * as React from "react";
+import { useAppEnv } from "app/env";
 import CustomModal, { CustomModalProps } from "app/atoms/CustomModal";
 
 export type ModalWithTitleProps = CustomModalProps & {
   title?: React.ReactNode;
 };
 
-const ModalWithTitle: React.FC<ModalWithTitleProps> = (props) => {
-  const { title, children, className, ...restProps } = props;
+const ModalWithTitle: React.FC<ModalWithTitleProps> = ({
+  title,
+  children,
+  className,
+  ...restProps
+}) => {
+  const { popup } = useAppEnv();
 
   return (
     <CustomModal
       {...restProps}
-      className={classNames("px-6 pb-4 pt-5 w-full max-w-md", className)}
+      className={classNames(
+        "w-full max-w-md",
+        popup ? "px-4" : "px-6",
+        "pb-4 pt-5",
+        className
+      )}
     >
       <>
         {title ? (
