@@ -2,14 +2,14 @@ import * as React from "react";
 import classNames from "clsx";
 import Spinner from "app/atoms/Spinner";
 
-type FormSecondaryButtonProps = React.ButtonHTMLAttributes<
-  HTMLButtonElement
-> & {
+type FormSecondaryButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
+  small?: boolean;
 };
 
 const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
   loading,
+  small,
   type = "button",
   disabled,
   className,
@@ -21,12 +21,13 @@ const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
     type={type}
     className={classNames(
       "relative",
-      "px-8",
+      small ? "px-6" : "px-8",
       "bg-white rounded",
       "border-2 border-primary-orange",
       "flex items-center",
       loading ? "text-transparent" : "text-primary-orange",
-      "text-base font-semibold",
+      small ? "text-sm" : "text-base",
+      "font-semibold",
       "transition duration-200 ease-in-out",
       loading || disabled ? "opacity-75" : "opacity-90 hover:opacity-100",
       loading || disabled
@@ -34,7 +35,11 @@ const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
         : "shadow-sm hover:shadow focus:shadow",
       className
     )}
-    style={{ paddingTop: "0.625rem", paddingBottom: "0.625rem", ...style }}
+    style={{
+      paddingTop: small ? "0.5rem" : "0.625rem",
+      paddingBottom: small ? "0.5rem" : "0.625rem",
+      ...style,
+    }}
     disabled={disabled}
     {...rest}
   >

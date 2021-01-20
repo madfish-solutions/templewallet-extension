@@ -12,7 +12,7 @@ const CustomModal: React.FC<CustomModalProps> = (props) => {
   return (
     <Modal
       {...restProps}
-      className={classNames("bg-white rounded-md z-30 shadow-2xl", className)}
+      className={classNames("bg-white rounded z-30 shadow-2xl", className)}
       appElement={document.getElementById("root")!}
       closeTimeoutMS={200}
       overlayClassName={classNames(

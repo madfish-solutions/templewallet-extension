@@ -18,10 +18,10 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = (props) => {
       <>
         <div className="mb-8">{children}</div>
         <div className="flex justify-end">
-          <FormSecondaryButton className="mr-4" onClick={onRequestClose}>
+          <FormSecondaryButton small className="mr-3" onClick={onRequestClose}>
             {t("cancel")}
           </FormSecondaryButton>
-          <FormSubmitButton type="button" onClick={onConfirm}>
+          <FormSubmitButton small type="button" onClick={onConfirm}>
             {t("ok")}
           </FormSubmitButton>
         </div>
