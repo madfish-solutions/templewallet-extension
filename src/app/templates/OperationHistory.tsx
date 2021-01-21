@@ -532,7 +532,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
     }
 
     for (const op of operations) {
-      if (unique.every((u) => opKey(u) !== opKey(op))) {
+      if (unique.every((u) => internalOpKey(u) !== internalOpKey(op))) {
         unique.push(op);
       }
     }
@@ -585,7 +585,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
 
       {uniqueOps.map((op) => (
         <Operation
-          key={opKey(op)}
+          key={internalOpKey(op)}
           accountPkh={accountPkh}
           withExplorer={withExplorer}
           explorerBaseUrl={explorerBaseUrl}
@@ -597,6 +597,10 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
 };
 
 function opKey(op: OperationPreview) {
+  return `${op.hash}_${op.type}`;
+}
+
+function internalOpKey(op: OperationPreview) {
   return `${op.hash}_${op.type}_${op.counter}`;
 }
 
