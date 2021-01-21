@@ -91,10 +91,25 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
 
-  const customNetworks = settings?.customNetworks ?? [];
+  const customNetworks = React.useMemo(() => {
+    const customNetworksWithoutLambdaContracts = settings?.customNetworks ?? [];
+    return customNetworksWithoutLambdaContracts.map((network) => {
+      return {
+        ...network,
+        lambdaContract: settings?.lambdaContracts?.[network.id],
+      };
+    });
+  }, [settings]);
+  const defaultNetworksWithLambdaContracts = React.useMemo(() => {
+    return defaultNetworks.map((network) => ({
+      ...network,
+      lambdaContract:
+        network.lambdaContract || settings?.lambdaContracts?.[network.id],
+    }));
+  }, [settings, defaultNetworks]);
   const networks = React.useMemo(
-    () => [...defaultNetworks, ...customNetworks],
-    [defaultNetworks, customNetworks]
+    () => [...defaultNetworksWithLambdaContracts, ...customNetworks],
+    [defaultNetworksWithLambdaContracts, customNetworks]
   );
 
   /**
@@ -415,7 +430,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
     // Aliases
     status,
     defaultNetworks,
-    customNetworks,
+    customNetworks: defaultNetworksWithLambdaContracts,
     networks,
     accounts,
     settings,

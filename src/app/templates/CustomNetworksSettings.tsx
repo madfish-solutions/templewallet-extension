@@ -114,6 +114,7 @@ const CustomNetworksSettings: React.FC = () => {
             ? {
                 ...lambdaContracts,
                 [chainId]: lambdaContract,
+                [networkId]: lambdaContract,
               }
             : lambdaContracts,
         });
@@ -311,7 +312,7 @@ const LambdaContractSection: React.FC = () => {
   const tezos = useTezos();
   const network = useNetwork();
   const netChainId = useChainId(true);
-  const { lambdaContracts = {}, customNetworks = [] } = useSettings();
+  const { lambdaContracts = {} } = useSettings();
 
   const contractCheckSWR = useRetryableSWR(
     ["contract-check", tezos.checksum, network.lambdaContract],
@@ -357,21 +358,11 @@ const LambdaContractSection: React.FC = () => {
           throw new Error(t("failedToLoadChainID"));
         }
 
-        const netsToUpdate = await Promise.all(
-          customNetworks.map(async (net) => {
-            if (net.lambdaContract && net.id !== network.id) return net;
-            const cId = await loadChainId(net.rpcBaseURL);
-            return cId === netChainId
-              ? { ...net, lambdaContract: data.lambdaContract }
-              : net;
-          })
-        );
-
         await updateSettings({
-          customNetworks: netsToUpdate,
           lambdaContracts: {
             ...lambdaContracts,
             [netChainId]: data.lambdaContract,
+            [network.id]: data.lambdaContract,
           },
         });
         resetLambdaForm();
@@ -384,7 +375,6 @@ const LambdaContractSection: React.FC = () => {
     [
       clearLambdaFormError,
       lambdaContracts,
-      customNetworks,
       lambdaFormLoading,
       netChainId,
       network.id,
@@ -416,21 +406,11 @@ const LambdaContractSection: React.FC = () => {
       const contractAddress = getOriginatedContractAddress(opEntry);
       if (!contractAddress) throw new Error("Contract not originated");
 
-      const netsToUpdate = await Promise.all(
-        customNetworks.map(async (net) => {
-          if (net.lambdaContract && net.id !== network.id) return net;
-          const cId = await loadChainId(net.rpcBaseURL);
-          return cId === netChainId
-            ? { ...net, lambdaContract: contractAddress }
-            : net;
-        })
-      );
-
       await updateSettings({
-        customNetworks: netsToUpdate,
         lambdaContracts: {
           ...lambdaContracts,
           [netChainId]: contractAddress,
+          [network.id]: contractAddress,
         },
       });
     } catch (err) {
@@ -447,7 +427,6 @@ const LambdaContractSection: React.FC = () => {
   }, [
     lambdaFormLoading,
     lambdaContracts,
-    customNetworks,
     netChainId,
     network.id,
     tezos,
