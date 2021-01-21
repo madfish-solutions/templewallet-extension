@@ -1540,6 +1540,9 @@
       }
     }
   },
+  "failedToLoadChainID": {
+    "message": "Failed to load chain ID for this network"
+  },
   "makeSureTokenIdIsCorrect": {
     "message": "Please make sure that token ID is correct."
   },
@@ -1627,5 +1630,20 @@
   },
   "clean": {
     "message": "Clean"
+  },
+  "errorChangingAccountName": {
+    "message": "An error occurred while changing account name"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "yes": {
+    "message": "Yes"
+  },
+  "no": {
+    "message": "No"
+  },
+  "actionConfirmation": {
+    "message": "Confirm the action"
   }
 }

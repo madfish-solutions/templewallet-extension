@@ -4,10 +4,12 @@ import Spinner from "app/atoms/Spinner";
 
 type FormSubmitButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
+  small?: boolean;
 };
 
 const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
   loading,
+  small,
   disabled,
   className,
   style,
@@ -17,14 +19,15 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
   <button
     className={classNames(
       "relative",
-      "px-8",
+      small ? "px-6" : "px-8",
       "rounded border-2",
       disabled
         ? "bg-gray-400 border-gray-400"
         : "bg-primary-orange border-primary-orange",
       "flex items-center",
       loading ? "text-transparent" : "text-primary-orange-lighter",
-      "text-base font-semibold",
+      small ? "text-sm" : "text-base",
+      "font-semibold",
       "transition duration-200 ease-in-out",
       loading || disabled
         ? "opacity-75"
@@ -32,7 +35,11 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
       loading || disabled ? "" : "shadow-sm hover:shadow focus:shadow",
       className
     )}
-    style={{ paddingTop: "0.625rem", paddingBottom: "0.625rem", ...style }}
+    style={{
+      paddingTop: small ? "0.5rem" : "0.625rem",
+      paddingBottom: small ? "0.5rem" : "0.625rem",
+      ...style,
+    }}
     disabled={disabled}
     {...rest}
   >

@@ -3,7 +3,6 @@ import { useRetryableSWR } from "lib/swr";
 import {
   ThanosAsset,
   useTezos,
-  useSettings,
   fetchBalance,
   getAssetKey,
   ReactiveTezosToolkit,
@@ -21,19 +20,21 @@ export function useBalance(
   opts: UseBalanceOptions = {}
 ) {
   const nativeTezos = useTezos();
-  const settings = useSettings();
 
   const tezos = React.useMemo(() => {
     if (opts.networkRpc) {
       const rpc = opts.networkRpc;
       return new ReactiveTezosToolkit(
         rpc,
-        rpc,
-        settings.lambdaContracts?.[rpc]
+        rpc
+        // lambda view contract for custom RPC may be here
+        // currently we don't call lambda view for custom RPC
+        // but if we need to do this, we have to load chainId and pick lambdaView
+        // from settings with this chainId
       );
     }
     return nativeTezos;
-  }, [opts.networkRpc, nativeTezos, settings.lambdaContracts]);
+  }, [opts.networkRpc, nativeTezos]);
 
   const fetchBalanceLocal = React.useCallback(
     () => fetchBalance(tezos, asset, address),
