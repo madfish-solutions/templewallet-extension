@@ -429,8 +429,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
     // Aliases
     status,
-    defaultNetworks: defaultNetworksWithLambdaContracts,
-    customNetworks,
+    defaultNetworks,
+    customNetworks: defaultNetworksWithLambdaContracts,
     networks,
     accounts,
     settings,
@@ -559,7 +559,7 @@ function formatOpParams(op: any) {
       return {
         ...op,
         mutez: true, // The balance was already converted from Tez (ꜩ) to Mutez (uꜩ)
-      }
+      };
     case "transaction":
       const { destination, amount, parameters, ...txRest } = op;
       return {
