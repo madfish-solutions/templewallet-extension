@@ -162,24 +162,8 @@ function useReadyThanos() {
 
 export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
-
   const rpcUrl = React.useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
-
-  const fetchChainId = React.useCallback(async () => {
-    try {
-      return await loadChainId(rpcUrl);
-    } catch {
-      return null;
-    }
-  }, [rpcUrl]);
-
-  const { data: lazyChainId = null } = useRetryableSWR(
-    ["lazy-chain-id", tezos.checksum],
-    fetchChainId,
-    { revalidateOnFocus: false, suspense }
-  );
-
-  return React.useMemo(() => lazyChainId, [lazyChainId]);
+  return useCustomChainId(rpcUrl, suspense);
 }
 
 export function useCustomChainId(rpcUrl: string, suspense?: boolean) {
@@ -192,9 +176,9 @@ export function useCustomChainId(rpcUrl: string, suspense?: boolean) {
   }, [rpcUrl]);
 
   const { data: chainId } = useRetryableSWR(
-    ["custom-chain-id", rpcUrl],
+    ["chain-id", rpcUrl],
     fetchChainId,
-    { revalidateOnFocus: false, suspense }
+    { suspense, revalidateOnFocus: false }
   );
   return chainId;
 }
