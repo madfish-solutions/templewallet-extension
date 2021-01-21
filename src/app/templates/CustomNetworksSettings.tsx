@@ -359,7 +359,7 @@ const LambdaContractSection: React.FC = () => {
 
         const netsToUpdate = await Promise.all(
           customNetworks.map(async (net) => {
-            if (net.lambdaContract) return net;
+            if (net.lambdaContract && net.id !== network.id) return net;
             const cId = await loadChainId(net.rpcBaseURL);
             return cId === netChainId
               ? { ...net, lambdaContract: data.lambdaContract }
@@ -387,6 +387,7 @@ const LambdaContractSection: React.FC = () => {
       customNetworks,
       lambdaFormLoading,
       netChainId,
+      network.id,
       resetLambdaForm,
       setLambdaFormError,
       updateSettings,
@@ -415,7 +416,18 @@ const LambdaContractSection: React.FC = () => {
       const contractAddress = getOriginatedContractAddress(opEntry);
       if (!contractAddress) throw new Error("Contract not originated");
 
+      const netsToUpdate = await Promise.all(
+        customNetworks.map(async (net) => {
+          if (net.lambdaContract && net.id !== network.id) return net;
+          const cId = await loadChainId(net.rpcBaseURL);
+          return cId === netChainId
+            ? { ...net, lambdaContract: contractAddress }
+            : net;
+        })
+      );
+
       await updateSettings({
+        customNetworks: netsToUpdate,
         lambdaContracts: {
           ...lambdaContracts,
           [netChainId]: contractAddress,
@@ -432,7 +444,15 @@ const LambdaContractSection: React.FC = () => {
     } finally {
       setLambdaContractDeploying(false);
     }
-  }, [lambdaFormLoading, lambdaContracts, netChainId, tezos, updateSettings]);
+  }, [
+    lambdaFormLoading,
+    lambdaContracts,
+    customNetworks,
+    netChainId,
+    network.id,
+    tezos,
+    updateSettings,
+  ]);
 
   const handleErrorAlertClose = React.useCallback(() => {
     setLambdaDeploymentError(null);
