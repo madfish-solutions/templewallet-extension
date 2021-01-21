@@ -429,8 +429,8 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
     // Aliases
     status,
-    defaultNetworks: defaultNetworksWithLambdaContracts,
-    customNetworks,
+    defaultNetworks,
+    customNetworks: defaultNetworksWithLambdaContracts,
     networks,
     accounts,
     settings,
@@ -554,17 +554,24 @@ class ThanosSigner {
 }
 
 function formatOpParams(op: any) {
-  if (op.kind === "transaction") {
-    const { destination, amount, parameters, ...txRest } = op;
-    return {
-      ...txRest,
-      to: destination,
-      amount: +amount,
-      mutez: true,
-      parameter: parameters,
-    };
+  switch (op.kind) {
+    case "origination":
+      return {
+        ...op,
+        mutez: true, // The balance was already converted from Tez (ꜩ) to Mutez (uꜩ)
+      };
+    case "transaction":
+      const { destination, amount, parameters, ...txRest } = op;
+      return {
+        ...txRest,
+        to: destination,
+        amount: +amount,
+        mutez: true,
+        parameter: parameters,
+      };
+    default:
+      return op;
   }
-  return op;
 }
 
 async function getPublicKey(accountPublicKeyHash: string) {
