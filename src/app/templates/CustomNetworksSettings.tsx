@@ -13,6 +13,7 @@ import {
   validateContractAddress,
   confirmOperation,
   getOriginatedContractAddress,
+  useChainId,
 } from "lib/thanos/front";
 import { COLORS } from "lib/ui/colors";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
@@ -28,6 +29,7 @@ import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
 import SubTitle from "app/atoms/SubTitle";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import { useRetryableSWR } from "lib/swr";
 
 type NetworkFormData = Pick<
   ThanosNetwork,
@@ -52,9 +54,8 @@ const NETWORK_IDS = new Map<string, string>([
 ]);
 
 const CustomNetworksSettings: React.FC = () => {
-  const { updateSettings, customNetworks, defaultNetworks } = useThanosClient();
-  const { lambdaContracts = {} } = useSettings();
-  const network = useNetwork();
+  const { updateSettings, defaultNetworks } = useThanosClient();
+  const { lambdaContracts = {}, customNetworks = [] } = useSettings();
   const [showNoLambdaWarning, setShowNoLambdaWarning] = useState(false);
   const confirm = useConfirm();
 
@@ -82,11 +83,9 @@ const CustomNetworksSettings: React.FC = () => {
       }
 
       if (!lambdaContract) {
-        lambdaContract =
-          chainId &&
-          (isKnownChainId(chainId)
-            ? KNOWN_LAMBDA_CONTRACTS.get(chainId)
-            : undefined);
+        lambdaContract = isKnownChainId(chainId)
+          ? KNOWN_LAMBDA_CONTRACTS.get(chainId)
+          : lambdaContracts[chainId];
       }
 
       if (!showNoLambdaWarning && !lambdaContract) {
@@ -114,7 +113,7 @@ const CustomNetworksSettings: React.FC = () => {
           lambdaContracts: lambdaContract
             ? {
                 ...lambdaContracts,
-                [rpcBaseURL]: lambdaContract,
+                [chainId]: lambdaContract,
               }
             : lambdaContracts,
         });
@@ -156,16 +155,10 @@ const CustomNetworksSettings: React.FC = () => {
         return;
       }
 
-      const {
-        [baseUrl]: lambdaToRemove,
-        ...restLambdaContracts
-      } = lambdaContracts;
-
       updateSettings({
         customNetworks: customNetworks.filter(
           ({ rpcBaseURL }) => rpcBaseURL !== baseUrl
         ),
-        lambdaContracts: restLambdaContracts,
       }).catch(async (err) => {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -174,12 +167,12 @@ const CustomNetworksSettings: React.FC = () => {
         setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message);
       });
     },
-    [customNetworks, setError, updateSettings, lambdaContracts, confirm]
+    [customNetworks, setError, updateSettings, confirm]
   );
 
   return (
     <div className="w-full max-w-sm p-2 pb-4 mx-auto">
-      {!network.lambdaContract && <LambdaContractSection />}
+      <LambdaContractSection />
 
       <div className="flex flex-col mb-8">
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
@@ -317,7 +310,27 @@ const LambdaContractSection: React.FC = () => {
   const { updateSettings } = useThanosClient();
   const tezos = useTezos();
   const network = useNetwork();
-  const { lambdaContracts = {} } = useSettings();
+  const netChainId = useChainId(true);
+  const { lambdaContracts = {}, customNetworks = [] } = useSettings();
+
+  const contractCheckSWR = useRetryableSWR(
+    ["contract-check", tezos.checksum, network.lambdaContract],
+    async () => {
+      try {
+        return Boolean(
+          network.lambdaContract &&
+            (await tezos.contract.at(network.lambdaContract))
+        );
+      } catch {
+        return false;
+      }
+    },
+    {
+      revalidateOnFocus: false,
+      suspense: false,
+    }
+  );
+  const displayed = !contractCheckSWR.isValidating && !contractCheckSWR.data;
 
   const {
     register: lambdaFormRegister,
@@ -340,10 +353,25 @@ const LambdaContractSection: React.FC = () => {
       }
       clearLambdaFormError();
       try {
+        if (!netChainId) {
+          throw new Error(t("failedToLoadChainID"));
+        }
+
+        const netsToUpdate = await Promise.all(
+          customNetworks.map(async (net) => {
+            if (net.lambdaContract) return net;
+            const cId = await loadChainId(net.rpcBaseURL);
+            return cId === netChainId
+              ? { ...net, lambdaContract: data.lambdaContract }
+              : net;
+          })
+        );
+
         await updateSettings({
+          customNetworks: netsToUpdate,
           lambdaContracts: {
             ...lambdaContracts,
-            [network.id]: data.lambdaContract,
+            [netChainId]: data.lambdaContract,
           },
         });
         resetLambdaForm();
@@ -356,8 +384,9 @@ const LambdaContractSection: React.FC = () => {
     [
       clearLambdaFormError,
       lambdaContracts,
+      customNetworks,
       lambdaFormLoading,
-      network.id,
+      netChainId,
       resetLambdaForm,
       setLambdaFormError,
       updateSettings,
@@ -371,6 +400,10 @@ const LambdaContractSection: React.FC = () => {
     setLambdaContractDeploying(true);
     setLambdaDeploymentError(undefined);
     try {
+      if (!netChainId) {
+        throw new Error(t("failedToLoadChainID"));
+      }
+
       const op = await tezos.wallet
         .originate({
           balance: "0",
@@ -385,7 +418,7 @@ const LambdaContractSection: React.FC = () => {
       await updateSettings({
         lambdaContracts: {
           ...lambdaContracts,
-          [network.id]: contractAddress,
+          [netChainId]: contractAddress,
         },
       });
     } catch (err) {
@@ -399,11 +432,13 @@ const LambdaContractSection: React.FC = () => {
     } finally {
       setLambdaContractDeploying(false);
     }
-  }, [lambdaFormLoading, lambdaContracts, network.id, tezos, updateSettings]);
+  }, [lambdaFormLoading, lambdaContracts, netChainId, tezos, updateSettings]);
 
   const handleErrorAlertClose = React.useCallback(() => {
     setLambdaDeploymentError(null);
   }, [setLambdaDeploymentError]);
+
+  if (!displayed) return null;
 
   return (
     <>

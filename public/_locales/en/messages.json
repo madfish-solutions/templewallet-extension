@@ -1540,6 +1540,9 @@
       }
     }
   },
+  "failedToLoadChainID": {
+    "message": "Failed to load chain ID for this network"
+  },
   "makeSureTokenIdIsCorrect": {
     "message": "Please make sure that token ID is correct."
   },

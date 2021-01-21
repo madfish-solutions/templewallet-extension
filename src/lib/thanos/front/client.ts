@@ -91,25 +91,10 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
   const locked = status === ThanosStatus.Locked;
   const ready = status === ThanosStatus.Ready;
 
-  const customNetworks = React.useMemo(() => {
-    const customNetworksWithoutLambdaContracts = settings?.customNetworks ?? [];
-    return customNetworksWithoutLambdaContracts.map((network) => {
-      return {
-        ...network,
-        lambdaContract: settings?.lambdaContracts?.[network.id],
-      };
-    });
-  }, [settings]);
-  const defaultNetworksWithLambdaContracts = React.useMemo(() => {
-    return defaultNetworks.map((network) => ({
-      ...network,
-      lambdaContract:
-        network.lambdaContract || settings?.lambdaContracts?.[network.id],
-    }));
-  }, [settings, defaultNetworks]);
+  const customNetworks = settings?.customNetworks ?? [];
   const networks = React.useMemo(
-    () => [...defaultNetworksWithLambdaContracts, ...customNetworks],
-    [defaultNetworksWithLambdaContracts, customNetworks]
+    () => [...defaultNetworks, ...customNetworks],
+    [defaultNetworks, customNetworks]
   );
 
   /**
@@ -429,7 +414,7 @@ export const [ThanosClientProvider, useThanosClient] = constate(() => {
 
     // Aliases
     status,
-    defaultNetworks: defaultNetworksWithLambdaContracts,
+    defaultNetworks,
     customNetworks,
     networks,
     accounts,
@@ -559,7 +544,7 @@ function formatOpParams(op: any) {
       return {
         ...op,
         mutez: true, // The balance was already converted from Tez (ꜩ) to Mutez (uꜩ)
-      }
+      };
     case "transaction":
       const { destination, amount, parameters, ...txRest } = op;
       return {
