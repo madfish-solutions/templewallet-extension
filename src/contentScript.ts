@@ -1,5 +1,6 @@
 import { browser } from "webextension-polyfill-ts";
 import { IntercomClient } from "lib/intercom/client";
+import { serealizeError } from "lib/intercom/helpers";
 import { ThanosMessageType, ThanosResponse } from "lib/thanos/types";
 import {
   ThanosPageMessage,
@@ -61,7 +62,7 @@ window.addEventListener(
           send(
             {
               type: ThanosPageMessageType.ErrorResponse,
-              payload: err.message,
+              payload: serealizeError(err),
               reqId,
             },
             evt.origin
