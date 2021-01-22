@@ -1,4 +1,5 @@
 import { browser, Runtime } from "webextension-polyfill-ts";
+import { TezosOperationError } from "@taquito/taquito";
 import {
   ThanosDAppMessageType,
   ThanosDAppErrorType,
@@ -298,8 +299,8 @@ export function sendOperations(
 
                   resolve({ opHash: op.hash });
                 } catch (err) {
-                  if (err?.message?.startsWith("__tezos__")) {
-                    reject(new Error(err.message));
+                  if (err instanceof TezosOperationError) {
+                    reject(err);
                   } else {
                     throw err;
                   }
@@ -592,8 +593,8 @@ export async function processBeacon(
       } catch (err) {
         // Map Thanos DApp error to Beacon error
         const beaconErrorType = (() => {
-          if (err?.message.startsWith("__tezos__")) {
-            return Beacon.ErrorType.BROADCAST_ERROR;
+          if (err instanceof TezosOperationError) {
+            return Beacon.ErrorType.TRANSACTION_INVALID_ERROR;
           }
 
           switch (err?.message) {
