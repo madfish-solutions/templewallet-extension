@@ -1,13 +1,6 @@
-import {
-  MetadataParseError,
-  getTokenMetadata,
-  InvalidRpcIdError,
-  InvalidNetworkNameError,
-  InvalidContractAddressError,
-  ContractNotFoundError,
-  FetchURLError,
-} from "@thanos-wallet/tokens";
 import { WalletContract } from "@taquito/taquito";
+import { tzip16 } from "@taquito/tzip16";
+import { tzip12 } from "@taquito/tzip12";
 import BigNumber from "bignumber.js";
 import * as React from "react";
 import classNames from "clsx";
@@ -35,11 +28,6 @@ import Alert from "app/atoms/Alert";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
-import { URL_PATTERN } from "app/defaults";
-
-const INCLUDES_URL_PATTERN = new RegExp(
-  URL_PATTERN.source.substring(1, URL_PATTERN.source.length - 1)
-);
 
 const AddToken: React.FC = () => (
   <PageLayout
@@ -77,6 +65,8 @@ type FormData = {
   iconUrl: string;
   type: ThanosCustomTokenType;
 };
+
+class MetadataParseError extends Error {}
 
 const Form: React.FC = () => {
   const { addToken } = useTokens();
@@ -136,18 +126,38 @@ const Form: React.FC = () => {
           throw new TokenValidationError(t("contractNotAvailable"));
         }
 
+        let tokenData: any;
         try {
           if (tokenType === ThanosAssetType.FA1_2) {
             await assertTokenType(tokenType, contract, tezos);
-            // @ts-ignore
-            console.log("metadata provider", tezos._context.metadataProvider);
-            // @ts-ignore
-            console.log(await contract.tzip16?.().getMetadata());
+            const tzipFetchableContract = await tezos.wallet.at(
+              contractAddress,
+              tzip16
+            );
+            try {
+              tokenData = (await tzipFetchableContract.tzip16().getMetadata())
+                .metadata;
+            } catch (e) {
+              throw new MetadataParseError(e.message);
+            }
           } else {
             await assertTokenType(tokenType, contract, tezos, tokenId!);
+            const tzipFetchableContract = await tezos.wallet.at(
+              contractAddress,
+              tzip12
+            );
+            try {
+              tokenData = await tzipFetchableContract
+                .tzip12()
+                .getTokenMetadata(tokenId!);
+            } catch (e) {
+              throw new MetadataParseError(e.message);
+            }
           }
         } catch (err) {
-          if (err instanceof NotMatchingStandardError) {
+          if (err instanceof MetadataParseError) {
+            throw err;
+          } else if (err instanceof NotMatchingStandardError) {
             throw new TokenValidationError(
               `${t(
                 "tokenDoesNotMatchStandard",
@@ -159,14 +169,8 @@ const Form: React.FC = () => {
           }
         }
 
-        const tokenData =
-          (await getTokenMetadata(
-            tezos,
-            contractAddress,
-            networkId,
-            tokenId === undefined ? undefined : String(tokenId)
-          )) || {};
-        const { symbol, name, description, decimals, onetoken } = tokenData;
+        const { symbol, name, description, decimals, onetoken } =
+          tokenData || {};
         const tokenSymbol = typeof symbol === "string" ? symbol : "";
         const tokenName =
           (typeof name === "string" && name) ||
@@ -190,57 +194,12 @@ const Form: React.FC = () => {
             setTokenValidationError(e.message);
             return;
           }
-          let errorMessage = e.message;
-          if (e instanceof MetadataParseError) {
-            if (e instanceof InvalidContractAddressError) {
-              errorMessage = (
-                <T
-                  id="referredByTokenContactAddressInvalid"
-                  substitutions={e.payload.contractAddress}
-                />
-              );
-            } else if (e instanceof InvalidNetworkNameError) {
-              errorMessage = (
-                <T
-                  id="someNetworkIsNotCurrent"
-                  substitutions={e.payload.name}
-                />
-              );
-            } else if (e instanceof InvalidRpcIdError) {
-              errorMessage = (
-                <T
-                  id="someNetworkWithChainIdIsNotCurrent"
-                  substitutions={e.payload.chainId}
-                />
-              );
-            } else if (e instanceof ContractNotFoundError) {
-              const { contractAddress: notFoundContractAddress } = e.payload;
-              errorMessage =
-                notFoundContractAddress === contractAddress ? (
-                  <T id="tokenContractNotFound" />
-                ) : (
-                  <T
-                    id="referredByTokenContractNotFound"
-                    substitutions={notFoundContractAddress}
-                  />
-                );
-            } else if (e instanceof FetchURLError) {
-              const url =
-                e.payload.response?.url ||
-                INCLUDES_URL_PATTERN.exec(e.message)?.[0];
-              if (url) {
-                errorMessage = (
-                  <T id="errorWhileFetchingUrl" substitutions={url} />
-                );
-              } else {
-                errorMessage = <T id="unknownParseErrorOccurred" />;
-              }
-            } else {
-              errorMessage = <T id="unknownParseErrorOccurred" />;
-            }
-          } else {
-            errorMessage = <T id="unknownParseErrorOccurred" />;
-          }
+          let errorMessage =
+            e instanceof MetadataParseError ? (
+              e.message
+            ) : (
+              <T id="unknownParseErrorOccurred" />
+            );
           setValue([{ symbol: "" }, { name: "" }, { decimals: 0 }]);
           setTokenDataError(errorMessage);
           setBottomSectionVisible(true);
