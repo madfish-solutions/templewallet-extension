@@ -139,6 +139,10 @@ const Form: React.FC = () => {
         try {
           if (tokenType === ThanosAssetType.FA1_2) {
             await assertTokenType(tokenType, contract, tezos);
+            // @ts-ignore
+            console.log("metadata provider", tezos._context.metadataProvider);
+            // @ts-ignore
+            console.log(await contract.tzip16?.().getMetadata());
           } else {
             await assertTokenType(tokenType, contract, tezos, tokenId!);
           }
