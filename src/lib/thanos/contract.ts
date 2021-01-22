@@ -1,7 +1,6 @@
 import memoize from "micro-memoize";
 import { TezosToolkit, WalletContract } from "@taquito/taquito";
 import { ThanosChainId } from "lib/thanos/types";
-import { tzip16 } from "@taquito/tzip16";
 
 const KNOWN_CHAIN_IDS = Object.values(ThanosChainId) as string[];
 
@@ -18,10 +17,8 @@ export function fetchContract(
   walletAPI = true
 ): Promise<WalletContract> {
   return walletAPI
-    // @ts-ignore
-    ? tezos.wallet.at(address, tzip16)
-    // @ts-ignore
-    : (tezos.contract.at(address, tzip16) as any);
+    ? tezos.wallet.at(address)
+    : (tezos.contract.at(address) as any);
 }
 
 export async function loadContractForCallLambdaView(
