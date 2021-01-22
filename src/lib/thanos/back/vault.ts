@@ -8,6 +8,7 @@ import {
   CompositeForger,
   RpcForger,
   Signer,
+  TezosOperationError,
 } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
 import LedgerTransport from "@ledgerhq/hw-transport";
@@ -471,9 +472,14 @@ export class Vault {
           console.error(err);
         }
 
-        throw err instanceof PublicError
-          ? err
-          : new Error(`__tezos__${err.message}`);
+        switch (true) {
+          case err instanceof PublicError:
+          case err instanceof TezosOperationError:
+            throw err;
+
+          default:
+            throw new Error(`Failed to send operations. ${err.message}`);
+        }
       }
     });
   }

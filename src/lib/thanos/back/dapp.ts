@@ -1,5 +1,6 @@
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { nanoid } from "nanoid";
+import { TezosOperationError } from "@taquito/taquito";
 import { RpcClient } from "@taquito/rpc";
 import { localForger } from "@taquito/local-forging";
 import {
@@ -197,8 +198,9 @@ export async function requestOperation(
                 opHash: op.hash,
               });
             } catch (err) {
-              if (err?.message?.startsWith("__tezos__")) {
-                reject(new Error(err.message));
+              if (err instanceof TezosOperationError) {
+                err.message = ThanosDAppErrorType.TezosOperation;
+                reject(err);
               } else {
                 throw err;
               }
@@ -277,21 +279,13 @@ export async function requestSign(
           confirmReq?.id === id
         ) {
           if (confirmReq.confirmed) {
-            try {
-              const { sig: signature } = await withUnlocked(({ vault }) =>
-                vault.sign(dApp.pkh, req.payload)
-              );
-              resolve({
-                type: ThanosDAppMessageType.SignResponse,
-                signature,
-              });
-            } catch (err) {
-              if (err?.message?.startsWith("__tezos__")) {
-                reject(new Error(err.message));
-              } else {
-                throw err;
-              }
-            }
+            const { sig: signature } = await withUnlocked(({ vault }) =>
+              vault.sign(dApp.pkh, req.payload)
+            );
+            resolve({
+              type: ThanosDAppMessageType.SignResponse,
+              signature,
+            });
           } else {
             decline();
           }
@@ -328,7 +322,12 @@ export async function requestBroadcast(
       opHash,
     };
   } catch (err) {
-    throw new Error(`__tezos__${err.message}`);
+    throw err instanceof TezosOperationError
+      ? (() => {
+          err.message = ThanosDAppErrorType.TezosOperation;
+          return err;
+        })()
+      : new Error("Failed to broadcast");
   }
 }
 
