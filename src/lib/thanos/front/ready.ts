@@ -243,9 +243,7 @@ export class ReactiveTezosToolkit extends TezosToolkit {
     public checksum: string,
     public lambdaContract?: string
   ) {
-    // @ts-ignore
     super(rpc);
-    // @ts-ignore
     this.addExtension(new Tzip16Module());
   }
 }
