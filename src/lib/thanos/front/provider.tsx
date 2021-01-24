@@ -23,10 +23,10 @@ const ConditionalReadyThanos: React.FC = ({ children }) => {
         <ReadyThanosProvider>
           <ThanosRefsProvider>
             <USDPriceProvider>
-              <NewBlockTriggersProvider>{children}</NewBlockTriggersProvider>
+              <NewBlockTriggersProvider>
+                <PreloadAssetsProvider>{children}</PreloadAssetsProvider>
+              </NewBlockTriggersProvider>
             </USDPriceProvider>
-
-            <PreloadAssets />
           </ThanosRefsProvider>
         </ReadyThanosProvider>
       ) : (
@@ -36,7 +36,7 @@ const ConditionalReadyThanos: React.FC = ({ children }) => {
   );
 };
 
-const PreloadAssets: React.FC = () => {
+const PreloadAssetsProvider: React.FC = ({ children }) => {
   useAssets();
-  return null;
+  return <>{children}</>;
 };
