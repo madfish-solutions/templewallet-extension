@@ -79,10 +79,10 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
 
   const validateAdditionalFee = useCallback((v?: number) => {
     if (v === undefined) {
-      return "Required";
+      return t("required");
     }
     if (v <= 0) {
-      return "Must be positive";
+      return t("amountMustBePositive");
     }
     return true;
   }, []);
