@@ -1,7 +1,6 @@
 import { WalletContract } from "@taquito/taquito";
 import { tzip16 } from "@taquito/tzip16";
 import { tzip12 } from "@taquito/tzip12";
-import BigNumber from "bignumber.js";
 import * as React from "react";
 import classNames from "clsx";
 import { Controller, FormContextValues, useForm } from "react-hook-form";
@@ -126,7 +125,7 @@ const Form: React.FC = () => {
           throw new TokenValidationError(t("contractNotAvailable"));
         }
 
-        let tokenData: any;
+        let tokenData;
         try {
           if (tokenType === ThanosAssetType.FA1_2) {
             await assertTokenType(tokenType, contract, tezos);
@@ -135,8 +134,12 @@ const Form: React.FC = () => {
               tzip16
             );
             try {
-              tokenData = (await tzipFetchableContract.tzip16().getMetadata())
-                .metadata;
+              tokenData = {
+                ...(await tzipFetchableContract.tzip16().getMetadata())
+                  .metadata,
+                decimals: undefined,
+                onetoken: undefined,
+              };
             } catch (e) {
               throw new MetadataParseError(e.message);
             }
@@ -169,23 +172,12 @@ const Form: React.FC = () => {
           }
         }
 
-        const { symbol, name, description, decimals, onetoken } =
-          tokenData || {};
-        const tokenSymbol = typeof symbol === "string" ? symbol : "";
-        const tokenName =
-          (typeof name === "string" && name) ||
-          (typeof description === "string" && description) ||
-          "";
-        const tokenDecimals =
-          (decimals instanceof BigNumber && decimals.toNumber()) ||
-          (onetoken instanceof BigNumber &&
-            Math.round(Math.log10(onetoken.toNumber()))) ||
-          0;
+        const { symbol = "", name = "", decimals = 0 } = tokenData || {};
 
         setValue([
-          { symbol: tokenSymbol.substr(0, 5) },
-          { name: tokenName.substr(0, 50) },
-          { decimals: tokenDecimals },
+          { symbol: symbol.substr(0, 5) },
+          { name: name.substr(0, 50) },
+          { decimals },
         ]);
         setBottomSectionVisible(true);
       } catch (e) {
