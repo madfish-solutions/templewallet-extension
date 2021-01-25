@@ -520,13 +520,13 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
           value
         );
         if (!resolved) {
-          return `Domain "${value}" doesn't resolve to an address`;
+          return t("domainDoesntResolveToAddress", value);
         }
 
         value = resolved;
       }
 
-      return isAddressValid(value) ? true : "Invalid address or domain name";
+      return isAddressValid(value) ? true : t("invalidAddressOrDomain");
     },
     [canUseDomainNames, domainsClient]
   );
@@ -669,7 +669,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             "flex flex-wrap items-center"
           )}
         >
-          <span className="mr-1 whitespace-no-wrap">Resolved address:</span>
+          <span className="mr-1 whitespace-no-wrap">
+            {t("resolvedAddress")}:
+          </span>
           <span className="font-normal">{resolvedAddress}</span>
         </div>
       )}
