@@ -79,7 +79,7 @@ const CustomNetworksSettings: React.FC = () => {
       try {
         chainId = await loadChainId(rpcBaseURL);
       } catch {
-        throw new Error("Invalid RPC: Cannot get chain id");
+        throw new Error(t("invalidRpcCantGetChainId"));
       }
 
       if (!lambdaContract) {
@@ -404,7 +404,7 @@ const LambdaContractSection: React.FC = () => {
         .send();
       const opEntry = await confirmOperation(tezos, op.opHash);
       const contractAddress = getOriginatedContractAddress(opEntry);
-      if (!contractAddress) throw new Error("Contract not originated");
+      if (!contractAddress) throw new Error(t("contractNotOriginated"));
 
       await updateSettings({
         lambdaContracts: {

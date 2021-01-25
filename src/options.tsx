@@ -78,7 +78,7 @@ async function handleReset(alert: AlertFn, confirm: ConfirmFn) {
         browser.runtime.reload();
       } catch (err) {
         await alert({
-          title: "Error",
+          title: getMessage("error"),
           children: err.message,
         });
       }

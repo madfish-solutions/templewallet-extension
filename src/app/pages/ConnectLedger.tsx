@@ -26,11 +26,11 @@ type FormData = {
 const DERIVATION_PATHS = [
   {
     type: "default",
-    name: "Default account",
+    name: t("defaultAccount"),
   },
   {
     type: "custom",
-    name: "Custom derivation path",
+    name: t("customDerivationPath"),
   },
 ];
 

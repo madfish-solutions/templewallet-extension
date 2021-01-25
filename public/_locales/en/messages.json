@@ -1645,5 +1645,37 @@
   },
   "actionConfirmation": {
     "message": "Confirm the action"
+  },
+  "domainDoesntResolveToAddress": {
+    "message": "Domain \"$value$\" doesn't resolve to an address",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "invalidAddressOrDomain": {
+    "message": "Invalid address or domain name"
+  },
+  "resolvedAddress": {
+    "message": "Resolved address"
+  },
+  "invalidRpcCantGetChainId": {
+    "message": "Invalid RPC: Cannot get chain id"
+  },
+  "contractNotOriginated": {
+    "message": "Contract not originated"
+  },
+  "welcomeTo": {
+    "message": "Welcome to"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "hash": {
+    "message": "Hash"
+  },
+  "defaultAccount": {
+    "message": "Default account"
   }
 }
