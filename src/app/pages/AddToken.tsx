@@ -1,5 +1,5 @@
 import { WalletContract } from "@taquito/taquito";
-import { tzip16 } from "@taquito/tzip16";
+import { tzip16, View } from "@taquito/tzip16";
 import { tzip12 } from "@taquito/tzip12";
 import * as React from "react";
 import classNames from "clsx";
@@ -134,25 +134,56 @@ const Form: React.FC = () => {
               tzip16
             );
             try {
+              const {
+                metadata,
+              } = await tzipFetchableContract.tzip16().getMetadata();
+              const views = await tzipFetchableContract
+                .tzip16()
+                .metadataViews();
               tokenData = {
-                ...(await tzipFetchableContract.tzip16().getMetadata())
-                  .metadata,
-                decimals: undefined,
-                onetoken: undefined,
+                decimals: await views
+                  .decimals?.()
+                  .executeView()
+                  .catch(() => undefined),
+                onetoken: await views
+                  .onetoken?.()
+                  .executeView()
+                  .catch(() => undefined),
+                ...metadata,
               };
             } catch (e) {
               throw new MetadataParseError(e.message);
             }
           } else {
             await assertTokenType(tokenType, contract, tezos, tokenId!);
-            const tzipFetchableContract = await tezos.wallet.at(
-              contractAddress,
-              tzip12
-            );
+            let views: Record<string, () => View> = {};
             try {
-              tokenData = await tzipFetchableContract
-                .tzip12()
-                .getTokenMetadata(tokenId!);
+              const tzip16FetchableContract = await tezos.wallet.at(
+                contractAddress,
+                tzip16
+              );
+              views = await tzip16FetchableContract.tzip16().metadataViews();
+            } catch (e) {}
+            try {
+              const offchainTokenMetadata = await views
+                .token_metadata?.()
+                .executeView(tokenId!)
+                .catch(() => undefined);
+              if (offchainTokenMetadata) {
+                tokenData = offchainTokenMetadata;
+              } else {
+                const tzipFetchableContract = await tezos.wallet.at(
+                  contractAddress,
+                  tzip12
+                );
+                const tzip12Metadata = await tzipFetchableContract
+                  .tzip12()
+                  .getTokenMetadata(tokenId!);
+                tokenData = {
+                  icon: await views.icon?.().executeView(),
+                  ...tzip12Metadata,
+                };
+              }
             } catch (e) {
               throw new MetadataParseError(e.message);
             }
@@ -172,12 +203,14 @@ const Form: React.FC = () => {
           }
         }
 
-        const { symbol = "", name = "", decimals = 0 } = tokenData || {};
+        const { symbol = "", name = "", decimals = 0, icon = "" } =
+          tokenData || {};
 
         setValue([
           { symbol: symbol.substr(0, 5) },
           { name: name.substr(0, 50) },
           { decimals },
+          { iconUrl: icon },
         ]);
         setBottomSectionVisible(true);
       } catch (e) {
