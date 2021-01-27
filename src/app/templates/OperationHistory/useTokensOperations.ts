@@ -9,7 +9,7 @@ import { ThanosToken } from "lib/thanos/types";
 import {
   useOpsPagination,
   groupOpsByHash,
-} from "app/templates/OperationHistory/helpers";
+} from "app/templates/OperationHistory/useOpsPagination";
 
 export type GetOperationsParams = {
   accountPkh: string;

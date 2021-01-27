@@ -23,7 +23,7 @@ import Operation, {
   OperationPreview,
   InternalTransfer,
 } from "app/templates/Operation";
-import { tryGetTransfers } from "app/templates/OperationHistory/helpers";
+import { tryGetTransfers } from "app/templates/OperationHistory/useOpsPagination";
 import useAllOperations from "app/templates/OperationHistory/useAllOperations";
 import useTokensOperations from "app/templates/OperationHistory/useTokensOperations";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";

@@ -13,7 +13,7 @@ import { XTZ_ASSET } from "lib/thanos/front";
 import {
   useOpsPagination,
   groupOpsByHash,
-} from "app/templates/OperationHistory/helpers";
+} from "app/templates/OperationHistory/useOpsPagination";
 
 export type GetOperationsParams = {
   accountPkh: string;
