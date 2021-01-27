@@ -1677,5 +1677,11 @@
   },
   "defaultAccount": {
     "message": "Default account"
+  },
+  "loadMore": {
+    "message": "Load more"
+  },
+  "noItemsMore": {
+    "message": "There are no items more"
   }
 }
