@@ -164,25 +164,27 @@ const Form: React.FC = () => {
               );
               views = await tzip16FetchableContract.tzip16().metadataViews();
             } catch (e) {}
+
             try {
-              const offchainTokenMetadata = await views
-                .token_metadata?.()
-                .executeView(tokenId!)
-                .catch(() => undefined);
-              if (offchainTokenMetadata) {
-                tokenData = offchainTokenMetadata;
+              const tzipFetchableContract = await tezos.wallet.at(
+                contractAddress,
+                tzip12
+              );
+              const tzip12Metadata = await tzipFetchableContract
+                .tzip12()
+                .getTokenMetadata(tokenId!);
+
+              if (tzip12Metadata && Object.keys(tzip12Metadata).length > 0) {
+                tokenData = tzip12Metadata;
               } else {
-                const tzipFetchableContract = await tezos.wallet.at(
-                  contractAddress,
-                  tzip12
-                );
-                const tzip12Metadata = await tzipFetchableContract
-                  .tzip12()
-                  .getTokenMetadata(tokenId!);
-                tokenData = {
-                  icon: await views.icon?.().executeView(tokenId!),
-                  ...tzip12Metadata,
-                };
+                tokenData = await views
+                  .token_metadata?.()
+                  .executeView(tokenId!)
+                  .catch(() => undefined);
+              }
+
+              if (tokenData) {
+                tokenData.icon = await views.icon?.().executeView(tokenId!);
               }
             } catch (e) {
               throw new MetadataParseError(e.message);
