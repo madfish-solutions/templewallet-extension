@@ -32,7 +32,9 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
       loading || disabled
         ? "opacity-75"
         : "opacity-90 hover:opacity-100 focus:opacity-100",
-      loading || disabled ? "" : "shadow-sm hover:shadow focus:shadow",
+      loading || disabled
+        ? "pointer-events-none"
+        : "shadow-sm hover:shadow focus:shadow",
       className
     )}
     style={{

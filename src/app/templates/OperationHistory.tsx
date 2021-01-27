@@ -24,8 +24,10 @@ import Operation, {
   InternalTransfer,
 } from "app/templates/Operation";
 import { tryGetTransfers } from "app/templates/OperationHistory/helpers";
-import useAllOperations from "./OperationHistory/useAllOperations";
-import useTokensOperations from "./OperationHistory/useTokensOperations";
+import useAllOperations from "app/templates/OperationHistory/useAllOperations";
+import useTokensOperations from "app/templates/OperationHistory/useTokensOperations";
+import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import Spinner from "app/atoms/Spinner";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 
@@ -103,13 +105,14 @@ type AllOperationsListProps = BaseOperationsListProps & {
 
 const AllOperationsList: React.FC<AllOperationsListProps> = (props) => {
   const { accountPkh, accountOwner, tzStatsNetwork, xtzOnly } = props;
-  const { ops, opsEnded, loadMore } = useAllOperations(props);
+  const { ops, opsEnded, loadMore, loading } = useAllOperations(props);
 
   return (
     <GenericOperationsList
       operations={ops}
       opsEnded={opsEnded}
       loadMore={loadMore}
+      loading={loading}
       accountPkh={accountPkh}
       accountOwner={accountOwner}
       asset={xtzOnly ? XTZ_ASSET : undefined}
@@ -124,13 +127,14 @@ type TokenOperationsListProps = BaseOperationsListProps & {
 
 const TokenOperationsList: React.FC<TokenOperationsListProps> = (props) => {
   const { accountPkh, accountOwner, asset, tzStatsNetwork } = props;
-  const { ops, opsEnded, loadMore } = useTokensOperations(props);
+  const { ops, opsEnded, loadMore, loading } = useTokensOperations(props);
 
   return (
     <GenericOperationsList
       operations={ops}
       opsEnded={opsEnded}
       loadMore={loadMore}
+      loading={loading}
       accountPkh={accountPkh}
       accountOwner={accountOwner}
       asset={asset}
@@ -144,6 +148,7 @@ type GenericOperationsListProps = {
   accountOwner?: string;
   asset?: ThanosAsset;
   opsEnded: boolean;
+  loading: boolean;
   loadMore: () => void;
   withExplorer: boolean;
   operations: OperationPreview[];
@@ -155,6 +160,9 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
   accountOwner,
   withExplorer,
   asset,
+  opsEnded,
+  loading,
+  loadMore,
 }) => {
   const { getAllPndOps, removePndOps } = useThanosClient();
   const network = useNetwork();
@@ -286,14 +294,20 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
             "text-gray-500"
           )}
         >
-          <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
+          {loading ? (
+            <Spinner theme="gray" className="w-20" />
+          ) : (
+            <>
+              <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
 
-          <h3
-            className="text-sm font-light text-center"
-            style={{ maxWidth: "20rem" }}
-          >
-            <T id="noOperationsFound" />
-          </h3>
+              <h3
+                className="text-sm font-light text-center"
+                style={{ maxWidth: "20rem" }}
+              >
+                <T id="noOperationsFound" />
+              </h3>
+            </>
+          )}
         </div>
       )}
 
@@ -306,6 +320,16 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
           {...op}
         />
       ))}
+
+      <div className="w-full flex justify-center">
+        <FormSecondaryButton
+          disabled={opsEnded || loading}
+          loading={loading}
+          onClick={loadMore}
+        >
+          {opsEnded ? "End of list" : "Load more"}
+        </FormSecondaryButton>
+      </div>
     </>
   );
 };

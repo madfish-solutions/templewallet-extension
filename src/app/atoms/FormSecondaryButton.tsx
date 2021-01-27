@@ -31,7 +31,7 @@ const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
       "transition duration-200 ease-in-out",
       loading || disabled ? "opacity-75" : "opacity-90 hover:opacity-100",
       loading || disabled
-        ? "shadow-inner"
+        ? "shadow-inner pointer-events-none"
         : "shadow-sm hover:shadow focus:shadow",
       className
     )}
