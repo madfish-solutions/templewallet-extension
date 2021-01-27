@@ -180,7 +180,7 @@ const Form: React.FC = () => {
                   .tzip12()
                   .getTokenMetadata(tokenId!);
                 tokenData = {
-                  icon: await views.icon?.().executeView(),
+                  icon: await views.icon?.().executeView(tokenId!),
                   ...tzip12Metadata,
                 };
               }
