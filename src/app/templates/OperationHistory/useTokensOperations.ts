@@ -79,13 +79,15 @@ export default function useTokensOperations({
         }
         return relevantOps;
       }, {});
+      const relevantTzStatsOpsCount = Object.values(relevantGroupedTzStatsOps)
+        .reduce((sum, ops) => sum + ops.length, 0);
 
       return {
         lastBcdId: last_id,
         newBcdOps: groupedBcdOps,
         newTzStatsOps: relevantGroupedTzStatsOps,
         bcdReachedEnd: rawBcdOps.length < pageSize,
-        tzStatsReachedEnd: tzStatsOps.length < pageSize,
+        tzStatsReachedEnd: relevantTzStatsOpsCount < pageSize,
       };
     },
     [accountPkh, networkId, tzStatsNetwork, asset.address]
