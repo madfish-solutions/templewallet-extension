@@ -630,7 +630,7 @@ export async function processBeacon(
               return Beacon.ErrorType.UNKNOWN_ERROR;
           }
         })(),
-        errorData: err instanceof TezosOperationError ? err.errors : undefined,
+        errorData: getErrorData(err),
       };
     }
   })();
@@ -643,4 +643,10 @@ export async function processBeacon(
     };
   }
   return { payload: resMsg };
+}
+
+function getErrorData(err: any) {
+  return err instanceof TezosOperationError
+    ? err.errors.map(({ contract_code, ...rest }: any) => rest)
+    : undefined;
 }
