@@ -321,13 +321,13 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
         />
       ))}
 
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center my-3">
         <FormSecondaryButton
           disabled={opsEnded || loading}
           loading={loading}
           onClick={loadMore}
         >
-          {opsEnded ? "End of list" : "Load more"}
+          <T id={opsEnded ? "noItemsMore" : "loadMore"} />
         </FormSecondaryButton>
       </div>
     </>
