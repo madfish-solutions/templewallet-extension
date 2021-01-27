@@ -5,12 +5,12 @@ import { TZStatsOperation } from "lib/tzstats";
 import { ThanosAsset, ThanosAssetType } from "lib/thanos/types";
 import { InternalTransfer, OperationPreview } from "app/templates/Operation";
 
-export const PAGE_SIZE = 20;
+const PAGE_SIZE = 20;
 
-export type GroupedTzStatsOps = Record<string, TZStatsOperation[]>;
-export type GroupedBcdOps = Record<string, BcdTokenTransfer[]>;
+type GroupedTzStatsOps = Record<string, TZStatsOperation[]>;
+type GroupedBcdOps = Record<string, BcdTokenTransfer[]>;
 
-export type FetchFn = (
+type FetchFn = (
   tzStatsOffset: number,
   bcdLastId: string | undefined,
   pageSize: number
@@ -55,10 +55,11 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
           newBcdOps,
           newTzStatsOps,
           bcdReachedEnd,
-          tzStatsReachedEnd
+          tzStatsReachedEnd,
         };
       } catch (err) {
-        const noTransactionsMoreAvailable = err?.origin?.response?.status === 404;
+        const noTransactionsMoreAvailable =
+          err?.origin?.response?.status === 404;
         if (!noTransactionsMoreAvailable) {
           // Human delay
           await new Promise((r) => setTimeout(r, 300));
@@ -69,7 +70,7 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
           newTzStatsOps: {},
           lastBcdId: undefined,
           bcdReachedEnd: noTransactionsMoreAvailable,
-          tzStatsReachedEnd: noTransactionsMoreAvailable
+          tzStatsReachedEnd: noTransactionsMoreAvailable,
         };
       }
     },
@@ -86,8 +87,11 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
       bcdOpsRef.current = totalBcdOps;
       const totalOps =
         ops ||
-        groupedOpsToOperationsPreview(totalTzStatsOps, totalBcdOps, asset)
-          .slice(0, pageNumberRef.current * PAGE_SIZE);
+        groupedOpsToOperationsPreview(
+          totalTzStatsOps,
+          totalBcdOps,
+          asset
+        ).slice(0, pageNumberRef.current * PAGE_SIZE);
       setOps(totalOps);
       opsRef.current = totalOps;
     },
@@ -132,11 +136,8 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
         newBcdOps,
         newTzStatsOps,
         bcdReachedEnd,
-        tzStatsReachedEnd
-      } = await loadOperations(
-        tzStatsOffset,
-        lastBcdIdRef.current
-      );
+        tzStatsReachedEnd,
+      } = await loadOperations(tzStatsOffset, lastBcdIdRef.current);
       bcdReachedEndRef.current = bcdReachedEnd;
       tzStatsReachedEndRef.current = tzStatsReachedEnd;
       lastBcdIdRef.current = lastBcdId;
@@ -151,14 +152,22 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
         asset
       );
     }
-    setOpsEnded(tzStatsReachedEndRef.current && bcdReachedEndRef.current && opsRef.current.length <= maxOpsCount);
+    setOpsEnded(
+      tzStatsReachedEndRef.current &&
+        bcdReachedEndRef.current &&
+        opsRef.current.length <= maxOpsCount
+    );
     opsRef.current = opsRef.current.slice(0, maxOpsCount);
     updateOpsStates(tzStatsOpsRef.current, bcdOpsRef.current, opsRef.current);
     setLoading(false);
   }, [loadOperations, updateOpsStates, asset]);
 
   React.useEffect(() => {
-    if (firstTimeRef.current || (prevFetchFn.current !== fetchFn) || (prevAsset.current !== asset)) {
+    if (
+      firstTimeRef.current ||
+      prevFetchFn.current !== fetchFn ||
+      prevAsset.current !== asset
+    ) {
       tzStatsReachedEndRef.current = false;
       bcdReachedEndRef.current = false;
       pageNumberRef.current = 0;

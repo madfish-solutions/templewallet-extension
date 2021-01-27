@@ -12,7 +12,6 @@ import {
 import { XTZ_ASSET } from "lib/thanos/front";
 import {
   useOpsPagination,
-  FetchFn,
   groupOpsByHash,
 } from "app/templates/OperationHistory/helpers";
 
@@ -29,7 +28,7 @@ export default function useAllOperations({
   networkId,
   xtzOnly,
 }: GetOperationsParams) {
-  const fetchFn = React.useCallback<FetchFn>(
+  const fetchFn = React.useCallback(
     async (
       tzStatsOffset: number,
       bcdLastId: string | undefined,

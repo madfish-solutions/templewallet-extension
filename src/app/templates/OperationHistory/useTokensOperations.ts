@@ -8,7 +8,6 @@ import {
 import { ThanosToken } from "lib/thanos/types";
 import {
   useOpsPagination,
-  FetchFn,
   groupOpsByHash,
 } from "app/templates/OperationHistory/helpers";
 
@@ -25,7 +24,7 @@ export default function useTokensOperations({
   networkId,
   asset,
 }: GetOperationsParams) {
-  const fetchFn = React.useCallback<FetchFn>(
+  const fetchFn = React.useCallback(
     async (
       tzStatsOffset: number,
       bcdLastId: string | undefined,
@@ -79,8 +78,9 @@ export default function useTokensOperations({
         }
         return relevantOps;
       }, {});
-      const relevantTzStatsOpsCount = Object.values(relevantGroupedTzStatsOps)
-        .reduce((sum, ops) => sum + ops.length, 0);
+      const relevantTzStatsOpsCount = Object.values(
+        relevantGroupedTzStatsOps
+      ).reduce((sum, ops) => sum + ops.length, 0);
 
       return {
         lastBcdId: last_id,
