@@ -43,11 +43,12 @@ export default function useAllOperations({
           })
         : { ops: [] as TZStatsOperation[] };
 
-      let newBcdOps: BcdTokenTransfer[] = [];
-      let lastBcdId: string | undefined;
+      let totalNewBcdOps: BcdTokenTransfer[] = [];
+      let currentLastBcdId = bcdLastId;
       let bcdReachedEnd = true;
       const lastTzStatsOp = newTzStatsOps[newTzStatsOps.length - 1];
-      if (networkId) {
+      let shouldStopFetchBcdOperations = false;
+      while (!shouldStopFetchBcdOperations && networkId) {
         const {
           last_id,
           transfers,
@@ -55,21 +56,27 @@ export default function useAllOperations({
           network: networkId,
           address: accountPkh,
           size: pageSize,
-          last_id: bcdLastId,
+          last_id: currentLastBcdId,
         });
-        lastBcdId = last_id;
-        newBcdOps = transfers.filter((transfer) =>
+        currentLastBcdId = last_id || currentLastBcdId;
+        const newBcdOps = transfers.filter((transfer) =>
           lastTzStatsOp
             ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
             : true
         );
+        totalNewBcdOps = [
+          ...totalNewBcdOps,
+          ...newBcdOps
+        ];
         bcdReachedEnd =
           newBcdOps.length === transfers.length && transfers.length < pageSize;
+        shouldStopFetchBcdOperations =
+          bcdReachedEnd || (transfers.length > newBcdOps.length);
       }
 
       return {
-        lastBcdId,
-        newBcdOps: groupOpsByHash(newBcdOps),
+        lastBcdId: currentLastBcdId,
+        newBcdOps: groupOpsByHash(totalNewBcdOps),
         newTzStatsOps: groupOpsByHash(newTzStatsOps),
         tzStatsReachedEnd: newTzStatsOps.length < pageSize,
         bcdReachedEnd,
