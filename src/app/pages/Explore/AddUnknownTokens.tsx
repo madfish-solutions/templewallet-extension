@@ -66,7 +66,7 @@ const AddUnknownTokens: React.FC = () => {
             } catch {}
             const baseTokenProps = {
               address: token.contract,
-              decimals: token.decimals,
+              decimals: token.decimals || 0,
               fungible: true,
               symbol: token.symbol,
               name: token.name,

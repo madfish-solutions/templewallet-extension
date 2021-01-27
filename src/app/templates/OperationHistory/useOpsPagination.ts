@@ -12,10 +12,9 @@ type GroupedBcdOps = Record<string, BcdTokenTransfer[]>;
 
 type FetchFn = (
   tzStatsOffset: number,
-  bcdLastId: string | undefined,
+  bcdOffset: number,
   pageSize: number
 ) => Promise<{
-  lastBcdId?: string;
   newBcdOps: GroupedBcdOps;
   newTzStatsOps: GroupedTzStatsOps;
   tzStatsReachedEnd: boolean;
@@ -31,27 +30,24 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
   const opsRef = React.useRef<OperationPreview[]>([]);
   const pageNumberRef = React.useRef(0);
   const [error, setError] = React.useState<Error>();
-  const lastBcdIdRef = React.useRef<string | undefined>(undefined);
   const [loading, setLoading] = React.useState(true);
   const prevFetchFn = React.useRef(fetchFn);
   const prevAsset = React.useRef(asset);
   const firstTimeRef = React.useRef(true);
 
   const loadOperations = React.useCallback(
-    async (tzStatsOffset: number, bcdLastId?: string) => {
+    async (tzStatsOffset: number, bcdOffset: number) => {
       try {
         const {
-          lastBcdId,
           newBcdOps,
           newTzStatsOps,
           tzStatsReachedEnd,
           bcdReachedEnd,
-        } = await fetchFn(tzStatsOffset, bcdLastId, PAGE_SIZE);
+        } = await fetchFn(tzStatsOffset, bcdOffset, PAGE_SIZE);
         tzStatsReachedEndRef.current = tzStatsReachedEnd;
         bcdReachedEndRef.current = bcdReachedEnd;
         setError(undefined);
         return {
-          lastBcdId,
           newBcdOps,
           newTzStatsOps,
           bcdReachedEnd,
@@ -68,9 +64,8 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
         return {
           newBcdOps: {},
           newTzStatsOps: {},
-          lastBcdId: undefined,
-          bcdReachedEnd: noTransactionsMoreAvailable,
-          tzStatsReachedEnd: noTransactionsMoreAvailable,
+          bcdReachedEnd: true,
+          tzStatsReachedEnd: true,
         };
       }
     },
@@ -99,7 +94,7 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
   );
 
   const refresh = React.useCallback(async () => {
-    const { newBcdOps, newTzStatsOps } = await loadOperations(0);
+    const { newBcdOps, newTzStatsOps } = await loadOperations(0, 0);
     const totalBcdOps = mergeBcdOps(bcdOpsRef.current, newBcdOps);
     const totalTzStatsOps = mergeTzStatsOps(
       tzStatsOpsRef.current,
@@ -112,6 +107,12 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
     const interval = setInterval(() => refresh(), 15_000);
     return () => clearInterval(interval);
   }, [refresh]);
+
+  React.useEffect(() => {
+    if (error) {
+      throw error;
+    }
+  }, [error]);
 
   const loadMore = React.useCallback(async () => {
     setLoading(true);
@@ -127,20 +128,22 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
       opsRef.current.length < maxOpsCount &&
       (!tzStatsReachedEndRef.current || !bcdReachedEndRef.current)
     ) {
-      const tzStatsOffset = Object.keys(tzStatsOpsRef.current).reduce(
-        (sum, opHash) => sum + tzStatsOpsRef.current[opHash].length,
+      const tzStatsOffset = Object.values(tzStatsOpsRef.current).reduce(
+        (sum, ops) => sum + ops.length,
+        0
+      );
+      const bcdOffset = Object.values(bcdOpsRef.current).reduce(
+        (sum, ops) => sum + ops.length,
         0
       );
       const {
-        lastBcdId,
         newBcdOps,
         newTzStatsOps,
         bcdReachedEnd,
         tzStatsReachedEnd,
-      } = await loadOperations(tzStatsOffset, lastBcdIdRef.current);
+      } = await loadOperations(tzStatsOffset, bcdOffset);
       bcdReachedEndRef.current = bcdReachedEnd;
       tzStatsReachedEndRef.current = tzStatsReachedEnd;
-      lastBcdIdRef.current = lastBcdId;
       bcdOpsRef.current = mergeBcdOps(bcdOpsRef.current, newBcdOps);
       tzStatsOpsRef.current = mergeTzStatsOps(
         tzStatsOpsRef.current,
@@ -171,7 +174,6 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
       tzStatsReachedEndRef.current = false;
       bcdReachedEndRef.current = false;
       pageNumberRef.current = 0;
-      lastBcdIdRef.current = undefined;
       updateOpsStates({}, {}, []);
       setOpsEnded(false);
       setLoading(true);
