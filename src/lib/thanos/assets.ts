@@ -118,7 +118,7 @@ function viewSuccessAssertionFactory(name: string, args: any[]) {
   return async (contract: WalletContract, tezos: TezosToolkit) => {
     assert(contract.views[name]);
     await contract.views[name](...args).read((tezos as any).lambdaContract);
-  }
+  };
 }
 
 const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
