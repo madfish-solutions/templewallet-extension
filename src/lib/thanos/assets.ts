@@ -116,6 +116,7 @@ function signatureAssertionFactory(name: string, args: string[]) {
 
 function viewSuccessAssertionFactory(name: string, args: any[]) {
   return async (contract: WalletContract, tezos: TezosToolkit) => {
+    assert(contract.views[name]);
     await contract.views[name](...args).read((tezos as any).lambdaContract);
   };
 }
@@ -171,12 +172,6 @@ const FA2_METHODS_ASSERTIONS = [
         [{ owner: STUB_TEZOS_ADDRESS, token_id: String(tokenId) }],
       ])(contract, tezos),
   },
-  {
-    name: "token_metadata_registry",
-    assertion: signatureAssertionFactory("token_metadata_registry", [
-      "contract",
-    ]),
-  },
 ];
 
 export async function assertTokenType(
@@ -217,6 +212,9 @@ export async function assertTokenType(
         } else if (e.value?.string === "FA2_TOKEN_UNDEFINED") {
           throw new Error(getMessage("incorrectTokenIdErrorMessage"));
         } else {
+          if (process.env.NODE_ENV === "development") {
+            console.error(e);
+          }
           throw new Error(
             getMessage("unknownErrorCheckingSomeEntrypoint", name)
           );
