@@ -591,12 +591,12 @@ export async function processBeacon(
 
         throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
       } catch (err) {
+        if (err instanceof TezosOperationError) {
+          throw err;
+        }
+
         // Map Thanos DApp error to Beacon error
         const beaconErrorType = (() => {
-          if (err instanceof TezosOperationError) {
-            return Beacon.ErrorType.TRANSACTION_INVALID_ERROR;
-          }
-
           switch (err?.message) {
             case ThanosDAppErrorType.InvalidParams:
               return Beacon.ErrorType.PARAMETERS_INVALID_ERROR;
@@ -618,10 +618,19 @@ export async function processBeacon(
       return {
         ...resBase,
         type: Beacon.MessageType.Error,
-        errorType:
-          err?.message in Beacon.ErrorType
-            ? err.message
-            : Beacon.ErrorType.UNKNOWN_ERROR,
+        errorType: (() => {
+          switch (true) {
+            case err instanceof TezosOperationError:
+              return Beacon.ErrorType.TRANSACTION_INVALID_ERROR;
+
+            case err?.message in Beacon.ErrorType:
+              return err.message;
+
+            default:
+              return Beacon.ErrorType.UNKNOWN_ERROR;
+          }
+        })(),
+        errorData: err instanceof TezosOperationError ? err.errors : undefined,
       };
     }
   })();
