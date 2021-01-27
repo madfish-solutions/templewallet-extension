@@ -18,7 +18,7 @@ import {
 export type GetOperationsParams = {
   accountPkh: string;
   tzStatsNetwork: TZStatsNetwork | null;
-  networkId: "mainnet" | "carthagenet" | "delphinet" | null;
+  networkId: "mainnet" | "delphinet" | null;
   xtzOnly?: boolean;
 };
 
@@ -31,7 +31,7 @@ export default function useAllOperations({
   const fetchFn = React.useCallback(
     async (
       tzStatsOffset: number,
-      bcdLastId: string | undefined,
+      bcdOffset: number,
       pageSize: number
     ) => {
       const { ops: newTzStatsOps } = tzStatsNetwork
@@ -44,21 +44,20 @@ export default function useAllOperations({
         : { ops: [] as TZStatsOperation[] };
 
       let totalNewBcdOps: BcdTokenTransfer[] = [];
-      let currentLastBcdId = bcdLastId;
+      let currentBcdOffset = bcdOffset;
       let bcdReachedEnd = true;
       const lastTzStatsOp = newTzStatsOps[newTzStatsOps.length - 1];
       let shouldStopFetchBcdOperations = false;
       while (!shouldStopFetchBcdOperations && networkId) {
         const {
-          last_id,
           transfers,
         }: BcdPageableTokenTransfers = await getTokenTransfers({
           network: networkId,
           address: accountPkh,
           size: pageSize,
-          last_id: currentLastBcdId,
+          start: currentBcdOffset
         });
-        currentLastBcdId = last_id || currentLastBcdId;
+        currentBcdOffset += transfers.length;
         const newBcdOps = transfers.filter((transfer) =>
           lastTzStatsOp
             ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
@@ -69,13 +68,12 @@ export default function useAllOperations({
           ...newBcdOps
         ];
         bcdReachedEnd =
-          newBcdOps.length === transfers.length && transfers.length < pageSize;
+          (newBcdOps.length === transfers.length) && (transfers.length < pageSize);
         shouldStopFetchBcdOperations =
           bcdReachedEnd || (transfers.length > newBcdOps.length);
       }
 
       return {
-        lastBcdId: currentLastBcdId,
         newBcdOps: groupOpsByHash(totalNewBcdOps),
         newTzStatsOps: groupOpsByHash(newTzStatsOps),
         tzStatsReachedEnd: newTzStatsOps.length < pageSize,

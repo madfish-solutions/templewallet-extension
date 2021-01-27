@@ -96,7 +96,7 @@ type BaseOperationsListProps = {
   accountPkh: string;
   accountOwner?: string;
   tzStatsNetwork: TZStatsNetwork | null;
-  networkId: "mainnet" | "carthagenet" | "delphinet" | null;
+  networkId: "mainnet" | "delphinet" | null;
 };
 
 type AllOperationsListProps = BaseOperationsListProps & {
@@ -286,7 +286,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
 
   return (
     <>
-      {uniqueOps.length === 0 && (
+      {uniqueOps.length === 0 && !loading && (
         <div
           className={classNames(
             "mt-4 mb-12",
@@ -294,20 +294,14 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
             "text-gray-500"
           )}
         >
-          {loading ? (
-            <Spinner theme="gray" className="w-20" />
-          ) : (
-            <>
-              <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
+          <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
 
-              <h3
-                className="text-sm font-light text-center"
-                style={{ maxWidth: "20rem" }}
-              >
-                <T id="noOperationsFound" />
-              </h3>
-            </>
-          )}
+          <h3
+            className="text-sm font-light text-center"
+            style={{ maxWidth: "20rem" }}
+          >
+            <T id="noOperationsFound" />
+          </h3>
         </div>
       )}
 
@@ -321,15 +315,23 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
         />
       ))}
 
-      <div className="w-full flex justify-center my-3">
-        <FormSecondaryButton
-          disabled={opsEnded || loading}
-          loading={loading}
-          onClick={loadMore}
-        >
-          <T id={opsEnded ? "noItemsMore" : "loadMore"} />
-        </FormSecondaryButton>
-      </div>
+      {loading && (
+        <div className="w-full flex justify-center my-3">
+          <Spinner theme="gray" className="w-20" />
+        </div>
+      )}
+
+      {!loading && !opsEnded && (
+        <div className="w-full flex justify-center my-3">
+          <FormSecondaryButton
+            disabled={opsEnded || loading}
+            loading={loading}
+            onClick={loadMore}
+          >
+            <T id="loadMore" />
+          </FormSecondaryButton>
+        </div>
+      )}
     </>
   );
 };

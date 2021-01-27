@@ -14,7 +14,7 @@ import {
 export type GetOperationsParams = {
   accountPkh: string;
   tzStatsNetwork: TZStatsNetwork | null;
-  networkId: "mainnet" | "carthagenet" | "delphinet" | null;
+  networkId: "mainnet" | "delphinet" | null;
   asset: ThanosToken;
 };
 
@@ -27,18 +27,18 @@ export default function useTokensOperations({
   const fetchFn = React.useCallback(
     async (
       tzStatsOffset: number,
-      bcdLastId: string | undefined,
+      bcdOffset: number,
       pageSize: number
     ) => {
-      const { last_id, transfers: rawBcdOps } = networkId
+      const { transfers: rawBcdOps } = networkId
         ? await getTokenTransfers({
             network: networkId,
             address: accountPkh,
             size: pageSize,
             contracts: asset.address,
-            last_id: bcdLastId,
+            start: bcdOffset,
           })
-        : { transfers: [], last_id: undefined };
+        : { transfers: [] };
       const lastBcdOp = rawBcdOps[rawBcdOps.length - 1];
       const lastBcdOpTime = new Date(lastBcdOp?.timestamp || 0);
       const groupedBcdOps = groupOpsByHash(rawBcdOps);
@@ -83,11 +83,10 @@ export default function useTokensOperations({
       ).reduce((sum, ops) => sum + ops.length, 0);
 
       return {
-        lastBcdId: last_id,
         newBcdOps: groupedBcdOps,
         newTzStatsOps: relevantGroupedTzStatsOps,
         bcdReachedEnd: rawBcdOps.length < pageSize,
-        tzStatsReachedEnd: relevantTzStatsOpsCount < pageSize,
+        tzStatsReachedEnd: (relevantTzStatsOpsCount < pageSize) || (rawBcdOps.length < pageSize),
       };
     },
     [accountPkh, networkId, tzStatsNetwork, asset.address]
