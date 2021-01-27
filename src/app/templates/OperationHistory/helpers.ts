@@ -54,17 +54,23 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
           lastBcdId,
           newBcdOps,
           newTzStatsOps,
+          bcdReachedEnd,
+          tzStatsReachedEnd
         };
       } catch (err) {
-        if (err?.origin?.response?.status === 404) {
-          tzStatsReachedEndRef.current = true;
-          bcdReachedEndRef.current = true;
-        } else {
+        const noTransactionsMoreAvailable = err?.origin?.response?.status === 404;
+        if (!noTransactionsMoreAvailable) {
           // Human delay
           await new Promise((r) => setTimeout(r, 300));
           setError(err);
         }
-        return { newBcdOps: {}, newTzStatsOps: {}, lastBcdId: undefined };
+        return {
+          newBcdOps: {},
+          newTzStatsOps: {},
+          lastBcdId: undefined,
+          bcdReachedEnd: noTransactionsMoreAvailable,
+          tzStatsReachedEnd: noTransactionsMoreAvailable
+        };
       }
     },
     [fetchFn]
@@ -112,19 +118,27 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
       bcdOpsRef.current,
       asset
     );
-    console.log('x1', opsRef.current.length, pageNumberRef.current * PAGE_SIZE, tzStatsReachedEndRef.current, bcdReachedEndRef.current);
+    const maxOpsCount = pageNumberRef.current * PAGE_SIZE;
     while (
-      opsRef.current.length < pageNumberRef.current * PAGE_SIZE &&
+      opsRef.current.length < maxOpsCount &&
       (!tzStatsReachedEndRef.current || !bcdReachedEndRef.current)
     ) {
       const tzStatsOffset = Object.keys(tzStatsOpsRef.current).reduce(
         (sum, opHash) => sum + tzStatsOpsRef.current[opHash].length,
         0
       );
-      const { lastBcdId, newBcdOps, newTzStatsOps } = await loadOperations(
+      const {
+        lastBcdId,
+        newBcdOps,
+        newTzStatsOps,
+        bcdReachedEnd,
+        tzStatsReachedEnd
+      } = await loadOperations(
         tzStatsOffset,
         lastBcdIdRef.current
       );
+      bcdReachedEndRef.current = bcdReachedEnd;
+      tzStatsReachedEndRef.current = tzStatsReachedEnd;
       lastBcdIdRef.current = lastBcdId;
       bcdOpsRef.current = mergeBcdOps(bcdOpsRef.current, newBcdOps);
       tzStatsOpsRef.current = mergeTzStatsOps(
@@ -137,10 +151,9 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
         asset
       );
     }
-    console.log('x2', opsRef.current.length, tzStatsReachedEndRef.current, bcdReachedEndRef.current);
-    opsRef.current = opsRef.current.slice(0, pageNumberRef.current * PAGE_SIZE);
+    setOpsEnded(tzStatsReachedEndRef.current && bcdReachedEndRef.current && opsRef.current.length <= maxOpsCount);
+    opsRef.current = opsRef.current.slice(0, maxOpsCount);
     updateOpsStates(tzStatsOpsRef.current, bcdOpsRef.current, opsRef.current);
-    setOpsEnded(tzStatsReachedEndRef.current && bcdReachedEndRef.current);
     setLoading(false);
   }, [loadOperations, updateOpsStates, asset]);
 
