@@ -132,6 +132,7 @@ export enum ErrorType {
 export interface ErrorResponse extends BaseMessage {
   type: MessageType.Error;
   errorType: ErrorType;
+  errorData?: any[];
 }
 
 export interface DisconnectMessage extends BaseMessage {
