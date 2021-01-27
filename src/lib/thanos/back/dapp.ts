@@ -279,7 +279,7 @@ export async function requestSign(
           confirmReq?.id === id
         ) {
           if (confirmReq.confirmed) {
-            const { sig: signature } = await withUnlocked(({ vault }) =>
+            const { prefixSig: signature } = await withUnlocked(({ vault }) =>
               vault.sign(dApp.pkh, req.payload)
             );
             resolve({
