@@ -33,6 +33,9 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
   const [error, setError] = React.useState<Error>();
   const lastBcdIdRef = React.useRef<string | undefined>(undefined);
   const [loading, setLoading] = React.useState(true);
+  const prevFetchFn = React.useRef(fetchFn);
+  const prevAsset = React.useRef(asset);
+  const firstTimeRef = React.useRef(true);
 
   const loadOperations = React.useCallback(
     async (tzStatsOffset: number, bcdLastId?: string) => {
@@ -77,7 +80,8 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
       bcdOpsRef.current = totalBcdOps;
       const totalOps =
         ops ||
-        groupedOpsToOperationsPreview(totalTzStatsOps, totalBcdOps, asset);
+        groupedOpsToOperationsPreview(totalTzStatsOps, totalBcdOps, asset)
+          .slice(0, pageNumberRef.current * PAGE_SIZE);
       setOps(totalOps);
       opsRef.current = totalOps;
     },
@@ -101,12 +105,17 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
 
   const loadMore = React.useCallback(async () => {
     setLoading(true);
-    pageNumberRef.current = pageNumberRef.current + 1;
+    pageNumberRef.current = Math.floor(opsRef.current.length / PAGE_SIZE) + 1;
 
+    opsRef.current = groupedOpsToOperationsPreview(
+      tzStatsOpsRef.current,
+      bcdOpsRef.current,
+      asset
+    );
+    console.log('x1', opsRef.current.length, pageNumberRef.current * PAGE_SIZE, tzStatsReachedEndRef.current, bcdReachedEndRef.current);
     while (
       opsRef.current.length < pageNumberRef.current * PAGE_SIZE &&
-      !tzStatsReachedEndRef.current &&
-      !bcdReachedEndRef.current
+      (!tzStatsReachedEndRef.current || !bcdReachedEndRef.current)
     ) {
       const tzStatsOffset = Object.keys(tzStatsOpsRef.current).reduce(
         (sum, opHash) => sum + tzStatsOpsRef.current[opHash].length,
@@ -124,19 +133,33 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
       );
       opsRef.current = groupedOpsToOperationsPreview(
         tzStatsOpsRef.current,
-        bcdOpsRef.current
+        bcdOpsRef.current,
+        asset
       );
     }
+    console.log('x2', opsRef.current.length, tzStatsReachedEndRef.current, bcdReachedEndRef.current);
     opsRef.current = opsRef.current.slice(0, pageNumberRef.current * PAGE_SIZE);
     updateOpsStates(tzStatsOpsRef.current, bcdOpsRef.current, opsRef.current);
     setOpsEnded(tzStatsReachedEndRef.current && bcdReachedEndRef.current);
     setLoading(false);
-  }, [loadOperations, updateOpsStates]);
+  }, [loadOperations, updateOpsStates, asset]);
 
   React.useEffect(() => {
-    loadMore();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (firstTimeRef.current || (prevFetchFn.current !== fetchFn) || (prevAsset.current !== asset)) {
+      tzStatsReachedEndRef.current = false;
+      bcdReachedEndRef.current = false;
+      pageNumberRef.current = 0;
+      lastBcdIdRef.current = undefined;
+      updateOpsStates({}, {}, []);
+      setOpsEnded(false);
+      setLoading(true);
+      setError(undefined);
+      loadMore();
+    }
+    firstTimeRef.current = false;
+    prevFetchFn.current = fetchFn;
+    prevAsset.current = asset;
+  }, [updateOpsStates, loadMore, fetchFn, asset]);
 
   return {
     error,
