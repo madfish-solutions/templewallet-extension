@@ -162,12 +162,6 @@ const FA2_METHODS_ASSERTIONS = [
     assertion: signatureAssertionFactory("transfer", ["list"]),
   },
   {
-    name: "token_metadata_registry",
-    assertion: signatureAssertionFactory("token_metadata_registry", [
-      "contract",
-    ]),
-  },
-  {
     name: "balance_of",
     assertion: (
       contract: WalletContract,
