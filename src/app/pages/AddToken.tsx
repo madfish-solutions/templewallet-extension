@@ -284,7 +284,11 @@ const Form: React.FC = () => {
             ) : (
               <T id="unknownParseErrorOccurred" />
             );
-          setValue([{ symbol: "" }, { name: "" }, { decimals: 0 }]);
+          setBottomFormInitialData({
+            symbol: "",
+            name: "",
+            decimals: 0,
+          });
           setTokenDataError(errorMessage);
         });
       } finally {
