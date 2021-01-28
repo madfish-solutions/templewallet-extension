@@ -316,17 +316,21 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
       ))}
 
       {loading && (
-        <div className="w-full flex justify-center my-3">
-          <Spinner theme="gray" className="w-20" />
+        <div
+          className="w-full flex items-center justify-center mt-5 mb-3"
+          style={{ height: "2.5rem" }}
+        >
+          <Spinner theme="gray" className="w-16" />
         </div>
       )}
 
       {!loading && !opsEnded && (
-        <div className="w-full flex justify-center my-3">
+        <div className="w-full flex justify-center mt-5 mb-3">
           <FormSecondaryButton
             disabled={opsEnded || loading}
             loading={loading}
             onClick={loadMore}
+            small
           >
             <T id="loadMore" />
           </FormSecondaryButton>

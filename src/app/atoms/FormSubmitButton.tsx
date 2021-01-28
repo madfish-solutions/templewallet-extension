@@ -54,7 +54,7 @@ const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
           "flex items-center justify-center"
         )}
       >
-        <Spinner theme="white" style={{ width: "3rem" }} />
+        <Spinner theme="white" style={{ width: small ? "2rem" : "3rem" }} />
       </div>
     )}
   </button>
