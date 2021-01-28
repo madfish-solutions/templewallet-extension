@@ -1677,5 +1677,8 @@
   },
   "defaultAccount": {
     "message": "Default account"
+  },
+  "loadMore": {
+    "message": "Load more"
   }
 }
