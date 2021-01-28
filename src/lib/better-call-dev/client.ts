@@ -12,6 +12,7 @@ import {
   BcdOperationsSearchResponse,
   BcdNetwork,
 } from "lib/better-call-dev";
+import { BcdDAppEntry } from "./types";
 
 export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
   [ThanosChainId.Mainnet, "mainnet"],
@@ -58,6 +59,8 @@ export const searchOperations = makeQuery<
   s: since,
   o: offset,
 }));
+
+export const getDApps = makeQuery<{}, BcdDAppEntry[]>("GET", () => "/dapps");
 
 /**
  * Base
