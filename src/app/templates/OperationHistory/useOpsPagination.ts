@@ -12,9 +12,10 @@ type GroupedBcdOps = Record<string, BcdTokenTransfer[]>;
 
 type FetchFn = (
   tzStatsOffset: number,
-  bcdOffset: number,
+  bcdEnd: number | undefined,
   pageSize: number
 ) => Promise<{
+  bcdEnd?: number;
   newBcdOps: GroupedBcdOps;
   newTzStatsOps: GroupedTzStatsOps;
   tzStatsReachedEnd: boolean;
@@ -29,6 +30,7 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
   const [opsEnded, setOpsEnded] = React.useState(false);
   const opsRef = React.useRef<OperationPreview[]>([]);
   const pageNumberRef = React.useRef(0);
+  const bcdEndRef = React.useRef<number | undefined>(undefined);
   const [error, setError] = React.useState<Error>();
   const [loading, setLoading] = React.useState(true);
   const prevFetchFn = React.useRef(fetchFn);
@@ -36,18 +38,20 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
   const firstTimeRef = React.useRef(true);
 
   const loadOperations = React.useCallback(
-    async (tzStatsOffset: number, bcdOffset: number) => {
+    async (tzStatsOffset: number, prevBcdEnd?: number) => {
       try {
         const {
+          bcdEnd,
           newBcdOps,
           newTzStatsOps,
           tzStatsReachedEnd,
           bcdReachedEnd,
-        } = await fetchFn(tzStatsOffset, bcdOffset, PAGE_SIZE);
+        } = await fetchFn(tzStatsOffset, prevBcdEnd, PAGE_SIZE);
         tzStatsReachedEndRef.current = tzStatsReachedEnd;
         bcdReachedEndRef.current = bcdReachedEnd;
         setError(undefined);
         return {
+          bcdEnd,
           newBcdOps,
           newTzStatsOps,
           bcdReachedEnd,
@@ -132,16 +136,14 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
         (sum, ops) => sum + ops.length,
         0
       );
-      const bcdOffset = Object.values(bcdOpsRef.current).reduce(
-        (sum, ops) => sum + ops.length,
-        0
-      );
       const {
+        bcdEnd,
         newBcdOps,
         newTzStatsOps,
         bcdReachedEnd,
         tzStatsReachedEnd,
-      } = await loadOperations(tzStatsOffset, bcdOffset);
+      } = await loadOperations(tzStatsOffset, bcdEndRef.current);
+      bcdEndRef.current = bcdEnd;
       bcdReachedEndRef.current = bcdReachedEnd;
       tzStatsReachedEndRef.current = tzStatsReachedEnd;
       bcdOpsRef.current = mergeBcdOps(bcdOpsRef.current, newBcdOps);
