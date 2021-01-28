@@ -369,7 +369,10 @@ const ConfirmDAppForm: React.FC = () => {
                 />
               </div>
             ) : (
-              <OperationView payload={payload} />
+              <OperationView
+                payload={payload}
+                networkRpc={payload.networkRpc}
+              />
             )}
           </>
         )}

@@ -16,6 +16,7 @@ import {
   isDomainNameValid,
   useTezosDomainsClient,
   isKTAddress,
+  confirmOperation,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
@@ -668,7 +669,7 @@ const FromFaucetForm: React.FC = () => {
 
         if (activationStatus === ActivationStatus.ActivationRequestSent) {
           setAlert(`🛫 ${t("requestSent", t("activationOperationType"))}`);
-          await op!.confirmation();
+          await confirmOperation(tezos, op!.hash);
         }
 
         try {
@@ -701,6 +702,7 @@ const FromFaucetForm: React.FC = () => {
       }
     },
     [
+      tezos,
       processing,
       setProcessing,
       setAlert,
@@ -880,13 +882,13 @@ const WatchOnlyForm: React.FC = () => {
           value
         );
         if (!resolved) {
-          return `Domain "${value}" doesn't resolve to an address`;
+          return t("domainDoesntResolveToAddress", value);
         }
 
         value = resolved;
       }
 
-      return isAddressValid(value) ? true : "Invalid address or domain name";
+      return isAddressValid(value) ? true : t("invalidAddressOrDomain");
     },
     [canUseDomainNames, domainsClient]
   );
@@ -990,7 +992,9 @@ const WatchOnlyForm: React.FC = () => {
             "flex flex-wrap items-center"
           )}
         >
-          <span className="mr-1 whitespace-no-wrap">Resolved address:</span>
+          <span className="mr-1 whitespace-no-wrap">
+            {t("resolvedAddress")}:
+          </span>
           <span className="font-normal">{resolvedAddress}</span>
         </div>
       )}

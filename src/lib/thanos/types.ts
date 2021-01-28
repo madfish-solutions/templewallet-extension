@@ -17,7 +17,7 @@ export interface ThanosDAppSession {
   network: ThanosDAppNetwork;
   appMeta: ThanosDAppMetadata;
   pkh: string;
-  publicKey?: string;
+  publicKey: string;
 }
 
 export interface ThanosState {
@@ -103,6 +103,7 @@ export interface ThanosNetwork {
   rpcBaseURL: string;
   color: string;
   disabled: boolean;
+  hidden?: boolean;
 }
 
 export type ThanosAsset = ThanosXTZAsset | ThanosToken;
@@ -631,6 +632,7 @@ export interface ThanosPageRequest extends ThanosMessageBase {
 export interface ThanosPageResponse extends ThanosMessageBase {
   type: ThanosMessageType.PageResponse;
   payload: any;
+  encrypted?: boolean;
 }
 
 export interface ThanosDAppGetPayloadRequest extends ThanosMessageBase {

@@ -165,12 +165,15 @@
     }
   },
   "clickOnBakerPrompt": {
-    "message": "Click on the Baker you want to delegate funds to. This list is powered by $link$",
+    "message": "Click on the Baker you want to delegate funds to. This list is powered by $link$.",
     "placeholders": {
       "link": {
         "content": "$1"
       }
     }
+  },
+  "highestIsBetter": {
+    "message": "highest is better"
   },
   "unlockWalletPrompt": {
     "message": "If you want to save something from already existing wallet - $link$ and unlock it.",
@@ -554,7 +557,7 @@
     "message": "Create a new Wallet"
   },
   "createNewWalletDescription": {
-    "message": "New to Thanos Wallet? Let’s set it up! This will create a new wallet and seed phrase"
+    "message": "New to Thanos Wallet? Let's set it up! This will create a new wallet and seed phrase"
   },
   "delegate": {
     "message": "Delegate"
@@ -768,10 +771,10 @@
     "message": "Contact"
   },
   "accountAlreadyActivated": {
-    "message": "🏁 Your Account already activated."
+    "message": "Your Account already activated."
   },
   "accountActivated": {
-    "message": "✅ Your account successfully activated!"
+    "message": "Your account successfully activated!"
   },
   "failureSecretMayBeInvalid": {
     "message": "Failed. This may happen because provided Secret is invalid"
@@ -822,7 +825,7 @@
     "message": "enable"
   },
   "dAppsCheckmarkPrompt": {
-    "message": "Click on the checkmark to $action$ DApps interaction feature. It’s still in Alpha, but it can be used for testing and development purposes.",
+    "message": "Click on the checkmark to $action$ DApps interaction feature. It's still in Alpha, but it can be used for testing and development purposes.",
     "placeholders": {
       "action": {
         "content": "$1"
@@ -903,10 +906,10 @@
     }
   },
   "notEnoughFunds": {
-    "message": "Not enough funds 😶"
+    "message": "Not enough funds"
   },
   "notEnoughCurrencyFunds": {
-    "message": "Not enough $currency$ funds 😶",
+    "message": "Not enough $currency$ funds",
     "placeholders": {
       "currency": {
         "content": "$1"
@@ -1173,6 +1176,9 @@
   },
   "inUSD": {
     "message": "in USD"
+  },
+  "inXTZ": {
+    "message": "in XTZ"
   },
   "amountPlaceholder": {
     "message": "e.g. 123.45"
@@ -1537,6 +1543,9 @@
       }
     }
   },
+  "failedToLoadChainID": {
+    "message": "Failed to load chain ID for this network"
+  },
   "makeSureTokenIdIsCorrect": {
     "message": "Please make sure that token ID is correct."
   },
@@ -1624,5 +1633,52 @@
   },
   "clean": {
     "message": "Clean"
+  },
+  "errorChangingAccountName": {
+    "message": "An error occurred while changing account name"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "yes": {
+    "message": "Yes"
+  },
+  "no": {
+    "message": "No"
+  },
+  "actionConfirmation": {
+    "message": "Confirm the action"
+  },
+  "domainDoesntResolveToAddress": {
+    "message": "Domain \"$value$\" doesn't resolve to an address",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "invalidAddressOrDomain": {
+    "message": "Invalid address or domain name"
+  },
+  "resolvedAddress": {
+    "message": "Resolved address"
+  },
+  "invalidRpcCantGetChainId": {
+    "message": "Invalid RPC: Cannot get chain id"
+  },
+  "contractNotOriginated": {
+    "message": "Contract not originated"
+  },
+  "welcomeTo": {
+    "message": "Welcome to"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "hash": {
+    "message": "Hash"
+  },
+  "defaultAccount": {
+    "message": "Default account"
   }
 }

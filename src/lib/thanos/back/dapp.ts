@@ -1,5 +1,6 @@
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { nanoid } from "nanoid";
+import { TezosOperationError } from "@taquito/taquito";
 import { RpcClient } from "@taquito/rpc";
 import { localForger } from "@taquito/local-forging";
 import {
@@ -42,8 +43,9 @@ export async function getCurrentPermission(
   const dApp = await getDApp(origin);
   const permission = dApp
     ? {
-        pkh: dApp.pkh,
         rpc: getNetworkRPC(dApp.network),
+        pkh: dApp.pkh,
+        publicKey: dApp.publicKey,
       }
     : null;
   return {
@@ -76,10 +78,10 @@ export async function requestPermission(
   ) {
     return {
       type: ThanosDAppMessageType.PermissionResponse,
+      rpc: networkRpc,
       pkh: dApp.pkh,
       publicKey: dApp.publicKey,
-      rpc: networkRpc,
-    } as any;
+    };
   }
 
   return new Promise(async (resolve, reject) => {
@@ -118,7 +120,7 @@ export async function requestPermission(
               pkh: accountPublicKeyHash,
               publicKey: accountPublicKey,
               rpc: networkRpc,
-            } as any);
+            });
           } else {
             decline();
           }
@@ -196,8 +198,9 @@ export async function requestOperation(
                 opHash: op.hash,
               });
             } catch (err) {
-              if (err?.message?.startsWith("__tezos__")) {
-                reject(new Error(err.message));
+              if (err instanceof TezosOperationError) {
+                err.message = ThanosDAppErrorType.TezosOperation;
+                reject(err);
               } else {
                 throw err;
               }
@@ -276,21 +279,13 @@ export async function requestSign(
           confirmReq?.id === id
         ) {
           if (confirmReq.confirmed) {
-            try {
-              const { sig: signature } = await withUnlocked(({ vault }) =>
-                vault.sign(dApp.pkh, req.payload)
-              );
-              resolve({
-                type: ThanosDAppMessageType.SignResponse,
-                signature,
-              });
-            } catch (err) {
-              if (err?.message?.startsWith("__tezos__")) {
-                reject(new Error(err.message));
-              } else {
-                throw err;
-              }
-            }
+            const { prefixSig: signature } = await withUnlocked(({ vault }) =>
+              vault.sign(dApp.pkh, req.payload)
+            );
+            resolve({
+              type: ThanosDAppMessageType.SignResponse,
+              signature,
+            });
           } else {
             decline();
           }
@@ -327,7 +322,12 @@ export async function requestBroadcast(
       opHash,
     };
   } catch (err) {
-    throw new Error(`__tezos__${err.message}`);
+    throw err instanceof TezosOperationError
+      ? (() => {
+          err.message = ThanosDAppErrorType.TezosOperation;
+          return err;
+        })()
+      : new Error("Failed to broadcast");
   }
 }
 
@@ -433,11 +433,13 @@ async function requestConfirm({
     }
   );
 
+  const isWin = (await browser.runtime.getPlatformInfo()).os === "win";
+
   const confirmWin = await browser.windows.create({
     type: "popup",
     url: browser.runtime.getURL(`confirm.html#?id=${id}`),
-    width: CONFIRM_WINDOW_WIDTH,
-    height: CONFIRM_WINDOW_HEIGHT,
+    width: isWin ? CONFIRM_WINDOW_WIDTH + 16 : CONFIRM_WINDOW_WIDTH,
+    height: isWin ? CONFIRM_WINDOW_HEIGHT + 17 : CONFIRM_WINDOW_HEIGHT,
     top: Math.max(top, 20),
     left: Math.max(left, 20),
   });

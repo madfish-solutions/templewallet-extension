@@ -8,6 +8,7 @@ import {
   CompositeForger,
   RpcForger,
   Signer,
+  TezosOperationError,
 } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
 import LedgerTransport from "@ledgerhq/hw-transport";
@@ -134,9 +135,14 @@ export class Vault {
 
   static async revealPrivateKey(accPublicKeyHash: string, password: string) {
     const passKey = await Vault.toValidPassKey(password);
-    return withError("Failed to reveal private key", () =>
-      fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), passKey)
-    );
+    return withError("Failed to reveal private key", async () => {
+      const privateKeySeed = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        passKey
+      );
+      const signer = await createMemorySigner(privateKeySeed);
+      return signer.secretKey();
+    });
   }
 
   static async removeAccount(accPublicKeyHash: string, password: string) {
@@ -466,9 +472,14 @@ export class Vault {
           console.error(err);
         }
 
-        throw err instanceof PublicError
-          ? err
-          : new Error(`__tezos__${err.message}`);
+        switch (true) {
+          case err instanceof PublicError:
+          case err instanceof TezosOperationError:
+            throw err;
+
+          default:
+            throw new Error(`Failed to send operations. ${err.message}`);
+        }
       }
     });
   }

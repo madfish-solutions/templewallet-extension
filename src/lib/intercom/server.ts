@@ -6,8 +6,7 @@ import {
   ErrorMessage,
   SubscriptionMessage,
 } from "./types";
-
-const DEFAULT_ERROR_MESSAGE = "Unexpected error occured";
+import { serealizeError } from "./helpers";
 
 type ReqHandler = (payload: any, port: Runtime.Port) => Promise<any>;
 
@@ -75,7 +74,7 @@ export class IntercomServer {
           this.send(port, {
             type: MessageType.Err,
             reqId: msg.reqId,
-            data: err?.message ?? DEFAULT_ERROR_MESSAGE,
+            data: serealizeError(err),
           });
         }
       })(msg as RequestMessage);

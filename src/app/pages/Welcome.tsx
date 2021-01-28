@@ -46,7 +46,7 @@ const Welcome: React.FC = () => {
       <div
         className={classNames("-mt-32", "text-2xl text-gray-700 font-light")}
       >
-        Welcome to
+        <T id="welcomeTo" />
       </div>
 
       <div className="flex items-center mb-8">
