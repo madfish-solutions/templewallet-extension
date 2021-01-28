@@ -43,7 +43,7 @@ export default function useTokensOperations({
       const lastBcdOpTime = new Date(lastBcdOp?.timestamp || 0);
       const groupedBcdOps = groupOpsByHash(rawBcdOps);
       const tzStatsOps: TZStatsOperation[] = [];
-      let shouldStopFetchBcdOperations = false;
+      let shouldStopFetchBcdOperations = rawBcdOps.length === 0;
       let i = 0;
       while (!shouldStopFetchBcdOperations && tzStatsNetwork) {
         const { ops } = await getAccountWithOperations(tzStatsNetwork, {
