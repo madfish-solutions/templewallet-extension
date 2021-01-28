@@ -138,3 +138,24 @@ export type BcdOperationsSearchQueryParams = {
   offset?: number;
   since?: number;
 };
+
+export type BcdDAppScreenshot = {
+  type: string;
+  link: string;
+}
+
+export type BcdDAppEntry = {
+  name: string;
+  short_description: string;
+  full_description: string;
+  website: string;
+  slug: string;
+  authors: string[];
+  social_links: string[] | null;
+  interfaces: string[] | null;
+  categories: string[];
+  soon: boolean;
+  logo: string;
+  cover: string;
+  screenshots?: BcdDAppScreenshot[];
+}
