@@ -31,7 +31,7 @@ export default function useAllOperations({
   const fetchFn = React.useCallback(
     async (
       tzStatsOffset: number,
-      bcdOffset: number,
+      bcdEnd: number | undefined,
       pageSize: number
     ) => {
       const { ops: newTzStatsOps } = tzStatsNetwork
@@ -44,7 +44,7 @@ export default function useAllOperations({
         : { ops: [] as TZStatsOperation[] };
 
       let totalNewBcdOps: BcdTokenTransfer[] = [];
-      let currentBcdOffset = bcdOffset;
+      let currentBcdEnd = bcdEnd;
       let bcdReachedEnd = true;
       const lastTzStatsOp = newTzStatsOps[newTzStatsOps.length - 1];
       let shouldStopFetchBcdOperations = false;
@@ -55,9 +55,10 @@ export default function useAllOperations({
           network: networkId,
           address: accountPkh,
           size: pageSize,
-          start: currentBcdOffset
+          end: currentBcdEnd
         });
-        currentBcdOffset += transfers.length;
+        const lastNewTransfer = transfers[transfers.length - 1];
+        currentBcdEnd = lastNewTransfer ? Math.floor(new Date(lastNewTransfer.timestamp).getTime() / 1000) : currentBcdEnd;
         const newBcdOps = transfers.filter((transfer) =>
           lastTzStatsOp
             ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
@@ -78,6 +79,7 @@ export default function useAllOperations({
         newTzStatsOps: groupOpsByHash(newTzStatsOps),
         tzStatsReachedEnd: newTzStatsOps.length < pageSize,
         bcdReachedEnd,
+        bcdEnd: currentBcdEnd
       };
     },
     [accountPkh, networkId, tzStatsNetwork]

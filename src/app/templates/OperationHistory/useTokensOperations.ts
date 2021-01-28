@@ -27,7 +27,7 @@ export default function useTokensOperations({
   const fetchFn = React.useCallback(
     async (
       tzStatsOffset: number,
-      bcdOffset: number,
+      bcdEnd: number | undefined,
       pageSize: number
     ) => {
       const { transfers: rawBcdOps } = networkId
@@ -36,7 +36,7 @@ export default function useTokensOperations({
             address: accountPkh,
             size: pageSize,
             contracts: asset.address,
-            start: bcdOffset,
+            end: bcdEnd,
           })
         : { transfers: [] };
       const lastBcdOp = rawBcdOps[rawBcdOps.length - 1];
@@ -83,6 +83,7 @@ export default function useTokensOperations({
       ).reduce((sum, ops) => sum + ops.length, 0);
 
       return {
+        bcdEnd: lastBcdOp ? Math.floor(lastBcdOpTime.getTime() / 1000) : undefined,
         newBcdOps: groupedBcdOps,
         newTzStatsOps: relevantGroupedTzStatsOps,
         bcdReachedEnd: rawBcdOps.length < pageSize,
