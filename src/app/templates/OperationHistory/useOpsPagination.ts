@@ -6,6 +6,7 @@ import { ThanosAsset, ThanosAssetType } from "lib/thanos/types";
 import { InternalTransfer, OperationPreview } from "app/templates/Operation";
 
 const PAGE_SIZE = 20;
+const PAGE_SIZE_FOR_EXPLORERS = 60;
 
 type GroupedTzStatsOps = Record<string, TZStatsOperation[]>;
 type GroupedBcdOps = Record<string, BcdTokenTransfer[]>;
@@ -46,7 +47,7 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
           newTzStatsOps,
           tzStatsReachedEnd,
           bcdReachedEnd,
-        } = await fetchFn(tzStatsOffset, prevBcdEnd, PAGE_SIZE);
+        } = await fetchFn(tzStatsOffset, prevBcdEnd, PAGE_SIZE_FOR_EXPLORERS);
         tzStatsReachedEndRef.current = tzStatsReachedEnd;
         bcdReachedEndRef.current = bcdReachedEnd;
         setError(undefined);
