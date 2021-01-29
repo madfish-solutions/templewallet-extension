@@ -885,7 +885,7 @@ const FromFaucetForm: React.FC = () => {
       >
         <Controller
           name="text"
-          as={<FormField ref={textFieldRef} />}
+          as={<FormField className="font-mono" ref={textFieldRef} />}
           control={control}
           rules={{
             validate: validateFaucetTextInput,
