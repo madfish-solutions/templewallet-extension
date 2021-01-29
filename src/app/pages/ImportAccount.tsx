@@ -17,6 +17,7 @@ import {
   useTezosDomainsClient,
   isKTAddress,
   confirmOperation,
+  useNetwork,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
@@ -33,11 +34,19 @@ type ImportAccountProps = {
   tabSlug: string | null;
 };
 
+type ImportTabDescriptor = {
+  slug: string;
+  i18nKey: string;
+  Form: React.FC<{}>;
+};
+
 const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
+  const network = useNetwork();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
+  const prevNetworkRef = React.useRef(network);
   React.useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
@@ -48,44 +57,58 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
   }, [allAccounts, setAccountPkh]);
 
   const allTabs = React.useMemo(
-    () => [
-      {
-        slug: "private-key",
-        i18nKey: "privateKey",
-        Form: ByPrivateKeyForm,
-      },
-      {
-        slug: "mnemonic",
-        i18nKey: "mnemonic",
-        Form: ByMnemonicForm,
-      },
-      {
-        slug: "fundraiser",
-        i18nKey: "fundraiser",
-        Form: ByFundraiserForm,
-      },
-      {
-        slug: "faucet",
-        i18nKey: "faucetFileTitle",
-        Form: FromFaucetForm,
-      },
-      {
-        slug: "managed-kt",
-        i18nKey: "managedKTAccount",
-        Form: ManagedKTForm,
-      },
-      {
-        slug: "watch-only",
-        i18nKey: "watchOnlyAccount",
-        Form: WatchOnlyForm,
-      },
-    ],
-    []
+    () =>
+      [
+        {
+          slug: "private-key",
+          i18nKey: "privateKey",
+          Form: ByPrivateKeyForm,
+        },
+        {
+          slug: "mnemonic",
+          i18nKey: "mnemonic",
+          Form: ByMnemonicForm,
+        },
+        {
+          slug: "fundraiser",
+          i18nKey: "fundraiser",
+          Form: ByFundraiserForm,
+        },
+        network.type !== "main"
+          ? {
+              slug: "faucet",
+              i18nKey: "faucetFileTitle",
+              Form: FromFaucetForm,
+            }
+          : undefined,
+        {
+          slug: "managed-kt",
+          i18nKey: "managedKTAccount",
+          Form: ManagedKTForm,
+        },
+        {
+          slug: "watch-only",
+          i18nKey: "watchOnlyAccount",
+          Form: WatchOnlyForm,
+        },
+      ].filter((x): x is ImportTabDescriptor => !!x),
+    [network.type]
   );
   const { slug, Form } = React.useMemo(() => {
     const tab = tabSlug ? allTabs.find((t) => t.slug === tabSlug) : null;
     return tab ?? allTabs[0];
   }, [allTabs, tabSlug]);
+  React.useEffect(() => {
+    const prevNetworkType = prevNetworkRef.current.type;
+    prevNetworkRef.current = network;
+    if (
+      prevNetworkType !== "main" &&
+      network.type === "main" &&
+      slug === "faucet"
+    ) {
+      navigate(`/import-account/private-key`);
+    }
+  }, [network, slug]);
 
   return (
     <PageLayout
