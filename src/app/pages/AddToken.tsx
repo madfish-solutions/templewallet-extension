@@ -205,14 +205,14 @@ const Form: React.FC = () => {
           }
         }
 
-        const { symbol = "", name = "", decimals = 0, icon = "" } =
+        const { symbol = "", name = "", decimals = 0, logo = "" } =
           tokenData || {};
 
         setValue([
           { symbol: symbol.substr(0, 5) },
           { name: name.substr(0, 50) },
           { decimals },
-          { iconUrl: icon },
+          { iconUrl: logo },
         ]);
         setBottomSectionVisible(true);
       } catch (e) {
