@@ -662,8 +662,6 @@ const FromFaucetForm: React.FC = () => {
     evt.preventDefault();
   }, []);
 
-  console.log(errors);
-
   const importAccount = React.useCallback(
     async (data: FaucetData) => {
       const [activationStatus, op] = await activateAccount(
@@ -879,8 +877,9 @@ const FromFaucetForm: React.FC = () => {
           </div>
         </div>
       </form>
+
       <form
-        className="w-full max-w-sm mx-auto mb-8"
+        className="w-full max-w-sm mx-auto my-8"
         onSubmit={handleTextFormSubmit(onTextFormSubmit)}
       >
         <Controller
@@ -899,17 +898,20 @@ const FromFaucetForm: React.FC = () => {
           id="faucet-text-input"
           label={t("faucetJson")}
           labelDescription={t("faucetJsonDescription")}
-          placeholder={t("faucetJsonPlaceholder")}
+          placeholder={"{ ... }"}
           errorCaption={
             errors.text?.message && t(errors.text?.message.toString())
           }
+          className="text-xs"
           style={{
             resize: "none",
           }}
           containerClassName="mb-4"
         />
-        <div className="w-full flex justify-center">
-          <FormSubmitButton>{t("submit")}</FormSubmitButton>
+        <div className="w-full flex">
+          <FormSubmitButton loading={processing}>
+            <T id="submit" />
+          </FormSubmitButton>
         </div>
       </form>
     </>
