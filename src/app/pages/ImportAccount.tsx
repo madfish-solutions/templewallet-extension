@@ -17,6 +17,7 @@ import {
   useTezosDomainsClient,
   isKTAddress,
   confirmOperation,
+  useNetwork,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
@@ -33,11 +34,19 @@ type ImportAccountProps = {
   tabSlug: string | null;
 };
 
+type ImportTabDescriptor = {
+  slug: string;
+  i18nKey: string;
+  Form: React.FC<{}>;
+};
+
 const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
+  const network = useNetwork();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
   const prevAccLengthRef = React.useRef(allAccounts.length);
+  const prevNetworkRef = React.useRef(network);
   React.useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
@@ -48,44 +57,58 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
   }, [allAccounts, setAccountPkh]);
 
   const allTabs = React.useMemo(
-    () => [
-      {
-        slug: "private-key",
-        i18nKey: "privateKey",
-        Form: ByPrivateKeyForm,
-      },
-      {
-        slug: "mnemonic",
-        i18nKey: "mnemonic",
-        Form: ByMnemonicForm,
-      },
-      {
-        slug: "fundraiser",
-        i18nKey: "fundraiser",
-        Form: ByFundraiserForm,
-      },
-      {
-        slug: "faucet",
-        i18nKey: "faucetFileTitle",
-        Form: FromFaucetForm,
-      },
-      {
-        slug: "managed-kt",
-        i18nKey: "managedKTAccount",
-        Form: ManagedKTForm,
-      },
-      {
-        slug: "watch-only",
-        i18nKey: "watchOnlyAccount",
-        Form: WatchOnlyForm,
-      },
-    ],
-    []
+    () =>
+      [
+        {
+          slug: "private-key",
+          i18nKey: "privateKey",
+          Form: ByPrivateKeyForm,
+        },
+        {
+          slug: "mnemonic",
+          i18nKey: "mnemonic",
+          Form: ByMnemonicForm,
+        },
+        {
+          slug: "fundraiser",
+          i18nKey: "fundraiser",
+          Form: ByFundraiserForm,
+        },
+        network.type !== "main"
+          ? {
+              slug: "faucet",
+              i18nKey: "faucetFileTitle",
+              Form: FromFaucetForm,
+            }
+          : undefined,
+        {
+          slug: "managed-kt",
+          i18nKey: "managedKTAccount",
+          Form: ManagedKTForm,
+        },
+        {
+          slug: "watch-only",
+          i18nKey: "watchOnlyAccount",
+          Form: WatchOnlyForm,
+        },
+      ].filter((x): x is ImportTabDescriptor => !!x),
+    [network.type]
   );
   const { slug, Form } = React.useMemo(() => {
     const tab = tabSlug ? allTabs.find((t) => t.slug === tabSlug) : null;
     return tab ?? allTabs[0];
   }, [allTabs, tabSlug]);
+  React.useEffect(() => {
+    const prevNetworkType = prevNetworkRef.current.type;
+    prevNetworkRef.current = network;
+    if (
+      prevNetworkType !== "main" &&
+      network.type === "main" &&
+      slug === "faucet"
+    ) {
+      navigate(`/import-account/private-key`);
+    }
+  }, [network, slug]);
 
   return (
     <PageLayout
@@ -582,6 +605,10 @@ interface FaucetData {
   email: string;
 }
 
+interface FaucetTextInputFormData {
+  text: string;
+}
+
 const FromFaucetForm: React.FC = () => {
   const { importFundraiserAccount } = useThanosClient();
   const setAccountPkh = useSetAccountPkh();
@@ -610,13 +637,87 @@ const FromFaucetForm: React.FC = () => {
     [tezos]
   );
 
+  const {
+    control,
+    handleSubmit: handleTextFormSubmit,
+    watch,
+    errors,
+    setValue,
+  } = useForm<FaucetTextInputFormData>();
+  const textFieldRef = React.useRef<HTMLTextAreaElement>(null);
   const formRef = React.useRef<HTMLFormElement>(null);
   const [processing, setProcessing] = useSafeState(false);
   const [alert, setAlert] = useSafeState<React.ReactNode | Error>(null);
+  const textFieldValue = watch("text");
+
+  const handleTextFieldFocus = React.useCallback(
+    () => textFieldRef.current?.focus(),
+    []
+  );
+  const cleanTextField = React.useCallback(() => setValue("text", ""), [
+    setValue,
+  ]);
 
   const handleFormSubmit = React.useCallback((evt) => {
     evt.preventDefault();
   }, []);
+
+  const importAccount = React.useCallback(
+    async (data: FaucetData) => {
+      const [activationStatus, op] = await activateAccount(
+        data.pkh,
+        data.secret
+      );
+
+      if (activationStatus === ActivationStatus.ActivationRequestSent) {
+        setAlert(`🛫 ${t("requestSent", t("activationOperationType"))}`);
+        await confirmOperation(tezos, op!.hash);
+      }
+
+      try {
+        await importFundraiserAccount(
+          data.email,
+          data.password,
+          data.mnemonic.join(" ")
+        );
+      } catch (err) {
+        if (/Account already exists/.test(err?.message)) {
+          setAccountPkh(data.pkh);
+          navigate("/");
+          return;
+        }
+
+        throw err;
+      }
+    },
+    [activateAccount, importFundraiserAccount, setAccountPkh, setAlert, tezos]
+  );
+
+  const onTextFormSubmit = React.useCallback(
+    async (formData: FaucetTextInputFormData) => {
+      if (processing) {
+        return;
+      }
+      setProcessing(true);
+      setAlert(null);
+
+      try {
+        await importAccount(toFaucetJSON(formData.text));
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+
+        // Human delay.
+        await new Promise((res) => setTimeout(res, 300));
+
+        setAlert(err);
+      } finally {
+        setProcessing(false);
+      }
+    },
+    [importAccount, processing, setAlert, setProcessing]
+  );
 
   const handleUploadChange = React.useCallback(
     async (evt) => {
@@ -637,20 +738,7 @@ const FromFaucetForm: React.FC = () => {
 
             reader.onload = (readEvt: any) => {
               try {
-                const data = JSON.parse(readEvt.target.result);
-                if (
-                  ![
-                    data.pkh,
-                    data.secret,
-                    data.mnemonic,
-                    data.email,
-                    data.password,
-                  ].every(Boolean)
-                ) {
-                  return rej();
-                }
-
-                res(data);
+                res(toFaucetJSON(readEvt.target.result));
               } catch (err) {
                 rej(err);
               }
@@ -662,31 +750,7 @@ const FromFaucetForm: React.FC = () => {
           throw new Error(t("unexpectedOrInvalidFile"));
         }
 
-        const [activationStatus, op] = await activateAccount(
-          data.pkh,
-          data.secret
-        );
-
-        if (activationStatus === ActivationStatus.ActivationRequestSent) {
-          setAlert(`🛫 ${t("requestSent", t("activationOperationType"))}`);
-          await confirmOperation(tezos, op!.hash);
-        }
-
-        try {
-          await importFundraiserAccount(
-            data.email,
-            data.password,
-            data.mnemonic.join(" ")
-          );
-        } catch (err) {
-          if (/Account already exists/.test(err?.message)) {
-            setAccountPkh(data.pkh);
-            navigate("/");
-            return;
-          }
-
-          throw err;
-        }
+        await importAccount(data);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -701,125 +765,185 @@ const FromFaucetForm: React.FC = () => {
         setProcessing(false);
       }
     },
-    [
-      tezos,
-      processing,
-      setProcessing,
-      setAlert,
-      activateAccount,
-      importFundraiserAccount,
-      setAccountPkh,
-    ]
+    [importAccount, processing, setAlert, setProcessing]
   );
 
   return (
-    <form
-      ref={formRef}
-      className="w-full max-w-sm mx-auto my-8"
-      onSubmit={handleFormSubmit}
-    >
-      {alert && (
-        <Alert
-          type={alert instanceof Error ? "error" : "success"}
-          title={alert instanceof Error ? t("error") : t("success")}
-          description={
-            alert instanceof Error
-              ? alert?.message ?? t("smthWentWrong")
-              : alert
-          }
-          className="mb-6"
-        />
-      )}
-
-      <div className="flex flex-col w-full">
-        <label className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-          <span className="text-base font-semibold text-gray-700">
-            <T id="faucetFile" />
-          </span>
-
-          <span
-            className={classNames("mt-1", "text-xs font-light text-gray-600")}
-            style={{ maxWidth: "90%" }}
-          >
-            <T
-              id="faucetFileInputPrompt"
-              substitutions={[
-                <a
-                  href="https://faucet.tzalpha.net/"
-                  key="link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-normal underline"
-                >
-                  https://faucet.tzalpha.net
-                </a>,
-              ]}
-            />
-          </span>
-        </label>
-
-        <div className="relative w-full mb-2">
-          <input
-            className={classNames(
-              "appearance-none",
-              "absolute inset-0 w-full",
-              "block py-2 px-4",
-              "opacity-0",
-              "cursor-pointer"
-            )}
-            type="file"
-            name="documents[]"
-            accept=".json,application/json"
-            disabled={processing}
-            onChange={handleUploadChange}
+    <>
+      <form
+        ref={formRef}
+        className="w-full max-w-sm mx-auto mt-8"
+        onSubmit={handleFormSubmit}
+      >
+        {alert && (
+          <Alert
+            type={alert instanceof Error ? "error" : "success"}
+            title={alert instanceof Error ? t("error") : t("success")}
+            description={
+              alert instanceof Error
+                ? alert?.message ?? t("smthWentWrong")
+                : alert
+            }
+            className="mb-6"
           />
+        )}
 
-          <div
-            className={classNames(
-              "w-full",
-              "px-4 py-6",
-              "border-2 border-dashed",
-              "border-gray-300",
-              "focus:border-primary-orange",
-              "bg-gray-100 focus:bg-transparent",
-              "focus:outline-none focus:shadow-outline",
-              "transition ease-in-out duration-200",
-              "rounded-md",
-              "text-gray-400 text-lg leading-tight",
-              "placeholder-alphagray"
-            )}
+        <div className="flex flex-col w-full">
+          <label
+            className={classNames("mb-4", "leading-tight", "flex flex-col")}
           >
-            <svg
-              width={48}
-              height={48}
-              viewBox="0 0 24 24"
-              aria-labelledby="uploadIconTitle"
-              stroke="#e2e8f0"
-              strokeWidth={2}
-              strokeLinecap="round"
-              fill="none"
-              color="#e2e8f0"
-              className="m-4 mx-auto"
+            <span className="text-base font-semibold text-gray-700">
+              <T id="faucetFile" />
+            </span>
+
+            <span
+              className={classNames("mt-1", "text-xs font-light text-gray-600")}
+              style={{ maxWidth: "90%" }}
             >
-              <title>{"Upload"}</title>
-              <path d="M12 4v13M7 8l5-5 5 5M20 21H4" />
-            </svg>
-            <div className="w-full text-center">
-              {processing ? (
-                <T id="processing" />
-              ) : (
-                <T
-                  id="selectFileOfFormat"
-                  substitutions={[<b key="format">JSON</b>]}
-                />
+              <T
+                id="faucetFileInputPrompt"
+                substitutions={[
+                  <a
+                    href="https://faucet.tzalpha.net/"
+                    key="link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-normal underline"
+                  >
+                    https://faucet.tzalpha.net
+                  </a>,
+                ]}
+              />
+            </span>
+          </label>
+
+          <div className="relative w-full mb-2">
+            <input
+              className={classNames(
+                "appearance-none",
+                "absolute inset-0 w-full",
+                "block py-2 px-4",
+                "opacity-0",
+                "cursor-pointer"
               )}
+              type="file"
+              name="documents[]"
+              accept=".json,application/json"
+              disabled={processing}
+              onChange={handleUploadChange}
+            />
+
+            <div
+              className={classNames(
+                "w-full",
+                "px-4 py-6",
+                "border-2 border-dashed",
+                "border-gray-300",
+                "focus:border-primary-orange",
+                "bg-gray-100 focus:bg-transparent",
+                "focus:outline-none focus:shadow-outline",
+                "transition ease-in-out duration-200",
+                "rounded-md",
+                "text-gray-400 text-lg leading-tight",
+                "placeholder-alphagray"
+              )}
+            >
+              <svg
+                width={48}
+                height={48}
+                viewBox="0 0 24 24"
+                aria-labelledby="uploadIconTitle"
+                stroke="#e2e8f0"
+                strokeWidth={2}
+                strokeLinecap="round"
+                fill="none"
+                color="#e2e8f0"
+                className="m-4 mx-auto"
+              >
+                <title>{"Upload"}</title>
+                <path d="M12 4v13M7 8l5-5 5 5M20 21H4" />
+              </svg>
+              <div className="w-full text-center">
+                {processing ? (
+                  <T id="processing" />
+                ) : (
+                  <T
+                    id="selectFileOfFormat"
+                    substitutions={[<b key="format">JSON</b>]}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+
+      <form
+        className="w-full max-w-sm mx-auto my-8"
+        onSubmit={handleTextFormSubmit(onTextFormSubmit)}
+      >
+        <Controller
+          name="text"
+          as={<FormField className="font-mono" ref={textFieldRef} />}
+          control={control}
+          rules={{
+            validate: validateFaucetTextInput,
+          }}
+          onChange={([v]) => v}
+          onFocus={handleTextFieldFocus}
+          textarea
+          rows={5}
+          cleanable={Boolean(textFieldValue)}
+          onClean={cleanTextField}
+          id="faucet-text-input"
+          label={t("faucetJson")}
+          labelDescription={t("faucetJsonDescription")}
+          placeholder={"{ ... }"}
+          errorCaption={
+            errors.text?.message && t(errors.text?.message.toString())
+          }
+          className="text-xs"
+          style={{
+            resize: "none",
+          }}
+          containerClassName="mb-4"
+        />
+        <div className="w-full flex">
+          <FormSubmitButton loading={processing}>
+            <T id="submit" />
+          </FormSubmitButton>
+        </div>
+      </form>
+    </>
   );
 };
+
+function validateFaucetTextInput(text?: string) {
+  if (!text) {
+    return "required";
+  }
+  try {
+    toFaucetJSON(text);
+    return true;
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      return "invalidJsonInput";
+    }
+    return "notFaucetJson";
+  }
+}
+
+function toFaucetJSON(text: string) {
+  const data = JSON.parse(text);
+  if (
+    ![data.pkh, data.secret, data.mnemonic, data.email, data.password].every(
+      Boolean
+    )
+  ) {
+    throw new Error();
+  }
+  return data;
+}
 
 interface WatchOnlyFormData {
   address: string;
