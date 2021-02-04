@@ -3,7 +3,7 @@ export type BcdRequestParams<T> = T & {
   timeout?: number;
 };
 
-export type BcdNetwork = "mainnet" | "carthagenet" | "delphinet";
+export type BcdNetwork = "mainnet" | "delphinet";
 export type BcdContractType = "fa1" | "fa12" | "fa2";
 
 export interface BcdApiError {
@@ -13,15 +13,19 @@ export interface BcdApiError {
 export interface BcdAccountToken {
   balance: number;
   contract: string;
-  decimals: number;
+  decimals?: number;
+  extras?: Record<string, any>;
+  level?: number;
   name?: string;
+  network: string;
   symbol?: string;
   token_id: number;
+  volume_24_hours?: number;
 }
 
 export interface BcdAccountInfo {
   address: string;
-  alias: string;
+  alias?: string;
   balance: number;
   last_action: string;
   network: string;
@@ -36,14 +40,14 @@ export interface BcdTokenMethodStats {
 
 export interface BcdTokenContract {
   address: string;
-  alias: string;
+  alias?: string;
   balance: number;
-  delegate: string;
-  delegate_alias: string;
+  delegate?: string;
+  delegate_alias?: string;
   last_action: string;
   level: number;
-  manager: string;
-  methods: Record<string, BcdTokenMethodStats>;
+  manager?: string;
+  methods?: Record<string, BcdTokenMethodStats>;
   network: BcdNetwork;
   timestamp: string;
   tx_count: number;
@@ -51,7 +55,6 @@ export interface BcdTokenContract {
 }
 
 export interface BcdPageableTokenContracts {
-  last_id: number;
   tokens: BcdTokenContract[];
   total: number;
 }
@@ -105,10 +108,11 @@ export interface BcdOperationsSearchItem {
 export interface BcdOperationsSearchResponse {
   count: number;
   items: BcdOperationsSearchItem[];
+  time: number;
 }
 
 export interface BcdPageableTokenTransfers {
-  last_id?: string;
+  total: number;
   transfers: BcdTokenTransfer[];
 }
 
@@ -119,9 +123,9 @@ export type BcdAccountQueryParams = {
 
 export type BcdContractsQueryParams = {
   network: BcdNetwork;
-  last_id?: string;
+  offset?: number;
   size?: number;
-  faversion?: string;
+  faversion: BcdContractType;
 };
 
 export type BcdTokenTransfersQueryParams = {
@@ -129,6 +133,11 @@ export type BcdTokenTransfersQueryParams = {
   address: string;
   last_id?: string;
   size?: number;
+  sort?: "asc" | "desc";
+  start?: number;
+  end?: number;
+  contracts?: string;
+  token_id?: number;
 };
 
 export type BcdOperationsSearchQueryParams = {
@@ -137,3 +146,24 @@ export type BcdOperationsSearchQueryParams = {
   offset?: number;
   since?: number;
 };
+
+export type BcdDAppScreenshot = {
+  type: string;
+  link: string;
+}
+
+export type BcdDAppEntry = {
+  name: string;
+  short_description: string;
+  full_description: string;
+  website: string;
+  slug: string;
+  authors: string[];
+  social_links: string[] | null;
+  interfaces: string[] | null;
+  categories: string[];
+  soon: boolean;
+  logo: string;
+  cover: string;
+  screenshots?: BcdDAppScreenshot[];
+}

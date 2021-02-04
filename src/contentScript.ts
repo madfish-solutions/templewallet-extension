@@ -1,5 +1,6 @@
 import { browser } from "webextension-polyfill-ts";
 import { IntercomClient } from "lib/intercom/client";
+import { serealizeError } from "lib/intercom/helpers";
 import { ThanosMessageType, ThanosResponse } from "lib/thanos/types";
 import {
   ThanosPageMessage,
@@ -61,7 +62,7 @@ window.addEventListener(
           send(
             {
               type: ThanosPageMessageType.ErrorResponse,
-              payload: err.message,
+              payload: serealizeError(err),
               reqId,
             },
             evt.origin
@@ -71,21 +72,19 @@ window.addEventListener(
       evt.data?.target === BeaconMessageTarget.Extension &&
       (evt.data?.targetId === SENDER.id || !evt.data?.targetId)
     ) {
-      const encrypted = Boolean(evt.data.encryptedPayload);
-
       getIntercom()
         .request({
           type: ThanosMessageType.PageRequest,
           origin: evt.origin,
-          payload: encrypted ? evt.data.encryptedPayload : evt.data.payload,
+          payload: evt.data.encryptedPayload ?? evt.data.payload,
           beacon: true,
-          encrypted,
+          encrypted: Boolean(evt.data.encryptedPayload),
         })
         .then((res: ThanosResponse) => {
           if (res?.type === ThanosMessageType.PageResponse && res.payload) {
             const message = {
               target: BeaconMessageTarget.Page,
-              ...(encrypted
+              ...(res.encrypted
                 ? { encryptedPayload: res.payload }
                 : { payload: res.payload }),
             };

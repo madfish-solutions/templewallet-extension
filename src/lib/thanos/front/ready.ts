@@ -1,6 +1,7 @@
 import * as React from "react";
 import constate from "constate";
 import { TezosToolkit } from "@taquito/taquito";
+import { Tzip16Module } from '@taquito/tzip16';
 import {
   ReadyThanosState,
   ThanosAccountType,
@@ -162,27 +163,28 @@ function useReadyThanos() {
 
 export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
-
   const rpcUrl = React.useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
+  return useCustomChainId(rpcUrl, suspense);
+}
 
+export function useCustomChainId(rpcUrl: string, suspense?: boolean) {
   const fetchChainId = React.useCallback(async () => {
     try {
       return await loadChainId(rpcUrl);
-    } catch {
+    } catch (_err) {
       return null;
     }
   }, [rpcUrl]);
 
-  const { data: lazyChainId = null } = useRetryableSWR(
-    ["lazy-chain-id", tezos.checksum],
+  const { data: chainId } = useRetryableSWR(
+    ["chain-id", rpcUrl],
     fetchChainId,
-    { revalidateOnFocus: false, suspense }
+    { suspense, revalidateOnFocus: false }
   );
-
-  return React.useMemo(() => lazyChainId, [lazyChainId]);
+  return chainId;
 }
 
-export function useRelevantAccounts(withManagedKT = true) {
+export function useRelevantAccounts(withExtraTypes = true) {
   const allAccounts = useAllAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
@@ -190,12 +192,21 @@ export function useRelevantAccounts(withManagedKT = true) {
 
   const relevantAccounts = React.useMemo(
     () =>
-      allAccounts.filter((acc) =>
-        acc.type === ThanosAccountType.ManagedKT
-          ? withManagedKT && acc.chainId === lazyChainId
-          : true
-      ),
-    [allAccounts, lazyChainId, withManagedKT]
+      allAccounts.filter((acc) => {
+        switch (acc.type) {
+          case ThanosAccountType.ManagedKT:
+            return withExtraTypes && acc.chainId === lazyChainId;
+
+          case ThanosAccountType.WatchOnly:
+            return (
+              withExtraTypes && (!acc.chainId || acc.chainId === lazyChainId)
+            );
+
+          default:
+            return true;
+        }
+      }),
+    [allAccounts, lazyChainId, withExtraTypes]
   );
 
   React.useEffect(() => {
@@ -233,6 +244,7 @@ export class ReactiveTezosToolkit extends TezosToolkit {
     public lambdaContract?: string
   ) {
     super(rpc);
+    this.addExtension(new Tzip16Module());
   }
 }
 

@@ -1,5 +1,6 @@
-import BigNumber from "bignumber.js";
+import { browser } from "webextension-polyfill-ts";
 import { TezosToolkit, WalletContract } from "@taquito/taquito";
+import BigNumber from "bignumber.js";
 import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
 import {
   loadContract,
@@ -18,15 +19,71 @@ export const XTZ_ASSET: ThanosAsset = {
   default: true,
 };
 
+export const DELPHINET_TOKENS: ThanosToken[] = [
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT1RXpLtz22YgX24QQhxKVyKvtKZFaAVtTB9",
+    name: "Kolibri",
+    symbol: "kUSD",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
+    default: true,
+  },
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT1TDHL9ipKL8WW3TMPvutbLh9uZBdY9BU59",
+    name: "Wrapped Tezos",
+    symbol: "wXTZ",
+    decimals: 6,
+    fungible: true,
+    iconUrl:
+      "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
+    default: true,
+  },
+];
+
 export const MAINNET_TOKENS: ThanosToken[] = [
+  {
+    type: ThanosAssetType.TzBTC,
+    address: "KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn",
+    name: "Tezos BTC",
+    symbol: "tzBTC",
+    decimals: 8,
+    fungible: true,
+    iconUrl:
+      "https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg",
+    default: true,
+  },
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
+    name: "Wrapped Tezos",
+    symbol: "wXTZ",
+    decimals: 6,
+    fungible: true,
+    iconUrl:
+      "https://github.com/StakerDAO/wrapped-xtz/blob/dev/assets/wXTZ-token-FullColor.png?raw=true",
+    default: true,
+  },
   {
     type: ThanosAssetType.FA1_2,
     address: "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-    name: "USD Tezos",
+    name: "USD Tez",
     symbol: "USDtz",
     decimals: 6,
     fungible: true,
     iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
+    default: true,
+  },
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT19at7rQUvyjxnZ2fBv7D9zc8rkyG7gAoU8",
+    name: "ETH Tez",
+    symbol: "ETHtz",
+    decimals: 18,
+    fungible: true,
+    iconUrl: browser.runtime.getURL("misc/token-logos/ethtz.png"),
     default: true,
   },
   {
@@ -38,17 +95,6 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     fungible: true,
     iconUrl:
       "https://miro.medium.com/fit/c/160/160/1*LzmHCYryGmuN9ZR7JX951w.png",
-    default: true,
-  },
-  {
-    type: ThanosAssetType.TzBTC,
-    address: "KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn",
-    name: "Tezos BTC",
-    symbol: "tzBTC",
-    decimals: 8,
-    fungible: true,
-    iconUrl:
-      "https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg",
     default: true,
   },
 ];
@@ -70,6 +116,7 @@ function signatureAssertionFactory(name: string, args: string[]) {
 
 function viewSuccessAssertionFactory(name: string, args: any[]) {
   return async (contract: WalletContract, tezos: TezosToolkit) => {
+    assert(contract.views[name]);
     await contract.views[name](...args).read((tezos as any).lambdaContract);
   };
 }
@@ -125,12 +172,6 @@ const FA2_METHODS_ASSERTIONS = [
         [{ owner: STUB_TEZOS_ADDRESS, token_id: String(tokenId) }],
       ])(contract, tezos),
   },
-  {
-    name: "token_metadata_registry",
-    assertion: signatureAssertionFactory("token_metadata_registry", [
-      "contract",
-    ]),
-  },
 ];
 
 export async function assertTokenType(
@@ -171,6 +212,9 @@ export async function assertTokenType(
         } else if (e.value?.string === "FA2_TOKEN_UNDEFINED") {
           throw new Error(getMessage("incorrectTokenIdErrorMessage"));
         } else {
+          if (process.env.NODE_ENV === "development") {
+            console.error(e);
+          }
           throw new Error(
             getMessage("unknownErrorCheckingSomeEntrypoint", name)
           );

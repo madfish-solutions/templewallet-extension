@@ -203,6 +203,7 @@ export interface TZStatsOperation {
   storage_limit: number;
   storage_size: number;
   storage_paid: number;
+  row_id: number;
   volume: number;
   fee: number;
   reward: number;

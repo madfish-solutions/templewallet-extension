@@ -62,26 +62,26 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
 
     const handleFocus = React.useCallback(
       (evt) => {
+        setFocused(true);
         if (onFocus) {
           onFocus(evt);
           if (evt.defaultPrevented) {
             return;
           }
         }
-        setFocused(true);
       },
       [setFocused, onFocus]
     );
 
     const handleBlur = React.useCallback(
       (evt) => {
+        setFocused(false);
         if (onBlur) {
           onBlur(evt);
           if (evt.defaultPrevented) {
             return;
           }
         }
-        setFocused(false);
       },
       [setFocused, onBlur]
     );

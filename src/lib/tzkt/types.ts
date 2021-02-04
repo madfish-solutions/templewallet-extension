@@ -113,6 +113,81 @@ export type TzktRelatedContract = {
   creationTime: string;
 };
 
+type Int32ParameterKey = "eq" | "ne" | "gt" | "ge" | "lt" | "le" | "in" | "ni";
+export type Int32Parameter = Partial<Record<Int32ParameterKey, number>>;
+
+export type TzktGetRewardsParams = {
+  address: string;
+  cycle?: Int32Parameter;
+  sort?: "asc" | "desc";
+  offset?: number;
+  limit?: number;
+  quote?: TzktQuoteCurrency[];
+};
+
+export type TzktGetRewardsResponse = Array<{
+  cycle: number;
+  balance: number;
+  baker: {
+    alias?: string;
+    address: string
+  };
+  stakingBalance: number;
+  expectedBlocks: number;
+  expectedEndorsements: number;
+  futureBlocks: number;
+  futureBlockRewards: number;
+  ownBlocks: number;
+  ownBlockRewards: number;
+  extraBlocks: number;
+  extraBlockRewards: number;
+  missedOwnBlocks: number;
+  missedOwnBlockRewards: number;
+  missedExtraBlocks: number;
+  missedExtraBlockRewards: number;
+  uncoveredOwnBlocks: number;
+  uncoveredOwnBlockRewards: number;
+  uncoveredExtraBlocks: number;
+  uncoveredExtraBlockRewards: number;
+  futureEndorsements: number;
+  futureEndorsementRewards: number;
+  endorsements: number;
+  endorsementRewards: number;
+  missedEndorsements: number;
+  missedEndorsementRewards: number;
+  uncoveredEndorsements: number;
+  uncoveredEndorsementRewards: number;
+  ownBlockFees: number;
+  extraBlockFees: number;
+  missedOwnBlockFees: number;
+  missedExtraBlockFees: number;
+  uncoveredOwnBlockFees: number;
+  uncoveredExtraBlockFees: number;
+  doubleBakingRewards: number;
+  doubleBakingLostDeposits: number;
+  doubleBakingLostRewards: number;
+  doubleBakingLostFees: number;
+  doubleEndorsingRewards: number;
+  doubleEndorsingLostDeposits: number;
+  doubleEndorsingLostRewards: number;
+  doubleEndorsingLostFees: number;
+  revelationRewards: number;
+  revelationLostRewards: number;
+  revelationLostFees: number;
+  quote?: TzktQuote;
+}>;
+
+export const allInt32ParameterKeys: Int32ParameterKey[] = [
+  "eq",
+  "ne",
+  "gt",
+  "ge",
+  "lt",
+  "le",
+  "in",
+  "ni"
+]
+
 export const isDelegation = (
   operation: TzktOperation
 ): operation is TzktDelegationOperation => {
