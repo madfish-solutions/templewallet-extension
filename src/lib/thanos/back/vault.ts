@@ -8,6 +8,7 @@ import {
   CompositeForger,
   RpcForger,
   Signer,
+  TezosOperationError,
 } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
 import LedgerTransport from "@ledgerhq/hw-transport";
@@ -134,9 +135,14 @@ export class Vault {
 
   static async revealPrivateKey(accPublicKeyHash: string, password: string) {
     const passKey = await Vault.toValidPassKey(password);
-    return withError("Failed to reveal private key", () =>
-      fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), passKey)
-    );
+    return withError("Failed to reveal private key", async () => {
+      const privateKeySeed = await fetchAndDecryptOne<string>(
+        accPrivKeyStrgKey(accPublicKeyHash),
+        passKey
+      );
+      const signer = await createMemorySigner(privateKeySeed);
+      return signer.secretKey();
+    });
   }
 
   static async removeAccount(accPublicKeyHash: string, password: string) {
@@ -342,6 +348,31 @@ export class Vault {
     });
   }
 
+  async importWatchOnlyAccount(accPublicKeyHash: string, chainId?: string) {
+    return withError("Failed to import Watch Only account", async () => {
+      const allAccounts = await this.fetchAccounts();
+      const newAccount: ThanosAccount = {
+        type: ThanosAccountType.WatchOnly,
+        name: getNewAccountName(
+          allAccounts.filter(
+            ({ type }) => type === ThanosAccountType.WatchOnly
+          ),
+          "defaultWatchOnlyAccountName"
+        ),
+        publicKeyHash: accPublicKeyHash,
+        chainId,
+      };
+      const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+      await encryptAndSaveMany(
+        [[accountsStrgKey, newAllAcounts]],
+        this.passKey
+      );
+
+      return newAllAcounts;
+    });
+  }
+
   async createLedgerAccount(name: string, derivationPath?: string) {
     return withError("Failed to connect Ledger account", async () => {
       if (!derivationPath) derivationPath = getMainDerivationPath(0);
@@ -441,9 +472,14 @@ export class Vault {
           console.error(err);
         }
 
-        throw err instanceof PublicError
-          ? err
-          : new Error(`__tezos__${err.message}`);
+        switch (true) {
+          case err instanceof PublicError:
+          case err instanceof TezosOperationError:
+            throw err;
+
+          default:
+            throw new Error(`Failed to send operations. ${err.message}`);
+        }
       }
     });
   }
@@ -475,6 +511,9 @@ export class Vault {
           publicKey,
           accPublicKeyHash
         );
+
+      case ThanosAccountType.WatchOnly:
+        throw new PublicError("Cannot sign Watch-only account");
 
       default:
         const privateKey = await fetchAndDecryptOne<string>(

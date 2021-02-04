@@ -1,5 +1,6 @@
 import { Runtime, browser } from "webextension-polyfill-ts";
 import { MessageType, RequestMessage } from "./types";
+import { deserealizeError } from "./helpers";
 
 export class IntercomClient {
   private port: Runtime.Port;
@@ -29,7 +30,7 @@ export class IntercomClient {
             break;
 
           case msg?.type === MessageType.Err:
-            reject(new Error(msg.data));
+            reject(deserealizeError(msg.data));
             break;
         }
 

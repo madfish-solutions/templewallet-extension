@@ -3,8 +3,8 @@ import { useRetryableSWR } from "lib/swr";
 import {
   ThanosAsset,
   useTezos,
-  useSettings,
   fetchBalance,
+  getAssetKey,
   ReactiveTezosToolkit,
 } from "lib/thanos/front";
 
@@ -20,19 +20,21 @@ export function useBalance(
   opts: UseBalanceOptions = {}
 ) {
   const nativeTezos = useTezos();
-  const settings = useSettings();
 
   const tezos = React.useMemo(() => {
     if (opts.networkRpc) {
       const rpc = opts.networkRpc;
       return new ReactiveTezosToolkit(
         rpc,
-        rpc,
-        settings.lambdaContracts?.[rpc]
+        rpc
+        // lambda view contract for custom RPC may be here
+        // currently we don't call lambda view for custom RPC
+        // but if we need to do this, we have to load chainId and pick lambdaView
+        // from settings with this chainId
       );
     }
     return nativeTezos;
-  }, [opts.networkRpc, nativeTezos, settings.lambdaContracts]);
+  }, [opts.networkRpc, nativeTezos]);
 
   const fetchBalanceLocal = React.useCallback(
     () => fetchBalance(tezos, asset, address),
@@ -42,17 +44,25 @@ export function useBalance(
   const displayed = opts.displayed ?? true;
 
   return useRetryableSWR(
-    displayed ? ["balance", tezos.checksum, asset.symbol, address] : null,
+    displayed ? getBalanceSWRKey(tezos, asset, address) : null,
     fetchBalanceLocal,
     {
       suspense: opts.suspense ?? true,
       revalidateOnFocus: false,
-      dedupingInterval: 180_000,
+      dedupingInterval: 30_000,
     }
   );
 }
 
 export function useBalanceSWRKey(asset: ThanosAsset, address: string) {
   const tezos = useTezos();
-  return ["balance", tezos.checksum, asset.symbol, address];
+  return getBalanceSWRKey(tezos, asset, address);
+}
+
+export function getBalanceSWRKey(
+  tezos: ReactiveTezosToolkit,
+  asset: ThanosAsset,
+  address: string
+) {
+  return ["balance", tezos.checksum, getAssetKey(asset), address];
 }

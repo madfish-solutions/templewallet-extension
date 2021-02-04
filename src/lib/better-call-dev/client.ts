@@ -12,10 +12,10 @@ import {
   BcdOperationsSearchResponse,
   BcdNetwork,
 } from "lib/better-call-dev";
+import { BcdDAppEntry } from "./types";
 
 export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
   [ThanosChainId.Mainnet, "mainnet"],
-  [ThanosChainId.Carthagenet, "carthagenet"],
   [ThanosChainId.Delphinet, "delphinet"],
 ]);
 
@@ -31,11 +31,8 @@ export const getContracts = makeQuery<
   BcdPageableTokenContracts
 >(
   "GET",
-  (params) =>
-    `/tokens/${params.network}${
-      params.faversion ? `/version/${params.faversion}` : ""
-    }`,
-  ["last_id", "size"]
+  (params) => `/tokens/${params.network}/version/${params.faversion}`,
+  ["offset", "size"]
 );
 
 export const getTokenTransfers = makeQuery<
@@ -44,6 +41,11 @@ export const getTokenTransfers = makeQuery<
 >("GET", (params) => `/tokens/${params.network}/transfers/${params.address}`, [
   "last_id",
   "size",
+  "sort",
+  "start",
+  "end",
+  "contracts",
+  "token_id"
 ]);
 
 export const searchOperations = makeQuery<
@@ -57,6 +59,8 @@ export const searchOperations = makeQuery<
   s: since,
   o: offset,
 }));
+
+export const getDApps = makeQuery<{}, BcdDAppEntry[]>("GET", () => "/dapps");
 
 /**
  * Base

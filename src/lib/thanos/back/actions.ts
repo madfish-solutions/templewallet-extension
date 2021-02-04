@@ -1,4 +1,5 @@
 import { browser, Runtime } from "webextension-polyfill-ts";
+import { TezosOperationError } from "@taquito/taquito";
 import {
   ThanosDAppMessageType,
   ThanosDAppErrorType,
@@ -58,9 +59,16 @@ export async function getFrontState(): Promise<ThanosState> {
 }
 
 export async function isDAppEnabled() {
-  const key = ThanosSharedStorageKey.DAppEnabled;
-  const items = await browser.storage.local.get([key]);
-  return key in items ? items[key] : true;
+  const bools = await Promise.all([
+    Vault.isExist(),
+    (async () => {
+      const key = ThanosSharedStorageKey.DAppEnabled;
+      const items = await browser.storage.local.get([key]);
+      return key in items ? items[key] : true;
+    })(),
+  ]);
+
+  return bools.every(Boolean);
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {
@@ -189,6 +197,16 @@ export function importManagedKTAccount(
   });
 }
 
+export function importWatchOnlyAccount(address: string, chainId?: string) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.importWatchOnlyAccount(
+      address,
+      chainId
+    );
+    accountsUpdated(updatedAccounts);
+  });
+}
+
 export function craeteLedgerAccount(name: string, derivationPath?: string) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.createLedgerAccount(
@@ -281,8 +299,8 @@ export function sendOperations(
 
                   resolve({ opHash: op.hash });
                 } catch (err) {
-                  if (err?.message?.startsWith("__tezos__")) {
-                    reject(new Error(err.message));
+                  if (err instanceof TezosOperationError) {
+                    reject(err);
                   } else {
                     throw err;
                   }
@@ -425,17 +443,27 @@ export async function processBeacon(
   encrypted = false
 ) {
   let recipientPubKey: string | null = null;
+
   if (encrypted) {
-    recipientPubKey = await Beacon.getDAppPublicKey(origin);
-    if (recipientPubKey) {
-      msg = await Beacon.decryptMessage(msg, recipientPubKey);
-    } else {
-      return Beacon.encodeMessage<Beacon.Response>({
-        version: "2",
-        senderId: await Beacon.getSenderId(),
-        id: "stub",
-        type: Beacon.MessageType.Disconnect,
-      });
+    try {
+      recipientPubKey = await Beacon.getDAppPublicKey(origin);
+      if (!recipientPubKey) throw new Error("<stub>");
+
+      try {
+        msg = await Beacon.decryptMessage(msg, recipientPubKey);
+      } catch (err) {
+        await Beacon.removeDAppPublicKey(origin);
+        throw err;
+      }
+    } catch {
+      return {
+        payload: Beacon.encodeMessage<Beacon.Response>({
+          version: "2",
+          senderId: await Beacon.getSenderId(),
+          id: "stub",
+          type: Beacon.MessageType.Disconnect,
+        }),
+      };
     }
   }
 
@@ -464,14 +492,16 @@ export async function processBeacon(
   if (req.type === Beacon.MessageType.HandshakeRequest) {
     await Beacon.saveDAppPublicKey(origin, req.publicKey);
     const keyPair = await Beacon.getOrCreateKeyPair();
-    return Beacon.sealCryptobox(
-      JSON.stringify({
-        ...resBase,
-        ...Beacon.PAIRING_RESPONSE_BASE,
-        publicKey: Beacon.toHex(keyPair.publicKey),
-      }),
-      Beacon.fromHex(req.publicKey)
-    );
+    return {
+      payload: await Beacon.sealCryptobox(
+        JSON.stringify({
+          ...resBase,
+          ...Beacon.PAIRING_RESPONSE_BASE,
+          publicKey: Beacon.toHex(keyPair.publicKey),
+        }),
+        Beacon.fromHex(req.publicKey)
+      ),
+    };
   }
 
   const res = await (async (): Promise<Beacon.Response> => {
@@ -561,12 +591,12 @@ export async function processBeacon(
 
         throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
       } catch (err) {
+        if (err instanceof TezosOperationError) {
+          throw err;
+        }
+
         // Map Thanos DApp error to Beacon error
         const beaconErrorType = (() => {
-          if (err?.message.startsWith("__tezos__")) {
-            return Beacon.ErrorType.BROADCAST_ERROR;
-          }
-
           switch (err?.message) {
             case ThanosDAppErrorType.InvalidParams:
               return Beacon.ErrorType.PARAMETERS_INVALID_ERROR;
@@ -588,17 +618,35 @@ export async function processBeacon(
       return {
         ...resBase,
         type: Beacon.MessageType.Error,
-        errorType:
-          err?.message in Beacon.ErrorType
-            ? err.message
-            : Beacon.ErrorType.UNKNOWN_ERROR,
+        errorType: (() => {
+          switch (true) {
+            case err instanceof TezosOperationError:
+              return Beacon.ErrorType.TRANSACTION_INVALID_ERROR;
+
+            case err?.message in Beacon.ErrorType:
+              return err.message;
+
+            default:
+              return Beacon.ErrorType.UNKNOWN_ERROR;
+          }
+        })(),
+        errorData: getErrorData(err),
       };
     }
   })();
 
   const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
   if (encrypted && recipientPubKey) {
-    return Beacon.encryptMessage(resMsg, recipientPubKey);
+    return {
+      payload: await Beacon.encryptMessage(resMsg, recipientPubKey),
+      encrypted: true,
+    };
   }
-  return resMsg;
+  return { payload: resMsg };
+}
+
+function getErrorData(err: any) {
+  return err instanceof TezosOperationError
+    ? err.errors.map(({ contract_code, ...rest }: any) => rest)
+    : undefined;
 }

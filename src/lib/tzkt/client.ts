@@ -1,21 +1,26 @@
 import axios, { AxiosError } from "axios";
 import { ThanosChainId } from "lib/thanos/types";
 import {
+  allInt32ParameterKeys,
   TzktGetOperationsParams,
+  TzktGetRewardsParams,
+  TzktGetRewardsResponse,
   TzktOperation,
   TzktRelatedContract,
-} from "./types";
+} from "lib/tzkt/types";
 
 const TZKT_API_BASE_URLS = new Map([
   [ThanosChainId.Mainnet, "https://api.tzkt.io/v1"],
-  [ThanosChainId.Carthagenet, "https://api.carthage.tzkt.io/v1"],
-  [ThanosChainId.Delphinet, "https://api.delphi.tzkt.io/v1"],
+  [ThanosChainId.Edonet, "https://api.edonet.tzkt.io/"],
+  [ThanosChainId.Delphinet, "https://api.delphinet.tzkt.io/v1"],
+  [ThanosChainId.Carthagenet, "https://api.carthagenet.tzkt.io/v1"],
 ]);
 
 export const TZKT_BASE_URLS = new Map([
   [ThanosChainId.Mainnet, "https://tzkt.io"],
-  [ThanosChainId.Carthagenet, "https://carthage.tzkt.io"],
-  [ThanosChainId.Delphinet, "https://delphi.tzkt.io"],
+  [ThanosChainId.Edonet, "https://edonet.tzkt.io"],
+  [ThanosChainId.Delphinet, "https://delphinet.tzkt.io"],
+  [ThanosChainId.Carthagenet, "https://carthagenet.tzkt.io"],
 ]);
 
 const api = axios.create();
@@ -51,6 +56,23 @@ export const getOneUserContracts = makeQuery<
   ({ account }) => `/accounts/${account}/contracts`,
   () => ({})
 );
+
+export const getDelegatorRewards = makeQuery<
+  TzktGetRewardsParams,
+  TzktGetRewardsResponse
+>(
+  ({ address }) => `/rewards/delegators/${address}`,
+  ({ cycle = {}, sort, quote, ...restParams }) => ({
+    ...allInt32ParameterKeys.reduce((cycleParams, key) => ({
+      ...cycleParams,
+      [`cycle.${key}`]: cycle[key]
+    }), {}),
+    ...(sort ? { [`sort.${sort}`]: "cycle" } : {}),
+    quote: quote?.join(","),
+    ...restParams
+  })
+);
+
 
 function makeQuery<P extends Record<string, unknown>, R>(
   url: (params: P) => string,

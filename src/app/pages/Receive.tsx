@@ -19,12 +19,12 @@ const ADDRESS_FIELD_VIEWS = [
   {
     Icon: LanguageIcon,
     key: "domain",
-    name: "Domain",
+    name: t("domain"),
   },
   {
     Icon: HashIcon,
     key: "hash",
-    name: "Hash",
+    name: t("hash"),
   },
 ];
 
