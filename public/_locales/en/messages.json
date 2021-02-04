@@ -1680,5 +1680,23 @@
   },
   "loadMore": {
     "message": "Load more"
+  },
+  "submit": {
+    "message": "Submit"
+  },
+  "invalidJsonInput": {
+    "message": "Invalid JSON"
+  },
+  "notFaucetJson": {
+    "message": "Not a faucet JSON"
+  },
+  "faucetJson": {
+    "message": "Faucet JSON"
+  },
+  "faucetJsonDescription": {
+    "message": "You can paste JSON here instead of adding file"
+  },
+  "faucetJsonPlaceholder": {
+    "message": "Faucet JSON"
   }
 }
