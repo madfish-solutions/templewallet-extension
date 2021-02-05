@@ -28,9 +28,10 @@ export function tryParseExpensesPure(
   operations: OperationsPreview,
   accountAddress: string
 ): RawOperationExpenses[] {
-  const operationsAsArray =
-    operations instanceof Array ? operations : operations.contents;
-  return operationsAsArray
+  const operationsAsArray = Array.isArray(operations)
+    ? operations
+    : operations.contents;
+  return (Array.isArray(operationsAsArray) ? operationsAsArray : [])
     .map<RawOperationExpenses | undefined>((operation) => {
       if (operation.destination) {
         operation = { ...operation, to: operation.destination };
