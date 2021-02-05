@@ -3,6 +3,9 @@ import { nanoid } from "nanoid";
 import { TezosOperationError } from "@taquito/taquito";
 import { RpcClient } from "@taquito/rpc";
 import { localForger } from "@taquito/local-forging";
+import { emitMicheline } from "@taquito/michel-codec";
+import { valueDecoder } from "@taquito/local-forging/dist/lib/michelson/codec";
+import { Uint8ArrayConsumer } from "@taquito/local-forging/dist/lib/uint8array-consumer";
 import {
   ThanosDAppMessageType,
   ThanosDAppErrorType,
@@ -36,6 +39,7 @@ const CONFIRM_WINDOW_HEIGHT = 600;
 const AUTODECLINE_AFTER = 120_000;
 const STORAGE_KEY = "dapp_sessions";
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
+const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
 
 export async function getCurrentPermission(
   origin: string
@@ -251,9 +255,16 @@ export async function requestSign(
 
     let preview: any;
     try {
-      const parsed = await localForger.parse(req.payload);
-      if (parsed.contents.length > 0) {
-        preview = parsed;
+      if (req.payload.match(TEZ_MSG_SIGN_PATTERN)) {
+        preview = emitMicheline(
+          valueDecoder(Uint8ArrayConsumer.fromHexString(req.payload.slice(2))),
+          { indent: "  ", newline: "\n" }
+        );
+      } else {
+        const parsed = await localForger.parse(req.payload);
+        if (parsed.contents.length > 0) {
+          preview = parsed;
+        }
       }
     } catch {
       preview = null;
