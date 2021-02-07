@@ -97,6 +97,16 @@ export const MAINNET_TOKENS: ThanosToken[] = [
       "https://miro.medium.com/fit/c/160/160/1*LzmHCYryGmuN9ZR7JX951w.png",
     default: true,
   },
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV",
+    name: "Kolibri",
+    symbol: "kUSD",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
+    default: true,
+  },
 ];
 
 function signatureAssertionFactory(name: string, args: string[]) {
@@ -248,7 +258,7 @@ export async function fetchBalance(
         nat = await contract.views
           .getBalance(accountPkh)
           .read((tezos as any).lambdaContract);
-      } catch {}
+      } catch { }
 
       if (!nat || nat.isNaN()) {
         nat = new BigNumber(0);
@@ -267,7 +277,7 @@ export async function fetchBalance(
           .balance_of([{ owner: accountPkh, token_id: asset.id }])
           .read((tezos as any).lambdaContract);
         nat = response[0].balance;
-      } catch {}
+      } catch { }
 
       if (!nat || nat.isNaN()) {
         nat = new BigNumber(0);
@@ -305,15 +315,15 @@ export async function toTransferParams(
       const methodArgs =
         asset.type === ThanosAssetType.FA2
           ? [
-              [
-                {
-                  from_: fromPkh,
-                  txs: [
-                    { to_: toPkh, token_id: asset.id, amount: pennyAmount },
-                  ],
-                },
-              ],
-            ]
+            [
+              {
+                from_: fromPkh,
+                txs: [
+                  { to_: toPkh, token_id: asset.id, amount: pennyAmount },
+                ],
+              },
+            ],
+          ]
           : [fromPkh, toPkh, pennyAmount];
       return contact.methods.transfer(...methodArgs).toTransferParams();
 
@@ -382,4 +392,4 @@ export function toPenny(asset: ThanosAsset) {
   return new BigNumber(1).div(10 ** asset.decimals).toNumber();
 }
 
-export class NotMatchingStandardError extends Error {}
+export class NotMatchingStandardError extends Error { }
