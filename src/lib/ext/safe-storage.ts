@@ -20,7 +20,7 @@ export async function fetchOne<T = any>(key: string) {
 }
 
 export function putOne<T>(key: string, value: T) {
-  return browser.storage.local.set({ [key]: value });
+  return putMany([[key, value]]);
 }
 
 export function putMany(items: Items) {
