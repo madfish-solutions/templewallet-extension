@@ -259,7 +259,7 @@ export async function requestSign(
         preview = emitMicheline(
           valueDecoder(Uint8ArrayConsumer.fromHexString(req.payload.slice(2))),
           { indent: "  ", newline: "\n" }
-        );
+        ).slice(1, -1);
       } else {
         const parsed = await localForger.parse(req.payload);
         if (parsed.contents.length > 0) {
