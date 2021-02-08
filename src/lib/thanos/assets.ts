@@ -97,6 +97,16 @@ export const MAINNET_TOKENS: ThanosToken[] = [
       "https://miro.medium.com/fit/c/160/160/1*LzmHCYryGmuN9ZR7JX951w.png",
     default: true,
   },
+  {
+    type: ThanosAssetType.FA1_2,
+    address: "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV",
+    name: "Kolibri",
+    symbol: "kUSD",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
+    default: true,
+  },
 ];
 
 function signatureAssertionFactory(name: string, args: string[]) {
