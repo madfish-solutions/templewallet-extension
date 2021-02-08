@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  BcdPageableTokenTransfers,
+  BcdTokenTransfers,
   BcdTokenTransfer,
   getTokenTransfers,
 } from "lib/better-call-dev";
@@ -49,29 +49,26 @@ export default function useAllOperations({
       const lastTzStatsOp = newTzStatsOps[newTzStatsOps.length - 1];
       let shouldStopFetchBcdOperations = false;
       while (!shouldStopFetchBcdOperations && networkId) {
-        const {
-          transfers,
-        }: BcdPageableTokenTransfers = await getTokenTransfers({
+        const { transfers }: BcdTokenTransfers = await getTokenTransfers({
           network: networkId,
           address: accountPkh,
           size: pageSize,
-          end: currentBcdEnd
+          end: currentBcdEnd,
         });
         const lastNewTransfer = transfers[transfers.length - 1];
-        currentBcdEnd = lastNewTransfer ? Math.floor(new Date(lastNewTransfer.timestamp).getTime() / 1000) : currentBcdEnd;
+        currentBcdEnd = lastNewTransfer
+          ? Math.floor(new Date(lastNewTransfer.timestamp).getTime() / 1000)
+          : currentBcdEnd;
         const newBcdOps = transfers.filter((transfer) =>
           lastTzStatsOp
             ? new Date(transfer.timestamp) >= new Date(lastTzStatsOp.time)
             : true
         );
-        totalNewBcdOps = [
-          ...totalNewBcdOps,
-          ...newBcdOps
-        ];
+        totalNewBcdOps = [...totalNewBcdOps, ...newBcdOps];
         bcdReachedEnd =
-          (newBcdOps.length === transfers.length) && (transfers.length < pageSize);
+          newBcdOps.length === transfers.length && transfers.length < pageSize;
         shouldStopFetchBcdOperations =
-          bcdReachedEnd || (transfers.length > newBcdOps.length);
+          bcdReachedEnd || transfers.length > newBcdOps.length;
       }
 
       return {
@@ -79,7 +76,7 @@ export default function useAllOperations({
         newTzStatsOps: groupOpsByHash(newTzStatsOps),
         tzStatsReachedEnd: newTzStatsOps.length < pageSize,
         bcdReachedEnd,
-        bcdEnd: currentBcdEnd
+        bcdEnd: currentBcdEnd,
       };
     },
     [accountPkh, networkId, tzStatsNetwork]

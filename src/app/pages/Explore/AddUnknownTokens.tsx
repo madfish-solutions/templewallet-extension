@@ -1,9 +1,5 @@
 import * as React from "react";
-import {
-  BcdAccountToken,
-  BCD_NETWORKS_NAMES,
-  getAccount,
-} from "lib/better-call-dev";
+import { BcdAccountToken, getAccount } from "lib/better-call-dev";
 import {
   useAccount,
   useChainId,
@@ -15,6 +11,7 @@ import {
   useTezos,
 } from "lib/thanos/front";
 import { ThanosAssetType, ThanosToken } from "lib/thanos/types";
+import { BCD_NETWORKS_NAMES } from "app/defaults";
 
 const AddUnknownTokens: React.FC = () => {
   const { addToken, hiddenTokens } = useTokens();

@@ -17,7 +17,7 @@ import {
   useChainId,
 } from "lib/thanos/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
-import { BCD_NETWORKS_NAMES } from "lib/better-call-dev";
+import { BCD_NETWORKS_NAMES } from "app/defaults";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import Operation, {
   OperationPreview,

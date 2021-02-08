@@ -1,12 +1,19 @@
 import * as React from "react";
+import { BcdNetwork } from "lib/better-call-dev";
 import {
   ThanosAccount,
   ThanosAsset,
   ThanosAssetType,
   ThanosAccountType,
+  ThanosChainId,
 } from "lib/thanos/types";
 import { T, t } from "lib/i18n/react";
 import xtzImgUrl from "app/misc/xtz.png";
+
+export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
+  [ThanosChainId.Mainnet, "mainnet"],
+  [ThanosChainId.Delphinet, "delphinet"],
+]);
 
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
