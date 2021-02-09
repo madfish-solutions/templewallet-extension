@@ -327,6 +327,9 @@
   "decimalsInputDescription": {
     "message": "A number of decimal places after point. For example: 8 for BTC, 2 for USD."
   },
+  "orIPFSImageURL": {
+    "message": "Or IPFS image URL"
+  },
   "validImageURL": {
     "message": "Valid image URL"
   },
