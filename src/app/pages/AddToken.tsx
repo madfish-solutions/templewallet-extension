@@ -1,5 +1,5 @@
-import { WalletContract } from "@taquito/taquito";
-import { tzip16, View } from "@taquito/tzip16";
+import { WalletContract, compose } from "@taquito/taquito";
+import { tzip16 } from "@taquito/tzip16";
 import { tzip12 } from "@taquito/tzip12";
 import * as React from "react";
 import classNames from "clsx";
@@ -17,6 +17,7 @@ import {
   loadContractForCallLambdaView,
   getAssetKey,
 } from "lib/thanos/front";
+import { sanitizeImgUri } from "lib/image-uri";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
@@ -125,70 +126,55 @@ const Form: React.FC = () => {
           throw new TokenValidationError(t("contractNotAvailable"));
         }
 
-        let tokenData;
+        let tokenData: any;
+        let latestErrMessage;
+
         try {
+          /**
+           * Assert token standard
+           */
           if (tokenType === ThanosAssetType.FA1_2) {
             await assertTokenType(tokenType, contract, tezos);
-            const tzipFetchableContract = await tezos.wallet.at(
-              contractAddress,
-              tzip16
-            );
+          } else {
+            await assertTokenType(tokenType, contract, tezos, tokenId!);
+          }
+
+          /**
+           * Fetch taquito contract instance that is capable of metadata
+           */
+          const metadataContract = await tezos.wallet.at(
+            contractAddress,
+            compose(tzip12, tzip16)
+          );
+
+          /**
+           * Try fetch token data with TZIP12
+           */
+          try {
+            tokenData = await metadataContract
+              .tzip12()
+              .getTokenMetadata(tokenId ?? 0);
+          } catch (err) {
+            latestErrMessage = err.message;
+          }
+
+          /**
+           * Try fetch token data with TZIP16
+           * Get them from plain tzip16 structure/scheme
+           */
+          if (!tokenData || Object.keys(tokenData).length === 0) {
             try {
               const {
                 metadata,
-              } = await tzipFetchableContract.tzip16().getMetadata();
-              const views = await tzipFetchableContract
-                .tzip16()
-                .metadataViews();
-              tokenData = {
-                decimals: await views
-                  .decimals?.()
-                  .executeView()
-                  .catch(() => undefined),
-                onetoken: await views
-                  .onetoken?.()
-                  .executeView()
-                  .catch(() => undefined),
-                ...metadata,
-              };
-            } catch (e) {
-              throw new MetadataParseError(e.message);
+              } = await metadataContract.tzip16().getMetadata();
+              tokenData = metadata;
+            } catch (err) {
+              latestErrMessage = err.message;
             }
-          } else {
-            await assertTokenType(tokenType, contract, tezos, tokenId!);
-            let views: Record<string, () => View> = {};
-            try {
-              const tzip16FetchableContract = await tezos.wallet.at(
-                contractAddress,
-                tzip16
-              );
-              views = await tzip16FetchableContract.tzip16().metadataViews();
-            } catch (e) {}
+          }
 
-            try {
-              const tzipFetchableContract = await tezos.wallet.at(
-                contractAddress,
-                tzip12
-              );
-              const tzip12Metadata = await tzipFetchableContract
-                .tzip12()
-                .getTokenMetadata(tokenId!);
-
-              if (tzip12Metadata && Object.keys(tzip12Metadata).length > 0) {
-                tokenData = tzip12Metadata;
-              } else {
-                tokenData = await views
-                  .token_metadata?.()
-                  .executeView(tokenId!)
-                  .catch(() => undefined);
-              }
-
-              if (tokenData) {
-                tokenData.icon = await views.icon?.().executeView(tokenId!);
-              }
-            } catch (e) {
-              throw new MetadataParseError(e.message);
-            }
+          if (!tokenData) {
+            throw new MetadataParseError(latestErrMessage ?? "Unknown error");
           }
         } catch (err) {
           if (err instanceof MetadataParseError) {
@@ -205,14 +191,20 @@ const Form: React.FC = () => {
           }
         }
 
-        const { symbol = "", name = "", decimals = 0, logo = "" } =
-          tokenData || {};
+        const { symbol = "", name = "", decimals = 0 } = tokenData || {};
+        const iconUrl =
+          tokenData.thumbnailUri ??
+          tokenData.logo ??
+          tokenData.icon ??
+          tokenData.iconUri ??
+          tokenData.iconUrl ??
+          "";
 
         setValue([
           { symbol: symbol.substr(0, 5) },
           { name: name.substr(0, 50) },
           { decimals },
-          { iconUrl: logo },
+          { iconUrl },
         ]);
         setBottomSectionVisible(true);
       } catch (e) {
@@ -270,7 +262,7 @@ const Form: React.FC = () => {
           symbol,
           name,
           decimals: decimals || 0,
-          iconUrl: iconUrl || undefined,
+          iconUrl: iconUrl ? sanitizeImgUri(iconUrl) : undefined,
           fungible: true,
         };
 
@@ -531,15 +523,22 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
 
       <FormField
         ref={register({
-          pattern: {
-            value: /(https:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i,
-            message: (
+          validate: (val: string) => {
+            if (
+              val.match(/(https:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i) ||
+              val.match(/(ipfs:\/\/.*)/i)
+            ) {
+              return true;
+            }
+
+            return (
               <ul className="list-disc list-inside">
                 <T id="validImageURL">{(message) => <li>{message}</li>}</T>
                 <T id="onlyHTTPS">{(message) => <li>{message}</li>}</T>
                 <T id="formatsAllowed">{(message) => <li>{message}</li>}</T>
+                <T id="orIPFSImageURL">{(message) => <li>{message}</li>}</T>
               </ul>
-            ),
+            );
           },
         })}
         name="iconUrl"
