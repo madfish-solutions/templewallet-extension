@@ -2,7 +2,6 @@ import React from "react";
 import { ThanosAsset } from "lib/thanos/types";
 import { getAssetIconUrl } from "app/defaults";
 import Identicon from "app/atoms/Identicon";
-// import { getAssetKey } from "lib/thanos/front";
 
 export type AssetIconProps = {
   asset: ThanosAsset;
@@ -15,7 +14,12 @@ const AssetIcon = React.memo((props: AssetIconProps) => {
   const { asset, className, style, size } = props;
   const assetIconUrl = getAssetIconUrl(asset);
 
-  if (assetIconUrl) {
+  const [imageDisplayed, setImageDisplayed] = React.useState(true);
+  const handleImageError = React.useCallback(() => {
+    setImageDisplayed(false);
+  }, [setImageDisplayed]);
+
+  if (assetIconUrl && imageDisplayed) {
     return (
       <img
         src={assetIconUrl}
@@ -26,6 +30,7 @@ const AssetIcon = React.memo((props: AssetIconProps) => {
           height: size,
           ...style,
         }}
+        onError={handleImageError}
       />
     );
   }
