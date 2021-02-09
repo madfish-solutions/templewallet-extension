@@ -18,7 +18,7 @@ export default AwaitI18N;
 async function awaitI18n() {
   try {
     await Promise.race([
-      new Promise((r) => onInited(r)),
+      new Promise((r) => onInited(() => r(null))),
       new Promise((r) => setTimeout(r, 3_000)),
     ]);
   } finally {
