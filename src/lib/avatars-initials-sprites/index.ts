@@ -16,7 +16,7 @@ type Options = {
   bold?: boolean;
 };
 
-export default function (random: Random, options: Options = {}) {
+export default function initialsSprites(random: Random, options: Options = {}) {
   options.backgroundColorLevel = options.backgroundColorLevel || 600;
   options.fontSize = options.fontSize || 50;
   options.chars = options.chars || 2;

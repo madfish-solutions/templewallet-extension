@@ -2,14 +2,14 @@ import * as React from "react";
 import classNames from "clsx";
 import ReactJson from "react-json-view";
 
-type OperationsBanner = {
+type OperationsBannerProps = {
   jsonViewStyle?: React.CSSProperties;
   opParams: any[] | { branch: string; contents: any[] } | string;
   label?: React.ReactNode;
   className?: string;
 };
 
-const OperationsBanner = React.memo<OperationsBanner>(
+const OperationsBanner = React.memo<OperationsBannerProps>(
   ({ jsonViewStyle, opParams, label, className }) => (
     <>
       {label && (
