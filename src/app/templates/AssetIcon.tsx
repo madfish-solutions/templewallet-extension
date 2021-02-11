@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+import classNames from "clsx";
 import { ThanosAsset } from "lib/thanos/types";
 import { getAssetIconUrl } from "app/defaults";
 import Identicon from "app/atoms/Identicon";
@@ -24,7 +25,7 @@ const AssetIcon = React.memo((props: AssetIconProps) => {
       <img
         src={assetIconUrl}
         alt={asset.name}
-        className={className}
+        className={classNames("overflow-hidden", className)}
         style={{
           width: size,
           height: size,

@@ -524,6 +524,7 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
       <FormField
         ref={register({
           validate: (val: string) => {
+            if (!val) return true;
             if (
               val.match(/(https:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i) ||
               val.match(/(ipfs:\/\/.*)/i)
