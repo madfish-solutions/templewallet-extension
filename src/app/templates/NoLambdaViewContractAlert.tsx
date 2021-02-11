@@ -1,16 +1,38 @@
 import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
-import { useThanosClient } from "lib/thanos/front";
+import { useRetryableSWR } from "lib/swr";
+import { useTezos, useNetwork, loadChainId } from "lib/thanos/front";
 import { T } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
-import { ReactComponent as HistoryIcon } from "app/icons/history.svg";
+import { ReactComponent as ErrorIcon } from "app/icons/error.svg";
 
-const BackupSeedPhrase: React.FC = () => {
+const NoLambdaViewContractAlert: React.FC = () => {
   const { fullPage } = useAppEnv();
-  const { ready, seedRevealed } = useThanosClient();
+  const tezos = useTezos();
+  const network = useNetwork();
 
-  return ready && !seedRevealed ? (
+  const contractCheckSWR = useRetryableSWR(
+    ["contract-check", tezos.checksum, network.lambdaContract],
+    async () => {
+      try {
+        await loadChainId(tezos.rpc.getRpcUrl());
+        return Boolean(
+          network.lambdaContract &&
+            (await tezos.contract.at(network.lambdaContract))
+        );
+      } catch {
+        return true;
+      }
+    },
+    {
+      revalidateOnFocus: false,
+      suspense: false,
+    }
+  );
+  const displayed = !contractCheckSWR.isValidating && !contractCheckSWR.data;
+
+  return displayed ? (
     <div className="fixed bottom-0 w-full z-50">
       <div
         className={classNames(
@@ -20,7 +42,7 @@ const BackupSeedPhrase: React.FC = () => {
         )}
       >
         <Link
-          to="/settings/reveal-seed-phrase"
+          to="/settings/networks"
           className={classNames(
             "block rounded-full",
             "transition ease-in-out duration-300",
@@ -42,19 +64,15 @@ const BackupSeedPhrase: React.FC = () => {
               "uppercase text-sm font-bold"
             )}
           >
-            <HistoryIcon className="stroke-current stroke-2 h-4 w-auto" />
+            <ErrorIcon className="stroke-current stroke-2 h-4 w-auto" />
           </span>
 
-          <T id="makeSureToBackupSeedPhrase">
-            {(message) => (
-              <span className="mr-2 flex-auto text-left text-xs font-semibold">
-                {message}
-              </span>
-            )}
-          </T>
+          <span className="mr-2 flex-auto text-left text-xs font-semibold">
+            <T id="noActiveNetLambdaWarningTitle" />
+          </span>
 
           <svg
-            className="fill-current opacity-75 h-4 w-4"
+            className="fill-current opacity-75 h-4 w-4 flex-shrink-0"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
           >
@@ -66,4 +84,4 @@ const BackupSeedPhrase: React.FC = () => {
   ) : null;
 };
 
-export default BackupSeedPhrase;
+export default NoLambdaViewContractAlert;
