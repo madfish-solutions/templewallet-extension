@@ -6,7 +6,7 @@ import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import DocBg from "app/a11y/DocBg";
 import ContentContainer from "app/layouts/ContentContainer";
-import BackupSeedAlert from "app/templates/BackupSeedAlert";
+import NoLambdaViewContractAlert from "app/templates/NoLambdaViewContractAlert";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import Header from "app/layouts/PageLayout/Header";
@@ -40,7 +40,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         </ContentPaper>
       </div>
 
-      <BackupSeedAlert />
+      <NoLambdaViewContractAlert />
       <ConfirmationOverlay />
     </>
   );

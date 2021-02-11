@@ -1,6 +1,7 @@
 import classNames from "clsx";
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRetryableSWR } from "lib/swr";
 import {
   isKnownChainId,
   loadChainId,
@@ -29,7 +30,6 @@ import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
 import SubTitle from "app/atoms/SubTitle";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
-import { useRetryableSWR } from "lib/swr";
 
 type NetworkFormData = Pick<
   ThanosNetwork,
