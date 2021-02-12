@@ -18,7 +18,7 @@ import {
 export type GetOperationsParams = {
   accountPkh: string;
   tzStatsNetwork: TZStatsNetwork | null;
-  networkId: "mainnet" | "delphinet" | null;
+  networkId: "mainnet" | "edonet" | "delphinet" | null;
   xtzOnly?: boolean;
 };
 
