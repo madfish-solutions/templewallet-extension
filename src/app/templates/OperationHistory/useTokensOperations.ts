@@ -14,7 +14,7 @@ import {
 export type GetOperationsParams = {
   accountPkh: string;
   tzStatsNetwork: TZStatsNetwork | null;
-  networkId: "mainnet" | "delphinet" | null;
+  networkId: "mainnet" | "edonet" | "delphinet" | null;
   asset: ThanosToken;
 };
 
@@ -83,11 +83,14 @@ export default function useTokensOperations({
       ).reduce((sum, ops) => sum + ops.length, 0);
 
       return {
-        bcdEnd: lastBcdOp ? Math.floor(lastBcdOpTime.getTime() / 1000) : undefined,
+        bcdEnd: lastBcdOp
+          ? Math.floor(lastBcdOpTime.getTime() / 1000)
+          : undefined,
         newBcdOps: groupedBcdOps,
         newTzStatsOps: relevantGroupedTzStatsOps,
         bcdReachedEnd: rawBcdOps.length < pageSize,
-        tzStatsReachedEnd: (relevantTzStatsOpsCount < pageSize) || (rawBcdOps.length < pageSize),
+        tzStatsReachedEnd:
+          relevantTzStatsOpsCount < pageSize || rawBcdOps.length < pageSize,
       };
     },
     [accountPkh, networkId, tzStatsNetwork, asset.address]

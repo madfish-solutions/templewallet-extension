@@ -47,4 +47,4 @@ function pick<T, U extends keyof T>(obj: T, keys: U[]) {
  * Types
  */
 
-export type BcdNetwork = "mainnet" | "delphinet";
+export type BcdNetwork = "mainnet" | "edonet" | "delphinet";
