@@ -3,6 +3,7 @@ import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 import BigNumber from "bignumber.js";
+import { HttpResponseError } from "@taquito/http-utils";
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import { navigate, HistoryAction } from "lib/woozie";
@@ -29,6 +30,7 @@ import {
   loadContract,
   getAssetKey,
   useUSDPrice,
+  transformHttpResponseError,
 } from "lib/thanos/front";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
@@ -990,6 +992,20 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
 
         case error instanceof NotEnoughFundsError:
           return t("minimalFeeGreaterThanBalanceVerbose");
+
+        case error instanceof HttpResponseError:
+          return (
+            <>
+              <T
+                id="unableToPerformTransactionAction"
+                substitutions={t(
+                  type === "submit" ? "send" : "estimate"
+                ).toLowerCase()}
+              />
+              <br />
+              {transformHttpResponseError(error as HttpResponseError).message}
+            </>
+          );
 
         default:
           return (

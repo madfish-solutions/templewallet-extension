@@ -1,5 +1,6 @@
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { TezosOperationError } from "@taquito/taquito";
+import { HttpResponseError } from '@taquito/http-utils';
 import {
   ThanosDAppMessageType,
   ThanosDAppErrorType,
@@ -13,7 +14,7 @@ import {
   ThanosSettings,
   ThanosSharedStorageKey,
 } from "lib/thanos/types";
-import { loadChainId } from "lib/thanos/helpers";
+import { loadChainId, transformHttpResponseError } from "lib/thanos/helpers";
 import { intercom } from "lib/thanos/back/defaults";
 import {
   toFront,
@@ -38,6 +39,7 @@ import {
 } from "lib/thanos/back/dapp";
 import * as PndOps from "lib/thanos/back/pndops";
 import * as Beacon from "lib/thanos/beacon";
+import { getBeaconErrorType } from "lib/thanos/helpers";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
@@ -301,6 +303,8 @@ export function sendOperations(
                 } catch (err) {
                   if (err instanceof TezosOperationError) {
                     reject(err);
+                  } else if (err instanceof HttpResponseError) {
+                    reject(transformHttpResponseError(err));
                   } else {
                     throw err;
                   }
@@ -597,6 +601,9 @@ export async function processBeacon(
 
         // Map Thanos DApp error to Beacon error
         const beaconErrorType = (() => {
+          if (err instanceof HttpResponseError) {
+            return getBeaconErrorType(err);
+          }
           switch (err?.message) {
             case ThanosDAppErrorType.InvalidParams:
               return Beacon.ErrorType.PARAMETERS_INVALID_ERROR;

@@ -1,8 +1,11 @@
 import BigNumber from "bignumber.js";
 import memoize from "micro-memoize";
+import { HttpResponseError } from "@taquito/http-utils";
 import { RpcClient } from "@taquito/rpc";
 import { ValidationResult, validateAddress } from "@taquito/utils";
 import { getMessage } from "lib/i18n";
+import { ErrorType } from "lib/thanos/beacon";
+import rpcErrors from "lib/thanos/rpcErrors";
 
 export const loadChainId = memoize(fetchChainId, {
   isPromise: true,
@@ -70,4 +73,69 @@ export function validateContractAddress(value: any) {
     default:
       return true;
   }
+}
+
+function getRpcErrorDetails(error: HttpResponseError) {
+  try {
+    const errorDetails = JSON.parse(error.body)?.[0];
+    if (
+      typeof errorDetails !== "object" ||
+      typeof errorDetails.id !== "string"
+    ) {
+      throw new Error();
+    }
+    return errorDetails;
+  } catch {
+    throw new Error("Not a JSON RPC error response");
+  }
+}
+
+function getRpcErrorEntry(error: HttpResponseError) {
+  try {
+    const errorDetails = getRpcErrorDetails(error);
+    const matchingPostfix = Object.keys(rpcErrors).find((postfix) =>
+      errorDetails.id.endsWith(postfix)
+    );
+    if (!matchingPostfix) {
+      return undefined;
+    }
+    return rpcErrors[matchingPostfix];
+  } catch {
+    throw new Error("Not a JSON RPC error response");
+  }
+}
+
+export function getBeaconErrorType(error: HttpResponseError) {
+  try {
+    const rpcErrorEntry = getRpcErrorEntry(error);
+    return rpcErrorEntry?.beaconError || ErrorType.TRANSACTION_INVALID_ERROR;
+  } catch {
+    return ErrorType.UNKNOWN_ERROR;
+  }
+}
+
+export function transformHttpResponseError(error: HttpResponseError) {
+  let errorMessage = error.message;
+  try {
+    const rpcErrorEntry = getRpcErrorEntry(error);
+    const errorDetails = getRpcErrorDetails(error);
+    if (!rpcErrorEntry) {
+      errorMessage = `Caught an unknown RPC error '${
+        errorDetails.id
+      }': ${JSON.stringify(errorDetails)}`;
+    } else {
+      const { message } = rpcErrorEntry;
+      errorMessage =
+        typeof message === "string" ? message : message(errorDetails);
+    }
+  } catch {
+    errorMessage = `Request failed with status ${error.status}: ${error.body}`;
+  }
+  return new HttpResponseError(
+    errorMessage,
+    error.status,
+    error.statusText,
+    error.body,
+    error.url
+  );
 }

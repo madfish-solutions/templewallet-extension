@@ -1,5 +1,6 @@
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { nanoid } from "nanoid";
+import { HttpResponseError } from '@taquito/http-utils';
 import { TezosOperationError } from "@taquito/taquito";
 import { RpcClient } from "@taquito/rpc";
 import { localForger } from "@taquito/local-forging";
@@ -32,7 +33,7 @@ import * as PndOps from "lib/thanos/back/pndops";
 import * as Beacon from "lib/thanos/beacon";
 import { withUnlocked } from "lib/thanos/back/store";
 import { NETWORKS } from "lib/thanos/networks";
-import { loadChainId, isAddressValid } from "lib/thanos/helpers";
+import { loadChainId, isAddressValid, transformHttpResponseError } from "lib/thanos/helpers";
 
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 600;
@@ -205,6 +206,8 @@ export async function requestOperation(
               if (err instanceof TezosOperationError) {
                 err.message = ThanosDAppErrorType.TezosOperation;
                 reject(err);
+              } else if (err instanceof HttpResponseError) {
+                reject(transformHttpResponseError(err));
               } else {
                 throw err;
               }

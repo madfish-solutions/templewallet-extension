@@ -1,6 +1,7 @@
 import { browser } from "webextension-polyfill-ts";
 import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
+import { HttpResponseError } from '@taquito/http-utils';
 import * as TaquitoUtils from "@taquito/utils";
 import { InMemorySigner } from "@taquito/signer";
 import {
@@ -30,6 +31,7 @@ import {
 } from "lib/thanos/back/safe-storage";
 import { ThanosLedgerSigner } from "lib/thanos/back/ledger-signer";
 import { getMessage } from "lib/i18n";
+import { transformHttpResponseError } from "../front";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
@@ -476,6 +478,8 @@ export class Vault {
           case err instanceof PublicError:
           case err instanceof TezosOperationError:
             throw err;
+          case err instanceof HttpResponseError:
+            throw transformHttpResponseError(err);
 
           default:
             throw new Error(`Failed to send operations. ${err.message}`);
