@@ -15,6 +15,16 @@ export const NETWORKS: ThanosNetwork[] = [
     disabled: false,
   },
   {
+    id: "edo2net",
+    name: "Edo2 Testnet",
+    description: "Edo2 testnet",
+    lambdaContract: "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN",
+    type: "test",
+    rpcBaseURL: "https://edonet-tezos.giganode.io",
+    color: "#FBBF24",
+    disabled: false,
+  },
+  {
     id: "delphinet",
     name: "Delphi Testnet",
     description: "Delphi testnet",
@@ -22,16 +32,6 @@ export const NETWORKS: ThanosNetwork[] = [
     type: "test",
     rpcBaseURL: "https://testnet-tezos.giganode.io",
     color: "#ed6663",
-    disabled: false,
-  },
-  {
-    id: "edonet",
-    name: "Edo Testnet",
-    description: "Edo testnet",
-    lambdaContract: "KT1QtbEVQ3tHPhL2GPTgWJPvhCER4gavWUun",
-    type: "test",
-    rpcBaseURL: "https://edonet-tezos.giganode.io",
-    color: "#FBBF24",
     disabled: false,
   },
   {

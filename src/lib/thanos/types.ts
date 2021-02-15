@@ -30,7 +30,7 @@ export interface ThanosState {
 export enum ThanosChainId {
   Mainnet = "NetXdQprcVkpaWU",
   Delphinet = "NetXm8tYqnMWky1",
-  Edonet = "NetXSp4gfdanies",
+  Edo2net = "NetXSgo1ZT2DRUG",
   Carthagenet = "NetXjD3HPJJjmcd",
 }
 

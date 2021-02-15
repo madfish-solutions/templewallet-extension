@@ -1,7 +1,7 @@
 import * as React from "react";
 import constate from "constate";
 import { TezosToolkit } from "@taquito/taquito";
-import { Tzip16Module } from '@taquito/tzip16';
+import { Tzip16Module } from "@taquito/tzip16";
 import {
   ReadyThanosState,
   ThanosAccountType,

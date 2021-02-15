@@ -96,7 +96,7 @@ type BaseOperationsListProps = {
   accountPkh: string;
   accountOwner?: string;
   tzStatsNetwork: TZStatsNetwork | null;
-  networkId: "mainnet" | "edonet" | "delphinet" | null;
+  networkId: "mainnet" | "edo2net" | "delphinet" | null;
 };
 
 type AllOperationsListProps = BaseOperationsListProps & {
