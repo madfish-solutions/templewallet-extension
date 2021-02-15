@@ -11,14 +11,14 @@ import {
 
 const TZKT_API_BASE_URLS = new Map([
   [ThanosChainId.Mainnet, "https://api.tzkt.io/v1"],
-  [ThanosChainId.Edonet, "https://api.edonet.tzkt.io/"],
+  [ThanosChainId.Edo2net, "https://api.edo2net.tzkt.io/"],
   [ThanosChainId.Delphinet, "https://api.delphinet.tzkt.io/v1"],
   [ThanosChainId.Carthagenet, "https://api.carthagenet.tzkt.io/v1"],
 ]);
 
 export const TZKT_BASE_URLS = new Map([
   [ThanosChainId.Mainnet, "https://tzkt.io"],
-  [ThanosChainId.Edonet, "https://edonet.tzkt.io"],
+  [ThanosChainId.Edo2net, "https://edo2net.tzkt.io"],
   [ThanosChainId.Delphinet, "https://delphinet.tzkt.io"],
   [ThanosChainId.Carthagenet, "https://carthagenet.tzkt.io"],
 ]);
@@ -63,16 +63,18 @@ export const getDelegatorRewards = makeQuery<
 >(
   ({ address }) => `/rewards/delegators/${address}`,
   ({ cycle = {}, sort, quote, ...restParams }) => ({
-    ...allInt32ParameterKeys.reduce((cycleParams, key) => ({
-      ...cycleParams,
-      [`cycle.${key}`]: cycle[key]
-    }), {}),
+    ...allInt32ParameterKeys.reduce(
+      (cycleParams, key) => ({
+        ...cycleParams,
+        [`cycle.${key}`]: cycle[key],
+      }),
+      {}
+    ),
     ...(sort ? { [`sort.${sort}`]: "cycle" } : {}),
     quote: quote?.join(","),
-    ...restParams
+    ...restParams,
   })
 );
-
 
 function makeQuery<P extends Record<string, unknown>, R>(
   url: (params: P) => string,

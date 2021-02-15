@@ -15,7 +15,7 @@ import {
 export const TZSTATS_CHAINS = new Map([
   [ThanosChainId.Mainnet, TZStatsNetwork.Mainnet],
   [ThanosChainId.Delphinet, TZStatsNetwork.Delphinet],
-  [ThanosChainId.Edonet, TZStatsNetwork.Edonet],
+  [ThanosChainId.Edo2net, TZStatsNetwork.Edonet],
   [ThanosChainId.Carthagenet, TZStatsNetwork.Carthagenet],
 ]);
 

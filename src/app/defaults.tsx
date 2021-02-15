@@ -12,7 +12,7 @@ import xtzImgUrl from "app/misc/xtz.png";
 
 export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
   [ThanosChainId.Mainnet, "mainnet"],
-  [ThanosChainId.Edonet, "edonet"],
+  [ThanosChainId.Edo2net, "edo2net"],
   [ThanosChainId.Delphinet, "delphinet"],
 ]);
 
