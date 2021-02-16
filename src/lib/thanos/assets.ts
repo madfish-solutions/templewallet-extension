@@ -331,7 +331,7 @@ export async function toTransferParams(
       const contact = await loadContract(tezos, asset.address);
       const pennyAmount = new BigNumber(amount)
         .times(10 ** asset.decimals)
-        .toString();
+        .toFixed();
       const methodArgs =
         asset.type === ThanosAssetType.FA2
           ? [
