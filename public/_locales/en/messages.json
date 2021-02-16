@@ -173,7 +173,7 @@
     }
   },
   "highestIsBetter": {
-    "message": "highest is better"
+    "message": "the higher the better"
   },
   "unlockWalletPrompt": {
     "message": "If you want to save something from already existing wallet - $link$ and unlock it.",
@@ -456,7 +456,7 @@
     "message": "At least 1 uppercase letter"
   },
   "mnemonicWordsAmountConstraint": {
-    "message": "12, 15, 18, 21 or 24 words on English"
+    "message": "12, 15, 18, 21 or 24 words in English"
   },
   "mnemonicSpacingConstraint": {
     "message": "Each word separated with a single space"
@@ -605,7 +605,7 @@
     "message": "Password"
   },
   "isPrivateKeyEncrypted": {
-    "message": "Your private key in encrypted format?"
+    "message": "Is your private key in encrypted format?"
   },
   "noDerivation": {
     "message": "No derivation"
@@ -623,7 +623,7 @@
     "message": "e.g. venue sock milk update..."
   },
   "passwordInputDescription": {
-    "message": "Used for additional mnemonic derivation. That is Not wallet password."
+    "message": "Used for additional mnemonic derivation. That is NOT a wallet password."
   },
   "derivation": {
     "message": "Derivation"
@@ -825,7 +825,7 @@
     "message": "enable"
   },
   "dAppsCheckmarkPrompt": {
-    "message": "Click on the checkmark to $action$ DApps interaction feature. It's still in Alpha, but it can be used for testing and development purposes.",
+    "message": "Click on the checkmark to $action$ DApps interaction feature",
     "placeholders": {
       "action": {
         "content": "$1"
@@ -949,7 +949,7 @@
     "message": "This may happen because:"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be due because you sending funds to an empty Manager account. That requires a one-time 0.257 XTZ burn fee;"
+    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.257 XTZ burn fee;"
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
