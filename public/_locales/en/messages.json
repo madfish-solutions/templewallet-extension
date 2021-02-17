@@ -999,7 +999,7 @@
     "message": "destroy the existing"
   },
   "backToUnlockPage": {
-    "message": "back to Unlock page"
+    "message": "go back to Unlock page"
   },
   "mustBeEqualToPasswordAbove": {
     "message": "Must be equal to password above"
