@@ -316,14 +316,6 @@
   "decimals": {
     "message": "Decimals"
   },
-  "doNotSharePhrase": {
-    "message": "$doNotShare$ this phrase with anyone! It can be used to steal all your accounts.",
-    "placeholders": {
-      "doNotShare": {
-        "content": "$1"
-      }
-    }
-  },
   "decimalsInputDescription": {
     "message": "A number of decimal places after point. For example: 8 for BTC, 2 for USD."
   },
@@ -391,15 +383,10 @@
     }
   },
   "accountsToRemoveConstraint": {
-    "message": "HD accounts cannot be removed."
+    "message": "Hierarchical Deterministic accounts cannot be removed."
   },
   "doNotSharePrivateKey": {
-    "message": "$doNotShare$ this set of chars with anyone! It can be used to steal your current account.",
-    "placeholders": {
-      "doNotShare": {
-        "content": "$1"
-      }
-    }
+    "message": "<b>DO NOT share</b> this set of chars with anyone! It can be used to steal your current account."
   },
   "appWouldLikeToConnectToYourWallet": {
     "message": "$origin$ would like to connect to your wallet",
@@ -986,17 +973,8 @@
   "attentionExclamation": {
     "message": "Attention!"
   },
-  "lockedWallet": {
-    "message": "Locked wallet"
-  },
-  "alreadyExistsWallet": {
-    "message": "already exists"
-  },
-  "importingNewWalletWill": {
-    "message": "Importing a new one will"
-  },
-  "willDestroyTheExisting": {
-    "message": "destroy the existing"
+  "lockedWalletAlreadyExists": {
+    "message": "Locked wallet <b>already exists</b>.\nImporting a new one will <b>destroy the existing</b>."
   },
   "backToUnlockPage": {
     "message": "back to Unlock page"
@@ -1022,23 +1000,11 @@
   "create": {
     "message": "Create"
   },
-  "clickOnAreaBelow": {
-    "message": "Click on area below"
+  "revealNewSeedPhrase": {
+    "message": "<b>Click on area below</b> to reveal your new Seed Phrase.\nThen, write this phrase on a piece of paper and <b>store in a secure location</b>. Or you can memorize it."
   },
-  "toRevealNewSeedPhrase": {
-    "message": " to reveal your new Seed Phrase."
-  },
-  "writePhraseOnPieceOfPaper": {
-    "message": "Then, write this phrase on a piece of paper and"
-  },
-  "storePhraseInSecureLocation": {
-    "message": "store in a secure location"
-  },
-  "orYouCanMemorizePhrase": {
-    "message": "Or you can memorize it."
-  },
-  "doNotShareEmphasized": {
-    "message": "DO NOT share"
+  "doNotSharePhrase": {
+    "message": "<b>DO NOT share</b> this phrase with anyone! It can be used to steal all your accounts."
   },
   "youWillNeedThisSeedPhrase": {
     "message": "If you ever switch between browsers or devices, you will need this seed phrase to access your accounts."
