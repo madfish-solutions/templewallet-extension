@@ -135,8 +135,7 @@ const rpcErrors: Record<string, RpcErrorEntry> = {
       "A snapshot of the rolls distribution does not exist for this cycle.",
   },
   "contract.manager.unregistered_delegate": {
-    message: (errorDetails: any) =>
-      `The delegate ${errorDetails.hash} is unregistered`,
+    message: (errorDetails: any) => getMessage("delegateNotRegistered", errorDetails.hash),
   },
   "contract.non_existing_contract": {
     message:
@@ -165,11 +164,11 @@ const rpcErrors: Record<string, RpcErrorEntry> = {
     message: "Tried to unregister a delegate",
   },
   "delegate.unchanged": {
-    message: "Contract already delegated to the given delegate",
+    message: getMessage("contractAlreadyDelegated"),
     beaconError: ErrorType.PARAMETERS_INVALID_ERROR,
   },
   empty_proposal: {
-    message: "Proposal lists cannot be empty.",
+    message: getMessage("proposalListsCannotBeEmpty"),
     beaconError: ErrorType.PARAMETERS_INVALID_ERROR,
   },
   "gas_exhausted.block": {
@@ -177,8 +176,7 @@ const rpcErrors: Record<string, RpcErrorEntry> = {
       "The sum of gas consumed by all the operations in the block exceeds the hard gas limit per block",
   },
   "gas_exhausted.init_deserialize": {
-    message: `Gas limit was not high enough to deserialize the transaction parameters or origination \
-script code or initial storage, making the operation impossible to parse within the provided gas bounds.`,
+    message: getMessage("gasLimitNotEnoughToDeserialize"),
     beaconError: ErrorType.PARAMETERS_INVALID_ERROR,
   },
   "gas_exhausted.operation": {
@@ -226,8 +224,7 @@ script code or initial storage, making the operation impossible to parse within 
     message: "Period is negative.",
   },
   "michelson_v1.bad_contract_parameter": {
-    message: `Either no parameter was supplied to a contract with a non-unit parameter type, a non-unit \
-parameter was passed to an account, or a parameter was supplied of the wrong type`,
+    message: getMessage("badContractParameter"),
     beaconError: ErrorType.PARAMETERS_INVALID_ERROR,
   },
   "michelson_v1.bad_dupn_argument": {
@@ -324,8 +321,7 @@ parameter was passed to an account, or a parameter was supplied of the wrong typ
     message: "The two types contain annotations that do not match",
   },
   "michelson_v1.inconsistent_types": {
-    message: `This is the basic type clash error, that appears in several places where the equality of \
-two types have to be proven, it is always accompanied with another error that provides more context.`,
+    message: getMessage("typeClashErrorOccurred"),
   },
   "michelson_v1.interp_too_many_recursive_calls": {
     message:

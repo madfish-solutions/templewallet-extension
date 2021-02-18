@@ -934,6 +934,14 @@
   "bakerNotRegistered": {
     "message": "Specified baker is not registered."
   },
+  "delegateNotRegistered": {
+    "message": "The delegate $hash$ is unregistered.",
+    "placeholders": {
+      "hash": {
+        "content": "$1"
+      }
+    }
+  },
   "unableToPerformActionToBaker": {
     "message": "Unable to $action$ to the provided Baker.",
     "placeholders": {
@@ -1718,5 +1726,20 @@
   },
   "unrevealedAccountError": {
     "message": "The account has not been revealed yet. Please send some XTZ to it and try again."
+  },
+  "contractAlreadyDelegated": {
+    "message": "Contract already delegated to the given delegate"
+  },
+  "proposalListsCannotBeEmpty": {
+    "message": "Proposal lists cannot be empty."
+  },
+  "gasLimitNotEnoughToDeserialize": {
+    "message": "Gas limit was not high enough to deserialize the transaction parameters or origination script code or initial storage."
+  },
+  "badContractParameter": {
+    "message": "Either no parameter was supplied to a contract with a non-unit parameter type, a non-unit parameter was passed to an account, or a parameter was supplied of the wrong type"
+  },
+  "typeClashErrorOccurred": {
+    "message": "Some type clash error occurred."
   }
 }
