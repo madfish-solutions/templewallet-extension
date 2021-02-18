@@ -949,7 +949,7 @@
     "message": "This may happen because:"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.257 XTZ burn fee;"
+    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.257 ꜩ burn fee;"
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
@@ -1177,8 +1177,8 @@
   "inUSD": {
     "message": "in USD"
   },
-  "inXTZ": {
-    "message": "in XTZ"
+  "inTEZ": {
+    "message": "in ꜩ"
   },
   "amountPlaceholder": {
     "message": "e.g. 123.45"
@@ -1190,7 +1190,7 @@
     "message": "Click on Account you want to send funds to."
   },
   "mainAssetBalanceIsZero": {
-    "message": "Your XTZ(main asset) balance is zero. XTZ funds are required for the fee."
+    "message": "Your ꜩ (main asset) balance is zero. ꜩ funds are required for the fee."
   },
   "estimate": {
     "message": "Estimate"

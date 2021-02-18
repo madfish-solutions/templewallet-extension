@@ -9,7 +9,7 @@ import {
   TZStatsNetwork,
   TZStatsOperation,
 } from "lib/tzstats";
-import { XTZ_ASSET } from "lib/thanos/front";
+import { TEZ_ASSET } from "lib/thanos/front";
 import {
   useOpsPagination,
   groupOpsByHash,
@@ -19,14 +19,14 @@ export type GetOperationsParams = {
   accountPkh: string;
   tzStatsNetwork: TZStatsNetwork | null;
   networkId: "mainnet" | "edo2net" | "delphinet" | null;
-  xtzOnly?: boolean;
+  tezOnly?: boolean;
 };
 
 export default function useAllOperations({
   accountPkh,
   tzStatsNetwork,
   networkId,
-  xtzOnly,
+  tezOnly,
 }: GetOperationsParams) {
   const fetchFn = React.useCallback(
     async (
@@ -82,5 +82,5 @@ export default function useAllOperations({
     [accountPkh, networkId, tzStatsNetwork]
   );
 
-  return useOpsPagination(fetchFn, xtzOnly ? XTZ_ASSET : undefined);
+  return useOpsPagination(fetchFn, tezOnly ? TEZ_ASSET : undefined);
 }
