@@ -106,7 +106,7 @@ export interface ThanosNetwork {
   hidden?: boolean;
 }
 
-export type ThanosAsset = ThanosXTZAsset | ThanosToken;
+export type ThanosAsset = ThanosTEZAsset | ThanosToken;
 
 export type ThanosToken =
   | ThanosTzBTCAsset
@@ -115,7 +115,7 @@ export type ThanosToken =
   | ThanosFA2Asset;
 
 export enum ThanosAssetType {
-  XTZ = "XTZ",
+  TEZ = "TEZ",
   TzBTC = "TzBTC",
   Staker = "STAKER",
   FA1_2 = "FA1_2",
@@ -136,8 +136,8 @@ export interface ThanosTokenBase extends ThanosAssetBase {
   iconUrl?: string;
 }
 
-export interface ThanosXTZAsset extends ThanosAssetBase {
-  type: ThanosAssetType.XTZ;
+export interface ThanosTEZAsset extends ThanosAssetBase {
+  type: ThanosAssetType.TEZ;
 }
 
 export interface ThanosTzBTCAsset extends ThanosTokenBase {

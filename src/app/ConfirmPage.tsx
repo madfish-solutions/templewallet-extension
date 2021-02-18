@@ -7,7 +7,6 @@ import {
   useRelevantAccounts,
   ThanosAccountType,
   ThanosDAppPayload,
-  XTZ_ASSET,
   ThanosAccount,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
@@ -450,7 +449,7 @@ const AccountOptionContentHOC = (networkRpc: string) => {
               )}
             >
               <Money>{bal}</Money>{" "}
-              <span style={{ fontSize: "0.75em" }}>{XTZ_ASSET.symbol}</span>
+              <span style={{ fontSize: "0.75em" }}>TEZ</span>
             </div>
           )}
         </Balance>
