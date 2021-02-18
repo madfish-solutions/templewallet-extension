@@ -1704,5 +1704,19 @@
   },
   "faucetJsonPlaceholder": {
     "message": "Faucet JSON"
+  },
+  "operationTriedToSpendMoreTokens": {
+    "message": "The operation tried to spend more tokens than the $entity$ has",
+    "placeholders": {
+      "entity": {
+        "content": "$1"
+      }
+    }
+  },
+  "emptyImplicitContractError": {
+    "message": "No manager operations are allowed on an empty implicit contract."
+  },
+  "unrevealedAccountError": {
+    "message": "The account has not been revealed yet. Please send some XTZ to it and try again."
   }
 }

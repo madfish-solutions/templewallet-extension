@@ -31,6 +31,7 @@ import {
   getAssetKey,
   useUSDPrice,
   transformHttpResponseError,
+  getRpcErrorDetails,
 } from "lib/thanos/front";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
@@ -994,6 +995,16 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
           return t("minimalFeeGreaterThanBalanceVerbose");
 
         case error instanceof HttpResponseError:
+          let reason = transformHttpResponseError(error as HttpResponseError)
+            .message;
+          try {
+            const rpcErrorDetails = getRpcErrorDetails(
+              error as HttpResponseError
+            );
+            if (rpcErrorDetails.id.endsWith("contract.balance_too_low")) {
+              reason = t("minimalFeeGreaterThanBalanceVerbose");
+            }
+          } catch {}
           return (
             <>
               <T
@@ -1003,7 +1014,7 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
                 ).toLowerCase()}
               />
               <br />
-              {transformHttpResponseError(error as HttpResponseError).message}
+              {reason}
             </>
           );
 

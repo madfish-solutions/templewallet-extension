@@ -75,7 +75,7 @@ export function validateContractAddress(value: any) {
   }
 }
 
-function getRpcErrorDetails(error: HttpResponseError) {
+export function getRpcErrorDetails(error: HttpResponseError) {
   try {
     const errorDetails = JSON.parse(error.body)?.[0];
     if (

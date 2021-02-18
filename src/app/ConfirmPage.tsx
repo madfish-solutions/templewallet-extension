@@ -144,6 +144,7 @@ const ConfirmDAppForm: React.FC = () => {
       try {
         await onConfirm(confirmed);
       } catch (err) {
+        console.error(err);
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
         setError(err);
