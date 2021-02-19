@@ -9,7 +9,7 @@ import {
   useAssets,
   useNetwork,
   useRelevantAccounts,
-  XTZ_ASSET,
+  TEZ_ASSET,
 } from "lib/thanos/front";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
@@ -86,10 +86,10 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         asset: tokenAddress
           ? allAssets.find(
               (asset) =>
-                asset.type !== ThanosAssetType.XTZ &&
+                asset.type !== ThanosAssetType.TEZ &&
                 asset.address === tokenAddress
             ) || tokenAddress
-          : XTZ_ASSET,
+          : TEZ_ASSET,
         ...restProps,
       })),
       ...restProps,

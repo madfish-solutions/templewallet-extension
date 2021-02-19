@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import CSSTransition from "react-transition-group/CSSTransition";
-import { ThanosAsset, XTZ_ASSET, useBalance } from "lib/thanos/front";
+import { ThanosAsset, TEZ_ASSET, useBalance } from "lib/thanos/front";
 
 type BalanceProps = {
   address: string;
@@ -13,7 +13,7 @@ type BalanceProps = {
 };
 
 const Balance = React.memo<BalanceProps>(
-  ({ address, children, asset = XTZ_ASSET, networkRpc, displayed }) => {
+  ({ address, children, asset = TEZ_ASSET, networkRpc, displayed }) => {
     const { data: balance } = useBalance(asset, address, {
       networkRpc,
       suspense: false,

@@ -11,7 +11,7 @@ type AssetInfoProps = {
 };
 
 const AssetInfo: React.FC<AssetInfoProps> = ({ asset }) => {
-  if (asset.type === ThanosAssetType.XTZ) return null;
+  if (asset.type === ThanosAssetType.TEZ) return null;
 
   return (
     <div className={classNames("w-full max-w-sm mx-auto")}>

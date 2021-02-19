@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import { ThanosAccount, XTZ_ASSET } from "lib/thanos/front";
+import { ThanosAccount, TEZ_ASSET } from "lib/thanos/front";
 import { t } from "lib/i18n/react";
 import Balance from "app/templates/Balance";
 import Money from "app/atoms/Money";
@@ -115,7 +115,7 @@ const AccountBanner = React.memo<AccountBannerProps>(
                     >
                       <Money>{bal}</Money>{" "}
                       <span style={{ fontSize: "0.75em" }}>
-                        {XTZ_ASSET.symbol}
+                        {TEZ_ASSET.symbol}
                       </span>
                     </div>
                   )}
