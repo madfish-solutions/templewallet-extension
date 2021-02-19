@@ -2,7 +2,7 @@ import classNames from "clsx";
 import React, { useCallback, useRef, useState } from "react";
 import { Controller, ControllerProps, FieldError } from "react-hook-form";
 import BigNumber from "bignumber.js";
-import { XTZ_ASSET } from "lib/thanos/front";
+import { TEZ_ASSET } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import AssetField from "app/atoms/AssetField";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
@@ -242,7 +242,7 @@ const FeeOptionContent: React.FC<OptionRenderProps<FeeOption>> = ({
         {amount && (
           <div className="ml-2 leading-none text-gray-600">
             <Money cryptoDecimals={5}>{amount}</Money>{" "}
-            <span style={{ fontSize: "0.75em" }}>{XTZ_ASSET.symbol}</span>
+            <span style={{ fontSize: "0.75em" }}>{TEZ_ASSET.symbol}</span>
           </div>
         )}
       </div>

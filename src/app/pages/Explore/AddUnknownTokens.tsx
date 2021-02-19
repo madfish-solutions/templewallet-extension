@@ -43,7 +43,7 @@ const AddUnknownTokens: React.FC = () => {
           if (
             assetsRef.current.every(
               (knownAsset) =>
-                knownAsset.type === ThanosAssetType.XTZ ||
+                knownAsset.type === ThanosAssetType.TEZ ||
                 !tokensAreSame(knownAsset, token)
             ) &&
             !hiddenTokens.some((hiddenToken) =>

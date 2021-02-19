@@ -3,7 +3,7 @@ import React from "react";
 import { T, t } from "lib/i18n/react";
 import {
   ThanosDAppPayload,
-  XTZ_ASSET,
+  TEZ_ASSET,
   tryParseExpenses,
   useAccount,
   ThanosAssetType,
@@ -52,7 +52,7 @@ const OperationView: React.FC<OperationViewProps> = ({
                 ? token.address === tokenAddress && token.id === tokenId
                 : token.address === tokenAddress
             ) || tokenAddress
-          : XTZ_ASSET,
+          : TEZ_ASSET,
         tokenAddress,
         tokenId,
         ...restProps,

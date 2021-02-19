@@ -144,18 +144,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
             />
           ),
           derivationPathBanner: null,
-          attention: (
-            <T
-              id="doNotSharePrivateKey"
-              substitutions={[
-                <T id="doNotShareEmphasized" key="doNotShare">
-                  {(message) => (
-                    <span className="font-semibold">{message}</span>
-                  )}
-                </T>,
-              ]}
-            />
-          ),
+          attention: <T id="doNotSharePrivateKey" />,
           fieldDesc: <T id="privateKeyFieldDescription" />,
         };
 
@@ -209,18 +198,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
               </div>
             </div>
           ),
-          attention: (
-            <T
-              id="doNotSharePhrase"
-              substitutions={[
-                <T key="doNotShare" id="doNotShareEmphasized">
-                  {(message) => (
-                    <span className="font-semibold">{message}</span>
-                  )}
-                </T>,
-              ]}
-            />
-          ),
+          attention: <T id="doNotSharePhrase" />,
           fieldDesc: (
             <>
               <T id="youWillNeedThisSeedPhrase" />{" "}
