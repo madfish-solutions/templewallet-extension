@@ -1704,5 +1704,13 @@
   },
   "faucetJsonPlaceholder": {
     "message": "Faucet JSON"
+  },
+  "totalFee": {
+    "message": "Total fee: $fee$",
+    "placeholders": {
+      "fee": {
+        "content": "$1"
+      }
+    }
   }
 }

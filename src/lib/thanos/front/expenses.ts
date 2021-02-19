@@ -1,5 +1,7 @@
+import { TezosToolkit } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 import { OperationsPreview } from "lib/thanos/front";
+import { ThanosConfirmationPayload } from "../types";
 
 export type RawOperationAssetExpense = {
   tokenAddress?: string;
@@ -116,4 +118,20 @@ export function tryParseExpensesPure(
       };
     })
     .filter((x): x is RawOperationExpenses => !!x);
+}
+
+export async function estimateGasFee(
+  tezos: TezosToolkit,
+  opParams?: any[]
+) {
+  if (!opParams) {
+    return 0;
+  }
+  const estimations = await tezos.estimate.batch(opParams);
+  console.log(estimations, opParams);
+  return estimations.reduce(
+    (sum, estimation, index) =>
+      sum + (opParams[index].fee ?? estimation.usingBaseFeeMutez),
+    0
+  );
 }

@@ -30,15 +30,20 @@ import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
+import GasFeeView from "app/pages/GasFeeView";
 
 type InternalConfiramtionProps = {
   payload: ThanosConfirmationPayload;
   onConfirm: (confirmed: boolean) => Promise<void>;
+  totalFee?: number;
+  feeEstimationError?: Error;
 };
 
 const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   payload,
   onConfirm,
+  totalFee,
+  feeEstimationError,
 }) => {
   const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
@@ -288,6 +293,11 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               )}
             </>
           )}
+          <GasFeeView
+            error={feeEstimationError}
+            fee={totalFee}
+            networkRpc={currentNetworkRpc}
+          />
         </div>
 
         <div className="flex-1" />

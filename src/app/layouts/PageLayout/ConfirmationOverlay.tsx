@@ -1,10 +1,11 @@
 import * as React from "react";
 import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
-import { useThanosClient } from "lib/thanos/front";
+import { estimateGasFee, useTezos, useThanosClient } from "lib/thanos/front";
 import Portal from "lib/ui/Portal";
 import DocBg from "app/a11y/DocBg";
 import InternalConfiramtion from "app/templates/InternalConfiramtion";
+import { useRetryableSWR } from "lib/swr";
 
 const ConfirmationOverlay: React.FC = () => {
   const {
@@ -12,7 +13,24 @@ const ConfirmationOverlay: React.FC = () => {
     resetConfirmation,
     confirmInternal,
   } = useThanosClient();
+  const tezos = useTezos();
   const displayed = Boolean(confirmation);
+
+  const getFee = React.useCallback(
+    () =>
+      estimateGasFee(
+        tezos,
+        confirmation?.payload.type === "operations"
+          ? confirmation.payload.opParams
+          : undefined
+      ),
+    [confirmation, tezos]
+  );
+
+  const { data: totalFee, error: feeEstimationError } = useRetryableSWR(
+    ["fee-estimation", confirmation?.id],
+    getFee
+  );
 
   React.useLayoutEffect(() => {
     if (displayed) {
@@ -61,6 +79,8 @@ const ConfirmationOverlay: React.FC = () => {
               <InternalConfiramtion
                 payload={confirmation.payload}
                 onConfirm={handleConfirm}
+                totalFee={totalFee}
+                feeEstimationError={feeEstimationError}
               />
             )}
           </div>

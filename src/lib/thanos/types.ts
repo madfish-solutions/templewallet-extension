@@ -220,6 +220,7 @@ export interface ThanosDAppConnectPayload extends ThanosDAppPayloadBase {
 export interface ThanosDAppOperationsPayload extends ThanosDAppPayloadBase {
   type: "confirm_operations";
   sourcePkh: string;
+  sourcePublicKey: string;
   opParams: any[];
 }
 

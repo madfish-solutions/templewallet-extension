@@ -23,10 +23,11 @@ type OperationExpenses = Omit<RawOperationExpenses, "expenses"> & {
 
 type ExpensesViewProps = {
   expenses?: OperationExpenses[];
+  style?: React.CSSProperties;
 };
 
 const ExpensesView: React.FC<ExpensesViewProps> = (props) => {
-  const { expenses } = props;
+  const { expenses, style } = props;
 
   if (!expenses) {
     return null;
@@ -38,7 +39,7 @@ const ExpensesView: React.FC<ExpensesViewProps> = (props) => {
         "rounded-md overflow-y-auto border",
         "flex flex-col text-gray-700 text-sm leading-tight"
       )}
-      style={{ height: "9.5rem" }}
+      style={{ height: "9.5rem", ...style }}
     >
       {expenses.map((item, index, arr) => (
         <ExpenseViewItem

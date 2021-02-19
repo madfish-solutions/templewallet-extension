@@ -8,6 +8,7 @@ import {
   WalletDelegateParams,
   WalletOriginateParams,
   WalletTransferParams,
+  Signer,
 } from "@taquito/taquito";
 import { buf2hex } from "@taquito/utils";
 import { nanoid } from "nanoid";
@@ -592,5 +593,27 @@ async function request<T extends ThanosRequest>(req: T) {
 function assertResponse(condition: any): asserts condition {
   if (!condition) {
     throw new Error("Invalid response recieved");
+  }
+}
+
+export class ReadOnlySigner implements Signer {
+  constructor(private pkh: string, private pk: string) {}
+
+  async publicKeyHash() {
+    return this.pkh;
+  }
+  async publicKey() {
+    return this.pk;
+  }
+  async secretKey(): Promise<string> {
+    throw new Error("Secret key cannot be exposed");
+  }
+  async sign(): Promise<{
+    bytes: string;
+    sig: string;
+    prefixSig: string;
+    sbytes: string;
+  }> {
+    throw new Error("Cannot sign");
   }
 }

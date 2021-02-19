@@ -175,6 +175,7 @@ export async function requestOperation(
         networkRpc,
         appMeta: dApp.appMeta,
         sourcePkh: req.sourcePkh,
+        sourcePublicKey: dApp.publicKey,
         opParams: req.opParams,
       },
       onDecline: () => {

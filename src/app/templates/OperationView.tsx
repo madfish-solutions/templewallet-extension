@@ -146,7 +146,7 @@ const OperationView: React.FC<OperationViewProps> = ({
         />
 
         <div className={classNames(spFormat.key !== "preview" && "hidden")}>
-          <ExpensesView expenses={expensesData} />
+          <ExpensesView expenses={expensesData} style={{ height: "7rem" }} />
         </div>
       </div>
     );
@@ -200,7 +200,7 @@ const OperationView: React.FC<OperationViewProps> = ({
         />
 
         <div className={classNames(spFormat.key !== "preview" && "hidden")}>
-          <ExpensesView expenses={expensesData} />
+          <ExpensesView expenses={expensesData} style={{ height: "7rem" }} />
         </div>
       </div>
     );

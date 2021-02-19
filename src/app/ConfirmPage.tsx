@@ -9,6 +9,8 @@ import {
   ThanosDAppPayload,
   XTZ_ASSET,
   ThanosAccount,
+  ReadOnlySigner,
+  estimateGasFee,
 } from "lib/thanos/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
@@ -33,6 +35,8 @@ import SubTitle from "app/atoms/SubTitle";
 import DAppLogo from "app/templates/DAppLogo";
 import OperationView from "app/templates/OperationView";
 import ConnectBanner from "app/templates/ConnectBanner";
+import { TezosToolkit } from "@taquito/taquito";
+import GasFeeView from "./pages/GasFeeView";
 
 const ConfirmPage: React.FC = () => {
   const { ready } = useThanosClient();
@@ -95,6 +99,36 @@ const ConfirmDAppForm: React.FC = () => {
     revalidateOnReconnect: false,
   });
   const payload = data!;
+
+  const tezos = React.useMemo(() => {
+    const toolkit = new TezosToolkit(payload.networkRpc);
+    if (payload.type === "confirm_operations") {
+      toolkit.setSignerProvider(
+        new ReadOnlySigner(payload.sourcePkh, payload.sourcePublicKey)
+      );
+    }
+    return toolkit;
+  }, [payload]);
+
+  console.log(payload);
+  const getFee = React.useCallback(
+    () =>
+      estimateGasFee(
+        tezos,
+        payload?.type === "confirm_operations" ? payload.opParams : undefined
+      ),
+    [payload, tezos]
+  );
+
+  const {
+    data: gasFee,
+    error: feeEstimationError,
+    isValidating: loadingFee,
+  } = useRetryableSWR(["fee-estimation", id], getFee);
+
+  if (feeEstimationError) {
+    console.error(feeEstimationError);
+  }
 
   const connectedAccount = React.useMemo(
     () =>
@@ -376,6 +410,12 @@ const ConfirmDAppForm: React.FC = () => {
             )}
           </>
         )}
+        <GasFeeView
+          fee={gasFee}
+          loading={loadingFee}
+          error={feeEstimationError}
+          networkRpc={payload.networkRpc}
+        />
       </div>
 
       <div className="flex-1" />
