@@ -7,7 +7,7 @@ import { T } from "lib/i18n/react";
 import {
   ThanosAssetType,
   ThanosAsset,
-  XTZ_ASSET,
+  TEZ_ASSET,
   useThanosClient,
   useNetwork,
   useOnStorageChanged,
@@ -69,13 +69,13 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         className
       )}
     >
-      {!asset || asset.type === ThanosAssetType.XTZ ? (
+      {!asset || asset.type === ThanosAssetType.TEZ ? (
         <AllOperationsList
           accountPkh={accountPkh}
           accountOwner={accountOwner}
           tzStatsNetwork={tzStatsNetwork}
           networkId={networkId}
-          xtzOnly={!!asset}
+          tezOnly={!!asset}
         />
       ) : (
         <TokenOperationsList
@@ -100,11 +100,11 @@ type BaseOperationsListProps = {
 };
 
 type AllOperationsListProps = BaseOperationsListProps & {
-  xtzOnly?: boolean;
+  tezOnly?: boolean;
 };
 
 const AllOperationsList: React.FC<AllOperationsListProps> = (props) => {
-  const { accountPkh, accountOwner, tzStatsNetwork, xtzOnly } = props;
+  const { accountPkh, accountOwner, tzStatsNetwork, tezOnly } = props;
   const { ops, opsEnded, loadMore, loading } = useAllOperations(props);
 
   return (
@@ -115,7 +115,7 @@ const AllOperationsList: React.FC<AllOperationsListProps> = (props) => {
       loading={loading}
       accountPkh={accountPkh}
       accountOwner={accountOwner}
-      asset={xtzOnly ? XTZ_ASSET : undefined}
+      asset={tezOnly ? TEZ_ASSET : undefined}
       withExplorer={!!tzStatsNetwork}
     />
   );
@@ -231,7 +231,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
         .filter((op) => {
           if (!asset) return true;
 
-          return asset.type === ThanosAssetType.XTZ
+          return asset.type === ThanosAssetType.TEZ
             ? op.volume > 0
             : op.internalTransfers[0]?.tokenAddress === asset.address;
         }),

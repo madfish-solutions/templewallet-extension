@@ -7,7 +7,7 @@ import {
   ThanosAssetType,
   ThanosAccountType,
   getAssetKey,
-  XTZ_ASSET,
+  TEZ_ASSET,
 } from "lib/thanos/front";
 import { T } from "lib/i18n/react";
 import InUSD from "app/templates/InUSD";
@@ -33,7 +33,7 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
   const { allAssets } = useAssets();
   const relevantAssets = React.useMemo(
     () =>
-      account.type === ThanosAccountType.ManagedKT ? [XTZ_ASSET] : allAssets,
+      account.type === ThanosAccountType.ManagedKT ? [TEZ_ASSET] : allAssets,
     [account.type, allAssets]
   );
 
@@ -96,7 +96,7 @@ const AssetSelectedIcon: React.FC<AssetSelectOptionRenderProps> = ({
 const AssetInMenuContent: React.FC<AssetSelectOptionRenderProps> = ({
   option,
 }) => {
-  return option.type === ThanosAssetType.XTZ ? (
+  return option.type === ThanosAssetType.TEZ ? (
     <span className="text-gray-700 text-lg">{option.name}</span>
   ) : (
     <div className="flex flex-col items-start">
