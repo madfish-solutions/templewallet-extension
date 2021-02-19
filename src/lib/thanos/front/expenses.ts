@@ -1,7 +1,6 @@
 import { TezosToolkit } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 import { OperationsPreview } from "lib/thanos/front";
-import { ThanosConfirmationPayload } from "../types";
 
 export type RawOperationAssetExpense = {
   tokenAddress?: string;

@@ -293,11 +293,13 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               )}
             </>
           )}
-          <GasFeeView
-            error={feeEstimationError}
-            fee={totalFee}
-            networkRpc={currentNetworkRpc}
-          />
+          {payload.type === "operations" && (
+            <GasFeeView
+              error={feeEstimationError}
+              fee={totalFee}
+              networkRpc={currentNetworkRpc}
+            />
+          )}
         </div>
 
         <div className="flex-1" />

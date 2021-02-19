@@ -410,12 +410,14 @@ const ConfirmDAppForm: React.FC = () => {
             )}
           </>
         )}
-        <GasFeeView
-          fee={gasFee}
-          loading={loadingFee}
-          error={feeEstimationError}
-          networkRpc={payload.networkRpc}
-        />
+        {payload.type === "confirm_operations" && (
+          <GasFeeView
+            fee={gasFee}
+            loading={loadingFee}
+            error={feeEstimationError}
+            networkRpc={payload.networkRpc}
+          />
+        )}
       </div>
 
       <div className="flex-1" />
