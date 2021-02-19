@@ -2,10 +2,22 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { useRetryableSWR } from "lib/swr";
-import { useTezos, useNetwork, loadChainId } from "lib/thanos/front";
+import {
+  useTezos,
+  useNetwork,
+  loadChainId,
+  useThanosClient,
+} from "lib/thanos/front";
 import { T } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
 import { ReactComponent as ErrorIcon } from "app/icons/error.svg";
+
+const ConditionalNoLambdaViewContractAlert: React.FC = () => {
+  const { ready } = useThanosClient();
+  return ready ? <NoLambdaViewContractAlert /> : null;
+};
+
+export default ConditionalNoLambdaViewContractAlert;
 
 const NoLambdaViewContractAlert: React.FC = () => {
   const { fullPage } = useAppEnv();
@@ -83,5 +95,3 @@ const NoLambdaViewContractAlert: React.FC = () => {
     </div>
   ) : null;
 };
-
-export default NoLambdaViewContractAlert;

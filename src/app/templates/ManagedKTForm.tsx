@@ -6,7 +6,7 @@ import {
   isAddressValid,
   useRelevantAccounts,
   useTezos,
-  XTZ_ASSET,
+  TEZ_ASSET,
   useThanosClient,
   useChainId,
   isKnownChainId,
@@ -205,11 +205,11 @@ const ManagedKTForm: React.FC = () => {
                 <T id="contract" />
               </div>{" "}
               (
-              <Balance asset={XTZ_ASSET} address={filledAccount.address}>
+              <Balance asset={TEZ_ASSET} address={filledAccount.address}>
                 {(bal) => (
                   <span className={classNames("text-xs leading-none")}>
                     <Money>{bal}</Money>{" "}
-                    <span style={{ fontSize: "0.75em" }}>XTZ</span>
+                    <span style={{ fontSize: "0.75em" }}>ꜩ</span>
                   </span>
                 )}
               </Balance>
@@ -326,7 +326,7 @@ const ContractOptionContent: React.FC<ContractOptionRenderProps> = (props) => {
           })()}
         </div>
 
-        <Balance asset={XTZ_ASSET} address={item.address}>
+        <Balance asset={TEZ_ASSET} address={item.address}>
           {(bal) => (
             <div
               className={classNames(
@@ -336,7 +336,7 @@ const ContractOptionContent: React.FC<ContractOptionRenderProps> = (props) => {
               )}
             >
               <Money>{bal}</Money>{" "}
-              <span style={{ fontSize: "0.75em" }}>XTZ</span>
+              <span style={{ fontSize: "0.75em" }}>TEZ</span>
             </div>
           )}
         </Balance>

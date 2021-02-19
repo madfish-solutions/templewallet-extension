@@ -947,7 +947,7 @@
     "message": "This may happen because:"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.257 XTZ burn fee;"
+    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.257 ꜩ burn fee;"
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
@@ -988,7 +988,7 @@
     "message": "Locked wallet <b>already exists</b>.\nImporting a new one will <b>destroy the existing</b>."
   },
   "backToUnlockPage": {
-    "message": "back to Unlock page"
+    "message": "go back to Unlock page"
   },
   "mustBeEqualToPasswordAbove": {
     "message": "Must be equal to password above"
@@ -1074,7 +1074,7 @@
     "message": "If you want to reveal a private key from another account - you should select it in the top-right dropdown."
   },
   "privateKeyFieldDescription": {
-    "message": "Current account key. Keep it secret."
+    "message": "Current account key. Keep it in secret."
   },
   "derivationPath": {
     "message": "Derivation path"
@@ -1093,7 +1093,7 @@
     "message": "e.g. m/44'/1729'/..."
   },
   "keepSeedPhraseSecret": {
-    "message": "Keep it secret."
+    "message": "Keep it in secret."
   },
   "revealSecretPasswordInputDescription": {
     "message": "Enter password to reveal the $secretName$.",
@@ -1154,8 +1154,8 @@
     "message": "in USD"
   },
   "inXTZ": {
-    "message": "in XTZ",
-    "description": "XTZ = asset symbol, like USD"
+    "message": "in ꜩ",
+    "description": "ꜩ = asset symbol, like USD"
   },
   "amountPlaceholder": {
     "message": "e.g. 123.45"
@@ -1167,8 +1167,7 @@
     "message": "Click on Account you want to send funds to."
   },
   "mainAssetBalanceIsZero": {
-    "message": "Your XTZ(main asset) balance is zero. XTZ funds are required for the fee.",
-    "description": "XTZ = asset symbol, like USD"
+    "message": "Your tez(main asset) balance is zero. ꜩ funds are required for the fee."
   },
   "unableToSendTransactionAction": {
     "message": "Unable to send transaction to provided Recipient."
