@@ -74,7 +74,7 @@ const ManageAssetsContent: React.FC = () => {
     (asset: CheckableAsset, checked: boolean) => {
       const plain = toPlain(asset);
 
-      if (plain.type !== ThanosAssetType.XTZ) {
+      if (plain.type !== ThanosAssetType.TEZ) {
         if (checked) {
           addToken(plain);
         } else {

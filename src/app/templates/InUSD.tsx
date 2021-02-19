@@ -3,7 +3,7 @@ import BigNumber from "bignumber.js";
 import {
   ThanosAsset,
   ThanosAssetType,
-  XTZ_ASSET,
+  TEZ_ASSET,
   useUSDPrice,
 } from "lib/thanos/front";
 import Money from "app/atoms/Money";
@@ -17,12 +17,12 @@ type InUSDProps = {
 
 const InUSD: React.FC<InUSDProps> = ({
   volume,
-  asset = XTZ_ASSET,
+  asset = TEZ_ASSET,
   children,
   roundingMode,
 }) => {
   const price = useUSDPrice();
-  return asset.type === ThanosAssetType.XTZ && price !== null
+  return asset.type === ThanosAssetType.TEZ && price !== null
     ? children(
         <Money fiat roundingMode={roundingMode}>
           {new BigNumber(volume).times(price)}
