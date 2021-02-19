@@ -995,10 +995,11 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
           return (
             <>
               <T
-                id="unableToPerformTransactionAction"
-                substitutions={t(
-                  type === "submit" ? "send" : "estimate"
-                ).toLowerCase()}
+                id={
+                  type === "submit"
+                    ? "unableToSendTransactionAction"
+                    : "unableToEstimateTransactionAction"
+                }
               />
               <br />
               <T id="thisMayHappenBecause" />

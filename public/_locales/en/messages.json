@@ -1,6 +1,9 @@
 {
   "appName": {
-    "message": "Thanos Wallet"
+    "message": "Thanos - Tezos Wallet"
+  },
+  "templeAppName": {
+    "message": "Temple - Tezos Wallet"
   },
   "showIncomingTransactions": {
     "message": "Show Incoming Transactions"
@@ -38,7 +41,8 @@
     }
   },
   "authorizedDApps": {
-    "message": "Authorized DApps"
+    "message": "Authorized DApps",
+    "description": "DApps = Decentralized Applications"
   },
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset permissions."
@@ -222,7 +226,8 @@
     "message": "Edit"
   },
   "useCoinSwitch": {
-    "message": "Use CoinSwitch"
+    "message": "Use CoinSwitch",
+    "description": "CoinSwitch = https://coinswitch.co/"
   },
   "tezosFaucet": {
     "message": "Tezos Faucet"
@@ -316,14 +321,6 @@
   "decimals": {
     "message": "Decimals"
   },
-  "doNotSharePhrase": {
-    "message": "$doNotShare$ this phrase with anyone! It can be used to steal all your accounts.",
-    "placeholders": {
-      "doNotShare": {
-        "content": "$1"
-      }
-    }
-  },
   "decimalsInputDescription": {
     "message": "A number of decimal places after point. For example: 8 for BTC, 2 for USD."
   },
@@ -355,7 +352,8 @@
     "message": "This smart contract doesn't exist on current network"
   },
   "onlyKTContractAddressAllowed": {
-    "message": "Only KT... contract address allowed"
+    "message": "Only KT... contract address allowed",
+    "description": "KT not translated"
   },
   "operationHash": {
     "message": "Operation Hash"
@@ -376,6 +374,7 @@
   },
   "defaultManagedKTAccountName": {
     "message": "Managed KT $accountNumber$",
+    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -391,15 +390,10 @@
     }
   },
   "accountsToRemoveConstraint": {
-    "message": "HD accounts cannot be removed."
+    "message": "Hierarchical Deterministic accounts cannot be removed."
   },
   "doNotSharePrivateKey": {
-    "message": "$doNotShare$ this set of chars with anyone! It can be used to steal your current account.",
-    "placeholders": {
-      "doNotShare": {
-        "content": "$1"
-      }
-    }
+    "message": "<b>DO NOT share</b> this set of chars with anyone! It can be used to steal your current account."
   },
   "appWouldLikeToConnectToYourWallet": {
     "message": "$origin$ would like to connect to your wallet",
@@ -482,34 +476,23 @@
     "message": "Try again"
   },
   "tezosMainnet": {
-    "message": "Tezos Mainnet"
-  },
-  "tezosMainnetDescription": {
-    "message": "Tezos mainnet"
-  },
-  "carthageTestnet": {
-    "message": "Carthage Testnet"
-  },
-  "carthageTestnetDescription": {
-    "message": "Carthage testnet"
-  },
-  "dAlphaTestnet": {
-    "message": "Dalpha Testnet (soon)"
-  },
-  "dAlphaTestnetDescription": {
-    "message": "Dalpha testnet"
-  },
-  "localSandbox": {
-    "message": "Local Sandbox"
+    "message": "Tezos Mainnet",
+    "description": "Mainnet = main network"
   },
   "thanosWalletOptions": {
-    "message": "ThanosWallet | Options"
+    "message": "Thanos Wallet | Options"
+  },
+  "templeWalletOptions": {
+    "message": "Temple Wallet | Options"
   },
   "resetExtension": {
     "message": "Reset Extension"
   },
   "resetExtensionConfirmation": {
-    "message": "Are you sure you want to reset the ThanosWallet?\nAs a result, all your data will be deleted."
+    "message": "Are you sure you want to reset the Thanos Wallet?\nAs a result, all your data will be deleted."
+  },
+  "templeResetExtensionConfirmation": {
+    "message": "Are you sure you want to reset the Temple Wallet?\nAs a result, all your data will be deleted."
   },
   "failedToResetExtension": {
     "message": "Failed to reset extension: $errorMessage$",
@@ -520,7 +503,8 @@
     }
   },
   "ledger": {
-    "message": "Ledger"
+    "message": "Ledger",
+    "description": "Ledger = https://www.ledger.com/"
   },
   "retry": {
     "message": "Retry"
@@ -558,6 +542,9 @@
   },
   "createNewWalletDescription": {
     "message": "New to Thanos Wallet? Let's set it up! This will create a new wallet and seed phrase"
+  },
+  "templeCreateNewWalletDescription": {
+    "message": "New to Temple Wallet? Let's set it up! This will create a new wallet and seed phrase"
   },
   "delegate": {
     "message": "Delegate"
@@ -699,13 +686,18 @@
     "message": "Also known as \"Export Wallet\", you may need this seed phrase to access your wallet and accounts on other devices."
   },
   "dApps": {
-    "message": "DApps"
+    "message": "DApps",
+    "description": "DApps = Decentralized Applications"
   },
   "dAppsDescription": {
     "message": "In this section you can enable ability to interact with decentralized applications that support Thanos Wallet."
   },
+  "templeDAppsDescription": {
+    "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
+  },
   "networksDescription": {
-    "message": "In this section you can add or delete custom Tezos networks."
+    "message": "In this section you can add or delete custom Tezos networks.",
+    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "activateAccount": {
     "message": "Activate Account"
@@ -724,6 +716,9 @@
   },
   "aboutDescription": {
     "message": "Use this section to view meta info about Thanos Wallet."
+  },
+  "templeAboutDescription": {
+    "message": "Use this section to view meta info about Temple Wallet."
   },
   "unlockWallet": {
     "message": "Unlock the Wallet"
@@ -744,7 +739,8 @@
     "message": "Import Wallet using Seed Phrase"
   },
   "connectLedger": {
-    "message": "Connect Ledger"
+    "message": "Connect Ledger",
+    "description": "Ledger = https://www.ledger.com/"
   },
   "importExistingWallet": {
     "message": "Import existing Wallet"
@@ -826,6 +822,7 @@
   },
   "dAppsCheckmarkPrompt": {
     "message": "Click on the checkmark to $action$ DApps interaction feature",
+    "description": "DApps = Decentralized Applications",
     "placeholders": {
       "action": {
         "content": "$1"
@@ -833,7 +830,8 @@
     }
   },
   "dAppsInteraction": {
-    "message": "DApps interaction"
+    "message": "DApps interaction",
+    "description": "DApps = Decentralized Applications"
   },
   "dAppsInteractionEnabled": {
     "message": "Enabled"
@@ -986,17 +984,8 @@
   "attentionExclamation": {
     "message": "Attention!"
   },
-  "lockedWallet": {
-    "message": "Locked wallet"
-  },
-  "alreadyExistsWallet": {
-    "message": "already exists"
-  },
-  "importingNewWalletWill": {
-    "message": "Importing a new one will"
-  },
-  "willDestroyTheExisting": {
-    "message": "destroy the existing"
+  "lockedWalletAlreadyExists": {
+    "message": "Locked wallet <b>already exists</b>.\nImporting a new one will <b>destroy the existing</b>."
   },
   "backToUnlockPage": {
     "message": "go back to Unlock page"
@@ -1022,23 +1011,11 @@
   "create": {
     "message": "Create"
   },
-  "clickOnAreaBelow": {
-    "message": "Click on area below"
+  "revealNewSeedPhrase": {
+    "message": "<b>Click on area below</b> to reveal your new Seed Phrase.\nThen, write this phrase on a piece of paper and <b>store in a secure location</b>. Or you can memorize it."
   },
-  "toRevealNewSeedPhrase": {
-    "message": " to reveal your new Seed Phrase."
-  },
-  "writePhraseOnPieceOfPaper": {
-    "message": "Then, write this phrase on a piece of paper and"
-  },
-  "storePhraseInSecureLocation": {
-    "message": "store in a secure location"
-  },
-  "orYouCanMemorizePhrase": {
-    "message": "Or you can memorize it."
-  },
-  "doNotShareEmphasized": {
-    "message": "DO NOT share"
+  "doNotSharePhrase": {
+    "message": "<b>DO NOT share</b> this phrase with anyone! It can be used to steal all your accounts."
   },
   "youWillNeedThisSeedPhrase": {
     "message": "If you ever switch between browsers or devices, you will need this seed phrase to access your accounts."
@@ -1054,9 +1031,6 @@
   },
   "continue": {
     "message": "Continue"
-  },
-  "operationHistoryUnavailableForSandbox": {
-    "message": "Operation history is not available\nfor local sandbox"
   },
   "noOperationsFound": {
     "message": "No operations found"
@@ -1109,7 +1083,8 @@
     "message": "Seed Phrase"
   },
   "pathForHDAccounts": {
-    "message": "for HD accounts. This is the thing you use to recover all your accounts from your seed phrase."
+    "message": "for HD acccounts. This is the thing you use to recover all your accounts from your seed phrase.",
+    "description": "HD = Hierarchical Deterministic"
   },
   "derivationPathExample": {
     "message": "m/44'/1729'/<account_index>'/0'"
@@ -1163,7 +1138,8 @@
     "message": "e.g. tz1a9w1S7hN5s..."
   },
   "recipientInputPlaceholderWithDomain": {
-    "message": "e.g. alice.tez or tz1a9w1S7hN5s..."
+    "message": "e.g. alice.tez or tz1a9w1S7hN5s...",
+    "description": "alice.tez = domain like google.com"
   },
   "tryingToTransferToYourself": {
     "message": "You're trying to transfer funds to yourself.\nPlease, ensure that it's exactly what you want."
@@ -1178,7 +1154,8 @@
     "message": "in USD"
   },
   "inXTZ": {
-    "message": "in ꜩ"
+    "message": "in ꜩ",
+    "description": "ꜩ = asset symbol, like USD"
   },
   "amountPlaceholder": {
     "message": "e.g. 123.45"
@@ -1190,18 +1167,13 @@
     "message": "Click on Account you want to send funds to."
   },
   "mainAssetBalanceIsZero": {
-    "message": "Your ꜩ (main asset) balance is zero. ꜩ funds are required for the fee."
+    "message": "Your tez(main asset) balance is zero. ꜩ funds are required for the fee."
   },
-  "estimate": {
-    "message": "Estimate"
+  "unableToSendTransactionAction": {
+    "message": "Unable to send transaction to provided Recipient."
   },
-  "unableToPerformTransactionAction": {
-    "message": "Unable to $actionName$ transaction to provided Recipient.",
-    "placeholders": {
-      "actionName": {
-        "content": "$1"
-      }
-    }
+  "unableToEstimateTransactionAction": {
+    "message": "Unable to estimate transaction to provided Recipient."
   },
   "makeSureToBackupSeedPhrase": {
     "message": "Make sure to back up your seed phrase!"
@@ -1222,7 +1194,8 @@
     "message": "Must be a valid URL"
   },
   "rpcBaseURL": {
-    "message": "RPC base URL"
+    "message": "RPC base URL",
+    "description": "RPC = Remote Procedure Call (https://en.wikipedia.org/wiki/Remote_procedure_call)"
   },
   "mustBeUnique": {
     "message": "Must be unique"
@@ -1266,10 +1239,12 @@
     }
   },
   "ledgerNano": {
-    "message": "Ledger Nano"
+    "message": "Ledger Nano",
+    "description": "Ledger = https://www.ledger.com/"
   },
   "defaultLedgerName": {
     "message": "Ledger $number$",
+    "description": "Ledger = https://www.ledger.com/",
     "placeholders": {
       "number": {
         "content": "$1"
@@ -1280,7 +1255,8 @@
     "message": "1-16 characters, no special"
   },
   "ledgerNameInputDescription": {
-    "message": "What will be the name of the new Ledger account?"
+    "message": "What will be the name of the new Ledger account?",
+    "description": "Ledger = https://www.ledger.com/"
   },
   "defaultDerivationPathLabel": {
     "message": "By default $path$ derivation is used.",
@@ -1294,7 +1270,8 @@
     "message": "Click on 'Custom derivation path' to customize it."
   },
   "addLedgerAccount": {
-    "message": "Add Ledger Account"
+    "message": "Add Ledger Account",
+    "description": "Ledger = https://www.ledger.com/"
   },
   "firefoxLedgerConnectionError": {
     "message": "$sorry$ Connection to the $device$ device via $browser$ is temporarily $unavailable$.",
@@ -1667,7 +1644,8 @@
     "message": "Resolved address"
   },
   "invalidRpcCantGetChainId": {
-    "message": "Invalid RPC: Cannot get chain id"
+    "message": "Invalid RPC: Cannot get chain id",
+    "description": "RPC = Remote Procedure Call (https://en.wikipedia.org/wiki/Remote_procedure_call)"
   },
   "contractNotOriginated": {
     "message": "Contract not originated"
@@ -1701,8 +1679,5 @@
   },
   "faucetJsonDescription": {
     "message": "You can paste JSON here instead of adding file"
-  },
-  "faucetJsonPlaceholder": {
-    "message": "Faucet JSON"
   }
 }

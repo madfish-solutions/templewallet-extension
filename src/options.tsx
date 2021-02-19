@@ -5,6 +5,7 @@ import * as ReactDOM from "react-dom";
 import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
 import { getMessage } from "lib/i18n";
+import { T } from "lib/i18n/react";
 import {
   AlertFn,
   ConfirmFn,
@@ -69,7 +70,7 @@ async function handleReset(alert: AlertFn, confirm: ConfirmFn) {
 
   const confirmed = await confirm({
     title: getMessage("actionConfirmation"),
-    children: getMessage("resetExtensionConfirmation"),
+    children: <T id="resetExtensionConfirmation" />,
   });
   if (confirmed) {
     (async () => {
