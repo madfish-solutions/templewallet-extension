@@ -24,7 +24,7 @@ const Money = React.memo<MoneyProps>(
   }) => {
     const bn = new BigNumber(children);
     const decimalsLength = bn.decimalPlaces();
-    const intLength = bn.integerValue().toString().length;
+    const intLength = bn.integerValue().toFixed().length;
     if (intLength >= ENOUGH_INT_LENGTH) {
       cryptoDecimals = Math.max(cryptoDecimals - 2, 1);
     }

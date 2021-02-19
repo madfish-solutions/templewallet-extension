@@ -120,39 +120,26 @@ const NewWallet: React.FC<NewWalletProps> = ({
               description={
                 <>
                   <p>
-                    <T id="lockedWallet" />{" "}
-                    <T id="alreadyExistsWallet">
-                      {(message) => (
-                        <span className="font-semibold">{message}</span>
-                      )}
-                    </T>
-                    .
-                    <br />
-                    <T id="importingNewWalletWill" />{" "}
-                    <T id="willDestroyTheExisting">
-                      {(message) => (
-                        <span className="font-semibold">{message}</span>
-                      )}
-                    </T>
-                    .
+                    <T id="lockedWalletAlreadyExists" />
                   </p>
-                  <T
-                    id="unlockWalletPrompt"
-                    substitutions={[
-                      <T id="backToUnlockPage" key="link">
-                        {(linkLabel) => (
-                          <Link
-                            to="/"
-                            className="font-semibold hover:underline"
-                          >
-                            {linkLabel}
-                          </Link>
-                        )}
-                      </T>,
-                    ]}
-                  >
-                    {(message) => <p className="mt-1">{message}</p>}
-                  </T>
+
+                  <p className="mt-1">
+                    <T
+                      id="unlockWalletPrompt"
+                      substitutions={[
+                        <T id="backToUnlockPage" key="link">
+                          {(linkLabel) => (
+                            <Link
+                              to="/"
+                              className="font-semibold hover:underline"
+                            >
+                              {linkLabel}
+                            </Link>
+                          )}
+                        </T>,
+                      ]}
+                    />
+                  </p>
                 </>
               }
               className="my-6"
@@ -320,31 +307,13 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
         title={""}
         description={
           <>
-            <p className="mb-2">
-              <T id="clickOnAreaBelow">
-                {(message) => <span className="font-semibold">{message}</span>}
-              </T>
-              <T id="toRevealNewSeedPhrase" />
-              <br />
-              <T id="writePhraseOnPieceOfPaper" />{" "}
-              <T id="storePhraseInSecureLocation">
-                {(message) => <span className="font-semibold">{message}</span>}
-              </T>
-              .<T id="orYouCanMemorizePhrase" />
+            <p>
+              <T id="revealNewSeedPhrase" />
             </p>
 
-            <T
-              id="doNotSharePhrase"
-              substitutions={[
-                <T key="doNotShare" id="doNotShareEmphasized">
-                  {(message) => (
-                    <span className="font-semibold">{message}</span>
-                  )}
-                </T>,
-              ]}
-            >
-              {(message) => <p>{message}</p>}
-            </T>
+            <p className="mt-1">
+              <T id="doNotSharePhrase" />
+            </p>
           </>
         }
         className="mt-4 mb-8"

@@ -9,7 +9,7 @@ import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import { navigate, HistoryAction } from "lib/woozie";
 import {
   ThanosAsset,
-  XTZ_ASSET,
+  TEZ_ASSET,
   useRelevantAccounts,
   useAccount,
   useTezos,
@@ -40,7 +40,7 @@ import {
   ArtificialError,
   NotEnoughFundsError,
   ZeroBalanceError,
-  ZeroXTZBalanceError,
+  ZeroTEZBalanceError,
 } from "app/defaults";
 import { useAppEnv } from "app/env";
 import AssetSelect from "app/templates/AssetSelect";
@@ -75,7 +75,7 @@ type SendFormProps = {
 };
 
 const SendForm: React.FC<SendFormProps> = ({ assetSlug }) => {
-  const asset = useAssetBySlug(assetSlug) ?? XTZ_ASSET;
+  const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
@@ -111,7 +111,7 @@ type FormProps = {
 
 const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
-  const xtzPrice = useUSDPrice();
+  const tezPrice = useUSDPrice();
 
   const allAccounts = useRelevantAccounts();
   const acc = useAccount();
@@ -128,17 +128,17 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const balance = balanceData!;
   const balanceNum = balance.toNumber();
 
-  const { data: xtzBalanceData, mutate: mutateXtzBalance } = useBalance(
-    XTZ_ASSET,
+  const { data: tezBalanceData, mutate: mutateTezBalance } = useBalance(
+    TEZ_ASSET,
     accountPkh
   );
-  const xtzBalance = xtzBalanceData!;
-  const xtzBalanceNum = xtzBalance.toNumber();
+  const tezBalance = tezBalanceData!;
+  const tezBalanceNum = tezBalance.toNumber();
 
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
 
   const canToggleUsd =
-    localAsset.type === ThanosAssetType.XTZ && xtzPrice !== null;
+    localAsset.type === ThanosAssetType.TEZ && tezPrice !== null;
   const prevCanToggleUsd = React.useRef(canToggleUsd);
 
   /**
@@ -176,15 +176,15 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         "amount",
         Number(
           (newShouldUseUsd
-            ? amount.multipliedBy(xtzPrice!)
-            : amount.div(xtzPrice!)
+            ? amount.multipliedBy(tezPrice!)
+            : amount.div(tezPrice!)
           ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
             decimalSeparator: ".",
           })
         )
       );
     },
-    [setShouldUseUsd, shouldUseUsd, getValues, xtzPrice, setValue]
+    [setShouldUseUsd, shouldUseUsd, getValues, tezPrice, setValue]
   );
   React.useEffect(() => {
     if (!canToggleUsd && prevCanToggleUsd.current && shouldUseUsd) {
@@ -263,7 +263,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const estimateBaseFee = React.useCallback(async () => {
     try {
       const to = toResolved;
-      const xtz = localAsset.type === ThanosAssetType.XTZ;
+      const tez = localAsset.type === ThanosAssetType.TEZ;
 
       const balanceBN = (await mutateBalance(
         fetchBalance(tezos, localAsset, accountPkh)
@@ -272,13 +272,13 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         throw new ZeroBalanceError();
       }
 
-      let xtzBalanceBN: BigNumber;
-      if (!xtz) {
-        xtzBalanceBN = (await mutateXtzBalance(
-          fetchBalance(tezos, XTZ_ASSET, accountPkh)
+      let tezBalanceBN: BigNumber;
+      if (!tez) {
+        tezBalanceBN = (await mutateTezBalance(
+          fetchBalance(tezos, TEZ_ASSET, accountPkh)
         ))!;
-        if (xtzBalanceBN.isZero()) {
-          throw new ZeroXTZBalanceError();
+        if (tezBalanceBN.isZero()) {
+          throw new ZeroTEZBalanceError();
         }
       }
 
@@ -306,7 +306,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
           .do(michelsonLambda(to, tzToMutez(balanceBN)))
           .toTransferParams();
         estmtnMax = await tezos.estimate.transfer(transferParams);
-      } else if (xtz) {
+      } else if (tez) {
         const estmtn = await tezos.estimate.transfer(transferParams);
         let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
         if (!hasManager(manager)) {
@@ -337,9 +337,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       }
 
       if (
-        xtz
+        tez
           ? baseFee.isGreaterThanOrEqualTo(balanceBN)
-          : baseFee.isGreaterThan(xtzBalanceBN!)
+          : baseFee.isGreaterThan(tezBalanceBN!)
       ) {
         throw new NotEnoughFundsError();
       }
@@ -369,7 +369,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     accountPkh,
     toResolved,
     mutateBalance,
-    mutateXtzBalance,
+    mutateTezBalance,
   ]);
 
   const {
@@ -402,13 +402,13 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const maxAddFee = React.useMemo(() => {
     if (baseFee instanceof BigNumber) {
-      return new BigNumber(xtzBalanceNum)
+      return new BigNumber(tezBalanceNum)
         .minus(baseFee)
         .minus(PENNY)
         .toNumber();
     }
     return;
-  }, [xtzBalanceNum, baseFee]);
+  }, [tezBalanceNum, baseFee]);
 
   const safeFeeValue = React.useMemo(
     () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
@@ -418,7 +418,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const maxAmount = React.useMemo(() => {
     if (!(baseFee instanceof BigNumber)) return null;
 
-    return localAsset.type === ThanosAssetType.XTZ
+    return localAsset.type === ThanosAssetType.TEZ
       ? (() => {
           let ma =
             acc.type === ThanosAccountType.ManagedKT
@@ -427,15 +427,15 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                   .minus(baseFee)
                   .minus(safeFeeValue ?? 0)
                   .minus(PENNY);
-          const maxAmountXtz = BigNumber.max(ma, 0);
-          const maxAmountUsd = xtzPrice
+          const maxAmountTez = BigNumber.max(ma, 0);
+          const maxAmountUsd = tezPrice
             ? new BigNumber(
-                maxAmountXtz
-                  .multipliedBy(xtzPrice)
+                maxAmountTez
+                  .multipliedBy(tezPrice)
                   .toFormat(2, BigNumber.ROUND_FLOOR, { decimalSeparator: "." })
               )
             : new BigNumber(0);
-          return shouldUseUsd ? maxAmountUsd : maxAmountXtz;
+          return shouldUseUsd ? maxAmountUsd : maxAmountTez;
         })()
       : new BigNumber(balanceNum);
   }, [
@@ -445,7 +445,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     baseFee,
     safeFeeValue,
     shouldUseUsd,
-    xtzPrice,
+    tezPrice,
   ]);
 
   const maxAmountNum = React.useMemo(
@@ -498,14 +498,14 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     `${tezos.checksum}_${toResolved}`
   );
 
-  const toXTZAmount = React.useCallback(
+  const toTEZAmount = React.useCallback(
     (usdAmount: number) =>
       +new BigNumber(usdAmount)
-        .dividedBy(xtzPrice ?? 1)
+        .dividedBy(tezPrice ?? 1)
         .toFormat(6, BigNumber.ROUND_FLOOR, {
           decimalSeparator: ".",
         }),
-    [xtzPrice]
+    [tezPrice]
   );
 
   const validateRecipient = React.useCallback(
@@ -552,7 +552,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             .do(michelsonLambda(toResolved, tzToMutez(amount)))
             .send({ amount: 0 });
         } else {
-          const actualAmount = shouldUseUsd ? toXTZAmount(amount) : amount;
+          const actualAmount = shouldUseUsd ? toTEZAmount(amount) : amount;
           const transferParams = await toTransferParams(
             tezos,
             localAsset,
@@ -594,7 +594,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       accountPkh,
       toResolved,
       shouldUseUsd,
-      toXTZAmount,
+      toTEZAmount,
     ]
   );
 
@@ -761,14 +761,14 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                     {shouldUseUsd ? <span className="pr-px">$</span> : null}
                     {maxAmount.toFixed()}
                   </button>
-                  {amountValue && localAsset.type === ThanosAssetType.XTZ ? (
+                  {amountValue && localAsset.type === ThanosAssetType.TEZ ? (
                     <>
                       <br />
                       {shouldUseUsd ? (
                         <div className="mt-1 -mb-3">
                           ≈{" "}
                           <span className="font-normal text-gray-700">
-                            {toXTZAmount(amountValue)}
+                            {toTEZAmount(amountValue)}
                           </span>{" "}
                           <T id="inXTZ" />
                         </div>
@@ -804,7 +804,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
             name="fee"
             control={control}
             onChange={handleFeeFieldChange}
-            assetSymbol={XTZ_ASSET.symbol}
+            assetSymbol={TEZ_ASSET.symbol}
             baseFee={baseFee}
             error={errors.fee}
             id="send-fee"
@@ -975,8 +975,8 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
     title={(() => {
       switch (true) {
         case error instanceof NotEnoughFundsError:
-          return error instanceof ZeroXTZBalanceError
-            ? `${t("notEnoughCurrencyFunds", "XTZ")} 😶`
+          return error instanceof ZeroTEZBalanceError
+            ? `${t("notEnoughCurrencyFunds", "ꜩ")} 😶`
             : `${t("notEnoughFunds")} 😶`;
 
         default:
@@ -988,7 +988,7 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
         case error instanceof ZeroBalanceError:
           return t("yourBalanceIsZero");
 
-        case error instanceof ZeroXTZBalanceError:
+        case error instanceof ZeroTEZBalanceError:
           return t("mainAssetBalanceIsZero");
 
         case error instanceof NotEnoughFundsError:
@@ -1022,10 +1022,11 @@ const SendErrorAlert: React.FC<SendErrorAlertProps> = ({ type, error }) => (
           return (
             <>
               <T
-                id="unableToPerformTransactionAction"
-                substitutions={t(
-                  type === "submit" ? "send" : "estimate"
-                ).toLowerCase()}
+                id={
+                  type === "submit"
+                    ? "unableToSendTransactionAction"
+                    : "unableToEstimateTransactionAction"
+                }
               />
               <br />
               <T id="thisMayHappenBecause" />

@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-  XTZ_ASSET,
+  TEZ_ASSET,
   useTokens,
   useAllAssetsRef,
   getAssetKey,
@@ -11,7 +11,7 @@ export function useAssets() {
   const { displayedTokens } = useTokens();
   const allAssetsRef = useAllAssetsRef();
 
-  const allAssets = React.useMemo(() => [XTZ_ASSET, ...displayedTokens], [
+  const allAssets = React.useMemo(() => [TEZ_ASSET, ...displayedTokens], [
     displayedTokens,
   ]);
 

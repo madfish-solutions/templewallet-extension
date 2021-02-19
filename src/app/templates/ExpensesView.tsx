@@ -4,7 +4,7 @@ import {
   ThanosAsset,
   RawOperationExpenses,
   RawOperationAssetExpense,
-  XTZ_ASSET,
+  TEZ_ASSET,
 } from "lib/thanos/front";
 import { T, t, TProps } from "lib/i18n/react";
 import Money from "app/atoms/Money";
@@ -266,7 +266,7 @@ const OperationVolumeDisplay = React.memo<OperationVolumeDisplayProps>(
         </div>
 
         {(!expense?.asset || asset) && (
-          <InUSD volume={finalVolume || 0} asset={asset || XTZ_ASSET}>
+          <InUSD volume={finalVolume || 0} asset={asset || TEZ_ASSET}>
             {(usdVolume) => (
               <div className="text-xs text-gray-500 ml-1">
                 (<span className="mr-px">$</span>

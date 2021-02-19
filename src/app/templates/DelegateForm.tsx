@@ -6,7 +6,7 @@ import BigNumber from "bignumber.js";
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import { useLocation, Link } from "lib/woozie";
 import {
-  XTZ_ASSET,
+  TEZ_ASSET,
   useNetwork,
   useAccount,
   useTezos,
@@ -40,7 +40,7 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Name from "app/atoms/Name";
 import Alert from "app/atoms/Alert";
 import BakerBanner from "app/templates/BakerBanner";
-import xtzImgUrl from "app/misc/xtz.png";
+import tezImgUrl from "app/misc/tez.png";
 import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ArrowUpIcon } from "app/icons/arrow-up.svg";
@@ -62,10 +62,10 @@ const DelegateForm: React.FC = () => {
   const tezos = useTezos();
 
   const accountPkh = acc.publicKeyHash;
-  const assetSymbol = "XTZ";
+  const assetSymbol = "ꜩ";
 
   const { data: balanceData, mutate: mutateBalance } = useBalance(
-    XTZ_ASSET,
+    TEZ_ASSET,
     accountPkh
   );
   const balance = balanceData!;
@@ -188,7 +188,7 @@ const DelegateForm: React.FC = () => {
   const estimateBaseFee = React.useCallback(async () => {
     try {
       const balanceBN = (await mutateBalance(
-        fetchBalance(tezos, XTZ_ASSET, accountPkh)
+        fetchBalance(tezos, TEZ_ASSET, accountPkh)
       ))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
@@ -355,7 +355,7 @@ const DelegateForm: React.FC = () => {
               )}
             >
               <img
-                src={xtzImgUrl}
+                src={tezImgUrl}
                 alt={assetSymbol}
                 className="w-auto h-12 mr-3"
               />
@@ -368,7 +368,7 @@ const DelegateForm: React.FC = () => {
                       <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
                     </span>
 
-                    <InUSD asset={XTZ_ASSET} volume={balance}>
+                    <InUSD asset={TEZ_ASSET} volume={balance}>
                       {(usdBalance) => (
                         <div className="mt-1 text-sm text-gray-500">
                           ${usdBalance}
@@ -709,9 +709,7 @@ const DelegateForm: React.FC = () => {
                                 <span className="font-normal">
                                   <Money>{baker.freespace}</Money>
                                 </span>{" "}
-                                <span style={{ fontSize: "0.75em" }}>
-                                  {assetSymbol}
-                                </span>
+                                <span style={{ fontSize: "0.75em" }}>TEZ</span>
                               </div>
                             )}
                           </T>

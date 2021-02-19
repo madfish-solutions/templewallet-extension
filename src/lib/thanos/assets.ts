@@ -10,10 +10,10 @@ import { mutezToTz } from "lib/thanos/helpers";
 import assert, { AssertionError } from "lib/assert";
 import { getMessage } from "lib/i18n";
 
-export const XTZ_ASSET: ThanosAsset = {
-  type: ThanosAssetType.XTZ,
+export const TEZ_ASSET: ThanosAsset = {
+  type: ThanosAssetType.TEZ,
   name: "Tezos",
-  symbol: "XTZ",
+  symbol: "ꜩ",
   decimals: 6,
   fungible: true,
   default: true,
@@ -262,7 +262,7 @@ export async function fetchBalance(
   let nat: BigNumber | undefined;
 
   switch (asset.type) {
-    case ThanosAssetType.XTZ:
+    case ThanosAssetType.TEZ:
       const amount = await tezos.tz.getBalance(accountPkh);
       return mutezToTz(amount);
 
@@ -318,7 +318,7 @@ export async function toTransferParams(
   amount: number
 ) {
   switch (asset.type) {
-    case ThanosAssetType.XTZ:
+    case ThanosAssetType.TEZ:
       return {
         to: toPkh,
         amount,
@@ -331,7 +331,7 @@ export async function toTransferParams(
       const contact = await loadContract(tezos, asset.address);
       const pennyAmount = new BigNumber(amount)
         .times(10 ** asset.decimals)
-        .toString();
+        .toFixed();
       const methodArgs =
         asset.type === ThanosAssetType.FA2
           ? [
@@ -397,8 +397,8 @@ export function assetsAreSame(aAsset: ThanosAsset, bAsset: ThanosAsset) {
 
 export function getAssetKey(asset: ThanosAsset) {
   switch (asset.type) {
-    case ThanosAssetType.XTZ:
-      return "xtz";
+    case ThanosAssetType.TEZ:
+      return "tez";
 
     case ThanosAssetType.FA2:
       return `${asset.address}_${asset.id}`;

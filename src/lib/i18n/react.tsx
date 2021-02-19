@@ -14,10 +14,10 @@ export type TProps = {
 };
 
 export const T: React.FC<TProps> = ({ id, substitutions, children }) => {
-  const message = React.useMemo(() => t(id, substitutions), [
-    id,
-    substitutions,
-  ]);
+  const message = React.useMemo(
+    () => t(id, substitutions ? [...substitutions, <></>] : [<></>]),
+    [id, substitutions]
+  );
 
   return React.useMemo(() => (children ? children(message) : <>{message}</>), [
     message,
@@ -43,12 +43,24 @@ export function t(messageName: string, substitutions?: any): any {
 
   return (
     <>
-      {tmp.split("$$").map((part, i) => (
-        <React.Fragment key={`part_${i}`}>
-          {part.split("\n").map((subPart, j) => (
-            <React.Fragment key={`subpart_${j}`}>
+      {tmp.split("$$").map((partI, i) => (
+        <React.Fragment key={`i_${i}`}>
+          {partI.split("\n").map((partJ, j) => (
+            <React.Fragment key={`j_${j}`}>
               {j > 0 && <br />}
-              {subPart}
+              {partJ.includes("<b>")
+                ? partJ
+                    .split(BOLD_PATTERN)
+                    .map((partK, k) => (
+                      <React.Fragment key={`k_${k}`}>
+                        {k % 2 === 0 ? (
+                          partK
+                        ) : (
+                          <span className="font-semibold">{partK}</span>
+                        )}
+                      </React.Fragment>
+                    ))
+                : partJ}
             </React.Fragment>
           ))}
           {subList[i]}
@@ -57,6 +69,8 @@ export function t(messageName: string, substitutions?: any): any {
     </>
   );
 }
+
+const BOLD_PATTERN = /<b>(.*?)<\/b>/g;
 
 function hasReactSubstitutions(
   substitutions: Substitutions | ReactSubstitutions

@@ -8,18 +8,18 @@ import {
   ThanosChainId,
 } from "lib/thanos/types";
 import { T, t } from "lib/i18n/react";
-import xtzImgUrl from "app/misc/xtz.png";
+import tezImgUrl from "app/misc/tez.png";
 
 export const BCD_NETWORKS_NAMES = new Map<ThanosChainId, BcdNetwork>([
   [ThanosChainId.Mainnet, "mainnet"],
-  [ThanosChainId.Edonet, "edonet"],
+  [ThanosChainId.Edo2net, "edo2net"],
   [ThanosChainId.Delphinet, "delphinet"],
 ]);
 
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
 export class ZeroBalanceError extends NotEnoughFundsError {}
-export class ZeroXTZBalanceError extends NotEnoughFundsError {}
+export class ZeroTEZBalanceError extends NotEnoughFundsError {}
 
 export const PASSWORD_PATTERN = new RegExp(
   [
@@ -55,7 +55,7 @@ export function formatMnemonic(m: string) {
 }
 
 export function getAssetIconUrl(asset: ThanosAsset) {
-  return asset.type === ThanosAssetType.XTZ ? xtzImgUrl : asset.iconUrl;
+  return asset.type === ThanosAssetType.TEZ ? tezImgUrl : asset.iconUrl;
 }
 
 export function getAccountBadgeTitle(account: Pick<ThanosAccount, "type">) {

@@ -273,7 +273,7 @@ function groupedOpsToOperationsPreview(
       [hash]: bcdOps[hash],
     };
   }, {});
-  const xtzOnly = asset?.type === ThanosAssetType.XTZ;
+  const tezOnly = asset?.type === ThanosAssetType.TEZ;
   return [
     ...Object.keys(tzStatsOps)
       .reduce<OperationPreview[]>((prevMergedOps, opHash) => {
@@ -351,7 +351,7 @@ function groupedOpsToOperationsPreview(
         return [...prevMergedOps, ...mergedOps];
       }, [])
       .filter(({ volume, type, entrypoint }) => {
-        if (!xtzOnly) {
+        if (!tezOnly) {
           return true;
         }
         return (
@@ -359,7 +359,7 @@ function groupedOpsToOperationsPreview(
           (type !== "transaction" || !entrypoint || entrypoint === "transfer")
         );
       }),
-    ...(xtzOnly
+    ...(tezOnly
       ? []
       : Object.values(pureBcdOps).map((bcdOpsChunk) => ({
           internalTransfers: bcdOpsChunk.map((bcdOp) => ({

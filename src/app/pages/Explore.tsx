@@ -8,7 +8,7 @@ import {
   ThanosAssetType,
   useAccount,
   useAssetBySlug,
-  XTZ_ASSET,
+  TEZ_ASSET,
 } from "lib/thanos/front";
 import { T, t } from "lib/i18n/react";
 import useTippy from "lib/ui/useTippy";
@@ -75,7 +75,7 @@ const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
       >
         <AddressChip pkh={accountPkh} className="mb-6" />
 
-        <MainAssetBanner accountPkh={accountPkh} asset={asset ?? XTZ_ASSET} />
+        <MainAssetBanner accountPkh={accountPkh} asset={asset ?? TEZ_ASSET} />
 
         <div
           className="flex items-stretch w-full mx-auto mt-4"
@@ -261,7 +261,7 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
       Component: () => <Activity asset={asset} />,
     };
 
-    if (asset.type === ThanosAssetType.XTZ) {
+    if (asset.type === ThanosAssetType.TEZ) {
       return [activity];
     }
 

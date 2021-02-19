@@ -1,6 +1,6 @@
 {
   "name": "thanos-wallet",
-  "version": "1.4.3",
+  "version": "1.4.5",
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack --watch --info-verbosity none --display minimal --hide-modules",

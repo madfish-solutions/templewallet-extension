@@ -43,13 +43,13 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 const KNOWN_LAMBDA_CONTRACTS = new Map([
   [ThanosChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
   [ThanosChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
-  [ThanosChainId.Edonet, "KT1QtbEVQ3tHPhL2GPTgWJPvhCER4gavWUun"],
+  [ThanosChainId.Edo2net, "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN"],
   [ThanosChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
 ]);
 const NETWORK_IDS = new Map<string, string>([
   [ThanosChainId.Mainnet, "mainnet"],
   [ThanosChainId.Delphinet, "delphinet"],
-  [ThanosChainId.Edonet, "edonet"],
+  [ThanosChainId.Edo2net, "edo2net"],
   [ThanosChainId.Carthagenet, "carthagenet"],
 ]);
 
