@@ -767,7 +767,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                           <span className="font-normal text-gray-700">
                             {toTEZAmount(amountValue)}
                           </span>{" "}
-                          <T id="inTEZ" />
+                          <T id="inXTZ" />
                         </div>
                       ) : (
                         <InUSD
