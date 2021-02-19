@@ -999,7 +999,7 @@
     "message": "destroy the existing"
   },
   "backToUnlockPage": {
-    "message": "back to Unlock page"
+    "message": "go back to Unlock page"
   },
   "mustBeEqualToPasswordAbove": {
     "message": "Must be equal to password above"
@@ -1100,7 +1100,7 @@
     "message": "If you want to reveal a private key from another account - you should select it in the top-right dropdown."
   },
   "privateKeyFieldDescription": {
-    "message": "Current account key. Keep it secret."
+    "message": "Current account key. Keep it in secret."
   },
   "derivationPath": {
     "message": "Derivation path"
@@ -1109,7 +1109,7 @@
     "message": "Seed Phrase"
   },
   "pathForHDAccounts": {
-    "message": "for HD acccounts. This is the thing you use to recover all your accounts from your seed phrase."
+    "message": "for HD accounts. This is the thing you use to recover all your accounts from your seed phrase."
   },
   "derivationPathExample": {
     "message": "m/44'/1729'/<account_index>'/0'"
@@ -1118,7 +1118,7 @@
     "message": "e.g. m/44'/1729'/..."
   },
   "keepSeedPhraseSecret": {
-    "message": "Keep it secret."
+    "message": "Keep it in secret."
   },
   "revealSecretPasswordInputDescription": {
     "message": "Enter password to reveal the $secretName$.",
