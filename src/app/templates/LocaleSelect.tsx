@@ -32,6 +32,12 @@ const localeOptions: LocaleOption[] = [
     disabled: false,
   },
   {
+    code: "fr",
+    flagName: "fr",
+    label: "French (Français)",
+    disabled: false,
+  },
+  {
     code: "zh_CN",
     flagName: "cn",
     label: "Chinese ‒ China (普通话)",
@@ -56,12 +62,6 @@ const localeOptions: LocaleOption[] = [
     disabled: false,
   },
   // Disabled
-  {
-    code: "fr",
-    flagName: "fr",
-    label: "French (Français)",
-    disabled: true,
-  },
   {
     code: "uk",
     flagName: "ua",

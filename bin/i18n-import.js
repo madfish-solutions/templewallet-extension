@@ -1,4 +1,4 @@
-// Unicode convertor
+// Unicode conversion
 // https://r12a.github.io/app-conversion/
 
 const fs = require("fs");
