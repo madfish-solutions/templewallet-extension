@@ -26,7 +26,7 @@ const OperationsBanner = React.memo<OperationsBannerProps>(
 
       <div
         className={classNames(
-          "block w-full max-w-full mb-2 p-1",
+          "block w-full max-w-full p-1",
           "rounded-md",
           "border-2 bg-gray-100 bg-opacity-50",
           "text-base leading-tight font-medium whitespace-no-wrap",

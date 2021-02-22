@@ -36,11 +36,11 @@ const GasFeeView: React.FC<GasFeeViewProps> = ({
         />
       ) : (
         fee !== undefined && (
-          <div className="w-full bg-gray-100 text-gray-700 text-sm p-2">
+          <div className="w-full bg-gray-100 text-gray-700 text-sm p-2 mt-2">
             <T
               id="totalFee"
-              substitutions={
-                <>
+              substitutions={[
+                <React.Fragment key={0}>
                   {mutezToTz(fee).toString()} tz
                   {knownNetwork?.type === "main" && (
                     <>
@@ -53,8 +53,8 @@ const GasFeeView: React.FC<GasFeeViewProps> = ({
                       </InUSD>
                     </>
                   )}
-                </>
-              }
+                </React.Fragment>,
+              ]}
             />
           </div>
         )
