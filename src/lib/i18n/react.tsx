@@ -14,10 +14,10 @@ export type TProps = {
 };
 
 export const T: React.FC<TProps> = ({ id, substitutions, children }) => {
-  const message = React.useMemo(
-    () => t(id, substitutions ? [...substitutions, <></>] : [<></>]),
-    [id, substitutions]
-  );
+  const message = React.useMemo(() => tReact(id, substitutions), [
+    id,
+    substitutions,
+  ]);
 
   return React.useMemo(() => (children ? children(message) : <>{message}</>), [
     message,
@@ -31,10 +31,15 @@ export function t(
   substitutions?: ReactSubstitutions
 ): React.ReactNode;
 export function t(messageName: string, substitutions?: any): any {
-  if (!substitutions || !hasReactSubstitutions(substitutions)) {
-    return getMessage(messageName, substitutions);
-  }
+  return !substitutions || !hasReactSubstitutions(substitutions)
+    ? getMessage(messageName, substitutions)
+    : tReact(messageName, substitutions);
+}
 
+function tReact(
+  messageName: string,
+  substitutions?: Substitutions | ReactSubstitutions
+): React.ReactNode {
   const subList = toList(substitutions);
   const tmp = getMessage(
     messageName,

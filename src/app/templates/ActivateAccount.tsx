@@ -85,7 +85,7 @@ const ActivateAccount: React.FC = () => {
             break;
 
           case ActivationStatus.ActivationRequestSent:
-            setSuccess(t("requestSent", "🛫 Activation"));
+            setSuccess(`🛫 ${t("requestSent", t("activationOperationType"))}`);
             confirmOperation(tezos, op!.hash).then(() => {
               setSuccess(`✅ ${t("accountActivated")}`);
             });
