@@ -520,7 +520,7 @@ export async function processBeacon(
 
               return {
                 type: ThanosDAppMessageType.PermissionRequest,
-                network,
+                network: network === "edonet" ? "edo2net" : (network as any),
                 appMeta: req.appMetadata,
                 force: true,
               };
