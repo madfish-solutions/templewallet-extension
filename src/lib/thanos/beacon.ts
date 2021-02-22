@@ -9,7 +9,12 @@ export interface AppMetadata {
   icon?: string;
 }
 
-export type NetworkType = "mainnet" | "carthagenet" | "custom";
+export type NetworkType =
+  | "mainnet"
+  | "carthagenet"
+  | "delphinet"
+  | "edonet"
+  | "custom";
 
 export interface Network {
   type: NetworkType;
