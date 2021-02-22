@@ -97,7 +97,7 @@ const DelegateForm: React.FC = () => {
   }, [search, bakerSortTypes]);
 
   const pluralRules = React.useMemo(
-    () => new Intl.PluralRules(getCurrentLocale()),
+    () => new Intl.PluralRules(getCurrentLocale().replace("_", "-")),
     []
   );
 
