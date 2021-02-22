@@ -199,7 +199,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                           )}
                         >
                           <Money>{bal}</Money>{" "}
-                          <span style={{ fontSize: "0.5rem" }}>TEZ</span>
+                          <span style={{ fontSize: "0.5rem" }}>tez</span>
                         </span>
                       )}
                     </Balance>
