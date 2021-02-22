@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import React from "react";
-import { T, TProps } from "lib/i18n/react";
+import { T, t, TProps } from "lib/i18n/react";
 import {
   ThanosAsset,
   ThanosAssetType,
@@ -100,12 +100,12 @@ const Operation = React.memo<OperationProps>(
         internalTransfers.some(({ receiver }) => receiver.startsWith("KT"));
       switch (true) {
         case isTransfer:
-          return "transfer";
+          return t("transfer");
         case type === "delegation":
-          return delegate ? "delegation" : "undelegation";
+          return t(delegate ? "delegation" : "undelegation");
         case type === "transaction" &&
           (rawReceiverIsContract || isMultipleTransfersInteraction):
-          return "interaction";
+          return t("interaction");
         default:
           return type;
       }

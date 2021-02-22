@@ -1,0 +1,1683 @@
+{
+  "templeAppName": {
+    "message": "Temple - Tezos 錢包"
+  },
+  "showIncomingTransactions": {
+    "message": "顯示新進交易"
+  },
+  "appName": {
+    "message": "Thanos - Tezos 錢包"
+  },
+  "appDesc": {
+    "message": "🔐💰這是 Tezos 區塊鏈加密貨幣錢包，是一項瀏覽器網頁擴充功能。 "
+  },
+  "importAccount": {
+    "message": "匯入帳戶"
+  },
+  "createAccount": {
+    "message": "建立帳戶"
+  },
+  "faucetFileTitle": {
+    "message": "水龍頭檔案"
+  },
+  "faucetFile": {
+    "message": "水龍頭檔案"
+  },
+  "settings": {
+    "message": "設定"
+  },
+  "openNewTab": {
+    "message": "開啟新分頁"
+  },
+  "maximiseView": {
+    "message": "將畫面最大化"
+  },
+  "selectFileOfFormat": {
+    "message": "選取 $format$ 檔案",
+    "placeholders": {
+      "format": {
+        "content": "$1"
+      }
+    }
+  },
+  "authorizedDApps": {
+    "message": "授權的分散式應用程式",
+    "description": "DApps = Decentralized Applications"
+  },
+  "clickIconToResetPermissions": {
+    "message": "點擊 X 圖示重新設定權限。"
+  },
+  "versionLabel": {
+    "message": "版本：$version$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "madeWithLove": {
+    "message": "$companyName$ 以 $loveIcon$ 製作",
+    "placeholders": {
+      "loveIcon": {
+        "content": "$1"
+      },
+      "companyName": {
+        "content": "$2"
+      }
+    }
+  },
+  "feeInputDescription": {
+    "message": "此操作的基本費用：$fee$\n其他 - 加速確認",
+    "placeholders": {
+      "fee": {
+        "content": "$1"
+      }
+    }
+  },
+  "resetPermissionsConfirmation": {
+    "message": "是否確定重設 $origin$ 的\n權限？",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "protectedFormField": {
+    "message": "受保護"
+  },
+  "clickToRevealOrEditField": {
+    "message": "點擊可顯示或編輯此欄位"
+  },
+  "copiedHash": {
+    "message": "已複製。"
+  },
+  "copyHashToClipboard": {
+    "message": "複製到剪貼簿"
+  },
+  "accounts": {
+    "message": "帳戶"
+  },
+  "logOut": {
+    "message": "登出"
+  },
+  "importedAccount": {
+    "message": "已匯入"
+  },
+  "networks": {
+    "message": "網路"
+  },
+  "back": {
+    "message": "返回"
+  },
+  "addNewToken": {
+    "message": "新增新代幣"
+  },
+  "hideSomeToken": {
+    "message": "隱藏「$tokenName$」代幣",
+    "placeholders": {
+      "tokenName": {
+        "content": "$1"
+      }
+    }
+  },
+  "copySomeTokenAddress": {
+    "message": "複製「$tokenSymbol$」地址",
+    "placeholders": {
+      "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "copySomeTokenId": {
+    "message": "複製「$tokenSymbol$」ID",
+    "placeholders": {
+      "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "originLabel": {
+    "message": "來源：$origin$",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "networkLabel": {
+    "message": "網路：$network$",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "pkhLabel": {
+    "message": "帳戶：$pkh$",
+    "placeholders": {
+      "pkh": {
+        "content": "$1"
+      }
+    }
+  },
+  "minDelegationAmountDescription": {
+    "message": "您目前的餘額低於此烘焙師的最低委託金額。這代表當餘額低於 $minAmount$ 即無法支出。",
+    "placeholders": {
+      "minAmount": {
+        "content": "$1"
+      }
+    }
+  },
+  "clickOnBakerPrompt": {
+    "message": "點擊您想要委託資金的烘焙師。此清單由 $link$ 提供。",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "highestIsBetter": {
+    "message": "金額愈高愈好"
+  },
+  "unlockWalletPrompt": {
+    "message": "如果您想從現有的錢包保留東西 - $link$ 並解鎖。",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "acceptTermsInputDescription": {
+    "message": "\n我已閱讀並同意 \n$termsOfUsageLink$ 和 $privacyPolicyLink$",
+    "placeholders": {
+      "termsOfUsageLink": {
+        "content": "$1"
+      },
+      "privacyPolicyLink": {
+        "content": "$2"
+      }
+    }
+  },
+  "copiedTokenAddress": {
+    "message": "已複製。"
+  },
+  "copiedTokenId": {
+    "message": "已複製。"
+  },
+  "delegatedTo": {
+    "message": "委託予："
+  },
+  "delegatingMotivation": {
+    "message": "將您的基金委託給烘焙師是利用餘額賺取利息的絕佳方法"
+  },
+  "reDelegate": {
+    "message": "重新委託"
+  },
+  "delegateNow": {
+    "message": "立即委託"
+  },
+  "cancel": {
+    "message": "取消"
+  },
+  "save": {
+    "message": "儲存"
+  },
+  "edit": {
+    "message": "編輯"
+  },
+  "useCoinSwitch": {
+    "message": "使用 CoinSwitch",
+    "description": "CoinSwitch = https://coinswitch.co/"
+  },
+  "tezosFaucet": {
+    "message": "Tezos 水龍頭"
+  },
+  "tezosFaucetAlpha": {
+    "message": "Tezos 水龍頭 (Alpha)"
+  },
+  "depositToWallet": {
+    "message": "存款到您的錢包"
+  },
+  "depositToWalletDescription": {
+    "message": "點擊存款方式，將錢存進您的錢包。使用水龍頭獲得免費錢幣！"
+  },
+  "addToken": {
+    "message": "新增代幣"
+  },
+  "contractNotAvailable": {
+    "message": "無法取得此地址上的合約。您是否確定這個網路上存在此合約？"
+  },
+  "noTransferMethod": {
+    "message": "無轉帳方式"
+  },
+  "tokenDoesNotMatchStandard": {
+    "message": "提供的代幣合約與 $standard$ 標準不相符",
+    "placeholders": {
+      "standard": {
+        "content": "$1"
+      }
+    }
+  },
+  "error": {
+    "message": "錯誤"
+  },
+  "tokenType": {
+    "message": "代幣類型"
+  },
+  "tokenId": {
+    "message": "代幣 ID"
+  },
+  "tokenIdInputDescription": {
+    "message": "識別 FA2 合約內代幣的非負整數"
+  },
+  "comingSoonComment": {
+    "message": "(即將推出)"
+  },
+  "soon": {
+    "message": "即將"
+  },
+  "required": {
+    "message": "必要"
+  },
+  "address": {
+    "message": "地址"
+  },
+  "addressOfDeployedTokenContract": {
+    "message": "已部署代幣合約的地址。"
+  },
+  "lambdaContractPlaceholder": {
+    "message": "例如 KT1v9CmPy…"
+  },
+  "tokenContractPlaceholder": {
+    "message": "例如 KT1v9CmPy…"
+  },
+  "tokenSymbolPatternDescription": {
+    "message": "只可使用 a-z、A-Z、0-9 字元，長度為 2-5 個字元"
+  },
+  "symbol": {
+    "message": "符號"
+  },
+  "tokenSymbolInputDescription": {
+    "message": "代幣符號，像是「USD」代表美元。"
+  },
+  "tokenSymbolInputPlaceholder": {
+    "message": "例如 WEW、BOW、LAL 等"
+  },
+  "tokenNamePatternDescription": {
+    "message": "無特殊字元，長度為 3-12 個字元"
+  },
+  "name": {
+    "message": "名稱"
+  },
+  "tokenNameInputDescription": {
+    "message": "代幣名稱，像是「Bitcoin」(比特幣) 代表 BTC 資產。"
+  },
+  "tokenNameInputPlaceholder": {
+    "message": "例如 MySuperToken"
+  },
+  "nonNegativeIntMessage": {
+    "message": "整數，大於或等於 0"
+  },
+  "decimals": {
+    "message": "小數"
+  },
+  "decimalsInputDescription": {
+    "message": "小數點後的小數位數字。例如 BTC 的 8，USD 的 2。"
+  },
+  "orIPFSImageURL": {
+    "message": "或 IPFS 影像網址"
+  },
+  "validImageURL": {
+    "message": "有效的影像網址"
+  },
+  "onlyHTTPS": {
+    "message": "僅 HTTPS"
+  },
+  "formatsAllowed": {
+    "message": "僅允許 .png、.jpg、.jpeg、.gif、.webp 影像"
+  },
+  "iconURL": {
+    "message": "圖示網址"
+  },
+  "optionalComment": {
+    "message": "(自選)"
+  },
+  "iconURLInputDescription": {
+    "message": "代幣標誌的影像網址。"
+  },
+  "invalidAddress": {
+    "message": "無效的地址"
+  },
+  "contractNotExistOnNetwork": {
+    "message": "目前的網路上不存在此智慧合約"
+  },
+  "onlyKTContractAddressAllowed": {
+    "message": "僅允許 KT… 合約地址",
+    "description": "KT not translated"
+  },
+  "operationHash": {
+    "message": "操作雜湊"
+  },
+  "alert": {
+    "message": "警告"
+  },
+  "accountNameInputTitle": {
+    "message": "1-16 個字元，無特殊字元"
+  },
+  "defaultAccountName": {
+    "message": "帳戶 $accountNumber$",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultManagedKTAccountName": {
+    "message": "受管理的 KT $accountNumber$",
+    "description": "KT not translated",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultWatchOnlyAccountName": {
+    "message": "僅可查看的 $accountNumber$",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountsToRemoveConstraint": {
+    "message": "分層確定性帳戶無法移除。"
+  },
+  "doNotSharePrivateKey": {
+    "message": "<b>請勿</b>向任何人分享這組字元！他人可使用此組字元竊取您目前的帳戶。"
+  },
+  "appWouldLikeToConnectToYourWallet": {
+    "message": "$origin$ 想要連結您的錢包",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "appRequestOperationToYou": {
+    "message": "$origin$ 要求對您進行操作",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "reject": {
+    "message": "拒絕"
+  },
+  "signAction": {
+    "message": "簽名"
+  },
+  "appRequestsToSign": {
+    "message": "$origin$ 要求您簽名",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "alpha": {
+    "message": "Alpha"
+  },
+  "viewAccountAddressWarning": {
+    "message": "此網站正要求存取權，以查看您的帳戶地址。請務必確認您所操作的網站可信賴。"
+  },
+  "account": {
+    "message": "帳戶"
+  },
+  "toBeConnectedWithDApp": {
+    "message": "與分散式應用程式連結。"
+  },
+  "atLeast8Characters": {
+    "message": "至少 8 個字元"
+  },
+  "atLeast1Number": {
+    "message": "至少 1 個數字"
+  },
+  "atLeast1LowercaseLetter": {
+    "message": "至少 1 個小寫字母"
+  },
+  "atLeast1UppercaseLetter": {
+    "message": "至少 1 個大寫字母"
+  },
+  "mnemonicWordsAmountConstraint": {
+    "message": "12、15、18 、21 或 24 個英文字"
+  },
+  "mnemonicSpacingConstraint": {
+    "message": "每個字皆以一個空格隔開"
+  },
+  "justValidPreGeneratedMnemonic": {
+    "message": "僅為有效的預先生成助記詞"
+  },
+  "oops": {
+    "message": "糟糕！"
+  },
+  "smthWentWrongWhile": {
+    "message": "$action$ 時發生錯誤",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "mayHappenBecauseYouAreOffline": {
+    "message": "可能因為您目前為離線狀態"
+  },
+  "tryAgain": {
+    "message": "再試一次"
+  },
+  "tezosMainnet": {
+    "message": "Tezos 主網路",
+    "description": "Mainnet = main network"
+  },
+  "thanosWalletOptions": {
+    "message": "Thanos 錢包 | 選項"
+  },
+  "templeWalletOptions": {
+    "message": "Temple 錢包 | 選項"
+  },
+  "resetExtension": {
+    "message": "重設擴充功能"
+  },
+  "resetExtensionConfirmation": {
+    "message": "是否確定要重設 Thanos 錢包？\n您所有的資料將因此刪除。"
+  },
+  "templeResetExtensionConfirmation": {
+    "message": "是否確定要重設 Temple 錢包？\n您所有的資料將因此刪除。"
+  },
+  "failedToResetExtension": {
+    "message": "無法重設擴充功能：$errorMessage$",
+    "placeholders": {
+      "errorMessage": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledger": {
+    "message": "Ledger",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "retry": {
+    "message": "再試一次"
+  },
+  "privateKeyCannotBeRevealed": {
+    "message": "無法顯示私密金鑰"
+  },
+  "youCannotGetPrivateKeyFromThisAccountType": {
+    "message": "您無法取得 $accountType$ 帳戶的私密金鑰。",
+    "placeholders": {
+      "accountType": {
+        "content": "$1"
+      }
+    }
+  },
+  "maximalAmount": {
+    "message": "最高金額：$amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "amountMustBePositive": {
+    "message": "必須為正數"
+  },
+  "accountName": {
+    "message": "帳戶名稱"
+  },
+  "accountNameInputDescription": {
+    "message": "新帳戶的名稱是什麼？"
+  },
+  "createNewWallet": {
+    "message": "建立新錢包"
+  },
+  "createNewWalletDescription": {
+    "message": "第一次使用 Thanos 錢包嗎？我們來設定吧！這樣會建立新錢包和助記詞"
+  },
+  "templeCreateNewWalletDescription": {
+    "message": "第一次使用 Temple 錢包嗎？我們來設定吧！這樣會建立新錢包和助記詞"
+  },
+  "delegate": {
+    "message": "委託"
+  },
+  "explore": {
+    "message": "探索"
+  },
+  "assetsWhileMessage": {
+    "message": "擷取資產資料"
+  },
+  "receive": {
+    "message": "收取"
+  },
+  "send": {
+    "message": "傳送"
+  },
+  "baking": {
+    "message": "烘焙"
+  },
+  "operations": {
+    "message": "操作"
+  },
+  "delegationInfoWhileMessage": {
+    "message": "正在擷取或處理您的委託資料"
+  },
+  "operationHistoryWhileMessage": {
+    "message": "正在擷取或處理操作記錄"
+  },
+  "privateKey": {
+    "message": "私密金鑰"
+  },
+  "mnemonic": {
+    "message": "助記詞"
+  },
+  "fundraiser": {
+    "message": "資金籌募者"
+  },
+  "privateKeyInputDescription": {
+    "message": "您要匯入的帳戶的秘密金鑰。"
+  },
+  "privateKeyInputPlaceholder": {
+    "message": "例如 edsk3wfiPMu..."
+  },
+  "password": {
+    "message": "密碼"
+  },
+  "isPrivateKeyEncrypted": {
+    "message": "您的私密金鑰為加密格式嗎？"
+  },
+  "noDerivation": {
+    "message": "無衍生"
+  },
+  "customDerivationPath": {
+    "message": "自訂衍生路徑"
+  },
+  "mnemonicInputLabel": {
+    "message": "助記詞"
+  },
+  "mnemonicInputDescription": {
+    "message": "助記詞。包含 12 個字的秘密助記詞。"
+  },
+  "mnemonicInputPlaceholder": {
+    "message": "例如 venue sock milk update…"
+  },
+  "passwordInputDescription": {
+    "message": "用於其他的助記詞衍生。這「不是」錢包密碼。"
+  },
+  "derivation": {
+    "message": "衍生"
+  },
+  "addDerivationPathPrompt": {
+    "message": "預設不使用衍生。點擊「自訂衍生路徑」以新增。"
+  },
+  "derivationPathMustStartWithM": {
+    "message": "必須以「m」為開頭"
+  },
+  "derivationSeparatorMustBeSlash": {
+    "message": "必須以「/」區隔"
+  },
+  "invalidPath": {
+    "message": "無效的路徑"
+  },
+  "email": {
+    "message": "電子郵件"
+  },
+  "unexpectedOrInvalidFile": {
+    "message": "非預期或無效的檔案"
+  },
+  "requestSent": {
+    "message": "已傳送 $type$ 要求！正在確認……",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "success": {
+    "message": "成功"
+  },
+  "smthWentWrong": {
+    "message": "發生錯誤"
+  },
+  "faucetFileInputPrompt": {
+    "message": "拖放檔案，或點擊以下區域手動選擇檔案。您可以從 $link$ 下載。",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "processing": {
+    "message": "正在處理……"
+  },
+  "restoreWalletWithSeedPhrase": {
+    "message": "使用助記詞還原您的錢包"
+  },
+  "accountAddressLabel": {
+    "message": "您目前的帳戶地址。對外分享以收取資金。"
+  },
+  "copiedAddress": {
+    "message": "已複製。"
+  },
+  "copyAddressToClipboard": {
+    "message": "複製到剪貼簿"
+  },
+  "qrCode": {
+    "message": "QRCode"
+  },
+  "revealPrivateKey": {
+    "message": "顯示私密金鑰"
+  },
+  "revealPrivateKeyDescription": {
+    "message": "也稱為「匯出帳戶」，這會顯示所選取帳戶的私密金鑰。"
+  },
+  "revealSeedPhrase": {
+    "message": "顯示助記詞"
+  },
+  "revealSeedPhraseDescription": {
+    "message": "也稱為「匯出錢包」，您可能需要此助記詞，才能透過其他裝置存取您的錢包和帳戶。"
+  },
+  "dApps": {
+    "message": "分散式應用程式",
+    "description": "DApps = Decentralized Applications"
+  },
+  "dAppsDescription": {
+    "message": "在此區段，您可以啟用與支援 Thanos 錢包的分散式應用程式互動的能力。"
+  },
+  "templeDAppsDescription": {
+    "message": "在此區段，您可以啟用與支援 Temple 錢包的分散式應用程式互動的能力。"
+  },
+  "networksDescription": {
+    "message": "在此區段，您可以新增或刪除自訂的 Tezos 網路。",
+    "description": "Tezos = blockchain name (https://tezos.com/)"
+  },
+  "activateAccount": {
+    "message": "啟用帳戶"
+  },
+  "activateAccountDescription": {
+    "message": "ICO/資金籌募者或測試網路水龍頭帳戶可能需要。"
+  },
+  "removeAccount": {
+    "message": "移除帳戶"
+  },
+  "removeAccountDescription": {
+    "message": "使用此區段移除您選取的帳戶。只能移除匯入的帳戶。"
+  },
+  "about": {
+    "message": "關於"
+  },
+  "aboutDescription": {
+    "message": "使用此區段檢視 Thanos 錢包的元資料。"
+  },
+  "templeAboutDescription": {
+    "message": "使用此區段檢視 Temple 錢包的元資料。"
+  },
+  "unlockWallet": {
+    "message": "解鎖錢包"
+  },
+  "toContinue": {
+    "message": "以便繼續"
+  },
+  "unlockPasswordInputDescription": {
+    "message": "使用密碼保護錢包。"
+  },
+  "unlock": {
+    "message": "解鎖錢包"
+  },
+  "importNewAccountTitle": {
+    "message": "還原帳戶？想要登入另一個帳戶？"
+  },
+  "importWalletUsingSeedPhrase": {
+    "message": "使用助記詞匯入錢包"
+  },
+  "connectLedger": {
+    "message": "連結 Ledger",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "importExistingWallet": {
+    "message": "匯入現有的錢包"
+  },
+  "importExistingWalletDescription": {
+    "message": "已有助記詞？使用 12 個以上的助記詞匯入您現有的錢包"
+  },
+  "links": {
+    "message": "連結"
+  },
+  "website": {
+    "message": "網站"
+  },
+  "repo": {
+    "message": "存放庫"
+  },
+  "privacyPolicy": {
+    "message": "隱私政策"
+  },
+  "termsOfUse": {
+    "message": "使用條款"
+  },
+  "contact": {
+    "message": "聯絡我們"
+  },
+  "accountAlreadyActivated": {
+    "message": "您的帳戶已啟用。"
+  },
+  "accountActivated": {
+    "message": "您的帳戶已成功啟用！"
+  },
+  "failureSecretMayBeInvalid": {
+    "message": "失敗。可能因為所提供的秘密金鑰無效"
+  },
+  "accountToBeActivated": {
+    "message": "帳戶將啟用。"
+  },
+  "ifYouWantToActivateAnotherAccount": {
+    "message": "如果您想啟用另一個帳戶，請在右上角下拉選單選取該帳戶。"
+  },
+  "activateAccountSecret": {
+    "message": "秘密金鑰"
+  },
+  "activateAccountSecretDescription": {
+    "message": "資金籌募者帳戶或水龍頭的「秘密金鑰」欄位"
+  },
+  "activateAccountSecretPlaceholder": {
+    "message": "例如 n4hs7sd3..."
+  },
+  "activate": {
+    "message": "啟用"
+  },
+  "minimalFeeDescription": {
+    "message": "最小金額"
+  },
+  "fastFeeDescription": {
+    "message": "快速"
+  },
+  "rocketFeeDescription": {
+    "message": "極快"
+  },
+  "customFeeDescription": {
+    "message": "自訂"
+  },
+  "additionalFee": {
+    "message": "其他費用"
+  },
+  "asset": {
+    "message": "資產"
+  },
+  "selectAnotherAssetPrompt": {
+    "message": "點擊區域以選取其他資產或代幣。"
+  },
+  "disable": {
+    "message": "停用"
+  },
+  "enable": {
+    "message": "啟用"
+  },
+  "dAppsCheckmarkPrompt": {
+    "message": "點擊勾號以 $action$ 分散式應用程式互動功能",
+    "description": "DApps = Decentralized Applications",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "dAppsInteraction": {
+    "message": "分散式應用程式互動操作",
+    "description": "DApps = Decentralized Applications"
+  },
+  "dAppsInteractionEnabled": {
+    "message": "已啟用"
+  },
+  "dAppsInteractionDisabled": {
+    "message": "已停用"
+  },
+  "enablePopup": {
+    "message": "啟用彈跳式視窗"
+  },
+  "popupEnabled": {
+    "message": "已啟用"
+  },
+  "popupDisabled": {
+    "message": "已停用"
+  },
+  "rank": {
+    "message": "等級"
+  },
+  "delete": {
+    "message": "刪除"
+  },
+  "fee": {
+    "message": "費用"
+  },
+  "space": {
+    "message": "空間"
+  },
+  "delegation": {
+    "message": "委託"
+  },
+  "baker": {
+    "message": "烘焙師"
+  },
+  "bakerInputDescription": {
+    "message": "已註冊烘焙師的地址。"
+  },
+  "bakerInputPlaceholder": {
+    "message": "例如 tz1a9w1S7hN5s…"
+  },
+  "minDelegationAmountTitle": {
+    "message": "最低委託金額"
+  },
+  "unknownBakerTitle": {
+    "message": "未知的烘焙師"
+  },
+  "unknownBakerDescription": {
+    "message": "所提供的地址並不是我們已知的烘焙師！若向此地址委託資金，您須自行承擔風險。"
+  },
+  "delegateToRecommendedBakers": {
+    "message": "委託給推薦的烘焙師"
+  },
+  "sortBy": {
+    "message": "排序方式"
+  },
+  "cycles_one": {
+    "message": "$amount$ 個週期",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_other": {
+    "message": "$amount$ 個週期",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "notEnoughFunds": {
+    "message": "資金不足"
+  },
+  "notEnoughCurrencyFunds": {
+    "message": "$currency$ 資金不足",
+    "placeholders": {
+      "currency": {
+        "content": "$1"
+      }
+    }
+  },
+  "notAllowed": {
+    "message": "未允許"
+  },
+  "failed": {
+    "message": "失敗"
+  },
+  "yourBalanceIsZero": {
+    "message": "您的餘額為零。"
+  },
+  "minimalFeeGreaterThanBalance": {
+    "message": "此交易的最低費用高於您的餘額。"
+  },
+  "alreadyDelegatedFundsToBaker": {
+    "message": "已將資金委託給此烘焙師。無法重新委託。"
+  },
+  "bakerNotRegistered": {
+    "message": "指定的烘焙師尚未註冊。"
+  },
+  "unableToPerformActionToBaker": {
+    "message": "無法向所提供的烘焙師進行 $action$。",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "estimateDelegation": {
+    "message": "評估委託"
+  },
+  "thisMayHappenBecause": {
+    "message": "可能發生的原因為："
+  },
+  "minimalFeeGreaterThanBalanceVerbose": {
+    "message": "此交易的最低費用高於您的餘額。由於您傳送資金給空的「管理員」帳戶，可能要花費大筆費用。須收取一次性的燃燒費用 0.257 XTZ；"
+  },
+  "networkOrOtherIssue": {
+    "message": "網路或其他技術問題。"
+  },
+  "unableToDelegateToKTAddress": {
+    "message": "無法委託至 KT... 合約地址"
+  },
+  "confirmAction": {
+    "message": "確認 $action$",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "payloadToSign": {
+    "message": "要簽名的有效載荷"
+  },
+  "decline": {
+    "message": "拒絕"
+  },
+  "confirm": {
+    "message": "確認"
+  },
+  "network": {
+    "message": "網路"
+  },
+  "unknownNetwork": {
+    "message": "未知："
+  },
+  "backupNewSeedPhrase": {
+    "message": "備份新的助記詞"
+  },
+  "attentionExclamation": {
+    "message": "請注意！"
+  },
+  "lockedWalletAlreadyExists": {
+    "message": "<b>已有</b>鎖住的錢包。\n匯入新錢包將<b>破壞現有的錢包</b>。"
+  },
+  "backToUnlockPage": {
+    "message": "返回至「解鎖」頁面"
+  },
+  "mustBeEqualToPasswordAbove": {
+    "message": "必須與上面的密碼相同"
+  },
+  "repeatPassword": {
+    "message": "重複密碼"
+  },
+  "repeatPasswordInputDescription": {
+    "message": "請再次輸入密碼。"
+  },
+  "confirmTermsError": {
+    "message": "確認使用條款後才可繼續"
+  },
+  "acceptTerms": {
+    "message": "接受條款"
+  },
+  "termsOfUsage": {
+    "message": "使用條款"
+  },
+  "create": {
+    "message": "建立"
+  },
+  "revealNewSeedPhrase": {
+    "message": "<b>點擊以下區域</b>以顯示新的助記詞。\n然後，將此助記詞抄寫在紙上，並<b>保存在安全的地方<b>。您也可以選擇記住助記詞。"
+  },
+  "doNotSharePhrase": {
+    "message": "<b>請勿</b>與任何人分享此助記詞！他人可使用此助記詞竊取您所有的帳戶。"
+  },
+  "youWillNeedThisSeedPhrase": {
+    "message": "如果您曾在瀏覽器和裝置間切換使用，需使用此助記詞存取您的帳戶。"
+  },
+  "unableToContinueWithoutConfirming": {
+    "message": "確認後才可繼續"
+  },
+  "backupedInputLabel": {
+    "message": "我已備份助記詞，"
+  },
+  "backupedInputDescription": {
+    "message": "並接受風險，如果我遺失此助記詞，\n可能會損失我的資金。"
+  },
+  "continue": {
+    "message": "繼續"
+  },
+  "noOperationsFound": {
+    "message": "找不到操作"
+  },
+  "pending": {
+    "message": "待處理…"
+  },
+  "backtracked": {
+    "message": "已向上回溯"
+  },
+  "operationSuccessfullyProcessed": {
+    "message": "成功處理並確認 $type$！",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "timedOutOperationConfirmation": {
+    "message": "確認操作逾時。您可以繼續等待，或稍後再試一次。"
+  },
+  "accountToBeRemoved": {
+    "message": "帳戶將移除。"
+  },
+  "ifYouWantToRemoveAnotherAccount": {
+    "message": "如果您想移除另一個帳戶，請在右上角下拉選單選取該帳戶。"
+  },
+  "cannotBeRemoved": {
+    "message": "無法移除"
+  },
+  "importedPlural": {
+    "message": "已匯入"
+  },
+  "enterPasswordToRemoveAccount": {
+    "message": "輸入密碼以移除帳戶。"
+  },
+  "remove": {
+    "message": "移除"
+  },
+  "ifYouWantToRevealPrivateKeyFromOtherAccount": {
+    "message": "如果您想顯示另一個帳戶的私密金鑰，您應在右上角下拉選單選取該帳戶。"
+  },
+  "privateKeyFieldDescription": {
+    "message": "此為目前的帳戶金鑰。請小心保管。"
+  },
+  "derivationPath": {
+    "message": "衍生路徑"
+  },
+  "seedPhrase": {
+    "message": "助記詞"
+  },
+  "pathForHDAccounts": {
+    "message": "(適用於分層確定性帳戶。) 這就是您利用助記詞來恢復所有帳戶的資料。",
+    "description": "HD = Hierarchical Deterministic"
+  },
+  "derivationPathExample": {
+    "message": "m/44'/1729'/<account_index>'/0'"
+  },
+  "derivationPathExample2": {
+    "message": "例如 m/44'/1729'/…"
+  },
+  "keepSeedPhraseSecret": {
+    "message": "請小心保管。"
+  },
+  "revealSecretPasswordInputDescription": {
+    "message": "輸入密碼以顯示 $secretName$。",
+    "placeholders": {
+      "secretName": {
+        "content": "$1"
+      }
+    }
+  },
+  "reveal": {
+    "message": "顯示"
+  },
+  "transaction": {
+    "message": "交易"
+  },
+  "recipient": {
+    "message": "收受者"
+  },
+  "tokensRecepientInputDescription": {
+    "message": "$assetSymbol$ 資金要傳送的地址。",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "tokensRecepientInputDescriptionWithDomain": {
+    "message": "$assetSymbol$ 資金要傳送的地址或 Tezos 網域。",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "addressInputDescription": {
+    "message": "Tezos 帳戶或智慧合約的地址。"
+  },
+  "addressInputDescriptionWithDomain": {
+    "message": "帳戶或智慧合約的地址或 Tezos 網域。"
+  },
+  "recipientInputPlaceholder": {
+    "message": "例如 tz1a9w1S7hN5s..."
+  },
+  "recipientInputPlaceholderWithDomain": {
+    "message": "例如 alice.tez or tz1a9w1S7hN5s...",
+    "description": "alice.tez = domain like google.com"
+  },
+  "tryingToTransferToYourself": {
+    "message": "您正嘗試將資金轉帳給自己。\n請確認這是您真正要做的事。"
+  },
+  "amount": {
+    "message": "金額"
+  },
+  "availableToSend": {
+    "message": "可傳送的 (最高) 金額："
+  },
+  "inUSD": {
+    "message": "以 USD 計價"
+  },
+  "inXTZ": {
+    "message": "以 XTZ 計價",
+    "description": "ꜩ = asset symbol, like USD"
+  },
+  "amountPlaceholder": {
+    "message": "例如 123.45"
+  },
+  "sendToMyAccounts": {
+    "message": "傳送到「我的帳戶」"
+  },
+  "clickOnRecipientAccount": {
+    "message": "點擊您想傳送資金的帳戶。"
+  },
+  "mainAssetBalanceIsZero": {
+    "message": "您的 XTZ (主資產) 餘額為零。支付該費用需有 XTZ 資金。"
+  },
+  "unableToSendTransactionAction": {
+    "message": "無法向所提供的收受者傳送交易。"
+  },
+  "unableToEstimateTransactionAction": {
+    "message": "無法估計對所提供的收受者進行的交易。"
+  },
+  "makeSureToBackupSeedPhrase": {
+    "message": "務必要備份您的助記詞！"
+  },
+  "exploreMore": {
+    "message": "探索更多內容…"
+  },
+  "selfComment": {
+    "message": "(self)"
+  },
+  "deleteNetworkConfirm": {
+    "message": "您確定要刪除此網路嗎？"
+  },
+  "networkNamePlaceholder": {
+    "message": "我的自訂網路"
+  },
+  "mustBeValidURL": {
+    "message": "必須為有效的網址"
+  },
+  "rpcBaseURL": {
+    "message": "遠端程序呼叫為主的網址",
+    "description": "RPC = Remote Procedure Call (https://en.wikipedia.org/wiki/Remote_procedure_call)"
+  },
+  "mustBeUnique": {
+    "message": "必須是唯一"
+  },
+  "addNetwork": {
+    "message": "新增網路"
+  },
+  "currentNetworks": {
+    "message": "目前的網路"
+  },
+  "deleteNetworkHint": {
+    "message": "點擊 X 圖示以刪除網路。如果您想編輯網路，只需刪除該網路，並以新的參數新增另一個網路。"
+  },
+  "preview": {
+    "message": "預覽"
+  },
+  "raw": {
+    "message": "原始"
+  },
+  "fetchingConfirmationDetails": {
+    "message": "正在擷取確認的詳細資料"
+  },
+  "notIdentified": {
+    "message": "未識別"
+  },
+  "connection": {
+    "message": "連線"
+  },
+  "connect": {
+    "message": "連結"
+  },
+  "confirmActionOnDevice": {
+    "message": "確認以下裝置的動作："
+  },
+  "deviceName": {
+    "message": "$device$ 裝置",
+    "placeholders": {
+      "device": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledgerNano": {
+    "message": "Ledger Nano",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "defaultLedgerName": {
+    "message": "Ledger $number$",
+    "description": "Ledger = https://www.ledger.com/",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledgerNameConstraint": {
+    "message": "1-16 個字元，無特殊字元"
+  },
+  "ledgerNameInputDescription": {
+    "message": "新 Ledger 帳戶的名稱是什麼？",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "defaultDerivationPathLabel": {
+    "message": "預設使用 $path$ 衍生。",
+    "placeholders": {
+      "path": {
+        "content": "$1"
+      }
+    }
+  },
+  "clickOnCustomDerivationPath": {
+    "message": "點擊「自訂衍生路徑」來自訂。"
+  },
+  "addLedgerAccount": {
+    "message": "新增 Ledger 帳戶",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "firefoxLedgerConnectionError": {
+    "message": "$sorry$，透過 $browser$ 在 $device$ 裝置的連線暫時 $unavailable$。",
+    "placeholders": {
+      "sorry": {
+        "content": "$1"
+      },
+      "device": {
+        "content": "$2"
+      },
+      "browser": {
+        "content": "$3"
+      },
+      "unavailable": {
+        "content": "$4"
+      }
+    }
+  },
+  "connectionUnavailable": {
+    "message": "無法使用"
+  },
+  "sorry": {
+    "message": "抱歉！"
+  },
+  "upload": {
+    "message": "上傳"
+  },
+  "languageAndCountry": {
+    "message": "語言"
+  },
+  "generalSettings": {
+    "message": "一般"
+  },
+  "generalSettingsDescription": {
+    "message": "您可以在此管理語言偏好和顯示模式。"
+  },
+  "swapNoun": {
+    "message": "交換"
+  },
+  "transfers": {
+    "message": "轉帳"
+  },
+  "someUnknownToken": {
+    "message": "未知的代幣 $token$",
+    "placeholders": {
+      "token": {
+        "content": "$1"
+      }
+    }
+  },
+  "lambdaContract": {
+    "message": "Lambda 檢視合約"
+  },
+  "someLambda": {
+    "message": "Lambda 檢視：$lambda$",
+    "placeholders": {
+      "lambda": {
+        "content": "$1"
+      }
+    }
+  },
+  "interactionWithSomeEntrypoint": {
+    "message": "與 $contractAddress$ 合約的進入點「$entrypoint$」互動",
+    "placeholders": {
+      "entrypoint": {
+        "content": "$1"
+      },
+      "contractAddress": {
+        "content": "$2"
+      }
+    }
+  },
+  "transactionOfSomeType": {
+    "message": "「$type$」類型的交易",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "approveToken": {
+    "message": "核准代表"
+  },
+  "noLambdaWarningContent": {
+    "message": "未指定 Lambda 檢視合約。部分功能可能因此無法運作。如要繼續，請按下「新增網路」按鈕。"
+  },
+  "noActiveNetLambdaWarningTitle": {
+    "message": "目前的網路未指定 Lambda 檢視合約！"
+  },
+  "noActiveNetLambdaWarningContent": {
+    "message": "目前的網路未指定 Lambda 檢視合約。您可從下面的表格新增，或「部署新合約」來部署新的合約並自動新增。"
+  },
+  "add": {
+    "message": "新增"
+  },
+  "assets": {
+    "message": "資產"
+  },
+  "activity": {
+    "message": "活動"
+  },
+  "manage": {
+    "message": "管理"
+  },
+  "manageAssets": {
+    "message": "管理資產"
+  },
+  "noAssetsFound": {
+    "message": "找不到資產"
+  },
+  "ifYouDontSeeYourAsset": {
+    "message": "如果您未看見您的資產，\n請嘗試點擊 $toClick$。",
+    "placeholders": {
+      "toClick": {
+        "content": "$1"
+      }
+    }
+  },
+  "addressOfTokenContract": {
+    "message": "$assetSymbol$ 代幣合約的地址。",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "searchAssets": {
+    "message": "搜尋資產…"
+  },
+  "deployNew": {
+    "message": "部署新的合約"
+  },
+  "managedKTAccount": {
+    "message": "受管理的 KT"
+  },
+  "watchOnlyAccount": {
+    "message": "僅可查看"
+  },
+  "disabledForWatchOnlyAccount": {
+    "message": "僅可查看的帳戶已停用"
+  },
+  "activationOperationType": {
+    "message": "啟用"
+  },
+  "youAreNotContractManager": {
+    "message": "您不是合約管理員"
+  },
+  "contract": {
+    "message": "合約"
+  },
+  "contractAddressInputDescription": {
+    "message": "要連結的合約地址。"
+  },
+  "contractAddressInputPlaceholder": {
+    "message": "例如 KT1a9w1S7hN5s…"
+  },
+  "addKnownManagedContract": {
+    "message": "新增已知的受管理合約"
+  },
+  "clickOnContractToImport": {
+    "message": "點擊您要匯入的合約。"
+  },
+  "notContractAddress": {
+    "message": "非合約地址"
+  },
+  "contractAlreadyImported": {
+    "message": "此合約已匯入"
+  },
+  "waitWhileContractBeingDeployed": {
+    "message": "部署合約時，請勿離開此頁面或關閉視窗，請稍待片刻。此表格和警告會在部署成功後消失。"
+  },
+  "justAMinute": {
+    "message": "再等一下…"
+  },
+  "referredByTokenContactAddressInvalid": {
+    "message": "傳址到代幣合約的合約地址 $address$ 無效。",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "someNetworkIsNotCurrent": {
+    "message": "$network$ 網路已指定，並不是目前的網路",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "someNetworkWithChainIdIsNotCurrent": {
+    "message": "鏈 ID $chainId$ 已指定，並不是目前網路的鏈 ID",
+    "placeholders": {
+      "chainId": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSettings": {
+    "message": "彈跳式視窗模式"
+  },
+  "popupSettingsDescription": {
+    "message": "您可在此設定彈跳式視窗，在擴充功能面板的外掛程式圖示上點擊時便會出現此視窗。"
+  },
+  "managedContract": {
+    "message": "受管理的合約"
+  },
+  "referredByTokenContractNotFound": {
+    "message": "找不到代幣合約轉址的合約 $address$。",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "tokenContractNotFound": {
+    "message": "找不到該合約。"
+  },
+  "failedToParseMetadata": {
+    "message": "無法剖析元資料"
+  },
+  "unknownParseErrorOccurred": {
+    "message": "發生未知的剖析錯誤。"
+  },
+  "errorWhileFetchingUrl": {
+    "message": "從 $url$ 擷取時發生錯誤",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "invalidManagedContract": {
+    "message": "無效的受管理合約"
+  },
+  "someMethodNotDefinedInContract": {
+    "message": "合約內未定義「$name$」方式。",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "someMethodSignatureDoesNotMatchStandard": {
+    "message": "「$name$」方式的簽名與標準不相符。",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "failedToLoadChainID": {
+    "message": "無法載入此網路的鏈 ID。"
+  },
+  "makeSureTokenIdIsCorrect": {
+    "message": "請確定代幣 ID 正確。"
+  },
+  "unknownErrorCheckingSomeEntrypoint": {
+    "message": "確認「$name$」進入點時發生未知錯誤。",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "incorrectTokenIdErrorMessage": {
+    "message": "使用提供的資料處理代幣時失敗。請確定該代幣 ID 正確。"
+  },
+  "transfer": {
+    "message": "轉帳"
+  },
+  "transferFromSmb": {
+    "message": "傳送者 $sender$",
+    "placeholders": {
+      "sender": {
+        "content": "$1"
+      }
+    }
+  },
+  "transferToSmb": {
+    "message": "收受者 $receiver$",
+    "placeholders": {
+      "receiver": {
+        "content": "$1"
+      }
+    }
+  },
+  "interaction": {
+    "message": "互動"
+  },
+  "interactionWithContract": {
+    "message": "透過 $contract$",
+    "placeholders": {
+      "contract": {
+        "content": "$1"
+      }
+    }
+  },
+  "delegationToSmb": {
+    "message": "至 $delegate$",
+    "placeholders": {
+      "delegate": {
+        "content": "$1"
+      }
+    }
+  },
+  "fa2TokenAlreadyExists": {
+    "message": "含有地址 $address$ 和 ID $tokenId$ 的代幣已存在。",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      },
+      "tokenId": {
+        "content": "$2"
+      }
+    }
+  },
+  "nonFa2TokenAlreadyExists": {
+    "message": "含有地址 $address$ 的代幣已存在。",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "approveForSmb": {
+    "message": "至 $spender$",
+    "placeholders": {
+      "spender": {
+        "content": "$1"
+      }
+    }
+  },
+  "undelegation": {
+    "message": "取消委託"
+  },
+  "bytes": {
+    "message": "位元組"
+  },
+  "clean": {
+    "message": "清除"
+  },
+  "errorChangingAccountName": {
+    "message": "變更帳戶名稱時發生錯誤"
+  },
+  "ok": {
+    "message": "確定"
+  },
+  "yes": {
+    "message": "是"
+  },
+  "no": {
+    "message": "否"
+  },
+  "actionConfirmation": {
+    "message": "確認動作"
+  },
+  "domainDoesntResolveToAddress": {
+    "message": "網域「$value$」無法解析成地址",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "invalidAddressOrDomain": {
+    "message": "無效的地址或網域名稱"
+  },
+  "resolvedAddress": {
+    "message": "已解析的地址"
+  },
+  "invalidRpcCantGetChainId": {
+    "message": "無效的遠端程序呼叫：無法取得鏈 ID",
+    "description": "RPC = Remote Procedure Call (https://en.wikipedia.org/wiki/Remote_procedure_call)"
+  },
+  "contractNotOriginated": {
+    "message": "合約未產生"
+  },
+  "welcomeTo": {
+    "message": "歡迎使用"
+  },
+  "domain": {
+    "message": "網域"
+  },
+  "hash": {
+    "message": "雜湊"
+  },
+  "defaultAccount": {
+    "message": "預設帳戶"
+  },
+  "loadMore": {
+    "message": "載入更多"
+  },
+  "submit": {
+    "message": "提交"
+  },
+  "invalidJsonInput": {
+    "message": "無效的 JSON"
+  },
+  "notFaucetJson": {
+    "message": "非水龍頭 JSON"
+  },
+  "faucetJson": {
+    "message": "水龍頭 JSON"
+  },
+  "faucetJsonDescription": {
+    "message": "您可在此貼上 JSON，不須新增檔案"
+  }
+}
