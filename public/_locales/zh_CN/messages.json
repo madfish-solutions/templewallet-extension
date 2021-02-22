@@ -1,0 +1,1683 @@
+{
+  "templeAppName": {
+    "message": "Temple - Tezos钱包"
+  },
+  "showIncomingTransactions": {
+    "message": "显示进账交易"
+  },
+  "appName": {
+    "message": "Thanos - Tezos钱包"
+  },
+  "appDesc": {
+    "message": "🔐💰浏览器扩展程序，适用于Tezos区块链的数字加密货币钱包。"
+  },
+  "importAccount": {
+    "message": "导入账户"
+  },
+  "createAccount": {
+    "message": "创建账户"
+  },
+  "faucetFileTitle": {
+    "message": "Faucet文件"
+  },
+  "faucetFile": {
+    "message": "Faucet文件"
+  },
+  "settings": {
+    "message": "设置"
+  },
+  "openNewTab": {
+    "message": "打开新标签页"
+  },
+  "maximiseView": {
+    "message": "最大化视图"
+  },
+  "selectFileOfFormat": {
+    "message": "选择$format$文件",
+    "placeholders": {
+      "format": {
+        "content": "$1"
+      }
+    }
+  },
+  "authorizedDApps": {
+    "message": "授权DApps",
+    "description": "DApps = Decentralized Applications"
+  },
+  "clickIconToResetPermissions": {
+    "message": "点击X图标来重置权限。"
+  },
+  "versionLabel": {
+    "message": "版本：$version$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "madeWithLove": {
+    "message": "$companyName$的用$loveIcon$之作",
+    "placeholders": {
+      "loveIcon": {
+        "content": "$1"
+      },
+      "companyName": {
+        "content": "$2"
+      }
+    }
+  },
+  "feeInputDescription": {
+    "message": "此操作的基本费用为：$fee$\n附加 - 加快其确认流程",
+    "placeholders": {
+      "fee": {
+        "content": "$1"
+      }
+    }
+  },
+  "resetPermissionsConfirmation": {
+    "message": "确定要为\n$origin$重置权限吗？",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "protectedFormField": {
+    "message": "有保护"
+  },
+  "clickToRevealOrEditField": {
+    "message": "点击以显示或编辑此字段"
+  },
+  "copiedHash": {
+    "message": "已复制。"
+  },
+  "copyHashToClipboard": {
+    "message": "复制到剪贴板"
+  },
+  "accounts": {
+    "message": "账户"
+  },
+  "logOut": {
+    "message": "退出"
+  },
+  "importedAccount": {
+    "message": "已导入"
+  },
+  "networks": {
+    "message": "网络"
+  },
+  "back": {
+    "message": "返回"
+  },
+  "addNewToken": {
+    "message": "添加新代币"
+  },
+  "hideSomeToken": {
+    "message": "隐藏“$tokenName$”代币",
+    "placeholders": {
+      "tokenName": {
+        "content": "$1"
+      }
+    }
+  },
+  "copySomeTokenAddress": {
+    "message": "复制“$tokenSymbol$”地址",
+    "placeholders": {
+      "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "copySomeTokenId": {
+    "message": "复制“$tokenSymbol$”ID",
+    "placeholders": {
+      "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "originLabel": {
+    "message": "原点：$origin$",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "networkLabel": {
+    "message": "网络：$network$",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "pkhLabel": {
+    "message": "账户：$pkh$",
+    "placeholders": {
+      "pkh": {
+        "content": "$1"
+      }
+    }
+  },
+  "minDelegationAmountDescription": {
+    "message": "您的当前余额低于此面包店的最低委托额。这表示当余额低于$minAmount$时，将不会有付款。",
+    "placeholders": {
+      "minAmount": {
+        "content": "$1"
+      }
+    }
+  },
+  "clickOnBakerPrompt": {
+    "message": "点击您想委托资金的面包店。此列表由$link$提供技术支持。",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "highestIsBetter": {
+    "message": "越高越好"
+  },
+  "unlockWalletPrompt": {
+    "message": "如果您想保存现有钱包中的某些数据——$link$并解锁。",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "acceptTermsInputDescription": {
+    "message": "我已阅读并同意\n$termsOfUsageLink$和$privacyPolicyLink$",
+    "placeholders": {
+      "termsOfUsageLink": {
+        "content": "$1"
+      },
+      "privacyPolicyLink": {
+        "content": "$2"
+      }
+    }
+  },
+  "copiedTokenAddress": {
+    "message": "已复制。"
+  },
+  "copiedTokenId": {
+    "message": "已复制。"
+  },
+  "delegatedTo": {
+    "message": "已委托给："
+  },
+  "delegatingMotivation": {
+    "message": "将资金委托给面包店是用您的余额赚利息的好办法。"
+  },
+  "reDelegate": {
+    "message": "重新委托"
+  },
+  "delegateNow": {
+    "message": "立即委托"
+  },
+  "cancel": {
+    "message": "取消"
+  },
+  "save": {
+    "message": "保存"
+  },
+  "edit": {
+    "message": "编辑"
+  },
+  "useCoinSwitch": {
+    "message": "使用CoinSwitch",
+    "description": "CoinSwitch = https://coinswitch.co/"
+  },
+  "tezosFaucet": {
+    "message": "Tezos Faucet"
+  },
+  "tezosFaucetAlpha": {
+    "message": "Tezos Faucet (Alpha)"
+  },
+  "depositToWallet": {
+    "message": "存入您的钱包"
+  },
+  "depositToWalletDescription": {
+    "message": "点击存款方式来将钱存入您的钱包。使用Faucet可获取免费代币！"
+  },
+  "addToken": {
+    "message": "添加代币"
+  },
+  "contractNotAvailable": {
+    "message": "此地址的合约不可用。它在此网络上吗？"
+  },
+  "noTransferMethod": {
+    "message": "无转账方式"
+  },
+  "tokenDoesNotMatchStandard": {
+    "message": "提供的代币合约不符合$standard$标准",
+    "placeholders": {
+      "standard": {
+        "content": "$1"
+      }
+    }
+  },
+  "error": {
+    "message": "错误"
+  },
+  "tokenType": {
+    "message": "代币类型"
+  },
+  "tokenId": {
+    "message": "代币ID"
+  },
+  "tokenIdInputDescription": {
+    "message": "一个非负整数，表示FA2合约内的代币"
+  },
+  "comingSoonComment": {
+    "message": "（即将推出）"
+  },
+  "soon": {
+    "message": "即将"
+  },
+  "required": {
+    "message": "必填"
+  },
+  "address": {
+    "message": "地址"
+  },
+  "addressOfDeployedTokenContract": {
+    "message": "已部署的代币合约的地址。"
+  },
+  "lambdaContractPlaceholder": {
+    "message": "例如：KT1v9CmPy..."
+  },
+  "tokenContractPlaceholder": {
+    "message": "例如：KT1v9CmPy..."
+  },
+  "tokenSymbolPatternDescription": {
+    "message": "仅可使用a-z、A-Z、0-9字符，长度为2-5"
+  },
+  "symbol": {
+    "message": "符号"
+  },
+  "tokenSymbolInputDescription": {
+    "message": "代币符号，例如“USD”表示美元。"
+  },
+  "tokenSymbolInputPlaceholder": {
+    "message": "例如WEW、BOW、LAL等等。"
+  },
+  "tokenNamePatternDescription": {
+    "message": "无特殊字符，长度为3-12"
+  },
+  "name": {
+    "message": "名称"
+  },
+  "tokenNameInputDescription": {
+    "message": "代币名称，例如“比特币”表示BTC资产。"
+  },
+  "tokenNameInputPlaceholder": {
+    "message": "例如：MySuperToken"
+  },
+  "nonNegativeIntMessage": {
+    "message": "整数，0或更大"
+  },
+  "decimals": {
+    "message": "小数"
+  },
+  "decimalsInputDescription": {
+    "message": "小数点后面的小数位。例如：BTC为8位，USD为2位。"
+  },
+  "orIPFSImageURL": {
+    "message": "或IPFS图片URL"
+  },
+  "validImageURL": {
+    "message": "有效的图片URL"
+  },
+  "onlyHTTPS": {
+    "message": "仅HTTPS"
+  },
+  "formatsAllowed": {
+    "message": "仅可使用.png、.jpg、.jpeg、.gif、.webp图片"
+  },
+  "iconURL": {
+    "message": "图标URL"
+  },
+  "optionalComment": {
+    "message": "（选填）"
+  },
+  "iconURLInputDescription": {
+    "message": "代币标志图片URL。"
+  },
+  "invalidAddress": {
+    "message": "地址无效"
+  },
+  "contractNotExistOnNetwork": {
+    "message": "此智能合约不在当前网络上"
+  },
+  "onlyKTContractAddressAllowed": {
+    "message": "仅可使用KT……合约地址",
+    "description": "KT not translated"
+  },
+  "operationHash": {
+    "message": "操作哈希"
+  },
+  "alert": {
+    "message": "提示"
+  },
+  "accountNameInputTitle": {
+    "message": "1-16个字符，无特殊字符"
+  },
+  "defaultAccountName": {
+    "message": "账户$accountNumber$",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultManagedKTAccountName": {
+    "message": "有人管理的KT$accountNumber$",
+    "description": "KT not translated",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultWatchOnlyAccountName": {
+    "message": "仅供查看$accountNumber$",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountsToRemoveConstraint": {
+    "message": "分层确定性账户无法移除。"
+  },
+  "doNotSharePrivateKey": {
+    "message": "<b>切勿分享</b>此组字符给任何人！它可用于窃取您当前的账户。"
+  },
+  "appWouldLikeToConnectToYourWallet": {
+    "message": "$origin$想连接您的钱包",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "appRequestOperationToYou": {
+    "message": "$origin$请求您的操作",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "reject": {
+    "message": "拒绝"
+  },
+  "signAction": {
+    "message": "签署"
+  },
+  "appRequestsToSign": {
+    "message": "$origin$请求您签署",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "alpha": {
+    "message": "Alpha"
+  },
+  "viewAccountAddressWarning": {
+    "message": "此站点正在请求查看您账户地址的权限。请始终确认您信任所使用的网站。"
+  },
+  "account": {
+    "message": "账户"
+  },
+  "toBeConnectedWithDApp": {
+    "message": "待与dApp连接。"
+  },
+  "atLeast8Characters": {
+    "message": "至少8个字符"
+  },
+  "atLeast1Number": {
+    "message": "至少1个数字"
+  },
+  "atLeast1LowercaseLetter": {
+    "message": "至少1个小写字母"
+  },
+  "atLeast1UppercaseLetter": {
+    "message": "至少1个大写字母"
+  },
+  "mnemonicWordsAmountConstraint": {
+    "message": "12、15、18、21或24个英语单词"
+  },
+  "mnemonicSpacingConstraint": {
+    "message": "每个单词用一个空格分隔"
+  },
+  "justValidPreGeneratedMnemonic": {
+    "message": "仅有效的预生成助记符"
+  },
+  "oops": {
+    "message": "哎呀！"
+  },
+  "smthWentWrongWhile": {
+    "message": "$action$时出错了",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "mayHappenBecauseYouAreOffline": {
+    "message": "发生这种情况可能是因为您当前离线了"
+  },
+  "tryAgain": {
+    "message": "重试"
+  },
+  "tezosMainnet": {
+    "message": "Tezos主网",
+    "description": "Mainnet = main network"
+  },
+  "thanosWalletOptions": {
+    "message": "Thanos钱包 | 选项"
+  },
+  "templeWalletOptions": {
+    "message": "Temple钱包 | 选项"
+  },
+  "resetExtension": {
+    "message": "重置扩展程序"
+  },
+  "resetExtensionConfirmation": {
+    "message": "确定要重置Thanos钱包吗？\n此操作的结果是您的全部数据将被删除。"
+  },
+  "templeResetExtensionConfirmation": {
+    "message": "确定要重置Temple钱包吗？\n此操作的结果是您的全部数据将被删除。"
+  },
+  "failedToResetExtension": {
+    "message": "无法重置扩展程序：$errorMessage$",
+    "placeholders": {
+      "errorMessage": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledger": {
+    "message": "Ledger",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "retry": {
+    "message": "重试"
+  },
+  "privateKeyCannotBeRevealed": {
+    "message": "私钥不可显示"
+  },
+  "youCannotGetPrivateKeyFromThisAccountType": {
+    "message": "您无法从$accountType$账户获取私钥。",
+    "placeholders": {
+      "accountType": {
+        "content": "$1"
+      }
+    }
+  },
+  "maximalAmount": {
+    "message": "最大：$amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "amountMustBePositive": {
+    "message": "必须为正数"
+  },
+  "accountName": {
+    "message": "账户名称"
+  },
+  "accountNameInputDescription": {
+    "message": "新账户的名称是什么？"
+  },
+  "createNewWallet": {
+    "message": "创建新钱包"
+  },
+  "createNewWalletDescription": {
+    "message": "没用过Thanos钱包？我们先设置一个！这样做会创建一个新钱包和助记词"
+  },
+  "templeCreateNewWalletDescription": {
+    "message": "没用过Temple钱包？我们先设置一个！这样做会创建一个新钱包和助记词"
+  },
+  "delegate": {
+    "message": "委托"
+  },
+  "explore": {
+    "message": "探索"
+  },
+  "assetsWhileMessage": {
+    "message": "正在获取资产数据"
+  },
+  "receive": {
+    "message": "接收"
+  },
+  "send": {
+    "message": "发送"
+  },
+  "baking": {
+    "message": "烘焙"
+  },
+  "operations": {
+    "message": "操作"
+  },
+  "delegationInfoWhileMessage": {
+    "message": "正在获取或处理您的委托信息"
+  },
+  "operationHistoryWhileMessage": {
+    "message": "正在获取或处理操作历史记录"
+  },
+  "privateKey": {
+    "message": "私钥"
+  },
+  "mnemonic": {
+    "message": "助记符"
+  },
+  "fundraiser": {
+    "message": "资金筹集活动"
+  },
+  "privateKeyInputDescription": {
+    "message": "您要导入的账户的密钥。"
+  },
+  "privateKeyInputPlaceholder": {
+    "message": "例如：edsk3wfiPMu..."
+  },
+  "password": {
+    "message": "密码"
+  },
+  "isPrivateKeyEncrypted": {
+    "message": "您的私钥是加密格式的吗？"
+  },
+  "noDerivation": {
+    "message": "无衍生"
+  },
+  "customDerivationPath": {
+    "message": "自定义衍生路径"
+  },
+  "mnemonicInputLabel": {
+    "message": "助记词"
+  },
+  "mnemonicInputDescription": {
+    "message": "助记符。由12个单词组成的秘密短语。"
+  },
+  "mnemonicInputPlaceholder": {
+    "message": "例如：venue sock milk update..."
+  },
+  "passwordInputDescription": {
+    "message": "用于附加助记衍生。这不是钱包的密码。"
+  },
+  "derivation": {
+    "message": "衍生"
+  },
+  "addDerivationPathPrompt": {
+    "message": "默认不使用衍生。点击“自定义衍生路径”来添加一个。"
+  },
+  "derivationPathMustStartWithM": {
+    "message": "必须以“m”开头"
+  },
+  "derivationSeparatorMustBeSlash": {
+    "message": "分隔符必须为“/”"
+  },
+  "invalidPath": {
+    "message": "路径无效"
+  },
+  "email": {
+    "message": "邮箱"
+  },
+  "unexpectedOrInvalidFile": {
+    "message": "意外或无效的文件"
+  },
+  "requestSent": {
+    "message": "$type$请求已发送！正在确认…",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "success": {
+    "message": "成功"
+  },
+  "smthWentWrong": {
+    "message": "出错了"
+  },
+  "faucetFileInputPrompt": {
+    "message": "拖放一个文件或点击下方区域来手动选择。您可以从$link$下载下来。",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "processing": {
+    "message": "正在处理…"
+  },
+  "restoreWalletWithSeedPhrase": {
+    "message": "用助记词恢复您的钱包"
+  },
+  "accountAddressLabel": {
+    "message": "您当前的账户地址。分享该地址来收款。"
+  },
+  "copiedAddress": {
+    "message": "已复制。"
+  },
+  "copyAddressToClipboard": {
+    "message": "复制到剪贴板"
+  },
+  "qrCode": {
+    "message": "二维码"
+  },
+  "revealPrivateKey": {
+    "message": "显示私钥"
+  },
+  "revealPrivateKeyDescription": {
+    "message": "也称为“导出账户”，显示所选账户的私钥。"
+  },
+  "revealSeedPhrase": {
+    "message": "显示助记词"
+  },
+  "revealSeedPhraseDescription": {
+    "message": "也称为“导出钱包”，您可能需要此助记词来在其他设备上访问您的钱包和账户。"
+  },
+  "dApps": {
+    "message": "DApp",
+    "description": "DApps = Decentralized Applications"
+  },
+  "dAppsDescription": {
+    "message": "在此处，您可以获得与支持Thanos钱包的去中心化应用互动的能力。"
+  },
+  "templeDAppsDescription": {
+    "message": "在此处，您可以获得与支持Temple钱包的去中心化应用互动的能力。"
+  },
+  "networksDescription": {
+    "message": "在此处，您可以添加或删除自定义Tezos网络。",
+    "description": "Tezos = blockchain name (https://tezos.com/)"
+  },
+  "activateAccount": {
+    "message": "激活账户"
+  },
+  "activateAccountDescription": {
+    "message": "这对于ICO/资金筹集活动或Testnet Faucet账户可能是必要的。"
+  },
+  "removeAccount": {
+    "message": "移除账户"
+  },
+  "removeAccountDescription": {
+    "message": "使用此板块来移除所选账户。仅导入的账户可移除。"
+  },
+  "about": {
+    "message": "关于"
+  },
+  "aboutDescription": {
+    "message": "使用此板块来查看关于Thanos钱包的元信息。"
+  },
+  "templeAboutDescription": {
+    "message": "使用此板块来查看关于Temple钱包的元信息。"
+  },
+  "unlockWallet": {
+    "message": "解锁钱包"
+  },
+  "toContinue": {
+    "message": "以继续"
+  },
+  "unlockPasswordInputDescription": {
+    "message": "该钱包已使用密码保护。"
+  },
+  "unlock": {
+    "message": "解锁"
+  },
+  "importNewAccountTitle": {
+    "message": "恢复账户？或登录其他账户？"
+  },
+  "importWalletUsingSeedPhrase": {
+    "message": "使用助记词导入钱包"
+  },
+  "connectLedger": {
+    "message": "连接Ledger",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "importExistingWallet": {
+    "message": "导入现有钱包"
+  },
+  "importExistingWalletDescription": {
+    "message": "已有助记词？使用12个或更多助记词来导入现有的钱包"
+  },
+  "links": {
+    "message": "链接"
+  },
+  "website": {
+    "message": "网站"
+  },
+  "repo": {
+    "message": "知识库"
+  },
+  "privacyPolicy": {
+    "message": "隐私政策"
+  },
+  "termsOfUse": {
+    "message": "使用条款"
+  },
+  "contact": {
+    "message": "联系方式"
+  },
+  "accountAlreadyActivated": {
+    "message": "您的账户已激活。"
+  },
+  "accountActivated": {
+    "message": "您的账户已成功激活！"
+  },
+  "failureSecretMayBeInvalid": {
+    "message": "失败。发生这种情况可能是因为提供的密钥无效"
+  },
+  "accountToBeActivated": {
+    "message": "账户待激活。"
+  },
+  "ifYouWantToActivateAnotherAccount": {
+    "message": "如需激活其他账户——请在右上角下拉菜单中选择。"
+  },
+  "activateAccountSecret": {
+    "message": "密钥"
+  },
+  "activateAccountSecretDescription": {
+    "message": "来自资金筹集账户或Faucet的“secret”字段"
+  },
+  "activateAccountSecretPlaceholder": {
+    "message": "例如：n4hs7sd3..."
+  },
+  "activate": {
+    "message": "激活"
+  },
+  "minimalFeeDescription": {
+    "message": "最小"
+  },
+  "fastFeeDescription": {
+    "message": "快速"
+  },
+  "rocketFeeDescription": {
+    "message": "火箭"
+  },
+  "customFeeDescription": {
+    "message": "自定义"
+  },
+  "additionalFee": {
+    "message": "附加费用"
+  },
+  "asset": {
+    "message": "资产"
+  },
+  "selectAnotherAssetPrompt": {
+    "message": "点击区域以选择其他资产或代币。"
+  },
+  "disable": {
+    "message": "禁用"
+  },
+  "enable": {
+    "message": "启用"
+  },
+  "dAppsCheckmarkPrompt": {
+    "message": "点击勾号以$action$DApp互动功能",
+    "description": "DApps = Decentralized Applications",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "dAppsInteraction": {
+    "message": "DApp互动",
+    "description": "DApps = Decentralized Applications"
+  },
+  "dAppsInteractionEnabled": {
+    "message": "已启用"
+  },
+  "dAppsInteractionDisabled": {
+    "message": "已禁用"
+  },
+  "enablePopup": {
+    "message": "启用弹窗"
+  },
+  "popupEnabled": {
+    "message": "已启用"
+  },
+  "popupDisabled": {
+    "message": "已禁用"
+  },
+  "rank": {
+    "message": "排行"
+  },
+  "delete": {
+    "message": "删除"
+  },
+  "fee": {
+    "message": "费用"
+  },
+  "space": {
+    "message": "空间"
+  },
+  "delegation": {
+    "message": "委托"
+  },
+  "baker": {
+    "message": "面包店"
+  },
+  "bakerInputDescription": {
+    "message": "已注册面包店的地址。"
+  },
+  "bakerInputPlaceholder": {
+    "message": "例如：tz1a9w1S7hN5s..."
+  },
+  "minDelegationAmountTitle": {
+    "message": "最小委托额"
+  },
+  "unknownBakerTitle": {
+    "message": "未知面包店"
+  },
+  "unknownBakerDescription": {
+    "message": "提供的地址对于我们而言不是面包店的地址！如需向其委托资金，请自担风险。"
+  },
+  "delegateToRecommendedBakers": {
+    "message": "委托给推荐的面包店"
+  },
+  "sortBy": {
+    "message": "排序条件"
+  },
+  "cycles_one": {
+    "message": "$amount$周期",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_other": {
+    "message": "$amount$周期",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "notEnoughFunds": {
+    "message": "资金不足"
+  },
+  "notEnoughCurrencyFunds": {
+    "message": "$currency$资金不足",
+    "placeholders": {
+      "currency": {
+        "content": "$1"
+      }
+    }
+  },
+  "notAllowed": {
+    "message": "不允许"
+  },
+  "failed": {
+    "message": "失败"
+  },
+  "yourBalanceIsZero": {
+    "message": "您的余额为0。"
+  },
+  "minimalFeeGreaterThanBalance": {
+    "message": "此交易的最低费用高于您的余额。"
+  },
+  "alreadyDelegatedFundsToBaker": {
+    "message": "已委托资金给此面包店。无法再次委托。"
+  },
+  "bakerNotRegistered": {
+    "message": "指定的面包店未注册。"
+  },
+  "unableToPerformActionToBaker": {
+    "message": "无法$action$给提供的面包店。",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "estimateDelegation": {
+    "message": "预估委托"
+  },
+  "thisMayHappenBecause": {
+    "message": "发生这种情况可能是因为："
+  },
+  "minimalFeeGreaterThanBalanceVerbose": {
+    "message": "此交易的最低费用高于您的余额。由于您向空的管理员账户转账，可能会向您高额费用。这需要收取一次性的0.257 XTZ消耗费；"
+  },
+  "networkOrOtherIssue": {
+    "message": "网络或其他技术问题。"
+  },
+  "unableToDelegateToKTAddress": {
+    "message": "无法委托给KT……合约地址"
+  },
+  "confirmAction": {
+    "message": "确认$action$",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "payloadToSign": {
+    "message": "待签署的付款"
+  },
+  "decline": {
+    "message": "拒绝"
+  },
+  "confirm": {
+    "message": "确认"
+  },
+  "network": {
+    "message": "网络"
+  },
+  "unknownNetwork": {
+    "message": "未知："
+  },
+  "backupNewSeedPhrase": {
+    "message": "备份新的助记词"
+  },
+  "attentionExclamation": {
+    "message": "注意！"
+  },
+  "lockedWalletAlreadyExists": {
+    "message": "已锁定的钱包<b>已存在</b>。\n导入新的会<b>摧毁现有的</b>。"
+  },
+  "backToUnlockPage": {
+    "message": "回到解锁页面"
+  },
+  "mustBeEqualToPasswordAbove": {
+    "message": "必须与上方密码相同"
+  },
+  "repeatPassword": {
+    "message": "重复密码"
+  },
+  "repeatPasswordInputDescription": {
+    "message": "请再次输入该密码。"
+  },
+  "confirmTermsError": {
+    "message": "若不确认使用条款则无法继续"
+  },
+  "acceptTerms": {
+    "message": "接受条款"
+  },
+  "termsOfUsage": {
+    "message": "使用条款"
+  },
+  "create": {
+    "message": "创建"
+  },
+  "revealNewSeedPhrase": {
+    "message": "<b>点击下方区域</b>来显示新的助记词。\n此后，将此助记词写在一张纸上并<b>保存在安全的地方</b>。或者您也可以背下来。"
+  },
+  "doNotSharePhrase": {
+    "message": "<b>切勿分享</b>此助记词给任何人！它可用于窃取您全部的账户。"
+  },
+  "youWillNeedThisSeedPhrase": {
+    "message": "如果您曾经切换过浏览器或设备，您就需要此助记词来访问您的账户。"
+  },
+  "unableToContinueWithoutConfirming": {
+    "message": "若不确认则无法继续"
+  },
+  "backupedInputLabel": {
+    "message": "我备份了助记词"
+  },
+  "backupedInputDescription": {
+    "message": "并接受一切由丢失该助记词导致的风险，\n我的资金可能会损失。"
+  },
+  "continue": {
+    "message": "继续"
+  },
+  "noOperationsFound": {
+    "message": "找不到操作"
+  },
+  "pending": {
+    "message": "待处理…"
+  },
+  "backtracked": {
+    "message": "已回溯"
+  },
+  "operationSuccessfullyProcessed": {
+    "message": "$type$已成功处理和确认！",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "timedOutOperationConfirmation": {
+    "message": "超时操作确认。您可以继续等待或稍后重试。"
+  },
+  "accountToBeRemoved": {
+    "message": "账户待移除。"
+  },
+  "ifYouWantToRemoveAnotherAccount": {
+    "message": "如需移除其他账户——请在右上角下拉菜单中选择。"
+  },
+  "cannotBeRemoved": {
+    "message": "无法移除"
+  },
+  "importedPlural": {
+    "message": "已导入"
+  },
+  "enterPasswordToRemoveAccount": {
+    "message": "输入密码以移除账户。"
+  },
+  "remove": {
+    "message": "移除"
+  },
+  "ifYouWantToRevealPrivateKeyFromOtherAccount": {
+    "message": "如需显示其他账户的私钥——请在右上角下拉菜单中选择。"
+  },
+  "privateKeyFieldDescription": {
+    "message": "当前账户的密钥。请保密。"
+  },
+  "derivationPath": {
+    "message": "衍生路径"
+  },
+  "seedPhrase": {
+    "message": "助记词"
+  },
+  "pathForHDAccounts": {
+    "message": "用于HD账户。它用于使用助记词恢复全部账户。",
+    "description": "HD = Hierarchical Deterministic"
+  },
+  "derivationPathExample": {
+    "message": "m/44'/1729'/<account_index>'/0'"
+  },
+  "derivationPathExample2": {
+    "message": "例如：m/44'/1729'/…"
+  },
+  "keepSeedPhraseSecret": {
+    "message": "请保密。"
+  },
+  "revealSecretPasswordInputDescription": {
+    "message": "输入密码以显示$secretName$。",
+    "placeholders": {
+      "secretName": {
+        "content": "$1"
+      }
+    }
+  },
+  "reveal": {
+    "message": "显示"
+  },
+  "transaction": {
+    "message": "交易"
+  },
+  "recipient": {
+    "message": "收件人"
+  },
+  "tokensRecepientInputDescription": {
+    "message": "要接收$assetSymbol$资金的地址。",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "tokensRecepientInputDescriptionWithDomain": {
+    "message": "要接收$assetSymbol$资金的地址或Tezos域名。",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "addressInputDescription": {
+    "message": "Tezos账户或智能合约的地址。"
+  },
+  "addressInputDescriptionWithDomain": {
+    "message": "帐户或智能合约的地址或Tezos域名。"
+  },
+  "recipientInputPlaceholder": {
+    "message": "例如：tz1a9w1S7hN5s..."
+  },
+  "recipientInputPlaceholderWithDomain": {
+    "message": "例如：alice.tez或tz1a9w1S7hN5s…",
+    "description": "alice.tez = domain like google.com"
+  },
+  "tryingToTransferToYourself": {
+    "message": "您正在尝试向自己转账。\n请确认您确实想这样做。"
+  },
+  "amount": {
+    "message": "金额"
+  },
+  "availableToSend": {
+    "message": "可发送（最大）："
+  },
+  "inUSD": {
+    "message": "以USD计"
+  },
+  "inXTZ": {
+    "message": "以XTZ计",
+    "description": "ꜩ = asset symbol, like USD"
+  },
+  "amountPlaceholder": {
+    "message": "例如：123.45"
+  },
+  "sendToMyAccounts": {
+    "message": "发送至我的账户"
+  },
+  "clickOnRecipientAccount": {
+    "message": "点击要接收资金的账户。"
+  },
+  "mainAssetBalanceIsZero": {
+    "message": "您的XTZ（主资产）余额为0。XTZ资金是该费用的前提条件。"
+  },
+  "unableToSendTransactionAction": {
+    "message": "无法发送交易至提供的收件人。"
+  },
+  "unableToEstimateTransactionAction": {
+    "message": "无法预估交易至提供的收件人。"
+  },
+  "makeSureToBackupSeedPhrase": {
+    "message": "请务必备份您的助记词！"
+  },
+  "exploreMore": {
+    "message": "继续探索…"
+  },
+  "selfComment": {
+    "message": "（自己）"
+  },
+  "deleteNetworkConfirm": {
+    "message": "确定要删除此网络吗？"
+  },
+  "networkNamePlaceholder": {
+    "message": "我的自定义网络"
+  },
+  "mustBeValidURL": {
+    "message": "必须为有效URL"
+  },
+  "rpcBaseURL": {
+    "message": "基于RPC的URL",
+    "description": "RPC = Remote Procedure Call (https://en.wikipedia.org/wiki/Remote_procedure_call)"
+  },
+  "mustBeUnique": {
+    "message": "必须唯一"
+  },
+  "addNetwork": {
+    "message": "添加网络"
+  },
+  "currentNetworks": {
+    "message": "当前网络"
+  },
+  "deleteNetworkHint": {
+    "message": "点击X图标以删除网络。如需编辑网络，仅需先删除再用新的参数添加一个。"
+  },
+  "preview": {
+    "message": "预览"
+  },
+  "raw": {
+    "message": "原始"
+  },
+  "fetchingConfirmationDetails": {
+    "message": "正在获取确认详情"
+  },
+  "notIdentified": {
+    "message": "未识别"
+  },
+  "connection": {
+    "message": "连接"
+  },
+  "connect": {
+    "message": "连接"
+  },
+  "confirmActionOnDevice": {
+    "message": "确认操作"
+  },
+  "deviceName": {
+    "message": "$device$设备",
+    "placeholders": {
+      "device": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledgerNano": {
+    "message": "Ledger Nano",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "defaultLedgerName": {
+    "message": "Ledger $number$",
+    "description": "Ledger = https://www.ledger.com/",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledgerNameConstraint": {
+    "message": "1-16个字符，无特殊字符"
+  },
+  "ledgerNameInputDescription": {
+    "message": "新Ledger账户的名称是什么？",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "defaultDerivationPathLabel": {
+    "message": "默认使用$path$衍生。",
+    "placeholders": {
+      "path": {
+        "content": "$1"
+      }
+    }
+  },
+  "clickOnCustomDerivationPath": {
+    "message": "点击“自定义衍生路径”来进行自定义。"
+  },
+  "addLedgerAccount": {
+    "message": "添加Ledger账户",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "firefoxLedgerConnectionError": {
+    "message": "$sorry$通过$browser$与$device$设备的连接暂时$unavailable$。",
+    "placeholders": {
+      "sorry": {
+        "content": "$1"
+      },
+      "device": {
+        "content": "$2"
+      },
+      "browser": {
+        "content": "$3"
+      },
+      "unavailable": {
+        "content": "$4"
+      }
+    }
+  },
+  "connectionUnavailable": {
+    "message": "不可用"
+  },
+  "sorry": {
+    "message": "抱歉！"
+  },
+  "upload": {
+    "message": "上传"
+  },
+  "languageAndCountry": {
+    "message": "语言"
+  },
+  "generalSettings": {
+    "message": "通用"
+  },
+  "generalSettingsDescription": {
+    "message": "在此处您可以管理语言偏好和显示模式。"
+  },
+  "swapNoun": {
+    "message": "交换"
+  },
+  "transfers": {
+    "message": "转账"
+  },
+  "someUnknownToken": {
+    "message": "未知代币$token$",
+    "placeholders": {
+      "token": {
+        "content": "$1"
+      }
+    }
+  },
+  "lambdaContract": {
+    "message": "Lambda View合约"
+  },
+  "someLambda": {
+    "message": "Lambda View：$lambda$",
+    "placeholders": {
+      "lambda": {
+        "content": "$1"
+      }
+    }
+  },
+  "interactionWithSomeEntrypoint": {
+    "message": "与合约$contractAddress$的进入点“$entrypoint$”的互动",
+    "placeholders": {
+      "entrypoint": {
+        "content": "$1"
+      },
+      "contractAddress": {
+        "content": "$2"
+      }
+    }
+  },
+  "transactionOfSomeType": {
+    "message": "“$type$”类型的交易",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "approveToken": {
+    "message": "批准代币"
+  },
+  "noLambdaWarningContent": {
+    "message": "未指定Lambda View合约。若如此合约，则部分功能可能无法使用。如需继续，请按“添加网络”按钮。"
+  },
+  "noActiveNetLambdaWarningTitle": {
+    "message": "当前网络未指定Lambda View合约！"
+  },
+  "noActiveNetLambdaWarningContent": {
+    "message": "当前网络未指定Lambda View合约！您可以在下方表单中添加，或点击“新部署”来部署一个新的并自动添加。"
+  },
+  "add": {
+    "message": "添加"
+  },
+  "assets": {
+    "message": "资产"
+  },
+  "activity": {
+    "message": "活动"
+  },
+  "manage": {
+    "message": "管理"
+  },
+  "manageAssets": {
+    "message": "管理资产"
+  },
+  "noAssetsFound": {
+    "message": "找不到资产"
+  },
+  "ifYouDontSeeYourAsset": {
+    "message": "如果看不到自己的资产，\n请尝试点击$toClick$。",
+    "placeholders": {
+      "toClick": {
+        "content": "$1"
+      }
+    }
+  },
+  "addressOfTokenContract": {
+    "message": "$assetSymbol$代币合约的地址。",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "searchAssets": {
+    "message": "搜索资产…"
+  },
+  "deployNew": {
+    "message": "新部署"
+  },
+  "managedKTAccount": {
+    "message": "有人管理的KT"
+  },
+  "watchOnlyAccount": {
+    "message": "仅供查看"
+  },
+  "disabledForWatchOnlyAccount": {
+    "message": "已为仅供查看账户禁用"
+  },
+  "activationOperationType": {
+    "message": "激活"
+  },
+  "youAreNotContractManager": {
+    "message": "您不是合约管理员"
+  },
+  "contract": {
+    "message": "合约"
+  },
+  "contractAddressInputDescription": {
+    "message": "待连接的合约的地址。"
+  },
+  "contractAddressInputPlaceholder": {
+    "message": "例如：KT1a9w1S7hN5s..."
+  },
+  "addKnownManagedContract": {
+    "message": "添加已知的有人管理的合约"
+  },
+  "clickOnContractToImport": {
+    "message": "点击要导入的合约。"
+  },
+  "notContractAddress": {
+    "message": "不是合约地址"
+  },
+  "contractAlreadyImported": {
+    "message": "此合约已导入"
+  },
+  "waitWhileContractBeingDeployed": {
+    "message": "在合约部署期间，请勿离开本页面或关闭窗口，这可能需要一点时间。一旦部署成功，本表单和提示信息都将自动消失。"
+  },
+  "justAMinute": {
+    "message": "请稍候…"
+  },
+  "referredByTokenContactAddressInvalid": {
+    "message": "代币合约中引用的合约地址$address$是无效的。",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "someNetworkIsNotCurrent": {
+    "message": "指定的$network$网络不是当前网络",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "someNetworkWithChainIdIsNotCurrent": {
+    "message": "指定的链ID $chainId$不是当前网络的链ID",
+    "placeholders": {
+      "chainId": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSettings": {
+    "message": "弹窗模式"
+  },
+  "popupSettingsDescription": {
+    "message": "在此处，您可以配置出现在插件的图标点击扩展面板上的弹窗。"
+  },
+  "managedContract": {
+    "message": "有人管理的合约"
+  },
+  "referredByTokenContractNotFound": {
+    "message": "代币合约中引用的合约$address$未找到。",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "tokenContractNotFound": {
+    "message": "找不到该合约。"
+  },
+  "failedToParseMetadata": {
+    "message": "无法解析元数据"
+  },
+  "unknownParseErrorOccurred": {
+    "message": "发生未知的解析错误。"
+  },
+  "errorWhileFetchingUrl": {
+    "message": "获取表单$url$时出错",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "invalidManagedContract": {
+    "message": "该有人管理的合约是无效的"
+  },
+  "someMethodNotDefinedInContract": {
+    "message": "“$name$”方式未在合约中定义。",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "someMethodSignatureDoesNotMatchStandard": {
+    "message": "“$name$”方式的签名不符合标准。",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "failedToLoadChainID": {
+    "message": "无法加载此网络的链ID"
+  },
+  "makeSureTokenIdIsCorrect": {
+    "message": "请确认代币ID是正确的。"
+  },
+  "unknownErrorCheckingSomeEntrypoint": {
+    "message": "检查“$name$”进入点时出错了。",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "incorrectTokenIdErrorMessage": {
+    "message": "处理具有所提供数据的代币时失败。请确认代币ID是正确的。"
+  },
+  "transfer": {
+    "message": "转账"
+  },
+  "transferFromSmb": {
+    "message": "自$sender$",
+    "placeholders": {
+      "sender": {
+        "content": "$1"
+      }
+    }
+  },
+  "transferToSmb": {
+    "message": "至$receiver$",
+    "placeholders": {
+      "receiver": {
+        "content": "$1"
+      }
+    }
+  },
+  "interaction": {
+    "message": "互动"
+  },
+  "interactionWithContract": {
+    "message": "与$contract$",
+    "placeholders": {
+      "contract": {
+        "content": "$1"
+      }
+    }
+  },
+  "delegationToSmb": {
+    "message": "至$delegate$",
+    "placeholders": {
+      "delegate": {
+        "content": "$1"
+      }
+    }
+  },
+  "fa2TokenAlreadyExists": {
+    "message": "地址为$address$且ID为$tokenId$的代币已存在。",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      },
+      "tokenId": {
+        "content": "$2"
+      }
+    }
+  },
+  "nonFa2TokenAlreadyExists": {
+    "message": "地址为$address$的代币已存在。",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "approveForSmb": {
+    "message": "对于$spender$",
+    "placeholders": {
+      "spender": {
+        "content": "$1"
+      }
+    }
+  },
+  "undelegation": {
+    "message": "取消委托"
+  },
+  "bytes": {
+    "message": "字节"
+  },
+  "clean": {
+    "message": "清除"
+  },
+  "errorChangingAccountName": {
+    "message": "更改账户名称时出错"
+  },
+  "ok": {
+    "message": "好"
+  },
+  "yes": {
+    "message": "是"
+  },
+  "no": {
+    "message": "否"
+  },
+  "actionConfirmation": {
+    "message": "确认操作"
+  },
+  "domainDoesntResolveToAddress": {
+    "message": "域名“$value$”无法解析至地址",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "invalidAddressOrDomain": {
+    "message": "地址或域名无效"
+  },
+  "resolvedAddress": {
+    "message": "已解析的地址"
+  },
+  "invalidRpcCantGetChainId": {
+    "message": "RPC无效。无法获取链ID",
+    "description": "RPC = Remote Procedure Call (https://en.wikipedia.org/wiki/Remote_procedure_call)"
+  },
+  "contractNotOriginated": {
+    "message": "合约未发起"
+  },
+  "welcomeTo": {
+    "message": "欢迎使用"
+  },
+  "domain": {
+    "message": "域名"
+  },
+  "hash": {
+    "message": "哈希"
+  },
+  "defaultAccount": {
+    "message": "默认账户"
+  },
+  "loadMore": {
+    "message": "加载更多"
+  },
+  "submit": {
+    "message": "提交"
+  },
+  "invalidJsonInput": {
+    "message": "JSON无效"
+  },
+  "notFaucetJson": {
+    "message": "不是Faucet JSON"
+  },
+  "faucetJson": {
+    "message": "Faucet JSON"
+  },
+  "faucetJsonDescription": {
+    "message": "您可以通过在此粘贴JSON来代替添加文件"
+  }
+}

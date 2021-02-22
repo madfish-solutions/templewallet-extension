@@ -1,0 +1,1683 @@
+{
+  "appName": {
+    "message": "Thanos - Tezos Wallet"
+  },
+  "templeAppName": {
+    "message": "Temple - Tezos Wallet"
+  },
+  "showIncomingTransactions": {
+    "message": "Show Incoming Transactions"
+  },
+  "appDesc": {
+    "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
+  },
+  "createAccount": {
+    "message": "Create account"
+  },
+  "importAccount": {
+    "message": "Import account"
+  },
+  "faucetFileTitle": {
+    "message": "Faucet File"
+  },
+  "faucetFile": {
+    "message": "Faucet file"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "openNewTab": {
+    "message": "Open new tab"
+  },
+  "maximiseView": {
+    "message": "Maximise view"
+  },
+  "selectFileOfFormat": {
+    "message": "Select $format$ file",
+    "placeholders": {
+      "format": {
+        "content": "$1"
+      }
+    }
+  },
+  "authorizedDApps": {
+    "message": "Authorized DApps",
+    "description": "DApps = Decentralized Applications"
+  },
+  "clickIconToResetPermissions": {
+    "message": "Click on the X icon to reset permissions."
+  },
+  "versionLabel": {
+    "message": "version: $version$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "madeWithLove": {
+    "message": "Made with $loveIcon$ by $companyName$",
+    "placeholders": {
+      "loveIcon": {
+        "content": "$1"
+      },
+      "companyName": {
+        "content": "$2"
+      }
+    }
+  },
+  "feeInputDescription": {
+    "message": "Base Fee for this operation is: $fee$\nAdditional - speeds up its confirmation",
+    "placeholders": {
+      "fee": {
+        "content": "$1"
+      }
+    }
+  },
+  "resetPermissionsConfirmation": {
+    "message": "Are you sure you want to reset permissions for\n$origin$?",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "protectedFormField": {
+    "message": "Protected"
+  },
+  "clickToRevealOrEditField": {
+    "message": "Click to reveal or edit this field"
+  },
+  "copiedHash": {
+    "message": "Copied."
+  },
+  "copyHashToClipboard": {
+    "message": "Copy to clipboard"
+  },
+  "accounts": {
+    "message": "Accounts"
+  },
+  "logOut": {
+    "message": "Log out"
+  },
+  "importedAccount": {
+    "message": "Imported"
+  },
+  "networks": {
+    "message": "Networks"
+  },
+  "back": {
+    "message": "Back"
+  },
+  "addNewToken": {
+    "message": "Add new Token"
+  },
+  "hideSomeToken": {
+    "message": "Hide \"$tokenName$\" token",
+    "placeholders": {
+      "tokenName": {
+        "content": "$1"
+      }
+    }
+  },
+  "copySomeTokenAddress": {
+    "message": "Copy \"$tokenSymbol$\" address",
+    "placeholders": {
+      "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "copySomeTokenId": {
+    "message": "Copy \"$tokenSymbol$\" ID",
+    "placeholders": {
+      "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "originLabel": {
+    "message": "Origin: $origin$",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "networkLabel": {
+    "message": "Network: $network$",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "pkhLabel": {
+    "message": "Account: $pkh$",
+    "placeholders": {
+      "pkh": {
+        "content": "$1"
+      }
+    }
+  },
+  "minDelegationAmountDescription": {
+    "message": "Your current balance is less than a minimal delegation amount of this baker. That means while the balance is less than $minAmount$ - there will be no payouts.",
+    "placeholders": {
+      "minAmount": {
+        "content": "$1"
+      }
+    }
+  },
+  "clickOnBakerPrompt": {
+    "message": "Click on the Baker you want to delegate funds to. This list is powered by $link$.",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "highestIsBetter": {
+    "message": "the higher the better"
+  },
+  "unlockWalletPrompt": {
+    "message": "If you want to save something from already existing wallet - $link$ and unlock it.",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "acceptTermsInputDescription": {
+    "message": "I have read and agree to\nthe $termsOfUsageLink$ and $privacyPolicyLink$",
+    "placeholders": {
+      "termsOfUsageLink": {
+        "content": "$1"
+      },
+      "privacyPolicyLink": {
+        "content": "$2"
+      }
+    }
+  },
+  "copiedTokenAddress": {
+    "message": "Copied."
+  },
+  "copiedTokenId": {
+    "message": "Copied."
+  },
+  "delegatedTo": {
+    "message": "Delegated to:"
+  },
+  "delegatingMotivation": {
+    "message": "Delegating your funds to bakers is a great way of earning interest on your balance"
+  },
+  "reDelegate": {
+    "message": "Re-delegate"
+  },
+  "delegateNow": {
+    "message": "Delegate now"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "edit": {
+    "message": "Edit"
+  },
+  "useCoinSwitch": {
+    "message": "Use CoinSwitch",
+    "description": "CoinSwitch = https://coinswitch.co/"
+  },
+  "tezosFaucet": {
+    "message": "Tezos Faucet"
+  },
+  "tezosFaucetAlpha": {
+    "message": "Tezos Faucet (Alpha)"
+  },
+  "depositToWallet": {
+    "message": "Deposit to your wallet"
+  },
+  "depositToWalletDescription": {
+    "message": "Click on deposit method to get money on your wallet. Use faucet to get free coins!"
+  },
+  "addToken": {
+    "message": "Add Token"
+  },
+  "contractNotAvailable": {
+    "message": "The contract at this address is not available. Does it exist on this network?"
+  },
+  "noTransferMethod": {
+    "message": "No transfer method"
+  },
+  "tokenDoesNotMatchStandard": {
+    "message": "Provided token contract doesn't match $standard$ standard",
+    "placeholders": {
+      "standard": {
+        "content": "$1"
+      }
+    }
+  },
+  "error": {
+    "message": "Error"
+  },
+  "tokenType": {
+    "message": "Token type"
+  },
+  "tokenId": {
+    "message": "Token ID"
+  },
+  "tokenIdInputDescription": {
+    "message": "A non-negative integer number that identifies the token inside FA2 contract"
+  },
+  "comingSoonComment": {
+    "message": "(coming soon)"
+  },
+  "soon": {
+    "message": "soon"
+  },
+  "required": {
+    "message": "Required"
+  },
+  "address": {
+    "message": "Address"
+  },
+  "addressOfDeployedTokenContract": {
+    "message": "Address of a deployed token contract."
+  },
+  "tokenContractPlaceholder": {
+    "message": "e.g. KT1v9CmPy..."
+  },
+  "lambdaContractPlaceholder": {
+    "message": "e.g. KT1v9CmPy..."
+  },
+  "tokenSymbolPatternDescription": {
+    "message": "Only a-z, A-Z, 0-9 chars allowed, 2-5 length"
+  },
+  "symbol": {
+    "message": "Symbol"
+  },
+  "tokenSymbolInputDescription": {
+    "message": "Token symbol, like 'USD' for United States Dollar."
+  },
+  "tokenSymbolInputPlaceholder": {
+    "message": "e.g. WEW, BOW, LAL etc."
+  },
+  "tokenNamePatternDescription": {
+    "message": "No special characters, 3-12 length"
+  },
+  "name": {
+    "message": "Name"
+  },
+  "tokenNameInputDescription": {
+    "message": "Token name, like 'Bitcoin' for BTC asset."
+  },
+  "tokenNameInputPlaceholder": {
+    "message": "e.g. MySuperToken"
+  },
+  "nonNegativeIntMessage": {
+    "message": "Integer, 0 or greater"
+  },
+  "decimals": {
+    "message": "Decimals"
+  },
+  "decimalsInputDescription": {
+    "message": "A number of decimal places after point. For example: 8 for BTC, 2 for USD."
+  },
+  "orIPFSImageURL": {
+    "message": "Or IPFS image URL"
+  },
+  "validImageURL": {
+    "message": "Valid image URL"
+  },
+  "onlyHTTPS": {
+    "message": "Only HTTPS"
+  },
+  "formatsAllowed": {
+    "message": "Only .png, .jpg, .jpeg, .gif, .webp images allowed"
+  },
+  "iconURL": {
+    "message": "Icon URL"
+  },
+  "optionalComment": {
+    "message": "(optional)"
+  },
+  "iconURLInputDescription": {
+    "message": "Image URL for token logo."
+  },
+  "invalidAddress": {
+    "message": "Invalid address"
+  },
+  "contractNotExistOnNetwork": {
+    "message": "This smart contract doesn't exist on current network"
+  },
+  "onlyKTContractAddressAllowed": {
+    "message": "Only KT... contract address allowed",
+    "description": "KT not translated"
+  },
+  "operationHash": {
+    "message": "Operation Hash"
+  },
+  "alert": {
+    "message": "Alert"
+  },
+  "accountNameInputTitle": {
+    "message": "1-16 characters, no special"
+  },
+  "defaultAccountName": {
+    "message": "Account $accountNumber$",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultManagedKTAccountName": {
+    "message": "Managed KT $accountNumber$",
+    "description": "KT not translated",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "defaultWatchOnlyAccountName": {
+    "message": "Watch-only $accountNumber$",
+    "placeholders": {
+      "accountNumber": {
+        "content": "$1"
+      }
+    }
+  },
+  "accountsToRemoveConstraint": {
+    "message": "Hierarchical Deterministic accounts cannot be removed."
+  },
+  "doNotSharePrivateKey": {
+    "message": "<b>DO NOT share</b> this set of chars with anyone! It can be used to steal your current account."
+  },
+  "appWouldLikeToConnectToYourWallet": {
+    "message": "$origin$ would like to connect to your wallet",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "appRequestOperationToYou": {
+    "message": "$origin$ requests operations to you",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "reject": {
+    "message": "Reject"
+  },
+  "signAction": {
+    "message": "Sign"
+  },
+  "appRequestsToSign": {
+    "message": "$origin$ requests you to sign",
+    "placeholders": {
+      "origin": {
+        "content": "$1"
+      }
+    }
+  },
+  "alpha": {
+    "message": "Alpha"
+  },
+  "viewAccountAddressWarning": {
+    "message": "This site is requesting access to view your account address. Always make sure you trust the sites you interact with."
+  },
+  "account": {
+    "message": "Account"
+  },
+  "toBeConnectedWithDApp": {
+    "message": "to be connected with dApp."
+  },
+  "atLeast8Characters": {
+    "message": "At least 8 characters"
+  },
+  "atLeast1Number": {
+    "message": "At least 1 number"
+  },
+  "atLeast1LowercaseLetter": {
+    "message": "At least 1 lowercase letter"
+  },
+  "atLeast1UppercaseLetter": {
+    "message": "At least 1 uppercase letter"
+  },
+  "mnemonicWordsAmountConstraint": {
+    "message": "12, 15, 18, 21 or 24 words in English"
+  },
+  "mnemonicSpacingConstraint": {
+    "message": "Each word separated with a single space"
+  },
+  "justValidPreGeneratedMnemonic": {
+    "message": "Just valid pre-generated mnemonic"
+  },
+  "oops": {
+    "message": "Oops!"
+  },
+  "smthWentWrongWhile": {
+    "message": "Something went wrong while $action$",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "mayHappenBecauseYouAreOffline": {
+    "message": "This may happen because you are currently offline"
+  },
+  "tryAgain": {
+    "message": "Try again"
+  },
+  "tezosMainnet": {
+    "message": "Tezos Mainnet",
+    "description": "Mainnet = main network"
+  },
+  "thanosWalletOptions": {
+    "message": "Thanos Wallet | Options"
+  },
+  "templeWalletOptions": {
+    "message": "Temple Wallet | Options"
+  },
+  "resetExtension": {
+    "message": "Reset Extension"
+  },
+  "resetExtensionConfirmation": {
+    "message": "Are you sure you want to reset the Thanos Wallet?\nAs a result, all your data will be deleted."
+  },
+  "templeResetExtensionConfirmation": {
+    "message": "Are you sure you want to reset the Temple Wallet?\nAs a result, all your data will be deleted."
+  },
+  "failedToResetExtension": {
+    "message": "Failed to reset extension: $errorMessage$",
+    "placeholders": {
+      "errorMessage": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledger": {
+    "message": "Ledger",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "retry": {
+    "message": "Retry"
+  },
+  "privateKeyCannotBeRevealed": {
+    "message": "Private key cannot be revealed"
+  },
+  "youCannotGetPrivateKeyFromThisAccountType": {
+    "message": "You cannot get private key from $accountType$ accounts.",
+    "placeholders": {
+      "accountType": {
+        "content": "$1"
+      }
+    }
+  },
+  "maximalAmount": {
+    "message": "Maximal: $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "amountMustBePositive": {
+    "message": "Must be positive"
+  },
+  "accountName": {
+    "message": "Account name"
+  },
+  "accountNameInputDescription": {
+    "message": "What will be the name of the new account?"
+  },
+  "createNewWallet": {
+    "message": "Create a new Wallet"
+  },
+  "createNewWalletDescription": {
+    "message": "New to Thanos Wallet? Let's set it up! This will create a new wallet and seed phrase"
+  },
+  "templeCreateNewWalletDescription": {
+    "message": "New to Temple Wallet? Let's set it up! This will create a new wallet and seed phrase"
+  },
+  "delegate": {
+    "message": "Delegate"
+  },
+  "explore": {
+    "message": "Explore"
+  },
+  "assetsWhileMessage": {
+    "message": "fetching assets data"
+  },
+  "receive": {
+    "message": "Receive"
+  },
+  "send": {
+    "message": "Send"
+  },
+  "baking": {
+    "message": "Baking"
+  },
+  "operations": {
+    "message": "Operations"
+  },
+  "delegationInfoWhileMessage": {
+    "message": "fetching or processing your delegation info"
+  },
+  "operationHistoryWhileMessage": {
+    "message": "fetching or processing operation history"
+  },
+  "privateKey": {
+    "message": "Private Key"
+  },
+  "mnemonic": {
+    "message": "Mnemonic"
+  },
+  "fundraiser": {
+    "message": "Fundraiser"
+  },
+  "privateKeyInputDescription": {
+    "message": "The Secret key of the Account you want to import."
+  },
+  "privateKeyInputPlaceholder": {
+    "message": "e.g. edsk3wfiPMu..."
+  },
+  "password": {
+    "message": "Password"
+  },
+  "isPrivateKeyEncrypted": {
+    "message": "Is your private key in encrypted format?"
+  },
+  "noDerivation": {
+    "message": "No derivation"
+  },
+  "customDerivationPath": {
+    "message": "Custom derivation path"
+  },
+  "mnemonicInputLabel": {
+    "message": "Seed phrase"
+  },
+  "mnemonicInputDescription": {
+    "message": "Mnemonic. Your secret twelve word phrase."
+  },
+  "mnemonicInputPlaceholder": {
+    "message": "e.g. venue sock milk update..."
+  },
+  "passwordInputDescription": {
+    "message": "Used for additional mnemonic derivation. That is NOT a wallet password."
+  },
+  "derivation": {
+    "message": "Derivation"
+  },
+  "addDerivationPathPrompt": {
+    "message": "By default derivation isn't used. Click on 'Custom derivation path' to add it."
+  },
+  "derivationPathMustStartWithM": {
+    "message": "Must start with 'm'"
+  },
+  "derivationSeparatorMustBeSlash": {
+    "message": "Separator must be '/'"
+  },
+  "invalidPath": {
+    "message": "Invalid path"
+  },
+  "email": {
+    "message": "Email"
+  },
+  "unexpectedOrInvalidFile": {
+    "message": "Unexpected or invalid file"
+  },
+  "requestSent": {
+    "message": "$type$ request sent! Confirming...",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "success": {
+    "message": "Success"
+  },
+  "smthWentWrong": {
+    "message": "Something went wrong"
+  },
+  "faucetFileInputPrompt": {
+    "message": "Drag & drop a file or select it manually by clicking on the area below. You can download it from $link$.",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "processing": {
+    "message": "Processing..."
+  },
+  "restoreWalletWithSeedPhrase": {
+    "message": "Restore your Wallet with Seed Phrase"
+  },
+  "accountAddressLabel": {
+    "message": "Your current account address. Share it to receive funds."
+  },
+  "copiedAddress": {
+    "message": "Copied."
+  },
+  "copyAddressToClipboard": {
+    "message": "Copy to clipboard"
+  },
+  "qrCode": {
+    "message": "QRCode"
+  },
+  "revealPrivateKey": {
+    "message": "Reveal Private Key"
+  },
+  "revealPrivateKeyDescription": {
+    "message": "Also known as \"Export Account\", reveals private key for your selected account."
+  },
+  "revealSeedPhrase": {
+    "message": "Reveal Seed Phrase"
+  },
+  "revealSeedPhraseDescription": {
+    "message": "Also known as \"Export Wallet\", you may need this seed phrase to access your wallet and accounts on other devices."
+  },
+  "dApps": {
+    "message": "DApps",
+    "description": "DApps = Decentralized Applications"
+  },
+  "dAppsDescription": {
+    "message": "In this section you can enable ability to interact with decentralized applications that support Thanos Wallet."
+  },
+  "templeDAppsDescription": {
+    "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
+  },
+  "networksDescription": {
+    "message": "In this section you can add or delete custom Tezos networks.",
+    "description": "Tezos = blockchain name (https://tezos.com/)"
+  },
+  "activateAccount": {
+    "message": "Activate Account"
+  },
+  "activateAccountDescription": {
+    "message": "It may be necessary for ICO/Fundraiser or testnet faucet accounts."
+  },
+  "removeAccount": {
+    "message": "Remove Account"
+  },
+  "removeAccountDescription": {
+    "message": "Use this section to remove your selected account. Only imported accounts can be removed."
+  },
+  "about": {
+    "message": "About"
+  },
+  "aboutDescription": {
+    "message": "Use this section to view meta info about Thanos Wallet."
+  },
+  "templeAboutDescription": {
+    "message": "Use this section to view meta info about Temple Wallet."
+  },
+  "unlockWallet": {
+    "message": "Unlock the Wallet"
+  },
+  "toContinue": {
+    "message": "to continue"
+  },
+  "unlockPasswordInputDescription": {
+    "message": "A password is used to protect the wallet."
+  },
+  "unlock": {
+    "message": "Unlock"
+  },
+  "importNewAccountTitle": {
+    "message": "Restore Account? Want to sign in another?"
+  },
+  "importWalletUsingSeedPhrase": {
+    "message": "Import Wallet using Seed Phrase"
+  },
+  "connectLedger": {
+    "message": "Connect Ledger",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "importExistingWallet": {
+    "message": "Import existing Wallet"
+  },
+  "importExistingWalletDescription": {
+    "message": "Already have a seed phrase? Import your existing wallet using a 12 or more mnemonic words"
+  },
+  "links": {
+    "message": "Links"
+  },
+  "website": {
+    "message": "Website"
+  },
+  "repo": {
+    "message": "Repository"
+  },
+  "privacyPolicy": {
+    "message": "Privacy Policy"
+  },
+  "termsOfUse": {
+    "message": "Terms of Use"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "accountAlreadyActivated": {
+    "message": "Your Account already activated."
+  },
+  "accountActivated": {
+    "message": "Your account successfully activated!"
+  },
+  "failureSecretMayBeInvalid": {
+    "message": "Failed. This may happen because provided Secret is invalid"
+  },
+  "accountToBeActivated": {
+    "message": "Account to be activated."
+  },
+  "ifYouWantToActivateAnotherAccount": {
+    "message": "If you want to activate another account - please, select it in the top-right dropdown."
+  },
+  "activateAccountSecret": {
+    "message": "Secret"
+  },
+  "activateAccountSecretDescription": {
+    "message": "'secret' field from Fundraiser Account or Faucet"
+  },
+  "activateAccountSecretPlaceholder": {
+    "message": "e.g. n4hs7sd3..."
+  },
+  "activate": {
+    "message": "Activate"
+  },
+  "minimalFeeDescription": {
+    "message": "Minimal"
+  },
+  "fastFeeDescription": {
+    "message": "Fast"
+  },
+  "rocketFeeDescription": {
+    "message": "Rocket"
+  },
+  "customFeeDescription": {
+    "message": "Custom"
+  },
+  "additionalFee": {
+    "message": "Additional Fee"
+  },
+  "asset": {
+    "message": "Asset"
+  },
+  "selectAnotherAssetPrompt": {
+    "message": "Click on area to select another asset or token."
+  },
+  "disable": {
+    "message": "disable"
+  },
+  "enable": {
+    "message": "enable"
+  },
+  "dAppsCheckmarkPrompt": {
+    "message": "Click on the checkmark to $action$ DApps interaction feature",
+    "description": "DApps = Decentralized Applications",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "dAppsInteraction": {
+    "message": "DApps interaction",
+    "description": "DApps = Decentralized Applications"
+  },
+  "dAppsInteractionEnabled": {
+    "message": "Enabled"
+  },
+  "dAppsInteractionDisabled": {
+    "message": "Disabled"
+  },
+  "enablePopup": {
+    "message": "Enable popup"
+  },
+  "popupEnabled": {
+    "message": "Enabled"
+  },
+  "popupDisabled": {
+    "message": "Disabled"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "rank": {
+    "message": "Rank"
+  },
+  "fee": {
+    "message": "Fee"
+  },
+  "space": {
+    "message": "Space"
+  },
+  "delegation": {
+    "message": "Delegation"
+  },
+  "baker": {
+    "message": "Baker"
+  },
+  "bakerInputDescription": {
+    "message": "Address of a registered baker."
+  },
+  "bakerInputPlaceholder": {
+    "message": "e.g. tz1a9w1S7hN5s..."
+  },
+  "minDelegationAmountTitle": {
+    "message": "Minimal delegation amount"
+  },
+  "unknownBakerTitle": {
+    "message": "Unknown baker"
+  },
+  "unknownBakerDescription": {
+    "message": "Provided address is not known to us as a baker! Only delegate funds to it at your own risk."
+  },
+  "delegateToRecommendedBakers": {
+    "message": "Delegate to Recommended Bakers"
+  },
+  "sortBy": {
+    "message": "Sort by"
+  },
+  "cycles_one": {
+    "message": "$amount$ cycle",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_other": {
+    "message": "$amount$ cycles",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "notEnoughFunds": {
+    "message": "Not enough funds"
+  },
+  "notEnoughCurrencyFunds": {
+    "message": "Not enough $currency$ funds",
+    "placeholders": {
+      "currency": {
+        "content": "$1"
+      }
+    }
+  },
+  "notAllowed": {
+    "message": "Not allowed"
+  },
+  "failed": {
+    "message": "Failed"
+  },
+  "yourBalanceIsZero": {
+    "message": "Your Balance is zero."
+  },
+  "minimalFeeGreaterThanBalance": {
+    "message": "Minimal fee for this transaction is greater than your balance."
+  },
+  "alreadyDelegatedFundsToBaker": {
+    "message": "Already delegated funds to this baker. Re-delegation is not possible."
+  },
+  "bakerNotRegistered": {
+    "message": "Specified baker is not registered."
+  },
+  "unableToPerformActionToBaker": {
+    "message": "Unable to $action$ to the provided Baker.",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "estimateDelegation": {
+    "message": "Estimate delegation"
+  },
+  "thisMayHappenBecause": {
+    "message": "This may happen because:"
+  },
+  "minimalFeeGreaterThanBalanceVerbose": {
+    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.257 ꜩ burn fee;"
+  },
+  "networkOrOtherIssue": {
+    "message": "Network or other technical issue."
+  },
+  "unableToDelegateToKTAddress": {
+    "message": "Unable to delegate to KT... contract address"
+  },
+  "confirmAction": {
+    "message": "Confirm $action$",
+    "placeholders": {
+      "action": {
+        "content": "$1"
+      }
+    }
+  },
+  "payloadToSign": {
+    "message": "Payload to sign"
+  },
+  "decline": {
+    "message": "Decline"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "network": {
+    "message": "Network"
+  },
+  "unknownNetwork": {
+    "message": "Unknown:"
+  },
+  "backupNewSeedPhrase": {
+    "message": "Backup new Seed Phrase"
+  },
+  "attentionExclamation": {
+    "message": "Attention!"
+  },
+  "lockedWalletAlreadyExists": {
+    "message": "Locked wallet <b>already exists</b>.\nImporting a new one will <b>destroy the existing</b>."
+  },
+  "backToUnlockPage": {
+    "message": "go back to Unlock page"
+  },
+  "mustBeEqualToPasswordAbove": {
+    "message": "Must be equal to password above"
+  },
+  "repeatPassword": {
+    "message": "Repeat Password"
+  },
+  "repeatPasswordInputDescription": {
+    "message": "Please enter the password again."
+  },
+  "confirmTermsError": {
+    "message": "Unable to continue without confirming Terms of Usage"
+  },
+  "acceptTerms": {
+    "message": "Accept terms"
+  },
+  "termsOfUsage": {
+    "message": "Terms of Usage"
+  },
+  "create": {
+    "message": "Create"
+  },
+  "revealNewSeedPhrase": {
+    "message": "<b>Click on area below</b> to reveal your new Seed Phrase.\nThen, write this phrase on a piece of paper and <b>store in a secure location</b>. Or you can memorize it."
+  },
+  "doNotSharePhrase": {
+    "message": "<b>DO NOT share</b> this phrase with anyone! It can be used to steal all your accounts."
+  },
+  "youWillNeedThisSeedPhrase": {
+    "message": "If you ever switch between browsers or devices, you will need this seed phrase to access your accounts."
+  },
+  "unableToContinueWithoutConfirming": {
+    "message": "Unable to continue without confirming"
+  },
+  "backupedInputLabel": {
+    "message": "I made Seed Phrase backup"
+  },
+  "backupedInputDescription": {
+    "message": "And accept the risks that if I lose the phrase,\nmy funds may be lost."
+  },
+  "continue": {
+    "message": "Continue"
+  },
+  "noOperationsFound": {
+    "message": "No operations found"
+  },
+  "pending": {
+    "message": "pending..."
+  },
+  "backtracked": {
+    "message": "backtracked"
+  },
+  "operationSuccessfullyProcessed": {
+    "message": "$type$ successfully processed and confirmed!",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "timedOutOperationConfirmation": {
+    "message": "Timed out operation confirmation. You can either wait more time or try again later."
+  },
+  "accountToBeRemoved": {
+    "message": "Account to be removed."
+  },
+  "ifYouWantToRemoveAnotherAccount": {
+    "message": "If you want to remove another account - select it in the top-right dropdown."
+  },
+  "cannotBeRemoved": {
+    "message": "Cannot be removed"
+  },
+  "importedPlural": {
+    "message": "imported"
+  },
+  "enterPasswordToRemoveAccount": {
+    "message": "Enter password to remove the Account."
+  },
+  "remove": {
+    "message": "Remove"
+  },
+  "ifYouWantToRevealPrivateKeyFromOtherAccount": {
+    "message": "If you want to reveal a private key from another account - you should select it in the top-right dropdown."
+  },
+  "privateKeyFieldDescription": {
+    "message": "Current account key. Keep it in secret."
+  },
+  "derivationPath": {
+    "message": "Derivation path"
+  },
+  "seedPhrase": {
+    "message": "Seed Phrase"
+  },
+  "pathForHDAccounts": {
+    "message": "for HD acccounts. This is the thing you use to recover all your accounts from your seed phrase.",
+    "description": "HD = Hierarchical Deterministic"
+  },
+  "derivationPathExample": {
+    "message": "m/44'/1729'/<account_index>'/0'"
+  },
+  "derivationPathExample2": {
+    "message": "e.g. m/44'/1729'/..."
+  },
+  "keepSeedPhraseSecret": {
+    "message": "Keep it in secret."
+  },
+  "revealSecretPasswordInputDescription": {
+    "message": "Enter password to reveal the $secretName$.",
+    "placeholders": {
+      "secretName": {
+        "content": "$1"
+      }
+    }
+  },
+  "reveal": {
+    "message": "Reveal"
+  },
+  "transaction": {
+    "message": "Transaction"
+  },
+  "recipient": {
+    "message": "Recipient"
+  },
+  "tokensRecepientInputDescription": {
+    "message": "Address to send $assetSymbol$ funds to.",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "tokensRecepientInputDescriptionWithDomain": {
+    "message": "Address or Tezos domain to send $assetSymbol$ funds to.",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "addressInputDescription": {
+    "message": "Address of Tezos account or smart contract."
+  },
+  "addressInputDescriptionWithDomain": {
+    "message": "Address or Tezos domain of the account or smart contract."
+  },
+  "recipientInputPlaceholder": {
+    "message": "e.g. tz1a9w1S7hN5s..."
+  },
+  "recipientInputPlaceholderWithDomain": {
+    "message": "e.g. alice.tez or tz1a9w1S7hN5s...",
+    "description": "alice.tez = domain like google.com"
+  },
+  "tryingToTransferToYourself": {
+    "message": "You're trying to transfer funds to yourself.\nPlease, ensure that it's exactly what you want."
+  },
+  "amount": {
+    "message": "Amount"
+  },
+  "availableToSend": {
+    "message": "Available to send(max):"
+  },
+  "inUSD": {
+    "message": "in USD"
+  },
+  "inXTZ": {
+    "message": "in ꜩ",
+    "description": "ꜩ = asset symbol, like USD"
+  },
+  "amountPlaceholder": {
+    "message": "e.g. 123.45"
+  },
+  "sendToMyAccounts": {
+    "message": "Send to My Accounts"
+  },
+  "clickOnRecipientAccount": {
+    "message": "Click on Account you want to send funds to."
+  },
+  "mainAssetBalanceIsZero": {
+    "message": "Your tez(main asset) balance is zero. ꜩ funds are required for the fee."
+  },
+  "unableToSendTransactionAction": {
+    "message": "Unable to send transaction to provided Recipient."
+  },
+  "unableToEstimateTransactionAction": {
+    "message": "Unable to estimate transaction to provided Recipient."
+  },
+  "makeSureToBackupSeedPhrase": {
+    "message": "Make sure to back up your seed phrase!"
+  },
+  "exploreMore": {
+    "message": "Explore more..."
+  },
+  "selfComment": {
+    "message": "(self)"
+  },
+  "deleteNetworkConfirm": {
+    "message": "Are you sure you want to delete this network?"
+  },
+  "networkNamePlaceholder": {
+    "message": "My custom network"
+  },
+  "mustBeValidURL": {
+    "message": "Must be a valid URL"
+  },
+  "rpcBaseURL": {
+    "message": "RPC base URL",
+    "description": "RPC = Remote Procedure Call (https://en.wikipedia.org/wiki/Remote_procedure_call)"
+  },
+  "mustBeUnique": {
+    "message": "Must be unique"
+  },
+  "addNetwork": {
+    "message": "Add network"
+  },
+  "currentNetworks": {
+    "message": "Current networks"
+  },
+  "deleteNetworkHint": {
+    "message": "Click on the X icon to delete the network. If you want to edit network, just delete it and add another with new params."
+  },
+  "preview": {
+    "message": "Preview"
+  },
+  "raw": {
+    "message": "Raw"
+  },
+  "fetchingConfirmationDetails": {
+    "message": "fetching confirmation details"
+  },
+  "notIdentified": {
+    "message": "Not identified"
+  },
+  "connection": {
+    "message": "Connection"
+  },
+  "connect": {
+    "message": "Connect"
+  },
+  "confirmActionOnDevice": {
+    "message": "Confirm the action on"
+  },
+  "deviceName": {
+    "message": "$device$ device",
+    "placeholders": {
+      "device": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledgerNano": {
+    "message": "Ledger Nano",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "defaultLedgerName": {
+    "message": "Ledger $number$",
+    "description": "Ledger = https://www.ledger.com/",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledgerNameConstraint": {
+    "message": "1-16 characters, no special"
+  },
+  "ledgerNameInputDescription": {
+    "message": "What will be the name of the new Ledger account?",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "defaultDerivationPathLabel": {
+    "message": "By default $path$ derivation is used.",
+    "placeholders": {
+      "path": {
+        "content": "$1"
+      }
+    }
+  },
+  "clickOnCustomDerivationPath": {
+    "message": "Click on 'Custom derivation path' to customize it."
+  },
+  "addLedgerAccount": {
+    "message": "Add Ledger Account",
+    "description": "Ledger = https://www.ledger.com/"
+  },
+  "firefoxLedgerConnectionError": {
+    "message": "$sorry$ Connection to the $device$ device via $browser$ is temporarily $unavailable$.",
+    "placeholders": {
+      "sorry": {
+        "content": "$1"
+      },
+      "device": {
+        "content": "$2"
+      },
+      "browser": {
+        "content": "$3"
+      },
+      "unavailable": {
+        "content": "$4"
+      }
+    }
+  },
+  "connectionUnavailable": {
+    "message": "Unavailable"
+  },
+  "sorry": {
+    "message": "Sorry!"
+  },
+  "upload": {
+    "message": "Upload"
+  },
+  "languageAndCountry": {
+    "message": "Language"
+  },
+  "generalSettings": {
+    "message": "General"
+  },
+  "generalSettingsDescription": {
+    "message": "Here you can manage languages preferences and display mode."
+  },
+  "swapNoun": {
+    "message": "Swap"
+  },
+  "transfers": {
+    "message": "Transfers"
+  },
+  "someUnknownToken": {
+    "message": "unknown token $token$",
+    "placeholders": {
+      "token": {
+        "content": "$1"
+      }
+    }
+  },
+  "lambdaContract": {
+    "message": "Lambda View contract"
+  },
+  "someLambda": {
+    "message": "Lambda View: $lambda$",
+    "placeholders": {
+      "lambda": {
+        "content": "$1"
+      }
+    }
+  },
+  "interactionWithSomeEntrypoint": {
+    "message": "Interaction with entrypoint '$entrypoint$' of contract $contractAddress$",
+    "placeholders": {
+      "entrypoint": {
+        "content": "$1"
+      },
+      "contractAddress": {
+        "content": "$2"
+      }
+    }
+  },
+  "transactionOfSomeType": {
+    "message": "Transaction of type '$type$'",
+    "placeholders": {
+      "type": {
+        "content": "$1"
+      }
+    }
+  },
+  "approveToken": {
+    "message": "Approve Token"
+  },
+  "noLambdaWarningContent": {
+    "message": "No Lambda View contract was specified. Some functionality may not work without it. Press 'Add network' button if you want to proceed."
+  },
+  "noActiveNetLambdaWarningTitle": {
+    "message": "No Lambda View contract for the current network was specified!"
+  },
+  "noActiveNetLambdaWarningContent": {
+    "message": "No Lambda View contract for the current network was specified. You can add it in the form below or click 'Deploy new' to deploy a new one and add automatically."
+  },
+  "add": {
+    "message": "Add"
+  },
+  "assets": {
+    "message": "Assets"
+  },
+  "activity": {
+    "message": "Activity"
+  },
+  "manage": {
+    "message": "Manage"
+  },
+  "manageAssets": {
+    "message": "Manage Assets"
+  },
+  "noAssetsFound": {
+    "message": "No assets found"
+  },
+  "ifYouDontSeeYourAsset": {
+    "message": "If you don't see your asset,\ntry to click $toClick$.",
+    "placeholders": {
+      "toClick": {
+        "content": "$1"
+      }
+    }
+  },
+  "addressOfTokenContract": {
+    "message": "Address of a $assetSymbol$ token contract.",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "searchAssets": {
+    "message": "Search assets..."
+  },
+  "deployNew": {
+    "message": "Deploy new"
+  },
+  "managedKTAccount": {
+    "message": "Managed KT"
+  },
+  "watchOnlyAccount": {
+    "message": "Watch-only"
+  },
+  "disabledForWatchOnlyAccount": {
+    "message": "Disabled for watch-only account"
+  },
+  "activationOperationType": {
+    "message": "Activation"
+  },
+  "youAreNotContractManager": {
+    "message": "You are not a contract manager"
+  },
+  "contract": {
+    "message": "Contract"
+  },
+  "contractAddressInputDescription": {
+    "message": "Address of the contract to connect."
+  },
+  "contractAddressInputPlaceholder": {
+    "message": "e.g. KT1a9w1S7hN5s..."
+  },
+  "addKnownManagedContract": {
+    "message": "Add known Managed contract"
+  },
+  "clickOnContractToImport": {
+    "message": "Click on Contract you want to import."
+  },
+  "notContractAddress": {
+    "message": "Not a contract address"
+  },
+  "contractAlreadyImported": {
+    "message": "This contract has already been imported"
+  },
+  "waitWhileContractBeingDeployed": {
+    "message": "Please don't leave this page or close window while contract is being deployed, it may take a while. The form and this alert will disappear as soon as it is successfully deployed."
+  },
+  "justAMinute": {
+    "message": "Just a minute..."
+  },
+  "referredByTokenContactAddressInvalid": {
+    "message": "Contract address $address$, which is referred by token contract to, is invalid.",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "someNetworkIsNotCurrent": {
+    "message": "$network$ network was specified, which is not current network",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "someNetworkWithChainIdIsNotCurrent": {
+    "message": "Chain ID $chainId$ was specified, which is not chain ID of current network",
+    "placeholders": {
+      "chainId": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSettings": {
+    "message": "Popup mode"
+  },
+  "popupSettingsDescription": {
+    "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
+  },
+  "managedContract": {
+    "message": "Managed Contract"
+  },
+  "referredByTokenContractNotFound": {
+    "message": "Contract $address$, which is referred by token contract to, was not found.",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "tokenContractNotFound": {
+    "message": "The contract was not found."
+  },
+  "failedToParseMetadata": {
+    "message": "Failed to parse metadata"
+  },
+  "unknownParseErrorOccurred": {
+    "message": "An unknown parsing error occurred."
+  },
+  "errorWhileFetchingUrl": {
+    "message": "Error occurred while fetching from $url$",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "invalidManagedContract": {
+    "message": "Invalid managed contract"
+  },
+  "someMethodNotDefinedInContract": {
+    "message": "'$name$' method isn't defined in contract.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "someMethodSignatureDoesNotMatchStandard": {
+    "message": "'$name$' method's signature doesn't match the standard.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "failedToLoadChainID": {
+    "message": "Failed to load chain ID for this network"
+  },
+  "makeSureTokenIdIsCorrect": {
+    "message": "Please make sure that token ID is correct."
+  },
+  "unknownErrorCheckingSomeEntrypoint": {
+    "message": "An unknown error while checking '$name$' entrypoint occurred.",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "incorrectTokenIdErrorMessage": {
+    "message": "Failed while processing token with provided data. Please make sure that token ID is correct."
+  },
+  "transfer": {
+    "message": "Transfer"
+  },
+  "transferFromSmb": {
+    "message": "from $sender$",
+    "placeholders": {
+      "sender": {
+        "content": "$1"
+      }
+    }
+  },
+  "transferToSmb": {
+    "message": "to $receiver$",
+    "placeholders": {
+      "receiver": {
+        "content": "$1"
+      }
+    }
+  },
+  "interaction": {
+    "message": "Interaction"
+  },
+  "interactionWithContract": {
+    "message": "with $contract$",
+    "placeholders": {
+      "contract": {
+        "content": "$1"
+      }
+    }
+  },
+  "delegationToSmb": {
+    "message": "to $delegate$",
+    "placeholders": {
+      "delegate": {
+        "content": "$1"
+      }
+    }
+  },
+  "fa2TokenAlreadyExists": {
+    "message": "Token with address $address$ and ID $tokenId$ already exists.",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      },
+      "tokenId": {
+        "content": "$2"
+      }
+    }
+  },
+  "nonFa2TokenAlreadyExists": {
+    "message": "Token with address $address$ already exists.",
+    "placeholders": {
+      "address": {
+        "content": "$1"
+      }
+    }
+  },
+  "approveForSmb": {
+    "message": "for $spender$",
+    "placeholders": {
+      "spender": {
+        "content": "$1"
+      }
+    }
+  },
+  "undelegation": {
+    "message": "Undelegation"
+  },
+  "bytes": {
+    "message": "Bytes"
+  },
+  "clean": {
+    "message": "Clean"
+  },
+  "errorChangingAccountName": {
+    "message": "An error occurred while changing account name"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "yes": {
+    "message": "Yes"
+  },
+  "no": {
+    "message": "No"
+  },
+  "actionConfirmation": {
+    "message": "Confirm the action"
+  },
+  "domainDoesntResolveToAddress": {
+    "message": "Domain \"$value$\" doesn't resolve to an address",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "invalidAddressOrDomain": {
+    "message": "Invalid address or domain name"
+  },
+  "resolvedAddress": {
+    "message": "Resolved address"
+  },
+  "invalidRpcCantGetChainId": {
+    "message": "Invalid RPC: Cannot get chain id",
+    "description": "RPC = Remote Procedure Call (https://en.wikipedia.org/wiki/Remote_procedure_call)"
+  },
+  "contractNotOriginated": {
+    "message": "Contract not originated"
+  },
+  "welcomeTo": {
+    "message": "Welcome to"
+  },
+  "domain": {
+    "message": "Domain"
+  },
+  "hash": {
+    "message": "Hash"
+  },
+  "defaultAccount": {
+    "message": "Default account"
+  },
+  "loadMore": {
+    "message": "Load more"
+  },
+  "submit": {
+    "message": "Submit"
+  },
+  "invalidJsonInput": {
+    "message": "Invalid JSON"
+  },
+  "notFaucetJson": {
+    "message": "Not a faucet JSON"
+  },
+  "faucetJson": {
+    "message": "Faucet JSON"
+  },
+  "faucetJsonDescription": {
+    "message": "You can paste JSON here instead of adding file"
+  }
+}
