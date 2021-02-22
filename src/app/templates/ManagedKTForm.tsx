@@ -336,7 +336,7 @@ const ContractOptionContent: React.FC<ContractOptionRenderProps> = (props) => {
               )}
             >
               <Money>{bal}</Money>{" "}
-              <span style={{ fontSize: "0.75em" }}>TEZ</span>
+              <span style={{ fontSize: "0.75em" }}>tez</span>
             </div>
           )}
         </Balance>

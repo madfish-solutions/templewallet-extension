@@ -22,7 +22,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
     const allAccounts = useRelevantAccounts();
     const account = useAccount();
     const { data: baker } = useKnownBaker(bakerPkh);
-    const assetSymbol = "TEZ";
+    const assetSymbol = "tez";
 
     const bakerAcc = React.useMemo(
       () => allAccounts.find((acc) => acc.publicKeyHash === bakerPkh) ?? null,

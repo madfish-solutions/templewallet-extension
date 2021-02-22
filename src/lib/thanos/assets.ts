@@ -13,7 +13,7 @@ import { getMessage } from "lib/i18n";
 export const TEZ_ASSET: ThanosAsset = {
   type: ThanosAssetType.TEZ,
   name: "Tezos",
-  symbol: "ꜩ",
+  symbol: "tez",
   decimals: 6,
   fungible: true,
   default: true,
