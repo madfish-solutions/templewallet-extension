@@ -127,7 +127,6 @@ export async function estimateGasFee(
     return 0;
   }
   const estimations = await tezos.estimate.batch(opParams);
-  console.log(estimations, opParams);
   return estimations.reduce(
     (sum, estimation, index) =>
       sum + (opParams[index].fee ?? estimation.usingBaseFeeMutez),

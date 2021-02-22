@@ -1,6 +1,6 @@
 import React from "react";
 import BigNumber from "bignumber.js";
-import { mutezToTz, useAllNetworks } from "lib/thanos/front";
+import { mutezToTz, USDPriceProvider, useAllNetworks } from "lib/thanos/front";
 import { T } from "lib/i18n/react";
 import Alert from "app/atoms/Alert";
 import Spinner from "app/atoms/Spinner";
@@ -26,7 +26,7 @@ const GasFeeView: React.FC<GasFeeViewProps> = ({
   );
 
   return (
-    <>
+    <USDPriceProvider network={knownNetwork}>
       {error ? (
         <Alert
           className="mt-2"
@@ -64,7 +64,7 @@ const GasFeeView: React.FC<GasFeeViewProps> = ({
           <Spinner className="w-16" />
         </div>
       )}
-    </>
+    </USDPriceProvider>
   );
 };
 

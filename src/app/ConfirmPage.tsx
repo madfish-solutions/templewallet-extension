@@ -109,7 +109,6 @@ const ConfirmDAppForm: React.FC = () => {
     return toolkit;
   }, [payload]);
 
-  console.log(payload);
   const getFee = React.useCallback(
     () =>
       estimateGasFee(

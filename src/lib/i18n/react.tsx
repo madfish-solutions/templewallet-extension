@@ -15,7 +15,18 @@ export type TProps = {
 
 export const T: React.FC<TProps> = ({ id, substitutions, children }) => {
   const message = React.useMemo(
-    () => t(id, substitutions ? [...substitutions, <></>] : [<></>]),
+    () =>
+      t(
+        id,
+        substitutions
+          ? [
+              ...(substitutions instanceof Array
+                ? substitutions
+                : [substitutions]),
+              <></>,
+            ]
+          : [<></>]
+      ),
     [id, substitutions]
   );
 
