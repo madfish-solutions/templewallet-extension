@@ -41,7 +41,7 @@ const GasFeeView: React.FC<GasFeeViewProps> = ({
               id="totalFee"
               substitutions={[
                 <React.Fragment key={0}>
-                  {mutezToTz(fee).toString()} tz
+                  {mutezToTz(fee).toString()} ꜩ
                   {knownNetwork?.type === "main" && (
                     <>
                       {" "}
