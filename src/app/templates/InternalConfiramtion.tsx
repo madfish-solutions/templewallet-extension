@@ -181,17 +181,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         )}
       >
         <div className="flex items-center my-4">
-          <Logo />
-
-          <h1
-            className={classNames(
-              "ml-2",
-              "text-2xl font-semibold tracking-tight",
-              "text-gray-700"
-            )}
-          >
-            Temple
-          </h1>
+          <Logo hasTitle />
         </div>
       </div>
 

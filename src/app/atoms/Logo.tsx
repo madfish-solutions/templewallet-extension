@@ -1,45 +1,39 @@
 import * as React from "react";
-import classNames from "clsx";
-import logoUrl from "app/misc/logo.png";
+import { ReactComponent as PlainLogo } from "app/misc/logo.svg";
+import { ReactComponent as LogoTitle } from "app/misc/logo-title.svg";
+import { ReactComponent as WhiteLogo } from "app/misc/logo-white.svg";
+import { ReactComponent as WhiteLogoTitle } from "app/misc/logo-white-title.svg";
 
-type LogoProps = React.HTMLAttributes<HTMLDivElement> & {
+type LogoProps = React.SVGProps<SVGSVGElement> & {
   hasTitle?: boolean;
-  dark?: boolean;
-  imgStyle?: React.CSSProperties;
+  white?: boolean;
+  style?: React.CSSProperties;
 };
 
-const Logo: React.FC<LogoProps> = ({
-  hasTitle,
-  dark,
-  className,
-  imgStyle = {},
-  ...rest
-}) => (
-  <div className={classNames("flex items-center", className)} {...rest}>
-    <img
-      src={logoUrl}
-      alt="Temple Wallet"
-      style={{
-        height: 40,
-        width: "auto",
-        marginTop: 6,
-        marginBottom: 6,
-        ...imgStyle,
-      }}
-    />
+const Logo = React.memo<LogoProps>(
+  ({ hasTitle, white, style = {}, ...rest }) => {
+    const Component = white
+      ? hasTitle
+        ? WhiteLogoTitle
+        : WhiteLogo
+      : hasTitle
+      ? LogoTitle
+      : PlainLogo;
 
-    {hasTitle && (
-      <span
-        className={classNames(
-          "ml-2",
-          "text-xl font-semibold tracking-tight",
-          dark ? "text-gray-600" : "text-white"
-        )}
-      >
-        Temple
-      </span>
-    )}
-  </div>
+    return (
+      <Component
+        title="Temple - Tezos Wallet"
+        style={{
+          height: 40,
+          width: "auto",
+          marginTop: 6,
+          marginBottom: 6,
+          ...style,
+        }}
+        {...rest}
+      />
+    );
+  }
 );
 
 export default Logo;
