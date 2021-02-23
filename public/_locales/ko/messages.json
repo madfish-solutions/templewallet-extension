@@ -1,12 +1,9 @@
 {
-  "templeAppName": {
+  "appName": {
     "message": "템플 - 테조스 지갑"
   },
   "showIncomingTransactions": {
     "message": "앞으로의 거래 표시"
-  },
-  "appName": {
-    "message": "타노스 - 테조스 지갑"
   },
   "appDesc": {
     "message": "🔐💰브라우저에 맞는 웹 익스텐선으로 테조스 블록체인용 암호화화폐 지갑을 사용합니다."
@@ -480,18 +477,12 @@
     "description": "Mainnet = main network"
   },
   "templeWalletOptions": {
-    "message": "타노스 지갑 | 옵션"
-  },
-  "templeWalletOptions": {
     "message": "템플 지갑 | 옵션"
   },
   "resetExtension": {
     "message": "익스텐션 재설정"
   },
   "resetExtensionConfirmation": {
-    "message": "타노스 지갑을 정말로 초기화하시겠습니까?\n그 결과 모든 데이터가 삭제됩니다."
-  },
-  "templeResetExtensionConfirmation": {
     "message": "템플 지갑을 정말로 초기화하시겠습니까?\n그 결과 모든 데이터가 삭제됩니다."
   },
   "failedToResetExtension": {
@@ -541,9 +532,6 @@
     "message": "새 지갑 생성"
   },
   "createNewWalletDescription": {
-    "message": "타노스 지갑이 처음이신가요? 그렇다면 함께 설정해봅시다! 설정 결과 새 지갑 및 비밀 문구가 생성됩니다"
-  },
-  "templeCreateNewWalletDescription": {
     "message": "템플 지갑이 처음이신가요? 그렇다면 함께 설정해봅시다! 그 결과 새 지갑과 비밀 문구가 생성됩니다"
   },
   "delegate": {
@@ -690,9 +678,6 @@
     "description": "DApps = Decentralized Applications"
   },
   "dAppsDescription": {
-    "message": "이 섹션에서 타노스 지갑을 지원하는 분산 애플리케이션과 상호 소통하는 기능을 활성화할 수 있습니다."
-  },
-  "templeDAppsDescription": {
     "message": "이 섹션에서 템플 지갑을 지원하는 분산 애플리케이션과 상호 소통하는 기능을 활성화할 수 있습니다."
   },
   "networksDescription": {
@@ -715,9 +700,6 @@
     "message": "정보"
   },
   "aboutDescription": {
-    "message": "이 섹션을 활용하여 타노스 지갑에 관한 메타 징보를 확인하세요."
-  },
-  "templeAboutDescription": {
     "message": "이 섹션을 화용하여 템플 지갑에 관한 메타 정보를 확인하세요."
   },
   "unlockWallet": {

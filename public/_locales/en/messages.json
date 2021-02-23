@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple - Tezos Wallet"
   },
-  "templeAppName": {
-    "message": "Temple - Tezos Wallet"
-  },
   "showIncomingTransactions": {
     "message": "Show Incoming Transactions"
   },
@@ -482,16 +479,10 @@
   "templeWalletOptions": {
     "message": "Temple Wallet | Options"
   },
-  "templeWalletOptions": {
-    "message": "Temple Wallet | Options"
-  },
   "resetExtension": {
     "message": "Reset Extension"
   },
   "resetExtensionConfirmation": {
-    "message": "Are you sure you want to reset the Temple Wallet?\nAs a result, all your data will be deleted."
-  },
-  "templeResetExtensionConfirmation": {
     "message": "Are you sure you want to reset the Temple Wallet?\nAs a result, all your data will be deleted."
   },
   "failedToResetExtension": {
@@ -541,9 +532,6 @@
     "message": "Create a new Wallet"
   },
   "createNewWalletDescription": {
-    "message": "New to Temple Wallet? Let's set it up! This will create a new wallet and seed phrase"
-  },
-  "templeCreateNewWalletDescription": {
     "message": "New to Temple Wallet? Let's set it up! This will create a new wallet and seed phrase"
   },
   "delegate": {
@@ -692,9 +680,6 @@
   "dAppsDescription": {
     "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
   },
-  "templeDAppsDescription": {
-    "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
-  },
   "networksDescription": {
     "message": "In this section you can add or delete custom Tezos networks.",
     "description": "Tezos = blockchain name (https://tezos.com/)"
@@ -715,9 +700,6 @@
     "message": "About"
   },
   "aboutDescription": {
-    "message": "Use this section to view meta info about Temple Wallet."
-  },
-  "templeAboutDescription": {
     "message": "Use this section to view meta info about Temple Wallet."
   },
   "unlockWallet": {
