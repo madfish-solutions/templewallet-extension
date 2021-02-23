@@ -29,7 +29,7 @@ Then run the following:
 ### 1) Clone the repository
 
 ```bash
-git clone https://github.com/madfish-solutions/temple-extension && cd temple-extension
+git clone https://github.com/madfish-solutions/templewallet-extension && cd templewallet-extension
 ```
 
 ### 2) Install dependencies

@@ -12,7 +12,7 @@
   },
 
   "description": "__MSG_appDesc__",
-  "homepage_url": "https://github.com/madfish-solutions/temple-extension",
+  "homepage_url": "https://github.com/madfish-solutions/templewallet-extension",
   "short_name": "Temple Wallet",
 
   "permissions": [
