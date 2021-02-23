@@ -6,12 +6,12 @@ import SubTitle from "app/atoms/SubTitle";
 const About: React.FC = () => (
   <div className="flex flex-col items-center my-8">
     <div className="flex items-center justify-center">
-      <Logo imgStyle={{ height: 60 }} />
+      <Logo style={{ height: 60 }} />
 
       <div className="ml-4">
         <T id="appName">
           {(message) => (
-            <h4 className="text-2xl font-semibold text-gray-700">{message}</h4>
+            <h4 className="text-xl font-semibold text-gray-700">{message}</h4>
           )}
         </T>
         <T

@@ -44,19 +44,16 @@ const Welcome: React.FC = () => {
       )}
     >
       <div
-        className={classNames("-mt-32", "text-2xl text-gray-700 font-light")}
+        className={classNames(
+          "-mt-32 mb-6",
+          "text-2xl text-gray-600 font-light"
+        )}
       >
         <T id="welcomeTo" />
       </div>
 
       <div className="flex items-center mb-8">
-        <Logo />
-
-        <h1
-          className={classNames("ml-2", "text-3xl text-gray-700 font-semibold")}
-        >
-          Temple Wallet
-        </h1>
+        <Logo hasTitle style={{ height: 70 }} />
       </div>
 
       <div className={classNames("w-full", "my-4", "flex items-stretch")}>

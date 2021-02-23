@@ -68,7 +68,7 @@ const ConnectBanner: React.FC<ConnectBannerProps> = ({
           "p-2"
         )}
       >
-        <Logo className="mb-1" imgStyle={{ height: 32, margin: "auto" }} />
+        <Logo className="mb-1" style={{ height: 32, margin: "auto" }} />
 
         <span className="text-xs font-semibold text-gray-700">Temple</span>
       </div>
