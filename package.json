@@ -8,7 +8,8 @@
     "build-all": "run-s build:*",
     "build:chrome": "cross-env TARGET_BROWSER=chrome run-s build",
     "build:firefox": "cross-env TARGET_BROWSER=firefox run-s build",
-    "build:opera": "cross-env TARGET_BROWSER=opera run-s build"
+    "build:opera": "cross-env TARGET_BROWSER=opera run-s build",
+    "test": "jest"
   },
   "dependencies": {
     "@babel/core": "7.11.6",
@@ -113,5 +114,12 @@
     "@taquito/**/braces": "2.3.1",
     "react-json-view/**/node-fetch": "2.6.1",
     "@tezos-domains/resolver/**/idna-uts46-hx": "hexonet/idna-uts46#6a61636c4930930076c562b10639c25c81058d44"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "jest": "^26.6.3",
+    "mockzilla-webextension": "^0.9.0",
+    "ts-jest": "^26.5.1",
+    "ts-node": "^9.1.1"
   }
 }
