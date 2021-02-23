@@ -1,12 +1,9 @@
 {
-  "templeAppName": {
+  "appName": {
     "message": "Temple - Tezos钱包"
   },
   "showIncomingTransactions": {
     "message": "显示进账交易"
-  },
-  "appName": {
-    "message": "Temple - Tezos钱包"
   },
   "appDesc": {
     "message": "🔐💰浏览器扩展程序，适用于Tezos区块链的数字加密货币钱包。"
@@ -482,16 +479,10 @@
   "templeWalletOptions": {
     "message": "Temple钱包 | 选项"
   },
-  "templeWalletOptions": {
-    "message": "Temple钱包 | 选项"
-  },
   "resetExtension": {
     "message": "重置扩展程序"
   },
   "resetExtensionConfirmation": {
-    "message": "确定要重置Temple钱包吗？\n此操作的结果是您的全部数据将被删除。"
-  },
-  "templeResetExtensionConfirmation": {
     "message": "确定要重置Temple钱包吗？\n此操作的结果是您的全部数据将被删除。"
   },
   "failedToResetExtension": {
@@ -541,9 +532,6 @@
     "message": "创建新钱包"
   },
   "createNewWalletDescription": {
-    "message": "没用过Temple钱包？我们先设置一个！这样做会创建一个新钱包和助记词"
-  },
-  "templeCreateNewWalletDescription": {
     "message": "没用过Temple钱包？我们先设置一个！这样做会创建一个新钱包和助记词"
   },
   "delegate": {
@@ -692,9 +680,6 @@
   "dAppsDescription": {
     "message": "在此处，您可以获得与支持Temple钱包的去中心化应用互动的能力。"
   },
-  "templeDAppsDescription": {
-    "message": "在此处，您可以获得与支持Temple钱包的去中心化应用互动的能力。"
-  },
   "networksDescription": {
     "message": "在此处，您可以添加或删除自定义Tezos网络。",
     "description": "Tezos = blockchain name (https://tezos.com/)"
@@ -715,9 +700,6 @@
     "message": "关于"
   },
   "aboutDescription": {
-    "message": "使用此板块来查看关于Temple钱包的元信息。"
-  },
-  "templeAboutDescription": {
     "message": "使用此板块来查看关于Temple钱包的元信息。"
   },
   "unlockWallet": {

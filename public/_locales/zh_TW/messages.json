@@ -1,12 +1,9 @@
 {
-  "templeAppName": {
+  "appName": {
     "message": "Temple - Tezos 錢包"
   },
   "showIncomingTransactions": {
     "message": "顯示新進交易"
-  },
-  "appName": {
-    "message": "Temple - Tezos 錢包"
   },
   "appDesc": {
     "message": "🔐💰這是 Tezos 區塊鏈加密貨幣錢包，是一項瀏覽器網頁擴充功能。 "
@@ -482,16 +479,10 @@
   "templeWalletOptions": {
     "message": "Temple 錢包 | 選項"
   },
-  "templeWalletOptions": {
-    "message": "Temple 錢包 | 選項"
-  },
   "resetExtension": {
     "message": "重設擴充功能"
   },
   "resetExtensionConfirmation": {
-    "message": "是否確定要重設 Temple 錢包？\n您所有的資料將因此刪除。"
-  },
-  "templeResetExtensionConfirmation": {
     "message": "是否確定要重設 Temple 錢包？\n您所有的資料將因此刪除。"
   },
   "failedToResetExtension": {
@@ -541,9 +532,6 @@
     "message": "建立新錢包"
   },
   "createNewWalletDescription": {
-    "message": "第一次使用 Temple 錢包嗎？我們來設定吧！這樣會建立新錢包和助記詞"
-  },
-  "templeCreateNewWalletDescription": {
     "message": "第一次使用 Temple 錢包嗎？我們來設定吧！這樣會建立新錢包和助記詞"
   },
   "delegate": {
@@ -692,9 +680,6 @@
   "dAppsDescription": {
     "message": "在此區段，您可以啟用與支援 Temple 錢包的分散式應用程式互動的能力。"
   },
-  "templeDAppsDescription": {
-    "message": "在此區段，您可以啟用與支援 Temple 錢包的分散式應用程式互動的能力。"
-  },
   "networksDescription": {
     "message": "在此區段，您可以新增或刪除自訂的 Tezos 網路。",
     "description": "Tezos = blockchain name (https://tezos.com/)"
@@ -715,9 +700,6 @@
     "message": "關於"
   },
   "aboutDescription": {
-    "message": "使用此區段檢視 Temple 錢包的元資料。"
-  },
-  "templeAboutDescription": {
     "message": "使用此區段檢視 Temple 錢包的元資料。"
   },
   "unlockWallet": {

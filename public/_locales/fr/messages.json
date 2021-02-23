@@ -1,12 +1,9 @@
 {
-  "templeAppName": {
+  "appName": {
     "message": "Temple - Portefeuille Tezos"
   },
   "showIncomingTransactions": {
     "message": "Afficher les transactions entrantes"
-  },
-  "appName": {
-    "message": "Temple - Portefeuille Tezos"
   },
   "appDesc": {
     "message": "🔐💰Portefeuille de cryptomonnaie pour le blockchain Tezos en tant qu'extension Web pour votre navigateur."
@@ -482,16 +479,10 @@
   "templeWalletOptions": {
     "message": "Portefeuille Temple | Options"
   },
-  "templeWalletOptions": {
-    "message": "Portefeuille Temple | Options"
-  },
   "resetExtension": {
     "message": "Réinitialiser l'extension"
   },
   "resetExtensionConfirmation": {
-    "message": "Voulez-vous vraiment réinitialiser le portefeuille Temple ? Vos données seront ainsi toutes supprimées."
-  },
-  "templeResetExtensionConfirmation": {
     "message": "Voulez-vous vraiment réinitialiser le portefeuille Temple ? Vos données seront ainsi toutes supprimées."
   },
   "failedToResetExtension": {
@@ -541,9 +532,6 @@
     "message": "Créer un nouveau portefeuille"
   },
   "createNewWalletDescription": {
-    "message": "Faites-vous vos premiers dans le portefeuille Temple ? Configurons-le ! Cela créera un nouveau portefeuille et une phrase mnémonique"
-  },
-  "templeCreateNewWalletDescription": {
     "message": "Faites-vous vos premiers dans le portefeuille Temple ? Configurons-le ! Cela créera un nouveau portefeuille et une phrase mnémonique"
   },
   "delegate": {
@@ -692,9 +680,6 @@
   "dAppsDescription": {
     "message": "Dans cette section, vous pouvez activer la possibilité d'interagir avec les applications décentralisées qui prennent en charge le portefeuille Temple."
   },
-  "templeDAppsDescription": {
-    "message": "Dans cette section, vous pouvez activer la possibilité d'interagir avec les applications décentralisées qui prennent en charge le portefeuille Temple."
-  },
   "networksDescription": {
     "message": "Dans cette section, vous pouvez ajouter ou supprimer des réseaux Tezos personnalisés.",
     "description": "Tezos = blockchain name (https://tezos.com/)"
@@ -715,9 +700,6 @@
     "message": "À propos"
   },
   "aboutDescription": {
-    "message": "Utilisez cette section pour afficher les méta-informations concernant le portefeuille Temple."
-  },
-  "templeAboutDescription": {
     "message": "Utilisez cette section pour afficher les méta-informations concernant le portefeuille Temple."
   },
   "unlockWallet": {
