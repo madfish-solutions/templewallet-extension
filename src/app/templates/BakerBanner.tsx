@@ -5,7 +5,7 @@ import {
   useRelevantAccounts,
   useAccount,
   useKnownBaker,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { T } from "lib/i18n/react";
 import Name from "app/atoms/Name";
 import HashChip from "app/templates/HashChip";

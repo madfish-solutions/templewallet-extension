@@ -13,27 +13,27 @@ import {
 import { localForger } from "@taquito/local-forging";
 import LedgerTransport from "@ledgerhq/hw-transport";
 import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
-import { LedgerThanosBridgeTransport } from "@thanos-wallet/ledger-bridge";
+import { LedgerTempleBridgeTransport } from "@temple-wallet/ledger-bridge";
 import { DerivationType } from "@taquito/ledger-signer";
 import {
-  ThanosAccount,
-  ThanosAccountType,
-  ThanosSettings,
-} from "lib/thanos/types";
-import * as Passworder from "lib/thanos/passworder";
-import { PublicError } from "lib/thanos/back/defaults";
+  TempleAccount,
+  TempleAccountType,
+  TempleSettings,
+} from "lib/temple/types";
+import * as Passworder from "lib/temple/passworder";
+import { PublicError } from "lib/temple/back/defaults";
 import {
   isStored,
   fetchAndDecryptOne,
   encryptAndSaveMany,
   removeMany,
-} from "lib/thanos/back/safe-storage";
-import { ThanosLedgerSigner } from "lib/thanos/back/ledger-signer";
+} from "lib/temple/back/safe-storage";
+import { TempleLedgerSigner } from "lib/temple/back/ledger-signer";
 import { getMessage } from "lib/i18n";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
-const DEFAULT_SETTINGS: ThanosSettings = {};
+const DEFAULT_SETTINGS: TempleSettings = {};
 
 enum StorageEntity {
   Check = "check",
@@ -79,8 +79,8 @@ export class Vault {
         accPrivateKey
       );
 
-      const initialAccount: ThanosAccount = {
-        type: ThanosAccountType.HD,
+      const initialAccount: TempleAccount = {
+        type: TempleAccountType.HD,
         name: "Account 1",
         publicKeyHash: accPublicKeyHash,
         hdIndex: hdAccIndex,
@@ -148,12 +148,12 @@ export class Vault {
   static async removeAccount(accPublicKeyHash: string, password: string) {
     const passKey = await Vault.toValidPassKey(password);
     return withError("Failed to remove account", async (doThrow) => {
-      const allAccounts = await fetchAndDecryptOne<ThanosAccount[]>(
+      const allAccounts = await fetchAndDecryptOne<TempleAccount[]>(
         accountsStrgKey,
         passKey
       );
       const acc = allAccounts.find((a) => a.publicKeyHash === accPublicKeyHash);
-      if (!acc || acc.type === ThanosAccountType.HD) {
+      if (!acc || acc.type === TempleAccountType.HD) {
         doThrow();
       }
 
@@ -194,13 +194,13 @@ export class Vault {
   }
 
   fetchAccounts() {
-    return fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, this.passKey);
+    return fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, this.passKey);
   }
 
   async fetchSettings() {
     let saved;
     try {
-      saved = await fetchAndDecryptOne<ThanosSettings>(
+      saved = await fetchAndDecryptOne<TempleSettings>(
         settingsStrgKey,
         this.passKey
       );
@@ -217,7 +217,7 @@ export class Vault {
 
       const seed = Bip39.mnemonicToSeedSync(mnemonic);
       const allHDAccounts = allAccounts.filter(
-        (a) => a.type === ThanosAccountType.HD
+        (a) => a.type === TempleAccountType.HD
       );
       const hdAccIndex = allHDAccounts.length;
       const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
@@ -225,8 +225,8 @@ export class Vault {
         accPrivateKey
       );
 
-      const newAccount: ThanosAccount = {
-        type: ThanosAccountType.HD,
+      const newAccount: TempleAccount = {
+        type: TempleAccountType.HD,
         name: name || getNewAccountName(allAccounts),
         publicKeyHash: accPublicKeyHash,
         hdIndex: hdAccIndex,
@@ -264,8 +264,8 @@ export class Vault {
         signer.publicKeyHash(),
       ]);
 
-      const newAccount: ThanosAccount = {
-        type: ThanosAccountType.Imported,
+      const newAccount: TempleAccount = {
+        type: TempleAccountType.Imported,
         name: getNewAccountName(allAccounts),
         publicKeyHash: accPublicKeyHash,
       };
@@ -325,11 +325,11 @@ export class Vault {
   ) {
     return withError("Failed to import Managed KT account", async () => {
       const allAccounts = await this.fetchAccounts();
-      const newAccount: ThanosAccount = {
-        type: ThanosAccountType.ManagedKT,
+      const newAccount: TempleAccount = {
+        type: TempleAccountType.ManagedKT,
         name: getNewAccountName(
           allAccounts.filter(
-            ({ type }) => type === ThanosAccountType.ManagedKT
+            ({ type }) => type === TempleAccountType.ManagedKT
           ),
           "defaultManagedKTAccountName"
         ),
@@ -351,11 +351,11 @@ export class Vault {
   async importWatchOnlyAccount(accPublicKeyHash: string, chainId?: string) {
     return withError("Failed to import Watch Only account", async () => {
       const allAccounts = await this.fetchAccounts();
-      const newAccount: ThanosAccount = {
-        type: ThanosAccountType.WatchOnly,
+      const newAccount: TempleAccount = {
+        type: TempleAccountType.WatchOnly,
         name: getNewAccountName(
           allAccounts.filter(
-            ({ type }) => type === ThanosAccountType.WatchOnly
+            ({ type }) => type === TempleAccountType.WatchOnly
           ),
           "defaultWatchOnlyAccountName"
         ),
@@ -383,8 +383,8 @@ export class Vault {
         const accPublicKey = await signer.publicKey();
         const accPublicKeyHash = await signer.publicKeyHash();
 
-        const newAccount: ThanosAccount = {
-          type: ThanosAccountType.Ledger,
+        const newAccount: TempleAccount = {
+          type: TempleAccountType.Ledger,
           name,
           publicKeyHash: accPublicKeyHash,
           derivationPath,
@@ -434,7 +434,7 @@ export class Vault {
     });
   }
 
-  async updateSettings(settings: Partial<ThanosSettings>) {
+  async updateSettings(settings: Partial<TempleSettings>) {
     return withError("Failed to update settings", async () => {
       const current = await this.fetchSettings();
       const newSettings = { ...current, ...settings };
@@ -504,7 +504,7 @@ export class Vault {
     }
 
     switch (acc.type) {
-      case ThanosAccountType.Ledger:
+      case TempleAccountType.Ledger:
         const publicKey = await this.revealPublicKey(accPublicKeyHash);
         return createLedgerSigner(
           acc.derivationPath,
@@ -512,7 +512,7 @@ export class Vault {
           accPublicKeyHash
         );
 
-      case ThanosAccountType.WatchOnly:
+      case TempleAccountType.WatchOnly:
         throw new PublicError("Cannot sign Watch-only account");
 
       default:
@@ -539,13 +539,13 @@ const MIGRATIONS = [
   async (passKey: CryptoKey) => {
     const [mnemonic, accounts] = await Promise.all([
       fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
-      fetchAndDecryptOne<ThanosAccount[]>(accountsStrgKey, passKey),
+      fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey),
     ]);
     const migratedAccounts = accounts.map((acc) =>
-      acc.type === ThanosAccountType.HD
+      acc.type === TempleAccountType.HD
         ? {
             ...acc,
-            type: ThanosAccountType.Imported,
+            type: TempleAccountType.Imported,
           }
         : acc
     );
@@ -557,8 +557,8 @@ const MIGRATIONS = [
       accPrivateKey
     );
 
-    const newInitialAccount: ThanosAccount = {
-      type: ThanosAccountType.HD,
+    const newInitialAccount: TempleAccount = {
+      type: TempleAccountType.HD,
       name: getNewAccountName(accounts),
       publicKeyHash: accPublicKeyHash,
       hdIndex: hdAccIndex,
@@ -577,14 +577,14 @@ const MIGRATIONS = [
 
   // [1] Add hdIndex prop to HD Accounts
   async (passKey: CryptoKey) => {
-    const accounts = await fetchAndDecryptOne<ThanosAccount[]>(
+    const accounts = await fetchAndDecryptOne<TempleAccount[]>(
       accountsStrgKey,
       passKey
     );
 
     let hdAccIndex = 0;
     const newAccounts = accounts.map((acc) =>
-      acc.type === ThanosAccountType.HD
+      acc.type === TempleAccountType.HD
         ? { ...acc, hdIndex: hdAccIndex++ }
         : acc
     );
@@ -612,7 +612,7 @@ function formatOpParams(params: any) {
   return params;
 }
 
-function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
+function concatAccount(current: TempleAccount[], newOne: TempleAccount) {
   if (current.every((a) => a.publicKeyHash !== newOne.publicKeyHash)) {
     return [...current, newOne];
   }
@@ -621,7 +621,7 @@ function concatAccount(current: ThanosAccount[], newOne: ThanosAccount) {
 }
 
 function getNewAccountName(
-  allAccounts: ThanosAccount[],
+  allAccounts: TempleAccount[],
   templateI18nKey = "defaultAccountName"
 ) {
   return getMessage(templateI18nKey, String(allAccounts.length + 1));
@@ -646,18 +646,18 @@ async function createLedgerSigner(
   if (process.env.TARGET_BROWSER === "chrome") {
     transport = await LedgerWebAuthnTransport.create();
   } else {
-    const bridgeUrl = process.env.THANOS_WALLET_LEDGER_BRIDGE_URL;
+    const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
     if (!bridgeUrl) {
       throw new Error(
-        "Require a 'THANOS_WALLET_LEDGER_BRIDGE_URL' environment variable to be set"
+        "Require a 'TEMPLE_WALLET_LEDGER_BRIDGE_URL' environment variable to be set"
       );
     }
 
-    transport = await LedgerThanosBridgeTransport.open(bridgeUrl);
+    transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
   }
 
   const cleanup = () => transport.close();
-  const signer = new ThanosLedgerSigner(
+  const signer = new TempleLedgerSigner(
     transport,
     removeMFromDerivationPath(derivationPath),
     true,

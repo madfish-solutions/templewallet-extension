@@ -1,4 +1,4 @@
-import { ThanosDAppMetadata } from "@thanos-wallet/dapp/dist/types";
+import { TempleDAppMetadata } from "@temple-wallet/dapp/dist/types";
 import classNames from "clsx";
 import React from "react";
 import Logo from "app/atoms/Logo";
@@ -10,7 +10,7 @@ import DAppLogo from "app/templates/DAppLogo";
 type ConnectBannerProps = {
   type: "connect" | "confirm_operations";
   origin: string;
-  appMeta: ThanosDAppMetadata;
+  appMeta: TempleDAppMetadata;
   className?: string;
 };
 
@@ -70,7 +70,7 @@ const ConnectBanner: React.FC<ConnectBannerProps> = ({
       >
         <Logo className="mb-1" imgStyle={{ height: 32, margin: "auto" }} />
 
-        <span className="text-xs font-semibold text-gray-700">Thanos</span>
+        <span className="text-xs font-semibold text-gray-700">Temple</span>
       </div>
     </div>
   );

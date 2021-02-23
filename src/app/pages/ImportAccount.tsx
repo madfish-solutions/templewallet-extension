@@ -6,7 +6,7 @@ import { validateMnemonic } from "bip39";
 import { Link, navigate } from "lib/woozie";
 import { T, t } from "lib/i18n/react";
 import {
-  useThanosClient,
+  useTempleClient,
   useSetAccountPkh,
   validateDerivationPath,
   useTezos,
@@ -18,7 +18,7 @@ import {
   isKTAddress,
   confirmOperation,
   useNetwork,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
@@ -169,7 +169,7 @@ interface ByPrivateKeyFormData {
 }
 
 const ByPrivateKeyForm: React.FC = () => {
-  const { importAccount } = useThanosClient();
+  const { importAccount } = useTempleClient();
 
   const {
     register,
@@ -285,7 +285,7 @@ interface ByMnemonicFormData {
 }
 
 const ByMnemonicForm: React.FC = () => {
-  const { importMnemonicAccount } = useThanosClient();
+  const { importMnemonicAccount } = useTempleClient();
 
   const {
     register,
@@ -500,7 +500,7 @@ interface ByFundraiserFormData {
 }
 
 const ByFundraiserForm: React.FC = () => {
-  const { importFundraiserAccount } = useThanosClient();
+  const { importFundraiserAccount } = useTempleClient();
   const {
     register,
     errors,
@@ -610,7 +610,7 @@ interface FaucetTextInputFormData {
 }
 
 const FromFaucetForm: React.FC = () => {
-  const { importFundraiserAccount } = useThanosClient();
+  const { importFundraiserAccount } = useTempleClient();
   const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
 
@@ -950,7 +950,7 @@ interface WatchOnlyFormData {
 }
 
 const WatchOnlyForm: React.FC = () => {
-  const { importWatchOnlyAccount } = useThanosClient();
+  const { importWatchOnlyAccount } = useTempleClient();
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
   const canUseDomainNames = domainsClient.isSupported;

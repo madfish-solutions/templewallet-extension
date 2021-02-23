@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { ThanosChainId } from "lib/thanos/types";
+import { TempleChainId } from "lib/temple/types";
 import {
   allInt32ParameterKeys,
   TzktGetOperationsParams,
@@ -10,17 +10,17 @@ import {
 } from "lib/tzkt/types";
 
 const TZKT_API_BASE_URLS = new Map([
-  [ThanosChainId.Mainnet, "https://api.tzkt.io/v1"],
-  [ThanosChainId.Edo2net, "https://api.edo2net.tzkt.io/"],
-  [ThanosChainId.Delphinet, "https://api.delphinet.tzkt.io/v1"],
-  [ThanosChainId.Carthagenet, "https://api.carthagenet.tzkt.io/v1"],
+  [TempleChainId.Mainnet, "https://api.tzkt.io/v1"],
+  [TempleChainId.Edo2net, "https://api.edo2net.tzkt.io/"],
+  [TempleChainId.Delphinet, "https://api.delphinet.tzkt.io/v1"],
+  [TempleChainId.Carthagenet, "https://api.carthagenet.tzkt.io/v1"],
 ]);
 
 export const TZKT_BASE_URLS = new Map([
-  [ThanosChainId.Mainnet, "https://tzkt.io"],
-  [ThanosChainId.Edo2net, "https://edo2net.tzkt.io"],
-  [ThanosChainId.Delphinet, "https://delphinet.tzkt.io"],
-  [ThanosChainId.Carthagenet, "https://carthagenet.tzkt.io"],
+  [TempleChainId.Mainnet, "https://tzkt.io"],
+  [TempleChainId.Edo2net, "https://edo2net.tzkt.io"],
+  [TempleChainId.Delphinet, "https://delphinet.tzkt.io"],
+  [TempleChainId.Carthagenet, "https://carthagenet.tzkt.io"],
 ]);
 
 const api = axios.create();
@@ -80,7 +80,7 @@ function makeQuery<P extends Record<string, unknown>, R>(
   url: (params: P) => string,
   searchParams: (params: P) => Record<string, unknown>
 ) {
-  return async (chainId: ThanosChainId, params: P) => {
+  return async (chainId: TempleChainId, params: P) => {
     const { data } = await api.get<R>(url(params), {
       baseURL: TZKT_API_BASE_URLS.get(chainId),
       params: searchParams(params),

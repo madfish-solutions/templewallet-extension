@@ -60,23 +60,23 @@ const About: React.FC = () => (
       {[
         {
           key: "website",
-          link: "https://thanoswallet.com",
+          link: "https://templewallet.com",
         },
         {
           key: "repo",
-          link: "https://github.com/madfish-solutions/thanos-wallet",
+          link: "https://github.com/madfish-solutions/temple-wallet",
         },
         {
           key: "privacyPolicy",
-          link: "https://thanoswallet.com/privacy",
+          link: "https://templewallet.com/privacy",
         },
         {
           key: "termsOfUse",
-          link: "https://thanoswallet.com/terms",
+          link: "https://templewallet.com/terms",
         },
         {
           key: "contact",
-          link: "https://thanoswallet.com/contact",
+          link: "https://templewallet.com/contact",
         },
       ].map(({ key, link }) => (
         <T id={key} key={key}>

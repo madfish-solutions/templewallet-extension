@@ -2,10 +2,10 @@ import * as React from "react";
 import classNames from "clsx";
 import {
   useStorage,
-  ThanosSharedStorageKey,
-  useThanosClient,
-} from "lib/thanos/front";
-import { ThanosDAppSession, ThanosDAppSessions } from "lib/thanos/types";
+  TempleSharedStorageKey,
+  useTempleClient,
+} from "lib/temple/front";
+import { TempleDAppSession, TempleDAppSessions } from "lib/temple/types";
 import { T, t } from "lib/i18n/react";
 import { useConfirm } from "lib/ui/dialog";
 import { useRetryableSWR } from "lib/swr";
@@ -16,7 +16,7 @@ import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import HashChip from "app/templates/HashChip";
 import Name from "app/atoms/Name";
 
-type DAppEntry = [string, ThanosDAppSession];
+type DAppEntry = [string, TempleDAppSession];
 type DAppActions = {
   remove: (origin: string) => void;
 };
@@ -24,10 +24,10 @@ type DAppActions = {
 const getDAppKey = (entry: DAppEntry) => entry[0];
 
 const DAppSettings: React.FC = () => {
-  const { getAllDAppSessions, removeDAppSession } = useThanosClient();
+  const { getAllDAppSessions, removeDAppSession } = useTempleClient();
   const confirm = useConfirm();
 
-  const { data, revalidate } = useRetryableSWR<ThanosDAppSessions>(
+  const { data, revalidate } = useRetryableSWR<TempleDAppSessions>(
     ["getAllDAppSessions"],
     getAllDAppSessions,
     {
@@ -40,7 +40,7 @@ const DAppSettings: React.FC = () => {
   const dAppSessions = data!;
 
   const [dAppEnabled, setDAppEnabled] = useStorage(
-    ThanosSharedStorageKey.DAppEnabled,
+    TempleSharedStorageKey.DAppEnabled,
     true
   );
 

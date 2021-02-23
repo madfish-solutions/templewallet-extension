@@ -8,7 +8,7 @@ import {
   useAllAssetsRef,
   getBalanceSWRKey,
   confirmOperation,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 
 export const [NewBlockTriggersProvider, useBlockTriggers] = constate(
   useNewBlockTriggers

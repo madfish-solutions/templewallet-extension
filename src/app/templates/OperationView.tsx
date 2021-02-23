@@ -2,13 +2,13 @@ import classNames from "clsx";
 import React from "react";
 import { T, t } from "lib/i18n/react";
 import {
-  ThanosDAppPayload,
+  TempleDAppPayload,
   TEZ_ASSET,
   tryParseExpenses,
   useAccount,
-  ThanosAssetType,
+  TempleAssetType,
   useTokens,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import OperationsBanner from "app/templates/OperationsBanner";
 import ViewsSwitcher from "app/templates/ViewsSwitcher";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
@@ -18,7 +18,7 @@ import RawPayloadView from "app/templates/RawPayloadView";
 import ExpensesView from "app/templates/ExpensesView";
 
 type OperationViewProps = {
-  payload: ThanosDAppPayload;
+  payload: TempleDAppPayload;
   networkRpc?: string;
 };
 
@@ -48,7 +48,7 @@ const OperationView: React.FC<OperationViewProps> = ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
         asset: tokenAddress
           ? allTokens.find((token) =>
-              token.type === ThanosAssetType.FA2
+              token.type === TempleAssetType.FA2
                 ? token.address === tokenAddress && token.id === tokenId
                 : token.address === tokenAddress
             ) || tokenAddress

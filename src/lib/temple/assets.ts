@@ -1,17 +1,17 @@
 import { browser } from "webextension-polyfill-ts";
 import { TezosToolkit, WalletContract } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
-import { ThanosAsset, ThanosToken, ThanosAssetType } from "lib/thanos/types";
+import { TempleAsset, TempleToken, TempleAssetType } from "lib/temple/types";
 import {
   loadContract,
   loadContractForCallLambdaView,
-} from "lib/thanos/contract";
-import { mutezToTz } from "lib/thanos/helpers";
+} from "lib/temple/contract";
+import { mutezToTz } from "lib/temple/helpers";
 import assert, { AssertionError } from "lib/assert";
 import { getMessage } from "lib/i18n";
 
-export const TEZ_ASSET: ThanosAsset = {
-  type: ThanosAssetType.TEZ,
+export const TEZ_ASSET: TempleAsset = {
+  type: TempleAssetType.TEZ,
   name: "Tezos",
   symbol: "tez",
   decimals: 6,
@@ -19,9 +19,9 @@ export const TEZ_ASSET: ThanosAsset = {
   default: true,
 };
 
-export const DELPHINET_TOKENS: ThanosToken[] = [
+export const DELPHINET_TOKENS: TempleToken[] = [
   {
-    type: ThanosAssetType.FA1_2,
+    type: TempleAssetType.FA1_2,
     address: "KT1RXpLtz22YgX24QQhxKVyKvtKZFaAVtTB9",
     name: "Kolibri",
     symbol: "kUSD",
@@ -31,7 +31,7 @@ export const DELPHINET_TOKENS: ThanosToken[] = [
     default: true,
   },
   {
-    type: ThanosAssetType.FA1_2,
+    type: TempleAssetType.FA1_2,
     address: "KT1TDHL9ipKL8WW3TMPvutbLh9uZBdY9BU59",
     name: "Wrapped Tezos",
     symbol: "wXTZ",
@@ -41,7 +41,7 @@ export const DELPHINET_TOKENS: ThanosToken[] = [
     default: true,
   },
   {
-    type: ThanosAssetType.FA2,
+    type: TempleAssetType.FA2,
     address: "KT1WnjpKriR4yweiFdkTiMofoV9hvz7vMSXJ",
     id: 0,
     name: "Stably USD",
@@ -53,9 +53,9 @@ export const DELPHINET_TOKENS: ThanosToken[] = [
   },
 ];
 
-export const MAINNET_TOKENS: ThanosToken[] = [
+export const MAINNET_TOKENS: TempleToken[] = [
   {
-    type: ThanosAssetType.TzBTC,
+    type: TempleAssetType.TzBTC,
     address: "KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn",
     name: "Tezos BTC",
     symbol: "tzBTC",
@@ -66,7 +66,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     default: true,
   },
   {
-    type: ThanosAssetType.FA1_2,
+    type: TempleAssetType.FA1_2,
     address: "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV",
     name: "Kolibri",
     symbol: "kUSD",
@@ -76,7 +76,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     default: true,
   },
   {
-    type: ThanosAssetType.FA1_2,
+    type: TempleAssetType.FA1_2,
     address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
     name: "Wrapped Tezos",
     symbol: "wXTZ",
@@ -86,7 +86,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     default: true,
   },
   {
-    type: ThanosAssetType.FA2,
+    type: TempleAssetType.FA2,
     address: "KT1REEb5VxWRjcHm5GzDMwErMmNFftsE5Gpf",
     id: 0,
     name: "Stably USD",
@@ -97,7 +97,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     default: true,
   },
   {
-    type: ThanosAssetType.FA1_2,
+    type: TempleAssetType.FA1_2,
     address: "KT19at7rQUvyjxnZ2fBv7D9zc8rkyG7gAoU8",
     name: "ETH Tez",
     symbol: "ETHtz",
@@ -107,7 +107,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     default: true,
   },
   {
-    type: ThanosAssetType.FA1_2,
+    type: TempleAssetType.FA1_2,
     address: "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
     name: "USD Tez",
     symbol: "USDtz",
@@ -117,7 +117,7 @@ export const MAINNET_TOKENS: ThanosToken[] = [
     default: true,
   },
   {
-    type: ThanosAssetType.Staker,
+    type: TempleAssetType.Staker,
     address: "KT1EctCuorV2NfVb1XTQgvzJ88MQtWP8cMMv",
     name: "Staker",
     symbol: "STKR",
@@ -205,23 +205,23 @@ const FA2_METHODS_ASSERTIONS = [
 ];
 
 export async function assertTokenType(
-  tokenType: ThanosAssetType.FA1_2,
+  tokenType: TempleAssetType.FA1_2,
   contract: WalletContract,
   tezos: TezosToolkit
 ): Promise<void>;
 export async function assertTokenType(
-  tokenType: ThanosAssetType.FA2,
+  tokenType: TempleAssetType.FA2,
   contract: WalletContract,
   tezos: TezosToolkit,
   tokenId: number
 ): Promise<void>;
 export async function assertTokenType(
-  tokenType: ThanosAssetType.FA1_2 | ThanosAssetType.FA2,
+  tokenType: TempleAssetType.FA1_2 | TempleAssetType.FA2,
   contract: WalletContract,
   tezos: TezosToolkit,
   tokenId?: number
 ) {
-  const isFA12Token = tokenType === ThanosAssetType.FA1_2;
+  const isFA12Token = tokenType === TempleAssetType.FA1_2;
   const assertions = isFA12Token
     ? FA12_METHODS_ASSERTIONS
     : FA2_METHODS_ASSERTIONS;
@@ -256,19 +256,19 @@ export async function assertTokenType(
 
 export async function fetchBalance(
   tezos: TezosToolkit,
-  asset: ThanosAsset,
+  asset: TempleAsset,
   accountPkh: string
 ) {
   let nat: BigNumber | undefined;
 
   switch (asset.type) {
-    case ThanosAssetType.TEZ:
+    case TempleAssetType.TEZ:
       const amount = await tezos.tz.getBalance(accountPkh);
       return mutezToTz(amount);
 
-    case ThanosAssetType.Staker:
-    case ThanosAssetType.TzBTC:
-    case ThanosAssetType.FA1_2:
+    case TempleAssetType.Staker:
+    case TempleAssetType.TzBTC:
+    case TempleAssetType.FA1_2:
       const contract = await loadContractForCallLambdaView(
         tezos,
         asset.address
@@ -286,7 +286,7 @@ export async function fetchBalance(
 
       return nat.div(10 ** asset.decimals);
 
-    case ThanosAssetType.FA2:
+    case TempleAssetType.FA2:
       const fa2Contract = await loadContractForCallLambdaView(
         tezos,
         asset.address
@@ -312,28 +312,28 @@ export async function fetchBalance(
 
 export async function toTransferParams(
   tezos: TezosToolkit,
-  asset: ThanosAsset,
+  asset: TempleAsset,
   fromPkh: string,
   toPkh: string,
   amount: number
 ) {
   switch (asset.type) {
-    case ThanosAssetType.TEZ:
+    case TempleAssetType.TEZ:
       return {
         to: toPkh,
         amount,
       };
 
-    case ThanosAssetType.Staker:
-    case ThanosAssetType.TzBTC:
-    case ThanosAssetType.FA1_2:
-    case ThanosAssetType.FA2:
+    case TempleAssetType.Staker:
+    case TempleAssetType.TzBTC:
+    case TempleAssetType.FA1_2:
+    case TempleAssetType.FA2:
       const contact = await loadContract(tezos, asset.address);
       const pennyAmount = new BigNumber(amount)
         .times(10 ** asset.decimals)
         .toFixed();
       const methodArgs =
-        asset.type === ThanosAssetType.FA2
+        asset.type === TempleAssetType.FA2
           ? [
               [
                 {
@@ -352,11 +352,11 @@ export async function toTransferParams(
   }
 }
 
-export function tryParseParameters(asset: ThanosAsset, parameters: any) {
+export function tryParseParameters(asset: TempleAsset, parameters: any) {
   switch (asset.type) {
-    case ThanosAssetType.Staker:
-    case ThanosAssetType.TzBTC:
-    case ThanosAssetType.FA1_2:
+    case TempleAssetType.Staker:
+    case TempleAssetType.TzBTC:
+    case TempleAssetType.FA1_2:
       try {
         const [{ args }, { int }] = parameters.value.args;
         const sender: string = args[0].string;
@@ -376,7 +376,7 @@ export function tryParseParameters(asset: ThanosAsset, parameters: any) {
   }
 }
 
-export function mergeAssets<T extends ThanosAsset>(base: T[], ...rest: T[][]) {
+export function mergeAssets<T extends TempleAsset>(base: T[], ...rest: T[][]) {
   const uniques = new Set<string>();
   return base.concat(...rest).filter((a) => {
     const key = getAssetKey(a);
@@ -386,21 +386,21 @@ export function mergeAssets<T extends ThanosAsset>(base: T[], ...rest: T[][]) {
   });
 }
 
-export function omitAssets<T extends ThanosAsset>(base: T[], toRemove: T[]) {
+export function omitAssets<T extends TempleAsset>(base: T[], toRemove: T[]) {
   const toRemoveSet = new Set(toRemove.map(getAssetKey));
   return base.filter((a) => !toRemoveSet.has(getAssetKey(a)));
 }
 
-export function assetsAreSame(aAsset: ThanosAsset, bAsset: ThanosAsset) {
+export function assetsAreSame(aAsset: TempleAsset, bAsset: TempleAsset) {
   return getAssetKey(aAsset) === getAssetKey(bAsset);
 }
 
-export function getAssetKey(asset: ThanosAsset) {
+export function getAssetKey(asset: TempleAsset) {
   switch (asset.type) {
-    case ThanosAssetType.TEZ:
+    case TempleAssetType.TEZ:
       return "tez";
 
-    case ThanosAssetType.FA2:
+    case TempleAssetType.FA2:
       return `${asset.address}_${asset.id}`;
 
     default:
@@ -408,7 +408,7 @@ export function getAssetKey(asset: ThanosAsset) {
   }
 }
 
-export function toPenny(asset: ThanosAsset) {
+export function toPenny(asset: TempleAsset) {
   return new BigNumber(1).div(10 ** asset.decimals).toNumber();
 }
 

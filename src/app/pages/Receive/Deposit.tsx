@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useNetwork } from "lib/thanos/front";
+import { useNetwork } from "lib/temple/front";
 import { T } from "lib/i18n/react";
 import Name from "app/atoms/Name";
 import { ReactComponent as FaucetIcon } from "app/misc/faucet.svg";
@@ -11,7 +11,7 @@ const ALL_DEPOSITS = [
     networkType: "main",
     type: "exchange",
     titleName: "useCoinSwitch",
-    link: "https://coinswitch.thanoswallet.com/",
+    link: "https://coinswitch.templewallet.com/",
     icon: <ExchangeIcon />,
     color: "",
   },
