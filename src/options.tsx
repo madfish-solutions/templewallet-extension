@@ -35,7 +35,7 @@ const Options: React.FC = () => {
   return (
     <div className="p-4">
       <h1 className="mb-2 text-xl font-semibold">
-        {getMessage("thanosWalletOptions")}
+        {getMessage("templeWalletOptions")}
       </h1>
 
       <div className="my-6">

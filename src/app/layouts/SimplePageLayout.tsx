@@ -42,7 +42,7 @@ const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
                 "text-gray-700"
               )}
             >
-              Thanos
+              Temple
             </h1>
           </div>
 

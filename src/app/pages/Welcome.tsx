@@ -55,7 +55,7 @@ const Welcome: React.FC = () => {
         <h1
           className={classNames("ml-2", "text-3xl text-gray-700 font-semibold")}
         >
-          Thanos Wallet
+          Temple Wallet
         </h1>
       </div>
 

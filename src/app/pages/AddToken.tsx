@@ -6,8 +6,8 @@ import classNames from "clsx";
 import { Controller, FormContextValues, useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
-  ThanosToken,
-  ThanosAssetType,
+  TempleToken,
+  TempleAssetType,
   useTokens,
   useTezos,
   validateContractAddress,
@@ -16,7 +16,7 @@ import {
   NotMatchingStandardError,
   loadContractForCallLambdaView,
   getAssetKey,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { sanitizeImgUri } from "lib/image-uri";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
@@ -46,16 +46,16 @@ export default AddToken;
 
 const TOKEN_TYPES = [
   {
-    type: ThanosAssetType.FA1_2 as const,
+    type: TempleAssetType.FA1_2 as const,
     name: "FA 1.2",
   },
   {
-    type: ThanosAssetType.FA2 as const,
+    type: TempleAssetType.FA2 as const,
     name: "FA 2",
   },
 ];
 
-type ThanosCustomTokenType = ThanosAssetType.FA1_2 | ThanosAssetType.FA2;
+type TempleCustomTokenType = TempleAssetType.FA1_2 | TempleAssetType.FA2;
 type FormData = {
   address: string;
   id?: number;
@@ -63,7 +63,7 @@ type FormData = {
   name: string;
   decimals: number;
   iconUrl: string;
-  type: ThanosCustomTokenType;
+  type: TempleCustomTokenType;
 };
 
 class MetadataParseError extends Error {}
@@ -133,7 +133,7 @@ const Form: React.FC = () => {
           /**
            * Assert token standard
            */
-          if (tokenType === ThanosAssetType.FA1_2) {
+          if (tokenType === TempleAssetType.FA1_2) {
             await assertTokenType(tokenType, contract, tezos);
           } else {
             await assertTokenType(tokenType, contract, tezos, tokenId!);
@@ -183,7 +183,7 @@ const Form: React.FC = () => {
             throw new TokenValidationError(
               `${t(
                 "tokenDoesNotMatchStandard",
-                tokenType === ThanosAssetType.FA1_2 ? "FA1.2" : "FA2"
+                tokenType === TempleAssetType.FA1_2 ? "FA1.2" : "FA2"
               )}: ${err.message}`
             );
           } else {
@@ -266,14 +266,14 @@ const Form: React.FC = () => {
           fungible: true,
         };
 
-        const newToken: ThanosToken =
-          tokenType === ThanosAssetType.FA1_2
+        const newToken: TempleToken =
+          tokenType === TempleAssetType.FA1_2
             ? {
-                type: ThanosAssetType.FA1_2,
+                type: TempleAssetType.FA1_2,
                 ...tokenCommonProps,
               }
             : {
-                type: ThanosAssetType.FA2,
+                type: TempleAssetType.FA2,
                 id: Number(id!),
                 ...tokenCommonProps,
               };
@@ -297,7 +297,7 @@ const Form: React.FC = () => {
     [formState.isSubmitting, addToken]
   );
 
-  const isFA12Token = tokenType === ThanosAssetType.FA1_2;
+  const isFA12Token = tokenType === TempleAssetType.FA1_2;
 
   return (
     <form
@@ -396,8 +396,8 @@ const Form: React.FC = () => {
 };
 
 type TokenTypeSelectProps = {
-  value?: ThanosCustomTokenType;
-  onChange: (newValue: ThanosCustomTokenType) => void;
+  value?: TempleCustomTokenType;
+  onChange: (newValue: TempleCustomTokenType) => void;
 };
 
 const TokenTypeSelect = React.memo<TokenTypeSelectProps>((props) => {
@@ -428,8 +428,8 @@ const TokenTypeSelect = React.memo<TokenTypeSelectProps>((props) => {
 type TokenTypeOptionProps = {
   active: boolean;
   last: boolean;
-  value: ThanosCustomTokenType;
-  onClick: (value: ThanosCustomTokenType) => void;
+  value: TempleCustomTokenType;
+  onClick: (value: TempleCustomTokenType) => void;
 };
 
 const TokenTypeOption: React.FC<TokenTypeOptionProps> = (props) => {

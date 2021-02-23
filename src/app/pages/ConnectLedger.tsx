@@ -3,12 +3,12 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
-  useThanosClient,
+  useTempleClient,
   useSetAccountPkh,
   useAllAccounts,
-  ThanosAccountType,
+  TempleAccountType,
   validateDerivationPath,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
 import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -35,12 +35,12 @@ const DERIVATION_PATHS = [
 ];
 
 const ConnectLedger: React.FC = () => {
-  const { createLedgerAccount } = useThanosClient();
+  const { createLedgerAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
   const allLedgers = React.useMemo(
-    () => allAccounts.filter((acc) => acc.type === ThanosAccountType.Ledger),
+    () => allAccounts.filter((acc) => acc.type === TempleAccountType.Ledger),
     [allAccounts]
   );
 

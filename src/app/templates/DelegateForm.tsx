@@ -19,9 +19,9 @@ import {
   isAddressValid,
   isKTAddress,
   hasManager,
-  ThanosAccountType,
+  TempleAccountType,
   loadContract,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
@@ -154,7 +154,7 @@ const DelegateForm: React.FC = () => {
 
   const getEstimation = React.useCallback(
     async (to: string) => {
-      if (acc.type === ThanosAccountType.ManagedKT) {
+      if (acc.type === TempleAccountType.ManagedKT) {
         const contract = await loadContract(tezos, accountPkh);
         const transferParams = contract.methods
           .do(setDelegate(to))
@@ -196,10 +196,10 @@ const DelegateForm: React.FC = () => {
 
       const estmtn = await getEstimation(toValue);
       const manager = tezos.rpc.getManagerKey(
-        acc.type === ThanosAccountType.ManagedKT ? acc.owner : accountPkh
+        acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh
       );
       let baseFee = mutezToTz(estmtn.totalCost);
-      if (!hasManager(manager) && acc.type !== ThanosAccountType.ManagedKT) {
+      if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
@@ -291,7 +291,7 @@ const DelegateForm: React.FC = () => {
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
         let op: WalletOperation;
-        if (acc.type === ThanosAccountType.ManagedKT) {
+        if (acc.type === TempleAccountType.ManagedKT) {
           const contract = await loadContract(tezos, acc.publicKeyHash);
           op = await contract.methods.do(setDelegate(to)).send({ amount: 0 });
         } else {

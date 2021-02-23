@@ -2,12 +2,12 @@ import * as React from "react";
 import classNames from "clsx";
 import BigNumber from "bignumber.js";
 import CSSTransition from "react-transition-group/CSSTransition";
-import { ThanosAsset, TEZ_ASSET, useBalance } from "lib/thanos/front";
+import { TempleAsset, TEZ_ASSET, useBalance } from "lib/temple/front";
 
 type BalanceProps = {
   address: string;
   children: (b: BigNumber) => React.ReactElement;
-  asset?: ThanosAsset;
+  asset?: TempleAsset;
   networkRpc?: string;
   displayed?: boolean;
 };

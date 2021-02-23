@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import { T, t } from "lib/i18n/react";
-import { useAccount, useDelegate, ThanosAccountType } from "lib/thanos/front";
+import { useAccount, useDelegate, TempleAccountType } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 import BakerBanner from "app/templates/BakerBanner";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
@@ -12,7 +12,7 @@ import styles from "./BakingSection.module.css";
 const BakingSection = React.memo(() => {
   const acc = useAccount();
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
-  const canDelegate = acc.type !== ThanosAccountType.WatchOnly;
+  const canDelegate = acc.type !== TempleAccountType.WatchOnly;
 
   const tippyProps = {
     trigger: "mouseenter",

@@ -479,7 +479,7 @@
     "message": "테조스 메인넷(Tezos Mainnet)",
     "description": "Mainnet = main network"
   },
-  "thanosWalletOptions": {
+  "templeWalletOptions": {
     "message": "타노스 지갑 | 옵션"
   },
   "templeWalletOptions": {

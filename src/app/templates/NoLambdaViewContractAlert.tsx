@@ -6,14 +6,14 @@ import {
   useTezos,
   useNetwork,
   loadChainId,
-  useThanosClient,
-} from "lib/thanos/front";
+  useTempleClient,
+} from "lib/temple/front";
 import { T } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
 import { ReactComponent as ErrorIcon } from "app/icons/error.svg";
 
 const ConditionalNoLambdaViewContractAlert: React.FC = () => {
-  const { ready } = useThanosClient();
+  const { ready } = useTempleClient();
   return ready ? <NoLambdaViewContractAlert /> : null;
 };
 

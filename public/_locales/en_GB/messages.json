@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Thanos - Tezos Wallet"
+    "message": "Temple - Tezos Wallet"
   },
   "templeAppName": {
     "message": "Temple - Tezos Wallet"
@@ -479,8 +479,8 @@
     "message": "Tezos Mainnet",
     "description": "Mainnet = main network"
   },
-  "thanosWalletOptions": {
-    "message": "Thanos Wallet | Options"
+  "templeWalletOptions": {
+    "message": "Temple Wallet | Options"
   },
   "templeWalletOptions": {
     "message": "Temple Wallet | Options"
@@ -489,7 +489,7 @@
     "message": "Reset Extension"
   },
   "resetExtensionConfirmation": {
-    "message": "Are you sure you want to reset the Thanos Wallet?\nAs a result, all your data will be deleted."
+    "message": "Are you sure you want to reset the Temple Wallet?\nAs a result, all your data will be deleted."
   },
   "templeResetExtensionConfirmation": {
     "message": "Are you sure you want to reset the Temple Wallet?\nAs a result, all your data will be deleted."
@@ -541,7 +541,7 @@
     "message": "Create a new Wallet"
   },
   "createNewWalletDescription": {
-    "message": "New to Thanos Wallet? Let's set it up! This will create a new wallet and seed phrase"
+    "message": "New to Temple Wallet? Let's set it up! This will create a new wallet and seed phrase"
   },
   "templeCreateNewWalletDescription": {
     "message": "New to Temple Wallet? Let's set it up! This will create a new wallet and seed phrase"
@@ -690,7 +690,7 @@
     "description": "DApps = Decentralized Applications"
   },
   "dAppsDescription": {
-    "message": "In this section you can enable ability to interact with decentralized applications that support Thanos Wallet."
+    "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
   },
   "templeDAppsDescription": {
     "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
@@ -715,7 +715,7 @@
     "message": "About"
   },
   "aboutDescription": {
-    "message": "Use this section to view meta info about Thanos Wallet."
+    "message": "Use this section to view meta info about Temple Wallet."
   },
   "templeAboutDescription": {
     "message": "Use this section to view meta info about Temple Wallet."

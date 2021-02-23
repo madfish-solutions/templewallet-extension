@@ -2,20 +2,20 @@ import * as React from "react";
 import classNames from "clsx";
 import { useRetryableSWR } from "lib/swr";
 import { TZSTATS_CHAINS, TZStatsNetwork } from "lib/tzstats";
-import { loadChainId } from "lib/thanos/helpers";
+import { loadChainId } from "lib/temple/helpers";
 import { T } from "lib/i18n/react";
 import {
-  ThanosAssetType,
-  ThanosAsset,
+  TempleAssetType,
+  TempleAsset,
   TEZ_ASSET,
-  useThanosClient,
+  useTempleClient,
   useNetwork,
   useOnStorageChanged,
   mutezToTz,
   isKnownChainId,
-  ThanosToken,
+  TempleToken,
   useChainId,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import { BCD_NETWORKS_NAMES } from "app/defaults";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
@@ -34,7 +34,7 @@ const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 interface OperationHistoryProps {
   accountPkh: string;
   accountOwner?: string;
-  asset?: ThanosAsset;
+  asset?: TempleAsset;
   className?: string;
 }
 
@@ -69,7 +69,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
         className
       )}
     >
-      {!asset || asset.type === ThanosAssetType.TEZ ? (
+      {!asset || asset.type === TempleAssetType.TEZ ? (
         <AllOperationsList
           accountPkh={accountPkh}
           accountOwner={accountOwner}
@@ -122,7 +122,7 @@ const AllOperationsList: React.FC<AllOperationsListProps> = (props) => {
 };
 
 type TokenOperationsListProps = BaseOperationsListProps & {
-  asset: ThanosToken;
+  asset: TempleToken;
 };
 
 const TokenOperationsList: React.FC<TokenOperationsListProps> = (props) => {
@@ -146,7 +146,7 @@ const TokenOperationsList: React.FC<TokenOperationsListProps> = (props) => {
 type GenericOperationsListProps = {
   accountPkh: string;
   accountOwner?: string;
-  asset?: ThanosAsset;
+  asset?: TempleAsset;
   opsEnded: boolean;
   loading: boolean;
   loadMore: () => void;
@@ -164,7 +164,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
   loading,
   loadMore,
 }) => {
-  const { getAllPndOps, removePndOps } = useThanosClient();
+  const { getAllPndOps, removePndOps } = useTempleClient();
   const network = useNetwork();
 
   const fetchPendingOperations = React.useCallback(async () => {
@@ -231,7 +231,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
         .filter((op) => {
           if (!asset) return true;
 
-          return asset.type === ThanosAssetType.TEZ
+          return asset.type === TempleAssetType.TEZ
             ? op.volume > 0
             : op.internalTransfers[0]?.tokenAddress === asset.address;
         }),

@@ -5,17 +5,17 @@ import { useRetryableSWR } from "lib/swr";
 import {
   isKnownChainId,
   loadChainId,
-  ThanosChainId,
-  ThanosNetwork,
+  TempleChainId,
+  TempleNetwork,
   useNetwork,
   useSettings,
   useTezos,
-  useThanosClient,
+  useTempleClient,
   validateContractAddress,
   confirmOperation,
   getOriginatedContractAddress,
   useChainId,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { COLORS } from "lib/ui/colors";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
 import { useConfirm } from "lib/ui/dialog";
@@ -32,29 +32,29 @@ import SubTitle from "app/atoms/SubTitle";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 
 type NetworkFormData = Pick<
-  ThanosNetwork,
+  TempleNetwork,
   "name" | "rpcBaseURL" | "lambdaContract"
 >;
 type LambdaFormData = {
-  lambdaContract: NonNullable<ThanosNetwork["lambdaContract"]>;
+  lambdaContract: NonNullable<TempleNetwork["lambdaContract"]>;
 };
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 const KNOWN_LAMBDA_CONTRACTS = new Map([
-  [ThanosChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
-  [ThanosChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
-  [ThanosChainId.Edo2net, "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN"],
-  [ThanosChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
+  [TempleChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
+  [TempleChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
+  [TempleChainId.Edo2net, "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN"],
+  [TempleChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
 ]);
 const NETWORK_IDS = new Map<string, string>([
-  [ThanosChainId.Mainnet, "mainnet"],
-  [ThanosChainId.Delphinet, "delphinet"],
-  [ThanosChainId.Edo2net, "edo2net"],
-  [ThanosChainId.Carthagenet, "carthagenet"],
+  [TempleChainId.Mainnet, "mainnet"],
+  [TempleChainId.Delphinet, "delphinet"],
+  [TempleChainId.Edo2net, "edo2net"],
+  [TempleChainId.Carthagenet, "carthagenet"],
 ]);
 
 const CustomNetworksSettings: React.FC = () => {
-  const { updateSettings, defaultNetworks } = useThanosClient();
+  const { updateSettings, defaultNetworks } = useTempleClient();
   const { lambdaContracts = {}, customNetworks = [] } = useSettings();
   const [showNoLambdaWarning, setShowNoLambdaWarning] = useState(false);
   const confirm = useConfirm();
@@ -308,7 +308,7 @@ const CustomNetworksSettings: React.FC = () => {
 export default CustomNetworksSettings;
 
 const LambdaContractSection: React.FC = () => {
-  const { updateSettings } = useThanosClient();
+  const { updateSettings } = useTempleClient();
   const tezos = useTezos();
   const network = useNetwork();
   const netChainId = useChainId(true);
@@ -515,7 +515,7 @@ const LambdaContractSection: React.FC = () => {
 
 type NetworksListItemProps = {
   canRemove: boolean;
-  network: ThanosNetwork;
+  network: TempleNetwork;
   onRemoveClick?: (baseUrl: string) => void;
   last: boolean;
 };

@@ -18,7 +18,7 @@ const Logo: React.FC<LogoProps> = ({
   <div className={classNames("flex items-center", className)} {...rest}>
     <img
       src={logoUrl}
-      alt="Thanos Wallet"
+      alt="Temple Wallet"
       style={{
         height: 40,
         width: "auto",
@@ -36,7 +36,7 @@ const Logo: React.FC<LogoProps> = ({
           dark ? "text-gray-600" : "text-white"
         )}
       >
-        Thanos
+        Temple
       </span>
     )}
   </div>

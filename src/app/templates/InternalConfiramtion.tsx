@@ -2,15 +2,15 @@ import * as React from "react";
 import classNames from "clsx";
 import { localForger } from "@taquito/local-forging";
 import {
-  ThanosAccountType,
-  ThanosAssetType,
-  ThanosConfirmationPayload,
+  TempleAccountType,
+  TempleAssetType,
+  TempleConfirmationPayload,
   tryParseExpenses,
   useAssets,
   useNetwork,
   useRelevantAccounts,
   TEZ_ASSET,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
@@ -32,7 +32,7 @@ import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 
 type InternalConfiramtionProps = {
-  payload: ThanosConfirmationPayload;
+  payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean) => Promise<void>;
 };
 
@@ -86,7 +86,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         asset: tokenAddress
           ? allAssets.find(
               (asset) =>
-                asset.type !== ThanosAssetType.TEZ &&
+                asset.type !== TempleAssetType.TEZ &&
                 asset.address === tokenAddress
             ) || tokenAddress
           : TEZ_ASSET,
@@ -190,7 +190,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               "text-gray-700"
             )}
           >
-            Thanos
+            Temple
           </h1>
         </div>
       </div>
@@ -333,7 +333,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         </div>
 
         <ConfirmLedgerOverlay
-          displayed={confirming && account.type === ThanosAccountType.Ledger}
+          displayed={confirming && account.type === TempleAccountType.Ledger}
         />
       </div>
     </div>

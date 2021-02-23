@@ -2,11 +2,11 @@ import * as React from "react";
 import classNames from "clsx";
 import { Link } from "lib/woozie";
 import {
-  useThanosClient,
+  useTempleClient,
   useRelevantAccounts,
   useAccount,
   useSetAccountPkh,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { T } from "lib/i18n/react";
 import { useAppEnv, openInFullPage } from "app/env";
@@ -31,7 +31,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
   setOpened,
 }) => {
   const appEnv = useAppEnv();
-  const { lock } = useThanosClient();
+  const { lock } = useTempleClient();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();

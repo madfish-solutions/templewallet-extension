@@ -1,6 +1,6 @@
 # Documentation
 
-This doc describes how Thanos Wallet works internally.
+This doc describes how Temple Wallet works internally.
 
 ## Architecture
 

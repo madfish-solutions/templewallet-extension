@@ -1,12 +1,12 @@
 import * as React from "react";
 import { useRetryableSWR } from "lib/swr";
 import {
-  ThanosAsset,
+  TempleAsset,
   useTezos,
   fetchBalance,
   getAssetKey,
   ReactiveTezosToolkit,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 
 type UseBalanceOptions = {
   suspense?: boolean;
@@ -15,7 +15,7 @@ type UseBalanceOptions = {
 };
 
 export function useBalance(
-  asset: ThanosAsset,
+  asset: TempleAsset,
   address: string,
   opts: UseBalanceOptions = {}
 ) {
@@ -54,14 +54,14 @@ export function useBalance(
   );
 }
 
-export function useBalanceSWRKey(asset: ThanosAsset, address: string) {
+export function useBalanceSWRKey(asset: TempleAsset, address: string) {
   const tezos = useTezos();
   return getBalanceSWRKey(tezos, asset, address);
 }
 
 export function getBalanceSWRKey(
   tezos: ReactiveTezosToolkit,
-  asset: ThanosAsset,
+  asset: TempleAsset,
   address: string
 ) {
   return ["balance", tezos.checksum, getAssetKey(asset), address];

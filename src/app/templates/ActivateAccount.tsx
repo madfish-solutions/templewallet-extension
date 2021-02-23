@@ -6,7 +6,7 @@ import {
   useTezos,
   useAccount,
   confirmOperation,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import useIsMounted from "lib/ui/useIsMounted";
 import AccountBanner from "app/templates/AccountBanner";
 import Alert from "app/atoms/Alert";
