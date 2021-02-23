@@ -12,6 +12,18 @@ enum BeaconMessageTarget {
   Extension = "toExtension",
 }
 
+enum LegacyPageMessageType {
+  Request = "THANOS_PAGE_REQUEST",
+  Response = "THANOS_PAGE_RESPONSE",
+  ErrorResponse = "THANOS_PAGE_ERROR_RESPONSE",
+}
+
+interface LegacyPageMessage {
+  type: LegacyPageMessageType;
+  payload: any;
+  reqId?: string | number;
+}
+
 type BeaconMessage =
   | {
       target: BeaconMessageTarget;
@@ -37,7 +49,9 @@ window.addEventListener(
   (evt) => {
     if (evt.source !== window) return;
 
-    if (evt.data?.type === TemplePageMessageType.Request) {
+    const legacyRequest = evt.data?.type === LegacyPageMessageType.Request;
+
+    if (evt.data?.type === TemplePageMessageType.Request || legacyRequest) {
       const { payload, reqId } = evt.data as TemplePageMessage;
 
       getIntercom()
@@ -50,7 +64,9 @@ window.addEventListener(
           if (res?.type === TempleMessageType.PageResponse) {
             send(
               {
-                type: TemplePageMessageType.Response,
+                type: legacyRequest
+                  ? LegacyPageMessageType.Response
+                  : TemplePageMessageType.Response,
                 payload: res.payload,
                 reqId,
               },
@@ -61,7 +77,9 @@ window.addEventListener(
         .catch((err) => {
           send(
             {
-              type: TemplePageMessageType.ErrorResponse,
+              type: legacyRequest
+                ? LegacyPageMessageType.ErrorResponse
+                : TemplePageMessageType.ErrorResponse,
               payload: serealizeError(err),
               reqId,
             },
@@ -105,7 +123,10 @@ window.addEventListener(
   false
 );
 
-function send(msg: TemplePageMessage | BeaconPageMessage, targetOrigin = "*") {
+function send(
+  msg: TemplePageMessage | LegacyPageMessage | BeaconPageMessage,
+  targetOrigin = "*"
+) {
   window.postMessage(msg, targetOrigin);
 }
 
