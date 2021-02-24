@@ -1,12 +1,9 @@
 {
-  "templeAppName": {
+  "appName": {
     "message": "Temple - Portefeuille Tezos"
   },
   "showIncomingTransactions": {
     "message": "Afficher les transactions entrantes"
-  },
-  "appName": {
-    "message": "Thanos - Portefeuille Tezos"
   },
   "appDesc": {
     "message": "🔐💰Portefeuille de cryptomonnaie pour le blockchain Tezos en tant qu'extension Web pour votre navigateur."
@@ -479,9 +476,6 @@
     "message": "Mainnet Tezos",
     "description": "Mainnet = main network"
   },
-  "thanosWalletOptions": {
-    "message": "Portefeuille Thanos | Options"
-  },
   "templeWalletOptions": {
     "message": "Portefeuille Temple | Options"
   },
@@ -489,9 +483,6 @@
     "message": "Réinitialiser l'extension"
   },
   "resetExtensionConfirmation": {
-    "message": "Voulez-vous vraiment réinitialiser le portefeuille Thanos ? Vos données seront ainsi toutes supprimées."
-  },
-  "templeResetExtensionConfirmation": {
     "message": "Voulez-vous vraiment réinitialiser le portefeuille Temple ? Vos données seront ainsi toutes supprimées."
   },
   "failedToResetExtension": {
@@ -541,9 +532,6 @@
     "message": "Créer un nouveau portefeuille"
   },
   "createNewWalletDescription": {
-    "message": "Faites-vous vos premiers dans le portefeuille Thanos ? Configurons-le ! Cela créera un nouveau portefeuille et une phrase mnémonique"
-  },
-  "templeCreateNewWalletDescription": {
     "message": "Faites-vous vos premiers dans le portefeuille Temple ? Configurons-le ! Cela créera un nouveau portefeuille et une phrase mnémonique"
   },
   "delegate": {
@@ -690,9 +678,6 @@
     "description": "DApps = Decentralized Applications"
   },
   "dAppsDescription": {
-    "message": "Dans cette section, vous pouvez activer la possibilité d'interagir avec les applications décentralisées qui prennent en charge le portefeuille Thanos."
-  },
-  "templeDAppsDescription": {
     "message": "Dans cette section, vous pouvez activer la possibilité d'interagir avec les applications décentralisées qui prennent en charge le portefeuille Temple."
   },
   "networksDescription": {
@@ -715,9 +700,6 @@
     "message": "À propos"
   },
   "aboutDescription": {
-    "message": "Utilisez cette section pour afficher les méta-informations concernant le portefeuille Thanos."
-  },
-  "templeAboutDescription": {
     "message": "Utilisez cette section pour afficher les méta-informations concernant le portefeuille Temple."
   },
   "unlockWallet": {

@@ -1,19 +1,19 @@
-# Thanos Wallet
+# Temple - Tezos Wallet (ex. Thanos)
 
 Cryptocurrency wallet for [Tezos blockchain](https://tezos.com) as Web Extension for your Browser.<br>
 Providing ability to manage NFT, tez tokens and interact with dApps.
 
-![Thanos Wallet](https://user-images.githubusercontent.com/11996139/101657370-79c7e100-3a4c-11eb-97e8-eb630eeef633.png)
+![Temple Wallet](https://user-images.githubusercontent.com/11996139/108867944-64e7fc00-75fe-11eb-975e-87c0fda9bfbe.png)
 
 <hr />
 
 ## ▶️ Install
 
-You can install Thanos Wallet right now: https://thanoswallet.com/download.
+You can install Temple Wallet right now: https://templewallet.com/download.
 
 ## Browser Support
 
-| [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png)](https://chrome.google.com/webstore/detail/thanos-wallet/ookjlbkiijinhpmnjffcofjonbfbgaoc) | [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png)](https://addons.mozilla.org/en-US/firefox/addon/thanos-wallet/) | [![Brave](https://raw.github.com/alrra/browser-logos/master/src/brave/brave_48x48.png)](https://chrome.google.com/webstore/detail/thanos-wallet/ookjlbkiijinhpmnjffcofjonbfbgaoc) | [![Opera](https://raw.github.com/alrra/browser-logos/master/src/opera/opera_48x48.png)](https://thanoswallet.com/download) | [![Edge](https://raw.github.com/alrra/browser-logos/master/src/edge/edge_48x48.png)](https://thanoswallet.com/download) | [![Yandex](https://raw.github.com/alrra/browser-logos/master/src/yandex/yandex_48x48.png)](https://thanoswallet.com/download) | [![vivaldi](https://raw.github.com/alrra/browser-logos/master/src/vivaldi/vivaldi_48x48.png)](https://thanoswallet.com/download) |
+| [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png)](https://chrome.google.com/webstore/detail/thanos-wallet/ookjlbkiijinhpmnjffcofjonbfbgaoc) | [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png)](https://addons.mozilla.org/en-US/firefox/addon/thanos-wallet/) | [![Brave](https://raw.github.com/alrra/browser-logos/master/src/brave/brave_48x48.png)](https://chrome.google.com/webstore/detail/thanos-wallet/ookjlbkiijinhpmnjffcofjonbfbgaoc) | [![Opera](https://raw.github.com/alrra/browser-logos/master/src/opera/opera_48x48.png)](https://templewallet.com/download) | [![Edge](https://raw.github.com/alrra/browser-logos/master/src/edge/edge_48x48.png)](https://templewallet.com/download) | [![Yandex](https://raw.github.com/alrra/browser-logos/master/src/yandex/yandex_48x48.png)](https://templewallet.com/download) | [![vivaldi](https://raw.github.com/alrra/browser-logos/master/src/vivaldi/vivaldi_48x48.png)](https://templewallet.com/download) |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | 49 & later ✔                                                                                                                                                                         | 52 & later ✔                                                                                                                                                 | Latest ✔                                                                                                                                                                          | 36 & later 🔜                                                                                                              | 79 & later 🔜                                                                                                           | Latest 🔜                                                                                                                     | Latest 🔜                                                                                                                        |
 
@@ -29,7 +29,7 @@ Then run the following:
 ### 1) Clone the repository
 
 ```bash
-git clone https://github.com/madfish-solutions/thanos-wallet && cd thanos-wallet
+git clone https://github.com/madfish-solutions/templewallet-extension && cd templewallet-extension
 ```
 
 ### 2) Install dependencies
@@ -64,7 +64,7 @@ yarn build-all
 
 ### 4) Load extension to your Browser
 
-![ThanosWallet_Load](https://user-images.githubusercontent.com/11996139/73763346-f8435a80-4779-11ea-9e9d-4c1db9560f64.gif)
+![TempleWallet_Load](https://user-images.githubusercontent.com/11996139/73763346-f8435a80-4779-11ea-9e9d-4c1db9560f64.gif)
 
 ## 🧱 Development
 

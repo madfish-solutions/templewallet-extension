@@ -5,7 +5,7 @@ import {
   useNetwork,
   useSetNetworkId,
   preloadTokens,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import Popper from "lib/ui/Popper";
 import { T } from "lib/i18n/react";
 import DropdownWrapper from "app/atoms/DropdownWrapper";

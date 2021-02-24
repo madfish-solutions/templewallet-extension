@@ -1,15 +1,27 @@
 import { browser } from "webextension-polyfill-ts";
 import { IntercomClient } from "lib/intercom/client";
 import { serealizeError } from "lib/intercom/helpers";
-import { ThanosMessageType, ThanosResponse } from "lib/thanos/types";
+import { TempleMessageType, TempleResponse } from "lib/temple/types";
 import {
-  ThanosPageMessage,
-  ThanosPageMessageType,
-} from "@thanos-wallet/dapp/dist/types";
+  TemplePageMessage,
+  TemplePageMessageType,
+} from "@temple-wallet/dapp/dist/types";
 
 enum BeaconMessageTarget {
   Page = "toPage",
   Extension = "toExtension",
+}
+
+enum LegacyPageMessageType {
+  Request = "THANOS_PAGE_REQUEST",
+  Response = "THANOS_PAGE_RESPONSE",
+  ErrorResponse = "THANOS_PAGE_ERROR_RESPONSE",
+}
+
+interface LegacyPageMessage {
+  type: LegacyPageMessageType;
+  payload: any;
+  reqId?: string | number;
 }
 
 type BeaconMessage =
@@ -28,8 +40,8 @@ type BeaconPageMessage =
 
 const SENDER = {
   id: browser.runtime.id,
-  name: "Thanos Wallet",
-  iconUrl: process.env.THANOS_WALLET_LOGO_URL || undefined,
+  name: "Temple - Tezos Wallet (ex. Thanos)",
+  iconUrl: process.env.TEMPLE_WALLET_LOGO_URL || undefined,
 };
 
 window.addEventListener(
@@ -37,20 +49,24 @@ window.addEventListener(
   (evt) => {
     if (evt.source !== window) return;
 
-    if (evt.data?.type === ThanosPageMessageType.Request) {
-      const { payload, reqId } = evt.data as ThanosPageMessage;
+    const legacyRequest = evt.data?.type === LegacyPageMessageType.Request;
+
+    if (evt.data?.type === TemplePageMessageType.Request || legacyRequest) {
+      const { payload, reqId } = evt.data as TemplePageMessage;
 
       getIntercom()
         .request({
-          type: ThanosMessageType.PageRequest,
+          type: TempleMessageType.PageRequest,
           origin: evt.origin,
           payload,
         })
-        .then((res: ThanosResponse) => {
-          if (res?.type === ThanosMessageType.PageResponse) {
+        .then((res: TempleResponse) => {
+          if (res?.type === TempleMessageType.PageResponse) {
             send(
               {
-                type: ThanosPageMessageType.Response,
+                type: legacyRequest
+                  ? LegacyPageMessageType.Response
+                  : TemplePageMessageType.Response,
                 payload: res.payload,
                 reqId,
               },
@@ -61,7 +77,9 @@ window.addEventListener(
         .catch((err) => {
           send(
             {
-              type: ThanosPageMessageType.ErrorResponse,
+              type: legacyRequest
+                ? LegacyPageMessageType.ErrorResponse
+                : TemplePageMessageType.ErrorResponse,
               payload: serealizeError(err),
               reqId,
             },
@@ -74,14 +92,14 @@ window.addEventListener(
     ) {
       getIntercom()
         .request({
-          type: ThanosMessageType.PageRequest,
+          type: TempleMessageType.PageRequest,
           origin: evt.origin,
           payload: evt.data.encryptedPayload ?? evt.data.payload,
           beacon: true,
           encrypted: Boolean(evt.data.encryptedPayload),
         })
-        .then((res: ThanosResponse) => {
-          if (res?.type === ThanosMessageType.PageResponse && res.payload) {
+        .then((res: TempleResponse) => {
+          if (res?.type === TempleMessageType.PageResponse && res.payload) {
             const message = {
               target: BeaconMessageTarget.Page,
               ...(res.encrypted
@@ -105,7 +123,10 @@ window.addEventListener(
   false
 );
 
-function send(msg: ThanosPageMessage | BeaconPageMessage, targetOrigin = "*") {
+function send(
+  msg: TemplePageMessage | LegacyPageMessage | BeaconPageMessage,
+  targetOrigin = "*"
+) {
   window.postMessage(msg, targetOrigin);
 }
 

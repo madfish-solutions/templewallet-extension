@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Thanos Wallet",
+  "name": "Temple - Tezos Wallet (ex. Thanos)",
   "version": "1.4.6",
   "__chrome__version_name": "1.4.6",
 
@@ -12,8 +12,8 @@
   },
 
   "description": "__MSG_appDesc__",
-  "homepage_url": "https://github.com/madfish-solutions/thanos",
-  "short_name": "Thanos Wallet",
+  "homepage_url": "https://github.com/madfish-solutions/templewallet-extension",
+  "short_name": "Temple - Tezos Wallet (ex. Thanos)",
 
   "permissions": [
     "storage",
@@ -49,7 +49,7 @@
       "38": "misc/icon-38.png",
       "128": "misc/icon-128.png"
     },
-    "default_title": "Thanos Wallet",
+    "default_title": "Temple - Tezos Wallet (ex. Thanos)",
     "__chrome|opera__chrome_style": false,
     "__firefox__browser_style": false
   },

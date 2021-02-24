@@ -1,7 +1,7 @@
-import { ThanosNetwork } from "lib/thanos/types";
+import { TempleNetwork } from "lib/temple/types";
 import { getMessage } from "lib/i18n";
 
-export const NETWORKS: ThanosNetwork[] = [
+export const NETWORKS: TempleNetwork[] = [
   {
     id: "mainnet",
     name: getMessage("tezosMainnet"),

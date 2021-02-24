@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
-import { useThanosClient } from "lib/thanos/front";
+import { useTempleClient } from "lib/temple/front";
 import Portal from "lib/ui/Portal";
 import DocBg from "app/a11y/DocBg";
 import InternalConfiramtion from "app/templates/InternalConfiramtion";
@@ -11,7 +11,7 @@ const ConfirmationOverlay: React.FC = () => {
     confirmation,
     resetConfirmation,
     confirmInternal,
-  } = useThanosClient();
+  } = useTempleClient();
   const displayed = Boolean(confirmation);
 
   React.useLayoutEffect(() => {

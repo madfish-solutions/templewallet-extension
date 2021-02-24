@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { OperationsPreview } from "lib/thanos/front";
+import { OperationsPreview } from "lib/temple/front";
 
 export type RawOperationAssetExpense = {
   tokenAddress?: string;

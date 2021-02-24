@@ -1,8 +1,8 @@
 import memoize from "micro-memoize";
 import { TezosToolkit, WalletContract } from "@taquito/taquito";
-import { ThanosChainId } from "lib/thanos/types";
+import { TempleChainId } from "lib/temple/types";
 
-const KNOWN_CHAIN_IDS = Object.values(ThanosChainId) as string[];
+const KNOWN_CHAIN_IDS = Object.values(TempleChainId) as string[];
 
 export const loadContract = memoize(fetchContract, {
   isPromise: true,
@@ -37,11 +37,11 @@ export async function loadContractForCallLambdaView(
 
 class LambdaViewSigner {
   async publicKeyHash() {
-    return process.env.THANOS_WALLET_LV_ACCOUNT_PKH!;
+    return process.env.TEMPLE_WALLET_LV_ACCOUNT_PKH!;
   }
 
   async publicKey() {
-    return process.env.THANOS_WALLET_LV_ACCOUNT_PUBLIC_KEY!;
+    return process.env.TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY!;
   }
 
   async secretKey(): Promise<string> {
@@ -59,11 +59,11 @@ class LambdaViewSigner {
 }
 
 if (
-  !process.env.THANOS_WALLET_LV_ACCOUNT_PKH ||
-  !process.env.THANOS_WALLET_LV_ACCOUNT_PUBLIC_KEY
+  !process.env.TEMPLE_WALLET_LV_ACCOUNT_PKH ||
+  !process.env.TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY
 ) {
   throw new Error(
-    "Require a 'THANOS_WALLET_LV_ACCOUNT_PKH' and " +
-      "'THANOS_WALLET_LV_ACCOUNT_PUBLIC_KEY' environment variable to be set"
+    "Require a 'TEMPLE_WALLET_LV_ACCOUNT_PKH' and " +
+      "'TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY' environment variable to be set"
   );
 }

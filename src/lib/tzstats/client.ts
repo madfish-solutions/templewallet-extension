@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { ThanosChainId } from "lib/thanos/types";
+import { TempleChainId } from "lib/temple/types";
 import {
   TZStatsNetwork,
   ErrorData,
@@ -13,10 +13,10 @@ import {
 } from "lib/tzstats/types";
 
 export const TZSTATS_CHAINS = new Map([
-  [ThanosChainId.Mainnet, TZStatsNetwork.Mainnet],
-  [ThanosChainId.Delphinet, TZStatsNetwork.Delphinet],
-  [ThanosChainId.Edo2net, TZStatsNetwork.Edonet],
-  [ThanosChainId.Carthagenet, TZStatsNetwork.Carthagenet],
+  [TempleChainId.Mainnet, TZStatsNetwork.Mainnet],
+  [TempleChainId.Delphinet, TZStatsNetwork.Delphinet],
+  [TempleChainId.Edo2net, TZStatsNetwork.Edonet],
+  [TempleChainId.Carthagenet, TZStatsNetwork.Carthagenet],
 ]);
 
 export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;

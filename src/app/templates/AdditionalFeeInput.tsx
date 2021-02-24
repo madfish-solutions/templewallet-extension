@@ -2,7 +2,7 @@ import classNames from "clsx";
 import React, { useCallback, useRef, useState } from "react";
 import { Controller, ControllerProps, FieldError } from "react-hook-form";
 import BigNumber from "bignumber.js";
-import { TEZ_ASSET } from "lib/thanos/front";
+import { TEZ_ASSET } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
 import AssetField from "app/atoms/AssetField";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";

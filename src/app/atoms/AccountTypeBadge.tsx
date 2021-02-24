@@ -1,10 +1,10 @@
 import * as React from "react";
 import classNames from "clsx";
-import { ThanosAccount } from "lib/thanos/front";
+import { TempleAccount } from "lib/temple/front";
 import { getAccountBadgeTitle } from "app/defaults";
 
 type AccountTypeBadgeProps = {
-  account: Pick<ThanosAccount, "type">;
+  account: Pick<TempleAccount, "type">;
   darkTheme?: boolean;
 };
 

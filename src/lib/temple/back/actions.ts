@@ -1,20 +1,20 @@
 import { browser, Runtime } from "webextension-polyfill-ts";
 import { TezosOperationError } from "@taquito/taquito";
 import {
-  ThanosDAppMessageType,
-  ThanosDAppErrorType,
-  ThanosDAppRequest,
-  ThanosDAppResponse,
-} from "@thanos-wallet/dapp/dist/types";
+  TempleDAppMessageType,
+  TempleDAppErrorType,
+  TempleDAppRequest,
+  TempleDAppResponse,
+} from "@temple-wallet/dapp/dist/types";
 import {
-  ThanosState,
-  ThanosMessageType,
-  ThanosRequest,
-  ThanosSettings,
-  ThanosSharedStorageKey,
-} from "lib/thanos/types";
-import { loadChainId } from "lib/thanos/helpers";
-import { intercom } from "lib/thanos/back/defaults";
+  TempleState,
+  TempleMessageType,
+  TempleRequest,
+  TempleSettings,
+  TempleSharedStorageKey,
+} from "lib/temple/types";
+import { loadChainId } from "lib/temple/helpers";
+import { intercom } from "lib/temple/back/defaults";
 import {
   toFront,
   store,
@@ -25,8 +25,8 @@ import {
   settingsUpdated,
   withInited,
   withUnlocked,
-} from "lib/thanos/back/store";
-import { Vault } from "lib/thanos/back/vault";
+} from "lib/temple/back/store";
+import { Vault } from "lib/temple/back/vault";
 import {
   getCurrentPermission,
   requestPermission,
@@ -35,20 +35,20 @@ import {
   requestBroadcast,
   getAllDApps,
   removeDApp,
-} from "lib/thanos/back/dapp";
-import * as PndOps from "lib/thanos/back/pndops";
-import * as Beacon from "lib/thanos/beacon";
+} from "lib/temple/back/dapp";
+import * as PndOps from "lib/temple/back/pndops";
+import * as Beacon from "lib/temple/beacon";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
-const BEACON_ID = `thanos_wallet_${browser.runtime.id}`;
+const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
 
 export async function init() {
   const vaultExist = await Vault.isExist();
   inited(vaultExist);
 }
 
-export async function getFrontState(): Promise<ThanosState> {
+export async function getFrontState(): Promise<TempleState> {
   const state = store.getState();
   if (state.inited) {
     return toFront(state);
@@ -62,7 +62,7 @@ export async function isDAppEnabled() {
   const bools = await Promise.all([
     Vault.isExist(),
     (async () => {
-      const key = ThanosSharedStorageKey.DAppEnabled;
+      const key = TempleSharedStorageKey.DAppEnabled;
       const items = await browser.storage.local.get([key]);
       return key in items ? items[key] : true;
     })(),
@@ -217,7 +217,7 @@ export function craeteLedgerAccount(name: string, derivationPath?: string) {
   });
 }
 
-export function updateSettings(settings: Partial<ThanosSettings>) {
+export function updateSettings(settings: Partial<TempleSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
     settingsUpdated(updatedSettings);
@@ -243,7 +243,7 @@ export function sendOperations(
     () =>
       new Promise(async (resolve, reject) => {
         intercom.notify(port, {
-          type: ThanosMessageType.ConfirmationRequested,
+          type: TempleMessageType.ConfirmationRequested,
           id,
           payload: {
             type: "operations",
@@ -264,7 +264,7 @@ export function sendOperations(
             stopDisconnectListening();
 
             intercom.notify(port, {
-              type: ThanosMessageType.ConfirmationExpired,
+              type: TempleMessageType.ConfirmationExpired,
               id,
             });
           } catch (_err) {}
@@ -279,10 +279,10 @@ export function sendOperations(
         };
 
         const stopRequestListening = intercom.onRequest(
-          async (req: ThanosRequest, reqPort) => {
+          async (req: TempleRequest, reqPort) => {
             if (
               reqPort === port &&
-              req?.type === ThanosMessageType.ConfirmationRequest &&
+              req?.type === TempleMessageType.ConfirmationRequest &&
               req?.id === id
             ) {
               if (req.confirmed) {
@@ -312,7 +312,7 @@ export function sendOperations(
               close();
 
               return {
-                type: ThanosMessageType.ConfirmationResponse,
+                type: TempleMessageType.ConfirmationResponse,
               };
             }
             return;
@@ -342,7 +342,7 @@ export function sign(
     () =>
       new Promise(async (resolve, reject) => {
         intercom.notify(port, {
-          type: ThanosMessageType.ConfirmationRequested,
+          type: TempleMessageType.ConfirmationRequested,
           id,
           payload: {
             type: "sign",
@@ -363,7 +363,7 @@ export function sign(
             stopDisconnectListening();
 
             intercom.notify(port, {
-              type: ThanosMessageType.ConfirmationExpired,
+              type: TempleMessageType.ConfirmationExpired,
               id,
             });
           } catch (_err) {}
@@ -378,10 +378,10 @@ export function sign(
         };
 
         const stopRequestListening = intercom.onRequest(
-          async (req: ThanosRequest, reqPort) => {
+          async (req: TempleRequest, reqPort) => {
             if (
               reqPort === port &&
-              req?.type === ThanosMessageType.ConfirmationRequest &&
+              req?.type === TempleMessageType.ConfirmationRequest &&
               req?.id === id
             ) {
               if (req.confirmed) {
@@ -396,7 +396,7 @@ export function sign(
               close();
 
               return {
-                type: ThanosMessageType.ConfirmationResponse,
+                type: TempleMessageType.ConfirmationResponse,
               };
             }
             return;
@@ -417,22 +417,22 @@ export function sign(
 
 export async function processDApp(
   origin: string,
-  req: ThanosDAppRequest
-): Promise<ThanosDAppResponse | void> {
+  req: TempleDAppRequest
+): Promise<TempleDAppResponse | void> {
   switch (req?.type) {
-    case ThanosDAppMessageType.GetCurrentPermissionRequest:
+    case TempleDAppMessageType.GetCurrentPermissionRequest:
       return withInited(() => getCurrentPermission(origin));
 
-    case ThanosDAppMessageType.PermissionRequest:
+    case TempleDAppMessageType.PermissionRequest:
       return withInited(() => requestPermission(origin, req));
 
-    case ThanosDAppMessageType.OperationRequest:
+    case TempleDAppMessageType.OperationRequest:
       return withInited(() => requestOperation(origin, req));
 
-    case ThanosDAppMessageType.SignRequest:
+    case TempleDAppMessageType.SignRequest:
       return withInited(() => requestSign(origin, req));
 
-    case ThanosDAppMessageType.BroadcastRequest:
+    case TempleDAppMessageType.BroadcastRequest:
       return withInited(() => requestBroadcast(origin, req));
   }
 }
@@ -507,7 +507,7 @@ export async function processBeacon(
   const res = await (async (): Promise<Beacon.Response> => {
     try {
       try {
-        const thanosReq = ((): ThanosDAppRequest | void => {
+        const templeReq = ((): TempleDAppRequest | void => {
           switch (req.type) {
             case Beacon.MessageType.PermissionRequest:
               const network =
@@ -519,7 +519,7 @@ export async function processBeacon(
                   : req.network.type;
 
               return {
-                type: ThanosDAppMessageType.PermissionRequest,
+                type: TempleDAppMessageType.PermissionRequest,
                 network: network === "edonet" ? "edo2net" : (network as any),
                 appMeta: req.appMetadata,
                 force: true,
@@ -527,37 +527,37 @@ export async function processBeacon(
 
             case Beacon.MessageType.OperationRequest:
               return {
-                type: ThanosDAppMessageType.OperationRequest,
+                type: TempleDAppMessageType.OperationRequest,
                 sourcePkh: req.sourceAddress,
                 opParams: req.operationDetails.map(Beacon.formatOpParams),
               };
 
             case Beacon.MessageType.SignPayloadRequest:
               return {
-                type: ThanosDAppMessageType.SignRequest,
+                type: TempleDAppMessageType.SignRequest,
                 sourcePkh: req.sourceAddress,
                 payload: req.payload,
               };
 
             case Beacon.MessageType.BroadcastRequest:
               return {
-                type: ThanosDAppMessageType.BroadcastRequest,
+                type: TempleDAppMessageType.BroadcastRequest,
                 signedOpBytes: req.signedTransaction,
               };
           }
         })();
 
-        if (thanosReq) {
-          const thanosRes = await processDApp(origin, thanosReq);
+        if (templeReq) {
+          const templeRes = await processDApp(origin, templeReq);
 
-          if (thanosRes) {
-            // Map Thanos DApp response to Beacon response
-            switch (thanosRes.type) {
-              case ThanosDAppMessageType.PermissionResponse:
+          if (templeRes) {
+            // Map Temple DApp response to Beacon response
+            switch (templeRes.type) {
+              case TempleDAppMessageType.PermissionResponse:
                 return {
                   ...resBase,
                   type: Beacon.MessageType.PermissionResponse,
-                  publicKey: (thanosRes as any).publicKey,
+                  publicKey: (templeRes as any).publicKey,
                   network: (req as Beacon.PermissionRequest).network,
                   scopes: [
                     Beacon.PermissionScope.OPERATION_REQUEST,
@@ -565,25 +565,25 @@ export async function processBeacon(
                   ],
                 };
 
-              case ThanosDAppMessageType.OperationResponse:
+              case TempleDAppMessageType.OperationResponse:
                 return {
                   ...resBase,
                   type: Beacon.MessageType.OperationResponse,
-                  transactionHash: thanosRes.opHash,
+                  transactionHash: templeRes.opHash,
                 };
 
-              case ThanosDAppMessageType.SignResponse:
+              case TempleDAppMessageType.SignResponse:
                 return {
                   ...resBase,
                   type: Beacon.MessageType.SignPayloadResponse,
-                  signature: thanosRes.signature,
+                  signature: templeRes.signature,
                 };
 
-              case ThanosDAppMessageType.BroadcastResponse:
+              case TempleDAppMessageType.BroadcastResponse:
                 return {
                   ...resBase,
                   type: Beacon.MessageType.BroadcastResponse,
-                  transactionHash: thanosRes.opHash,
+                  transactionHash: templeRes.opHash,
                 };
             }
           }
@@ -595,14 +595,14 @@ export async function processBeacon(
           throw err;
         }
 
-        // Map Thanos DApp error to Beacon error
+        // Map Temple DApp error to Beacon error
         const beaconErrorType = (() => {
           switch (err?.message) {
-            case ThanosDAppErrorType.InvalidParams:
+            case TempleDAppErrorType.InvalidParams:
               return Beacon.ErrorType.PARAMETERS_INVALID_ERROR;
 
-            case ThanosDAppErrorType.NotFound:
-            case ThanosDAppErrorType.NotGranted:
+            case TempleDAppErrorType.NotFound:
+            case TempleDAppErrorType.NotGranted:
               return req.beaconId
                 ? Beacon.ErrorType.NOT_GRANTED_ERROR
                 : Beacon.ErrorType.ABORTED_ERROR;

@@ -5,7 +5,7 @@ import {
   TZStatsNetwork,
   TZStatsOperation,
 } from "lib/tzstats";
-import { ThanosToken } from "lib/thanos/types";
+import { TempleToken } from "lib/temple/types";
 import {
   useOpsPagination,
   groupOpsByHash,
@@ -15,7 +15,7 @@ export type GetOperationsParams = {
   accountPkh: string;
   tzStatsNetwork: TZStatsNetwork | null;
   networkId: "mainnet" | "edo2net" | "delphinet" | null;
-  asset: ThanosToken;
+  asset: TempleToken;
 };
 
 export default function useTokensOperations({

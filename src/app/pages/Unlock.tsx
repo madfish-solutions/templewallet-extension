@@ -3,7 +3,7 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { Link } from "lib/woozie";
 import { T, t } from "lib/i18n/react";
-import { useThanosClient } from "lib/thanos/front";
+import { useTempleClient } from "lib/temple/front";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -19,7 +19,7 @@ type FormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 
 const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
-  const { unlock } = useThanosClient();
+  const { unlock } = useTempleClient();
 
   const formRef = React.useRef<HTMLFormElement>(null);
 

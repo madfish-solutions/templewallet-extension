@@ -4,8 +4,8 @@ import {
   useTokens,
   useAllAssetsRef,
   getAssetKey,
-  ThanosAsset,
-} from "lib/thanos/front";
+  TempleAsset,
+} from "lib/temple/front";
 
 export function useAssets() {
   const { displayedTokens } = useTokens();
@@ -35,7 +35,7 @@ export function useAssetBySlug(slug?: string | null) {
 
 export const ASSET_FIELDS_TO_SEARCH = ["symbol", "name", "address"];
 
-export function searchAssets<T extends ThanosAsset>(
+export function searchAssets<T extends TempleAsset>(
   assets: T[],
   searchValue: string
 ) {

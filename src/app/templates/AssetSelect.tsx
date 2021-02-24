@@ -1,14 +1,14 @@
 import * as React from "react";
 import classNames from "clsx";
 import {
-  ThanosAsset,
+  TempleAsset,
   useAssets,
   useAccount,
-  ThanosAssetType,
-  ThanosAccountType,
+  TempleAssetType,
+  TempleAccountType,
   getAssetKey,
   TEZ_ASSET,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { T } from "lib/i18n/react";
 import InUSD from "app/templates/InUSD";
 import GenericAssetIcon from "app/templates/AssetIcon";
@@ -19,8 +19,8 @@ import IconifiedSelect, {
 } from "app/templates/IconifiedSelect";
 
 type AssetSelectProps = {
-  value: ThanosAsset;
-  onChange?: (a: ThanosAsset) => void;
+  value: TempleAsset;
+  onChange?: (a: TempleAsset) => void;
   className?: string;
 };
 
@@ -33,7 +33,7 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
   const { allAssets } = useAssets();
   const relevantAssets = React.useMemo(
     () =>
-      account.type === ThanosAccountType.ManagedKT ? [TEZ_ASSET] : allAssets,
+      account.type === TempleAccountType.ManagedKT ? [TEZ_ASSET] : allAssets,
     [account.type, allAssets]
   );
 
@@ -81,7 +81,7 @@ const AssetSelect: React.FC<AssetSelectProps> = ({
 
 export default AssetSelect;
 
-type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<ThanosAsset>;
+type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<TempleAsset>;
 
 const AssetIcon: React.FC<AssetSelectOptionRenderProps> = ({ option }) => (
   <GenericAssetIcon asset={option} className="h-8 w-auto mr-3" size={32} />
@@ -96,7 +96,7 @@ const AssetSelectedIcon: React.FC<AssetSelectOptionRenderProps> = ({
 const AssetInMenuContent: React.FC<AssetSelectOptionRenderProps> = ({
   option,
 }) => {
-  return option.type === ThanosAssetType.TEZ ? (
+  return option.type === TempleAssetType.TEZ ? (
     <span className="text-gray-700 text-lg">{option.name}</span>
   ) : (
     <div className="flex flex-col items-start">
