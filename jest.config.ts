@@ -14,4 +14,5 @@ export default {
     ".+\\.ts$": "ts-jest",
   },
   moduleFileExtensions: ["ts", "js"],
+  setupFilesAfterEnv: ['./jest.setup.js'],
 };

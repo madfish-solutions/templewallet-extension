@@ -2063,6 +2063,14 @@
   dependencies:
     "@types/node" "*"
 
+"@types/chrome@^0.0.114":
+  version "0.0.114"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.114.tgz#8ceb33fa261f4b9e307fa7344ba8182d8d410d4e"
+  integrity sha512-i7qRr74IrxHtbnrZSKUuP5Uvd5EOKwlwJq/yp7+yTPihOXnPhNQO4Z5bqb1XTnrjdbUKEJicaVVbhcgtRijmLA==
+  dependencies:
+    "@types/filesystem" "*"
+    "@types/har-format" "*"
+
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
@@ -2079,6 +2087,18 @@
   integrity sha512-gP1KsqoouLJGH6IJa28x7PXb3cRqh83X8HCLezd2dF+XcAIMKYv53KV+9Zn6QA561E120uOqZBQ+Jy/cl+fviw==
   dependencies:
     "@types/bn.js" "*"
+
+"@types/filesystem@*":
+  version "0.0.29"
+  resolved "https://registry.yarnpkg.com/@types/filesystem/-/filesystem-0.0.29.tgz#ee3748eb5be140dcf980c3bd35f11aec5f7a3748"
+  integrity sha512-85/1KfRedmfPGsbK8YzeaQUyV1FQAvMPMTuWFQ5EkLd2w7szhNO96bk3Rh/SKmOfd9co2rCLf0Voy4o7ECBOvw==
+  dependencies:
+    "@types/filewriter" "*"
+
+"@types/filewriter@*":
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/@types/filewriter/-/filewriter-0.0.28.tgz#c054e8af4d9dd75db4e63abc76f885168714d4b3"
+  integrity sha1-wFTor02d11205jq8dviFFocU1LM=
 
 "@types/fontfaceobserver@0.0.6":
   version "0.0.6"
@@ -2099,6 +2119,11 @@
   integrity sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==
   dependencies:
     "@types/node" "*"
+
+"@types/har-format@*":
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@types/har-format/-/har-format-1.2.5.tgz#4f6648814d0fdcb6a510e3364a9db439a753c4b1"
+  integrity sha512-IG8AE1m2pWtPqQ7wXhFhy6Q59bwwnLwO36v5Rit2FrbXCIp8Sk8E2PfUCreyrdo17STwFSKDAkitVuVYbpEHvQ==
 
 "@types/html-minifier-terser@^5.0.0":
   version "5.1.0"
@@ -6677,6 +6702,13 @@ jest-changed-files@^26.6.2:
     execa "^4.0.0"
     throat "^5.0.0"
 
+jest-chrome@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/jest-chrome/-/jest-chrome-0.7.0.tgz#4a2105370f916abf20cf5f389d0818698c28b05a"
+  integrity sha512-afOzmTh3Nzr1FDKU/nsfIi/OmyScl6Pd6+jdqaBoRNwdGdYnMEWgZKW73KesdcywnLBEHRCKO4ftY+VTbqgPww==
+  dependencies:
+    "@types/chrome" "^0.0.114"
+
 jest-cli@^26.6.3:
   version "26.6.3"
   resolved "https://registry.yarnpkg.com/jest-cli/-/jest-cli-26.6.3.tgz#43117cfef24bc4cd691a174a8796a532e135e92a"
@@ -7877,16 +7909,6 @@ mkdirp@^0.5.1, mkdirp@^0.5.3, mkdirp@~0.5.1:
   integrity sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==
   dependencies:
     minimist "^1.2.5"
-
-mockzilla-webextension@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/mockzilla-webextension/-/mockzilla-webextension-0.9.0.tgz#179160708ad53cbc93667d85438b15e06cd9caa4"
-  integrity sha512-G4VVxJ0fbdN9eBy6n8CxmyyWc5VC7k7zTUYeghshkUDdsAdr6Tos4T2349Qangl4wu6oRZ9AO6ShozBoXXwY4A==
-
-mockzilla@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/mockzilla/-/mockzilla-0.9.0.tgz#c1b56afd57476abc14b90ffc10509bb2da03daf7"
-  integrity sha512-JkVFqrdep3JtaqKh1QC5pV3KzjXtoJp5T32IsuPeZ3kMUcixm/4np3ytNd5OV/QjWn/VsSrd4Ti3dFgVLl9+2A==
 
 move-concurrently@^1.0.1:
   version "1.0.1"
