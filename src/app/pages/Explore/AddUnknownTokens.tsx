@@ -9,8 +9,8 @@ import {
   assertTokenType,
   loadContract,
   useTezos,
-} from "lib/thanos/front";
-import { ThanosAssetType, ThanosToken } from "lib/thanos/types";
+} from "lib/temple/front";
+import { TempleAssetType, TempleToken } from "lib/temple/types";
 import { BCD_NETWORKS_NAMES } from "app/defaults";
 
 const AddUnknownTokens: React.FC = () => {
@@ -43,7 +43,7 @@ const AddUnknownTokens: React.FC = () => {
           if (
             assetsRef.current.every(
               (knownAsset) =>
-                knownAsset.type === ThanosAssetType.TEZ ||
+                knownAsset.type === TempleAssetType.TEZ ||
                 !tokensAreSame(knownAsset, token)
             ) &&
             !hiddenTokens.some((hiddenToken) =>
@@ -55,7 +55,7 @@ const AddUnknownTokens: React.FC = () => {
             let isFA12Token = false;
             try {
               await assertTokenType(
-                ThanosAssetType.FA1_2,
+                TempleAssetType.FA1_2,
                 await loadContract(tezos, token.contract, false),
                 tezos
               );
@@ -71,13 +71,13 @@ const AddUnknownTokens: React.FC = () => {
             if (isFA12Token) {
               addToken({
                 ...baseTokenProps,
-                type: ThanosAssetType.FA1_2,
+                type: TempleAssetType.FA1_2,
               });
             } else {
               addToken({
                 ...baseTokenProps,
                 id: token.token_id,
-                type: ThanosAssetType.FA2,
+                type: TempleAssetType.FA2,
               });
             }
           }
@@ -94,9 +94,9 @@ const AddUnknownTokens: React.FC = () => {
 
 export default AddUnknownTokens;
 
-function tokensAreSame(token1: ThanosToken, token2: BcdAccountToken) {
+function tokensAreSame(token1: TempleToken, token2: BcdAccountToken) {
   return (
     token1.address === token2.contract &&
-    (token1.type !== ThanosAssetType.FA2 || token1.id === token2.token_id)
+    (token1.type !== TempleAssetType.FA2 || token1.id === token2.token_id)
   );
 }

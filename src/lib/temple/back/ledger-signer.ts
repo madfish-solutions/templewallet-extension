@@ -15,7 +15,7 @@ import {
   LedgerTransport,
   DerivationType,
 } from "@taquito/ledger-signer";
-import { PublicError } from "lib/thanos/back/defaults";
+import { PublicError } from "lib/temple/back/defaults";
 
 type curves = "ed" | "p2" | "sp";
 
@@ -40,7 +40,7 @@ const pref = {
   },
 };
 
-export class ThanosLedgerSigner extends LedgerSigner {
+export class TempleLedgerSigner extends LedgerSigner {
   constructor(
     transport: LedgerTransport,
     path: string = "44'/1729'/0'/0'",

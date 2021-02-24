@@ -7,32 +7,32 @@ import { emitMicheline } from "@taquito/michel-codec";
 import { valueDecoder } from "@taquito/local-forging/dist/lib/michelson/codec";
 import { Uint8ArrayConsumer } from "@taquito/local-forging/dist/lib/uint8array-consumer";
 import {
-  ThanosDAppMessageType,
-  ThanosDAppErrorType,
-  ThanosDAppGetCurrentPermissionResponse,
-  ThanosDAppPermissionRequest,
-  ThanosDAppPermissionResponse,
-  ThanosDAppOperationRequest,
-  ThanosDAppOperationResponse,
-  ThanosDAppSignRequest,
-  ThanosDAppSignResponse,
-  ThanosDAppBroadcastRequest,
-  ThanosDAppBroadcastResponse,
-  ThanosDAppNetwork,
-} from "@thanos-wallet/dapp/dist/types";
+  TempleDAppMessageType,
+  TempleDAppErrorType,
+  TempleDAppGetCurrentPermissionResponse,
+  TempleDAppPermissionRequest,
+  TempleDAppPermissionResponse,
+  TempleDAppOperationRequest,
+  TempleDAppOperationResponse,
+  TempleDAppSignRequest,
+  TempleDAppSignResponse,
+  TempleDAppBroadcastRequest,
+  TempleDAppBroadcastResponse,
+  TempleDAppNetwork,
+} from "@temple-wallet/dapp/dist/types";
 import {
-  ThanosMessageType,
-  ThanosRequest,
-  ThanosDAppPayload,
-  ThanosDAppSession,
-  ThanosDAppSessions,
-} from "lib/thanos/types";
-import { intercom } from "lib/thanos/back/defaults";
-import * as PndOps from "lib/thanos/back/pndops";
-import * as Beacon from "lib/thanos/beacon";
-import { withUnlocked } from "lib/thanos/back/store";
-import { NETWORKS } from "lib/thanos/networks";
-import { loadChainId, isAddressValid } from "lib/thanos/helpers";
+  TempleMessageType,
+  TempleRequest,
+  TempleDAppPayload,
+  TempleDAppSession,
+  TempleDAppSessions,
+} from "lib/temple/types";
+import { intercom } from "lib/temple/back/defaults";
+import * as PndOps from "lib/temple/back/pndops";
+import * as Beacon from "lib/temple/beacon";
+import { withUnlocked } from "lib/temple/back/store";
+import { NETWORKS } from "lib/temple/networks";
+import { loadChainId, isAddressValid } from "lib/temple/helpers";
 
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 600;
@@ -43,7 +43,7 @@ const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d657373
 
 export async function getCurrentPermission(
   origin: string
-): Promise<ThanosDAppGetCurrentPermissionResponse> {
+): Promise<TempleDAppGetCurrentPermissionResponse> {
   const dApp = await getDApp(origin);
   const permission = dApp
     ? {
@@ -53,22 +53,22 @@ export async function getCurrentPermission(
       }
     : null;
   return {
-    type: ThanosDAppMessageType.GetCurrentPermissionResponse,
+    type: TempleDAppMessageType.GetCurrentPermissionResponse,
     permission,
   };
 }
 
 export async function requestPermission(
   origin: string,
-  req: ThanosDAppPermissionRequest
-): Promise<ThanosDAppPermissionResponse> {
+  req: TempleDAppPermissionRequest
+): Promise<TempleDAppPermissionResponse> {
   if (
     ![
       isAllowedNetwork(req?.network),
       typeof req?.appMeta?.name === "string",
     ].every(Boolean)
   ) {
-    throw new Error(ThanosDAppErrorType.InvalidParams);
+    throw new Error(TempleDAppErrorType.InvalidParams);
   }
 
   const networkRpc = getNetworkRPC(req.network);
@@ -81,7 +81,7 @@ export async function requestPermission(
     req.appMeta.name === dApp.appMeta.name
   ) {
     return {
-      type: ThanosDAppMessageType.PermissionResponse,
+      type: TempleDAppMessageType.PermissionResponse,
       rpc: networkRpc,
       pkh: dApp.pkh,
       publicKey: dApp.publicKey,
@@ -100,11 +100,11 @@ export async function requestPermission(
         appMeta: req.appMeta,
       },
       onDecline: () => {
-        reject(new Error(ThanosDAppErrorType.NotGranted));
+        reject(new Error(TempleDAppErrorType.NotGranted));
       },
       handleIntercomRequest: async (confirmReq, decline) => {
         if (
-          confirmReq?.type === ThanosMessageType.DAppPermConfirmationRequest &&
+          confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest &&
           confirmReq?.id === id
         ) {
           const {
@@ -120,7 +120,7 @@ export async function requestPermission(
               publicKey: accountPublicKey,
             });
             resolve({
-              type: ThanosDAppMessageType.PermissionResponse,
+              type: TempleDAppMessageType.PermissionResponse,
               pkh: accountPublicKeyHash,
               publicKey: accountPublicKey,
               rpc: networkRpc,
@@ -130,7 +130,7 @@ export async function requestPermission(
           }
 
           return {
-            type: ThanosMessageType.DAppPermConfirmationResponse,
+            type: TempleMessageType.DAppPermConfirmationResponse,
           };
         }
         return;
@@ -141,8 +141,8 @@ export async function requestPermission(
 
 export async function requestOperation(
   origin: string,
-  req: ThanosDAppOperationRequest
-): Promise<ThanosDAppOperationResponse> {
+  req: TempleDAppOperationRequest
+): Promise<TempleDAppOperationResponse> {
   if (
     ![
       isAddressValid(req?.sourcePkh),
@@ -150,17 +150,17 @@ export async function requestOperation(
       req?.opParams?.every((op) => typeof op.kind === "string"),
     ].every(Boolean)
   ) {
-    throw new Error(ThanosDAppErrorType.InvalidParams);
+    throw new Error(TempleDAppErrorType.InvalidParams);
   }
 
   const dApp = await getDApp(origin);
 
   if (!dApp) {
-    throw new Error(ThanosDAppErrorType.NotGranted);
+    throw new Error(TempleDAppErrorType.NotGranted);
   }
 
   if (req.sourcePkh !== dApp.pkh) {
-    throw new Error(ThanosDAppErrorType.NotFound);
+    throw new Error(TempleDAppErrorType.NotFound);
   }
 
   return new Promise(async (resolve, reject) => {
@@ -178,11 +178,11 @@ export async function requestOperation(
         opParams: req.opParams,
       },
       onDecline: () => {
-        reject(new Error(ThanosDAppErrorType.NotGranted));
+        reject(new Error(TempleDAppErrorType.NotGranted));
       },
       handleIntercomRequest: async (confirmReq, decline) => {
         if (
-          confirmReq?.type === ThanosMessageType.DAppOpsConfirmationRequest &&
+          confirmReq?.type === TempleMessageType.DAppOpsConfirmationRequest &&
           confirmReq?.id === id
         ) {
           if (confirmReq.confirmed) {
@@ -198,12 +198,12 @@ export async function requestOperation(
               } catch {}
 
               resolve({
-                type: ThanosDAppMessageType.OperationResponse,
+                type: TempleDAppMessageType.OperationResponse,
                 opHash: op.hash,
               });
             } catch (err) {
               if (err instanceof TezosOperationError) {
-                err.message = ThanosDAppErrorType.TezosOperation;
+                err.message = TempleDAppErrorType.TezosOperation;
                 reject(err);
               } else {
                 throw err;
@@ -214,7 +214,7 @@ export async function requestOperation(
           }
 
           return {
-            type: ThanosMessageType.DAppOpsConfirmationResponse,
+            type: TempleMessageType.DAppOpsConfirmationResponse,
           };
         }
         return;
@@ -225,8 +225,8 @@ export async function requestOperation(
 
 export async function requestSign(
   origin: string,
-  req: ThanosDAppSignRequest
-): Promise<ThanosDAppSignResponse> {
+  req: TempleDAppSignRequest
+): Promise<TempleDAppSignResponse> {
   if (req?.payload?.startsWith("0x")) {
     req = { ...req, payload: req.payload.substring(2) };
   }
@@ -236,17 +236,17 @@ export async function requestSign(
       Boolean
     )
   ) {
-    throw new Error(ThanosDAppErrorType.InvalidParams);
+    throw new Error(TempleDAppErrorType.InvalidParams);
   }
 
   const dApp = await getDApp(origin);
 
   if (!dApp) {
-    throw new Error(ThanosDAppErrorType.NotGranted);
+    throw new Error(TempleDAppErrorType.NotGranted);
   }
 
   if (req.sourcePkh !== dApp.pkh) {
-    throw new Error(ThanosDAppErrorType.NotFound);
+    throw new Error(TempleDAppErrorType.NotFound);
   }
 
   return new Promise(async (resolve, reject) => {
@@ -282,11 +282,11 @@ export async function requestSign(
         preview,
       },
       onDecline: () => {
-        reject(new Error(ThanosDAppErrorType.NotGranted));
+        reject(new Error(TempleDAppErrorType.NotGranted));
       },
       handleIntercomRequest: async (confirmReq, decline) => {
         if (
-          confirmReq?.type === ThanosMessageType.DAppSignConfirmationRequest &&
+          confirmReq?.type === TempleMessageType.DAppSignConfirmationRequest &&
           confirmReq?.id === id
         ) {
           if (confirmReq.confirmed) {
@@ -294,7 +294,7 @@ export async function requestSign(
               vault.sign(dApp.pkh, req.payload)
             );
             resolve({
-              type: ThanosDAppMessageType.SignResponse,
+              type: TempleDAppMessageType.SignResponse,
               signature,
             });
           } else {
@@ -302,7 +302,7 @@ export async function requestSign(
           }
 
           return {
-            type: ThanosMessageType.DAppSignConfirmationResponse,
+            type: TempleMessageType.DAppSignConfirmationResponse,
           };
         }
         return;
@@ -313,29 +313,29 @@ export async function requestSign(
 
 export async function requestBroadcast(
   origin: string,
-  req: ThanosDAppBroadcastRequest
-): Promise<ThanosDAppBroadcastResponse> {
+  req: TempleDAppBroadcastRequest
+): Promise<TempleDAppBroadcastResponse> {
   if (![req?.signedOpBytes?.length > 0].every(Boolean)) {
-    throw new Error(ThanosDAppErrorType.InvalidParams);
+    throw new Error(TempleDAppErrorType.InvalidParams);
   }
 
   const dApp = await getDApp(origin);
 
   if (!dApp) {
-    throw new Error(ThanosDAppErrorType.NotGranted);
+    throw new Error(TempleDAppErrorType.NotGranted);
   }
 
   try {
     const rpc = new RpcClient(getNetworkRPC(dApp.network));
     const opHash = await rpc.injectOperation(req.signedOpBytes);
     return {
-      type: ThanosDAppMessageType.BroadcastResponse,
+      type: TempleDAppMessageType.BroadcastResponse,
       opHash,
     };
   } catch (err) {
     throw err instanceof TezosOperationError
       ? (() => {
-          err.message = ThanosDAppErrorType.TezosOperation;
+          err.message = TempleDAppErrorType.TezosOperation;
           return err;
         })()
       : new Error("Failed to broadcast");
@@ -343,18 +343,18 @@ export async function requestBroadcast(
 }
 
 export async function getAllDApps() {
-  const dAppsSessions: ThanosDAppSessions =
+  const dAppsSessions: TempleDAppSessions =
     (await browser.storage.local.get([STORAGE_KEY]))[STORAGE_KEY] || {};
   return dAppsSessions;
 }
 
 export async function getDApp(
   origin: string
-): Promise<ThanosDAppSession | undefined> {
+): Promise<TempleDAppSession | undefined> {
   return (await getAllDApps())[origin];
 }
 
-export async function setDApp(origin: string, permissions: ThanosDAppSession) {
+export async function setDApp(origin: string, permissions: TempleDAppSession) {
   const current = await getAllDApps();
   const newDApps = { ...current, [origin]: permissions };
   await setDApps(newDApps);
@@ -372,16 +372,16 @@ export function cleanDApps() {
   return setDApps({});
 }
 
-function setDApps(newDApps: ThanosDAppSessions) {
+function setDApps(newDApps: TempleDAppSessions) {
   return browser.storage.local.set({ [STORAGE_KEY]: newDApps });
 }
 
 type RequestConfirmParams = {
   id: string;
-  payload: ThanosDAppPayload;
+  payload: TempleDAppPayload;
   onDecline: () => void;
   handleIntercomRequest: (
-    req: ThanosRequest,
+    req: TempleRequest,
     decline: () => void
   ) => Promise<any>;
 };
@@ -421,15 +421,15 @@ async function requestConfirm({
 
   let knownPort: Runtime.Port | undefined;
   const stopRequestListening = intercom.onRequest(
-    async (req: ThanosRequest, port) => {
+    async (req: TempleRequest, port) => {
       if (
-        req?.type === ThanosMessageType.DAppGetPayloadRequest &&
+        req?.type === TempleMessageType.DAppGetPayloadRequest &&
         req.id === id
       ) {
         knownPort = port;
 
         return {
-          type: ThanosMessageType.DAppGetPayloadResponse,
+          type: TempleMessageType.DAppGetPayloadResponse,
           payload,
         };
       } else {
@@ -478,19 +478,19 @@ async function requestConfirm({
   const stopTimeout = () => clearTimeout(t);
 }
 
-export function getNetworkRPC(net: ThanosDAppNetwork) {
+export function getNetworkRPC(net: TempleDAppNetwork) {
   return typeof net === "string"
     ? NETWORKS.find((n) => n.id === net)!.rpcBaseURL
     : net.rpc;
 }
 
-function isAllowedNetwork(net: ThanosDAppNetwork) {
+function isAllowedNetwork(net: TempleDAppNetwork) {
   return typeof net === "string"
     ? NETWORKS.some((n) => !n.disabled && n.id === net)
     : Boolean(net?.rpc);
 }
 
-function isNetworkEquals(fNet: ThanosDAppNetwork, sNet: ThanosDAppNetwork) {
+function isNetworkEquals(fNet: TempleDAppNetwork, sNet: TempleDAppNetwork) {
   return typeof fNet !== "string" && typeof sNet !== "string"
     ? fNet?.rpc === sNet?.rpc
     : fNet === sNet;

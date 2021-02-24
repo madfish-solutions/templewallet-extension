@@ -5,12 +5,12 @@ import { T } from "lib/i18n/react";
 import {
   useTokens,
   getAssetKey,
-  ThanosAsset,
+  TempleAsset,
   mergeAssets,
   searchAssets,
-  ThanosAssetType,
+  TempleAssetType,
   useNetwork,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import PageLayout from "app/layouts/PageLayout";
 import AssetIcon from "app/templates/AssetIcon";
 import SearchAssetField from "app/templates/SearchAssetField";
@@ -74,7 +74,7 @@ const ManageAssetsContent: React.FC = () => {
     (asset: CheckableAsset, checked: boolean) => {
       const plain = toPlain(asset);
 
-      if (plain.type !== ThanosAssetType.TEZ) {
+      if (plain.type !== TempleAssetType.TEZ) {
         if (checked) {
           addToken(plain);
         } else {
@@ -244,16 +244,16 @@ const ListItem = React.memo<ListItemProps>(
   }
 );
 
-type CheckableAsset = ThanosAsset & { checked: boolean };
+type CheckableAsset = TempleAsset & { checked: boolean };
 
-function toPlain({ checked, ...asset }: CheckableAsset): ThanosAsset {
+function toPlain({ checked, ...asset }: CheckableAsset): TempleAsset {
   return asset;
 }
 
-function toChecked(asset: ThanosAsset): CheckableAsset {
+function toChecked(asset: TempleAsset): CheckableAsset {
   return { ...asset, checked: true };
 }
 
-function toUnchecked(asset: ThanosAsset): CheckableAsset {
+function toUnchecked(asset: TempleAsset): CheckableAsset {
   return { ...asset, checked: false };
 }

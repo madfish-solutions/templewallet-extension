@@ -1,11 +1,11 @@
 import { browser } from "webextension-polyfill-ts";
 import { Queue } from "queue-ts";
 import { OperationContentsAndResult } from "@taquito/rpc";
-import { ThanosPendingOperation } from "lib/thanos/types";
+import { TemplePendingOperation } from "lib/temple/types";
 
 export async function getAll(accPkh: string, netId: string) {
   const storageKey = getKey(accPkh, netId);
-  const pendingOperations: ThanosPendingOperation[] =
+  const pendingOperations: TemplePendingOperation[] =
     (await browser.storage.local.get([storageKey]))[storageKey] || [];
   return pendingOperations;
 }
@@ -13,7 +13,7 @@ export async function getAll(accPkh: string, netId: string) {
 export async function append(
   accPkh: string,
   netId: string,
-  ops: ThanosPendingOperation[]
+  ops: TemplePendingOperation[]
 ) {
   const currentItems = await getAll(accPkh, netId);
   await set(accPkh, netId, [...ops, ...currentItems]);
@@ -37,7 +37,7 @@ const setQueue = new Queue(1);
 export function set(
   accPkh: string,
   netId: string,
-  ops: ThanosPendingOperation[]
+  ops: TemplePendingOperation[]
 ) {
   return new Promise((resolve, reject) =>
     setQueue.add(() =>
@@ -55,7 +55,7 @@ export function fromOpResults(
   opResults: OperationContentsAndResult[],
   hash: string,
   addedAt = new Date().toString()
-): ThanosPendingOperation[] {
+): TemplePendingOperation[] {
   return opResults
     .concat()
     .reverse()

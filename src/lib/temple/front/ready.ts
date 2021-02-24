@@ -3,16 +3,16 @@ import constate from "constate";
 import { TezosToolkit } from "@taquito/taquito";
 import { Tzip16Module } from "@taquito/tzip16";
 import {
-  ReadyThanosState,
-  ThanosAccountType,
-  ThanosStatus,
-  ThanosState,
-  ThanosAsset,
+  ReadyTempleState,
+  TempleAccountType,
+  TempleStatus,
+  TempleState,
+  TempleAsset,
   getClient,
   usePassiveStorage,
-  useThanosClient,
+  useTempleClient,
   loadChainId,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { FastRpcClient } from "lib/taquito-fast-rpc";
 import { useRetryableSWR } from "lib/swr";
 
@@ -22,7 +22,7 @@ export enum ActivationStatus {
 }
 
 export const [
-  ReadyThanosProvider,
+  ReadyTempleProvider,
   useAllNetworks,
   useSetNetworkId,
   useNetwork,
@@ -33,7 +33,7 @@ export const [
   useTezos,
   useTezosDomainsClient,
 ] = constate(
-  useReadyThanos,
+  useReadyTemple,
   (v) => v.allNetworks,
   (v) => v.setNetworkId,
   (v) => v.network,
@@ -45,9 +45,9 @@ export const [
   (v) => v.tezosDomainsClient
 );
 
-function useReadyThanos() {
-  const thanosFront = useThanosClient();
-  assertReady(thanosFront);
+function useReadyTemple() {
+  const templeFront = useTempleClient();
+  assertReady(templeFront);
 
   const {
     networks: allNetworks,
@@ -55,7 +55,7 @@ function useReadyThanos() {
     settings,
     createTaquitoSigner,
     createTaquitoWallet,
-  } = thanosFront;
+  } = templeFront;
 
   /**
    * Networks
@@ -116,7 +116,7 @@ function useReadyThanos() {
     const checksum = [network.id, account.publicKeyHash].join("_");
     const rpc = network.rpcBaseURL;
     const pkh =
-      account.type === ThanosAccountType.ManagedKT
+      account.type === TempleAccountType.ManagedKT
         ? account.owner
         : account.publicKeyHash;
 
@@ -194,10 +194,10 @@ export function useRelevantAccounts(withExtraTypes = true) {
     () =>
       allAccounts.filter((acc) => {
         switch (acc.type) {
-          case ThanosAccountType.ManagedKT:
+          case TempleAccountType.ManagedKT:
             return withExtraTypes && acc.chainId === lazyChainId;
 
-          case ThanosAccountType.WatchOnly:
+          case TempleAccountType.WatchOnly:
             return (
               withExtraTypes && (!acc.chainId || acc.chainId === lazyChainId)
             );
@@ -223,7 +223,7 @@ export function useRelevantAccounts(withExtraTypes = true) {
   return React.useMemo(() => relevantAccounts, [relevantAccounts]);
 }
 
-export const [ThanosRefsProvider, useAllAssetsRef] = constate(
+export const [TempleRefsProvider, useAllAssetsRef] = constate(
   useRefs,
   (v) => v.allAssetsRef
 );
@@ -232,7 +232,7 @@ function useRefs() {
   /**
    * All assets reference(cache), needed for pretty network reselect
    */
-  const allAssetsRef = React.useRef<ThanosAsset[]>([]);
+  const allAssetsRef = React.useRef<TempleAsset[]>([]);
 
   return { allAssetsRef };
 }
@@ -248,8 +248,8 @@ export class ReactiveTezosToolkit extends TezosToolkit {
   }
 }
 
-function assertReady(state: ThanosState): asserts state is ReadyThanosState {
-  if (state.status !== ThanosStatus.Ready) {
-    throw new Error("Thanos not ready");
+function assertReady(state: TempleState): asserts state is ReadyTempleState {
+  if (state.status !== TempleStatus.Ready) {
+    throw new Error("Temple not ready");
   }
 }

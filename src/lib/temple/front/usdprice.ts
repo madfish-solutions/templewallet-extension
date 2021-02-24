@@ -2,7 +2,7 @@ import * as React from "react";
 import constate from "constate";
 import { useRetryableSWR } from "lib/swr";
 import { getMarketTickers } from "lib/tzstats";
-import { useNetwork } from "lib/thanos/front/ready";
+import { useNetwork } from "lib/temple/front/ready";
 
 const LIQUIDITY_INTERVAL = 120_000;
 

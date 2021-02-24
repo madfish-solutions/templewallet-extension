@@ -1,17 +1,17 @@
 import * as React from "react";
 import classNames from "clsx";
 import { T } from "lib/i18n/react";
-import { ThanosAsset, ThanosAssetType } from "lib/thanos/front";
+import { TempleAsset, TempleAssetType } from "lib/temple/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 
 type AssetInfoProps = {
-  asset: ThanosAsset;
+  asset: TempleAsset;
 };
 
 const AssetInfo: React.FC<AssetInfoProps> = ({ asset }) => {
-  if (asset.type === ThanosAssetType.TEZ) return null;
+  if (asset.type === TempleAssetType.TEZ) return null;
 
   return (
     <div className={classNames("w-full max-w-sm mx-auto")}>
@@ -30,7 +30,7 @@ const AssetInfo: React.FC<AssetInfoProps> = ({ asset }) => {
         }}
       />
 
-      {asset.type === ThanosAssetType.FA2 && (
+      {asset.type === TempleAssetType.FA2 && (
         <InfoField id="token-id" label={<T id="tokenId" />} value={asset.id} />
       )}
     </div>

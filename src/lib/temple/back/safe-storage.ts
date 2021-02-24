@@ -1,6 +1,6 @@
 import { browser } from "webextension-polyfill-ts";
 import { Buffer } from "buffer";
-import * as Passworder from "lib/thanos/passworder";
+import * as Passworder from "lib/temple/passworder";
 
 interface EncryptedStorage {
   encrypted: Passworder.EncryptedPayload;

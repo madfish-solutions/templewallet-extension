@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import { ThanosAsset } from "lib/thanos/front";
+import { TempleAsset } from "lib/temple/front";
 import AssetIcon from "app/templates/AssetIcon";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
@@ -8,7 +8,7 @@ import Name from "app/atoms/Name";
 import Money from "app/atoms/Money";
 
 type MainAssetBannerProps = {
-  asset: ThanosAsset;
+  asset: TempleAsset;
   accountPkh: string;
   className?: string;
 };

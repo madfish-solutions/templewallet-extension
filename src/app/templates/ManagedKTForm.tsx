@@ -2,15 +2,15 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import classNames from "clsx";
 import { Controller, useForm } from "react-hook-form";
 import {
-  ThanosAccountType,
+  TempleAccountType,
   isAddressValid,
   useRelevantAccounts,
   useTezos,
   TEZ_ASSET,
-  useThanosClient,
+  useTempleClient,
   useChainId,
   isKnownChainId,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { getOneUserContracts, TzktRelatedContract } from "lib/tzkt";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
@@ -33,7 +33,7 @@ const getContractAddress = (contract: TzktRelatedContract) => contract.address;
 const ManagedKTForm: React.FC = () => {
   const accounts = useRelevantAccounts();
   const tezos = useTezos();
-  const { importKTManagedAccount } = useThanosClient();
+  const { importKTManagedAccount } = useTempleClient();
   const chainId = useChainId(true);
 
   const [error, setError] = useState<React.ReactNode>(null);
@@ -43,7 +43,7 @@ const ManagedKTForm: React.FC = () => {
       "get-accounts-contracts",
       chainId,
       ...accounts
-        .filter(({ type }) => type !== ThanosAccountType.ManagedKT)
+        .filter(({ type }) => type !== TempleAccountType.ManagedKT)
         .map(({ publicKeyHash }) => publicKeyHash),
     ],
     [accounts, chainId]
@@ -308,7 +308,7 @@ const ContractOptionContent: React.FC<ContractOptionRenderProps> = (props) => {
           <T id="contract" />
         </Name>
 
-        <AccountTypeBadge account={{ type: ThanosAccountType.ManagedKT }} />
+        <AccountTypeBadge account={{ type: TempleAccountType.ManagedKT }} />
       </div>
 
       <div className="flex flex-wrap items-center mt-1">

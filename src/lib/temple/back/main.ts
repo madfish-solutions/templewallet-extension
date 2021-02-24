@@ -1,14 +1,14 @@
 import { Runtime } from "webextension-polyfill-ts";
 import { Queue } from "queue-ts";
 import {
-  ThanosMessageType,
-  ThanosRequest,
-  ThanosResponse,
-} from "lib/thanos/types";
-import { intercom } from "lib/thanos/back/defaults";
-import { store, toFront } from "lib/thanos/back/store";
-import * as Actions from "lib/thanos/back/actions";
-import * as PndOps from "lib/thanos/back/pndops";
+  TempleMessageType,
+  TempleRequest,
+  TempleResponse,
+} from "lib/temple/types";
+import { intercom } from "lib/temple/back/defaults";
+import { store, toFront } from "lib/temple/back/store";
+import * as Actions from "lib/temple/back/actions";
+import * as PndOps from "lib/temple/back/pndops";
 
 const frontStore = store.map(toFront);
 
@@ -16,141 +16,141 @@ export async function start() {
   intercom.onRequest(processRequest);
   await Actions.init();
   frontStore.watch(() => {
-    intercom.broadcast({ type: ThanosMessageType.StateUpdated });
+    intercom.broadcast({ type: TempleMessageType.StateUpdated });
   });
 }
 
 async function processRequest(
-  req: ThanosRequest,
+  req: TempleRequest,
   port: Runtime.Port
-): Promise<ThanosResponse | void> {
+): Promise<TempleResponse | void> {
   switch (req?.type) {
-    case ThanosMessageType.GetStateRequest:
+    case TempleMessageType.GetStateRequest:
       const state = await Actions.getFrontState();
       return {
-        type: ThanosMessageType.GetStateResponse,
+        type: TempleMessageType.GetStateResponse,
         state,
       };
 
-    case ThanosMessageType.NewWalletRequest:
+    case TempleMessageType.NewWalletRequest:
       await Actions.registerNewWallet(req.password, req.mnemonic);
-      return { type: ThanosMessageType.NewWalletResponse };
+      return { type: TempleMessageType.NewWalletResponse };
 
-    case ThanosMessageType.UnlockRequest:
+    case TempleMessageType.UnlockRequest:
       await Actions.unlock(req.password);
-      return { type: ThanosMessageType.UnlockResponse };
+      return { type: TempleMessageType.UnlockResponse };
 
-    case ThanosMessageType.LockRequest:
+    case TempleMessageType.LockRequest:
       await Actions.lock();
-      return { type: ThanosMessageType.LockResponse };
+      return { type: TempleMessageType.LockResponse };
 
-    case ThanosMessageType.CreateAccountRequest:
+    case TempleMessageType.CreateAccountRequest:
       await Actions.createHDAccount(req.name);
-      return { type: ThanosMessageType.CreateAccountResponse };
+      return { type: TempleMessageType.CreateAccountResponse };
 
-    case ThanosMessageType.RevealPublicKeyRequest:
+    case TempleMessageType.RevealPublicKeyRequest:
       const publicKey = await Actions.revealPublicKey(req.accountPublicKeyHash);
       return {
-        type: ThanosMessageType.RevealPublicKeyResponse,
+        type: TempleMessageType.RevealPublicKeyResponse,
         publicKey,
       };
 
-    case ThanosMessageType.RevealPrivateKeyRequest:
+    case TempleMessageType.RevealPrivateKeyRequest:
       const privateKey = await Actions.revealPrivateKey(
         req.accountPublicKeyHash,
         req.password
       );
       return {
-        type: ThanosMessageType.RevealPrivateKeyResponse,
+        type: TempleMessageType.RevealPrivateKeyResponse,
         privateKey,
       };
 
-    case ThanosMessageType.RevealMnemonicRequest:
+    case TempleMessageType.RevealMnemonicRequest:
       const mnemonic = await Actions.revealMnemonic(req.password);
       return {
-        type: ThanosMessageType.RevealMnemonicResponse,
+        type: TempleMessageType.RevealMnemonicResponse,
         mnemonic,
       };
 
-    case ThanosMessageType.RemoveAccountRequest:
+    case TempleMessageType.RemoveAccountRequest:
       await Actions.removeAccount(req.accountPublicKeyHash, req.password);
       return {
-        type: ThanosMessageType.RemoveAccountResponse,
+        type: TempleMessageType.RemoveAccountResponse,
       };
 
-    case ThanosMessageType.EditAccountRequest:
+    case TempleMessageType.EditAccountRequest:
       await Actions.editAccount(req.accountPublicKeyHash, req.name);
       return {
-        type: ThanosMessageType.EditAccountResponse,
+        type: TempleMessageType.EditAccountResponse,
       };
 
-    case ThanosMessageType.ImportAccountRequest:
+    case TempleMessageType.ImportAccountRequest:
       await Actions.importAccount(req.privateKey, req.encPassword);
       return {
-        type: ThanosMessageType.ImportAccountResponse,
+        type: TempleMessageType.ImportAccountResponse,
       };
 
-    case ThanosMessageType.ImportMnemonicAccountRequest:
+    case TempleMessageType.ImportMnemonicAccountRequest:
       await Actions.importMnemonicAccount(
         req.mnemonic,
         req.password,
         req.derivationPath
       );
       return {
-        type: ThanosMessageType.ImportMnemonicAccountResponse,
+        type: TempleMessageType.ImportMnemonicAccountResponse,
       };
 
-    case ThanosMessageType.ImportFundraiserAccountRequest:
+    case TempleMessageType.ImportFundraiserAccountRequest:
       await Actions.importFundraiserAccount(
         req.email,
         req.password,
         req.mnemonic
       );
       return {
-        type: ThanosMessageType.ImportFundraiserAccountResponse,
+        type: TempleMessageType.ImportFundraiserAccountResponse,
       };
 
-    case ThanosMessageType.ImportManagedKTAccountRequest:
+    case TempleMessageType.ImportManagedKTAccountRequest:
       await Actions.importManagedKTAccount(req.address, req.chainId, req.owner);
       return {
-        type: ThanosMessageType.ImportManagedKTAccountResponse,
+        type: TempleMessageType.ImportManagedKTAccountResponse,
       };
 
-    case ThanosMessageType.ImportWatchOnlyAccountRequest:
+    case TempleMessageType.ImportWatchOnlyAccountRequest:
       await Actions.importWatchOnlyAccount(req.address, req.chainId);
       return {
-        type: ThanosMessageType.ImportWatchOnlyAccountResponse,
+        type: TempleMessageType.ImportWatchOnlyAccountResponse,
       };
 
-    case ThanosMessageType.CreateLedgerAccountRequest:
+    case TempleMessageType.CreateLedgerAccountRequest:
       await Actions.craeteLedgerAccount(req.name, req.derivationPath);
       return {
-        type: ThanosMessageType.CreateLedgerAccountResponse,
+        type: TempleMessageType.CreateLedgerAccountResponse,
       };
 
-    case ThanosMessageType.UpdateSettingsRequest:
+    case TempleMessageType.UpdateSettingsRequest:
       await Actions.updateSettings(req.settings);
       return {
-        type: ThanosMessageType.UpdateSettingsResponse,
+        type: TempleMessageType.UpdateSettingsResponse,
       };
 
-    case ThanosMessageType.GetAllPndOpsRequest:
+    case TempleMessageType.GetAllPndOpsRequest:
       const operations = await PndOps.getAll(
         req.accountPublicKeyHash,
         req.netId
       );
       return {
-        type: ThanosMessageType.GetAllPndOpsResponse,
+        type: TempleMessageType.GetAllPndOpsResponse,
         operations,
       };
 
-    case ThanosMessageType.RemovePndOpsRequest:
+    case TempleMessageType.RemovePndOpsRequest:
       await PndOps.remove(req.accountPublicKeyHash, req.netId, req.opHashes);
       return {
-        type: ThanosMessageType.RemovePndOpsResponse,
+        type: TempleMessageType.RemovePndOpsResponse,
       };
 
-    case ThanosMessageType.OperationsRequest:
+    case TempleMessageType.OperationsRequest:
       const { opHash } = await Actions.sendOperations(
         port,
         req.id,
@@ -159,11 +159,11 @@ async function processRequest(
         req.opParams
       );
       return {
-        type: ThanosMessageType.OperationsResponse,
+        type: TempleMessageType.OperationsResponse,
         opHash,
       };
 
-    case ThanosMessageType.SignRequest:
+    case TempleMessageType.SignRequest:
       const result = await Actions.sign(
         port,
         req.id,
@@ -172,35 +172,35 @@ async function processRequest(
         req.watermark
       );
       return {
-        type: ThanosMessageType.SignResponse,
+        type: TempleMessageType.SignResponse,
         result,
       };
 
-    case ThanosMessageType.DAppGetAllSessionsRequest:
+    case TempleMessageType.DAppGetAllSessionsRequest:
       const allSessions = await Actions.getAllDAppSessions();
       return {
-        type: ThanosMessageType.DAppGetAllSessionsResponse,
+        type: TempleMessageType.DAppGetAllSessionsResponse,
         sessions: allSessions,
       };
 
-    case ThanosMessageType.DAppRemoveSessionRequest:
+    case TempleMessageType.DAppRemoveSessionRequest:
       const sessions = await Actions.removeDAppSession(req.origin);
       return {
-        type: ThanosMessageType.DAppRemoveSessionResponse,
+        type: TempleMessageType.DAppRemoveSessionResponse,
         sessions,
       };
 
-    case ThanosMessageType.PageRequest:
+    case TempleMessageType.PageRequest:
       const dAppEnabled = await Actions.isDAppEnabled();
       if (dAppEnabled) {
         if (req.payload === "PING") {
           return {
-            type: ThanosMessageType.PageResponse,
+            type: TempleMessageType.PageResponse,
             payload: "PONG",
           };
         } else if (req.beacon && req.payload === "ping") {
           return {
-            type: ThanosMessageType.PageResponse,
+            type: TempleMessageType.PageResponse,
             payload: "pong",
           };
         }
@@ -212,7 +212,7 @@ async function processRequest(
               req.payload
             );
             return {
-              type: ThanosMessageType.PageResponse,
+              type: TempleMessageType.PageResponse,
               payload: resPayload ?? null,
             };
           } else {
@@ -222,7 +222,7 @@ async function processRequest(
               req.encrypted
             );
             return {
-              type: ThanosMessageType.PageResponse,
+              type: TempleMessageType.PageResponse,
               payload: res?.payload ?? null,
               encrypted: res?.encrypted,
             };

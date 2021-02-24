@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import React from "react";
 import { BcdTokenTransfer } from "lib/better-call-dev";
 import { TZStatsOperation } from "lib/tzstats";
-import { ThanosAsset, ThanosAssetType } from "lib/thanos/types";
+import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import { InternalTransfer, OperationPreview } from "app/templates/Operation";
 
 const PAGE_SIZE = 20;
@@ -22,7 +22,7 @@ type FetchFn = (
   tzStatsReachedEnd: boolean;
   bcdReachedEnd: boolean;
 }>;
-export function useOpsPagination(fetchFn: FetchFn, asset?: ThanosAsset) {
+export function useOpsPagination(fetchFn: FetchFn, asset?: TempleAsset) {
   const tzStatsReachedEndRef = React.useRef(false);
   const bcdReachedEndRef = React.useRef(false);
   const tzStatsOpsRef = React.useRef<GroupedTzStatsOps>({});
@@ -260,7 +260,7 @@ function mergeTzStatsOps(ops: GroupedTzStatsOps, delta: GroupedTzStatsOps) {
 function groupedOpsToOperationsPreview(
   tzStatsOps: GroupedTzStatsOps,
   bcdOps: GroupedBcdOps,
-  asset?: ThanosAsset
+  asset?: TempleAsset
 ) {
   const pureBcdOps = Object.keys(bcdOps).reduce<
     Record<string, BcdTokenTransfer[]>
@@ -273,7 +273,7 @@ function groupedOpsToOperationsPreview(
       [hash]: bcdOps[hash],
     };
   }, {});
-  const tezOnly = asset?.type === ThanosAssetType.TEZ;
+  const tezOnly = asset?.type === TempleAssetType.TEZ;
   return [
     ...Object.keys(tzStatsOps)
       .reduce<OperationPreview[]>((prevMergedOps, opHash) => {

@@ -1,12 +1,9 @@
 {
-  "templeAppName": {
+  "appName": {
     "message": "テンプル - テゾスウォレット"
   },
   "showIncomingTransactions": {
     "message": "受け取り予定の取引を表示"
-  },
-  "appName": {
-    "message": "サノス -テゾスウォレット"
   },
   "appDesc": {
     "message": "🔐💰テゾスブロックチェーン用のクリプトカレンシーウォレットをブラウザ用のWeb拡張機能として提供"
@@ -479,9 +476,6 @@
     "message": "テゾスメインネット",
     "description": "Mainnet = main network"
   },
-  "thanosWalletOptions": {
-    "message": "サノスウォレット | オプション"
-  },
   "templeWalletOptions": {
     "message": "テンプルウォレット | オプション"
   },
@@ -489,9 +483,6 @@
     "message": "拡張機能をリセット"
   },
   "resetExtensionConfirmation": {
-    "message": "サノスウォレットをリセットしてもよろしいですか？\nリセットすると、すべてのデータが削除されます。"
-  },
-  "templeResetExtensionConfirmation": {
     "message": "テンプルウォレットをリセットしてもよろしいですか？\nリセットすると、すべてのデータが削除されます。"
   },
   "failedToResetExtension": {
@@ -541,9 +532,6 @@
     "message": "新しいウォレットを作成"
   },
   "createNewWalletDescription": {
-    "message": "サノスウォレットを始めたばかりですか？一緒に設定してみましょう！これにより、 新しいウォレットとシードフレーズが作成されます"
-  },
-  "templeCreateNewWalletDescription": {
     "message": "テンプルウォレットを始めたばかりですか？一緒に設定してみましょう！これにより、 新しいウォレットとシードフレーズが作成されます"
   },
   "delegate": {
@@ -690,9 +678,6 @@
     "description": "DApps = Decentralized Applications"
   },
   "dAppsDescription": {
-    "message": "このセクションでは、サノスウォレットをサポートする分散型アプリケーションとのインタラクションを有効にすることができます。"
-  },
-  "templeDAppsDescription": {
     "message": "このセクションでは、テンプルウォレットをサポートする分散型アプリケーションとのインタラクションを有効にすることができます。"
   },
   "networksDescription": {
@@ -715,9 +700,6 @@
     "message": "概要"
   },
   "aboutDescription": {
-    "message": "サノスウォレットのメタ情報を表示するには、このセクションを使用します。"
-  },
-  "templeAboutDescription": {
     "message": "テンプルウォレットのメタ情報を表示するには、このセクションを使用します。"
   },
   "unlockWallet": {

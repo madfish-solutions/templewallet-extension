@@ -2,7 +2,7 @@ import { browser } from "webextension-polyfill-ts";
 import { init } from "./core";
 import { saveLocale } from "./saving";
 
-export const REFRESH_MSGTYPE = "THANOS_I18N_REFRESH";
+export const REFRESH_MSGTYPE = "TEMPLE_I18N_REFRESH";
 
 const initPromise = init();
 

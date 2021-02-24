@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
 import useSWR from "swr";
-import { useAccount, useTezos, useTezosDomainsClient } from "lib/thanos/front";
+import { useAccount, useTezos, useTezosDomainsClient } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";

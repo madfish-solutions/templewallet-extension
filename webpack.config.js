@@ -27,9 +27,9 @@ const tsConfig = require("./tsconfig.json");
 // Steal ENV vars from .env file
 dotenv.config();
 
-// Grab NODE_ENV and THANOS_WALLET_* environment variables and prepare them to be
+// Grab NODE_ENV and TEMPLE_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
-const THANOS_WALLET = /^THANOS_WALLET_/i;
+const TEMPLE_WALLET = /^TEMPLE_WALLET_/i;
 const {
   NODE_ENV = "development",
   TARGET_BROWSER = "chrome",
@@ -326,7 +326,7 @@ module.exports = {
       ...(() => {
         const appEnvs = {};
         for (const k of Object.keys(process.env)) {
-          if (THANOS_WALLET.test(k)) {
+          if (TEMPLE_WALLET.test(k)) {
             appEnvs[`process.env.${k}`] = JSON.stringify(process.env[k]);
           }
         }
@@ -401,7 +401,7 @@ module.exports = {
     ]),
 
     new WebpackBar({
-      name: "Thanos Wallet",
+      name: "Temple Wallet",
       color: "#ed8936",
     }),
 

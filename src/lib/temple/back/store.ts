@@ -1,14 +1,14 @@
 import { createStore, createEvent } from "effector";
 import {
-  ThanosState,
-  ThanosStatus,
-  ThanosAccount,
-  ThanosSettings,
-} from "lib/thanos/types";
-import { NETWORKS } from "lib/thanos/networks";
-import { Vault } from "lib/thanos/back/vault";
+  TempleState,
+  TempleStatus,
+  TempleAccount,
+  TempleSettings,
+} from "lib/temple/types";
+import { NETWORKS } from "lib/temple/networks";
+import { Vault } from "lib/temple/back/vault";
 
-export interface StoreState extends ThanosState {
+export interface StoreState extends TempleState {
   inited: boolean;
   vault: Vault | null;
 }
@@ -22,7 +22,7 @@ export function toFront({
   accounts,
   networks,
   settings,
-}: StoreState): ThanosState {
+}: StoreState): TempleState {
   return {
     status,
     accounts,
@@ -41,13 +41,13 @@ export const locked = createEvent("Locked");
 
 export const unlocked = createEvent<{
   vault: Vault;
-  accounts: ThanosAccount[];
-  settings: ThanosSettings;
+  accounts: TempleAccount[];
+  settings: TempleSettings;
 }>("Unlocked");
 
-export const accountsUpdated = createEvent<ThanosAccount[]>("Accounts updated");
+export const accountsUpdated = createEvent<TempleAccount[]>("Accounts updated");
 
-export const settingsUpdated = createEvent<ThanosSettings>("Settings updated");
+export const settingsUpdated = createEvent<TempleSettings>("Settings updated");
 
 /**
  * Store
@@ -56,7 +56,7 @@ export const settingsUpdated = createEvent<ThanosSettings>("Settings updated");
 export const store = createStore<StoreState>({
   inited: false,
   vault: null,
-  status: ThanosStatus.Idle,
+  status: TempleStatus.Idle,
   accounts: [],
   networks: [],
   settings: null,
@@ -64,7 +64,7 @@ export const store = createStore<StoreState>({
   .on(inited, (state, vaultExist) => ({
     ...state,
     inited: true,
-    status: vaultExist ? ThanosStatus.Locked : ThanosStatus.Idle,
+    status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle,
     networks: NETWORKS,
   }))
   .on(locked, () => ({
@@ -75,7 +75,7 @@ export const store = createStore<StoreState>({
     // Reset all properties!
     inited: true,
     vault: null,
-    status: ThanosStatus.Locked,
+    status: TempleStatus.Locked,
     accounts: [],
     networks: NETWORKS,
     settings: null,
@@ -83,7 +83,7 @@ export const store = createStore<StoreState>({
   .on(unlocked, (state, { vault, accounts, settings }) => ({
     ...state,
     vault,
-    status: ThanosStatus.Ready,
+    status: TempleStatus.Ready,
     accounts,
     settings,
   }))
@@ -116,7 +116,7 @@ export function assertUnlocked(
   state: StoreState
 ): asserts state is UnlockedStoreState {
   assertInited(state);
-  if (state.status !== ThanosStatus.Ready) {
+  if (state.status !== TempleStatus.Ready) {
     throw new Error("Not ready");
   }
 }
