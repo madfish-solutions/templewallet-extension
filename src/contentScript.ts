@@ -40,7 +40,7 @@ type BeaconPageMessage =
 
 const SENDER = {
   id: browser.runtime.id,
-  name: "Temple Wallet",
+  name: "Temple - Tezos Wallet (ex. Thanos)",
   iconUrl: process.env.TEMPLE_WALLET_LOGO_URL || undefined,
 };
 

@@ -188,7 +188,7 @@ export function formatOpParams(op: any) {
  */
 export const PAIRING_RESPONSE_BASE: Partial<PostMessagePairingResponse> = {
   type: MessageType.HandshakeResponse,
-  name: "Temple Wallet",
+  name: "Temple - Tezos Wallet (ex. Thanos)",
   icon: process.env.TEMPLE_WALLET_LOGO_URL || undefined,
   appUrl: browser.runtime.getURL("fullpage.html"),
 };
