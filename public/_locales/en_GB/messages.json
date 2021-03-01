@@ -1661,5 +1661,19 @@
   },
   "faucetJsonDescription": {
     "message": "You can paste JSON here instead of adding file"
+  },
+  "unknownErrorFromRPC": {
+    "message": "Failed to send request to $url$. Invalid request provided or RPC node is temporarily unreachable.",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "emptyImplicitContract": {
+    "message": "Your account is empty. Deposit any tez amount on this account to activate it"
+  },
+  "balanceTooLow": {
+    "message": "Tez balance to low"
   }
 }

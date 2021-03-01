@@ -11,6 +11,7 @@ import {
   TezosOperationError,
 } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
+import { HttpResponseError } from "@taquito/http-utils";
 import LedgerTransport from "@ledgerhq/hw-transport";
 import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
 import { LedgerTempleBridgeTransport } from "@temple-wallet/ledger-bridge";
@@ -20,6 +21,7 @@ import {
   TempleAccountType,
   TempleSettings,
 } from "lib/temple/types";
+import { transformHttpResponseError } from "lib/temple/helpers";
 import * as Passworder from "lib/temple/passworder";
 import { PublicError } from "lib/temple/back/defaults";
 import {
@@ -476,6 +478,9 @@ export class Vault {
           case err instanceof PublicError:
           case err instanceof TezosOperationError:
             throw err;
+
+          case err instanceof HttpResponseError:
+            throw transformHttpResponseError(err);
 
           default:
             throw new Error(`Failed to send operations. ${err.message}`);
