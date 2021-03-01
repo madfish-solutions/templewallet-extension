@@ -126,7 +126,7 @@
     }
   },
   "copySomeTokenId": {
-    "message": "Copier l'ID « $tokenName$ »",
+    "message": "Copier l'ID « $tokenSymbol$ »",
     "placeholders": {
       "tokenSymbol": {
         "content": "$1"
