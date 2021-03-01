@@ -60,7 +60,15 @@ const Alert: React.FC<AlertProps> = ({
     >
       {title && <h2 className="mb-1 text-lg font-semibold">{title}</h2>}
       {description && (
-        <div className="text-sm font-light break-words">{description}</div>
+        <div
+          className={classNames(
+            "text-sm font-light break-words",
+            "overflow-y-auto no-scrollbar"
+          )}
+          style={{ maxHeight: "10rem" }}
+        >
+          {description}
+        </div>
       )}
       {closable && (
         <button className="absolute top-3 right-3" onClick={onClose}>

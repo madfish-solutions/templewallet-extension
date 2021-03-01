@@ -2,7 +2,9 @@ import BigNumber from "bignumber.js";
 import memoize from "micro-memoize";
 import { RpcClient } from "@taquito/rpc";
 import { ValidationResult, validateAddress } from "@taquito/utils";
+import { HttpResponseError } from "@taquito/http-utils";
 import { getMessage } from "lib/i18n";
+import { IntercomError } from "lib/intercom/helpers";
 
 export const loadChainId = memoize(fetchChainId, {
   isPromise: true,
@@ -71,3 +73,30 @@ export function validateContractAddress(value: any) {
       return true;
   }
 }
+
+export function transformHttpResponseError(err: HttpResponseError) {
+  let parsedBody: any;
+  try {
+    parsedBody = JSON.parse(err.body);
+  } catch {
+    throw new Error(getMessage("unknownErrorFromRPC", err.url));
+  }
+
+  try {
+    const firstTezError = parsedBody[0];
+    const matchingPostfix = Object.keys(KNOWN_TEZ_ERRORS).find((idPostfix) =>
+      firstTezError?.id?.endsWith(idPostfix)
+    );
+    const message = matchingPostfix
+      ? KNOWN_TEZ_ERRORS[matchingPostfix]
+      : err.message;
+    return new IntercomError(message, parsedBody);
+  } catch {
+    throw err;
+  }
+}
+
+const KNOWN_TEZ_ERRORS: Record<string, string> = {
+  "implicit.empty_implicit_contract": getMessage("emptyImplicitContract"),
+  "contract.balance_too_low": getMessage("balanceTooLow"),
+};
