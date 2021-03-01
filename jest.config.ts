@@ -4,15 +4,15 @@
  */
 
 export default {
-  clearMocks: true,
   coverageProvider: "v8",
   moduleNameMapper: {
-    '^lib/(.*)$': '<rootDir>/src/lib/$1'
+    "^lib/(.*)$": "<rootDir>/src/lib/$1",
   },
-  testEnvironment: "node",
+  testEnvironment: "jsdom",
   transform: {
     ".+\\.ts$": "ts-jest",
   },
   moduleFileExtensions: ["ts", "js"],
-  setupFilesAfterEnv: ['./jest.setup.js'],
+  setupFiles: ["@serh11p/jest-webextension-mock"],
+  setupFilesAfterEnv: ["./jest.setup.js"],
 };
