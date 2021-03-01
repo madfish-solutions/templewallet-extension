@@ -51,6 +51,26 @@ export const DELPHINET_TOKENS: TempleToken[] = [
     iconUrl: browser.runtime.getURL("misc/token-logos/usds.svg"),
     default: true,
   },
+  {
+    type: TempleAssetType.FA1_2,
+    address: "KT19UypipJWENBavh34Wn7tc67bL1HucZh9W",
+    name: "StakerDao Governance Token",
+    symbol: "STKR",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://github.com/StakerDAO/resources/raw/main/stkr.png",
+    default: true,
+  },
+    {
+    type: TempleAssetType.FA1_2,
+    address: "KT1N3KopJkpzBfRPFVzqaAwyPEyuVmhpePmt",
+    name: "Blend",
+    symbol: "BLND",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://github.com/StakerDAO/resources/raw/main/blend.png",
+    default: true,
+  },
 ];
 
 export const MAINNET_TOKENS: TempleToken[] = [
@@ -117,14 +137,23 @@ export const MAINNET_TOKENS: TempleToken[] = [
     default: true,
   },
   {
-    type: TempleAssetType.Staker,
-    address: "KT1EctCuorV2NfVb1XTQgvzJ88MQtWP8cMMv",
-    name: "Staker",
+    type: TempleAssetType.FA1_2,
+    address: "KT1AEfeckNbdEYwaMKkytBwPJPycz7jdSGea",
+    name: "StakerDao Governance Token",
     symbol: "STKR",
-    decimals: 0,
+    decimals: 18,
     fungible: true,
-    iconUrl:
-      "https://miro.medium.com/fit/c/160/160/1*LzmHCYryGmuN9ZR7JX951w.png",
+    iconUrl: "https://github.com/StakerDAO/resources/raw/main/stkr.png",
+    default: true,
+  },
+    {
+    type: TempleAssetType.FA1_2,
+    address: "KT1MEouXPpCx9eFJYnxfAWpFA7NxhW3rDgUN",
+    name: "Blend",
+    symbol: "BLND",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://github.com/StakerDAO/resources/raw/main/blend.png",
     default: true,
   },
 ];
