@@ -217,14 +217,16 @@ const CustomNetworksSettings: React.FC = () => {
               onRemoveClick={handleRemoveClick}
             />
           ))}
-          {defaultNetworks.map((network, index) => (
-            <NetworksListItem
-              canRemove={false}
-              key={network.rpcBaseURL}
-              last={index === defaultNetworks.length - 1}
-              network={network}
-            />
-          ))}
+          {defaultNetworks
+            .filter((n) => !n.hidden)
+            .map((network, index) => (
+              <NetworksListItem
+                canRemove={false}
+                key={network.rpcBaseURL}
+                last={index === defaultNetworks.length - 1}
+                network={network}
+              />
+            ))}
         </div>
       </div>
 
