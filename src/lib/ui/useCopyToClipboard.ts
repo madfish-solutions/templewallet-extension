@@ -1,7 +1,9 @@
 import * as React from "react";
 
-export default function useCopyToClipboard(copyDelay: number = 1000 * 2) {
-  const fieldRef = React.useRef<HTMLInputElement>(null);
+export default function useCopyToClipboard<
+  T extends HTMLInputElement | HTMLTextAreaElement = HTMLInputElement
+>(copyDelay: number = 1000 * 2) {
+  const fieldRef = React.useRef<T>(null);
 
   const [copied, setCopied] = React.useState(false);
 

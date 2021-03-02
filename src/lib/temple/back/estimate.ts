@@ -24,6 +24,7 @@ export async function applyEstimateToOpParams({
       const est = estimates[i];
       return {
         ...op,
+        source: sourcePkh,
         fee: overrideFee && op.fee ? op.fee : est.suggestedFeeMutez,
         gas_limit: est.gasLimit,
         storage_limit: est.storageLimit,
