@@ -220,6 +220,7 @@ export interface TempleDAppConnectPayload extends TempleDAppPayloadBase {
 export interface TempleDAppOperationsPayload extends TempleDAppPayloadBase {
   type: "confirm_operations";
   sourcePkh: string;
+  sourcePublicKey: string;
   opParams: any[];
 }
 

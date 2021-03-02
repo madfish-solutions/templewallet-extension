@@ -164,16 +164,9 @@ export async function requestOperation(
     throw new Error(TempleDAppErrorType.NotFound);
   }
 
-  const networkRpc = getNetworkRPC(dApp.network);
-  const opParams = await applyEstimateToOpParams({
-    opParams: req.opParams,
-    networkRpc,
-    sourcePkh: dApp.pkh,
-    sourcePublicKey: dApp.publicKey,
-  });
-
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
+    const networkRpc = getNetworkRPC(dApp.network);
 
     await requestConfirm({
       id,
@@ -183,12 +176,13 @@ export async function requestOperation(
         networkRpc,
         appMeta: dApp.appMeta,
         sourcePkh: req.sourcePkh,
-        opParams: opParams,
+        sourcePublicKey: dApp.publicKey,
+        opParams: req.opParams,
       },
       onDecline: () => {
         reject(new Error(TempleDAppErrorType.NotGranted));
       },
-      handleIntercomRequest: async (confirmReq, decline) => {
+      handleIntercomRequest: async (confirmReq, decline, payload) => {
         if (
           confirmReq?.type === TempleMessageType.DAppOpsConfirmationRequest &&
           confirmReq?.id === id
@@ -196,7 +190,11 @@ export async function requestOperation(
           if (confirmReq.confirmed) {
             try {
               const op = await withUnlocked(({ vault }) =>
-                vault.sendOperations(dApp.pkh, networkRpc, opParams)
+                vault.sendOperations(
+                  dApp.pkh,
+                  networkRpc,
+                  (payload as any).opParams
+                )
               );
 
               try {
@@ -390,7 +388,8 @@ type RequestConfirmParams = {
   onDecline: () => void;
   handleIntercomRequest: (
     req: TempleRequest,
-    decline: () => void
+    decline: () => void,
+    payload: TempleDAppPayload
   ) => Promise<any>;
 };
 
@@ -436,6 +435,18 @@ async function requestConfirm({
       ) {
         knownPort = port;
 
+        if (payload.type === "confirm_operations") {
+          payload = {
+            ...payload,
+            opParams: await applyEstimateToOpParams({
+              opParams: payload.opParams,
+              networkRpc: payload.networkRpc,
+              sourcePkh: payload.sourcePkh,
+              sourcePublicKey: payload.sourcePublicKey,
+            }),
+          };
+        }
+
         return {
           type: TempleMessageType.DAppGetPayloadResponse,
           payload,
@@ -443,7 +454,7 @@ async function requestConfirm({
       } else {
         if (knownPort !== port) return;
 
-        const result = await handleIntercomRequest(req, onDecline);
+        const result = await handleIntercomRequest(req, onDecline, payload);
         if (result) {
           close();
           return result;
