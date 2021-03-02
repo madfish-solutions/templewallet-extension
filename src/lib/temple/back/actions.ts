@@ -15,6 +15,7 @@ import {
 } from "lib/temple/types";
 import { loadChainId } from "lib/temple/helpers";
 import { intercom } from "lib/temple/back/defaults";
+import { applyEstimateToOpParams } from "lib/temple/back/estimate";
 import {
   toFront,
   store,
@@ -239,96 +240,104 @@ export function sendOperations(
   networkRpc: string,
   opParams: any[]
 ): Promise<{ opHash: string }> {
-  return withUnlocked(
-    () =>
-      new Promise(async (resolve, reject) => {
-        intercom.notify(port, {
-          type: TempleMessageType.ConfirmationRequested,
-          id,
-          payload: {
-            type: "operations",
-            sourcePkh,
-            networkRpc,
-            opParams,
-          },
-        });
+  return withUnlocked(async () => {
+    const sourcePublicKey = await revealPublicKey(sourcePkh);
+    opParams = await applyEstimateToOpParams({
+      opParams,
+      networkRpc,
+      sourcePkh,
+      sourcePublicKey,
+      overrideFee: true,
+    });
 
-        let closing = false;
-        const close = () => {
-          if (closing) return;
-          closing = true;
+    return new Promise(async (resolve, reject) => {
+      intercom.notify(port, {
+        type: TempleMessageType.ConfirmationRequested,
+        id,
+        payload: {
+          type: "operations",
+          sourcePkh,
+          networkRpc,
+          opParams,
+        },
+      });
 
-          try {
-            stopTimeout();
-            stopRequestListening();
-            stopDisconnectListening();
+      let closing = false;
+      const close = () => {
+        if (closing) return;
+        closing = true;
 
-            intercom.notify(port, {
-              type: TempleMessageType.ConfirmationExpired,
-              id,
-            });
-          } catch (_err) {}
-        };
+        try {
+          stopTimeout();
+          stopRequestListening();
+          stopDisconnectListening();
 
-        const decline = () => {
-          reject(new Error("Declined"));
-        };
-        const declineAndClose = () => {
-          decline();
-          close();
-        };
+          intercom.notify(port, {
+            type: TempleMessageType.ConfirmationExpired,
+            id,
+          });
+        } catch (_err) {}
+      };
 
-        const stopRequestListening = intercom.onRequest(
-          async (req: TempleRequest, reqPort) => {
-            if (
-              reqPort === port &&
-              req?.type === TempleMessageType.ConfirmationRequest &&
-              req?.id === id
-            ) {
-              if (req.confirmed) {
+      const decline = () => {
+        reject(new Error("Declined"));
+      };
+      const declineAndClose = () => {
+        decline();
+        close();
+      };
+
+      const stopRequestListening = intercom.onRequest(
+        async (req: TempleRequest, reqPort) => {
+          if (
+            reqPort === port &&
+            req?.type === TempleMessageType.ConfirmationRequest &&
+            req?.id === id
+          ) {
+            if (req.confirmed) {
+              try {
+                const op = await withUnlocked(({ vault }) =>
+                  vault.sendOperations(sourcePkh, networkRpc, opParams)
+                );
+
                 try {
-                  const op = await withUnlocked(({ vault }) =>
-                    vault.sendOperations(sourcePkh, networkRpc, opParams)
-                  );
+                  const chainId = await loadChainId(networkRpc);
+                  const pndOps = PndOps.fromOpResults(op.results, op.hash);
+                  await PndOps.append(sourcePkh, chainId, pndOps);
+                } catch {}
 
-                  try {
-                    const chainId = await loadChainId(networkRpc);
-                    const pndOps = PndOps.fromOpResults(op.results, op.hash);
-                    await PndOps.append(sourcePkh, chainId, pndOps);
-                  } catch {}
-
-                  resolve({ opHash: op.hash });
-                } catch (err) {
-                  if (err instanceof TezosOperationError) {
-                    reject(err);
-                  } else {
-                    throw err;
-                  }
+                resolve({ opHash: op.hash });
+              } catch (err) {
+                if (err instanceof TezosOperationError) {
+                  reject(err);
+                } else {
+                  throw err;
                 }
-              } else {
-                decline();
               }
-
-              close();
-
-              return {
-                type: TempleMessageType.ConfirmationResponse,
-              };
+            } else {
+              decline();
             }
-            return;
+
+            close();
+
+            return {
+              type: TempleMessageType.ConfirmationResponse,
+            };
           }
-        );
+          return;
+        }
+      );
 
-        const stopDisconnectListening = intercom.onDisconnect(
-          port,
-          declineAndClose
-        );
+      const stopDisconnectListening = intercom.onDisconnect(
+        port,
+        declineAndClose
+      );
 
-        // Decline after timeout
-        const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
-        const stopTimeout = () => clearTimeout(t);
-      })
-  );
+      // Decline after timeout
+      const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
+      const stopTimeout = () => clearTimeout(t);
+    });
+  });
 }
 
 export function sign(
