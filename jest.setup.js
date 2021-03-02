@@ -1,5 +1,3 @@
-const { chrome } = require( 'jest-chrome')
+const { Crypto } = require("@peculiar/webcrypto");
 
-jest.mock('webextension-polyfill-ts', () => ({
-  browser: chrome,
-}));
+global.crypto = new Crypto();
