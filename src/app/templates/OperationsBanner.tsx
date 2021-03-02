@@ -48,7 +48,7 @@ const OperationsBanner = React.memo<OperationsBannerProps>(
           </div>
         ) : (
           <ReactJson
-            src={opParams}
+            src={formatOpParams(opParams)}
             name={null}
             iconStyle="square"
             indentWidth={4}
@@ -65,3 +65,23 @@ const OperationsBanner = React.memo<OperationsBannerProps>(
 );
 
 export default OperationsBanner;
+
+function formatOpParams(opParams: any) {
+  try {
+    if ("contents" in opParams) {
+      return {
+        ...opParams,
+        contents: opParams.contents.map(formatTransferParams),
+      };
+    } else {
+      return opParams.map(formatTransferParams);
+    }
+  } catch {
+    return opParams;
+  }
+}
+
+function formatTransferParams(tParams: any) {
+  const { to, mutez, ...rest } = tParams;
+  return to ? { destination: to, ...rest } : rest;
+}
