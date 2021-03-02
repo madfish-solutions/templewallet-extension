@@ -24,6 +24,7 @@ import Name from "app/atoms/Name";
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import Money from "app/atoms/Money";
+import Spinner from "app/atoms/Spinner";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
@@ -47,7 +48,15 @@ const ConfirmPage: React.FC = () => {
           )}
         >
           <ErrorBoundary whileMessage={t("fetchingConfirmationDetails")}>
-            <React.Suspense fallback={null}>
+            <React.Suspense
+              fallback={
+                <div className="flex items-center justify-center h-screen">
+                  <div>
+                    <Spinner theme="primary" className="w-20" />
+                  </div>
+                </div>
+              }
+            >
               <ConfirmDAppForm />
             </React.Suspense>
           </ErrorBoundary>
