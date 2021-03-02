@@ -28,6 +28,7 @@ import {
   TempleDAppSessions,
 } from "lib/temple/types";
 import { intercom } from "lib/temple/back/defaults";
+import { applyEstimateToOpParams } from "lib/temple/back/estimate";
 import * as PndOps from "lib/temple/back/pndops";
 import * as Beacon from "lib/temple/beacon";
 import { withUnlocked } from "lib/temple/back/store";
@@ -163,9 +164,16 @@ export async function requestOperation(
     throw new Error(TempleDAppErrorType.NotFound);
   }
 
+  const networkRpc = getNetworkRPC(dApp.network);
+  const opParams = await applyEstimateToOpParams({
+    opParams: req.opParams,
+    networkRpc,
+    sourcePkh: dApp.pkh,
+    sourcePublicKey: dApp.publicKey,
+  });
+
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
-    const networkRpc = getNetworkRPC(dApp.network);
 
     await requestConfirm({
       id,
@@ -175,7 +183,7 @@ export async function requestOperation(
         networkRpc,
         appMeta: dApp.appMeta,
         sourcePkh: req.sourcePkh,
-        opParams: req.opParams,
+        opParams: opParams,
       },
       onDecline: () => {
         reject(new Error(TempleDAppErrorType.NotGranted));
@@ -188,7 +196,7 @@ export async function requestOperation(
           if (confirmReq.confirmed) {
             try {
               const op = await withUnlocked(({ vault }) =>
-                vault.sendOperations(dApp.pkh, networkRpc, req.opParams)
+                vault.sendOperations(dApp.pkh, networkRpc, opParams)
               );
 
               try {
