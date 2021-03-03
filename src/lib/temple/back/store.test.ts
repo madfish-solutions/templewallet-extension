@@ -6,7 +6,7 @@ import {
   store,
   unlocked,
 } from "./store";
-import { ThanosAccountType, ThanosStatus } from "../types";
+import { TempleAccountType, TempleStatus } from "../types";
 import { Vault } from "./vault";
 import { browser } from "webextension-polyfill-ts";
 
@@ -28,7 +28,7 @@ describe("Store tests", () => {
     } = store.getState();
     expect(inited).toBeFalsy();
     expect(vault).toBeNull();
-    expect(status).toBe(ThanosStatus.Idle);
+    expect(status).toBe(TempleStatus.Idle);
     expect(accounts).toEqual([]);
     expect(networks).toEqual([]);
     expect(settings).toBeNull();
@@ -37,35 +37,35 @@ describe("Store tests", () => {
     initEvent(false);
     const { inited, status } = store.getState();
     expect(inited).toBeTruthy();
-    expect(status).toBe(ThanosStatus.Idle);
+    expect(status).toBe(TempleStatus.Idle);
   });
   it("Inited event with Vault", () => {
     initEvent(true);
     const { status } = store.getState();
-    expect(status).toBe(ThanosStatus.Locked);
+    expect(status).toBe(TempleStatus.Locked);
   });
   it("Locked event", () => {
     locked();
     const { status } = store.getState();
-    expect(status).toBe(ThanosStatus.Locked);
+    expect(status).toBe(TempleStatus.Locked);
   });
   it("Unlocked event", () => {
     unlocked({ vault: {} as Vault, accounts: [], settings: {} });
     const { status } = store.getState();
-    expect(status).toBe(ThanosStatus.Ready);
+    expect(status).toBe(TempleStatus.Ready);
   });
   it("Accounts updated event", () => {
     accountsUpdated([
       {
         name: "testName",
-        type: ThanosAccountType.Imported,
+        type: TempleAccountType.Imported,
         publicKeyHash: "testHashKey",
       },
     ]);
     const { accounts } = store.getState();
     const { name, type, publicKeyHash } = accounts[0];
     expect(name).toBe("testName");
-    expect(type).toBe(ThanosAccountType.Imported);
+    expect(type).toBe(TempleAccountType.Imported);
     expect(publicKeyHash).toBe("testHashKey");
   });
   it("Settings updated event", () => {
