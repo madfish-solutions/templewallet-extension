@@ -108,19 +108,17 @@
     "webpack-extension-reloader": "1.1.4",
     "webpackbar": "4.0.0",
     "wext-manifest": "2.2.0",
-    "zip-webpack-plugin": "3.0.0"
+    "zip-webpack-plugin": "3.0.0",
+    "@peculiar/webcrypto": "1.1.6",
+    "@serh11p/jest-webextension-mock": "4.0.0",
+    "@types/jest": "26.0.20",
+    "jest": "26.6.3",
+    "ts-jest": "26.5.1",
+    "ts-node": "9.1.1"
   },
   "resolutions": {
     "@taquito/**/braces": "2.3.1",
     "react-json-view/**/node-fetch": "2.6.1",
     "@tezos-domains/resolver/**/idna-uts46-hx": "hexonet/idna-uts46#6a61636c4930930076c562b10639c25c81058d44"
-  },
-  "devDependencies": {
-    "@peculiar/webcrypto": "^1.1.6",
-    "@serh11p/jest-webextension-mock": "^4.0.0",
-    "@types/jest": "^26.0.20",
-    "jest": "^26.6.3",
-    "ts-jest": "^26.5.1",
-    "ts-node": "^9.1.1"
   }
 }
