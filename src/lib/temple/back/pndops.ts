@@ -1,6 +1,6 @@
 import { browser } from "webextension-polyfill-ts";
-import { Queue } from "queue-ts";
 import { OperationContentsAndResult } from "@taquito/rpc";
+import { createQueue } from "lib/queue";
 import { TemplePendingOperation } from "lib/temple/types";
 
 export async function getAll(accPkh: string, netId: string) {
@@ -32,22 +32,17 @@ export async function remove(
   );
 }
 
-const setQueue = new Queue(1);
+const enqueueSet = createQueue();
 
 export function set(
   accPkh: string,
   netId: string,
   ops: TemplePendingOperation[]
 ) {
-  return new Promise((resolve, reject) =>
-    setQueue.add(() =>
-      browser.storage.local
-        .set({
-          [getKey(accPkh, netId)]: ops,
-        })
-        .then(resolve)
-        .catch(reject)
-    )
+  return enqueueSet(() =>
+    browser.storage.local.set({
+      [getKey(accPkh, netId)]: ops,
+    })
   );
 }
 

@@ -9608,11 +9608,6 @@ queue-microtask@^1.2.2:
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.2.tgz#abf64491e6ecf0f38a6502403d4cda04f372dfd3"
   integrity sha512-dB15eXv3p2jDlbOiNLyMabYg1/sXvppd8DP2J3EOCQ0AkuSXCW2tP7mnVouVLJKgUMY6yP0kcQDVpLCN13h4Xg==
 
-queue-ts@0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/queue-ts/-/queue-ts-0.1.0.tgz#0880f0ad41b70390dbc125235930ae2b8d1710ba"
-  integrity sha1-CIDwrUG3A5DbwSUjWTCuK40XELo=
-
 randombytes@^2.0.0, randombytes@^2.0.1, randombytes@^2.0.5, randombytes@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/randombytes/-/randombytes-2.1.0.tgz#df6f84372f0270dc65cdf6291349ab7a473d4f2a"
