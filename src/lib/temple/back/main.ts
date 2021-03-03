@@ -1,5 +1,5 @@
 import { Runtime } from "webextension-polyfill-ts";
-import { Queue } from "queue-ts";
+import { createQueue } from "lib/queue";
 import {
   TempleMessageType,
   TempleRequest,
@@ -11,6 +11,7 @@ import * as Actions from "lib/temple/back/actions";
 import * as PndOps from "lib/temple/back/pndops";
 
 const frontStore = store.map(toFront);
+const enqueueDApp = createQueue();
 
 export async function start() {
   intercom.onRequest(processRequest);
@@ -205,7 +206,11 @@ async function processRequest(
           };
         }
 
-        return enqueueDAppPrecessing(port, async () => {
+        return enqueueDApp(async () => {
+          if (!intercom.isConnected(port)) {
+            throw new Error("Disconnected");
+          }
+
           if (!req.beacon) {
             const resPayload = await Actions.processDApp(
               req.origin,
@@ -231,26 +236,4 @@ async function processRequest(
       }
       break;
   }
-}
-
-const dAppsQueue = new Queue(1);
-
-async function enqueueDAppPrecessing<T>(
-  port: Runtime.Port,
-  factory: () => Promise<T>
-) {
-  return new Promise<T>((response, reject) => {
-    let connected = true;
-    const stopDisconnectListening = intercom.onDisconnect(port, () => {
-      connected = false;
-      reject(new Error("Disconnected"));
-    });
-
-    dAppsQueue.add(async () => {
-      stopDisconnectListening();
-      if (!connected) return;
-
-      return factory().then(response).catch(reject);
-    });
-  });
 }

@@ -26,6 +26,10 @@ export class IntercomServer {
     this.handleMessage = this.handleMessage.bind(this);
   }
 
+  isConnected(port: Runtime.Port) {
+    return this.ports.has(port);
+  }
+
   onRequest(handler: ReqHandler) {
     this.addReqHandler(handler);
     return () => {
