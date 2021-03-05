@@ -109,6 +109,15 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           name: t("raw"),
           Icon: CodeAltIcon,
         },
+        ...(payload.bytesToSign
+          ? [
+              {
+                key: "bytes",
+                name: t("bytes"),
+                Icon: HashIcon,
+              },
+            ]
+          : []),
       ];
     }
 
@@ -124,7 +133,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         Icon: HashIcon,
       },
     ];
-  }, [payload.type]);
+  }, [payload]);
 
   const [spFormat, setSpFormat] = useSafeState(signPayloadFormats[0]);
   const [error, setError] = useSafeState<any>(null);
@@ -253,7 +262,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
 
               {payload.type === "operations" && spFormat.key === "raw" && (
                 <OperationsBanner
-                  opParams={payload.opParams}
+                  opParams={payload.rawToSign ?? payload.opParams}
                   jsonViewStyle={
                     signPayloadFormats.length > 1
                       ? { height: "9.5rem" }
@@ -272,6 +281,18 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                   />
                 </>
               )}
+
+              {payload.type === "operations" &&
+                payload.bytesToSign &&
+                spFormat.key === "bytes" && (
+                  <>
+                    <RawPayloadView
+                      rows={5}
+                      payload={payload.bytesToSign}
+                      className="mb-4"
+                    />
+                  </>
+                )}
 
               {spFormat.key === "preview" && (
                 <ExpensesView expenses={expensesData} />
