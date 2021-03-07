@@ -1,9 +1,9 @@
 {
-  "appName": {
-    "message": "템플 - 테조스 지갑"
-  },
   "showIncomingTransactions": {
     "message": "앞으로의 거래 표시"
+  },
+  "appName": {
+    "message": "타노스 - 테조스 지갑"
   },
   "appDesc": {
     "message": "🔐💰브라우저에 맞는 웹 익스텐선으로 테조스 블록체인용 암호화화폐 지갑을 사용합니다."
@@ -30,7 +30,7 @@
     "message": "화면 최대화"
   },
   "selectFileOfFormat": {
-    "message": "$포맷$ 파일 선택",
+    "message": "$format$ 파일 선택",
     "placeholders": {
       "format": {
         "content": "$1"
@@ -45,7 +45,7 @@
     "message": "X 아이콘을 클릭하여 접근 권한을 초기화하세요."
   },
   "versionLabel": {
-    "message": "버전: $버전$",
+    "message": "버전: $version$",
     "placeholders": {
       "version": {
         "content": "$1"
@@ -53,7 +53,7 @@
     }
   },
   "madeWithLove": {
-    "message": "$회사명$ 옆에 $러브아이콘$ 포함하여 제작",
+    "message": "$companyName$ 옆에 $loveIcon$ 포함하여 제작",
     "placeholders": {
       "loveIcon": {
         "content": "$1"
@@ -64,7 +64,7 @@
     }
   },
   "feeInputDescription": {
-    "message": "이 운영에 대한 기본 비용은 $비용$입니다\n추가 - 확인에 따라 속도 상승",
+    "message": "이 운영에 대한 기본 비용은 $fee$입니다\n추가 - 확인에 따라 속도 상승",
     "placeholders": {
       "fee": {
         "content": "$1"
@@ -72,7 +72,7 @@
     }
   },
   "resetPermissionsConfirmation": {
-    "message": "$원금$에 대한 접근 권한을 정말로 초기화하시겠습니까?",
+    "message": "$origin$에 대한 접근 권한을 정말로 초기화하시겠습니까?",
     "placeholders": {
       "origin": {
         "content": "$1"
@@ -110,7 +110,7 @@
     "message": "새 토큰 추가"
   },
   "hideSomeToken": {
-    "message": "\"$토큰 이름$\" 토큰 숨기기",
+    "message": "\"$tokenName$\" 토큰 숨기기",
     "placeholders": {
       "tokenName": {
         "content": "$1"
@@ -118,7 +118,7 @@
     }
   },
   "copySomeTokenAddress": {
-    "message": "\"$토큰기호$\" 주소 복사",
+    "message": "\"$tokenSymbol$\" 주소 복사",
     "placeholders": {
       "tokenSymbol": {
         "content": "$1"
@@ -126,7 +126,7 @@
     }
   },
   "copySomeTokenId": {
-    "message": "\"토큰기호$\" ID 복사",
+    "message": "\"tokenSymbol$\" ID 복사",
     "placeholders": {
       "tokenSymbol": {
         "content": "$1"
@@ -134,7 +134,7 @@
     }
   },
   "originLabel": {
-    "message": "원금: $원금$",
+    "message": "원금: $origin$",
     "placeholders": {
       "origin": {
         "content": "$1"
@@ -142,7 +142,7 @@
     }
   },
   "networkLabel": {
-    "message": "네트워크: $네트워크$",
+    "message": "네트워크: $network$",
     "placeholders": {
       "network": {
         "content": "$1"
@@ -158,7 +158,7 @@
     }
   },
   "minDelegationAmountDescription": {
-    "message": "현재 잔액이 이 베이커의 최소 위임 금액보다 적습니다. 잔액이 $최소 금액$ 미만으로 지불금이 없다는 뜻입니다.",
+    "message": "현재 잔액이 이 베이커의 최소 위임 금액보다 적습니다. 잔액이 $minAmount$ 미만으로 지불금이 없다는 뜻입니다.",
     "placeholders": {
       "minAmount": {
         "content": "$1"
@@ -166,7 +166,7 @@
     }
   },
   "clickOnBakerPrompt": {
-    "message": "자금을 위임하고자 하는 베이커를 클릭하세요. 이 목록은 $링크$이(가) 지원합니다.",
+    "message": "자금을 위임하고자 하는 베이커를 클릭하세요. 이 목록은 $link$이(가) 지원합니다.",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -177,7 +177,7 @@
     "message": "높을수록 좋습니다"
   },
   "unlockWalletPrompt": {
-    "message": "기존 지갑에 있던 것을 저장하고자 한다면 $링크$하여 이를 잠금 해제하세요.",
+    "message": "기존 지갑에 있던 것을 저장하고자 한다면 $link$하여 이를 잠금 해제하세요.",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -185,7 +185,7 @@
     }
   },
   "acceptTermsInputDescription": {
-    "message": "본인은 $사용약관 링크$ 및 $개인정보 보호정책 링크$를 읽고 이에 동의합니다",
+    "message": "본인은 $termsOfUsageLink$ 및 $privacyPolicyLink$를 읽고 이에 동의합니다",
     "placeholders": {
       "termsOfUsageLink": {
         "content": "$1"
@@ -248,7 +248,7 @@
     "message": "송금 방법 없음"
   },
   "tokenDoesNotMatchStandard": {
-    "message": "입력한 토큰 계약이 $기준$ 기준과 일치하지 않습니다",
+    "message": "입력한 토큰 계약이 $standard$ 기준과 일치하지 않습니다",
     "placeholders": {
       "standard": {
         "content": "$1"
@@ -483,10 +483,10 @@
     "message": "익스텐션 재설정"
   },
   "resetExtensionConfirmation": {
-    "message": "템플 지갑을 정말로 초기화하시겠습니까?\n그 결과 모든 데이터가 삭제됩니다."
+    "message": "타노스 지갑을 정말로 초기화하시겠습니까?\n그 결과 모든 데이터가 삭제됩니다."
   },
   "failedToResetExtension": {
-    "message": "익스텐션 초기화 실패: $오류메시지$",
+    "message": "익스텐션 초기화 실패: $errorMessage$",
     "placeholders": {
       "errorMessage": {
         "content": "$1"
@@ -504,7 +504,7 @@
     "message": "비공개 키는 공개할 수 없습니다"
   },
   "youCannotGetPrivateKeyFromThisAccountType": {
-    "message": "$계정 유형$ 계정에서 비공개 키를 받을 수 없습니다.",
+    "message": "$accountType$ 계정에서 비공개 키를 받을 수 없습니다.",
     "placeholders": {
       "accountType": {
         "content": "$1"
@@ -512,7 +512,7 @@
     }
   },
   "maximalAmount": {
-    "message": "최대: $금액$",
+    "message": "최대: $amount$",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -532,7 +532,7 @@
     "message": "새 지갑 생성"
   },
   "createNewWalletDescription": {
-    "message": "템플 지갑이 처음이신가요? 그렇다면 함께 설정해봅시다! 그 결과 새 지갑과 비밀 문구가 생성됩니다"
+    "message": "타노스 지갑이 처음이신가요? 그렇다면 함께 설정해봅시다! 설정 결과 새 지갑 및 비밀 문구가 생성됩니다"
   },
   "delegate": {
     "message": "위임"
@@ -622,7 +622,7 @@
     "message": "예상치 못한 혹은 유효하지 않은 파일"
   },
   "requestSent": {
-    "message": "$유형$ 요청을 전송하였습니다! 확인 중...",
+    "message": "$type$ 요청을 전송하였습니다! 확인 중...",
     "placeholders": {
       "type": {
         "content": "$1"
@@ -636,7 +636,7 @@
     "message": "문제가 발생했습니다"
   },
   "faucetFileInputPrompt": {
-    "message": "파일을 드래그 및 드롭 하거나 아래 영역을 클릭하여 수동으로 선택하세요. $링크$에서 다운로드 할 수 있습니다.",
+    "message": "파일을 드래그 및 드롭 하거나 아래 영역을 클릭하여 수동으로 선택하세요. $link$에서 다운로드 할 수 있습니다.",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -678,7 +678,7 @@
     "description": "DApps = Decentralized Applications"
   },
   "dAppsDescription": {
-    "message": "이 섹션에서 템플 지갑을 지원하는 분산 애플리케이션과 상호 소통하는 기능을 활성화할 수 있습니다."
+    "message": "이 섹션에서 타노스 지갑을 지원하는 분산 애플리케이션과 상호 소통하는 기능을 활성화할 수 있습니다."
   },
   "networksDescription": {
     "message": "이 섹션에서 맞춤형 테조스 네트워크를 추가하거나 삭제할 수 있습니다.",
@@ -700,7 +700,7 @@
     "message": "정보"
   },
   "aboutDescription": {
-    "message": "이 섹션을 화용하여 템플 지갑에 관한 메타 정보를 확인하세요."
+    "message": "이 섹션을 활용하여 타노스 지갑에 관한 메타 징보를 확인하세요."
   },
   "unlockWallet": {
     "message": "지갑 잠금 해제"
@@ -803,7 +803,7 @@
     "message": "활성화"
   },
   "dAppsCheckmarkPrompt": {
-    "message": "분산 앱 상호 소통 기능을 $작업$하려면 체크표시를 클릭하세요",
+    "message": "분산 앱 상호 소통 기능을 $action$하려면 체크표시를 클릭하세요",
     "description": "DApps = Decentralized Applications",
     "placeholders": {
       "action": {
@@ -870,7 +870,7 @@
     "message": "정렬 기준"
   },
   "cycles_one": {
-    "message": "$금액$ 순환 주기",
+    "message": "$amount$ 순환 주기",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -878,7 +878,7 @@
     }
   },
   "cycles_other": {
-    "message": "$금액$ 순환 주기",
+    "message": "$amount$ 순환 주기",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -889,7 +889,7 @@
     "message": "자금 부족"
   },
   "notEnoughCurrencyFunds": {
-    "message": "$통화$ 자금 부족",
+    "message": "$currency$ 자금 부족",
     "placeholders": {
       "currency": {
         "content": "$1"
@@ -915,7 +915,7 @@
     "message": "지정된 베이커가 등록되지 않았습니다."
   },
   "unableToPerformActionToBaker": {
-    "message": "입력한 베이커로 $작업$할 수 없습니다.",
+    "message": "입력한 베이커로 $action$할 수 없습니다.",
     "placeholders": {
       "action": {
         "content": "$1"
@@ -938,7 +938,7 @@
     "message": "계약 주소인...KT로 위임할 수 없습니다"
   },
   "confirmAction": {
-    "message": "$작업$ 확인",
+    "message": "$action$ 확인",
     "placeholders": {
       "action": {
         "content": "$1"
@@ -1024,7 +1024,7 @@
     "message": "역추적됨"
   },
   "operationSuccessfullyProcessed": {
-    "message": "$유형$ 처리 및 확인 성공!",
+    "message": "$type$ 처리 및 확인 성공!",
     "placeholders": {
       "type": {
         "content": "$1"
@@ -1078,7 +1078,7 @@
     "message": "보안을 유지하세요."
   },
   "revealSecretPasswordInputDescription": {
-    "message": "$기밀명$을(를) 공개하려면 비밀번호를 입력하세요.",
+    "message": "$secretName$을(를) 공개하려면 비밀번호를 입력하세요.",
     "placeholders": {
       "secretName": {
         "content": "$1"
@@ -1095,7 +1095,7 @@
     "message": "수신자"
   },
   "tokensRecepientInputDescription": {
-    "message": "$자산기호$ 자금을 전송할 주소입니다.",
+    "message": "$assetSymbol$ 자금을 전송할 주소입니다.",
     "placeholders": {
       "assetSymbol": {
         "content": "$1"
@@ -1103,7 +1103,7 @@
     }
   },
   "tokensRecepientInputDescriptionWithDomain": {
-    "message": "$자산기호$ 자금을 전송할 주소 혹은 테조스 도메인입니다.",
+    "message": "$assetSymbol$ 자금을 전송할 주소 혹은 테조스 도메인입니다.",
     "placeholders": {
       "assetSymbol": {
         "content": "$1"
@@ -1213,7 +1213,7 @@
     "message": "다음에서 작업 확인"
   },
   "deviceName": {
-    "message": "$기기$ 기기",
+    "message": "$device$ 기기",
     "placeholders": {
       "device": {
         "content": "$1"
@@ -1225,7 +1225,7 @@
     "description": "Ledger = https://www.ledger.com/"
   },
   "defaultLedgerName": {
-    "message": "Ledger $숫자$",
+    "message": "Ledger $number$",
     "description": "Ledger = https://www.ledger.com/",
     "placeholders": {
       "number": {
@@ -1241,7 +1241,7 @@
     "description": "Ledger = https://www.ledger.com/"
   },
   "defaultDerivationPathLabel": {
-    "message": "기본값으로 $경로$ 도출이 사용됩니다.",
+    "message": "기본값으로 $path$ 도출이 사용됩니다.",
     "placeholders": {
       "path": {
         "content": "$1"
@@ -1437,7 +1437,7 @@
     }
   },
   "someNetworkIsNotCurrent": {
-    "message": "네트워크가 $네트워크$(으)로 지정되었으나 현재 네트워크가 아닙니다",
+    "message": "네트워크가 $network$(으)로 지정되었으나 현재 네트워크가 아닙니다",
     "placeholders": {
       "network": {
         "content": "$1"
@@ -1445,7 +1445,7 @@
     }
   },
   "someNetworkWithChainIdIsNotCurrent": {
-    "message": "체인 ID가 $체인Id$(으)로 지정되었으나 현재 네트워크의 체인 ID가 아닙니다",
+    "message": "체인 ID가 $chainId$(으)로 지정되었으나 현재 네트워크의 체인 ID가 아닙니다",
     "placeholders": {
       "chainId": {
         "content": "$1"
@@ -1462,7 +1462,7 @@
     "message": "관리 대상 계약"
   },
   "referredByTokenContractNotFound": {
-    "message": "토큰 계약이 참조하는 계약 $주소$를 찾을 수 없습니다.",
+    "message": "토큰 계약이 참조하는 계약 $address$를 찾을 수 없습니다.",
     "placeholders": {
       "address": {
         "content": "$1"
@@ -1490,7 +1490,7 @@
     "message": "유효하지 않은 관리 계약"
   },
   "someMethodNotDefinedInContract": {
-    "message": "'$이름$' 방법은 계약에 명시되어 있지 않습니다.",
+    "message": "'$name$' 방법은 계약에 명시되어 있지 않습니다.",
     "placeholders": {
       "name": {
         "content": "$1"
@@ -1498,7 +1498,7 @@
     }
   },
   "someMethodSignatureDoesNotMatchStandard": {
-    "message": "'$이름$' 방법의 서명이 기준과 일치하지 않습니다.",
+    "message": "'$name$' 방법의 서명이 기준과 일치하지 않습니다.",
     "placeholders": {
       "name": {
         "content": "$1"
@@ -1512,7 +1512,7 @@
     "message": "해당 토큰 ID가 올바른지 확인해보세요."
   },
   "unknownErrorCheckingSomeEntrypoint": {
-    "message": "'$이름$' 진입점을 확인하는 동안 알 수 없는 오류가 발생했습니다.",
+    "message": "'$name$' 진입점을 확인하는 동안 알 수 없는 오류가 발생했습니다.",
     "placeholders": {
       "name": {
         "content": "$1"
@@ -1526,7 +1526,7 @@
     "message": "송금"
   },
   "transferFromSmb": {
-    "message": "$전송자$로부터",
+    "message": "$sender$로부터",
     "placeholders": {
       "sender": {
         "content": "$1"
@@ -1534,7 +1534,7 @@
     }
   },
   "transferToSmb": {
-    "message": "$수신자$에게",
+    "message": "$receiver$에게",
     "placeholders": {
       "receiver": {
         "content": "$1"
@@ -1545,7 +1545,7 @@
     "message": "상호 소통"
   },
   "interactionWithContract": {
-    "message": "$계약$ 포함",
+    "message": "$contract$ 포함",
     "placeholders": {
       "contract": {
         "content": "$1"
@@ -1553,7 +1553,7 @@
     }
   },
   "delegationToSmb": {
-    "message": "$대표$에게",
+    "message": "$delegate$에게",
     "placeholders": {
       "delegate": {
         "content": "$1"
@@ -1561,7 +1561,7 @@
     }
   },
   "fa2TokenAlreadyExists": {
-    "message": "주소가 $주소$인 토큰과 ID $토큰Id$(은)는 이미 있습니다.",
+    "message": "주소가 $address$인 토큰과 ID $tokenId$(은)는 이미 있습니다.",
     "placeholders": {
       "address": {
         "content": "$1"
@@ -1572,7 +1572,7 @@
     }
   },
   "nonFa2TokenAlreadyExists": {
-    "message": "주소가 $주소$인 토큰은 이미 있습니다.",
+    "message": "주소가 $address$인 토큰은 이미 있습니다.",
     "placeholders": {
       "address": {
         "content": "$1"
@@ -1580,7 +1580,7 @@
     }
   },
   "approveForSmb": {
-    "message": "$소비자$용",
+    "message": "$spender$용",
     "placeholders": {
       "spender": {
         "content": "$1"
@@ -1612,7 +1612,7 @@
     "message": "작업 확인"
   },
   "domainDoesntResolveToAddress": {
-    "message": "도메인 \"$값$\"은 주소로 분석되지 않습니다",
+    "message": "도메인 \"$value$\"은 주소로 분석되지 않습니다",
     "placeholders": {
       "value": {
         "content": "$1"
