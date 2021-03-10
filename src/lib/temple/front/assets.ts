@@ -8,11 +8,14 @@ import {
 } from "lib/temple/front";
 
 export function useAssets() {
-  const { displayedTokens } = useTokens();
+  const { allTokens, displayedTokens } = useTokens();
   const allAssetsRef = useAllAssetsRef();
 
   const allAssets = React.useMemo(() => [TEZ_ASSET, ...displayedTokens], [
     displayedTokens,
+  ]);
+  const allWithHiddenTokens = React.useMemo(() => [TEZ_ASSET, ...allTokens], [
+    allTokens,
   ]);
 
   React.useEffect(() => {
@@ -21,7 +24,7 @@ export function useAssets() {
 
   const defaultAsset = React.useMemo(() => allAssets[0], [allAssets]);
 
-  return { allAssets, defaultAsset };
+  return { allAssets, allWithHiddenTokens, defaultAsset };
 }
 
 export function useAssetBySlug(slug?: string | null) {

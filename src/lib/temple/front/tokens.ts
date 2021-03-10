@@ -46,29 +46,45 @@ export function useTokens(networkRpc?: string) {
   );
 
   const chainId = useCustomChainId(network.rpcBaseURL, true);
-
-  const tokens = React.useMemo(() => tokensPure.map(formatSaved), [tokensPure]);
-  const hiddenTokens = React.useMemo(() => hiddenTokensPure.map(formatSaved), [
-    hiddenTokensPure,
-  ]);
-
-  const allTokens = React.useMemo(
-    () =>
-      mergeAssets(
-        (chainId && NETWORK_TOKEN_MAP.get(chainId as TempleChainId)) || [],
-        tokens
-      ),
-    [chainId, tokens]
+  const staticTokens = React.useMemo(
+    () => (chainId && NETWORK_TOKEN_MAP.get(chainId as TempleChainId)) || [],
+    [chainId]
   );
 
   const displayedTokens = React.useMemo(
-    () => omitAssets(allTokens, hiddenTokens),
-    [allTokens, hiddenTokens]
+    () =>
+      omitAssets(
+        staticTokens.filter((t) => t.default),
+        tokensPure.map(formatSaved)
+      ),
+    [staticTokens, tokensPure]
   );
+  const hiddenTokens = React.useMemo(
+    () =>
+      mergeAssets(
+        staticTokens.filter((t) => !t.default),
+        hiddenTokensPure.map(formatSaved)
+      ),
+    [staticTokens, hiddenTokensPure]
+  );
+
+  const allTokens = React.useMemo(
+    () => mergeAssets(displayedTokens, hiddenTokens),
+    [displayedTokens, hiddenTokens]
+  );
+
+  // const dissplayedTokens = React.useMemo(
+  //   () =>
+  //     omitAssets(allTokens, [
+  //       ...staticTokens.filter((t) => !t.default),
+  //       ...hiddenTokens,
+  //     ]),
+  //   [allTokens, staticTokens, hiddenTokens]
+  // );
 
   const addToken = React.useCallback(
     (token: TempleToken) => {
-      if (tokens.some((t) => assetsAreSame(t, token))) {
+      if (displayedTokens.some((t) => assetsAreSame(t, token))) {
         if (token.type === TempleAssetType.FA2) {
           throw new Error(
             t("fa2TokenAlreadyExists", [token.address, token.id])
@@ -81,7 +97,7 @@ export function useTokens(networkRpc?: string) {
       setTokens((tkns) => [...tkns, token]);
       setHiddenTokens((tkns) => tkns.filter((t) => !assetsAreSame(t, token)));
     },
-    [tokens, setTokens, setHiddenTokens]
+    [displayedTokens, setTokens, setHiddenTokens]
   );
 
   const removeToken = React.useCallback(
@@ -93,10 +109,10 @@ export function useTokens(networkRpc?: string) {
   );
 
   return {
-    tokens,
+    staticTokens,
+    displayedTokens,
     hiddenTokens,
     allTokens,
-    displayedTokens,
     setTokens,
     addToken,
     removeToken,
