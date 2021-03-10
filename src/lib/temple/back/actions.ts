@@ -15,7 +15,7 @@ import {
 } from "lib/temple/types";
 import { loadChainId } from "lib/temple/helpers";
 import { intercom } from "lib/temple/back/defaults";
-import { applyEstimateToOpParams } from "lib/temple/back/estimate";
+import { dryRunOpParams } from "lib/temple/back/dryrun";
 import {
   toFront,
   store,
@@ -242,12 +242,11 @@ export function sendOperations(
 ): Promise<{ opHash: string }> {
   return withUnlocked(async () => {
     const sourcePublicKey = await revealPublicKey(sourcePkh);
-    opParams = await applyEstimateToOpParams({
+    const dryRunResult = await dryRunOpParams({
       opParams,
       networkRpc,
       sourcePkh,
       sourcePublicKey,
-      overrideFee: true,
     });
 
     return new Promise(async (resolve, reject) => {
@@ -259,6 +258,7 @@ export function sendOperations(
           sourcePkh,
           networkRpc,
           opParams,
+          ...(dryRunResult ?? {}),
         },
       });
 

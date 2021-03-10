@@ -196,6 +196,8 @@ export interface TempleOpsConfirmationPayload
   type: "operations";
   networkRpc: string;
   opParams: any[];
+  bytesToSign?: string;
+  rawToSign?: any;
 }
 
 export type TempleConfirmationPayload =
@@ -222,6 +224,8 @@ export interface TempleDAppOperationsPayload extends TempleDAppPayloadBase {
   sourcePkh: string;
   sourcePublicKey: string;
   opParams: any[];
+  bytesToSign?: string;
+  rawToSign?: any;
 }
 
 export interface TempleDAppSignPayload extends TempleDAppPayloadBase {

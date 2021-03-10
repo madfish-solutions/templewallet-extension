@@ -45,7 +45,7 @@ const Alert: React.FC<AlertProps> = ({
     <div
       ref={ref}
       className={classNames(
-        "relative w-full px-4 py-3",
+        "relative w-full px-4 pt-3",
         bgColorClassName,
         "border",
         borderColorClassName,
@@ -62,10 +62,10 @@ const Alert: React.FC<AlertProps> = ({
       {description && (
         <div
           className={classNames(
-            "text-sm font-light break-words",
+            "pb-3 text-sm font-light break-words",
             "overflow-y-auto no-scrollbar"
           )}
-          style={{ maxHeight: "10rem" }}
+          style={{ maxHeight: "8rem" }}
         >
           {description}
         </div>
