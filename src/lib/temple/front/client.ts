@@ -352,7 +352,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
         id,
         confirmed,
         accountPublicKeyHash: pkh,
-        accountPublicKey: await getPublicKey(pkh),
+        accountPublicKey: confirmed ? await getPublicKey(pkh) : "",
       });
       assertResponse(
         res.type === TempleMessageType.DAppPermConfirmationResponse
