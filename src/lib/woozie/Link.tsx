@@ -2,6 +2,7 @@ import * as React from "react";
 import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
 import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 import { To, createLocationUpdates, useLocation } from "lib/woozie/location";
+import {trackEvent} from "../analytics";
 
 export interface LinkProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -58,6 +59,7 @@ const LinkAnchor: React.FC<LinkAnchorProps> = ({
 }) => {
   const handleClick = React.useCallback(
     (evt) => {
+      trackEvent('link click');
       try {
         if (onClick) {
           onClick(evt);
