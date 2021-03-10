@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
+import { useAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import { useAppEnv, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
@@ -85,6 +86,14 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 ]);
 
 const Page: React.FC = () => {
+  const { analyticsEnabled, setAnalyticsEnabled } = useAnalytics();
+
+  React.useEffect(() => void (analyticsEnabled === undefined) &&
+        setTimeout( () => {
+          setAnalyticsEnabled(window.confirm("Do you allow us to collect anonymous analytics to improve our product?"));
+        }),
+      [analyticsEnabled, setAnalyticsEnabled]);
+
   const { trigger, pathname } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
