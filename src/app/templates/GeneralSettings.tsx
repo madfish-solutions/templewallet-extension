@@ -1,6 +1,7 @@
 import React from "react";
 import LocaleSelect from "app/templates/LocaleSelect";
 import PopupSettings from "app/templates/PopupSettings";
+import AnalyticsSettings from "./AnalyticsSettings";
 
 const GeneralSettings: React.FC = () => {
   return (
@@ -8,6 +9,8 @@ const GeneralSettings: React.FC = () => {
       <LocaleSelect className="mb-8" />
 
       <PopupSettings />
+
+      <AnalyticsSettings/>
     </div>
   );
 };
