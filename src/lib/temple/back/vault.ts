@@ -21,8 +21,9 @@ import {
   TempleAccountType,
   TempleSettings,
 } from "lib/temple/types";
-import { transformHttpResponseError } from "lib/temple/helpers";
+import { transformHttpResponseError, loadChainId } from "lib/temple/helpers";
 import * as Passworder from "lib/temple/passworder";
+import { NETWORKS } from "lib/temple/networks";
 import { PublicError } from "lib/temple/back/defaults";
 import {
   isStored,
@@ -595,6 +596,38 @@ const MIGRATIONS = [
     );
 
     await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
+  },
+
+  // [2] Improve token managing flow
+  // Migrate from tokens: TempleToken[] + hiddenTokens: TempleToken[]
+  // to tokens: { saved: TempleToken[], hidden: TempleTokenId[] }
+  async (passKey: CryptoKey) => {
+    let savedSettings;
+    try {
+      savedSettings = await fetchAndDecryptOne<TempleSettings>(
+        settingsStrgKey,
+        passKey
+      );
+    } catch {}
+    const customNetworks = savedSettings?.customNetworks ?? [];
+    const allNetworks = [...NETWORKS, ...customNetworks];
+    for (const net of allNetworks) {
+      const legacyTokensStrgKey = `tokens_${net.id}`;
+      const legacyHiddenTokensStrgKey = `hidden_tokens_${net.id}`;
+      const [
+        {
+          [legacyTokensStrgKey]: legacyTokens = [],
+          [legacyHiddenTokensStrgKey]: legacyHiddenTokens = [],
+        },
+        chainId,
+      ] = await Promise.all([
+        browser.storage.local.get([
+          legacyTokensStrgKey,
+          legacyHiddenTokensStrgKey,
+        ]),
+        loadChainId(net.rpcBaseURL),
+      ]);
+    }
   },
 ];
 

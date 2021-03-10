@@ -129,6 +129,7 @@ export interface TempleAssetBase {
   name: string;
   fungible: boolean;
   default?: boolean;
+  removed?: boolean;
 }
 
 export interface TempleTokenBase extends TempleAssetBase {
