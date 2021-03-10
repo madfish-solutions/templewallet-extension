@@ -283,7 +283,10 @@ const Form: React.FC = () => {
 
         // Wait a little bit while the tokens updated
         await new Promise((r) => setTimeout(r, 300));
-        navigate(`/explore/${assetKey}`);
+        navigate({
+          pathname: `/explore/${assetKey}`,
+          search: "after_token_added=true",
+        });
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
