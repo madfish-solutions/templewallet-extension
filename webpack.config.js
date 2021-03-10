@@ -320,6 +320,7 @@ module.exports = {
     new ModuleNotFoundPlugin(SOURCE_PATH),
 
     new webpack.DefinePlugin({
+      SharedArrayBuffer: "_SharedArrayBuffer",
       "process.env.NODE_ENV": JSON.stringify(NODE_ENV),
       "process.env.VERSION": JSON.stringify(VERSION),
       "process.env.TARGET_BROWSER": JSON.stringify(TARGET_BROWSER),
