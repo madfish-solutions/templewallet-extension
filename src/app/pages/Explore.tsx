@@ -1,6 +1,12 @@
 import * as React from "react";
 import classNames from "clsx";
-import { Link, Redirect, useLocation } from "lib/woozie";
+import {
+  Link,
+  Redirect,
+  useLocation,
+  navigate,
+  HistoryAction,
+} from "lib/woozie";
 import {
   getAssetKey,
   TempleAccountType,
@@ -34,9 +40,20 @@ type ExploreProps = {
 };
 
 const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
-  const { fullPage } = useAppEnv();
+  const { fullPage, registerBackHandler } = useAppEnv();
   const account = useAccount();
   const asset = useAssetBySlug(assetSlug);
+  const { search } = useLocation();
+
+  React.useLayoutEffect(() => {
+    const usp = new URLSearchParams(search);
+    if (asset && usp.get("after_token_added") === "true") {
+      return registerBackHandler(() => {
+        navigate("/", HistoryAction.Replace);
+      });
+    }
+    return;
+  }, [registerBackHandler, asset, search]);
 
   if (assetSlug && !asset) {
     return <Redirect to="/" />;

@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import React from "react";
-import { T, t, TProps } from "lib/i18n/react";
+import { T, TProps } from "lib/i18n/react";
 import {
   TempleAsset,
   TempleAssetType,
@@ -100,12 +100,12 @@ const Operation = React.memo<OperationProps>(
         internalTransfers.some(({ receiver }) => receiver.startsWith("KT"));
       switch (true) {
         case isTransfer:
-          return t("transfer");
+          return "transfer";
         case type === "delegation":
-          return t(delegate ? "delegation" : "undelegation");
+          return delegate ? "delegation" : "undelegation";
         case type === "transaction" &&
           (rawReceiverIsContract || isMultipleTransfersInteraction):
-          return t("interaction");
+          return "interaction";
         default:
           return type;
       }

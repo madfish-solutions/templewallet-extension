@@ -464,7 +464,7 @@ export class Vault {
         tezos.setForgerProvider(
           new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
         );
-        return tezos.batch(opParams.map(formatOpParams));
+        return tezos.contract.batch(opParams.map(formatOpParams));
       });
 
       try {
