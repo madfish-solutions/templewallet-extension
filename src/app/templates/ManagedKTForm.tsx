@@ -129,7 +129,7 @@ const ManagedKTForm: React.FC = () => {
         return;
       }
 
-      trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.ManagedKT });
+      trackEvent(AnalyticsEventEnum.ImportAccountFormSubmit, { type: ImportAccountType.ManagedKT });
       setError(null);
       try {
         const contract = await tezos.contract.at(contractAddress);

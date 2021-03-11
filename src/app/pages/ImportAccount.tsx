@@ -187,7 +187,7 @@ const ByPrivateKeyForm: React.FC = () => {
     async ({ privateKey, encPassword }: ByPrivateKeyFormData) => {
       if (formState.isSubmitting) return;
 
-      trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.PrivateKey });
+      trackEvent(AnalyticsEventEnum.ImportAccountFormSubmit, { type: ImportAccountType.PrivateKey });
       setError(null);
       try {
         await importAccount(privateKey.replace(/\s/g, ""), encPassword);
@@ -313,7 +313,7 @@ const ByMnemonicForm: React.FC = () => {
     }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
-      trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.Mnemonic });
+      trackEvent(AnalyticsEventEnum.ImportAccountFormSubmit, { type: ImportAccountType.Mnemonic });
       setError(null);
       try {
         await importMnemonicAccount(
@@ -520,7 +520,7 @@ const ByFundraiserForm: React.FC = () => {
     async (data) => {
       if (formState.isSubmitting) return;
 
-      trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.Fundraiser });
+      trackEvent(AnalyticsEventEnum.ImportAccountFormSubmit, { type: ImportAccountType.Fundraiser });
       setError(null);
       try {
         await importFundraiserAccount(
@@ -708,7 +708,7 @@ const FromFaucetForm: React.FC = () => {
         return;
       }
 
-      trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.FaucetFile });
+      trackEvent(AnalyticsEventEnum.ImportAccountFormSubmit, { type: ImportAccountType.FaucetFile });
       setProcessing(true);
       setAlert(null);
 
@@ -1032,7 +1032,7 @@ const WatchOnlyForm: React.FC = () => {
   const onSubmit = React.useCallback(async () => {
     if (formState.isSubmitting) return;
 
-    trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.WatchOnly });
+    trackEvent(AnalyticsEventEnum.ImportAccountFormSubmit, { type: ImportAccountType.WatchOnly });
     setError(null);
     try {
       if (!isAddressValid(finalAddress)) {

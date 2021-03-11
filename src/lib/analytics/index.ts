@@ -19,13 +19,13 @@ export const useAnalytics = () => {
   });
 
   const sendTrackEvent = (event: AnalyticsEventEnum, properties?: object) => {
-    console.log({ event });
+    console.log(event, properties);
 
-    client.track({
-      userId: analyticsState.userId,
-      event,
-      properties,
-    });
+    // client.track({
+    //   userId: analyticsState.userId,
+    //   event,
+    //   properties,
+    // });
   };
 
   const trackEvent = (event: AnalyticsEventEnum, properties?: object) => {
