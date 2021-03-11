@@ -87,6 +87,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 
 const Page: React.FC = () => {
   const { analyticsEnabled, setAnalyticsEnabled } = useAnalytics();
+
   React.useEffect(() => {
       if (analyticsEnabled === undefined) {
         setTimeout(() => {

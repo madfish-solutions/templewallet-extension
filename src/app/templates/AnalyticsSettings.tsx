@@ -1,7 +1,7 @@
 import React from "react";
 import { t, T } from "lib/i18n/react";
+import { useAnalytics } from "lib/analytics";
 import FormCheckbox from "app/atoms/FormCheckbox";
-import { useAnalytics } from "../../lib/analytics";
 
 const AnalyticsSettings: React.FC<{}> = () => {
   const { analyticsEnabled, setAnalyticsEnabled } = useAnalytics();
