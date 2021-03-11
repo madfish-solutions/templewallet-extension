@@ -1,13 +1,12 @@
 import React, { useMemo, useCallback } from "react";
 import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
-import { useAnalytics } from "lib/analytics";
+import { useAnalytics, AnalyticsEventEnum } from "lib/analytics";
 import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
 import Flag from "app/atoms/Flag";
 import IconifiedSelect, {
   IconifiedSelectOptionRenderProps,
 } from "./IconifiedSelect";
-import { AnalyticsEventEnum } from "../../lib/analytics/analytics-event.enum";
 
 type LocaleSelectProps = {
   className?: string;

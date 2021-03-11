@@ -2,7 +2,7 @@ export enum AnalyticsEventEnum {
   AnalyticsEnabled = 'AnalyticsEnabled', // !
   PageOpened = 'PageOpened',
   LanguageChanged = 'LanguageChanged', // !
-  AccountImported = 'AccountImported' //  { importType }
+  AccountImported = 'AccountImported' // ! add success/failed actions?
 }
 
 // - View on block-explorer
