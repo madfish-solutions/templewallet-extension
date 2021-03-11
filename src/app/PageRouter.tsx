@@ -87,12 +87,14 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 
 const Page: React.FC = () => {
   const { analyticsEnabled, setAnalyticsEnabled } = useAnalytics();
-
-  React.useEffect(() => void (analyticsEnabled === undefined) &&
-        setTimeout( () => {
+  React.useEffect(() => {
+      if (analyticsEnabled === undefined) {
+        setTimeout(() => {
           setAnalyticsEnabled(window.confirm("Do you allow us to collect anonymous analytics to improve our product?"));
-        }),
-      [analyticsEnabled, setAnalyticsEnabled]);
+        })
+      }
+    },
+    [analyticsEnabled, setAnalyticsEnabled]);
 
   const { trigger, pathname } = Woozie.useLocation();
 
