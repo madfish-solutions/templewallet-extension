@@ -1,11 +1,13 @@
 import React, { useMemo, useCallback } from "react";
 import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
+import { useAnalytics } from "lib/analytics";
 import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
 import Flag from "app/atoms/Flag";
 import IconifiedSelect, {
   IconifiedSelectOptionRenderProps,
 } from "./IconifiedSelect";
+import { AnalyticsEventEnum } from "../../lib/analytics/analytics-event.enum";
 
 type LocaleSelectProps = {
   className?: string;
@@ -82,6 +84,7 @@ const getLocaleCode = ({ code }: LocaleOption) => code;
 
 const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
   const selectedLocale = getCurrentLocale();
+  const { trackEvent } = useAnalytics();
 
   const value = useMemo(
     () =>
@@ -101,9 +104,10 @@ const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
     []
   );
 
-  const handleLocaleChange = useCallback((option: LocaleOption) => {
-    updateLocale(option.code);
-  }, []);
+  const handleLocaleChange = useCallback(({ code }: LocaleOption) => {
+    trackEvent(AnalyticsEventEnum.LanguageChanged, { code });
+    updateLocale(code);
+  }, [trackEvent]);
 
   return (
     <IconifiedSelect
@@ -134,9 +138,12 @@ const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
   />
 );
 
-const LocaleInMenuContent: React.FC<
-  IconifiedSelectOptionRenderProps<LocaleOption>
-> = ({ option: { disabled, label } }) => {
+const LocaleInMenuContent: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
+  option: {
+    disabled,
+    label
+  }
+}) => {
   return (
     <div className={classNames("relative w-full text-lg text-gray-700")}>
       {label}
@@ -164,9 +171,7 @@ const LocaleInMenuContent: React.FC<
   );
 };
 
-const LocaleSelectContent: React.FC<
-  IconifiedSelectOptionRenderProps<LocaleOption>
-> = ({ option }) => {
+const LocaleSelectContent: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({ option }) => {
   return (
     <div className="flex flex-col items-start py-2">
       <span className="text-xl text-gray-700">{option.label}</span>
