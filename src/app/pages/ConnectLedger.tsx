@@ -10,6 +10,7 @@ import {
   validateDerivationPath,
 } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
+import { AnalyticsEventEnum, useAnalytics } from "lib/analytics";
 import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormField from "app/atoms/FormField";
@@ -36,6 +37,7 @@ const DERIVATION_PATHS = [
 
 const ConnectLedger: React.FC = () => {
   const { createLedgerAccount } = useTempleClient();
+  const { trackEvent } = useAnalytics();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
@@ -75,8 +77,9 @@ const ConnectLedger: React.FC = () => {
   const onSubmit = React.useCallback(
     async ({ name, customDerivationPath }: FormData) => {
       if (submitting) return;
-      setError(null);
 
+      trackEvent(AnalyticsEventEnum.ConnectLedgerFormSubmit);
+      setError(null);
       try {
         await createLedgerAccount(name, customDerivationPath);
       } catch (err) {

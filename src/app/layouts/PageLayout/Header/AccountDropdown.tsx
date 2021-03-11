@@ -8,6 +8,7 @@ import {
   useSetAccountPkh,
 } from "lib/temple/front";
 import { PopperRenderProps } from "lib/ui/Popper";
+import { AnalyticsEventEnum, useAnalytics } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
@@ -32,6 +33,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
 }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
+  const { trackEvent } = useAnalytics();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
@@ -215,6 +217,11 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
 
       <div className="my-2">
         {actions.map(({ key, Icon, i18nKey, linkTo, onClick }) => {
+          const handleClick = () => {
+            trackEvent(AnalyticsEventEnum.AccountDropdownButtonPress, { type: key });
+            onClick();
+          }
+
           const baseProps = {
             key,
             className: classNames(
@@ -231,7 +238,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
               paddingTop: "0.375rem",
               paddingBottom: "0.375rem",
             },
-            onClick,
+            onClick: handleClick,
             children: (
               <>
                 <div className="flex items-center w-8">

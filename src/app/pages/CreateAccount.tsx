@@ -8,6 +8,7 @@ import {
   useSetAccountPkh,
 } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
+import { AnalyticsEventEnum, useAnalytics } from "lib/analytics";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -21,6 +22,7 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 
 const CreateAccount: React.FC = () => {
   const { createAccount } = useTempleClient();
+  const { trackEvent } = useAnalytics();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
@@ -61,6 +63,7 @@ const CreateAccount: React.FC = () => {
     async ({ name }) => {
       if (submitting) return;
 
+      trackEvent(AnalyticsEventEnum.CreateAccountFormSubmit);
       clearError("name");
       try {
         await createAccount(name);
