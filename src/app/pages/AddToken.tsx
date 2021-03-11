@@ -28,6 +28,7 @@ import Alert from "app/atoms/Alert";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import { useAnalytics } from "../../lib/analytics";
 
 const AddToken: React.FC = () => (
   <PageLayout
@@ -66,12 +67,15 @@ type FormData = {
   type: TempleCustomTokenType;
 };
 
-class MetadataParseError extends Error {}
+class MetadataParseError extends Error {
+}
 
 const Form: React.FC = () => {
   const { addToken } = useTokens();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
+  const { trackFormEventsFactory } = useAnalytics();
+  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = trackFormEventsFactory('AddToken');
 
   const {
     control,
@@ -256,6 +260,8 @@ const Form: React.FC = () => {
       if (formState.isSubmitting) return;
 
       setSubmitError(null);
+
+      trackFormSubmit();
       try {
         const tokenCommonProps = {
           address,
@@ -269,25 +275,30 @@ const Form: React.FC = () => {
         const newToken: TempleToken =
           tokenType === TempleAssetType.FA1_2
             ? {
-                type: TempleAssetType.FA1_2,
-                ...tokenCommonProps,
-              }
+              type: TempleAssetType.FA1_2,
+              ...tokenCommonProps,
+            }
             : {
-                type: TempleAssetType.FA2,
-                id: Number(id!),
-                ...tokenCommonProps,
-              };
+              type: TempleAssetType.FA2,
+              id: Number(id!),
+              ...tokenCommonProps,
+            };
 
         addToken(newToken);
         const assetKey = getAssetKey(newToken);
 
         // Wait a little bit while the tokens updated
         await new Promise((r) => setTimeout(r, 300));
+
+        trackFormSubmitSuccess();
+
         navigate({
           pathname: `/explore/${assetKey}`,
           search: "after_token_added=true",
         });
       } catch (err) {
+        trackFormSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -464,10 +475,8 @@ const TokenTypeOption: React.FC<TokenTypeOptionProps> = (props) => {
   );
 };
 
-type BottomSectionProps = Pick<
-  FormContextValues,
-  "register" | "errors" | "formState"
-> & {
+type BottomSectionProps = Pick<FormContextValues,
+  "register" | "errors" | "formState"> & {
   submitError?: React.ReactNode;
 };
 
@@ -586,4 +595,5 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
   );
 };
 
-class TokenValidationError extends Error {}
+class TokenValidationError extends Error {
+}

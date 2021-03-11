@@ -25,6 +25,7 @@ import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
 import { AccountDropdownSelectors } from "./AccountDropdown.selectors";
+import { Button } from "app/atoms/Button";
 
 type ExcludesFalse = <T>(x: T | false) => x is T;
 type AccountDropdownProps = PopperRenderProps;
@@ -121,7 +122,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
 
         <div className="flex-1" />
 
-        <button
+        <Button
           className={classNames(
             "px-4 py-1",
             "rounded",
@@ -134,9 +135,10 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             "opacity-90 hover:opacity-100"
           )}
           onClick={handleLogoutClick}
+          testID={AccountDropdownSelectors.LogoutButton}
         >
           <T id="logOut" />
-        </button>
+        </Button>
       </div>
 
       <div
@@ -158,7 +160,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             };
 
             return (
-              <button
+              <Button
                 key={acc.publicKeyHash}
                 className={classNames(
                   "block w-full",
@@ -176,6 +178,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                   padding: "0.375rem",
                 }}
                 onClick={handleAccountClick}
+                testID={AccountDropdownSelectors.AccountItemButton}
                 autoFocus={selected}
               >
                 <Identicon
@@ -211,7 +214,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                     <AccountTypeBadge account={acc} darkTheme />
                   </div>
                 </div>
-              </button>
+              </Button>
             );
           })}
         </div>
