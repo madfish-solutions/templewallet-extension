@@ -102,6 +102,7 @@ const Page: React.FC = () => {
 
   // Scroll to top after new location pushed.
   React.useLayoutEffect(() => {
+      console.log(trigger, pathname);
     if (trigger === Woozie.HistoryAction.Push) {
       window.scrollTo(0, 0);
     }

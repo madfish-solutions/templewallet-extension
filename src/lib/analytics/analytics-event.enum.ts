@@ -1,7 +1,7 @@
 export enum AnalyticsEventEnum {
-  AnalyticsEnabled = 'AnalyticsEnabled',
+  AnalyticsEnabled = 'AnalyticsEnabled', // !
   PageOpened = 'PageOpened',
-  LanguageChanged = 'LanguageChanged',
+  LanguageChanged = 'LanguageChanged', // !
   AccountImported = 'AccountImported' //  { importType }
 }
 

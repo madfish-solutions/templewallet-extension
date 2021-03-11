@@ -18,17 +18,18 @@ export const useAnalytics = () => {
     userId: nanoid()
   });
 
-  const sendTrackEvent = (event: AnalyticsEventEnum) => {
+  const sendTrackEvent = (event: AnalyticsEventEnum, properties?: object) => {
     console.log({ event });
 
     client.track({
-      event,
       userId: analyticsState.userId,
+      event,
+      properties,
     });
   };
 
-  const trackEvent = (event: AnalyticsEventEnum) => {
-    analyticsState.enabled && sendTrackEvent(event);
+  const trackEvent = (event: AnalyticsEventEnum, properties?: object) => {
+    analyticsState.enabled && sendTrackEvent(event, properties);
   };
 
   const setAnalyticsEnabled = (enabled?: boolean) => {
