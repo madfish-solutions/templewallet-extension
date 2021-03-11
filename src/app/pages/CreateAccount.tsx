@@ -22,9 +22,10 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 
 const CreateAccount: React.FC = () => {
   const { createAccount } = useTempleClient();
-  const { trackEvent } = useAnalytics();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
+  const { trackFormEventsFactory } = useAnalytics();
+  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = trackFormEventsFactory('CreateAccount');
 
   const allHDOrImported = React.useMemo(
     () =>
@@ -63,11 +64,15 @@ const CreateAccount: React.FC = () => {
     async ({ name }) => {
       if (submitting) return;
 
-      trackEvent(AnalyticsEventEnum.CreateAccountFormSubmit);
       clearError("name");
+      trackFormSubmit();
       try {
         await createAccount(name);
+
+        trackFormSubmitSuccess();
       } catch (err) {
+        trackFormSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }

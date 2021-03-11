@@ -1,12 +1,10 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
-import { useAnalytics, AnalyticsEventEnum } from "lib/analytics";
+import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from "lib/analytics";
 import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
 import Flag from "app/atoms/Flag";
-import IconifiedSelect, {
-  IconifiedSelectOptionRenderProps,
-} from "./IconifiedSelect";
+import IconifiedSelect, { IconifiedSelectOptionRenderProps, } from "./IconifiedSelect";
 
 type LocaleSelectProps = {
   className?: string;
@@ -104,7 +102,7 @@ const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
   );
 
   const handleLocaleChange = useCallback(({ code }: LocaleOption) => {
-    trackEvent(AnalyticsEventEnum.LanguageChanged, { code });
+    trackEvent(AnalyticsEventEnum.LanguageChanged, AnalyticsEventCategory.ButtonPress, { code });
     updateLocale(code);
   }, [trackEvent]);
 

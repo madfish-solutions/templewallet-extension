@@ -37,9 +37,10 @@ const DERIVATION_PATHS = [
 
 const ConnectLedger: React.FC = () => {
   const { createLedgerAccount } = useTempleClient();
-  const { trackEvent } = useAnalytics();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
+  const { trackFormEventsFactory } = useAnalytics();
+  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = trackFormEventsFactory('ConnectLedger');
 
   const allLedgers = React.useMemo(
     () => allAccounts.filter((acc) => acc.type === TempleAccountType.Ledger),
@@ -78,11 +79,15 @@ const ConnectLedger: React.FC = () => {
     async ({ name, customDerivationPath }: FormData) => {
       if (submitting) return;
 
-      trackEvent(AnalyticsEventEnum.ConnectLedgerFormSubmit);
+      trackFormSubmit();
       setError(null);
       try {
         await createLedgerAccount(name, customDerivationPath);
+
+        trackFormSubmitSuccess();
       } catch (err) {
+        trackFormSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }

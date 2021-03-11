@@ -6,11 +6,14 @@ import { useAlert } from "lib/ui/dialog";
 import Name from "app/atoms/Name";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
+import { AnalyticsEventEnum, useAnalytics } from "lib/analytics";
 
 const EditableTitle: React.FC = () => {
   const { editAccountName } = useTempleClient();
   const account = useAccount();
   const alert = useAlert();
+  const { trackFormEventsFactory } = useAnalytics();
+  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = trackFormEventsFactory('ChangeAccountName');
 
   const [editing, setEditing] = React.useState(false);
 
@@ -57,6 +60,7 @@ const EditableTitle: React.FC = () => {
       evt.preventDefault();
 
       (async () => {
+        trackFormSubmit();
         try {
           const newName = editAccNameFieldRef.current?.value;
           if (newName && newName !== account.name) {
@@ -64,7 +68,11 @@ const EditableTitle: React.FC = () => {
           }
 
           setEditing(false);
+
+          trackFormSubmitSuccess();
         } catch (err) {
+          trackFormSubmitFail();
+
           if (process.env.NODE_ENV === "development") {
             console.error(err);
           }
@@ -76,7 +84,7 @@ const EditableTitle: React.FC = () => {
         }
       })();
     },
-    [account.name, editAccountName, account.publicKeyHash, alert]
+    [account.name, editAccountName, account.publicKeyHash, alert, trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail]
   );
 
   const handleEditFieldFocus = React.useCallback(() => {

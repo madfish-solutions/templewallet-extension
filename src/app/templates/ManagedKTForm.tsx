@@ -10,7 +10,7 @@ import {
   useTempleClient,
   useChainId,
   isKnownChainId,
-  ImportAccountType,
+  ImportAccountFormType,
 } from "lib/temple/front";
 import { getOneUserContracts, TzktRelatedContract } from "lib/tzkt";
 import { T, t } from "lib/i18n/react";
@@ -36,7 +36,12 @@ const ManagedKTForm: React.FC = () => {
   const accounts = useRelevantAccounts();
   const tezos = useTezos();
   const { importKTManagedAccount } = useTempleClient();
-  const { trackEvent } = useAnalytics();
+  const { trackFormEventsFactory } = useAnalytics();
+  const {
+    trackFormSubmit,
+    trackFormSubmitSuccess,
+    trackFormSubmitFail
+  } = trackFormEventsFactory(ImportAccountFormType.ManagedKT);
   const chainId = useChainId(true);
 
   const [error, setError] = useState<React.ReactNode>(null);
@@ -129,7 +134,7 @@ const ManagedKTForm: React.FC = () => {
         return;
       }
 
-      trackEvent(AnalyticsEventEnum.ImportAccountFormSubmit, { type: ImportAccountType.ManagedKT });
+      trackFormSubmit();
       setError(null);
       try {
         const contract = await tezos.contract.at(contractAddress);
@@ -144,7 +149,11 @@ const ManagedKTForm: React.FC = () => {
 
         const chainId = await tezos.rpc.getChainId();
         await importKTManagedAccount(contractAddress, chainId, owner);
+
+        trackFormSubmitSuccess();
       } catch (err) {
+        trackFormSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -207,7 +216,8 @@ const ManagedKTForm: React.FC = () => {
               />
               <div className="ml-1 mr-px font-normal">
                 <T id="contract" />
-              </div>{" "}
+              </div>
+              {" "}
               (
               <Balance asset={TEZ_ASSET} address={filledAccount.address}>
                 {(bal) => (
