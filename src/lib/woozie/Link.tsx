@@ -58,7 +58,6 @@ const LinkAnchor: React.FC<LinkAnchorProps> = ({
 }) => {
   const handleClick = React.useCallback(
     (evt) => {
-      // trackEvent('link click');
       try {
         if (onClick) {
           onClick(evt);
