@@ -6,7 +6,9 @@ import { useAlert } from "lib/ui/dialog";
 import Name from "app/atoms/Name";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
-import { AnalyticsEventEnum, useAnalytics } from "lib/analytics";
+import { useAnalytics } from "lib/analytics";
+import { Button } from "app/atoms/Button";
+import { EditableTitleSelectors } from "./EditableTitle.selectors";
 
 const EditableTitle: React.FC = () => {
   const { editAccountName } = useTempleClient();
@@ -124,7 +126,7 @@ const EditableTitle: React.FC = () => {
           <div className="flex items-stretch mb-2">
             <T id="cancel">
               {(message) => (
-                <button
+                <Button
                   type="button"
                   className={classNames(
                     "mx-1",
@@ -136,15 +138,16 @@ const EditableTitle: React.FC = () => {
                     "opacity-75 hover:opacity-100 focus:opacity-100"
                   )}
                   onClick={handleCancelClick}
+                  testID={EditableTitleSelectors.CancelButton}
                 >
                   {message}
-                </button>
+                </Button>
               )}
             </T>
 
             <T id="save">
               {(message) => (
-                <button
+                <Button
                   className={classNames(
                     "mx-1",
                     "px-2 py-1",
@@ -154,9 +157,10 @@ const EditableTitle: React.FC = () => {
                     "hover:bg-black hover:bg-opacity-5",
                     "opacity-75 hover:opacity-100 focus:opacity-100"
                   )}
+                  testID={EditableTitleSelectors.SaveButton}
                 >
                   {message}
-                </button>
+                </Button>
               )}
             </T>
           </div>
@@ -174,7 +178,7 @@ const EditableTitle: React.FC = () => {
       )}
 
       {!editing && (
-        <button
+        <Button
           className={classNames(
             "absolute top-0 right-0",
             "px-2 py-1",
@@ -186,6 +190,7 @@ const EditableTitle: React.FC = () => {
             "opacity-75 hover:opacity-100 focus:opacity-100"
           )}
           onClick={handleEditClick}
+          testID={EditableTitleSelectors.EditButton}
         >
           <EditIcon
             className={classNames(
@@ -193,7 +198,7 @@ const EditableTitle: React.FC = () => {
             )}
           />
           <T id="edit" />
-        </button>
+        </Button>
       )}
     </div>
   );

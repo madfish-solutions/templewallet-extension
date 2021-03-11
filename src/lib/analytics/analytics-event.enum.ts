@@ -20,4 +20,3 @@ export enum AnalyticsEventEnum {
 // - Internal Confirm
 // - Send form submit
 // - Delegate form submit
-// - Add Token submit
