@@ -10,10 +10,12 @@ import {
   useTempleClient,
   useChainId,
   isKnownChainId,
+  ImportAccountType,
 } from "lib/temple/front";
 import { getOneUserContracts, TzktRelatedContract } from "lib/tzkt";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
+import { useAnalytics, AnalyticsEventEnum } from "lib/analytics";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import Balance from "app/templates/Balance";
 import NoSpaceField from "app/atoms/NoSpaceField";
@@ -34,6 +36,7 @@ const ManagedKTForm: React.FC = () => {
   const accounts = useRelevantAccounts();
   const tezos = useTezos();
   const { importKTManagedAccount } = useTempleClient();
+  const { trackEvent } = useAnalytics();
   const chainId = useChainId(true);
 
   const [error, setError] = useState<React.ReactNode>(null);
@@ -126,6 +129,7 @@ const ManagedKTForm: React.FC = () => {
         return;
       }
 
+      trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.ManagedKT });
       setError(null);
       try {
         const contract = await tezos.contract.at(contractAddress);

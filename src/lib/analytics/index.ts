@@ -43,3 +43,5 @@ export const useAnalytics = () => {
     setAnalyticsEnabled,
   };
 }
+
+export { AnalyticsEventEnum } from './analytics-event.enum';

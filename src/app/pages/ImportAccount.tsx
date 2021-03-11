@@ -18,7 +18,9 @@ import {
   isKTAddress,
   confirmOperation,
   useNetwork,
+  ImportAccountType,
 } from "lib/temple/front";
+import { useAnalytics, AnalyticsEventEnum } from "lib/analytics";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
@@ -76,10 +78,10 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
         },
         network.type !== "main"
           ? {
-              slug: "faucet",
-              i18nKey: "faucetFileTitle",
-              Form: FromFaucetForm,
-            }
+            slug: "faucet",
+            i18nKey: "faucetFileTitle",
+            Form: FromFaucetForm,
+          }
           : undefined,
         {
           slug: "managed-kt",
@@ -170,6 +172,7 @@ interface ByPrivateKeyFormData {
 
 const ByPrivateKeyForm: React.FC = () => {
   const { importAccount } = useTempleClient();
+  const { trackEvent } = useAnalytics();
 
   const {
     register,
@@ -184,6 +187,7 @@ const ByPrivateKeyForm: React.FC = () => {
     async ({ privateKey, encPassword }: ByPrivateKeyFormData) => {
       if (formState.isSubmitting) return;
 
+      trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.PrivateKey });
       setError(null);
       try {
         await importAccount(privateKey.replace(/\s/g, ""), encPassword);
@@ -286,6 +290,7 @@ interface ByMnemonicFormData {
 
 const ByMnemonicForm: React.FC = () => {
   const { importMnemonicAccount } = useTempleClient();
+  const { trackEvent } = useAnalytics();
 
   const {
     register,
@@ -308,6 +313,7 @@ const ByMnemonicForm: React.FC = () => {
     }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
+      trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.Mnemonic });
       setError(null);
       try {
         await importMnemonicAccount(
@@ -501,6 +507,7 @@ interface ByFundraiserFormData {
 
 const ByFundraiserForm: React.FC = () => {
   const { importFundraiserAccount } = useTempleClient();
+  const { trackEvent } = useAnalytics();
   const {
     register,
     errors,
@@ -513,6 +520,7 @@ const ByFundraiserForm: React.FC = () => {
     async (data) => {
       if (formState.isSubmitting) return;
 
+      trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.Fundraiser });
       setError(null);
       try {
         await importFundraiserAccount(
@@ -611,6 +619,7 @@ interface FaucetTextInputFormData {
 
 const FromFaucetForm: React.FC = () => {
   const { importFundraiserAccount } = useTempleClient();
+  const { trackEvent } = useAnalytics();
   const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
 
@@ -698,6 +707,8 @@ const FromFaucetForm: React.FC = () => {
       if (processing) {
         return;
       }
+
+      trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.FaucetFile });
       setProcessing(true);
       setAlert(null);
 
@@ -951,6 +962,7 @@ interface WatchOnlyFormData {
 
 const WatchOnlyForm: React.FC = () => {
   const { importWatchOnlyAccount } = useTempleClient();
+  const { trackEvent } = useAnalytics();
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
   const canUseDomainNames = domainsClient.isSupported;
@@ -1020,6 +1032,7 @@ const WatchOnlyForm: React.FC = () => {
   const onSubmit = React.useCallback(async () => {
     if (formState.isSubmitting) return;
 
+    trackEvent(AnalyticsEventEnum.AccountImported, { type: ImportAccountType.WatchOnly });
     setError(null);
     try {
       if (!isAddressValid(finalAddress)) {
