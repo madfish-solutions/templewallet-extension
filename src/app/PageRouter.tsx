@@ -91,6 +91,7 @@ const Page: React.FC = () => {
   React.useEffect(() => {
       if (analyticsEnabled === undefined) {
         setTimeout(() => {
+          // TODO: replace this with a real one overlay
           setAnalyticsEnabled(window.confirm("Do you allow us to collect anonymous analytics to improve our product?"));
         })
       }
