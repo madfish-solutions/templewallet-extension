@@ -1,11 +1,15 @@
+export enum AnalyticsEventCategory {
+  General = 'General',
+  ButtonPress = 'ButtonPress',
+  FormSubmit = 'FormSubmit',
+  FormSubmitSuccess = 'FormSubmitSuccess',
+  FormSubmitFail = 'FormSubmitFail'
+}
+
 export enum AnalyticsEventEnum {
   AnalyticsEnabled = 'AnalyticsEnabled', // !
   PageOpened = 'PageOpened',
   LanguageChanged = 'LanguageChanged', // !
-  ImportAccountFormSubmit = 'ImportAccountFormSubmit', // ! add success/failed actions?
-  AccountDropdownButtonPress = 'AccountDropdownButtonPress', // !
-  CreateAccountFormSubmit = 'CreateAccountFormSubmit', // ! add success/failed actions?
-  ConnectLedgerFormSubmit = 'ConnectLedgerFormSubmit' // ! add success/failed actions?
 }
 
 // - View on block-explorer
@@ -17,4 +21,3 @@ export enum AnalyticsEventEnum {
 // - Send form submit
 // - Delegate form submit
 // - Add Token submit
-// - Change account name

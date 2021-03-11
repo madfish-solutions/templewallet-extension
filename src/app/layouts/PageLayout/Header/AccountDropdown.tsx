@@ -8,7 +8,7 @@ import {
   useSetAccountPkh,
 } from "lib/temple/front";
 import { PopperRenderProps } from "lib/ui/Popper";
-import { AnalyticsEventEnum, useAnalytics } from "lib/analytics";
+import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
@@ -23,6 +23,8 @@ import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
+
+import { AccountDropdownSelectors } from "./AccountDropdown.selectors";
 
 type ExcludesFalse = <T>(x: T | false) => x is T;
 type AccountDropdownProps = PopperRenderProps;
@@ -218,7 +220,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
       <div className="my-2">
         {actions.map(({ key, Icon, i18nKey, linkTo, onClick }) => {
           const handleClick = () => {
-            trackEvent(AnalyticsEventEnum.AccountDropdownButtonPress, { type: key });
+            trackEvent(AccountDropdownSelectors.ActionButton, AnalyticsEventCategory.ButtonPress, { type: key });
             onClick();
           }
 

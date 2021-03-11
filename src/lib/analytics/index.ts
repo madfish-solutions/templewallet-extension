@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 
 import { useLocalStorage } from "lib/temple/front/local-storage";
 
-import { AnalyticsEventEnum } from "./analytics-event.enum";
+import { AnalyticsEventCategory, AnalyticsEventEnum } from "./analytics-event.enum";
 
 interface AnalyticsStateInterface {
   enabled?: boolean,
@@ -18,18 +18,30 @@ export const useAnalytics = () => {
     userId: nanoid()
   });
 
-  const sendTrackEvent = (event: AnalyticsEventEnum, properties?: object) => {
-    console.log(event, properties);
+  const sendTrackEvent = (
+    event: string,
+    category: AnalyticsEventCategory = AnalyticsEventCategory.General,
+    properties?: object
+  ) => {
+    console.log(`${event}_${category}`);
 
     // client.track({
     //   userId: analyticsState.userId,
-    //   event,
-    //   properties,
+    //   event: `${event}_${category}`,
+    //   properties: {
+    //     ...properties,
+    //     event,
+    //     category
+    //   },
     // });
   };
 
-  const trackEvent = (event: AnalyticsEventEnum, properties?: object) => {
-    analyticsState.enabled && sendTrackEvent(event, properties);
+  const trackEvent = (
+    event: string,
+    category: AnalyticsEventCategory = AnalyticsEventCategory.General,
+    properties?: object
+  ) => {
+    analyticsState.enabled && sendTrackEvent(event, category, properties);
   };
 
   const setAnalyticsEnabled = (enabled?: boolean) => {
@@ -37,11 +49,25 @@ export const useAnalytics = () => {
     enabled && sendTrackEvent(AnalyticsEventEnum.AnalyticsEnabled);
   };
 
+  const trackFormEventsFactory = (formName: string) => {
+    const trackFormSubmit = (properties?: object) => trackEvent(formName, AnalyticsEventCategory.FormSubmit, properties);
+    const trackFormSubmitSuccess = (properties?: object) => trackEvent(formName, AnalyticsEventCategory.FormSubmitSuccess, properties);
+    const trackFormSubmitFail = (properties?: object) => trackEvent(formName, AnalyticsEventCategory.FormSubmitFail, properties);
+
+    return {
+      trackFormSubmit,
+      trackFormSubmitSuccess,
+      trackFormSubmitFail
+    };
+  }
+
   return {
     analyticsEnabled: analyticsState.enabled,
-    trackEvent,
     setAnalyticsEnabled,
+    trackEvent,
+    trackFormEventsFactory
   };
 }
 
-export { AnalyticsEventEnum } from './analytics-event.enum';
+export { AnalyticsEventEnum, AnalyticsEventCategory } from './analytics-event.enum';
+export type { TestIDProps } from './test-id.props';

@@ -19,6 +19,7 @@ import SearchAssetField from "app/templates/SearchAssetField";
 import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import { AssetsSelectors } from "./Assets.selectors";
 
 const Assets: React.FC = () => {
   const account = useAccount();
@@ -102,6 +103,7 @@ const Assets: React.FC = () => {
             "hover:bg-gray-100",
             "opacity-75 hover:opacity-100 focus:opacity-100"
           )}
+          testID={AssetsSelectors.ManageButton}
         >
           <AddToListIcon
             className={classNames("mr-1 h-5 w-auto stroke-current stroke-2")}
