@@ -10,7 +10,7 @@ const GeneralSettings: React.FC = () => {
 
       <PopupSettings />
 
-      <AnalyticsSettings/>
+      <AnalyticsSettings />
     </div>
   );
 };
