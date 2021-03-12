@@ -115,7 +115,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
 
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('SendForm');
+  const formAnalytics = useFormAnalytics('SendForm');
 
   const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
@@ -539,7 +539,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       setSubmitError(null);
       setOperation(null);
 
-      trackFormSubmit();
+      formAnalytics.trackSubmit();
       try {
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {
@@ -570,9 +570,9 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
 
-        trackFormSubmitSuccess();
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
-        trackFormSubmitFail();
+        formAnalytics.trackSubmitFail();
 
         if (err.message === "Declined") {
           return;
@@ -599,6 +599,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       toResolved,
       shouldUseUsd,
       toTEZAmount,
+      formAnalytics
     ]
   );
 

@@ -39,7 +39,7 @@ const ConnectLedger: React.FC = () => {
   const { createLedgerAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('ConnectLedger');
+  const formAnalytics = useFormAnalytics('ConnectLedger');
 
   const allLedgers = React.useMemo(
     () => allAccounts.filter((acc) => acc.type === TempleAccountType.Ledger),
@@ -78,14 +78,15 @@ const ConnectLedger: React.FC = () => {
     async ({ name, customDerivationPath }: FormData) => {
       if (submitting) return;
 
-      trackFormSubmit();
       setError(null);
+
+      formAnalytics.trackSubmit();
       try {
         await createLedgerAccount(name, customDerivationPath);
 
-        trackFormSubmitSuccess();
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
-        trackFormSubmitFail();
+        formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -96,7 +97,7 @@ const ConnectLedger: React.FC = () => {
         setError(err.message);
       }
     },
-    [submitting, createLedgerAccount, setError]
+    [submitting, createLedgerAccount, setError, formAnalytics]
   );
 
   return (

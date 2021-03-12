@@ -14,7 +14,7 @@ const EditableTitle: React.FC = () => {
   const { editAccountName } = useTempleClient();
   const account = useAccount();
   const alert = useAlert();
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('ChangeAccountName');
+  const formAnalytics = useFormAnalytics('ChangeAccountName');
 
   const [editing, setEditing] = React.useState(false);
 
@@ -61,7 +61,7 @@ const EditableTitle: React.FC = () => {
       evt.preventDefault();
 
       (async () => {
-        trackFormSubmit();
+        formAnalytics.trackSubmit();
         try {
           const newName = editAccNameFieldRef.current?.value;
           if (newName && newName !== account.name) {
@@ -70,9 +70,9 @@ const EditableTitle: React.FC = () => {
 
           setEditing(false);
 
-          trackFormSubmitSuccess();
+          formAnalytics.trackSubmitSuccess();
         } catch (err) {
-          trackFormSubmitFail();
+          formAnalytics.trackSubmitFail();
 
           if (process.env.NODE_ENV === "development") {
             console.error(err);
@@ -85,7 +85,7 @@ const EditableTitle: React.FC = () => {
         }
       })();
     },
-    [account.name, editAccountName, account.publicKeyHash, alert, trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail]
+    [account.name, editAccountName, account.publicKeyHash, alert, formAnalytics]
   );
 
   const handleEditFieldFocus = React.useCallback(() => {
