@@ -232,6 +232,7 @@ const ListItem = React.memo<ListItemProps>(
           "transition ease-in-out duration-200",
           "focus:outline-none"
         )}
+        testID={AssetsSelectors.AccountItemButton}
       >
         <AssetIcon asset={asset} size={32} className="mr-3" />
 

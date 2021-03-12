@@ -11,8 +11,3 @@ export enum AnalyticsEventEnum {
   PageOpened = 'PageOpened', // ?
   LanguageChanged = 'LanguageChanged',
 }
-
-// - DApp Permission confirm
-// - DApp Operations confirm
-// - DApp Sign confirm
-// - DApp Revoke permission

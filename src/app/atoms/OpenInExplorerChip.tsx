@@ -1,7 +1,7 @@
 import classNames from "clsx";
 import React from "react";
 import useTippy from "lib/ui/useTippy";
-import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
+import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
 import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
 import { OpenInExplorerChipSelectors } from "./OpenInExplorerChip.selectors";
 
@@ -16,7 +16,7 @@ const OpenInExplorerChip: React.FC<OpenInExplorerChipProps> = ({
   opHash,
   className,
 }) => {
-  const { trackEvent } = useAnalytics();
+  const trackEvent = useAnalyticsTrackEvent();
   const tippyProps = React.useMemo(
     () => ({
       trigger: "mouseenter",

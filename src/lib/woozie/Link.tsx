@@ -2,8 +2,7 @@ import * as React from "react";
 import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
 import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 import { To, createLocationUpdates, useLocation } from "lib/woozie/location";
-import { TestIDProps, useAnalytics } from "lib/analytics";
-import { AnalyticsEventCategory } from "../analytics/analytics-event.enum";
+import { TestIDProps, useAnalyticsTrackEvent, AnalyticsEventCategory } from "lib/analytics";
 
 
 export interface LinkProps
@@ -61,7 +60,7 @@ const LinkAnchor: React.FC<LinkAnchorProps> = ({
   testID,
   ...rest
 }) => {
-  const { trackEvent } = useAnalytics();
+  const trackEvent = useAnalyticsTrackEvent();
 
   const handleClick = React.useCallback(
     (evt) => {
