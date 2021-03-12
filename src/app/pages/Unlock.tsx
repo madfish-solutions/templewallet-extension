@@ -21,7 +21,7 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 
 const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('UnlockWallet');
+  const formAnalytics = useFormAnalytics('UnlockWallet');
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
@@ -46,13 +46,13 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
       if (submitting) return;
 
       clearError("password");
-      trackFormSubmit();
+      formAnalytics.trackSubmit();
       try {
         await unlock(password);
 
-        trackFormSubmitSuccess();
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
-        trackFormSubmitFail();
+        formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -64,7 +64,7 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
         focusPasswordField();
       }
     },
-    [submitting, clearError, setError, unlock, focusPasswordField]
+    [submitting, clearError, setError, unlock, focusPasswordField, formAnalytics]
   );
 
   return (

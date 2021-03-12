@@ -19,7 +19,7 @@ const CreateAccount: React.FC = () => {
   const { createAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('CreateAccount');
+  const formAnalytics = useFormAnalytics('CreateAccount');
 
   const allHDOrImported = React.useMemo(
     () =>
@@ -59,13 +59,14 @@ const CreateAccount: React.FC = () => {
       if (submitting) return;
 
       clearError("name");
-      trackFormSubmit();
+
+      formAnalytics.trackSubmit();
       try {
         await createAccount(name);
 
-        trackFormSubmitSuccess();
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
-        trackFormSubmitFail();
+        formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -76,7 +77,7 @@ const CreateAccount: React.FC = () => {
         setError("name", SUBMIT_ERROR_TYPE, err.message);
       }
     },
-    [submitting, clearError, setError, createAccount]
+    [submitting, clearError, setError, createAccount, formAnalytics]
   );
 
   return (

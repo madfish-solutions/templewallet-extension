@@ -74,7 +74,7 @@ const Form: React.FC = () => {
   const { addToken } = useTokens();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('AddToken');
+  const formAnalytics = useFormAnalytics('AddToken');
 
   const {
     control,
@@ -260,7 +260,7 @@ const Form: React.FC = () => {
 
       setSubmitError(null);
 
-      trackFormSubmit();
+      formAnalytics.trackSubmit();
       try {
         const tokenCommonProps = {
           address,
@@ -289,14 +289,14 @@ const Form: React.FC = () => {
         // Wait a little bit while the tokens updated
         await new Promise((r) => setTimeout(r, 300));
 
-        trackFormSubmitSuccess();
+        formAnalytics.trackSubmitSuccess();
 
         navigate({
           pathname: `/explore/${assetKey}`,
           search: "after_token_added=true",
         });
       } catch (err) {
-        trackFormSubmitFail();
+        formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -307,7 +307,7 @@ const Form: React.FC = () => {
         setSubmitError(err.message);
       }
     },
-    [formState.isSubmitting, addToken]
+    [formState.isSubmitting, addToken, formAnalytics]
   );
 
   const isFA12Token = tokenType === TempleAssetType.FA1_2;

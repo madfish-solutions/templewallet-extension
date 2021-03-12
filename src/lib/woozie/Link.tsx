@@ -86,7 +86,7 @@ const LinkAnchor: React.FC<LinkAnchorProps> = ({
         onNavigate();
       }
     },
-    [onClick, target, onNavigate]
+    [onClick, target, onNavigate, trackEvent, testID]
   );
 
   return (

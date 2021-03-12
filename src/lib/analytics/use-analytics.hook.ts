@@ -25,15 +25,15 @@ export const useAnalytics = () => {
   ) => {
     console.log(`${event}_${category}`);
 
-    // client.track({
-    //   userId: analyticsState.userId,
-    //   event: `${event}_${category}`,
-    //   properties: {
-    //     ...properties,
-    //     event,
-    //     category
-    //   },
-    // });
+    client.track({
+      userId: analyticsState.userId,
+      event: `${event}_${category}`,
+      properties: {
+        ...properties,
+        event,
+        category
+      },
+    });
   };
 
   const trackEvent = (

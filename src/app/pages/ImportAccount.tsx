@@ -20,7 +20,7 @@ import {
   useNetwork,
   ImportAccountFormType,
 } from "lib/temple/front";
-import { useAnalytics, useFormAnalytics } from "lib/analytics";
+import { useFormAnalytics } from "lib/analytics";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
@@ -172,11 +172,7 @@ interface ByPrivateKeyFormData {
 
 const ByPrivateKeyForm: React.FC = () => {
   const { importAccount } = useTempleClient();
-  const {
-    trackFormSubmit,
-    trackFormSubmitSuccess,
-    trackFormSubmitFail
-  } = useFormAnalytics(ImportAccountFormType.PrivateKey);
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.PrivateKey);
 
   const {
     register,
@@ -191,14 +187,14 @@ const ByPrivateKeyForm: React.FC = () => {
     async ({ privateKey, encPassword }: ByPrivateKeyFormData) => {
       if (formState.isSubmitting) return;
 
-      trackFormSubmit();
+      formAnalytics.trackSubmit();
       setError(null);
       try {
         await importAccount(privateKey.replace(/\s/g, ""), encPassword);
 
-        trackFormSubmitSuccess();
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
-        trackFormSubmitFail();
+        formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -209,7 +205,7 @@ const ByPrivateKeyForm: React.FC = () => {
         setError(err.message);
       }
     },
-    [importAccount, formState.isSubmitting, setError]
+    [importAccount, formState.isSubmitting, setError, formAnalytics]
   );
 
   const keyValue = watch("privateKey");
@@ -298,11 +294,7 @@ interface ByMnemonicFormData {
 
 const ByMnemonicForm: React.FC = () => {
   const { importMnemonicAccount } = useTempleClient();
-  const {
-    trackFormSubmit,
-    trackFormSubmitSuccess,
-    trackFormSubmitFail
-  } = useFormAnalytics(ImportAccountFormType.Mnemonic);
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.Mnemonic);
 
   const {
     register,
@@ -325,7 +317,7 @@ const ByMnemonicForm: React.FC = () => {
     }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
-      trackFormSubmit();
+      formAnalytics.trackSubmit();
       setError(null);
       try {
         await importMnemonicAccount(
@@ -334,9 +326,9 @@ const ByMnemonicForm: React.FC = () => {
           derivationPath.type === "custom" ? customDerivationPath : undefined
         );
 
-        trackFormSubmitSuccess();
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
-        trackFormSubmitFail();
+        formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -347,7 +339,7 @@ const ByMnemonicForm: React.FC = () => {
         setError(err.message);
       }
     },
-    [formState.isSubmitting, setError, importMnemonicAccount, derivationPath]
+    [formState.isSubmitting, setError, importMnemonicAccount, derivationPath, formAnalytics]
   );
 
   return (
@@ -530,17 +522,13 @@ const ByFundraiserForm: React.FC = () => {
     formState,
   } = useForm<ByFundraiserFormData>();
   const [error, setError] = React.useState<React.ReactNode>(null);
-  const {
-    trackFormSubmit,
-    trackFormSubmitSuccess,
-    trackFormSubmitFail
-  } = useFormAnalytics(ImportAccountFormType.Fundraiser);
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.Fundraiser);
 
   const onSubmit = React.useCallback<(data: ByFundraiserFormData) => void>(
     async (data) => {
       if (formState.isSubmitting) return;
 
-      trackFormSubmit();
+      formAnalytics.trackSubmit();
       setError(null);
       try {
         await importFundraiserAccount(
@@ -549,9 +537,9 @@ const ByFundraiserForm: React.FC = () => {
           formatMnemonic(data.mnemonic)
         );
 
-        trackFormSubmitSuccess();
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
-        trackFormSubmitFail();
+        formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -562,7 +550,7 @@ const ByFundraiserForm: React.FC = () => {
         setError(err.message);
       }
     },
-    [importFundraiserAccount, formState.isSubmitting, setError]
+    [importFundraiserAccount, formState.isSubmitting, setError, formAnalytics]
   );
 
   return (
@@ -645,11 +633,7 @@ const FromFaucetForm: React.FC = () => {
   const { importFundraiserAccount } = useTempleClient();
   const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
-  const {
-    trackFormSubmit,
-    trackFormSubmitSuccess,
-    trackFormSubmitFail
-  } = useFormAnalytics(ImportAccountFormType.FaucetFile);
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.FaucetFile);
 
   const activateAccount = React.useCallback(
     async (address: string, secret: string) => {
@@ -736,16 +720,16 @@ const FromFaucetForm: React.FC = () => {
         return;
       }
 
-      trackFormSubmit();
+      formAnalytics.trackSubmit();
       setProcessing(true);
       setAlert(null);
 
       try {
         await importAccount(toFaucetJSON(formData.text));
 
-        trackFormSubmitSuccess();
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
-        trackFormSubmitFail();
+        formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -759,7 +743,7 @@ const FromFaucetForm: React.FC = () => {
         setProcessing(false);
       }
     },
-    [importAccount, processing, setAlert, setProcessing]
+    [importAccount, processing, setAlert, setProcessing, formAnalytics]
   );
 
   const handleUploadChange = React.useCallback(
@@ -997,11 +981,7 @@ const WatchOnlyForm: React.FC = () => {
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
   const canUseDomainNames = domainsClient.isSupported;
-  const {
-    trackFormSubmit,
-    trackFormSubmitSuccess,
-    trackFormSubmitFail
-  } = useFormAnalytics(ImportAccountFormType.WatchOnly);
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.WatchOnly);
 
   const {
     watch,
@@ -1068,8 +1048,9 @@ const WatchOnlyForm: React.FC = () => {
   const onSubmit = React.useCallback(async () => {
     if (formState.isSubmitting) return;
 
-    trackFormSubmit();
     setError(null);
+
+    formAnalytics.trackSubmit();
     try {
       if (!isAddressValid(finalAddress)) {
         throw new Error(t("invalidAddress"));
@@ -1089,9 +1070,9 @@ const WatchOnlyForm: React.FC = () => {
 
       await importWatchOnlyAccount(finalAddress, chainId);
 
-      trackFormSubmitSuccess();
+      formAnalytics.trackSubmitSuccess();
     } catch (err) {
-      trackFormSubmitFail();
+      formAnalytics.trackSubmitFail();
 
       if (process.env.NODE_ENV === "development") {
         console.error(err);
@@ -1107,6 +1088,7 @@ const WatchOnlyForm: React.FC = () => {
     tezos,
     formState.isSubmitting,
     setError,
+    formAnalytics
   ]);
 
   return (
