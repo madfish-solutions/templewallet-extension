@@ -15,7 +15,7 @@ import {
 import { getOneUserContracts, TzktRelatedContract } from "lib/tzkt";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
-import { useAnalytics, AnalyticsEventEnum } from "lib/analytics";
+import { useAnalytics, AnalyticsEventEnum, useFormAnalytics } from "lib/analytics";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import Balance from "app/templates/Balance";
 import NoSpaceField from "app/atoms/NoSpaceField";
@@ -36,12 +36,11 @@ const ManagedKTForm: React.FC = () => {
   const accounts = useRelevantAccounts();
   const tezos = useTezos();
   const { importKTManagedAccount } = useTempleClient();
-  const { trackFormEventsFactory } = useAnalytics();
   const {
     trackFormSubmit,
     trackFormSubmitSuccess,
     trackFormSubmitFail
-  } = trackFormEventsFactory(ImportAccountFormType.ManagedKT);
+  } = useFormAnalytics(ImportAccountFormType.ManagedKT);
   const chainId = useChainId(true);
 
   const [error, setError] = useState<React.ReactNode>(null);

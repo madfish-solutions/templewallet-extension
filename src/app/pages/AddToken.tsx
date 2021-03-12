@@ -21,6 +21,7 @@ import { sanitizeImgUri } from "lib/image-uri";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
+import { useFormAnalytics } from "lib/analytics";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -28,7 +29,6 @@ import Alert from "app/atoms/Alert";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
-import { useAnalytics } from "../../lib/analytics";
 
 const AddToken: React.FC = () => (
   <PageLayout
@@ -74,8 +74,7 @@ const Form: React.FC = () => {
   const { addToken } = useTokens();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
-  const { trackFormEventsFactory } = useAnalytics();
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = trackFormEventsFactory('AddToken');
+  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('AddToken');
 
   const {
     control,

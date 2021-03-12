@@ -3,14 +3,14 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
-  useTempleClient,
-  useSetAccountPkh,
-  useAllAccounts,
   TempleAccountType,
+  useAllAccounts,
+  useSetAccountPkh,
+  useTempleClient,
   validateDerivationPath,
 } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
-import { AnalyticsEventEnum, useAnalytics } from "lib/analytics";
+import { useFormAnalytics } from "lib/analytics";
 import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormField from "app/atoms/FormField";
@@ -39,8 +39,7 @@ const ConnectLedger: React.FC = () => {
   const { createLedgerAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
-  const { trackFormEventsFactory } = useAnalytics();
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = trackFormEventsFactory('ConnectLedger');
+  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('ConnectLedger');
 
   const allLedgers = React.useMemo(
     () => allAccounts.filter((acc) => acc.type === TempleAccountType.Ledger),

@@ -30,7 +30,7 @@ import {
   useTezosDomainsClient,
   useUSDPrice,
 } from "lib/temple/front";
-import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
+import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from "lib/analytics";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
@@ -115,8 +115,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
 
-  const { trackFormEventsFactory } = useAnalytics();
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = trackFormEventsFactory('SendForm');
+  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('SendForm');
 
   const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;

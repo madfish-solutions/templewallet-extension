@@ -6,7 +6,7 @@ import { useAlert } from "lib/ui/dialog";
 import Name from "app/atoms/Name";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
-import { useAnalytics } from "lib/analytics";
+import { useFormAnalytics } from "lib/analytics";
 import { Button } from "app/atoms/Button";
 import { EditableTitleSelectors } from "./EditableTitle.selectors";
 
@@ -14,8 +14,7 @@ const EditableTitle: React.FC = () => {
   const { editAccountName } = useTempleClient();
   const account = useAccount();
   const alert = useAlert();
-  const { trackFormEventsFactory } = useAnalytics();
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = trackFormEventsFactory('ChangeAccountName');
+  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('ChangeAccountName');
 
   const [editing, setEditing] = React.useState(false);
 
