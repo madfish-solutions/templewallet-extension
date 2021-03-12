@@ -1,14 +1,9 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
-import {
-  TempleAccountType,
-  useTempleClient,
-  useAllAccounts,
-  useSetAccountPkh,
-} from "lib/temple/front";
+import { TempleAccountType, useAllAccounts, useSetAccountPkh, useTempleClient, } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
-import { AnalyticsEventEnum, useAnalytics } from "lib/analytics";
+import { useFormAnalytics } from "lib/analytics";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -24,8 +19,7 @@ const CreateAccount: React.FC = () => {
   const { createAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
-  const { trackFormEventsFactory } = useAnalytics();
-  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = trackFormEventsFactory('CreateAccount');
+  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = useFormAnalytics('CreateAccount');
 
   const allHDOrImported = React.useMemo(
     () =>

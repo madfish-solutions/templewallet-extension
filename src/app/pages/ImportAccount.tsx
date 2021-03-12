@@ -20,7 +20,7 @@ import {
   useNetwork,
   ImportAccountFormType,
 } from "lib/temple/front";
-import { useAnalytics, AnalyticsEventEnum } from "lib/analytics";
+import { useAnalytics, useFormAnalytics } from "lib/analytics";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
@@ -172,12 +172,11 @@ interface ByPrivateKeyFormData {
 
 const ByPrivateKeyForm: React.FC = () => {
   const { importAccount } = useTempleClient();
-  const { trackFormEventsFactory } = useAnalytics();
   const {
     trackFormSubmit,
     trackFormSubmitSuccess,
     trackFormSubmitFail
-  } = trackFormEventsFactory(ImportAccountFormType.PrivateKey);
+  } = useFormAnalytics(ImportAccountFormType.PrivateKey);
 
   const {
     register,
@@ -299,12 +298,11 @@ interface ByMnemonicFormData {
 
 const ByMnemonicForm: React.FC = () => {
   const { importMnemonicAccount } = useTempleClient();
-  const { trackFormEventsFactory } = useAnalytics();
   const {
     trackFormSubmit,
     trackFormSubmitSuccess,
     trackFormSubmitFail
-  } = trackFormEventsFactory(ImportAccountFormType.Mnemonic);
+  } = useFormAnalytics(ImportAccountFormType.Mnemonic);
 
   const {
     register,
@@ -532,12 +530,11 @@ const ByFundraiserForm: React.FC = () => {
     formState,
   } = useForm<ByFundraiserFormData>();
   const [error, setError] = React.useState<React.ReactNode>(null);
-  const { trackFormEventsFactory } = useAnalytics();
   const {
     trackFormSubmit,
     trackFormSubmitSuccess,
     trackFormSubmitFail
-  } = trackFormEventsFactory(ImportAccountFormType.Fundraiser);
+  } = useFormAnalytics(ImportAccountFormType.Fundraiser);
 
   const onSubmit = React.useCallback<(data: ByFundraiserFormData) => void>(
     async (data) => {
@@ -648,12 +645,11 @@ const FromFaucetForm: React.FC = () => {
   const { importFundraiserAccount } = useTempleClient();
   const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
-  const { trackFormEventsFactory } = useAnalytics();
   const {
     trackFormSubmit,
     trackFormSubmitSuccess,
     trackFormSubmitFail
-  } = trackFormEventsFactory(ImportAccountFormType.FaucetFile);
+  } = useFormAnalytics(ImportAccountFormType.FaucetFile);
 
   const activateAccount = React.useCallback(
     async (address: string, secret: string) => {
@@ -1001,12 +997,11 @@ const WatchOnlyForm: React.FC = () => {
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
   const canUseDomainNames = domainsClient.isSupported;
-  const { trackFormEventsFactory } = useAnalytics();
   const {
     trackFormSubmit,
     trackFormSubmitSuccess,
     trackFormSubmitFail
-  } = trackFormEventsFactory(ImportAccountFormType.WatchOnly);
+  } = useFormAnalytics(ImportAccountFormType.WatchOnly);
 
   const {
     watch,
