@@ -8,7 +8,7 @@ import {
   useSetAccountPkh,
 } from "lib/temple/front";
 import { PopperRenderProps } from "lib/ui/Popper";
-import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
+import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
@@ -36,7 +36,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
 }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
-  const { trackEvent } = useAnalytics();
+  const trackEvent = useAnalyticsTrackEvent();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();

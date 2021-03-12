@@ -4,7 +4,7 @@ import { Controller, ControllerProps, EventFunction, FieldError } from "react-ho
 import BigNumber from "bignumber.js";
 import { TEZ_ASSET } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
-import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
+import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
 import AssetField from "app/atoms/AssetField";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { ReactComponent as CoffeeIcon } from "app/icons/coffee.svg";
@@ -74,7 +74,7 @@ const getFeeOptionId = (option: FeeOption) => option.type;
 
 const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
   const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
-  const { trackEvent } = useAnalytics();
+  const trackEvent = useAnalyticsTrackEvent();
 
   const validateAdditionalFee = useCallback((v?: number) => {
     if (v === undefined) {

@@ -30,7 +30,7 @@ import {
   useTezosDomainsClient,
   useUSDPrice,
 } from "lib/temple/front";
-import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from "lib/analytics";
+import { AnalyticsEventCategory, useAnalyticsTrackEvent, useFormAnalytics } from "lib/analytics";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
@@ -73,7 +73,7 @@ const SendForm: React.FC<SendFormProps> = ({ assetSlug }) => {
   const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
-  const { trackEvent } = useAnalytics();
+  const trackEvent = useAnalyticsTrackEvent();
 
   const handleAssetChange = React.useCallback((a: TempleAsset) => {
     trackEvent(SendFormSelectors.AssetItemButton, AnalyticsEventCategory.ButtonPress);
