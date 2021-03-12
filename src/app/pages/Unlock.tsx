@@ -7,6 +7,7 @@ import { useTempleClient } from "lib/temple/front";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { useAnalytics } from "../../lib/analytics";
 
 interface UnlockProps {
   canImportNew?: boolean;
@@ -20,6 +21,8 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 
 const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
+  const { trackFormEventsFactory } = useAnalytics();
+  const { trackFormSubmit, trackFormSubmitSuccess, trackFormSubmitFail } = trackFormEventsFactory('UnlockWallet');
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
@@ -44,9 +47,14 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
       if (submitting) return;
 
       clearError("password");
+      trackFormSubmit();
       try {
         await unlock(password);
+
+        trackFormSubmitSuccess();
       } catch (err) {
+        trackFormSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
