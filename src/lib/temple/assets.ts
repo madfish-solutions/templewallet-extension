@@ -54,7 +54,7 @@ export const DELPHINET_TOKENS: TempleToken[] = [
   {
     type: TempleAssetType.FA1_2,
     address: "KT19UypipJWENBavh34Wn7tc67bL1HucZh9W",
-    name: "StakerDao Governance Token",
+    name: "Staker Governance Token",
     symbol: "STKR",
     decimals: 18,
     fungible: true,
@@ -139,7 +139,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
   {
     type: TempleAssetType.FA1_2,
     address: "KT1AEfeckNbdEYwaMKkytBwPJPycz7jdSGea",
-    name: "StakerDao Governance Token",
+    name: "Staker Governance Token",
     symbol: "STKR",
     decimals: 18,
     fungible: true,
