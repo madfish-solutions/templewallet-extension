@@ -21,6 +21,7 @@ import { sanitizeImgUri } from "lib/image-uri";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
+import { useFormAnalytics } from "lib/analytics";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -66,12 +67,14 @@ type FormData = {
   type: TempleCustomTokenType;
 };
 
-class MetadataParseError extends Error {}
+class MetadataParseError extends Error {
+}
 
 const Form: React.FC = () => {
   const { addToken } = useTokens();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
+  const formAnalytics = useFormAnalytics('AddToken');
 
   const {
     control,
@@ -256,6 +259,8 @@ const Form: React.FC = () => {
       if (formState.isSubmitting) return;
 
       setSubmitError(null);
+
+      formAnalytics.trackSubmit();
       try {
         const tokenCommonProps = {
           address,
@@ -269,25 +274,30 @@ const Form: React.FC = () => {
         const newToken: TempleToken =
           tokenType === TempleAssetType.FA1_2
             ? {
-                type: TempleAssetType.FA1_2,
-                ...tokenCommonProps,
-              }
+              type: TempleAssetType.FA1_2,
+              ...tokenCommonProps,
+            }
             : {
-                type: TempleAssetType.FA2,
-                id: Number(id!),
-                ...tokenCommonProps,
-              };
+              type: TempleAssetType.FA2,
+              id: Number(id!),
+              ...tokenCommonProps,
+            };
 
         addToken(newToken);
         const assetKey = getAssetKey(newToken);
 
         // Wait a little bit while the tokens updated
         await new Promise((r) => setTimeout(r, 300));
+
+        formAnalytics.trackSubmitSuccess();
+
         navigate({
           pathname: `/explore/${assetKey}`,
           search: "after_token_added=true",
         });
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -297,7 +307,7 @@ const Form: React.FC = () => {
         setSubmitError(err.message);
       }
     },
-    [formState.isSubmitting, addToken]
+    [formState.isSubmitting, addToken, formAnalytics]
   );
 
   const isFA12Token = tokenType === TempleAssetType.FA1_2;
@@ -464,10 +474,8 @@ const TokenTypeOption: React.FC<TokenTypeOptionProps> = (props) => {
   );
 };
 
-type BottomSectionProps = Pick<
-  FormContextValues,
-  "register" | "errors" | "formState"
-> & {
+type BottomSectionProps = Pick<FormContextValues,
+  "register" | "errors" | "formState"> & {
   submitError?: React.ReactNode;
 };
 
@@ -586,4 +594,5 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
   );
 };
 
-class TokenValidationError extends Error {}
+class TokenValidationError extends Error {
+}

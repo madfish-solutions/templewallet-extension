@@ -2,9 +2,11 @@ import * as React from "react";
 import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
 import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 import { To, createLocationUpdates, useLocation } from "lib/woozie/location";
+import { TestIDProps, useAnalyticsTrackEvent, AnalyticsEventCategory } from "lib/analytics";
+
 
 export interface LinkProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
   to: To;
   replace?: boolean;
 }
@@ -43,10 +45,11 @@ const Link: React.FC<LinkProps> = ({ to, replace, ...rest }) => {
 export default Link;
 
 interface LinkAnchorProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
   onNavigate: () => void;
   onClick?: React.MouseEventHandler;
   target?: string;
+  testID?: string;
 }
 
 const LinkAnchor: React.FC<LinkAnchorProps> = ({
@@ -54,10 +57,15 @@ const LinkAnchor: React.FC<LinkAnchorProps> = ({
   onNavigate,
   onClick,
   target,
+  testID,
   ...rest
 }) => {
+  const trackEvent = useAnalyticsTrackEvent();
+
   const handleClick = React.useCallback(
     (evt) => {
+      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress);
+
       try {
         if (onClick) {
           onClick(evt);
@@ -77,7 +85,7 @@ const LinkAnchor: React.FC<LinkAnchorProps> = ({
         onNavigate();
       }
     },
-    [onClick, target, onNavigate]
+    [onClick, target, onNavigate, trackEvent, testID]
   );
 
   return (

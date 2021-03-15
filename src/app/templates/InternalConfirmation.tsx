@@ -19,7 +19,7 @@ import AccountBanner from "app/templates/AccountBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import NetworkBanner from "app/templates/NetworkBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
-import ViewsSwitcher from "app/templates/ViewsSwitcher";
+import ViewsSwitcher, { ViewsSwitcherItemProps } from "app/templates/ViewsSwitcher";
 import ExpensesView from "app/templates/ExpensesView";
 import Logo from "app/atoms/Logo";
 import Alert from "app/atoms/Alert";
@@ -30,13 +30,14 @@ import SubTitle from "app/atoms/SubTitle";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
+import { InternalConfirmationSelectors } from "./InternalConfirmation.selectors";
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean) => Promise<void>;
 };
 
-const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
+const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
   payload,
   onConfirm,
 }) => {
@@ -85,10 +86,10 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
       expenses: expenses.map(({ tokenAddress, ...restProps }) => ({
         asset: tokenAddress
           ? allAssets.find(
-              (asset) =>
-                asset.type !== TempleAssetType.TEZ &&
-                asset.address === tokenAddress
-            ) || tokenAddress
+          (asset) =>
+            asset.type !== TempleAssetType.TEZ &&
+            asset.address === tokenAddress
+        ) || tokenAddress
           : TEZ_ASSET,
         ...restProps,
       })),
@@ -96,27 +97,30 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
     }));
   }, [allAssets, rawExpensesData]);
 
-  const signPayloadFormats = React.useMemo(() => {
+  const signPayloadFormats: ViewsSwitcherItemProps[] = React.useMemo(() => {
     if (payload.type === "operations") {
       return [
         {
           key: "preview",
           name: t("preview"),
           Icon: EyeIcon,
+          testID: InternalConfirmationSelectors.PreviewTab
         },
         {
           key: "raw",
           name: t("raw"),
           Icon: CodeAltIcon,
+          testID: InternalConfirmationSelectors.RawTab
         },
         ...(payload.bytesToSign
           ? [
-              {
-                key: "bytes",
-                name: t("bytes"),
-                Icon: HashIcon,
-              },
-            ]
+            {
+              key: "bytes",
+              name: t("bytes"),
+              Icon: HashIcon,
+              testID: InternalConfirmationSelectors.BytesTab
+            },
+          ]
           : []),
       ];
     }
@@ -126,11 +130,13 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         key: "preview",
         name: t("preview"),
         Icon: EyeIcon,
+        testID: InternalConfirmationSelectors.PreviewTab
       },
       {
         key: "bytes",
         name: t("bytes"),
         Icon: HashIcon,
+        testID: InternalConfirmationSelectors.BytesTab
       },
     ];
   }, [payload]);
@@ -283,16 +289,16 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
               )}
 
               {payload.type === "operations" &&
-                payload.bytesToSign &&
-                spFormat.key === "bytes" && (
-                  <>
-                    <RawPayloadView
-                      rows={5}
-                      payload={payload.bytesToSign}
-                      className="mb-4"
-                    />
-                  </>
-                )}
+              payload.bytesToSign &&
+              spFormat.key === "bytes" && (
+                <>
+                  <RawPayloadView
+                    rows={5}
+                    payload={payload.bytesToSign}
+                    className="mb-4"
+                  />
+                </>
+              )}
 
               {spFormat.key === "preview" && (
                 <ExpensesView expenses={expensesData} />
@@ -320,6 +326,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                   loading={declining}
                   disabled={declining}
                   onClick={handleDeclineClick}
+                  testID={InternalConfirmationSelectors.DeclineButton}
                 >
                   {message}
                 </FormSecondaryButton>
@@ -335,6 +342,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                   className="justify-center w-full"
                   loading={confirming}
                   onClick={handleConfirmClick}
+                  testID={error ? InternalConfirmationSelectors.RetryButton : InternalConfirmationSelectors.ConfirmButton}
                 >
                   {message}
                 </FormSubmitButton>
@@ -351,4 +359,4 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   );
 };
 
-export default InternalConfiramtion;
+export default InternalConfirmation;

@@ -1458,6 +1458,18 @@
   "popupSettingsDescription": {
     "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
   },
+  "analyticsSettings": {
+    "message": "Anonymous Analytics"
+  },
+  "analyticsSettingsDescription": {
+    "message": "Here you can configure sending of anonymous analytics that helps us to improve the product."
+  },
+  "analyticsEnabled": {
+    "message": "Enabled"
+  },
+  "analyticsDisabled": {
+    "message": "Disabled"
+  },
   "managedContract": {
     "message": "Managed Contract"
   },

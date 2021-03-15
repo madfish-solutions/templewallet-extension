@@ -33,6 +33,7 @@ import SubTitle from "app/atoms/SubTitle";
 import DAppLogo from "app/templates/DAppLogo";
 import OperationView from "app/templates/OperationView";
 import ConnectBanner from "app/templates/ConnectBanner";
+import { ConfirmPageSelectors } from "./ConfirmPage.selectors";
 
 const ConfirmPage: React.FC = () => {
   const { ready } = useTempleClient();
@@ -190,7 +191,9 @@ const ConfirmDAppForm: React.FC = () => {
         return {
           title: t("confirmAction", t("connection").toLowerCase()),
           declineActionTitle: t("cancel"),
+          declineActionTestID: ConfirmPageSelectors.ConnectAction_CancelButton,
           confirmActionTitle: error ? t("retry") : t("connect"),
+          confirmActionTestID: error ? ConfirmPageSelectors.ConnectAction_RetryButton : ConfirmPageSelectors.ConnectAction_ConnectButton,
           want: (
             <T
               id="appWouldLikeToConnectToYourWallet"
@@ -214,7 +217,9 @@ const ConfirmDAppForm: React.FC = () => {
         return {
           title: t("confirmAction", t("operations").toLowerCase()),
           declineActionTitle: t("reject"),
+          declineActionTestID: ConfirmPageSelectors.ConfirmOperationsAction_RejectButton,
           confirmActionTitle: error ? t("retry") : t("confirm"),
+          confirmActionTestID: error ? ConfirmPageSelectors.ConfirmOperationsAction_RetryButton : ConfirmPageSelectors.ConfirmOperationsAction_ConfirmButton,
           want: (
             <div
               className={classNames(
@@ -244,7 +249,9 @@ const ConfirmDAppForm: React.FC = () => {
         return {
           title: t("confirmAction", t("signAction").toLowerCase()),
           declineActionTitle: t("reject"),
+          declineActionTestID: ConfirmPageSelectors.SignAction_RejectButton,
           confirmActionTitle: t("signAction"),
+          confirmActionTestID: ConfirmPageSelectors.SignAction_SignButton,
           want: (
             <div
               className={classNames(
@@ -406,6 +413,7 @@ const ConfirmDAppForm: React.FC = () => {
             className="justify-center w-full"
             loading={declining}
             onClick={handleDeclineClick}
+            testID={content.declineActionTestID}
           >
             {content.declineActionTitle}
           </FormSecondaryButton>
@@ -417,6 +425,7 @@ const ConfirmDAppForm: React.FC = () => {
             className="justify-center w-full"
             loading={confirming}
             onClick={handleConfirmClick}
+            testID={content.confirmActionTestID}
           >
             {content.confirmActionTitle}
           </FormSubmitButton>

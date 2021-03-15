@@ -1,11 +1,13 @@
 import classNames from "clsx";
 import React from "react";
+import { TestIDProps } from "lib/analytics";
+import { Button } from "app/atoms/Button";
 
 export type ViewsSwitcherItemProps = {
   Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
   key: string;
   name: string;
-};
+} & TestIDProps;
 
 export type ViewsSwitcherProps = {
   activeItem: ViewsSwitcherItemProps;
@@ -23,7 +25,7 @@ const ViewsSwitcher = React.memo(
         const handleClick = () => onChange(spf);
 
         return (
-          <button
+          <Button
             key={spf.key}
             className={classNames(
               (() => {
@@ -47,12 +49,13 @@ const ViewsSwitcher = React.memo(
               "flex items-center"
             )}
             onClick={handleClick}
+            testID={spf.testID}
           >
             <spf.Icon
               className={classNames("h-4 w-auto mr-1", "stroke-current")}
             />
             {spf.name}
-          </button>
+          </Button>
         );
       })}
     </div>

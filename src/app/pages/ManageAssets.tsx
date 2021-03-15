@@ -18,6 +18,7 @@ import Checkbox from "app/atoms/Checkbox";
 import { ReactComponent as ControlCentreIcon } from "app/icons/control-centre.svg";
 import { ReactComponent as AddIcon } from "app/icons/add-to-list.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
+import { ManageAssetsSelectors } from "./ManageAssets.selectors";
 
 const ManageAssets: React.FC = () => (
   <PageLayout
@@ -102,6 +103,7 @@ const ManageAssetsContent: React.FC = () => {
             "hover:bg-gray-100",
             "opacity-75 hover:opacity-100 focus:opacity-100"
           )}
+          testID={ManageAssetsSelectors.AddTokenButton}
         >
           <AddIcon
             className={classNames("mr-1 h-5 w-auto stroke-current stroke-2")}
