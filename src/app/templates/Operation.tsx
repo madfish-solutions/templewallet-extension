@@ -65,7 +65,7 @@ const Operation = React.memo<OperationProps>(
     internalTransfers,
     volume,
   }) => {
-    const { allWithHiddenTokens } = useAssets();
+    const { allAssetsWithHidden } = useAssets();
     const imReceiver = internalTransfers.some(
       ({ receiver }) => receiver === accountPkh
     );
@@ -116,7 +116,7 @@ const Operation = React.memo<OperationProps>(
         (statsPart, transfer) => {
           const { tokenAddress, tokenId } = transfer;
           let token = tokenAddress
-            ? (allWithHiddenTokens.find((a) => {
+            ? (allAssetsWithHidden.find((a) => {
                 return (
                   a.type !== TempleAssetType.TEZ &&
                   a.address === tokenAddress &&
@@ -163,7 +163,7 @@ const Operation = React.memo<OperationProps>(
         },
         []
       );
-    }, [internalTransfers, allWithHiddenTokens, accountPkh]);
+    }, [internalTransfers, allAssetsWithHidden, accountPkh]);
 
     const receivers = React.useMemo(() => {
       const uniqueReceivers = new Set(

@@ -14,7 +14,7 @@ export function useAssets() {
   const allAssets = React.useMemo(() => [TEZ_ASSET, ...displayedTokens], [
     displayedTokens,
   ]);
-  const allWithHiddenTokens = React.useMemo(() => [TEZ_ASSET, ...allTokens], [
+  const allAssetsWithHidden = React.useMemo(() => [TEZ_ASSET, ...allTokens], [
     allTokens,
   ]);
 
@@ -24,7 +24,7 @@ export function useAssets() {
 
   const defaultAsset = React.useMemo(() => allAssets[0], [allAssets]);
 
-  return { allAssets, allWithHiddenTokens, defaultAsset };
+  return { allAssets, allAssetsWithHidden, defaultAsset };
 }
 
 export function useAssetBySlug(slug?: string | null) {

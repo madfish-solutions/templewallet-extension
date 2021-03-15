@@ -264,7 +264,7 @@ const Form: React.FC = () => {
           decimals: decimals || 0,
           iconUrl: iconUrl ? sanitizeImgUri(iconUrl) : undefined,
           fungible: true,
-          default: true,
+          status: "displayed" as const,
         };
 
         const newToken: TempleToken =
