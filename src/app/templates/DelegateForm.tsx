@@ -296,7 +296,9 @@ const DelegateForm: React.FC = () => {
       setSubmitError(null);
       setOperation(null);
 
-      formAnalytics.trackSubmit();
+      const analyticsProperties = { bakerAddress: to };
+
+      formAnalytics.trackSubmit(analyticsProperties);
       try {
         const estmtn = await getEstimation(to);
         const addFee = tzToMutez(feeVal ?? 0);
@@ -318,9 +320,9 @@ const DelegateForm: React.FC = () => {
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
 
-        formAnalytics.trackSubmitSuccess();
+        formAnalytics.trackSubmitSuccess(analyticsProperties);
       } catch (err) {
-        formAnalytics.trackSubmitFail();
+        formAnalytics.trackSubmitFail(analyticsProperties);
 
         if (err.message === "Declined") {
           return;
@@ -643,6 +645,7 @@ const DelegateForm: React.FC = () => {
                       }}
                       onClick={handleBakerClick}
                       testID={DelegateFormSelectors.KnownBakerItemButton}
+                      testIDProperties={{ bakerAddress: baker.address }}
                     >
                       <div>
                         <img
