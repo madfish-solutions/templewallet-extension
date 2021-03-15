@@ -315,9 +315,6 @@
   "nonNegativeIntMessage": {
     "message": "整数，0或更大"
   },
-  "positiveIntMessage": {
-    "message": "Integer, 1 or greater"
-  },
   "decimals": {
     "message": "小数"
   },
@@ -1664,11 +1661,5 @@
   },
   "faucetJsonDescription": {
     "message": "您可以通过在此粘贴JSON来代替添加文件"
-  },
-  "anotherAccount": {
-    "message": "Another account"
-  },
-  "accountNumber": {
-    "message": "Account number"
   }
 }
