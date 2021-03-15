@@ -24,6 +24,7 @@ import {
 } from "lib/temple/front";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
+import { useFormAnalytics } from "lib/analytics";
 import useSafeState from "lib/ui/useSafeState";
 import {
   ArtificialError,
@@ -44,6 +45,8 @@ import tezImgUrl from "app/misc/tez.png";
 import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ArrowUpIcon } from "app/icons/arrow-up.svg";
+import { DelegateFormSelectors } from "./DelegateForm.selectors";
+import { Button } from "app/atoms/Button";
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
@@ -56,6 +59,7 @@ interface FormData {
 
 const DelegateForm: React.FC = () => {
   const { registerBackHandler } = useAppEnv();
+  const formAnalytics = useFormAnalytics('DelegateForm');
 
   const net = useNetwork();
   const acc = useAccount();
@@ -80,12 +84,18 @@ const DelegateForm: React.FC = () => {
       {
         key: "rank",
         title: t("rank"),
+        testID: DelegateFormSelectors.SortBakerByRankTab
       },
       {
         key: "fee",
         title: t("fee"),
+        testID: DelegateFormSelectors.SortBakerByFeeTab
       },
-      { key: "space", title: t("space") },
+      {
+        key: "space",
+        title: t("space"),
+        testID: DelegateFormSelectors.SortBakerBySpaceTab
+      },
     ],
     []
   );
@@ -286,6 +296,7 @@ const DelegateForm: React.FC = () => {
       setSubmitError(null);
       setOperation(null);
 
+      formAnalytics.trackSubmit();
       try {
         const estmtn = await getEstimation(to);
         const addFee = tzToMutez(feeVal ?? 0);
@@ -306,7 +317,11 @@ const DelegateForm: React.FC = () => {
 
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (err.message === "Declined") {
           return;
         }
@@ -329,6 +344,7 @@ const DelegateForm: React.FC = () => {
       setOperation,
       reset,
       getEstimation,
+      formAnalytics
     ]
   );
 
@@ -536,7 +552,7 @@ const DelegateForm: React.FC = () => {
                     </span>
                   )}
                 </T>
-                {bakerSortTypes.map(({ key, title }, i, arr) => {
+                {bakerSortTypes.map(({ key, title, testID }, i, arr) => {
                   const first = i === 0;
                   const last = i === arr.length - 1;
                   const selected = sortBakersBy.key === key;
@@ -572,6 +588,7 @@ const DelegateForm: React.FC = () => {
                         "px-2 py-px",
                         "text-xs text-gray-600"
                       )}
+                      testID={testID}
                     >
                       {title}
                     </Link>
@@ -606,7 +623,7 @@ const DelegateForm: React.FC = () => {
                   };
 
                   return (
-                    <button
+                    <Button
                       key={baker.address}
                       type="button"
                       className={classNames(
@@ -625,6 +642,7 @@ const DelegateForm: React.FC = () => {
                         padding: "0.65rem 0.5rem 0.65rem 0.5rem",
                       }}
                       onClick={handleBakerClick}
+                      testID={DelegateFormSelectors.KnownBakerItemButton}
                     >
                       <div>
                         <img
@@ -726,7 +744,7 @@ const DelegateForm: React.FC = () => {
                       >
                         <ChevronRightIcon className="h-5 w-auto stroke-current" />
                       </div>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -807,8 +825,11 @@ const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
   />
 );
 
-class UnchangedError extends Error {}
-class UnregisteredDelegateError extends Error {}
+class UnchangedError extends Error {
+}
+
+class UnregisteredDelegateError extends Error {
+}
 
 function validateAddress(value: any) {
   switch (false) {

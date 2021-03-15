@@ -11,6 +11,9 @@ import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import Header from "app/layouts/PageLayout/Header";
 import ConfirmationOverlay from "app/layouts/PageLayout/ConfirmationOverlay";
+import { Button } from "app/atoms/Button";
+
+import { PageLayoutSelectors } from "./PageLayout.selectors";
 
 type PageLayoutProps = ToolbarProps;
 
@@ -160,7 +163,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     >
       <div className="flex-1">
         {hasBackAction && canBack && (
-          <button
+          <Button
             className={classNames(
               "px-4 py-2",
               "rounded",
@@ -172,6 +175,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
               "opacity-90 hover:opacity-100"
             )}
             onClick={onBack}
+            testID={PageLayoutSelectors.BackButton}
           >
             <ChevronLeftIcon
               className={classNames(
@@ -182,7 +186,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
               )}
             />
             <T id="back" />
-          </button>
+          </Button>
         )}
       </div>
 
