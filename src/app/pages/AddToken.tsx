@@ -213,7 +213,7 @@ const Form: React.FC = () => {
           address,
           symbol,
           name,
-          decimals: decimals || 0,
+          decimals: decimals ? +decimals : 0,
           iconUrl: iconUrl ? sanitizeImgUri(iconUrl) : undefined,
           fungible: true,
           status: "displayed" as const,
@@ -231,7 +231,7 @@ const Form: React.FC = () => {
                 ...tokenCommonProps,
               };
 
-        addToken(newToken);
+        await addToken(newToken);
         const assetKey = getAssetKey(newToken);
 
         // Wait a little bit while the tokens updated

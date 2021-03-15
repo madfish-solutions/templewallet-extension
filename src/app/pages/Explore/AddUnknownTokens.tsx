@@ -1,6 +1,7 @@
 import * as React from "react";
 import BigNumber from "bignumber.js";
 import { BcdAccountToken, getAccount } from "lib/better-call-dev";
+import { sanitizeImgUri } from "lib/image-uri";
 import {
   useAccount,
   useChainId,
@@ -64,18 +65,19 @@ const AddUnknownTokens: React.FC = () => {
               fungible: true,
               symbol: meta.symbol,
               name: meta.name,
+              iconUrl: meta.iconUrl ? sanitizeImgUri(meta.iconUrl) : undefined,
               status: positiveBalance
                 ? ("displayed" as const)
                 : ("hidden" as const),
             };
 
             if (isFA12Token) {
-              addToken({
+              await addToken({
                 ...baseTokenProps,
                 type: TempleAssetType.FA1_2,
               });
             } else {
-              addToken({
+              await addToken({
                 ...baseTokenProps,
                 id: token.token_id,
                 type: TempleAssetType.FA2,
@@ -107,8 +109,18 @@ const AddUnknownTokens: React.FC = () => {
 export default AddUnknownTokens;
 
 function tokensAreSame(token1: TempleToken, token2: BcdAccountToken) {
-  return (
-    token1.address === token2.contract &&
-    (token1.type !== TempleAssetType.FA2 || token1.id === token2.token_id)
-  );
+  switch (token1.type) {
+    case TempleAssetType.FA1_2:
+    case TempleAssetType.TzBTC:
+    case TempleAssetType.Staker:
+      return token1.address === token2.contract;
+
+    case TempleAssetType.FA2:
+      return (
+        token1.address === token2.contract && token1.id === token2.token_id
+      );
+
+    default:
+      return false;
+  }
 }
