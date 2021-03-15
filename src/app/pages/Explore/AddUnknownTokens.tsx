@@ -109,18 +109,8 @@ const AddUnknownTokens: React.FC = () => {
 export default AddUnknownTokens;
 
 function tokensAreSame(token1: TempleToken, token2: BcdAccountToken) {
-  switch (token1.type) {
-    case TempleAssetType.FA1_2:
-    case TempleAssetType.TzBTC:
-    case TempleAssetType.Staker:
-      return token1.address === token2.contract;
-
-    case TempleAssetType.FA2:
-      return (
-        token1.address === token2.contract && token1.id === token2.token_id
-      );
-
-    default:
-      return false;
-  }
+  return (
+    token1.address === token2.contract &&
+    (token1.type !== TempleAssetType.FA2 || token1.id === token2.token_id)
+  );
 }
