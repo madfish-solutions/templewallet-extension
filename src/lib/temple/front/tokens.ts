@@ -76,27 +76,29 @@ export function useTokens(networkRpc?: string) {
     [allTokens]
   );
 
-  const updateTokenStatus = React.useCallback(
-    (token: TempleToken, status: "displayed" | "hidden" | "removed") => {
+  const updateToken = React.useCallback(
+    (token: TempleToken, toUpdate: Partial<TempleToken>) =>
       saveTokens((tkns) => {
         const savedIndex = tkns.findIndex((t) => assetsAreSame(t, token));
         if (savedIndex !== -1) {
-          return tkns.map((t, i) => (i === savedIndex ? { ...t, status } : t));
+          return tkns.map((t, i) =>
+            i === savedIndex ? ({ ...t, ...toUpdate } as TempleToken) : t
+          );
         }
 
         const staticItem = staticTokens.find((t) => assetsAreSame(t, token));
         if (staticItem) {
-          return [{ ...staticItem, status }, ...tkns];
+          return [{ ...staticItem, ...toUpdate } as TempleToken, ...tkns];
         }
 
         return tkns;
-      });
-    },
+      }),
     [saveTokens, staticTokens]
   );
 
   const addToken = React.useCallback(
     (token: TempleToken) => {
+      console.info("add", token);
       if (displayedTokens.some((t) => assetsAreSame(t, token))) {
         if (token.type === TempleAssetType.FA2) {
           throw new Error(
@@ -106,16 +108,15 @@ export function useTokens(networkRpc?: string) {
           throw new Error(t("nonFa2TokenAlreadyExists", token.address));
         }
       } else if (hiddenTokens.some((t) => assetsAreSame(t, token))) {
-        updateTokenStatus(token, "displayed");
-        return;
+        return updateToken(token, token);
       }
 
-      saveTokens((tkns) => [
+      return saveTokens((tkns) => [
         ...tkns.filter((t) => !assetsAreSame(t, token)),
         token,
       ]);
     },
-    [displayedTokens, hiddenTokens, updateTokenStatus, saveTokens]
+    [displayedTokens, hiddenTokens, updateToken, saveTokens]
   );
 
   return {
@@ -125,7 +126,7 @@ export function useTokens(networkRpc?: string) {
     displayedAndHiddenTokens,
     removedTokens,
     allTokens,
-    updateTokenStatus,
+    updateToken,
     addToken,
   };
 }

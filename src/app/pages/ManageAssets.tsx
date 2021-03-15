@@ -35,7 +35,7 @@ export default ManageAssets;
 
 const ManageAssetsContent: React.FC = () => {
   const network = useNetwork();
-  const { displayedAndHiddenTokens, updateTokenStatus } = useTokens();
+  const { displayedAndHiddenTokens, updateToken } = useTokens();
 
   const netIdRef = React.useRef<string>();
   const sortIndexes = React.useRef<Map<string, number>>();
@@ -73,10 +73,10 @@ const ManageAssetsContent: React.FC = () => {
       const plain = toPlain(asset);
 
       if (plain.type !== TempleAssetType.TEZ) {
-        updateTokenStatus(plain, checked ? "displayed" : "hidden");
+        updateToken(plain, { status: checked ? "displayed" : "hidden" });
       }
     },
-    [updateTokenStatus]
+    [updateToken]
   );
 
   return (
@@ -103,21 +103,6 @@ const ManageAssetsContent: React.FC = () => {
           <T id="addToken" />
         </Link>
       </div>
-
-      {/* <button
-        className={classNames(
-          "mb-3 w-full",
-          "py-2 px-4",
-          "rounded-lg",
-          "flex items-center justify-center",
-          "text-primary-orange bg-primary-orange bg-opacity-5",
-          "border border-primary-orange border-opacity-50",
-          "text-base"
-        )}
-      >
-        <AddIcon className="w-auto h-5 mr-2 stroke-current" />
-        Add New Token
-      </button> */}
 
       {filteredTokens.length > 0 ? (
         <div
