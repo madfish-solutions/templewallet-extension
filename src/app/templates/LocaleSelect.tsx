@@ -61,13 +61,13 @@ const localeOptions: LocaleOption[] = [
     label: "Korean",
     disabled: false,
   },
-  // Disabled
   {
     code: "uk",
     flagName: "ua",
     label: "Ukrainian (Українська)",
-    disabled: true,
+    disabled: false,
   },
+  // Disabled
   {
     code: "ru",
     flagName: "ru",

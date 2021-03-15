@@ -6,7 +6,7 @@ import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import { InternalTransfer, OperationPreview } from "app/templates/Operation";
 
 const PAGE_SIZE = 20;
-const PAGE_SIZE_FOR_EXPLORERS = 60;
+const PAGE_SIZE_FOR_EXPLORERS = 10;
 
 type GroupedTzStatsOps = Record<string, TZStatsOperation[]>;
 type GroupedBcdOps = Record<string, BcdTokenTransfer[]>;
