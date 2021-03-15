@@ -49,7 +49,6 @@ interface LinkAnchorProps
   onNavigate: () => void;
   onClick?: React.MouseEventHandler;
   target?: string;
-  testID?: string;
 }
 
 const LinkAnchor: React.FC<LinkAnchorProps> = ({
@@ -58,13 +57,14 @@ const LinkAnchor: React.FC<LinkAnchorProps> = ({
   onClick,
   target,
   testID,
+  testIDProperties,
   ...rest
 }) => {
   const trackEvent = useAnalyticsTrackEvent();
 
   const handleClick = React.useCallback(
     (evt) => {
-      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress);
+      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
       try {
         if (onClick) {

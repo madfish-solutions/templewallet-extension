@@ -4,11 +4,16 @@ import { AnalyticsEventCategory, TestIDProps, useAnalyticsTrackEvent } from "lib
 interface Props extends React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, TestIDProps {
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, Props>(({ testID, onClick, ...props }, ref) => {
+export const Button = React.forwardRef<HTMLButtonElement, Props>(({
+    testID,
+    testIDProperties,
+    onClick,
+    ...props
+  }, ref) => {
     const trackEvent = useAnalyticsTrackEvent();
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress);
+      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
       onClick !== undefined && onClick(e);
     }

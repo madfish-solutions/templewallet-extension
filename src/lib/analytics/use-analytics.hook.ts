@@ -14,6 +14,7 @@ const client = new Analytics(process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY ?? '');
 
 export const sendTrackEvent = (
   userId: string,
+  chainId: string,
   event: string,
   category: AnalyticsEventCategory = AnalyticsEventCategory.General,
   properties?: object
@@ -23,7 +24,9 @@ export const sendTrackEvent = (
   properties: {
     ...properties,
     event,
-    category
+    category,
+    chainId,
+    timestamp: +new Date()
   },
 });
 
