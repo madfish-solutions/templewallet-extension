@@ -1,18 +1,15 @@
-import { generateKey } from "../passworder";
 import { Vault } from "./vault";
-import { inited } from "./store";
+import { browser } from "webextension-polyfill-ts";
+import { TempleAccountType, TempleSettings } from "../types";
 
-// let passKey: CryptoKey;
-// let vault: Vault;
 const password = "Test123!";
 const mnemonic =
-  "champion lumber erupt shy hat smooth sound great spin cliff dolphin stuff";
+    "champion lumber erupt shy hat smooth sound great spin cliff dolphin stuff";
 const accountName = "Temple";
 
 describe("Safe Storage tests", () => {
-  beforeAll(async () => {
-    // passKey = await generateKey("passKey")
-    // inited(true);
+  beforeEach(async () => {
+    await browser.storage.local.clear();
   });
 
   it("init test", async () => {
@@ -22,41 +19,122 @@ describe("Safe Storage tests", () => {
     expect(Array.isArray(accounts)).toBeTruthy();
   });
 
-  it("isExist test", async () => {});
+  it("isExist test", async () => {
+    expect(await Vault.isExist()).toBeFalsy()
+    await Vault.spawn(password, mnemonic);
+    expect(await Vault.isExist()).toBeTruthy()
+  });
 
-  it("setup test", async () => {});
+  it("setup test", async () => {
+    await Vault.spawn(password, mnemonic);
+    const vault = await Vault.setup(password);
+    expect(vault).toBeDefined()
+  });
 
-  it("spawn test", async () => {});
+  it("spawn test", async () => {
+    await Vault.spawn(password, mnemonic);
+    expect(Vault.isExist()).toBeTruthy()
+  });
 
-  it("runMigrations test", async () => {});
 
-  it("revealMnemonic test", async () => {});
+  it("revealMnemonic test", async () => {
+    await Vault.spawn(password, mnemonic);
+    expect(await Vault.revealMnemonic(password)).toBe(mnemonic)
+  });
 
-  it("revealPrivateKey test", async () => {});
+  it("revealPrivateKey test", async () => {
+    await Vault.spawn(password, mnemonic);
+    const vault = await Vault.setup(password);
+    const accounts = await vault.createHDAccount(accountName);
+    const privateKey = await Vault.revealPrivateKey(accounts[0].publicKeyHash, password)
+    expect(typeof privateKey).toBe("string")
+  });
 
-  it("removeAccount test", async () => {});
 
-  it("revealPublicKey test", async () => {});
+  it("revealPublicKey test", async () => {
+    await Vault.spawn(password, mnemonic);
+    const vault = await Vault.setup(password);
+    const accounts = await vault.createHDAccount(accountName);
+    const key = await vault.revealPublicKey(accounts[0].publicKeyHash)
+    expect(typeof key).toBe("string")
+  });
 
-  it("fetchAccounts test", async () => {});
+  it("fetchAccounts test", async () => {
+    await Vault.spawn(password, mnemonic);
+    const vault = await Vault.setup(password);
+    const accounts = await vault.fetchAccounts()
+    expect(accounts[0].type).toBe(TempleAccountType.HD)
+  });
 
-  it("createHDAccount test", async () => {});
+  it("createHDAccount test", async () => {
+    await Vault.spawn(password, mnemonic);
+    const vault = await Vault.setup(password);
+    const accounts = await vault.createHDAccount(accountName);
+    expect(accounts.length).toBe(2)
+  });
 
-  it("importAccount test", async () => {});
+  it("editAccountName test", async () => {
+    const newName = "newName"
+    await Vault.spawn(password, mnemonic);
+    const vault = await Vault.setup(password);
+    const accounts = await vault.fetchAccounts()
+    const {publicKeyHash} = accounts[0]
+    await vault.editAccountName(publicKeyHash, newName)
+    const newAccounts = await vault.fetchAccounts()
+    const { name } = newAccounts[0]
+    expect(name).toBe(newName)
+  });
 
-  it("importMnemonicAccount test", async () => {});
+  it("updateSettings test", async () => {
+    const newSettings: Partial<TempleSettings> = {
+      lambdaContracts: {
+        contract1: "value1"
+      }
+    }
+    await Vault.spawn(password, mnemonic);
+    const vault = await Vault.setup(password);
+    await vault.updateSettings(newSettings)
+    const settings = await vault.fetchSettings()
+    expect(settings?.lambdaContracts?.contract1!).toBe("value1")
+  });
 
-  it("importFundraiserAccount test", async () => {});
+  it("sign test", async () => {
+    // TODO: need example how to test
 
-  it("importManagedKTAccount test", async () => {});
+    await Vault.spawn(password, mnemonic);
+    const vault = await Vault.setup(password);
+    const accounts = await vault.fetchAccounts()
+    const {publicKeyHash} = accounts[0]
+    // const res = await vault.sign(publicKeyHash, "test")
+    // expect(res).toBeDefined()
+  });
 
-  it("importWatchOnlyAccount test", async () => {});
 
-  it("editAccountName test", async () => {});
+  it("importAccount test", async () => {
+    // TODO: need example how to test
+  });
 
-  it("updateSettings test", async () => {});
+  it("importMnemonicAccount test", async () => {
+    // TODO: need example how to test
+  });
 
-  it("sign test", async () => {});
+  it("importFundraiserAccount test", async () => {
+    // TODO: need example how to test
+  });
 
-  it("importWatchOnlyAccount test", async () => {});
+  it("importManagedKTAccount test", async () => {
+    // TODO: need example how to test
+  });
+
+  it("importWatchOnlyAccount test", async () => {
+    // TODO: need example how to test
+  })
+
+  it("removeAccount test", async () => {
+    // TODO: need example how to test
+  });
+
+  it("runMigrations test", async () => {
+    // TODO: need example how to test
+  });
 });
