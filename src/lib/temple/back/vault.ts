@@ -20,10 +20,12 @@ import {
   TempleAccount,
   TempleAccountType,
   TempleSettings,
+  TempleToken,
 } from "lib/temple/types";
 import { transformHttpResponseError, loadChainId } from "lib/temple/helpers";
 import * as Passworder from "lib/temple/passworder";
 import { NETWORKS } from "lib/temple/networks";
+import { mergeAssets } from "lib/temple/assets";
 import { PublicError } from "lib/temple/back/defaults";
 import {
   isStored,
@@ -599,8 +601,8 @@ const MIGRATIONS = [
   },
 
   // [2] Improve token managing flow
-  // Migrate from tokens: TempleToken[] + hiddenTokens: TempleToken[]
-  // to tokens: { saved: TempleToken[], hidden: TempleTokenId[] }
+  // Migrate from tokens{netId}: TempleToken[] + hiddenTokens{netId}: TempleToken[]
+  // to tokens{chainId}: TempleToken[]
   async (passKey: CryptoKey) => {
     let savedSettings;
     try {
@@ -627,6 +629,25 @@ const MIGRATIONS = [
         ]),
         loadChainId(net.rpcBaseURL),
       ]);
+
+      const tokensStgKey = `tokens_${chainId}`;
+      const {
+        [tokensStgKey]: existingTokens = [],
+      } = await browser.storage.local.get([tokensStgKey]);
+
+      await browser.storage.local.set({
+        [tokensStgKey]: mergeAssets(
+          existingTokens,
+          legacyTokens.map((t: TempleToken) => ({
+            ...t,
+            status: "displayed",
+          })),
+          legacyHiddenTokens.map((t: TempleToken) => ({
+            ...t,
+            status: "hidden",
+          }))
+        ),
+      });
     }
   },
 ];

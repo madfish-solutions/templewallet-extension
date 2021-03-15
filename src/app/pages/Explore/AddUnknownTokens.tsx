@@ -14,7 +14,7 @@ import { TempleAssetType, TempleToken } from "lib/temple/types";
 import { BCD_NETWORKS_NAMES } from "app/defaults";
 
 const AddUnknownTokens: React.FC = () => {
-  const { addToken, hiddenTokens } = useTokens();
+  const { addToken, allTokens } = useTokens();
   const assetsRef = useAllAssetsRef();
   const { publicKeyHash: accountPkh } = useAccount();
   const tezos = useTezos();
@@ -46,7 +46,7 @@ const AddUnknownTokens: React.FC = () => {
                 knownAsset.type === TempleAssetType.TEZ ||
                 !tokensAreSame(knownAsset, token)
             ) &&
-            !hiddenTokens.some((hiddenToken) =>
+            !allTokens.some((hiddenToken) =>
               tokensAreSame(hiddenToken, token)
             ) &&
             token.name &&
@@ -67,6 +67,7 @@ const AddUnknownTokens: React.FC = () => {
               fungible: true,
               symbol: token.symbol,
               name: token.name,
+              status: "displayed" as const,
             };
             if (isFA12Token) {
               addToken({
@@ -87,7 +88,7 @@ const AddUnknownTokens: React.FC = () => {
 
     const timeout = setTimeout(syncTokens);
     return () => clearTimeout(timeout);
-  }, [accountPkh, networkId, addToken, assetsRef, hiddenTokens, tezos]);
+  }, [accountPkh, networkId, addToken, assetsRef, allTokens, tezos]);
 
   return null;
 };

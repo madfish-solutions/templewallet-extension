@@ -128,8 +128,7 @@ export interface TempleAssetBase {
   symbol: string;
   name: string;
   fungible: boolean;
-  default?: boolean;
-  removed?: boolean;
+  status: "displayed" | "hidden" | "removed";
 }
 
 export interface TempleTokenBase extends TempleAssetBase {

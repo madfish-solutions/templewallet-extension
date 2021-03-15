@@ -8,8 +8,6 @@ import {
   useCustomChainId,
   fetchFromStorage,
   assetsAreSame,
-  mergeAssets,
-  omitAssets,
   loadChainId,
   TempleChainId,
   MAINNET_TOKENS,
@@ -17,6 +15,7 @@ import {
 } from "lib/temple/front";
 import { t } from "lib/i18n/react";
 import { useAllNetworks } from "./ready";
+import { omitAssets } from "../assets";
 
 const NETWORK_TOKEN_MAP = new Map([
   [TempleChainId.Mainnet, MAINNET_TOKENS],
@@ -36,51 +35,65 @@ export function useTokens(networkRpc?: string) {
     );
   }, [allNetworks, selectedNetwork, networkRpc]);
 
-  const [tokensPure, setTokens] = useStorage<TempleToken[]>(
-    getTokensSWRKey(network.id),
-    []
-  );
-  const [hiddenTokensPure, setHiddenTokens] = useStorage<TempleToken[]>(
-    getHiddenTokensSWRKey(network.id),
+  const chainId = useCustomChainId(network.rpcBaseURL, true)!;
+
+  const [tokensPure, saveTokens] = useStorage<TempleToken[]>(
+    getTokensSWRKey(chainId),
     []
   );
 
-  const chainId = useCustomChainId(network.rpcBaseURL, true);
+  const savedTokens = React.useMemo(() => tokensPure.map(formatSaved), [
+    tokensPure,
+  ]);
+
   const staticTokens = React.useMemo(
     () => (chainId && NETWORK_TOKEN_MAP.get(chainId as TempleChainId)) || [],
     [chainId]
   );
 
-  const displayedTokens = React.useMemo(
-    () =>
-      omitAssets(
-        staticTokens.filter((t) => t.default),
-        tokensPure.map(formatSaved)
-      ),
-    [staticTokens, tokensPure]
-  );
-  const hiddenTokens = React.useMemo(
-    () =>
-      mergeAssets(
-        staticTokens.filter((t) => !t.default),
-        hiddenTokensPure.map(formatSaved)
-      ),
-    [staticTokens, hiddenTokensPure]
-  );
-
   const allTokens = React.useMemo(
-    () => mergeAssets(displayedTokens, hiddenTokens),
-    [displayedTokens, hiddenTokens]
+    () => [...omitAssets(staticTokens, savedTokens), ...savedTokens],
+    [staticTokens, savedTokens]
   );
 
-  // const dissplayedTokens = React.useMemo(
-  //   () =>
-  //     omitAssets(allTokens, [
-  //       ...staticTokens.filter((t) => !t.default),
-  //       ...hiddenTokens,
-  //     ]),
-  //   [allTokens, staticTokens, hiddenTokens]
-  // );
+  const displayedTokens = React.useMemo(
+    () => allTokens.filter((t) => t.status === "displayed"),
+    [allTokens]
+  );
+
+  const hiddenTokens = React.useMemo(
+    () => allTokens.filter((t) => t.status === "hidden"),
+    [allTokens]
+  );
+
+  const displayedAndHiddenTokens = React.useMemo(
+    () => allTokens.filter((t) => t.status !== "removed"),
+    [allTokens]
+  );
+
+  const removedTokens = React.useMemo(
+    () => allTokens.filter((t) => t.status === "removed"),
+    [allTokens]
+  );
+
+  const updateTokenStatus = React.useCallback(
+    (token: TempleToken, status: "displayed" | "hidden" | "removed") => {
+      saveTokens((tkns) => {
+        const savedIndex = tkns.findIndex((t) => assetsAreSame(t, token));
+        if (savedIndex !== -1) {
+          return tkns.map((t, i) => (i === savedIndex ? { ...t, status } : t));
+        }
+
+        const staticItem = staticTokens.find((t) => assetsAreSame(t, token));
+        if (staticItem) {
+          return [{ ...staticItem, status }, ...tkns];
+        }
+
+        return tkns;
+      });
+    },
+    [saveTokens, staticTokens]
+  );
 
   const addToken = React.useCallback(
     (token: TempleToken) => {
@@ -92,36 +105,34 @@ export function useTokens(networkRpc?: string) {
         } else {
           throw new Error(t("nonFa2TokenAlreadyExists", token.address));
         }
+      } else if (hiddenTokens.some((t) => assetsAreSame(t, token))) {
+        updateTokenStatus(token, "displayed");
+        return;
       }
 
-      setTokens((tkns) => [...tkns, token]);
-      setHiddenTokens((tkns) => tkns.filter((t) => !assetsAreSame(t, token)));
+      saveTokens((tkns) => [
+        ...tkns.filter((t) => !assetsAreSame(t, token)),
+        token,
+      ]);
     },
-    [displayedTokens, setTokens, setHiddenTokens]
-  );
-
-  const removeToken = React.useCallback(
-    (token: TempleToken) => {
-      setTokens((tkns) => tkns.filter((t) => !assetsAreSame(t, token)));
-      setHiddenTokens((tkns) => [token, ...tkns]);
-    },
-    [setTokens, setHiddenTokens]
+    [displayedTokens, hiddenTokens, updateTokenStatus, saveTokens]
   );
 
   return {
     staticTokens,
     displayedTokens,
     hiddenTokens,
+    displayedAndHiddenTokens,
+    removedTokens,
     allTokens,
-    setTokens,
+    updateTokenStatus,
     addToken,
-    removeToken,
   };
 }
 
-export async function preloadTokens(netId: string, rpcUrl: string) {
-  const tokensKey = getTokensSWRKey(netId);
-  const hiddenTokensKey = getHiddenTokensSWRKey(netId);
+export async function preloadTokens(rpcUrl: string) {
+  const chainId = await loadChainId(rpcUrl);
+  const tokensKey = getTokensSWRKey(chainId);
 
   await Promise.all(
     [
@@ -130,12 +141,8 @@ export async function preloadTokens(netId: string, rpcUrl: string) {
         factory: () => fetchFromStorage(tokensKey),
       },
       {
-        key: hiddenTokensKey,
-        factory: () => fetchFromStorage(hiddenTokensKey),
-      },
-      {
         key: getCustomChainIdSWRKey(rpcUrl),
-        factory: () => loadChainId(rpcUrl),
+        factory: () => Promise.resolve(chainId),
       },
     ]
       .filter(({ key }) => !cache.has(key))
@@ -143,12 +150,8 @@ export async function preloadTokens(netId: string, rpcUrl: string) {
   );
 }
 
-export function getTokensSWRKey(netId: string) {
-  return `tokens_${netId}`;
-}
-
-export function getHiddenTokensSWRKey(netId: string) {
-  return `hidden_tokens_${netId}`;
+export function getTokensSWRKey(chainId: string) {
+  return `tokens_${chainId}`;
 }
 
 export function getCustomChainIdSWRKey(rpcUrl: string) {
