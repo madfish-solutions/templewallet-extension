@@ -33,7 +33,7 @@ import AddressChip from "./Explore/AddressChip";
 import MainAssetBanner from "./Explore/MainAssetBanner";
 import BakingSection from "./Explore/BakingSection";
 import Assets from "./Explore/Assets";
-// import AddUnknownTokens from "./Explore/AddUnknownTokens";
+import AddUnknownTokens from "./Explore/AddUnknownTokens";
 
 type ExploreProps = {
   assetSlug?: string | null;
@@ -133,7 +133,7 @@ const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
 
       <SecondarySection asset={asset} />
 
-      {/* <AddUnknownTokens /> */}
+      <AddUnknownTokens />
     </PageLayout>
   );
 };
