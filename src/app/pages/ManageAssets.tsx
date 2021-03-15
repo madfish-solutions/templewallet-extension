@@ -6,7 +6,6 @@ import {
   useTokens,
   getAssetKey,
   TempleAsset,
-  mergeAssets,
   searchAssets,
   TempleAssetType,
   useNetwork,
@@ -36,15 +35,14 @@ export default ManageAssets;
 
 const ManageAssetsContent: React.FC = () => {
   const network = useNetwork();
-  const { displayedTokens, hiddenTokens, addToken, removeToken } = useTokens();
+  const { displayedAndHiddenTokens, updateTokenStatus } = useTokens();
 
   const netIdRef = React.useRef<string>();
   const sortIndexes = React.useRef<Map<string, number>>();
 
   const checkableTokens = React.useMemo(() => {
-    const unsorted = mergeAssets(
-      displayedTokens.map(toChecked),
-      hiddenTokens.map(toUnchecked)
+    const unsorted = displayedAndHiddenTokens.map((t) =>
+      t.status === "displayed" ? toChecked(t) : toUnchecked(t)
     );
     const iMap = sortIndexes.current;
     if (!iMap) return unsorted;
@@ -54,7 +52,7 @@ const ManageAssetsContent: React.FC = () => {
       const bIndex = iMap.get(getAssetKey(b)) ?? 0;
       return aIndex - bIndex;
     });
-  }, [displayedTokens, hiddenTokens]);
+  }, [displayedAndHiddenTokens]);
 
   if (!sortIndexes.current || netIdRef.current !== network.id) {
     netIdRef.current = network.id;
@@ -75,14 +73,10 @@ const ManageAssetsContent: React.FC = () => {
       const plain = toPlain(asset);
 
       if (plain.type !== TempleAssetType.TEZ) {
-        if (checked) {
-          addToken(plain);
-        } else {
-          removeToken(plain);
-        }
+        updateTokenStatus(plain, checked ? "displayed" : "hidden");
       }
     },
-    [addToken, removeToken]
+    [updateTokenStatus]
   );
 
   return (
