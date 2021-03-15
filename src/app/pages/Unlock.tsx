@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "lib/woozie";
 import { T, t } from "lib/i18n/react";
 import { useTempleClient } from "lib/temple/front";
+import { useFormAnalytics } from "lib/analytics";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -20,6 +21,7 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 
 const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
+  const formAnalytics = useFormAnalytics('UnlockWallet');
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
@@ -44,9 +46,14 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
       if (submitting) return;
 
       clearError("password");
+      formAnalytics.trackSubmit();
       try {
         await unlock(password);
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -57,7 +64,7 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
         focusPasswordField();
       }
     },
-    [submitting, clearError, setError, unlock, focusPasswordField]
+    [submitting, clearError, setError, unlock, focusPasswordField, formAnalytics]
   );
 
   return (

@@ -10,10 +10,12 @@ import {
   useTempleClient,
   useChainId,
   isKnownChainId,
+  ImportAccountFormType,
 } from "lib/temple/front";
 import { getOneUserContracts, TzktRelatedContract } from "lib/tzkt";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
+import { useFormAnalytics } from "lib/analytics";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import Balance from "app/templates/Balance";
 import NoSpaceField from "app/atoms/NoSpaceField";
@@ -34,6 +36,7 @@ const ManagedKTForm: React.FC = () => {
   const accounts = useRelevantAccounts();
   const tezos = useTezos();
   const { importKTManagedAccount } = useTempleClient();
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.ManagedKT);
   const chainId = useChainId(true);
 
   const [error, setError] = useState<React.ReactNode>(null);
@@ -126,6 +129,7 @@ const ManagedKTForm: React.FC = () => {
         return;
       }
 
+      formAnalytics.trackSubmit();
       setError(null);
       try {
         const contract = await tezos.contract.at(contractAddress);
@@ -140,7 +144,11 @@ const ManagedKTForm: React.FC = () => {
 
         const chainId = await tezos.rpc.getChainId();
         await importKTManagedAccount(contractAddress, chainId, owner);
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -150,7 +158,7 @@ const ManagedKTForm: React.FC = () => {
         setError(err.message);
       }
     },
-    [formState, tezos, accounts, importKTManagedAccount]
+    [formState, tezos, accounts, importKTManagedAccount, formAnalytics]
   );
 
   const handleKnownContractSelect = useCallback(
@@ -203,7 +211,8 @@ const ManagedKTForm: React.FC = () => {
               />
               <div className="ml-1 mr-px font-normal">
                 <T id="contract" />
-              </div>{" "}
+              </div>
+              {" "}
               (
               <Balance asset={TEZ_ASSET} address={filledAccount.address}>
                 {(bal) => (

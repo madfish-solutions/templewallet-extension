@@ -1,9 +1,10 @@
 import classNames from "clsx";
 import React, { useCallback, useRef, useState } from "react";
-import { Controller, ControllerProps, FieldError } from "react-hook-form";
+import { Controller, ControllerProps, EventFunction, FieldError } from "react-hook-form";
 import BigNumber from "bignumber.js";
 import { TEZ_ASSET } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
+import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
 import AssetField from "app/atoms/AssetField";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { ReactComponent as CoffeeIcon } from "app/icons/coffee.svg";
@@ -12,17 +13,14 @@ import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import Name from "app/atoms/Name";
 import Money from "app/atoms/Money";
+import { AdditionalFeeInputSelectors } from "./AdditionalFeeInput..selectors";
 
-type AssetFieldProps = typeof AssetField extends React.ForwardRefExoticComponent<
-  infer T
->
+type AssetFieldProps = typeof AssetField extends React.ForwardRefExoticComponent<infer T>
   ? T
   : never;
 
-export type AdditionalFeeInputProps = Pick<
-  ControllerProps<React.ComponentType>,
-  "name" | "control" | "onChange"
-> & {
+export type AdditionalFeeInputProps = Pick<ControllerProps<React.ComponentType>,
+  "name" | "control" | "onChange"> & {
   assetSymbol: string;
   baseFee?: BigNumber | Error;
   error?: FieldError;
@@ -76,6 +74,7 @@ const getFeeOptionId = (option: FeeOption) => option.type;
 
 const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
   const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
+  const trackEvent = useAnalyticsTrackEvent();
 
   const validateAdditionalFee = useCallback((v?: number) => {
     if (v === undefined) {
@@ -92,13 +91,18 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
     customFeeInputRef.current?.focus();
   }, []);
 
+  const handleChange: EventFunction = (event) => {
+    trackEvent(AdditionalFeeInputSelectors.FeeButton, AnalyticsEventCategory.ButtonPress);
+    onChange !== undefined && onChange(event);
+  }
+
   return (
     <Controller
       name={name}
       as={AdditionalFeeInputContent}
       control={control}
       customFeeInputRef={customFeeInputRef}
-      onChange={onChange}
+      onChange={handleChange}
       id={id}
       assetSymbol={assetSymbol}
       onFocus={focusCustomFeeInput}

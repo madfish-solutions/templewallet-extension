@@ -3,13 +3,14 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
-  useTempleClient,
-  useSetAccountPkh,
-  useAllAccounts,
   TempleAccountType,
+  useAllAccounts,
+  useSetAccountPkh,
+  useTempleClient,
   validateDerivationPath,
 } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
+import { useFormAnalytics } from "lib/analytics";
 import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormField from "app/atoms/FormField";
@@ -38,6 +39,7 @@ const ConnectLedger: React.FC = () => {
   const { createLedgerAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
+  const formAnalytics = useFormAnalytics('ConnectLedger');
 
   const allLedgers = React.useMemo(
     () => allAccounts.filter((acc) => acc.type === TempleAccountType.Ledger),
@@ -75,11 +77,17 @@ const ConnectLedger: React.FC = () => {
   const onSubmit = React.useCallback(
     async ({ name, customDerivationPath }: FormData) => {
       if (submitting) return;
+
       setError(null);
 
+      formAnalytics.trackSubmit();
       try {
         await createLedgerAccount(name, customDerivationPath);
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -89,7 +97,7 @@ const ConnectLedger: React.FC = () => {
         setError(err.message);
       }
     },
-    [submitting, createLedgerAccount, setError]
+    [submitting, createLedgerAccount, setError, formAnalytics]
   );
 
   return (

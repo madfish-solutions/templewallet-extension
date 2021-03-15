@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { useAnalytics } from "lib/analytics";
+import { useAnalyticsSettings } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import { useAppEnv, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
@@ -86,7 +86,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 ]);
 
 const Page: React.FC = () => {
-  const { analyticsEnabled, setAnalyticsEnabled } = useAnalytics();
+  const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
 
   React.useEffect(() => {
       if (analyticsEnabled === undefined) {

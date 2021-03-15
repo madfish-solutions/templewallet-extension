@@ -1,7 +1,9 @@
 import classNames from "clsx";
 import React from "react";
 import useTippy from "lib/ui/useTippy";
+import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
 import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
+import { OpenInExplorerChipSelectors } from "./OpenInExplorerChip.selectors";
 
 type OpenInExplorerChipProps = {
   baseUrl: string;
@@ -14,6 +16,7 @@ const OpenInExplorerChip: React.FC<OpenInExplorerChipProps> = ({
   opHash,
   className,
 }) => {
+  const trackEvent = useAnalyticsTrackEvent();
   const tippyProps = React.useMemo(
     () => ({
       trigger: "mouseenter",
@@ -25,6 +28,10 @@ const OpenInExplorerChip: React.FC<OpenInExplorerChipProps> = ({
   );
 
   const ref = useTippy<HTMLAnchorElement>(tippyProps);
+
+  const handleClick = () => {
+    trackEvent(OpenInExplorerChipSelectors.ViewOnBlockExplorerLink, AnalyticsEventCategory.ButtonPress);
+  }
 
   return (
     <a
@@ -41,6 +48,7 @@ const OpenInExplorerChip: React.FC<OpenInExplorerChipProps> = ({
         "flex items-center",
         className
       )}
+      onClick={handleClick}
     >
       <ArrowRightTopIcon className="w-auto h-3 stroke-current stroke-2" />
     </a>

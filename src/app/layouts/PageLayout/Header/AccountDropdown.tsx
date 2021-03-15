@@ -8,6 +8,7 @@ import {
   useSetAccountPkh,
 } from "lib/temple/front";
 import { PopperRenderProps } from "lib/ui/Popper";
+import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import { useAppEnv, openInFullPage } from "app/env";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
@@ -23,6 +24,9 @@ import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 
+import { AccountDropdownSelectors } from "./AccountDropdown.selectors";
+import { Button } from "app/atoms/Button";
+
 type ExcludesFalse = <T>(x: T | false) => x is T;
 type AccountDropdownProps = PopperRenderProps;
 
@@ -32,6 +36,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
 }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
+  const trackEvent = useAnalyticsTrackEvent();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
@@ -117,7 +122,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
 
         <div className="flex-1" />
 
-        <button
+        <Button
           className={classNames(
             "px-4 py-1",
             "rounded",
@@ -130,9 +135,10 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             "opacity-90 hover:opacity-100"
           )}
           onClick={handleLogoutClick}
+          testID={AccountDropdownSelectors.LogoutButton}
         >
           <T id="logOut" />
-        </button>
+        </Button>
       </div>
 
       <div
@@ -154,7 +160,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             };
 
             return (
-              <button
+              <Button
                 key={acc.publicKeyHash}
                 className={classNames(
                   "block w-full",
@@ -172,6 +178,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                   padding: "0.375rem",
                 }}
                 onClick={handleAccountClick}
+                testID={AccountDropdownSelectors.AccountItemButton}
                 autoFocus={selected}
               >
                 <Identicon
@@ -207,7 +214,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                     <AccountTypeBadge account={acc} darkTheme />
                   </div>
                 </div>
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -215,6 +222,11 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
 
       <div className="my-2">
         {actions.map(({ key, Icon, i18nKey, linkTo, onClick }) => {
+          const handleClick = () => {
+            trackEvent(AccountDropdownSelectors.ActionButton, AnalyticsEventCategory.ButtonPress, { type: key });
+            onClick();
+          }
+
           const baseProps = {
             key,
             className: classNames(
@@ -231,7 +243,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
               paddingTop: "0.375rem",
               paddingBottom: "0.375rem",
             },
-            onClick,
+            onClick: handleClick,
             children: (
               <>
                 <div className="flex items-center w-8">
