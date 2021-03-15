@@ -315,6 +315,9 @@
   "nonNegativeIntMessage": {
     "message": "정수, 0 이상"
   },
+  "positiveIntMessage": {
+    "message": "Integer, 1 or greater"
+  },
   "decimals": {
     "message": "소수"
   },
@@ -1661,5 +1664,11 @@
   },
   "faucetJsonDescription": {
     "message": "파일 추가 대신 여기에 JSON을 붙여넣기 할 수 있습니다"
+  },
+  "anotherAccount": {
+    "message": "Another account"
+  },
+  "accountNumber": {
+    "message": "Account number"
   }
 }

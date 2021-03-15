@@ -315,6 +315,9 @@
   "nonNegativeIntMessage": {
     "message": "Integer, 0 or greater"
   },
+  "positiveIntMessage": {
+    "message": "Integer, 1 or greater"
+  },
   "decimals": {
     "message": "Decimals"
   },
@@ -1675,5 +1678,11 @@
   },
   "balanceTooLow": {
     "message": "Tez balance to low"
+  },
+  "anotherAccount": {
+    "message": "Another account"
+  },
+  "accountNumber": {
+    "message": "Account number"
   }
 }

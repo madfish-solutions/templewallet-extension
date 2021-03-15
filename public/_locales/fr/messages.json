@@ -315,6 +315,9 @@
   "nonNegativeIntMessage": {
     "message": "Entier, zéro ou supérieur"
   },
+  "positiveIntMessage": {
+    "message": "Integer, 1 or greater"
+  },
   "decimals": {
     "message": "Décimales"
   },
@@ -1661,5 +1664,11 @@
   },
   "faucetJsonDescription": {
     "message": "Vous pouvez coller du JSON ici au lieu d'ajouter un fichier"
+  },
+  "anotherAccount": {
+    "message": "Another account"
+  },
+  "accountNumber": {
+    "message": "Account number"
   }
 }
