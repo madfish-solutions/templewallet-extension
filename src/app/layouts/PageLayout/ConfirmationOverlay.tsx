@@ -4,7 +4,7 @@ import CSSTransition from "react-transition-group/CSSTransition";
 import { useTempleClient } from "lib/temple/front";
 import Portal from "lib/ui/Portal";
 import DocBg from "app/a11y/DocBg";
-import InternalConfiramtion from "app/templates/InternalConfiramtion";
+import InternalConfirmation from "app/templates/InternalConfirmation";
 
 const ConfirmationOverlay: React.FC = () => {
   const {
@@ -58,7 +58,7 @@ const ConfirmationOverlay: React.FC = () => {
         >
           <div className="fixed inset-0 z-50 overflow-y-auto bg-primary-white">
             {confirmation && (
-              <InternalConfiramtion
+              <InternalConfirmation
                 payload={confirmation.payload}
                 onConfirm={handleConfirm}
               />

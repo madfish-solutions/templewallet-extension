@@ -1,44 +1,7 @@
-import Analytics from "analytics-node";
-import { nanoid } from "nanoid";
+export { AnalyticsEventEnum, AnalyticsEventCategory } from './analytics-event.enum';
 
-import { useLocalStorage } from "lib/temple/front/local-storage";
+export { useAnalyticsSettings } from './use-analytics-settings.hook';
+export { useAnalyticsTrackEvent } from './use-analytics-track-event.hook';
+export { useFormAnalytics } from './use-form-analytics.hook';
 
-import { AnalyticsEventEnum } from "./analytics-event.enum";
-
-interface AnalyticsStateInterface {
-  enabled?: boolean,
-  userId: string,
-}
-
-const client = new Analytics(process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY ?? '');
-
-export const useAnalytics = () => {
-  const [analyticsState, setAnalyticsState] = useLocalStorage<AnalyticsStateInterface>('analytics', {
-    enabled: undefined,
-    userId: nanoid()
-  });
-
-  const sendTrackEvent = (event: AnalyticsEventEnum) => {
-    console.log({ event });
-
-    client.track({
-      event,
-      userId: analyticsState.userId,
-    });
-  };
-
-  const trackEvent = (event: AnalyticsEventEnum) => {
-    analyticsState.enabled && sendTrackEvent(event);
-  };
-
-  const setAnalyticsEnabled = (enabled?: boolean) => {
-    setAnalyticsState({ ...analyticsState, enabled });
-    enabled && sendTrackEvent(AnalyticsEventEnum.AnalyticsEnabled);
-  };
-
-  return {
-    analyticsEnabled: analyticsState.enabled,
-    trackEvent,
-    setAnalyticsEnabled,
-  };
-}
+export type { TestIDProps } from './test-id.props';

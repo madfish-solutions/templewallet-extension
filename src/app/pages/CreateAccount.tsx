@@ -1,13 +1,9 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
-import {
-  TempleAccountType,
-  useTempleClient,
-  useAllAccounts,
-  useSetAccountPkh,
-} from "lib/temple/front";
+import { TempleAccountType, useAllAccounts, useSetAccountPkh, useTempleClient, } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
+import { useFormAnalytics } from "lib/analytics";
 import PageLayout from "app/layouts/PageLayout";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -23,6 +19,7 @@ const CreateAccount: React.FC = () => {
   const { createAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
+  const formAnalytics = useFormAnalytics('CreateAccount');
 
   const allHDOrImported = React.useMemo(
     () =>
@@ -62,9 +59,15 @@ const CreateAccount: React.FC = () => {
       if (submitting) return;
 
       clearError("name");
+
+      formAnalytics.trackSubmit();
       try {
         await createAccount(name);
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -74,7 +77,7 @@ const CreateAccount: React.FC = () => {
         setError("name", SUBMIT_ERROR_TYPE, err.message);
       }
     },
-    [submitting, clearError, setError, createAccount]
+    [submitting, clearError, setError, createAccount, formAnalytics]
   );
 
   return (

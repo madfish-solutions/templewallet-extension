@@ -18,6 +18,7 @@ import RevealSecret from "app/templates/RevealSecret";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
+import { SettingsSelectors } from "./Settings.selectors";
 
 type SettingsProps = {
   tabSlug?: string | null;
@@ -34,6 +35,7 @@ const TABS = [
     Component: GeneralSettings,
     color: "#667EEA",
     descriptionI18nKey: "generalSettingsDescription",
+    testID: SettingsSelectors.GeneralButton
   },
   {
     slug: "reveal-private-key",
@@ -42,6 +44,7 @@ const TABS = [
     Component: RevealPrivateKey,
     color: "#3182CE",
     descriptionI18nKey: "revealPrivateKeyDescription",
+    testID: SettingsSelectors.RevealPrivateKeyButton
   },
   {
     slug: "reveal-seed-phrase",
@@ -50,6 +53,7 @@ const TABS = [
     Component: RevealSeedPhrase,
     color: "#F6AD55",
     descriptionI18nKey: "revealSeedPhraseDescription",
+    testID: SettingsSelectors.RevealSeedPhraseButton
   },
   {
     slug: "dapps",
@@ -58,6 +62,7 @@ const TABS = [
     Component: DAppSettings,
     color: "#9F7AEA",
     descriptionI18nKey: "dAppsDescription",
+    testID: SettingsSelectors.DAppsButton
   },
   {
     slug: "networks",
@@ -66,6 +71,7 @@ const TABS = [
     Component: CustomNetworksSettings,
     color: "#F6C90E",
     descriptionI18nKey: "networksDescription",
+    testID: SettingsSelectors.NetworksButton
   },
   {
     slug: "activate-account",
@@ -74,6 +80,7 @@ const TABS = [
     Component: ActivateAccount,
     color: "rgb(131, 179, 0)",
     descriptionI18nKey: "activateAccountDescription",
+    testID: SettingsSelectors.ActivateAccountButton
   },
   {
     slug: "remove-account",
@@ -82,6 +89,7 @@ const TABS = [
     Component: RemoveAccount,
     color: "rgb(245, 101, 101)",
     descriptionI18nKey: "removeAccountDescription",
+    testID: SettingsSelectors.RemoveAccountButton
   },
   {
     slug: "about",
@@ -90,6 +98,7 @@ const TABS = [
     Component: About,
     color: "#A0AEC0",
     descriptionI18nKey: "aboutDescription",
+    testID: SettingsSelectors.AboutButton
   },
 ];
 
@@ -147,7 +156,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
             <ul className="md:grid md:grid-cols-2 md:col-gap-8 md:row-gap-10">
               {TABS.map(
                 (
-                  { slug, titleI18nKey, descriptionI18nKey, Icon, color },
+                  { slug, titleI18nKey, descriptionI18nKey, Icon, color, testID },
                   i
                 ) => {
                   const first = i === 0;
@@ -173,6 +182,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
                               "opacity-90 hover:opacity-100 focus:opacity-100"
                             )}
                             style={{ backgroundColor: color }}
+                            testID={testID}
                           >
                             <Icon className="h-8 w-8 stroke-current" />
                           </Link>
@@ -190,6 +200,7 @@ const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
                                   "transition ease-in-out duration-200"
                                 )}
                                 style={{ color }}
+                                testID={testID}
                               >
                                 {message}
                               </Link>

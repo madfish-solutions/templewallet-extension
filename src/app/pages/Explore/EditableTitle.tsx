@@ -6,11 +6,15 @@ import { useAlert } from "lib/ui/dialog";
 import Name from "app/atoms/Name";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
+import { useFormAnalytics } from "lib/analytics";
+import { Button } from "app/atoms/Button";
+import { EditableTitleSelectors } from "./EditableTitle.selectors";
 
 const EditableTitle: React.FC = () => {
   const { editAccountName } = useTempleClient();
   const account = useAccount();
   const alert = useAlert();
+  const formAnalytics = useFormAnalytics('ChangeAccountName');
 
   const [editing, setEditing] = React.useState(false);
 
@@ -57,6 +61,7 @@ const EditableTitle: React.FC = () => {
       evt.preventDefault();
 
       (async () => {
+        formAnalytics.trackSubmit();
         try {
           const newName = editAccNameFieldRef.current?.value;
           if (newName && newName !== account.name) {
@@ -64,7 +69,11 @@ const EditableTitle: React.FC = () => {
           }
 
           setEditing(false);
+
+          formAnalytics.trackSubmitSuccess();
         } catch (err) {
+          formAnalytics.trackSubmitFail();
+
           if (process.env.NODE_ENV === "development") {
             console.error(err);
           }
@@ -76,7 +85,7 @@ const EditableTitle: React.FC = () => {
         }
       })();
     },
-    [account.name, editAccountName, account.publicKeyHash, alert]
+    [account.name, editAccountName, account.publicKeyHash, alert, formAnalytics]
   );
 
   const handleEditFieldFocus = React.useCallback(() => {
@@ -116,7 +125,7 @@ const EditableTitle: React.FC = () => {
           <div className="flex items-stretch mb-2">
             <T id="cancel">
               {(message) => (
-                <button
+                <Button
                   type="button"
                   className={classNames(
                     "mx-1",
@@ -128,15 +137,16 @@ const EditableTitle: React.FC = () => {
                     "opacity-75 hover:opacity-100 focus:opacity-100"
                   )}
                   onClick={handleCancelClick}
+                  testID={EditableTitleSelectors.CancelButton}
                 >
                   {message}
-                </button>
+                </Button>
               )}
             </T>
 
             <T id="save">
               {(message) => (
-                <button
+                <Button
                   className={classNames(
                     "mx-1",
                     "px-2 py-1",
@@ -146,9 +156,10 @@ const EditableTitle: React.FC = () => {
                     "hover:bg-black hover:bg-opacity-5",
                     "opacity-75 hover:opacity-100 focus:opacity-100"
                   )}
+                  testID={EditableTitleSelectors.SaveButton}
                 >
                   {message}
-                </button>
+                </Button>
               )}
             </T>
           </div>
@@ -166,7 +177,7 @@ const EditableTitle: React.FC = () => {
       )}
 
       {!editing && (
-        <button
+        <Button
           className={classNames(
             "absolute top-0 right-0",
             "px-2 py-1",
@@ -178,6 +189,7 @@ const EditableTitle: React.FC = () => {
             "opacity-75 hover:opacity-100 focus:opacity-100"
           )}
           onClick={handleEditClick}
+          testID={EditableTitleSelectors.EditButton}
         >
           <EditIcon
             className={classNames(
@@ -185,7 +197,7 @@ const EditableTitle: React.FC = () => {
             )}
           />
           <T id="edit" />
-        </button>
+        </Button>
       )}
     </div>
   );

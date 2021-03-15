@@ -1,44 +1,40 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useForm, Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import useSWR from "swr";
 import BigNumber from "bignumber.js";
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
-import { navigate, HistoryAction } from "lib/woozie";
+import { HistoryAction, navigate } from "lib/woozie";
 import {
-  TempleAsset,
-  TEZ_ASSET,
-  useRelevantAccounts,
-  useAccount,
-  useTezos,
-  useAssetBySlug,
-  useBalance,
-  useTezosDomainsClient,
   fetchBalance,
+  getAssetKey,
+  hasManager,
+  isAddressValid,
+  isDomainNameValid,
+  isKTAddress,
+  loadContract,
+  mutezToTz,
+  TempleAccountType,
+  TempleAsset,
+  TempleAssetType,
+  TEZ_ASSET,
+  toPenny,
   toTransferParams,
   tzToMutez,
-  mutezToTz,
-  isAddressValid,
-  toPenny,
-  hasManager,
-  TempleAssetType,
-  isKTAddress,
-  isDomainNameValid,
-  TempleAccountType,
-  loadContract,
-  getAssetKey,
+  useAccount,
+  useAssetBySlug,
+  useBalance,
+  useRelevantAccounts,
+  useTezos,
+  useTezosDomainsClient,
   useUSDPrice,
 } from "lib/temple/front";
+import { AnalyticsEventCategory, useAnalyticsTrackEvent, useFormAnalytics } from "lib/analytics";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
-import {
-  ArtificialError,
-  NotEnoughFundsError,
-  ZeroBalanceError,
-  ZeroTEZBalanceError,
-} from "app/defaults";
+import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError, } from "app/defaults";
 import { useAppEnv } from "app/env";
 import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
@@ -53,10 +49,12 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Name from "app/atoms/Name";
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import { Button } from "app/atoms/Button";
 import Alert from "app/atoms/Alert";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
+import { SendFormSelectors } from "./SendForm.selectors";
 
 interface FormData {
   to: string;
@@ -75,10 +73,12 @@ const SendForm: React.FC<SendFormProps> = ({ assetSlug }) => {
   const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const trackEvent = useAnalyticsTrackEvent();
 
   const handleAssetChange = React.useCallback((a: TempleAsset) => {
+    trackEvent(SendFormSelectors.AssetItemButton, AnalyticsEventCategory.ButtonPress);
     navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
-  }, []);
+  }, [trackEvent]);
 
   return (
     <>
@@ -114,6 +114,8 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const acc = useAccount();
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
+
+  const formAnalytics = useFormAnalytics('SendForm');
 
   const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
@@ -173,8 +175,8 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         "amount",
         Number(
           (newShouldUseUsd
-            ? amount.multipliedBy(tezPrice!)
-            : amount.div(tezPrice!)
+              ? amount.multipliedBy(tezPrice!)
+              : amount.div(tezPrice!)
           ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
             decimalSeparator: ".",
           })
@@ -377,12 +379,12 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
     () =>
       toFilled
         ? [
-            "transfer-base-fee",
-            tezos.checksum,
-            localAsset.symbol,
-            accountPkh,
-            toResolved,
-          ]
+          "transfer-base-fee",
+          tezos.checksum,
+          localAsset.symbol,
+          accountPkh,
+          toResolved,
+        ]
         : null,
     estimateBaseFee,
     {
@@ -417,23 +419,23 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
 
     return localAsset.type === TempleAssetType.TEZ
       ? (() => {
-          let ma =
-            acc.type === TempleAccountType.ManagedKT
-              ? new BigNumber(balanceNum)
-              : new BigNumber(balanceNum)
-                  .minus(baseFee)
-                  .minus(safeFeeValue ?? 0)
-                  .minus(PENNY);
-          const maxAmountTez = BigNumber.max(ma, 0);
-          const maxAmountUsd = tezPrice
-            ? new BigNumber(
-                maxAmountTez
-                  .multipliedBy(tezPrice)
-                  .toFormat(2, BigNumber.ROUND_FLOOR, { decimalSeparator: "." })
-              )
-            : new BigNumber(0);
-          return shouldUseUsd ? maxAmountUsd : maxAmountTez;
-        })()
+        let ma =
+          acc.type === TempleAccountType.ManagedKT
+            ? new BigNumber(balanceNum)
+            : new BigNumber(balanceNum)
+              .minus(baseFee)
+              .minus(safeFeeValue ?? 0)
+              .minus(PENNY);
+        const maxAmountTez = BigNumber.max(ma, 0);
+        const maxAmountUsd = tezPrice
+          ? new BigNumber(
+            maxAmountTez
+              .multipliedBy(tezPrice)
+              .toFormat(2, BigNumber.ROUND_FLOOR, { decimalSeparator: "." })
+          )
+          : new BigNumber(0);
+        return shouldUseUsd ? maxAmountUsd : maxAmountTez;
+      })()
       : new BigNumber(balanceNum);
   }, [
     acc.type,
@@ -537,6 +539,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       setSubmitError(null);
       setOperation(null);
 
+      formAnalytics.trackSubmit();
       try {
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {
@@ -566,7 +569,11 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
         }
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (err.message === "Declined") {
           return;
         }
@@ -592,6 +599,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
       toResolved,
       shouldUseUsd,
       toTEZAmount,
+      formAnalytics
     ]
   );
 
@@ -624,7 +632,8 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                 size={14}
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
-              <div className="ml-1 mr-px font-normal">{filledAccount.name}</div>{" "}
+              <div className="ml-1 mr-px font-normal">{filledAccount.name}</div>
+              {" "}
               (
               <Balance asset={localAsset} address={filledAccount.publicKeyHash}>
                 {(bal) => (
@@ -865,7 +874,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                   };
 
                   return (
-                    <button
+                    <Button
                       key={acc.publicKeyHash}
                       type="button"
                       className={classNames(
@@ -881,6 +890,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                         "opacity-90 hover:opacity-100"
                       )}
                       onClick={handleAccountClick}
+                      testID={SendFormSelectors.MyAccountItemButton}
                     >
                       <Identicon
                         type="bottts"
@@ -950,7 +960,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                       >
                         <ChevronRightIcon className="h-5 w-auto stroke-current" />
                       </div>
-                    </button>
+                    </Button>
                   );
                 })}
             </div>
