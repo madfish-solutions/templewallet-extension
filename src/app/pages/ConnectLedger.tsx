@@ -68,6 +68,7 @@ const ConnectLedger: React.FC = () => {
     defaultValues: {
       name: defaultName,
       customDerivationPath: "m/44'/1729'/0'/0'",
+      accountNumber: 1,
     },
   });
   const submitting = formState.isSubmitting;
@@ -86,9 +87,7 @@ const ConnectLedger: React.FC = () => {
         await createLedgerAccount(
           name,
           customDerivationPath ??
-            (accountNumber === undefined
-              ? undefined
-              : `m/44'/1729'/${accountNumber - 1}'/0'`)
+            (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
         );
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
