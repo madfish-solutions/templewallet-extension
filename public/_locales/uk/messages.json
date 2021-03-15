@@ -301,7 +301,7 @@
     "message": "e.g. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "Ніяких спеціальних символів, 3-12 в довжину"
+    "message": "Ніяких спеціальних символів, 3-50 в довжину"
   },
   "name": {
     "message": "Ім'я"
