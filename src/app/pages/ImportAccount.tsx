@@ -273,6 +273,14 @@ const DERIVATION_PATHS = [
     i18nKey: "noDerivation",
   },
   {
+    type: "default",
+    i18nKey: "defaultAccount",
+  },
+  {
+    type: "another",
+    i18nKey: "anotherAccount",
+  },
+  {
     type: "custom",
     i18nKey: "customDerivationPath",
   },
@@ -282,6 +290,7 @@ interface ByMnemonicFormData {
   mnemonic: string;
   password?: string;
   customDerivationPath: string;
+  accountNumber?: number;
 }
 
 const ByMnemonicForm: React.FC = () => {
@@ -293,7 +302,10 @@ const ByMnemonicForm: React.FC = () => {
     errors,
     formState,
   } = useForm<ByMnemonicFormData>({
-    defaultValues: { customDerivationPath: "m/44'/1729'/0'/0'" },
+    defaultValues: {
+      customDerivationPath: "m/44'/1729'/0'/0'",
+      accountNumber: 1,
+    },
   });
   const [error, setError] = React.useState<React.ReactNode>(null);
   const [derivationPath, setDerivationPath] = React.useState(
@@ -305,6 +317,7 @@ const ByMnemonicForm: React.FC = () => {
       mnemonic,
       password,
       customDerivationPath,
+      accountNumber,
     }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
@@ -313,7 +326,18 @@ const ByMnemonicForm: React.FC = () => {
         await importMnemonicAccount(
           formatMnemonic(mnemonic),
           password || undefined,
-          derivationPath.type === "custom" ? customDerivationPath : undefined
+          (() => {
+            switch (derivationPath.type) {
+              case "custom":
+                return customDerivationPath;
+              case "default":
+                return "m/44'/1729'/0'/0'";
+              case "another":
+                return `m/44'/1729'/${accountNumber! - 1}'/0'`;
+              default:
+                return undefined;
+            }
+          })()
         );
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
@@ -466,6 +490,22 @@ const ByMnemonicForm: React.FC = () => {
           })}
         </div>
       </div>
+
+      {derivationPath.type === "another" && (
+        <FormField
+          ref={register({
+            min: { value: 1, message: t("positiveIntMessage") },
+            required: t("required"),
+          })}
+          min={0}
+          type="number"
+          name="accountNumber"
+          id="importacc-acc-number"
+          label={t("accountNumber")}
+          placeholder="1"
+          errorCaption={errors.accountNumber?.message}
+        />
+      )}
 
       {derivationPath.type === "custom" && (
         <FormField
