@@ -630,13 +630,13 @@ const MIGRATIONS = [
         loadChainId(net.rpcBaseURL),
       ]);
 
-      const tokensStgKey = `tokens_${chainId}`;
+      const tokensStrgKey = `tokens_${chainId}`;
       const {
-        [tokensStgKey]: existingTokens = [],
-      } = await browser.storage.local.get([tokensStgKey]);
+        [tokensStrgKey]: existingTokens = [],
+      } = await browser.storage.local.get([tokensStrgKey]);
 
       await browser.storage.local.set({
-        [tokensStgKey]: mergeAssets(
+        [tokensStrgKey]: mergeAssets(
           existingTokens,
           legacyTokens.map((t: TempleToken) => ({
             ...t,
