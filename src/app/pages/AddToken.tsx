@@ -497,9 +497,11 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
       <FormField
         ref={register({
           required: t("required"),
-          pattern: {
-            value: /^[a-zA-Z0-9 _-]{3,50}$/,
-            message: t("tokenNamePatternDescription"),
+          validate: (val: string) => {
+            if (!val || val.length < 3 || val.length > 50) {
+              return t("tokenNamePatternDescription");
+            }
+            return true;
           },
         })}
         name="name"
