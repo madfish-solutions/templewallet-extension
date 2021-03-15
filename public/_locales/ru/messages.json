@@ -37,5 +37,14 @@
   },
   "copyHashToClipboard": {
     "message": "Скопировать хэш в буфер обмена"
+  },
+  "defaultAccount": {
+    "message": "Аккаунт по умолчанию (первый)"
+  },
+  "anotherAccount": {
+    "message": "Другой аккаунт"
+  },
+  "accountNumber": {
+    "message": "Номер аккаунта"
   }
 }
