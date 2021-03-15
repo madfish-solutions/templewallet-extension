@@ -98,7 +98,6 @@ export function useTokens(networkRpc?: string) {
 
   const addToken = React.useCallback(
     (token: TempleToken) => {
-      console.info("add", token);
       if (displayedTokens.some((t) => assetsAreSame(t, token))) {
         if (token.type === TempleAssetType.FA2) {
           throw new Error(
