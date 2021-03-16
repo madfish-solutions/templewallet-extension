@@ -72,7 +72,7 @@ const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
   );
 
   const allAccounts = useRelevantAccounts();
-  const { allAssets } = useAssets();
+  const { allAssetsWithHidden } = useAssets();
   const account = React.useMemo(
     () => allAccounts.find((a) => a.publicKeyHash === payload.sourcePkh)!,
     [allAccounts, payload.sourcePkh]
@@ -85,7 +85,7 @@ const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, ...restProps }) => ({
         asset: tokenAddress
-          ? allAssets.find(
+          ? allAssetsWithHidden.find(
           (asset) =>
             asset.type !== TempleAssetType.TEZ &&
             asset.address === tokenAddress
@@ -95,7 +95,7 @@ const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
       })),
       ...restProps,
     }));
-  }, [allAssets, rawExpensesData]);
+  }, [allAssetsWithHidden, rawExpensesData]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = React.useMemo(() => {
     if (payload.type === "operations") {

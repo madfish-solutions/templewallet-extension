@@ -301,7 +301,7 @@
     "message": "e.g. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "No special characters, 3-12 length"
+    "message": "No special characters, 3-50 length"
   },
   "name": {
     "message": "Name"
@@ -314,6 +314,9 @@
   },
   "nonNegativeIntMessage": {
     "message": "Integer, 0 or greater"
+  },
+  "positiveIntMessage": {
+    "message": "Integer, 1 or greater"
   },
   "decimals": {
     "message": "Decimals"
@@ -1654,7 +1657,7 @@
     "message": "Hash"
   },
   "defaultAccount": {
-    "message": "Default account"
+    "message": "Default account (the first one)"
   },
   "loadMore": {
     "message": "Load more"
@@ -1687,5 +1690,11 @@
   },
   "balanceTooLow": {
     "message": "Tez balance to low"
+  },
+  "anotherAccount": {
+    "message": "Another account"
+  },
+  "accountNumber": {
+    "message": "Account number"
   }
 }
