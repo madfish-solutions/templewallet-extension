@@ -1,6 +1,6 @@
 import React from "react";
 import BigNumber from "bignumber.js";
-import { mutezToTz, USDPriceProvider, useAllNetworks } from "lib/thanos/front";
+import { mutezToTz, USDPriceProvider, useAllNetworks } from "lib/temple/front";
 import { T } from "lib/i18n/react";
 import Alert from "app/atoms/Alert";
 import Spinner from "app/atoms/Spinner";
