@@ -1,17 +1,16 @@
 import React, { FC } from "react";
+import classNames from "clsx";
 
+import { useAppEnv } from "app/env";
 import { Button } from "app/atoms/Button";
 import ContentContainer from "app/layouts/ContentContainer";
 
+import { useTempleClient } from "../temple/front";
 import { useAnalyticsSettings } from "./use-analytics-settings.hook";
-import classNames from "clsx";
 
-interface Props {
-  ready: boolean;
-  popup: boolean;
-}
-
-export const AnalyticsConfirmationOverlay: FC<Props> = ({ ready, popup }) => {
+export const AnalyticsConfirmationOverlay: FC = () => {
+  const { popup } = useAppEnv();
+  const { ready } = useTempleClient();
   const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
 
   const analyticsSettingsNotDefined = analyticsEnabled === undefined;
