@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { useAnalyticsSettings } from "lib/analytics";
+import { AnalyticsConfirmationOverlay } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import { useAppEnv, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
@@ -86,18 +86,6 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 ]);
 
 const Page: React.FC = () => {
-  const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
-
-  React.useEffect(() => {
-      if (analyticsEnabled === undefined) {
-        setTimeout(() => {
-          // TODO: replace this with a real one overlay
-          setAnalyticsEnabled(window.confirm("Do you allow us to collect anonymous analytics to improve our product?"));
-        })
-      }
-    },
-    [analyticsEnabled, setAnalyticsEnabled]);
-
   const { trigger, pathname } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
@@ -124,10 +112,17 @@ const Page: React.FC = () => {
     [appEnv.popup, appEnv.fullPage, temple.ready, temple.locked]
   );
 
-  return React.useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
+  const RouterElement = React.useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
     pathname,
     ctx,
   ]);
+
+  return (
+    <>
+      {RouterElement}
+      <AnalyticsConfirmationOverlay ready={ctx.ready} />
+    </>
+  );
 };
 
 export default Page;

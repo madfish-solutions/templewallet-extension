@@ -1,5 +1,7 @@
 export { AnalyticsEventEnum, AnalyticsEventCategory } from './analytics-event.enum';
 
+export { AnalyticsConfirmationOverlay } from './AnalyticsConfirmationOverlay';
+
 export { CustomRpsContext } from './custom-rpc.context';
 
 export { useAnalyticsSettings } from './use-analytics-settings.hook';
