@@ -37,9 +37,9 @@ export const AnalyticsConfirmationOverlay: FC = () => {
               help. To
               better understand which section of the wallet should be updated, we gather anonymous usage data. This data
               will be used only for improving the usability of the Temple wallet.</p>
-            <p className={'text-sm text-green-700 mb-2'}>What we collect:</p>
+            <p className={'text-sm text-green-700 font-medium mb-2'}>What we collect:</p>
             <p className={'text-xs text-gray-700 mb-4'}>Anonymized click & pageview events</p>
-            <p className={'text-sm text-red-700 mb-2'}>We NEVER track:</p>
+            <p className={'text-sm text-red-700 font-medium mb-2'}>We NEVER track:</p>
             <p className={'text-xs text-gray-700 mb-2'}>Your keys, addresses, transactions, balances, hashes, IP, or any
               personal
               information.</p>
