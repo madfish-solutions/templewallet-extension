@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { AnalyticsConfirmationOverlay } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import { useAppEnv, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
@@ -112,17 +111,10 @@ const Page: React.FC = () => {
     [appEnv.popup, appEnv.fullPage, temple.ready, temple.locked]
   );
 
-  const RouterElement = React.useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
+  return React.useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
     pathname,
     ctx,
   ]);
-
-  return (
-    <>
-      {RouterElement}
-      <AnalyticsConfirmationOverlay ready={ctx.ready} popup={ctx.popup} />
-    </>
-  );
 };
 
 export default Page;

@@ -1,6 +1,7 @@
 import * as React from "react";
 import classNames from "clsx";
 import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
+import { AnalyticsConfirmationOverlay } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
@@ -45,6 +46,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 
       <NoLambdaViewContractAlert />
       <ConfirmationOverlay />
+      <AnalyticsConfirmationOverlay/>
     </>
   );
 };
