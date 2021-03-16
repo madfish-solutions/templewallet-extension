@@ -120,7 +120,7 @@ const Page: React.FC = () => {
   return (
     <>
       {RouterElement}
-      <AnalyticsConfirmationOverlay ready={ctx.ready} />
+      <AnalyticsConfirmationOverlay ready={ctx.ready} popup={ctx.popup} />
     </>
   );
 };

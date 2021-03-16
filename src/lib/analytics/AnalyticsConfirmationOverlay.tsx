@@ -8,9 +8,10 @@ import classNames from "clsx";
 
 interface Props {
   ready: boolean;
+  popup: boolean;
 }
 
-export const AnalyticsConfirmationOverlay: FC<Props> = ({ ready }) => {
+export const AnalyticsConfirmationOverlay: FC<Props> = ({ ready, popup }) => {
   const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
 
   const analyticsSettingsNotDefined = analyticsEnabled === undefined;
@@ -22,8 +23,16 @@ export const AnalyticsConfirmationOverlay: FC<Props> = ({ ready }) => {
       <>
         <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}>
         </div>
-        <ContentContainer className={'fixed z-50  top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'}>
-          <div className={'bg-white rounded-md shadow-lg py-8 px-15'}>
+        <ContentContainer
+          className={classNames(
+            'fixed z-50',
+            popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'
+          )}
+          padding={!popup}>
+          <div className={classNames(
+            'bg-white rounded-md shadow-lg py-8 px-15',
+            popup && 'h-full'
+          )}>
             <p className={'text-lg mb-4'}>Help us make the Temple Wallet better</p>
             <p className={'text-sm text-gray-700 mb-10'}>We are improving the Temple wallet constantly and we need your
               help. To
