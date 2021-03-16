@@ -34,7 +34,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
 
       if (!selected) {
         try {
-          await preloadTokens(netId, rpcUrl);
+          await preloadTokens(rpcUrl);
         } catch (_err) {
         }
 

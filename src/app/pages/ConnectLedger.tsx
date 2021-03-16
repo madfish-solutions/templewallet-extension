@@ -22,12 +22,17 @@ import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 type FormData = {
   name: string;
   customDerivationPath: string;
+  accountNumber?: number;
 };
 
 const DERIVATION_PATHS = [
   {
     type: "default",
     name: t("defaultAccount"),
+  },
+  {
+    type: "another",
+    name: t("anotherAccount"),
   },
   {
     type: "custom",
@@ -65,6 +70,7 @@ const ConnectLedger: React.FC = () => {
     defaultValues: {
       name: defaultName,
       customDerivationPath: "m/44'/1729'/0'/0'",
+      accountNumber: 1,
     },
   });
   const submitting = formState.isSubmitting;
@@ -75,14 +81,18 @@ const ConnectLedger: React.FC = () => {
   );
 
   const onSubmit = React.useCallback(
-    async ({ name, customDerivationPath }: FormData) => {
+    async ({ name, accountNumber, customDerivationPath }: FormData) => {
       if (submitting) return;
 
       setError(null);
 
       formAnalytics.trackSubmit();
       try {
-        await createLedgerAccount(name, customDerivationPath);
+        await createLedgerAccount(
+          name,
+          customDerivationPath ??
+            (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
+        );
 
         formAnalytics.trackSubmitSuccess();
       } catch (err) {
@@ -225,6 +235,22 @@ const ConnectLedger: React.FC = () => {
                 })}
               </div>
             </div>
+
+            {derivationPath.type === "another" && (
+              <FormField
+                ref={register({
+                  min: { value: 1, message: t("positiveIntMessage") },
+                  required: t("required"),
+                })}
+                min={0}
+                type="number"
+                name="accountNumber"
+                id="importacc-acc-number"
+                label={t("accountNumber")}
+                placeholder="1"
+                errorCaption={errors.accountNumber?.message}
+              />
+            )}
 
             {derivationPath.type === "custom" && (
               <FormField
