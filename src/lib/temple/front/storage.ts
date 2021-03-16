@@ -5,7 +5,7 @@ import { useRetryableSWR } from "lib/swr";
 export function useStorage<T = any>(
   key: string,
   fallback?: T
-): [T, React.Dispatch<React.SetStateAction<T>>] {
+): [T, (val: React.SetStateAction<T>) => Promise<void>] {
   const { data, revalidate } = useRetryableSWR<T>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
@@ -16,11 +16,19 @@ export function useStorage<T = any>(
 
   const value = fallback !== undefined ? data ?? fallback : data!;
 
+  const valueRef = React.useRef(value);
+  React.useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
   const setValue = React.useCallback(
-    (val: React.SetStateAction<T>) => {
-      putToStorage(key, typeof val === "function" ? (val as any)(value) : val);
+    async (val: React.SetStateAction<T>) => {
+      const nextValue =
+        typeof val === "function" ? (val as any)(valueRef.current) : val;
+      await putToStorage(key, nextValue);
+      valueRef.current = nextValue;
     },
-    [key, value]
+    [key]
   );
 
   return React.useMemo(() => [value, setValue], [value, setValue]);

@@ -1,6 +1,4 @@
-import { WalletContract, compose } from "@taquito/taquito";
-import { tzip16 } from "@taquito/tzip16";
-import { tzip12 } from "@taquito/tzip12";
+import { WalletContract } from "@taquito/taquito";
 import * as React from "react";
 import classNames from "clsx";
 import { Controller, FormContextValues, useForm } from "react-hook-form";
@@ -16,6 +14,8 @@ import {
   NotMatchingStandardError,
   loadContractForCallLambdaView,
   getAssetKey,
+  fetchTokenMetadata,
+  MetadataParseError,
 } from "lib/temple/front";
 import { sanitizeImgUri } from "lib/image-uri";
 import { T, t } from "lib/i18n/react";
@@ -66,9 +66,6 @@ type FormData = {
   iconUrl: string;
   type: TempleCustomTokenType;
 };
-
-class MetadataParseError extends Error {
-}
 
 const Form: React.FC = () => {
   const { addToken } = useTokens();
@@ -129,8 +126,7 @@ const Form: React.FC = () => {
           throw new TokenValidationError(t("contractNotAvailable"));
         }
 
-        let tokenData: any;
-        let latestErrMessage;
+        let tokenData;
 
         try {
           /**
@@ -142,43 +138,7 @@ const Form: React.FC = () => {
             await assertTokenType(tokenType, contract, tezos, tokenId!);
           }
 
-          /**
-           * Fetch taquito contract instance that is capable of metadata
-           */
-          const metadataContract = await tezos.wallet.at(
-            contractAddress,
-            compose(tzip12, tzip16)
-          );
-
-          /**
-           * Try fetch token data with TZIP12
-           */
-          try {
-            tokenData = await metadataContract
-              .tzip12()
-              .getTokenMetadata(tokenId ?? 0);
-          } catch (err) {
-            latestErrMessage = err.message;
-          }
-
-          /**
-           * Try fetch token data with TZIP16
-           * Get them from plain tzip16 structure/scheme
-           */
-          if (!tokenData || Object.keys(tokenData).length === 0) {
-            try {
-              const {
-                metadata,
-              } = await metadataContract.tzip16().getMetadata();
-              tokenData = metadata;
-            } catch (err) {
-              latestErrMessage = err.message;
-            }
-          }
-
-          if (!tokenData) {
-            throw new MetadataParseError(latestErrMessage ?? "Unknown error");
-          }
+          tokenData = await fetchTokenMetadata(tezos, contractAddress, tokenId);
         } catch (err) {
           if (err instanceof MetadataParseError) {
             throw err;
@@ -194,20 +154,11 @@ const Form: React.FC = () => {
           }
         }
 
-        const { symbol = "", name = "", decimals = 0 } = tokenData || {};
-        const iconUrl =
-          tokenData.thumbnailUri ??
-          tokenData.logo ??
-          tokenData.icon ??
-          tokenData.iconUri ??
-          tokenData.iconUrl ??
-          "";
-
         setValue([
-          { symbol: symbol.substr(0, 5) },
-          { name: name.substr(0, 50) },
-          { decimals },
-          { iconUrl },
+          { symbol: tokenData.symbol.substr(0, 8) },
+          { name: tokenData.name.substr(0, 50) },
+          { decimals: tokenData.decimals },
+          { iconUrl: tokenData.iconUrl },
         ]);
         setBottomSectionVisible(true);
       } catch (e) {
@@ -266,9 +217,10 @@ const Form: React.FC = () => {
           address,
           symbol,
           name,
-          decimals: decimals || 0,
+          decimals: decimals ? +decimals : 0,
           iconUrl: iconUrl ? sanitizeImgUri(iconUrl) : undefined,
           fungible: true,
+          status: "displayed" as const,
         };
 
         const newToken: TempleToken =
@@ -283,7 +235,7 @@ const Form: React.FC = () => {
               ...tokenCommonProps,
             };
 
-        addToken(newToken);
+        await addToken(newToken);
         const assetKey = getAssetKey(newToken);
 
         // Wait a little bit while the tokens updated
@@ -504,9 +456,11 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
       <FormField
         ref={register({
           required: t("required"),
-          pattern: {
-            value: /^[a-zA-Z0-9 _-]{3,50}$/,
-            message: t("tokenNamePatternDescription"),
+          validate: (val: string) => {
+            if (!val || val.length < 3 || val.length > 50) {
+              return t("tokenNamePatternDescription");
+            }
+            return true;
           },
         })}
         name="name"

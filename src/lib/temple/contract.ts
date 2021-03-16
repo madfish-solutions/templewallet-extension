@@ -1,6 +1,15 @@
 import memoize from "micro-memoize";
-import { TezosToolkit, WalletContract } from "@taquito/taquito";
+import { TezosToolkit, WalletContract, compose } from "@taquito/taquito";
+import { tzip16 } from "@taquito/tzip16";
+import { tzip12 } from "@taquito/tzip12";
 import { TempleChainId } from "lib/temple/types";
+
+export type TokenMetadata = {
+  decimals: number;
+  symbol: string;
+  name: string;
+  iconUrl: string;
+};
 
 const KNOWN_CHAIN_IDS = Object.values(TempleChainId) as string[];
 
@@ -9,7 +18,60 @@ export const loadContract = memoize(fetchContract, {
   maxSize: 100,
 });
 
-(window as any).TezosToolkit = TezosToolkit;
+export async function fetchTokenMetadata(
+  tezos: TezosToolkit,
+  contractAddress: string,
+  tokenId?: number
+): Promise<TokenMetadata> {
+  const contract = await tezos.wallet.at(
+    contractAddress,
+    compose(tzip12, tzip16)
+  );
+
+  let tokenData: any;
+  let latestErrMessage;
+
+  /**
+   * Try fetch token data with TZIP12
+   */
+  try {
+    tokenData = await contract.tzip12().getTokenMetadata(tokenId ?? 0);
+  } catch (err) {
+    latestErrMessage = err.message;
+  }
+
+  /**
+   * Try fetch token data with TZIP16
+   * Get them from plain tzip16 structure/scheme
+   */
+  if (!tokenData || Object.keys(tokenData).length === 0) {
+    try {
+      const { metadata } = await contract.tzip16().getMetadata();
+      tokenData = metadata;
+    } catch (err) {
+      latestErrMessage = err.message;
+    }
+  }
+
+  if (!tokenData) {
+    throw new MetadataParseError(latestErrMessage ?? "Unknown error");
+  }
+
+  return {
+    decimals: tokenData.decimals ? +tokenData.decimals : 0,
+    symbol: tokenData.symbol || "???",
+    name: tokenData.name || "Unknown Token",
+    iconUrl:
+      tokenData.thumbnailUri ??
+      tokenData.logo ??
+      tokenData.icon ??
+      tokenData.iconUri ??
+      tokenData.iconUrl ??
+      "",
+  };
+}
+
+export class MetadataParseError extends Error {}
 
 export function fetchContract(
   tezos: TezosToolkit,
