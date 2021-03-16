@@ -12,7 +12,6 @@ import {
   TezosOperationError,
 } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
-import { HttpResponseError } from "@taquito/http-utils";
 import LedgerTransport from "@ledgerhq/hw-transport";
 import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
 import { LedgerTempleBridgeTransport } from "@temple-wallet/ledger-bridge";
@@ -36,7 +35,6 @@ import {
 } from "lib/temple/back/safe-storage";
 import { TempleLedgerSigner } from "lib/temple/back/ledger-signer";
 import { getMessage } from "lib/i18n";
-import { transformHttpResponseError } from "../front";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
@@ -483,9 +481,6 @@ export class Vault {
           case err instanceof PublicError:
           case err instanceof TezosOperationError:
             throw err;
-          case err instanceof HttpResponseError:
-            throw transformHttpResponseError(err);
-
           case err instanceof HttpResponseError:
             throw transformHttpResponseError(err);
 
