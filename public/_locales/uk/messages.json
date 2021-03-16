@@ -301,7 +301,7 @@
     "message": "e.g. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "Ніяких спеціальних символів, 3-12 в довжину"
+    "message": "Ніяких спеціальних символів, 3-50 в довжину"
   },
   "name": {
     "message": "Ім'я"
@@ -314,6 +314,9 @@
   },
   "nonNegativeIntMessage": {
     "message": "Інтеджер, 0 або більше"
+  },
+  "positiveIntMessage": {
+    "message": "Інтеджер, 1 або більше"
   },
   "decimals": {
     "message": "Десяткові коми"
@@ -1642,7 +1645,7 @@
     "message": "Хеш"
   },
   "defaultAccount": {
-    "message": "Дефолтний аккаунт"
+    "message": "Дефолтний аккаунт (перший)"
   },
   "loadMore": {
     "message": "Завантажити більше"
@@ -1675,5 +1678,11 @@
   },
   "balanceTooLow": {
     "message": "Tez баланс дуже низький"
+  },
+  "anotherAccount": {
+    "message": "Інший аккаунт"
+  },
+  "accountNumber": {
+    "message": "Номер аккаунта"
   }
 }
