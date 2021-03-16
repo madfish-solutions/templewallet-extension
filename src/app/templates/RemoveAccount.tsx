@@ -2,11 +2,11 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
-  ThanosAccountType,
-  useThanosClient,
+  TempleAccountType,
+  useTempleClient,
   useRelevantAccounts,
   useAccount,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
 import AccountBanner from "app/templates/AccountBanner";
 import FormField from "app/atoms/FormField";
@@ -20,7 +20,7 @@ type FormData = {
 };
 
 const RemoveAccount: React.FC = () => {
-  const { removeAccount } = useThanosClient();
+  const { removeAccount } = useTempleClient();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
 
@@ -77,7 +77,7 @@ const RemoveAccount: React.FC = () => {
         className="mb-6"
       />
 
-      {account.type === ThanosAccountType.HD ? (
+      {account.type === TempleAccountType.HD ? (
         <Alert
           title={t("cannotBeRemoved")}
           description={

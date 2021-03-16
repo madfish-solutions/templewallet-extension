@@ -2,10 +2,10 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import {
-  useThanosClient,
+  useTempleClient,
   useAccount,
-  ThanosAccountType,
-} from "lib/thanos/front";
+  TempleAccountType,
+} from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
 import { getAccountBadgeTitle } from "app/defaults";
 import AccountBanner from "app/templates/AccountBanner";
@@ -28,7 +28,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     revealPrivateKey,
     revealMnemonic,
     setSeedRevealed,
-  } = useThanosClient();
+  } = useTempleClient();
   const account = useAccount();
 
   const {
@@ -212,9 +212,9 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
   const forbidPrivateKeyRevealing =
     reveal === "private-key" &&
     [
-      ThanosAccountType.Ledger,
-      ThanosAccountType.ManagedKT,
-      ThanosAccountType.WatchOnly,
+      TempleAccountType.Ledger,
+      TempleAccountType.ManagedKT,
+      TempleAccountType.WatchOnly,
     ].includes(account.type);
 
   const mainContent = React.useMemo(() => {

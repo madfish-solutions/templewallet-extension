@@ -1,11 +1,11 @@
 import * as React from "react";
 import { T, t } from "lib/i18n/react";
 import useSafeState from "lib/ui/useSafeState";
-import { useTezos, useBlockTriggers } from "lib/thanos/front";
+import { useTezos, useBlockTriggers } from "lib/temple/front";
 import Alert from "app/atoms/Alert";
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import HashChip from "app/templates/HashChip";
-import { isKnownChainId, useChainId } from "lib/thanos/front";
+import { isKnownChainId, useChainId } from "lib/temple/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 
 type OperationStatusProps = {

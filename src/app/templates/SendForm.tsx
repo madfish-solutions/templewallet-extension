@@ -8,7 +8,7 @@ import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import { navigate, HistoryAction } from "lib/woozie";
 import {
-  ThanosAsset,
+  TempleAsset,
   TEZ_ASSET,
   useRelevantAccounts,
   useAccount,
@@ -23,16 +23,16 @@ import {
   isAddressValid,
   toPenny,
   hasManager,
-  ThanosAssetType,
+  TempleAssetType,
   isKTAddress,
   isDomainNameValid,
-  ThanosAccountType,
+  TempleAccountType,
   loadContract,
   getAssetKey,
   useUSDPrice,
   transformHttpResponseError,
   getRpcErrorDetails,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
@@ -79,7 +79,7 @@ const SendForm: React.FC<SendFormProps> = ({ assetSlug }) => {
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
-  const handleAssetChange = React.useCallback((a: ThanosAsset) => {
+  const handleAssetChange = React.useCallback((a: TempleAsset) => {
     navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
   }, []);
 
@@ -105,7 +105,7 @@ const SendForm: React.FC<SendFormProps> = ({ assetSlug }) => {
 export default SendForm;
 
 type FormProps = {
-  localAsset: ThanosAsset;
+  localAsset: TempleAsset;
   setOperation: React.Dispatch<any>;
 };
 
@@ -138,7 +138,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
 
   const canToggleUsd =
-    localAsset.type === ThanosAssetType.TEZ && tezPrice !== null;
+    localAsset.type === TempleAssetType.TEZ && tezPrice !== null;
   const prevCanToggleUsd = React.useRef(canToggleUsd);
 
   /**
@@ -263,7 +263,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const estimateBaseFee = React.useCallback(async () => {
     try {
       const to = toResolved;
-      const tez = localAsset.type === ThanosAssetType.TEZ;
+      const tez = localAsset.type === TempleAssetType.TEZ;
 
       const balanceBN = (await mutateBalance(
         fetchBalance(tezos, localAsset, accountPkh)
@@ -291,12 +291,12 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
           toPenny(localAsset)
         ),
         tezos.rpc.getManagerKey(
-          acc.type === ThanosAccountType.ManagedKT ? acc.owner : accountPkh
+          acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh
         ),
       ]);
 
       let estmtnMax: Estimate;
-      if (acc.type === ThanosAccountType.ManagedKT) {
+      if (acc.type === TempleAccountType.ManagedKT) {
         const michelsonLambda = isKTAddress(to)
           ? transferToContract
           : transferImplicit;
@@ -418,10 +418,10 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
   const maxAmount = React.useMemo(() => {
     if (!(baseFee instanceof BigNumber)) return null;
 
-    return localAsset.type === ThanosAssetType.TEZ
+    return localAsset.type === TempleAssetType.TEZ
       ? (() => {
           let ma =
-            acc.type === ThanosAccountType.ManagedKT
+            acc.type === TempleAccountType.ManagedKT
               ? new BigNumber(balanceNum)
               : new BigNumber(balanceNum)
                   .minus(baseFee)
@@ -761,7 +761,7 @@ const Form: React.FC<FormProps> = ({ localAsset, setOperation }) => {
                     {shouldUseUsd ? <span className="pr-px">$</span> : null}
                     {maxAmount.toFixed()}
                   </button>
-                  {amountValue && localAsset.type === ThanosAssetType.TEZ ? (
+                  {amountValue && localAsset.type === TempleAssetType.TEZ ? (
                     <>
                       <br />
                       {shouldUseUsd ? (

@@ -5,7 +5,7 @@ import {
   useRelevantAccounts,
   useAccount,
   useKnownBaker,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { T } from "lib/i18n/react";
 import Name from "app/atoms/Name";
 import HashChip from "app/templates/HashChip";
@@ -22,7 +22,7 @@ const BakerBanner = React.memo<BakerBannerProps>(
     const allAccounts = useRelevantAccounts();
     const account = useAccount();
     const { data: baker } = useKnownBaker(bakerPkh);
-    const assetSymbol = "TEZ";
+    const assetSymbol = "tez";
 
     const bakerAcc = React.useMemo(
       () => allAccounts.find((acc) => acc.publicKeyHash === bakerPkh) ?? null,

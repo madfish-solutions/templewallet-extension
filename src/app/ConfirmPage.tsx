@@ -2,13 +2,13 @@ import * as React from "react";
 import classNames from "clsx";
 import { useLocation } from "lib/woozie";
 import {
-  useThanosClient,
+  useTempleClient,
   useAccount,
   useRelevantAccounts,
-  ThanosAccountType,
-  ThanosDAppPayload,
-  ThanosAccount,
-} from "lib/thanos/front";
+  TempleAccountType,
+  TempleDAppPayload,
+  TempleAccount,
+} from "lib/temple/front";
 import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
@@ -24,6 +24,7 @@ import Name from "app/atoms/Name";
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import Money from "app/atoms/Money";
+import Spinner from "app/atoms/Spinner";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
@@ -34,7 +35,7 @@ import OperationView from "app/templates/OperationView";
 import ConnectBanner from "app/templates/ConnectBanner";
 
 const ConfirmPage: React.FC = () => {
-  const { ready } = useThanosClient();
+  const { ready } = useTempleClient();
 
   return React.useMemo(
     () =>
@@ -47,7 +48,15 @@ const ConfirmPage: React.FC = () => {
           )}
         >
           <ErrorBoundary whileMessage={t("fetchingConfirmationDetails")}>
-            <React.Suspense fallback={null}>
+            <React.Suspense
+              fallback={
+                <div className="flex items-center justify-center h-screen">
+                  <div>
+                    <Spinner theme="primary" className="w-20" />
+                  </div>
+                </div>
+              }
+            >
               <ConfirmDAppForm />
             </React.Suspense>
           </ErrorBoundary>
@@ -61,7 +70,7 @@ const ConfirmPage: React.FC = () => {
 
 export default ConfirmPage;
 
-const getPkh = (account: ThanosAccount) => account.publicKeyHash;
+const getPkh = (account: TempleAccount) => account.publicKeyHash;
 
 const ConfirmDAppForm: React.FC = () => {
   const {
@@ -69,7 +78,7 @@ const ConfirmDAppForm: React.FC = () => {
     confirmDAppPermission,
     confirmDAppOperation,
     confirmDAppSign,
-  } = useThanosClient();
+  } = useTempleClient();
   const allAccounts = useRelevantAccounts(false);
   const account = useAccount();
 
@@ -87,7 +96,7 @@ const ConfirmDAppForm: React.FC = () => {
     return id;
   }, [loc.search]);
 
-  const { data } = useRetryableSWR<ThanosDAppPayload>([id], getDAppPayload, {
+  const { data } = useRetryableSWR<TempleDAppPayload>([id], getDAppPayload, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
@@ -143,6 +152,10 @@ const ConfirmDAppForm: React.FC = () => {
       try {
         await onConfirm(confirmed);
       } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
         setError(err);
@@ -356,7 +369,7 @@ const ConfirmDAppForm: React.FC = () => {
                   </T>
                 </h2>
 
-                <CustomSelect<ThanosAccount, string>
+                <CustomSelect<TempleAccount, string>
                   activeItemId={accountPkhToConnect}
                   getItemId={getPkh}
                   items={allAccounts}
@@ -411,13 +424,13 @@ const ConfirmDAppForm: React.FC = () => {
       </div>
 
       <ConfirmLedgerOverlay
-        displayed={confirming && account.type === ThanosAccountType.Ledger}
+        displayed={confirming && account.type === TempleAccountType.Ledger}
       />
     </div>
   );
 };
 
-const AccountIcon: React.FC<OptionRenderProps<ThanosAccount>> = ({ item }) => (
+const AccountIcon: React.FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
   <Identicon
     type="bottts"
     hash={item.publicKeyHash}
@@ -427,7 +440,7 @@ const AccountIcon: React.FC<OptionRenderProps<ThanosAccount>> = ({ item }) => (
 );
 
 const AccountOptionContentHOC = (networkRpc: string) => {
-  return React.memo<OptionRenderProps<ThanosAccount>>(({ item: acc }) => (
+  return React.memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => (
     <>
       <div className="flex flex-wrap items-center">
         <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
@@ -449,7 +462,7 @@ const AccountOptionContentHOC = (networkRpc: string) => {
               )}
             >
               <Money>{bal}</Money>{" "}
-              <span style={{ fontSize: "0.75em" }}>TEZ</span>
+              <span style={{ fontSize: "0.75em" }}>tez</span>
             </div>
           )}
         </Balance>

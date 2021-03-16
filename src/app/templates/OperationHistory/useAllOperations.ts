@@ -9,7 +9,7 @@ import {
   TZStatsNetwork,
   TZStatsOperation,
 } from "lib/tzstats";
-import { TEZ_ASSET } from "lib/thanos/front";
+import { TEZ_ASSET } from "lib/temple/front";
 import {
   useOpsPagination,
   groupOpsByHash,

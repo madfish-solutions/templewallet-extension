@@ -13,7 +13,7 @@ type LocaleSelectProps = {
 
 type LocaleOption = {
   code: string;
-  disabled?: boolean;
+  disabled: boolean;
   flagName: string;
   label: string;
 };
@@ -23,53 +23,55 @@ const localeOptions: LocaleOption[] = [
     code: "en",
     flagName: "us",
     label: "English",
+    disabled: false,
   },
   {
     code: "en_GB",
     flagName: "gb",
     label: "English ‒ United Kingdom",
-    disabled: true,
+    disabled: false,
   },
   {
     code: "fr",
     flagName: "fr",
     label: "French (Français)",
-    disabled: true,
-  },
-  {
-    code: "uk",
-    flagName: "ua",
-    label: "Ukrainian (Українська)",
-    disabled: true,
-  },
-  {
-    code: "ru",
-    flagName: "ru",
-    label: "Russian (Русский)",
-    disabled: true,
+    disabled: false,
   },
   {
     code: "zh_CN",
     flagName: "cn",
     label: "Chinese ‒ China (普通话)",
-    disabled: true,
+    disabled: false,
   },
   {
     code: "zh_TW",
     flagName: "tw",
     label: "Chinese ‒ Taiwan (臺灣話)",
-    disabled: true,
+    disabled: false,
   },
   {
     code: "ja",
     flagName: "jp",
     label: "Japanese (日本語)",
-    disabled: true,
+    disabled: false,
   },
   {
     code: "ko",
     flagName: "kr",
     label: "Korean",
+    disabled: false,
+  },
+  {
+    code: "uk",
+    flagName: "ua",
+    label: "Ukrainian (Українська)",
+    disabled: false,
+  },
+  // Disabled
+  {
+    code: "ru",
+    flagName: "ru",
+    label: "Russian (Русский)",
     disabled: true,
   },
 ];
@@ -132,9 +134,9 @@ const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
   />
 );
 
-const LocaleInMenuContent: React.FC<IconifiedSelectOptionRenderProps<
-  LocaleOption
->> = ({ option: { disabled, label } }) => {
+const LocaleInMenuContent: React.FC<
+  IconifiedSelectOptionRenderProps<LocaleOption>
+> = ({ option: { disabled, label } }) => {
   return (
     <div className={classNames("relative w-full text-lg text-gray-700")}>
       {label}
@@ -162,9 +164,9 @@ const LocaleInMenuContent: React.FC<IconifiedSelectOptionRenderProps<
   );
 };
 
-const LocaleSelectContent: React.FC<IconifiedSelectOptionRenderProps<
-  LocaleOption
->> = ({ option }) => {
+const LocaleSelectContent: React.FC<
+  IconifiedSelectOptionRenderProps<LocaleOption>
+> = ({ option }) => {
   return (
     <div className="flex flex-col items-start py-2">
       <span className="text-xl text-gray-700">{option.label}</span>

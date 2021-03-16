@@ -5,12 +5,11 @@ import { T } from "lib/i18n/react";
 import {
   useTokens,
   getAssetKey,
-  ThanosAsset,
-  mergeAssets,
+  TempleAsset,
   searchAssets,
-  ThanosAssetType,
+  TempleAssetType,
   useNetwork,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import PageLayout from "app/layouts/PageLayout";
 import AssetIcon from "app/templates/AssetIcon";
 import SearchAssetField from "app/templates/SearchAssetField";
@@ -36,15 +35,14 @@ export default ManageAssets;
 
 const ManageAssetsContent: React.FC = () => {
   const network = useNetwork();
-  const { displayedTokens, hiddenTokens, addToken, removeToken } = useTokens();
+  const { displayedAndHiddenTokens, updateToken } = useTokens();
 
   const netIdRef = React.useRef<string>();
   const sortIndexes = React.useRef<Map<string, number>>();
 
   const checkableTokens = React.useMemo(() => {
-    const unsorted = mergeAssets(
-      displayedTokens.map(toChecked),
-      hiddenTokens.map(toUnchecked)
+    const unsorted = displayedAndHiddenTokens.map((t) =>
+      t.status === "displayed" ? toChecked(t) : toUnchecked(t)
     );
     const iMap = sortIndexes.current;
     if (!iMap) return unsorted;
@@ -54,7 +52,7 @@ const ManageAssetsContent: React.FC = () => {
       const bIndex = iMap.get(getAssetKey(b)) ?? 0;
       return aIndex - bIndex;
     });
-  }, [displayedTokens, hiddenTokens]);
+  }, [displayedAndHiddenTokens]);
 
   if (!sortIndexes.current || netIdRef.current !== network.id) {
     netIdRef.current = network.id;
@@ -74,15 +72,11 @@ const ManageAssetsContent: React.FC = () => {
     (asset: CheckableAsset, checked: boolean) => {
       const plain = toPlain(asset);
 
-      if (plain.type !== ThanosAssetType.TEZ) {
-        if (checked) {
-          addToken(plain);
-        } else {
-          removeToken(plain);
-        }
+      if (plain.type !== TempleAssetType.TEZ) {
+        updateToken(plain, { status: checked ? "displayed" : "hidden" });
       }
     },
-    [addToken, removeToken]
+    [updateToken]
   );
 
   return (
@@ -109,21 +103,6 @@ const ManageAssetsContent: React.FC = () => {
           <T id="addToken" />
         </Link>
       </div>
-
-      {/* <button
-        className={classNames(
-          "mb-3 w-full",
-          "py-2 px-4",
-          "rounded-lg",
-          "flex items-center justify-center",
-          "text-primary-orange bg-primary-orange bg-opacity-5",
-          "border border-primary-orange border-opacity-50",
-          "text-base"
-        )}
-      >
-        <AddIcon className="w-auto h-5 mr-2 stroke-current" />
-        Add New Token
-      </button> */}
 
       {filteredTokens.length > 0 ? (
         <div
@@ -244,16 +223,16 @@ const ListItem = React.memo<ListItemProps>(
   }
 );
 
-type CheckableAsset = ThanosAsset & { checked: boolean };
+type CheckableAsset = TempleAsset & { checked: boolean };
 
-function toPlain({ checked, ...asset }: CheckableAsset): ThanosAsset {
+function toPlain({ checked, ...asset }: CheckableAsset): TempleAsset {
   return asset;
 }
 
-function toChecked(asset: ThanosAsset): CheckableAsset {
+function toChecked(asset: TempleAsset): CheckableAsset {
   return { ...asset, checked: true };
 }
 
-function toUnchecked(asset: ThanosAsset): CheckableAsset {
+function toUnchecked(asset: TempleAsset): CheckableAsset {
   return { ...asset, checked: false };
 }

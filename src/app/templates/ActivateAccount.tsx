@@ -6,7 +6,7 @@ import {
   useTezos,
   useAccount,
   confirmOperation,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import useIsMounted from "lib/ui/useIsMounted";
 import AccountBanner from "app/templates/AccountBanner";
 import Alert from "app/atoms/Alert";
@@ -85,7 +85,7 @@ const ActivateAccount: React.FC = () => {
             break;
 
           case ActivationStatus.ActivationRequestSent:
-            setSuccess(t("requestSent", "🛫 Activation"));
+            setSuccess(`🛫 ${t("requestSent", t("activationOperationType"))}`);
             confirmOperation(tezos, op!.hash).then(() => {
               setSuccess(`✅ ${t("accountActivated")}`);
             });

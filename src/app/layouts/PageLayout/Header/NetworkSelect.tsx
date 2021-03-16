@@ -5,7 +5,7 @@ import {
   useNetwork,
   useSetNetworkId,
   preloadTokens,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import Popper from "lib/ui/Popper";
 import { T } from "lib/i18n/react";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
@@ -31,7 +31,7 @@ const NetworkSelect: React.FC<NetworkSelectProps> = () => {
 
       if (!selected) {
         try {
-          await preloadTokens(netId, rpcUrl);
+          await preloadTokens(rpcUrl);
         } catch (_err) {}
 
         setNetworkId(netId);

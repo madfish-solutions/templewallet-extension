@@ -1,15 +1,21 @@
 import * as React from "react";
 import classNames from "clsx";
-import { Link, Redirect, useLocation } from "lib/woozie";
+import {
+  Link,
+  Redirect,
+  useLocation,
+  navigate,
+  HistoryAction,
+} from "lib/woozie";
 import {
   getAssetKey,
-  ThanosAccountType,
-  ThanosAsset,
-  ThanosAssetType,
+  TempleAccountType,
+  TempleAsset,
+  TempleAssetType,
   useAccount,
   useAssetBySlug,
   TEZ_ASSET,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
 import useTippy from "lib/ui/useTippy";
 import { useAppEnv } from "app/env";
@@ -34,16 +40,27 @@ type ExploreProps = {
 };
 
 const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
-  const { fullPage } = useAppEnv();
+  const { fullPage, registerBackHandler } = useAppEnv();
   const account = useAccount();
   const asset = useAssetBySlug(assetSlug);
+  const { search } = useLocation();
+
+  React.useLayoutEffect(() => {
+    const usp = new URLSearchParams(search);
+    if (asset && usp.get("after_token_added") === "true") {
+      return registerBackHandler(() => {
+        navigate("/", HistoryAction.Replace);
+      });
+    }
+    return;
+  }, [registerBackHandler, asset, search]);
 
   if (assetSlug && !asset) {
     return <Redirect to="/" />;
   }
 
   const accountPkh = account.publicKeyHash;
-  const canSend = account.type !== ThanosAccountType.WatchOnly;
+  const canSend = account.type !== TempleAccountType.WatchOnly;
 
   return (
     <PageLayout
@@ -125,7 +142,7 @@ export default Explore;
 
 type SendButtonProps = {
   canSend: boolean;
-  asset: ThanosAsset | null;
+  asset: TempleAsset | null;
 };
 
 const SendButton = React.memo<SendButtonProps>(({ canSend, asset }) => {
@@ -186,7 +203,7 @@ const Delegation: React.FC = () => (
 );
 
 type ActivityProps = {
-  asset?: ThanosAsset;
+  asset?: TempleAsset;
 };
 
 const Activity: React.FC<ActivityProps> = ({ asset }) => {
@@ -197,7 +214,7 @@ const Activity: React.FC<ActivityProps> = ({ asset }) => {
       <OperationHistory
         accountPkh={account.publicKeyHash}
         accountOwner={
-          account.type === ThanosAccountType.ManagedKT
+          account.type === TempleAccountType.ManagedKT
             ? account.owner
             : undefined
         }
@@ -217,7 +234,7 @@ function useTabSlug() {
 }
 
 type SecondarySectionProps = {
-  asset: ThanosAsset | null;
+  asset: TempleAsset | null;
   className?: string;
 };
 
@@ -261,7 +278,7 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
       Component: () => <Activity asset={asset} />,
     };
 
-    if (asset.type === ThanosAssetType.TEZ) {
+    if (asset.type === TempleAssetType.TEZ) {
       return [activity];
     }
 

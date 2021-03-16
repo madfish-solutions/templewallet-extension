@@ -6,7 +6,7 @@ import {
   useTezosDomainsClient,
   fetchFromStorage,
   putToStorage,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import HashChip from "app/templates/HashChip";
 import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";

@@ -1,11 +1,11 @@
 import * as React from "react";
 import classNames from "clsx";
-import { ThanosAsset } from "lib/thanos/types";
+import { TempleAsset } from "lib/temple/types";
 import { getAssetIconUrl } from "app/defaults";
 import Identicon from "app/atoms/Identicon";
 
 export type AssetIconProps = {
-  asset: ThanosAsset;
+  asset: TempleAsset;
   className?: string;
   style?: React.CSSProperties;
   size?: number;
