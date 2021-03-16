@@ -11,7 +11,7 @@ import {
 
 const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, "https://api.tzkt.io/v1"],
-  [TempleChainId.Edo2net, "https://api.edo2net.tzkt.io/"],
+  [TempleChainId.Edo2net, "https://api.edo2net.tzkt.io/v1"],
   [TempleChainId.Delphinet, "https://api.delphinet.tzkt.io/v1"],
   [TempleChainId.Carthagenet, "https://api.carthagenet.tzkt.io/v1"],
 ]);
@@ -44,6 +44,8 @@ export const getOperations = makeQuery<
     ...restParams,
   })
 );
+
+(window as any).getOperations = getOperations;
 
 type GetUserContractsParams = {
   account: string;
