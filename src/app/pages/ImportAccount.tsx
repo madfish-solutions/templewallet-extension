@@ -6,7 +6,7 @@ import { validateMnemonic } from "bip39";
 import { Link, navigate } from "lib/woozie";
 import { T, t } from "lib/i18n/react";
 import {
-  useThanosClient,
+  useTempleClient,
   useSetAccountPkh,
   validateDerivationPath,
   useTezos,
@@ -18,7 +18,7 @@ import {
   isKTAddress,
   confirmOperation,
   useNetwork,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import PageLayout from "app/layouts/PageLayout";
@@ -169,7 +169,7 @@ interface ByPrivateKeyFormData {
 }
 
 const ByPrivateKeyForm: React.FC = () => {
-  const { importAccount } = useThanosClient();
+  const { importAccount } = useTempleClient();
 
   const {
     register,
@@ -273,6 +273,14 @@ const DERIVATION_PATHS = [
     i18nKey: "noDerivation",
   },
   {
+    type: "default",
+    i18nKey: "defaultAccount",
+  },
+  {
+    type: "another",
+    i18nKey: "anotherAccount",
+  },
+  {
     type: "custom",
     i18nKey: "customDerivationPath",
   },
@@ -282,10 +290,11 @@ interface ByMnemonicFormData {
   mnemonic: string;
   password?: string;
   customDerivationPath: string;
+  accountNumber?: number;
 }
 
 const ByMnemonicForm: React.FC = () => {
-  const { importMnemonicAccount } = useThanosClient();
+  const { importMnemonicAccount } = useTempleClient();
 
   const {
     register,
@@ -293,7 +302,10 @@ const ByMnemonicForm: React.FC = () => {
     errors,
     formState,
   } = useForm<ByMnemonicFormData>({
-    defaultValues: { customDerivationPath: "m/44'/1729'/0'/0'" },
+    defaultValues: {
+      customDerivationPath: "m/44'/1729'/0'/0'",
+      accountNumber: 1,
+    },
   });
   const [error, setError] = React.useState<React.ReactNode>(null);
   const [derivationPath, setDerivationPath] = React.useState(
@@ -305,6 +317,7 @@ const ByMnemonicForm: React.FC = () => {
       mnemonic,
       password,
       customDerivationPath,
+      accountNumber,
     }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
@@ -313,7 +326,18 @@ const ByMnemonicForm: React.FC = () => {
         await importMnemonicAccount(
           formatMnemonic(mnemonic),
           password || undefined,
-          derivationPath.type === "custom" ? customDerivationPath : undefined
+          (() => {
+            switch (derivationPath.type) {
+              case "custom":
+                return customDerivationPath;
+              case "default":
+                return "m/44'/1729'/0'/0'";
+              case "another":
+                return `m/44'/1729'/${accountNumber! - 1}'/0'`;
+              default:
+                return undefined;
+            }
+          })()
         );
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
@@ -467,6 +491,22 @@ const ByMnemonicForm: React.FC = () => {
         </div>
       </div>
 
+      {derivationPath.type === "another" && (
+        <FormField
+          ref={register({
+            min: { value: 1, message: t("positiveIntMessage") },
+            required: t("required"),
+          })}
+          min={0}
+          type="number"
+          name="accountNumber"
+          id="importacc-acc-number"
+          label={t("accountNumber")}
+          placeholder="1"
+          errorCaption={errors.accountNumber?.message}
+        />
+      )}
+
       {derivationPath.type === "custom" && (
         <FormField
           ref={register({
@@ -500,7 +540,7 @@ interface ByFundraiserFormData {
 }
 
 const ByFundraiserForm: React.FC = () => {
-  const { importFundraiserAccount } = useThanosClient();
+  const { importFundraiserAccount } = useTempleClient();
   const {
     register,
     errors,
@@ -610,7 +650,7 @@ interface FaucetTextInputFormData {
 }
 
 const FromFaucetForm: React.FC = () => {
-  const { importFundraiserAccount } = useThanosClient();
+  const { importFundraiserAccount } = useTempleClient();
   const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
 
@@ -950,7 +990,7 @@ interface WatchOnlyFormData {
 }
 
 const WatchOnlyForm: React.FC = () => {
-  const { importWatchOnlyAccount } = useThanosClient();
+  const { importWatchOnlyAccount } = useTempleClient();
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
   const canUseDomainNames = domainsClient.isSupported;

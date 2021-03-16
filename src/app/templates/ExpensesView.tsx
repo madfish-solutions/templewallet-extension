@@ -1,11 +1,11 @@
 import classNames from "clsx";
 import React from "react";
 import {
-  ThanosAsset,
+  TempleAsset,
   RawOperationExpenses,
   RawOperationAssetExpense,
   TEZ_ASSET,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { T, t, TProps } from "lib/i18n/react";
 import Money from "app/atoms/Money";
 import Identicon from "app/atoms/Identicon";
@@ -14,7 +14,7 @@ import InUSD from "app/templates/InUSD";
 import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, "tokenAddress"> & {
-  asset: ThanosAsset | string;
+  asset: TempleAsset | string;
 };
 
 type OperationExpenses = Omit<RawOperationExpenses, "expenses"> & {

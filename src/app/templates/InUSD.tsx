@@ -1,16 +1,16 @@
 import * as React from "react";
 import BigNumber from "bignumber.js";
 import {
-  ThanosAsset,
-  ThanosAssetType,
+  TempleAsset,
+  TempleAssetType,
   TEZ_ASSET,
   useUSDPrice,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import Money from "app/atoms/Money";
 
 type InUSDProps = {
   volume: BigNumber | number | string;
-  asset?: ThanosAsset;
+  asset?: TempleAsset;
   children: (usdVolume: React.ReactNode) => React.ReactElement;
   roundingMode?: BigNumber.RoundingMode;
 };
@@ -22,7 +22,7 @@ const InUSD: React.FC<InUSDProps> = ({
   roundingMode,
 }) => {
   const price = useUSDPrice();
-  return asset.type === ThanosAssetType.TEZ && price !== null
+  return asset.type === TempleAssetType.TEZ && price !== null
     ? children(
         <Money fiat roundingMode={roundingMode}>
           {new BigNumber(volume).times(price)}

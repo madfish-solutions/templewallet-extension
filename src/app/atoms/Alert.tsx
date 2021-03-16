@@ -45,7 +45,7 @@ const Alert: React.FC<AlertProps> = ({
     <div
       ref={ref}
       className={classNames(
-        "relative w-full px-4 py-3",
+        "relative w-full px-4 pt-3",
         bgColorClassName,
         "border",
         borderColorClassName,
@@ -60,7 +60,15 @@ const Alert: React.FC<AlertProps> = ({
     >
       {title && <h2 className="mb-1 text-lg font-semibold">{title}</h2>}
       {description && (
-        <div className="text-sm font-light break-words">{description}</div>
+        <div
+          className={classNames(
+            "pb-3 text-sm font-light break-words",
+            "overflow-y-auto no-scrollbar"
+          )}
+          style={{ maxHeight: "8rem" }}
+        >
+          {description}
+        </div>
       )}
       {closable && (
         <button className="absolute top-3 right-3" onClick={onClose}>

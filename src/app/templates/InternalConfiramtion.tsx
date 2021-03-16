@@ -2,15 +2,15 @@ import * as React from "react";
 import classNames from "clsx";
 import { localForger } from "@taquito/local-forging";
 import {
-  ThanosAccountType,
-  ThanosAssetType,
-  ThanosConfirmationPayload,
+  TempleAccountType,
+  TempleAssetType,
+  TempleConfirmationPayload,
   tryParseExpenses,
   useAssets,
   useNetwork,
   useRelevantAccounts,
   TEZ_ASSET,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
@@ -33,7 +33,7 @@ import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 import GasFeeView from "app/pages/GasFeeView";
 
 type InternalConfiramtionProps = {
-  payload: ThanosConfirmationPayload;
+  payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean) => Promise<void>;
   totalFee?: number;
   feeEstimationError?: Error;
@@ -76,7 +76,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   );
 
   const allAccounts = useRelevantAccounts();
-  const { allAssets } = useAssets();
+  const { allAssetsWithHidden } = useAssets();
   const account = React.useMemo(
     () => allAccounts.find((a) => a.publicKeyHash === payload.sourcePkh)!,
     [allAccounts, payload.sourcePkh]
@@ -89,9 +89,9 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, ...restProps }) => ({
         asset: tokenAddress
-          ? allAssets.find(
+          ? allAssetsWithHidden.find(
               (asset) =>
-                asset.type !== ThanosAssetType.TEZ &&
+                asset.type !== TempleAssetType.TEZ &&
                 asset.address === tokenAddress
             ) || tokenAddress
           : TEZ_ASSET,
@@ -99,7 +99,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
       })),
       ...restProps,
     }));
-  }, [allAssets, rawExpensesData]);
+  }, [allAssetsWithHidden, rawExpensesData]);
 
   const signPayloadFormats = React.useMemo(() => {
     if (payload.type === "operations") {
@@ -114,6 +114,15 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
           name: t("raw"),
           Icon: CodeAltIcon,
         },
+        ...(payload.bytesToSign
+          ? [
+              {
+                key: "bytes",
+                name: t("bytes"),
+                Icon: HashIcon,
+              },
+            ]
+          : []),
       ];
     }
 
@@ -129,7 +138,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         Icon: HashIcon,
       },
     ];
-  }, [payload.type]);
+  }, [payload]);
 
   const [spFormat, setSpFormat] = useSafeState(signPayloadFormats[0]);
   const [error, setError] = useSafeState<any>(null);
@@ -186,17 +195,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         )}
       >
         <div className="flex items-center my-4">
-          <Logo />
-
-          <h1
-            className={classNames(
-              "ml-2",
-              "text-2xl font-semibold tracking-tight",
-              "text-gray-700"
-            )}
-          >
-            Thanos
-          </h1>
+          <Logo hasTitle />
         </div>
       </div>
 
@@ -268,7 +267,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
 
               {payload.type === "operations" && spFormat.key === "raw" && (
                 <OperationsBanner
-                  opParams={payload.opParams}
+                  opParams={payload.rawToSign ?? payload.opParams}
                   jsonViewStyle={
                     signPayloadFormats.length > 1
                       ? { height: "9.5rem" }
@@ -287,6 +286,18 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
                   />
                 </>
               )}
+
+              {payload.type === "operations" &&
+                payload.bytesToSign &&
+                spFormat.key === "bytes" && (
+                  <>
+                    <RawPayloadView
+                      rows={5}
+                      payload={payload.bytesToSign}
+                      className="mb-4"
+                    />
+                  </>
+                )}
 
               {spFormat.key === "preview" && (
                 <ExpensesView expenses={expensesData} />
@@ -345,7 +356,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
         </div>
 
         <ConfirmLedgerOverlay
-          displayed={confirming && account.type === ThanosAccountType.Ledger}
+          displayed={confirming && account.type === TempleAccountType.Ledger}
         />
       </div>
     </div>

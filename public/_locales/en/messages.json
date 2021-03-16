@@ -1,8 +1,5 @@
 {
   "appName": {
-    "message": "Thanos - Tezos Wallet"
-  },
-  "templeAppName": {
     "message": "Temple - Tezos Wallet"
   },
   "showIncomingTransactions": {
@@ -304,7 +301,7 @@
     "message": "e.g. WEW, BOW, LAL etc."
   },
   "tokenNamePatternDescription": {
-    "message": "No special characters, 3-12 length"
+    "message": "No special characters, 3-50 length"
   },
   "name": {
     "message": "Name"
@@ -317,6 +314,9 @@
   },
   "nonNegativeIntMessage": {
     "message": "Integer, 0 or greater"
+  },
+  "positiveIntMessage": {
+    "message": "Integer, 1 or greater"
   },
   "decimals": {
     "message": "Decimals"
@@ -479,9 +479,6 @@
     "message": "Tezos Mainnet",
     "description": "Mainnet = main network"
   },
-  "thanosWalletOptions": {
-    "message": "Thanos Wallet | Options"
-  },
   "templeWalletOptions": {
     "message": "Temple Wallet | Options"
   },
@@ -489,9 +486,6 @@
     "message": "Reset Extension"
   },
   "resetExtensionConfirmation": {
-    "message": "Are you sure you want to reset the Thanos Wallet?\nAs a result, all your data will be deleted."
-  },
-  "templeResetExtensionConfirmation": {
     "message": "Are you sure you want to reset the Temple Wallet?\nAs a result, all your data will be deleted."
   },
   "failedToResetExtension": {
@@ -541,9 +535,6 @@
     "message": "Create a new Wallet"
   },
   "createNewWalletDescription": {
-    "message": "New to Thanos Wallet? Let's set it up! This will create a new wallet and seed phrase"
-  },
-  "templeCreateNewWalletDescription": {
     "message": "New to Temple Wallet? Let's set it up! This will create a new wallet and seed phrase"
   },
   "delegate": {
@@ -690,9 +681,6 @@
     "description": "DApps = Decentralized Applications"
   },
   "dAppsDescription": {
-    "message": "In this section you can enable ability to interact with decentralized applications that support Thanos Wallet."
-  },
-  "templeDAppsDescription": {
     "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
   },
   "networksDescription": {
@@ -715,9 +703,6 @@
     "message": "About"
   },
   "aboutDescription": {
-    "message": "Use this section to view meta info about Thanos Wallet."
-  },
-  "templeAboutDescription": {
     "message": "Use this section to view meta info about Temple Wallet."
   },
   "unlockWallet": {
@@ -1660,7 +1645,7 @@
     "message": "Hash"
   },
   "defaultAccount": {
-    "message": "Default account"
+    "message": "Default account (the first one)"
   },
   "loadMore": {
     "message": "Load more"
@@ -1680,9 +1665,6 @@
   "faucetJsonDescription": {
     "message": "You can paste JSON here instead of adding file"
   },
-  "faucetJsonPlaceholder": {
-    "message": "Faucet JSON"
-  },
   "totalFee": {
     "message": "Total fee: $fee$",
     "placeholders": {
@@ -1690,5 +1672,25 @@
         "content": "$1"
       }
     }
+  },
+  "unknownErrorFromRPC": {
+    "message": "Failed to send request to $url$. Invalid request provided or RPC node is temporarily unreachable.",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "emptyImplicitContract": {
+    "message": "Your account is empty. Deposit any tez amount on this account to activate it"
+  },
+  "balanceTooLow": {
+    "message": "Tez balance to low"
+  },
+  "anotherAccount": {
+    "message": "Another account"
+  },
+  "accountNumber": {
+    "message": "Account number"
   }
 }

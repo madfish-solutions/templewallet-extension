@@ -3,12 +3,12 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { navigate } from "lib/woozie";
 import {
-  useThanosClient,
+  useTempleClient,
   useSetAccountPkh,
   useAllAccounts,
-  ThanosAccountType,
+  TempleAccountType,
   validateDerivationPath,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
 import PageLayout from "app/layouts/PageLayout";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -21,6 +21,7 @@ import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 type FormData = {
   name: string;
   customDerivationPath: string;
+  accountNumber?: number;
 };
 
 const DERIVATION_PATHS = [
@@ -29,18 +30,22 @@ const DERIVATION_PATHS = [
     name: t("defaultAccount"),
   },
   {
+    type: "another",
+    name: t("anotherAccount"),
+  },
+  {
     type: "custom",
     name: t("customDerivationPath"),
   },
 ];
 
 const ConnectLedger: React.FC = () => {
-  const { createLedgerAccount } = useThanosClient();
+  const { createLedgerAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
   const allLedgers = React.useMemo(
-    () => allAccounts.filter((acc) => acc.type === ThanosAccountType.Ledger),
+    () => allAccounts.filter((acc) => acc.type === TempleAccountType.Ledger),
     [allAccounts]
   );
 
@@ -63,6 +68,7 @@ const ConnectLedger: React.FC = () => {
     defaultValues: {
       name: defaultName,
       customDerivationPath: "m/44'/1729'/0'/0'",
+      accountNumber: 1,
     },
   });
   const submitting = formState.isSubmitting;
@@ -73,12 +79,16 @@ const ConnectLedger: React.FC = () => {
   );
 
   const onSubmit = React.useCallback(
-    async ({ name, customDerivationPath }: FormData) => {
+    async ({ name, accountNumber, customDerivationPath }: FormData) => {
       if (submitting) return;
       setError(null);
 
       try {
-        await createLedgerAccount(name, customDerivationPath);
+        await createLedgerAccount(
+          name,
+          customDerivationPath ??
+            (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
+        );
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -217,6 +227,22 @@ const ConnectLedger: React.FC = () => {
                 })}
               </div>
             </div>
+
+            {derivationPath.type === "another" && (
+              <FormField
+                ref={register({
+                  min: { value: 1, message: t("positiveIntMessage") },
+                  required: t("required"),
+                })}
+                min={0}
+                type="number"
+                name="accountNumber"
+                id="importacc-acc-number"
+                label={t("accountNumber")}
+                placeholder="1"
+                errorCaption={errors.accountNumber?.message}
+              />
+            )}
 
             {derivationPath.type === "custom" && (
               <FormField

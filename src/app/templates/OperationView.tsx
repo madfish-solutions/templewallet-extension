@@ -2,13 +2,13 @@ import classNames from "clsx";
 import React from "react";
 import { T, t } from "lib/i18n/react";
 import {
-  ThanosDAppPayload,
+  TempleDAppPayload,
   TEZ_ASSET,
   tryParseExpenses,
   useAccount,
-  ThanosAssetType,
+  TempleAssetType,
   useTokens,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import OperationsBanner from "app/templates/OperationsBanner";
 import ViewsSwitcher from "app/templates/ViewsSwitcher";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
@@ -18,7 +18,7 @@ import RawPayloadView from "app/templates/RawPayloadView";
 import ExpensesView from "app/templates/ExpensesView";
 
 type OperationViewProps = {
-  payload: ThanosDAppPayload;
+  payload: TempleDAppPayload;
   networkRpc?: string;
 };
 
@@ -29,7 +29,7 @@ const OperationView: React.FC<OperationViewProps> = ({
   const contentToParse = React.useMemo(() => {
     switch (payload.type) {
       case "confirm_operations":
-        return payload.opParams || [];
+        return (payload.rawToSign ?? payload.opParams) || [];
       case "sign":
         return payload.preview || [];
       default:
@@ -48,7 +48,7 @@ const OperationView: React.FC<OperationViewProps> = ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
         asset: tokenAddress
           ? allTokens.find((token) =>
-              token.type === ThanosAssetType.FA2
+              token.type === TempleAssetType.FA2
                 ? token.address === tokenAddress && token.id === tokenId
                 : token.address === tokenAddress
             ) || tokenAddress
@@ -83,7 +83,19 @@ const OperationView: React.FC<OperationViewProps> = ({
       : [];
 
     if (payload.type === "confirm_operations") {
-      return [...prettyViewFormats, rawFormat];
+      return [
+        ...prettyViewFormats,
+        rawFormat,
+        ...(payload.bytesToSign
+          ? [
+              {
+                key: "bytes",
+                name: t("bytes"),
+                Icon: HashIcon,
+              },
+            ]
+          : []),
+      ];
     }
 
     if (payload.type === "connect") {
@@ -99,7 +111,7 @@ const OperationView: React.FC<OperationViewProps> = ({
         Icon: HashIcon,
       },
     ];
-  }, [payload.type, expensesData]);
+  }, [payload, expensesData]);
 
   const [spFormat, setSpFormat] = React.useState(signPayloadFormats[0]);
 
@@ -190,8 +202,18 @@ const OperationView: React.FC<OperationViewProps> = ({
           )}
         </h2>
 
+        {payload.bytesToSign && (
+          <RawPayloadView
+            payload={payload.bytesToSign}
+            rows={6}
+            className={classNames(spFormat.key !== "bytes" && "hidden")}
+            style={{ marginBottom: 0 }}
+            fieldWrapperBottomMargin={false}
+          />
+        )}
+
         <OperationsBanner
-          opParams={payload.opParams}
+          opParams={payload.rawToSign ?? payload.opParams}
           className={classNames(spFormat.key !== "raw" && "hidden")}
           jsonViewStyle={
             signPayloadFormats.length > 1 ? { height: "9.5rem" } : undefined

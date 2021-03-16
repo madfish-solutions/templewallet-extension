@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Woozie from "lib/woozie";
-import { useThanosClient } from "lib/thanos/front";
+import { useTempleClient } from "lib/temple/front";
 import { useAppEnv, OpenInFullPage } from "app/env";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
@@ -99,16 +99,16 @@ const Page: React.FC = () => {
   }, [trigger, pathname]);
 
   const appEnv = useAppEnv();
-  const thanos = useThanosClient();
+  const temple = useTempleClient();
 
   const ctx = React.useMemo<RouteContext>(
     () => ({
       popup: appEnv.popup,
       fullPage: appEnv.fullPage,
-      ready: thanos.ready,
-      locked: thanos.locked,
+      ready: temple.ready,
+      locked: temple.locked,
     }),
-    [appEnv.popup, appEnv.fullPage, thanos.ready, thanos.locked]
+    [appEnv.popup, appEnv.fullPage, temple.ready, temple.locked]
   );
 
   return React.useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [

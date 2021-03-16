@@ -1,6 +1,6 @@
 import * as React from "react";
 import classNames from "clsx";
-import { useThanosClient, useAccount } from "lib/thanos/front";
+import { useTempleClient, useAccount } from "lib/temple/front";
 import { T, t } from "lib/i18n/react";
 import { useAlert } from "lib/ui/dialog";
 import Name from "app/atoms/Name";
@@ -8,7 +8,7 @@ import FormField from "app/atoms/FormField";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 
 const EditableTitle: React.FC = () => {
-  const { editAccountName } = useThanosClient();
+  const { editAccountName } = useTempleClient();
   const account = useAccount();
   const alert = useAlert();
 

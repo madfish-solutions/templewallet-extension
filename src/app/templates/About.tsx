@@ -6,12 +6,12 @@ import SubTitle from "app/atoms/SubTitle";
 const About: React.FC = () => (
   <div className="flex flex-col items-center my-8">
     <div className="flex items-center justify-center">
-      <Logo imgStyle={{ height: 60 }} />
+      <Logo style={{ height: 60 }} />
 
       <div className="ml-4">
         <T id="appName">
           {(message) => (
-            <h4 className="text-2xl font-semibold text-gray-700">{message}</h4>
+            <h4 className="text-xl font-semibold text-gray-700">{message}</h4>
           )}
         </T>
         <T
@@ -60,23 +60,23 @@ const About: React.FC = () => (
       {[
         {
           key: "website",
-          link: "https://thanoswallet.com",
+          link: "https://templewallet.com",
         },
         {
           key: "repo",
-          link: "https://github.com/madfish-solutions/thanos-wallet",
+          link: "https://github.com/madfish-solutions/temple-wallet",
         },
         {
           key: "privacyPolicy",
-          link: "https://thanoswallet.com/privacy",
+          link: "https://templewallet.com/privacy",
         },
         {
           key: "termsOfUse",
-          link: "https://thanoswallet.com/terms",
+          link: "https://templewallet.com/terms",
         },
         {
           key: "contact",
-          link: "https://thanoswallet.com/contact",
+          link: "https://templewallet.com/contact",
         },
       ].map(({ key, link }) => (
         <T id={key} key={key}>

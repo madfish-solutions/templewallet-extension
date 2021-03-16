@@ -5,7 +5,7 @@ import {
   TZStatsNetwork,
   TZStatsOperation,
 } from "lib/tzstats";
-import { ThanosToken } from "lib/thanos/types";
+import { TempleAssetType, TempleToken } from "lib/temple/types";
 import {
   useOpsPagination,
   groupOpsByHash,
@@ -15,7 +15,7 @@ export type GetOperationsParams = {
   accountPkh: string;
   tzStatsNetwork: TZStatsNetwork | null;
   networkId: "mainnet" | "edo2net" | "delphinet" | null;
-  asset: ThanosToken;
+  asset: TempleToken;
 };
 
 export default function useTokensOperations({
@@ -37,6 +37,7 @@ export default function useTokensOperations({
             size: pageSize,
             contracts: asset.address,
             end: bcdEnd,
+            token_id: asset.type === TempleAssetType.FA2 ? asset.id : undefined,
           })
         : { transfers: [] };
       const lastBcdOp = rawBcdOps[rawBcdOps.length - 1];
@@ -93,7 +94,7 @@ export default function useTokensOperations({
           relevantTzStatsOpsCount < pageSize || rawBcdOps.length < pageSize,
       };
     },
-    [accountPkh, networkId, tzStatsNetwork, asset.address]
+    [accountPkh, networkId, tzStatsNetwork, asset]
   );
 
   return useOpsPagination(fetchFn, asset);

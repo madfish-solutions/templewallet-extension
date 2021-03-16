@@ -9,8 +9,8 @@ import {
   searchAssets,
   useAccount,
   useBalanceSWRKey,
-  ThanosAsset,
-} from "lib/thanos/front";
+  TempleAsset,
+} from "lib/temple/front";
 import Money from "app/atoms/Money";
 import AssetIcon from "app/templates/AssetIcon";
 import Balance from "app/templates/Balance";
@@ -179,7 +179,7 @@ const Assets: React.FC = () => {
 export default Assets;
 
 type ListItemProps = {
-  asset: ThanosAsset;
+  asset: TempleAsset;
   slug: string;
   last: boolean;
   active: boolean;

@@ -4,12 +4,12 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import React from "react";
 import { T, TProps } from "lib/i18n/react";
 import {
-  ThanosAsset,
-  ThanosAssetType,
-  ThanosTEZAsset,
+  TempleAsset,
+  TempleAssetType,
+  TempleTEZAsset,
   useAssets,
   TEZ_ASSET,
-} from "lib/thanos/front";
+} from "lib/temple/front";
 import Identicon from "app/atoms/Identicon";
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import HashChip from "app/templates/HashChip";
@@ -45,7 +45,7 @@ type OperationProps = OperationPreview & {
 };
 
 type InternalTransferStats = {
-  token?: ThanosAsset;
+  token?: TempleAsset;
   tokenAddress?: string;
   delta: BigNumber;
 };
@@ -65,7 +65,7 @@ const Operation = React.memo<OperationProps>(
     internalTransfers,
     volume,
   }) => {
-    const { allAssets } = useAssets();
+    const { allAssetsWithHidden } = useAssets();
     const imReceiver = internalTransfers.some(
       ({ receiver }) => receiver === accountPkh
     );
@@ -116,13 +116,13 @@ const Operation = React.memo<OperationProps>(
         (statsPart, transfer) => {
           const { tokenAddress, tokenId } = transfer;
           let token = tokenAddress
-            ? (allAssets.find((a) => {
+            ? (allAssetsWithHidden.find((a) => {
                 return (
-                  a.type !== ThanosAssetType.TEZ &&
+                  a.type !== TempleAssetType.TEZ &&
                   a.address === tokenAddress &&
-                  (a.type !== ThanosAssetType.FA2 || a.id === tokenId)
+                  (a.type !== TempleAssetType.FA2 || a.id === tokenId)
                 );
-              }) as Exclude<ThanosAsset, ThanosTEZAsset> | undefined)
+              }) as Exclude<TempleAsset, TempleTEZAsset> | undefined)
             : undefined;
           const finalVolume = transfer.volume.div(10 ** (token?.decimals || 0));
           const type = transfer.receiver === accountPkh ? "receive" : "send";
@@ -130,10 +130,10 @@ const Operation = React.memo<OperationProps>(
             type === "send" ? finalVolume.multipliedBy(-1) : finalVolume;
           const sameTokenEntryIndex = statsPart.findIndex(
             ({ token, tokenAddress: candidateTokenAddress }) => {
-              if (token?.type === ThanosAssetType.TEZ) {
+              if (token?.type === TempleAssetType.TEZ) {
                 return !tokenAddress && tokenId === undefined;
               }
-              if (token?.type === ThanosAssetType.FA2) {
+              if (token?.type === TempleAssetType.FA2) {
                 return token.address === tokenAddress && token.id === tokenId;
               }
               return candidateTokenAddress === tokenAddress;
@@ -163,7 +163,7 @@ const Operation = React.memo<OperationProps>(
         },
         []
       );
-    }, [internalTransfers, allAssets, accountPkh]);
+    }, [internalTransfers, allAssetsWithHidden, accountPkh]);
 
     const receivers = React.useMemo(() => {
       const uniqueReceivers = new Set(
