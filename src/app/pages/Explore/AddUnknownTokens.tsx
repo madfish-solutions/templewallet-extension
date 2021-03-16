@@ -1,21 +1,22 @@
 import * as React from "react";
+import BigNumber from "bignumber.js";
 import { BcdAccountToken, getAccount } from "lib/better-call-dev";
+import { sanitizeImgUri } from "lib/image-uri";
 import {
   useAccount,
   useChainId,
   isKnownChainId,
-  useAllAssetsRef,
   useTokens,
   assertTokenType,
   loadContract,
   useTezos,
+  fetchTokenMetadata,
 } from "lib/temple/front";
 import { TempleAssetType, TempleToken } from "lib/temple/types";
 import { BCD_NETWORKS_NAMES } from "app/defaults";
 
 const AddUnknownTokens: React.FC = () => {
-  const { addToken, hiddenTokens } = useTokens();
-  const assetsRef = useAllAssetsRef();
+  const { addToken, allTokens } = useTokens();
   const { publicKeyHash: accountPkh } = useAccount();
   const tezos = useTezos();
   const chainId = useChainId();
@@ -27,31 +28,26 @@ const AddUnknownTokens: React.FC = () => {
     [chainId]
   );
 
-  React.useEffect(() => {
+  const syncTokens = React.useCallback(async () => {
     if (!networkId) {
       return;
     }
 
-    const syncTokens = async () => {
-      try {
-        const account = await getAccount({
-          network: networkId,
-          address: accountPkh,
-        });
+    try {
+      const account = await getAccount({
+        network: networkId,
+        address: accountPkh,
+      });
 
-        for (const token of account.tokens) {
-          if (
-            assetsRef.current.every(
-              (knownAsset) =>
-                knownAsset.type === TempleAssetType.TEZ ||
-                !tokensAreSame(knownAsset, token)
-            ) &&
-            !hiddenTokens.some((hiddenToken) =>
-              tokensAreSame(hiddenToken, token)
-            ) &&
-            token.name &&
-            token.symbol
-          ) {
+      for (const token of account.tokens) {
+        if (allTokens.every((t) => !tokensAreSame(t, token))) {
+          try {
+            const meta = await fetchTokenMetadata(
+              tezos,
+              token.contract,
+              token.token_id
+            );
+
             let isFA12Token = false;
             try {
               await assertTokenType(
@@ -61,33 +57,51 @@ const AddUnknownTokens: React.FC = () => {
               );
               isFA12Token = true;
             } catch {}
+
+            const positiveBalance = new BigNumber(token.balance).isPositive();
             const baseTokenProps = {
               address: token.contract,
-              decimals: token.decimals || 0,
+              decimals: meta.decimals,
               fungible: true,
-              symbol: token.symbol,
-              name: token.name,
+              symbol: meta.symbol,
+              name: meta.name,
+              iconUrl: meta.iconUrl ? sanitizeImgUri(meta.iconUrl) : undefined,
+              status: positiveBalance
+                ? ("displayed" as const)
+                : ("hidden" as const),
             };
+
             if (isFA12Token) {
-              addToken({
+              await addToken({
                 ...baseTokenProps,
                 type: TempleAssetType.FA1_2,
               });
             } else {
-              addToken({
+              await addToken({
                 ...baseTokenProps,
                 id: token.token_id,
                 type: TempleAssetType.FA2,
               });
             }
-          }
+          } catch {}
         }
-      } catch {}
-    };
+      }
+    } catch {}
+  }, [accountPkh, networkId, addToken, allTokens, tezos]);
 
-    const timeout = setTimeout(syncTokens);
+  const syncTokensRef = React.useRef(syncTokens);
+  React.useEffect(() => {
+    syncTokensRef.current = syncTokens;
+  }, [syncTokens]);
+
+  React.useEffect(() => {
+    if (!networkId) {
+      return;
+    }
+
+    const timeout = setTimeout(syncTokensRef.current);
     return () => clearTimeout(timeout);
-  }, [accountPkh, networkId, addToken, assetsRef, hiddenTokens, tezos]);
+  }, [networkId, accountPkh]);
 
   return null;
 };
