@@ -2,7 +2,7 @@ import { encryptAndSaveMany, fetchAndDecryptOne, isStored, removeMany } from "./
 import { generateKey } from "../passworder";
 import { browser } from "webextension-polyfill-ts";
 
-let storageKey = "test"
+const storageKey = "test"
 let passKey: CryptoKey
 
 
