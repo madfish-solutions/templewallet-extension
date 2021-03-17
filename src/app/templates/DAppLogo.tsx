@@ -1,5 +1,9 @@
-import classNames from "clsx";
 import React, { CSSProperties, memo, useCallback, useMemo, useState } from "react";
+
+import classNames from "clsx";
+
+
+
 import Identicon from "app/atoms/Identicon";
 
 type DAppLogoProps = {

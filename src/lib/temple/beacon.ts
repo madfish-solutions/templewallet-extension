@@ -1,6 +1,7 @@
-import { browser } from "webextension-polyfill-ts";
 import { Buffer } from "buffer";
 import * as sodium from "libsodium-wrappers";
+import { browser } from "webextension-polyfill-ts";
+
 import * as bs58check from "bs58check";
 
 export interface AppMetadata {

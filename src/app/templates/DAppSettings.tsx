@@ -1,20 +1,25 @@
 import * as React from "react";
+
 import classNames from "clsx";
+
+
+
+import FormCheckbox from "app/atoms/FormCheckbox";
+import Name from "app/atoms/Name";
+import { ReactComponent as CloseIcon } from "app/icons/close.svg";
+import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import DAppLogo from "app/templates/DAppLogo";
+import HashChip from "app/templates/HashChip";
+import { T, t } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   useStorage,
   TempleSharedStorageKey,
   useTempleClient,
 } from "lib/temple/front";
 import { TempleDAppSession, TempleDAppSessions } from "lib/temple/types";
-import { T, t } from "lib/i18n/react";
 import { useConfirm } from "lib/ui/dialog";
-import { useRetryableSWR } from "lib/swr";
-import DAppLogo from "app/templates/DAppLogo";
-import FormCheckbox from "app/atoms/FormCheckbox";
-import { ReactComponent as CloseIcon } from "app/icons/close.svg";
-import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
-import HashChip from "app/templates/HashChip";
-import Name from "app/atoms/Name";
+
 
 type DAppEntry = [string, TempleDAppSession];
 type DAppActions = {

@@ -1,6 +1,12 @@
 import * as React from "react";
+
 import classNames from "clsx";
-import { Link } from "lib/woozie";
+
+
+
+import { useAppEnv } from "app/env";
+import { ReactComponent as ErrorIcon } from "app/icons/error.svg";
+import { T } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
   useTezos,
@@ -8,9 +14,7 @@ import {
   loadChainId,
   useTempleClient,
 } from "lib/temple/front";
-import { T } from "lib/i18n/react";
-import { useAppEnv } from "app/env";
-import { ReactComponent as ErrorIcon } from "app/icons/error.svg";
+import { Link } from "lib/woozie";
 
 const ConditionalNoLambdaViewContractAlert: React.FC = () => {
   const { ready } = useTempleClient();

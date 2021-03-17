@@ -1,7 +1,17 @@
 import * as React from "react";
+
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { navigate } from "lib/woozie";
+
+
+import Alert from "app/atoms/Alert";
+import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { ReactComponent as LinkIcon } from "app/icons/link.svg";
+import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import PageLayout from "app/layouts/PageLayout";
+import { T, t } from "lib/i18n/react";
 import {
   useTempleClient,
   useSetAccountPkh,
@@ -9,14 +19,7 @@ import {
   TempleAccountType,
   validateDerivationPath,
 } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
-import PageLayout from "app/layouts/PageLayout";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import FormField from "app/atoms/FormField";
-import Alert from "app/atoms/Alert";
-import { ReactComponent as LinkIcon } from "app/icons/link.svg";
-import { ReactComponent as OkIcon } from "app/icons/ok.svg";
-import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
+import { navigate } from "lib/woozie";
 
 type FormData = {
   name: string;

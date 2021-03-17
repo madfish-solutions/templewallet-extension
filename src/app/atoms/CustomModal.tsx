@@ -1,6 +1,8 @@
 import * as React from "react";
+
 import classNames from "clsx";
 import Modal from "react-modal";
+
 
 export type CustomModalProps = Modal.Props & {
   children?: React.ReactChild | React.ReactChild[];

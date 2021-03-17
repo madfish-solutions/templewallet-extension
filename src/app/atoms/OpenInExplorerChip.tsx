@@ -1,7 +1,11 @@
-import classNames from "clsx";
 import React, { FC, useMemo } from "react";
-import useTippy from "lib/ui/useTippy";
+
+import classNames from "clsx";
+
+
+
 import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
+import useTippy from "lib/ui/useTippy";
 
 type OpenInExplorerChipProps = {
   baseUrl: string;

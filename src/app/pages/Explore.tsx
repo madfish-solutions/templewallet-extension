@@ -1,12 +1,20 @@
 import * as React from "react";
+
 import classNames from "clsx";
-import {
-  Link,
-  Redirect,
-  useLocation,
-  navigate,
-  HistoryAction,
-} from "lib/woozie";
+
+
+
+import Spinner from "app/atoms/Spinner";
+import { useAppEnv } from "app/env";
+import ErrorBoundary from "app/ErrorBoundary";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
+import { ReactComponent as QRIcon } from "app/icons/qr.svg";
+import { ReactComponent as SendIcon } from "app/icons/send.svg";
+import PageLayout from "app/layouts/PageLayout";
+import AssetInfo from "app/templates/AssetInfo";
+import OperationHistory from "app/templates/OperationHistory";
+import { T, t } from "lib/i18n/react";
 import {
   getAssetKey,
   TempleAccountType,
@@ -16,24 +24,21 @@ import {
   useAssetBySlug,
   TEZ_ASSET,
 } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
 import useTippy from "lib/ui/useTippy";
-import { useAppEnv } from "app/env";
-import ErrorBoundary from "app/ErrorBoundary";
-import PageLayout from "app/layouts/PageLayout";
-import OperationHistory from "app/templates/OperationHistory";
-import AssetInfo from "app/templates/AssetInfo";
-import Spinner from "app/atoms/Spinner";
-import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
-import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
-import { ReactComponent as QRIcon } from "app/icons/qr.svg";
-import { ReactComponent as SendIcon } from "app/icons/send.svg";
-import EditableTitle from "./Explore/EditableTitle";
+import {
+  Link,
+  Redirect,
+  useLocation,
+  navigate,
+  HistoryAction,
+} from "lib/woozie";
+
 import AddressChip from "./Explore/AddressChip";
-import MainAssetBanner from "./Explore/MainAssetBanner";
-import BakingSection from "./Explore/BakingSection";
-import Assets from "./Explore/Assets";
 import AddUnknownTokens from "./Explore/AddUnknownTokens";
+import Assets from "./Explore/Assets";
+import BakingSection from "./Explore/BakingSection";
+import EditableTitle from "./Explore/EditableTitle";
+import MainAssetBanner from "./Explore/MainAssetBanner";
 
 type ExploreProps = {
   assetSlug?: string | null;

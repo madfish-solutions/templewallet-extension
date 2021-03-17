@@ -1,11 +1,15 @@
 import * as React from "react";
+
 import classNames from "clsx";
-import { useTempleClient, useAccount } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
-import { useAlert } from "lib/ui/dialog";
-import Name from "app/atoms/Name";
+
+
+
 import FormField from "app/atoms/FormField";
+import Name from "app/atoms/Name";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
+import { T, t } from "lib/i18n/react";
+import { useTempleClient, useAccount } from "lib/temple/front";
+import { useAlert } from "lib/ui/dialog";
 
 const EditableTitle: React.FC = () => {
   const { editAccountName } = useTempleClient();

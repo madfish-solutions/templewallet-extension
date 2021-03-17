@@ -1,10 +1,14 @@
 import * as React from "react";
+
 import classNames from "clsx";
+
+
+
+import FormField from "app/atoms/FormField";
+import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import { T } from "lib/i18n/react";
 import { TempleAsset, TempleAssetType } from "lib/temple/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
-import FormField from "app/atoms/FormField";
-import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 
 type AssetInfoProps = {
   asset: TempleAsset;

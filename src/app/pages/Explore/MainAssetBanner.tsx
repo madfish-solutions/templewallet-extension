@@ -1,11 +1,15 @@
 import * as React from "react";
+
 import classNames from "clsx";
-import { TempleAsset } from "lib/temple/front";
+
+
+
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
 import AssetIcon from "app/templates/AssetIcon";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
-import Name from "app/atoms/Name";
-import Money from "app/atoms/Money";
+import { TempleAsset } from "lib/temple/front";
 
 type MainAssetBannerProps = {
   asset: TempleAsset;

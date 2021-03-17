@@ -1,21 +1,22 @@
 import * as React from "react";
-import * as Woozie from "lib/woozie";
-import { useTempleClient } from "lib/temple/front";
+
 import { useAppEnv, OpenInFullPage } from "app/env";
-import Unlock from "app/pages/Unlock";
-import Welcome from "app/pages/Welcome";
-import ImportWallet from "app/pages/ImportWallet";
-import CreateWallet from "app/pages/CreateWallet";
+import AddToken from "app/pages/AddToken";
+import ConnectLedger from "app/pages/ConnectLedger";
 import CreateAccount from "app/pages/CreateAccount";
-import ImportAccount from "app/pages/ImportAccount";
+import CreateWallet from "app/pages/CreateWallet";
+import Delegate from "app/pages/Delegate";
 import Explore from "app/pages/Explore";
+import ImportAccount from "app/pages/ImportAccount";
+import ImportWallet from "app/pages/ImportWallet";
+import ManageAssets from "app/pages/ManageAssets";
 import Receive from "app/pages/Receive";
 import Send from "app/pages/Send";
-import Delegate from "app/pages/Delegate";
-import ManageAssets from "app/pages/ManageAssets";
-import AddToken from "app/pages/AddToken";
 import Settings from "app/pages/Settings";
-import ConnectLedger from "app/pages/ConnectLedger";
+import Unlock from "app/pages/Unlock";
+import Welcome from "app/pages/Welcome";
+import { useTempleClient } from "lib/temple/front";
+import * as Woozie from "lib/woozie";
 
 interface RouteContext {
   popup: boolean;

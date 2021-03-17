@@ -1,11 +1,38 @@
 import * as React from "react";
+
+import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
+import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
-import BigNumber from "bignumber.js";
-import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
-import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
-import { navigate, HistoryAction } from "lib/woozie";
+
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import Alert from "app/atoms/Alert";
+import AssetField from "app/atoms/AssetField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
+import NoSpaceField from "app/atoms/NoSpaceField";
+import Spinner from "app/atoms/Spinner";
+import {
+  ArtificialError,
+  NotEnoughFundsError,
+  ZeroBalanceError,
+  ZeroTEZBalanceError,
+} from "app/defaults";
+import { useAppEnv } from "app/env";
+import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
+import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
+import AssetSelect from "app/templates/AssetSelect";
+import Balance from "app/templates/Balance";
+import InUSD from "app/templates/InUSD";
+import OperationStatus from "app/templates/OperationStatus";
+import { T, t } from "lib/i18n/react";
+import { transferImplicit, transferToContract } from "lib/michelson";
 import {
   TempleAsset,
   TEZ_ASSET,
@@ -30,33 +57,8 @@ import {
   getAssetKey,
   useUSDPrice,
 } from "lib/temple/front";
-import { transferImplicit, transferToContract } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
-import { T, t } from "lib/i18n/react";
-import {
-  ArtificialError,
-  NotEnoughFundsError,
-  ZeroBalanceError,
-  ZeroTEZBalanceError,
-} from "app/defaults";
-import { useAppEnv } from "app/env";
-import AssetSelect from "app/templates/AssetSelect";
-import Balance from "app/templates/Balance";
-import InUSD from "app/templates/InUSD";
-import OperationStatus from "app/templates/OperationStatus";
-import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
-import Spinner from "app/atoms/Spinner";
-import Money from "app/atoms/Money";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import AssetField from "app/atoms/AssetField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Identicon from "app/atoms/Identicon";
-import Name from "app/atoms/Name";
-import AccountTypeBadge from "app/atoms/AccountTypeBadge";
-import Alert from "app/atoms/Alert";
-import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
-import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
-import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
+import { navigate, HistoryAction } from "lib/woozie";
 
 interface FormData {
   to: string;

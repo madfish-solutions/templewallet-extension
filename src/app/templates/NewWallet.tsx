@@ -1,21 +1,25 @@
+
 import * as React from "react";
+
+import { validateMnemonic, generateMnemonic } from "bip39";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { validateMnemonic, generateMnemonic } from "bip39";
-import { Link } from "lib/woozie";
-import { useTempleClient } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
-import { useAlert } from "lib/ui/dialog";
+
+
+import Alert from "app/atoms/Alert";
+import FormCheckbox from "app/atoms/FormCheckbox";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
   MNEMONIC_ERROR_CAPTION,
   formatMnemonic,
 } from "app/defaults";
-import Alert from "app/atoms/Alert";
-import FormField from "app/atoms/FormField";
-import FormCheckbox from "app/atoms/FormCheckbox";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { T, t } from "lib/i18n/react";
+import { useTempleClient } from "lib/temple/front";
+import { useAlert } from "lib/ui/dialog";
+import { Link } from "lib/woozie";
 
 interface FormData {
   mnemonic?: string;

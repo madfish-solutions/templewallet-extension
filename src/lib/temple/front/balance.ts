@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { useRetryableSWR } from "lib/swr";
 import {
   TempleAsset,
@@ -7,6 +8,7 @@ import {
   getAssetKey,
   ReactiveTezosToolkit,
 } from "lib/temple/front";
+
 
 type UseBalanceOptions = {
   suspense?: boolean;

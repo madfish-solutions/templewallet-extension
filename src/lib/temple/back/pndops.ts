@@ -1,7 +1,9 @@
-import { browser } from "webextension-polyfill-ts";
 import { OperationContentsAndResult } from "@taquito/rpc";
+import { browser } from "webextension-polyfill-ts";
+
 import { createQueue } from "lib/queue";
 import { TemplePendingOperation } from "lib/temple/types";
+
 
 export async function getAll(accPkh: string, netId: string) {
   const storageKey = getKey(accPkh, netId);

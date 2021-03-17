@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import styles from "./DisableOutlinesForClick.module.css";
 
 const TAB_KEY_CODE = 9;

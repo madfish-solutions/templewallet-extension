@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import CopyButton from "app/atoms/CopyButton";
 import HashShortView from "app/atoms/HashShortView";
 

@@ -1,8 +1,9 @@
 import * as React from "react";
-import { ReactComponent as PlainLogo } from "app/misc/logo.svg";
+
 import { ReactComponent as LogoTitle } from "app/misc/logo-title.svg";
-import { ReactComponent as WhiteLogo } from "app/misc/logo-white.svg";
 import { ReactComponent as WhiteLogoTitle } from "app/misc/logo-white-title.svg";
+import { ReactComponent as WhiteLogo } from "app/misc/logo-white.svg";
+import { ReactComponent as PlainLogo } from "app/misc/logo.svg";
 
 type LogoProps = React.SVGProps<SVGSVGElement> & {
   hasTitle?: boolean;

@@ -1,5 +1,17 @@
 import * as React from "react";
+
 import classNames from "clsx";
+
+
+
+import Money from "app/atoms/Money";
+import GenericAssetIcon from "app/templates/AssetIcon";
+import Balance from "app/templates/Balance";
+import IconifiedSelect, {
+  IconifiedSelectOptionRenderProps,
+} from "app/templates/IconifiedSelect";
+import InUSD from "app/templates/InUSD";
+import { T } from "lib/i18n/react";
 import {
   TempleAsset,
   useAssets,
@@ -9,14 +21,6 @@ import {
   getAssetKey,
   TEZ_ASSET,
 } from "lib/temple/front";
-import { T } from "lib/i18n/react";
-import InUSD from "app/templates/InUSD";
-import GenericAssetIcon from "app/templates/AssetIcon";
-import Money from "app/atoms/Money";
-import Balance from "app/templates/Balance";
-import IconifiedSelect, {
-  IconifiedSelectOptionRenderProps,
-} from "app/templates/IconifiedSelect";
 
 type AssetSelectProps = {
   value: TempleAsset;

@@ -1,7 +1,8 @@
-import memoize from "micro-memoize";
 import { TezosToolkit, WalletContract, compose } from "@taquito/taquito";
-import { tzip16 } from "@taquito/tzip16";
 import { tzip12 } from "@taquito/tzip12";
+import { tzip16 } from "@taquito/tzip16";
+import memoize from "micro-memoize";
+
 import { TempleChainId } from "lib/temple/types";
 
 export type TokenMetadata = {

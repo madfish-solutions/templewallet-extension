@@ -1,5 +1,7 @@
 import * as React from "react";
+
 import * as ReactDOM from "react-dom";
+
 
 const Portal: React.FC = ({ children }) => {
   const portalEl = React.useMemo(() => document.createElement("div"), []);

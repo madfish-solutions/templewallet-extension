@@ -1,8 +1,20 @@
-import { WalletContract } from "@taquito/taquito";
+
 import * as React from "react";
+
+import { WalletContract } from "@taquito/taquito";
 import classNames from "clsx";
 import { Controller, FormContextValues, useForm } from "react-hook-form";
-import { navigate } from "lib/woozie";
+
+
+import Alert from "app/atoms/Alert";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import NoSpaceField from "app/atoms/NoSpaceField";
+import Spinner from "app/atoms/Spinner";
+import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import PageLayout from "app/layouts/PageLayout";
+import { T, t } from "lib/i18n/react";
+import { sanitizeImgUri } from "lib/image-uri";
 import {
   TempleToken,
   TempleAssetType,
@@ -17,17 +29,9 @@ import {
   fetchTokenMetadata,
   MetadataParseError,
 } from "lib/temple/front";
-import { sanitizeImgUri } from "lib/image-uri";
-import { T, t } from "lib/i18n/react";
-import useSafeState from "lib/ui/useSafeState";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
-import PageLayout from "app/layouts/PageLayout";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Alert from "app/atoms/Alert";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import Spinner from "app/atoms/Spinner";
-import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import useSafeState from "lib/ui/useSafeState";
+import { navigate } from "lib/woozie";
 
 const AddToken: React.FC = () => (
   <PageLayout

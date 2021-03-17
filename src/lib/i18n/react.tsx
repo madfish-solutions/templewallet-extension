@@ -1,7 +1,8 @@
 import * as React from "react";
-import { Substitutions } from "./types";
-import { toList } from "./helpers";
+
 import { getMessage } from "./core";
+import { toList } from "./helpers";
+import { Substitutions } from "./types";
 
 export * from "./index";
 

@@ -1,23 +1,27 @@
-import classNames from "clsx";
 import * as React from "react";
-import { Link } from "lib/woozie";
-import { T } from "lib/i18n/react";
-import About from "app/templates/About";
-import ActivateAccount from "app/templates/ActivateAccount";
+
+import classNames from "clsx";
+
+
+
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
-import CustomNetworksSettings from "app/templates/CustomNetworksSettings";
-import DAppSettings from "app/templates/DAppSettings";
 import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
 import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
-import PageLayout from "app/layouts/PageLayout";
-import GeneralSettings from "app/templates/GeneralSettings";
-import RemoveAccount from "app/templates/RemoveAccount";
-import RevealSecret from "app/templates/RevealSecret";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
+import PageLayout from "app/layouts/PageLayout";
+import About from "app/templates/About";
+import ActivateAccount from "app/templates/ActivateAccount";
+import CustomNetworksSettings from "app/templates/CustomNetworksSettings";
+import DAppSettings from "app/templates/DAppSettings";
+import GeneralSettings from "app/templates/GeneralSettings";
+import RemoveAccount from "app/templates/RemoveAccount";
+import RevealSecret from "app/templates/RevealSecret";
+import { T } from "lib/i18n/react";
+import { Link } from "lib/woozie";
 
 type SettingsProps = {
   tabSlug?: string | null;
