@@ -64,6 +64,8 @@
     "css-loader": "3.6.0",
     "date-fns": "2.15.0",
     "debounce-promise": "3.1.2",
+    "dexie": "3.1.0-alpha.8",
+    "dexie-react-hooks": "1.0.6",
     "dotenv": "8.2.0",
     "ed25519-hd-key": "1.1.2",
     "effector": "21.2.0",

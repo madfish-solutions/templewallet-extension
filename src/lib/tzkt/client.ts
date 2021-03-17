@@ -38,12 +38,16 @@ export const getOperations = makeQuery<
   TzktOperation[]
 >(
   (params) => `/accounts/${params.address}/operations`,
-  ({ address, type, quote, ...restParams }) => ({
-    type: (type || ["delegation", "transaction", "reveal"]).join(","),
+  ({ address, type, quote, from, to, ...restParams }) => ({
+    type: type?.join(","),
     quote: quote?.join(","),
+    "timestamp.ge": from,
+    "timestamp.lt": to,
     ...restParams,
   })
 );
+
+(window as any).getOperations = getOperations;
 
 type GetUserContractsParams = {
   account: string;
