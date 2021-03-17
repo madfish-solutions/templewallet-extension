@@ -11,6 +11,7 @@ import ImportAccount from "app/pages/ImportAccount";
 import Explore from "app/pages/Explore";
 import Receive from "app/pages/Receive";
 import Send from "app/pages/Send";
+import Swap from "app/pages/Swap";
 import Delegate from "app/pages/Delegate";
 import ManageAssets from "app/pages/ManageAssets";
 import AddToken from "app/pages/AddToken";
@@ -74,6 +75,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     "/send/:assetSlug?",
     onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />),
   ],
+  ["/swap", onlyReady(() => <Swap />)],
   ["/delegate", onlyReady(() => <Delegate />)],
   ["/manage-assets", onlyReady(() => <ManageAssets />)],
   ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],

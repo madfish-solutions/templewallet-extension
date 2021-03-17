@@ -134,6 +134,7 @@ export interface TempleAssetBase {
 export interface TempleTokenBase extends TempleAssetBase {
   address: string;
   iconUrl?: string;
+  dexterContract?: string;
 }
 
 export interface TempleTEZAsset extends TempleAssetBase {

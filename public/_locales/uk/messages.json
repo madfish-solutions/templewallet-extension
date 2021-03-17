@@ -1675,5 +1675,8 @@
   },
   "balanceTooLow": {
     "message": "Tez баланс дуже низький"
+  },
+  "swap": {
+    "message": "Обміняти"
   }
 }

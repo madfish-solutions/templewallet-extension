@@ -64,6 +64,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     iconUrl:
       "https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg",
     default: true,
+    dexterContract: "KT1BGQR7t4izzKZ7eRodKWTodAsM23P38v7N",
   },
   {
     type: TempleAssetType.FA1_2,
@@ -74,6 +75,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     fungible: true,
     iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
     default: true,
+    dexterContract: "KT1AbYeDbjjcAnV1QK7EZUUdqku77CdkTuv6",
   },
   {
     type: TempleAssetType.FA1_2,
@@ -84,6 +86,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     fungible: true,
     iconUrl: browser.runtime.getURL("misc/token-logos/wxtz.png"),
     default: true,
+    dexterContract: "KT1D56HQfMmwdopmFLTwNHFJSs6Dsg2didFo",
   },
   {
     type: TempleAssetType.FA2,
@@ -105,6 +108,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     fungible: true,
     iconUrl: browser.runtime.getURL("misc/token-logos/ethtz.png"),
     default: true,
+    dexterContract: "KT1PDrBE59Zmxnb8vXRgRAG1XmvTMTs5EDHU",
   },
   {
     type: TempleAssetType.FA1_2,
@@ -115,6 +119,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     fungible: true,
     iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
     default: true,
+    dexterContract: "KT1Tr2eG3eVmPRbymrbU2UppUmKjFPXomGG9",
   },
   {
     type: TempleAssetType.Staker,
