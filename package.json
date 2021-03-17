@@ -10,8 +10,10 @@
     "build:firefox": "cross-env TARGET_BROWSER=firefox run-s build",
     "build:opera": "cross-env TARGET_BROWSER=opera run-s build",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "ci": "yarn ts && yarn lint && yarn test:coverage"
   },
   "dependencies": {
     "@babel/core": "7.11.6",
