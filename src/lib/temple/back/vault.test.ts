@@ -7,7 +7,7 @@ const mnemonic =
     "champion lumber erupt shy hat smooth sound great spin cliff dolphin stuff";
 const accountName = "Temple";
 
-describe("Safe Storage tests", () => {
+describe("Vault tests", () => {
   beforeEach(async () => {
     await browser.storage.local.clear();
   });
@@ -96,7 +96,7 @@ describe("Safe Storage tests", () => {
     expect(settings?.lambdaContracts?.contract1!).toBe("value1")
   });
 
-  it("Sign tz1 64 bytes test", async () => {
+  it("sign tz1 64 bytes test", async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.fetchAccounts()
@@ -105,7 +105,7 @@ describe("Safe Storage tests", () => {
     expect(signer.sig).toBe("sigo2qRs669qQJnde7ZmdA2EnrS3FVEF3rS13pP1ZC9efizaBfStacNkKSQgoRZAWTEWMHYJ3UmdqqdqKKdLpTqf5D9x14yg")
   });
 
-  it("Sign tz1 32 bytes test", async () => {
+  it("sign tz1 32 bytes test", async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.fetchAccounts()
@@ -114,7 +114,7 @@ describe("Safe Storage tests", () => {
     expect(signer.sig).toBe("sigUYks4nvN3U6CdAXpzAsywHJB3vhBj8VLNsJ3dzT8rkpRQvX18uyiUAwA6T6yue9eK759zxvvEEntWyRukZa8ZM1uZv5NW")
   });
 
-  it("Sign tz2 test", async () => {
+  it("sign tz2 test", async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.fetchAccounts()
@@ -123,7 +123,7 @@ describe("Safe Storage tests", () => {
     expect(signer.sig).toBe("sigXqAu36vGDx6fmS9LW8wGSbzAcF2YjW1efYyYfQfNTk8H47HmnvLJtgwgMj5J9fdwirREqJv4NX4JiqcDC2skmBfKx1hCK")
   });
 
-  it("Sign tz2 with bytes producing public key that needs padding test", async () => {
+  it("sign tz2 with bytes producing public key that needs padding test", async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.fetchAccounts()
@@ -132,7 +132,7 @@ describe("Safe Storage tests", () => {
     expect(signer.sig).toBe("sigVVtP3inCYQYZB1Surjv7wFPukFA62pCtaow3kaYoJQGMMd2fz7P3v7dYAp2eN9FMQb6m6iASUhGfDmuSpQuFshoMEkfpA")
   });
 
-  it("Sign tz3 test", async () => {
+  it("sign tz3 test", async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.fetchAccounts()
@@ -141,7 +141,7 @@ describe("Safe Storage tests", () => {
     expect(signer.sig).toBe("sigiqbbZKEuWSB18AHBZw6jYYLfQ7tkRgPynKki7btdnJb844dm4hDgyW8FG2gS8mF41Dqq1wkrQupBuaDQbiTs6G674KWu8")
   });
 
-  it("Sign tz3 encrypted test", async () => {
+  it("sign tz3 encrypted test", async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.fetchAccounts()
@@ -151,7 +151,7 @@ describe("Safe Storage tests", () => {
   });
 
 
-  it("Sign tz3 encrypted with bytes producing signature that needs padding test", async () => {
+  it("sign tz3 encrypted with bytes producing signature that needs padding test", async () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.fetchAccounts()
