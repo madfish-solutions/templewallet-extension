@@ -1,4 +1,5 @@
 import { FC } from "react";
+
 import regexparam from "regexparam";
 
 export type Path = string;
