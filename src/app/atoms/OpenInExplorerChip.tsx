@@ -1,5 +1,5 @@
 import classNames from "clsx";
-import React from "react";
+import React, { FC, useMemo } from "react";
 import useTippy from "lib/ui/useTippy";
 import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
 
@@ -9,12 +9,12 @@ type OpenInExplorerChipProps = {
   className?: string;
 };
 
-const OpenInExplorerChip: React.FC<OpenInExplorerChipProps> = ({
+const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
   baseUrl,
   opHash,
   className,
 }) => {
-  const tippyProps = React.useMemo(
+  const tippyProps = useMemo(
     () => ({
       trigger: "mouseenter",
       hideOnClick: false,

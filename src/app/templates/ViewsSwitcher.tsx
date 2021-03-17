@@ -1,8 +1,8 @@
 import classNames from "clsx";
-import React from "react";
+import React, { FunctionComponent, memo, SVGProps } from "react";
 
 export type ViewsSwitcherItemProps = {
-  Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+  Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
   key: string;
   name: string;
 };
@@ -13,7 +13,7 @@ export type ViewsSwitcherProps = {
   onChange: (item: ViewsSwitcherItemProps) => void;
 };
 
-const ViewsSwitcher = React.memo(
+const ViewsSwitcher = memo(
   ({ activeItem, items, onChange }: ViewsSwitcherProps) => (
     <div className={classNames("flex items-center")}>
       {items.map((spf, i, arr) => {
