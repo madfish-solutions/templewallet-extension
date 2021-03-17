@@ -11,7 +11,6 @@ import {
   TempleResponse,
 } from "lib/temple/types";
 
-
 const frontStore = store.map(toFront);
 const enqueueDApp = createQueue();
 

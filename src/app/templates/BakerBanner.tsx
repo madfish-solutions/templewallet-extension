@@ -1,9 +1,7 @@
-
 import * as React from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
-
 
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";

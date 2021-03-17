@@ -7,7 +7,6 @@ import memoize from "micro-memoize";
 import { getMessage } from "lib/i18n";
 import { IntercomError } from "lib/intercom/helpers";
 
-
 export const loadChainId = memoize(fetchChainId, {
   isPromise: true,
   maxSize: 100,

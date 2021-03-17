@@ -1,10 +1,8 @@
-
 import * as React from "react";
 
 import { validateMnemonic, generateMnemonic } from "bip39";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-
 
 import Alert from "app/atoms/Alert";
 import FormCheckbox from "app/atoms/FormCheckbox";

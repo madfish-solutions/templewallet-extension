@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import Checkbox from "app/atoms/Checkbox";
 import { ReactComponent as AddIcon } from "app/icons/add-to-list.svg";
 import { ReactComponent as ControlCentreIcon } from "app/icons/control-centre.svg";

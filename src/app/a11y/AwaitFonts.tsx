@@ -3,7 +3,6 @@ import * as React from "react";
 import FontFaceObserver from "fontfaceobserver";
 import useSWR from "swr";
 
-
 type AwaitFontsProps = {
   name: string;
   weights: number[];

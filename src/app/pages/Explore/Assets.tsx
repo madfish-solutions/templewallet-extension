@@ -3,7 +3,6 @@ import * as React from "react";
 import classNames from "clsx";
 import { cache } from "swr";
 
-
 import Money from "app/atoms/Money";
 import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";

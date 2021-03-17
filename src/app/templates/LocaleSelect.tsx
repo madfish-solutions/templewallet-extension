@@ -3,7 +3,6 @@ import React, { useMemo, useCallback } from "react";
 import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
 
-
 import Flag from "app/atoms/Flag";
 import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
 

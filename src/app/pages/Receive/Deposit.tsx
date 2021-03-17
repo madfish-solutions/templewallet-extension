@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import Name from "app/atoms/Name";
 import { ReactComponent as ExchangeIcon } from "app/misc/exchange.svg";
 import { ReactComponent as FaucetIcon } from "app/misc/faucet.svg";

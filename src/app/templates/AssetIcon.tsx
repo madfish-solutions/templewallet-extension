@@ -2,13 +2,9 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import Identicon from "app/atoms/Identicon";
 import { getAssetIconUrl } from "app/defaults";
 import { TempleAsset } from "lib/temple/types";
-
-
 export type AssetIconProps = {
   asset: TempleAsset;
   className?: string;

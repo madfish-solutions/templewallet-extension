@@ -3,7 +3,6 @@ import * as React from "react";
 import classNames from "clsx";
 import useSWR from "swr";
 
-
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
 import HashChip from "app/templates/HashChip";

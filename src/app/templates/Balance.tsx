@@ -1,10 +1,8 @@
-
 import * as React from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
-
 
 import { TempleAsset, TEZ_ASSET, useBalance } from "lib/temple/front";
 

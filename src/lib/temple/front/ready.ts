@@ -1,10 +1,8 @@
-
 import * as React from "react";
 
 import { TezosToolkit } from "@taquito/taquito";
 import { Tzip16Module } from "@taquito/tzip16";
 import constate from "constate";
-
 
 import { useRetryableSWR } from "lib/swr";
 import { FastRpcClient } from "lib/taquito-fast-rpc";
@@ -19,7 +17,6 @@ import {
   useTempleClient,
   loadChainId,
 } from "lib/temple/front";
-
 
 export enum ActivationStatus {
   ActivationRequestSent,

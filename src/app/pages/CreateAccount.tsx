@@ -2,7 +2,6 @@ import * as React from "react";
 
 import { useForm } from "react-hook-form";
 
-
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";

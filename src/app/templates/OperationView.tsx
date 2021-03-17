@@ -2,8 +2,6 @@ import React, { FC, useMemo, useState } from "react";
 
 import classNames from "clsx";
 
-
-
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";

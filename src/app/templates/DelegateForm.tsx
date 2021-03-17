@@ -1,4 +1,3 @@
-
 import * as React from "react";
 
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
@@ -6,7 +5,6 @@ import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
-
 
 import Alert from "app/atoms/Alert";
 import FormSubmitButton from "app/atoms/FormSubmitButton";

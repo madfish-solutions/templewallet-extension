@@ -2,8 +2,6 @@ import * as React from "react";
 
 import constate from "constate";
 
-
-
 import { useRetryableSWR } from "lib/swr";
 import { useNetwork } from "lib/temple/front/ready";
 import { getMarketTickers } from "lib/tzstats";

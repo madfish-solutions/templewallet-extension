@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import Logo from "app/atoms/Logo";
 import { ReactComponent as EntranceIcon } from "app/icons/entrance.svg";
 import { ReactComponent as FolderAddIcon } from "app/icons/folder-add.svg";

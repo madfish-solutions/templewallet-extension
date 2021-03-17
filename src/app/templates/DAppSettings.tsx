@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import FormCheckbox from "app/atoms/FormCheckbox";
 import Name from "app/atoms/Name";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
@@ -19,7 +17,6 @@ import {
 } from "lib/temple/front";
 import { TempleDAppSession, TempleDAppSessions } from "lib/temple/types";
 import { useConfirm } from "lib/ui/dialog";
-
 
 type DAppEntry = [string, TempleDAppSession];
 type DAppActions = {

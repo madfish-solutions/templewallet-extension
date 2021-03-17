@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Name from "app/atoms/Name";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";

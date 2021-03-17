@@ -3,7 +3,6 @@ import * as React from "react";
 import constate from "constate";
 import { browser } from "webextension-polyfill-ts";
 
-
 import { createUrl } from "lib/woozie";
 
 export type AppEnvironment = {

@@ -6,7 +6,6 @@ import classNames from "clsx";
 import * as ReactDOM from "react-dom";
 import { browser } from "webextension-polyfill-ts";
 
-
 import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
 import Dialogs from "app/layouts/Dialogs";
 import { getMessage } from "lib/i18n";
@@ -18,7 +17,6 @@ import {
   useAlert,
   useConfirm,
 } from "lib/ui/dialog";
-
 
 const OptionsWrapper: React.FC = () => (
   <DialogsProvider>

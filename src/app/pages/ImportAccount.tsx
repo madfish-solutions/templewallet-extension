@@ -1,11 +1,9 @@
-
 import * as React from "react";
 
 import { validateMnemonic } from "bip39";
 import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
-
 
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";

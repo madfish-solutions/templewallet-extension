@@ -2,8 +2,6 @@ import React, { useCallback } from "react";
 
 import classNames from "clsx";
 
-
-
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 
 type Actions<K extends string | number> = { [key: string]: (id: K) => void };

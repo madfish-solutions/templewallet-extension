@@ -9,7 +9,6 @@ import {
   ReactiveTezosToolkit,
 } from "lib/temple/front";
 
-
 type UseBalanceOptions = {
   suspense?: boolean;
   networkRpc?: string;

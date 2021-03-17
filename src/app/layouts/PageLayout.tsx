@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import DocBg from "app/a11y/DocBg";
 import Spinner from "app/atoms/Spinner";
 import { useAppEnv } from "app/env";

@@ -1,9 +1,7 @@
-
 import * as React from "react";
 
 import { localForger } from "@taquito/local-forging";
 import classNames from "clsx";
-
 
 import Alert from "app/atoms/Alert";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
@@ -34,8 +32,6 @@ import {
   TEZ_ASSET,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
-
-
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;

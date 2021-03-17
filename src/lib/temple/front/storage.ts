@@ -2,7 +2,6 @@ import * as React from "react";
 
 import { browser } from "webextension-polyfill-ts";
 
-
 import { useRetryableSWR } from "lib/swr";
 
 export function useStorage<T = any>(

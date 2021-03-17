@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import Identicon from "app/atoms/Identicon";
 import Logo from "app/atoms/Logo";
 import Name from "app/atoms/Name";

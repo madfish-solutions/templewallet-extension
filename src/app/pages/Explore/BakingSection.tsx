@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
 import BakerBanner from "app/templates/BakerBanner";

@@ -3,7 +3,6 @@ import * as React from "react";
 import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
 
-
 import DocBg from "app/a11y/DocBg";
 import InternalConfiramtion from "app/templates/InternalConfiramtion";
 import { useTempleClient } from "lib/temple/front";

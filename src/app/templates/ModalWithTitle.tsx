@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import CustomModal, { CustomModalProps } from "app/atoms/CustomModal";
 import { useAppEnv } from "app/env";
 

@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 type ContentContainerProps = React.HTMLAttributes<HTMLDivElement> & {
   padding?: boolean;
 };

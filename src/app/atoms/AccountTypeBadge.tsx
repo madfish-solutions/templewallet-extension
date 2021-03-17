@@ -2,11 +2,8 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import { getAccountBadgeTitle } from "app/defaults";
 import { TempleAccount } from "lib/temple/front";
-
 
 type AccountTypeBadgeProps = {
   account: Pick<TempleAccount, "type">;
