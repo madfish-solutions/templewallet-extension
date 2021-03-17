@@ -25,7 +25,7 @@
     "https://*.tzstats.com/",
     "https://api.tezos-nodes.com/",
     "https://better-call.dev/",
-    "https://*.tzkt.io"
+    "https://*.tzkt.io/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
