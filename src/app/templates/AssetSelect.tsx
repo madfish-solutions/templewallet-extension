@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import Money from "app/atoms/Money";
 import GenericAssetIcon from "app/templates/AssetIcon";
 import Balance from "app/templates/Balance";

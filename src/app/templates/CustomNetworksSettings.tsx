@@ -3,7 +3,6 @@ import React, { FC, useCallback, useState } from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 
-
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
@@ -33,8 +32,6 @@ import {
 import { COLORS } from "lib/ui/colors";
 import { useConfirm } from "lib/ui/dialog";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
-
-
 
 type NetworkFormData = Pick<
   TempleNetwork,

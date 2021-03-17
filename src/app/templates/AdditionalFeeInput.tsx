@@ -1,10 +1,8 @@
-
 import React, { useCallback, useRef, useState } from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import { Controller, ControllerProps, FieldError } from "react-hook-form";
-
 
 import AssetField from "app/atoms/AssetField";
 import Money from "app/atoms/Money";

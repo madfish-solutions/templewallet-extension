@@ -2,8 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import BigNumber from "bignumber.js";
 
-
-
 import { InternalTransfer, OperationPreview } from "app/templates/Operation";
 import { BcdTokenTransfer } from "lib/better-call-dev";
 import { TempleAsset, TempleAssetType } from "lib/temple/types";

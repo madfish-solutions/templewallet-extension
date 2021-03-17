@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import Spinner from "app/atoms/Spinner";
 import { BCD_NETWORKS_NAMES } from "app/defaults";

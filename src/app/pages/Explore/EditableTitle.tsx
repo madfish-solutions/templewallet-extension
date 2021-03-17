@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import FormField from "app/atoms/FormField";
 import Name from "app/atoms/Name";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";

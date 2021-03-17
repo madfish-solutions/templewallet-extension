@@ -3,7 +3,6 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 
-
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -15,7 +14,6 @@ import {
   useAccount,
   TempleAccountType,
 } from "lib/temple/front";
-
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 

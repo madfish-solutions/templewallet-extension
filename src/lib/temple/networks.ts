@@ -1,7 +1,6 @@
 import { getMessage } from "lib/i18n";
 import { TempleNetwork } from "lib/temple/types";
 
-
 export const NETWORKS: TempleNetwork[] = [
   {
     id: "mainnet",

@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
 import AssetIcon from "app/templates/AssetIcon";

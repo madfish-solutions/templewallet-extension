@@ -1,9 +1,7 @@
-
 import React, { ComponentType, forwardRef, HTMLAttributes, ReactNode, useCallback } from "react";
 
 import { Modifier } from "@popperjs/core";
 import classNames from "clsx";
-
 
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";

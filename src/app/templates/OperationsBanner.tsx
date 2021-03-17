@@ -3,7 +3,6 @@ import * as React from "react";
 import classNames from "clsx";
 import ReactJson from "react-json-view";
 
-
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";

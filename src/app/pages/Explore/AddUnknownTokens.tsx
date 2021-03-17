@@ -1,9 +1,6 @@
-
 import * as React from "react";
 
 import BigNumber from "bignumber.js";
-
-
 
 import { BCD_NETWORKS_NAMES } from "app/defaults";
 import { BcdAccountToken, getAccount } from "lib/better-call-dev";

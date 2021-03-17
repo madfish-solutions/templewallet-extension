@@ -1,9 +1,7 @@
-
 import React from "react";
 
 import { TempleDAppMetadata } from "@temple-wallet/dapp/dist/types";
 import classNames from "clsx";
-
 
 import Logo from "app/atoms/Logo";
 import Name from "app/atoms/Name";

@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import CleanButton from "app/atoms/CleanButton";
 import { ReactComponent as LockAltIcon } from "app/icons/lock-alt.svg";
 import { T } from "lib/i18n/react";

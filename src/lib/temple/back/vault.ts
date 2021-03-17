@@ -37,7 +37,6 @@ import {
   TempleToken,
 } from "lib/temple/types";
 
-
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
 const DEFAULT_SETTINGS: TempleSettings = {};

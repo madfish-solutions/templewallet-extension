@@ -3,7 +3,6 @@ import * as React from "react";
 import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
 
-
 const BootAnimation: React.FC = ({ children }) => {
   const [booted, setBooted] = React.useState(false);
 

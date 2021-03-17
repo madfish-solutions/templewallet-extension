@@ -1,4 +1,3 @@
-
 import * as React from "react";
 
 import {
@@ -14,7 +13,6 @@ import { buf2hex } from "@taquito/utils";
 import constate from "constate";
 import { nanoid } from "nanoid";
 
-
 import { IntercomClient } from "lib/intercom";
 import { useRetryableSWR } from "lib/swr";
 import { useStorage } from "lib/temple/front";
@@ -28,7 +26,6 @@ import {
   TempleSettings,
 } from "lib/temple/types";
 import toBuffer from "typedarray-to-buffer";
-
 
 type Confirmation = {
   id: string;

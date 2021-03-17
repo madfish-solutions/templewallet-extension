@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 
 type SubTitleProps = React.HTMLAttributes<HTMLHeadingElement> & {

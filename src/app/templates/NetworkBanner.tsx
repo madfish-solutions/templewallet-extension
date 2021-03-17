@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import Name from "app/atoms/Name";
 import { T } from "lib/i18n/react";
 import { useAllNetworks } from "lib/temple/front";

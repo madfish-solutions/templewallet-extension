@@ -1,9 +1,7 @@
-
 import * as React from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
-
 
 import { t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";

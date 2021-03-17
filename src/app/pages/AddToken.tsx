@@ -1,10 +1,8 @@
-
 import * as React from "react";
 
 import { WalletContract } from "@taquito/taquito";
 import classNames from "clsx";
 import { Controller, FormContextValues, useForm } from "react-hook-form";
-
 
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";

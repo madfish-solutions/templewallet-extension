@@ -10,8 +10,6 @@ import {
 } from "lib/temple/contract";
 import { mutezToTz } from "lib/temple/helpers";
 import { TempleAsset, TempleToken, TempleAssetType } from "lib/temple/types";
-
-
 export const TEZ_ASSET: TempleAsset = {
   type: TempleAssetType.TEZ,
   name: "Tezos",

@@ -2,8 +2,6 @@ import React, { FC, Fragment, memo, useMemo } from "react";
 
 import classNames from "clsx";
 
-
-
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
 import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";

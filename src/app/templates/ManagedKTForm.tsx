@@ -3,7 +3,6 @@ import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from "re
 import classNames from "clsx";
 import { Controller, useForm } from "react-hook-form";
 
-
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import FormSubmitButton from "app/atoms/FormSubmitButton";

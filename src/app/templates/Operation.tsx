@@ -1,10 +1,8 @@
-
 import React, { FC, memo, ReactElement, useEffect, useMemo, useState } from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
-
 
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";

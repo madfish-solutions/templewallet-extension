@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
 import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";

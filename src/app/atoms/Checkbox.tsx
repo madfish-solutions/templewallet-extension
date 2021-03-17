@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 
 type CheckboxProps = React.InputHTMLAttributes<HTMLInputElement> & {

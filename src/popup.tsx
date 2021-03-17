@@ -5,7 +5,6 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { browser } from "webextension-polyfill-ts";
 
-
 import App from "app/App";
 import { WindowType, openInFullPage } from "app/env";
 import { isPopupModeEnabled } from "lib/popup-mode";

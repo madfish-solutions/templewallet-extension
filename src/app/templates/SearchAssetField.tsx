@@ -2,8 +2,6 @@ import * as React from "react";
 
 import classNames from "clsx";
 
-
-
 import CleanButton from "app/atoms/CleanButton";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { t } from "lib/i18n/react";

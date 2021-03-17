@@ -8,7 +8,6 @@ import { useTezos, useBlockTriggers , isKnownChainId, useChainId } from "lib/tem
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import useSafeState from "lib/ui/useSafeState";
 
-
 type OperationStatusProps = {
   typeTitle: string;
   operation: any;

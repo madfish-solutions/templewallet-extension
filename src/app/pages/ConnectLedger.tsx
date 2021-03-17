@@ -3,7 +3,6 @@ import * as React from "react";
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 
-
 import Alert from "app/atoms/Alert";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import FormField from "app/atoms/FormField";
