@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, FC } from "react";
 
 import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
@@ -83,7 +83,7 @@ const localeIsDisabled = ({ disabled }: LocaleOption) => !!disabled;
 
 const getLocaleCode = ({ code }: LocaleOption) => code;
 
-const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
+const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
   const selectedLocale = getCurrentLocale();
 
   const value = useMemo(
@@ -127,7 +127,7 @@ const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
 
 export default LocaleSelect;
 
-const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
+const LocaleIcon: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
   option: { flagName, code },
 }) => (
   <Flag
@@ -137,7 +137,7 @@ const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
   />
 );
 
-const LocaleInMenuContent: React.FC<
+const LocaleInMenuContent: FC<
   IconifiedSelectOptionRenderProps<LocaleOption>
 > = ({ option: { disabled, label } }) => {
   return (
@@ -167,7 +167,7 @@ const LocaleInMenuContent: React.FC<
   );
 };
 
-const LocaleSelectContent: React.FC<
+const LocaleSelectContent: FC<
   IconifiedSelectOptionRenderProps<LocaleOption>
 > = ({ option }) => {
   return (

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { FC, useCallback } from "react";
 
 import AlertModal from "app/templates/AlertModal";
 import ConfirmationModal from "app/templates/ConfirmationModal";
@@ -8,7 +8,7 @@ import {
   useModalsParams,
 } from "lib/ui/dialog";
 
-const Dialogs: React.FC = () => {
+const Dialogs: FC = () => {
   const { alertParams, confirmParams } = useModalsParams();
 
   const handleConfirmationModalClose = useCallback(() => {

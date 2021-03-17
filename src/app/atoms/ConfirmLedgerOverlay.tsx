@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC } from "react";
 
 import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
@@ -10,7 +10,7 @@ type ConfirmLedgerOverlayProps = {
   displayed: boolean;
 };
 
-const ConfirmLedgerOverlay: React.FC<ConfirmLedgerOverlayProps> = ({
+const ConfirmLedgerOverlay: FC<ConfirmLedgerOverlayProps> = ({
   displayed,
 }) => (
   <CSSTransition

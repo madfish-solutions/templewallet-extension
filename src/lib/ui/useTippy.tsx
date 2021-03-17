@@ -1,12 +1,12 @@
-import * as React from "react";
+import { useEffect, useRef } from "react";
 
 import tippy, { Props, Instance } from "tippy.js";
 
 export default function useTippy<T extends HTMLElement>(props: Partial<Props>) {
-  const targetRef = React.useRef<T>(null);
-  const instanceRef = React.useRef<Instance<Props>>();
+  const targetRef = useRef<T>(null);
+  const instanceRef = useRef<Instance<Props>>();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (instanceRef.current) {
       instanceRef.current.setProps(props);
     } else if (targetRef.current) {
@@ -14,7 +14,7 @@ export default function useTippy<T extends HTMLElement>(props: Partial<Props>) {
     }
   }, [props]);
 
-  React.useEffect(
+  useEffect(
     () => () => {
       if (instanceRef.current) {
         instanceRef.current.destroy();

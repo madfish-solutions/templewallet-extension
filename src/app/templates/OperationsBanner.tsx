@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { CSSProperties, memo, ReactNode } from "react";
 
 import classNames from "clsx";
 import ReactJson from "react-json-view";
@@ -8,13 +8,13 @@ import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 type OperationsBannerProps = {
-  jsonViewStyle?: React.CSSProperties;
+  jsonViewStyle?: CSSProperties;
   opParams: any[] | { branch: string; contents: any[] } | string;
-  label?: React.ReactNode;
+  label?: ReactNode;
   className?: string;
 };
 
-const OperationsBanner = React.memo<OperationsBannerProps>(
+const OperationsBanner = memo<OperationsBannerProps>(
   ({ jsonViewStyle, opParams, label, className }) => {
     opParams =
       typeof opParams === "string" ? opParams : formatOpParams(opParams);
@@ -88,7 +88,7 @@ type CopyButtonProps = {
   toCopy: any;
 };
 
-const CopyButton = React.memo<CopyButtonProps>(({ toCopy }) => {
+const CopyButton = memo<CopyButtonProps>(({ toCopy }) => {
   const { fieldRef, copy, copied } = useCopyToClipboard<HTMLTextAreaElement>();
 
   const text =

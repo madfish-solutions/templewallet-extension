@@ -1,10 +1,10 @@
-import * as React from "react";
+import React, { FC } from "react";
 
 import Logo from "app/atoms/Logo";
 import SubTitle from "app/atoms/SubTitle";
 import { T } from "lib/i18n/react";
 
-const About: React.FC = () => (
+const About: FC = () => (
   <div className="flex flex-col items-center my-8">
     <div className="flex items-center justify-center">
       <Logo style={{ height: 60 }} />

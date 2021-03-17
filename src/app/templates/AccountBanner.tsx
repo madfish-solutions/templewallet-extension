@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { HTMLAttributes, memo, ReactNode } from "react";
 
 import classNames from "clsx";
 
@@ -10,16 +10,16 @@ import Balance from "app/templates/Balance";
 import { t } from "lib/i18n/react";
 import { TempleAccount, TEZ_ASSET } from "lib/temple/front";
 
-type AccountBannerProps = React.HTMLAttributes<HTMLDivElement> & {
+type AccountBannerProps = HTMLAttributes<HTMLDivElement> & {
   account: TempleAccount;
   displayBalance?: boolean;
   networkRpc?: string;
-  label?: React.ReactNode;
-  labelDescription?: React.ReactNode;
+  label?: ReactNode;
+  labelDescription?: ReactNode;
   labelIndent?: "sm" | "md";
 };
 
-const AccountBanner = React.memo<AccountBannerProps>(
+const AccountBanner = memo<AccountBannerProps>(
   ({
     account,
     displayBalance = true,

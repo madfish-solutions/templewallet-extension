@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -11,7 +11,7 @@ export type ConfirmationModalProps = ModalWithTitleProps & {
   onConfirm: () => void;
 };
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = (props) => {
+const ConfirmationModal: FC<ConfirmationModalProps> = (props) => {
   const { onRequestClose, children, onConfirm, ...restProps } = props;
 
   return (

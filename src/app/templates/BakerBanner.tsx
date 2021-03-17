@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { HTMLAttributes, memo, useMemo } from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
@@ -14,19 +14,19 @@ import {
   useKnownBaker,
 } from "lib/temple/front";
 
-type BakerBannerProps = React.HTMLAttributes<HTMLDivElement> & {
+type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
   bakerPkh: string;
   displayAddress?: boolean;
 };
 
-const BakerBanner = React.memo<BakerBannerProps>(
+const BakerBanner = memo<BakerBannerProps>(
   ({ bakerPkh, displayAddress = true, className, style }) => {
     const allAccounts = useRelevantAccounts();
     const account = useAccount();
     const { data: baker } = useKnownBaker(bakerPkh);
     const assetSymbol = "tez";
 
-    const bakerAcc = React.useMemo(
+    const bakerAcc = useMemo(
       () => allAccounts.find((acc) => acc.publicKeyHash === bakerPkh) ?? null,
       [allAccounts, bakerPkh]
     );

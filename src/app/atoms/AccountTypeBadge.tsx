@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { memo } from "react";
 
 import classNames from "clsx";
 
@@ -10,7 +10,7 @@ type AccountTypeBadgeProps = {
   darkTheme?: boolean;
 };
 
-const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
+const AccountTypeBadge = memo<AccountTypeBadgeProps>(
   ({ account, darkTheme = false }) => {
     const title = getAccountBadgeTitle(account);
 

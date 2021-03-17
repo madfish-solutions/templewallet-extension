@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useCallback, useMemo } from "react";
 
 import { localForger } from "@taquito/local-forging";
 import classNames from "clsx";
@@ -38,14 +38,14 @@ type InternalConfiramtionProps = {
   onConfirm: (confirmed: boolean) => Promise<void>;
 };
 
-const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
+const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
   payload,
   onConfirm,
 }) => {
   const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
 
-  const getContentToParse = React.useCallback(async () => {
+  const getContentToParse = useCallback(async () => {
     switch (payload.type) {
       case "operations":
         return payload.opParams || [];
@@ -74,15 +74,15 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
 
   const allAccounts = useRelevantAccounts();
   const { allAssetsWithHidden } = useAssets();
-  const account = React.useMemo(
+  const account = useMemo(
     () => allAccounts.find((a) => a.publicKeyHash === payload.sourcePkh)!,
     [allAccounts, payload.sourcePkh]
   );
-  const rawExpensesData = React.useMemo(
+  const rawExpensesData = useMemo(
     () => tryParseExpenses(contentToParse!, account.publicKeyHash),
     [contentToParse, account.publicKeyHash]
   );
-  const expensesData = React.useMemo(() => {
+  const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, ...restProps }) => ({
         asset: tokenAddress
@@ -98,7 +98,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
     }));
   }, [allAssetsWithHidden, rawExpensesData]);
 
-  const signPayloadFormats = React.useMemo(() => {
+  const signPayloadFormats = useMemo(() => {
     if (payload.type === "operations") {
       return [
         {
@@ -142,7 +142,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
 
-  const confirm = React.useCallback(
+  const confirm = useCallback(
     async (confirmed: boolean) => {
       setError(null);
       try {
@@ -156,7 +156,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
     [onConfirm, setError]
   );
 
-  const handleConfirmClick = React.useCallback(async () => {
+  const handleConfirmClick = useCallback(async () => {
     if (confirming || declining) return;
 
     setConfirming(true);
@@ -164,7 +164,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
     setConfirming(false);
   }, [confirming, declining, setConfirming, confirm]);
 
-  const handleDeclineClick = React.useCallback(async () => {
+  const handleDeclineClick = useCallback(async () => {
     if (confirming || declining) return;
 
     setDeclining(true);
@@ -172,7 +172,7 @@ const InternalConfiramtion: React.FC<InternalConfiramtionProps> = ({
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
-  const handleErrorAlertClose = React.useCallback(() => setError(null), [
+  const handleErrorAlertClose = useCallback(() => setError(null), [
     setError,
   ]);
 

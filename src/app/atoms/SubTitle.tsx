@@ -1,14 +1,14 @@
-import * as React from "react";
+import React, { FC, HTMLAttributes } from "react";
 
 import classNames from "clsx";
 
 import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
 
-type SubTitleProps = React.HTMLAttributes<HTMLHeadingElement> & {
+type SubTitleProps = HTMLAttributes<HTMLHeadingElement> & {
   uppercase?: boolean;
 };
 
-const SubTitle: React.FC<SubTitleProps> = ({
+const SubTitle: FC<SubTitleProps> = ({
   className,
   children,
   uppercase = true,

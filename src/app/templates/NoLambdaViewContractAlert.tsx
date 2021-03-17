@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC } from "react";
 
 import classNames from "clsx";
 
@@ -14,14 +14,14 @@ import {
 } from "lib/temple/front";
 import { Link } from "lib/woozie";
 
-const ConditionalNoLambdaViewContractAlert: React.FC = () => {
+const ConditionalNoLambdaViewContractAlert: FC = () => {
   const { ready } = useTempleClient();
   return ready ? <NoLambdaViewContractAlert /> : null;
 };
 
 export default ConditionalNoLambdaViewContractAlert;
 
-const NoLambdaViewContractAlert: React.FC = () => {
+const NoLambdaViewContractAlert: FC = () => {
   const { fullPage } = useAppEnv();
   const tezos = useTezos();
   const network = useNetwork();

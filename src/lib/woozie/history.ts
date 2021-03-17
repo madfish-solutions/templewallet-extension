@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useLayoutEffect } from "react";
 
 import useForceUpdate from "use-force-update";
 
@@ -28,7 +28,7 @@ export function listen(listener: HistoryListener) {
 
 export function useHistory() {
   const forceUpdate = useForceUpdate();
-  React.useLayoutEffect(() => listen(forceUpdate), [forceUpdate]);
+  useLayoutEffect(() => listen(forceUpdate), [forceUpdate]);
 }
 
 export function changeState(

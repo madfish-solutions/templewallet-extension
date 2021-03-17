@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useCallback, useLayoutEffect, useState } from "react";
 
 import { validateMnemonic, generateMnemonic } from "bip39";
 import classNames from "clsx";
@@ -36,7 +36,7 @@ type NewWalletProps = {
   title: string;
 };
 
-const NewWallet: React.FC<NewWalletProps> = ({
+const NewWallet: FC<NewWalletProps> = ({
   ownMnemonic = false,
   title,
 }) => {
@@ -55,15 +55,15 @@ const NewWallet: React.FC<NewWalletProps> = ({
 
   const passwordValue = watch("password");
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (formState.dirtyFields.has("repassword")) {
       triggerValidation("repassword");
     }
   }, [triggerValidation, formState.dirtyFields, passwordValue]);
 
-  const [backupData, setBackupData] = React.useState<BackupData | null>(null);
+  const [backupData, setBackupData] = useState<BackupData | null>(null);
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async (data: FormData) => {
       if (submitting) return;
 
@@ -271,7 +271,7 @@ type BackupProps = {
   data: BackupData;
 };
 
-const Backup: React.FC<BackupProps> = ({ data }) => {
+const Backup: FC<BackupProps> = ({ data }) => {
   const { registerWallet, setSeedRevealed } = useTempleClient();
 
   const {
@@ -282,7 +282,7 @@ const Backup: React.FC<BackupProps> = ({ data }) => {
   } = useForm<BackupFormData>();
   const submitting = formState.isSubmitting;
 
-  const onSubmit = React.useCallback(async () => {
+  const onSubmit = useCallback(async () => {
     if (submitting) return;
 
     try {

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, HTMLAttributes, useCallback } from "react";
 
 import classNames from "clsx";
 
@@ -15,14 +15,14 @@ import {
 } from "lib/temple/front";
 import Popper from "lib/ui/Popper";
 
-type NetworkSelectProps = React.HTMLAttributes<HTMLDivElement>;
+type NetworkSelectProps = HTMLAttributes<HTMLDivElement>;
 
-const NetworkSelect: React.FC<NetworkSelectProps> = () => {
+const NetworkSelect: FC<NetworkSelectProps> = () => {
   const allNetworks = useAllNetworks();
   const network = useNetwork();
   const setNetworkId = useSetNetworkId();
 
-  const handleNetworkSelect = React.useCallback(
+  const handleNetworkSelect = useCallback(
     async (
       netId: string,
       rpcUrl: string,

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, HTMLAttributes, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -6,13 +6,13 @@ import { t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy from "lib/ui/useTippy";
 
-export type CopyButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
+export type CopyButtonProps = HTMLAttributes<HTMLButtonElement> & {
   text: string;
   small?: boolean;
   type?: "button" | "link";
 };
 
-const CopyButton: React.FC<CopyButtonProps> = ({
+const CopyButton: FC<CopyButtonProps> = ({
   children,
   text,
   small = false,
@@ -22,7 +22,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({
 }) => {
   const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
 
-  const tippyProps = React.useMemo(
+  const tippyProps = useMemo(
     () => ({
       trigger: "mouseenter",
       hideOnClick: false,

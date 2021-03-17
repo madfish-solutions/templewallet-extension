@@ -1,19 +1,19 @@
-import * as React from "react";
+import React, { ComponentProps, forwardRef, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
 import BigNumber from "bignumber.js";
 
 import FormField from "app/atoms/FormField";
 
-type AssetFieldProps = React.ComponentProps<typeof FormField> & {
+type AssetFieldProps = ComponentProps<typeof FormField> & {
   value?: number;
   min?: number;
   max?: number;
-  assetSymbol?: React.ReactNode;
+  assetSymbol?: ReactNode;
   assetDecimals?: number;
   onChange?: (v?: number) => void;
 };
 
-const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
+const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
   (
     {
       value,
@@ -28,21 +28,21 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
     },
     ref
   ) => {
-    const valueStr = React.useMemo(
+    const valueStr = useMemo(
       () => (value === undefined ? "" : new BigNumber(value).toFixed()),
       [value]
     );
 
-    const [localValue, setLocalValue] = React.useState(valueStr);
-    const [focused, setFocused] = React.useState(false);
+    const [localValue, setLocalValue] = useState(valueStr);
+    const [focused, setFocused] = useState(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
       if (!focused) {
         setLocalValue(valueStr);
       }
     }, [setLocalValue, focused, valueStr]);
 
-    const handleChange = React.useCallback(
+    const handleChange = useCallback(
       (evt) => {
         let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
         let numVal = +val;
@@ -62,7 +62,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
       [assetDecimals, setLocalValue, min, max, onChange]
     );
 
-    const handleFocus = React.useCallback(
+    const handleFocus = useCallback(
       (evt) => {
         setFocused(true);
         if (onFocus) {
@@ -75,7 +75,7 @@ const AssetField = React.forwardRef<HTMLInputElement, AssetFieldProps>(
       [setFocused, onFocus]
     );
 
-    const handleBlur = React.useCallback(
+    const handleBlur = useCallback(
       (evt) => {
         setFocused(false);
         if (onBlur) {

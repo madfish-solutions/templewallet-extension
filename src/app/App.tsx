@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { ComponentProps, FC, Suspense } from "react";
 
 import AwaitFonts from "app/a11y/AwaitFonts";
 import AwaitI18N from "app/a11y/AwaitI18N";
@@ -15,13 +15,13 @@ import { DialogsProvider } from "lib/ui/dialog";
 import * as Woozie from "lib/woozie";
 
 type AppProps = {
-  env: React.ComponentProps<typeof AppEnvProvider>;
+  env: ComponentProps<typeof AppEnvProvider>;
 };
 
-const App: React.FC<AppProps> = ({ env }) => (
+const App: FC<AppProps> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
     <DialogsProvider>
-      <React.Suspense fallback={<RootSuspenseFallback />}>
+      <Suspense fallback={<RootSuspenseFallback />}>
         <AppProvider env={env}>
           <Dialogs />
 
@@ -39,14 +39,14 @@ const App: React.FC<AppProps> = ({ env }) => (
             </BootAnimation>
           </AwaitFonts>
         </AppProvider>
-      </React.Suspense>
+      </Suspense>
     </DialogsProvider>
   </ErrorBoundary>
 );
 
 export default App;
 
-const AppProvider: React.FC<AppProps> = ({ children, env }) => (
+const AppProvider: FC<AppProps> = ({ children, env }) => (
   <AppEnvProvider {...env}>
     <Woozie.Provider>
       <TempleProvider>{children}</TempleProvider>

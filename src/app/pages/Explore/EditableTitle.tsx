@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, FormEventHandler, useCallback, useEffect, useRef, useState } from "react";
 
 import classNames from "clsx";
 
@@ -9,17 +9,17 @@ import { T, t } from "lib/i18n/react";
 import { useTempleClient, useAccount } from "lib/temple/front";
 import { useAlert } from "lib/ui/dialog";
 
-const EditableTitle: React.FC = () => {
+const EditableTitle: FC = () => {
   const { editAccountName } = useTempleClient();
   const account = useAccount();
   const alert = useAlert();
 
-  const [editing, setEditing] = React.useState(false);
+  const [editing, setEditing] = useState(false);
 
-  const editAccNameFieldRef = React.useRef<HTMLInputElement>(null);
-  const accNamePrevRef = React.useRef<string>();
+  const editAccNameFieldRef = useRef<HTMLInputElement>(null);
+  const accNamePrevRef = useRef<string>();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       accNamePrevRef.current &&
       accNamePrevRef.current !== account.name &&
@@ -31,30 +31,30 @@ const EditableTitle: React.FC = () => {
     accNamePrevRef.current = account.name;
   }, [account.name, editing, setEditing]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (editing) {
       editAccNameFieldRef.current?.focus();
     }
   }, [editing]);
 
-  const autoCancelTimeoutRef = React.useRef<number>();
+  const autoCancelTimeoutRef = useRef<number>();
 
-  React.useEffect(
+  useEffect(
     () => () => {
       clearTimeout(autoCancelTimeoutRef.current);
     },
     []
   );
 
-  const handleEditClick = React.useCallback(() => {
+  const handleEditClick = useCallback(() => {
     setEditing(true);
   }, [setEditing]);
 
-  const handleCancelClick = React.useCallback(() => {
+  const handleCancelClick = useCallback(() => {
     setEditing(false);
   }, [setEditing]);
 
-  const handleEditSubmit = React.useCallback<React.FormEventHandler>(
+  const handleEditSubmit = useCallback<FormEventHandler>(
     (evt) => {
       evt.preventDefault();
 
@@ -81,11 +81,11 @@ const EditableTitle: React.FC = () => {
     [account.name, editAccountName, account.publicKeyHash, alert]
   );
 
-  const handleEditFieldFocus = React.useCallback(() => {
+  const handleEditFieldFocus = useCallback(() => {
     clearTimeout(autoCancelTimeoutRef.current);
   }, []);
 
-  const handleEditFieldBlur = React.useCallback(() => {
+  const handleEditFieldBlur = useCallback(() => {
     autoCancelTimeoutRef.current = window.setTimeout(() => {
       setEditing(false);
     }, 5_000);

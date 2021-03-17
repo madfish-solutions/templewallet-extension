@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -39,9 +39,9 @@ type DepositProps = {
   address: string;
 };
 
-const Deposit: React.FC<DepositProps> = ({ address }) => {
+const Deposit: FC<DepositProps> = ({ address }) => {
   const network = useNetwork();
-  const deposits = React.useMemo(
+  const deposits = useMemo(
     () => ALL_DEPOSITS.filter((d) => d.networkType === network.type),
     [network.type]
   );

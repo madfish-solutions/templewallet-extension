@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { ComponentProps, FC } from "react";
 
 import classNames from "clsx";
 
@@ -16,7 +16,7 @@ const SIGNS = [
     Icon: ({
       className,
       ...rest
-    }: React.ComponentProps<typeof EntranceIcon>) => (
+    }: ComponentProps<typeof EntranceIcon>) => (
       <EntranceIcon
         className={classNames("transform rotate-90", className)}
         {...rest}
@@ -35,7 +35,7 @@ const SIGNS = [
   },
 ];
 
-const Welcome: React.FC = () => {
+const Welcome: FC = () => {
   return (
     <div
       className={classNames(

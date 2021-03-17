@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, HTMLAttributes, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -6,17 +6,17 @@ import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import { t } from "lib/i18n/react";
 import useTippy from "lib/ui/useTippy";
 
-type CleanButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
+type CleanButtonProps = HTMLAttributes<HTMLButtonElement> & {
   bottomOffset?: string;
 };
 
-const CleanButton: React.FC<CleanButtonProps> = ({
+const CleanButton: FC<CleanButtonProps> = ({
   bottomOffset = "0.4rem",
   className,
   style = {},
   ...rest
 }) => {
-  const tippyProps = React.useMemo(
+  const tippyProps = useMemo(
     () => ({
       trigger: "mouseenter",
       hideOnClick: false,
