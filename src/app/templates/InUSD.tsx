@@ -1,12 +1,16 @@
 import * as React from "react";
+
 import BigNumber from "bignumber.js";
+
+
+
+import Money from "app/atoms/Money";
 import {
   TempleAsset,
   TempleAssetType,
   TEZ_ASSET,
   useUSDPrice,
 } from "lib/temple/front";
-import Money from "app/atoms/Money";
 
 type InUSDProps = {
   volume: BigNumber | number | string;

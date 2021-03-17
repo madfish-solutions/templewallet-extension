@@ -1,9 +1,21 @@
+
 import * as React from "react";
+
+import { validateMnemonic } from "bip39";
 import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
-import { validateMnemonic } from "bip39";
-import { Link, navigate } from "lib/woozie";
+
+
+import Alert from "app/atoms/Alert";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import NoSpaceField from "app/atoms/NoSpaceField";
+import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
+import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
+import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import PageLayout from "app/layouts/PageLayout";
+import ManagedKTForm from "app/templates/ManagedKTForm";
 import { T, t } from "lib/i18n/react";
 import {
   useTempleClient,
@@ -20,15 +32,7 @@ import {
   useNetwork,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
-import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
-import PageLayout from "app/layouts/PageLayout";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Alert from "app/atoms/Alert";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
-import { ReactComponent as OkIcon } from "app/icons/ok.svg";
-import ManagedKTForm from "app/templates/ManagedKTForm";
+import { Link, navigate } from "lib/woozie";
 
 type ImportAccountProps = {
   tabSlug: string | null;

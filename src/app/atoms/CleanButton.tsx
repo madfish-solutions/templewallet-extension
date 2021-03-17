@@ -1,8 +1,12 @@
 import * as React from "react";
+
 import classNames from "clsx";
+
+
+
+import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import { t } from "lib/i18n/react";
 import useTippy from "lib/ui/useTippy";
-import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 
 type CleanButtonProps = React.HTMLAttributes<HTMLButtonElement> & {
   bottomOffset?: string;

@@ -1,9 +1,13 @@
+
 import * as React from "react";
-import classNames from "clsx";
+
 import BigNumber from "bignumber.js";
+import classNames from "clsx";
+
+
 import { t } from "lib/i18n/react";
-import useTippy from "lib/ui/useTippy";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
+import useTippy from "lib/ui/useTippy";
 
 type MoneyProps = {
   children: number | string | BigNumber;

@@ -1,6 +1,9 @@
 import * as React from "react";
+
 import { Instance, Options, createPopper } from "@popperjs/core";
 import useOnClickOutside from "use-onclickoutside";
+
+
 import Portal from "lib/ui/Portal";
 
 export interface PopperRenderProps {

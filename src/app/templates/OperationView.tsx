@@ -1,5 +1,16 @@
-import classNames from "clsx";
 import React, { FC, useMemo, useState } from "react";
+
+import classNames from "clsx";
+
+
+
+import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
+import { ReactComponent as HashIcon } from "app/icons/hash.svg";
+import ExpensesView from "app/templates/ExpensesView";
+import OperationsBanner from "app/templates/OperationsBanner";
+import RawPayloadView from "app/templates/RawPayloadView";
+import ViewsSwitcher from "app/templates/ViewsSwitcher";
 import { T, t } from "lib/i18n/react";
 import {
   TempleDAppPayload,
@@ -9,13 +20,6 @@ import {
   TempleAssetType,
   useTokens,
 } from "lib/temple/front";
-import OperationsBanner from "app/templates/OperationsBanner";
-import ViewsSwitcher from "app/templates/ViewsSwitcher";
-import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
-import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import { ReactComponent as HashIcon } from "app/icons/hash.svg";
-import RawPayloadView from "app/templates/RawPayloadView";
-import ExpensesView from "app/templates/ExpensesView";
 
 type OperationViewProps = {
   payload: TempleDAppPayload;

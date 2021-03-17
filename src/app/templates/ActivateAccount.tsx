@@ -1,5 +1,12 @@
 import * as React from "react";
+
 import { useForm } from "react-hook-form";
+
+
+import Alert from "app/atoms/Alert";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import AccountBanner from "app/templates/AccountBanner";
 import { T, t } from "lib/i18n/react";
 import {
   ActivationStatus,
@@ -8,10 +15,6 @@ import {
   confirmOperation,
 } from "lib/temple/front";
 import useIsMounted from "lib/ui/useIsMounted";
-import AccountBanner from "app/templates/AccountBanner";
-import Alert from "app/atoms/Alert";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
 
 type FormData = {
   secret: string;

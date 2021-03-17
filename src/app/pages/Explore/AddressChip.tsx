@@ -1,15 +1,18 @@
 import * as React from "react";
+
 import classNames from "clsx";
 import useSWR from "swr";
+
+
+import { ReactComponent as HashIcon } from "app/icons/hash.svg";
+import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
+import HashChip from "app/templates/HashChip";
 import {
   useTezos,
   useTezosDomainsClient,
   fetchFromStorage,
   putToStorage,
 } from "lib/temple/front";
-import HashChip from "app/templates/HashChip";
-import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
-import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 
 type AddressChipProps = {
   pkh: string;

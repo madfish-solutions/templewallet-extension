@@ -1,18 +1,21 @@
 import * as React from "react";
+
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
 import useSWR from "swr";
-import { useAccount, useTezos, useTezosDomainsClient } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
-import useSafeState from "lib/ui/useSafeState";
-import useCopyToClipboard from "lib/ui/useCopyToClipboard";
-import PageLayout from "app/layouts/PageLayout";
+
+
 import FormField from "app/atoms/FormField";
-import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
-import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
+import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
+import { ReactComponent as QRIcon } from "app/icons/qr.svg";
+import PageLayout from "app/layouts/PageLayout";
 import ViewsSwitcher, { ViewsSwitcherProps } from "app/templates/ViewsSwitcher";
+import { T, t } from "lib/i18n/react";
+import { useAccount, useTezos, useTezosDomainsClient } from "lib/temple/front";
+import useCopyToClipboard from "lib/ui/useCopyToClipboard";
+import useSafeState from "lib/ui/useSafeState";
 // import Deposit from "./Receive/Deposit";
 
 const ADDRESS_FIELD_VIEWS = [

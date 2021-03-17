@@ -1,16 +1,20 @@
+
 import * as React from "react";
-import classNames from "clsx";
+
 import BigNumber from "bignumber.js";
+import classNames from "clsx";
+
+
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
+import HashChip from "app/templates/HashChip";
+import { T } from "lib/i18n/react";
 import {
   useRelevantAccounts,
   useAccount,
   useKnownBaker,
 } from "lib/temple/front";
-import { T } from "lib/i18n/react";
-import Name from "app/atoms/Name";
-import HashChip from "app/templates/HashChip";
-import Identicon from "app/atoms/Identicon";
-import Money from "app/atoms/Money";
 
 type BakerBannerProps = React.HTMLAttributes<HTMLDivElement> & {
   bakerPkh: string;

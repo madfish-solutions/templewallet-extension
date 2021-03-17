@@ -1,10 +1,34 @@
+
 import * as React from "react";
+
+import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
-import BigNumber from "bignumber.js";
-import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
-import { useLocation, Link } from "lib/woozie";
+
+
+import Alert from "app/atoms/Alert";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
+import NoSpaceField from "app/atoms/NoSpaceField";
+import Spinner from "app/atoms/Spinner";
+import {
+  ArtificialError,
+  NotEnoughFundsError,
+  ZeroBalanceError,
+} from "app/defaults";
+import { useAppEnv } from "app/env";
+import { ReactComponent as ArrowUpIcon } from "app/icons/arrow-up.svg";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import tezImgUrl from "app/misc/tez.png";
+import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
+import BakerBanner from "app/templates/BakerBanner";
+import InUSD from "app/templates/InUSD";
+import OperationStatus from "app/templates/OperationStatus";
+import { T, t, getCurrentLocale } from "lib/i18n/react";
+import { setDelegate } from "lib/michelson";
 import {
   TEZ_ASSET,
   useNetwork,
@@ -22,28 +46,8 @@ import {
   TempleAccountType,
   loadContract,
 } from "lib/temple/front";
-import { T, t, getCurrentLocale } from "lib/i18n/react";
-import { setDelegate } from "lib/michelson";
 import useSafeState from "lib/ui/useSafeState";
-import {
-  ArtificialError,
-  NotEnoughFundsError,
-  ZeroBalanceError,
-} from "app/defaults";
-import { useAppEnv } from "app/env";
-import InUSD from "app/templates/InUSD";
-import OperationStatus from "app/templates/OperationStatus";
-import Spinner from "app/atoms/Spinner";
-import Money from "app/atoms/Money";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Name from "app/atoms/Name";
-import Alert from "app/atoms/Alert";
-import BakerBanner from "app/templates/BakerBanner";
-import tezImgUrl from "app/misc/tez.png";
-import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
-import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
-import { ReactComponent as ArrowUpIcon } from "app/icons/arrow-up.svg";
+import { useLocation, Link } from "lib/woozie";
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;

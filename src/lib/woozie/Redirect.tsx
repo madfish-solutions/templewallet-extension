@@ -1,10 +1,11 @@
 import * as React from "react";
+
+import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 import {
   To,
   createLocationState,
   createLocationUpdates,
 } from "lib/woozie/location";
-import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 
 type RedirectProps = {
   to: To;

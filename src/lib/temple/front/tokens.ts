@@ -1,5 +1,9 @@
 import * as React from "react";
+
 import { cache, mutate } from "swr";
+
+
+import { t } from "lib/i18n/react";
 import {
   useNetwork,
   useStorage,
@@ -13,9 +17,9 @@ import {
   MAINNET_TOKENS,
   DELPHINET_TOKENS,
 } from "lib/temple/front";
-import { t } from "lib/i18n/react";
-import { useAllNetworks } from "./ready";
+
 import { omitAssets } from "../assets";
+import { useAllNetworks } from "./ready";
 
 const NETWORK_TOKEN_MAP = new Map([
   [TempleChainId.Mainnet, MAINNET_TOKENS],

@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { TNBakerPreview, TNBaker } from "lib/tezos-nodes/types";
 
 const api = axios.create({ baseURL: "https://api.tezos-nodes.com/v1" });

@@ -1,8 +1,12 @@
+
 import * as React from "react";
-import classNames from "clsx";
+
 import Avatars from "@dicebear/avatars";
-import jdenticonSpirtes from "@dicebear/avatars-jdenticon-sprites";
 import botttsSprites from "@dicebear/avatars-bottts-sprites";
+import jdenticonSpirtes from "@dicebear/avatars-jdenticon-sprites";
+import classNames from "clsx";
+
+
 import initialsSprites from "lib/avatars-initials-sprites";
 
 type IdenticonProps = React.HTMLAttributes<HTMLDivElement> & {

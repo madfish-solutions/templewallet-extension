@@ -1,5 +1,8 @@
-import classNames from "clsx";
 import React, { FunctionComponent, memo, SVGProps } from "react";
+
+import classNames from "clsx";
+
+
 
 export type ViewsSwitcherItemProps = {
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;

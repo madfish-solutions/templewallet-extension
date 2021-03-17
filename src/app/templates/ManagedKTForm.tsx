@@ -1,6 +1,20 @@
 import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from "react";
+
 import classNames from "clsx";
 import { Controller, useForm } from "react-hook-form";
+
+
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import Alert from "app/atoms/Alert";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
+import NoSpaceField from "app/atoms/NoSpaceField";
+import Balance from "app/templates/Balance";
+import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import { T, t } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   TempleAccountType,
   isAddressValid,
@@ -12,17 +26,6 @@ import {
   isKnownChainId,
 } from "lib/temple/front";
 import { getOneUserContracts, TzktRelatedContract } from "lib/tzkt";
-import { T, t } from "lib/i18n/react";
-import { useRetryableSWR } from "lib/swr";
-import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
-import Balance from "app/templates/Balance";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import Identicon from "app/atoms/Identicon";
-import Name from "app/atoms/Name";
-import AccountTypeBadge from "app/atoms/AccountTypeBadge";
-import Money from "app/atoms/Money";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Alert from "app/atoms/Alert";
 
 type ImportKTAccountFormData = {
   contractAddress: string;

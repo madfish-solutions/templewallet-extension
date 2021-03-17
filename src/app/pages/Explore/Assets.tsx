@@ -1,7 +1,17 @@
 import * as React from "react";
+
 import classNames from "clsx";
 import { cache } from "swr";
-import { Link, navigate } from "lib/woozie";
+
+
+import Money from "app/atoms/Money";
+import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import { ReactComponent as SearchIcon } from "app/icons/search.svg";
+import AssetIcon from "app/templates/AssetIcon";
+import Balance from "app/templates/Balance";
+import InUSD from "app/templates/InUSD";
+import SearchAssetField from "app/templates/SearchAssetField";
 import { T } from "lib/i18n/react";
 import {
   useAssets,
@@ -11,14 +21,7 @@ import {
   useBalanceSWRKey,
   TempleAsset,
 } from "lib/temple/front";
-import Money from "app/atoms/Money";
-import AssetIcon from "app/templates/AssetIcon";
-import Balance from "app/templates/Balance";
-import InUSD from "app/templates/InUSD";
-import SearchAssetField from "app/templates/SearchAssetField";
-import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
-import { ReactComponent as SearchIcon } from "app/icons/search.svg";
-import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import { Link, navigate } from "lib/woozie";
 
 const Assets: React.FC = () => {
   const account = useAccount();

@@ -1,5 +1,6 @@
+
 import * as React from "react";
-import constate from "constate";
+
 import {
   WalletProvider,
   createOriginationOperation,
@@ -10,10 +11,12 @@ import {
   WalletTransferParams,
 } from "@taquito/taquito";
 import { buf2hex } from "@taquito/utils";
+import constate from "constate";
 import { nanoid } from "nanoid";
-import { useRetryableSWR } from "lib/swr";
-import toBuffer from "typedarray-to-buffer";
+
+
 import { IntercomClient } from "lib/intercom";
+import { useRetryableSWR } from "lib/swr";
 import { useStorage } from "lib/temple/front";
 import {
   TempleConfirmationPayload,
@@ -24,6 +27,8 @@ import {
   TempleNotification,
   TempleSettings,
 } from "lib/temple/types";
+import toBuffer from "typedarray-to-buffer";
+
 
 type Confirmation = {
   id: string;

@@ -1,7 +1,8 @@
 import { browser } from "webextension-polyfill-ts";
-import { FetchedLocaleMessages, LocaleMessages, Substitutions } from "./types";
+
 import { areLocalesEqual, processTemplate, toList } from "./helpers";
 import { getSavedLocale } from "./saving";
+import { FetchedLocaleMessages, LocaleMessages, Substitutions } from "./types";
 
 let fetchedLocaleMessages: FetchedLocaleMessages = {
   target: null,

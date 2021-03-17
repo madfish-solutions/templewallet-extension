@@ -1,12 +1,16 @@
 import * as React from "react";
+
 import classNames from "clsx";
-import { TempleAccount, TEZ_ASSET } from "lib/temple/front";
-import { t } from "lib/i18n/react";
-import Balance from "app/templates/Balance";
-import Money from "app/atoms/Money";
-import Identicon from "app/atoms/Identicon";
-import Name from "app/atoms/Name";
+
+
+
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
+import Balance from "app/templates/Balance";
+import { t } from "lib/i18n/react";
+import { TempleAccount, TEZ_ASSET } from "lib/temple/front";
 
 type AccountBannerProps = React.HTMLAttributes<HTMLDivElement> & {
   account: TempleAccount;

@@ -1,8 +1,9 @@
 import * as React from "react";
-import { t } from "lib/i18n/react";
+
+import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import PageLayout from "app/layouts/PageLayout";
 import SendForm from "app/templates/SendForm";
-import { ReactComponent as SendIcon } from "app/icons/send.svg";
+import { t } from "lib/i18n/react";
 
 type SendProps = {
   assetSlug?: string | null;

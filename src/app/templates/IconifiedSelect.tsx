@@ -1,9 +1,13 @@
+
 import React, { ComponentType, forwardRef, HTMLAttributes, ReactNode, useCallback } from "react";
-import classNames from "clsx";
+
 import { Modifier } from "@popperjs/core";
-import Popper, { PopperRenderProps } from "lib/ui/Popper";
+import classNames from "clsx";
+
+
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
+import Popper, { PopperRenderProps } from "lib/ui/Popper";
 
 export type IconifiedSelectOptionRenderProps<T> = {
   option: T;

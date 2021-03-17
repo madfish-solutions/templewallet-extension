@@ -1,7 +1,17 @@
+
+import React, { FC, memo, ReactElement, useEffect, useMemo, useState } from "react";
+
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
-import React, { FC, memo, ReactElement, useEffect, useMemo, useState } from "react";
+
+
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
+import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
+import HashChip from "app/templates/HashChip";
+import InUSD from "app/templates/InUSD";
 import { T, TProps } from "lib/i18n/react";
 import {
   TempleAsset,
@@ -10,12 +20,6 @@ import {
   useAssets,
   TEZ_ASSET,
 } from "lib/temple/front";
-import Identicon from "app/atoms/Identicon";
-import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
-import HashChip from "app/templates/HashChip";
-import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
-import Money from "app/atoms/Money";
-import InUSD from "app/templates/InUSD";
 
 export interface InternalTransfer {
   volume: BigNumber;

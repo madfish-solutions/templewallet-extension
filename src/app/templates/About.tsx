@@ -1,7 +1,8 @@
 import * as React from "react";
-import { T } from "lib/i18n/react";
+
 import Logo from "app/atoms/Logo";
 import SubTitle from "app/atoms/SubTitle";
+import { T } from "lib/i18n/react";
 
 const About: React.FC = () => (
   <div className="flex flex-col items-center my-8">

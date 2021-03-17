@@ -1,8 +1,11 @@
 import * as React from "react";
+
 import classNames from "clsx";
 import { cache } from "swr";
-import { T } from "lib/i18n/react";
+
+
 import { ReactComponent as DangerIcon } from "app/icons/danger.svg";
+import { T } from "lib/i18n/react";
 
 type ErrorBoundaryProps = {
   className?: string;

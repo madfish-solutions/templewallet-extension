@@ -1,7 +1,8 @@
 import * as React from "react";
-import { getAllBakers, getBaker } from "lib/tezos-nodes";
+
 import { useRetryableSWR } from "lib/swr";
 import { useTezos, useNetwork } from "lib/temple/front";
+import { getAllBakers, getBaker } from "lib/tezos-nodes";
 
 export function useDelegate(address: string, suspense = true) {
   const tezos = useTezos();

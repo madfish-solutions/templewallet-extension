@@ -1,8 +1,11 @@
 import * as React from "react";
+
 import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
-import { T } from "lib/i18n/react";
+
+
 import { ReactComponent as LedgerNanoIcon } from "app/misc/ledger.svg";
+import { T } from "lib/i18n/react";
 
 type ConfirmLedgerOverlayProps = {
   displayed: boolean;

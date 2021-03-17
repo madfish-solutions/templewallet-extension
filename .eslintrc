@@ -14,6 +14,36 @@
     }
   },
   "rules": {
-    "import/no-named-as-default": 0
+    "import/no-named-as-default": 0,
+    "import/order": [
+      "error",
+      {
+        "pathGroups": [
+          {
+            "pattern": "react",
+            "group": "external",
+            "position": "before"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["react"],
+        "groups": [
+          [
+            "external",
+            "builtin"
+          ],
+          "internal",
+          [
+            "parent",
+            "sibling",
+            "index"
+          ]
+        ],
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        },
+        "newlines-between": "always"
+      }
+    ]
   }
 }

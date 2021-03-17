@@ -1,4 +1,5 @@
 import React from "react";
+
 import LocaleSelect from "app/templates/LocaleSelect";
 import PopupSettings from "app/templates/PopupSettings";
 

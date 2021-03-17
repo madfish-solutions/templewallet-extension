@@ -1,8 +1,12 @@
 import * as React from "react";
+
 import classNames from "clsx";
-import { useAllNetworks } from "lib/temple/front";
-import { T } from "lib/i18n/react";
+
+
+
 import Name from "app/atoms/Name";
+import { T } from "lib/i18n/react";
+import { useAllNetworks } from "lib/temple/front";
 
 type NetworkBannerProps = {
   rpc: string;

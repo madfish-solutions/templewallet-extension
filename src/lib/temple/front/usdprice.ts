@@ -1,8 +1,12 @@
 import * as React from "react";
+
 import constate from "constate";
+
+
+
 import { useRetryableSWR } from "lib/swr";
-import { getMarketTickers } from "lib/tzstats";
 import { useNetwork } from "lib/temple/front/ready";
+import { getMarketTickers } from "lib/tzstats";
 
 const LIQUIDITY_INTERVAL = 120_000;
 

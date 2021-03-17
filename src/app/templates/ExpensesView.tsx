@@ -1,17 +1,21 @@
-import classNames from "clsx";
 import React, { FC, Fragment, memo, useMemo } from "react";
+
+import classNames from "clsx";
+
+
+
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
+import HashChip from "app/templates/HashChip";
+import InUSD from "app/templates/InUSD";
+import { T, t, TProps } from "lib/i18n/react";
 import {
   TempleAsset,
   RawOperationExpenses,
   RawOperationAssetExpense,
   TEZ_ASSET,
 } from "lib/temple/front";
-import { T, t, TProps } from "lib/i18n/react";
-import Money from "app/atoms/Money";
-import Identicon from "app/atoms/Identicon";
-import HashChip from "app/templates/HashChip";
-import InUSD from "app/templates/InUSD";
-import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, "tokenAddress"> & {
   asset: TempleAsset | string;

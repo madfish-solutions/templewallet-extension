@@ -1,6 +1,8 @@
 import * as React from "react";
-import useSWR from "swr";
+
 import FontFaceObserver from "fontfaceobserver";
+import useSWR from "swr";
+
 
 type AwaitFontsProps = {
   name: string;

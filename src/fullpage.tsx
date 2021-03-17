@@ -1,9 +1,12 @@
 import "./main.css";
 
 import * as React from "react";
+
 import * as ReactDOM from "react-dom";
-import { WindowType } from "app/env";
+
+
 import App from "app/App";
+import { WindowType } from "app/env";
 
 ReactDOM.render(
   <App env={{ windowType: WindowType.FullPage }} />,
