@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BcdTokenTransfer } from "lib/better-call-dev";
 import { TZStatsOperation } from "lib/tzstats";
 import { TempleAsset, TempleAssetType } from "lib/temple/types";
@@ -23,22 +23,22 @@ type FetchFn = (
   bcdReachedEnd: boolean;
 }>;
 export function useOpsPagination(fetchFn: FetchFn, asset?: TempleAsset) {
-  const tzStatsReachedEndRef = React.useRef(false);
-  const bcdReachedEndRef = React.useRef(false);
-  const tzStatsOpsRef = React.useRef<GroupedTzStatsOps>({});
-  const bcdOpsRef = React.useRef<GroupedBcdOps>({});
-  const [ops, setOps] = React.useState<OperationPreview[]>([]);
-  const [opsEnded, setOpsEnded] = React.useState(false);
-  const opsRef = React.useRef<OperationPreview[]>([]);
-  const pageNumberRef = React.useRef(0);
-  const bcdEndRef = React.useRef<number | undefined>(undefined);
-  const [error, setError] = React.useState<Error>();
-  const [loading, setLoading] = React.useState(true);
-  const prevFetchFn = React.useRef(fetchFn);
-  const prevAsset = React.useRef(asset);
-  const firstTimeRef = React.useRef(true);
+  const tzStatsReachedEndRef = useRef(false);
+  const bcdReachedEndRef = useRef(false);
+  const tzStatsOpsRef = useRef<GroupedTzStatsOps>({});
+  const bcdOpsRef = useRef<GroupedBcdOps>({});
+  const [ops, setOps] = useState<OperationPreview[]>([]);
+  const [opsEnded, setOpsEnded] = useState(false);
+  const opsRef = useRef<OperationPreview[]>([]);
+  const pageNumberRef = useRef(0);
+  const bcdEndRef = useRef<number | undefined>(undefined);
+  const [error, setError] = useState<Error>();
+  const [loading, setLoading] = useState(true);
+  const prevFetchFn = useRef(fetchFn);
+  const prevAsset = useRef(asset);
+  const firstTimeRef = useRef(true);
 
-  const loadOperations = React.useCallback(
+  const loadOperations = useCallback(
     async (tzStatsOffset: number, prevBcdEnd?: number) => {
       try {
         const {
@@ -77,7 +77,7 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: TempleAsset) {
     [fetchFn]
   );
 
-  const updateOpsStates = React.useCallback(
+  const updateOpsStates = useCallback(
     (
       totalTzStatsOps: GroupedTzStatsOps,
       totalBcdOps: GroupedBcdOps,
@@ -98,7 +98,7 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: TempleAsset) {
     [asset]
   );
 
-  const refresh = React.useCallback(async () => {
+  const refresh = useCallback(async () => {
     const { newBcdOps, newTzStatsOps } = await loadOperations(0, 0);
     const totalBcdOps = mergeBcdOps(bcdOpsRef.current, newBcdOps);
     const totalTzStatsOps = mergeTzStatsOps(
@@ -108,18 +108,18 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: TempleAsset) {
     updateOpsStates(totalTzStatsOps, totalBcdOps);
   }, [loadOperations, updateOpsStates]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => refresh(), 15_000);
     return () => clearInterval(interval);
   }, [refresh]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
       throw error;
     }
   }, [error]);
 
-  const loadMore = React.useCallback(async () => {
+  const loadMore = useCallback(async () => {
     setLoading(true);
     pageNumberRef.current = Math.floor(opsRef.current.length / PAGE_SIZE) + 1;
 
@@ -168,7 +168,7 @@ export function useOpsPagination(fetchFn: FetchFn, asset?: TempleAsset) {
     setLoading(false);
   }, [loadOperations, updateOpsStates, asset]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       firstTimeRef.current ||
       prevFetchFn.current !== fetchFn ||

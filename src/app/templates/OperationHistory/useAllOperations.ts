@@ -1,4 +1,4 @@
-import React from "react";
+import { useCallback } from "react";
 import {
   BcdTokenTransfers,
   BcdTokenTransfer,
@@ -28,7 +28,7 @@ export default function useAllOperations({
   networkId,
   tezOnly,
 }: GetOperationsParams) {
-  const fetchFn = React.useCallback(
+  const fetchFn = useCallback(
     async (
       tzStatsOffset: number,
       bcdEnd: number | undefined,

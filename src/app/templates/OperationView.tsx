@@ -1,5 +1,5 @@
 import classNames from "clsx";
-import React from "react";
+import React, { FC, useMemo, useState } from "react";
 import { T, t } from "lib/i18n/react";
 import {
   TempleDAppPayload,
@@ -22,11 +22,11 @@ type OperationViewProps = {
   networkRpc?: string;
 };
 
-const OperationView: React.FC<OperationViewProps> = ({
+const OperationView: FC<OperationViewProps> = ({
   payload,
   networkRpc,
 }) => {
-  const contentToParse = React.useMemo(() => {
+  const contentToParse = useMemo(() => {
     switch (payload.type) {
       case "confirm_operations":
         return (payload.rawToSign ?? payload.opParams) || [];
@@ -39,11 +39,11 @@ const OperationView: React.FC<OperationViewProps> = ({
   const account = useAccount();
   const { allTokens } = useTokens(networkRpc);
 
-  const rawExpensesData = React.useMemo(
+  const rawExpensesData = useMemo(
     () => tryParseExpenses(contentToParse, account.publicKeyHash),
     [contentToParse, account.publicKeyHash]
   );
-  const expensesData = React.useMemo(() => {
+  const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restRaw }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
         asset: tokenAddress
@@ -61,7 +61,7 @@ const OperationView: React.FC<OperationViewProps> = ({
     }));
   }, [allTokens, rawExpensesData]);
 
-  const signPayloadFormats = React.useMemo(() => {
+  const signPayloadFormats = useMemo(() => {
     const rawFormat = {
       key: "raw",
       name: t("raw"),
@@ -113,7 +113,7 @@ const OperationView: React.FC<OperationViewProps> = ({
     ];
   }, [payload, expensesData]);
 
-  const [spFormat, setSpFormat] = React.useState(signPayloadFormats[0]);
+  const [spFormat, setSpFormat] = useState(signPayloadFormats[0]);
 
   if (payload.type === "sign" && payload.preview) {
     return (

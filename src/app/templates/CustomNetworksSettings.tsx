@@ -1,5 +1,5 @@
 import classNames from "clsx";
-import React, { useCallback, useState } from "react";
+import React, { FC, useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRetryableSWR } from "lib/swr";
 import {
@@ -53,7 +53,7 @@ const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Carthagenet, "carthagenet"],
 ]);
 
-const CustomNetworksSettings: React.FC = () => {
+const CustomNetworksSettings: FC = () => {
   const { updateSettings, defaultNetworks } = useTempleClient();
   const { lambdaContracts = {}, customNetworks = [] } = useSettings();
   const [showNoLambdaWarning, setShowNoLambdaWarning] = useState(false);
@@ -309,7 +309,7 @@ const CustomNetworksSettings: React.FC = () => {
 
 export default CustomNetworksSettings;
 
-const LambdaContractSection: React.FC = () => {
+const LambdaContractSection: FC = () => {
   const { updateSettings } = useTempleClient();
   const tezos = useTezos();
   const network = useNetwork();
@@ -435,7 +435,7 @@ const LambdaContractSection: React.FC = () => {
     updateSettings,
   ]);
 
-  const handleErrorAlertClose = React.useCallback(() => {
+  const handleErrorAlertClose = useCallback(() => {
     setLambdaDeploymentError(null);
   }, [setLambdaDeploymentError]);
 
@@ -522,7 +522,7 @@ type NetworksListItemProps = {
   last: boolean;
 };
 
-const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
+const NetworksListItem: FC<NetworksListItemProps> = (props) => {
   const {
     network: { name, nameI18nKey, rpcBaseURL, color, lambdaContract },
     canRemove,

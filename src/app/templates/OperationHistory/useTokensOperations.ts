@@ -1,4 +1,4 @@
-import React from "react";
+import { useCallback } from "react";
 import { getTokenTransfers } from "lib/better-call-dev";
 import {
   getAccountWithOperations,
@@ -24,7 +24,7 @@ export default function useTokensOperations({
   networkId,
   asset,
 }: GetOperationsParams) {
-  const fetchFn = React.useCallback(
+  const fetchFn = useCallback(
     async (
       tzStatsOffset: number,
       bcdEnd: number | undefined,

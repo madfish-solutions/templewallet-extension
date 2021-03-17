@@ -7,8 +7,8 @@ import {
   mergebuf,
   prefix,
 } from "@taquito/utils";
-import sodium from "libsodium-wrappers";
-import elliptic from "elliptic";
+import * as sodium from "libsodium-wrappers";
+import * as elliptic from "elliptic";
 import toBuffer from "typedarray-to-buffer";
 import {
   LedgerSigner,
