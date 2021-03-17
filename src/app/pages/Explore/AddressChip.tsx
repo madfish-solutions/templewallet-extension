@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 
 import classNames from "clsx";
 import useSWR from "swr";
@@ -18,11 +18,11 @@ type AddressChipProps = {
   className?: string;
 };
 
-const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
+const AddressChip: FC<AddressChipProps> = ({ pkh, className }) => {
   const tezos = useTezos();
   const { resolver: domainsResolver } = useTezosDomainsClient();
 
-  const resolveDomainReverseName = React.useCallback(
+  const resolveDomainReverseName = useCallback(
     (_k: string, pkh: string) => domainsResolver.resolveAddressToName(pkh),
     [domainsResolver]
   );
@@ -33,10 +33,10 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
 
-  const [domainDisplayed, setDomainDisplayed] = React.useState(false);
-  const domainDisplayedKey = React.useMemo(() => "domain-displayed", []);
+  const [domainDisplayed, setDomainDisplayed] = useState(false);
+  const domainDisplayedKey = useMemo(() => "domain-displayed", []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
         const val = await fetchFromStorage(domainDisplayedKey);
@@ -45,7 +45,7 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
     })();
   }, [domainDisplayedKey, setDomainDisplayed]);
 
-  const handleToggleDomainClick = React.useCallback(() => {
+  const handleToggleDomainClick = useCallback(() => {
     setDomainDisplayed((d) => {
       const newValue = !d;
       putToStorage(domainDisplayedKey, newValue);

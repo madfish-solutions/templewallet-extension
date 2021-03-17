@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useCallback, useRef } from "react";
 
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
@@ -20,12 +20,12 @@ type FormData = {
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 
-const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
+const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
 
-  const formRef = React.useRef<HTMLFormElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const focusPasswordField = React.useCallback(() => {
+  const focusPasswordField = useCallback(() => {
     formRef.current
       ?.querySelector<HTMLInputElement>("input[name='password']")
       ?.focus();
@@ -41,7 +41,7 @@ const Unlock: React.FC<UnlockProps> = ({ canImportNew = true }) => {
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({ password }) => {
       if (submitting) return;
 

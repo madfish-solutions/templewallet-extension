@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, ReactElement, ReactNode } from "react";
 
 import BigNumber from "bignumber.js";
 
@@ -13,11 +13,11 @@ import {
 type InUSDProps = {
   volume: BigNumber | number | string;
   asset?: TempleAsset;
-  children: (usdVolume: React.ReactNode) => React.ReactElement;
+  children: (usdVolume: ReactNode) => ReactElement;
   roundingMode?: BigNumber.RoundingMode;
 };
 
-const InUSD: React.FC<InUSDProps> = ({
+const InUSD: FC<InUSDProps> = ({
   volume,
   asset = TEZ_ASSET,
   children,

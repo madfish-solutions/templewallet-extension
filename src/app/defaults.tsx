@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 
 import tezImgUrl from "app/misc/tez.png";
 import { BcdNetwork } from "lib/better-call-dev";

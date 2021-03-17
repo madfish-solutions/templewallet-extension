@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useCallback, useEffect, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -40,14 +40,14 @@ interface OperationHistoryProps {
   className?: string;
 }
 
-const OperationHistory: React.FC<OperationHistoryProps> = ({
+const OperationHistory: FC<OperationHistoryProps> = ({
   accountPkh,
   accountOwner,
   asset,
   className,
 }) => {
   const chainId = useChainId();
-  const tzStatsNetwork = React.useMemo(
+  const tzStatsNetwork = useMemo(
     () =>
       (chainId && isKnownChainId(chainId)
         ? TZSTATS_CHAINS.get(chainId)
@@ -55,7 +55,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     [chainId]
   );
 
-  const networkId = React.useMemo(
+  const networkId = useMemo(
     () =>
       (chainId && isKnownChainId(chainId)
         ? BCD_NETWORKS_NAMES.get(chainId)
@@ -105,7 +105,7 @@ type AllOperationsListProps = BaseOperationsListProps & {
   tezOnly?: boolean;
 };
 
-const AllOperationsList: React.FC<AllOperationsListProps> = (props) => {
+const AllOperationsList: FC<AllOperationsListProps> = (props) => {
   const { accountPkh, accountOwner, tzStatsNetwork, tezOnly } = props;
   const { ops, opsEnded, loadMore, loading } = useAllOperations(props);
 
@@ -127,7 +127,7 @@ type TokenOperationsListProps = BaseOperationsListProps & {
   asset: TempleToken;
 };
 
-const TokenOperationsList: React.FC<TokenOperationsListProps> = (props) => {
+const TokenOperationsList: FC<TokenOperationsListProps> = (props) => {
   const { accountPkh, accountOwner, asset, tzStatsNetwork } = props;
   const { ops, opsEnded, loadMore, loading } = useTokensOperations(props);
 
@@ -156,7 +156,7 @@ type GenericOperationsListProps = {
   operations: OperationPreview[];
 };
 
-const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
+const GenericOperationsList: FC<GenericOperationsListProps> = ({
   accountPkh,
   operations,
   accountOwner,
@@ -169,7 +169,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
   const { getAllPndOps, removePndOps } = useTempleClient();
   const network = useNetwork();
 
-  const fetchPendingOperations = React.useCallback(async () => {
+  const fetchPendingOperations = useCallback(async () => {
     const chainId = await loadChainId(network.rpcBaseURL);
     const sendPndOps = await getAllPndOps(accountPkh, chainId);
     const receivePndOps = accountOwner
@@ -188,7 +188,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
   useOnStorageChanged(pndOpsSWR.revalidate);
   const { pndOps, chainId } = pndOpsSWR.data!;
 
-  const pendingOperations = React.useMemo<OperationPreview[]>(
+  const pendingOperations = useMemo<OperationPreview[]>(
     () =>
       pndOps
         .map((op, index) => {
@@ -240,7 +240,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
     [pndOps, accountPkh, asset]
   );
 
-  const [uniqueOps, nonUniqueOps] = React.useMemo(() => {
+  const [uniqueOps, nonUniqueOps] = useMemo(() => {
     const unique: OperationPreview[] = [];
     const nonUnique: OperationPreview[] = [];
 
@@ -269,7 +269,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
     ];
   }, [operations, pendingOperations]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (nonUniqueOps.length > 0) {
       removePndOps(
         accountPkh,
@@ -279,7 +279,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
     }
   }, [removePndOps, accountPkh, chainId, nonUniqueOps]);
 
-  const explorerBaseUrl = React.useMemo(
+  const explorerBaseUrl = useMemo(
     () =>
       (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined) ??
       null,

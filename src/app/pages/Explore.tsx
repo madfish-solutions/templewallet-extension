@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, memo, ReactNode, Suspense, useLayoutEffect, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -42,13 +42,13 @@ type ExploreProps = {
   assetSlug?: string | null;
 };
 
-const Explore: React.FC<ExploreProps> = ({ assetSlug }) => {
+const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
   const account = useAccount();
   const asset = useAssetBySlug(assetSlug);
   const { search } = useLocation();
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
     if (asset && usp.get("after_token_added") === "true") {
       return registerBackHandler(() => {
@@ -148,7 +148,7 @@ type SendButtonProps = {
   asset: TempleAsset | null;
 };
 
-const SendButton = React.memo<SendButtonProps>(({ canSend, asset }) => {
+const SendButton = memo<SendButtonProps>(({ canSend, asset }) => {
   const tippyProps = {
     trigger: "mouseenter",
     hideOnClick: false,
@@ -199,7 +199,7 @@ const SendButton = React.memo<SendButtonProps>(({ canSend, asset }) => {
   );
 });
 
-const Delegation: React.FC = () => (
+const Delegation: FC = () => (
   <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
     <BakingSection />
   </SuspenseContainer>
@@ -209,7 +209,7 @@ type ActivityProps = {
   asset?: TempleAsset;
 };
 
-const Activity: React.FC<ActivityProps> = ({ asset }) => {
+const Activity: FC<ActivityProps> = ({ asset }) => {
   const account = useAccount();
 
   return (
@@ -229,11 +229,11 @@ const Activity: React.FC<ActivityProps> = ({ asset }) => {
 
 function useTabSlug() {
   const { search } = useLocation();
-  const tabSlug = React.useMemo(() => {
+  const tabSlug = useMemo(() => {
     const usp = new URLSearchParams(search);
     return usp.get("tab");
   }, [search]);
-  return React.useMemo(() => tabSlug, [tabSlug]);
+  return useMemo(() => tabSlug, [tabSlug]);
 }
 
 type SecondarySectionProps = {
@@ -241,18 +241,18 @@ type SecondarySectionProps = {
   className?: string;
 };
 
-const SecondarySection: React.FC<SecondarySectionProps> = ({
+const SecondarySection: FC<SecondarySectionProps> = ({
   asset,
   className,
 }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
-  const tabs = React.useMemo<
+  const tabs = useMemo<
     {
       slug: string;
       title: string;
-      Component: React.FC;
+      Component: FC;
     }[]
   >(() => {
     if (!asset) {
@@ -295,7 +295,7 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
     ];
   }, [asset]);
 
-  const { slug, Component } = React.useMemo(() => {
+  const { slug, Component } = useMemo(() => {
     const tab = tabSlug ? tabs.find((t) => t.slug === tabSlug) : null;
     return tab ?? tabs[0];
   }, [tabSlug, tabs]);
@@ -348,20 +348,20 @@ const SecondarySection: React.FC<SecondarySectionProps> = ({
 
 type SuspenseContainerProps = {
   whileMessage: string;
-  fallback?: React.ReactNode;
+  fallback?: ReactNode;
 };
 
-const SuspenseContainer: React.FC<SuspenseContainerProps> = ({
+const SuspenseContainer: FC<SuspenseContainerProps> = ({
   whileMessage,
   fallback = <SpinnerSection />,
   children,
 }) => (
   <ErrorBoundary whileMessage={whileMessage}>
-    <React.Suspense fallback={fallback}>{children}</React.Suspense>
+    <Suspense fallback={fallback}>{children}</Suspense>
   </ErrorBoundary>
 );
 
-const SpinnerSection: React.FC = () => (
+const SpinnerSection: FC = () => (
   <div className="flex justify-center my-12">
     <Spinner theme="gray" className="w-20" />
   </div>

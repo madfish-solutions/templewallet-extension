@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
@@ -41,23 +41,23 @@ const DERIVATION_PATHS = [
   },
 ];
 
-const ConnectLedger: React.FC = () => {
+const ConnectLedger: FC = () => {
   const { createLedgerAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
-  const allLedgers = React.useMemo(
+  const allLedgers = useMemo(
     () => allAccounts.filter((acc) => acc.type === TempleAccountType.Ledger),
     [allAccounts]
   );
 
-  const defaultName = React.useMemo(
+  const defaultName = useMemo(
     () => t("defaultLedgerName", String(allLedgers.length + 1)),
     [allLedgers.length]
   );
 
-  const prevAccLengthRef = React.useRef(allAccounts.length);
-  React.useEffect(() => {
+  const prevAccLengthRef = useRef(allAccounts.length);
+  useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
       setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
@@ -75,12 +75,12 @@ const ConnectLedger: React.FC = () => {
   });
   const submitting = formState.isSubmitting;
 
-  const [error, setError] = React.useState<React.ReactNode>(null);
-  const [derivationPath, setDerivationPath] = React.useState(
+  const [error, setError] = useState<ReactNode>(null);
+  const [derivationPath, setDerivationPath] = useState(
     DERIVATION_PATHS[0]
   );
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({ name, accountNumber, customDerivationPath }: FormData) => {
       if (submitting) return;
       setError(null);

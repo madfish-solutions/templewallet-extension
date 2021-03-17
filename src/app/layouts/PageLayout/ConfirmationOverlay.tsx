@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useCallback, useLayoutEffect } from "react";
 
 import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
@@ -8,7 +8,7 @@ import InternalConfiramtion from "app/templates/InternalConfiramtion";
 import { useTempleClient } from "lib/temple/front";
 import Portal from "lib/ui/Portal";
 
-const ConfirmationOverlay: React.FC = () => {
+const ConfirmationOverlay: FC = () => {
   const {
     confirmation,
     resetConfirmation,
@@ -16,7 +16,7 @@ const ConfirmationOverlay: React.FC = () => {
   } = useTempleClient();
   const displayed = Boolean(confirmation);
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (displayed) {
       const x = window.scrollX;
       const y = window.scrollY;
@@ -30,7 +30,7 @@ const ConfirmationOverlay: React.FC = () => {
     return;
   }, [displayed]);
 
-  const handleConfirm = React.useCallback(
+  const handleConfirm = useCallback(
     async (confirmed: boolean) => {
       if (confirmation) {
         await confirmInternal(confirmation.id, confirmed);

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC } from "react";
 
 import classNames from "clsx";
 
@@ -15,7 +15,7 @@ type MainAssetBannerProps = {
   className?: string;
 };
 
-const MainAssetBanner: React.FC<MainAssetBannerProps> = ({
+const MainAssetBanner: FC<MainAssetBannerProps> = ({
   asset,
   accountPkh,
   className,

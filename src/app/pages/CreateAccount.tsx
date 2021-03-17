@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useCallback, useEffect, useMemo, useRef } from "react";
 
 import { useForm } from "react-hook-form";
 
@@ -21,12 +21,12 @@ type FormData = {
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 
-const CreateAccount: React.FC = () => {
+const CreateAccount: FC = () => {
   const { createAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
-  const allHDOrImported = React.useMemo(
+  const allHDOrImported = useMemo(
     () =>
       allAccounts.filter((acc) =>
         [TempleAccountType.HD, TempleAccountType.Imported].includes(acc.type)
@@ -34,13 +34,13 @@ const CreateAccount: React.FC = () => {
     [allAccounts]
   );
 
-  const defaultName = React.useMemo(
+  const defaultName = useMemo(
     () => t("defaultAccountName", String(allHDOrImported.length + 1)),
     [allHDOrImported.length]
   );
 
-  const prevAccLengthRef = React.useRef(allAccounts.length);
-  React.useEffect(() => {
+  const prevAccLengthRef = useRef(allAccounts.length);
+  useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
       setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
@@ -59,7 +59,7 @@ const CreateAccount: React.FC = () => {
   } = useForm<FormData>({ defaultValues: { name: defaultName } });
   const submitting = formState.isSubmitting;
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({ name }) => {
       if (submitting) return;
 

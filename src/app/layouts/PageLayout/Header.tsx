@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC } from "react";
 
 import classNames from "clsx";
 
@@ -15,7 +15,7 @@ import styles from "./Header.module.css";
 import AccountDropdown from "./Header/AccountDropdown";
 import NetworkSelect from "./Header/NetworkSelect";
 
-const Header: React.FC = () => {
+const Header: FC = () => {
   const appEnv = useAppEnv();
   const { ready } = useTempleClient();
 
@@ -46,7 +46,7 @@ const Header: React.FC = () => {
 
 export default Header;
 
-const Control: React.FC = () => {
+const Control: FC = () => {
   const account = useAccount();
 
   return (

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, ReactNode, useEffect, useMemo } from "react";
 
 import Alert from "app/atoms/Alert";
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
@@ -13,20 +13,20 @@ type OperationStatusProps = {
   operation: any;
 };
 
-const OperationStatus: React.FC<OperationStatusProps> = ({
+const OperationStatus: FC<OperationStatusProps> = ({
   typeTitle,
   operation,
 }) => {
   const tezos = useTezos();
   const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
 
-  const hash = React.useMemo(() => operation.hash || operation.opHash, [
+  const hash = useMemo(() => operation.hash || operation.opHash, [
     operation,
   ]);
 
   const chainId = useChainId();
 
-  const explorerBaseUrl = React.useMemo(
+  const explorerBaseUrl = useMemo(
     () =>
       (chainId &&
         (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined)) ??
@@ -34,7 +34,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     [chainId]
   );
 
-  const descFooter = React.useMemo(
+  const descFooter = useMemo(
     () => (
       <div className="mt-2 text-xs flex items-center">
         <T id="operationHash" />:{" "}
@@ -57,7 +57,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
   const [alert, setAlert] = useSafeState<{
     type: "success" | "error";
     title: string;
-    description: React.ReactNode;
+    description: ReactNode;
   }>(() => ({
     type: "success",
     title: `${t("success")} 🛫`,
@@ -70,7 +70,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     ),
   }));
 
-  React.useEffect(() => {
+  useEffect(() => {
     const abortCtrl = new AbortController();
 
     confirmOperationAndTriggerNewBlock(tezos, hash, {

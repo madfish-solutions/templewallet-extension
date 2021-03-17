@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, HTMLAttributes, memo, useCallback, useMemo } from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
@@ -17,7 +17,7 @@ type MoneyProps = {
 const DEFAULT_CRYPTO_DECIMALS = 6;
 const ENOUGH_INT_LENGTH = 4;
 
-const Money = React.memo<MoneyProps>(
+const Money = memo<MoneyProps>(
   ({
     children,
     fiat,
@@ -80,20 +80,20 @@ const Money = React.memo<MoneyProps>(
 
 export default Money;
 
-type FullAmountTippyProps = React.HTMLAttributes<HTMLButtonElement> & {
+type FullAmountTippyProps = HTMLAttributes<HTMLButtonElement> & {
   fullAmunt: BigNumber;
 };
 
-const FullAmountTippy: React.FC<FullAmountTippyProps> = ({
+const FullAmountTippy: FC<FullAmountTippyProps> = ({
   fullAmunt,
   onClick,
   ...rest
 }) => {
-  const fullAmountStr = React.useMemo(() => fullAmunt.toFixed(), [fullAmunt]);
+  const fullAmountStr = useMemo(() => fullAmunt.toFixed(), [fullAmunt]);
 
   const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
 
-  const tippyProps = React.useMemo(
+  const tippyProps = useMemo(
     () => ({
       trigger: "mouseenter",
       hideOnClick: false,
@@ -108,7 +108,7 @@ const FullAmountTippy: React.FC<FullAmountTippyProps> = ({
 
   const ref = useTippy<HTMLSpanElement>(tippyProps);
 
-  const handleClick = React.useCallback(
+  const handleClick = useCallback(
     (evt) => {
       evt.preventDefault();
       evt.stopPropagation();

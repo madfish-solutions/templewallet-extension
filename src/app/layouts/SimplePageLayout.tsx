@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, ReactNode } from "react";
 
 import classNames from "clsx";
 
@@ -8,10 +8,10 @@ import { useAppEnv } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
 
 type SimplePageLayoutProps = {
-  title: React.ReactNode;
+  title: ReactNode;
 };
 
-const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
+const SimplePageLayout: FC<SimplePageLayoutProps> = ({
   title,
   children,
 }) => {

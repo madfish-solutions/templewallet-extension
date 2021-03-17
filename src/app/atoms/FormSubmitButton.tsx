@@ -1,15 +1,15 @@
-import * as React from "react";
+import React, { ButtonHTMLAttributes, FC } from "react";
 
 import classNames from "clsx";
 
 import Spinner from "app/atoms/Spinner";
 
-type FormSubmitButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+type FormSubmitButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
   small?: boolean;
 };
 
-const FormSubmitButton: React.FC<FormSubmitButtonProps> = ({
+const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   loading,
   small,
   disabled,

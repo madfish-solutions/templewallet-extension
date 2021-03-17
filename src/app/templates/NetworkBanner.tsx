@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -11,12 +11,12 @@ type NetworkBannerProps = {
   narrow?: boolean;
 };
 
-const NetworkBanner: React.FC<NetworkBannerProps> = ({
+const NetworkBanner: FC<NetworkBannerProps> = ({
   rpc,
   narrow = false,
 }) => {
   const allNetworks = useAllNetworks();
-  const knownNetwork = React.useMemo(
+  const knownNetwork = useMemo(
     () => allNetworks.find((n) => n.rpcBaseURL === rpc),
     [allNetworks, rpc]
   );

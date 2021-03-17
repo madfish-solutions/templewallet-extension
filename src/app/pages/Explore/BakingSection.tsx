@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { memo, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -12,7 +12,7 @@ import { Link } from "lib/woozie";
 
 import styles from "./BakingSection.module.css";
 
-const BakingSection = React.memo(() => {
+const BakingSection = memo(() => {
   const acc = useAccount();
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
   const canDelegate = acc.type !== TempleAccountType.WatchOnly;
@@ -25,7 +25,7 @@ const BakingSection = React.memo(() => {
   };
 
   const delegateButtonRef = useTippy<HTMLButtonElement>(tippyProps);
-  const commonDelegateButtonProps = React.useMemo(
+  const commonDelegateButtonProps = useMemo(
     () => ({
       className: classNames(
         "py-2 px-6 rounded",
@@ -56,7 +56,7 @@ const BakingSection = React.memo(() => {
     [canDelegate, myBakerPkh]
   );
 
-  return React.useMemo(
+  return useMemo(
     () => (
       <div
         className={classNames(

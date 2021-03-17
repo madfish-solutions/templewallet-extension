@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -26,20 +26,20 @@ type AssetSelectProps = {
   className?: string;
 };
 
-const AssetSelect: React.FC<AssetSelectProps> = ({
+const AssetSelect: FC<AssetSelectProps> = ({
   value,
   onChange,
   className,
 }) => {
   const account = useAccount();
   const { allAssets } = useAssets();
-  const relevantAssets = React.useMemo(
+  const relevantAssets = useMemo(
     () =>
       account.type === TempleAccountType.ManagedKT ? [TEZ_ASSET] : allAssets,
     [account.type, allAssets]
   );
 
-  const title = React.useMemo(
+  const title = useMemo(
     () => (
       <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
         <T id="asset">
@@ -85,17 +85,17 @@ export default AssetSelect;
 
 type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<TempleAsset>;
 
-const AssetIcon: React.FC<AssetSelectOptionRenderProps> = ({ option }) => (
+const AssetIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
   <GenericAssetIcon asset={option} className="h-8 w-auto mr-3" size={32} />
 );
 
-const AssetSelectedIcon: React.FC<AssetSelectOptionRenderProps> = ({
+const AssetSelectedIcon: FC<AssetSelectOptionRenderProps> = ({
   option,
 }) => (
   <GenericAssetIcon asset={option} className="h-12 w-auto mr-3" size={48} />
 );
 
-const AssetInMenuContent: React.FC<AssetSelectOptionRenderProps> = ({
+const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({
   option,
 }) => {
   return option.type === TempleAssetType.TEZ ? (
@@ -111,7 +111,7 @@ const AssetInMenuContent: React.FC<AssetSelectOptionRenderProps> = ({
   );
 };
 
-const AssetSelectedContent: React.FC<AssetSelectOptionRenderProps> = ({
+const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({
   option: asset,
 }) => {
   const account = useAccount();

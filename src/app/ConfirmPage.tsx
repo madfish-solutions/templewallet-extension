@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, Fragment, memo, Suspense, useCallback, useMemo, useState } from "react";
 
 import classNames from "clsx";
 
@@ -36,10 +36,10 @@ import {
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation } from "lib/woozie";
 
-const ConfirmPage: React.FC = () => {
+const ConfirmPage: FC = () => {
   const { ready } = useTempleClient();
 
-  return React.useMemo(
+  return useMemo(
     () =>
       ready ? (
         <ContentContainer
@@ -50,7 +50,7 @@ const ConfirmPage: React.FC = () => {
           )}
         >
           <ErrorBoundary whileMessage={t("fetchingConfirmationDetails")}>
-            <React.Suspense
+            <Suspense
               fallback={
                 <div className="flex items-center justify-center h-screen">
                   <div>
@@ -60,7 +60,7 @@ const ConfirmPage: React.FC = () => {
               }
             >
               <ConfirmDAppForm />
-            </React.Suspense>
+            </Suspense>
           </ErrorBoundary>
         </ContentContainer>
       ) : (
@@ -74,7 +74,7 @@ export default ConfirmPage;
 
 const getPkh = (account: TempleAccount) => account.publicKeyHash;
 
-const ConfirmDAppForm: React.FC = () => {
+const ConfirmDAppForm: FC = () => {
   const {
     getDAppPayload,
     confirmDAppPermission,
@@ -84,12 +84,12 @@ const ConfirmDAppForm: React.FC = () => {
   const allAccounts = useRelevantAccounts(false);
   const account = useAccount();
 
-  const [accountPkhToConnect, setAccountPkhToConnect] = React.useState(
+  const [accountPkhToConnect, setAccountPkhToConnect] = useState(
     account.publicKeyHash
   );
 
   const loc = useLocation();
-  const id = React.useMemo(() => {
+  const id = useMemo(() => {
     const usp = new URLSearchParams(loc.search);
     const id = usp.get("id");
     if (!id) {
@@ -106,7 +106,7 @@ const ConfirmDAppForm: React.FC = () => {
   });
   const payload = data!;
 
-  const connectedAccount = React.useMemo(
+  const connectedAccount = useMemo(
     () =>
       allAccounts.find(
         (a) =>
@@ -116,12 +116,12 @@ const ConfirmDAppForm: React.FC = () => {
     [payload, allAccounts, accountPkhToConnect]
   );
 
-  const AccountOptionContent = React.useMemo(
+  const AccountOptionContent = useMemo(
     () => AccountOptionContentHOC(payload.networkRpc),
     [payload.networkRpc]
   );
 
-  const onConfirm = React.useCallback(
+  const onConfirm = useCallback(
     async (confimed: boolean) => {
       switch (payload.type) {
         case "connect":
@@ -148,7 +148,7 @@ const ConfirmDAppForm: React.FC = () => {
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
 
-  const confirm = React.useCallback(
+  const confirm = useCallback(
     async (confirmed: boolean) => {
       setError(null);
       try {
@@ -166,7 +166,7 @@ const ConfirmDAppForm: React.FC = () => {
     [onConfirm, setError]
   );
 
-  const handleConfirmClick = React.useCallback(async () => {
+  const handleConfirmClick = useCallback(async () => {
     if (confirming || declining) return;
 
     setConfirming(true);
@@ -174,7 +174,7 @@ const ConfirmDAppForm: React.FC = () => {
     setConfirming(false);
   }, [confirming, declining, setConfirming, confirm]);
 
-  const handleDeclineClick = React.useCallback(async () => {
+  const handleDeclineClick = useCallback(async () => {
     if (confirming || declining) return;
 
     setDeclining(true);
@@ -182,11 +182,11 @@ const ConfirmDAppForm: React.FC = () => {
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
-  const handleErrorAlertClose = React.useCallback(() => setError(null), [
+  const handleErrorAlertClose = useCallback(() => setError(null), [
     setError,
   ]);
 
-  const content = React.useMemo(() => {
+  const content = useMemo(() => {
     switch (payload.type) {
       case "connect":
         return {
@@ -197,10 +197,10 @@ const ConfirmDAppForm: React.FC = () => {
             <T
               id="appWouldLikeToConnectToYourWallet"
               substitutions={[
-                <React.Fragment key="appName">
+                <Fragment key="appName">
                   <span className="font-semibold">{payload.origin}</span>
                   <br />
-                </React.Fragment>,
+                </Fragment>,
               ]}
             >
               {(message) => (
@@ -432,7 +432,7 @@ const ConfirmDAppForm: React.FC = () => {
   );
 };
 
-const AccountIcon: React.FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
+const AccountIcon: FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
   <Identicon
     type="bottts"
     hash={item.publicKeyHash}
@@ -442,7 +442,7 @@ const AccountIcon: React.FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
 );
 
 const AccountOptionContentHOC = (networkRpc: string) => {
-  return React.memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => (
+  return memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => (
     <>
       <div className="flex flex-wrap items-center">
         <Name className="text-sm font-medium leading-tight">{acc.name}</Name>

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useMemo } from "react";
 
 import { useAssets } from "lib/temple/front/assets";
 import { NewBlockTriggersProvider } from "lib/temple/front/chain";
@@ -9,16 +9,16 @@ import {
 } from "lib/temple/front/ready";
 import { USDPriceProvider } from "lib/temple/front/usdprice";
 
-export const TempleProvider: React.FC = ({ children }) => (
+export const TempleProvider: FC = ({ children }) => (
   <TempleClientProvider>
     <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
   </TempleClientProvider>
 );
 
-const ConditionalReadyTemple: React.FC = ({ children }) => {
+const ConditionalReadyTemple: FC = ({ children }) => {
   const { ready } = useTempleClient();
 
-  return React.useMemo(
+  return useMemo(
     () =>
       ready ? (
         <ReadyTempleProvider>
@@ -37,7 +37,7 @@ const ConditionalReadyTemple: React.FC = ({ children }) => {
   );
 };
 
-const PreloadAssetsProvider: React.FC = ({ children }) => {
+const PreloadAssetsProvider: FC = ({ children }) => {
   useAssets();
   return <>{children}</>;
 };

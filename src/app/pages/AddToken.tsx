@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, memo, ReactNode, useCallback, useEffect, useState } from "react";
 
 import { WalletContract } from "@taquito/taquito";
 import classNames from "clsx";
@@ -31,7 +31,7 @@ import { withErrorHumanDelay } from "lib/ui/humanDelay";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate } from "lib/woozie";
 
-const AddToken: React.FC = () => (
+const AddToken: FC = () => (
   <PageLayout
     pageTitle={
       <>
@@ -68,7 +68,7 @@ type FormData = {
   type: TempleCustomTokenType;
 };
 
-const Form: React.FC = () => {
+const Form: FC = () => {
   const { addToken } = useTokens();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
@@ -88,18 +88,18 @@ const Form: React.FC = () => {
   const contractAddress = watch("address");
   const tokenType = watch("type");
   const tokenId = watch("id");
-  const [submitError, setSubmitError] = React.useState<React.ReactNode>(null);
-  const [tokenDataError, setTokenDataError] = React.useState<React.ReactNode>(
+  const [submitError, setSubmitError] = useState<ReactNode>(null);
+  const [tokenDataError, setTokenDataError] = useState<ReactNode>(
     null
   );
   const [
     tokenValidationError,
     setTokenValidationError,
-  ] = React.useState<React.ReactNode>(null);
+  ] = useState<ReactNode>(null);
   const [bottomSectionVisible, setBottomSectionVisible] = useSafeState(false);
-  const [loadingToken, setLoadingToken] = React.useState(false);
+  const [loadingToken, setLoadingToken] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setTokenValidationError(null);
     setBottomSectionVisible(false);
     if (
@@ -192,12 +192,12 @@ const Form: React.FC = () => {
     tokenId,
   ]);
 
-  const cleanContractAddress = React.useCallback(() => {
+  const cleanContractAddress = useCallback(() => {
     setValue("address", "");
     triggerValidation("address");
   }, [setValue, triggerValidation]);
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({
       address,
       symbol,
@@ -358,7 +358,7 @@ type TokenTypeSelectProps = {
   onChange: (newValue: TempleCustomTokenType) => void;
 };
 
-const TokenTypeSelect = React.memo<TokenTypeSelectProps>((props) => {
+const TokenTypeSelect = memo<TokenTypeSelectProps>((props) => {
   const { value, onChange } = props;
 
   return (
@@ -390,10 +390,10 @@ type TokenTypeOptionProps = {
   onClick: (value: TempleCustomTokenType) => void;
 };
 
-const TokenTypeOption: React.FC<TokenTypeOptionProps> = (props) => {
+const TokenTypeOption: FC<TokenTypeOptionProps> = (props) => {
   const { active, last, value, onClick } = props;
 
-  const handleClick = React.useCallback(() => onClick(value), [onClick, value]);
+  const handleClick = useCallback(() => onClick(value), [onClick, value]);
 
   return (
     <button
@@ -423,10 +423,10 @@ type BottomSectionProps = Pick<
   FormContextValues,
   "register" | "errors" | "formState"
 > & {
-  submitError?: React.ReactNode;
+  submitError?: ReactNode;
 };
 
-const BottomSection: React.FC<BottomSectionProps> = (props) => {
+const BottomSection: FC<BottomSectionProps> = (props) => {
   const { register, errors, formState, submitError } = props;
 
   return (

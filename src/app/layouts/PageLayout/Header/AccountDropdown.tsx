@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useCallback, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -28,7 +28,7 @@ import { Link } from "lib/woozie";
 type ExcludesFalse = <T>(x: T | false) => x is T;
 type AccountDropdownProps = PopperRenderProps;
 
-const AccountDropdown: React.FC<AccountDropdownProps> = ({
+const AccountDropdown: FC<AccountDropdownProps> = ({
   opened,
   setOpened,
 }) => {
@@ -38,15 +38,15 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
 
-  const closeDropdown = React.useCallback(() => {
+  const closeDropdown = useCallback(() => {
     setOpened(false);
   }, [setOpened]);
 
-  const handleLogoutClick = React.useCallback(() => {
+  const handleLogoutClick = useCallback(() => {
     lock();
   }, [lock]);
 
-  const handleMaximiseViewClick = React.useCallback(() => {
+  const handleMaximiseViewClick = useCallback(() => {
     openInFullPage();
     if (appEnv.popup) {
       window.close();
@@ -55,7 +55,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
     }
   }, [appEnv.popup, closeDropdown]);
 
-  const actions = React.useMemo(
+  const actions = useMemo(
     () =>
       [
         {

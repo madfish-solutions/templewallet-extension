@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -25,8 +25,8 @@ type SettingsProps = {
   tabSlug?: string | null;
 };
 
-const RevealPrivateKey: React.FC = () => <RevealSecret reveal="private-key" />;
-const RevealSeedPhrase: React.FC = () => <RevealSecret reveal="seed-phrase" />;
+const RevealPrivateKey: FC = () => <RevealSecret reveal="private-key" />;
+const RevealSeedPhrase: FC = () => <RevealSecret reveal="seed-phrase" />;
 
 const TABS = [
   {
@@ -95,8 +95,8 @@ const TABS = [
   },
 ];
 
-const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
-  const activeTab = React.useMemo(
+const Settings: FC<SettingsProps> = ({ tabSlug }) => {
+  const activeTab = useMemo(
     () => TABS.find((t) => t.slug === tabSlug) || null,
     [tabSlug]
   );

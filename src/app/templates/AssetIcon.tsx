@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { CSSProperties, memo, useCallback, useState } from "react";
 
 import classNames from "clsx";
 
@@ -8,16 +8,16 @@ import { TempleAsset } from "lib/temple/types";
 export type AssetIconProps = {
   asset: TempleAsset;
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
   size?: number;
 };
 
-const AssetIcon = React.memo((props: AssetIconProps) => {
+const AssetIcon = memo((props: AssetIconProps) => {
   const { asset, className, style, size } = props;
   const assetIconUrl = getAssetIconUrl(asset);
 
-  const [imageDisplayed, setImageDisplayed] = React.useState(true);
-  const handleImageError = React.useCallback(() => {
+  const [imageDisplayed, setImageDisplayed] = useState(true);
+  const handleImageError = useCallback(() => {
     setImageDisplayed(false);
   }, [setImageDisplayed]);
 

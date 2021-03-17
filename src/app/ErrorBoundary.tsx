@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { Component, ErrorInfo } from "react";
 
 import classNames from "clsx";
 import { cache } from "swr";
@@ -15,14 +15,14 @@ type ErrorBoundaryState = {
   error: Error | null;
 };
 
-export default class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
+export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
   state: ErrorBoundaryState = { error: null };
 
   static getDerivedStateFromError(error: Error) {
     return { error: error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     if (process.env.NODE_ENV === "development") {
       console.error(error.message, errorInfo.componentStack);
     }

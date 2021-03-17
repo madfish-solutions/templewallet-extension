@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from "react";
 
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
@@ -56,7 +56,7 @@ interface FormData {
   fee: number;
 }
 
-const DelegateForm: React.FC = () => {
+const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
 
   const net = useNetwork();
@@ -77,7 +77,7 @@ const DelegateForm: React.FC = () => {
 
   const { search } = useLocation();
 
-  const bakerSortTypes = React.useMemo(
+  const bakerSortTypes = useMemo(
     () => [
       {
         key: "rank",
@@ -92,18 +92,18 @@ const DelegateForm: React.FC = () => {
     []
   );
 
-  const sortBakersBy = React.useMemo(() => {
+  const sortBakersBy = useMemo(() => {
     const usp = new URLSearchParams(search);
     const val = usp.get(SORT_BAKERS_BY_KEY);
     return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
   }, [search, bakerSortTypes]);
 
-  const pluralRules = React.useMemo(
+  const pluralRules = useMemo(
     () => new Intl.PluralRules(getCurrentLocale().replace("_", "-")),
     []
   );
 
-  const sortedKnownBakers = React.useMemo(() => {
+  const sortedKnownBakers = useMemo(() => {
     if (!knownBakers) return null;
 
     const toSort = Array.from(knownBakers);
@@ -147,14 +147,14 @@ const DelegateForm: React.FC = () => {
 
   const toValue = watch("to");
 
-  const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
+  const toFieldRef = useRef<HTMLTextAreaElement>(null);
 
-  const toFilled = React.useMemo(
+  const toFilled = useMemo(
     () => Boolean(toValue && isAddressValid(toValue) && !isKTAddress(toValue)),
     [toValue]
   );
 
-  const getEstimation = React.useCallback(
+  const getEstimation = useCallback(
     async (to: string) => {
       if (acc.type === TempleAccountType.ManagedKT) {
         const contract = await loadContract(tezos, accountPkh);
@@ -172,12 +172,12 @@ const DelegateForm: React.FC = () => {
     [tezos, accountPkh, acc.type]
   );
 
-  const cleanToField = React.useCallback(() => {
+  const cleanToField = useCallback(() => {
     setValue("to", "");
     triggerValidation("to");
   }, [setValue, triggerValidation]);
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (toFilled) {
       return registerBackHandler(() => {
         cleanToField();
@@ -187,7 +187,7 @@ const DelegateForm: React.FC = () => {
     return;
   }, [toFilled, registerBackHandler, cleanToField]);
 
-  const estimateBaseFee = React.useCallback(async () => {
+  const estimateBaseFee = useCallback(async () => {
     try {
       const balanceBN = (await mutateBalance(
         fetchBalance(tezos, TEZ_ASSET, accountPkh)
@@ -264,25 +264,25 @@ const DelegateForm: React.FC = () => {
     false
   );
 
-  const maxAddFee = React.useMemo(() => {
+  const maxAddFee = useMemo(() => {
     if (baseFee instanceof BigNumber) {
       return new BigNumber(balanceNum).minus(baseFee).minus(PENNY).toNumber();
     }
     return;
   }, [balanceNum, baseFee]);
 
-  const handleFeeFieldChange = React.useCallback(
+  const handleFeeFieldChange = useCallback(
     ([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v),
     [maxAddFee]
   );
 
-  const [submitError, setSubmitError] = useSafeState<React.ReactNode>(
+  const [submitError, setSubmitError] = useSafeState<ReactNode>(
     null,
     `${tezos.checksum}_${toValue}`
   );
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({ to, fee: feeVal }: FormData) => {
       if (formState.isSubmitting) return;
       setSubmitError(null);
@@ -346,7 +346,7 @@ const DelegateForm: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {React.useMemo(
+        {useMemo(
           () => (
             <div
               className={classNames(
@@ -747,7 +747,7 @@ type DelegateErrorAlertProps = {
   error: Error;
 };
 
-const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
+const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({
   type,
   error,
 }) => (

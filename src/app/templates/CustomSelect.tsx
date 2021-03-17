@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { ComponentType, CSSProperties, useCallback } from "react";
 
 import classNames from "clsx";
 
@@ -28,13 +28,13 @@ export type CustomSelectProps<
   id?: string;
   items: T[];
   maxHeight?: string;
-  padding?: React.CSSProperties["padding"];
+  padding?: CSSProperties["padding"];
   autoFocus?: boolean;
   light?: boolean;
   hoverable?: boolean;
   onSelect?: (itemId: K) => void;
-  OptionIcon?: React.ComponentType<OptionRenderProps<T, K, A>>;
-  OptionContent: React.ComponentType<OptionRenderProps<T, K, A>>;
+  OptionIcon?: ComponentType<OptionRenderProps<T, K, A>>;
+  OptionContent: ComponentType<OptionRenderProps<T, K, A>>;
 };
 
 const CustomSelect = <

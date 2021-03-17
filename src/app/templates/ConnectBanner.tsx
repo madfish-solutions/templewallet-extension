@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 
 import { TempleDAppMetadata } from "@temple-wallet/dapp/dist/types";
 import classNames from "clsx";
@@ -16,7 +16,7 @@ type ConnectBannerProps = {
   className?: string;
 };
 
-const ConnectBanner: React.FC<ConnectBannerProps> = ({
+const ConnectBanner: FC<ConnectBannerProps> = ({
   type,
   origin,
   appMeta,

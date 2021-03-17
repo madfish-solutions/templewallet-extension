@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useCallback, useMemo } from "react";
 
 import { useRetryableSWR } from "lib/swr";
 import {
@@ -22,7 +22,7 @@ export function useBalance(
 ) {
   const nativeTezos = useTezos();
 
-  const tezos = React.useMemo(() => {
+  const tezos = useMemo(() => {
     if (opts.networkRpc) {
       const rpc = opts.networkRpc;
       return new ReactiveTezosToolkit(
@@ -37,7 +37,7 @@ export function useBalance(
     return nativeTezos;
   }, [opts.networkRpc, nativeTezos]);
 
-  const fetchBalanceLocal = React.useCallback(
+  const fetchBalanceLocal = useCallback(
     () => fetchBalance(tezos, asset, address),
     [tezos, asset, address]
   );

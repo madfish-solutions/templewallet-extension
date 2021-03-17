@@ -1,4 +1,4 @@
-import * as React from "react";
+import  { useMemo } from "react";
 
 import constate from "constate";
 
@@ -12,7 +12,7 @@ export const [USDPriceProvider, useUSDPrice] = constate(() => {
   const mtSWR = useMarketTickers(true);
   const network = useNetwork();
 
-  return React.useMemo(() => {
+  return useMemo(() => {
     if (!(mtSWR.data && network.type === "main")) {
       return null;
     }

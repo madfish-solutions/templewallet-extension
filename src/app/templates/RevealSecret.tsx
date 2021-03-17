@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
@@ -25,7 +25,7 @@ type RevealSecretProps = {
   reveal: "private-key" | "seed-phrase";
 };
 
-const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
+const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
   const {
     revealPrivateKey,
     revealMnemonic,
@@ -43,25 +43,25 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
-  const [secret, setSecret] = React.useState<string | null>(null);
+  const [secret, setSecret] = useState<string | null>(null);
 
-  const secretFieldRef = React.useRef<HTMLTextAreaElement>(null);
+  const secretFieldRef = useRef<HTMLTextAreaElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (account.publicKeyHash) {
       return () => setSecret(null);
     }
     return;
   }, [account.publicKeyHash, setSecret]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (secret) {
       secretFieldRef.current?.focus();
       secretFieldRef.current?.select();
     }
   }, [secret]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (secret) {
       const t = setTimeout(() => {
         setSecret(null);
@@ -74,19 +74,19 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     return;
   }, [secret, setSecret]);
 
-  const formRef = React.useRef<HTMLFormElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const focusPasswordField = React.useCallback(() => {
+  const focusPasswordField = useCallback(() => {
     formRef.current
       ?.querySelector<HTMLInputElement>("input[name='password']")
       ?.focus();
   }, []);
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     focusPasswordField();
   }, [focusPasswordField]);
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({ password }) => {
       if (submitting) return;
 
@@ -131,7 +131,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
     ]
   );
 
-  const texts = React.useMemo(() => {
+  const texts = useMemo(() => {
     switch (reveal) {
       case "private-key":
         return {
@@ -219,7 +219,7 @@ const RevealSecret: React.FC<RevealSecretProps> = ({ reveal }) => {
       TempleAccountType.WatchOnly,
     ].includes(account.type);
 
-  const mainContent = React.useMemo(() => {
+  const mainContent = useMemo(() => {
     if (forbidPrivateKeyRevealing) {
       return (
         <Alert
