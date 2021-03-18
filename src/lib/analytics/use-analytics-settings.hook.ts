@@ -1,6 +1,6 @@
 import { AnalyticsEventEnum } from "./analytics-event.enum";
-import { sendTrackEvent, useAnalytics } from "./use-analytics.hook";
 import { useAnalyticsNetwork } from "./use-analytics-network.hook";
+import { sendTrackEvent, useAnalytics } from "./use-analytics.hook";
 
 export const useAnalyticsSettings = () => {
   const { analyticsState, setAnalyticsState } = useAnalytics();

@@ -3,8 +3,8 @@ import { nanoid } from "nanoid";
 
 import { useLocalStorage } from "lib/temple/front/local-storage";
 
-import { AnalyticsEventCategory } from "./analytics-event.enum";
 import { loadChainId } from "../temple/helpers";
+import { AnalyticsEventCategory } from "./analytics-event.enum";
 
 interface AnalyticsStateInterface {
   enabled?: boolean,
