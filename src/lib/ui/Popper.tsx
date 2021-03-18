@@ -1,37 +1,50 @@
-import * as React from "react";
+import React, {
+  Dispatch,
+  memo,
+  ReactElement,
+  RefObject, SetStateAction,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
+
 import { Instance, Options, createPopper } from "@popperjs/core";
 import useOnClickOutside from "use-onclickoutside";
+
 import Portal from "lib/ui/Portal";
 
 export interface PopperRenderProps {
   opened: boolean;
-  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpened: Dispatch<SetStateAction<boolean>>;
   toggleOpened: () => void;
 }
-export type RenderProp<P> = (props: P) => React.ReactElement;
+export type RenderProp<P> = (props: P) => ReactElement;
 
 type PopperProps = Partial<Options> & {
   popup: RenderProp<PopperRenderProps>;
   children: RenderProp<
     PopperRenderProps & {
-      ref: React.RefObject<HTMLButtonElement>;
+      ref: RefObject<HTMLButtonElement>;
     }
   >;
 };
 
-const Popper = React.memo<PopperProps>(
+const Popper = memo<PopperProps>(
   ({ popup, children, ...popperOptions }) => {
-    const popperRef = React.useRef<Instance>();
-    const triggerRef = React.useRef<HTMLButtonElement>(null);
-    const popupRef = React.useRef<HTMLDivElement>(null);
+    const popperRef = useRef<Instance>();
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const popupRef = useRef<HTMLDivElement>(null);
 
-    const [opened, setOpened] = React.useState(false);
+    const [opened, setOpened] = useState(false);
 
-    const toggleOpened = React.useCallback(() => {
+    const toggleOpened = useCallback(() => {
       setOpened((o) => !o);
     }, [setOpened]);
 
-    const handleClickOuside = React.useCallback(
+    const handleClickOuside = useCallback(
       (evt) => {
         if (!(triggerRef.current && triggerRef.current.contains(evt.target))) {
           setOpened(false);
@@ -42,7 +55,7 @@ const Popper = React.memo<PopperProps>(
 
     useOnClickOutside(popupRef, opened ? handleClickOuside : null);
 
-    const finalOptions = React.useMemo(
+    const finalOptions = useMemo(
       () => ({
         ...popperOptions,
         modifiers: [
@@ -61,7 +74,7 @@ const Popper = React.memo<PopperProps>(
       [popperOptions]
     );
 
-    React.useEffect(() => {
+    useEffect(() => {
       if (popperRef.current) {
         popperRef.current.setOptions(finalOptions);
       } else if (triggerRef.current && popupRef.current) {
@@ -73,7 +86,7 @@ const Popper = React.memo<PopperProps>(
       }
     }, [finalOptions]);
 
-    React.useEffect(
+    useEffect(
       () => () => {
         if (popperRef.current) {
           popperRef.current.destroy();
@@ -82,11 +95,11 @@ const Popper = React.memo<PopperProps>(
       []
     );
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
       popperRef.current?.forceUpdate();
     }, [opened]);
 
-    const renderPropsBase = React.useMemo(
+    const renderPropsBase = useMemo(
       () => ({
         opened,
         setOpened,
@@ -95,12 +108,12 @@ const Popper = React.memo<PopperProps>(
       [opened, setOpened, toggleOpened]
     );
 
-    const triggerNode = React.useMemo(
+    const triggerNode = useMemo(
       () => children({ ...renderPropsBase, ref: triggerRef }),
       [children, renderPropsBase]
     );
 
-    const popupNode = React.useMemo(() => popup(renderPropsBase), [
+    const popupNode = useMemo(() => popup(renderPropsBase), [
       popup,
       renderPropsBase,
     ]);

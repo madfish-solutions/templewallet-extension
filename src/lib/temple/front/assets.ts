@@ -1,4 +1,5 @@
-import * as React from "react";
+import { useEffect, useMemo } from "react";
+
 import {
   TEZ_ASSET,
   useTokens,
@@ -8,29 +9,32 @@ import {
 } from "lib/temple/front";
 
 export function useAssets() {
-  const { displayedTokens } = useTokens();
+  const { allTokens, displayedTokens } = useTokens();
   const allAssetsRef = useAllAssetsRef();
 
-  const allAssets = React.useMemo(() => [TEZ_ASSET, ...displayedTokens], [
+  const allAssets = useMemo(() => [TEZ_ASSET, ...displayedTokens], [
     displayedTokens,
   ]);
+  const allAssetsWithHidden = useMemo(() => [TEZ_ASSET, ...allTokens], [
+    allTokens,
+  ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     allAssetsRef.current = allAssets;
   }, [allAssetsRef, allAssets]);
 
-  const defaultAsset = React.useMemo(() => allAssets[0], [allAssets]);
+  const defaultAsset = useMemo(() => allAssets[0], [allAssets]);
 
-  return { allAssets, defaultAsset };
+  return { allAssets, allAssetsWithHidden, defaultAsset };
 }
 
 export function useAssetBySlug(slug?: string | null) {
   const { allAssets } = useAssets();
-  const asset = React.useMemo(
+  const asset = useMemo(
     () => allAssets.find((a) => getAssetKey(a) === slug) ?? null,
     [allAssets, slug]
   );
-  return React.useMemo(() => asset, [asset]);
+  return useMemo(() => asset, [asset]);
 }
 
 export const ASSET_FIELDS_TO_SEARCH = ["symbol", "name", "address"];

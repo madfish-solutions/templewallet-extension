@@ -1,18 +1,20 @@
-import * as React from "react";
+import React, { FC, HTMLAttributes, ReactNode, useEffect, useRef } from "react";
+
 import classNames from "clsx";
+
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import { t } from "lib/i18n/react";
 
-type AlertProps = React.HTMLAttributes<HTMLDivElement> & {
+type AlertProps = HTMLAttributes<HTMLDivElement> & {
   type?: "success" | "warn" | "error";
-  title: React.ReactNode;
-  description: React.ReactNode;
+  title: ReactNode;
+  description: ReactNode;
   autoFocus?: boolean;
   closable?: boolean;
   onClose?: () => void;
 };
 
-const Alert: React.FC<AlertProps> = ({
+const Alert: FC<AlertProps> = ({
   type = "warn",
   title,
   description,
@@ -22,9 +24,9 @@ const Alert: React.FC<AlertProps> = ({
   onClose,
   ...rest
 }) => {
-  const ref = React.useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (autoFocus) {
       ref.current?.focus();
     }
@@ -45,7 +47,7 @@ const Alert: React.FC<AlertProps> = ({
     <div
       ref={ref}
       className={classNames(
-        "relative w-full px-4 py-3",
+        "relative w-full px-4 pt-3",
         bgColorClassName,
         "border",
         borderColorClassName,
@@ -62,10 +64,10 @@ const Alert: React.FC<AlertProps> = ({
       {description && (
         <div
           className={classNames(
-            "text-sm font-light break-words",
+            "pb-3 text-sm font-light break-words",
             "overflow-y-auto no-scrollbar"
           )}
-          style={{ maxHeight: "10rem" }}
+          style={{ maxHeight: "8rem" }}
         >
           {description}
         </div>

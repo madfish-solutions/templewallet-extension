@@ -1,11 +1,9 @@
-import { browser, Runtime } from "webextension-polyfill-ts";
-import { nanoid } from "nanoid";
-import { TezosOperationError } from "@taquito/taquito";
-import { RpcClient } from "@taquito/rpc";
 import { localForger } from "@taquito/local-forging";
-import { emitMicheline } from "@taquito/michel-codec";
 import { valueDecoder } from "@taquito/local-forging/dist/lib/michelson/codec";
 import { Uint8ArrayConsumer } from "@taquito/local-forging/dist/lib/uint8array-consumer";
+import { emitMicheline } from "@taquito/michel-codec";
+import { RpcClient } from "@taquito/rpc";
+import { TezosOperationError } from "@taquito/taquito";
 import {
   TempleDAppMessageType,
   TempleDAppErrorType,
@@ -20,6 +18,16 @@ import {
   TempleDAppBroadcastResponse,
   TempleDAppNetwork,
 } from "@temple-wallet/dapp/dist/types";
+import { nanoid } from "nanoid";
+import { browser, Runtime } from "webextension-polyfill-ts";
+
+import { intercom } from "lib/temple/back/defaults";
+import { dryRunOpParams } from "lib/temple/back/dryrun";
+import * as PndOps from "lib/temple/back/pndops";
+import { withUnlocked } from "lib/temple/back/store";
+import * as Beacon from "lib/temple/beacon";
+import { loadChainId, isAddressValid } from "lib/temple/helpers";
+import { NETWORKS } from "lib/temple/networks";
 import {
   TempleMessageType,
   TempleRequest,
@@ -27,13 +35,6 @@ import {
   TempleDAppSession,
   TempleDAppSessions,
 } from "lib/temple/types";
-import { intercom } from "lib/temple/back/defaults";
-import { applyEstimateToOpParams } from "lib/temple/back/estimate";
-import * as PndOps from "lib/temple/back/pndops";
-import * as Beacon from "lib/temple/beacon";
-import { withUnlocked } from "lib/temple/back/store";
-import { NETWORKS } from "lib/temple/networks";
-import { loadChainId, isAddressValid } from "lib/temple/helpers";
 
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 600;
@@ -182,7 +183,7 @@ export async function requestOperation(
       onDecline: () => {
         reject(new Error(TempleDAppErrorType.NotGranted));
       },
-      handleIntercomRequest: async (confirmReq, decline, payload) => {
+      handleIntercomRequest: async (confirmReq, decline) => {
         if (
           confirmReq?.type === TempleMessageType.DAppOpsConfirmationRequest &&
           confirmReq?.id === id
@@ -190,11 +191,7 @@ export async function requestOperation(
           if (confirmReq.confirmed) {
             try {
               const op = await withUnlocked(({ vault }) =>
-                vault.sendOperations(
-                  dApp.pkh,
-                  networkRpc,
-                  (payload as any).opParams
-                )
+                vault.sendOperations(dApp.pkh, networkRpc, req.opParams)
               );
 
               try {
@@ -388,8 +385,7 @@ type RequestConfirmParams = {
   onDecline: () => void;
   handleIntercomRequest: (
     req: TempleRequest,
-    decline: () => void,
-    payload: TempleDAppPayload
+    decline: () => void
   ) => Promise<any>;
 };
 
@@ -436,14 +432,15 @@ async function requestConfirm({
         knownPort = port;
 
         if (payload.type === "confirm_operations") {
+          const dryrunResult = await dryRunOpParams({
+            opParams: payload.opParams,
+            networkRpc: payload.networkRpc,
+            sourcePkh: payload.sourcePkh,
+            sourcePublicKey: payload.sourcePublicKey,
+          });
           payload = {
             ...payload,
-            opParams: await applyEstimateToOpParams({
-              opParams: payload.opParams,
-              networkRpc: payload.networkRpc,
-              sourcePkh: payload.sourcePkh,
-              sourcePublicKey: payload.sourcePublicKey,
-            }),
+            ...(dryrunResult ?? {}),
           };
         }
 
@@ -454,7 +451,7 @@ async function requestConfirm({
       } else {
         if (knownPort !== port) return;
 
-        const result = await handleIntercomRequest(req, onDecline, payload);
+        const result = await handleIntercomRequest(req, onDecline);
         if (result) {
           close();
           return result;

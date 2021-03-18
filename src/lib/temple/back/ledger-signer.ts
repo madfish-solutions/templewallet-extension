@@ -1,4 +1,9 @@
 import {
+  LedgerSigner,
+  LedgerTransport,
+  DerivationType,
+} from "@taquito/ledger-signer";
+import {
   b58cdecode,
   b58cencode,
   buf2hex,
@@ -7,15 +12,11 @@ import {
   mergebuf,
   prefix,
 } from "@taquito/utils";
-import sodium from "libsodium-wrappers";
-import elliptic from "elliptic";
-import toBuffer from "typedarray-to-buffer";
-import {
-  LedgerSigner,
-  LedgerTransport,
-  DerivationType,
-} from "@taquito/ledger-signer";
+import * as elliptic from "elliptic";
+import * as sodium from "libsodium-wrappers";
+
 import { PublicError } from "lib/temple/back/defaults";
+import toBuffer from "typedarray-to-buffer";
 
 type curves = "ed" | "p2" | "sp";
 

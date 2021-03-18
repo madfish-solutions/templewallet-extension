@@ -1,5 +1,6 @@
-import { browser } from "webextension-polyfill-ts";
 import { Buffer } from "buffer";
+import { browser } from "webextension-polyfill-ts";
+
 import * as Passworder from "lib/temple/passworder";
 
 interface EncryptedStorage {

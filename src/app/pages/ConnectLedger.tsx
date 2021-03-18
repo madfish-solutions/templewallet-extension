@@ -1,7 +1,16 @@
-import * as React from "react";
+import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { navigate } from "lib/woozie";
+
+import Alert from "app/atoms/Alert";
+import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { ReactComponent as LinkIcon } from "app/icons/link.svg";
+import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import PageLayout from "app/layouts/PageLayout";
+import { T, t } from "lib/i18n/react";
 import {
   useTempleClient,
   useSetAccountPkh,
@@ -9,18 +18,12 @@ import {
   TempleAccountType,
   validateDerivationPath,
 } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
-import PageLayout from "app/layouts/PageLayout";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import FormField from "app/atoms/FormField";
-import Alert from "app/atoms/Alert";
-import { ReactComponent as LinkIcon } from "app/icons/link.svg";
-import { ReactComponent as OkIcon } from "app/icons/ok.svg";
-import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
+import { navigate } from "lib/woozie";
 
 type FormData = {
   name: string;
   customDerivationPath: string;
+  accountNumber?: number;
 };
 
 const DERIVATION_PATHS = [
@@ -29,28 +32,32 @@ const DERIVATION_PATHS = [
     name: t("defaultAccount"),
   },
   {
+    type: "another",
+    name: t("anotherAccount"),
+  },
+  {
     type: "custom",
     name: t("customDerivationPath"),
   },
 ];
 
-const ConnectLedger: React.FC = () => {
+const ConnectLedger: FC = () => {
   const { createLedgerAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
-  const allLedgers = React.useMemo(
+  const allLedgers = useMemo(
     () => allAccounts.filter((acc) => acc.type === TempleAccountType.Ledger),
     [allAccounts]
   );
 
-  const defaultName = React.useMemo(
+  const defaultName = useMemo(
     () => t("defaultLedgerName", String(allLedgers.length + 1)),
     [allLedgers.length]
   );
 
-  const prevAccLengthRef = React.useRef(allAccounts.length);
-  React.useEffect(() => {
+  const prevAccLengthRef = useRef(allAccounts.length);
+  useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
       setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
@@ -63,22 +70,27 @@ const ConnectLedger: React.FC = () => {
     defaultValues: {
       name: defaultName,
       customDerivationPath: "m/44'/1729'/0'/0'",
+      accountNumber: 1,
     },
   });
   const submitting = formState.isSubmitting;
 
-  const [error, setError] = React.useState<React.ReactNode>(null);
-  const [derivationPath, setDerivationPath] = React.useState(
+  const [error, setError] = useState<ReactNode>(null);
+  const [derivationPath, setDerivationPath] = useState(
     DERIVATION_PATHS[0]
   );
 
-  const onSubmit = React.useCallback(
-    async ({ name, customDerivationPath }: FormData) => {
+  const onSubmit = useCallback(
+    async ({ name, accountNumber, customDerivationPath }: FormData) => {
       if (submitting) return;
       setError(null);
 
       try {
-        await createLedgerAccount(name, customDerivationPath);
+        await createLedgerAccount(
+          name,
+          customDerivationPath ??
+            (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
+        );
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -217,6 +229,22 @@ const ConnectLedger: React.FC = () => {
                 })}
               </div>
             </div>
+
+            {derivationPath.type === "another" && (
+              <FormField
+                ref={register({
+                  min: { value: 1, message: t("positiveIntMessage") },
+                  required: t("required"),
+                })}
+                min={0}
+                type="number"
+                name="accountNumber"
+                id="importacc-acc-number"
+                label={t("accountNumber")}
+                placeholder="1"
+                errorCaption={errors.accountNumber?.message}
+              />
+            )}
 
             {derivationPath.type === "custom" && (
               <FormField

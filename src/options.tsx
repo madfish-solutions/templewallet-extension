@@ -1,9 +1,13 @@
 import "./main.css";
 
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React, { FC, useCallback } from "react";
+
 import classNames from "clsx";
+import * as ReactDOM from "react-dom";
 import { browser } from "webextension-polyfill-ts";
+
+import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
+import Dialogs from "app/layouts/Dialogs";
 import { getMessage } from "lib/i18n";
 import { T } from "lib/i18n/react";
 import {
@@ -13,10 +17,8 @@ import {
   useAlert,
   useConfirm,
 } from "lib/ui/dialog";
-import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
-import Dialogs from "app/layouts/Dialogs";
 
-const OptionsWrapper: React.FC = () => (
+const OptionsWrapper: FC = () => (
   <DialogsProvider>
     <Options />
     <Dialogs />
@@ -24,11 +26,11 @@ const OptionsWrapper: React.FC = () => (
   </DialogsProvider>
 );
 
-const Options: React.FC = () => {
+const Options: FC = () => {
   const alert = useAlert();
   const confirm = useConfirm();
 
-  const internalHandleReset = React.useCallback(() => {
+  const internalHandleReset = useCallback(() => {
     handleReset(alert, confirm);
   }, [alert, confirm]);
 

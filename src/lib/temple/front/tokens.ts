@@ -1,5 +1,8 @@
-import * as React from "react";
+import { useCallback, useMemo } from "react";
+
 import { cache, mutate } from "swr";
+
+import { t } from "lib/i18n/react";
 import {
   useNetwork,
   useStorage,
@@ -8,14 +11,13 @@ import {
   useCustomChainId,
   fetchFromStorage,
   assetsAreSame,
-  mergeAssets,
-  omitAssets,
   loadChainId,
   TempleChainId,
   MAINNET_TOKENS,
   DELPHINET_TOKENS,
 } from "lib/temple/front";
-import { t } from "lib/i18n/react";
+
+import { omitAssets } from "../assets";
 import { useAllNetworks } from "./ready";
 
 const NETWORK_TOKEN_MAP = new Map([
@@ -27,7 +29,7 @@ export function useTokens(networkRpc?: string) {
   const allNetworks = useAllNetworks();
   const selectedNetwork = useNetwork();
 
-  const network = React.useMemo(() => {
+  const network = useMemo(() => {
     if (!networkRpc) return selectedNetwork;
     return (
       allNetworks.find(
@@ -36,39 +38,70 @@ export function useTokens(networkRpc?: string) {
     );
   }, [allNetworks, selectedNetwork, networkRpc]);
 
-  const [tokensPure, setTokens] = useStorage<TempleToken[]>(
-    getTokensSWRKey(network.id),
-    []
-  );
-  const [hiddenTokensPure, setHiddenTokens] = useStorage<TempleToken[]>(
-    getHiddenTokensSWRKey(network.id),
+  const chainId = useCustomChainId(network.rpcBaseURL, true)!;
+
+  const [tokensPure, saveTokens] = useStorage<TempleToken[]>(
+    getTokensSWRKey(chainId),
     []
   );
 
-  const chainId = useCustomChainId(network.rpcBaseURL, true);
-
-  const tokens = React.useMemo(() => tokensPure.map(formatSaved), [tokensPure]);
-  const hiddenTokens = React.useMemo(() => hiddenTokensPure.map(formatSaved), [
-    hiddenTokensPure,
+  const savedTokens = useMemo(() => tokensPure.map(formatSaved), [
+    tokensPure,
   ]);
 
-  const allTokens = React.useMemo(
-    () =>
-      mergeAssets(
-        (chainId && NETWORK_TOKEN_MAP.get(chainId as TempleChainId)) || [],
-        tokens
-      ),
-    [chainId, tokens]
+  const staticTokens = useMemo(
+    () => (chainId && NETWORK_TOKEN_MAP.get(chainId as TempleChainId)) || [],
+    [chainId]
   );
 
-  const displayedTokens = React.useMemo(
-    () => omitAssets(allTokens, hiddenTokens),
-    [allTokens, hiddenTokens]
+  const allTokens = useMemo(
+    () => [...omitAssets(staticTokens, savedTokens), ...savedTokens],
+    [staticTokens, savedTokens]
   );
 
-  const addToken = React.useCallback(
+  const displayedTokens = useMemo(
+    () => allTokens.filter((t) => t.status === "displayed"),
+    [allTokens]
+  );
+
+  const hiddenTokens = useMemo(
+    () => allTokens.filter((t) => t.status === "hidden"),
+    [allTokens]
+  );
+
+  const displayedAndHiddenTokens = useMemo(
+    () => allTokens.filter((t) => t.status !== "removed"),
+    [allTokens]
+  );
+
+  const removedTokens = useMemo(
+    () => allTokens.filter((t) => t.status === "removed"),
+    [allTokens]
+  );
+
+  const updateToken = useCallback(
+    (token: TempleToken, toUpdate: Partial<TempleToken>) =>
+      saveTokens((tkns) => {
+        const savedIndex = tkns.findIndex((t) => assetsAreSame(t, token));
+        if (savedIndex !== -1) {
+          return tkns.map((t, i) =>
+            i === savedIndex ? ({ ...t, ...toUpdate } as TempleToken) : t
+          );
+        }
+
+        const staticItem = staticTokens.find((t) => assetsAreSame(t, token));
+        if (staticItem) {
+          return [{ ...staticItem, ...toUpdate } as TempleToken, ...tkns];
+        }
+
+        return tkns;
+      }),
+    [saveTokens, staticTokens]
+  );
+
+  const addToken = useCallback(
     (token: TempleToken) => {
-      if (tokens.some((t) => assetsAreSame(t, token))) {
+      if (displayedTokens.some((t) => assetsAreSame(t, token))) {
         if (token.type === TempleAssetType.FA2) {
           throw new Error(
             t("fa2TokenAlreadyExists", [token.address, token.id])
@@ -76,36 +109,33 @@ export function useTokens(networkRpc?: string) {
         } else {
           throw new Error(t("nonFa2TokenAlreadyExists", token.address));
         }
+      } else if (hiddenTokens.some((t) => assetsAreSame(t, token))) {
+        return updateToken(token, token);
       }
 
-      setTokens((tkns) => [...tkns, token]);
-      setHiddenTokens((tkns) => tkns.filter((t) => !assetsAreSame(t, token)));
+      return saveTokens((tkns) => [
+        ...tkns.filter((t) => !assetsAreSame(t, token)),
+        token,
+      ]);
     },
-    [tokens, setTokens, setHiddenTokens]
-  );
-
-  const removeToken = React.useCallback(
-    (token: TempleToken) => {
-      setTokens((tkns) => tkns.filter((t) => !assetsAreSame(t, token)));
-      setHiddenTokens((tkns) => [token, ...tkns]);
-    },
-    [setTokens, setHiddenTokens]
+    [displayedTokens, hiddenTokens, updateToken, saveTokens]
   );
 
   return {
-    tokens,
-    hiddenTokens,
-    allTokens,
+    staticTokens,
     displayedTokens,
-    setTokens,
+    hiddenTokens,
+    displayedAndHiddenTokens,
+    removedTokens,
+    allTokens,
+    updateToken,
     addToken,
-    removeToken,
   };
 }
 
-export async function preloadTokens(netId: string, rpcUrl: string) {
-  const tokensKey = getTokensSWRKey(netId);
-  const hiddenTokensKey = getHiddenTokensSWRKey(netId);
+export async function preloadTokens(rpcUrl: string) {
+  const chainId = await loadChainId(rpcUrl);
+  const tokensKey = getTokensSWRKey(chainId);
 
   await Promise.all(
     [
@@ -114,12 +144,8 @@ export async function preloadTokens(netId: string, rpcUrl: string) {
         factory: () => fetchFromStorage(tokensKey),
       },
       {
-        key: hiddenTokensKey,
-        factory: () => fetchFromStorage(hiddenTokensKey),
-      },
-      {
         key: getCustomChainIdSWRKey(rpcUrl),
-        factory: () => loadChainId(rpcUrl),
+        factory: () => Promise.resolve(chainId),
       },
     ]
       .filter(({ key }) => !cache.has(key))
@@ -127,12 +153,8 @@ export async function preloadTokens(netId: string, rpcUrl: string) {
   );
 }
 
-export function getTokensSWRKey(netId: string) {
-  return `tokens_${netId}`;
-}
-
-export function getHiddenTokensSWRKey(netId: string) {
-  return `hidden_tokens_${netId}`;
+export function getTokensSWRKey(chainId: string) {
+  return `tokens_${chainId}`;
 }
 
 export function getCustomChainIdSWRKey(rpcUrl: string) {

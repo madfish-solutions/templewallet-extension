@@ -1,9 +1,19 @@
-import * as React from "react";
+import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { validateMnemonic } from "bip39";
 import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
-import { validateMnemonic } from "bip39";
-import { Link, navigate } from "lib/woozie";
+
+import Alert from "app/atoms/Alert";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import NoSpaceField from "app/atoms/NoSpaceField";
+import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
+import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
+import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import PageLayout from "app/layouts/PageLayout";
+import ManagedKTForm from "app/templates/ManagedKTForm";
 import { T, t } from "lib/i18n/react";
 import {
   useTempleClient,
@@ -20,15 +30,7 @@ import {
   useNetwork,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
-import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
-import PageLayout from "app/layouts/PageLayout";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Alert from "app/atoms/Alert";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
-import { ReactComponent as OkIcon } from "app/icons/ok.svg";
-import ManagedKTForm from "app/templates/ManagedKTForm";
+import { Link, navigate } from "lib/woozie";
 
 type ImportAccountProps = {
   tabSlug: string | null;
@@ -37,17 +39,17 @@ type ImportAccountProps = {
 type ImportTabDescriptor = {
   slug: string;
   i18nKey: string;
-  Form: React.FC<{}>;
+  Form: FC<{}>;
 };
 
-const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
+const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
   const network = useNetwork();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
-  const prevAccLengthRef = React.useRef(allAccounts.length);
-  const prevNetworkRef = React.useRef(network);
-  React.useEffect(() => {
+  const prevAccLengthRef = useRef(allAccounts.length);
+  const prevNetworkRef = useRef(network);
+  useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
       setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
@@ -56,7 +58,7 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
     prevAccLengthRef.current = accLength;
   }, [allAccounts, setAccountPkh]);
 
-  const allTabs = React.useMemo(
+  const allTabs = useMemo(
     () =>
       [
         {
@@ -94,11 +96,11 @@ const ImportAccount: React.FC<ImportAccountProps> = ({ tabSlug }) => {
       ].filter((x): x is ImportTabDescriptor => !!x),
     [network.type]
   );
-  const { slug, Form } = React.useMemo(() => {
+  const { slug, Form } = useMemo(() => {
     const tab = tabSlug ? allTabs.find((t) => t.slug === tabSlug) : null;
     return tab ?? allTabs[0];
   }, [allTabs, tabSlug]);
-  React.useEffect(() => {
+  useEffect(() => {
     const prevNetworkType = prevNetworkRef.current.type;
     prevNetworkRef.current = network;
     if (
@@ -168,7 +170,7 @@ interface ByPrivateKeyFormData {
   encPassword?: string;
 }
 
-const ByPrivateKeyForm: React.FC = () => {
+const ByPrivateKeyForm: FC = () => {
   const { importAccount } = useTempleClient();
 
   const {
@@ -178,9 +180,9 @@ const ByPrivateKeyForm: React.FC = () => {
     formState,
     watch,
   } = useForm<ByPrivateKeyFormData>();
-  const [error, setError] = React.useState<React.ReactNode>(null);
+  const [error, setError] = useState<ReactNode>(null);
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({ privateKey, encPassword }: ByPrivateKeyFormData) => {
       if (formState.isSubmitting) return;
 
@@ -201,7 +203,7 @@ const ByPrivateKeyForm: React.FC = () => {
   );
 
   const keyValue = watch("privateKey");
-  const encrypted = React.useMemo(() => keyValue?.substring(2, 3) === "e", [
+  const encrypted = useMemo(() => keyValue?.substring(2, 3) === "e", [
     keyValue,
   ]);
 
@@ -273,6 +275,14 @@ const DERIVATION_PATHS = [
     i18nKey: "noDerivation",
   },
   {
+    type: "default",
+    i18nKey: "defaultAccount",
+  },
+  {
+    type: "another",
+    i18nKey: "anotherAccount",
+  },
+  {
     type: "custom",
     i18nKey: "customDerivationPath",
   },
@@ -282,9 +292,10 @@ interface ByMnemonicFormData {
   mnemonic: string;
   password?: string;
   customDerivationPath: string;
+  accountNumber?: number;
 }
 
-const ByMnemonicForm: React.FC = () => {
+const ByMnemonicForm: FC = () => {
   const { importMnemonicAccount } = useTempleClient();
 
   const {
@@ -293,18 +304,22 @@ const ByMnemonicForm: React.FC = () => {
     errors,
     formState,
   } = useForm<ByMnemonicFormData>({
-    defaultValues: { customDerivationPath: "m/44'/1729'/0'/0'" },
+    defaultValues: {
+      customDerivationPath: "m/44'/1729'/0'/0'",
+      accountNumber: 1,
+    },
   });
-  const [error, setError] = React.useState<React.ReactNode>(null);
-  const [derivationPath, setDerivationPath] = React.useState(
+  const [error, setError] = useState<ReactNode>(null);
+  const [derivationPath, setDerivationPath] = useState(
     DERIVATION_PATHS[0]
   );
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({
       mnemonic,
       password,
       customDerivationPath,
+      accountNumber,
     }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
@@ -313,7 +328,18 @@ const ByMnemonicForm: React.FC = () => {
         await importMnemonicAccount(
           formatMnemonic(mnemonic),
           password || undefined,
-          derivationPath.type === "custom" ? customDerivationPath : undefined
+          (() => {
+            switch (derivationPath.type) {
+              case "custom":
+                return customDerivationPath;
+              case "default":
+                return "m/44'/1729'/0'/0'";
+              case "another":
+                return `m/44'/1729'/${accountNumber! - 1}'/0'`;
+              default:
+                return undefined;
+            }
+          })()
         );
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
@@ -467,6 +493,22 @@ const ByMnemonicForm: React.FC = () => {
         </div>
       </div>
 
+      {derivationPath.type === "another" && (
+        <FormField
+          ref={register({
+            min: { value: 1, message: t("positiveIntMessage") },
+            required: t("required"),
+          })}
+          min={0}
+          type="number"
+          name="accountNumber"
+          id="importacc-acc-number"
+          label={t("accountNumber")}
+          placeholder="1"
+          errorCaption={errors.accountNumber?.message}
+        />
+      )}
+
       {derivationPath.type === "custom" && (
         <FormField
           ref={register({
@@ -499,7 +541,7 @@ interface ByFundraiserFormData {
   mnemonic: string;
 }
 
-const ByFundraiserForm: React.FC = () => {
+const ByFundraiserForm: FC = () => {
   const { importFundraiserAccount } = useTempleClient();
   const {
     register,
@@ -507,9 +549,9 @@ const ByFundraiserForm: React.FC = () => {
     handleSubmit,
     formState,
   } = useForm<ByFundraiserFormData>();
-  const [error, setError] = React.useState<React.ReactNode>(null);
+  const [error, setError] = useState<ReactNode>(null);
 
-  const onSubmit = React.useCallback<(data: ByFundraiserFormData) => void>(
+  const onSubmit = useCallback<(data: ByFundraiserFormData) => void>(
     async (data) => {
       if (formState.isSubmitting) return;
 
@@ -609,12 +651,12 @@ interface FaucetTextInputFormData {
   text: string;
 }
 
-const FromFaucetForm: React.FC = () => {
+const FromFaucetForm: FC = () => {
   const { importFundraiserAccount } = useTempleClient();
   const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
 
-  const activateAccount = React.useCallback(
+  const activateAccount = useCallback(
     async (address: string, secret: string) => {
       let op;
       try {
@@ -644,25 +686,25 @@ const FromFaucetForm: React.FC = () => {
     errors,
     setValue,
   } = useForm<FaucetTextInputFormData>();
-  const textFieldRef = React.useRef<HTMLTextAreaElement>(null);
-  const formRef = React.useRef<HTMLFormElement>(null);
+  const textFieldRef = useRef<HTMLTextAreaElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [processing, setProcessing] = useSafeState(false);
-  const [alert, setAlert] = useSafeState<React.ReactNode | Error>(null);
+  const [alert, setAlert] = useSafeState<ReactNode | Error>(null);
   const textFieldValue = watch("text");
 
-  const handleTextFieldFocus = React.useCallback(
+  const handleTextFieldFocus = useCallback(
     () => textFieldRef.current?.focus(),
     []
   );
-  const cleanTextField = React.useCallback(() => setValue("text", ""), [
+  const cleanTextField = useCallback(() => setValue("text", ""), [
     setValue,
   ]);
 
-  const handleFormSubmit = React.useCallback((evt) => {
+  const handleFormSubmit = useCallback((evt) => {
     evt.preventDefault();
   }, []);
 
-  const importAccount = React.useCallback(
+  const importAccount = useCallback(
     async (data: FaucetData) => {
       const [activationStatus, op] = await activateAccount(
         data.pkh,
@@ -693,7 +735,7 @@ const FromFaucetForm: React.FC = () => {
     [activateAccount, importFundraiserAccount, setAccountPkh, setAlert, tezos]
   );
 
-  const onTextFormSubmit = React.useCallback(
+  const onTextFormSubmit = useCallback(
     async (formData: FaucetTextInputFormData) => {
       if (processing) {
         return;
@@ -719,7 +761,7 @@ const FromFaucetForm: React.FC = () => {
     [importAccount, processing, setAlert, setProcessing]
   );
 
-  const handleUploadChange = React.useCallback(
+  const handleUploadChange = useCallback(
     async (evt) => {
       if (processing) return;
       setProcessing(true);
@@ -949,7 +991,7 @@ interface WatchOnlyFormData {
   address: string;
 }
 
-const WatchOnlyForm: React.FC = () => {
+const WatchOnlyForm: FC = () => {
   const { importWatchOnlyAccount } = useTempleClient();
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
@@ -964,13 +1006,13 @@ const WatchOnlyForm: React.FC = () => {
     setValue,
     triggerValidation,
   } = useForm<WatchOnlyFormData>({ mode: "onChange" });
-  const [error, setError] = React.useState<React.ReactNode>(null);
+  const [error, setError] = useState<ReactNode>(null);
 
-  const addressFieldRef = React.useRef<HTMLTextAreaElement>(null);
+  const addressFieldRef = useRef<HTMLTextAreaElement>(null);
 
   const addressValue = watch("address");
 
-  const domainAddressFactory = React.useCallback(
+  const domainAddressFactory = useCallback(
     (_k: string, _checksum: string, addressValue: string) =>
       domainsClient.resolver.resolveNameToAddress(addressValue),
     [domainsClient]
@@ -981,17 +1023,17 @@ const WatchOnlyForm: React.FC = () => {
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
 
-  const finalAddress = React.useMemo(() => resolvedAddress || addressValue, [
+  const finalAddress = useMemo(() => resolvedAddress || addressValue, [
     resolvedAddress,
     addressValue,
   ]);
 
-  const cleanToField = React.useCallback(() => {
+  const cleanToField = useCallback(() => {
     setValue("to", "");
     triggerValidation("to");
   }, [setValue, triggerValidation]);
 
-  const validateAddressField = React.useCallback(
+  const validateAddressField = useCallback(
     async (value: any) => {
       if (!value?.length || value.length < 0) {
         return false;
@@ -1017,7 +1059,7 @@ const WatchOnlyForm: React.FC = () => {
     [canUseDomainNames, domainsClient]
   );
 
-  const onSubmit = React.useCallback(async () => {
+  const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
 
     setError(null);

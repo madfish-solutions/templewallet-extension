@@ -1,6 +1,19 @@
+import React, { FC, useCallback, useState } from "react";
+
 import classNames from "clsx";
-import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
+
+import Alert from "app/atoms/Alert";
+import FormField from "app/atoms/FormField";
+import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import Name from "app/atoms/Name";
+import SubTitle from "app/atoms/SubTitle";
+import { URL_PATTERN } from "app/defaults";
+import { ReactComponent as CloseIcon } from "app/icons/close.svg";
+import HashChip from "app/templates/HashChip";
+import { T, t } from "lib/i18n/react";
+import { viewLambda } from "lib/michelson";
 import { useRetryableSWR } from "lib/swr";
 import {
   isKnownChainId,
@@ -17,19 +30,8 @@ import {
   useChainId,
 } from "lib/temple/front";
 import { COLORS } from "lib/ui/colors";
-import { withErrorHumanDelay } from "lib/ui/humanDelay";
 import { useConfirm } from "lib/ui/dialog";
-import { T, t } from "lib/i18n/react";
-import { URL_PATTERN } from "app/defaults";
-import { viewLambda } from "lib/michelson";
-import { ReactComponent as CloseIcon } from "app/icons/close.svg";
-import HashChip from "app/templates/HashChip";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Name from "app/atoms/Name";
-import Alert from "app/atoms/Alert";
-import SubTitle from "app/atoms/SubTitle";
-import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import { withErrorHumanDelay } from "lib/ui/humanDelay";
 
 type NetworkFormData = Pick<
   TempleNetwork,
@@ -53,7 +55,7 @@ const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Carthagenet, "carthagenet"],
 ]);
 
-const CustomNetworksSettings: React.FC = () => {
+const CustomNetworksSettings: FC = () => {
   const { updateSettings, defaultNetworks } = useTempleClient();
   const { lambdaContracts = {}, customNetworks = [] } = useSettings();
   const [showNoLambdaWarning, setShowNoLambdaWarning] = useState(false);
@@ -309,7 +311,7 @@ const CustomNetworksSettings: React.FC = () => {
 
 export default CustomNetworksSettings;
 
-const LambdaContractSection: React.FC = () => {
+const LambdaContractSection: FC = () => {
   const { updateSettings } = useTempleClient();
   const tezos = useTezos();
   const network = useNetwork();
@@ -435,7 +437,7 @@ const LambdaContractSection: React.FC = () => {
     updateSettings,
   ]);
 
-  const handleErrorAlertClose = React.useCallback(() => {
+  const handleErrorAlertClose = useCallback(() => {
     setLambdaDeploymentError(null);
   }, [setLambdaDeploymentError]);
 
@@ -522,7 +524,7 @@ type NetworksListItemProps = {
   last: boolean;
 };
 
-const NetworksListItem: React.FC<NetworksListItemProps> = (props) => {
+const NetworksListItem: FC<NetworksListItemProps> = (props) => {
   const {
     network: { name, nameI18nKey, rpcBaseURL, color, lambdaContract },
     canRemove,

@@ -1,7 +1,8 @@
-import { browser } from "webextension-polyfill-ts";
-import * as Bip39 from "bip39";
-import * as Ed25519 from "ed25519-hd-key";
-import * as TaquitoUtils from "@taquito/utils";
+import LedgerTransport from "@ledgerhq/hw-transport";
+import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
+import { HttpResponseError } from "@taquito/http-utils";
+import { DerivationType } from "@taquito/ledger-signer";
+import { localForger } from "@taquito/local-forging";
 import { InMemorySigner } from "@taquito/signer";
 import {
   TezosToolkit,
@@ -10,28 +11,31 @@ import {
   Signer,
   TezosOperationError,
 } from "@taquito/taquito";
-import { localForger } from "@taquito/local-forging";
-import { HttpResponseError } from "@taquito/http-utils";
-import LedgerTransport from "@ledgerhq/hw-transport";
-import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
+import * as TaquitoUtils from "@taquito/utils";
 import { LedgerTempleBridgeTransport } from "@temple-wallet/ledger-bridge";
-import { DerivationType } from "@taquito/ledger-signer";
-import {
-  TempleAccount,
-  TempleAccountType,
-  TempleSettings,
-} from "lib/temple/types";
-import { transformHttpResponseError } from "lib/temple/helpers";
-import * as Passworder from "lib/temple/passworder";
+import * as Bip39 from "bip39";
+import * as Ed25519 from "ed25519-hd-key";
+import { browser } from "webextension-polyfill-ts";
+
+import { getMessage } from "lib/i18n";
+import { mergeAssets } from "lib/temple/assets";
 import { PublicError } from "lib/temple/back/defaults";
+import { TempleLedgerSigner } from "lib/temple/back/ledger-signer";
 import {
   isStored,
   fetchAndDecryptOne,
   encryptAndSaveMany,
   removeMany,
 } from "lib/temple/back/safe-storage";
-import { TempleLedgerSigner } from "lib/temple/back/ledger-signer";
-import { getMessage } from "lib/i18n";
+import { transformHttpResponseError, loadChainId } from "lib/temple/helpers";
+import { NETWORKS } from "lib/temple/networks";
+import * as Passworder from "lib/temple/passworder";
+import {
+  TempleAccount,
+  TempleAccountType,
+  TempleSettings,
+  TempleToken,
+} from "lib/temple/types";
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
@@ -464,7 +468,7 @@ export class Vault {
         tezos.setForgerProvider(
           new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
         );
-        return tezos.batch(opParams.map(formatOpParams));
+        return tezos.contract.batch(opParams.map(formatOpParams));
       });
 
       try {
@@ -595,6 +599,57 @@ const MIGRATIONS = [
     );
 
     await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
+  },
+
+  // [2] Improve token managing flow
+  // Migrate from tokens{netId}: TempleToken[] + hiddenTokens{netId}: TempleToken[]
+  // to tokens{chainId}: TempleToken[]
+  async (passKey: CryptoKey) => {
+    let savedSettings;
+    try {
+      savedSettings = await fetchAndDecryptOne<TempleSettings>(
+        settingsStrgKey,
+        passKey
+      );
+    } catch {}
+    const customNetworks = savedSettings?.customNetworks ?? [];
+    const allNetworks = [...NETWORKS, ...customNetworks];
+    for (const net of allNetworks) {
+      const legacyTokensStrgKey = `tokens_${net.id}`;
+      const legacyHiddenTokensStrgKey = `hidden_tokens_${net.id}`;
+      const [
+        {
+          [legacyTokensStrgKey]: legacyTokens = [],
+          [legacyHiddenTokensStrgKey]: legacyHiddenTokens = [],
+        },
+        chainId,
+      ] = await Promise.all([
+        browser.storage.local.get([
+          legacyTokensStrgKey,
+          legacyHiddenTokensStrgKey,
+        ]),
+        loadChainId(net.rpcBaseURL),
+      ]);
+
+      const tokensStrgKey = `tokens_${chainId}`;
+      const {
+        [tokensStrgKey]: existingTokens = [],
+      } = await browser.storage.local.get([tokensStrgKey]);
+
+      await browser.storage.local.set({
+        [tokensStrgKey]: mergeAssets(
+          existingTokens,
+          legacyTokens.map((t: TempleToken) => ({
+            ...t,
+            status: "displayed",
+          })),
+          legacyHiddenTokens.map((t: TempleToken) => ({
+            ...t,
+            status: "hidden",
+          }))
+        ),
+      });
+    }
   },
 ];
 

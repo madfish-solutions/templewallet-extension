@@ -1,6 +1,6 @@
 import { RpcClient } from "@taquito/rpc";
-import memoize from "mem";
 import debouncePromise from "debounce-promise";
+import memoize from "mem";
 
 interface RPCOptions {
   block: string;

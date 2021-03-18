@@ -1,10 +1,11 @@
-import * as React from "react";
-import { T } from "lib/i18n/react";
+import React, { FC } from "react";
+
+import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 import PageLayout from "app/layouts/PageLayout";
 import DelegateForm from "app/templates/DelegateForm";
-import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
+import { T } from "lib/i18n/react";
 
-const Delegate: React.FC = () => (
+const Delegate: FC = () => (
   <PageLayout
     pageTitle={
       <T id="delegate">
