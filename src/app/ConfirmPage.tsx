@@ -23,6 +23,7 @@ import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import DAppLogo from "app/templates/DAppLogo";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationView from "app/templates/OperationView";
+import { CustomRpsContext } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
@@ -33,30 +34,9 @@ import {
   TempleDAppPayload,
   TempleAccount,
 } from "lib/temple/front";
-import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
-import { T, t } from "lib/i18n/react";
-import ErrorBoundary from "app/ErrorBoundary";
-import Unlock from "app/pages/Unlock";
-import ContentContainer from "app/layouts/ContentContainer";
-import AccountBanner from "app/templates/AccountBanner";
-import NetworkBanner from "app/templates/NetworkBanner";
-import Balance from "app/templates/Balance";
-import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
-import Identicon from "app/atoms/Identicon";
-import Name from "app/atoms/Name";
-import AccountTypeBadge from "app/atoms/AccountTypeBadge";
-import Alert from "app/atoms/Alert";
-import Money from "app/atoms/Money";
-import Spinner from "app/atoms/Spinner";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import FormSecondaryButton from "app/atoms/FormSecondaryButton";
-import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
-import HashShortView from "app/atoms/HashShortView";
-import SubTitle from "app/atoms/SubTitle";
-import DAppLogo from "app/templates/DAppLogo";
-import OperationView from "app/templates/OperationView";
-import ConnectBanner from "app/templates/ConnectBanner";
+import { useLocation } from "lib/woozie";
+
 import { ConfirmPageSelectors } from "./ConfirmPage.selectors";
 
 const ConfirmPage: FC = () => {

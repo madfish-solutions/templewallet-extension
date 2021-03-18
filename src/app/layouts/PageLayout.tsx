@@ -12,6 +12,7 @@ import ContentContainer from "app/layouts/ContentContainer";
 import ConfirmationOverlay from "app/layouts/PageLayout/ConfirmationOverlay";
 import Header from "app/layouts/PageLayout/Header";
 import NoLambdaViewContractAlert from "app/templates/NoLambdaViewContractAlert";
+import { AnalyticsConfirmationOverlay } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
 

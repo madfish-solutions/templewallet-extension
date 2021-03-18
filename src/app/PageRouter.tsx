@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useLayoutEffect, useMemo } from "react";
+import React, { FC, useLayoutEffect, useMemo } from "react";
 
 import { useAppEnv, OpenInFullPage } from "app/env";
 import AddToken from "app/pages/AddToken";
@@ -15,7 +15,6 @@ import Send from "app/pages/Send";
 import Settings from "app/pages/Settings";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
-import { useAnalyticsSettings } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
 
