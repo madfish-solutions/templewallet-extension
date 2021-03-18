@@ -538,7 +538,7 @@ const SlippageToleranceInput = forwardRef<
           assetSymbol={
             <span
               className={classNames(
-                "absolute text-xs right-1 pointer-events-none",
+                "absolute text-xs right-1 top-px pointer-events-none",
                 assetFieldInactive ? "text-gray-600" : "text-gray-700"
               )}
             >
