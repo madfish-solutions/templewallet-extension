@@ -1,14 +1,16 @@
-import * as React from "react";
+import React, { memo } from "react";
+
 import classNames from "clsx";
-import { TempleAccount } from "lib/temple/front";
+
 import { getAccountBadgeTitle } from "app/defaults";
+import { TempleAccount } from "lib/temple/front";
 
 type AccountTypeBadgeProps = {
   account: Pick<TempleAccount, "type">;
   darkTheme?: boolean;
 };
 
-const AccountTypeBadge = React.memo<AccountTypeBadgeProps>(
+const AccountTypeBadge = memo<AccountTypeBadgeProps>(
   ({ account, darkTheme = false }) => {
     const title = getAccountBadgeTitle(account);
 

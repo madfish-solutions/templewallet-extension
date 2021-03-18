@@ -1,15 +1,15 @@
-import { browser } from "webextension-polyfill-ts";
 import { TezosToolkit, WalletContract } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
-import { TempleAsset, TempleToken, TempleAssetType } from "lib/temple/types";
+import { browser } from "webextension-polyfill-ts";
+
+import assert, { AssertionError } from "lib/assert";
+import { getMessage } from "lib/i18n";
 import {
   loadContract,
   loadContractForCallLambdaView,
 } from "lib/temple/contract";
 import { mutezToTz } from "lib/temple/helpers";
-import assert, { AssertionError } from "lib/assert";
-import { getMessage } from "lib/i18n";
-
+import { TempleAsset, TempleToken, TempleAssetType } from "lib/temple/types";
 export const TEZ_ASSET: TempleAsset = {
   type: TempleAssetType.TEZ,
   name: "Tezos",

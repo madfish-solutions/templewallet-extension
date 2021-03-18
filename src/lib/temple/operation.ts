@@ -1,9 +1,9 @@
-import { TezosToolkit, OpKind } from "@taquito/taquito";
 import {
   BlockResponse,
   OperationEntry,
   OperationContentsAndResultOrigination,
 } from "@taquito/rpc";
+import { TezosToolkit, OpKind } from "@taquito/taquito";
 
 export const SYNC_INTERVAL = 10_000;
 export const CONFIRM_TIMEOUT = 60_000 * 5;

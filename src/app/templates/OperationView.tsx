@@ -1,5 +1,14 @@
+import React, { FC, useMemo, useState } from "react";
+
 import classNames from "clsx";
-import React from "react";
+
+import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
+import { ReactComponent as HashIcon } from "app/icons/hash.svg";
+import ExpensesView from "app/templates/ExpensesView";
+import OperationsBanner from "app/templates/OperationsBanner";
+import RawPayloadView from "app/templates/RawPayloadView";
+import ViewsSwitcher from "app/templates/ViewsSwitcher";
 import { T, t } from "lib/i18n/react";
 import {
   TempleDAppPayload,
@@ -9,24 +18,17 @@ import {
   TempleAssetType,
   useTokens,
 } from "lib/temple/front";
-import OperationsBanner from "app/templates/OperationsBanner";
-import ViewsSwitcher from "app/templates/ViewsSwitcher";
-import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
-import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import { ReactComponent as HashIcon } from "app/icons/hash.svg";
-import RawPayloadView from "app/templates/RawPayloadView";
-import ExpensesView from "app/templates/ExpensesView";
 
 type OperationViewProps = {
   payload: TempleDAppPayload;
   networkRpc?: string;
 };
 
-const OperationView: React.FC<OperationViewProps> = ({
+const OperationView: FC<OperationViewProps> = ({
   payload,
   networkRpc,
 }) => {
-  const contentToParse = React.useMemo(() => {
+  const contentToParse = useMemo(() => {
     switch (payload.type) {
       case "confirm_operations":
         return (payload.rawToSign ?? payload.opParams) || [];
@@ -39,11 +41,11 @@ const OperationView: React.FC<OperationViewProps> = ({
   const account = useAccount();
   const { allTokens } = useTokens(networkRpc);
 
-  const rawExpensesData = React.useMemo(
+  const rawExpensesData = useMemo(
     () => tryParseExpenses(contentToParse, account.publicKeyHash),
     [contentToParse, account.publicKeyHash]
   );
-  const expensesData = React.useMemo(() => {
+  const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restRaw }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
         asset: tokenAddress
@@ -61,7 +63,7 @@ const OperationView: React.FC<OperationViewProps> = ({
     }));
   }, [allTokens, rawExpensesData]);
 
-  const signPayloadFormats = React.useMemo(() => {
+  const signPayloadFormats = useMemo(() => {
     const rawFormat = {
       key: "raw",
       name: t("raw"),
@@ -113,7 +115,7 @@ const OperationView: React.FC<OperationViewProps> = ({
     ];
   }, [payload, expensesData]);
 
-  const [spFormat, setSpFormat] = React.useState(signPayloadFormats[0]);
+  const [spFormat, setSpFormat] = useState(signPayloadFormats[0]);
 
   if (payload.type === "sign" && payload.preview) {
     return (

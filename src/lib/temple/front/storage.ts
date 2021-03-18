@@ -1,11 +1,13 @@
-import * as React from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { browser } from "webextension-polyfill-ts";
+
 import { useRetryableSWR } from "lib/swr";
 
 export function useStorage<T = any>(
   key: string,
   fallback?: T
-): [T, (val: React.SetStateAction<T>) => Promise<void>] {
+): [T, (val: SetStateAction<T>) => Promise<void>] {
   const { data, revalidate } = useRetryableSWR<T>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
@@ -16,13 +18,13 @@ export function useStorage<T = any>(
 
   const value = fallback !== undefined ? data ?? fallback : data!;
 
-  const valueRef = React.useRef(value);
-  React.useEffect(() => {
+  const valueRef = useRef(value);
+  useEffect(() => {
     valueRef.current = value;
   }, [value]);
 
-  const setValue = React.useCallback(
-    async (val: React.SetStateAction<T>) => {
+  const setValue = useCallback(
+    async (val: SetStateAction<T>) => {
       const nextValue =
         typeof val === "function" ? (val as any)(valueRef.current) : val;
       await putToStorage(key, nextValue);
@@ -31,13 +33,13 @@ export function useStorage<T = any>(
     [key]
   );
 
-  return React.useMemo(() => [value, setValue], [value, setValue]);
+  return useMemo(() => [value, setValue], [value, setValue]);
 }
 
 export function usePassiveStorage<T = any>(
   key: string,
   fallback?: T
-): [T, React.Dispatch<React.SetStateAction<T>>] {
+): [T, Dispatch<SetStateAction<T>>] {
   const { data } = useRetryableSWR<T>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
@@ -45,10 +47,10 @@ export function usePassiveStorage<T = any>(
   });
   const finalData = fallback !== undefined ? data ?? fallback : data!;
 
-  const [value, setValue] = React.useState(finalData);
-  const prevValue = React.useRef(value);
+  const [value, setValue] = useState(finalData);
+  const prevValue = useRef(value);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (prevValue.current !== value) {
       putToStorage(key, value);
     }
@@ -59,7 +61,7 @@ export function usePassiveStorage<T = any>(
 }
 
 export function useOnStorageChanged(handleStorageChanged: () => void) {
-  React.useEffect(() => {
+  useEffect(() => {
     browser.storage.onChanged.addListener(handleStorageChanged);
     return () => browser.storage.onChanged.removeListener(handleStorageChanged);
   }, [handleStorageChanged]);

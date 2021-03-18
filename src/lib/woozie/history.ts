@@ -1,5 +1,7 @@
-import * as React from "react";
+import { useLayoutEffect } from "react";
+
 import useForceUpdate from "use-force-update";
+
 import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
 
 export enum HistoryAction {
@@ -26,7 +28,7 @@ export function listen(listener: HistoryListener) {
 
 export function useHistory() {
   const forceUpdate = useForceUpdate();
-  React.useLayoutEffect(() => listen(forceUpdate), [forceUpdate]);
+  useLayoutEffect(() => listen(forceUpdate), [forceUpdate]);
 }
 
 export function changeState(

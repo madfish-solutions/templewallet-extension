@@ -1,5 +1,12 @@
-import * as React from "react";
+import React, { FC, HTMLAttributes, useCallback } from "react";
+
 import classNames from "clsx";
+
+import DropdownWrapper from "app/atoms/DropdownWrapper";
+import Name from "app/atoms/Name";
+import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
+import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
+import { T } from "lib/i18n/react";
 import {
   useAllNetworks,
   useNetwork,
@@ -7,20 +14,15 @@ import {
   preloadTokens,
 } from "lib/temple/front";
 import Popper from "lib/ui/Popper";
-import { T } from "lib/i18n/react";
-import DropdownWrapper from "app/atoms/DropdownWrapper";
-import Name from "app/atoms/Name";
-import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
-import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 
-type NetworkSelectProps = React.HTMLAttributes<HTMLDivElement>;
+type NetworkSelectProps = HTMLAttributes<HTMLDivElement>;
 
-const NetworkSelect: React.FC<NetworkSelectProps> = () => {
+const NetworkSelect: FC<NetworkSelectProps> = () => {
   const allNetworks = useAllNetworks();
   const network = useNetwork();
   const setNetworkId = useSetNetworkId();
 
-  const handleNetworkSelect = React.useCallback(
+  const handleNetworkSelect = useCallback(
     async (
       netId: string,
       rpcUrl: string,

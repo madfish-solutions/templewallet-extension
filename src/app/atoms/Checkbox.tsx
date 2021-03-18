@@ -1,13 +1,15 @@
-import * as React from "react";
+import React, { forwardRef, InputHTMLAttributes, useCallback, useState } from "react";
+
 import classNames from "clsx";
+
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 
-type CheckboxProps = React.InputHTMLAttributes<HTMLInputElement> & {
+type CheckboxProps = InputHTMLAttributes<HTMLInputElement> & {
   containerClassName?: string;
   errored?: boolean;
 };
 
-const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
+const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   (
     {
       containerClassName,
@@ -21,10 +23,10 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     },
     ref
   ) => {
-    const [localChecked, setLocalChecked] = React.useState(
+    const [localChecked, setLocalChecked] = useState(
       () => checked || false
     );
-    const handleChange = React.useCallback(
+    const handleChange = useCallback(
       (evt) => {
         if (onChange) {
           onChange(evt);
@@ -41,9 +43,9 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     /**
      * Focus handling
      */
-    const [localFocused, setLocalFocused] = React.useState(false);
+    const [localFocused, setLocalFocused] = useState(false);
 
-    const handleFocus = React.useCallback(
+    const handleFocus = useCallback(
       (evt) => {
         if (onFocus) {
           onFocus(evt);
@@ -57,7 +59,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       [onFocus, setLocalFocused]
     );
 
-    const handleBlur = React.useCallback(
+    const handleBlur = useCallback(
       (evt) => {
         if (onBlur) {
           onBlur(evt);

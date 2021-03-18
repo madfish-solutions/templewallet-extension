@@ -1,19 +1,20 @@
-import * as React from "react";
+import React, { ComponentProps, forwardRef, useCallback } from "react";
+
 import FormField from "app/atoms/FormField";
 
-type NoSpaceFieldProps = React.ComponentProps<typeof FormField> & {
+type NoSpaceFieldProps = ComponentProps<typeof FormField> & {
   value?: string;
   onChange?: (v: string) => void;
 };
 
-const NoSpaceField = React.forwardRef<HTMLTextAreaElement, NoSpaceFieldProps>(
+const NoSpaceField = forwardRef<HTMLTextAreaElement, NoSpaceFieldProps>(
   ({ value, onChange, ...rest }, ref) => {
-    const format = React.useCallback(
+    const format = useCallback(
       (val: string) => val.replace(/\s/g, ""),
       []
     );
 
-    const handleChange = React.useCallback(
+    const handleChange = useCallback(
       (evt) => {
         const formatted = format(evt.target.value);
         if (onChange) {

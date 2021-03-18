@@ -1,5 +1,11 @@
-import * as React from "react";
+import React, { FC, ReactNode, useCallback, useMemo, useState } from "react";
+
 import { useForm } from "react-hook-form";
+
+import Alert from "app/atoms/Alert";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import AccountBanner from "app/templates/AccountBanner";
 import { T, t } from "lib/i18n/react";
 import {
   ActivationStatus,
@@ -8,10 +14,6 @@ import {
   confirmOperation,
 } from "lib/temple/front";
 import useIsMounted from "lib/ui/useIsMounted";
-import AccountBanner from "app/templates/AccountBanner";
-import Alert from "app/atoms/Alert";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
 
 type FormData = {
   secret: string;
@@ -19,13 +21,13 @@ type FormData = {
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 
-const ActivateAccount: React.FC = () => {
+const ActivateAccount: FC = () => {
   const tezos = useTezos();
   const account = useAccount();
   const isMounted = useIsMounted();
 
-  const [success, setSuccessPure] = React.useState<React.ReactNode>(null);
-  const setSuccess = React.useCallback<typeof setSuccessPure>(
+  const [success, setSuccessPure] = useState<ReactNode>(null);
+  const setSuccess = useCallback<typeof setSuccessPure>(
     (val) => {
       if (isMounted()) {
         setSuccessPure(val);
@@ -34,7 +36,7 @@ const ActivateAccount: React.FC = () => {
     [setSuccessPure, isMounted]
   );
 
-  const activateAccount = React.useCallback(
+  const activateAccount = useCallback(
     async (address: string, secret: string) => {
       let op;
       try {
@@ -67,7 +69,7 @@ const ActivateAccount: React.FC = () => {
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async (data: FormData) => {
       if (submitting) return;
 
@@ -113,12 +115,12 @@ const ActivateAccount: React.FC = () => {
     ]
   );
 
-  const submit = React.useMemo(() => handleSubmit(onSubmit), [
+  const submit = useMemo(() => handleSubmit(onSubmit), [
     handleSubmit,
     onSubmit,
   ]);
 
-  const handleSecretFieldKeyPress = React.useCallback(
+  const handleSecretFieldKeyPress = useCallback(
     (evt) => {
       if (evt.which === 13 && !evt.shiftKey) {
         evt.preventDefault();

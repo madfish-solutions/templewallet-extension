@@ -1,13 +1,14 @@
-import React from "react";
-import { t } from "lib/i18n/react";
+import React, { FC } from "react";
+
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import ModalWithTitle, {
   ModalWithTitleProps,
 } from "app/templates/ModalWithTitle";
+import { t } from "lib/i18n/react";
 
 export type AlertModalProps = ModalWithTitleProps;
 
-const AlertModal: React.FC<AlertModalProps> = (props) => {
+const AlertModal: FC<AlertModalProps> = (props) => {
   const { onRequestClose, children, ...restProps } = props;
 
   return (
