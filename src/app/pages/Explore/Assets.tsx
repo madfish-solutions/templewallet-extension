@@ -235,7 +235,8 @@ const ListItem = memo<ListItemProps>(
           "transition ease-in-out duration-200",
           "focus:outline-none"
         )}
-        testID={AssetsSelectors.AccountItemButton}
+        testID={AssetsSelectors.AssetItemButton}
+        testIDProperties={{ key: getAssetKey(asset) }}
       >
         <AssetIcon asset={asset} size={32} className="mr-3" />
 

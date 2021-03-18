@@ -47,6 +47,7 @@ const PageLayout: FC<PageLayoutProps> = ({
 
       <NoLambdaViewContractAlert />
       <ConfirmationOverlay />
+      <AnalyticsConfirmationOverlay/>
     </>
   );
 };
