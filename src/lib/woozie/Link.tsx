@@ -49,7 +49,6 @@ interface LinkAnchorProps
   onNavigate: () => void;
   onClick?: MouseEventHandler;
   target?: string;
-  testID?: string;
 }
 
 const LinkAnchor: FC<LinkAnchorProps> = ({
@@ -58,13 +57,14 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
   onClick,
   target,
   testID,
+  testIDProperties,
   ...rest
 }) => {
   const trackEvent = useAnalyticsTrackEvent();
 
   const handleClick = useCallback(
     (evt) => {
-      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress);
+      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
       try {
         if (onClick) {
@@ -85,7 +85,7 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
         onNavigate();
       }
     },
-    [onClick, target, onNavigate, trackEvent, testID]
+    [onClick, target, onNavigate, trackEvent, testID, testIDProperties]
   );
 
   return (

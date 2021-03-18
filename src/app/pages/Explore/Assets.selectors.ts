@@ -1,4 +1,4 @@
 export enum AssetsSelectors {
   ManageButton = 'AssetsSelectors.ManageButton',
-  AccountItemButton = 'AssetsSelectors.AccountItemButton'
+  AssetItemButton = 'AssetsSelectors.AssetItemButton'
 }

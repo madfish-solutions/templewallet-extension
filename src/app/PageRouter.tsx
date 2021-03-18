@@ -87,17 +87,6 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 ]);
 
 const Page: FC = () => {
-  const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
-
-  useEffect(() => {
-      if (analyticsEnabled === undefined) {
-        setTimeout(() => {
-          // TODO: replace this with a real one overlay
-          setAnalyticsEnabled(window.confirm("Do you allow us to collect anonymous analytics to improve our product?"));
-        })
-      }
-    },
-    [analyticsEnabled, setAnalyticsEnabled]);
   const { trigger, pathname } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
