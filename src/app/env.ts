@@ -1,6 +1,8 @@
-import * as React from "react";
+import { FC, useCallback, useLayoutEffect, useRef } from "react";
+
 import constate from "constate";
 import { browser } from "webextension-polyfill-ts";
+
 import { createUrl } from "lib/woozie";
 
 export type AppEnvironment = {
@@ -20,16 +22,16 @@ export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
   const popup = env.windowType === WindowType.Popup;
   const confirmWindow = env.confirmWindow ?? false;
 
-  const handlerRef = React.useRef<BackHandler>();
-  const prevHandlerRef = React.useRef<BackHandler>();
+  const handlerRef = useRef<BackHandler>();
+  const prevHandlerRef = useRef<BackHandler>();
 
-  const onBack = React.useCallback(() => {
+  const onBack = useCallback(() => {
     if (handlerRef.current) {
       handlerRef.current();
     }
   }, []);
 
-  const registerBackHandler = React.useCallback((handler: BackHandler) => {
+  const registerBackHandler = useCallback((handler: BackHandler) => {
     if (handlerRef.current) {
       prevHandlerRef.current = handlerRef.current;
     }
@@ -51,10 +53,10 @@ export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
   };
 });
 
-export const OpenInFullPage: React.FC = () => {
+export const OpenInFullPage: FC = () => {
   const appEnv = useAppEnv();
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     openInFullPage();
     if (appEnv.popup) {
       window.close();

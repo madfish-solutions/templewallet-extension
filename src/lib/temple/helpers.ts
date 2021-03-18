@@ -1,8 +1,9 @@
-import BigNumber from "bignumber.js";
-import memoize from "micro-memoize";
+import { HttpResponseError } from "@taquito/http-utils";
 import { RpcClient } from "@taquito/rpc";
 import { ValidationResult, validateAddress } from "@taquito/utils";
-import { HttpResponseError } from "@taquito/http-utils";
+import BigNumber from "bignumber.js";
+import memoize from "micro-memoize";
+
 import { getMessage } from "lib/i18n";
 import { IntercomError } from "lib/intercom/helpers";
 

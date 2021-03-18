@@ -1,16 +1,18 @@
-import * as React from "react";
+import React, { ComponentProps, forwardRef, ReactNode } from "react";
+
 import classNames from "clsx";
+
 import Checkbox from "app/atoms/Checkbox";
 
-type FormCheckboxProps = React.ComponentProps<typeof Checkbox> & {
-  label?: React.ReactNode;
-  labelDescription?: React.ReactNode;
-  errorCaption?: React.ReactNode;
+type FormCheckboxProps = ComponentProps<typeof Checkbox> & {
+  label?: ReactNode;
+  labelDescription?: ReactNode;
+  errorCaption?: ReactNode;
   containerClassName?: string;
   labelClassName?: string;
 };
 
-const FormCheckbox = React.forwardRef<HTMLInputElement, FormCheckboxProps>(
+const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
   (
     {
       label,

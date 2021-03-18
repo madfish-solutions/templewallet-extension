@@ -1,14 +1,15 @@
-import * as React from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
+
 import useIsMounted from "lib/ui/useIsMounted";
 
 export default function useSafeState<T>(
   initialState: T | (() => T),
   dep?: any
-): [T, React.Dispatch<React.SetStateAction<T>>] {
+): [T, Dispatch<SetStateAction<T>>] {
   const isMounted = useIsMounted();
-  const [state, setStatePure] = React.useState(initialState);
+  const [state, setStatePure] = useState(initialState);
 
-  const setState = React.useCallback<React.Dispatch<React.SetStateAction<T>>>(
+  const setState = useCallback<Dispatch<SetStateAction<T>>>(
     (val) => {
       if (isMounted()) {
         setStatePure(val);
@@ -17,8 +18,8 @@ export default function useSafeState<T>(
     [isMounted, setStatePure]
   );
 
-  const depRef = React.useRef(dep);
-  React.useEffect(() => {
+  const depRef = useRef(dep);
+  useEffect(() => {
     if (depRef.current !== dep) {
       setState(initialState);
     }

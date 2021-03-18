@@ -1,6 +1,14 @@
-import * as React from "react";
+import React, { FC, memo, useCallback, useMemo, useRef, useState } from "react";
+
 import classNames from "clsx";
-import { Link } from "lib/woozie";
+
+import Checkbox from "app/atoms/Checkbox";
+import { ReactComponent as AddIcon } from "app/icons/add-to-list.svg";
+import { ReactComponent as ControlCentreIcon } from "app/icons/control-centre.svg";
+import { ReactComponent as SearchIcon } from "app/icons/search.svg";
+import PageLayout from "app/layouts/PageLayout";
+import AssetIcon from "app/templates/AssetIcon";
+import SearchAssetField from "app/templates/SearchAssetField";
 import { T } from "lib/i18n/react";
 import {
   useTokens,
@@ -10,15 +18,9 @@ import {
   TempleAssetType,
   useNetwork,
 } from "lib/temple/front";
-import PageLayout from "app/layouts/PageLayout";
-import AssetIcon from "app/templates/AssetIcon";
-import SearchAssetField from "app/templates/SearchAssetField";
-import Checkbox from "app/atoms/Checkbox";
-import { ReactComponent as ControlCentreIcon } from "app/icons/control-centre.svg";
-import { ReactComponent as AddIcon } from "app/icons/add-to-list.svg";
-import { ReactComponent as SearchIcon } from "app/icons/search.svg";
+import { Link } from "lib/woozie";
 
-const ManageAssets: React.FC = () => (
+const ManageAssets: FC = () => (
   <PageLayout
     pageTitle={
       <>
@@ -33,14 +35,14 @@ const ManageAssets: React.FC = () => (
 
 export default ManageAssets;
 
-const ManageAssetsContent: React.FC = () => {
+const ManageAssetsContent: FC = () => {
   const network = useNetwork();
   const { displayedAndHiddenTokens, updateToken } = useTokens();
 
-  const netIdRef = React.useRef<string>();
-  const sortIndexes = React.useRef<Map<string, number>>();
+  const netIdRef = useRef<string>();
+  const sortIndexes = useRef<Map<string, number>>();
 
-  const checkableTokens = React.useMemo(() => {
+  const checkableTokens = useMemo(() => {
     const unsorted = displayedAndHiddenTokens.map((t) =>
       t.status === "displayed" ? toChecked(t) : toUnchecked(t)
     );
@@ -61,14 +63,14 @@ const ManageAssetsContent: React.FC = () => {
     );
   }
 
-  const [searchValue, setSearchValue] = React.useState("");
+  const [searchValue, setSearchValue] = useState("");
 
-  const filteredTokens = React.useMemo(
+  const filteredTokens = useMemo(
     () => searchAssets(checkableTokens, searchValue),
     [checkableTokens, searchValue]
   );
 
-  const handleAssetChecked = React.useCallback(
+  const handleAssetChecked = useCallback(
     (asset: CheckableAsset, checked: boolean) => {
       const plain = toPlain(asset);
 
@@ -175,9 +177,9 @@ type ListItemProps = {
   onChecked: (asset: CheckableAsset, checked: boolean) => void;
 };
 
-const ListItem = React.memo<ListItemProps>(
+const ListItem = memo<ListItemProps>(
   ({ asset, last, checked, onChecked }) => {
-    const handleCheckboxChange = React.useCallback(
+    const handleCheckboxChange = useCallback(
       (evt) => {
         onChecked(asset, evt.target.checked);
       },

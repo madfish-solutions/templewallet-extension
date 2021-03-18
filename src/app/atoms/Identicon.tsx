@@ -1,11 +1,13 @@
-import * as React from "react";
-import classNames from "clsx";
+import React, { FC, HTMLAttributes, useMemo } from "react";
+
 import Avatars from "@dicebear/avatars";
-import jdenticonSpirtes from "@dicebear/avatars-jdenticon-sprites";
 import botttsSprites from "@dicebear/avatars-bottts-sprites";
+import jdenticonSpirtes from "@dicebear/avatars-jdenticon-sprites";
+import classNames from "clsx";
+
 import initialsSprites from "lib/avatars-initials-sprites";
 
-type IdenticonProps = React.HTMLAttributes<HTMLDivElement> & {
+type IdenticonProps = HTMLAttributes<HTMLDivElement> & {
   type?: "jdenticon" | "bottts" | "initials";
   hash: string;
   size?: number;
@@ -22,7 +24,7 @@ const icons: Record<NonNullable<IdenticonProps["type"]>, Avatars<{}>> = {
   initials: new Avatars(initialsSprites),
 };
 
-const Identicon: React.FC<IdenticonProps> = ({
+const Identicon: FC<IdenticonProps> = ({
   type = "jdenticon",
   hash,
   size = 100,
@@ -30,7 +32,7 @@ const Identicon: React.FC<IdenticonProps> = ({
   style = {},
   ...rest
 }) => {
-  const backgroundImage = React.useMemo(() => {
+  const backgroundImage = useMemo(() => {
     const key = `${type}_${hash}_${size}`;
     if (cache.has(key)) {
       return cache.get(key);
