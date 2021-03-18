@@ -2,6 +2,9 @@ import React, { FunctionComponent, memo, SVGProps } from "react";
 
 import classNames from "clsx";
 
+import { Button } from "app/atoms/Button";
+import { TestIDProps } from "lib/analytics";
+
 export type ViewsSwitcherItemProps = {
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
   key: string;

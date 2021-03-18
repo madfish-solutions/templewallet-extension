@@ -31,6 +31,7 @@ import {
   HistoryAction,
 } from "lib/woozie";
 
+import { ExploreSelectors } from "./Explore.selectors";
 import AddressChip from "./Explore/AddressChip";
 import AddUnknownTokens from "./Explore/AddUnknownTokens";
 import Assets from "./Explore/Assets";

@@ -3,6 +3,7 @@ import React, { ComponentProps, FC, ReactNode, Suspense, useEffect, useLayoutEff
 import classNames from "clsx";
 
 import DocBg from "app/a11y/DocBg";
+import { Button } from "app/atoms/Button";
 import Spinner from "app/atoms/Spinner";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
@@ -13,7 +14,6 @@ import Header from "app/layouts/PageLayout/Header";
 import NoLambdaViewContractAlert from "app/templates/NoLambdaViewContractAlert";
 import { T } from "lib/i18n/react";
 import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
-import { Button } from "app/atoms/Button";
 
 import { PageLayoutSelectors } from "./PageLayout.selectors";
 

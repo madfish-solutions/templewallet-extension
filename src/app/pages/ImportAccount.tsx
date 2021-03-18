@@ -14,6 +14,7 @@ import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import PageLayout from "app/layouts/PageLayout";
 import ManagedKTForm from "app/templates/ManagedKTForm";
+import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import {
   useTempleClient,
@@ -30,7 +31,6 @@ import {
   useNetwork,
   ImportAccountFormType,
 } from "lib/temple/front";
-import { useFormAnalytics } from "lib/analytics";
 import useSafeState from "lib/ui/useSafeState";
 import { Link, navigate } from "lib/woozie";
 

@@ -1,4 +1,4 @@
-import React, { FC, useLayoutEffect, useMemo } from "react";
+import React, { FC, useEffect, useLayoutEffect, useMemo } from "react";
 
 import { useAppEnv, OpenInFullPage } from "app/env";
 import AddToken from "app/pages/AddToken";
@@ -15,6 +15,7 @@ import Send from "app/pages/Send";
 import Settings from "app/pages/Settings";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
+import { useAnalyticsSettings } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
 
@@ -88,7 +89,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 const Page: FC = () => {
   const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
 
-  React.useEffect(() => {
+  useEffect(() => {
       if (analyticsEnabled === undefined) {
         setTimeout(() => {
           // TODO: replace this with a real one overlay

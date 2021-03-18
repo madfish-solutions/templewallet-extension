@@ -20,6 +20,8 @@ import {
 } from "lib/temple/front";
 import { Link } from "lib/woozie";
 
+import { ManageAssetsSelectors } from "./ManageAssets.selectors";
+
 const ManageAssets: FC = () => (
   <PageLayout
     pageTitle={

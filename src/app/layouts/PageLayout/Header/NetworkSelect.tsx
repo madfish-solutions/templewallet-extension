@@ -2,6 +2,7 @@ import React, { FC, HTMLAttributes, useCallback } from "react";
 
 import classNames from "clsx";
 
+import { Button } from "app/atoms/Button";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Name from "app/atoms/Name";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
@@ -14,6 +15,8 @@ import {
   preloadTokens,
 } from "lib/temple/front";
 import Popper from "lib/ui/Popper";
+
+import { NetworkSelectSelectors } from "./NetworkSelect.selectors";
 
 type NetworkSelectProps = HTMLAttributes<HTMLDivElement>;
 

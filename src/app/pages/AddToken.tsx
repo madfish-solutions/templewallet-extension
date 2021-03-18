@@ -11,6 +11,7 @@ import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import PageLayout from "app/layouts/PageLayout";
+import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { sanitizeImgUri } from "lib/image-uri";
 import {

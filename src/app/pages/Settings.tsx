@@ -21,6 +21,8 @@ import RevealSecret from "app/templates/RevealSecret";
 import { T } from "lib/i18n/react";
 import { Link } from "lib/woozie";
 
+import { SettingsSelectors } from "./Settings.selectors";
+
 type SettingsProps = {
   tabSlug?: string | null;
 };

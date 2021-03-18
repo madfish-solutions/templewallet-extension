@@ -10,6 +10,7 @@ import useSWR from "swr";
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
+import { Button } from "app/atoms/Button";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
@@ -31,6 +32,7 @@ import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import { AnalyticsEventCategory, useAnalyticsTrackEvent, useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import {
@@ -59,6 +61,8 @@ import {
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
+
+import { SendFormSelectors } from "./SendForm.selectors";
 
 interface FormData {
   to: string;

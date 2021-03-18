@@ -22,6 +22,8 @@ import {
 } from "lib/temple/front";
 import { Link, navigate } from "lib/woozie";
 
+import { AssetsSelectors } from "./Assets.selectors";
+
 const Assets: FC = () => {
   const account = useAccount();
   const { allAssets } = useAssets();
