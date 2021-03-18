@@ -1,5 +1,6 @@
+import React, { FC, HTMLAttributes, memo, useCallback, useState } from "react";
+
 import classNames from "clsx";
-import React, { useCallback, useState } from "react";
 
 export type FlagProps = {
   alt: string;
@@ -7,7 +8,7 @@ export type FlagProps = {
   src?: string;
 };
 
-const Flag: React.FC<FlagProps> = (props) => {
+const Flag: FC<FlagProps> = (props) => {
   const { alt, className, src } = props;
   const [error, setError] = useState(false);
 
@@ -43,7 +44,7 @@ const Flag: React.FC<FlagProps> = (props) => {
 
 export default Flag;
 
-const FlagStub = React.memo((props: React.HTMLAttributes<unknown>) => (
+const FlagStub = memo((props: HTMLAttributes<unknown>) => (
   <svg
     role="img"
     xmlns="http://www.w3.org/2000/svg"

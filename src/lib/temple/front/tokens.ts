@@ -1,5 +1,8 @@
-import * as React from "react";
+import { useCallback, useMemo } from "react";
+
 import { cache, mutate } from "swr";
+
+import { t } from "lib/i18n/react";
 import {
   useNetwork,
   useStorage,
@@ -13,9 +16,9 @@ import {
   MAINNET_TOKENS,
   DELPHINET_TOKENS,
 } from "lib/temple/front";
-import { t } from "lib/i18n/react";
-import { useAllNetworks } from "./ready";
+
 import { omitAssets } from "../assets";
+import { useAllNetworks } from "./ready";
 
 const NETWORK_TOKEN_MAP = new Map([
   [TempleChainId.Mainnet, MAINNET_TOKENS],
@@ -26,7 +29,7 @@ export function useTokens(networkRpc?: string) {
   const allNetworks = useAllNetworks();
   const selectedNetwork = useNetwork();
 
-  const network = React.useMemo(() => {
+  const network = useMemo(() => {
     if (!networkRpc) return selectedNetwork;
     return (
       allNetworks.find(
@@ -42,41 +45,41 @@ export function useTokens(networkRpc?: string) {
     []
   );
 
-  const savedTokens = React.useMemo(() => tokensPure.map(formatSaved), [
+  const savedTokens = useMemo(() => tokensPure.map(formatSaved), [
     tokensPure,
   ]);
 
-  const staticTokens = React.useMemo(
+  const staticTokens = useMemo(
     () => (chainId && NETWORK_TOKEN_MAP.get(chainId as TempleChainId)) || [],
     [chainId]
   );
 
-  const allTokens = React.useMemo(
+  const allTokens = useMemo(
     () => [...omitAssets(staticTokens, savedTokens), ...savedTokens],
     [staticTokens, savedTokens]
   );
 
-  const displayedTokens = React.useMemo(
+  const displayedTokens = useMemo(
     () => allTokens.filter((t) => t.status === "displayed"),
     [allTokens]
   );
 
-  const hiddenTokens = React.useMemo(
+  const hiddenTokens = useMemo(
     () => allTokens.filter((t) => t.status === "hidden"),
     [allTokens]
   );
 
-  const displayedAndHiddenTokens = React.useMemo(
+  const displayedAndHiddenTokens = useMemo(
     () => allTokens.filter((t) => t.status !== "removed"),
     [allTokens]
   );
 
-  const removedTokens = React.useMemo(
+  const removedTokens = useMemo(
     () => allTokens.filter((t) => t.status === "removed"),
     [allTokens]
   );
 
-  const updateToken = React.useCallback(
+  const updateToken = useCallback(
     (token: TempleToken, toUpdate: Partial<TempleToken>) =>
       saveTokens((tkns) => {
         const savedIndex = tkns.findIndex((t) => assetsAreSame(t, token));
@@ -96,7 +99,7 @@ export function useTokens(networkRpc?: string) {
     [saveTokens, staticTokens]
   );
 
-  const addToken = React.useCallback(
+  const addToken = useCallback(
     (token: TempleToken) => {
       if (displayedTokens.some((t) => assetsAreSame(t, token))) {
         if (token.type === TempleAssetType.FA2) {

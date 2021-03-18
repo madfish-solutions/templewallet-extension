@@ -1,6 +1,26 @@
-import * as React from "react";
-import classNames from "clsx";
+import React, { FC, useCallback, useMemo } from "react";
+
 import { localForger } from "@taquito/local-forging";
+import classNames from "clsx";
+
+import Alert from "app/atoms/Alert";
+import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
+import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import Logo from "app/atoms/Logo";
+import SubTitle from "app/atoms/SubTitle";
+import { useAppEnv } from "app/env";
+import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
+import { ReactComponent as HashIcon } from "app/icons/hash.svg";
+import AccountBanner from "app/templates/AccountBanner";
+import ExpensesView from "app/templates/ExpensesView";
+import NetworkBanner from "app/templates/NetworkBanner";
+import OperationsBanner from "app/templates/OperationsBanner";
+import RawPayloadView from "app/templates/RawPayloadView";
+import ViewsSwitcher from "app/templates/ViewsSwitcher";
+import { T, t } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   TempleAccountType,
   TempleAssetType,
@@ -12,39 +32,20 @@ import {
   TEZ_ASSET,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
-import { T, t } from "lib/i18n/react";
-import { useRetryableSWR } from "lib/swr";
-import { useAppEnv } from "app/env";
-import AccountBanner from "app/templates/AccountBanner";
-import OperationsBanner from "app/templates/OperationsBanner";
-import NetworkBanner from "app/templates/NetworkBanner";
-import RawPayloadView from "app/templates/RawPayloadView";
-import ViewsSwitcher, { ViewsSwitcherItemProps } from "app/templates/ViewsSwitcher";
-import ExpensesView from "app/templates/ExpensesView";
-import Logo from "app/atoms/Logo";
-import Alert from "app/atoms/Alert";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import FormSecondaryButton from "app/atoms/FormSecondaryButton";
-import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
-import SubTitle from "app/atoms/SubTitle";
-import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
-import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import { ReactComponent as HashIcon } from "app/icons/hash.svg";
-import { InternalConfirmationSelectors } from "./InternalConfirmation.selectors";
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean) => Promise<void>;
 };
 
-const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
+const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   payload,
   onConfirm,
 }) => {
   const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
 
-  const getContentToParse = React.useCallback(async () => {
+  const getContentToParse = useCallback(async () => {
     switch (payload.type) {
       case "operations":
         return payload.opParams || [];
@@ -73,15 +74,15 @@ const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
 
   const allAccounts = useRelevantAccounts();
   const { allAssetsWithHidden } = useAssets();
-  const account = React.useMemo(
+  const account = useMemo(
     () => allAccounts.find((a) => a.publicKeyHash === payload.sourcePkh)!,
     [allAccounts, payload.sourcePkh]
   );
-  const rawExpensesData = React.useMemo(
+  const rawExpensesData = useMemo(
     () => tryParseExpenses(contentToParse!, account.publicKeyHash),
     [contentToParse, account.publicKeyHash]
   );
-  const expensesData = React.useMemo(() => {
+  const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, ...restProps }) => ({
         asset: tokenAddress
@@ -97,7 +98,7 @@ const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
     }));
   }, [allAssetsWithHidden, rawExpensesData]);
 
-  const signPayloadFormats: ViewsSwitcherItemProps[] = React.useMemo(() => {
+  const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === "operations") {
       return [
         {
@@ -146,7 +147,7 @@ const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
 
-  const confirm = React.useCallback(
+  const confirm = useCallback(
     async (confirmed: boolean) => {
       setError(null);
       try {
@@ -160,7 +161,7 @@ const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
     [onConfirm, setError]
   );
 
-  const handleConfirmClick = React.useCallback(async () => {
+  const handleConfirmClick = useCallback(async () => {
     if (confirming || declining) return;
 
     setConfirming(true);
@@ -168,7 +169,7 @@ const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
     setConfirming(false);
   }, [confirming, declining, setConfirming, confirm]);
 
-  const handleDeclineClick = React.useCallback(async () => {
+  const handleDeclineClick = useCallback(async () => {
     if (confirming || declining) return;
 
     setDeclining(true);
@@ -176,7 +177,7 @@ const InternalConfirmation: React.FC<InternalConfiramtionProps> = ({
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
-  const handleErrorAlertClose = React.useCallback(() => setError(null), [
+  const handleErrorAlertClose = useCallback(() => setError(null), [
     setError,
   ]);
 

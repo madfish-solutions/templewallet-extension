@@ -1,23 +1,25 @@
-import * as React from "react";
-import classNames from "clsx";
-import { TempleAccount, TEZ_ASSET } from "lib/temple/front";
-import { t } from "lib/i18n/react";
-import Balance from "app/templates/Balance";
-import Money from "app/atoms/Money";
-import Identicon from "app/atoms/Identicon";
-import Name from "app/atoms/Name";
-import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import React, { HTMLAttributes, memo, ReactNode } from "react";
 
-type AccountBannerProps = React.HTMLAttributes<HTMLDivElement> & {
+import classNames from "clsx";
+
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
+import Balance from "app/templates/Balance";
+import { t } from "lib/i18n/react";
+import { TempleAccount, TEZ_ASSET } from "lib/temple/front";
+
+type AccountBannerProps = HTMLAttributes<HTMLDivElement> & {
   account: TempleAccount;
   displayBalance?: boolean;
   networkRpc?: string;
-  label?: React.ReactNode;
-  labelDescription?: React.ReactNode;
+  label?: ReactNode;
+  labelDescription?: ReactNode;
   labelIndent?: "sm" | "md";
 };
 
-const AccountBanner = React.memo<AccountBannerProps>(
+const AccountBanner = memo<AccountBannerProps>(
   ({
     account,
     displayBalance = true,

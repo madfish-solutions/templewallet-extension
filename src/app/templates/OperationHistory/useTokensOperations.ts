@@ -1,15 +1,16 @@
-import React from "react";
+import { useCallback } from "react";
+
+import {
+  useOpsPagination,
+  groupOpsByHash,
+} from "app/templates/OperationHistory/useOpsPagination";
 import { getTokenTransfers } from "lib/better-call-dev";
+import { TempleAssetType, TempleToken } from "lib/temple/types";
 import {
   getAccountWithOperations,
   TZStatsNetwork,
   TZStatsOperation,
 } from "lib/tzstats";
-import { TempleAssetType, TempleToken } from "lib/temple/types";
-import {
-  useOpsPagination,
-  groupOpsByHash,
-} from "app/templates/OperationHistory/useOpsPagination";
 
 export type GetOperationsParams = {
   accountPkh: string;
@@ -24,7 +25,7 @@ export default function useTokensOperations({
   networkId,
   asset,
 }: GetOperationsParams) {
-  const fetchFn = React.useCallback(
+  const fetchFn = useCallback(
     async (
       tzStatsOffset: number,
       bcdEnd: number | undefined,

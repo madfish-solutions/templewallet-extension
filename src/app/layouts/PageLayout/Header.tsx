@@ -1,20 +1,21 @@
-import * as React from "react";
+import React, { FC } from "react";
+
 import classNames from "clsx";
-import Popper from "lib/ui/Popper";
-import { Link } from "lib/woozie";
-import { useTempleClient, useAccount } from "lib/temple/front";
+
+import Identicon from "app/atoms/Identicon";
+import Logo from "app/atoms/Logo";
+import Name from "app/atoms/Name";
 import { useAppEnv } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
-import Identicon from "app/atoms/Identicon";
-import Name from "app/atoms/Name";
-import Logo from "app/atoms/Logo";
-import { Button } from "app/atoms/Button";
-import styles from "./Header.module.css";
-import NetworkSelect from "./Header/NetworkSelect";
-import AccountDropdown from "./Header/AccountDropdown";
-import { HeaderSelectors } from "./Header.selectors";
+import { useTempleClient, useAccount } from "lib/temple/front";
+import Popper from "lib/ui/Popper";
+import { Link } from "lib/woozie";
 
-const Header: React.FC = () => {
+import styles from "./Header.module.css";
+import AccountDropdown from "./Header/AccountDropdown";
+import NetworkSelect from "./Header/NetworkSelect";
+
+const Header: FC = () => {
   const appEnv = useAppEnv();
   const { ready } = useTempleClient();
 
@@ -45,7 +46,7 @@ const Header: React.FC = () => {
 
 export default Header;
 
-const Control: React.FC = () => {
+const Control: FC = () => {
   const account = useAccount();
 
   return (

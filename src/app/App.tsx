@@ -1,26 +1,27 @@
-import * as React from "react";
-import * as Woozie from "lib/woozie";
+import React, { ComponentProps, FC, Suspense } from "react";
+
+import AwaitFonts from "app/a11y/AwaitFonts";
+import AwaitI18N from "app/a11y/AwaitI18N";
+import BootAnimation from "app/a11y/BootAnimation";
+import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
+import RootSuspenseFallback from "app/a11y/RootSuspenseFallback";
+import ConfirmPage from "app/ConfirmPage";
+import { AppEnvProvider } from "app/env";
+import ErrorBoundary from "app/ErrorBoundary";
+import Dialogs from "app/layouts/Dialogs";
+import PageRouter from "app/PageRouter";
 import { TempleProvider } from "lib/temple/front";
 import { DialogsProvider } from "lib/ui/dialog";
-import { AppEnvProvider } from "app/env";
-import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
-import AwaitI18N from "app/a11y/AwaitI18N";
-import AwaitFonts from "app/a11y/AwaitFonts";
-import BootAnimation from "app/a11y/BootAnimation";
-import RootSuspenseFallback from "app/a11y/RootSuspenseFallback";
-import ErrorBoundary from "app/ErrorBoundary";
-import PageRouter from "app/PageRouter";
-import ConfirmPage from "app/ConfirmPage";
-import Dialogs from "app/layouts/Dialogs";
+import * as Woozie from "lib/woozie";
 
 type AppProps = {
-  env: React.ComponentProps<typeof AppEnvProvider>;
+  env: ComponentProps<typeof AppEnvProvider>;
 };
 
-const App: React.FC<AppProps> = ({ env }) => (
+const App: FC<AppProps> = ({ env }) => (
   <ErrorBoundary whileMessage="booting a wallet" className="min-h-screen">
     <DialogsProvider>
-      <React.Suspense fallback={<RootSuspenseFallback />}>
+      <Suspense fallback={<RootSuspenseFallback />}>
         <AppProvider env={env}>
           <Dialogs />
 
@@ -38,14 +39,14 @@ const App: React.FC<AppProps> = ({ env }) => (
             </BootAnimation>
           </AwaitFonts>
         </AppProvider>
-      </React.Suspense>
+      </Suspense>
     </DialogsProvider>
   </ErrorBoundary>
 );
 
 export default App;
 
-const AppProvider: React.FC<AppProps> = ({ children, env }) => (
+const AppProvider: FC<AppProps> = ({ children, env }) => (
   <AppEnvProvider {...env}>
     <Woozie.Provider>
       <TempleProvider>{children}</TempleProvider>
