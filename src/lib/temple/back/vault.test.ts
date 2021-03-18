@@ -254,7 +254,7 @@ describe("Vault tests", () => {
     await Vault.spawn(password, mnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.importWatchOnlyAccount(
-      "p2pk66tTYL5EvahKAXncbtbRPBkAnxo3CszzUho5wPCgWauBMyvybuB"
+      "KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn"
     );
     expect(accounts[1].type).toBe(TempleAccountType.WatchOnly);
   });
@@ -269,7 +269,7 @@ describe("Vault tests", () => {
       expect(e.message).toEqual("Failed to remove account");
     }
     const accountsWithWatchOnly = await vault.importWatchOnlyAccount(
-      "p2pk66tTYL5EvahKAXncbtbRPBkAnxo3CszzUho5wPCgWauBMyvybuB"
+      "KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn"
     );
     expect(accountsWithWatchOnly[1].type).toBe(TempleAccountType.WatchOnly);
     const afterRemoveAccounts = await Vault.removeAccount(
