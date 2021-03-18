@@ -1,6 +1,7 @@
-import { Vault } from "./vault";
 import { browser } from "webextension-polyfill-ts";
+
 import { TempleAccountType, TempleSettings } from "../types";
+import { Vault } from "./vault";
 
 const password = "Test123!";
 const mnemonic =

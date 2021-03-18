@@ -1,5 +1,6 @@
-import { browser } from "webextension-polyfill-ts";
 import { generateKey } from "lib/temple/passworder";
+import { browser } from "webextension-polyfill-ts";
+
 import {
   encryptAndSaveMany,
   fetchAndDecryptOne,
