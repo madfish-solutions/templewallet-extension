@@ -1,18 +1,20 @@
-import * as React from "react";
+import React, { FC, memo, useCallback, useEffect } from "react";
+
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
 import useSWR from "swr";
-import { useAccount, useTezos, useTezosDomainsClient } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
-import useSafeState from "lib/ui/useSafeState";
-import useCopyToClipboard from "lib/ui/useCopyToClipboard";
-import PageLayout from "app/layouts/PageLayout";
+
 import FormField from "app/atoms/FormField";
-import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
-import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
+import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
+import { ReactComponent as QRIcon } from "app/icons/qr.svg";
+import PageLayout from "app/layouts/PageLayout";
 import ViewsSwitcher, { ViewsSwitcherProps } from "app/templates/ViewsSwitcher";
+import { T, t } from "lib/i18n/react";
+import { useAccount, useTezos, useTezosDomainsClient } from "lib/temple/front";
+import useCopyToClipboard from "lib/ui/useCopyToClipboard";
+import useSafeState from "lib/ui/useSafeState";
 // import Deposit from "./Receive/Deposit";
 
 const ADDRESS_FIELD_VIEWS = [
@@ -28,7 +30,7 @@ const ADDRESS_FIELD_VIEWS = [
   },
 ];
 
-const Receive: React.FC = () => {
+const Receive: FC = () => {
   const account = useAccount();
   const tezos = useTezos();
   const { resolver: domainsResolver, isSupported } = useTezosDomainsClient();
@@ -37,7 +39,7 @@ const Receive: React.FC = () => {
   const { fieldRef, copy, copied } = useCopyToClipboard();
   const [activeView, setActiveView] = useSafeState(ADDRESS_FIELD_VIEWS[1]);
 
-  const resolveDomainReverseName = React.useCallback(
+  const resolveDomainReverseName = useCallback(
     (_k: string, pkh: string) => domainsResolver.resolveAddressToName(pkh),
     [domainsResolver]
   );
@@ -48,7 +50,7 @@ const Receive: React.FC = () => {
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isSupported) {
       setActiveView(ADDRESS_FIELD_VIEWS[1]);
     }
@@ -161,7 +163,7 @@ type AddressFieldExtraSectionProps = {
   onSwitch: ViewsSwitcherProps["onChange"];
 };
 
-const AddressFieldExtraSection = React.memo<AddressFieldExtraSectionProps>(
+const AddressFieldExtraSection = memo<AddressFieldExtraSectionProps>(
   (props) => {
     const { activeView, onSwitch } = props;
 

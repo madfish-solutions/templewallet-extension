@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 
 type HashShortViewProps = {
   hash: string;
@@ -8,7 +8,7 @@ type HashShortViewProps = {
   lastCharsCount?: number;
 };
 
-const HashShortView = React.memo<HashShortViewProps>(
+const HashShortView = memo<HashShortViewProps>(
   ({
     hash,
     trim = true,

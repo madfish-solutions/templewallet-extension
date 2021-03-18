@@ -1,22 +1,23 @@
-import * as React from "react";
-import * as Woozie from "lib/woozie";
-import { useTempleClient } from "lib/temple/front";
+import React, { FC, useLayoutEffect, useMemo } from "react";
+
 import { useAppEnv, OpenInFullPage } from "app/env";
-import Unlock from "app/pages/Unlock";
-import Welcome from "app/pages/Welcome";
-import ImportWallet from "app/pages/ImportWallet";
-import CreateWallet from "app/pages/CreateWallet";
+import AddToken from "app/pages/AddToken";
+import ConnectLedger from "app/pages/ConnectLedger";
 import CreateAccount from "app/pages/CreateAccount";
-import ImportAccount from "app/pages/ImportAccount";
+import CreateWallet from "app/pages/CreateWallet";
+import Delegate from "app/pages/Delegate";
 import Explore from "app/pages/Explore";
+import ImportAccount from "app/pages/ImportAccount";
+import ImportWallet from "app/pages/ImportWallet";
+import ManageAssets from "app/pages/ManageAssets";
 import Receive from "app/pages/Receive";
 import Send from "app/pages/Send";
-import Swap from "app/pages/Swap";
-import Delegate from "app/pages/Delegate";
-import ManageAssets from "app/pages/ManageAssets";
-import AddToken from "app/pages/AddToken";
 import Settings from "app/pages/Settings";
-import ConnectLedger from "app/pages/ConnectLedger";
+import Swap from "app/pages/Swap";
+import Unlock from "app/pages/Unlock";
+import Welcome from "app/pages/Welcome";
+import { useTempleClient } from "lib/temple/front";
+import * as Woozie from "lib/woozie";
 
 interface RouteContext {
   popup: boolean;
@@ -86,11 +87,11 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ["*", () => <Woozie.Redirect to="/" />],
 ]);
 
-const Page: React.FC = () => {
+const Page: FC = () => {
   const { trigger, pathname } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (trigger === Woozie.HistoryAction.Push) {
       window.scrollTo(0, 0);
     }
@@ -103,7 +104,7 @@ const Page: React.FC = () => {
   const appEnv = useAppEnv();
   const temple = useTempleClient();
 
-  const ctx = React.useMemo<RouteContext>(
+  const ctx = useMemo<RouteContext>(
     () => ({
       popup: appEnv.popup,
       fullPage: appEnv.fullPage,
@@ -113,7 +114,7 @@ const Page: React.FC = () => {
     [appEnv.popup, appEnv.fullPage, temple.ready, temple.locked]
   );
 
-  return React.useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
+  return useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
     pathname,
     ctx,
   ]);

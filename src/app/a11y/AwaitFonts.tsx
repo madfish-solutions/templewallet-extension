@@ -1,6 +1,7 @@
-import * as React from "react";
-import useSWR from "swr";
+import React, { FC } from "react";
+
 import FontFaceObserver from "fontfaceobserver";
+import useSWR from "swr";
 
 type AwaitFontsProps = {
   name: string;
@@ -8,7 +9,7 @@ type AwaitFontsProps = {
   className: string;
 };
 
-const AwaitFonts: React.FC<AwaitFontsProps> = ({
+const AwaitFonts: FC<AwaitFontsProps> = ({
   name,
   weights,
   className,

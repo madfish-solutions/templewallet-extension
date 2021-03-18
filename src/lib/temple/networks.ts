@@ -1,5 +1,5 @@
-import { TempleNetwork } from "lib/temple/types";
 import { getMessage } from "lib/i18n";
+import { TempleNetwork } from "lib/temple/types";
 
 export const NETWORKS: TempleNetwork[] = [
   {
@@ -9,7 +9,7 @@ export const NETWORKS: TempleNetwork[] = [
     description: "Tezos mainnet",
     lambdaContract: "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE",
     type: "main",
-    rpcBaseURL: "https://mainnet.smartpy.io",
+    rpcBaseURL: "https://rpc.tzbeta.net",
     color: "#83b300",
     disabled: false,
   },

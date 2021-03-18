@@ -1,5 +1,6 @@
-import { browser } from "webextension-polyfill-ts";
 import { OperationContentsAndResult } from "@taquito/rpc";
+import { browser } from "webextension-polyfill-ts";
+
 import { createQueue } from "lib/queue";
 import { TemplePendingOperation } from "lib/temple/types";
 

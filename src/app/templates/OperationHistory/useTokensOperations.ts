@@ -1,15 +1,16 @@
-import React from "react";
+import { useCallback } from "react";
+
+import {
+  useOpsPagination,
+  groupOpsByHash,
+} from "app/templates/OperationHistory/useOpsPagination";
 import { getTokenTransfers } from "lib/better-call-dev";
+import { TempleAssetType, TempleToken } from "lib/temple/types";
 import {
   getAccountWithOperations,
   TZStatsNetwork,
   TZStatsOperation,
 } from "lib/tzstats";
-import { TempleToken } from "lib/temple/types";
-import {
-  useOpsPagination,
-  groupOpsByHash,
-} from "app/templates/OperationHistory/useOpsPagination";
 
 export type GetOperationsParams = {
   accountPkh: string;
@@ -24,7 +25,7 @@ export default function useTokensOperations({
   networkId,
   asset,
 }: GetOperationsParams) {
-  const fetchFn = React.useCallback(
+  const fetchFn = useCallback(
     async (
       tzStatsOffset: number,
       bcdEnd: number | undefined,
@@ -37,6 +38,7 @@ export default function useTokensOperations({
             size: pageSize,
             contracts: asset.address,
             end: bcdEnd,
+            token_id: asset.type === TempleAssetType.FA2 ? asset.id : undefined,
           })
         : { transfers: [] };
       const lastBcdOp = rawBcdOps[rawBcdOps.length - 1];
@@ -93,7 +95,7 @@ export default function useTokensOperations({
           relevantTzStatsOpsCount < pageSize || rawBcdOps.length < pageSize,
       };
     },
-    [accountPkh, networkId, tzStatsNetwork, asset.address]
+    [accountPkh, networkId, tzStatsNetwork, asset]
   );
 
   return useOpsPagination(fetchFn, asset);

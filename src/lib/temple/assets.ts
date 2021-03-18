@@ -1,22 +1,22 @@
-import { browser } from "webextension-polyfill-ts";
 import { TezosToolkit, WalletContract } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
-import { TempleAsset, TempleToken, TempleAssetType } from "lib/temple/types";
+import { browser } from "webextension-polyfill-ts";
+
+import assert, { AssertionError } from "lib/assert";
+import { getMessage } from "lib/i18n";
 import {
   loadContract,
   loadContractForCallLambdaView,
 } from "lib/temple/contract";
 import { mutezToTz } from "lib/temple/helpers";
-import assert, { AssertionError } from "lib/assert";
-import { getMessage } from "lib/i18n";
-
+import { TempleAsset, TempleToken, TempleAssetType } from "lib/temple/types";
 export const TEZ_ASSET: TempleAsset = {
   type: TempleAssetType.TEZ,
   name: "Tezos",
   symbol: "tez",
   decimals: 6,
   fungible: true,
-  default: true,
+  status: "displayed",
 };
 
 export const DELPHINET_TOKENS: TempleToken[] = [
@@ -28,7 +28,7 @@ export const DELPHINET_TOKENS: TempleToken[] = [
     decimals: 18,
     fungible: true,
     iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
-    default: true,
+    status: "displayed",
   },
   {
     type: TempleAssetType.FA1_2,
@@ -38,7 +38,7 @@ export const DELPHINET_TOKENS: TempleToken[] = [
     decimals: 6,
     fungible: true,
     iconUrl: browser.runtime.getURL("misc/token-logos/wxtz.png"),
-    default: true,
+    status: "displayed",
   },
   {
     type: TempleAssetType.FA2,
@@ -49,7 +49,27 @@ export const DELPHINET_TOKENS: TempleToken[] = [
     decimals: 6,
     fungible: true,
     iconUrl: browser.runtime.getURL("misc/token-logos/usds.svg"),
-    default: true,
+    status: "displayed",
+  },
+  {
+    type: TempleAssetType.FA1_2,
+    address: "KT19UypipJWENBavh34Wn7tc67bL1HucZh9W",
+    name: "Staker Governance Token",
+    symbol: "STKR",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://github.com/StakerDAO/resources/raw/main/stkr.png",
+    status: "displayed",
+  },
+  {
+    type: TempleAssetType.FA1_2,
+    address: "KT1N3KopJkpzBfRPFVzqaAwyPEyuVmhpePmt",
+    name: "Blend",
+    symbol: "BLND",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://github.com/StakerDAO/resources/raw/main/blend.png",
+    status: "displayed",
   },
 ];
 
@@ -63,8 +83,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     fungible: true,
     iconUrl:
       "https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg",
-    default: true,
-    dexterContract: "KT1BGQR7t4izzKZ7eRodKWTodAsM23P38v7N",
+    status: "displayed",
   },
   {
     type: TempleAssetType.FA1_2,
@@ -74,8 +93,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     decimals: 18,
     fungible: true,
     iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
-    default: true,
-    dexterContract: "KT1AbYeDbjjcAnV1QK7EZUUdqku77CdkTuv6",
+    status: "displayed",
   },
   {
     type: TempleAssetType.FA1_2,
@@ -85,8 +103,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     decimals: 6,
     fungible: true,
     iconUrl: browser.runtime.getURL("misc/token-logos/wxtz.png"),
-    default: true,
-    dexterContract: "KT1D56HQfMmwdopmFLTwNHFJSs6Dsg2didFo",
+    status: "displayed",
   },
   {
     type: TempleAssetType.FA2,
@@ -97,7 +114,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     decimals: 6,
     fungible: true,
     iconUrl: browser.runtime.getURL("misc/token-logos/usds.svg"),
-    default: true,
+    status: "displayed",
   },
   {
     type: TempleAssetType.FA1_2,
@@ -107,8 +124,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     decimals: 18,
     fungible: true,
     iconUrl: browser.runtime.getURL("misc/token-logos/ethtz.png"),
-    default: true,
-    dexterContract: "KT1PDrBE59Zmxnb8vXRgRAG1XmvTMTs5EDHU",
+    status: "hidden",
   },
   {
     type: TempleAssetType.FA1_2,
@@ -118,19 +134,27 @@ export const MAINNET_TOKENS: TempleToken[] = [
     decimals: 6,
     fungible: true,
     iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
-    default: true,
-    dexterContract: "KT1Tr2eG3eVmPRbymrbU2UppUmKjFPXomGG9",
+    status: "hidden",
   },
   {
-    type: TempleAssetType.Staker,
-    address: "KT1EctCuorV2NfVb1XTQgvzJ88MQtWP8cMMv",
-    name: "Staker",
+    type: TempleAssetType.FA1_2,
+    address: "KT1AEfeckNbdEYwaMKkytBwPJPycz7jdSGea",
+    name: "Staker Governance Token",
     symbol: "STKR",
-    decimals: 0,
+    decimals: 18,
     fungible: true,
-    iconUrl:
-      "https://miro.medium.com/fit/c/160/160/1*LzmHCYryGmuN9ZR7JX951w.png",
-    default: true,
+    iconUrl: "https://github.com/StakerDAO/resources/raw/main/stkr.png",
+    status: "hidden",
+  },
+  {
+    type: TempleAssetType.FA1_2,
+    address: "KT1MEouXPpCx9eFJYnxfAWpFA7NxhW3rDgUN",
+    name: "Blend",
+    symbol: "BLND",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://github.com/StakerDAO/resources/raw/main/blend.png",
+    status: "hidden",
   },
 ];
 
