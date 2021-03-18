@@ -1,8 +1,9 @@
-import * as React from "react";
-import { t } from "lib/i18n/react";
+import React from "react";
+
+import { ReactComponent as SwapIcon } from "app/icons/swap.svg";
 import PageLayout from "app/layouts/PageLayout";
 import SwapForm from "app/templates/SwapForm";
-import { ReactComponent as SwapIcon } from "app/icons/swap.svg";
+import { t } from "lib/i18n/react";
 
 const Send: React.FC = () => (
   <PageLayout

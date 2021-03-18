@@ -1,24 +1,44 @@
+import React, {
+  ChangeEvent,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+import { Modifier } from "@popperjs/core";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
-import React, { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { FormContextValues, Controller } from "react-hook-form";
-import { Modifier } from "@popperjs/core";
-import { t } from "lib/i18n/react";
-import { TempleAsset, TempleAssetType } from "lib/temple/types";
-import { mutezToTz, TEZ_ASSET, useAccount, useBalance } from "lib/temple/front";
-import Popper, { PopperRenderProps } from "lib/ui/Popper";
+
 import AssetField from "app/atoms/AssetField";
+import DropdownWrapper from "app/atoms/DropdownWrapper";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import AssetIcon from "app/templates/AssetIcon";
-import DropdownWrapper from "app/atoms/DropdownWrapper";
+import { t } from "lib/i18n/react";
+import { mutezToTz, useAccount, useBalance } from "lib/temple/front";
+import { TempleAsset, TempleAssetType } from "lib/temple/types";
+import Popper, { PopperRenderProps } from "lib/ui/Popper";
 
-type SwapInputProps = {
-  assetInputName: string;
-  amountInputName: string;
+export type AssetIdentifier = { address?: string; tokenId?: number };
+
+type FormValuesBase<
+  AssetInputName extends string,
+  AmountInputName extends string
+> = Record<AssetInputName, AssetIdentifier> & Record<AmountInputName, number>;
+type SwapInputProps<
+  AssetInputName extends string,
+  AmountInputName extends string,
+  FormValues extends FormValuesBase<AssetInputName, AmountInputName>
+> = {
+  assetInputName: AssetInputName;
+  amountInputName: AmountInputName;
   assets: TempleAsset[];
-  formContextValues: FormContextValues;
+  formContextValues: FormContextValues<FormValues>;
   amountReadOnly?: boolean;
   withPercentageButtons?: boolean;
   className?: string;
@@ -27,7 +47,11 @@ type SwapInputProps = {
 const DEXTER_REQUIRED_XTZ_RESERVE = 300000;
 const BUTTONS_PERCENTAGES = [25, 50, 75, 100];
 
-const SwapInput: React.FC<SwapInputProps> = ({
+const SwapInput = <
+  AssetInputName extends string,
+  AmountInputName extends string,
+  FormValues extends FormValuesBase<AssetInputName, AmountInputName>
+>({
   assetInputName,
   amountInputName,
   assets,
@@ -35,45 +59,68 @@ const SwapInput: React.FC<SwapInputProps> = ({
   withPercentageButtons,
   className,
   amountReadOnly,
-}) => {
+}: SwapInputProps<AssetInputName, AmountInputName, FormValues>) => {
   const { watch, setValue, errors } = formContextValues;
-  const assetAddress = watch(assetInputName);
+  const { address: assetAddress, tokenId: assetTokenId } = watch(
+    assetInputName
+  );
   const selectedAsset = useMemo(
     () =>
       assets.find((asset) => {
         if (asset.type === TempleAssetType.TEZ) {
           return !assetAddress;
         }
-        return asset.address === assetAddress;
-      }) || (assetAddress ? assets[0] : TEZ_ASSET),
-    [assetAddress, assets]
+        if (asset.address !== assetAddress) {
+          return false;
+        }
+        return asset.type !== TempleAssetType.FA2 || asset.id === assetTokenId;
+      }) || assets[0],
+    [assetAddress, assetTokenId, assets]
   );
-  const trueAssetAddress =
-    selectedAsset.type === TempleAssetType.TEZ
-      ? undefined
-      : selectedAsset.address;
-  React.useEffect(() => {
-    if (assetAddress !== trueAssetAddress) {
-      setValue(assetInputName, trueAssetAddress);
+  const {
+    address: trueAssetAddress,
+    tokenId: trueAssetTokenId,
+  } = useMemo(() => {
+    if (selectedAsset.type === TempleAssetType.TEZ) {
+      return {};
     }
-  }, [setValue, assetAddress, trueAssetAddress, assetInputName]);
+    if (selectedAsset.type === TempleAssetType.FA2) {
+      return { address: selectedAsset.address, tokenId: selectedAsset.id };
+    }
+    return { address: selectedAsset.address };
+  }, [selectedAsset]);
+  useEffect(() => {
+    if (
+      assetAddress !== trueAssetAddress ||
+      assetTokenId !== trueAssetTokenId
+    ) {
+      // @ts-ignore
+      setValue(assetInputName, {
+        address: trueAssetAddress,
+        tokenId: trueAssetTokenId,
+      });
+    }
+  }, [
+    setValue,
+    assetAddress,
+    trueAssetAddress,
+    assetInputName,
+    assetTokenId,
+    trueAssetTokenId,
+  ]);
 
   const { publicKeyHash: accountPkh } = useAccount();
   const { data: balance } = useBalance(selectedAsset, accountPkh);
   const [searchString, setSearchString] = useState("");
-  const [assetSuggestions, setAssetSuggestions] = useState(assets);
 
-  const handleSearchChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const newSearchString = e.target.value;
-      setSearchString(newSearchString);
-      const searchRegex = new RegExp(newSearchString, "i");
-      setAssetSuggestions(
-        assets.filter(({ symbol }) => searchRegex.test(symbol))
-      );
-    },
-    [assets]
-  );
+  const assetSuggestions = useMemo(() => {
+    const searchRegex = new RegExp(searchString, "i");
+    return assets.filter(({ symbol }) => searchRegex.test(symbol));
+  }, [assets, searchString]);
+
+  const handleSearchChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setSearchString(e.target.value);
+  }, []);
 
   const handlePercentageClick = useCallback(
     (percentage: number) => {
@@ -84,21 +131,23 @@ const SwapInput: React.FC<SwapInputProps> = ({
               0
             )
           : balance ?? new BigNumber(0);
+      // @ts-ignore
       setValue(amountInputName, maxAmount.multipliedBy(percentage).div(100));
     },
     [setValue, amountInputName, balance, selectedAsset.type]
   );
 
   const handleSelectedAssetChange = useCallback(
-    (newAssetAddress?: string) => {
-      console.log("setValue", assetInputName, newAssetAddress);
-      setValue(assetInputName, newAssetAddress);
+    (newValue?: AssetIdentifier) => {
+      // @ts-ignore
+      setValue(assetInputName, newValue);
+      setSearchString("");
     },
     [setValue, assetInputName]
   );
 
   return (
-    <>
+    <div className={classNames("w-full", className)}>
       <Popper
         placement="bottom"
         strategy="fixed"
@@ -119,13 +168,13 @@ const SwapInput: React.FC<SwapInputProps> = ({
             toggleOpened={toggleOpened}
             opened={opened}
             setOpened={setOpened}
-            className={className}
             selectedAsset={selectedAsset}
             balance={balance!}
             searchString={searchString}
             onSearchChange={handleSearchChange}
             amountInputName={amountInputName}
             assetInputName={assetInputName}
+            // @ts-ignore
             formContextValues={formContextValues}
             amountReadOnly={amountReadOnly}
           />
@@ -133,6 +182,7 @@ const SwapInput: React.FC<SwapInputProps> = ({
       </Popper>
       {errors[amountInputName] && (
         <div className="mt-1 text-red-700 text-xs">
+          {/* @ts-ignore */}
           {errors[amountInputName].message}
         </div>
       )}
@@ -147,7 +197,7 @@ const SwapInput: React.FC<SwapInputProps> = ({
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -169,6 +219,7 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
 
   return (
     <button
+      type="button"
       className="border border-gray-300 text-gray-500 rounded-md ml-1 p-1"
       onClick={handleClick}
     >
@@ -179,8 +230,7 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
 
 type SwapInputHeaderProps = PopperRenderProps &
   Pick<
-    SwapInputProps,
-    | "className"
+    SwapInputProps<string, string, FormValuesBase<string, string>>,
     | "formContextValues"
     | "amountInputName"
     | "amountReadOnly"
@@ -194,11 +244,10 @@ type SwapInputHeaderProps = PopperRenderProps &
 
 const dummyExchangeRate = new BigNumber("0.13");
 
-const SwapInputHeader = React.forwardRef<HTMLDivElement, SwapInputHeaderProps>(
+const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
   (
     {
       assetInputName,
-      className,
       formContextValues: { control, watch },
       opened,
       toggleOpened,
@@ -211,8 +260,8 @@ const SwapInputHeader = React.forwardRef<HTMLDivElement, SwapInputHeaderProps>(
     },
     ref
   ) => {
-    const amount: BigNumber | undefined = watch(amountInputName);
-    const amountFieldRef = React.useRef<HTMLInputElement>(null);
+    const amount: number | undefined = watch(amountInputName);
+    const amountFieldRef = useRef<HTMLInputElement>(null);
 
     const handleAmountFieldFocus = useCallback((evt) => {
       evt.preventDefault();
@@ -223,30 +272,37 @@ const SwapInputHeader = React.forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       amountFieldRef.current?.focus();
     }, []);
 
+    const maxAmount = useMemo(
+      () =>
+        selectedAsset.type === TempleAssetType.TEZ
+          ? BigNumber.max(
+              balance.minus(mutezToTz(DEXTER_REQUIRED_XTZ_RESERVE)),
+              0
+            )
+          : balance,
+      [balance, selectedAsset.type]
+    );
+
     const validateAmount = useCallback(
       (v?: number) => {
+        if (amountReadOnly) {
+          return v === 0 ? t("amountMustBePositive") : true;
+        }
         if (v === undefined) return t("required");
         if (v === 0) {
           return t("amountMustBePositive");
         }
         const vBN = new BigNumber(v);
-        const maxAmount =
-          selectedAsset.type === TempleAssetType.TEZ
-            ? BigNumber.max(
-                balance.minus(mutezToTz(DEXTER_REQUIRED_XTZ_RESERVE)),
-                0
-              )
-            : balance;
         return (
           vBN.isLessThanOrEqualTo(maxAmount) ||
           t("maximalAmount", maxAmount.toFixed())
         );
       },
-      [balance, selectedAsset.type]
+      [amountReadOnly, maxAmount]
     );
 
     return (
-      <div className={classNames("w-full text-gray-700", className)} ref={ref}>
+      <div className="w-full text-gray-700" ref={ref}>
         <div className="w-full flex mb-1 items-center justify-between">
           <span className="text-xl text-gray-900">From</span>
           <span
@@ -271,10 +327,10 @@ const SwapInputHeader = React.forwardRef<HTMLDivElement, SwapInputHeaderProps>(
           )}
         >
           <div className="items-center mx-5 my-6">
-            <SearchIcon className="w-6 h-auto text-gray-300 stroke-current" />
+            <SearchIcon className="w-6 h-auto text-gray-500 stroke-current stroke-2" />
           </div>
           <input
-            className="mr-4"
+            className="mr-4 text-lg flex-1"
             value={searchString}
             onChange={onSearchChange}
           />
@@ -297,23 +353,25 @@ const SwapInputHeader = React.forwardRef<HTMLDivElement, SwapInputHeaderProps>(
             <Controller
               control={control}
               className="hidden"
-              as="input"
+              as={AssetTypeInput}
               name={assetInputName}
             />
           </div>
           <div className="flex-1 px-2 flex items-center justify-between">
             <button type="button" className="mr-2">
-              <SyncIcon className="w-4 h-auto text-gray-700 stroke-current" />
+              <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
             </button>
             <div className="h-full flex-1 flex items-end justify-center flex-col">
               <Controller
                 control={control}
                 className={classNames(
                   "text-gray-700 text-2xl text-right border-none bg-opacity-0",
-                  "pl-0 focus:shadow-none -mb-2"
+                  "pl-0 focus:shadow-none -mb-2 rounded-none"
                 )}
                 style={{ padding: 0 }}
                 name={amountInputName}
+                min={0}
+                max={maxAmount.toNumber()}
                 as={
                   <AssetField
                     ref={amountFieldRef}
@@ -325,7 +383,7 @@ const SwapInputHeader = React.forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                 onFocus={handleAmountFieldControlFocus}
                 assetDecimals={selectedAsset.decimals}
               />
-              {amount && (
+              {amount !== undefined && (
                 <span className="mt-2 text-xs text-gray-700">
                   ≈{" "}
                   {new BigNumber(amount)
@@ -342,10 +400,29 @@ const SwapInputHeader = React.forwardRef<HTMLDivElement, SwapInputHeaderProps>(
   }
 );
 
+type AssetTypeInputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "value"
+> & {
+  value?: AssetIdentifier;
+};
+
+const AssetTypeInput = forwardRef<HTMLInputElement, AssetTypeInputProps>(
+  ({ value, ...restProps }, ref) => {
+    return (
+      <input
+        ref={ref}
+        value={`${value?.address ?? "tez"}-${value?.tokenId}`}
+        {...restProps}
+      />
+    );
+  }
+);
+
 type AssetsMenuProps = {
   opened: boolean;
   setOpened: (newValue: boolean) => void;
-  onChange: (newValue?: string) => void;
+  onChange: (newValue: AssetIdentifier) => void;
   options: TempleAsset[];
   value?: string;
 };
@@ -358,7 +435,7 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
   value,
 }) => {
   const handleOptionClick = useCallback(
-    (newValue?: string) => {
+    (newValue: AssetIdentifier) => {
       if (newValue !== value) {
         onChange(newValue);
       }
@@ -394,7 +471,7 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
 type AssetOptionProps = {
   option: TempleAsset;
   selected: boolean;
-  onClick: (newValue?: string) => void;
+  onClick: (newValue: AssetIdentifier) => void;
   isLast: boolean;
 };
 
@@ -403,10 +480,15 @@ const AssetOption: React.FC<AssetOptionProps> = ({
   onClick,
   isLast,
 }) => {
-  const handleClick = useCallback(() => onClick(getAssetKey(option)), [
-    onClick,
-    option,
-  ]);
+  const handleClick = useCallback(() => {
+    if (option.type === TempleAssetType.TEZ) {
+      onClick({});
+    } else if (option.type === TempleAssetType.FA2) {
+      onClick({ address: option.address, tokenId: option.id });
+    } else {
+      onClick({ address: option.address });
+    }
+  }, [onClick, option]);
   const { publicKeyHash: accountPkh } = useAccount();
   const { data: balance } = useBalance(option, accountPkh, { suspense: false });
 
