@@ -12,6 +12,7 @@ import Name from "app/atoms/Name";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Balance from "app/templates/Balance";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {

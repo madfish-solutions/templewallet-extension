@@ -3,6 +3,7 @@ import React, { FC, useCallback, useMemo } from "react";
 import classNames from "clsx";
 
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import { Button } from "app/atoms/Button";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
@@ -15,6 +16,7 @@ import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import Balance from "app/templates/Balance";
+import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import {
   useTempleClient,
@@ -24,7 +26,6 @@ import {
 } from "lib/temple/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { Link } from "lib/woozie";
-import { Button } from "app/atoms/Button";
 
 import { AccountDropdownSelectors } from "./AccountDropdown.selectors";
 

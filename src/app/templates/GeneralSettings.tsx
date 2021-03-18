@@ -2,6 +2,7 @@ import React, { FC } from "react";
 
 import LocaleSelect from "app/templates/LocaleSelect";
 import PopupSettings from "app/templates/PopupSettings";
+
 import AnalyticsSettings from "./AnalyticsSettings";
 
 const GeneralSettings: FC = () => {

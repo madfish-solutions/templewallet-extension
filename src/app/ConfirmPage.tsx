@@ -35,6 +35,7 @@ import {
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation } from "lib/woozie";
+
 import { ConfirmPageSelectors } from "./ConfirmPage.selectors";
 
 const ConfirmPage: FC = () => {

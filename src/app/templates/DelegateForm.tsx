@@ -7,6 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 
 import Alert from "app/atoms/Alert";
+import { Button } from "app/atoms/Button";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
@@ -25,6 +26,7 @@ import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import BakerBanner from "app/templates/BakerBanner";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import { useFormAnalytics } from "lib/analytics";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
 import {
@@ -46,6 +48,9 @@ import {
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation, Link } from "lib/woozie";
+
+import { DelegateFormSelectors } from "./DelegateForm.selectors";
+
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;

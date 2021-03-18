@@ -2,6 +2,7 @@ import React, { FC } from "react";
 
 import classNames from "clsx";
 
+import { Button } from "app/atoms/Button";
 import Identicon from "app/atoms/Identicon";
 import Logo from "app/atoms/Logo";
 import Name from "app/atoms/Name";
@@ -12,6 +13,7 @@ import Popper from "lib/ui/Popper";
 import { Link } from "lib/woozie";
 
 import styles from "./Header.module.css";
+import { HeaderSelectors } from "./Header.selectors";
 import AccountDropdown from "./Header/AccountDropdown";
 import NetworkSelect from "./Header/NetworkSelect";
 

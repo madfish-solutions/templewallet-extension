@@ -2,12 +2,16 @@ import React, { FC, FormEventHandler, useCallback, useEffect, useRef, useState }
 
 import classNames from "clsx";
 
+import { Button } from "app/atoms/Button";
 import FormField from "app/atoms/FormField";
 import Name from "app/atoms/Name";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
+import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { useTempleClient, useAccount } from "lib/temple/front";
 import { useAlert } from "lib/ui/dialog";
+
+import { EditableTitleSelectors } from "./EditableTitle.selectors";
 
 const EditableTitle: FC = () => {
   const { editAccountName } = useTempleClient();

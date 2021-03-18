@@ -4,6 +4,7 @@ import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
 
 import Flag from "app/atoms/Flag";
+import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalyticsTrackEvent } from "lib/analytics";
 import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
 
 import IconifiedSelect, {

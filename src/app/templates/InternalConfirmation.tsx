@@ -18,7 +18,7 @@ import ExpensesView from "app/templates/ExpensesView";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
-import ViewsSwitcher from "app/templates/ViewsSwitcher";
+import ViewsSwitcher, { ViewsSwitcherItemProps } from "app/templates/ViewsSwitcher";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
@@ -32,6 +32,8 @@ import {
   TEZ_ASSET,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
+
+import { InternalConfirmationSelectors } from "./InternalConfirmation.selectors";
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
