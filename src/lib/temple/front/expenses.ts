@@ -39,7 +39,7 @@ export function tryParseExpensesPure(
       }
 
       const { kind, source: from, to, amount } = operation;
-      const entrypoint = operation.parameter?.entrypoint;
+      const entrypoint = getParameters(operation)?.entrypoint;
       const type = entrypoint || kind;
       const isEntrypointInteraction = !!entrypoint;
       const parsedAmount = amount !== undefined ? Number(amount) : undefined;
@@ -70,9 +70,9 @@ export function tryParseExpensesPure(
       if (["transfer", "approve"].includes(type)) {
         if (
           type === "transfer" &&
-          operation.parameter?.value instanceof Array
+          getParameters(operation)?.value instanceof Array
         ) {
-          const internalTransfers = operation.parameter.value;
+          const internalTransfers = getParameters(operation).value;
           internalTransfers.forEach((transfersBatch: any) => {
             transfersBatch.args[1].forEach((transfer: any) => {
               expenses.push({
@@ -85,7 +85,7 @@ export function tryParseExpensesPure(
           });
         } else {
           const tokenAddress = operation.to;
-          let args = operation.parameter?.value?.args;
+          let args = getParameters(operation)?.value?.args;
           while (args?.[0]?.prim) {
             args = args?.[0]?.args;
           }
@@ -117,4 +117,8 @@ export function tryParseExpensesPure(
       };
     })
     .filter((x): x is RawOperationExpenses => !!x);
+}
+
+function getParameters(op: any) {
+  return op?.parameters ?? op?.parameter;
 }
