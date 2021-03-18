@@ -1,8 +1,10 @@
-import * as React from "react";
+import  { useMemo } from "react";
+
 import constate from "constate";
+
 import { useRetryableSWR } from "lib/swr";
-import { getMarketTickers } from "lib/tzstats";
 import { useNetwork } from "lib/temple/front/ready";
+import { getMarketTickers } from "lib/tzstats";
 
 const LIQUIDITY_INTERVAL = 120_000;
 
@@ -10,7 +12,7 @@ export const [USDPriceProvider, useUSDPrice] = constate(() => {
   const mtSWR = useMarketTickers(true);
   const network = useNetwork();
 
-  return React.useMemo(() => {
+  return useMemo(() => {
     if (!(mtSWR.data && network.type === "main")) {
       return null;
     }

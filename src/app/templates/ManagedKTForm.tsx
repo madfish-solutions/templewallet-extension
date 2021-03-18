@@ -1,6 +1,19 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from "react";
+
 import classNames from "clsx";
 import { Controller, useForm } from "react-hook-form";
+
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import Alert from "app/atoms/Alert";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
+import NoSpaceField from "app/atoms/NoSpaceField";
+import Balance from "app/templates/Balance";
+import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import { T, t } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   TempleAccountType,
   isAddressValid,
@@ -13,18 +26,6 @@ import {
   ImportAccountFormType,
 } from "lib/temple/front";
 import { getOneUserContracts, TzktRelatedContract } from "lib/tzkt";
-import { T, t } from "lib/i18n/react";
-import { useRetryableSWR } from "lib/swr";
-import { useFormAnalytics } from "lib/analytics";
-import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
-import Balance from "app/templates/Balance";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import Identicon from "app/atoms/Identicon";
-import Name from "app/atoms/Name";
-import AccountTypeBadge from "app/atoms/AccountTypeBadge";
-import Money from "app/atoms/Money";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Alert from "app/atoms/Alert";
 
 type ImportKTAccountFormData = {
   contractAddress: string;
@@ -32,14 +33,14 @@ type ImportKTAccountFormData = {
 
 const getContractAddress = (contract: TzktRelatedContract) => contract.address;
 
-const ManagedKTForm: React.FC = () => {
+const ManagedKTForm: FC = () => {
   const accounts = useRelevantAccounts();
   const tezos = useTezos();
   const { importKTManagedAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.ManagedKT);
   const chainId = useChainId(true);
 
-  const [error, setError] = useState<React.ReactNode>(null);
+  const [error, setError] = useState<ReactNode>(null);
 
   const queryKey = useMemo(
     () => [
@@ -82,7 +83,7 @@ const ManagedKTForm: React.FC = () => {
     []
   );
 
-  const validateContractAddress = React.useCallback(
+  const validateContractAddress = useCallback(
     (value?: any) => {
       switch (false) {
         case value?.length > 0:
@@ -296,7 +297,7 @@ export const getUsersContracts = async (
 
 type ContractOptionRenderProps = OptionRenderProps<TzktRelatedContract, string>;
 
-const ContractIcon: React.FC<ContractOptionRenderProps> = (props) => {
+const ContractIcon: FC<ContractOptionRenderProps> = (props) => {
   return (
     <Identicon
       type="bottts"
@@ -307,7 +308,7 @@ const ContractIcon: React.FC<ContractOptionRenderProps> = (props) => {
   );
 };
 
-const ContractOptionContent: React.FC<ContractOptionRenderProps> = (props) => {
+const ContractOptionContent: FC<ContractOptionRenderProps> = (props) => {
   const { item } = props;
 
   return (

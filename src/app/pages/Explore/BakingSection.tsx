@@ -1,17 +1,19 @@
-import * as React from "react";
+import React, { memo, useMemo } from "react";
+
 import classNames from "clsx";
-import { Link } from "lib/woozie";
+
+import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
+import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
+import BakerBanner from "app/templates/BakerBanner";
 import { T, t } from "lib/i18n/react";
 import { useAccount, useDelegate, TempleAccountType } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
-import BakerBanner from "app/templates/BakerBanner";
-import { Button } from "app/atoms/Button";
-import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
-import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
+import { Link } from "lib/woozie";
+
 import styles from "./BakingSection.module.css";
 import { BakingSectionSelectors } from "./BakingSection.selectors";
 
-const BakingSection = React.memo(() => {
+const BakingSection = memo(() => {
   const acc = useAccount();
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
   const canDelegate = acc.type !== TempleAccountType.WatchOnly;
@@ -24,7 +26,7 @@ const BakingSection = React.memo(() => {
   };
 
   const delegateButtonRef = useTippy<HTMLButtonElement>(tippyProps);
-  const commonDelegateButtonProps = React.useMemo(
+  const commonDelegateButtonProps = useMemo(
     () => ({
       className: classNames(
         "py-2 px-6 rounded",
@@ -56,7 +58,7 @@ const BakingSection = React.memo(() => {
     [canDelegate, myBakerPkh]
   );
 
-  return React.useMemo(
+  return useMemo(
     () => (
       <div
         className={classNames(

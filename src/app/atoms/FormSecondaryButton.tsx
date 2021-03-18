@@ -1,15 +1,17 @@
-import * as React from "react";
+import React, { ButtonHTMLAttributes, FC } from "react";
+
 import classNames from "clsx";
+
 import Spinner from "app/atoms/Spinner";
 import { TestIDProps } from "lib/analytics";
 import { Button } from "./Button";
 
-type FormSecondaryButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & TestIDProps & {
+type FormSecondaryButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & TestIDProps & {
   loading?: boolean;
   small?: boolean;
 };
 
-const FormSecondaryButton: React.FC<FormSecondaryButtonProps> = ({
+const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
   loading,
   small,
   type = "button",

@@ -1,10 +1,32 @@
-import * as React from "react";
+import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from "react";
+
+import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
-import BigNumber from "bignumber.js";
-import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
-import { useLocation, Link } from "lib/woozie";
+
+import Alert from "app/atoms/Alert";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
+import NoSpaceField from "app/atoms/NoSpaceField";
+import Spinner from "app/atoms/Spinner";
+import {
+  ArtificialError,
+  NotEnoughFundsError,
+  ZeroBalanceError,
+} from "app/defaults";
+import { useAppEnv } from "app/env";
+import { ReactComponent as ArrowUpIcon } from "app/icons/arrow-up.svg";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import tezImgUrl from "app/misc/tez.png";
+import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
+import BakerBanner from "app/templates/BakerBanner";
+import InUSD from "app/templates/InUSD";
+import OperationStatus from "app/templates/OperationStatus";
+import { T, t, getCurrentLocale } from "lib/i18n/react";
+import { setDelegate } from "lib/michelson";
 import {
   TEZ_ASSET,
   useNetwork,
@@ -22,31 +44,8 @@ import {
   TempleAccountType,
   loadContract,
 } from "lib/temple/front";
-import { T, t, getCurrentLocale } from "lib/i18n/react";
-import { setDelegate } from "lib/michelson";
-import { useFormAnalytics } from "lib/analytics";
 import useSafeState from "lib/ui/useSafeState";
-import {
-  ArtificialError,
-  NotEnoughFundsError,
-  ZeroBalanceError,
-} from "app/defaults";
-import { useAppEnv } from "app/env";
-import InUSD from "app/templates/InUSD";
-import OperationStatus from "app/templates/OperationStatus";
-import Spinner from "app/atoms/Spinner";
-import Money from "app/atoms/Money";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Name from "app/atoms/Name";
-import Alert from "app/atoms/Alert";
-import BakerBanner from "app/templates/BakerBanner";
-import tezImgUrl from "app/misc/tez.png";
-import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
-import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
-import { ReactComponent as ArrowUpIcon } from "app/icons/arrow-up.svg";
-import { DelegateFormSelectors } from "./DelegateForm.selectors";
-import { Button } from "app/atoms/Button";
+import { useLocation, Link } from "lib/woozie";
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
@@ -57,7 +56,7 @@ interface FormData {
   fee: number;
 }
 
-const DelegateForm: React.FC = () => {
+const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
 
@@ -79,7 +78,7 @@ const DelegateForm: React.FC = () => {
 
   const { search } = useLocation();
 
-  const bakerSortTypes = React.useMemo(
+  const bakerSortTypes = useMemo(
     () => [
       {
         key: "rank",
@@ -100,18 +99,18 @@ const DelegateForm: React.FC = () => {
     []
   );
 
-  const sortBakersBy = React.useMemo(() => {
+  const sortBakersBy = useMemo(() => {
     const usp = new URLSearchParams(search);
     const val = usp.get(SORT_BAKERS_BY_KEY);
     return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
   }, [search, bakerSortTypes]);
 
-  const pluralRules = React.useMemo(
+  const pluralRules = useMemo(
     () => new Intl.PluralRules(getCurrentLocale().replace("_", "-")),
     []
   );
 
-  const sortedKnownBakers = React.useMemo(() => {
+  const sortedKnownBakers = useMemo(() => {
     if (!knownBakers) return null;
 
     const toSort = Array.from(knownBakers);
@@ -155,14 +154,14 @@ const DelegateForm: React.FC = () => {
 
   const toValue = watch("to");
 
-  const toFieldRef = React.useRef<HTMLTextAreaElement>(null);
+  const toFieldRef = useRef<HTMLTextAreaElement>(null);
 
-  const toFilled = React.useMemo(
+  const toFilled = useMemo(
     () => Boolean(toValue && isAddressValid(toValue) && !isKTAddress(toValue)),
     [toValue]
   );
 
-  const getEstimation = React.useCallback(
+  const getEstimation = useCallback(
     async (to: string) => {
       if (acc.type === TempleAccountType.ManagedKT) {
         const contract = await loadContract(tezos, accountPkh);
@@ -180,12 +179,12 @@ const DelegateForm: React.FC = () => {
     [tezos, accountPkh, acc.type]
   );
 
-  const cleanToField = React.useCallback(() => {
+  const cleanToField = useCallback(() => {
     setValue("to", "");
     triggerValidation("to");
   }, [setValue, triggerValidation]);
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (toFilled) {
       return registerBackHandler(() => {
         cleanToField();
@@ -195,7 +194,7 @@ const DelegateForm: React.FC = () => {
     return;
   }, [toFilled, registerBackHandler, cleanToField]);
 
-  const estimateBaseFee = React.useCallback(async () => {
+  const estimateBaseFee = useCallback(async () => {
     try {
       const balanceBN = (await mutateBalance(
         fetchBalance(tezos, TEZ_ASSET, accountPkh)
@@ -272,25 +271,25 @@ const DelegateForm: React.FC = () => {
     false
   );
 
-  const maxAddFee = React.useMemo(() => {
+  const maxAddFee = useMemo(() => {
     if (baseFee instanceof BigNumber) {
       return new BigNumber(balanceNum).minus(baseFee).minus(PENNY).toNumber();
     }
     return;
   }, [balanceNum, baseFee]);
 
-  const handleFeeFieldChange = React.useCallback(
+  const handleFeeFieldChange = useCallback(
     ([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v),
     [maxAddFee]
   );
 
-  const [submitError, setSubmitError] = useSafeState<React.ReactNode>(
+  const [submitError, setSubmitError] = useSafeState<ReactNode>(
     null,
     `${tezos.checksum}_${toValue}`
   );
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({ to, fee: feeVal }: FormData) => {
       if (formState.isSubmitting) return;
       setSubmitError(null);
@@ -360,7 +359,7 @@ const DelegateForm: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {React.useMemo(
+        {useMemo(
           () => (
             <div
               className={classNames(
@@ -763,7 +762,7 @@ type DelegateErrorAlertProps = {
   error: Error;
 };
 
-const DelegateErrorAlert: React.FC<DelegateErrorAlertProps> = ({
+const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({
   type,
   error,
 }) => (

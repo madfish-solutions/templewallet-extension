@@ -1,7 +1,16 @@
-import * as React from "react";
+import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
-import { navigate } from "lib/woozie";
+
+import Alert from "app/atoms/Alert";
+import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { ReactComponent as LinkIcon } from "app/icons/link.svg";
+import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import PageLayout from "app/layouts/PageLayout";
+import { T, t } from "lib/i18n/react";
 import {
   TempleAccountType,
   useAllAccounts,
@@ -9,15 +18,7 @@ import {
   useTempleClient,
   validateDerivationPath,
 } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
-import { useFormAnalytics } from "lib/analytics";
-import PageLayout from "app/layouts/PageLayout";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import FormField from "app/atoms/FormField";
-import Alert from "app/atoms/Alert";
-import { ReactComponent as LinkIcon } from "app/icons/link.svg";
-import { ReactComponent as OkIcon } from "app/icons/ok.svg";
-import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
+import { navigate } from "lib/woozie";
 
 type FormData = {
   name: string;
@@ -40,24 +41,24 @@ const DERIVATION_PATHS = [
   },
 ];
 
-const ConnectLedger: React.FC = () => {
+const ConnectLedger: FC = () => {
   const { createLedgerAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
   const formAnalytics = useFormAnalytics('ConnectLedger');
 
-  const allLedgers = React.useMemo(
+  const allLedgers = useMemo(
     () => allAccounts.filter((acc) => acc.type === TempleAccountType.Ledger),
     [allAccounts]
   );
 
-  const defaultName = React.useMemo(
+  const defaultName = useMemo(
     () => t("defaultLedgerName", String(allLedgers.length + 1)),
     [allLedgers.length]
   );
 
-  const prevAccLengthRef = React.useRef(allAccounts.length);
-  React.useEffect(() => {
+  const prevAccLengthRef = useRef(allAccounts.length);
+  useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
       setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
@@ -75,12 +76,12 @@ const ConnectLedger: React.FC = () => {
   });
   const submitting = formState.isSubmitting;
 
-  const [error, setError] = React.useState<React.ReactNode>(null);
-  const [derivationPath, setDerivationPath] = React.useState(
+  const [error, setError] = useState<ReactNode>(null);
+  const [derivationPath, setDerivationPath] = useState(
     DERIVATION_PATHS[0]
   );
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({ name, accountNumber, customDerivationPath }: FormData) => {
       if (submitting) return;
 

@@ -1,4 +1,5 @@
-import * as React from "react";
+import { FC, useEffect } from "react";
+
 import styles from "./DisableOutlinesForClick.module.css";
 
 const TAB_KEY_CODE = 9;
@@ -9,8 +10,8 @@ const CLASS_NAME = styles["focus-disabled"];
  * to the container element when entering "mouse mode" (on a `mousedown` event)
  * and remove it when entering "keyboard mode" (on a `tab` key `keydown` event)
  */
-const DisableOutlinesForClick: React.FC = () => {
-  React.useEffect(() => {
+const DisableOutlinesForClick: FC = () => {
+  useEffect(() => {
     const container = document.documentElement;
     container.addEventListener("mousedown", handleMouseDown);
 

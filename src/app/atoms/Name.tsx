@@ -1,9 +1,10 @@
-import * as React from "react";
+import React, { FC, HTMLAttributes } from "react";
+
 import classNames from "clsx";
 
-type NameProps = React.HTMLAttributes<HTMLDivElement>;
+type NameProps = HTMLAttributes<HTMLDivElement>;
 
-const Name: React.FC<NameProps> = ({ className, style = {}, ...rest }) => (
+const Name: FC<NameProps> = ({ className, style = {}, ...rest }) => (
   <div
     className={classNames(
       "whitespace-no-wrap overflow-x-auto no-scrollbar",

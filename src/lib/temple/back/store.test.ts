@@ -1,3 +1,6 @@
+import { browser } from "webextension-polyfill-ts";
+
+import { TempleAccountType, TempleStatus } from "../types";
 import {
   accountsUpdated,
   inited as initEvent,
@@ -6,9 +9,7 @@ import {
   store,
   unlocked,
 } from "./store";
-import { TempleAccountType, TempleStatus } from "../types";
 import { Vault } from "./vault";
-import { browser } from "webextension-polyfill-ts";
 
 describe("Store tests", () => {
   it("Browser storage works well", async () => {

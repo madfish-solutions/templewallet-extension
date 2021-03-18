@@ -1,6 +1,30 @@
-import * as React from "react";
+import React, { FC, Fragment, memo, Suspense, useCallback, useMemo, useState } from "react";
+
 import classNames from "clsx";
-import { useLocation } from "lib/woozie";
+
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import Alert from "app/atoms/Alert";
+import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
+import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import HashShortView from "app/atoms/HashShortView";
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
+import Spinner from "app/atoms/Spinner";
+import SubTitle from "app/atoms/SubTitle";
+import ErrorBoundary from "app/ErrorBoundary";
+import ContentContainer from "app/layouts/ContentContainer";
+import Unlock from "app/pages/Unlock";
+import AccountBanner from "app/templates/AccountBanner";
+import Balance from "app/templates/Balance";
+import ConnectBanner from "app/templates/ConnectBanner";
+import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import DAppLogo from "app/templates/DAppLogo";
+import NetworkBanner from "app/templates/NetworkBanner";
+import OperationView from "app/templates/OperationView";
+import { T, t } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   useTempleClient,
   useAccount,
@@ -9,36 +33,14 @@ import {
   TempleDAppPayload,
   TempleAccount,
 } from "lib/temple/front";
-import { useRetryableSWR } from "lib/swr";
 import useSafeState from "lib/ui/useSafeState";
-import { T, t } from "lib/i18n/react";
-import ErrorBoundary from "app/ErrorBoundary";
-import Unlock from "app/pages/Unlock";
-import ContentContainer from "app/layouts/ContentContainer";
-import AccountBanner from "app/templates/AccountBanner";
-import NetworkBanner from "app/templates/NetworkBanner";
-import Balance from "app/templates/Balance";
-import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
-import Identicon from "app/atoms/Identicon";
-import Name from "app/atoms/Name";
-import AccountTypeBadge from "app/atoms/AccountTypeBadge";
-import Alert from "app/atoms/Alert";
-import Money from "app/atoms/Money";
-import Spinner from "app/atoms/Spinner";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import FormSecondaryButton from "app/atoms/FormSecondaryButton";
-import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
-import HashShortView from "app/atoms/HashShortView";
-import SubTitle from "app/atoms/SubTitle";
-import DAppLogo from "app/templates/DAppLogo";
-import OperationView from "app/templates/OperationView";
-import ConnectBanner from "app/templates/ConnectBanner";
+import { useLocation } from "lib/woozie";
 import { ConfirmPageSelectors } from "./ConfirmPage.selectors";
 
-const ConfirmPage: React.FC = () => {
+const ConfirmPage: FC = () => {
   const { ready } = useTempleClient();
 
-  return React.useMemo(
+  return useMemo(
     () =>
       ready ? (
         <ContentContainer
@@ -49,7 +51,7 @@ const ConfirmPage: React.FC = () => {
           )}
         >
           <ErrorBoundary whileMessage={t("fetchingConfirmationDetails")}>
-            <React.Suspense
+            <Suspense
               fallback={
                 <div className="flex items-center justify-center h-screen">
                   <div>
@@ -59,7 +61,7 @@ const ConfirmPage: React.FC = () => {
               }
             >
               <ConfirmDAppForm />
-            </React.Suspense>
+            </Suspense>
           </ErrorBoundary>
         </ContentContainer>
       ) : (
@@ -73,7 +75,7 @@ export default ConfirmPage;
 
 const getPkh = (account: TempleAccount) => account.publicKeyHash;
 
-const ConfirmDAppForm: React.FC = () => {
+const ConfirmDAppForm: FC = () => {
   const {
     getDAppPayload,
     confirmDAppPermission,
@@ -83,12 +85,12 @@ const ConfirmDAppForm: React.FC = () => {
   const allAccounts = useRelevantAccounts(false);
   const account = useAccount();
 
-  const [accountPkhToConnect, setAccountPkhToConnect] = React.useState(
+  const [accountPkhToConnect, setAccountPkhToConnect] = useState(
     account.publicKeyHash
   );
 
   const loc = useLocation();
-  const id = React.useMemo(() => {
+  const id = useMemo(() => {
     const usp = new URLSearchParams(loc.search);
     const id = usp.get("id");
     if (!id) {
@@ -105,7 +107,7 @@ const ConfirmDAppForm: React.FC = () => {
   });
   const payload = data!;
 
-  const connectedAccount = React.useMemo(
+  const connectedAccount = useMemo(
     () =>
       allAccounts.find(
         (a) =>
@@ -115,12 +117,12 @@ const ConfirmDAppForm: React.FC = () => {
     [payload, allAccounts, accountPkhToConnect]
   );
 
-  const AccountOptionContent = React.useMemo(
+  const AccountOptionContent = useMemo(
     () => AccountOptionContentHOC(payload.networkRpc),
     [payload.networkRpc]
   );
 
-  const onConfirm = React.useCallback(
+  const onConfirm = useCallback(
     async (confimed: boolean) => {
       switch (payload.type) {
         case "connect":
@@ -147,7 +149,7 @@ const ConfirmDAppForm: React.FC = () => {
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
 
-  const confirm = React.useCallback(
+  const confirm = useCallback(
     async (confirmed: boolean) => {
       setError(null);
       try {
@@ -165,7 +167,7 @@ const ConfirmDAppForm: React.FC = () => {
     [onConfirm, setError]
   );
 
-  const handleConfirmClick = React.useCallback(async () => {
+  const handleConfirmClick = useCallback(async () => {
     if (confirming || declining) return;
 
     setConfirming(true);
@@ -173,7 +175,7 @@ const ConfirmDAppForm: React.FC = () => {
     setConfirming(false);
   }, [confirming, declining, setConfirming, confirm]);
 
-  const handleDeclineClick = React.useCallback(async () => {
+  const handleDeclineClick = useCallback(async () => {
     if (confirming || declining) return;
 
     setDeclining(true);
@@ -181,11 +183,11 @@ const ConfirmDAppForm: React.FC = () => {
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
-  const handleErrorAlertClose = React.useCallback(() => setError(null), [
+  const handleErrorAlertClose = useCallback(() => setError(null), [
     setError,
   ]);
 
-  const content = React.useMemo(() => {
+  const content = useMemo(() => {
     switch (payload.type) {
       case "connect":
         return {
@@ -198,10 +200,10 @@ const ConfirmDAppForm: React.FC = () => {
             <T
               id="appWouldLikeToConnectToYourWallet"
               substitutions={[
-                <React.Fragment key="appName">
+                <Fragment key="appName">
                   <span className="font-semibold">{payload.origin}</span>
                   <br />
-                </React.Fragment>,
+                </Fragment>,
               ]}
             >
               {(message) => (
@@ -439,7 +441,7 @@ const ConfirmDAppForm: React.FC = () => {
   );
 };
 
-const AccountIcon: React.FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
+const AccountIcon: FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
   <Identicon
     type="bottts"
     hash={item.publicKeyHash}
@@ -449,7 +451,7 @@ const AccountIcon: React.FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
 );
 
 const AccountOptionContentHOC = (networkRpc: string) => {
-  return React.memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => (
+  return memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => (
     <>
       <div className="flex flex-wrap items-center">
         <Name className="text-sm font-medium leading-tight">{acc.name}</Name>

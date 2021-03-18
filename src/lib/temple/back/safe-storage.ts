@@ -1,5 +1,6 @@
-import { browser } from "webextension-polyfill-ts";
 import { Buffer } from "buffer";
+import { browser } from "webextension-polyfill-ts";
+
 import * as Passworder from "lib/temple/passworder";
 
 interface EncryptedStorage {
@@ -9,7 +10,7 @@ interface EncryptedStorage {
 
 export async function isStored(storageKey: string) {
   const items = await browser.storage.local.get([storageKey]);
-  return storageKey in items;
+  return items[storageKey] !== undefined;
 }
 
 export async function fetchAndDecryptOne<T>(
@@ -58,7 +59,7 @@ async function decrypt<T>(encStorage: EncryptedStorage, passKey: CryptoKey) {
 
 async function fetchEncryptedOne(key: string) {
   const items = await browser.storage.local.get([key]);
-  if (key in items) {
+  if (items[key] !== undefined) {
     return items[key] as EncryptedStorage;
   } else {
     throw new Error("Some storage item not found");

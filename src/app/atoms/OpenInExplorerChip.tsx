@@ -1,9 +1,9 @@
+import React, { FC, useMemo } from "react";
+
 import classNames from "clsx";
-import React from "react";
-import useTippy from "lib/ui/useTippy";
-import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
+
 import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
-import { OpenInExplorerChipSelectors } from "./OpenInExplorerChip.selectors";
+import useTippy from "lib/ui/useTippy";
 
 type OpenInExplorerChipProps = {
   baseUrl: string;
@@ -11,13 +11,13 @@ type OpenInExplorerChipProps = {
   className?: string;
 };
 
-const OpenInExplorerChip: React.FC<OpenInExplorerChipProps> = ({
+const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
   baseUrl,
   opHash,
   className,
 }) => {
   const trackEvent = useAnalyticsTrackEvent();
-  const tippyProps = React.useMemo(
+  const tippyProps = useMemo(
     () => ({
       trigger: "mouseenter",
       hideOnClick: false,

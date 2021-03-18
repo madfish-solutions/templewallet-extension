@@ -1,14 +1,14 @@
-import * as React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function useCopyToClipboard<
   T extends HTMLInputElement | HTMLTextAreaElement = HTMLInputElement
 >(copyDelay: number = 1000 * 2) {
-  const fieldRef = React.useRef<T>(null);
+  const fieldRef = useRef<T>(null);
 
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const copiedTimeoutRef = React.useRef<number>();
-  React.useEffect(() => {
+  const copiedTimeoutRef = useRef<number>();
+  useEffect(() => {
     if (copied) {
       copiedTimeoutRef.current = window.setTimeout(() => {
         setCopied(false);
@@ -24,7 +24,7 @@ export default function useCopyToClipboard<
     };
   }, [copied, setCopied, copyDelay]);
 
-  const copy = React.useCallback(() => {
+  const copy = useCallback(() => {
     if (copied) return;
 
     const textarea = fieldRef.current;

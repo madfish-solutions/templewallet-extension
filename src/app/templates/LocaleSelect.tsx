@@ -1,10 +1,14 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo, useCallback, FC } from "react";
+
 import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
-import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalyticsTrackEvent } from "lib/analytics";
-import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
+
 import Flag from "app/atoms/Flag";
-import IconifiedSelect, { IconifiedSelectOptionRenderProps, } from "./IconifiedSelect";
+import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
+
+import IconifiedSelect, {
+  IconifiedSelectOptionRenderProps,
+} from "./IconifiedSelect";
 
 type LocaleSelectProps = {
   className?: string;
@@ -79,7 +83,7 @@ const localeIsDisabled = ({ disabled }: LocaleOption) => !!disabled;
 
 const getLocaleCode = ({ code }: LocaleOption) => code;
 
-const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
+const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
   const selectedLocale = getCurrentLocale();
   const trackEvent = useAnalyticsTrackEvent();
 
@@ -125,7 +129,7 @@ const LocaleSelect: React.FC<LocaleSelectProps> = ({ className }) => {
 
 export default LocaleSelect;
 
-const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
+const LocaleIcon: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
   option: { flagName, code },
 }) => (
   <Flag
@@ -135,12 +139,9 @@ const LocaleIcon: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
   />
 );
 
-const LocaleInMenuContent: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
-  option: {
-    disabled,
-    label
-  }
-}) => {
+const LocaleInMenuContent: FC<
+  IconifiedSelectOptionRenderProps<LocaleOption>
+> = ({ option: { disabled, label } }) => {
   return (
     <div className={classNames("relative w-full text-lg text-gray-700")}>
       {label}
@@ -168,7 +169,9 @@ const LocaleInMenuContent: React.FC<IconifiedSelectOptionRenderProps<LocaleOptio
   );
 };
 
-const LocaleSelectContent: React.FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({ option }) => {
+const LocaleSelectContent: FC<
+  IconifiedSelectOptionRenderProps<LocaleOption>
+> = ({ option }) => {
   return (
     <div className="flex flex-col items-start py-2">
       <span className="text-xl text-gray-700">{option.label}</span>

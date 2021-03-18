@@ -1,27 +1,29 @@
-import * as React from "react";
+import React, { FC, InputHTMLAttributes, useCallback } from "react";
+
 import classNames from "clsx";
-import { t } from "lib/i18n/react";
+
 import CleanButton from "app/atoms/CleanButton";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
+import { t } from "lib/i18n/react";
 
-type SearchAssetFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
+type SearchAssetFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   value: string;
   onValueChange: (v: string) => void;
 };
 
-const SearchAssetField: React.FC<SearchAssetFieldProps> = ({
+const SearchAssetField: FC<SearchAssetFieldProps> = ({
   value,
   onValueChange,
   ...rest
 }) => {
-  const handleChange = React.useCallback(
+  const handleChange = useCallback(
     (evt) => {
       onValueChange(evt.target.value);
     },
     [onValueChange]
   );
 
-  const handleClean = React.useCallback(() => {
+  const handleClean = useCallback(() => {
     onValueChange("");
   }, [onValueChange]);
 

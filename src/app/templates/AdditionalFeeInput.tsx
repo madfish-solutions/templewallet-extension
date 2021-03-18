@@ -1,26 +1,38 @@
-import classNames from "clsx";
-import React, { useCallback, useRef, useState } from "react";
-import { Controller, ControllerProps, EventFunction, FieldError } from "react-hook-form";
+import React, {
+  ComponentType, FC,
+  ForwardRefExoticComponent,
+  Fragment,
+  FunctionComponent, MutableRefObject, SVGProps,
+  useCallback,
+  useRef,
+  useState
+} from "react";
+
 import BigNumber from "bignumber.js";
-import { TEZ_ASSET } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
-import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
+import classNames from "clsx";
+import { Controller, ControllerProps, FieldError } from "react-hook-form";
+
 import AssetField from "app/atoms/AssetField";
-import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
 import { ReactComponent as CoffeeIcon } from "app/icons/coffee.svg";
 import { ReactComponent as CupIcon } from "app/icons/cup.svg";
 import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
-import Name from "app/atoms/Name";
-import Money from "app/atoms/Money";
-import { AdditionalFeeInputSelectors } from "./AdditionalFeeInput..selectors";
+import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import { T, t } from "lib/i18n/react";
+import { TEZ_ASSET } from "lib/temple/front";
 
-type AssetFieldProps = typeof AssetField extends React.ForwardRefExoticComponent<infer T>
+type AssetFieldProps = typeof AssetField extends ForwardRefExoticComponent<
+  infer T
+>
   ? T
   : never;
 
-export type AdditionalFeeInputProps = Pick<ControllerProps<React.ComponentType>,
-  "name" | "control" | "onChange"> & {
+export type AdditionalFeeInputProps = Pick<
+  ControllerProps<ComponentType>,
+  "name" | "control" | "onChange"
+> & {
   assetSymbol: string;
   baseFee?: BigNumber | Error;
   error?: FieldError;
@@ -28,7 +40,7 @@ export type AdditionalFeeInputProps = Pick<ControllerProps<React.ComponentType>,
 };
 
 type FeeOption = {
-  Icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+  Icon?: FunctionComponent<SVGProps<SVGSVGElement>>;
   descriptionI18nKey: string;
   type: "minimal" | "fast" | "rocket" | "custom";
   amount?: number;
@@ -72,7 +84,7 @@ const feeOptions: FeeOption[] = [
 
 const getFeeOptionId = (option: FeeOption) => option.type;
 
-const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
+const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
   const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
   const trackEvent = useAnalyticsTrackEvent();
 
@@ -112,9 +124,9 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
           <T
             id="feeInputDescription"
             substitutions={[
-              <React.Fragment key={0}>
+              <Fragment key={0}>
                 <span className="font-normal">{baseFee.toFixed()}</span>
-              </React.Fragment>,
+              </Fragment>,
             ]}
           />
         )
@@ -131,10 +143,10 @@ const AdditionalFeeInput: React.FC<AdditionalFeeInputProps> = (props) => {
 export default AdditionalFeeInput;
 
 type AdditionalFeeInputContentProps = AssetFieldProps & {
-  customFeeInputRef: React.MutableRefObject<HTMLInputElement | null>;
+  customFeeInputRef: MutableRefObject<HTMLInputElement | null>;
 };
 
-const AdditionalFeeInputContent: React.FC<AdditionalFeeInputContentProps> = (
+const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
   props
 ) => {
   const {
@@ -214,7 +226,7 @@ const AdditionalFeeInputContent: React.FC<AdditionalFeeInputContentProps> = (
   );
 };
 
-const FeeOptionIcon: React.FC<OptionRenderProps<FeeOption>> = ({
+const FeeOptionIcon: FC<OptionRenderProps<FeeOption>> = ({
   item: { Icon },
 }) => {
   if (Icon) {
@@ -229,7 +241,7 @@ const FeeOptionIcon: React.FC<OptionRenderProps<FeeOption>> = ({
   return <div style={{ width: 24, height: 24 }} />;
 };
 
-const FeeOptionContent: React.FC<OptionRenderProps<FeeOption>> = ({
+const FeeOptionContent: FC<OptionRenderProps<FeeOption>> = ({
   item: { descriptionI18nKey, amount },
 }) => {
   return (
