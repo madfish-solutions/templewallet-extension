@@ -13,6 +13,6 @@ export default {
     ".+\\.ts$": "ts-jest",
   },
   moduleFileExtensions: ["ts", "js"],
-  setupFiles: ["@serh11p/jest-webextension-mock"],
+  setupFiles: ["dotenv/config", "@serh11p/jest-webextension-mock"],
   setupFilesAfterEnv: ["./jest.setup.js"],
 };
