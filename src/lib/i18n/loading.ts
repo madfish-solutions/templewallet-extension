@@ -1,4 +1,5 @@
 import { browser } from "webextension-polyfill-ts";
+
 import { init } from "./core";
 import { saveLocale } from "./saving";
 

@@ -1,8 +1,16 @@
+import React, { FC, memo, ReactElement, useEffect, useMemo, useState } from "react";
+
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
-import React from "react";
-import { T, t, TProps } from "lib/i18n/react";
+
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
+import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
+import HashChip from "app/templates/HashChip";
+import InUSD from "app/templates/InUSD";
+import { T, TProps } from "lib/i18n/react";
 import {
   TempleAsset,
   TempleAssetType,
@@ -10,12 +18,6 @@ import {
   useAssets,
   TEZ_ASSET,
 } from "lib/temple/front";
-import Identicon from "app/atoms/Identicon";
-import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
-import HashChip from "app/templates/HashChip";
-import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
-import Money from "app/atoms/Money";
-import InUSD from "app/templates/InUSD";
 
 export interface InternalTransfer {
   volume: BigNumber;
@@ -50,7 +52,7 @@ type InternalTransferStats = {
   delta: BigNumber;
 };
 
-const Operation = React.memo<OperationProps>(
+const Operation = memo<OperationProps>(
   ({
     accountPkh,
     delegate,
@@ -65,14 +67,14 @@ const Operation = React.memo<OperationProps>(
     internalTransfers,
     volume,
   }) => {
-    const { allAssets } = useAssets();
+    const { allAssetsWithHidden } = useAssets();
     const imReceiver = internalTransfers.some(
       ({ receiver }) => receiver === accountPkh
     );
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
     const volumeExists = volume > 0;
-    const volumeAsBigNumber = React.useMemo(() => new BigNumber(volume), [
+    const volumeAsBigNumber = useMemo(() => new BigNumber(volume), [
       volume,
     ]);
     const hasTokenTransfers = internalTransfers.some(
@@ -91,7 +93,7 @@ const Operation = React.memo<OperationProps>(
       !(internalTransfers.length > 1 && hasSending && hasReceival);
     const isSendingTransfer = isTransfer && !imReceiver;
     const isReceivingTransfer = isTransfer && imReceiver;
-    const moreExactType = React.useMemo(() => {
+    const moreExactType = useMemo(() => {
       const rawReceiverIsContract =
         !!rawReceiver && rawReceiver.startsWith("KT");
       const isMultipleTransfersInteraction =
@@ -100,23 +102,23 @@ const Operation = React.memo<OperationProps>(
         internalTransfers.some(({ receiver }) => receiver.startsWith("KT"));
       switch (true) {
         case isTransfer:
-          return t("transfer");
+          return "transfer";
         case type === "delegation":
-          return t(delegate ? "delegation" : "undelegation");
+          return delegate ? "delegation" : "undelegation";
         case type === "transaction" &&
           (rawReceiverIsContract || isMultipleTransfersInteraction):
-          return t("interaction");
+          return "interaction";
         default:
           return type;
       }
     }, [isTransfer, rawReceiver, type, delegate, internalTransfers]);
 
-    const internalTransfersStats = React.useMemo(() => {
+    const internalTransfersStats = useMemo(() => {
       return internalTransfers.reduce<InternalTransferStats[]>(
         (statsPart, transfer) => {
           const { tokenAddress, tokenId } = transfer;
           let token = tokenAddress
-            ? (allAssets.find((a) => {
+            ? (allAssetsWithHidden.find((a) => {
                 return (
                   a.type !== TempleAssetType.TEZ &&
                   a.address === tokenAddress &&
@@ -163,16 +165,16 @@ const Operation = React.memo<OperationProps>(
         },
         []
       );
-    }, [internalTransfers, allAssets, accountPkh]);
+    }, [internalTransfers, allAssetsWithHidden, accountPkh]);
 
-    const receivers = React.useMemo(() => {
+    const receivers = useMemo(() => {
       const uniqueReceivers = new Set(
         internalTransfers.map((transfer) => transfer.receiver)
       );
       return [...uniqueReceivers];
     }, [internalTransfers]);
 
-    const { iconHash, iconType } = React.useMemo<{
+    const { iconHash, iconType } = useMemo<{
       iconHash: string;
       iconType: "bottts" | "jdenticon";
     }>(() => {
@@ -348,7 +350,7 @@ type OperationArgumentDisplayProps = {
   arg: string[];
 };
 
-const OperationArgumentDisplay = React.memo<OperationArgumentDisplayProps>(
+const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(
   ({ i18nKey, arg }) => (
     <span className="font-light text-gray-500 text-xs">
       <T
@@ -374,7 +376,7 @@ type OperationVolumeDisplayProps = InternalTransferStats & {
   isSendOrReceive: boolean;
 };
 
-const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
+const OperationVolumeDisplay: FC<OperationVolumeDisplayProps> = (
   props
 ) => {
   const { token, pending, delta, isSendOrReceive, tokenAddress } = props;
@@ -424,13 +426,13 @@ const OperationVolumeDisplay: React.FC<OperationVolumeDisplayProps> = (
 };
 
 type TimeProps = {
-  children: () => React.ReactElement;
+  children: () => ReactElement;
 };
 
-const Time: React.FC<TimeProps> = ({ children }) => {
-  const [value, setValue] = React.useState(children);
+const Time: FC<TimeProps> = ({ children }) => {
+  const [value, setValue] = useState(children);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setValue(children());
     }, 5_000);

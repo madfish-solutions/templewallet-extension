@@ -1,17 +1,19 @@
+import React, { FC, Fragment, memo, useMemo } from "react";
+
 import classNames from "clsx";
-import React from "react";
+
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
+import HashChip from "app/templates/HashChip";
+import InUSD from "app/templates/InUSD";
+import { T, t, TProps } from "lib/i18n/react";
 import {
   TempleAsset,
   RawOperationExpenses,
   RawOperationAssetExpense,
   TEZ_ASSET,
 } from "lib/temple/front";
-import { T, t, TProps } from "lib/i18n/react";
-import Money from "app/atoms/Money";
-import Identicon from "app/atoms/Identicon";
-import HashChip from "app/templates/HashChip";
-import InUSD from "app/templates/InUSD";
-import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, "tokenAddress"> & {
   asset: TempleAsset | string;
@@ -25,7 +27,7 @@ type ExpensesViewProps = {
   expenses?: OperationExpenses[];
 };
 
-const ExpensesView: React.FC<ExpensesViewProps> = (props) => {
+const ExpensesView: FC<ExpensesViewProps> = (props) => {
   const { expenses } = props;
 
   if (!expenses) {
@@ -58,8 +60,8 @@ type ExpenseViewItemProps = {
   last: boolean;
 };
 
-const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item, last }) => {
-  const operationTypeLabel = React.useMemo(() => {
+const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last }) => {
+  const operationTypeLabel = useMemo(() => {
     switch (item.type) {
       // TODO: add translations for other operations types
       case "transaction":
@@ -81,7 +83,7 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item, last }) => {
     }
   }, [item]);
 
-  const { iconHash, iconType, argumentDisplayProps } = React.useMemo<{
+  const { iconHash, iconType, argumentDisplayProps } = useMemo<{
     iconHash: string;
     iconType: "bottts" | "jdenticon";
     argumentDisplayProps?: OperationArgumentDisplayProps;
@@ -146,7 +148,7 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item, last }) => {
     }
   }, [item]);
 
-  const withdrawal = React.useMemo(
+  const withdrawal = useMemo(
     () => ["transaction", "transfer"].includes(item.type),
     [item.type]
   );
@@ -197,14 +199,14 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item, last }) => {
           )}
         >
           {item.expenses.map((expense, index) => (
-            <React.Fragment key={index}>
+            <Fragment key={index}>
               <OperationVolumeDisplay
                 expense={expense}
                 volume={item.amount}
                 withdrawal={withdrawal}
               />
               {index === item.expenses.length - 1 ? null : ", "}
-            </React.Fragment>
+            </Fragment>
           ))}
 
           {item.expenses.length === 0 && (item.amount || undefined) && (
@@ -221,7 +223,7 @@ type OperationArgumentDisplayProps = {
   arg: string[];
 };
 
-const OperationArgumentDisplay = React.memo<OperationArgumentDisplayProps>(
+const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(
   ({ i18nKey, arg }) => (
     <span className="font-light text-gray-500 text-xs">
       <T
@@ -248,7 +250,7 @@ type OperationVolumeDisplayProps = {
   withdrawal?: boolean;
 };
 
-const OperationVolumeDisplay = React.memo<OperationVolumeDisplayProps>(
+const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(
   ({ expense, volume, withdrawal }) => {
     const asset =
       typeof expense?.asset === "object" ? expense.asset : undefined;

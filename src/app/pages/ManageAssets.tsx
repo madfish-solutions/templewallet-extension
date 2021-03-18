@@ -1,25 +1,26 @@
-import * as React from "react";
+import React, { FC, memo, useCallback, useMemo, useRef, useState } from "react";
+
 import classNames from "clsx";
-import { Link } from "lib/woozie";
+
+import Checkbox from "app/atoms/Checkbox";
+import { ReactComponent as AddIcon } from "app/icons/add-to-list.svg";
+import { ReactComponent as ControlCentreIcon } from "app/icons/control-centre.svg";
+import { ReactComponent as SearchIcon } from "app/icons/search.svg";
+import PageLayout from "app/layouts/PageLayout";
+import AssetIcon from "app/templates/AssetIcon";
+import SearchAssetField from "app/templates/SearchAssetField";
 import { T } from "lib/i18n/react";
 import {
   useTokens,
   getAssetKey,
   TempleAsset,
-  mergeAssets,
   searchAssets,
   TempleAssetType,
   useNetwork,
 } from "lib/temple/front";
-import PageLayout from "app/layouts/PageLayout";
-import AssetIcon from "app/templates/AssetIcon";
-import SearchAssetField from "app/templates/SearchAssetField";
-import Checkbox from "app/atoms/Checkbox";
-import { ReactComponent as ControlCentreIcon } from "app/icons/control-centre.svg";
-import { ReactComponent as AddIcon } from "app/icons/add-to-list.svg";
-import { ReactComponent as SearchIcon } from "app/icons/search.svg";
+import { Link } from "lib/woozie";
 
-const ManageAssets: React.FC = () => (
+const ManageAssets: FC = () => (
   <PageLayout
     pageTitle={
       <>
@@ -34,17 +35,16 @@ const ManageAssets: React.FC = () => (
 
 export default ManageAssets;
 
-const ManageAssetsContent: React.FC = () => {
+const ManageAssetsContent: FC = () => {
   const network = useNetwork();
-  const { displayedTokens, hiddenTokens, addToken, removeToken } = useTokens();
+  const { displayedAndHiddenTokens, updateToken } = useTokens();
 
-  const netIdRef = React.useRef<string>();
-  const sortIndexes = React.useRef<Map<string, number>>();
+  const netIdRef = useRef<string>();
+  const sortIndexes = useRef<Map<string, number>>();
 
-  const checkableTokens = React.useMemo(() => {
-    const unsorted = mergeAssets(
-      displayedTokens.map(toChecked),
-      hiddenTokens.map(toUnchecked)
+  const checkableTokens = useMemo(() => {
+    const unsorted = displayedAndHiddenTokens.map((t) =>
+      t.status === "displayed" ? toChecked(t) : toUnchecked(t)
     );
     const iMap = sortIndexes.current;
     if (!iMap) return unsorted;
@@ -54,7 +54,7 @@ const ManageAssetsContent: React.FC = () => {
       const bIndex = iMap.get(getAssetKey(b)) ?? 0;
       return aIndex - bIndex;
     });
-  }, [displayedTokens, hiddenTokens]);
+  }, [displayedAndHiddenTokens]);
 
   if (!sortIndexes.current || netIdRef.current !== network.id) {
     netIdRef.current = network.id;
@@ -63,26 +63,22 @@ const ManageAssetsContent: React.FC = () => {
     );
   }
 
-  const [searchValue, setSearchValue] = React.useState("");
+  const [searchValue, setSearchValue] = useState("");
 
-  const filteredTokens = React.useMemo(
+  const filteredTokens = useMemo(
     () => searchAssets(checkableTokens, searchValue),
     [checkableTokens, searchValue]
   );
 
-  const handleAssetChecked = React.useCallback(
+  const handleAssetChecked = useCallback(
     (asset: CheckableAsset, checked: boolean) => {
       const plain = toPlain(asset);
 
       if (plain.type !== TempleAssetType.TEZ) {
-        if (checked) {
-          addToken(plain);
-        } else {
-          removeToken(plain);
-        }
+        updateToken(plain, { status: checked ? "displayed" : "hidden" });
       }
     },
-    [addToken, removeToken]
+    [updateToken]
   );
 
   return (
@@ -109,21 +105,6 @@ const ManageAssetsContent: React.FC = () => {
           <T id="addToken" />
         </Link>
       </div>
-
-      {/* <button
-        className={classNames(
-          "mb-3 w-full",
-          "py-2 px-4",
-          "rounded-lg",
-          "flex items-center justify-center",
-          "text-primary-orange bg-primary-orange bg-opacity-5",
-          "border border-primary-orange border-opacity-50",
-          "text-base"
-        )}
-      >
-        <AddIcon className="w-auto h-5 mr-2 stroke-current" />
-        Add New Token
-      </button> */}
 
       {filteredTokens.length > 0 ? (
         <div
@@ -196,9 +177,9 @@ type ListItemProps = {
   onChecked: (asset: CheckableAsset, checked: boolean) => void;
 };
 
-const ListItem = React.memo<ListItemProps>(
+const ListItem = memo<ListItemProps>(
   ({ asset, last, checked, onChecked }) => {
-    const handleCheckboxChange = React.useCallback(
+    const handleCheckboxChange = useCallback(
       (evt) => {
         onChecked(asset, evt.target.checked);
       },

@@ -1,19 +1,21 @@
+import React, { CSSProperties, memo, useCallback, useMemo, useState } from "react";
+
 import classNames from "clsx";
-import React from "react";
+
 import Identicon from "app/atoms/Identicon";
 
 type DAppLogoProps = {
   origin: string;
   size: number;
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 };
 
-const DAppLogo = React.memo<DAppLogoProps>(
+const DAppLogo = memo<DAppLogoProps>(
   ({ origin, size, className, style }) => {
-    const faviconSrc = React.useMemo(() => `${origin}/favicon.ico`, [origin]);
-    const [faviconShowed, setFaviconShowed] = React.useState(true);
-    const handleFaviconError = React.useCallback(() => {
+    const faviconSrc = useMemo(() => `${origin}/favicon.ico`, [origin]);
+    const [faviconShowed, setFaviconShowed] = useState(true);
+    const handleFaviconError = useCallback(() => {
       setFaviconShowed(false);
     }, [setFaviconShowed]);
 

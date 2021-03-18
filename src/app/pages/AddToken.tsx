@@ -1,10 +1,18 @@
-import { WalletContract, compose } from "@taquito/taquito";
-import { tzip16 } from "@taquito/tzip16";
-import { tzip12 } from "@taquito/tzip12";
-import * as React from "react";
+import React, { FC, memo, ReactNode, useCallback, useEffect, useState } from "react";
+
+import { WalletContract } from "@taquito/taquito";
 import classNames from "clsx";
 import { Controller, FormContextValues, useForm } from "react-hook-form";
-import { navigate } from "lib/woozie";
+
+import Alert from "app/atoms/Alert";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import NoSpaceField from "app/atoms/NoSpaceField";
+import Spinner from "app/atoms/Spinner";
+import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import PageLayout from "app/layouts/PageLayout";
+import { T, t } from "lib/i18n/react";
+import { sanitizeImgUri } from "lib/image-uri";
 import {
   TempleToken,
   TempleAssetType,
@@ -16,20 +24,14 @@ import {
   NotMatchingStandardError,
   loadContractForCallLambdaView,
   getAssetKey,
+  fetchTokenMetadata,
+  MetadataParseError,
 } from "lib/temple/front";
-import { sanitizeImgUri } from "lib/image-uri";
-import { T, t } from "lib/i18n/react";
-import useSafeState from "lib/ui/useSafeState";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
-import PageLayout from "app/layouts/PageLayout";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Alert from "app/atoms/Alert";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import Spinner from "app/atoms/Spinner";
-import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import useSafeState from "lib/ui/useSafeState";
+import { navigate } from "lib/woozie";
 
-const AddToken: React.FC = () => (
+const AddToken: FC = () => (
   <PageLayout
     pageTitle={
       <>
@@ -66,9 +68,7 @@ type FormData = {
   type: TempleCustomTokenType;
 };
 
-class MetadataParseError extends Error {}
-
-const Form: React.FC = () => {
+const Form: FC = () => {
   const { addToken } = useTokens();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
@@ -88,18 +88,18 @@ const Form: React.FC = () => {
   const contractAddress = watch("address");
   const tokenType = watch("type");
   const tokenId = watch("id");
-  const [submitError, setSubmitError] = React.useState<React.ReactNode>(null);
-  const [tokenDataError, setTokenDataError] = React.useState<React.ReactNode>(
+  const [submitError, setSubmitError] = useState<ReactNode>(null);
+  const [tokenDataError, setTokenDataError] = useState<ReactNode>(
     null
   );
   const [
     tokenValidationError,
     setTokenValidationError,
-  ] = React.useState<React.ReactNode>(null);
+  ] = useState<ReactNode>(null);
   const [bottomSectionVisible, setBottomSectionVisible] = useSafeState(false);
-  const [loadingToken, setLoadingToken] = React.useState(false);
+  const [loadingToken, setLoadingToken] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setTokenValidationError(null);
     setBottomSectionVisible(false);
     if (
@@ -126,8 +126,7 @@ const Form: React.FC = () => {
           throw new TokenValidationError(t("contractNotAvailable"));
         }
 
-        let tokenData: any;
-        let latestErrMessage;
+        let tokenData;
 
         try {
           /**
@@ -139,43 +138,7 @@ const Form: React.FC = () => {
             await assertTokenType(tokenType, contract, tezos, tokenId!);
           }
 
-          /**
-           * Fetch taquito contract instance that is capable of metadata
-           */
-          const metadataContract = await tezos.wallet.at(
-            contractAddress,
-            compose(tzip12, tzip16)
-          );
-
-          /**
-           * Try fetch token data with TZIP12
-           */
-          try {
-            tokenData = await metadataContract
-              .tzip12()
-              .getTokenMetadata(tokenId ?? 0);
-          } catch (err) {
-            latestErrMessage = err.message;
-          }
-
-          /**
-           * Try fetch token data with TZIP16
-           * Get them from plain tzip16 structure/scheme
-           */
-          if (!tokenData || Object.keys(tokenData).length === 0) {
-            try {
-              const {
-                metadata,
-              } = await metadataContract.tzip16().getMetadata();
-              tokenData = metadata;
-            } catch (err) {
-              latestErrMessage = err.message;
-            }
-          }
-
-          if (!tokenData) {
-            throw new MetadataParseError(latestErrMessage ?? "Unknown error");
-          }
+          tokenData = await fetchTokenMetadata(tezos, contractAddress, tokenId);
         } catch (err) {
           if (err instanceof MetadataParseError) {
             throw err;
@@ -191,20 +154,11 @@ const Form: React.FC = () => {
           }
         }
 
-        const { symbol = "", name = "", decimals = 0 } = tokenData || {};
-        const iconUrl =
-          tokenData.thumbnailUri ??
-          tokenData.logo ??
-          tokenData.icon ??
-          tokenData.iconUri ??
-          tokenData.iconUrl ??
-          "";
-
         setValue([
-          { symbol: symbol.substr(0, 5) },
-          { name: name.substr(0, 50) },
-          { decimals },
-          { iconUrl },
+          { symbol: tokenData.symbol.substr(0, 8) },
+          { name: tokenData.name.substr(0, 50) },
+          { decimals: tokenData.decimals },
+          { iconUrl: tokenData.iconUrl },
         ]);
         setBottomSectionVisible(true);
       } catch (e) {
@@ -238,12 +192,12 @@ const Form: React.FC = () => {
     tokenId,
   ]);
 
-  const cleanContractAddress = React.useCallback(() => {
+  const cleanContractAddress = useCallback(() => {
     setValue("address", "");
     triggerValidation("address");
   }, [setValue, triggerValidation]);
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({
       address,
       symbol,
@@ -261,9 +215,10 @@ const Form: React.FC = () => {
           address,
           symbol,
           name,
-          decimals: decimals || 0,
+          decimals: decimals ? +decimals : 0,
           iconUrl: iconUrl ? sanitizeImgUri(iconUrl) : undefined,
           fungible: true,
+          status: "displayed" as const,
         };
 
         const newToken: TempleToken =
@@ -278,12 +233,15 @@ const Form: React.FC = () => {
                 ...tokenCommonProps,
               };
 
-        addToken(newToken);
+        await addToken(newToken);
         const assetKey = getAssetKey(newToken);
 
         // Wait a little bit while the tokens updated
         await new Promise((r) => setTimeout(r, 300));
-        navigate(`/explore/${assetKey}`);
+        navigate({
+          pathname: `/explore/${assetKey}`,
+          search: "after_token_added=true",
+        });
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -400,7 +358,7 @@ type TokenTypeSelectProps = {
   onChange: (newValue: TempleCustomTokenType) => void;
 };
 
-const TokenTypeSelect = React.memo<TokenTypeSelectProps>((props) => {
+const TokenTypeSelect = memo<TokenTypeSelectProps>((props) => {
   const { value, onChange } = props;
 
   return (
@@ -432,10 +390,10 @@ type TokenTypeOptionProps = {
   onClick: (value: TempleCustomTokenType) => void;
 };
 
-const TokenTypeOption: React.FC<TokenTypeOptionProps> = (props) => {
+const TokenTypeOption: FC<TokenTypeOptionProps> = (props) => {
   const { active, last, value, onClick } = props;
 
-  const handleClick = React.useCallback(() => onClick(value), [onClick, value]);
+  const handleClick = useCallback(() => onClick(value), [onClick, value]);
 
   return (
     <button
@@ -465,10 +423,10 @@ type BottomSectionProps = Pick<
   FormContextValues,
   "register" | "errors" | "formState"
 > & {
-  submitError?: React.ReactNode;
+  submitError?: ReactNode;
 };
 
-const BottomSection: React.FC<BottomSectionProps> = (props) => {
+const BottomSection: FC<BottomSectionProps> = (props) => {
   const { register, errors, formState, submitError } = props;
 
   return (
@@ -493,9 +451,11 @@ const BottomSection: React.FC<BottomSectionProps> = (props) => {
       <FormField
         ref={register({
           required: t("required"),
-          pattern: {
-            value: /^[a-zA-Z0-9 _-]{3,50}$/,
-            message: t("tokenNamePatternDescription"),
+          validate: (val: string) => {
+            if (!val || val.length < 3 || val.length > 50) {
+              return t("tokenNamePatternDescription");
+            }
+            return true;
           },
         })}
         name="name"

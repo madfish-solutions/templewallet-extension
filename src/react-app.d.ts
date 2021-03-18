@@ -40,9 +40,9 @@ declare module "*.webp" {
 }
 
 declare module "*.svg" {
-  import * as React from "react";
+  import { FunctionComponent, SVGProps } from "react";
 
-  export const ReactComponent: React.FunctionComponent<React.SVGProps<
+  export const ReactComponent: FunctionComponent<SVGProps<
     SVGSVGElement
   > & { title?: string }>;
 

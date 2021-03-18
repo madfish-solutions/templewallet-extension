@@ -1,17 +1,20 @@
-import * as React from "react";
+import React, { CSSProperties, memo, ReactNode } from "react";
+
 import classNames from "clsx";
 import ReactJson from "react-json-view";
+
+import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 type OperationsBannerProps = {
-  jsonViewStyle?: React.CSSProperties;
+  jsonViewStyle?: CSSProperties;
   opParams: any[] | { branch: string; contents: any[] } | string;
-  label?: React.ReactNode;
+  label?: ReactNode;
   className?: string;
 };
 
-const OperationsBanner = React.memo<OperationsBannerProps>(
+const OperationsBanner = memo<OperationsBannerProps>(
   ({ jsonViewStyle, opParams, label, className }) => {
     opParams =
       typeof opParams === "string" ? opParams : formatOpParams(opParams);
@@ -70,7 +73,7 @@ const OperationsBanner = React.memo<OperationsBannerProps>(
             )}
           </div>
 
-          <div className={classNames("absolute bottom-0 left-0 pb-2 pl-2")}>
+          <div className={classNames("absolute top-0 right-0 pt-2 pr-2")}>
             <CopyButton toCopy={opParams} />
           </div>
         </div>
@@ -85,7 +88,7 @@ type CopyButtonProps = {
   toCopy: any;
 };
 
-const CopyButton = React.memo<CopyButtonProps>(({ toCopy }) => {
+const CopyButton = memo<CopyButtonProps>(({ toCopy }) => {
   const { fieldRef, copy, copied } = useCopyToClipboard<HTMLTextAreaElement>();
 
   const text =
@@ -97,12 +100,12 @@ const CopyButton = React.memo<CopyButtonProps>(({ toCopy }) => {
         type="button"
         className={classNames(
           "mx-auto",
-          "py-1 px-2 w-32",
+          "p-1",
           "bg-primary-orange rounded",
           "border border-primary-orange",
           "flex items-center justify-center",
           "text-primary-orange-lighter text-shadow-black-orange",
-          "text-xs font-semibold",
+          "text-xs font-semibold leading-snug",
           "transition duration-300 ease-in-out",
           "opacity-90 hover:opacity-100 focus:opacity-100",
           "shadow-sm",
@@ -110,7 +113,13 @@ const CopyButton = React.memo<CopyButtonProps>(({ toCopy }) => {
         )}
         onClick={copy}
       >
-        <T id={copied ? "copiedHash" : "copyHashToClipboard"} />
+        {copied ? (
+          <T id="copiedHash" />
+        ) : (
+          <CopyIcon
+            className={classNames("h-4 w-auto", "stroke-current stroke-2")}
+          />
+        )}
       </button>
 
       <textarea ref={fieldRef} value={text} readOnly className="sr-only" />
@@ -134,6 +143,10 @@ function formatOpParams(opParams: any) {
 }
 
 function formatTransferParams(tParams: any) {
-  const { to, mutez, ...rest } = tParams;
-  return to ? { destination: to, ...rest } : rest;
+  const { to, mutez, parameter, ...rest } = tParams;
+  const newTParams = to ? { destination: to, ...rest } : rest;
+  if (parameter) {
+    newTParams.parameters = parameter;
+  }
+  return newTParams;
 }

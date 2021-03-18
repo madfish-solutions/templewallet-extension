@@ -1,5 +1,6 @@
 import { browser } from "webextension-polyfill-ts";
-import { TempleAccountType, TempleStatus } from "lib/temple/types";
+
+import { TempleAccountType, TempleStatus } from "../types";
 import {
   accountsUpdated,
   inited as initEvent,
@@ -33,32 +34,27 @@ describe("Store tests", () => {
     expect(networks).toEqual([]);
     expect(settings).toBeNull();
   });
-
   it("Inited event", () => {
     initEvent(false);
     const { inited, status } = store.getState();
     expect(inited).toBeTruthy();
     expect(status).toBe(TempleStatus.Idle);
   });
-
   it("Inited event with Vault", () => {
     initEvent(true);
     const { status } = store.getState();
     expect(status).toBe(TempleStatus.Locked);
   });
-
   it("Locked event", () => {
     locked();
     const { status } = store.getState();
     expect(status).toBe(TempleStatus.Locked);
   });
-
   it("Unlocked event", () => {
     unlocked({ vault: {} as Vault, accounts: [], settings: {} });
     const { status } = store.getState();
     expect(status).toBe(TempleStatus.Ready);
   });
-
   it("Accounts updated event", () => {
     accountsUpdated([
       {
@@ -73,7 +69,6 @@ describe("Store tests", () => {
     expect(type).toBe(TempleAccountType.Imported);
     expect(publicKeyHash).toBe("testHashKey");
   });
-
   it("Settings updated event", () => {
     settingsUpdated({});
     const { settings } = store.getState();

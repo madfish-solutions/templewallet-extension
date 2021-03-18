@@ -1,17 +1,19 @@
-import * as React from "react";
+import React, { FC, useCallback, useEffect, useMemo, useRef } from "react";
+
 import { useForm } from "react-hook-form";
-import { navigate } from "lib/woozie";
+
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import PageLayout from "app/layouts/PageLayout";
+import { T, t } from "lib/i18n/react";
 import {
   TempleAccountType,
   useTempleClient,
   useAllAccounts,
   useSetAccountPkh,
 } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
-import PageLayout from "app/layouts/PageLayout";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import { navigate } from "lib/woozie";
 
 type FormData = {
   name: string;
@@ -19,12 +21,12 @@ type FormData = {
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 
-const CreateAccount: React.FC = () => {
+const CreateAccount: FC = () => {
   const { createAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
 
-  const allHDOrImported = React.useMemo(
+  const allHDOrImported = useMemo(
     () =>
       allAccounts.filter((acc) =>
         [TempleAccountType.HD, TempleAccountType.Imported].includes(acc.type)
@@ -32,13 +34,13 @@ const CreateAccount: React.FC = () => {
     [allAccounts]
   );
 
-  const defaultName = React.useMemo(
+  const defaultName = useMemo(
     () => t("defaultAccountName", String(allHDOrImported.length + 1)),
     [allHDOrImported.length]
   );
 
-  const prevAccLengthRef = React.useRef(allAccounts.length);
-  React.useEffect(() => {
+  const prevAccLengthRef = useRef(allAccounts.length);
+  useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
       setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
@@ -57,7 +59,7 @@ const CreateAccount: React.FC = () => {
   } = useForm<FormData>({ defaultValues: { name: defaultName } });
   const submitting = formState.isSubmitting;
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({ name }) => {
       if (submitting) return;
 

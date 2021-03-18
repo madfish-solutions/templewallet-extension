@@ -1,7 +1,16 @@
-import * as React from "react";
+import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import classNames from "clsx";
 import { cache } from "swr";
-import { Link, navigate } from "lib/woozie";
+
+import Money from "app/atoms/Money";
+import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import { ReactComponent as SearchIcon } from "app/icons/search.svg";
+import AssetIcon from "app/templates/AssetIcon";
+import Balance from "app/templates/Balance";
+import InUSD from "app/templates/InUSD";
+import SearchAssetField from "app/templates/SearchAssetField";
 import { T } from "lib/i18n/react";
 import {
   useAssets,
@@ -11,53 +20,46 @@ import {
   useBalanceSWRKey,
   TempleAsset,
 } from "lib/temple/front";
-import Money from "app/atoms/Money";
-import AssetIcon from "app/templates/AssetIcon";
-import Balance from "app/templates/Balance";
-import InUSD from "app/templates/InUSD";
-import SearchAssetField from "app/templates/SearchAssetField";
-import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
-import { ReactComponent as SearchIcon } from "app/icons/search.svg";
-import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import { Link, navigate } from "lib/woozie";
 
-const Assets: React.FC = () => {
+const Assets: FC = () => {
   const account = useAccount();
   const { allAssets } = useAssets();
 
-  const [searchValue, setSearchValue] = React.useState("");
-  const [searchFocused, setSearchFocused] = React.useState(false);
-  const [activeIndex, setActiveIndex] = React.useState(0);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  const searchValueExist = React.useMemo(() => Boolean(searchValue), [
+  const searchValueExist = useMemo(() => Boolean(searchValue), [
     searchValue,
   ]);
 
-  const filteredAssets = React.useMemo(
+  const filteredAssets = useMemo(
     () => searchAssets(allAssets, searchValue),
     [allAssets, searchValue]
   );
 
-  const activeAssetKey = React.useMemo(() => {
+  const activeAssetKey = useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex]
       ? getAssetKey(filteredAssets[activeIndex])
       : null;
   }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
       setActiveIndex(0);
     }
   }, [activeIndex, filteredAssets.length]);
 
-  const handleSearchFieldFocus = React.useCallback(() => {
+  const handleSearchFieldFocus = useCallback(() => {
     setSearchFocused(true);
   }, [setSearchFocused]);
 
-  const handleSearchFieldBlur = React.useCallback(() => {
+  const handleSearchFieldBlur = useCallback(() => {
     setSearchFocused(false);
   }, [setSearchFocused]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!activeAssetKey) return;
 
     const handleKeyup = (evt: KeyboardEvent) => {
@@ -186,17 +188,17 @@ type ListItemProps = {
   accountPkh: string;
 };
 
-const ListItem = React.memo<ListItemProps>(
+const ListItem = memo<ListItemProps>(
   ({ asset, slug, last, active, accountPkh }) => {
     const balanceSWRKey = useBalanceSWRKey(asset, accountPkh);
-    const balanceAlreadyLoaded = React.useMemo(() => cache.has(balanceSWRKey), [
+    const balanceAlreadyLoaded = useMemo(() => cache.has(balanceSWRKey), [
       balanceSWRKey,
     ]);
 
-    const toDisplayRef = React.useRef<HTMLDivElement>(null);
-    const [displayed, setDisplayed] = React.useState(balanceAlreadyLoaded);
+    const toDisplayRef = useRef<HTMLDivElement>(null);
+    const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
 
-    React.useEffect(() => {
+    useEffect(() => {
       const el = toDisplayRef.current;
       if (!displayed && "IntersectionObserver" in window && el) {
         const observer = new IntersectionObserver(
