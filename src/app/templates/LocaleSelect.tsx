@@ -4,7 +4,7 @@ import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
 
 import Flag from "app/atoms/Flag";
-import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalyticsTrackEvent } from "lib/analytics";
+import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from "lib/analytics";
 import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
 
 import IconifiedSelect, {
@@ -86,7 +86,7 @@ const getLocaleCode = ({ code }: LocaleOption) => code;
 
 const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
   const selectedLocale = getCurrentLocale();
-  const trackEvent = useAnalyticsTrackEvent();
+  const { trackEvent } = useAnalytics();
 
   const value = useMemo(
     () =>
