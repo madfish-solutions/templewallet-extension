@@ -25,11 +25,10 @@ type OperationExpenses = Omit<RawOperationExpenses, "expenses"> & {
 
 type ExpensesViewProps = {
   expenses?: OperationExpenses[];
+  totalFee?: React.ReactNode;
 };
 
-const ExpensesView: FC<ExpensesViewProps> = (props) => {
-  const { expenses } = props;
-
+const ExpensesView: FC<ExpensesViewProps> = ({ expenses, totalFee }) => {
   if (!expenses) {
     return null;
   }
@@ -37,7 +36,7 @@ const ExpensesView: FC<ExpensesViewProps> = (props) => {
   return (
     <div
       className={classNames(
-        "rounded-md overflow-y-auto border",
+        "relative rounded-md overflow-y-auto border",
         "flex flex-col text-gray-700 text-sm leading-tight"
       )}
       style={{ height: "9.5rem" }}
@@ -49,6 +48,24 @@ const ExpensesView: FC<ExpensesViewProps> = (props) => {
           last={index === arr.length - 1}
         />
       ))}
+
+      {totalFee && (
+        <>
+          <div className="flex-1" />
+
+          <div
+            className={classNames(
+              "sticky bottom-0 left-0 right-0",
+              "flex items-center",
+              "p-1",
+              "bg-gray-200 bg-opacity-90 border-t",
+              "text-sm text-gray-700"
+            )}
+          >
+            {totalFee}
+          </div>
+        </>
+      )}
     </div>
   );
 };
