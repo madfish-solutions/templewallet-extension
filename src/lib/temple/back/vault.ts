@@ -214,7 +214,10 @@ export class Vault {
     return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
-  async createHDAccount(name?: string) {
+  async createHDAccount(
+    name?: string,
+    hdAccIndex?: number
+  ): Promise<TempleAccount[]> {
     return withError("Failed to create account", async () => {
       const [mnemonic, allAccounts] = await Promise.all([
         fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey),
@@ -225,15 +228,23 @@ export class Vault {
       const allHDAccounts = allAccounts.filter(
         (a) => a.type === TempleAccountType.HD
       );
-      const hdAccIndex = allHDAccounts.length;
+      if (!hdAccIndex) {
+        hdAccIndex = allHDAccounts.length;
+      }
+
       const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
       const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
         accPrivateKey
       );
+      const accName = name || getNewAccountName(allAccounts);
+
+      if (allAccounts.some((a) => a.publicKeyHash === accPublicKeyHash)) {
+        return this.createHDAccount(accName, hdAccIndex + 1);
+      }
 
       const newAccount: TempleAccount = {
         type: TempleAccountType.HD,
-        name: name || getNewAccountName(allAccounts),
+        name: accName,
         publicKeyHash: accPublicKeyHash,
         hdIndex: hdAccIndex,
       };
