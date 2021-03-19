@@ -5,8 +5,6 @@ on:
     branches:
       - develop
 
-environment: develop-environment
-
 env:
   TEMPLE_WALLET_LEDGER_BRIDGE_URL: ${{ secrets.TEMPLE_WALLET_LEDGER_BRIDGE_URL }}
   TEMPLE_WALLET_LOGO_URL: ${{ secrets.TEMPLE_WALLET_LOGO_URL }}
@@ -17,6 +15,7 @@ jobs:
   code-quality:
     name: Checks if ts, lint, unit tests & build work
     runs-on: ubuntu-latest
+    environment: develop-environment
     steps:
       - run: echo "secret_ ${{ secrets.TEMPLE_WALLET_LV_ACCOUNT_PKH }}"
       - run: echo "env_ ${{ env.TEMPLE_WALLET_LV_ACCOUNT_PKH }}"
