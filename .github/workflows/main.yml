@@ -5,6 +5,8 @@ on:
     branches:
       - develop
 
+environment: develop-environment
+
 env:
   TEMPLE_WALLET_LEDGER_BRIDGE_URL: ${{ secrets.TEMPLE_WALLET_LEDGER_BRIDGE_URL }}
   TEMPLE_WALLET_LOGO_URL: ${{ secrets.TEMPLE_WALLET_LOGO_URL }}
