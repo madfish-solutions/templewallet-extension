@@ -32,7 +32,7 @@ import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
-import { AnalyticsEventCategory, useAnalyticsTrackEvent, useFormAnalytics } from "lib/analytics";
+import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import {
@@ -81,7 +81,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
   const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
-  const trackEvent = useAnalyticsTrackEvent();
+  const { trackEvent } = useAnalytics();
 
   const handleAssetChange = useCallback((a: TempleAsset) => {
     trackEvent(SendFormSelectors.AssetItemButton, AnalyticsEventCategory.ButtonPress);

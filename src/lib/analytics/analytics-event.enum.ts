@@ -3,7 +3,8 @@ export enum AnalyticsEventCategory {
   ButtonPress = 'ButtonPress',
   FormSubmit = 'FormSubmit',
   FormSubmitSuccess = 'FormSubmitSuccess',
-  FormSubmitFail = 'FormSubmitFail'
+  FormSubmitFail = 'FormSubmitFail',
+  PageOpened = 'PageOpened'
 }
 
 export enum AnalyticsEventEnum {

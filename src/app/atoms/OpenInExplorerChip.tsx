@@ -3,7 +3,7 @@ import React, { FC, useMemo } from "react";
 import classNames from "clsx";
 
 import { ReactComponent as ArrowRightTopIcon } from "app/icons/arrow-right-top.svg";
-import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
+import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import useTippy from "lib/ui/useTippy";
 
 import { OpenInExplorerChipSelectors } from "./OpenInExplorerChip.selectors";
@@ -19,7 +19,7 @@ const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
   opHash,
   className,
 }) => {
-  const trackEvent = useAnalyticsTrackEvent();
+  const { trackEvent } = useAnalytics();
   const tippyProps = useMemo(
     () => ({
       trigger: "mouseenter",
