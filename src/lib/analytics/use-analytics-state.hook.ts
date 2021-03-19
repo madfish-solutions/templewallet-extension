@@ -22,7 +22,7 @@ export const sendTrackEvent = async (
 ) => {
   const chainId = await loadChainId(rpc);
 
-  client.track({
+  process.env.NODE_ENV === "production" && client.track({
     userId,
     event: `${category} ${event}`,
     timestamp: new Date(),
@@ -44,7 +44,7 @@ export const sendPageEvent = async (
   const url = `${path}${search}`;
   const chainId = await loadChainId(rpc);
 
-  client.page({
+  process.env.NODE_ENV === "production" && client.page({
     userId,
     name: url,
     timestamp: new Date(),

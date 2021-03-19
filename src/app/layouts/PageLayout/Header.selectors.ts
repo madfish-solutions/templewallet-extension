@@ -1,4 +1,4 @@
 export enum HeaderSelectors {
-  TempleLogo = 'HeaderSelectors.TempleLogo',
-  AccountIcon = 'HeaderSelectors.AccountIcon'
+  TempleLogo = 'Header/TempleLogo',
+  AccountIcon = 'Header/AccountIcon'
 }

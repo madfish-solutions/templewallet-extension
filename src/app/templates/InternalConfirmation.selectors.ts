@@ -1,8 +1,8 @@
 export enum InternalConfirmationSelectors {
-  PreviewTab = 'InternalConfirmationSelectors.PreviewTab',
-  RawTab = 'InternalConfirmationSelectors.RawTab',
-  BytesTab = 'InternalConfirmationSelectors.BytesTab',
-  ConfirmButton = 'InternalConfirmationSelectors.ConfirmButton',
-  RetryButton = 'InternalConfirmationSelectors.RetryButton',
-  DeclineButton = 'InternalConfirmationSelectors.DeclineButton',
+  PreviewTab = 'InternalConfirmation/PreviewTab',
+  RawTab = 'InternalConfirmation/RawTab',
+  BytesTab = 'InternalConfirmation/BytesTab',
+  ConfirmButton = 'InternalConfirmation/ConfirmButton',
+  RetryButton = 'InternalConfirmation/RetryButton',
+  DeclineButton = 'InternalConfirmation/DeclineButton',
 }
