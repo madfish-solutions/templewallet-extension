@@ -41,7 +41,7 @@ export const sendPageEvent = async (
   path: string,
   search: string
 ) => {
-  const url = `${path} ${search}`;
+  const url = `${path}${search}`;
   const chainId = await loadChainId(rpc);
 
   client.page({
