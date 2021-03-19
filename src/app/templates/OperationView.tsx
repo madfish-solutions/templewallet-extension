@@ -11,23 +11,20 @@ import RawPayloadView from "app/templates/RawPayloadView";
 import ViewsSwitcher from "app/templates/ViewsSwitcher";
 import { T, t } from "lib/i18n/react";
 import {
-  TempleDAppPayload,
   TEZ_ASSET,
   tryParseExpenses,
-  useAccount,
   TempleAssetType,
   useTokens,
+  TempleDAppOperationsPayload,
+  TempleDAppSignPayload,
 } from "lib/temple/front";
 
 type OperationViewProps = {
-  payload: TempleDAppPayload;
+  payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
   networkRpc?: string;
 };
 
-const OperationView: FC<OperationViewProps> = ({
-  payload,
-  networkRpc,
-}) => {
+const OperationView: FC<OperationViewProps> = ({ payload, networkRpc }) => {
   const contentToParse = useMemo(() => {
     switch (payload.type) {
       case "confirm_operations":
@@ -38,12 +35,11 @@ const OperationView: FC<OperationViewProps> = ({
         return [];
     }
   }, [payload]);
-  const account = useAccount();
   const { allTokens } = useTokens(networkRpc);
 
   const rawExpensesData = useMemo(
-    () => tryParseExpenses(contentToParse, account.publicKeyHash),
-    [contentToParse, account.publicKeyHash]
+    () => tryParseExpenses(contentToParse, payload.sourcePkh),
+    [contentToParse, payload.sourcePkh]
   );
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restRaw }) => ({
@@ -98,10 +94,6 @@ const OperationView: FC<OperationViewProps> = ({
             ]
           : []),
       ];
-    }
-
-    if (payload.type === "connect") {
-      return [];
     }
 
     return [
