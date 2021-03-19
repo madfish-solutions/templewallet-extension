@@ -20,7 +20,7 @@ import { ReactComponent as CupIcon } from "app/icons/cup.svg";
 import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
-import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
+import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { TEZ_ASSET } from "lib/temple/front";
 
@@ -89,7 +89,7 @@ const getFeeOptionId = (option: FeeOption) => option.type;
 
 const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
   const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
-  const trackEvent = useAnalyticsTrackEvent();
+  const { trackEvent } = useAnalytics();
 
   const validateAdditionalFee = useCallback((v?: number) => {
     if (v === undefined) {
