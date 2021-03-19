@@ -1,7 +1,6 @@
 import React, { FC, useCallback, useMemo } from "react";
 
 import { localForger } from "@taquito/local-forging";
-import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
 import Alert from "app/atoms/Alert";
@@ -9,7 +8,6 @@ import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Logo from "app/atoms/Logo";
-import Money from "app/atoms/Money";
 import SubTitle from "app/atoms/SubTitle";
 import { useAppEnv } from "app/env";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
@@ -17,7 +15,6 @@ import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 import AccountBanner from "app/templates/AccountBanner";
 import ExpensesView from "app/templates/ExpensesView";
-import InUSD from "app/templates/InUSD";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
@@ -35,7 +32,6 @@ import {
   TEZ_ASSET,
   useCustomChainId,
   TempleChainId,
-  mutezToTz,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 
@@ -186,45 +182,6 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
 
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
-  const totalFee = useMemo(() => {
-    if (payload.type === "operations" && payload.rawToSign) {
-      let feeMutez: BigNumber;
-      try {
-        feeMutez = (payload.rawToSign.contents as any[]).reduce(
-          (val: BigNumber, { fee }) => val.plus(fee),
-          new BigNumber(0)
-        );
-      } catch {
-        return null;
-      }
-
-      const fee = mutezToTz(feeMutez);
-
-      return (
-        <div>
-          <span className="opacity-90">Total fee:</span>{" "}
-          <span className="font-medium">
-            <Money>{fee}</Money> ꜩ
-          </span>{" "}
-          {mainnet && (
-            <InUSD volume={fee} roundingMode={BigNumber.ROUND_UP}>
-              {(usdAmount) => (
-                <>
-                  <span className="opacity-75">(</span>
-                  <span className="pr-px">$</span>
-                  {usdAmount}
-                  <span className="opacity-75">)</span>
-                </>
-              )}
-            </InUSD>
-          )}
-        </div>
-      );
-    }
-
-    return null;
-  }, [payload, mainnet]);
-
   return (
     <div
       className={classNames(
@@ -346,7 +303,15 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
                 )}
 
               {spFormat.key === "preview" && (
-                <ExpensesView expenses={expensesData} totalFee={totalFee} />
+                <ExpensesView
+                  expenses={expensesData}
+                  rawToSign={
+                    payload.type === "operations"
+                      ? payload.rawToSign
+                      : undefined
+                  }
+                  mainnet={mainnet}
+                />
               )}
             </>
           )}

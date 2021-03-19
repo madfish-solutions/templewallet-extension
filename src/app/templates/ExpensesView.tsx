@@ -1,5 +1,6 @@
 import React, { FC, Fragment, memo, useMemo } from "react";
 
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
 import Identicon from "app/atoms/Identicon";
@@ -13,6 +14,7 @@ import {
   RawOperationExpenses,
   RawOperationAssetExpense,
   TEZ_ASSET,
+  mutezToTz,
 } from "lib/temple/front";
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, "tokenAddress"> & {
@@ -25,10 +27,54 @@ type OperationExpenses = Omit<RawOperationExpenses, "expenses"> & {
 
 type ExpensesViewProps = {
   expenses?: OperationExpenses[];
-  totalFee?: React.ReactNode;
+  rawToSign?: any;
+  mainnet?: boolean;
 };
 
-const ExpensesView: FC<ExpensesViewProps> = ({ expenses, totalFee }) => {
+const ExpensesView: FC<ExpensesViewProps> = ({
+  expenses,
+  rawToSign,
+  mainnet,
+}) => {
+  const totalFee = useMemo(() => {
+    if (rawToSign) {
+      let feeMutez: BigNumber;
+      try {
+        feeMutez = (rawToSign.contents as any[]).reduce(
+          (val: BigNumber, { fee }) => val.plus(fee),
+          new BigNumber(0)
+        );
+      } catch {
+        return null;
+      }
+
+      const fee = mutezToTz(feeMutez);
+
+      return (
+        <div>
+          <span className="opacity-90">Total fee:</span>{" "}
+          <span className="font-medium">
+            <Money>{fee}</Money> ꜩ
+          </span>{" "}
+          {mainnet && (
+            <InUSD volume={fee} roundingMode={BigNumber.ROUND_UP}>
+              {(usdAmount) => (
+                <>
+                  <span className="opacity-75">(</span>
+                  <span className="pr-px">$</span>
+                  {usdAmount}
+                  <span className="opacity-75">)</span>
+                </>
+              )}
+            </InUSD>
+          )}
+        </div>
+      );
+    }
+
+    return null;
+  }, [rawToSign, mainnet]);
+
   if (!expenses) {
     return null;
   }
@@ -46,6 +92,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, totalFee }) => {
           key={index}
           item={item}
           last={index === arr.length - 1}
+          mainnet={mainnet}
         />
       ))}
 
@@ -57,7 +104,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, totalFee }) => {
             className={classNames(
               "sticky bottom-0 left-0 right-0",
               "flex items-center",
-              "p-1",
+              "px-2 py-1",
               "bg-gray-200 bg-opacity-90 border-t",
               "text-sm text-gray-700"
             )}
@@ -75,9 +122,10 @@ export default ExpensesView;
 type ExpenseViewItemProps = {
   item: OperationExpenses;
   last: boolean;
+  mainnet?: boolean;
 };
 
-const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last }) => {
+const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
   const operationTypeLabel = useMemo(() => {
     switch (item.type) {
       // TODO: add translations for other operations types
@@ -106,7 +154,13 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last }) => {
     argumentDisplayProps?: OperationArgumentDisplayProps;
   }>(() => {
     const receivers = [
-      ...new Set(item.expenses.map(({ to }) => to).filter((value) => !!value)),
+      ...new Set(
+        item.expenses
+          .map(({ to }) => to)
+          .filter((value) =>
+            item.contractAddress ? value !== item.contractAddress : !!value
+          )
+      ),
     ];
 
     switch (item.type) {
@@ -187,11 +241,11 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last }) => {
       </div>
 
       <div className="flex-1 flex-col">
-        <div className="mb-1 flex items-center">
-          <div className="flex mr-1 text-xs items-center text-blue-600 opacity-75">
-            {operationTypeLabel}
-          </div>
+        <div className="mb-px text-xs text-blue-600 opacity-75">
+          {operationTypeLabel}
+        </div>
 
+        <div className="mb-1 flex items-center">
           {argumentDisplayProps && (
             <OperationArgumentDisplay {...argumentDisplayProps} />
           )}
@@ -200,35 +254,28 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last }) => {
         <div
           className={classNames(
             "flex items-end flex-shrink-0",
-            (() => {
-              switch (item.type) {
-                case "transaction":
-                case "transfer":
-                  return "text-red-700";
-
-                case "approve":
-                  return "text-yellow-600";
-
-                default:
-                  return "text-gray-800";
-              }
-            })()
+            "text-gray-800"
           )}
         >
-          {item.expenses.map((expense, index) => (
-            <Fragment key={index}>
-              <OperationVolumeDisplay
-                expense={expense}
-                volume={item.amount}
-                withdrawal={withdrawal}
-              />
-              {index === item.expenses.length - 1 ? null : ", "}
-            </Fragment>
-          ))}
+          {item.expenses
+            .filter((expense) => new BigNumber(expense.amount).isGreaterThan(0))
+            .map((expense, index, arr) => (
+              <Fragment key={index}>
+                <OperationVolumeDisplay
+                  expense={expense}
+                  volume={item.amount}
+                  withdrawal={withdrawal}
+                  mainnet={mainnet}
+                />
+                {index === arr.length - 1 ? null : ", "}
+              </Fragment>
+            ))}
 
-          {item.expenses.length === 0 && (item.amount || undefined) && (
-            <OperationVolumeDisplay volume={item.amount!} />
-          )}
+          {item.expenses.length === 0 &&
+          item.amount &&
+          new BigNumber(item.amount).isGreaterThan(0) ? (
+            <OperationVolumeDisplay volume={item.amount!} mainnet={mainnet} />
+          ) : null}
         </div>
       </div>
     </div>
@@ -265,10 +312,11 @@ type OperationVolumeDisplayProps = {
   expense?: OperationAssetExpense;
   volume?: number;
   withdrawal?: boolean;
+  mainnet?: boolean;
 };
 
 const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(
-  ({ expense, volume, withdrawal }) => {
+  ({ expense, volume, mainnet }) => {
     const asset =
       typeof expense?.asset === "object" ? expense.asset : undefined;
 
@@ -279,12 +327,14 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(
     return (
       <>
         <div className="text-sm">
-          {withdrawal && "-"}
-          <Money>{finalVolume || 0}</Money>{" "}
+          {/* {withdrawal && "-"} */}
+          <span className="font-medium">
+            <Money>{finalVolume || 0}</Money>
+          </span>{" "}
           {expense?.asset ? asset?.symbol || "???" : "ꜩ"}
         </div>
 
-        {(!expense?.asset || asset) && (
+        {(!expense?.asset || asset) && mainnet && (
           <InUSD volume={finalVolume || 0} asset={asset || TEZ_ASSET}>
             {(usdVolume) => (
               <div className="text-xs text-gray-500 ml-1">

@@ -22,9 +22,14 @@ import {
 type OperationViewProps = {
   payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
   networkRpc?: string;
+  mainnet?: boolean;
 };
 
-const OperationView: FC<OperationViewProps> = ({ payload, networkRpc }) => {
+const OperationView: FC<OperationViewProps> = ({
+  payload,
+  networkRpc,
+  mainnet = false,
+}) => {
   const contentToParse = useMemo(() => {
     switch (payload.type) {
       case "confirm_operations":
@@ -216,7 +221,11 @@ const OperationView: FC<OperationViewProps> = ({ payload, networkRpc }) => {
         />
 
         <div className={classNames(spFormat.key !== "preview" && "hidden")}>
-          <ExpensesView expenses={expensesData} />
+          <ExpensesView
+            expenses={expensesData}
+            rawToSign={payload.rawToSign}
+            mainnet={mainnet}
+          />
         </div>
       </div>
     );
