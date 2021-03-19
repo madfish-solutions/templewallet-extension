@@ -6,6 +6,7 @@ import { Button } from "app/atoms/Button";
 import { useAppEnv } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
 
+import { T } from "../i18n/react";
 import { useTempleClient } from "../temple/front";
 import { useAnalyticsSettings } from "./use-analytics-settings.hook";
 
@@ -33,19 +34,13 @@ export const AnalyticsConfirmationOverlay: FC = () => {
             'bg-white rounded-md shadow-lg py-8 px-15',
             popup && 'h-full'
           )}>
-            <p className={'text-lg mb-4'}>Help us make the Temple Wallet better</p>
-            <p className={'text-sm text-gray-700 mb-10'}>We are improving the Temple wallet constantly and we need your
-              help. To
-              better understand which section of the wallet should be updated, we gather anonymous usage data. This data
-              will be used only for improving the usability of the Temple wallet.</p>
-            <p className={'text-sm text-green-700 font-medium mb-2'}>What we collect:</p>
-            <p className={'text-xs text-gray-700 mb-4'}>Anonymized click & pageview events</p>
-            <p className={'text-sm text-red-700 font-medium mb-2'}>We NEVER track:</p>
-            <p className={'text-xs text-gray-700 mb-2'}>Your keys, addresses, transactions, balances, hashes, IP, or any
-              personal
-              information.</p>
-            <p className={'text-xs text-gray-600 mb-10'}>You may always turn off the
-              analytics tracking feature in your wallet settings.</p>
+            <p className={'text-lg mb-4'}><T id="analyticsConfirmationTitle" /></p>
+            <p className={'text-sm text-gray-700 mb-10'}><T id="analyticsConfirmationDescription" /></p>
+            <p className={'text-sm text-green-700 font-medium mb-2'}><T id="analyticsConfirmationCollect" /></p>
+            <p className={'text-xs text-gray-700 mb-4'}><T id="analyticsConfirmationCollectDescription" /></p>
+            <p className={'text-sm text-red-700 font-medium mb-2'}><T id="analyticsConfirmationNeverCollect" /></p>
+            <p className={'text-xs text-gray-700 mb-2'}><T id="analyticsConfirmationNeverCollectDescription" /></p>
+            <p className={'text-xs text-gray-600 mb-10'}><T id="analyticsConfirmationSettingsDescription" /></p>
 
             <div className={'flex '}>
               <Button
@@ -63,7 +58,7 @@ export const AnalyticsConfirmationOverlay: FC = () => {
                 )}
                 onClick={handleConfirmButtonClick}
               >
-                Cofirm
+                <T id="analyticsConfirmationConfirmButton" />
               </Button>
               <Button
                 className={classNames(
@@ -79,7 +74,7 @@ export const AnalyticsConfirmationOverlay: FC = () => {
                 )}
                 onClick={handleCancelButtonClick}
               >
-                Cancel
+                <T id="analyticsConfirmationCancelButton" />
               </Button>
             </div>
           </div>
