@@ -1,5 +1,5 @@
 export enum AccountDropdownSelectors {
-  AccountItemButton = 'AccountDropdownSelectors.AccountItemButton',
-  ActionButton = 'AccountDropdownSelectors.ActionButton',
-  LogoutButton = 'AccountDropdownSelectors.LogoutButton'
+  AccountItemButton = 'AccountDropdown/AccountItemButton',
+  ActionButton = 'AccountDropdown/ActionButton',
+  LogoutButton = 'AccountDropdown/LogoutButton'
 }

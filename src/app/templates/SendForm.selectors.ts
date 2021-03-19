@@ -1,4 +1,4 @@
 export enum SendFormSelectors {
-  AssetItemButton = 'SendFormSelectors.AssetItemButton',
-  MyAccountItemButton = 'SendFormSelectors.MyAccountItemButton'
+  AssetItemButton = 'SendForm/AssetItemButton',
+  MyAccountItemButton = 'SendForm/MyAccountItemButton'
 }
