@@ -1,4 +1,4 @@
 export enum NetworkSelectSelectors {
-  NetworkItemButton = 'NetworkSelectSelectors.NetworkItemButton',
-  SelectedNetworkButton = 'NetworkSelectSelectors.SelectedNetworkButton'
+  NetworkItemButton = 'NetworkSelect/NetworkItemButton',
+  SelectedNetworkButton = 'NetworkSelect/SelectedNetworkButton'
 }
