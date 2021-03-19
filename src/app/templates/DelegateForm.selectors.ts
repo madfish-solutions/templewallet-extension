@@ -1,6 +1,6 @@
 export enum DelegateFormSelectors {
-  SortBakerByRankTab = 'DelegateFormSelectors.SortBakerByRankTab',
-  SortBakerByFeeTab = 'DelegateFormSelectors.SortBakerByFeeTab',
-  SortBakerBySpaceTab = 'DelegateFormSelectors.SortBakerBySpaceTab',
-  KnownBakerItemButton = 'DelegateFormSelectors.KnownBakerItemButton'
+  SortBakerByRankTab = 'DelegateForm/SortBakerByRankTab',
+  SortBakerByFeeTab = 'DelegateForm/SortBakerByFeeTab',
+  SortBakerBySpaceTab = 'DelegateForm/SortBakerBySpaceTab',
+  KnownBakerItemButton = 'DelegateForm/KnownBakerItemButton'
 }

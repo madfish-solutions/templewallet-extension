@@ -1,3 +1,3 @@
 export enum ManageAssetsSelectors {
-  AddTokenButton = 'ManageAssetsSelectors.AddTokenButton'
+  AddTokenButton = 'ManageAssets/AddTokenButton'
 }

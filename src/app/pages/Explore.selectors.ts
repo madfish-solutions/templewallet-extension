@@ -1,8 +1,8 @@
 export enum ExploreSelectors {
-  ReceiveButton = 'ExploreSelectors.ReceiveButton',
-  SendButton = 'ExploreSelectors.SendButton',
-  AssetsTab = 'ExploreSelectors.AssetsTab',
-  DelegationTab = 'ExploreSelectors.DelegationTab',
-  ActivityTab = 'ExploreSelectors.ActivityTab',
-  AboutTab = 'ExploreSelectors.AboutTab',
+  ReceiveButton = 'Explore/ReceiveButton',
+  SendButton = 'Explore/SendButton',
+  AssetsTab = 'Explore/AssetsTab',
+  DelegationTab = 'Explore/DelegationTab',
+  ActivityTab = 'Explore/ActivityTab',
+  AboutTab = 'Explore/AboutTab',
 }

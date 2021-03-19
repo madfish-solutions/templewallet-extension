@@ -1,5 +1,5 @@
 export enum EditableTitleSelectors {
-  EditButton = 'EditableTitleSelectors.EditButton',
-  SaveButton = 'EditableTitleSelectors.SaveButton',
-  CancelButton = 'EditableTitleSelectors.CancelButton',
+  EditButton = 'EditableTitle/EditButton',
+  SaveButton = 'EditableTitle/SaveButton',
+  CancelButton = 'EditableTitle/CancelButton',
 }
