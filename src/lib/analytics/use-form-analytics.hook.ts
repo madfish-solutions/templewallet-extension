@@ -1,8 +1,8 @@
 import { AnalyticsEventCategory } from "./analytics-event.enum";
-import { useAnalyticsTrackEvent } from "./use-analytics-track-event.hook";
+import { useAnalytics } from "./use-analytics.hook";
 
 export const useFormAnalytics = (formName: string) => {
-  const trackEvent = useAnalyticsTrackEvent();
+  const { trackEvent } = useAnalytics();
 
   const trackSubmit = (properties?: object) => trackEvent(formName, AnalyticsEventCategory.FormSubmit, properties);
   const trackSubmitSuccess = (properties?: object) => trackEvent(formName, AnalyticsEventCategory.FormSubmitSuccess, properties);

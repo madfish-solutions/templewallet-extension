@@ -16,7 +16,7 @@ import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import Balance from "app/templates/Balance";
-import { AnalyticsEventCategory, useAnalyticsTrackEvent } from "lib/analytics";
+import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import {
   useTempleClient,
@@ -38,7 +38,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
 }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
-  const trackEvent = useAnalyticsTrackEvent();
+  const { trackEvent } = useAnalytics();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
