@@ -5,7 +5,7 @@ import { Vault } from "./vault";
 
 const password = "Test123!";
 const mnemonic =
-  "champion lumber erupt shy hat smooth sound great spin cliff dolphin stuff";
+  "street seminar popular skill actress route treat coral ready bar program affair";
 const accountName = "Temple";
 
 describe("Vault tests", () => {
@@ -73,6 +73,20 @@ describe("Vault tests", () => {
     const vault = await Vault.setup(password);
     const accounts = await vault.createHDAccount(accountName);
     expect(accounts.length).toBe(2);
+  });
+
+  it("createHDAccount when already exist test", async () => {
+    await Vault.spawn(password, mnemonic);
+    const vault = await Vault.setup(password);
+
+    let accounts = await vault.importAccount(
+      "edskRqhkd2kyavm8evNWpKRcLiRC4f155KARsi9r4u7bqiFH6hhDdtbk3qY9yJPTDavEJUD81idM8dCLyrz6Gg5hFJ8J6iqoCZ"
+    );
+    accounts = await vault.createHDAccount(accountName);
+    expect(accounts.length).toBe(3);
+    expect(accounts[2].publicKeyHash).toBe(
+      "tz1VhWfNN1qUY5rNBUMiwmnTUzpTS31s1fZD"
+    );
   });
 
   it("editAccountName test", async () => {
