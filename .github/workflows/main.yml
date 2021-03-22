@@ -25,6 +25,9 @@ jobs:
         with:
           node-version: '14.x'
 
+      - run: yarn cache dir
+      - run: yarn config get cacheFolder
+
       - name: Cache node_modules
         uses: actions/cache@v2
         env:
