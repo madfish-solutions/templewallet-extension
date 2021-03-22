@@ -25,11 +25,11 @@ export type BcdGetBigmapKeysResponse = {
       children?: any[];
       value?: any;
     };
+    value: {
+      prim: string;
+      type: string;
+      children?: any[];
+      value?: any;
+    } | null;
   };
-  value: {
-    prim: string;
-    type: string;
-    children?: any[];
-    value?: any;
-  } | null;
 }[];

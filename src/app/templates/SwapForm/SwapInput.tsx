@@ -20,11 +20,17 @@ import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import AssetIcon from "app/templates/AssetIcon";
 import { t } from "lib/i18n/react";
-import { mutezToTz, useAccount, useBalance } from "lib/temple/front";
+import {
+  mutezToTz,
+  useAccount,
+  useBalance,
+  AssetIdentifier,
+  getAssetId,
+  matchesAsset,
+  TempleAssetWithPrice,
+} from "lib/temple/front";
 import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
-
-export type AssetIdentifier = { address?: string; tokenId?: number };
 
 type FormValuesBase<
   AssetInputName extends string,
@@ -37,9 +43,12 @@ type SwapInputProps<
 > = {
   assetInputName: AssetInputName;
   amountInputName: AmountInputName;
-  assets: TempleAsset[];
+  assets: TempleAssetWithPrice[];
+  defaultAsset?: TempleAssetWithPrice;
   formContextValues: FormContextValues<FormValues>;
   amountReadOnly?: boolean;
+  label: string;
+  onAssetChange: (newValue: AssetIdentifier) => void;
   withPercentageButtons?: boolean;
   className?: string;
 };
@@ -55,7 +64,10 @@ const SwapInput = <
   assetInputName,
   amountInputName,
   assets,
+  defaultAsset = assets[0],
   formContextValues,
+  label,
+  onAssetChange,
   withPercentageButtons,
   className,
   amountReadOnly,
@@ -66,29 +78,15 @@ const SwapInput = <
   );
   const selectedAsset = useMemo(
     () =>
-      assets.find((asset) => {
-        if (asset.type === TempleAssetType.TEZ) {
-          return !assetAddress;
-        }
-        if (asset.address !== assetAddress) {
-          return false;
-        }
-        return asset.type !== TempleAssetType.FA2 || asset.id === assetTokenId;
-      }) || assets[0],
-    [assetAddress, assetTokenId, assets]
+      assets.find((asset) =>
+        matchesAsset({ address: assetAddress, tokenId: assetTokenId }, asset)
+      ) || defaultAsset,
+    [assetAddress, assetTokenId, assets, defaultAsset]
   );
-  const {
-    address: trueAssetAddress,
-    tokenId: trueAssetTokenId,
-  } = useMemo(() => {
-    if (selectedAsset.type === TempleAssetType.TEZ) {
-      return {};
-    }
-    if (selectedAsset.type === TempleAssetType.FA2) {
-      return { address: selectedAsset.address, tokenId: selectedAsset.id };
-    }
-    return { address: selectedAsset.address };
-  }, [selectedAsset]);
+  const { address: trueAssetAddress, tokenId: trueAssetTokenId } = useMemo(
+    () => getAssetId(selectedAsset),
+    [selectedAsset]
+  );
   useEffect(() => {
     if (
       assetAddress !== trueAssetAddress ||
@@ -138,12 +136,11 @@ const SwapInput = <
   );
 
   const handleSelectedAssetChange = useCallback(
-    (newValue?: AssetIdentifier) => {
-      // @ts-ignore
-      setValue(assetInputName, newValue);
+    (newValue: AssetIdentifier) => {
+      onAssetChange(newValue);
       setSearchString("");
     },
-    [setValue, assetInputName]
+    [onAssetChange]
   );
 
   return (
@@ -168,6 +165,7 @@ const SwapInput = <
             toggleOpened={toggleOpened}
             opened={opened}
             setOpened={setOpened}
+            label={label}
             selectedAsset={selectedAsset}
             balance={balance!}
             searchString={searchString}
@@ -235,14 +233,13 @@ type SwapInputHeaderProps = PopperRenderProps &
     | "amountInputName"
     | "amountReadOnly"
     | "assetInputName"
+    | "label"
   > & {
-    selectedAsset: TempleAsset;
+    selectedAsset: TempleAssetWithPrice;
     balance: BigNumber;
     searchString: string;
     onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
   };
-
-const dummyExchangeRate = new BigNumber("0.13");
 
 const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
   (
@@ -253,6 +250,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       toggleOpened,
       selectedAsset,
       balance,
+      label,
       searchString,
       onSearchChange,
       amountInputName,
@@ -304,7 +302,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
     return (
       <div className="w-full text-gray-700" ref={ref}>
         <div className="w-full flex mb-1 items-center justify-between">
-          <span className="text-xl text-gray-900">From</span>
+          <span className="text-xl text-gray-900">{label}</span>
           <span
             className={classNames(opened && "hidden", "text-xs text-gray-500")}
           >
@@ -366,9 +364,9 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                 control={control}
                 className={classNames(
                   "text-gray-700 text-2xl text-right border-none bg-opacity-0",
-                  "pl-0 focus:shadow-none -mb-2 rounded-none"
+                  "pl-0 focus:shadow-none -mb-2"
                 )}
-                style={{ padding: 0 }}
+                style={{ padding: 0, borderRadius: 0 }}
                 name={amountInputName}
                 min={0}
                 max={maxAmount.toNumber()}
@@ -383,11 +381,11 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                 onFocus={handleAmountFieldControlFocus}
                 assetDecimals={selectedAsset.decimals}
               />
-              {amount !== undefined && (
+              {amount !== undefined && selectedAsset.usdPrice !== undefined && (
                 <span className="mt-2 text-xs text-gray-700">
                   ≈{" "}
                   {new BigNumber(amount)
-                    .multipliedBy(dummyExchangeRate)
+                    .multipliedBy(selectedAsset.usdPrice)
                     .toFormat(2, BigNumber.ROUND_DOWN)}
                   <span className="text-gray-500">{" $"}</span>
                 </span>
@@ -481,13 +479,7 @@ const AssetOption: React.FC<AssetOptionProps> = ({
   isLast,
 }) => {
   const handleClick = useCallback(() => {
-    if (option.type === TempleAssetType.TEZ) {
-      onClick({});
-    } else if (option.type === TempleAssetType.FA2) {
-      onClick({ address: option.address, tokenId: option.id });
-    } else {
-      onClick({ address: option.address });
-    }
+    onClick(getAssetId(option));
   }, [onClick, option]);
   const { publicKeyHash: accountPkh } = useAccount();
   const { data: balance } = useBalance(option, accountPkh, { suspense: false });

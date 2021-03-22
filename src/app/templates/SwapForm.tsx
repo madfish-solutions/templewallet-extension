@@ -6,26 +6,35 @@ import React, {
   useState,
 } from "react";
 
-import { BigMapAbstraction } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
-import { Controller, FormContextValues, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { browser } from "webextension-polyfill-ts";
 
 import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg";
-import SwapInput, { AssetIdentifier } from "app/templates/SwapForm/SwapInput";
-import { getBigmapKeys, isBcdNetwork } from "lib/better-call-dev";
+import SwapInput from "app/templates/SwapForm/SwapInput";
+import { t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
-  loadChainId,
   TempleAssetType,
-  TempleChainId,
   TEZ_ASSET,
-  useAssets,
+  useSwappableAssets,
+  getAssetId,
+  AssetIdentifier,
+  idsAreEqual,
+  matchesAsset,
   useNetwork,
+  getTokenOutput,
   useTezos,
+  tzToMutez,
+  DEXTER_EXCHANGE_CONTRACTS,
+  getMutezOutput,
+  TempleAsset,
+  mutezToTz,
+  useChainId,
+  ALL_EXCHANGERS_TYPES,
 } from "lib/temple/front";
 
 import "./SwapForm.css";
@@ -41,253 +50,208 @@ type SwapFormValues = {
   outputAssetAmount: number;
 };
 
-// chainId -> token -> contract
-const DEXTER_EXCHANGE_CONTRACTS = new Map<string, Record<string, string>>([
-  [
-    TempleChainId.Mainnet,
-    {
-      KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn:
-        "KT1BGQR7t4izzKZ7eRodKWTodAsM23P38v7N",
-      KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV:
-        "KT1AbYeDbjjcAnV1QK7EZUUdqku77CdkTuv6",
-      KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH:
-        "KT1D56HQfMmwdopmFLTwNHFJSs6Dsg2didFo",
-      KT19at7rQUvyjxnZ2fBv7D9zc8rkyG7gAoU8:
-        "KT1PDrBE59Zmxnb8vXRgRAG1XmvTMTs5EDHU",
-      KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9:
-        "KT1Tr2eG3eVmPRbymrbU2UppUmKjFPXomGG9",
-    },
-  ],
-  [
-    TempleChainId.Edo2net,
-    {
-      KT1CUg39jQF8mV6nTMqZxjUUZFuz1KXowv3K:
-        "KT1BYYLfMjufYwqFtTSYJND7bzKNyK7mjrjM",
-      KT1FCMQk44tEP9fm9n5JJEhkSk1TW3XQdaWH:
-        "KT1RfTPvrfAQDGAJ7wB71EtwxLQgjmfz59kE",
-    },
-  ],
-]);
-
-const QUIPUSWAP_CONTRACTS = new Map<string, Record<"factory", string>>([
-  [
-    TempleChainId.Edo2net,
-    {
-      factory: "KT1W9xQezU2U49ifE7PPWLXnBJ5gNjYTzVUq",
-    },
-  ],
-]);
-
-const dummyExchangeRate = new BigNumber(0.5);
 const exchangeFeePercentage = new BigNumber("0.3");
+const maxTolerancePercentage = 30;
 
 const SwapFormWrapper: React.FC = () => {
-  const network = useNetwork();
-  const tezos = useTezos();
+  const { assets } = useSwappableAssets();
 
-  const getExchangableTokensIdentifiers = useCallback(async (): Promise<
-    SwapFormProps["exchangableTokensIdentifiers"]
-  > => {
-    const chainId = await loadChainId(network.rpcBaseURL);
-    const dexterExchangableTokensIdentifiers = Object.keys(
-      DEXTER_EXCHANGE_CONTRACTS.get(chainId) ?? {}
-    ).map((tokenAddress) => ({ address: tokenAddress }));
-    const tokenListAddress = QUIPUSWAP_CONTRACTS.get(chainId)?.factory;
-    if (!tokenListAddress) {
-      return {
-        quipuswap: [],
-        dexter: dexterExchangableTokensIdentifiers,
-      };
-    }
-    const tokenListContract = await tezos.contract.at(tokenListAddress);
-    const tokenListStorage = await tokenListContract.storage<any>();
-    const tokenToExchange: BigMapAbstraction =
-      tokenListStorage.token_to_exchange;
-    const pointer = Number(tokenToExchange.toString());
-    let outOfKeys = false;
-    let tokensIdentifiers: AssetIdentifier[] = [];
-    while (!outOfKeys && isBcdNetwork(network.name)) {
-      const newKeys = await getBigmapKeys({
-        pointer,
-        network: network.name,
-        size: 20,
-        offset: tokensIdentifiers.length,
-      });
-      outOfKeys = newKeys.length === 0;
-      tokensIdentifiers = [
-        ...tokensIdentifiers,
-        ...newKeys.map(({ data: { key: { children } } }) => ({
-          address: children![0].value,
-          tokenId: Number(children![1].value),
-        })),
-      ];
-    }
-    return {
-      quipuswap: tokensIdentifiers,
-      dexter: dexterExchangableTokensIdentifiers,
-    };
-  }, [network, tezos]);
-  const { data: exchangableTokensIdentifiers } = useRetryableSWR(
-    ["exchangable-tokens-identifiers", network.id],
-    getExchangableTokensIdentifiers,
-    { suspense: true }
-  );
-
-  if (
-    Object.values(exchangableTokensIdentifiers!).every(
-      (value) => value.length === 0
-    )
-  ) {
+  if (Object.values(assets).every((value) => value.length < 2)) {
     return <p>Sorry, no exchangers are available for the current network.</p>;
   }
 
-  return (
-    <SwapForm exchangableTokensIdentifiers={exchangableTokensIdentifiers!} />
-  );
+  return <SwapForm />;
 };
 
 export default SwapFormWrapper;
 
-type SwapFormProps = {
-  exchangableTokensIdentifiers: Record<ExchangerId, AssetIdentifier[]>;
-};
-
-const SwapForm: React.FC<SwapFormProps> = ({
-  exchangableTokensIdentifiers,
-}) => {
-  const defaultExchanger =
-    exchangableTokensIdentifiers.dexter.length > 0 ? "dexter" : "quipuswap";
-  const defaultOutputAsset = useMemo(() => {
-    return exchangableTokensIdentifiers[defaultExchanger][0];
-  }, [exchangableTokensIdentifiers, defaultExchanger]);
+const SwapForm: React.FC = () => {
+  const { assets, quipuswapTokensExchangeContracts } = useSwappableAssets();
+  const tezos = useTezos();
+  const chainId = useChainId(true)!;
+  const network = useNetwork();
+  const defaultExchanger = assets.quipuswap.length > 1 ? "quipuswap" : "dexter";
+  const defaultOutputAsset = assets[defaultExchanger][1];
+  const defaultOutputAssetId = useMemo(() => {
+    return getAssetId(defaultOutputAsset);
+  }, [defaultOutputAsset]);
   const formContextValues = useForm<SwapFormValues>({
     defaultValues: {
       exchanger: defaultExchanger,
       inputAsset: {},
-      outputAsset: defaultOutputAsset,
+      outputAsset: defaultOutputAssetId,
       tolerancePercentage: 1,
     },
   });
-  const { handleSubmit, errors, watch, setValue, control } = formContextValues;
+  const {
+    handleSubmit,
+    errors,
+    watch,
+    setValue,
+    control,
+    register,
+  } = formContextValues;
   const inputAsset = watch("inputAsset");
   const inputAssetAmount = watch("inputAssetAmount");
-  const outputAssetAmount = watch("outputAssetAmount");
   const outputAsset = watch("outputAsset");
   const selectedExchanger = watch("exchanger");
   const tolerancePercentage = watch("tolerancePercentage");
-  const { allAssets } = useAssets();
 
-  const inputAssets = useMemo(() => {
-    return [TEZ_ASSET, ...allAssets].filter((asset) => {
-      if (asset.type === TempleAssetType.TEZ) {
-        return true;
-      }
-      return exchangableTokensIdentifiers![selectedExchanger].some(
-        ({ address, tokenId }) =>
-          address === asset.address &&
-          (asset.type !== TempleAssetType.FA2 || asset.id === tokenId)
-      );
-    });
-  }, [allAssets, exchangableTokensIdentifiers, selectedExchanger]);
+  const inputAssets = assets[selectedExchanger];
 
   const outputAssets = useMemo(() => {
     if (selectedExchanger === "dexter") {
-      return inputAsset.address ? [TEZ_ASSET] : allAssets;
+      return inputAsset.address
+        ? [TEZ_ASSET]
+        : assets.dexter.filter(({ type }) => type !== TempleAssetType.TEZ);
     }
-    if (inputAsset.address) {
-      return [TEZ_ASSET, ...allAssets].filter((asset) => {
-        if (asset.type === TempleAssetType.TEZ) {
-          return true;
-        }
-        if (asset.type === TempleAssetType.FA2) {
-          return (
-            exchangableTokensIdentifiers.quipuswap.some(
-              ({ address, tokenId }) =>
-                address === asset.address && tokenId === asset.id
-            ) &&
-            asset.address !== inputAsset.address &&
-            asset.id !== inputAsset.tokenId
-          );
-        }
-        return (
-          exchangableTokensIdentifiers.quipuswap.some(
-            ({ address }) => address === asset.address
-          ) && asset.address !== inputAsset.address
-        );
-      });
-    }
-    return allAssets.filter((asset) => asset.type !== TempleAssetType.TEZ);
-  }, [
-    allAssets,
-    inputAsset.address,
-    inputAsset.tokenId,
-    selectedExchanger,
-    exchangableTokensIdentifiers,
-  ]);
+    return assets.quipuswap;
+  }, [inputAsset, selectedExchanger, assets]);
 
   const selectedInputAsset = useMemo(
     () =>
-      inputAssets.find((asset) => {
-        if (asset.type === TempleAssetType.TEZ) {
-          return !inputAsset.address;
-        }
-        if (asset.address !== inputAsset.address) {
-          return false;
-        }
-        return (
-          asset.type !== TempleAssetType.FA2 || asset.id === inputAsset.tokenId
-        );
-      })!,
+      inputAssets.find((asset) => matchesAsset(inputAsset, asset)) || TEZ_ASSET,
     [inputAsset, inputAssets]
   );
   const selectedOutputAsset = useMemo(
     () =>
-      outputAssets.find((asset) => {
-        if (asset.type === TempleAssetType.TEZ) {
-          return !outputAsset.address;
-        }
-        if (asset.address !== outputAsset.address) {
-          return false;
-        }
-        return (
-          asset.type !== TempleAssetType.FA2 || asset.id === outputAsset.tokenId
-        );
-      })!,
-    [outputAsset, outputAssets]
+      outputAssets.find((asset) => matchesAsset(outputAsset, asset)) ||
+      assets[selectedExchanger][1],
+    [outputAsset, outputAssets, assets, selectedExchanger]
   );
 
   const submitDisabled = Object.keys(errors).length !== 0;
 
+  const getContractAddress = useCallback(
+    (asset: TempleAsset, exchanger: ExchangerId) => {
+      if (asset.type === TempleAssetType.TEZ) {
+        return undefined;
+      }
+      const tokenId = asset.type === TempleAssetType.FA2 ? asset.id : 0;
+      const contracts =
+        exchanger === "dexter"
+          ? DEXTER_EXCHANGE_CONTRACTS.get(chainId)!
+          : quipuswapTokensExchangeContracts;
+      return contracts[asset.address]?.[tokenId];
+    },
+    [chainId, quipuswapTokensExchangeContracts]
+  );
+
+  const getOutputTezAmounts = useCallback(
+    async (inputAsset: TempleAsset, amount: number) => {
+      const rawAssetAmount = new BigNumber(amount).multipliedBy(
+        new BigNumber(10).pow(inputAsset.decimals)
+      );
+      const amounts = await Promise.all(
+        ALL_EXCHANGERS_TYPES.map(async (exchangerType) => {
+          const contractAddress = getContractAddress(inputAsset, exchangerType);
+          if (!contractAddress) {
+            return inputAsset.type === TempleAssetType.TEZ
+              ? new BigNumber(amount)
+              : undefined;
+          }
+
+          return mutezToTz(
+            await getMutezOutput(tezos, rawAssetAmount, {
+              address: contractAddress,
+              type: "dexter",
+            })
+          );
+        })
+      );
+      return ALL_EXCHANGERS_TYPES.reduce<
+        Partial<Record<ExchangerId, BigNumber>>
+      >(
+        (resultPart, exchangerType, index) => ({
+          ...resultPart,
+          [exchangerType]: amounts[index],
+        }),
+        {}
+      );
+    },
+    [getContractAddress, tezos]
+  );
+
+  const getOutputAmount = useCallback(
+    async (tez: BigNumber, outputAsset: TempleAsset, type: ExchangerId) => {
+      const contractAddress = getContractAddress(outputAsset, type);
+      if (!contractAddress) {
+        return outputAsset.type === TempleAssetType.TEZ ? tez : undefined;
+      }
+      const outputAssetElementaryParts = new BigNumber(10).pow(
+        outputAsset.decimals
+      );
+      return (
+        await getTokenOutput(tezos, tzToMutez(tez), {
+          address: contractAddress,
+          type,
+        })
+      ).div(outputAssetElementaryParts);
+    },
+    [getContractAddress, tezos]
+  );
+
+  const getOutputAssetAmounts = useCallback(async () => {
+    if (inputAssetAmount === undefined) {
+      return undefined;
+    }
+    const {
+      dexter: dexterTezAmount,
+      quipuswap: quipuswapTezAmount,
+    } = await getOutputTezAmounts(selectedInputAsset, inputAssetAmount);
+    return {
+      dexter:
+        dexterTezAmount &&
+        (await getOutputAmount(dexterTezAmount, selectedOutputAsset, "dexter")),
+      quipuswap:
+        quipuswapTezAmount &&
+        (await getOutputAmount(
+          quipuswapTezAmount,
+          selectedOutputAsset,
+          "quipuswap"
+        )),
+    };
+  }, [
+    getOutputAmount,
+    getOutputTezAmounts,
+    inputAssetAmount,
+    selectedInputAsset,
+    selectedOutputAsset,
+  ]);
+
+  const { data: outputAssetAmounts } = useRetryableSWR(
+    [
+      "swap-output",
+      outputAsset.address,
+      outputAsset.tokenId,
+      inputAsset.address,
+      inputAsset.tokenId,
+      inputAssetAmount,
+      network.id,
+    ],
+    getOutputAssetAmounts,
+    { suspense: false }
+  );
+
+  const outputAssetAmount = outputAssetAmounts?.[selectedExchanger];
+
   const minimumReceived = useMemo(() => {
-    if (
-      ([outputAssetAmount, tolerancePercentage] as (
-        | number
-        | undefined
-      )[]).includes(undefined)
-    ) {
+    if ([outputAssetAmount, tolerancePercentage].includes(undefined)) {
       return undefined;
     }
     const tokensParts = new BigNumber(10).pow(selectedOutputAsset.decimals);
-    return new BigNumber(
-      new BigNumber(outputAssetAmount)
-        .multipliedBy(tokensParts)
-        .multipliedBy(100 - tolerancePercentage)
-        .dividedBy(100)
-        .dividedBy(tokensParts)
-        .integerValue()
-    );
+    return new BigNumber(outputAssetAmount!)
+      .multipliedBy(tokensParts)
+      .multipliedBy(100 - tolerancePercentage)
+      .dividedBy(100)
+      .integerValue()
+      .dividedBy(tokensParts);
   }, [outputAssetAmount, selectedOutputAsset.decimals, tolerancePercentage]);
 
   useEffect(() => {
-    setValue(
-      "outputAssetAmount",
-      inputAssetAmount === undefined
-        ? undefined
-        : new BigNumber(inputAssetAmount)
-            .multipliedBy(dummyExchangeRate)
-            .toNumber()
-    );
-  }, [inputAssetAmount, setValue]);
+    setValue("outputAssetAmount", outputAssetAmount?.toNumber());
+  }, [outputAssetAmount, setValue]);
+
   const swapAssets = useCallback(() => {
     setValue([
       { inputAsset: outputAsset },
@@ -296,18 +260,79 @@ const SwapForm: React.FC<SwapFormProps> = ({
     ]);
   }, [inputAsset, outputAsset, outputAssetAmount, setValue]);
 
+  const validateTolerancePercentage = useCallback((v?: number) => {
+    if (v === undefined) return t("required");
+    if (v === 0) {
+      return t("amountMustBePositive");
+    }
+    const vBN = new BigNumber(v);
+    return (
+      vBN.isLessThanOrEqualTo(maxTolerancePercentage) ||
+      t("maximalAmount", [maxTolerancePercentage])
+    );
+  }, []);
+
+  const handleInputAssetChange = useCallback(
+    (newValue: AssetIdentifier) => {
+      if (idsAreEqual(newValue, outputAsset)) {
+        swapAssets();
+      } else {
+        setValue("inputAsset", newValue);
+      }
+    },
+    [swapAssets, outputAsset, setValue]
+  );
+
+  const handleOutputAssetChange = useCallback(
+    (newValue: AssetIdentifier) => {
+      if (idsAreEqual(newValue, inputAsset)) {
+        swapAssets();
+      } else {
+        setValue("outputAsset", newValue);
+      }
+    },
+    [swapAssets, inputAsset, setValue]
+  );
+
+  const exchangeRate = useMemo(() => {
+    if (inputAssetAmount === undefined || !outputAssetAmount) {
+      return undefined;
+    }
+    const inputAssetElementaryParts = new BigNumber(10).pow(
+      selectedInputAsset.decimals
+    );
+    return new BigNumber(inputAssetAmount)
+      .div(outputAssetAmount)
+      .multipliedBy(inputAssetElementaryParts)
+      .integerValue(BigNumber.ROUND_FLOOR)
+      .dividedBy(inputAssetElementaryParts);
+  }, [inputAssetAmount, outputAssetAmount, selectedInputAsset.decimals]);
+
+  const handleExchangerChange = useCallback<
+    React.ChangeEventHandler<HTMLInputElement>
+  >(
+    (e) => {
+      if (e.target.checked) {
+        setValue("exchanger", e.target.value as ExchangerId);
+      }
+    },
+    [setValue]
+  );
+
   return (
     <form onSubmit={handleSubmit(console.log)}>
       <SwapInput
         assetInputName="inputAsset"
         amountInputName="inputAssetAmount"
         formContextValues={formContextValues}
+        label="From"
         assets={inputAssets}
         withPercentageButtons
+        onAssetChange={handleInputAssetChange}
       />
 
-      <div className="w-full my-7 flex justify-center">
-        <button onClick={swapAssets}>
+      <div className="w-full my-6 flex justify-center">
+        <button className="my-1" onClick={swapAssets}>
           <SwapVerticalIcon className="w-6 h-auto stroke-2 stroke-current text-blue-500" />
         </button>
       </div>
@@ -315,7 +340,10 @@ const SwapForm: React.FC<SwapFormProps> = ({
       <SwapInput
         assetInputName="outputAsset"
         amountInputName="outputAssetAmount"
+        defaultAsset={assets[selectedExchanger][1]}
         formContextValues={formContextValues}
+        label="To"
+        onAssetChange={handleOutputAssetChange}
         assets={outputAssets}
         amountReadOnly
       />
@@ -323,9 +351,10 @@ const SwapForm: React.FC<SwapFormProps> = ({
       <div className="my-6">
         <h2 className="text-gray-900 mb-1 text-xl">Through</h2>
         <ExchangerOption
-          inputName="exchanger"
-          control={control}
-          watch={watch}
+          name="exchanger"
+          checked={selectedExchanger === "quipuswap"}
+          ref={register({ required: true })}
+          onChange={handleExchangerChange}
           value="quipuswap"
           logo={
             <img
@@ -337,14 +366,15 @@ const SwapForm: React.FC<SwapFormProps> = ({
             />
           }
           exchangerName="Quipuswap"
-          outputEstimation={outputAssetAmount}
+          outputEstimation={outputAssetAmounts?.quipuswap}
           assetSymbol={selectedOutputAsset.symbol}
-          disabled={exchangableTokensIdentifiers.quipuswap.length === 0}
+          disabled={assets.quipuswap.length < 2}
         />
         <ExchangerOption
-          inputName="exchanger"
-          control={control}
-          watch={watch}
+          name="exchanger"
+          checked={selectedExchanger === "dexter"}
+          ref={register({ required: true })}
+          onChange={handleExchangerChange}
           value="dexter"
           logo={
             <img
@@ -356,9 +386,9 @@ const SwapForm: React.FC<SwapFormProps> = ({
             />
           }
           exchangerName="Dexter"
-          outputEstimation={outputAssetAmount}
+          outputEstimation={outputAssetAmounts?.dexter}
           assetSymbol={selectedOutputAsset.symbol}
-          disabled={exchangableTokensIdentifiers.dexter.length === 0}
+          disabled={assets.dexter.length < 2}
         />
       </div>
 
@@ -373,10 +403,10 @@ const SwapForm: React.FC<SwapFormProps> = ({
           <tr>
             <td>Exchange rate:</td>
             <td className="text-right text-gray-600">
-              {dummyExchangeRate
-                ? `1 ${selectedOutputAsset.symbol} = ${new BigNumber(1)
-                    .div(dummyExchangeRate)
-                    .toString()} ${selectedInputAsset.symbol}`
+              {exchangeRate
+                ? `1 ${
+                    selectedOutputAsset.symbol
+                  } = ${exchangeRate.toString()} ${selectedInputAsset.symbol}`
                 : "-"}
             </td>
           </tr>
@@ -387,6 +417,7 @@ const SwapForm: React.FC<SwapFormProps> = ({
                 control={control}
                 as={SlippageToleranceInput}
                 name="tolerancePercentage"
+                rules={{ validate: validateTolerancePercentage }}
               />
             </td>
           </tr>
@@ -415,67 +446,71 @@ const SwapForm: React.FC<SwapFormProps> = ({
   );
 };
 
-type ExchangerOptionProps = Pick<FormContextValues, "control" | "watch"> & {
-  inputName: string;
-  value: "quipuswap" | "dexter";
+type ExchangerOptionProps = {
+  name: string;
+  value: ExchangerId;
+  checked: boolean;
   logo: React.ReactNode;
   exchangerName: string;
-  outputEstimation?: number;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  outputEstimation?: BigNumber;
   assetSymbol: string;
   disabled?: boolean;
 };
 
-const ExchangerOption: React.FC<ExchangerOptionProps> = ({
-  inputName,
-  control,
-  value,
-  watch,
-  logo,
-  exchangerName,
-  outputEstimation,
-  assetSymbol,
-  disabled,
-}) => {
-  const activeValue = watch(inputName);
-  const isActive = activeValue === value;
-
-  return (
-    <div
-      className={classNames(
-        "flex items-center rounded-md mb-2 h-10 exchanger-option",
-        isActive ? "border-blue-500 border-2" : "border-gray-300 border"
-      )}
-    >
-      <Controller
-        control={control}
-        as="input"
-        id={`exchanger-input-${value}`}
-        name={inputName}
-        type="radio"
-        value={value}
-        disabled={disabled}
-        checked={isActive}
-        className="mr-auto hidden"
-      />
-      <label
+const ExchangerOption = forwardRef<HTMLInputElement, ExchangerOptionProps>(
+  (
+    {
+      name,
+      value,
+      logo,
+      exchangerName,
+      outputEstimation,
+      assetSymbol,
+      onChange,
+      disabled,
+      checked,
+    },
+    ref
+  ) => {
+    return (
+      <div
         className={classNames(
-          "pl-12 flex flex-1 relative select-none items-center",
-          !disabled && "cursor-pointer"
+          "flex items-center rounded-md mb-2 h-10 exchanger-option",
+          checked ? "border-blue-500 border-2" : "border-gray-300 border"
         )}
-        htmlFor={`exchanger-input-${value}`}
       >
-        <div className="ml-2">{logo}</div>
-        <span className="text-gray-600 text-xs mr-auto">{exchangerName}</span>
-        {outputEstimation !== undefined && (
-          <span className="text-green-500 text-sm mr-2">
-            ~{outputEstimation}{" "}
-            <span className="text-gray-500">{assetSymbol}</span>
-          </span>
-        )}
-      </label>
-    </div>
-  );
-};
+        <input
+          id={`exchanger-input-${value}`}
+          name={name}
+          onChange={onChange}
+          type="radio"
+          value={value}
+          disabled={disabled}
+          checked={checked}
+          className="mr-auto hidden"
+          ref={ref}
+        />
+        <label
+          className={classNames(
+            "pl-12 flex flex-1 relative select-none items-center",
+            !disabled && "cursor-pointer"
+          )}
+          htmlFor={`exchanger-input-${value}`}
+        >
+          <div className="ml-2">{logo}</div>
+          <span className="text-gray-600 text-xs mr-auto">{exchangerName}</span>
+          {outputEstimation !== undefined && (
+            <span className="text-green-500 text-sm mr-2">
+              ~{outputEstimation.toString()}{" "}
+              <span className="text-gray-500">{assetSymbol}</span>
+            </span>
+          )}
+        </label>
+      </div>
+    );
+  }
+);
 
 type SlippageToleranceInputProps = {
   onChange: (newValue?: number) => void;
