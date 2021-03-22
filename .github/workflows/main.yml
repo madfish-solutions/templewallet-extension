@@ -47,6 +47,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Build
-          path: dist/
+          path: dist/chrome.zip
           if-no-files-found: error
+          retention-days: 7
