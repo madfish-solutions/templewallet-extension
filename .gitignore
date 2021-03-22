@@ -12,8 +12,7 @@
 /dist
 
 # Env
-.env*
-!.env.dist
+.env.*
 
 # misc
 .DS_Store
