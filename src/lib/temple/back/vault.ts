@@ -225,10 +225,11 @@ export class Vault {
       ]);
 
       const seed = Bip39.mnemonicToSeedSync(mnemonic);
-      const allHDAccounts = allAccounts.filter(
-        (a) => a.type === TempleAccountType.HD
-      );
+
       if (!hdAccIndex) {
+        const allHDAccounts = allAccounts.filter(
+          (a) => a.type === TempleAccountType.HD
+        );
         hdAccIndex = allHDAccounts.length;
       }
 
