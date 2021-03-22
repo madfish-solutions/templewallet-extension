@@ -308,17 +308,6 @@ const SwapForm: React.FC = () => {
       .dividedBy(inputAssetElementaryParts);
   }, [inputAssetAmount, outputAssetAmount, selectedInputAsset.decimals]);
 
-  const handleExchangerChange = useCallback<
-    React.ChangeEventHandler<HTMLInputElement>
-  >(
-    (e) => {
-      if (e.target.checked) {
-        setValue("exchanger", e.target.value as ExchangerId);
-      }
-    },
-    [setValue]
-  );
-
   return (
     <form onSubmit={handleSubmit(console.log)}>
       <SwapInput
@@ -354,7 +343,6 @@ const SwapForm: React.FC = () => {
           name="exchanger"
           checked={selectedExchanger === "quipuswap"}
           ref={register({ required: true })}
-          onChange={handleExchangerChange}
           value="quipuswap"
           logo={
             <img
@@ -374,7 +362,6 @@ const SwapForm: React.FC = () => {
           name="exchanger"
           checked={selectedExchanger === "dexter"}
           ref={register({ required: true })}
-          onChange={handleExchangerChange}
           value="dexter"
           logo={
             <img
@@ -449,10 +436,10 @@ const SwapForm: React.FC = () => {
 type ExchangerOptionProps = {
   name: string;
   value: ExchangerId;
-  checked: boolean;
+  checked?: boolean;
   logo: React.ReactNode;
   exchangerName: string;
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
   outputEstimation?: BigNumber;
   assetSymbol: string;
   disabled?: boolean;
@@ -487,7 +474,6 @@ const ExchangerOption = forwardRef<HTMLInputElement, ExchangerOptionProps>(
           type="radio"
           value={value}
           disabled={disabled}
-          checked={checked}
           className="mr-auto hidden"
           ref={ref}
         />
