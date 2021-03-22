@@ -2,7 +2,6 @@
 
 const path = require("path");
 const fs = require("fs");
-const dotenv = require("dotenv");
 const webpack = require("webpack");
 const resolve = require("resolve");
 const wextManifest = require("wext-manifest");
@@ -24,14 +23,39 @@ const safePostCssParser = require("postcss-safe-parser");
 const pkg = require("./package.json");
 const tsConfig = require("./tsconfig.json");
 
-// Steal ENV vars from .env file
-dotenv.config();
+const { NODE_ENV = "development" } = process.env;
+const dotenvPath = path.resolve(__dirname, '.env');
+
+// https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
+const dotenvFiles = [
+    `${dotenvPath}.${NODE_ENV}.local`,
+    // Don't include `.env.local` for `test` environment
+    // since normally you expect tests to produce the same
+    // results for everyone
+    NODE_ENV !== 'test' && `${dotenvPath}.local`,
+    `${dotenvPath}.${NODE_ENV}`,
+    dotenvPath,
+].filter(Boolean);
+
+// Load environment variables from .env* files. Suppress warnings using silent
+// if this file is missing. dotenv will never modify any environment variables
+// that have already been set.  Variable expansion is supported in .env files.
+// https://github.com/motdotla/dotenv
+// https://github.com/motdotla/dotenv-expand
+dotenvFiles.forEach(dotenvFile => {
+    if (fs.existsSync(dotenvFile)) {
+        require('dotenv-expand')(
+            require('dotenv').config({
+                path: dotenvFile,
+            })
+        );
+    }
+});
 
 // Grab NODE_ENV and TEMPLE_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
 const TEMPLE_WALLET = /^TEMPLE_WALLET_/i;
 const {
-  NODE_ENV = "development",
   TARGET_BROWSER = "chrome",
   SOURCE_MAP: SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = "10000",
