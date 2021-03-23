@@ -14,6 +14,16 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false,
   },
   {
+    id: "florencenet",
+    name: "Florence Testnet",
+    description: "Florence testnet",
+    lambdaContract: "",
+    type: "test",
+    rpcBaseURL: "https://florencenet.smartpy.io",
+    color: "#FFD88A",
+    disabled: false,
+  },
+  {
     id: "edo2net",
     name: "Edo2 Testnet",
     description: "Edo2 testnet",
@@ -103,4 +113,14 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false,
     hidden: true,
   },
+  {
+    id: "tezie-florencenet",
+    name: "Florence Testnet",
+    description: "Highly available Florence Testnet nodes operated by ECAD Labs",
+    type: "test",
+    rpcBaseURL: "https://api.tez.ie/rpc/florencenet",
+    color: "#FFD88A",
+    disabled: false,
+    hidden: true
+  }
 ];

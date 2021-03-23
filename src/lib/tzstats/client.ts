@@ -15,8 +15,9 @@ import {
 
 export const TZSTATS_CHAINS = new Map([
   [TempleChainId.Mainnet, TZStatsNetwork.Mainnet],
-  [TempleChainId.Delphinet, TZStatsNetwork.Delphinet],
+  [TempleChainId.Florencenet, TZStatsNetwork.Florence],
   [TempleChainId.Edo2net, TZStatsNetwork.Edonet],
+  [TempleChainId.Delphinet, TZStatsNetwork.Delphinet],
   [TempleChainId.Carthagenet, TZStatsNetwork.Carthagenet],
 ]);
 

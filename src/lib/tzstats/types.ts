@@ -3,6 +3,7 @@ export enum TZStatsNetwork {
   Carthagenet = "https://api.carthagenet.tzstats.com",
   Delphinet = "https://api.delphi.tzstats.com",
   Edonet = "https://api.edo.tzstats.com",
+  Florence = "https://api.florence.tzstats.com"
 }
 
 export interface ErrorData {

@@ -44,14 +44,16 @@ type LambdaFormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 const KNOWN_LAMBDA_CONTRACTS = new Map([
   [TempleChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
-  [TempleChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
+  [TempleChainId.Florencenet, ""],
   [TempleChainId.Edo2net, "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN"],
+  [TempleChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
   [TempleChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
 ]);
 const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, "mainnet"],
-  [TempleChainId.Delphinet, "delphinet"],
+  [TempleChainId.Florencenet, "florencenet"],
   [TempleChainId.Edo2net, "edo2net"],
+  [TempleChainId.Delphinet, "delphinet"],
   [TempleChainId.Carthagenet, "carthagenet"],
 ]);
 
@@ -114,10 +116,10 @@ const CustomNetworksSettings: FC = () => {
           ],
           lambdaContracts: lambdaContract
             ? {
-                ...lambdaContracts,
-                [chainId]: lambdaContract,
-                [networkId]: lambdaContract,
-              }
+              ...lambdaContracts,
+              [chainId]: lambdaContract,
+              [networkId]: lambdaContract,
+            }
             : lambdaContracts,
         });
         resetForm();
@@ -210,25 +212,27 @@ const CustomNetworksSettings: FC = () => {
             "text-gray-700 text-sm leading-tight"
           )}
         >
-          {customNetworks.map((network) => (
-            <NetworksListItem
-              canRemove
-              network={network}
-              last={false}
-              key={network.rpcBaseURL}
-              onRemoveClick={handleRemoveClick}
-            />
-          ))}
-          {defaultNetworks
-            .filter((n) => !n.hidden)
-            .map((network, index) => (
+          <>
+            {customNetworks.map((network) => (
               <NetworksListItem
-                canRemove={false}
-                key={network.rpcBaseURL}
-                last={index === defaultNetworks.length - 1}
+                canRemove
                 network={network}
+                last={false}
+                key={network.rpcBaseURL}
+                onRemoveClick={handleRemoveClick}
               />
             ))}
+            {defaultNetworks
+              .filter((n) => !n.hidden)
+              .map((network, index) => (
+                <NetworksListItem
+                  canRemove={false}
+                  key={network.rpcBaseURL}
+                  last={index === defaultNetworks.length - 1}
+                  network={network}
+                />
+            ))}
+          </>
         </div>
       </div>
 
@@ -324,7 +328,7 @@ const LambdaContractSection: FC = () => {
       try {
         return Boolean(
           network.lambdaContract &&
-            (await tezos.contract.at(network.lambdaContract))
+          (await tezos.contract.at(network.lambdaContract))
         );
       } catch {
         return false;
