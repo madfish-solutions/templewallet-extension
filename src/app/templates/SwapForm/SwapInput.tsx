@@ -49,6 +49,7 @@ type SwapInputProps<
   amountReadOnly?: boolean;
   label: string;
   onAssetChange: (newValue: AssetIdentifier) => void;
+  onRefreshClick: () => void;
   withPercentageButtons?: boolean;
   className?: string;
 };
@@ -68,6 +69,7 @@ const SwapInput = <
   formContextValues,
   label,
   onAssetChange,
+  onRefreshClick,
   withPercentageButtons,
   className,
   amountReadOnly,
@@ -129,10 +131,26 @@ const SwapInput = <
               0
             )
           : balance ?? new BigNumber(0);
+      const tokenElementaryParts = new BigNumber(10).pow(
+        selectedAsset.decimals
+      );
       // @ts-ignore
-      setValue(amountInputName, maxAmount.multipliedBy(percentage).div(100));
+      setValue(
+        amountInputName,
+        maxAmount
+          .multipliedBy(percentage)
+          .multipliedBy(tokenElementaryParts)
+          .dividedToIntegerBy(100)
+          .dividedBy(tokenElementaryParts)
+      );
     },
-    [setValue, amountInputName, balance, selectedAsset.type]
+    [
+      setValue,
+      amountInputName,
+      balance,
+      selectedAsset.type,
+      selectedAsset.decimals,
+    ]
   );
 
   const handleSelectedAssetChange = useCallback(
@@ -170,6 +188,7 @@ const SwapInput = <
             balance={balance!}
             searchString={searchString}
             onSearchChange={handleSearchChange}
+            onRefreshClick={onRefreshClick}
             amountInputName={amountInputName}
             assetInputName={assetInputName}
             // @ts-ignore
@@ -234,6 +253,7 @@ type SwapInputHeaderProps = PopperRenderProps &
     | "amountReadOnly"
     | "assetInputName"
     | "label"
+    | "onRefreshClick"
   > & {
     selectedAsset: TempleAssetWithPrice;
     balance: BigNumber;
@@ -252,6 +272,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       balance,
       label,
       searchString,
+      onRefreshClick,
       onSearchChange,
       amountInputName,
       amountReadOnly,
@@ -283,12 +304,12 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
 
     const validateAmount = useCallback(
       (v?: number) => {
-        if (amountReadOnly) {
-          return v === 0 ? t("amountMustBePositive") : true;
-        }
         if (v === undefined) return t("required");
         if (v === 0) {
           return t("amountMustBePositive");
+        }
+        if (amountReadOnly) {
+          return true;
         }
         const vBN = new BigNumber(v);
         return (
@@ -356,7 +377,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
             />
           </div>
           <div className="flex-1 px-2 flex items-center justify-between">
-            <button type="button" className="mr-2">
+            <button type="button" className="mr-2" onClick={onRefreshClick}>
               <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
             </button>
             <div className="h-full flex-1 flex items-end justify-center flex-col">

@@ -35,6 +35,8 @@ import {
   mutezToTz,
   useChainId,
   ALL_EXCHANGERS_TYPES,
+  useAccount,
+  swap,
 } from "lib/temple/front";
 
 import "./SwapForm.css";
@@ -66,10 +68,15 @@ const SwapFormWrapper: React.FC = () => {
 export default SwapFormWrapper;
 
 const SwapForm: React.FC = () => {
-  const { assets, quipuswapTokensExchangeContracts } = useSwappableAssets();
+  const {
+    assets,
+    quipuswapTokensExchangeContracts,
+    updateTokensPrices,
+  } = useSwappableAssets();
   const tezos = useTezos();
   const chainId = useChainId(true)!;
   const network = useNetwork();
+  const { publicKeyHash: accountPkh } = useAccount();
   const defaultExchanger = assets.quipuswap.length > 1 ? "quipuswap" : "dexter";
   const defaultOutputAsset = assets[defaultExchanger][1];
   const defaultOutputAssetId = useMemo(() => {
@@ -98,15 +105,7 @@ const SwapForm: React.FC = () => {
   const tolerancePercentage = watch("tolerancePercentage");
 
   const inputAssets = assets[selectedExchanger];
-
-  const outputAssets = useMemo(() => {
-    if (selectedExchanger === "dexter") {
-      return inputAsset.address
-        ? [TEZ_ASSET]
-        : assets.dexter.filter(({ type }) => type !== TempleAssetType.TEZ);
-    }
-    return assets.quipuswap;
-  }, [inputAsset, selectedExchanger, assets]);
+  const outputAssets = assets[selectedExchanger];
 
   const selectedInputAsset = useMemo(
     () =>
@@ -138,7 +137,7 @@ const SwapForm: React.FC = () => {
   );
 
   const getOutputTezAmounts = useCallback(
-    async (inputAsset: TempleAsset, amount: number) => {
+    async (inputAsset: TempleAsset, amount: BigNumber | number) => {
       const rawAssetAmount = new BigNumber(amount).multipliedBy(
         new BigNumber(10).pow(inputAsset.decimals)
       );
@@ -154,7 +153,7 @@ const SwapForm: React.FC = () => {
           return mutezToTz(
             await getMutezOutput(tezos, rawAssetAmount, {
               address: contractAddress,
-              type: "dexter",
+              type: exchangerType,
             })
           );
         })
@@ -219,7 +218,10 @@ const SwapForm: React.FC = () => {
     selectedOutputAsset,
   ]);
 
-  const { data: outputAssetAmounts } = useRetryableSWR(
+  const {
+    data: outputAssetAmounts,
+    revalidate: updateOutputAssetAmount,
+  } = useRetryableSWR(
     [
       "swap-output",
       outputAsset.address,
@@ -249,7 +251,11 @@ const SwapForm: React.FC = () => {
   }, [outputAssetAmount, selectedOutputAsset.decimals, tolerancePercentage]);
 
   useEffect(() => {
-    setValue("outputAssetAmount", outputAssetAmount?.toNumber());
+    setValue(
+      "outputAssetAmount",
+      outputAssetAmount?.toNumber(),
+      outputAssetAmount !== undefined
+    );
   }, [outputAssetAmount, setValue]);
 
   const swapAssets = useCallback(() => {
@@ -308,20 +314,64 @@ const SwapForm: React.FC = () => {
       .dividedBy(inputAssetElementaryParts);
   }, [inputAssetAmount, outputAssetAmount, selectedInputAsset.decimals]);
 
+  const onSubmit = useCallback(
+    async ({
+      exchanger,
+      tolerancePercentage,
+      inputAssetAmount,
+    }: SwapFormValues) => {
+      try {
+        await swap({
+          accountPkh,
+          inputAsset: selectedInputAsset,
+          inputContractAddress: getContractAddress(
+            selectedInputAsset,
+            exchanger
+          ),
+          outputAsset: selectedOutputAsset,
+          outputContractAddress: getContractAddress(
+            selectedOutputAsset,
+            exchanger
+          ),
+          exchangerType: exchanger,
+          inputAmount: inputAssetAmount,
+          tolerancePercentage,
+          tezos,
+        });
+        console.log("TODO: show success message");
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [
+      tezos,
+      accountPkh,
+      getContractAddress,
+      selectedInputAsset,
+      selectedOutputAsset,
+    ]
+  );
+
+  const handleRefreshClick = useCallback(() => {
+    updateTokensPrices();
+    updateOutputAssetAmount();
+  }, [updateTokensPrices, updateOutputAssetAmount]);
+
   return (
-    <form onSubmit={handleSubmit(console.log)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <SwapInput
         assetInputName="inputAsset"
         amountInputName="inputAssetAmount"
         formContextValues={formContextValues}
         label="From"
+        onRefreshClick={handleRefreshClick}
         assets={inputAssets}
         withPercentageButtons
         onAssetChange={handleInputAssetChange}
       />
 
       <div className="w-full my-6 flex justify-center">
-        <button className="my-1" onClick={swapAssets}>
+        <button className="my-1" onClick={swapAssets} type="button">
           <SwapVerticalIcon className="w-6 h-auto stroke-2 stroke-current text-blue-500" />
         </button>
       </div>
@@ -332,6 +382,7 @@ const SwapForm: React.FC = () => {
         defaultAsset={assets[selectedExchanger][1]}
         formContextValues={formContextValues}
         label="To"
+        onRefreshClick={handleRefreshClick}
         onAssetChange={handleOutputAssetChange}
         assets={outputAssets}
         amountReadOnly

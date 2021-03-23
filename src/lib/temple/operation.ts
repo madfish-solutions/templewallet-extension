@@ -3,7 +3,9 @@ import {
   OperationEntry,
   OperationContentsAndResultOrigination,
 } from "@taquito/rpc";
-import { TezosToolkit, OpKind } from "@taquito/taquito";
+import { TezosToolkit, OpKind, WalletOperationBatch } from "@taquito/taquito";
+import { OperationBatch } from "@taquito/taquito/dist/types/batch/rpc-batch-provider";
+import { TransferParams } from "@taquito/taquito/dist/types/operations/types";
 
 export const SYNC_INTERVAL = 10_000;
 export const CONFIRM_TIMEOUT = 60_000 * 5;
@@ -76,6 +78,12 @@ export async function findOperation(block: BlockResponse, opHash: string) {
   }
   return null;
 }
+
+export const batchify = (
+  batch: OperationBatch | WalletOperationBatch, transfers: TransferParams[],
+) => (
+  transfers.reduce((b, tParams) => b.withTransfer(tParams), batch)
+);
 
 export function getOriginatedContractAddress(opEntry: OperationEntry) {
   const results = Array.isArray(opEntry.contents)

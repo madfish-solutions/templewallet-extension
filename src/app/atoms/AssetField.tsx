@@ -60,7 +60,7 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
           numVal = +val;
         }
 
-        if (!isNaN(numVal) && numVal >= min && numVal < max) {
+        if (!isNaN(numVal) && numVal >= min && numVal <= max) {
           setLocalValue(val);
           if (onChange) {
             onChange(val !== "" ? numVal : undefined);

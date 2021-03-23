@@ -8,6 +8,7 @@ import { BCD_NETWORKS_NAMES } from "app/defaults";
 import { getBigmapKeys } from "lib/better-call-dev";
 import { useRetryableSWR } from "lib/swr";
 import {
+  batchify,
   fetchTokenMetadata,
   loadContract,
   mutezToTz,
@@ -35,9 +36,21 @@ type SwapContractDescriptor = {
 
 export type AssetIdentifier = { address?: string; tokenId?: number };
 
+export type SwapParams = {
+  accountPkh: string;
+  inputAsset: TempleAsset;
+  inputContractAddress?: string;
+  outputAsset: TempleAsset;
+  outputContractAddress?: string;
+  exchangerType: ExchangerType;
+  inputAmount: number;
+  tolerancePercentage: number;
+  tezos: TezosToolkit;
+};
+
 export type TempleAssetWithPrice = TempleAsset & { usdPrice?: number };
 
-export const ALL_EXCHANGERS_TYPES: ExchangerType[] = ["dexter", "quipuswap"]; 
+export const ALL_EXCHANGERS_TYPES: ExchangerType[] = ["dexter", "quipuswap"];
 
 // chainId -> token -> contract
 export const DEXTER_EXCHANGE_CONTRACTS = new Map<
@@ -61,7 +74,7 @@ export const DEXTER_EXCHANGE_CONTRACTS = new Map<
       },
       KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9: {
         0: "KT1Tr2eG3eVmPRbymrbU2UppUmKjFPXomGG9",
-      }
+      },
     },
   ],
   [
@@ -72,7 +85,7 @@ export const DEXTER_EXCHANGE_CONTRACTS = new Map<
       },
       KT1FCMQk44tEP9fm9n5JJEhkSk1TW3XQdaWH: {
         0: "KT1RfTPvrfAQDGAJ7wB71EtwxLQgjmfz59kE",
-      }
+      },
     },
   ],
 ]);
@@ -197,6 +210,139 @@ export async function getTokenOutput(
   return tokenPool.minus(newTokenPool);
 }
 
+export async function swap({
+  accountPkh,
+  inputAsset,
+  inputContractAddress,
+  outputAsset,
+  outputContractAddress,
+  exchangerType,
+  inputAmount,
+  tolerancePercentage,
+  tezos,
+}: SwapParams) {
+  const transactionsBatch = tezos.wallet.batch([]);
+  const rawInputAssetAmount = new BigNumber(inputAmount).multipliedBy(
+    new BigNumber(10).pow(inputAsset.decimals)
+  );
+  const inputIsTz = inputAsset.type === TempleAssetType.TEZ;
+  const outputIsTz = outputAsset.type === TempleAssetType.TEZ;
+  const maxMutez = inputIsTz
+    ? rawInputAssetAmount
+    : await getMutezOutput(tezos, rawInputAssetAmount, {
+        address: inputContractAddress!,
+        type: exchangerType,
+      });
+  const deadline = Math.floor(Date.now() / 1000) + 30 * 60 * 1000;
+  if (
+    exchangerType === "dexter" &&
+    inputAsset.type !== TempleAssetType.TEZ &&
+    outputAsset.type !== TempleAssetType.TEZ
+  ) {
+    return;
+  }
+  if (inputAsset.type !== TempleAssetType.TEZ) {
+    const exchangeContract = await loadContract(tezos, inputContractAddress!);
+    const tokenContract = await loadContract(tezos, inputAsset.address);
+    if (inputAsset.type === TempleAssetType.FA2) {
+      batchify(transactionsBatch, [
+        tokenContract.methods
+          .update_operators([
+            {
+              add_operator: {
+                owner: accountPkh,
+                operator: inputContractAddress,
+                token_id: inputAsset.id,
+              },
+            },
+          ])
+          .toTransferParams(),
+      ]);
+    } else {
+      batchify(transactionsBatch, [
+        tokenContract.methods
+          .approve(inputContractAddress, rawInputAssetAmount.toNumber())
+          .toTransferParams(),
+      ]);
+    }
+    const mutezOutput = maxMutez
+      .multipliedBy(outputIsTz ? 100 - tolerancePercentage : 100)
+      .dividedToIntegerBy(100);
+    if (
+      outputAsset.type !== TempleAssetType.TEZ &&
+      exchangerType === "dexter"
+    ) {
+      const outputExchangeContract = await loadContract(
+        tezos,
+        outputContractAddress!
+      );
+      const maxTokensOutput = await getTokenOutput(tezos, maxMutez, {
+        address: outputContractAddress!,
+        type: exchangerType,
+      });
+      const tokensOutput = maxTokensOutput
+        .multipliedBy(inputIsTz ? 100 - tolerancePercentage : 100)
+        .dividedToIntegerBy(100);
+      batchify(transactionsBatch, [
+        exchangeContract.methods
+          .tokenToToken(
+            outputExchangeContract,
+            tokensOutput.toNumber(),
+            accountPkh,
+            accountPkh,
+            rawInputAssetAmount.toNumber(),
+            deadline.toString()
+          )
+          .toTransferParams(),
+      ]);
+      await transactionsBatch.send();
+      return;
+    }
+    batchify(transactionsBatch, [
+      exchangerType === "quipuswap"
+        ? exchangeContract.methods
+            .tokenToTezPayment(
+              rawInputAssetAmount.toNumber(),
+              mutezOutput.toNumber(),
+              accountPkh
+            )
+            .toTransferParams()
+        : exchangeContract.methods
+            .tokenToXtz(
+              accountPkh,
+              accountPkh,
+              rawInputAssetAmount.toNumber(),
+              mutezOutput.toNumber(),
+              deadline.toString()
+            )
+            .toTransferParams(),
+    ]);
+  }
+  if (outputAsset.type !== TempleAssetType.TEZ) {
+    const exchangeContract = await loadContract(tezos, outputContractAddress!);
+    const maxTokensOutput = await getTokenOutput(tezos, maxMutez, {
+      address: outputContractAddress!,
+      type: exchangerType,
+    });
+    const tokensOutput = maxTokensOutput
+      .multipliedBy(inputIsTz ? 100 - tolerancePercentage : 100)
+      .dividedToIntegerBy(100);
+    batchify(transactionsBatch, [
+      exchangerType === "quipuswap"
+        ? exchangeContract.methods
+            .tezToTokenPayment(
+              tokensOutput.toNumber(),
+              accountPkh
+            )
+            .toTransferParams({ amount: mutezToTz(maxMutez).toNumber() })
+        : exchangeContract.methods
+            .xtzToToken(accountPkh, tokensOutput.toNumber(), deadline.toString())
+            .toTransferParams({ amount: mutezToTz(maxMutez).toNumber() }),
+    ]);
+  }
+  await transactionsBatch.send();
+}
+
 export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
   const { allAssets: allVisibleAssets } = useAssets();
   const { hiddenTokens } = useTokens();
@@ -225,10 +371,11 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
       const shortHash = `${address.slice(0, 7)}...${address.slice(-4)}`;
       try {
         const tokenMetadata = await fetchTokenMetadata(tezos, address, tokenId);
+        const { name: parsedName, symbol: parsedSymbol } = tokenMetadata;
         const commonMetadata = {
           ...tokenMetadata,
-          name: tokenMetadata.name || shortHash,
-          symbol: tokenMetadata.symbol || shortHash,
+          name: !parsedName || (parsedName === "???") ? shortHash : parsedName,
+          symbol: !parsedSymbol || (parsedSymbol === "???") ? shortHash : parsedSymbol,
           address,
           fungible: true,
           status: "hidden" as const,
@@ -370,7 +517,11 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
       if (tezUsdPrice === null) {
         return undefined;
       }
-      const midPrice = await getTokenMidPrice(tezos, contractAddress, exchangerType);
+      const midPrice = await getTokenMidPrice(
+        tezos,
+        contractAddress,
+        exchangerType
+      );
       return mutezToTz(
         midPrice.multipliedBy(new BigNumber(10).pow(token.decimals))
       ).multipliedBy(tezUsdPrice);
