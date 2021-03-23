@@ -234,13 +234,6 @@ export async function swap({
         type: exchangerType,
       });
   const deadline = Math.floor(Date.now() / 1000) + 30 * 60 * 1000;
-  if (
-    exchangerType === "dexter" &&
-    inputAsset.type !== TempleAssetType.TEZ &&
-    outputAsset.type !== TempleAssetType.TEZ
-  ) {
-    return;
-  }
   if (inputAsset.type !== TempleAssetType.TEZ) {
     const exchangeContract = await loadContract(tezos, inputContractAddress!);
     const tokenContract = await loadContract(tezos, inputAsset.address);
@@ -295,8 +288,7 @@ export async function swap({
           )
           .toTransferParams(),
       ]);
-      await transactionsBatch.send();
-      return;
+      return transactionsBatch.send();
     }
     batchify(transactionsBatch, [
       exchangerType === "quipuswap"
@@ -340,7 +332,7 @@ export async function swap({
             .toTransferParams({ amount: mutezToTz(maxMutez).toNumber() }),
     ]);
   }
-  await transactionsBatch.send();
+  return transactionsBatch.send();
 }
 
 export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {

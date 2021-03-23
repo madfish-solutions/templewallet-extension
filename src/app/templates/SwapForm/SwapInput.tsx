@@ -19,7 +19,7 @@ import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import AssetIcon from "app/templates/AssetIcon";
-import { t } from "lib/i18n/react";
+import { T, t } from "lib/i18n/react";
 import {
   mutezToTz,
   useAccount,
@@ -47,7 +47,7 @@ type SwapInputProps<
   defaultAsset?: TempleAssetWithPrice;
   formContextValues: FormContextValues<FormValues>;
   amountReadOnly?: boolean;
-  label: string;
+  label: React.ReactNode;
   onAssetChange: (newValue: AssetIdentifier) => void;
   onRefreshClick: () => void;
   withPercentageButtons?: boolean;
@@ -240,7 +240,7 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
       className="border border-gray-300 text-gray-500 rounded-md ml-1 p-1"
       onClick={handleClick}
     >
-      {percentage === 100 ? "Max" : `${percentage}%`}
+      {percentage === 100 ? <T id="max" /> : `${percentage}%`}
     </button>
   );
 };
@@ -327,7 +327,9 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
           <span
             className={classNames(opened && "hidden", "text-xs text-gray-500")}
           >
-            <span className="mr-1">Balance:</span>
+            <span className="mr-1">
+              <T id="balance" />
+            </span>
             <span
               className={classNames(
                 "text-sm mr-1 text-gray-700",

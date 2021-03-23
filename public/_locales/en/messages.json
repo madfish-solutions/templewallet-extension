@@ -1687,5 +1687,32 @@
   },
   "accountNumber": {
     "message": "Account number"
+  },
+  "noExchangersAvailable": {
+    "message": "Sorry, no exchangers are available for the current network."
+  },
+  "max": {
+    "message": "Max"
+  },
+  "balance": {
+    "message": "Balance:"
+  },
+  "from": {
+    "message": "From"
+  },
+  "toAsset": {
+    "message": "To"
+  },
+  "through": {
+    "message": "Through"
+  },
+  "exchangeRate": {
+    "message": "Exchange rate:"
+  },
+  "slippageTolerance": {
+    "message": "Slippage tolerance:"
+  },
+  "minimumReceived": {
+    "message": "Minimum received:"
   }
 }

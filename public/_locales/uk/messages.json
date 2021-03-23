@@ -1687,5 +1687,29 @@
   },
   "accountNumber": {
     "message": "Номер аккаунта"
+  },
+  "noExchangersAvailable": {
+    "message": "На жаль, жодні обмінники не доступні в поточній мережі."
+  },
+  "balance": {
+    "message": "Баланс:"
+  },
+  "from": {
+    "message": "З"
+  },
+  "toAsset": {
+    "message": "В"
+  },
+  "through": {
+    "message": "Через"
+  },
+  "exchangeRate": {
+    "message": "Курс обміну:"
+  },
+  "slippageTolerance": {
+    "message": "Максимально допустиме відхилення:"
+  },
+  "minimumReceived": {
+    "message": "Мінімальний вихід:"
   }
 }

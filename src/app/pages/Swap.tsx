@@ -10,7 +10,7 @@ const Send: React.FC = () => (
   <PageLayout
     pageTitle={
       <>
-        <SwapIcon className="w-auto h-4 mr-1 stroke-current" /> {t("swapNoun")}
+        <SwapIcon className="w-auto h-4 mr-1 stroke-current" /> {t("swap")}
       </>
     }
   >

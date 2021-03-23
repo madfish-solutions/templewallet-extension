@@ -1,14 +1,22 @@
 import React, { FC, ReactNode, useEffect, useMemo } from "react";
 
+import classNames from "clsx";
+
 import Alert from "app/atoms/Alert";
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import HashChip from "app/templates/HashChip";
 import { T, t } from "lib/i18n/react";
-import { useTezos, useBlockTriggers , isKnownChainId, useChainId } from "lib/temple/front";
+import {
+  useTezos,
+  useBlockTriggers,
+  isKnownChainId,
+  useChainId,
+} from "lib/temple/front";
 import { TZKT_BASE_URLS } from "lib/tzkt";
 import useSafeState from "lib/ui/useSafeState";
 
 type OperationStatusProps = {
+  className?: string;
   typeTitle: string;
   operation: any;
 };
@@ -16,13 +24,12 @@ type OperationStatusProps = {
 const OperationStatus: FC<OperationStatusProps> = ({
   typeTitle,
   operation,
+  className,
 }) => {
   const tezos = useTezos();
   const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
 
-  const hash = useMemo(() => operation.hash || operation.opHash, [
-    operation,
-  ]);
+  const hash = useMemo(() => operation.hash || operation.opHash, [operation]);
 
   const chainId = useChainId();
 
@@ -115,7 +122,7 @@ const OperationStatus: FC<OperationStatusProps> = ({
       title={alert.title}
       description={alert.description}
       autoFocus
-      className="mb-8"
+      className={classNames("mb-8", className)}
     />
   );
 };

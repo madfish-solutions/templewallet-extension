@@ -6,16 +6,19 @@ import React, {
   useState,
 } from "react";
 
+import { WalletOperation } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import { Controller, useForm } from "react-hook-form";
 import { browser } from "webextension-polyfill-ts";
 
+import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg";
+import OperationStatus from "app/templates/OperationStatus";
 import SwapInput from "app/templates/SwapForm/SwapInput";
-import { t } from "lib/i18n/react";
+import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
   TempleAssetType,
@@ -59,7 +62,11 @@ const SwapFormWrapper: React.FC = () => {
   const { assets } = useSwappableAssets();
 
   if (Object.values(assets).every((value) => value.length < 2)) {
-    return <p>Sorry, no exchangers are available for the current network.</p>;
+    return (
+      <p>
+        <T id="noExchangersAvailable" />
+      </p>
+    );
   }
 
   return <SwapForm />;
@@ -103,6 +110,9 @@ const SwapForm: React.FC = () => {
   const outputAsset = watch("outputAsset");
   const selectedExchanger = watch("exchanger");
   const tolerancePercentage = watch("tolerancePercentage");
+
+  const [operation, setOperation] = useState<WalletOperation>();
+  const [error, setError] = useState<Error>();
 
   const inputAssets = assets[selectedExchanger];
   const outputAssets = assets[selectedExchanger];
@@ -321,7 +331,7 @@ const SwapForm: React.FC = () => {
       inputAssetAmount,
     }: SwapFormValues) => {
       try {
-        await swap({
+        const op = await swap({
           accountPkh,
           inputAsset: selectedInputAsset,
           inputContractAddress: getContractAddress(
@@ -338,9 +348,10 @@ const SwapForm: React.FC = () => {
           tolerancePercentage,
           tezos,
         });
-        console.log("TODO: show success message");
+        setError(undefined);
+        setOperation(op);
       } catch (e) {
-        console.error(e);
+        setError(e);
       }
     },
     [
@@ -351,6 +362,8 @@ const SwapForm: React.FC = () => {
       selectedOutputAsset,
     ]
   );
+
+  const closeError = useCallback(() => setError(undefined), []);
 
   const handleRefreshClick = useCallback(() => {
     updateTokensPrices();
@@ -363,7 +376,7 @@ const SwapForm: React.FC = () => {
         assetInputName="inputAsset"
         amountInputName="inputAssetAmount"
         formContextValues={formContextValues}
-        label="From"
+        label={<T id="from" />}
         onRefreshClick={handleRefreshClick}
         assets={inputAssets}
         withPercentageButtons
@@ -381,7 +394,7 @@ const SwapForm: React.FC = () => {
         amountInputName="outputAssetAmount"
         defaultAsset={assets[selectedExchanger][1]}
         formContextValues={formContextValues}
-        label="To"
+        label={<T id="toAsset" />}
         onRefreshClick={handleRefreshClick}
         onAssetChange={handleOutputAssetChange}
         assets={outputAssets}
@@ -389,7 +402,9 @@ const SwapForm: React.FC = () => {
       />
 
       <div className="my-6">
-        <h2 className="text-gray-900 mb-1 text-xl">Through</h2>
+        <h2 className="text-gray-900 mb-1 text-xl">
+          <T id="through" />
+        </h2>
         <ExchangerOption
           name="exchanger"
           checked={selectedExchanger === "quipuswap"}
@@ -433,13 +448,17 @@ const SwapForm: React.FC = () => {
       <table className="w-full text-xs text-gray-500 mb-6 swap-form-table">
         <tbody>
           <tr>
-            <td>Fee:</td>
+            <td>
+              <T id="fee" />:
+            </td>
             <td className="text-right text-gray-600">
               {exchangeFeePercentage.toString()}%
             </td>
           </tr>
           <tr>
-            <td>Exchange rate:</td>
+            <td>
+              <T id="exchangeRate" />
+            </td>
             <td className="text-right text-gray-600">
               {exchangeRate
                 ? `1 ${
@@ -449,7 +468,9 @@ const SwapForm: React.FC = () => {
             </td>
           </tr>
           <tr>
-            <td>Slippage tolerance:</td>
+            <td>
+              <T id="slippageTolerance" />
+            </td>
             <td className="justify-end text-gray-600 flex">
               <Controller
                 control={control}
@@ -460,7 +481,9 @@ const SwapForm: React.FC = () => {
             </td>
           </tr>
           <tr>
-            <td>Minimum received:</td>
+            <td>
+              <T id="minimumReceived" />
+            </td>
             <td className="text-right text-gray-600">
               {minimumReceived
                 ? `${minimumReceived.toString()} ${selectedOutputAsset.symbol}`
@@ -470,6 +493,25 @@ const SwapForm: React.FC = () => {
         </tbody>
       </table>
 
+      {operation && (
+        <OperationStatus
+          className="mb-6"
+          typeTitle={t("swapNoun")}
+          operation={operation}
+        />
+      )}
+
+      {error && (
+        <Alert
+          className="mb-6"
+          type="error"
+          title={t("error")}
+          description={error.message}
+          closable
+          onClose={closeError}
+        />
+      )}
+
       <FormSubmitButton
         className="w-full justify-center border-none"
         style={{
@@ -478,7 +520,7 @@ const SwapForm: React.FC = () => {
         }}
         disabled={submitDisabled}
       >
-        Swap
+        <T id="swap" />
       </FormSubmitButton>
     </form>
   );
