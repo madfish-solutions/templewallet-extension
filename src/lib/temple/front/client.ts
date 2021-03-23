@@ -53,9 +53,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   });
   const state = data!;
 
-  const [confirmation, setConfirmation] = useState<Confirmation | null>(
-    null
-  );
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const confirmationIdRef = useRef<string | null>(null);
   const resetConfirmation = useCallback(() => {
     confirmationIdRef.current = null;
@@ -492,15 +490,21 @@ class TaquitoWallet implements WalletProvider {
   }
 
   async mapTransferParamsToWalletParams(params: WalletTransferParams) {
-    return createTransferOperation(params);
+    return withoutFeesOverride(params, await createTransferOperation(params));
   }
 
   async mapOriginateParamsToWalletParams(params: WalletOriginateParams) {
-    return createOriginationOperation(params as any);
+    return withoutFeesOverride(
+      params,
+      await createOriginationOperation(params as any)
+    );
   }
 
   async mapDelegateParamsToWalletParams(params: WalletDelegateParams) {
-    return createSetDelegateOperation(params as any);
+    return withoutFeesOverride(
+      params,
+      await createSetDelegateOperation(params as any)
+    );
   }
 
   async sendOperations(opParams: any[]) {
@@ -594,5 +598,19 @@ async function request<T extends TempleRequest>(req: T) {
 function assertResponse(condition: any): asserts condition {
   if (!condition) {
     throw new Error("Invalid response recieved");
+  }
+}
+
+function withoutFeesOverride<T>(params: any, op: T): T {
+  try {
+    const { fee, gasLimit, storageLimit } = params;
+    return {
+      ...op,
+      fee,
+      gas_limit: gasLimit,
+      storage_limit: storageLimit,
+    };
+  } catch {
+    return params;
   }
 }
