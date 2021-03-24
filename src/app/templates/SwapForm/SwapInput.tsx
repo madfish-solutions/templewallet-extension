@@ -300,13 +300,18 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
           )}
         >
           <div
-            className="border-r border-gray-300 pl-4 pr-3 flex py-5 cursor-pointer"
+            className="border-r border-gray-300 pl-4 pr-3 flex py-5 cursor-pointer items-center"
             onClick={toggleOpened}
           >
             <AssetIcon asset={selectedAsset} size={32} className="mr-2" />
-            <span className="text-gray-700 text-lg mr-2 flex items-center">
-              {selectedAsset.symbol}
-            </span>
+            <div>
+              <span
+                className="text-gray-700 text-lg mr-2 items-center overflow-hidden block"
+                style={{ textOverflow: "ellipsis", maxWidth: "6rem" }}
+              >
+                {selectedAsset.symbol}
+              </span>
+            </div>
             <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
           </div>
           <div className="flex-1 px-2 flex items-center justify-between">
