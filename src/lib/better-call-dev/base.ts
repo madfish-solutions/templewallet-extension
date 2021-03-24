@@ -43,11 +43,6 @@ function pick<T, U extends keyof T>(obj: T, keys: U[]) {
   return newObj as Pick<T, U>;
 }
 
-const validBcdNetworks = ["mainnet", "edo2net", "delphinet"];
-export function isBcdNetwork(name: string): name is BcdNetwork {
-  return validBcdNetworks.includes(name);
-}
-
 /**
  * Types
  */

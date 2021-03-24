@@ -7,11 +7,7 @@ import {
   mutezToTz,
   withTokenApprove,
 } from "lib/temple/front";
-import {
-  TempleAsset,
-  TempleAssetType,
-  TempleChainId,
-} from "lib/temple/types";
+import { TempleAsset, TempleAssetType, TempleChainId } from "lib/temple/types";
 
 export type ExchangerType = "dexter" | "quipuswap";
 

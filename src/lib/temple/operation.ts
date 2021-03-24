@@ -3,7 +3,12 @@ import {
   OperationEntry,
   OperationContentsAndResultOrigination,
 } from "@taquito/rpc";
-import { TezosToolkit, OpKind, WalletOperationBatch, WalletContract } from "@taquito/taquito";
+import {
+  TezosToolkit,
+  OpKind,
+  WalletOperationBatch,
+  WalletContract,
+} from "@taquito/taquito";
 import { OperationBatch } from "@taquito/taquito/dist/types/batch/rpc-batch-provider";
 import { TransferParams } from "@taquito/taquito/dist/types/operations/types";
 import BigNumber from "bignumber.js";
@@ -83,10 +88,9 @@ export async function findOperation(block: BlockResponse, opHash: string) {
 }
 
 export const batchify = (
-  batch: OperationBatch | WalletOperationBatch, transfers: TransferParams[],
-) => (
-  transfers.reduce((b, tParams) => b.withTransfer(tParams), batch)
-);
+  batch: OperationBatch | WalletOperationBatch,
+  transfers: TransferParams[]
+) => transfers.reduce((b, tParams) => b.withTransfer(tParams), batch);
 
 type TokenApproveParams = {
   tokenAddress: string;
@@ -94,12 +98,16 @@ type TokenApproveParams = {
   from: string;
   to: string;
   value: BigNumber;
-}
+};
 
-function getFA12ApproveParams(tokenContract: WalletContract, to: string, value: number) {
+function getFA12ApproveParams(
+  tokenContract: WalletContract,
+  to: string,
+  value: number
+) {
   return {
     kind: OpKind.TRANSACTION as const,
-    ...tokenContract.methods.approve(to, value).toTransferParams()
+    ...tokenContract.methods.approve(to, value).toTransferParams(),
   };
 }
 
@@ -138,7 +146,11 @@ export async function withTokenApprove(
     ];
   }
 
-  const approveParams = getFA12ApproveParams(tokenContract, to, value.toNumber());
+  const approveParams = getFA12ApproveParams(
+    tokenContract,
+    to,
+    value.toNumber()
+  );
   let resetApprove = false;
   try {
     await tezos.estimate.batch([approveParams]);

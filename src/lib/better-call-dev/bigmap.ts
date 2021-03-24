@@ -10,11 +10,10 @@ export type BcdGetBigmapKeysParams = {
 export const getBigmapKeys = buildQuery<
   BcdGetBigmapKeysParams,
   BcdGetBigmapKeysResponse
->(
-  "GET",
-  ({ network, pointer }) => `/bigmap/${network}/${pointer}/keys`,
-  ["offset", "size"]
-);
+>("GET", ({ network, pointer }) => `/bigmap/${network}/${pointer}/keys`, [
+  "offset",
+  "size",
+]);
 
 export type BcdGetBigmapKeysResponse = {
   count: number;
