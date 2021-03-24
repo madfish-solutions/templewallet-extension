@@ -24,6 +24,16 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false,
   },
   {
+    id: "florencenet",
+    name: "Florence Testnet",
+    description: "Florence testnet",
+    lambdaContract: "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX",
+    type: "test",
+    rpcBaseURL: "https://florencenet.smartpy.io",
+    color: "#FFD88A",
+    disabled: false,
+  },
+  {
     id: "delphinet",
     name: "Delphi Testnet",
     description: "Delphi testnet",
