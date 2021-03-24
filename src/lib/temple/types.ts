@@ -29,8 +29,9 @@ export interface TempleState {
 
 export enum TempleChainId {
   Mainnet = "NetXdQprcVkpaWU",
-  Delphinet = "NetXm8tYqnMWky1",
   Edo2net = "NetXSgo1ZT2DRUG",
+  Florencenet = "NetXxkAx4woPLyu",
+  Delphinet = "NetXm8tYqnMWky1",
   Carthagenet = "NetXjD3HPJJjmcd",
 }
 

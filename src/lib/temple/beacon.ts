@@ -15,6 +15,7 @@ export type NetworkType =
   | "carthagenet"
   | "delphinet"
   | "edonet"
+  | "florencenet"
   | "custom";
 
 export interface Network {
