@@ -69,7 +69,6 @@
     "css-loader": "3.6.0",
     "date-fns": "2.15.0",
     "debounce-promise": "3.1.2",
-    "dexter-calculations": "^1.2.0",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
     "ed25519-hd-key": "1.1.2",

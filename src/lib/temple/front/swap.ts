@@ -19,6 +19,7 @@ import {
   useTezos,
   useChainId,
   useUSDPrice,
+  withTokenApprove,
 } from "lib/temple/front";
 import {
   TempleAsset,
@@ -44,11 +45,14 @@ export type SwapParams = {
   outputContractAddress?: string;
   exchangerType: ExchangerType;
   inputAmount: number;
-  tolerancePercentage: number;
+  tolerance: number;
   tezos: TezosToolkit;
 };
 
-export type TempleAssetWithPrice = TempleAsset & { usdPrice?: number };
+export type TempleAssetWithExchangeData = TempleAsset & {
+  usdPrice?: number;
+  maxExchangable?: BigNumber;
+};
 
 export const ALL_EXCHANGERS_TYPES: ExchangerType[] = ["dexter", "quipuswap"];
 
@@ -90,11 +94,14 @@ export const DEXTER_EXCHANGE_CONTRACTS = new Map<
   ],
 ]);
 
-export const QUIPUSWAP_CONTRACTS = new Map<string, Record<"factory", string>>([
+export const QUIPUSWAP_CONTRACTS = new Map<
+  string,
+  Partial<Record<"fa12Factory" | "fa2Factory", string>>
+>([
   [
     TempleChainId.Edo2net,
     {
-      factory: "KT1W9xQezU2U49ifE7PPWLXnBJ5gNjYTzVUq",
+      fa2Factory: "KT19RP5Um8z7WA8qZzri3YxyhG1R5LdPdNqG",
     },
   ],
 ]);
@@ -148,21 +155,7 @@ async function getParameters(
   };
 }
 
-export async function getTokenMidPrice(
-  tezos: TezosToolkit,
-  contractAddress: string,
-  type: ExchangerType
-) {
-  const { tokenPool, xtzPool } = await getParameters(
-    tezos,
-    contractAddress,
-    type
-  );
-  if (tokenPool.eq(0) || xtzPool.eq(0)) {
-    return new BigNumber(0);
-  }
-  return xtzPool.dividedBy(tokenPool);
-}
+const QUIPUSWAP_FEE_RATE = 333;
 
 export async function getMutezOutput(
   tezos: TezosToolkit,
@@ -178,18 +171,17 @@ export async function getMutezOutput(
     return tokenAmount
       .multipliedBy(997)
       .multipliedBy(xtzPool)
-      .div(tokenPool.multipliedBy(1000).plus(tokenAmount.multipliedBy(997)))
-      .integerValue(BigNumber.ROUND_FLOOR);
+      .idiv(tokenPool.multipliedBy(1000).plus(tokenAmount.multipliedBy(997)));
   }
-  const fee = floor(tokenAmount.div(333));
-  const newTokenPool = tokenPool.plus(tokenAmount).minus(fee);
-  const remainder = floor(invariant.div(newTokenPool));
+  const fee = tokenAmount.idiv(QUIPUSWAP_FEE_RATE);
+  const tempTokenPool = tokenPool.plus(tokenAmount).minus(fee);
+  const remainder = invariant.idiv(tempTokenPool);
   return xtzPool.minus(remainder);
 }
 
 export async function getTokenOutput(
   tezos: TezosToolkit,
-  xtzAmount: BigNumber,
+  mutezAmount: BigNumber,
   { address, type }: SwapContractDescriptor
 ) {
   const { tokenPool, xtzPool } = await getParameters(tezos, address, type);
@@ -198,15 +190,14 @@ export async function getTokenOutput(
     return new BigNumber(0);
   }
   if (type === "dexter") {
-    return xtzAmount
+    return mutezAmount
       .multipliedBy(997)
       .multipliedBy(tokenPool)
-      .div(xtzPool.multipliedBy(1000).plus(xtzAmount.multipliedBy(997)))
-      .integerValue(BigNumber.ROUND_FLOOR);
+      .idiv(xtzPool.multipliedBy(1000).plus(mutezAmount.multipliedBy(997)));
   }
-  const newXtzPool = xtzPool.plus(xtzAmount);
-  const fee = floor(xtzAmount.div(333));
-  const newTokenPool = floor(invariant.dividedBy(newXtzPool.minus(fee)));
+  const newXtzPool = xtzPool.plus(mutezAmount);
+  const fee = mutezAmount.idiv(QUIPUSWAP_FEE_RATE);
+  const newTokenPool = invariant.idiv(newXtzPool.minus(fee));
   return tokenPool.minus(newTokenPool);
 }
 
@@ -218,7 +209,7 @@ export async function swap({
   outputContractAddress,
   exchangerType,
   inputAmount,
-  tolerancePercentage,
+  tolerance,
   tezos,
 }: SwapParams) {
   const transactionsBatch = tezos.wallet.batch([]);
@@ -234,63 +225,19 @@ export async function swap({
         type: exchangerType,
       });
   const deadline = Math.floor(Date.now() / 1000) + 30 * 60 * 1000;
+  const toleranceQuotient = new BigNumber(1).minus(tolerance);
+  const tokenToTokenMiddleQuotient = toleranceQuotient.sqrt();
   if (inputAsset.type !== TempleAssetType.TEZ) {
     const exchangeContract = await loadContract(tezos, inputContractAddress!);
-    const tokenContract = await loadContract(tezos, inputAsset.address);
-    if (inputAsset.type === TempleAssetType.FA2) {
-      batchify(transactionsBatch, [
-        tokenContract.methods
-          .update_operators([
-            {
-              add_operator: {
-                owner: accountPkh,
-                operator: inputContractAddress,
-                token_id: inputAsset.id,
-              },
-            },
-          ])
-          .toTransferParams(),
-      ]);
-    } else {
-      batchify(transactionsBatch, [
-        tokenContract.methods
-          .approve(inputContractAddress, rawInputAssetAmount.toNumber())
-          .toTransferParams(),
-      ]);
-    }
-    const mutezOutput = maxMutez
-      .multipliedBy(outputIsTz ? 100 - tolerancePercentage : 100)
-      .dividedToIntegerBy(100);
-    if (
-      outputAsset.type !== TempleAssetType.TEZ &&
-      exchangerType === "dexter"
-    ) {
-      const outputExchangeContract = await loadContract(
-        tezos,
-        outputContractAddress!
-      );
-      const maxTokensOutput = await getTokenOutput(tezos, maxMutez, {
-        address: outputContractAddress!,
-        type: exchangerType,
-      });
-      const tokensOutput = maxTokensOutput
-        .multipliedBy(inputIsTz ? 100 - tolerancePercentage : 100)
-        .dividedToIntegerBy(100);
-      batchify(transactionsBatch, [
-        exchangeContract.methods
-          .tokenToToken(
-            outputExchangeContract,
-            tokensOutput.toNumber(),
-            accountPkh,
-            accountPkh,
-            rawInputAssetAmount.toNumber(),
-            deadline.toString()
-          )
-          .toTransferParams(),
-      ]);
-      return transactionsBatch.send();
-    }
-    batchify(transactionsBatch, [
+    const mutezOutput = BigNumber.max(
+      floor(
+        maxMutez.multipliedBy(
+          outputIsTz ? toleranceQuotient : tokenToTokenMiddleQuotient
+        )
+      ),
+      1
+    );
+    const exchangeOperations = [
       exchangerType === "quipuswap"
         ? exchangeContract.methods
             .tokenToTezPayment(
@@ -308,7 +255,18 @@ export async function swap({
               deadline.toString()
             )
             .toTransferParams(),
-    ]);
+    ];
+    batchify(
+      transactionsBatch,
+      await withTokenApprove(tezos, exchangeOperations, {
+        tokenAddress: inputAsset.address,
+        tokenId:
+          inputAsset.type === TempleAssetType.FA2 ? inputAsset.id : undefined,
+        from: accountPkh,
+        to: inputContractAddress!,
+        value: rawInputAssetAmount,
+      })
+    );
   }
   if (outputAsset.type !== TempleAssetType.TEZ) {
     const exchangeContract = await loadContract(tezos, outputContractAddress!);
@@ -316,19 +274,21 @@ export async function swap({
       address: outputContractAddress!,
       type: exchangerType,
     });
-    const tokensOutput = maxTokensOutput
-      .multipliedBy(inputIsTz ? 100 - tolerancePercentage : 100)
-      .dividedToIntegerBy(100);
+    const tokensOutput = BigNumber.max(
+      floor(maxTokensOutput.multipliedBy(toleranceQuotient)),
+      1
+    );
     batchify(transactionsBatch, [
       exchangerType === "quipuswap"
         ? exchangeContract.methods
-            .tezToTokenPayment(
-              tokensOutput.toNumber(),
-              accountPkh
-            )
+            .tezToTokenPayment(tokensOutput.toNumber(), accountPkh)
             .toTransferParams({ amount: mutezToTz(maxMutez).toNumber() })
         : exchangeContract.methods
-            .xtzToToken(accountPkh, tokensOutput.toNumber(), deadline.toString())
+            .xtzToToken(
+              accountPkh,
+              tokensOutput.toNumber(),
+              deadline.toString()
+            )
             .toTransferParams({ amount: mutezToTz(maxMutez).toNumber() }),
     ]);
   }
@@ -366,8 +326,9 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
         const { name: parsedName, symbol: parsedSymbol } = tokenMetadata;
         const commonMetadata = {
           ...tokenMetadata,
-          name: !parsedName || (parsedName === "???") ? shortHash : parsedName,
-          symbol: !parsedSymbol || (parsedSymbol === "???") ? shortHash : parsedSymbol,
+          name: !parsedName || parsedName === "???" ? shortHash : parsedName,
+          symbol:
+            !parsedSymbol || parsedSymbol === "???" ? shortHash : parsedSymbol,
           address,
           fungible: true,
           status: "hidden" as const,
@@ -419,78 +380,98 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
     const dexterTokens = await Promise.all(
       dexterTokensIdentifiers.map((id) => getAssetData(id))
     );
-    const tokenListAddress = QUIPUSWAP_CONTRACTS.get(chainId)?.factory;
-    if (!tokenListAddress) {
-      return {
-        quipuswap: [],
-        dexter: dexterTokens as TempleToken[],
-        quipuswapTokensExchangeContracts: {},
-      };
-    }
-    const tokenListContract = await loadContract(
-      tezos,
-      tokenListAddress,
-      false
+    const quipuswapContracts = QUIPUSWAP_CONTRACTS.get(chainId) || {};
+    const quipuswapResultFragments = await Promise.all(
+      [quipuswapContracts.fa12Factory, quipuswapContracts.fa2Factory].map(
+        async (factoryAddress) => {
+          if (!factoryAddress) {
+            return {
+              quipuswap: [],
+              quipuswapTokensExchangeContracts: {},
+            };
+          }
+
+          const tokenListContract = await loadContract(
+            tezos,
+            factoryAddress,
+            false
+          );
+          const tokenListStorage = await tokenListContract.storage<any>();
+          const tokenToExchange: BigMapAbstraction =
+            tokenListStorage.token_to_exchange;
+          const pointer = Number(tokenToExchange.toString());
+          let outOfKeys = false;
+          let quipuswapTokensIdentifiers: AssetIdentifier[] = [];
+          const quipuswapTokensExchangeContracts: Record<
+            string,
+            Record<number, string>
+          > = {};
+          const bcdNetworkName = BCD_NETWORKS_NAMES.get(
+            chainId as TempleChainId
+          );
+          while (!outOfKeys && bcdNetworkName) {
+            const newKeys = await getBigmapKeys({
+              pointer,
+              network: bcdNetworkName,
+              size: 20,
+              offset: quipuswapTokensIdentifiers.length,
+            });
+            outOfKeys = newKeys.length === 0;
+            quipuswapTokensIdentifiers = [
+              ...quipuswapTokensIdentifiers,
+              ...newKeys.map(({ data: { key: { value, children } } }) => ({
+                address: children ? children[0].value : value,
+                tokenId: children ? Number(children[1].value) : undefined,
+              })),
+            ];
+            Object.assign(
+              quipuswapTokensExchangeContracts,
+              newKeys.reduce(
+                (
+                  contractsFragment,
+                  {
+                    data: {
+                      key: { value: plainKey, children },
+                      value,
+                    },
+                  }
+                ) => {
+                  if (value) {
+                    const address = children ? children[0].value : plainKey;
+                    const tokenId = children ? Number(children[1].value) : 0;
+                    contractsFragment[address] = {
+                      ...contractsFragment[address],
+                      [tokenId]: value.value,
+                    };
+                  }
+                  return contractsFragment;
+                },
+                {} as Record<string, Record<number, string>>
+              )
+            );
+          }
+          return {
+            quipuswap: (await Promise.all(
+              quipuswapTokensIdentifiers.map((id) => getAssetData(id))
+            )) as TempleToken[],
+            quipuswapTokensExchangeContracts,
+          };
+        }
+      )
     );
-    const tokenListStorage = await tokenListContract.storage<any>();
-    const tokenToExchange: BigMapAbstraction =
-      tokenListStorage.token_to_exchange;
-    const pointer = Number(tokenToExchange.toString());
-    let outOfKeys = false;
-    let quipuswapTokensIdentifiers: AssetIdentifier[] = [];
-    const quipuswapTokensExchangeContracts: Record<
-      string,
-      Record<number, string>
-    > = {};
-    const bcdNetworkName = BCD_NETWORKS_NAMES.get(chainId as TempleChainId);
-    while (!outOfKeys && bcdNetworkName) {
-      const newKeys = await getBigmapKeys({
-        pointer,
-        network: bcdNetworkName,
-        size: 20,
-        offset: quipuswapTokensIdentifiers.length,
-      });
-      outOfKeys = newKeys.length === 0;
-      quipuswapTokensIdentifiers = [
-        ...quipuswapTokensIdentifiers,
-        ...newKeys.map(({ data: { key: { value, children } } }) => ({
-          address: children ? children[0].value : value,
-          tokenId: children ? Number(children[1].value) : undefined,
-        })),
-      ];
-      Object.assign(
-        quipuswapTokensExchangeContracts,
-        newKeys.reduce(
-          (
-            contractsFragment,
-            {
-              data: {
-                key: { value: plainKey, children },
-                value,
-              },
-            }
-          ) => {
-            if (value) {
-              const address = children ? children[0].value : plainKey;
-              const tokenId = children ? Number(children[1].value) : 0;
-              contractsFragment[address] = {
-                ...contractsFragment[address],
-                [tokenId]: value.value,
-              };
-            }
-            return contractsFragment;
-          },
-          {} as Record<string, Record<number, string>>
-        )
-      );
-    }
 
     return {
-      quipuswap: (await Promise.all(
-        quipuswapTokensIdentifiers.map((id) => getAssetData(id))
-      )) as TempleToken[],
+      ...quipuswapResultFragments.reduce(
+        (acc, resultFragment) => ({
+          quipuswap: [...acc.quipuswap, ...resultFragment.quipuswap],
+          quipuswapTokensExchangeContracts: {
+            ...acc.quipuswapTokensExchangeContracts,
+            ...resultFragment.quipuswapTokensExchangeContracts,
+          },
+        }),
+        { quipuswap: [], quipuswapTokensExchangeContracts: {} }
+      ),
       dexter: dexterTokens as TempleToken[],
-      quipuswapTokensExchangeContracts,
     };
   }, [tezos, getAssetData, chainId]);
 
@@ -500,32 +481,46 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
     { suspense: true }
   );
 
-  const getTokenPrice = useCallback(
+  const getTokenExchangeData = useCallback(
     async (
       token: TempleToken,
       contractAddress: string,
       exchangerType: ExchangerType
     ) => {
-      if (tezUsdPrice === null) {
-        return undefined;
-      }
-      const midPrice = await getTokenMidPrice(
+      const tokenElementaryParts = new BigNumber(10).pow(token.decimals);
+      const { tokenPool, xtzPool } = await getParameters(
         tezos,
         contractAddress,
         exchangerType
       );
-      return mutezToTz(
-        midPrice.multipliedBy(new BigNumber(10).pow(token.decimals))
-      ).multipliedBy(tezUsdPrice);
+      if (tezUsdPrice === null) {
+        return {
+          usdPrice: undefined,
+          maxExchangable: tokenPool.idiv(3).div(tokenElementaryParts),
+        };
+      }
+      if (tokenPool.eq(0) || xtzPool.eq(0)) {
+        return new BigNumber(0);
+      }
+      const midPrice =
+        tokenPool.eq(0) || xtzPool.eq(0)
+          ? new BigNumber(0)
+          : xtzPool.dividedBy(tokenPool);
+      return {
+        usdPrice: mutezToTz(midPrice.multipliedBy(tokenElementaryParts))
+          .multipliedBy(tezUsdPrice)
+          .toNumber(),
+        maxExchangable: tokenPool.idiv(3).div(tokenElementaryParts),
+      };
     },
     [tezos, tezUsdPrice]
   );
 
-  const getTokensPrices = useCallback(async () => {
+  const getExchangeData = useCallback(async () => {
     return {
       dexter: await Promise.all(
         swappableTokens!.dexter.map((token) =>
-          getTokenPrice(
+          getTokenExchangeData(
             token,
             DEXTER_EXCHANGE_CONTRACTS.get(chainId)![token.address][
               token.type === TempleAssetType.FA2 ? token.id : 0
@@ -540,59 +535,54 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
             .quipuswapTokensExchangeContracts[token.address][
             token.type === TempleAssetType.FA2 ? token.id : 0
           ];
-          return getTokenPrice(token, contractAddress, "quipuswap");
+          return getTokenExchangeData(token, contractAddress, "quipuswap");
         })
       ),
     };
-  }, [swappableTokens, getTokenPrice, chainId]);
+  }, [swappableTokens, getTokenExchangeData, chainId]);
 
   const {
-    data: tokensExchangeRates,
-    revalidate: updateTokensPrices,
+    data: tokensExchangeData,
+    revalidate: updateTokensExchangeData,
   } = useRetryableSWR(
     [
-      "swappable-assets-exchange-rates",
+      "swappable-assets-exchange-data",
       network.id,
       !!swappableTokens,
       tezUsdPrice,
     ],
-    getTokensPrices,
+    getExchangeData,
     { suspense: false }
   );
 
   const swappableAssetsWithPrices = useMemo<
-    Record<ExchangerType, TempleAssetWithPrice[]>
+    Record<ExchangerType, TempleAssetWithExchangeData[]>
   >(
-    () => ({
-      dexter: [
-        {
-          ...TEZ_ASSET,
-          usdPrice: tezUsdPrice || undefined,
-        },
-        ...swappableTokens!.dexter.map<TempleAssetWithPrice>(
-          (token, index) => ({
-            ...token,
-            usdPrice: tokensExchangeRates?.dexter[index]?.toNumber(),
-          })
-        ),
-      ],
-      quipuswap: [
-        {
-          ...TEZ_ASSET,
-          usdPrice: tezUsdPrice || undefined,
-        },
-        ...swappableTokens!.quipuswap.map((token, index) => ({
-          ...token,
-          usdPrice: tokensExchangeRates?.quipuswap[index]?.toNumber(),
-        })),
-      ],
-    }),
-    [swappableTokens, tokensExchangeRates, tezUsdPrice]
+    () =>
+      ALL_EXCHANGERS_TYPES.reduce(
+        (resultPart, exchangerType) => ({
+          ...resultPart,
+          [exchangerType]: [
+            {
+              ...TEZ_ASSET,
+              usdPrice: tezUsdPrice || undefined,
+            },
+            ...swappableTokens![exchangerType].map<TempleAssetWithExchangeData>(
+              (token, index) => ({
+                ...token,
+                ...tokensExchangeData?.dexter[index],
+              })
+            ),
+          ],
+        }),
+        { dexter: [], quipuswap: [] }
+      ),
+    [swappableTokens, tokensExchangeData, tezUsdPrice]
   );
 
   return {
     assets: swappableAssetsWithPrices,
-    updateTokensPrices,
+    updateTokensExchangeData,
     quipuswapTokensExchangeContracts:
       swappableTokens?.quipuswapTokensExchangeContracts || {},
   };

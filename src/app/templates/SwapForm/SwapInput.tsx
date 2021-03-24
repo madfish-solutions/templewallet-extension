@@ -27,7 +27,7 @@ import {
   AssetIdentifier,
   getAssetId,
   matchesAsset,
-  TempleAssetWithPrice,
+  TempleAssetWithExchangeData,
 } from "lib/temple/front";
 import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
@@ -43,11 +43,12 @@ type SwapInputProps<
 > = {
   assetInputName: AssetInputName;
   amountInputName: AmountInputName;
-  assets: TempleAssetWithPrice[];
-  defaultAsset?: TempleAssetWithPrice;
+  assets: TempleAssetWithExchangeData[];
+  defaultAsset?: TempleAssetWithExchangeData;
   formContextValues: FormContextValues<FormValues>;
   amountReadOnly?: boolean;
   label: React.ReactNode;
+  max?: BigNumber;
   onAssetChange: (newValue: AssetIdentifier) => void;
   onRefreshClick: () => void;
   withPercentageButtons?: boolean;
@@ -68,6 +69,7 @@ const SwapInput = <
   defaultAsset = assets[0],
   formContextValues,
   label,
+  max,
   onAssetChange,
   onRefreshClick,
   withPercentageButtons,
@@ -186,6 +188,7 @@ const SwapInput = <
             label={label}
             selectedAsset={selectedAsset}
             balance={balance!}
+            max={max}
             searchString={searchString}
             onSearchChange={handleSearchChange}
             onRefreshClick={onRefreshClick}
@@ -253,9 +256,10 @@ type SwapInputHeaderProps = PopperRenderProps &
     | "amountReadOnly"
     | "assetInputName"
     | "label"
+    | "max"
     | "onRefreshClick"
   > & {
-    selectedAsset: TempleAssetWithPrice;
+    selectedAsset: TempleAssetWithExchangeData;
     balance: BigNumber;
     searchString: string;
     onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -271,6 +275,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       selectedAsset,
       balance,
       label,
+      max,
       searchString,
       onRefreshClick,
       onSearchChange,
@@ -291,16 +296,18 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       amountFieldRef.current?.focus();
     }, []);
 
-    const maxAmount = useMemo(
-      () =>
+    const maxAmount = useMemo(() => {
+      const maxByBalance =
         selectedAsset.type === TempleAssetType.TEZ
           ? BigNumber.max(
               balance.minus(mutezToTz(DEXTER_REQUIRED_XTZ_RESERVE)),
               0
             )
-          : balance,
-      [balance, selectedAsset.type]
-    );
+          : balance;
+      return amountReadOnly
+        ? new BigNumber(max ?? Infinity)
+        : BigNumber.min(max ?? Infinity, maxByBalance);
+    }, [balance, selectedAsset.type, max, amountReadOnly]);
 
     const validateAmount = useCallback(
       (v?: number) => {
@@ -308,16 +315,13 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
         if (v === 0) {
           return t("amountMustBePositive");
         }
-        if (amountReadOnly) {
-          return true;
-        }
         const vBN = new BigNumber(v);
         return (
           vBN.isLessThanOrEqualTo(maxAmount) ||
           t("maximalAmount", maxAmount.toFixed())
         );
       },
-      [amountReadOnly, maxAmount]
+      [maxAmount]
     );
 
     return (
@@ -330,14 +334,16 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
             <span className="mr-1">
               <T id="balance" />
             </span>
-            <span
-              className={classNames(
-                "text-sm mr-1 text-gray-700",
-                balance.eq(0) && "text-red-700"
-              )}
-            >
-              {balance.toString()}
-            </span>
+            {balance && (
+              <span
+                className={classNames(
+                  "text-sm mr-1 text-gray-700",
+                  balance.eq(0) && "text-red-700"
+                )}
+              >
+                {balance.toString()}
+              </span>
+            )}
             <span>{selectedAsset.symbol}</span>
           </span>
         </div>
@@ -392,7 +398,6 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                 style={{ padding: 0, borderRadius: 0 }}
                 name={amountInputName}
                 min={0}
-                max={maxAmount.toNumber()}
                 as={
                   <AssetField
                     ref={amountFieldRef}

@@ -78,7 +78,7 @@ const SwapForm: React.FC = () => {
   const {
     assets,
     quipuswapTokensExchangeContracts,
-    updateTokensPrices,
+    updateTokensExchangeData,
   } = useSwappableAssets();
   const tezos = useTezos();
   const chainId = useChainId(true)!;
@@ -113,6 +113,7 @@ const SwapForm: React.FC = () => {
 
   const [operation, setOperation] = useState<WalletOperation>();
   const [error, setError] = useState<Error>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const inputAssets = assets[selectedExchanger];
   const outputAssets = assets[selectedExchanger];
@@ -255,8 +256,7 @@ const SwapForm: React.FC = () => {
     return new BigNumber(outputAssetAmount!)
       .multipliedBy(tokensParts)
       .multipliedBy(100 - tolerancePercentage)
-      .dividedBy(100)
-      .integerValue()
+      .idiv(100)
       .dividedBy(tokensParts);
   }, [outputAssetAmount, selectedOutputAsset.decimals, tolerancePercentage]);
 
@@ -318,9 +318,8 @@ const SwapForm: React.FC = () => {
       selectedInputAsset.decimals
     );
     return new BigNumber(inputAssetAmount)
-      .div(outputAssetAmount)
       .multipliedBy(inputAssetElementaryParts)
-      .integerValue(BigNumber.ROUND_FLOOR)
+      .idiv(outputAssetAmount)
       .dividedBy(inputAssetElementaryParts);
   }, [inputAssetAmount, outputAssetAmount, selectedInputAsset.decimals]);
 
@@ -330,7 +329,12 @@ const SwapForm: React.FC = () => {
       tolerancePercentage,
       inputAssetAmount,
     }: SwapFormValues) => {
+      if (isSubmitting) {
+        return;
+      }
+      setIsSubmitting(true);
       try {
+        setOperation(undefined);
         const op = await swap({
           accountPkh,
           inputAsset: selectedInputAsset,
@@ -345,18 +349,21 @@ const SwapForm: React.FC = () => {
           ),
           exchangerType: exchanger,
           inputAmount: inputAssetAmount,
-          tolerancePercentage,
+          tolerance: tolerancePercentage / 100,
           tezos,
         });
         setError(undefined);
         setOperation(op);
       } catch (e) {
         setError(e);
+      } finally {
+        setIsSubmitting(false);
       }
     },
     [
       tezos,
       accountPkh,
+      isSubmitting,
       getContractAddress,
       selectedInputAsset,
       selectedOutputAsset,
@@ -366,9 +373,65 @@ const SwapForm: React.FC = () => {
   const closeError = useCallback(() => setError(undefined), []);
 
   const handleRefreshClick = useCallback(() => {
-    updateTokensPrices();
+    updateTokensExchangeData();
     updateOutputAssetAmount();
-  }, [updateTokensPrices, updateOutputAssetAmount]);
+  }, [updateTokensExchangeData, updateOutputAssetAmount]);
+
+  const exchangersOptionsProps = useMemo(() => {
+    const unsortedProps = [
+      {
+        name: "exchanger",
+        checked: selectedExchanger === "quipuswap",
+        ref: register({ required: true }),
+        value: "quipuswap" as ExchangerId,
+        logo: (
+          <img
+            alt=""
+            className="w-7 h-auto"
+            src={browser.runtime.getURL(
+              "misc/exchangers-logos/quipuswap-logo.png"
+            )}
+          />
+        ),
+        exchangerName: "Quipuswap",
+        outputEstimation: outputAssetAmounts?.quipuswap,
+        assetSymbol: selectedOutputAsset.symbol,
+        disabled: assets.quipuswap.length < 2,
+      },
+      {
+        name: "exchanger",
+        checked: selectedExchanger === "dexter",
+        ref: register({ required: true }),
+        value: "dexter" as ExchangerId,
+        logo: (
+          <img
+            alt=""
+            className="h-4 w-auto mx-2"
+            src={browser.runtime.getURL(
+              "misc/exchangers-logos/dexter-logo.svg"
+            )}
+          />
+        ),
+        exchangerName: "Dexter",
+        outputEstimation: outputAssetAmounts?.dexter,
+        assetSymbol: selectedOutputAsset.symbol,
+        disabled: assets.dexter.length < 2,
+      },
+    ];
+
+    return unsortedProps.sort(
+      (
+        { outputEstimation: a = new BigNumber(0) },
+        { outputEstimation: b = new BigNumber(0) }
+      ) => b.minus(a).toNumber()
+    );
+  }, [
+    assets,
+    outputAssetAmounts,
+    register,
+    selectedExchanger,
+    selectedOutputAsset,
+  ]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -395,6 +458,7 @@ const SwapForm: React.FC = () => {
         defaultAsset={assets[selectedExchanger][1]}
         formContextValues={formContextValues}
         label={<T id="toAsset" />}
+        max={selectedOutputAsset.maxExchangable}
         onRefreshClick={handleRefreshClick}
         onAssetChange={handleOutputAssetChange}
         assets={outputAssets}
@@ -405,44 +469,9 @@ const SwapForm: React.FC = () => {
         <h2 className="text-gray-900 mb-1 text-xl">
           <T id="through" />
         </h2>
-        <ExchangerOption
-          name="exchanger"
-          checked={selectedExchanger === "quipuswap"}
-          ref={register({ required: true })}
-          value="quipuswap"
-          logo={
-            <img
-              alt=""
-              className="w-7 h-auto"
-              src={browser.runtime.getURL(
-                "misc/exchangers-logos/quipuswap-logo.png"
-              )}
-            />
-          }
-          exchangerName="Quipuswap"
-          outputEstimation={outputAssetAmounts?.quipuswap}
-          assetSymbol={selectedOutputAsset.symbol}
-          disabled={assets.quipuswap.length < 2}
-        />
-        <ExchangerOption
-          name="exchanger"
-          checked={selectedExchanger === "dexter"}
-          ref={register({ required: true })}
-          value="dexter"
-          logo={
-            <img
-              alt=""
-              className="h-4 w-auto mx-2"
-              src={browser.runtime.getURL(
-                "misc/exchangers-logos/dexter-logo.svg"
-              )}
-            />
-          }
-          exchangerName="Dexter"
-          outputEstimation={outputAssetAmounts?.dexter}
-          assetSymbol={selectedOutputAsset.symbol}
-          disabled={assets.dexter.length < 2}
-        />
+        {exchangersOptionsProps.map((props) => (
+          <ExchangerOption key={props.value} {...props} />
+        ))}
       </div>
 
       <table className="w-full text-xs text-gray-500 mb-6 swap-form-table">
@@ -475,6 +504,7 @@ const SwapForm: React.FC = () => {
               <Controller
                 control={control}
                 as={SlippageToleranceInput}
+                error={!!errors.tolerancePercentage}
                 name="tolerancePercentage"
                 rules={{ validate: validateTolerancePercentage }}
               />
@@ -519,6 +549,7 @@ const SwapForm: React.FC = () => {
           background: submitDisabled ? "#c2c2c2" : "#4299e1",
         }}
         disabled={submitDisabled}
+        loading={isSubmitting}
       >
         <T id="swap" />
       </FormSubmitButton>
@@ -592,6 +623,7 @@ const ExchangerOption = forwardRef<HTMLInputElement, ExchangerOptionProps>(
 );
 
 type SlippageToleranceInputProps = {
+  error?: boolean;
   onChange: (newValue?: number) => void;
   name: string;
   value?: number;
@@ -601,7 +633,7 @@ const slippageTolerancePresets = [0.5, 1, 3];
 const SlippageToleranceInput = forwardRef<
   HTMLInputElement,
   SlippageToleranceInputProps
->(({ onChange, name, value }, ref) => {
+>(({ error, onChange, name, value }, ref) => {
   const [customPercentageValue, setCustomPercentageValue] = useState<number>();
 
   const handlePresetClick = useCallback(
@@ -620,7 +652,18 @@ const SlippageToleranceInput = forwardRef<
     [onChange]
   );
 
-  const assetFieldInactive = value && slippageTolerancePresets.includes(value);
+  const assetFieldActive = !value || !slippageTolerancePresets.includes(value);
+
+  const borderClassName = useMemo(() => {
+    switch (true) {
+      case error:
+        return "border-red-600";
+      case assetFieldActive:
+        return "border-blue-600";
+      default:
+        return "border-gray-300";
+    }
+  }, [assetFieldActive, error]);
 
   return (
     <>
@@ -635,12 +678,12 @@ const SlippageToleranceInput = forwardRef<
       <div className="w-10">
         <AssetField
           className={classNames(
-            "rounded-md p-1 border bg-opacity-0 -mb-2",
-            assetFieldInactive ? "border-gray-300" : "border-blue-600"
+            "rounded-md border bg-opacity-0 -mb-2 text-right",
+            borderClassName
           )}
           containerClassName="relative"
           style={{
-            padding: 1,
+            padding: "0.125rem 0.875rem 0.125rem 0.25rem",
             minWidth: "unset",
             fontSize: "0.75rem",
           }}
@@ -652,9 +695,10 @@ const SlippageToleranceInput = forwardRef<
           assetSymbol={
             <span
               className={classNames(
-                "absolute text-xs right-1 top-px pointer-events-none",
-                assetFieldInactive ? "text-gray-600" : "text-gray-700"
+                "absolute text-xs right-1 pointer-events-none",
+                assetFieldActive ? "text-gray-700" : "text-gray-600"
               )}
+              style={{ top: "0.125rem" }}
             >
               %
             </span>
