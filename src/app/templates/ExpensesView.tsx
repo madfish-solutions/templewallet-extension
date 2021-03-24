@@ -29,14 +29,18 @@ type ExpensesViewProps = {
   expenses?: OperationExpenses[];
   rawToSign?: any;
   mainnet?: boolean;
+  totalFeeDisplayed?: boolean;
 };
 
 const ExpensesView: FC<ExpensesViewProps> = ({
   expenses,
   rawToSign,
   mainnet,
+  totalFeeDisplayed,
 }) => {
   const totalFee = useMemo(() => {
+    if (!totalFeeDisplayed) return null;
+
     if (rawToSign) {
       let feeMutez: BigNumber;
       try {
@@ -73,7 +77,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
     }
 
     return null;
-  }, [rawToSign, mainnet]);
+  }, [totalFeeDisplayed, rawToSign, mainnet]);
 
   if (!expenses) {
     return null;
@@ -96,7 +100,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         />
       ))}
 
-      {totalFee && (
+      {totalFeeDisplayed && (
         <>
           <div className="flex-1" />
 
@@ -109,7 +113,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
               "text-sm text-gray-700"
             )}
           >
-            {totalFee}
+            {totalFee ?? <span>Warning! Transaction is likely to fail</span>}
           </div>
         </>
       )}
@@ -241,11 +245,11 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
       </div>
 
       <div className="flex-1 flex-col">
-        <div className="mb-px text-xs text-blue-600 opacity-75">
-          {operationTypeLabel}
-        </div>
-
         <div className="mb-1 flex items-center">
+          <span className="mr-1 text-xs text-blue-600 opacity-75">
+            {operationTypeLabel}
+          </span>
+
           {argumentDisplayProps && (
             <OperationArgumentDisplay {...argumentDisplayProps} />
           )}
