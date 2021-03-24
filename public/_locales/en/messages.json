@@ -1714,5 +1714,8 @@
   },
   "minimumReceived": {
     "message": "Minimum received:"
+  },
+  "inputOutputAssetsCannotBeSame": {
+    "message": "Input and output assets cannot be the same"
   }
 }

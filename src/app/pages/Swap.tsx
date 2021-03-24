@@ -3,8 +3,8 @@ import React from "react";
 import { ReactComponent as SwapIcon } from "app/icons/swap.svg";
 import PageLayout from "app/layouts/PageLayout";
 import SwapForm from "app/templates/SwapForm";
+import { SwappableAssetsProvider } from "app/templates/SwapForm/SwappableAssetsProvider";
 import { t } from "lib/i18n/react";
-import { SwappableAssetsProvider } from "lib/temple/front";
 
 const Send: React.FC = () => (
   <PageLayout

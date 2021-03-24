@@ -11,7 +11,6 @@ import React, {
 import { Modifier } from "@popperjs/core";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
-import { FormContextValues, Controller } from "react-hook-form";
 
 import AssetField from "app/atoms/AssetField";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
@@ -19,207 +18,181 @@ import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import AssetIcon from "app/templates/AssetIcon";
-import { T, t } from "lib/i18n/react";
+import { T } from "lib/i18n/react";
 import {
-  mutezToTz,
   useAccount,
   useBalance,
   AssetIdentifier,
   getAssetId,
   matchesAsset,
   TempleAssetWithExchangeData,
+  idsAreEqual,
 } from "lib/temple/front";
 import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
 
-type FormValuesBase<
-  AssetInputName extends string,
-  AmountInputName extends string
-> = Record<AssetInputName, AssetIdentifier> & Record<AmountInputName, number>;
-type SwapInputProps<
-  AssetInputName extends string,
-  AmountInputName extends string,
-  FormValues extends FormValuesBase<AssetInputName, AmountInputName>
-> = {
-  assetInputName: AssetInputName;
-  amountInputName: AmountInputName;
+export type SwapInputValue = {
+  assetId: AssetIdentifier;
+  amount?: BigNumber;
+};
+
+type SwapInputProps = {
+  className?: string;
+  balance?: BigNumber;
+  error?: string;
+  name: string;
   assets: TempleAssetWithExchangeData[];
   defaultAsset?: TempleAssetWithExchangeData;
-  formContextValues: FormContextValues<FormValues>;
   amountReadOnly?: boolean;
   label: React.ReactNode;
-  max?: BigNumber;
-  onAssetChange: (newValue: AssetIdentifier) => void;
+  onChange?: (newValue: SwapInputValue) => void;
   onRefreshClick: () => void;
+  value?: SwapInputValue;
   withPercentageButtons?: boolean;
-  className?: string;
 };
 
-const DEXTER_REQUIRED_XTZ_RESERVE = 300000;
 const BUTTONS_PERCENTAGES = [25, 50, 75, 100];
 
-const SwapInput = <
-  AssetInputName extends string,
-  AmountInputName extends string,
-  FormValues extends FormValuesBase<AssetInputName, AmountInputName>
->({
-  assetInputName,
-  amountInputName,
-  assets,
-  defaultAsset = assets[0],
-  formContextValues,
-  label,
-  max,
-  onAssetChange,
-  onRefreshClick,
-  withPercentageButtons,
-  className,
-  amountReadOnly,
-}: SwapInputProps<AssetInputName, AmountInputName, FormValues>) => {
-  const { watch, setValue, errors } = formContextValues;
-  const { address: assetAddress, tokenId: assetTokenId } = watch(
-    assetInputName
-  );
-  const selectedAsset = useMemo(
-    () =>
-      assets.find((asset) =>
-        matchesAsset({ address: assetAddress, tokenId: assetTokenId }, asset)
-      ) || defaultAsset,
-    [assetAddress, assetTokenId, assets, defaultAsset]
-  );
-  const { address: trueAssetAddress, tokenId: trueAssetTokenId } = useMemo(
-    () => getAssetId(selectedAsset),
-    [selectedAsset]
-  );
-  useEffect(() => {
-    if (
-      assetAddress !== trueAssetAddress ||
-      assetTokenId !== trueAssetTokenId
-    ) {
-      // @ts-ignore
-      setValue(assetInputName, {
-        address: trueAssetAddress,
-        tokenId: trueAssetTokenId,
-      });
-    }
-  }, [
-    setValue,
-    assetAddress,
-    trueAssetAddress,
-    assetInputName,
-    assetTokenId,
-    trueAssetTokenId,
-  ]);
-
-  const { publicKeyHash: accountPkh } = useAccount();
-  const { data: balance } = useBalance(selectedAsset, accountPkh);
-  const [searchString, setSearchString] = useState("");
-
-  const assetSuggestions = useMemo(() => {
-    const searchRegex = new RegExp(searchString, "i");
-    return assets.filter(({ symbol }) => searchRegex.test(symbol));
-  }, [assets, searchString]);
-
-  const handleSearchChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setSearchString(e.target.value);
-  }, []);
-
-  const handlePercentageClick = useCallback(
-    (percentage: number) => {
-      const maxAmount =
-        selectedAsset.type === TempleAssetType.TEZ
-          ? BigNumber.max(
-              balance?.minus(mutezToTz(DEXTER_REQUIRED_XTZ_RESERVE)) ?? 0,
-              0
-            )
-          : balance ?? new BigNumber(0);
-      const tokenElementaryParts = new BigNumber(10).pow(
-        selectedAsset.decimals
-      );
-      // @ts-ignore
-      setValue(
-        amountInputName,
-        maxAmount
-          .multipliedBy(percentage)
-          .multipliedBy(tokenElementaryParts)
-          .dividedToIntegerBy(100)
-          .dividedBy(tokenElementaryParts)
-      );
-    },
-    [
-      setValue,
-      amountInputName,
+const defaultInputValue: SwapInputValue = { assetId: {} };
+const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
+  (
+    {
+      error,
+      name,
+      assets,
       balance,
-      selectedAsset.type,
-      selectedAsset.decimals,
-    ]
-  );
-
-  const handleSelectedAssetChange = useCallback(
-    (newValue: AssetIdentifier) => {
-      onAssetChange(newValue);
-      setSearchString("");
+      defaultAsset = assets[0],
+      label,
+      onChange,
+      onRefreshClick,
+      withPercentageButtons,
+      className,
+      amountReadOnly,
+      value = defaultInputValue,
     },
-    [onAssetChange]
-  );
+    ref
+  ) => {
+    const { assetId, amount } = value;
+    const selectedAsset = useMemo(
+      () =>
+        assets.find((asset) => matchesAsset(assetId, asset)) || defaultAsset,
+      [assetId, assets, defaultAsset]
+    );
+    const trueAssetId = useMemo(() => getAssetId(selectedAsset), [
+      selectedAsset,
+    ]);
+    useEffect(() => {
+      if (!idsAreEqual(assetId, trueAssetId)) {
+        onChange?.({
+          assetId: trueAssetId,
+          amount,
+        });
+      }
+    }, [amount, assetId, onChange, trueAssetId]);
 
-  return (
-    <div className={classNames("w-full", className)}>
-      <Popper
-        placement="bottom"
-        strategy="fixed"
-        modifiers={[sameWidth]}
-        popup={({ opened, setOpened }) => (
-          <AssetsMenu
-            opened={opened}
-            setOpened={setOpened}
-            onChange={handleSelectedAssetChange}
-            options={assetSuggestions}
-            value={trueAssetAddress}
-          />
-        )}
-      >
-        {({ ref, opened, toggleOpened, setOpened }) => (
-          <SwapInputHeader
-            ref={(ref as unknown) as React.RefObject<HTMLDivElement>}
-            toggleOpened={toggleOpened}
-            opened={opened}
-            setOpened={setOpened}
-            label={label}
-            selectedAsset={selectedAsset}
-            balance={balance!}
-            max={max}
-            searchString={searchString}
-            onSearchChange={handleSearchChange}
-            onRefreshClick={onRefreshClick}
-            amountInputName={amountInputName}
-            assetInputName={assetInputName}
-            // @ts-ignore
-            formContextValues={formContextValues}
-            amountReadOnly={amountReadOnly}
-          />
-        )}
-      </Popper>
-      {errors[amountInputName] && (
-        <div className="mt-1 text-red-700 text-xs">
-          {/* @ts-ignore */}
-          {errors[amountInputName].message}
-        </div>
-      )}
-      {withPercentageButtons && (
-        <div className="w-full flex justify-end mt-1">
-          {BUTTONS_PERCENTAGES.map((percentage) => (
-            <PercentageButton
-              key={percentage}
-              percentage={percentage}
-              onClick={handlePercentageClick}
+    const [searchString, setSearchString] = useState("");
+
+    const assetSuggestions = useMemo(() => {
+      const searchRegex = new RegExp(searchString, "i");
+      return assets.filter(({ symbol }) => searchRegex.test(symbol));
+    }, [assets, searchString]);
+
+    const handleSearchChange = useCallback(
+      (e: ChangeEvent<HTMLInputElement>) => {
+        setSearchString(e.target.value);
+      },
+      []
+    );
+
+    const handleAmountChange = useCallback(
+      (value?: number) => {
+        onChange?.({
+          assetId,
+          amount: value === undefined ? undefined : new BigNumber(value),
+        });
+      },
+      [onChange, assetId]
+    );
+
+    const handlePercentageClick = useCallback(
+      (percentage: number) => {
+        const tokenElementaryParts = new BigNumber(10).pow(
+          selectedAsset.decimals
+        );
+        onChange?.({
+          assetId,
+          amount: (balance ?? new BigNumber(0))
+            .multipliedBy(percentage)
+            .multipliedBy(tokenElementaryParts)
+            .dividedToIntegerBy(100)
+            .dividedBy(tokenElementaryParts),
+        });
+      },
+      [onChange, assetId, balance, selectedAsset.decimals]
+    );
+
+    const handleSelectedAssetChange = useCallback(
+      (newValue: AssetIdentifier) => {
+        onChange?.({
+          assetId: newValue,
+          amount,
+        });
+        setSearchString("");
+      },
+      [onChange, amount]
+    );
+
+    return (
+      <div className={classNames("w-full", className)}>
+        <input className="hidden" name={name} ref={ref} />
+        <Popper
+          placement="bottom"
+          strategy="fixed"
+          modifiers={[sameWidth]}
+          popup={({ opened, setOpened }) => (
+            <AssetsMenu
+              opened={opened}
+              setOpened={setOpened}
+              onChange={handleSelectedAssetChange}
+              options={assetSuggestions}
+              value={trueAssetId}
             />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+          )}
+        >
+          {({ ref, opened, toggleOpened, setOpened }) => (
+            <SwapInputHeader
+              amount={amount}
+              ref={(ref as unknown) as React.RefObject<HTMLDivElement>}
+              toggleOpened={toggleOpened}
+              opened={opened}
+              setOpened={setOpened}
+              label={label}
+              onAmountChange={handleAmountChange}
+              selectedAsset={selectedAsset}
+              balance={balance}
+              searchString={searchString}
+              onSearchChange={handleSearchChange}
+              onRefreshClick={onRefreshClick}
+              amountReadOnly={amountReadOnly}
+            />
+          )}
+        </Popper>
+        {error && <div className="mt-1 text-red-700 text-xs">{error}</div>}
+        {withPercentageButtons && (
+          <div className="w-full flex justify-end mt-1">
+            {BUTTONS_PERCENTAGES.map((percentage) => (
+              <PercentageButton
+                key={percentage}
+                percentage={percentage}
+                onClick={handlePercentageClick}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+);
 
 export default SwapInput;
 
@@ -249,18 +222,11 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
 };
 
 type SwapInputHeaderProps = PopperRenderProps &
-  Pick<
-    SwapInputProps<string, string, FormValuesBase<string, string>>,
-    | "formContextValues"
-    | "amountInputName"
-    | "amountReadOnly"
-    | "assetInputName"
-    | "label"
-    | "max"
-    | "onRefreshClick"
-  > & {
+  Pick<SwapInputProps, "amountReadOnly" | "label" | "onRefreshClick"> & {
+    amount?: BigNumber;
     selectedAsset: TempleAssetWithExchangeData;
-    balance: BigNumber;
+    balance?: BigNumber;
+    onAmountChange: (value?: number) => void;
     searchString: string;
     onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
   };
@@ -268,61 +234,26 @@ type SwapInputHeaderProps = PopperRenderProps &
 const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
   (
     {
-      assetInputName,
-      formContextValues: { control, watch },
+      amount,
       opened,
       toggleOpened,
       selectedAsset,
       balance,
       label,
-      max,
+      onAmountChange,
       searchString,
       onRefreshClick,
       onSearchChange,
-      amountInputName,
       amountReadOnly,
     },
     ref
   ) => {
-    const amount: number | undefined = watch(amountInputName);
     const amountFieldRef = useRef<HTMLInputElement>(null);
 
     const handleAmountFieldFocus = useCallback((evt) => {
       evt.preventDefault();
       amountFieldRef.current?.focus({ preventScroll: true });
     }, []);
-
-    const handleAmountFieldControlFocus = useCallback(() => {
-      amountFieldRef.current?.focus();
-    }, []);
-
-    const maxAmount = useMemo(() => {
-      const maxByBalance =
-        selectedAsset.type === TempleAssetType.TEZ
-          ? BigNumber.max(
-              balance.minus(mutezToTz(DEXTER_REQUIRED_XTZ_RESERVE)),
-              0
-            )
-          : balance;
-      return amountReadOnly
-        ? new BigNumber(max ?? Infinity)
-        : BigNumber.min(max ?? Infinity, maxByBalance);
-    }, [balance, selectedAsset.type, max, amountReadOnly]);
-
-    const validateAmount = useCallback(
-      (v?: number) => {
-        if (v === undefined) return t("required");
-        if (v === 0) {
-          return t("amountMustBePositive");
-        }
-        const vBN = new BigNumber(v);
-        return (
-          vBN.isLessThanOrEqualTo(maxAmount) ||
-          t("maximalAmount", maxAmount.toFixed())
-        );
-      },
-      [maxAmount]
-    );
 
     return (
       <div className="w-full text-gray-700" ref={ref}>
@@ -377,36 +308,24 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
               {selectedAsset.symbol}
             </span>
             <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
-            <Controller
-              control={control}
-              className="hidden"
-              as={AssetTypeInput}
-              name={assetInputName}
-            />
           </div>
           <div className="flex-1 px-2 flex items-center justify-between">
             <button type="button" className="mr-2" onClick={onRefreshClick}>
               <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
             </button>
             <div className="h-full flex-1 flex items-end justify-center flex-col">
-              <Controller
-                control={control}
+              <AssetField
+                value={amount?.toNumber()}
+                ref={amountFieldRef}
+                onFocus={handleAmountFieldFocus}
                 className={classNames(
                   "text-gray-700 text-2xl text-right border-none bg-opacity-0",
                   "pl-0 focus:shadow-none -mb-2"
                 )}
+                onChange={onAmountChange}
                 style={{ padding: 0, borderRadius: 0 }}
-                name={amountInputName}
                 min={0}
-                as={
-                  <AssetField
-                    ref={amountFieldRef}
-                    onFocus={handleAmountFieldFocus}
-                  />
-                }
-                rules={{ validate: validateAmount }}
                 readOnly={amountReadOnly}
-                onFocus={handleAmountFieldControlFocus}
                 assetDecimals={selectedAsset.decimals}
               />
               {amount !== undefined && selectedAsset.usdPrice !== undefined && (
@@ -426,31 +345,12 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
   }
 );
 
-type AssetTypeInputProps = Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "value"
-> & {
-  value?: AssetIdentifier;
-};
-
-const AssetTypeInput = forwardRef<HTMLInputElement, AssetTypeInputProps>(
-  ({ value, ...restProps }, ref) => {
-    return (
-      <input
-        ref={ref}
-        value={`${value?.address ?? "tez"}-${value?.tokenId}`}
-        {...restProps}
-      />
-    );
-  }
-);
-
 type AssetsMenuProps = {
   opened: boolean;
   setOpened: (newValue: boolean) => void;
   onChange: (newValue: AssetIdentifier) => void;
   options: TempleAsset[];
-  value?: string;
+  value: AssetIdentifier;
 };
 
 const AssetsMenu: React.FC<AssetsMenuProps> = ({
@@ -462,7 +362,7 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
 }) => {
   const handleOptionClick = useCallback(
     (newValue: AssetIdentifier) => {
-      if (newValue !== value) {
+      if (!idsAreEqual(newValue, value)) {
         onChange(newValue);
       }
       setOpened(false);
