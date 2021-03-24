@@ -311,6 +311,7 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
                       : undefined
                   }
                   mainnet={mainnet}
+                  totalFeeDisplayed
                 />
               )}
             </>

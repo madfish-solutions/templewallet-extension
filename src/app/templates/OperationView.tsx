@@ -46,6 +46,7 @@ const OperationView: FC<OperationViewProps> = ({
     () => tryParseExpenses(contentToParse, payload.sourcePkh),
     [contentToParse, payload.sourcePkh]
   );
+
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restRaw }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
@@ -70,20 +71,13 @@ const OperationView: FC<OperationViewProps> = ({
       name: t("raw"),
       Icon: CodeAltIcon,
     };
-    const someExpenses =
-      expensesData.reduce(
-        (sum, operationExpenses) => sum + operationExpenses.expenses.length,
-        0
-      ) > 0;
-    const prettyViewFormats = someExpenses
-      ? [
-          {
-            key: "preview",
-            name: t("preview"),
-            Icon: EyeIcon,
-          },
-        ]
-      : [];
+    const prettyViewFormats = [
+      {
+        key: "preview",
+        name: t("preview"),
+        Icon: EyeIcon,
+      },
+    ];
 
     if (payload.type === "confirm_operations") {
       return [
@@ -110,7 +104,7 @@ const OperationView: FC<OperationViewProps> = ({
         Icon: HashIcon,
       },
     ];
-  }, [payload, expensesData]);
+  }, [payload]);
 
   const [spFormat, setSpFormat] = useState(signPayloadFormats[0]);
 
@@ -225,6 +219,7 @@ const OperationView: FC<OperationViewProps> = ({
             expenses={expensesData}
             rawToSign={payload.rawToSign}
             mainnet={mainnet}
+            totalFeeDisplayed
           />
         </div>
       </div>
