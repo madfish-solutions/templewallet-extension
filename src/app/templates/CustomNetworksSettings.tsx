@@ -141,9 +141,9 @@ const CustomNetworksSettings: FC = () => {
 
   const rpcURLIsUnique = useCallback(
     (url: string) =>
-      ![...defaultNetworks, ...customNetworks].some(
-        ({ rpcBaseURL }) => rpcBaseURL === url
-      ),
+      ![...defaultNetworks, ...customNetworks]
+        .filter((n) => !n.hidden)
+        .some(({ rpcBaseURL }) => rpcBaseURL === url),
     [customNetworks, defaultNetworks]
   );
 
