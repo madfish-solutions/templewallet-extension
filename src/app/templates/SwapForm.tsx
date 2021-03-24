@@ -55,7 +55,6 @@ type SwapFormValues = {
   tolerancePercentage: number;
 };
 
-const exchangeFeePercentage = new BigNumber("0.3");
 const maxTolerancePercentage = 30;
 
 const SwapFormWrapper: React.FC = () => {
@@ -499,9 +498,7 @@ const SwapForm: React.FC = () => {
             <td>
               <T id="fee" />:
             </td>
-            <td className="text-right text-gray-600">
-              {exchangeFeePercentage.toString()}%
-            </td>
+            <td className="text-right text-gray-600">0.3%</td>
           </tr>
           <tr>
             <td>

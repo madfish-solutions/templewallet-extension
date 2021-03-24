@@ -4,7 +4,6 @@ import BigNumber from "bignumber.js";
 import {
   batchify,
   loadContract,
-  mutezToTz,
   withTokenApprove,
 } from "lib/temple/front";
 import { TempleAsset, TempleAssetType, TempleChainId } from "lib/temple/types";
@@ -199,7 +198,7 @@ export async function swap({
   );
   const inputIsTz = inputAsset.type === TempleAssetType.TEZ;
   const outputIsTz = outputAsset.type === TempleAssetType.TEZ;
-  const maxMutez = inputIsTz
+  let mutezOutput = inputIsTz
     ? rawInputAssetAmount
     : await getMutezOutput(tezos, rawInputAssetAmount, {
         address: inputContractAddress!,
@@ -210,9 +209,9 @@ export async function swap({
   const tokenToTokenMiddleQuotient = toleranceQuotient.sqrt();
   if (inputAsset.type !== TempleAssetType.TEZ) {
     const exchangeContract = await loadContract(tezos, inputContractAddress!);
-    const mutezOutput = BigNumber.max(
+    mutezOutput = BigNumber.max(
       floor(
-        maxMutez.multipliedBy(
+        mutezOutput.multipliedBy(
           outputIsTz ? toleranceQuotient : tokenToTokenMiddleQuotient
         )
       ),
@@ -251,7 +250,7 @@ export async function swap({
   }
   if (outputAsset.type !== TempleAssetType.TEZ) {
     const exchangeContract = await loadContract(tezos, outputContractAddress!);
-    const maxTokensOutput = await getTokenOutput(tezos, maxMutez, {
+    const maxTokensOutput = await getTokenOutput(tezos, mutezOutput, {
       address: outputContractAddress!,
       type: exchangerType,
     });
@@ -263,14 +262,14 @@ export async function swap({
       exchangerType === "quipuswap"
         ? exchangeContract.methods
             .tezToTokenPayment(tokensOutput.toNumber(), accountPkh)
-            .toTransferParams({ amount: mutezToTz(maxMutez).toNumber() })
+            .toTransferParams({ amount: mutezOutput.toNumber(), mutez: true })
         : exchangeContract.methods
             .xtzToToken(
               accountPkh,
               tokensOutput.toNumber(),
               deadline.toString()
             )
-            .toTransferParams({ amount: mutezToTz(maxMutez).toNumber() }),
+            .toTransferParams({ amount: mutezOutput.toNumber(), mutez: true }),
     ]);
   }
   return transactionsBatch.send();
