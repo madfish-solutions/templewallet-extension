@@ -15,7 +15,7 @@ import {
 export type GetOperationsParams = {
   accountPkh: string;
   tzStatsNetwork: TZStatsNetwork | null;
-  networkId: "mainnet" | "edo2net" | "delphinet" | null;
+  networkId: "mainnet" | "edo2net" | "florencenet" | "delphinet" | null;
   asset: TempleToken;
 };
 
