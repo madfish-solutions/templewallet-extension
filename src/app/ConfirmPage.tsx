@@ -118,6 +118,7 @@ const ConfirmDAppForm: FC = () => {
 
   const chainId = useCustomChainId(payload.networkRpc, true)!;
   const mainnet = chainId === TempleChainId.Mainnet;
+  console.info(payload.networkRpc, mainnet);
 
   const connectedAccount = useMemo(
     () =>

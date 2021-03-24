@@ -60,18 +60,20 @@ const ExpensesView: FC<ExpensesViewProps> = ({
           <span className="font-medium">
             <Money>{fee}</Money> ꜩ
           </span>{" "}
-          {mainnet && (
-            <InUSD volume={fee} roundingMode={BigNumber.ROUND_UP}>
-              {(usdAmount) => (
-                <>
-                  <span className="opacity-75">(</span>
-                  <span className="pr-px">$</span>
-                  {usdAmount}
-                  <span className="opacity-75">)</span>
-                </>
-              )}
-            </InUSD>
-          )}
+          <InUSD
+            volume={fee}
+            roundingMode={BigNumber.ROUND_UP}
+            mainnet={mainnet}
+          >
+            {(usdAmount) => (
+              <>
+                <span className="opacity-75">(</span>
+                <span className="pr-px">$</span>
+                {usdAmount}
+                <span className="opacity-75">)</span>
+              </>
+            )}
+          </InUSD>
         </div>
       );
     }
@@ -338,8 +340,12 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(
           {expense?.asset ? asset?.symbol || "???" : "ꜩ"}
         </div>
 
-        {(!expense?.asset || asset) && mainnet && (
-          <InUSD volume={finalVolume || 0} asset={asset || TEZ_ASSET}>
+        {(!expense?.asset || asset) && (
+          <InUSD
+            volume={finalVolume || 0}
+            asset={asset || TEZ_ASSET}
+            mainnet={mainnet}
+          >
             {(usdVolume) => (
               <div className="text-xs text-gray-500 ml-1">
                 (<span className="mr-px">$</span>

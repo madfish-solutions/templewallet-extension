@@ -1,4 +1,13 @@
-import React, { Dispatch, FC, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import React, {
+  Dispatch,
+  FC,
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
@@ -56,6 +65,7 @@ import {
   loadContract,
   getAssetKey,
   useUSDPrice,
+  useNetwork,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
@@ -113,6 +123,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const tezPrice = useUSDPrice();
 
   const allAccounts = useRelevantAccounts();
+  const network = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
@@ -137,7 +148,9 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
 
   const canToggleUsd =
-    localAsset.type === TempleAssetType.TEZ && tezPrice !== null;
+    network.type === "main" &&
+    localAsset.type === TempleAssetType.TEZ &&
+    tezPrice !== null;
   const prevCanToggleUsd = useRef(canToggleUsd);
 
   /**
