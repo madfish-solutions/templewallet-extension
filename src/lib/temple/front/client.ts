@@ -103,11 +103,14 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     );
   }, [settings]);
   const defaultNetworksWithLambdaContracts = useMemo(() => {
-    return defaultNetworks.map((network) => ({
-      ...network,
-      lambdaContract:
-        network.lambdaContract || settings?.lambdaContracts?.[network.id],
-    }));
+    return defaultNetworks.map((network) =>
+      network.lambdaContract
+        ? network
+        : {
+            ...network,
+            lambdaContract: settings?.lambdaContracts?.[network.id],
+          }
+    );
   }, [settings, defaultNetworks]);
   const networks = useMemo(
     () => [...defaultNetworksWithLambdaContracts, ...customNetworks],
