@@ -329,6 +329,7 @@ const SwapForm: React.FC = () => {
         setError(undefined);
         setOperation(op);
       } catch (e) {
+        console.error(e);
         setError(e);
       } finally {
         setIsSubmitting(false);

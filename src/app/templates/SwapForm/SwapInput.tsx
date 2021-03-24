@@ -304,14 +304,12 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
             onClick={toggleOpened}
           >
             <AssetIcon asset={selectedAsset} size={32} className="mr-2" />
-            <div>
-              <span
-                className="text-gray-700 text-lg mr-2 items-center overflow-hidden block"
-                style={{ textOverflow: "ellipsis", maxWidth: "6rem" }}
-              >
-                {selectedAsset.symbol}
-              </span>
-            </div>
+            <span
+              className="text-gray-700 text-lg mr-2 items-center overflow-hidden block"
+              style={{ textOverflow: "ellipsis", maxWidth: "6rem" }}
+            >
+              {selectedAsset.symbol}
+            </span>
             <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
           </div>
           <div className="flex-1 px-2 flex items-center justify-between">

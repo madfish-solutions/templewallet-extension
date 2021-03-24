@@ -138,7 +138,7 @@ export async function withTokenApprove(
     ];
   }
 
-  const approveParams = getFA12ApproveParams(tokenContract, tokenAddress, value.toNumber());
+  const approveParams = getFA12ApproveParams(tokenContract, to, value.toNumber());
   let resetApprove = false;
   try {
     await tezos.estimate.batch([approveParams]);
@@ -147,7 +147,7 @@ export async function withTokenApprove(
   }
 
   return resetApprove
-    ? [getFA12ApproveParams(tokenContract, tokenAddress, 0), approveParams, ...transfers]
+    ? [getFA12ApproveParams(tokenContract, to, 0), approveParams, ...transfers]
     : [approveParams, ...transfers];
 }
 
