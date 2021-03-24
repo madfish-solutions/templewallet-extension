@@ -22,9 +22,14 @@ import {
 type OperationViewProps = {
   payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
   networkRpc?: string;
+  mainnet?: boolean;
 };
 
-const OperationView: FC<OperationViewProps> = ({ payload, networkRpc }) => {
+const OperationView: FC<OperationViewProps> = ({
+  payload,
+  networkRpc,
+  mainnet = false,
+}) => {
   const contentToParse = useMemo(() => {
     switch (payload.type) {
       case "confirm_operations":
@@ -41,6 +46,7 @@ const OperationView: FC<OperationViewProps> = ({ payload, networkRpc }) => {
     () => tryParseExpenses(contentToParse, payload.sourcePkh),
     [contentToParse, payload.sourcePkh]
   );
+
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restRaw }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
@@ -65,20 +71,13 @@ const OperationView: FC<OperationViewProps> = ({ payload, networkRpc }) => {
       name: t("raw"),
       Icon: CodeAltIcon,
     };
-    const someExpenses =
-      expensesData.reduce(
-        (sum, operationExpenses) => sum + operationExpenses.expenses.length,
-        0
-      ) > 0;
-    const prettyViewFormats = someExpenses
-      ? [
-          {
-            key: "preview",
-            name: t("preview"),
-            Icon: EyeIcon,
-          },
-        ]
-      : [];
+    const prettyViewFormats = [
+      {
+        key: "preview",
+        name: t("preview"),
+        Icon: EyeIcon,
+      },
+    ];
 
     if (payload.type === "confirm_operations") {
       return [
@@ -105,7 +104,7 @@ const OperationView: FC<OperationViewProps> = ({ payload, networkRpc }) => {
         Icon: HashIcon,
       },
     ];
-  }, [payload, expensesData]);
+  }, [payload]);
 
   const [spFormat, setSpFormat] = useState(signPayloadFormats[0]);
 
@@ -216,7 +215,12 @@ const OperationView: FC<OperationViewProps> = ({ payload, networkRpc }) => {
         />
 
         <div className={classNames(spFormat.key !== "preview" && "hidden")}>
-          <ExpensesView expenses={expensesData} />
+          <ExpensesView
+            expenses={expensesData}
+            rawToSign={payload.rawToSign}
+            mainnet={mainnet}
+            totalFeeDisplayed
+          />
         </div>
       </div>
     );
