@@ -60,7 +60,9 @@ const AddUnknownTokens: FC = () => {
               isFA12Token = true;
             } catch {}
 
-            const positiveBalance = new BigNumber(token.balance).isPositive();
+            const positiveBalance = new BigNumber(token.balance).isGreaterThan(
+              0
+            );
             const baseTokenProps = {
               address: token.contract,
               decimals: meta.decimals,
