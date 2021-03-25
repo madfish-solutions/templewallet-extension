@@ -1,4 +1,13 @@
-import React, { Dispatch, FC, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import React, {
+  Dispatch,
+  FC,
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
@@ -58,6 +67,7 @@ import {
   useTezos,
   useTezosDomainsClient,
   useUSDPrice,
+  useNetwork,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
@@ -119,6 +129,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const tezPrice = useUSDPrice();
 
   const allAccounts = useRelevantAccounts();
+  const network = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
@@ -145,7 +156,9 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
 
   const canToggleUsd =
-    localAsset.type === TempleAssetType.TEZ && tezPrice !== null;
+    network.type === "main" &&
+    localAsset.type === TempleAssetType.TEZ &&
+    tezPrice !== null;
   const prevCanToggleUsd = useRef(canToggleUsd);
 
   /**
@@ -693,6 +706,96 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         </div>
       )}
 
+      <Controller
+        name="amount"
+        as={
+          <AssetField ref={amountFieldRef} onFocus={handleAmountFieldFocus} />
+        }
+        control={control}
+        rules={{
+          validate: validateAmount,
+        }}
+        onChange={([v]) => v}
+        onFocus={() => amountFieldRef.current?.focus()}
+        id="send-amount"
+        assetSymbol={
+          canToggleUsd ? (
+            <button
+              type="button"
+              onClick={handleUsdToggle}
+              className={classNames(
+                "px-1 rounded-md",
+                "flex items-center",
+                "font-light",
+                "hover:bg-black hover:bg-opacity-5",
+                "trasition ease-in-out duration-200",
+                "cursor-pointer pointer-events-auto"
+              )}
+            >
+              {shouldUseUsd ? "USD" : localAsset.symbol}
+              <div className="ml-1 h-4 flex flex-col justify-between">
+                <ChevronUpIcon className="h-2 w-auto stroke-current stroke-2" />
+                <ChevronDownIcon className="h-2 w-auto stroke-current stroke-2" />
+              </div>
+            </button>
+          ) : (
+            localAsset.symbol
+          )
+        }
+        assetDecimals={shouldUseUsd ? 2 : localAsset.decimals}
+        label={t("amount")}
+        labelDescription={
+          restFormDisplayed &&
+          maxAmount && (
+            <>
+              <T id="availableToSend" />{" "}
+              <button
+                type="button"
+                className={classNames("underline")}
+                onClick={handleSetMaxAmount}
+              >
+                {shouldUseUsd ? <span className="pr-px">$</span> : null}
+                {maxAmount.toFixed()}
+              </button>
+              {amountValue && localAsset.type === TempleAssetType.TEZ ? (
+                <>
+                  <br />
+                  {shouldUseUsd ? (
+                    <div className="mt-1 -mb-3">
+                      ≈{" "}
+                      <span className="font-normal text-gray-700">
+                        {toTEZAmount(amountValue)}
+                      </span>{" "}
+                      <T id="inXTZ" />
+                    </div>
+                  ) : (
+                    <InUSD
+                      volume={amountValue}
+                      roundingMode={BigNumber.ROUND_FLOOR}
+                    >
+                      {(usdAmount) => (
+                        <div className="mt-1 -mb-3">
+                          ≈{" "}
+                          <span className="font-normal text-gray-700">
+                            <span className="pr-px">$</span>
+                            {usdAmount}
+                          </span>{" "}
+                          <T id="inUSD" />
+                        </div>
+                      )}
+                    </InUSD>
+                  )}
+                </>
+              ) : null}
+            </>
+          )
+        }
+        placeholder={t("amountPlaceholder")}
+        errorCaption={restFormDisplayed && errors.amount?.message}
+        containerClassName="mb-4"
+        autoFocus={Boolean(maxAmount)}
+      />
+
       {estimateFallbackDisplayed ? (
         <SpinnerSection />
       ) : restFormDisplayed ? (
@@ -722,98 +825,6 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             }
           })()}
 
-          <Controller
-            name="amount"
-            as={
-              <AssetField
-                ref={amountFieldRef}
-                onFocus={handleAmountFieldFocus}
-              />
-            }
-            control={control}
-            rules={{
-              validate: validateAmount,
-            }}
-            onChange={([v]) => v}
-            onFocus={() => amountFieldRef.current?.focus()}
-            id="send-amount"
-            assetSymbol={
-              canToggleUsd ? (
-                <button
-                  type="button"
-                  onClick={handleUsdToggle}
-                  className={classNames(
-                    "px-1 rounded-md",
-                    "flex items-center",
-                    "font-light",
-                    "hover:bg-black hover:bg-opacity-5",
-                    "trasition ease-in-out duration-200",
-                    "cursor-pointer pointer-events-auto"
-                  )}
-                >
-                  {shouldUseUsd ? "USD" : localAsset.symbol}
-                  <div className="ml-1 h-4 flex flex-col justify-between">
-                    <ChevronUpIcon className="h-2 w-auto stroke-current stroke-2" />
-                    <ChevronDownIcon className="h-2 w-auto stroke-current stroke-2" />
-                  </div>
-                </button>
-              ) : (
-                localAsset.symbol
-              )
-            }
-            assetDecimals={shouldUseUsd ? 2 : localAsset.decimals}
-            label={t("amount")}
-            labelDescription={
-              maxAmount && (
-                <>
-                  <T id="availableToSend" />{" "}
-                  <button
-                    type="button"
-                    className={classNames("underline")}
-                    onClick={handleSetMaxAmount}
-                  >
-                    {shouldUseUsd ? <span className="pr-px">$</span> : null}
-                    {maxAmount.toFixed()}
-                  </button>
-                  {amountValue && localAsset.type === TempleAssetType.TEZ ? (
-                    <>
-                      <br />
-                      {shouldUseUsd ? (
-                        <div className="mt-1 -mb-3">
-                          ≈{" "}
-                          <span className="font-normal text-gray-700">
-                            {toTEZAmount(amountValue)}
-                          </span>{" "}
-                          <T id="inXTZ" />
-                        </div>
-                      ) : (
-                        <InUSD
-                          volume={amountValue}
-                          roundingMode={BigNumber.ROUND_FLOOR}
-                        >
-                          {(usdAmount) => (
-                            <div className="mt-1 -mb-3">
-                              ≈{" "}
-                              <span className="font-normal text-gray-700">
-                                <span className="pr-px">$</span>
-                                {usdAmount}
-                              </span>{" "}
-                              <T id="inUSD" />
-                            </div>
-                          )}
-                        </InUSD>
-                      )}
-                    </>
-                  ) : null}
-                </>
-              )
-            }
-            placeholder={t("amountPlaceholder")}
-            errorCaption={errors.amount?.message}
-            containerClassName="mb-4"
-            autoFocus={Boolean(maxAmount)}
-          />
-
           <AdditionalFeeInput
             name="fee"
             control={control}
@@ -837,7 +848,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         </>
       ) : (
         allAccounts.length > 1 && (
-          <div className={classNames("my-6", "flex flex-col")}>
+          <div className={classNames("mt-8 mb-6", "flex flex-col")}>
             <h2
               className={classNames("mb-4", "leading-tight", "flex flex-col")}
             >
