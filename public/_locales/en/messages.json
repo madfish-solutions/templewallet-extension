@@ -1717,5 +1717,13 @@
   },
   "inputOutputAssetsCannotBeSame": {
     "message": "Input and output assets cannot be the same"
+  },
+  "amountMustBeReservedForNetworkFees": {
+    "message": "$amount$ TEZ must be reserved to pay network fees",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
   }
 }

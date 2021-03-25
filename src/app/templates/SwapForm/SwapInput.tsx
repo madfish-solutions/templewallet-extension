@@ -39,6 +39,7 @@ export type SwapInputValue = {
 type SwapInputProps = {
   className?: string;
   balance?: BigNumber;
+  max?: BigNumber;
   error?: string;
   name: string;
   assets: TempleAssetWithExchangeData[];
@@ -63,6 +64,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       balance,
       defaultAsset = assets[0],
       label,
+      max = balance,
       onChange,
       onRefreshClick,
       withPercentageButtons,
@@ -121,14 +123,14 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
         );
         onChange?.({
           assetId,
-          amount: (balance ?? new BigNumber(0))
+          amount: (max ?? new BigNumber(0))
             .multipliedBy(percentage)
             .multipliedBy(tokenElementaryParts)
             .dividedToIntegerBy(100)
             .dividedBy(tokenElementaryParts),
         });
       },
-      [onChange, assetId, balance, selectedAsset.decimals]
+      [onChange, assetId, max, selectedAsset.decimals]
     );
 
     const handleSelectedAssetChange = useCallback(

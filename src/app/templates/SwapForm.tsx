@@ -73,6 +73,8 @@ const SwapFormWrapper: React.FC = () => {
 
 export default SwapFormWrapper;
 
+const EXCHANGE_XTZ_RESERVE = new BigNumber("0.3");
+
 const SwapForm: React.FC = () => {
   const {
     assets,
@@ -364,6 +366,16 @@ const SwapForm: React.FC = () => {
       const balance = idsAreEqual(assetId, inputAssetId)
         ? inputAssetBalance ?? new BigNumber(0)
         : await fetchBalance(tezos, matchingAsset, accountPkh);
+      if (
+        !inputAssetId.address &&
+        amount.lte(balance) &&
+        balance.minus(amount).lt(EXCHANGE_XTZ_RESERVE)
+      ) {
+        return t(
+          "amountMustBeReservedForNetworkFees",
+          EXCHANGE_XTZ_RESERVE.toString()
+        );
+      }
       return (
         amount.isLessThanOrEqualTo(balance) ||
         t("maximalAmount", balance.toFixed())
@@ -446,6 +458,13 @@ const SwapForm: React.FC = () => {
     );
   }, [assets, outputAssetAmounts, register, selectedExchanger, outputAsset]);
 
+  const maxInputAmount = useMemo(() => {
+    if (inputAsset.type === TempleAssetType.TEZ) {
+      return inputAssetBalance?.minus(EXCHANGE_XTZ_RESERVE);
+    }
+    return inputAssetBalance;
+  }, [inputAsset, inputAssetBalance]);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Controller
@@ -456,6 +475,7 @@ const SwapForm: React.FC = () => {
         balance={inputAssetBalance}
         // @ts-ignore
         error={errors.input?.message}
+        max={maxInputAmount}
         assets={inputAssets}
         label={<T id="from" />}
         onRefreshClick={handleRefreshClick}
