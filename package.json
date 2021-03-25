@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "1.5.4",
+  "version": "1.5.6",
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack --watch --info-verbosity none --display minimal --hide-modules",
@@ -9,7 +9,12 @@
     "build:chrome": "cross-env TARGET_BROWSER=chrome run-s build",
     "build:firefox": "cross-env TARGET_BROWSER=firefox run-s build",
     "build:opera": "cross-env TARGET_BROWSER=opera run-s build",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "ts": "tsc --pretty",
+    "lint": "eslint src",
+    "clear:lint": "rimraf node_modules/.cache/eslint-loader",
+    "ci": "yarn ts && yarn lint && yarn test:coverage"
   },
   "dependencies": {
     "@babel/core": "7.11.6",
@@ -65,10 +70,12 @@
     "date-fns": "2.15.0",
     "debounce-promise": "3.1.2",
     "dotenv": "8.2.0",
+    "dotenv-expand": "5.1.0",
     "ed25519-hd-key": "1.1.2",
     "effector": "21.2.0",
     "eslint": "7.19.0",
     "eslint-config-react-app": "6.0.0",
+    "eslint-import-resolver-typescript": "2.4.0",
     "eslint-loader": "4.0.2",
     "eslint-plugin-flowtype": "5.2.0",
     "eslint-plugin-import": "2.22.1",
@@ -99,6 +106,7 @@
     "react-qr-svg": "2.2.2",
     "react-transition-group": "4.4.1",
     "regexparam": "1.3.0",
+    "rimraf": "3.0.2",
     "swr": "0.2.2",
     "tailwindcss": "1.6.2",
     "terser-webpack-plugin": "4.0.0",
@@ -122,6 +130,7 @@
     "react-json-view/**/node-fetch": "2.6.1",
     "idna-uts46-hx": "3.3.1",
     "ini": "1.3.6",
-    "immer": "8.0.1"
+    "immer": "8.0.1",
+    "elliptic": "6.5.4"
   }
 }

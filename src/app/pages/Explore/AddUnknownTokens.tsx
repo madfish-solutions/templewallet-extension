@@ -1,5 +1,8 @@
-import * as React from "react";
+import { FC, useCallback, useEffect, useMemo, useRef } from "react";
+
 import BigNumber from "bignumber.js";
+
+import { BCD_NETWORKS_NAMES } from "app/defaults";
 import { BcdAccountToken, getAccount } from "lib/better-call-dev";
 import { sanitizeImgUri } from "lib/image-uri";
 import {
@@ -13,14 +16,13 @@ import {
   fetchTokenMetadata,
 } from "lib/temple/front";
 import { TempleAssetType, TempleToken } from "lib/temple/types";
-import { BCD_NETWORKS_NAMES } from "app/defaults";
 
-const AddUnknownTokens: React.FC = () => {
+const AddUnknownTokens: FC = () => {
   const { addToken, allTokens } = useTokens();
   const { publicKeyHash: accountPkh } = useAccount();
   const tezos = useTezos();
   const chainId = useChainId();
-  const networkId = React.useMemo(
+  const networkId = useMemo(
     () =>
       (isKnownChainId(chainId!)
         ? BCD_NETWORKS_NAMES.get(chainId)
@@ -28,7 +30,7 @@ const AddUnknownTokens: React.FC = () => {
     [chainId]
   );
 
-  const syncTokens = React.useCallback(async () => {
+  const syncTokens = useCallback(async () => {
     if (!networkId) {
       return;
     }
@@ -58,7 +60,9 @@ const AddUnknownTokens: React.FC = () => {
               isFA12Token = true;
             } catch {}
 
-            const positiveBalance = new BigNumber(token.balance).isPositive();
+            const positiveBalance = new BigNumber(token.balance).isGreaterThan(
+              0
+            );
             const baseTokenProps = {
               address: token.contract,
               decimals: meta.decimals,
@@ -89,12 +93,12 @@ const AddUnknownTokens: React.FC = () => {
     } catch {}
   }, [accountPkh, networkId, addToken, allTokens, tezos]);
 
-  const syncTokensRef = React.useRef(syncTokens);
-  React.useEffect(() => {
+  const syncTokensRef = useRef(syncTokens);
+  useEffect(() => {
     syncTokensRef.current = syncTokens;
   }, [syncTokens]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!networkId) {
       return;
     }

@@ -1,0 +1,52 @@
+name: Code quality
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+env:
+  TEMPLE_WALLET_LEDGER_BRIDGE_URL: ${{ secrets.TEMPLE_WALLET_LEDGER_BRIDGE_URL }}
+  TEMPLE_WALLET_LOGO_URL: ${{ secrets.TEMPLE_WALLET_LOGO_URL }}
+  TEMPLE_WALLET_LV_ACCOUNT_PKH: ${{ secrets.TEMPLE_WALLET_LV_ACCOUNT_PKH }}
+  TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY: ${{ secrets.TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY }}
+
+jobs:
+  code-quality:
+    name: Checks if ts, lint, unit tests & build work
+    runs-on: ubuntu-latest
+    environment: develop-environment
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Use Node 14.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - run: yarn install
+
+      - run: yarn ci
+
+      - run: yarn build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: chrome
+          path: dist/chrome.zip
+          if-no-files-found: error
+          retention-days: 7

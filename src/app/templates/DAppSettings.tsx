@@ -1,20 +1,22 @@
-import * as React from "react";
+import React, { ComponentProps, FC, useCallback, useMemo, useRef, useState } from "react";
+
 import classNames from "clsx";
+
+import FormCheckbox from "app/atoms/FormCheckbox";
+import Name from "app/atoms/Name";
+import { ReactComponent as CloseIcon } from "app/icons/close.svg";
+import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import DAppLogo from "app/templates/DAppLogo";
+import HashChip from "app/templates/HashChip";
+import { T, t } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   useStorage,
   TempleSharedStorageKey,
   useTempleClient,
 } from "lib/temple/front";
 import { TempleDAppSession, TempleDAppSessions } from "lib/temple/types";
-import { T, t } from "lib/i18n/react";
 import { useConfirm } from "lib/ui/dialog";
-import { useRetryableSWR } from "lib/swr";
-import DAppLogo from "app/templates/DAppLogo";
-import FormCheckbox from "app/atoms/FormCheckbox";
-import { ReactComponent as CloseIcon } from "app/icons/close.svg";
-import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
-import HashChip from "app/templates/HashChip";
-import Name from "app/atoms/Name";
 
 type DAppEntry = [string, TempleDAppSession];
 type DAppActions = {
@@ -23,7 +25,7 @@ type DAppActions = {
 
 const getDAppKey = (entry: DAppEntry) => entry[0];
 
-const DAppSettings: React.FC = () => {
+const DAppSettings: FC = () => {
   const { getAllDAppSessions, removeDAppSession } = useTempleClient();
   const confirm = useConfirm();
 
@@ -44,10 +46,10 @@ const DAppSettings: React.FC = () => {
     true
   );
 
-  const changingRef = React.useRef(false);
-  const [error, setError] = React.useState<any>(null);
+  const changingRef = useRef(false);
+  const [error, setError] = useState<any>(null);
 
-  const handleChange = React.useCallback(
+  const handleChange = useCallback(
     async (evt) => {
       if (changingRef.current) return;
       changingRef.current = true;
@@ -64,7 +66,7 @@ const DAppSettings: React.FC = () => {
     [setError, setDAppEnabled]
   );
 
-  const handleRemoveClick = React.useCallback(
+  const handleRemoveClick = useCallback(
     async (origin: string) => {
       if (
         await confirm({
@@ -79,7 +81,7 @@ const DAppSettings: React.FC = () => {
     [removeDAppSession, revalidate, confirm]
   );
 
-  const dAppEntries = React.useMemo(() => Object.entries(dAppSessions), [
+  const dAppEntries = useMemo(() => Object.entries(dAppSessions), [
     dAppSessions,
   ]);
 
@@ -158,7 +160,7 @@ const DAppSettings: React.FC = () => {
 
 export default DAppSettings;
 
-const DAppIcon: React.FC<OptionRenderProps<DAppEntry, string, DAppActions>> = (
+const DAppIcon: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = (
   props
 ) => (
   <DAppLogo
@@ -169,7 +171,7 @@ const DAppIcon: React.FC<OptionRenderProps<DAppEntry, string, DAppActions>> = (
   />
 );
 
-const DAppDescription: React.FC<
+const DAppDescription: FC<
   OptionRenderProps<DAppEntry, string, DAppActions>
 > = (props) => {
   const {
@@ -178,7 +180,7 @@ const DAppDescription: React.FC<
   } = props;
   const { remove: onRemove } = actions!;
 
-  const handleRemoveClick = React.useCallback(
+  const handleRemoveClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.stopPropagation();
       onRemove(origin);
@@ -186,7 +188,7 @@ const DAppDescription: React.FC<
     [onRemove, origin]
   );
 
-  const dAppAttributes = React.useMemo(
+  const dAppAttributes = useMemo(
     () => [
       {
         key: "originLabel",
@@ -194,7 +196,7 @@ const DAppDescription: React.FC<
         Component: ({
           className,
           ...rest
-        }: React.ComponentProps<typeof Name>) => (
+        }: ComponentProps<typeof Name>) => (
           <a
             href={origin}
             target="_blank"

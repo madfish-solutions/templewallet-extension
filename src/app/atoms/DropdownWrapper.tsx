@@ -1,13 +1,14 @@
-import * as React from "react";
+import React, { FC, HTMLAttributes } from "react";
+
 import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
 
-type DropdownWrapperProps = React.HTMLAttributes<HTMLDivElement> & {
+type DropdownWrapperProps = HTMLAttributes<HTMLDivElement> & {
   opened: boolean;
   hiddenOverflow?: boolean;
 };
 
-const DropdownWrapper: React.FC<DropdownWrapperProps> = ({
+const DropdownWrapper: FC<DropdownWrapperProps> = ({
   opened,
   hiddenOverflow = true,
   className,

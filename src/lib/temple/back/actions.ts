@@ -1,22 +1,25 @@
-import { browser, Runtime } from "webextension-polyfill-ts";
-import { TezosOperationError } from "@taquito/taquito";
 import { HttpResponseError } from '@taquito/http-utils';
+import { TezosOperationError } from "@taquito/taquito";
 import {
   TempleDAppMessageType,
   TempleDAppErrorType,
   TempleDAppRequest,
   TempleDAppResponse,
 } from "@temple-wallet/dapp/dist/types";
+import { browser, Runtime } from "webextension-polyfill-ts";
+
 import {
-  TempleState,
-  TempleMessageType,
-  TempleRequest,
-  TempleSettings,
-  TempleSharedStorageKey,
-} from "lib/temple/types";
-import { loadChainId } from "lib/temple/helpers";
+  getCurrentPermission,
+  requestPermission,
+  requestOperation,
+  requestSign,
+  requestBroadcast,
+  getAllDApps,
+  removeDApp,
+} from "lib/temple/back/dapp";
 import { intercom } from "lib/temple/back/defaults";
 import { dryRunOpParams } from "lib/temple/back/dryrun";
+import * as PndOps from "lib/temple/back/pndops";
 import {
   toFront,
   store,
@@ -29,18 +32,16 @@ import {
   withUnlocked,
 } from "lib/temple/back/store";
 import { Vault } from "lib/temple/back/vault";
-import {
-  getCurrentPermission,
-  requestPermission,
-  requestOperation,
-  requestSign,
-  requestBroadcast,
-  getAllDApps,
-  removeDApp,
-} from "lib/temple/back/dapp";
-import * as PndOps from "lib/temple/back/pndops";
 import * as Beacon from "lib/temple/beacon";
 import { getBeaconErrorType } from "lib/temple/front";
+import { loadChainId } from "lib/temple/helpers";
+import {
+  TempleState,
+  TempleMessageType,
+  TempleRequest,
+  TempleSettings,
+  TempleSharedStorageKey,
+} from "lib/temple/types";
 
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;

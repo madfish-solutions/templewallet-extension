@@ -1,8 +1,10 @@
-import * as React from "react";
+import { FC } from "react";
+
 import useSWR from "swr";
+
 import { onInited } from "lib/i18n";
 
-const AwaitI18N: React.FC = () => {
+const AwaitI18N: FC = () => {
   useSWR("i18n", awaitI18n, {
     suspense: true,
     shouldRetryOnError: false,

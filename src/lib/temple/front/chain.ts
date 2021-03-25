@@ -1,7 +1,9 @@
-import * as React from "react";
+import { useCallback, useEffect, useRef } from "react";
+
+import { Subscription } from "@taquito/taquito";
 import constate from "constate";
 import { trigger } from "swr";
-import { Subscription } from "@taquito/taquito";
+
 import {
   useTezos,
   useRelevantAccounts,
@@ -19,7 +21,7 @@ function useNewBlockTriggers() {
   const allAccounts = useRelevantAccounts();
   const allAssetsRef = useAllAssetsRef();
 
-  const triggerNewBlock = React.useCallback(() => {
+  const triggerNewBlock = useCallback(() => {
     for (const acc of allAccounts) {
       for (const asset of allAssetsRef.current) {
         trigger(getBalanceSWRKey(tezos, asset, acc.publicKeyHash), true);
@@ -30,7 +32,7 @@ function useNewBlockTriggers() {
 
   useOnBlock(triggerNewBlock);
 
-  const confirmOperationAndTriggerNewBlock = React.useCallback<
+  const confirmOperationAndTriggerNewBlock = useCallback<
     typeof confirmOperation
   >(
     async (...args) => {
@@ -49,9 +51,9 @@ function useNewBlockTriggers() {
 
 export function useOnBlock(callback: (blockHash: string) => void) {
   const tezos = useTezos();
-  const blockHashRef = React.useRef<string>();
+  const blockHashRef = useRef<string>();
 
-  React.useEffect(() => {
+  useEffect(() => {
     let sub: Subscription<string>;
     spawnSub();
     return () => sub.close();

@@ -11,6 +11,9 @@
 # dest
 /dist
 
+# Env
+.env.*
+
 # misc
 .DS_Store
 /.idea

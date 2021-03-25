@@ -1,20 +1,22 @@
-import * as React from "react";
+import React, { FC, useMemo } from "react";
+
 import classNames from "clsx";
-import { useAllNetworks } from "lib/temple/front";
-import { T } from "lib/i18n/react";
+
 import Name from "app/atoms/Name";
+import { T } from "lib/i18n/react";
+import { useAllNetworks } from "lib/temple/front";
 
 type NetworkBannerProps = {
   rpc: string;
   narrow?: boolean;
 };
 
-const NetworkBanner: React.FC<NetworkBannerProps> = ({
+const NetworkBanner: FC<NetworkBannerProps> = ({
   rpc,
   narrow = false,
 }) => {
   const allNetworks = useAllNetworks();
-  const knownNetwork = React.useMemo(
+  const knownNetwork = useMemo(
     () => allNetworks.find((n) => n.rpcBaseURL === rpc),
     [allNetworks, rpc]
   );

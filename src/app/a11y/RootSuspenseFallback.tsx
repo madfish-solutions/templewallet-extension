@@ -1,15 +1,17 @@
-import * as React from "react";
+import React, { FC, useEffect } from "react";
+
 import useForceUpdate from "use-force-update";
+
 import Spinner from "app/atoms/Spinner";
 
 const DELAY = 1_000;
 
 let startedAt: number;
 
-const RootSuspenseFallback: React.FC = () => {
+const RootSuspenseFallback: FC = () => {
   const forceUpdate = useForceUpdate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!startedAt) {
       startedAt = Date.now();
     }

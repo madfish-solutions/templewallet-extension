@@ -1,10 +1,10 @@
-import * as Router from "lib/woozie/router";
 import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 import {
   To,
   createLocationState,
   createLocationUpdates,
 } from "lib/woozie/location";
+import * as Router from "lib/woozie/router";
 
 export * from "lib/woozie/config";
 export * from "lib/woozie/history";

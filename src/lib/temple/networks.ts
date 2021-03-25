@@ -1,5 +1,5 @@
-import { TempleNetwork } from "lib/temple/types";
 import { getMessage } from "lib/i18n";
+import { TempleNetwork } from "lib/temple/types";
 
 export const NETWORKS: TempleNetwork[] = [
   {
@@ -21,6 +21,16 @@ export const NETWORKS: TempleNetwork[] = [
     type: "test",
     rpcBaseURL: "https://edonet.smartpy.io",
     color: "#FBBF24",
+    disabled: false,
+  },
+  {
+    id: "florencenet",
+    name: "Florence Testnet",
+    description: "Florence testnet",
+    lambdaContract: "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX",
+    type: "test",
+    rpcBaseURL: "https://florencenet.smartpy.io",
+    color: "#FFD88A",
     disabled: false,
   },
   {

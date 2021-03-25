@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+
 import { TempleChainId } from "lib/temple/types";
 import {
   allInt32ParameterKeys,
@@ -11,7 +12,8 @@ import {
 
 const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, "https://api.tzkt.io/v1"],
-  [TempleChainId.Edo2net, "https://api.edo2net.tzkt.io/"],
+  [TempleChainId.Edo2net, "https://api.edo2net.tzkt.io/v1"],
+  [TempleChainId.Florencenet, "https://api.florencenet.tzkt.io/v1"],
   [TempleChainId.Delphinet, "https://api.delphinet.tzkt.io/v1"],
   [TempleChainId.Carthagenet, "https://api.carthagenet.tzkt.io/v1"],
 ]);
@@ -19,6 +21,7 @@ const TZKT_API_BASE_URLS = new Map([
 export const TZKT_BASE_URLS = new Map([
   [TempleChainId.Mainnet, "https://tzkt.io"],
   [TempleChainId.Edo2net, "https://edo2net.tzkt.io"],
+  [TempleChainId.Florencenet, "https://florencenet.tzkt.io"],
   [TempleChainId.Delphinet, "https://delphinet.tzkt.io"],
   [TempleChainId.Carthagenet, "https://carthagenet.tzkt.io"],
 ]);

@@ -1,16 +1,18 @@
-import React, { useCallback } from "react";
-import classNames from "clsx";
+import React, { ComponentType, forwardRef, HTMLAttributes, ReactNode, useCallback } from "react";
+
 import { Modifier } from "@popperjs/core";
-import Popper, { PopperRenderProps } from "lib/ui/Popper";
+import classNames from "clsx";
+
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
+import Popper, { PopperRenderProps } from "lib/ui/Popper";
 
 export type IconifiedSelectOptionRenderProps<T> = {
   option: T;
   index?: number;
 };
 
-type IconifiedSelectRenderComponent<T> = React.ComponentType<
+type IconifiedSelectRenderComponent<T> = ComponentType<
   IconifiedSelectOptionRenderProps<T>
 >;
 
@@ -25,7 +27,7 @@ type IconifiedSelectProps<T> = {
   value: T;
   onChange?: (a: T) => void;
   className?: string;
-  title: React.ReactNode;
+  title: ReactNode;
 };
 
 const IconifiedSelect = <T extends unknown>({
@@ -200,13 +202,13 @@ const IconifiedSelectOption = <T extends unknown>(
   );
 };
 
-type SelectButtonProps = React.HTMLAttributes<HTMLButtonElement> &
+type SelectButtonProps = HTMLAttributes<HTMLButtonElement> &
   Pick<IconifiedSelectProps<any>, "Icon" | "value"> & {
     Content: IconifiedSelectProps<any>["OptionSelectedContent"];
     dropdown?: boolean;
   };
 
-const SelectButton = React.forwardRef<HTMLButtonElement, SelectButtonProps>(
+const SelectButton = forwardRef<HTMLButtonElement, SelectButtonProps>(
   ({ Content, Icon, value, dropdown, className, ...rest }, ref) => {
     return (
       <button

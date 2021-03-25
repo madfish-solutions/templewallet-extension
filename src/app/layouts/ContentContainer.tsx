@@ -1,11 +1,12 @@
-import * as React from "react";
+import React, { FC, HTMLAttributes } from "react";
+
 import classNames from "clsx";
 
-type ContentContainerProps = React.HTMLAttributes<HTMLDivElement> & {
+type ContentContainerProps = HTMLAttributes<HTMLDivElement> & {
   padding?: boolean;
 };
 
-const ContentContainer: React.FC<ContentContainerProps> = ({
+const ContentContainer: FC<ContentContainerProps> = ({
   padding = true,
   className,
   ...rest

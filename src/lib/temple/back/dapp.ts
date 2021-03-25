@@ -1,12 +1,10 @@
-import { browser, Runtime } from "webextension-polyfill-ts";
-import { nanoid } from "nanoid";
 import { HttpResponseError } from '@taquito/http-utils';
-import { TezosOperationError } from "@taquito/taquito";
-import { RpcClient } from "@taquito/rpc";
 import { localForger } from "@taquito/local-forging";
-import { emitMicheline } from "@taquito/michel-codec";
 import { valueDecoder } from "@taquito/local-forging/dist/lib/michelson/codec";
 import { Uint8ArrayConsumer } from "@taquito/local-forging/dist/lib/uint8array-consumer";
+import { emitMicheline } from "@taquito/michel-codec";
+import { RpcClient } from "@taquito/rpc";
+import { TezosOperationError } from "@taquito/taquito";
 import {
   TempleDAppMessageType,
   TempleDAppErrorType,
@@ -21,6 +19,16 @@ import {
   TempleDAppBroadcastResponse,
   TempleDAppNetwork,
 } from "@temple-wallet/dapp/dist/types";
+import { nanoid } from "nanoid";
+import { browser, Runtime } from "webextension-polyfill-ts";
+
+import { intercom } from "lib/temple/back/defaults";
+import { dryRunOpParams } from "lib/temple/back/dryrun";
+import * as PndOps from "lib/temple/back/pndops";
+import { withUnlocked } from "lib/temple/back/store";
+import * as Beacon from "lib/temple/beacon";
+import { loadChainId, isAddressValid, transformHttpResponseError } from "lib/temple/helpers";
+import { NETWORKS } from "lib/temple/networks";
 import {
   TempleMessageType,
   TempleRequest,
@@ -28,13 +36,6 @@ import {
   TempleDAppSession,
   TempleDAppSessions,
 } from "lib/temple/types";
-import { intercom } from "lib/temple/back/defaults";
-import { dryRunOpParams } from "lib/temple/back/dryrun";
-import * as PndOps from "lib/temple/back/pndops";
-import * as Beacon from "lib/temple/beacon";
-import { withUnlocked } from "lib/temple/back/store";
-import { NETWORKS } from "lib/temple/networks";
-import { loadChainId, isAddressValid, transformHttpResponseError } from "lib/temple/helpers";
 
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 600;

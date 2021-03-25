@@ -1,6 +1,7 @@
 import { Runtime, browser } from "webextension-polyfill-ts";
-import { MessageType, RequestMessage } from "./types";
+
 import { deserealizeError } from "./helpers";
+import { MessageType, RequestMessage } from "./types";
 
 export class IntercomClient {
   private port: Runtime.Port;

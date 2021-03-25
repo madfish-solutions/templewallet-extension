@@ -1,17 +1,21 @@
+import React, { FC, Fragment, memo, useMemo } from "react";
+
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
-import React from "react";
+
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
+import HashChip from "app/templates/HashChip";
+import InUSD from "app/templates/InUSD";
+import { T, t, TProps } from "lib/i18n/react";
 import {
   TempleAsset,
   RawOperationExpenses,
   RawOperationAssetExpense,
   TEZ_ASSET,
+  mutezToTz,
 } from "lib/temple/front";
-import { T, t, TProps } from "lib/i18n/react";
-import Money from "app/atoms/Money";
-import Identicon from "app/atoms/Identicon";
-import HashChip from "app/templates/HashChip";
-import InUSD from "app/templates/InUSD";
-import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, "tokenAddress"> & {
   asset: TempleAsset | string;
@@ -23,10 +27,59 @@ type OperationExpenses = Omit<RawOperationExpenses, "expenses"> & {
 
 type ExpensesViewProps = {
   expenses?: OperationExpenses[];
+  rawToSign?: any;
+  mainnet?: boolean;
+  totalFeeDisplayed?: boolean;
 };
 
-const ExpensesView: React.FC<ExpensesViewProps> = (props) => {
-  const { expenses } = props;
+const ExpensesView: FC<ExpensesViewProps> = ({
+  expenses,
+  rawToSign,
+  mainnet,
+  totalFeeDisplayed,
+}) => {
+  const totalFee = useMemo(() => {
+    if (!totalFeeDisplayed) return null;
+
+    if (rawToSign) {
+      let feeMutez: BigNumber;
+      try {
+        feeMutez = (rawToSign.contents as any[]).reduce(
+          (val: BigNumber, { fee }) => val.plus(fee),
+          new BigNumber(0)
+        );
+      } catch {
+        return null;
+      }
+
+      const fee = mutezToTz(feeMutez);
+
+      return (
+        <div>
+          <span className="opacity-90">Total fee:</span>{" "}
+          <span className="font-medium">
+            <Money>{fee}</Money> ꜩ
+          </span>{" "}
+          <InUSD
+            volume={fee}
+            roundingMode={BigNumber.ROUND_UP}
+            mainnet={mainnet}
+          >
+            {(usdAmount) => (
+              <>
+                <span className="opacity-75">(</span>
+                <span className="pr-px">$</span>
+                {usdAmount}
+                <span className="opacity-75">)</span>
+              </>
+            )}
+          </InUSD>
+        </div>
+      );
+    }
+
+    return null;
+  }, [totalFeeDisplayed, rawToSign, mainnet]);
 
   if (!expenses) {
     return null;
@@ -35,7 +88,7 @@ const ExpensesView: React.FC<ExpensesViewProps> = (props) => {
   return (
     <div
       className={classNames(
-        "rounded-md overflow-y-auto border",
+        "relative rounded-md overflow-y-auto border",
         "flex flex-col text-gray-700 text-sm leading-tight"
       )}
       style={{ height: "9.5rem" }}
@@ -45,8 +98,27 @@ const ExpensesView: React.FC<ExpensesViewProps> = (props) => {
           key={index}
           item={item}
           last={index === arr.length - 1}
+          mainnet={mainnet}
         />
       ))}
+
+      {totalFeeDisplayed && (
+        <>
+          <div className="flex-1" />
+
+          <div
+            className={classNames(
+              "sticky bottom-0 left-0 right-0",
+              "flex items-center",
+              "px-2 py-1",
+              "bg-gray-200 bg-opacity-90 border-t",
+              "text-sm text-gray-700"
+            )}
+          >
+            {totalFee ?? <span>Warning! Transaction is likely to fail</span>}
+          </div>
+        </>
+      )}
     </div>
   );
 };
@@ -56,10 +128,11 @@ export default ExpensesView;
 type ExpenseViewItemProps = {
   item: OperationExpenses;
   last: boolean;
+  mainnet?: boolean;
 };
 
-const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item, last }) => {
-  const operationTypeLabel = React.useMemo(() => {
+const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
+  const operationTypeLabel = useMemo(() => {
     switch (item.type) {
       // TODO: add translations for other operations types
       case "transaction":
@@ -81,13 +154,19 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item, last }) => {
     }
   }, [item]);
 
-  const { iconHash, iconType, argumentDisplayProps } = React.useMemo<{
+  const { iconHash, iconType, argumentDisplayProps } = useMemo<{
     iconHash: string;
     iconType: "bottts" | "jdenticon";
     argumentDisplayProps?: OperationArgumentDisplayProps;
   }>(() => {
     const receivers = [
-      ...new Set(item.expenses.map(({ to }) => to).filter((value) => !!value)),
+      ...new Set(
+        item.expenses
+          .map(({ to }) => to)
+          .filter((value) =>
+            item.contractAddress ? value !== item.contractAddress : !!value
+          )
+      ),
     ];
 
     switch (item.type) {
@@ -146,7 +225,7 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item, last }) => {
     }
   }, [item]);
 
-  const withdrawal = React.useMemo(
+  const withdrawal = useMemo(
     () => ["transaction", "transfer"].includes(item.type),
     [item.type]
   );
@@ -169,9 +248,9 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item, last }) => {
 
       <div className="flex-1 flex-col">
         <div className="mb-1 flex items-center">
-          <div className="flex mr-1 text-xs items-center text-blue-600 opacity-75">
+          <span className="mr-1 text-xs text-blue-600 opacity-75">
             {operationTypeLabel}
-          </div>
+          </span>
 
           {argumentDisplayProps && (
             <OperationArgumentDisplay {...argumentDisplayProps} />
@@ -181,35 +260,28 @@ const ExpenseViewItem: React.FC<ExpenseViewItemProps> = ({ item, last }) => {
         <div
           className={classNames(
             "flex items-end flex-shrink-0",
-            (() => {
-              switch (item.type) {
-                case "transaction":
-                case "transfer":
-                  return "text-red-700";
-
-                case "approve":
-                  return "text-yellow-600";
-
-                default:
-                  return "text-gray-800";
-              }
-            })()
+            "text-gray-800"
           )}
         >
-          {item.expenses.map((expense, index) => (
-            <React.Fragment key={index}>
-              <OperationVolumeDisplay
-                expense={expense}
-                volume={item.amount}
-                withdrawal={withdrawal}
-              />
-              {index === item.expenses.length - 1 ? null : ", "}
-            </React.Fragment>
-          ))}
+          {item.expenses
+            .filter((expense) => new BigNumber(expense.amount).isGreaterThan(0))
+            .map((expense, index, arr) => (
+              <Fragment key={index}>
+                <OperationVolumeDisplay
+                  expense={expense}
+                  volume={item.amount}
+                  withdrawal={withdrawal}
+                  mainnet={mainnet}
+                />
+                {index === arr.length - 1 ? null : ", "}
+              </Fragment>
+            ))}
 
-          {item.expenses.length === 0 && (item.amount || undefined) && (
-            <OperationVolumeDisplay volume={item.amount!} />
-          )}
+          {item.expenses.length === 0 &&
+          item.amount &&
+          new BigNumber(item.amount).isGreaterThan(0) ? (
+            <OperationVolumeDisplay volume={item.amount!} mainnet={mainnet} />
+          ) : null}
         </div>
       </div>
     </div>
@@ -221,7 +293,7 @@ type OperationArgumentDisplayProps = {
   arg: string[];
 };
 
-const OperationArgumentDisplay = React.memo<OperationArgumentDisplayProps>(
+const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(
   ({ i18nKey, arg }) => (
     <span className="font-light text-gray-500 text-xs">
       <T
@@ -246,10 +318,11 @@ type OperationVolumeDisplayProps = {
   expense?: OperationAssetExpense;
   volume?: number;
   withdrawal?: boolean;
+  mainnet?: boolean;
 };
 
-const OperationVolumeDisplay = React.memo<OperationVolumeDisplayProps>(
-  ({ expense, volume, withdrawal }) => {
+const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(
+  ({ expense, volume, mainnet }) => {
     const asset =
       typeof expense?.asset === "object" ? expense.asset : undefined;
 
@@ -260,13 +333,19 @@ const OperationVolumeDisplay = React.memo<OperationVolumeDisplayProps>(
     return (
       <>
         <div className="text-sm">
-          {withdrawal && "-"}
-          <Money>{finalVolume || 0}</Money>{" "}
+          {/* {withdrawal && "-"} */}
+          <span className="font-medium">
+            <Money>{finalVolume || 0}</Money>
+          </span>{" "}
           {expense?.asset ? asset?.symbol || "???" : "ꜩ"}
         </div>
 
         {(!expense?.asset || asset) && (
-          <InUSD volume={finalVolume || 0} asset={asset || TEZ_ASSET}>
+          <InUSD
+            volume={finalVolume || 0}
+            asset={asset || TEZ_ASSET}
+            mainnet={mainnet}
+          >
             {(usdVolume) => (
               <div className="text-xs text-gray-500 ml-1">
                 (<span className="mr-px">$</span>

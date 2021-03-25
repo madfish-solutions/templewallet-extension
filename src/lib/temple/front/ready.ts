@@ -1,7 +1,17 @@
-import * as React from "react";
-import constate from "constate";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
+
 import { TezosToolkit } from "@taquito/taquito";
 import { Tzip16Module } from "@taquito/tzip16";
+import constate from "constate";
+
+import { useRetryableSWR } from "lib/swr";
+import { FastRpcClient } from "lib/taquito-fast-rpc";
 import {
   ReadyTempleState,
   TempleAccountType,
@@ -13,8 +23,6 @@ import {
   useTempleClient,
   loadChainId,
 } from "lib/temple/front";
-import { FastRpcClient } from "lib/taquito-fast-rpc";
-import { useRetryableSWR } from "lib/swr";
 
 export enum ActivationStatus {
   ActivationRequestSent,
@@ -67,13 +75,13 @@ function useReadyTemple() {
     defaultNet.id
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (allNetworks.every((a) => a.id !== networkId)) {
       setNetworkId(defaultNet.id);
     }
   }, [allNetworks, networkId, setNetworkId, defaultNet]);
 
-  const network = React.useMemo(
+  const network = useMemo(
     () => allNetworks.find((n) => n.id === networkId) ?? defaultNet,
     [allNetworks, networkId, defaultNet]
   );
@@ -88,13 +96,13 @@ function useReadyTemple() {
     defaultAcc.publicKeyHash
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (allAccounts.every((a) => a.publicKeyHash !== accountPkh)) {
       setAccountPkh(defaultAcc.publicKeyHash);
     }
   }, [allAccounts, accountPkh, setAccountPkh, defaultAcc]);
 
-  const account = React.useMemo(
+  const account = useMemo(
     () => allAccounts.find((a) => a.publicKeyHash === accountPkh) ?? defaultAcc,
     [allAccounts, accountPkh, defaultAcc]
   );
@@ -103,7 +111,7 @@ function useReadyTemple() {
    * Error boundary reset
    */
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     const evt = new CustomEvent("reseterrorboundary");
     window.dispatchEvent(evt);
   }, [networkId, accountPkh]);
@@ -112,7 +120,7 @@ function useReadyTemple() {
    * tezos = TezosToolkit instance
    */
 
-  const tezos = React.useMemo(() => {
+  const tezos = useMemo(() => {
     const checksum = [network.id, account.publicKeyHash].join("_");
     const rpc = network.rpcBaseURL;
     const pkh =
@@ -130,7 +138,7 @@ function useReadyTemple() {
     return t;
   }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (process.env.NODE_ENV === "development") {
       (window as any).tezos = tezos;
     }
@@ -139,7 +147,7 @@ function useReadyTemple() {
   /**
    * Tezos domains
    */
-  const tezosDomainsClient = React.useMemo(() => getClient(networkId, tezos), [
+  const tezosDomainsClient = useMemo(() => getClient(networkId, tezos), [
     networkId,
     tezos,
   ]);
@@ -163,12 +171,12 @@ function useReadyTemple() {
 
 export function useChainId(suspense?: boolean) {
   const tezos = useTezos();
-  const rpcUrl = React.useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
+  const rpcUrl = useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
   return useCustomChainId(rpcUrl, suspense);
 }
 
 export function useCustomChainId(rpcUrl: string, suspense?: boolean) {
-  const fetchChainId = React.useCallback(async () => {
+  const fetchChainId = useCallback(async () => {
     try {
       return await loadChainId(rpcUrl);
     } catch (_err) {
@@ -190,7 +198,7 @@ export function useRelevantAccounts(withExtraTypes = true) {
   const setAccountPkh = useSetAccountPkh();
   const lazyChainId = useChainId();
 
-  const relevantAccounts = React.useMemo(
+  const relevantAccounts = useMemo(
     () =>
       allAccounts.filter((acc) => {
         switch (acc.type) {
@@ -209,7 +217,7 @@ export function useRelevantAccounts(withExtraTypes = true) {
     [allAccounts, lazyChainId, withExtraTypes]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       relevantAccounts.every(
         (a) => a.publicKeyHash !== account.publicKeyHash
@@ -220,7 +228,7 @@ export function useRelevantAccounts(withExtraTypes = true) {
     }
   }, [relevantAccounts, account, setAccountPkh, lazyChainId]);
 
-  return React.useMemo(() => relevantAccounts, [relevantAccounts]);
+  return useMemo(() => relevantAccounts, [relevantAccounts]);
 }
 
 export const [TempleRefsProvider, useAllAssetsRef] = constate(
@@ -232,7 +240,7 @@ function useRefs() {
   /**
    * All assets reference(cache), needed for pretty network reselect
    */
-  const allAssetsRef = React.useRef<TempleAsset[]>([]);
+  const allAssetsRef = useRef<TempleAsset[]>([]);
 
   return { allAssetsRef };
 }
