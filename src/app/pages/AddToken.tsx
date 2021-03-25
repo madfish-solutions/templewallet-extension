@@ -187,16 +187,18 @@ const Form: FC = () => {
           return;
         }
 
-        if (!tokenType) {
+        const newTokenType = tokenTypeRef.current;
+
+        if (!newTokenType) {
           return;
         }
 
         try {
-          if (tokenType === TempleAssetType.FA1_2) {
-            await assertTokenType(tokenType, contract, tezos);
+          if (newTokenType === TempleAssetType.FA1_2) {
+            await assertTokenType(newTokenType, contract, tezos);
             tokenData = await fetchTokenMetadata(tezos, contractAddress);
           } else {
-            await assertTokenType(tokenType, contract, tezos, tokenId!);
+            await assertTokenType(newTokenType, contract, tezos, tokenId!);
             tokenData = await fetchTokenMetadata(
               tezos,
               contractAddress,
@@ -210,7 +212,7 @@ const Form: FC = () => {
             throw new TokenValidationError(
               `${t(
                 "tokenDoesNotMatchStandard",
-                tokenType === TempleAssetType.FA1_2 ? "FA1.2" : "FA2"
+                newTokenType === TempleAssetType.FA1_2 ? "FA1.2" : "FA2"
               )}: ${err.message}`
             );
           } else {
@@ -250,15 +252,7 @@ const Form: FC = () => {
         previousNetworkIdRef.current = networkId;
       }
     })();
-  }, [
-    contractAddress,
-    tezos,
-    setValue,
-    networkId,
-    tokenType,
-    triggerValidation,
-    tokenId,
-  ]);
+  }, [contractAddress, tezos, setValue, networkId, triggerValidation, tokenId]);
 
   const cleanContractAddress = useCallback(() => {
     setValue("address", "");
@@ -269,14 +263,6 @@ const Form: FC = () => {
 
   return (
     <div className="w-full max-w-sm mx-auto my-8">
-      <div className="mb-4 flex flex-col">
-        <h2 className="leading-tight flex flex-col">
-          <span className="text-base font-semibold text-gray-700">
-            <T id="tokenType" />
-          </span>
-        </h2>
-      </div>
-
       <form>
         <NoSpaceField
           ref={register({
