@@ -157,6 +157,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
               setOpened={setOpened}
               onChange={handleSelectedAssetChange}
               options={assetSuggestions}
+              searchString={searchString}
               value={trueAssetId}
             />
           )}
@@ -307,10 +308,12 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
           >
             <AssetIcon asset={selectedAsset} size={32} className="mr-2" />
             <span
-              className="text-gray-700 text-lg mr-2 items-center overflow-hidden block"
-              style={{ textOverflow: "ellipsis", maxWidth: "6rem" }}
+              className="text-gray-700 text-lg mr-2 items-center overflow-hidden block w-16"
+              style={{ textOverflow: "ellipsis" }}
             >
-              {selectedAsset.symbol}
+              {selectedAsset.type === TempleAssetType.TEZ
+                ? selectedAsset.symbol.toUpperCase()
+                : selectedAsset.symbol}
             </span>
             <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
           </div>
@@ -355,6 +358,7 @@ type AssetsMenuProps = {
   setOpened: (newValue: boolean) => void;
   onChange: (newValue: AssetIdentifier) => void;
   options: TempleAsset[];
+  searchString?: string;
   value: AssetIdentifier;
 };
 
@@ -363,6 +367,7 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
   setOpened,
   onChange,
   options,
+  searchString,
   value,
 }) => {
   const handleOptionClick = useCallback(
@@ -386,15 +391,41 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
         padding: 0,
       }}
     >
-      {options.map((option, index) => (
-        <AssetOption
-          key={getAssetKey(option) ?? "tez"}
-          option={option}
-          selected={value === getAssetKey(option)}
-          onClick={handleOptionClick}
-          isLast={index === options.length - 1}
-        />
-      ))}
+      {options.length === 0 ? (
+        <div
+          className={classNames(
+            "my-8",
+            "flex flex-col items-center justify-center",
+            "text-gray-500"
+          )}
+        >
+          <p
+            className={classNames(
+              "mb-2",
+              "flex items-center justify-center",
+              "text-gray-600 text-base font-light"
+            )}
+          >
+            {searchString ? (
+              <SearchIcon className="w-5 h-auto mr-1 stroke-current" />
+            ) : null}
+
+            <span>
+              <T id="noAssetsFound" />
+            </span>
+          </p>
+        </div>
+      ) : (
+        options.map((option, index) => (
+          <AssetOption
+            key={getAssetKey(option) ?? "tez"}
+            option={option}
+            selected={value === getAssetKey(option)}
+            onClick={handleOptionClick}
+            isLast={index === options.length - 1}
+          />
+        ))
+      )}
     </DropdownWrapper>
   );
 };

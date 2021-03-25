@@ -123,14 +123,15 @@ const SwapForm: React.FC = () => {
   const inputAsset = useMemo(
     () =>
       inputAssets.find((asset) => matchesAsset(inputAssetId, asset)) ||
-      TEZ_ASSET,
+      inputAssets[0],
     [inputAssetId, inputAssets]
   );
   const outputAsset = useMemo(
     () =>
       outputAssets.find((asset) => matchesAsset(outputAssetId, asset)) ||
-      assets[selectedExchanger][1],
-    [outputAssetId, outputAssets, assets, selectedExchanger]
+      outputAssets[1] ||
+      outputAssets[0],
+    [outputAssetId, outputAssets]
   );
   const { data: inputAssetBalance } = useBalance(inputAsset, accountPkh);
   const { data: outputAssetBalance } = useBalance(outputAsset, accountPkh);
@@ -330,8 +331,9 @@ const SwapForm: React.FC = () => {
         setError(undefined);
         setOperation(op);
       } catch (e) {
-        console.error(e);
-        setError(e);
+        if (e.message !== "Declined") {
+          setError(e);
+        }
       } finally {
         setIsSubmitting(false);
       }
@@ -466,7 +468,15 @@ const SwapForm: React.FC = () => {
   }, [inputAsset, inputAssetBalance]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form className="mb-8" onSubmit={handleSubmit(onSubmit)}>
+      {operation && (
+        <OperationStatus
+          className="mb-6"
+          typeTitle={t("swapNoun")}
+          operation={operation}
+        />
+      )}
+
       <Controller
         name="input"
         control={control}
@@ -558,14 +568,6 @@ const SwapForm: React.FC = () => {
           </tr>
         </tbody>
       </table>
-
-      {operation && (
-        <OperationStatus
-          className="mb-6"
-          typeTitle={t("swapNoun")}
-          operation={operation}
-        />
-      )}
 
       {error && (
         <Alert

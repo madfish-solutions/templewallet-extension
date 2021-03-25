@@ -40,6 +40,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
   const tezos = useTezos();
   const network = useNetwork();
   const tezUsdPrice = useUSDPrice();
+  const networkTezUsdPrice = network.type === "main" ? tezUsdPrice : null;
   const chainId = useChainId(true)!;
 
   const allStoredAssets = useMemo(
@@ -232,7 +233,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
         contractAddress,
         exchangerType
       );
-      if (tezUsdPrice === null) {
+      if (networkTezUsdPrice === null) {
         return {
           usdPrice: undefined,
           maxExchangable: tokenPool.idiv(3).div(tokenElementaryParts),
@@ -247,12 +248,12 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
           : xtzPool.dividedBy(tokenPool);
       return {
         usdPrice: mutezToTz(midPrice.multipliedBy(tokenElementaryParts))
-          .multipliedBy(tezUsdPrice)
+          .multipliedBy(networkTezUsdPrice)
           .toNumber(),
         maxExchangable: tokenPool.idiv(3).div(tokenElementaryParts),
       };
     },
-    [tezos, tezUsdPrice]
+    [tezos, networkTezUsdPrice]
   );
 
   const getExchangeData = useCallback(async () => {
@@ -288,7 +289,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
       "swappable-assets-exchange-data",
       network.id,
       !!swappableTokens,
-      tezUsdPrice,
+      networkTezUsdPrice,
     ],
     getExchangeData,
     { suspense: false }
@@ -304,7 +305,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
           [exchangerType]: [
             {
               ...TEZ_ASSET,
-              usdPrice: tezUsdPrice || undefined,
+              usdPrice: networkTezUsdPrice || undefined,
             },
             ...swappableTokens![exchangerType].map<TempleAssetWithExchangeData>(
               (token, index) => ({
@@ -316,7 +317,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
         }),
         { dexter: [], quipuswap: [] }
       ),
-    [swappableTokens, tokensExchangeData, tezUsdPrice]
+    [swappableTokens, tokensExchangeData, networkTezUsdPrice]
   );
 
   return {

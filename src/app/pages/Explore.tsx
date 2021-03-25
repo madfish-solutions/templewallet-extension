@@ -181,26 +181,36 @@ const ActionButton: FC<ActionButtonProps> = ({
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
-      className: classNames(
-        disabled ? "bg-blue-300" : "bg-blue-500",
-        "rounded mb-1 flex items-center text-white"
-      ),
-      style: { padding: "0 0.625rem", height: "2.75rem" },
-      children: <Icon className="w-6 h-auto stroke-current stroke-2" />,
+      className: "flex flex-col items-center mx-3 px-1",
       type: "button" as const,
+      children: (
+        <>
+          <div
+            className={classNames(
+              disabled ? "bg-blue-300" : "bg-blue-500",
+              "rounded mb-1 flex items-center text-white"
+            )}
+            style={{ padding: "0 0.625rem", height: "2.75rem" }}
+          >
+            <Icon className="w-6 h-auto stroke-current stroke-2" />
+          </div>
+          <span
+            className={classNames(
+              "text-xs",
+              disabled ? "text-blue-300" : "text-blue-500"
+            )}
+          >
+            {label}
+          </span>
+        </>
+      ),
     }),
-    [disabled, Icon]
+    [disabled, Icon, label]
   );
-
-  return (
-    <div className="flex flex-col items-center px-4">
-      {disabled ? (
-        <button ref={buttonRef} {...commonButtonProps} />
-      ) : (
-        <Link to={href} {...commonButtonProps} />
-      )}
-      <span className="text-xs text-blue-500">{label}</span>
-    </div>
+  return disabled ? (
+    <button ref={buttonRef} {...commonButtonProps} />
+  ) : (
+    <Link to={href} {...commonButtonProps} />
   );
 };
 
