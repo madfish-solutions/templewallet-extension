@@ -30,6 +30,8 @@ import {
   useNetwork,
   useRelevantAccounts,
   TEZ_ASSET,
+  useCustomChainId,
+  TempleChainId,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 
@@ -73,6 +75,12 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
     getContentToParse,
     { suspense: true }
   );
+
+  const networkRpc =
+    payload.type === "operations" ? payload.networkRpc : currentNetworkRpc;
+
+  const chainId = useCustomChainId(networkRpc, true)!;
+  const mainnet = chainId === TempleChainId.Mainnet;
 
   const allAccounts = useRelevantAccounts();
   const { allAssetsWithHidden } = useAssets();
@@ -179,9 +187,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
-  const handleErrorAlertClose = useCallback(() => setError(null), [
-    setError,
-  ]);
+  const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
   return (
     <div
@@ -304,7 +310,16 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
               )}
 
               {spFormat.key === "preview" && (
-                <ExpensesView expenses={expensesData} />
+                <ExpensesView
+                  expenses={expensesData}
+                  rawToSign={
+                    payload.type === "operations"
+                      ? payload.rawToSign
+                      : undefined
+                  }
+                  mainnet={mainnet}
+                  totalFeeDisplayed
+                />
               )}
             </>
           )}

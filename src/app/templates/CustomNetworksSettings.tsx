@@ -44,14 +44,16 @@ type LambdaFormData = {
 const SUBMIT_ERROR_TYPE = "submit-error";
 const KNOWN_LAMBDA_CONTRACTS = new Map([
   [TempleChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
-  [TempleChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
   [TempleChainId.Edo2net, "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN"],
+  [TempleChainId.Florencenet, "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX"],
+  [TempleChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
   [TempleChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
 ]);
 const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, "mainnet"],
-  [TempleChainId.Delphinet, "delphinet"],
   [TempleChainId.Edo2net, "edo2net"],
+  [TempleChainId.Florencenet, "florencenet"],
+  [TempleChainId.Delphinet, "delphinet"],
   [TempleChainId.Carthagenet, "carthagenet"],
 ]);
 
@@ -141,9 +143,9 @@ const CustomNetworksSettings: FC = () => {
 
   const rpcURLIsUnique = useCallback(
     (url: string) =>
-      ![...defaultNetworks, ...customNetworks].some(
-        ({ rpcBaseURL }) => rpcBaseURL === url
-      ),
+      ![...defaultNetworks, ...customNetworks]
+        .filter((n) => !n.hidden)
+        .some(({ rpcBaseURL }) => rpcBaseURL === url),
     [customNetworks, defaultNetworks]
   );
 

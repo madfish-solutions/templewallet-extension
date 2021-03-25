@@ -27,7 +27,11 @@ import {
   encryptAndSaveMany,
   removeMany,
 } from "lib/temple/back/safe-storage";
-import { transformHttpResponseError, loadChainId } from "lib/temple/helpers";
+import {
+  transformHttpResponseError,
+  loadChainId,
+  formatOpParamsBeforeSend,
+} from "lib/temple/helpers";
 import { NETWORKS } from "lib/temple/networks";
 import * as Passworder from "lib/temple/passworder";
 import {
@@ -214,7 +218,10 @@ export class Vault {
     return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
-  async createHDAccount(name?: string) {
+  async createHDAccount(
+    name?: string,
+    hdAccIndex?: number
+  ): Promise<TempleAccount[]> {
     return withError("Failed to create account", async () => {
       const [mnemonic, allAccounts] = await Promise.all([
         fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey),
@@ -222,18 +229,27 @@ export class Vault {
       ]);
 
       const seed = Bip39.mnemonicToSeedSync(mnemonic);
-      const allHDAccounts = allAccounts.filter(
-        (a) => a.type === TempleAccountType.HD
-      );
-      const hdAccIndex = allHDAccounts.length;
+
+      if (!hdAccIndex) {
+        const allHDAccounts = allAccounts.filter(
+          (a) => a.type === TempleAccountType.HD
+        );
+        hdAccIndex = allHDAccounts.length;
+      }
+
       const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
       const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(
         accPrivateKey
       );
+      const accName = name || getNewAccountName(allAccounts);
+
+      if (allAccounts.some((a) => a.publicKeyHash === accPublicKeyHash)) {
+        return this.createHDAccount(accName, hdAccIndex + 1);
+      }
 
       const newAccount: TempleAccount = {
         type: TempleAccountType.HD,
-        name: name || getNewAccountName(allAccounts),
+        name: accName,
         publicKeyHash: accPublicKeyHash,
         hdIndex: hdAccIndex,
       };
@@ -468,7 +484,7 @@ export class Vault {
         tezos.setForgerProvider(
           new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
         );
-        return tezos.contract.batch(opParams.map(formatOpParams));
+        return tezos.contract.batch(opParams.map(formatOpParamsBeforeSend));
       });
 
       try {
@@ -659,17 +675,6 @@ const MIGRATIONS = [
 
 function removeMFromDerivationPath(dPath: string) {
   return dPath.startsWith("m/") ? dPath.substring(2) : dPath;
-}
-
-function formatOpParams(params: any) {
-  if (params.kind === "origination" && params.script) {
-    const newParams = { ...params, ...params.script };
-    newParams.init = newParams.storage;
-    delete newParams.script;
-    delete newParams.storage;
-    return newParams;
-  }
-  return params;
 }
 
 function concatAccount(current: TempleAccount[], newOne: TempleAccount) {

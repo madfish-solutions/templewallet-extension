@@ -1,4 +1,12 @@
-import React, { FC, Fragment, memo, Suspense, useCallback, useMemo, useState } from "react";
+import React, {
+  FC,
+  Fragment,
+  memo,
+  Suspense,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 
@@ -30,9 +38,11 @@ import {
   useTempleClient,
   useAccount,
   useRelevantAccounts,
+  useCustomChainId,
   TempleAccountType,
   TempleDAppPayload,
   TempleAccount,
+  TempleChainId,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation } from "lib/woozie";
@@ -108,6 +118,9 @@ const ConfirmDAppForm: FC = () => {
     revalidateOnReconnect: false,
   });
   const payload = data!;
+
+  const chainId = useCustomChainId(payload.networkRpc, true)!;
+  const mainnet = chainId === TempleChainId.Mainnet;
 
   const connectedAccount = useMemo(
     () =>
@@ -185,9 +198,7 @@ const ConfirmDAppForm: FC = () => {
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
-  const handleErrorAlertClose = useCallback(() => setError(null), [
-    setError,
-  ]);
+  const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
   const content = useMemo(() => {
     switch (payload.type) {
@@ -197,7 +208,9 @@ const ConfirmDAppForm: FC = () => {
           declineActionTitle: t("cancel"),
           declineActionTestID: ConfirmPageSelectors.ConnectAction_CancelButton,
           confirmActionTitle: error ? t("retry") : t("connect"),
-          confirmActionTestID: error ? ConfirmPageSelectors.ConnectAction_RetryButton : ConfirmPageSelectors.ConnectAction_ConnectButton,
+          confirmActionTestID: error
+            ? ConfirmPageSelectors.ConnectAction_RetryButton
+            : ConfirmPageSelectors.ConnectAction_ConnectButton,
           want: (
             <T
               id="appWouldLikeToConnectToYourWallet"
@@ -221,9 +234,12 @@ const ConfirmDAppForm: FC = () => {
         return {
           title: t("confirmAction", t("operations").toLowerCase()),
           declineActionTitle: t("reject"),
-          declineActionTestID: ConfirmPageSelectors.ConfirmOperationsAction_RejectButton,
+          declineActionTestID:
+            ConfirmPageSelectors.ConfirmOperationsAction_RejectButton,
           confirmActionTitle: error ? t("retry") : t("confirm"),
-          confirmActionTestID: error ? ConfirmPageSelectors.ConfirmOperationsAction_RetryButton : ConfirmPageSelectors.ConfirmOperationsAction_ConfirmButton,
+          confirmActionTestID: error
+            ? ConfirmPageSelectors.ConfirmOperationsAction_RetryButton
+            : ConfirmPageSelectors.ConfirmOperationsAction_ConfirmButton,
           want: (
             <div
               className={classNames(
@@ -361,8 +377,8 @@ const ConfirmDAppForm: FC = () => {
                     <T id="account">
                       {(message) => (
                         <span className="text-base font-semibold text-gray-700">
-                        {message}
-                      </span>
+                          {message}
+                        </span>
                       )}
                     </T>
 
@@ -375,8 +391,8 @@ const ConfirmDAppForm: FC = () => {
                           )}
                           style={{ maxWidth: "90%" }}
                         >
-                        {message}
-                      </span>
+                          {message}
+                        </span>
                       )}
                     </T>
                   </h2>
@@ -396,6 +412,7 @@ const ConfirmDAppForm: FC = () => {
                 <OperationView
                   payload={payload}
                   networkRpc={payload.networkRpc}
+                  mainnet={mainnet}
                 />
               )}
             </>

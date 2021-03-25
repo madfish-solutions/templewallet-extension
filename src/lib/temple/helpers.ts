@@ -75,6 +75,17 @@ export function validateContractAddress(value: any) {
   }
 }
 
+export function formatOpParamsBeforeSend(params: any) {
+  if (params.kind === "origination" && params.script) {
+    const newParams = { ...params, ...params.script };
+    newParams.init = newParams.storage;
+    delete newParams.script;
+    delete newParams.storage;
+    return newParams;
+  }
+  return params;
+}
+
 export function transformHttpResponseError(err: HttpResponseError) {
   let parsedBody: any;
   try {
