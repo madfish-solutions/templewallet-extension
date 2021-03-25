@@ -269,7 +269,9 @@ export async function assertTokenType(
             getMessage("someMethodSignatureDoesNotMatchStandard", name)
           );
         } else if (e.value?.string === "FA2_TOKEN_UNDEFINED") {
-          throw new Error(getMessage("incorrectTokenIdErrorMessage"));
+          throw new UndefinedTokenError(
+            getMessage("incorrectTokenIdErrorMessage")
+          );
         } else {
           if (process.env.NODE_ENV === "development") {
             console.error(e);
@@ -442,3 +444,4 @@ export function toPenny(asset: TempleAsset) {
 }
 
 export class NotMatchingStandardError extends Error {}
+export class UndefinedTokenError extends Error {}
