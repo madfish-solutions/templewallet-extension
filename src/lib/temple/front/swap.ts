@@ -29,10 +29,10 @@ export type SwapParams = {
   tezos: TezosToolkit;
 };
 
-export type TempleAssetWithExchangeData = TempleAsset & {
-  usdPrice?: number;
-  maxExchangable?: BigNumber;
-};
+export type TempleAssetWithExchangeData = TempleAsset & Partial<Record<
+  ExchangerType,
+  { usdPrice?: number, maxExchangable?: BigNumber }
+>>;
 
 export const ALL_EXCHANGERS_TYPES: ExchangerType[] = ["dexter", "quipuswap"];
 

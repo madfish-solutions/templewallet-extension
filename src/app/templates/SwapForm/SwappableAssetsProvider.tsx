@@ -26,6 +26,7 @@ import {
   useTezos,
   useChainId,
   useUSDPrice,
+  assetsAreSame,
 } from "lib/temple/front";
 import {
   TempleAsset,
@@ -240,7 +241,10 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
         };
       }
       if (tokenPool.eq(0) || xtzPool.eq(0)) {
-        return new BigNumber(0);
+        return {
+          usdPrice: undefined,
+          maxExchangable: new BigNumber(0),
+        };
       }
       const midPrice =
         tokenPool.eq(0) || xtzPool.eq(0)
@@ -295,28 +299,48 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
     { suspense: false }
   );
 
-  const swappableAssetsWithPrices = useMemo<
-    Record<ExchangerType, TempleAssetWithExchangeData[]>
-  >(
-    () =>
-      ALL_EXCHANGERS_TYPES.reduce(
-        (resultPart, exchangerType) => ({
-          ...resultPart,
-          [exchangerType]: [
-            {
-              ...TEZ_ASSET,
+  const swappableAssetsWithPrices = useMemo<TempleAssetWithExchangeData[]>(
+    () => [
+      {
+        ...TEZ_ASSET,
+        ...ALL_EXCHANGERS_TYPES.reduce(
+          (additionalProps, exchangerType) => ({
+            ...additionalProps,
+            [exchangerType]: {
               usdPrice: networkTezUsdPrice || undefined,
+              maxExchangable: new BigNumber(Infinity),
             },
-            ...swappableTokens![exchangerType].map<TempleAssetWithExchangeData>(
-              (token, index) => ({
+          }),
+          {}
+        ),
+      },
+      ...ALL_EXCHANGERS_TYPES.reduce<TempleAssetWithExchangeData[]>(
+        (resultPart, exchangerType) => {
+          const exchangerAvailableTokens =
+            swappableTokens?.[exchangerType] ?? [];
+          exchangerAvailableTokens.forEach((token, tokenIndex) => {
+            const index = resultPart.findIndex((addedToken) =>
+              assetsAreSame(addedToken, token)
+            );
+            if (index >= 0) {
+              resultPart[index] = {
+                ...resultPart[index],
+                [exchangerType]:
+                  tokensExchangeData?.[exchangerType][tokenIndex] || {},
+              };
+            } else {
+              resultPart.push({
                 ...token,
-                ...tokensExchangeData?.dexter[index],
-              })
-            ),
-          ],
-        }),
-        { dexter: [], quipuswap: [] }
+                [exchangerType]:
+                  tokensExchangeData?.[exchangerType][tokenIndex] || {},
+              });
+            }
+          });
+          return resultPart;
+        },
+        []
       ),
+    ],
     [swappableTokens, tokensExchangeData, networkTezUsdPrice]
   );
 

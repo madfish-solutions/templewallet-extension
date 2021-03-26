@@ -27,6 +27,7 @@ import {
   matchesAsset,
   TempleAssetWithExchangeData,
   idsAreEqual,
+  ExchangerType,
 } from "lib/temple/front";
 import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
@@ -46,6 +47,7 @@ type SwapInputProps = {
   defaultAsset?: TempleAssetWithExchangeData;
   amountReadOnly?: boolean;
   label: React.ReactNode;
+  selectedExchanger: ExchangerType;
   onChange?: (newValue: SwapInputValue) => void;
   onRefreshClick: () => void;
   value?: SwapInputValue;
@@ -67,6 +69,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       max = balance,
       onChange,
       onRefreshClick,
+      selectedExchanger,
       withPercentageButtons,
       className,
       amountReadOnly,
@@ -172,6 +175,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
               label={label}
               onAmountChange={handleAmountChange}
               selectedAsset={selectedAsset}
+              selectedExchanger={selectedExchanger}
               balance={balance}
               searchString={searchString}
               onSearchChange={handleSearchChange}
@@ -225,7 +229,10 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
 };
 
 type SwapInputHeaderProps = PopperRenderProps &
-  Pick<SwapInputProps, "amountReadOnly" | "label" | "onRefreshClick"> & {
+  Pick<
+    SwapInputProps,
+    "amountReadOnly" | "label" | "onRefreshClick" | "selectedExchanger"
+  > & {
     amount?: BigNumber;
     selectedAsset: TempleAssetWithExchangeData;
     balance?: BigNumber;
@@ -248,6 +255,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       onRefreshClick,
       onSearchChange,
       amountReadOnly,
+      selectedExchanger,
     },
     ref
   ) => {
@@ -257,6 +265,8 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       evt.preventDefault();
       amountFieldRef.current?.focus({ preventScroll: true });
     }, []);
+
+    const assetUsdPrice = selectedAsset[selectedExchanger]?.usdPrice;
 
     return (
       <div className="w-full text-gray-700" ref={ref}>
@@ -336,11 +346,11 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                 readOnly={amountReadOnly}
                 assetDecimals={selectedAsset.decimals}
               />
-              {amount !== undefined && selectedAsset.usdPrice !== undefined && (
+              {amount !== undefined && assetUsdPrice !== undefined && (
                 <span className="mt-2 text-xs text-gray-700">
                   ≈{" "}
                   {new BigNumber(amount)
-                    .multipliedBy(selectedAsset.usdPrice)
+                    .multipliedBy(assetUsdPrice)
                     .toFormat(2, BigNumber.ROUND_DOWN)}
                   <span className="text-gray-500">{" $"}</span>
                 </span>
@@ -458,7 +468,11 @@ const AssetOption: React.FC<AssetOptionProps> = ({
       )}
     >
       <AssetIcon asset={option} size={32} className="mr-2" />
-      <span className="text-gray-700 text-lg mr-2">{option.symbol}</span>
+      <span className="text-gray-700 text-lg mr-2">
+        {option.type === TempleAssetType.TEZ
+          ? option.symbol.toUpperCase()
+          : option.symbol}
+      </span>
       <div className="flex-1 text-right text-lg text-gray-600">
         {balance?.toString()}
       </div>

@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -60,7 +61,7 @@ const maxTolerancePercentage = 30;
 const SwapFormWrapper: React.FC = () => {
   const { assets } = useSwappableAssets();
 
-  if (Object.values(assets).every((value) => value.length < 2)) {
+  if (assets.length < 2) {
     return (
       <p>
         <T id="noExchangersAvailable" />
@@ -85,8 +86,9 @@ const SwapForm: React.FC = () => {
   const chainId = useChainId(true)!;
   const network = useNetwork();
   const { publicKeyHash: accountPkh } = useAccount();
-  const defaultExchanger = assets.quipuswap.length > 1 ? "quipuswap" : "dexter";
-  const defaultOutputAsset = assets[defaultExchanger][1];
+
+  const defaultExchanger = assets[1].quipuswap ? "quipuswap" : "dexter";
+  const defaultOutputAsset = assets[1];
   const defaultOutputAssetId = useMemo(() => {
     return getAssetId(defaultOutputAsset);
   }, [defaultOutputAsset]);
@@ -117,15 +119,20 @@ const SwapForm: React.FC = () => {
   const [error, setError] = useState<Error>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const inputAssets = assets[selectedExchanger];
-  const outputAssets = assets[selectedExchanger];
-
+  const inputAssets = assets;
   const inputAsset = useMemo(
     () =>
       inputAssets.find((asset) => matchesAsset(inputAssetId, asset)) ||
       inputAssets[0],
     [inputAssetId, inputAssets]
   );
+  const outputAssets = useMemo(() => {
+    return assets.filter((asset) => {
+      return ALL_EXCHANGERS_TYPES.some(
+        (exchangerType) => asset[exchangerType] && inputAsset[exchangerType]
+      );
+    });
+  }, [assets, inputAsset]);
   const outputAsset = useMemo(
     () =>
       outputAssets.find((asset) => matchesAsset(outputAssetId, asset)) ||
@@ -133,6 +140,7 @@ const SwapForm: React.FC = () => {
       outputAssets[0],
     [outputAssetId, outputAssets]
   );
+
   const { data: inputAssetBalance } = useBalance(inputAsset, accountPkh);
   const { data: outputAssetBalance } = useBalance(outputAsset, accountPkh);
 
@@ -252,6 +260,9 @@ const SwapForm: React.FC = () => {
   );
 
   const outputAssetAmount = outputAssetAmounts?.[selectedExchanger];
+  const prevOutputAssetAmountRef = useRef<BigNumber | undefined>(
+    outputAssetAmount
+  );
 
   const minimumReceived = useMemo(() => {
     if ([outputAssetAmount, tolerancePercentage].includes(undefined)) {
@@ -266,15 +277,32 @@ const SwapForm: React.FC = () => {
   }, [outputAssetAmount, outputAsset.decimals, tolerancePercentage]);
 
   useEffect(() => {
-    setValue(
-      "output",
-      {
-        assetId: outputAssetId,
-        amount: outputAssetAmount,
-      },
-      outputAssetAmount !== undefined
-    );
+    const prevOutputAssetAmount = prevOutputAssetAmountRef.current;
+    const shouldSetOutputAmount =
+      prevOutputAssetAmount && outputAssetAmount
+        ? !prevOutputAssetAmount.eq(outputAssetAmount)
+        : prevOutputAssetAmount !== outputAssetAmount;
+    if (shouldSetOutputAmount) {
+      console.log("setValue");
+      setValue(
+        "output",
+        {
+          assetId: outputAssetId,
+          amount: outputAssetAmount,
+        },
+        outputAssetAmount !== undefined
+      );
+    }
+    prevOutputAssetAmountRef.current = outputAssetAmount;
   }, [outputAssetAmount, outputAssetId, setValue]);
+  useEffect(() => {
+    if (!inputAsset[selectedExchanger]) {
+      setValue(
+        "exchanger",
+        ALL_EXCHANGERS_TYPES.find((type) => inputAsset[type])
+      );
+    }
+  }, [inputAsset, selectedExchanger, setValue]);
 
   const swapAssets = useCallback(() => {
     setValue([{ input: output }, { output: input }]);
@@ -398,10 +426,10 @@ const SwapForm: React.FC = () => {
         return t("amountMustBePositive");
       }
       const matchingAsset =
-        outputAssets.find((asset) => matchesAsset(assetId, asset)) ||
-        assets[selectedExchanger][1];
+        outputAssets.find((asset) => matchesAsset(assetId, asset)) || assets[1];
       const maxExchangable =
-        matchingAsset.maxExchangable ?? new BigNumber(Infinity);
+        matchingAsset[selectedExchanger]?.maxExchangable ??
+        new BigNumber(Infinity);
       return (
         amount.lte(maxExchangable) ||
         t("maximalAmount", maxExchangable.toFixed())
@@ -429,7 +457,7 @@ const SwapForm: React.FC = () => {
         exchangerName: "Quipuswap",
         outputEstimation: outputAssetAmounts?.quipuswap,
         assetSymbol: outputAsset.symbol,
-        disabled: assets.quipuswap.length < 2,
+        disabled: !outputAsset.quipuswap || !inputAsset.quipuswap,
       },
       {
         name: "exchanger",
@@ -448,7 +476,7 @@ const SwapForm: React.FC = () => {
         exchangerName: "Dexter",
         outputEstimation: outputAssetAmounts?.dexter,
         assetSymbol: outputAsset.symbol,
-        disabled: assets.dexter.length < 2,
+        disabled: !outputAsset.dexter || !inputAsset.dexter,
       },
     ];
 
@@ -458,7 +486,13 @@ const SwapForm: React.FC = () => {
         { outputEstimation: b = new BigNumber(0) }
       ) => b.minus(a).toNumber()
     );
-  }, [assets, outputAssetAmounts, register, selectedExchanger, outputAsset]);
+  }, [
+    outputAssetAmounts,
+    register,
+    selectedExchanger,
+    outputAsset,
+    inputAsset,
+  ]);
 
   const maxInputAmount = useMemo(() => {
     if (inputAsset.type === TempleAssetType.TEZ) {
@@ -481,6 +515,7 @@ const SwapForm: React.FC = () => {
         name="input"
         control={control}
         as={SwapInput}
+        selectedExchanger={selectedExchanger}
         rules={{ validate: validateAssetInput }}
         balance={inputAssetBalance}
         // @ts-ignore
@@ -502,12 +537,13 @@ const SwapForm: React.FC = () => {
         name="output"
         control={control}
         as={SwapInput}
+        selectedExchanger={selectedExchanger}
         rules={{ validate: validateAssetOutput }}
         balance={outputAssetBalance}
         // @ts-ignore
         error={errors.output?.message}
         assets={outputAssets}
-        defaultAsset={assets[selectedExchanger][1]}
+        defaultAsset={assets[1]}
         amountReadOnly
         label={<T id="toAsset" />}
         onRefreshClick={handleRefreshClick}
