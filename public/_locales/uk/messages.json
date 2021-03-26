@@ -1684,5 +1684,8 @@
   },
   "accountNumber": {
     "message": "Номер аккаунта"
+  },
+  "blockExplorer": {
+    "message": "Експлорер блокчейна"
   }
 }

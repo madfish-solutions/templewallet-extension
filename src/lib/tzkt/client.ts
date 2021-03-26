@@ -18,14 +18,6 @@ const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Carthagenet, "https://api.carthagenet.tzkt.io/v1"],
 ]);
 
-export const TZKT_BASE_URLS = new Map([
-  [TempleChainId.Mainnet, "https://tzkt.io"],
-  [TempleChainId.Edo2net, "https://edo2net.tzkt.io"],
-  [TempleChainId.Florencenet, "https://florencenet.tzkt.io"],
-  [TempleChainId.Delphinet, "https://delphinet.tzkt.io"],
-  [TempleChainId.Carthagenet, "https://carthagenet.tzkt.io"],
-]);
-
 const api = axios.create();
 api.interceptors.response.use(
   (res) => res,
