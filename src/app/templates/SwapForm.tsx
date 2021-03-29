@@ -296,13 +296,15 @@ const SwapForm: React.FC = () => {
     prevOutputAssetAmountRef.current = outputAssetAmount;
   }, [outputAssetAmount, outputAssetId, setValue]);
   useEffect(() => {
-    if (!inputAsset[selectedExchanger]) {
+    if (!inputAsset[selectedExchanger] || !outputAsset[selectedExchanger]) {
       setValue(
         "exchanger",
-        ALL_EXCHANGERS_TYPES.find((type) => inputAsset[type])
+        ALL_EXCHANGERS_TYPES.find(
+          (type) => inputAsset[type] && outputAsset[type]
+        )
       );
     }
-  }, [inputAsset, selectedExchanger, setValue]);
+  }, [inputAsset, outputAsset, selectedExchanger, setValue]);
 
   const swapAssets = useCallback(() => {
     setValue([{ input: output }, { output: input }]);
