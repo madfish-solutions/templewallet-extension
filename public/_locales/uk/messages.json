@@ -1711,5 +1711,8 @@
   },
   "minimumReceived": {
     "message": "Мінімальний вихід:"
+  },
+  "blockExplorer": {
+    "message": "Експлорер блокчейна"
   }
 }

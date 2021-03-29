@@ -9,10 +9,8 @@ import { T, t } from "lib/i18n/react";
 import {
   useTezos,
   useBlockTriggers,
-  isKnownChainId,
-  useChainId,
+  useExplorerBaseUrls,
 } from "lib/temple/front";
-import { TZKT_BASE_URLS } from "lib/tzkt";
 import useSafeState from "lib/ui/useSafeState";
 
 type OperationStatusProps = {
@@ -31,15 +29,7 @@ const OperationStatus: FC<OperationStatusProps> = ({
 
   const hash = useMemo(() => operation.hash || operation.opHash, [operation]);
 
-  const chainId = useChainId();
-
-  const explorerBaseUrl = useMemo(
-    () =>
-      (chainId &&
-        (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined)) ??
-      null,
-    [chainId]
-  );
+  const { transaction: transactionBaseUrl } = useExplorerBaseUrls();
 
   const descFooter = useMemo(
     () => (
@@ -53,12 +43,12 @@ const OperationStatus: FC<OperationStatusProps> = ({
           key="hash"
           className="ml-2 mr-2"
         />
-        {explorerBaseUrl && (
-          <OpenInExplorerChip baseUrl={explorerBaseUrl} opHash={hash} />
+        {transactionBaseUrl && (
+          <OpenInExplorerChip baseUrl={transactionBaseUrl} opHash={hash} />
         )}
       </div>
     ),
-    [hash, explorerBaseUrl]
+    [hash, transactionBaseUrl]
   );
 
   const [alert, setAlert] = useSafeState<{

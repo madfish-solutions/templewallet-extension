@@ -1725,5 +1725,8 @@
         "content": "$1"
       }
     }
+  },
+  "blockExplorer": {
+    "message": "Blockchain explorer"
   }
 }
