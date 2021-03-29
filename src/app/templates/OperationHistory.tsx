@@ -26,9 +26,9 @@ import {
   isKnownChainId,
   TempleToken,
   useChainId,
+  useExplorerBaseUrls,
 } from "lib/temple/front";
 import { loadChainId } from "lib/temple/helpers";
-import { TZKT_BASE_URLS } from "lib/tzkt";
 import { TZSTATS_CHAINS, TZStatsNetwork } from "lib/tzstats";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
@@ -279,12 +279,7 @@ const GenericOperationsList: FC<GenericOperationsListProps> = ({
     }
   }, [removePndOps, accountPkh, chainId, nonUniqueOps]);
 
-  const explorerBaseUrl = useMemo(
-    () =>
-      (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined) ??
-      null,
-    [chainId]
-  );
+  const { transaction: transactionBaseUrl } = useExplorerBaseUrls();
 
   return (
     <>
@@ -312,7 +307,7 @@ const GenericOperationsList: FC<GenericOperationsListProps> = ({
           key={internalOpKey(op)}
           accountPkh={accountPkh}
           withExplorer={withExplorer}
-          explorerBaseUrl={explorerBaseUrl}
+          explorerBaseUrl={transactionBaseUrl ?? null}
           {...op}
         />
       ))}

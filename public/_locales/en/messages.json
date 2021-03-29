@@ -1696,5 +1696,8 @@
   },
   "joinPrompt": {
     "message": "Feel free to join and ask your questions 😊"
+  },
+  "blockExplorer": {
+    "message": "Blockchain explorer"
   }
 }
