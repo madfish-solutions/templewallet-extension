@@ -24,17 +24,17 @@ const pkg = require("./package.json");
 const tsConfig = require("./tsconfig.json");
 
 const { NODE_ENV = "development" } = process.env;
-const dotenvPath = path.resolve(__dirname, '.env');
+const dotenvPath = path.resolve(__dirname, ".env");
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotenvFiles = [
-    `${dotenvPath}.${NODE_ENV}.local`,
-    // Don't include `.env.local` for `test` environment
-    // since normally you expect tests to produce the same
-    // results for everyone
-    NODE_ENV !== 'test' && `${dotenvPath}.local`,
-    `${dotenvPath}.${NODE_ENV}`,
-    dotenvPath,
+  `${dotenvPath}.${NODE_ENV}.local`,
+  // Don't include `.env.local` for `test` environment
+  // since normally you expect tests to produce the same
+  // results for everyone
+  NODE_ENV !== "test" && `${dotenvPath}.local`,
+  `${dotenvPath}.${NODE_ENV}`,
+  dotenvPath,
 ].filter(Boolean);
 
 // Load environment variables from .env* files. Suppress warnings using silent
@@ -42,14 +42,14 @@ const dotenvFiles = [
 // that have already been set.  Variable expansion is supported in .env files.
 // https://github.com/motdotla/dotenv
 // https://github.com/motdotla/dotenv-expand
-dotenvFiles.forEach(dotenvFile => {
-    if (fs.existsSync(dotenvFile)) {
-        require('dotenv-expand')(
-            require('dotenv').config({
-                path: dotenvFile,
-            })
-        );
-    }
+dotenvFiles.forEach((dotenvFile) => {
+  if (fs.existsSync(dotenvFile)) {
+    require("dotenv-expand")(
+      require("dotenv").config({
+        path: dotenvFile,
+      })
+    );
+  }
 });
 
 // Grab NODE_ENV and TEMPLE_WALLET_* environment variables and prepare them to be
@@ -421,7 +421,9 @@ module.exports = {
         to: path.join(OUTPUT_PATH, "manifest.json"),
         toType: "file",
         transform: (content) =>
-          wextManifest[TARGET_BROWSER](JSON.parse(content)).content,
+          wextManifest[
+            TARGET_BROWSER === "safari" ? "firefox" : TARGET_BROWSER
+          ](JSON.parse(content)).content,
       },
     ]),
 
