@@ -31,6 +31,7 @@ import {
   transformHttpResponseError,
   loadChainId,
   formatOpParamsBeforeSend,
+  michelEncoder,
 } from "lib/temple/helpers";
 import { NETWORKS } from "lib/temple/networks";
 import * as Passworder from "lib/temple/passworder";
@@ -484,6 +485,7 @@ export class Vault {
         tezos.setForgerProvider(
           new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
         );
+        tezos.setPackerProvider(michelEncoder);
         return tezos.contract.batch(opParams.map(formatOpParamsBeforeSend));
       });
 

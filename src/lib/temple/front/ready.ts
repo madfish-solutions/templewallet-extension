@@ -22,6 +22,7 @@ import {
   usePassiveStorage,
   useTempleClient,
   loadChainId,
+  michelEncoder,
 } from "lib/temple/front";
 
 export enum ActivationStatus {
@@ -135,6 +136,7 @@ function useReadyTemple() {
     );
     t.setSignerProvider(createTaquitoSigner(pkh));
     t.setWalletProvider(createTaquitoWallet(pkh, rpc));
+    t.setPackerProvider(michelEncoder);
     return t;
   }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
