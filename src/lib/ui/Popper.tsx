@@ -2,16 +2,17 @@ import React, {
   Dispatch,
   memo,
   ReactElement,
-  RefObject, SetStateAction,
+  RefObject,
+  SetStateAction,
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
-  useState
+  useState,
 } from "react";
 
-import { Instance, Options, createPopper } from "@popperjs/core";
+import { Instance, Options, Modifier, createPopper } from "@popperjs/core";
 import useOnClickOutside from "use-onclickoutside";
 
 import Portal from "lib/ui/Portal";
@@ -30,10 +31,11 @@ type PopperProps = Partial<Options> & {
       ref: RefObject<HTMLButtonElement>;
     }
   >;
+  preventOverflow?: boolean;
 };
 
 const Popper = memo<PopperProps>(
-  ({ popup, children, ...popperOptions }) => {
+  ({ popup, children, preventOverflow = true, ...popperOptions }) => {
     const popperRef = useRef<Instance>();
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
@@ -59,7 +61,7 @@ const Popper = memo<PopperProps>(
       () => ({
         ...popperOptions,
         modifiers: [
-          {
+          preventOverflow && {
             name: "preventOverflow",
             options: {
               padding: 8,
@@ -69,9 +71,9 @@ const Popper = memo<PopperProps>(
             name: "hide",
           },
           ...(popperOptions.modifiers ?? []),
-        ],
+        ].filter(Boolean) as Partial<Modifier<any, any>>[],
       }),
-      [popperOptions]
+      [popperOptions, preventOverflow]
     );
 
     useEffect(() => {
