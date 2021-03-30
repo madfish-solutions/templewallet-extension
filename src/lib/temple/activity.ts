@@ -1,7 +1,11 @@
 import BigNumber from "bignumber.js";
 import { OperationContentsAndResult, OpKind } from "@taquito/rpc";
 import * as Repo from "lib/temple/repo";
-import { BcdTokenTransfer, getTokenTransfers } from "lib/better-call-dev";
+import {
+  BcdTokenTransfer,
+  getTokenTransfers,
+  BcdNetwork,
+} from "lib/better-call-dev";
 import { TzktOperation, getOperations } from "lib/tzkt";
 
 export async function addLocalOperation(
@@ -112,35 +116,120 @@ export async function syncOperations(
   chainId: string,
   address: string
 ) {
-  const [[tzktTime], [bcdTime]] = await Promise.all(
+  const [tzktTime, bcdTime] = await Promise.all(
     ["tzkt", "bcd"].map((service) =>
-      Repo.syncTimes.where({ service, chainId, address }).toArray()
+      Repo.syncTimes.where({ service, chainId, address }).first()
     )
   );
 
-  const operations = await getOperations(chainId as any, {
-    address,
-    from: new Date().toISOString(),
-    to: new Date().toISOString(),
-  });
-}
+  const fresh = type === "new";
+  const bcdNetwork = BCD_NETWORKS.get(chainId)!;
 
-export async function syncTzktOperations(chainId: string, address: string) {
-  const [time] = await Repo.syncTimes
-    .where({ service: "tzkt", chainId, address })
-    .toArray();
+  const [tzktOperations, bcdTokenTransfers] = await Promise.all([
+    getOperations(chainId as any, {
+      address,
+      [fresh ? "from" : "to"]:
+        tzktTime &&
+        new Date(
+          tzktTime[fresh ? "higherTimestamp" : "lowerTimestamp"]
+        ).toISOString(),
+    }),
+    getTokenTransfers({
+      network: bcdNetwork,
+      address,
+      [fresh ? "start" : "end"]:
+        bcdTime && bcdTime[fresh ? "higherTimestamp" : "lowerTimestamp"],
+    }),
+  ]);
 
-  let from, to: string;
-  if (time) {
-    // from = time.higherTimestamp;
-    // to = time.lowerTimestamp;
-  } else {
-    // from = time.higherTimestamp;
-    // to = time.higher
+  for (const tzktOp of tzktOperations) {
+    const current = await Repo.operations.get(tzktOp.hash);
+    if (!current) {
+      await Repo.operations.add({
+        hash: tzktOp.hash,
+        chainId,
+        members: [tzktOp.sender.address],
+        assetIds: [],
+        addedAt: tzktOp.timestamp ? +new Date(tzktOp.timestamp) : Date.now(),
+        data: {
+          tzktGroup: [tzktOp],
+        },
+      });
+    } else {
+      await Repo.operations.where({ hash: tzktOp.hash }).modify((op) => {
+        if (!op.members.includes(tzktOp.sender.address)) {
+          op.members.push(tzktOp.sender.address);
+        }
+        if (
+          op.data.tzktGroup &&
+          !op.data.tzktGroup.some((tOp) => tOp.id === tzktOp.id)
+        ) {
+          op.data.tzktGroup.push(tzktOp);
+        } else {
+          op.data.tzktGroup = [tzktOp];
+        }
+      });
+    }
   }
 
-  // return operations.map(op => op.id);
+  for (const tokenTrans of bcdTokenTransfers.transfers) {
+    const assetId = toTokenId(tokenTrans.contract, tokenTrans.token_id);
+    const current = await Repo.operations.get(tokenTrans.hash);
+    if (!current) {
+      await Repo.operations.add({
+        hash: tokenTrans.hash,
+        chainId,
+        members: [tokenTrans.initiator, tokenTrans.to],
+        assetIds: [assetId],
+        addedAt: tokenTrans.indexed_time ?? Date.now(),
+        data: {
+          bcdTokenTransfers: [tokenTrans],
+        },
+      });
+    } else {
+      await Repo.operations.where({ hash: tokenTrans.hash }).modify((op) => {
+        if (!op.members.includes(tokenTrans.initiator)) {
+          op.members.push(tokenTrans.initiator);
+        }
+        if (!op.members.includes(tokenTrans.to)) {
+          op.members.push(tokenTrans.to);
+        }
+        if (
+          op.data.bcdTokenTransfers &&
+          !op.data.bcdTokenTransfers.some(
+            (trans) => trans.nonce === tokenTrans.nonce
+          )
+        ) {
+          op.data.bcdTokenTransfers.push(tokenTrans);
+        } else {
+          op.data.bcdTokenTransfers = [tokenTrans];
+        }
+      });
+    }
+  }
 }
+
+// export async function syncTzktOperations(chainId: string, address: string) {
+//   const [time] = await Repo.syncTimes
+//     .where({ service: "tzkt", chainId, address })
+//     .toArray();
+
+//   let from, to: string | undefined;
+//   if (time) {
+//     // from = time.higherTimestamp;
+//     // to = time.lowerTimestamp;
+//   } else {
+//     // from = time.higherTimestamp;
+//     // to = time.higher
+//   }
+
+//   // return operations.map(op => op.id);
+// }
+
+export const BCD_NETWORKS = new Map<string, BcdNetwork>([
+  ["NetXdQprcVkpaWU", "mainnet"],
+  ["NetXSgo1ZT2DRUG", "edo2net"],
+]);
 
 function toTokenId(contractAddress: string, tokenId: string | number = 0) {
   return `${contractAddress}_${tokenId}`;

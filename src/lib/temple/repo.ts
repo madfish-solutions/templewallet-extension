@@ -20,6 +20,8 @@ db.version(1).stores({
   [Table.SyncTimes]: indexes("[service,chainId,address]"),
 });
 
+export const transaction = db.transaction;
+
 export const operations = db.table<IOperation, string>(Table.Operations);
 export const syncTimes = db.table<ISyncTime, string>(Table.SyncTimes);
 
@@ -42,8 +44,8 @@ export interface ISyncTime {
   service: string;
   chainId: string;
   address: string;
-  higherTimestamp: string;
-  lowerTimestamp: string;
+  higherTimestamp: number;
+  lowerTimestamp: number;
 }
 
 function indexes(...items: string[]) {
