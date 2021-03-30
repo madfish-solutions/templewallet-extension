@@ -11667,11 +11667,6 @@ webpackbar@4.0.0:
     text-table "^0.2.0"
     wrap-ansi "^6.0.0"
 
-wext-manifest@2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/wext-manifest/-/wext-manifest-2.2.0.tgz#fe8074f4a66971acd2f885d0a27a601b437e9aab"
-  integrity sha512-r2ZTSr/2yIWU8bu8EYHSfHAifaZO3mTiL5iGJ0+6cX7iWcdJtWFe/Kc2HxYc5rDJYl5xY+hqxGEYX0UfOtzpPg==
-
 whatwg-encoding@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/whatwg-encoding/-/whatwg-encoding-1.0.5.tgz#5abacf777c32166a51d085d6b4f3e7d27113ddb0"

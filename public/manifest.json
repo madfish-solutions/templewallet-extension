@@ -12,7 +12,7 @@
   },
 
   "description": "__MSG_appDesc__",
-  "homepage_url": "https://github.com/madfish-solutions/templewallet-extension",
+  "__chrome|firefox|opera__homepage_url": "https://github.com/madfish-solutions/templewallet-extension",
   "short_name": "Temple - Tezos Wallet (ex. Thanos)",
 
   "permissions": [
@@ -44,7 +44,7 @@
   "default_locale": "en",
 
   "browser_action": {
-    "default_popup": "popup.html",
+    "__chrome|firefox|opera__default_popup": "popup.html",
     "default_icon": {
       "16": "misc/icon-16.png",
       "19": "misc/icon-19.png",

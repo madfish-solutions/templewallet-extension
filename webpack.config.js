@@ -4,7 +4,6 @@ const path = require("path");
 const fs = require("fs");
 const webpack = require("webpack");
 const resolve = require("resolve");
-const wextManifest = require("wext-manifest");
 const ZipPlugin = require("zip-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
@@ -420,10 +419,13 @@ module.exports = {
         from: MANIFEST_PATH,
         to: path.join(OUTPUT_PATH, "manifest.json"),
         toType: "file",
-        transform: (content) =>
-          wextManifest[
-            TARGET_BROWSER === "safari" ? "firefox" : TARGET_BROWSER
-          ](JSON.parse(content)).content,
+        transform: (content) => {
+          const manifest = transformManifestKeys(
+            JSON.parse(content),
+            TARGET_BROWSER
+          );
+          return JSON.stringify(manifest, null, 2);
+        },
       },
     ]),
 
@@ -556,3 +558,40 @@ function getStyleLoaders(cssOptions = {}) {
     },
   ].filter(Boolean);
 }
+
+/**
+ *  Fork of `wext-manifest`
+ */
+const browserVendors = ["chrome", "firefox", "opera", "edge", "safari"];
+const vendorRegExp = new RegExp(
+  `^__((?:(?:${browserVendors.join("|")})\\|?)+)__(.*)`
+);
+
+const transformManifestKeys = (manifest, vendor) => {
+  if (Array.isArray(manifest)) {
+    return manifest.map((newManifest) => {
+      return transformManifestKeys(newManifest, vendor);
+    });
+  }
+
+  if (typeof manifest === "object") {
+    return Object.entries(manifest).reduce((newManifest, [key, value]) => {
+      const match = key.match(vendorRegExp);
+
+      if (match) {
+        const vendors = match[1].split("|");
+
+        // Swap key with non prefixed name
+        if (vendors.indexOf(vendor) > -1) {
+          newManifest[match[2]] = value;
+        }
+      } else {
+        newManifest[key] = transformManifestKeys(value, vendor);
+      }
+
+      return newManifest;
+    }, {});
+  }
+
+  return manifest;
+};
