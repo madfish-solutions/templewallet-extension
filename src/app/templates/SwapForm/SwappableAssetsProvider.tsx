@@ -154,7 +154,6 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(() => {
             const newKeys = await getBigmapKeys({
               pointer,
               network: bcdNetworkName,
-              size: 20,
               offset: quipuswapTokensIdentifiers.length,
             });
             outOfKeys = newKeys.length === 0;
