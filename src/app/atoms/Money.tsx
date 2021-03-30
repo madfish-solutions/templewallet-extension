@@ -12,6 +12,7 @@ type MoneyProps = {
   fiat?: boolean;
   cryptoDecimals?: number;
   roundingMode?: BigNumber.RoundingMode;
+  smallFractionFont?: boolean;
 };
 
 const DEFAULT_CRYPTO_DECIMALS = 6;
@@ -23,6 +24,7 @@ const Money = memo<MoneyProps>(
     fiat,
     cryptoDecimals = DEFAULT_CRYPTO_DECIMALS,
     roundingMode = BigNumber.ROUND_DOWN,
+    smallFractionFont = true,
   }) => {
     const bn = new BigNumber(children);
     const decimalsLength = bn.decimalPlaces();
@@ -58,7 +60,7 @@ const Money = memo<MoneyProps>(
             )}
           >
             {result.slice(0, indexOfDot + 1)}
-            <span style={{ fontSize: "0.9em" }}>
+            <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
               {result.slice(indexOfDot + 1, result.length)}
               <span className="opacity-75 tracking-tighter">...</span>
             </span>
@@ -69,7 +71,7 @@ const Money = memo<MoneyProps>(
         return (
           <>
             {result.slice(0, indexOfDot + 1)}
-            <span style={{ fontSize: "0.9em" }}>
+            <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
               {result.slice(indexOfDot + 1, result.length)}
             </span>
           </>

@@ -14,6 +14,7 @@ import classNames from "clsx";
 
 import AssetField from "app/atoms/AssetField";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
+import Money from "app/atoms/Money";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
@@ -286,7 +287,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   balance.eq(0) && "text-red-700"
                 )}
               >
-                {balance.toString()}
+                <Money smallFractionFont={false}>{balance}</Money>
               </span>
             )}
             <span>{selectedAsset.symbol}</span>
@@ -475,7 +476,7 @@ const AssetOption: React.FC<AssetOptionProps> = ({
           : option.symbol}
       </span>
       <div className="flex-1 text-right text-lg text-gray-600">
-        {balance?.toString()}
+        {balance && <Money smallFractionFont={false}>{balance}</Money>}
       </div>
     </button>
   );
