@@ -104,7 +104,7 @@ const ResourceLink: FC<ResourceLinkProps> = ({
           className="mr-4 w-8 h-8 flex justify-center items-center rounded-md"
           style={{ background, padding: background ? "0.375rem" : 0 }}
         >
-          <Icon className="max-h-full max-w-full" />
+          <Icon className="h-full w-auto" />
         </div>
         {name}
       </a>
