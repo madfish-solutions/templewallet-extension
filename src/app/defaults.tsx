@@ -15,7 +15,6 @@ export const BCD_NETWORKS_NAMES = new Map<TempleChainId, BcdNetwork>([
   [TempleChainId.Mainnet, "mainnet"],
   [TempleChainId.Edo2net, "edo2net"],
   [TempleChainId.Florencenet, "florencenet"],
-  [TempleChainId.Delphinet, "delphinet"],
 ]);
 
 export class ArtificialError extends Error {}
