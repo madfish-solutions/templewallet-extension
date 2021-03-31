@@ -1,0 +1,1565 @@
+{
+  "en": {
+    "identity": {
+      "version": {
+        "_cldrVersion": "37"
+      },
+      "language": "en"
+    },
+    "numbers": {
+      "defaultNumberingSystem": "latn",
+      "otherNumberingSystems": {
+        "native": "latn"
+      },
+      "minimumGroupingDigits": "1",
+      "symbols-numberSystem-latn": {
+        "decimal": ".",
+        "group": ",",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "E",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "NaN",
+        "timeSeparator": ":"
+      },
+      "decimalFormats-numberSystem-latn": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-one": "0 thousand",
+            "1000-count-other": "0 thousand",
+            "10000-count-one": "00 thousand",
+            "10000-count-other": "00 thousand",
+            "100000-count-one": "000 thousand",
+            "100000-count-other": "000 thousand",
+            "1000000-count-one": "0 million",
+            "1000000-count-other": "0 million",
+            "10000000-count-one": "00 million",
+            "10000000-count-other": "00 million",
+            "100000000-count-one": "000 million",
+            "100000000-count-other": "000 million",
+            "1000000000-count-one": "0 billion",
+            "1000000000-count-other": "0 billion",
+            "10000000000-count-one": "00 billion",
+            "10000000000-count-other": "00 billion",
+            "100000000000-count-one": "000 billion",
+            "100000000000-count-other": "000 billion",
+            "1000000000000-count-one": "0 trillion",
+            "1000000000000-count-other": "0 trillion",
+            "10000000000000-count-one": "00 trillion",
+            "10000000000000-count-other": "00 trillion",
+            "100000000000000-count-one": "000 trillion",
+            "100000000000000-count-other": "000 trillion"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-one": "0K",
+            "1000-count-other": "0K",
+            "10000-count-one": "00K",
+            "10000-count-other": "00K",
+            "100000-count-one": "000K",
+            "100000-count-other": "000K",
+            "1000000-count-one": "0M",
+            "1000000-count-other": "0M",
+            "10000000-count-one": "00M",
+            "10000000-count-other": "00M",
+            "100000000-count-one": "000M",
+            "100000000-count-other": "000M",
+            "1000000000-count-one": "0B",
+            "1000000000-count-other": "0B",
+            "10000000000-count-one": "00B",
+            "10000000000-count-other": "00B",
+            "100000000000-count-one": "000B",
+            "100000000000-count-other": "000B",
+            "1000000000000-count-one": "0T",
+            "1000000000000-count-other": "0T",
+            "10000000000000-count-one": "00T",
+            "10000000000000-count-other": "00T",
+            "100000000000000-count-one": "000T",
+            "100000000000000-count-other": "000T"
+          }
+        }
+      },
+      "scientificFormats-numberSystem-latn": {
+        "standard": "#E0"
+      },
+      "percentFormats-numberSystem-latn": {
+        "standard": "#,##0%"
+      },
+      "currencyFormats-numberSystem-latn": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "¤#,##0.00",
+        "accounting": "¤#,##0.00;(¤#,##0.00)",
+        "short": {
+          "standard": {
+            "1000-count-one": "¤0K",
+            "1000-count-other": "¤0K",
+            "10000-count-one": "¤00K",
+            "10000-count-other": "¤00K",
+            "100000-count-one": "¤000K",
+            "100000-count-other": "¤000K",
+            "1000000-count-one": "¤0M",
+            "1000000-count-other": "¤0M",
+            "10000000-count-one": "¤00M",
+            "10000000-count-other": "¤00M",
+            "100000000-count-one": "¤000M",
+            "100000000-count-other": "¤000M",
+            "1000000000-count-one": "¤0B",
+            "1000000000-count-other": "¤0B",
+            "10000000000-count-one": "¤00B",
+            "10000000000-count-other": "¤00B",
+            "100000000000-count-one": "¤000B",
+            "100000000000-count-other": "¤000B",
+            "1000000000000-count-one": "¤0T",
+            "1000000000000-count-other": "¤0T",
+            "10000000000000-count-one": "¤00T",
+            "10000000000000-count-other": "¤00T",
+            "100000000000000-count-one": "¤000T",
+            "100000000000000-count-other": "¤000T"
+          }
+        },
+        "unitPattern-count-one": "{0} {1}",
+        "unitPattern-count-other": "{0} {1}"
+      },
+      "miscPatterns-numberSystem-latn": {
+        "approximately": "~{0}",
+        "atLeast": "{0}+",
+        "atMost": "≤{0}",
+        "range": "{0}–{1}"
+      },
+      "minimalPairs": {
+        "pluralMinimalPairs-count-one": "{0} day",
+        "pluralMinimalPairs-count-other": "{0} days",
+        "few": "Take the {0}rd right.",
+        "one": "Take the {0}st right.",
+        "other": "Take the {0}th right.",
+        "two": "Take the {0}nd right."
+      }
+    }
+  },
+  "zh_TW": {
+    "identity": {
+      "version": {
+        "_cldrVersion": "37"
+      },
+      "language": "zh",
+      "script": "Hant"
+    },
+    "numbers": {
+      "defaultNumberingSystem": "latn",
+      "otherNumberingSystems": {
+        "native": "hanidec",
+        "traditional": "hant",
+        "finance": "hantfin"
+      },
+      "minimumGroupingDigits": "1",
+      "symbols-numberSystem-hanidec": {
+        "decimal": ".",
+        "group": ",",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "E",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "非數值",
+        "timeSeparator": ":"
+      },
+      "symbols-numberSystem-latn": {
+        "decimal": ".",
+        "group": ",",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "E",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "非數值",
+        "timeSeparator": ":"
+      },
+      "decimalFormats-numberSystem-hanidec": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-other": "0",
+            "10000-count-other": "0萬",
+            "100000-count-other": "00萬",
+            "1000000-count-other": "000萬",
+            "10000000-count-other": "0000萬",
+            "100000000-count-other": "0億",
+            "1000000000-count-other": "00億",
+            "10000000000-count-other": "000億",
+            "100000000000-count-other": "0000億",
+            "1000000000000-count-other": "0兆",
+            "10000000000000-count-other": "00兆",
+            "100000000000000-count-other": "000兆"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-other": "0",
+            "10000-count-other": "0萬",
+            "100000-count-other": "00萬",
+            "1000000-count-other": "000萬",
+            "10000000-count-other": "0000萬",
+            "100000000-count-other": "0億",
+            "1000000000-count-other": "00億",
+            "10000000000-count-other": "000億",
+            "100000000000-count-other": "0000億",
+            "1000000000000-count-other": "0兆",
+            "10000000000000-count-other": "00兆",
+            "100000000000000-count-other": "000兆"
+          }
+        }
+      },
+      "decimalFormats-numberSystem-latn": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-other": "0",
+            "10000-count-other": "0萬",
+            "100000-count-other": "00萬",
+            "1000000-count-other": "000萬",
+            "10000000-count-other": "0000萬",
+            "100000000-count-other": "0億",
+            "1000000000-count-other": "00億",
+            "10000000000-count-other": "000億",
+            "100000000000-count-other": "0000億",
+            "1000000000000-count-other": "0兆",
+            "10000000000000-count-other": "00兆",
+            "100000000000000-count-other": "000兆"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-other": "0",
+            "10000-count-other": "0萬",
+            "100000-count-other": "00萬",
+            "1000000-count-other": "000萬",
+            "10000000-count-other": "0000萬",
+            "100000000-count-other": "0億",
+            "1000000000-count-other": "00億",
+            "10000000000-count-other": "000億",
+            "100000000000-count-other": "0000億",
+            "1000000000000-count-other": "0兆",
+            "10000000000000-count-other": "00兆",
+            "100000000000000-count-other": "000兆"
+          }
+        }
+      },
+      "scientificFormats-numberSystem-hanidec": {
+        "standard": "#E0"
+      },
+      "scientificFormats-numberSystem-latn": {
+        "standard": "#E0"
+      },
+      "percentFormats-numberSystem-hanidec": {
+        "standard": "#,##0%"
+      },
+      "percentFormats-numberSystem-latn": {
+        "standard": "#,##0%"
+      },
+      "currencyFormats-numberSystem-hanidec": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "¤#,##0.00",
+        "accounting": "¤#,##0.00;(¤#,##0.00)",
+        "short": {
+          "standard": {
+            "1000-count-other": "0",
+            "10000-count-other": "¤0萬",
+            "100000-count-other": "¤00萬",
+            "1000000-count-other": "¤000萬",
+            "10000000-count-other": "¤0000萬",
+            "100000000-count-other": "¤0億",
+            "1000000000-count-other": "¤00億",
+            "10000000000-count-other": "¤000億",
+            "100000000000-count-other": "¤0000億",
+            "1000000000000-count-other": "¤0兆",
+            "10000000000000-count-other": "¤00兆",
+            "100000000000000-count-other": "¤000兆"
+          }
+        },
+        "unitPattern-count-other": "{0} {1}"
+      },
+      "currencyFormats-numberSystem-latn": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "¤#,##0.00",
+        "accounting": "¤#,##0.00;(¤#,##0.00)",
+        "short": {
+          "standard": {
+            "1000-count-other": "0",
+            "10000-count-other": "¤0萬",
+            "100000-count-other": "¤00萬",
+            "1000000-count-other": "¤000萬",
+            "10000000-count-other": "¤0000萬",
+            "100000000-count-other": "¤0億",
+            "1000000000-count-other": "¤00億",
+            "10000000000-count-other": "¤000億",
+            "100000000000-count-other": "¤0000億",
+            "1000000000000-count-other": "¤0兆",
+            "10000000000000-count-other": "¤00兆",
+            "100000000000000-count-other": "¤000兆"
+          }
+        },
+        "unitPattern-count-other": "{0} {1}"
+      },
+      "miscPatterns-numberSystem-hanidec": {
+        "approximately": "~{0}",
+        "atLeast": "{0}+",
+        "atMost": "≤{0}",
+        "range": "{0}-{1}"
+      },
+      "miscPatterns-numberSystem-latn": {
+        "approximately": "~{0}",
+        "atLeast": "{0}+",
+        "atMost": "≤{0}",
+        "range": "{0}-{1}"
+      },
+      "minimalPairs": {
+        "pluralMinimalPairs-count-other": "{0} 日",
+        "other": "在第 {0} 個路口右轉。"
+      }
+    }
+  },
+  "zh_CN": {
+    "identity": {
+      "version": {
+        "_cldrVersion": "37"
+      },
+      "language": "zh"
+    },
+    "numbers": {
+      "defaultNumberingSystem": "latn",
+      "otherNumberingSystems": {
+        "native": "hanidec",
+        "traditional": "hans",
+        "finance": "hansfin"
+      },
+      "minimumGroupingDigits": "1",
+      "symbols-numberSystem-hanidec": {
+        "decimal": ".",
+        "group": ",",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "E",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "NaN",
+        "timeSeparator": ":"
+      },
+      "symbols-numberSystem-latn": {
+        "decimal": ".",
+        "group": ",",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "E",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "NaN",
+        "timeSeparator": ":"
+      },
+      "decimalFormats-numberSystem-hanidec": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-other": "0",
+            "10000-count-other": "0万",
+            "100000-count-other": "00万",
+            "1000000-count-other": "000万",
+            "10000000-count-other": "0000万",
+            "100000000-count-other": "0亿",
+            "1000000000-count-other": "00亿",
+            "10000000000-count-other": "000亿",
+            "100000000000-count-other": "0000亿",
+            "1000000000000-count-other": "0万亿",
+            "10000000000000-count-other": "00万亿",
+            "100000000000000-count-other": "000万亿"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-other": "0",
+            "10000-count-other": "0万",
+            "100000-count-other": "00万",
+            "1000000-count-other": "000万",
+            "10000000-count-other": "0000万",
+            "100000000-count-other": "0亿",
+            "1000000000-count-other": "00亿",
+            "10000000000-count-other": "000亿",
+            "100000000000-count-other": "0000亿",
+            "1000000000000-count-other": "0万亿",
+            "10000000000000-count-other": "00万亿",
+            "100000000000000-count-other": "000万亿"
+          }
+        }
+      },
+      "decimalFormats-numberSystem-latn": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-other": "0",
+            "10000-count-other": "0万",
+            "100000-count-other": "00万",
+            "1000000-count-other": "000万",
+            "10000000-count-other": "0000万",
+            "100000000-count-other": "0亿",
+            "1000000000-count-other": "00亿",
+            "10000000000-count-other": "000亿",
+            "100000000000-count-other": "0000亿",
+            "1000000000000-count-other": "0万亿",
+            "10000000000000-count-other": "00万亿",
+            "100000000000000-count-other": "000万亿"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-other": "0",
+            "10000-count-other": "0万",
+            "100000-count-other": "00万",
+            "1000000-count-other": "000万",
+            "10000000-count-other": "0000万",
+            "100000000-count-other": "0亿",
+            "1000000000-count-other": "00亿",
+            "10000000000-count-other": "000亿",
+            "100000000000-count-other": "0000亿",
+            "1000000000000-count-other": "0万亿",
+            "10000000000000-count-other": "00万亿",
+            "100000000000000-count-other": "000万亿"
+          }
+        }
+      },
+      "scientificFormats-numberSystem-hanidec": {
+        "standard": "#E0"
+      },
+      "scientificFormats-numberSystem-latn": {
+        "standard": "#E0"
+      },
+      "percentFormats-numberSystem-hanidec": {
+        "standard": "#,##0%"
+      },
+      "percentFormats-numberSystem-latn": {
+        "standard": "#,##0%"
+      },
+      "currencyFormats-numberSystem-hanidec": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "¤#,##0.00",
+        "accounting": "¤#,##0.00;(¤#,##0.00)",
+        "short": {
+          "standard": {
+            "1000-count-other": "0",
+            "10000-count-other": "¤0万",
+            "100000-count-other": "¤00万",
+            "1000000-count-other": "¤000万",
+            "10000000-count-other": "¤0000万",
+            "100000000-count-other": "¤0亿",
+            "1000000000-count-other": "¤00亿",
+            "10000000000-count-other": "¤000亿",
+            "100000000000-count-other": "¤0000亿",
+            "1000000000000-count-other": "¤0万亿",
+            "10000000000000-count-other": "¤00万亿",
+            "100000000000000-count-other": "¤000万亿"
+          }
+        },
+        "unitPattern-count-other": "{0}{1}"
+      },
+      "currencyFormats-numberSystem-latn": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "¤#,##0.00",
+        "accounting": "¤#,##0.00;(¤#,##0.00)",
+        "short": {
+          "standard": {
+            "1000-count-other": "0",
+            "10000-count-other": "¤0万",
+            "100000-count-other": "¤00万",
+            "1000000-count-other": "¤000万",
+            "10000000-count-other": "¤0000万",
+            "100000000-count-other": "¤0亿",
+            "1000000000-count-other": "¤00亿",
+            "10000000000-count-other": "¤000亿",
+            "100000000000-count-other": "¤0000亿",
+            "1000000000000-count-other": "¤0万亿",
+            "10000000000000-count-other": "¤00万亿",
+            "100000000000000-count-other": "¤000万亿"
+          }
+        },
+        "unitPattern-count-other": "{0}{1}"
+      },
+      "miscPatterns-numberSystem-hanidec": {
+        "approximately": "~{0}",
+        "atLeast": "{0}+",
+        "atMost": "≤{0}",
+        "range": "{0}-{1}"
+      },
+      "miscPatterns-numberSystem-latn": {
+        "approximately": "~{0}",
+        "atLeast": "{0}+",
+        "atMost": "≤{0}",
+        "range": "{0}-{1}"
+      },
+      "minimalPairs": {
+        "pluralMinimalPairs-count-other": "{0} 天",
+        "other": "在第 {0} 个路口右转。"
+      }
+    }
+  },
+  "ja": {
+    "identity": {
+      "version": {
+        "_cldrVersion": "37"
+      },
+      "language": "ja"
+    },
+    "numbers": {
+      "defaultNumberingSystem": "latn",
+      "otherNumberingSystems": {
+        "native": "latn",
+        "traditional": "jpan",
+        "finance": "jpanfin"
+      },
+      "minimumGroupingDigits": "1",
+      "symbols-numberSystem-latn": {
+        "decimal": ".",
+        "group": ",",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "E",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "NaN",
+        "timeSeparator": ":"
+      },
+      "decimalFormats-numberSystem-latn": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-other": "0",
+            "10000-count-other": "0万",
+            "100000-count-other": "00万",
+            "1000000-count-other": "000万",
+            "10000000-count-other": "0000万",
+            "100000000-count-other": "0億",
+            "1000000000-count-other": "00億",
+            "10000000000-count-other": "000億",
+            "100000000000-count-other": "0000億",
+            "1000000000000-count-other": "0兆",
+            "10000000000000-count-other": "00兆",
+            "100000000000000-count-other": "000兆"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-other": "0",
+            "10000-count-other": "0万",
+            "100000-count-other": "00万",
+            "1000000-count-other": "000万",
+            "10000000-count-other": "0000万",
+            "100000000-count-other": "0億",
+            "1000000000-count-other": "00億",
+            "10000000000-count-other": "000億",
+            "100000000000-count-other": "0000億",
+            "1000000000000-count-other": "0兆",
+            "10000000000000-count-other": "00兆",
+            "100000000000000-count-other": "000兆"
+          }
+        }
+      },
+      "scientificFormats-numberSystem-latn": {
+        "standard": "#E0"
+      },
+      "percentFormats-numberSystem-latn": {
+        "standard": "#,##0%"
+      },
+      "currencyFormats-numberSystem-latn": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "¤#,##0.00",
+        "accounting": "¤#,##0.00;(¤#,##0.00)",
+        "short": {
+          "standard": {
+            "1000-count-other": "0",
+            "10000-count-other": "¤0万",
+            "100000-count-other": "¤00万",
+            "1000000-count-other": "¤000万",
+            "10000000-count-other": "¤0000万",
+            "100000000-count-other": "¤0億",
+            "1000000000-count-other": "¤00億",
+            "10000000000-count-other": "¤000億",
+            "100000000000-count-other": "¤0000億",
+            "1000000000000-count-other": "¤0兆",
+            "10000000000000-count-other": "¤00兆",
+            "100000000000000-count-other": "¤000兆"
+          }
+        },
+        "unitPattern-count-other": "{0}{1}"
+      },
+      "miscPatterns-numberSystem-latn": {
+        "approximately": "約 {0}",
+        "atLeast": "{0} 以上",
+        "atMost": "{0} 以下",
+        "range": "{0}～{1}"
+      },
+      "minimalPairs": {
+        "pluralMinimalPairs-count-other": "{0}日",
+        "other": "{0} 番目の角を右折します。"
+      }
+    }
+  },
+  "ko": {
+    "identity": {
+      "version": {
+        "_cldrVersion": "37"
+      },
+      "language": "ko"
+    },
+    "numbers": {
+      "defaultNumberingSystem": "latn",
+      "otherNumberingSystems": {
+        "native": "latn"
+      },
+      "minimumGroupingDigits": "1",
+      "symbols-numberSystem-latn": {
+        "decimal": ".",
+        "group": ",",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "E",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "NaN",
+        "timeSeparator": ":"
+      },
+      "decimalFormats-numberSystem-latn": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-other": "0천",
+            "10000-count-other": "0만",
+            "100000-count-other": "00만",
+            "1000000-count-other": "000만",
+            "10000000-count-other": "0000만",
+            "100000000-count-other": "0억",
+            "1000000000-count-other": "00억",
+            "10000000000-count-other": "000억",
+            "100000000000-count-other": "0000억",
+            "1000000000000-count-other": "0조",
+            "10000000000000-count-other": "00조",
+            "100000000000000-count-other": "000조"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-other": "0천",
+            "10000-count-other": "0만",
+            "100000-count-other": "00만",
+            "1000000-count-other": "000만",
+            "10000000-count-other": "0000만",
+            "100000000-count-other": "0억",
+            "1000000000-count-other": "00억",
+            "10000000000-count-other": "000억",
+            "100000000000-count-other": "0000억",
+            "1000000000000-count-other": "0조",
+            "10000000000000-count-other": "00조",
+            "100000000000000-count-other": "000조"
+          }
+        }
+      },
+      "scientificFormats-numberSystem-latn": {
+        "standard": "#E0"
+      },
+      "percentFormats-numberSystem-latn": {
+        "standard": "#,##0%"
+      },
+      "currencyFormats-numberSystem-latn": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "¤#,##0.00",
+        "accounting": "¤#,##0.00;(¤#,##0.00)",
+        "short": {
+          "standard": {
+            "1000-count-other": "¤0천",
+            "10000-count-other": "¤0만",
+            "100000-count-other": "¤00만",
+            "1000000-count-other": "¤000만",
+            "10000000-count-other": "¤0000만",
+            "100000000-count-other": "¤0억",
+            "1000000000-count-other": "¤00억",
+            "10000000000-count-other": "¤000억",
+            "100000000000-count-other": "¤0000억",
+            "1000000000000-count-other": "¤0조",
+            "10000000000000-count-other": "¤00조",
+            "100000000000000-count-other": "¤000조"
+          }
+        },
+        "unitPattern-count-other": "{0} {1}"
+      },
+      "miscPatterns-numberSystem-latn": {
+        "approximately": "~{0}",
+        "atLeast": "{0}+",
+        "atMost": "≤{0}",
+        "range": "{0}~{1}"
+      },
+      "minimalPairs": {
+        "pluralMinimalPairs-count-other": "{0}일",
+        "other": "{0}번째 길목에서 우회전하세요."
+      }
+    }
+  },
+  "ru": {
+    "identity": {
+      "version": {
+        "_cldrVersion": "37"
+      },
+      "language": "ru"
+    },
+    "numbers": {
+      "defaultNumberingSystem": "latn",
+      "otherNumberingSystems": {
+        "native": "latn"
+      },
+      "minimumGroupingDigits": "1",
+      "symbols-numberSystem-latn": {
+        "decimal": ",",
+        "group": " ",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "E",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "не число",
+        "timeSeparator": ":"
+      },
+      "decimalFormats-numberSystem-latn": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-one": "0 тысяча",
+            "1000-count-few": "0 тысячи",
+            "1000-count-many": "0 тысяч",
+            "1000-count-other": "0 тысячи",
+            "10000-count-one": "00 тысяча",
+            "10000-count-few": "00 тысячи",
+            "10000-count-many": "00 тысяч",
+            "10000-count-other": "00 тысячи",
+            "100000-count-one": "000 тысяча",
+            "100000-count-few": "000 тысячи",
+            "100000-count-many": "000 тысяч",
+            "100000-count-other": "000 тысячи",
+            "1000000-count-one": "0 миллион",
+            "1000000-count-few": "0 миллиона",
+            "1000000-count-many": "0 миллионов",
+            "1000000-count-other": "0 миллиона",
+            "10000000-count-one": "00 миллион",
+            "10000000-count-few": "00 миллиона",
+            "10000000-count-many": "00 миллионов",
+            "10000000-count-other": "00 миллиона",
+            "100000000-count-one": "000 миллион",
+            "100000000-count-few": "000 миллиона",
+            "100000000-count-many": "000 миллионов",
+            "100000000-count-other": "000 миллиона",
+            "1000000000-count-one": "0 миллиард",
+            "1000000000-count-few": "0 миллиарда",
+            "1000000000-count-many": "0 миллиардов",
+            "1000000000-count-other": "0 миллиарда",
+            "10000000000-count-one": "00 миллиард",
+            "10000000000-count-few": "00 миллиарда",
+            "10000000000-count-many": "00 миллиардов",
+            "10000000000-count-other": "00 миллиарда",
+            "100000000000-count-one": "000 миллиард",
+            "100000000000-count-few": "000 миллиарда",
+            "100000000000-count-many": "000 миллиардов",
+            "100000000000-count-other": "000 миллиарда",
+            "1000000000000-count-one": "0 триллион",
+            "1000000000000-count-few": "0 триллиона",
+            "1000000000000-count-many": "0 триллионов",
+            "1000000000000-count-other": "0 триллиона",
+            "10000000000000-count-one": "00 триллион",
+            "10000000000000-count-few": "00 триллиона",
+            "10000000000000-count-many": "00 триллионов",
+            "10000000000000-count-other": "00 триллиона",
+            "100000000000000-count-one": "000 триллион",
+            "100000000000000-count-few": "000 триллиона",
+            "100000000000000-count-many": "000 триллионов",
+            "100000000000000-count-other": "000 триллиона"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-one": "0 тыс'.'",
+            "1000-count-few": "0 тыс'.'",
+            "1000-count-many": "0 тыс'.'",
+            "1000-count-other": "0 тыс'.'",
+            "10000-count-one": "00 тыс'.'",
+            "10000-count-few": "00 тыс'.'",
+            "10000-count-many": "00 тыс'.'",
+            "10000-count-other": "00 тыс'.'",
+            "100000-count-one": "000 тыс'.'",
+            "100000-count-few": "000 тыс'.'",
+            "100000-count-many": "000 тыс'.'",
+            "100000-count-other": "000 тыс'.'",
+            "1000000-count-one": "0 млн",
+            "1000000-count-few": "0 млн",
+            "1000000-count-many": "0 млн",
+            "1000000-count-other": "0 млн",
+            "10000000-count-one": "00 млн",
+            "10000000-count-few": "00 млн",
+            "10000000-count-many": "00 млн",
+            "10000000-count-other": "00 млн",
+            "100000000-count-one": "000 млн",
+            "100000000-count-few": "000 млн",
+            "100000000-count-many": "000 млн",
+            "100000000-count-other": "000 млн",
+            "1000000000-count-one": "0 млрд",
+            "1000000000-count-few": "0 млрд",
+            "1000000000-count-many": "0 млрд",
+            "1000000000-count-other": "0 млрд",
+            "10000000000-count-one": "00 млрд",
+            "10000000000-count-few": "00 млрд",
+            "10000000000-count-many": "00 млрд",
+            "10000000000-count-other": "00 млрд",
+            "100000000000-count-one": "000 млрд",
+            "100000000000-count-few": "000 млрд",
+            "100000000000-count-many": "000 млрд",
+            "100000000000-count-other": "000 млрд",
+            "1000000000000-count-one": "0 трлн",
+            "1000000000000-count-few": "0 трлн",
+            "1000000000000-count-many": "0 трлн",
+            "1000000000000-count-other": "0 трлн",
+            "10000000000000-count-one": "00 трлн",
+            "10000000000000-count-few": "00 трлн",
+            "10000000000000-count-many": "00 трлн",
+            "10000000000000-count-other": "00 трлн",
+            "100000000000000-count-one": "000 трлн",
+            "100000000000000-count-few": "000 трлн",
+            "100000000000000-count-many": "000 трлн",
+            "100000000000000-count-other": "000 трлн"
+          }
+        }
+      },
+      "scientificFormats-numberSystem-latn": {
+        "standard": "#E0"
+      },
+      "percentFormats-numberSystem-latn": {
+        "standard": "#,##0 %"
+      },
+      "currencyFormats-numberSystem-latn": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "#,##0.00 ¤",
+        "accounting": "#,##0.00 ¤",
+        "short": {
+          "standard": {
+            "1000-count-one": "0 тыс'.' ¤",
+            "1000-count-few": "0 тыс'.' ¤",
+            "1000-count-many": "0 тыс'.' ¤",
+            "1000-count-other": "0 тыс'.' ¤",
+            "10000-count-one": "00 тыс'.' ¤",
+            "10000-count-few": "00 тыс'.' ¤",
+            "10000-count-many": "00 тыс'.' ¤",
+            "10000-count-other": "00 тыс'.' ¤",
+            "100000-count-one": "000 тыс'.' ¤",
+            "100000-count-few": "000 тыс'.' ¤",
+            "100000-count-many": "000 тыс'.' ¤",
+            "100000-count-other": "000 тыс'.' ¤",
+            "1000000-count-one": "0 млн ¤",
+            "1000000-count-few": "0 млн ¤",
+            "1000000-count-many": "0 млн ¤",
+            "1000000-count-other": "0 млн ¤",
+            "10000000-count-one": "00 млн ¤",
+            "10000000-count-few": "00 млн ¤",
+            "10000000-count-many": "00 млн ¤",
+            "10000000-count-other": "00 млн ¤",
+            "100000000-count-one": "000 млн ¤",
+            "100000000-count-few": "000 млн ¤",
+            "100000000-count-many": "000 млн ¤",
+            "100000000-count-other": "000 млн ¤",
+            "1000000000-count-one": "0 млрд ¤",
+            "1000000000-count-few": "0 млрд ¤",
+            "1000000000-count-many": "0 млрд ¤",
+            "1000000000-count-other": "0 млрд ¤",
+            "10000000000-count-one": "00 млрд ¤",
+            "10000000000-count-few": "00 млрд ¤",
+            "10000000000-count-many": "00 млрд ¤",
+            "10000000000-count-other": "00 млрд ¤",
+            "100000000000-count-one": "000 млрд ¤",
+            "100000000000-count-few": "000 млрд ¤",
+            "100000000000-count-many": "000 млрд ¤",
+            "100000000000-count-other": "000 млрд ¤",
+            "1000000000000-count-one": "0 трлн ¤",
+            "1000000000000-count-few": "0 трлн ¤",
+            "1000000000000-count-many": "0 трлн ¤",
+            "1000000000000-count-other": "0 трлн ¤",
+            "10000000000000-count-one": "00 трлн ¤",
+            "10000000000000-count-few": "00 трлн ¤",
+            "10000000000000-count-many": "00 трлн ¤",
+            "10000000000000-count-other": "00 трлн ¤",
+            "100000000000000-count-one": "000 трлн ¤",
+            "100000000000000-count-few": "000 трлн ¤",
+            "100000000000000-count-many": "000 трлн ¤",
+            "100000000000000-count-other": "000 трлн ¤"
+          }
+        },
+        "unitPattern-count-one": "{0} {1}",
+        "unitPattern-count-few": "{0} {1}",
+        "unitPattern-count-many": "{0} {1}",
+        "unitPattern-count-other": "{0} {1}"
+      },
+      "miscPatterns-numberSystem-latn": {
+        "approximately": "≈{0}",
+        "atLeast": "≥{0}",
+        "atMost": "≤{0}",
+        "range": "{0}–{1}"
+      },
+      "minimalPairs": {
+        "pluralMinimalPairs-count-one": "из {0} книги за {0} день",
+        "pluralMinimalPairs-count-few": "из {0} книг за {0} дня",
+        "pluralMinimalPairs-count-many": "из {0} книг за {0} дней",
+        "pluralMinimalPairs-count-other": "из {0} книги за {0} дня",
+        "other": "Сверните направо на {0}-м перекрестке."
+      }
+    }
+  },
+  "uk": {
+    "identity": {
+      "version": {
+        "_cldrVersion": "37"
+      },
+      "language": "uk"
+    },
+    "numbers": {
+      "defaultNumberingSystem": "latn",
+      "otherNumberingSystems": {
+        "native": "latn"
+      },
+      "minimumGroupingDigits": "1",
+      "symbols-numberSystem-latn": {
+        "decimal": ",",
+        "group": " ",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "Е",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "NaN",
+        "timeSeparator": ":"
+      },
+      "decimalFormats-numberSystem-latn": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-one": "0 тисяча",
+            "1000-count-few": "0 тисячі",
+            "1000-count-many": "0 тисяч",
+            "1000-count-other": "0 тисячі",
+            "10000-count-one": "00 тисяча",
+            "10000-count-few": "00 тисячі",
+            "10000-count-many": "00 тисяч",
+            "10000-count-other": "00 тисячі",
+            "100000-count-one": "000 тисяча",
+            "100000-count-few": "000 тисячі",
+            "100000-count-many": "000 тисяч",
+            "100000-count-other": "000 тисячі",
+            "1000000-count-one": "0 мільйон",
+            "1000000-count-few": "0 мільйони",
+            "1000000-count-many": "0 мільйонів",
+            "1000000-count-other": "0 мільйона",
+            "10000000-count-one": "00 мільйон",
+            "10000000-count-few": "00 мільйони",
+            "10000000-count-many": "00 мільйонів",
+            "10000000-count-other": "00 мільйона",
+            "100000000-count-one": "000 мільйон",
+            "100000000-count-few": "000 мільйони",
+            "100000000-count-many": "000 мільйонів",
+            "100000000-count-other": "000 мільйона",
+            "1000000000-count-one": "0 мільярд",
+            "1000000000-count-few": "0 мільярди",
+            "1000000000-count-many": "0 мільярдів",
+            "1000000000-count-other": "0 мільярда",
+            "10000000000-count-one": "00 мільярд",
+            "10000000000-count-few": "00 мільярди",
+            "10000000000-count-many": "00 мільярдів",
+            "10000000000-count-other": "00 мільярда",
+            "100000000000-count-one": "000 мільярд",
+            "100000000000-count-few": "000 мільярди",
+            "100000000000-count-many": "000 мільярдів",
+            "100000000000-count-other": "000 мільярда",
+            "1000000000000-count-one": "0 трильйон",
+            "1000000000000-count-few": "0 трильйони",
+            "1000000000000-count-many": "0 трильйонів",
+            "1000000000000-count-other": "0 трильйона",
+            "10000000000000-count-one": "00 трильйон",
+            "10000000000000-count-few": "00 трильйони",
+            "10000000000000-count-many": "00 трильйонів",
+            "10000000000000-count-other": "00 трильйона",
+            "100000000000000-count-one": "000 трильйон",
+            "100000000000000-count-few": "000 трильйони",
+            "100000000000000-count-many": "000 трильйонів",
+            "100000000000000-count-other": "000 трильйона"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-one": "0 тис'.'",
+            "1000-count-few": "0 тис'.'",
+            "1000-count-many": "0 тис'.'",
+            "1000-count-other": "0 тис'.'",
+            "10000-count-one": "00 тис'.'",
+            "10000-count-few": "00 тис'.'",
+            "10000-count-many": "00 тис'.'",
+            "10000-count-other": "00 тис'.'",
+            "100000-count-one": "000 тис'.'",
+            "100000-count-few": "000 тис'.'",
+            "100000-count-many": "000 тис'.'",
+            "100000-count-other": "000 тис'.'",
+            "1000000-count-one": "0 млн",
+            "1000000-count-few": "0 млн",
+            "1000000-count-many": "0 млн",
+            "1000000-count-other": "0 млн",
+            "10000000-count-one": "00 млн",
+            "10000000-count-few": "00 млн",
+            "10000000-count-many": "00 млн",
+            "10000000-count-other": "00 млн",
+            "100000000-count-one": "000 млн",
+            "100000000-count-few": "000 млн",
+            "100000000-count-many": "000 млн",
+            "100000000-count-other": "000 млн",
+            "1000000000-count-one": "0 млрд",
+            "1000000000-count-few": "0 млрд",
+            "1000000000-count-many": "0 млрд",
+            "1000000000-count-other": "0 млрд",
+            "10000000000-count-one": "00 млрд",
+            "10000000000-count-few": "00 млрд",
+            "10000000000-count-many": "00 млрд",
+            "10000000000-count-other": "00 млрд",
+            "100000000000-count-one": "000 млрд",
+            "100000000000-count-few": "000 млрд",
+            "100000000000-count-many": "000 млрд",
+            "100000000000-count-other": "000 млрд",
+            "1000000000000-count-one": "0 трлн",
+            "1000000000000-count-few": "0 трлн",
+            "1000000000000-count-many": "0 трлн",
+            "1000000000000-count-other": "0 трлн",
+            "10000000000000-count-one": "00 трлн",
+            "10000000000000-count-few": "00 трлн",
+            "10000000000000-count-many": "00 трлн",
+            "10000000000000-count-other": "00 трлн",
+            "100000000000000-count-one": "000 трлн",
+            "100000000000000-count-few": "000 трлн",
+            "100000000000000-count-many": "000 трлн",
+            "100000000000000-count-other": "000 трлн"
+          }
+        }
+      },
+      "scientificFormats-numberSystem-latn": {
+        "standard": "#E0"
+      },
+      "percentFormats-numberSystem-latn": {
+        "standard": "#,##0%"
+      },
+      "currencyFormats-numberSystem-latn": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "#,##0.00 ¤",
+        "accounting": "#,##0.00 ¤",
+        "short": {
+          "standard": {
+            "1000-count-one": "0 тис'.' ¤",
+            "1000-count-few": "0 тис'.' ¤",
+            "1000-count-many": "0 тис'.' ¤",
+            "1000-count-other": "0 тис'.' ¤",
+            "10000-count-one": "00 тис'.' ¤",
+            "10000-count-few": "00 тис'.' ¤",
+            "10000-count-many": "00 тис'.' ¤",
+            "10000-count-other": "00 тис'.' ¤",
+            "100000-count-one": "000 тис'.' ¤",
+            "100000-count-few": "000 тис'.' ¤",
+            "100000-count-many": "000 тис'.' ¤",
+            "100000-count-other": "000 тис'.' ¤",
+            "1000000-count-one": "0 млн ¤",
+            "1000000-count-few": "0 млн ¤",
+            "1000000-count-many": "0 млн ¤",
+            "1000000-count-other": "0 млн ¤",
+            "10000000-count-one": "00 млн ¤",
+            "10000000-count-few": "00 млн ¤",
+            "10000000-count-many": "00 млн ¤",
+            "10000000-count-other": "00 млн ¤",
+            "100000000-count-one": "000 млн ¤",
+            "100000000-count-few": "000 млн ¤",
+            "100000000-count-many": "000 млн ¤",
+            "100000000-count-other": "000 млн ¤",
+            "1000000000-count-one": "0 млрд ¤",
+            "1000000000-count-few": "0 млрд ¤",
+            "1000000000-count-many": "0 млрд ¤",
+            "1000000000-count-other": "0 млрд ¤",
+            "10000000000-count-one": "00 млрд ¤",
+            "10000000000-count-few": "00 млрд ¤",
+            "10000000000-count-many": "00 млрд ¤",
+            "10000000000-count-other": "00 млрд ¤",
+            "100000000000-count-one": "000 млрд ¤",
+            "100000000000-count-few": "000 млрд ¤",
+            "100000000000-count-many": "000 млрд ¤",
+            "100000000000-count-other": "000 млрд ¤",
+            "1000000000000-count-one": "0 трлн ¤",
+            "1000000000000-count-few": "0 трлн ¤",
+            "1000000000000-count-many": "0 трлн ¤",
+            "1000000000000-count-other": "0 трлн ¤",
+            "10000000000000-count-one": "00 трлн ¤",
+            "10000000000000-count-few": "00 трлн ¤",
+            "10000000000000-count-many": "00 трлн ¤",
+            "10000000000000-count-other": "00 трлн ¤",
+            "100000000000000-count-one": "000 трлн ¤",
+            "100000000000000-count-few": "000 трлн ¤",
+            "100000000000000-count-many": "000 трлн ¤",
+            "100000000000000-count-other": "000 трлн ¤"
+          }
+        },
+        "unitPattern-count-one": "{0} {1}",
+        "unitPattern-count-few": "{0} {1}",
+        "unitPattern-count-many": "{0} {1}",
+        "unitPattern-count-other": "{0} {1}"
+      },
+      "miscPatterns-numberSystem-latn": {
+        "approximately": "~{0}",
+        "atLeast": "{0}+",
+        "atMost": "≤{0}",
+        "range": "{0}–{1}"
+      },
+      "minimalPairs": {
+        "pluralMinimalPairs-count-one": "{0} день",
+        "pluralMinimalPairs-count-few": "{0} дні",
+        "pluralMinimalPairs-count-many": "{0} днів",
+        "pluralMinimalPairs-count-other": "{0} дня",
+        "few": "{0}-я дивізія, {0}-є коло",
+        "other": "{0}-а дивізія, {0}-е коло"
+      }
+    }
+  },
+  "fr": {
+    "identity": {
+      "version": {
+        "_cldrVersion": "37"
+      },
+      "language": "fr"
+    },
+    "numbers": {
+      "defaultNumberingSystem": "latn",
+      "otherNumberingSystems": {
+        "native": "latn"
+      },
+      "minimumGroupingDigits": "1",
+      "symbols-numberSystem-latn": {
+        "decimal": ",",
+        "group": " ",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "E",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "NaN",
+        "timeSeparator": ":"
+      },
+      "decimalFormats-numberSystem-latn": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-one": "0 millier",
+            "1000-count-other": "0 mille",
+            "10000-count-one": "00 mille",
+            "10000-count-other": "00 mille",
+            "100000-count-one": "000 mille",
+            "100000-count-other": "000 mille",
+            "1000000-count-one": "0 million",
+            "1000000-count-other": "0 millions",
+            "10000000-count-one": "00 million",
+            "10000000-count-other": "00 millions",
+            "100000000-count-one": "000 million",
+            "100000000-count-other": "000 millions",
+            "1000000000-count-one": "0 milliard",
+            "1000000000-count-other": "0 milliards",
+            "10000000000-count-one": "00 milliard",
+            "10000000000-count-other": "00 milliards",
+            "100000000000-count-one": "000 milliard",
+            "100000000000-count-other": "000 milliards",
+            "1000000000000-count-one": "0 billion",
+            "1000000000000-count-other": "0 billions",
+            "10000000000000-count-one": "00 billion",
+            "10000000000000-count-other": "00 billions",
+            "100000000000000-count-one": "000 billion",
+            "100000000000000-count-other": "000 billions"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-one": "0 k",
+            "1000-count-other": "0 k",
+            "10000-count-one": "00 k",
+            "10000-count-other": "00 k",
+            "100000-count-one": "000 k",
+            "100000-count-other": "000 k",
+            "1000000-count-one": "0 M",
+            "1000000-count-other": "0 M",
+            "10000000-count-one": "00 M",
+            "10000000-count-other": "00 M",
+            "100000000-count-one": "000 M",
+            "100000000-count-other": "000 M",
+            "1000000000-count-one": "0 Md",
+            "1000000000-count-other": "0 Md",
+            "10000000000-count-one": "00 Md",
+            "10000000000-count-other": "00 Md",
+            "100000000000-count-one": "000 Md",
+            "100000000000-count-other": "000 Md",
+            "1000000000000-count-one": "0 Bn",
+            "1000000000000-count-other": "0 Bn",
+            "10000000000000-count-one": "00 Bn",
+            "10000000000000-count-other": "00 Bn",
+            "100000000000000-count-one": "000 Bn",
+            "100000000000000-count-other": "000 Bn"
+          }
+        }
+      },
+      "scientificFormats-numberSystem-latn": {
+        "standard": "#E0"
+      },
+      "percentFormats-numberSystem-latn": {
+        "standard": "#,##0 %"
+      },
+      "currencyFormats-numberSystem-latn": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "#,##0.00 ¤",
+        "accounting": "#,##0.00 ¤;(#,##0.00 ¤)",
+        "short": {
+          "standard": {
+            "1000-count-one": "0 k ¤",
+            "1000-count-other": "0 k ¤",
+            "10000-count-one": "00 k ¤",
+            "10000-count-other": "00 k ¤",
+            "100000-count-one": "000 k ¤",
+            "100000-count-other": "000 k ¤",
+            "1000000-count-one": "0 M ¤",
+            "1000000-count-other": "0 M ¤",
+            "10000000-count-one": "00 M ¤",
+            "10000000-count-other": "00 M ¤",
+            "100000000-count-one": "000 M ¤",
+            "100000000-count-other": "000 M ¤",
+            "1000000000-count-one": "0 Md ¤",
+            "1000000000-count-other": "0 Md ¤",
+            "10000000000-count-one": "00 Md ¤",
+            "10000000000-count-other": "00 Md ¤",
+            "100000000000-count-one": "000 Md ¤",
+            "100000000000-count-other": "000 Md ¤",
+            "1000000000000-count-one": "0 Bn ¤",
+            "1000000000000-count-other": "0 Bn ¤",
+            "10000000000000-count-one": "00 Bn ¤",
+            "10000000000000-count-other": "00 Bn ¤",
+            "100000000000000-count-one": "000 Bn ¤",
+            "100000000000000-count-other": "000 Bn ¤"
+          }
+        },
+        "unitPattern-count-one": "{0} {1}",
+        "unitPattern-count-other": "{0} {1}"
+      },
+      "miscPatterns-numberSystem-latn": {
+        "approximately": "≈{0}",
+        "atLeast": "≥{0}",
+        "atMost": "≤{0}",
+        "range": "{0}–{1}"
+      },
+      "minimalPairs": {
+        "pluralMinimalPairs-count-one": "{0} jour",
+        "pluralMinimalPairs-count-other": "{0} jours",
+        "one": "Prenez la {0}re à droite.",
+        "other": "Prenez la {0}e à droite."
+      }
+    }
+  },
+  "en_GB": {
+    "identity": {
+      "version": {
+        "_cldrVersion": "37"
+      },
+      "language": "en",
+      "territory": "GB"
+    },
+    "numbers": {
+      "defaultNumberingSystem": "latn",
+      "otherNumberingSystems": {
+        "native": "latn"
+      },
+      "minimumGroupingDigits": "1",
+      "symbols-numberSystem-latn": {
+        "decimal": ".",
+        "group": ",",
+        "list": ";",
+        "percentSign": "%",
+        "plusSign": "+",
+        "minusSign": "-",
+        "exponential": "E",
+        "superscriptingExponent": "×",
+        "perMille": "‰",
+        "infinity": "∞",
+        "nan": "NaN",
+        "timeSeparator": ":"
+      },
+      "decimalFormats-numberSystem-latn": {
+        "standard": "#,##0.###",
+        "long": {
+          "decimalFormat": {
+            "1000-count-one": "0 thousand",
+            "1000-count-other": "0 thousand",
+            "10000-count-one": "00 thousand",
+            "10000-count-other": "00 thousand",
+            "100000-count-one": "000 thousand",
+            "100000-count-other": "000 thousand",
+            "1000000-count-one": "0 million",
+            "1000000-count-other": "0 million",
+            "10000000-count-one": "00 million",
+            "10000000-count-other": "00 million",
+            "100000000-count-one": "000 million",
+            "100000000-count-other": "000 million",
+            "1000000000-count-one": "0 billion",
+            "1000000000-count-other": "0 billion",
+            "10000000000-count-one": "00 billion",
+            "10000000000-count-other": "00 billion",
+            "100000000000-count-one": "000 billion",
+            "100000000000-count-other": "000 billion",
+            "1000000000000-count-one": "0 trillion",
+            "1000000000000-count-other": "0 trillion",
+            "10000000000000-count-one": "00 trillion",
+            "10000000000000-count-other": "00 trillion",
+            "100000000000000-count-one": "000 trillion",
+            "100000000000000-count-other": "000 trillion"
+          }
+        },
+        "short": {
+          "decimalFormat": {
+            "1000-count-one": "0K",
+            "1000-count-other": "0K",
+            "10000-count-one": "00K",
+            "10000-count-other": "00K",
+            "100000-count-one": "000K",
+            "100000-count-other": "000K",
+            "1000000-count-one": "0M",
+            "1000000-count-other": "0M",
+            "10000000-count-one": "00M",
+            "10000000-count-other": "00M",
+            "100000000-count-one": "000M",
+            "100000000-count-other": "000M",
+            "1000000000-count-one": "0B",
+            "1000000000-count-other": "0B",
+            "10000000000-count-one": "00B",
+            "10000000000-count-other": "00B",
+            "100000000000-count-one": "000B",
+            "100000000000-count-other": "000B",
+            "1000000000000-count-one": "0T",
+            "1000000000000-count-other": "0T",
+            "10000000000000-count-one": "00T",
+            "10000000000000-count-other": "00T",
+            "100000000000000-count-one": "000T",
+            "100000000000000-count-other": "000T"
+          }
+        }
+      },
+      "scientificFormats-numberSystem-latn": {
+        "standard": "#E0"
+      },
+      "percentFormats-numberSystem-latn": {
+        "standard": "#,##0%"
+      },
+      "currencyFormats-numberSystem-latn": {
+        "currencySpacing": {
+          "beforeCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          },
+          "afterCurrency": {
+            "currencyMatch": "[:^S:]",
+            "surroundingMatch": "[:digit:]",
+            "insertBetween": " "
+          }
+        },
+        "standard": "¤#,##0.00",
+        "accounting": "¤#,##0.00;(¤#,##0.00)",
+        "short": {
+          "standard": {
+            "1000-count-one": "¤0K",
+            "1000-count-other": "¤0K",
+            "10000-count-one": "¤00K",
+            "10000-count-other": "¤00K",
+            "100000-count-one": "¤000K",
+            "100000-count-other": "¤000K",
+            "1000000-count-one": "¤0M",
+            "1000000-count-other": "¤0M",
+            "10000000-count-one": "¤00M",
+            "10000000-count-other": "¤00M",
+            "100000000-count-one": "¤000M",
+            "100000000-count-other": "¤000M",
+            "1000000000-count-one": "¤0B",
+            "1000000000-count-other": "¤0B",
+            "10000000000-count-one": "¤00B",
+            "10000000000-count-other": "¤00B",
+            "100000000000-count-one": "¤000B",
+            "100000000000-count-other": "¤000B",
+            "1000000000000-count-one": "¤0T",
+            "1000000000000-count-other": "¤0T",
+            "10000000000000-count-one": "¤00T",
+            "10000000000000-count-other": "¤00T",
+            "100000000000000-count-one": "¤000T",
+            "100000000000000-count-other": "¤000T"
+          }
+        },
+        "unitPattern-count-one": "{0} {1}",
+        "unitPattern-count-other": "{0} {1}"
+      },
+      "miscPatterns-numberSystem-latn": {
+        "approximately": "~{0}",
+        "atLeast": "{0}+",
+        "atMost": "≤{0}",
+        "range": "{0}–{1}"
+      },
+      "minimalPairs": {
+        "pluralMinimalPairs-count-one": "{0} day",
+        "pluralMinimalPairs-count-other": "{0} days",
+        "few": "Take the {0}rd right.",
+        "one": "Take the {0}st right.",
+        "other": "Take the {0}th right.",
+        "two": "Take the {0}nd right."
+      }
+    }
+  }
+}
