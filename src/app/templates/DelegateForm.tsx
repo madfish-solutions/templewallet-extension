@@ -1,4 +1,11 @@
-import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from "react";
+import React, {
+  FC,
+  ReactNode,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
@@ -25,6 +32,7 @@ import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import BakerBanner from "app/templates/BakerBanner";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import { toLocalFormat } from "lib/i18n/numbers";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
 import {
@@ -688,9 +696,10 @@ const DelegateForm: FC = () => {
                               >
                                 {message}:{" "}
                                 <span className="font-normal">
-                                  {new BigNumber(baker.fee)
-                                    .times(100)
-                                    .toFormat(2)}
+                                  {toLocalFormat(
+                                    new BigNumber(baker.fee).times(100),
+                                    { decimalPlaces: 2 }
+                                  )}{" "}
                                   %
                                 </span>
                               </div>
@@ -747,10 +756,7 @@ type DelegateErrorAlertProps = {
   error: Error;
 };
 
-const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({
-  type,
-  error,
-}) => (
+const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => (
   <Alert
     type={type === "submit" ? "error" : "warn"}
     title={(() => {
