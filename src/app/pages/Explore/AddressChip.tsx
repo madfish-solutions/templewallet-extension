@@ -16,9 +16,10 @@ import {
 type AddressChipProps = {
   pkh: string;
   className?: string;
+  small?: boolean;
 };
 
-const AddressChip: FC<AddressChipProps> = ({ pkh, className }) => {
+const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
   const tezos = useTezos();
   const { resolver: domainsResolver } = useTezosDomainsClient();
 
@@ -58,9 +59,14 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className }) => {
   return (
     <div className={classNames("flex items-center", className)}>
       {reverseName && domainDisplayed ? (
-        <HashChip hash={reverseName} firstCharsCount={7} lastCharsCount={10} />
+        <HashChip
+          hash={reverseName}
+          firstCharsCount={7}
+          lastCharsCount={10}
+          small={small}
+        />
       ) : (
-        <HashChip hash={pkh} />
+        <HashChip hash={pkh} small={small} />
       )}
 
       {reverseName && (
@@ -70,7 +76,7 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className }) => {
             "ml-2",
             "bg-gray-100 hover:bg-gray-200",
             "rounded-sm shadow-xs",
-            "text-sm",
+            small ? "text-xs" : "text-sm",
             "text-gray-500 leading-none select-none",
             "transition ease-in-out duration-300",
             "inline-flex items-center justify-center"
@@ -80,7 +86,12 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className }) => {
           }}
           onClick={handleToggleDomainClick}
         >
-          <Icon className="w-auto h-4 stroke-current" />
+          <Icon
+            className={classNames(
+              "w-auto stroke-current",
+              small ? "h-3" : "h-4"
+            )}
+          />
         </button>
       )}
     </div>
