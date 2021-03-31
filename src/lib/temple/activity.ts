@@ -46,11 +46,11 @@ export async function addLocalOperation(
 
     // Parse asset ids
     if (op.kind === OpKind.ORIGINATION) {
-      if (new BigNumber(op.balance).isPositive()) {
+      if (isPositiveNumber(op.balance)) {
         assetIdSet.add("tez");
       }
     } else if (op.kind === OpKind.TRANSACTION) {
-      if (new BigNumber(op.amount).isPositive()) {
+      if (isPositiveNumber(op.amount)) {
         assetIdSet.add("tez");
       }
 
@@ -144,12 +144,23 @@ export async function syncOperations(
 
   for (const tzktOp of tzktOperations) {
     const current = await Repo.operations.get(tzktOp.hash);
+
+    // TODO: Reimplement
+    const assetIds = [];
+    if (
+      (tzktOp.type === "transaction" || tzktOp.type === "delegation") &&
+      tzktOp.amount &&
+      isPositiveNumber(tzktOp.amount)
+    ) {
+      assetIds.push("tez");
+    }
+
     if (!current) {
       await Repo.operations.add({
         hash: tzktOp.hash,
         chainId,
         members: [tzktOp.sender.address],
-        assetIds: [],
+        assetIds,
         addedAt: tzktOp.timestamp ? +new Date(tzktOp.timestamp) : Date.now(),
         data: {
           tzktGroup: [tzktOp],
@@ -160,13 +171,13 @@ export async function syncOperations(
         if (!op.members.includes(tzktOp.sender.address)) {
           op.members.push(tzktOp.sender.address);
         }
-        if (
-          op.data.tzktGroup &&
-          !op.data.tzktGroup.some((tOp) => tOp.id === tzktOp.id)
-        ) {
-          op.data.tzktGroup.push(tzktOp);
-        } else {
+
+        // TODO: AssetIds
+
+        if (!op.data.tzktGroup) {
           op.data.tzktGroup = [tzktOp];
+        } else if (op.data.tzktGroup.every((tOp) => tOp.id !== tzktOp.id)) {
+          op.data.tzktGroup.push(tzktOp);
         }
       });
     }
@@ -194,15 +205,20 @@ export async function syncOperations(
         if (!op.members.includes(tokenTrans.to)) {
           op.members.push(tokenTrans.to);
         }
-        if (
-          op.data.bcdTokenTransfers &&
-          !op.data.bcdTokenTransfers.some(
-            (trans) => trans.nonce === tokenTrans.nonce
+
+        if (!op.assetIds.includes(assetId)) {
+          op.assetIds.push(assetId);
+        }
+
+        if (!op.data.bcdTokenTransfers) {
+          op.data.bcdTokenTransfers = [tokenTrans];
+        } else if (
+          op.data.bcdTokenTransfers.every(
+            (trans) =>
+              getBcdTokenTransferId(trans) !== getBcdTokenTransferId(tokenTrans)
           )
         ) {
           op.data.bcdTokenTransfers.push(tokenTrans);
-        } else {
-          op.data.bcdTokenTransfers = [tokenTrans];
         }
       });
     }
@@ -231,6 +247,14 @@ export const BCD_NETWORKS = new Map<string, BcdNetwork>([
   ["NetXSgo1ZT2DRUG", "edo2net"],
 ]);
 
+function isPositiveNumber(val: BigNumber.Value) {
+  return new BigNumber(val).isGreaterThan(0);
+}
+
 function toTokenId(contractAddress: string, tokenId: string | number = 0) {
   return `${contractAddress}_${tokenId}`;
+}
+
+function getBcdTokenTransferId(tokenTrans: BcdTokenTransfer) {
+  return `${tokenTrans.hash}_${tokenTrans.nonce}`;
 }
