@@ -107,9 +107,9 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
 
   const tippyContent = useMemo(() => {
     if (copied) {
-      return t("copiedAmount");
+      return t("copiedHash");
     }
-    return showAmountTooltip ? fullAmountStr : t("copyAmountToClipboard");
+    return showAmountTooltip ? fullAmountStr : t("copyHashToClipboard");
   }, [copied, showAmountTooltip, fullAmountStr]);
 
   const tippyProps = useMemo(

@@ -699,7 +699,7 @@ const DelegateForm: FC = () => {
                                   {toLocalFormat(
                                     new BigNumber(baker.fee).times(100),
                                     { decimalPlaces: 2 }
-                                  )}{" "}
+                                  )}
                                   %
                                 </span>
                               </div>
