@@ -32,6 +32,7 @@ import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import BakerBanner from "app/templates/BakerBanner";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import { toLocalFormat } from "lib/i18n/numbers";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
 import {
@@ -468,7 +469,7 @@ const DelegateForm: FC = () => {
           }
           placeholder={
             canUseDomainNames
-              ? t("bakerInputPlaceholderWithDomain")
+              ? t("recipientInputPlaceholderWithDomain")
               : t("bakerInputPlaceholder")
           }
           errorCaption={errors.to?.message && t(errors.to?.message.toString())}
@@ -772,9 +773,10 @@ const DelegateForm: FC = () => {
                               >
                                 {message}:{" "}
                                 <span className="font-normal">
-                                  {new BigNumber(baker.fee)
-                                    .times(100)
-                                    .toFormat(2)}
+                                  {toLocalFormat(
+                                    new BigNumber(baker.fee).times(100),
+                                    { decimalPlaces: 2 }
+                                  )}
                                   %
                                 </span>
                               </div>
