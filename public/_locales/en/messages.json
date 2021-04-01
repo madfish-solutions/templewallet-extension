@@ -1699,11 +1699,5 @@
   },
   "blockExplorer": {
     "message": "Blockchain explorer"
-  },
-  "copiedAmount": {
-    "message": "Copied."
-  },
-  "copyAmountToClipboard": {
-    "message": "Copy to clipboard"
   }
 }
