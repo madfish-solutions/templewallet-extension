@@ -40,6 +40,7 @@ import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import {
@@ -476,7 +477,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       const vBN = new BigNumber(v);
       return (
         vBN.isLessThanOrEqualTo(maxAmount) ||
-        t("maximalAmount", maxAmount.toFixed())
+        t("maximalAmount", toLocalFixed(maxAmount))
       );
     },
     [maxAmountNum, toValue]
@@ -740,7 +741,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                 onClick={handleSetMaxAmount}
               >
                 {shouldUseUsd ? <span className="pr-px">$</span> : null}
-                {maxAmount.toFixed()}
+                {toLocalFixed(maxAmount)}
               </button>
               {amountValue && localAsset.type === TempleAssetType.TEZ ? (
                 <>
