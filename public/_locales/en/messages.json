@@ -860,10 +860,6 @@
   "bakerInputPlaceholder": {
     "message": "e.g. tz1a9w1S7hN5s..."
   },
-  "bakerInputPlaceholderWithDomain": {
-    "message": "e.g. alice.tez or tz1a9w1S7hN5s...",
-    "description": "alice.tez = domain like google.com"
-  },
   "minDelegationAmountTitle": {
     "message": "Minimal delegation amount"
   },

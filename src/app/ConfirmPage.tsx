@@ -438,7 +438,9 @@ const ConfirmDAppForm: FC = () => {
       </div>
 
       <ConfirmLedgerOverlay
-        displayed={confirming && account.type === TempleAccountType.Ledger}
+        displayed={
+          confirming && connectedAccount?.type === TempleAccountType.Ledger
+        }
       />
     </div>
   );

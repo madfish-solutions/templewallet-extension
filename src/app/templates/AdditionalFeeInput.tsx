@@ -1,11 +1,14 @@
 import React, {
-  ComponentType, FC,
+  ComponentType,
+  FC,
   ForwardRefExoticComponent,
   Fragment,
-  FunctionComponent, MutableRefObject, SVGProps,
+  FunctionComponent,
+  MutableRefObject,
+  SVGProps,
   useCallback,
   useRef,
-  useState
+  useState,
 } from "react";
 
 import BigNumber from "bignumber.js";
@@ -20,6 +23,7 @@ import { ReactComponent as CupIcon } from "app/icons/cup.svg";
 import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { TEZ_ASSET } from "lib/temple/front";
 
@@ -119,7 +123,7 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
             id="feeInputDescription"
             substitutions={[
               <Fragment key={0}>
-                <span className="font-normal">{baseFee.toFixed()}</span>
+                <span className="font-normal">{toLocalFixed(baseFee)}</span>
               </Fragment>,
             ]}
           />
