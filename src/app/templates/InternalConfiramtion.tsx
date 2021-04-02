@@ -73,6 +73,10 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
     getContentToParse,
     { suspense: true }
   );
+  const forceHidePreview =
+    !(contentToParse instanceof Array) &&
+    contentToParse &&
+    contentToParse.contents.length === 0;
 
   const networkRpc =
     payload.type === "operations" ? payload.networkRpc : currentNetworkRpc;
@@ -131,6 +135,16 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
       ];
     }
 
+    if (forceHidePreview) {
+      return [
+        {
+          key: "bytes",
+          name: t("bytes"),
+          Icon: HashIcon,
+        },
+      ];
+    }
+
     return [
       {
         key: "preview",
@@ -143,7 +157,7 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
         Icon: HashIcon,
       },
     ];
-  }, [payload]);
+  }, [payload, forceHidePreview]);
 
   const [spFormat, setSpFormat] = useSafeState(signPayloadFormats[0]);
   const [error, setError] = useSafeState<any>(null);

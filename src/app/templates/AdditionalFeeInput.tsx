@@ -1,11 +1,16 @@
 import React, {
-  ComponentType, FC,
+  ComponentType,
+  FC,
   ForwardRefExoticComponent,
   Fragment,
-  FunctionComponent, MutableRefObject, SVGProps,
+  FunctionComponent,
+  MutableRefObject,
+  SVGProps,
   useCallback,
+  useEffect,
+  useMemo,
   useRef,
-  useState
+  useState,
 } from "react";
 
 import BigNumber from "bignumber.js";
@@ -13,6 +18,7 @@ import classNames from "clsx";
 import { Controller, ControllerProps, FieldError } from "react-hook-form";
 
 import AssetField from "app/atoms/AssetField";
+import FormCheckbox from "app/atoms/FormCheckbox";
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
 import { ReactComponent as CoffeeIcon } from "app/icons/coffee.svg";
@@ -21,7 +27,7 @@ import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { T, t } from "lib/i18n/react";
-import { TEZ_ASSET } from "lib/temple/front";
+import { TempleToken, TEZ_ASSET, tzToMutez } from "lib/temple/front";
 
 type AssetFieldProps = typeof AssetField extends ForwardRefExoticComponent<
   infer T
@@ -35,6 +41,8 @@ export type AdditionalFeeInputProps = Pick<
 > & {
   assetSymbol: string;
   baseFee?: BigNumber | Error;
+  token?: TempleToken;
+  tokenPrice?: number;
   error?: FieldError;
   id: string;
 };
@@ -43,15 +51,15 @@ type FeeOption = {
   Icon?: FunctionComponent<SVGProps<SVGSVGElement>>;
   descriptionI18nKey: string;
   type: "minimal" | "fast" | "rocket" | "custom";
-  amount?: number;
+  amount?: BigNumber;
 };
 
-const feeOptions: FeeOption[] = [
+const xtzFeeOptions: FeeOption[] = [
   {
     Icon: CoffeeIcon,
     descriptionI18nKey: "minimalFeeDescription",
     type: "minimal",
-    amount: 1e-4,
+    amount: new BigNumber(1e-4),
   },
   {
     Icon: ({ className, ...rest }) => (
@@ -62,13 +70,13 @@ const feeOptions: FeeOption[] = [
     ),
     descriptionI18nKey: "fastFeeDescription",
     type: "fast",
-    amount: 1.5e-4,
+    amount: new BigNumber(1.5e-4),
   },
   {
     Icon: RocketIcon,
     descriptionI18nKey: "rocketFeeDescription",
     type: "rocket",
-    amount: 2e-4,
+    amount: new BigNumber(2e-4),
   },
   {
     Icon: ({ className, ...rest }) => (
@@ -85,13 +93,23 @@ const feeOptions: FeeOption[] = [
 const getFeeOptionId = (option: FeeOption) => option.type;
 
 const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
-  const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
+  const {
+    assetSymbol,
+    baseFee,
+    control,
+    error,
+    id,
+    name,
+    onChange,
+    token,
+    tokenPrice,
+  } = props;
 
-  const validateAdditionalFee = useCallback((v?: number) => {
-    if (v === undefined) {
+  const validateAdditionalFee = useCallback((v?: AdditionalFeeValue) => {
+    if (v?.amount === undefined) {
       return t("required");
     }
-    if (v <= 0) {
+    if (v.amount <= 0) {
       return t("amountMustBePositive");
     }
     return true;
@@ -130,15 +148,30 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
       rules={{
         validate: validateAdditionalFee,
       }}
+      token={token}
+      tokenPrice={tokenPrice}
     />
   );
 };
 
 export default AdditionalFeeInput;
 
-type AdditionalFeeInputContentProps = AssetFieldProps & {
-  customFeeInputRef: MutableRefObject<HTMLInputElement | null>;
+export type AdditionalFeeValue = {
+  inToken: boolean;
+  amount?: number;
 };
+
+type AdditionalFeeInputContentProps = Omit<
+  AssetFieldProps,
+  "onChange" | "value"
+> &
+  Pick<AdditionalFeeInputProps, "token" | "tokenPrice"> & {
+    customFeeInputRef: MutableRefObject<HTMLInputElement | null>;
+    onChange?: (newValue: AdditionalFeeValue) => void;
+    value?: AdditionalFeeValue;
+  };
+
+const defaultAdditionalFeeValue: AdditionalFeeValue = { inToken: false };
 
 const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
   props
@@ -152,22 +185,68 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
     id,
     label,
     labelDescription,
-    value,
+    token,
+    tokenPrice,
+    value = defaultAdditionalFeeValue,
     ...restProps
   } = props;
+  const { inToken, amount: amountFromValue } = value;
+
+  const actualInToken = token ? inToken : false;
+  useEffect(() => {
+    if (actualInToken !== inToken) {
+      onChange?.({ amount: amountFromValue, inToken: actualInToken });
+    }
+  }, [amountFromValue, inToken, actualInToken, onChange]);
+
+  const feeOptions = useMemo(() => {
+    if (!inToken || !token) {
+      return xtzFeeOptions;
+    }
+    return xtzFeeOptions.map((option) => ({
+      ...option,
+      amount:
+        option.amount && tzToMutez(option.amount).multipliedBy(tokenPrice ?? 1),
+    }));
+  }, [tokenPrice, token, inToken]);
 
   const [selectedPreset, setSelectedPreset] = useState<FeeOption["type"]>(
-    feeOptions.find(({ amount }) => amount === value)?.type || "custom"
+    feeOptions.find(
+      ({ amount }) =>
+        amountFromValue !== undefined && amount?.eq(amountFromValue)
+    )?.type || "custom"
   );
   const handlePresetSelected = useCallback(
     (newType: FeeOption["type"]) => {
       setSelectedPreset(newType);
       const option = feeOptions.find(({ type }) => type === newType)!;
       if (option.amount) {
-        onChange?.(option.amount);
+        onChange?.({ inToken, amount: option.amount.toNumber() });
       }
     },
-    [onChange]
+    [onChange, feeOptions, inToken]
+  );
+  const handleAmountChange = useCallback(
+    (newAmount?: number) => {
+      onChange?.({ inToken, amount: newAmount });
+    },
+    [onChange, inToken]
+  );
+  const handleInTokenChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange?.({ inToken: e.target.checked, amount: amountFromValue });
+    },
+    [onChange, amountFromValue]
+  );
+
+  const FeeOptionContent = useCallback(
+    (props: OptionRenderProps<FeeOption>) => (
+      <GenericFeeOptionContent
+        {...props}
+        assetSymbol={token && inToken ? token.symbol : TEZ_ASSET.symbol}
+      />
+    ),
+    [token, inToken]
   );
 
   return (
@@ -190,6 +269,16 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
         </label>
       ) : null}
 
+      {token && (
+        <FormCheckbox
+          checked={inToken}
+          onChange={handleInTokenChange}
+          name="inToken"
+          label={"Pay fee in token"}
+          containerClassName="mb-4"
+        />
+      )}
+
       <div className="relative flex flex-col items-stretch">
         <CustomSelect
           activeItemId={selectedPreset}
@@ -209,10 +298,10 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
             "mb-2"
           )}
           id={id}
-          onChange={onChange}
+          onChange={handleAmountChange}
           ref={customFeeInputRef}
           assetSymbol={assetSymbol}
-          value={value}
+          value={amountFromValue}
           {...restProps}
         />
       </div>
@@ -235,9 +324,9 @@ const FeeOptionIcon: FC<OptionRenderProps<FeeOption>> = ({
   return <div style={{ width: 24, height: 24 }} />;
 };
 
-const FeeOptionContent: FC<OptionRenderProps<FeeOption>> = ({
-  item: { descriptionI18nKey, amount },
-}) => {
+const GenericFeeOptionContent: FC<
+  OptionRenderProps<FeeOption> & { assetSymbol: string }
+> = ({ item: { descriptionI18nKey, amount }, assetSymbol }) => {
   return (
     <>
       <div className="flex flex-wrap items-center">
@@ -252,7 +341,7 @@ const FeeOptionContent: FC<OptionRenderProps<FeeOption>> = ({
         {amount && (
           <div className="ml-2 leading-none text-gray-600">
             <Money cryptoDecimals={5}>{amount}</Money>{" "}
-            <span style={{ fontSize: "0.75em" }}>{TEZ_ASSET.symbol}</span>
+            <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
           </div>
         )}
       </div>

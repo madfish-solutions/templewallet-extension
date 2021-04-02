@@ -1,10 +1,18 @@
-import React, { ComponentProps, forwardRef, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  ComponentProps,
+  forwardRef,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import BigNumber from "bignumber.js";
 
 import FormField from "app/atoms/FormField";
 
-type AssetFieldProps = ComponentProps<typeof FormField> & {
+type AssetFieldProps = Omit<ComponentProps<typeof FormField>, "onChange"> & {
   value?: number;
   min?: number;
   max?: number;

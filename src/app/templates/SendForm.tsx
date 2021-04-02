@@ -35,7 +35,9 @@ import { useAppEnv } from "app/env";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
-import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
+import AdditionalFeeInput, {
+  AdditionalFeeValue,
+} from "app/templates/AdditionalFeeInput";
 import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
@@ -66,14 +68,17 @@ import {
   getAssetKey,
   useUSDPrice,
   useNetwork,
+  TempleToken,
+  GasStation,
 } from "lib/temple/front";
+import { getAvailableTokens, getTokenPrice } from "lib/tezos-gsn";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
 
 interface FormData {
   to: string;
   amount: number;
-  fee: number;
+  fee: AdditionalFeeValue;
 }
 
 const PENNY = 0.000001;
@@ -116,6 +121,11 @@ export default SendForm;
 type FormProps = {
   localAsset: TempleAsset;
   setOperation: Dispatch<any>;
+};
+
+const defaultFeeValue: AdditionalFeeValue = {
+  inToken: false,
+  amount: RECOMMENDED_ADD_FEE,
 };
 
 const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
@@ -170,7 +180,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   } = useForm<FormData>({
     mode: "onChange",
     defaultValues: {
-      fee: RECOMMENDED_ADD_FEE,
+      fee: defaultFeeValue,
     },
   });
 
@@ -208,7 +218,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const toValue = watch("to");
   const amountValue = watch("amount");
-  const feeValue = watch("fee") ?? RECOMMENDED_ADD_FEE;
+  const feeValue = watch("fee") ?? defaultFeeValue;
 
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = useRef<HTMLInputElement>(null);
@@ -232,6 +242,45 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     ["tzdns-address", tezos.checksum, toValue],
     domainAddressFactory,
     { shouldRetryOnError: false, revalidateOnFocus: false }
+  );
+  const { data: availableTokensResponse } = useSWR(
+    ["station-available-tokens"],
+    getAvailableTokens,
+    { revalidateOnFocus: false }
+  );
+  const localAssetType = localAsset.type;
+  const localAssetAddress =
+    localAsset.type === TempleAssetType.TEZ ? undefined : localAsset.address;
+  const localAssetId =
+    localAsset.type === TempleAssetType.FA2 ? localAsset.id : undefined;
+  const canPayFeeInTokens = useMemo(
+    () =>
+      availableTokensResponse?.tokens.some(({ contractAddress, tokenId }) => {
+        return (
+          localAssetAddress === contractAddress &&
+          (localAssetType !== TempleAssetType.FA2 || tokenId === localAssetId)
+        );
+      }) ?? false,
+    [availableTokensResponse, localAssetAddress, localAssetId, localAssetType]
+  );
+
+  const getGasTokenPrice = useCallback(
+    async (
+      _k: string,
+      shouldGet: boolean,
+      tokenAddress: string,
+      tokenId?: number
+    ) => {
+      if (!shouldGet) {
+        return null;
+      }
+      return (await getTokenPrice({ tokenAddress, tokenId })).price;
+    },
+    []
+  );
+  const { data: gasTokenPrice } = useSWR(
+    ["gas-token-price", canPayFeeInTokens, localAssetAddress, localAssetId],
+    getGasTokenPrice
   );
 
   const toFilled = useMemo(
@@ -282,6 +331,39 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       ))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
+      }
+
+      if (feeValue.inToken) {
+        const elementaryParts = new BigNumber(10).pow(localAsset.decimals);
+        const [
+          preTransferParams,
+          { pubkey, signature, hash },
+        ] = await GasStation.forgeTxAndParams(tezos, {
+          to,
+          tokenAddress: localAssetAddress!,
+          tokenId: localAssetId,
+          amount: amountValue
+            ? elementaryParts.multipliedBy(amountValue).toNumber()
+            : 1,
+          relayerFee: 1,
+        });
+        const gasEstimate =
+          (await GasStation.estimate(tezos, {
+            pubkey,
+            signature,
+            hash,
+            contractAddress: localAssetAddress!,
+            callParams: {
+              entrypoint: "transfer",
+              params: preTransferParams,
+            },
+          })) + 100;
+        const result = new BigNumber(gasEstimate)
+          .multipliedBy(gasTokenPrice ?? 0)
+          .multipliedBy(elementaryParts)
+          .integerValue()
+          .div(elementaryParts);
+        return result;
       }
 
       let tezBalanceBN: BigNumber;
@@ -376,12 +458,17 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     }
   }, [
     acc,
+    feeValue.inToken,
+    gasTokenPrice,
     tezos,
     localAsset,
+    localAssetId,
+    localAssetAddress,
     accountPkh,
     toResolved,
     mutateBalance,
     mutateTezBalance,
+    amountValue,
   ]);
 
   const {
@@ -397,6 +484,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             localAsset.symbol,
             accountPkh,
             toResolved,
+            feeValue.inToken,
           ]
         : null,
     estimateBaseFee,
@@ -413,6 +501,9 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     : null;
 
   const maxAddFee = useMemo(() => {
+    if (baseFee instanceof BigNumber && feeValue.inToken) {
+      return new BigNumber(balanceNum).minus(baseFee).toNumber();
+    }
     if (baseFee instanceof BigNumber) {
       return new BigNumber(tezBalanceNum)
         .minus(baseFee)
@@ -420,10 +511,13 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         .toNumber();
     }
     return;
-  }, [tezBalanceNum, baseFee]);
+  }, [tezBalanceNum, baseFee, balanceNum, feeValue.inToken]);
 
   const safeFeeValue = useMemo(
-    () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
+    () =>
+      maxAddFee && (!feeValue.amount || feeValue.amount > maxAddFee)
+        ? maxAddFee
+        : feeValue.amount,
     [maxAddFee, feeValue]
   );
 
@@ -552,6 +646,11 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       setSubmitError(null);
       setOperation(null);
 
+      if (feeVal.inToken) {
+        console.log(amount, feeVal);
+        return;
+      }
+
       try {
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {
@@ -573,14 +672,14 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             actualAmount
           );
           const estmtn = await tezos.estimate.transfer(transferParams);
-          const addFee = tzToMutez(feeVal ?? 0);
+          const addFee = tzToMutez(feeVal.amount ?? 0);
           const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
           op = await tezos.wallet
             .transfer({ ...transferParams, fee } as any)
             .send();
         }
         setOperation(op);
-        reset({ to: "", fee: RECOMMENDED_ADD_FEE });
+        reset({ to: "", fee: defaultFeeValue });
       } catch (err) {
         if (err.message === "Declined") {
           return;
@@ -816,7 +915,9 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             onChange={handleFeeFieldChange}
             assetSymbol={TEZ_ASSET.symbol}
             baseFee={baseFee}
-            error={errors.fee}
+            token={canPayFeeInTokens ? (localAsset as TempleToken) : undefined}
+            tokenPrice={gasTokenPrice ?? undefined}
+            error={errors.fee as any}
             id="send-fee"
           />
 
