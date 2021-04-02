@@ -81,9 +81,24 @@ export const QUIPUSWAP_CONTRACTS = new Map<
   [
     TempleChainId.Edo2net,
     {
-      fa2Factory: "KT19RP5Um8z7WA8qZzri3YxyhG1R5LdPdNqG",
+      fa12Factory: "KT1HPKpoCJm9Gg4cRxqZX8Hg6Uth1NzrFAeQ",
+      fa2Factory: "KT18uK1EmY3QBc4KTNG6pmtU736tTYLE5AYE",
     },
   ],
+  [
+    TempleChainId.Florencenet,
+    {
+      fa12Factory: "KT1WkKiDSsDttdWrfZgcQ6Z9e3Cp4unHP2CP",
+      fa2Factory: "KT1Bps1VtszT2T3Yvxm5PJ6Rx2nk1FykWPdU"
+    }
+  ],
+  [
+    TempleChainId.Mainnet,
+    {
+      fa12Factory: "KT1K7whn5yHucGXMN7ymfKiX5r534QeaJM29",
+      fa2Factory: "KT1MMLb2FVrrE9Do74J3FH1RNNc4QhDuVCNX"
+    }
+  ]
 ]);
 
 export function matchesAsset(assetId: AssetIdentifier, asset: TempleAsset) {
