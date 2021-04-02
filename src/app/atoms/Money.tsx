@@ -3,7 +3,8 @@ import React, { FC, HTMLAttributes, memo, useCallback, useMemo } from "react";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
-import { t } from "lib/i18n/react";
+import { toLocalFixed, toLocalFormat } from "lib/i18n/numbers";
+import { getNumberSymbols, t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy from "lib/ui/useTippy";
 
@@ -32,36 +33,45 @@ const Money = memo<MoneyProps>(
     if (intLength >= ENOUGH_INT_LENGTH) {
       cryptoDecimals = Math.max(cryptoDecimals - 2, 1);
     }
+    const { decimal } = getNumberSymbols();
 
     const decimals = fiat
       ? 2
       : decimalsLength > cryptoDecimals
       ? cryptoDecimals
       : decimalsLength;
-    let result = bn.toFormat(decimals, roundingMode);
-    let indexOfDot = result.indexOf(".");
+    let result = toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
+    let indexOfDecimal = result.indexOf(decimal);
+
+    const tippyClassName = classNames(
+      "px-px -mr-px rounded cursor-pointer hover:bg-black",
+      "hover:bg-opacity-5 transition ease-in-out duration-200"
+    );
 
     switch (true) {
-      case indexOfDot === -1:
-        return <>{result}</>;
+      case indexOfDecimal === -1:
+        return (
+          <FullAmountTippy fullAmount={bn} className={tippyClassName}>
+            {result}
+          </FullAmountTippy>
+        );
 
       case !fiat && decimalsLength > cryptoDecimals:
-        result = bn.toFormat(cryptoDecimals - 2, roundingMode);
-        indexOfDot = result.indexOf(".");
+        result = toLocalFormat(bn, {
+          decimalPlaces: cryptoDecimals - 2,
+          roundingMode,
+        });
+        indexOfDecimal = result.indexOf(decimal);
 
         return (
           <FullAmountTippy
-            fullAmunt={bn}
-            className={classNames(
-              "px-px -mr-px",
-              "rounded cursor-pointer",
-              "hover:bg-black hover:bg-opacity-5",
-              "transition ease-in-out duration-200"
-            )}
+            fullAmount={bn}
+            className={tippyClassName}
+            showAmountTooltip
           >
-            {result.slice(0, indexOfDot + 1)}
+            {result.slice(0, indexOfDecimal + 1)}
             <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
-              {result.slice(indexOfDot + 1, result.length)}
+              {result.slice(indexOfDecimal + 1, result.length)}
               <span className="opacity-75 tracking-tighter">...</span>
             </span>
           </FullAmountTippy>
@@ -69,12 +79,12 @@ const Money = memo<MoneyProps>(
 
       default:
         return (
-          <>
-            {result.slice(0, indexOfDot + 1)}
+          <FullAmountTippy fullAmount={bn} className={tippyClassName}>
+            {result.slice(0, indexOfDecimal + 1)}
             <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
-              {result.slice(indexOfDot + 1, result.length)}
+              {result.slice(indexOfDecimal + 1, result.length)}
             </span>
-          </>
+          </FullAmountTippy>
         );
     }
   }
@@ -83,29 +93,38 @@ const Money = memo<MoneyProps>(
 export default Money;
 
 type FullAmountTippyProps = HTMLAttributes<HTMLButtonElement> & {
-  fullAmunt: BigNumber;
+  fullAmount: BigNumber;
+  showAmountTooltip?: boolean;
 };
 
 const FullAmountTippy: FC<FullAmountTippyProps> = ({
-  fullAmunt,
+  fullAmount,
   onClick,
+  showAmountTooltip,
   ...rest
 }) => {
-  const fullAmountStr = useMemo(() => fullAmunt.toFixed(), [fullAmunt]);
+  const fullAmountStr = useMemo(() => toLocalFixed(fullAmount), [fullAmount]);
 
   const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
+
+  const tippyContent = useMemo(() => {
+    if (copied) {
+      return t("copiedHash");
+    }
+    return showAmountTooltip ? fullAmountStr : t("copyHashToClipboard");
+  }, [copied, showAmountTooltip, fullAmountStr]);
 
   const tippyProps = useMemo(
     () => ({
       trigger: "mouseenter",
       hideOnClick: false,
-      content: copied ? t("copiedHash") : fullAmountStr,
+      content: tippyContent,
       animation: "shift-away-subtle",
       onHidden() {
         setCopied(false);
       },
     }),
-    [fullAmountStr, copied, setCopied]
+    [tippyContent, setCopied]
   );
 
   const ref = useTippy<HTMLSpanElement>(tippyProps);

@@ -1,9 +1,9 @@
 import React, {
   FC,
   FunctionComponent,
+  SVGProps,
   ReactNode,
   Suspense,
-  SVGProps,
   useLayoutEffect,
   useMemo,
 } from "react";

@@ -1,4 +1,11 @@
-import React, { FC, memo, ReactElement, useEffect, useMemo, useState } from "react";
+import React, {
+  FC,
+  memo,
+  ReactElement,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
@@ -10,7 +17,7 @@ import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 import HashChip from "app/templates/HashChip";
 import InUSD from "app/templates/InUSD";
-import { T, TProps } from "lib/i18n/react";
+import { getDateFnsLocale, T, TProps } from "lib/i18n/react";
 import {
   TempleAsset,
   TempleAssetType,
@@ -74,9 +81,7 @@ const Operation = memo<OperationProps>(
     const pending = withExplorer && status === "pending";
     const failed = ["failed", "backtracked", "skipped"].includes(status);
     const volumeExists = volume > 0;
-    const volumeAsBigNumber = useMemo(() => new BigNumber(volume), [
-      volume,
-    ]);
+    const volumeAsBigNumber = useMemo(() => new BigNumber(volume), [volume]);
     const hasTokenTransfers = internalTransfers.some(
       ({ tokenAddress }) => !!tokenAddress
     );
@@ -272,8 +277,7 @@ const Operation = memo<OperationProps>(
                         {formatDistanceToNow(new Date(time), {
                           includeSeconds: true,
                           addSuffix: true,
-                          // @TODO Add dateFnsLocale
-                          // locale: dateFnsLocale,
+                          locale: getDateFnsLocale(),
                         })}
                       </span>
                     )}
@@ -376,9 +380,7 @@ type OperationVolumeDisplayProps = InternalTransferStats & {
   isSendOrReceive: boolean;
 };
 
-const OperationVolumeDisplay: FC<OperationVolumeDisplayProps> = (
-  props
-) => {
+const OperationVolumeDisplay: FC<OperationVolumeDisplayProps> = (props) => {
   const { token, pending, delta, isSendOrReceive, tokenAddress } = props;
   const asset = tokenAddress ? token : TEZ_ASSET;
 
