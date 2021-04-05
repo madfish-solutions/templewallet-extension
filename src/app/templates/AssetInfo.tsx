@@ -1,16 +1,18 @@
-import * as React from "react";
+import React, { ComponentProps, FC } from "react";
+
 import classNames from "clsx";
+
+import FormField from "app/atoms/FormField";
+import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import { T } from "lib/i18n/react";
 import { TempleAsset, TempleAssetType } from "lib/temple/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
-import FormField from "app/atoms/FormField";
-import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 
 type AssetInfoProps = {
   asset: TempleAsset;
 };
 
-const AssetInfo: React.FC<AssetInfoProps> = ({ asset }) => {
+const AssetInfo: FC<AssetInfoProps> = ({ asset }) => {
   if (asset.type === TempleAssetType.TEZ) return null;
 
   return (
@@ -39,9 +41,9 @@ const AssetInfo: React.FC<AssetInfoProps> = ({ asset }) => {
 
 export default AssetInfo;
 
-type InfoFieldProps = React.ComponentProps<typeof FormField>;
+type InfoFieldProps = ComponentProps<typeof FormField>;
 
-const InfoField: React.FC<InfoFieldProps> = (props) => {
+const InfoField: FC<InfoFieldProps> = (props) => {
   const { fieldRef, copy, copied } = useCopyToClipboard();
 
   return (

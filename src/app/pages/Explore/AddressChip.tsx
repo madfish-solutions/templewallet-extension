@@ -1,26 +1,29 @@
-import * as React from "react";
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+
 import classNames from "clsx";
 import useSWR from "swr";
+
+import { ReactComponent as HashIcon } from "app/icons/hash.svg";
+import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
+import HashChip from "app/templates/HashChip";
 import {
   useTezos,
   useTezosDomainsClient,
   fetchFromStorage,
   putToStorage,
 } from "lib/temple/front";
-import HashChip from "app/templates/HashChip";
-import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
-import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 
 type AddressChipProps = {
   pkh: string;
   className?: string;
+  small?: boolean;
 };
 
-const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
+const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
   const tezos = useTezos();
   const { resolver: domainsResolver } = useTezosDomainsClient();
 
-  const resolveDomainReverseName = React.useCallback(
+  const resolveDomainReverseName = useCallback(
     (_k: string, pkh: string) => domainsResolver.resolveAddressToName(pkh),
     [domainsResolver]
   );
@@ -31,10 +34,10 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
 
-  const [domainDisplayed, setDomainDisplayed] = React.useState(false);
-  const domainDisplayedKey = React.useMemo(() => "domain-displayed", []);
+  const [domainDisplayed, setDomainDisplayed] = useState(false);
+  const domainDisplayedKey = useMemo(() => "domain-displayed", []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
         const val = await fetchFromStorage(domainDisplayedKey);
@@ -43,7 +46,7 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
     })();
   }, [domainDisplayedKey, setDomainDisplayed]);
 
-  const handleToggleDomainClick = React.useCallback(() => {
+  const handleToggleDomainClick = useCallback(() => {
     setDomainDisplayed((d) => {
       const newValue = !d;
       putToStorage(domainDisplayedKey, newValue);
@@ -56,9 +59,14 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
   return (
     <div className={classNames("flex items-center", className)}>
       {reverseName && domainDisplayed ? (
-        <HashChip hash={reverseName} firstCharsCount={7} lastCharsCount={10} />
+        <HashChip
+          hash={reverseName}
+          firstCharsCount={7}
+          lastCharsCount={10}
+          small={small}
+        />
       ) : (
-        <HashChip hash={pkh} />
+        <HashChip hash={pkh} small={small} />
       )}
 
       {reverseName && (
@@ -68,7 +76,7 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
             "ml-2",
             "bg-gray-100 hover:bg-gray-200",
             "rounded-sm shadow-xs",
-            "text-sm",
+            small ? "text-xs" : "text-sm",
             "text-gray-500 leading-none select-none",
             "transition ease-in-out duration-300",
             "inline-flex items-center justify-center"
@@ -78,7 +86,12 @@ const AddressChip: React.FC<AddressChipProps> = ({ pkh, className }) => {
           }}
           onClick={handleToggleDomainClick}
         >
-          <Icon className="w-auto h-4 stroke-current" />
+          <Icon
+            className={classNames(
+              "w-auto stroke-current",
+              small ? "h-3" : "h-4"
+            )}
+          />
         </button>
       )}
     </div>

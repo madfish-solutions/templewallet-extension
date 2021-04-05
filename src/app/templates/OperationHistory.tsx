@@ -1,9 +1,20 @@
-import * as React from "react";
+import React, { FC, useCallback, useEffect, useMemo } from "react";
+
 import classNames from "clsx";
-import { useRetryableSWR } from "lib/swr";
-import { TZSTATS_CHAINS, TZStatsNetwork } from "lib/tzstats";
-import { loadChainId } from "lib/temple/helpers";
+
+import FormSecondaryButton from "app/atoms/FormSecondaryButton";
+import Spinner from "app/atoms/Spinner";
+import { BCD_NETWORKS_NAMES } from "app/defaults";
+import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
+import Operation, {
+  OperationPreview,
+  InternalTransfer,
+} from "app/templates/Operation";
+import useAllOperations from "app/templates/OperationHistory/useAllOperations";
+import { tryGetTransfers } from "app/templates/OperationHistory/useOpsPagination";
+import useTokensOperations from "app/templates/OperationHistory/useTokensOperations";
 import { T } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   TempleAssetType,
   TempleAsset,
@@ -15,19 +26,10 @@ import {
   isKnownChainId,
   TempleToken,
   useChainId,
+  useExplorerBaseUrls,
 } from "lib/temple/front";
-import { TZKT_BASE_URLS } from "lib/tzkt";
-import { BCD_NETWORKS_NAMES } from "app/defaults";
-import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
-import Operation, {
-  OperationPreview,
-  InternalTransfer,
-} from "app/templates/Operation";
-import { tryGetTransfers } from "app/templates/OperationHistory/useOpsPagination";
-import useAllOperations from "app/templates/OperationHistory/useAllOperations";
-import useTokensOperations from "app/templates/OperationHistory/useTokensOperations";
-import FormSecondaryButton from "app/atoms/FormSecondaryButton";
-import Spinner from "app/atoms/Spinner";
+import { loadChainId } from "lib/temple/helpers";
+import { TZSTATS_CHAINS, TZStatsNetwork } from "lib/tzstats";
 
 const PNDOP_EXPIRE_DELAY = 1000 * 60 * 60 * 24;
 
@@ -38,14 +40,14 @@ interface OperationHistoryProps {
   className?: string;
 }
 
-const OperationHistory: React.FC<OperationHistoryProps> = ({
+const OperationHistory: FC<OperationHistoryProps> = ({
   accountPkh,
   accountOwner,
   asset,
   className,
 }) => {
   const chainId = useChainId();
-  const tzStatsNetwork = React.useMemo(
+  const tzStatsNetwork = useMemo(
     () =>
       (chainId && isKnownChainId(chainId)
         ? TZSTATS_CHAINS.get(chainId)
@@ -53,7 +55,7 @@ const OperationHistory: React.FC<OperationHistoryProps> = ({
     [chainId]
   );
 
-  const networkId = React.useMemo(
+  const networkId = useMemo(
     () =>
       (chainId && isKnownChainId(chainId)
         ? BCD_NETWORKS_NAMES.get(chainId)
@@ -96,14 +98,14 @@ type BaseOperationsListProps = {
   accountPkh: string;
   accountOwner?: string;
   tzStatsNetwork: TZStatsNetwork | null;
-  networkId: "mainnet" | "edo2net" | "delphinet" | null;
+  networkId: "mainnet" | "edo2net" | "florencenet" | "delphinet" | null;
 };
 
 type AllOperationsListProps = BaseOperationsListProps & {
   tezOnly?: boolean;
 };
 
-const AllOperationsList: React.FC<AllOperationsListProps> = (props) => {
+const AllOperationsList: FC<AllOperationsListProps> = (props) => {
   const { accountPkh, accountOwner, tzStatsNetwork, tezOnly } = props;
   const { ops, opsEnded, loadMore, loading } = useAllOperations(props);
 
@@ -125,7 +127,7 @@ type TokenOperationsListProps = BaseOperationsListProps & {
   asset: TempleToken;
 };
 
-const TokenOperationsList: React.FC<TokenOperationsListProps> = (props) => {
+const TokenOperationsList: FC<TokenOperationsListProps> = (props) => {
   const { accountPkh, accountOwner, asset, tzStatsNetwork } = props;
   const { ops, opsEnded, loadMore, loading } = useTokensOperations(props);
 
@@ -154,7 +156,7 @@ type GenericOperationsListProps = {
   operations: OperationPreview[];
 };
 
-const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
+const GenericOperationsList: FC<GenericOperationsListProps> = ({
   accountPkh,
   operations,
   accountOwner,
@@ -167,7 +169,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
   const { getAllPndOps, removePndOps } = useTempleClient();
   const network = useNetwork();
 
-  const fetchPendingOperations = React.useCallback(async () => {
+  const fetchPendingOperations = useCallback(async () => {
     const chainId = await loadChainId(network.rpcBaseURL);
     const sendPndOps = await getAllPndOps(accountPkh, chainId);
     const receivePndOps = accountOwner
@@ -186,7 +188,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
   useOnStorageChanged(pndOpsSWR.revalidate);
   const { pndOps, chainId } = pndOpsSWR.data!;
 
-  const pendingOperations = React.useMemo<OperationPreview[]>(
+  const pendingOperations = useMemo<OperationPreview[]>(
     () =>
       pndOps
         .map((op, index) => {
@@ -238,7 +240,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
     [pndOps, accountPkh, asset]
   );
 
-  const [uniqueOps, nonUniqueOps] = React.useMemo(() => {
+  const [uniqueOps, nonUniqueOps] = useMemo(() => {
     const unique: OperationPreview[] = [];
     const nonUnique: OperationPreview[] = [];
 
@@ -267,7 +269,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
     ];
   }, [operations, pendingOperations]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (nonUniqueOps.length > 0) {
       removePndOps(
         accountPkh,
@@ -277,12 +279,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
     }
   }, [removePndOps, accountPkh, chainId, nonUniqueOps]);
 
-  const explorerBaseUrl = React.useMemo(
-    () =>
-      (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined) ??
-      null,
-    [chainId]
-  );
+  const { transaction: transactionBaseUrl } = useExplorerBaseUrls();
 
   return (
     <>
@@ -310,7 +307,7 @@ const GenericOperationsList: React.FC<GenericOperationsListProps> = ({
           key={internalOpKey(op)}
           accountPkh={accountPkh}
           withExplorer={withExplorer}
-          explorerBaseUrl={explorerBaseUrl}
+          explorerBaseUrl={transactionBaseUrl ?? null}
           {...op}
         />
       ))}

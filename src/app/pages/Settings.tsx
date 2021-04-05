@@ -1,30 +1,34 @@
+import React, { FC, useMemo } from "react";
+
 import classNames from "clsx";
-import * as React from "react";
-import { Link } from "lib/woozie";
-import { T } from "lib/i18n/react";
-import About from "app/templates/About";
-import ActivateAccount from "app/templates/ActivateAccount";
+
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
-import CustomNetworksSettings from "app/templates/CustomNetworksSettings";
-import DAppSettings from "app/templates/DAppSettings";
 import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
+import { ReactComponent as HelpIcon } from "app/icons/help.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
 import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
-import PageLayout from "app/layouts/PageLayout";
-import GeneralSettings from "app/templates/GeneralSettings";
-import RemoveAccount from "app/templates/RemoveAccount";
-import RevealSecret from "app/templates/RevealSecret";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
+import PageLayout from "app/layouts/PageLayout";
+import About from "app/templates/About";
+import ActivateAccount from "app/templates/ActivateAccount";
+import CustomNetworksSettings from "app/templates/CustomNetworksSettings";
+import DAppSettings from "app/templates/DAppSettings";
+import GeneralSettings from "app/templates/GeneralSettings";
+import HelpAndCommunity from "app/templates/HelpAndCommunity";
+import RemoveAccount from "app/templates/RemoveAccount";
+import RevealSecret from "app/templates/RevealSecret";
+import { T } from "lib/i18n/react";
+import { Link } from "lib/woozie";
 
 type SettingsProps = {
   tabSlug?: string | null;
 };
 
-const RevealPrivateKey: React.FC = () => <RevealSecret reveal="private-key" />;
-const RevealSeedPhrase: React.FC = () => <RevealSecret reveal="seed-phrase" />;
+const RevealPrivateKey: FC = () => <RevealSecret reveal="private-key" />;
+const RevealSeedPhrase: FC = () => <RevealSecret reveal="seed-phrase" />;
 
 const TABS = [
   {
@@ -91,10 +95,18 @@ const TABS = [
     color: "#A0AEC0",
     descriptionI18nKey: "aboutDescription",
   },
+  {
+    slug: "help-and-community",
+    titleI18nKey: "helpAndCommunity",
+    Icon: HelpIcon,
+    Component: HelpAndCommunity,
+    color: "#38B2AC",
+    descriptionI18nKey: "helpAndCommunityDescription",
+  },
 ];
 
-const Settings: React.FC<SettingsProps> = ({ tabSlug }) => {
-  const activeTab = React.useMemo(
+const Settings: FC<SettingsProps> = ({ tabSlug }) => {
+  const activeTab = useMemo(
     () => TABS.find((t) => t.slug === tabSlug) || null,
     [tabSlug]
   );

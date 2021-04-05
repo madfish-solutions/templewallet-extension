@@ -1,18 +1,20 @@
-import * as React from "react";
-import classNames from "clsx";
+import React, { cloneElement, memo, ReactElement, useMemo } from "react";
+
 import BigNumber from "bignumber.js";
+import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
+
 import { TempleAsset, TEZ_ASSET, useBalance } from "lib/temple/front";
 
 type BalanceProps = {
   address: string;
-  children: (b: BigNumber) => React.ReactElement;
+  children: (b: BigNumber) => ReactElement;
   asset?: TempleAsset;
   networkRpc?: string;
   displayed?: boolean;
 };
 
-const Balance = React.memo<BalanceProps>(
+const Balance = memo<BalanceProps>(
   ({ address, children, asset = TEZ_ASSET, networkRpc, displayed }) => {
     const { data: balance } = useBalance(asset, address, {
       networkRpc,
@@ -21,7 +23,7 @@ const Balance = React.memo<BalanceProps>(
     });
     const exist = balance !== undefined;
 
-    return React.useMemo(() => {
+    return useMemo(() => {
       const childNode = children(exist ? balance! : new BigNumber(0));
 
       return (
@@ -37,7 +39,7 @@ const Balance = React.memo<BalanceProps>(
             exit: classNames("opacity-0", "transition ease-in duration-200"),
           }}
         >
-          {React.cloneElement(childNode, {
+          {cloneElement(childNode, {
             className: classNames(
               childNode.props.className,
               !exist && "invisible"

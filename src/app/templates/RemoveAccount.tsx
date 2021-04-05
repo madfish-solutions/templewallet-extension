@@ -1,17 +1,19 @@
-import * as React from "react";
+import React, { FC, useCallback, useEffect, useRef } from "react";
+
 import { useForm } from "react-hook-form";
-import { navigate } from "lib/woozie";
+
+import Alert from "app/atoms/Alert";
+import FormField from "app/atoms/FormField";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import AccountBanner from "app/templates/AccountBanner";
+import { T, t } from "lib/i18n/react";
 import {
   TempleAccountType,
   useTempleClient,
   useRelevantAccounts,
   useAccount,
 } from "lib/temple/front";
-import { T, t } from "lib/i18n/react";
-import AccountBanner from "app/templates/AccountBanner";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Alert from "app/atoms/Alert";
+import { navigate } from "lib/woozie";
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 
@@ -19,13 +21,13 @@ type FormData = {
   password: string;
 };
 
-const RemoveAccount: React.FC = () => {
+const RemoveAccount: FC = () => {
   const { removeAccount } = useTempleClient();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
 
-  const prevAccLengthRef = React.useRef(allAccounts.length);
-  React.useEffect(() => {
+  const prevAccLengthRef = useRef(allAccounts.length);
+  useEffect(() => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current > accLength) {
       navigate("/");
@@ -43,7 +45,7 @@ const RemoveAccount: React.FC = () => {
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
-  const onSubmit = React.useCallback(
+  const onSubmit = useCallback(
     async ({ password }) => {
       if (submitting) return;
 

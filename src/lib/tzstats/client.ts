@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+
 import { TempleChainId } from "lib/temple/types";
 import {
   TZStatsNetwork,
@@ -14,8 +15,9 @@ import {
 
 export const TZSTATS_CHAINS = new Map([
   [TempleChainId.Mainnet, TZStatsNetwork.Mainnet],
-  [TempleChainId.Delphinet, TZStatsNetwork.Delphinet],
   [TempleChainId.Edo2net, TZStatsNetwork.Edonet],
+  [TempleChainId.Florencenet, TZStatsNetwork.Florencenet],
+  [TempleChainId.Delphinet, TZStatsNetwork.Delphinet],
   [TempleChainId.Carthagenet, TZStatsNetwork.Carthagenet],
 ]);
 

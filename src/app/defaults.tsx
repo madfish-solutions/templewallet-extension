@@ -1,5 +1,8 @@
-import * as React from "react";
+import React from "react";
+
+import tezImgUrl from "app/misc/tez.png";
 import { BcdNetwork } from "lib/better-call-dev";
+import { T, t } from "lib/i18n/react";
 import {
   TempleAccount,
   TempleAsset,
@@ -7,13 +10,11 @@ import {
   TempleAccountType,
   TempleChainId,
 } from "lib/temple/types";
-import { T, t } from "lib/i18n/react";
-import tezImgUrl from "app/misc/tez.png";
 
 export const BCD_NETWORKS_NAMES = new Map<TempleChainId, BcdNetwork>([
   [TempleChainId.Mainnet, "mainnet"],
   [TempleChainId.Edo2net, "edo2net"],
-  [TempleChainId.Delphinet, "delphinet"],
+  [TempleChainId.Florencenet, "florencenet"],
 ]);
 
 export class ArtificialError extends Error {}

@@ -1,12 +1,29 @@
+import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk, ru } from "date-fns/locale";
 import { browser } from "webextension-polyfill-ts";
-import { FetchedLocaleMessages, LocaleMessages, Substitutions } from "./types";
+
+import cldrjsLocales from "./cldrjs-locales.json";
 import { areLocalesEqual, processTemplate, toList } from "./helpers";
 import { getSavedLocale } from "./saving";
+import { FetchedLocaleMessages, LocaleMessages, Substitutions } from "./types";
+
+const dateFnsLocales: Record<string, Locale> = {
+  en: enUS,
+  en_GB: enGB,
+  fr,
+  zh_CN: zhCN,
+  zh_TW: zhTW,
+  ja,
+  ko,
+  uk,
+  ru
+};
 
 let fetchedLocaleMessages: FetchedLocaleMessages = {
   target: null,
   fallback: null,
 };
+
+let cldrLocale = cldrjsLocales.en;
 
 export async function init() {
   const refetched: FetchedLocaleMessages = {
@@ -37,6 +54,7 @@ export async function init() {
   }
 
   fetchedLocaleMessages = refetched;
+  cldrLocale = (cldrjsLocales as Record<string, any>)[getCurrentLocale()] || cldrjsLocales.en;
 }
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {
@@ -66,6 +84,18 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
 
     return "";
   }
+}
+
+export function getDateFnsLocale() {
+  return dateFnsLocales[getCurrentLocale()] || enUS;
+}
+
+export function getCldrLocale() {
+  return cldrLocale;
+}
+
+export function getNumberSymbols() {
+  return cldrLocale.numbers["symbols-numberSystem-latn"];
 }
 
 export function getCurrentLocale() {

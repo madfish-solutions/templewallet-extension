@@ -1,25 +1,23 @@
-import * as React from "react";
-import { Substitutions } from "./types";
-import { toList } from "./helpers";
+import React, { FC, Fragment, ReactElement, ReactNode, useMemo } from "react";
+
 import { getMessage } from "./core";
+import { toList } from "./helpers";
+import { Substitutions } from "./types";
 
 export * from "./index";
 
-export type ReactSubstitutions = React.ReactNode | React.ReactNode[];
+export type ReactSubstitutions = ReactNode | ReactNode[];
 
 export type TProps = {
   id: string;
   substitutions?: any;
-  children?: (m: React.ReactNode | string | null) => React.ReactElement;
+  children?: (m: ReactNode | string | null) => ReactElement;
 };
 
-export const T: React.FC<TProps> = ({ id, substitutions, children }) => {
-  const message = React.useMemo(() => tReact(id, substitutions), [
-    id,
-    substitutions,
-  ]);
+export const T: FC<TProps> = ({ id, substitutions, children }) => {
+  const message = useMemo(() => tReact(id, substitutions), [id, substitutions]);
 
-  return React.useMemo(() => (children ? children(message) : <>{message}</>), [
+  return useMemo(() => (children ? children(message) : <>{message}</>), [
     message,
     children,
   ]);
@@ -29,7 +27,7 @@ export function t(messageName: string, substitutions?: Substitutions): string;
 export function t(
   messageName: string,
   substitutions?: ReactSubstitutions
-): React.ReactNode;
+): ReactNode;
 export function t(messageName: string, substitutions?: any): any {
   return !substitutions || !hasReactSubstitutions(substitutions)
     ? getMessage(messageName, substitutions)
@@ -39,42 +37,43 @@ export function t(messageName: string, substitutions?: any): any {
 function tReact(
   messageName: string,
   substitutions?: Substitutions | ReactSubstitutions
-): React.ReactNode {
+): ReactNode {
   const subList = toList(substitutions);
   const tmp = getMessage(
     messageName,
-    subList.map(() => "$$")
+    subList.map(() => TMP_SEPARATOR)
   );
 
   return (
     <>
-      {tmp.split("$$").map((partI, i) => (
-        <React.Fragment key={`i_${i}`}>
+      {tmp.split(TMP_SEPARATOR).map((partI, i) => (
+        <Fragment key={`i_${i}`}>
           {partI.split("\n").map((partJ, j) => (
-            <React.Fragment key={`j_${j}`}>
+            <Fragment key={`j_${j}`}>
               {j > 0 && <br />}
               {partJ.includes("<b>")
                 ? partJ
                     .split(BOLD_PATTERN)
                     .map((partK, k) => (
-                      <React.Fragment key={`k_${k}`}>
+                      <Fragment key={`k_${k}`}>
                         {k % 2 === 0 ? (
                           partK
                         ) : (
                           <span className="font-semibold">{partK}</span>
                         )}
-                      </React.Fragment>
+                      </Fragment>
                     ))
                 : partJ}
-            </React.Fragment>
+            </Fragment>
           ))}
           {subList[i]}
-        </React.Fragment>
+        </Fragment>
       ))}
     </>
   );
 }
 
+const TMP_SEPARATOR = "$_$";
 const BOLD_PATTERN = /<b>(.*?)<\/b>/g;
 
 function hasReactSubstitutions(

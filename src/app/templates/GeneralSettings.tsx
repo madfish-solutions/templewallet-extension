@@ -1,11 +1,15 @@
-import React from "react";
+import React, { FC } from "react";
+
+import BlockExplorerSelect from "app/templates/BlockExplorerSelect";
 import LocaleSelect from "app/templates/LocaleSelect";
 import PopupSettings from "app/templates/PopupSettings";
 
-const GeneralSettings: React.FC = () => {
+const GeneralSettings: FC = () => {
   return (
     <div className="w-full max-w-sm mx-auto my-8">
       <LocaleSelect className="mb-8" />
+
+      <BlockExplorerSelect className="mb-8" />
 
       <PopupSettings />
     </div>

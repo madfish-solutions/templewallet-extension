@@ -2,10 +2,8 @@
 
 const path = require("path");
 const fs = require("fs");
-const dotenv = require("dotenv");
 const webpack = require("webpack");
 const resolve = require("resolve");
-const wextManifest = require("wext-manifest");
 const ZipPlugin = require("zip-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
@@ -24,14 +22,39 @@ const safePostCssParser = require("postcss-safe-parser");
 const pkg = require("./package.json");
 const tsConfig = require("./tsconfig.json");
 
-// Steal ENV vars from .env file
-dotenv.config();
+const { NODE_ENV = "development" } = process.env;
+const dotenvPath = path.resolve(__dirname, ".env");
+
+// https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
+const dotenvFiles = [
+  `${dotenvPath}.${NODE_ENV}.local`,
+  // Don't include `.env.local` for `test` environment
+  // since normally you expect tests to produce the same
+  // results for everyone
+  NODE_ENV !== "test" && `${dotenvPath}.local`,
+  `${dotenvPath}.${NODE_ENV}`,
+  dotenvPath,
+].filter(Boolean);
+
+// Load environment variables from .env* files. Suppress warnings using silent
+// if this file is missing. dotenv will never modify any environment variables
+// that have already been set.  Variable expansion is supported in .env files.
+// https://github.com/motdotla/dotenv
+// https://github.com/motdotla/dotenv-expand
+dotenvFiles.forEach((dotenvFile) => {
+  if (fs.existsSync(dotenvFile)) {
+    require("dotenv-expand")(
+      require("dotenv").config({
+        path: dotenvFile,
+      })
+    );
+  }
+});
 
 // Grab NODE_ENV and TEMPLE_WALLET_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
 const TEMPLE_WALLET = /^TEMPLE_WALLET_/i;
 const {
-  NODE_ENV = "development",
   TARGET_BROWSER = "chrome",
   SOURCE_MAP: SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = "10000",
@@ -396,8 +419,13 @@ module.exports = {
         from: MANIFEST_PATH,
         to: path.join(OUTPUT_PATH, "manifest.json"),
         toType: "file",
-        transform: (content) =>
-          wextManifest[TARGET_BROWSER](JSON.parse(content)).content,
+        transform: (content) => {
+          const manifest = transformManifestKeys(
+            JSON.parse(content),
+            TARGET_BROWSER
+          );
+          return JSON.stringify(manifest, null, 2);
+        },
       },
     ]),
 
@@ -530,3 +558,40 @@ function getStyleLoaders(cssOptions = {}) {
     },
   ].filter(Boolean);
 }
+
+/**
+ *  Fork of `wext-manifest`
+ */
+const browserVendors = ["chrome", "firefox", "opera", "edge", "safari"];
+const vendorRegExp = new RegExp(
+  `^__((?:(?:${browserVendors.join("|")})\\|?)+)__(.*)`
+);
+
+const transformManifestKeys = (manifest, vendor) => {
+  if (Array.isArray(manifest)) {
+    return manifest.map((newManifest) => {
+      return transformManifestKeys(newManifest, vendor);
+    });
+  }
+
+  if (typeof manifest === "object") {
+    return Object.entries(manifest).reduce((newManifest, [key, value]) => {
+      const match = key.match(vendorRegExp);
+
+      if (match) {
+        const vendors = match[1].split("|");
+
+        // Swap key with non prefixed name
+        if (vendors.indexOf(vendor) > -1) {
+          newManifest[match[2]] = value;
+        }
+      } else {
+        newManifest[key] = transformManifestKeys(value, vendor);
+      }
+
+      return newManifest;
+    }, {});
+  }
+
+  return manifest;
+};

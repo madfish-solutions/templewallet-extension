@@ -1,11 +1,13 @@
 import "./main.css";
 
-import * as React from "react";
+import React from "react";
+
 import * as ReactDOM from "react-dom";
 import { browser } from "webextension-polyfill-ts";
-import { isPopupModeEnabled } from "lib/popup-mode";
-import { WindowType, openInFullPage } from "app/env";
+
 import App from "app/App";
+import { WindowType, openInFullPage } from "app/env";
+import { isPopupModeEnabled } from "lib/popup-mode";
 
 ReactDOM.render(
   <App env={{ windowType: WindowType.Popup }} />,

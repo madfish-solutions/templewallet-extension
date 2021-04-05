@@ -1,5 +1,5 @@
-import { TempleNetwork } from "lib/temple/types";
 import { getMessage } from "lib/i18n";
+import { TempleNetwork } from "lib/temple/types";
 
 export const NETWORKS: TempleNetwork[] = [
   {
@@ -9,7 +9,7 @@ export const NETWORKS: TempleNetwork[] = [
     description: "Tezos mainnet",
     lambdaContract: "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE",
     type: "main",
-    rpcBaseURL: "https://rpc.tzbeta.net",
+    rpcBaseURL: "https://mainnet.smartpy.io",
     color: "#83b300",
     disabled: false,
   },
@@ -24,13 +24,13 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false,
   },
   {
-    id: "delphinet",
-    name: "Delphi Testnet",
-    description: "Delphi testnet",
-    lambdaContract: "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM",
+    id: "florencenet",
+    name: "Florence Testnet",
+    description: "Florence testnet",
+    lambdaContract: "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX",
     type: "test",
-    rpcBaseURL: "https://delphinet.smartpy.io",
-    color: "#ed6663",
+    rpcBaseURL: "https://florencenet.smartpy.io",
+    color: "#FFD88A",
     disabled: false,
   },
   {

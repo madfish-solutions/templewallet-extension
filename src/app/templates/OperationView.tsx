@@ -1,32 +1,36 @@
+import React, { FC, useMemo, useState } from "react";
+
 import classNames from "clsx";
-import React from "react";
+
+import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
+import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
+import { ReactComponent as HashIcon } from "app/icons/hash.svg";
+import ExpensesView from "app/templates/ExpensesView";
+import OperationsBanner from "app/templates/OperationsBanner";
+import RawPayloadView from "app/templates/RawPayloadView";
+import ViewsSwitcher from "app/templates/ViewsSwitcher";
 import { T, t } from "lib/i18n/react";
 import {
-  TempleDAppPayload,
   TEZ_ASSET,
   tryParseExpenses,
-  useAccount,
   TempleAssetType,
   useTokens,
+  TempleDAppOperationsPayload,
+  TempleDAppSignPayload,
 } from "lib/temple/front";
-import OperationsBanner from "app/templates/OperationsBanner";
-import ViewsSwitcher from "app/templates/ViewsSwitcher";
-import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
-import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import { ReactComponent as HashIcon } from "app/icons/hash.svg";
-import RawPayloadView from "app/templates/RawPayloadView";
-import ExpensesView from "app/templates/ExpensesView";
 
 type OperationViewProps = {
-  payload: TempleDAppPayload;
+  payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
   networkRpc?: string;
+  mainnet?: boolean;
 };
 
-const OperationView: React.FC<OperationViewProps> = ({
+const OperationView: FC<OperationViewProps> = ({
   payload,
   networkRpc,
+  mainnet = false,
 }) => {
-  const contentToParse = React.useMemo(() => {
+  const contentToParse = useMemo(() => {
     switch (payload.type) {
       case "confirm_operations":
         return (payload.rawToSign ?? payload.opParams) || [];
@@ -36,14 +40,14 @@ const OperationView: React.FC<OperationViewProps> = ({
         return [];
     }
   }, [payload]);
-  const account = useAccount();
   const { allTokens } = useTokens(networkRpc);
 
-  const rawExpensesData = React.useMemo(
-    () => tryParseExpenses(contentToParse, account.publicKeyHash),
-    [contentToParse, account.publicKeyHash]
+  const rawExpensesData = useMemo(
+    () => tryParseExpenses(contentToParse, payload.sourcePkh),
+    [contentToParse, payload.sourcePkh]
   );
-  const expensesData = React.useMemo(() => {
+
+  const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restRaw }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
         asset: tokenAddress
@@ -61,26 +65,19 @@ const OperationView: React.FC<OperationViewProps> = ({
     }));
   }, [allTokens, rawExpensesData]);
 
-  const signPayloadFormats = React.useMemo(() => {
+  const signPayloadFormats = useMemo(() => {
     const rawFormat = {
       key: "raw",
       name: t("raw"),
       Icon: CodeAltIcon,
     };
-    const someExpenses =
-      expensesData.reduce(
-        (sum, operationExpenses) => sum + operationExpenses.expenses.length,
-        0
-      ) > 0;
-    const prettyViewFormats = someExpenses
-      ? [
-          {
-            key: "preview",
-            name: t("preview"),
-            Icon: EyeIcon,
-          },
-        ]
-      : [];
+    const prettyViewFormats = [
+      {
+        key: "preview",
+        name: t("preview"),
+        Icon: EyeIcon,
+      },
+    ];
 
     if (payload.type === "confirm_operations") {
       return [
@@ -98,10 +95,6 @@ const OperationView: React.FC<OperationViewProps> = ({
       ];
     }
 
-    if (payload.type === "connect") {
-      return [];
-    }
-
     return [
       ...prettyViewFormats,
       rawFormat,
@@ -111,9 +104,9 @@ const OperationView: React.FC<OperationViewProps> = ({
         Icon: HashIcon,
       },
     ];
-  }, [payload, expensesData]);
+  }, [payload]);
 
-  const [spFormat, setSpFormat] = React.useState(signPayloadFormats[0]);
+  const [spFormat, setSpFormat] = useState(signPayloadFormats[0]);
 
   if (payload.type === "sign" && payload.preview) {
     return (
@@ -222,7 +215,12 @@ const OperationView: React.FC<OperationViewProps> = ({
         />
 
         <div className={classNames(spFormat.key !== "preview" && "hidden")}>
-          <ExpensesView expenses={expensesData} />
+          <ExpensesView
+            expenses={expensesData}
+            rawToSign={payload.rawToSign}
+            mainnet={mainnet}
+            totalFeeDisplayed
+          />
         </div>
       </div>
     );

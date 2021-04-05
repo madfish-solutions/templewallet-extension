@@ -1,6 +1,21 @@
-import * as React from "react";
+import React, { FC, useCallback, useMemo } from "react";
+
 import classNames from "clsx";
-import { Link } from "lib/woozie";
+
+import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import DropdownWrapper from "app/atoms/DropdownWrapper";
+import Identicon from "app/atoms/Identicon";
+import Money from "app/atoms/Money";
+import Name from "app/atoms/Name";
+import { useAppEnv, openInFullPage } from "app/env";
+import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
+import { ReactComponent as LinkIcon } from "app/icons/link.svg";
+import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
+import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
+import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
+import Balance from "app/templates/Balance";
+import { T } from "lib/i18n/react";
 import {
   useTempleClient,
   useRelevantAccounts,
@@ -8,43 +23,27 @@ import {
   useSetAccountPkh,
 } from "lib/temple/front";
 import { PopperRenderProps } from "lib/ui/Popper";
-import { T } from "lib/i18n/react";
-import { useAppEnv, openInFullPage } from "app/env";
-import DropdownWrapper from "app/atoms/DropdownWrapper";
-import Identicon from "app/atoms/Identicon";
-import Name from "app/atoms/Name";
-import AccountTypeBadge from "app/atoms/AccountTypeBadge";
-import Money from "app/atoms/Money";
-import Balance from "app/templates/Balance";
-import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
-import { ReactComponent as AddIcon } from "app/icons/add.svg";
-import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
-import { ReactComponent as LinkIcon } from "app/icons/link.svg";
-import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
-import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
+import { Link } from "lib/woozie";
 
 type ExcludesFalse = <T>(x: T | false) => x is T;
 type AccountDropdownProps = PopperRenderProps;
 
-const AccountDropdown: React.FC<AccountDropdownProps> = ({
-  opened,
-  setOpened,
-}) => {
+const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
 
-  const closeDropdown = React.useCallback(() => {
+  const closeDropdown = useCallback(() => {
     setOpened(false);
   }, [setOpened]);
 
-  const handleLogoutClick = React.useCallback(() => {
+  const handleLogoutClick = useCallback(() => {
     lock();
   }, [lock]);
 
-  const handleMaximiseViewClick = React.useCallback(() => {
+  const handleMaximiseViewClick = useCallback(() => {
     openInFullPage();
     if (appEnv.popup) {
       window.close();
@@ -53,7 +52,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
     }
   }, [appEnv.popup, closeDropdown]);
 
-  const actions = React.useMemo(
+  const actions = useMemo(
     () =>
       [
         {
@@ -198,7 +197,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                             "text-white text-opacity-75"
                           )}
                         >
-                          <Money>{bal}</Money>{" "}
+                          <Money tooltip={false}>{bal}</Money>{" "}
                           <span style={{ fontSize: "0.5rem" }}>tez</span>
                         </span>
                       )}
@@ -225,7 +224,8 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
               "px-2",
               "transition ease-in-out duration-200",
               "hover:bg-white hover:bg-opacity-10",
-              "text-white text-shadow-black text-sm"
+              "text-white text-shadow-black text-sm",
+              "whitespace-no-wrap"
             ),
             style: {
               paddingTop: "0.375rem",

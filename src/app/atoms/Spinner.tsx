@@ -1,12 +1,14 @@
-import * as React from "react";
+import React, { HTMLAttributes, memo } from "react";
+
 import classNames from "clsx";
+
 import styles from "./Spinner.module.css";
 
-type SpinnerProps = React.HTMLAttributes<HTMLDivElement> & {
+type SpinnerProps = HTMLAttributes<HTMLDivElement> & {
   theme?: "primary" | "white" | "gray";
 };
 
-const Spinner = React.memo<SpinnerProps>(
+const Spinner = memo<SpinnerProps>(
   ({ theme = "primary", className, ...rest }) => (
     <div className={classNames("flex justify-around", className)} {...rest}>
       {["bounce1", "bounce2", "bounce3"].map((name) => (

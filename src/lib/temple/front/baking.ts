@@ -1,12 +1,13 @@
-import * as React from "react";
-import { getAllBakers, getBaker } from "lib/tezos-nodes";
+import { useCallback, useMemo } from "react";
+
 import { useRetryableSWR } from "lib/swr";
 import { useTezos, useNetwork } from "lib/temple/front";
+import { getAllBakers, getBaker } from "lib/tezos-nodes";
 
 export function useDelegate(address: string, suspense = true) {
   const tezos = useTezos();
 
-  const getDelegate = React.useCallback(async () => {
+  const getDelegate = useCallback(async () => {
     try {
       return await tezos.rpc.getDelegate(address);
     } catch (err) {
@@ -26,7 +27,7 @@ export function useDelegate(address: string, suspense = true) {
 
 export function useKnownBaker(address: string | null, suspense = true) {
   const net = useNetwork();
-  const fetchBaker = React.useCallback(async () => {
+  const fetchBaker = useCallback(async () => {
     if (!address) return null;
     try {
       return await getBaker(address);
@@ -57,7 +58,7 @@ export function useKnownBakers(suspense = true) {
     }
   );
 
-  return React.useMemo(() => (bakers && bakers.length > 1 ? bakers : null), [
+  return useMemo(() => (bakers && bakers.length > 1 ? bakers : null), [
     bakers,
   ]);
 }

@@ -1,4 +1,6 @@
 import { Runtime, browser } from "webextension-polyfill-ts";
+
+import { serealizeError } from "./helpers";
 import {
   MessageType,
   RequestMessage,
@@ -6,7 +8,6 @@ import {
   ErrorMessage,
   SubscriptionMessage,
 } from "./types";
-import { serealizeError } from "./helpers";
 
 type ReqHandler = (payload: any, port: Runtime.Port) => Promise<any>;
 

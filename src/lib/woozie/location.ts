@@ -1,4 +1,5 @@
 import constate from "constate";
+
 import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
 import { HistoryAction, PatchedHistory, useHistory } from "lib/woozie/history";
 
@@ -68,7 +69,7 @@ export function createLocationState(): LocationState {
     hostname,
     href,
     origin,
-    pathname,
+    pathname: pathname || "/",
     port,
     protocol,
     search,

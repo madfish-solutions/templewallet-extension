@@ -1,9 +1,10 @@
-import * as React from "react";
+import { FC, useEffect, useMemo } from "react";
+
 import * as ReactDOM from "react-dom";
 
-const Portal: React.FC = ({ children }) => {
-  const portalEl = React.useMemo(() => document.createElement("div"), []);
-  React.useEffect(() => {
+const Portal: FC = ({ children }) => {
+  const portalEl = useMemo(() => document.createElement("div"), []);
+  useEffect(() => {
     document.body.appendChild(portalEl);
     return () => {
       document.body.removeChild(portalEl);

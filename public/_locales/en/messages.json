@@ -854,6 +854,9 @@
   "bakerInputDescription": {
     "message": "Address of a registered baker."
   },
+  "bakerInputDescriptionWithDomain": {
+    "message": "Address or domain name of a registered baker."
+  },
   "bakerInputPlaceholder": {
     "message": "e.g. tz1a9w1S7hN5s..."
   },
@@ -1684,5 +1687,20 @@
   },
   "accountNumber": {
     "message": "Account number"
+  },
+  "helpAndCommunity": {
+    "message": "Help & Community"
+  },
+  "communityResourcesTitle": {
+    "message": "You may always find additional info about the Temple wallet or ask for help on the next resources."
+  },
+  "helpAndCommunityDescription": {
+    "message": "Use this section if you want to be a part of our community or need help."
+  },
+  "joinPrompt": {
+    "message": "Feel free to join and ask your questions 😊"
+  },
+  "blockExplorer": {
+    "message": "Blockchain explorer"
   }
 }

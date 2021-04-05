@@ -1,12 +1,7 @@
 // Actually, there is a bunch of other types but only these will be used for now
 export type TzktOperationType = "delegation" | "transaction" | "reveal";
 
-export type TzktNetwork =
-  | "mainnet"
-  | "babylonnet"
-  | "carthagenet"
-  | "zeronet"
-  | "delphinet";
+export type TzktNetwork = "mainnet" | "edo2net" | "florencenet" | "delphinet";
 
 export type TzktQuoteCurrency =
   | "None"
@@ -206,13 +201,7 @@ export const isReveal = (
   return operation.type === "reveal";
 };
 
-const validTzktNetworks = [
-  "mainnet",
-  "babylonnet",
-  "carthagenet",
-  "zeronet",
-  "delphinet",
-];
+const validTzktNetworks = ["mainnet", "edo2net", "florencenet", "delphinet"];
 export const isValidTzktNetwork = (
   networkId: string
 ): networkId is TzktNetwork => {

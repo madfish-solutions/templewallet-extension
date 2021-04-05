@@ -1,17 +1,17 @@
-import * as React from "react";
+import { useMemo } from "react";
+
 import constate from "constate";
+
 import { useRetryableSWR } from "lib/swr";
 import { getMarketTickers } from "lib/tzstats";
-import { useNetwork } from "lib/temple/front/ready";
 
 const LIQUIDITY_INTERVAL = 120_000;
 
 export const [USDPriceProvider, useUSDPrice] = constate(() => {
   const mtSWR = useMarketTickers(true);
-  const network = useNetwork();
 
-  return React.useMemo(() => {
-    if (!(mtSWR.data && network.type === "main")) {
+  return useMemo(() => {
+    if (!mtSWR.data) {
       return null;
     }
 
@@ -32,7 +32,7 @@ export const [USDPriceProvider, useUSDPrice] = constate(() => {
       vol && usdTickers.reduce((s, t) => s + (t.last * t.volume_base) / vol, 0);
 
     return price;
-  }, [mtSWR.data, network.type]);
+  }, [mtSWR.data]);
 });
 
 export function useMarketTickers(suspense?: boolean) {

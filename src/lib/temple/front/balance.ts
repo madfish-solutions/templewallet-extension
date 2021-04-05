@@ -1,4 +1,5 @@
-import * as React from "react";
+import { useCallback, useMemo } from "react";
+
 import { useRetryableSWR } from "lib/swr";
 import {
   TempleAsset,
@@ -6,6 +7,7 @@ import {
   fetchBalance,
   getAssetKey,
   ReactiveTezosToolkit,
+  michelEncoder,
 } from "lib/temple/front";
 
 type UseBalanceOptions = {
@@ -21,10 +23,10 @@ export function useBalance(
 ) {
   const nativeTezos = useTezos();
 
-  const tezos = React.useMemo(() => {
+  const tezos = useMemo(() => {
     if (opts.networkRpc) {
       const rpc = opts.networkRpc;
-      return new ReactiveTezosToolkit(
+      const t = new ReactiveTezosToolkit(
         rpc,
         rpc
         // lambda view contract for custom RPC may be here
@@ -32,11 +34,13 @@ export function useBalance(
         // but if we need to do this, we have to load chainId and pick lambdaView
         // from settings with this chainId
       );
+      t.setPackerProvider(michelEncoder);
+      return t;
     }
     return nativeTezos;
   }, [opts.networkRpc, nativeTezos]);
 
-  const fetchBalanceLocal = React.useCallback(
+  const fetchBalanceLocal = useCallback(
     () => fetchBalance(tezos, asset, address),
     [tezos, asset, address]
   );

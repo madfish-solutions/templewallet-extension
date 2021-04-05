@@ -1,5 +1,7 @@
-import { TezosToolkit } from "@taquito/taquito";
 import { localForger } from "@taquito/local-forging";
+import { TezosToolkit } from "@taquito/taquito";
+
+import { formatOpParamsBeforeSend, michelEncoder } from "lib/temple/helpers";
 import { ReadOnlySigner } from "lib/temple/read-only-signer";
 
 export type DryRunParams = {
@@ -24,9 +26,10 @@ export async function dryRunOpParams({
     });
 
     tezos.setSignerProvider(signer);
+    tezos.setPackerProvider(michelEncoder);
 
     try {
-      await tezos.contract.batch(opParams).send();
+      await tezos.contract.batch(opParams.map(formatOpParamsBeforeSend)).send();
     } catch {}
 
     if (bytesToSign) {

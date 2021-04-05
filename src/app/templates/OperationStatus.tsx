@@ -1,43 +1,38 @@
-import * as React from "react";
-import { T, t } from "lib/i18n/react";
-import useSafeState from "lib/ui/useSafeState";
-import { useTezos, useBlockTriggers } from "lib/temple/front";
+import React, { FC, ReactNode, useEffect, useMemo } from "react";
+
 import Alert from "app/atoms/Alert";
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import HashChip from "app/templates/HashChip";
-import { isKnownChainId, useChainId } from "lib/temple/front";
-import { TZKT_BASE_URLS } from "lib/tzkt";
+import { T, t } from "lib/i18n/react";
+import {
+  useTezos,
+  useBlockTriggers,
+  useExplorerBaseUrls,
+} from "lib/temple/front";
+import useSafeState from "lib/ui/useSafeState";
 
 type OperationStatusProps = {
   typeTitle: string;
   operation: any;
 };
 
-const OperationStatus: React.FC<OperationStatusProps> = ({
+const OperationStatus: FC<OperationStatusProps> = ({
   typeTitle,
   operation,
 }) => {
   const tezos = useTezos();
   const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
 
-  const hash = React.useMemo(() => operation.hash || operation.opHash, [
-    operation,
-  ]);
+  const hash = useMemo(() => operation.hash || operation.opHash, [operation]);
 
-  const chainId = useChainId();
+  const { transaction: transactionBaseUrl } = useExplorerBaseUrls();
 
-  const explorerBaseUrl = React.useMemo(
-    () =>
-      (chainId &&
-        (isKnownChainId(chainId) ? TZKT_BASE_URLS.get(chainId) : undefined)) ??
-      null,
-    [chainId]
-  );
-
-  const descFooter = React.useMemo(
+  const descFooter = useMemo(
     () => (
       <div className="mt-2 text-xs flex items-center">
-        <T id="operationHash" />:{" "}
+        <div className="whitespace-no-wrap">
+          <T id="operationHash" />:{" "}
+        </div>
         <HashChip
           hash={hash}
           firstCharsCount={10}
@@ -46,18 +41,18 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
           key="hash"
           className="ml-2 mr-2"
         />
-        {explorerBaseUrl && (
-          <OpenInExplorerChip baseUrl={explorerBaseUrl} opHash={hash} />
+        {transactionBaseUrl && (
+          <OpenInExplorerChip baseUrl={transactionBaseUrl} opHash={hash} />
         )}
       </div>
     ),
-    [hash, explorerBaseUrl]
+    [hash, transactionBaseUrl]
   );
 
   const [alert, setAlert] = useSafeState<{
     type: "success" | "error";
     title: string;
-    description: React.ReactNode;
+    description: ReactNode;
   }>(() => ({
     type: "success",
     title: `${t("success")} 🛫`,
@@ -70,7 +65,7 @@ const OperationStatus: React.FC<OperationStatusProps> = ({
     ),
   }));
 
-  React.useEffect(() => {
+  useEffect(() => {
     const abortCtrl = new AbortController();
 
     confirmOperationAndTriggerNewBlock(tezos, hash, {
