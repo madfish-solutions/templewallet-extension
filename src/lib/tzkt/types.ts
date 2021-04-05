@@ -39,7 +39,7 @@ interface TzktOperationBase {
   type: TzktOperationType;
   id: number;
   level?: number;
-  timestamp?: string;
+  timestamp: string;
   block?: string;
   hash: string;
   counter: number;
@@ -130,7 +130,7 @@ export type TzktGetRewardsResponse = Array<{
   balance: number;
   baker: {
     alias?: string;
-    address: string
+    address: string;
   };
   stakingBalance: number;
   expectedBlocks: number;
@@ -185,8 +185,8 @@ export const allInt32ParameterKeys: Int32ParameterKey[] = [
   "lt",
   "le",
   "in",
-  "ni"
-]
+  "ni",
+];
 
 export const isDelegation = (
   operation: TzktOperation

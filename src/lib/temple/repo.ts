@@ -41,7 +41,7 @@ export type IOperationData = AtLeastOne<{
 }>;
 
 export interface ISyncTime {
-  service: string;
+  service: "tzkt" | "bcd";
   chainId: string;
   address: string;
   higherTimestamp: number;

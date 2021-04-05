@@ -6,7 +6,7 @@ import {
   getTokenTransfers,
   BcdNetwork,
 } from "lib/better-call-dev";
-import { TzktOperation, getOperations } from "lib/tzkt";
+import { getOperations } from "lib/tzkt";
 
 export async function addLocalOperation(
   chainId: string,
@@ -142,6 +142,10 @@ export async function syncOperations(
     }),
   ]);
 
+  /**
+   * TZKT
+   */
+
   for (const tzktOp of tzktOperations) {
     const current = await Repo.operations.get(tzktOp.hash);
 
@@ -161,7 +165,7 @@ export async function syncOperations(
         chainId,
         members: [tzktOp.sender.address],
         assetIds,
-        addedAt: tzktOp.timestamp ? +new Date(tzktOp.timestamp) : Date.now(),
+        addedAt: +new Date(tzktOp.timestamp),
         data: {
           tzktGroup: [tzktOp],
         },
@@ -183,7 +187,40 @@ export async function syncOperations(
     }
   }
 
-  for (const tokenTrans of bcdTokenTransfers.transfers) {
+  if (tzktOperations.length > 0) {
+    const higherTimestamp = +new Date(tzktOperations[0]?.timestamp);
+    const lowerTimestamp = +new Date(
+      tzktOperations[tzktOperations.length - 1]?.timestamp
+    );
+
+    if (!tzktTime) {
+      await Repo.syncTimes.add({
+        service: "tzkt",
+        chainId,
+        address,
+        higherTimestamp,
+        lowerTimestamp,
+      });
+    } else {
+      await Repo.syncTimes
+        .where({ service: "tzkt", chainId, address })
+        .modify((st) => {
+          if (fresh) {
+            st.higherTimestamp = higherTimestamp;
+          } else {
+            st.lowerTimestamp = lowerTimestamp;
+          }
+        });
+    }
+  }
+
+  /**
+   * BCD
+   */
+
+  const tokenTransfers = bcdTokenTransfers.transfers;
+
+  for (const tokenTrans of tokenTransfers) {
     const assetId = toTokenId(tokenTrans.contract, tokenTrans.token_id);
     const current = await Repo.operations.get(tokenTrans.hash);
     if (!current) {
@@ -223,24 +260,34 @@ export async function syncOperations(
       });
     }
   }
+
+  if (tokenTransfers.length > 0) {
+    const higherTimestamp = +new Date(tokenTransfers[0]?.timestamp);
+    const lowerTimestamp = +new Date(
+      tokenTransfers[tokenTransfers.length - 1]?.timestamp
+    );
+
+    if (!tzktTime) {
+      await Repo.syncTimes.add({
+        service: "bcd",
+        chainId,
+        address,
+        higherTimestamp,
+        lowerTimestamp,
+      });
+    } else {
+      await Repo.syncTimes
+        .where({ service: "bcd", chainId, address })
+        .modify((st) => {
+          if (fresh) {
+            st.higherTimestamp = higherTimestamp;
+          } else {
+            st.lowerTimestamp = lowerTimestamp;
+          }
+        });
+    }
+  }
 }
-
-// export async function syncTzktOperations(chainId: string, address: string) {
-//   const [time] = await Repo.syncTimes
-//     .where({ service: "tzkt", chainId, address })
-//     .toArray();
-
-//   let from, to: string | undefined;
-//   if (time) {
-//     // from = time.higherTimestamp;
-//     // to = time.lowerTimestamp;
-//   } else {
-//     // from = time.higherTimestamp;
-//     // to = time.higher
-//   }
-
-//   // return operations.map(op => op.id);
-// }
 
 export const BCD_NETWORKS = new Map<string, BcdNetwork>([
   ["NetXdQprcVkpaWU", "mainnet"],
