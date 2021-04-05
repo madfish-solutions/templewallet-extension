@@ -197,7 +197,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
                             "text-white text-opacity-75"
                           )}
                         >
-                          <Money>{bal}</Money>{" "}
+                          <Money tooltip={false}>{bal}</Money>{" "}
                           <span style={{ fontSize: "0.5rem" }}>tez</span>
                         </span>
                       )}
