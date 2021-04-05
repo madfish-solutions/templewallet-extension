@@ -15,10 +15,7 @@ export type TProps = {
 };
 
 export const T: FC<TProps> = ({ id, substitutions, children }) => {
-  const message = useMemo(() => tReact(id, substitutions), [
-    id,
-    substitutions,
-  ]);
+  const message = useMemo(() => tReact(id, substitutions), [id, substitutions]);
 
   return useMemo(() => (children ? children(message) : <>{message}</>), [
     message,
@@ -44,12 +41,12 @@ function tReact(
   const subList = toList(substitutions);
   const tmp = getMessage(
     messageName,
-    subList.map(() => "$$")
+    subList.map(() => TMP_SEPARATOR)
   );
 
   return (
     <>
-      {tmp.split("$$").map((partI, i) => (
+      {tmp.split(TMP_SEPARATOR).map((partI, i) => (
         <Fragment key={`i_${i}`}>
           {partI.split("\n").map((partJ, j) => (
             <Fragment key={`j_${j}`}>
@@ -76,6 +73,7 @@ function tReact(
   );
 }
 
+const TMP_SEPARATOR = "$_$";
 const BOLD_PATTERN = /<b>(.*?)<\/b>/g;
 
 function hasReactSubstitutions(

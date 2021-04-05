@@ -69,7 +69,7 @@ export function createLocationState(): LocationState {
     hostname,
     href,
     origin,
-    pathname,
+    pathname: pathname || "/",
     port,
     protocol,
     search,

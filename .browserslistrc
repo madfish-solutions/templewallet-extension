@@ -2,6 +2,7 @@
 chrome >= 49
 firefox >= 52
 opera >= 36
+safari >= 14
 
 [development]
 last 1 chrome version
