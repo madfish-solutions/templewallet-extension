@@ -4551,10 +4551,10 @@ dexie-react-hooks@1.0.6:
   resolved "https://registry.yarnpkg.com/dexie-react-hooks/-/dexie-react-hooks-1.0.6.tgz#a21d116addb2bb785507bf924cc6e963d858d5d5"
   integrity sha512-OFoOBC4BQzkVGicuWl/cIMtlPp0wTAnUXwUJzq+l/zp0XVGmwEWkemRFq7JbudJLT0DINFVVzgVhGV7KOUK7uA==
 
-dexie@3.1.0-alpha.8:
-  version "3.1.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/dexie/-/dexie-3.1.0-alpha.8.tgz#154cf0bba8d0c0d9e7e2e3128a60ebb0597da8b6"
-  integrity sha512-7LGEXCJPfsMkgRrLMNqeCxt32CnZrrFyRU5kt6v5+bVXW43d7C2hU4WHORKYaP3BWumBg4A+YIaBYKV9EhX9CQ==
+dexie@3.1.0-alpha.9:
+  version "3.1.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/dexie/-/dexie-3.1.0-alpha.9.tgz#0851220aa0187afe2c7487932cfc15279a21753f"
+  integrity sha512-H4cqgKTtdw23/3f+HjxqrmidfytHAWjOFwcpy9z6fYQZI/DM6Keo0nRGGNPokHIElYeShS8TOUkVLoZoLSAhCw==
 
 diff-sequences@^24.9.0:
   version "24.9.0"

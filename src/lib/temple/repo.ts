@@ -17,10 +17,10 @@ db.version(1).stores({
     "*assetIds",
     "addedAt"
   ),
-  [Table.SyncTimes]: indexes("[service,chainId,address]"),
+  [Table.SyncTimes]: indexes("[service+chainId+address]"),
 });
 
-export const transaction = db.transaction;
+export const waitFor = Dexie.waitFor;
 
 export const operations = db.table<IOperation, string>(Table.Operations);
 export const syncTimes = db.table<ISyncTime, string>(Table.SyncTimes);
