@@ -1,4 +1,11 @@
-import React, { FC, HTMLAttributes, memo, useCallback, useMemo } from "react";
+import React, {
+  FC,
+  HTMLAttributes,
+  memo,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
@@ -6,13 +13,14 @@ import classNames from "clsx";
 import { toLocalFixed, toLocalFormat } from "lib/i18n/numbers";
 import { getNumberSymbols, t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
-import useTippy from "lib/ui/useTippy";
+import useTippy, { TippyInstance, TippyProps } from "lib/ui/useTippy";
 
 type MoneyProps = {
   children: number | string | BigNumber;
   fiat?: boolean;
   cryptoDecimals?: number;
   roundingMode?: BigNumber.RoundingMode;
+  tooltip?: boolean;
 };
 
 const DEFAULT_CRYPTO_DECIMALS = 6;
@@ -24,6 +32,7 @@ const Money = memo<MoneyProps>(
     fiat,
     cryptoDecimals = DEFAULT_CRYPTO_DECIMALS,
     roundingMode = BigNumber.ROUND_DOWN,
+    tooltip,
   }) => {
     const bn = new BigNumber(children);
     const decimalsLength = bn.decimalPlaces();
@@ -49,7 +58,11 @@ const Money = memo<MoneyProps>(
     switch (true) {
       case indexOfDecimal === -1:
         return (
-          <FullAmountTippy fullAmount={bn} className={tippyClassName}>
+          <FullAmountTippy
+            enabled={tooltip}
+            fullAmount={bn}
+            className={tippyClassName}
+          >
             {result}
           </FullAmountTippy>
         );
@@ -63,6 +76,7 @@ const Money = memo<MoneyProps>(
 
         return (
           <FullAmountTippy
+            enabled={tooltip}
             fullAmount={bn}
             className={tippyClassName}
             showAmountTooltip
@@ -77,7 +91,11 @@ const Money = memo<MoneyProps>(
 
       default:
         return (
-          <FullAmountTippy fullAmount={bn} className={tippyClassName}>
+          <FullAmountTippy
+            enabled={tooltip}
+            fullAmount={bn}
+            className={tippyClassName}
+          >
             {result.slice(0, indexOfDecimal + 1)}
             <span style={{ fontSize: "0.9em" }}>
               {result.slice(indexOfDecimal + 1, result.length)}
@@ -93,12 +111,14 @@ export default Money;
 type FullAmountTippyProps = HTMLAttributes<HTMLButtonElement> & {
   fullAmount: BigNumber;
   showAmountTooltip?: boolean;
+  enabled?: boolean;
 };
 
 const FullAmountTippy: FC<FullAmountTippyProps> = ({
   fullAmount,
   onClick,
   showAmountTooltip,
+  enabled = true,
   ...rest
 }) => {
   const fullAmountStr = useMemo(() => toLocalFixed(fullAmount), [fullAmount]);
@@ -112,17 +132,27 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
     return showAmountTooltip ? fullAmountStr : t("copyHashToClipboard");
   }, [copied, showAmountTooltip, fullAmountStr]);
 
-  const tippyProps = useMemo(
+  const tippyInstanceRef = useRef<TippyInstance>();
+  const tippyProps = useMemo<TippyProps>(
     () => ({
       trigger: "mouseenter",
       hideOnClick: false,
       content: tippyContent,
       animation: "shift-away-subtle",
+      onCreate(instance) {
+        tippyInstanceRef.current = instance;
+      },
+      onTrigger(instance) {
+        !showAmountTooltip && instance.disable();
+      },
+      onUntrigger(instance) {
+        !showAmountTooltip && instance.disable();
+      },
       onHidden() {
         setCopied(false);
       },
     }),
-    [tippyContent, setCopied]
+    [tippyContent, showAmountTooltip, setCopied]
   );
 
   const ref = useTippy<HTMLSpanElement>(tippyProps);
@@ -131,13 +161,18 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
     (evt) => {
       evt.preventDefault();
       evt.stopPropagation();
+
+      if (!showAmountTooltip) {
+        tippyInstanceRef.current?.enable();
+        tippyInstanceRef.current?.show();
+      }
       copy();
       if (onClick) onClick(evt);
     },
-    [copy, onClick]
+    [copy, onClick, showAmountTooltip]
   );
 
-  return (
+  return enabled ? (
     <>
       <span ref={ref} onClick={handleClick} {...rest} />
       <input
@@ -147,5 +182,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
         className="sr-only"
       />
     </>
+  ) : (
+    <span {...rest} />
   );
 };
