@@ -34,7 +34,9 @@ const OperationStatus: FC<OperationStatusProps> = ({
   const descFooter = useMemo(
     () => (
       <div className="mt-2 text-xs flex items-center">
-        <T id="operationHash" />:{" "}
+        <div className="whitespace-no-wrap">
+          <T id="operationHash" />:{" "}
+        </div>
         <HashChip
           hash={hash}
           firstCharsCount={10}
