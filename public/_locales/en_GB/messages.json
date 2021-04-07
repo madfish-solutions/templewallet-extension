@@ -929,7 +929,7 @@
     "message": "This may happen because:"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.257 ꜩ burn fee;"
+    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.06425 ꜩ burn fee;"
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
