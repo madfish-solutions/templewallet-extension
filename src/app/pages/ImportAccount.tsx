@@ -14,6 +14,7 @@ import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import PageLayout from "app/layouts/PageLayout";
 import ManagedKTForm from "app/templates/ManagedKTForm";
+import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import {
   useTempleClient,
@@ -28,6 +29,7 @@ import {
   isKTAddress,
   confirmOperation,
   useNetwork,
+  ImportAccountFormType,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { Link, navigate } from "lib/woozie";
@@ -78,10 +80,10 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
         },
         network.type !== "main"
           ? {
-              slug: "faucet",
-              i18nKey: "faucetFileTitle",
-              Form: FromFaucetForm,
-            }
+            slug: "faucet",
+            i18nKey: "faucetFileTitle",
+            Form: FromFaucetForm,
+          }
           : undefined,
         {
           slug: "managed-kt",
@@ -172,6 +174,7 @@ interface ByPrivateKeyFormData {
 
 const ByPrivateKeyForm: FC = () => {
   const { importAccount } = useTempleClient();
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.PrivateKey);
 
   const {
     register,
@@ -186,10 +189,15 @@ const ByPrivateKeyForm: FC = () => {
     async ({ privateKey, encPassword }: ByPrivateKeyFormData) => {
       if (formState.isSubmitting) return;
 
+      formAnalytics.trackSubmit();
       setError(null);
       try {
         await importAccount(privateKey.replace(/\s/g, ""), encPassword);
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -199,7 +207,7 @@ const ByPrivateKeyForm: FC = () => {
         setError(err.message);
       }
     },
-    [importAccount, formState.isSubmitting, setError]
+    [importAccount, formState.isSubmitting, setError, formAnalytics]
   );
 
   const keyValue = watch("privateKey");
@@ -297,6 +305,7 @@ interface ByMnemonicFormData {
 
 const ByMnemonicForm: FC = () => {
   const { importMnemonicAccount } = useTempleClient();
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.Mnemonic);
 
   const {
     register,
@@ -323,6 +332,7 @@ const ByMnemonicForm: FC = () => {
     }: ByMnemonicFormData) => {
       if (formState.isSubmitting) return;
 
+      formAnalytics.trackSubmit();
       setError(null);
       try {
         await importMnemonicAccount(
@@ -341,7 +351,11 @@ const ByMnemonicForm: FC = () => {
             }
           })()
         );
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -351,7 +365,7 @@ const ByMnemonicForm: FC = () => {
         setError(err.message);
       }
     },
-    [formState.isSubmitting, setError, importMnemonicAccount, derivationPath]
+    [formState.isSubmitting, setError, importMnemonicAccount, derivationPath, formAnalytics]
   );
 
   return (
@@ -550,11 +564,13 @@ const ByFundraiserForm: FC = () => {
     formState,
   } = useForm<ByFundraiserFormData>();
   const [error, setError] = useState<ReactNode>(null);
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.Fundraiser);
 
   const onSubmit = useCallback<(data: ByFundraiserFormData) => void>(
     async (data) => {
       if (formState.isSubmitting) return;
 
+      formAnalytics.trackSubmit();
       setError(null);
       try {
         await importFundraiserAccount(
@@ -562,7 +578,11 @@ const ByFundraiserForm: FC = () => {
           data.password,
           formatMnemonic(data.mnemonic)
         );
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -572,7 +592,7 @@ const ByFundraiserForm: FC = () => {
         setError(err.message);
       }
     },
-    [importFundraiserAccount, formState.isSubmitting, setError]
+    [importFundraiserAccount, formState.isSubmitting, setError, formAnalytics]
   );
 
   return (
@@ -655,6 +675,7 @@ const FromFaucetForm: FC = () => {
   const { importFundraiserAccount } = useTempleClient();
   const setAccountPkh = useSetAccountPkh();
   const tezos = useTezos();
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.FaucetFile);
 
   const activateAccount = useCallback(
     async (address: string, secret: string) => {
@@ -740,12 +761,18 @@ const FromFaucetForm: FC = () => {
       if (processing) {
         return;
       }
+
+      formAnalytics.trackSubmit();
       setProcessing(true);
       setAlert(null);
 
       try {
         await importAccount(toFaucetJSON(formData.text));
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -758,7 +785,7 @@ const FromFaucetForm: FC = () => {
         setProcessing(false);
       }
     },
-    [importAccount, processing, setAlert, setProcessing]
+    [importAccount, processing, setAlert, setProcessing, formAnalytics]
   );
 
   const handleUploadChange = useCallback(
@@ -996,6 +1023,7 @@ const WatchOnlyForm: FC = () => {
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
   const canUseDomainNames = domainsClient.isSupported;
+  const formAnalytics = useFormAnalytics(ImportAccountFormType.WatchOnly);
 
   const {
     watch,
@@ -1063,6 +1091,8 @@ const WatchOnlyForm: FC = () => {
     if (formState.isSubmitting) return;
 
     setError(null);
+
+    formAnalytics.trackSubmit();
     try {
       if (!isAddressValid(finalAddress)) {
         throw new Error(t("invalidAddress"));
@@ -1081,7 +1111,11 @@ const WatchOnlyForm: FC = () => {
       }
 
       await importWatchOnlyAccount(finalAddress, chainId);
+
+      formAnalytics.trackSubmitSuccess();
     } catch (err) {
+      formAnalytics.trackSubmitFail();
+
       if (process.env.NODE_ENV === "development") {
         console.error(err);
       }
@@ -1096,6 +1130,7 @@ const WatchOnlyForm: FC = () => {
     tezos,
     formState.isSubmitting,
     setError,
+    formAnalytics
   ]);
 
   return (
