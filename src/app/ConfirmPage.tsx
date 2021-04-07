@@ -31,6 +31,7 @@ import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import DAppLogo from "app/templates/DAppLogo";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationView from "app/templates/OperationView";
+import { CustomRpsContext } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
@@ -45,6 +46,8 @@ import {
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation } from "lib/woozie";
+
+import { ConfirmPageSelectors } from "./ConfirmPage.selectors";
 
 const ConfirmPage: FC = () => {
   const { ready } = useTempleClient();
@@ -203,7 +206,11 @@ const ConfirmDAppForm: FC = () => {
         return {
           title: t("confirmAction", t("connection").toLowerCase()),
           declineActionTitle: t("cancel"),
+          declineActionTestID: ConfirmPageSelectors.ConnectAction_CancelButton,
           confirmActionTitle: error ? t("retry") : t("connect"),
+          confirmActionTestID: error
+            ? ConfirmPageSelectors.ConnectAction_RetryButton
+            : ConfirmPageSelectors.ConnectAction_ConnectButton,
           want: (
             <T
               id="appWouldLikeToConnectToYourWallet"
@@ -227,7 +234,12 @@ const ConfirmDAppForm: FC = () => {
         return {
           title: t("confirmAction", t("operations").toLowerCase()),
           declineActionTitle: t("reject"),
+          declineActionTestID:
+            ConfirmPageSelectors.ConfirmOperationsAction_RejectButton,
           confirmActionTitle: error ? t("retry") : t("confirm"),
+          confirmActionTestID: error
+            ? ConfirmPageSelectors.ConfirmOperationsAction_RetryButton
+            : ConfirmPageSelectors.ConfirmOperationsAction_ConfirmButton,
           want: (
             <div
               className={classNames(
@@ -257,7 +269,9 @@ const ConfirmDAppForm: FC = () => {
         return {
           title: t("confirmAction", t("signAction").toLowerCase()),
           declineActionTitle: t("reject"),
+          declineActionTestID: ConfirmPageSelectors.SignAction_RejectButton,
           confirmActionTitle: t("signAction"),
+          confirmActionTestID: ConfirmPageSelectors.SignAction_SignButton,
           want: (
             <div
               className={classNames(
@@ -286,163 +300,167 @@ const ConfirmDAppForm: FC = () => {
   }, [payload.type, payload.origin, payload.appMeta.name, error]);
 
   return (
-    <div
-      className={classNames(
-        "relative bg-white rounded-md shadow-md overflow-y-auto",
-        "flex flex-col"
-      )}
-      style={{
-        width: 380,
-        height: 578,
-      }}
-    >
-      <div className="flex flex-col items-center px-4 py-2">
-        <SubTitle
-          className={payload.type === "connect" ? "mt-4 mb-6" : "mt-4 mb-2"}
-        >
-          {content.title}
-        </SubTitle>
-
-        {payload.type === "connect" && (
-          <ConnectBanner
-            type={payload.type}
-            origin={payload.origin}
-            appMeta={payload.appMeta}
-            className="mb-4"
-          />
-        )}
-
-        {content.want}
-
-        {payload.type === "connect" && (
-          <T id="viewAccountAddressWarning">
-            {(message) => (
-              <p className="mb-4 text-xs font-light text-center text-gray-700">
-                {message}
-              </p>
-            )}
-          </T>
-        )}
-
-        {error ? (
-          <Alert
-            closable
-            onClose={handleErrorAlertClose}
-            type="error"
-            title="Error"
-            description={error?.message ?? t("smthWentWrong")}
-            className="my-4"
-            autoFocus
-          />
-        ) : (
-          <>
-            {payload.type !== "connect" && connectedAccount && (
-              <AccountBanner
-                account={connectedAccount}
-                networkRpc={payload.networkRpc}
-                labelIndent="sm"
-                className="w-full mb-4"
-              />
-            )}
-
-            <NetworkBanner
-              rpc={payload.networkRpc}
-              narrow={payload.type === "connect"}
-            />
-
-            {payload.type === "connect" ? (
-              <div className={classNames("w-full", "flex flex-col")}>
-                <h2
-                  className={classNames(
-                    "mb-2",
-                    "leading-tight",
-                    "flex flex-col"
-                  )}
-                >
-                  <T id="account">
-                    {(message) => (
-                      <span className="text-base font-semibold text-gray-700">
-                        {message}
-                      </span>
-                    )}
-                  </T>
-
-                  <T id="toBeConnectedWithDApp">
-                    {(message) => (
-                      <span
-                        className={classNames(
-                          "mt-px",
-                          "text-xs font-light text-gray-600"
-                        )}
-                        style={{ maxWidth: "90%" }}
-                      >
-                        {message}
-                      </span>
-                    )}
-                  </T>
-                </h2>
-
-                <CustomSelect<TempleAccount, string>
-                  activeItemId={accountPkhToConnect}
-                  getItemId={getPkh}
-                  items={allAccounts}
-                  maxHeight="8rem"
-                  onSelect={setAccountPkhToConnect}
-                  OptionIcon={AccountIcon}
-                  OptionContent={AccountOptionContent}
-                  autoFocus
-                />
-              </div>
-            ) : (
-              <OperationView
-                payload={payload}
-                networkRpc={payload.networkRpc}
-                mainnet={mainnet}
-              />
-            )}
-          </>
-        )}
-      </div>
-
-      <div className="flex-1" />
-
+    <CustomRpsContext.Provider value={payload.networkRpc}>
       <div
         className={classNames(
-          "sticky bottom-0 w-full",
-          "bg-white shadow-md",
-          "flex items-stretch",
-          "px-4 pt-2 pb-4"
+          "relative bg-white rounded-md shadow-md overflow-y-auto",
+          "flex flex-col"
         )}
+        style={{
+          width: 380,
+          height: 578,
+        }}
       >
-        <div className="w-1/2 pr-2">
-          <FormSecondaryButton
-            type="button"
-            className="justify-center w-full"
-            loading={declining}
-            onClick={handleDeclineClick}
+        <div className="flex flex-col items-center px-4 py-2">
+          <SubTitle
+            className={payload.type === "connect" ? "mt-4 mb-6" : "mt-4 mb-2"}
           >
-            {content.declineActionTitle}
-          </FormSecondaryButton>
+            {content.title}
+          </SubTitle>
+
+          {payload.type === "connect" && (
+            <ConnectBanner
+              type={payload.type}
+              origin={payload.origin}
+              appMeta={payload.appMeta}
+              className="mb-4"
+            />
+          )}
+
+          {content.want}
+
+          {payload.type === "connect" && (
+            <T id="viewAccountAddressWarning">
+              {(message) => (
+                <p className="mb-4 text-xs font-light text-center text-gray-700">
+                  {message}
+                </p>
+              )}
+            </T>
+          )}
+
+          {error ? (
+            <Alert
+              closable
+              onClose={handleErrorAlertClose}
+              type="error"
+              title="Error"
+              description={error?.message ?? t("smthWentWrong")}
+              className="my-4"
+              autoFocus
+            />
+          ) : (
+            <>
+              {payload.type !== "connect" && connectedAccount && (
+                <AccountBanner
+                  account={connectedAccount}
+                  networkRpc={payload.networkRpc}
+                  labelIndent="sm"
+                  className="w-full mb-4"
+                />
+              )}
+
+              <NetworkBanner
+                rpc={payload.networkRpc}
+                narrow={payload.type === "connect"}
+              />
+
+              {payload.type === "connect" ? (
+                <div className={classNames("w-full", "flex flex-col")}>
+                  <h2
+                    className={classNames(
+                      "mb-2",
+                      "leading-tight",
+                      "flex flex-col"
+                    )}
+                  >
+                    <T id="account">
+                      {(message) => (
+                        <span className="text-base font-semibold text-gray-700">
+                          {message}
+                        </span>
+                      )}
+                    </T>
+
+                    <T id="toBeConnectedWithDApp">
+                      {(message) => (
+                        <span
+                          className={classNames(
+                            "mt-px",
+                            "text-xs font-light text-gray-600"
+                          )}
+                          style={{ maxWidth: "90%" }}
+                        >
+                          {message}
+                        </span>
+                      )}
+                    </T>
+                  </h2>
+
+                  <CustomSelect<TempleAccount, string>
+                    activeItemId={accountPkhToConnect}
+                    getItemId={getPkh}
+                    items={allAccounts}
+                    maxHeight="8rem"
+                    onSelect={setAccountPkhToConnect}
+                    OptionIcon={AccountIcon}
+                    OptionContent={AccountOptionContent}
+                    autoFocus
+                  />
+                </div>
+              ) : (
+                <OperationView
+                  payload={payload}
+                  networkRpc={payload.networkRpc}
+                  mainnet={mainnet}
+                />
+              )}
+            </>
+          )}
         </div>
 
-        <div className="w-1/2 pl-2">
-          <FormSubmitButton
-            type="button"
-            className="justify-center w-full"
-            loading={confirming}
-            onClick={handleConfirmClick}
-          >
-            {content.confirmActionTitle}
-          </FormSubmitButton>
+        <div className="flex-1" />
+
+        <div
+          className={classNames(
+            "sticky bottom-0 w-full",
+            "bg-white shadow-md",
+            "flex items-stretch",
+            "px-4 pt-2 pb-4"
+          )}
+        >
+          <div className="w-1/2 pr-2">
+            <FormSecondaryButton
+              type="button"
+              className="justify-center w-full"
+              loading={declining}
+              onClick={handleDeclineClick}
+              testID={content.declineActionTestID}
+            >
+              {content.declineActionTitle}
+            </FormSecondaryButton>
+          </div>
+
+          <div className="w-1/2 pl-2">
+            <FormSubmitButton
+              type="button"
+              className="justify-center w-full"
+              loading={confirming}
+              onClick={handleConfirmClick}
+              testID={content.confirmActionTestID}
+            >
+              {content.confirmActionTitle}
+            </FormSubmitButton>
+          </div>
         </div>
+
+        <ConfirmLedgerOverlay
+          displayed={
+            confirming && connectedAccount?.type === TempleAccountType.Ledger
+          }
+        />
       </div>
-
-      <ConfirmLedgerOverlay
-        displayed={
-          confirming && connectedAccount?.type === TempleAccountType.Ledger
-        }
-      />
-    </div>
+    </CustomRpsContext.Provider>
   );
 };
 

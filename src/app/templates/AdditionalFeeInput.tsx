@@ -13,7 +13,12 @@ import React, {
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
-import { Controller, ControllerProps, FieldError } from "react-hook-form";
+import {
+  Controller,
+  ControllerProps,
+  EventFunction,
+  FieldError,
+} from "react-hook-form";
 
 import AssetField from "app/atoms/AssetField";
 import Money from "app/atoms/Money";
@@ -23,9 +28,12 @@ import { ReactComponent as CupIcon } from "app/icons/cup.svg";
 import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { TEZ_ASSET } from "lib/temple/front";
+
+import { AdditionalFeeInputSelectors } from "./AdditionalFeeInput..selectors";
 
 type AssetFieldProps = typeof AssetField extends ForwardRefExoticComponent<
   infer T
@@ -90,6 +98,7 @@ const getFeeOptionId = (option: FeeOption) => option.type;
 
 const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
   const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
+  const { trackEvent } = useAnalytics();
 
   const validateAdditionalFee = useCallback((v?: number) => {
     if (v === undefined) {
@@ -106,13 +115,21 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
     customFeeInputRef.current?.focus();
   }, []);
 
+  const handleChange: EventFunction = (event) => {
+    trackEvent(
+      AdditionalFeeInputSelectors.FeeButton,
+      AnalyticsEventCategory.ButtonPress
+    );
+    onChange !== undefined && onChange(event);
+  };
+
   return (
     <Controller
       name={name}
       as={AdditionalFeeInputContent}
       control={control}
       customFeeInputRef={customFeeInputRef}
-      onChange={onChange}
+      onChange={handleChange}
       id={id}
       assetSymbol={assetSymbol}
       onFocus={focusCustomFeeInput}

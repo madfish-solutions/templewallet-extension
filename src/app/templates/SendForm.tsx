@@ -13,12 +13,13 @@ import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
-import { useForm, Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import useSWR from "swr";
 
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
+import { Button } from "app/atoms/Button";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
@@ -40,36 +41,43 @@ import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import {
+  AnalyticsEventCategory,
+  useAnalytics,
+  useFormAnalytics,
+} from "lib/analytics";
 import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import {
-  TempleAsset,
-  TEZ_ASSET,
-  useRelevantAccounts,
-  useAccount,
-  useTezos,
-  useAssetBySlug,
-  useBalance,
-  useTezosDomainsClient,
   fetchBalance,
+  getAssetKey,
+  hasManager,
+  isAddressValid,
+  isDomainNameValid,
+  isKTAddress,
+  loadContract,
+  mutezToTz,
+  TempleAccountType,
+  TempleAsset,
+  TempleAssetType,
+  TEZ_ASSET,
+  toPenny,
   toTransferParams,
   tzToMutez,
-  mutezToTz,
-  isAddressValid,
-  toPenny,
-  hasManager,
-  TempleAssetType,
-  isKTAddress,
-  isDomainNameValid,
-  TempleAccountType,
-  loadContract,
-  getAssetKey,
+  useAccount,
+  useAssetBySlug,
+  useBalance,
+  useRelevantAccounts,
+  useTezos,
+  useTezosDomainsClient,
   useUSDPrice,
   useNetwork,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
+
+import { SendFormSelectors } from "./SendForm.selectors";
 
 interface FormData {
   to: string;
@@ -88,10 +96,18 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
   const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const { trackEvent } = useAnalytics();
 
-  const handleAssetChange = useCallback((a: TempleAsset) => {
-    navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
-  }, []);
+  const handleAssetChange = useCallback(
+    (a: TempleAsset) => {
+      trackEvent(
+        SendFormSelectors.AssetItemButton,
+        AnalyticsEventCategory.ButtonPress
+      );
+      navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
+    },
+    [trackEvent]
+  );
 
   return (
     <>
@@ -128,6 +144,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const acc = useAccount();
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
+
+  const formAnalytics = useFormAnalytics("SendForm");
 
   const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
@@ -553,6 +571,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       setSubmitError(null);
       setOperation(null);
 
+      formAnalytics.trackSubmit();
       try {
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {
@@ -582,7 +601,11 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         }
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (err.message === "Declined") {
           return;
         }
@@ -608,6 +631,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       toResolved,
       shouldUseUsd,
       toTEZAmount,
+      formAnalytics,
     ]
   );
 
@@ -879,7 +903,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                   };
 
                   return (
-                    <button
+                    <Button
                       key={acc.publicKeyHash}
                       type="button"
                       className={classNames(
@@ -895,6 +919,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                         "opacity-90 hover:opacity-100"
                       )}
                       onClick={handleAccountClick}
+                      testID={SendFormSelectors.MyAccountItemButton}
                     >
                       <Identicon
                         type="bottts"
@@ -964,7 +989,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                       >
                         <ChevronRightIcon className="h-5 w-auto stroke-current" />
                       </div>
-                    </button>
+                    </Button>
                   );
                 })}
             </div>
