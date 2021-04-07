@@ -41,7 +41,12 @@ import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
-import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from "lib/analytics";
+import {
+  AnalyticsEventCategory,
+  useAnalytics,
+  useFormAnalytics,
+} from "lib/analytics";
+import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import {
@@ -93,10 +98,16 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
   const { trackEvent } = useAnalytics();
 
-  const handleAssetChange = useCallback((a: TempleAsset) => {
-    trackEvent(SendFormSelectors.AssetItemButton, AnalyticsEventCategory.ButtonPress);
-    navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
-  }, [trackEvent]);
+  const handleAssetChange = useCallback(
+    (a: TempleAsset) => {
+      trackEvent(
+        SendFormSelectors.AssetItemButton,
+        AnalyticsEventCategory.ButtonPress
+      );
+      navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
+    },
+    [trackEvent]
+  );
 
   return (
     <>
@@ -134,7 +145,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
 
-  const formAnalytics = useFormAnalytics('SendForm');
+  const formAnalytics = useFormAnalytics("SendForm");
 
   const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
@@ -196,8 +207,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         "amount",
         Number(
           (newShouldUseUsd
-              ? amount.multipliedBy(tezPrice!)
-              : amount.div(tezPrice!)
+            ? amount.multipliedBy(tezPrice!)
+            : amount.div(tezPrice!)
           ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
             decimalSeparator: ".",
           })
@@ -400,12 +411,12 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     () =>
       toFilled
         ? [
-          "transfer-base-fee",
-          tezos.checksum,
-          localAsset.symbol,
-          accountPkh,
-          toResolved,
-        ]
+            "transfer-base-fee",
+            tezos.checksum,
+            localAsset.symbol,
+            accountPkh,
+            toResolved,
+          ]
         : null,
     estimateBaseFee,
     {
@@ -440,23 +451,23 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
 
     return localAsset.type === TempleAssetType.TEZ
       ? (() => {
-        let ma =
-          acc.type === TempleAccountType.ManagedKT
-            ? new BigNumber(balanceNum)
-            : new BigNumber(balanceNum)
-              .minus(baseFee)
-              .minus(safeFeeValue ?? 0)
-              .minus(PENNY);
-        const maxAmountTez = BigNumber.max(ma, 0);
-        const maxAmountUsd = tezPrice
-          ? new BigNumber(
-            maxAmountTez
-              .multipliedBy(tezPrice)
-              .toFormat(2, BigNumber.ROUND_FLOOR, { decimalSeparator: "." })
-          )
-          : new BigNumber(0);
-        return shouldUseUsd ? maxAmountUsd : maxAmountTez;
-      })()
+          let ma =
+            acc.type === TempleAccountType.ManagedKT
+              ? new BigNumber(balanceNum)
+              : new BigNumber(balanceNum)
+                  .minus(baseFee)
+                  .minus(safeFeeValue ?? 0)
+                  .minus(PENNY);
+          const maxAmountTez = BigNumber.max(ma, 0);
+          const maxAmountUsd = tezPrice
+            ? new BigNumber(
+                maxAmountTez
+                  .multipliedBy(tezPrice)
+                  .toFormat(2, BigNumber.ROUND_FLOOR, { decimalSeparator: "." })
+              )
+            : new BigNumber(0);
+          return shouldUseUsd ? maxAmountUsd : maxAmountTez;
+        })()
       : new BigNumber(balanceNum);
   }, [
     acc.type,
@@ -484,7 +495,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       const vBN = new BigNumber(v);
       return (
         vBN.isLessThanOrEqualTo(maxAmount) ||
-        t("maximalAmount", maxAmount.toFixed())
+        t("maximalAmount", toLocalFixed(maxAmount))
       );
     },
     [maxAmountNum, toValue]
@@ -620,7 +631,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       toResolved,
       shouldUseUsd,
       toTEZAmount,
-      formAnalytics
+      formAnalytics,
     ]
   );
 
@@ -653,8 +664,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                 size={14}
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
-              <div className="ml-1 mr-px font-normal">{filledAccount.name}</div>
-              {" "}
+              <div className="ml-1 mr-px font-normal">{filledAccount.name}</div>{" "}
               (
               <Balance asset={localAsset} address={filledAccount.publicKeyHash}>
                 {(bal) => (
@@ -755,7 +765,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                 onClick={handleSetMaxAmount}
               >
                 {shouldUseUsd ? <span className="pr-px">$</span> : null}
-                {maxAmount.toFixed()}
+                {toLocalFixed(maxAmount)}
               </button>
               {amountValue && localAsset.type === TempleAssetType.TEZ ? (
                 <>

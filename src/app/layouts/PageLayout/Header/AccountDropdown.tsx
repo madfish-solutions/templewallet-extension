@@ -32,10 +32,7 @@ import { AccountDropdownSelectors } from "./AccountDropdown.selectors";
 type ExcludesFalse = <T>(x: T | false) => x is T;
 type AccountDropdownProps = PopperRenderProps;
 
-const AccountDropdown: FC<AccountDropdownProps> = ({
-  opened,
-  setOpened,
-}) => {
+const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
   const { trackEvent } = useAnalytics();
@@ -207,7 +204,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
                             "text-white text-opacity-75"
                           )}
                         >
-                          <Money>{bal}</Money>{" "}
+                          <Money tooltip={false}>{bal}</Money>{" "}
                           <span style={{ fontSize: "0.5rem" }}>tez</span>
                         </span>
                       )}
@@ -239,7 +236,8 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
               "px-2",
               "transition ease-in-out duration-200",
               "hover:bg-white hover:bg-opacity-10",
-              "text-white text-shadow-black text-sm"
+              "text-white text-shadow-black text-sm",
+              "whitespace-no-wrap"
             ),
             style: {
               paddingTop: "0.375rem",

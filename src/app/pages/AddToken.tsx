@@ -1,4 +1,11 @@
-import React, { FC, memo, ReactNode, useCallback, useEffect, useState } from "react";
+import React, {
+  FC,
+  memo,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import { WalletContract } from "@taquito/taquito";
 import classNames from "clsx";
@@ -91,13 +98,10 @@ const Form: FC = () => {
   const tokenType = watch("type");
   const tokenId = watch("id");
   const [submitError, setSubmitError] = useState<ReactNode>(null);
-  const [tokenDataError, setTokenDataError] = useState<ReactNode>(
+  const [tokenDataError, setTokenDataError] = useState<ReactNode>(null);
+  const [tokenValidationError, setTokenValidationError] = useState<ReactNode>(
     null
   );
-  const [
-    tokenValidationError,
-    setTokenValidationError,
-  ] = useState<ReactNode>(null);
   const [bottomSectionVisible, setBottomSectionVisible] = useSafeState(false);
   const [loadingToken, setLoadingToken] = useState(false);
 
@@ -443,9 +447,11 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
       <FormField
         ref={register({
           required: t("required"),
-          pattern: {
-            value: /^[a-zA-Z0-9]{2,5}$/,
-            message: t("tokenSymbolPatternDescription"),
+          validate: (val: string) => {
+            if (!val || val.length < 2 || val.length > 5) {
+              return t("tokenSymbolPatternDescription");
+            }
+            return true;
           },
         })}
         name="symbol"

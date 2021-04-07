@@ -60,6 +60,16 @@
 
 @tailwind base;
 
+/**
+ * Appearance for iOS and Safari
+ */
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  appearance: none;
+}
+
 @tailwind components;
 
 @tailwind utilities;

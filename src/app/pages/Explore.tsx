@@ -1,4 +1,11 @@
-import React, { FC, memo, ReactNode, Suspense, useLayoutEffect, useMemo } from "react";
+import React, {
+  FC,
+  memo,
+  ReactNode,
+  Suspense,
+  useLayoutEffect,
+  useMemo,
+} from "react";
 
 import classNames from "clsx";
 
@@ -244,10 +251,7 @@ type SecondarySectionProps = {
   className?: string;
 };
 
-const SecondarySection: FC<SecondarySectionProps> = ({
-  asset,
-  className,
-}) => {
+const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 

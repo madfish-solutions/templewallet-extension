@@ -1,16 +1,24 @@
 import React, {
-  ComponentType, FC,
+  ComponentType,
+  FC,
   ForwardRefExoticComponent,
   Fragment,
-  FunctionComponent, MutableRefObject, SVGProps,
+  FunctionComponent,
+  MutableRefObject,
+  SVGProps,
   useCallback,
   useRef,
-  useState
+  useState,
 } from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
-import { Controller, ControllerProps, EventFunction, FieldError } from "react-hook-form";
+import {
+  Controller,
+  ControllerProps,
+  EventFunction,
+  FieldError,
+} from "react-hook-form";
 
 import AssetField from "app/atoms/AssetField";
 import Money from "app/atoms/Money";
@@ -21,6 +29,7 @@ import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
+import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { TEZ_ASSET } from "lib/temple/front";
 
@@ -107,9 +116,12 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
   }, []);
 
   const handleChange: EventFunction = (event) => {
-    trackEvent(AdditionalFeeInputSelectors.FeeButton, AnalyticsEventCategory.ButtonPress);
+    trackEvent(
+      AdditionalFeeInputSelectors.FeeButton,
+      AnalyticsEventCategory.ButtonPress
+    );
     onChange !== undefined && onChange(event);
-  }
+  };
 
   return (
     <Controller
@@ -128,7 +140,7 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
             id="feeInputDescription"
             substitutions={[
               <Fragment key={0}>
-                <span className="font-normal">{baseFee.toFixed()}</span>
+                <span className="font-normal">{toLocalFixed(baseFee)}</span>
               </Fragment>,
             ]}
           />

@@ -4,6 +4,7 @@ import classNames from "clsx";
 
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
 import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
+import { ReactComponent as HelpIcon } from "app/icons/help.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
 import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
@@ -16,6 +17,7 @@ import ActivateAccount from "app/templates/ActivateAccount";
 import CustomNetworksSettings from "app/templates/CustomNetworksSettings";
 import DAppSettings from "app/templates/DAppSettings";
 import GeneralSettings from "app/templates/GeneralSettings";
+import HelpAndCommunity from "app/templates/HelpAndCommunity";
 import RemoveAccount from "app/templates/RemoveAccount";
 import RevealSecret from "app/templates/RevealSecret";
 import { T } from "lib/i18n/react";
@@ -102,6 +104,14 @@ const TABS = [
     color: "#A0AEC0",
     descriptionI18nKey: "aboutDescription",
     testID: SettingsSelectors.AboutButton
+  },
+  {
+    slug: "help-and-community",
+    titleI18nKey: "helpAndCommunity",
+    Icon: HelpIcon,
+    Component: HelpAndCommunity,
+    color: "#38B2AC",
+    descriptionI18nKey: "helpAndCommunityDescription",
   },
 ];
 

@@ -854,6 +854,9 @@
   "bakerInputDescription": {
     "message": "Address of a registered baker."
   },
+  "bakerInputDescriptionWithDomain": {
+    "message": "Address or domain name of a registered baker."
+  },
   "bakerInputPlaceholder": {
     "message": "e.g. tz1a9w1S7hN5s..."
   },
@@ -932,7 +935,7 @@
     "message": "This may happen because:"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.257 ꜩ burn fee;"
+    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.06425 ꜩ burn fee;"
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
@@ -1723,5 +1726,20 @@
   },
   "accountNumber": {
     "message": "Account number"
+  },
+  "helpAndCommunity": {
+    "message": "Help & Community"
+  },
+  "communityResourcesTitle": {
+    "message": "You may always find additional info about the Temple wallet or ask for help on the next resources."
+  },
+  "helpAndCommunityDescription": {
+    "message": "Use this section if you want to be a part of our community or need help."
+  },
+  "joinPrompt": {
+    "message": "Feel free to join and ask your questions 😊"
+  },
+  "blockExplorer": {
+    "message": "Blockchain explorer"
   }
 }

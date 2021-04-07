@@ -3,6 +3,7 @@ import { tzip12 } from "@taquito/tzip12";
 import { tzip16 } from "@taquito/tzip16";
 import memoize from "micro-memoize";
 
+import { michelEncoder } from "lib/temple/helpers";
 import { TempleChainId } from "lib/temple/types";
 
 export type TokenMetadata = {
@@ -91,7 +92,8 @@ export async function loadContractForCallLambdaView(
   const chainId = await tezos.rpc.getChainId();
   if (KNOWN_CHAIN_IDS.includes(chainId)) {
     tezos = new TezosToolkit(tezos.rpc);
-    tezos.setSignerProvider(new LambdaViewSigner());
+    tezos.setSignerProvider(lambdaSigner);
+    tezos.setPackerProvider(michelEncoder);
   }
 
   const contract: any = await loadContract(tezos, contractAddress, false);
@@ -130,3 +132,5 @@ if (
       "'TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY' environment variable to be set"
   );
 }
+
+const lambdaSigner = new LambdaViewSigner();

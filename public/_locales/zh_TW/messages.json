@@ -929,7 +929,7 @@
     "message": "可能發生的原因為："
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "此交易的最低費用高於您的餘額。由於您傳送資金給空的「管理員」帳戶，可能要花費大筆費用。須收取一次性的燃燒費用 0.257 XTZ；"
+    "message": "此交易的最低費用高於您的餘額。由於您傳送資金給空的「管理員」帳戶，可能要花費大筆費用。須收取一次性的燃燒費用 0.06425 XTZ；"
   },
   "networkOrOtherIssue": {
     "message": "網路或其他技術問題。"
