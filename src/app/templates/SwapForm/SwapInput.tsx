@@ -20,7 +20,7 @@ import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import AssetIcon from "app/templates/AssetIcon";
 import useSwappableAssets from "app/templates/SwapForm/useSwappableAssets";
-import { T } from "lib/i18n/react";
+import { t, T } from "lib/i18n/react";
 import {
   useAccount,
   useBalance,
@@ -364,7 +364,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   value={tokenId}
                   className="text-lg border-none bg-opacity-0 focus:shadow-none"
                   onChange={onTokenIdChange}
-                  placeholder="Token ID"
+                  placeholder={t("tokenId")}
                   style={{ padding: "0 0.5rem", borderRadius: 0 }}
                   assetDecimals={0}
                 />
@@ -483,7 +483,7 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
         padding: 0,
       }}
     >
-      {options.length === 0 || isLoading ? (
+      {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (
             <Spinner theme="primary" style={{ width: "3rem" }} />
@@ -494,22 +494,25 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
               ) : null}
 
               <span>
-                {tokenIdMissing ? "Specify token ID" : <T id="noAssetsFound" />}
+                {tokenIdMissing ? (
+                  <T id="specifyTokenId" />
+                ) : (
+                  <T id="noAssetsFound" />
+                )}
               </span>
             </p>
           )}
         </div>
-      ) : (
-        options.map((option, index) => (
-          <AssetOption
-            key={getAssetKey(option) ?? "tez"}
-            option={option}
-            selected={value === getAssetKey(option)}
-            onClick={handleOptionClick}
-            isLast={index === options.length - 1}
-          />
-        ))
       )}
+      {options.map((option, index) => (
+        <AssetOption
+          key={getAssetKey(option) ?? "tez"}
+          option={option}
+          selected={value === getAssetKey(option)}
+          onClick={handleOptionClick}
+          isLast={index === options.length - 1}
+        />
+      ))}
     </DropdownWrapper>
   );
 };

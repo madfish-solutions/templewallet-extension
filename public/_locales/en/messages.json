@@ -1743,5 +1743,11 @@
   },
   "blockExplorer": {
     "message": "Blockchain explorer"
+  },
+  "specifyTokenId": {
+    "message": "Specify token ID"
+  },
+  "notWhitelistedTokenWarning": {
+    "message": "Attention! One of the tokens you’re trying to exchange is not whitelisted. You can interact with them at your own risk."
   }
 }

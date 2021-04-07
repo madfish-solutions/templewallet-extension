@@ -20,6 +20,7 @@ import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg"
 import OperationStatus from "app/templates/OperationStatus";
 import SwapInput, { SwapInputValue } from "app/templates/SwapForm/SwapInput";
 import useSwappableAssets from "app/templates/SwapForm/useSwappableAssets";
+import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
@@ -80,6 +81,8 @@ function getAssetKey(asset: TempleAssetWithExchangeData) {
       return asset.address;
   }
 }
+
+const feeLabel = `${toLocalFixed(new BigNumber("0.3"))}%`;
 
 const SwapForm: React.FC = () => {
   const { assets, quipuswapTokensWhitelist } = useSwappableAssets();
@@ -549,8 +552,7 @@ const SwapForm: React.FC = () => {
 
       {shouldShowNotWhitelistedTokenWarning && (
         <p className="mb-6 text-red-700 text-xs">
-          Attention! One of the tokens you’re trying to exchange is not
-          whitelisted. You can interact with them at your own risk.
+          <T id="notWhitelistedTokenWarning" />
         </p>
       )}
 
@@ -560,7 +562,7 @@ const SwapForm: React.FC = () => {
             <td>
               <T id="fee" />:
             </td>
-            <td className="text-right text-gray-600">0.3%</td>
+            <td className="text-right text-gray-600">{feeLabel}</td>
           </tr>
           <tr>
             <td>
