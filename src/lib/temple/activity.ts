@@ -135,6 +135,7 @@ export async function syncOperations(
           getOperations(chainId as any, {
             address,
             sort: 1,
+            limit: 1000,
             [fresh ? "from" : "to"]:
               tzktTime &&
               new Date(
