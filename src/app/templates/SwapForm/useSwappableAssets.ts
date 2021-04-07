@@ -27,6 +27,7 @@ import {
   assetsAreSame,
   ExchangeDataEntry,
   assertFA2TokenContract,
+  useStorage,
 } from "lib/temple/front";
 import {
   TempleAsset,
@@ -132,6 +133,10 @@ function assetMatchesSearchStr(asset: TempleAsset, str: string) {
   ].some((fieldValue) => fieldValue.toLowerCase().includes(str.toLowerCase()));
 }
 
+function getTokenKey(token: TempleToken) {
+  return `${token.address}${token.type === TempleAssetType.FA2 ? `_${token.id}` : ""}`;
+}
+
 async function getTokensToExchange(
   contractAddress: string,
   tezos: TezosToolkit
@@ -152,6 +157,14 @@ export default function useSwappableAssets(
   const tezUsdPrice = useUSDPrice();
   const networkTezUsdPrice = network.type === "main" ? tezUsdPrice : null;
   const chainId = useChainId(true)!;
+  const [qsStoredTokens, setQsStoredTokens] = useStorage<TempleToken[]>(
+    `qs_stored_tokens_${chainId}`,
+    []
+  );
+  const qsStoredTokensKeys = useMemo(
+    () => qsStoredTokens.map(getTokenKey).join(),
+    [qsStoredTokens]
+  );
 
   const getQuipuswapTokensWhitelists = useCallback(
     async (_k: string, currentChainId: string) => {
@@ -225,18 +238,19 @@ export default function useSwappableAssets(
   );
 
   const allKnownAssets = useMemo<TempleAsset[]>(() => {
-    const allStoredAssets = [...allVisibleAssets, ...hiddenTokens];
+    const allStoredAssets = [...allVisibleAssets, ...hiddenTokens, ...qsStoredTokens];
+    const newTokensFromWhitelist = (quipuswapTokenWhitelists!.get(chainId) ?? []).filter(
+      (whitelistToken) => {
+        return !allStoredAssets.some((storedToken) =>
+          assetsAreSame(whitelistToken, storedToken)
+        );
+      }
+    );
     return [
       ...allStoredAssets,
-      ...(quipuswapTokenWhitelists!.get(chainId) ?? []).filter(
-        (whitelistToken) => {
-          return !allStoredAssets.some((storedToken) =>
-            assetsAreSame(whitelistToken, storedToken)
-          );
-        }
-      ),
+      ...newTokensFromWhitelist,
     ];
-  }, [allVisibleAssets, hiddenTokens, chainId, quipuswapTokenWhitelists]);
+  }, [allVisibleAssets, hiddenTokens, chainId, quipuswapTokenWhitelists, qsStoredTokens]);
 
   const getAssetData = useCallback(
     async (assetId: AssetIdentifier): Promise<TempleAsset> => {
@@ -311,8 +325,14 @@ export default function useSwappableAssets(
       quipuswapContracts.fa12Factory,
       tezos
     );
+    const initialExchangableTokens = [
+      ...whitelist,
+      ...qsStoredTokens.filter(
+        token => !whitelist.some(whitelistedToken => assetsAreSame(token, whitelistedToken))
+      )
+    ];
     await Promise.all(
-      whitelist.map(async (token) => {
+      initialExchangableTokens.map(async (token) => {
         const tokenId =
           token.type === TempleAssetType.FA2 ? token.id : undefined;
         let exchangeContractAddress: string;
@@ -334,10 +354,10 @@ export default function useSwappableAssets(
       })
     );
     return result;
-  }, [tezos, chainId, quipuswapTokenWhitelists]);
+  }, [tezos, chainId, quipuswapTokenWhitelists, qsStoredTokens]);
 
   const { data: initialQuipuswapExchangeContracts } = useRetryableSWR(
-    ["initial-quipuswap-exchange-contracts", chainId],
+    ["initial-quipuswap-exchange-contracts", chainId, !!quipuswapTokenWhitelists, qsStoredTokensKeys],
     getInitialQuipuswapExchangeContracts,
     { suspense: true }
   );
@@ -384,7 +404,10 @@ export default function useSwappableAssets(
         )
       ).filter((asset) => assetMatchesSearchStr(asset, searchStr));
 
-      const knownQuipuswapTokens = quipuswapTokenWhitelists!.get(chainId) ?? [];
+      const knownQuipuswapTokens = [
+        ...quipuswapTokenWhitelists!.get(chainId) ?? [],
+        ...qsStoredTokens
+      ];
       const networkIsSupported =
         knownQuipuswapTokens.length > 0 || knownDexterTokens.length > 0;
       const matchingKnownQuipuswapTokens = knownQuipuswapTokens.filter(
@@ -455,13 +478,14 @@ export default function useSwappableAssets(
         });
 
         if (exchangeContractAddress) {
-          minimalResult.quipuswapTokensExchangeContracts = {
-            ...minimalResult.quipuswapTokensExchangeContracts,
-            [searchStr]: {
-              ...minimalResult.quipuswapTokensExchangeContracts[searchStr],
-              [tokenId ?? 0]: exchangeContractAddress,
-            },
-          };
+          await setQsStoredTokens([
+            ...qsStoredTokens,
+            tokenMetadata as TempleToken
+          ]);
+          if (!minimalResult.quipuswapTokensExchangeContracts[searchStr]) {
+            minimalResult.quipuswapTokensExchangeContracts[searchStr] = {};
+          }
+          minimalResult.quipuswapTokensExchangeContracts[searchStr][tokenId ?? 0] = exchangeContractAddress;
         }
 
         return {
@@ -480,6 +504,8 @@ export default function useSwappableAssets(
       chainId,
       quipuswapTokenWhitelists,
       initialQuipuswapExchangeContracts,
+      qsStoredTokens,
+      setQsStoredTokens
     ]
   );
 
@@ -494,6 +520,7 @@ export default function useSwappableAssets(
       tokenId,
       !!quipuswapTokenWhitelists,
       !!initialQuipuswapExchangeContracts,
+      qsStoredTokensKeys
     ],
     getSwappableTokens,
     { suspense: false }
@@ -597,6 +624,15 @@ export default function useSwappableAssets(
     [chainId, swappableTokens]
   );
 
+  const swappableTokensIds = useMemo(() => {
+    if (!swappableTokens) {
+      return "";
+    }
+    return [
+      swappableTokens.quipuswap,
+      swappableTokens.dexter
+    ].map(tokens => tokens.map(getTokenKey).join()).join(';');
+  }, [swappableTokens]);
   const {
     data: tokensExchangeData = initialTokensExchangeData,
     revalidate: updateTokensExchangeData,
@@ -605,8 +641,7 @@ export default function useSwappableAssets(
     [
       "swappable-assets-exchange-data",
       network.id,
-      swappableTokens?.dexter.length,
-      swappableTokens?.quipuswap.length,
+      swappableTokensIds,
       networkTezUsdPrice,
     ],
     getExchangeData,
@@ -670,7 +705,7 @@ export default function useSwappableAssets(
     updateTokensExchangeData,
     isSupportedNetwork: swappableTokens?.networkIsSupported ?? true,
     tokenIdRequired: swappableTokens?.tokenIdRequired ?? false,
-    quipuswapTokenWhitelists: quipuswapTokenWhitelists!,
+    quipuswapTokensWhitelist: quipuswapTokenWhitelists!.get(chainId) ?? [],
     isLoading: exchangeDataLoading || swappableTokensLoading,
   };
 }

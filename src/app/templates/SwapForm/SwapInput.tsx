@@ -46,9 +46,9 @@ type SwapInputProps = {
   error?: string;
   label: React.ReactNode;
   name: string;
+  onBlur?: () => void;
   onChange?: (newValue: SwapInputValue) => void;
   selectedExchanger: ExchangerType;
-  shouldFilterAssetsByExchanger?: boolean;
   value?: SwapInputValue;
   withPercentageButtons?: boolean;
 };
@@ -65,9 +65,9 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       error,
       label,
       name,
+      onBlur,
       onChange,
       selectedExchanger,
-      shouldFilterAssetsByExchanger,
       value = defaultInputValue,
       withPercentageButtons,
     },
@@ -84,13 +84,6 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       updateTokensExchangeData,
       tokenIdRequired,
     } = useSwappableAssets(searchString, tokenId);
-
-    const filteredAssets = useMemo(() => {
-      if (shouldFilterAssetsByExchanger) {
-        return assets.filter((asset) => !!asset[selectedExchanger]);
-      }
-      return assets;
-    }, [shouldFilterAssetsByExchanger, assets, selectedExchanger]);
 
     const { data: balance, revalidate: updateBalance } = useBalance(
       asset ?? TEZ_ASSET,
@@ -153,18 +146,23 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
 
     const handleSelectedAssetChange = useCallback(
       (newValue: TempleAssetWithExchangeData) => {
+        const assetElementaryParts = new BigNumber(10).pow(newValue.decimals);
         onChange?.({
           asset: newValue,
-          amount,
+          amount: amount
+            ?.multipliedBy(assetElementaryParts)
+            .integerValue()
+            .div(assetElementaryParts),
         });
         setSearchString("");
         setTokenId(undefined);
+        onBlur?.();
       },
-      [onChange, amount]
+      [onChange, amount, onBlur]
     );
 
     return (
-      <div className={classNames("w-full", className)}>
+      <div className={classNames("w-full", className)} onBlur={onBlur}>
         <input className="hidden" name={name} ref={ref} />
         <Popper
           placement="bottom"
@@ -177,7 +175,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
               opened={opened}
               setOpened={setOpened}
               onChange={handleSelectedAssetChange}
-              options={filteredAssets}
+              options={assets}
               searchString={searchString}
               tokenIdMissing={tokenId === undefined && tokenIdRequired}
               value={asset}
@@ -207,18 +205,25 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
             />
           )}
         </Popper>
-        {error && <div className="mt-1 text-red-700 text-xs">{error}</div>}
-        {withPercentageButtons && (
-          <div className="w-full flex justify-end mt-1">
-            {BUTTONS_PERCENTAGES.map((percentage) => (
-              <PercentageButton
-                key={percentage}
-                percentage={percentage}
-                onClick={handlePercentageClick}
-              />
-            ))}
-          </div>
-        )}
+        <div
+          className={classNames(
+            "w-full flex mt-1 items-center",
+            error ? "justify-between" : "justify-end"
+          )}
+        >
+          {error && <div className="text-red-700 text-xs">{error}</div>}
+          {withPercentageButtons && (
+            <div className="flex">
+              {BUTTONS_PERCENTAGES.map((percentage) => (
+                <PercentageButton
+                  key={percentage}
+                  percentage={percentage}
+                  onClick={handlePercentageClick}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -243,7 +248,7 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
   return (
     <button
       type="button"
-      className="border border-gray-300 text-gray-500 rounded-md ml-1 p-1"
+      className="border border-gray-300 text-gray-500 rounded-md ml-1 py-1 w-8 flex justify-center"
       onClick={handleClick}
     >
       {percentage === 100 ? <T id="max" /> : `${percentage}%`}
@@ -357,10 +362,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   disabled={disabled}
                   fieldWrapperBottomMargin={false}
                   value={tokenId}
-                  className={classNames(
-                    "text-lg border-none bg-opacity-0",
-                    "focus:shadow-none"
-                  )}
+                  className="text-lg border-none bg-opacity-0 focus:shadow-none"
                   onChange={onTokenIdChange}
                   placeholder="Token ID"
                   style={{ padding: "0 0.5rem", borderRadius: 0 }}
@@ -482,22 +484,11 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
       }}
     >
       {options.length === 0 || isLoading ? (
-        <div
-          className={classNames(
-            "my-8",
-            "flex flex-col items-center justify-center",
-            "text-gray-500"
-          )}
-        >
+        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (
             <Spinner theme="primary" style={{ width: "3rem" }} />
           ) : (
-            <p
-              className={classNames(
-                "flex items-center justify-center",
-                "text-gray-600 text-base font-light"
-              )}
-            >
+            <p className="flex items-center justify-center text-gray-600 text-base font-light">
               {searchString ? (
                 <SearchIcon className="w-5 h-auto mr-1 stroke-current" />
               ) : null}

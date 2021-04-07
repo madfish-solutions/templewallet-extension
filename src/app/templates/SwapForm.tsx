@@ -37,6 +37,8 @@ import {
   assetsAreSame,
   TempleAssetWithExchangeData,
   EXCHANGE_XTZ_RESERVE,
+  useBalance,
+  TEZ_ASSET,
 } from "lib/temple/front";
 
 import "./SwapForm.css";
@@ -80,7 +82,7 @@ function getAssetKey(asset: TempleAssetWithExchangeData) {
 }
 
 const SwapForm: React.FC = () => {
-  const { assets } = useSwappableAssets();
+  const { assets, quipuswapTokensWhitelist } = useSwappableAssets();
   const tezos = useTezos();
   const network = useNetwork();
   const { publicKeyHash: accountPkh } = useAccount();
@@ -93,6 +95,7 @@ const SwapForm: React.FC = () => {
       output: {},
       tolerancePercentage: 1,
     },
+    reValidateMode: "onBlur",
   });
   const {
     handleSubmit,
@@ -101,6 +104,7 @@ const SwapForm: React.FC = () => {
     setValue,
     control,
     register,
+    reset,
   } = formContextValues;
   const input = watch("input");
   const { asset: inputAsset, amount: inputAssetAmount } = input;
@@ -112,6 +116,33 @@ const SwapForm: React.FC = () => {
   const [operation, setOperation] = useState<WalletOperation>();
   const [error, setError] = useState<Error>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const prevInputAssetRef = useRef<TempleAssetWithExchangeData | undefined>();
+  const prevOutputAssetRef = useRef<TempleAssetWithExchangeData | undefined>();
+  const prevNetworkIdRef = useRef(network.id);
+
+  useEffect(() => {
+    const prevInputAsset = prevInputAssetRef.current;
+    const prevOutputAsset = prevOutputAssetRef.current;
+    if (inputAsset && outputAsset && assetsAreSame(inputAsset, outputAsset)) {
+      if (!prevInputAsset || !assetsAreSame(prevInputAsset, inputAsset)) {
+        setValue("output", {});
+      } else if (
+        !prevOutputAsset ||
+        !assetsAreSame(prevOutputAsset, outputAsset)
+      ) {
+        setValue("input", {});
+      }
+    }
+    prevInputAssetRef.current = inputAsset;
+    prevOutputAssetRef.current = outputAsset;
+  }, [inputAsset, outputAsset, setValue]);
+
+  useEffect(() => {
+    if (prevNetworkIdRef.current !== network.id) {
+      reset();
+    }
+    prevNetworkIdRef.current = network.id;
+  }, [network.id, reset]);
 
   const submitDisabled = Object.keys(errors).length !== 0;
 
@@ -205,10 +236,7 @@ const SwapForm: React.FC = () => {
     outputAsset,
   ]);
 
-  const {
-    data: outputAssetAmounts,
-    // revalidate: updateOutputAssetAmount,
-  } = useRetryableSWR(
+  const { data: outputAssetAmounts } = useRetryableSWR(
     [
       "swap-output",
       outputAsset && getAssetKey(outputAsset),
@@ -274,7 +302,7 @@ const SwapForm: React.FC = () => {
   }, [inputAsset, outputAsset, selectedExchanger, setValue]);
 
   const swapAssets = useCallback(() => {
-    setValue([{ input: output }, { output: input }]);
+    setValue([{ input: output }, { output: input }], true);
   }, [input, output, setValue]);
 
   const validateTolerancePercentage = useCallback((v?: number) => {
@@ -340,6 +368,11 @@ const SwapForm: React.FC = () => {
 
   const closeError = useCallback(() => setError(undefined), []);
 
+  const { data: inputAssetBalance } = useBalance(
+    inputAsset ?? TEZ_ASSET,
+    accountPkh,
+    { suspense: false }
+  );
   const validateAssetInput = useCallback(
     async ({ asset, amount }: SwapInputValue) => {
       if (!amount || !asset) {
@@ -348,7 +381,10 @@ const SwapForm: React.FC = () => {
       if (amount.eq(0)) {
         return t("amountMustBePositive");
       }
-      const balance = await fetchBalance(tezos, asset, accountPkh);
+      const balance =
+        inputAsset && assetsAreSame(inputAsset, asset) && inputAssetBalance
+          ? inputAssetBalance
+          : await fetchBalance(tezos, asset, accountPkh);
       if (
         asset.type === TempleAssetType.TEZ &&
         amount.lte(balance) &&
@@ -364,7 +400,7 @@ const SwapForm: React.FC = () => {
         t("maximalAmount", balance.toFixed())
       );
     },
-    [accountPkh, tezos]
+    [accountPkh, tezos, inputAsset, inputAssetBalance]
   );
 
   const validateAssetOutput = useCallback(
@@ -444,6 +480,17 @@ const SwapForm: React.FC = () => {
     inputAsset,
   ]);
 
+  const shouldShowNotWhitelistedTokenWarning = useMemo(() => {
+    return [inputAsset, outputAsset].some(
+      (asset) =>
+        asset &&
+        asset.type !== TempleAssetType.TEZ &&
+        !quipuswapTokensWhitelist.some((whitelistedToken) =>
+          assetsAreSame(whitelistedToken, asset)
+        )
+    );
+  }, [quipuswapTokensWhitelist, inputAsset, outputAsset]);
+
   return (
     <form className="mb-8" onSubmit={handleSubmit(onSubmit)}>
       {operation && (
@@ -473,6 +520,7 @@ const SwapForm: React.FC = () => {
       </div>
 
       <Controller
+        className="mb-6"
         name="output"
         control={control}
         as={SwapInput}
@@ -482,13 +530,12 @@ const SwapForm: React.FC = () => {
         error={errors.output?.message}
         label={<T id="toAsset" />}
         selectedExchanger={selectedExchanger}
-        shouldFilterAssetsByExchanger
         amountReadOnly
       />
 
       <div
         className={classNames(
-          "my-6",
+          "mb-6",
           (!inputAsset || !outputAsset) && "hidden"
         )}
       >
@@ -499,6 +546,13 @@ const SwapForm: React.FC = () => {
           <ExchangerOption key={props.value} {...props} />
         ))}
       </div>
+
+      {shouldShowNotWhitelistedTokenWarning && (
+        <p className="mb-6 text-red-700 text-xs">
+          Attention! One of the tokens you’re trying to exchange is not
+          whitelisted. You can interact with them at your own risk.
+        </p>
+      )}
 
       <table className="w-full text-xs text-gray-500 mb-6 swap-form-table">
         <tbody>
