@@ -1,11 +1,14 @@
 import { HttpResponseError } from "@taquito/http-utils";
 import { RpcClient } from "@taquito/rpc";
+import { MichelCodecPacker } from "@taquito/taquito";
 import { ValidationResult, validateAddress } from "@taquito/utils";
 import BigNumber from "bignumber.js";
 import memoize from "micro-memoize";
 
 import { getMessage } from "lib/i18n";
 import { IntercomError } from "lib/intercom/helpers";
+
+export const michelEncoder = new MichelCodecPacker();
 
 export const loadChainId = memoize(fetchChainId, {
   isPromise: true,
