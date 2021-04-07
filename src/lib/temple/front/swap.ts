@@ -1,11 +1,7 @@
 import { TezosToolkit } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 
-import {
-  batchify,
-  loadContract,
-  withTokenApprove,
-} from "lib/temple/front";
+import { batchify, loadContract, withTokenApprove } from "lib/temple/front";
 import { TempleAsset, TempleAssetType, TempleChainId } from "lib/temple/types";
 
 export type ExchangerType = "dexter" | "quipuswap";
@@ -29,12 +25,18 @@ export type SwapParams = {
   tezos: TezosToolkit;
 };
 
-export type TempleAssetWithExchangeData = TempleAsset & Partial<Record<
-  ExchangerType,
-  { usdPrice?: number, maxExchangable?: BigNumber }
->>;
+export type ExchangeDataEntry = {
+  usdPrice?: number;
+  maxExchangable: BigNumber;
+  exchangeContract: string;
+};
+
+export type TempleAssetWithExchangeData = TempleAsset &
+  Partial<Record<ExchangerType, ExchangeDataEntry>>;
 
 export const ALL_EXCHANGERS_TYPES: ExchangerType[] = ["dexter", "quipuswap"];
+
+export const EXCHANGE_XTZ_RESERVE = new BigNumber("0.3");
 
 // chainId -> token -> contract
 export const DEXTER_EXCHANGE_CONTRACTS = new Map<
@@ -76,7 +78,7 @@ export const DEXTER_EXCHANGE_CONTRACTS = new Map<
 
 export const QUIPUSWAP_CONTRACTS = new Map<
   string,
-  Partial<Record<"fa12Factory" | "fa2Factory", string>>
+  Record<"fa12Factory" | "fa2Factory", string>
 >([
   [
     TempleChainId.Edo2net,
@@ -89,16 +91,16 @@ export const QUIPUSWAP_CONTRACTS = new Map<
     TempleChainId.Florencenet,
     {
       fa12Factory: "KT1WkKiDSsDttdWrfZgcQ6Z9e3Cp4unHP2CP",
-      fa2Factory: "KT1Bps1VtszT2T3Yvxm5PJ6Rx2nk1FykWPdU"
-    }
+      fa2Factory: "KT1Bps1VtszT2T3Yvxm5PJ6Rx2nk1FykWPdU",
+    },
   ],
   [
     TempleChainId.Mainnet,
     {
       fa12Factory: "KT1K7whn5yHucGXMN7ymfKiX5r534QeaJM29",
-      fa2Factory: "KT1MMLb2FVrrE9Do74J3FH1RNNc4QhDuVCNX"
-    }
-  ]
+      fa2Factory: "KT1MMLb2FVrrE9Do74J3FH1RNNc4QhDuVCNX",
+    },
+  ],
 ]);
 
 export function matchesAsset(assetId: AssetIdentifier, asset: TempleAsset) {

@@ -3,7 +3,6 @@ import React from "react";
 import { ReactComponent as SwapIcon } from "app/icons/swap.svg";
 import PageLayout from "app/layouts/PageLayout";
 import SwapForm from "app/templates/SwapForm";
-import { SwappableAssetsProvider } from "app/templates/SwapForm/SwappableAssetsProvider";
 import { t } from "lib/i18n/react";
 
 const Send: React.FC = () => (
@@ -14,13 +13,11 @@ const Send: React.FC = () => (
       </>
     }
   >
-    <SwappableAssetsProvider>
-      <div className="py-4">
-        <div className="w-full max-w-sm mx-auto">
-          <SwapForm />
-        </div>
+    <div className="py-4">
+      <div className="w-full max-w-sm mx-auto">
+        <SwapForm />
       </div>
-    </SwappableAssetsProvider>
+    </div>
   </PageLayout>
 );
 

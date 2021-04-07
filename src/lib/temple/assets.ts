@@ -196,18 +196,19 @@ const FA12_METHODS_ASSERTIONS = [
   },
   {
     name: "getAllowance",
-    assertion: viewSuccessAssertionFactory("getAllowance", [
-      STUB_TEZOS_ADDRESS,
-      STUB_TEZOS_ADDRESS,
+    assertion: signatureAssertionFactory("getAllowance", [
+      "address",
+      "address",
+      "contract",
     ]),
   },
   {
     name: "getBalance",
-    assertion: viewSuccessAssertionFactory("getBalance", [STUB_TEZOS_ADDRESS]),
+    assertion: signatureAssertionFactory("getBalance", ["address", "contract"]),
   },
   {
     name: "getTotalSupply",
-    assertion: viewSuccessAssertionFactory("getTotalSupply", ["unit"]),
+    assertion: signatureAssertionFactory("getTotalSupply", ["unit"]),
   },
 ];
 
@@ -228,7 +229,7 @@ const FA2_METHODS_ASSERTIONS = [
       tokenId: number
     ) =>
       viewSuccessAssertionFactory("balance_of", [
-        [{ owner: STUB_TEZOS_ADDRESS, token_id: String(tokenId) }],
+        [{ owner: STUB_TEZOS_ADDRESS, token_id: tokenId }],
       ])(contract, tezos),
   },
 ];
@@ -269,7 +270,9 @@ export async function assertTokenType(
             getMessage("someMethodSignatureDoesNotMatchStandard", name)
           );
         } else if (e.value?.string === "FA2_TOKEN_UNDEFINED") {
-          throw new Error(getMessage("incorrectTokenIdErrorMessage"));
+          throw new IncorrectTokenIdError(
+            getMessage("incorrectTokenIdErrorMessage")
+          );
         } else {
           if (process.env.NODE_ENV === "development") {
             console.error(e);
@@ -279,6 +282,23 @@ export async function assertTokenType(
           );
         }
       }
+    })
+  );
+}
+
+export async function assertFA2TokenContract(contract: WalletContract) {
+  const assertions = FA2_METHODS_ASSERTIONS.slice(0, 2) as {
+    name: string;
+    assertion: (contract: WalletContract) => void;
+  }[];
+  await Promise.all(
+    assertions.map(async ({ name, assertion }) => {
+      if (typeof contract.methods[name] !== "function") {
+        throw new NotMatchingStandardError(
+          getMessage("someMethodNotDefinedInContract", name)
+        );
+      }
+      await assertion(contract);
     })
   );
 }
@@ -442,3 +462,4 @@ export function toPenny(asset: TempleAsset) {
 }
 
 export class NotMatchingStandardError extends Error {}
+export class IncorrectTokenIdError extends Error {}

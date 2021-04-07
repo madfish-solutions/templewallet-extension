@@ -2,7 +2,6 @@ import React, {
   ChangeEvent,
   forwardRef,
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -15,93 +14,107 @@ import classNames from "clsx";
 import AssetField from "app/atoms/AssetField";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Money from "app/atoms/Money";
+import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import AssetIcon from "app/templates/AssetIcon";
+import useSwappableAssets from "app/templates/SwapForm/useSwappableAssets";
 import { T } from "lib/i18n/react";
 import {
   useAccount,
   useBalance,
-  AssetIdentifier,
-  getAssetId,
-  matchesAsset,
   TempleAssetWithExchangeData,
-  idsAreEqual,
   ExchangerType,
+  EXCHANGE_XTZ_RESERVE,
+  TEZ_ASSET,
+  assetsAreSame,
+  useOnBlock,
 } from "lib/temple/front";
 import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
 
 export type SwapInputValue = {
-  assetId: AssetIdentifier;
+  asset?: TempleAssetWithExchangeData;
   amount?: BigNumber;
 };
 
 type SwapInputProps = {
-  className?: string;
-  balance?: BigNumber;
-  max?: BigNumber;
-  error?: string;
-  name: string;
-  assets: TempleAssetWithExchangeData[];
-  defaultAsset?: TempleAssetWithExchangeData;
   amountReadOnly?: boolean;
+  className?: string;
+  disabled?: boolean;
+  error?: string;
   label: React.ReactNode;
-  selectedExchanger: ExchangerType;
+  name: string;
   onChange?: (newValue: SwapInputValue) => void;
-  onRefreshClick: () => void;
+  selectedExchanger: ExchangerType;
+  shouldFilterAssetsByExchanger?: boolean;
   value?: SwapInputValue;
   withPercentageButtons?: boolean;
 };
 
 const BUTTONS_PERCENTAGES = [25, 50, 75, 100];
 
-const defaultInputValue: SwapInputValue = { assetId: {} };
+const defaultInputValue: SwapInputValue = {};
 const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
   (
     {
-      error,
-      name,
-      assets,
-      balance,
-      defaultAsset = assets[0],
-      label,
-      max = balance,
-      onChange,
-      onRefreshClick,
-      selectedExchanger,
-      withPercentageButtons,
-      className,
       amountReadOnly,
+      className,
+      disabled,
+      error,
+      label,
+      name,
+      onChange,
+      selectedExchanger,
+      shouldFilterAssetsByExchanger,
       value = defaultInputValue,
+      withPercentageButtons,
     },
     ref
   ) => {
-    const { assetId, amount } = value;
-    const selectedAsset = useMemo(
-      () =>
-        assets.find((asset) => matchesAsset(assetId, asset)) || defaultAsset,
-      [assetId, assets, defaultAsset]
-    );
-    const trueAssetId = useMemo(() => getAssetId(selectedAsset), [
-      selectedAsset,
-    ]);
-    useEffect(() => {
-      if (!idsAreEqual(assetId, trueAssetId)) {
-        onChange?.({
-          assetId: trueAssetId,
-          amount,
-        });
-      }
-    }, [amount, assetId, onChange, trueAssetId]);
+    const { asset, amount } = value;
 
     const [searchString, setSearchString] = useState("");
+    const [tokenId, setTokenId] = useState<number>();
+    const { publicKeyHash: accountPkh } = useAccount();
+    const {
+      assets,
+      isLoading: assetsLoading,
+      updateTokensExchangeData,
+      tokenIdRequired,
+    } = useSwappableAssets(searchString, tokenId);
 
-    const assetSuggestions = useMemo(() => {
-      const searchRegex = new RegExp(searchString, "i");
-      return assets.filter(({ symbol }) => searchRegex.test(symbol));
-    }, [assets, searchString]);
+    const filteredAssets = useMemo(() => {
+      if (shouldFilterAssetsByExchanger) {
+        return assets.filter((asset) => !!asset[selectedExchanger]);
+      }
+      return assets;
+    }, [shouldFilterAssetsByExchanger, assets, selectedExchanger]);
+
+    const { data: balance, revalidate: updateBalance } = useBalance(
+      asset ?? TEZ_ASSET,
+      accountPkh,
+      { suspense: false }
+    );
+    useOnBlock(updateBalance);
+
+    const max = useMemo(() => {
+      if (!asset) {
+        return new BigNumber(0);
+      }
+      if (amountReadOnly) {
+        return new BigNumber(Infinity);
+      }
+      const exchangableAmount =
+        asset.type === TempleAssetType.TEZ
+          ? balance?.minus(EXCHANGE_XTZ_RESERVE)
+          : balance;
+      return BigNumber.min(
+        asset[selectedExchanger]?.maxExchangable ?? new BigNumber(Infinity),
+        exchangableAmount ?? new BigNumber(Infinity)
+      );
+    }, [asset, balance, amountReadOnly, selectedExchanger]);
 
     const handleSearchChange = useCallback(
       (e: ChangeEvent<HTMLInputElement>) => {
@@ -113,20 +126,21 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
     const handleAmountChange = useCallback(
       (value?: number) => {
         onChange?.({
-          assetId,
+          asset,
           amount: value === undefined ? undefined : new BigNumber(value),
         });
       },
-      [onChange, assetId]
+      [onChange, asset]
     );
 
     const handlePercentageClick = useCallback(
       (percentage: number) => {
-        const tokenElementaryParts = new BigNumber(10).pow(
-          selectedAsset.decimals
-        );
+        if (!asset) {
+          return;
+        }
+        const tokenElementaryParts = new BigNumber(10).pow(asset.decimals);
         onChange?.({
-          assetId,
+          asset,
           amount: (max ?? new BigNumber(0))
             .multipliedBy(percentage)
             .multipliedBy(tokenElementaryParts)
@@ -134,16 +148,17 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
             .dividedBy(tokenElementaryParts),
         });
       },
-      [onChange, assetId, max, selectedAsset.decimals]
+      [onChange, asset, max]
     );
 
     const handleSelectedAssetChange = useCallback(
-      (newValue: AssetIdentifier) => {
+      (newValue: TempleAssetWithExchangeData) => {
         onChange?.({
-          assetId: newValue,
+          asset: newValue,
           amount,
         });
         setSearchString("");
+        setTokenId(undefined);
       },
       [onChange, amount]
     );
@@ -158,31 +173,37 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
           preventOverflow={false}
           popup={({ opened, setOpened }) => (
             <AssetsMenu
+              isLoading={assetsLoading}
               opened={opened}
               setOpened={setOpened}
               onChange={handleSelectedAssetChange}
-              options={assetSuggestions}
+              options={filteredAssets}
               searchString={searchString}
-              value={trueAssetId}
+              tokenIdMissing={tokenId === undefined && tokenIdRequired}
+              value={asset}
             />
           )}
         >
           {({ ref, opened, toggleOpened, setOpened }) => (
             <SwapInputHeader
               amount={amount}
+              disabled={disabled}
               ref={(ref as unknown) as React.RefObject<HTMLDivElement>}
               toggleOpened={toggleOpened}
               opened={opened}
               setOpened={setOpened}
               label={label}
               onAmountChange={handleAmountChange}
-              selectedAsset={selectedAsset}
+              selectedAsset={asset}
               selectedExchanger={selectedExchanger}
-              balance={balance}
+              balance={asset ? balance : undefined}
               searchString={searchString}
               onSearchChange={handleSearchChange}
-              onRefreshClick={onRefreshClick}
+              onRefreshClick={updateTokensExchangeData}
+              tokenIdRequired={tokenIdRequired}
               amountReadOnly={amountReadOnly}
+              tokenId={tokenId}
+              onTokenIdChange={setTokenId}
             />
           )}
         </Popper>
@@ -233,14 +254,18 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
 type SwapInputHeaderProps = PopperRenderProps &
   Pick<
     SwapInputProps,
-    "amountReadOnly" | "label" | "onRefreshClick" | "selectedExchanger"
+    "selectedExchanger" | "label" | "amountReadOnly" | "disabled"
   > & {
     amount?: BigNumber;
-    selectedAsset: TempleAssetWithExchangeData;
+    selectedAsset?: TempleAssetWithExchangeData;
     balance?: BigNumber;
     onAmountChange: (value?: number) => void;
     searchString: string;
     onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    onRefreshClick: () => void;
+    tokenIdRequired: boolean;
+    tokenId?: number;
+    onTokenIdChange: (value?: number) => void;
   };
 
 const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
@@ -251,6 +276,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       toggleOpened,
       selectedAsset,
       balance,
+      disabled,
       label,
       onAmountChange,
       searchString,
@@ -258,6 +284,9 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       onSearchChange,
       amountReadOnly,
       selectedExchanger,
+      tokenIdRequired,
+      tokenId,
+      onTokenIdChange,
     },
     ref
   ) => {
@@ -268,30 +297,35 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       amountFieldRef.current?.focus({ preventScroll: true });
     }, []);
 
-    const assetUsdPrice = selectedAsset[selectedExchanger]?.usdPrice;
+    const assetUsdPrice = selectedAsset?.[selectedExchanger]?.usdPrice;
 
     return (
       <div className="w-full text-gray-700" ref={ref}>
         <div className="w-full flex mb-1 items-center justify-between">
           <span className="text-xl text-gray-900">{label}</span>
-          <span
-            className={classNames(opened && "hidden", "text-xs text-gray-500")}
-          >
-            <span className="mr-1">
-              <T id="balance" />
-            </span>
-            {balance && (
-              <span
-                className={classNames(
-                  "text-sm mr-1 text-gray-700",
-                  balance.eq(0) && "text-red-700"
-                )}
-              >
-                <Money smallFractionFont={false}>{balance}</Money>
+          {selectedAsset && (
+            <span
+              className={classNames(
+                opened && "hidden",
+                "text-xs text-gray-500"
+              )}
+            >
+              <span className="mr-1">
+                <T id="balance" />
               </span>
-            )}
-            <span>{selectedAsset.symbol}</span>
-          </span>
+              {balance && (
+                <span
+                  className={classNames(
+                    "text-sm mr-1 text-gray-700",
+                    balance.eq(0) && "text-red-700"
+                  )}
+                >
+                  <Money smallFractionFont={false}>{balance}</Money>
+                </span>
+              )}
+              <span>{selectedAsset.symbol}</span>
+            </span>
+          )}
         </div>
         <div
           className={classNames(
@@ -299,14 +333,42 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
             !opened && "hidden"
           )}
         >
-          <div className="items-center mx-5 my-6">
+          <div className="items-center ml-5 mr-3 my-6">
             <SearchIcon className="w-6 h-auto text-gray-500 stroke-current stroke-2" />
           </div>
-          <input
-            className="mr-4 text-lg flex-1"
-            value={searchString}
-            onChange={onSearchChange}
-          />
+          <div
+            className={classNames(
+              "text-lg flex flex-1 items-stretch",
+              disabled && "pointer-events-none"
+            )}
+          >
+            <div className="flex-1 flex items-stretch mr-2">
+              <input
+                className="w-full px-2"
+                value={searchString}
+                onChange={onSearchChange}
+              />
+            </div>
+            {tokenIdRequired && (
+              <div className="w-24 flex items-stretch border-l border-gray-300">
+                <AssetField
+                  containerClassName="items-stretch"
+                  containerStyle={{ flexDirection: "row" }}
+                  disabled={disabled}
+                  fieldWrapperBottomMargin={false}
+                  value={tokenId}
+                  className={classNames(
+                    "text-lg border-none bg-opacity-0",
+                    "focus:shadow-none"
+                  )}
+                  onChange={onTokenIdChange}
+                  placeholder="Token ID"
+                  style={{ padding: "0 0.5rem", borderRadius: 0 }}
+                  assetDecimals={0}
+                />
+              </div>
+            )}
+          </div>
         </div>
         <div
           className={classNames(
@@ -315,18 +377,28 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
           )}
         >
           <div
-            className="border-r border-gray-300 pl-4 pr-3 flex py-5 cursor-pointer items-center"
-            onClick={toggleOpened}
+            className={classNames(
+              "border-r border-gray-300 pl-4 pr-3 flex py-5 items-center",
+              disabled ? "pointer-events-none" : "cursor-pointer"
+            )}
+            onClick={disabled ? undefined : toggleOpened}
           >
-            <AssetIcon asset={selectedAsset} size={32} className="mr-2" />
-            <span
-              className="text-gray-700 text-lg mr-2 items-center overflow-hidden block w-16"
-              style={{ textOverflow: "ellipsis" }}
-            >
-              {selectedAsset.type === TempleAssetType.TEZ
-                ? selectedAsset.symbol.toUpperCase()
-                : selectedAsset.symbol}
-            </span>
+            {selectedAsset ? (
+              <>
+                <AssetIcon asset={selectedAsset} size={32} className="mr-2" />
+                <span
+                  className="text-gray-700 text-lg mr-2 items-center overflow-hidden block w-16"
+                  style={{ textOverflow: "ellipsis" }}
+                >
+                  {selectedAsset.type === TempleAssetType.TEZ
+                    ? selectedAsset.symbol.toUpperCase()
+                    : selectedAsset.symbol}
+                </span>
+              </>
+            ) : (
+              <div className="w-24 mr-4 h-8" />
+            )}
+
             <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
           </div>
           <div className="flex-1 px-2 flex items-center justify-between">
@@ -335,18 +407,20 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
             </button>
             <div className="h-full flex-1 flex items-end justify-center flex-col">
               <AssetField
+                disabled={disabled}
+                fieldWrapperBottomMargin={false}
                 value={amount?.toNumber()}
                 ref={amountFieldRef}
                 onFocus={handleAmountFieldFocus}
                 className={classNames(
                   "text-gray-700 text-2xl text-right border-none bg-opacity-0",
-                  "pl-0 focus:shadow-none -mb-2"
+                  "pl-0 focus:shadow-none"
                 )}
                 onChange={onAmountChange}
                 style={{ padding: 0, borderRadius: 0 }}
                 min={0}
                 readOnly={amountReadOnly}
-                assetDecimals={selectedAsset.decimals}
+                assetDecimals={selectedAsset?.decimals ?? 0}
               />
               {amount !== undefined && assetUsdPrice !== undefined && (
                 <span className="mt-2 text-xs text-gray-700">
@@ -366,25 +440,29 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
 );
 
 type AssetsMenuProps = {
+  isLoading: boolean;
   opened: boolean;
+  tokenIdMissing: boolean;
   setOpened: (newValue: boolean) => void;
-  onChange: (newValue: AssetIdentifier) => void;
-  options: TempleAsset[];
+  onChange: (newValue: TempleAssetWithExchangeData) => void;
+  options: TempleAssetWithExchangeData[];
   searchString?: string;
-  value: AssetIdentifier;
+  value?: TempleAssetWithExchangeData;
 };
 
 const AssetsMenu: React.FC<AssetsMenuProps> = ({
+  isLoading,
   opened,
   setOpened,
   onChange,
   options,
   searchString,
+  tokenIdMissing,
   value,
 }) => {
   const handleOptionClick = useCallback(
-    (newValue: AssetIdentifier) => {
-      if (!idsAreEqual(newValue, value)) {
+    (newValue: TempleAssetWithExchangeData) => {
+      if (!value || !assetsAreSame(newValue, value)) {
         onChange(newValue);
       }
       setOpened(false);
@@ -403,7 +481,7 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
         padding: 0,
       }}
     >
-      {options.length === 0 ? (
+      {options.length === 0 || isLoading ? (
         <div
           className={classNames(
             "my-8",
@@ -411,21 +489,24 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
             "text-gray-500"
           )}
         >
-          <p
-            className={classNames(
-              "mb-2",
-              "flex items-center justify-center",
-              "text-gray-600 text-base font-light"
-            )}
-          >
-            {searchString ? (
-              <SearchIcon className="w-5 h-auto mr-1 stroke-current" />
-            ) : null}
+          {isLoading ? (
+            <Spinner theme="primary" style={{ width: "3rem" }} />
+          ) : (
+            <p
+              className={classNames(
+                "flex items-center justify-center",
+                "text-gray-600 text-base font-light"
+              )}
+            >
+              {searchString ? (
+                <SearchIcon className="w-5 h-auto mr-1 stroke-current" />
+              ) : null}
 
-            <span>
-              <T id="noAssetsFound" />
-            </span>
-          </p>
+              <span>
+                {tokenIdMissing ? "Specify token ID" : <T id="noAssetsFound" />}
+              </span>
+            </p>
+          )}
         </div>
       ) : (
         options.map((option, index) => (
@@ -443,9 +524,9 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
 };
 
 type AssetOptionProps = {
-  option: TempleAsset;
+  option: TempleAssetWithExchangeData;
   selected: boolean;
-  onClick: (newValue: AssetIdentifier) => void;
+  onClick: (newValue: TempleAssetWithExchangeData) => void;
   isLast: boolean;
 };
 
@@ -455,7 +536,7 @@ const AssetOption: React.FC<AssetOptionProps> = ({
   isLast,
 }) => {
   const handleClick = useCallback(() => {
-    onClick(getAssetId(option));
+    onClick(option);
   }, [onClick, option]);
   const { publicKeyHash: accountPkh } = useAccount();
   const { data: balance } = useBalance(option, accountPkh, { suspense: false });

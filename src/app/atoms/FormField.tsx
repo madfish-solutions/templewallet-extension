@@ -25,6 +25,7 @@ interface FormFieldProps extends FormFieldAttrs {
   labelDescription?: ReactNode;
   errorCaption?: ReactNode;
   containerClassName?: string;
+  containerStyle?: React.CSSProperties;
   textarea?: boolean;
   secret?: boolean;
   cleanable?: boolean;
@@ -39,6 +40,7 @@ interface FormFieldProps extends FormFieldAttrs {
 const FormField = forwardRef<FormFieldRef, FormFieldProps>(
   (
     {
+      containerStyle,
       extraSection,
       label,
       labelDescription,
@@ -153,6 +155,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       <div
         ref={rootRef}
         className={classNames("w-full flex flex-col", containerClassName)}
+        style={containerStyle}
       >
         {label ? (
           <label
