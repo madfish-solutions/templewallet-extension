@@ -222,9 +222,13 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
       <div className="my-2">
         {actions.map(({ key, Icon, i18nKey, linkTo, onClick }) => {
           const handleClick = () => {
-            trackEvent(AccountDropdownSelectors.ActionButton, AnalyticsEventCategory.ButtonPress, { type: key });
-            onClick();
-          }
+            trackEvent(
+              AccountDropdownSelectors.ActionButton,
+              AnalyticsEventCategory.ButtonPress,
+              { type: key }
+            );
+            return onClick();
+          };
 
           const baseProps = {
             key,

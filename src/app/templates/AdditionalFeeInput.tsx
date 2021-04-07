@@ -120,7 +120,7 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
       AdditionalFeeInputSelectors.FeeButton,
       AnalyticsEventCategory.ButtonPress
     );
-    onChange !== undefined && onChange(event);
+    return onChange !== undefined && onChange(event);
   };
 
   return (
