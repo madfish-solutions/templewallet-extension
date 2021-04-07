@@ -1,12 +1,45 @@
-import BigNumber from "bignumber.js";
 import { OperationContentsAndResult, OpKind } from "@taquito/rpc";
-import * as Repo from "lib/temple/repo";
+import BigNumber from "bignumber.js";
+
 import {
   BcdTokenTransfer,
   getTokenTransfers,
   BcdNetwork,
 } from "lib/better-call-dev";
+import * as Repo from "lib/temple/repo";
 import { getOperations } from "lib/tzkt";
+
+export type FetchOperationsParams = {
+  chainId: string;
+  address: string;
+  assetIds?: string[];
+  offset?: number;
+  limit?: number;
+};
+
+export async function fetchOperations({
+  chainId,
+  address,
+  assetIds,
+  offset,
+  limit,
+}: FetchOperationsParams) {
+  let query = Repo.operations.where({ chainId, members: address });
+
+  if (assetIds) {
+    query = query.filter((o) =>
+      o.assetIds.some((aId) => assetIds.includes(aId))
+    );
+  }
+  if (offset) {
+    query = query.offset(offset);
+  }
+  if (limit) {
+    query = query.limit(limit);
+  }
+
+  return query.reverse().sortBy("addedAt");
+}
 
 export async function addLocalOperation(
   chainId: string,
@@ -90,7 +123,7 @@ export async function syncOperations(
     async () => {
       const [tzktTime, bcdTime] = await Promise.all(
         ["tzkt", "bcd"].map((service) =>
-          Repo.syncTimes.where({ service, chainId, address }).first()
+          Repo.syncTimes.get({ service, chainId, address })
         )
       );
 
@@ -300,6 +333,8 @@ export async function syncOperations(
             });
         }
       }
+
+      console.info(tzktOperations.length, tokenTransfers.length);
 
       return tzktOperations.length + tokenTransfers.length;
     }

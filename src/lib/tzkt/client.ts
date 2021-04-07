@@ -42,8 +42,6 @@ export const getOperations = makeQuery<
   })
 );
 
-(window as any).getOperations = getOperations;
-
 type GetUserContractsParams = {
   account: string;
 };
