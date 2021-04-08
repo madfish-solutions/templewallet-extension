@@ -33,7 +33,7 @@ import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { TEZ_ASSET } from "lib/temple/front";
 
-import { AdditionalFeeInputSelectors } from "./AdditionalFeeInput..selectors";
+import { AdditionalFeeInputSelectors } from "./AdditionalFeeInput.selectors";
 
 type AssetFieldProps = typeof AssetField extends ForwardRefExoticComponent<
   infer T
