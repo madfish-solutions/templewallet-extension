@@ -31,11 +31,11 @@ type PopperProps = Partial<Options> & {
       ref: RefObject<HTMLButtonElement>;
     }
   >;
-  preventOverflow?: boolean;
+  fallbackPlacementsEnabled?: boolean;
 };
 
 const Popper = memo<PopperProps>(
-  ({ popup, children, preventOverflow = true, ...popperOptions }) => {
+  ({ popup, children, fallbackPlacementsEnabled = true, ...popperOptions }) => {
     const popperRef = useRef<Instance>();
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
@@ -61,10 +61,16 @@ const Popper = memo<PopperProps>(
       () => ({
         ...popperOptions,
         modifiers: [
-          preventOverflow && {
+          {
             name: "preventOverflow",
             options: {
               padding: 8,
+            },
+          },
+          !fallbackPlacementsEnabled && {
+            name: "flip",
+            options: {
+              fallbackPlacements: [],
             },
           },
           {
@@ -73,7 +79,7 @@ const Popper = memo<PopperProps>(
           ...(popperOptions.modifiers ?? []),
         ].filter(Boolean) as Partial<Modifier<any, any>>[],
       }),
-      [popperOptions, preventOverflow]
+      [popperOptions, fallbackPlacementsEnabled]
     );
 
     useEffect(() => {

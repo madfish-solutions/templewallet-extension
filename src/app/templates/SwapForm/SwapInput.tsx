@@ -176,7 +176,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
           placement="bottom"
           strategy="fixed"
           modifiers={[sameWidth]}
-          preventOverflow={false}
+          fallbackPlacementsEnabled={false}
           popup={({ opened, setOpened }) => (
             <AssetsMenu
               isLoading={assetsLoading}
