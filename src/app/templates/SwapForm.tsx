@@ -315,7 +315,7 @@ const SwapForm: React.FC = () => {
   }, [input, output, setValue]);
 
   const validateTolerancePercentage = useCallback((v?: number) => {
-    if (v === undefined) return t("required");
+    if (v === undefined) return "";
     if (v < 0) {
       return t("mustBeNonNegative");
     }
@@ -393,7 +393,7 @@ const SwapForm: React.FC = () => {
   const validateAssetInput = useCallback(
     async ({ asset, amount }: SwapInputValue) => {
       if (!amount || !asset) {
-        return t("required");
+        return "";
       }
       if (amount.eq(0)) {
         return t("amountMustBePositive");
@@ -423,7 +423,7 @@ const SwapForm: React.FC = () => {
   const validateAssetOutput = useCallback(
     ({ asset, amount }: SwapInputValue) => {
       if (!amount || !asset) {
-        return t("required");
+        return "";
       }
       if (inputAsset && assetsAreSame(asset, inputAsset)) {
         return t("inputOutputAssetsCannotBeSame");
