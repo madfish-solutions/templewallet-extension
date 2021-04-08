@@ -6,7 +6,7 @@ type QuipuswapTokenBase = {
     decimals: number;
     symbol: string;
     name: string;
-    thumbnailUrl: string;
+    thumbnailUri: string;
   };
 };
 

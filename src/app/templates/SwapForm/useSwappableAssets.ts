@@ -189,7 +189,7 @@ export default function useSwappableAssets(
           if (metadataFromApi) {
             metadata = {
               ...metadataFromApi,
-              iconUrl: metadataFromApi.thumbnailUrl,
+              iconUrl: metadataFromApi.thumbnailUri,
             };
           } else if (currentChainId === network) {
             metadata = await fetchTokenMetadata(

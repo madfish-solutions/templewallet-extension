@@ -20,6 +20,7 @@ import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import AssetIcon from "app/templates/AssetIcon";
 import useSwappableAssets from "app/templates/SwapForm/useSwappableAssets";
+import { useFormAnalytics } from "lib/analytics";
 import { t, T } from "lib/i18n/react";
 import {
   useAccount,
@@ -86,6 +87,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       updateTokensExchangeData,
       tokenIdRequired,
     } = useSwappableAssets(searchString, tokenId);
+    const { trackChange } = useFormAnalytics("SwapForm");
 
     const { data: balance, revalidate: updateBalance } = useBalance(
       asset ?? TEZ_ASSET,
@@ -157,11 +159,14 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
             .integerValue()
             .div(assetElementaryParts),
         });
+        if (asset) {
+          trackChange({ [name]: asset.symbol }, { [name]: newValue.symbol });
+        }
         setSearchString("");
         setTokenId(undefined);
         onBlur?.();
       },
-      [onChange, amount, onBlur]
+      [onChange, amount, onBlur, trackChange, asset, name]
     );
 
     return (

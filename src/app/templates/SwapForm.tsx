@@ -16,6 +16,7 @@ import { browser } from "webextension-polyfill-ts";
 import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import Money from "app/atoms/Money";
 import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg";
 import OperationStatus from "app/templates/OperationStatus";
 import SwapInput, { SwapInputValue } from "app/templates/SwapForm/SwapInput";
@@ -96,7 +97,7 @@ const SwapForm: React.FC = () => {
   const formContextValues = useForm<SwapFormValues>({
     defaultValues: {
       exchanger: defaultExchanger,
-      input: {},
+      input: { asset: assets[0] },
       output: {},
       tolerancePercentage: 1,
     },
@@ -413,7 +414,7 @@ const SwapForm: React.FC = () => {
       }
       return (
         amount.isLessThanOrEqualTo(balance) ||
-        t("maximalAmount", balance.toFixed())
+        t("maximalAmount", toLocalFixed(balance))
       );
     },
     [accountPkh, tezos, inputAsset, inputAssetBalance]
@@ -434,7 +435,7 @@ const SwapForm: React.FC = () => {
         asset[selectedExchanger]?.maxExchangable ?? new BigNumber(Infinity);
       return (
         amount.lte(maxExchangable) ||
-        t("maximalAmount", maxExchangable.toFixed())
+        t("maximalAmount", toLocalFixed(maxExchangable))
       );
     },
     [selectedExchanger, inputAsset]
@@ -584,7 +585,7 @@ const SwapForm: React.FC = () => {
             </td>
             <td className="text-right text-gray-600">
               {inputAsset && outputAsset && exchangeRate
-                ? `1 ${outputAsset.symbol} = ${exchangeRate.toString()} ${
+                ? `1 ${outputAsset.symbol} = ${toLocalFixed(exchangeRate)} ${
                     inputAsset.symbol
                   }`
                 : "-"}
@@ -610,7 +611,7 @@ const SwapForm: React.FC = () => {
             </td>
             <td className="text-right text-gray-600">
               {minimumReceived && outputAsset
-                ? `${minimumReceived.toString()} ${outputAsset.symbol}`
+                ? `${toLocalFixed(minimumReceived)} ${outputAsset.symbol}`
                 : "-"}
             </td>
           </tr>
@@ -670,6 +671,16 @@ const ExchangerOption = forwardRef<HTMLInputElement, ExchangerOptionProps>(
     },
     ref
   ) => {
+    const cryptoDecimals = useMemo(() => {
+      if (!outputEstimation) {
+        return undefined;
+      }
+      const exponentialPart = Number(
+        outputEstimation.toExponential().split("e")[1]
+      );
+      return exponentialPart < -3 ? 3 - exponentialPart : undefined;
+    }, [outputEstimation]);
+
     return (
       <div
         className={classNames(
@@ -698,7 +709,7 @@ const ExchangerOption = forwardRef<HTMLInputElement, ExchangerOptionProps>(
           <span className="text-gray-600 text-xs mr-auto">{exchangerName}</span>
           {outputEstimation !== undefined && (
             <span className="text-green-500 text-sm mr-2">
-              ~{outputEstimation.toString()}{" "}
+              ~<Money cryptoDecimals={cryptoDecimals}>{outputEstimation}</Money>{" "}
               <span className="text-gray-500">{assetSymbol}</span>
             </span>
           )}
