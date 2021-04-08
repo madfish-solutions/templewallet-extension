@@ -45,6 +45,7 @@ type SwapInputProps = {
   disabled?: boolean;
   error?: string;
   label: React.ReactNode;
+  loading?: boolean;
   name: string;
   onBlur?: () => void;
   onChange?: (newValue: SwapInputValue) => void;
@@ -64,6 +65,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       disabled,
       error,
       label,
+      loading,
       name,
       onBlur,
       onChange,
@@ -186,6 +188,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
           {({ ref, opened, toggleOpened, setOpened }) => (
             <SwapInputHeader
               amount={amount}
+              amountLoading={loading}
               disabled={disabled}
               ref={(ref as unknown) as React.RefObject<HTMLDivElement>}
               toggleOpened={toggleOpened}
@@ -263,6 +266,7 @@ type SwapInputHeaderProps = PopperRenderProps &
     "selectedExchanger" | "label" | "amountReadOnly" | "disabled"
   > & {
     amount?: BigNumber;
+    amountLoading?: boolean;
     selectedAsset?: TempleAssetWithExchangeData;
     balance?: BigNumber;
     onAmountChange: (value?: number) => void;
@@ -278,6 +282,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
   (
     {
       amount,
+      amountLoading,
       opened,
       toggleOpened,
       selectedAsset,
@@ -408,7 +413,12 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
             <button type="button" className="mr-2" onClick={onRefreshClick}>
               <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
             </button>
-            <div className="h-full flex-1 flex items-end justify-center flex-col">
+            <div
+              className={classNames(
+                "h-full flex-1 flex items-end justify-center flex-col",
+                amountLoading && "hidden"
+              )}
+            >
               <AssetField
                 disabled={disabled}
                 fieldWrapperBottomMargin={false}
@@ -434,6 +444,14 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   <span className="text-gray-500">{" $"}</span>
                 </span>
               )}
+            </div>
+            <div
+              className={classNames(
+                "h-full flex-1 flex items-end justify-center flex-col",
+                !amountLoading && "hidden"
+              )}
+            >
+              <Spinner theme="primary" style={{ width: "3rem" }} />
             </div>
           </div>
         </div>

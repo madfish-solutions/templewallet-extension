@@ -241,7 +241,10 @@ const SwapForm: React.FC = () => {
     outputAsset,
   ]);
 
-  const { data: outputAssetAmounts } = useRetryableSWR(
+  const {
+    data: outputAssetAmounts,
+    isValidating: outputAssetAmountsLoading,
+  } = useRetryableSWR(
     [
       "swap-output",
       outputAsset && getAssetKey(outputAsset),
@@ -312,8 +315,8 @@ const SwapForm: React.FC = () => {
 
   const validateTolerancePercentage = useCallback((v?: number) => {
     if (v === undefined) return t("required");
-    if (v === 0) {
-      return t("amountMustBePositive");
+    if (v < 0) {
+      return t("mustBeNonNegative");
     }
     const vBN = new BigNumber(v);
     return (
@@ -347,10 +350,8 @@ const SwapForm: React.FC = () => {
       setIsSubmitting(true);
       const analyticsProperties = {
         exchanger,
-        tolerancePercentage,
         inputAsset: inputAsset!.symbol,
         outputAsset: outputAsset!.symbol,
-        amount: inputAmount!.toNumber(),
       };
       formAnalytics.trackSubmit(analyticsProperties);
       try {
@@ -540,6 +541,7 @@ const SwapForm: React.FC = () => {
         control={control}
         as={SwapInput}
         disabled={!inputAsset}
+        loading={outputAssetAmountsLoading}
         rules={{ validate: validateAssetOutput }}
         // @ts-ignore
         error={errors.output?.message}

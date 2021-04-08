@@ -315,6 +315,9 @@
   "nonNegativeIntMessage": {
     "message": "Integer, 0 or greater"
   },
+  "mustBeNonNegative": {
+    "message": "Must be non-negative"
+  },
   "positiveIntMessage": {
     "message": "Integer, 1 or greater"
   },
