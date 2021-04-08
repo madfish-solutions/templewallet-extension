@@ -26,7 +26,7 @@ type PermitParams = {
   callParams: any;
 };
 
-const RELAYER_ADDRESS = "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb";
+export const RELAYER_ADDRESS = "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb";
 const ESTIMATOR_ADDRESS = "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb";
 const ESTIMATOR_PUBLIC_KEY =
   "edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn";
@@ -129,25 +129,25 @@ const createPermitPayload = async (
 const forgeTxAndParams = async (
   tezos: TezosToolkit,
   params: ForgeTxParams
-): Promise<[any, Pick<PermitParams, "pubkey" | "signature" | "hash">]> => {
+): Promise<[any, Record<"pubkey" | "payload" | "hash", string>]> => {
   const { tokenAddress } = params;
 
-  var transferParams = formTransferParams(
+  const transferParams = formTransferParams(
     await tezos.wallet.pkh(),
     RELAYER_ADDRESS,
     params
   );
 
-  let [pubkey, payload, hash] = await createPermitPayload(
+  const [pubkey, payload, hash] = await createPermitPayload(
     tezos,
     tokenAddress,
     "transfer",
     transferParams
   );
-  const { sig: signature } = await tezos.signer.sign(payload);
-  let permitParams = {
+
+  const permitParams = {
     pubkey,
-    signature,
+    payload,
     hash,
   };
 
@@ -162,7 +162,7 @@ const estimateAsBatch = (tezos: TezosToolkit, txs: any) =>
 const estimate = async (tezos: TezosToolkit, permitParams: PermitParams) => {
   const { signature, hash, pubkey, contractAddress, callParams } = permitParams;
 
-  let estimator = new TezosToolkit(tezos.rpc);
+  const estimator = new TezosToolkit(tezos.rpc);
   estimator.setSignerProvider(
     new ReadOnlySigner(ESTIMATOR_ADDRESS, ESTIMATOR_PUBLIC_KEY)
   );
@@ -171,16 +171,16 @@ const estimate = async (tezos: TezosToolkit, permitParams: PermitParams) => {
 
   const contract = await estimator.contract.at(contractAddress);
 
-  let permit = contract.methods
+  const permit = contract.methods
     .permit(pubkey, signature, hash)
     .toTransferParams({});
 
-  let feeTransfer = contract.methods[entrypoint](...params).toTransferParams(
+  const feeTransfer = contract.methods[entrypoint](...params).toTransferParams(
     {}
   );
 
   let totalEstimate = 0;
-  let estimates = await estimateAsBatch(estimator, [permit, feeTransfer]);
+  const estimates = await estimateAsBatch(estimator, [permit, feeTransfer]);
 
   for (let est of estimates) {
     totalEstimate += est.suggestedFeeMutez;

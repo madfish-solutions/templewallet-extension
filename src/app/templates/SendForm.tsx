@@ -78,7 +78,11 @@ import {
   TempleToken,
   GasStation,
 } from "lib/temple/front";
-import { getAvailableTokens, getTokenPrice } from "lib/tezos-gsn";
+import {
+  getAvailableTokens,
+  getTokenPrice,
+  submitTransaction,
+} from "lib/tezos-gsn";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
 
@@ -340,6 +344,52 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     return;
   }, [toFilled, registerBackHandler, cleanToField]);
 
+  const estimateGasStationBaseFee = useCallback(async () => {
+    const to = toResolved;
+    const elementaryParts = new BigNumber(10).pow(localAsset.decimals);
+    const [
+      preTransferParams,
+      { pubkey, hash },
+    ] = await GasStation.forgeTxAndParams(tezos, {
+      to,
+      tokenAddress: localAssetAddress!,
+      tokenId: localAssetId,
+      amount: amountValue
+        ? elementaryParts.multipliedBy(amountValue).toNumber()
+        : 1,
+      relayerFee: 1,
+    });
+
+    const dummySignature =
+      "edsigtkpiSSschcaCt9pUVrpNPf7TTcgvgDEDD6NCEHMy8NNQJCGnMfLZzYoQj74yLjo9wx6MPVV29CvVzgi7qEcEUok3k7AuMg";
+
+    const gasEstimate =
+      (await GasStation.estimate(tezos, {
+        pubkey,
+        signature: dummySignature,
+        hash,
+        contractAddress: localAssetAddress!,
+        callParams: {
+          entrypoint: "transfer",
+          params: preTransferParams,
+        },
+      })) + 100;
+    const result = new BigNumber(gasEstimate)
+      .multipliedBy(gasTokenPrice ?? 0)
+      .multipliedBy(elementaryParts)
+      .integerValue()
+      .div(elementaryParts);
+    return result;
+  }, [
+    amountValue,
+    gasTokenPrice,
+    localAsset.decimals,
+    localAssetAddress,
+    localAssetId,
+    tezos,
+    toResolved,
+  ]);
+
   const estimateBaseFee = useCallback(async () => {
     try {
       const to = toResolved;
@@ -353,36 +403,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       }
 
       if (feeValue.inToken) {
-        const elementaryParts = new BigNumber(10).pow(localAsset.decimals);
-        const [
-          preTransferParams,
-          { pubkey, signature, hash },
-        ] = await GasStation.forgeTxAndParams(tezos, {
-          to,
-          tokenAddress: localAssetAddress!,
-          tokenId: localAssetId,
-          amount: amountValue
-            ? elementaryParts.multipliedBy(amountValue).toNumber()
-            : 1,
-          relayerFee: 1,
-        });
-        const gasEstimate =
-          (await GasStation.estimate(tezos, {
-            pubkey,
-            signature,
-            hash,
-            contractAddress: localAssetAddress!,
-            callParams: {
-              entrypoint: "transfer",
-              params: preTransferParams,
-            },
-          })) + 100;
-        const result = new BigNumber(gasEstimate)
-          .multipliedBy(gasTokenPrice ?? 0)
-          .multipliedBy(elementaryParts)
-          .integerValue()
-          .div(elementaryParts);
-        return result;
+        return estimateGasStationBaseFee();
       }
 
       let tezBalanceBN: BigNumber;
@@ -478,16 +499,13 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   }, [
     acc,
     feeValue.inToken,
-    gasTokenPrice,
     tezos,
     localAsset,
-    localAssetId,
-    localAssetAddress,
     accountPkh,
     toResolved,
     mutateBalance,
     mutateTezBalance,
-    amountValue,
+    estimateGasStationBaseFee,
   ]);
 
   const {
@@ -665,38 +683,72 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       setSubmitError(null);
       setOperation(null);
 
-      if (feeVal.inToken) {
-        console.log(amount, feeVal);
-        return;
-      }
-
       formAnalytics.trackSubmit();
       try {
         let op: WalletOperation;
-        if (isKTAddress(acc.publicKeyHash)) {
-          const michelsonLambda = isKTAddress(toResolved)
-            ? transferToContract
-            : transferImplicit;
+        if (feeVal.inToken) {
+          const fee = (baseFee instanceof BigNumber
+            ? baseFee
+            : new BigNumber(0)
+          )
+            .plus(feeVal.amount ?? 0)
+            .multipliedBy(new BigNumber(10).pow(localAsset.decimals));
+          const [
+            transferParams,
+            permitParams,
+          ] = await GasStation.forgeTxAndParams(tezos, {
+            to: toResolved,
+            tokenAddress: localAssetAddress!,
+            tokenId: localAssetId,
+            amount,
+            relayerFee: fee.toNumber(),
+          });
 
-          const contract = await loadContract(tezos, acc.publicKeyHash);
-          op = await contract.methods
-            .do(michelsonLambda(toResolved, tzToMutez(amount)))
-            .send({ amount: 0 });
+          const { pubkey, payload, hash } = permitParams;
+          const signature = await tezos.signer.sign(payload);
+
+          const output = {
+            pubkey,
+            signature,
+            hash,
+            contractAddress: localAssetAddress!,
+            to: toResolved,
+            tokenId: localAssetId,
+            amount,
+            fee: fee.toNumber(),
+            callParams: {
+              entrypoint: "transfer",
+              params: transferParams,
+            },
+          };
+          const opHash = await submitTransaction({ data: output });
+          op = await tezos.operation.createOperation(opHash);
         } else {
-          const actualAmount = shouldUseUsd ? toTEZAmount(amount) : amount;
-          const transferParams = await toTransferParams(
-            tezos,
-            localAsset,
-            accountPkh,
-            toResolved,
-            actualAmount
-          );
-          const estmtn = await tezos.estimate.transfer(transferParams);
-          const addFee = tzToMutez(feeVal.amount ?? 0);
-          const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-          op = await tezos.wallet
-            .transfer({ ...transferParams, fee } as any)
-            .send();
+          if (isKTAddress(acc.publicKeyHash)) {
+            const michelsonLambda = isKTAddress(toResolved)
+              ? transferToContract
+              : transferImplicit;
+
+            const contract = await loadContract(tezos, acc.publicKeyHash);
+            op = await contract.methods
+              .do(michelsonLambda(toResolved, tzToMutez(amount)))
+              .send({ amount: 0 });
+          } else {
+            const actualAmount = shouldUseUsd ? toTEZAmount(amount) : amount;
+            const transferParams = await toTransferParams(
+              tezos,
+              localAsset,
+              accountPkh,
+              toResolved,
+              actualAmount
+            );
+            const estmtn = await tezos.estimate.transfer(transferParams);
+            const addFee = tzToMutez(feeVal.amount ?? 0);
+            const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
+            op = await tezos.wallet
+              .transfer({ ...transferParams, fee } as any)
+              .send();
+          }
         }
         setOperation(op);
         reset({ to: "", fee: defaultFeeValue });
@@ -723,6 +775,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       formState.isSubmitting,
       tezos,
       localAsset,
+      localAssetId,
+      localAssetAddress,
       setSubmitError,
       setOperation,
       reset,
@@ -731,6 +785,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       shouldUseUsd,
       toTEZAmount,
       formAnalytics,
+      baseFee,
     ]
   );
 
