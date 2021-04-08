@@ -4,6 +4,7 @@ import { BigMapAbstraction, TezosToolkit } from "@taquito/taquito";
 import { validateAddress, ValidationResult } from "@taquito/utils";
 import BigNumber from "bignumber.js";
 
+import { sanitizeImgUri } from "lib/image-uri";
 import { getQuipuswapWhitelist } from "lib/quipuswap";
 import { useRetryableSWR } from "lib/swr";
 import {
@@ -199,6 +200,7 @@ export default function useSwappableAssets(
           } else {
             metadata = fallbackMetadata;
           }
+          metadata.iconUrl = metadata.iconUrl && sanitizeImgUri(metadata.iconUrl);
 
           const commonTokenMetadata = {
             address: contractAddress,
@@ -270,6 +272,7 @@ export default function useSwappableAssets(
         const { name: parsedName, symbol: parsedSymbol } = tokenMetadata;
         const commonMetadata = {
           ...tokenMetadata,
+          iconUrl: tokenMetadata.iconUrl && sanitizeImgUri(tokenMetadata.iconUrl),
           name: !parsedName || parsedName === "???" ? shortHash : parsedName,
           symbol:
             !parsedSymbol || parsedSymbol === "???" ? shortHash : parsedSymbol,

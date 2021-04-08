@@ -551,7 +551,11 @@ const AssetOption: React.FC<AssetOptionProps> = ({
           : option.symbol}
       </span>
       <div className="flex-1 text-right text-lg text-gray-600">
-        {balance && <Money smallFractionFont={false}>{balance}</Money>}
+        {balance && (
+          <Money smallFractionFont={false} tooltip={false}>
+            {balance}
+          </Money>
+        )}
       </div>
     </button>
   );
