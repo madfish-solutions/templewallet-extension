@@ -2,6 +2,7 @@ import React, { FC } from "react";
 
 import classNames from "clsx";
 
+import { Button } from "app/atoms/Button";
 import Identicon from "app/atoms/Identicon";
 import Logo from "app/atoms/Logo";
 import Name from "app/atoms/Name";
@@ -12,6 +13,7 @@ import Popper from "lib/ui/Popper";
 import { Link } from "lib/woozie";
 
 import styles from "./Header.module.css";
+import { HeaderSelectors } from "./Header.selectors";
 import AccountDropdown from "./Header/AccountDropdown";
 import NetworkSelect from "./Header/NetworkSelect";
 
@@ -30,7 +32,7 @@ const Header: FC = () => {
       <ContentContainer className="py-4">
         <div className={classNames(appEnv.fullPage && "px-4")}>
           <div className="flex items-stretch">
-            <Link to="/" className="flex-shrink-0 pr-4">
+            <Link to="/" className="flex-shrink-0 pr-4" testID={HeaderSelectors.TempleLogo}>
               <div className="flex items-center">
                 <Logo hasTitle={appEnv.fullPage} white />
               </div>
@@ -76,7 +78,7 @@ const Control: FC = () => {
         popup={(props) => <AccountDropdown {...props} />}
       >
         {({ ref, opened, toggleOpened }) => (
-          <button
+          <Button
             ref={ref}
             className={classNames(
               "ml-2 flex-shrink-0 flex",
@@ -92,9 +94,10 @@ const Control: FC = () => {
               "cursor-pointer"
             )}
             onClick={toggleOpened}
+            testID={HeaderSelectors.AccountIcon}
           >
             <Identicon type="bottts" hash={account.publicKeyHash} size={48} />
-          </button>
+          </Button>
         )}
       </Popper>
     </>

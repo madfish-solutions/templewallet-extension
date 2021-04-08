@@ -42,6 +42,7 @@ import {
   HistoryAction,
 } from "lib/woozie";
 
+import { ExploreSelectors } from "./Explore.selectors";
 import AddressChip from "./Explore/AddressChip";
 import AddUnknownTokens from "./Explore/AddUnknownTokens";
 import Assets from "./Explore/Assets";
@@ -265,6 +266,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
       slug: string;
       title: string;
       Component: FC;
+      testID: string;
     }[]
   >(() => {
     if (!asset) {
@@ -273,16 +275,19 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
           slug: "assets",
           title: t("assets"),
           Component: Assets,
+          testID: ExploreSelectors.AssetsTab,
         },
         {
           slug: "delegation",
           title: t("delegation"),
           Component: Delegation,
+          testID: ExploreSelectors.DelegationTab,
         },
         {
           slug: "activity",
           title: t("activity"),
           Component: Activity,
+          testID: ExploreSelectors.ActivityTab,
         },
       ];
     }
@@ -291,6 +296,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
       slug: "activity",
       title: t("activity"),
       Component: () => <Activity asset={asset} />,
+      testID: ExploreSelectors.ActivityTab,
     };
 
     if (asset.type === TempleAssetType.TEZ) {
@@ -303,6 +309,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
         slug: "about",
         title: t("about"),
         Component: () => <AssetInfo asset={asset} />,
+        testID: ExploreSelectors.AboutTab,
       },
     ];
   }, [asset]);
@@ -344,6 +351,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
                 active ? "text-primary-orange" : "hover:text-primary-orange",
                 "transition ease-in-out duration-300"
               )}
+              testID={t.testID}
             >
               {t.title}
             </Link>

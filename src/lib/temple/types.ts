@@ -703,3 +703,12 @@ export interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
 }
 
 export type OperationsPreview = any[] | { branch: string; contents: any[] };
+
+export enum ImportAccountFormType {
+  PrivateKey = 'ImportAccountFormType.PrivateKey',
+  Mnemonic = 'ImportAccountFormType.Mnemonic',
+  Fundraiser = 'ImportAccountFormType.Fundraiser',
+  FaucetFile = 'ImportAccountFormType.FaucetFile',
+  ManagedKT = 'ImportAccountFormType.ManagedKT',
+  WatchOnly = 'ImportAccountFormType.WatchOnly'
+}

@@ -929,7 +929,7 @@
     "message": "发生这种情况可能是因为："
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "此交易的最低费用高于您的余额。由于您向空的管理员账户转账，可能会向您高额费用。这需要收取一次性的0.257 XTZ消耗费；"
+    "message": "此交易的最低费用高于您的余额。由于您向空的管理员账户转账，可能会向您高额费用。这需要收取一次性的0.06425 XTZ消耗费；"
   },
   "networkOrOtherIssue": {
     "message": "网络或其他技术问题。"
