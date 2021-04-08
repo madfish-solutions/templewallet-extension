@@ -22,6 +22,8 @@ import {
 } from "lib/temple/front";
 import { Link, navigate } from "lib/woozie";
 
+import { AssetsSelectors } from "./Assets.selectors";
+
 const Assets: FC = () => {
   const account = useAccount();
   const { allAssets } = useAssets();
@@ -104,6 +106,7 @@ const Assets: FC = () => {
             "hover:bg-gray-100",
             "opacity-75 hover:opacity-100 focus:opacity-100"
           )}
+          testID={AssetsSelectors.ManageButton}
         >
           <AddToListIcon
             className={classNames("mr-1 h-5 w-auto stroke-current stroke-2")}
@@ -232,6 +235,8 @@ const ListItem = memo<ListItemProps>(
           "transition ease-in-out duration-200",
           "focus:outline-none"
         )}
+        testID={AssetsSelectors.AssetItemButton}
+        testIDProperties={{ key: getAssetKey(asset) }}
       >
         <AssetIcon asset={asset} size={32} className="mr-3" />
 

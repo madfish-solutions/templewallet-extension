@@ -6,7 +6,8 @@ import classNames from "clsx";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
-import HashChip from "app/templates/HashChip";
+import AddressChip from "app/pages/Explore/AddressChip";
+import { toLocalFormat } from "lib/i18n/numbers";
 import { T } from "lib/i18n/react";
 import {
   useRelevantAccounts,
@@ -75,7 +76,7 @@ const BakerBanner = memo<BakerBannerProps>(
                       "flex flex-wrap items-center"
                     )}
                   >
-                    <HashChip hash={baker.address} small />
+                    <AddressChip pkh={baker.address} small />
                   </div>
                 )}
 
@@ -92,7 +93,10 @@ const BakerBanner = memo<BakerBannerProps>(
                     >
                       <T id="fee" />:{" "}
                       <span className="font-normal">
-                        {new BigNumber(baker.fee).times(100).toFormat(2)}%
+                        {toLocalFormat(new BigNumber(baker.fee).times(100), {
+                          decimalPlaces: 2,
+                        })}
+                        %
                       </span>
                     </div>
                   </div>
@@ -191,7 +195,7 @@ const BakerBanner = memo<BakerBannerProps>(
                     "flex flex-wrap items-center"
                   )}
                 >
-                  <HashChip hash={bakerPkh} small />
+                  <AddressChip pkh={bakerPkh} small />
                 </div>
               )}
             </div>

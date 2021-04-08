@@ -10,12 +10,13 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import PageLayout from "app/layouts/PageLayout";
+import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import {
-  useTempleClient,
-  useSetAccountPkh,
-  useAllAccounts,
   TempleAccountType,
+  useAllAccounts,
+  useSetAccountPkh,
+  useTempleClient,
   validateDerivationPath,
 } from "lib/temple/front";
 import { navigate } from "lib/woozie";
@@ -45,6 +46,7 @@ const ConnectLedger: FC = () => {
   const { createLedgerAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
+  const formAnalytics = useFormAnalytics('ConnectLedger');
 
   const allLedgers = useMemo(
     () => allAccounts.filter((acc) => acc.type === TempleAccountType.Ledger),
@@ -83,15 +85,21 @@ const ConnectLedger: FC = () => {
   const onSubmit = useCallback(
     async ({ name, accountNumber, customDerivationPath }: FormData) => {
       if (submitting) return;
+
       setError(null);
 
+      formAnalytics.trackSubmit();
       try {
         await createLedgerAccount(
           name,
           customDerivationPath ??
             (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
         );
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -101,7 +109,7 @@ const ConnectLedger: FC = () => {
         setError(err.message);
       }
     },
-    [submitting, createLedgerAccount, setError]
+    [submitting, createLedgerAccount, setError, formAnalytics]
   );
 
   return (

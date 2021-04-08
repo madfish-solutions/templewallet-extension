@@ -1,0 +1,552 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		142578322612114300061546 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142578312612114300061546 /* AppDelegate.swift */; };
+		142578352612114300061546 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 142578332612114300061546 /* Main.storyboard */; };
+		142578372612114300061546 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142578362612114300061546 /* ViewController.swift */; };
+		142578392612114400061546 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 142578382612114400061546 /* Assets.xcassets */; };
+		142578402612114400061546 /* Temple Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 1425783F2612114400061546 /* Temple Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		142578452612114400061546 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 142578442612114400061546 /* Cocoa.framework */; };
+		142578482612114400061546 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142578472612114400061546 /* SafariWebExtensionHandler.swift */; };
+		1425785F2612114500061546 /* misc in Resources */ = {isa = PBXBuildFile; fileRef = 142578552612114500061546 /* misc */; };
+		142578602612114500061546 /* confirm.html in Resources */ = {isa = PBXBuildFile; fileRef = 142578562612114500061546 /* confirm.html */; };
+		142578612612114500061546 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 142578572612114500061546 /* popup.html */; };
+		142578622612114500061546 /* styles in Resources */ = {isa = PBXBuildFile; fileRef = 142578582612114500061546 /* styles */; };
+		142578632612114500061546 /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 142578592612114500061546 /* scripts */; };
+		142578642612114500061546 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 1425785A2612114500061546 /* manifest.json */; };
+		142578652612114500061546 /* fullpage.html in Resources */ = {isa = PBXBuildFile; fileRef = 1425785B2612114500061546 /* fullpage.html */; };
+		142578662612114500061546 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 1425785C2612114500061546 /* options.html */; };
+		142578672612114500061546 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 1425785D2612114500061546 /* _locales */; };
+		142578682612114500061546 /* media in Resources */ = {isa = PBXBuildFile; fileRef = 1425785E2612114500061546 /* media */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		142578412612114400061546 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 142578252612114300061546 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1425783E2612114400061546;
+			remoteInfo = "Temple Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		142578502612114400061546 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				142578402612114400061546 /* Temple Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1425782D2612114300061546 /* Temple.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Temple.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		142578302612114300061546 /* Temple.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Temple.entitlements; sourceTree = "<group>"; };
+		142578312612114300061546 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		142578342612114300061546 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		142578362612114300061546 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		142578382612114400061546 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1425783A2612114400061546 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1425783F2612114400061546 /* Temple Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Temple Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		142578442612114400061546 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		142578472612114400061546 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		142578492612114400061546 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1425784A2612114400061546 /* Temple_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Temple_Extension.entitlements; sourceTree = "<group>"; };
+		142578552612114500061546 /* misc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = misc; path = ../../dist/safari_unpacked/misc; sourceTree = "<group>"; };
+		142578562612114500061546 /* confirm.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = confirm.html; path = ../../dist/safari_unpacked/confirm.html; sourceTree = "<group>"; };
+		142578572612114500061546 /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = ../../dist/safari_unpacked/popup.html; sourceTree = "<group>"; };
+		142578582612114500061546 /* styles */ = {isa = PBXFileReference; lastKnownFileType = folder; name = styles; path = ../../dist/safari_unpacked/styles; sourceTree = "<group>"; };
+		142578592612114500061546 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../dist/safari_unpacked/scripts; sourceTree = "<group>"; };
+		1425785A2612114500061546 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../dist/safari_unpacked/manifest.json; sourceTree = "<group>"; };
+		1425785B2612114500061546 /* fullpage.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = fullpage.html; path = ../../dist/safari_unpacked/fullpage.html; sourceTree = "<group>"; };
+		1425785C2612114500061546 /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = ../../dist/safari_unpacked/options.html; sourceTree = "<group>"; };
+		1425785D2612114500061546 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = ../../dist/safari_unpacked/_locales; sourceTree = "<group>"; };
+		1425785E2612114500061546 /* media */ = {isa = PBXFileReference; lastKnownFileType = folder; name = media; path = ../../dist/safari_unpacked/media; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1425782A2612114300061546 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1425783C2612114400061546 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				142578452612114400061546 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		142578242612114300061546 = {
+			isa = PBXGroup;
+			children = (
+				1425782F2612114300061546 /* Temple */,
+				142578462612114400061546 /* Temple Extension */,
+				142578432612114400061546 /* Frameworks */,
+				1425782E2612114300061546 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1425782E2612114300061546 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1425782D2612114300061546 /* Temple.app */,
+				1425783F2612114400061546 /* Temple Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1425782F2612114300061546 /* Temple */ = {
+			isa = PBXGroup;
+			children = (
+				142578302612114300061546 /* Temple.entitlements */,
+				142578312612114300061546 /* AppDelegate.swift */,
+				142578332612114300061546 /* Main.storyboard */,
+				142578362612114300061546 /* ViewController.swift */,
+				142578382612114400061546 /* Assets.xcassets */,
+				1425783A2612114400061546 /* Info.plist */,
+			);
+			path = Temple;
+			sourceTree = "<group>";
+		};
+		142578432612114400061546 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				142578442612114400061546 /* Cocoa.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		142578462612114400061546 /* Temple Extension */ = {
+			isa = PBXGroup;
+			children = (
+				142578542612114500061546 /* Resources */,
+				142578472612114400061546 /* SafariWebExtensionHandler.swift */,
+				142578492612114400061546 /* Info.plist */,
+				1425784A2612114400061546 /* Temple_Extension.entitlements */,
+			);
+			path = "Temple Extension";
+			sourceTree = "<group>";
+		};
+		142578542612114500061546 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				142578552612114500061546 /* misc */,
+				142578562612114500061546 /* confirm.html */,
+				142578572612114500061546 /* popup.html */,
+				142578582612114500061546 /* styles */,
+				142578592612114500061546 /* scripts */,
+				1425785A2612114500061546 /* manifest.json */,
+				1425785B2612114500061546 /* fullpage.html */,
+				1425785C2612114500061546 /* options.html */,
+				1425785D2612114500061546 /* _locales */,
+				1425785E2612114500061546 /* media */,
+			);
+			name = Resources;
+			path = "Temple Extension";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1425782C2612114300061546 /* Temple */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 142578512612114400061546 /* Build configuration list for PBXNativeTarget "Temple" */;
+			buildPhases = (
+				142578292612114300061546 /* Sources */,
+				1425782A2612114300061546 /* Frameworks */,
+				1425782B2612114300061546 /* Resources */,
+				142578502612114400061546 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				142578422612114400061546 /* PBXTargetDependency */,
+			);
+			name = Temple;
+			productName = Temple;
+			productReference = 1425782D2612114300061546 /* Temple.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1425783E2612114400061546 /* Temple Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1425784D2612114400061546 /* Build configuration list for PBXNativeTarget "Temple Extension" */;
+			buildPhases = (
+				1425783B2612114400061546 /* Sources */,
+				1425783C2612114400061546 /* Frameworks */,
+				1425783D2612114400061546 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Temple Extension";
+			productName = "Temple Extension";
+			productReference = 1425783F2612114400061546 /* Temple Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		142578252612114300061546 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1240;
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					1425782C2612114300061546 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+					1425783E2612114400061546 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+				};
+			};
+			buildConfigurationList = 142578282612114300061546 /* Build configuration list for PBXProject "Temple" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 142578242612114300061546;
+			productRefGroup = 1425782E2612114300061546 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1425782C2612114300061546 /* Temple */,
+				1425783E2612114400061546 /* Temple Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1425782B2612114300061546 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				142578392612114400061546 /* Assets.xcassets in Resources */,
+				142578352612114300061546 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1425783D2612114400061546 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				142578672612114500061546 /* _locales in Resources */,
+				142578652612114500061546 /* fullpage.html in Resources */,
+				1425785F2612114500061546 /* misc in Resources */,
+				142578612612114500061546 /* popup.html in Resources */,
+				142578662612114500061546 /* options.html in Resources */,
+				142578622612114500061546 /* styles in Resources */,
+				142578632612114500061546 /* scripts in Resources */,
+				142578682612114500061546 /* media in Resources */,
+				142578642612114500061546 /* manifest.json in Resources */,
+				142578602612114500061546 /* confirm.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		142578292612114300061546 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				142578372612114300061546 /* ViewController.swift in Sources */,
+				142578322612114300061546 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1425783B2612114400061546 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				142578482612114400061546 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		142578422612114400061546 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1425783E2612114400061546 /* Temple Extension */;
+			targetProxy = 142578412612114400061546 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		142578332612114300061546 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				142578342612114300061546 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		1425784B2612114400061546 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_BUILD = 3;
+				APP_VERSION = 1.6.1;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1425784C2612114400061546 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_BUILD = 3;
+				APP_VERSION = 1.6.1;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		1425784E2612114400061546 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Temple Extension/Temple_Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD)";
+				INFOPLIST_FILE = "Temple Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = "$(APP_VERSION)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish-solutions.Temple.Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		1425784F2612114400061546 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Temple Extension/Temple_Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD)";
+				INFOPLIST_FILE = "Temple Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = "$(APP_VERSION)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish-solutions.Temple.Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		142578522612114400061546 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Temple/Temple.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD)";
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = Temple/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = "$(APP_VERSION)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish-solutions.Temple";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		142578532612114400061546 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Temple/Temple.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = "$(APP_BUILD)";
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = Temple/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = "$(APP_VERSION)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish-solutions.Temple";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		142578282612114300061546 /* Build configuration list for PBXProject "Temple" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1425784B2612114400061546 /* Debug */,
+				1425784C2612114400061546 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1425784D2612114400061546 /* Build configuration list for PBXNativeTarget "Temple Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1425784E2612114400061546 /* Debug */,
+				1425784F2612114400061546 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		142578512612114400061546 /* Build configuration list for PBXNativeTarget "Temple" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				142578522612114400061546 /* Debug */,
+				142578532612114400061546 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 142578252612114300061546 /* Project object */;
+}

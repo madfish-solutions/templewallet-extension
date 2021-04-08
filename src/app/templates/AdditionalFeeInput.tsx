@@ -15,7 +15,12 @@ import React, {
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
-import { Controller, ControllerProps, FieldError } from "react-hook-form";
+import {
+  Controller,
+  ControllerProps,
+  EventFunction,
+  FieldError,
+} from "react-hook-form";
 
 import AssetField from "app/atoms/AssetField";
 import FormCheckbox from "app/atoms/FormCheckbox";
@@ -26,8 +31,12 @@ import { ReactComponent as CupIcon } from "app/icons/cup.svg";
 import { ReactComponent as RocketIcon } from "app/icons/rocket.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
+import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
+import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { TempleToken, TEZ_ASSET, tzToMutez } from "lib/temple/front";
+
+import { AdditionalFeeInputSelectors } from "./AdditionalFeeInput..selectors";
 
 type AssetFieldProps = typeof AssetField extends ForwardRefExoticComponent<
   infer T
@@ -104,6 +113,7 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
     token,
     tokenPrice,
   } = props;
+  const { trackEvent } = useAnalytics();
 
   const validateAdditionalFee = useCallback((v?: AdditionalFeeValue) => {
     if (v?.amount === undefined) {
@@ -120,13 +130,21 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
     customFeeInputRef.current?.focus();
   }, []);
 
+  const handleChange: EventFunction = (event) => {
+    trackEvent(
+      AdditionalFeeInputSelectors.FeeButton,
+      AnalyticsEventCategory.ButtonPress
+    );
+    return onChange !== undefined && onChange(event);
+  };
+
   return (
     <Controller
       name={name}
       as={AdditionalFeeInputContent}
       control={control}
       customFeeInputRef={customFeeInputRef}
-      onChange={onChange}
+      onChange={handleChange}
       id={id}
       assetSymbol={assetSymbol}
       onFocus={focusCustomFeeInput}
@@ -137,7 +155,7 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
             id="feeInputDescription"
             substitutions={[
               <Fragment key={0}>
-                <span className="font-normal">{baseFee.toFixed()}</span>
+                <span className="font-normal">{toLocalFixed(baseFee)}</span>
               </Fragment>,
             ]}
           />

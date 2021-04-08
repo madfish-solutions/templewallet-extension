@@ -854,6 +854,9 @@
   "bakerInputDescription": {
     "message": "Address of a registered baker."
   },
+  "bakerInputDescriptionWithDomain": {
+    "message": "Address or domain name of a registered baker."
+  },
   "bakerInputPlaceholder": {
     "message": "e.g. tz1a9w1S7hN5s..."
   },
@@ -932,7 +935,7 @@
     "message": "This may happen because:"
   },
   "minimalFeeGreaterThanBalanceVerbose": {
-    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.257 ꜩ burn fee;"
+    "message": "Minimal fee for this transaction is greater than your balance. A large fee may be required because of you sending funds to an empty Manager account. That requires a one-time 0.06425 ꜩ burn fee;"
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
@@ -1460,6 +1463,45 @@
   },
   "popupSettingsDescription": {
     "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
+  },
+  "analyticsSettings": {
+    "message": "Anonymous Analytics"
+  },
+  "analyticsSettingsDescription": {
+    "message": "Here you can configure sending of anonymous analytics that helps us to improve the product."
+  },
+  "analyticsEnabled": {
+    "message": "Enabled"
+  },
+  "analyticsDisabled": {
+    "message": "Disabled"
+  },
+  "analyticsConfirmationTitle": {
+    "message": "Help us make the Temple Wallet better"
+  },
+  "analyticsConfirmationDescription": {
+    "message": "We are improving the Temple wallet constantly and we need your help. To better understand which section of the wallet should be updated, we gather anonymous usage data. This data will be used only for improving the usability of the Temple wallet."
+  },
+  "analyticsConfirmationCollect": {
+    "message": "What we collect:"
+  },
+  "analyticsConfirmationCollectDescription": {
+    "message": "Anonymized click & pageview events"
+  },
+  "analyticsConfirmationNeverCollect": {
+    "message": "We NEVER track:"
+  },
+  "analyticsConfirmationNeverCollectDescription": {
+    "message": "Your keys, addresses, transactions, balances, hashes, IP, or any personal information."
+  },
+  "analyticsConfirmationSettingsDescription": {
+    "message": "You may always turn off the analytics tracking feature in your wallet settings."
+  },
+  "analyticsConfirmationConfirmButton": {
+    "message": "Confirm"
+  },
+  "analyticsConfirmationCancelButton": {
+    "message": "Cancel"
   },
   "managedContract": {
     "message": "Managed Contract"

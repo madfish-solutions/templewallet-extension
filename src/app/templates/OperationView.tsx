@@ -96,7 +96,7 @@ const OperationView: FC<OperationViewProps> = ({
     }
 
     return [
-      ...prettyViewFormats,
+      ...(rawExpensesData.length > 0 ? prettyViewFormats : []),
       rawFormat,
       {
         key: "bytes",
@@ -104,7 +104,7 @@ const OperationView: FC<OperationViewProps> = ({
         Icon: HashIcon,
       },
     ];
-  }, [payload]);
+  }, [payload, rawExpensesData]);
 
   const [spFormat, setSpFormat] = useState(signPayloadFormats[0]);
 

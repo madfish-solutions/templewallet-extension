@@ -6,6 +6,7 @@ import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import PageLayout from "app/layouts/PageLayout";
+import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import {
   TempleAccountType,
@@ -25,6 +26,7 @@ const CreateAccount: FC = () => {
   const { createAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
+  const formAnalytics = useFormAnalytics('CreateAccount');
 
   const allHDOrImported = useMemo(
     () =>
@@ -64,9 +66,15 @@ const CreateAccount: FC = () => {
       if (submitting) return;
 
       clearError("name");
+
+      formAnalytics.trackSubmit();
       try {
         await createAccount(name);
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -76,7 +84,7 @@ const CreateAccount: FC = () => {
         setError("name", SUBMIT_ERROR_TYPE, err.message);
       }
     },
-    [submitting, clearError, setError, createAccount]
+    [submitting, clearError, setError, createAccount, formAnalytics]
   );
 
   return (

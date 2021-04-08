@@ -1,4 +1,4 @@
-import React, { FC, useLayoutEffect, useMemo } from "react";
+import React, { FC, useEffect, useLayoutEffect, useMemo } from "react";
 
 import { useAppEnv, OpenInFullPage } from "app/env";
 import AddToken from "app/pages/AddToken";
@@ -15,6 +15,7 @@ import Send from "app/pages/Send";
 import Settings from "app/pages/Settings";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
+import { useAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
 
@@ -86,7 +87,8 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 ]);
 
 const Page: FC = () => {
-  const { trigger, pathname } = Woozie.useLocation();
+  const { trigger, pathname, search } = Woozie.useLocation();
+  const { pageEvent } = useAnalytics();
 
   // Scroll to top after new location pushed.
   useLayoutEffect(() => {
@@ -111,6 +113,17 @@ const Page: FC = () => {
     }),
     [appEnv.popup, appEnv.fullPage, temple.ready, temple.locked]
   );
+
+  useEffect(() => {
+    let path = pathname;
+
+    if (pathname === "/" && !ctx.ready) {
+      path = "/welcome";
+    }
+
+    pageEvent(path, search);
+
+  }, [pathname, search, ctx.ready, pageEvent]);
 
   return useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
     pathname,
