@@ -111,6 +111,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
 
     const handleSearchChange = useCallback(
       (e: ChangeEvent<HTMLInputElement>) => {
+        setTokenId(undefined);
         setSearchString(e.target.value);
       },
       []

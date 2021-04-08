@@ -392,6 +392,10 @@ export default function useSwappableAssets(
       searchStr: string,
       tokenId?: number
     ): Promise<SwappableTokensRawData> => {
+      const tokenFilterPredicate = (token: TempleToken) =>
+        assetMatchesSearchStr(token, searchStr) &&
+          (tokenId === undefined || token.type !== TempleAssetType.FA2 || token.id === tokenId)
+
       const dexterTokensIdentifiers = Object.keys(
         DEXTER_EXCHANGE_CONTRACTS.get(chainId) ?? {}
       ).map((tokenAddress) => ({ address: tokenAddress }));
@@ -405,7 +409,7 @@ export default function useSwappableAssets(
             return knownToken ?? ((await getAssetData(id)) as TempleToken);
           })
         )
-      ).filter((asset) => assetMatchesSearchStr(asset, searchStr));
+      ).filter(tokenFilterPredicate);
 
       const knownQuipuswapTokens = [
         ...quipuswapTokenWhitelists!.get(chainId) ?? [],
@@ -413,24 +417,24 @@ export default function useSwappableAssets(
       ];
       const networkIsSupported =
         knownQuipuswapTokens.length > 0 || knownDexterTokens.length > 0;
-      const matchingKnownQuipuswapTokens = knownQuipuswapTokens.filter(
-        (token) => assetMatchesSearchStr(token, searchStr)
-      );
+      const matchingKnownQuipuswapTokens = knownQuipuswapTokens.filter(tokenFilterPredicate);
+      const searchStrIsAddress = validateAddress(searchStr) === ValidationResult.VALID;
+      const firstFoundToken = [...dexterTokens, ...matchingKnownQuipuswapTokens][0];
+      const foundTokenId = firstFoundToken?.type === TempleAssetType.FA2
+        ? firstFoundToken.id
+        : undefined;
       const minimalResult = {
         dexter: dexterTokens,
         quipuswap: matchingKnownQuipuswapTokens,
         quipuswapTokensExchangeContracts:
           initialQuipuswapExchangeContracts ?? {},
         networkIsSupported,
-        tokenIdRequired: false,
+        tokenIdRequired: searchStrIsAddress
+          ? foundTokenId !== undefined
+          : false,
       };
-      const someKnownTokensMatch =
-        dexterTokens.length > 0 || matchingKnownQuipuswapTokens.length > 0;
-      if (
-        validateAddress(searchStr) !== ValidationResult.VALID ||
-        !networkIsSupported ||
-        someKnownTokensMatch
-      ) {
+      const someKnownTokensMatch = !!firstFoundToken;
+      if (!searchStrIsAddress || !networkIsSupported || someKnownTokensMatch) {
         return minimalResult;
       }
 
@@ -455,9 +459,7 @@ export default function useSwappableAssets(
             ]);
             fa2IdIsCorrect = !!exchangeContractAddress;
           }
-        } catch (e) {
-          console.error(e);
-        }
+        } catch (e) {}
         if (isFA2Token && !fa2IdIsCorrect) {
           return {
             ...minimalResult,
@@ -471,9 +473,7 @@ export default function useSwappableAssets(
               tezos
             );
             exchangeContractAddress = await tokensList.get(searchStr);
-          } catch (e) {
-            console.error(e);
-          }
+          } catch (e) {}
         }
         const tokenMetadata = await getAssetData({
           address: searchStr,
