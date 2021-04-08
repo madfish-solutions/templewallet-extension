@@ -201,6 +201,12 @@ export default function useSwappableAssets(
             metadata = fallbackMetadata;
           }
           metadata.iconUrl = metadata.iconUrl && sanitizeImgUri(metadata.iconUrl);
+          if (metadata.name === "???") {
+            metadata.name = fallbackName;
+          }
+          if (metadata.symbol === "???") {
+            metadata.symbol = fallbackName;
+          }
 
           const commonTokenMetadata = {
             address: contractAddress,

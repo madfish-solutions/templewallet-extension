@@ -20,6 +20,7 @@ import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg"
 import OperationStatus from "app/templates/OperationStatus";
 import SwapInput, { SwapInputValue } from "app/templates/SwapForm/SwapInput";
 import useSwappableAssets from "app/templates/SwapForm/useSwappableAssets";
+import { useFormAnalytics } from "lib/analytics";
 import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
@@ -89,6 +90,7 @@ const SwapForm: React.FC = () => {
   const tezos = useTezos();
   const network = useNetwork();
   const { publicKeyHash: accountPkh } = useAccount();
+  const formAnalytics = useFormAnalytics("SwapForm");
 
   const defaultExchanger = assets[1].quipuswap ? "quipuswap" : "dexter";
   const formContextValues = useForm<SwapFormValues>({
@@ -343,6 +345,14 @@ const SwapForm: React.FC = () => {
         return;
       }
       setIsSubmitting(true);
+      const analyticsProperties = {
+        exchanger,
+        tolerancePercentage,
+        inputAsset: inputAsset!.symbol,
+        outputAsset: outputAsset!.symbol,
+        amount: inputAmount!.toNumber(),
+      };
+      formAnalytics.trackSubmit(analyticsProperties);
       try {
         setOperation(undefined);
         const op = await swap({
@@ -357,16 +367,18 @@ const SwapForm: React.FC = () => {
           tezos,
         });
         setError(undefined);
+        formAnalytics.trackSubmitSuccess(analyticsProperties);
         setOperation(op);
       } catch (e) {
         if (e.message !== "Declined") {
           setError(e);
         }
+        formAnalytics.trackSubmitFail(analyticsProperties);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [tezos, accountPkh, isSubmitting, inputAsset, outputAsset]
+    [tezos, accountPkh, isSubmitting, inputAsset, outputAsset, formAnalytics]
   );
 
   const closeError = useCallback(() => setError(undefined), []);

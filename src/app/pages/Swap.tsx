@@ -5,7 +5,7 @@ import PageLayout from "app/layouts/PageLayout";
 import SwapForm from "app/templates/SwapForm";
 import { t } from "lib/i18n/react";
 
-const Send: React.FC = () => (
+const Swap: React.FC = () => (
   <PageLayout
     pageTitle={
       <>
@@ -21,4 +21,4 @@ const Send: React.FC = () => (
   </PageLayout>
 );
 
-export default Send;
+export default Swap;
