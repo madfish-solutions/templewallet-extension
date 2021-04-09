@@ -1,8 +1,11 @@
 type AvailableToken = {
-  contractAddress: string;
+  address: string;
   decimals: number;
+  mainnet: boolean;
   name: string;
+  normalizer: string;
   tokenId?: number;
+  type: "harbinger" | "quipuswap";
 };
 
 export type AvailableTokensResponse = {

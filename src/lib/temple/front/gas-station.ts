@@ -27,6 +27,7 @@ type PermitParams = {
 };
 
 export const RELAYER_ADDRESS = "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb";
+const ESTIMATOR_RPC_ENDPOINT = "http://167.99.133.200:8732";
 const ESTIMATOR_ADDRESS = "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb";
 const ESTIMATOR_PUBLIC_KEY =
   "edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn";
@@ -159,10 +160,10 @@ const estimateAsBatch = (tezos: TezosToolkit, txs: any) =>
     txs.map((tParams: any) => ({ kind: OpKind.TRANSACTION, ...tParams }))
   );
 
-const estimate = async (tezos: TezosToolkit, permitParams: PermitParams) => {
+const estimate = async (permitParams: PermitParams) => {
   const { signature, hash, pubkey, contractAddress, callParams } = permitParams;
 
-  const estimator = new TezosToolkit(tezos.rpc);
+  const estimator = new TezosToolkit(ESTIMATOR_RPC_ENDPOINT);
   estimator.setSignerProvider(
     new ReadOnlySigner(ESTIMATOR_ADDRESS, ESTIMATOR_PUBLIC_KEY)
   );

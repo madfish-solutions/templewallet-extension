@@ -278,12 +278,14 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     localAsset.type === TempleAssetType.FA2 ? localAsset.id : undefined;
   const canPayFeeInTokens = useMemo(
     () =>
-      availableTokensResponse?.tokens.some(({ contractAddress, tokenId }) => {
-        return (
-          localAssetAddress === contractAddress &&
-          (localAssetType !== TempleAssetType.FA2 || tokenId === localAssetId)
-        );
-      }) ?? false,
+      availableTokensResponse?.tokens.some(
+        ({ address: contractAddress, tokenId }) => {
+          return (
+            localAssetAddress === contractAddress &&
+            (localAssetType !== TempleAssetType.FA2 || tokenId === localAssetId)
+          );
+        }
+      ) ?? false,
     [availableTokensResponse, localAssetAddress, localAssetId, localAssetType]
   );
 
@@ -363,23 +365,28 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     const dummySignature =
       "edsigtkpiSSschcaCt9pUVrpNPf7TTcgvgDEDD6NCEHMy8NNQJCGnMfLZzYoQj74yLjo9wx6MPVV29CvVzgi7qEcEUok3k7AuMg";
 
-    const gasEstimate =
-      (await GasStation.estimate(tezos, {
-        pubkey,
-        signature: dummySignature,
-        hash,
-        contractAddress: localAssetAddress!,
-        callParams: {
-          entrypoint: "transfer",
-          params: preTransferParams,
-        },
-      })) + 100;
-    const result = new BigNumber(gasEstimate)
-      .multipliedBy(gasTokenPrice ?? 0)
-      .multipliedBy(elementaryParts)
-      .integerValue()
-      .div(elementaryParts);
-    return result;
+    try {
+      const gasEstimate =
+        (await GasStation.estimate({
+          pubkey,
+          signature: dummySignature,
+          hash,
+          contractAddress: localAssetAddress!,
+          callParams: {
+            entrypoint: "transfer",
+            params: preTransferParams,
+          },
+        })) + 100;
+      const result = new BigNumber(gasEstimate)
+        .multipliedBy(gasTokenPrice ?? 0)
+        .multipliedBy(elementaryParts)
+        .integerValue()
+        .div(elementaryParts);
+      return result;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }, [
     amountValue,
     gasTokenPrice,
@@ -687,12 +694,19 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       try {
         let op: WalletOperation;
         if (feeVal.inToken) {
+          const tokenElementaryParts = new BigNumber(10).pow(
+            localAsset.decimals
+          );
           const fee = (baseFee instanceof BigNumber
             ? baseFee
             : new BigNumber(0)
           )
             .plus(feeVal.amount ?? 0)
-            .multipliedBy(new BigNumber(10).pow(localAsset.decimals));
+            .multipliedBy(tokenElementaryParts);
+
+          const amountInElementaryParts = new BigNumber(amount)
+            .multipliedBy(tokenElementaryParts)
+            .toNumber();
           const [
             transferParams,
             permitParams,
@@ -700,21 +714,23 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             to: toResolved,
             tokenAddress: localAssetAddress!,
             tokenId: localAssetId,
-            amount,
+            amount: amountInElementaryParts,
             relayerFee: fee.toNumber(),
           });
 
           const { pubkey, payload, hash } = permitParams;
+          console.log(payload);
           const signature = await tezos.signer.sign(payload);
+          console.log(signature.prefixSig);
 
           const output = {
             pubkey,
-            signature,
+            signature: signature.prefixSig,
             hash,
             contractAddress: localAssetAddress!,
             to: toResolved,
             tokenId: localAssetId,
-            amount,
+            amount: amountInElementaryParts,
             fee: fee.toNumber(),
             callParams: {
               entrypoint: "transfer",
@@ -960,198 +976,210 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         autoFocus={Boolean(maxAmount)}
       />
 
-      {estimateFallbackDisplayed ? (
-        <SpinnerSection />
-      ) : restFormDisplayed ? (
-        <>
-          {(() => {
-            switch (true) {
-              case Boolean(submitError):
-                return <SendErrorAlert type="submit" error={submitError} />;
+      {estimateFallbackDisplayed && <SpinnerSection />}
+      <div
+        className={classNames(
+          "w-full",
+          (estimateFallbackDisplayed || !restFormDisplayed) && "hidden"
+        )}
+      >
+        {(() => {
+          switch (true) {
+            case Boolean(submitError):
+              return (
+                <SendErrorAlert
+                  type="submit"
+                  error={submitError}
+                  feeInToken={feeValue.inToken}
+                />
+              );
 
-              case Boolean(estimationError):
-                return (
-                  <SendErrorAlert type="estimation" error={estimationError} />
-                );
+            case Boolean(estimationError):
+              return (
+                <SendErrorAlert
+                  type="estimation"
+                  error={estimationError}
+                  feeInToken={feeValue.inToken}
+                />
+              );
 
-              case toResolved === accountPkh:
-                return (
-                  <Alert
-                    type="warn"
-                    title={t("attentionExclamation")}
-                    description={<T id="tryingToTransferToYourself" />}
-                    className="mt-6 mb-4"
-                  />
-                );
+            case toResolved === accountPkh:
+              return (
+                <Alert
+                  type="warn"
+                  title={t("attentionExclamation")}
+                  description={<T id="tryingToTransferToYourself" />}
+                  className="mt-6 mb-4"
+                />
+              );
 
-              default:
-                return null;
-            }
-          })()}
+            default:
+              return null;
+          }
+        })()}
 
-          <AdditionalFeeInput
-            name="fee"
-            control={control}
-            onChange={handleFeeFieldChange}
-            assetSymbol={TEZ_ASSET.symbol}
-            baseFee={baseFee}
-            token={canPayFeeInTokens ? (localAsset as TempleToken) : undefined}
-            tokenPrice={gasTokenPrice ?? undefined}
-            error={errors.fee as any}
-            id="send-fee"
-          />
+        <AdditionalFeeInput
+          name="fee"
+          control={control}
+          onChange={handleFeeFieldChange}
+          assetSymbol={TEZ_ASSET.symbol}
+          baseFee={baseFee}
+          token={canPayFeeInTokens ? (localAsset as TempleToken) : undefined}
+          tokenPrice={gasTokenPrice ?? undefined}
+          error={errors.fee as any}
+          id="send-fee"
+        />
 
-          <T id="send">
+        <T id="send">
+          {(message) => (
+            <FormSubmitButton
+              loading={formState.isSubmitting}
+              disabled={Boolean(estimationError)}
+            >
+              {message}
+            </FormSubmitButton>
+          )}
+        </T>
+      </div>
+      <div
+        className={classNames(
+          "mt-8 mb-6 flex flex-col",
+          (estimateFallbackDisplayed ||
+            restFormDisplayed ||
+            allAccounts.length <= 1) &&
+            "hidden"
+        )}
+      >
+        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+          <T id="sendToMyAccounts">
             {(message) => (
-              <FormSubmitButton
-                loading={formState.isSubmitting}
-                disabled={Boolean(estimationError)}
-              >
+              <span className="text-base font-semibold text-gray-700">
                 {message}
-              </FormSubmitButton>
+              </span>
             )}
           </T>
-        </>
-      ) : (
-        allAccounts.length > 1 && (
-          <div className={classNames("mt-8 mb-6", "flex flex-col")}>
-            <h2
-              className={classNames("mb-4", "leading-tight", "flex flex-col")}
-            >
-              <T id="sendToMyAccounts">
-                {(message) => (
-                  <span className="text-base font-semibold text-gray-700">
-                    {message}
-                  </span>
+
+          <T id="clickOnRecipientAccount">
+            {(message) => (
+              <span
+                className={classNames(
+                  "mt-1",
+                  "text-xs font-light text-gray-600"
                 )}
-              </T>
+                style={{ maxWidth: "90%" }}
+              >
+                {message}
+              </span>
+            )}
+          </T>
+        </h2>
 
-              <T id="clickOnRecipientAccount">
-                {(message) => (
-                  <span
-                    className={classNames(
-                      "mt-1",
-                      "text-xs font-light text-gray-600"
-                    )}
-                    style={{ maxWidth: "90%" }}
-                  >
-                    {message}
-                  </span>
-                )}
-              </T>
-            </h2>
+        <div
+          className={classNames(
+            "rounded-md overflow-hidden",
+            "border",
+            "flex flex-col",
+            "text-gray-700 text-sm leading-tight"
+          )}
+        >
+          {allAccounts
+            .filter((acc) => acc.publicKeyHash !== accountPkh)
+            .map((acc, i, arr) => {
+              const last = i === arr.length - 1;
+              const handleAccountClick = () => {
+                setValue("to", acc.publicKeyHash);
+                triggerValidation("to");
+              };
 
-            <div
-              className={classNames(
-                "rounded-md overflow-hidden",
-                "border",
-                "flex flex-col",
-                "text-gray-700 text-sm leading-tight"
-              )}
-            >
-              {allAccounts
-                .filter((acc) => acc.publicKeyHash !== accountPkh)
-                .map((acc, i, arr) => {
-                  const last = i === arr.length - 1;
-                  const handleAccountClick = () => {
-                    setValue("to", acc.publicKeyHash);
-                    triggerValidation("to");
-                  };
+              return (
+                <Button
+                  key={acc.publicKeyHash}
+                  type="button"
+                  className={classNames(
+                    "relative",
+                    "block w-full",
+                    "overflow-hidden",
+                    !last && "border-b border-gray-200",
+                    "hover:bg-gray-100 focus:bg-gray-100",
+                    "flex items-center p-2",
+                    "text-gray-700",
+                    "transition ease-in-out duration-200",
+                    "focus:outline-none",
+                    "opacity-90 hover:opacity-100"
+                  )}
+                  onClick={handleAccountClick}
+                  testID={SendFormSelectors.MyAccountItemButton}
+                >
+                  <Identicon
+                    type="bottts"
+                    hash={acc.publicKeyHash}
+                    size={32}
+                    className="flex-shrink-0 shadow-xs"
+                  />
 
-                  return (
-                    <Button
-                      key={acc.publicKeyHash}
-                      type="button"
-                      className={classNames(
-                        "relative",
-                        "block w-full",
-                        "overflow-hidden",
-                        !last && "border-b border-gray-200",
-                        "hover:bg-gray-100 focus:bg-gray-100",
-                        "flex items-center p-2",
-                        "text-gray-700",
-                        "transition ease-in-out duration-200",
-                        "focus:outline-none",
-                        "opacity-90 hover:opacity-100"
-                      )}
-                      onClick={handleAccountClick}
-                      testID={SendFormSelectors.MyAccountItemButton}
-                    >
-                      <Identicon
-                        type="bottts"
-                        hash={acc.publicKeyHash}
-                        size={32}
-                        className="flex-shrink-0 shadow-xs"
-                      />
+                  <div className="flex flex-col items-start ml-2">
+                    <div className="flex flex-wrap items-center">
+                      <Name className="text-sm font-medium leading-tight">
+                        {acc.name}
+                      </Name>
 
-                      <div className="flex flex-col items-start ml-2">
-                        <div className="flex flex-wrap items-center">
-                          <Name className="text-sm font-medium leading-tight">
-                            {acc.name}
-                          </Name>
+                      <AccountTypeBadge account={acc} />
+                    </div>
 
-                          <AccountTypeBadge account={acc} />
-                        </div>
-
-                        <div className="flex flex-wrap items-center mt-1">
-                          <div
-                            className={classNames(
-                              "text-xs leading-none",
-                              "text-gray-700"
-                            )}
-                          >
-                            {(() => {
-                              const val = acc.publicKeyHash;
-                              const ln = val.length;
-                              return (
-                                <>
-                                  {val.slice(0, 7)}
-                                  <span className="opacity-75">...</span>
-                                  {val.slice(ln - 4, ln)}
-                                </>
-                              );
-                            })()}
-                          </div>
-
-                          <Balance
-                            asset={localAsset}
-                            address={acc.publicKeyHash}
-                          >
-                            {(bal) => (
-                              <div
-                                className={classNames(
-                                  "ml-2",
-                                  "text-xs leading-none",
-                                  "text-gray-600"
-                                )}
-                              >
-                                <Money>{bal}</Money>{" "}
-                                <span style={{ fontSize: "0.75em" }}>
-                                  {localAsset.symbol}
-                                </span>
-                              </div>
-                            )}
-                          </Balance>
-                        </div>
-                      </div>
-
+                    <div className="flex flex-wrap items-center mt-1">
                       <div
                         className={classNames(
-                          "absolute right-0 top-0 bottom-0",
-                          "flex items-center",
-                          "pr-2",
-                          "text-gray-500"
+                          "text-xs leading-none",
+                          "text-gray-700"
                         )}
                       >
-                        <ChevronRightIcon className="h-5 w-auto stroke-current" />
+                        {(() => {
+                          const val = acc.publicKeyHash;
+                          const ln = val.length;
+                          return (
+                            <>
+                              {val.slice(0, 7)}
+                              <span className="opacity-75">...</span>
+                              {val.slice(ln - 4, ln)}
+                            </>
+                          );
+                        })()}
                       </div>
-                    </Button>
-                  );
-                })}
-            </div>
-          </div>
-        )
-      )}
+
+                      <Balance asset={localAsset} address={acc.publicKeyHash}>
+                        {(bal) => (
+                          <div
+                            className={classNames(
+                              "ml-2",
+                              "text-xs leading-none",
+                              "text-gray-600"
+                            )}
+                          >
+                            <Money>{bal}</Money>{" "}
+                            <span style={{ fontSize: "0.75em" }}>
+                              {localAsset.symbol}
+                            </span>
+                          </div>
+                        )}
+                      </Balance>
+                    </div>
+                  </div>
+
+                  <div
+                    className={classNames(
+                      "absolute right-0 top-0 bottom-0",
+                      "flex items-center",
+                      "pr-2",
+                      "text-gray-500"
+                    )}
+                  >
+                    <ChevronRightIcon className="h-5 w-auto stroke-current" />
+                  </div>
+                </Button>
+              );
+            })}
+        </div>
+      </div>
     </form>
   );
 };
@@ -1159,9 +1187,14 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
 type SendErrorAlertProps = {
   type: "submit" | "estimation";
   error: Error;
+  feeInToken: boolean;
 };
 
-const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => (
+const SendErrorAlert: FC<SendErrorAlertProps> = ({
+  type,
+  error,
+  feeInToken,
+}) => (
   <Alert
     type={type === "submit" ? "error" : "warn"}
     title={(() => {
@@ -1199,7 +1232,13 @@ const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => (
               <br />
               <T id="thisMayHappenBecause" />
               <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                <T id="minimalFeeGreaterThanBalanceVerbose">
+                <T
+                  id={
+                    feeInToken
+                      ? "minimalFeeGreaterThanBalance"
+                      : "minimalFeeGreaterThanBalanceVerbose"
+                  }
+                >
                   {(message) => <li>{message}</li>}
                 </T>
                 <T id="networkOrOtherIssue">

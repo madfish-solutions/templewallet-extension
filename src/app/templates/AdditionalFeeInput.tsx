@@ -266,7 +266,6 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
     ),
     [token, inToken]
   );
-  console.log(inToken);
 
   return (
     <div className="flex flex-col w-full mb-2">
