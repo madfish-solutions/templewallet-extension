@@ -267,6 +267,9 @@
   "tokenIdInputDescription": {
     "message": "A non-negative integer number that identifies the token inside FA2 contract"
   },
+  "comingSoon": {
+    "message": "Coming soon"
+  },
   "comingSoonComment": {
     "message": "(coming soon)"
   },
@@ -1753,5 +1756,23 @@
   },
   "searchDApps": {
     "message": "Search DApps"
+  },
+  "game": {
+    "message": "Game"
+  },
+  "social": {
+    "message": "Social"
+  },
+  "marketplace": {
+    "message": "Marketplace"
+  },
+  "farming": {
+    "message": "Farming"
+  },
+  "other": {
+    "message": "Other"
+  },
+  "noMatchingDAppsFound": {
+    "message": "No matching dApps were found"
   }
 }

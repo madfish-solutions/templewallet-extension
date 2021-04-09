@@ -1699,5 +1699,20 @@
   },
   "blockExplorer": {
     "message": "Експлорер блокчейна"
+  },
+  "game": {
+    "message": "Гра"
+  },
+  "social": {
+    "message": "Соціальний проєкт"
+  },
+  "marketplace": {
+    "message": "Ринок"
+  },
+  "farming": {
+    "message": "Фармінг"
+  },
+  "other": {
+    "message": "Інше"
   }
 }
