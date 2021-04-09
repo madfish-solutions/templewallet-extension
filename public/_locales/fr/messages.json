@@ -1021,7 +1021,7 @@
     "message": "en attente…"
   },
   "backtracked": {
-    "message": "tracé"
+    "message": "rétrogradée"
   },
   "operationSuccessfullyProcessed": {
     "message": "$type$ traité et confirmé avec succès !",
