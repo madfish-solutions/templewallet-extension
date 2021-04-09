@@ -1721,6 +1721,9 @@
   "balanceTooLow": {
     "message": "Tez balance to low"
   },
+  "swap": {
+    "message": "Swap"
+  },
   "anotherAccount": {
     "message": "Another account"
   },
@@ -1741,5 +1744,14 @@
   },
   "blockExplorer": {
     "message": "Blockchain explorer"
+  },
+  "tvl": {
+    "message": "TVL"
+  },
+  "promoted": {
+    "message": "Promoted"
+  },
+  "searchDApps": {
+    "message": "Search DApps"
   }
 }
