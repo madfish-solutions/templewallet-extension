@@ -365,28 +365,23 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     const dummySignature =
       "edsigtkpiSSschcaCt9pUVrpNPf7TTcgvgDEDD6NCEHMy8NNQJCGnMfLZzYoQj74yLjo9wx6MPVV29CvVzgi7qEcEUok3k7AuMg";
 
-    try {
-      const gasEstimate =
-        (await GasStation.estimate({
-          pubkey,
-          signature: dummySignature,
-          hash,
-          contractAddress: localAssetAddress!,
-          callParams: {
-            entrypoint: "transfer",
-            params: preTransferParams,
-          },
-        })) + 100;
-      const result = new BigNumber(gasEstimate)
-        .multipliedBy(gasTokenPrice ?? 0)
-        .multipliedBy(elementaryParts)
-        .integerValue()
-        .div(elementaryParts);
-      return result;
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
+    const gasEstimate =
+      (await GasStation.estimate({
+        pubkey,
+        signature: dummySignature,
+        hash,
+        contractAddress: localAssetAddress!,
+        callParams: {
+          entrypoint: "transfer",
+          params: preTransferParams,
+        },
+      })) + 100;
+    const result = new BigNumber(gasEstimate)
+      .multipliedBy(gasTokenPrice ?? 0)
+      .multipliedBy(elementaryParts)
+      .integerValue()
+      .div(elementaryParts);
+    return result;
   }, [
     amountValue,
     gasTokenPrice,
@@ -719,9 +714,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
           });
 
           const { pubkey, payload, hash } = permitParams;
-          console.log(payload);
           const signature = await tezos.signer.sign(payload);
-          console.log(signature.prefixSig);
 
           const output = {
             pubkey,

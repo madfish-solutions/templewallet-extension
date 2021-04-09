@@ -34,7 +34,7 @@ import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
-import { TempleToken, TEZ_ASSET, tzToMutez } from "lib/temple/front";
+import { mutezToTz, TempleToken, TEZ_ASSET, tzToMutez } from "lib/temple/front";
 
 import { AdditionalFeeInputSelectors } from "./AdditionalFeeInput..selectors";
 
@@ -217,16 +217,21 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
     }
   }, [amountFromValue, inToken, actualInToken, onChange]);
 
-  const feeOptions = useMemo(() => {
-    if (!inToken || !token) {
-      return xtzFeeOptions;
+  const tokenFeeOptions = useMemo(() => {
+    if (!token) {
+      return [];
     }
     return xtzFeeOptions.map((option) => ({
       ...option,
       amount:
-        option.amount && tzToMutez(option.amount).multipliedBy(tokenPrice ?? 1),
+        option.amount &&
+        tzToMutez(option.amount)
+          .multipliedBy(tokenPrice ?? 1)
+          .decimalPlaces(token.decimals),
     }));
-  }, [tokenPrice, token, inToken]);
+  }, [token, tokenPrice]);
+
+  const feeOptions = token && inToken ? tokenFeeOptions : xtzFeeOptions;
 
   const [selectedPreset, setSelectedPreset] = useState<FeeOption["type"]>(
     feeOptions.find(
@@ -252,9 +257,33 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
   );
   const handleInTokenChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange?.({ inToken: e.target.checked, amount: amountFromValue });
+      const newInToken = e.target.checked;
+      let newAmount = amountFromValue;
+      if (newAmount && selectedPreset === "custom") {
+        newAmount = newInToken
+          ? tzToMutez(newAmount)
+              .multipliedBy(tokenPrice ?? 1)
+              .decimalPlaces(token!.decimals)
+              .toNumber()
+          : mutezToTz(
+              new BigNumber(newAmount).dividedBy(tokenPrice ?? 1)
+            ).toNumber();
+      } else {
+        const newOptions = newInToken ? tokenFeeOptions : xtzFeeOptions;
+        newAmount = newOptions
+          .find(({ type }) => type === selectedPreset)!
+          .amount!.toNumber();
+      }
+      onChange?.({ inToken: e.target.checked, amount: newAmount });
     },
-    [onChange, amountFromValue]
+    [
+      onChange,
+      amountFromValue,
+      selectedPreset,
+      token,
+      tokenFeeOptions,
+      tokenPrice,
+    ]
   );
 
   const FeeOptionContent = useCallback(
@@ -262,6 +291,9 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
       <GenericFeeOptionContent
         {...props}
         assetSymbol={token && inToken ? token.symbol : TEZ_ASSET.symbol}
+        cryptoDecimals={
+          token?.decimals === undefined ? undefined : token.decimals - 1
+        }
       />
     ),
     [token, inToken]
@@ -287,15 +319,13 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
         </label>
       ) : null}
 
-      {token && (
-        <FormCheckbox
-          checked={inToken}
-          onChange={handleInTokenChange}
-          name="inToken"
-          label={"Pay fee in token"}
-          containerClassName="mb-4"
-        />
-      )}
+      <FormCheckbox
+        checked={inToken}
+        onChange={handleInTokenChange}
+        name="inToken"
+        label={"Pay fee in token"}
+        containerClassName={classNames("mb-4", !token && "hidden")}
+      />
 
       <div className="relative flex flex-col items-stretch">
         <CustomSelect
@@ -311,6 +341,7 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
         />
 
         <AssetField
+          assetDecimals={token?.decimals}
           containerClassName={classNames(
             selectedPreset !== "custom" && "hidden",
             "mb-2"
@@ -343,8 +374,15 @@ const FeeOptionIcon: FC<OptionRenderProps<FeeOption>> = ({
 };
 
 const GenericFeeOptionContent: FC<
-  OptionRenderProps<FeeOption> & { assetSymbol: string }
-> = ({ item: { descriptionI18nKey, amount }, assetSymbol }) => {
+  OptionRenderProps<FeeOption> & {
+    assetSymbol: string;
+    cryptoDecimals?: number;
+  }
+> = ({
+  item: { descriptionI18nKey, amount },
+  assetSymbol,
+  cryptoDecimals = 5,
+}) => {
   return (
     <>
       <div className="flex flex-wrap items-center">
@@ -358,7 +396,7 @@ const GenericFeeOptionContent: FC<
 
         {amount && (
           <div className="ml-2 leading-none text-gray-600">
-            <Money cryptoDecimals={5}>{amount}</Money>{" "}
+            <Money cryptoDecimals={cryptoDecimals}>{amount}</Money>{" "}
             <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
           </div>
         )}
