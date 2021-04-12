@@ -1,19 +1,20 @@
-import React, { FC, SVGProps, useCallback, useMemo, useState } from "react";
+import React, { FC, useCallback, useMemo, useState } from "react";
 
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
 import Money from "app/atoms/Money";
-import { ReactComponent as ClickIcon } from "app/icons/click.svg";
 import { ReactComponent as InfoIcon } from "app/icons/info.svg";
-import { ReactComponent as LockIcon } from "app/icons/lock.svg";
-import { ReactComponent as StarIcon } from "app/icons/star.svg";
-import { ReactComponent as TagIcon } from "app/icons/tag.svg";
+import DAppIcon from "app/templates/DAppsList/DAppIcon";
+import DAppItem from "app/templates/DAppsList/DAppItem";
+import StarButton from "app/templates/DAppsList/StarButton";
 import InUSD from "app/templates/InUSD";
 import SearchField from "app/templates/SearchField";
 import { getDApps } from "lib/better-call-dev/dapps";
 import { t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import { TEZ_ASSET } from "lib/temple/assets";
+import { useStorage } from "lib/temple/front";
 
 const dummyTvl = 1048576.123456;
 
@@ -28,7 +29,15 @@ const USED_TAGS = [
   "Other",
 ];
 
+const FAVORITE_DAPPS_STORAGE_KEY = "dapps_favorite";
+
+const dummyDAppTvl = new BigNumber(1e6);
+
 const DAppsList: FC = () => {
+  const [favoriteDApps, setFavoriteDApps] = useStorage<string[]>(
+    FAVORITE_DAPPS_STORAGE_KEY,
+    []
+  );
   const { data } = useRetryableSWR("dapps-list", getDApps, { suspense: true });
   const dApps = useMemo(() => {
     return data!.map(({ categories: rawCategories, ...restProps }) => {
@@ -71,6 +80,32 @@ const DAppsList: FC = () => {
     );
   }, [dApps, searchString, selectedTags]);
 
+  const allDAppsSlugs = useMemo(() => dApps.map(({ slug }) => slug), [dApps]);
+  const allDAppsAreFavorite = useMemo(
+    () => allDAppsSlugs.every((slug) => favoriteDApps.includes(slug)),
+    [allDAppsSlugs, favoriteDApps]
+  );
+  const toggleAllFavorite = useCallback(() => {
+    if (allDAppsAreFavorite) {
+      setFavoriteDApps([]);
+    } else {
+      setFavoriteDApps(allDAppsSlugs);
+    }
+  }, [allDAppsAreFavorite, setFavoriteDApps, allDAppsSlugs]);
+
+  const handleFavoriteChange = useCallback(
+    (newIsFavorite: boolean, slug: string) => {
+      const newFavorites = [...favoriteDApps];
+      if (newIsFavorite) {
+        newFavorites.push(slug);
+      } else {
+        newFavorites.splice(newFavorites.indexOf(slug), 1);
+      }
+      setFavoriteDApps(newFavorites);
+    },
+    [setFavoriteDApps, favoriteDApps]
+  );
+
   return (
     <div className="w-full flex px-5 pt-2 pb-4">
       <div
@@ -92,7 +127,7 @@ const DAppsList: FC = () => {
         <h1 className="text-2xl text-gray-900 mb-2 font-medium">
           ~<Money>{1048576.123456}</Money> <span>{TEZ_ASSET.symbol}</span>
         </h1>
-        <InUSD volume={dummyTvl}>
+        <InUSD volume={dummyTvl} mainnet>
           {(inUSD) => (
             <h2 className="mb-6 text-base text-gray-600">~{inUSD} $</h2>
           )}
@@ -107,7 +142,7 @@ const DAppsList: FC = () => {
               target="_blank"
               rel="noreferrer"
             >
-              <DAppsIcon className="mb-2" name={name} logo={logo} />
+              <DAppIcon className="mb-2" name={name} logo={logo} />
               <span
                 className="w-20 text-center overflow-hidden text-gray-900"
                 style={{ textOverflow: "ellipsis" }}
@@ -146,57 +181,27 @@ const DAppsList: FC = () => {
               ))}
             </div>
           </div>
-          <button className="text-gray-500" type="button">
-            <StarIcon className="fill-current w-6 h-auto" />
-          </button>
+          <StarButton
+            iconClassName="w-6 h-auto"
+            isActive={allDAppsAreFavorite}
+            onClick={toggleAllFavorite}
+          />
         </div>
         {matchingDApps.length === 0 && (
           <p className="text-sm text-center text-gray-700 mb-4">
             {t("noMatchingDAppsFound")}
           </p>
         )}
-        {matchingDApps.map(
-          ({ name, slug, website, logo, categories, soon }) => (
-            <div key={slug} className="w-full mb-4 flex items-center">
-              <a
-                className="mr-4"
-                href={website}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <DAppsIcon name={name} logo={logo} />
-              </a>
-              <div className="flex-1 flex justify-between items-start">
-                <div className="text-gray-600 text-xs leading-tight">
-                  <p
-                    className="text-gray-900"
-                    style={{ fontSize: "0.8125rem" }}
-                  >
-                    {name}
-                  </p>
-                  <DAppCharacteristic Icon={TagIcon}>
-                    {categories.map((category) => `#${category}`).join(", ")}
-                  </DAppCharacteristic>
-                  {soon ? (
-                    <p>{t("comingSoon")}</p>
-                  ) : (
-                    <>
-                      <DAppCharacteristic Icon={LockIcon}>
-                        ~1M tz = ~1B $
-                      </DAppCharacteristic>
-                      <DAppCharacteristic Icon={ClickIcon}>
-                        10k
-                      </DAppCharacteristic>
-                    </>
-                  )}
-                </div>
-                <button className="text-orange-500 p-1" type="button">
-                  <StarIcon className="fill-current w-4 h-auto" />
-                </button>
-              </div>
-            </div>
-          )
-        )}
+        {matchingDApps.map((dAppProps) => (
+          <DAppItem
+            {...dAppProps}
+            key={dAppProps.slug}
+            onStarClick={handleFavoriteChange}
+            isFavorite={favoriteDApps.includes(dAppProps.slug)}
+            tvl={dummyDAppTvl}
+            tvlLoading={false}
+          />
+        ))}
       </div>
     </div>
   );
@@ -227,39 +232,3 @@ const Tag: FC<TagProps> = ({ name, onClick, selected }) => {
     </button>
   );
 };
-
-type DAppCharacteristicProps = {
-  Icon: React.FC<SVGProps<SVGSVGElement>>;
-  children: React.ReactChild | React.ReactChild[];
-};
-
-const DAppCharacteristic: FC<DAppCharacteristicProps> = ({
-  Icon,
-  children,
-}) => (
-  <div className="leading-tight flex items-center mt-1">
-    <Icon className="h-3 w-auto mr-1 fill-current" />
-    {children}
-  </div>
-);
-
-type DAppsIconProps = {
-  name: string;
-  logo: string;
-  className?: string;
-};
-
-const DAppsIcon: React.FC<DAppsIconProps> = ({ name, logo, className }) => (
-  <div
-    className={classNames(
-      "bg-white w-20 h-20 border border-gray-300 rounded-2xl flex justify-center items-center",
-      className
-    )}
-  >
-    {logo ? (
-      <img className="rounded-2xl" alt={name} src={logo} />
-    ) : (
-      <span className="text-gray-700 text-xs">{name}</span>
-    )}
-  </div>
-);

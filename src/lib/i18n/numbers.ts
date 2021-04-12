@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
 
 import { getNumberSymbols } from "./core";
+import { t } from "./react";
 
 type FormatParams = {
   decimalPlaces?: number;
@@ -73,4 +74,20 @@ export function toLocalFixed(
     : bn.toFixed(decimalPlaces, roundingMode);
   
   return localizeDefaultFormattedNumber(rawResult);
+}
+
+export function toShortenedInt(
+  value: BigNumber.Value
+) {
+  let bn = new BigNumber(value).integerValue();
+  const formats = ["thousandFormat", "millionFormat", "billionFormat"];
+  let formatIndex = -1;
+  while (bn.abs().gte(1000) && formatIndex < formats.length - 1) {
+    formatIndex++;
+    bn = bn.div(1000).integerValue();
+  }
+  if (formatIndex === -1) {
+    return toLocalFixed(bn);
+  }
+  return t(formats[formatIndex], toLocalFixed(bn));
 }

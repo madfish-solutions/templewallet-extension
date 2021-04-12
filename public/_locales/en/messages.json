@@ -1774,5 +1774,29 @@
   },
   "noMatchingDAppsFound": {
     "message": "No matching dApps were found"
+  },
+  "thousandFormat": {
+    "message": "$thousand$k",
+    "placeholders": {
+      "thousand": {
+        "content": "$1"
+      }
+    }
+  },
+  "millionFormat": {
+    "message": "$million$M",
+    "placeholders": {
+      "million": {
+        "content": "$1"
+      }
+    }
+  },
+  "billionFormat": {
+    "message": "$billion$B",
+    "placeholders": {
+      "billion": {
+        "content": "$1"
+      }
+    }
   }
 }

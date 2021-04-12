@@ -1714,5 +1714,29 @@
   },
   "other": {
     "message": "Інше"
+  },
+  "thousandFormat": {
+    "message": "$thousand$ тис.",
+    "placeholders": {
+      "thousand": {
+        "content": "$1"
+      }
+    }
+  },
+  "millionFormat": {
+    "message": "$million$ млн",
+    "placeholders": {
+      "million": {
+        "content": "$1"
+      }
+    }
+  },
+  "billionFormat": {
+    "message": "$billion$ млрд",
+    "placeholders": {
+      "billion": {
+        "content": "$1"
+      }
+    }
   }
 }

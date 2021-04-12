@@ -10,7 +10,7 @@ import React, {
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
-import { toLocalFixed, toLocalFormat } from "lib/i18n/numbers";
+import { toLocalFixed, toLocalFormat, toShortenedInt } from "lib/i18n/numbers";
 import { getNumberSymbols, t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy, { TippyInstance, TippyProps } from "lib/ui/useTippy";
@@ -20,6 +20,8 @@ type MoneyProps = {
   fiat?: boolean;
   cryptoDecimals?: number;
   roundingMode?: BigNumber.RoundingMode;
+  shortened?: boolean;
+  smallFractionFont?: boolean;
   tooltip?: boolean;
 };
 
@@ -32,6 +34,8 @@ const Money = memo<MoneyProps>(
     fiat,
     cryptoDecimals = DEFAULT_CRYPTO_DECIMALS,
     roundingMode = BigNumber.ROUND_DOWN,
+    shortened,
+    smallFractionFont = true,
     tooltip,
   }) => {
     const bn = new BigNumber(children);
@@ -47,7 +51,9 @@ const Money = memo<MoneyProps>(
       : decimalsLength > cryptoDecimals
       ? cryptoDecimals
       : decimalsLength;
-    let result = toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
+    let result = shortened
+      ? toShortenedInt(bn)
+      : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
     let indexOfDecimal = result.indexOf(decimal);
 
     const tippyClassName = classNames(
@@ -82,7 +88,7 @@ const Money = memo<MoneyProps>(
             showAmountTooltip
           >
             {result.slice(0, indexOfDecimal + 1)}
-            <span style={{ fontSize: "0.9em" }}>
+            <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
               {result.slice(indexOfDecimal + 1, result.length)}
               <span className="opacity-75 tracking-tighter">...</span>
             </span>
@@ -97,7 +103,7 @@ const Money = memo<MoneyProps>(
             className={tippyClassName}
           >
             {result.slice(0, indexOfDecimal + 1)}
-            <span style={{ fontSize: "0.9em" }}>
+            <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
               {result.slice(indexOfDecimal + 1, result.length)}
             </span>
           </FullAmountTippy>
