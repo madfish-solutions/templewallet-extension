@@ -1741,5 +1741,11 @@
   },
   "blockExplorer": {
     "message": "Blockchain explorer"
+  },
+  "gasFee": {
+    "message": "Gas fee"
+  },
+  "storageFee": {
+    "message": "Storage fee"
   }
 }
