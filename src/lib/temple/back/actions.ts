@@ -17,7 +17,10 @@ import {
   removeDApp,
 } from "lib/temple/back/dapp";
 import { intercom } from "lib/temple/back/defaults";
-import { dryRunOpParams } from "lib/temple/back/dryrun";
+import {
+  dryRunOpParams,
+  increaseStorageOpParmas,
+} from "lib/temple/back/dryrun";
 import * as PndOps from "lib/temple/back/pndops";
 import {
   toFront,
@@ -298,7 +301,15 @@ export function sendOperations(
             if (req.confirmed) {
               try {
                 const op = await withUnlocked(({ vault }) =>
-                  vault.sendOperations(sourcePkh, networkRpc, opParams)
+                  vault.sendOperations(
+                    sourcePkh,
+                    networkRpc,
+                    increaseStorageOpParmas(
+                      opParams,
+                      dryRunResult?.estimates,
+                      req.increaseStorageFee
+                    )
+                  )
                 );
 
                 try {
