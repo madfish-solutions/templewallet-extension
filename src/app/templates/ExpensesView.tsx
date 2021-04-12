@@ -272,9 +272,9 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
 
       <div className="flex-1 flex-col">
         <div className="mb-1 flex items-center">
-          <span className="mr-1 text-xs text-blue-600 opacity-75">
+          <div className="mr-1 flex items-center text-xs text-blue-600 opacity-75">
             {operationTypeLabel}
-          </span>
+          </div>
 
           {argumentDisplayProps && (
             <OperationArgumentDisplay {...argumentDisplayProps} />
