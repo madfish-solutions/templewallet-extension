@@ -272,7 +272,7 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
         const newOptions = newInToken ? tokenFeeOptions : xtzFeeOptions;
         newAmount = newOptions
           .find(({ type }) => type === selectedPreset)!
-          .amount!.toNumber();
+          .amount?.toNumber();
       }
       onChange?.({ inToken: e.target.checked, amount: newAmount });
     },

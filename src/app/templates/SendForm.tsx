@@ -346,51 +346,54 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     return;
   }, [toFilled, registerBackHandler, cleanToField]);
 
-  const estimateGasStationBaseFee = useCallback(async () => {
-    const to = toResolved;
-    const elementaryParts = new BigNumber(10).pow(localAsset.decimals);
-    const [
-      preTransferParams,
-      { pubkey, hash },
-    ] = await GasStation.forgeTxAndParams(tezos, {
-      to,
-      tokenAddress: localAssetAddress!,
-      tokenId: localAssetId,
-      amount: amountValue
-        ? elementaryParts.multipliedBy(amountValue).toNumber()
-        : 1,
-      relayerFee: 1,
-    });
+  const estimateGasStationBaseFee = useCallback(
+    async (relayerFeeEstimation: number = 1) => {
+      const to = toResolved;
+      const elementaryParts = new BigNumber(10).pow(localAsset.decimals);
+      const [
+        preTransferParams,
+        { pubkey, hash },
+      ] = await GasStation.forgeTxAndParams(tezos, {
+        to,
+        tokenAddress: localAssetAddress!,
+        tokenId: localAssetId,
+        amount: amountValue
+          ? elementaryParts.multipliedBy(amountValue).toNumber()
+          : 1,
+        relayerFee: relayerFeeEstimation,
+      });
 
-    const dummySignature =
-      "edsigtkpiSSschcaCt9pUVrpNPf7TTcgvgDEDD6NCEHMy8NNQJCGnMfLZzYoQj74yLjo9wx6MPVV29CvVzgi7qEcEUok3k7AuMg";
+      const dummySignature =
+        "edsigtkpiSSschcaCt9pUVrpNPf7TTcgvgDEDD6NCEHMy8NNQJCGnMfLZzYoQj74yLjo9wx6MPVV29CvVzgi7qEcEUok3k7AuMg";
 
-    const gasEstimate =
-      (await GasStation.estimate({
-        pubkey,
-        signature: dummySignature,
-        hash,
-        contractAddress: localAssetAddress!,
-        callParams: {
-          entrypoint: "transfer",
-          params: preTransferParams,
-        },
-      })) + 100;
-    const result = new BigNumber(gasEstimate)
-      .multipliedBy(gasTokenPrice ?? 0)
-      .multipliedBy(elementaryParts)
-      .integerValue()
-      .div(elementaryParts);
-    return result;
-  }, [
-    amountValue,
-    gasTokenPrice,
-    localAsset.decimals,
-    localAssetAddress,
-    localAssetId,
-    tezos,
-    toResolved,
-  ]);
+      const gasEstimate =
+        (await GasStation.estimate({
+          pubkey,
+          signature: dummySignature,
+          hash,
+          contractAddress: localAssetAddress!,
+          callParams: {
+            entrypoint: "transfer",
+            params: preTransferParams,
+          },
+        })) + 100;
+      const result = new BigNumber(gasEstimate)
+        .multipliedBy(gasTokenPrice ?? 0)
+        .multipliedBy(elementaryParts)
+        .integerValue()
+        .div(elementaryParts);
+      return result;
+    },
+    [
+      amountValue,
+      gasTokenPrice,
+      localAsset.decimals,
+      localAssetAddress,
+      localAssetId,
+      tezos,
+      toResolved,
+    ]
+  );
 
   const estimateBaseFee = useCallback(async () => {
     try {
@@ -692,9 +695,12 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
           const tokenElementaryParts = new BigNumber(10).pow(
             localAsset.decimals
           );
-          const fee = (baseFee instanceof BigNumber
-            ? baseFee
-            : new BigNumber(0)
+          const fee = (
+            await estimateGasStationBaseFee(
+              baseFee instanceof BigNumber
+                ? baseFee.multipliedBy(tokenElementaryParts).toNumber()
+                : 1
+            )
           )
             .plus(feeVal.amount ?? 0)
             .multipliedBy(tokenElementaryParts);
@@ -795,6 +801,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       toTEZAmount,
       formAnalytics,
       baseFee,
+      estimateGasStationBaseFee,
     ]
   );
 
