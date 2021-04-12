@@ -217,7 +217,7 @@ const OperationView: FC<OperationViewProps> = ({
         <div className={classNames(spFormat.key !== "preview" && "hidden")}>
           <ExpensesView
             expenses={expensesData}
-            rawToSign={payload.rawToSign}
+            estimates={payload.estimates}
             mainnet={mainnet}
             totalFeeDisplayed
           />
