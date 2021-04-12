@@ -1798,5 +1798,11 @@
         "content": "$1"
       }
     }
+  },
+  "gasFee": {
+    "message": "Gas fee"
+  },
+  "storageFee": {
+    "message": "Storage fee"
   }
 }
