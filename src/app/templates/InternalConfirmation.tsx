@@ -18,7 +18,9 @@ import ExpensesView from "app/templates/ExpensesView";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
-import ViewsSwitcher, { ViewsSwitcherItemProps } from "app/templates/ViewsSwitcher";
+import ViewsSwitcher, {
+  ViewsSwitcherItemProps,
+} from "app/templates/ViewsSwitcher";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
@@ -97,10 +99,10 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
       expenses: expenses.map(({ tokenAddress, ...restProps }) => ({
         asset: tokenAddress
           ? allAssetsWithHidden.find(
-          (asset) =>
-            asset.type !== TempleAssetType.TEZ &&
-            asset.address === tokenAddress
-        ) || tokenAddress
+              (asset) =>
+                asset.type !== TempleAssetType.TEZ &&
+                asset.address === tokenAddress
+            ) || tokenAddress
           : TEZ_ASSET,
         ...restProps,
       })),
@@ -115,23 +117,23 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
           key: "preview",
           name: t("preview"),
           Icon: EyeIcon,
-          testID: InternalConfirmationSelectors.PreviewTab
+          testID: InternalConfirmationSelectors.PreviewTab,
         },
         {
           key: "raw",
           name: t("raw"),
           Icon: CodeAltIcon,
-          testID: InternalConfirmationSelectors.RawTab
+          testID: InternalConfirmationSelectors.RawTab,
         },
         ...(payload.bytesToSign
           ? [
-            {
-              key: "bytes",
-              name: t("bytes"),
-              Icon: HashIcon,
-              testID: InternalConfirmationSelectors.BytesTab
-            },
-          ]
+              {
+                key: "bytes",
+                name: t("bytes"),
+                Icon: HashIcon,
+                testID: InternalConfirmationSelectors.BytesTab,
+              },
+            ]
           : []),
       ];
     }
@@ -141,13 +143,13 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
         key: "preview",
         name: t("preview"),
         Icon: EyeIcon,
-        testID: InternalConfirmationSelectors.PreviewTab
+        testID: InternalConfirmationSelectors.PreviewTab,
       },
       {
         key: "bytes",
         name: t("bytes"),
         Icon: HashIcon,
-        testID: InternalConfirmationSelectors.BytesTab
+        testID: InternalConfirmationSelectors.BytesTab,
       },
     ];
   }, [payload]);
@@ -298,23 +300,23 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
               )}
 
               {payload.type === "operations" &&
-              payload.bytesToSign &&
-              spFormat.key === "bytes" && (
-                <>
-                  <RawPayloadView
-                    rows={5}
-                    payload={payload.bytesToSign}
-                    className="mb-4"
-                  />
-                </>
-              )}
+                payload.bytesToSign &&
+                spFormat.key === "bytes" && (
+                  <>
+                    <RawPayloadView
+                      rows={5}
+                      payload={payload.bytesToSign}
+                      className="mb-4"
+                    />
+                  </>
+                )}
 
               {spFormat.key === "preview" && (
                 <ExpensesView
                   expenses={expensesData}
-                  rawToSign={
+                  estimates={
                     payload.type === "operations"
-                      ? payload.rawToSign
+                      ? payload.estimates
                       : undefined
                   }
                   mainnet={mainnet}
@@ -360,7 +362,11 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
                   className="justify-center w-full"
                   loading={confirming}
                   onClick={handleConfirmClick}
-                  testID={error ? InternalConfirmationSelectors.RetryButton : InternalConfirmationSelectors.ConfirmButton}
+                  testID={
+                    error
+                      ? InternalConfirmationSelectors.RetryButton
+                      : InternalConfirmationSelectors.ConfirmButton
+                  }
                 >
                   {message}
                 </FormSubmitButton>
