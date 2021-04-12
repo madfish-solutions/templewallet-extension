@@ -1,4 +1,12 @@
-import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 import { cache } from "swr";
@@ -32,14 +40,12 @@ const Assets: FC = () => {
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const searchValueExist = useMemo(() => Boolean(searchValue), [
+  const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
+
+  const filteredAssets = useMemo(() => searchAssets(allAssets, searchValue), [
+    allAssets,
     searchValue,
   ]);
-
-  const filteredAssets = useMemo(
-    () => searchAssets(allAssets, searchValue),
-    [allAssets, searchValue]
-  );
 
   const activeAssetKey = useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex]
@@ -238,7 +244,7 @@ const ListItem = memo<ListItemProps>(
         testID={AssetsSelectors.AssetItemButton}
         testIDProperties={{ key: getAssetKey(asset) }}
       >
-        <AssetIcon asset={asset} size={32} className="mr-3" />
+        <AssetIcon asset={asset} size={32} className="mr-3 flex-shrink-0" />
 
         <div ref={toDisplayRef} className="flex items-center">
           <div className="flex flex-col">
