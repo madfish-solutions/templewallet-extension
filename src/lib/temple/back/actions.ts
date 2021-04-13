@@ -557,7 +557,10 @@ export async function processBeacon(
               return {
                 type: TempleDAppMessageType.SignRequest,
                 sourcePkh: req.sourceAddress,
-                payload: req.payload,
+                payload:
+                  req.signingType === Beacon.SigningType.RAW
+                    ? Buffer.from(req.payload, "utf8").toString("hex")
+                    : req.payload,
               };
 
             case Beacon.MessageType.BroadcastRequest:
