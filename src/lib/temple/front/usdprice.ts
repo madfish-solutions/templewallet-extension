@@ -7,7 +7,7 @@ const TEZOS_USD_PRICE_ENDPOINT =
   "https://api.coingecko.com/api/v3/simple/price?ids=tezos&vs_currencies=usd";
 
 export const [USDPriceProvider, useUSDPrice] = constate(() => {
-  const { data } = useTezosUSDPrice(true);
+  const { data } = useTezosUSDPrice();
   return data ?? null;
 });
 
