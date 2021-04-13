@@ -31,6 +31,7 @@ type ExpensesViewProps = {
   estimates?: Estimate[];
   mainnet?: boolean;
   totalFeeDisplayed?: boolean;
+  increaseStorageFee?: number;
 };
 
 const ExpensesView: FC<ExpensesViewProps> = ({
@@ -38,6 +39,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
   estimates,
   mainnet,
   totalFeeDisplayed,
+  increaseStorageFee,
 }) => {
   const totalFee = useMemo(() => {
     if (!totalFeeDisplayed) return null;
@@ -48,7 +50,15 @@ const ExpensesView: FC<ExpensesViewProps> = ({
       try {
         for (const e of estimates) {
           gasFeeMutez = gasFeeMutez.plus(e.suggestedFeeMutez);
-          storageFeeMutez = storageFeeMutez.plus(e.burnFeeMutez);
+          storageFeeMutez = storageFeeMutez.plus(
+            increaseStorageFee
+              ? Math.ceil(
+                  Math.ceil(
+                    e.storageLimit * ((100 + increaseStorageFee) / 100)
+                  ) * (e as any).minimalFeePerStorageByteMutez
+                )
+              : e.burnFeeMutez
+          );
         }
       } catch {
         return null;
@@ -103,7 +113,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
     }
 
     return null;
-  }, [totalFeeDisplayed, estimates, mainnet]);
+  }, [totalFeeDisplayed, estimates, mainnet, increaseStorageFee]);
 
   if (!expenses) {
     return null;
