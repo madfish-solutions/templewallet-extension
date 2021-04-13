@@ -22,7 +22,10 @@ import { nanoid } from "nanoid";
 import { browser, Runtime } from "webextension-polyfill-ts";
 
 import { intercom } from "lib/temple/back/defaults";
-import { dryRunOpParams } from "lib/temple/back/dryrun";
+import {
+  dryRunOpParams,
+  increaseStorageOpParmas,
+} from "lib/temple/back/dryrun";
 import * as PndOps from "lib/temple/back/pndops";
 import { withUnlocked } from "lib/temple/back/store";
 import * as Beacon from "lib/temple/beacon";
@@ -34,10 +37,11 @@ import {
   TempleDAppPayload,
   TempleDAppSession,
   TempleDAppSessions,
+  TempleDAppOperationsPayload,
 } from "lib/temple/types";
 
 const CONFIRM_WINDOW_WIDTH = 380;
-const CONFIRM_WINDOW_HEIGHT = 600;
+const CONFIRM_WINDOW_HEIGHT = 632;
 const AUTODECLINE_AFTER = 120_000;
 const STORAGE_KEY = "dapp_sessions";
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
@@ -183,7 +187,7 @@ export async function requestOperation(
       onDecline: () => {
         reject(new Error(TempleDAppErrorType.NotGranted));
       },
-      handleIntercomRequest: async (confirmReq, decline) => {
+      handleIntercomRequest: async (confirmReq, decline, finalPayload) => {
         if (
           confirmReq?.type === TempleMessageType.DAppOpsConfirmationRequest &&
           confirmReq?.id === id
@@ -191,7 +195,15 @@ export async function requestOperation(
           if (confirmReq.confirmed) {
             try {
               const op = await withUnlocked(({ vault }) =>
-                vault.sendOperations(dApp.pkh, networkRpc, req.opParams)
+                vault.sendOperations(
+                  dApp.pkh,
+                  networkRpc,
+                  increaseStorageOpParmas(
+                    req.opParams,
+                    (finalPayload as TempleDAppOperationsPayload)?.estimates,
+                    confirmReq.increaseStorageFee
+                  )
+                )
               );
 
               try {
@@ -385,7 +397,8 @@ type RequestConfirmParams = {
   onDecline: () => void;
   handleIntercomRequest: (
     req: TempleRequest,
-    decline: () => void
+    decline: () => void,
+    finalPayload?: TempleDAppPayload
   ) => Promise<any>;
 };
 
@@ -423,6 +436,7 @@ async function requestConfirm({
   };
 
   let knownPort: Runtime.Port | undefined;
+  let finalPayload: TempleDAppPayload;
   const stopRequestListening = intercom.onRequest(
     async (req: TempleRequest, port) => {
       if (
@@ -442,6 +456,7 @@ async function requestConfirm({
             ...payload,
             ...(dryrunResult ?? {}),
           };
+          finalPayload = payload;
         }
 
         return {
@@ -451,7 +466,11 @@ async function requestConfirm({
       } else {
         if (knownPort !== port) return;
 
-        const result = await handleIntercomRequest(req, onDecline);
+        const result = await handleIntercomRequest(
+          req,
+          onDecline,
+          finalPayload
+        );
         if (result) {
           close();
           return result;
