@@ -41,7 +41,7 @@ import {
 } from "lib/temple/types";
 
 const CONFIRM_WINDOW_WIDTH = 380;
-const CONFIRM_WINDOW_HEIGHT = 600;
+const CONFIRM_WINDOW_HEIGHT = 632;
 const AUTODECLINE_AFTER = 120_000;
 const STORAGE_KEY = "dapp_sessions";
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
