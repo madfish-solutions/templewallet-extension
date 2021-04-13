@@ -227,7 +227,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
           "overflow-y-auto",
           "flex flex-col"
         )}
-        style={{ height: "32rem" }}
+        style={{ height: "34rem" }}
       >
         <div className="px-4 pt-4">
           <SubTitle className="mb-6">
@@ -300,10 +300,10 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
               {payload.type === "sign" && spFormat.key === "bytes" && (
                 <>
                   <RawPayloadView
-                    rows={7}
                     label={t("payloadToSign")}
                     payload={payload.bytes}
                     className="mb-4"
+                    style={{ height: "9.5rem" }}
                   />
                 </>
               )}
@@ -313,9 +313,9 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
                 spFormat.key === "bytes" && (
                   <>
                     <RawPayloadView
-                      rows={5}
                       payload={payload.bytesToSign}
                       className="mb-4"
+                      style={{ height: "9.5rem" }}
                     />
                   </>
                 )}

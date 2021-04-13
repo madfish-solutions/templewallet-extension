@@ -8,14 +8,19 @@ type IncreaseStorageFeeSectionProps = {
   value: number;
   onChange: (newValue: number) => void;
   className?: string;
+  style?: React.CSSProperties;
 };
 
 const IncreaseStorageFeeSection: React.FC<IncreaseStorageFeeSectionProps> = ({
   value,
   onChange,
   className,
+  style = {},
 }) => (
-  <div className={classNames("mt-2 px-1 flex items-center", className)}>
+  <div
+    className={classNames("mt-2 px-1 flex items-center", className)}
+    style={style}
+  >
     <div className="flex-1">
       <div
         className={classNames(
@@ -35,6 +40,7 @@ const IncreaseStorageFeeSection: React.FC<IncreaseStorageFeeSectionProps> = ({
           "border",
           "rounded",
           "text-xs font-medium",
+          "select-none",
           toIncrease === value
             ? "bg-primary-orange border-primary-orange border-opacity-90 text-white"
             : "text-gray-600"

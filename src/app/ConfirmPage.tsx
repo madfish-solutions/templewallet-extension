@@ -317,7 +317,7 @@ const ConfirmDAppForm: FC = () => {
         )}
         style={{
           width: 380,
-          height: 578,
+          height: 610,
         }}
       >
         <div className="flex flex-col items-center px-4 py-2">
@@ -429,14 +429,14 @@ const ConfirmDAppForm: FC = () => {
           )}
 
           {increaseStorageFeeDisplayed && (
-            <IncreaseStorageFeeSection
-              value={increaseStorageFeeValue}
-              onChange={setIncreaseStorageFeeValue}
-            />
+            <div className="w-full mt-2">
+              <IncreaseStorageFeeSection
+                value={increaseStorageFeeValue}
+                onChange={setIncreaseStorageFeeValue}
+                style={{ marginTop: 0 }}
+              />
+            </div>
           )}
-          {/* <div className="w-full flex flex-col items-start">
-
-          </div> */}
         </div>
 
         <div className="flex-1" />
