@@ -364,13 +364,13 @@ export async function toTransferParams(
   asset: TempleAsset,
   fromPkh: string,
   toPkh: string,
-  amount: number
+  amount: BigNumber.Value
 ) {
   switch (asset.type) {
     case TempleAssetType.TEZ:
       return {
         to: toPkh,
-        amount,
+        amount: amount as any,
       };
 
     case TempleAssetType.Staker:
@@ -458,7 +458,7 @@ export function getAssetKey(asset: TempleAsset) {
 }
 
 export function toPenny(asset: TempleAsset) {
-  return new BigNumber(1).div(10 ** asset.decimals).toNumber();
+  return new BigNumber(1).div(10 ** asset.decimals);
 }
 
 export class NotMatchingStandardError extends Error {}
