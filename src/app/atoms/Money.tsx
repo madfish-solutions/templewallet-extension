@@ -141,6 +141,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
       animation: "shift-away-subtle",
       onCreate(instance) {
         tippyInstanceRef.current = instance;
+        instance.enable();
       },
       onTrigger(instance) {
         !showAmountTooltip && instance.disable();
