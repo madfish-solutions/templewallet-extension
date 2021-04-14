@@ -2032,50 +2032,50 @@
     "@ledgerhq/hw-transport" "^5.26.0"
     "@types/ledgerhq__hw-transport" "^4.21.3"
 
-"@tezos-domains/core@1.0.0-beta.40", "@tezos-domains/core@^1.0.0-beta.40":
-  version "1.0.0-beta.40"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.0.0-beta.40.tgz#f5fbbb2b87e1ba27194333ebb13651005d035a1d"
-  integrity sha512-mkcDDmQ/a2QD6PG+PCN3fCHVUV1ewnDt2PsNwFutVFWS9OP+jHk/bEUno8yILAPTP27hQlmWZ6sJe/yZ8jYiLQ==
+"@tezos-domains/core@1.0.0-rc.1", "@tezos-domains/core@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.0.0-rc.1.tgz#9977d129a6c03d23f109eff8c7a732a31c3cc655"
+  integrity sha512-lpsp1giSJfQyok+VJ1TffUJ24Z8kTeIghsYuHrIVxu/nOBtv0xunuRwLNn1ddawDmH5p7cPtBzVStMaCZRLY4Q==
   dependencies:
     idna-uts46-hx "^3.3.0"
 
-"@tezos-domains/manager@^1.0.0-beta.40":
-  version "1.0.0-beta.40"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.0.0-beta.40.tgz#16b7f398c2d3780f52b18b46c2fbca6c83f452d5"
-  integrity sha512-tCPT6wSAGuwHXoidU+wgVKzjL63nujskj80nSfVu9LW0CFC4W6auOMw7M04UPIzIOq7U1mYbHxE/afEwAk+oFw==
+"@tezos-domains/manager@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.0.0-rc.1.tgz#9c9ae000d3ad26b7925c3f877febf132a117c4b4"
+  integrity sha512-cR78IicyUfEh17S9ys5iuo7ynCcRLrBFT0LShCzGTIW27enD+v24glt8w32ok0sjXyyNlyHhThj+KL00znILPA==
   dependencies:
-    "@tezos-domains/core" "^1.0.0-beta.40"
-    "@tezos-domains/taquito" "^1.0.0-beta.40"
+    "@tezos-domains/core" "^1.0.0-rc.1"
+    "@tezos-domains/taquito" "^1.0.0-rc.1"
     "@types/sha.js" "^2.4.0"
     bignumber.js "^9.0.1"
     sha.js "^2.4.11"
 
-"@tezos-domains/resolver@^1.0.0-beta.40":
-  version "1.0.0-beta.40"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.0.0-beta.40.tgz#6570d0fe5b171d3924647dee1d65306b74ea8d7a"
-  integrity sha512-3wioGPwsNo4Do04TWYrVtaMvMXVLLmdUKtSiwfk+Pq9jW+Q/JtQfRuY1OkGRVcOh1n4O/dww9uvWZFcRksjY+g==
+"@tezos-domains/resolver@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.0.0-rc.1.tgz#483435f02141d4ebcd3eb70e6d23c5d84ab99afb"
+  integrity sha512-Gk1ujr4g9Ib/RvhVMo77tFiieu+LLYM772+1gDI3g2kqQyGgDCuEzhVd1qIyKbHd/t+1q876Y0d2rnWfJzkC0w==
   dependencies:
-    "@tezos-domains/core" "^1.0.0-beta.40"
+    "@tezos-domains/core" "^1.0.0-rc.1"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito-client@1.0.0-beta.40":
-  version "1.0.0-beta.40"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.0.0-beta.40.tgz#1b2ffa3f5ac27daed93e515f8b514b13bcfc0d8d"
-  integrity sha512-N5kiQizo51QQavW5ykiI3hh4m9XSzwyk/OPP7ZpRclwjykTzWBamoRzBQpMvvd9Q72AuhV1FSbg5/YLBxrNw6Q==
+"@tezos-domains/taquito-client@1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.0.0-rc.1.tgz#008add0acd9d26324c3d96ae726b17e086ba3e39"
+  integrity sha512-zV8MddbObi8JkpSb3Czn34uKvn9YoRamk0mbyfUr9iV6icyi4Ox/XuSyl2ywr5U4ZRB+e3SlG1GMBw3LoadlXQ==
   dependencies:
-    "@tezos-domains/core" "^1.0.0-beta.40"
-    "@tezos-domains/manager" "^1.0.0-beta.40"
-    "@tezos-domains/resolver" "^1.0.0-beta.40"
-    "@tezos-domains/taquito" "^1.0.0-beta.40"
+    "@tezos-domains/core" "^1.0.0-rc.1"
+    "@tezos-domains/manager" "^1.0.0-rc.1"
+    "@tezos-domains/resolver" "^1.0.0-rc.1"
+    "@tezos-domains/taquito" "^1.0.0-rc.1"
     bignumber.js "^9.0.1"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito@^1.0.0-beta.40":
-  version "1.0.0-beta.40"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito/-/taquito-1.0.0-beta.40.tgz#4ade71e7e40a7b54baf65ad8f02bae4dbbc9f0f2"
-  integrity sha512-K0ot7GoA0jWCSPOMD9E2JtrkeF1Rs6yL5TjS1/u+Vg69hOrRNfC9qQegKoxeW4uX5lwurUTNGhRuN3K0h2PYYA==
+"@tezos-domains/taquito@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito/-/taquito-1.0.0-rc.1.tgz#af795a21fff64e85d68f684f073d13f24768ef7c"
+  integrity sha512-MBRUhAPU2xpcifD2p9FrCDBKeFnV7an7/JbHlxgsO40ihFmJIqKfZ8qAjdxdg9EhbCHyABMoEuRviIUAY1aH3A==
   dependencies:
-    "@tezos-domains/core" "^1.0.0-beta.40"
+    "@tezos-domains/core" "^1.0.0-rc.1"
     bignumber.js "^9.0.1"
     node-cache "^5.1.2"
 
