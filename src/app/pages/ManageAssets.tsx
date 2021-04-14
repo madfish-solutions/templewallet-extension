@@ -180,53 +180,51 @@ type ListItemProps = {
   onChecked: (asset: CheckableAsset, checked: boolean) => void;
 };
 
-const ListItem = memo<ListItemProps>(
-  ({ asset, last, checked, onChecked }) => {
-    const handleCheckboxChange = useCallback(
-      (evt) => {
-        onChecked(asset, evt.target.checked);
-      },
-      [asset, onChecked]
-    );
+const ListItem = memo<ListItemProps>(({ asset, last, checked, onChecked }) => {
+  const handleCheckboxChange = useCallback(
+    (evt) => {
+      onChecked(asset, evt.target.checked);
+    },
+    [asset, onChecked]
+  );
 
-    return (
-      <label
-        className={classNames(
-          "block w-full",
-          "overflow-hidden",
-          !last && "border-b border-gray-200",
-          checked ? "bg-gray-100" : "hover:bg-gray-100 focus:bg-gray-100",
-          "flex items-center py-2 px-3",
-          "text-gray-700",
-          "transition ease-in-out duration-200",
-          "focus:outline-none",
-          "cursor-pointer"
-        )}
-      >
-        <AssetIcon asset={asset} size={32} className="mr-3" />
+  return (
+    <label
+      className={classNames(
+        "block w-full",
+        "overflow-hidden",
+        !last && "border-b border-gray-200",
+        checked ? "bg-gray-100" : "hover:bg-gray-100 focus:bg-gray-100",
+        "flex items-center py-2 px-3",
+        "text-gray-700",
+        "transition ease-in-out duration-200",
+        "focus:outline-none",
+        "cursor-pointer"
+      )}
+    >
+      <AssetIcon asset={asset} size={32} className="mr-3 flex-shrink-0" />
 
-        <div className="flex items-center">
-          <div className="flex flex-col items-start">
-            <div
-              className={classNames("text-sm font-normal text-gray-700")}
-              style={{ marginBottom: "0.125rem" }}
-            >
-              {asset.name}
-            </div>
+      <div className="flex items-center">
+        <div className="flex flex-col items-start">
+          <div
+            className={classNames("text-sm font-normal text-gray-700")}
+            style={{ marginBottom: "0.125rem" }}
+          >
+            {asset.name}
+          </div>
 
-            <div className={classNames("text-xs font-light text-gray-600")}>
-              {asset.symbol}
-            </div>
+          <div className={classNames("text-xs font-light text-gray-600")}>
+            {asset.symbol}
           </div>
         </div>
+      </div>
 
-        <div className="flex-1" />
+      <div className="flex-1" />
 
-        <Checkbox checked={checked} onChange={handleCheckboxChange} />
-      </label>
-    );
-  }
-);
+      <Checkbox checked={checked} onChange={handleCheckboxChange} />
+    </label>
+  );
+});
 
 type CheckableAsset = TempleAsset & { checked: boolean };
 

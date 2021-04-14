@@ -1791,5 +1791,11 @@
   },
   "notWhitelistedTokenWarning": {
     "message": "Attention! One of the tokens you’re trying to exchange is not whitelisted. You can interact with them at your own risk."
+  },
+  "gasFee": {
+    "message": "Gas fee"
+  },
+  "storageFee": {
+    "message": "Storage fee"
   }
 }

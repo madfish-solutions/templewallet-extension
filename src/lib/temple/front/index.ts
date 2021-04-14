@@ -1,4 +1,5 @@
 export * from "lib/temple/types";
+export * from "lib/temple/defaults";
 export * from "lib/temple/helpers";
 export * from "lib/temple/assets";
 export * from "lib/temple/contract";

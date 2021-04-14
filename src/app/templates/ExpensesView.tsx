@@ -1,5 +1,6 @@
 import React, { FC, Fragment, memo, useMemo } from "react";
 
+import { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
@@ -27,59 +28,92 @@ type OperationExpenses = Omit<RawOperationExpenses, "expenses"> & {
 
 type ExpensesViewProps = {
   expenses?: OperationExpenses[];
-  rawToSign?: any;
+  estimates?: Estimate[];
   mainnet?: boolean;
   totalFeeDisplayed?: boolean;
+  increaseStorageFee?: number;
 };
 
 const ExpensesView: FC<ExpensesViewProps> = ({
   expenses,
-  rawToSign,
+  estimates,
   mainnet,
   totalFeeDisplayed,
+  increaseStorageFee,
 }) => {
   const totalFee = useMemo(() => {
     if (!totalFeeDisplayed) return null;
 
-    if (rawToSign) {
-      let feeMutez: BigNumber;
+    if (estimates) {
+      let gasFeeMutez = new BigNumber(0);
+      let storageFeeMutez = new BigNumber(0);
       try {
-        feeMutez = (rawToSign.contents as any[]).reduce(
-          (val: BigNumber, { fee }) => val.plus(fee),
-          new BigNumber(0)
-        );
+        for (const e of estimates) {
+          gasFeeMutez = gasFeeMutez.plus(e.suggestedFeeMutez);
+          storageFeeMutez = storageFeeMutez.plus(
+            increaseStorageFee
+              ? Math.ceil(
+                  Math.ceil(
+                    e.storageLimit * ((100 + increaseStorageFee) / 100)
+                  ) * (e as any).minimalFeePerStorageByteMutez
+                )
+              : e.burnFeeMutez
+          );
+        }
       } catch {
         return null;
       }
 
-      const fee = mutezToTz(feeMutez);
+      const gasFee = mutezToTz(gasFeeMutez);
+      const storageFee = mutezToTz(storageFeeMutez);
 
       return (
-        <div>
-          <span className="opacity-90">Total fee:</span>{" "}
-          <span className="font-medium">
-            <Money>{fee}</Money> ꜩ
-          </span>{" "}
-          <InUSD
-            volume={fee}
-            roundingMode={BigNumber.ROUND_UP}
-            mainnet={mainnet}
-          >
-            {(usdAmount) => (
-              <>
-                <span className="opacity-75">(</span>
-                <span className="pr-px">$</span>
-                {usdAmount}
-                <span className="opacity-75">)</span>
-              </>
-            )}
-          </InUSD>
+        <div className="w-full flex flex-col">
+          {[
+            { key: "gas", title: t("gasFee"), fee: gasFee },
+            {
+              key: "storage",
+              title: t("storageFee"),
+              fee: storageFee,
+            },
+          ].map(({ key, title, fee }) => (
+            <div key={key} className="mb-px w-full flex items-center">
+              <div
+                className={classNames(
+                  "mr-1",
+                  "whitespace-no-wrap overflow-x-auto no-scrollbar",
+                  "opacity-90"
+                )}
+                style={{ maxWidth: "40%" }}
+              >
+                {title}:
+              </div>
+              <div className="flex-1" />
+              <div className="font-medium mr-1">
+                <Money>{fee}</Money> ꜩ
+              </div>
+              <InUSD
+                volume={fee}
+                roundingMode={BigNumber.ROUND_UP}
+                mainnet={mainnet}
+              >
+                {(usdAmount) => (
+                  <div>
+                    <span className="opacity-75">(</span>
+                    <span className="pr-px">$</span>
+                    {usdAmount}
+                    <span className="opacity-75">)</span>
+                  </div>
+                )}
+              </InUSD>
+            </div>
+          ))}
         </div>
       );
     }
 
     return null;
-  }, [totalFeeDisplayed, rawToSign, mainnet]);
+  }, [totalFeeDisplayed, estimates, mainnet, increaseStorageFee]);
 
   if (!expenses) {
     return null;
@@ -248,9 +282,9 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
 
       <div className="flex-1 flex-col">
         <div className="mb-1 flex items-center">
-          <span className="mr-1 text-xs text-blue-600 opacity-75">
+          <div className="mr-1 flex items-center text-xs text-blue-600 opacity-75">
             {operationTypeLabel}
-          </span>
+          </div>
 
           {argumentDisplayProps && (
             <OperationArgumentDisplay {...argumentDisplayProps} />

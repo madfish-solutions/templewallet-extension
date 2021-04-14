@@ -1,50 +1,29 @@
-import { useMemo } from "react";
-
+import axios from "axios";
 import constate from "constate";
 
 import { useRetryableSWR } from "lib/swr";
-import { getMarketTickers } from "lib/tzstats";
 
-const LIQUIDITY_INTERVAL = 120_000;
+const TEZOS_USD_PRICE_ENDPOINT =
+  "https://api.coingecko.com/api/v3/simple/price?ids=tezos&vs_currencies=usd";
 
 export const [USDPriceProvider, useUSDPrice] = constate(() => {
-  const mtSWR = useMarketTickers(true);
-
-  return useMemo(() => {
-    if (!mtSWR.data) {
-      return null;
-    }
-
-    const { tickers, fetchedAt } = mtSWR.data;
-
-    // Inspiration
-    // https://github.com/blockwatch-cc/tzstats/blob/7de49649b795db74f3de817fd5f268a3753b5254/src/components/Layout/Sidebar/MarketInfo/MarketInfo.js#L16
-
-    // filter fresh tickers in USD only (age < 2min)
-    const usdTickers = tickers.filter(
-      (e) =>
-        e.quote === "USD" &&
-        fetchedAt - +new Date(e.timestamp) < LIQUIDITY_INTERVAL
-    );
-    // price index: use all USD ticker last prices with equal weight
-    const vol = usdTickers.reduce((s, t) => s + t.volume_base, 0) || null;
-    const price =
-      vol && usdTickers.reduce((s, t) => s + (t.last * t.volume_base) / vol, 0);
-
-    return price;
-  }, [mtSWR.data]);
+  const { data } = useTezosUSDPrice();
+  return data ?? null;
 });
 
-export function useMarketTickers(suspense?: boolean) {
-  return useRetryableSWR("market-tickers", fetchMarketTickers, {
+export function useTezosUSDPrice(suspense?: boolean) {
+  return useRetryableSWR("tezos-usd-price", fetchUSDPrice, {
     refreshInterval: 60_000,
     dedupingInterval: 30_000,
     suspense,
   });
 }
 
-async function fetchMarketTickers() {
-  const fetchedAt = Date.now();
-  const tickers = await getMarketTickers();
-  return { tickers, fetchedAt };
+async function fetchUSDPrice(): Promise<number | null> {
+  try {
+    const coinGeckoPrice = await axios.get(TEZOS_USD_PRICE_ENDPOINT);
+    return coinGeckoPrice.data.tezos.usd ?? null;
+  } catch {
+    return null;
+  }
 }
