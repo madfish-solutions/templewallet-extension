@@ -81,7 +81,7 @@ import { SendFormSelectors } from "./SendForm.selectors";
 
 interface FormData {
   to: string;
-  amount: number;
+  amount: string;
   fee: number;
 }
 
@@ -155,14 +155,12 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     accountPkh
   );
   const balance = balanceData!;
-  const balanceNum = balance.toNumber();
 
   const { data: tezBalanceData, mutate: mutateTezBalance } = useBalance(
     TEZ_ASSET,
     accountPkh
   );
   const tezBalance = tezBalanceData!;
-  const tezBalanceNum = tezBalance.toNumber();
 
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
 
@@ -205,14 +203,12 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       const amount = new BigNumber(getValues().amount);
       setValue(
         "amount",
-        Number(
-          (newShouldUseUsd
-            ? amount.multipliedBy(tezPrice!)
-            : amount.div(tezPrice!)
-          ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
-            decimalSeparator: ".",
-          })
-        )
+        (newShouldUseUsd
+          ? amount.multipliedBy(tezPrice!)
+          : amount.div(tezPrice!)
+        ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
+          decimalSeparator: ".",
+        })
       );
     },
     [setShouldUseUsd, shouldUseUsd, getValues, tezPrice, setValue]
@@ -345,7 +341,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         }
         estmtnMax = await tezos.estimate.transfer({
           to,
-          amount: amountMax.toNumber(),
+          amount: amountMax.toString() as any,
         });
       } else {
         estmtnMax = await tezos.estimate.transfer(transferParams);
@@ -433,13 +429,10 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const maxAddFee = useMemo(() => {
     if (baseFee instanceof BigNumber) {
-      return new BigNumber(tezBalanceNum)
-        .minus(baseFee)
-        .minus(PENNY)
-        .toNumber();
+      return tezBalance.minus(baseFee).minus(PENNY).toNumber();
     }
     return;
-  }, [tezBalanceNum, baseFee]);
+  }, [tezBalance, baseFee]);
 
   const safeFeeValue = useMemo(
     () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
@@ -453,8 +446,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       ? (() => {
           let ma =
             acc.type === TempleAccountType.ManagedKT
-              ? new BigNumber(balanceNum)
-              : new BigNumber(balanceNum)
+              ? balance
+              : balance
                   .minus(baseFee)
                   .minus(safeFeeValue ?? 0)
                   .minus(PENNY);
@@ -468,21 +461,16 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             : new BigNumber(0);
           return shouldUseUsd ? maxAmountUsd : maxAmountTez;
         })()
-      : new BigNumber(balanceNum);
+      : balance;
   }, [
     acc.type,
     localAsset.type,
-    balanceNum,
+    balance,
     baseFee,
     safeFeeValue,
     shouldUseUsd,
     tezPrice,
   ]);
-
-  const maxAmountNum = useMemo(
-    () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
-    [maxAmount]
-  );
 
   const validateAmount = useCallback(
     (v?: number) => {
@@ -490,15 +478,14 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       if (!isKTAddress(toValue) && v === 0) {
         return t("amountMustBePositive");
       }
-      if (!maxAmountNum) return true;
-      const maxAmount = new BigNumber(maxAmountNum);
+      if (!maxAmount) return true;
       const vBN = new BigNumber(v);
       return (
         vBN.isLessThanOrEqualTo(maxAmount) ||
         t("maximalAmount", toLocalFixed(maxAmount))
       );
     },
-    [maxAmountNum, toValue]
+    [maxAmount, toValue]
   );
 
   const handleFeeFieldChange = useCallback(
@@ -506,15 +493,16 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     [maxAddFee]
   );
 
+  const maxAmountStr = maxAmount?.toString();
   useEffect(() => {
     if (formState.dirtyFields.has("amount")) {
       triggerValidation("amount");
     }
-  }, [formState.dirtyFields, triggerValidation, maxAmountNum]);
+  }, [formState.dirtyFields, triggerValidation, maxAmountStr]);
 
   const handleSetMaxAmount = useCallback(() => {
     if (maxAmount) {
-      setValue("amount", maxAmount.toNumber());
+      setValue("amount", maxAmount.toString());
       triggerValidation("amount");
     }
   }, [setValue, maxAmount, triggerValidation]);
@@ -530,8 +518,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   );
 
   const toTEZAmount = useCallback(
-    (usdAmount: number) =>
-      +new BigNumber(usdAmount)
+    (usdAmount: BigNumber.Value) =>
+      new BigNumber(usdAmount)
         .dividedBy(tezPrice ?? 1)
         .toFormat(6, BigNumber.ROUND_FLOOR, {
           decimalSeparator: ".",
