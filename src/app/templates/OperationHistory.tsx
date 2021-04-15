@@ -4,7 +4,6 @@ import classNames from "clsx";
 
 import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import Spinner from "app/atoms/Spinner";
-import { BCD_NETWORKS_NAMES } from "app/defaults";
 import { ReactComponent as LayersIcon } from "app/icons/layers.svg";
 import Operation, {
   OperationPreview,
@@ -13,6 +12,7 @@ import Operation, {
 import useAllOperations from "app/templates/OperationHistory/useAllOperations";
 import { tryGetTransfers } from "app/templates/OperationHistory/useOpsPagination";
 import useTokensOperations from "app/templates/OperationHistory/useTokensOperations";
+import { BCD_NETWORKS_NAMES } from "lib/better-call-dev";
 import { T } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {

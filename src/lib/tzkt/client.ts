@@ -10,7 +10,7 @@ import {
   TzktRelatedContract,
 } from "lib/tzkt/types";
 
-const TZKT_API_BASE_URLS = new Map([
+export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, "https://api.tzkt.io/v1"],
   [TempleChainId.Edo2net, "https://api.edo2net.tzkt.io/v1"],
   [TempleChainId.Florencenet, "https://api.florencenet.tzkt.io/v1"],

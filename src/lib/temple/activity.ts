@@ -5,9 +5,10 @@ import {
   BcdTokenTransfer,
   getTokenTransfers,
   BcdNetwork,
+  BCD_NETWORKS_NAMES,
 } from "lib/better-call-dev";
 import * as Repo from "lib/temple/repo";
-import { getOperations } from "lib/tzkt";
+import { TZKT_API_BASE_URLS, getOperations } from "lib/tzkt";
 
 export type FetchOperationsParams = {
   chainId: string;
@@ -111,11 +112,22 @@ export async function addLocalOperation(
   });
 }
 
+export function isSyncSupported(chainId: string) {
+  return (
+    TZKT_API_BASE_URLS.has(chainId as any) &&
+    BCD_NETWORKS_NAMES.has(chainId as any)
+  );
+}
+
 export async function syncOperations(
   type: "new" | "old",
   chainId: string,
   address: string
 ) {
+  if (!isSyncSupported(chainId)) {
+    throw new Error("Not supported for this chainId");
+  }
+
   return Repo.db.transaction(
     "rw",
     Repo.syncTimes,
@@ -128,7 +140,7 @@ export async function syncOperations(
       );
 
       const fresh = type === "new";
-      const bcdNetwork = BCD_NETWORKS.get(chainId)!;
+      const bcdNetwork = BCD_NETWORKS_NAMES.get(chainId as any)!;
 
       const [tzktOperations, bcdTokenTransfers] = await Repo.waitFor(
         Promise.all([
@@ -334,9 +346,6 @@ export async function syncOperations(
             });
         }
       }
-
-      console.info(tzktOperations.length, tokenTransfers.length);
-
       return tzktOperations.length + tokenTransfers.length;
     }
   );
