@@ -14,6 +14,7 @@ import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 
 import Alert from "app/atoms/Alert";
+import { Button } from "app/atoms/Button";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
@@ -32,6 +33,7 @@ import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import BakerBanner from "app/templates/BakerBanner";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import { useFormAnalytics } from "lib/analytics";
 import { toLocalFormat } from "lib/i18n/numbers";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
@@ -57,6 +59,8 @@ import {
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation, Link } from "lib/woozie";
 
+import { DelegateFormSelectors } from "./DelegateForm.selectors";
+
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 const SORT_BAKERS_BY_KEY = "sort_bakers_by";
@@ -68,6 +72,7 @@ interface FormData {
 
 const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
+  const formAnalytics = useFormAnalytics("DelegateForm");
 
   const net = useNetwork();
   const acc = useAccount();
@@ -94,12 +99,18 @@ const DelegateForm: FC = () => {
       {
         key: "rank",
         title: t("rank"),
+        testID: DelegateFormSelectors.SortBakerByRankTab,
       },
       {
         key: "fee",
         title: t("fee"),
+        testID: DelegateFormSelectors.SortBakerByFeeTab,
       },
-      { key: "space", title: t("space") },
+      {
+        key: "space",
+        title: t("space"),
+        testID: DelegateFormSelectors.SortBakerBySpaceTab,
+      },
     ],
     []
   );
@@ -349,6 +360,9 @@ const DelegateForm: FC = () => {
       setSubmitError(null);
       setOperation(null);
 
+      const analyticsProperties = { bakerAddress: to };
+
+      formAnalytics.trackSubmit(analyticsProperties);
       try {
         const estmtn = await getEstimation();
         const addFee = tzToMutez(feeVal ?? 0);
@@ -369,7 +383,11 @@ const DelegateForm: FC = () => {
 
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
+
+        formAnalytics.trackSubmitSuccess(analyticsProperties);
       } catch (err) {
+        formAnalytics.trackSubmitFail(analyticsProperties);
+
         if (err.message === "Declined") {
           return;
         }
@@ -392,6 +410,7 @@ const DelegateForm: FC = () => {
       setOperation,
       reset,
       getEstimation,
+      formAnalytics,
       toResolved,
     ]
   );
@@ -623,7 +642,7 @@ const DelegateForm: FC = () => {
                     </span>
                   )}
                 </T>
-                {bakerSortTypes.map(({ key, title }, i, arr) => {
+                {bakerSortTypes.map(({ key, title, testID }, i, arr) => {
                   const first = i === 0;
                   const last = i === arr.length - 1;
                   const selected = sortBakersBy.key === key;
@@ -659,6 +678,7 @@ const DelegateForm: FC = () => {
                         "px-2 py-px",
                         "text-xs text-gray-600"
                       )}
+                      testID={testID}
                     >
                       {title}
                     </Link>
@@ -693,7 +713,7 @@ const DelegateForm: FC = () => {
                   };
 
                   return (
-                    <button
+                    <Button
                       key={baker.address}
                       type="button"
                       className={classNames(
@@ -712,6 +732,8 @@ const DelegateForm: FC = () => {
                         padding: "0.65rem 0.5rem 0.65rem 0.5rem",
                       }}
                       onClick={handleBakerClick}
+                      testID={DelegateFormSelectors.KnownBakerItemButton}
+                      testIDProperties={{ bakerAddress: baker.address }}
                     >
                       <div>
                         <img
@@ -814,7 +836,7 @@ const DelegateForm: FC = () => {
                       >
                         <ChevronRightIcon className="h-5 w-auto stroke-current" />
                       </div>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -893,6 +915,7 @@ const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => (
 );
 
 class UnchangedError extends Error {}
+
 class UnregisteredDelegateError extends Error {}
 
 function validateAddress(value: any) {

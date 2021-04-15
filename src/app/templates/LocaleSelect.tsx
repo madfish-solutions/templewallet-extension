@@ -4,6 +4,7 @@ import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
 
 import Flag from "app/atoms/Flag";
+import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from "lib/analytics";
 import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
 
 import IconifiedSelect, {
@@ -85,6 +86,7 @@ const getLocaleCode = ({ code }: LocaleOption) => code;
 
 const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
   const selectedLocale = getCurrentLocale();
+  const { trackEvent } = useAnalytics();
 
   const value = useMemo(
     () =>
@@ -104,9 +106,10 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
     []
   );
 
-  const handleLocaleChange = useCallback((option: LocaleOption) => {
-    updateLocale(option.code);
-  }, []);
+  const handleLocaleChange = useCallback(({ code }: LocaleOption) => {
+    trackEvent(AnalyticsEventEnum.LanguageChanged, AnalyticsEventCategory.ButtonPress, { code });
+    updateLocale(code);
+  }, [trackEvent]);
 
   return (
     <IconifiedSelect

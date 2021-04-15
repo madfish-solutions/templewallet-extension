@@ -15,10 +15,13 @@ import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 import AccountBanner from "app/templates/AccountBanner";
 import ExpensesView from "app/templates/ExpensesView";
+import IncreaseStorageFeeSection from "app/templates/IncreaseStorageFeeSection";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
-import ViewsSwitcher from "app/templates/ViewsSwitcher";
+import ViewsSwitcher, {
+  ViewsSwitcherItemProps,
+} from "app/templates/ViewsSwitcher";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
@@ -35,12 +38,14 @@ import {
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 
+import { InternalConfirmationSelectors } from "./InternalConfirmation.selectors";
+
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
-  onConfirm: (confirmed: boolean) => Promise<void>;
+  onConfirm: (confirmed: boolean, increaseStorageFee?: number) => Promise<void>;
 };
 
-const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
+const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   payload,
   onConfirm,
 }) => {
@@ -106,18 +111,20 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
     }));
   }, [allAssetsWithHidden, rawExpensesData]);
 
-  const signPayloadFormats = useMemo(() => {
+  const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === "operations") {
       return [
         {
           key: "preview",
           name: t("preview"),
           Icon: EyeIcon,
+          testID: InternalConfirmationSelectors.PreviewTab,
         },
         {
           key: "raw",
           name: t("raw"),
           Icon: CodeAltIcon,
+          testID: InternalConfirmationSelectors.RawTab,
         },
         ...(payload.bytesToSign
           ? [
@@ -125,6 +132,7 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
                 key: "bytes",
                 name: t("bytes"),
                 Icon: HashIcon,
+                testID: InternalConfirmationSelectors.BytesTab,
               },
             ]
           : []),
@@ -136,11 +144,13 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
         key: "preview",
         name: t("preview"),
         Icon: EyeIcon,
+        testID: InternalConfirmationSelectors.PreviewTab,
       },
       {
         key: "bytes",
         name: t("bytes"),
         Icon: HashIcon,
+        testID: InternalConfirmationSelectors.BytesTab,
       },
     ];
   }, [payload]);
@@ -149,19 +159,20 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
+  const [increaseStorageFeeValue, setIncreaseStorageFeeValue] = useSafeState(0);
 
   const confirm = useCallback(
     async (confirmed: boolean) => {
       setError(null);
       try {
-        await onConfirm(confirmed);
+        await onConfirm(confirmed, increaseStorageFeeValue);
       } catch (err) {
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
         setError(err);
       }
     },
-    [onConfirm, setError]
+    [onConfirm, setError, increaseStorageFeeValue]
   );
 
   const handleConfirmClick = useCallback(async () => {
@@ -181,6 +192,13 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
   }, [confirming, declining, setDeclining, confirm]);
 
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
+
+  const increaseStorageFeeDisplayed = useMemo(() => {
+    if (payload.type === "operations" && payload.estimates) {
+      return payload.estimates.reduce((sum, e) => sum + e.storageLimit, 0) > 0;
+    }
+    return false;
+  }, [payload]);
 
   return (
     <div
@@ -209,10 +227,10 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
           "overflow-y-auto",
           "flex flex-col"
         )}
-        style={{ height: "32rem" }}
+        style={{ height: "34rem" }}
       >
         <div className="px-4 pt-4">
-          <SubTitle className="mb-6">
+          <SubTitle small className="mb-6">
             <T
               id="confirmAction"
               substitutions={t(
@@ -282,10 +300,10 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
               {payload.type === "sign" && spFormat.key === "bytes" && (
                 <>
                   <RawPayloadView
-                    rows={7}
                     label={t("payloadToSign")}
                     payload={payload.bytes}
                     className="mb-4"
+                    style={{ height: "9.5rem" }}
                   />
                 </>
               )}
@@ -295,9 +313,9 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
                 spFormat.key === "bytes" && (
                   <>
                     <RawPayloadView
-                      rows={5}
                       payload={payload.bytesToSign}
                       className="mb-4"
+                      style={{ height: "9.5rem" }}
                     />
                   </>
                 )}
@@ -305,16 +323,24 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
               {spFormat.key === "preview" && (
                 <ExpensesView
                   expenses={expensesData}
-                  rawToSign={
+                  estimates={
                     payload.type === "operations"
-                      ? payload.rawToSign
+                      ? payload.estimates
                       : undefined
                   }
+                  increaseStorageFee={increaseStorageFeeValue}
                   mainnet={mainnet}
                   totalFeeDisplayed
                 />
               )}
             </>
+          )}
+
+          {increaseStorageFeeDisplayed && (
+            <IncreaseStorageFeeSection
+              value={increaseStorageFeeValue}
+              onChange={setIncreaseStorageFeeValue}
+            />
           )}
         </div>
 
@@ -337,6 +363,7 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
                   loading={declining}
                   disabled={declining}
                   onClick={handleDeclineClick}
+                  testID={InternalConfirmationSelectors.DeclineButton}
                 >
                   {message}
                 </FormSecondaryButton>
@@ -352,6 +379,11 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
                   className="justify-center w-full"
                   loading={confirming}
                   onClick={handleConfirmClick}
+                  testID={
+                    error
+                      ? InternalConfirmationSelectors.RetryButton
+                      : InternalConfirmationSelectors.ConfirmButton
+                  }
                 >
                   {message}
                 </FormSubmitButton>
@@ -368,4 +400,4 @@ const InternalConfiramtion: FC<InternalConfiramtionProps> = ({
   );
 };
 
-export default InternalConfiramtion;
+export default InternalConfirmation;

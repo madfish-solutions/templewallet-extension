@@ -24,6 +24,12 @@ export interface Network {
   rpcUrl?: string;
 }
 
+export enum SigningType {
+  RAW = "raw", // Arbitrary payload (string), which will be hashed before signing
+  OPERATION = "operation", // "03" prefix
+  MICHELINE = "micheline", // "05" prefix
+}
+
 export type Request =
   | PermissionRequest
   | OperationRequest
@@ -105,6 +111,7 @@ export interface SignRequest extends BaseMessage {
   type: MessageType.SignPayloadRequest;
   sourceAddress: string;
   payload: string;
+  signingType?: SigningType;
 }
 
 export interface SignResponse extends BaseMessage {

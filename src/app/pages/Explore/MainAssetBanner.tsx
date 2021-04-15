@@ -57,7 +57,7 @@ const MainAssetBanner: FC<MainAssetBannerProps> = ({
           </div>
         </div>
 
-        <AssetIcon asset={asset} size={48} className="mr-3" />
+        <AssetIcon asset={asset} size={48} className="mr-3 flex-shrink-0" />
 
         <div className="font-light leading-none">
           <div className="flex items-center">
