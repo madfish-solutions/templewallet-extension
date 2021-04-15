@@ -53,7 +53,7 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
     const handleChange = useCallback(
       (evt) => {
         let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
-        let numVal = new BigNumber(val);
+        let numVal = new BigNumber(val || 0);
         const indexOfDot = val.indexOf(".");
         if (indexOfDot !== -1 && val.length - indexOfDot > assetDecimals + 1) {
           val = val.substring(0, indexOfDot + assetDecimals + 1);
