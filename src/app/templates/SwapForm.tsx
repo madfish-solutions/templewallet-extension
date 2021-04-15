@@ -742,9 +742,10 @@ const SlippageToleranceInput = forwardRef<
   );
 
   const handleCustomPercentageChange = useCallback(
-    (newValue?: number) => {
-      setCustomPercentageValue(newValue);
-      onChange(newValue);
+    (newValue?: string) => {
+      const newValueNum = newValue ? Number(newValue) : undefined;
+      setCustomPercentageValue(newValueNum);
+      onChange(newValueNum);
     },
     [onChange]
   );

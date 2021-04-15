@@ -122,10 +122,10 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
     );
 
     const handleAmountChange = useCallback(
-      (value?: number) => {
+      (value?: BigNumber) => {
         onChange?.({
           asset,
-          amount: value === undefined ? undefined : new BigNumber(value),
+          amount: value,
         });
       },
       [onChange, asset]
@@ -274,7 +274,7 @@ type SwapInputHeaderProps = PopperRenderProps &
     amountLoading?: boolean;
     selectedAsset?: TempleAssetWithExchangeData;
     balance?: BigNumber;
-    onAmountChange: (value?: number) => void;
+    onAmountChange: (value?: BigNumber) => void;
     searchString: string;
     onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
     onRefreshClick: () => void;
@@ -314,6 +314,22 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
     }, []);
 
     const assetUsdPrice = selectedAsset?.[selectedExchanger]?.usdPrice;
+
+    const handleTokenIdChange = useCallback(
+      (newValue?: string) => {
+        const newValueNum = newValue ? Number(newValue) : undefined;
+        onTokenIdChange(newValueNum);
+      },
+      [onTokenIdChange]
+    );
+
+    const handleAmountChange = useCallback(
+      (newValue?: string) => {
+        const newValueBn = newValue ? new BigNumber(newValue) : undefined;
+        onAmountChange(newValueBn);
+      },
+      [onAmountChange]
+    );
 
     return (
       <div className="w-full text-gray-700" ref={ref}>
@@ -374,7 +390,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   fieldWrapperBottomMargin={false}
                   value={tokenId}
                   className="text-lg border-none bg-opacity-0 focus:shadow-none"
-                  onChange={onTokenIdChange}
+                  onChange={handleTokenIdChange}
                   placeholder={t("tokenId")}
                   style={{ padding: "0 0.5rem", borderRadius: 0 }}
                   assetDecimals={0}
@@ -434,7 +450,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   "text-gray-700 text-2xl text-right border-none bg-opacity-0",
                   "pl-0 focus:shadow-none"
                 )}
-                onChange={onAmountChange}
+                onChange={handleAmountChange}
                 style={{ padding: 0, borderRadius: 0 }}
                 min={0}
                 readOnly={amountReadOnly}
