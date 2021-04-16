@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useMemo, useState } from "react";
 
-import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
 import Money from "app/atoms/Money";

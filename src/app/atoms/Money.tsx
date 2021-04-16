@@ -55,9 +55,6 @@ const Money = memo<MoneyProps>(
       ? toShortened(bn)
       : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
     let indexOfDecimal = result.indexOf(decimal);
-    if (shortened) {
-      console.log(result);
-    }
 
     const tippyClassName = classNames(
       "px-px -mr-px rounded cursor-pointer hover:bg-black",
