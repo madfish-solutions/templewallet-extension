@@ -1700,7 +1700,7 @@
   "toAsset": {
     "message": "В"
   },
-  "through": {
+  "via": {
     "message": "Через"
   },
   "exchangeRate": {

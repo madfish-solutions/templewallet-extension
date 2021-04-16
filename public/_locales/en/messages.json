@@ -1748,8 +1748,8 @@
   "toAsset": {
     "message": "To"
   },
-  "through": {
-    "message": "Through"
+  "via": {
+    "message": "Via"
   },
   "exchangeRate": {
     "message": "Exchange rate:"

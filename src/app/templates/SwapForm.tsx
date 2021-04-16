@@ -730,7 +730,7 @@ const SwapForm: React.FC = () => {
         )}
       >
         <h2 className="text-gray-900 mb-1 text-xl">
-          <T id="through" />
+          <T id="via" />
         </h2>
         {exchangersOptionsProps.map((props) => (
           <ExchangerOption key={props.value} {...props} />
@@ -802,7 +802,9 @@ const SwapForm: React.FC = () => {
         </tbody>
       </table>
 
-      <p className="text-xs text-red-700 mb-6">{t("templeWalletFeeWarning")}</p>
+      <p className="text-xs text-gray-600 mb-6">
+        {t("templeWalletFeeWarning")}
+      </p>
 
       {error && (
         <Alert
