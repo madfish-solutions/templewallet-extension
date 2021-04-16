@@ -2,6 +2,7 @@ import React, {
   ChangeEvent,
   forwardRef,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -19,25 +20,30 @@ import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import AssetIcon from "app/templates/AssetIcon";
-import useSwappableAssets from "app/templates/SwapForm/useSwappableAssets";
+import useSwappableAssets, {
+  getAssetExchangeData,
+  TokensExchangeData,
+} from "app/templates/SwapForm/useSwappableAssets";
 import { useFormAnalytics } from "lib/analytics";
 import { t, T } from "lib/i18n/react";
 import {
   useAccount,
   useBalance,
-  TempleAssetWithExchangeData,
   ExchangerType,
   EXCHANGE_XTZ_RESERVE,
   TEZ_ASSET,
   assetsAreSame,
   useOnBlock,
+  assetAmountToUSD,
+  usdToAssetAmount,
 } from "lib/temple/front";
 import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
 
 export type SwapInputValue = {
-  asset?: TempleAssetWithExchangeData;
+  asset?: TempleAsset;
   amount?: BigNumber;
+  usdAmount?: BigNumber;
 };
 
 type SwapInputProps = {
@@ -76,16 +82,18 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
     },
     ref
   ) => {
-    const { asset, amount } = value;
+    const { asset, amount, usdAmount } = value;
 
+    const [shouldShowUsd, setShouldShowUsd] = useState(false);
     const [searchString, setSearchString] = useState("");
     const [tokenId, setTokenId] = useState<number>();
     const { publicKeyHash: accountPkh } = useAccount();
     const {
       assets,
       isLoading: assetsLoading,
-      updateTokensExchangeData,
       tokenIdRequired,
+      tokensExchangeData,
+      tezUsdPrice,
     } = useSwappableAssets(searchString, tokenId);
     const { trackChange } = useFormAnalytics("SwapForm");
 
@@ -96,7 +104,19 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
     );
     useOnBlock(updateBalance);
 
-    const max = useMemo(() => {
+    const assetExchangeData = useMemo(
+      () =>
+        asset &&
+        getAssetExchangeData(
+          tokensExchangeData,
+          tezUsdPrice,
+          asset,
+          selectedExchanger
+        ),
+      [tokensExchangeData, tezUsdPrice, asset, selectedExchanger]
+    );
+
+    const maxAmount = useMemo(() => {
       if (!asset) {
         return new BigNumber(0);
       }
@@ -108,10 +128,44 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
           ? balance?.minus(EXCHANGE_XTZ_RESERVE)
           : balance;
       return BigNumber.min(
-        asset[selectedExchanger]?.maxExchangable ?? new BigNumber(Infinity),
+        assetExchangeData?.maxExchangable ?? new BigNumber(Infinity),
         exchangableAmount ?? new BigNumber(Infinity)
       );
-    }, [asset, balance, amountReadOnly, selectedExchanger]);
+    }, [asset, balance, amountReadOnly, assetExchangeData]);
+    const assetUsdPrice = assetExchangeData?.usdPrice;
+    const actualShouldShowUsd = shouldShowUsd && !!assetUsdPrice;
+
+    useEffect(() => {
+      if (shouldShowUsd && !actualShouldShowUsd) {
+        setShouldShowUsd(false);
+      }
+    }, [shouldShowUsd, actualShouldShowUsd]);
+
+    const prevSelectedExchangerRef = useRef(selectedExchanger);
+    useEffect(() => {
+      if (prevSelectedExchangerRef.current !== selectedExchanger) {
+        const newAmount = shouldShowUsd
+          ? usdToAssetAmount(usdAmount, assetUsdPrice, asset?.decimals)
+          : amount;
+        const newUsdAmount = shouldShowUsd
+          ? usdAmount
+          : assetAmountToUSD(amount, assetUsdPrice);
+        onChange?.({
+          asset,
+          amount: newAmount,
+          usdAmount: newUsdAmount,
+        });
+      }
+      prevSelectedExchangerRef.current = selectedExchanger;
+    }, [
+      selectedExchanger,
+      amount,
+      asset,
+      assetUsdPrice,
+      onChange,
+      shouldShowUsd,
+      usdAmount,
+    ]);
 
     const handleSearchChange = useCallback(
       (e: ChangeEvent<HTMLInputElement>) => {
@@ -122,10 +176,11 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
     );
 
     const handleAmountChange = useCallback(
-      (value?: BigNumber) => {
+      (amount?: BigNumber, usdAmount?: BigNumber) => {
         onChange?.({
           asset,
-          amount: value,
+          amount,
+          usdAmount,
         });
       },
       [onChange, asset]
@@ -136,28 +191,31 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
         if (!asset) {
           return;
         }
-        const tokenElementaryParts = new BigNumber(10).pow(asset.decimals);
+        const newAmount = (maxAmount ?? new BigNumber(0))
+          .multipliedBy(percentage)
+          .div(100)
+          .decimalPlaces(asset.decimals, BigNumber.ROUND_DOWN);
+        const newUsdAmount = assetAmountToUSD(newAmount, assetUsdPrice);
         onChange?.({
           asset,
-          amount: (max ?? new BigNumber(0))
-            .multipliedBy(percentage)
-            .multipliedBy(tokenElementaryParts)
-            .dividedToIntegerBy(100)
-            .dividedBy(tokenElementaryParts),
+          amount: newAmount,
+          usdAmount: newUsdAmount,
         });
       },
-      [onChange, asset, max]
+      [onChange, asset, assetUsdPrice, maxAmount]
     );
 
     const handleSelectedAssetChange = useCallback(
-      (newValue: TempleAssetWithExchangeData) => {
-        const assetElementaryParts = new BigNumber(10).pow(newValue.decimals);
+      (newValue: TempleAsset) => {
+        const newAmount = amount?.decimalPlaces(
+          newValue.decimals,
+          BigNumber.ROUND_DOWN
+        );
+        const newUsdAmount = assetAmountToUSD(newAmount, assetUsdPrice);
         onChange?.({
           asset: newValue,
-          amount: amount
-            ?.multipliedBy(assetElementaryParts)
-            .integerValue()
-            .div(assetElementaryParts),
+          amount: newAmount,
+          usdAmount: newUsdAmount,
         });
         if (asset) {
           trackChange({ [name]: asset.symbol }, { [name]: newValue.symbol });
@@ -166,8 +224,44 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
         setTokenId(undefined);
         onBlur?.();
       },
-      [onChange, amount, onBlur, trackChange, asset, name]
+      [onChange, amount, onBlur, trackChange, asset, name, assetUsdPrice]
     );
+
+    const handleInUSDToggle = useCallback(() => {
+      setShouldShowUsd((prevShouldShowUsd) => !prevShouldShowUsd);
+    }, []);
+
+    const prettyError = useMemo(() => {
+      if (!error) {
+        return error;
+      }
+      if (error.startsWith("amountReserved")) {
+        const amountTez = new BigNumber(error.split(":")[1]);
+        return t(
+          "amountMustBeReservedForNetworkFees",
+          `${amountTez.toString()} TEZ${
+            actualShouldShowUsd
+              ? ` (≈$${assetAmountToUSD(
+                  amountTez,
+                  assetUsdPrice,
+                  BigNumber.ROUND_UP
+                )})`
+              : ""
+          }`
+        );
+      }
+      if (error.startsWith("maximalAmount")) {
+        const amountAsset = new BigNumber(error.split(":")[1]);
+        return t(
+          "maximalAmount",
+          (actualShouldShowUsd
+            ? assetAmountToUSD(amountAsset, assetUsdPrice)
+            : amountAsset
+          )?.toString()
+        );
+      }
+      return error;
+    }, [error, actualShouldShowUsd, assetUsdPrice]);
 
     return (
       <div className={classNames("w-full", className)} onBlur={onBlur}>
@@ -194,37 +288,44 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
             <SwapInputHeader
               amount={amount}
               amountLoading={loading}
+              amountReadOnly={amountReadOnly}
+              balance={asset ? balance : undefined}
               disabled={disabled}
-              ref={(ref as unknown) as React.RefObject<HTMLDivElement>}
-              toggleOpened={toggleOpened}
-              opened={opened}
-              setOpened={setOpened}
               label={label}
               onAmountChange={handleAmountChange}
+              onInUSDToggle={handleInUSDToggle}
+              onSearchChange={handleSearchChange}
+              onTokenIdChange={setTokenId}
+              opened={opened}
+              ref={(ref as unknown) as React.RefObject<HTMLDivElement>}
+              searchString={searchString}
               selectedAsset={asset}
               selectedExchanger={selectedExchanger}
-              balance={asset ? balance : undefined}
-              searchString={searchString}
-              onSearchChange={handleSearchChange}
-              onRefreshClick={updateTokensExchangeData}
+              setOpened={setOpened}
+              shouldShowUsd={actualShouldShowUsd}
+              tezUsdPrice={tezUsdPrice}
               tokenIdRequired={tokenIdRequired}
-              amountReadOnly={amountReadOnly}
               tokenId={tokenId}
-              onTokenIdChange={setTokenId}
+              tokensExchangeData={tokensExchangeData}
+              toggleOpened={toggleOpened}
+              usdAmount={usdAmount}
             />
           )}
         </Popper>
         <div
           className={classNames(
             "w-full flex mt-1 items-center",
-            error ? "justify-between" : "justify-end"
+            prettyError ? "justify-between" : "justify-end"
           )}
         >
-          {error && <div className="text-red-700 text-xs">{error}</div>}
+          {prettyError && (
+            <div className="text-red-700 text-xs">{prettyError}</div>
+          )}
           {withPercentageButtons && (
             <div className="flex">
               {BUTTONS_PERCENTAGES.map((percentage) => (
                 <PercentageButton
+                  disabled={!balance}
                   key={percentage}
                   percentage={percentage}
                   onClick={handlePercentageClick}
@@ -241,6 +342,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
 export default SwapInput;
 
 type PercentageButtonProps = {
+  disabled: boolean;
   percentage: number;
   onClick: (percentage: number) => void;
 };
@@ -248,6 +350,7 @@ type PercentageButtonProps = {
 const PercentageButton: React.FC<PercentageButtonProps> = ({
   percentage,
   onClick,
+  disabled,
 }) => {
   const handleClick = useCallback(() => onClick(percentage), [
     onClick,
@@ -256,8 +359,12 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
 
   return (
     <button
+      disabled={disabled}
       type="button"
-      className="border border-gray-300 text-gray-500 rounded-md ml-1 py-1 w-8 flex justify-center"
+      className={classNames(
+        "border border-gray-300 text-gray-500 rounded-md ml-1",
+        "h-5 w-8 flex justify-center items-center leading-tight"
+      )}
       onClick={handleClick}
     >
       {percentage === 100 ? <T id="max" /> : `${percentage}%`}
@@ -272,15 +379,19 @@ type SwapInputHeaderProps = PopperRenderProps &
   > & {
     amount?: BigNumber;
     amountLoading?: boolean;
-    selectedAsset?: TempleAssetWithExchangeData;
     balance?: BigNumber;
-    onAmountChange: (value?: BigNumber) => void;
-    searchString: string;
+    onAmountChange: (amount?: BigNumber, usdAmount?: BigNumber) => void;
+    onInUSDToggle: () => void;
     onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
-    onRefreshClick: () => void;
+    onTokenIdChange: (value?: number) => void;
+    searchString: string;
+    selectedAsset?: TempleAsset;
+    shouldShowUsd: boolean;
+    tezUsdPrice: number | null;
     tokenIdRequired: boolean;
     tokenId?: number;
-    onTokenIdChange: (value?: number) => void;
+    tokensExchangeData: TokensExchangeData;
+    usdAmount?: BigNumber;
   };
 
 const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
@@ -288,32 +399,73 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
     {
       amount,
       amountLoading,
-      opened,
-      toggleOpened,
-      selectedAsset,
+      amountReadOnly,
       balance,
       disabled,
       label,
       onAmountChange,
-      searchString,
-      onRefreshClick,
+      onInUSDToggle,
       onSearchChange,
-      amountReadOnly,
+      onTokenIdChange,
+      opened,
+      searchString,
+      selectedAsset,
       selectedExchanger,
+      shouldShowUsd,
+      tezUsdPrice,
       tokenIdRequired,
       tokenId,
-      onTokenIdChange,
+      toggleOpened,
+      tokensExchangeData,
+      usdAmount,
     },
     ref
   ) => {
+    const displayedAmount = shouldShowUsd ? usdAmount : amount;
     const amountFieldRef = useRef<HTMLInputElement>(null);
 
     const handleAmountFieldFocus = useCallback((evt) => {
       evt.preventDefault();
       amountFieldRef.current?.focus({ preventScroll: true });
     }, []);
+    const assetUsdPrice =
+      selectedAsset &&
+      getAssetExchangeData(
+        tokensExchangeData,
+        tezUsdPrice,
+        selectedAsset,
+        selectedExchanger
+      )?.usdPrice;
+    const canSwitchToUSD = !!assetUsdPrice;
 
-    const assetUsdPrice = selectedAsset?.[selectedExchanger]?.usdPrice;
+    const displayedBalance = useMemo(() => {
+      if (balance && shouldShowUsd) {
+        return assetAmountToUSD(balance, assetUsdPrice);
+      }
+      return balance;
+    }, [balance, shouldShowUsd, assetUsdPrice]);
+    const displayedConversionNumber = shouldShowUsd ? amount : usdAmount;
+
+    const handleAmountChange = useCallback(
+      (newValue?: string) => {
+        if (!newValue) {
+          onAmountChange();
+        } else if (shouldShowUsd) {
+          const newValueUsd = new BigNumber(newValue);
+          const newValueAsset = usdToAssetAmount(
+            newValueUsd,
+            assetUsdPrice,
+            selectedAsset!.decimals
+          );
+          onAmountChange(newValueAsset, newValueUsd);
+        } else {
+          const newValueAsset = new BigNumber(newValue);
+          const newValueUsd = assetAmountToUSD(newValueAsset, assetUsdPrice);
+          onAmountChange(newValueAsset, newValueUsd);
+        }
+      },
+      [onAmountChange, assetUsdPrice, shouldShowUsd, selectedAsset]
+    );
 
     const handleTokenIdChange = useCallback(
       (newValue?: string) => {
@@ -321,14 +473,6 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
         onTokenIdChange(newValueNum);
       },
       [onTokenIdChange]
-    );
-
-    const handleAmountChange = useCallback(
-      (newValue?: string) => {
-        const newValueBn = newValue ? new BigNumber(newValue) : undefined;
-        onAmountChange(newValueBn);
-      },
-      [onAmountChange]
     );
 
     return (
@@ -345,17 +489,20 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
               <span className="mr-1">
                 <T id="balance" />
               </span>
-              {balance && (
+              {displayedBalance && (
                 <span
                   className={classNames(
                     "text-sm mr-1 text-gray-700",
-                    balance.eq(0) && "text-red-700"
+                    displayedBalance.eq(0) && "text-red-700"
                   )}
                 >
-                  <Money smallFractionFont={false}>{balance}</Money>
+                  {shouldShowUsd ? "≈" : ""}
+                  <Money smallFractionFont={false} fiat={shouldShowUsd}>
+                    {displayedBalance}
+                  </Money>
                 </span>
               )}
-              <span>{selectedAsset.symbol}</span>
+              <span>{shouldShowUsd ? "$" : selectedAsset.symbol}</span>
             </span>
           )}
         </div>
@@ -431,9 +578,15 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
             <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
           </div>
           <div className="flex-1 px-2 flex items-center justify-between">
-            <button type="button" className="mr-2" onClick={onRefreshClick}>
-              <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
-            </button>
+            {canSwitchToUSD && (
+              <button
+                type="button"
+                className={classNames("mr-2", !assetUsdPrice && "hidden")}
+                onClick={onInUSDToggle}
+              >
+                <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-1" />
+              </button>
+            )}
             <div
               className={classNames(
                 "h-full flex-1 flex items-end justify-center flex-col",
@@ -443,7 +596,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
               <AssetField
                 disabled={disabled}
                 fieldWrapperBottomMargin={false}
-                value={amount?.toNumber()}
+                value={displayedAmount?.toString()}
                 ref={amountFieldRef}
                 onFocus={handleAmountFieldFocus}
                 className={classNames(
@@ -454,15 +607,17 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                 style={{ padding: 0, borderRadius: 0 }}
                 min={0}
                 readOnly={amountReadOnly}
-                assetDecimals={selectedAsset?.decimals ?? 0}
+                assetDecimals={shouldShowUsd ? 2 : selectedAsset?.decimals ?? 0}
               />
-              {amount !== undefined && assetUsdPrice !== undefined && (
+              {displayedConversionNumber !== undefined && (
                 <span className="mt-2 text-xs text-gray-700">
                   ≈{" "}
-                  {new BigNumber(amount)
-                    .multipliedBy(assetUsdPrice)
-                    .toFormat(2, BigNumber.ROUND_DOWN)}
-                  <span className="text-gray-500">{" $"}</span>
+                  <Money smallFractionFont={false} fiat={!shouldShowUsd}>
+                    {displayedConversionNumber}
+                  </Money>
+                  <span className="text-gray-500">{` ${
+                    shouldShowUsd ? selectedAsset!.symbol : "$"
+                  }`}</span>
                 </span>
               )}
             </div>
@@ -486,10 +641,10 @@ type AssetsMenuProps = {
   opened: boolean;
   tokenIdMissing: boolean;
   setOpened: (newValue: boolean) => void;
-  onChange: (newValue: TempleAssetWithExchangeData) => void;
-  options: TempleAssetWithExchangeData[];
+  onChange: (newValue: TempleAsset) => void;
+  options: TempleAsset[];
   searchString?: string;
-  value?: TempleAssetWithExchangeData;
+  value?: TempleAsset;
 };
 
 const AssetsMenu: React.FC<AssetsMenuProps> = ({
@@ -503,7 +658,7 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
   value,
 }) => {
   const handleOptionClick = useCallback(
-    (newValue: TempleAssetWithExchangeData) => {
+    (newValue: TempleAsset) => {
       if (!value || !assetsAreSame(newValue, value)) {
         onChange(newValue);
       }
@@ -558,9 +713,9 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
 };
 
 type AssetOptionProps = {
-  option: TempleAssetWithExchangeData;
+  option: TempleAsset;
   selected: boolean;
-  onClick: (newValue: TempleAssetWithExchangeData) => void;
+  onClick: (newValue: TempleAsset) => void;
   isLast: boolean;
 };
 

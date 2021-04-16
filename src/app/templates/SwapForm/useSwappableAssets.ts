@@ -8,7 +8,6 @@ import { sanitizeImgUri } from "lib/image-uri";
 import { getQuipuswapWhitelist } from "lib/quipuswap";
 import { useRetryableSWR } from "lib/swr";
 import {
-  ALL_EXCHANGERS_TYPES,
   AssetIdentifier,
   DEXTER_EXCHANGE_CONTRACTS,
   ExchangerType,
@@ -17,7 +16,6 @@ import {
   loadContract,
   matchesAsset,
   QUIPUSWAP_CONTRACTS,
-  TempleAssetWithExchangeData,
   TEZ_ASSET,
   useAssets,
   useNetwork,
@@ -36,6 +34,11 @@ import {
   TempleChainId,
   TempleToken,
 } from "lib/temple/types";
+
+export type TokensExchangeData = Record<
+  string,
+  Record<number, Partial<Record<ExchangerType, ExchangeDataEntry>>>
+>;
 
 type SwappableTokensRawData = Record<ExchangerType, TempleToken[]> & {
   quipuswapTokensExchangeContracts: Record<string, Record<number, string>>;
@@ -135,7 +138,18 @@ function assetMatchesSearchStr(asset: TempleAsset, str: string) {
 }
 
 function getTokenKey(token: TempleToken) {
-  return `${token.address}${token.type === TempleAssetType.FA2 ? `_${token.id}` : ""}`;
+  return `${token.address}${
+    token.type === TempleAssetType.FA2 ? `_${token.id}` : ""
+  }`;
+}
+
+function getTokenId(token: TempleToken, replacer: number): number;
+function getTokenId(
+  token: TempleToken,
+  replacer?: undefined
+): number | undefined;
+function getTokenId(token: TempleToken, replacer?: number) {
+  return token.type === TempleAssetType.FA2 ? token.id : replacer;
 }
 
 async function getTokensToExchange(
@@ -146,6 +160,20 @@ async function getTokensToExchange(
   const tokenListStorage = await tokenListContract.storage<any>();
   return tokenListStorage.token_to_exchange;
 }
+
+export const getAssetExchangeData = (
+  tokensExchangeData: TokensExchangeData,
+  tezUsdPrice: number | null,
+  asset: TempleAsset,
+  exchanger: ExchangerType
+): Partial<ExchangeDataEntry> | undefined => {
+  if (asset.type === TempleAssetType.TEZ) {
+    return {
+      usdPrice: tezUsdPrice ?? undefined,
+    };
+  }
+  return tokensExchangeData[asset.address]?.[getTokenId(asset, 0)]?.[exchanger];
+};
 
 export default function useSwappableAssets(
   searchString = "",
@@ -200,7 +228,8 @@ export default function useSwappableAssets(
           } else {
             metadata = fallbackMetadata;
           }
-          metadata.iconUrl = metadata.iconUrl && sanitizeImgUri(metadata.iconUrl);
+          metadata.iconUrl =
+            metadata.iconUrl && sanitizeImgUri(metadata.iconUrl);
           if (metadata.name === "???") {
             metadata.name = fallbackName;
           }
@@ -246,19 +275,26 @@ export default function useSwappableAssets(
   );
 
   const allKnownAssets = useMemo<TempleAsset[]>(() => {
-    const allStoredAssets = [...allVisibleAssets, ...hiddenTokens, ...qsStoredTokens];
-    const newTokensFromWhitelist = (quipuswapTokenWhitelists!.get(chainId) ?? []).filter(
-      (whitelistToken) => {
-        return !allStoredAssets.some((storedToken) =>
-          assetsAreSame(whitelistToken, storedToken)
-        );
-      }
-    );
-    return [
-      ...allStoredAssets,
-      ...newTokensFromWhitelist,
+    const allStoredAssets = [
+      ...allVisibleAssets,
+      ...hiddenTokens,
+      ...qsStoredTokens,
     ];
-  }, [allVisibleAssets, hiddenTokens, chainId, quipuswapTokenWhitelists, qsStoredTokens]);
+    const newTokensFromWhitelist = (
+      quipuswapTokenWhitelists!.get(chainId) ?? []
+    ).filter((whitelistToken) => {
+      return !allStoredAssets.some((storedToken) =>
+        assetsAreSame(whitelistToken, storedToken)
+      );
+    });
+    return [...allStoredAssets, ...newTokensFromWhitelist];
+  }, [
+    allVisibleAssets,
+    hiddenTokens,
+    chainId,
+    quipuswapTokenWhitelists,
+    qsStoredTokens,
+  ]);
 
   const getAssetData = useCallback(
     async (assetId: AssetIdentifier): Promise<TempleAsset> => {
@@ -278,7 +314,8 @@ export default function useSwappableAssets(
         const { name: parsedName, symbol: parsedSymbol } = tokenMetadata;
         const commonMetadata = {
           ...tokenMetadata,
-          iconUrl: tokenMetadata.iconUrl && sanitizeImgUri(tokenMetadata.iconUrl),
+          iconUrl:
+            tokenMetadata.iconUrl && sanitizeImgUri(tokenMetadata.iconUrl),
           name: !parsedName || parsedName === "???" ? shortHash : parsedName,
           symbol:
             !parsedSymbol || parsedSymbol === "???" ? shortHash : parsedSymbol,
@@ -337,13 +374,15 @@ export default function useSwappableAssets(
     const initialExchangableTokens = [
       ...whitelist,
       ...qsStoredTokens.filter(
-        token => !whitelist.some(whitelistedToken => assetsAreSame(token, whitelistedToken))
-      )
+        (token) =>
+          !whitelist.some((whitelistedToken) =>
+            assetsAreSame(token, whitelistedToken)
+          )
+      ),
     ];
     await Promise.all(
       initialExchangableTokens.map(async (token) => {
-        const tokenId =
-          token.type === TempleAssetType.FA2 ? token.id : undefined;
+        const tokenId = getTokenId(token);
         let exchangeContractAddress: string;
         if (token.type === TempleAssetType.FA2) {
           // @ts-ignore
@@ -366,7 +405,12 @@ export default function useSwappableAssets(
   }, [tezos, chainId, quipuswapTokenWhitelists, qsStoredTokens]);
 
   const { data: initialQuipuswapExchangeContracts } = useRetryableSWR(
-    ["initial-quipuswap-exchange-contracts", chainId, !!quipuswapTokenWhitelists, qsStoredTokensKeys],
+    [
+      "initial-quipuswap-exchange-contracts",
+      chainId,
+      !!quipuswapTokenWhitelists,
+      qsStoredTokensKeys,
+    ],
     getInitialQuipuswapExchangeContracts,
     { suspense: true }
   );
@@ -400,7 +444,9 @@ export default function useSwappableAssets(
     ): Promise<SwappableTokensRawData> => {
       const tokenFilterPredicate = (token: TempleToken) =>
         assetMatchesSearchStr(token, searchStr) &&
-          (tokenId === undefined || token.type !== TempleAssetType.FA2 || token.id === tokenId)
+        (tokenId === undefined ||
+          token.type !== TempleAssetType.FA2 ||
+          token.id === tokenId);
 
       const dexterTokensIdentifiers = Object.keys(
         DEXTER_EXCHANGE_CONTRACTS.get(chainId) ?? {}
@@ -418,17 +464,21 @@ export default function useSwappableAssets(
       ).filter(tokenFilterPredicate);
 
       const knownQuipuswapTokens = [
-        ...quipuswapTokenWhitelists!.get(chainId) ?? [],
-        ...qsStoredTokens
+        ...(quipuswapTokenWhitelists!.get(chainId) ?? []),
+        ...qsStoredTokens,
       ];
       const networkIsSupported =
         knownQuipuswapTokens.length > 0 || knownDexterTokens.length > 0;
-      const matchingKnownQuipuswapTokens = knownQuipuswapTokens.filter(tokenFilterPredicate);
-      const searchStrIsAddress = validateAddress(searchStr) === ValidationResult.VALID;
-      const firstFoundToken = [...dexterTokens, ...matchingKnownQuipuswapTokens][0];
-      const foundTokenId = firstFoundToken?.type === TempleAssetType.FA2
-        ? firstFoundToken.id
-        : undefined;
+      const matchingKnownQuipuswapTokens = knownQuipuswapTokens.filter(
+        tokenFilterPredicate
+      );
+      const searchStrIsAddress =
+        validateAddress(searchStr) === ValidationResult.VALID;
+      const firstFoundToken = [
+        ...dexterTokens,
+        ...matchingKnownQuipuswapTokens,
+      ][0];
+      const foundTokenId = firstFoundToken && getTokenId(firstFoundToken);
       const minimalResult = {
         dexter: dexterTokens,
         quipuswap: matchingKnownQuipuswapTokens,
@@ -489,12 +539,14 @@ export default function useSwappableAssets(
         if (exchangeContractAddress) {
           await setQsStoredTokens([
             ...qsStoredTokens,
-            tokenMetadata as TempleToken
+            tokenMetadata as TempleToken,
           ]);
           if (!minimalResult.quipuswapTokensExchangeContracts[searchStr]) {
             minimalResult.quipuswapTokensExchangeContracts[searchStr] = {};
           }
-          minimalResult.quipuswapTokensExchangeContracts[searchStr][tokenId ?? 0] = exchangeContractAddress;
+          minimalResult.quipuswapTokensExchangeContracts[searchStr][
+            tokenId ?? 0
+          ] = exchangeContractAddress;
         }
 
         return {
@@ -514,7 +566,7 @@ export default function useSwappableAssets(
       quipuswapTokenWhitelists,
       initialQuipuswapExchangeContracts,
       qsStoredTokens,
-      setQsStoredTokens
+      setQsStoredTokens,
     ]
   );
 
@@ -529,7 +581,7 @@ export default function useSwappableAssets(
       tokenId,
       !!quipuswapTokenWhitelists,
       !!initialQuipuswapExchangeContracts,
-      qsStoredTokensKeys
+      qsStoredTokensKeys,
     ],
     getSwappableTokens,
     { suspense: false }
@@ -582,65 +634,96 @@ export default function useSwappableAssets(
     [tezos, networkTezUsdPrice]
   );
 
-  const getExchangeData = useCallback<
-    () => Promise<Record<ExchangerType, ExchangeDataEntry[]>>
-  >(
-    async () => ({
-      dexter: await Promise.all(
-        swappableTokens.dexter.map((token) =>
-          getTokenExchangeData(
-            token,
-            DEXTER_EXCHANGE_CONTRACTS.get(chainId)![token.address][
-              token.type === TempleAssetType.FA2 ? token.id : 0
-            ],
-            "dexter"
-          )
-        )
-      ),
-      quipuswap: await Promise.all(
-        swappableTokens.quipuswap.map((token) => {
-          const contractAddress =
-            swappableTokens.quipuswapTokensExchangeContracts[token.address][
-              token.type === TempleAssetType.FA2 ? token.id : 0
-            ];
-          return getTokenExchangeData(token, contractAddress, "quipuswap");
-        })
-      ),
-    }),
-    [swappableTokens, getTokenExchangeData, chainId]
-  );
+  const getExchangeData = useCallback(async () => {
+    const result: TokensExchangeData = {};
+    await Promise.all(
+      swappableTokens.dexter.map(async (token) => {
+        const newEntry = await getTokenExchangeData(
+          token,
+          DEXTER_EXCHANGE_CONTRACTS.get(chainId)![token.address][
+            getTokenId(token, 0)
+          ],
+          "dexter"
+        );
+        const tokenId = getTokenId(token, 0);
+        if (!result[token.address]) {
+          result[token.address] = {};
+        }
+        result[token.address][tokenId] = {
+          dexter: newEntry,
+        };
+      })
+    );
+    await Promise.all(
+      swappableTokens.quipuswap.map(async (token) => {
+        const contractAddress =
+          swappableTokens.quipuswapTokensExchangeContracts[token.address][
+            getTokenId(token, 0)
+          ];
+        const newEntry = await getTokenExchangeData(
+          token,
+          contractAddress,
+          "quipuswap"
+        );
+        const tokenId = getTokenId(token, 0);
+        if (!result[token.address]) {
+          result[token.address] = {};
+        }
+        result[token.address][tokenId] = {
+          ...(result[token.address][tokenId] || {}),
+          quipuswap: newEntry,
+        };
+      })
+    );
+    return result;
+  }, [swappableTokens, getTokenExchangeData, chainId]);
 
-  const initialTokensExchangeData = useMemo<
-    Record<ExchangerType, ExchangeDataEntry[]>
-  >(
-    () => ({
-      dexter: swappableTokens.dexter.map((token) => ({
+  const initialTokensExchangeData = useMemo(() => {
+    const result: TokensExchangeData = {};
+    swappableTokens.dexter.forEach((token) => {
+      const newEntry = {
         usdPrice: undefined,
         maxExchangable: new BigNumber(Infinity),
         exchangeContract: DEXTER_EXCHANGE_CONTRACTS.get(chainId)![
           token.address
-        ][token.type === TempleAssetType.FA2 ? token.id : 0],
-      })),
-      quipuswap: swappableTokens.quipuswap.map((token) => ({
+        ][getTokenId(token, 0)],
+      };
+      const tokenId = getTokenId(token, 0);
+      if (!result[token.address]) {
+        result[token.address] = {};
+      }
+      result[token.address][tokenId] = {
+        dexter: newEntry,
+      };
+    });
+    swappableTokens.quipuswap.forEach((token) => {
+      const newEntry = {
         usdPrice: undefined,
         maxExchangable: new BigNumber(Infinity),
         exchangeContract:
           swappableTokens.quipuswapTokensExchangeContracts[token.address][
-            token.type === TempleAssetType.FA2 ? token.id : 0
+            getTokenId(token, 0)
           ],
-      })),
-    }),
-    [chainId, swappableTokens]
-  );
+      };
+      const tokenId = getTokenId(token, 0);
+      if (!result[token.address]) {
+        result[token.address] = {};
+      }
+      result[token.address][tokenId] = {
+        ...(result[token.address][tokenId] || {}),
+        quipuswap: newEntry,
+      };
+    });
+    return result;
+  }, [chainId, swappableTokens]);
 
   const swappableTokensIds = useMemo(() => {
     if (!swappableTokens) {
       return "";
     }
-    return [
-      swappableTokens.quipuswap,
-      swappableTokens.dexter
-    ].map(tokens => tokens.map(getTokenKey).join()).join(';');
+    return [swappableTokens.quipuswap, swappableTokens.dexter]
+      .map((tokens) => tokens.map(getTokenKey).join())
+      .join(";");
   }, [swappableTokens]);
   const {
     data: tokensExchangeData = initialTokensExchangeData,
@@ -657,64 +740,31 @@ export default function useSwappableAssets(
     { suspense: false }
   );
 
-  const swappableAssetsWithPrices = useMemo<
-    TempleAssetWithExchangeData[]
-  >(() => {
-    const maybeTezAssetFragment = assetMatchesSearchStr(TEZ_ASSET, searchString)
-      ? [
-          {
-            ...TEZ_ASSET,
-            ...ALL_EXCHANGERS_TYPES.reduce(
-              (additionalProps, exchangerType) => ({
-                ...additionalProps,
-                [exchangerType]: {
-                  usdPrice: networkTezUsdPrice || undefined,
-                  maxExchangable: new BigNumber(Infinity),
-                },
-              }),
-              {}
-            ),
-          },
-        ]
-      : [];
-
-    return [
-      ...maybeTezAssetFragment,
-      ...ALL_EXCHANGERS_TYPES.reduce<TempleAssetWithExchangeData[]>(
-        (resultPart, exchangerType) => {
-          const exchangerAvailableTokens =
-            swappableTokens?.[exchangerType] ?? [];
-          exchangerAvailableTokens.forEach((token, tokenIndex) => {
-            const index = resultPart.findIndex((addedToken) =>
-              assetsAreSame(addedToken, token)
-            );
-            if (index >= 0) {
-              resultPart[index] = {
-                ...resultPart[index],
-                [exchangerType]:
-                  tokensExchangeData?.[exchangerType][tokenIndex] || {},
-              };
-            } else {
-              resultPart.push({
-                ...token,
-                [exchangerType]:
-                  tokensExchangeData?.[exchangerType][tokenIndex] || {},
-              });
-            }
-          });
-          return resultPart;
-        },
-        []
-      ),
-    ];
-  }, [swappableTokens, tokensExchangeData, networkTezUsdPrice, searchString]);
+  const swappableAssets = useMemo<TempleAsset[]>(() => {
+    const dexterSwappableTokens = swappableTokens?.dexter ?? [];
+    const result = assetMatchesSearchStr(TEZ_ASSET, searchString)
+      ? [TEZ_ASSET, ...dexterSwappableTokens]
+      : [...dexterSwappableTokens];
+    swappableTokens?.quipuswap.forEach((token) => {
+      if (
+        !dexterSwappableTokens.some((dexterToken) =>
+          assetsAreSame(token, dexterToken)
+        )
+      ) {
+        result.push(token);
+      }
+    });
+    return result;
+  }, [searchString, swappableTokens]);
 
   return {
-    assets: swappableAssetsWithPrices,
+    assets: swappableAssets,
     updateTokensExchangeData,
     isSupportedNetwork: swappableTokens?.networkIsSupported ?? true,
     tokenIdRequired: swappableTokens?.tokenIdRequired ?? false,
     quipuswapTokensWhitelist: quipuswapTokenWhitelists!.get(chainId) ?? [],
     isLoading: exchangeDataLoading || swappableTokensLoading,
+    tezUsdPrice: networkTezUsdPrice,
+    tokensExchangeData,
   };
 }

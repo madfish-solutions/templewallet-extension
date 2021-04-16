@@ -15,6 +15,8 @@ import useSafeState from "lib/ui/useSafeState";
 
 type OperationStatusProps = {
   className?: string;
+  closable?: boolean;
+  onClose?: () => void;
   typeTitle: string;
   operation: any;
 };
@@ -23,6 +25,8 @@ const OperationStatus: FC<OperationStatusProps> = ({
   typeTitle,
   operation,
   className,
+  closable,
+  onClose,
 }) => {
   const tezos = useTezos();
   const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
@@ -115,6 +119,8 @@ const OperationStatus: FC<OperationStatusProps> = ({
       description={alert.description}
       autoFocus
       className={classNames("mb-8", className)}
+      closable={closable}
+      onClose={onClose}
     />
   );
 };

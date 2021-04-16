@@ -103,7 +103,7 @@ type TokenApproveParams = {
 function getFA12ApproveParams(
   tokenContract: WalletContract,
   to: string,
-  value: number
+  value: BigNumber
 ) {
   return {
     kind: OpKind.TRANSACTION as const,
@@ -149,7 +149,7 @@ export async function withTokenApprove(
   const approveParams = getFA12ApproveParams(
     tokenContract,
     to,
-    value.toNumber()
+    value
   );
   let resetApprove = false;
   try {
@@ -159,7 +159,7 @@ export async function withTokenApprove(
   }
 
   return resetApprove
-    ? [getFA12ApproveParams(tokenContract, to, 0), approveParams, ...transfers]
+    ? [getFA12ApproveParams(tokenContract, to, new BigNumber(0)), approveParams, ...transfers]
     : [approveParams, ...transfers];
 }
 

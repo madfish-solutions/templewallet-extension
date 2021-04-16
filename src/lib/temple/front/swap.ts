@@ -31,9 +31,6 @@ export type ExchangeDataEntry = {
   exchangeContract: string;
 };
 
-export type TempleAssetWithExchangeData = TempleAsset &
-  Partial<Record<ExchangerType, ExchangeDataEntry>>;
-
 export const ALL_EXCHANGERS_TYPES: ExchangerType[] = ["dexter", "quipuswap"];
 
 export const EXCHANGE_XTZ_RESERVE = new BigNumber("0.3");
@@ -238,8 +235,8 @@ export async function swap({
       exchangerType === "quipuswap"
         ? exchangeContract.methods
             .tokenToTezPayment(
-              rawInputAssetAmount.toNumber(),
-              mutezOutput.toNumber(),
+              rawInputAssetAmount,
+              mutezOutput,
               accountPkh
             )
             .toTransferParams()
@@ -247,8 +244,8 @@ export async function swap({
             .tokenToXtz(
               accountPkh,
               accountPkh,
-              rawInputAssetAmount.toNumber(),
-              mutezOutput.toNumber(),
+              rawInputAssetAmount,
+              mutezOutput,
               deadline.toString()
             )
             .toTransferParams(),
@@ -278,12 +275,12 @@ export async function swap({
     batchify(transactionsBatch, [
       exchangerType === "quipuswap"
         ? exchangeContract.methods
-            .tezToTokenPayment(tokensOutput.toNumber(), accountPkh)
+            .tezToTokenPayment(tokensOutput, accountPkh)
             .toTransferParams({ amount: mutezOutput.toNumber(), mutez: true })
         : exchangeContract.methods
             .xtzToToken(
               accountPkh,
-              tokensOutput.toNumber(),
+              tokensOutput,
               deadline.toString()
             )
             .toTransferParams({ amount: mutezOutput.toNumber(), mutez: true }),

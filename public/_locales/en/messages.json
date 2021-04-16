@@ -1764,7 +1764,7 @@
     "message": "Input and output assets cannot be the same"
   },
   "amountMustBeReservedForNetworkFees": {
-    "message": "$amount$ TEZ must be reserved to pay network fees",
+    "message": "$amount$ must be reserved to pay network fees",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -1797,5 +1797,11 @@
   },
   "storageFee": {
     "message": "Storage fee"
+  },
+  "templeWalletFeeWarning": {
+    "message": "Temple Wallet doesn't apply any fees to exchanges for now but it may apply in the future."
+  },
+  "poolExchangeFee": {
+    "message": "Pool exchange fee"
   }
 }
