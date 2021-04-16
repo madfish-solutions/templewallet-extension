@@ -2,6 +2,7 @@ import { localForger } from "@taquito/local-forging";
 import { TezosToolkit } from "@taquito/taquito";
 import { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 
+import { INCREASE_STORAGE_FEE_VARIANTS } from "lib/temple/defaults";
 import { formatOpParamsBeforeSend, michelEncoder } from "lib/temple/helpers";
 import { ReadOnlySigner } from "lib/temple/read-only-signer";
 
@@ -64,4 +65,33 @@ export async function dryRunOpParams({
   } catch {
     return null;
   }
+}
+
+export function increaseStorageOpParmas(
+  opParams: any[],
+  estimates?: Estimate[],
+  increaseStorageFee?: number
+) {
+  if (
+    estimates &&
+    increaseStorageFee &&
+    INCREASE_STORAGE_FEE_VARIANTS.includes(increaseStorageFee)
+  ) {
+    try {
+      const storageIncreaseFactor = (100 + increaseStorageFee) / 100;
+      return opParams.map((op, i) => {
+        const storageLimit = estimates[i]?.storageLimit;
+        return storageLimit
+          ? {
+              ...op,
+              storageLimit: Math.ceil(storageLimit * storageIncreaseFactor),
+            }
+          : op;
+      });
+    } catch {
+      return opParams;
+    }
+  }
+
+  return opParams;
 }

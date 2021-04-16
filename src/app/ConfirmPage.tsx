@@ -29,6 +29,7 @@ import Balance from "app/templates/Balance";
 import ConnectBanner from "app/templates/ConnectBanner";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import DAppLogo from "app/templates/DAppLogo";
+import IncreaseStorageFeeSection from "app/templates/IncreaseStorageFeeSection";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationView from "app/templates/OperationView";
 import { CustomRpsContext } from "lib/analytics";
@@ -138,13 +139,13 @@ const ConfirmDAppForm: FC = () => {
   );
 
   const onConfirm = useCallback(
-    async (confimed: boolean) => {
+    async (confimed: boolean, increaseStorageFee?: number) => {
       switch (payload.type) {
         case "connect":
           return confirmDAppPermission(id, confimed, accountPkhToConnect);
 
         case "confirm_operations":
-          return confirmDAppOperation(id, confimed);
+          return confirmDAppOperation(id, confimed, increaseStorageFee);
 
         case "sign":
           return confirmDAppSign(id, confimed);
@@ -163,12 +164,13 @@ const ConfirmDAppForm: FC = () => {
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
+  const [increaseStorageFeeValue, setIncreaseStorageFeeValue] = useSafeState(0);
 
   const confirm = useCallback(
     async (confirmed: boolean) => {
       setError(null);
       try {
-        await onConfirm(confirmed);
+        await onConfirm(confirmed, increaseStorageFeeValue);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -179,7 +181,7 @@ const ConfirmDAppForm: FC = () => {
         setError(err);
       }
     },
-    [onConfirm, setError]
+    [onConfirm, setError, increaseStorageFeeValue]
   );
 
   const handleConfirmClick = useCallback(async () => {
@@ -299,6 +301,13 @@ const ConfirmDAppForm: FC = () => {
     }
   }, [payload.type, payload.origin, payload.appMeta.name, error]);
 
+  const increaseStorageFeeDisplayed = useMemo(() => {
+    if (payload.type === "confirm_operations" && payload.estimates) {
+      return payload.estimates.reduce((sum, e) => sum + e.storageLimit, 0) > 0;
+    }
+    return false;
+  }, [payload]);
+
   return (
     <CustomRpsContext.Provider value={payload.networkRpc}>
       <div
@@ -308,11 +317,12 @@ const ConfirmDAppForm: FC = () => {
         )}
         style={{
           width: 380,
-          height: 578,
+          height: 610,
         }}
       >
         <div className="flex flex-col items-center px-4 py-2">
           <SubTitle
+            small
             className={payload.type === "connect" ? "mt-4 mb-6" : "mt-4 mb-2"}
           >
             {content.title}
@@ -413,9 +423,20 @@ const ConfirmDAppForm: FC = () => {
                   payload={payload}
                   networkRpc={payload.networkRpc}
                   mainnet={mainnet}
+                  increaseStorageFee={increaseStorageFeeValue}
                 />
               )}
             </>
+          )}
+
+          {increaseStorageFeeDisplayed && (
+            <div className="w-full mt-2">
+              <IncreaseStorageFeeSection
+                value={increaseStorageFeeValue}
+                onChange={setIncreaseStorageFeeValue}
+                style={{ marginTop: 0 }}
+              />
+            </div>
           )}
         </div>
 

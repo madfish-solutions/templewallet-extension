@@ -185,7 +185,7 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
       setSelectedPreset(newType);
       const option = feeOptions.find(({ type }) => type === newType)!;
       if (option.amount) {
-        onChange?.(option.amount);
+        onChange?.(`${option.amount}`);
       }
     },
     [onChange]
