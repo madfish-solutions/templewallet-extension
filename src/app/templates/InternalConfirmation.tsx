@@ -230,7 +230,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
         style={{ height: "34rem" }}
       >
         <div className="px-4 pt-4">
-          <SubTitle small className="mb-6">
+          <SubTitle small className="mb-4">
             <T
               id="confirmAction"
               substitutions={t(
