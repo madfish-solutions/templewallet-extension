@@ -10,7 +10,7 @@ import React, {
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
-import { toLocalFixed, toLocalFormat, toShortenedInt } from "lib/i18n/numbers";
+import { toLocalFixed, toLocalFormat, toShortened } from "lib/i18n/numbers";
 import { getNumberSymbols, t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy, { TippyInstance, TippyProps } from "lib/ui/useTippy";
@@ -52,9 +52,12 @@ const Money = memo<MoneyProps>(
       ? cryptoDecimals
       : decimalsLength;
     let result = shortened
-      ? toShortenedInt(bn)
+      ? toShortened(bn)
       : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
     let indexOfDecimal = result.indexOf(decimal);
+    if (shortened) {
+      console.log(result);
+    }
 
     const tippyClassName = classNames(
       "px-px -mr-px rounded cursor-pointer hover:bg-black",
@@ -73,7 +76,7 @@ const Money = memo<MoneyProps>(
           </FullAmountTippy>
         );
 
-      case !fiat && decimalsLength > cryptoDecimals:
+      case !fiat && decimalsLength > cryptoDecimals && !shortened:
         result = toLocalFormat(bn, {
           decimalPlaces: cryptoDecimals - 2,
           roundingMode,

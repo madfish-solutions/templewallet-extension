@@ -17,6 +17,7 @@ type InUSDProps = {
   children: (usdVolume: ReactNode) => ReactElement;
   roundingMode?: BigNumber.RoundingMode;
   shortened?: boolean;
+  smallFractionFont?: boolean;
   mainnet?: boolean;
 };
 
@@ -26,6 +27,7 @@ const InUSD: FC<InUSDProps> = ({
   children,
   roundingMode,
   shortened,
+  smallFractionFont,
   mainnet,
 }) => {
   const price = useUSDPrice();
@@ -37,7 +39,12 @@ const InUSD: FC<InUSDProps> = ({
 
   return mainnet && asset.type === TempleAssetType.TEZ && price !== null
     ? children(
-        <Money fiat roundingMode={roundingMode} shortened={shortened}>
+        <Money
+          fiat
+          roundingMode={roundingMode}
+          shortened={shortened}
+          smallFractionFont={smallFractionFont}
+        >
           {new BigNumber(volume).times(price)}
         </Money>
       )

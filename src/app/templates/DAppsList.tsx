@@ -10,13 +10,11 @@ import DAppItem from "app/templates/DAppsList/DAppItem";
 import StarButton from "app/templates/DAppsList/StarButton";
 import InUSD from "app/templates/InUSD";
 import SearchField from "app/templates/SearchField";
-import { getDApps } from "lib/better-call-dev/dapps";
+import { getDApps } from "lib/custom-dapps-api";
 import { t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import { TEZ_ASSET } from "lib/temple/assets";
 import { useStorage } from "lib/temple/front";
-
-const dummyTvl = 1048576.123456;
 
 const USED_TAGS = [
   "DEX",
@@ -31,8 +29,6 @@ const USED_TAGS = [
 
 const FAVORITE_DAPPS_STORAGE_KEY = "dapps_favorite";
 
-const dummyDAppTvl = new BigNumber(1e6);
-
 const DAppsList: FC = () => {
   const [favoriteDApps, setFavoriteDApps] = useStorage<string[]>(
     FAVORITE_DAPPS_STORAGE_KEY,
@@ -40,7 +36,7 @@ const DAppsList: FC = () => {
   );
   const { data } = useRetryableSWR("dapps-list", getDApps, { suspense: true });
   const dApps = useMemo(() => {
-    return data!.map(({ categories: rawCategories, ...restProps }) => {
+    return data!.dApps.map(({ categories: rawCategories, ...restProps }) => {
       const nonUniqueCategories = rawCategories.map((category) =>
         USED_TAGS.includes(category) ? category : "Other"
       );
@@ -125,9 +121,9 @@ const DAppsList: FC = () => {
           />
         </div>
         <h1 className="text-2xl text-gray-900 mb-2 font-medium">
-          ~<Money>{1048576.123456}</Money> <span>{TEZ_ASSET.symbol}</span>
+          ~<Money>{data!.tvl}</Money> <span>{TEZ_ASSET.symbol}</span>
         </h1>
-        <InUSD volume={dummyTvl} mainnet>
+        <InUSD volume={data!.tvl} mainnet>
           {(inUSD) => (
             <h2 className="mb-6 text-base text-gray-600">~{inUSD} $</h2>
           )}
@@ -198,8 +194,7 @@ const DAppsList: FC = () => {
             key={dAppProps.slug}
             onStarClick={handleFavoriteChange}
             isFavorite={favoriteDApps.includes(dAppProps.slug)}
-            tvl={dummyDAppTvl}
-            tvlLoading={false}
+            tvl={dAppProps.tvl}
           />
         ))}
       </div>

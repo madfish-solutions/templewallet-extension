@@ -77,7 +77,7 @@ export function toLocalFixed(
   return localizeDefaultFormattedNumber(rawResult);
 }
 
-export function toShortenedInt(
+export function toShortened(
   value: BigNumber.Value
 ) {
   let bn = new BigNumber(value).integerValue();
@@ -85,8 +85,9 @@ export function toShortenedInt(
   let formatIndex = -1;
   while (bn.abs().gte(1000) && formatIndex < formats.length - 1) {
     formatIndex++;
-    bn = bn.div(1000).integerValue();
+    bn = bn.div(1000);
   }
+  bn = bn.decimalPlaces(1, BigNumber.ROUND_FLOOR);
   if (formatIndex === -1) {
     return toLocalFixed(bn);
   }

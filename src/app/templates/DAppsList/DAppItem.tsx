@@ -1,22 +1,17 @@
 import React, { FC, SVGProps, useCallback } from "react";
 
-import BigNumber from "bignumber.js";
-
 import Money from "app/atoms/Money";
-import Spinner from "app/atoms/Spinner";
 import { ReactComponent as LockIcon } from "app/icons/lock.svg";
 import { ReactComponent as TagIcon } from "app/icons/tag.svg";
 import DAppIcon from "app/templates/DAppsList/DAppIcon";
 import StarButton from "app/templates/DAppsList/StarButton";
 import InUSD from "app/templates/InUSD";
-import { BcdDAppInfo } from "lib/better-call-dev/dapps";
+import { CustomDAppInfo } from "lib/custom-dapps-api";
 import { t } from "lib/i18n/react";
 
-type DAppItemProps = BcdDAppInfo & {
+type DAppItemProps = CustomDAppInfo & {
   onStarClick: (newIsFavorite: boolean, slug: string) => void;
   isFavorite: boolean;
-  tvl?: BigNumber;
-  tvlLoading: boolean;
 };
 
 const DAppItem: FC<DAppItemProps> = ({
@@ -29,7 +24,6 @@ const DAppItem: FC<DAppItemProps> = ({
   onStarClick,
   isFavorite,
   tvl,
-  tvlLoading,
 }) => {
   const handleStarClick = useCallback(() => {
     onStarClick(!isFavorite, slug);
@@ -49,14 +43,15 @@ const DAppItem: FC<DAppItemProps> = ({
             {categories.map((category) => `#${category}`).join(", ")}
           </DAppCharacteristic>
           {soon && <DAppCharacteristic>{t("comingSoon")}</DAppCharacteristic>}
-          {!soon && !tvl && tvlLoading && (
-            <Spinner theme="gray" className="w-8" />
-          )}
-          {!soon && tvl && (
+          {!soon && (
             <DAppCharacteristic Icon={LockIcon}>
-              ~<Money shortened>{tvl}</Money> {"tz = "}
-              <InUSD volume={tvl} mainnet shortened>
-                {(value) => <>~{value} $</>}
+              ~
+              <Money shortened smallFractionFont={false}>
+                {tvl}
+              </Money>
+              {"\u00a0tz = "}
+              <InUSD volume={tvl} mainnet shortened smallFractionFont={false}>
+                {(value) => <>~{value}&nbsp;$</>}
               </InUSD>
             </DAppCharacteristic>
           )}
