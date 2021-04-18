@@ -17,8 +17,9 @@ import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import PageLayout from "app/layouts/PageLayout";
+import Activity from "app/templates/Activity";
 import AssetInfo from "app/templates/AssetInfo";
-import OperationHistory from "app/templates/OperationHistory";
+// import OperationHistory from "app/templates/OperationHistory";
 import { T, t } from "lib/i18n/react";
 import {
   getAssetKey,
@@ -215,16 +216,16 @@ const Delegation: FC = () => (
   </SuspenseContainer>
 );
 
-type ActivityProps = {
+type ActivityTabProps = {
   asset?: TempleAsset;
 };
 
-const Activity: FC<ActivityProps> = ({ asset }) => {
+const ActivityTab: FC<ActivityTabProps> = ({ asset }) => {
   const account = useAccount();
 
   return (
     <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
-      <OperationHistory
+      {/* <OperationHistory
         accountPkh={account.publicKeyHash}
         accountOwner={
           account.type === TempleAccountType.ManagedKT
@@ -232,6 +233,10 @@ const Activity: FC<ActivityProps> = ({ asset }) => {
             : undefined
         }
         asset={asset}
+      /> */}
+      <Activity
+        address={account.publicKeyHash}
+        assetId={asset && getAssetKey(asset)}
       />
     </SuspenseContainer>
   );
@@ -255,31 +260,33 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
-  const tabs = useMemo<{
-    slug: string;
-    title: string;
-    Component: FC;
-    testID: string;
-  }[]>(() => {
+  const tabs = useMemo<
+    {
+      slug: string;
+      title: string;
+      Component: FC;
+      testID: string;
+    }[]
+  >(() => {
     if (!asset) {
       return [
         {
           slug: "assets",
           title: t("assets"),
           Component: Assets,
-          testID: ExploreSelectors.AssetsTab
+          testID: ExploreSelectors.AssetsTab,
         },
         {
           slug: "delegation",
           title: t("delegation"),
           Component: Delegation,
-          testID: ExploreSelectors.DelegationTab
+          testID: ExploreSelectors.DelegationTab,
         },
         {
           slug: "activity",
           title: t("activity"),
-          Component: Activity,
-          testID: ExploreSelectors.ActivityTab
+          Component: ActivityTab,
+          testID: ExploreSelectors.ActivityTab,
         },
       ];
     }
@@ -287,8 +294,8 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
     const activity = {
       slug: "activity",
       title: t("activity"),
-      Component: () => <Activity asset={asset} />,
-      testID: ExploreSelectors.ActivityTab
+      Component: () => <ActivityTab asset={asset} />,
+      testID: ExploreSelectors.ActivityTab,
     };
 
     if (asset.type === TempleAssetType.TEZ) {
@@ -301,7 +308,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
         slug: "about",
         title: t("about"),
         Component: () => <AssetInfo asset={asset} />,
-        testID: ExploreSelectors.AboutTab
+        testID: ExploreSelectors.AboutTab,
       },
     ];
   }, [asset]);
