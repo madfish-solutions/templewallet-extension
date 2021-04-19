@@ -42,16 +42,11 @@ jobs:
       - run: yarn ci
 
       - run: yarn build:chrome
-      - run: yarn build:firefox
-      - run: yarn build:opera
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: builds
-          path: |
-            dist/chrome.zip
-            dist/firefox.xpi
-            dist/opera.crx
+          name: chrome
+          path: dist/chrome.zip
           if-no-files-found: error
           retention-days: 7
