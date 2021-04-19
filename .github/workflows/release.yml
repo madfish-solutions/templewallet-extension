@@ -13,6 +13,7 @@ env:
 
 jobs:
   create-release:
+    name: Uploads release assets, generates changelogs
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
