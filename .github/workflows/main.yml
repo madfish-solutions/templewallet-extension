@@ -12,8 +12,8 @@ env:
   TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY: ${{ secrets.TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY }}
 
 jobs:
-  code-quality:
-    name: Checks if ts, lint, unit tests & build work
+  pull-request-check:
+    name: Checks if ts, lint, unit tests & build works
     runs-on: ubuntu-latest
     environment: develop-environment
     steps:
@@ -37,9 +37,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - uses: ./.github/workflows/composite-action
+      - name: Install dependencies and code quality
+        uses: ./.github/workflows/code-quality-check
 
-      - run: yarn build:chrome
+      - name: Create chrome build
+        run: yarn build:chrome
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
