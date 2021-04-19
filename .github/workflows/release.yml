@@ -1,12 +1,18 @@
-name: Create Release
+name: Create release
 
 on:
   push:
     tags:
       - '*'
 
+env:
+  TEMPLE_WALLET_LEDGER_BRIDGE_URL: ${{ secrets.TEMPLE_WALLET_LEDGER_BRIDGE_URL }}
+  TEMPLE_WALLET_LOGO_URL: ${{ secrets.TEMPLE_WALLET_LOGO_URL }}
+  TEMPLE_WALLET_LV_ACCOUNT_PKH: ${{ secrets.TEMPLE_WALLET_LV_ACCOUNT_PKH }}
+  TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY: ${{ secrets.TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY }}
+
 jobs:
-  release:
+  create-release:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
