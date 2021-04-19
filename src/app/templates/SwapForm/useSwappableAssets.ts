@@ -187,7 +187,7 @@ export default function useSwappableAssets(
   const networkTezUsdPrice = network.type === "main" ? tezUsdPrice : null;
   const chainId = useChainId(true)!;
   const [qsStoredTokens, setQsStoredTokens] = useStorage<TempleToken[]>(
-    `qs_stored_tokens_${chainId}`,
+    `qs_1.1_stored_tokens_${chainId}`,
     []
   );
   const qsStoredTokensKeys = useMemo(
@@ -363,14 +363,16 @@ export default function useSwappableAssets(
     const result: Record<string, Record<number, string>> = {};
     const whitelist = quipuswapTokenWhitelists?.get(chainId) ?? [];
     const quipuswapContracts = QUIPUSWAP_CONTRACTS.get(chainId)!;
-    const fa2TokensToExchange = await getTokensToExchange(
-      quipuswapContracts.fa2Factory,
+    const fa12FactoryAddress = quipuswapContracts.fa12Factory;
+    const fa2FactoryAddress = quipuswapContracts.fa2Factory;
+    const fa2TokensToExchange = fa2FactoryAddress ? await getTokensToExchange(
+      fa2FactoryAddress,
       tezos
-    );
-    const fa12TokensToExchange = await getTokensToExchange(
-      quipuswapContracts.fa12Factory,
+    ) : undefined;
+    const fa12TokensToExchange = fa12FactoryAddress ? await getTokensToExchange(
+      fa12FactoryAddress,
       tezos
-    );
+    ) : undefined;
     const initialExchangableTokens = [
       ...whitelist,
       ...qsStoredTokens.filter(
@@ -383,22 +385,24 @@ export default function useSwappableAssets(
     await Promise.all(
       initialExchangableTokens.map(async (token) => {
         const tokenId = getTokenId(token);
-        let exchangeContractAddress: string;
+        let exchangeContractAddress: string | undefined;
         if (token.type === TempleAssetType.FA2) {
           // @ts-ignore
-          exchangeContractAddress = (await fa2TokensToExchange.get([
+          exchangeContractAddress = fa2TokensToExchange && (await fa2TokensToExchange.get([
             token.address,
             token.id,
           ]))!;
         } else {
-          exchangeContractAddress = (await fa12TokensToExchange.get(
+          exchangeContractAddress = fa12TokensToExchange && (await fa12TokensToExchange.get(
             token.address
           ))! as string;
         }
         if (!result[token.address]) {
           result[token.address] = {};
         }
-        result[token.address][tokenId ?? 0] = exchangeContractAddress;
+        if (exchangeContractAddress) {
+          result[token.address][tokenId ?? 0] = exchangeContractAddress;
+        }
       })
     );
     return result;
@@ -499,10 +503,12 @@ export default function useSwappableAssets(
         let isFA2Token = false;
         let fa2IdIsCorrect = false;
         const quipuswapContracts = QUIPUSWAP_CONTRACTS.get(chainId)!;
-        const fa2TokensList = await getTokensToExchange(
-          quipuswapContracts.fa2Factory,
+        const fa2FactoryAddress = quipuswapContracts.fa2Factory;
+        const fa12FactoryAddress = quipuswapContracts.fa12Factory;
+        const fa2TokensList = fa2FactoryAddress ? await getTokensToExchange(
+          fa2FactoryAddress,
           tezos
-        );
+        ) : undefined;
         let exchangeContractAddress: string | undefined;
         try {
           await assertFA2TokenContract(contract);
@@ -524,11 +530,13 @@ export default function useSwappableAssets(
         }
         if (!isFA2Token) {
           try {
-            const tokensList = await getTokensToExchange(
-              quipuswapContracts.fa12Factory,
+            const tokensList = fa12FactoryAddress ? await getTokensToExchange(
+              fa12FactoryAddress,
               tezos
-            );
-            exchangeContractAddress = await tokensList.get(searchStr);
+            ) : undefined;
+            if (tokensList) {
+              exchangeContractAddress = await tokensList.get(searchStr);
+            }
           } catch (e) {}
         }
         const tokenMetadata = await getAssetData({

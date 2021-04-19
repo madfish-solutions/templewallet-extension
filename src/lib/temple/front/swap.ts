@@ -75,27 +75,26 @@ export const DEXTER_EXCHANGE_CONTRACTS = new Map<
 
 export const QUIPUSWAP_CONTRACTS = new Map<
   string,
-  Record<"fa12Factory" | "fa2Factory", string>
+  Partial<Record<"fa12Factory" | "fa2Factory", string>>
 >([
   [
     TempleChainId.Edo2net,
     {
-      fa12Factory: "KT1HPKpoCJm9Gg4cRxqZX8Hg6Uth1NzrFAeQ",
-      fa2Factory: "KT18uK1EmY3QBc4KTNG6pmtU736tTYLE5AYE",
+      fa2Factory: "KT1HwQ7ZXyDfPhmU4f9LwfnMYtyeKnaVQRP9",
     },
   ],
   [
     TempleChainId.Florencenet,
     {
-      fa12Factory: "KT1WkKiDSsDttdWrfZgcQ6Z9e3Cp4unHP2CP",
-      fa2Factory: "KT1Bps1VtszT2T3Yvxm5PJ6Rx2nk1FykWPdU",
+      fa12Factory: "KT1We4CHneKjnCkovTDV34qc4W7xzWbn5LwY",
+      fa2Factory: "KT1SQX24W2v6D5sgihznax1eBykEGQNc7UpD",
     },
   ],
   [
     TempleChainId.Mainnet,
     {
-      fa12Factory: "KT1K7whn5yHucGXMN7ymfKiX5r534QeaJM29",
-      fa2Factory: "KT1MMLb2FVrrE9Do74J3FH1RNNc4QhDuVCNX",
+      fa12Factory: "KT1Lw8hCoaBrHeTeMXbqHPG4sS4K1xn7yKcD",
+      fa2Factory: "KT1GDtv3sqhWeSsXLWgcGsmoH5nRRGJd8xVc",
     },
   ],
 ]);
@@ -149,8 +148,6 @@ export async function getPoolParameters(
   };
 }
 
-const QUIPUSWAP_FEE_RATE = 333;
-
 export async function getMutezOutput(
   tezos: TezosToolkit,
   tokenAmount: BigNumber,
@@ -161,16 +158,10 @@ export async function getMutezOutput(
   if (invariant.eq(0)) {
     return new BigNumber(0);
   }
-  if (type === "dexter") {
-    return tokenAmount
-      .multipliedBy(997)
-      .multipliedBy(xtzPool)
-      .idiv(tokenPool.multipliedBy(1000).plus(tokenAmount.multipliedBy(997)));
-  }
-  const fee = tokenAmount.idiv(QUIPUSWAP_FEE_RATE);
-  const tempTokenPool = tokenPool.plus(tokenAmount).minus(fee);
-  const remainder = invariant.idiv(tempTokenPool);
-  return xtzPool.minus(remainder);
+  const tokenInWithFee = tokenAmount.multipliedBy(997);
+  return tokenInWithFee
+    .times(xtzPool)
+    .idiv(tokenPool.times(1000).plus(tokenInWithFee));
 }
 
 export async function getTokenOutput(
@@ -183,16 +174,10 @@ export async function getTokenOutput(
   if (invariant.eq(0)) {
     return new BigNumber(0);
   }
-  if (type === "dexter") {
-    return mutezAmount
-      .multipliedBy(997)
-      .multipliedBy(tokenPool)
-      .idiv(xtzPool.multipliedBy(1000).plus(mutezAmount.multipliedBy(997)));
-  }
-  const newXtzPool = xtzPool.plus(mutezAmount);
-  const fee = mutezAmount.idiv(QUIPUSWAP_FEE_RATE);
-  const newTokenPool = invariant.idiv(newXtzPool.minus(fee));
-  return tokenPool.minus(newTokenPool);
+  const tezInWithFee = mutezAmount.multipliedBy(997);
+  return tezInWithFee
+    .times(tokenPool)
+    .idiv(xtzPool.times(1000).plus(tezInWithFee));
 }
 
 export async function swap({
@@ -234,11 +219,7 @@ export async function swap({
     const exchangeOperations = [
       exchangerType === "quipuswap"
         ? exchangeContract.methods
-            .tokenToTezPayment(
-              rawInputAssetAmount,
-              mutezOutput,
-              accountPkh
-            )
+            .tokenToTezPayment(rawInputAssetAmount, mutezOutput, accountPkh)
             .toTransferParams()
         : exchangeContract.methods
             .tokenToXtz(
@@ -278,11 +259,7 @@ export async function swap({
             .tezToTokenPayment(tokensOutput, accountPkh)
             .toTransferParams({ amount: mutezOutput.toNumber(), mutez: true })
         : exchangeContract.methods
-            .xtzToToken(
-              accountPkh,
-              tokensOutput,
-              deadline.toString()
-            )
+            .xtzToToken(accountPkh, tokensOutput, deadline.toString())
             .toTransferParams({ amount: mutezOutput.toNumber(), mutez: true }),
     ]);
   }
