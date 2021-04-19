@@ -1,0 +1,20 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - '*'
+    branches:
+      - release-test
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
