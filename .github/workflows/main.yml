@@ -5,17 +5,10 @@ on:
     branches:
       - develop
 
-env:
-  TEMPLE_WALLET_LEDGER_BRIDGE_URL: ${{ secrets.TEMPLE_WALLET_LEDGER_BRIDGE_URL }}
-  TEMPLE_WALLET_LOGO_URL: ${{ secrets.TEMPLE_WALLET_LOGO_URL }}
-  TEMPLE_WALLET_LV_ACCOUNT_PKH: ${{ secrets.TEMPLE_WALLET_LV_ACCOUNT_PKH }}
-  TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY: ${{ secrets.TEMPLE_WALLET_LV_ACCOUNT_PUBLIC_KEY }}
-
 jobs:
   pull-request-check:
     name: Checks if ts, lint, unit tests & build works
     runs-on: ubuntu-latest
-    environment: develop-environment
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
