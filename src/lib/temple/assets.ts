@@ -100,7 +100,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     address: "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV",
     name: "Quipuswap Liquidating kUSD",
     symbol: "QLkUSD",
-    decimals: 18,
+    decimals: 36,
     fungible: true,
     iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
     status: "displayed",
