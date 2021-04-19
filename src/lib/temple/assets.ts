@@ -97,6 +97,16 @@ export const MAINNET_TOKENS: TempleToken[] = [
   },
   {
     type: TempleAssetType.FA1_2,
+    address: "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV",
+    name: "Quipuswap Liquidating kUSD",
+    symbol: "QLkUSD",
+    decimals: 18,
+    fungible: true,
+    iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
+    status: "displayed",
+  },
+  {
+    type: TempleAssetType.FA1_2,
     address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
     name: "Wrapped Tezos",
     symbol: "wXTZ",
@@ -307,7 +317,7 @@ export async function fetchBalance(
         nat = await contract.views
           .getBalance(accountPkh)
           .read((tezos as any).lambdaContract);
-      } catch {}
+      } catch { }
 
       if (!nat || nat.isNaN()) {
         nat = new BigNumber(0);
@@ -326,7 +336,7 @@ export async function fetchBalance(
           .balance_of([{ owner: accountPkh, token_id: asset.id }])
           .read((tezos as any).lambdaContract);
         nat = response[0].balance;
-      } catch {}
+      } catch { }
 
       if (!nat || nat.isNaN()) {
         nat = new BigNumber(0);
@@ -364,15 +374,15 @@ export async function toTransferParams(
       const methodArgs =
         asset.type === TempleAssetType.FA2
           ? [
-              [
-                {
-                  from_: fromPkh,
-                  txs: [
-                    { to_: toPkh, token_id: asset.id, amount: pennyAmount },
-                  ],
-                },
-              ],
-            ]
+            [
+              {
+                from_: fromPkh,
+                txs: [
+                  { to_: toPkh, token_id: asset.id, amount: pennyAmount },
+                ],
+              },
+            ],
+          ]
           : [fromPkh, toPkh, pennyAmount];
       return contact.methods.transfer(...methodArgs).toTransferParams();
 
@@ -441,4 +451,4 @@ export function toPenny(asset: TempleAsset) {
   return new BigNumber(1).div(10 ** asset.decimals);
 }
 
-export class NotMatchingStandardError extends Error {}
+export class NotMatchingStandardError extends Error { }
