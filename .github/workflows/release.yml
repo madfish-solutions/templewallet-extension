@@ -15,6 +15,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: marvinpinto/action-automatic-releases@latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: false
+          files: |
+            LICENSE.txt
