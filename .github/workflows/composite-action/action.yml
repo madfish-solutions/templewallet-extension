@@ -3,9 +3,6 @@ description: "Checks out the repository and does something"
 runs:
   using: "composite"
   steps:
-    - name: Clone repository
-      uses: actions/checkout@v2
-
     - name: Use Node 14.x
       uses: actions/setup-node@v2
       with:

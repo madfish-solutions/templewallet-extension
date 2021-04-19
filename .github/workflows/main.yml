@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: develop-environment
     steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
       - uses: ./.github/workflows/composite-action
 
       - run: yarn build:chrome
