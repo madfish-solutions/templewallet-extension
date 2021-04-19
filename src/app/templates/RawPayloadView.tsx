@@ -18,7 +18,7 @@ const RawPayloadView = memo(
     label,
     rows,
     style = {},
-    fieldWrapperBottomMargin,
+    fieldWrapperBottomMargin = false,
   }: RawPayloadViewProps) => (
     <FormField
       textarea
@@ -32,6 +32,7 @@ const RawPayloadView = memo(
       className={className}
       style={{
         resize: "none",
+        marginBottom: 0,
         ...style,
       }}
     />

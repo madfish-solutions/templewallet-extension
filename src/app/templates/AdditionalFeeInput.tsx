@@ -119,7 +119,8 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
     if (v?.amount === undefined) {
       return t("required");
     }
-    if (v.amount <= 0) {
+    const bn = new BigNumber(v.amount);
+    if (bn.lte(0)) {
       return t("amountMustBePositive");
     }
     return true;
@@ -176,7 +177,7 @@ export default AdditionalFeeInput;
 
 export type AdditionalFeeValue = {
   inToken: boolean;
-  amount?: number;
+  amount?: string;
 };
 
 type AdditionalFeeInputContentProps = Omit<
@@ -244,13 +245,13 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
       setSelectedPreset(newType);
       const option = feeOptions.find(({ type }) => type === newType)!;
       if (option.amount) {
-        onChange?.({ inToken, amount: option.amount.toNumber() });
+        onChange?.({ inToken, amount: `${option.amount}` });
       }
     },
     [onChange, feeOptions, inToken]
   );
   const handleAmountChange = useCallback(
-    (newAmount?: number) => {
+    (newAmount?: string) => {
       onChange?.({ inToken, amount: newAmount });
     },
     [onChange, inToken]
@@ -264,15 +265,15 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
           ? tzToMutez(newAmount)
               .multipliedBy(tokenPrice ?? 1)
               .decimalPlaces(token!.decimals)
-              .toNumber()
+              .toString()
           : mutezToTz(
               new BigNumber(newAmount).dividedBy(tokenPrice ?? 1)
-            ).toNumber();
+            ).toString();
       } else {
         const newOptions = newInToken ? tokenFeeOptions : xtzFeeOptions;
         newAmount = newOptions
           .find(({ type }) => type === selectedPreset)!
-          .amount?.toNumber();
+          .amount?.toString();
       }
       onChange?.({ inToken: e.target.checked, amount: newAmount });
     },

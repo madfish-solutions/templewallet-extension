@@ -23,12 +23,14 @@ type OperationViewProps = {
   payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
   networkRpc?: string;
   mainnet?: boolean;
+  increaseStorageFee?: number;
 };
 
 const OperationView: FC<OperationViewProps> = ({
   payload,
   networkRpc,
   mainnet = false,
+  increaseStorageFee,
 }) => {
   const contentToParse = useMemo(() => {
     switch (payload.type) {
@@ -144,10 +146,8 @@ const OperationView: FC<OperationViewProps> = ({
 
         <RawPayloadView
           payload={payload.payload}
-          rows={6}
           className={classNames(spFormat.key !== "bytes" && "hidden")}
-          style={{ marginBottom: 0 }}
-          fieldWrapperBottomMargin={false}
+          style={{ marginBottom: 0, height: "9.5rem" }}
         />
 
         <div className={classNames(spFormat.key !== "preview" && "hidden")}>
@@ -161,9 +161,8 @@ const OperationView: FC<OperationViewProps> = ({
     return (
       <RawPayloadView
         label={t("payloadToSign")}
-        rows={6}
         payload={payload.payload}
-        style={{ marginBottom: 0 }}
+        style={{ marginBottom: 0, height: "9.5rem" }}
         fieldWrapperBottomMargin={false}
       />
     );
@@ -198,9 +197,8 @@ const OperationView: FC<OperationViewProps> = ({
         {payload.bytesToSign && (
           <RawPayloadView
             payload={payload.bytesToSign}
-            rows={6}
             className={classNames(spFormat.key !== "bytes" && "hidden")}
-            style={{ marginBottom: 0 }}
+            style={{ marginBottom: 0, height: "9.5rem" }}
             fieldWrapperBottomMargin={false}
           />
         )}
@@ -217,7 +215,8 @@ const OperationView: FC<OperationViewProps> = ({
         <div className={classNames(spFormat.key !== "preview" && "hidden")}>
           <ExpensesView
             expenses={expensesData}
-            rawToSign={payload.rawToSign}
+            estimates={payload.estimates}
+            increaseStorageFee={increaseStorageFee}
             mainnet={mainnet}
             totalFeeDisplayed
           />

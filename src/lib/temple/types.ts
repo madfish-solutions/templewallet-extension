@@ -1,4 +1,5 @@
 import { OperationContentsAndResult } from "@taquito/rpc";
+import { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import {
   TempleDAppMetadata,
   TempleDAppNetwork,
@@ -199,6 +200,7 @@ export interface TempleOpsConfirmationPayload
   opParams: any[];
   bytesToSign?: string;
   rawToSign?: any;
+  estimates?: Estimate[];
 }
 
 export type TempleConfirmationPayload =
@@ -227,6 +229,7 @@ export interface TempleDAppOperationsPayload extends TempleDAppPayloadBase {
   opParams: any[];
   bytesToSign?: string;
   rawToSign?: any;
+  estimates?: Estimate[];
 }
 
 export interface TempleDAppSignPayload extends TempleDAppPayloadBase {
@@ -621,6 +624,7 @@ export interface TempleConfirmationRequest extends TempleMessageBase {
   type: TempleMessageType.ConfirmationRequest;
   id: string;
   confirmed: boolean;
+  increaseStorageFee?: number;
 }
 
 export interface TempleConfirmationResponse extends TempleMessageBase {
@@ -667,6 +671,7 @@ export interface TempleDAppOpsConfirmationRequest extends TempleMessageBase {
   type: TempleMessageType.DAppOpsConfirmationRequest;
   id: string;
   confirmed: boolean;
+  increaseStorageFee?: number;
 }
 
 export interface TempleDAppOpsConfirmationResponse extends TempleMessageBase {
@@ -705,10 +710,10 @@ export interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
 export type OperationsPreview = any[] | { branch: string; contents: any[] };
 
 export enum ImportAccountFormType {
-  PrivateKey = 'ImportAccountFormType.PrivateKey',
-  Mnemonic = 'ImportAccountFormType.Mnemonic',
-  Fundraiser = 'ImportAccountFormType.Fundraiser',
-  FaucetFile = 'ImportAccountFormType.FaucetFile',
-  ManagedKT = 'ImportAccountFormType.ManagedKT',
-  WatchOnly = 'ImportAccountFormType.WatchOnly'
+  PrivateKey = "ImportAccountFormType.PrivateKey",
+  Mnemonic = "ImportAccountFormType.Mnemonic",
+  Fundraiser = "ImportAccountFormType.Fundraiser",
+  FaucetFile = "ImportAccountFormType.FaucetFile",
+  ManagedKT = "ImportAccountFormType.ManagedKT",
+  WatchOnly = "ImportAccountFormType.WatchOnly",
 }
