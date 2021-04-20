@@ -48,7 +48,7 @@ export type AdditionalFeeInputProps = Pick<
   ControllerProps<ComponentType>,
   "name" | "control" | "onChange"
 > & {
-  assetSymbol: string;
+  assetSymbol?: string;
   baseFee?: BigNumber | Error;
   token?: TempleToken;
   tokenPrice?: number;
@@ -150,18 +150,7 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = (props) => {
       assetSymbol={assetSymbol}
       onFocus={focusCustomFeeInput}
       label={t("additionalFee")}
-      labelDescription={
-        baseFee instanceof BigNumber && (
-          <T
-            id="feeInputDescription"
-            substitutions={[
-              <Fragment key={0}>
-                <span className="font-normal">{toLocalFixed(baseFee)}</span>
-              </Fragment>,
-            ]}
-          />
-        )
-      }
+      baseFee={baseFee}
       placeholder="0"
       errorCaption={error?.message}
       rules={{
@@ -182,9 +171,9 @@ export type AdditionalFeeValue = {
 
 type AdditionalFeeInputContentProps = Omit<
   AssetFieldProps,
-  "onChange" | "value"
+  "onChange" | "value" | "labelDescription"
 > &
-  Pick<AdditionalFeeInputProps, "token" | "tokenPrice"> & {
+  Pick<AdditionalFeeInputProps, "token" | "tokenPrice" | "baseFee"> & {
     customFeeInputRef: MutableRefObject<HTMLInputElement | null>;
     onChange?: (newValue: AdditionalFeeValue) => void;
     value?: AdditionalFeeValue;
@@ -196,6 +185,7 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
   props
 ) => {
   const {
+    baseFee,
     className,
     containerClassName,
     customFeeInputRef,
@@ -203,7 +193,6 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
     assetSymbol,
     id,
     label,
-    labelDescription,
     token,
     tokenPrice,
     value = defaultAdditionalFeeValue,
@@ -287,17 +276,39 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
     ]
   );
 
+  const defaultAssetSymbol = token && inToken ? token.symbol : TEZ_ASSET.symbol;
+
   const FeeOptionContent = useCallback(
     (props: OptionRenderProps<FeeOption>) => (
       <GenericFeeOptionContent
         {...props}
-        assetSymbol={token && inToken ? token.symbol : TEZ_ASSET.symbol}
+        assetSymbol={defaultAssetSymbol}
         cryptoDecimals={
           token?.decimals === undefined ? undefined : token.decimals - 1
         }
       />
     ),
-    [token, inToken]
+    [token, defaultAssetSymbol]
+  );
+
+  const labelDescription = useMemo(
+    () =>
+      baseFee instanceof BigNumber && (
+        <T
+          id="feeInputDescription"
+          substitutions={[
+            <Fragment key={0}>
+              <span className="font-normal">
+                {toLocalFixed(baseFee)}
+                {defaultAssetSymbol === TEZ_ASSET.symbol
+                  ? ""
+                  : ` ${defaultAssetSymbol}`}
+              </span>
+            </Fragment>,
+          ]}
+        />
+      ),
+    [baseFee, defaultAssetSymbol]
   );
 
   return (
@@ -350,7 +361,7 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = (
           id={id}
           onChange={handleAmountChange}
           ref={customFeeInputRef}
-          assetSymbol={assetSymbol}
+          assetSymbol={assetSymbol ?? defaultAssetSymbol}
           value={amountFromValue}
           {...restProps}
         />

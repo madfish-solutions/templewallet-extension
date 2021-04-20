@@ -51,6 +51,7 @@ import {
 import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { transferImplicit, transferToContract } from "lib/michelson";
+import { useRetryableSWR } from "lib/swr";
 import {
   fetchBalance,
   getAssetKey,
@@ -343,7 +344,10 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   }, [toFilled, registerBackHandler, cleanToField]);
 
   const estimateGasStationBaseFee = useCallback(
-    async (relayerFeeEstimation: number = 1) => {
+    async (relayerFeeEstimation: number = 1, amount?: string) => {
+      if (amountValue && !amount) {
+        amount = amountValue;
+      }
       const to = toResolved;
       const elementaryParts = new BigNumber(10).pow(localAsset.decimals);
       const [
@@ -353,9 +357,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         to,
         tokenAddress: localAssetAddress!,
         tokenId: localAssetId,
-        amount: amountValue
-          ? elementaryParts.multipliedBy(amountValue).toNumber()
-          : 1,
+        amount: amount ? elementaryParts.multipliedBy(amount).toNumber() : 1,
         relayerFee: relayerFeeEstimation,
       });
 
@@ -556,38 +558,85 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     [maxAddFee, feeValue]
   );
 
-  const maxAmount = useMemo(() => {
+  const getMaxAmount = useCallback(async () => {
     if (!(baseFee instanceof BigNumber)) return null;
 
-    return localAsset.type === TempleAssetType.TEZ
-      ? (() => {
-          let ma =
-            acc.type === TempleAccountType.ManagedKT
-              ? balance
-              : balance
-                  .minus(baseFee)
-                  .minus(safeFeeValue ?? 0)
-                  .minus(PENNY);
-          const maxAmountTez = BigNumber.max(ma, 0);
-          const maxAmountUsd = tezPrice
-            ? new BigNumber(
-                maxAmountTez
-                  .multipliedBy(tezPrice)
-                  .toFormat(2, BigNumber.ROUND_FLOOR, { decimalSeparator: "." })
-              )
-            : new BigNumber(0);
-          return shouldUseUsd ? maxAmountUsd : maxAmountTez;
-        })()
-      : balance;
+    if (localAsset.type === TempleAssetType.TEZ) {
+      return (() => {
+        let ma =
+          acc.type === TempleAccountType.ManagedKT
+            ? balance
+            : balance
+                .minus(baseFee)
+                .minus(safeFeeValue ?? 0)
+                .minus(PENNY);
+        const maxAmountTez = BigNumber.max(ma, 0);
+        const maxAmountUsd = tezPrice
+          ? new BigNumber(
+              maxAmountTez
+                .multipliedBy(tezPrice)
+                .toFormat(2, BigNumber.ROUND_FLOOR, { decimalSeparator: "." })
+            )
+          : new BigNumber(0);
+        return shouldUseUsd ? maxAmountUsd : maxAmountTez;
+      })();
+    }
+
+    if (!feeValue.inToken) {
+      return balance;
+    }
+
+    if (balance.lte(baseFee)) {
+      return new BigNumber(0);
+    }
+    const tokenElementaryParts = new BigNumber(10).pow(localAsset.decimals);
+    try {
+      const maxGasStationBaseFee = await estimateGasStationBaseFee(
+        baseFee.multipliedBy(tokenElementaryParts).toNumber(),
+        balance
+          .minus(baseFee)
+          .minus(new BigNumber(1).div(tokenElementaryParts))
+          .toString()
+      );
+      return balance.minus(maxGasStationBaseFee).minus(feeValue.amount ?? "0");
+    } catch (e) {
+      return balance.minus(baseFee).minus(feeValue.amount ?? "0");
+    }
   }, [
     acc.type,
+    estimateGasStationBaseFee,
+    feeValue,
     localAsset.type,
+    localAsset.decimals,
     balance,
     baseFee,
     safeFeeValue,
     shouldUseUsd,
     tezPrice,
   ]);
+  const { data: maxAmount } = useRetryableSWR(
+    [
+      "send-max-amount",
+      acc.type,
+      acc.publicKeyHash,
+      network.name,
+      amountValue?.toString(),
+      gasTokenPrice,
+      toResolved,
+      feeValue.amount?.toString(),
+      feeValue.inToken,
+      localAsset.type,
+      localAsset.decimals,
+      localAssetAddress,
+      localAssetId,
+      balance.toString(),
+      baseFee instanceof BigNumber ? baseFee.toString() : null,
+      safeFeeValue,
+      shouldUseUsd,
+      tezPrice,
+    ],
+    getMaxAmount
+  );
 
   const validateAmount = useCallback(
     (v?: number) => {
@@ -1010,7 +1059,6 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
           name="fee"
           control={control}
           onChange={handleFeeFieldChange}
-          assetSymbol={TEZ_ASSET.symbol}
           baseFee={baseFee}
           token={canPayFeeInTokens ? (localAsset as TempleToken) : undefined}
           tokenPrice={gasTokenPrice ?? undefined}
