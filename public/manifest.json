@@ -26,7 +26,8 @@
     "https://api.tezos-nodes.com/",
     "https://better-call.dev/",
     "https://*.tzkt.io/",
-    "http://167.99.133.200:8732/"
+    "http://167.99.133.200:8732/",
+    "https://api.better-call.dev/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 

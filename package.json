@@ -14,8 +14,7 @@
     "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",
     "lint": "eslint src",
-    "clear:lint": "rimraf node_modules/.cache/eslint-loader",
-    "ci": "yarn ts && yarn lint && yarn test:coverage"
+    "clear:lint": "rimraf node_modules/.cache/eslint-loader"
   },
   "dependencies": {
     "@babel/core": "7.11.6",
