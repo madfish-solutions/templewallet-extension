@@ -1,5 +1,4 @@
 import React, {
-  Dispatch,
   FC,
   Suspense,
   useCallback,
@@ -105,7 +104,10 @@ type SendFormProps = {
 const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
   const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
   const tezos = useTezos();
-  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const [operationState, setOperationState] = useSafeState<{
+    operation: any;
+    mayBeInvisible: boolean;
+  }>({ operation: null, mayBeInvisible: false }, tezos.checksum);
   const { trackEvent } = useAnalytics();
 
   const handleAssetChange = useCallback(
@@ -121,8 +123,12 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
 
   return (
     <>
-      {operation && (
-        <OperationStatus typeTitle={t("transaction")} operation={operation} />
+      {operationState.operation && (
+        <OperationStatus
+          typeTitle={t("transaction")}
+          operation={operationState.operation}
+          operationMayBeInvisible={operationState.mayBeInvisible}
+        />
       )}
 
       <AssetSelect
@@ -132,7 +138,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
       />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form localAsset={asset} setOperation={setOperation} />
+        <Form localAsset={asset} setOperationState={setOperationState} />
       </Suspense>
     </>
   );
@@ -142,7 +148,10 @@ export default SendForm;
 
 type FormProps = {
   localAsset: TempleAsset;
-  setOperation: Dispatch<any>;
+  setOperationState: (newState: {
+    operation: any;
+    mayBeInvisible: boolean;
+  }) => void;
 };
 
 const defaultFeeValue: AdditionalFeeValue = {
@@ -150,7 +159,7 @@ const defaultFeeValue: AdditionalFeeValue = {
   amount: `${RECOMMENDED_ADD_FEE}`,
 };
 
-const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
+const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
   const { registerBackHandler } = useAppEnv();
   const tezPrice = useUSDPrice();
 
@@ -620,7 +629,6 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       acc.type,
       acc.publicKeyHash,
       network.name,
-      amountValue?.toString(),
       gasTokenPrice,
       toResolved,
       feeValue.amount?.toString(),
@@ -723,7 +731,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     async ({ amount, fee: feeVal }: FormData) => {
       if (formState.isSubmitting) return;
       setSubmitError(null);
-      setOperation(null);
+      setOperationState({ operation: null, mayBeInvisible: false });
 
       formAnalytics.trackSubmit();
       try {
@@ -802,7 +810,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
               .send();
           }
         }
-        setOperation(op);
+        setOperationState({ operation: op, mayBeInvisible: feeVal.inToken });
         reset({ to: "", fee: defaultFeeValue });
 
         formAnalytics.trackSubmitSuccess();
@@ -830,7 +838,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       localAssetId,
       localAssetAddress,
       setSubmitError,
-      setOperation,
+      setOperationState,
       reset,
       accountPkh,
       toResolved,
@@ -963,7 +971,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         label={t("amount")}
         labelDescription={
           restFormDisplayed &&
-          maxAmount && (
+          maxAmount !== null &&
+          (maxAmount ? (
             <>
               <T id="availableToSend" />{" "}
               <button
@@ -1005,7 +1014,9 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                 </>
               ) : null}
             </>
-          )
+          ) : (
+            <Spinner style={{ width: "3.75rem" }} />
+          ))
         }
         placeholder={t("amountPlaceholder")}
         errorCaption={restFormDisplayed && errors.amount?.message}
