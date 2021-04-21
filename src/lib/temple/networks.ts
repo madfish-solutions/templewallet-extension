@@ -9,7 +9,7 @@ export const NETWORKS: TempleNetwork[] = [
     description: "Tezos mainnet",
     lambdaContract: "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE",
     type: "main",
-    rpcBaseURL: "https://mainnet.smartpy.io",
+    rpcBaseURL: "https://mainnet-tezos.giganode.io",
     color: "#83b300",
     disabled: false,
   },
