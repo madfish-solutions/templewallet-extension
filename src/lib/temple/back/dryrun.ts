@@ -2,6 +2,7 @@ import { localForger } from "@taquito/local-forging";
 import { TezosToolkit } from "@taquito/taquito";
 import { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 
+import { FastRpcClient } from "lib/taquito-fast-rpc";
 import { INCREASE_STORAGE_FEE_VARIANTS } from "lib/temple/defaults";
 import { formatOpParamsBeforeSend, michelEncoder } from "lib/temple/helpers";
 import { ReadOnlySigner } from "lib/temple/read-only-signer";
@@ -20,7 +21,7 @@ export async function dryRunOpParams({
   sourcePublicKey,
 }: DryRunParams) {
   try {
-    const tezos = new TezosToolkit(networkRpc);
+    const tezos = new TezosToolkit(new FastRpcClient(networkRpc));
 
     let bytesToSign: string | undefined;
     const signer = new ReadOnlySigner(sourcePkh, sourcePublicKey, (digest) => {
