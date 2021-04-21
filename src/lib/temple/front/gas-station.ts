@@ -8,6 +8,7 @@ import { hex2buf } from "@taquito/utils";
 import BigNumber from "bignumber.js";
 
 import blake from "blakejs";
+import { michelEncoder } from "lib/temple/helpers";
 
 import { ReadOnlySigner } from "../read-only-signer";
 
@@ -161,13 +162,13 @@ const estimateAsBatch = (tezos: TezosToolkit, txs: any) =>
     txs.map((tParams: any) => ({ kind: OpKind.TRANSACTION, ...tParams }))
   );
 
+const estimator = new TezosToolkit(ESTIMATOR_RPC_ENDPOINT);
+estimator.setSignerProvider(
+  new ReadOnlySigner(ESTIMATOR_ADDRESS, ESTIMATOR_PUBLIC_KEY)
+);
+estimator.setPackerProvider(michelEncoder);
 const estimate = async (permitParams: PermitParams) => {
   const { signature, hash, pubkey, contractAddress, callParams } = permitParams;
-
-  const estimator = new TezosToolkit(ESTIMATOR_RPC_ENDPOINT);
-  estimator.setSignerProvider(
-    new ReadOnlySigner(ESTIMATOR_ADDRESS, ESTIMATOR_PUBLIC_KEY)
-  );
 
   const { entrypoint, params } = callParams;
 
@@ -193,5 +194,5 @@ const estimate = async (permitParams: PermitParams) => {
 
 export const GasStation = {
   forgeTxAndParams,
-  estimate
+  estimate,
 };
