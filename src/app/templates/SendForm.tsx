@@ -77,7 +77,9 @@ import {
   useNetwork,
   TempleToken,
   GasStation,
+  useChainId,
 } from "lib/temple/front";
+import * as PndOps from "lib/temple/pndops";
 import {
   getAvailableTokens,
   getTokenPrice,
@@ -175,6 +177,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
   const acc = useAccount();
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
+  const chainId = useChainId(true);
 
   const formAnalytics = useFormAnalytics("SendForm");
 
@@ -791,8 +794,13 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
               params: transferParams,
             },
           };
-          const opHash = await submitTransaction({ data: output });
-          op = await tezos.operation.createOperation(opHash);
+          const response = await submitTransaction({ data: output });
+          op = await tezos.operation.createOperation(response.hash);
+          PndOps.append(
+            accountPkh,
+            chainId!,
+            PndOps.fromOpResults(response.results, response.hash)
+          );
         } else {
           if (isKTAddress(acc.publicKeyHash)) {
             const michelsonLambda = isKTAddress(toResolved)
@@ -842,6 +850,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
     },
     [
       acc,
+      chainId,
       formState.isSubmitting,
       tezos,
       localAsset,

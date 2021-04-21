@@ -1749,6 +1749,6 @@
     "message": "Storage fee"
   },
   "operationMayBeNotVisibleWarning": {
-    "message": "The feature is experimental, so the operation may be not visible in 'Activity' tab"
+    "message": "The feature is experimental, so the operation may be not visible in 'Activity' tab or may be displayed not as usual"
   }
 }

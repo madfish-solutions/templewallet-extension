@@ -16,7 +16,7 @@ export const getTokenPrice = buildQuery<PriceQueryParams, PriceQueryResponse>(
   ["tokenAddress", "tokenId"]
 );
 
-export const submitTransaction = buildQuery<{}, string>("POST", "/submit");
+export const submitTransaction = buildQuery<{}, any>("POST", "/submit");
 
 export const getAverageTransferGas = buildQuery<{}, number>(
   "GET",
