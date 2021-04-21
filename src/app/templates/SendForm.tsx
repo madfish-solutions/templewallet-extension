@@ -656,7 +656,12 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
       shouldUseUsd,
       tezPrice,
     ],
-    getMaxAmount
+    getMaxAmount,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      shouldRetryOnError: false,
+    }
   );
 
   const validateAmount = useCallback(
