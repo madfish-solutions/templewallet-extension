@@ -21,7 +21,6 @@ import {
   dryRunOpParams,
   increaseStorageOpParmas,
 } from "lib/temple/back/dryrun";
-import * as PndOps from "lib/temple/back/pndops";
 import {
   toFront,
   store,
@@ -36,6 +35,7 @@ import {
 import { Vault } from "lib/temple/back/vault";
 import * as Beacon from "lib/temple/beacon";
 import { loadChainId } from "lib/temple/helpers";
+import * as PndOps from "lib/temple/pndops";
 import {
   TempleState,
   TempleMessageType,
