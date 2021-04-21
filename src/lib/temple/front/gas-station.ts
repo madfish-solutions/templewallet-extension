@@ -8,6 +8,7 @@ import { hex2buf } from "@taquito/utils";
 import BigNumber from "bignumber.js";
 
 import blake from "blakejs";
+import { FastRpcClient } from "lib/taquito-fast-rpc";
 import { michelEncoder } from "lib/temple/helpers";
 
 import { ReadOnlySigner } from "../read-only-signer";
@@ -162,7 +163,7 @@ const estimateAsBatch = (tezos: TezosToolkit, txs: any) =>
     txs.map((tParams: any) => ({ kind: OpKind.TRANSACTION, ...tParams }))
   );
 
-const estimator = new TezosToolkit(ESTIMATOR_RPC_ENDPOINT);
+const estimator = new TezosToolkit(new FastRpcClient(ESTIMATOR_RPC_ENDPOINT));
 estimator.setSignerProvider(
   new ReadOnlySigner(ESTIMATOR_ADDRESS, ESTIMATOR_PUBLIC_KEY)
 );
