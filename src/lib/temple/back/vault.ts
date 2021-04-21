@@ -18,6 +18,7 @@ import * as Ed25519 from "ed25519-hd-key";
 import { browser } from "webextension-polyfill-ts";
 
 import { getMessage } from "lib/i18n";
+import { FastRpcClient } from "lib/taquito-fast-rpc";
 import { mergeAssets } from "lib/temple/assets";
 import { PublicError } from "lib/temple/back/defaults";
 import { TempleLedgerSigner } from "lib/temple/back/ledger-signer";
@@ -480,7 +481,7 @@ export class Vault {
   async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
     return this.withSigner(accPublicKeyHash, async (signer) => {
       const batch = await withError("Failed to send operations", async () => {
-        const tezos = new TezosToolkit(rpc);
+        const tezos = new TezosToolkit(new FastRpcClient(rpc));
         tezos.setSignerProvider(signer);
         tezos.setForgerProvider(
           new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
