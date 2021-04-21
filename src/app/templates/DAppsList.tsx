@@ -25,6 +25,7 @@ const USED_TAGS = [
   "Farming",
   "Other",
 ];
+const TOP_DAPPS_SLUGS = ["quipuswap", "kolibri", "hen"];
 
 const FAVORITE_DAPPS_STORAGE_KEY = "dapps_favorite";
 
@@ -66,6 +67,16 @@ const DAppsList: FC = () => {
       return newSelectedTags;
     });
   }, []);
+
+  const featuredDApps = useMemo(() => {
+    const topDApps = dApps.filter(({ slug }) =>
+      TOP_DAPPS_SLUGS.some((topDAppSlug) => topDAppSlug === slug)
+    );
+    const otherDApps = dApps.filter(({ slug }) =>
+      TOP_DAPPS_SLUGS.some((topDAppSlug) => topDAppSlug !== slug)
+    );
+    return [...topDApps, ...otherDApps.slice(0, 3 - topDApps.length)];
+  }, [dApps]);
 
   const matchingDApps = useMemo(() => {
     return dApps.filter(
@@ -129,7 +140,7 @@ const DAppsList: FC = () => {
         </InUSD>
         <span className="text-sm text-gray-600 mb-2">{t("promoted")}</span>
         <div className="rounded-lg bg-gray-100 w-full flex justify-center py-6 mb-6">
-          {dApps.slice(0, 3).map(({ slug, name, logo, website }) => (
+          {featuredDApps.slice(0, 3).map(({ slug, name, logo, website }) => (
             <a
               className="mx-4 py-1 flex flex-col items-center"
               key={slug}
