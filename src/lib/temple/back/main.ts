@@ -3,8 +3,8 @@ import { Runtime } from "webextension-polyfill-ts";
 import { createQueue } from "lib/queue";
 import * as Actions from "lib/temple/back/actions";
 import { intercom } from "lib/temple/back/defaults";
-import * as PndOps from "lib/temple/back/pndops";
 import { store, toFront } from "lib/temple/back/store";
+import * as PndOps from "lib/temple/pndops";
 import {
   TempleMessageType,
   TempleRequest,
