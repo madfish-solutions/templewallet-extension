@@ -353,7 +353,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
   }, [toFilled, registerBackHandler, cleanToField]);
 
   const estimateGasStationBaseFee = useCallback(
-    async (relayerFeeEstimation: number = 1, amount?: string) => {
+    async (relayerFeeEstimation: BigNumber, amount?: string) => {
       if (amountValue && !amount) {
         amount = amountValue;
       }
@@ -366,15 +366,17 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
         to,
         tokenAddress: localAssetAddress!,
         tokenId: localAssetId,
-        amount: amount ? elementaryParts.multipliedBy(amount).toNumber() : 1,
+        amount: amount
+          ? elementaryParts.multipliedBy(amount)
+          : new BigNumber(1),
         relayerFee: relayerFeeEstimation,
       });
 
       const dummySignature =
         "edsigtkpiSSschcaCt9pUVrpNPf7TTcgvgDEDD6NCEHMy8NNQJCGnMfLZzYoQj74yLjo9wx6MPVV29CvVzgi7qEcEUok3k7AuMg";
 
-      const gasEstimate =
-        (await GasStation.estimate({
+      const gasEstimate = (
+        await GasStation.estimate({
           pubkey,
           signature: dummySignature,
           hash,
@@ -383,7 +385,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
             entrypoint: "transfer",
             params: preTransferParams,
           },
-        })) + 100;
+        })
+      ).plus(100);
       const result = new BigNumber(gasEstimate)
         .multipliedBy(gasTokenPrice ?? 0)
         .multipliedBy(elementaryParts)
@@ -415,7 +418,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
       }
 
       if (feeValue.inToken) {
-        return estimateGasStationBaseFee();
+        return estimateGasStationBaseFee(new BigNumber(1), "1");
       }
 
       let tezBalanceBN: BigNumber;
@@ -601,7 +604,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
     const tokenElementaryParts = new BigNumber(10).pow(localAsset.decimals);
     try {
       const maxGasStationBaseFee = await estimateGasStationBaseFee(
-        baseFee.multipliedBy(tokenElementaryParts).toNumber(),
+        baseFee.multipliedBy(tokenElementaryParts),
         balance
           .minus(baseFee)
           .minus(new BigNumber(1).div(tokenElementaryParts))
@@ -743,16 +746,16 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
           const fee = (
             await estimateGasStationBaseFee(
               baseFee instanceof BigNumber
-                ? baseFee.multipliedBy(tokenElementaryParts).toNumber()
-                : 1
+                ? baseFee.multipliedBy(tokenElementaryParts)
+                : new BigNumber(1)
             )
           )
             .plus(feeVal.amount ?? 0)
             .multipliedBy(tokenElementaryParts);
 
-          const amountInElementaryParts = new BigNumber(amount)
-            .multipliedBy(tokenElementaryParts)
-            .toNumber();
+          const amountInElementaryParts = new BigNumber(amount).multipliedBy(
+            tokenElementaryParts
+          );
           const [
             transferParams,
             permitParams,
@@ -761,7 +764,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
             tokenAddress: localAssetAddress!,
             tokenId: localAssetId,
             amount: amountInElementaryParts,
-            relayerFee: fee.toNumber(),
+            relayerFee: fee,
           });
 
           const { pubkey, payload, hash } = permitParams;

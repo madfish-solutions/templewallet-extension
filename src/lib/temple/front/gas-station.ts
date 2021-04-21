@@ -5,6 +5,7 @@ import {
   Wallet,
 } from "@taquito/taquito";
 import { hex2buf } from "@taquito/utils";
+import BigNumber from "bignumber.js";
 
 import blake from "blakejs";
 
@@ -14,8 +15,8 @@ type ForgeTxParams = {
   to: string;
   tokenAddress: string;
   tokenId?: number;
-  amount: number;
-  relayerFee: number;
+  amount: BigNumber;
+  relayerFee: BigNumber;
 };
 
 type PermitParams = {
@@ -180,11 +181,11 @@ const estimate = async (permitParams: PermitParams) => {
     {}
   );
 
-  let totalEstimate = 0;
+  let totalEstimate = new BigNumber(0);
   const estimates = await estimateAsBatch(estimator, [permit, feeTransfer]);
 
   for (let est of estimates) {
-    totalEstimate += est.suggestedFeeMutez;
+    totalEstimate = totalEstimate.plus(est.suggestedFeeMutez);
   }
 
   return totalEstimate;
