@@ -1,5 +1,7 @@
 import React, { FC, ReactNode, useEffect, useMemo } from "react";
 
+import classNames from "clsx";
+
 import Alert from "app/atoms/Alert";
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import HashChip from "app/templates/HashChip";
@@ -12,6 +14,9 @@ import {
 import useSafeState from "lib/ui/useSafeState";
 
 type OperationStatusProps = {
+  className?: string;
+  closable?: boolean;
+  onClose?: () => void;
   typeTitle: string;
   operation: any;
   operationMayBeInvisible?: boolean;
@@ -21,6 +26,9 @@ const OperationStatus: FC<OperationStatusProps> = ({
   typeTitle,
   operation,
   operationMayBeInvisible,
+  className,
+  closable,
+  onClose,
 }) => {
   const tezos = useTezos();
   const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
@@ -123,7 +131,9 @@ const OperationStatus: FC<OperationStatusProps> = ({
       title={alert.title}
       description={alert.description}
       autoFocus
-      className="mb-8"
+      className={classNames("mb-8", className)}
+      closable={closable}
+      onClose={onClose}
     />
   );
 };

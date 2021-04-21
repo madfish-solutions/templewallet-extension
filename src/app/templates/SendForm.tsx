@@ -121,10 +121,17 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
     [trackEvent]
   );
 
+  const resetOperationState = useCallback(
+    () => setOperationState({ operation: null, mayBeInvisible: false }),
+    [setOperationState]
+  );
+
   return (
     <>
       {operationState.operation && (
         <OperationStatus
+          closable
+          onClose={resetOperationState}
           typeTitle={t("transaction")}
           operation={operationState.operation}
           operationMayBeInvisible={operationState.mayBeInvisible}
@@ -1084,7 +1091,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
           {(message) => (
             <FormSubmitButton
               loading={formState.isSubmitting}
-              disabled={Boolean(estimationError)}
+              disabled={Boolean(estimationError) || maxAmount === undefined}
             >
               {message}
             </FormSubmitButton>
