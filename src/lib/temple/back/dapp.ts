@@ -26,11 +26,11 @@ import {
   dryRunOpParams,
   increaseStorageOpParmas,
 } from "lib/temple/back/dryrun";
-import * as PndOps from "lib/temple/back/pndops";
 import { withUnlocked } from "lib/temple/back/store";
 import * as Beacon from "lib/temple/beacon";
 import { loadChainId, isAddressValid } from "lib/temple/helpers";
 import { NETWORKS } from "lib/temple/networks";
+import * as PndOps from "lib/temple/pndops";
 import {
   TempleMessageType,
   TempleRequest,
