@@ -127,6 +127,7 @@ const SwapForm: React.FC = () => {
     control,
     register,
     reset,
+    triggerValidation,
   } = formContextValues;
   const input = watch("input");
   const { asset: inputAsset, amount: inputAssetAmount } = input;
@@ -699,6 +700,7 @@ const SwapForm: React.FC = () => {
         error={errors.input?.message}
         label={<T id="from" />}
         withPercentageButtons
+        triggerValidation={triggerValidation}
         selectedExchanger={selectedExchanger}
       />
 

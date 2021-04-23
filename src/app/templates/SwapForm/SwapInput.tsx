@@ -58,6 +58,10 @@ type SwapInputProps = {
   onBlur?: () => void;
   onChange?: (newValue: SwapInputValue) => void;
   selectedExchanger: ExchangerType;
+  triggerValidation?: (
+    payload?: string | string[] | undefined,
+    shouldRender?: boolean | undefined
+  ) => void;
   value?: SwapInputValue;
   withPercentageButtons?: boolean;
 };
@@ -78,6 +82,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       onBlur,
       onChange,
       selectedExchanger,
+      triggerValidation,
       value = defaultInputValue,
       withPercentageButtons,
     },
@@ -205,8 +210,9 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
           amount: newAmount,
           usdAmount: newUsdAmount,
         });
+        triggerValidation?.(name);
       },
-      [onChange, asset, assetUsdPrice, maxAmount]
+      [onChange, asset, assetUsdPrice, maxAmount, triggerValidation, name]
     );
 
     const handleSelectedAssetChange = useCallback(
@@ -625,6 +631,8 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   type="button"
                   className={classNames("mr-2", !assetUsdPrice && "hidden")}
                   onClick={onInUSDToggle}
+                  onFocus={setFieldActive}
+                  onBlur={setFieldInactive}
                 >
                   <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-1" />
                 </button>
