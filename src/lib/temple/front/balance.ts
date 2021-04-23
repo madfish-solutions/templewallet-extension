@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 
 import { useRetryableSWR } from "lib/swr";
+import { FastRpcClient } from "lib/taquito-fast-rpc";
 import {
   TempleAsset,
   useTezos,
@@ -27,7 +28,7 @@ export function useBalance(
     if (opts.networkRpc) {
       const rpc = opts.networkRpc;
       const t = new ReactiveTezosToolkit(
-        rpc,
+        new FastRpcClient(rpc),
         rpc
         // lambda view contract for custom RPC may be here
         // currently we don't call lambda view for custom RPC
