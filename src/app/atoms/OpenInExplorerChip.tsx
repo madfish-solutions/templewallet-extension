@@ -10,13 +10,13 @@ import { OpenInExplorerChipSelectors } from "./OpenInExplorerChip.selectors";
 
 type OpenInExplorerChipProps = {
   baseUrl: string;
-  opHash: string;
+  hash: string;
   className?: string;
 };
 
 const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
   baseUrl,
-  opHash,
+  hash,
   className,
 }) => {
   const { trackEvent } = useAnalytics();
@@ -33,13 +33,16 @@ const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
   const ref = useTippy<HTMLAnchorElement>(tippyProps);
 
   const handleClick = () => {
-    trackEvent(OpenInExplorerChipSelectors.ViewOnBlockExplorerLink, AnalyticsEventCategory.ButtonPress);
-  }
+    trackEvent(
+      OpenInExplorerChipSelectors.ViewOnBlockExplorerLink,
+      AnalyticsEventCategory.ButtonPress
+    );
+  };
 
   return (
     <a
       ref={ref}
-      href={`${baseUrl}/${opHash}`}
+      href={`${baseUrl}/${hash}`}
       target="_blank"
       rel="noopener noreferrer"
       className={classNames(

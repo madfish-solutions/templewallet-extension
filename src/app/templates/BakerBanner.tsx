@@ -6,13 +6,16 @@ import classNames from "clsx";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
+import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import AddressChip from "app/pages/Explore/AddressChip";
+import HashChip from "app/templates/HashChip";
 import { toLocalFormat } from "lib/i18n/numbers";
 import { T } from "lib/i18n/react";
 import {
   useRelevantAccounts,
   useAccount,
   useKnownBaker,
+  useExplorerBaseUrls,
 } from "lib/temple/front";
 
 type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
@@ -25,6 +28,7 @@ const BakerBanner = memo<BakerBannerProps>(
     const allAccounts = useRelevantAccounts();
     const account = useAccount();
     const { data: baker } = useKnownBaker(bakerPkh);
+    const { account: accountBaseUrl } = useExplorerBaseUrls();
     const assetSymbol = "tez";
 
     const bakerAcc = useMemo(
@@ -46,11 +50,11 @@ const BakerBanner = memo<BakerBannerProps>(
                   alt={baker.name}
                   className={classNames(
                     "flex-shrink-0",
-                    "w-10 h-auto",
+                    "w-8 h-auto",
                     "bg-white rounded shadow-xs"
                   )}
                   style={{
-                    minHeight: "2.5rem",
+                    minHeight: "2rem",
                   }}
                 />
               </div>
@@ -64,9 +68,7 @@ const BakerBanner = memo<BakerBannerProps>(
                   )}
                   style={{ marginBottom: "0.125rem" }}
                 >
-                  <Name className="pb-1 mr-1 text-lg font-medium">
-                    {baker.name}
-                  </Name>
+                  <Name className="pb-1 mr-1 text-lg">{baker.name}</Name>
                 </div>
 
                 {displayAddress && (
@@ -76,7 +78,13 @@ const BakerBanner = memo<BakerBannerProps>(
                       "flex flex-wrap items-center"
                     )}
                   >
-                    <AddressChip pkh={baker.address} small />
+                    <HashChip hash={baker.address} small className="mr-2" />
+                    {accountBaseUrl && (
+                      <OpenInExplorerChip
+                        hash={baker.address}
+                        baseUrl={accountBaseUrl}
+                      />
+                    )}
                   </div>
                 )}
 
@@ -119,22 +127,6 @@ const BakerBanner = memo<BakerBannerProps>(
                     </div>
                   </div>
                 </div>
-
-                <T id="exploreMore">
-                  {(message) => (
-                    <a
-                      href={exploreBakerUrl(baker.address)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={classNames(
-                        "flex items-center",
-                        "text-xs text-blue-600 hover:underline"
-                      )}
-                    >
-                      {message}
-                    </a>
-                  )}
-                </T>
               </div>
             </div>
           </>
@@ -207,7 +199,3 @@ const BakerBanner = memo<BakerBannerProps>(
 );
 
 export default BakerBanner;
-
-function exploreBakerUrl(address: string) {
-  return `https://www.tezos-nodes.com/baker/${address}`;
-}
