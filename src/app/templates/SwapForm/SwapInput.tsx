@@ -37,6 +37,7 @@ import {
   useOnBlock,
   assetAmountToUSD,
   usdToAssetAmount,
+  useNetwork,
 } from "lib/temple/front";
 import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
@@ -436,6 +437,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
     const amountFieldRef = useRef<HTMLInputElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [isActive, setIsActive] = useState(false);
+    const network = useNetwork();
 
     const prevOpenedRef = useRef(opened);
     useEffect(() => {
@@ -663,22 +665,24 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                     shouldShowUsd ? 2 : selectedAsset?.decimals ?? 0
                   }
                 />
-                <span
-                  className={classNames(
-                    "mt-2 text-xs",
-                    displayedConversionNumber === undefined
-                      ? "text-gray-500"
-                      : "text-gray-700"
-                  )}
-                >
-                  ≈{" "}
-                  <Money smallFractionFont={false} fiat={!shouldShowUsd}>
-                    {displayedConversionNumber ?? 0}
-                  </Money>
-                  <span className="text-gray-500">{` ${
-                    shouldShowUsd ? selectedAsset!.symbol : "$"
-                  }`}</span>
-                </span>
+                {network.type === "main" && (
+                  <span
+                    className={classNames(
+                      "mt-2 text-xs",
+                      displayedConversionNumber === undefined
+                        ? "text-gray-500"
+                        : "text-gray-700"
+                    )}
+                  >
+                    ≈{" "}
+                    <Money smallFractionFont={false} fiat={!shouldShowUsd}>
+                      {displayedConversionNumber ?? 0}
+                    </Money>
+                    <span className="text-gray-500">{` ${
+                      shouldShowUsd ? selectedAsset!.symbol : "$"
+                    }`}</span>
+                  </span>
+                )}
               </div>
               <div
                 className={classNames(
