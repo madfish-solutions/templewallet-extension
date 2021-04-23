@@ -1803,5 +1803,8 @@
   },
   "poolExchangeFee": {
     "message": "Pool exchange fee"
+  },
+  "selectToken": {
+    "message": "Select Token"
   }
 }

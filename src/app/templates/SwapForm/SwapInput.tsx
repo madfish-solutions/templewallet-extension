@@ -25,6 +25,7 @@ import useSwappableAssets, {
   TokensExchangeData,
 } from "app/templates/SwapForm/useSwappableAssets";
 import { useFormAnalytics } from "lib/analytics";
+import { toLocalFormat } from "lib/i18n/numbers";
 import { t, T } from "lib/i18n/react";
 import {
   useAccount,
@@ -127,9 +128,12 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
         asset.type === TempleAssetType.TEZ
           ? balance?.minus(EXCHANGE_XTZ_RESERVE)
           : balance;
-      return BigNumber.min(
-        assetExchangeData?.maxExchangable ?? new BigNumber(Infinity),
-        exchangableAmount ?? new BigNumber(Infinity)
+      return BigNumber.max(
+        BigNumber.min(
+          assetExchangeData?.maxExchangable ?? new BigNumber(Infinity),
+          exchangableAmount ?? new BigNumber(Infinity)
+        ),
+        0
       );
     }, [asset, balance, amountReadOnly, assetExchangeData]);
     const assetUsdPrice = assetExchangeData?.usdPrice;
@@ -423,10 +427,27 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
   ) => {
     const displayedAmount = shouldShowUsd ? usdAmount : amount;
     const amountFieldRef = useRef<HTMLInputElement>(null);
+    const searchInputRef = useRef<HTMLInputElement>(null);
+    const [isActive, setIsActive] = useState(false);
+
+    const prevOpenedRef = useRef(opened);
+    useEffect(() => {
+      if (!prevOpenedRef.current && opened) {
+        searchInputRef.current?.focus();
+      }
+      prevOpenedRef.current = opened;
+    }, [opened]);
 
     const handleAmountFieldFocus = useCallback((evt) => {
       evt.preventDefault();
+      setIsActive(true);
       amountFieldRef.current?.focus({ preventScroll: true });
+    }, []);
+    const setFieldActive = useCallback(() => {
+      setIsActive(true);
+    }, []);
+    const setFieldInactive = useCallback(() => {
+      setIsActive(false);
     }, []);
     const assetUsdPrice =
       selectedAsset &&
@@ -476,7 +497,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
     );
 
     return (
-      <div className="w-full text-gray-700" ref={ref}>
+      <div className="w-full text-gray-700">
         <div className="w-full flex mb-1 items-center justify-between">
           <span className="text-xl text-gray-900">{label}</span>
           {selectedAsset && (
@@ -508,126 +529,155 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
         </div>
         <div
           className={classNames(
-            "w-full border rounded-md border-gray-300 flex items-stretch",
-            !opened && "hidden"
+            isActive && "border-orange-500 bg-gray-100",
+            "transition ease-in-out duration-200",
+            "w-full border rounded-md border-gray-300"
           )}
+          ref={ref}
         >
-          <div className="items-center ml-5 mr-3 my-6">
-            <SearchIcon className="w-6 h-auto text-gray-500 stroke-current stroke-2" />
-          </div>
           <div
             className={classNames(
-              "text-lg flex flex-1 items-stretch",
-              disabled && "pointer-events-none"
+              "w-full flex items-stretch",
+              !opened && "hidden"
             )}
+            style={{ height: "4.5rem" }}
           >
-            <div className="flex-1 flex items-stretch mr-2">
-              <input
-                className="w-full px-2"
-                value={searchString}
-                onChange={onSearchChange}
-              />
+            <div className="items-center ml-5 mr-3 my-6">
+              <SearchIcon className="w-6 h-auto text-gray-500 stroke-current stroke-2" />
             </div>
-            {tokenIdRequired && (
-              <div className="w-24 flex items-stretch border-l border-gray-300">
-                <AssetField
-                  containerClassName="items-stretch"
-                  containerStyle={{ flexDirection: "row" }}
-                  disabled={disabled}
-                  fieldWrapperBottomMargin={false}
-                  value={tokenId}
-                  className="text-lg border-none bg-opacity-0 focus:shadow-none"
-                  onChange={handleTokenIdChange}
-                  placeholder={t("tokenId")}
-                  style={{ padding: "0 0.5rem", borderRadius: 0 }}
-                  assetDecimals={0}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-        <div
-          className={classNames(
-            "w-full border rounded-md border-gray-300 flex items-stretch",
-            opened && "hidden"
-          )}
-        >
-          <div
-            className={classNames(
-              "border-r border-gray-300 pl-4 pr-3 flex py-5 items-center",
-              disabled ? "pointer-events-none" : "cursor-pointer"
-            )}
-            onClick={disabled ? undefined : toggleOpened}
-          >
-            {selectedAsset ? (
-              <>
-                <AssetIcon asset={selectedAsset} size={32} className="mr-2" />
-                <span
-                  className="text-gray-700 text-lg mr-2 items-center overflow-hidden block w-16"
-                  style={{ textOverflow: "ellipsis" }}
-                >
-                  {selectedAsset.type === TempleAssetType.TEZ
-                    ? selectedAsset.symbol.toUpperCase()
-                    : selectedAsset.symbol}
-                </span>
-              </>
-            ) : (
-              <div className="w-24 mr-4 h-8" />
-            )}
-
-            <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
-          </div>
-          <div className="flex-1 px-2 flex items-center justify-between">
-            {canSwitchToUSD && (
-              <button
-                type="button"
-                className={classNames("mr-2", !assetUsdPrice && "hidden")}
-                onClick={onInUSDToggle}
-              >
-                <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-1" />
-              </button>
-            )}
             <div
               className={classNames(
-                "h-full flex-1 flex items-end justify-center flex-col",
-                amountLoading && "hidden"
+                "text-lg flex flex-1 items-stretch",
+                disabled && "pointer-events-none"
               )}
             >
-              <AssetField
-                disabled={disabled}
-                fieldWrapperBottomMargin={false}
-                value={displayedAmount?.toString()}
-                ref={amountFieldRef}
-                onFocus={handleAmountFieldFocus}
+              <div className="flex-1 flex items-stretch mr-2">
+                <input
+                  className="w-full px-2 bg-transparent"
+                  onBlur={setFieldInactive}
+                  onFocus={setFieldActive}
+                  value={searchString}
+                  onChange={onSearchChange}
+                  ref={searchInputRef}
+                />
+              </div>
+              {tokenIdRequired && (
+                <div className="w-24 flex items-stretch border-l border-gray-300">
+                  <AssetField
+                    containerClassName="items-stretch"
+                    containerStyle={{ flexDirection: "row" }}
+                    disabled={disabled}
+                    fieldWrapperBottomMargin={false}
+                    onBlur={setFieldInactive}
+                    onFocus={setFieldActive}
+                    value={tokenId}
+                    className="text-lg border-none bg-opacity-0 focus:shadow-none"
+                    onChange={handleTokenIdChange}
+                    placeholder={t("tokenId")}
+                    style={{ padding: "0 0.5rem", borderRadius: 0 }}
+                    assetDecimals={0}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+          <div
+            className={classNames(
+              "w-full flex items-stretch",
+              opened && "hidden"
+            )}
+            style={{ height: "4.5rem" }}
+          >
+            <div
+              className={classNames(
+                "border-r border-gray-300 pl-4 pr-3 flex py-5 items-center",
+                disabled ? "pointer-events-none" : "cursor-pointer"
+              )}
+              onClick={disabled ? undefined : toggleOpened}
+            >
+              {selectedAsset ? (
+                <>
+                  <AssetIcon asset={selectedAsset} size={32} className="mr-2" />
+                  <span
+                    className="text-gray-700 text-lg mr-2 items-center overflow-hidden block w-16"
+                    style={{ textOverflow: "ellipsis" }}
+                  >
+                    {selectedAsset.type === TempleAssetType.TEZ
+                      ? selectedAsset.symbol.toUpperCase()
+                      : selectedAsset.symbol}
+                  </span>
+                </>
+              ) : (
+                <div className="w-24 mr-4 text-gray-500 text-sm font-medium leading-tight">
+                  <div className="w-12">
+                    <T id="selectToken" />
+                  </div>
+                </div>
+              )}
+
+              <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
+            </div>
+            <div className="flex-1 px-2 flex items-center justify-between">
+              {canSwitchToUSD && (
+                <button
+                  type="button"
+                  className={classNames("mr-2", !assetUsdPrice && "hidden")}
+                  onClick={onInUSDToggle}
+                >
+                  <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-1" />
+                </button>
+              )}
+              <div
                 className={classNames(
-                  "text-gray-700 text-2xl text-right border-none bg-opacity-0",
-                  "pl-0 focus:shadow-none"
+                  "h-full flex-1 flex items-end justify-center flex-col",
+                  amountLoading && "hidden"
                 )}
-                onChange={handleAmountChange}
-                style={{ padding: 0, borderRadius: 0 }}
-                min={0}
-                readOnly={amountReadOnly}
-                assetDecimals={shouldShowUsd ? 2 : selectedAsset?.decimals ?? 0}
-              />
-              {displayedConversionNumber !== undefined && (
-                <span className="mt-2 text-xs text-gray-700">
+              >
+                <AssetField
+                  disabled={disabled}
+                  fieldWrapperBottomMargin={false}
+                  value={displayedAmount?.toString()}
+                  ref={amountFieldRef}
+                  onBlur={setFieldInactive}
+                  onFocus={handleAmountFieldFocus}
+                  className={classNames(
+                    "text-gray-700 text-2xl text-right border-none bg-opacity-0",
+                    "pl-0 focus:shadow-none"
+                  )}
+                  onChange={handleAmountChange}
+                  placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
+                  style={{ padding: 0, borderRadius: 0 }}
+                  min={0}
+                  readOnly={amountReadOnly}
+                  assetDecimals={
+                    shouldShowUsd ? 2 : selectedAsset?.decimals ?? 0
+                  }
+                />
+                <span
+                  className={classNames(
+                    "mt-2 text-xs",
+                    displayedConversionNumber === undefined
+                      ? "text-gray-500"
+                      : "text-gray-700"
+                  )}
+                >
                   ≈{" "}
                   <Money smallFractionFont={false} fiat={!shouldShowUsd}>
-                    {displayedConversionNumber}
+                    {displayedConversionNumber ?? 0}
                   </Money>
                   <span className="text-gray-500">{` ${
                     shouldShowUsd ? selectedAsset!.symbol : "$"
                   }`}</span>
                 </span>
-              )}
-            </div>
-            <div
-              className={classNames(
-                "h-full flex-1 flex items-end justify-center flex-col",
-                !amountLoading && "hidden"
-              )}
-            >
-              <Spinner theme="primary" style={{ width: "3rem" }} />
+              </div>
+              <div
+                className={classNames(
+                  "h-full flex-1 flex items-end justify-center flex-col",
+                  !amountLoading && "hidden"
+                )}
+              >
+                <Spinner theme="primary" style={{ width: "3rem" }} />
+              </div>
             </div>
           </div>
         </div>

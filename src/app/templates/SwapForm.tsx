@@ -702,8 +702,8 @@ const SwapForm: React.FC = () => {
         selectedExchanger={selectedExchanger}
       />
 
-      <div className="w-full my-6 flex justify-center">
-        <button className="my-1" onClick={swapAssets} type="button">
+      <div className="w-full my-4 flex justify-center">
+        <button onClick={swapAssets} type="button">
           <SwapVerticalIcon className="w-6 h-auto stroke-2 stroke-current text-blue-500" />
         </button>
       </div>
