@@ -318,7 +318,8 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
         </Popper>
         <div
           className={classNames(
-            "w-full flex mt-1 items-center",
+            withPercentageButtons && "mt-1",
+            "w-full flex items-center",
             prettyError ? "justify-between" : "justify-end"
           )}
         >
@@ -440,6 +441,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
 
     const handleAmountFieldFocus = useCallback((evt) => {
       evt.preventDefault();
+      console.log(evt);
       setIsActive(true);
       amountFieldRef.current?.focus({ preventScroll: true });
     }, []);
@@ -638,8 +640,8 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   fieldWrapperBottomMargin={false}
                   value={displayedAmount?.toString()}
                   ref={amountFieldRef}
-                  onBlur={setFieldInactive}
-                  onFocus={handleAmountFieldFocus}
+                  onBlur={amountReadOnly ? undefined : setFieldInactive}
+                  onFocus={amountReadOnly ? undefined : handleAmountFieldFocus}
                   className={classNames(
                     "text-gray-700 text-2xl text-right border-none bg-opacity-0",
                     "pl-0 focus:shadow-none"
