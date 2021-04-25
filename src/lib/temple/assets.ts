@@ -97,7 +97,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
   },
   {
     type: TempleAssetType.FA1_2,
-    address: "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV",
+    address: "KT1AxaBxkFLCUi3f8rdDAAxBKHfzY8LfKDRA",
     name: "Quipuswap Liquidating kUSD",
     symbol: "QLkUSD",
     decimals: 36,
