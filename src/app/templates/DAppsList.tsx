@@ -175,7 +175,7 @@ const DAppsList: FC = () => {
           onValueChange={setSearchString}
         />
         <div className="w-full flex justify-between mb-4">
-          <div className="flex-1 mr-2 overflow-x-scroll">
+          <div className="flex-1 mr-2 overflow-x-scroll no-scrollbar">
             <div className="flex-1 mr-2 flex-wrap" style={{ width: "107%" }}>
               {USED_TAGS.map((tag) => (
                 <Tag
