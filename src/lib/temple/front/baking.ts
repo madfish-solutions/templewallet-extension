@@ -1,8 +1,9 @@
 import { useCallback, useMemo } from "react";
 
+import { BakingBadBakerValueHistoryItem, bakingBadGetBaker } from "lib/baking-bad";
 import { useRetryableSWR } from "lib/swr";
 import { useTezos, useNetwork } from "lib/temple/front";
-import { getAllBakers, getBaker } from "lib/tezos-nodes";
+import { getAllBakers, getBaker, TNBaker } from "lib/tezos-nodes";
 
 export function useDelegate(address: string, suspense = true) {
   const tezos = useTezos();
@@ -27,10 +28,26 @@ export function useDelegate(address: string, suspense = true) {
 
 export function useKnownBaker(address: string | null, suspense = true) {
   const net = useNetwork();
-  const fetchBaker = useCallback(async () => {
+  const fetchBaker = useCallback(async (): Promise<(TNBaker & {
+    logo: string;
+    feeHistory?: BakingBadBakerValueHistoryItem<number>[] | undefined
+  }) | null> => {
     if (!address) return null;
     try {
-      return await getBaker(address);
+      const baker = await getBaker(address);
+      if (baker) {
+        try {
+          const bakingBadBaker = await bakingBadGetBaker({ address, configs: true });
+          if (typeof bakingBadBaker === "object") {
+            return {
+              ...baker,
+              fee: bakingBadBaker.fee,
+              feeHistory: bakingBadBaker.config?.fee
+            };
+          }
+        } catch {}
+      }
+      return baker;
     } catch (_err) {
       return null;
     }

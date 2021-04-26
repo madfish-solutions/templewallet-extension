@@ -56,12 +56,12 @@ const BakingSection = memo(() => {
 
   const getBakingHistory = useCallback(
     async (_k: string, accountPkh: string) => {
-      if (!myBakerPkh || !isKnownChainId(chainId!)) {
+      if (!isKnownChainId(chainId!)) {
         return [];
       }
       return getDelegatorRewards(chainId, { address: accountPkh, limit: 20 });
     },
-    [myBakerPkh, chainId]
+    [chainId]
   );
   const {
     data: bakingHistory,
@@ -245,45 +245,8 @@ const BakingSection = memo(() => {
               </div>
               <BakerBanner
                 bakerPkh={myBakerPkh}
-                className="mb-4"
                 style={{ maxWidth: undefined, width: "22.5rem" }}
               />
-              {loadingBakingHistory && (
-                <div className="flex flex-row justify-center items-center h-10">
-                  <Spinner theme="gray" className="w-16" />
-                </div>
-              )}
-              {bakingHistory?.length === 0 && (
-                <div className="flex flex-row justify-center">
-                  <h3 className="text-sm font-light text-center max-w-xs">
-                    Baking history is empty
-                  </h3>
-                </div>
-              )}
-              {bakingHistory && bakingHistory.length > 0 && (
-                <>
-                  <p className="text-gray-600 leading-tight">History:</p>
-                  {bakingHistory.map((historyItem, index) => (
-                    <BakingHistoryItem
-                      key={`${historyItem.cycle},${historyItem.baker.address}`}
-                      content={historyItem}
-                      fallbackRewardPerEndorsement={
-                        fallbackRewardsPerEvents[index].rewardPerEndorsement
-                      }
-                      fallbackRewardPerFutureBlock={
-                        fallbackRewardsPerEvents[index].rewardPerFutureBlock
-                      }
-                      fallbackRewardPerFutureEndorsement={
-                        fallbackRewardsPerEvents[index]
-                          .rewardPerFutureEndorsement
-                      }
-                      fallbackRewardPerOwnBlock={
-                        fallbackRewardsPerEvents[index].rewardPerOwnBlock
-                      }
-                    />
-                  ))}
-                </>
-              )}
             </>
           ) : (
             <div className="flex flex-col items-center text-gray-500">
@@ -313,6 +276,41 @@ const BakingSection = memo(() => {
                 />
               )}
             </div>
+          )}
+          {loadingBakingHistory && (
+            <div className="flex flex-row justify-center items-center h-10 mt-4">
+              <Spinner theme="gray" className="w-16" />
+            </div>
+          )}
+          {bakingHistory?.length === 0 && (
+            <div className="flex flex-row justify-center mt-4">
+              <h3 className="text-sm font-light text-center max-w-xs">
+                Baking history is empty
+              </h3>
+            </div>
+          )}
+          {bakingHistory && bakingHistory.length > 0 && (
+            <>
+              <p className="text-gray-600 leading-tight mt-4">History:</p>
+              {bakingHistory.map((historyItem, index) => (
+                <BakingHistoryItem
+                  key={`${historyItem.cycle},${historyItem.baker.address}`}
+                  content={historyItem}
+                  fallbackRewardPerEndorsement={
+                    fallbackRewardsPerEvents[index].rewardPerEndorsement
+                  }
+                  fallbackRewardPerFutureBlock={
+                    fallbackRewardsPerEvents[index].rewardPerFutureBlock
+                  }
+                  fallbackRewardPerFutureEndorsement={
+                    fallbackRewardsPerEvents[index].rewardPerFutureEndorsement
+                  }
+                  fallbackRewardPerOwnBlock={
+                    fallbackRewardsPerEvents[index].rewardPerOwnBlock
+                  }
+                />
+              ))}
+            </>
           )}
         </div>
       </div>

@@ -103,70 +103,54 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
         ? new BigNumber(-100)
         : new BigNumber(0);
     if (totalFutureRewards.plus(totalCurrentRewards).gt(0)) {
-      let totalExpectedRewards = new BigNumber(0);
-      if (totalFutureRewards.eq(0)) {
-        const rewardPerOwnBlock =
-          ownBlocks === 0
-            ? fallbackRewardPerOwnBlock
-            : new BigNumber(ownBlockRewards).div(ownBlocks);
-        /* const rewardPerExtraBlock =
-          extraBlocks === 0
-            ? new BigNumber(0)
-            : new BigNumber(extraBlockRewards).div(extraBlocks); */
-        const rewardPerEndorsement =
-          endorsements === 0
-            ? fallbackRewardPerEndorsement
-            : new BigNumber(endorsementRewards).div(endorsements);
-        const expectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(
-          rewardPerOwnBlock
-        );
-        const expectedEndorsementRewards = new BigNumber(
-          expectedEndorsements
-        ).multipliedBy(rewardPerEndorsement);
-        totalExpectedRewards = expectedBlockRewards.plus(
-          expectedEndorsementRewards
-        );
-      } else if (totalCurrentRewards.eq(0)) {
-        const rewardPerFutureBlock =
-          futureBlocks === 0
-            ? fallbackRewardPerFutureBlock
-            : new BigNumber(futureBlockRewards).div(futureBlocks);
-        const rewardPerFutureEndorsement =
-          futureEndorsements === 0
-            ? fallbackRewardPerFutureEndorsement
-            : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
-        const expectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(
-          rewardPerFutureBlock
-        );
-        const expectedEndorsementRewards = new BigNumber(
-          expectedEndorsements
-        ).multipliedBy(rewardPerFutureEndorsement);
-        totalExpectedRewards = expectedBlockRewards.plus(
-          expectedEndorsementRewards
-        );
-      } else {
-        const rewardPerOwnBlock =
-          ownBlocks === 0
-            ? fallbackRewardPerOwnBlock
-            : new BigNumber(ownBlockRewards).div(ownBlocks);
-        /* const rewardPerExtraBlock =
-          extraBlocks === 0
-            ? new BigNumber(0)
-            : new BigNumber(extraBlockRewards).div(extraBlocks); */
-        const rewardPerEndorsement =
-          endorsements === 0
-            ? fallbackRewardPerEndorsement
-            : new BigNumber(endorsementRewards).div(endorsements);
-        const expectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(
-          rewardPerOwnBlock
-        );
-        const expectedEndorsementRewards = new BigNumber(
-          expectedEndorsements
-        ).multipliedBy(rewardPerEndorsement);
-        totalExpectedRewards = expectedBlockRewards.plus(
-          expectedEndorsementRewards
-        );
-      }
+      const rewardPerOwnBlock =
+        ownBlocks === 0
+          ? fallbackRewardPerOwnBlock
+          : new BigNumber(ownBlockRewards).div(ownBlocks);
+      const rewardPerEndorsement =
+        endorsements === 0
+          ? fallbackRewardPerEndorsement
+          : new BigNumber(endorsementRewards).div(endorsements);
+      const asIfNoFutureExpectedBlockRewards = new BigNumber(
+        expectedBlocks
+      ).multipliedBy(rewardPerOwnBlock);
+      const asIfNoFutureExpectedEndorsementRewards = new BigNumber(
+        expectedEndorsements
+      ).multipliedBy(rewardPerEndorsement);
+      const asIfNoFutureExpectedRewards = asIfNoFutureExpectedBlockRewards.plus(
+        asIfNoFutureExpectedEndorsementRewards
+      );
+
+      const rewardPerFutureBlock =
+        futureBlocks === 0
+          ? fallbackRewardPerFutureBlock
+          : new BigNumber(futureBlockRewards).div(futureBlocks);
+      const rewardPerFutureEndorsement =
+        futureEndorsements === 0
+          ? fallbackRewardPerFutureEndorsement
+          : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
+      const asIfNoCurrentExpectedBlockRewards = new BigNumber(
+        expectedBlocks
+      ).multipliedBy(rewardPerFutureBlock);
+      const asIfNoCurrentExpectedEndorsementRewards = new BigNumber(
+        expectedEndorsements
+      ).multipliedBy(rewardPerFutureEndorsement);
+      const asIfNoCurrentExpectedRewards = asIfNoCurrentExpectedBlockRewards.plus(
+        asIfNoCurrentExpectedEndorsementRewards
+      );
+
+      const weights =
+        endorsements + futureEndorsements === 0
+          ? { current: ownBlocks, future: futureBlocks }
+          : { current: endorsements, future: futureEndorsements };
+      const totalExpectedRewards =
+        weights.current + weights.future === 0
+          ? new BigNumber(0)
+          : asIfNoFutureExpectedRewards
+              .multipliedBy(weights.current)
+              .plus(asIfNoCurrentExpectedRewards.multipliedBy(weights.future))
+              .div(new BigNumber(weights.current).plus(weights.future));
+
       luckPercentage = totalRewards
         .minus(totalExpectedRewards)
         .div(totalExpectedRewards)
@@ -185,7 +169,17 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
     })();
     const normalizedBalance = mutezToTz(balance);
     const normalizedRewards = mutezToTz(rewards);
-    const bakerFeePart = bakerDetails?.fee ?? 0;
+    let bakerFeePart = bakerDetails?.fee ?? 0;
+    if (bakerDetails?.feeHistory) {
+      const { feeHistory } = bakerDetails;
+      for (let i = 0; i < feeHistory.length; i++) {
+        const historyEntry = feeHistory[i];
+        if (cycle >= historyEntry.cycle) {
+          bakerFeePart = historyEntry.value;
+          break;
+        }
+      }
+    }
     const bakerFee = normalizedRewards
       .multipliedBy(bakerFeePart)
       .decimalPlaces(6);
@@ -243,6 +237,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
     };
   }, [
     balance,
+    cycle,
     ownBlockRewards,
     extraBlockRewards,
     futureBlockRewards,
