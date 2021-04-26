@@ -3,6 +3,7 @@ import React, { FC, useCallback, useMemo, useState } from "react";
 import classNames from "clsx";
 
 import Money from "app/atoms/Money";
+import { openInFullPage, useAppEnv } from "app/env";
 import { ReactComponent as InfoIcon } from "app/icons/info.svg";
 import DAppIcon from "app/templates/DAppsList/DAppIcon";
 import DAppItem from "app/templates/DAppsList/DAppItem";
@@ -34,6 +35,7 @@ const DAppsList: FC = () => {
     FAVORITE_DAPPS_STORAGE_KEY,
     []
   );
+  const { popup } = useAppEnv();
   const { data } = useRetryableSWR("dapps-list", getDApps, { suspense: true });
   const dApps = useMemo(() => {
     return data!.dApps.map(({ categories: rawCategories, ...restProps }) => {
@@ -113,7 +115,12 @@ const DAppsList: FC = () => {
   );
 
   return (
-    <div className="w-full flex px-5 pt-2 pb-4">
+    <div
+      className={classNames(
+        popup ? "px-1 pb-12" : "px-5 pb-4",
+        "w-full flex pt-2"
+      )}
+    >
       <div
         className="mx-auto flex flex-col items-center"
         style={{ maxWidth: "25rem" }}
@@ -130,16 +137,28 @@ const DAppsList: FC = () => {
             title="TODO: add text"
           />
         </div>
-        <h1 className="text-2xl text-gray-900 mb-2 font-medium">
+        <h1 className="text-2xl text-gray-900 mb-2 font-medium leading-tight">
           ~<Money>{data!.tvl}</Money> <span>{TEZ_ASSET.symbol}</span>
         </h1>
         <InUSD volume={data!.tvl} mainnet>
           {(inUSD) => (
-            <h2 className="mb-6 text-base text-gray-600">~{inUSD} $</h2>
+            <h2
+              className={classNames(
+                popup ? "mb-4" : "mb-6",
+                "text-base text-gray-600 leading-tight"
+              )}
+            >
+              ~{inUSD} $
+            </h2>
           )}
         </InUSD>
         <span className="text-sm text-gray-600 mb-2">{t("promoted")}</span>
-        <div className="rounded-lg bg-gray-100 w-full flex justify-center py-6 mb-6">
+        <div
+          className={classNames(
+            popup ? "py-2 mb-4" : "py-6 mb-6",
+            "rounded-lg bg-gray-100 w-full flex justify-center"
+          )}
+        >
           {featuredDApps.slice(0, 3).map(({ slug, name, logo, website }) => (
             <a
               className="mx-4 py-1 flex flex-col items-center"
@@ -150,8 +169,14 @@ const DAppsList: FC = () => {
             >
               <DAppIcon className="mb-2" name={name} logo={logo} />
               <span
-                className="w-20 text-center overflow-hidden text-gray-900"
-                style={{ textOverflow: "ellipsis" }}
+                className={classNames(
+                  !popup && "w-20",
+                  "text-center overflow-hidden text-gray-900"
+                )}
+                style={{
+                  textOverflow: "ellipsis",
+                  width: popup ? "4.5rem" : undefined,
+                }}
               >
                 {name}
               </span>
@@ -174,9 +199,19 @@ const DAppsList: FC = () => {
           value={searchString}
           onValueChange={setSearchString}
         />
-        <div className="w-full flex justify-between mb-4">
-          <div className="flex-1 mr-2 overflow-x-scroll">
-            <div className="flex-1 mr-2 flex-wrap" style={{ width: "107%" }}>
+        <div
+          className={classNames(
+            popup ? "mb-4" : "mb-6",
+            "w-full flex justify-between"
+          )}
+        >
+          <div
+            className={classNames(!popup && "mr-2", "flex-1 overflow-x-scroll")}
+          >
+            <div
+              className="flex-1 flex-wrap"
+              style={{ width: popup ? "125%" : "107%" }}
+            >
               {USED_TAGS.map((tag) => (
                 <Tag
                   key={tag}
@@ -187,26 +222,48 @@ const DAppsList: FC = () => {
               ))}
             </div>
           </div>
-          <StarButton
-            iconClassName="w-6 h-auto"
-            isActive={allDAppsAreFavorite}
-            onClick={toggleAllFavorite}
-          />
+          {!popup && (
+            <StarButton
+              iconClassName="w-6 h-auto"
+              isActive={allDAppsAreFavorite}
+              onClick={toggleAllFavorite}
+            />
+          )}
         </div>
         {matchingDApps.length === 0 && (
           <p className="text-sm text-center text-gray-700 mb-4">
             {t("noMatchingDAppsFound")}
           </p>
         )}
-        {matchingDApps.map((dAppProps) => (
-          <DAppItem
-            {...dAppProps}
-            key={dAppProps.slug}
-            onStarClick={handleFavoriteChange}
-            isFavorite={favoriteDApps.includes(dAppProps.slug)}
-            tvl={dAppProps.tvl}
-          />
-        ))}
+        {matchingDApps
+          .slice(0, popup ? 3 : matchingDApps.length)
+          .map((dAppProps) => (
+            <DAppItem
+              {...dAppProps}
+              key={dAppProps.slug}
+              onStarClick={handleFavoriteChange}
+              isFavorite={favoriteDApps.includes(dAppProps.slug)}
+              tvl={dAppProps.tvl}
+            />
+          ))}
+      </div>
+      <div
+        className={classNames(
+          "absolute bottom-0 left-0 h-16 bg-gray-200 w-full",
+          !popup && "hidden"
+        )}
+        style={{ padding: "0.625rem 1.25rem" }}
+      >
+        <button
+          className={classNames(
+            "bg-white w-full h-full border border-blue-500 rounded flex shadow-sm",
+            "justify-center items-center font-medium text-sm text-blue-500 leading-tight"
+          )}
+          type="button"
+          onClick={openInFullPage}
+        >
+          {t("viewAll")}
+        </button>
       </div>
     </div>
   );

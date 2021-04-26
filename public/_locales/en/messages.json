@@ -1804,5 +1804,8 @@
   },
   "storageFee": {
     "message": "Storage fee"
+  },
+  "viewAll": {
+    "message": "View all"
   }
 }

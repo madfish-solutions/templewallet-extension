@@ -1,6 +1,7 @@
 import React, { FC, SVGProps, useCallback } from "react";
 
 import Money from "app/atoms/Money";
+import { useAppEnv } from "app/env";
 import { ReactComponent as LockIcon } from "app/icons/lock.svg";
 import { ReactComponent as TagIcon } from "app/icons/tag.svg";
 import DAppIcon from "app/templates/DAppsList/DAppIcon";
@@ -25,6 +26,7 @@ const DAppItem: FC<DAppItemProps> = ({
   isFavorite,
   tvl,
 }) => {
+  const { popup } = useAppEnv();
   const handleStarClick = useCallback(() => {
     onStarClick(!isFavorite, slug);
   }, [isFavorite, onStarClick, slug]);
@@ -56,12 +58,14 @@ const DAppItem: FC<DAppItemProps> = ({
             </DAppCharacteristic>
           )}
         </div>
-        <StarButton
-          className="p-1"
-          iconClassName="w-4 h-auto"
-          isActive={isFavorite}
-          onClick={handleStarClick}
-        />
+        {!popup && (
+          <StarButton
+            className="p-1"
+            iconClassName="w-4 h-auto"
+            isActive={isFavorite}
+            onClick={handleStarClick}
+          />
+        )}
       </div>
     </div>
   );
