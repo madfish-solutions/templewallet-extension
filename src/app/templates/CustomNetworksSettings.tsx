@@ -182,8 +182,6 @@ const CustomNetworksSettings: FC = () => {
     [customNetworks, setError, updateSettings, confirm]
   );
 
-  console.log(errors);
-
   return (
     <div className="w-full max-w-sm p-2 pb-4 mx-auto">
       <LambdaContractSection />
