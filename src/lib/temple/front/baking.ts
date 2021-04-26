@@ -26,12 +26,14 @@ export function useDelegate(address: string, suspense = true) {
   });
 }
 
+type Baker = TNBaker & {
+  logo: string;
+  feeHistory?: BakingBadBakerValueHistoryItem<number>[] | undefined;
+};
+
 export function useKnownBaker(address: string | null, suspense = true) {
   const net = useNetwork();
-  const fetchBaker = useCallback(async (): Promise<(TNBaker & {
-    logo: string;
-    feeHistory?: BakingBadBakerValueHistoryItem<number>[] | undefined
-  }) | null> => {
+  const fetchBaker = useCallback(async (): Promise<Baker | null> => {
     if (!address) return null;
     try {
       const baker = await getBaker(address);

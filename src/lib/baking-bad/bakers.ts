@@ -5,13 +5,14 @@ import { api } from "./base";
 export const bakingBadGetBaker = buildQuery<BakingBadGetBakerParams, BakingBadGetBakerResponse>(
   api,
   "GET",
-  ({ address }) => `/bakers/${address}`
+  ({ address }) => `/bakers/${address}`,
+  ["configs", "insurance", "contribution"]
 );
 
 export const bakingBadGetKnownBakers = buildQuery<
   Omit<BakingBadGetBakerParams, "address">,
   BakingBadGetBakerResponse
->(api, "GET", "/bakers");
+>(api, "GET", "/bakers", ["configs", "insurance", "contribution"]);
 
 export type BakingBadGetBakerParams = {
   address: string;

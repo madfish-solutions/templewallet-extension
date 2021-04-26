@@ -9,6 +9,7 @@ import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import { ReactComponent as HourglassIcon } from "app/icons/hourglass.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import { ReactComponent as InProgressIcon } from "app/icons/rotate.svg";
+import { ReactComponent as TimeIcon } from "app/icons/time.svg";
 import HashChip from "app/templates/HashChip";
 import { toLocalFormat } from "lib/i18n/numbers";
 import { T } from "lib/i18n/react";
@@ -21,6 +22,7 @@ import { TzktRewardsEntry } from "lib/tzkt";
 
 type BakingHistoryItemProps = {
   content: TzktRewardsEntry;
+  currentCycle?: number;
 } & Record<
   | "fallbackRewardPerOwnBlock"
   | "fallbackRewardPerEndorsement"
@@ -31,6 +33,7 @@ type BakingHistoryItemProps = {
 
 const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
   content,
+  currentCycle,
   fallbackRewardPerEndorsement,
   fallbackRewardPerFutureBlock,
   fallbackRewardPerFutureEndorsement,
@@ -49,17 +52,14 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
     expectedBlocks,
     expectedEndorsements,
     ownBlocks,
-    // extraBlocks,
     futureBlocks,
     futureEndorsements,
     endorsements,
     ownBlockFees,
     extraBlockFees,
-    /* missedEndorsementRewards,
-    missedExtraBlockRewards,
-    missedExtraBlockFees,
-    missedOwnBlockFees,
-    missedOwnBlockRewards, */
+    revelationRewards,
+    doubleBakingRewards,
+    doubleEndorsingRewards,
   } = content;
 
   const { data: bakerDetails } = useKnownBaker(baker.address);
@@ -73,14 +73,24 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
       .plus(endorsementRewards)
       .plus(ownBlockRewards)
       .plus(ownBlockFees)
-      .plus(extraBlockFees);
+      .plus(extraBlockFees)
+      .plus(revelationRewards)
+      .plus(doubleBakingRewards)
+      .plus(doubleEndorsingRewards);
     const { StatusIcon, iconColor, title } = (() => {
       switch (true) {
-        case totalFutureRewards.eq(0):
+        case totalFutureRewards.eq(0) &&
+          (currentCycle === undefined || cycle <= currentCycle - 6):
           return {
             StatusIcon: OkIcon,
             iconColor: "green-500",
             title: "Rewards unlocked",
+          };
+        case totalFutureRewards.eq(0):
+          return {
+            StatusIcon: TimeIcon,
+            iconColor: "orange-400",
+            title: "Rewards still locked",
           };
         case totalCurrentRewards.eq(0):
           return {
@@ -227,7 +237,9 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
         },
         {
           name: "Expected payout",
-          value: (
+          value: totalCurrentRewards.eq(0) ? (
+            "‒"
+          ) : (
             <>
               <Money>{normalizedRewards.minus(bakerFee)}</Money> ꜩ
             </>
@@ -237,6 +249,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
     };
   }, [
     balance,
+    currentCycle,
     cycle,
     ownBlockRewards,
     extraBlockRewards,
@@ -247,7 +260,6 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
     expectedBlocks,
     expectedEndorsements,
     ownBlocks,
-    // extraBlocks,
     futureBlocks,
     futureEndorsements,
     endorsements,
@@ -258,11 +270,9 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
     fallbackRewardPerFutureBlock,
     fallbackRewardPerFutureEndorsement,
     fallbackRewardPerOwnBlock,
-    /* missedEndorsementRewards,
-    missedExtraBlockRewards,
-    missedExtraBlockFees,
-    missedOwnBlockFees,
-    missedOwnBlockRewards, */
+    revelationRewards,
+    doubleBakingRewards,
+    doubleEndorsingRewards,
   ]);
 
   return (

@@ -215,6 +215,26 @@ const BakingSection = memo(() => {
       )
     );
   }, [rewardsPerEventHistory]);
+  const currentCycle = useMemo(
+    () =>
+      bakingHistory?.find(
+        ({
+          extraBlockRewards,
+          endorsementRewards,
+          ownBlockRewards,
+          ownBlockFees,
+          extraBlockFees,
+        }) => {
+          const totalCurrentRewards = new BigNumber(extraBlockRewards)
+            .plus(endorsementRewards)
+            .plus(ownBlockRewards)
+            .plus(ownBlockFees)
+            .plus(extraBlockFees);
+          return totalCurrentRewards.gt(0);
+        }
+      )?.cycle,
+    [bakingHistory]
+  );
 
   return useMemo(
     () => (
@@ -294,6 +314,7 @@ const BakingSection = memo(() => {
               <p className="text-gray-600 leading-tight mt-4">History:</p>
               {bakingHistory.map((historyItem, index) => (
                 <BakingHistoryItem
+                  currentCycle={currentCycle}
                   key={`${historyItem.cycle},${historyItem.baker.address}`}
                   content={historyItem}
                   fallbackRewardPerEndorsement={
@@ -316,6 +337,7 @@ const BakingSection = memo(() => {
       </div>
     ),
     [
+      currentCycle,
       myBakerPkh,
       canDelegate,
       commonDelegateButtonProps,
