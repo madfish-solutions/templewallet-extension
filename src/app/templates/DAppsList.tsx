@@ -206,7 +206,10 @@ const DAppsList: FC = () => {
           )}
         >
           <div
-            className={classNames(!popup && "mr-2", "flex-1 overflow-x-scroll")}
+            className={classNames(
+              !popup && "mr-2",
+              "flex-1 overflow-x-scroll no-scrollbar"
+            )}
           >
             <div
               className="flex-1 flex-wrap"
