@@ -24,13 +24,20 @@ export async function fetchOperations({
   offset,
   limit,
 }: FetchOperationsParams) {
-  let query = Repo.operations.where({ chainId, members: address });
+  // Base
+  let query = Repo.operations
+    .where("[chainId+addedAt]")
+    .between([chainId, 0], [chainId, Date.now()])
+    .reverse();
 
-  if (assetIds) {
-    query = query.filter((o) =>
-      o.assetIds.some((aId) => assetIds.includes(aId))
-    );
-  }
+  // Filter by members & assets
+  query = query.filter(
+    (o) =>
+      o.members.includes(address) &&
+      (assetIds ? o.assetIds.some((aId) => assetIds.includes(aId)) : true)
+  );
+
+  // Sorting
   if (offset) {
     query = query.offset(offset);
   }
@@ -38,7 +45,7 @@ export async function fetchOperations({
     query = query.limit(limit);
   }
 
-  return query.reverse().sortBy("addedAt");
+  return query.toArray();
 }
 
 export async function addLocalOperation(

@@ -9,6 +9,8 @@ import {
   TempleAccountType,
 } from "lib/temple/types";
 
+export const ACTIVITY_PAGE_SIZE = 50;
+
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
 export class ZeroBalanceError extends NotEnoughFundsError {}

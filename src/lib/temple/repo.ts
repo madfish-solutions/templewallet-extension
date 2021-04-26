@@ -1,5 +1,6 @@
-import Dexie from "dexie";
 import { OperationContentsAndResult } from "@taquito/rpc";
+import Dexie from "dexie";
+
 import { BcdTokenTransfer } from "lib/better-call-dev";
 import { TzktOperation } from "lib/tzkt";
 
@@ -15,7 +16,8 @@ db.version(1).stores({
     "chainId",
     "*members",
     "*assetIds",
-    "addedAt"
+    "addedAt",
+    "[chainId+addedAt]"
   ),
   [Table.SyncTimes]: indexes("[service+chainId+address]"),
 });
