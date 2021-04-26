@@ -4,7 +4,6 @@ import BigNumber from "bignumber.js";
 import {
   BcdTokenTransfer,
   getTokenTransfers,
-  BcdNetwork,
   BCD_NETWORKS_NAMES,
 } from "lib/better-call-dev";
 import * as Repo from "lib/temple/repo";
@@ -350,11 +349,6 @@ export async function syncOperations(
     }
   );
 }
-
-export const BCD_NETWORKS = new Map<string, BcdNetwork>([
-  ["NetXdQprcVkpaWU", "mainnet"],
-  ["NetXSgo1ZT2DRUG", "edo2net"],
-]);
 
 function tryParseTokenTransfers(
   parameters: any,

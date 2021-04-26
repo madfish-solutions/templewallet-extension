@@ -36,7 +36,7 @@ const Activity = memo<ActivityProps>(({ address, assetId, className }) => {
     if (syncSupported) {
       (async () => {
         try {
-          await syncOperations("new", chainId, address);
+          console.info(await syncOperations("new", chainId, address));
         } catch {}
       })();
     }
