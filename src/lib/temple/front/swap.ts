@@ -80,7 +80,8 @@ export const QUIPUSWAP_CONTRACTS = new Map<
   [
     TempleChainId.Edo2net,
     {
-      fa2Factory: "KT1HwQ7ZXyDfPhmU4f9LwfnMYtyeKnaVQRP9",
+      fa12Factory: "KT1WEcbPNGZNe6d5pm3eNufqe7cHS77DBG2G",
+      fa2Factory: "KT1KGdYTfLdzTKpyQbKkHJ2ASmBYa84hnCiQ",
     },
   ],
   [
@@ -94,7 +95,7 @@ export const QUIPUSWAP_CONTRACTS = new Map<
     TempleChainId.Mainnet,
     {
       fa12Factory: "KT1Lw8hCoaBrHeTeMXbqHPG4sS4K1xn7yKcD",
-      fa2Factory: "KT1GDtv3sqhWeSsXLWgcGsmoH5nRRGJd8xVc",
+      fa2Factory: "KT1SwH9P1Tx8a58Mm6qBExQFTcy2rwZyZiXS",
     },
   ],
 ]);
