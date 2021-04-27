@@ -200,27 +200,21 @@ const DAppsList: FC = () => {
           )}
         >
           <div
-            className={classNames(
-              !popup && "mr-2",
-              "flex-1 overflow-x-scroll no-scrollbar"
-            )}
+            className={classNames(!popup && "mr-2", "flex-1 flex flex-wrap")}
           >
-            <div
-              className="flex-1 flex-wrap"
-              style={{ width: popup ? "125%" : "107%" }}
-            >
-              {USED_TAGS.map((tag) => (
-                <Tag
-                  key={tag}
-                  name={tag}
-                  onClick={handleTagClick}
-                  selected={selectedTags.includes(tag)}
-                />
-              ))}
-            </div>
+            {USED_TAGS.map((tag) => (
+              <Tag
+                key={tag}
+                name={tag}
+                onClick={handleTagClick}
+                selected={selectedTags.includes(tag)}
+              />
+            ))}
           </div>
+
           {!popup && (
             <StarButton
+              className="flex-shrink-0"
               iconClassName="w-6 h-auto"
               isActive={showOnlyFavorite}
               onClick={toggleFavoriteFilter}
@@ -280,7 +274,7 @@ const Tag: FC<TagProps> = ({ name, onClick, selected }) => {
   return (
     <button
       className={classNames(
-        "mr-2 mb-2 h-6 inline-flex items-center rounded-full px-5",
+        "mr-2 mb-2 h-6 inline-flex items-center rounded-full px-4",
         "border border-gray-300 text-xs text-gray-900 hover:bg-gray-200",
         selected && "bg-gray-200"
       )}
