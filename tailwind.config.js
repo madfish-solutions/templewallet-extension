@@ -330,6 +330,7 @@ module.exports = {
     }),
     inset: {
       0: "0",
+      1: "0.25rem",
       3: "0.75rem",
       "1/2": "50%",
       auto: "auto",

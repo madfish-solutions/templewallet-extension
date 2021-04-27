@@ -46,5 +46,29 @@
   },
   "accountNumber": {
     "message": "Номер аккаунта"
+  },
+  "noExchangersAvailable": {
+    "message": "К сожалению, никакие обменники не доступны в текущей сети."
+  },
+  "balance": {
+    "message": "Баланс:"
+  },
+  "from": {
+    "message": "Из"
+  },
+  "toAsset": {
+    "message": "В"
+  },
+  "via": {
+    "message": "Через"
+  },
+  "exchangeRate": {
+    "message": "Курс обмена:"
+  },
+  "slippageTolerance": {
+    "message": "Максимально допустимое отклонение:"
+  },
+  "minimumReceived": {
+    "message": "Минимальный выход:"
   }
 }

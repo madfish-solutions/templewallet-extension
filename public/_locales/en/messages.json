@@ -318,6 +318,9 @@
   "nonNegativeIntMessage": {
     "message": "Integer, 0 or greater"
   },
+  "mustBeNonNegative": {
+    "message": "Must be non-negative"
+  },
   "positiveIntMessage": {
     "message": "Integer, 1 or greater"
   },
@@ -1733,6 +1736,44 @@
   "accountNumber": {
     "message": "Account number"
   },
+  "noExchangersAvailable": {
+    "message": "Sorry, no exchangers are available for the current network."
+  },
+  "max": {
+    "message": "Max"
+  },
+  "balance": {
+    "message": "Balance:"
+  },
+  "from": {
+    "message": "From"
+  },
+  "toAsset": {
+    "message": "To"
+  },
+  "via": {
+    "message": "Via"
+  },
+  "exchangeRate": {
+    "message": "Exchange rate:"
+  },
+  "slippageTolerance": {
+    "message": "Slippage tolerance:"
+  },
+  "minimumReceived": {
+    "message": "Minimum received:"
+  },
+  "inputOutputAssetsCannotBeSame": {
+    "message": "Input and output assets cannot be the same"
+  },
+  "amountMustBeReservedForNetworkFees": {
+    "message": "$amount$ must be reserved to pay network fees",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "helpAndCommunity": {
     "message": "Help & Community"
   },
@@ -1799,6 +1840,12 @@
       }
     }
   },
+  "specifyTokenId": {
+    "message": "Specify token ID"
+  },
+  "notWhitelistedTokenWarning": {
+    "message": "Attention! One of the tokens you’re trying to exchange is not whitelisted. You can interact with them at your own risk."
+  },
   "gasFee": {
     "message": "Gas fee"
   },
@@ -1807,5 +1854,14 @@
   },
   "viewAll": {
     "message": "View all"
+  },
+  "templeWalletFeeWarning": {
+    "message": "Temple Wallet doesn't apply any fees to exchanges for now but it may apply in the future."
+  },
+  "poolExchangeFee": {
+    "message": "Pool exchange fee"
+  },
+  "selectToken": {
+    "message": "Select Token"
   }
 }

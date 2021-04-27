@@ -12,7 +12,7 @@ import BigNumber from "bignumber.js";
 
 import FormField from "app/atoms/FormField";
 
-type AssetFieldProps = ComponentProps<typeof FormField> & {
+type AssetFieldProps = Omit<ComponentProps<typeof FormField>, "onChange"> & {
   value?: number | string;
   min?: number;
   max?: number;
