@@ -56,6 +56,12 @@ const DAppsList: FC = () => {
 
   const [searchString, setSearchString] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showOnlyFavorite, setShowOnlyFavorite] = useState(false);
+
+  const toggleFavoriteFilter = useCallback(
+    () => setShowOnlyFavorite((prevValue) => !prevValue),
+    []
+  );
 
   const handleTagClick = useCallback((name: string) => {
     setSelectedTags((prevSelectedTags) => {
@@ -74,32 +80,20 @@ const DAppsList: FC = () => {
     const topDApps = dApps.filter(({ slug }) =>
       TOP_DAPPS_SLUGS.some((topDAppSlug) => topDAppSlug === slug)
     );
-    const otherDApps = dApps.filter(({ slug }) =>
-      TOP_DAPPS_SLUGS.some((topDAppSlug) => topDAppSlug !== slug)
+    const otherDApps = dApps.filter(
+      ({ slug }) => !TOP_DAPPS_SLUGS.some((topDAppSlug) => topDAppSlug === slug)
     );
     return [...topDApps, ...otherDApps.slice(0, 3 - topDApps.length)];
   }, [dApps]);
 
   const matchingDApps = useMemo(() => {
     return dApps.filter(
-      ({ name, categories }) =>
+      ({ name, categories, slug }) =>
         name.toLowerCase().includes(searchString.toLowerCase()) &&
-        selectedTags.every((selectedTag) => categories.includes(selectedTag))
+        selectedTags.every((selectedTag) => categories.includes(selectedTag)) &&
+        (!showOnlyFavorite || favoriteDApps.includes(slug))
     );
-  }, [dApps, searchString, selectedTags]);
-
-  const allDAppsSlugs = useMemo(() => dApps.map(({ slug }) => slug), [dApps]);
-  const allDAppsAreFavorite = useMemo(
-    () => allDAppsSlugs.every((slug) => favoriteDApps.includes(slug)),
-    [allDAppsSlugs, favoriteDApps]
-  );
-  const toggleAllFavorite = useCallback(() => {
-    if (allDAppsAreFavorite) {
-      setFavoriteDApps([]);
-    } else {
-      setFavoriteDApps(allDAppsSlugs);
-    }
-  }, [allDAppsAreFavorite, setFavoriteDApps, allDAppsSlugs]);
+  }, [dApps, searchString, selectedTags, favoriteDApps, showOnlyFavorite]);
 
   const handleFavoriteChange = useCallback(
     (newIsFavorite: boolean, slug: string) => {
@@ -228,8 +222,8 @@ const DAppsList: FC = () => {
           {!popup && (
             <StarButton
               iconClassName="w-6 h-auto"
-              isActive={allDAppsAreFavorite}
-              onClick={toggleAllFavorite}
+              isActive={showOnlyFavorite}
+              onClick={toggleFavoriteFilter}
             />
           )}
         </div>
