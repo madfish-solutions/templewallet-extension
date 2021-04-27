@@ -14,6 +14,7 @@ import HashChip from "app/templates/HashChip";
 import { toLocalFormat } from "lib/i18n/numbers";
 import { T } from "lib/i18n/react";
 import {
+  defaultRewardConfigHistory,
   mutezToTz,
   useExplorerBaseUrls,
   useKnownBaker,
@@ -60,12 +61,29 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
     revelationRewards,
     doubleBakingRewards,
     doubleEndorsingRewards,
+    missedEndorsementRewards,
+    missedExtraBlockRewards,
+    missedExtraBlockFees,
+    missedOwnBlockFees,
+    missedOwnBlockRewards,
   } = content;
 
   const { data: bakerDetails } = useKnownBaker(baker.address);
   const { account: accountBaseUrl } = useExplorerBaseUrls();
 
   const { StatusIcon, iconColor, title, statsEntriesProps } = useMemo(() => {
+    let rewardConfig = defaultRewardConfigHistory[0].value;
+    if (bakerDetails?.rewardConfigHistory) {
+      const { rewardConfigHistory } = bakerDetails;
+      for (let i = 0; i < rewardConfigHistory.length; i++) {
+        const historyEntry = rewardConfigHistory[i];
+        if (cycle >= historyEntry.cycle) {
+          rewardConfig = historyEntry.value;
+          break;
+        }
+      }
+    }
+
     const totalFutureRewards = new BigNumber(futureEndorsementRewards).plus(
       futureBlockRewards
     );
@@ -194,6 +212,58 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
       .multipliedBy(bakerFeePart)
       .decimalPlaces(6);
 
+    const totalFutureRewards2 = new BigNumber(
+      rewardConfig.endorses ? futureEndorsementRewards : 0
+    ).plus(rewardConfig.blocks ? futureBlockRewards : 0);
+    const totalCurrentRewards2 = new BigNumber(
+      rewardConfig.blocks
+        ? new BigNumber(extraBlockRewards).plus(ownBlockRewards)
+        : 0
+    )
+      .plus(
+        rewardConfig.endorses
+          ? new BigNumber(endorsementRewards).plus(doubleEndorsingRewards)
+          : 0
+      )
+      .plus(
+        rewardConfig.fees ? new BigNumber(ownBlockFees).plus(extraBlockFees) : 0
+      )
+      .plus(rewardConfig.revelationRewards ? revelationRewards : 0)
+      .plus(doubleBakingRewards);
+    const totalRewards2 = totalFutureRewards2.plus(totalCurrentRewards2);
+
+    const fullEfficiencyIncome = new BigNumber(4e7)
+      .multipliedBy(new BigNumber(ownBlocks).plus(futureBlocks))
+      .plus(
+        new BigNumber(1.25e6).multipliedBy(
+          new BigNumber(endorsements).plus(futureEndorsements)
+        )
+      );
+    const totalLost = new BigNumber(missedEndorsementRewards)
+      .plus(missedExtraBlockFees)
+      .plus(missedExtraBlockRewards)
+      .plus(missedOwnBlockFees)
+      .plus(missedOwnBlockRewards);
+    const totalGain = totalRewards2
+      .minus(totalLost)
+      .minus(fullEfficiencyIncome);
+    const efficiencyPercentage = new BigNumber(1)
+      .plus(totalGain.div(fullEfficiencyIncome))
+      .multipliedBy(100)
+      .decimalPlaces(2);
+    const efficiencyClassName = (() => {
+      switch (true) {
+        case totalFutureRewards.gt(0) && totalCurrentRewards.gt(0):
+          return "text-blue-400";
+        case efficiencyPercentage.gte(100):
+          return "text-green-500";
+        case efficiencyPercentage.gte(99):
+          return "text-gray-500";
+        default:
+          return "text-red-700";
+      }
+    })();
+
     return {
       StatusIcon,
       iconColor,
@@ -245,6 +315,16 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
             </>
           ),
         },
+        {
+          name: "Efficiency",
+          value: totalCurrentRewards.eq(0) ? (
+            "‒"
+          ) : (
+            <span className={efficiencyClassName}>
+              {toLocalFormat(efficiencyPercentage, {})}%
+            </span>
+          ),
+        },
       ],
     };
   }, [
@@ -273,6 +353,12 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
     revelationRewards,
     doubleBakingRewards,
     doubleEndorsingRewards,
+    missedEndorsementRewards,
+    missedExtraBlockRewards,
+    missedExtraBlockFees,
+    missedOwnBlockFees,
+    missedOwnBlockRewards,
+    // extraBlocks,
   ]);
 
   return (
