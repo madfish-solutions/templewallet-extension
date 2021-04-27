@@ -17,7 +17,7 @@ import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import { ReactComponent as SendIcon } from "app/icons/send.svg";
 import PageLayout from "app/layouts/PageLayout";
-import Activity from "app/templates/Activity";
+import Activity from "app/templates/activity/Activity";
 import AssetInfo from "app/templates/AssetInfo";
 // import OperationHistory from "app/templates/OperationHistory";
 import { T, t } from "lib/i18n/react";

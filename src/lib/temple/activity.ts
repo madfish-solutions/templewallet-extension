@@ -286,6 +286,7 @@ export async function syncOperations(
         const assetIdSet = new Set(current?.assetIds);
 
         memberSet.add(tokenTrans.initiator);
+        memberSet.add(tokenTrans.from);
         memberSet.add(tokenTrans.to);
 
         assetIdSet.add(toTokenId(tokenTrans.contract, tokenTrans.token_id));
