@@ -4609,11 +4609,6 @@ detective@^5.2.0:
     defined "^1.0.0"
     minimist "^1.1.1"
 
-dexie-react-hooks@1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/dexie-react-hooks/-/dexie-react-hooks-1.0.6.tgz#a21d116addb2bb785507bf924cc6e963d858d5d5"
-  integrity sha512-OFoOBC4BQzkVGicuWl/cIMtlPp0wTAnUXwUJzq+l/zp0XVGmwEWkemRFq7JbudJLT0DINFVVzgVhGV7KOUK7uA==
-
 dexie@3.1.0-alpha.9:
   version "3.1.0-alpha.9"
   resolved "https://registry.yarnpkg.com/dexie/-/dexie-3.1.0-alpha.9.tgz#0851220aa0187afe2c7487932cfc15279a21753f"

@@ -7,7 +7,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import HashChip from "app/templates/HashChip";
-import { getDateFnsLocale } from "lib/i18n/react";
+import { t, getDateFnsLocale } from "lib/i18n/react";
 import { useExplorerBaseUrls } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 
@@ -16,18 +16,54 @@ import MoneyDiffView from "./MoneyDiffView";
 type ActivityItemProps = {
   address: string;
   operation: Repo.IOperation;
+  syncSupported: boolean;
   className?: string;
 };
 
 const ActivityItem = memo<ActivityItemProps>(
-  ({ address, operation, className }) => {
+  ({ address, operation, syncSupported, className }) => {
     const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
     const { hash, addedAt } = operation;
+
+    const pending = useMemo(
+      () =>
+        syncSupported &&
+        !(operation.data.tzktGroup || operation.data.bcdTokenTransfers),
+      [
+        syncSupported,
+        operation.data.tzktGroup,
+        operation.data.bcdTokenTransfers,
+      ]
+    );
 
     const moneyDiffs = useMemo(() => parseMoneyDiffs(operation, address), [
       operation,
       address,
     ]);
+
+    const status = useMemo(() => {
+      if (!syncSupported) return null;
+
+      const explorerStatus =
+        operation.data.tzktGroup?.[0]?.status ??
+        operation.data.bcdTokenTransfers?.[0]?.status;
+      const content = explorerStatus ?? "pending";
+
+      return (
+        <span
+          className={classNames(
+            explorerStatus === "applied"
+              ? "text-gray-600"
+              : explorerStatus
+              ? "text-red-600"
+              : "text-yellow-600",
+            "capitalize"
+          )}
+        >
+          {t(content) || content}
+        </span>
+      );
+    }, [syncSupported, operation.data]);
 
     return (
       <div className={classNames("my-3", className)}>
@@ -52,7 +88,13 @@ const ActivityItem = memo<ActivityItemProps>(
         </div>
 
         <div className="flex items-stretch">
-          <div className="flex flex-col pt-1">
+          <div className="flex flex-col pt-2">
+            {status && (
+              <div className="mb-px text-xs font-light leading-none">
+                {status}
+              </div>
+            )}
+
             <Time
               children={() => (
                 <span className="text-xs font-light text-gray-500">
@@ -70,7 +112,12 @@ const ActivityItem = memo<ActivityItemProps>(
 
           <div className="flex flex-col">
             {moneyDiffs.map(({ assetId, diff }, i) => (
-              <MoneyDiffView key={i} assetId={assetId} diff={diff} />
+              <MoneyDiffView
+                key={i}
+                assetId={assetId}
+                diff={diff}
+                pending={pending}
+              />
             ))}
           </div>
         </div>
@@ -100,6 +147,66 @@ const Time: React.FC<TimeProps> = ({ children }) => {
 
   return value;
 };
+
+// enum OpStackItemType {
+//   TransferFrom,
+//   TransferTo,
+//   Interaction,
+//   Delegation
+// }
+
+// interface OpStackItem {
+//   type: OpStackItemType;
+//   param: string;
+// }
+
+// function parseOpStack(operation: Repo.IOperation, address: string): OpStackItem[] {
+//   const { localGroup, tzktGroup, bcdTokenTransfers } = operation.data;
+
+//   if (tzktGroup) {
+//     return tzktGroup.map((tg) => {
+//       if (tg.type === "delegation") {
+//         return {
+//           type: OpStackItemType.Delegation,
+//           param: tg.newDelegate
+//         };
+//       }
+
+//       if (tg.type === "transaction") {
+//         if (tg.parameters) {
+//           return {
+//             type: OpStackItemType.Interaction,
+//             param: tg.target.address
+//           }
+//         }
+
+//         if (tg.sender.address === address) {
+//           return {
+//             type: OpStackItemType.TransferTo,
+//             param: tg.target.address
+//           }
+//         }
+
+//         if (tg.target.address === address) {
+//           return {
+//             type: OpStackItemType.TransferFrom,
+//             param: tg.sender.address
+//           }
+//         }
+//       }
+
+//       return null;
+//     }).filter(Boolean) as OpStackItem[];
+//   }
+
+//   if (localGroup) {
+//     return localGroup.map((localOp) => {
+//       return null;
+//     }).filter(Boolean) as OpStackItem[];
+//   }
+
+//   return [];
+// }
 
 interface MoneyDiff {
   assetId: string;

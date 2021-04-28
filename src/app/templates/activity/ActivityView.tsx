@@ -13,8 +13,10 @@ import ActivityItem from "./ActivityItem";
 type ActivityViewProps = {
   address: string;
   syncSupported: boolean;
-  operations?: Repo.IOperation[];
-  loading: boolean;
+  operations: Repo.IOperation[];
+  initialLoading: boolean;
+  loadingMore: boolean;
+  syncing: boolean;
   loadMoreDisplayed: boolean;
   loadMore: () => void;
   className?: string;
@@ -23,16 +25,20 @@ type ActivityViewProps = {
 const ActivityView = memo<ActivityViewProps>(
   ({
     address,
+    syncSupported,
     operations,
-    loading,
+    initialLoading,
+    loadingMore,
     loadMoreDisplayed,
     loadMore,
     className,
   }) => {
-    if (!operations && loading) {
-      return <ActivitySpinner />;
-    } else if (!operations) {
-      return (
+    const noOperations = operations.length === 0;
+
+    if (noOperations) {
+      return initialLoading ? (
+        <ActivitySpinner />
+      ) : (
         <div
           className={classNames(
             "mt-4 mb-12",
@@ -62,11 +68,16 @@ const ActivityView = memo<ActivityViewProps>(
           )}
         >
           {operations?.map((op) => (
-            <ActivityItem key={op.hash} address={address} operation={op} />
+            <ActivityItem
+              key={op.hash}
+              address={address}
+              operation={op}
+              syncSupported={syncSupported}
+            />
           ))}
         </div>
 
-        {loading ? (
+        {loadingMore ? (
           <ActivitySpinner />
         ) : (
           <div className="w-full flex justify-center mt-5 mb-3">

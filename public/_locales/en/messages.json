@@ -1026,6 +1026,12 @@
   "pending": {
     "message": "pending..."
   },
+  "applied": {
+    "message": "Applied"
+  },
+  "skipped": {
+    "message": "Skipped"
+  },
   "backtracked": {
     "message": "backtracked"
   },
