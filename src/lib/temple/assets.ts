@@ -213,10 +213,7 @@ const FA12_METHODS_ASSERTIONS = [
   },
   {
     name: "getBalance",
-    assertion: viewSuccessAssertionFactory("getBalance", [
-      "address",
-      "contract",
-    ]),
+    assertion: viewSuccessAssertionFactory("getBalance", [STUB_TEZOS_ADDRESS]),
   },
   {
     name: "getTotalSupply",
