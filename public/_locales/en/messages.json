@@ -1724,6 +1724,9 @@
   "balanceTooLow": {
     "message": "Tez balance to low"
   },
+  "swap": {
+    "message": "Swap"
+  },
   "anotherAccount": {
     "message": "Another account"
   },
