@@ -39,18 +39,6 @@ export interface BcdTokenTransfers {
   transfers: BcdTokenTransfer[];
 }
 
-export interface BcdToken {
-  contract: string;
-  decimals?: number;
-  level?: number;
-  name?: string;
-  network: BcdNetwork;
-  symbol?: string;
-  token_id: number;
-  token_info?: any;
-  volume_24_hours?: number;
-}
-
 export interface BcdTokenTransfer {
   alias?: string;
   amount: string;
@@ -70,6 +58,16 @@ export interface BcdTokenTransfer {
   timestamp: string;
   to: string;
   to_alias?: string;
-  token: BcdToken;
+  token: {
+    contract: string;
+    decimals?: number;
+    level?: number;
+    name?: string;
+    network: string;
+    symbol?: string;
+    token_id: number;
+    token_info?: any;
+    volume_24_hours?: number;
+  };
   token_id?: number;
 }

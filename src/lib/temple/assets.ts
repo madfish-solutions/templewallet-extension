@@ -104,7 +104,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     fungible: true,
     iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
     status: "displayed",
-  },  
+  },
   {
     type: TempleAssetType.FA1_2,
     address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
@@ -206,19 +206,21 @@ const FA12_METHODS_ASSERTIONS = [
   },
   {
     name: "getAllowance",
-    assertion: signatureAssertionFactory("getAllowance", [
-      "address",
+    assertion: viewSuccessAssertionFactory("getAllowance", [
+      STUB_TEZOS_ADDRESS,
+      STUB_TEZOS_ADDRESS,
+    ]),
+  },
+  {
+    name: "getBalance",
+    assertion: viewSuccessAssertionFactory("getBalance", [
       "address",
       "contract",
     ]),
   },
   {
-    name: "getBalance",
-    assertion: signatureAssertionFactory("getBalance", ["address", "contract"]),
-  },
-  {
     name: "getTotalSupply",
-    assertion: signatureAssertionFactory("getTotalSupply", ["unit"]),
+    assertion: viewSuccessAssertionFactory("getTotalSupply", ["unit"]),
   },
 ];
 
@@ -239,7 +241,7 @@ const FA2_METHODS_ASSERTIONS = [
       tokenId: number
     ) =>
       viewSuccessAssertionFactory("balance_of", [
-        [{ owner: STUB_TEZOS_ADDRESS, token_id: tokenId }],
+        [{ owner: STUB_TEZOS_ADDRESS, token_id: String(tokenId) }],
       ])(contract, tezos),
   },
 ];
@@ -280,9 +282,7 @@ export async function assertTokenType(
             getMessage("someMethodSignatureDoesNotMatchStandard", name)
           );
         } else if (e.value?.string === "FA2_TOKEN_UNDEFINED") {
-          throw new IncorrectTokenIdError(
-            getMessage("incorrectTokenIdErrorMessage")
-          );
+          throw new Error(getMessage("incorrectTokenIdErrorMessage"));
         } else {
           if (process.env.NODE_ENV === "development") {
             console.error(e);
@@ -292,23 +292,6 @@ export async function assertTokenType(
           );
         }
       }
-    })
-  );
-}
-
-export async function assertFA2TokenContract(contract: WalletContract) {
-  const assertions = FA2_METHODS_ASSERTIONS.slice(0, 2) as {
-    name: string;
-    assertion: (contract: WalletContract) => void;
-  }[];
-  await Promise.all(
-    assertions.map(async ({ name, assertion }) => {
-      if (typeof contract.methods[name] !== "function") {
-        throw new NotMatchingStandardError(
-          getMessage("someMethodNotDefinedInContract", name)
-        );
-      }
-      await assertion(contract);
     })
   );
 }
@@ -472,4 +455,3 @@ export function toPenny(asset: TempleAsset) {
 }
 
 export class NotMatchingStandardError extends Error {}
-export class IncorrectTokenIdError extends Error {}

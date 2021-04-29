@@ -25,13 +25,11 @@ interface FormFieldProps extends FormFieldAttrs {
   labelDescription?: ReactNode;
   errorCaption?: ReactNode;
   containerClassName?: string;
-  containerStyle?: React.CSSProperties;
   textarea?: boolean;
   secret?: boolean;
   cleanable?: boolean;
   extraButton?: ReactNode;
   extraInner?: ReactNode;
-  useDefaultInnerWrapper?: boolean;
   onClean?: () => void;
   fieldWrapperBottomMargin?: boolean;
   labelPaddingClassName?: string;
@@ -40,7 +38,6 @@ interface FormFieldProps extends FormFieldAttrs {
 const FormField = forwardRef<FormFieldRef, FormFieldProps>(
   (
     {
-      containerStyle,
       extraSection,
       label,
       labelDescription,
@@ -51,7 +48,6 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       cleanable,
       extraButton = null,
       extraInner = null,
-      useDefaultInnerWrapper = true,
       id,
       value,
       defaultValue,
@@ -155,7 +151,6 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       <div
         ref={rootRef}
         className={classNames("w-full flex flex-col", containerClassName)}
-        style={containerStyle}
       >
         {label ? (
           <label
@@ -222,24 +217,21 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             {...rest}
           />
 
-          {extraInner &&
-            (useDefaultInnerWrapper ? (
-              <div
-                className={classNames(
-                  "overflow-hidden",
-                  "absolute inset-y-0 right-0 w-20",
-                  "flex items-center justify-end",
-                  "opacity-50",
-                  "pointer-events-none"
-                )}
-              >
-                <span className="mx-4 text-lg font-light text-gray-900">
-                  {extraInner}
-                </span>
-              </div>
-            ) : (
-              extraInner
-            ))}
+          {extraInner && (
+            <div
+              className={classNames(
+                "overflow-hidden",
+                "absolute inset-y-0 right-0 w-20",
+                "flex items-center justify-end",
+                "opacity-50",
+                "pointer-events-none"
+              )}
+            >
+              <span className="mx-4 text-lg font-light text-gray-900">
+                {extraInner}
+              </span>
+            </div>
+          )}
 
           {extraButton}
 
