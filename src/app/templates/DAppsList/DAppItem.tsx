@@ -16,6 +16,7 @@ type DAppItemProps = CustomDAppInfo & {
 };
 
 const DAppItem: FC<DAppItemProps> = ({
+  errorOccurred,
   slug,
   website,
   name,
@@ -45,7 +46,10 @@ const DAppItem: FC<DAppItemProps> = ({
             {categories.map((category) => `#${category}`).join(", ")}
           </DAppCharacteristic>
           {soon && <DAppCharacteristic>{t("comingSoon")}</DAppCharacteristic>}
-          {!soon && (
+          {errorOccurred && (
+            <DAppCharacteristic>{"- - - - - - - - -"}</DAppCharacteristic>
+          )}
+          {!soon && !errorOccurred && (
             <DAppCharacteristic Icon={LockIcon}>
               ~
               <Money shortened smallFractionFont={false}>

@@ -18,6 +18,7 @@ export interface CustomDAppInfo {
   cover: string;
   screenshots?: BcdDAppScreenshot[];
   tvl: string;
+  errorOccurred?: boolean;
 }
 
 export interface CustomDAppsInfo {
