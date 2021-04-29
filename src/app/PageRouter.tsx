@@ -14,7 +14,6 @@ import ManageAssets from "app/pages/ManageAssets";
 import Receive from "app/pages/Receive";
 import Send from "app/pages/Send";
 import Settings from "app/pages/Settings";
-import Swap from "app/pages/Swap";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
 import { useAnalytics } from "lib/analytics";
@@ -78,7 +77,6 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     "/send/:assetSlug?",
     onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />),
   ],
-  ["/swap", onlyReady(() => <Swap />)],
   ["/delegate", onlyReady(() => <Delegate />)],
   ["/dapps", onlyReady(() => <DApps />)],
   ["/manage-assets", onlyReady(() => <ManageAssets />)],
@@ -126,7 +124,6 @@ const Page: FC = () => {
     }
 
     pageEvent(path, search);
-
   }, [pathname, search, ctx.ready, pageEvent]);
 
   return useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [

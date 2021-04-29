@@ -73,11 +73,7 @@ const Alert: FC<AlertProps> = ({
         </div>
       )}
       {closable && (
-        <button
-          className="absolute top-3 right-3"
-          onClick={onClose}
-          type="button"
-        >
+        <button className="absolute top-3 right-3" onClick={onClose}>
           <CloseIcon
             className="w-auto h-5 stroke-current"
             style={{ strokeWidth: 2 }}

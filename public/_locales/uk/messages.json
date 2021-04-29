@@ -1679,38 +1679,11 @@
   "balanceTooLow": {
     "message": "Tez баланс дуже низький"
   },
-  "swap": {
-    "message": "Обміняти"
-  },
   "anotherAccount": {
     "message": "Інший аккаунт"
   },
   "accountNumber": {
     "message": "Номер аккаунта"
-  },
-  "noExchangersAvailable": {
-    "message": "На жаль, жодні обмінники не доступні в поточній мережі."
-  },
-  "balance": {
-    "message": "Баланс:"
-  },
-  "from": {
-    "message": "З"
-  },
-  "toAsset": {
-    "message": "В"
-  },
-  "via": {
-    "message": "Через"
-  },
-  "exchangeRate": {
-    "message": "Курс обміну:"
-  },
-  "slippageTolerance": {
-    "message": "Максимально допустиме відхилення:"
-  },
-  "minimumReceived": {
-    "message": "Мінімальний вихід:"
   },
   "helpAndCommunity": {
     "message": "Допомога та спільнота"
