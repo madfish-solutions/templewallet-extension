@@ -62,25 +62,29 @@ const BakerBanner = memo<BakerBannerProps>(
               <div className="flex flex-col items-start flex-1 ml-2">
                 <div
                   className={classNames(
-                    "w-full",
+                    "w-full mb-1 mr-1 text-lg",
                     "flex flex-wrap items-center",
                     "leading-none"
                   )}
-                  style={{ marginBottom: "0.125rem" }}
                 >
-                  <Name className="pb-1 mr-1 text-lg">{baker.name}</Name>
+                  <Name>{baker.name}</Name>
                 </div>
 
                 {displayAddress && (
-                  <div
-                    className={classNames(
-                      "mb-2 pl-px",
-                      "flex flex-wrap items-center"
-                    )}
-                  >
-                    <HashChip hash={baker.address} small className="mr-2" />
+                  <div className="mb-1 flex flex-wrap items-center">
+                    <HashChip
+                      bgShade={200}
+                      rounded="base"
+                      className="mr-1"
+                      hash={baker.address}
+                      small
+                      textShade={700}
+                    />
                     {accountBaseUrl && (
                       <OpenInExplorerChip
+                        bgShade={200}
+                        textShade={500}
+                        rounded="base"
                         hash={baker.address}
                         baseUrl={accountBaseUrl}
                       />
@@ -89,13 +93,10 @@ const BakerBanner = memo<BakerBannerProps>(
                 )}
 
                 <div className="flex flex-wrap items-center">
-                  <div
-                    className={classNames("mr-2", "flex items-center")}
-                    style={{ marginBottom: "0.125rem" }}
-                  >
+                  <div className="mr-2 flex items-center">
                     <div
                       className={classNames(
-                        "text-xs font-light leading-none",
+                        "text-xs font-light leading-tight",
                         "text-gray-600"
                       )}
                     >
@@ -109,13 +110,10 @@ const BakerBanner = memo<BakerBannerProps>(
                     </div>
                   </div>
 
-                  <div
-                    className={classNames("flex items-center")}
-                    style={{ marginBottom: "0.125rem" }}
-                  >
+                  <div className="flex items-center">
                     <div
                       className={classNames(
-                        "text-xs font-light leading-none",
+                        "text-xs font-light leading-tight",
                         "text-gray-600"
                       )}
                     >

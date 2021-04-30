@@ -12,12 +12,18 @@ type OpenInExplorerChipProps = {
   baseUrl: string;
   hash: string;
   className?: string;
+  bgShade?: 100 | 200;
+  textShade?: 500 | 600 | 700;
+  rounded?: "sm" | "base";
 };
 
 const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
   baseUrl,
   hash,
   className,
+  bgShade = 100,
+  textShade = 600,
+  rounded = "sm",
 }) => {
   const { trackEvent } = useAnalytics();
   const tippyProps = useMemo(
@@ -46,17 +52,18 @@ const OpenInExplorerChip: FC<OpenInExplorerChipProps> = ({
       target="_blank"
       rel="noopener noreferrer"
       className={classNames(
-        "bg-gray-100 hover:bg-gray-200",
-        "rounded-sm shadow-xs",
-        "text-xs p-1",
-        "text-gray-600 leading-none select-none",
+        `bg-gray-${bgShade} hover:bg-gray-${
+          bgShade + 100
+        } text-gray-${textShade}`,
+        rounded === "base" ? "rounded" : `rounded-${rounded}`,
+        "leading-none select-none",
         "transition ease-in-out duration-300",
-        "flex items-center",
+        "flex items-center justify-center",
         className
       )}
       onClick={handleClick}
     >
-      <ArrowRightTopIcon className="w-auto h-3 stroke-current stroke-2" />
+      <ArrowRightTopIcon className="h-5 w-auto fill-current" />
     </a>
   );
 };

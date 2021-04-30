@@ -172,7 +172,7 @@ export type TzktRewardsEntry = {
   quote?: TzktQuote;
 };
 
-export type TzktGetRewardsResponse = TzktRewardsEntry[];
+export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
 
 export const allInt32ParameterKeys: Int32ParameterKey[] = [
   "eq",

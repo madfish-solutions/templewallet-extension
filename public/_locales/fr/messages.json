@@ -871,6 +871,7 @@
   },
   "cycles_one": {
     "message": "cycle $amount$",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -879,6 +880,7 @@
   },
   "cycles_other": {
     "message": "cycles $amount$",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"

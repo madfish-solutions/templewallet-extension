@@ -59,18 +59,25 @@ const BakingSection = memo(() => {
       if (!isKnownChainId(chainId!)) {
         return [];
       }
-      return getDelegatorRewards(chainId, { address: accountPkh, limit: 20 });
+      return (
+        (await getDelegatorRewards(chainId, {
+          address: accountPkh,
+          limit: 20,
+        })) || []
+      );
     },
     [chainId]
   );
   const {
     data: bakingHistory,
+    error,
     isValidating: loadingBakingHistory,
   } = useRetryableSWR(
     ["baking-history", acc.publicKeyHash, myBakerPkh, chainId],
     getBakingHistory,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );
+  console.error(error);
 
   const delegateButtonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonDelegateButtonProps = useMemo(
