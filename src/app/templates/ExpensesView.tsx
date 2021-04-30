@@ -51,13 +51,11 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         for (const e of estimates) {
           gasFeeMutez = gasFeeMutez.plus(e.suggestedFeeMutez);
           storageFeeMutez = storageFeeMutez.plus(
-            increaseStorageFee
-              ? Math.ceil(
-                  Math.ceil(
-                    e.storageLimit * ((100 + increaseStorageFee) / 100)
-                  ) * (e as any).minimalFeePerStorageByteMutez
-                )
-              : e.burnFeeMutez
+            Math.ceil(
+              Math.ceil(
+                e.storageLimit * ((100 + (increaseStorageFee || 0)) / 100)
+              ) * (e as any).minimalFeePerStorageByteMutez
+            )
           );
         }
       } catch {

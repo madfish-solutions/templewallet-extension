@@ -42,14 +42,16 @@ export async function dryRunOpParams({
         tezos.estimate.batch(formated).catch(() => undefined),
       ]);
       estimates = result[1]?.map(
-        (e) =>
+        (e, i) =>
           ({
             ...e,
             burnFeeMutez: e.burnFeeMutez,
             consumedMilligas: e.consumedMilligas,
             gasLimit: e.gasLimit,
             minimalFeeMutez: e.minimalFeeMutez,
-            storageLimit: e.storageLimit,
+            storageLimit: opParams[i]?.storageLimit
+              ? +opParams[i]?.storageLimit
+              : e.storageLimit,
             suggestedFeeMutez: e.suggestedFeeMutez,
             totalCost: e.totalCost,
             usingBaseFeeMutez: e.usingBaseFeeMutez,
@@ -73,6 +75,13 @@ export function increaseStorageOpParmas(
   estimates?: Estimate[],
   increaseStorageFee?: number
 ) {
+  if (estimates) {
+    opParams = opParams.map((op, i) => ({
+      ...op,
+      storageLimit: estimates[i]?.storageLimit,
+    }));
+  }
+
   if (
     estimates &&
     increaseStorageFee &&
