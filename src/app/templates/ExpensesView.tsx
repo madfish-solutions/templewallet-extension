@@ -31,7 +31,7 @@ type ExpensesViewProps = {
   estimates?: Estimate[];
   mainnet?: boolean;
   totalFeeDisplayed?: boolean;
-  increaseStorageFee?: number;
+  modifiedStorageLimit?: number;
 };
 
 const ExpensesView: FC<ExpensesViewProps> = ({
@@ -39,7 +39,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
   estimates,
   mainnet,
   totalFeeDisplayed,
-  increaseStorageFee,
+  modifiedStorageLimit,
 }) => {
   const totalFee = useMemo(() => {
     if (!totalFeeDisplayed) return null;
@@ -52,9 +52,8 @@ const ExpensesView: FC<ExpensesViewProps> = ({
           gasFeeMutez = gasFeeMutez.plus(e.suggestedFeeMutez);
           storageFeeMutez = storageFeeMutez.plus(
             Math.ceil(
-              Math.ceil(
-                e.storageLimit * ((100 + (increaseStorageFee || 0)) / 100)
-              ) * (e as any).minimalFeePerStorageByteMutez
+              (modifiedStorageLimit ?? e.storageLimit) *
+                (e as any).minimalFeePerStorageByteMutez
             )
           );
         }
@@ -71,7 +70,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
             { key: "gas", title: t("gasFee"), fee: gasFee },
             {
               key: "storage",
-              title: t("storageFee"),
+              title: t("storageFeeMax"),
               fee: storageFee,
             },
           ].map(({ key, title, fee }) => (
@@ -111,7 +110,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
     }
 
     return null;
-  }, [totalFeeDisplayed, estimates, mainnet, increaseStorageFee]);
+  }, [totalFeeDisplayed, estimates, mainnet, modifiedStorageLimit]);
 
   if (!expenses) {
     return null;
@@ -147,7 +146,11 @@ const ExpensesView: FC<ExpensesViewProps> = ({
               "text-sm text-gray-700"
             )}
           >
-            {totalFee ?? <span>Warning! Transaction is likely to fail</span>}
+            {totalFee ?? (
+              <span>
+                <T id="txIsLikelyToFail" />
+              </span>
+            )}
           </div>
         </>
       )}

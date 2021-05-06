@@ -1,1 +1,0 @@
-export const INCREASE_STORAGE_FEE_VARIANTS = [0, 3, 5, 8];

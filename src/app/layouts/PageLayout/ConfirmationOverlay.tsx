@@ -31,9 +31,9 @@ const ConfirmationOverlay: FC = () => {
   }, [displayed]);
 
   const handleConfirm = useCallback(
-    async (confirmed: boolean, increaseStorageFee?: number) => {
+    async (confirmed: boolean, modifiedStorageLimit?: number) => {
       if (confirmation) {
-        await confirmInternal(confirmation.id, confirmed, increaseStorageFee);
+        await confirmInternal(confirmation.id, confirmed, modifiedStorageLimit);
       }
       resetConfirmation();
     },
