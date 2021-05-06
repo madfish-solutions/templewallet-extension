@@ -65,7 +65,7 @@ const About: FC = () => (
         },
         {
           key: "repo",
-          link: "https://github.com/madfish-solutions/temple-wallet",
+          link: "https://github.com/madfish-solutions/templewallet-extension",
         },
         {
           key: "privacyPolicy",
