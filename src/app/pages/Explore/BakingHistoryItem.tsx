@@ -285,7 +285,13 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
           visible: endorsements > 0,
         },
         {
-          Icon: BoxCrossedIcon,
+          Icon: (props: SVGProps<SVGSVGElement>) => (
+            <BoxCrossedIcon
+              {...props}
+              className={classNames(props.className, "fill-current")}
+              style={{ stroke: "none" }}
+            />
+          ),
           title: "Missed own blocks",
           children: (
             <T
