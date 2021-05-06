@@ -58,6 +58,7 @@ const ModifyStorageLimitSection: React.FC<ModifyStorageLimitSectionProps> = ({
           "focus:outline-none focus:shadow-outline",
           "transition ease-in-out duration-200",
           "rounded",
+          "text-right",
           "text-gray-700 text-sm leading-tight",
           "placeholder-gray-600"
         )}
