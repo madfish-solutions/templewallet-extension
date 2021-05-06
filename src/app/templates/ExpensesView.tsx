@@ -48,14 +48,17 @@ const ExpensesView: FC<ExpensesViewProps> = ({
       let gasFeeMutez = new BigNumber(0);
       let storageFeeMutez = new BigNumber(0);
       try {
+        let i = 0;
         for (const e of estimates) {
           gasFeeMutez = gasFeeMutez.plus(e.suggestedFeeMutez);
           storageFeeMutez = storageFeeMutez.plus(
             Math.ceil(
-              (modifiedStorageLimit ?? e.storageLimit) *
-                (e as any).minimalFeePerStorageByteMutez
+              (i === 0
+                ? modifiedStorageLimit ?? e.storageLimit
+                : e.storageLimit) * (e as any).minimalFeePerStorageByteMutez
             )
           );
+          i++;
         }
       } catch {
         return null;
