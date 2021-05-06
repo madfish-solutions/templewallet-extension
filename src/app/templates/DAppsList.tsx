@@ -241,7 +241,7 @@ const DAppsList: FC = () => {
       <div
         className={classNames(
           "absolute bottom-0 left-0 h-16 bg-gray-200 w-full",
-          !popup && "hidden"
+          (!popup || matchingDApps.length <= 3) && "hidden"
         )}
         style={{ padding: "0.625rem 1.25rem" }}
       >
