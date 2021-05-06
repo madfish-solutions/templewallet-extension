@@ -62,7 +62,7 @@ const BakingSection = memo(() => {
       return (
         (await getDelegatorRewards(chainId, {
           address: accountPkh,
-          limit: 20,
+          limit: 30,
         })) || []
       );
     },
