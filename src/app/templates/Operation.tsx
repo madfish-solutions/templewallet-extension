@@ -364,14 +364,13 @@ const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(
           <>
             {arg.map((value, index) => (
               <span key={index}>
-                &nbsp;
                 <HashChip
                   className="text-blue-600 opacity-75"
                   key={index}
                   hash={value}
                   type="link"
                 />
-                {index === arg.length - 1 ? null : ","}
+                {index === arg.length - 1 ? null : ", "}
               </span>
             ))}
           </>
