@@ -1,5 +1,6 @@
 import React, {
   FC,
+  Fragment,
   memo,
   ReactElement,
   useEffect,
@@ -241,33 +242,35 @@ const Operation = memo<OperationProps>(
 
           <div className="flex items-stretch">
             <div className="flex flex-col">
-              <div className="flex items-center mt-1 text-xs text-blue-600 opacity-75">
-                {formatOperationType(moreExactType, imReceiver)}
+              <div className="flex items-center mt-1 text-xs text-gray-500 opacity-75 flex-wrap font-light">
+                <span className="text-blue-600">
+                  {formatOperationType(moreExactType, imReceiver)}
+                </span>
+                {isReceivingTransfer && (
+                  <OperationArgumentDisplay
+                    i18nKey="transferFromSmb"
+                    arg={[sender]}
+                  />
+                )}
+                {isSendingTransfer && (
+                  <OperationArgumentDisplay
+                    i18nKey="transferToSmb"
+                    arg={receivers}
+                  />
+                )}
+                {moreExactType === "interaction" && (
+                  <OperationArgumentDisplay
+                    i18nKey="interactionWithContract"
+                    arg={[rawReceiver!]}
+                  />
+                )}
+                {moreExactType === "delegation" && (
+                  <OperationArgumentDisplay
+                    i18nKey="delegationToSmb"
+                    arg={[delegate!]}
+                  />
+                )}
               </div>
-              {isReceivingTransfer && (
-                <OperationArgumentDisplay
-                  i18nKey="transferFromSmb"
-                  arg={[sender]}
-                />
-              )}
-              {isSendingTransfer && (
-                <OperationArgumentDisplay
-                  i18nKey="transferToSmb"
-                  arg={receivers}
-                />
-              )}
-              {moreExactType === "interaction" && (
-                <OperationArgumentDisplay
-                  i18nKey="interactionWithContract"
-                  arg={[rawReceiver!]}
-                />
-              )}
-              {moreExactType === "delegation" && (
-                <OperationArgumentDisplay
-                  i18nKey="delegationToSmb"
-                  arg={[delegate!]}
-                />
-              )}
 
               {(() => {
                 const timeNode = (
@@ -356,22 +359,24 @@ type OperationArgumentDisplayProps = {
 
 const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(
   ({ i18nKey, arg }) => (
-    <span className="font-light text-gray-500 text-xs">
-      <T
-        id={i18nKey}
-        substitutions={arg.map((value, index) => (
-          <>
-            <HashChip
-              className="text-blue-600 opacity-75"
-              key={index}
-              hash={value}
-              type="link"
-            />
-            {index === arg.length - 1 ? null : ", "}
-          </>
-        ))}
-      />
-    </span>
+    <T
+      id={i18nKey}
+      substitutions={
+        <>
+          {arg.map((value, index) => (
+            <Fragment key={index}>
+              <HashChip
+                className="text-blue-600 opacity-75"
+                key={index}
+                hash={value}
+                type="link"
+              />
+              {index === arg.length - 1 ? null : ", "}
+            </Fragment>
+          ))}
+        </>
+      }
+    />
   )
 );
 

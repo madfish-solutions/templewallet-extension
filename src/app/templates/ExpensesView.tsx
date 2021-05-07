@@ -281,10 +281,10 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
       </div>
 
       <div className="flex-1 flex-col">
-        <div className="mb-1 flex items-center">
-          <div className="mr-1 flex items-center text-xs text-blue-600 opacity-75">
+        <div className="mb-1 text-xs text-gray-500 font-light flex flex-wrap">
+          <span className="mr-1 flex items-center text-blue-600 opacity-100">
             {operationTypeLabel}
-          </div>
+          </span>
 
           {argumentDisplayProps && (
             <OperationArgumentDisplay {...argumentDisplayProps} />
@@ -293,7 +293,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
 
         <div
           className={classNames(
-            "flex items-end flex-shrink-0",
+            "flex items-end flex-shrink-0 flex-wrap",
             "text-gray-800"
           )}
         >
@@ -329,22 +329,25 @@ type OperationArgumentDisplayProps = {
 
 const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(
   ({ i18nKey, arg }) => (
-    <span className="font-light text-gray-500 text-xs">
-      <T
-        id={i18nKey}
-        substitutions={arg.map((value, index) => (
-          <>
-            <HashChip
-              className="text-blue-600 opacity-75"
-              key={index}
-              hash={value}
-              type="link"
-            />
-            {index === arg.length - 1 ? null : ", "}
-          </>
-        ))}
-      />
-    </span>
+    <T
+      id={i18nKey}
+      substitutions={
+        <>
+          {arg.map((value, index) => (
+            <span key={index}>
+              &nbsp;
+              <HashChip
+                className="text-blue-600 opacity-75"
+                key={index}
+                hash={value}
+                type="link"
+              />
+              {index === arg.length - 1 ? null : ","}
+            </span>
+          ))}
+        </>
+      }
+    />
   )
 );
 
