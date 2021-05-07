@@ -300,15 +300,15 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
           {item.expenses
             .filter((expense) => new BigNumber(expense.amount).isGreaterThan(0))
             .map((expense, index, arr) => (
-              <Fragment key={index}>
+              <span key={index}>
                 <OperationVolumeDisplay
                   expense={expense}
                   volume={item.amount}
                   withdrawal={withdrawal}
                   mainnet={mainnet}
                 />
-                {index === arr.length - 1 ? null : ", "}
-              </Fragment>
+                {index === arr.length - 1 ? null : ",\u00a0"}
+              </span>
             ))}
 
           {item.expenses.length === 0 &&
@@ -369,13 +369,13 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(
 
     return (
       <>
-        <div className="text-sm">
+        <span className="text-sm">
           {/* {withdrawal && "-"} */}
           <span className="font-medium">
             <Money>{finalVolume || 0}</Money>
           </span>{" "}
           {expense?.asset ? asset?.symbol || "???" : "ꜩ"}
-        </div>
+        </span>
 
         {(!expense?.asset || asset) && (
           <InUSD
