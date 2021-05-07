@@ -1745,7 +1745,13 @@
   "gasFee": {
     "message": "Gas fee"
   },
-  "storageFee": {
-    "message": "Storage fee"
+  "storageFeeMax": {
+    "message": "Storage fee (max)"
+  },
+  "storageLimit": {
+    "message": "Storage Limit"
+  },
+  "txIsLikelyToFail": {
+    "message": "Warning! Transaction is likely to fail"
   }
 }
