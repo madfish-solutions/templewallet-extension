@@ -1749,7 +1749,7 @@
     "message": "Storage fee (max)"
   },
   "storageLimit": {
-    "message": "Storage Limit"
+    "message": "Adjust storage limit"
   },
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"

@@ -31,7 +31,7 @@ const ModifyStorageLimitSection: React.FC<ModifyStorageLimitSectionProps> = ({
       className={classNames("mt-2 flex items-stretch", className)}
       style={style}
     >
-      <div className="w-1/2 flex items-center">
+      <div className="flex items-center w-2/3">
         <div
           className={classNames(
             "max-w-full whitespace-no-wrap overflow-x-auto no-scrollbar",
@@ -49,7 +49,7 @@ const ModifyStorageLimitSection: React.FC<ModifyStorageLimitSectionProps> = ({
         placeholder="0"
         className={classNames(
           "appearance-none",
-          "w-1/2",
+          "w-1/3",
           "py-px pl-2",
           "border",
           "border-gray-300",
