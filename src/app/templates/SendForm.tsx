@@ -13,12 +13,13 @@ import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
-import { useForm, Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import useSWR from "swr";
 
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
+import { Button } from "app/atoms/Button";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
@@ -40,39 +41,47 @@ import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import {
+  AnalyticsEventCategory,
+  useAnalytics,
+  useFormAnalytics,
+} from "lib/analytics";
+import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import {
-  TempleAsset,
-  TEZ_ASSET,
-  useRelevantAccounts,
-  useAccount,
-  useTezos,
-  useAssetBySlug,
-  useBalance,
-  useTezosDomainsClient,
   fetchBalance,
+  getAssetKey,
+  hasManager,
+  isAddressValid,
+  isDomainNameValid,
+  isKTAddress,
+  loadContract,
+  mutezToTz,
+  TempleAccountType,
+  TempleAsset,
+  TempleAssetType,
+  TEZ_ASSET,
+  toPenny,
   toTransferParams,
   tzToMutez,
-  mutezToTz,
-  isAddressValid,
-  toPenny,
-  hasManager,
-  TempleAssetType,
-  isKTAddress,
-  isDomainNameValid,
-  TempleAccountType,
-  loadContract,
-  getAssetKey,
+  useAccount,
+  useAssetBySlug,
+  useBalance,
+  useRelevantAccounts,
+  useTezos,
+  useTezosDomainsClient,
   useUSDPrice,
   useNetwork,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
 
+import { SendFormSelectors } from "./SendForm.selectors";
+
 interface FormData {
   to: string;
-  amount: number;
+  amount: string;
   fee: number;
 }
 
@@ -87,10 +96,18 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
   const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const { trackEvent } = useAnalytics();
 
-  const handleAssetChange = useCallback((a: TempleAsset) => {
-    navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
-  }, []);
+  const handleAssetChange = useCallback(
+    (a: TempleAsset) => {
+      trackEvent(
+        SendFormSelectors.AssetItemButton,
+        AnalyticsEventCategory.ButtonPress
+      );
+      navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
+    },
+    [trackEvent]
+  );
 
   return (
     <>
@@ -128,6 +145,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
 
+  const formAnalytics = useFormAnalytics("SendForm");
+
   const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
 
@@ -136,14 +155,12 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     accountPkh
   );
   const balance = balanceData!;
-  const balanceNum = balance.toNumber();
 
   const { data: tezBalanceData, mutate: mutateTezBalance } = useBalance(
     TEZ_ASSET,
     accountPkh
   );
   const tezBalance = tezBalanceData!;
-  const tezBalanceNum = tezBalance.toNumber();
 
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
 
@@ -186,14 +203,12 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       const amount = new BigNumber(getValues().amount);
       setValue(
         "amount",
-        Number(
-          (newShouldUseUsd
-            ? amount.multipliedBy(tezPrice!)
-            : amount.div(tezPrice!)
-          ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
-            decimalSeparator: ".",
-          })
-        )
+        (newShouldUseUsd
+          ? amount.multipliedBy(tezPrice!)
+          : amount.div(tezPrice!)
+        ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
+          decimalSeparator: ".",
+        })
       );
     },
     [setShouldUseUsd, shouldUseUsd, getValues, tezPrice, setValue]
@@ -326,7 +341,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         }
         estmtnMax = await tezos.estimate.transfer({
           to,
-          amount: amountMax.toNumber(),
+          amount: amountMax.toString() as any,
         });
       } else {
         estmtnMax = await tezos.estimate.transfer(transferParams);
@@ -414,13 +429,10 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const maxAddFee = useMemo(() => {
     if (baseFee instanceof BigNumber) {
-      return new BigNumber(tezBalanceNum)
-        .minus(baseFee)
-        .minus(PENNY)
-        .toNumber();
+      return tezBalance.minus(baseFee).minus(PENNY).toNumber();
     }
     return;
-  }, [tezBalanceNum, baseFee]);
+  }, [tezBalance, baseFee]);
 
   const safeFeeValue = useMemo(
     () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
@@ -434,8 +446,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       ? (() => {
           let ma =
             acc.type === TempleAccountType.ManagedKT
-              ? new BigNumber(balanceNum)
-              : new BigNumber(balanceNum)
+              ? balance
+              : balance
                   .minus(baseFee)
                   .minus(safeFeeValue ?? 0)
                   .minus(PENNY);
@@ -449,21 +461,16 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             : new BigNumber(0);
           return shouldUseUsd ? maxAmountUsd : maxAmountTez;
         })()
-      : new BigNumber(balanceNum);
+      : balance;
   }, [
     acc.type,
     localAsset.type,
-    balanceNum,
+    balance,
     baseFee,
     safeFeeValue,
     shouldUseUsd,
     tezPrice,
   ]);
-
-  const maxAmountNum = useMemo(
-    () => (maxAmount instanceof BigNumber ? maxAmount.toNumber() : maxAmount),
-    [maxAmount]
-  );
 
   const validateAmount = useCallback(
     (v?: number) => {
@@ -471,15 +478,14 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       if (!isKTAddress(toValue) && v === 0) {
         return t("amountMustBePositive");
       }
-      if (!maxAmountNum) return true;
-      const maxAmount = new BigNumber(maxAmountNum);
+      if (!maxAmount) return true;
       const vBN = new BigNumber(v);
       return (
         vBN.isLessThanOrEqualTo(maxAmount) ||
-        t("maximalAmount", maxAmount.toFixed())
+        t("maximalAmount", toLocalFixed(maxAmount))
       );
     },
-    [maxAmountNum, toValue]
+    [maxAmount, toValue]
   );
 
   const handleFeeFieldChange = useCallback(
@@ -487,15 +493,16 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     [maxAddFee]
   );
 
+  const maxAmountStr = maxAmount?.toString();
   useEffect(() => {
     if (formState.dirtyFields.has("amount")) {
       triggerValidation("amount");
     }
-  }, [formState.dirtyFields, triggerValidation, maxAmountNum]);
+  }, [formState.dirtyFields, triggerValidation, maxAmountStr]);
 
   const handleSetMaxAmount = useCallback(() => {
     if (maxAmount) {
-      setValue("amount", maxAmount.toNumber());
+      setValue("amount", maxAmount.toString());
       triggerValidation("amount");
     }
   }, [setValue, maxAmount, triggerValidation]);
@@ -511,8 +518,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   );
 
   const toTEZAmount = useCallback(
-    (usdAmount: number) =>
-      +new BigNumber(usdAmount)
+    (usdAmount: BigNumber.Value) =>
+      new BigNumber(usdAmount)
         .dividedBy(tezPrice ?? 1)
         .toFormat(6, BigNumber.ROUND_FLOOR, {
           decimalSeparator: ".",
@@ -552,6 +559,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       setSubmitError(null);
       setOperation(null);
 
+      formAnalytics.trackSubmit();
       try {
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {
@@ -581,7 +589,11 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         }
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
+
+        formAnalytics.trackSubmitSuccess();
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (err.message === "Declined") {
           return;
         }
@@ -607,6 +619,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       toResolved,
       shouldUseUsd,
       toTEZAmount,
+      formAnalytics,
     ]
   );
 
@@ -740,7 +753,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                 onClick={handleSetMaxAmount}
               >
                 {shouldUseUsd ? <span className="pr-px">$</span> : null}
-                {maxAmount.toFixed()}
+                {toLocalFixed(maxAmount)}
               </button>
               {amountValue && localAsset.type === TempleAssetType.TEZ ? (
                 <>
@@ -878,7 +891,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                   };
 
                   return (
-                    <button
+                    <Button
                       key={acc.publicKeyHash}
                       type="button"
                       className={classNames(
@@ -894,6 +907,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                         "opacity-90 hover:opacity-100"
                       )}
                       onClick={handleAccountClick}
+                      testID={SendFormSelectors.MyAccountItemButton}
                     >
                       <Identicon
                         type="bottts"
@@ -963,7 +977,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                       >
                         <ChevronRightIcon className="h-5 w-auto stroke-current" />
                       </div>
-                    </button>
+                    </Button>
                   );
                 })}
             </div>

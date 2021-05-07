@@ -19,6 +19,7 @@ import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import PageLayout from "app/layouts/PageLayout";
+import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { sanitizeImgUri } from "lib/image-uri";
 import {
@@ -386,6 +387,7 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
     defaultValues: initialData,
   });
   const prevInitialDataRef = useRef(initialData);
+  const formAnalytics = useFormAnalytics("AddToken");
 
   const { addToken } = useTokens();
   const [submitError, setSubmitError] = useState<React.ReactNode>(null);
@@ -405,6 +407,8 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
       }
 
       setSubmitError(null);
+
+      formAnalytics.trackSubmit();
       try {
         const tokenCommonProps = {
           address,
@@ -433,11 +437,16 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
 
         // Wait a little bit while the tokens updated
         await new Promise((r) => setTimeout(r, 300));
+
+        formAnalytics.trackSubmitSuccess();
+
         navigate({
           pathname: `/explore/${assetKey}`,
           search: "after_token_added=true",
         });
       } catch (err) {
+        formAnalytics.trackSubmitFail();
+
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -447,7 +456,7 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
         setSubmitError(err.message);
       }
     },
-    [addToken, address, formState.isSubmitting, id, tokenType]
+    [addToken, address, formState.isSubmitting, id, tokenType, formAnalytics]
   );
 
   return (
@@ -458,9 +467,11 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
       <FormField
         ref={register({
           required: t("required"),
-          pattern: {
-            value: /^[a-zA-Z0-9]{2,5}$/,
-            message: t("tokenSymbolPatternDescription"),
+          validate: (val: string) => {
+            if (!val || val.length < 2 || val.length > 5) {
+              return t("tokenSymbolPatternDescription");
+            }
+            return true;
           },
         })}
         name="symbol"

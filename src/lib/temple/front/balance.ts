@@ -1,12 +1,14 @@
 import { useCallback, useMemo } from "react";
 
 import { useRetryableSWR } from "lib/swr";
+import { FastRpcClient } from "lib/taquito-fast-rpc";
 import {
   TempleAsset,
   useTezos,
   fetchBalance,
   getAssetKey,
   ReactiveTezosToolkit,
+  michelEncoder,
 } from "lib/temple/front";
 
 type UseBalanceOptions = {
@@ -25,14 +27,16 @@ export function useBalance(
   const tezos = useMemo(() => {
     if (opts.networkRpc) {
       const rpc = opts.networkRpc;
-      return new ReactiveTezosToolkit(
-        rpc,
+      const t = new ReactiveTezosToolkit(
+        new FastRpcClient(rpc),
         rpc
         // lambda view contract for custom RPC may be here
         // currently we don't call lambda view for custom RPC
         // but if we need to do this, we have to load chainId and pick lambdaView
         // from settings with this chainId
       );
+      t.setPackerProvider(michelEncoder);
+      return t;
     }
     return nativeTezos;
   }, [opts.networkRpc, nativeTezos]);

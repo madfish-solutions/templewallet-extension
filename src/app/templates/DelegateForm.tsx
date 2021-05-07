@@ -1,4 +1,11 @@
-import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from "react";
+import React, {
+  FC,
+  ReactNode,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
@@ -7,6 +14,7 @@ import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 
 import Alert from "app/atoms/Alert";
+import { Button } from "app/atoms/Button";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
@@ -25,6 +33,8 @@ import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import BakerBanner from "app/templates/BakerBanner";
 import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
+import { useFormAnalytics } from "lib/analytics";
+import { toLocalFormat } from "lib/i18n/numbers";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
 import {
@@ -43,9 +53,13 @@ import {
   hasManager,
   TempleAccountType,
   loadContract,
+  useTezosDomainsClient,
+  isDomainNameValid,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation, Link } from "lib/woozie";
+
+import { DelegateFormSelectors } from "./DelegateForm.selectors";
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
@@ -58,6 +72,7 @@ interface FormData {
 
 const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
+  const formAnalytics = useFormAnalytics("DelegateForm");
 
   const net = useNetwork();
   const acc = useAccount();
@@ -74,6 +89,8 @@ const DelegateForm: FC = () => {
   const balanceNum = balance!.toNumber();
 
   const knownBakers = useKnownBakers();
+  const domainsClient = useTezosDomainsClient();
+  const canUseDomainNames = domainsClient.isSupported;
 
   const { search } = useLocation();
 
@@ -82,12 +99,18 @@ const DelegateForm: FC = () => {
       {
         key: "rank",
         title: t("rank"),
+        testID: DelegateFormSelectors.SortBakerByRankTab,
       },
       {
         key: "fee",
         title: t("fee"),
+        testID: DelegateFormSelectors.SortBakerByFeeTab,
       },
-      { key: "space", title: t("space") },
+      {
+        key: "space",
+        title: t("space"),
+        testID: DelegateFormSelectors.SortBakerBySpaceTab,
+      },
     ],
     []
   );
@@ -147,30 +170,78 @@ const DelegateForm: FC = () => {
 
   const toValue = watch("to");
 
+  const toFilledWithAddress = useMemo(
+    () => Boolean(toValue && isAddressValid(toValue)),
+    [toValue]
+  );
+  const toFilledWithDomain = useMemo(
+    () => toValue && isDomainNameValid(toValue, domainsClient),
+    [toValue, domainsClient]
+  );
+  const domainAddressFactory = useCallback(
+    (_k: string, _checksum: string, toValue: string) =>
+      domainsClient.resolver.resolveNameToAddress(toValue),
+    [domainsClient]
+  );
+  const { data: resolvedAddress } = useSWR(
+    ["tzdns-address", tezos.checksum, toValue],
+    domainAddressFactory,
+    { shouldRetryOnError: false, revalidateOnFocus: false }
+  );
+
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
 
   const toFilled = useMemo(
-    () => Boolean(toValue && isAddressValid(toValue) && !isKTAddress(toValue)),
-    [toValue]
+    () => (resolvedAddress ? toFilledWithDomain : toFilledWithAddress),
+    [toFilledWithAddress, toFilledWithDomain, resolvedAddress]
   );
 
-  const getEstimation = useCallback(
-    async (to: string) => {
-      if (acc.type === TempleAccountType.ManagedKT) {
-        const contract = await loadContract(tezos, accountPkh);
-        const transferParams = contract.methods
-          .do(setDelegate(to))
-          .toTransferParams();
-        return tezos.estimate.transfer(transferParams);
-      } else {
-        return tezos.estimate.setDelegate({
-          source: accountPkh,
-          delegate: to,
-        });
+  const toResolved = useMemo(() => resolvedAddress || toValue, [
+    resolvedAddress,
+    toValue,
+  ]);
+
+  const validateDelegate = useCallback(
+    async (value: any) => {
+      if (!value?.length || value.length < 0) {
+        return false;
       }
+
+      if (!canUseDomainNames) {
+        return validateAddress(value);
+      }
+
+      if (isDomainNameValid(value, domainsClient)) {
+        const resolved = await domainsClient.resolver.resolveNameToAddress(
+          value
+        );
+        if (!resolved) {
+          return t("domainDoesntResolveToAddress", value);
+        }
+
+        value = resolved;
+      }
+
+      return isAddressValid(value) ? true : t("invalidAddressOrDomain");
     },
-    [tezos, accountPkh, acc.type]
+    [canUseDomainNames, domainsClient]
   );
+
+  const getEstimation = useCallback(async () => {
+    const to = toResolved;
+    if (acc.type === TempleAccountType.ManagedKT) {
+      const contract = await loadContract(tezos, accountPkh);
+      const transferParams = contract.methods
+        .do(setDelegate(to))
+        .toTransferParams();
+      return tezos.estimate.transfer(transferParams);
+    } else {
+      return tezos.estimate.setDelegate({
+        source: accountPkh,
+        delegate: to,
+      });
+    }
+  }, [tezos, accountPkh, acc.type, toResolved]);
 
   const cleanToField = useCallback(() => {
     setValue("to", "");
@@ -196,7 +267,7 @@ const DelegateForm: FC = () => {
         throw new ZeroBalanceError();
       }
 
-      const estmtn = await getEstimation(toValue);
+      const estmtn = await getEstimation();
       const manager = tezos.rpc.getManagerKey(
         acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh
       );
@@ -235,7 +306,7 @@ const DelegateForm: FC = () => {
           throw err;
       }
     }
-  }, [tezos, accountPkh, toValue, mutateBalance, getEstimation, acc]);
+  }, [tezos, accountPkh, mutateBalance, getEstimation, acc]);
 
   const {
     data: baseFee,
@@ -244,7 +315,7 @@ const DelegateForm: FC = () => {
   } = useSWR(
     () =>
       toFilled
-        ? ["delegate-base-fee", tezos.checksum, accountPkh, toValue]
+        ? ["delegate-base-fee", tezos.checksum, accountPkh, toResolved]
         : null,
     estimateBaseFee,
     {
@@ -260,7 +331,7 @@ const DelegateForm: FC = () => {
     : null;
 
   const { data: baker, isValidating: bakerValidating } = useKnownBaker(
-    toFilled ? toValue : null,
+    toResolved || null,
     false
   );
 
@@ -278,18 +349,22 @@ const DelegateForm: FC = () => {
 
   const [submitError, setSubmitError] = useSafeState<ReactNode>(
     null,
-    `${tezos.checksum}_${toValue}`
+    `${tezos.checksum}_${toResolved}`
   );
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
   const onSubmit = useCallback(
-    async ({ to, fee: feeVal }: FormData) => {
+    async ({ fee: feeVal }: FormData) => {
+      const to = toResolved;
       if (formState.isSubmitting) return;
       setSubmitError(null);
       setOperation(null);
 
+      const analyticsProperties = { bakerAddress: to };
+
+      formAnalytics.trackSubmit(analyticsProperties);
       try {
-        const estmtn = await getEstimation(to);
+        const estmtn = await getEstimation();
         const addFee = tzToMutez(feeVal ?? 0);
         const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
         let op: WalletOperation;
@@ -308,7 +383,11 @@ const DelegateForm: FC = () => {
 
         setOperation(op);
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
+
+        formAnalytics.trackSubmitSuccess(analyticsProperties);
       } catch (err) {
+        formAnalytics.trackSubmitFail(analyticsProperties);
+
         if (err.message === "Declined") {
           return;
         }
@@ -331,6 +410,8 @@ const DelegateForm: FC = () => {
       setOperation,
       reset,
       getEstimation,
+      formAnalytics,
+      toResolved,
     ]
   );
 
@@ -390,7 +471,7 @@ const DelegateForm: FC = () => {
           as={<NoSpaceField ref={toFieldRef} />}
           control={control}
           rules={{
-            validate: validateAddress,
+            validate: validateDelegate,
           }}
           onChange={([v]) => v}
           onFocus={() => toFieldRef.current?.focus()}
@@ -400,14 +481,37 @@ const DelegateForm: FC = () => {
           onClean={cleanToField}
           id="delegate-to"
           label={t("baker")}
-          labelDescription={t("bakerInputDescription")}
-          placeholder={t("bakerInputPlaceholder")}
+          labelDescription={
+            canUseDomainNames
+              ? t("bakerInputDescriptionWithDomain")
+              : t("bakerInputDescription")
+          }
+          placeholder={
+            canUseDomainNames
+              ? t("recipientInputPlaceholderWithDomain")
+              : t("bakerInputPlaceholder")
+          }
           errorCaption={errors.to?.message && t(errors.to?.message.toString())}
           style={{
             resize: "none",
           }}
           containerClassName="mb-4"
         />
+
+        {resolvedAddress && (
+          <div
+            className={classNames(
+              "mb-4 -mt-3",
+              "text-xs font-light text-gray-600",
+              "flex flex-wrap items-center"
+            )}
+          >
+            <span className="mr-1 whitespace-no-wrap">
+              {t("resolvedAddress")}:
+            </span>
+            <span className="font-normal">{resolvedAddress}</span>
+          </div>
+        )}
 
         {estimateFallbackDisplayed ? (
           <div className="flex justify-center my-8">
@@ -538,7 +642,7 @@ const DelegateForm: FC = () => {
                     </span>
                   )}
                 </T>
-                {bakerSortTypes.map(({ key, title }, i, arr) => {
+                {bakerSortTypes.map(({ key, title, testID }, i, arr) => {
                   const first = i === 0;
                   const last = i === arr.length - 1;
                   const selected = sortBakersBy.key === key;
@@ -574,6 +678,7 @@ const DelegateForm: FC = () => {
                         "px-2 py-px",
                         "text-xs text-gray-600"
                       )}
+                      testID={testID}
                     >
                       {title}
                     </Link>
@@ -608,7 +713,7 @@ const DelegateForm: FC = () => {
                   };
 
                   return (
-                    <button
+                    <Button
                       key={baker.address}
                       type="button"
                       className={classNames(
@@ -627,6 +732,8 @@ const DelegateForm: FC = () => {
                         padding: "0.65rem 0.5rem 0.65rem 0.5rem",
                       }}
                       onClick={handleBakerClick}
+                      testID={DelegateFormSelectors.KnownBakerItemButton}
+                      testIDProperties={{ bakerAddress: baker.address }}
                     >
                       <div>
                         <img
@@ -688,9 +795,10 @@ const DelegateForm: FC = () => {
                               >
                                 {message}:{" "}
                                 <span className="font-normal">
-                                  {new BigNumber(baker.fee)
-                                    .times(100)
-                                    .toFormat(2)}
+                                  {toLocalFormat(
+                                    new BigNumber(baker.fee).times(100),
+                                    { decimalPlaces: 2 }
+                                  )}
                                   %
                                 </span>
                               </div>
@@ -728,7 +836,7 @@ const DelegateForm: FC = () => {
                       >
                         <ChevronRightIcon className="h-5 w-auto stroke-current" />
                       </div>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -747,10 +855,7 @@ type DelegateErrorAlertProps = {
   error: Error;
 };
 
-const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({
-  type,
-  error,
-}) => (
+const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => (
   <Alert
     type={type === "submit" ? "error" : "warn"}
     title={(() => {
@@ -810,6 +915,7 @@ const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({
 );
 
 class UnchangedError extends Error {}
+
 class UnregisteredDelegateError extends Error {}
 
 function validateAddress(value: any) {

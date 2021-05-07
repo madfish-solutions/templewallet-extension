@@ -3,6 +3,7 @@ import React, { ComponentProps, FC, ReactNode, Suspense, useEffect, useLayoutEff
 import classNames from "clsx";
 
 import DocBg from "app/a11y/DocBg";
+import { Button } from "app/atoms/Button";
 import Spinner from "app/atoms/Spinner";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
@@ -11,8 +12,11 @@ import ContentContainer from "app/layouts/ContentContainer";
 import ConfirmationOverlay from "app/layouts/PageLayout/ConfirmationOverlay";
 import Header from "app/layouts/PageLayout/Header";
 import NoLambdaViewContractAlert from "app/templates/NoLambdaViewContractAlert";
+import { AnalyticsConfirmationOverlay } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import { HistoryAction, useLocation, goBack, navigate } from "lib/woozie";
+
+import { PageLayoutSelectors } from "./PageLayout.selectors";
 
 type PageLayoutProps = ToolbarProps;
 
@@ -44,6 +48,7 @@ const PageLayout: FC<PageLayoutProps> = ({
 
       <NoLambdaViewContractAlert />
       <ConfirmationOverlay />
+      <AnalyticsConfirmationOverlay/>
     </>
   );
 };
@@ -162,7 +167,7 @@ const Toolbar: FC<ToolbarProps> = ({
     >
       <div className="flex-1">
         {hasBackAction && canBack && (
-          <button
+          <Button
             className={classNames(
               "px-4 py-2",
               "rounded",
@@ -174,6 +179,7 @@ const Toolbar: FC<ToolbarProps> = ({
               "opacity-90 hover:opacity-100"
             )}
             onClick={onBack}
+            testID={PageLayoutSelectors.BackButton}
           >
             <ChevronLeftIcon
               className={classNames(
@@ -184,7 +190,7 @@ const Toolbar: FC<ToolbarProps> = ({
               )}
             />
             <T id="back" />
-          </button>
+          </Button>
         )}
       </div>
 

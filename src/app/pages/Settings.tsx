@@ -4,6 +4,7 @@ import classNames from "clsx";
 
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
 import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
+import { ReactComponent as HelpIcon } from "app/icons/help.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
 import { ReactComponent as MinusIcon } from "app/icons/minus.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
@@ -16,10 +17,13 @@ import ActivateAccount from "app/templates/ActivateAccount";
 import CustomNetworksSettings from "app/templates/CustomNetworksSettings";
 import DAppSettings from "app/templates/DAppSettings";
 import GeneralSettings from "app/templates/GeneralSettings";
+import HelpAndCommunity from "app/templates/HelpAndCommunity";
 import RemoveAccount from "app/templates/RemoveAccount";
 import RevealSecret from "app/templates/RevealSecret";
 import { T } from "lib/i18n/react";
 import { Link } from "lib/woozie";
+
+import { SettingsSelectors } from "./Settings.selectors";
 
 type SettingsProps = {
   tabSlug?: string | null;
@@ -36,6 +40,7 @@ const TABS = [
     Component: GeneralSettings,
     color: "#667EEA",
     descriptionI18nKey: "generalSettingsDescription",
+    testID: SettingsSelectors.GeneralButton
   },
   {
     slug: "reveal-private-key",
@@ -44,6 +49,7 @@ const TABS = [
     Component: RevealPrivateKey,
     color: "#3182CE",
     descriptionI18nKey: "revealPrivateKeyDescription",
+    testID: SettingsSelectors.RevealPrivateKeyButton
   },
   {
     slug: "reveal-seed-phrase",
@@ -52,6 +58,7 @@ const TABS = [
     Component: RevealSeedPhrase,
     color: "#F6AD55",
     descriptionI18nKey: "revealSeedPhraseDescription",
+    testID: SettingsSelectors.RevealSeedPhraseButton
   },
   {
     slug: "dapps",
@@ -60,6 +67,7 @@ const TABS = [
     Component: DAppSettings,
     color: "#9F7AEA",
     descriptionI18nKey: "dAppsDescription",
+    testID: SettingsSelectors.DAppsButton
   },
   {
     slug: "networks",
@@ -68,6 +76,7 @@ const TABS = [
     Component: CustomNetworksSettings,
     color: "#F6C90E",
     descriptionI18nKey: "networksDescription",
+    testID: SettingsSelectors.NetworksButton
   },
   {
     slug: "activate-account",
@@ -76,6 +85,7 @@ const TABS = [
     Component: ActivateAccount,
     color: "rgb(131, 179, 0)",
     descriptionI18nKey: "activateAccountDescription",
+    testID: SettingsSelectors.ActivateAccountButton
   },
   {
     slug: "remove-account",
@@ -84,6 +94,7 @@ const TABS = [
     Component: RemoveAccount,
     color: "rgb(245, 101, 101)",
     descriptionI18nKey: "removeAccountDescription",
+    testID: SettingsSelectors.RemoveAccountButton
   },
   {
     slug: "about",
@@ -92,6 +103,15 @@ const TABS = [
     Component: About,
     color: "#A0AEC0",
     descriptionI18nKey: "aboutDescription",
+    testID: SettingsSelectors.AboutButton
+  },
+  {
+    slug: "help-and-community",
+    titleI18nKey: "helpAndCommunity",
+    Icon: HelpIcon,
+    Component: HelpAndCommunity,
+    color: "#38B2AC",
+    descriptionI18nKey: "helpAndCommunityDescription",
   },
 ];
 
@@ -149,7 +169,7 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
             <ul className="md:grid md:grid-cols-2 md:col-gap-8 md:row-gap-10">
               {TABS.map(
                 (
-                  { slug, titleI18nKey, descriptionI18nKey, Icon, color },
+                  { slug, titleI18nKey, descriptionI18nKey, Icon, color, testID },
                   i
                 ) => {
                   const first = i === 0;
@@ -175,6 +195,7 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                               "opacity-90 hover:opacity-100 focus:opacity-100"
                             )}
                             style={{ backgroundColor: color }}
+                            testID={testID}
                           >
                             <Icon className="h-8 w-8 stroke-current" />
                           </Link>
@@ -192,6 +213,7 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                                   "transition ease-in-out duration-200"
                                 )}
                                 style={{ color }}
+                                testID={testID}
                               >
                                 {message}
                               </Link>

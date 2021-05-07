@@ -1,4 +1,11 @@
-import React, { FC, memo, ReactNode, Suspense, useLayoutEffect, useMemo } from "react";
+import React, {
+  FC,
+  memo,
+  ReactNode,
+  Suspense,
+  useLayoutEffect,
+  useMemo,
+} from "react";
 
 import classNames from "clsx";
 
@@ -31,6 +38,7 @@ import {
   HistoryAction,
 } from "lib/woozie";
 
+import { ExploreSelectors } from "./Explore.selectors";
 import AddressChip from "./Explore/AddressChip";
 import AddUnknownTokens from "./Explore/AddUnknownTokens";
 import Assets from "./Explore/Assets";
@@ -116,6 +124,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
                 "transition ease-in-out duration-300"
               )}
               type="button"
+              testID={ExploreSelectors.ReceiveButton}
             >
               <QRIcon
                 className={classNames(
@@ -192,6 +201,7 @@ const SendButton = memo<SendButtonProps>(({ canSend, asset }) => {
     <Link
       to={asset ? `/send/${getAssetKey(asset)}` : "/send"}
       type="button"
+      testID={ExploreSelectors.SendButton}
       {...commonSendButtonProps}
     />
   ) : (
@@ -241,36 +251,35 @@ type SecondarySectionProps = {
   className?: string;
 };
 
-const SecondarySection: FC<SecondarySectionProps> = ({
-  asset,
-  className,
-}) => {
+const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
-  const tabs = useMemo<
-    {
-      slug: string;
-      title: string;
-      Component: FC;
-    }[]
-  >(() => {
+  const tabs = useMemo<{
+    slug: string;
+    title: string;
+    Component: FC;
+    testID: string;
+  }[]>(() => {
     if (!asset) {
       return [
         {
           slug: "assets",
           title: t("assets"),
           Component: Assets,
+          testID: ExploreSelectors.AssetsTab
         },
         {
           slug: "delegation",
           title: t("delegation"),
           Component: Delegation,
+          testID: ExploreSelectors.DelegationTab
         },
         {
           slug: "activity",
           title: t("activity"),
           Component: Activity,
+          testID: ExploreSelectors.ActivityTab
         },
       ];
     }
@@ -279,6 +288,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({
       slug: "activity",
       title: t("activity"),
       Component: () => <Activity asset={asset} />,
+      testID: ExploreSelectors.ActivityTab
     };
 
     if (asset.type === TempleAssetType.TEZ) {
@@ -291,6 +301,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({
         slug: "about",
         title: t("about"),
         Component: () => <AssetInfo asset={asset} />,
+        testID: ExploreSelectors.AboutTab
       },
     ];
   }, [asset]);
@@ -332,6 +343,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({
                 active ? "text-primary-orange" : "hover:text-primary-orange",
                 "transition ease-in-out duration-300"
               )}
+              testID={t.testID}
             >
               {t.title}
             </Link>

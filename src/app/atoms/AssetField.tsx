@@ -1,16 +1,24 @@
-import React, { ComponentProps, forwardRef, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  ComponentProps,
+  forwardRef,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import BigNumber from "bignumber.js";
 
 import FormField from "app/atoms/FormField";
 
 type AssetFieldProps = ComponentProps<typeof FormField> & {
-  value?: number;
+  value?: number | string;
   min?: number;
   max?: number;
   assetSymbol?: ReactNode;
   assetDecimals?: number;
-  onChange?: (v?: number) => void;
+  onChange?: (v?: string) => void;
 };
 
 const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
@@ -45,17 +53,21 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
     const handleChange = useCallback(
       (evt) => {
         let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
-        let numVal = +val;
+        let numVal = new BigNumber(val || 0);
         const indexOfDot = val.indexOf(".");
         if (indexOfDot !== -1 && val.length - indexOfDot > assetDecimals + 1) {
           val = val.substring(0, indexOfDot + assetDecimals + 1);
-          numVal = +val;
+          numVal = new BigNumber(val);
         }
 
-        if (!isNaN(numVal) && numVal >= min && numVal < max) {
+        if (
+          !numVal.isNaN() &&
+          numVal.isGreaterThanOrEqualTo(min) &&
+          numVal.isLessThanOrEqualTo(max)
+        ) {
           setLocalValue(val);
           if (onChange) {
-            onChange(val !== "" ? numVal : undefined);
+            onChange(val !== "" ? numVal.toFixed() : undefined);
           }
         }
       },

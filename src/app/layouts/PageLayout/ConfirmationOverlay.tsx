@@ -4,7 +4,7 @@ import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
 
 import DocBg from "app/a11y/DocBg";
-import InternalConfiramtion from "app/templates/InternalConfiramtion";
+import InternalConfirmation from "app/templates/InternalConfirmation";
 import { useTempleClient } from "lib/temple/front";
 import Portal from "lib/ui/Portal";
 
@@ -31,9 +31,9 @@ const ConfirmationOverlay: FC = () => {
   }, [displayed]);
 
   const handleConfirm = useCallback(
-    async (confirmed: boolean) => {
+    async (confirmed: boolean, increaseStorageFee?: number) => {
       if (confirmation) {
-        await confirmInternal(confirmation.id, confirmed);
+        await confirmInternal(confirmation.id, confirmed, increaseStorageFee);
       }
       resetConfirmation();
     },
@@ -60,7 +60,7 @@ const ConfirmationOverlay: FC = () => {
         >
           <div className="fixed inset-0 z-50 overflow-y-auto bg-primary-white">
             {confirmation && (
-              <InternalConfiramtion
+              <InternalConfirmation
                 payload={confirmation.payload}
                 onConfirm={handleConfirm}
               />

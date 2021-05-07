@@ -3,6 +3,7 @@ import React, { FC, useCallback, useMemo } from "react";
 import classNames from "clsx";
 
 import AccountTypeBadge from "app/atoms/AccountTypeBadge";
+import { Button } from "app/atoms/Button";
 import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
@@ -15,6 +16,7 @@ import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import Balance from "app/templates/Balance";
+import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import {
   useTempleClient,
@@ -25,15 +27,15 @@ import {
 import { PopperRenderProps } from "lib/ui/Popper";
 import { Link } from "lib/woozie";
 
+import { AccountDropdownSelectors } from "./AccountDropdown.selectors";
+
 type ExcludesFalse = <T>(x: T | false) => x is T;
 type AccountDropdownProps = PopperRenderProps;
 
-const AccountDropdown: FC<AccountDropdownProps> = ({
-  opened,
-  setOpened,
-}) => {
+const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
+  const { trackEvent } = useAnalytics();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const setAccountPkh = useSetAccountPkh();
@@ -119,7 +121,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
 
         <div className="flex-1" />
 
-        <button
+        <Button
           className={classNames(
             "px-4 py-1",
             "rounded",
@@ -132,9 +134,10 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
             "opacity-90 hover:opacity-100"
           )}
           onClick={handleLogoutClick}
+          testID={AccountDropdownSelectors.LogoutButton}
         >
           <T id="logOut" />
-        </button>
+        </Button>
       </div>
 
       <div
@@ -156,7 +159,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
             };
 
             return (
-              <button
+              <Button
                 key={acc.publicKeyHash}
                 className={classNames(
                   "block w-full",
@@ -174,6 +177,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
                   padding: "0.375rem",
                 }}
                 onClick={handleAccountClick}
+                testID={AccountDropdownSelectors.AccountItemButton}
                 autoFocus={selected}
               >
                 <Identicon
@@ -200,7 +204,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
                             "text-white text-opacity-75"
                           )}
                         >
-                          <Money>{bal}</Money>{" "}
+                          <Money tooltip={false}>{bal}</Money>{" "}
                           <span style={{ fontSize: "0.5rem" }}>tez</span>
                         </span>
                       )}
@@ -209,7 +213,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
                     <AccountTypeBadge account={acc} darkTheme />
                   </div>
                 </div>
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -217,6 +221,15 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
 
       <div className="my-2">
         {actions.map(({ key, Icon, i18nKey, linkTo, onClick }) => {
+          const handleClick = () => {
+            trackEvent(
+              AccountDropdownSelectors.ActionButton,
+              AnalyticsEventCategory.ButtonPress,
+              { type: key }
+            );
+            return onClick();
+          };
+
           const baseProps = {
             key,
             className: classNames(
@@ -227,13 +240,14 @@ const AccountDropdown: FC<AccountDropdownProps> = ({
               "px-2",
               "transition ease-in-out duration-200",
               "hover:bg-white hover:bg-opacity-10",
-              "text-white text-shadow-black text-sm"
+              "text-white text-shadow-black text-sm",
+              "whitespace-no-wrap"
             ),
             style: {
               paddingTop: "0.375rem",
               paddingBottom: "0.375rem",
             },
-            onClick,
+            onClick: handleClick,
             children: (
               <>
                 <div className="flex items-center w-8">

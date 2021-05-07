@@ -1,4 +1,5 @@
 export * from "lib/temple/types";
+export * from "lib/temple/defaults";
 export * from "lib/temple/helpers";
 export * from "lib/temple/assets";
 export * from "lib/temple/contract";
@@ -15,3 +16,4 @@ export * from "lib/temple/front/baking";
 export * from "lib/temple/front/tokens";
 export * from "lib/temple/front/assets";
 export * from "lib/temple/front/expenses";
+export * from "lib/temple/front/blockexplorer";

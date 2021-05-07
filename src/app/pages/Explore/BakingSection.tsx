@@ -2,6 +2,7 @@ import React, { memo, useMemo } from "react";
 
 import classNames from "clsx";
 
+import { Button } from "app/atoms/Button";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
 import BakerBanner from "app/templates/BakerBanner";
@@ -11,6 +12,7 @@ import useTippy from "lib/ui/useTippy";
 import { Link } from "lib/woozie";
 
 import styles from "./BakingSection.module.css";
+import { BakingSectionSelectors } from "./BakingSection.selectors";
 
 const BakingSection = memo(() => {
   const acc = useAccount();
@@ -39,11 +41,12 @@ const BakingSection = memo(() => {
         "text-base font-semibold",
         "transition ease-in-out duration-300",
         canDelegate &&
-          (myBakerPkh
-            ? "shadow-sm hover:shadow focus:shadow"
-            : styles["delegate-button"]),
+        (myBakerPkh
+          ? "shadow-sm hover:shadow focus:shadow"
+          : styles["delegate-button"]),
         !canDelegate && "opacity-50"
       ),
+      testID: myBakerPkh ? BakingSectionSelectors.ReDelegateButton : BakingSectionSelectors.DelegateNowButton,
       children: (
         <>
           <DiamondIcon
@@ -99,7 +102,7 @@ const BakingSection = memo(() => {
         {canDelegate ? (
           <Link to="/delegate" type="button" {...commonDelegateButtonProps} />
         ) : (
-          <button ref={delegateButtonRef} {...commonDelegateButtonProps} />
+          <Button ref={delegateButtonRef} {...commonDelegateButtonProps} />
         )}
       </div>
     ),

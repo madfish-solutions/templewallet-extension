@@ -34,16 +34,6 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false,
   },
   {
-    id: "delphinet",
-    name: "Delphi Testnet",
-    description: "Delphi testnet",
-    lambdaContract: "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM",
-    type: "test",
-    rpcBaseURL: "https://delphinet.smartpy.io",
-    color: "#ed6663",
-    disabled: false,
-  },
-  {
     id: "sandbox",
     name: "localhost:8732",
     description: "Local Sandbox",
