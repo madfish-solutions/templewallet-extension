@@ -80,7 +80,7 @@ const Form: FC = () => {
   const { addToken } = useTokens();
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
-  const formAnalytics = useFormAnalytics('AddToken');
+  const formAnalytics = useFormAnalytics("AddToken");
 
   const {
     control,
@@ -232,14 +232,14 @@ const Form: FC = () => {
         const newToken: TempleToken =
           tokenType === TempleAssetType.FA1_2
             ? {
-              type: TempleAssetType.FA1_2,
-              ...tokenCommonProps,
-            }
+                type: TempleAssetType.FA1_2,
+                ...tokenCommonProps,
+              }
             : {
-              type: TempleAssetType.FA2,
-              id: Number(id!),
-              ...tokenCommonProps,
-            };
+                type: TempleAssetType.FA2,
+                id: Number(id!),
+                ...tokenCommonProps,
+              };
 
         await addToken(newToken);
         const assetKey = getAssetKey(newToken);
@@ -448,7 +448,7 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
         ref={register({
           required: t("required"),
           validate: (val: string) => {
-            if (!val || val.length < 2 || val.length > 5) {
+            if (!val || val.length < 2 || val.length > 8) {
               return t("tokenSymbolPatternDescription");
             }
             return true;
@@ -558,5 +558,4 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
   );
 };
 
-class TokenValidationError extends Error {
-}
+class TokenValidationError extends Error {}
