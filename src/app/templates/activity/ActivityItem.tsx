@@ -6,8 +6,9 @@ import classNames from "clsx";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
+import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 import HashChip from "app/templates/HashChip";
-import { t, getDateFnsLocale } from "lib/i18n/react";
+import { T, t, getDateFnsLocale, TProps } from "lib/i18n/react";
 import { useExplorerBaseUrls } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 
@@ -89,6 +90,28 @@ const ActivityItem = memo<ActivityItemProps>(
 
         <div className="flex items-stretch">
           <div className="flex flex-col pt-2">
+            <div className="flex flex-col mb-2">
+              {[1, 2, 3].map((_, i) => (
+                <div className="flex flex-wrap items-center">
+                  <div
+                    className={classNames(
+                      "flex items-center",
+                      "text-xs text-blue-600 opacity-75"
+                    )}
+                  >
+                    {formatOperationType("interaction", true)}
+                  </div>
+
+                  <StackItem
+                    key={i}
+                    i18nKey="transferFromSmb"
+                    args={["KT1Wa8yqRBpFCusJWgcQyjhRz7hUQAmFxW7j"]}
+                    className="ml-1"
+                  />
+                </div>
+              ))}
+            </div>
+
             {status && (
               <div className="mb-px text-xs font-light leading-none">
                 {status}
@@ -110,7 +133,7 @@ const ActivityItem = memo<ActivityItemProps>(
 
           <div className="flex-1" />
 
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-shrink-0">
             {moneyDiffs.map(({ assetId, diff }, i) => (
               <MoneyDiffView
                 key={i}
@@ -148,12 +171,50 @@ const Time: React.FC<TimeProps> = ({ children }) => {
   return value;
 };
 
-// enum OpStackItemType {
-//   TransferFrom,
-//   TransferTo,
-//   Interaction,
-//   Delegation
-// }
+function formatOperationType(type: string, imReciever: boolean) {
+  if (type === "transaction" || type === "transfer") {
+    type = `${imReciever ? "↓" : "↑"}_${type}`;
+  }
+
+  const operationTypeText = type
+    .split("_")
+    .map((w) => `${w.charAt(0).toUpperCase()}${w.substring(1)}`)
+    .join(" ");
+
+  return (
+    <>
+      {type === "interaction" && (
+        <ClipboardIcon className="mr-1 h-3 w-auto stroke-current" />
+      )}
+      {operationTypeText}
+    </>
+  );
+}
+
+type StackItemProps = {
+  i18nKey: TProps["id"];
+  args: string[];
+  className?: string;
+};
+
+const StackItem = memo<StackItemProps>(({ i18nKey, args, className }) => (
+  <span className={classNames("font-light text-gray-500 text-xs", className)}>
+    <T
+      id={i18nKey}
+      substitutions={args.map((value, index) => (
+        <span key={index}>
+          <HashChip
+            className="text-blue-600 opacity-75"
+            key={index}
+            hash={value}
+            type="link"
+          />
+          {index === args.length - 1 ? null : ", "}
+        </span>
+      ))}
+    />
+  </span>
+));
 
 // interface OpStackItem {
 //   type: OpStackItemType;

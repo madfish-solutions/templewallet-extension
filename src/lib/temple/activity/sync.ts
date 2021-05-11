@@ -1,122 +1,15 @@
-import { OperationContentsAndResult, OpKind } from "@taquito/rpc";
 import BigNumber from "bignumber.js";
 
-import {
-  BcdTokenTransfer,
-  getTokenTransfers,
-  BCD_NETWORKS_NAMES,
-} from "lib/better-call-dev";
+import { getTokenTransfers, BCD_NETWORKS_NAMES } from "lib/better-call-dev";
 import * as Repo from "lib/temple/repo";
 import { TZKT_API_BASE_URLS, getOperations } from "lib/tzkt";
 
-export type FetchOperationsParams = {
-  chainId: string;
-  address: string;
-  assetIds?: string[];
-  offset?: number;
-  limit?: number;
-};
-
-export async function fetchOperations({
-  chainId,
-  address,
-  assetIds,
-  offset,
-  limit,
-}: FetchOperationsParams) {
-  // Base
-  let query = Repo.operations
-    .where("[chainId+addedAt]")
-    .between([chainId, 0], [chainId, Date.now()])
-    .reverse();
-
-  // Filter by members & assets
-  query = query.filter(
-    (o) =>
-      o.members.includes(address) &&
-      (assetIds ? o.assetIds.some((aId) => assetIds.includes(aId)) : true)
-  );
-
-  // Sorting
-  if (offset) {
-    query = query.offset(offset);
-  }
-  if (limit) {
-    query = query.limit(limit);
-  }
-
-  return query.toArray();
-}
-
-export async function addLocalOperation(
-  chainId: string,
-  hash: string,
-  localGroup: OperationContentsAndResult[]
-) {
-  const memberSet = new Set<string>();
-  const assetIdSet = new Set<string>();
-
-  for (const op of localGroup) {
-    // Add sources to members
-    switch (op.kind) {
-      case OpKind.ACTIVATION:
-        memberSet.add(op.pkh);
-        break;
-
-      case OpKind.PROPOSALS:
-      case OpKind.BALLOT:
-      case OpKind.REVEAL:
-      case OpKind.TRANSACTION:
-      case OpKind.DELEGATION:
-      case OpKind.ORIGINATION:
-        memberSet.add(op.source);
-        break;
-    }
-
-    // Add targets to members
-    switch (op.kind) {
-      case OpKind.TRANSACTION:
-        memberSet.add(op.destination);
-        break;
-
-      case OpKind.DELEGATION:
-        op.delegate && memberSet.add(op.delegate);
-        break;
-    }
-
-    // Parse asset ids
-    if (op.kind === OpKind.ORIGINATION) {
-      if (isPositiveNumber(op.balance)) {
-        assetIdSet.add("tez");
-      }
-    } else if (op.kind === OpKind.TRANSACTION) {
-      if (isPositiveNumber(op.amount)) {
-        assetIdSet.add("tez");
-      }
-
-      if (op.parameters) {
-        tryParseTokenTransfers(op.parameters, op.destination, {
-          onMember: (member) => memberSet.add(member),
-          onAssetId: (assetId) => assetIdSet.add(assetId),
-        });
-      }
-    }
-  }
-
-  const members = Array.from(memberSet);
-  const assetIds = Array.from(assetIdSet);
-
-  return Repo.operations.add({
-    hash,
-    chainId,
-    members,
-    assetIds,
-    addedAt: Date.now(),
-    data: {
-      localGroup,
-    },
-  });
-}
+import {
+  isPositiveNumber,
+  tryParseTokenTransfers,
+  toTokenId,
+  getBcdTokenTransferId,
+} from "./helpers";
 
 export function isSyncSupported(chainId: string) {
   return (
@@ -356,63 +249,4 @@ export async function syncOperations(
       return tzktOperations.length + tokenTransfers.length;
     }
   );
-}
-
-function tryParseTokenTransfers(
-  parameters: any,
-  destination: string,
-  opts: {
-    onMember: (member: string) => void;
-    onAssetId: (assetId: string) => void;
-  }
-) {
-  // FA1.2
-  try {
-    const { entrypoint, value } = parameters;
-    if (entrypoint === "transfer") {
-      const { args: x } = value as any;
-      if (typeof x[0].string === "string") {
-        opts.onMember(x[0].string);
-      }
-      const { args: y } = x[1];
-      if (typeof y[0].string === "string") {
-        opts.onMember(y[0].string);
-      }
-      if (typeof y[1].int === "string") {
-        opts.onAssetId(toTokenId(destination));
-      }
-    }
-  } catch {}
-
-  // FA2
-  try {
-    const { entrypoint, value } = parameters;
-    if (entrypoint === "transfer") {
-      for (const { args: x } of value as any) {
-        if (typeof x[0].string === "string") {
-          opts.onMember(x[0].string);
-        }
-        for (const { args: y } of x[1]) {
-          if (typeof y[0].string === "string") {
-            opts.onMember(y[0].string);
-          }
-          if (typeof y[1].args[0].int === "string") {
-            opts.onAssetId(toTokenId(destination, y[1].args[0].int));
-          }
-        }
-      }
-    }
-  } catch {}
-}
-
-function isPositiveNumber(val: BigNumber.Value) {
-  return new BigNumber(val).isGreaterThan(0);
-}
-
-function toTokenId(contractAddress: string, tokenId: string | number = 0) {
-  return `${contractAddress}_${tokenId}`;
-}
-
-function getBcdTokenTransferId(tokenTrans: BcdTokenTransfer) {
-  return `${tokenTrans.hash}_${tokenTrans.nonce}`;
 }
