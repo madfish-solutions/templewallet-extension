@@ -1067,6 +1067,12 @@
   "derivationPath": {
     "message": "Derivation path"
   },
+  "derivationType": {
+    "message": "Derivation type"
+  },
+  "derivationTypeFieldDescription": {
+    "message": "The elliptical curve that the account will use."
+  },
   "seedPhrase": {
     "message": "Seed Phrase"
   },
