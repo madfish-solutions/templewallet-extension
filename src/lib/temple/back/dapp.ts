@@ -23,10 +23,7 @@ import { browser, Runtime } from "webextension-polyfill-ts";
 
 import { addLocalOperation } from "lib/temple/activity";
 import { intercom } from "lib/temple/back/defaults";
-import {
-  dryRunOpParams,
-  increaseStorageOpParmas,
-} from "lib/temple/back/dryrun";
+import { buildFinalOpParmas, dryRunOpParams } from "lib/temple/back/dryrun";
 import { withUnlocked } from "lib/temple/back/store";
 import * as Beacon from "lib/temple/beacon";
 import { loadChainId, isAddressValid } from "lib/temple/helpers";
@@ -198,10 +195,10 @@ export async function requestOperation(
                 vault.sendOperations(
                   dApp.pkh,
                   networkRpc,
-                  increaseStorageOpParmas(
+                  buildFinalOpParmas(
                     req.opParams,
                     (finalPayload as TempleDAppOperationsPayload)?.estimates,
-                    confirmReq.increaseStorageFee
+                    confirmReq.modifiedStorageLimit
                   )
                 )
               );

@@ -1,12 +1,13 @@
 import React, {
   forwardRef,
   InputHTMLAttributes,
-  ReactNode, TextareaHTMLAttributes,
+  ReactNode,
+  TextareaHTMLAttributes,
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  useState
+  useState,
 } from "react";
 
 import classNames from "clsx";
@@ -66,9 +67,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? "textarea" : "input";
 
-    const [localValue, setLocalValue] = useState(
-      value ?? defaultValue ?? ""
-    );
+    const [localValue, setLocalValue] = useState(value ?? defaultValue ?? "");
     const [focused, setFocused] = useState(false);
 
     const handleChange = useCallback(
@@ -195,7 +194,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
               "appearance-none",
               "w-full",
               "py-3 pl-4",
-              extraInner ? "pr-20" : "pr-4",
+              extraInner ? "pr-32" : "pr-4",
               "border-2",
               errorCaption ? "border-red-500" : "border-gray-300",
               "focus:border-primary-orange",
@@ -222,7 +221,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             <div
               className={classNames(
                 "overflow-hidden",
-                "absolute inset-y-0 right-0 w-20",
+                "absolute inset-y-0 right-0 w-32",
                 "flex items-center justify-end",
                 "opacity-50",
                 "pointer-events-none"
