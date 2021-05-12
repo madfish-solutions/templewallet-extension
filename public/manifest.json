@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Temple - Tezos Wallet (ex. Thanos)",
-  "version": "1.8.5",
+  "version": "1.9.2",
 
   "icons": {
     "16": "misc/icon-16.png",
@@ -23,7 +23,7 @@
     "https://*.giganode.io/",
     "https://*.tzstats.com/",
     "https://api.tezos-nodes.com/",
-    "https://better-call.dev/",
+    "https://api.better-call.dev/",
     "https://*.tzkt.io/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",

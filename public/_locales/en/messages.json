@@ -1806,5 +1806,14 @@
   },
   "selectToken": {
     "message": "Select Token"
+  },
+  "storageFeeMax": {
+    "message": "Storage fee (max)"
+  },
+  "storageLimit": {
+    "message": "Adjust storage limit"
+  },
+  "txIsLikelyToFail": {
+    "message": "Warning! Transaction is likely to fail"
   }
 }
