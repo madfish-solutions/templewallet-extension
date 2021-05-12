@@ -187,6 +187,7 @@ export function formatOpParams(op: any) {
       amount: +amount,
       mutez: true,
       parameter: parameter ?? parameters,
+      storageLimit: storage_limit,
     };
   }
   return rest;

@@ -23,14 +23,14 @@ type OperationViewProps = {
   payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
   networkRpc?: string;
   mainnet?: boolean;
-  increaseStorageFee?: number;
+  modifiedStorageLimit?: number;
 };
 
 const OperationView: FC<OperationViewProps> = ({
   payload,
   networkRpc,
   mainnet = false,
-  increaseStorageFee,
+  modifiedStorageLimit,
 }) => {
   const contentToParse = useMemo(() => {
     switch (payload.type) {
@@ -216,7 +216,7 @@ const OperationView: FC<OperationViewProps> = ({
           <ExpensesView
             expenses={expensesData}
             estimates={payload.estimates}
-            increaseStorageFee={increaseStorageFee}
+            modifiedStorageLimit={modifiedStorageLimit}
             mainnet={mainnet}
             totalFeeDisplayed
           />

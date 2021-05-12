@@ -1807,5 +1807,14 @@
   },
   "viewAll": {
     "message": "View all"
+  },
+  "storageFeeMax": {
+    "message": "Storage fee (max)"
+  },
+  "storageLimit": {
+    "message": "Adjust storage limit"
+  },
+  "txIsLikelyToFail": {
+    "message": "Warning! Transaction is likely to fail"
   }
 }
