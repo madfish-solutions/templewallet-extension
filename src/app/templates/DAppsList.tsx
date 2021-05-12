@@ -15,6 +15,7 @@ import { t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import { TEZ_ASSET } from "lib/temple/assets";
 import { useStorage } from "lib/temple/front";
+import useTippy from "lib/ui/useTippy";
 
 const USED_TAGS = [
   "DEX",
@@ -108,6 +109,19 @@ const DAppsList: FC = () => {
     [setFavoriteDApps, favoriteDApps]
   );
 
+  const infoIconWrapperTippyProps = useMemo(
+    () => ({
+      trigger: "mouseenter",
+      hideOnClick: false,
+      content: t("dAppsListTvlDescription"),
+      animation: "shift-away-subtle",
+    }),
+    []
+  );
+  const infoIconWrapperRef = useTippy<HTMLSpanElement>(
+    infoIconWrapperTippyProps
+  );
+
   return (
     <div
       className={classNames(
@@ -121,20 +135,22 @@ const DAppsList: FC = () => {
       >
         <div className="mb-2 text-sm text-gray-600 flex items-center leading-tight">
           {t("tvl")}
-          <InfoIcon
-            style={{
-              width: "0.625rem",
-              height: "auto",
-              marginLeft: "0.125rem",
-            }}
-            className="stroke-current"
-            title="TODO: add text"
-          />
+          <span ref={infoIconWrapperRef}>
+            <InfoIcon
+              style={{
+                width: "0.625rem",
+                height: "auto",
+                marginLeft: "0.125rem",
+              }}
+              className="stroke-current"
+            />
+          </span>
         </div>
         <h1 className="text-2xl text-gray-900 mb-2 font-medium leading-tight">
-          ~<Money>{data!.tvl}</Money> <span>{TEZ_ASSET.symbol}</span>
+          ~<Money cryptoDecimals={0}>{data!.totalTezLocked}</Money>{" "}
+          <span>{TEZ_ASSET.symbol}</span>
         </h1>
-        <InUSD volume={data!.tvl} mainnet>
+        <InUSD volume={data!.tvl} mainnet showCents={false}>
           {(inUSD) => (
             <h2
               className={classNames(
@@ -223,7 +239,9 @@ const DAppsList: FC = () => {
         </div>
         {matchingDApps.length === 0 && (
           <p className="text-sm text-center text-gray-700 mb-4">
-            {t("noMatchingDAppsFound")}
+            {showOnlyFavorite && favoriteDApps.length === 0
+              ? t("noFavoriteDApps")
+              : t("noMatchingDAppsFound")}
           </p>
         )}
         {matchingDApps

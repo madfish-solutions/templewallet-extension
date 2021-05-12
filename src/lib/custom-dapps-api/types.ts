@@ -24,4 +24,5 @@ export interface CustomDAppInfo {
 export interface CustomDAppsInfo {
   dApps: CustomDAppInfo[];
   tvl: string;
+  totalTezLocked: string;
 }

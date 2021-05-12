@@ -77,9 +77,7 @@ export function toLocalFixed(
   return localizeDefaultFormattedNumber(rawResult);
 }
 
-export function toShortened(
-  value: BigNumber.Value
-) {
+export function toShortened(value: BigNumber.Value) {
   let bn = new BigNumber(value).integerValue();
   const formats = ["thousandFormat", "millionFormat", "billionFormat"];
   let formatIndex = -1;

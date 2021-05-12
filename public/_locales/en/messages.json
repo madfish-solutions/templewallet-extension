@@ -1816,5 +1816,11 @@
   },
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"
+  },
+  "dAppsListTvlDescription": {
+    "message": "Total Value Locked. The value in tez is the total amount of tez locked in dApps. The value in USD is the total amount of tez and tokens locked there."
+  },
+  "noFavoriteDApps": {
+    "message": "You don't have any favorite dApps"
   }
 }

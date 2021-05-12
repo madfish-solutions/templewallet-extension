@@ -75,7 +75,7 @@ const Money = memo<MoneyProps>(
 
       case !fiat && decimalsLength > cryptoDecimals && !shortened:
         result = toLocalFormat(bn, {
-          decimalPlaces: cryptoDecimals - 2,
+          decimalPlaces: Math.max(cryptoDecimals - 2, 0),
           roundingMode,
         });
         indexOfDecimal = result.indexOf(decimal);
@@ -90,7 +90,9 @@ const Money = memo<MoneyProps>(
             {result.slice(0, indexOfDecimal + 1)}
             <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
               {result.slice(indexOfDecimal + 1, result.length)}
-              <span className="opacity-75 tracking-tighter">...</span>
+              {cryptoDecimals >= 2 && (
+                <span className="opacity-75 tracking-tighter">...</span>
+              )}
             </span>
           </FullAmountTippy>
         );
