@@ -125,7 +125,8 @@ const DAppsList: FC = () => {
   return (
     <div
       className={classNames(
-        popup ? "px-1 pb-12" : "px-5 pb-4",
+        popup ? "px-1" : "px-5",
+        popup && matchingDApps.length > 3 ? "pb-12" : "pb-4",
         "w-full flex pt-2"
       )}
     >
