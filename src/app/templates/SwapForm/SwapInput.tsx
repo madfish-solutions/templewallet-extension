@@ -151,32 +151,6 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       }
     }, [shouldShowUsd, actualShouldShowUsd]);
 
-    const prevSelectedExchangerRef = useRef(selectedExchanger);
-    useEffect(() => {
-      if (prevSelectedExchangerRef.current !== selectedExchanger) {
-        const newAmount = shouldShowUsd
-          ? usdToAssetAmount(usdAmount, assetUsdPrice, asset?.decimals)
-          : amount;
-        const newUsdAmount = shouldShowUsd
-          ? usdAmount
-          : assetAmountToUSD(amount, assetUsdPrice);
-        onChange?.({
-          asset,
-          amount: newAmount,
-          usdAmount: newUsdAmount,
-        });
-      }
-      prevSelectedExchangerRef.current = selectedExchanger;
-    }, [
-      selectedExchanger,
-      amount,
-      asset,
-      assetUsdPrice,
-      onChange,
-      shouldShowUsd,
-      usdAmount,
-    ]);
-
     const handleSearchChange = useCallback(
       (e: ChangeEvent<HTMLInputElement>) => {
         setTokenId(undefined);
@@ -268,7 +242,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
           (actualShouldShowUsd
             ? assetAmountToUSD(amountAsset, assetUsdPrice)
             : amountAsset
-          )?.toString()
+          )?.toFixed()
         );
       }
       return error;

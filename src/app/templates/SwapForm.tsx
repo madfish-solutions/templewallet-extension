@@ -23,6 +23,7 @@ import { ReactComponent as InfoIcon } from "app/icons/info.svg";
 import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg";
 import OperationStatus from "app/templates/OperationStatus";
 import SwapInput, { SwapInputValue } from "app/templates/SwapForm/SwapInput";
+import useSwapCalculations from "app/templates/SwapForm/useSwapCalculations";
 import useSwappableAssets, {
   getAssetExchangeData,
 } from "app/templates/SwapForm/useSwappableAssets";
@@ -32,11 +33,7 @@ import { T, t } from "lib/i18n/react";
 import {
   TempleAssetType,
   useNetwork,
-  getTokenOutput,
   useTezos,
-  tzToMutez,
-  getMutezOutput,
-  mutezToTz,
   ALL_EXCHANGERS_TYPES,
   useAccount,
   swap,
@@ -46,10 +43,7 @@ import {
   useBalance,
   TEZ_ASSET,
   assetAmountToUSD,
-  TempleAsset,
   ExchangerType,
-  getMutezInput,
-  getTokenInput,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 
@@ -85,6 +79,7 @@ const feeLabel = `${toLocalFixed(new BigNumber("0.3"))}%`;
 const SwapForm: React.FC = () => {
   const { assets, quipuswapTokensWhitelist, tokensExchangeData, tezUsdPrice } =
     useSwappableAssets();
+  const { getInputAssetAmount, getOutputAssetAmounts } = useSwapCalculations();
 
   const tezos = useTezos();
   const network = useNetwork();
@@ -145,192 +140,6 @@ const SwapForm: React.FC = () => {
     inputAmountLoading ||
     outputAmountLoading;
 
-  const getOutputTezAmounts = useCallback(
-    async (inputAsset: TempleAsset, amount: BigNumber) => {
-      const rawAssetAmount = new BigNumber(amount).multipliedBy(
-        new BigNumber(10).pow(inputAsset.decimals)
-      );
-      const amounts = await Promise.all(
-        ALL_EXCHANGERS_TYPES.map(async (exchangerType) => {
-          if (inputAsset.type === TempleAssetType.TEZ) {
-            return new BigNumber(amount);
-          }
-          const contractAddress = getAssetExchangeData(
-            tokensExchangeData,
-            tezUsdPrice,
-            inputAsset,
-            exchangerType
-          )?.exchangeContract;
-          if (!contractAddress) {
-            return undefined;
-          }
-
-          return mutezToTz(
-            await getMutezOutput(tezos, rawAssetAmount, {
-              address: contractAddress,
-              type: exchangerType,
-            })
-          );
-        })
-      );
-      return ALL_EXCHANGERS_TYPES.reduce<
-        Partial<Record<ExchangerType, BigNumber>>
-      >(
-        (resultPart, exchangerType, index) => ({
-          ...resultPart,
-          [exchangerType]: amounts[index],
-        }),
-        {}
-      );
-    },
-    [tezos, tokensExchangeData, tezUsdPrice]
-  );
-
-  const getInputTezAmount = useCallback(
-    async (
-      outputAsset: TempleAsset,
-      amount: BigNumber,
-      type: ExchangerType
-    ) => {
-      if (outputAsset.type === TempleAssetType.TEZ) {
-        return amount;
-      }
-      const rawAssetAmount = new BigNumber(amount).multipliedBy(
-        new BigNumber(10).pow(outputAsset.decimals)
-      );
-      const contractAddress = getAssetExchangeData(
-        tokensExchangeData,
-        tezUsdPrice,
-        outputAsset,
-        type
-      )?.exchangeContract;
-      if (!contractAddress) {
-        return undefined;
-      }
-
-      return mutezToTz(
-        await getMutezInput(tezos, rawAssetAmount, {
-          address: contractAddress,
-          type,
-        })
-      );
-    },
-    [tezos, tokensExchangeData, tezUsdPrice]
-  );
-
-  const getOutputAmount = useCallback(
-    async (tez: BigNumber, outputAsset: TempleAsset, type: ExchangerType) => {
-      if (outputAsset.type === TempleAssetType.TEZ) {
-        return tez;
-      }
-      const contractAddress = getAssetExchangeData(
-        tokensExchangeData,
-        tezUsdPrice,
-        outputAsset,
-        type
-      )?.exchangeContract;
-      if (!contractAddress) {
-        return undefined;
-      }
-      const outputAssetElementaryParts = new BigNumber(10).pow(
-        outputAsset.decimals
-      );
-      return (
-        await getTokenOutput(tezos, tzToMutez(tez), {
-          address: contractAddress,
-          type,
-        })
-      ).div(outputAssetElementaryParts);
-    },
-    [tezos, tokensExchangeData, tezUsdPrice]
-  );
-
-  const getInputAmount = useCallback(
-    async (tez: BigNumber, inputAsset: TempleAsset, type: ExchangerType) => {
-      if (inputAsset.type === TempleAssetType.TEZ) {
-        return tez;
-      }
-      const contractAddress = getAssetExchangeData(
-        tokensExchangeData,
-        tezUsdPrice,
-        inputAsset,
-        type
-      )?.exchangeContract;
-      if (!contractAddress) {
-        return undefined;
-      }
-      const inputAssetElementaryParts = new BigNumber(10).pow(
-        inputAsset.decimals
-      );
-      const result = (
-        await getTokenInput(tezos, tzToMutez(tez), {
-          address: contractAddress,
-          type,
-        })
-      ).div(inputAssetElementaryParts);
-      return result;
-    },
-    [tezos, tokensExchangeData, tezUsdPrice]
-  );
-
-  const getInputAssetAmount = useCallback(
-    async (
-      outputAssetAmount: BigNumber | undefined,
-      outputAsset: TempleAsset | undefined
-    ) => {
-      if (
-        outputAssetAmount === undefined ||
-        !inputAsset ||
-        !outputAsset ||
-        assetsAreSame(inputAsset, outputAsset)
-      ) {
-        return undefined;
-      }
-      const tezAmount = await getInputTezAmount(
-        outputAsset,
-        outputAssetAmount,
-        selectedExchanger
-      );
-      if (tezAmount === undefined) {
-        return undefined;
-      }
-      const result = await getInputAmount(
-        tezAmount,
-        inputAsset,
-        selectedExchanger
-      );
-      return result;
-    },
-    [getInputAmount, getInputTezAmount, inputAsset, selectedExchanger]
-  );
-
-  const getOutputAssetAmounts = useCallback(
-    async (
-      inputAssetAmount: BigNumber | undefined,
-      inputAsset: TempleAsset | undefined
-    ) => {
-      if (
-        inputAssetAmount === undefined ||
-        !inputAsset ||
-        !outputAsset ||
-        assetsAreSame(inputAsset, outputAsset)
-      ) {
-        return undefined;
-      }
-      const { dexter: dexterTezAmount, quipuswap: quipuswapTezAmount } =
-        await getOutputTezAmounts(inputAsset, inputAssetAmount);
-      return {
-        dexter:
-          dexterTezAmount &&
-          (await getOutputAmount(dexterTezAmount, outputAsset, "dexter")),
-        quipuswap:
-          quipuswapTezAmount &&
-          (await getOutputAmount(quipuswapTezAmount, outputAsset, "quipuswap")),
-      };
-    },
-    [getOutputAmount, getOutputTezAmounts, outputAsset]
-  );
-
   const minimumReceived = useMemo(() => {
     if (
       [outputAssetAmount, tolerancePercentage, outputAsset].includes(undefined)
@@ -345,9 +154,54 @@ const SwapForm: React.FC = () => {
       .dividedBy(tokensParts);
   }, [outputAssetAmount, outputAsset, tolerancePercentage]);
 
-  const swapAssets = useCallback(() => {
-    setValue([{ input: output }, { output: input }], true);
-  }, [input, output, setValue]);
+  const swapAssets = useCallback(async () => {
+    let newOutputAmount: BigNumber | undefined;
+    const { asset: newInputAsset, amount: newInputAssetAmount } = output;
+    const { asset: newOutputAsset } = input;
+    try {
+      setOutputAmountLoading(true);
+      const newOutputAmounts = await getOutputAssetAmounts(
+        newInputAssetAmount,
+        newInputAsset,
+        newOutputAsset
+      );
+      setOutputAssetAmounts(newOutputAmounts);
+      setOutputAmountLoading(false);
+      newOutputAmount = newOutputAmounts?.[selectedExchanger];
+    } catch {}
+    const exchangeData =
+      newOutputAsset &&
+      getAssetExchangeData(
+        tokensExchangeData,
+        tezUsdPrice,
+        newOutputAsset,
+        selectedExchanger
+      );
+    setValue(
+      [
+        { input: output },
+        {
+          output: {
+            ...input,
+            amount: newOutputAmount,
+            usdAmount: assetAmountToUSD(
+              newOutputAmount,
+              exchangeData?.usdPrice
+            ),
+          },
+        },
+      ],
+      true
+    );
+  }, [
+    input,
+    output,
+    setValue,
+    getOutputAssetAmounts,
+    selectedExchanger,
+    tezUsdPrice,
+    tokensExchangeData,
+  ]);
 
   const validateTolerancePercentage = useCallback((v?: number) => {
     if (v === undefined) return "";
@@ -514,6 +368,11 @@ const SwapForm: React.FC = () => {
     [selectedExchanger, inputAsset, tokensExchangeData, tezUsdPrice]
   );
 
+  useEffect(() => {
+    register("input", { validate: validateAssetInput });
+    register("output", { validate: validateAssetOutput });
+  }, [register, validateAssetInput, validateAssetOutput, network.id]);
+
   const exchangersOptionsProps = useMemo(() => {
     const inputAssetAvailability = ALL_EXCHANGERS_TYPES.reduce(
       (result, exchangerType) => {
@@ -639,136 +498,259 @@ const SwapForm: React.FC = () => {
   );
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
 
-  const updateOutputValue = useMemo(
+  const getUpdateInputAmountBatch = useCallback(
+    async (
+      inputValue: SwapInputValue,
+      outputValue: SwapInputValue,
+      exchanger: ExchangerType
+    ) => {
+      const { asset: inputAsset } = inputValue;
+      const { asset: outputAsset, amount: outputAmount } = outputValue;
+      const batch: Partial<SwapFormValues>[] = [];
+      try {
+        setInputAmountLoading(true);
+        const newAmount = await getInputAssetAmount(
+          outputAmount,
+          outputAsset,
+          inputAsset,
+          exchanger
+        );
+        setInputAmountLoading(false);
+        const exchangeData =
+          inputAsset &&
+          getAssetExchangeData(
+            tokensExchangeData,
+            tezUsdPrice,
+            inputAsset,
+            exchanger
+          );
+        batch.push({
+          input: {
+            asset: inputAsset,
+            amount: newAmount,
+            usdAmount: assetAmountToUSD(newAmount, exchangeData?.usdPrice),
+          },
+        });
+      } catch (e) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(e);
+        }
+        batch.push({
+          input: { asset: inputAsset },
+        });
+      }
+      return batch;
+    },
+    [getInputAssetAmount, tezUsdPrice, tokensExchangeData]
+  );
+  const getUpdateOutputAmountBatch = useCallback(
+    async (
+      inputValue: SwapInputValue,
+      outputValue: SwapInputValue,
+      exchanger: ExchangerType
+    ) => {
+      const { asset: outputAsset } = outputValue;
+      const { asset: inputAsset, amount: inputAmount } = inputValue;
+      const batch: Partial<SwapFormValues>[] = [];
+      try {
+        setOutputAmountLoading(true);
+        const outputAmounts = await getOutputAssetAmounts(
+          inputAmount,
+          inputAsset,
+          outputAsset
+        );
+        setOutputAmountLoading(false);
+        setOutputAssetAmounts(outputAmounts);
+        const newAmount = outputAmounts?.[exchanger];
+        const exchangeData =
+          outputAsset &&
+          getAssetExchangeData(
+            tokensExchangeData,
+            tezUsdPrice,
+            outputAsset,
+            exchanger
+          );
+        batch.push({
+          output: {
+            asset: outputAsset,
+            amount: newAmount,
+            usdAmount: assetAmountToUSD(newAmount, exchangeData?.usdPrice),
+          },
+        });
+      } catch (e) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(e);
+        }
+        batch.push({
+          output: { asset: outputAsset },
+        });
+      }
+      return batch;
+    },
+    [getOutputAssetAmounts, tezUsdPrice, tokensExchangeData]
+  );
+
+  const updateAfterInputChange = useMemo(
     () =>
       debouncePromise(
         async (
           newInputValue: SwapInputValue,
           newExchangerType: ExchangerType
         ) => {
-          try {
-            const outputAmounts = await getOutputAssetAmounts(
-              newInputValue.amount,
-              newInputValue.asset
-            );
-            setOutputAssetAmounts(outputAmounts);
-            const newAmount = outputAmounts?.[newExchangerType];
-            const exchangeData =
-              newInputValue.asset &&
-              getAssetExchangeData(
-                tokensExchangeData,
-                tezUsdPrice,
-                newInputValue.asset,
-                newExchangerType
-              );
-            setValue("output", {
-              asset: outputAsset,
-              amount: newAmount,
-              usdAmount: assetAmountToUSD(newAmount, exchangeData?.usdPrice),
-            });
-          } catch (e) {
-            if (process.env.NODE_ENV === "development") {
-              console.error(e);
-            }
-            setValue("output", { asset: outputAsset });
+          const { asset: newInputAsset } = newInputValue;
+          if (
+            newInputAsset &&
+            output.asset &&
+            assetsAreSame(newInputAsset, output.asset)
+          ) {
+            setValue("output", {});
+            return;
           }
+          const setValueBatch: Partial<SwapFormValues>[] = [];
+          const getExchangeData = (exchanger: ExchangerType) =>
+            newInputAsset &&
+            getAssetExchangeData(
+              tokensExchangeData,
+              tezUsdPrice,
+              newInputAsset,
+              exchanger
+            );
+          let exchanger: ExchangerType | undefined = newExchangerType;
+          if (newInputAsset && !getExchangeData(newExchangerType)) {
+            exchanger = ALL_EXCHANGERS_TYPES.find((type) =>
+              getExchangeData(type)
+            );
+            if (exchanger) {
+              setValueBatch.push({ exchanger });
+            }
+          }
+          if (
+            exchanger &&
+            newInputAsset &&
+            inputAsset &&
+            assetsAreSame(newInputAsset, inputAsset)
+          ) {
+            setValueBatch.push(
+              ...(await getUpdateOutputAmountBatch(
+                newInputValue,
+                output,
+                exchanger
+              ))
+            );
+          } else if (exchanger) {
+            setValueBatch.push(
+              ...(await getUpdateInputAmountBatch(
+                newInputValue,
+                output,
+                exchanger
+              ))
+            );
+          } else {
+            setValueBatch.push({ output: {} });
+          }
+          setValue(setValueBatch, true);
         },
         250
       ),
     [
-      outputAsset,
+      output,
+      inputAsset,
       setValue,
-      getOutputAssetAmounts,
       tezUsdPrice,
       tokensExchangeData,
+      getUpdateInputAmountBatch,
+      getUpdateOutputAmountBatch,
     ]
   );
-  const updateInputValue = useMemo(
+  const updateAfterOutputChange = useMemo(
     () =>
       debouncePromise(async (newOutputValue: SwapInputValue) => {
-        try {
-          const setValueBatch: Partial<SwapFormValues>[] = [];
-          const newAmount = await getInputAssetAmount(
-            newOutputValue.amount,
-            newOutputValue.asset
+        const { asset: newOutputAsset } = newOutputValue;
+        if (
+          newOutputAsset &&
+          input.asset &&
+          assetsAreSame(newOutputAsset, input.asset)
+        ) {
+          setValue("input", {});
+          return;
+        }
+        const setValueBatch: Partial<SwapFormValues>[] = [];
+        const getExchangeData = (exchanger: ExchangerType) =>
+          newOutputAsset &&
+          getAssetExchangeData(
+            tokensExchangeData,
+            tezUsdPrice,
+            newOutputAsset,
+            exchanger
           );
-          const getExchangeData = (exchanger: ExchangerType) =>
-            newOutputValue.asset &&
-            getAssetExchangeData(
-              tokensExchangeData,
-              tezUsdPrice,
-              newOutputValue.asset,
-              exchanger
-            );
-          let exchanger = selectedExchanger;
-          if (newOutputValue.asset && !getExchangeData(selectedExchanger)) {
-            exchanger = ALL_EXCHANGERS_TYPES.find((type) =>
-              getExchangeData(type)
-            )!;
+        let exchanger: ExchangerType | undefined = selectedExchanger;
+        if (newOutputAsset && !getExchangeData(selectedExchanger)) {
+          exchanger = ALL_EXCHANGERS_TYPES.find((type) =>
+            getExchangeData(type)
+          );
+          if (exchanger) {
             setValueBatch.push({ exchanger });
           }
-          const exchangeData =
-            newOutputValue.asset &&
-            getAssetExchangeData(
-              tokensExchangeData,
-              tezUsdPrice,
-              newOutputValue.asset,
-              exchanger
-            );
-          setValueBatch.push({
-            input: {
-              asset: inputAsset,
-              amount: newAmount,
-              usdAmount: assetAmountToUSD(newAmount, exchangeData?.usdPrice),
-            },
-          });
-          setValue(setValueBatch);
-        } catch (e) {
-          if (process.env.NODE_ENV === "development") {
-            console.error(e);
-          }
-          setValue("input", { asset: inputAsset });
         }
+        if (
+          exchanger &&
+          newOutputAsset &&
+          outputAsset &&
+          assetsAreSame(newOutputAsset, outputAsset)
+        ) {
+          setValueBatch.push(
+            ...(await getUpdateInputAmountBatch(
+              input,
+              newOutputValue,
+              exchanger
+            ))
+          );
+        } else if (exchanger) {
+          setValueBatch.push(
+            ...(await getUpdateOutputAmountBatch(
+              input,
+              newOutputValue,
+              exchanger
+            ))
+          );
+        } else {
+          setValueBatch.push({ input: {} });
+        }
+        setValue(setValueBatch, true);
       }, 250),
     [
-      getInputAssetAmount,
-      inputAsset,
+      input,
+      outputAsset,
       selectedExchanger,
       setValue,
       tezUsdPrice,
       tokensExchangeData,
+      getUpdateInputAmountBatch,
+      getUpdateOutputAmountBatch,
     ]
   );
 
-  useEffect(() => {
-    register("input", { validate: validateAssetInput });
-    register("output", { validate: validateAssetOutput });
-  }, [register, validateAssetInput, validateAssetOutput, network.id]);
   const handleInputChange = useCallback(
     async (newValue: SwapInputValue) => {
       setValue("input", newValue);
-      setOutputAmountLoading(true);
-      await updateOutputValue(newValue, selectedExchanger);
-      setOutputAmountLoading(false);
+      await updateAfterInputChange(newValue, selectedExchanger);
     },
-    [setValue, updateOutputValue, selectedExchanger]
+    [setValue, updateAfterInputChange, selectedExchanger]
   );
   const handleOutputChange = useCallback(
     async (newValue: SwapInputValue) => {
       setValue("output", newValue);
-      setInputAmountLoading(true);
-      await updateInputValue(newValue);
-      setInputAmountLoading(false);
+      await updateAfterOutputChange(newValue);
     },
-    [setValue, updateInputValue]
+    [setValue, updateAfterOutputChange]
   );
   const handleExchangerChange = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value as ExchangerType;
       setValue("exchanger", newValue);
-      await updateOutputValue(input, newValue);
+      await updateAfterInputChange(input, newValue);
     },
-    [setValue, updateOutputValue, input]
+    [setValue, updateAfterInputChange, input]
   );
 
   return (
