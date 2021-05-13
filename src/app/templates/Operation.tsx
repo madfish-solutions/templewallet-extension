@@ -359,17 +359,21 @@ const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(
     <span className="font-light text-gray-500 text-xs">
       <T
         id={i18nKey}
-        substitutions={arg.map((value, index) => (
+        substitutions={
           <>
-            <HashChip
-              className="text-blue-600 opacity-75"
-              key={index}
-              hash={value}
-              type="link"
-            />
-            {index === arg.length - 1 ? null : ", "}
+            {arg.map((value, index) => (
+              <span key={index}>
+                <HashChip
+                  className="text-blue-600 opacity-75"
+                  key={index}
+                  hash={value}
+                  type="link"
+                />
+                {index === arg.length - 1 ? null : ", "}
+              </span>
+            ))}
           </>
-        ))}
+        }
       />
     </span>
   )

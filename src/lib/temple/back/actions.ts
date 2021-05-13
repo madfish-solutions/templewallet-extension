@@ -17,10 +17,7 @@ import {
   removeDApp,
 } from "lib/temple/back/dapp";
 import { intercom } from "lib/temple/back/defaults";
-import {
-  dryRunOpParams,
-  increaseStorageOpParmas,
-} from "lib/temple/back/dryrun";
+import { buildFinalOpParmas, dryRunOpParams } from "lib/temple/back/dryrun";
 import {
   toFront,
   store,
@@ -304,10 +301,10 @@ export function sendOperations(
                   vault.sendOperations(
                     sourcePkh,
                     networkRpc,
-                    increaseStorageOpParmas(
+                    buildFinalOpParmas(
                       opParams,
                       dryRunResult?.estimates,
-                      req.increaseStorageFee
+                      req.modifiedStorageLimit
                     )
                   )
                 );

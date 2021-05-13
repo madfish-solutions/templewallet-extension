@@ -61,8 +61,10 @@ export async function fetchTokenMetadata(
 
   return {
     decimals: tokenData.decimals ? +tokenData.decimals : 0,
-    symbol: tokenData.symbol || "???",
-    name: tokenData.name || "Unknown Token",
+    symbol:
+      tokenData.symbol ||
+      (tokenData.name ? tokenData.name.substr(0, 8) : "???"),
+    name: tokenData.name || tokenData.symbol || "Unknown Token",
     iconUrl:
       tokenData.thumbnailUri ??
       tokenData.logo ??
