@@ -165,6 +165,20 @@ export async function getMutezOutput(
     .idiv(tokenPool.times(1000).plus(tokenInWithFee));
 }
 
+export async function getMutezInput(
+  tezos: TezosToolkit,
+  tokenAmount: BigNumber,
+  { address, type }: SwapContractDescriptor
+) {
+  if (tokenAmount.eq(0)) {
+    return new BigNumber(0);
+  }
+  const { tokenPool, xtzPool } = await getPoolParameters(tezos, address, type);
+  const numerator = xtzPool.times(1000).times(tokenAmount);
+  const denominator = tokenPool.minus(tokenAmount).times(997);
+  return numerator.idiv(denominator).plus(1);
+}
+
 export async function getTokenOutput(
   tezos: TezosToolkit,
   mutezAmount: BigNumber,
@@ -179,6 +193,20 @@ export async function getTokenOutput(
   return tezInWithFee
     .times(tokenPool)
     .idiv(xtzPool.times(1000).plus(tezInWithFee));
+}
+
+export async function getTokenInput(
+  tezos: TezosToolkit,
+  mutezAmount: BigNumber,
+  { address, type }: SwapContractDescriptor
+) {
+  if (mutezAmount.eq(0)) {
+    return new BigNumber(0);
+  }
+  const { tokenPool, xtzPool } = await getPoolParameters(tezos, address, type);
+  const numerator = tokenPool.times(1000).times(mutezAmount);
+  const denominator = xtzPool.minus(mutezAmount).times(997);
+  return numerator.idiv(denominator).plus(1);
 }
 
 export async function swap({

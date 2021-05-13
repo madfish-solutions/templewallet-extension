@@ -49,7 +49,6 @@ export type SwapInputValue = {
 };
 
 type SwapInputProps = {
-  amountReadOnly?: boolean;
   className?: string;
   disabled?: boolean;
   error?: string;
@@ -65,6 +64,7 @@ type SwapInputProps = {
   ) => void;
   value?: SwapInputValue;
   withPercentageButtons?: boolean;
+  isOutput?: boolean;
 };
 
 const BUTTONS_PERCENTAGES = [25, 50, 75, 100];
@@ -73,12 +73,12 @@ const defaultInputValue: SwapInputValue = {};
 const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
   (
     {
-      amountReadOnly,
       className,
       disabled,
       error,
       label,
       loading,
+      isOutput,
       name,
       onBlur,
       onChange,
@@ -127,7 +127,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       if (!asset) {
         return new BigNumber(0);
       }
-      if (amountReadOnly) {
+      if (isOutput) {
         return new BigNumber(Infinity);
       }
       const exchangableAmount =
@@ -141,7 +141,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
         ),
         0
       );
-    }, [asset, balance, amountReadOnly, assetExchangeData]);
+    }, [asset, balance, isOutput, assetExchangeData]);
     const assetUsdPrice = assetExchangeData?.usdPrice;
     const actualShouldShowUsd = shouldShowUsd && !!assetUsdPrice;
 
@@ -299,7 +299,6 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
             <SwapInputHeader
               amount={amount}
               amountLoading={loading}
-              amountReadOnly={amountReadOnly}
               balance={asset ? balance : undefined}
               disabled={disabled}
               label={label}
@@ -308,7 +307,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
               onSearchChange={handleSearchChange}
               onTokenIdChange={setTokenId}
               opened={opened}
-              ref={(ref as unknown) as React.RefObject<HTMLDivElement>}
+              ref={ref as unknown as React.RefObject<HTMLDivElement>}
               searchString={searchString}
               selectedAsset={asset}
               selectedExchanger={selectedExchanger}
@@ -364,10 +363,10 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
   onClick,
   disabled,
 }) => {
-  const handleClick = useCallback(() => onClick(percentage), [
-    onClick,
-    percentage,
-  ]);
+  const handleClick = useCallback(
+    () => onClick(percentage),
+    [onClick, percentage]
+  );
 
   return (
     <button
@@ -385,10 +384,7 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
 };
 
 type SwapInputHeaderProps = PopperRenderProps &
-  Pick<
-    SwapInputProps,
-    "selectedExchanger" | "label" | "amountReadOnly" | "disabled"
-  > & {
+  Pick<SwapInputProps, "selectedExchanger" | "label" | "disabled"> & {
     amount?: BigNumber;
     amountLoading?: boolean;
     balance?: BigNumber;
@@ -411,7 +407,6 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
     {
       amount,
       amountLoading,
-      amountReadOnly,
       balance,
       disabled,
       label,
@@ -449,7 +444,6 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
 
     const handleAmountFieldFocus = useCallback((evt) => {
       evt.preventDefault();
-      console.log(evt);
       setIsActive(true);
       amountFieldRef.current?.focus({ preventScroll: true });
     }, []);
@@ -650,8 +644,8 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   fieldWrapperBottomMargin={false}
                   value={displayedAmount?.toString()}
                   ref={amountFieldRef}
-                  onBlur={amountReadOnly ? undefined : setFieldInactive}
-                  onFocus={amountReadOnly ? undefined : handleAmountFieldFocus}
+                  onBlur={setFieldInactive}
+                  onFocus={handleAmountFieldFocus}
                   className={classNames(
                     "text-gray-700 text-2xl text-right border-none bg-opacity-0",
                     "pl-0 focus:shadow-none"
@@ -660,7 +654,6 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
                   style={{ padding: 0, borderRadius: 0 }}
                   min={0}
-                  readOnly={amountReadOnly}
                   assetDecimals={
                     shouldShowUsd ? 2 : selectedAsset?.decimals ?? 0
                   }
