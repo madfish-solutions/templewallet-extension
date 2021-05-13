@@ -97,6 +97,16 @@ export const MAINNET_TOKENS: TempleToken[] = [
   },
   {
     type: TempleAssetType.FA1_2,
+    address: "KT1AxaBxkFLCUi3f8rdDAAxBKHfzY8LfKDRA",
+    name: "Quipuswap Liquidating kUSD",
+    symbol: "QLkUSD",
+    decimals: 36,
+    fungible: true,
+    iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
+    status: "displayed",
+  },  
+  {
+    type: TempleAssetType.FA1_2,
     address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
     name: "Wrapped Tezos",
     symbol: "wXTZ",

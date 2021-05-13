@@ -15,7 +15,7 @@ import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 import AccountBanner from "app/templates/AccountBanner";
 import ExpensesView from "app/templates/ExpensesView";
-import IncreaseStorageFeeSection from "app/templates/IncreaseStorageFeeSection";
+import ModifyStorageLimitSection from "app/templates/ModifyStorageLimitSection";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
@@ -42,7 +42,10 @@ import { InternalConfirmationSelectors } from "./InternalConfirmation.selectors"
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
-  onConfirm: (confirmed: boolean, increaseStorageFee?: number) => Promise<void>;
+  onConfirm: (
+    confirmed: boolean,
+    modifiedStorageLimit?: number
+  ) => Promise<void>;
 };
 
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({
@@ -173,7 +176,12 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
-  const [increaseStorageFeeValue, setIncreaseStorageFeeValue] = useSafeState(0);
+  const [
+    modifiedStorageLimitValue,
+    setModifiedStorageLimitValue,
+  ] = useSafeState(
+    (payload.type === "operations" && payload.estimates?.[0].storageLimit) || 0
+  );
 
   useEffect(() => {
     if (!signPayloadFormats.some(({ key }) => key === spFormat.key)) {
@@ -185,14 +193,14 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
     async (confirmed: boolean) => {
       setError(null);
       try {
-        await onConfirm(confirmed, increaseStorageFeeValue);
+        await onConfirm(confirmed, modifiedStorageLimitValue);
       } catch (err) {
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
         setError(err);
       }
     },
-    [onConfirm, setError, increaseStorageFeeValue]
+    [onConfirm, setError, modifiedStorageLimitValue]
   );
 
   const handleConfirmClick = useCallback(async () => {
@@ -213,12 +221,13 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
 
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
-  const increaseStorageFeeDisplayed = useMemo(() => {
-    if (payload.type === "operations" && payload.estimates) {
-      return payload.estimates.reduce((sum, e) => sum + e.storageLimit, 0) > 0;
-    }
-    return false;
-  }, [payload]);
+  const modifiedStorageLimitDisplayed = useMemo(
+    () =>
+      payload.type === "operations" &&
+      payload.estimates &&
+      payload.estimates.length < 2,
+    [payload]
+  );
 
   return (
     <div
@@ -249,7 +258,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
         )}
         style={{ height: "34rem" }}
       >
-        <div className="px-4 pt-4">
+        <div className="px-4 pt-3">
           <SubTitle small className="mb-4">
             <T
               id="confirmAction"
@@ -348,7 +357,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
                       ? payload.estimates
                       : undefined
                   }
-                  increaseStorageFee={increaseStorageFeeValue}
+                  modifiedStorageLimit={modifiedStorageLimitValue}
                   mainnet={mainnet}
                   totalFeeDisplayed
                 />
@@ -356,10 +365,10 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
             </>
           )}
 
-          {increaseStorageFeeDisplayed && (
-            <IncreaseStorageFeeSection
-              value={increaseStorageFeeValue}
-              onChange={setIncreaseStorageFeeValue}
+          {modifiedStorageLimitDisplayed && (
+            <ModifyStorageLimitSection
+              value={modifiedStorageLimitValue}
+              onChange={setModifiedStorageLimitValue}
             />
           )}
         </div>

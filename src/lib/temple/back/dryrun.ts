@@ -2,7 +2,7 @@ import { localForger } from "@taquito/local-forging";
 import { TezosToolkit } from "@taquito/taquito";
 import { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 
-import { INCREASE_STORAGE_FEE_VARIANTS } from "lib/temple/defaults";
+import { FastRpcClient } from "lib/taquito-fast-rpc";
 import { formatOpParamsBeforeSend, michelEncoder } from "lib/temple/helpers";
 import { ReadOnlySigner } from "lib/temple/read-only-signer";
 
@@ -20,7 +20,7 @@ export async function dryRunOpParams({
   sourcePublicKey,
 }: DryRunParams) {
   try {
-    const tezos = new TezosToolkit(networkRpc);
+    const tezos = new TezosToolkit(new FastRpcClient(networkRpc));
 
     let bytesToSign: string | undefined;
     const signer = new ReadOnlySigner(sourcePkh, sourcePublicKey, (digest) => {
@@ -41,14 +41,16 @@ export async function dryRunOpParams({
         tezos.estimate.batch(formated).catch(() => undefined),
       ]);
       estimates = result[1]?.map(
-        (e) =>
+        (e, i) =>
           ({
             ...e,
             burnFeeMutez: e.burnFeeMutez,
             consumedMilligas: e.consumedMilligas,
             gasLimit: e.gasLimit,
             minimalFeeMutez: e.minimalFeeMutez,
-            storageLimit: e.storageLimit,
+            storageLimit: opParams[i]?.storageLimit
+              ? +opParams[i].storageLimit
+              : e.storageLimit,
             suggestedFeeMutez: e.suggestedFeeMutez,
             totalCost: e.totalCost,
             usingBaseFeeMutez: e.usingBaseFeeMutez,
@@ -67,30 +69,20 @@ export async function dryRunOpParams({
   }
 }
 
-export function increaseStorageOpParmas(
+export function buildFinalOpParmas(
   opParams: any[],
   estimates?: Estimate[],
-  increaseStorageFee?: number
+  modifiedStorageLimit?: number
 ) {
-  if (
-    estimates &&
-    increaseStorageFee &&
-    INCREASE_STORAGE_FEE_VARIANTS.includes(increaseStorageFee)
-  ) {
-    try {
-      const storageIncreaseFactor = (100 + increaseStorageFee) / 100;
-      return opParams.map((op, i) => {
-        const storageLimit = estimates[i]?.storageLimit;
-        return storageLimit
-          ? {
-              ...op,
-              storageLimit: Math.ceil(storageLimit * storageIncreaseFactor),
-            }
-          : op;
-      });
-    } catch {
-      return opParams;
-    }
+  if (estimates) {
+    opParams = opParams.map((op, i) => ({
+      ...op,
+      storageLimit: estimates[i]?.storageLimit,
+    }));
+  }
+
+  if (modifiedStorageLimit !== undefined && opParams.length < 2) {
+    opParams[0].storageLimit = modifiedStorageLimit;
   }
 
   return opParams;

@@ -1750,5 +1750,14 @@
   },
   "operationMayBeNotVisibleWarning": {
     "message": "The feature is experimental, so the operation may be not visible in 'Activity' tab or may be displayed not as usual"
+  },
+  "storageFeeMax": {
+    "message": "Storage fee (max)"
+  },
+  "storageLimit": {
+    "message": "Adjust storage limit"
+  },
+  "txIsLikelyToFail": {
+    "message": "Warning! Transaction is likely to fail"
   }
 }

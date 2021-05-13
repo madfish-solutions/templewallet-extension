@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Temple - Tezos Wallet (ex. Thanos)",
-  "version": "1.8.4",
+  "version": "1.9.2",
 
   "icons": {
     "16": "misc/icon-16.png",
@@ -23,7 +23,6 @@
     "https://*.giganode.io/",
     "https://*.tzstats.com/",
     "https://api.tezos-nodes.com/",
-    "https://better-call.dev/",
     "https://*.tzkt.io/",
     "http://167.99.133.200:8732/",
     "https://api.better-call.dev/"
@@ -70,10 +69,12 @@
     "__chrome|opera__persistent": true
   },
 
-  "content_scripts": [{
-    "matches": ["http://*/*", "https://*/*"],
-    "js": ["scripts/contentScript.js"],
-    "run_at": "document_start",
-    "all_frames": true
-  }]
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["scripts/contentScript.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
 }
