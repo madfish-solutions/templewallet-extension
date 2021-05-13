@@ -630,21 +630,19 @@ const SwapForm: React.FC = () => {
             inputAsset &&
             assetsAreSame(newInputAsset, inputAsset)
           ) {
-            setValueBatch.push(
-              ...(await getUpdateOutputAmountBatch(
-                newInputValue,
-                output,
-                exchanger
-              ))
+            const changes = await getUpdateOutputAmountBatch(
+              newInputValue,
+              output,
+              exchanger
             );
+            setValueBatch.push(...changes);
           } else if (exchanger) {
-            setValueBatch.push(
-              ...(await getUpdateInputAmountBatch(
-                newInputValue,
-                output,
-                exchanger
-              ))
+            const changes = await getUpdateInputAmountBatch(
+              newInputValue,
+              output,
+              exchanger
             );
+            setValueBatch.push(...changes);
           } else {
             setValueBatch.push({ output: {} });
           }
@@ -698,21 +696,19 @@ const SwapForm: React.FC = () => {
           outputAsset &&
           assetsAreSame(newOutputAsset, outputAsset)
         ) {
-          setValueBatch.push(
-            ...(await getUpdateInputAmountBatch(
-              input,
-              newOutputValue,
-              exchanger
-            ))
+          const changes = await getUpdateInputAmountBatch(
+            input,
+            newOutputValue,
+            exchanger
           );
+          setValueBatch.push(...changes);
         } else if (exchanger) {
-          setValueBatch.push(
-            ...(await getUpdateOutputAmountBatch(
-              input,
-              newOutputValue,
-              exchanger
-            ))
+          const changes = await getUpdateOutputAmountBatch(
+            input,
+            newOutputValue,
+            exchanger
           );
+          setValueBatch.push(...changes);
         } else {
           setValueBatch.push({ input: {} });
         }
