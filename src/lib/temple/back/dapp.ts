@@ -42,7 +42,8 @@ const CONFIRM_WINDOW_HEIGHT = 632;
 const AUTODECLINE_AFTER = 120_000;
 const STORAGE_KEY = "dapp_sessions";
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
-const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
+const TEZ_MSG_SIGN_PATTERN =
+  /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
 
 export async function getCurrentPermission(
   origin: string
@@ -110,11 +111,8 @@ export async function requestPermission(
           confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest &&
           confirmReq?.id === id
         ) {
-          const {
-            confirmed,
-            accountPublicKeyHash,
-            accountPublicKey,
-          } = confirmReq;
+          const { confirmed, accountPublicKeyHash, accountPublicKey } =
+            confirmReq;
           if (confirmed && accountPublicKeyHash && accountPublicKey) {
             await setDApp(origin, {
               network: req.network,
@@ -513,7 +511,7 @@ async function requestConfirm({
 export function getNetworkRPC(net: TempleDAppNetwork) {
   return typeof net === "string"
     ? NETWORKS.find((n) => n.id === net)!.rpcBaseURL
-    : net.rpc;
+    : removeLastSlash(net.rpc);
 }
 
 function isAllowedNetwork(net: TempleDAppNetwork) {
@@ -524,6 +522,10 @@ function isAllowedNetwork(net: TempleDAppNetwork) {
 
 function isNetworkEquals(fNet: TempleDAppNetwork, sNet: TempleDAppNetwork) {
   return typeof fNet !== "string" && typeof sNet !== "string"
-    ? fNet?.rpc === sNet?.rpc
+    ? removeLastSlash(fNet.rpc) === removeLastSlash(sNet.rpc)
     : fNet === sNet;
+}
+
+function removeLastSlash(str: string) {
+  return str.endsWith("/") ? str.slice(0, -1) : str;
 }
