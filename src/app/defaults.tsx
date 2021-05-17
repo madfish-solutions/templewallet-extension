@@ -10,6 +10,7 @@ import {
 } from "lib/temple/types";
 
 export const ACTIVITY_PAGE_SIZE = 50;
+export const OP_STACK_PREVIEW_SIZE = 2;
 
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
@@ -26,7 +27,8 @@ export const PASSWORD_PATTERN = new RegExp(
   ].join("")
 );
 
-export const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
+export const URL_PATTERN =
+  /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
 
 export const PASSWORD_ERROR_CAPTION = (
   <ul className="list-disc list-inside">

@@ -95,9 +95,9 @@ export async function syncOperations(
               tryParseTokenTransfers(
                 JSON.parse(tzktOp.parameters),
                 tzktOp.target.address,
-                {
-                  onMember: (member) => memberSet.add(member),
-                  onAssetId: (assetId) => assetIdSet.add(assetId),
+                (assetId, from, to) => {
+                  memberSet.add(from).add(to);
+                  assetIdSet.add(assetId);
                 }
               );
             } catch {}

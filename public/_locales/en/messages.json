@@ -1759,5 +1759,13 @@
   },
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"
+  },
+  "more": {
+    "message": "more",
+    "description": "Show more"
+  },
+  "less": {
+    "message": "less",
+    "description": "Show less"
   }
 }

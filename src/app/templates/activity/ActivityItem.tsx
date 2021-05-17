@@ -1,14 +1,16 @@
 import React, { memo, useEffect, useMemo, useState } from "react";
 
-import { OpKind } from "@taquito/rpc";
-import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 
 import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
+import { OP_STACK_PREVIEW_SIZE } from "app/defaults";
+import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
+import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
 import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 import HashChip from "app/templates/HashChip";
 import { T, t, getDateFnsLocale, TProps } from "lib/i18n/react";
+import { parseMoneyDiffs } from "lib/temple/activity";
 import { useExplorerBaseUrls } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 
@@ -37,10 +39,10 @@ const ActivityItem = memo<ActivityItemProps>(
       ]
     );
 
-    const moneyDiffs = useMemo(() => parseMoneyDiffs(operation, address), [
-      operation,
-      address,
-    ]);
+    const moneyDiffs = useMemo(
+      () => parseMoneyDiffs(operation, address),
+      [operation, address]
+    );
 
     const status = useMemo(() => {
       if (!syncSupported) return null;
@@ -90,27 +92,7 @@ const ActivityItem = memo<ActivityItemProps>(
 
         <div className="flex items-stretch">
           <div className="flex flex-col pt-2">
-            <div className="flex flex-col mb-2">
-              {[1, 2, 3].map((_, i) => (
-                <div className="flex flex-wrap items-center">
-                  <div
-                    className={classNames(
-                      "flex items-center",
-                      "text-xs text-blue-600 opacity-75"
-                    )}
-                  >
-                    {formatOperationType("interaction", true)}
-                  </div>
-
-                  <StackItem
-                    key={i}
-                    i18nKey="transferFromSmb"
-                    args={["KT1Wa8yqRBpFCusJWgcQyjhRz7hUQAmFxW7j"]}
-                    className="ml-1"
-                  />
-                </div>
-              ))}
-            </div>
+            <OpStack opStack={[1, 2, 3]} className="mb-2" />
 
             {status && (
               <div className="mb-px text-xs font-light leading-none">
@@ -151,6 +133,84 @@ const ActivityItem = memo<ActivityItemProps>(
 
 export default ActivityItem;
 
+type OpStackProps = {
+  opStack: any[];
+  className?: string;
+};
+
+const OpStack = memo<OpStackProps>(({ opStack, className }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const base = useMemo(
+    () => opStack.filter((_, i) => i < OP_STACK_PREVIEW_SIZE),
+    [opStack]
+  );
+  const rest = useMemo(
+    () => opStack.filter((_, i) => i >= OP_STACK_PREVIEW_SIZE),
+    [opStack]
+  );
+
+  const ExpandIcon = expanded ? ChevronUpIcon : ChevronRightIcon;
+
+  return (
+    <div className={classNames("flex flex-col", className)}>
+      {base.map((_, i) => (
+        <OpStackItem key={i} />
+      ))}
+
+      {expanded && (
+        <>
+          {rest.map((_, i) => (
+            <OpStackItem key={i} />
+          ))}
+        </>
+      )}
+
+      {rest.length > 0 && (
+        <div className={classNames("flex items-center", expanded && "mt-1")}>
+          <button
+            className={classNames(
+              "flex items-center",
+              "text-blue-600 opacity-75 hover:underline",
+              "leading-none"
+            )}
+            onClick={() => setExpanded((e) => !e)}
+          >
+            <ExpandIcon
+              className={classNames(
+                "mr-1 h-3 w-auto",
+                "stroke-2 stroke-current"
+              )}
+            />
+            <T id={expanded ? "less" : "more"} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+});
+
+type OpStackItemProps = {};
+
+const OpStackItem = memo<OpStackItemProps>(() => (
+  <div className="flex flex-wrap items-center">
+    <div
+      className={classNames(
+        "flex items-center",
+        "text-xs text-blue-600 opacity-75"
+      )}
+    >
+      {formatOperationType("interaction", true)}
+    </div>
+
+    <StackItem
+      i18nKey="transferFromSmb"
+      args={["KT1Wa8yqRBpFCusJWgcQyjhRz7hUQAmFxW7j"]}
+      className="ml-1"
+    />
+  </div>
+));
+
 type TimeProps = {
   children: () => React.ReactElement;
 };
@@ -170,26 +230,6 @@ const Time: React.FC<TimeProps> = ({ children }) => {
 
   return value;
 };
-
-function formatOperationType(type: string, imReciever: boolean) {
-  if (type === "transaction" || type === "transfer") {
-    type = `${imReciever ? "↓" : "↑"}_${type}`;
-  }
-
-  const operationTypeText = type
-    .split("_")
-    .map((w) => `${w.charAt(0).toUpperCase()}${w.substring(1)}`)
-    .join(" ");
-
-  return (
-    <>
-      {type === "interaction" && (
-        <ClipboardIcon className="mr-1 h-3 w-auto stroke-current" />
-      )}
-      {operationTypeText}
-    </>
-  );
-}
 
 type StackItemProps = {
   i18nKey: TProps["id"];
@@ -216,264 +256,22 @@ const StackItem = memo<StackItemProps>(({ i18nKey, args, className }) => (
   </span>
 ));
 
-// interface OpStackItem {
-//   type: OpStackItemType;
-//   param: string;
-// }
-
-// function parseOpStack(operation: Repo.IOperation, address: string): OpStackItem[] {
-//   const { localGroup, tzktGroup, bcdTokenTransfers } = operation.data;
-
-//   if (tzktGroup) {
-//     return tzktGroup.map((tg) => {
-//       if (tg.type === "delegation") {
-//         return {
-//           type: OpStackItemType.Delegation,
-//           param: tg.newDelegate
-//         };
-//       }
-
-//       if (tg.type === "transaction") {
-//         if (tg.parameters) {
-//           return {
-//             type: OpStackItemType.Interaction,
-//             param: tg.target.address
-//           }
-//         }
-
-//         if (tg.sender.address === address) {
-//           return {
-//             type: OpStackItemType.TransferTo,
-//             param: tg.target.address
-//           }
-//         }
-
-//         if (tg.target.address === address) {
-//           return {
-//             type: OpStackItemType.TransferFrom,
-//             param: tg.sender.address
-//           }
-//         }
-//       }
-
-//       return null;
-//     }).filter(Boolean) as OpStackItem[];
-//   }
-
-//   if (localGroup) {
-//     return localGroup.map((localOp) => {
-//       return null;
-//     }).filter(Boolean) as OpStackItem[];
-//   }
-
-//   return [];
-// }
-
-interface MoneyDiff {
-  assetId: string;
-  diff: string;
-}
-
-function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
-  const diffs: Record<string, string[]> = {};
-  const appendToDiff = (assetId: string, diff: string) => {
-    if (!(assetId in diffs)) {
-      diffs[assetId] = [];
-    }
-    if (!diffs[assetId].includes(diff)) {
-      diffs[assetId].push(diff);
-    }
-  };
-
-  const { localGroup, tzktGroup, bcdTokenTransfers } = operation.data;
-
-  if (localGroup) {
-    for (const op of localGroup) {
-      if (op.kind === OpKind.ORIGINATION) {
-        if (op.source === address && isPositiveNumber(op.balance)) {
-          appendToDiff("tez", new BigNumber(op.balance).times(-1).toFixed());
-        }
-      } else if (op.kind === OpKind.TRANSACTION) {
-        if (
-          (op.source === address || op.destination === address) &&
-          isPositiveNumber(op.amount)
-        ) {
-          appendToDiff(
-            "tez",
-            new BigNumber(op.amount)
-              .times(op.source === address ? -1 : 1)
-              .toFixed()
-          );
-        }
-
-        if (op.parameters) {
-          tryParseTokenTransfers(op.parameters, op.destination, {
-            onTransfer: (assetId, from, to, amount) => {
-              if (from === address || to === address) {
-                appendToDiff(
-                  assetId,
-                  new BigNumber(amount)
-                    .times(from === address ? -1 : 1)
-                    .toFixed()
-                );
-              }
-            },
-          });
-        }
-      }
-    }
+function formatOperationType(type: string, imReciever: boolean) {
+  if (type === "transaction" || type === "transfer") {
+    type = `${imReciever ? "↓" : "↑"}_${type}`;
   }
 
-  if (tzktGroup) {
-    for (const tzktOp of tzktGroup) {
-      if (tzktOp.type === "transaction" && tzktOp.status === "applied") {
-        if (
-          (tzktOp.sender.address === address ||
-            tzktOp.target.address === address) &&
-          isPositiveNumber(tzktOp.amount)
-        ) {
-          appendToDiff(
-            "tez",
-            new BigNumber(tzktOp.amount)
-              .times(tzktOp.sender.address === address ? -1 : 1)
-              .toFixed()
-          );
-        }
+  const operationTypeText = type
+    .split("_")
+    .map((w) => `${w.charAt(0).toUpperCase()}${w.substring(1)}`)
+    .join(" ");
 
-        if (tzktOp.parameters) {
-          try {
-            tryParseTokenTransfers(
-              JSON.parse(tzktOp.parameters),
-              tzktOp.target.address,
-              {
-                onTransfer: (assetId, from, to, amount) => {
-                  if (from === address || to === address) {
-                    appendToDiff(
-                      assetId,
-                      new BigNumber(amount)
-                        .times(from === address ? -1 : 1)
-                        .toFixed()
-                    );
-                  }
-                },
-              }
-            );
-          } catch {}
-        }
-      }
-    }
-  }
-
-  if (bcdTokenTransfers) {
-    for (const tokenTrans of bcdTokenTransfers) {
-      if (
-        tokenTrans.status === "applied" &&
-        (tokenTrans.from === address || tokenTrans.to === address)
-      ) {
-        appendToDiff(
-          toTokenId(tokenTrans.contract, tokenTrans.token_id),
-          new BigNumber(tokenTrans.amount)
-            .times(tokenTrans.from === address ? -1 : 1)
-            .toFixed()
-        );
-      }
-    }
-  }
-
-  const flatted: Record<string, string> = {};
-  for (const assetId of Object.keys(diffs)) {
-    flatted[assetId] = diffs[assetId]
-      .reduce((sum, val) => sum.plus(val), new BigNumber(0))
-      .toFixed();
-  }
-
-  const { tez, ...rest } = flatted;
-  const result: MoneyDiff[] = [];
-
-  if (tez) {
-    result.push({
-      assetId: "tez",
-      diff: tez,
-    });
-  }
-
-  result.push(
-    ...Object.keys(rest).map((assetId) => ({ assetId, diff: rest[assetId] }))
+  return (
+    <>
+      {type === "interaction" && (
+        <ClipboardIcon className="mr-1 h-3 w-auto stroke-current" />
+      )}
+      {operationTypeText}
+    </>
   );
-
-  return result;
-}
-
-function tryParseTokenTransfers(
-  parameters: any,
-  destination: string,
-  opts: {
-    onTransfer: (
-      tokenId: string,
-      from: string,
-      to: string,
-      amount: string
-    ) => void;
-  }
-) {
-  // FA1.2
-  try {
-    const { entrypoint, value } = parameters;
-    if (entrypoint === "transfer") {
-      let from, to, amount: string | undefined;
-
-      const { args: x } = value as any;
-      if (typeof x[0].string === "string") {
-        from = x[0].string;
-      }
-      const { args: y } = x[1];
-      if (typeof y[0].string === "string") {
-        to = y[0].string;
-      }
-      if (typeof y[1].int === "string") {
-        amount = y[1].int;
-      }
-
-      if (from && to && amount) {
-        opts.onTransfer(toTokenId(destination), from, to, amount);
-      }
-    }
-  } catch {}
-
-  // FA2
-  try {
-    const { entrypoint, value } = parameters;
-    if (entrypoint === "transfer") {
-      for (const { args: x } of value as any) {
-        let tokenId, from, to, amount: string | undefined;
-
-        if (typeof x[0].string === "string") {
-          from = x[0].string;
-        }
-        for (const { args: y } of x[1]) {
-          if (typeof y[0].string === "string") {
-            to = y[0].string;
-          }
-          if (typeof y[1].args[0].int === "string") {
-            tokenId = toTokenId(destination, y[1].args[0].int);
-          }
-          if (typeof y[1].args[1].int === "string") {
-            amount = y[1].args[1].int;
-          }
-
-          if (tokenId && from && to && amount) {
-            opts.onTransfer(tokenId, from, to, amount);
-          }
-        }
-      }
-    }
-  } catch {}
-}
-
-function isPositiveNumber(val: BigNumber.Value) {
-  return new BigNumber(val).isGreaterThan(0);
-}
-
-function toTokenId(contractAddress: string, tokenId: string | number = 0) {
-  return `${contractAddress}_${tokenId}`;
 }
