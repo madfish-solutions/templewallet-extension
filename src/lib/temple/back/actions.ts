@@ -1,3 +1,4 @@
+import { DerivationType } from "@taquito/ledger-signer";
 import { TezosOperationError } from "@taquito/taquito";
 import {
   TempleDAppMessageType,
@@ -209,11 +210,16 @@ export function importWatchOnlyAccount(address: string, chainId?: string) {
   });
 }
 
-export function craeteLedgerAccount(name: string, derivationPath?: string) {
+export function craeteLedgerAccount(
+  name: string,
+  derivationPath?: string,
+  derivationType?: DerivationType
+) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.createLedgerAccount(
       name,
-      derivationPath
+      derivationPath,
+      derivationType
     );
     accountsUpdated(updatedAccounts);
   });
