@@ -228,6 +228,7 @@ export function craeteLedgerAccount(
 export function updateSettings(settings: Partial<TempleSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
+    createCustomNetworksSnapshot(updatedSettings);
     settingsUpdated(updatedSettings);
   });
 }
@@ -670,6 +671,16 @@ export async function processBeacon(
     };
   }
   return { payload: resMsg };
+}
+
+async function createCustomNetworksSnapshot(settings: TempleSettings) {
+  try {
+    if (settings.customNetworks) {
+      await browser.storage.local.set({
+        custom_networks_snapshot: settings.customNetworks,
+      });
+    }
+  } catch {}
 }
 
 function getErrorData(err: any) {
