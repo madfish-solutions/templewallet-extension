@@ -104,7 +104,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     fungible: true,
     iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
     status: "displayed",
-  },  
+  },
   {
     type: TempleAssetType.FA1_2,
     address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
@@ -217,7 +217,10 @@ const FA12_METHODS_ASSERTIONS = [
   },
   {
     name: "getTotalSupply",
-    assertion: viewSuccessAssertionFactory("getTotalSupply", ["unit"]),
+    assertion: signatureAssertionFactory("getTotalSupply", [
+      "unit",
+      "contract",
+    ]),
   },
 ];
 
