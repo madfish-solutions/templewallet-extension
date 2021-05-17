@@ -51,7 +51,7 @@ export async function getCurrentPermission(
   const dApp = await getDApp(origin);
   const permission = dApp
     ? {
-        rpc: getNetworkRPC(dApp.network),
+        rpc: await getNetworkRPC(dApp.network),
         pkh: dApp.pkh,
         publicKey: dApp.publicKey,
       }
@@ -75,7 +75,7 @@ export async function requestPermission(
     throw new Error(TempleDAppErrorType.InvalidParams);
   }
 
-  const networkRpc = getNetworkRPC(req.network);
+  const networkRpc = await getNetworkRPC(req.network);
   const dApp = await getDApp(origin);
 
   if (
@@ -166,7 +166,7 @@ export async function requestOperation(
 
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
-    const networkRpc = getNetworkRPC(dApp.network);
+    const networkRpc = await getNetworkRPC(dApp.network);
 
     await requestConfirm({
       id,
@@ -261,7 +261,7 @@ export async function requestSign(
 
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
-    const networkRpc = getNetworkRPC(dApp.network);
+    const networkRpc = await getNetworkRPC(dApp.network);
 
     let preview: any;
     try {
@@ -336,7 +336,7 @@ export async function requestBroadcast(
   }
 
   try {
-    const rpc = new RpcClient(getNetworkRPC(dApp.network));
+    const rpc = new RpcClient(await getNetworkRPC(dApp.network));
     const opHash = await rpc.injectOperation(req.signedOpBytes);
     return {
       type: TempleDAppMessageType.BroadcastResponse,
@@ -508,10 +508,39 @@ async function requestConfirm({
   const stopTimeout = () => clearTimeout(t);
 }
 
-export function getNetworkRPC(net: TempleDAppNetwork) {
-  return typeof net === "string"
-    ? NETWORKS.find((n) => n.id === net)!.rpcBaseURL
-    : removeLastSlash(net.rpc);
+export async function getNetworkRPC(net: TempleDAppNetwork) {
+  const targetRpc =
+    typeof net === "string"
+      ? NETWORKS.find((n) => n.id === net)!.rpcBaseURL
+      : removeLastSlash(net.rpc);
+
+  try {
+    const current = await getCurrentTempleNetwork();
+    const [currentChainId, targetChainId] = await Promise.all([
+      loadChainId(current.rpcBaseURL),
+      loadChainId(targetRpc),
+    ]);
+
+    return currentChainId === targetChainId ? current.rpcBaseURL : targetRpc;
+  } catch {
+    return targetRpc;
+  }
+}
+
+async function getCurrentTempleNetwork() {
+  const {
+    network_id: networkId,
+    custom_networks_snapshot: customNetworksSnapshot,
+  } = await browser.storage.local.get([
+    "network_id",
+    "custom_networks_snapshot",
+  ]);
+
+  return (
+    [...NETWORKS, ...(customNetworksSnapshot ?? [])].find(
+      (n) => n.id === networkId
+    ) ?? NETWORKS[0]
+  );
 }
 
 function isAllowedNetwork(net: TempleDAppNetwork) {
