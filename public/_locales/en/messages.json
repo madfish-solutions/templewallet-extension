@@ -1759,5 +1759,11 @@
   },
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"
+  },
+  "recentDestinations": {
+    "message": "Recent destinations"
+  },
+  "unknownAccount": {
+    "message": "Unknown account"
   }
 }
