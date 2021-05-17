@@ -877,6 +877,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
               accounts={allAccounts}
               activeAccount={acc.publicKeyHash}
               asset={localAsset}
+              namesVisible
               onChange={handleAccountClick}
               titleI18nKey="sendToMyAccounts"
               descriptionI18nKey="clickOnRecipientAccount"
@@ -900,6 +901,7 @@ type AccountSelectProps = {
   onChange: (accountPkh: string) => void;
   titleI18nKey: string;
   descriptionI18nKey?: string;
+  namesVisible?: boolean;
 };
 
 const AccountSelect: FC<AccountSelectProps> = ({
@@ -909,6 +911,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
   onChange,
   titleI18nKey,
   descriptionI18nKey,
+  namesVisible,
 }) => (
   <div className="my-6 flex flex-col">
     <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
@@ -942,6 +945,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
             isLast={i === accounts.length - 1}
             onSelect={onChange}
             asset={asset}
+            nameVisible={namesVisible}
           />
         ))}
     </div>
@@ -953,6 +957,7 @@ type AccountSelectOptionProps = {
   isLast: boolean;
   onSelect: (accountPkh: string) => void;
   asset: TempleAsset;
+  nameVisible?: boolean;
 };
 
 const AccountSelectOption: React.FC<AccountSelectOptionProps> = ({
@@ -960,6 +965,7 @@ const AccountSelectOption: React.FC<AccountSelectOptionProps> = ({
   isLast,
   onSelect,
   asset,
+  nameVisible,
 }) => {
   const handleClick = useCallback(
     () => onSelect(account.publicKeyHash),
@@ -993,13 +999,15 @@ const AccountSelectOption: React.FC<AccountSelectOptionProps> = ({
       />
 
       <div className="flex flex-col items-start ml-2">
-        <div className="flex flex-wrap items-center">
-          <Name className="text-sm font-medium leading-tight">
-            {account.name}
-          </Name>
+        {nameVisible && (
+          <div className="flex flex-wrap items-center">
+            <Name className="text-sm font-medium leading-tight">
+              {account.name}
+            </Name>
 
-          <AccountTypeBadge account={account} />
-        </div>
+            <AccountTypeBadge account={account} />
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center mt-1">
           <div className={classNames("text-xs leading-none", "text-gray-700")}>
