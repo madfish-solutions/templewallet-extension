@@ -514,15 +514,19 @@ export async function getNetworkRPC(net: TempleDAppNetwork) {
       ? NETWORKS.find((n) => n.id === net)!.rpcBaseURL
       : removeLastSlash(net.rpc);
 
-  try {
-    const current = await getCurrentTempleNetwork();
-    const [currentChainId, targetChainId] = await Promise.all([
-      loadChainId(current.rpcBaseURL),
-      loadChainId(targetRpc),
-    ]);
+  if (typeof net === "string") {
+    try {
+      const current = await getCurrentTempleNetwork();
+      const [currentChainId, targetChainId] = await Promise.all([
+        loadChainId(current.rpcBaseURL),
+        loadChainId(targetRpc),
+      ]);
 
-    return currentChainId === targetChainId ? current.rpcBaseURL : targetRpc;
-  } catch {
+      return currentChainId === targetChainId ? current.rpcBaseURL : targetRpc;
+    } catch {
+      return targetRpc;
+    }
+  } else {
     return targetRpc;
   }
 }
