@@ -17,3 +17,4 @@ export * from "lib/temple/front/tokens";
 export * from "lib/temple/front/assets";
 export * from "lib/temple/front/expenses";
 export * from "lib/temple/front/blockexplorer";
+export * from "lib/temple/front/address-book";
