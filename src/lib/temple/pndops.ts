@@ -16,7 +16,6 @@ export async function append(
   netId: string,
   ops: TemplePendingOperation[]
 ) {
-  console.info(ops);
   const currentItems = await getAll(accPkh, netId);
   await set(accPkh, netId, [...ops, ...currentItems]);
 }

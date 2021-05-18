@@ -1582,6 +1582,9 @@
   "transfer": {
     "message": "Transfer"
   },
+  "origination": {
+    "message": "Origination"
+  },
   "transferFromSmb": {
     "message": "from $sender$",
     "placeholders": {

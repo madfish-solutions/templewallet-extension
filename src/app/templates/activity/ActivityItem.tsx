@@ -10,7 +10,12 @@ import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
 import { ReactComponent as ClipboardIcon } from "app/icons/clipboard.svg";
 import HashChip from "app/templates/HashChip";
 import { T, t, getDateFnsLocale, TProps } from "lib/i18n/react";
-import { parseMoneyDiffs } from "lib/temple/activity";
+import {
+  OpStackItem,
+  OpStackItemType,
+  parseMoneyDiffs,
+  parseOpStack,
+} from "lib/temple/activity";
 import { useExplorerBaseUrls } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 
@@ -41,6 +46,11 @@ const ActivityItem = memo<ActivityItemProps>(
 
     const moneyDiffs = useMemo(
       () => parseMoneyDiffs(operation, address),
+      [operation, address]
+    );
+
+    const opStack = useMemo(
+      () => parseOpStack(operation, address),
       [operation, address]
     );
 
@@ -92,7 +102,7 @@ const ActivityItem = memo<ActivityItemProps>(
 
         <div className="flex items-stretch">
           <div className="flex flex-col pt-2">
-            <OpStack opStack={[1, 2, 3]} className="mb-2" />
+            <OpStack opStack={opStack} className="mb-2" />
 
             {status && (
               <div className="mb-px text-xs font-light leading-none">
@@ -134,7 +144,7 @@ const ActivityItem = memo<ActivityItemProps>(
 export default ActivityItem;
 
 type OpStackProps = {
-  opStack: any[];
+  opStack: OpStackItem[];
   className?: string;
 };
 
@@ -154,14 +164,14 @@ const OpStack = memo<OpStackProps>(({ opStack, className }) => {
 
   return (
     <div className={classNames("flex flex-col", className)}>
-      {base.map((_, i) => (
-        <OpStackItem key={i} />
+      {base.map((item, i) => (
+        <OpStackItemComponent key={i} item={item} />
       ))}
 
       {expanded && (
         <>
-          {rest.map((_, i) => (
-            <OpStackItem key={i} />
+          {rest.map((item, i) => (
+            <OpStackItemComponent key={i} item={item} />
           ))}
         </>
       )}
@@ -190,26 +200,98 @@ const OpStack = memo<OpStackProps>(({ opStack, className }) => {
   );
 });
 
-type OpStackItemProps = {};
+type OpStackItemProps = {
+  item: OpStackItem;
+};
 
-const OpStackItem = memo<OpStackItemProps>(() => (
-  <div className="flex flex-wrap items-center">
-    <div
-      className={classNames(
-        "flex items-center",
-        "text-xs text-blue-600 opacity-75"
+const OpStackItemComponent = memo<OpStackItemProps>(({ item }) => {
+  const toRender = (() => {
+    switch (item.type) {
+      case OpStackItemType.Delegation:
+        return {
+          base: (
+            <>
+              <T id="delegation" />
+            </>
+          ),
+          argsI18nKey: "delegationToSmb",
+          args: [item.to],
+        };
+
+      case OpStackItemType.Origination:
+        return {
+          base: (
+            <>
+              <T id="origination" />
+            </>
+          ),
+        };
+
+      case OpStackItemType.Interaction:
+        return {
+          base: (
+            <>
+              <ClipboardIcon className="mr-1 h-3 w-auto stroke-current" />
+              <T id="interaction" />
+            </>
+          ),
+          argsI18nKey: "interactionWithContract",
+          args: [item.with],
+        };
+
+      case OpStackItemType.TransferFrom:
+        return {
+          base: (
+            <>
+              ↓ <T id="transfer" />
+            </>
+          ),
+          argsI18nKey: "transferFromSmb",
+          args: [item.from],
+        };
+
+      case OpStackItemType.TransferTo:
+        return {
+          base: (
+            <>
+              ↑ <T id="transfer" />
+            </>
+          ),
+          argsI18nKey: "transferToSmb",
+          args: [item.to],
+        };
+
+      case OpStackItemType.Other:
+        return {
+          base: item.name
+            .split("_")
+            .map((w) => `${w.charAt(0).toUpperCase()}${w.substring(1)}`)
+            .join(" "),
+        };
+    }
+  })();
+
+  return (
+    <div className="flex flex-wrap items-center">
+      <div
+        className={classNames(
+          "flex items-center",
+          "text-xs text-blue-600 opacity-75"
+        )}
+      >
+        {toRender.base}
+      </div>
+
+      {toRender.argsI18nKey && (
+        <StackItemArgs
+          i18nKey={toRender.argsI18nKey}
+          args={toRender.args}
+          className="ml-1"
+        />
       )}
-    >
-      {formatOperationType("interaction", true)}
     </div>
-
-    <StackItem
-      i18nKey="transferFromSmb"
-      args={["KT1Wa8yqRBpFCusJWgcQyjhRz7hUQAmFxW7j"]}
-      className="ml-1"
-    />
-  </div>
-));
+  );
+});
 
 type TimeProps = {
   children: () => React.ReactElement;
@@ -231,47 +313,29 @@ const Time: React.FC<TimeProps> = ({ children }) => {
   return value;
 };
 
-type StackItemProps = {
+type StackItemArgsProps = {
   i18nKey: TProps["id"];
   args: string[];
   className?: string;
 };
 
-const StackItem = memo<StackItemProps>(({ i18nKey, args, className }) => (
-  <span className={classNames("font-light text-gray-500 text-xs", className)}>
-    <T
-      id={i18nKey}
-      substitutions={args.map((value, index) => (
-        <span key={index}>
-          <HashChip
-            className="text-blue-600 opacity-75"
-            key={index}
-            hash={value}
-            type="link"
-          />
-          {index === args.length - 1 ? null : ", "}
-        </span>
-      ))}
-    />
-  </span>
-));
-
-function formatOperationType(type: string, imReciever: boolean) {
-  if (type === "transaction" || type === "transfer") {
-    type = `${imReciever ? "↓" : "↑"}_${type}`;
-  }
-
-  const operationTypeText = type
-    .split("_")
-    .map((w) => `${w.charAt(0).toUpperCase()}${w.substring(1)}`)
-    .join(" ");
-
-  return (
-    <>
-      {type === "interaction" && (
-        <ClipboardIcon className="mr-1 h-3 w-auto stroke-current" />
-      )}
-      {operationTypeText}
-    </>
-  );
-}
+const StackItemArgs = memo<StackItemArgsProps>(
+  ({ i18nKey, args, className }) => (
+    <span className={classNames("font-light text-gray-500 text-xs", className)}>
+      <T
+        id={i18nKey}
+        substitutions={args.map((value, index) => (
+          <span key={index}>
+            <HashChip
+              className="text-blue-600 opacity-75"
+              key={index}
+              hash={value}
+              type="link"
+            />
+            {index === args.length - 1 ? null : ", "}
+          </span>
+        ))}
+      />
+    </span>
+  )
+);

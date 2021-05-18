@@ -126,16 +126,27 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
   const { tez, ...rest } = flatted;
   const result: MoneyDiff[] = [];
 
-  if (tez) {
+  if (tez && isValidDiff(tez)) {
     result.push({
       assetId: "tez",
       diff: tez,
     });
   }
 
-  result.push(
-    ...Object.keys(rest).map((assetId) => ({ assetId, diff: rest[assetId] }))
-  );
+  for (const assetId of Object.keys(rest)) {
+    const diff = rest[assetId];
+    if (isValidDiff(diff)) {
+      result.push({
+        assetId,
+        diff,
+      });
+    }
+  }
 
   return result;
+}
+
+function isValidDiff(val: BigNumber.Value) {
+  const bn = new BigNumber(val);
+  return !bn.isNaN() && bn.isFinite() && !bn.isZero();
 }
