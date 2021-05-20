@@ -5,6 +5,7 @@ import classNames from "clsx";
 
 import { Button } from "app/atoms/Button";
 import Spinner from "app/atoms/Spinner";
+import { useAppEnv } from "app/env";
 import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
 import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
 import BakingHistoryItem from "app/pages/Explore/BakingHistoryItem";
@@ -46,6 +47,7 @@ const BakingSection = memo(() => {
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
   const canDelegate = acc.type !== TempleAccountType.WatchOnly;
   const chainId = useChainId(true);
+  const { popup } = useAppEnv();
 
   const tippyProps = {
     trigger: "mouseenter",
@@ -204,9 +206,10 @@ const BakingSection = memo(() => {
               .plus(y0);
             fallbackRewardsValue = y2;
           } else if (leftValueExists || rightValueExists) {
-            fallbackRewardsValue = rewardsPerEventHistory[
-              leftValueExists ? leftValueIndex : rightValueIndex
-            ][key]!;
+            fallbackRewardsValue =
+              rewardsPerEventHistory[
+                leftValueExists ? leftValueIndex : rightValueIndex
+              ][key]!;
           }
           return {
             ...fallbackRewardsItem,
@@ -272,7 +275,10 @@ const BakingSection = memo(() => {
               </div>
               <BakerBanner
                 bakerPkh={myBakerPkh}
-                style={{ maxWidth: undefined, width: "22.5rem" }}
+                style={{
+                  maxWidth: undefined,
+                  width: popup ? "100%" : "22.5rem",
+                }}
               />
             </>
           ) : (
@@ -353,6 +359,7 @@ const BakingSection = memo(() => {
       loadingBakingHistory,
       bakingHistory,
       fallbackRewardsPerEvents,
+      popup,
     ]
   );
 });
