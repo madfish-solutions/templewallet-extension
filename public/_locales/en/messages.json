@@ -1069,6 +1069,12 @@
   "derivationPath": {
     "message": "Derivation path"
   },
+  "derivationType": {
+    "message": "Derivation type"
+  },
+  "derivationTypeFieldDescription": {
+    "message": "The elliptical curve that the account will use."
+  },
   "seedPhrase": {
     "message": "Seed Phrase"
   },
@@ -1825,5 +1831,11 @@
   },
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"
+  },
+  "recentDestinations": {
+    "message": "Recent destinations"
+  },
+  "unknownAccount": {
+    "message": "Unknown account"
   }
 }

@@ -42,7 +42,8 @@ const CONFIRM_WINDOW_HEIGHT = 632;
 const AUTODECLINE_AFTER = 120_000;
 const STORAGE_KEY = "dapp_sessions";
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
-const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
+const TEZ_MSG_SIGN_PATTERN =
+  /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
 
 export async function getCurrentPermission(
   origin: string
@@ -50,7 +51,7 @@ export async function getCurrentPermission(
   const dApp = await getDApp(origin);
   const permission = dApp
     ? {
-        rpc: getNetworkRPC(dApp.network),
+        rpc: await getNetworkRPC(dApp.network),
         pkh: dApp.pkh,
         publicKey: dApp.publicKey,
       }
@@ -74,7 +75,7 @@ export async function requestPermission(
     throw new Error(TempleDAppErrorType.InvalidParams);
   }
 
-  const networkRpc = getNetworkRPC(req.network);
+  const networkRpc = await getNetworkRPC(req.network);
   const dApp = await getDApp(origin);
 
   if (
@@ -110,11 +111,8 @@ export async function requestPermission(
           confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest &&
           confirmReq?.id === id
         ) {
-          const {
-            confirmed,
-            accountPublicKeyHash,
-            accountPublicKey,
-          } = confirmReq;
+          const { confirmed, accountPublicKeyHash, accountPublicKey } =
+            confirmReq;
           if (confirmed && accountPublicKeyHash && accountPublicKey) {
             await setDApp(origin, {
               network: req.network,
@@ -168,7 +166,7 @@ export async function requestOperation(
 
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
-    const networkRpc = getNetworkRPC(dApp.network);
+    const networkRpc = await getNetworkRPC(dApp.network);
 
     await requestConfirm({
       id,
@@ -263,7 +261,7 @@ export async function requestSign(
 
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
-    const networkRpc = getNetworkRPC(dApp.network);
+    const networkRpc = await getNetworkRPC(dApp.network);
 
     let preview: any;
     try {
@@ -338,7 +336,7 @@ export async function requestBroadcast(
   }
 
   try {
-    const rpc = new RpcClient(getNetworkRPC(dApp.network));
+    const rpc = new RpcClient(await getNetworkRPC(dApp.network));
     const opHash = await rpc.injectOperation(req.signedOpBytes);
     return {
       type: TempleDAppMessageType.BroadcastResponse,
@@ -510,10 +508,43 @@ async function requestConfirm({
   const stopTimeout = () => clearTimeout(t);
 }
 
-export function getNetworkRPC(net: TempleDAppNetwork) {
-  return typeof net === "string"
-    ? NETWORKS.find((n) => n.id === net)!.rpcBaseURL
-    : net.rpc;
+export async function getNetworkRPC(net: TempleDAppNetwork) {
+  const targetRpc =
+    typeof net === "string"
+      ? NETWORKS.find((n) => n.id === net)!.rpcBaseURL
+      : removeLastSlash(net.rpc);
+
+  if (typeof net === "string") {
+    try {
+      const current = await getCurrentTempleNetwork();
+      const [currentChainId, targetChainId] = await Promise.all([
+        loadChainId(current.rpcBaseURL),
+        loadChainId(targetRpc),
+      ]);
+
+      return currentChainId === targetChainId ? current.rpcBaseURL : targetRpc;
+    } catch {
+      return targetRpc;
+    }
+  } else {
+    return targetRpc;
+  }
+}
+
+async function getCurrentTempleNetwork() {
+  const {
+    network_id: networkId,
+    custom_networks_snapshot: customNetworksSnapshot,
+  } = await browser.storage.local.get([
+    "network_id",
+    "custom_networks_snapshot",
+  ]);
+
+  return (
+    [...NETWORKS, ...(customNetworksSnapshot ?? [])].find(
+      (n) => n.id === networkId
+    ) ?? NETWORKS[0]
+  );
 }
 
 function isAllowedNetwork(net: TempleDAppNetwork) {
@@ -524,6 +555,10 @@ function isAllowedNetwork(net: TempleDAppNetwork) {
 
 function isNetworkEquals(fNet: TempleDAppNetwork, sNet: TempleDAppNetwork) {
   return typeof fNet !== "string" && typeof sNet !== "string"
-    ? fNet?.rpc === sNet?.rpc
+    ? removeLastSlash(fNet.rpc) === removeLastSlash(sNet.rpc)
     : fNet === sNet;
+}
+
+function removeLastSlash(str: string) {
+  return str.endsWith("/") ? str.slice(0, -1) : str;
 }

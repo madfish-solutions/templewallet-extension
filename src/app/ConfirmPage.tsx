@@ -164,14 +164,12 @@ const ConfirmDAppForm: FC = () => {
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
-  const [
-    modifiedStorageLimitValue,
-    setModifiedStorageLimitValue,
-  ] = useSafeState(
-    (payload.type === "confirm_operations" &&
-      payload.estimates?.[0].storageLimit) ||
-      0
-  );
+  const [modifiedStorageLimitValue, setModifiedStorageLimitValue] =
+    useSafeState(
+      (payload.type === "confirm_operations" &&
+        payload.estimates?.[0].storageLimit) ||
+        0
+    );
 
   const confirm = useCallback(
     async (confirmed: boolean) => {
