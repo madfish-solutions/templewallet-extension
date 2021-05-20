@@ -1070,6 +1070,12 @@
   "derivationPath": {
     "message": "Derivation path"
   },
+  "derivationType": {
+    "message": "Derivation type"
+  },
+  "derivationTypeFieldDescription": {
+    "message": "The elliptical curve that the account will use."
+  },
   "seedPhrase": {
     "message": "Seed Phrase"
   },
@@ -1822,5 +1828,11 @@
   },
   "noFavoriteDApps": {
     "message": "You don't have any favorite dApps"
+  },
+  "recentDestinations": {
+    "message": "Recent destinations"
+  },
+  "unknownAccount": {
+    "message": "Unknown account"
   }
 }
