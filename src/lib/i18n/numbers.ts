@@ -78,7 +78,11 @@ export function toLocalFixed(
 }
 
 export function toShortened(value: BigNumber.Value) {
-  let bn = new BigNumber(value).integerValue();
+  let bn = new BigNumber(value);
+  if (bn.abs().lt(1)) {
+    return toLocalFixed(bn.toPrecision(1));
+  }
+  bn = bn.integerValue();
   const formats = ["thousandFormat", "millionFormat", "billionFormat"];
   let formatIndex = -1;
   while (bn.abs().gte(1000) && formatIndex < formats.length - 1) {

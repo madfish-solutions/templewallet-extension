@@ -1,4 +1,6 @@
-import React, { FC, SVGProps, useCallback } from "react";
+import React, { FC, SVGProps, useCallback, useMemo } from "react";
+
+import BigNumber from "bignumber.js";
 
 import Money from "app/atoms/Money";
 import { useAppEnv } from "app/env";
@@ -6,9 +8,9 @@ import { ReactComponent as LockIcon } from "app/icons/lock.svg";
 import { ReactComponent as TagIcon } from "app/icons/tag.svg";
 import DAppIcon from "app/templates/DAppsList/DAppIcon";
 import StarButton from "app/templates/DAppsList/StarButton";
-import InUSD from "app/templates/InUSD";
 import { CustomDAppInfo } from "lib/custom-dapps-api";
 import { t } from "lib/i18n/react";
+import { useTezosUSDPrice } from "lib/temple/front";
 
 type DAppItemProps = CustomDAppInfo & {
   onStarClick: (newIsFavorite: boolean, slug: string) => void;
@@ -31,6 +33,13 @@ const DAppItem: FC<DAppItemProps> = ({
   const handleStarClick = useCallback(() => {
     onStarClick(!isFavorite, slug);
   }, [isFavorite, onStarClick, slug]);
+  const { data: tzUsdPrice } = useTezosUSDPrice(true);
+  const tvlInTez = useMemo(() => {
+    if (typeof tzUsdPrice === "number") {
+      return new BigNumber(tvl).div(tzUsdPrice).decimalPlaces(6);
+    }
+    return undefined;
+  }, [tzUsdPrice, tvl]);
 
   return (
     <div className="w-full mb-4 flex items-center">
@@ -49,16 +58,17 @@ const DAppItem: FC<DAppItemProps> = ({
           {errorOccurred && (
             <DAppCharacteristic>{"- - - - - - - - -"}</DAppCharacteristic>
           )}
-          {!soon && !errorOccurred && (
+          {!soon && !errorOccurred && tvlInTez && (
             <DAppCharacteristic Icon={LockIcon}>
               ~
               <Money shortened smallFractionFont={false}>
+                {tvlInTez}
+              </Money>
+              {"\u00a0tz = "}~
+              <Money shortened smallFractionFont={false}>
                 {tvl}
               </Money>
-              {"\u00a0tz = "}
-              <InUSD volume={tvl} mainnet shortened smallFractionFont={false}>
-                {(value) => <>~{value}&nbsp;$</>}
-              </InUSD>
+              &nbsp;$
             </DAppCharacteristic>
           )}
         </div>

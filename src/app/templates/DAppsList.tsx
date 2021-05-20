@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useMemo, useState } from "react";
 
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
 import Money from "app/atoms/Money";
@@ -8,7 +9,6 @@ import { ReactComponent as InfoIcon } from "app/icons/info.svg";
 import DAppIcon from "app/templates/DAppsList/DAppIcon";
 import DAppItem from "app/templates/DAppsList/DAppItem";
 import StarButton from "app/templates/DAppsList/StarButton";
-import InUSD from "app/templates/InUSD";
 import SearchField from "app/templates/SearchField";
 import { getDApps } from "lib/custom-dapps-api";
 import { t } from "lib/i18n/react";
@@ -76,6 +76,11 @@ const DAppsList: FC = () => {
       return newSelectedTags;
     });
   }, []);
+
+  const roundedTvl = useMemo(
+    () => new BigNumber(data!.tvl).decimalPlaces(0),
+    [data]
+  );
 
   const featuredDApps = useMemo(() => {
     const topDApps = dApps.filter(({ slug }) =>
@@ -151,18 +156,18 @@ const DAppsList: FC = () => {
           ~<Money cryptoDecimals={0}>{data!.totalTezLocked}</Money>{" "}
           <span>{TEZ_ASSET.symbol}</span>
         </h1>
-        <InUSD volume={data!.tvl} mainnet showCents={false}>
-          {(inUSD) => (
-            <h2
-              className={classNames(
-                popup ? "mb-4" : "mb-6",
-                "text-base text-gray-600 leading-tight"
-              )}
-            >
-              ~{inUSD} $
-            </h2>
+        <h2
+          className={classNames(
+            popup ? "mb-4" : "mb-6",
+            "text-base text-gray-600 leading-tight"
           )}
-        </InUSD>
+        >
+          ~
+          <Money cryptoDecimals={0} smallFractionFont={false}>
+            {roundedTvl}
+          </Money>{" "}
+          $
+        </h2>
         <span className="text-sm text-gray-600 mb-2">{t("promoted")}</span>
         <div
           className={classNames(

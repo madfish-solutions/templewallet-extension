@@ -54,7 +54,10 @@ const Money = memo<MoneyProps>(
     let result = shortened
       ? toShortened(bn)
       : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
-    let indexOfDecimal = result.indexOf(decimal);
+    let indexOfDecimal =
+      result.indexOf(decimal) === -1
+        ? result.indexOf(".")
+        : result.indexOf(decimal);
 
     const tippyClassName = classNames(
       "px-px -mr-px rounded cursor-pointer hover:bg-black",
