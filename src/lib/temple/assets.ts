@@ -104,7 +104,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     fungible: true,
     iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
     status: "displayed",
-  },  
+  },
   {
     type: TempleAssetType.FA1_2,
     address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
@@ -143,7 +143,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     symbol: "USDtz",
     decimals: 6,
     fungible: true,
-    iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
+    iconUrl: browser.runtime.getURL("misc/token-logos/usdtz.png"),
     status: "hidden",
   },
   {
