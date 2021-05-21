@@ -1,3 +1,4 @@
+import { DerivationType } from "@taquito/ledger-signer";
 import { TezosOperationError } from "@taquito/taquito";
 import {
   TempleDAppMessageType,
@@ -209,11 +210,16 @@ export function importWatchOnlyAccount(address: string, chainId?: string) {
   });
 }
 
-export function craeteLedgerAccount(name: string, derivationPath?: string) {
+export function craeteLedgerAccount(
+  name: string,
+  derivationPath?: string,
+  derivationType?: DerivationType
+) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.createLedgerAccount(
       name,
-      derivationPath
+      derivationPath,
+      derivationType
     );
     accountsUpdated(updatedAccounts);
   });
@@ -222,6 +228,7 @@ export function craeteLedgerAccount(name: string, derivationPath?: string) {
 export function updateSettings(settings: Partial<TempleSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
+    createCustomNetworksSnapshot(updatedSettings);
     settingsUpdated(updatedSettings);
   });
 }
@@ -664,6 +671,16 @@ export async function processBeacon(
     };
   }
   return { payload: resMsg };
+}
+
+async function createCustomNetworksSnapshot(settings: TempleSettings) {
+  try {
+    if (settings.customNetworks) {
+      await browser.storage.local.set({
+        custom_networks_snapshot: settings.customNetworks,
+      });
+    }
+  } catch {}
 }
 
 function getErrorData(err: any) {

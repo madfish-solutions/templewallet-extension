@@ -278,15 +278,12 @@ export class Vault {
     return withError(errMessage, async () => {
       const allAccounts = await this.fetchAccounts();
       const signer = await createMemorySigner(accPrivateKey, encPassword);
-      const [
-        realAccPrivateKey,
-        accPublicKey,
-        accPublicKeyHash,
-      ] = await Promise.all([
-        signer.secretKey(),
-        signer.publicKey(),
-        signer.publicKeyHash(),
-      ]);
+      const [realAccPrivateKey, accPublicKey, accPublicKeyHash] =
+        await Promise.all([
+          signer.secretKey(),
+          signer.publicKey(),
+          signer.publicKeyHash(),
+        ]);
 
       const newAccount: TempleAccount = {
         type: TempleAccountType.Imported,
@@ -397,11 +394,18 @@ export class Vault {
     });
   }
 
-  async createLedgerAccount(name: string, derivationPath?: string) {
+  async createLedgerAccount(
+    name: string,
+    derivationPath?: string,
+    derivationType?: DerivationType
+  ) {
     return withError("Failed to connect Ledger account", async () => {
       if (!derivationPath) derivationPath = getMainDerivationPath(0);
 
-      const { signer, cleanup } = await createLedgerSigner(derivationPath);
+      const { signer, cleanup } = await createLedgerSigner(
+        derivationPath,
+        derivationType
+      );
 
       try {
         const accPublicKey = await signer.publicKey();
@@ -412,6 +416,7 @@ export class Vault {
           name,
           publicKeyHash: accPublicKeyHash,
           derivationPath,
+          derivationType,
         };
         const allAccounts = await this.fetchAccounts();
         const newAllAcounts = concatAccount(allAccounts, newAccount);
@@ -536,6 +541,7 @@ export class Vault {
         const publicKey = await this.revealPublicKey(accPublicKeyHash);
         return createLedgerSigner(
           acc.derivationPath,
+          acc.derivationType,
           publicKey,
           accPublicKeyHash
         );
@@ -651,9 +657,8 @@ const MIGRATIONS = [
       ]);
 
       const tokensStrgKey = `tokens_${chainId}`;
-      const {
-        [tokensStrgKey]: existingTokens = [],
-      } = await browser.storage.local.get([tokensStrgKey]);
+      const { [tokensStrgKey]: existingTokens = [] } =
+        await browser.storage.local.get([tokensStrgKey]);
 
       await browser.storage.local.set({
         [tokensStrgKey]: mergeAssets(
@@ -706,6 +711,7 @@ async function createMemorySigner(privateKey: string, encPassword?: string) {
 
 async function createLedgerSigner(
   derivationPath: string,
+  derivationType?: DerivationType,
   publicKey?: string,
   publicKeyHash?: string
 ) {
@@ -729,7 +735,7 @@ async function createLedgerSigner(
     transport,
     removeMFromDerivationPath(derivationPath),
     true,
-    DerivationType.ED25519,
+    derivationType,
     publicKey,
     publicKeyHash
   );

@@ -44,13 +44,13 @@ const localeOptions: LocaleOption[] = [
   {
     code: "zh_CN",
     flagName: "cn",
-    label: "Chinese ‒ China (普通话)",
+    label: "Chinese ‒ Simplified (简体中文)",
     disabled: false,
   },
   {
     code: "zh_TW",
     flagName: "tw",
-    label: "Chinese ‒ Taiwan (臺灣話)",
+    label: "Chinese ‒ Traditional (繁體中文)",
     disabled: false,
   },
   {
