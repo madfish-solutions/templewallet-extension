@@ -9,7 +9,7 @@ export const NETWORKS: TempleNetwork[] = [
     description: "Tezos mainnet",
     lambdaContract: "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE",
     type: "main",
-    rpcBaseURL: "https://rpc.tzbeta.net",
+    rpcBaseURL: "https://mainnet.point.ninja",
     color: "#83b300",
     disabled: false,
   },
