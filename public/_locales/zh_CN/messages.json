@@ -1135,9 +1135,13 @@
   "inUSD": {
     "message": "以USD计"
   },
-  "inXTZ": {
-    "message": "以XTZ计",
-    "description": "ꜩ = asset symbol, like USD"
+  "inAsset": {
+    "message": "以$assetSymbol$计",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "amountPlaceholder": {
     "message": "例如：123.45"

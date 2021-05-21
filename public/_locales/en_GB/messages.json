@@ -1135,9 +1135,13 @@
   "inUSD": {
     "message": "in USD"
   },
-  "inXTZ": {
-    "message": "in ꜩ",
-    "description": "ꜩ = asset symbol, like USD"
+  "inAsset": {
+    "message": "in $assetSymbol$",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "amountPlaceholder": {
     "message": "e.g. 123.45"
