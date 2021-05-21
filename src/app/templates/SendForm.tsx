@@ -71,7 +71,7 @@ import {
   useRelevantAccounts,
   useTezos,
   useTezosDomainsClient,
-  useUSDPrice,
+  useUSDPrices,
   useNetwork,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
@@ -137,7 +137,7 @@ type FormProps = {
 
 const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
-  const tezPrice = useUSDPrice();
+  const { tezPrice } = useUSDPrices();
 
   const allAccounts = useRelevantAccounts();
   const network = useNetwork();
@@ -254,10 +254,10 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     [toFilledWithAddress, toFilledWithDomain, resolvedAddress]
   );
 
-  const toResolved = useMemo(() => resolvedAddress || toValue, [
-    resolvedAddress,
-    toValue,
-  ]);
+  const toResolved = useMemo(
+    () => resolvedAddress || toValue,
+    [resolvedAddress, toValue]
+  );
 
   const filledAccount = useMemo(
     () =>
