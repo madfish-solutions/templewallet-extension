@@ -92,7 +92,7 @@ const ActivityItem = memo<ActivityItemProps>(
           {explorerBaseUrl && (
             <OpenInExplorerChip
               baseUrl={explorerBaseUrl}
-              opHash={hash}
+              hash={hash}
               className="mr-2"
             />
           )}

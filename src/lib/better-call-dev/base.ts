@@ -1,5 +1,4 @@
 import makeBuildQueryFn from "lib/makeBuildQueryFn";
-
 import { TempleChainId } from "lib/temple/types";
 
 export const BASE_URL = "https://api.better-call.dev/v1";

@@ -217,7 +217,10 @@ const FA12_METHODS_ASSERTIONS = [
   },
   {
     name: "getTotalSupply",
-    assertion: viewSuccessAssertionFactory("getTotalSupply", ["unit"]),
+    assertion: signatureAssertionFactory("getTotalSupply", [
+      "unit",
+      "contract",
+    ]),
   },
 ];
 

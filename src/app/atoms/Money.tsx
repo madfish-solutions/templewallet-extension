@@ -20,6 +20,7 @@ type MoneyProps = {
   fiat?: boolean;
   cryptoDecimals?: number;
   roundingMode?: BigNumber.RoundingMode;
+  smallFractionFont?: boolean;
   tooltip?: boolean;
 };
 
@@ -32,6 +33,7 @@ const Money = memo<MoneyProps>(
     fiat,
     cryptoDecimals = DEFAULT_CRYPTO_DECIMALS,
     roundingMode = BigNumber.ROUND_DOWN,
+    smallFractionFont = true,
     tooltip,
   }) => {
     const bn = new BigNumber(children);
@@ -82,7 +84,7 @@ const Money = memo<MoneyProps>(
             showAmountTooltip
           >
             {result.slice(0, indexOfDecimal + 1)}
-            <span style={{ fontSize: "0.9em" }}>
+            <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
               {result.slice(indexOfDecimal + 1, result.length)}
               <span className="opacity-75 tracking-tighter">...</span>
             </span>
@@ -97,7 +99,7 @@ const Money = memo<MoneyProps>(
             className={tippyClassName}
           >
             {result.slice(0, indexOfDecimal + 1)}
-            <span style={{ fontSize: "0.9em" }}>
+            <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
               {result.slice(indexOfDecimal + 1, result.length)}
             </span>
           </FullAmountTippy>
