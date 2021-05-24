@@ -134,7 +134,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
           <ActionButton
             label={<T id="swap" />}
             Icon={SwapIcon}
-            href="/"
+            href="/swap"
             disabled={!canSend}
             tippyProps={tippyProps}
           />
