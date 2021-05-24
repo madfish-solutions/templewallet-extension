@@ -8,6 +8,7 @@ import {
 } from "@temple-wallet/dapp/dist/types";
 import { browser, Runtime } from "webextension-polyfill-ts";
 
+import { addLocalOperation } from "lib/temple/activity";
 import {
   getCurrentPermission,
   requestPermission,
@@ -33,7 +34,6 @@ import {
 import { Vault } from "lib/temple/back/vault";
 import * as Beacon from "lib/temple/beacon";
 import { loadChainId } from "lib/temple/helpers";
-import * as PndOps from "lib/temple/pndops";
 import {
   TempleState,
   TempleMessageType,
@@ -318,8 +318,7 @@ export function sendOperations(
 
                 try {
                   const chainId = await loadChainId(networkRpc);
-                  const pndOps = PndOps.fromOpResults(op.results, op.hash);
-                  await PndOps.append(sourcePkh, chainId, pndOps);
+                  await addLocalOperation(chainId, op.hash, op.results);
                 } catch {}
 
                 resolve({ opHash: op.hash });

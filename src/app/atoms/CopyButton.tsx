@@ -12,7 +12,7 @@ export type CopyButtonProps = HTMLAttributes<HTMLButtonElement> & {
   text: string;
   small?: boolean;
   type?: "button" | "link";
-  textShade?: 600 | 700;
+  textShade?: 500 | 600 | 700;
 };
 
 const CopyButton: FC<CopyButtonProps> = ({
@@ -51,10 +51,30 @@ const CopyButton: FC<CopyButtonProps> = ({
         className={
           type === "button"
             ? classNames(
-                `bg-gray-${bgShade} hover:bg-gray-${bgShade + 100}`,
-                rounded === "base" ? "rounded" : `rounded-${rounded}`,
+                (() => {
+                  switch (bgShade) {
+                    case 100:
+                      return "bg-gray-100 hover:bg-gray-200";
+
+                    case 200:
+                      return "bg-gray-200 hover:bg-gray-300";
+                  }
+                })(),
+                (() => {
+                  switch (textShade) {
+                    case 500:
+                      return "text-gray-500";
+
+                    case 600:
+                      return "text-gray-600";
+
+                    case 700:
+                      return "text-gray-700";
+                  }
+                })(),
+                rounded === "base" ? "rounded" : "rounded-sm",
                 small ? "text-xs p-1" : "text-sm py-1 px-2",
-                `font-tnum text-gray-${textShade} leading-none select-none`,
+                "font-tnum leading-none select-none",
                 "transition ease-in-out duration-300",
                 className
               )

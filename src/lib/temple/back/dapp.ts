@@ -21,13 +21,13 @@ import {
 import { nanoid } from "nanoid";
 import { browser, Runtime } from "webextension-polyfill-ts";
 
+import { addLocalOperation } from "lib/temple/activity";
 import { intercom } from "lib/temple/back/defaults";
 import { buildFinalOpParmas, dryRunOpParams } from "lib/temple/back/dryrun";
 import { withUnlocked } from "lib/temple/back/store";
 import * as Beacon from "lib/temple/beacon";
 import { loadChainId, isAddressValid } from "lib/temple/helpers";
 import { NETWORKS } from "lib/temple/networks";
-import * as PndOps from "lib/temple/pndops";
 import {
   TempleMessageType,
   TempleRequest,
@@ -203,8 +203,7 @@ export async function requestOperation(
 
               try {
                 const chainId = await loadChainId(networkRpc);
-                const pndOps = PndOps.fromOpResults(op.results, op.hash);
-                await PndOps.append(dApp.pkh, chainId, pndOps);
+                await addLocalOperation(chainId, op.hash, op.results);
               } catch {}
 
               resolve({

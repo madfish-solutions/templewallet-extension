@@ -70,16 +70,12 @@ const BakingSection = memo(() => {
     },
     [chainId]
   );
-  const {
-    data: bakingHistory,
-    error,
-    isValidating: loadingBakingHistory,
-  } = useRetryableSWR(
-    ["baking-history", acc.publicKeyHash, myBakerPkh, chainId],
-    getBakingHistory,
-    { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
-  );
-  console.error(error);
+  const { data: bakingHistory, isValidating: loadingBakingHistory } =
+    useRetryableSWR(
+      ["baking-history", acc.publicKeyHash, myBakerPkh, chainId],
+      getBakingHistory,
+      { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
+    );
 
   const delegateButtonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonDelegateButtonProps = useMemo(

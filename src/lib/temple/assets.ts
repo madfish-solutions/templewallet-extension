@@ -143,7 +143,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     symbol: "USDtz",
     decimals: 6,
     fungible: true,
-    iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
+    iconUrl: browser.runtime.getURL("misc/token-logos/usdtz.png"),
     status: "hidden",
   },
   {

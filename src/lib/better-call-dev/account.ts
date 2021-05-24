@@ -1,6 +1,4 @@
-import { buildQuery } from "lib/build-query";
-
-import { api, BcdNetwork } from "./base";
+import { buildQuery, BcdNetwork } from "./base";
 
 /**
  * Queries
@@ -12,7 +10,6 @@ export type BcdGetAccountParams = {
 };
 
 export const getAccount = buildQuery<BcdGetAccountParams, BcdAccountInfo>(
-  api,
   "GET",
   (params) => `/account/${params.network}/${params.address}`
 );
@@ -23,7 +20,6 @@ export type BcdGetAccountMetadataParams = {
 };
 
 export const getAccountMetadata = buildQuery<BcdGetAccountMetadataParams, any>(
-  api,
   "GET",
   (params) => `/account/${params.network}/${params.address}/metadata`
 );
@@ -40,7 +36,6 @@ export const getAccountTokenBalances = buildQuery<
   BcdGetTokenBalancesParams,
   BcdAccountTokenBalances
 >(
-  api,
   "GET",
   (params) => `/account/${params.network}/${params.address}/token_balances`,
   ["offset", "size", "contract"]

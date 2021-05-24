@@ -441,8 +441,8 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
         initialStyle={{ height: "0px", overflow: "hidden" }}
       >
         <div className="flex flex-col ml-8 mt-2">
-          {accordionItemsProps.map((props) => (
-            <AccordionItem {...props} />
+          {accordionItemsProps.map((props, i) => (
+            <AccordionItem key={i} {...props} />
           ))}
         </div>
       </Collapse>

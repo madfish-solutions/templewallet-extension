@@ -1028,6 +1028,12 @@
   "pending": {
     "message": "pending..."
   },
+  "applied": {
+    "message": "Applied"
+  },
+  "skipped": {
+    "message": "Skipped"
+  },
   "backtracked": {
     "message": "backtracked"
   },
@@ -1149,9 +1155,13 @@
   "inUSD": {
     "message": "in USD"
   },
-  "inXTZ": {
-    "message": "in ꜩ",
-    "description": "ꜩ = asset symbol, like USD"
+  "inAsset": {
+    "message": "in $assetSymbol$",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "amountPlaceholder": {
     "message": "e.g. 123.45"
@@ -1578,6 +1588,9 @@
   "transfer": {
     "message": "Transfer"
   },
+  "origination": {
+    "message": "Origination"
+  },
   "transferFromSmb": {
     "message": "from $sender$",
     "placeholders": {
@@ -1831,6 +1844,14 @@
   },
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"
+  },
+  "more": {
+    "message": "more",
+    "description": "Show more"
+  },
+  "less": {
+    "message": "less",
+    "description": "Show less"
   },
   "recentDestinations": {
     "message": "Recent destinations"

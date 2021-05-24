@@ -1,12 +1,10 @@
-import { buildQuery } from "lib/build-query";
-
-import { api } from "./base";
+import { buildQuery } from "./base";
 
 /**
  * Queries
  */
 
-export const getDApps = buildQuery<{}, BcdDAppInfo[]>(api, "GET", "/dapps");
+export const getDApps = buildQuery<{}, BcdDAppInfo[]>("GET", "/dapps");
 
 export interface BcdDAppInfo {
   name: string;
