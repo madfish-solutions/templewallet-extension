@@ -311,13 +311,13 @@ const BakingSection = memo(() => {
               <Spinner theme="gray" className="w-16" />
             </div>
           )}
-          {bakingHistory?.length === 0 && (
+          {/* {bakingHistory?.length === 0 && (
             <div className="flex flex-row justify-center mt-4">
               <h3 className="text-sm font-light text-center max-w-xs">
                 Baking history is empty
               </h3>
             </div>
-          )}
+          )} */}
           {bakingHistory && bakingHistory.length > 0 && (
             <>
               <p className="text-gray-600 leading-tight mt-4">History:</p>

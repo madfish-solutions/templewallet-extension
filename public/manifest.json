@@ -25,7 +25,7 @@
     "https://api.tezos-nodes.com/",
     "https://api.better-call.dev/",
     "https://*.tzkt.io/",
-    "http://104.236.217.192",
+    "http://104.236.217.192/",
     "https://api.baking-bad.org/v2/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
