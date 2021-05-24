@@ -9,6 +9,5 @@ export enum AnalyticsEventCategory {
 
 export enum AnalyticsEventEnum {
   AnalyticsEnabled = 'AnalyticsEnabled',
-  PageOpened = 'PageOpened', // ?
   LanguageChanged = 'LanguageChanged',
 }
