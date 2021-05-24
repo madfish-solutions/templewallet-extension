@@ -1,3 +1,4 @@
+import { DerivationType } from "@taquito/ledger-signer";
 import { TezosOperationError } from "@taquito/taquito";
 import {
   TempleDAppMessageType,
@@ -7,6 +8,7 @@ import {
 } from "@temple-wallet/dapp/dist/types";
 import { browser, Runtime } from "webextension-polyfill-ts";
 
+import { addLocalOperation } from "lib/temple/activity";
 import {
   getCurrentPermission,
   requestPermission,
@@ -32,7 +34,6 @@ import {
 import { Vault } from "lib/temple/back/vault";
 import * as Beacon from "lib/temple/beacon";
 import { loadChainId } from "lib/temple/helpers";
-import * as PndOps from "lib/temple/pndops";
 import {
   TempleState,
   TempleMessageType,
@@ -209,11 +210,16 @@ export function importWatchOnlyAccount(address: string, chainId?: string) {
   });
 }
 
-export function craeteLedgerAccount(name: string, derivationPath?: string) {
+export function craeteLedgerAccount(
+  name: string,
+  derivationPath?: string,
+  derivationType?: DerivationType
+) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.createLedgerAccount(
       name,
-      derivationPath
+      derivationPath,
+      derivationType
     );
     accountsUpdated(updatedAccounts);
   });
@@ -222,6 +228,7 @@ export function craeteLedgerAccount(name: string, derivationPath?: string) {
 export function updateSettings(settings: Partial<TempleSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
+    createCustomNetworksSnapshot(updatedSettings);
     settingsUpdated(updatedSettings);
   });
 }
@@ -311,8 +318,7 @@ export function sendOperations(
 
                 try {
                   const chainId = await loadChainId(networkRpc);
-                  const pndOps = PndOps.fromOpResults(op.results, op.hash);
-                  await PndOps.append(sourcePkh, chainId, pndOps);
+                  await addLocalOperation(chainId, op.hash, op.results);
                 } catch {}
 
                 resolve({ opHash: op.hash });
@@ -664,6 +670,16 @@ export async function processBeacon(
     };
   }
   return { payload: resMsg };
+}
+
+async function createCustomNetworksSnapshot(settings: TempleSettings) {
+  try {
+    if (settings.customNetworks) {
+      await browser.storage.local.set({
+        custom_networks_snapshot: settings.customNetworks,
+      });
+    }
+  } catch {}
 }
 
 function getErrorData(err: any) {

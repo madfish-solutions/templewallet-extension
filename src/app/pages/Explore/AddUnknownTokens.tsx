@@ -2,8 +2,8 @@ import { FC, useCallback, useEffect, useMemo, useRef } from "react";
 
 import BigNumber from "bignumber.js";
 
-import { BCD_NETWORKS_NAMES } from "app/defaults";
 import {
+  BCD_NETWORKS_NAMES,
   BcdAccountTokenBalance,
   getAccountTokenBalances,
 } from "lib/better-call-dev";

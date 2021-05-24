@@ -21,6 +21,7 @@ import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
 import { Button } from "app/atoms/Button";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import HashShortView from "app/atoms/HashShortView";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
@@ -58,6 +59,7 @@ import {
   isKTAddress,
   loadContract,
   mutezToTz,
+  TempleAccount,
   TempleAccountType,
   TempleAsset,
   TempleAssetType,
@@ -66,13 +68,14 @@ import {
   toTransferParams,
   tzToMutez,
   useAccount,
+  useAddressBook,
   useAssetBySlug,
   useBalance,
   useRelevantAccounts,
   useTezos,
   useTezosDomainsClient,
-  useUSDPrice,
   useNetwork,
+  useAssetUSDPrice,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
@@ -137,8 +140,9 @@ type FormProps = {
 
 const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
-  const tezPrice = useUSDPrice();
+  const assetPrice = useAssetUSDPrice(localAsset);
 
+  const { accounts: addressBookAccounts, onAddressUsage } = useAddressBook();
   const allAccounts = useRelevantAccounts();
   const network = useNetwork();
   const acc = useAccount();
@@ -164,10 +168,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
 
-  const canToggleUsd =
-    network.type === "main" &&
-    localAsset.type === TempleAssetType.TEZ &&
-    tezPrice !== null;
+  const canToggleUsd = network.type === "main" && assetPrice !== null;
   const prevCanToggleUsd = useRef(canToggleUsd);
 
   /**
@@ -204,14 +205,14 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       setValue(
         "amount",
         (newShouldUseUsd
-          ? amount.multipliedBy(tezPrice!)
-          : amount.div(tezPrice!)
+          ? amount.multipliedBy(assetPrice!)
+          : amount.div(assetPrice!)
         ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
           decimalSeparator: ".",
         })
       );
     },
-    [setShouldUseUsd, shouldUseUsd, getValues, tezPrice, setValue]
+    [setShouldUseUsd, shouldUseUsd, getValues, assetPrice, setValue]
   );
   useEffect(() => {
     if (!canToggleUsd && prevCanToggleUsd.current && shouldUseUsd) {
@@ -254,10 +255,10 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     [toFilledWithAddress, toFilledWithDomain, resolvedAddress]
   );
 
-  const toResolved = useMemo(() => resolvedAddress || toValue, [
-    resolvedAddress,
-    toValue,
-  ]);
+  const toResolved = useMemo(
+    () => resolvedAddress || toValue,
+    [resolvedAddress, toValue]
+  );
 
   const filledAccount = useMemo(
     () =>
@@ -442,26 +443,22 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const maxAmount = useMemo(() => {
     if (!(baseFee instanceof BigNumber)) return null;
 
-    return localAsset.type === TempleAssetType.TEZ
-      ? (() => {
-          let ma =
+    const maxAmountAsset =
+      localAsset.type === TempleAssetType.TEZ
+        ? BigNumber.max(
             acc.type === TempleAccountType.ManagedKT
               ? balance
               : balance
                   .minus(baseFee)
                   .minus(safeFeeValue ?? 0)
-                  .minus(PENNY);
-          const maxAmountTez = BigNumber.max(ma, 0);
-          const maxAmountUsd = tezPrice
-            ? new BigNumber(
-                maxAmountTez
-                  .multipliedBy(tezPrice)
-                  .toFormat(2, BigNumber.ROUND_FLOOR, { decimalSeparator: "." })
-              )
-            : new BigNumber(0);
-          return shouldUseUsd ? maxAmountUsd : maxAmountTez;
-        })()
-      : balance;
+                  .minus(PENNY),
+            0
+          )
+        : balance;
+    const maxAmountUsd = assetPrice
+      ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+      : new BigNumber(0);
+    return shouldUseUsd ? maxAmountUsd : maxAmountAsset;
   }, [
     acc.type,
     localAsset.type,
@@ -469,7 +466,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     baseFee,
     safeFeeValue,
     shouldUseUsd,
-    tezPrice,
+    assetPrice,
   ]);
 
   const validateAmount = useCallback(
@@ -517,14 +514,14 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     `${tezos.checksum}_${toResolved}`
   );
 
-  const toTEZAmount = useCallback(
+  const toAssetAmount = useCallback(
     (usdAmount: BigNumber.Value) =>
       new BigNumber(usdAmount)
-        .dividedBy(tezPrice ?? 1)
-        .toFormat(6, BigNumber.ROUND_FLOOR, {
+        .dividedBy(assetPrice ?? 1)
+        .toFormat(localAsset.decimals, BigNumber.ROUND_FLOOR, {
           decimalSeparator: ".",
         }),
-    [tezPrice]
+    [assetPrice, localAsset.decimals]
   );
 
   const validateRecipient = useCallback(
@@ -572,7 +569,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             .do(michelsonLambda(toResolved, tzToMutez(amount)))
             .send({ amount: 0 });
         } else {
-          const actualAmount = shouldUseUsd ? toTEZAmount(amount) : amount;
+          const actualAmount = shouldUseUsd ? toAssetAmount(amount) : amount;
           const transferParams = await toTransferParams(
             tezos,
             localAsset,
@@ -591,6 +588,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess();
+        onAddressUsage(toResolved);
       } catch (err) {
         formAnalytics.trackSubmitFail();
 
@@ -618,9 +616,18 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       accountPkh,
       toResolved,
       shouldUseUsd,
-      toTEZAmount,
+      toAssetAmount,
       formAnalytics,
+      onAddressUsage,
     ]
+  );
+
+  const handleAccountClick = useCallback(
+    (accountPkh: string) => {
+      setValue("to", accountPkh);
+      triggerValidation("to");
+    },
+    [setValue, triggerValidation]
   );
 
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
@@ -755,19 +762,27 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                 {shouldUseUsd ? <span className="pr-px">$</span> : null}
                 {toLocalFixed(maxAmount)}
               </button>
-              {amountValue && localAsset.type === TempleAssetType.TEZ ? (
+              {amountValue ? (
                 <>
                   <br />
                   {shouldUseUsd ? (
                     <div className="mt-1 -mb-3">
                       ≈{" "}
                       <span className="font-normal text-gray-700">
-                        {toTEZAmount(amountValue)}
+                        {toAssetAmount(amountValue)}
                       </span>{" "}
-                      <T id="inXTZ" />
+                      <T
+                        id="inAsset"
+                        substitutions={
+                          localAsset.type === TempleAssetType.TEZ
+                            ? "ꜩ"
+                            : localAsset.symbol
+                        }
+                      />
                     </div>
                   ) : (
                     <InUSD
+                      asset={localAsset}
                       volume={amountValue}
                       roundingMode={BigNumber.ROUND_FLOOR}
                     >
@@ -845,144 +860,31 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
           </T>
         </>
       ) : (
-        allAccounts.length > 1 && (
-          <div className={classNames("mt-8 mb-6", "flex flex-col")}>
-            <h2
-              className={classNames("mb-4", "leading-tight", "flex flex-col")}
-            >
-              <T id="sendToMyAccounts">
-                {(message) => (
-                  <span className="text-base font-semibold text-gray-700">
-                    {message}
-                  </span>
-                )}
-              </T>
+        <>
+          <div className="w-full mt-2" />
 
-              <T id="clickOnRecipientAccount">
-                {(message) => (
-                  <span
-                    className={classNames(
-                      "mt-1",
-                      "text-xs font-light text-gray-600"
-                    )}
-                    style={{ maxWidth: "90%" }}
-                  >
-                    {message}
-                  </span>
-                )}
-              </T>
-            </h2>
+          {addressBookAccounts.length > 0 && (
+            <AccountSelect
+              accounts={addressBookAccounts}
+              activeAccount={acc.publicKeyHash}
+              asset={localAsset}
+              onChange={handleAccountClick}
+              titleI18nKey="recentDestinations"
+            />
+          )}
 
-            <div
-              className={classNames(
-                "rounded-md overflow-hidden",
-                "border",
-                "flex flex-col",
-                "text-gray-700 text-sm leading-tight"
-              )}
-            >
-              {allAccounts
-                .filter((acc) => acc.publicKeyHash !== accountPkh)
-                .map((acc, i, arr) => {
-                  const last = i === arr.length - 1;
-                  const handleAccountClick = () => {
-                    setValue("to", acc.publicKeyHash);
-                    triggerValidation("to");
-                  };
-
-                  return (
-                    <Button
-                      key={acc.publicKeyHash}
-                      type="button"
-                      className={classNames(
-                        "relative",
-                        "block w-full",
-                        "overflow-hidden",
-                        !last && "border-b border-gray-200",
-                        "hover:bg-gray-100 focus:bg-gray-100",
-                        "flex items-center p-2",
-                        "text-gray-700",
-                        "transition ease-in-out duration-200",
-                        "focus:outline-none",
-                        "opacity-90 hover:opacity-100"
-                      )}
-                      onClick={handleAccountClick}
-                      testID={SendFormSelectors.MyAccountItemButton}
-                    >
-                      <Identicon
-                        type="bottts"
-                        hash={acc.publicKeyHash}
-                        size={32}
-                        className="flex-shrink-0 shadow-xs"
-                      />
-
-                      <div className="flex flex-col items-start ml-2">
-                        <div className="flex flex-wrap items-center">
-                          <Name className="text-sm font-medium leading-tight">
-                            {acc.name}
-                          </Name>
-
-                          <AccountTypeBadge account={acc} />
-                        </div>
-
-                        <div className="flex flex-wrap items-center mt-1">
-                          <div
-                            className={classNames(
-                              "text-xs leading-none",
-                              "text-gray-700"
-                            )}
-                          >
-                            {(() => {
-                              const val = acc.publicKeyHash;
-                              const ln = val.length;
-                              return (
-                                <>
-                                  {val.slice(0, 7)}
-                                  <span className="opacity-75">...</span>
-                                  {val.slice(ln - 4, ln)}
-                                </>
-                              );
-                            })()}
-                          </div>
-
-                          <Balance
-                            asset={localAsset}
-                            address={acc.publicKeyHash}
-                          >
-                            {(bal) => (
-                              <div
-                                className={classNames(
-                                  "ml-2",
-                                  "text-xs leading-none",
-                                  "text-gray-600"
-                                )}
-                              >
-                                <Money>{bal}</Money>{" "}
-                                <span style={{ fontSize: "0.75em" }}>
-                                  {localAsset.symbol}
-                                </span>
-                              </div>
-                            )}
-                          </Balance>
-                        </div>
-                      </div>
-
-                      <div
-                        className={classNames(
-                          "absolute right-0 top-0 bottom-0",
-                          "flex items-center",
-                          "pr-2",
-                          "text-gray-500"
-                        )}
-                      >
-                        <ChevronRightIcon className="h-5 w-auto stroke-current" />
-                      </div>
-                    </Button>
-                  );
-                })}
-            </div>
-          </div>
-        )
+          {allAccounts.length > 1 && (
+            <AccountSelect
+              accounts={allAccounts}
+              activeAccount={acc.publicKeyHash}
+              asset={localAsset}
+              namesVisible
+              onChange={handleAccountClick}
+              titleI18nKey="sendToMyAccounts"
+              descriptionI18nKey="clickOnRecipientAccount"
+            />
+          )}
+        </>
       )}
     </form>
   );
@@ -991,6 +893,157 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
 type SendErrorAlertProps = {
   type: "submit" | "estimation";
   error: Error;
+};
+
+type AccountSelectProps = {
+  activeAccount: string;
+  accounts: TempleAccount[];
+  asset: TempleAsset;
+  onChange: (accountPkh: string) => void;
+  titleI18nKey: string;
+  descriptionI18nKey?: string;
+  namesVisible?: boolean;
+};
+
+const AccountSelect: FC<AccountSelectProps> = ({
+  accounts,
+  activeAccount,
+  asset,
+  onChange,
+  titleI18nKey,
+  descriptionI18nKey,
+  namesVisible,
+}) => (
+  <div className="my-6 flex flex-col">
+    <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+      <span className="text-base font-semibold text-gray-700">
+        <T id={titleI18nKey} />
+      </span>
+
+      {descriptionI18nKey && (
+        <span
+          className={classNames("mt-1", "text-xs font-light text-gray-600")}
+          style={{ maxWidth: "90%" }}
+        >
+          <T id={descriptionI18nKey} />
+        </span>
+      )}
+    </h2>
+    <div
+      className={classNames(
+        "rounded-md overflow-hidden",
+        "border",
+        "flex flex-col",
+        "text-gray-700 text-sm leading-tight"
+      )}
+    >
+      {accounts
+        .filter((acc) => acc.publicKeyHash !== activeAccount)
+        .map((acc, i) => (
+          <AccountSelectOption
+            account={acc}
+            key={acc.publicKeyHash}
+            isLast={i === accounts.length - 1}
+            onSelect={onChange}
+            asset={asset}
+            nameVisible={namesVisible}
+          />
+        ))}
+    </div>
+  </div>
+);
+
+type AccountSelectOptionProps = {
+  account: TempleAccount;
+  isLast: boolean;
+  onSelect: (accountPkh: string) => void;
+  asset: TempleAsset;
+  nameVisible?: boolean;
+};
+
+const AccountSelectOption: React.FC<AccountSelectOptionProps> = ({
+  account,
+  isLast,
+  onSelect,
+  asset,
+  nameVisible,
+}) => {
+  const handleClick = useCallback(
+    () => onSelect(account.publicKeyHash),
+    [onSelect, account.publicKeyHash]
+  );
+
+  return (
+    <Button
+      key={account.publicKeyHash}
+      type="button"
+      className={classNames(
+        "relative",
+        "block w-full",
+        "overflow-hidden",
+        !isLast && "border-b border-gray-200",
+        "hover:bg-gray-100 focus:bg-gray-100",
+        "flex items-center p-2",
+        "text-gray-700",
+        "transition ease-in-out duration-200",
+        "focus:outline-none",
+        "opacity-90 hover:opacity-100"
+      )}
+      onClick={handleClick}
+      testID={SendFormSelectors.MyAccountItemButton}
+    >
+      <Identicon
+        type="bottts"
+        hash={account.publicKeyHash}
+        size={32}
+        className="flex-shrink-0 shadow-xs"
+      />
+
+      <div className="flex flex-col items-start ml-2">
+        {nameVisible && (
+          <div className="flex flex-wrap items-center">
+            <Name className="text-sm font-medium leading-tight">
+              {account.name}
+            </Name>
+
+            <AccountTypeBadge account={account} />
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center mt-1">
+          <div className={classNames("text-xs leading-none", "text-gray-700")}>
+            <HashShortView hash={account.publicKeyHash} />
+          </div>
+
+          <Balance asset={asset} address={account.publicKeyHash}>
+            {(bal) => (
+              <div
+                className={classNames(
+                  "ml-2",
+                  "text-xs leading-none",
+                  "text-gray-600"
+                )}
+              >
+                <Money>{bal}</Money>{" "}
+                <span style={{ fontSize: "0.75em" }}>{asset.symbol}</span>
+              </div>
+            )}
+          </Balance>
+        </div>
+      </div>
+
+      <div
+        className={classNames(
+          "absolute right-0 top-0 bottom-0",
+          "flex items-center",
+          "pr-2",
+          "text-gray-500"
+        )}
+      >
+        <ChevronRightIcon className="h-5 w-auto stroke-current" />
+      </div>
+    </Button>
+  );
 };
 
 const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => (

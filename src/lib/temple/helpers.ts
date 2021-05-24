@@ -64,6 +64,10 @@ export function mutezToTz(mutez: any) {
   return bigNum.integerValue().div(10 ** 6);
 }
 
+export function atomsToTokens(x: BigNumber, decimals: number) {
+  return x.integerValue().div(new BigNumber(10).pow(decimals));
+}
+
 export function isAddressValid(address: string) {
   return validateAddress(address) === ValidationResult.VALID;
 }

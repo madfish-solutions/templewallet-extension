@@ -50,7 +50,7 @@ const OperationStatus: FC<OperationStatusProps> = ({
           className="ml-2 mr-2"
         />
         {transactionBaseUrl && (
-          <OpenInExplorerChip baseUrl={transactionBaseUrl} opHash={hash} />
+          <OpenInExplorerChip baseUrl={transactionBaseUrl} hash={hash} />
         )}
       </div>
     ),

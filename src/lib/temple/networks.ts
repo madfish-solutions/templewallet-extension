@@ -9,7 +9,7 @@ export const NETWORKS: TempleNetwork[] = [
     description: "Tezos mainnet",
     lambdaContract: "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE",
     type: "main",
-    rpcBaseURL: "https://rpc.tzbeta.net",
+    rpcBaseURL: "https://mainnet-node.madfish.solutions",
     color: "#83b300",
     disabled: false,
   },
@@ -45,7 +45,7 @@ export const NETWORKS: TempleNetwork[] = [
   // Hidden
   {
     id: "tzbeta-mainnet",
-    name: "Tezos Mainnet",
+    name: "Tezos Mainnet @rpc.tzbeta.net",
     description: "Highly available Tezos Mainnet nodes operated by Blockscale",
     type: "main",
     rpcBaseURL: "https://rpc.tzbeta.net",
@@ -55,7 +55,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: "tzbeta-testnet",
-    name: "Delphi Testnet",
+    name: "Delphi Testnet @rpctest.tzbeta.net",
     description: "Highly available Delphi Testnet nodes operated by Blockscale",
     type: "test",
     rpcBaseURL: "https://rpctest.tzbeta.net",
@@ -65,7 +65,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: "tzbeta-rpczero",
-    name: "Edo Testnet",
+    name: "Edo Testnet @rpczero.tzbeta.net",
     description: "Highly available Edo Testnet nodes operated by Blockscale",
     type: "test",
     rpcBaseURL: "https://rpczero.tzbeta.net",
@@ -75,7 +75,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: "tezie-mainnet",
-    name: "Tezos Mainnet",
+    name: "Tezos Mainnet @api.tez.ie",
     description: "Highly available Tezos Mainnet nodes operated by ECAD Labs",
     type: "main",
     rpcBaseURL: "https://api.tez.ie/rpc/mainnet",
@@ -85,7 +85,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: "tezie-delphinet",
-    name: "Delphi Testnet",
+    name: "Delphi Testnet @api.tez.ie",
     description: "Highly available Delphi Testnet nodes operated by ECAD Labs",
     type: "test",
     rpcBaseURL: "https://api.tez.ie/rpc/delphinet",
@@ -95,11 +95,32 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: "tezie-edonet",
-    name: "Edo Testnet",
+    name: "Edo Testnet @api.tez.ie",
     description: "Highly available Edo Testnet nodes operated by ECAD Labs",
     type: "test",
     rpcBaseURL: "https://api.tez.ie/rpc/edonet",
     color: "#FBBF24",
+    disabled: false,
+    hidden: true,
+  },
+  {
+    id: "pointninja-mainnet",
+    name: "Tezos Mainnet @mainnet.point.ninja",
+    description: "Highly available Tezos Mainnet nodes operated by Point Ninja",
+    type: "main",
+    rpcBaseURL: "https://mainnet.point.ninja",
+    color: "#83b300",
+    disabled: false,
+    hidden: true,
+  },
+  {
+    id: "madfish-mainnet",
+    name: "Tezos Mainnet @mainnet-node.madfish.solutions",
+    description:
+      "Highly available Tezos Mainnet nodes operated by Madfish Solutions",
+    type: "main",
+    rpcBaseURL: "https://mainnet-node.madfish.solutions",
+    color: "#83b300",
     disabled: false,
     hidden: true,
   },

@@ -6,13 +6,16 @@ import classNames from "clsx";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
+import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
 import AddressChip from "app/pages/Explore/AddressChip";
+import HashChip from "app/templates/HashChip";
 import { toLocalFormat } from "lib/i18n/numbers";
 import { T } from "lib/i18n/react";
 import {
   useRelevantAccounts,
   useAccount,
   useKnownBaker,
+  useExplorerBaseUrls,
 } from "lib/temple/front";
 
 type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
@@ -25,6 +28,7 @@ const BakerBanner = memo<BakerBannerProps>(
     const allAccounts = useRelevantAccounts();
     const account = useAccount();
     const { data: baker } = useKnownBaker(bakerPkh);
+    const { account: accountBaseUrl } = useExplorerBaseUrls();
     const assetSymbol = "tez";
 
     const bakerAcc = useMemo(
@@ -46,11 +50,11 @@ const BakerBanner = memo<BakerBannerProps>(
                   alt={baker.name}
                   className={classNames(
                     "flex-shrink-0",
-                    "w-10 h-auto",
+                    "w-8 h-auto",
                     "bg-white rounded shadow-xs"
                   )}
                   style={{
-                    minHeight: "2.5rem",
+                    minHeight: "2rem",
                   }}
                 />
               </div>
@@ -58,36 +62,41 @@ const BakerBanner = memo<BakerBannerProps>(
               <div className="flex flex-col items-start flex-1 ml-2">
                 <div
                   className={classNames(
-                    "w-full",
+                    "w-full mb-1 mr-1 text-lg",
                     "flex flex-wrap items-center",
                     "leading-none"
                   )}
-                  style={{ marginBottom: "0.125rem" }}
                 >
-                  <Name className="pb-1 mr-1 text-lg font-medium">
-                    {baker.name}
-                  </Name>
+                  <Name>{baker.name}</Name>
                 </div>
 
                 {displayAddress && (
-                  <div
-                    className={classNames(
-                      "mb-2 pl-px",
-                      "flex flex-wrap items-center"
+                  <div className="mb-1 flex flex-wrap items-center">
+                    <HashChip
+                      bgShade={200}
+                      rounded="base"
+                      className="mr-1"
+                      hash={baker.address}
+                      small
+                      textShade={700}
+                    />
+                    {accountBaseUrl && (
+                      <OpenInExplorerChip
+                        bgShade={200}
+                        textShade={500}
+                        rounded="base"
+                        hash={baker.address}
+                        baseUrl={accountBaseUrl}
+                      />
                     )}
-                  >
-                    <AddressChip pkh={baker.address} small />
                   </div>
                 )}
 
                 <div className="flex flex-wrap items-center">
-                  <div
-                    className={classNames("mr-2", "flex items-center")}
-                    style={{ marginBottom: "0.125rem" }}
-                  >
+                  <div className="mr-2 flex items-center">
                     <div
                       className={classNames(
-                        "text-xs font-light leading-none",
+                        "text-xs font-light leading-tight",
                         "text-gray-600"
                       )}
                     >
@@ -101,13 +110,10 @@ const BakerBanner = memo<BakerBannerProps>(
                     </div>
                   </div>
 
-                  <div
-                    className={classNames("flex items-center")}
-                    style={{ marginBottom: "0.125rem" }}
-                  >
+                  <div className="flex items-center">
                     <div
                       className={classNames(
-                        "text-xs font-light leading-none",
+                        "text-xs font-light leading-tight",
                         "text-gray-600"
                       )}
                     >
@@ -119,22 +125,6 @@ const BakerBanner = memo<BakerBannerProps>(
                     </div>
                   </div>
                 </div>
-
-                <T id="exploreMore">
-                  {(message) => (
-                    <a
-                      href={exploreBakerUrl(baker.address)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={classNames(
-                        "flex items-center",
-                        "text-xs text-blue-600 hover:underline"
-                      )}
-                    >
-                      {message}
-                    </a>
-                  )}
-                </T>
               </div>
             </div>
           </>
@@ -207,7 +197,3 @@ const BakerBanner = memo<BakerBannerProps>(
 );
 
 export default BakerBanner;
-
-function exploreBakerUrl(address: string) {
-  return `https://www.tezos-nodes.com/baker/${address}`;
-}

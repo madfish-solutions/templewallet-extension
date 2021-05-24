@@ -53,6 +53,12 @@ export type TempleAccount =
   | TempleManagedKTAccount
   | TempleWatchOnlyAccount;
 
+export enum DerivationType {
+  ED25519 = 0,
+  SECP256K1 = 1,
+  P256 = 2,
+}
+
 export interface TempleLedgerAccount extends TempleAccountBase {
   type: TempleAccountType.Ledger;
   derivationPath: string;
@@ -84,6 +90,7 @@ export interface TempleAccountBase {
   publicKeyHash: string;
   hdIndex?: number;
   derivationPath?: string;
+  derivationType?: DerivationType;
 }
 
 export enum TempleAccountType {
@@ -557,6 +564,7 @@ export interface TempleCreateLedgerAccountRequest extends TempleMessageBase {
   type: TempleMessageType.CreateLedgerAccountRequest;
   name: string;
   derivationPath?: string;
+  derivationType?: DerivationType;
 }
 
 export interface TempleCreateLedgerAccountResponse extends TempleMessageBase {

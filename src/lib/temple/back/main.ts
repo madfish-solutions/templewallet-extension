@@ -125,7 +125,11 @@ async function processRequest(
       };
 
     case TempleMessageType.CreateLedgerAccountRequest:
-      await Actions.craeteLedgerAccount(req.name, req.derivationPath);
+      await Actions.craeteLedgerAccount(
+        req.name,
+        req.derivationPath,
+        req.derivationType
+      );
       return {
         type: TempleMessageType.CreateLedgerAccountResponse,
       };

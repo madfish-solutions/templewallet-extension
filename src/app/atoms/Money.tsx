@@ -10,7 +10,7 @@ import React, {
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
-import { toLocalFixed, toLocalFormat } from "lib/i18n/numbers";
+import { toLocalFixed, toLocalFormat, toShortened } from "lib/i18n/numbers";
 import { getNumberSymbols, t } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useTippy, { TippyInstance, TippyProps } from "lib/ui/useTippy";
@@ -20,6 +20,7 @@ type MoneyProps = {
   fiat?: boolean;
   cryptoDecimals?: number;
   roundingMode?: BigNumber.RoundingMode;
+  shortened?: boolean;
   smallFractionFont?: boolean;
   tooltip?: boolean;
 };
@@ -33,6 +34,7 @@ const Money = memo<MoneyProps>(
     fiat,
     cryptoDecimals = DEFAULT_CRYPTO_DECIMALS,
     roundingMode = BigNumber.ROUND_DOWN,
+    shortened,
     smallFractionFont = true,
     tooltip,
   }) => {
@@ -49,8 +51,13 @@ const Money = memo<MoneyProps>(
       : decimalsLength > cryptoDecimals
       ? cryptoDecimals
       : decimalsLength;
-    let result = toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
-    let indexOfDecimal = result.indexOf(decimal);
+    let result = shortened
+      ? toShortened(bn)
+      : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
+    let indexOfDecimal =
+      result.indexOf(decimal) === -1
+        ? result.indexOf(".")
+        : result.indexOf(decimal);
 
     const tippyClassName = classNames(
       "px-px -mr-px rounded cursor-pointer hover:bg-black",
@@ -69,9 +76,9 @@ const Money = memo<MoneyProps>(
           </FullAmountTippy>
         );
 
-      case !fiat && decimalsLength > cryptoDecimals:
+      case !fiat && decimalsLength > cryptoDecimals && !shortened:
         result = toLocalFormat(bn, {
-          decimalPlaces: cryptoDecimals - 2,
+          decimalPlaces: Math.max(cryptoDecimals - 2, 0),
           roundingMode,
         });
         indexOfDecimal = result.indexOf(decimal);
@@ -86,7 +93,9 @@ const Money = memo<MoneyProps>(
             {result.slice(0, indexOfDecimal + 1)}
             <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
               {result.slice(indexOfDecimal + 1, result.length)}
-              <span className="opacity-75 tracking-tighter">...</span>
+              {cryptoDecimals >= 2 && (
+                <span className="opacity-75 tracking-tighter">...</span>
+              )}
             </span>
           </FullAmountTippy>
         );

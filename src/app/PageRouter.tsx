@@ -1,10 +1,11 @@
-import React, { FC, useEffect, useLayoutEffect, useMemo } from "react";
+import React, { FC, useLayoutEffect, useMemo } from "react";
 
-import { useAppEnv, OpenInFullPage } from "app/env";
+import { OpenInFullPage, useAppEnv } from "app/env";
 import AddToken from "app/pages/AddToken";
 import ConnectLedger from "app/pages/ConnectLedger";
 import CreateAccount from "app/pages/CreateAccount";
 import CreateWallet from "app/pages/CreateWallet";
+import DApps from "app/pages/DApps";
 import Delegate from "app/pages/Delegate";
 import Explore from "app/pages/Explore";
 import ImportAccount from "app/pages/ImportAccount";
@@ -16,7 +17,7 @@ import Settings from "app/pages/Settings";
 import Swap from "app/pages/Swap";
 import Unlock from "app/pages/Unlock";
 import Welcome from "app/pages/Welcome";
-import { useAnalytics } from "lib/analytics";
+import { usePageRouterAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
 
@@ -79,6 +80,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   ["/swap", onlyReady(() => <Swap />)],
   ["/delegate", onlyReady(() => <Delegate />)],
+  ["/dapps", onlyReady(() => <DApps />)],
   ["/manage-assets", onlyReady(() => <ManageAssets />)],
   ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
   [
@@ -90,7 +92,6 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
 
 const Page: FC = () => {
   const { trigger, pathname, search } = Woozie.useLocation();
-  const { pageEvent } = useAnalytics();
 
   // Scroll to top after new location pushed.
   useLayoutEffect(() => {
@@ -116,21 +117,12 @@ const Page: FC = () => {
     [appEnv.popup, appEnv.fullPage, temple.ready, temple.locked]
   );
 
-  useEffect(() => {
-    let path = pathname;
+  usePageRouterAnalytics(pathname, search, ctx.ready);
 
-    if (pathname === "/" && !ctx.ready) {
-      path = "/welcome";
-    }
-
-    pageEvent(path, search);
-
-  }, [pathname, search, ctx.ready, pageEvent]);
-
-  return useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
-    pathname,
-    ctx,
-  ]);
+  return useMemo(
+    () => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx),
+    [pathname, ctx]
+  );
 };
 
 export default Page;

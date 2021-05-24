@@ -267,6 +267,9 @@
   "tokenIdInputDescription": {
     "message": "A non-negative integer number that identifies the token inside FA2 contract"
   },
+  "comingSoon": {
+    "message": "Coming soon"
+  },
   "comingSoonComment": {
     "message": "(coming soon)"
   },
@@ -880,6 +883,7 @@
   },
   "cycles_one": {
     "message": "$amount$ cycle",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -888,6 +892,7 @@
   },
   "cycles_other": {
     "message": "$amount$ cycles",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -1029,6 +1034,12 @@
   "pending": {
     "message": "pending..."
   },
+  "applied": {
+    "message": "Applied"
+  },
+  "skipped": {
+    "message": "Skipped"
+  },
   "backtracked": {
     "message": "backtracked"
   },
@@ -1069,6 +1080,12 @@
   },
   "derivationPath": {
     "message": "Derivation path"
+  },
+  "derivationType": {
+    "message": "Derivation type"
+  },
+  "derivationTypeFieldDescription": {
+    "message": "The elliptical curve that the account will use."
   },
   "seedPhrase": {
     "message": "Seed Phrase"
@@ -1144,9 +1161,13 @@
   "inUSD": {
     "message": "in USD"
   },
-  "inXTZ": {
-    "message": "in ꜩ",
-    "description": "ꜩ = asset symbol, like USD"
+  "inAsset": {
+    "message": "in $assetSymbol$",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "amountPlaceholder": {
     "message": "e.g. 123.45"
@@ -1573,6 +1594,9 @@
   "transfer": {
     "message": "Transfer"
   },
+  "origination": {
+    "message": "Origination"
+  },
   "transferFromSmb": {
     "message": "from $sender$",
     "placeholders": {
@@ -1792,6 +1816,57 @@
   "notWhitelistedTokenWarning": {
     "message": "Attention! One of the tokens you’re trying to exchange is not whitelisted. You can interact with them at your own risk."
   },
+  "tvl": {
+    "message": "TVL"
+  },
+  "promoted": {
+    "message": "Promoted"
+  },
+  "searchDApps": {
+    "message": "Search DApps"
+  },
+  "game": {
+    "message": "Game"
+  },
+  "social": {
+    "message": "Social"
+  },
+  "marketplace": {
+    "message": "Marketplace"
+  },
+  "farming": {
+    "message": "Farming"
+  },
+  "other": {
+    "message": "Other"
+  },
+  "noMatchingDAppsFound": {
+    "message": "No matching dApps were found"
+  },
+  "thousandFormat": {
+    "message": "$thousand$k",
+    "placeholders": {
+      "thousand": {
+        "content": "$1"
+      }
+    }
+  },
+  "millionFormat": {
+    "message": "$million$M",
+    "placeholders": {
+      "million": {
+        "content": "$1"
+      }
+    }
+  },
+  "billionFormat": {
+    "message": "$billion$B",
+    "placeholders": {
+      "billion": {
+        "content": "$1"
+      }
+    }
+  },
   "gasFee": {
     "message": "Gas fee"
   },
@@ -1807,6 +1882,76 @@
   "selectToken": {
     "message": "Select Token"
   },
+  "viewAll": {
+    "message": "View all"
+  },
+  "rewardsForBlocks": {
+    "message": "$reward$ for $blocksAmount$ $blocks$ $feesAmount$ fees",
+    "placeholders": {
+      "reward": {
+        "content": "$1"
+      },
+      "blocksAmount": {
+        "content": "$2"
+      },
+      "blocks": {
+        "content": "$3"
+      },
+      "feesAmount": {
+        "content": "$4"
+      }
+    }
+  },
+  "blocks_one": {
+    "message": "$amount$ block",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_other": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "rewardsForSlots": {
+    "message": "$reward$ for $slotsAmount$ $slots$",
+    "placeholders": {
+      "reward": {
+        "content": "$1"
+      },
+      "slotsAmount": {
+        "content": "$2"
+      },
+      "slots": {
+        "content": "$3"
+      }
+    }
+  },
+  "slots_one": {
+    "message": "$amount$ slot",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_other": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "storageFeeMax": {
     "message": "Storage fee (max)"
   },
@@ -1815,5 +1960,25 @@
   },
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"
+  },
+  "dAppsListTvlDescription": {
+    "message": "Total Value Locked. The value in tez is the total amount of tez locked in dApps. The value in USD is the total amount of tez and tokens locked there."
+  },
+  "noFavoriteDApps": {
+    "message": "You don't have any favorite dApps"
+  },
+  "more": {
+    "message": "more",
+    "description": "Show more"
+  },
+  "less": {
+    "message": "less",
+    "description": "Show less"
+  },
+  "recentDestinations": {
+    "message": "Recent destinations"
+  },
+  "unknownAccount": {
+    "message": "Unknown account"
   }
 }
