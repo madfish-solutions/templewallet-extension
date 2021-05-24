@@ -5,9 +5,8 @@ import BigNumber from "bignumber.js";
 import Money from "app/atoms/Money";
 import {
   TempleAsset,
-  TempleAssetType,
   TEZ_ASSET,
-  useUSDPrice,
+  useAssetUSDPrice,
   useNetwork,
 } from "lib/temple/front";
 
@@ -32,7 +31,7 @@ const InUSD: FC<InUSDProps> = ({
   mainnet,
   showCents = true,
 }) => {
-  const price = useUSDPrice();
+  const price = useAssetUSDPrice(asset);
   const walletNetwork = useNetwork();
 
   if (mainnet === undefined) {
@@ -49,7 +48,7 @@ const InUSD: FC<InUSDProps> = ({
     return inUSD.integerValue();
   }, [price, showCents, volume]);
 
-  return mainnet && asset.type === TempleAssetType.TEZ && price !== null
+  return mainnet && price !== null
     ? children(
         <Money
           fiat={showCents}

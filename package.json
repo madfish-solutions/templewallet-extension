@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "1.9.3",
+  "version": "1.9.6",
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack --watch --info-verbosity none --display minimal --hide-modules",
@@ -47,6 +47,7 @@
     "@types/libsodium-wrappers": "0.7.8",
     "@types/node": "14.0.27",
     "@types/react": "16.9.44",
+    "@types/react-collapse": "5.0.0",
     "@types/react-dom": "16.9.8",
     "@types/react-modal": "3.10.6",
     "@types/react-transition-group": "4.4.0",
@@ -71,6 +72,7 @@
     "css-loader": "3.6.0",
     "date-fns": "2.15.0",
     "debounce-promise": "3.1.2",
+    "dexie": "3.1.0-alpha.9",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
     "ed25519-hd-key": "1.1.2",
@@ -100,6 +102,7 @@
     "postcss-preset-env": "6.7.0",
     "postcss-safe-parser": "4.0.2",
     "react": "16.13.1",
+    "react-collapse": "5.1.0",
     "react-dev-utils": "10.2.1",
     "react-dom": "16.13.1",
     "react-hook-form": "5.3.1",

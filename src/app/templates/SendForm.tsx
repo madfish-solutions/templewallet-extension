@@ -74,8 +74,8 @@ import {
   useRelevantAccounts,
   useTezos,
   useTezosDomainsClient,
-  useUSDPrice,
   useNetwork,
+  useAssetUSDPrice,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
@@ -140,7 +140,7 @@ type FormProps = {
 
 const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
-  const tezPrice = useUSDPrice();
+  const assetPrice = useAssetUSDPrice(localAsset);
 
   const { accounts: addressBookAccounts, onAddressUsage } = useAddressBook();
   const allAccounts = useRelevantAccounts();
@@ -168,10 +168,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
 
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
 
-  const canToggleUsd =
-    network.type === "main" &&
-    localAsset.type === TempleAssetType.TEZ &&
-    tezPrice !== null;
+  const canToggleUsd = network.type === "main" && assetPrice !== null;
   const prevCanToggleUsd = useRef(canToggleUsd);
 
   /**
@@ -208,14 +205,14 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       setValue(
         "amount",
         (newShouldUseUsd
-          ? amount.multipliedBy(tezPrice!)
-          : amount.div(tezPrice!)
+          ? amount.multipliedBy(assetPrice!)
+          : amount.div(assetPrice!)
         ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
           decimalSeparator: ".",
         })
       );
     },
-    [setShouldUseUsd, shouldUseUsd, getValues, tezPrice, setValue]
+    [setShouldUseUsd, shouldUseUsd, getValues, assetPrice, setValue]
   );
   useEffect(() => {
     if (!canToggleUsd && prevCanToggleUsd.current && shouldUseUsd) {
@@ -446,26 +443,22 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const maxAmount = useMemo(() => {
     if (!(baseFee instanceof BigNumber)) return null;
 
-    return localAsset.type === TempleAssetType.TEZ
-      ? (() => {
-          let ma =
+    const maxAmountAsset =
+      localAsset.type === TempleAssetType.TEZ
+        ? BigNumber.max(
             acc.type === TempleAccountType.ManagedKT
               ? balance
               : balance
                   .minus(baseFee)
                   .minus(safeFeeValue ?? 0)
-                  .minus(PENNY);
-          const maxAmountTez = BigNumber.max(ma, 0);
-          const maxAmountUsd = tezPrice
-            ? new BigNumber(
-                maxAmountTez
-                  .multipliedBy(tezPrice)
-                  .toFormat(2, BigNumber.ROUND_FLOOR, { decimalSeparator: "." })
-              )
-            : new BigNumber(0);
-          return shouldUseUsd ? maxAmountUsd : maxAmountTez;
-        })()
-      : balance;
+                  .minus(PENNY),
+            0
+          )
+        : balance;
+    const maxAmountUsd = assetPrice
+      ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+      : new BigNumber(0);
+    return shouldUseUsd ? maxAmountUsd : maxAmountAsset;
   }, [
     acc.type,
     localAsset.type,
@@ -473,7 +466,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     baseFee,
     safeFeeValue,
     shouldUseUsd,
-    tezPrice,
+    assetPrice,
   ]);
 
   const validateAmount = useCallback(
@@ -521,14 +514,14 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     `${tezos.checksum}_${toResolved}`
   );
 
-  const toTEZAmount = useCallback(
+  const toAssetAmount = useCallback(
     (usdAmount: BigNumber.Value) =>
       new BigNumber(usdAmount)
-        .dividedBy(tezPrice ?? 1)
-        .toFormat(6, BigNumber.ROUND_FLOOR, {
+        .dividedBy(assetPrice ?? 1)
+        .toFormat(localAsset.decimals, BigNumber.ROUND_FLOOR, {
           decimalSeparator: ".",
         }),
-    [tezPrice]
+    [assetPrice, localAsset.decimals]
   );
 
   const validateRecipient = useCallback(
@@ -576,7 +569,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             .do(michelsonLambda(toResolved, tzToMutez(amount)))
             .send({ amount: 0 });
         } else {
-          const actualAmount = shouldUseUsd ? toTEZAmount(amount) : amount;
+          const actualAmount = shouldUseUsd ? toAssetAmount(amount) : amount;
           const transferParams = await toTransferParams(
             tezos,
             localAsset,
@@ -623,7 +616,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       accountPkh,
       toResolved,
       shouldUseUsd,
-      toTEZAmount,
+      toAssetAmount,
       formAnalytics,
       onAddressUsage,
     ]
@@ -769,19 +762,27 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                 {shouldUseUsd ? <span className="pr-px">$</span> : null}
                 {toLocalFixed(maxAmount)}
               </button>
-              {amountValue && localAsset.type === TempleAssetType.TEZ ? (
+              {amountValue ? (
                 <>
                   <br />
                   {shouldUseUsd ? (
                     <div className="mt-1 -mb-3">
                       ≈{" "}
                       <span className="font-normal text-gray-700">
-                        {toTEZAmount(amountValue)}
+                        {toAssetAmount(amountValue)}
                       </span>{" "}
-                      <T id="inXTZ" />
+                      <T
+                        id="inAsset"
+                        substitutions={
+                          localAsset.type === TempleAssetType.TEZ
+                            ? "ꜩ"
+                            : localAsset.symbol
+                        }
+                      />
                     </div>
                   ) : (
                     <InUSD
+                      asset={localAsset}
                       volume={amountValue}
                       roundingMode={BigNumber.ROUND_FLOOR}
                     >

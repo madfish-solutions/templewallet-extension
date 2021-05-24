@@ -880,6 +880,7 @@
   },
   "cycles_one": {
     "message": "$amount$ cycle",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -888,6 +889,7 @@
   },
   "cycles_other": {
     "message": "$amount$ cycles",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -1029,6 +1031,12 @@
   "pending": {
     "message": "pending..."
   },
+  "applied": {
+    "message": "Applied"
+  },
+  "skipped": {
+    "message": "Skipped"
+  },
   "backtracked": {
     "message": "backtracked"
   },
@@ -1150,9 +1158,13 @@
   "inUSD": {
     "message": "in USD"
   },
-  "inXTZ": {
-    "message": "in ꜩ",
-    "description": "ꜩ = asset symbol, like USD"
+  "inAsset": {
+    "message": "in $assetSymbol$",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "amountPlaceholder": {
     "message": "e.g. 123.45"
@@ -1579,6 +1591,9 @@
   "transfer": {
     "message": "Transfer"
   },
+  "origination": {
+    "message": "Origination"
+  },
   "transferFromSmb": {
     "message": "from $sender$",
     "placeholders": {
@@ -1814,6 +1829,73 @@
   "viewAll": {
     "message": "View all"
   },
+  "rewardsForBlocks": {
+    "message": "$reward$ for $blocksAmount$ $blocks$ $feesAmount$ fees",
+    "placeholders": {
+      "reward": {
+        "content": "$1"
+      },
+      "blocksAmount": {
+        "content": "$2"
+      },
+      "blocks": {
+        "content": "$3"
+      },
+      "feesAmount": {
+        "content": "$4"
+      }
+    }
+  },
+  "blocks_one": {
+    "message": "$amount$ block",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_other": {
+    "message": "$amount$ blocks",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "rewardsForSlots": {
+    "message": "$reward$ for $slotsAmount$ $slots$",
+    "placeholders": {
+      "reward": {
+        "content": "$1"
+      },
+      "slotsAmount": {
+        "content": "$2"
+      },
+      "slots": {
+        "content": "$3"
+      }
+    }
+  },
+  "slots_one": {
+    "message": "$amount$ slot",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_other": {
+    "message": "$amount$ slots",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "storageFeeMax": {
     "message": "Storage fee (max)"
   },
@@ -1828,6 +1910,14 @@
   },
   "noFavoriteDApps": {
     "message": "You don't have any favorite dApps"
+  },
+  "more": {
+    "message": "more",
+    "description": "Show more"
+  },
+  "less": {
+    "message": "less",
+    "description": "Show less"
   },
   "recentDestinations": {
     "message": "Recent destinations"

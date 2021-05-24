@@ -75,8 +75,18 @@ export class FastRpcClient extends RpcClient {
   });
 
   async getEntrypoints(contract: string, opts?: RPCOptions) {
+    const cacheKey = `${this.getRpcUrl()}_${contract}`;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch (_err) {}
+
     opts = await this.loadLatestBlock(opts);
-    return this.getEntrypointsMemo(contract, opts);
+    const result = await this.getEntrypointsMemo(contract, opts);
+    localStorage.setItem(cacheKey, JSON.stringify(result));
+    return result;
   }
 
   getEntrypointsMemo = memoize(super.getEntrypoints.bind(this), {

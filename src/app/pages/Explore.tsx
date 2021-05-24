@@ -21,8 +21,9 @@ import { ReactComponent as ReceiveIcon } from "app/icons/receive.svg";
 import { ReactComponent as SendIcon } from "app/icons/send-alt.svg";
 import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg";
 import PageLayout from "app/layouts/PageLayout";
+import Activity from "app/templates/activity/Activity";
 import AssetInfo from "app/templates/AssetInfo";
-import OperationHistory from "app/templates/OperationHistory";
+// import OperationHistory from "app/templates/OperationHistory";
 import { T, t } from "lib/i18n/react";
 import {
   getAssetKey,
@@ -225,16 +226,16 @@ const Delegation: FC = () => (
   </SuspenseContainer>
 );
 
-type ActivityProps = {
+type ActivityTabProps = {
   asset?: TempleAsset;
 };
 
-const Activity: FC<ActivityProps> = ({ asset }) => {
+const ActivityTab: FC<ActivityTabProps> = ({ asset }) => {
   const account = useAccount();
 
   return (
     <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
-      <OperationHistory
+      {/* <OperationHistory
         accountPkh={account.publicKeyHash}
         accountOwner={
           account.type === TempleAccountType.ManagedKT
@@ -242,6 +243,10 @@ const Activity: FC<ActivityProps> = ({ asset }) => {
             : undefined
         }
         asset={asset}
+      /> */}
+      <Activity
+        address={account.publicKeyHash}
+        assetId={asset && getAssetKey(asset)}
       />
     </SuspenseContainer>
   );
@@ -290,7 +295,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
         {
           slug: "activity",
           title: t("activity"),
-          Component: Activity,
+          Component: ActivityTab,
           testID: ExploreSelectors.ActivityTab,
         },
       ];
@@ -299,7 +304,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
     const activity = {
       slug: "activity",
       title: t("activity"),
-      Component: () => <Activity asset={asset} />,
+      Component: () => <ActivityTab asset={asset} />,
       testID: ExploreSelectors.ActivityTab,
     };
 

@@ -1,4 +1,4 @@
-import { BcdNetwork, buildQuery } from "./base";
+import { buildQuery, BcdNetwork } from "./base";
 
 /**
  * Queries

@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
+import memoize from "micro-memoize";
 
-import { getNumberSymbols } from "./core";
+import { getCurrentLocale, getNumberSymbols } from "./core";
 import { t } from "./react";
 
 type FormatParams = {
@@ -53,6 +54,15 @@ export function toLocalFormat(
     return localizeDefaultFormattedNumber(rawResult);
   }
   return rawResult;
+}
+
+const makePluralRules = memoize(
+  (locale: string) => new Intl.PluralRules(locale.replace("_", "-"))
+);
+
+export function getPluralKey(keyPrefix: string, amount: number) {
+  const rules = makePluralRules(getCurrentLocale());
+  return `${keyPrefix}_${rules.select(amount)}`;
 }
 
 export function toLocalFixed(
