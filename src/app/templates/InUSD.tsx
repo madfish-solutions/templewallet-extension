@@ -5,9 +5,8 @@ import BigNumber from "bignumber.js";
 import Money from "app/atoms/Money";
 import {
   TempleAsset,
-  TempleAssetType,
   TEZ_ASSET,
-  useUSDPrice,
+  useAssetUSDPrice,
   useNetwork,
 } from "lib/temple/front";
 
@@ -26,14 +25,14 @@ const InUSD: FC<InUSDProps> = ({
   roundingMode,
   mainnet,
 }) => {
-  const price = useUSDPrice();
+  const price = useAssetUSDPrice(asset);
   const walletNetwork = useNetwork();
 
   if (mainnet === undefined) {
     mainnet = walletNetwork.type === "main";
   }
 
-  return mainnet && asset.type === TempleAssetType.TEZ && price !== null
+  return mainnet && price !== null
     ? children(
         <Money fiat roundingMode={roundingMode}>
           {new BigNumber(volume).times(price)}

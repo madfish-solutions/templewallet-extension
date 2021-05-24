@@ -1135,9 +1135,13 @@
   "inUSD": {
     "message": "단위 USD"
   },
-  "inXTZ": {
-    "message": "단위 XTZ",
-    "description": "ꜩ = asset symbol, like USD"
+  "inAsset": {
+    "message": "단위 $assetSymbol$",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "amountPlaceholder": {
     "message": "예) 123.45"
