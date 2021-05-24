@@ -34,7 +34,7 @@ interface TzktOperationBase {
   type: TzktOperationType;
   id: number;
   level?: number;
-  timestamp?: string;
+  timestamp: string;
   block?: string;
   hash: string;
   counter: number;

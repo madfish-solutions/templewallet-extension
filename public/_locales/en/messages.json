@@ -1026,6 +1026,12 @@
   "pending": {
     "message": "pending..."
   },
+  "applied": {
+    "message": "Applied"
+  },
+  "skipped": {
+    "message": "Skipped"
+  },
   "backtracked": {
     "message": "backtracked"
   },
@@ -1580,6 +1586,9 @@
   "transfer": {
     "message": "Transfer"
   },
+  "origination": {
+    "message": "Origination"
+  },
   "transferFromSmb": {
     "message": "from $sender$",
     "placeholders": {
@@ -1763,6 +1772,14 @@
   },
   "txIsLikelyToFail": {
     "message": "Warning! Transaction is likely to fail"
+  },
+  "more": {
+    "message": "more",
+    "description": "Show more"
+  },
+  "less": {
+    "message": "less",
+    "description": "Show less"
   },
   "recentDestinations": {
     "message": "Recent destinations"
