@@ -24,9 +24,9 @@ export const useAnalytics = () => {
   );
 
   const pageEvent = useCallback(
-    (path: string, search: string) =>
+    (path: string, search: string, tokenAddress?: string, tokenId?: string) =>
       analyticsState.enabled &&
-      sendPageEvent(analyticsState.userId, rpc, path, search),
+      sendPageEvent(analyticsState.userId, rpc, path, search, tokenAddress, tokenId),
     [analyticsState.enabled, analyticsState.userId, rpc]
   );
 
