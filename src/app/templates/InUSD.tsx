@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, ReactNode } from "react";
+import React, { FC, ReactElement, ReactNode, useMemo } from "react";
 
 import BigNumber from "bignumber.js";
 
@@ -15,7 +15,10 @@ type InUSDProps = {
   asset?: TempleAsset;
   children: (usdVolume: ReactNode) => ReactElement;
   roundingMode?: BigNumber.RoundingMode;
+  shortened?: boolean;
+  smallFractionFont?: boolean;
   mainnet?: boolean;
+  showCents?: boolean;
 };
 
 const InUSD: FC<InUSDProps> = ({
@@ -23,7 +26,10 @@ const InUSD: FC<InUSDProps> = ({
   asset = TEZ_ASSET,
   children,
   roundingMode,
+  shortened,
+  smallFractionFont,
   mainnet,
+  showCents = true,
 }) => {
   const price = useAssetUSDPrice(asset);
   const walletNetwork = useNetwork();
@@ -31,11 +37,27 @@ const InUSD: FC<InUSDProps> = ({
   if (mainnet === undefined) {
     mainnet = walletNetwork.type === "main";
   }
+  const roundedInUSD = useMemo(() => {
+    if (price === null) {
+      return new BigNumber(0);
+    }
+    const inUSD = new BigNumber(volume).times(price);
+    if (showCents) {
+      return inUSD;
+    }
+    return inUSD.integerValue();
+  }, [price, showCents, volume]);
 
   return mainnet && price !== null
     ? children(
-        <Money fiat roundingMode={roundingMode}>
-          {new BigNumber(volume).times(price)}
+        <Money
+          fiat={showCents}
+          cryptoDecimals={showCents ? undefined : 0}
+          roundingMode={roundingMode}
+          shortened={shortened}
+          smallFractionFont={smallFractionFont}
+        >
+          {roundedInUSD}
         </Money>
       )
     : null;

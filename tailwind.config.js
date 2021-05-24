@@ -212,6 +212,7 @@ module.exports = {
       default: "0.25rem",
       md: "0.375rem",
       lg: "0.5rem",
+      "2xl": "0.75rem",
       full: "9999px",
     },
     borderWidth: {
@@ -333,6 +334,7 @@ module.exports = {
     }),
     inset: {
       0: "0",
+      1: "0.25rem",
       3: "0.75rem",
       "1/2": "50%",
       auto: "auto",

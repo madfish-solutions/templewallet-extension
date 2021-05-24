@@ -5,6 +5,7 @@ import AddToken from "app/pages/AddToken";
 import ConnectLedger from "app/pages/ConnectLedger";
 import CreateAccount from "app/pages/CreateAccount";
 import CreateWallet from "app/pages/CreateWallet";
+import DApps from "app/pages/DApps";
 import Delegate from "app/pages/Delegate";
 import Explore from "app/pages/Explore";
 import ImportAccount from "app/pages/ImportAccount";
@@ -77,6 +78,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />),
   ],
   ["/delegate", onlyReady(() => <Delegate />)],
+  ["/dapps", onlyReady(() => <DApps />)],
   ["/manage-assets", onlyReady(() => <ManageAssets />)],
   ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
   [
@@ -115,10 +117,10 @@ const Page: FC = () => {
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
 
-  return useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [
-    pathname,
-    ctx,
-  ]);
+  return useMemo(
+    () => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx),
+    [pathname, ctx]
+  );
 };
 
 export default Page;

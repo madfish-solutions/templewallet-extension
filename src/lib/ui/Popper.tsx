@@ -2,16 +2,17 @@ import React, {
   Dispatch,
   memo,
   ReactElement,
-  RefObject, SetStateAction,
+  RefObject,
+  SetStateAction,
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
-  useState
+  useState,
 } from "react";
 
-import { Instance, Options, createPopper } from "@popperjs/core";
+import { Instance, Options, Modifier, createPopper } from "@popperjs/core";
 import useOnClickOutside from "use-onclickoutside";
 
 import Portal from "lib/ui/Portal";
@@ -30,10 +31,11 @@ type PopperProps = Partial<Options> & {
       ref: RefObject<HTMLButtonElement>;
     }
   >;
+  fallbackPlacementsEnabled?: boolean;
 };
 
 const Popper = memo<PopperProps>(
-  ({ popup, children, ...popperOptions }) => {
+  ({ popup, children, fallbackPlacementsEnabled = true, ...popperOptions }) => {
     const popperRef = useRef<Instance>();
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
@@ -65,13 +67,19 @@ const Popper = memo<PopperProps>(
               padding: 8,
             },
           },
+          !fallbackPlacementsEnabled && {
+            name: "flip",
+            options: {
+              fallbackPlacements: [],
+            },
+          },
           {
             name: "hide",
           },
           ...(popperOptions.modifiers ?? []),
-        ],
+        ].filter(Boolean) as Partial<Modifier<any, any>>[],
       }),
-      [popperOptions]
+      [popperOptions, fallbackPlacementsEnabled]
     );
 
     useEffect(() => {

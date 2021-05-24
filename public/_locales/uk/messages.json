@@ -1715,6 +1715,29 @@
   "blockExplorer": {
     "message": "Експлорер блокчейна"
   },
+  "game": {
+    "message": "Гра"
+  },
+  "social": {
+    "message": "Соціальний проєкт"
+  },
+  "marketplace": {
+    "message": "Ринок"
+  },
+  "farming": {
+    "message": "Фармінг"
+  },
+  "other": {
+    "message": "Інше"
+  },
+  "thousandFormat": {
+    "message": "$thousand$ тис.",
+    "placeholders": {
+      "thousand": {
+        "content": "$1"
+      }
+    }
+  },
   "rewardsForBlocks": {
     "message": "$reward$ за $blocksAmount$ $blocks$ $feesAmount$ виплат",
     "placeholders": {
@@ -1782,11 +1805,27 @@
       }
     }
   },
+  "millionFormat": {
+    "message": "$million$ млн",
+    "placeholders": {
+      "million": {
+        "content": "$1"
+      }
+    }
+  },
   "slots_few": {
     "message": "$amount$ слоти",
     "description": "For plural forms",
     "placeholders": {
       "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "billionFormat": {
+    "message": "$billion$ млрд",
+    "placeholders": {
+      "billion": {
         "content": "$1"
       }
     }
