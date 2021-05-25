@@ -23,7 +23,6 @@ import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg"
 import PageLayout from "app/layouts/PageLayout";
 import Activity from "app/templates/activity/Activity";
 import AssetInfo from "app/templates/AssetInfo";
-// import OperationHistory from "app/templates/OperationHistory";
 import { T, t } from "lib/i18n/react";
 import {
   getAssetKey,
@@ -235,15 +234,6 @@ const ActivityTab: FC<ActivityTabProps> = ({ asset }) => {
 
   return (
     <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
-      {/* <OperationHistory
-        accountPkh={account.publicKeyHash}
-        accountOwner={
-          account.type === TempleAccountType.ManagedKT
-            ? account.owner
-            : undefined
-        }
-        asset={asset}
-      /> */}
       <Activity
         address={account.publicKeyHash}
         assetId={asset && getAssetKey(asset)}
