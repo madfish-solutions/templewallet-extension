@@ -62,10 +62,6 @@ const DAppItem: FC<DAppItemProps> = ({
             <DAppCharacteristic Icon={LockIcon}>
               ~
               <Money shortened smallFractionFont={false}>
-                {tvlInTez}
-              </Money>
-              {"\u00a0tz = "}~
-              <Money shortened smallFractionFont={false}>
                 {tvl}
               </Money>
               &nbsp;$
