@@ -24,7 +24,9 @@
     "https://*.tzstats.com/",
     "https://api.tezos-nodes.com/",
     "https://api.better-call.dev/",
-    "https://*.tzkt.io/"
+    "https://*.tzkt.io/",
+    "https://api.baking-bad.org/v2/",
+    "https://api.templewallet.com/"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
 

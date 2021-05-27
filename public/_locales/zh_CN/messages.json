@@ -869,16 +869,9 @@
   "sortBy": {
     "message": "排序条件"
   },
-  "cycles_one": {
-    "message": "$amount$周期",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
   "cycles_other": {
     "message": "$amount$周期",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -1135,9 +1128,13 @@
   "inUSD": {
     "message": "以USD计"
   },
-  "inXTZ": {
-    "message": "以XTZ计",
-    "description": "ꜩ = asset symbol, like USD"
+  "inAsset": {
+    "message": "以$assetSymbol$计",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "amountPlaceholder": {
     "message": "例如：123.45"

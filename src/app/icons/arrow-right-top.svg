@@ -1,8 +1,3 @@
-<svg role="img" xmlns="http://www.w3.org/2000/svg" width="48px" height="48px" viewBox="0 0 24 24"
-  aria-labelledby="arrowRightTopIconTitle" stroke="white" stroke-width="1" stroke-linecap="round"
-  stroke-linejoin="round" fill="none">
-  <title id="arrowRightTopIconTitle">Arrow Right Top</title>
-  <path d="M19 13V5h-8" />
-  <path stroke-linecap="round" d="M19 5l-1 1" />
-  <path d="M18 6L5 19" />
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M15.0581 5.02212C15.0348 4.99275 15.0081 4.96608 14.9788 4.94264C14.948 4.91799 14.915 4.8975 14.8805 4.88119C14.8157 4.85053 14.7433 4.83337 14.6668 4.83337H14.6667H9.3335C9.05735 4.83337 8.8335 5.05723 8.8335 5.33337C8.8335 5.60952 9.05735 5.83337 9.3335 5.83337H13.4597L4.97994 14.3131C4.78468 14.5084 4.78468 14.825 4.97994 15.0202C5.1752 15.2155 5.49179 15.2155 5.68705 15.0202L14.1668 6.54044V10.6667C14.1668 10.9429 14.3907 11.1667 14.6668 11.1667C14.943 11.1667 15.1668 10.9429 15.1668 10.6667V5.33337C15.1668 5.24943 15.1461 5.17031 15.1096 5.10085C15.1055 5.09315 15.1013 5.08553 15.0968 5.07801C15.0886 5.06426 15.0797 5.05082 15.0701 5.03774C15.0662 5.03247 15.0623 5.02726 15.0581 5.02212Z"/>
 </svg>

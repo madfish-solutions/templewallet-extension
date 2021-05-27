@@ -869,16 +869,9 @@
   "sortBy": {
     "message": "排序方式"
   },
-  "cycles_one": {
-    "message": "$amount$ 個週期",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
   "cycles_other": {
     "message": "$amount$ 個週期",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -1135,9 +1128,13 @@
   "inUSD": {
     "message": "以 USD 計價"
   },
-  "inXTZ": {
-    "message": "以 XTZ 計價",
-    "description": "ꜩ = asset symbol, like USD"
+  "inAsset": {
+    "message": "以 $assetSymbol$ 計價",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "amountPlaceholder": {
     "message": "例如 123.45"
