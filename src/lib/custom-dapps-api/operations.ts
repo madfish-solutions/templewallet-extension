@@ -3,6 +3,7 @@ import axios from "axios";
 import { CustomDAppsInfo } from "./types";
 
 export function getDApps() {
-  return axios.get<CustomDAppsInfo>("http://104.236.217.192/api/dapps")
-    .then(res => res.data);
+  return axios
+    .get<CustomDAppsInfo>("https://api.templewallet.com/api/dapps")
+    .then((res) => res.data);
 }
