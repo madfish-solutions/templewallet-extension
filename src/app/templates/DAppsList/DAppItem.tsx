@@ -60,11 +60,10 @@ const DAppItem: FC<DAppItemProps> = ({
           )}
           {!soon && !errorOccurred && tvlInTez && (
             <DAppCharacteristic Icon={LockIcon}>
-              ~
+              ~ $
               <Money shortened smallFractionFont={false}>
                 {tvl}
               </Money>
-              &nbsp;$
             </DAppCharacteristic>
           )}
         </div>
