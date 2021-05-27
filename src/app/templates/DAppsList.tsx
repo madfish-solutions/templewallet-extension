@@ -162,11 +162,10 @@ const DAppsList: FC = () => {
             "text-base text-gray-600 leading-tight"
           )}
         >
-          ~
+          ~ $
           <Money cryptoDecimals={0} smallFractionFont={false}>
             {roundedTvl}
-          </Money>{" "}
-          $
+          </Money>
         </h2>
         <span className="text-sm text-gray-600 mb-2">{t("promoted")}</span>
         <div
