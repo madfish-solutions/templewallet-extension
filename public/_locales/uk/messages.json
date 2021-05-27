@@ -874,14 +874,25 @@
   },
   "cycles_one": {
     "message": "$amount$ цикл",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"
       }
     }
   },
-  "cycles_other": {
+  "cycles_few": {
+    "message": "$amount$ цикли",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "cycles_many": {
     "message": "$amount$ циклів",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -1138,9 +1149,13 @@
   "inUSD": {
     "message": "в USD"
   },
-  "inXTZ": {
-    "message": "в ꜩ",
-    "description": "ꜩ = asset symbol, like USD"
+  "inAsset": {
+    "message": "в $assetSymbol$",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "amountPlaceholder": {
     "message": "e.g. 123.45"
@@ -1679,11 +1694,38 @@
   "balanceTooLow": {
     "message": "Tez баланс дуже низький"
   },
+  "swap": {
+    "message": "Обміняти"
+  },
   "anotherAccount": {
     "message": "Інший аккаунт"
   },
   "accountNumber": {
     "message": "Номер аккаунта"
+  },
+  "noExchangersAvailable": {
+    "message": "На жаль, жодні обмінники не доступні в поточній мережі."
+  },
+  "balance": {
+    "message": "Баланс:"
+  },
+  "from": {
+    "message": "З"
+  },
+  "toAsset": {
+    "message": "В"
+  },
+  "via": {
+    "message": "Через"
+  },
+  "exchangeRate": {
+    "message": "Курс обміну:"
+  },
+  "slippageTolerance": {
+    "message": "Максимально допустиме відхилення:"
+  },
+  "minimumReceived": {
+    "message": "Мінімальний вихід:"
   },
   "helpAndCommunity": {
     "message": "Допомога та спільнота"
@@ -1699,5 +1741,129 @@
   },
   "blockExplorer": {
     "message": "Експлорер блокчейна"
+  },
+  "game": {
+    "message": "Гра"
+  },
+  "social": {
+    "message": "Соціальний проєкт"
+  },
+  "marketplace": {
+    "message": "Ринок"
+  },
+  "farming": {
+    "message": "Фармінг"
+  },
+  "other": {
+    "message": "Інше"
+  },
+  "thousandFormat": {
+    "message": "$thousand$ тис.",
+    "placeholders": {
+      "thousand": {
+        "content": "$1"
+      }
+    }
+  },
+  "rewardsForBlocks": {
+    "message": "$reward$ за $blocksAmount$ $blocks$ $feesAmount$ виплат",
+    "placeholders": {
+      "reward": {
+        "content": "$1"
+      },
+      "blocksAmount": {
+        "content": "$2"
+      },
+      "blocks": {
+        "content": "$3"
+      },
+      "feesAmount": {
+        "content": "$4"
+      }
+    }
+  },
+  "blocks_one": {
+    "message": "$amount$ блок",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_few": {
+    "message": "$amount$ блоки",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "blocks_many": {
+    "message": "$amount$ блоків",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "rewardsForSlots": {
+    "message": "$reward$ за $slotsAmount$ $slots$",
+    "placeholders": {
+      "reward": {
+        "content": "$1"
+      },
+      "slotsAmount": {
+        "content": "$2"
+      },
+      "slots": {
+        "content": "$3"
+      }
+    }
+  },
+  "slots_one": {
+    "message": "$amount$ слот",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "millionFormat": {
+    "message": "$million$ млн",
+    "placeholders": {
+      "million": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_few": {
+    "message": "$amount$ слоти",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "billionFormat": {
+    "message": "$billion$ млрд",
+    "placeholders": {
+      "billion": {
+        "content": "$1"
+      }
+    }
+  },
+  "slots_many": {
+    "message": "$amount$ слотів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
   }
 }
