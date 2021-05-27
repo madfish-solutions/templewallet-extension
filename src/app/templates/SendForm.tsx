@@ -7,6 +7,7 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
+  memo,
 } from "react";
 
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
@@ -905,52 +906,60 @@ type AccountSelectProps = {
   namesVisible?: boolean;
 };
 
-const AccountSelect: FC<AccountSelectProps> = ({
-  accounts,
-  activeAccount,
-  asset,
-  onChange,
-  titleI18nKey,
-  descriptionI18nKey,
-  namesVisible,
-}) => (
-  <div className="my-6 flex flex-col">
-    <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-      <span className="text-base font-semibold text-gray-700">
-        <T id={titleI18nKey} />
-      </span>
+const AccountSelect: FC<AccountSelectProps> = memo(
+  ({
+    accounts,
+    activeAccount,
+    asset,
+    onChange,
+    titleI18nKey,
+    descriptionI18nKey,
+    namesVisible,
+  }) => {
+    const filtered = accounts.filter(
+      (acc) => acc.publicKeyHash !== activeAccount
+    );
 
-      {descriptionI18nKey && (
-        <span
-          className={classNames("mt-1", "text-xs font-light text-gray-600")}
-          style={{ maxWidth: "90%" }}
+    if (filtered.length === 0) return null;
+
+    return (
+      <div className="my-6 flex flex-col">
+        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+          <span className="text-base font-semibold text-gray-700">
+            <T id={titleI18nKey} />
+          </span>
+
+          {descriptionI18nKey && (
+            <span
+              className={classNames("mt-1", "text-xs font-light text-gray-600")}
+              style={{ maxWidth: "90%" }}
+            >
+              <T id={descriptionI18nKey} />
+            </span>
+          )}
+        </h2>
+        <div
+          className={classNames(
+            "rounded-md overflow-hidden",
+            "border",
+            "flex flex-col",
+            "text-gray-700 text-sm leading-tight"
+          )}
         >
-          <T id={descriptionI18nKey} />
-        </span>
-      )}
-    </h2>
-    <div
-      className={classNames(
-        "rounded-md overflow-hidden",
-        "border",
-        "flex flex-col",
-        "text-gray-700 text-sm leading-tight"
-      )}
-    >
-      {accounts
-        .filter((acc) => acc.publicKeyHash !== activeAccount)
-        .map((acc, i) => (
-          <AccountSelectOption
-            account={acc}
-            key={acc.publicKeyHash}
-            isLast={i === accounts.length - 1}
-            onSelect={onChange}
-            asset={asset}
-            nameVisible={namesVisible}
-          />
-        ))}
-    </div>
-  </div>
+          {filtered.map((acc, i) => (
+            <AccountSelectOption
+              account={acc}
+              key={acc.publicKeyHash}
+              isLast={i === accounts.length - 1}
+              onSelect={onChange}
+              asset={asset}
+              nameVisible={namesVisible}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
 );
 
 type AccountSelectOptionProps = {
