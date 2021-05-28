@@ -217,24 +217,29 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       setShouldShowUsd((prevShouldShowUsd) => !prevShouldShowUsd);
     }, []);
 
-    const prettyError = useMemo(() => {
-      if (!error) {
-        return error;
-      }
-      if (error.startsWith("amountReserved")) {
-        const amountTez = new BigNumber(error.split(":")[1]);
-        return t(
+    const reservationTip = useMemo(
+      () =>
+        t(
           "amountMustBeReservedForNetworkFees",
-          `${amountTez.toString()} TEZ${
+          `${EXCHANGE_XTZ_RESERVE.toString()} TEZ${
             actualShouldShowUsd
               ? ` (≈$${assetAmountToUSD(
-                  amountTez,
+                  EXCHANGE_XTZ_RESERVE,
                   assetUsdPrice,
                   BigNumber.ROUND_UP
                 )})`
               : ""
           }`
-        );
+        ),
+      [actualShouldShowUsd, assetUsdPrice]
+    );
+
+    const prettyError = useMemo(() => {
+      if (!error) {
+        return error;
+      }
+      if (error.startsWith("amountReserved")) {
+        return reservationTip;
       }
       if (error.startsWith("maximalAmount")) {
         const amountAsset = new BigNumber(error.split(":")[1]);
@@ -247,7 +252,12 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
         );
       }
       return error;
-    }, [error, actualShouldShowUsd, assetUsdPrice]);
+    }, [error, actualShouldShowUsd, assetUsdPrice, reservationTip]);
+
+    const shouldShowReservationTip =
+      asset?.type === TempleAssetType.TEZ &&
+      maxAmount.lte(amount ?? 0) &&
+      !prettyError;
 
     return (
       <div className={classNames("w-full", className)} onBlur={onBlur}>
@@ -301,11 +311,16 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
           className={classNames(
             withPercentageButtons && "mt-1",
             "w-full flex items-center",
-            prettyError ? "justify-between" : "justify-end"
+            prettyError || shouldShowReservationTip
+              ? "justify-between"
+              : "justify-end"
           )}
         >
           {prettyError && (
             <div className="text-red-700 text-xs">{prettyError}</div>
+          )}
+          {shouldShowReservationTip && (
+            <div className="text-gray-500 text-xs">{reservationTip}</div>
           )}
           {withPercentageButtons && (
             <div className="flex">
