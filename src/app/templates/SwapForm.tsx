@@ -998,6 +998,8 @@ const SlippageToleranceInput = forwardRef<
   SlippageToleranceInputProps
 >(({ error, onChange, name, value }, ref) => {
   const [customPercentageValue, setCustomPercentageValue] = useState<number>();
+  const [inputWidth, setInputWidth] = useState(40);
+  const contentCopyRef = useRef<HTMLDivElement | null>(null);
 
   const handlePresetClick = useCallback(
     (newValue: number) => {
@@ -1029,6 +1031,17 @@ const SlippageToleranceInput = forwardRef<
     }
   }, [assetFieldActive, error]);
 
+  useEffect(() => {
+    const contentCopyElement = contentCopyRef.current;
+    if (contentCopyElement) {
+      const contentWidth = Math.max(
+        40,
+        contentCopyElement.getBoundingClientRect().width + 20
+      );
+      setInputWidth(contentWidth);
+    }
+  }, [customPercentageValue]);
+
   return (
     <>
       {slippageTolerancePresets.map((preset) => (
@@ -1039,7 +1052,13 @@ const SlippageToleranceInput = forwardRef<
           onClick={handlePresetClick}
         />
       ))}
-      <div className="w-10">
+      <div className="relative" style={{ width: inputWidth }}>
+        <span
+          className="text-xs h-0 overflow-y-hidden absolute top-0 left-0"
+          ref={contentCopyRef}
+        >
+          {customPercentageValue}
+        </span>
         <AssetField
           className={classNames(
             "rounded-md border bg-opacity-0 -mb-2 text-right",
