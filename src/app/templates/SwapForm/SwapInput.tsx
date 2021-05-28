@@ -38,6 +38,7 @@ import {
   assetAmountToUSD,
   usdToAssetAmount,
   useNetwork,
+  getAssetKey,
 } from "lib/temple/front";
 import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
@@ -734,7 +735,7 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
         <AssetOption
           key={getAssetKey(option) ?? "tez"}
           option={option}
-          selected={value === getAssetKey(option)}
+          selected={!!value && getAssetKey(value) === getAssetKey(option)}
           onClick={handleOptionClick}
           isLast={index === options.length - 1}
         />
@@ -786,10 +787,6 @@ const AssetOption: React.FC<AssetOptionProps> = ({
     </button>
   );
 };
-
-function getAssetKey(asset: TempleAsset) {
-  return asset.type === TempleAssetType.TEZ ? undefined : asset.address;
-}
 
 const sameWidth: Modifier<string, any> = {
   name: "sameWidth",
