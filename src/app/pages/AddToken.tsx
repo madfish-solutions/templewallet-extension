@@ -499,10 +499,7 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
         ref={register({
           validate: (val: string) => {
             if (!val) return true;
-            if (
-              val.match(/(https:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i) ||
-              val.match(/(ipfs:\/\/.*)/i)
-            ) {
+            if (val.match(/(https:\/\/.*)/i) || val.match(/(ipfs:\/\/.*)/i)) {
               return true;
             }
 
