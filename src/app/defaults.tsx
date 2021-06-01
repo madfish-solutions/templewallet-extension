@@ -2,6 +2,7 @@ import React from "react";
 
 import tezImgUrl from "app/misc/tez.png";
 import { T, t } from "lib/i18n/react";
+import { sanitizeImgUri } from "lib/image-uri";
 import {
   TempleAccount,
   TempleAsset,
@@ -52,7 +53,8 @@ export function formatMnemonic(m: string) {
 }
 
 export function getAssetIconUrl(asset: TempleAsset) {
-  return asset.type === TempleAssetType.TEZ ? tezImgUrl : asset.iconUrl;
+  const url = asset.type === TempleAssetType.TEZ ? tezImgUrl : asset.iconUrl;
+  return url && sanitizeImgUri(url);
 }
 
 export function getAccountBadgeTitle(account: Pick<TempleAccount, "type">) {
