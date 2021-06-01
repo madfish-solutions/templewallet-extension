@@ -21,7 +21,7 @@ import {
 import { TempleAssetType, TempleToken } from "lib/temple/types";
 
 const AddUnknownTokens: FC = () => {
-  const { allTokens, addToken } = useTokens();
+  const { savedTokens, addToken } = useTokens();
   const { publicKeyHash: accountPkh } = useAccount();
   const tezos = useTezos();
   const chainId = useChainId();
@@ -52,7 +52,7 @@ const AddUnknownTokens: FC = () => {
 
         for (const token of balances) {
           try {
-            if (allTokens.every((t) => !tokensAreSame(t, token))) {
+            if (savedTokens.every((t) => !tokensAreSame(t, token))) {
               const meta = await fetchTokenMetadata(
                 tezos,
                 token.contract,
@@ -108,7 +108,7 @@ const AddUnknownTokens: FC = () => {
         break;
       }
     }
-  }, [accountPkh, networkId, addToken, allTokens, tezos]);
+  }, [accountPkh, networkId, addToken, savedTokens, tezos]);
 
   const syncTokensRef = useRef(syncTokens);
   useEffect(() => {
