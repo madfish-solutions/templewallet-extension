@@ -7,7 +7,7 @@ import {
   BcdAccountTokenBalance,
   getAccountTokenBalances,
 } from "lib/better-call-dev";
-import { sanitizeImgUri } from "lib/image-uri";
+import { formatImgUri } from "lib/image-uri";
 import {
   useAccount,
   useChainId,
@@ -78,9 +78,7 @@ const AddUnknownTokens: FC = () => {
                 fungible: true,
                 symbol: meta.symbol,
                 name: meta.name,
-                iconUrl: meta.iconUrl
-                  ? sanitizeImgUri(meta.iconUrl)
-                  : undefined,
+                iconUrl: meta.iconUrl ? formatImgUri(meta.iconUrl) : undefined,
                 status: positiveBalance
                   ? ("displayed" as const)
                   : ("hidden" as const),
