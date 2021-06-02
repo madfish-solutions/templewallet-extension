@@ -53,12 +53,25 @@ export async function confirmOperation(
 
       const opEntry = await findOperation(block, opHash);
       if (opEntry) {
+        let status;
+        try {
+          status = (opEntry.contents[0] as any).metadata.operation_result
+            .status;
+        } catch {}
+        if (status && status !== "applied") {
+          throw new FailedOpError(`Operation ${status}`);
+        }
+
         return opEntry;
       }
     }
   } catch (err) {
     if (process.env.NODE_ENV === "development") {
       console.error(err);
+    }
+
+    if (err instanceof FailedOpError) {
+      throw err;
     }
   }
 
@@ -86,6 +99,8 @@ export async function findOperation(block: BlockResponse, opHash: string) {
   }
   return null;
 }
+
+export class FailedOpError extends Error {}
 
 export const batchify = (
   batch: OperationBatch | WalletOperationBatch,
@@ -146,11 +161,7 @@ export async function withTokenApprove(
     ];
   }
 
-  const approveParams = getFA12ApproveParams(
-    tokenContract,
-    to,
-    value
-  );
+  const approveParams = getFA12ApproveParams(tokenContract, to, value);
   let resetApprove = false;
   try {
     await tezos.estimate.batch([approveParams]);
@@ -159,7 +170,11 @@ export async function withTokenApprove(
   }
 
   return resetApprove
-    ? [getFA12ApproveParams(tokenContract, to, new BigNumber(0)), approveParams, ...transfers]
+    ? [
+        getFA12ApproveParams(tokenContract, to, new BigNumber(0)),
+        approveParams,
+        ...transfers,
+      ]
     : [approveParams, ...transfers];
 }
 
