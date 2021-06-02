@@ -44,9 +44,21 @@ const ActivityItem = memo<ActivityItemProps>(
       ]
     );
 
+    const status = useMemo(() => {
+      if (!syncSupported) return null;
+
+      const explorerStatus =
+        operation.data.tzktGroup?.[0]?.status ??
+        operation.data.bcdTokenTransfers?.[0]?.status;
+      return explorerStatus ?? "pending";
+    }, [syncSupported, operation.data]);
+
     const moneyDiffs = useMemo(
-      () => parseMoneyDiffs(operation, address),
-      [operation, address]
+      () =>
+        !status || ["pending", "applied"].includes(status)
+          ? parseMoneyDiffs(operation, address)
+          : [],
+      [status, operation, address]
     );
 
     const opStack = useMemo(
@@ -54,7 +66,7 @@ const ActivityItem = memo<ActivityItemProps>(
       [operation, address]
     );
 
-    const status = useMemo(() => {
+    const statusNode = useMemo(() => {
       if (!syncSupported) return null;
 
       const explorerStatus =
@@ -104,9 +116,9 @@ const ActivityItem = memo<ActivityItemProps>(
           <div className="flex flex-col pt-2">
             <OpStack opStack={opStack} className="mb-2" />
 
-            {status && (
+            {statusNode && (
               <div className="mb-px text-xs font-light leading-none">
-                {status}
+                {statusNode}
               </div>
             )}
 
