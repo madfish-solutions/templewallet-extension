@@ -10,5 +10,6 @@ export enum AnalyticsEventCategory {
 
 export enum AnalyticsEventEnum {
   AnalyticsEnabled = "AnalyticsEnabled",
+  AnalyticsDisabled = "AnalyticsDisabled",
   LanguageChanged = "LanguageChanged",
 }

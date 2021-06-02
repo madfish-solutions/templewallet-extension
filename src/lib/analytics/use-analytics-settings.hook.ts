@@ -9,11 +9,17 @@ export const useAnalyticsSettings = () => {
   const setAnalyticsEnabled = (enabled?: boolean) => {
     setAnalyticsState({ ...analyticsState, enabled });
 
-    enabled && sendTrackEvent(analyticsState.userId, rpc, AnalyticsEventEnum.AnalyticsEnabled);
+    sendTrackEvent(
+      analyticsState.userId,
+      rpc,
+      enabled
+        ? AnalyticsEventEnum.AnalyticsEnabled
+        : AnalyticsEventEnum.AnalyticsDisabled
+    );
   };
 
   return {
     analyticsEnabled: analyticsState.enabled,
     setAnalyticsEnabled,
   };
-}
+};
