@@ -72,7 +72,14 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     "/import-account/:tabSlug?",
     onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />),
   ],
-  ["/connect-ledger", onlyReady(() => <ConnectLedger />)],
+  [
+    "/connect-ledger",
+    onlyReady(
+      process.env.TARGET_BROWSER === "chrome"
+        ? onlyInFullPage(() => <ConnectLedger />)
+        : () => <ConnectLedger />
+    ),
+  ],
   ["/receive", onlyReady(() => <Receive />)],
   [
     "/send/:assetSlug?",
