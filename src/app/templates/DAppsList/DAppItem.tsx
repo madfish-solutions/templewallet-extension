@@ -8,9 +8,12 @@ import { ReactComponent as LockIcon } from "app/icons/lock.svg";
 import { ReactComponent as TagIcon } from "app/icons/tag.svg";
 import DAppIcon from "app/templates/DAppsList/DAppIcon";
 import StarButton from "app/templates/DAppsList/StarButton";
+import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { CustomDAppInfo } from "lib/custom-dapps-api";
 import { t } from "lib/i18n/react";
 import { TEZ_ASSET, useAssetUSDPrice } from "lib/temple/front";
+
+import { DAppStoreSelectors } from "../DAppsList.selectors";
 
 type DAppItemProps = CustomDAppInfo & {
   onStarClick: (newIsFavorite: boolean, slug: string) => void;
@@ -30,6 +33,7 @@ const DAppItem: FC<DAppItemProps> = ({
   tvl,
 }) => {
   const { popup } = useAppEnv();
+  const { trackEvent } = useAnalytics();
   const handleStarClick = useCallback(() => {
     onStarClick(!isFavorite, slug);
   }, [isFavorite, onStarClick, slug]);
@@ -40,10 +44,23 @@ const DAppItem: FC<DAppItemProps> = ({
     }
     return undefined;
   }, [tzUsdPrice, tvl]);
+  const handleLinkClick = useCallback(() => {
+    trackEvent(
+      DAppStoreSelectors.DAppOpened,
+      AnalyticsEventCategory.ButtonPress,
+      { website, name }
+    );
+  }, [trackEvent, website, name]);
 
   return (
     <div className="w-full mb-4 flex items-center">
-      <a className="mr-4" href={website} target="_blank" rel="noreferrer">
+      <a
+        className="mr-4"
+        href={website}
+        target="_blank"
+        rel="noreferrer"
+        onClick={handleLinkClick}
+      >
         <DAppIcon name={name} logo={logo} />
       </a>
       <div className="flex-1 flex justify-between items-start">

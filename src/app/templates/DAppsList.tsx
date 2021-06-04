@@ -10,12 +10,15 @@ import DAppIcon from "app/templates/DAppsList/DAppIcon";
 import DAppItem from "app/templates/DAppsList/DAppItem";
 import StarButton from "app/templates/DAppsList/StarButton";
 import SearchField from "app/templates/SearchField";
+import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { getDApps } from "lib/custom-dapps-api";
 import { t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import { TEZ_ASSET } from "lib/temple/assets";
 import { useStorage } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
+
+import { DAppStoreSelectors } from "./DAppsList.selectors";
 
 const USED_TAGS = [
   "DEX",
@@ -32,6 +35,8 @@ const TOP_DAPPS_SLUGS = ["quipuswap", "kolibri", "hen"];
 const FAVORITE_DAPPS_STORAGE_KEY = "dapps_favorite";
 
 const DAppsList: FC = () => {
+  const { trackEvent } = useAnalytics();
+
   const [favoriteDApps, setFavoriteDApps] = useStorage<string[]>(
     FAVORITE_DAPPS_STORAGE_KEY,
     []
@@ -114,6 +119,17 @@ const DAppsList: FC = () => {
     [setFavoriteDApps, favoriteDApps]
   );
 
+  const handleFeaturedClick = useCallback(
+    (website: string, name: string) => {
+      trackEvent(
+        DAppStoreSelectors.DAppOpened,
+        AnalyticsEventCategory.ButtonPress,
+        { website, name }
+      );
+    },
+    [trackEvent]
+  );
+
   const infoIconWrapperTippyProps = useMemo(
     () => ({
       trigger: "mouseenter",
@@ -181,6 +197,7 @@ const DAppsList: FC = () => {
               href={website}
               target="_blank"
               rel="noreferrer"
+              onClick={() => handleFeaturedClick(website, name)}
             >
               <DAppIcon className="mb-2" name={name} logo={logo} />
               <span
