@@ -1980,5 +1980,8 @@
   },
   "unknownAccount": {
     "message": "Unknown account"
+  },
+  "ledgerLiveBridgeGuide": {
+    "message": "To connect to Ledger, please activate the Ledger Live application on your device, open Tezos Wallet application and allow a WebSocket connection to your Temple account."
   }
 }
