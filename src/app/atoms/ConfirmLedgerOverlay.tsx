@@ -10,9 +10,7 @@ type ConfirmLedgerOverlayProps = {
   displayed: boolean;
 };
 
-const ConfirmLedgerOverlay: FC<ConfirmLedgerOverlayProps> = ({
-  displayed,
-}) => (
+const ConfirmLedgerOverlay: FC<ConfirmLedgerOverlayProps> = ({ displayed }) => (
   <CSSTransition
     in={displayed}
     timeout={500}
@@ -61,6 +59,19 @@ const ConfirmLedgerOverlay: FC<ConfirmLedgerOverlayProps> = ({
         className="animate-pulse"
         style={{ width: "10rem", height: "auto" }}
       />
+
+      {process.env.TARGET_BROWSER === "chrome" && (
+        <p
+          className={classNames(
+            "mt-8",
+            "text-center",
+            "text-sm text-gray-600",
+            "max-w-xs"
+          )}
+        >
+          <T id="ledgerLiveBridgeGuide" />
+        </p>
+      )}
     </div>
   </CSSTransition>
 );
