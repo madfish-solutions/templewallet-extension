@@ -44,6 +44,8 @@ import {
   TEZ_ASSET,
   assetAmountToUSD,
   ExchangerType,
+  useAssetBySlug,
+  TempleAsset,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 
@@ -58,7 +60,12 @@ type SwapFormValues = {
 
 const maxTolerancePercentage = 30;
 
-const SwapFormWrapper: React.FC = () => {
+type SwapFormWrapperProps = {
+  assetSlug?: string | null;
+};
+
+const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
+  const defaultAsset = useAssetBySlug(assetSlug) ?? undefined;
   const { isSupportedNetwork } = useSwappableAssets();
 
   if (!isSupportedNetwork) {
@@ -69,14 +76,18 @@ const SwapFormWrapper: React.FC = () => {
     );
   }
 
-  return <SwapForm />;
+  return <SwapForm defaultAsset={defaultAsset} />;
 };
 
 export default SwapFormWrapper;
 
 const feeLabel = `${toLocalFixed(new BigNumber("0.3"))}%`;
 
-const SwapForm: React.FC = () => {
+type SwapFormProps = {
+  defaultAsset?: TempleAsset;
+};
+
+const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   const { assets, quipuswapTokensWhitelist, tokensExchangeData, tezUsdPrice } =
     useSwappableAssets();
   const { getInputAssetAmount, getOutputAssetAmounts } = useSwapCalculations();
@@ -94,10 +105,19 @@ const SwapForm: React.FC = () => {
   )
     ? "quipuswap"
     : "dexter";
+  const initialAsset = useMemo(() => {
+    if (
+      defaultAsset &&
+      assets.some((asset) => assetsAreSame(asset, defaultAsset))
+    ) {
+      return defaultAsset;
+    }
+    return assets[0];
+  }, [assets, defaultAsset]);
   const formContextValues = useForm<SwapFormValues>({
     defaultValues: {
       exchanger: defaultExchanger,
-      input: { asset: assets[0] },
+      input: { asset: initialAsset },
       output: {},
       tolerancePercentage: 1,
     },
