@@ -1654,16 +1654,6 @@
   resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-5.43.0.tgz#6bec77ebc31c4333a7f8d13b1f3f4d739b859b75"
   integrity sha512-ZjKlUQbIn/DHXAefW3Y1VyDrlVhVqqGnXzrqbOXuDbZ2OAIfSe/A1mrlCbWt98jP/8EJQBuCzBOtnmpXIL/nYg==
 
-"@ledgerhq/hw-transport-webauthn@5.26.0":
-  version "5.26.0"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-webauthn/-/hw-transport-webauthn-5.26.0.tgz#82ff0968598c36c091d22ef26ca1a70a61a55bef"
-  integrity sha512-W0ggl473hMWXPHqpFPLl2UipMXXhnpAc/Fyxqi/lz8Mk+i1oWAL2l9fWLxzOKS8GP6QV4Jc7YLB0usjQHH47ZA==
-  dependencies:
-    "@ledgerhq/devices" "^5.26.0"
-    "@ledgerhq/errors" "^5.26.0"
-    "@ledgerhq/hw-transport" "^5.26.0"
-    "@ledgerhq/logs" "^5.26.0"
-
 "@ledgerhq/hw-transport@^5.26.0":
   version "5.26.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport/-/hw-transport-5.26.0.tgz#bfedc3d48400ad2fe48278d9444344b72aa9d0fe"
@@ -2014,10 +2004,10 @@
   dependencies:
     nanoid "^3.1.10"
 
-"@temple-wallet/ledger-bridge@0.6.1":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/ledger-bridge/-/ledger-bridge-0.6.1.tgz#e160d70d13c9f60978667efae0908fe983538d44"
-  integrity sha512-k5KdHDkf6Jbx8hP9RQoOdgpqaTtgBy2ECfniqo6M1PIDX9VC/ucHJI5NFqeFbXuiuETDPpGAXq0HTVyBNgREyg==
+"@temple-wallet/ledger-bridge@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/ledger-bridge/-/ledger-bridge-1.0.0.tgz#1c64234bd5ac774304944f6322220ff3398845a2"
+  integrity sha512-PLOXYJ9vbWrNKoh8cwbPwn4Af8KEma4ecfPFH3r8NZsgnXlszngxCk4POkF1CbOtvtts405nLiS6MZ4q8KbAUA==
   dependencies:
     "@ledgerhq/errors" "^5.26.0"
     "@ledgerhq/hw-transport" "^5.26.0"

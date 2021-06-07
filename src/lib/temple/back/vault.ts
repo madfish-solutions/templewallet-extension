@@ -1,5 +1,4 @@
 import LedgerTransport from "@ledgerhq/hw-transport";
-import LedgerWebAuthnTransport from "@ledgerhq/hw-transport-webauthn";
 import { HttpResponseError } from "@taquito/http-utils";
 import { DerivationType } from "@taquito/ledger-signer";
 import { localForger } from "@taquito/local-forging";
@@ -709,17 +708,15 @@ async function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
 }
 
+let transport: LedgerTransport;
+
 async function createLedgerSigner(
   derivationPath: string,
   derivationType?: DerivationType,
   publicKey?: string,
   publicKeyHash?: string
 ) {
-  let transport: LedgerTransport;
-
-  if (process.env.TARGET_BROWSER === "chrome") {
-    transport = await LedgerWebAuthnTransport.create();
-  } else {
+  if (!transport) {
     const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
     if (!bridgeUrl) {
       throw new Error(
@@ -728,9 +725,15 @@ async function createLedgerSigner(
     }
 
     transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
+    if (process.env.TARGET_BROWSER === "chrome") {
+      (transport as LedgerTempleBridgeTransport).useLedgerLive();
+    }
   }
 
-  const cleanup = () => transport.close();
+  // After Ledger Live bridge was setuped, we don't close transport
+  // Probably we do not need to close it
+  // But if we need, we can close it after not use timeout
+  const cleanup = () => {}; // transport.close();
   const signer = new TempleLedgerSigner(
     transport,
     removeMFromDerivationPath(derivationPath),
