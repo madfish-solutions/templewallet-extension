@@ -152,13 +152,21 @@ function getTokenId(token: TempleToken, replacer?: number) {
   return token.type === TempleAssetType.FA2 ? token.id : replacer;
 }
 
-async function getTokensToExchange(
-  contractAddress: string,
+async function getTokensToExchangeBigmaps(
+  contractsAddresses: string[],
   tezos: TezosToolkit
-): Promise<BigMapAbstraction> {
-  const tokenListContract = await loadContract(tezos, contractAddress, false);
-  const tokenListStorage = await tokenListContract.storage<any>();
-  return tokenListStorage.token_to_exchange;
+): Promise<BigMapAbstraction[]> {
+  return Promise.all(
+    contractsAddresses.map(async (contractAddress) => {
+      const tokenListContract = await loadContract(
+        tezos,
+        contractAddress,
+        false
+      );
+      const tokenListStorage = await tokenListContract.storage<any>();
+      return tokenListStorage.token_to_exchange;
+    })
+  );
 }
 
 export const getAssetExchangeData = (
@@ -361,14 +369,14 @@ export default function useSwappableAssets(
     const result: Record<string, Record<number, string>> = {};
     const whitelist = quipuswapTokenWhitelists?.get(chainId) ?? [];
     const quipuswapContracts = QUIPUSWAP_CONTRACTS.get(chainId)!;
-    const fa12FactoryAddress = quipuswapContracts.fa12Factory;
-    const fa2FactoryAddress = quipuswapContracts.fa2Factory;
-    const fa2TokensToExchange = fa2FactoryAddress
-      ? await getTokensToExchange(fa2FactoryAddress, tezos)
-      : undefined;
-    const fa12TokensToExchange = fa12FactoryAddress
-      ? await getTokensToExchange(fa12FactoryAddress, tezos)
-      : undefined;
+    const fa12FactoriesAddresses = quipuswapContracts.fa12Factory;
+    const fa2FactoriesAddresses = quipuswapContracts.fa2Factory;
+    const fa2TokensToExchangeBigmaps = fa2FactoriesAddresses
+      ? await getTokensToExchangeBigmaps(fa2FactoriesAddresses, tezos)
+      : [];
+    const fa12TokensToExchangeBigmaps = fa12FactoriesAddresses
+      ? await getTokensToExchangeBigmaps(fa12FactoriesAddresses, tezos)
+      : [];
     const initialExchangableTokens = [
       ...whitelist,
       ...qsStoredTokens.filter(
@@ -383,14 +391,21 @@ export default function useSwappableAssets(
         const tokenId = getTokenId(token);
         let exchangeContractAddress: string | undefined;
         if (token.type === TempleAssetType.FA2) {
-          // @ts-ignore
-          exchangeContractAddress =
-            fa2TokensToExchange &&
-            (await fa2TokensToExchange.get([token.address, token.id]))!;
+          exchangeContractAddress = (
+            await Promise.all(
+              fa2TokensToExchangeBigmaps.map((bigMap) =>
+                bigMap.get<string | undefined>([token.address, token.id])
+              )
+            )
+          ).find((value) => value !== undefined);
         } else {
-          exchangeContractAddress =
-            fa12TokensToExchange &&
-            ((await fa12TokensToExchange.get(token.address))! as string);
+          exchangeContractAddress = (
+            await Promise.all(
+              fa12TokensToExchangeBigmaps.map((bigMap) =>
+                bigMap.get<string | undefined>(token.address)
+              )
+            )
+          ).find((value) => value !== undefined);
         }
         if (!result[token.address]) {
           result[token.address] = {};
@@ -497,21 +512,23 @@ export default function useSwappableAssets(
         let isFA2Token = false;
         let fa2IdIsCorrect = false;
         const quipuswapContracts = QUIPUSWAP_CONTRACTS.get(chainId)!;
-        const fa2FactoryAddress = quipuswapContracts.fa2Factory;
-        const fa12FactoryAddress = quipuswapContracts.fa12Factory;
-        const fa2TokensList = fa2FactoryAddress
-          ? await getTokensToExchange(fa2FactoryAddress, tezos)
-          : undefined;
+        const fa2FactoriesAddresses = quipuswapContracts.fa2Factory;
+        const fa12FactoriesAddresses = quipuswapContracts.fa12Factory;
+        const fa2TokensToExchangeBigmaps = fa2FactoriesAddresses
+          ? await getTokensToExchangeBigmaps(fa2FactoriesAddresses, tezos)
+          : [];
         let exchangeContractAddress: string | undefined;
         try {
           await assertFA2TokenContract(contract);
           isFA2Token = true;
           if (tokenId !== undefined) {
-            // @ts-ignore
-            exchangeContractAddress = await fa2TokensList.get([
-              searchStr,
-              tokenId,
-            ]);
+            exchangeContractAddress = (
+              await Promise.all(
+                fa2TokensToExchangeBigmaps.map((bigMap) =>
+                  bigMap.get<string | undefined>([searchStr, tokenId])
+                )
+              )
+            ).find((value) => value !== undefined);
             fa2IdIsCorrect = !!exchangeContractAddress;
           }
         } catch (e) {}
@@ -523,11 +540,17 @@ export default function useSwappableAssets(
         }
         if (!isFA2Token) {
           try {
-            const tokensList = fa12FactoryAddress
-              ? await getTokensToExchange(fa12FactoryAddress, tezos)
-              : undefined;
-            if (tokensList) {
-              exchangeContractAddress = await tokensList.get(searchStr);
+            const fa12TokensToExchangeBigmaps = fa12FactoriesAddresses
+              ? await getTokensToExchangeBigmaps(fa12FactoriesAddresses, tezos)
+              : [];
+            if (fa12TokensToExchangeBigmaps.length > 0) {
+              exchangeContractAddress = (
+                await Promise.all(
+                  fa12TokensToExchangeBigmaps.map((bigMap) =>
+                    bigMap.get<string | undefined>(searchStr)
+                  )
+                )
+              ).find((value) => value !== undefined);
             }
           } catch (e) {}
         }
