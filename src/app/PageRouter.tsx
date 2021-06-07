@@ -85,7 +85,10 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     "/send/:assetSlug?",
     onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />),
   ],
-  ["/swap", onlyReady(() => <Swap />)],
+  [
+    "/swap/:assetSlug?",
+    onlyReady(({ assetSlug }) => <Swap assetSlug={assetSlug} />),
+  ],
   ["/delegate", onlyReady(() => <Delegate />)],
   ["/dapps", onlyReady(() => <DApps />)],
   ["/manage-assets", onlyReady(() => <ManageAssets />)],

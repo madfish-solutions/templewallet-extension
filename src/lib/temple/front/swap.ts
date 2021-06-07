@@ -75,27 +75,39 @@ export const DEXTER_EXCHANGE_CONTRACTS = new Map<
 
 export const QUIPUSWAP_CONTRACTS = new Map<
   string,
-  Partial<Record<"fa12Factory" | "fa2Factory", string>>
+  Partial<Record<"fa12Factory" | "fa2Factory", string[]>>
 >([
   [
     TempleChainId.Edo2net,
     {
-      fa12Factory: "KT1WEcbPNGZNe6d5pm3eNufqe7cHS77DBG2G",
-      fa2Factory: "KT1KGdYTfLdzTKpyQbKkHJ2ASmBYa84hnCiQ",
+      fa12Factory: ["KT1WEcbPNGZNe6d5pm3eNufqe7cHS77DBG2G"],
+      fa2Factory: ["KT1KGdYTfLdzTKpyQbKkHJ2ASmBYa84hnCiQ"],
     },
   ],
   [
     TempleChainId.Florencenet,
     {
-      fa12Factory: "KT1We4CHneKjnCkovTDV34qc4W7xzWbn5LwY",
-      fa2Factory: "KT1SQX24W2v6D5sgihznax1eBykEGQNc7UpD",
+      fa12Factory: [
+        "KT195gyo5G7pay2tYweWDeYFkGLqcvQTXoCW",
+        "KT1We4CHneKjnCkovTDV34qc4W7xzWbn5LwY",
+      ],
+      fa2Factory: [
+        "KT1HjLwPC3sbh6W5HjaKBsiVPTgptcNbnXnc",
+        "KT1SQX24W2v6D5sgihznax1eBykEGQNc7UpD",
+      ],
     },
   ],
   [
     TempleChainId.Mainnet,
     {
-      fa12Factory: "KT1Lw8hCoaBrHeTeMXbqHPG4sS4K1xn7yKcD",
-      fa2Factory: "KT1SwH9P1Tx8a58Mm6qBExQFTcy2rwZyZiXS",
+      fa12Factory: [
+        "KT1FWHLMk5tHbwuSsp31S4Jum4dTVmkXpfJw",
+        "KT1Lw8hCoaBrHeTeMXbqHPG4sS4K1xn7yKcD",
+      ],
+      fa2Factory: [
+        "KT1PvEyN1xCFCgorN92QCfYjw3axS6jawCiJ",
+        "KT1SwH9P1Tx8a58Mm6qBExQFTcy2rwZyZiXS",
+      ],
     },
   ],
 ]);
