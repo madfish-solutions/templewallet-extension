@@ -1120,7 +1120,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
       </div>
       <div
         className={classNames(
-          "mt-8 mb-6 flex flex-col",
+          "mt-2 mb-6 flex flex-col",
           (estimateFallbackDisplayed ||
             restFormDisplayed ||
             allAccounts.length <= 1) &&
@@ -1186,7 +1186,7 @@ const AccountSelect: FC<AccountSelectProps> = memo(
     if (filtered.length === 0) return null;
 
     return (
-      <div className="my-6 flex flex-col">
+      <div className="mt-4 mb-6 flex flex-col">
         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
           <span className="text-base font-semibold text-gray-700">
             <T id={titleI18nKey} />
