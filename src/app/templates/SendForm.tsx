@@ -317,7 +317,8 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
       if (!shouldGet) {
         return null;
       }
-      return (await getTokenPrice({ tokenAddress, tokenId })).price;
+      return (await getTokenPrice({ tokenAddress, tokenId: tokenId ?? 0 }))
+        .price;
     },
     []
   );
