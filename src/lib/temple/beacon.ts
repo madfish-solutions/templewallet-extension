@@ -187,6 +187,8 @@ export function formatOpParams(op: any) {
       amount: +amount,
       mutez: true,
       parameter: parameter ?? parameters,
+      fee,
+      gasLimit: gas_limit,
       storageLimit: storage_limit,
     };
   }
