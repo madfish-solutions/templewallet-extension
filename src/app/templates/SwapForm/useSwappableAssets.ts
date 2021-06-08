@@ -27,6 +27,7 @@ import {
   assertFA2TokenContract,
   useStorage,
   useAssetUSDPrice,
+  getAssetKey,
 } from "lib/temple/front";
 import {
   TempleAsset,
@@ -184,6 +185,7 @@ export const getAssetExchangeData = (
 };
 
 export default function useSwappableAssets(
+  extraAssetToCheck?: TempleAsset,
   searchString = "",
   tokenId?: number
 ) {
@@ -477,10 +479,71 @@ export default function useSwappableAssets(
         )
       ).filter(tokenFilterPredicate);
 
+      const quipuswapTokensWhitelist =
+        quipuswapTokenWhitelists!.get(chainId) ?? [];
       const knownQuipuswapTokens = [
-        ...(quipuswapTokenWhitelists!.get(chainId) ?? []),
-        ...qsStoredTokens,
+        ...quipuswapTokensWhitelist,
+        ...qsStoredTokens.filter(
+          (token) =>
+            !quipuswapTokensWhitelist.some(
+              (whitelistedToken) => !assetsAreSame(token, whitelistedToken)
+            )
+        ),
       ];
+      const quipuswapContracts = QUIPUSWAP_CONTRACTS.get(chainId)!;
+      const fa2FactoriesAddresses = quipuswapContracts.fa2Factory;
+      const fa12FactoriesAddresses = quipuswapContracts.fa12Factory;
+      const fa2TokensToExchangeBigmaps = fa2FactoriesAddresses
+        ? await getTokensToExchangeBigmaps(fa2FactoriesAddresses, tezos)
+        : [];
+      const fa12TokensToExchangeBigmaps = fa12FactoriesAddresses
+        ? await getTokensToExchangeBigmaps(fa12FactoriesAddresses, tezos)
+        : [];
+      const quipuswapTokensExchangeContracts =
+        initialQuipuswapExchangeContracts ?? {};
+
+      if (
+        extraAssetToCheck &&
+        extraAssetToCheck.type !== TempleAssetType.TEZ &&
+        !knownQuipuswapTokens.some((token) =>
+          assetsAreSame(token, extraAssetToCheck)
+        )
+      ) {
+        const assetId =
+          extraAssetToCheck.type === TempleAssetType.FA2
+            ? extraAssetToCheck.id
+            : undefined;
+        let exchangeContract: string | undefined;
+        if (extraAssetToCheck.type === TempleAssetType.FA2) {
+          exchangeContract = (
+            await Promise.all(
+              fa2TokensToExchangeBigmaps.map((bigMap) =>
+                bigMap.get<string | undefined>([
+                  extraAssetToCheck.address,
+                  assetId,
+                ])
+              )
+            )
+          ).find((value) => value !== undefined);
+        } else {
+          exchangeContract = (
+            await Promise.all(
+              fa12TokensToExchangeBigmaps.map((bigMap) =>
+                bigMap.get<string | undefined>(extraAssetToCheck.address)
+              )
+            )
+          ).find((value) => value !== undefined);
+        }
+        if (exchangeContract) {
+          knownQuipuswapTokens.push(extraAssetToCheck);
+          if (!quipuswapTokensExchangeContracts[extraAssetToCheck.address]) {
+            quipuswapTokensExchangeContracts[extraAssetToCheck.address] = {};
+          }
+          quipuswapTokensExchangeContracts[extraAssetToCheck.address][
+            assetId ?? 0
+          ] = exchangeContract;
+        }
+      }
       const networkIsSupported =
         knownQuipuswapTokens.length > 0 || knownDexterTokens.length > 0;
       const matchingKnownQuipuswapTokens =
@@ -495,8 +558,7 @@ export default function useSwappableAssets(
       const minimalResult = {
         dexter: dexterTokens,
         quipuswap: matchingKnownQuipuswapTokens,
-        quipuswapTokensExchangeContracts:
-          initialQuipuswapExchangeContracts ?? {},
+        quipuswapTokensExchangeContracts,
         networkIsSupported,
         tokenIdRequired: searchStrIsAddress
           ? foundTokenId !== undefined
@@ -511,12 +573,6 @@ export default function useSwappableAssets(
         const contract = await loadContract(tezos, searchStr);
         let isFA2Token = false;
         let fa2IdIsCorrect = false;
-        const quipuswapContracts = QUIPUSWAP_CONTRACTS.get(chainId)!;
-        const fa2FactoriesAddresses = quipuswapContracts.fa2Factory;
-        const fa12FactoriesAddresses = quipuswapContracts.fa12Factory;
-        const fa2TokensToExchangeBigmaps = fa2FactoriesAddresses
-          ? await getTokensToExchangeBigmaps(fa2FactoriesAddresses, tezos)
-          : [];
         let exchangeContractAddress: string | undefined;
         try {
           await assertFA2TokenContract(contract);
@@ -540,9 +596,6 @@ export default function useSwappableAssets(
         }
         if (!isFA2Token) {
           try {
-            const fa12TokensToExchangeBigmaps = fa12FactoriesAddresses
-              ? await getTokensToExchangeBigmaps(fa12FactoriesAddresses, tezos)
-              : [];
             if (fa12TokensToExchangeBigmaps.length > 0) {
               exchangeContractAddress = (
                 await Promise.all(
@@ -590,6 +643,7 @@ export default function useSwappableAssets(
       initialQuipuswapExchangeContracts,
       qsStoredTokens,
       setQsStoredTokens,
+      extraAssetToCheck,
     ]
   );
 
@@ -605,6 +659,7 @@ export default function useSwappableAssets(
       !!quipuswapTokenWhitelists,
       !!initialQuipuswapExchangeContracts,
       qsStoredTokensKeys,
+      extraAssetToCheck && getAssetKey(extraAssetToCheck),
     ],
     getSwappableTokens,
     { suspense: false }
