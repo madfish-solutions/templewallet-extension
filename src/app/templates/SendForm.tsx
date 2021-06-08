@@ -82,6 +82,7 @@ import {
   GasStation,
   useChainId,
   useAssetUSDPrice,
+  addLocalOperation,
 } from "lib/temple/front";
 import * as PndOps from "lib/temple/pndops";
 import {
@@ -792,6 +793,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
             chainId!,
             PndOps.fromOpResults(response.results, response.hash)
           );
+          await addLocalOperation(chainId!, op.opHash, response.results);
         } else {
           if (isKTAddress(acc.publicKeyHash)) {
             const michelsonLambda = isKTAddress(toResolved)
@@ -1125,32 +1127,6 @@ const Form: FC<FormProps> = ({ localAsset, setOperationState }) => {
             "hidden"
         )}
       >
-        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-          <T id="sendToMyAccounts">
-            {(message) => (
-              <span className="text-base font-semibold text-gray-700">
-                {message}
-              </span>
-            )}
-          </T>
-
-          <T id="clickOnRecipientAccount">
-            {(message) => (
-              <span
-                className={classNames(
-                  "mt-1",
-                  "text-xs font-light text-gray-600"
-                )}
-                style={{ maxWidth: "90%" }}
-              >
-                {message}
-              </span>
-            )}
-          </T>
-        </h2>
-
-        <div className="w-full mt-2" />
-
         {addressBookAccounts.length > 0 && (
           <AccountSelect
             accounts={addressBookAccounts}
