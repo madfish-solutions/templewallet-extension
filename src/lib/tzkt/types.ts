@@ -34,7 +34,7 @@ interface TzktOperationBase {
   type: TzktOperationType;
   id: number;
   level?: number;
-  timestamp?: string;
+  timestamp: string;
   block?: string;
   hash: string;
   counter: number;
@@ -120,7 +120,7 @@ export type TzktGetRewardsParams = {
   quote?: TzktQuoteCurrency[];
 };
 
-export type TzktGetRewardsResponse = Array<{
+export type TzktRewardsEntry = {
   cycle: number;
   balance: number;
   baker: {
@@ -170,7 +170,9 @@ export type TzktGetRewardsResponse = Array<{
   revelationLostRewards: number;
   revelationLostFees: number;
   quote?: TzktQuote;
-}>;
+};
+
+export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
 
 export const allInt32ParameterKeys: Int32ParameterKey[] = [
   "eq",

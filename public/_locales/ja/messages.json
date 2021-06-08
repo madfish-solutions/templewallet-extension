@@ -869,16 +869,9 @@
   "sortBy": {
     "message": "並び替え順"
   },
-  "cycles_one": {
-    "message": "$amount$サイクル",
-    "placeholders": {
-      "amount": {
-        "content": "$1"
-      }
-    }
-  },
   "cycles_other": {
     "message": "$amount$サイクル",
+    "description": "For plural forms",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -1135,9 +1128,13 @@
   "inUSD": {
     "message": "米ドル建て"
   },
-  "inXTZ": {
-    "message": "XTZ建て",
-    "description": "ꜩ = asset symbol, like USD"
+  "inAsset": {
+    "message": "$assetSymbol$建て",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "amountPlaceholder": {
     "message": "例: 123.45"

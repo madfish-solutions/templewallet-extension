@@ -1,21 +1,17 @@
 import React from "react";
 
 import tezImgUrl from "app/misc/tez.png";
-import { BcdNetwork } from "lib/better-call-dev";
 import { T, t } from "lib/i18n/react";
+import { sanitizeImgUri } from "lib/image-uri";
 import {
   TempleAccount,
   TempleAsset,
   TempleAssetType,
   TempleAccountType,
-  TempleChainId,
 } from "lib/temple/types";
 
-export const BCD_NETWORKS_NAMES = new Map<TempleChainId, BcdNetwork>([
-  [TempleChainId.Mainnet, "mainnet"],
-  [TempleChainId.Edo2net, "edo2net"],
-  [TempleChainId.Florencenet, "florencenet"],
-]);
+export const ACTIVITY_PAGE_SIZE = 50;
+export const OP_STACK_PREVIEW_SIZE = 2;
 
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
@@ -32,7 +28,8 @@ export const PASSWORD_PATTERN = new RegExp(
   ].join("")
 );
 
-export const URL_PATTERN = /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
+export const URL_PATTERN =
+  /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
 
 export const PASSWORD_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
@@ -56,7 +53,8 @@ export function formatMnemonic(m: string) {
 }
 
 export function getAssetIconUrl(asset: TempleAsset) {
-  return asset.type === TempleAssetType.TEZ ? tezImgUrl : asset.iconUrl;
+  const url = asset.type === TempleAssetType.TEZ ? tezImgUrl : asset.iconUrl;
+  return url && sanitizeImgUri(url);
 }
 
 export function getAccountBadgeTitle(account: Pick<TempleAccount, "type">) {

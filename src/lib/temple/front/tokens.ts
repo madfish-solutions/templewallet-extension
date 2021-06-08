@@ -45,9 +45,7 @@ export function useTokens(networkRpc?: string) {
     []
   );
 
-  const savedTokens = useMemo(() => tokensPure.map(formatSaved), [
-    tokensPure,
-  ]);
+  const savedTokens = useMemo(() => tokensPure.map(formatSaved), [tokensPure]);
 
   const staticTokens = useMemo(
     () => (chainId && NETWORK_TOKEN_MAP.get(chainId as TempleChainId)) || [],
@@ -122,6 +120,7 @@ export function useTokens(networkRpc?: string) {
   );
 
   return {
+    savedTokens,
     staticTokens,
     displayedTokens,
     hiddenTokens,

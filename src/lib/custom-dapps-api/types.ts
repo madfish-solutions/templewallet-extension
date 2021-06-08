@@ -1,12 +1,9 @@
-import { buildQuery } from "./base";
+export interface BcdDAppScreenshot {
+  type: string;
+  link: string;
+}
 
-/**
- * Queries
- */
-
-export const getDApps = buildQuery<{}, BcdDAppInfo[]>("GET", "/dapps");
-
-export interface BcdDAppInfo {
+export interface CustomDAppInfo {
   name: string;
   short_description: string;
   full_description: string;
@@ -20,9 +17,12 @@ export interface BcdDAppInfo {
   logo: string;
   cover: string;
   screenshots?: BcdDAppScreenshot[];
+  tvl: string;
+  errorOccurred?: boolean;
 }
 
-export interface BcdDAppScreenshot {
-  type: string;
-  link: string;
+export interface CustomDAppsInfo {
+  dApps: CustomDAppInfo[];
+  tvl: string;
+  totalTezLocked: string;
 }

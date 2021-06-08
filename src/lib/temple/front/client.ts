@@ -24,6 +24,7 @@ import {
   TempleResponse,
   TempleNotification,
   TempleSettings,
+  DerivationType,
 } from "lib/temple/types";
 import toBuffer from "typedarray-to-buffer";
 
@@ -279,11 +280,16 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   );
 
   const createLedgerAccount = useCallback(
-    async (name: string, derivationPath?: string) => {
+    async (
+      name: string,
+      derivationType?: DerivationType,
+      derivationPath?: string
+    ) => {
       const res = await request({
         type: TempleMessageType.CreateLedgerAccountRequest,
         name,
         derivationPath,
+        derivationType,
       });
       assertResponse(
         res.type === TempleMessageType.CreateLedgerAccountResponse

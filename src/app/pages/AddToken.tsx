@@ -20,7 +20,7 @@ import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import PageLayout from "app/layouts/PageLayout";
 import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
-import { sanitizeImgUri } from "lib/image-uri";
+import { formatImgUri } from "lib/image-uri";
 import {
   TempleToken,
   TempleAssetType,
@@ -99,9 +99,8 @@ const Form: FC = () => {
   const tokenId = watch("id");
   const [submitError, setSubmitError] = useState<ReactNode>(null);
   const [tokenDataError, setTokenDataError] = useState<ReactNode>(null);
-  const [tokenValidationError, setTokenValidationError] = useState<ReactNode>(
-    null
-  );
+  const [tokenValidationError, setTokenValidationError] =
+    useState<ReactNode>(null);
   const [bottomSectionVisible, setBottomSectionVisible] = useSafeState(false);
   const [loadingToken, setLoadingToken] = useState(false);
 
@@ -224,7 +223,7 @@ const Form: FC = () => {
           symbol,
           name,
           decimals: decimals ? +decimals : 0,
-          iconUrl: iconUrl ? sanitizeImgUri(iconUrl) : undefined,
+          iconUrl: iconUrl ? formatImgUri(iconUrl) : undefined,
           fungible: true,
           status: "displayed" as const,
         };
@@ -500,10 +499,7 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
         ref={register({
           validate: (val: string) => {
             if (!val) return true;
-            if (
-              val.match(/(https:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i) ||
-              val.match(/(ipfs:\/\/.*)/i)
-            ) {
+            if (val.match(/(https:\/\/.*)/i) || val.match(/(ipfs:\/\/.*)/i)) {
               return true;
             }
 

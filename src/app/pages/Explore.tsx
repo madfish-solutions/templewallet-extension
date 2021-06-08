@@ -1,6 +1,7 @@
 import React, {
   FC,
-  memo,
+  FunctionComponent,
+  SVGProps,
   ReactNode,
   Suspense,
   useLayoutEffect,
@@ -8,17 +9,20 @@ import React, {
 } from "react";
 
 import classNames from "clsx";
+import { Props as TippyProps } from "tippy.js";
 
 import Spinner from "app/atoms/Spinner";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
+import { ReactComponent as DAppsIcon } from "app/icons/apps-alt.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
-import { ReactComponent as QRIcon } from "app/icons/qr.svg";
-import { ReactComponent as SendIcon } from "app/icons/send.svg";
+import { ReactComponent as ReceiveIcon } from "app/icons/receive.svg";
+import { ReactComponent as SendIcon } from "app/icons/send-alt.svg";
+import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg";
 import PageLayout from "app/layouts/PageLayout";
+import Activity from "app/templates/activity/Activity";
 import AssetInfo from "app/templates/AssetInfo";
-import OperationHistory from "app/templates/OperationHistory";
 import { T, t } from "lib/i18n/react";
 import {
   getAssetKey,
@@ -48,6 +52,13 @@ import MainAssetBanner from "./Explore/MainAssetBanner";
 
 type ExploreProps = {
   assetSlug?: string | null;
+};
+
+const tippyProps = {
+  trigger: "mouseenter",
+  hideOnClick: false,
+  content: t("disabledForWatchOnlyAccount"),
+  animation: "shift-away-subtle",
 };
 
 const Explore: FC<ExploreProps> = ({ assetSlug }) => {
@@ -106,40 +117,33 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         <MainAssetBanner accountPkh={accountPkh} asset={asset ?? TEZ_ASSET} />
 
         <div
-          className="flex items-stretch w-full mx-auto mt-4"
-          style={{ maxWidth: "18rem" }}
+          className="flex justify-around w-full mx-auto mt-6"
+          style={{ maxWidth: "19rem" }}
         >
-          <div className="w-1/2 p-2">
-            <Link
-              to="/receive"
-              className={classNames(
-                "block w-full",
-                "py-2 px-4 rounded",
-                "border-2",
-                "border-blue-500 hover:border-blue-600 focus:border-blue-600",
-                "flex items-center justify-center",
-                "text-blue-500 hover:text-blue-600 focus:text-blue-600",
-                "shadow-sm hover:shadow focus:shadow",
-                "text-base font-semibold",
-                "transition ease-in-out duration-300"
-              )}
-              type="button"
-              testID={ExploreSelectors.ReceiveButton}
-            >
-              <QRIcon
-                className={classNames(
-                  "-ml-2 mr-2",
-                  "h-5 w-auto",
-                  "stroke-current"
-                )}
-              />
-              <T id="receive" />
-            </Link>
-          </div>
-
-          <div className="w-1/2 p-2">
-            <SendButton canSend={canSend} asset={asset} />
-          </div>
+          <ActionButton
+            label={<T id="receive" />}
+            Icon={ReceiveIcon}
+            href="/receive"
+          />
+          <ActionButton
+            label={<T id="dApps" />}
+            Icon={DAppsIcon}
+            href="/dApps"
+          />
+          <ActionButton
+            label={<T id="swap" />}
+            Icon={SwapIcon}
+            href={asset ? `/swap/${getAssetKey(asset)}` : "/swap"}
+            disabled={!canSend}
+            tippyProps={tippyProps}
+          />
+          <ActionButton
+            label={<T id="send" />}
+            Icon={SendIcon}
+            href={asset ? `/send/${getAssetKey(asset)}` : "/send"}
+            disabled={!canSend}
+            tippyProps={tippyProps}
+          />
         </div>
       </div>
 
@@ -152,62 +156,68 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
 export default Explore;
 
-type SendButtonProps = {
-  canSend: boolean;
-  asset: TempleAsset | null;
+const SwapIcon: FunctionComponent<SVGProps<SVGSVGElement>> = ({
+  className,
+  ...restProps
+}) => {
+  return (
+    <SwapVerticalIcon
+      className={classNames(className, "transform rotate-90")}
+      {...restProps}
+    />
+  );
 };
 
-const SendButton = memo<SendButtonProps>(({ canSend, asset }) => {
-  const tippyProps = {
-    trigger: "mouseenter",
-    hideOnClick: false,
-    content: t("disabledForWatchOnlyAccount"),
-    animation: "shift-away-subtle",
-  };
+type ActionButtonProps = {
+  label: React.ReactNode;
+  Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
+  href: string;
+  disabled?: boolean;
+  tippyProps?: Partial<TippyProps>;
+};
 
-  const sendButtonRef = useTippy<HTMLButtonElement>(tippyProps);
-  const commonSendButtonProps = {
-    className: classNames(
-      "w-full",
-      "py-2 px-4 rounded",
-      "border-2",
-      "border-blue-500",
-      canSend && "hover:border-blue-600 focus:border-blue-600",
-      "bg-blue-500",
-      canSend && "hover:bg-blue-600 focus:bg-blue-600",
-      canSend && "shadow-sm hover:shadow focus:shadow",
-      !canSend && "opacity-50",
-      "flex items-center justify-center",
-      "text-white",
-      "text-base font-semibold",
-      "transition ease-in-out duration-300"
-    ),
-    children: (
-      <>
-        <SendIcon
-          className={classNames(
-            "-ml-3 -mt-1 mr-1",
-            "h-5 w-auto",
-            "transform -rotate-45",
-            "stroke-current"
-          )}
-        />
-        <T id="send" />
-      </>
-    ),
-  };
-
-  return canSend ? (
-    <Link
-      to={asset ? `/send/${getAssetKey(asset)}` : "/send"}
-      type="button"
-      testID={ExploreSelectors.SendButton}
-      {...commonSendButtonProps}
-    />
-  ) : (
-    <button ref={sendButtonRef} {...commonSendButtonProps} />
+const ActionButton: FC<ActionButtonProps> = ({
+  label,
+  Icon,
+  href,
+  disabled,
+  tippyProps = {},
+}) => {
+  const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
+  const commonButtonProps = useMemo(
+    () => ({
+      className: "flex flex-col items-center mx-3 px-1",
+      type: "button" as const,
+      children: (
+        <>
+          <div
+            className={classNames(
+              disabled ? "bg-blue-300" : "bg-blue-500",
+              "rounded mb-1 flex items-center text-white"
+            )}
+            style={{ padding: "0 0.625rem", height: "2.75rem" }}
+          >
+            <Icon className="w-6 h-auto stroke-current stroke-2" />
+          </div>
+          <span
+            className={classNames(
+              "text-xs",
+              disabled ? "text-blue-300" : "text-blue-500"
+            )}
+          >
+            {label}
+          </span>
+        </>
+      ),
+    }),
+    [disabled, Icon, label]
   );
-});
+  return disabled ? (
+    <button ref={buttonRef} {...commonButtonProps} />
+  ) : (
+    <Link to={href} {...commonButtonProps} />
+  );
+};
 
 const Delegation: FC = () => (
   <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
@@ -215,23 +225,18 @@ const Delegation: FC = () => (
   </SuspenseContainer>
 );
 
-type ActivityProps = {
+type ActivityTabProps = {
   asset?: TempleAsset;
 };
 
-const Activity: FC<ActivityProps> = ({ asset }) => {
+const ActivityTab: FC<ActivityTabProps> = ({ asset }) => {
   const account = useAccount();
 
   return (
     <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
-      <OperationHistory
-        accountPkh={account.publicKeyHash}
-        accountOwner={
-          account.type === TempleAccountType.ManagedKT
-            ? account.owner
-            : undefined
-        }
-        asset={asset}
+      <Activity
+        address={account.publicKeyHash}
+        assetId={asset && getAssetKey(asset)}
       />
     </SuspenseContainer>
   );
@@ -255,31 +260,33 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
-  const tabs = useMemo<{
-    slug: string;
-    title: string;
-    Component: FC;
-    testID: string;
-  }[]>(() => {
+  const tabs = useMemo<
+    {
+      slug: string;
+      title: string;
+      Component: FC;
+      testID: string;
+    }[]
+  >(() => {
     if (!asset) {
       return [
         {
           slug: "assets",
           title: t("assets"),
           Component: Assets,
-          testID: ExploreSelectors.AssetsTab
+          testID: ExploreSelectors.AssetsTab,
         },
         {
           slug: "delegation",
           title: t("delegation"),
           Component: Delegation,
-          testID: ExploreSelectors.DelegationTab
+          testID: ExploreSelectors.DelegationTab,
         },
         {
           slug: "activity",
           title: t("activity"),
-          Component: Activity,
-          testID: ExploreSelectors.ActivityTab
+          Component: ActivityTab,
+          testID: ExploreSelectors.ActivityTab,
         },
       ];
     }
@@ -287,8 +294,8 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
     const activity = {
       slug: "activity",
       title: t("activity"),
-      Component: () => <Activity asset={asset} />,
-      testID: ExploreSelectors.ActivityTab
+      Component: () => <ActivityTab asset={asset} />,
+      testID: ExploreSelectors.ActivityTab,
     };
 
     if (asset.type === TempleAssetType.TEZ) {
@@ -301,7 +308,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
         slug: "about",
         title: t("about"),
         Component: () => <AssetInfo asset={asset} />,
-        testID: ExploreSelectors.AboutTab
+        testID: ExploreSelectors.AboutTab,
       },
     ];
   }, [asset]);

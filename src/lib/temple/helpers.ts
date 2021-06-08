@@ -24,6 +24,34 @@ export function hasManager(manager: any) {
   return manager && typeof manager === "object" ? !!manager.key : !!manager;
 }
 
+export function assetAmountToUSD(
+  amount?: BigNumber,
+  assetUsdPrice?: number,
+  roundingMode?: BigNumber.RoundingMode
+) {
+  return !amount || assetUsdPrice === undefined
+    ? undefined
+    : amount
+        .multipliedBy(assetUsdPrice)
+        .decimalPlaces(2, roundingMode ?? BigNumber.ROUND_DOWN);
+}
+
+export function usdToAssetAmount(
+  usd?: BigNumber,
+  assetUsdPrice?: number,
+  assetDecimals?: number,
+  roundingMode?: BigNumber.RoundingMode
+) {
+  return !usd || assetUsdPrice === undefined
+    ? undefined
+    : usd
+        .div(assetUsdPrice)
+        .decimalPlaces(
+          assetDecimals || 0,
+          roundingMode ?? BigNumber.ROUND_DOWN
+        );
+}
+
 export function tzToMutez(tz: any) {
   const bigNum = new BigNumber(tz);
   if (bigNum.isNaN()) return bigNum;
@@ -34,6 +62,10 @@ export function mutezToTz(mutez: any) {
   const bigNum = new BigNumber(mutez);
   if (bigNum.isNaN()) return bigNum;
   return bigNum.integerValue().div(10 ** 6);
+}
+
+export function atomsToTokens(x: BigNumber, decimals: number) {
+  return x.integerValue().div(new BigNumber(10).pow(decimals));
 }
 
 export function isAddressValid(address: string) {

@@ -104,7 +104,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     fungible: true,
     iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
     status: "displayed",
-  },  
+  },
   {
     type: TempleAssetType.FA1_2,
     address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
@@ -143,7 +143,7 @@ export const MAINNET_TOKENS: TempleToken[] = [
     symbol: "USDtz",
     decimals: 6,
     fungible: true,
-    iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
+    iconUrl: browser.runtime.getURL("misc/token-logos/usdtz.png"),
     status: "hidden",
   },
   {
@@ -206,18 +206,22 @@ const FA12_METHODS_ASSERTIONS = [
   },
   {
     name: "getAllowance",
-    assertion: viewSuccessAssertionFactory("getAllowance", [
-      STUB_TEZOS_ADDRESS,
-      STUB_TEZOS_ADDRESS,
+    assertion: signatureAssertionFactory("getAllowance", [
+      "address",
+      "address",
+      "contract",
     ]),
   },
   {
     name: "getBalance",
-    assertion: viewSuccessAssertionFactory("getBalance", [STUB_TEZOS_ADDRESS]),
+    assertion: signatureAssertionFactory("getBalance", ["address", "contract"]),
   },
   {
     name: "getTotalSupply",
-    assertion: viewSuccessAssertionFactory("getTotalSupply", ["unit"]),
+    assertion: signatureAssertionFactory("getTotalSupply", [
+      "unit",
+      "contract",
+    ]),
   },
 ];
 
@@ -238,7 +242,7 @@ const FA2_METHODS_ASSERTIONS = [
       tokenId: number
     ) =>
       viewSuccessAssertionFactory("balance_of", [
-        [{ owner: STUB_TEZOS_ADDRESS, token_id: String(tokenId) }],
+        [{ owner: STUB_TEZOS_ADDRESS, token_id: tokenId }],
       ])(contract, tezos),
   },
 ];
@@ -279,7 +283,9 @@ export async function assertTokenType(
             getMessage("someMethodSignatureDoesNotMatchStandard", name)
           );
         } else if (e.value?.string === "FA2_TOKEN_UNDEFINED") {
-          throw new Error(getMessage("incorrectTokenIdErrorMessage"));
+          throw new IncorrectTokenIdError(
+            getMessage("incorrectTokenIdErrorMessage")
+          );
         } else {
           if (process.env.NODE_ENV === "development") {
             console.error(e);
@@ -289,6 +295,23 @@ export async function assertTokenType(
           );
         }
       }
+    })
+  );
+}
+
+export async function assertFA2TokenContract(contract: WalletContract) {
+  const assertions = FA2_METHODS_ASSERTIONS.slice(0, 2) as {
+    name: string;
+    assertion: (contract: WalletContract) => void;
+  }[];
+  await Promise.all(
+    assertions.map(async ({ name, assertion }) => {
+      if (typeof contract.methods[name] !== "function") {
+        throw new NotMatchingStandardError(
+          getMessage("someMethodNotDefinedInContract", name)
+        );
+      }
+      await assertion(contract);
     })
   );
 }
@@ -452,3 +475,4 @@ export function toPenny(asset: TempleAsset) {
 }
 
 export class NotMatchingStandardError extends Error {}
+export class IncorrectTokenIdError extends Error {}

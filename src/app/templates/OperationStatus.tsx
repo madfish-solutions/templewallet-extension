@@ -10,6 +10,7 @@ import {
   useTezos,
   useBlockTriggers,
   useExplorerBaseUrls,
+  FailedOpError,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 
@@ -52,7 +53,7 @@ const OperationStatus: FC<OperationStatusProps> = ({
           className="ml-2 mr-2"
         />
         {transactionBaseUrl && (
-          <OpenInExplorerChip baseUrl={transactionBaseUrl} opHash={hash} />
+          <OpenInExplorerChip baseUrl={transactionBaseUrl} hash={hash} />
         )}
       </div>
     ),
@@ -106,11 +107,14 @@ const OperationStatus: FC<OperationStatusProps> = ({
           ),
         }));
       })
-      .catch(() => {
+      .catch((err) => {
         setAlert({
           type: "error",
           title: t("error"),
-          description: t("timedOutOperationConfirmation"),
+          description:
+            err instanceof FailedOpError
+              ? err.message
+              : t("timedOutOperationConfirmation"),
         });
       });
 

@@ -104,13 +104,18 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   );
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
-      expenses: expenses.map(({ tokenAddress, ...restProps }) => ({
+      expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
         asset: tokenAddress
-          ? allAssetsWithHidden.find(
-              (asset) =>
-                asset.type !== TempleAssetType.TEZ &&
-                asset.address === tokenAddress
-            ) || tokenAddress
+          ? allAssetsWithHidden.find((asset) => {
+              switch (asset.type) {
+                case TempleAssetType.TEZ:
+                  return false;
+                case TempleAssetType.FA2:
+                  return asset.address === tokenAddress && asset.id === tokenId;
+                default:
+                  return asset.address === tokenAddress;
+              }
+            }) || tokenAddress
           : TEZ_ASSET,
         ...restProps,
       })),
@@ -176,12 +181,11 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
-  const [
-    modifiedStorageLimitValue,
-    setModifiedStorageLimitValue,
-  ] = useSafeState(
-    (payload.type === "operations" && payload.estimates?.[0].storageLimit) || 0
-  );
+  const [modifiedStorageLimitValue, setModifiedStorageLimitValue] =
+    useSafeState(
+      (payload.type === "operations" && payload.estimates?.[0].storageLimit) ||
+        0
+    );
 
   useEffect(() => {
     if (!signPayloadFormats.some(({ key }) => key === spFormat.key)) {

@@ -1,4 +1,13 @@
-import React, { ComponentProps, FC, ReactNode, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  ComponentProps,
+  FC,
+  ReactNode,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 
@@ -20,17 +29,14 @@ import { PageLayoutSelectors } from "./PageLayout.selectors";
 
 type PageLayoutProps = ToolbarProps;
 
-const PageLayout: FC<PageLayoutProps> = ({
-  children,
-  ...toolbarProps
-}) => {
+const PageLayout: FC<PageLayoutProps> = ({ children, ...toolbarProps }) => {
   const { fullPage } = useAppEnv();
 
   return (
     <>
       <DocBg bgClassName="bg-primary-orange" />
 
-      <div className={classNames(fullPage && "pb-20")}>
+      <div className={classNames(fullPage && "pb-20", "relative")}>
         <Header />
 
         <ContentPaper>
@@ -38,9 +44,7 @@ const PageLayout: FC<PageLayoutProps> = ({
 
           <div className="p-4">
             <ErrorBoundary whileMessage="displaying this page">
-              <Suspense fallback={<SpinnerSection />}>
-                {children}
-              </Suspense>
+              <Suspense fallback={<SpinnerSection />}>{children}</Suspense>
             </ErrorBoundary>
           </div>
         </ContentPaper>
@@ -48,7 +52,7 @@ const PageLayout: FC<PageLayoutProps> = ({
 
       <NoLambdaViewContractAlert />
       <ConfirmationOverlay />
-      <AnalyticsConfirmationOverlay/>
+      <AnalyticsConfirmationOverlay />
     </>
   );
 };
@@ -98,10 +102,7 @@ type ToolbarProps = {
   hasBackAction?: boolean;
 };
 
-const Toolbar: FC<ToolbarProps> = ({
-  pageTitle,
-  hasBackAction = true,
-}) => {
+const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true }) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage, registerBackHandler, onBack } = useAppEnv();
 
