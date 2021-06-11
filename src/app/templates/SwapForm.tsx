@@ -89,7 +89,7 @@ type SwapFormProps = {
 
 const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   const { assets, quipuswapTokensWhitelist, tokensExchangeData, tezUsdPrice } =
-    useSwappableAssets(defaultAsset);
+    useSwappableAssets();
   const { getInputAssetAmount, getOutputAssetAmounts } = useSwapCalculations();
 
   const tezos = useTezos();
@@ -145,21 +145,8 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   const prevNetworkIdRef = useRef(network.id);
   const [inputAmountLoading, setInputAmountLoading] = useState(false);
   const [outputAmountLoading, setOutputAmountLoading] = useState(false);
-  const [shouldUpdateAssetIfRevealed, setShouldUpdateAssetIfRevealed] =
-    useState(true);
   const [outputAssetAmounts, setOutputAssetAmounts] =
     useState<Partial<Record<ExchangerType, BigNumber>>>();
-
-  useEffect(() => {
-    if (
-      shouldUpdateAssetIfRevealed &&
-      defaultAsset &&
-      assets.some((asset) => assetsAreSame(asset, defaultAsset))
-    ) {
-      setValue("input", { asset: defaultAsset });
-      setShouldUpdateAssetIfRevealed(false);
-    }
-  }, [shouldUpdateAssetIfRevealed, assets, defaultAsset, setValue]);
 
   useEffect(() => {
     if (prevNetworkIdRef.current !== network.id) {
@@ -795,7 +782,6 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       )}
 
       <SwapInput
-        extraAssetToCheck={defaultAsset}
         name="input"
         // @ts-ignore
         error={errors.input?.message}
@@ -816,7 +802,6 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
 
       <SwapInput
         className="mb-6"
-        extraAssetToCheck={defaultAsset}
         name="output"
         loading={outputAmountLoading}
         // @ts-ignore
