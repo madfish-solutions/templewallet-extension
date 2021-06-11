@@ -724,8 +724,10 @@ async function createLedgerSigner(
       );
     }
 
+    const isWin = (await browser.runtime.getPlatformInfo()).os === "win";
+
     transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
-    if (process.env.TARGET_BROWSER === "chrome") {
+    if (process.env.TARGET_BROWSER === "chrome" && !isWin) {
       (transport as LedgerTempleBridgeTransport).useLedgerLive();
     }
   }
