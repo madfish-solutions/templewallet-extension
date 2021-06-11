@@ -48,7 +48,7 @@ const DAppItem: FC<DAppItemProps> = ({
     trackEvent(
       DAppStoreSelectors.DAppOpened,
       AnalyticsEventCategory.ButtonPress,
-      { website, name }
+      { website, name, promoted: false }
     );
   }, [trackEvent, website, name]);
 
