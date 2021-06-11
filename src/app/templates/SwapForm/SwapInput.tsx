@@ -53,7 +53,6 @@ type SwapInputProps = {
   className?: string;
   disabled?: boolean;
   error?: string;
-  extraAssetToCheck?: TempleAsset;
   label: React.ReactNode;
   loading?: boolean;
   name: string;
@@ -78,7 +77,6 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       className,
       disabled,
       error,
-      extraAssetToCheck,
       label,
       loading,
       isOutput,
@@ -104,7 +102,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       tokenIdRequired,
       tokensExchangeData,
       tezUsdPrice,
-    } = useSwappableAssets(extraAssetToCheck, searchString, tokenId);
+    } = useSwappableAssets(searchString, tokenId);
     const { trackChange } = useFormAnalytics("SwapForm");
 
     const { data: balance, revalidate: updateBalance } = useBalance(
