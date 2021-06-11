@@ -124,7 +124,7 @@ const DAppsList: FC = () => {
       trackEvent(
         DAppStoreSelectors.DAppOpened,
         AnalyticsEventCategory.ButtonPress,
-        { website, name }
+        { website, name, promoted: true }
       );
     },
     [trackEvent]
