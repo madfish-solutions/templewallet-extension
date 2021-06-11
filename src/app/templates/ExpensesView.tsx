@@ -1,4 +1,4 @@
-import React, { FC, Fragment, memo, useMemo } from "react";
+import React, { FC, memo, useMemo } from "react";
 
 import { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import BigNumber from "bignumber.js";
@@ -30,19 +30,24 @@ type ExpensesViewProps = {
   expenses?: OperationExpenses[];
   estimates?: Estimate[];
   mainnet?: boolean;
-  totalFeeDisplayed?: boolean;
-  modifiedStorageLimit?: number;
+  modifyFeeAndLimit?: ModifyFeeAndLimit;
 };
+
+interface ModifyFeeAndLimit {
+  totalFee: number;
+  onTotalFeeChange: (totalFee: number) => void;
+  storageLimit: number;
+  onStorageLimitChange: (storageLimit: number) => void;
+}
 
 const ExpensesView: FC<ExpensesViewProps> = ({
   expenses,
   estimates,
   mainnet,
-  totalFeeDisplayed,
-  modifiedStorageLimit,
+  modifyFeeAndLimit,
 }) => {
   const totalFee = useMemo(() => {
-    if (!totalFeeDisplayed) return null;
+    if (!modifyFeeAndLimit) return null;
 
     if (estimates) {
       let gasFeeMutez = new BigNumber(0);
@@ -54,7 +59,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
           storageFeeMutez = storageFeeMutez.plus(
             Math.ceil(
               (i === 0
-                ? modifiedStorageLimit ?? e.storageLimit
+                ? modifyFeeAndLimit.storageLimit ?? e.storageLimit
                 : e.storageLimit) * (e as any).minimalFeePerStorageByteMutez
             )
           );
@@ -113,7 +118,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
     }
 
     return null;
-  }, [totalFeeDisplayed, estimates, mainnet, modifiedStorageLimit]);
+  }, [modifyFeeAndLimit, estimates, mainnet]);
 
   if (!expenses) {
     return null;
@@ -136,7 +141,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         />
       ))}
 
-      {totalFeeDisplayed && (
+      {modifyFeeAndLimit && (
         <>
           <div className="flex-1" />
 

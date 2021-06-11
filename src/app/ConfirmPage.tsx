@@ -432,17 +432,17 @@ const ConfirmDAppForm: FC = () => {
                   modifiedStorageLimit={modifiedStorageLimitValue}
                 />
               )}
-            </>
-          )}
 
-          {modifiedStorageLimitDisplayed && (
-            <div className="w-full mt-2">
-              <ModifyStorageLimitSection
-                value={modifiedStorageLimitValue}
-                onChange={setModifiedStorageLimitValue}
-                style={{ marginTop: 0 }}
-              />
-            </div>
+              {modifiedStorageLimitDisplayed && (
+                <div className="w-full mt-2">
+                  <ModifyStorageLimitSection
+                    value={modifiedStorageLimitValue}
+                    onChange={setModifiedStorageLimitValue}
+                    style={{ marginTop: 0 }}
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
 

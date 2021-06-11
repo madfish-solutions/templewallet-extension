@@ -217,6 +217,7 @@ const OperationView: FC<OperationViewProps> = ({
             expenses={expensesData}
             estimates={payload.estimates}
             modifiedStorageLimit={modifiedStorageLimit}
+            onModifiedStorageLimitChange={onModifiedStorageLimitChange}
             mainnet={mainnet}
             totalFeeDisplayed
           />
