@@ -770,11 +770,7 @@ export default function useSwappableAssets(
       ? [TEZ_ASSET, ...dexterSwappableTokens]
       : [...dexterSwappableTokens];
     swappableTokens?.quipuswap.forEach((token) => {
-      if (
-        !dexterSwappableTokens.some((dexterToken) =>
-          assetsAreSame(token, dexterToken)
-        )
-      ) {
+      if (!result.some((addedToken) => assetsAreSame(token, addedToken))) {
         result.push(token);
       }
     });
