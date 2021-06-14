@@ -9,11 +9,8 @@ import { useTempleClient } from "lib/temple/front";
 import Portal from "lib/ui/Portal";
 
 const ConfirmationOverlay: FC = () => {
-  const {
-    confirmation,
-    resetConfirmation,
-    confirmInternal,
-  } = useTempleClient();
+  const { confirmation, resetConfirmation, confirmInternal } =
+    useTempleClient();
   const displayed = Boolean(confirmation);
 
   useLayoutEffect(() => {
@@ -31,9 +28,18 @@ const ConfirmationOverlay: FC = () => {
   }, [displayed]);
 
   const handleConfirm = useCallback(
-    async (confirmed: boolean, modifiedStorageLimit?: number) => {
+    async (
+      confirmed: boolean,
+      modifiedTotalFee?: number,
+      modifiedStorageLimit?: number
+    ) => {
       if (confirmation) {
-        await confirmInternal(confirmation.id, confirmed, modifiedStorageLimit);
+        await confirmInternal(
+          confirmation.id,
+          confirmed,
+          modifiedTotalFee,
+          modifiedStorageLimit
+        );
       }
       resetConfirmation();
     },

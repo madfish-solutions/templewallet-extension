@@ -76,16 +76,6 @@ export function buildFinalOpParmas(
   modifiedStorageLimit?: number
 ) {
   if (modifiedTotalFee !== undefined) {
-    // const estimatedTotalFee = estimates.reduce(
-    //   (sum, e) => sum.plus(e.suggestedFeeMutez),
-    //   new BigNumber(0)
-    // );
-    // const ratio = estimatedTotalFee.div(modifiedTotalFee);
-
-    // opParams = opParams.map((op, i) => ({
-    //   ...op,
-    //   fee: new BigNumber(estimates[i].suggestedFeeMutez).idiv(ratio).toFixed(),
-    // }));
     opParams = opParams.map((op) => ({ ...op, fee: 0 }));
     opParams[opParams.length - 1].fee = modifiedTotalFee;
   }
