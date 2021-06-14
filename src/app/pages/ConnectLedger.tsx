@@ -174,7 +174,7 @@ const ConnectLedger: FC = () => {
             <FormField
               ref={register({
                 pattern: {
-                  value: /^[a-zA-Z0-9 _-]{0,16}$/,
+                  value: /^.{0,16}$/,
                   message: t("ledgerNameConstraint"),
                 },
               })}

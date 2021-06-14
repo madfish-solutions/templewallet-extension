@@ -26,7 +26,7 @@ const CreateAccount: FC = () => {
   const { createAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
-  const formAnalytics = useFormAnalytics('CreateAccount');
+  const formAnalytics = useFormAnalytics("CreateAccount");
 
   const allHDOrImported = useMemo(
     () =>
@@ -51,14 +51,8 @@ const CreateAccount: FC = () => {
     prevAccLengthRef.current = accLength;
   }, [allAccounts, setAccountPkh]);
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearError,
-    formState,
-  } = useForm<FormData>({ defaultValues: { name: defaultName } });
+  const { register, handleSubmit, errors, setError, clearError, formState } =
+    useForm<FormData>({ defaultValues: { name: defaultName } });
   const submitting = formState.isSubmitting;
 
   const onSubmit = useCallback(
@@ -101,7 +95,7 @@ const CreateAccount: FC = () => {
           <FormField
             ref={register({
               pattern: {
-                value: /^[a-zA-Z0-9 _-]{0,16}$/,
+                value: /^.{0,16}$/,
                 message: t("accountNameInputTitle"),
               },
             })}
