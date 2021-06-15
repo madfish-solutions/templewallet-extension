@@ -69,8 +69,8 @@ type SwapFormWrapperProps = {
 
 const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
   const defaultAsset = useAssetBySlug(assetSlug) ?? undefined;
-  const { knownAssets } = useSwappableAssets();
-  const isSupportedNetwork = knownAssets.length > 0;
+  const { exchangableAssets } = useSwappableAssets();
+  const isSupportedNetwork = exchangableAssets.length > 0;
 
   if (!isSupportedNetwork) {
     return (
@@ -94,7 +94,7 @@ type SwapFormProps = {
 const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   const {
     ensureExchangeData,
-    knownAssets: assets,
+    exchangableAssets: assets,
     quipuswapTokensWhitelist,
     exchangeData: tokensExchangeData,
     exchangeDataLoading,

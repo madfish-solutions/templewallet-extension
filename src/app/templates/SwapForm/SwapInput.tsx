@@ -73,7 +73,7 @@ type SwapInputProps = {
 const BUTTONS_PERCENTAGES = [25, 50, 75, 100];
 
 const defaultSearchResults = {
-  matchingKnownAssets: [],
+  matchingExchangableAssets: [],
   showTokenIdInput: false,
 };
 const defaultInputValue: SwapInputValue = {};
@@ -104,7 +104,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
     const { publicKeyHash: accountPkh } = useAccount();
     const {
       exchangeData,
-      knownAssets,
+      exchangableAssets,
       searchAssets,
       searchLoading,
       tezUsdPrice,
@@ -112,8 +112,8 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
     const { trackChange } = useFormAnalytics("SwapForm");
 
     const knownAssetsKeys = useMemo(
-      () => knownAssets.map((asset) => getAssetKey(asset)).join(),
-      [knownAssets]
+      () => exchangableAssets.map((asset) => getAssetKey(asset)).join(),
+      [exchangableAssets]
     );
     const getMatchingAssets = useCallback(
       (_k: string, searchStr?: string, tokenId?: number) =>
@@ -124,7 +124,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       ["swap-input-matching-assets", searchString, tokenId, knownAssetsKeys],
       getMatchingAssets
     );
-    const { matchingKnownAssets, showTokenIdInput } = searchResults;
+    const { matchingExchangableAssets, showTokenIdInput } = searchResults;
 
     const { data: balance, revalidate: updateBalance } = useBalance(
       asset ?? TEZ_ASSET,
@@ -302,7 +302,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
               opened={opened}
               setOpened={setOpened}
               onChange={handleSelectedAssetChange}
-              options={matchingKnownAssets}
+              options={matchingExchangableAssets}
               searchString={searchString}
               tokenIdMissing={tokenId === undefined && showTokenIdInput}
               value={asset}

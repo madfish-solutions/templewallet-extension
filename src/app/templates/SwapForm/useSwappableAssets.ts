@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { BigMapAbstraction, TezosToolkit } from "@taquito/taquito";
 import { validateAddress, ValidationResult } from "@taquito/utils";
@@ -200,6 +200,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
     const tezUsdPrice = useAssetUSDPrice(TEZ_ASSET);
     const networkTezUsdPrice = network.type === "main" ? tezUsdPrice : null;
     const chainId = useChainId(true)!;
+    const prevChainIdRef = useRef(chainId);
     const [qsStoredTokens, setQsStoredTokens] = useStorage<TempleToken[]>(
       `qs_1.1_stored_tokens_${chainId}`,
       []
@@ -457,11 +458,10 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
       { suspense: true }
     );
 
-    const noInitialAssetKeyKnownAssets = useMemo(() => {
+    const noInitialAssetKeyExchangableAssets = useMemo(() => {
       return Object.values(
         [
-          ...allVisibleAssets,
-          ...hiddenTokens,
+          TEZ_ASSET,
           ...qsStoredTokens,
           ...(quipuswapTokenWhitelists!.get(chainId) ?? []),
           ...(DEXTER_INITIAL_TOKENS.get(chainId) ?? []),
@@ -473,13 +473,23 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           };
         }, {})
       );
-    }, [
-      allVisibleAssets,
-      hiddenTokens,
-      chainId,
-      quipuswapTokenWhitelists,
-      qsStoredTokens,
-    ]);
+    }, [chainId, qsStoredTokens, quipuswapTokenWhitelists]);
+
+    const noInitialAssetKeyKnownAssets = useMemo(() => {
+      return Object.values(
+        [
+          ...allVisibleAssets,
+          ...hiddenTokens,
+          ...noInitialAssetKeyExchangableAssets,
+        ].reduce<Record<string, TempleAsset>>((previousValue, asset) => {
+          const { address, tokenId } = getAssetId(asset);
+          return {
+            ...previousValue,
+            [`${address}_${tokenId}`]: asset,
+          };
+        }, {})
+      );
+    }, [allVisibleAssets, hiddenTokens, noInitialAssetKeyExchangableAssets]);
     const noInitialAssetKeyAssetsKey = useMemo(() => {
       return noInitialAssetKeyKnownAssets
         .map((asset) => {
@@ -592,12 +602,45 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           : noInitialAssetKeyKnownAssets,
       [noInitialAssetKeyKnownAssets, assetFromInitialKey]
     );
+    const noSearchStrExchangableAssets = useMemo(
+      () =>
+        assetFromInitialKey &&
+        !noInitialAssetKeyExchangableAssets.some((asset) =>
+          assetsAreSame(asset, assetFromInitialKey)
+        ) &&
+        assetFromInitialKeyExchangeData &&
+        Object.keys(assetFromInitialKeyExchangeData).length > 0
+          ? [assetFromInitialKey, ...noInitialAssetKeyExchangableAssets]
+          : noInitialAssetKeyExchangableAssets,
+      [
+        assetFromInitialKey,
+        assetFromInitialKeyExchangeData,
+        noInitialAssetKeyExchangableAssets,
+      ]
+    );
 
+    const [exchangableAssets, setExchangableAssets] = useState(
+      noSearchStrExchangableAssets
+    );
     const [knownAssets, setKnownAssets] = useState(noSearchStrKnownAssets);
     const [exchangeData, setExchangeData] =
       useState<TokensExchangeData>(initialExchangeData);
     const [exchangeDataLoading, setExchangeDataLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
+
+    useEffect(() => {
+      if (prevChainIdRef.current !== chainId) {
+        setExchangableAssets(noSearchStrExchangableAssets);
+        setKnownAssets(noSearchStrKnownAssets);
+        setExchangeData(initialExchangeData);
+      }
+      prevChainIdRef.current = chainId;
+    }, [
+      chainId,
+      initialExchangeData,
+      noSearchStrKnownAssets,
+      noSearchStrExchangableAssets,
+    ]);
 
     const ensureExchangeData = useCallback(
       async (assetId: AssetIdentifier) => {
@@ -631,7 +674,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
 
     const searchAssets = useCallback(
       async (searchString = "", tokenId?: number) => {
-        const matchingKnownAssets = knownAssets.filter((asset) => {
+        const matchingExchangableAssets = exchangableAssets.filter((asset) => {
           return (
             assetMatchesSearchStr(asset, searchString) &&
             (asset.type !== TempleAssetType.FA2 ||
@@ -641,15 +684,15 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         });
         if (validateAddress(searchString) !== ValidationResult.VALID) {
           return {
-            matchingKnownAssets,
+            matchingExchangableAssets,
             showTokenIdInput: false,
           };
         }
-        if (matchingKnownAssets.length > 0) {
+        if (matchingExchangableAssets.length > 0) {
           return {
-            matchingKnownAssets,
+            matchingExchangableAssets,
             showTokenIdInput:
-              matchingKnownAssets[0].type === TempleAssetType.FA2,
+              matchingExchangableAssets[0].type === TempleAssetType.FA2,
           };
         }
         try {
@@ -658,7 +701,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           if (!quipuswapFactories) {
             setSearchLoading(false);
             return {
-              matchingKnownAssets: [],
+              matchingExchangableAssets: [],
               showTokenIdInput: false,
             };
           }
@@ -672,7 +715,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
             if (tokenId === undefined) {
               setSearchLoading(false);
               return {
-                matchingKnownAssets: [],
+                matchingExchangableAssets: [],
                 showTokenIdInput: true,
               };
             }
@@ -715,6 +758,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
               new BigNumber(10).pow(tokenMetadata.decimals)
             );
             setKnownAssets([...knownAssets, tokenMetadata]);
+            setExchangableAssets([...exchangableAssets, tokenMetadata]);
             setQsStoredTokens([
               ...qsStoredTokens,
               tokenMetadata as TempleToken,
@@ -744,19 +788,19 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
             setExchangeData(newExchangeData);
             setSearchLoading(false);
             return {
-              matchingKnownAssets: [tokenMetadata],
+              matchingExchangableAssets: [tokenMetadata],
               showTokenIdInput,
             };
           }
           setSearchLoading(false);
           return {
-            matchingKnownAssets: [],
+            matchingExchangableAssets: [],
             showTokenIdInput: false,
           };
         } catch (e) {
           setSearchLoading(false);
           return {
-            matchingKnownAssets: [],
+            matchingExchangableAssets: [],
             showTokenIdInput: false,
           };
         }
@@ -765,6 +809,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         chainId,
         exchangeData,
         getAssetData,
+        exchangableAssets,
         knownAssets,
         networkTezUsdPrice,
         tezos,
@@ -775,7 +820,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
 
     return {
       tezUsdPrice: networkTezUsdPrice,
-      knownAssets,
+      exchangableAssets,
       exchangeData,
       exchangeDataLoading,
       searchLoading,
