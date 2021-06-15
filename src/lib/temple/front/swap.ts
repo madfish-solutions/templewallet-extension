@@ -25,12 +25,6 @@ export type SwapParams = {
   tezos: TezosToolkit;
 };
 
-export type ExchangeDataEntry = {
-  usdPrice?: number;
-  maxExchangable: BigNumber;
-  exchangeContract: string;
-};
-
 export const ALL_EXCHANGERS_TYPES: ExchangerType[] = ["dexter", "quipuswap"];
 
 export const EXCHANGE_XTZ_RESERVE = new BigNumber("0.3");
