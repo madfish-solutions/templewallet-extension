@@ -311,6 +311,7 @@ export function sendOperations(
                     buildFinalOpParmas(
                       opParams,
                       dryRunResult?.estimates,
+                      req.modifiedTotalFee,
                       req.modifiedStorageLimit
                     )
                   )

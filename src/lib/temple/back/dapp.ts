@@ -196,6 +196,7 @@ export async function requestOperation(
                   buildFinalOpParmas(
                     req.opParams,
                     (finalPayload as TempleDAppOperationsPayload)?.estimates,
+                    confirmReq.modifiedTotalFee,
                     confirmReq.modifiedStorageLimit
                   )
                 )

@@ -14,8 +14,7 @@ import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 import AccountBanner from "app/templates/AccountBanner";
-import ExpensesView from "app/templates/ExpensesView";
-import ModifyStorageLimitSection from "app/templates/ModifyStorageLimitSection";
+import ExpensesView, { ModifyFeeAndLimit } from "app/templates/ExpensesView";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
@@ -44,6 +43,7 @@ type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
   onConfirm: (
     confirmed: boolean,
+    modifiedTotalFee?: number,
     modifiedStorageLimit?: number
   ) => Promise<void>;
 };
@@ -167,6 +167,12 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
+
+  const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
+    (payload.type === "operations" &&
+      payload.estimates?.reduce((sum, e) => sum + e.suggestedFeeMutez, 0)) ||
+      0
+  );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] =
     useSafeState(
       (payload.type === "operations" && payload.estimates?.[0].storageLimit) ||
@@ -177,14 +183,18 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
     async (confirmed: boolean) => {
       setError(null);
       try {
-        await onConfirm(confirmed, modifiedStorageLimitValue);
+        await onConfirm(
+          confirmed,
+          modifiedTotalFeeValue,
+          modifiedStorageLimitValue
+        );
       } catch (err) {
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
         setError(err);
       }
     },
-    [onConfirm, setError, modifiedStorageLimitValue]
+    [onConfirm, setError, modifiedTotalFeeValue, modifiedStorageLimitValue]
   );
 
   const handleConfirmClick = useCallback(async () => {
@@ -211,6 +221,24 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
       payload.estimates &&
       payload.estimates.length < 2,
     [payload]
+  );
+
+  const modifyFeeAndLimit = useMemo<ModifyFeeAndLimit>(
+    () => ({
+      totalFee: modifiedTotalFeeValue,
+      onTotalFeeChange: (v) => setModifiedTotalFeeValue(v),
+      storageLimit: modifiedStorageLimitDisplayed
+        ? modifiedStorageLimitValue
+        : null,
+      onStorageLimitChange: (v) => setModifiedStorageLimitValue(v),
+    }),
+    [
+      modifiedTotalFeeValue,
+      setModifiedTotalFeeValue,
+      modifiedStorageLimitValue,
+      setModifiedStorageLimitValue,
+      modifiedStorageLimitDisplayed,
+    ]
   );
 
   return (
@@ -304,7 +332,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
                   opParams={payload.rawToSign ?? payload.opParams}
                   jsonViewStyle={
                     signPayloadFormats.length > 1
-                      ? { height: "9.5rem" }
+                      ? { height: "11rem" }
                       : undefined
                   }
                 />
@@ -316,7 +344,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
                     label={t("payloadToSign")}
                     payload={payload.bytes}
                     className="mb-4"
-                    style={{ height: "9.5rem" }}
+                    style={{ height: "11rem" }}
                   />
                 </>
               )}
@@ -328,7 +356,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
                     <RawPayloadView
                       payload={payload.bytesToSign}
                       className="mb-4"
-                      style={{ height: "9.5rem" }}
+                      style={{ height: "11rem" }}
                     />
                   </>
                 )}
@@ -341,19 +369,11 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
                       ? payload.estimates
                       : undefined
                   }
-                  modifiedStorageLimit={modifiedStorageLimitValue}
+                  modifyFeeAndLimit={modifyFeeAndLimit}
                   mainnet={mainnet}
-                  totalFeeDisplayed
                 />
               )}
             </>
-          )}
-
-          {modifiedStorageLimitDisplayed && (
-            <ModifyStorageLimitSection
-              value={modifiedStorageLimitValue}
-              onChange={setModifiedStorageLimitValue}
-            />
           )}
         </div>
 

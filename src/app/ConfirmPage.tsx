@@ -29,7 +29,7 @@ import Balance from "app/templates/Balance";
 import ConnectBanner from "app/templates/ConnectBanner";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import DAppLogo from "app/templates/DAppLogo";
-import ModifyStorageLimitSection from "app/templates/ModifyStorageLimitSection";
+import { ModifyFeeAndLimit } from "app/templates/ExpensesView";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationView from "app/templates/OperationView";
 import { CustomRpsContext } from "lib/analytics";
@@ -139,13 +139,22 @@ const ConfirmDAppForm: FC = () => {
   );
 
   const onConfirm = useCallback(
-    async (confimed: boolean, modifiedStorageLimit?: number) => {
+    async (
+      confimed: boolean,
+      modifiedTotalFee?: number,
+      modifiedStorageLimit?: number
+    ) => {
       switch (payload.type) {
         case "connect":
           return confirmDAppPermission(id, confimed, accountPkhToConnect);
 
         case "confirm_operations":
-          return confirmDAppOperation(id, confimed, modifiedStorageLimit);
+          return confirmDAppOperation(
+            id,
+            confimed,
+            modifiedTotalFee,
+            modifiedStorageLimit
+          );
 
         case "sign":
           return confirmDAppSign(id, confimed);
@@ -164,6 +173,12 @@ const ConfirmDAppForm: FC = () => {
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
+
+  const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
+    (payload.type === "confirm_operations" &&
+      payload.estimates?.reduce((sum, e) => sum + e.suggestedFeeMutez, 0)) ||
+      0
+  );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] =
     useSafeState(
       (payload.type === "confirm_operations" &&
@@ -175,7 +190,11 @@ const ConfirmDAppForm: FC = () => {
     async (confirmed: boolean) => {
       setError(null);
       try {
-        await onConfirm(confirmed, modifiedStorageLimitValue);
+        await onConfirm(
+          confirmed,
+          modifiedTotalFeeValue,
+          modifiedStorageLimitValue
+        );
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -186,7 +205,7 @@ const ConfirmDAppForm: FC = () => {
         setError(err);
       }
     },
-    [onConfirm, setError, modifiedStorageLimitValue]
+    [onConfirm, setError, modifiedTotalFeeValue, modifiedStorageLimitValue]
   );
 
   const handleConfirmClick = useCallback(async () => {
@@ -314,6 +333,24 @@ const ConfirmDAppForm: FC = () => {
     [payload]
   );
 
+  const modifyFeeAndLimit = useMemo<ModifyFeeAndLimit>(
+    () => ({
+      totalFee: modifiedTotalFeeValue,
+      onTotalFeeChange: (v) => setModifiedTotalFeeValue(v),
+      storageLimit: modifiedStorageLimitDisplayed
+        ? modifiedStorageLimitValue
+        : null,
+      onStorageLimitChange: (v) => setModifiedStorageLimitValue(v),
+    }),
+    [
+      modifiedTotalFeeValue,
+      setModifiedTotalFeeValue,
+      modifiedStorageLimitValue,
+      setModifiedStorageLimitValue,
+      modifiedStorageLimitDisplayed,
+    ]
+  );
+
   return (
     <CustomRpsContext.Provider value={payload.networkRpc}>
       <div
@@ -429,20 +466,10 @@ const ConfirmDAppForm: FC = () => {
                   payload={payload}
                   networkRpc={payload.networkRpc}
                   mainnet={mainnet}
-                  modifiedStorageLimit={modifiedStorageLimitValue}
+                  modifyFeeAndLimit={modifyFeeAndLimit}
                 />
               )}
             </>
-          )}
-
-          {modifiedStorageLimitDisplayed && (
-            <div className="w-full mt-2">
-              <ModifyStorageLimitSection
-                value={modifiedStorageLimitValue}
-                onChange={setModifiedStorageLimitValue}
-                style={{ marginTop: 0 }}
-              />
-            </div>
           )}
         </div>
 
