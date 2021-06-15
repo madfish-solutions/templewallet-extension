@@ -20,13 +20,15 @@ import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import AssetIcon from "app/templates/AssetIcon";
-import useSwappableAssets, {
+import {
   getAssetExchangeData,
   TokensExchangeData,
+  useSwappableAssets,
 } from "app/templates/SwapForm/useSwappableAssets";
 import { useFormAnalytics } from "lib/analytics";
 import { toLocalFormat } from "lib/i18n/numbers";
 import { t, T } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   useAccount,
   useBalance,
@@ -70,6 +72,10 @@ type SwapInputProps = {
 
 const BUTTONS_PERCENTAGES = [25, 50, 75, 100];
 
+const defaultSearchResults = {
+  matchingKnownAssets: [],
+  showTokenIdInput: false,
+};
 const defaultInputValue: SwapInputValue = {};
 const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
   (
@@ -97,13 +103,28 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
     const [tokenId, setTokenId] = useState<number>();
     const { publicKeyHash: accountPkh } = useAccount();
     const {
-      assets,
-      isLoading: assetsLoading,
-      tokenIdRequired,
-      tokensExchangeData,
+      exchangeData,
+      knownAssets,
+      searchAssets,
+      searchLoading,
       tezUsdPrice,
-    } = useSwappableAssets(searchString, tokenId);
+    } = useSwappableAssets();
     const { trackChange } = useFormAnalytics("SwapForm");
+
+    const knownAssetsKeys = useMemo(
+      () => knownAssets.map((asset) => getAssetKey(asset)).join(),
+      [knownAssets]
+    );
+    const getMatchingAssets = useCallback(
+      (_k: string, searchStr?: string, tokenId?: number) =>
+        searchAssets(searchStr, tokenId),
+      [searchAssets]
+    );
+    const { data: searchResults = defaultSearchResults } = useRetryableSWR(
+      ["swap-input-matching-assets", searchString, tokenId, knownAssetsKeys],
+      getMatchingAssets
+    );
+    const { matchingKnownAssets, showTokenIdInput } = searchResults;
 
     const { data: balance, revalidate: updateBalance } = useBalance(
       asset ?? TEZ_ASSET,
@@ -116,12 +137,12 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       () =>
         asset &&
         getAssetExchangeData(
-          tokensExchangeData,
+          exchangeData,
           tezUsdPrice,
           asset,
           selectedExchanger
         ),
-      [tokensExchangeData, tezUsdPrice, asset, selectedExchanger]
+      [exchangeData, tezUsdPrice, asset, selectedExchanger]
     );
 
     const maxAmount = useMemo(() => {
@@ -135,9 +156,17 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
         asset.type === TempleAssetType.TEZ
           ? balance?.minus(EXCHANGE_XTZ_RESERVE)
           : balance;
+      const maxExchangable =
+        asset.type === TempleAssetType.TEZ
+          ? assetExchangeData?.normalizedTezLiquidity
+              ?.div(3)
+              .decimalPlaces(asset.decimals)
+          : assetExchangeData?.normalizedTokenLiquidity
+              ?.div(3)
+              .decimalPlaces(asset.decimals);
       return BigNumber.max(
         BigNumber.min(
-          assetExchangeData?.maxExchangable ?? new BigNumber(Infinity),
+          maxExchangable ?? new BigNumber(Infinity),
           exchangableAmount ?? new BigNumber(Infinity)
         ),
         0
@@ -269,13 +298,13 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
           fallbackPlacementsEnabled={false}
           popup={({ opened, setOpened }) => (
             <AssetsMenu
-              isLoading={assetsLoading}
+              isLoading={searchLoading}
               opened={opened}
               setOpened={setOpened}
               onChange={handleSelectedAssetChange}
-              options={assets}
+              options={matchingKnownAssets}
               searchString={searchString}
-              tokenIdMissing={tokenId === undefined && tokenIdRequired}
+              tokenIdMissing={tokenId === undefined && showTokenIdInput}
               value={asset}
             />
           )}
@@ -299,9 +328,9 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
               setOpened={setOpened}
               shouldShowUsd={actualShouldShowUsd}
               tezUsdPrice={tezUsdPrice}
-              tokenIdRequired={tokenIdRequired}
+              tokenIdRequired={showTokenIdInput}
               tokenId={tokenId}
-              tokensExchangeData={tokensExchangeData}
+              tokensExchangeData={exchangeData}
               toggleOpened={toggleOpened}
               usdAmount={usdAmount}
             />

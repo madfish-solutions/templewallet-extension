@@ -24,8 +24,10 @@ import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg"
 import OperationStatus from "app/templates/OperationStatus";
 import SwapInput, { SwapInputValue } from "app/templates/SwapForm/SwapInput";
 import useSwapCalculations from "app/templates/SwapForm/useSwapCalculations";
-import useSwappableAssets, {
+import {
   getAssetExchangeData,
+  TokenExchangeData,
+  useSwappableAssets,
 } from "app/templates/SwapForm/useSwappableAssets";
 import { useFormAnalytics } from "lib/analytics";
 import { toLocalFixed } from "lib/i18n/numbers";
@@ -46,6 +48,7 @@ import {
   ExchangerType,
   useAssetBySlug,
   TempleAsset,
+  getAssetId,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 
@@ -66,7 +69,8 @@ type SwapFormWrapperProps = {
 
 const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
   const defaultAsset = useAssetBySlug(assetSlug) ?? undefined;
-  const { isSupportedNetwork } = useSwappableAssets();
+  const { knownAssets } = useSwappableAssets();
+  const isSupportedNetwork = knownAssets.length > 0;
 
   if (!isSupportedNetwork) {
     return (
@@ -81,15 +85,21 @@ const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
 
 export default SwapFormWrapper;
 
-const feeLabel = `${toLocalFixed(new BigNumber("0.3"))}%`;
+const feeLabel = `0.3%`;
 
 type SwapFormProps = {
   defaultAsset?: TempleAsset;
 };
 
 const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
-  const { assets, quipuswapTokensWhitelist, tokensExchangeData, tezUsdPrice } =
-    useSwappableAssets();
+  const {
+    ensureExchangeData,
+    knownAssets: assets,
+    quipuswapTokensWhitelist,
+    exchangeData: tokensExchangeData,
+    exchangeDataLoading,
+    tezUsdPrice,
+  } = useSwappableAssets();
   const { getInputAssetAmount, getOutputAssetAmounts } = useSwapCalculations();
 
   const tezos = useTezos();
@@ -97,23 +107,25 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   const { publicKeyHash: accountPkh } = useAccount();
   const formAnalytics = useFormAnalytics("SwapForm");
 
-  const defaultExchanger = getAssetExchangeData(
-    tokensExchangeData,
-    tezUsdPrice,
-    assets[1],
-    "quipuswap"
-  )
-    ? "quipuswap"
-    : "dexter";
+  const defaultExchanger = "quipuswap";
   const initialAsset = useMemo(() => {
     if (
       defaultAsset &&
       assets.some((asset) => assetsAreSame(asset, defaultAsset))
     ) {
-      return defaultAsset;
+      const { address: defaultAssetAddress, tokenId: defaultTokenId } =
+        getAssetId(defaultAsset);
+      if (
+        !defaultAssetAddress ||
+        Object.keys(
+          tokensExchangeData[defaultAssetAddress]?.[defaultTokenId ?? 0] ?? {}
+        ).length > 0
+      ) {
+        return defaultAsset;
+      }
     }
     return assets[0];
-  }, [assets, defaultAsset]);
+  }, [assets, defaultAsset, tokensExchangeData]);
   const formContextValues = useForm<SwapFormValues>({
     defaultValues: {
       exchanger: defaultExchanger,
@@ -145,6 +157,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   const prevNetworkIdRef = useRef(network.id);
   const [inputAmountLoading, setInputAmountLoading] = useState(false);
   const [outputAmountLoading, setOutputAmountLoading] = useState(false);
+  const [noExchangerAsset, setNoExchangerAsset] = useState<TempleAsset>();
   const [outputAssetAmounts, setOutputAssetAmounts] =
     useState<Partial<Record<ExchangerType, BigNumber>>>();
 
@@ -158,7 +171,9 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   const submitDisabled =
     Object.keys(errors).length !== 0 ||
     inputAmountLoading ||
-    outputAmountLoading;
+    outputAmountLoading ||
+    exchangeDataLoading ||
+    !!noExchangerAsset;
 
   const minimumReceived = useMemo(() => {
     if (
@@ -284,13 +299,13 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           tezUsdPrice,
           inputAsset!,
           exchanger
-        )!.exchangeContract;
+        )?.contract;
         const outputContractAddress = getAssetExchangeData(
           tokensExchangeData,
           tezUsdPrice,
           outputAsset!,
           exchanger
-        )!.exchangeContract;
+        )?.contract;
         const op = await swap({
           accountPkh,
           inputAsset: inputAsset!,
@@ -379,7 +394,9 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
               tezUsdPrice,
               asset,
               selectedExchanger
-            )?.maxExchangable ?? new BigNumber(Infinity);
+            )
+              ?.normalizedTokenLiquidity?.div(3)
+              .decimalPlaces(asset.decimals) ?? new BigNumber(Infinity);
       return (
         amount.lte(maxExchangable) ||
         `maximalAmount:${toLocalFixed(maxExchangable)}`
@@ -522,7 +539,9 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
     async (
       inputValue: SwapInputValue,
       outputValue: SwapInputValue,
-      exchanger: ExchangerType
+      exchanger: ExchangerType,
+      inputExchangeData?: Partial<TokenExchangeData>,
+      outputExchangeData?: Partial<TokenExchangeData>
     ) => {
       const { asset: inputAsset } = inputValue;
       const { asset: outputAsset, amount: outputAmount } = outputValue;
@@ -533,22 +552,19 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           outputAmount,
           outputAsset,
           inputAsset,
-          exchanger
+          exchanger,
+          inputExchangeData,
+          outputExchangeData
         );
         setInputAmountLoading(false);
-        const exchangeData =
-          inputAsset &&
-          getAssetExchangeData(
-            tokensExchangeData,
-            tezUsdPrice,
-            inputAsset,
-            exchanger
-          );
         batch.push({
           input: {
             asset: inputAsset,
             amount: newAmount,
-            usdAmount: assetAmountToUSD(newAmount, exchangeData?.usdPrice),
+            usdAmount: assetAmountToUSD(
+              newAmount,
+              inputExchangeData?.[exchanger]?.usdPrice
+            ),
           },
         });
       } catch (e) {
@@ -561,13 +577,15 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       }
       return batch;
     },
-    [getInputAssetAmount, tezUsdPrice, tokensExchangeData]
+    [getInputAssetAmount]
   );
   const getUpdateOutputAmountBatch = useCallback(
     async (
       inputValue: SwapInputValue,
       outputValue: SwapInputValue,
-      exchanger: ExchangerType
+      exchanger: ExchangerType,
+      inputExchangeData?: Partial<TokenExchangeData>,
+      outputExchangeData?: Partial<TokenExchangeData>
     ) => {
       const { asset: outputAsset } = outputValue;
       const { asset: inputAsset, amount: inputAmount } = inputValue;
@@ -577,24 +595,21 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
         const outputAmounts = await getOutputAssetAmounts(
           inputAmount,
           inputAsset,
-          outputAsset
+          outputAsset,
+          inputExchangeData,
+          outputExchangeData
         );
         setOutputAmountLoading(false);
         setOutputAssetAmounts(outputAmounts);
         const newAmount = outputAmounts?.[exchanger];
-        const exchangeData =
-          outputAsset &&
-          getAssetExchangeData(
-            tokensExchangeData,
-            tezUsdPrice,
-            outputAsset,
-            exchanger
-          );
         batch.push({
           output: {
             asset: outputAsset,
             amount: newAmount,
-            usdAmount: assetAmountToUSD(newAmount, exchangeData?.usdPrice),
+            usdAmount: assetAmountToUSD(
+              newAmount,
+              outputExchangeData?.[exchanger]?.usdPrice
+            ),
           },
         });
       } catch (e) {
@@ -607,7 +622,53 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       }
       return batch;
     },
-    [getOutputAssetAmounts, tezUsdPrice, tokensExchangeData]
+    [getOutputAssetAmounts]
+  );
+
+  const getAfterChangeExchangerType = useCallback(
+    async (
+      preferredExchanger: ExchangerType,
+      outputAsset?: TempleAsset,
+      inputAsset?: TempleAsset
+    ) => {
+      let assetsExchangeData: Partial<
+        Record<"input" | "output", Partial<TokenExchangeData>>
+      > = {};
+      if (outputAsset) {
+        assetsExchangeData.output = await ensureExchangeData(
+          getAssetId(outputAsset)
+        );
+      }
+      if (inputAsset) {
+        assetsExchangeData.input = await ensureExchangeData(
+          getAssetId(inputAsset)
+        );
+      }
+      let exchanger: ExchangerType | undefined = preferredExchanger;
+      if (
+        (["input", "output"] as const).some((assetKey) => {
+          const asset = assetKey === "input" ? inputAsset : outputAsset;
+          return (
+            asset &&
+            asset.type !== TempleAssetType.TEZ &&
+            !assetsExchangeData[assetKey]?.[preferredExchanger]
+          );
+        })
+      ) {
+        exchanger = ALL_EXCHANGERS_TYPES.find((exchangerType) => {
+          return (["input", "output"] as const).every((assetKey) => {
+            const asset = assetKey === "input" ? inputAsset : outputAsset;
+            return (
+              !asset ||
+              asset.type === TempleAssetType.TEZ ||
+              assetsExchangeData[assetKey]?.[exchangerType]
+            );
+          });
+        });
+      }
+      return exchanger;
+    },
+    [ensureExchangeData]
   );
 
   const updateAfterInputChange = useMemo(
@@ -617,6 +678,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           newInputValue: SwapInputValue,
           newExchangerType: ExchangerType
         ) => {
+          setError(undefined);
           const { asset: newInputAsset } = newInputValue;
           if (
             newInputAsset &&
@@ -627,44 +689,47 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
             return;
           }
           const setValueBatch: Partial<SwapFormValues>[] = [];
-          const getExchangeData = (exchanger: ExchangerType) =>
-            newInputAsset &&
-            getAssetExchangeData(
-              tokensExchangeData,
-              tezUsdPrice,
-              newInputAsset,
-              exchanger
+          let tokenExchangeData: Partial<TokenExchangeData> | undefined;
+          if (newInputAsset && newInputAsset.type !== TempleAssetType.TEZ) {
+            tokenExchangeData = await ensureExchangeData(
+              getAssetId(newInputAsset)
             );
-          let exchanger: ExchangerType | undefined = newExchangerType;
-          if (newInputAsset && !getExchangeData(newExchangerType)) {
-            exchanger = ALL_EXCHANGERS_TYPES.find((type) =>
-              getExchangeData(type)
-            );
-            if (exchanger) {
-              setValueBatch.push({ exchanger });
-            }
           }
-          if (
-            exchanger &&
+          const exchanger = await getAfterChangeExchangerType(
+            newExchangerType,
+            output.asset,
+            newInputAsset
+          );
+          if (exchanger && exchanger !== newExchangerType) {
+            setValueBatch.push({ exchanger });
+          }
+          if (!exchanger) {
+            setNoExchangerAsset(newInputAsset);
+            setValueBatch.push({
+              input: { asset: newInputAsset },
+            });
+          } else if (
             newInputAsset &&
             inputAsset &&
             assetsAreSame(newInputAsset, inputAsset)
           ) {
+            setNoExchangerAsset(undefined);
             const changes = await getUpdateOutputAmountBatch(
               newInputValue,
               output,
-              exchanger
-            );
-            setValueBatch.push(...changes);
-          } else if (exchanger) {
-            const changes = await getUpdateInputAmountBatch(
-              newInputValue,
-              output,
-              exchanger
+              exchanger,
+              tokenExchangeData
             );
             setValueBatch.push(...changes);
           } else {
-            setValueBatch.push({ output: {} });
+            setNoExchangerAsset(undefined);
+            const changes = await getUpdateInputAmountBatch(
+              newInputValue,
+              output,
+              exchanger,
+              tokenExchangeData
+            );
+            setValueBatch.push(...changes);
           }
           setValue(setValueBatch, true);
         },
@@ -674,15 +739,16 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       output,
       inputAsset,
       setValue,
-      tezUsdPrice,
-      tokensExchangeData,
       getUpdateInputAmountBatch,
       getUpdateOutputAmountBatch,
+      ensureExchangeData,
+      getAfterChangeExchangerType,
     ]
   );
   const updateAfterOutputChange = useMemo(
     () =>
       debouncePromise(async (newOutputValue: SwapInputValue) => {
+        setError(undefined);
         const { asset: newOutputAsset } = newOutputValue;
         if (
           newOutputAsset &&
@@ -693,44 +759,49 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           return;
         }
         const setValueBatch: Partial<SwapFormValues>[] = [];
-        const getExchangeData = (exchanger: ExchangerType) =>
-          newOutputAsset &&
-          getAssetExchangeData(
-            tokensExchangeData,
-            tezUsdPrice,
-            newOutputAsset,
-            exchanger
+        let tokenExchangeData: Partial<TokenExchangeData> | undefined;
+        if (newOutputAsset && newOutputAsset.type !== TempleAssetType.TEZ) {
+          tokenExchangeData = await ensureExchangeData(
+            getAssetId(newOutputAsset)
           );
-        let exchanger: ExchangerType | undefined = selectedExchanger;
-        if (newOutputAsset && !getExchangeData(selectedExchanger)) {
-          exchanger = ALL_EXCHANGERS_TYPES.find((type) =>
-            getExchangeData(type)
-          );
-          if (exchanger) {
-            setValueBatch.push({ exchanger });
-          }
         }
-        if (
-          exchanger &&
+        const exchanger = await getAfterChangeExchangerType(
+          selectedExchanger,
+          newOutputAsset,
+          input.asset
+        );
+        if (exchanger && exchanger !== selectedExchanger) {
+          setValueBatch.push({ exchanger });
+        }
+        if (!exchanger) {
+          setNoExchangerAsset(newOutputAsset);
+          setValueBatch.push({
+            output: { asset: newOutputAsset },
+          });
+        } else if (
           newOutputAsset &&
           outputAsset &&
           assetsAreSame(newOutputAsset, outputAsset)
         ) {
+          setNoExchangerAsset(undefined);
           const changes = await getUpdateInputAmountBatch(
             input,
             newOutputValue,
-            exchanger
-          );
-          setValueBatch.push(...changes);
-        } else if (exchanger) {
-          const changes = await getUpdateOutputAmountBatch(
-            input,
-            newOutputValue,
-            exchanger
+            exchanger,
+            undefined,
+            tokenExchangeData
           );
           setValueBatch.push(...changes);
         } else {
-          setValueBatch.push({ input: {} });
+          setNoExchangerAsset(undefined);
+          const changes = await getUpdateOutputAmountBatch(
+            input,
+            newOutputValue,
+            exchanger,
+            undefined,
+            tokenExchangeData
+          );
+          setValueBatch.push(...changes);
         }
         setValue(setValueBatch, true);
       }, 250),
@@ -739,10 +810,10 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       outputAsset,
       selectedExchanger,
       setValue,
-      tezUsdPrice,
-      tokensExchangeData,
       getUpdateInputAmountBatch,
       getUpdateOutputAmountBatch,
+      ensureExchangeData,
+      getAfterChangeExchangerType,
     ]
   );
 
@@ -832,6 +903,19 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
         ))}
       </div>
 
+      {noExchangerAsset && (
+        <p
+          className={classNames(
+            shouldShowNotWhitelistedTokenWarning ? "mb-1" : "mb-6",
+            "text-red-700 text-xs"
+          )}
+        >
+          {t("noExchangerFoundForToken", [
+            noExchangerAsset.symbol,
+            noExchangerAsset.name,
+          ])}
+        </p>
+      )}
       {shouldShowNotWhitelistedTokenWarning && (
         <p className="mb-6 text-red-700 text-xs">
           <T id="notWhitelistedTokenWarning" />
