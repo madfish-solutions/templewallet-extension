@@ -336,11 +336,17 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   );
 
   const confirmInternal = useCallback(
-    async (id: string, confirmed: boolean, modifiedStorageLimit?: number) => {
+    async (
+      id: string,
+      confirmed: boolean,
+      modifiedTotalFee?: number,
+      modifiedStorageLimit?: number
+    ) => {
       const res = await request({
         type: TempleMessageType.ConfirmationRequest,
         id,
         confirmed,
+        modifiedTotalFee,
         modifiedStorageLimit,
       });
       assertResponse(res.type === TempleMessageType.ConfirmationResponse);
@@ -374,11 +380,17 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   );
 
   const confirmDAppOperation = useCallback(
-    async (id: string, confirmed: boolean, modifiedStorageLimit?: number) => {
+    async (
+      id: string,
+      confirmed: boolean,
+      modifiedTotalFee?: number,
+      modifiedStorageLimit?: number
+    ) => {
       const res = await request({
         type: TempleMessageType.DAppOpsConfirmationRequest,
         id,
         confirmed,
+        modifiedTotalFee,
         modifiedStorageLimit,
       });
       assertResponse(

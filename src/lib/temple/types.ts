@@ -632,6 +632,7 @@ export interface TempleConfirmationRequest extends TempleMessageBase {
   type: TempleMessageType.ConfirmationRequest;
   id: string;
   confirmed: boolean;
+  modifiedTotalFee?: number;
   modifiedStorageLimit?: number;
 }
 
@@ -679,6 +680,7 @@ export interface TempleDAppOpsConfirmationRequest extends TempleMessageBase {
   type: TempleMessageType.DAppOpsConfirmationRequest;
   id: string;
   confirmed: boolean;
+  modifiedTotalFee?: number;
   modifiedStorageLimit?: number;
 }
 

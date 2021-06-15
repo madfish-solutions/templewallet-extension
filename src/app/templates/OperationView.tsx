@@ -5,7 +5,7 @@ import classNames from "clsx";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
 import { ReactComponent as HashIcon } from "app/icons/hash.svg";
-import ExpensesView from "app/templates/ExpensesView";
+import ExpensesView, { ModifyFeeAndLimit } from "app/templates/ExpensesView";
 import OperationsBanner from "app/templates/OperationsBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
 import ViewsSwitcher from "app/templates/ViewsSwitcher";
@@ -23,14 +23,14 @@ type OperationViewProps = {
   payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
   networkRpc?: string;
   mainnet?: boolean;
-  modifiedStorageLimit?: number;
+  modifyFeeAndLimit?: ModifyFeeAndLimit;
 };
 
 const OperationView: FC<OperationViewProps> = ({
   payload,
   networkRpc,
   mainnet = false,
-  modifiedStorageLimit,
+  modifyFeeAndLimit,
 }) => {
   const contentToParse = useMemo(() => {
     switch (payload.type) {
@@ -141,13 +141,13 @@ const OperationView: FC<OperationViewProps> = ({
         <OperationsBanner
           opParams={payload.preview}
           className={classNames(spFormat.key !== "raw" && "hidden")}
-          jsonViewStyle={{ height: "9.5rem" }}
+          jsonViewStyle={{ height: "11rem" }}
         />
 
         <RawPayloadView
           payload={payload.payload}
           className={classNames(spFormat.key !== "bytes" && "hidden")}
-          style={{ marginBottom: 0, height: "9.5rem" }}
+          style={{ marginBottom: 0, height: "11rem" }}
         />
 
         <div className={classNames(spFormat.key !== "preview" && "hidden")}>
@@ -162,7 +162,7 @@ const OperationView: FC<OperationViewProps> = ({
       <RawPayloadView
         label={t("payloadToSign")}
         payload={payload.payload}
-        style={{ marginBottom: 0, height: "9.5rem" }}
+        style={{ marginBottom: 0, height: "11rem" }}
         fieldWrapperBottomMargin={false}
       />
     );
@@ -198,7 +198,7 @@ const OperationView: FC<OperationViewProps> = ({
           <RawPayloadView
             payload={payload.bytesToSign}
             className={classNames(spFormat.key !== "bytes" && "hidden")}
-            style={{ marginBottom: 0, height: "9.5rem" }}
+            style={{ marginBottom: 0, height: "11rem" }}
             fieldWrapperBottomMargin={false}
           />
         )}
@@ -207,7 +207,7 @@ const OperationView: FC<OperationViewProps> = ({
           opParams={payload.rawToSign ?? payload.opParams}
           className={classNames(spFormat.key !== "raw" && "hidden")}
           jsonViewStyle={
-            signPayloadFormats.length > 1 ? { height: "9.5rem" } : undefined
+            signPayloadFormats.length > 1 ? { height: "11rem" } : undefined
           }
           label={null}
         />
@@ -216,9 +216,8 @@ const OperationView: FC<OperationViewProps> = ({
           <ExpensesView
             expenses={expensesData}
             estimates={payload.estimates}
-            modifiedStorageLimit={modifiedStorageLimit}
+            modifyFeeAndLimit={modifyFeeAndLimit}
             mainnet={mainnet}
-            totalFeeDisplayed
           />
         </div>
       </div>
