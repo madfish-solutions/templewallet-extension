@@ -11,21 +11,21 @@ type SwapProps = {
 };
 
 const Swap: React.FC<SwapProps> = ({ assetSlug }) => (
-  <SwappableAssetsProvider initialAssetKey={assetSlug ?? undefined}>
-    <PageLayout
-      pageTitle={
-        <>
-          <SwapIcon className="w-auto h-4 mr-1 stroke-current" /> {t("swap")}
-        </>
-      }
-    >
-      <div className="py-4">
-        <div className="w-full max-w-sm mx-auto">
+  <PageLayout
+    pageTitle={
+      <>
+        <SwapIcon className="w-auto h-4 mr-1 stroke-current" /> {t("swap")}
+      </>
+    }
+  >
+    <div className="py-4">
+      <div className="w-full max-w-sm mx-auto">
+        <SwappableAssetsProvider initialAssetKey={assetSlug ?? undefined}>
           <SwapForm assetSlug={assetSlug} />
-        </div>
+        </SwappableAssetsProvider>
       </div>
-    </PageLayout>
-  </SwappableAssetsProvider>
+    </div>
+  </PageLayout>
 );
 
 export default Swap;
