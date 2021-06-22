@@ -403,14 +403,6 @@ async function requestConfirm({
   onDecline,
   handleIntercomRequest,
 }: RequestConfirmParams) {
-  const win = await browser.windows.getCurrent();
-  const top = Math.round(
-    win.top! + win.height! / 2 - CONFIRM_WINDOW_HEIGHT / 2
-  );
-  const left = Math.round(
-    win.left! + win.width! / 2 - CONFIRM_WINDOW_WIDTH / 2
-  );
-
   let closing = false;
   const close = async () => {
     if (closing) return;
@@ -476,6 +468,27 @@ async function requestConfirm({
 
   const isWin = (await browser.runtime.getPlatformInfo()).os === "win";
 
+  let left = 0;
+  let top = 0;
+  try {
+    const lastFocused = await browser.windows.getLastFocused();
+    // Position window in top right corner of lastFocused window.
+
+    top = Math.round(
+      lastFocused.top! + lastFocused.height! / 2 - CONFIRM_WINDOW_HEIGHT / 2
+    );
+    left = Math.round(
+      lastFocused.left! + lastFocused.width! / 2 - CONFIRM_WINDOW_WIDTH / 2
+    );
+  } catch {
+    // The following properties are more than likely 0, due to being
+    // opened from the background chrome process for the extension that
+    // has no physical dimensions
+    const { screenX, screenY, outerWidth, outerHeight } = window;
+    top = Math.round(screenY + outerHeight / 2 - CONFIRM_WINDOW_HEIGHT / 2);
+    left = Math.round(screenX + outerWidth / 2 - CONFIRM_WINDOW_WIDTH / 2);
+  }
+
   const confirmWin = await browser.windows.create({
     type: "popup",
     url: browser.runtime.getURL(`confirm.html#?id=${id}`),
@@ -484,6 +497,15 @@ async function requestConfirm({
     top: Math.max(top, 20),
     left: Math.max(left, 20),
   });
+
+  // Firefox currently ignores left/top for create, but it works for update
+  if (
+    confirmWin.id &&
+    confirmWin.left !== left &&
+    confirmWin.state !== "fullscreen"
+  ) {
+    await browser.windows.update(confirmWin.id, { left, top });
+  }
 
   const closeWindow = async () => {
     if (confirmWin.id) {
