@@ -261,6 +261,11 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     [resolvedAddress, toValue]
   );
 
+  const toFilledWithKTAddress = useMemo(
+    () => isAddressValid(toResolved) && isKTAddress(toResolved),
+    [toResolved]
+  );
+
   const filledAccount = useMemo(
     () =>
       (toResolved && allAccounts.find((a) => a.publicKeyHash === toResolved)) ||
@@ -830,6 +835,16 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
                     type="warn"
                     title={t("attentionExclamation")}
                     description={<T id="tryingToTransferToYourself" />}
+                    className="mt-6 mb-4"
+                  />
+                );
+
+              case toFilledWithKTAddress:
+                return (
+                  <Alert
+                    type="warn"
+                    title={t("attentionExclamation")}
+                    description={<T id="tryingToTransferToContract" />}
                     className="mt-6 mb-4"
                   />
                 );

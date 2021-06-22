@@ -1152,6 +1152,9 @@
   "tryingToTransferToYourself": {
     "message": "You're trying to transfer funds to yourself.\nPlease, ensure that it's exactly what you want."
   },
+  "tryingToTransferToContract": {
+    "message": "You're trying to transfer funds to contract.\nPlease, ensure that it's exactly what you want."
+  },
   "amount": {
     "message": "Amount"
   },
