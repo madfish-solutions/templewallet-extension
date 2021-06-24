@@ -1,3 +1,6 @@
-const { Crypto } = require("@peculiar/webcrypto");
+const { Crypto, CryptoKey } = require("@peculiar/webcrypto");
 
-global.crypto = new Crypto();
+Object.assign(global, {
+  crypto: new Crypto(),
+  CryptoKey,
+});
