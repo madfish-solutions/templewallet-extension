@@ -60,7 +60,17 @@ export async function dryRunOpParams({
 
     if (bytesToSign && estimates) {
       const rawToSign = await localForger.parse(bytesToSign);
-      return { bytesToSign, rawToSign, estimates };
+      return {
+        bytesToSign,
+        rawToSign,
+        estimates,
+        opParams: opParams.map((op, i) => ({
+          ...op,
+          fee: op.fee ?? estimates?.[i].suggestedFeeMutez,
+          gasLimit: op.gasLimit ?? estimates?.[i].gasLimit,
+          storageLimit: op.storageLimit ?? estimates?.[i].storageLimit,
+        })),
+      };
     }
 
     return null;
@@ -71,20 +81,12 @@ export async function dryRunOpParams({
 
 export function buildFinalOpParmas(
   opParams: any[],
-  estimates?: Estimate[],
   modifiedTotalFee?: number,
   modifiedStorageLimit?: number
 ) {
   if (modifiedTotalFee !== undefined) {
     opParams = opParams.map((op) => ({ ...op, fee: 0 }));
     opParams[opParams.length - 1].fee = modifiedTotalFee;
-  }
-
-  if (estimates) {
-    opParams = opParams.map((op, i) => ({
-      ...op,
-      storageLimit: estimates[i]?.storageLimit,
-    }));
   }
 
   if (modifiedStorageLimit !== undefined && opParams.length < 2) {

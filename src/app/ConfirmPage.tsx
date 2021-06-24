@@ -176,13 +176,13 @@ const ConfirmDAppForm: FC = () => {
 
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === "confirm_operations" &&
-      payload.estimates?.reduce((sum, e) => sum + e.suggestedFeeMutez, 0)) ||
+      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0)) ||
       0
   );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] =
     useSafeState(
       (payload.type === "confirm_operations" &&
-        payload.estimates?.[0].storageLimit) ||
+        payload.opParams[0].storageLimit) ||
         0
     );
 
@@ -326,10 +326,7 @@ const ConfirmDAppForm: FC = () => {
   }, [payload.type, payload.origin, payload.appMeta.name, error]);
 
   const modifiedStorageLimitDisplayed = useMemo(
-    () =>
-      payload.type === "confirm_operations" &&
-      payload.estimates &&
-      payload.estimates.length < 2,
+    () => payload.type === "confirm_operations" && payload.opParams.length < 2,
     [payload]
   );
 

@@ -170,13 +170,12 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
 
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === "operations" &&
-      payload.estimates?.reduce((sum, e) => sum + e.suggestedFeeMutez, 0)) ||
+      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0)) ||
       0
   );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] =
     useSafeState(
-      (payload.type === "operations" && payload.estimates?.[0].storageLimit) ||
-        0
+      (payload.type === "operations" && payload.opParams[0].storageLimit) || 0
     );
 
   const confirm = useCallback(
@@ -216,10 +215,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
   const modifiedStorageLimitDisplayed = useMemo(
-    () =>
-      payload.type === "operations" &&
-      payload.estimates &&
-      payload.estimates.length < 2,
+    () => payload.type === "operations" && payload.opParams.length < 2,
     [payload]
   );
 
