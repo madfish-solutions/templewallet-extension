@@ -1,4 +1,3 @@
-import { OperationContentsAndResult } from "@taquito/rpc";
 import { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 import {
   TempleDAppMetadata,
@@ -178,11 +177,6 @@ export enum TempleSharedStorageKey {
   LocaleCode = "localecode",
 }
 
-export type TemplePendingOperation = OperationContentsAndResult & {
-  hash: string;
-  addedAt: string;
-};
-
 export type TempleDAppSessions = Record<string, TempleDAppSession>;
 
 /**
@@ -295,10 +289,6 @@ export enum TempleMessageType {
   CreateLedgerAccountResponse = "TEMPLE_CREATE_LEDGER_ACCOUNT_RESPONSE",
   UpdateSettingsRequest = "TEMPLE_UPDATE_SETTINGS_REQUEST",
   UpdateSettingsResponse = "TEMPLE_UPDATE_SETTINGS_RESPONSE",
-  GetAllPndOpsRequest = "TEMPLE_GET_ALL_PND_OPS_REQUEST",
-  GetAllPndOpsResponse = "TEMPLE_GET_ALL_PND_OPS_RESPONSE",
-  RemovePndOpsRequest = "TEMPLE_REMOVE_PND_OPS_REQUEST",
-  RemovePndOpsResponse = "TEMPLE_REMOVE_PND_OPS_RESPONSE",
   OperationsRequest = "TEMPLE_OPERATIONS_REQUEST",
   OperationsResponse = "TEMPLE_OPERATIONS_RESPONSE",
   SignRequest = "TEMPLE_SIGN_REQUEST",
@@ -353,9 +343,7 @@ export type TempleRequest =
   | TempleDAppSignConfirmationRequest
   | TempleUpdateSettingsRequest
   | TempleGetAllDAppSessionsRequest
-  | TempleRemoveDAppSessionRequest
-  | TempleGetAllPndOpsRequest
-  | TempleRemovePndOpsRequest;
+  | TempleRemoveDAppSessionRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -384,9 +372,7 @@ export type TempleResponse =
   | TempleDAppSignConfirmationResponse
   | TempleUpdateSettingsResponse
   | TempleGetAllDAppSessionsResponse
-  | TempleRemoveDAppSessionResponse
-  | TempleGetAllPndOpsResponse
-  | TempleRemovePndOpsResponse;
+  | TempleRemoveDAppSessionResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -578,28 +564,6 @@ export interface TempleUpdateSettingsRequest extends TempleMessageBase {
 
 export interface TempleUpdateSettingsResponse extends TempleMessageBase {
   type: TempleMessageType.UpdateSettingsResponse;
-}
-
-export interface TempleGetAllPndOpsRequest extends TempleMessageBase {
-  type: TempleMessageType.GetAllPndOpsRequest;
-  accountPublicKeyHash: string;
-  netId: string;
-}
-
-export interface TempleGetAllPndOpsResponse extends TempleMessageBase {
-  type: TempleMessageType.GetAllPndOpsResponse;
-  operations: TemplePendingOperation[];
-}
-
-export interface TempleRemovePndOpsRequest extends TempleMessageBase {
-  type: TempleMessageType.RemovePndOpsRequest;
-  accountPublicKeyHash: string;
-  netId: string;
-  opHashes: string[];
-}
-
-export interface TempleRemovePndOpsResponse extends TempleMessageBase {
-  type: TempleMessageType.RemovePndOpsResponse;
 }
 
 export interface TempleOperationsRequest extends TempleMessageBase {

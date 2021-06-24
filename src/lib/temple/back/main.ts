@@ -4,7 +4,6 @@ import { createQueue } from "lib/queue";
 import * as Actions from "lib/temple/back/actions";
 import { intercom } from "lib/temple/back/defaults";
 import { store, toFront } from "lib/temple/back/store";
-import * as PndOps from "lib/temple/pndops";
 import {
   TempleMessageType,
   TempleRequest,
@@ -138,22 +137,6 @@ async function processRequest(
       await Actions.updateSettings(req.settings);
       return {
         type: TempleMessageType.UpdateSettingsResponse,
-      };
-
-    case TempleMessageType.GetAllPndOpsRequest:
-      const operations = await PndOps.getAll(
-        req.accountPublicKeyHash,
-        req.netId
-      );
-      return {
-        type: TempleMessageType.GetAllPndOpsResponse,
-        operations,
-      };
-
-    case TempleMessageType.RemovePndOpsRequest:
-      await PndOps.remove(req.accountPublicKeyHash, req.netId, req.opHashes);
-      return {
-        type: TempleMessageType.RemovePndOpsResponse,
       };
 
     case TempleMessageType.OperationsRequest:
