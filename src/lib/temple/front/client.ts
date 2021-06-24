@@ -309,32 +309,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     []
   );
 
-  const getAllPndOps = useCallback(
-    async (accountPublicKeyHash: string, netId: string) => {
-      const res = await request({
-        type: TempleMessageType.GetAllPndOpsRequest,
-        accountPublicKeyHash,
-        netId,
-      });
-      assertResponse(res.type === TempleMessageType.GetAllPndOpsResponse);
-      return res.operations;
-    },
-    []
-  );
-
-  const removePndOps = useCallback(
-    async (accountPublicKeyHash: string, netId: string, opHashes: string[]) => {
-      const res = await request({
-        type: TempleMessageType.RemovePndOpsRequest,
-        accountPublicKeyHash,
-        netId,
-        opHashes,
-      });
-      assertResponse(res.type === TempleMessageType.RemovePndOpsResponse);
-    },
-    []
-  );
-
   const confirmInternal = useCallback(
     async (
       id: string,
@@ -485,8 +459,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     importWatchOnlyAccount,
     createLedgerAccount,
     updateSettings,
-    getAllPndOps,
-    removePndOps,
     confirmInternal,
     getDAppPayload,
     confirmDAppPermission,
