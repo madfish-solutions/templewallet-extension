@@ -1,9 +1,9 @@
 import BigNumber from "bignumber.js";
 
-import { tryParseExpenses } from "../expenses";
-import TEZ_TRANSFER_OPERATIONS from "../__mocks__/tezTransferOperations";
 import DELEGATE_OPERATIONS from "../__mocks__/delegateOperations";
 import SWAP_OPERATIONS from "../__mocks__/swapOperations";
+import TEZ_TRANSFER_OPERATIONS from "../__mocks__/tezTransferOperations";
+import { tryParseExpenses } from "../expenses";
 
 const ACCOUNT = "tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o";
 

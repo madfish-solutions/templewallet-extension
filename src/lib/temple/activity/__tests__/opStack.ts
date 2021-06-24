@@ -1,14 +1,14 @@
+import OPERATION_COMPLEX from "../__mocks__/operation_0";
+import OPERATION_TOKEN_TRANSFER_ONLY from "../__mocks__/operation_1";
+import OPERATION_LOCAL_ONLY from "../__mocks__/operation_2";
 import { parseOpStack } from "../opStack";
 import { OpStackItemType } from "../types";
-import OPERATION_MOCK_COMPLEX from "../__mocks__/operation_0";
-import OPERATION_MOCK_TOKEN_TRANSFER_ONLY from "../__mocks__/operation_1";
-import OPERATION_MOCK_LOCAL_ONLY from "../__mocks__/operation_2";
 
 const ACCOUNT = "tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o";
 
 describe("Operation stack parsing", () => {
   it("parseOpStack complex", async () => {
-    const opStack = parseOpStack(OPERATION_MOCK_COMPLEX, ACCOUNT);
+    const opStack = parseOpStack(OPERATION_COMPLEX, ACCOUNT);
 
     expect(opStack).toStrictEqual([
       {
@@ -47,7 +47,7 @@ describe("Operation stack parsing", () => {
   });
 
   it("parseOpStack token transfer only", async () => {
-    const opStack = parseOpStack(OPERATION_MOCK_TOKEN_TRANSFER_ONLY, ACCOUNT);
+    const opStack = parseOpStack(OPERATION_TOKEN_TRANSFER_ONLY, ACCOUNT);
 
     expect(opStack).toStrictEqual([
       {
@@ -58,7 +58,7 @@ describe("Operation stack parsing", () => {
   });
 
   it("parseOpStack local only", async () => {
-    const opStack = parseOpStack(OPERATION_MOCK_LOCAL_ONLY, ACCOUNT);
+    const opStack = parseOpStack(OPERATION_LOCAL_ONLY, ACCOUNT);
 
     expect(opStack).toStrictEqual([
       {

@@ -1,4 +1,4 @@
-export default {
+export const SWAP_OPERATIONS = {
   branch: "BM74jDLTriKBwSvB1TVszL8BB2TdqQ1YnEFXc5kqYkV39xktmup",
   contents: [
     {
@@ -142,3 +142,5 @@ export default {
     },
   ],
 };
+
+export default SWAP_OPERATIONS;

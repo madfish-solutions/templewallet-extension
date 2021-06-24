@@ -1,4 +1,4 @@
-export default {
+const DELEGATE_OPERATIONS = {
   branch: "BMTXECdtD9zjbFetBRTZvjXzR6rwSnZ3FQxiboApkoFHxQdAwWi",
   contents: [
     {
@@ -12,3 +12,5 @@ export default {
     },
   ],
 };
+
+export default DELEGATE_OPERATIONS;

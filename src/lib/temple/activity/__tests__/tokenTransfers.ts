@@ -1,6 +1,6 @@
-import { tryParseTokenTransfers } from "../helpers";
 import TOKEN_TRANFER_FA1_2 from "../__mocks__/tokenTransfer_fa1_2";
 import TOKEN_TRANSFER_FA2 from "../__mocks__/tokenTransfer_fa2";
+import { tryParseTokenTransfers } from "../helpers";
 
 interface TokenTransfer {
   tokenId: string;

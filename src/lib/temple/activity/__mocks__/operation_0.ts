@@ -1,6 +1,6 @@
 import { IOperation } from "lib/temple/repo";
 
-export default {
+const OPERATION_COMPLEX = {
   hash: "opZG7XNt1wHxvLeUZxQ5WkKJZCm64kMjbUPeGS8BTiehB5pBYsX",
   chainId: "NetXxkAx4woPLyu",
   members: [
@@ -1558,3 +1558,5 @@ export default {
     ],
   },
 } as IOperation;
+
+export default OPERATION_COMPLEX;

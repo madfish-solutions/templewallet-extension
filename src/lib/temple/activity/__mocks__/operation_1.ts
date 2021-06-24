@@ -1,6 +1,6 @@
 import { IOperation } from "lib/temple/repo";
 
-export default {
+const OPERATION_TOKEN_TRANSFER_ONLY = {
   hash: "ooB5B636cUpMqJV17Z3DSmgSqw9RvRKvt9vHsUwi3ghLBe3CzmC",
   chainId: "NetXxkAx4woPLyu",
   members: [
@@ -38,3 +38,5 @@ export default {
     ],
   },
 } as IOperation;
+
+export default OPERATION_TOKEN_TRANSFER_ONLY;

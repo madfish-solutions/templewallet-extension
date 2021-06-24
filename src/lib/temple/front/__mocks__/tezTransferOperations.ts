@@ -1,4 +1,4 @@
-export default {
+export const TEZ_TRANSFER_OPERATIONS = {
   branch: "BLJHNoL9u4Aw84siCWKZ8KakjecKkfBcaznDgYsfYiUDDrpNaCQ",
   contents: [
     {
@@ -13,3 +13,5 @@ export default {
     },
   ],
 };
+
+export default TEZ_TRANSFER_OPERATIONS;

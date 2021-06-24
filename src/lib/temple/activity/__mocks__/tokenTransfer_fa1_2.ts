@@ -1,4 +1,4 @@
-export default {
+const TOKEN_TRANFER_FA1_2 = {
   destination: "KT1NbznEfpxZZyPUNcSWRm9Y8qZkdEgWEFaV",
   parameters: {
     entrypoint: "transfer",
@@ -23,3 +23,5 @@ export default {
     },
   },
 };
+
+export default TOKEN_TRANFER_FA1_2;
