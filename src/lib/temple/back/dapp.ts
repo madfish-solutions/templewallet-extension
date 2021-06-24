@@ -34,7 +34,6 @@ import {
   TempleDAppPayload,
   TempleDAppSession,
   TempleDAppSessions,
-  TempleDAppOperationsPayload,
 } from "lib/temple/types";
 
 const CONFIRM_WINDOW_WIDTH = 380;
@@ -182,7 +181,7 @@ export async function requestOperation(
       onDecline: () => {
         reject(new Error(TempleDAppErrorType.NotGranted));
       },
-      handleIntercomRequest: async (confirmReq, decline, finalPayload) => {
+      handleIntercomRequest: async (confirmReq, decline) => {
         if (
           confirmReq?.type === TempleMessageType.DAppOpsConfirmationRequest &&
           confirmReq?.id === id
@@ -195,7 +194,6 @@ export async function requestOperation(
                   networkRpc,
                   buildFinalOpParmas(
                     req.opParams,
-                    (finalPayload as TempleDAppOperationsPayload)?.estimates,
                     confirmReq.modifiedTotalFee,
                     confirmReq.modifiedStorageLimit
                   )
@@ -392,8 +390,7 @@ type RequestConfirmParams = {
   onDecline: () => void;
   handleIntercomRequest: (
     req: TempleRequest,
-    decline: () => void,
-    finalPayload?: TempleDAppPayload
+    decline: () => void
   ) => Promise<any>;
 };
 
@@ -423,7 +420,6 @@ async function requestConfirm({
   };
 
   let knownPort: Runtime.Port | undefined;
-  let finalPayload: TempleDAppPayload;
   const stopRequestListening = intercom.onRequest(
     async (req: TempleRequest, port) => {
       if (
@@ -439,11 +435,12 @@ async function requestConfirm({
             sourcePkh: payload.sourcePkh,
             sourcePublicKey: payload.sourcePublicKey,
           });
-          payload = {
-            ...payload,
-            ...(dryrunResult ?? {}),
-          };
-          finalPayload = payload;
+          if (dryrunResult) {
+            payload = {
+              ...payload,
+              ...dryrunResult,
+            };
+          }
         }
 
         return {
@@ -453,11 +450,7 @@ async function requestConfirm({
       } else {
         if (knownPort !== port) return;
 
-        const result = await handleIntercomRequest(
-          req,
-          onDecline,
-          finalPayload
-        );
+        const result = await handleIntercomRequest(req, onDecline);
         if (result) {
           close();
           return result;

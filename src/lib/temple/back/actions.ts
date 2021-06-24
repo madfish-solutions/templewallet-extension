@@ -256,6 +256,9 @@ export function sendOperations(
       sourcePkh,
       sourcePublicKey,
     });
+    if (dryRunResult) {
+      opParams = dryRunResult.opParams;
+    }
 
     return new Promise(async (resolve, reject) => {
       intercom.notify(port, {
@@ -310,7 +313,6 @@ export function sendOperations(
                     networkRpc,
                     buildFinalOpParmas(
                       opParams,
-                      dryRunResult?.estimates,
                       req.modifiedTotalFee,
                       req.modifiedStorageLimit
                     )
