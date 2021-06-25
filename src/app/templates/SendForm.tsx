@@ -69,7 +69,7 @@ import {
   toTransferParams,
   tzToMutez,
   useAccount,
-  useAddressBook,
+  // useAddressBook,
   useAssetBySlug,
   useBalance,
   useRelevantAccounts,
@@ -143,7 +143,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
   const assetPrice = useAssetUSDPrice(localAsset);
 
-  const { accounts: addressBookAccounts, onAddressUsage } = useAddressBook();
+  // const { accounts: addressBookAccounts, onAddressUsage } = useAddressBook();
   const allAccounts = useRelevantAccounts();
   const network = useNetwork();
   const acc = useAccount();
@@ -594,7 +594,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess();
-        onAddressUsage(toResolved);
+        // onAddressUsage(toResolved);
       } catch (err) {
         formAnalytics.trackSubmitFail();
 
@@ -624,7 +624,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       shouldUseUsd,
       toAssetAmount,
       formAnalytics,
-      onAddressUsage,
+      // onAddressUsage,
     ]
   );
 
@@ -879,7 +879,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         <>
           <div className="w-full mt-2" />
 
-          {addressBookAccounts.length > 0 && (
+          {/* {addressBookAccounts.length > 0 && (
             <AccountSelect
               accounts={addressBookAccounts}
               activeAccount={acc.publicKeyHash}
@@ -887,7 +887,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
               onChange={handleAccountClick}
               titleI18nKey="recentDestinations"
             />
-          )}
+          )} */}
 
           {allAccounts.length > 1 && (
             <AccountSelect

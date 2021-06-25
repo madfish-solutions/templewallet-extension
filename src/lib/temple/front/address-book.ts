@@ -1,72 +1,38 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 
-import { t } from "lib/i18n/react";
-import {
-  TempleAccount,
-  TempleAccountType,
-  useChainId,
-  useStorage,
-  useRelevantAccounts,
-} from "lib/temple/front";
+import { getMessage } from "lib/i18n";
+import { TempleContact, useStorage } from "lib/temple/front";
 
-const ADDRESS_BOOK_CAPACITY = 10;
+export function useContacts() {
+  const [contacts, setContacts] = useStorage<TempleContact[]>("contacts", []);
 
-type AddressBookEntry = {
-  address: string;
-  lastUsed: number;
-};
-
-export function useAddressBook() {
-  const chainId = useChainId();
-  const [entries, setEntries] = useStorage<AddressBookEntry[]>(
-    `address_book_${chainId}`,
-    []
-  );
-  const allAccounts = useRelevantAccounts();
-
-  const onAddressUsage = useCallback(
-    async (address: string) => {
-      const entryIndex = entries.findIndex(
-        ({ address: entryAddress }) => entryAddress === address
-      );
-      let newEntries: AddressBookEntry[] = [...entries];
-      if (entryIndex === -1) {
-        newEntries = [
-          {
-            address,
-            lastUsed: Date.now(),
-          },
-          ...newEntries.slice(0, ADDRESS_BOOK_CAPACITY - 1),
-        ];
-      } else {
-        newEntries[entryIndex].lastUsed = Date.now();
-      }
-      await setEntries(
-        newEntries.sort(
-          ({ lastUsed: aLastUsed }, { lastUsed: bLastUsed }) =>
-            bLastUsed - aLastUsed
-        )
-      );
-    },
-    [entries, setEntries]
-  );
-
-  const accounts = useMemo<TempleAccount[]>(
-    () =>
-      entries.map(({ address }) => {
-        const knownAccount = allAccounts.find(
-          ({ publicKeyHash }) => publicKeyHash === address
-        );
-        return (
-          knownAccount ?? {
-            type: TempleAccountType.WatchOnly,
-            name: t("unknownAccount"),
-            publicKeyHash: address,
-          }
-        );
+  const addContact = useCallback(
+    (cToAdd: TempleContact) =>
+      setContacts((cnts) => {
+        if (cnts.some((c) => c.address === cToAdd.address)) {
+          throw new Error(getMessage("contactWithTheSameAddressAlreadyExists"));
+        }
+        return [cToAdd, ...cnts];
       }),
-    [allAccounts, entries]
+    [setContacts]
   );
 
-  return { accounts, onAddressUsage };
+  const removeContact = useCallback(
+    (address: string) =>
+      setContacts((cnts) => cnts.filter((c) => c.address !== address)),
+    [setContacts]
+  );
+
+  const getContact = useCallback(
+    (address: string) => contacts.find((c) => c.address === address) ?? null,
+    [contacts]
+  );
+
+  const findContacts = useCallback(
+    (term: string) =>
+      contacts.filter((c) => c.name.includes(term) || c.address.includes(term)),
+    [contacts]
+  );
+
+  return { contacts, addContact, removeContact, getContact, findContacts };
 }

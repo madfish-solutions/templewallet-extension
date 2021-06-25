@@ -1997,5 +1997,29 @@
         "content": "$2"
       }
     }
+  },
+  "addressBook": {
+    "message": "Address Book"
+  },
+  "addressBookDescription": {
+    "message": "Add, remove and manage your contacts."
+  },
+  "addNewContact": {
+    "message": "New contact"
+  },
+  "addContact": {
+    "message": "Add contact"
+  },
+  "newContactPlaceholder": {
+    "message": "e.g. Alice Bob"
+  },
+  "contactWithTheSameAddressAlreadyExists": {
+    "message": "Contact with the same address already exists"
+  },
+  "currentContacts": {
+    "message": "Current contacts"
+  },
+  "deleteContactConfirm": {
+    "message": "Are you sure you want to delete this contact?"
   }
 }

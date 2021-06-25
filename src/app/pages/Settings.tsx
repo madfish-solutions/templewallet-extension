@@ -3,6 +3,7 @@ import React, { FC, useMemo } from "react";
 import classNames from "clsx";
 
 import { ReactComponent as AppsIcon } from "app/icons/apps.svg";
+import { ReactComponent as ContactBookIcon } from "app/icons/contact-book.svg";
 import { ReactComponent as ExtensionIcon } from "app/icons/extension.svg";
 import { ReactComponent as HelpIcon } from "app/icons/help.svg";
 import { ReactComponent as KeyIcon } from "app/icons/key.svg";
@@ -14,6 +15,7 @@ import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
 import PageLayout from "app/layouts/PageLayout";
 import About from "app/templates/About";
 import ActivateAccount from "app/templates/ActivateAccount";
+import AddressBookSettings from "app/templates/AddressBookSettings";
 import CustomNetworksSettings from "app/templates/CustomNetworksSettings";
 import DAppSettings from "app/templates/DAppSettings";
 import GeneralSettings from "app/templates/GeneralSettings";
@@ -40,7 +42,16 @@ const TABS = [
     Component: GeneralSettings,
     color: "#667EEA",
     descriptionI18nKey: "generalSettingsDescription",
-    testID: SettingsSelectors.GeneralButton
+    testID: SettingsSelectors.GeneralButton,
+  },
+  {
+    slug: "address-book",
+    titleI18nKey: "addressBook",
+    Icon: ContactBookIcon,
+    Component: AddressBookSettings,
+    color: "#d53f8c",
+    descriptionI18nKey: "addressBookDescription",
+    testID: SettingsSelectors.AddressBookButton,
   },
   {
     slug: "reveal-private-key",
@@ -49,7 +60,7 @@ const TABS = [
     Component: RevealPrivateKey,
     color: "#3182CE",
     descriptionI18nKey: "revealPrivateKeyDescription",
-    testID: SettingsSelectors.RevealPrivateKeyButton
+    testID: SettingsSelectors.RevealPrivateKeyButton,
   },
   {
     slug: "reveal-seed-phrase",
@@ -58,7 +69,7 @@ const TABS = [
     Component: RevealSeedPhrase,
     color: "#F6AD55",
     descriptionI18nKey: "revealSeedPhraseDescription",
-    testID: SettingsSelectors.RevealSeedPhraseButton
+    testID: SettingsSelectors.RevealSeedPhraseButton,
   },
   {
     slug: "dapps",
@@ -67,7 +78,7 @@ const TABS = [
     Component: DAppSettings,
     color: "#9F7AEA",
     descriptionI18nKey: "dAppsDescription",
-    testID: SettingsSelectors.DAppsButton
+    testID: SettingsSelectors.DAppsButton,
   },
   {
     slug: "networks",
@@ -76,7 +87,7 @@ const TABS = [
     Component: CustomNetworksSettings,
     color: "#F6C90E",
     descriptionI18nKey: "networksDescription",
-    testID: SettingsSelectors.NetworksButton
+    testID: SettingsSelectors.NetworksButton,
   },
   {
     slug: "activate-account",
@@ -85,7 +96,7 @@ const TABS = [
     Component: ActivateAccount,
     color: "rgb(131, 179, 0)",
     descriptionI18nKey: "activateAccountDescription",
-    testID: SettingsSelectors.ActivateAccountButton
+    testID: SettingsSelectors.ActivateAccountButton,
   },
   {
     slug: "remove-account",
@@ -94,7 +105,7 @@ const TABS = [
     Component: RemoveAccount,
     color: "rgb(245, 101, 101)",
     descriptionI18nKey: "removeAccountDescription",
-    testID: SettingsSelectors.RemoveAccountButton
+    testID: SettingsSelectors.RemoveAccountButton,
   },
   {
     slug: "about",
@@ -103,7 +114,7 @@ const TABS = [
     Component: About,
     color: "#A0AEC0",
     descriptionI18nKey: "aboutDescription",
-    testID: SettingsSelectors.AboutButton
+    testID: SettingsSelectors.AboutButton,
   },
   {
     slug: "help-and-community",
@@ -169,7 +180,14 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
             <ul className="md:grid md:grid-cols-2 md:col-gap-8 md:row-gap-10">
               {TABS.map(
                 (
-                  { slug, titleI18nKey, descriptionI18nKey, Icon, color, testID },
+                  {
+                    slug,
+                    titleI18nKey,
+                    descriptionI18nKey,
+                    Icon,
+                    color,
+                    testID,
+                  },
                   i
                 ) => {
                   const first = i === 0;
