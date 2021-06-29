@@ -961,11 +961,11 @@ const AccountSelect: FC<AccountSelectProps> = memo(
             "text-gray-700 text-sm leading-tight"
           )}
         >
-          {filtered.map((acc, i) => (
+          {filtered.map((acc, i, arr) => (
             <AccountSelectOption
               account={acc}
               key={acc.publicKeyHash}
-              isLast={i === accounts.length - 1}
+              isLast={i === arr.length - 1}
               onSelect={onChange}
               asset={asset}
               nameVisible={namesVisible}
