@@ -69,7 +69,6 @@ import {
   toTransferParams,
   tzToMutez,
   useAccount,
-  // useAddressBook,
   useAssetBySlug,
   useBalance,
   useRelevantAccounts,
@@ -77,6 +76,7 @@ import {
   useTezosDomainsClient,
   useNetwork,
   useAssetUSDPrice,
+  useContacts,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
@@ -143,8 +143,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const { registerBackHandler } = useAppEnv();
   const assetPrice = useAssetUSDPrice(localAsset);
 
-  // const { accounts: addressBookAccounts, onAddressUsage } = useAddressBook();
-  const allAccounts = useRelevantAccounts();
+  const { allContacts } = useContacts();
   const network = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
@@ -266,11 +265,10 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     [toResolved]
   );
 
-  const filledAccount = useMemo(
+  const filledContact = useMemo(
     () =>
-      (toResolved && allAccounts.find((a) => a.publicKeyHash === toResolved)) ||
-      null,
-    [allAccounts, toResolved]
+      (toResolved && allContacts.find((c) => c.address === toResolved)) || null,
+    [allContacts, toResolved]
   );
 
   const cleanToField = useCallback(() => {
@@ -657,17 +655,17 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         id="send-to"
         label={t("recipient")}
         labelDescription={
-          filledAccount ? (
+          filledContact ? (
             <div className="flex flex-wrap items-center">
               <Identicon
                 type="bottts"
-                hash={filledAccount.publicKeyHash}
+                hash={filledContact.address}
                 size={14}
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
-              <div className="ml-1 mr-px font-normal">{filledAccount.name}</div>{" "}
+              <div className="ml-1 mr-px font-normal">{filledContact.name}</div>{" "}
               (
-              <Balance asset={localAsset} address={filledAccount.publicKeyHash}>
+              <Balance asset={localAsset} address={filledContact.address}>
                 {(bal) => (
                   <span className={classNames("text-xs leading-none")}>
                     <Money>{bal}</Money>{" "}
@@ -815,93 +813,96 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         autoFocus={Boolean(maxAmount)}
       />
 
-      {estimateFallbackDisplayed ? (
-        <SpinnerSection />
-      ) : restFormDisplayed ? (
-        <>
-          {(() => {
-            switch (true) {
-              case Boolean(submitError):
-                return <SendErrorAlert type="submit" error={submitError} />;
+      {
+        estimateFallbackDisplayed ? (
+          <SpinnerSection />
+        ) : restFormDisplayed ? (
+          <>
+            {(() => {
+              switch (true) {
+                case Boolean(submitError):
+                  return <SendErrorAlert type="submit" error={submitError} />;
 
-              case Boolean(estimationError):
-                return (
-                  <SendErrorAlert type="estimation" error={estimationError} />
-                );
+                case Boolean(estimationError):
+                  return (
+                    <SendErrorAlert type="estimation" error={estimationError} />
+                  );
 
-              case toResolved === accountPkh:
-                return (
-                  <Alert
-                    type="warn"
-                    title={t("attentionExclamation")}
-                    description={<T id="tryingToTransferToYourself" />}
-                    className="mt-6 mb-4"
-                  />
-                );
+                case toResolved === accountPkh:
+                  return (
+                    <Alert
+                      type="warn"
+                      title={t("attentionExclamation")}
+                      description={<T id="tryingToTransferToYourself" />}
+                      className="mt-6 mb-4"
+                    />
+                  );
 
-              case toFilledWithKTAddress:
-                return (
-                  <Alert
-                    type="warn"
-                    title={t("attentionExclamation")}
-                    description={<T id="tryingToTransferToContract" />}
-                    className="mt-6 mb-4"
-                  />
-                );
+                case toFilledWithKTAddress:
+                  return (
+                    <Alert
+                      type="warn"
+                      title={t("attentionExclamation")}
+                      description={<T id="tryingToTransferToContract" />}
+                      className="mt-6 mb-4"
+                    />
+                  );
 
-              default:
-                return null;
-            }
-          })()}
+                default:
+                  return null;
+              }
+            })()}
 
-          <AdditionalFeeInput
-            name="fee"
-            control={control}
-            onChange={handleFeeFieldChange}
-            assetSymbol={TEZ_ASSET.symbol}
-            baseFee={baseFee}
-            error={errors.fee}
-            id="send-fee"
-          />
-
-          <T id="send">
-            {(message) => (
-              <FormSubmitButton
-                loading={formState.isSubmitting}
-                disabled={Boolean(estimationError)}
-              >
-                {message}
-              </FormSubmitButton>
-            )}
-          </T>
-        </>
-      ) : (
-        <>
-          <div className="w-full mt-2" />
-
-          {/* {addressBookAccounts.length > 0 && (
-            <AccountSelect
-              accounts={addressBookAccounts}
-              activeAccount={acc.publicKeyHash}
-              asset={localAsset}
-              onChange={handleAccountClick}
-              titleI18nKey="recentDestinations"
+            <AdditionalFeeInput
+              name="fee"
+              control={control}
+              onChange={handleFeeFieldChange}
+              assetSymbol={TEZ_ASSET.symbol}
+              baseFee={baseFee}
+              error={errors.fee}
+              id="send-fee"
             />
-          )} */}
 
-          {allAccounts.length > 1 && (
-            <AccountSelect
-              accounts={allAccounts}
-              activeAccount={acc.publicKeyHash}
-              asset={localAsset}
-              namesVisible
-              onChange={handleAccountClick}
-              titleI18nKey="sendToMyAccounts"
-              descriptionI18nKey="clickOnRecipientAccount"
-            />
-          )}
-        </>
-      )}
+            <T id="send">
+              {(message) => (
+                <FormSubmitButton
+                  loading={formState.isSubmitting}
+                  disabled={Boolean(estimationError)}
+                >
+                  {message}
+                </FormSubmitButton>
+              )}
+            </T>
+          </>
+        ) : null
+        // (
+        //   <>
+        //     <div className="w-full mt-2" />
+
+        //     {addressBookAccounts.length > 0 && (
+        //       <AccountSelect
+        //         accounts={addressBookAccounts}
+        //         activeAccount={acc.publicKeyHash}
+        //         asset={localAsset}
+        //         onChange={handleAccountClick}
+        //         titleI18nKey="recentDestinations"
+        //       />
+        //     )}
+
+        //     {allAccounts.length > 1 && (
+        //       <AccountSelect
+        //         accounts={allAccounts}
+        //         activeAccount={acc.publicKeyHash}
+        //         asset={localAsset}
+        //         namesVisible
+        //         onChange={handleAccountClick}
+        //         titleI18nKey="sendToMyAccounts"
+        //         descriptionI18nKey="clickOnRecipientAccount"
+        //       />
+        //     )}
+        //   </>
+        // )
+      }
     </form>
   );
 };
@@ -911,164 +912,164 @@ type SendErrorAlertProps = {
   error: Error;
 };
 
-type AccountSelectProps = {
-  activeAccount: string;
-  accounts: TempleAccount[];
-  asset: TempleAsset;
-  onChange: (accountPkh: string) => void;
-  titleI18nKey: string;
-  descriptionI18nKey?: string;
-  namesVisible?: boolean;
-};
+// type AccountSelectProps = {
+//   activeAccount: string;
+//   accounts: TempleAccount[];
+//   asset: TempleAsset;
+//   onChange: (accountPkh: string) => void;
+//   titleI18nKey: string;
+//   descriptionI18nKey?: string;
+//   namesVisible?: boolean;
+// };
 
-const AccountSelect: FC<AccountSelectProps> = memo(
-  ({
-    accounts,
-    activeAccount,
-    asset,
-    onChange,
-    titleI18nKey,
-    descriptionI18nKey,
-    namesVisible,
-  }) => {
-    const filtered = accounts.filter(
-      (acc) => acc.publicKeyHash !== activeAccount
-    );
+// const AccountSelect: FC<AccountSelectProps> = memo(
+//   ({
+//     accounts,
+//     activeAccount,
+//     asset,
+//     onChange,
+//     titleI18nKey,
+//     descriptionI18nKey,
+//     namesVisible,
+//   }) => {
+//     const filtered = accounts.filter(
+//       (acc) => acc.publicKeyHash !== activeAccount
+//     );
 
-    if (filtered.length === 0) return null;
+//     if (filtered.length === 0) return null;
 
-    return (
-      <div className="my-6 flex flex-col">
-        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-          <span className="text-base font-semibold text-gray-700">
-            <T id={titleI18nKey} />
-          </span>
+//     return (
+//       <div className="my-6 flex flex-col">
+//         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+//           <span className="text-base font-semibold text-gray-700">
+//             <T id={titleI18nKey} />
+//           </span>
 
-          {descriptionI18nKey && (
-            <span
-              className={classNames("mt-1", "text-xs font-light text-gray-600")}
-              style={{ maxWidth: "90%" }}
-            >
-              <T id={descriptionI18nKey} />
-            </span>
-          )}
-        </h2>
-        <div
-          className={classNames(
-            "rounded-md overflow-hidden",
-            "border",
-            "flex flex-col",
-            "text-gray-700 text-sm leading-tight"
-          )}
-        >
-          {filtered.map((acc, i, arr) => (
-            <AccountSelectOption
-              account={acc}
-              key={acc.publicKeyHash}
-              isLast={i === arr.length - 1}
-              onSelect={onChange}
-              asset={asset}
-              nameVisible={namesVisible}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
-);
+//           {descriptionI18nKey && (
+//             <span
+//               className={classNames("mt-1", "text-xs font-light text-gray-600")}
+//               style={{ maxWidth: "90%" }}
+//             >
+//               <T id={descriptionI18nKey} />
+//             </span>
+//           )}
+//         </h2>
+//         <div
+//           className={classNames(
+//             "rounded-md overflow-hidden",
+//             "border",
+//             "flex flex-col",
+//             "text-gray-700 text-sm leading-tight"
+//           )}
+//         >
+//           {filtered.map((acc, i, arr) => (
+//             <AccountSelectOption
+//               account={acc}
+//               key={acc.publicKeyHash}
+//               isLast={i === arr.length - 1}
+//               onSelect={onChange}
+//               asset={asset}
+//               nameVisible={namesVisible}
+//             />
+//           ))}
+//         </div>
+//       </div>
+//     );
+//   }
+// );
 
-type AccountSelectOptionProps = {
-  account: TempleAccount;
-  isLast: boolean;
-  onSelect: (accountPkh: string) => void;
-  asset: TempleAsset;
-  nameVisible?: boolean;
-};
+// type AccountSelectOptionProps = {
+//   account: TempleAccount;
+//   isLast: boolean;
+//   onSelect: (accountPkh: string) => void;
+//   asset: TempleAsset;
+//   nameVisible?: boolean;
+// };
 
-const AccountSelectOption: React.FC<AccountSelectOptionProps> = ({
-  account,
-  isLast,
-  onSelect,
-  asset,
-  nameVisible,
-}) => {
-  const handleClick = useCallback(
-    () => onSelect(account.publicKeyHash),
-    [onSelect, account.publicKeyHash]
-  );
+// const AccountSelectOption: React.FC<AccountSelectOptionProps> = ({
+//   account,
+//   isLast,
+//   onSelect,
+//   asset,
+//   nameVisible,
+// }) => {
+//   const handleClick = useCallback(
+//     () => onSelect(account.publicKeyHash),
+//     [onSelect, account.publicKeyHash]
+//   );
 
-  return (
-    <Button
-      key={account.publicKeyHash}
-      type="button"
-      className={classNames(
-        "relative",
-        "block w-full",
-        "overflow-hidden",
-        !isLast && "border-b border-gray-200",
-        "hover:bg-gray-100 focus:bg-gray-100",
-        "flex items-center p-2",
-        "text-gray-700",
-        "transition ease-in-out duration-200",
-        "focus:outline-none",
-        "opacity-90 hover:opacity-100"
-      )}
-      onClick={handleClick}
-      testID={SendFormSelectors.MyAccountItemButton}
-    >
-      <Identicon
-        type="bottts"
-        hash={account.publicKeyHash}
-        size={32}
-        className="flex-shrink-0 shadow-xs"
-      />
+//   return (
+//     <Button
+//       key={account.publicKeyHash}
+//       type="button"
+//       className={classNames(
+//         "relative",
+//         "block w-full",
+//         "overflow-hidden",
+//         !isLast && "border-b border-gray-200",
+//         "hover:bg-gray-100 focus:bg-gray-100",
+//         "flex items-center p-2",
+//         "text-gray-700",
+//         "transition ease-in-out duration-200",
+//         "focus:outline-none",
+//         "opacity-90 hover:opacity-100"
+//       )}
+//       onClick={handleClick}
+//       testID={SendFormSelectors.MyAccountItemButton}
+//     >
+//       <Identicon
+//         type="bottts"
+//         hash={account.publicKeyHash}
+//         size={32}
+//         className="flex-shrink-0 shadow-xs"
+//       />
 
-      <div className="flex flex-col items-start ml-2">
-        {nameVisible && (
-          <div className="flex flex-wrap items-center">
-            <Name className="text-sm font-medium leading-tight">
-              {account.name}
-            </Name>
+//       <div className="flex flex-col items-start ml-2">
+//         {nameVisible && (
+//           <div className="flex flex-wrap items-center">
+//             <Name className="text-sm font-medium leading-tight">
+//               {account.name}
+//             </Name>
 
-            <AccountTypeBadge account={account} />
-          </div>
-        )}
+//             <AccountTypeBadge account={account} />
+//           </div>
+//         )}
 
-        <div className="flex flex-wrap items-center mt-1">
-          <div className={classNames("text-xs leading-none", "text-gray-700")}>
-            <HashShortView hash={account.publicKeyHash} />
-          </div>
+//         <div className="flex flex-wrap items-center mt-1">
+//           <div className={classNames("text-xs leading-none", "text-gray-700")}>
+//             <HashShortView hash={account.publicKeyHash} />
+//           </div>
 
-          <Balance asset={asset} address={account.publicKeyHash}>
-            {(bal) => (
-              <div
-                className={classNames(
-                  "ml-2",
-                  "text-xs leading-none",
-                  "text-gray-600"
-                )}
-              >
-                <Money>{bal}</Money>{" "}
-                <span style={{ fontSize: "0.75em" }}>{asset.symbol}</span>
-              </div>
-            )}
-          </Balance>
-        </div>
-      </div>
+//           <Balance asset={asset} address={account.publicKeyHash}>
+//             {(bal) => (
+//               <div
+//                 className={classNames(
+//                   "ml-2",
+//                   "text-xs leading-none",
+//                   "text-gray-600"
+//                 )}
+//               >
+//                 <Money>{bal}</Money>{" "}
+//                 <span style={{ fontSize: "0.75em" }}>{asset.symbol}</span>
+//               </div>
+//             )}
+//           </Balance>
+//         </div>
+//       </div>
 
-      <div
-        className={classNames(
-          "absolute right-0 top-0 bottom-0",
-          "flex items-center",
-          "pr-2",
-          "text-gray-500"
-        )}
-      >
-        <ChevronRightIcon className="h-5 w-auto stroke-current" />
-      </div>
-    </Button>
-  );
-};
+//       <div
+//         className={classNames(
+//           "absolute right-0 top-0 bottom-0",
+//           "flex items-center",
+//           "pr-2",
+//           "text-gray-500"
+//         )}
+//       >
+//         <ChevronRightIcon className="h-5 w-auto stroke-current" />
+//       </div>
+//     </Button>
+//   );
+// };
 
 const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => (
   <Alert

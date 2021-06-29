@@ -114,12 +114,28 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   const submitting = formState.isSubmitting;
 
   const onAddContactSubmit = useCallback(
-    async (data: ContactFormData) => {
+    async ({ address, name }: ContactFormData) => {
       if (submitting) return;
 
       try {
         clearError();
-        await addContact({ ...data, addedAt: Date.now() });
+
+        if (isDomainNameValid(address, domainsClient)) {
+          const resolved = await domainsClient.resolver.resolveNameToAddress(
+            address
+          );
+          if (!resolved) {
+            throw new Error(t("domainDoesntResolveToAddress", address));
+          }
+
+          address = resolved;
+        }
+
+        if (!isAddressValid(address)) {
+          throw new Error(t("invalidAddressOrDomain"));
+        }
+
+        await addContact({ address, name, addedAt: Date.now() });
         resetForm();
       } catch (err) {
         await withErrorHumanDelay(err, () =>
@@ -127,7 +143,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         );
       }
     },
-    [submitting, clearError, addContact, resetForm, setError]
+    [submitting, clearError, addContact, resetForm, setError, domainsClient]
   );
 
   const validateAddressField = useCallback(
