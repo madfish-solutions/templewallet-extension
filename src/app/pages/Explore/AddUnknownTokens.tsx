@@ -33,10 +33,17 @@ const AddUnknownTokens: FC = () => {
     [chainId]
   );
 
+  const networkIdRef = useRef(networkId);
+  if (networkIdRef.current !== networkId) {
+    networkIdRef.current = networkId;
+  }
+
   const syncTokens = useCallback(async () => {
     if (!networkId) {
       return;
     }
+
+    const isTheSameNetwork = () => networkId === networkIdRef.current;
 
     const size = 10;
     let offset = 0;
@@ -84,17 +91,19 @@ const AddUnknownTokens: FC = () => {
                   : ("hidden" as const),
               };
 
-              if (isFA12Token) {
-                await addToken({
-                  ...baseTokenProps,
-                  type: TempleAssetType.FA1_2,
-                });
-              } else {
-                await addToken({
-                  ...baseTokenProps,
-                  id: token.token_id,
-                  type: TempleAssetType.FA2,
-                });
+              if (isTheSameNetwork()) {
+                if (isFA12Token) {
+                  await addToken({
+                    ...baseTokenProps,
+                    type: TempleAssetType.FA1_2,
+                  });
+                } else {
+                  await addToken({
+                    ...baseTokenProps,
+                    id: token.token_id,
+                    type: TempleAssetType.FA2,
+                  });
+                }
               }
             }
           } catch {}
