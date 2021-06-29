@@ -28,7 +28,7 @@ type ContactActions = {
 };
 
 const AddressBook: React.FC = () => {
-  const { contacts, removeContact } = useContacts();
+  const { allContacts, removeContact } = useContacts();
   const confirm = useConfirm();
 
   const handleRemoveContactClick = useCallback(
@@ -62,9 +62,16 @@ const AddressBook: React.FC = () => {
 
       <AddNewContactForm className="mb-8" />
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-col">
         <span className="text-base font-semibold text-gray-700">
           <T id="currentContacts" />
+        </span>
+
+        <span
+          className={classNames("mt-1", "text-xs font-light text-gray-600")}
+          style={{ maxWidth: "90%" }}
+        >
+          <T id="updateContactDescription" />
         </span>
       </div>
 
@@ -72,7 +79,7 @@ const AddressBook: React.FC = () => {
         actions={contactActions}
         className="mb-6"
         getItemId={getContactKey}
-        items={contacts}
+        items={allContacts}
         OptionIcon={ContactIcon}
         OptionContent={ContactContent}
         light
@@ -203,22 +210,41 @@ const ContactContent: React.FC<
       </div>
     </div>
 
-    <button
-      className={classNames(
-        "flex-none p-2",
-        "text-gray-500 hover:text-gray-600",
-        "transition ease-in-out duration-200"
-      )}
-      onClick={(evt) => {
-        evt.stopPropagation();
-        actions?.remove(item.address);
-      }}
-    >
-      <CloseIcon
-        className="w-auto h-5 stroke-current stroke-2"
-        title={t("delete")}
-      />
-    </button>
+    {item.accountInWallet ? (
+      <div className="flex items-center">
+        <span
+          className={classNames(
+            "mx-1",
+            "rounded-sm",
+            "border border-opacity-25",
+            "px-1 py-px",
+            "leading-tight",
+            "text-opacity-50",
+            "border-black text-black"
+          )}
+          style={{ fontSize: "0.6rem" }}
+        >
+          <T id="ownAccount" />
+        </span>
+      </div>
+    ) : (
+      <button
+        className={classNames(
+          "flex-none p-2",
+          "text-gray-500 hover:text-gray-600",
+          "transition ease-in-out duration-200"
+        )}
+        onClick={(evt) => {
+          evt.stopPropagation();
+          actions?.remove(item.address);
+        }}
+      >
+        <CloseIcon
+          className="w-auto h-5 stroke-current stroke-2"
+          title={t("delete")}
+        />
+      </button>
+    )}
   </div>
 );
 

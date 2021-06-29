@@ -1,38 +1,71 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import { getMessage } from "lib/i18n";
-import { TempleContact, useStorage } from "lib/temple/front";
+import {
+  TempleContact,
+  useStorage,
+  useRelevantAccounts,
+} from "lib/temple/front";
 
 export function useContacts() {
-  const [contacts, setContacts] = useStorage<TempleContact[]>("contacts", []);
+  const allAccounts = useRelevantAccounts();
+  const accountContacts = useMemo<TempleContact[]>(
+    () =>
+      allAccounts.map((acc) => ({
+        address: acc.publicKeyHash,
+        name: acc.name,
+        accountInWallet: true,
+      })),
+    [allAccounts]
+  );
+
+  const [savedContacts, setSavedContacts] = useStorage<TempleContact[]>(
+    "contacts",
+    []
+  );
+
+  const allContacts = useMemo(
+    () => [...savedContacts, ...accountContacts],
+    [savedContacts, accountContacts]
+  );
 
   const addContact = useCallback(
-    (cToAdd: TempleContact) =>
-      setContacts((cnts) => {
-        if (cnts.some((c) => c.address === cToAdd.address)) {
-          throw new Error(getMessage("contactWithTheSameAddressAlreadyExists"));
-        }
-        return [cToAdd, ...cnts];
-      }),
-    [setContacts]
+    (cToAdd: TempleContact) => {
+      if (allContacts.some((c) => c.address === cToAdd.address)) {
+        throw new Error(getMessage("contactWithTheSameAddressAlreadyExists"));
+      }
+
+      return setSavedContacts((cnts) => [cToAdd, ...cnts]);
+    },
+    [allContacts, setSavedContacts]
   );
 
   const removeContact = useCallback(
     (address: string) =>
-      setContacts((cnts) => cnts.filter((c) => c.address !== address)),
-    [setContacts]
+      setSavedContacts((cnts) => cnts.filter((c) => c.address !== address)),
+    [setSavedContacts]
   );
 
   const getContact = useCallback(
-    (address: string) => contacts.find((c) => c.address === address) ?? null,
-    [contacts]
+    (address: string) => allContacts.find((c) => c.address === address) ?? null,
+    [allContacts]
   );
 
   const findContacts = useCallback(
     (term: string) =>
-      contacts.filter((c) => c.name.includes(term) || c.address.includes(term)),
-    [contacts]
+      allContacts.filter(
+        (c) => c.name.includes(term) || c.address.includes(term)
+      ),
+    [allContacts]
   );
 
-  return { contacts, addContact, removeContact, getContact, findContacts };
+  return {
+    allContacts,
+    accountContacts,
+    savedContacts,
+    addContact,
+    removeContact,
+    getContact,
+    findContacts,
+  };
 }

@@ -2019,7 +2019,13 @@
   "currentContacts": {
     "message": "Current contacts"
   },
+  "updateContactDescription": {
+    "message": "To update an existing contact, just remove it\nand add a new one."
+  },
   "deleteContactConfirm": {
     "message": "Are you sure you want to delete this contact?"
+  },
+  "ownAccount": {
+    "message": "Own"
   }
 }
