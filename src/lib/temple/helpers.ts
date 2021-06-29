@@ -131,12 +131,24 @@ export function transformHttpResponseError(err: HttpResponseError) {
 
   try {
     const firstTezError = parsedBody[0];
-    const matchingPostfix = Object.keys(KNOWN_TEZ_ERRORS).find((idPostfix) =>
-      firstTezError?.id?.endsWith(idPostfix)
-    );
-    const message = matchingPostfix
-      ? KNOWN_TEZ_ERRORS[matchingPostfix]
-      : err.message;
+
+    let message: string;
+
+    // Parse special error with Counter Already Used
+    if (
+      typeof firstTezError.msg === "string" &&
+      /Counter.*already used for contract/.test(firstTezError.msg)
+    ) {
+      message = getMessage("counterErrorDescription");
+    } else {
+      const matchingPostfix = Object.keys(KNOWN_TEZ_ERRORS).find((idPostfix) =>
+        firstTezError?.id?.endsWith(idPostfix)
+      );
+      message = matchingPostfix
+        ? KNOWN_TEZ_ERRORS[matchingPostfix]
+        : err.message;
+    }
+
     return new IntercomError(message, parsedBody);
   } catch {
     throw err;

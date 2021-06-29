@@ -1997,5 +1997,8 @@
         "content": "$2"
       }
     }
+  },
+  "counterErrorDescription": {
+    "message": "You can not conduct the operation at the moment!\nPlease, wait when your previous operation is applied and retry."
   }
 }
