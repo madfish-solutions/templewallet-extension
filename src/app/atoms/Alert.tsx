@@ -65,7 +65,7 @@ const Alert: FC<AlertProps> = ({
         <div
           className={classNames(
             "pb-3 text-sm font-light break-words",
-            "overflow-y-auto no-scrollbar"
+            "overflow-y-auto"
           )}
           style={{ maxHeight: "8rem" }}
         >
