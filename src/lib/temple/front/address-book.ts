@@ -61,7 +61,7 @@ export function useContacts() {
   };
 }
 
-export const CONTACT_FIELDS_TO_SEARCH = ["name", "address"];
+export const CONTACT_FIELDS_TO_SEARCH = ["name", "address"] as const;
 
 export function searchContacts<T extends TempleContact>(
   contacts: T[],
@@ -72,7 +72,7 @@ export function searchContacts<T extends TempleContact>(
   const loweredSearchValue = searchValue.toLowerCase();
   return contacts.filter((c) =>
     CONTACT_FIELDS_TO_SEARCH.some((field) =>
-      (c as any)[field]?.toLowerCase().includes(loweredSearchValue)
+      c[field].toLowerCase().includes(loweredSearchValue)
     )
   );
 }

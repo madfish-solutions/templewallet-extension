@@ -148,7 +148,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
 
   const validateAddressField = useCallback(
     async (value: any) => {
-      if (!value?.length || value.length < 0) {
+      if (!value?.length) {
         return t("Required");
       }
 
