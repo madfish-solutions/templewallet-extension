@@ -1,5 +1,4 @@
 import React, {
-  ComponentProps,
   Dispatch,
   FC,
   Suspense,
@@ -9,7 +8,6 @@ import React, {
   useState,
   useMemo,
   useRef,
-  memo,
 } from "react";
 
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
@@ -21,13 +19,9 @@ import useSWR from "swr";
 
 import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
-import { Button } from "app/atoms/Button";
-import DropdownWrapper from "app/atoms/DropdownWrapper";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import HashShortView from "app/atoms/HashShortView";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
-import Name from "app/atoms/Name";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import {
@@ -39,7 +33,6 @@ import {
 import { useAppEnv } from "app/env";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
-import { ReactComponent as ContactBookIcon } from "app/icons/contact-book.svg";
 import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
@@ -77,13 +70,14 @@ import {
   useNetwork,
   useAssetUSDPrice,
   useContacts,
-  TempleContact,
-  searchContacts,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
 
 import { SendFormSelectors } from "./SendForm.selectors";
+import AddContactModal from "./SendForm/AddContactModal";
+import ContactsDropdown from "./SendForm/ContactsDropdown";
+import SendErrorAlert from "./SendForm/SendErrorAlert";
 
 interface FormData {
   to: string;
@@ -102,6 +96,9 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
   const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const [addContactModalAddress, setAddContactModalAddress] = useState<
+    string | null
+  >(null);
   const { trackEvent } = useAnalytics();
 
   const handleAssetChange = useCallback(
@@ -114,6 +111,17 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
     },
     [trackEvent]
   );
+
+  const handleAddContactRequested = useCallback(
+    (address: string) => {
+      setAddContactModalAddress(address);
+    },
+    [setAddContactModalAddress]
+  );
+
+  const closeContactModal = useCallback(() => {
+    setAddContactModalAddress(null);
+  }, [setAddContactModalAddress]);
 
   return (
     <>
@@ -128,8 +136,17 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
       />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form localAsset={asset} setOperation={setOperation} />
+        <Form
+          localAsset={asset}
+          setOperation={setOperation}
+          onAddContactRequested={handleAddContactRequested}
+        />
       </Suspense>
+
+      <AddContactModal
+        address={addContactModalAddress}
+        onClose={closeContactModal}
+      />
     </>
   );
 };
@@ -139,9 +156,14 @@ export default SendForm;
 type FormProps = {
   localAsset: TempleAsset;
   setOperation: Dispatch<any>;
+  onAddContactRequested: (address: string) => void;
 };
 
-const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
+const Form: FC<FormProps> = ({
+  localAsset,
+  setOperation,
+  onAddContactRequested,
+}) => {
   const { registerBackHandler } = useAppEnv();
   const assetPrice = useAssetUSDPrice(localAsset);
 
@@ -594,7 +616,6 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess();
-        // onAddressUsage(toResolved);
       } catch (err) {
         formAnalytics.trackSubmitFail();
 
@@ -624,7 +645,6 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       shouldUseUsd,
       toAssetAmount,
       formAnalytics,
-      // onAddressUsage,
     ]
   );
 
@@ -664,12 +684,14 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             ref={toFieldRef}
             onFocus={handleToFieldFocus}
             dropdownInner={
-              <ContactsDropdown
-                contacts={allContactsWithoutCurrent}
-                opened={!toFilled ? toFieldFocused : false}
-                onSelect={handleAccountSelect}
-                searchTerm={toValue}
-              />
+              allContactsWithoutCurrent.length > 0 ? (
+                <ContactsDropdown
+                  contacts={allContactsWithoutCurrent}
+                  opened={!toFilled ? toFieldFocused : false}
+                  onSelect={handleAccountSelect}
+                  searchTerm={toValue}
+                />
+              ) : null
             }
           />
         }
@@ -745,6 +767,24 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
           <span className="font-normal">{resolvedAddress}</span>
         </div>
       )}
+
+      {toFilled && !filledContact ? (
+        <div
+          className={classNames(
+            "mb-4 -mt-3",
+            "text-xs font-light text-gray-600",
+            "flex flex-wrap items-center"
+          )}
+        >
+          <button
+            type="button"
+            className="text-xs font-light text-gray-600 underline"
+            onClick={() => onAddContactRequested(toResolved)}
+          >
+            <T id="addThisAddressToContacts" />
+          </button>
+        </div>
+      ) : null}
 
       <Controller
         name="amount"
@@ -908,248 +948,6 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     </form>
   );
 };
-
-type ContactsDropdownProps = {
-  contacts: TempleContact[];
-  opened: boolean;
-  onSelect: (address: string) => void;
-  searchTerm: string;
-};
-
-const ContactsDropdown = memo<ContactsDropdownProps>(
-  ({ contacts, opened, onSelect, searchTerm }) => {
-    const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-    const filteredContacts = useMemo(
-      () => (searchTerm ? searchContacts(contacts, searchTerm) : contacts),
-      [contacts, searchTerm]
-    );
-
-    const activeItem = useMemo(
-      () => (activeIndex !== null ? filteredContacts[activeIndex] : null),
-      [filteredContacts, activeIndex]
-    );
-
-    useEffect(() => {
-      setActiveIndex((i) => (searchTerm ? (i !== null ? i : 0) : i));
-    }, [setActiveIndex, searchTerm]);
-
-    useEffect(() => {
-      if (!opened) {
-        setActiveIndex(null);
-      }
-    }, [setActiveIndex, opened]);
-
-    useEffect(() => {
-      if (activeIndex !== null && activeIndex >= filteredContacts.length) {
-        setActiveIndex(null);
-      }
-    }, [setActiveIndex, activeIndex, filteredContacts.length]);
-
-    useEffect(() => {
-      const handleKeyup = (evt: KeyboardEvent) => {
-        switch (evt.key) {
-          case "Enter":
-            if (activeItem) {
-              onSelect(activeItem.address);
-              (document.activeElement as any)?.blur();
-            }
-            break;
-
-          case "ArrowDown":
-            setActiveIndex((i) => (i !== null ? i + 1 : 0));
-            break;
-
-          case "ArrowUp":
-            setActiveIndex((i) => (i !== null ? (i > 0 ? i - 1 : 0) : i));
-            break;
-        }
-      };
-
-      window.addEventListener("keyup", handleKeyup);
-      return () => window.removeEventListener("keyup", handleKeyup);
-    }, [activeItem, setActiveIndex, onSelect]);
-
-    return (
-      <DropdownWrapper
-        scaleAnimation={false}
-        opened={opened}
-        className={classNames(
-          "absolute left-0 right-0",
-          "origin-top overflow-x-hidden overflow-y-auto",
-          "z-50"
-        )}
-        style={{
-          top: "100%",
-          maxHeight: "11rem",
-          backgroundColor: "white",
-          borderColor: "#e2e8f0",
-          padding: 0,
-        }}
-      >
-        {filteredContacts.length > 0 ? (
-          filteredContacts.map((contact) => (
-            <ContactsDropdownItem
-              key={contact.address}
-              contact={contact}
-              active={contact.address === activeItem?.address}
-              onClick={() => onSelect(contact.address)}
-            />
-          ))
-        ) : (
-          <div
-            className={classNames(
-              "flex items-center justify-center my-6",
-              "text-gray-600 text-base font-light"
-            )}
-          >
-            <ContactBookIcon className="w-5 h-auto mr-1 stroke-current" />
-            <span>
-              <T id="noContactsFound" />
-            </span>
-          </div>
-        )}
-      </DropdownWrapper>
-    );
-  }
-);
-
-type ContactsDropdownItemProps = ComponentProps<typeof Button> & {
-  contact: TempleContact;
-  active?: boolean;
-};
-
-const ContactsDropdownItem: FC<ContactsDropdownItemProps> = ({
-  contact,
-  active,
-  ...rest
-}) => {
-  const ref = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (active) {
-      ref.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [active]);
-
-  return (
-    <Button
-      ref={ref}
-      type="button"
-      testID={SendFormSelectors.ContactItemButton}
-      className={classNames(
-        "w-full flex items-center",
-        "p-2 text-left",
-        active ? "bg-gray-100" : "hover:bg-gray-100 focus:bg-gray-100"
-      )}
-      {...rest}
-    >
-      <Identicon
-        type="bottts"
-        hash={contact.address}
-        size={32}
-        className="flex-shrink-0 shadow-xs"
-      />
-
-      <div className="ml-3 flex flex-1 w-full">
-        <div className="flex flex-col justify-between flex-1">
-          <Name className="mb-px text-sm font-medium leading-tight text-left">
-            {contact.name}
-          </Name>
-
-          <span
-            className={classNames(
-              "text-xs font-light leading-tight text-gray-600"
-            )}
-          >
-            <HashShortView hash={contact.address} />
-          </span>
-        </div>
-
-        {contact.accountInWallet ? (
-          <div className="flex items-center">
-            <span
-              className={classNames(
-                "mx-1",
-                "rounded-sm",
-                "border border-opacity-25",
-                "px-1 py-px",
-                "leading-tight",
-                "text-opacity-50",
-                "border-black text-black"
-              )}
-              style={{ fontSize: "0.6rem" }}
-            >
-              <T id="ownAccount" />
-            </span>
-          </div>
-        ) : null}
-      </div>
-    </Button>
-  );
-};
-
-type SendErrorAlertProps = {
-  type: "submit" | "estimation";
-  error: Error;
-};
-
-const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => (
-  <Alert
-    type={type === "submit" ? "error" : "warn"}
-    title={(() => {
-      switch (true) {
-        case error instanceof NotEnoughFundsError:
-          return error instanceof ZeroTEZBalanceError
-            ? `${t("notEnoughCurrencyFunds", "ꜩ")} 😶`
-            : `${t("notEnoughFunds")} 😶`;
-
-        default:
-          return t("failed");
-      }
-    })()}
-    description={(() => {
-      switch (true) {
-        case error instanceof ZeroBalanceError:
-          return t("yourBalanceIsZero");
-
-        case error instanceof ZeroTEZBalanceError:
-          return t("mainAssetBalanceIsZero");
-
-        case error instanceof NotEnoughFundsError:
-          return t("minimalFeeGreaterThanBalanceVerbose");
-
-        default:
-          return (
-            <>
-              <T
-                id={
-                  type === "submit"
-                    ? "unableToSendTransactionAction"
-                    : "unableToEstimateTransactionAction"
-                }
-              />
-              <br />
-              <T id="thisMayHappenBecause" />
-              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                <T id="minimalFeeGreaterThanBalanceVerbose">
-                  {(message) => <li>{message}</li>}
-                </T>
-                <T id="networkOrOtherIssue">
-                  {(message) => <li>{message}</li>}
-                </T>
-              </ul>
-            </>
-          );
-      }
-    })()}
-    autoFocus
-    className={classNames("mt-6 mb-4")}
-  />
-);
 
 function validateAddress(value: any) {
   switch (false) {

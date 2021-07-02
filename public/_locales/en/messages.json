@@ -2039,5 +2039,8 @@
   },
   "noContactsFound": {
     "message": "No contacts found"
+  },
+  "addThisAddressToContacts": {
+    "message": "Add this address to contacts?"
   }
 }
