@@ -10,14 +10,16 @@ interface MoneyDiff {
   diff: string;
 }
 
+type DiffSource = "local" | "tzkt" | "bcd";
+
 export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
-  const diffs: Record<string, string[]> = {};
-  const appendToDiff = (assetId: string, diff: string) => {
+  const diffs: Record<string, { source: DiffSource; diff: string }[]> = {};
+  const appendToDiff = (source: DiffSource, assetId: string, diff: string) => {
     if (!(assetId in diffs)) {
       diffs[assetId] = [];
     }
-    if (!diffs[assetId].includes(diff)) {
-      diffs[assetId].push(diff);
+    if (diffs[assetId].every((d) => d.source === source || d.diff !== diff)) {
+      diffs[assetId].push({ source, diff });
     }
   };
 
@@ -27,7 +29,11 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
     for (const op of localGroup) {
       if (op.kind === OpKind.ORIGINATION) {
         if (op.source === address && isPositiveNumber(op.balance)) {
-          appendToDiff("tez", new BigNumber(op.balance).times(-1).toFixed());
+          appendToDiff(
+            "local",
+            "tez",
+            new BigNumber(op.balance).times(-1).toFixed()
+          );
         }
       } else if (op.kind === OpKind.TRANSACTION) {
         if (
@@ -35,6 +41,7 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
           isPositiveNumber(op.amount)
         ) {
           appendToDiff(
+            "local",
             "tez",
             new BigNumber(op.amount)
               .times(op.source === address ? -1 : 1)
@@ -49,6 +56,7 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
             (assetId, from, to, amount) => {
               if (from === address || to === address) {
                 appendToDiff(
+                  "local",
                   assetId,
                   new BigNumber(amount)
                     .times(from === address ? -1 : 1)
@@ -71,6 +79,7 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
           isPositiveNumber(tzktOp.amount)
         ) {
           appendToDiff(
+            "tzkt",
             "tez",
             new BigNumber(tzktOp.amount)
               .times(tzktOp.sender.address === address ? -1 : 1)
@@ -86,6 +95,7 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
               (assetId, from, to, amount) => {
                 if (from === address || to === address) {
                   appendToDiff(
+                    "tzkt",
                     assetId,
                     new BigNumber(amount)
                       .times(from === address ? -1 : 1)
@@ -107,6 +117,7 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
         (tokenTrans.from === address || tokenTrans.to === address)
       ) {
         appendToDiff(
+          "bcd",
           toTokenId(tokenTrans.contract, tokenTrans.token_id),
           new BigNumber(tokenTrans.amount)
             .times(tokenTrans.from === address ? -1 : 1)
@@ -119,7 +130,7 @@ export function parseMoneyDiffs(operation: Repo.IOperation, address: string) {
   const flatted: Record<string, string> = {};
   for (const assetId of Object.keys(diffs)) {
     flatted[assetId] = diffs[assetId]
-      .reduce((sum, val) => sum.plus(val), new BigNumber(0))
+      .reduce((sum, val) => sum.plus(val.diff), new BigNumber(0))
       .toFixed();
   }
 
