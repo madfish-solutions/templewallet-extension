@@ -51,14 +51,6 @@ export function useContacts() {
     [allContacts]
   );
 
-  const findContacts = useCallback(
-    (term: string) =>
-      allContacts.filter(
-        (c) => c.name.includes(term) || c.address.includes(term)
-      ),
-    [allContacts]
-  );
-
   return {
     allContacts,
     accountContacts,
@@ -66,6 +58,21 @@ export function useContacts() {
     addContact,
     removeContact,
     getContact,
-    findContacts,
   };
+}
+
+export const CONTACT_FIELDS_TO_SEARCH = ["name", "address"];
+
+export function searchContacts<T extends TempleContact>(
+  contacts: T[],
+  searchValue: string
+) {
+  if (!searchValue) return contacts;
+
+  const loweredSearchValue = searchValue.toLowerCase();
+  return contacts.filter((c) =>
+    CONTACT_FIELDS_TO_SEARCH.some((field) =>
+      (c as any)[field]?.toLowerCase().includes(loweredSearchValue)
+    )
+  );
 }

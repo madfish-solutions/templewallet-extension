@@ -2036,5 +2036,8 @@
   },
   "swapDisclaimerContent": {
     "message": "Temple wallet only provides an interface to interact with the Tezos Dexes. We are not responsible for: DEX issues, displayed tokens, price, exchange rates, and user trading decisions. Before using this Swap Section, you should review the relevant documentation to understand how the DEX(AMM) protocols work. Using this section is solely the user's responsibility."
+  },
+  "noContactsFound": {
+    "message": "No contacts found"
   }
 }

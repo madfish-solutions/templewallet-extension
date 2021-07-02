@@ -1,10 +1,12 @@
 import React, {
+  ComponentProps,
   Dispatch,
   FC,
   Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
+  useState,
   useMemo,
   useRef,
   memo,
@@ -17,10 +19,10 @@ import classNames from "clsx";
 import { Controller, useForm } from "react-hook-form";
 import useSWR from "swr";
 
-import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
 import { Button } from "app/atoms/Button";
+import DropdownWrapper from "app/atoms/DropdownWrapper";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import HashShortView from "app/atoms/HashShortView";
 import Identicon from "app/atoms/Identicon";
@@ -36,8 +38,8 @@ import {
 } from "app/defaults";
 import { useAppEnv } from "app/env";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
-import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
+import { ReactComponent as ContactBookIcon } from "app/icons/contact-book.svg";
 import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import AssetSelect from "app/templates/AssetSelect";
 import Balance from "app/templates/Balance";
@@ -60,7 +62,6 @@ import {
   isKTAddress,
   loadContract,
   mutezToTz,
-  TempleAccount,
   TempleAccountType,
   TempleAsset,
   TempleAssetType,
@@ -71,12 +72,13 @@ import {
   useAccount,
   useAssetBySlug,
   useBalance,
-  useRelevantAccounts,
   useTezos,
   useTezosDomainsClient,
   useNetwork,
   useAssetUSDPrice,
   useContacts,
+  TempleContact,
+  searchContacts,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
@@ -626,7 +628,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     ]
   );
 
-  const handleAccountClick = useCallback(
+  const handleAccountSelect = useCallback(
     (accountPkh: string) => {
       setValue("to", accountPkh);
       triggerValidation("to");
@@ -637,17 +639,46 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
   const estimateFallbackDisplayed = toFilled && !baseFee && estimating;
 
+  const [toFieldFocused, setToFieldFocused] = useState(false);
+
+  const handleToFieldFocus = useCallback(() => {
+    toFieldRef.current?.focus();
+    setToFieldFocused(true);
+  }, [setToFieldFocused]);
+
+  const handleToFieldBlur = useCallback(() => {
+    setToFieldFocused(false);
+  }, [setToFieldFocused]);
+
+  const allContactsWithoutCurrent = useMemo(
+    () => allContacts.filter((c) => c.address !== accountPkh),
+    [allContacts, accountPkh]
+  );
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form style={{ minHeight: "24rem" }} onSubmit={handleSubmit(onSubmit)}>
       <Controller
         name="to"
-        as={<NoSpaceField ref={toFieldRef} />}
+        as={
+          <NoSpaceField
+            ref={toFieldRef}
+            onFocus={handleToFieldFocus}
+            dropdownInner={
+              <ContactsDropdown
+                contacts={allContactsWithoutCurrent}
+                opened={!toFilled ? toFieldFocused : false}
+                onSelect={handleAccountSelect}
+                searchTerm={toValue}
+              />
+            }
+          />
+        }
         control={control}
         rules={{
           validate: validateRecipient,
         }}
         onChange={([v]) => v}
-        onFocus={() => toFieldRef.current?.focus()}
+        onBlur={handleToFieldBlur}
         textarea
         rows={2}
         cleanable={Boolean(toValue)}
@@ -693,7 +724,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             ? "recipientInputPlaceholderWithDomain"
             : "recipientInputPlaceholder"
         )}
-        errorCaption={errors.to?.message}
+        errorCaption={!toFieldFocused ? errors.to?.message : null}
         style={{
           resize: "none",
         }}
@@ -813,97 +844,251 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         autoFocus={Boolean(maxAmount)}
       />
 
-      {
-        estimateFallbackDisplayed ? (
-          <SpinnerSection />
-        ) : restFormDisplayed ? (
-          <>
-            {(() => {
-              switch (true) {
-                case Boolean(submitError):
-                  return <SendErrorAlert type="submit" error={submitError} />;
+      {estimateFallbackDisplayed ? (
+        <SpinnerSection />
+      ) : restFormDisplayed ? (
+        <>
+          {(() => {
+            switch (true) {
+              case Boolean(submitError):
+                return <SendErrorAlert type="submit" error={submitError} />;
 
-                case Boolean(estimationError):
-                  return (
-                    <SendErrorAlert type="estimation" error={estimationError} />
-                  );
+              case Boolean(estimationError):
+                return (
+                  <SendErrorAlert type="estimation" error={estimationError} />
+                );
 
-                case toResolved === accountPkh:
-                  return (
-                    <Alert
-                      type="warn"
-                      title={t("attentionExclamation")}
-                      description={<T id="tryingToTransferToYourself" />}
-                      className="mt-6 mb-4"
-                    />
-                  );
+              case toResolved === accountPkh:
+                return (
+                  <Alert
+                    type="warn"
+                    title={t("attentionExclamation")}
+                    description={<T id="tryingToTransferToYourself" />}
+                    className="mt-6 mb-4"
+                  />
+                );
 
-                case toFilledWithKTAddress:
-                  return (
-                    <Alert
-                      type="warn"
-                      title={t("attentionExclamation")}
-                      description={<T id="tryingToTransferToContract" />}
-                      className="mt-6 mb-4"
-                    />
-                  );
+              case toFilledWithKTAddress:
+                return (
+                  <Alert
+                    type="warn"
+                    title={t("attentionExclamation")}
+                    description={<T id="tryingToTransferToContract" />}
+                    className="mt-6 mb-4"
+                  />
+                );
 
-                default:
-                  return null;
-              }
-            })()}
+              default:
+                return null;
+            }
+          })()}
 
-            <AdditionalFeeInput
-              name="fee"
-              control={control}
-              onChange={handleFeeFieldChange}
-              assetSymbol={TEZ_ASSET.symbol}
-              baseFee={baseFee}
-              error={errors.fee}
-              id="send-fee"
-            />
+          <AdditionalFeeInput
+            name="fee"
+            control={control}
+            onChange={handleFeeFieldChange}
+            assetSymbol={TEZ_ASSET.symbol}
+            baseFee={baseFee}
+            error={errors.fee}
+            id="send-fee"
+          />
 
-            <T id="send">
-              {(message) => (
-                <FormSubmitButton
-                  loading={formState.isSubmitting}
-                  disabled={Boolean(estimationError)}
-                >
-                  {message}
-                </FormSubmitButton>
-              )}
-            </T>
-          </>
-        ) : null
-        // (
-        //   <>
-        //     <div className="w-full mt-2" />
-
-        //     {addressBookAccounts.length > 0 && (
-        //       <AccountSelect
-        //         accounts={addressBookAccounts}
-        //         activeAccount={acc.publicKeyHash}
-        //         asset={localAsset}
-        //         onChange={handleAccountClick}
-        //         titleI18nKey="recentDestinations"
-        //       />
-        //     )}
-
-        //     {allAccounts.length > 1 && (
-        //       <AccountSelect
-        //         accounts={allAccounts}
-        //         activeAccount={acc.publicKeyHash}
-        //         asset={localAsset}
-        //         namesVisible
-        //         onChange={handleAccountClick}
-        //         titleI18nKey="sendToMyAccounts"
-        //         descriptionI18nKey="clickOnRecipientAccount"
-        //       />
-        //     )}
-        //   </>
-        // )
-      }
+          <T id="send">
+            {(message) => (
+              <FormSubmitButton
+                loading={formState.isSubmitting}
+                disabled={Boolean(estimationError)}
+              >
+                {message}
+              </FormSubmitButton>
+            )}
+          </T>
+        </>
+      ) : null}
     </form>
+  );
+};
+
+type ContactsDropdownProps = {
+  contacts: TempleContact[];
+  opened: boolean;
+  onSelect: (address: string) => void;
+  searchTerm: string;
+};
+
+const ContactsDropdown = memo<ContactsDropdownProps>(
+  ({ contacts, opened, onSelect, searchTerm }) => {
+    const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+    const filteredContacts = useMemo(
+      () => (searchTerm ? searchContacts(contacts, searchTerm) : contacts),
+      [contacts, searchTerm]
+    );
+
+    const activeItem = useMemo(
+      () => (activeIndex !== null ? filteredContacts[activeIndex] : null),
+      [filteredContacts, activeIndex]
+    );
+
+    useEffect(() => {
+      setActiveIndex((i) => (searchTerm ? (i !== null ? i : 0) : i));
+    }, [setActiveIndex, searchTerm]);
+
+    useEffect(() => {
+      if (!opened) {
+        setActiveIndex(null);
+      }
+    }, [setActiveIndex, opened]);
+
+    useEffect(() => {
+      if (activeIndex !== null && activeIndex >= filteredContacts.length) {
+        setActiveIndex(null);
+      }
+    }, [setActiveIndex, activeIndex, filteredContacts.length]);
+
+    useEffect(() => {
+      const handleKeyup = (evt: KeyboardEvent) => {
+        switch (evt.key) {
+          case "Enter":
+            if (activeItem) {
+              onSelect(activeItem.address);
+              (document.activeElement as any)?.blur();
+            }
+            break;
+
+          case "ArrowDown":
+            setActiveIndex((i) => (i !== null ? i + 1 : 0));
+            break;
+
+          case "ArrowUp":
+            setActiveIndex((i) => (i !== null ? (i > 0 ? i - 1 : 0) : i));
+            break;
+        }
+      };
+
+      window.addEventListener("keyup", handleKeyup);
+      return () => window.removeEventListener("keyup", handleKeyup);
+    }, [activeItem, setActiveIndex, onSelect]);
+
+    return (
+      <DropdownWrapper
+        scaleAnimation={false}
+        opened={opened}
+        className={classNames(
+          "absolute left-0 right-0",
+          "origin-top overflow-x-hidden overflow-y-auto",
+          "z-50"
+        )}
+        style={{
+          top: "100%",
+          maxHeight: "11rem",
+          backgroundColor: "white",
+          borderColor: "#e2e8f0",
+          padding: 0,
+        }}
+      >
+        {filteredContacts.length > 0 ? (
+          filteredContacts.map((contact) => (
+            <ContactsDropdownItem
+              key={contact.address}
+              contact={contact}
+              active={contact.address === activeItem?.address}
+              onClick={() => onSelect(contact.address)}
+            />
+          ))
+        ) : (
+          <div
+            className={classNames(
+              "flex items-center justify-center my-6",
+              "text-gray-600 text-base font-light"
+            )}
+          >
+            <ContactBookIcon className="w-5 h-auto mr-1 stroke-current" />
+            <span>
+              <T id="noContactsFound" />
+            </span>
+          </div>
+        )}
+      </DropdownWrapper>
+    );
+  }
+);
+
+type ContactsDropdownItemProps = ComponentProps<typeof Button> & {
+  contact: TempleContact;
+  active?: boolean;
+};
+
+const ContactsDropdownItem: FC<ContactsDropdownItemProps> = ({
+  contact,
+  active,
+  ...rest
+}) => {
+  const ref = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (active) {
+      ref.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [active]);
+
+  return (
+    <Button
+      ref={ref}
+      type="button"
+      testID={SendFormSelectors.ContactItemButton}
+      className={classNames(
+        "w-full flex items-center",
+        "p-2 text-left",
+        active ? "bg-gray-100" : "hover:bg-gray-100 focus:bg-gray-100"
+      )}
+      {...rest}
+    >
+      <Identicon
+        type="bottts"
+        hash={contact.address}
+        size={32}
+        className="flex-shrink-0 shadow-xs"
+      />
+
+      <div className="ml-3 flex flex-1 w-full">
+        <div className="flex flex-col justify-between flex-1">
+          <Name className="mb-px text-sm font-medium leading-tight text-left">
+            {contact.name}
+          </Name>
+
+          <span
+            className={classNames(
+              "text-xs font-light leading-tight text-gray-600"
+            )}
+          >
+            <HashShortView hash={contact.address} />
+          </span>
+        </div>
+
+        {contact.accountInWallet ? (
+          <div className="flex items-center">
+            <span
+              className={classNames(
+                "mx-1",
+                "rounded-sm",
+                "border border-opacity-25",
+                "px-1 py-px",
+                "leading-tight",
+                "text-opacity-50",
+                "border-black text-black"
+              )}
+              style={{ fontSize: "0.6rem" }}
+            >
+              <T id="ownAccount" />
+            </span>
+          </div>
+        ) : null}
+      </div>
+    </Button>
   );
 };
 
@@ -911,165 +1096,6 @@ type SendErrorAlertProps = {
   type: "submit" | "estimation";
   error: Error;
 };
-
-// type AccountSelectProps = {
-//   activeAccount: string;
-//   accounts: TempleAccount[];
-//   asset: TempleAsset;
-//   onChange: (accountPkh: string) => void;
-//   titleI18nKey: string;
-//   descriptionI18nKey?: string;
-//   namesVisible?: boolean;
-// };
-
-// const AccountSelect: FC<AccountSelectProps> = memo(
-//   ({
-//     accounts,
-//     activeAccount,
-//     asset,
-//     onChange,
-//     titleI18nKey,
-//     descriptionI18nKey,
-//     namesVisible,
-//   }) => {
-//     const filtered = accounts.filter(
-//       (acc) => acc.publicKeyHash !== activeAccount
-//     );
-
-//     if (filtered.length === 0) return null;
-
-//     return (
-//       <div className="my-6 flex flex-col">
-//         <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-//           <span className="text-base font-semibold text-gray-700">
-//             <T id={titleI18nKey} />
-//           </span>
-
-//           {descriptionI18nKey && (
-//             <span
-//               className={classNames("mt-1", "text-xs font-light text-gray-600")}
-//               style={{ maxWidth: "90%" }}
-//             >
-//               <T id={descriptionI18nKey} />
-//             </span>
-//           )}
-//         </h2>
-//         <div
-//           className={classNames(
-//             "rounded-md overflow-hidden",
-//             "border",
-//             "flex flex-col",
-//             "text-gray-700 text-sm leading-tight"
-//           )}
-//         >
-//           {filtered.map((acc, i, arr) => (
-//             <AccountSelectOption
-//               account={acc}
-//               key={acc.publicKeyHash}
-//               isLast={i === arr.length - 1}
-//               onSelect={onChange}
-//               asset={asset}
-//               nameVisible={namesVisible}
-//             />
-//           ))}
-//         </div>
-//       </div>
-//     );
-//   }
-// );
-
-// type AccountSelectOptionProps = {
-//   account: TempleAccount;
-//   isLast: boolean;
-//   onSelect: (accountPkh: string) => void;
-//   asset: TempleAsset;
-//   nameVisible?: boolean;
-// };
-
-// const AccountSelectOption: React.FC<AccountSelectOptionProps> = ({
-//   account,
-//   isLast,
-//   onSelect,
-//   asset,
-//   nameVisible,
-// }) => {
-//   const handleClick = useCallback(
-//     () => onSelect(account.publicKeyHash),
-//     [onSelect, account.publicKeyHash]
-//   );
-
-//   return (
-//     <Button
-//       key={account.publicKeyHash}
-//       type="button"
-//       className={classNames(
-//         "relative",
-//         "block w-full",
-//         "overflow-hidden",
-//         !isLast && "border-b border-gray-200",
-//         "hover:bg-gray-100 focus:bg-gray-100",
-//         "flex items-center p-2",
-//         "text-gray-700",
-//         "transition ease-in-out duration-200",
-//         "focus:outline-none",
-//         "opacity-90 hover:opacity-100"
-//       )}
-//       onClick={handleClick}
-//       testID={SendFormSelectors.MyAccountItemButton}
-//     >
-//       <Identicon
-//         type="bottts"
-//         hash={account.publicKeyHash}
-//         size={32}
-//         className="flex-shrink-0 shadow-xs"
-//       />
-
-//       <div className="flex flex-col items-start ml-2">
-//         {nameVisible && (
-//           <div className="flex flex-wrap items-center">
-//             <Name className="text-sm font-medium leading-tight">
-//               {account.name}
-//             </Name>
-
-//             <AccountTypeBadge account={account} />
-//           </div>
-//         )}
-
-//         <div className="flex flex-wrap items-center mt-1">
-//           <div className={classNames("text-xs leading-none", "text-gray-700")}>
-//             <HashShortView hash={account.publicKeyHash} />
-//           </div>
-
-//           <Balance asset={asset} address={account.publicKeyHash}>
-//             {(bal) => (
-//               <div
-//                 className={classNames(
-//                   "ml-2",
-//                   "text-xs leading-none",
-//                   "text-gray-600"
-//                 )}
-//               >
-//                 <Money>{bal}</Money>{" "}
-//                 <span style={{ fontSize: "0.75em" }}>{asset.symbol}</span>
-//               </div>
-//             )}
-//           </Balance>
-//         </div>
-//       </div>
-
-//       <div
-//         className={classNames(
-//           "absolute right-0 top-0 bottom-0",
-//           "flex items-center",
-//           "pr-2",
-//           "text-gray-500"
-//         )}
-//       >
-//         <ChevronRightIcon className="h-5 w-auto stroke-current" />
-//       </div>
-//     </Button>
-//   );
-// };
 
 const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => (
   <Alert

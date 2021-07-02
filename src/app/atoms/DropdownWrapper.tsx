@@ -6,11 +6,13 @@ import CSSTransition from "react-transition-group/CSSTransition";
 type DropdownWrapperProps = HTMLAttributes<HTMLDivElement> & {
   opened: boolean;
   hiddenOverflow?: boolean;
+  scaleAnimation?: boolean;
 };
 
 const DropdownWrapper: FC<DropdownWrapperProps> = ({
   opened,
   hiddenOverflow = true,
+  scaleAnimation = true,
   className,
   style = {},
   ...rest
@@ -19,13 +21,15 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
     in={opened}
     timeout={100}
     classNames={{
-      enter: "transform opacity-0 scale-95",
+      enter: classNames("transform opacity-0", scaleAnimation && "scale-95"),
       enterActive: classNames(
-        "transform opacity-100 scale-100",
+        "transform opacity-100",
+        scaleAnimation && "scale-100",
         "transition ease-out duration-100"
       ),
       exit: classNames(
-        "transform opacity-0 scale-95",
+        "transform opacity-0",
+        scaleAnimation && "scale-95",
         "transition ease-in duration-100"
       ),
     }}
