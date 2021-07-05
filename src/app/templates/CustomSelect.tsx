@@ -61,7 +61,7 @@ const CustomSelect = <
     OptionContent,
   } = props;
 
-  return (
+  return items.length > 0 ? (
     <div
       className={classNames(
         "relative rounded-md overflow-y-auto",
@@ -95,32 +95,29 @@ const CustomSelect = <
         );
       })}
     </div>
-  );
+  ) : null;
 };
 
 export default CustomSelect;
 
-type CustomSelectItemProps<
-  T,
-  K extends string | number,
-  A extends Actions<K>
-> = Pick<
-  CustomSelectProps<T, K, A>,
-  | "onSelect"
-  | "OptionIcon"
-  | "OptionContent"
-  | "padding"
-  | "autoFocus"
-  | "light"
-  | "hoverable"
-  | "actions"
-> & {
-  active?: boolean;
-  last?: boolean;
-  itemId: K;
-  index: number;
-  item: T;
-};
+type CustomSelectItemProps<T, K extends string | number, A extends Actions<K>> =
+  Pick<
+    CustomSelectProps<T, K, A>,
+    | "onSelect"
+    | "OptionIcon"
+    | "OptionContent"
+    | "padding"
+    | "autoFocus"
+    | "light"
+    | "hoverable"
+    | "actions"
+  > & {
+    active?: boolean;
+    last?: boolean;
+    itemId: K;
+    index: number;
+    item: T;
+  };
 
 const CustomSelectItem = <
   T extends {},
@@ -145,10 +142,10 @@ const CustomSelectItem = <
     OptionContent,
   } = props;
 
-  const handleSelect = useCallback(() => onSelect?.(itemId), [
-    itemId,
-    onSelect,
-  ]);
+  const handleSelect = useCallback(
+    () => onSelect?.(itemId),
+    [itemId, onSelect]
+  );
 
   const ItemComponent = onSelect ? "button" : "div";
 

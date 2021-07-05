@@ -1,72 +1,78 @@
 import { useCallback, useMemo } from "react";
 
-import { t } from "lib/i18n/react";
+import { getMessage } from "lib/i18n";
 import {
-  TempleAccount,
-  TempleAccountType,
-  useChainId,
+  TempleContact,
   useStorage,
   useRelevantAccounts,
 } from "lib/temple/front";
 
-const ADDRESS_BOOK_CAPACITY = 10;
+export function useContacts() {
+  const allAccounts = useRelevantAccounts();
+  const accountContacts = useMemo<TempleContact[]>(
+    () =>
+      allAccounts.map((acc) => ({
+        address: acc.publicKeyHash,
+        name: acc.name,
+        accountInWallet: true,
+      })),
+    [allAccounts]
+  );
 
-type AddressBookEntry = {
-  address: string;
-  lastUsed: number;
-};
-
-export function useAddressBook() {
-  const chainId = useChainId();
-  const [entries, setEntries] = useStorage<AddressBookEntry[]>(
-    `address_book_${chainId}`,
+  const [savedContacts, setSavedContacts] = useStorage<TempleContact[]>(
+    "contacts",
     []
   );
-  const allAccounts = useRelevantAccounts();
 
-  const onAddressUsage = useCallback(
-    async (address: string) => {
-      const entryIndex = entries.findIndex(
-        ({ address: entryAddress }) => entryAddress === address
-      );
-      let newEntries: AddressBookEntry[] = [...entries];
-      if (entryIndex === -1) {
-        newEntries = [
-          {
-            address,
-            lastUsed: Date.now(),
-          },
-          ...newEntries.slice(0, ADDRESS_BOOK_CAPACITY - 1),
-        ];
-      } else {
-        newEntries[entryIndex].lastUsed = Date.now();
+  const allContacts = useMemo(
+    () => [...savedContacts, ...accountContacts],
+    [savedContacts, accountContacts]
+  );
+
+  const addContact = useCallback(
+    (cToAdd: TempleContact) => {
+      if (allContacts.some((c) => c.address === cToAdd.address)) {
+        throw new Error(getMessage("contactWithTheSameAddressAlreadyExists"));
       }
-      await setEntries(
-        newEntries.sort(
-          ({ lastUsed: aLastUsed }, { lastUsed: bLastUsed }) =>
-            bLastUsed - aLastUsed
-        )
-      );
+
+      return setSavedContacts((cnts) => [cToAdd, ...cnts]);
     },
-    [entries, setEntries]
+    [allContacts, setSavedContacts]
   );
 
-  const accounts = useMemo<TempleAccount[]>(
-    () =>
-      entries.map(({ address }) => {
-        const knownAccount = allAccounts.find(
-          ({ publicKeyHash }) => publicKeyHash === address
-        );
-        return (
-          knownAccount ?? {
-            type: TempleAccountType.WatchOnly,
-            name: t("unknownAccount"),
-            publicKeyHash: address,
-          }
-        );
-      }),
-    [allAccounts, entries]
+  const removeContact = useCallback(
+    (address: string) =>
+      setSavedContacts((cnts) => cnts.filter((c) => c.address !== address)),
+    [setSavedContacts]
   );
 
-  return { accounts, onAddressUsage };
+  const getContact = useCallback(
+    (address: string) => allContacts.find((c) => c.address === address) ?? null,
+    [allContacts]
+  );
+
+  return {
+    allContacts,
+    accountContacts,
+    savedContacts,
+    addContact,
+    removeContact,
+    getContact,
+  };
+}
+
+export const CONTACT_FIELDS_TO_SEARCH = ["name", "address"] as const;
+
+export function searchContacts<T extends TempleContact>(
+  contacts: T[],
+  searchValue: string
+) {
+  if (!searchValue) return contacts;
+
+  const loweredSearchValue = searchValue.toLowerCase();
+  return contacts.filter((c) =>
+    CONTACT_FIELDS_TO_SEARCH.some((field) =>
+      c[field].toLowerCase().includes(loweredSearchValue)
+    )
+  );
 }

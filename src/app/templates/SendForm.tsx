@@ -5,9 +5,9 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useState,
   useMemo,
   useRef,
-  memo,
 } from "react";
 
 import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
@@ -17,15 +17,11 @@ import classNames from "clsx";
 import { Controller, useForm } from "react-hook-form";
 import useSWR from "swr";
 
-import AccountTypeBadge from "app/atoms/AccountTypeBadge";
 import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
-import { Button } from "app/atoms/Button";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import HashShortView from "app/atoms/HashShortView";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
-import Name from "app/atoms/Name";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import {
@@ -36,7 +32,6 @@ import {
 } from "app/defaults";
 import { useAppEnv } from "app/env";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
-import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
 import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import AssetSelect from "app/templates/AssetSelect";
@@ -60,7 +55,6 @@ import {
   isKTAddress,
   loadContract,
   mutezToTz,
-  TempleAccount,
   TempleAccountType,
   TempleAsset,
   TempleAssetType,
@@ -69,19 +63,21 @@ import {
   toTransferParams,
   tzToMutez,
   useAccount,
-  useAddressBook,
   useAssetBySlug,
   useBalance,
-  useRelevantAccounts,
   useTezos,
   useTezosDomainsClient,
   useNetwork,
   useAssetUSDPrice,
+  useContacts,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
 
 import { SendFormSelectors } from "./SendForm.selectors";
+import AddContactModal from "./SendForm/AddContactModal";
+import ContactsDropdown from "./SendForm/ContactsDropdown";
+import SendErrorAlert from "./SendForm/SendErrorAlert";
 
 interface FormData {
   to: string;
@@ -100,6 +96,9 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
   const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const [addContactModalAddress, setAddContactModalAddress] = useState<
+    string | null
+  >(null);
   const { trackEvent } = useAnalytics();
 
   const handleAssetChange = useCallback(
@@ -112,6 +111,17 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
     },
     [trackEvent]
   );
+
+  const handleAddContactRequested = useCallback(
+    (address: string) => {
+      setAddContactModalAddress(address);
+    },
+    [setAddContactModalAddress]
+  );
+
+  const closeContactModal = useCallback(() => {
+    setAddContactModalAddress(null);
+  }, [setAddContactModalAddress]);
 
   return (
     <>
@@ -126,8 +136,17 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
       />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form localAsset={asset} setOperation={setOperation} />
+        <Form
+          localAsset={asset}
+          setOperation={setOperation}
+          onAddContactRequested={handleAddContactRequested}
+        />
       </Suspense>
+
+      <AddContactModal
+        address={addContactModalAddress}
+        onClose={closeContactModal}
+      />
     </>
   );
 };
@@ -137,14 +156,18 @@ export default SendForm;
 type FormProps = {
   localAsset: TempleAsset;
   setOperation: Dispatch<any>;
+  onAddContactRequested: (address: string) => void;
 };
 
-const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
+const Form: FC<FormProps> = ({
+  localAsset,
+  setOperation,
+  onAddContactRequested,
+}) => {
   const { registerBackHandler } = useAppEnv();
   const assetPrice = useAssetUSDPrice(localAsset);
 
-  const { accounts: addressBookAccounts, onAddressUsage } = useAddressBook();
-  const allAccounts = useRelevantAccounts();
+  const { allContacts } = useContacts();
   const network = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
@@ -266,11 +289,10 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
     [toResolved]
   );
 
-  const filledAccount = useMemo(
+  const filledContact = useMemo(
     () =>
-      (toResolved && allAccounts.find((a) => a.publicKeyHash === toResolved)) ||
-      null,
-    [allAccounts, toResolved]
+      (toResolved && allContacts.find((c) => c.address === toResolved)) || null,
+    [allContacts, toResolved]
   );
 
   const cleanToField = useCallback(() => {
@@ -594,7 +616,6 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess();
-        onAddressUsage(toResolved);
       } catch (err) {
         formAnalytics.trackSubmitFail();
 
@@ -624,11 +645,10 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
       shouldUseUsd,
       toAssetAmount,
       formAnalytics,
-      onAddressUsage,
     ]
   );
 
-  const handleAccountClick = useCallback(
+  const handleAccountSelect = useCallback(
     (accountPkh: string) => {
       setValue("to", accountPkh);
       triggerValidation("to");
@@ -639,17 +659,48 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
   const estimateFallbackDisplayed = toFilled && !baseFee && estimating;
 
+  const [toFieldFocused, setToFieldFocused] = useState(false);
+
+  const handleToFieldFocus = useCallback(() => {
+    toFieldRef.current?.focus();
+    setToFieldFocused(true);
+  }, [setToFieldFocused]);
+
+  const handleToFieldBlur = useCallback(() => {
+    setToFieldFocused(false);
+  }, [setToFieldFocused]);
+
+  const allContactsWithoutCurrent = useMemo(
+    () => allContacts.filter((c) => c.address !== accountPkh),
+    [allContacts, accountPkh]
+  );
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form style={{ minHeight: "24rem" }} onSubmit={handleSubmit(onSubmit)}>
       <Controller
         name="to"
-        as={<NoSpaceField ref={toFieldRef} />}
+        as={
+          <NoSpaceField
+            ref={toFieldRef}
+            onFocus={handleToFieldFocus}
+            dropdownInner={
+              allContactsWithoutCurrent.length > 0 ? (
+                <ContactsDropdown
+                  contacts={allContactsWithoutCurrent}
+                  opened={!toFilled ? toFieldFocused : false}
+                  onSelect={handleAccountSelect}
+                  searchTerm={toValue}
+                />
+              ) : null
+            }
+          />
+        }
         control={control}
         rules={{
           validate: validateRecipient,
         }}
         onChange={([v]) => v}
-        onFocus={() => toFieldRef.current?.focus()}
+        onBlur={handleToFieldBlur}
         textarea
         rows={2}
         cleanable={Boolean(toValue)}
@@ -657,17 +708,17 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
         id="send-to"
         label={t("recipient")}
         labelDescription={
-          filledAccount ? (
+          filledContact ? (
             <div className="flex flex-wrap items-center">
               <Identicon
                 type="bottts"
-                hash={filledAccount.publicKeyHash}
+                hash={filledContact.address}
                 size={14}
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
-              <div className="ml-1 mr-px font-normal">{filledAccount.name}</div>{" "}
+              <div className="ml-1 mr-px font-normal">{filledContact.name}</div>{" "}
               (
-              <Balance asset={localAsset} address={filledAccount.publicKeyHash}>
+              <Balance asset={localAsset} address={filledContact.address}>
                 {(bal) => (
                   <span className={classNames("text-xs leading-none")}>
                     <Money>{bal}</Money>{" "}
@@ -695,7 +746,7 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             ? "recipientInputPlaceholderWithDomain"
             : "recipientInputPlaceholder"
         )}
-        errorCaption={errors.to?.message}
+        errorCaption={!toFieldFocused ? errors.to?.message : null}
         style={{
           resize: "none",
         }}
@@ -716,6 +767,24 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
           <span className="font-normal">{resolvedAddress}</span>
         </div>
       )}
+
+      {toFilled && !filledContact ? (
+        <div
+          className={classNames(
+            "mb-4 -mt-3",
+            "text-xs font-light text-gray-600",
+            "flex flex-wrap items-center"
+          )}
+        >
+          <button
+            type="button"
+            className="text-xs font-light text-gray-600 underline"
+            onClick={() => onAddContactRequested(toResolved)}
+          >
+            <T id="addThisAddressToContacts" />
+          </button>
+        </div>
+      ) : null}
 
       <Controller
         name="amount"
@@ -875,254 +944,10 @@ const Form: FC<FormProps> = ({ localAsset, setOperation }) => {
             )}
           </T>
         </>
-      ) : (
-        <>
-          <div className="w-full mt-2" />
-
-          {addressBookAccounts.length > 0 && (
-            <AccountSelect
-              accounts={addressBookAccounts}
-              activeAccount={acc.publicKeyHash}
-              asset={localAsset}
-              onChange={handleAccountClick}
-              titleI18nKey="recentDestinations"
-            />
-          )}
-
-          {allAccounts.length > 1 && (
-            <AccountSelect
-              accounts={allAccounts}
-              activeAccount={acc.publicKeyHash}
-              asset={localAsset}
-              namesVisible
-              onChange={handleAccountClick}
-              titleI18nKey="sendToMyAccounts"
-              descriptionI18nKey="clickOnRecipientAccount"
-            />
-          )}
-        </>
-      )}
+      ) : null}
     </form>
   );
 };
-
-type SendErrorAlertProps = {
-  type: "submit" | "estimation";
-  error: Error;
-};
-
-type AccountSelectProps = {
-  activeAccount: string;
-  accounts: TempleAccount[];
-  asset: TempleAsset;
-  onChange: (accountPkh: string) => void;
-  titleI18nKey: string;
-  descriptionI18nKey?: string;
-  namesVisible?: boolean;
-};
-
-const AccountSelect: FC<AccountSelectProps> = memo(
-  ({
-    accounts,
-    activeAccount,
-    asset,
-    onChange,
-    titleI18nKey,
-    descriptionI18nKey,
-    namesVisible,
-  }) => {
-    const filtered = accounts.filter(
-      (acc) => acc.publicKeyHash !== activeAccount
-    );
-
-    if (filtered.length === 0) return null;
-
-    return (
-      <div className="my-6 flex flex-col">
-        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
-          <span className="text-base font-semibold text-gray-700">
-            <T id={titleI18nKey} />
-          </span>
-
-          {descriptionI18nKey && (
-            <span
-              className={classNames("mt-1", "text-xs font-light text-gray-600")}
-              style={{ maxWidth: "90%" }}
-            >
-              <T id={descriptionI18nKey} />
-            </span>
-          )}
-        </h2>
-        <div
-          className={classNames(
-            "rounded-md overflow-hidden",
-            "border",
-            "flex flex-col",
-            "text-gray-700 text-sm leading-tight"
-          )}
-        >
-          {filtered.map((acc, i) => (
-            <AccountSelectOption
-              account={acc}
-              key={acc.publicKeyHash}
-              isLast={i === accounts.length - 1}
-              onSelect={onChange}
-              asset={asset}
-              nameVisible={namesVisible}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
-);
-
-type AccountSelectOptionProps = {
-  account: TempleAccount;
-  isLast: boolean;
-  onSelect: (accountPkh: string) => void;
-  asset: TempleAsset;
-  nameVisible?: boolean;
-};
-
-const AccountSelectOption: React.FC<AccountSelectOptionProps> = ({
-  account,
-  isLast,
-  onSelect,
-  asset,
-  nameVisible,
-}) => {
-  const handleClick = useCallback(
-    () => onSelect(account.publicKeyHash),
-    [onSelect, account.publicKeyHash]
-  );
-
-  return (
-    <Button
-      key={account.publicKeyHash}
-      type="button"
-      className={classNames(
-        "relative",
-        "block w-full",
-        "overflow-hidden",
-        !isLast && "border-b border-gray-200",
-        "hover:bg-gray-100 focus:bg-gray-100",
-        "flex items-center p-2",
-        "text-gray-700",
-        "transition ease-in-out duration-200",
-        "focus:outline-none",
-        "opacity-90 hover:opacity-100"
-      )}
-      onClick={handleClick}
-      testID={SendFormSelectors.MyAccountItemButton}
-    >
-      <Identicon
-        type="bottts"
-        hash={account.publicKeyHash}
-        size={32}
-        className="flex-shrink-0 shadow-xs"
-      />
-
-      <div className="flex flex-col items-start ml-2">
-        {nameVisible && (
-          <div className="flex flex-wrap items-center">
-            <Name className="text-sm font-medium leading-tight">
-              {account.name}
-            </Name>
-
-            <AccountTypeBadge account={account} />
-          </div>
-        )}
-
-        <div className="flex flex-wrap items-center mt-1">
-          <div className={classNames("text-xs leading-none", "text-gray-700")}>
-            <HashShortView hash={account.publicKeyHash} />
-          </div>
-
-          <Balance asset={asset} address={account.publicKeyHash}>
-            {(bal) => (
-              <div
-                className={classNames(
-                  "ml-2",
-                  "text-xs leading-none",
-                  "text-gray-600"
-                )}
-              >
-                <Money>{bal}</Money>{" "}
-                <span style={{ fontSize: "0.75em" }}>{asset.symbol}</span>
-              </div>
-            )}
-          </Balance>
-        </div>
-      </div>
-
-      <div
-        className={classNames(
-          "absolute right-0 top-0 bottom-0",
-          "flex items-center",
-          "pr-2",
-          "text-gray-500"
-        )}
-      >
-        <ChevronRightIcon className="h-5 w-auto stroke-current" />
-      </div>
-    </Button>
-  );
-};
-
-const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => (
-  <Alert
-    type={type === "submit" ? "error" : "warn"}
-    title={(() => {
-      switch (true) {
-        case error instanceof NotEnoughFundsError:
-          return error instanceof ZeroTEZBalanceError
-            ? `${t("notEnoughCurrencyFunds", "ꜩ")} 😶`
-            : `${t("notEnoughFunds")} 😶`;
-
-        default:
-          return t("failed");
-      }
-    })()}
-    description={(() => {
-      switch (true) {
-        case error instanceof ZeroBalanceError:
-          return t("yourBalanceIsZero");
-
-        case error instanceof ZeroTEZBalanceError:
-          return t("mainAssetBalanceIsZero");
-
-        case error instanceof NotEnoughFundsError:
-          return t("minimalFeeGreaterThanBalanceVerbose");
-
-        default:
-          return (
-            <>
-              <T
-                id={
-                  type === "submit"
-                    ? "unableToSendTransactionAction"
-                    : "unableToEstimateTransactionAction"
-                }
-              />
-              <br />
-              <T id="thisMayHappenBecause" />
-              <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                <T id="minimalFeeGreaterThanBalanceVerbose">
-                  {(message) => <li>{message}</li>}
-                </T>
-                <T id="networkOrOtherIssue">
-                  {(message) => <li>{message}</li>}
-                </T>
-              </ul>
-            </>
-          );
-      }
-    })()}
-    autoFocus
-    className={classNames("mt-6 mb-4")}
-  />
-);
 
 function validateAddress(value: any) {
   switch (false) {
