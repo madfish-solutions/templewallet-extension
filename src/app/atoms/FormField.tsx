@@ -35,6 +35,7 @@ interface FormFieldProps extends FormFieldAttrs {
   onClean?: () => void;
   fieldWrapperBottomMargin?: boolean;
   labelPaddingClassName?: string;
+  dropdownInner?: ReactNode;
 }
 
 const FormField = forwardRef<FormFieldRef, FormFieldProps>(
@@ -51,6 +52,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       cleanable,
       extraButton = null,
       extraInner = null,
+      dropdownInner = null,
       useDefaultInnerWrapper = true,
       id,
       value,
@@ -240,6 +242,8 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             ) : (
               extraInner
             ))}
+
+          {dropdownInner}
 
           {extraButton}
 

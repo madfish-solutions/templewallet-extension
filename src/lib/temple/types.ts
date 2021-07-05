@@ -179,6 +179,13 @@ export enum TempleSharedStorageKey {
 
 export type TempleDAppSessions = Record<string, TempleDAppSession>;
 
+export interface TempleContact {
+  address: string;
+  name: string;
+  addedAt?: number;
+  accountInWallet?: boolean;
+}
+
 /**
  * Internal confirmation payloads
  */
