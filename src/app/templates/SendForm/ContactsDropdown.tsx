@@ -77,7 +77,8 @@ const ContactsDropdown = memo<ContactsDropdownProps>(
         className={classNames(
           "absolute left-0 right-0",
           "origin-top overflow-x-hidden overflow-y-auto",
-          "z-50"
+          "z-50",
+          "overscroll-contain"
         )}
         style={{
           top: "100%",

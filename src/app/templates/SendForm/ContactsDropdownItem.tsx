@@ -42,6 +42,7 @@ const ContactsDropdownItem: FC<ContactsDropdownItemProps> = ({
         "p-2 text-left",
         active ? "bg-gray-100" : "hover:bg-gray-100 focus:bg-gray-100"
       )}
+      tabIndex={-1}
       {...rest}
     >
       <Identicon
