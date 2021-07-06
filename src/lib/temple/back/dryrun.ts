@@ -59,17 +59,21 @@ export async function dryRunOpParams({
     } catch {}
 
     if (bytesToSign && estimates) {
+      const withReveal = estimates.length === opParams.length + 1;
       const rawToSign = await localForger.parse(bytesToSign);
       return {
         bytesToSign,
         rawToSign,
         estimates,
-        opParams: opParams.map((op, i) => ({
-          ...op,
-          fee: op.fee ?? estimates?.[i].suggestedFeeMutez,
-          gasLimit: op.gasLimit ?? estimates?.[i].gasLimit,
-          storageLimit: op.storageLimit ?? estimates?.[i].storageLimit,
-        })),
+        opParams: opParams.map((op, i) => {
+          const eIndex = withReveal ? i + 1 : i;
+          return {
+            ...op,
+            fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,
+            gasLimit: op.gasLimit ?? estimates?.[eIndex].gasLimit,
+            storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit,
+          };
+        }),
       };
     }
 

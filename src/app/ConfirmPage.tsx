@@ -174,9 +174,22 @@ const ConfirmDAppForm: FC = () => {
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
 
+  const revealFee = useMemo(() => {
+    if (
+      payload.type === "confirm_operations" &&
+      payload.estimates &&
+      payload.estimates.length === payload.opParams.length + 1
+    ) {
+      return payload.estimates[0].suggestedFeeMutez;
+    }
+
+    return 0;
+  }, [payload]);
+
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === "confirm_operations" &&
-      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0)) ||
+      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) +
+        revealFee) ||
       0
   );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] =
@@ -192,7 +205,7 @@ const ConfirmDAppForm: FC = () => {
       try {
         await onConfirm(
           confirmed,
-          modifiedTotalFeeValue,
+          modifiedTotalFeeValue - revealFee,
           modifiedStorageLimitValue
         );
       } catch (err) {
@@ -205,7 +218,13 @@ const ConfirmDAppForm: FC = () => {
         setError(err);
       }
     },
-    [onConfirm, setError, modifiedTotalFeeValue, modifiedStorageLimitValue]
+    [
+      onConfirm,
+      setError,
+      modifiedTotalFeeValue,
+      modifiedStorageLimitValue,
+      revealFee,
+    ]
   );
 
   const handleConfirmClick = useCallback(async () => {
