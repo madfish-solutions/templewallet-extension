@@ -1,4 +1,11 @@
-import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 import { Controller, useForm } from "react-hook-form";
@@ -26,7 +33,11 @@ import {
   isKnownChainId,
   ImportAccountFormType,
 } from "lib/temple/front";
-import { getOneUserContracts, TzktRelatedContract } from "lib/tzkt";
+import {
+  getOneUserContracts,
+  TzktRelatedContract,
+  TZKT_API_BASE_URLS,
+} from "lib/tzkt";
 
 type ImportKTAccountFormData = {
   contractAddress: string;
@@ -213,8 +224,7 @@ const ManagedKTForm: FC = () => {
               />
               <div className="ml-1 mr-px font-normal">
                 <T id="contract" />
-              </div>
-              {" "}
+              </div>{" "}
               (
               <Balance asset={TEZ_ASSET} address={filledAccount.address}>
                 {(bal) => (
@@ -278,7 +288,7 @@ export const getUsersContracts = async (
   chainId: string,
   ...accounts: string[]
 ) => {
-  if (!isKnownChainId(chainId)) {
+  if (!isKnownChainId(chainId) || !TZKT_API_BASE_URLS.has(chainId)) {
     return [];
   }
 

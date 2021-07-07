@@ -15,10 +15,8 @@ import {
 
 export const TZSTATS_CHAINS = new Map([
   [TempleChainId.Mainnet, TZStatsNetwork.Mainnet],
-  [TempleChainId.Edo2net, TZStatsNetwork.Edonet],
   [TempleChainId.Florencenet, TZStatsNetwork.Florencenet],
-  [TempleChainId.Delphinet, TZStatsNetwork.Delphinet],
-  [TempleChainId.Carthagenet, TZStatsNetwork.Carthagenet],
+  [TempleChainId.Edo2net, TZStatsNetwork.Edonet],
 ]);
 
 export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;
@@ -45,9 +43,8 @@ api.interceptors.response.use(
 export const getMarketTickers = () =>
   getMarketTickersPure(TZStatsNetwork.Mainnet);
 
-export const getMarketTickersPure = explore<TZStatsMarketTicker[]>(
-  "/markets/tickers"
-);
+export const getMarketTickersPure =
+  explore<TZStatsMarketTicker[]>("/markets/tickers");
 
 export const getAccountWithOperations = explore<
   TZStatsAccountOp,

@@ -30,10 +30,10 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         },
       ],
       [
-        TempleChainId.Delphinet,
+        TempleChainId.Florencenet,
         {
-          account: "https://delphinet.tzkt.io",
-          transaction: "https://delphinet.tzkt.io",
+          account: "https://florencenet.tzkt.io",
+          transaction: "https://florencenet.tzkt.io",
         },
       ],
       [
@@ -44,10 +44,10 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         },
       ],
       [
-        TempleChainId.Florencenet,
+        TempleChainId.Delphinet,
         {
-          account: "https://florencenet.tzkt.io",
-          transaction: "https://florencenet.tzkt.io",
+          account: "https://delphinet.tzkt.io",
+          transaction: "https://delphinet.tzkt.io",
         },
       ],
     ]),
@@ -64,10 +64,10 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         },
       ],
       [
-        TempleChainId.Delphinet,
+        TempleChainId.Florencenet,
         {
-          account: "https://delphi.tzstats.com",
-          transaction: "https://delphi.tzstats.com",
+          account: "https://florence.tzstats.com",
+          transaction: "https://florence.tzstats.com",
         },
       ],
       [
@@ -75,13 +75,6 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         {
           account: "https://edo.tzstats.com",
           transaction: "https://edo.tzstats.com",
-        },
-      ],
-      [
-        TempleChainId.Florencenet,
-        {
-          account: "https://florence.tzstats.com",
-          transaction: "https://florence.tzstats.com",
         },
       ],
     ]),
@@ -97,21 +90,21 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         },
       ],
       [
-        TempleChainId.Delphinet,
+        TempleChainId.Granadanet,
         {
-          transaction: "https://better-call.dev/delphinet/opg",
-        },
-      ],
-      [
-        TempleChainId.Edo2net,
-        {
-          transaction: "https://better-call.dev/edo2net/opg",
+          transaction: "https://better-call.dev/granadanet/opg",
         },
       ],
       [
         TempleChainId.Florencenet,
         {
           transaction: "https://better-call.dev/florencenet/opg",
+        },
+      ],
+      [
+        TempleChainId.Edo2net,
+        {
+          transaction: "https://better-call.dev/edo2net/opg",
         },
       ],
     ]),
@@ -125,13 +118,6 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         {
           account: "http://tezblock.io/account",
           transaction: "http://tezblock.io/transaction",
-        },
-      ],
-      [
-        TempleChainId.Delphinet,
-        {
-          account: "http://delphinet.tezblock.io/account",
-          transaction: "http://delphinet.tezblock.io/transaction",
         },
       ],
     ]),

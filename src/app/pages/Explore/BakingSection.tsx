@@ -19,7 +19,7 @@ import {
   useChainId,
   isKnownChainId,
 } from "lib/temple/front";
-import { getDelegatorRewards } from "lib/tzkt";
+import { getDelegatorRewards, TZKT_API_BASE_URLS } from "lib/tzkt";
 import useTippy from "lib/ui/useTippy";
 import { Link } from "lib/woozie";
 
@@ -58,7 +58,7 @@ const BakingSection = memo(() => {
 
   const getBakingHistory = useCallback(
     async (_k: string, accountPkh: string) => {
-      if (!isKnownChainId(chainId!)) {
+      if (!isKnownChainId(chainId!) || !TZKT_API_BASE_URLS.has(chainId)) {
         return [];
       }
       return (
