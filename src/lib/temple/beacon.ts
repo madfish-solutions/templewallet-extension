@@ -12,10 +12,11 @@ export interface AppMetadata {
 
 export type NetworkType =
   | "mainnet"
+  | "granadanet"
+  | "florencenet"
+  | "edonet"
   | "carthagenet"
   | "delphinet"
-  | "edonet"
-  | "florencenet"
   | "custom";
 
 export interface Network {
