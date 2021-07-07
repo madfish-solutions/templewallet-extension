@@ -94,7 +94,7 @@ const ContactsDropdown = memo<ContactsDropdownProps>(
               key={contact.address}
               contact={contact}
               active={contact.address === activeItem?.address}
-              onClick={() => onSelect(contact.address)}
+              onMouseDown={() => onSelect(contact.address)}
             />
           ))
         ) : (
