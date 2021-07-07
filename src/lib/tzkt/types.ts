@@ -1,7 +1,7 @@
 // Actually, there is a bunch of other types but only these will be used for now
 export type TzktOperationType = "delegation" | "transaction" | "reveal";
 
-export type TzktNetwork = "mainnet" | "edo2net" | "florencenet" | "delphinet";
+export type TzktNetwork = "mainnet" | "florencenet" | "edo2net" | "delphinet";
 
 export type TzktQuoteCurrency =
   | "None"
