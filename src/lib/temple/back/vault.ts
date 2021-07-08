@@ -9,15 +9,16 @@ import {
   RpcForger,
   Signer,
   TezosOperationError,
+  BatchOperation,
 } from "@taquito/taquito";
 import * as TaquitoUtils from "@taquito/utils";
 import { LedgerTempleBridgeTransport } from "@temple-wallet/ledger-bridge";
 import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
+import memoize from "mem";
 import { browser } from "webextension-polyfill-ts";
 
 import { getMessage } from "lib/i18n";
-import { FastRpcClient } from "lib/taquito-fast-rpc";
 import { mergeAssets } from "lib/temple/assets";
 import { PublicError } from "lib/temple/back/defaults";
 import { TempleLedgerSigner } from "lib/temple/back/ledger-signer";
@@ -483,15 +484,15 @@ export class Vault {
     );
   }
 
-  async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
+  async sendOperations(
+    accPublicKeyHash: string,
+    rpc: string,
+    opParams: any[]
+  ): Promise<BatchOperation> {
     return this.withSigner(accPublicKeyHash, async (signer) => {
+      const tezos = loadTezosToolkit(rpc);
       const batch = await withError("Failed to send operations", async () => {
-        const tezos = new TezosToolkit(loadFastRpcClient(rpc));
         tezos.setSignerProvider(signer);
-        tezos.setForgerProvider(
-          new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
-        );
-        tezos.setPackerProvider(michelEncoder);
         return tezos.contract.batch(opParams.map(formatOpParamsBeforeSend));
       });
 
@@ -501,6 +502,17 @@ export class Vault {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
+
+        try {
+          if (
+            err.body.includes("contract.counter_in_the_past") ||
+            /Counter.*not yet reached for contract/.test(err.body)
+          ) {
+            memoize.clear(loadTezosToolkit);
+            console.info("RESET");
+            return this.sendOperations(accPublicKeyHash, rpc, opParams);
+          }
+        } catch {}
 
         switch (true) {
           case err instanceof PublicError:
@@ -513,6 +525,8 @@ export class Vault {
           default:
             throw new Error(`Failed to send operations. ${err.message}`);
         }
+      } finally {
+        tezos.setSignerProvider(null as any);
       }
     });
   }
@@ -680,6 +694,18 @@ const MIGRATIONS = [
 /**
  * Misc
  */
+
+const loadTezosToolkit = memoize(createTezosToolkit);
+
+function createTezosToolkit(rpc: string) {
+  const tezos = new TezosToolkit(loadFastRpcClient(rpc));
+  tezos.setForgerProvider(
+    new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
+  );
+  tezos.setPackerProvider(michelEncoder);
+  tezos.setSignerProvider(undefined);
+  return tezos;
+}
 
 function removeMFromDerivationPath(dPath: string) {
   return dPath.startsWith("m/") ? dPath.substring(2) : dPath;
