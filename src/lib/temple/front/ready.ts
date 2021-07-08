@@ -6,12 +6,12 @@ import {
   useRef,
 } from "react";
 
+import { RpcClient } from "@taquito/rpc";
 import { TezosToolkit } from "@taquito/taquito";
 import { Tzip16Module } from "@taquito/tzip16";
 import constate from "constate";
 
 import { useRetryableSWR } from "lib/swr";
-import { FastRpcClient } from "lib/taquito-fast-rpc";
 import {
   ReadyTempleState,
   TempleAccountType,
@@ -23,6 +23,7 @@ import {
   useTempleClient,
   loadChainId,
   michelEncoder,
+  loadFastRpcClient,
 } from "lib/temple/front";
 
 export enum ActivationStatus {
@@ -130,7 +131,7 @@ function useReadyTemple() {
         : account.publicKeyHash;
 
     const t = new ReactiveTezosToolkit(
-      new FastRpcClient(rpc),
+      loadFastRpcClient(rpc),
       checksum,
       network.lambdaContract
     );
@@ -149,10 +150,10 @@ function useReadyTemple() {
   /**
    * Tezos domains
    */
-  const tezosDomainsClient = useMemo(() => getClient(networkId, tezos), [
-    networkId,
-    tezos,
-  ]);
+  const tezosDomainsClient = useMemo(
+    () => getClient(networkId, tezos),
+    [networkId, tezos]
+  );
 
   return {
     allNetworks,
@@ -249,7 +250,7 @@ function useRefs() {
 
 export class ReactiveTezosToolkit extends TezosToolkit {
   constructor(
-    rpc: string | FastRpcClient,
+    rpc: string | RpcClient,
     public checksum: string,
     public lambdaContract?: string
   ) {
