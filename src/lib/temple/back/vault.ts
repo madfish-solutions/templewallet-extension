@@ -32,6 +32,7 @@ import {
   loadChainId,
   formatOpParamsBeforeSend,
   michelEncoder,
+  loadFastRpcClient,
 } from "lib/temple/helpers";
 import { NETWORKS } from "lib/temple/networks";
 import * as Passworder from "lib/temple/passworder";
@@ -485,7 +486,7 @@ export class Vault {
   async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
     return this.withSigner(accPublicKeyHash, async (signer) => {
       const batch = await withError("Failed to send operations", async () => {
-        const tezos = new TezosToolkit(new FastRpcClient(rpc));
+        const tezos = new TezosToolkit(loadFastRpcClient(rpc));
         tezos.setSignerProvider(signer);
         tezos.setForgerProvider(
           new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
