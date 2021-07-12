@@ -1,6 +1,5 @@
 import { Runtime } from "webextension-polyfill-ts";
 
-import { createQueue } from "lib/queue";
 import * as Actions from "lib/temple/back/actions";
 import { intercom } from "lib/temple/back/defaults";
 import { store, toFront } from "lib/temple/back/store";
@@ -11,7 +10,6 @@ import {
 } from "lib/temple/types";
 
 const frontStore = store.map(toFront);
-const enqueueDApp = createQueue();
 
 export async function start() {
   intercom.onRequest(processRequest);
@@ -194,33 +192,24 @@ async function processRequest(
           };
         }
 
-        return enqueueDApp(async () => {
-          if (!intercom.isConnected(port)) {
-            throw new Error("Disconnected");
-          }
-
-          if (!req.beacon) {
-            const resPayload = await Actions.processDApp(
-              req.origin,
-              req.payload
-            );
-            return {
-              type: TempleMessageType.PageResponse,
-              payload: resPayload ?? null,
-            };
-          } else {
-            const res = await Actions.processBeacon(
-              req.origin,
-              req.payload,
-              req.encrypted
-            );
-            return {
-              type: TempleMessageType.PageResponse,
-              payload: res?.payload ?? null,
-              encrypted: res?.encrypted,
-            };
-          }
-        });
+        if (!req.beacon) {
+          const resPayload = await Actions.processDApp(req.origin, req.payload);
+          return {
+            type: TempleMessageType.PageResponse,
+            payload: resPayload ?? null,
+          };
+        } else {
+          const res = await Actions.processBeacon(
+            req.origin,
+            req.payload,
+            req.encrypted
+          );
+          return {
+            type: TempleMessageType.PageResponse,
+            payload: res?.payload ?? null,
+            encrypted: res?.encrypted,
+          };
+        }
       }
       break;
   }
