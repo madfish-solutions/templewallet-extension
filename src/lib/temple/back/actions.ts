@@ -8,6 +8,7 @@ import {
 } from "@temple-wallet/dapp/dist/types";
 import { browser, Runtime } from "webextension-polyfill-ts";
 
+import { createQueue } from "lib/queue";
 import { addLocalOperation } from "lib/temple/activity";
 import {
   getCurrentPermission,
@@ -45,6 +46,8 @@ import {
 const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
+
+const enqueueDApp = createQueue();
 
 export async function init() {
   const vaultExist = await Vault.isExist();
@@ -451,13 +454,15 @@ export async function processDApp(
       return withInited(() => getCurrentPermission(origin));
 
     case TempleDAppMessageType.PermissionRequest:
-      return withInited(() => requestPermission(origin, req));
+      return withInited(() =>
+        enqueueDApp(() => requestPermission(origin, req))
+      );
 
     case TempleDAppMessageType.OperationRequest:
-      return withInited(() => requestOperation(origin, req));
+      return withInited(() => enqueueDApp(() => requestOperation(origin, req)));
 
     case TempleDAppMessageType.SignRequest:
-      return withInited(() => requestSign(origin, req));
+      return withInited(() => enqueueDApp(() => requestSign(origin, req)));
 
     case TempleDAppMessageType.BroadcastRequest:
       return withInited(() => requestBroadcast(origin, req));
