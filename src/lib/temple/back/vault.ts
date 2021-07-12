@@ -503,16 +503,16 @@ export class Vault {
           console.error(err);
         }
 
-        try {
-          if (
-            err.body.includes("contract.counter_in_the_past") ||
-            /Counter.*not yet reached for contract/.test(err.body)
-          ) {
-            memoize.clear(loadTezosToolkit);
-            console.info("RESET");
-            return this.sendOperations(accPublicKeyHash, rpc, opParams);
-          }
-        } catch {}
+        // try {
+        //   if (
+        //     err.body.includes("contract.counter_in_the_past") ||
+        //     /Counter.*not yet reached for contract/.test(err.body)
+        //   ) {
+        //     memoize.clear(loadTezosToolkit);
+        //     console.info("RESET");
+        //     return this.sendOperations(accPublicKeyHash, rpc, opParams);
+        //   }
+        // } catch {}
 
         switch (true) {
           case err instanceof PublicError:
