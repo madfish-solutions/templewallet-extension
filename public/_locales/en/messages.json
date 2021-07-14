@@ -2042,5 +2042,22 @@
   },
   "addThisAddressToContacts": {
     "message": "Add this address to contacts?"
+  },
+  "verifySeedPhrase": {
+    "message": "Verify Seed Phrase"
+  },
+  "verifySeedPhraseDescription": {
+    "message": "Fill in the blank fields with the words to verify your Seed Phrase backup"
+  },
+  "word": {
+    "message": "Word $number$",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "finish": {
+    "message": "Finish"
   }
 }
