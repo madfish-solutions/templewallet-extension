@@ -1,13 +1,42 @@
 import { localForger } from "@taquito/local-forging";
-import { TezosToolkit } from "@taquito/taquito";
+import { TezosToolkit, OperationBatch, BatchOperation } from "@taquito/taquito";
 import { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
 
+import { createQueue } from "lib/queue";
+import {
+  getCounter,
+  setCounter,
+  getReleasedCounter,
+  setReleasedCounter,
+  applyTezosCounters,
+} from "lib/temple/counters";
 import {
   formatOpParamsBeforeSend,
   michelEncoder,
   loadFastRpcClient,
 } from "lib/temple/helpers";
 import { ReadOnlySigner } from "lib/temple/read-only-signer";
+
+const enqueueSend = createQueue();
+
+export async function sendBatch(
+  batch: OperationBatch
+): Promise<BatchOperation> {
+  return enqueueSend(async () => {
+    const pkh = await batch.signer.publicKeyHash();
+
+    try {
+      const op = await batch.send();
+      // Mark counter as released
+      setReleasedCounter(pkh, getCounter(pkh));
+      return op;
+    } catch (err) {
+      // Rollback if fails
+      setCounter(pkh, getReleasedCounter(pkh));
+      throw err;
+    }
+  });
+}
 
 export type DryRunParams = {
   opParams: any[];
@@ -24,6 +53,7 @@ export async function dryRunOpParams({
 }: DryRunParams) {
   try {
     const tezos = new TezosToolkit(loadFastRpcClient(networkRpc));
+    applyTezosCounters(tezos);
 
     let bytesToSign: string | undefined;
     const signer = new ReadOnlySigner(sourcePkh, sourcePublicKey, (digest) => {
@@ -37,10 +67,7 @@ export async function dryRunOpParams({
     try {
       const formated = opParams.map(formatOpParamsBeforeSend);
       const result = await Promise.all([
-        tezos.contract
-          .batch(formated)
-          .send()
-          .catch(() => undefined),
+        sendBatch(tezos.contract.batch(formated)).catch(() => undefined),
         tezos.estimate.batch(formated).catch(() => undefined),
       ]);
       estimates = result[1]?.map(

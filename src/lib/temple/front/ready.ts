@@ -12,6 +12,7 @@ import { Tzip16Module } from "@taquito/tzip16";
 import constate from "constate";
 
 import { useRetryableSWR } from "lib/swr";
+import { applyTezosCounters } from "lib/temple/counters";
 import {
   ReadyTempleState,
   TempleAccountType,
@@ -256,6 +257,7 @@ export class ReactiveTezosToolkit extends TezosToolkit {
   ) {
     super(rpc);
     this.addExtension(new Tzip16Module());
+    applyTezosCounters(this);
   }
 }
 

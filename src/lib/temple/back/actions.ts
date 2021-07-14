@@ -20,7 +20,7 @@ import {
   removeDApp,
 } from "lib/temple/back/dapp";
 import { intercom } from "lib/temple/back/defaults";
-import { buildFinalOpParmas, dryRunOpParams } from "lib/temple/back/dryrun";
+import { buildFinalOpParmas, dryRunOpParams } from "lib/temple/back/push";
 import {
   toFront,
   store,

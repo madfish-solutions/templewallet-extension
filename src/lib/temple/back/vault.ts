@@ -20,12 +20,14 @@ import { getMessage } from "lib/i18n";
 import { mergeAssets } from "lib/temple/assets";
 import { PublicError } from "lib/temple/back/defaults";
 import { TempleLedgerSigner } from "lib/temple/back/ledger-signer";
+import { sendBatch } from "lib/temple/back/push";
 import {
   isStored,
   fetchAndDecryptOne,
   encryptAndSaveMany,
   removeMany,
 } from "lib/temple/back/safe-storage";
+import { applyTezosCounters } from "lib/temple/counters";
 import {
   transformHttpResponseError,
   loadChainId,
@@ -486,6 +488,7 @@ export class Vault {
     return this.withSigner(accPublicKeyHash, async (signer) => {
       const batch = await withError("Failed to send operations", async () => {
         const tezos = new TezosToolkit(loadFastRpcClient(rpc));
+        applyTezosCounters(tezos);
         tezos.setSignerProvider(signer);
         tezos.setForgerProvider(
           new CompositeForger([tezos.getFactory(RpcForger)(), localForger])
@@ -495,7 +498,7 @@ export class Vault {
       });
 
       try {
-        return await batch.send();
+        return await sendBatch(batch);
       } catch (err) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);

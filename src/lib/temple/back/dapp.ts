@@ -23,7 +23,7 @@ import { browser, Runtime } from "webextension-polyfill-ts";
 
 import { addLocalOperation } from "lib/temple/activity";
 import { intercom } from "lib/temple/back/defaults";
-import { buildFinalOpParmas, dryRunOpParams } from "lib/temple/back/dryrun";
+import { buildFinalOpParmas, dryRunOpParams } from "lib/temple/back/push";
 import { withUnlocked } from "lib/temple/back/store";
 import * as Beacon from "lib/temple/beacon";
 import { loadChainId, isAddressValid } from "lib/temple/helpers";
