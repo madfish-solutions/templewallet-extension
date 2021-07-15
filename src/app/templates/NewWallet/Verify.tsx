@@ -40,13 +40,13 @@ const Verify: FC<VerifyProps> = ({ data }) => {
 
   const handleFill = useCallback(
     (index: number, filled: boolean) => {
-      setFilledIndexes((fi) =>
-        filled
-          ? fi.includes(index)
-            ? fi
-            : [...fi, index]
-          : fi.filter((i) => i !== index)
-      );
+      setFilledIndexes((fi) => {
+        if (filled) {
+          return fi.includes(index) ? fi : [...fi, index];
+        } else {
+          return fi.filter((i) => i !== index);
+        }
+      });
     },
     [setFilledIndexes]
   );
@@ -168,11 +168,16 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
 });
 
 function getTwoNearIndexes(index: number, limit: number) {
-  return index === 0
-    ? [1, 2]
-    : index === limit - 1
-    ? [limit - 2, limit - 3]
-    : [index - 1, index + 1];
+  switch (true) {
+    case index === 0:
+      return [1, 2];
+
+    case index === limit - 1:
+      return [limit - 2, limit - 3];
+
+    default:
+      return [index - 1, index + 1];
+  }
 }
 
 function getRandomInt(min: number, max: number) {

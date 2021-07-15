@@ -69,11 +69,9 @@ const Backup: FC<BackupProps> = ({ data, onBackupComplete }) => {
           containerClassName="mb-6"
         />
 
-        <T id="continue">
-          {(message) => (
-            <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
-          )}
-        </T>
+        <FormSubmitButton loading={submitting}>
+          <T id="continue" />
+        </FormSubmitButton>
       </form>
     </div>
   );
