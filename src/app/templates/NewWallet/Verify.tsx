@@ -156,7 +156,7 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
                     onChange: handleChange,
                   }
                 : {
-                    readOnly: true,
+                    disabled: true,
                     defaultValue: allWords[i],
                   })}
             />
