@@ -30,6 +30,13 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         },
       ],
       [
+        TempleChainId.Granadanet,
+        {
+          account: "https://granadanet.tzkt.io",
+          transaction: "https://granadanet.tzkt.io",
+        },
+      ],
+      [
         TempleChainId.Florencenet,
         {
           account: "https://florencenet.tzkt.io",
