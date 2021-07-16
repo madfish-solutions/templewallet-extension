@@ -54,6 +54,26 @@ export const NETWORKS: TempleNetwork[] = [
   },
   // Hidden
   {
+    id: "giganode-mainnet",
+    name: "Tezos Mainnet @giganode",
+    description: "Highly available Tezos Mainnet nodes operated by Giganode",
+    type: "main",
+    rpcBaseURL: "https://mainnet-tezos.giganode.io",
+    color: "#83b300",
+    disabled: false,
+    hidden: true,
+  },
+  {
+    id: "giganode-testnet",
+    name: "Florence Testnet @giganode",
+    description: "Highly available Tezos Mainnet nodes operated by Giganode",
+    type: "test",
+    rpcBaseURL: "https://testnet-tezos.giganode.io",
+    color: "#83b300",
+    disabled: false,
+    hidden: true,
+  },
+  {
     id: "tzbeta-mainnet",
     name: "Tezos Mainnet @rpc.tzbeta.net",
     description: "Highly available Tezos Mainnet nodes operated by Blockscale",
@@ -65,7 +85,7 @@ export const NETWORKS: TempleNetwork[] = [
   },
   {
     id: "tzbeta-testnet",
-    name: "Delphi Testnet @rpctest.tzbeta.net",
+    name: "Florence Testnet @rpctest.tzbeta.net",
     description: "Highly available Delphi Testnet nodes operated by Blockscale",
     type: "test",
     rpcBaseURL: "https://rpctest.tzbeta.net",
