@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 import { cache, mutate } from "swr";
 
@@ -16,14 +16,106 @@ import {
   MAINNET_TOKENS,
   DELPHINET_TOKENS,
 } from "lib/temple/front";
+import { createQueue } from "lib/queue";
 
 import { omitAssets } from "../assets";
-import { useAllNetworks } from "./ready";
+import { useAllNetworks, useTezos } from "./ready";
+import { fetchTokenMetadata, TokenMetadata } from "../contract";
 
 const NETWORK_TOKEN_MAP = new Map([
   [TempleChainId.Mainnet, MAINNET_TOKENS],
   [TempleChainId.Delphinet, DELPHINET_TOKENS],
 ]);
+
+const enqueueSetTokensMetadata = createQueue();
+
+export function useAssetMetadata(assetSlug: string) {
+  const tezos = useTezos();
+
+  const [tokensMetadata, setTokensMetadata] = useStorage<
+    Record<string, TokenMetadata>
+  >("tokens_metadata", {});
+
+  useEffect(() => {
+    if (!isTezAsset(assetSlug) && !(assetSlug in tokensMetadata)) {
+      const [contractAddress, tokenIdStr] = assetSlug.split("_");
+
+      fetchTokenMetadata(
+        tezos,
+        contractAddress,
+        tokenIdStr ? +tokenIdStr : undefined
+      )
+        .then((tokenMetadata) =>
+          enqueueSetTokensMetadata(() =>
+            setTokensMetadata((allMetadata) => ({
+              ...allMetadata,
+              [assetSlug]: tokenMetadata,
+            }))
+          )
+        )
+        .catch((err) => {
+          if (process.env.NODE_ENV === "development") {
+            console.error(err);
+          }
+        });
+    }
+  }, [tezos, assetSlug, tokensMetadata, setTokensMetadata]);
+
+  const [metadata, setMetadata] = useStorage(`metadata_${assetSlug}`, null);
+  return isTezAsset(assetSlug) ? [TEZOS_METADATA] : [metadata, setMetadata];
+}
+
+// Helpers
+
+export function toAssetSlug(asset: Asset) {
+  return isTezAsset(asset) ? asset : toTokenSlug(asset.contract, asset.id);
+}
+
+export function toTokenSlug(contract: string, id = 0) {
+  return `${contract}_${id}`;
+}
+
+export function isFA2Token(token: Token): token is FA2Token {
+  return typeof token.id !== "undefined";
+}
+
+export function isTezAsset(asset: Asset | string): asset is "tez" {
+  return asset === "tez";
+}
+
+export function isTokenAsset(asset: Asset): asset is Token {
+  return asset !== "tez";
+}
+
+// Defaults
+
+export const TEZOS_METADATA: AssetMetadata = {
+  decimals: 6,
+  symbol: "XTZ",
+  name: "Tezos",
+  thumbnailUri: "https://cryptologos.cc/logos/tezos-xtz-logo.png",
+};
+
+// Types
+
+export interface AssetMetadata {
+  decimals: number;
+  symbol: string;
+  name: string;
+  shortName?: string;
+  thumbnailUri?: string;
+}
+
+export interface Token {
+  contract: string;
+  id?: number;
+}
+
+export interface FA2Token extends Token {
+  id: number;
+}
+
+export type Asset = Token | "tez";
 
 export function useTokens(networkRpc?: string) {
   const allNetworks = useAllNetworks();
