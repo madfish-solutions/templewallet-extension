@@ -1,14 +1,7 @@
 import React from "react";
 
-import tezImgUrl from "app/misc/tez.png";
 import { T, t } from "lib/i18n/react";
-import { sanitizeImgUri } from "lib/image-uri";
-import {
-  TempleAccount,
-  TempleAsset,
-  TempleAssetType,
-  TempleAccountType,
-} from "lib/temple/types";
+import { TempleAccount, TempleAccountType } from "lib/temple/types";
 
 export const ACTIVITY_PAGE_SIZE = 50;
 export const OP_STACK_PREVIEW_SIZE = 2;
@@ -50,11 +43,6 @@ export const MNEMONIC_ERROR_CAPTION = (
 
 export function formatMnemonic(m: string) {
   return m.replace(/\n/g, " ").trim();
-}
-
-export function getAssetIconUrl(asset: TempleAsset) {
-  const url = asset.type === TempleAssetType.TEZ ? tezImgUrl : asset.iconUrl;
-  return url && sanitizeImgUri(url);
 }
 
 export function getAccountBadgeTitle(account: Pick<TempleAccount, "type">) {

@@ -12,9 +12,8 @@ import {
   confirmOperation,
 } from "lib/temple/front";
 
-export const [NewBlockTriggersProvider, useBlockTriggers] = constate(
-  useNewBlockTriggers
-);
+export const [NewBlockTriggersProvider, useBlockTriggers] =
+  constate(useNewBlockTriggers);
 
 function useNewBlockTriggers() {
   const tezos = useTezos();
@@ -24,7 +23,10 @@ function useNewBlockTriggers() {
   const triggerNewBlock = useCallback(() => {
     for (const acc of allAccounts) {
       for (const asset of allAssetsRef.current) {
-        trigger(getBalanceSWRKey(tezos, asset, acc.publicKeyHash), true);
+        trigger(
+          getBalanceSWRKey(tezos, asset && "tez", acc.publicKeyHash),
+          true
+        );
       }
       trigger(["delegate", tezos.checksum, acc.publicKeyHash], true);
     }

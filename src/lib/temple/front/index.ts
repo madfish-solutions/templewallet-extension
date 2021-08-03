@@ -1,6 +1,7 @@
 export * from "lib/temple/types";
 export * from "lib/temple/helpers";
 export * from "lib/temple/assets";
+export * from "lib/temple/metadata";
 export * from "lib/temple/contract";
 export * from "lib/temple/operation";
 export * from "lib/temple/activity";

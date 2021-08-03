@@ -4,19 +4,19 @@ import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import CSSTransition from "react-transition-group/CSSTransition";
 
-import { TempleAsset, TEZ_ASSET, useBalance } from "lib/temple/front";
+import { useBalance } from "lib/temple/front";
 
 type BalanceProps = {
   address: string;
   children: (b: BigNumber) => ReactElement;
-  asset?: TempleAsset;
+  assetSlug?: string;
   networkRpc?: string;
   displayed?: boolean;
 };
 
 const Balance = memo<BalanceProps>(
-  ({ address, children, asset = TEZ_ASSET, networkRpc, displayed }) => {
-    const { data: balance } = useBalance(asset, address, {
+  ({ address, children, assetSlug = "tez", networkRpc, displayed }) => {
+    const { data: balance } = useBalance(assetSlug, address, {
       networkRpc,
       suspense: false,
       displayed,

@@ -4,7 +4,7 @@ import axios from "axios";
 import constate from "constate";
 
 import { useRetryableSWR } from "lib/swr";
-import { TempleAsset, TempleAssetType } from "lib/temple/front";
+import { isTezAsset, toTokenSlug } from "lib/temple/front";
 import { getTokensExchangeRates } from "lib/templewallet-api";
 
 const TEZOS_USD_PRICE_ENDPOINT =
@@ -20,23 +20,21 @@ export const [USDPriceProvider, useUSDPrices] = constate(() => {
   };
 });
 
-export function useAssetUSDPrice(asset: TempleAsset) {
+export function useAssetUSDPrice(slug: string) {
   const { tezPrice, tokensUsdPrices } = useUSDPrices();
 
   return useMemo(() => {
-    if (asset.type === TempleAssetType.TEZ) {
+    if (isTezAsset(slug)) {
       return tezPrice;
     }
     if (!tokensUsdPrices) {
       return null;
     }
     const rawValue = tokensUsdPrices.find(
-      ({ tokenAddress, tokenId }) =>
-        tokenAddress === asset.address &&
-        (asset.type !== TempleAssetType.FA2 || tokenId === asset.id)
+      ({ tokenAddress, tokenId }) => toTokenSlug(tokenAddress, tokenId) === slug
     )?.exchangeRate;
     return rawValue ? Number(rawValue) : null;
-  }, [asset, tezPrice, tokensUsdPrices]);
+  }, [slug, tezPrice, tokensUsdPrices]);
 }
 
 function useTokensUSDPrices(suspense?: boolean) {
