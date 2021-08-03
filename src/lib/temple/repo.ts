@@ -23,7 +23,7 @@ db.version(1).stores({
   [Table.SyncTimes]: indexes("[service+chainId+address]"),
 });
 db.version(2).stores({
-  [Table.AccountTokens]: indexes("[chainId+address]"),
+  [Table.AccountTokens]: indexes("[chainId+address+type]"),
 });
 
 export const waitFor = Dexie.waitFor;
@@ -34,10 +34,25 @@ export const accountTokens = db.table<IAccountToken, string>(
 export const operations = db.table<IOperation, string>(Table.Operations);
 export const syncTimes = db.table<ISyncTime, string>(Table.SyncTimes);
 
+export enum IAccountTokenType {
+  Fungible,
+  Collectible,
+}
+
+export enum IAccountTokenStatus {
+  Idle,
+  Enabled,
+  Disabled,
+  Removed,
+}
+
 export interface IAccountToken {
   chainId: string;
   address: string;
   tokenSlug: string;
+  type: IAccountTokenType;
+  status: IAccountTokenStatus;
+  balanceSnapshot?: string;
 }
 
 export interface IOperation {
