@@ -36,7 +36,8 @@ export function useAccountTokensLazy(chainId: string, address: string) {
   );
 }
 
-const enqueueAutoFetchTokenMetadata = createQueue();
+const enqueueAutoFetchMetadata = createQueue();
+const autoFetchMetadataFails = new Set<string>();
 
 export function useAssetMetadata(slug: string) {
   const tezos = useTezos();
@@ -55,14 +56,10 @@ export function useAssetMetadata(slug: string) {
   }, [tezos]);
 
   useEffect(() => {
-    if (!isTezAsset(slug) && !exist) {
-      enqueueAutoFetchTokenMetadata(() => fetchMetadata(slug))
+    if (!isTezAsset(slug) && !exist && !autoFetchMetadataFails.has(slug)) {
+      enqueueAutoFetchMetadata(() => fetchMetadata(slug))
         .then((metadata) => setTokenBaseMetadata(slug, metadata.base))
-        .catch((err) => {
-          if (process.env.NODE_ENV === "development") {
-            console.error(err);
-          }
-        });
+        .catch(() => autoFetchMetadataFails.add(slug));
     }
   }, [slug, exist, fetchMetadata, setTokenBaseMetadata]);
 
@@ -98,7 +95,7 @@ export function useTokensMetadataPure() {
   }, [tezos]);
 
   const fetchMetadata = useCallback(
-    async (slug: string) => fetchTokenMetadata(tezosRef.current, slug),
+    (slug: string) => fetchTokenMetadata(tezosRef.current, slug),
     []
   );
 
