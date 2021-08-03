@@ -61,6 +61,29 @@ export async function syncOperations(
     }),
   ]);
 
+  let tokenTransfers = bcdTokenTransfers.transfers;
+
+  const totalBcdTransfers = bcdTokenTransfers.total;
+  if (totalBcdTransfers > bcdTokenTransfers.transfers.length) {
+    let lastId = bcdTokenTransfers.last_id;
+
+    while (true) {
+      const result = await getTokenTransfers({
+        network: bcdNetwork,
+        address,
+        sort: "desc",
+        last_id: lastId,
+      });
+
+      if (result.transfers.length === 0) break;
+
+      tokenTransfers = [...tokenTransfers, ...result.transfers];
+      if (tokenTransfers.length > 200) break;
+
+      lastId = result.last_id;
+    }
+  }
+
   /**
    * TZKT
    */
@@ -162,8 +185,6 @@ export async function syncOperations(
   /**
    * BCD
    */
-
-  const tokenTransfers = bcdTokenTransfers.transfers;
 
   for (const tokenTrans of tokenTransfers) {
     const current = await Repo.operations.get(tokenTrans.hash);
