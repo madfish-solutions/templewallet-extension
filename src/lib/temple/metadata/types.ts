@@ -1,17 +1,18 @@
 export type AssetMetadata = {
+  // Common
   decimals: number;
   symbol: string;
   name: string;
+
   // [format: uri-reference]
   // A URI to an image of the asset for wallets and client applications
   // to have a scaled down image to present to end-users.
   // Recommend maximum size of 350x350px.
   thumbnailUri?: string;
 
-  // [default: false]
-  // Allows wallets to decide whether or not a symbol should be displayed
-  // in place of a name.
-  shouldPreferSymbol?: boolean;
+  // [format: uri-reference]
+  // A URI to the asset.
+  artifactUri?: string;
 };
 
 export type DetailedAssetMetdata = AssetMetadata &
@@ -66,10 +67,6 @@ export type DetailedAssetMetdata = AssetMetadata &
     rightUri: string;
 
     // [format: uri-reference]
-    // A URI to the asset.
-    artifactUri: string;
-
-    // [format: uri-reference]
     // A URI to an image of the asset.
     // Used for display purposes.
     displayUri: string;
@@ -91,6 +88,11 @@ export type DetailedAssetMetdata = AssetMetadata &
     // The purpose of this field is for wallets to determine whether or not
     // to display balance information and an amount field when transferring.
     isBooleanAmount: boolean;
+
+    // [default: false]
+    // Allows wallets to decide whether or not a symbol should be displayed
+    // in place of a name.
+    shouldPreferSymbol?: boolean;
 
     // The object is an array with all elements.
     formats: AssetMetadataFormat[];
