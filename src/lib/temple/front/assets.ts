@@ -36,12 +36,16 @@ export function useAccountTokensLazy(chainId: string, address: string) {
   );
 }
 
+const enqueueAutoFetchTokenMetadata = createQueue();
+
 export function useAssetMetadata(slug: string) {
   const tezos = useTezos();
 
-  const [tokenMetadata, setTokenMetadata] = useTokenMetadata(slug);
+  const { tokensBaseMetadata, fetchMetadata, setTokenBaseMetadata } =
+    useTokensMetadata();
 
   const tezAsset = isTezAsset(slug);
+  const tokenMetadata = tokensBaseMetadata[slug];
   const exist = Boolean(tokenMetadata);
 
   // Load token metadata if missing
@@ -52,15 +56,15 @@ export function useAssetMetadata(slug: string) {
 
   useEffect(() => {
     if (!isTezAsset(slug) && !exist) {
-      fetchTokenMetadata(tezosRef.current, slug)
-        .then((metadata) => setTokenMetadata(metadata.base))
+      enqueueAutoFetchTokenMetadata(() => fetchMetadata(slug))
+        .then((metadata) => setTokenBaseMetadata(slug, metadata.base))
         .catch((err) => {
           if (process.env.NODE_ENV === "development") {
             console.error(err);
           }
         });
     }
-  }, [slug, exist, setTokenMetadata]);
+  }, [slug, exist, fetchMetadata, setTokenBaseMetadata]);
 
   // Tezos
   if (tezAsset) {
@@ -75,40 +79,41 @@ export function useAssetMetadata(slug: string) {
   return tokenMetadata;
 }
 
-const enqueueSetTokenMetadata = createQueue();
+export const [TokensMetadataProvider, useTokensMetadata] = constate(
+  useTokensMetadataPure
+);
 
-export function useTokenMetadata(
-  slug: string
-): [AssetMetadata | null, (metadata: AssetMetadata) => Promise<void>] {
-  const [tokensBaseMetadata, setTokensBaseMetadata] = useTokensBaseMetadata();
-  const metadata = tokensBaseMetadata[slug] ?? null;
+const defaultTokensBaseMetadata = {};
+const enqueueSetTokenBaseMetadata = createQueue();
 
-  const setMetadata = useCallback(
-    async (metadata: AssetMetadata) => {
-      enqueueSetTokenMetadata(() =>
+export function useTokensMetadataPure() {
+  const [tokensBaseMetadata, setTokensBaseMetadata] = useStorage<
+    Record<string, AssetMetadata>
+  >("tokens_base_metadata", defaultTokensBaseMetadata);
+
+  const tezos = useTezos();
+  const tezosRef = useRef(tezos);
+  useEffect(() => {
+    tezosRef.current = tezos;
+  }, [tezos]);
+
+  const fetchMetadata = useCallback(
+    async (slug: string) => fetchTokenMetadata(tezosRef.current, slug),
+    []
+  );
+
+  const setTokenBaseMetadata = useCallback(
+    (slug: string, metadata: AssetMetadata) =>
+      enqueueSetTokenBaseMetadata(() =>
         setTokensBaseMetadata((allMetadata) => ({
           ...allMetadata,
           [slug]: metadata,
         }))
-      );
-    },
-    [slug, setTokensBaseMetadata]
+      ),
+    [setTokensBaseMetadata]
   );
 
-  return [metadata, setMetadata];
-}
-
-const defaultTokensBaseMetadata = {};
-
-export const [TokensBaseMetadataProvider, useTokensBaseMetadata] = constate(
-  useTokensBaseMetadataPure
-);
-
-export function useTokensBaseMetadataPure() {
-  return useStorage<Record<string, AssetMetadata>>(
-    "tokens_base_metadata",
-    defaultTokensBaseMetadata
-  );
+  return { fetchMetadata, tokensBaseMetadata, setTokenBaseMetadata };
 }
 
 export function useAssets() {

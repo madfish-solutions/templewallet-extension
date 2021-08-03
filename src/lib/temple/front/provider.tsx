@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from "react";
 
 import { CustomRpsContext } from "lib/analytics";
-import { TokensBaseMetadataProvider } from "lib/temple/front/assets";
+import { TokensMetadataProvider } from "lib/temple/front/assets";
 import { NewBlockTriggersProvider } from "lib/temple/front/chain";
 import { TempleClientProvider, useTempleClient } from "lib/temple/front/client";
 import {
@@ -27,7 +27,7 @@ const ConditionalReadyTemple: FC = ({ children }) => {
       ready ? (
         <ReadyTempleProvider>
           <WalletRpcProvider>
-            <TokensBaseMetadataProvider>
+            <TokensMetadataProvider>
               <TempleRefsProvider>
                 <USDPriceProvider>
                   <NewBlockTriggersProvider>
@@ -35,7 +35,7 @@ const ConditionalReadyTemple: FC = ({ children }) => {
                   </NewBlockTriggersProvider>
                 </USDPriceProvider>
               </TempleRefsProvider>
-            </TokensBaseMetadataProvider>
+            </TokensMetadataProvider>
           </WalletRpcProvider>
         </ReadyTempleProvider>
       ) : (
