@@ -21,20 +21,34 @@ import InUSD from "app/templates/InUSD";
 import SearchAssetField from "app/templates/SearchAssetField";
 import { T } from "lib/i18n/react";
 import {
-  useAssets,
-  getAssetKey,
-  searchAssets,
+  // searchAssets,
   useAccount,
   useBalanceSWRKey,
-  TempleAsset,
+  useChainId,
+  useAccountTokensLazy,
+  // useTokensBaseMetadata,
+  useAssetMetadata,
+  getAssetSymbol,
+  getAssetName,
 } from "lib/temple/front";
 import { Link, navigate } from "lib/woozie";
 
 import { AssetsSelectors } from "./Assets.selectors";
 
 const Assets: FC = () => {
+  const chainId = useChainId(true)!;
   const account = useAccount();
-  const { allAssets } = useAssets();
+  const address = account.publicKeyHash;
+
+  const {
+    data: tokens,
+    // isValidating: fetching,
+    // revalidate: refetchTokens,
+  } = useAccountTokensLazy(chainId, address);
+
+  // const [tokensBaseMetadata] = useTokensBaseMetadata();
+
+  const assets = useMemo(() => ["tez", ...(tokens ?? [])], [tokens]);
 
   const [searchValue, setSearchValue] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -42,14 +56,14 @@ const Assets: FC = () => {
 
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
 
-  const filteredAssets = useMemo(() => searchAssets(allAssets, searchValue), [
-    allAssets,
-    searchValue,
-  ]);
+  const filteredAssets = useMemo(
+    () => (searchValue.length === 0 ? assets : []), // searchAssets(assets, searchValue),
+    [assets, searchValue]
+  );
 
-  const activeAssetKey = useMemo(() => {
+  const activeAsset = useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex]
-      ? getAssetKey(filteredAssets[activeIndex])
+      ? filteredAssets[activeIndex]
       : null;
   }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
 
@@ -68,12 +82,12 @@ const Assets: FC = () => {
   }, [setSearchFocused]);
 
   useEffect(() => {
-    if (!activeAssetKey) return;
+    if (!activeAsset) return;
 
     const handleKeyup = (evt: KeyboardEvent) => {
       switch (evt.key) {
         case "Enter":
-          navigate(toExploreAssetLink(activeAssetKey));
+          navigate(toExploreAssetLink(activeAsset));
           break;
 
         case "ArrowDown":
@@ -88,7 +102,7 @@ const Assets: FC = () => {
 
     window.addEventListener("keyup", handleKeyup);
     return () => window.removeEventListener("keyup", handleKeyup);
-  }, [activeAssetKey, setActiveIndex]);
+  }, [activeAsset, setActiveIndex]);
 
   return (
     <div className={classNames("w-full max-w-sm mx-auto")}>
@@ -132,14 +146,12 @@ const Assets: FC = () => {
         >
           {filteredAssets.map((asset, i, arr) => {
             const last = i === arr.length - 1;
-            const key = getAssetKey(asset);
-            const active = activeAssetKey ? key === activeAssetKey : false;
+            const active = activeAsset ? asset === activeAsset : false;
 
             return (
               <ListItem
-                key={key}
-                asset={asset}
-                slug={key}
+                key={asset}
+                assetSlug={asset}
                 last={last}
                 active={active}
                 accountPkh={account.publicKeyHash}
@@ -190,19 +202,21 @@ const Assets: FC = () => {
 export default Assets;
 
 type ListItemProps = {
-  asset: TempleAsset;
-  slug: string;
+  assetSlug: string;
   last: boolean;
   active: boolean;
   accountPkh: string;
 };
 
 const ListItem = memo<ListItemProps>(
-  ({ asset, slug, last, active, accountPkh }) => {
-    const balanceSWRKey = useBalanceSWRKey(asset, accountPkh);
-    const balanceAlreadyLoaded = useMemo(() => cache.has(balanceSWRKey), [
-      balanceSWRKey,
-    ]);
+  ({ assetSlug, last, active, accountPkh }) => {
+    const assetMetadata = useAssetMetadata(assetSlug);
+
+    const balanceSWRKey = useBalanceSWRKey(assetSlug, accountPkh);
+    const balanceAlreadyLoaded = useMemo(
+      () => cache.has(balanceSWRKey),
+      [balanceSWRKey]
+    );
 
     const toDisplayRef = useRef<HTMLDivElement>(null);
     const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
@@ -229,7 +243,7 @@ const ListItem = memo<ListItemProps>(
 
     return (
       <Link
-        to={toExploreAssetLink(slug)}
+        to={toExploreAssetLink(assetSlug)}
         className={classNames(
           "relative",
           "block w-full",
@@ -242,23 +256,31 @@ const ListItem = memo<ListItemProps>(
           "focus:outline-none"
         )}
         testID={AssetsSelectors.AssetItemButton}
-        testIDProperties={{ key: getAssetKey(asset) }}
+        testIDProperties={{ key: assetSlug }}
       >
-        <AssetIcon asset={asset} size={32} className="mr-3 flex-shrink-0" />
+        <AssetIcon
+          assetSlug={assetSlug}
+          size={32}
+          className="mr-3 flex-shrink-0"
+        />
 
         <div ref={toDisplayRef} className="flex items-center">
           <div className="flex flex-col">
-            <Balance address={accountPkh} asset={asset} displayed={displayed}>
+            <Balance
+              address={accountPkh}
+              assetSlug={assetSlug}
+              displayed={displayed}
+            >
               {(balance) => (
                 <div className="flex items-center">
                   <span className="text-base font-normal text-gray-700">
                     <Money>{balance}</Money>{" "}
                     <span className="opacity-90" style={{ fontSize: "0.75em" }}>
-                      {asset.symbol}
+                      {getAssetSymbol(assetMetadata)}
                     </span>
                   </span>
 
-                  <InUSD asset={asset} volume={balance}>
+                  <InUSD assetSlug={assetSlug} volume={balance}>
                     {(usdBalance) => (
                       <div
                         className={classNames(
@@ -275,7 +297,7 @@ const ListItem = memo<ListItemProps>(
             </Balance>
 
             <div className={classNames("text-xs font-light text-gray-600")}>
-              {asset.name}
+              {getAssetName(assetMetadata)}
             </div>
           </div>
         </div>

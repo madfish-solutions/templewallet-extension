@@ -25,26 +25,18 @@ import Activity from "app/templates/activity/Activity";
 import AssetInfo from "app/templates/AssetInfo";
 import { T, t } from "lib/i18n/react";
 import {
-  getAssetKey,
   TempleAccountType,
-  TempleAsset,
-  TempleAssetType,
   useAccount,
-  useAssetBySlug,
-  TEZ_ASSET,
+  useAssetMetadata,
+  getAssetSymbol,
+  isTezAsset,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
-import {
-  Link,
-  Redirect,
-  useLocation,
-  navigate,
-  HistoryAction,
-} from "lib/woozie";
+import { Link, useLocation, navigate, HistoryAction } from "lib/woozie";
 
 import { ExploreSelectors } from "./Explore.selectors";
 import AddressChip from "./Explore/AddressChip";
-import AddUnknownTokens from "./Explore/AddUnknownTokens";
+// import AddUnknownTokens from "./Explore/AddUnknownTokens";
 import Assets from "./Explore/Assets";
 import BakingSection from "./Explore/BakingSection";
 import EditableTitle from "./Explore/EditableTitle";
@@ -64,22 +56,19 @@ const tippyProps = {
 const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
   const account = useAccount();
-  const asset = useAssetBySlug(assetSlug);
   const { search } = useLocation();
+
+  const assetMetadata = useAssetMetadata(assetSlug ?? "tez");
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
-    if (asset && usp.get("after_token_added") === "true") {
+    if (assetSlug && usp.get("after_token_added") === "true") {
       return registerBackHandler(() => {
         navigate("/", HistoryAction.Replace);
       });
     }
     return;
-  }, [registerBackHandler, asset, search]);
-
-  if (assetSlug && !asset) {
-    return <Redirect to="/" />;
-  }
+  }, [registerBackHandler, assetSlug, search]);
 
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
@@ -90,10 +79,12 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         <>
           <ExploreIcon className="w-auto h-4 mr-1 stroke-current" />
           <T id="explore" />
-          {asset && (
+          {assetSlug && (
             <>
               <ChevronRightIcon className="w-auto h-4 mx-px stroke-current opacity-75" />
-              <span className="font-normal">{asset.symbol}</span>
+              <span className="font-normal">
+                {getAssetSymbol(assetMetadata)}
+              </span>
             </>
           )}
         </>
@@ -114,7 +105,10 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
       >
         <AddressChip pkh={accountPkh} className="mb-6" />
 
-        <MainAssetBanner accountPkh={accountPkh} asset={asset ?? TEZ_ASSET} />
+        <MainAssetBanner
+          accountPkh={accountPkh}
+          assetSlug={assetSlug ?? "tez"}
+        />
 
         <div
           className="flex justify-around w-full mx-auto mt-6"
@@ -133,23 +127,23 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
           <ActionButton
             label={<T id="swap" />}
             Icon={SwapIcon}
-            href={asset ? `/swap/${getAssetKey(asset)}` : "/swap"}
+            href={assetSlug ? `/swap/${assetSlug}` : "/swap"}
             disabled={!canSend}
             tippyProps={tippyProps}
           />
           <ActionButton
             label={<T id="send" />}
             Icon={SendIcon}
-            href={asset ? `/send/${getAssetKey(asset)}` : "/send"}
+            href={assetSlug ? `/send/${assetSlug}` : "/send"}
             disabled={!canSend}
             tippyProps={tippyProps}
           />
         </div>
       </div>
 
-      <SecondarySection asset={asset} />
+      <SecondarySection assetSlug={assetSlug} />
 
-      <AddUnknownTokens />
+      {/* <AddUnknownTokens /> */}
     </PageLayout>
   );
 };
@@ -226,18 +220,15 @@ const Delegation: FC = () => (
 );
 
 type ActivityTabProps = {
-  asset?: TempleAsset;
+  assetSlug?: string;
 };
 
-const ActivityTab: FC<ActivityTabProps> = ({ asset }) => {
+const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => {
   const account = useAccount();
 
   return (
     <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
-      <Activity
-        address={account.publicKeyHash}
-        assetId={asset && getAssetKey(asset)}
-      />
+      <Activity address={account.publicKeyHash} assetSlug={assetSlug} />
     </SuspenseContainer>
   );
 };
@@ -252,11 +243,14 @@ function useTabSlug() {
 }
 
 type SecondarySectionProps = {
-  asset: TempleAsset | null;
+  assetSlug?: string | null;
   className?: string;
 };
 
-const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
+const SecondarySection: FC<SecondarySectionProps> = ({
+  assetSlug,
+  className,
+}) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
@@ -268,7 +262,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
       testID: string;
     }[]
   >(() => {
-    if (!asset) {
+    if (!assetSlug) {
       return [
         {
           slug: "assets",
@@ -294,11 +288,11 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
     const activity = {
       slug: "activity",
       title: t("activity"),
-      Component: () => <ActivityTab asset={asset} />,
+      Component: () => <ActivityTab assetSlug={assetSlug} />,
       testID: ExploreSelectors.ActivityTab,
     };
 
-    if (asset.type === TempleAssetType.TEZ) {
+    if (isTezAsset(assetSlug)) {
       return [activity];
     }
 
@@ -307,11 +301,11 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
       {
         slug: "about",
         title: t("about"),
-        Component: () => <AssetInfo asset={asset} />,
+        Component: () => <AssetInfo assetSlug={assetSlug} />,
         testID: ExploreSelectors.AboutTab,
       },
     ];
-  }, [asset]);
+  }, [assetSlug]);
 
   const { slug, Component } = useMemo(() => {
     const tab = tabSlug ? tabs.find((t) => t.slug === tabSlug) : null;
@@ -338,7 +332,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ asset, className }) => {
 
           return (
             <Link
-              key={asset ? `asset_${t.slug}` : t.slug}
+              key={assetSlug ? `asset_${t.slug}` : t.slug}
               to={(lctn) => ({ ...lctn, search: `?tab=${t.slug}` })}
               replace
               className={classNames(

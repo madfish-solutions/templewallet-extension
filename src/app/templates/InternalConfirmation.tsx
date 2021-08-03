@@ -25,15 +25,13 @@ import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
   TempleAccountType,
-  TempleAssetType,
   TempleConfirmationPayload,
   tryParseExpenses,
-  useAssets,
   useNetwork,
   useRelevantAccounts,
-  TEZ_ASSET,
   useCustomChainId,
   TempleChainId,
+  toTokenSlug,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 
@@ -89,7 +87,6 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   const mainnet = chainId === TempleChainId.Mainnet;
 
   const allAccounts = useRelevantAccounts();
-  const { allAssetsWithHidden } = useAssets();
   const account = useMemo(
     () => allAccounts.find((a) => a.publicKeyHash === payload.sourcePkh)!,
     [allAccounts, payload.sourcePkh]
@@ -101,23 +98,12 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
-        asset: tokenAddress
-          ? allAssetsWithHidden.find((asset) => {
-              switch (asset.type) {
-                case TempleAssetType.TEZ:
-                  return false;
-                case TempleAssetType.FA2:
-                  return asset.address === tokenAddress && asset.id === tokenId;
-                default:
-                  return asset.address === tokenAddress;
-              }
-            }) || tokenAddress
-          : TEZ_ASSET,
+        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : "tez",
         ...restProps,
       })),
       ...restProps,
     }));
-  }, [allAssetsWithHidden, rawExpensesData]);
+  }, [rawExpensesData]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === "operations") {

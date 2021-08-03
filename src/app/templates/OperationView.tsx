@@ -11,12 +11,10 @@ import RawPayloadView from "app/templates/RawPayloadView";
 import ViewsSwitcher from "app/templates/ViewsSwitcher";
 import { T, t } from "lib/i18n/react";
 import {
-  TEZ_ASSET,
   tryParseExpenses,
-  TempleAssetType,
-  useTokens,
   TempleDAppOperationsPayload,
   TempleDAppSignPayload,
+  toTokenSlug,
 } from "lib/temple/front";
 
 type OperationViewProps = {
@@ -42,7 +40,6 @@ const OperationView: FC<OperationViewProps> = ({
         return [];
     }
   }, [payload]);
-  const { allTokens } = useTokens(networkRpc);
 
   const rawExpensesData = useMemo(
     () => tryParseExpenses(contentToParse, payload.sourcePkh),
@@ -52,20 +49,14 @@ const OperationView: FC<OperationViewProps> = ({
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restRaw }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
-        asset: tokenAddress
-          ? allTokens.find((token) =>
-              token.type === TempleAssetType.FA2
-                ? token.address === tokenAddress && token.id === tokenId
-                : token.address === tokenAddress
-            ) || tokenAddress
-          : TEZ_ASSET,
+        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : "tez",
         tokenAddress,
         tokenId,
         ...restProps,
       })),
       ...restRaw,
     }));
-  }, [allTokens, rawExpensesData]);
+  }, [rawExpensesData]);
 
   const signPayloadFormats = useMemo(() => {
     const rawFormat = {

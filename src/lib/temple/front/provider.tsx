@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from "react";
 
 import { CustomRpsContext } from "lib/analytics";
-import { useAssets } from "lib/temple/front/assets";
+import { TokensBaseMetadataProvider } from "lib/temple/front/assets";
 import { NewBlockTriggersProvider } from "lib/temple/front/chain";
 import { TempleClientProvider, useTempleClient } from "lib/temple/front/client";
 import {
@@ -27,13 +27,15 @@ const ConditionalReadyTemple: FC = ({ children }) => {
       ready ? (
         <ReadyTempleProvider>
           <WalletRpcProvider>
-            <TempleRefsProvider>
-              <USDPriceProvider>
-                <NewBlockTriggersProvider>
-                  <PreloadAssetsProvider>{children}</PreloadAssetsProvider>
-                </NewBlockTriggersProvider>
-              </USDPriceProvider>
-            </TempleRefsProvider>
+            <TokensBaseMetadataProvider>
+              <TempleRefsProvider>
+                <USDPriceProvider>
+                  <NewBlockTriggersProvider>
+                    {children}
+                  </NewBlockTriggersProvider>
+                </USDPriceProvider>
+              </TempleRefsProvider>
+            </TokensBaseMetadataProvider>
           </WalletRpcProvider>
         </ReadyTempleProvider>
       ) : (
@@ -43,10 +45,10 @@ const ConditionalReadyTemple: FC = ({ children }) => {
   );
 };
 
-const PreloadAssetsProvider: FC = ({ children }) => {
-  useAssets();
-  return <>{children}</>;
-};
+// const PreloadAssetsProvider: FC = ({ children }) => {
+//   useAssets();
+//   return <>{children}</>;
+// };
 
 const WalletRpcProvider: FC = ({ children }) => {
   const network = useNetwork();

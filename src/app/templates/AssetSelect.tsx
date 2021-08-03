@@ -11,32 +11,35 @@ import IconifiedSelect, {
 import InUSD from "app/templates/InUSD";
 import { T } from "lib/i18n/react";
 import {
-  TempleAsset,
-  useAssets,
+  useAccountTokensLazy,
   useAccount,
-  TempleAssetType,
   TempleAccountType,
-  getAssetKey,
-  TEZ_ASSET,
+  useChainId,
+  isTezAsset,
+  useAssetMetadata,
+  getAssetName,
+  getAssetSymbol,
 } from "lib/temple/front";
 
 type AssetSelectProps = {
-  value: TempleAsset;
-  onChange?: (a: TempleAsset) => void;
+  value: string;
+  onChange?: (assetSlug: string) => void;
   className?: string;
 };
 
-const AssetSelect: FC<AssetSelectProps> = ({
-  value,
-  onChange,
-  className,
-}) => {
+const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
+  const chainId = useChainId(true)!;
   const account = useAccount();
-  const { allAssets } = useAssets();
-  const relevantAssets = useMemo(
-    () =>
-      account.type === TempleAccountType.ManagedKT ? [TEZ_ASSET] : allAssets,
-    [account.type, allAssets]
+  const address = account.publicKeyHash;
+
+  const { data: tokens } = useAccountTokensLazy(chainId, address);
+
+  const assetSlugs = useMemo(
+    () => [
+      "tez",
+      ...(account.type !== TempleAccountType.ManagedKT && tokens ? tokens : []),
+    ],
+    [account.type, tokens]
   );
 
   const title = useMemo(
@@ -71,8 +74,8 @@ const AssetSelect: FC<AssetSelectProps> = ({
       OptionSelectedIcon={AssetSelectedIcon}
       OptionInMenuContent={AssetInMenuContent}
       OptionSelectedContent={AssetSelectedContent}
-      getKey={getAssetKey}
-      options={relevantAssets}
+      getKey={(slug) => slug}
+      options={assetSlugs}
       value={value}
       onChange={onChange}
       title={title}
@@ -83,49 +86,50 @@ const AssetSelect: FC<AssetSelectProps> = ({
 
 export default AssetSelect;
 
-type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<TempleAsset>;
+type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<string>;
 
 const AssetIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <GenericAssetIcon asset={option} className="h-8 w-auto mr-3" size={32} />
+  <GenericAssetIcon assetSlug={option} className="h-8 w-auto mr-3" size={32} />
 );
 
-const AssetSelectedIcon: FC<AssetSelectOptionRenderProps> = ({
-  option,
-}) => (
-  <GenericAssetIcon asset={option} className="h-12 w-auto mr-3" size={48} />
+const AssetSelectedIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
+  <GenericAssetIcon assetSlug={option} className="h-12 w-auto mr-3" size={48} />
 );
 
-const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({
-  option,
-}) => {
-  return option.type === TempleAssetType.TEZ ? (
-    <span className="text-gray-700 text-lg">{option.name}</span>
+const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
+  const metadata = useAssetMetadata(option);
+
+  return isTezAsset(option) ? (
+    <span className="text-gray-700 text-lg">{getAssetName(metadata)}</span>
   ) : (
     <div className="flex flex-col items-start">
-      <span className="text-gray-700 text-sm">{option.name}</span>
+      <span className="text-gray-700 text-sm">{getAssetName(metadata)}</span>
 
       <span className={classNames("text-gray-500", "text-xs leading-none")}>
-        {option.symbol}
+        {getAssetSymbol(metadata)}
       </span>
     </div>
   );
 };
 
 const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({
-  option: asset,
+  option: assetSlug,
 }) => {
   const account = useAccount();
+  const metadata = useAssetMetadata(assetSlug);
 
   return (
-    <Balance asset={asset} address={account.publicKeyHash}>
+    <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
       {(balance) => (
         <div className="flex flex-col items-start">
           <span className="text-xl text-gray-700">
             <Money>{balance}</Money>{" "}
-            <span style={{ fontSize: "0.75em" }}>{asset.symbol}</span>
+            <span style={{ fontSize: "0.75em" }}>
+              {getAssetSymbol(metadata)}
+            </span>
           </span>
 
-          <InUSD asset={asset} volume={balance}>
+          <InUSD assetSlug={assetSlug} volume={balance}>
             {(usdBalance) => (
               <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>
             )}

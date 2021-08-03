@@ -5,6 +5,7 @@ import { BcdTokenTransfer } from "lib/better-call-dev";
 import { TzktOperation } from "lib/tzkt";
 
 export enum Table {
+  AccountTokens = "accountTokens",
   Operations = "operations",
   SyncTimes = "syncTimes",
 }
@@ -21,11 +22,23 @@ db.version(1).stores({
   ),
   [Table.SyncTimes]: indexes("[service+chainId+address]"),
 });
+db.version(2).stores({
+  [Table.AccountTokens]: indexes("[chainId+address]"),
+});
 
 export const waitFor = Dexie.waitFor;
 
+export const accountTokens = db.table<IAccountToken, string>(
+  Table.AccountTokens
+);
 export const operations = db.table<IOperation, string>(Table.Operations);
 export const syncTimes = db.table<ISyncTime, string>(Table.SyncTimes);
+
+export interface IAccountToken {
+  chainId: string;
+  address: string;
+  tokenSlug: string;
+}
 
 export interface IOperation {
   hash: string;

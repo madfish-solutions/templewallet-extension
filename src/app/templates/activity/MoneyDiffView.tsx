@@ -6,13 +6,7 @@ import classNames from "clsx";
 import Money from "app/atoms/Money";
 import { useAppEnv } from "app/env";
 import InUSD from "app/templates/InUSD";
-import {
-  useAssets,
-  TEZ_ASSET,
-  getAssetKey,
-  TempleAsset,
-  TempleAssetType,
-} from "lib/temple/front";
+import { useAssetMetadata, getAssetSymbol } from "lib/temple/front";
 
 type MoneyDiffViewProps = {
   assetId: string;
@@ -22,19 +16,13 @@ type MoneyDiffViewProps = {
 };
 
 const MoneyDiffView = memo<MoneyDiffViewProps>(
-  ({ assetId, diff, pending = false, className }) => {
+  ({ assetId: assetSlug, diff, pending = false, className }) => {
     const { popup } = useAppEnv();
-    const { allAssetsWithHidden } = useAssets();
-    const asset = useMemo(
-      () =>
-        assetId === "tez"
-          ? TEZ_ASSET
-          : allAssetsWithHidden.find((a) => getAssetKey(a) === assetId),
-      [assetId, allAssetsWithHidden]
-    );
+    const metadata = useAssetMetadata(assetSlug);
+
     const diffBN = useMemo(
-      () => new BigNumber(diff).div(asset ? 10 ** asset.decimals : 1),
-      [diff, asset]
+      () => new BigNumber(diff).div(metadata ? 10 ** metadata.decimals : 1),
+      [diff, metadata]
     );
 
     return (
@@ -55,11 +43,11 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(
           )}
         >
           {diffBN.gt(0) ? "+" : ""}
-          <Money>{diffBN}</Money> {getAssetSymbol(asset)}
+          <Money>{diffBN}</Money> {getAssetSymbol(metadata, true)}
         </div>
 
-        {asset && (
-          <InUSD volume={diffBN.abs()} asset={asset}>
+        {assetSlug && (
+          <InUSD volume={diffBN.abs()} assetSlug={assetSlug}>
             {(usdVolume) => (
               <div className="text-xs text-gray-500 ml-1">
                 <span className="mr-px">$</span>
@@ -74,12 +62,3 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(
 );
 
 export default MoneyDiffView;
-
-function getAssetSymbol(asset?: TempleAsset) {
-  if (!asset) return "???";
-  return asset.type === TempleAssetType.TEZ
-    ? "ꜩ"
-    : asset.symbol !== "???"
-    ? asset.symbol
-    : asset.name.substr(0, 5);
-}

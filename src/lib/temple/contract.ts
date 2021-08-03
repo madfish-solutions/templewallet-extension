@@ -20,7 +20,7 @@ export const loadContract = memoize(fetchContract, {
   maxSize: 100,
 });
 
-export async function fetchTokenMetadata(
+export async function fetchTokenMetadataLegacy(
   tezos: TezosToolkit,
   contractAddress: string,
   tokenId?: number

@@ -5,15 +5,33 @@ import classNames from "clsx";
 import FormField from "app/atoms/FormField";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import { T } from "lib/i18n/react";
-import { TempleAsset, TempleAssetType } from "lib/temple/front";
+import { useRetryableSWR } from "lib/swr";
+import {
+  useTezos,
+  fromAssetSlug,
+  getAssetSymbol,
+  isFA2Token,
+  isTezAsset,
+  useAssetMetadata,
+} from "lib/temple/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 type AssetInfoProps = {
-  asset: TempleAsset;
+  assetSlug: string;
 };
 
-const AssetInfo: FC<AssetInfoProps> = ({ asset }) => {
-  if (asset.type === TempleAssetType.TEZ) return null;
+const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
+  const tezos = useTezos();
+  const { data: assetData } = useRetryableSWR(
+    ["asset", assetSlug, tezos.checksum],
+    () => fromAssetSlug(tezos, assetSlug),
+    { suspense: true }
+  );
+  const asset = assetData!;
+
+  const metadata = useAssetMetadata(assetSlug);
+
+  if (isTezAsset(asset)) return null;
 
   return (
     <div className={classNames("w-full max-w-sm mx-auto")}>
@@ -23,16 +41,19 @@ const AssetInfo: FC<AssetInfoProps> = ({ asset }) => {
         id="contract-address"
         label={<T id="contract" />}
         labelDescription={
-          <T id="addressOfTokenContract" substitutions={[asset.symbol]} />
+          <T
+            id="addressOfTokenContract"
+            substitutions={[getAssetSymbol(metadata)]}
+          />
         }
-        value={asset.address}
+        value={asset.contract}
         size={36}
         style={{
           resize: "none",
         }}
       />
 
-      {asset.type === TempleAssetType.FA2 && (
+      {isFA2Token(asset) && (
         <InfoField id="token-id" label={<T id="tokenId" />} value={asset.id} />
       )}
     </div>
