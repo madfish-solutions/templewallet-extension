@@ -25,7 +25,7 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(
       [diff, metadata]
     );
 
-    return (
+    return metadata ? (
       <div
         className={classNames(
           "inline-flex flex-wrap justify-end items-baseline",
@@ -57,7 +57,7 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(
           </InUSD>
         )}
       </div>
-    );
+    ) : null;
   }
 );
 
