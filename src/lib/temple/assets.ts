@@ -2,8 +2,7 @@ import { TezosToolkit, WalletContract } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 import { browser } from "webextension-polyfill-ts";
 
-import assert, { AssertionError } from "lib/assert";
-import { getMessage } from "lib/i18n";
+import { JULIAN_VIEWING_KEY, saplingBuilder } from "lib/sapling"
 import {
   loadContract,
   loadContractForCallLambdaView,
@@ -321,12 +320,19 @@ export async function fetchBalance(
   asset: TempleAsset,
   accountPkh: string
 ) {
-  let nat: BigNumber | undefined;
+  let nat: BigNumber | undefined
 
   switch (asset.type) {
     case TempleAssetType.TEZ:
-      const amount = await tezos.tz.getBalance(accountPkh);
-      return mutezToTz(amount);
+      const amount = await tezos.tz.getBalance(accountPkh)
+      return mutezToTz(amount)
+
+    case TempleAssetType.SAPLING:
+      const saplingAmount = await saplingBuilder.getBalanceOfPublicKey(
+        asset.address,
+        JULIAN_VIEWING_KEY
+      )
+      return saplingAmount
 
     case TempleAssetType.Staker:
     case TempleAssetType.TzBTC:

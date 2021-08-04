@@ -11,7 +11,7 @@ import { TezosToolkit } from "@taquito/taquito";
 import { Tzip16Module } from "@taquito/tzip16";
 import constate from "constate";
 
-import { useRetryableSWR } from "lib/swr";
+import { initializeSapling } from "lib/sapling"
 import {
   ReadyTempleState,
   TempleAccountType,
@@ -42,6 +42,7 @@ export const [
   useSettings,
   useTezos,
   useTezosDomainsClient,
+  useSapling,
 ] = constate(
   useReadyTemple,
   (v) => v.allNetworks,
@@ -52,8 +53,9 @@ export const [
   (v) => v.account,
   (v) => v.settings,
   (v) => v.tezos,
-  (v) => v.tezosDomainsClient
-);
+  (v) => v.tezosDomainsClient,
+  (v) => v.sapling
+)
 
 function useReadyTemple() {
   const templeFront = useTempleClient();
@@ -153,7 +155,8 @@ function useReadyTemple() {
   const tezosDomainsClient = useMemo(
     () => getClient(networkId, tezos),
     [networkId, tezos]
-  );
+
+  const sapling = useMemo(() => initializeSapling(), [networkId])
 
   return {
     allNetworks,
@@ -169,7 +172,8 @@ function useReadyTemple() {
     settings,
     tezos,
     tezosDomainsClient,
-  };
+    sapling,
+  }
 }
 
 export function useChainId(suspense?: boolean) {

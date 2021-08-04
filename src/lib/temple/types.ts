@@ -121,7 +121,8 @@ export type TempleToken =
   | TempleTzBTCAsset
   | TempleStakerAsset
   | TempleFA1_2Asset
-  | TempleFA2Asset;
+  | TempleFA2Asset
+  | TempleSaplingAsset
 
 export enum TempleAssetType {
   TEZ = "TEZ",
@@ -129,6 +130,7 @@ export enum TempleAssetType {
   Staker = "STAKER",
   FA1_2 = "FA1_2",
   FA2 = "FA2",
+  SAPLING = "SAPLING",
 }
 
 export interface TempleAssetBase {
@@ -166,7 +168,10 @@ export interface TempleFA2Asset extends TempleTokenBase {
   id: number;
 }
 
-export type TempleNetworkType = "main" | "test";
+export interface TempleSaplingAsset extends TempleTokenBase {
+  type: TempleAssetType.SAPLING
+}
+
 
 export interface TempleSettings {
   customNetworks?: TempleNetwork[];

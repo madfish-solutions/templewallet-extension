@@ -63,9 +63,13 @@ const TOKEN_TYPES = [
     type: TempleAssetType.FA2 as const,
     name: "FA 2",
   },
+  {
+    type: TempleAssetType.SAPLING as const,
+    name: "Sapling",
+  },
 ];
 
-type TempleCustomTokenType = TempleAssetType.FA1_2 | TempleAssetType.FA2;
+type TempleCustomTokenType = TempleAssetType.FA1_2 | TempleAssetType.FA2 | TempleAssetType.SAPLING;
 type FormData = {
   address: string;
   id?: number;
@@ -139,8 +143,10 @@ const Form: FC = () => {
            */
           if (tokenType === TempleAssetType.FA1_2) {
             await assertTokenType(tokenType, contract, tezos);
-          } else {
+          } else if (tokenType === TempleAssetType.FA2) {
             await assertTokenType(tokenType, contract, tezos, tokenId!);
+          } else {
+            // assertTokenSapling
           }
 
           tokenData = await fetchTokenMetadata(tezos, contractAddress, tokenId);
@@ -228,7 +234,7 @@ const Form: FC = () => {
           status: "displayed" as const,
         };
 
-        const newToken: TempleToken =
+        let newToken: TempleToken =
           tokenType === TempleAssetType.FA1_2
             ? {
                 type: TempleAssetType.FA1_2,
@@ -239,6 +245,14 @@ const Form: FC = () => {
                 id: Number(id!),
                 ...tokenCommonProps,
               };
+          
+        // HACK
+        if (tokenType === TempleAssetType.SAPLING) {
+          newToken = {
+            type: TempleAssetType.SAPLING,
+            ...tokenCommonProps,
+          }
+        }
 
         await addToken(newToken);
         const assetKey = getAssetKey(newToken);

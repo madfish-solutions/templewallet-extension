@@ -127,7 +127,18 @@
     "webpack-cli": "3.3.12",
     "webpack-extension-reloader": "1.1.4",
     "webpackbar": "4.0.0",
-    "zip-webpack-plugin": "3.0.0"
+    "zip-webpack-plugin": "3.0.0",
+    "@airgap/sapling-wasm": "^0.0.6",
+    "b58": "^4.0.3",
+    "big-integer": "^1.6.48",
+    "blake2b": "^2.1.3",
+    "create-hash": "^1.2.0",
+    "eciesjs": "^0.3.11",
+    "idna-uts46-hx": "^3.4.0",
+    "libsodium-wrappers": "0.7.6",
+    "rlp": "^2.2.6",
+    "validate.js": "^0.13.1",
+    "xxhashjs": "^0.2.2"
   },
   "resolutions": {
     "@taquito/**/braces": "2.3.1",

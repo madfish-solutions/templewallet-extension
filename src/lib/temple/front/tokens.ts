@@ -22,8 +22,9 @@ import { useAllNetworks } from "./ready";
 
 const NETWORK_TOKEN_MAP = new Map([
   [TempleChainId.Mainnet, MAINNET_TOKENS],
-  [TempleChainId.Delphinet, DELPHINET_TOKENS],
-]);
+  [TempleChainId.Florencenet, DELPHINET_TOKENS],
+  [TempleChainId.Edo2net, DELPHINET_TOKENS],
+])
 
 export function useTokens(networkRpc?: string) {
   const allNetworks = useAllNetworks();
