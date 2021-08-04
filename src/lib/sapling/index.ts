@@ -6,10 +6,12 @@ import {
   TezosSaplingProtocolOptions,
   TezosShieldedTezProtocolConfig,
   NetworkType,
-} from "/home/julian/Projects/templewallet-extension/node_modules/@temple-wallet/tezos-sapling-js/dist"
-
+} from "../../../node_modules/@temple-wallet/tezos-sapling-js/dist"
 import { getOrFetchParameters } from "./params-downloader"
-// } from "./airgap-sapling-playground"
+
+export {
+  TezosSaplingAddress
+}
 
 const CONTRACT_ADDRESS = "KT1FfAmKCXegpJTxKP1Rz35irEpLA8s18QQJ"
 

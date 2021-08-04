@@ -12,6 +12,7 @@ import { Tzip16Module } from "@taquito/tzip16";
 import constate from "constate";
 
 import { initializeSapling } from "lib/sapling"
+import { useRetryableSWR } from "lib/swr";
 import {
   ReadyTempleState,
   TempleAccountType,
@@ -155,8 +156,12 @@ function useReadyTemple() {
   const tezosDomainsClient = useMemo(
     () => getClient(networkId, tezos),
     [networkId, tezos]
+  );
 
-  const sapling = useMemo(() => initializeSapling(), [networkId])
+  const sapling = useMemo(
+    () => initializeSapling(),
+    [networkId]
+  );
 
   return {
     allNetworks,

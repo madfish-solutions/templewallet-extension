@@ -172,6 +172,7 @@ export interface TempleSaplingAsset extends TempleTokenBase {
   type: TempleAssetType.SAPLING
 }
 
+export type TempleNetworkType = "main" | "test";
 
 export interface TempleSettings {
   customNetworks?: TempleNetwork[];
