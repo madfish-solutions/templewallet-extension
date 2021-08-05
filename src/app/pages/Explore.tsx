@@ -123,7 +123,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
           <ActionButton
             label={<T id="receive" />}
             Icon={ReceiveIcon}
-            href="/receive"
+            href={asset ? `/receive/${getAssetKey(asset)}` : "/receive"}
           />
           <ActionButton
             label={<T id="dApps" />}

@@ -4,7 +4,7 @@ import { browser } from "webextension-polyfill-ts";
 
 import assert, { AssertionError } from "lib/assert";
 import { getMessage } from "lib/i18n";
-import { JULIAN_VIEWING_KEY, saplingBuilder } from "lib/sapling"
+import { JULIAN_VIEWING_KEY, saplingBuilder, TezosSaplingAddress } from "lib/sapling"
 import {
   loadContract,
   loadContractForCallLambdaView,
@@ -428,13 +428,13 @@ export async function toTransferParams(
       return contact.methods.transfer(...methodArgs).toTransferParams();
     case TempleAssetType.SAPLING:
       const saplingContact = await loadContract(tezos, asset.address);
-
+      const selfSaplingAddress = await TezosSaplingAddress.fromViewingKey(JULIAN_VIEWING_KEY)
       const rawShield = await saplingBuilder.prepareShieldTransaction(
         asset.address,
-        "zet13skGir8F1wBdnTWydZ3EH1HthsoPFy4bt64EvvSouQM6C2oeCcYZXPv3X4J1iHUqu", //julian
+        selfSaplingAddress.getValue(),
         amount.toString(),
       )
-      return saplingContact.methods.default(rawShield, null).toTransferParams();
+      return saplingContact.methods.default([[rawShield, null]]).toTransferParams();
     default:
       throw new Error("Not Supported");
   }
