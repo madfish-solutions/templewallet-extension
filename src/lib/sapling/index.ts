@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { browser } from "webextension-polyfill-ts";
+
 import {
   TezosSaplingAddress,
   TezosProtocolNetwork,
@@ -6,11 +8,14 @@ import {
   TezosSaplingProtocolOptions,
   TezosShieldedTezProtocolConfig,
   NetworkType,
+  SaplingKeys
 } from "../../../node_modules/@temple-wallet/tezos-sapling-js/dist"
 import { getOrFetchParameters } from "./params-downloader"
 
+
 export {
-  TezosSaplingAddress
+  TezosSaplingAddress,
+  SaplingKeys
 }
 
 const CONTRACT_ADDRESS = "KT1FfAmKCXegpJTxKP1Rz35irEpLA8s18QQJ"
@@ -41,9 +46,30 @@ export async function initializeSapling() {
   saplingBuilder = new TezosSaplingBuilder(options)
   const [spendParams, outputParams] = await getOrFetchParameters()
 
-  console.log("init with params: ", spendParams)
-
   saplingBuilder.initParameters(spendParams, outputParams)
 
   return saplingBuilder
+}
+
+export async function signWithEncryptedSapling(publicKeyHash, tx) {
+  const spendingStorageKey = `unencrypted:spending_${publicKeyHash}`
+  const matches = await browser.storage.local.get([spendingStorageKey])
+  const spendingKey = matches.spendingStorageKey
+  const spendingKeyBytes = Buffer.from(spendingKey, "hex")
+
+  return saplingBuilder.signWithPrivateKey(spendingKeyBytes, tx)
+}
+
+export async function getViewingKey(publicKeyHash) {
+  const viewingStorageKey = `unencrypted:viewing_${publicKeyHash}`
+  const matches = await browser.storage.local.get([viewingStorageKey])
+  const viewingKey = matches.viewingStorageKey
+  return viewingKey
+}
+
+// TODO implement ability to take next address or by index
+export async function getSaplingAddress(publicKeyHash): Promise<string> {
+  const vk = await getViewingKey(publicKeyHash)
+  console.log("vk", vk)
+  return TezosSaplingAddress.fromViewingKey(vk, 0)
 }

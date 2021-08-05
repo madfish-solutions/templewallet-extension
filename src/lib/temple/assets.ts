@@ -72,6 +72,16 @@ export const DELPHINET_TOKENS: TempleToken[] = [
     iconUrl: "https://github.com/StakerDAO/resources/raw/main/blend.png",
     status: "displayed",
   },
+  {
+    type: TempleAssetType.SAPLING,
+    address: "KT1FfAmKCXegpJTxKP1Rz35irEpLA8s18QQJ",
+    name: "Sapling",
+    symbol: "SAP",
+    decimals: 0,
+    fungible: true,
+    iconUrl: "https://github.com/StakerDAO/resources/raw/main/blend.png",
+    status: "displayed",
+  },
 ];
 
 export const MAINNET_TOKENS: TempleToken[] = [
@@ -416,7 +426,15 @@ export async function toTransferParams(
           ]
           : [fromPkh, toPkh, pennyAmount];
       return contact.methods.transfer(...methodArgs).toTransferParams();
+    case TempleAssetType.SAPLING:
+      const saplingContact = await loadContract(tezos, asset.address);
 
+      const rawShield = await saplingBuilder.prepareShieldTransaction(
+        asset.address,
+        "zet13skGir8F1wBdnTWydZ3EH1HthsoPFy4bt64EvvSouQM6C2oeCcYZXPv3X4J1iHUqu", //julian
+        amount.toString(),
+      )
+      return saplingContact.methods.default(rawShield, null).toTransferParams();
     default:
       throw new Error("Not Supported");
   }

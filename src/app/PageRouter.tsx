@@ -80,7 +80,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
         : () => <ConnectLedger />
     ),
   ],
-  ["/receive", onlyReady(() => <Receive />)],
+  ["/receive/:assetSlug?", onlyReady(({ assetSlug }) => <Receive assetSlug={assetSlug} />)],
   [
     "/send/:assetSlug?",
     onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />),

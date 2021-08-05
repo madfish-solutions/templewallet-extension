@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useEffect } from "react";
+import React, { FC, memo, useMemo, useCallback, useEffect } from "react";
 
 import classNames from "clsx";
 import { QRCode } from "react-qr-svg";
@@ -12,7 +12,8 @@ import { ReactComponent as QRIcon } from "app/icons/qr.svg";
 import PageLayout from "app/layouts/PageLayout";
 import ViewsSwitcher, { ViewsSwitcherProps } from "app/templates/ViewsSwitcher";
 import { T, t } from "lib/i18n/react";
-import { useAccount, useTezos, useTezosDomainsClient } from "lib/temple/front";
+import { getSaplingAddress, JULIAN_VIEWING_KEY, saplingBuilder, TezosSaplingAddress } from "lib/sapling" 
+import { TempleAssetType, TEZ_ASSET, useAccount, useAssetBySlug, useTezos, useTezosDomainsClient } from "lib/temple/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import useSafeState from "lib/ui/useSafeState";
 // import Deposit from "./Receive/Deposit";
@@ -30,12 +31,30 @@ const ADDRESS_FIELD_VIEWS = [
   },
 ];
 
-const Receive: FC = () => {
+type ReceiveFormProps = {
+  assetSlug?: string | null;
+};
+
+const Receive: FC<ReceiveFormProps>= ({ assetSlug }) => {
   const account = useAccount();
   const tezos = useTezos();
   const { resolver: domainsResolver, isSupported } = useTezosDomainsClient();
-  const address = account.publicKeyHash;
+  const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
+  const [address, setAddress] = useSafeState(account.publicKeyHash)
+  useEffect(() => {(async() => {
+    if (asset.type === TempleAssetType.SAPLING) {
+      const saplingAddress = await TezosSaplingAddress.fromViewingKey(JULIAN_VIEWING_KEY)
+      setAddress(saplingAddress.getValue())
+    }
+  })()
+  }, [])
 
+  // const address = useCallback(async () => {
+  //   if (asset.type === TempleAssetType.SAPLING)
+  //     return await getSaplingAddress(account.saplingViewingKey)
+  //   return account.publicKeyHash
+  // }, [])
+  
   const { fieldRef, copy, copied } = useCopyToClipboard();
   const [activeView, setActiveView] = useSafeState(ADDRESS_FIELD_VIEWS[1]);
 
