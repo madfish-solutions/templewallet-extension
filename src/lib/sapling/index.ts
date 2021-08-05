@@ -45,7 +45,5 @@ export async function initializeSapling() {
 
   saplingBuilder.initParameters(spendParams, outputParams)
 
-  console.log(saplingAmount)
-
   return saplingBuilder
 }
