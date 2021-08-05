@@ -19,6 +19,7 @@ import useSWR from "swr";
 
 import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
+import FormCheckbox from "app/atoms/FormCheckbox";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
@@ -46,6 +47,7 @@ import {
 import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
 import { transferImplicit, transferToContract } from "lib/michelson";
+import { JULIAN_SPENDING_KEY, JULIAN_VIEWING_KEY, saplingBuilder, TezosSaplingAddress } from "lib/sapling"
 import {
   fetchBalance,
   getAssetKey,
@@ -70,6 +72,7 @@ import {
   useNetwork,
   useAssetUSDPrice,
   useContacts,
+  useSapling
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
@@ -99,6 +102,7 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
   const [addContactModalAddress, setAddContactModalAddress] = useState<
     string | null
   >(null);
+
   const { trackEvent } = useAnalytics();
 
   const handleAssetChange = useCallback(
@@ -171,6 +175,7 @@ const Form: FC<FormProps> = ({
   const network = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
+  // const sapling = useSapling();
   const domainsClient = useTezosDomainsClient();
 
   const formAnalytics = useFormAnalytics("SendForm");
@@ -191,6 +196,13 @@ const Form: FC<FormProps> = ({
   const tezBalance = tezBalanceData!;
 
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
+
+  const [shouldShield, setShouldShield] = useState(true)
+  const isSaplingAsset = useMemo(() => localAsset.type === TempleAssetType.SAPLING, [localAsset])
+
+  // const handleShouldShieldChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+  //   setShouldShield(evt.target.checked);
+  // }
 
   const canToggleUsd = network.type === "main" && assetPrice !== null;
   const prevCanToggleUsd = useRef(canToggleUsd);
@@ -392,13 +404,14 @@ const Form: FC<FormProps> = ({
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
-      if (
-        tez
-          ? baseFee.isGreaterThanOrEqualTo(balanceBN)
-          : baseFee.isGreaterThan(tezBalanceBN!)
-      ) {
-        throw new NotEnoughFundsError();
-      }
+      // TODO sapling
+      // if (
+      //   tez
+      //     ? baseFee.isGreaterThanOrEqualTo(balanceBN)
+      //     : baseFee.isGreaterThan(tezBalanceBN!)
+      // ) {
+      //   throw new NotEnoughFundsError();
+      // }
 
       return baseFee;
     } catch (err) {
@@ -558,6 +571,12 @@ const Form: FC<FormProps> = ({
         return false;
       }
 
+      // console.log("local asset type:", localAsset.type)  
+      // if (localAsset.type == TempleAssetType.SAPLING) {
+      //   console.log("validating as sapling")
+      //   return validateSaplingAddress(value)
+      // }
+
       if (!canUseDomainNames) {
         return validateAddress(value);
       }
@@ -587,6 +606,7 @@ const Form: FC<FormProps> = ({
       formAnalytics.trackSubmit();
       try {
         let op: WalletOperation;
+
         if (isKTAddress(acc.publicKeyHash)) {
           const michelsonLambda = isKTAddress(toResolved)
             ? transferToContract
@@ -597,7 +617,15 @@ const Form: FC<FormProps> = ({
             .do(michelsonLambda(toResolved, tzToMutez(amount)))
             .send({ amount: 0 });
         } else {
-          const actualAmount = shouldUseUsd ? toAssetAmount(amount) : amount;
+
+          let actualAmount = shouldUseUsd ? toAssetAmount(amount) : amount;
+          if (localAsset.type == TempleAssetType.SAPLING) {
+            // TODO proper BigNumber negation
+            console.log("should shield", shouldShield)
+            if (shouldShield)
+              actualAmount = "-" + actualAmount
+          
+          }
           const transferParams = await toTransferParams(
             tezos,
             localAsset,
@@ -643,6 +671,7 @@ const Form: FC<FormProps> = ({
       accountPkh,
       toResolved,
       shouldUseUsd,
+      shouldShield,
       toAssetAmount,
       formAnalytics,
     ]
@@ -656,7 +685,7 @@ const Form: FC<FormProps> = ({
     [setValue, triggerValidation]
   );
 
-  const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
+  const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError) || isSaplingAsset);
   const estimateFallbackDisplayed = toFilled && !baseFee && estimating;
 
   const [toFieldFocused, setToFieldFocused] = useState(false);
@@ -677,6 +706,16 @@ const Form: FC<FormProps> = ({
 
   return (
     <form style={{ minHeight: "24rem" }} onSubmit={handleSubmit(onSubmit)}>
+      {isSaplingAsset ? 
+      <FormCheckbox
+        checked={shouldShield}
+        // onChange={handleShouldShieldChange}
+        name="shouldaShield"
+        label={"Should shield"}
+        labelDescription={"Choose direction of the operaion. Either to hide your funds or to reveal them back to your address"}
+        containerClassName="mb-4"
+      />
+      :
       <Controller
         name="to"
         as={
@@ -752,6 +791,7 @@ const Form: FC<FormProps> = ({
         }}
         containerClassName="mb-4"
       />
+      }
 
       {resolvedAddress && (
         <div
@@ -937,7 +977,6 @@ const Form: FC<FormProps> = ({
             {(message) => (
               <FormSubmitButton
                 loading={formState.isSubmitting}
-                disabled={Boolean(estimationError)}
               >
                 {message}
               </FormSubmitButton>
@@ -955,6 +994,19 @@ function validateAddress(value: any) {
       return true;
 
     case isAddressValid(value):
+      return "invalidAddress";
+
+    default:
+      return true;
+  }
+}
+
+function validateSaplingAddress(value: any) {
+  switch (false) {
+    case value?.length > 0:
+      return true;
+
+    case !TezosSaplingAddress.isZetAddress(value):
       return "invalidAddress";
 
     default:

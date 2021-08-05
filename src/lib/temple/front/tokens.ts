@@ -15,6 +15,7 @@ import {
   TempleChainId,
   MAINNET_TOKENS,
   DELPHINET_TOKENS,
+  FLORENCENET_TOKENS
 } from "lib/temple/front";
 
 import { omitAssets } from "../assets";
@@ -22,8 +23,8 @@ import { useAllNetworks } from "./ready";
 
 const NETWORK_TOKEN_MAP = new Map([
   [TempleChainId.Mainnet, MAINNET_TOKENS],
-  [TempleChainId.Florencenet, DELPHINET_TOKENS],
-  [TempleChainId.Edo2net, DELPHINET_TOKENS],
+  [TempleChainId.Delphinet, DELPHINET_TOKENS],
+  [TempleChainId.Florencenet, FLORENCENET_TOKENS],
 ])
 
 export function useTokens(networkRpc?: string) {

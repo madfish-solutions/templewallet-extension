@@ -4,7 +4,7 @@ import { browser } from "webextension-polyfill-ts";
 
 import assert, { AssertionError } from "lib/assert";
 import { getMessage } from "lib/i18n";
-import { JULIAN_VIEWING_KEY, saplingBuilder, TezosSaplingAddress } from "lib/sapling"
+import { JULIAN_VIEWING_KEY, JULIAN_SPENDING_KEY, saplingBuilder, TezosSaplingAddress } from "lib/sapling"
 import {
   loadContract,
   loadContractForCallLambdaView,
@@ -72,6 +72,10 @@ export const DELPHINET_TOKENS: TempleToken[] = [
     iconUrl: "https://github.com/StakerDAO/resources/raw/main/blend.png",
     status: "displayed",
   },
+
+];
+
+export const FLORENCENET_TOKENS: TempleToken[] = [
   {
     type: TempleAssetType.SAPLING,
     address: "KT1FfAmKCXegpJTxKP1Rz35irEpLA8s18QQJ",
@@ -81,7 +85,7 @@ export const DELPHINET_TOKENS: TempleToken[] = [
     fungible: true,
     iconUrl: "https://github.com/StakerDAO/resources/raw/main/blend.png",
     status: "displayed",
-  },
+  }
 ];
 
 export const MAINNET_TOKENS: TempleToken[] = [
@@ -428,13 +432,36 @@ export async function toTransferParams(
       return contact.methods.transfer(...methodArgs).toTransferParams();
     case TempleAssetType.SAPLING:
       const saplingContact = await loadContract(tezos, asset.address);
-      const selfSaplingAddress = await TezosSaplingAddress.fromViewingKey(JULIAN_VIEWING_KEY)
-      const rawShield = await saplingBuilder.prepareShieldTransaction(
-        asset.address,
-        selfSaplingAddress.getValue(),
-        amount.toString(),
-      )
-      return saplingContact.methods.default([[rawShield, null]]).toTransferParams();
+      let saplingPayload = ""
+      let receiver: null | string = null
+      const shouldShield = amount < 0
+      if (shouldShield) {
+        const selfSaplingAddress = await TezosSaplingAddress.fromViewingKey(JULIAN_VIEWING_KEY)
+        const positiveAmount = new BigNumber(amount).abs()
+        const rawShield = await saplingBuilder.prepareShieldTransaction(
+          asset.address,
+          selfSaplingAddress.getValue(),
+          positiveAmount.toString(),
+        )
+        saplingPayload = rawShield
+      } else {
+        console.log("unshielding")
+        console.log("amount", amount)
+        const rawUnshield = await saplingBuilder.prepareUnshieldTransaction(
+          asset.address,
+          JULIAN_VIEWING_KEY,
+          fromPkh,
+          amount.toString()
+        )
+        const signedUnshield = await saplingBuilder.signWithPrivateKey(
+          JULIAN_SPENDING_KEY,
+          rawUnshield
+        )
+        saplingPayload = signedUnshield
+        receiver = fromPkh
+      }
+      assert(saplingPayload !== "")
+      return saplingContact.methods.default([[saplingPayload, receiver]]).toTransferParams();
     default:
       throw new Error("Not Supported");
   }
