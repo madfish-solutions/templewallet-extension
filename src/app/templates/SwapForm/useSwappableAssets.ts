@@ -500,13 +500,16 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           ...(LIQUIDITY_BAKING_INITIAL_TOKENS.get(chainId) ?? []),
         ].reduce<Record<string, TempleAsset>>((previousValue, asset) => {
           const { address, tokenId } = getAssetId(asset);
+          const assetFromVisible = allVisibleAssets.find((visibleAsset) =>
+            assetsAreSame(visibleAsset, asset)
+          );
           return {
             ...previousValue,
-            [`${address}_${tokenId}`]: asset,
+            [`${address}_${tokenId}`]: assetFromVisible ?? asset,
           };
         }, {})
       );
-    }, [chainId, qsStoredTokens, quipuswapTokenWhitelists]);
+    }, [chainId, qsStoredTokens, quipuswapTokenWhitelists, allVisibleAssets]);
 
     const noInitialAssetKeyKnownAssets = useMemo(() => {
       return Object.values(
