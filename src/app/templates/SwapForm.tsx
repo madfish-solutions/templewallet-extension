@@ -49,6 +49,7 @@ import {
   useAssetBySlug,
   TempleAsset,
   getAssetId,
+  getFeePercentage,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 
@@ -84,8 +85,6 @@ const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
 };
 
 export default SwapFormWrapper;
-
-const feeLabel = `0.3%`;
 
 type SwapFormProps = {
   defaultAsset?: TempleAsset;
@@ -423,7 +422,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           );
         return result;
       },
-      { quipuswap: false, dexter: false }
+      { quipuswap: false, dexter: false, liquidity_baking: false }
     );
     const outputAssetAvailability = ALL_EXCHANGERS_TYPES.reduce(
       (result, exchangerType) => {
@@ -437,14 +436,14 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           );
         return result;
       },
-      { quipuswap: false, dexter: false }
+      { quipuswap: false, dexter: false, liquidity_baking: false }
     );
     const unsortedProps = [
       {
         name: "exchanger",
         checked: selectedExchanger === "quipuswap",
         ref: register({ required: true }),
-        value: "quipuswap" as ExchangerType,
+        value: "quipuswap" as const,
         logo: (
           <img
             alt=""
@@ -465,7 +464,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
         name: "exchanger",
         checked: selectedExchanger === "dexter",
         ref: register({ required: true }),
-        value: "dexter" as ExchangerType,
+        value: "dexter" as const,
         logo: (
           <img
             alt=""
@@ -481,8 +480,21 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
         disabled:
           !outputAssetAvailability.dexter || !inputAssetAvailability.dexter,
       },
+      {
+        name: "exchanger",
+        checked: selectedExchanger === "liquidity_baking",
+        ref: register({ required: true }),
+        value: "liquidity_baking" as const,
+        logo: null,
+        exchangerName: "Liquidity baking",
+        outputEstimation: outputAssetAmounts?.liquidity_baking,
+        assetSymbol: outputAsset?.symbol ?? "",
+        disabled:
+          !outputAssetAvailability.liquidity_baking ||
+          !inputAssetAvailability.liquidity_baking,
+      },
     ];
-    const defaultExchangersOrder = ["quipuswap", "dexter"];
+    const defaultExchangersOrder = ["quipuswap", "dexter", "liquidity_baking"];
 
     return unsortedProps.sort(
       (
@@ -940,7 +952,9 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
                 :
               </div>
             </td>
-            <td className="text-right text-gray-600">{feeLabel}</td>
+            <td className="text-right text-gray-600">
+              {getFeePercentage(selectedExchanger).toString()}%
+            </td>
           </tr>
           <tr>
             <td>

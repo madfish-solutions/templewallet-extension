@@ -31,6 +31,7 @@ import {
   fetchContract,
   mutezToTz,
   getAssetKey,
+  LIQUIDITY_BAKING_CONTRACTS,
 } from "lib/temple/front";
 import {
   TempleAsset,
@@ -117,6 +118,23 @@ const DEXTER_INITIAL_TOKENS = new Map<string, TempleToken[]>([
         fungible: true,
         status: "displayed",
         address: "KT1FCMQk44tEP9fm9n5JJEhkSk1TW3XQdaWH",
+      },
+    ],
+  ],
+]);
+
+const LIQUIDITY_BAKING_INITIAL_TOKENS = new Map<string, TempleToken[]>([
+  [
+    TempleChainId.Granadanet,
+    [
+      {
+        type: TempleAssetType.FA1_2,
+        decimals: 0,
+        symbol: "KT1Vqar...mkCN",
+        name: "KT1Vqar...mkCN",
+        fungible: true,
+        status: "displayed",
+        address: "KT1VqarPDicMFn1ejmQqqshUkUXTCTXwmkCN",
       },
     ],
   ],
@@ -291,31 +309,45 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           DEXTER_EXCHANGE_CONTRACTS.get(chainId)?.[tokenAddress]?.[
             tokenId ?? 0
           ];
+        const liquidityBakingContract =
+          LIQUIDITY_BAKING_CONTRACTS.get(chainId)?.[tokenAddress]?.[
+            tokenId ?? 0
+          ];
         const newExchangers: Partial<TokenExchangeData> = {};
-        if (dexterExchangeContract) {
-          const { tokenPool, xtzPool } = await getPoolParameters(
-            tezos,
-            dexterExchangeContract,
-            "dexter"
-          );
-          const normalizedTezLiquidity = mutezToTz(xtzPool);
-          const normalizedTokenLiquidity = tokenPool.div(
-            new BigNumber(10).pow(asset.decimals)
-          );
-          newExchangers.dexter = {
-            contract: dexterExchangeContract,
-            normalizedTezLiquidity,
-            normalizedTokenLiquidity,
-            usdPrice: normalizedTokenLiquidity.eq(0)
-              ? undefined
-              : (networkTezUsdPrice &&
-                  normalizedTezLiquidity
-                    .div(normalizedTokenLiquidity)
-                    .times(networkTezUsdPrice)
-                    .toNumber()) ??
-                undefined,
-          };
-        }
+        await Promise.all(
+          [
+            { contract: dexterExchangeContract, type: "dexter" as const },
+            {
+              contract: liquidityBakingContract,
+              type: "liquidity_baking" as const,
+            },
+          ].map(async ({ contract, type }) => {
+            if (contract) {
+              const { tokenPool, xtzPool } = await getPoolParameters(
+                tezos,
+                contract,
+                type
+              );
+              const normalizedTezLiquidity = mutezToTz(xtzPool);
+              const normalizedTokenLiquidity = tokenPool.div(
+                new BigNumber(10).pow(asset.decimals)
+              );
+              newExchangers[type] = {
+                contract,
+                normalizedTezLiquidity,
+                normalizedTokenLiquidity,
+                usdPrice: normalizedTokenLiquidity.eq(0)
+                  ? undefined
+                  : (networkTezUsdPrice &&
+                      normalizedTezLiquidity
+                        .div(normalizedTokenLiquidity)
+                        .times(networkTezUsdPrice)
+                        .toNumber()) ??
+                    undefined,
+              };
+            }
+          })
+        );
 
         const quipuswapFactories = QUIPUSWAP_CONTRACTS.get(chainId);
         if (quipuswapFactories) {
@@ -465,6 +497,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           ...qsStoredTokens,
           ...(quipuswapTokenWhitelists!.get(chainId) ?? []),
           ...(DEXTER_INITIAL_TOKENS.get(chainId) ?? []),
+          ...(LIQUIDITY_BAKING_INITIAL_TOKENS.get(chainId) ?? []),
         ].reduce<Record<string, TempleAsset>>((previousValue, asset) => {
           const { address, tokenId } = getAssetId(asset);
           return {
