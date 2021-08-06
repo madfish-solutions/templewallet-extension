@@ -76,6 +76,14 @@ export const LIQUIDITY_BAKING_CONTRACTS = new Map<
   Record<string, Record<number, string>>
 >([
   [
+    TempleChainId.Mainnet,
+    {
+      KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn: {
+        0: "KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5",
+      },
+    },
+  ],
+  [
     TempleChainId.Granadanet,
     {
       KT1VqarPDicMFn1ejmQqqshUkUXTCTXwmkCN: {
