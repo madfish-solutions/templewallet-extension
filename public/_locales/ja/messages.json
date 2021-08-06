@@ -646,9 +646,6 @@
   "processing": {
     "message": "処理中..."
   },
-  "restoreWalletWithSeedPhrase": {
-    "message": "シードフレーズでウォレットを復元"
-  },
   "accountAddressLabel": {
     "message": "現在のアカウントのアドレスです。共有して資金を受け取ることができます。"
   },

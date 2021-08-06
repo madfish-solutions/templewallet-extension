@@ -1,4 +1,12 @@
-import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { validateMnemonic } from "bip39";
 import classNames from "clsx";
@@ -6,6 +14,7 @@ import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 
 import Alert from "app/atoms/Alert";
+import FileInput from "app/atoms/FileInput";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import NoSpaceField from "app/atoms/NoSpaceField";
@@ -80,10 +89,10 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
         },
         network.type !== "main"
           ? {
-            slug: "faucet",
-            i18nKey: "faucetFileTitle",
-            Form: FromFaucetForm,
-          }
+              slug: "faucet",
+              i18nKey: "faucetFileTitle",
+              Form: FromFaucetForm,
+            }
           : undefined,
         {
           slug: "managed-kt",
@@ -176,13 +185,8 @@ const ByPrivateKeyForm: FC = () => {
   const { importAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.PrivateKey);
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    formState,
-    watch,
-  } = useForm<ByPrivateKeyFormData>();
+  const { register, handleSubmit, errors, formState, watch } =
+    useForm<ByPrivateKeyFormData>();
   const [error, setError] = useState<ReactNode>(null);
 
   const onSubmit = useCallback(
@@ -211,9 +215,10 @@ const ByPrivateKeyForm: FC = () => {
   );
 
   const keyValue = watch("privateKey");
-  const encrypted = useMemo(() => keyValue?.substring(2, 3) === "e", [
-    keyValue,
-  ]);
+  const encrypted = useMemo(
+    () => keyValue?.substring(2, 3) === "e",
+    [keyValue]
+  );
 
   return (
     <form
@@ -307,21 +312,15 @@ const ByMnemonicForm: FC = () => {
   const { importMnemonicAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Mnemonic);
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    formState,
-  } = useForm<ByMnemonicFormData>({
-    defaultValues: {
-      customDerivationPath: "m/44'/1729'/0'/0'",
-      accountNumber: 1,
-    },
-  });
+  const { register, handleSubmit, errors, formState } =
+    useForm<ByMnemonicFormData>({
+      defaultValues: {
+        customDerivationPath: "m/44'/1729'/0'/0'",
+        accountNumber: 1,
+      },
+    });
   const [error, setError] = useState<ReactNode>(null);
-  const [derivationPath, setDerivationPath] = useState(
-    DERIVATION_PATHS[0]
-  );
+  const [derivationPath, setDerivationPath] = useState(DERIVATION_PATHS[0]);
 
   const onSubmit = useCallback(
     async ({
@@ -365,7 +364,13 @@ const ByMnemonicForm: FC = () => {
         setError(err.message);
       }
     },
-    [formState.isSubmitting, setError, importMnemonicAccount, derivationPath, formAnalytics]
+    [
+      formState.isSubmitting,
+      setError,
+      importMnemonicAccount,
+      derivationPath,
+      formAnalytics,
+    ]
   );
 
   return (
@@ -557,12 +562,8 @@ interface ByFundraiserFormData {
 
 const ByFundraiserForm: FC = () => {
   const { importFundraiserAccount } = useTempleClient();
-  const {
-    register,
-    errors,
-    handleSubmit,
-    formState,
-  } = useForm<ByFundraiserFormData>();
+  const { register, errors, handleSubmit, formState } =
+    useForm<ByFundraiserFormData>();
   const [error, setError] = useState<ReactNode>(null);
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Fundraiser);
 
@@ -717,9 +718,7 @@ const FromFaucetForm: FC = () => {
     () => textFieldRef.current?.focus(),
     []
   );
-  const cleanTextField = useCallback(() => setValue("text", ""), [
-    setValue,
-  ]);
+  const cleanTextField = useCallback(() => setValue("text", ""), [setValue]);
 
   const handleFormSubmit = useCallback((evt) => {
     evt.preventDefault();
@@ -886,22 +885,13 @@ const FromFaucetForm: FC = () => {
             </span>
           </label>
 
-          <div className="relative w-full mb-2">
-            <input
-              className={classNames(
-                "appearance-none",
-                "absolute inset-0 w-full",
-                "block py-2 px-4",
-                "opacity-0",
-                "cursor-pointer"
-              )}
-              type="file"
-              name="documents[]"
-              accept=".json,application/json"
-              disabled={processing}
-              onChange={handleUploadChange}
-            />
-
+          <FileInput
+            className="mb-2"
+            name="documents[]"
+            accept=".json,application/json"
+            disabled={processing}
+            onChange={handleUploadChange}
+          >
             <div
               className={classNames(
                 "w-full",
@@ -943,7 +933,7 @@ const FromFaucetForm: FC = () => {
                 )}
               </div>
             </div>
-          </div>
+          </FileInput>
         </div>
       </form>
 
@@ -1051,10 +1041,10 @@ const WatchOnlyForm: FC = () => {
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
 
-  const finalAddress = useMemo(() => resolvedAddress || addressValue, [
-    resolvedAddress,
-    addressValue,
-  ]);
+  const finalAddress = useMemo(
+    () => resolvedAddress || addressValue,
+    [resolvedAddress, addressValue]
+  );
 
   const cleanToField = useCallback(() => {
     setValue("to", "");
@@ -1130,7 +1120,7 @@ const WatchOnlyForm: FC = () => {
     tezos,
     formState.isSubmitting,
     setError,
-    formAnalytics
+    formAnalytics,
   ]);
 
   return (

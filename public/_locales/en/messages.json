@@ -29,6 +29,9 @@
   "maximiseView": {
     "message": "Maximise view"
   },
+  "selectFile": {
+    "message": "Select file"
+  },
   "selectFileOfFormat": {
     "message": "Select $format$ file",
     "placeholders": {
@@ -655,8 +658,8 @@
   "processing": {
     "message": "Processing..."
   },
-  "restoreWalletWithSeedPhrase": {
-    "message": "Restore your Wallet with Seed Phrase"
+  "restoreWallet": {
+    "message": "Restore your Wallet"
   },
   "accountAddressLabel": {
     "message": "Your current account address. Share it to receive funds."
@@ -1004,8 +1007,29 @@
   "termsOfUsage": {
     "message": "Terms of Usage"
   },
+  "file": {
+    "message": "File"
+  },
+  "keystoreFileFieldDescription": {
+    "message": "Import your wallet from an encrypted keystore file (.tez)."
+  },
+  "filePassword": {
+    "message": "File Password"
+  },
+  "filePasswordInputDescription": {
+    "message": "Please enter a password for keystore file"
+  },
+  "fileInputPrompt": {
+    "message": "Choose a file or drag it here"
+  },
+  "useKeystorePassword": {
+    "message": "Use File Password as Extension password"
+  },
   "create": {
     "message": "Create"
+  },
+  "import": {
+    "message": "Import"
   },
   "revealNewSeedPhrase": {
     "message": "<b>Click on area below</b> to reveal your new Seed Phrase.\nThen, write this phrase on a piece of paper and <b>store in a secure location</b>. Or you can memorize it."

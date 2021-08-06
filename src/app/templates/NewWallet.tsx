@@ -11,9 +11,11 @@ import classNames from "clsx";
 import { useForm } from "react-hook-form";
 
 import Alert from "app/atoms/Alert";
+import FileInput from "app/atoms/FileInput";
 import FormCheckbox from "app/atoms/FormCheckbox";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import TabSwitcher from "app/atoms/TabSwitcher";
 import {
   PASSWORD_PATTERN,
   PASSWORD_ERROR_CAPTION,
@@ -21,7 +23,7 @@ import {
   formatMnemonic,
 } from "app/defaults";
 import { T, t } from "lib/i18n/react";
-import { useTempleClient } from "lib/temple/front";
+import { decryptKukaiSeedPhrase, useTempleClient } from "lib/temple/front";
 import { useAlert } from "lib/ui/dialog";
 import { Link } from "lib/woozie";
 
@@ -29,9 +31,12 @@ import Backup from "./NewWallet/Backup";
 import Verify from "./NewWallet/Verify";
 
 interface FormData {
+  keystoreFile?: FileList;
+  keystorePassword?: string;
+  shouldUseKeystorePassword?: boolean;
   mnemonic?: string;
-  password: string;
-  repassword: string;
+  password?: string;
+  repassword?: string;
   termsaccepted: boolean;
 }
 
@@ -44,6 +49,8 @@ type NewWalletProps = {
   ownMnemonic?: boolean;
   title: string;
 };
+
+const importWalletOptions = ["Seed phrase", "Keystore file"];
 
 const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
   const { locked, registerWallet, setSeedRevealed } = useTempleClient();
@@ -59,7 +66,9 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
+  const shouldUseKeystorePassword = watch("shouldUseKeystorePassword");
   const passwordValue = watch("password");
+  const keystoreFile = watch("keystoreFile");
 
   useLayoutEffect(() => {
     if (formState.dirtyFields.has("repassword")) {
@@ -67,6 +76,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
     }
   }, [triggerValidation, formState.dirtyFields, passwordValue]);
 
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [backupData, setBackupData] = useState<BackupData | null>(null);
   const [verifySeedPhrase, setVerifySeedPhrase] = useState(false);
 
@@ -76,12 +86,38 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
 
       try {
         if (ownMnemonic) {
-          await registerWallet(data.password, formatMnemonic(data.mnemonic!));
-          setSeedRevealed(true);
+          if (activeTabIndex === 0) {
+            await registerWallet(
+              data.password!,
+              formatMnemonic(data.mnemonic!)
+            );
+            setSeedRevealed(true);
+          } else {
+            try {
+              const mnemonic = await decryptKukaiSeedPhrase(
+                await data.keystoreFile!.item(0)!.text(),
+                data.keystorePassword!
+              );
+              await registerWallet(
+                data.shouldUseKeystorePassword
+                  ? data.keystorePassword!
+                  : data.password!,
+                mnemonic
+              );
+            } catch (e) {
+              alert({
+                title: "Error while importing Kukai wallet",
+                children:
+                  e instanceof SyntaxError
+                    ? t("The file has syntax error")
+                    : e.message,
+              });
+            }
+          }
         } else {
           setBackupData({
             mnemonic: generateMnemonic(128),
-            password: data.password,
+            password: data.password!,
           });
         }
       } catch (err) {
@@ -102,6 +138,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
       registerWallet,
       setSeedRevealed,
       alert,
+      activeTabIndex,
     ]
   );
 
@@ -127,6 +164,17 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
   // Initial step (create or import mnemonic)
   return (
     <Template title={title}>
+      {ownMnemonic && (
+        <>
+          <TabSwitcher
+            className="mt-4"
+            tabsLabels={importWalletOptions}
+            activeTabIndex={activeTabIndex}
+            onTabSelect={setActiveTabIndex}
+          />
+          <div className="h-4" />
+        </>
+      )}
       <form
         className="w-full max-w-sm mx-auto my-8"
         onSubmit={handleSubmit(onSubmit)}
@@ -163,7 +211,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
           />
         )}
 
-        {ownMnemonic && (
+        {ownMnemonic && activeTabIndex === 0 && (
           <FormField
             secret
             textarea
@@ -185,39 +233,122 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
           />
         )}
 
-        <FormField
-          ref={register({
-            required: t("required"),
-            pattern: {
-              value: PASSWORD_PATTERN,
-              message: PASSWORD_ERROR_CAPTION,
-            },
-          })}
-          label={t("password")}
-          labelDescription={t("unlockPasswordInputDescription")}
-          id="newwallet-password"
-          type="password"
-          name="password"
-          placeholder="********"
-          errorCaption={errors.password?.message}
-          containerClassName="mb-4"
-        />
+        {ownMnemonic && activeTabIndex === 1 && (
+          <>
+            <label className={classNames("mb-2 leading-tight flex flex-col")}>
+              <span className="text-base font-semibold text-gray-700">
+                <T id="file" />
+              </span>
 
-        <FormField
-          ref={register({
-            required: t("required"),
-            validate: (val) =>
-              val === passwordValue || t("mustBeEqualToPasswordAbove"),
-          })}
-          label={t("repeatPassword")}
-          labelDescription={t("repeatPasswordInputDescription")}
-          id="newwallet-repassword"
-          type="password"
-          name="repassword"
-          placeholder="********"
-          errorCaption={errors.repassword?.message}
-          containerClassName="mb-6"
-        />
+              <span
+                className={classNames(
+                  "mt-1",
+                  "text-xs font-light text-gray-600"
+                )}
+                style={{ maxWidth: "90%" }}
+              >
+                <T id="keystoreFileFieldDescription" />
+              </span>
+            </label>
+
+            <div className="w-full mb-10">
+              <FileInput
+                name="keystoreFile"
+                multiple={false}
+                accept=".tez"
+                ref={register({
+                  required: t("required"),
+                })}
+              >
+                <div
+                  className={classNames(
+                    "w-full px-4 py-10 flex flex-col items-center",
+                    "border-2 border-dashed border-gray-600 rounded-md",
+                    "focus:border-primary-orange",
+                    "transition ease-in-out duration-200",
+                    "text-gray-400 text-lg leading-tight",
+                    "placeholder-alphagray"
+                  )}
+                >
+                  <div className="flex flex-row justify-center mb-10">
+                    <span className="text-lg leading-tight text-gray-600">
+                      {keystoreFile?.item(0)?.name ?? t("fileInputPrompt")}
+                    </span>
+                  </div>
+                  <div className="w-40 py-3 rounded bg-blue-600 shadow-sm text-center text-sm text-white">
+                    {t("selectFile")}
+                  </div>
+                </div>
+              </FileInput>
+              {errors.keystoreFile && (
+                <div className="text-xs text-red-500 mt-1">
+                  {errors.keystoreFile.message}
+                </div>
+              )}
+            </div>
+
+            <FormField
+              ref={register({
+                required: t("required"),
+              })}
+              label={t("filePassword")}
+              labelDescription={t("filePasswordInputDescription")}
+              id="keystore-password"
+              type="password"
+              name="keystorePassword"
+              placeholder="********"
+              errorCaption={errors.password?.message}
+              containerClassName="mb-8"
+            />
+
+            <FormCheckbox
+              ref={register()}
+              name="shouldUseKeystorePassword"
+              label={t("useKeystorePassword")}
+              containerClassName={shouldUseKeystorePassword ? "mb-2" : "mb-8"}
+            />
+          </>
+        )}
+
+        {(!ownMnemonic ||
+          activeTabIndex === 0 ||
+          !shouldUseKeystorePassword) && (
+          <>
+            <FormField
+              ref={register({
+                required: t("required"),
+                pattern: {
+                  value: PASSWORD_PATTERN,
+                  message: PASSWORD_ERROR_CAPTION,
+                },
+              })}
+              label={t("password")}
+              labelDescription={t("unlockPasswordInputDescription")}
+              id="newwallet-password"
+              type="password"
+              name="password"
+              placeholder="********"
+              errorCaption={errors.password?.message}
+              containerClassName="mb-8"
+            />
+
+            <FormField
+              ref={register({
+                required: t("required"),
+                validate: (val) =>
+                  val === passwordValue || t("mustBeEqualToPasswordAbove"),
+              })}
+              label={t("repeatPassword")}
+              labelDescription={t("repeatPasswordInputDescription")}
+              id="newwallet-repassword"
+              type="password"
+              name="repassword"
+              placeholder="********"
+              errorCaption={errors.repassword?.message}
+              containerClassName="mb-8"
+            />
+          </>
+        )}
 
         <FormCheckbox
           ref={register({
@@ -257,11 +388,14 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
               ]}
             />
           }
-          containerClassName="mb-6"
+          containerClassName="mb-8"
         />
 
-        <FormSubmitButton loading={submitting}>
-          <T id="create" />
+        <FormSubmitButton
+          loading={submitting}
+          className={ownMnemonic ? "w-full flex justify-center" : undefined}
+        >
+          <T id={ownMnemonic ? "import" : "create"} />
         </FormSubmitButton>
       </form>
     </Template>

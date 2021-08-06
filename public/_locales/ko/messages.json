@@ -646,9 +646,6 @@
   "processing": {
     "message": "처리 중..."
   },
-  "restoreWalletWithSeedPhrase": {
-    "message": "비밀 문구로 지갑을 복원하세요"
-  },
   "accountAddressLabel": {
     "message": "회원님의 현재 계정 주소입니다. 이를 공유하여 자금을 받으세요."
   },

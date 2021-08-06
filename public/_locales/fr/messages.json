@@ -646,9 +646,6 @@
   "processing": {
     "message": "Traitement…"
   },
-  "restoreWalletWithSeedPhrase": {
-    "message": "Restaurez votre portefeuille avec la phrase mnémonique"
-  },
   "accountAddressLabel": {
     "message": "L'adresse de votre compte actuel. Partagez-la pour recevoir des fonds."
   },

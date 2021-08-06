@@ -646,8 +646,8 @@
   "processing": {
     "message": "Processing..."
   },
-  "restoreWalletWithSeedPhrase": {
-    "message": "Restore your Wallet with Seed Phrase"
+  "restoreWallet": {
+    "message": "Restore your Wallet"
   },
   "accountAddressLabel": {
     "message": "Your current account address. Share it to receive funds."

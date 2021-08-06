@@ -646,9 +646,6 @@
   "processing": {
     "message": "正在处理…"
   },
-  "restoreWalletWithSeedPhrase": {
-    "message": "用助记词恢复您的钱包"
-  },
   "accountAddressLabel": {
     "message": "您当前的账户地址。分享该地址来收款。"
   },

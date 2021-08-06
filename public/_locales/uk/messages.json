@@ -649,8 +649,8 @@
   "processing": {
     "message": "Обробка..."
   },
-  "restoreWalletWithSeedPhrase": {
-    "message": "Відновіть свій гаманець за допомогою сід фрази"
+  "restoreWallet": {
+    "message": "Відновіть свій гаманець"
   },
   "accountAddressLabel": {
     "message": "Адреса вашого аккаунту. Поділіться нею, щоб отримати кошти."
