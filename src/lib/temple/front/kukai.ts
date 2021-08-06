@@ -2,6 +2,8 @@ import { entropyToMnemonic } from "bip39";
 import * as forge from "node-forge";
 import scrypt from "scryptsy";
 
+import { t } from "lib/i18n/react";
+
 export interface AccountCredentials {
   sk: string | null;
   pk: string | null;
@@ -72,15 +74,13 @@ export async function decryptKukaiSeedPhrase(json: string, pwd: string) {
     const iv = bumpIV(walletData.iv, 1);
     const entropy = await decrypt(walletData.encryptedEntropy, pwd, iv);
     if (!entropy) {
-      throw new Error(
-        "Failed to decrypt entropy. Make sure the password is correct"
-      );
+      throw new Error(t("entropyDecryptionError"));
     }
 
     return entropyToMnemonic(entropy);
   }
   if (walletData.version !== 3) {
-    throw new Error("Only files of version 3 can be processed");
+    throw new Error(t("kukaiFileVersionError"));
   }
-  throw new Error("Cannot reveal seed phrase for this wallet type");
+  throw new Error(t("kukaiWalletTypeError"));
 }

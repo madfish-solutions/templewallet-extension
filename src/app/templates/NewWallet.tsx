@@ -107,10 +107,10 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
               setSeedRevealed(true);
             } catch (e) {
               alert({
-                title: "Error while importing Kukai wallet",
+                title: t("errorImportingKukaiWallet"),
                 children:
                   e instanceof SyntaxError
-                    ? t("The file has syntax error")
+                    ? t("fileHasSyntaxError")
                     : e.message,
               });
             }

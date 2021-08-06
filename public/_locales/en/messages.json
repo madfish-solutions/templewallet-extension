@@ -661,6 +661,21 @@
   "restoreWallet": {
     "message": "Restore your Wallet"
   },
+  "errorImportingKukaiWallet": {
+    "message": "Error while importing Kukai wallet"
+  },
+  "fileHasSyntaxError": {
+    "message": "The file has syntax error"
+  },
+  "entropyDecryptionError": {
+    "message": "Failed to decrypt entropy. Make sure the password is correct"
+  },
+  "kukaiFileVersionError": {
+    "message": "Only files of version 3 can be processed"
+  },
+  "kukaiWalletTypeError": {
+    "message": "Cannot reveal seed phrase for this wallet type"
+  },
   "accountAddressLabel": {
     "message": "Your current account address. Share it to receive funds."
   },
