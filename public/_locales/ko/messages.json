@@ -591,9 +591,6 @@
   "mnemonicInputLabel": {
     "message": "비밀 문구"
   },
-  "mnemonicInputDescription": {
-    "message": "니모닉. 회원님의 12개 단어로 된 비밀 문구."
-  },
   "mnemonicInputPlaceholder": {
     "message": "예) 장소 양말 우유 업데이트..."
   },
@@ -723,9 +720,6 @@
   },
   "importExistingWallet": {
     "message": "기존 지갑 불러오기"
-  },
-  "importExistingWalletDescription": {
-    "message": "비밀 문구가 이미 있으신가요? 12글자 이상의 니모닉 단어로 기존 지갑을 불러오세요"
   },
   "links": {
     "message": "링크"

@@ -591,9 +591,6 @@
   "mnemonicInputLabel": {
     "message": "phrase mnémonique"
   },
-  "mnemonicInputDescription": {
-    "message": "Mnémonique. Votre phrase secrète à douze mots."
-  },
   "mnemonicInputPlaceholder": {
     "message": "p. ex. venue sock milk update…"
   },
@@ -723,9 +720,6 @@
   },
   "importExistingWallet": {
     "message": "Importer un portefeuille existant"
-  },
-  "importExistingWalletDescription": {
-    "message": "Avez-vous déjà une phrase mnémonique ? Importez votre portefeuille existant en utilisant 12 mots mnémoniques ou plus"
   },
   "links": {
     "message": "Liens"

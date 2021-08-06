@@ -595,7 +595,7 @@
     "message": "Сід фраза"
   },
   "mnemonicInputDescription": {
-    "message": "Мнємоніка. Ваша таємна фраза з дванадцяти слів."
+    "message": "Мнємоніка. Ваша таємна фраза з 12 - 24 слів."
   },
   "mnemonicInputPlaceholder": {
     "message": "наприклад venue sock milk update..."
@@ -731,7 +731,7 @@
     "message": "Імпорт існуючого гаманця"
   },
   "importExistingWalletDescription": {
-    "message": "Уже є сід фраза? Імпортуйте свій гаманець, використовуючи 12 або більше слів мнємоніки"
+    "message": "Already have a wallet? Import it using your seed phrase or encrypted keystore file Уже є гаманець? Імпортуйте його, використовуючи сід фразу або файл зашифрованого сховища ключа"
   },
   "links": {
     "message": "Посилання"
