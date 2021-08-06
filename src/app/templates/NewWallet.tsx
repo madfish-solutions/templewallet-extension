@@ -22,6 +22,8 @@ import {
   MNEMONIC_ERROR_CAPTION,
   formatMnemonic,
 } from "app/defaults";
+import { ReactComponent as TrashbinIcon } from "app/icons/bin.svg";
+import { ReactComponent as PaperclipIcon } from "app/icons/paperclip.svg";
 import { T, t } from "lib/i18n/react";
 import { decryptKukaiSeedPhrase, useTempleClient } from "lib/temple/front";
 import { useAlert } from "lib/ui/dialog";
@@ -63,12 +65,14 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
     errors,
     triggerValidation,
     formState,
+    setValue,
   } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
   const shouldUseKeystorePassword = watch("shouldUseKeystorePassword");
   const passwordValue = watch("password");
-  const keystoreFile = watch("keystoreFile");
+  const keystoreFileList = watch("keystoreFile");
+  const keystoreFile = keystoreFileList?.item(0);
 
   useLayoutEffect(() => {
     if (formState.dirtyFields.has("repassword")) {
@@ -79,6 +83,15 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [backupData, setBackupData] = useState<BackupData | null>(null);
   const [verifySeedPhrase, setVerifySeedPhrase] = useState(false);
+
+  const clearKeystoreFileInput = useCallback(
+    (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+      e.stopPropagation();
+      // @ts-ignore
+      setValue("keystoreFile", []);
+    },
+    [setValue]
+  );
 
   const onSubmit = useCallback(
     async (data: FormData) => {
@@ -271,10 +284,18 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
                     "placeholder-alphagray"
                   )}
                 >
-                  <div className="flex flex-row justify-center mb-10">
+                  <div className="flex flex-row justify-center items-center mb-10">
                     <span className="text-lg leading-tight text-gray-600">
-                      {keystoreFile?.item(0)?.name ?? t("fileInputPrompt")}
+                      {keystoreFile?.name ?? t("fileInputPrompt")}
                     </span>
+                    {keystoreFile ? (
+                      <TrashbinIcon
+                        className="ml-2 w-6 h-auto text-red-700 stroke-current z-10 cursor-pointer"
+                        onClick={clearKeystoreFileInput}
+                      />
+                    ) : (
+                      <PaperclipIcon className="ml-2 w-6 h-auto text-gray-600 stroke-current" />
+                    )}
                   </div>
                   <div className="w-40 py-3 rounded bg-blue-600 shadow-sm text-center text-sm text-white">
                     {t("selectFile")}
