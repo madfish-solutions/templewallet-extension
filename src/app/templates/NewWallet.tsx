@@ -104,6 +104,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
                   : data.password!,
                 mnemonic
               );
+              setSeedRevealed(true);
             } catch (e) {
               alert({
                 title: "Error while importing Kukai wallet",
