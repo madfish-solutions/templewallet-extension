@@ -18,6 +18,7 @@ import FileInput from "app/atoms/FileInput";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import NoSpaceField from "app/atoms/NoSpaceField";
+import TabSwitcher from "app/atoms/TabSwitcher";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
@@ -41,7 +42,7 @@ import {
   ImportAccountFormType,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
-import { Link, navigate } from "lib/woozie";
+import { navigate } from "lib/woozie";
 
 type ImportAccountProps = {
   tabSlug: string | null;
@@ -135,38 +136,12 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
       }
     >
       <div className="py-4">
-        <div
-          className={classNames(
-            "w-full max-w-md mx-auto",
-            "mb-4",
-            "flex flex-wrap items-center justify-center"
-          )}
-        >
-          {allTabs.map((t) => {
-            const active = slug === t.slug;
-
-            return (
-              <T key={t.slug} id={t.i18nKey}>
-                {(message) => (
-                  <Link
-                    to={`/import-account/${t.slug}`}
-                    replace
-                    className={classNames(
-                      "text-center cursor-pointer rounded-md mx-1 py-2 px-3 mb-1",
-                      "text-gray-600 text-sm",
-                      active
-                        ? "text-primary-orange bg-primary-orange bg-opacity-10"
-                        : "hover:bg-gray-100 focus:bg-gray-100",
-                      "transition ease-in-out duration-200"
-                    )}
-                  >
-                    {message}
-                  </Link>
-                )}
-              </T>
-            );
-          })}
-        </div>
+        <TabSwitcher
+          className="mb-4"
+          tabs={allTabs}
+          activeTabSlug={slug}
+          urlPrefix="/import-account"
+        />
 
         <Form />
       </div>

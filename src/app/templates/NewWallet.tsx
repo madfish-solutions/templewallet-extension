@@ -8,7 +8,7 @@ import React, {
 
 import { validateMnemonic, generateMnemonic } from "bip39";
 import classNames from "clsx";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 import Alert from "app/atoms/Alert";
 import FileInput from "app/atoms/FileInput";
@@ -35,7 +35,7 @@ import Verify from "./NewWallet/Verify";
 interface FormData {
   keystoreFile?: FileList;
   keystorePassword?: string;
-  shouldUseKeystorePassword?: boolean;
+  shouldUseKeystorePassword: boolean;
   mnemonic?: string;
   password?: string;
   repassword?: string;
@@ -50,15 +50,30 @@ interface BackupData {
 type NewWalletProps = {
   ownMnemonic?: boolean;
   title: string;
+  tabSlug?: string;
 };
 
-const importWalletOptions = ["Seed phrase", "Keystore file"];
+const importWalletOptions = [
+  {
+    slug: "seed-phrase",
+    i18nKey: "seedPhrase",
+  },
+  {
+    slug: "keystore-file",
+    i18nKey: "keystoreFile",
+  },
+];
 
-const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
+const NewWallet: FC<NewWalletProps> = ({
+  ownMnemonic = false,
+  title,
+  tabSlug = "seed-phrase",
+}) => {
   const { locked, registerWallet, setSeedRevealed } = useTempleClient();
   const alert = useAlert();
 
   const {
+    control,
     watch,
     register,
     handleSubmit,
@@ -66,7 +81,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
     triggerValidation,
     formState,
     setValue,
-  } = useForm<FormData>();
+  } = useForm<FormData>({ defaultValues: { shouldUseKeystorePassword: true } });
   const submitting = formState.isSubmitting;
 
   const shouldUseKeystorePassword = watch("shouldUseKeystorePassword");
@@ -74,13 +89,15 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
   const keystoreFileList = watch("keystoreFile");
   const keystoreFile = keystoreFileList?.item(0);
 
+  const isImportFromSeedPhrase = tabSlug === "seed-phrase";
+  const isImportFromKeystore = tabSlug === "keystore-file";
+
   useLayoutEffect(() => {
     if (formState.dirtyFields.has("repassword")) {
       triggerValidation("repassword");
     }
   }, [triggerValidation, formState.dirtyFields, passwordValue]);
 
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [backupData, setBackupData] = useState<BackupData | null>(null);
   const [verifySeedPhrase, setVerifySeedPhrase] = useState(false);
 
@@ -99,7 +116,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
 
       try {
         if (ownMnemonic) {
-          if (activeTabIndex === 0) {
+          if (isImportFromSeedPhrase) {
             await registerWallet(
               data.password!,
               formatMnemonic(data.mnemonic!)
@@ -152,7 +169,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
       registerWallet,
       setSeedRevealed,
       alert,
-      activeTabIndex,
+      isImportFromSeedPhrase,
     ]
   );
 
@@ -179,15 +196,12 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
   return (
     <Template title={title}>
       {ownMnemonic && (
-        <>
-          <TabSwitcher
-            className="mt-4"
-            tabsLabels={importWalletOptions}
-            activeTabIndex={activeTabIndex}
-            onTabSelect={setActiveTabIndex}
-          />
-          <div className="h-4" />
-        </>
+        <TabSwitcher
+          className="py-4"
+          tabs={importWalletOptions}
+          activeTabSlug={tabSlug}
+          urlPrefix="/import-wallet"
+        />
       )}
       <form
         className="w-full max-w-sm mx-auto my-8"
@@ -225,7 +239,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
           />
         )}
 
-        {ownMnemonic && activeTabIndex === 0 && (
+        {ownMnemonic && isImportFromSeedPhrase && (
           <FormField
             secret
             textarea
@@ -247,8 +261,10 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
           />
         )}
 
-        {ownMnemonic && activeTabIndex === 1 && (
-          <>
+        {ownMnemonic && (
+          <div
+            className={classNames("w-full", !isImportFromKeystore && "hidden")}
+          >
             <label className={classNames("mb-4 leading-tight flex flex-col")}>
               <span className="text-base font-semibold text-gray-700">
                 <T id="file" />
@@ -323,17 +339,18 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
               containerClassName="mb-8"
             />
 
-            <FormCheckbox
-              ref={register()}
+            <Controller
+              control={control}
               name="shouldUseKeystorePassword"
+              as={FormCheckbox}
               label={t("useKeystorePassword")}
               containerClassName={shouldUseKeystorePassword ? "mb-2" : "mb-8"}
             />
-          </>
+          </div>
         )}
 
         {(!ownMnemonic ||
-          activeTabIndex === 0 ||
+          isImportFromSeedPhrase ||
           !shouldUseKeystorePassword) && (
           <>
             <FormField
@@ -413,10 +430,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
           containerClassName="mb-8"
         />
 
-        <FormSubmitButton
-          loading={submitting}
-          className={ownMnemonic ? "w-full flex justify-center" : undefined}
-        >
+        <FormSubmitButton loading={submitting}>
           <T id={ownMnemonic ? "import" : "create"} />
         </FormSubmitButton>
       </form>

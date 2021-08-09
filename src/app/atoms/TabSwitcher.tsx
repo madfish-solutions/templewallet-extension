@@ -1,82 +1,57 @@
-import React, { useCallback } from "react";
+import React from "react";
 
 import classNames from "clsx";
 
+import { T } from "lib/i18n/react";
+import { Link } from "lib/woozie";
+
+type TabDescriptor = {
+  slug: string;
+  i18nKey: string;
+};
+
 type TabSwitcherProps = {
   className?: string;
-  tabsLabels: string[];
-  activeTabIndex: number;
-  onTabSelect: (index: number) => void;
+  tabs: TabDescriptor[];
+  activeTabSlug: string;
+  urlPrefix: string;
 };
 
 const TabSwitcher: React.FC<TabSwitcherProps> = ({
   className,
-  tabsLabels,
-  activeTabIndex,
-  onTabSelect,
+  tabs,
+  activeTabSlug,
+  urlPrefix,
 }) => (
   <div
     className={classNames(
-      "w-full flex justify-around border-b border-gray-300",
+      "w-full max-w-md mx-auto",
+      "flex flex-wrap items-center justify-center",
       className
     )}
   >
-    {tabsLabels.map((tabLabel, index) => (
-      <TabSwitcherItem
-        key={index}
-        active={activeTabIndex === index}
-        index={index}
-        onSelect={onTabSelect}
-      >
-        {tabLabel}
-      </TabSwitcherItem>
-    ))}
+    {tabs.map(({ slug, i18nKey }) => {
+      const active = slug === activeTabSlug;
+
+      return (
+        <Link
+          key={slug}
+          to={`${urlPrefix}/${slug}`}
+          replace
+          className={classNames(
+            "text-center cursor-pointer rounded-md mx-1 py-2 px-3 mb-1",
+            "text-gray-600 text-sm",
+            active
+              ? "text-primary-orange bg-primary-orange bg-opacity-10"
+              : "hover:bg-gray-100 focus:bg-gray-100",
+            "transition ease-in-out duration-200"
+          )}
+        >
+          <T id={i18nKey} />
+        </Link>
+      );
+    })}
   </div>
 );
 
 export default TabSwitcher;
-
-type TabSwitcherItemProps = {
-  active: boolean;
-  index: number;
-  onSelect: (index: number) => void;
-};
-
-const TabSwitcherItem: React.FC<TabSwitcherItemProps> = ({
-  active,
-  children,
-  index,
-  onSelect,
-}) => {
-  const handleSelect = useCallback(() => onSelect(index), [onSelect, index]);
-
-  return (
-    <>
-      <div
-        className="relative py-2 cursor-pointer"
-        style={{ paddingLeft: "0.875rem", paddingRight: "0.875rem" }}
-        onClick={handleSelect}
-      >
-        <span
-          className={classNames(
-            "text-base leading-tight",
-            active ? "text-primary-orange" : "text-gray-500",
-            "transition ease-in-out duration-200"
-          )}
-        >
-          {children}
-        </span>
-        {active && (
-          <div
-            className="w-full bg-primary-orange absolute"
-            style={{
-              bottom: -3,
-              left: 0,
-              height: 2,
-            }}
-          />
-        )}
-      </div>
-    </>
-  );
-};

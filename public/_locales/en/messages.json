@@ -1025,6 +1025,9 @@
   "file": {
     "message": "File"
   },
+  "keystoreFile": {
+    "message": "Keystore File"
+  },
   "keystoreFileFieldDescription": {
     "message": "Import your wallet from an encrypted keystore file (.tez)."
   },
