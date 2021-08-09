@@ -249,7 +249,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
 
         {ownMnemonic && activeTabIndex === 1 && (
           <>
-            <label className={classNames("mb-2 leading-tight flex flex-col")}>
+            <label className={classNames("mb-4 leading-tight flex flex-col")}>
               <span className="text-base font-semibold text-gray-700">
                 <T id="file" />
               </span>
@@ -277,7 +277,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
                 <div
                   className={classNames(
                     "w-full px-4 py-10 flex flex-col items-center",
-                    "border-2 border-dashed border-gray-600 rounded-md",
+                    "border-2 border-dashed border-gray-400 rounded-md",
                     "focus:border-primary-orange",
                     "transition ease-in-out duration-200",
                     "text-gray-400 text-lg leading-tight",
@@ -297,7 +297,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title }) => {
                       <PaperclipIcon className="ml-2 w-6 h-auto text-gray-600 stroke-current" />
                     )}
                   </div>
-                  <div className="w-40 py-3 rounded bg-blue-600 shadow-sm text-center text-sm text-white">
+                  <div className="w-40 py-3 rounded bg-blue-600 shadow-sm text-center font-semibold text-sm text-white">
                     {t("selectFile")}
                   </div>
                 </div>
