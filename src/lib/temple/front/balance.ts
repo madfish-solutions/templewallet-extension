@@ -1,5 +1,7 @@
 import { useCallback, useMemo } from "react";
 
+import BigNumber from "bignumber.js";
+
 import { useRetryableSWR } from "lib/swr";
 import {
   useTezos,
@@ -14,6 +16,7 @@ type UseBalanceOptions = {
   suspense?: boolean;
   networkRpc?: string;
   displayed?: boolean;
+  initial?: BigNumber;
 };
 
 export function useBalance(
@@ -22,7 +25,7 @@ export function useBalance(
   opts: UseBalanceOptions = {}
 ) {
   const nativeTezos = useTezos();
-  const asssetMetadata = useAssetMetadata(assetSlug);
+  const assetMetadata = useAssetMetadata(assetSlug);
 
   const tezos = useMemo(() => {
     if (opts.networkRpc) {
@@ -42,8 +45,8 @@ export function useBalance(
   }, [opts.networkRpc, nativeTezos]);
 
   const fetchBalanceLocal = useCallback(
-    () => fetchBalance(tezos, assetSlug, asssetMetadata, address),
-    [tezos, address, assetSlug, asssetMetadata]
+    () => fetchBalance(tezos, assetSlug, assetMetadata, address),
+    [tezos, address, assetSlug, assetMetadata]
   );
 
   const displayed = opts.displayed ?? true;
@@ -55,6 +58,12 @@ export function useBalance(
       suspense: opts.suspense ?? true,
       revalidateOnFocus: false,
       dedupingInterval: 30_000,
+      ...(opts.initial
+        ? {
+            initialData: opts.initial,
+            revalidateOnMount: true,
+          }
+        : {}),
     }
   );
 }

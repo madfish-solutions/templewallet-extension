@@ -36,7 +36,6 @@ import { Link, useLocation, navigate, HistoryAction } from "lib/woozie";
 
 import { ExploreSelectors } from "./Explore.selectors";
 import AddressChip from "./Explore/AddressChip";
-// import AddUnknownTokens from "./Explore/AddUnknownTokens";
 import Assets from "./Explore/Assets";
 import BakingSection from "./Explore/BakingSection";
 import EditableTitle from "./Explore/EditableTitle";
@@ -142,8 +141,6 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
       </div>
 
       <SecondarySection assetSlug={assetSlug} />
-
-      {/* <AddUnknownTokens /> */}
     </PageLayout>
   );
 };

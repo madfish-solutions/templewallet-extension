@@ -11,7 +11,7 @@ import IconifiedSelect, {
 import InUSD from "app/templates/InUSD";
 import { T } from "lib/i18n/react";
 import {
-  useAccountTokensLazy,
+  useDisplayedFungibleTokens,
   useAccount,
   TempleAccountType,
   useChainId,
@@ -32,12 +32,14 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
   const account = useAccount();
   const address = account.publicKeyHash;
 
-  const { data: tokens } = useAccountTokensLazy(chainId, address);
+  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
 
   const assetSlugs = useMemo(
     () => [
       "tez",
-      ...(account.type !== TempleAccountType.ManagedKT && tokens ? tokens : []),
+      ...(account.type !== TempleAccountType.ManagedKT && tokens
+        ? tokens.map((t) => t.tokenSlug)
+        : []),
     ],
     [account.type, tokens]
   );
