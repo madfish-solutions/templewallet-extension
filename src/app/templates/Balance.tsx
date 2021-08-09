@@ -12,14 +12,23 @@ type BalanceProps = {
   assetSlug?: string;
   networkRpc?: string;
   displayed?: boolean;
+  initial?: BigNumber;
 };
 
 const Balance = memo<BalanceProps>(
-  ({ address, children, assetSlug = "tez", networkRpc, displayed }) => {
+  ({
+    address,
+    children,
+    assetSlug = "tez",
+    networkRpc,
+    displayed,
+    initial,
+  }) => {
     const { data: balance } = useBalance(assetSlug, address, {
       networkRpc,
       suspense: false,
       displayed,
+      initial,
     });
     const exist = balance !== undefined;
 

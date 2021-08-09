@@ -9,6 +9,7 @@ import {
   TempleRefsProvider,
   useNetwork,
 } from "lib/temple/front/ready";
+import { SyncTokensProvider } from "lib/temple/front/sync-tokens";
 import { USDPriceProvider } from "lib/temple/front/usdprice";
 
 export const TempleProvider: FC = ({ children }) => (
@@ -28,13 +29,15 @@ const ConditionalReadyTemple: FC = ({ children }) => {
         <ReadyTempleProvider>
           <WalletRpcProvider>
             <TokensMetadataProvider>
-              <TempleRefsProvider>
-                <USDPriceProvider>
-                  <NewBlockTriggersProvider>
-                    {children}
-                  </NewBlockTriggersProvider>
-                </USDPriceProvider>
-              </TempleRefsProvider>
+              <SyncTokensProvider>
+                <TempleRefsProvider>
+                  <USDPriceProvider>
+                    <NewBlockTriggersProvider>
+                      {children}
+                    </NewBlockTriggersProvider>
+                  </USDPriceProvider>
+                </TempleRefsProvider>
+              </SyncTokensProvider>
             </TokensMetadataProvider>
           </WalletRpcProvider>
         </ReadyTempleProvider>
@@ -44,11 +47,6 @@ const ConditionalReadyTemple: FC = ({ children }) => {
     [children, ready]
   );
 };
-
-// const PreloadAssetsProvider: FC = ({ children }) => {
-//   useAssets();
-//   return <>{children}</>;
-// };
 
 const WalletRpcProvider: FC = ({ children }) => {
   const network = useNetwork();

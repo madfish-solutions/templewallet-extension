@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import { cache } from "swr";
 
@@ -21,15 +22,14 @@ import InUSD from "app/templates/InUSD";
 import SearchAssetField from "app/templates/SearchAssetField";
 import { T } from "lib/i18n/react";
 import {
-  // searchAssets,
   useAccount,
   useBalanceSWRKey,
   useChainId,
-  useAccountTokensLazy,
-  // useTokensBaseMetadata,
+  useDisplayedFungibleTokens,
   useAssetMetadata,
   getAssetSymbol,
   getAssetName,
+  useTokensMetadata,
 } from "lib/temple/front";
 import { Link, navigate } from "lib/woozie";
 
@@ -40,15 +40,25 @@ const Assets: FC = () => {
   const account = useAccount();
   const address = account.publicKeyHash;
 
-  const {
-    data: tokens,
-    // isValidating: fetching,
-    // revalidate: refetchTokens,
-  } = useAccountTokensLazy(chainId, address);
+  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
 
-  // const [tokensBaseMetadata] = useTokensBaseMetadata();
+  const { allTokensBaseMetadata } = useTokensMetadata();
 
-  const assets = useMemo(() => ["tez", ...(tokens ?? [])], [tokens]);
+  const { assetSlugs, latestBalances } = useMemo(() => {
+    const assetSlugs = ["tez"];
+    const latestBalances: Record<string, string> = {};
+
+    for (const { tokenSlug, latestBalance } of tokens) {
+      if (tokenSlug in allTokensBaseMetadata) {
+        assetSlugs.push(tokenSlug);
+      }
+      if (latestBalance) {
+        latestBalances[tokenSlug] = latestBalance;
+      }
+    }
+
+    return { assetSlugs, latestBalances };
+  }, [tokens, allTokensBaseMetadata]);
 
   const [searchValue, setSearchValue] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -57,8 +67,8 @@ const Assets: FC = () => {
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
 
   const filteredAssets = useMemo(
-    () => (searchValue.length === 0 ? assets : []), // searchAssets(assets, searchValue),
-    [assets, searchValue]
+    () => (searchValue.length === 0 ? assetSlugs : []),
+    [assetSlugs, searchValue]
   );
 
   const activeAsset = useMemo(() => {
@@ -155,6 +165,7 @@ const Assets: FC = () => {
                 last={last}
                 active={active}
                 accountPkh={account.publicKeyHash}
+                latestBalance={latestBalances[asset]}
               />
             );
           })}
@@ -206,11 +217,12 @@ type ListItemProps = {
   last: boolean;
   active: boolean;
   accountPkh: string;
+  latestBalance?: string;
 };
 
 const ListItem = memo<ListItemProps>(
-  ({ assetSlug, last, active, accountPkh }) => {
-    const assetMetadata = useAssetMetadata(assetSlug);
+  ({ assetSlug, last, active, accountPkh, latestBalance }) => {
+    const metadata = useAssetMetadata(assetSlug);
 
     const balanceSWRKey = useBalanceSWRKey(assetSlug, accountPkh);
     const balanceAlreadyLoaded = useMemo(
@@ -220,6 +232,11 @@ const ListItem = memo<ListItemProps>(
 
     const toDisplayRef = useRef<HTMLDivElement>(null);
     const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
+
+    const initialBalance = useMemo(() => {
+      if (!metadata || !latestBalance) return;
+      return new BigNumber(latestBalance).div(10 ** metadata.decimals);
+    }, [latestBalance, metadata]);
 
     useEffect(() => {
       const el = toDisplayRef.current;
@@ -270,13 +287,14 @@ const ListItem = memo<ListItemProps>(
               address={accountPkh}
               assetSlug={assetSlug}
               displayed={displayed}
+              initial={initialBalance}
             >
               {(balance) => (
                 <div className="flex items-center">
                   <span className="text-base font-normal text-gray-700">
                     <Money>{balance}</Money>{" "}
                     <span className="opacity-90" style={{ fontSize: "0.75em" }}>
-                      {getAssetSymbol(assetMetadata)}
+                      {getAssetSymbol(metadata)}
                     </span>
                   </span>
 
@@ -297,7 +315,7 @@ const ListItem = memo<ListItemProps>(
             </Balance>
 
             <div className={classNames("text-xs font-light text-gray-600")}>
-              {getAssetName(assetMetadata)}
+              {getAssetName(metadata)}
             </div>
           </div>
         </div>
