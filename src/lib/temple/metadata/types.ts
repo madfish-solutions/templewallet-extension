@@ -4,6 +4,11 @@ export type AssetMetadata = {
   symbol: string;
   name: string;
 
+  // [default: false]
+  // Allows wallets to decide whether or not a symbol should be displayed
+  // in place of a name.
+  shouldPreferSymbol?: boolean;
+
   // [format: uri-reference]
   // A URI to an image of the asset for wallets and client applications
   // to have a scaled down image to present to end-users.
@@ -88,11 +93,6 @@ export type DetailedAssetMetdata = AssetMetadata &
     // The purpose of this field is for wallets to determine whether or not
     // to display balance information and an amount field when transferring.
     isBooleanAmount: boolean;
-
-    // [default: false]
-    // Allows wallets to decide whether or not a symbol should be displayed
-    // in place of a name.
-    shouldPreferSymbol?: boolean;
 
     // The object is an array with all elements.
     formats: AssetMetadataFormat[];

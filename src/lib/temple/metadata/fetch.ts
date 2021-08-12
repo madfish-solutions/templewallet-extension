@@ -36,19 +36,23 @@ export async function fetchTokenMetadata(
       () => tezos.contract.at(asset.contract, compose(tzip12, tzip16)),
       RETRY_PARAMS
     );
+    const assetId = asset.id ?? 0;
 
-    const tzip12Data = await retry(async () => {
-      const data: TokenMetadataWithLogo = await contract
-        .tzip12()
-        .getTokenMetadata(asset.id ?? 0);
-      assert("decimals" in data && ("name" in data || "symbol" in data));
-      return data;
-    }, RETRY_PARAMS);
+    const tzip12Data: TokenMetadataWithLogo = await retry(
+      () => contract.tzip12().getTokenMetadata(assetId),
+      RETRY_PARAMS
+    );
+
+    assert(
+      "decimals" in tzip12Data &&
+        ("name" in tzip12Data || "symbol" in tzip12Data)
+    );
 
     const base: AssetMetadata = {
       decimals: +tzip12Data.decimals,
       symbol: tzip12Data.symbol || tzip12Data.name!.substr(0, 8),
       name: tzip12Data.name || tzip12Data.symbol!,
+      shouldPreferSymbol: parseBool(tzip12Data.shouldPreferSymbol),
       thumbnailUri:
         tzip12Data.thumbnailUri ||
         tzip12Data.logo ||
@@ -60,14 +64,18 @@ export async function fetchTokenMetadata(
 
     let tzip16Data: Record<string, any> | undefined;
     try {
-      await retry(async () => {
-        const { metadata } = await contract.tzip16().getMetadata();
-        tzip16Data = metadata;
-      }, RETRY_PARAMS);
+      tzip16Data = await retry(
+        () =>
+          contract
+            .tzip16()
+            .getMetadata()
+            .then(({ metadata }) => metadata),
+        RETRY_PARAMS
+      );
     } catch {}
 
     const detailed: DetailedAssetMetdata = {
-      ...(tzip16Data ?? {}),
+      ...(tzip16Data?.assets?.[assetId] ?? {}),
       ...tzip12Data,
       ...base,
     };
@@ -87,7 +95,14 @@ export class NotFoundTokenMetadata extends Error {
   message = "Metadata for token doesn't found";
 }
 
+function parseBool(value: any) {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return;
+}
+
 interface TokenMetadataWithLogo extends TokenMetadata {
+  shouldPreferSymbol?: boolean;
   thumbnailUri?: string;
   logo?: string;
   icon?: string;
