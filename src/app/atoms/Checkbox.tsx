@@ -2,6 +2,7 @@ import React, {
   forwardRef,
   InputHTMLAttributes,
   useCallback,
+  useEffect,
   useState,
 } from "react";
 
@@ -28,6 +29,26 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     },
     ref
   ) => {
+    const [localChecked, setLocalChecked] = useState(() => checked ?? false);
+
+    useEffect(() => {
+      setLocalChecked((localChecked) => checked ?? localChecked);
+    }, [setLocalChecked, checked]);
+
+    const handleChange = useCallback(
+      (evt) => {
+        if (onChange) {
+          onChange(evt);
+          if (evt.defaultPrevented) {
+            return;
+          }
+        }
+
+        setLocalChecked(evt.target.checked);
+      },
+      [onChange, setLocalChecked]
+    );
+
     /**
      * Focus handling
      */
@@ -65,11 +86,11 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       <div
         className={classNames(
           "h-6 w-6 flex-shrink-0",
-          checked ? "bg-primary-orange" : "bg-black-40",
+          localChecked ? "bg-primary-orange" : "bg-black-40",
           "border",
           (() => {
             switch (true) {
-              case checked:
+              case localChecked:
                 return "border-primary-orange-dark";
 
               case localFocused:
@@ -95,8 +116,8 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           ref={ref}
           type="checkbox"
           className={classNames("sr-only", className)}
-          checked={checked}
-          onChange={onChange}
+          checked={localChecked}
+          onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
           {...rest}
@@ -104,7 +125,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 
         <OkIcon
           className={classNames(
-            checked ? "block" : "hidden",
+            localChecked ? "block" : "hidden",
             "h-4 w-4",
             "pointer-events-none",
             "stroke-current"

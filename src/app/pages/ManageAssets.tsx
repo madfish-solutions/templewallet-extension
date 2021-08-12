@@ -22,6 +22,7 @@ import {
   getAssetName,
   getAssetSymbol,
   setTokenStatus,
+  searchAssets,
 } from "lib/temple/front";
 import { ITokenStatus, ITokenType } from "lib/temple/repo";
 import { useConfirm } from "lib/ui/dialog";
@@ -51,8 +52,15 @@ const ManageAssetsContent: FC = () => {
   const account = useAccount();
   const address = account.publicKeyHash;
 
-  const { data: allTokenSlugs = [] } = useAllKnownFungibleTokenSlugs(chainId);
-  const { data: tokens = [], revalidate } = useFungibleTokens(chainId, address);
+  const {
+    data: allTokenSlugs = [],
+    isValidating: allKnownFungibleTokenSlugsLoading,
+  } = useAllKnownFungibleTokenSlugs(chainId);
+  const {
+    data: tokens = [],
+    revalidate,
+    isValidating: fungibleTokensLoading,
+  } = useFungibleTokens(chainId, address);
   const tokenStatuses = useMemo(() => {
     const statuses: TokenStatuses = {};
     for (const t of tokens) {
@@ -64,11 +72,13 @@ const ManageAssetsContent: FC = () => {
     return statuses;
   }, [tokens]);
 
+  const loading = allKnownFungibleTokenSlugsLoading || fungibleTokensLoading;
+
   const { allTokensBaseMetadata } = useTokensMetadata();
 
   const [searchValue, setSearchValue] = useState("");
 
-  const filteredTokens = useMemo(
+  const managedTokens = useMemo(
     () =>
       allTokenSlugs.filter(
         (slug) => slug in allTokensBaseMetadata && !tokenStatuses[slug]?.removed
@@ -76,10 +86,10 @@ const ManageAssetsContent: FC = () => {
     [allTokenSlugs, allTokensBaseMetadata, tokenStatuses]
   );
 
-  // const filteredTokens = useMemo(
-  //   () => searchAssets(checkableTokens, searchValue),
-  //   [checkableTokens, searchValue]
-  // );
+  const filteredTokens = useMemo(
+    () => searchAssets(searchValue, managedTokens, allTokensBaseMetadata),
+    [managedTokens, allTokensBaseMetadata, searchValue]
+  );
 
   const confirm = useConfirm();
 
@@ -160,7 +170,7 @@ const ManageAssetsContent: FC = () => {
             );
           })}
         </div>
-      ) : (
+      ) : loading ? null : (
         <div
           className={classNames(
             "my-8",

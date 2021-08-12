@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
+import BigNumber from "bignumber.js";
 import constate from "constate";
 
 import {
@@ -14,14 +15,16 @@ import {
   toTokenSlug,
   useTokensMetadata,
   AssetMetadata,
+  useUSDPrices,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
+import { getAssetBalances, getTokensMetadata } from "lib/templewallet-api";
 
 export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
-  const { allTokensBaseMetadata, fetchMetadata, setTokensBaseMetadata } =
-    useTokensMetadata();
+  const { allTokensBaseMetadata, setTokensBaseMetadata } = useTokensMetadata();
+  const usdPrices = useUSDPrices();
 
   const networkId = useMemo(
     () =>
@@ -32,56 +35,89 @@ export const [SyncTokensProvider] = constate(() => {
   );
 
   const sync = useCallback(async () => {
-    if (!networkId) {
-      return;
-    }
+    if (networkId !== "mainnet") return;
 
-    const balances = await fetchBcdTokenBalances(networkId, accountPkh);
+    const bcdTokens = await fetchBcdTokenBalances(networkId, accountPkh);
 
-    const tokenSlugs: string[] = [];
-    const tokenRepoKeys: string[] = [];
-    for (const token of balances) {
-      const slug = toTokenSlug(token.contract, token.token_id);
-      tokenSlugs.push(slug);
-      tokenRepoKeys.push(Repo.toAccountTokenKey(chainId, accountPkh, slug));
-    }
+    let tokenSlugs = bcdTokens.map((token) =>
+      toTokenSlug(token.contract, token.token_id)
+    );
+
+    let balances = await getAssetBalances({
+      account: accountPkh,
+      assetSlugs: tokenSlugs,
+    });
+
+    tokenSlugs = tokenSlugs.filter((_slug, i) => balances[i] !== "0");
+    balances = balances.filter((b) => b !== "0");
+
+    const tokenRepoKeys = tokenSlugs.map((slug) =>
+      Repo.toAccountTokenKey(chainId, accountPkh, slug)
+    );
 
     const existingRecords = await Repo.accountTokens.bulkGet(tokenRepoKeys);
+
     const tokensMetadataToSet: Record<string, AssetMetadata> = {};
 
-    await Promise.all(
-      tokenSlugs.map(async (slug) => {
-        if (slug in allTokensBaseMetadata) return;
-        try {
-          const { base } = await fetchMetadata(slug);
-          tokensMetadataToSet[slug] = base;
-        } catch {}
-      })
+    // API usage
+    const metadataSlugs = tokenSlugs.filter(
+      (slug) => !(slug in allTokensBaseMetadata)
     );
+    const metadatas = await getTokensMetadata(metadataSlugs);
+    for (let i = 0; i < metadatas.length; i++) {
+      const metadata = metadatas[i];
+      if (metadata) tokensMetadataToSet[metadataSlugs[i]] = metadata;
+    }
+
+    // Local usage
+    //
+    // await Promise.all(
+    //   tokenSlugs.map(async (slug) => {
+    //     if (slug in allTokensBaseMetadata) return;
+    //     try {
+    //       const { base } = await fetchMetadata(slug);
+    //       tokensMetadataToSet[slug] = base;
+    //     } catch {}
+    //   })
+    // );
 
     await setTokensBaseMetadata(tokensMetadataToSet);
 
     await Repo.accountTokens.bulkPut(
-      balances.map((token, i) => {
+      tokenSlugs.map((slug, i) => {
         const existing = existingRecords[i];
+        const balance = balances[i];
+        const metadata =
+          tokensMetadataToSet[slug] ?? allTokensBaseMetadata[slug];
+
+        const price = usdPrices[slug];
+        const usdBalance =
+          price &&
+          metadata &&
+          new BigNumber(balance)
+            .times(price)
+            .div(10 ** metadata.decimals)
+            .toFixed();
 
         if (existing) {
           return {
             ...existing,
-            latestBalance: token.balance,
+            latestBalance: balance,
+            latestUSDBalance: usdBalance,
           };
         }
 
         return {
-          type: token.artifact_uri
+          type: metadata?.artifactUri
             ? Repo.ITokenType.Collectible
             : Repo.ITokenType.Fungible,
           chainId,
           account: accountPkh,
-          tokenSlug: tokenSlugs[i],
+          tokenSlug: slug,
           status: Repo.ITokenStatus.Idle,
           addedAt: Date.now(),
-          latestBalance: token.balance,
+          latestBalance: balance,
+          latestUSDBalance: usdBalance,
         };
       }),
       tokenRepoKeys
@@ -91,8 +127,8 @@ export const [SyncTokensProvider] = constate(() => {
     networkId,
     chainId,
     allTokensBaseMetadata,
-    fetchMetadata,
     setTokensBaseMetadata,
+    usdPrices,
   ]);
 
   const syncRef = useRef(sync);

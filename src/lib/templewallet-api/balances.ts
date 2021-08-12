@@ -6,5 +6,5 @@ export async function getAssetBalances(data: {
   account: string;
   assetSlugs: string[];
 }) {
-  return api.post<Record<string, string>>("/", data).then((r) => r.data);
+  return api.post<string[]>("/", data).then((r) => r.data);
 }

@@ -27,19 +27,19 @@ const ConditionalReadyTemple: FC = ({ children }) => {
     () =>
       ready ? (
         <ReadyTempleProvider>
-          <WalletRpcProvider>
-            <TokensMetadataProvider>
-              <SyncTokensProvider>
-                <TempleRefsProvider>
-                  <USDPriceProvider>
+          <TempleRefsProvider>
+            <WalletRpcProvider>
+              <TokensMetadataProvider>
+                <USDPriceProvider suspense>
+                  <SyncTokensProvider>
                     <NewBlockTriggersProvider>
                       {children}
                     </NewBlockTriggersProvider>
-                  </USDPriceProvider>
-                </TempleRefsProvider>
-              </SyncTokensProvider>
-            </TokensMetadataProvider>
-          </WalletRpcProvider>
+                  </SyncTokensProvider>
+                </USDPriceProvider>
+              </TokensMetadataProvider>
+            </WalletRpcProvider>
+          </TempleRefsProvider>
         </ReadyTempleProvider>
       ) : (
         <>{children}</>

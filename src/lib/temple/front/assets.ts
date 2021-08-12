@@ -1,15 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import constate from "constate";
 
 import { createQueue } from "lib/queue";
 import { useRetryableSWR } from "lib/swr";
 import {
-  TEZ_ASSET,
-  useTokens,
   useAllAssetsRef,
-  getAssetKey,
-  TempleAsset,
   useTezos,
   useStorage,
   isTezAsset,
@@ -23,7 +19,9 @@ import {
 } from "lib/temple/front";
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
-  return useRetryableSWR(
+  const allAssetsRef = useAllAssetsRef();
+
+  const res = useRetryableSWR(
     ["displayed-fungible-tokens", chainId, account],
     () => fetchDisplayedFungibleTokens(chainId, account),
     {
@@ -32,6 +30,17 @@ export function useDisplayedFungibleTokens(chainId: string, account: string) {
       dedupingInterval: 1_000,
     }
   );
+
+  useEffect(() => {
+    if (res.data) {
+      allAssetsRef.current = [
+        "tez",
+        ...res.data.map(({ tokenSlug }) => tokenSlug),
+      ];
+    }
+  }, [allAssetsRef, res.data]);
+
+  return res;
 }
 
 export function useFungibleTokens(chainId: string, account: string) {
@@ -132,49 +141,18 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
   };
 });
 
-export function useAssets() {
-  const { allTokens, displayedTokens } = useTokens();
-  const allAssetsRef = useAllAssetsRef();
-
-  const allAssets = useMemo(
-    () => [TEZ_ASSET, ...displayedTokens],
-    [displayedTokens]
-  );
-  const allAssetsWithHidden = useMemo(
-    () => [TEZ_ASSET, ...allTokens],
-    [allTokens]
-  );
-
-  useEffect(() => {
-    allAssetsRef.current = allAssets;
-  }, [allAssetsRef, allAssets]);
-
-  const defaultAsset = useMemo(() => allAssets[0], [allAssets]);
-
-  return { allAssets, allAssetsWithHidden, defaultAsset };
-}
-
-export function useAssetBySlug(slug?: string | null) {
-  const { allAssets } = useAssets();
-  const asset = useMemo(
-    () => allAssets.find((a) => getAssetKey(a) === slug) ?? null,
-    [allAssets, slug]
-  );
-  return useMemo(() => asset, [asset]);
-}
-
-export const ASSET_FIELDS_TO_SEARCH = ["symbol", "name", "address"];
-
-export function searchAssets<T extends TempleAsset>(
-  assets: T[],
-  searchValue: string
+export function searchAssets(
+  searchValue: string,
+  assetSlugs: string[],
+  allTokensBaseMetadata: Record<string, AssetMetadata>
 ) {
-  if (!searchValue) return assets;
+  if (!searchValue) return assetSlugs;
 
   const loweredSearchValue = searchValue.toLowerCase();
-  return assets.filter((a) =>
-    ASSET_FIELDS_TO_SEARCH.some((field) =>
-      (a as any)[field]?.toLowerCase().includes(loweredSearchValue)
-    )
-  );
+  return assetSlugs.filter((slug) => {
+    const metadata = allTokensBaseMetadata[slug];
+    return [metadata?.symbol, metadata?.name, slug].some((val) =>
+      val?.toLowerCase().includes(loweredSearchValue)
+    );
+  });
 }

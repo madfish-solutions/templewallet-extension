@@ -75,15 +75,13 @@ export function compareAccountTokensByUSDBalance(
 ) {
   switch (true) {
     case !a.latestUSDBalance:
-      return -1;
-
-    case !b.latestUSDBalance:
       return 1;
 
+    case !b.latestUSDBalance:
+      return -1;
+
     default:
-      return new BigNumber(a.latestUSDBalance!).isGreaterThan(
-        b.latestUSDBalance!
-      )
+      return new BigNumber(a.latestUSDBalance!).isLessThan(b.latestUSDBalance!)
         ? 1
         : -1;
   }
