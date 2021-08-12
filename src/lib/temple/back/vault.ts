@@ -35,6 +35,7 @@ import {
 } from "lib/temple/helpers";
 import { NETWORKS } from "lib/temple/networks";
 import * as Passworder from "lib/temple/passworder";
+import * as Repo from "lib/temple/repo";
 import {
   TempleAccount,
   TempleAccountType,
@@ -100,6 +101,7 @@ export class Vault {
 
       const passKey = await Passworder.generateKey(password);
 
+      await Repo.db.delete();
       await browser.storage.local.clear();
       await encryptAndSaveMany(
         [

@@ -30,6 +30,7 @@ import {
   getAssetSymbol,
   getAssetName,
   useTokensMetadata,
+  searchAssets,
 } from "lib/temple/front";
 import { Link, navigate } from "lib/woozie";
 
@@ -67,8 +68,8 @@ const Assets: FC = () => {
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
 
   const filteredAssets = useMemo(
-    () => (searchValue.length === 0 ? assetSlugs : []),
-    [assetSlugs, searchValue]
+    () => searchAssets(searchValue, assetSlugs, allTokensBaseMetadata),
+    [searchValue, assetSlugs, allTokensBaseMetadata]
   );
 
   const activeAsset = useMemo(() => {

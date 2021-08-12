@@ -1,3 +1,4 @@
 export * from "./types";
-export * from "./operations";
+export * from "./exchangeRates";
+export * from "./metadata";
 export * from "./balances";

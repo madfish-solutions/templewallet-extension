@@ -17,7 +17,6 @@ import {
   TempleAccountType,
   TempleStatus,
   TempleState,
-  TempleAsset,
   getClient,
   usePassiveStorage,
   useTempleClient,
@@ -243,7 +242,7 @@ function useRefs() {
   /**
    * All assets reference(cache), needed for pretty network reselect
    */
-  const allAssetsRef = useRef<TempleAsset[]>([]);
+  const allAssetsRef = useRef<string[]>([]);
 
   return { allAssetsRef };
 }
