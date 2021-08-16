@@ -23,7 +23,8 @@ import { getAssetBalances, getTokensMetadata } from "lib/templewallet-api";
 export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
-  const { allTokensBaseMetadata, setTokensBaseMetadata } = useTokensMetadata();
+  const { allTokensBaseMetadataRef, setTokensBaseMetadata } =
+    useTokensMetadata();
   const usdPrices = useUSDPrices();
 
   const networkId = useMemo(
@@ -61,25 +62,13 @@ export const [SyncTokensProvider] = constate(() => {
 
     // API usage
     const metadataSlugs = tokenSlugs.filter(
-      (slug) => !(slug in allTokensBaseMetadata)
+      (slug) => !(slug in allTokensBaseMetadataRef.current)
     );
     const metadatas = await getTokensMetadata(metadataSlugs);
     for (let i = 0; i < metadatas.length; i++) {
       const metadata = metadatas[i];
       if (metadata) tokensMetadataToSet[metadataSlugs[i]] = metadata;
     }
-
-    // Local usage
-    //
-    // await Promise.all(
-    //   tokenSlugs.map(async (slug) => {
-    //     if (slug in allTokensBaseMetadata) return;
-    //     try {
-    //       const { base } = await fetchMetadata(slug);
-    //       tokensMetadataToSet[slug] = base;
-    //     } catch {}
-    //   })
-    // );
 
     await setTokensBaseMetadata(tokensMetadataToSet);
 
@@ -88,7 +77,7 @@ export const [SyncTokensProvider] = constate(() => {
         const existing = existingRecords[i];
         const balance = balances[i];
         const metadata =
-          tokensMetadataToSet[slug] ?? allTokensBaseMetadata[slug];
+          tokensMetadataToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
 
         const price = usdPrices[slug];
         const usdBalance =
@@ -126,7 +115,7 @@ export const [SyncTokensProvider] = constate(() => {
     accountPkh,
     networkId,
     chainId,
-    allTokensBaseMetadata,
+    allTokensBaseMetadataRef,
     setTokensBaseMetadata,
     usdPrices,
   ]);

@@ -29,7 +29,7 @@ import {
   useAssetMetadata,
   getAssetSymbol,
   getAssetName,
-  useTokensMetadata,
+  useAllTokensBaseMetadata,
   searchAssets,
 } from "lib/temple/front";
 import { Link, navigate } from "lib/woozie";
@@ -43,7 +43,7 @@ const Assets: FC = () => {
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
 
-  const { allTokensBaseMetadata } = useTokensMetadata();
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const { assetSlugs, latestBalances } = useMemo(() => {
     const assetSlugs = ["tez"];
