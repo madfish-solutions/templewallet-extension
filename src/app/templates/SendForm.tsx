@@ -55,7 +55,7 @@ import {
   loadContract,
   mutezToTz,
   TempleAccountType,
-  TEZ_ASSET,
+  TEZOS_METADATA,
   toPenny,
   toTransferParams,
   tzToMutez,
@@ -932,7 +932,7 @@ const Form: FC<FormProps> = ({
             name="fee"
             control={control}
             onChange={handleFeeFieldChange}
-            assetSymbol={TEZ_ASSET.symbol}
+            assetSymbol={TEZOS_METADATA.symbol}
             baseFee={baseFee}
             error={errors.fee}
             id="send-fee"

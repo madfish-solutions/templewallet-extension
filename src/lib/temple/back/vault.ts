@@ -17,7 +17,6 @@ import * as Ed25519 from "ed25519-hd-key";
 import { browser } from "webextension-polyfill-ts";
 
 import { getMessage } from "lib/i18n";
-import { mergeAssets } from "lib/temple/assets/legacy";
 import { PublicError } from "lib/temple/back/defaults";
 import { TempleLedgerSigner } from "lib/temple/back/ledger-signer";
 import {
@@ -28,19 +27,16 @@ import {
 } from "lib/temple/back/safe-storage";
 import {
   transformHttpResponseError,
-  loadChainId,
   formatOpParamsBeforeSend,
   michelEncoder,
   loadFastRpcClient,
 } from "lib/temple/helpers";
-import { NETWORKS } from "lib/temple/networks";
 import * as Passworder from "lib/temple/passworder";
 import * as Repo from "lib/temple/repo";
 import {
   TempleAccount,
   TempleAccountType,
   TempleSettings,
-  TempleToken,
 } from "lib/temple/types";
 
 const TEZOS_BIP44_COINTYPE = 1729;
@@ -630,51 +626,10 @@ const MIGRATIONS = [
   // [2] Improve token managing flow
   // Migrate from tokens{netId}: TempleToken[] + hiddenTokens{netId}: TempleToken[]
   // to tokens{chainId}: TempleToken[]
-  async (passKey: CryptoKey) => {
-    let savedSettings;
-    try {
-      savedSettings = await fetchAndDecryptOne<TempleSettings>(
-        settingsStrgKey,
-        passKey
-      );
-    } catch {}
-    const customNetworks = savedSettings?.customNetworks ?? [];
-    const allNetworks = [...NETWORKS, ...customNetworks];
-    for (const net of allNetworks) {
-      const legacyTokensStrgKey = `tokens_${net.id}`;
-      const legacyHiddenTokensStrgKey = `hidden_tokens_${net.id}`;
-      const [
-        {
-          [legacyTokensStrgKey]: legacyTokens = [],
-          [legacyHiddenTokensStrgKey]: legacyHiddenTokens = [],
-        },
-        chainId,
-      ] = await Promise.all([
-        browser.storage.local.get([
-          legacyTokensStrgKey,
-          legacyHiddenTokensStrgKey,
-        ]),
-        loadChainId(net.rpcBaseURL),
-      ]);
-
-      const tokensStrgKey = `tokens_${chainId}`;
-      const { [tokensStrgKey]: existingTokens = [] } =
-        await browser.storage.local.get([tokensStrgKey]);
-
-      await browser.storage.local.set({
-        [tokensStrgKey]: mergeAssets(
-          existingTokens,
-          legacyTokens.map((t: TempleToken) => ({
-            ...t,
-            status: "displayed",
-          })),
-          legacyHiddenTokens.map((t: TempleToken) => ({
-            ...t,
-            status: "hidden",
-          }))
-        ),
-      });
-    }
+  async () => {
+    // The code base for this migration has been removed
+    // because it is no longer needed,
+    // but this migration is required for version compatibility.
   },
 ];
 

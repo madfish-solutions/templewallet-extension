@@ -1,8 +1,16 @@
 import { TezosToolkit } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
+import assert from "lib/assert";
 
-import { batchify, loadContract, withTokenApprove } from "lib/temple/front";
-import { TempleAsset, TempleAssetType, TempleChainId } from "lib/temple/types";
+import {
+  batchify,
+  loadContract,
+  withTokenApprove,
+  TempleChainId,
+  isTezAsset,
+  AssetMetadata,
+} from "lib/temple/front";
+import { fromAssetSlug, toTokenSlug } from "../assets";
 
 export type ExchangerType = "dexter" | "quipuswap";
 
@@ -15,9 +23,11 @@ export type AssetIdentifier = { address?: string; tokenId?: number };
 
 export type SwapParams = {
   accountPkh: string;
-  inputAsset: TempleAsset;
+  inputAssetSlug: string;
+  inputAssetMetadata: AssetMetadata;
   inputContractAddress?: string;
-  outputAsset: TempleAsset;
+  outputAssetSlug: string;
+  outputAssetMetadata: AssetMetadata;
   outputContractAddress?: string;
   exchangerType: ExchangerType;
   inputAmount: BigNumber;
@@ -106,26 +116,22 @@ export const QUIPUSWAP_CONTRACTS = new Map<
   ],
 ]);
 
-export function matchesAsset(assetId: AssetIdentifier, asset: TempleAsset) {
-  if (asset.type === TempleAssetType.TEZ) {
-    return !assetId.address;
-  }
-  if (assetId.address !== asset.address) {
-    return false;
-  }
-  return asset.type !== TempleAssetType.FA2 || assetId.tokenId === asset.id;
+export function matchesAsset(assetId: AssetIdentifier, assetSlug: string) {
+  return assetId.address
+    ? assetSlug === toTokenSlug(assetId.address, assetId.tokenId)
+    : isTezAsset(assetSlug);
 }
 
-export function getAssetId(asset: TempleAsset): AssetIdentifier {
-  switch (asset.type) {
-    case TempleAssetType.TEZ:
-      return {};
-    case TempleAssetType.FA2:
-      return { address: asset.address, tokenId: asset.id };
-    default:
-      return { address: asset.address };
-  }
-}
+// export function getAssetId(assetSlug: string): AssetIdentifier {
+//   switch (asset.type) {
+//     case TempleAssetType.TEZ:
+//       return {};
+//     case TempleAssetType.FA2:
+//       return { address: asset.address, tokenId: asset.id };
+//     default:
+//       return { address: asset.address };
+//   }
+// }
 
 export function idsAreEqual(id1: AssetIdentifier, id2: AssetIdentifier) {
   return id1.address === id2.address && id1.tokenId === id2.tokenId;
@@ -217,9 +223,11 @@ export async function getTokenInput(
 
 export async function swap({
   accountPkh,
-  inputAsset,
+  inputAssetSlug,
+  inputAssetMetadata,
   inputContractAddress,
-  outputAsset,
+  outputAssetSlug,
+  outputAssetMetadata,
   outputContractAddress,
   exchangerType,
   inputAmount,
@@ -228,10 +236,10 @@ export async function swap({
 }: SwapParams) {
   const transactionsBatch = tezos.wallet.batch([]);
   const rawInputAssetAmount = inputAmount.multipliedBy(
-    new BigNumber(10).pow(inputAsset.decimals)
+    new BigNumber(10).pow(inputAssetMetadata.decimals)
   );
-  const inputIsTz = inputAsset.type === TempleAssetType.TEZ;
-  const outputIsTz = outputAsset.type === TempleAssetType.TEZ;
+  const inputIsTz = isTezAsset(inputAssetSlug);
+  const outputIsTz = isTezAsset(outputAssetSlug);
   let mutezOutput = inputIsTz
     ? rawInputAssetAmount
     : await getMutezOutput(tezos, rawInputAssetAmount, {
@@ -241,7 +249,7 @@ export async function swap({
   const deadline = Math.floor(Date.now() / 1000) + 30 * 60 * 1000;
   const toleranceQuotient = new BigNumber(1).minus(tolerance);
   const tokenToTokenMiddleQuotient = toleranceQuotient.sqrt();
-  if (inputAsset.type !== TempleAssetType.TEZ) {
+  if (!inputIsTz) {
     const exchangeContract = await loadContract(tezos, inputContractAddress!);
     mutezOutput = BigNumber.max(
       floor(
@@ -266,19 +274,20 @@ export async function swap({
             )
             .toTransferParams(),
     ];
+    const inputAsset = await fromAssetSlug(tezos, inputAssetSlug);
+    assert(!isTezAsset(inputAsset));
     batchify(
       transactionsBatch,
       await withTokenApprove(tezos, exchangeOperations, {
-        tokenAddress: inputAsset.address,
-        tokenId:
-          inputAsset.type === TempleAssetType.FA2 ? inputAsset.id : undefined,
+        tokenAddress: inputAsset.contract,
+        tokenId: inputAsset.id,
         from: accountPkh,
         to: inputContractAddress!,
         value: rawInputAssetAmount,
       })
     );
   }
-  if (outputAsset.type !== TempleAssetType.TEZ) {
+  if (!outputIsTz) {
     const exchangeContract = await loadContract(tezos, outputContractAddress!);
     const maxTokensOutput = await getTokenOutput(tezos, mutezOutput, {
       address: outputContractAddress!,

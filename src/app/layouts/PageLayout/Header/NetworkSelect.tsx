@@ -8,12 +8,7 @@ import Name from "app/atoms/Name";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 import { T } from "lib/i18n/react";
-import {
-  useAllNetworks,
-  useNetwork,
-  useSetNetworkId,
-  preloadTokens,
-} from "lib/temple/front";
+import { useAllNetworks, useNetwork, useSetNetworkId } from "lib/temple/front";
 import Popper from "lib/ui/Popper";
 
 import { NetworkSelectSelectors } from "./NetworkSelect.selectors";
@@ -28,18 +23,12 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
   const handleNetworkSelect = useCallback(
     async (
       netId: string,
-      rpcUrl: string,
       selected: boolean,
       setOpened: (o: boolean) => void
     ) => {
       setOpened(false);
 
       if (!selected) {
-        try {
-          await preloadTokens(rpcUrl);
-        } catch (_err) {
-        }
-
         setNetworkId(netId);
       }
     },
@@ -68,7 +57,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
           {allNetworks
             // Don't show hidden (but known) nodes on the dropdown
             .filter((n) => !n.hidden)
-            .map(({ id, rpcBaseURL, name, color, disabled, nameI18nKey }) => {
+            .map(({ id, name, color, disabled, nameI18nKey }) => {
               const selected = id === network.id;
 
               return (
@@ -80,9 +69,9 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
                     "rounded",
                     "transition easy-in-out duration-200",
                     !disabled &&
-                    (selected
-                      ? "bg-white bg-opacity-10"
-                      : "hover:bg-white hover:bg-opacity-5"),
+                      (selected
+                        ? "bg-white bg-opacity-10"
+                        : "hover:bg-white hover:bg-opacity-5"),
                     disabled ? "cursor-default" : "cursor-pointer",
                     "flex items-center",
                     disabled && "opacity-25"
@@ -94,7 +83,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
                   autoFocus={selected}
                   onClick={() => {
                     if (!disabled) {
-                      handleNetworkSelect(id, rpcBaseURL, selected, setOpened);
+                      handleNetworkSelect(id, selected, setOpened);
                     }
                   }}
                   testID={NetworkSelectSelectors.NetworkItemButton}
@@ -154,7 +143,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
 
           <Name style={{ maxWidth: "7rem" }}>
             {(network.nameI18nKey && <T id={network.nameI18nKey} />) ||
-            network.name}
+              network.name}
           </Name>
 
           <ChevronDownIcon
