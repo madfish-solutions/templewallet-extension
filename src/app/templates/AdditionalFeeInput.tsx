@@ -31,7 +31,7 @@ import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
-import { TEZ_ASSET } from "lib/temple/front";
+import { TEZOS_METADATA } from "lib/temple/front";
 
 import { AdditionalFeeInputSelectors } from "./AdditionalFeeInput.selectors";
 
@@ -273,7 +273,7 @@ const FeeOptionContent: FC<OptionRenderProps<FeeOption>> = ({
         {amount && (
           <div className="ml-2 leading-none text-gray-600">
             <Money cryptoDecimals={5}>{amount}</Money>{" "}
-            <span style={{ fontSize: "0.75em" }}>{TEZ_ASSET.symbol}</span>
+            <span style={{ fontSize: "0.75em" }}>{TEZOS_METADATA.symbol}</span>
           </div>
         )}
       </div>
