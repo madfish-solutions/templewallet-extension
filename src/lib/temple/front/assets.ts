@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useRef } from "react";
 
 import constate from "constate";
+import deepEqual from "fast-deep-equal";
+import useForceUpdate from "use-force-update";
 
 import { createQueue } from "lib/queue";
 import { useRetryableSWR } from "lib/swr";
 import {
   useAllAssetsRef,
   useTezos,
-  useStorage,
+  usePassiveStorage,
   isTezAsset,
   AssetMetadata,
   fetchTokenMetadata,
@@ -16,7 +18,11 @@ import {
   fetchDisplayedFungibleTokens,
   fetchFungibleTokens,
   fetchAllKnownFungibleTokenSlugs,
+  onStorageChanged,
+  putToStorage,
 } from "lib/temple/front";
+
+export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = "all_tokens_base_metadata";
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
   const allAssetsRef = useAllAssetsRef();
@@ -72,12 +78,25 @@ const autoFetchMetadataFails = new Set<string>();
 
 export function useAssetMetadata(slug: string) {
   const tezos = useTezos();
+  const forceUpdate = useForceUpdate();
 
-  const { allTokensBaseMetadata, fetchMetadata, setTokensBaseMetadata } =
+  const { allTokensBaseMetadataRef, fetchMetadata, setTokensBaseMetadata } =
     useTokensMetadata();
 
+  useEffect(
+    () =>
+      onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, (newValue) => {
+        if (
+          !deepEqual(newValue[slug], allTokensBaseMetadataRef.current[slug])
+        ) {
+          forceUpdate();
+        }
+      }),
+    [slug, allTokensBaseMetadataRef, forceUpdate]
+  );
+
   const tezAsset = isTezAsset(slug);
-  const tokenMetadata = allTokensBaseMetadata[slug];
+  const tokenMetadata = allTokensBaseMetadataRef.current[slug];
   const exist = Boolean(tokenMetadata);
 
   // Load token metadata if missing
@@ -111,9 +130,18 @@ const defaultAllTokensBaseMetadata = {};
 const enqueueSetAllTokensBaseMetadata = createQueue();
 
 export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
-  const [allTokensBaseMetadata, setAllTokensBaseMetadata] = useStorage<
+  const [initialAllTokensBaseMetadata] = usePassiveStorage<
     Record<string, AssetMetadata>
-  >("all_tokens_base_metadata", defaultAllTokensBaseMetadata);
+  >(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, defaultAllTokensBaseMetadata);
+
+  const allTokensBaseMetadataRef = useRef(initialAllTokensBaseMetadata);
+  useEffect(
+    () =>
+      onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, (newValue) => {
+        allTokensBaseMetadataRef.current = newValue;
+      }),
+    []
+  );
 
   const tezos = useTezos();
   const tezosRef = useRef(tezos);
@@ -129,17 +157,32 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
   const setTokensBaseMetadata = useCallback(
     (toSet: Record<string, AssetMetadata>) =>
       enqueueSetAllTokensBaseMetadata(() =>
-        setAllTokensBaseMetadata((current) => ({ ...current, ...toSet }))
+        putToStorage(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, {
+          ...allTokensBaseMetadataRef.current,
+          ...toSet,
+        })
       ),
-    [setAllTokensBaseMetadata]
+    []
   );
 
   return {
-    allTokensBaseMetadata,
+    allTokensBaseMetadataRef,
     setTokensBaseMetadata,
     fetchMetadata,
   };
 });
+
+export function useAllTokensBaseMetadata() {
+  const { allTokensBaseMetadataRef } = useTokensMetadata();
+  const forceUpdate = useForceUpdate();
+
+  useEffect(
+    () => onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, forceUpdate),
+    [forceUpdate]
+  );
+
+  return allTokensBaseMetadataRef.current;
+}
 
 export function searchAssets(
   searchValue: string,

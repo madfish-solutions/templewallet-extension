@@ -22,21 +22,7 @@ export function useStorage<T = any>(
     revalidateOnReconnect: false,
   });
 
-  useEffect(() => {
-    const handleChanged = (
-      changes: {
-        [s: string]: Storage.StorageChange;
-      },
-      areaName: string
-    ) => {
-      if (areaName === "local" && key in changes) {
-        mutate(changes[key].newValue);
-      }
-    };
-
-    browser.storage.onChanged.addListener(handleChanged);
-    return () => browser.storage.onChanged.removeListener(handleChanged);
-  }, [key, mutate]);
+  useEffect(() => onStorageChanged(key, mutate), [key, mutate]);
 
   const value = fallback !== undefined ? data ?? fallback : data!;
 
@@ -80,6 +66,25 @@ export function usePassiveStorage<T = any>(
   }, [key, value]);
 
   return [value, setValue];
+}
+
+export function onStorageChanged<T = any>(
+  key: string,
+  callback: (newValue: T) => void
+) {
+  const handleChanged = (
+    changes: {
+      [s: string]: Storage.StorageChange;
+    },
+    areaName: string
+  ) => {
+    if (areaName === "local" && key in changes) {
+      callback(changes[key].newValue);
+    }
+  };
+
+  browser.storage.onChanged.addListener(handleChanged);
+  return () => browser.storage.onChanged.removeListener(handleChanged);
 }
 
 export async function fetchFromStorage(key: string) {
