@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo } from "react";
 
 import { RpcClient } from "@taquito/rpc";
 import { TezosToolkit } from "@taquito/taquito";
@@ -231,20 +225,6 @@ export function useRelevantAccounts(withExtraTypes = true) {
   }, [relevantAccounts, account, setAccountPkh, lazyChainId]);
 
   return useMemo(() => relevantAccounts, [relevantAccounts]);
-}
-
-export const [TempleRefsProvider, useAllAssetsRef] = constate(
-  useRefs,
-  (v) => v.allAssetsRef
-);
-
-function useRefs() {
-  /**
-   * All assets reference(cache), needed for pretty network reselect
-   */
-  const allAssetsRef = useRef<string[]>([]);
-
-  return { allAssetsRef };
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {
