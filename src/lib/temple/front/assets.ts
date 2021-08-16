@@ -7,7 +7,6 @@ import useForceUpdate from "use-force-update";
 import { createQueue } from "lib/queue";
 import { useRetryableSWR } from "lib/swr";
 import {
-  useAllAssetsRef,
   useTezos,
   usePassiveStorage,
   isTezAsset,
@@ -25,9 +24,7 @@ import {
 export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = "all_tokens_base_metadata";
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
-  const allAssetsRef = useAllAssetsRef();
-
-  const res = useRetryableSWR(
+  return useRetryableSWR(
     ["displayed-fungible-tokens", chainId, account],
     () => fetchDisplayedFungibleTokens(chainId, account),
     {
@@ -36,17 +33,6 @@ export function useDisplayedFungibleTokens(chainId: string, account: string) {
       dedupingInterval: 1_000,
     }
   );
-
-  useEffect(() => {
-    if (res.data) {
-      allAssetsRef.current = [
-        "tez",
-        ...res.data.map(({ tokenSlug }) => tokenSlug),
-      ];
-    }
-  }, [allAssetsRef, res.data]);
-
-  return res;
 }
 
 export function useFungibleTokens(chainId: string, account: string) {

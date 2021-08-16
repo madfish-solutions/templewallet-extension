@@ -58,12 +58,7 @@ export function useBalance(
       suspense: opts.suspense ?? true,
       revalidateOnFocus: false,
       dedupingInterval: 30_000,
-      ...(opts.initial
-        ? {
-            initialData: opts.initial,
-            revalidateOnMount: true,
-          }
-        : {}),
+      initialData: opts.initial,
     }
   );
 }

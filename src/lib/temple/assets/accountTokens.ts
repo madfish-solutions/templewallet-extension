@@ -61,7 +61,6 @@ export async function fetchAllKnownFungibleTokenSlugs(chainId: string) {
 }
 
 export function isFungibleTokenDisplayed(t: Repo.IAccountToken) {
-  if (t.type !== Repo.ITokenType.Fungible) return false;
   return (
     t.status === Repo.ITokenStatus.Enabled ||
     (t.status === Repo.ITokenStatus.Idle &&

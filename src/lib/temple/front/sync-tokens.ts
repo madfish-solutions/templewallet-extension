@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import BigNumber from "bignumber.js";
 import constate from "constate";
+import { trigger } from "swr";
 
 import {
   BCD_NETWORKS_NAMES,
@@ -49,9 +50,6 @@ export const [SyncTokensProvider] = constate(() => {
       assetSlugs: tokenSlugs,
     });
 
-    tokenSlugs = tokenSlugs.filter((_slug, i) => balances[i] !== "0");
-    balances = balances.filter((b) => b !== "0");
-
     const tokenRepoKeys = tokenSlugs.map((slug) =>
       Repo.toAccountTokenKey(chainId, accountPkh, slug)
     );
@@ -97,9 +95,11 @@ export const [SyncTokensProvider] = constate(() => {
         }
 
         return {
-          type: metadata?.artifactUri
-            ? Repo.ITokenType.Collectible
-            : Repo.ITokenType.Fungible,
+          // TODO: Uncomment when Collectible view is implemented
+          // type: metadata?.artifactUri
+          //   ? Repo.ITokenType.Collectible
+          //   : Repo.ITokenType.Fungible,
+          type: Repo.ITokenType.Fungible,
           chainId,
           account: accountPkh,
           tokenSlug: slug,
@@ -111,6 +111,8 @@ export const [SyncTokensProvider] = constate(() => {
       }),
       tokenRepoKeys
     );
+
+    trigger(["displayed-fungible-tokens", chainId, accountPkh], true);
   }, [
     accountPkh,
     networkId,
@@ -147,7 +149,7 @@ export const [SyncTokensProvider] = constate(() => {
         }
       } finally {
         if (isTheSameNetwork()) {
-          timeoutId = setTimeout(syncAndDefer, 60_000);
+          timeoutId = setTimeout(syncAndDefer, 30_000);
         }
       }
     };

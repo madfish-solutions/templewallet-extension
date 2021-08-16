@@ -234,7 +234,7 @@ const ListItem = memo<ListItemProps>(
     const toDisplayRef = useRef<HTMLDivElement>(null);
     const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
 
-    const initialBalance = useMemo(() => {
+    const preservedBalance = useMemo(() => {
       if (!metadata || !latestBalance) return;
       return new BigNumber(latestBalance).div(10 ** metadata.decimals);
     }, [latestBalance, metadata]);
@@ -258,6 +258,33 @@ const ListItem = memo<ListItemProps>(
       }
       return;
     }, [displayed, setDisplayed]);
+
+    const renderBalance = useCallback(
+      (balance: BigNumber) => (
+        <div className="flex items-center">
+          <span className="text-base font-normal text-gray-700">
+            <Money>{balance}</Money>{" "}
+            <span className="opacity-90" style={{ fontSize: "0.75em" }}>
+              {getAssetSymbol(metadata)}
+            </span>
+          </span>
+
+          <InUSD assetSlug={assetSlug} volume={balance}>
+            {(usdBalance) => (
+              <div
+                className={classNames(
+                  "ml-2",
+                  "text-sm font-light text-gray-600"
+                )}
+              >
+                ${usdBalance}
+              </div>
+            )}
+          </InUSD>
+        </div>
+      ),
+      [assetSlug, metadata]
+    );
 
     return (
       <Link
@@ -284,36 +311,17 @@ const ListItem = memo<ListItemProps>(
 
         <div ref={toDisplayRef} className="flex items-center">
           <div className="flex flex-col">
-            <Balance
-              address={accountPkh}
-              assetSlug={assetSlug}
-              displayed={displayed}
-              initial={initialBalance}
-            >
-              {(balance) => (
-                <div className="flex items-center">
-                  <span className="text-base font-normal text-gray-700">
-                    <Money>{balance}</Money>{" "}
-                    <span className="opacity-90" style={{ fontSize: "0.75em" }}>
-                      {getAssetSymbol(metadata)}
-                    </span>
-                  </span>
-
-                  <InUSD assetSlug={assetSlug} volume={balance}>
-                    {(usdBalance) => (
-                      <div
-                        className={classNames(
-                          "ml-2",
-                          "text-sm font-light text-gray-600"
-                        )}
-                      >
-                        ${usdBalance}
-                      </div>
-                    )}
-                  </InUSD>
-                </div>
-              )}
-            </Balance>
+            {preservedBalance ? (
+              renderBalance(preservedBalance)
+            ) : (
+              <Balance
+                address={accountPkh}
+                assetSlug={assetSlug}
+                displayed={displayed}
+              >
+                {renderBalance}
+              </Balance>
+            )}
 
             <div className={classNames("text-xs font-light text-gray-600")}>
               {getAssetName(metadata)}
