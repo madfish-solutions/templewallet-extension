@@ -98,7 +98,7 @@ const ManageAssetsContent: FC = () => {
       try {
         if (status === ITokenStatus.Removed) {
           const confirmed = await confirm({
-            title: "Really?",
+            title: t("deleteTokenConfirm"),
           });
           if (!confirmed) return;
         }
