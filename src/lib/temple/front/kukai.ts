@@ -55,10 +55,7 @@ async function decrypt(chipher: string, password: string, salt: string) {
   }
 }
 
-function bumpIV(salt: string, bumps: number) {
-  if (bumps > 255) {
-    throw new Error("Invalid incremention");
-  }
+function bumpIV(salt: string) {
   const buf = Buffer.from(salt, "hex");
   buf[13] = (buf[13] + 1) % 256;
 
@@ -71,7 +68,7 @@ export async function decryptKukaiSeedPhrase(json: string, pwd: string) {
     walletData.version === 3 &&
     (walletData.walletType === 4 || walletData.walletType === 0)
   ) {
-    const iv = bumpIV(walletData.iv, 1);
+    const iv = bumpIV(walletData.iv);
     const entropy = await decrypt(walletData.encryptedEntropy, pwd, iv);
     if (!entropy) {
       throw new Error(t("entropyDecryptionError"));
