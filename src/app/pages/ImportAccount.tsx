@@ -14,7 +14,7 @@ import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 
 import Alert from "app/atoms/Alert";
-import FileInput from "app/atoms/FileInput";
+import FileInput, { FileInputProps } from "app/atoms/FileInput";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import NoSpaceField from "app/atoms/NoSpaceField";
@@ -763,8 +763,10 @@ const FromFaucetForm: FC = () => {
   );
 
   const handleUploadChange = useCallback(
-    async (evt) => {
-      if (processing) return;
+    async (files?: FileList) => {
+      const inputFile = files?.item(0);
+
+      if (processing || !inputFile) return;
       setProcessing(true);
       setAlert(null);
 
@@ -787,7 +789,7 @@ const FromFaucetForm: FC = () => {
               }
             };
 
-            reader.readAsText(evt.target.files[0]);
+            reader.readAsText(inputFile);
           });
         } catch (_err) {
           throw new Error(t("unexpectedOrInvalidFile"));
@@ -860,55 +862,10 @@ const FromFaucetForm: FC = () => {
             </span>
           </label>
 
-          <FileInput
-            className="mb-2"
-            name="documents[]"
-            accept=".json,application/json"
+          <FaucetFileInput
             disabled={processing}
             onChange={handleUploadChange}
-          >
-            <div
-              className={classNames(
-                "w-full",
-                "px-4 py-6",
-                "border-2 border-dashed",
-                "border-gray-300",
-                "focus:border-primary-orange",
-                "bg-gray-100 focus:bg-transparent",
-                "focus:outline-none focus:shadow-outline",
-                "transition ease-in-out duration-200",
-                "rounded-md",
-                "text-gray-400 text-lg leading-tight",
-                "placeholder-alphagray"
-              )}
-            >
-              <svg
-                width={48}
-                height={48}
-                viewBox="0 0 24 24"
-                aria-labelledby="uploadIconTitle"
-                stroke="#e2e8f0"
-                strokeWidth={2}
-                strokeLinecap="round"
-                fill="none"
-                color="#e2e8f0"
-                className="m-4 mx-auto"
-              >
-                <title>{"Upload"}</title>
-                <path d="M12 4v13M7 8l5-5 5 5M20 21H4" />
-              </svg>
-              <div className="w-full text-center">
-                {processing ? (
-                  <T id="processing" />
-                ) : (
-                  <T
-                    id="selectFileOfFormat"
-                    substitutions={[<b key="format">JSON</b>]}
-                  />
-                )}
-              </div>
-            </div>
-          </FileInput>
+          />
         </div>
       </form>
 
@@ -1184,3 +1141,60 @@ function validateAddress(value: any) {
       return true;
   }
 }
+
+type FaucetFileInputProps = Pick<FileInputProps, "disabled" | "onChange">;
+
+const FaucetFileInput: React.FC<FaucetFileInputProps> = ({
+  disabled,
+  onChange,
+}) => (
+  <FileInput
+    className="mb-2"
+    name="documents[]"
+    accept=".json,application/json"
+    disabled={disabled}
+    onChange={onChange}
+  >
+    <div
+      className={classNames(
+        "w-full",
+        "px-4 py-6",
+        "border-2 border-dashed",
+        "border-gray-300",
+        "focus:border-primary-orange",
+        "bg-gray-100 focus:bg-transparent",
+        "focus:outline-none focus:shadow-outline",
+        "transition ease-in-out duration-200",
+        "rounded-md",
+        "text-gray-400 text-lg leading-tight",
+        "placeholder-alphagray"
+      )}
+    >
+      <svg
+        width={48}
+        height={48}
+        viewBox="0 0 24 24"
+        aria-labelledby="uploadIconTitle"
+        stroke="#e2e8f0"
+        strokeWidth={2}
+        strokeLinecap="round"
+        fill="none"
+        color="#e2e8f0"
+        className="m-4 mx-auto"
+      >
+        <title>{"Upload"}</title>
+        <path d="M12 4v13M7 8l5-5 5 5M20 21H4" />
+      </svg>
+      <div className="w-full text-center">
+        {disabled ? (
+          <T id="processing" />
+        ) : (
+          <T
+            id="selectFileOfFormat"
+            substitutions={[<b key="format">JSON</b>]}
+          />
+        )}
+      </div>
+    </div>
+  </FileInput>
+);

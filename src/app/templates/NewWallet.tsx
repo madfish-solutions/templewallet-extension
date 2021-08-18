@@ -13,7 +13,7 @@ import classNames from "clsx";
 import { Controller, useForm } from "react-hook-form";
 
 import Alert from "app/atoms/Alert";
-import FileInput from "app/atoms/FileInput";
+import FileInput, { FileInputProps } from "app/atoms/FileInput";
 import FormCheckbox from "app/atoms/FormCheckbox";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
@@ -103,8 +103,6 @@ const NewWallet: FC<NewWalletProps> = ({
 
   const shouldUseKeystorePassword = watch("shouldUseKeystorePassword");
   const passwordValue = watch("password");
-  const keystoreFileList = watch("keystoreFile");
-  const keystoreFile = keystoreFileList?.item(0);
 
   const isImportFromSeedPhrase = tabSlug === "seed-phrase";
   const isImportFromKeystore = tabSlug === "keystore-file";
@@ -116,7 +114,6 @@ const NewWallet: FC<NewWalletProps> = ({
     }
     prevTabSlugRef.current = tabSlug;
   }, [tabSlug, reset]);
-  console.log(errors);
 
   useLayoutEffect(() => {
     if (formState.dirtyFields.has("repassword")) {
@@ -308,49 +305,18 @@ const NewWallet: FC<NewWalletProps> = ({
             </label>
 
             <div className="w-full mb-10">
-              <FileInput
+              <Controller
+                control={control}
                 name="keystoreFile"
-                multiple={false}
-                accept=".tez"
-                ref={register({
+                as={KeystoreFileInput}
+                rules={{
                   required: isImportFromKeystore ? t("required") : false,
                   validate: isImportFromKeystore
                     ? validateKeystoreFile
                     : undefined,
-                })}
-              >
-                <div
-                  className={classNames(
-                    "w-full px-4 py-10 flex flex-col items-center",
-                    "border-2 border-dashed border-gray-400 rounded-md",
-                    "focus:border-primary-orange",
-                    "transition ease-in-out duration-200",
-                    "text-gray-400 text-lg leading-tight",
-                    "placeholder-alphagray"
-                  )}
-                >
-                  <div className="flex flex-row justify-center items-center mb-10">
-                    <span
-                      className="text-lg leading-tight text-gray-600"
-                      style={{ wordBreak: "break-word" }}
-                    >
-                      {keystoreFile?.name ?? t("fileInputPrompt")}
-                    </span>
-                    {keystoreFile ? (
-                      <TrashbinIcon
-                        className="ml-2 w-6 h-auto text-red-700 stroke-current z-10 cursor-pointer"
-                        onClick={clearKeystoreFileInput}
-                        style={{ minWidth: "1.5rem" }}
-                      />
-                    ) : (
-                      <PaperclipIcon className="ml-2 w-6 h-auto text-gray-600 stroke-current" />
-                    )}
-                  </div>
-                  <div className="w-40 py-3 rounded bg-blue-600 shadow-sm text-center font-semibold text-sm text-white">
-                    {t("selectFile")}
-                  </div>
-                </div>
-              </FileInput>
+                }}
+                clearKeystoreFileInput={clearKeystoreFileInput}
+              />
               {errors.keystoreFile && (
                 <div className="text-xs text-red-500 mt-1">
                   {errors.keystoreFile.message}
@@ -491,3 +457,63 @@ const Template: FC<TemplateProps> = ({ title, children }) => (
     {children}
   </div>
 );
+
+type KeystoreFileInputProps = Pick<
+  FileInputProps,
+  "value" | "onChange" | "name"
+> & {
+  clearKeystoreFileInput: (
+    e: React.MouseEvent<SVGSVGElement, MouseEvent>
+  ) => void;
+};
+
+const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({
+  value,
+  onChange,
+  name,
+  clearKeystoreFileInput,
+}) => {
+  const keystoreFile = value?.item?.(0);
+
+  return (
+    <FileInput
+      name={name}
+      multiple={false}
+      accept=".tez"
+      onChange={onChange}
+      value={value}
+    >
+      <div
+        className={classNames(
+          "w-full px-4 py-10 flex flex-col items-center",
+          "border-2 border-dashed border-gray-400 rounded-md",
+          "focus:border-primary-orange",
+          "transition ease-in-out duration-200",
+          "text-gray-400 text-lg leading-tight",
+          "placeholder-alphagray"
+        )}
+      >
+        <div className="flex flex-row justify-center items-center mb-10">
+          <span
+            className="text-lg leading-tight text-gray-600"
+            style={{ wordBreak: "break-word" }}
+          >
+            {keystoreFile?.name ?? t("fileInputPrompt")}
+          </span>
+          {keystoreFile ? (
+            <TrashbinIcon
+              className="ml-2 w-6 h-auto text-red-700 stroke-current z-10 cursor-pointer"
+              onClick={clearKeystoreFileInput}
+              style={{ minWidth: "1.5rem" }}
+            />
+          ) : (
+            <PaperclipIcon className="ml-2 w-6 h-auto text-gray-600 stroke-current" />
+          )}
+        </div>
+        <div className="w-40 py-3 rounded bg-blue-600 shadow-sm text-center font-semibold text-sm text-white">
+          {t("selectFile")}
+        </div>
+      </div>
+    </FileInput>
+  );
+};
