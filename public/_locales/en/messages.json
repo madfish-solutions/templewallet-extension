@@ -664,8 +664,11 @@
   "errorImportingKukaiWallet": {
     "message": "Error while importing Kukai wallet"
   },
+  "selectedFileFormatNotSupported": {
+    "message": "The selected file format is not supported"
+  },
   "fileHasSyntaxError": {
-    "message": "The file has syntax error"
+    "message": "The file has a syntax error. Make sure the file is correct."
   },
   "entropyDecryptionError": {
     "message": "Failed to decrypt entropy. Make sure the password is correct"

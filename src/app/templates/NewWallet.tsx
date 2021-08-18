@@ -2,7 +2,9 @@ import React, {
   FC,
   ReactNode,
   useCallback,
+  useEffect,
   useLayoutEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -64,6 +66,20 @@ const importWalletOptions = [
   },
 ];
 
+const validateKeystoreFile = (value?: FileList) => {
+  const file = value?.item(0);
+
+  if (!file) {
+    return t("required");
+  }
+
+  if (!file.name.endsWith(".tez")) {
+    return t("selectedFileFormatNotSupported");
+  }
+
+  return true;
+};
+
 const NewWallet: FC<NewWalletProps> = ({
   ownMnemonic = false,
   title,
@@ -78,6 +94,7 @@ const NewWallet: FC<NewWalletProps> = ({
     register,
     handleSubmit,
     errors,
+    reset,
     triggerValidation,
     formState,
     setValue,
@@ -91,6 +108,15 @@ const NewWallet: FC<NewWalletProps> = ({
 
   const isImportFromSeedPhrase = tabSlug === "seed-phrase";
   const isImportFromKeystore = tabSlug === "keystore-file";
+
+  const prevTabSlugRef = useRef(tabSlug);
+  useEffect(() => {
+    if (prevTabSlugRef.current !== tabSlug) {
+      reset({ shouldUseKeystorePassword: true });
+    }
+    prevTabSlugRef.current = tabSlug;
+  }, [tabSlug, reset]);
+  console.log(errors);
 
   useLayoutEffect(() => {
     if (formState.dirtyFields.has("repassword")) {
@@ -287,7 +313,10 @@ const NewWallet: FC<NewWalletProps> = ({
                 multiple={false}
                 accept=".tez"
                 ref={register({
-                  required: t("required"),
+                  required: isImportFromKeystore ? t("required") : false,
+                  validate: isImportFromKeystore
+                    ? validateKeystoreFile
+                    : undefined,
                 })}
               >
                 <div
@@ -301,13 +330,17 @@ const NewWallet: FC<NewWalletProps> = ({
                   )}
                 >
                   <div className="flex flex-row justify-center items-center mb-10">
-                    <span className="text-lg leading-tight text-gray-600">
+                    <span
+                      className="text-lg leading-tight text-gray-600"
+                      style={{ wordBreak: "break-word" }}
+                    >
                       {keystoreFile?.name ?? t("fileInputPrompt")}
                     </span>
                     {keystoreFile ? (
                       <TrashbinIcon
                         className="ml-2 w-6 h-auto text-red-700 stroke-current z-10 cursor-pointer"
                         onClick={clearKeystoreFileInput}
+                        style={{ minWidth: "1.5rem" }}
                       />
                     ) : (
                       <PaperclipIcon className="ml-2 w-6 h-auto text-gray-600 stroke-current" />
@@ -327,7 +360,7 @@ const NewWallet: FC<NewWalletProps> = ({
 
             <FormField
               ref={register({
-                required: t("required"),
+                required: isImportFromKeystore ? t("required") : false,
               })}
               label={t("filePassword")}
               labelDescription={t("filePasswordInputDescription")}
@@ -335,7 +368,7 @@ const NewWallet: FC<NewWalletProps> = ({
               type="password"
               name="keystorePassword"
               placeholder="********"
-              errorCaption={errors.password?.message}
+              errorCaption={errors.keystorePassword?.message}
               containerClassName="mb-8"
             />
 
