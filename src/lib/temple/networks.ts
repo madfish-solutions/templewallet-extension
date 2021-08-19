@@ -78,6 +78,15 @@ export const NETWORKS: TempleNetwork[] = [
     color: "#e9e1cc",
     disabled: false,
   },
+  {
+    id: "granadanet",
+    name: "Granada Testnet",
+    description: "Granada testnet",
+    type: "test",
+    rpcBaseURL: "https://granadanet.smartpy.io",
+    color: "#667eea",
+    disabled: false,
+  },
   // Hidden
   {
     id: "giganode-mainnet",
