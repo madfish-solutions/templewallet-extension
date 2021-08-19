@@ -824,10 +824,10 @@
     "message": "DApps interaction",
     "description": "DApps = Decentralized Applications"
   },
-  "dAppsInteractionEnabled": {
+  "enabled": {
     "message": "Enabled"
   },
-  "dAppsInteractionDisabled": {
+  "disabled": {
     "message": "Disabled"
   },
   "enablePopup": {
@@ -1497,12 +1497,6 @@
   "analyticsSettingsDescription": {
     "message": "Here you can configure sending of anonymous analytics that helps us to improve the product."
   },
-  "analyticsEnabled": {
-    "message": "Enabled"
-  },
-  "analyticsDisabled": {
-    "message": "Disabled"
-  },
   "analyticsConfirmationTitle": {
     "message": "Help us make the Temple Wallet better"
   },
@@ -2059,5 +2053,11 @@
   },
   "finish": {
     "message": "Finish"
+  },
+  "ledgerLiveSettings": {
+    "message": "Use Ledger Live"
+  },
+  "ledgerLiveSettingsDescription": {
+    "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
   }
 }
