@@ -709,7 +709,6 @@ async function createMemorySigner(privateKey: string, encPassword?: string) {
 }
 
 let transport: LedgerTempleBridgeTransport;
-let transportUsesLedgerLive = false;
 
 async function createLedgerSigner(
   derivationPath: string,
@@ -719,7 +718,7 @@ async function createLedgerSigner(
 ) {
   const ledgerLiveEnabled = await isLedgerLiveEnabled();
 
-  if (!transport || ledgerLiveEnabled !== transportUsesLedgerLive) {
+  if (!transport || ledgerLiveEnabled !== transport.ledgerLiveUsed) {
     await transport?.close();
 
     const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
@@ -729,7 +728,6 @@ async function createLedgerSigner(
       );
     }
 
-    transportUsesLedgerLive = ledgerLiveEnabled;
     transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
     if (ledgerLiveEnabled) {
       transport.useLedgerLive();
