@@ -9,7 +9,7 @@ const AnalyticsSettings: React.FC<{}> = () => {
 
   const handlePopupModeChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     setAnalyticsEnabled(evt.target.checked);
-  }
+  };
 
   return (
     <>
@@ -33,7 +33,7 @@ const AnalyticsSettings: React.FC<{}> = () => {
         checked={analyticsEnabled}
         onChange={handlePopupModeChange}
         name="analyticsEnabled"
-        label={t(analyticsEnabled ? "analyticsEnabled" : "analyticsDisabled")}
+        label={t(analyticsEnabled ? "enabled" : "disabled")}
         containerClassName="mb-4"
       />
     </>

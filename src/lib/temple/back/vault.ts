@@ -1,4 +1,3 @@
-import LedgerTransport from "@ledgerhq/hw-transport";
 import { HttpResponseError } from "@taquito/http-utils";
 import { DerivationType } from "@taquito/ledger-signer";
 import { localForger } from "@taquito/local-forging";
@@ -33,6 +32,7 @@ import {
   michelEncoder,
   loadFastRpcClient,
 } from "lib/temple/helpers";
+import { isLedgerLiveEnabled } from "lib/temple/ledger-live";
 import { NETWORKS } from "lib/temple/networks";
 import * as Passworder from "lib/temple/passworder";
 import {
@@ -708,7 +708,8 @@ async function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
 }
 
-let transport: LedgerTransport;
+let transport: LedgerTempleBridgeTransport;
+let transportUsesLedgerLive = false;
 
 async function createLedgerSigner(
   derivationPath: string,
@@ -716,7 +717,11 @@ async function createLedgerSigner(
   publicKey?: string,
   publicKeyHash?: string
 ) {
-  if (!transport) {
+  const ledgerLiveEnabled = await isLedgerLiveEnabled();
+
+  if (!transport || ledgerLiveEnabled !== transportUsesLedgerLive) {
+    await transport?.close();
+
     const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
     if (!bridgeUrl) {
       throw new Error(
@@ -724,11 +729,10 @@ async function createLedgerSigner(
       );
     }
 
-    const isWin = (await browser.runtime.getPlatformInfo()).os === "win";
-
+    transportUsesLedgerLive = ledgerLiveEnabled;
     transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
-    if (process.env.TARGET_BROWSER === "chrome" && !isWin) {
-      (transport as LedgerTempleBridgeTransport).useLedgerLive();
+    if (ledgerLiveEnabled) {
+      transport.useLedgerLive();
     }
   }
 

@@ -818,10 +818,10 @@
     "message": "Взаємодія з DApp`ками",
     "description": "DApps = Decentralized Applications"
   },
-  "dAppsInteractionEnabled": {
+  "enabled": {
     "message": "Увімкнуто"
   },
-  "dAppsInteractionDisabled": {
+  "disabled": {
     "message": "Вимкнуто"
   },
   "enablePopup": {

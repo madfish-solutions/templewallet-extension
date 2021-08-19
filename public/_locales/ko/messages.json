@@ -815,10 +815,10 @@
     "message": "분산 앱 상호 소통",
     "description": "DApps = Decentralized Applications"
   },
-  "dAppsInteractionEnabled": {
+  "enabled": {
     "message": "활성화됨"
   },
-  "dAppsInteractionDisabled": {
+  "disabled": {
     "message": "비활성화됨"
   },
   "enablePopup": {
