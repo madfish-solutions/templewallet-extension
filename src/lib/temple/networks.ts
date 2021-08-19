@@ -50,6 +50,15 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false,
   },
   {
+    id: "granadanet",
+    name: "Granada Testnet",
+    description: "Granada testnet",
+    type: "test",
+    rpcBaseURL: "https://granadanet.smartpy.io",
+    color: "#667eea",
+    disabled: false,
+  },
+  {
     id: "florencenet",
     name: "Florence Testnet",
     description: "Florence testnet",
@@ -67,15 +76,6 @@ export const NETWORKS: TempleNetwork[] = [
     type: "test",
     rpcBaseURL: "https://edonet.smartpy.io",
     color: "#FBBF24",
-    disabled: false,
-  },
-  {
-    id: "granadanet",
-    name: "Granada Testnet",
-    description: "Granada testnet",
-    type: "test",
-    rpcBaseURL: "https://granadanet.smartpy.io",
-    color: "#667eea",
     disabled: false,
   },
   {
