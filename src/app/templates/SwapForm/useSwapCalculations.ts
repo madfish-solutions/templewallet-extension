@@ -235,12 +235,15 @@ export default function useSwapCalculations() {
       ) {
         return undefined;
       }
-      const { dexter: dexterTezAmount, quipuswap: quipuswapTezAmount } =
-        await getOutputTezAmounts(
-          inputAsset,
-          inputAssetAmount,
-          inputExchangeData
-        );
+      const {
+        dexter: dexterTezAmount,
+        quipuswap: quipuswapTezAmount,
+        liquidity_baking: liquidityBakingTezAmount,
+      } = await getOutputTezAmounts(
+        inputAsset,
+        inputAssetAmount,
+        inputExchangeData
+      );
       return {
         dexter:
           dexterTezAmount &&
@@ -256,6 +259,14 @@ export default function useSwapCalculations() {
             quipuswapTezAmount,
             outputAsset,
             "quipuswap",
+            outputExchangeData
+          )),
+        liquidity_baking:
+          liquidityBakingTezAmount &&
+          (await getOutputAmount(
+            liquidityBakingTezAmount,
+            outputAsset,
+            "liquidity_baking",
             outputExchangeData
           )),
       };

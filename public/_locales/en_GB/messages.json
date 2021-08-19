@@ -815,10 +815,10 @@
     "message": "DApps interaction",
     "description": "DApps = Decentralized Applications"
   },
-  "dAppsInteractionEnabled": {
+  "enabled": {
     "message": "Enabled"
   },
-  "dAppsInteractionDisabled": {
+  "disabled": {
     "message": "Disabled"
   },
   "enablePopup": {

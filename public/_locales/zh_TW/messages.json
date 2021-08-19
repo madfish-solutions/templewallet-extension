@@ -806,10 +806,10 @@
     "message": "分散式應用程式互動操作",
     "description": "DApps = Decentralized Applications"
   },
-  "dAppsInteractionEnabled": {
+  "enabled": {
     "message": "已啟用"
   },
-  "dAppsInteractionDisabled": {
+  "disabled": {
     "message": "已停用"
   },
   "enablePopup": {

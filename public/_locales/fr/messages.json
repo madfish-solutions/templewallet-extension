@@ -806,10 +806,10 @@
     "message": "Interaction application décentralisée",
     "description": "DApps = Decentralized Applications"
   },
-  "dAppsInteractionEnabled": {
+  "enabled": {
     "message": "Activée"
   },
-  "dAppsInteractionDisabled": {
+  "disabled": {
     "message": "Désactivée"
   },
   "enablePopup": {
