@@ -1,7 +1,44 @@
-import { WalletContract } from "@taquito/taquito";
+import { TezosToolkit, WalletContract } from "@taquito/taquito";
+import retry from "async-retry";
 
 import assert from "lib/assert";
 import { getMessage } from "lib/i18n";
+
+const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
+
+export async function assertGetBalance(
+  tezos: TezosToolkit,
+  contract: WalletContract,
+  type: "fa1.2" | "fa2",
+  fa2TokenId = 0
+) {
+  try {
+    await retry(
+      () =>
+        type === "fa2"
+          ? contract.views
+              .balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }])
+              .read((tezos as any).lambdaContract)
+          : contract.views
+              .getBalance(STUB_TEZOS_ADDRESS)
+              .read((tezos as any).lambdaContract),
+      { retries: 3, minTimeout: 0, maxTimeout: 0 }
+    );
+  } catch (err) {
+    if (err?.value?.string === "FA2_TOKEN_UNDEFINED") {
+      throw new IncorrectTokenIdError(
+        getMessage("incorrectTokenIdErrorMessage")
+      );
+    } else {
+      throw new Error(
+        getMessage(
+          "unknownErrorCheckingSomeEntrypoint",
+          type === "fa2" ? "balance_of" : "getBalance"
+        )
+      );
+    }
+  }
+}
 
 export function assertTokenType(
   contract: WalletContract,
@@ -22,7 +59,7 @@ export function assertTokenType(
 }
 
 export class NotMatchingStandardError extends Error {}
-export class IncorrectTokenIdError extends Error {}
+export class IncorrectTokenIdError extends NotMatchingStandardError {}
 
 const FA1_2_METHODS_ASSERTIONS = [
   {

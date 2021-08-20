@@ -58,7 +58,6 @@ export const [SyncTokensProvider] = constate(() => {
 
     const tokensMetadataToSet: Record<string, AssetMetadata> = {};
 
-    // API usage
     const metadataSlugs = tokenSlugs.filter(
       (slug) => !(slug in allTokensBaseMetadataRef.current)
     );
