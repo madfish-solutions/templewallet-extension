@@ -350,7 +350,9 @@ const SecondarySection: FC<SecondarySectionProps> = ({
       </div>
 
       <div className={classNames("mx-4 mb-4", fullPage ? "mt-8" : "mt-4")}>
-        {Component && <Component />}
+        <SuspenseContainer whileMessage="displaying tab">
+          {Component && <Component />}
+        </SuspenseContainer>
       </div>
     </div>
   );

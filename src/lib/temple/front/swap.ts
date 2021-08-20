@@ -1,7 +1,7 @@
 import { TezosToolkit } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
-import assert from "lib/assert";
 
+import assert from "lib/assert";
 import {
   batchify,
   loadContract,
@@ -9,8 +9,9 @@ import {
   TempleChainId,
   isTezAsset,
   AssetMetadata,
+  fromAssetSlug,
+  toTokenSlug,
 } from "lib/temple/front";
-import { fromAssetSlug, toTokenSlug } from "../assets";
 
 export type ExchangerType = "dexter" | "quipuswap";
 

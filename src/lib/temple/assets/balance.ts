@@ -31,12 +31,14 @@ export async function fetchBalance(
       try {
         const response = await contract.views
           .balance_of([{ owner: account, token_id: asset.id }])
-          .read();
+          .read((tezos as any).lambdaContract);
         nat = response[0].balance;
       } catch {}
     } else {
       try {
-        nat = await contract.views.getBalance(account).read();
+        nat = await contract.views
+          .getBalance(account)
+          .read((tezos as any).lambdaContract);
       } catch {}
     }
   }
