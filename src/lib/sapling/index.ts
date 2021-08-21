@@ -1,6 +1,3 @@
-// @ts-nocheck
-import { browser } from "webextension-polyfill-ts";
-
 import {
   TezosSaplingAddress,
   TezosProtocolNetwork,
@@ -9,7 +6,9 @@ import {
   TezosShieldedTezProtocolConfig,
   NetworkType,
   SaplingKeys
-} from "../../../node_modules/@temple-wallet/tezos-sapling-js/dist"
+} from "@temple-wallet/tezos-sapling-js"
+import { browser } from "webextension-polyfill-ts";
+
 import { getOrFetchParameters } from "./params-downloader"
 
 
@@ -46,12 +45,12 @@ export async function initializeSapling() {
   saplingBuilder = new TezosSaplingBuilder(options)
   const [spendParams, outputParams] = await getOrFetchParameters()
 
-  saplingBuilder.initParameters(spendParams, outputParams)
+  saplingBuilder.initParameters(spendParams as Buffer, outputParams as Buffer)
 
   return saplingBuilder
 }
 
-export async function signWithEncryptedSapling(publicKeyHash, tx) {
+export async function signWithEncryptedSapling(publicKeyHash: String, tx: any) {
   const spendingStorageKey = `unencrypted:spending_${publicKeyHash}`
   const matches = await browser.storage.local.get([spendingStorageKey])
   const spendingKey = matches.spendingStorageKey
@@ -60,7 +59,7 @@ export async function signWithEncryptedSapling(publicKeyHash, tx) {
   return saplingBuilder.signWithPrivateKey(spendingKeyBytes, tx)
 }
 
-export async function getViewingKey(publicKeyHash) {
+export async function getViewingKey(publicKeyHash: string) {
   const viewingStorageKey = `unencrypted:viewing_${publicKeyHash}`
   const matches = await browser.storage.local.get([viewingStorageKey])
   const viewingKey = matches.viewingStorageKey
@@ -68,7 +67,7 @@ export async function getViewingKey(publicKeyHash) {
 }
 
 // TODO implement ability to take next address or by index
-export async function getSaplingAddress(publicKeyHash): Promise<string> {
+export async function getSaplingAddress(publicKeyHash: string): Promise<TezosSaplingAddress> {
   const vk = await getViewingKey(publicKeyHash)
   console.log("vk", vk)
   return TezosSaplingAddress.fromViewingKey(vk, 0)
