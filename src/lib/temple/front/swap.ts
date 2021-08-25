@@ -28,7 +28,6 @@ export type SwapParams = {
   inputAssetMetadata: AssetMetadata;
   inputContractAddress?: string;
   outputAssetSlug: string;
-  outputAssetMetadata: AssetMetadata;
   outputContractAddress?: string;
   exchangerType: ExchangerType;
   inputAmount: BigNumber;
@@ -228,7 +227,6 @@ export async function swap({
   inputAssetMetadata,
   inputContractAddress,
   outputAssetSlug,
-  outputAssetMetadata,
   outputContractAddress,
   exchangerType,
   inputAmount,
