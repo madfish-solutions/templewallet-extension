@@ -18,7 +18,6 @@ import {
   TempleStatus,
   TempleState,
   TempleAsset,
-  getClient,
   usePassiveStorage,
   useTempleClient,
   loadChainId,
@@ -41,7 +40,6 @@ export const [
   useAccount,
   useSettings,
   useTezos,
-  useTezosDomainsClient,
 ] = constate(
   useReadyTemple,
   (v) => v.allNetworks,
@@ -51,8 +49,7 @@ export const [
   (v) => v.setAccountPkh,
   (v) => v.account,
   (v) => v.settings,
-  (v) => v.tezos,
-  (v) => v.tezosDomainsClient
+  (v) => v.tezos
 );
 
 function useReadyTemple() {
@@ -147,14 +144,6 @@ function useReadyTemple() {
     }
   }, [tezos]);
 
-  /**
-   * Tezos domains
-   */
-  const tezosDomainsClient = useMemo(
-    () => getClient(networkId, tezos),
-    [networkId, tezos]
-  );
-
   return {
     allNetworks,
     network,
@@ -168,7 +157,6 @@ function useReadyTemple() {
 
     settings,
     tezos,
-    tezosDomainsClient,
   };
 }
 

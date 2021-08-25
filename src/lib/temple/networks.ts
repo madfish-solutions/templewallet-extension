@@ -1,5 +1,23 @@
 import { getMessage } from "lib/i18n";
-import { TempleNetwork } from "lib/temple/types";
+import { TempleChainId, TempleNetwork } from "lib/temple/types";
+
+export const KNOWN_LAMBDA_CONTRACTS = new Map([
+  [TempleChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
+  [TempleChainId.Granadanet, "KT1VhtTGAyh7AVVwyH2ExNhaXvQq2rAJ6DNs"],
+  [TempleChainId.Florencenet, "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX"],
+  [TempleChainId.Edo2net, "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN"],
+  [TempleChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
+  [TempleChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
+]);
+
+export const NETWORK_IDS = new Map<string, string>([
+  [TempleChainId.Mainnet, "mainnet"],
+  [TempleChainId.Granadanet, "granadanet"],
+  [TempleChainId.Florencenet, "florencenet"],
+  [TempleChainId.Edo2net, "edo2net"],
+  [TempleChainId.Delphinet, "delphinet"],
+  [TempleChainId.Carthagenet, "carthagenet"],
+]);
 
 export const NETWORKS: TempleNetwork[] = [
   {
