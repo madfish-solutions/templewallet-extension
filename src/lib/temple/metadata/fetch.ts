@@ -20,7 +20,7 @@ export async function fetchTokenMetadata(
   tezos: TezosToolkit,
   assetSlug: string
 ): Promise<{ base: AssetMetadata; detailed: DetailedAssetMetdata }> {
-  const asset = fromAssetSlug(assetSlug);
+  const asset = await fromAssetSlug(tezos, assetSlug);
 
   if (isTezAsset(asset)) {
     return { base: TEZOS_METADATA, detailed: TEZOS_METADATA };

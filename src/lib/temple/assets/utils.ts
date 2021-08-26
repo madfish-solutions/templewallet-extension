@@ -4,7 +4,8 @@ import BigNumber from "bignumber.js";
 import { loadContract } from "lib/temple/contract";
 import { AssetMetadata } from "lib/temple/metadata";
 
-import { Asset, Token, FA2Token, TokenStandard } from "./types";
+import { detectTokenStandard } from "./tokenStandard";
+import { Asset, Token, FA2Token } from "./types";
 
 export async function toTransferParams(
   tezos: TezosToolkit,
@@ -14,7 +15,7 @@ export async function toTransferParams(
   toPkh: string,
   amount: BigNumber.Value
 ) {
-  const asset = fromAssetSlug(assetSlug);
+  const asset = await fromAssetSlug(tezos, assetSlug);
 
   if (isTezAsset(asset)) {
     return {
@@ -41,10 +42,14 @@ export async function toTransferParams(
   }
 }
 
-export function fromAssetSlug(slug: string): Asset {
+export async function fromAssetSlug(
+  tezos: TezosToolkit,
+  slug: string
+): Promise<Asset> {
   if (isTezAsset(slug)) return slug;
 
-  const [tokenStandard, contractAddress, tokenIdStr] = slug.split("_");
+  const [contractAddress, tokenIdStr] = slug.split("_");
+  const tokenStandard = await detectTokenStandard(tezos, contractAddress);
 
   return {
     contract: contractAddress,
@@ -53,22 +58,11 @@ export function fromAssetSlug(slug: string): Asset {
 }
 
 export function toAssetSlug(asset: Asset) {
-  return isTezAsset(asset)
-    ? asset
-    : toTokenSlug(
-        isFA2Token(asset) ? "fa2" : "fa1.2",
-        asset.contract,
-        asset.id
-      );
+  return isTezAsset(asset) ? asset : toTokenSlug(asset.contract, asset.id);
 }
 
-export function toTokenSlug(standard: TokenStandard, contract: string, id = 0) {
-  return `${standard}_${contract}_${id}`;
-}
-
-export function toTokenSlugWithoutStandard(slug: string) {
-  const token = fromAssetSlug(slug) as Token;
-  return `${token.contract}_${token.id ?? 0}`;
+export function toTokenSlug(contract: string, id: number | string = 0) {
+  return `${contract}_${id}`;
 }
 
 export function isFA2Token(token: Token): token is FA2Token {

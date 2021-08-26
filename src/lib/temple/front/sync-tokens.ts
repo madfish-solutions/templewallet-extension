@@ -12,14 +12,11 @@ import {
 import {
   useChainId,
   useAccount,
-  useTezos,
   isKnownChainId,
   toTokenSlug,
   useTokensMetadata,
   AssetMetadata,
   useUSDPrices,
-  toTokenSlugWithoutStandard,
-  detectTokenStandard,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 import { getAssetBalances, getTokensMetadata } from "lib/templewallet-api";
@@ -27,7 +24,6 @@ import { getAssetBalances, getTokensMetadata } from "lib/templewallet-api";
 export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
-  const tezos = useTezos();
 
   const { allTokensBaseMetadataRef, setTokensBaseMetadata } =
     useTokensMetadata();
@@ -46,16 +42,13 @@ export const [SyncTokensProvider] = constate(() => {
 
     const bcdTokens = await fetchBcdTokenBalances(networkId, accountPkh);
 
-    let tokenSlugs = await Promise.all(
-      bcdTokens.map(async (token) => {
-        const standard = await detectTokenStandard(tezos, token.contract);
-        return toTokenSlug(standard!, token.contract, token.token_id);
-      })
+    let tokenSlugs = bcdTokens.map((token) =>
+      toTokenSlug(token.contract, token.token_id)
     );
 
     let balances = await getAssetBalances({
       account: accountPkh,
-      assetSlugs: tokenSlugs.map(toTokenSlugWithoutStandard),
+      assetSlugs: tokenSlugs,
     });
 
     const tokenRepoKeys = tokenSlugs.map((slug) =>
@@ -69,9 +62,7 @@ export const [SyncTokensProvider] = constate(() => {
     const metadataSlugs = tokenSlugs.filter(
       (slug) => !(slug in allTokensBaseMetadataRef.current)
     );
-    const metadatas = await getTokensMetadata(
-      metadataSlugs.map(toTokenSlugWithoutStandard)
-    );
+    const metadatas = await getTokensMetadata(metadataSlugs);
     for (let i = 0; i < metadatas.length; i++) {
       const metadata = metadatas[i];
       if (metadata) tokensMetadataToSet[metadataSlugs[i]] = metadata;
@@ -126,7 +117,6 @@ export const [SyncTokensProvider] = constate(() => {
     accountPkh,
     networkId,
     chainId,
-    tezos,
     allTokensBaseMetadataRef,
     setTokensBaseMetadata,
     usdPrices,

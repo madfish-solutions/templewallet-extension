@@ -1,3 +1,5 @@
+import { TezosToolkit } from "@taquito/taquito";
+
 import { isFA2Token, isTezAsset, fromAssetSlug } from "lib/temple/assets";
 import { AssetMetadata } from "lib/temple/metadata";
 
@@ -83,11 +85,12 @@ export function getAssetKey(asset: TempleAsset) {
 /**
  * @deprecated
  */
-export function toLegacyAsset(
+export async function toLegacyAsset(
+  tezos: TezosToolkit,
   slug: string,
   metadata: AssetMetadata
-): TempleAsset {
-  const asset = fromAssetSlug(slug);
+): Promise<TempleAsset> {
+  const asset = await fromAssetSlug(tezos, slug);
 
   if (isTezAsset(asset)) return TEZ_ASSET;
 

@@ -16,7 +16,7 @@ export async function fetchBalance(
   assetMetadata: Pick<AssetMetadata, "decimals"> | null,
   account: string
 ) {
-  const asset = fromAssetSlug(assetSlug);
+  const asset = await fromAssetSlug(tezos, assetSlug);
 
   let nat: BigNumber | undefined;
 

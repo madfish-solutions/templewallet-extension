@@ -32,6 +32,7 @@ import {
 import { useFormAnalytics } from "lib/analytics";
 import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   TempleAssetType,
   useNetwork,
@@ -70,18 +71,24 @@ type SwapFormWrapperProps = {
 };
 
 const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
+  const tezos = useTezos();
   const { allTokensBaseMetadataRef } = useTokensMetadata();
 
-  const defaultAsset = useMemo(() => {
-    if (assetSlug) {
-      const metadata = allTokensBaseMetadataRef.current[assetSlug];
-      if (metadata) {
-        return toLegacyAsset(assetSlug, metadata);
+  const defaultAsset = useRetryableSWR(
+    ["swap-default-asset", assetSlug, tezos.checksum],
+    async () => {
+      if (assetSlug) {
+        const metadata = allTokensBaseMetadataRef.current[assetSlug];
+        if (metadata) {
+          return toLegacyAsset(tezos, assetSlug, metadata);
+        }
       }
-    }
 
-    return undefined;
-  }, [assetSlug, allTokensBaseMetadataRef]);
+      return null;
+    },
+    { suspense: true, revalidateOnMount: true }
+  ).data;
+
   const { exchangableAssets } = useSwappableAssets();
   const isSupportedNetwork = exchangableAssets.length > 0;
 
@@ -99,7 +106,7 @@ const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
 export default SwapFormWrapper;
 
 type SwapFormProps = {
-  defaultAsset?: TempleAsset;
+  defaultAsset?: TempleAsset | null;
 };
 
 const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {

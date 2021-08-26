@@ -34,7 +34,6 @@ import {
   useChainId,
   useAccount,
   getBalanceSWRKey,
-  TokenStandard,
   detectTokenStandard,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
@@ -107,8 +106,6 @@ const Form: FC = () => {
   const contractAddress = watch("address");
   const tokenId = watch("id") || 0;
 
-  const tokenStandardRef = useRef<TokenStandard>("fa1.2");
-
   const formValid = useMemo(
     () => validateContractAddress(contractAddress) === true && tokenId >= 0,
     [contractAddress, tokenId]
@@ -151,10 +148,8 @@ const Form: FC = () => {
 
       await assertGetBalance(tezos, contract, tokenStandard, tokenId);
 
-      const slug = toTokenSlug(tokenStandard, contractAddress, tokenId);
+      const slug = toTokenSlug(contractAddress, tokenId);
       const { base } = await fetchMetadata(slug);
-
-      tokenStandardRef.current = tokenStandard;
 
       setValue([
         { symbol: base.symbol },
@@ -238,11 +233,7 @@ const Form: FC = () => {
 
       formAnalytics.trackSubmit();
       try {
-        const tokenSlug = toTokenSlug(
-          tokenStandardRef.current,
-          address,
-          id || 0
-        );
+        const tokenSlug = toTokenSlug(address, id || 0);
 
         const { base } = await fetchMetadata(tokenSlug);
         const metadataToSet = {

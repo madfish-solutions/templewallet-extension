@@ -38,6 +38,7 @@ import {
   TempleAsset,
   detectTokenStandard,
 } from "lib/temple/front";
+import useSafeState from "lib/ui/useSafeState";
 
 const DEXTER_INITIAL_TOKENS = new Map<string, TempleToken[]>([
   [
@@ -210,16 +211,31 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
       useAllKnownFungibleTokenSlugs(chainId);
     const { allTokensBaseMetadataRef } = useTokensMetadata();
 
-    const allKnownAssets = useMemo(() => {
-      const result: TempleAsset[] = [TEZ_ASSET];
-      for (const slug of allKnownTokenSlugs) {
-        const metadata = allTokensBaseMetadataRef.current[slug];
-        if (metadata) {
-          result.push(toLegacyAsset(slug, metadata));
-        }
-      }
-      return result;
-    }, [allKnownTokenSlugs, allTokensBaseMetadataRef]);
+    const [allKnownAssets, setAllKnownAssets] = useSafeState<TempleAsset[]>(
+      [],
+      chainId
+    );
+
+    useEffect(() => {
+      (async () => {
+        try {
+          const result: TempleAsset[] = [TEZ_ASSET];
+          for (const slug of allKnownTokenSlugs) {
+            const metadata = allTokensBaseMetadataRef.current[slug];
+            if (metadata) {
+              result.push(await toLegacyAsset(tezos, slug, metadata));
+            }
+          }
+
+          setAllKnownAssets(result);
+        } catch {}
+      })();
+    }, [
+      setAllKnownAssets,
+      allKnownTokenSlugs,
+      allTokensBaseMetadataRef,
+      tezos,
+    ]);
 
     const tezUsdPrice = useAssetUSDPrice("tez");
     const networkTezUsdPrice = network.type === "main" ? tezUsdPrice : null;
@@ -246,11 +262,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         }
         const shortHash = `${address.slice(0, 7)}...${address.slice(-4)}`;
         try {
-          const tokenSlug = toTokenSlug(
-            typeof tokenId !== "undefined" ? "fa2" : "fa1.2",
-            address,
-            tokenId
-          );
+          const tokenSlug = toTokenSlug(address, tokenId);
           const { base: tokenMetadata } = await fetchTokenMetadata(
             tezos,
             tokenSlug
@@ -446,7 +458,6 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
               };
             } else if (currentChainId === network) {
               const tokenSlug = toTokenSlug(
-                token.type,
                 contractAddress,
                 token.type === "fa1.2" ? undefined : token.fa2TokenId
               );
