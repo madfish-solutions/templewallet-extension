@@ -8,7 +8,12 @@ import Name from "app/atoms/Name";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 import { T } from "lib/i18n/react";
-import { useAllNetworks, useNetwork, useSetNetworkId } from "lib/temple/front";
+import {
+  loadChainId,
+  useAllNetworks,
+  useNetwork,
+  useSetNetworkId,
+} from "lib/temple/front";
 import Popper from "lib/ui/Popper";
 
 import { NetworkSelectSelectors } from "./NetworkSelect.selectors";
@@ -23,12 +28,17 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
   const handleNetworkSelect = useCallback(
     async (
       netId: string,
+      rpcUrl: string,
       selected: boolean,
       setOpened: (o: boolean) => void
     ) => {
       setOpened(false);
 
       if (!selected) {
+        try {
+          await loadChainId(rpcUrl);
+        } catch {}
+
         setNetworkId(netId);
       }
     },
@@ -57,7 +67,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
           {allNetworks
             // Don't show hidden (but known) nodes on the dropdown
             .filter((n) => !n.hidden)
-            .map(({ id, name, color, disabled, nameI18nKey }) => {
+            .map(({ id, rpcBaseURL, name, color, disabled, nameI18nKey }) => {
               const selected = id === network.id;
 
               return (
@@ -83,7 +93,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
                   autoFocus={selected}
                   onClick={() => {
                     if (!disabled) {
-                      handleNetworkSelect(id, selected, setOpened);
+                      handleNetworkSelect(id, rpcBaseURL, selected, setOpened);
                     }
                   }}
                   testID={NetworkSelectSelectors.NetworkItemButton}
