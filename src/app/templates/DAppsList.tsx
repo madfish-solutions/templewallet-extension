@@ -14,8 +14,7 @@ import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { getDApps } from "lib/custom-dapps-api";
 import { t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
-import { TEZ_ASSET } from "lib/temple/assets";
-import { useStorage } from "lib/temple/front";
+import { useStorage, TEZOS_METADATA } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 
 import { DAppStoreSelectors } from "./DAppsList.selectors";
@@ -170,7 +169,7 @@ const DAppsList: FC = () => {
         </div>
         <h1 className="text-2xl text-gray-900 mb-2 font-medium leading-tight">
           ~<Money cryptoDecimals={0}>{data!.totalTezLocked}</Money>{" "}
-          <span>{TEZ_ASSET.symbol}</span>
+          <span>{TEZOS_METADATA.symbol}</span>
         </h1>
         <h2
           className={classNames(

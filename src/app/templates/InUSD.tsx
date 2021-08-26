@@ -3,16 +3,11 @@ import React, { FC, ReactElement, ReactNode, useMemo } from "react";
 import BigNumber from "bignumber.js";
 
 import Money from "app/atoms/Money";
-import {
-  TempleAsset,
-  TEZ_ASSET,
-  useAssetUSDPrice,
-  useNetwork,
-} from "lib/temple/front";
+import { useAssetUSDPrice, useNetwork } from "lib/temple/front";
 
 type InUSDProps = {
   volume: BigNumber | number | string;
-  asset?: TempleAsset;
+  assetSlug?: string;
   children: (usdVolume: ReactNode) => ReactElement;
   roundingMode?: BigNumber.RoundingMode;
   shortened?: boolean;
@@ -23,7 +18,7 @@ type InUSDProps = {
 
 const InUSD: FC<InUSDProps> = ({
   volume,
-  asset = TEZ_ASSET,
+  assetSlug,
   children,
   roundingMode,
   shortened,
@@ -31,7 +26,7 @@ const InUSD: FC<InUSDProps> = ({
   mainnet,
   showCents = true,
 }) => {
-  const price = useAssetUSDPrice(asset);
+  const price = useAssetUSDPrice(assetSlug ?? "tez");
   const walletNetwork = useNetwork();
 
   if (mainnet === undefined) {

@@ -12,6 +12,7 @@ import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
+import { browser } from "webextension-polyfill-ts";
 
 import Alert from "app/atoms/Alert";
 import { Button } from "app/atoms/Button";
@@ -28,7 +29,6 @@ import {
 import { useAppEnv } from "app/env";
 import { ReactComponent as ArrowUpIcon } from "app/icons/arrow-up.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
-import tezImgUrl from "app/misc/tez.png";
 import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
 import BakerBanner from "app/templates/BakerBanner";
 import InUSD from "app/templates/InUSD";
@@ -38,14 +38,12 @@ import { toLocalFormat } from "lib/i18n/numbers";
 import { T, t, getCurrentLocale } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
 import {
-  TEZ_ASSET,
   useNetwork,
   useAccount,
   useTezos,
   useBalance,
   useKnownBaker,
   useKnownBakers,
-  fetchBalance,
   tzToMutez,
   mutezToTz,
   isAddressValid,
@@ -55,6 +53,7 @@ import {
   loadContract,
   useTezosDomainsClient,
   isDomainNameValid,
+  fetchTezosBalance,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation, Link } from "lib/woozie";
@@ -82,7 +81,7 @@ const DelegateForm: FC = () => {
   const assetSymbol = "ꜩ";
 
   const { data: balanceData, mutate: mutateBalance } = useBalance(
-    TEZ_ASSET,
+    "tez",
     accountPkh
   );
   const balance = balanceData!;
@@ -196,10 +195,10 @@ const DelegateForm: FC = () => {
     [toFilledWithAddress, toFilledWithDomain, resolvedAddress]
   );
 
-  const toResolved = useMemo(() => resolvedAddress || toValue, [
-    resolvedAddress,
-    toValue,
-  ]);
+  const toResolved = useMemo(
+    () => resolvedAddress || toValue,
+    [resolvedAddress, toValue]
+  );
 
   const validateDelegate = useCallback(
     async (value: any) => {
@@ -261,7 +260,7 @@ const DelegateForm: FC = () => {
   const estimateBaseFee = useCallback(async () => {
     try {
       const balanceBN = (await mutateBalance(
-        fetchBalance(tezos, TEZ_ASSET, accountPkh)
+        fetchTezosBalance(tezos, accountPkh)
       ))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
@@ -438,7 +437,7 @@ const DelegateForm: FC = () => {
               )}
             >
               <img
-                src={tezImgUrl}
+                src={browser.runtime.getURL("misc/token-logos/tez.png")}
                 alt={assetSymbol}
                 className="w-auto h-12 mr-3"
               />
@@ -451,7 +450,7 @@ const DelegateForm: FC = () => {
                       <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
                     </span>
 
-                    <InUSD asset={TEZ_ASSET} volume={balance}>
+                    <InUSD assetSlug="tez" volume={balance}>
                       {(usdBalance) => (
                         <div className="mt-1 text-sm text-gray-500">
                           ${usdBalance}

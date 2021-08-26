@@ -34,15 +34,16 @@ import {
   useBalance,
   ExchangerType,
   EXCHANGE_XTZ_RESERVE,
-  TEZ_ASSET,
   assetsAreSame,
   useOnBlock,
   assetAmountToUSD,
   usdToAssetAmount,
   useNetwork,
   getAssetKey,
+  TempleAsset,
+  TempleAssetType,
+  toSlugFromLegacyAsset,
 } from "lib/temple/front";
-import { TempleAsset, TempleAssetType } from "lib/temple/types";
 import Popper, { PopperRenderProps } from "lib/ui/Popper";
 
 export type SwapInputValue = {
@@ -126,8 +127,12 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
     );
     const { matchingExchangableAssets, showTokenIdInput } = searchResults;
 
+    const assetSlug = useMemo(
+      () => (asset ? toSlugFromLegacyAsset(asset) : "tez"),
+      [asset]
+    );
     const { data: balance, revalidate: updateBalance } = useBalance(
-      asset ?? TEZ_ASSET,
+      assetSlug,
       accountPkh,
       { suspense: false }
     );
@@ -620,7 +625,11 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
             >
               {selectedAsset ? (
                 <>
-                  <AssetIcon asset={selectedAsset} size={32} className="mr-2" />
+                  <AssetIcon
+                    assetSlug={toSlugFromLegacyAsset(selectedAsset)}
+                    size={32}
+                    className="mr-2"
+                  />
                   <span
                     className="text-gray-700 text-lg mr-2 items-center overflow-hidden block w-16"
                     style={{ textOverflow: "ellipsis" }}
@@ -804,7 +813,11 @@ const AssetOption: React.FC<AssetOptionProps> = ({
     onClick(option);
   }, [onClick, option]);
   const { publicKeyHash: accountPkh } = useAccount();
-  const { data: balance } = useBalance(option, accountPkh, { suspense: false });
+
+  const assetSlug = useMemo(() => toSlugFromLegacyAsset(option), [option]);
+  const { data: balance } = useBalance(assetSlug, accountPkh, {
+    suspense: false,
+  });
 
   return (
     <button
@@ -815,7 +828,7 @@ const AssetOption: React.FC<AssetOptionProps> = ({
         "p-4 w-full flex items-center"
       )}
     >
-      <AssetIcon asset={option} size={32} className="mr-2" />
+      <AssetIcon assetSlug={assetSlug} size={32} className="mr-2" />
       <span className="text-gray-700 text-lg mr-2">
         {option.type === TempleAssetType.TEZ
           ? option.symbol.toUpperCase()

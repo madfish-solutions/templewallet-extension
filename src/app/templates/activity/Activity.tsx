@@ -22,19 +22,18 @@ import ActivityView from "./ActivityView";
 
 type ActivityProps = {
   address: string;
-  assetId?: string;
+  assetSlug?: string;
   className?: string;
 };
 
-const Activity = memo<ActivityProps>(({ address, assetId, className }) => {
+const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
   const chainId = useChainId(true)!;
   const syncSupported = useMemo(() => isSyncSupported(chainId), [chainId]);
 
-  const safeStateKey = useMemo(() => [chainId, address, assetId].join("_"), [
-    chainId,
-    address,
-    assetId,
-  ]);
+  const safeStateKey = useMemo(
+    () => [chainId, address, assetSlug].join("_"),
+    [chainId, address, assetSlug]
+  );
 
   const [restOperations, setRestOperations] = useSafeState<IOperation[]>(
     [],
@@ -49,12 +48,12 @@ const Activity = memo<ActivityProps>(({ address, assetId, className }) => {
     isValidating: fetching,
     revalidate: refetchLatest,
   } = useRetryableSWR(
-    ["latest-operations", chainId, address, assetId],
+    ["latest-operations", chainId, address, assetSlug],
     () =>
       fetchOperations({
         chainId,
         address,
-        assetIds: assetId ? [assetId] : undefined,
+        assetIds: assetSlug ? [assetSlug] : undefined,
         limit: ACTIVITY_PAGE_SIZE,
       }),
     {
@@ -94,7 +93,7 @@ const Activity = memo<ActivityProps>(({ address, assetId, className }) => {
       const oldOperations = await fetchOperations({
         chainId,
         address,
-        assetIds: assetId ? [assetId] : undefined,
+        assetIds: assetSlug ? [assetSlug] : undefined,
         limit: ACTIVITY_PAGE_SIZE,
         offset: operations?.length ?? 0,
       });
@@ -116,7 +115,7 @@ const Activity = memo<ActivityProps>(({ address, assetId, className }) => {
     setRestOperations,
     chainId,
     address,
-    assetId,
+    assetSlug,
     operations,
   ]);
 

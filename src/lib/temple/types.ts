@@ -115,57 +115,6 @@ export interface TempleNetwork {
   hidden?: boolean;
 }
 
-export type TempleAsset = TempleTEZAsset | TempleToken;
-
-export type TempleToken =
-  | TempleTzBTCAsset
-  | TempleStakerAsset
-  | TempleFA1_2Asset
-  | TempleFA2Asset;
-
-export enum TempleAssetType {
-  TEZ = "TEZ",
-  TzBTC = "TzBTC",
-  Staker = "STAKER",
-  FA1_2 = "FA1_2",
-  FA2 = "FA2",
-}
-
-export interface TempleAssetBase {
-  type: TempleAssetType;
-  decimals: number;
-  symbol: string;
-  name: string;
-  fungible: boolean;
-  status: "displayed" | "hidden" | "removed";
-}
-
-export interface TempleTokenBase extends TempleAssetBase {
-  address: string;
-  iconUrl?: string;
-}
-
-export interface TempleTEZAsset extends TempleAssetBase {
-  type: TempleAssetType.TEZ;
-}
-
-export interface TempleTzBTCAsset extends TempleTokenBase {
-  type: TempleAssetType.TzBTC;
-}
-
-export interface TempleStakerAsset extends TempleTokenBase {
-  type: TempleAssetType.Staker;
-}
-
-export interface TempleFA1_2Asset extends TempleTokenBase {
-  type: TempleAssetType.FA1_2;
-}
-
-export interface TempleFA2Asset extends TempleTokenBase {
-  type: TempleAssetType.FA2;
-  id: number;
-}
-
 export type TempleNetworkType = "main" | "test";
 
 export interface TempleSettings {

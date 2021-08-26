@@ -1,5 +1,5 @@
 export type TokensExchangeRatesEntry = {
-  tokenAddress: string;
+  tokenAddress?: string;
   tokenId?: number;
   exchangeRate: string;
 };

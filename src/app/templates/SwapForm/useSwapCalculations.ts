@@ -18,8 +18,9 @@ import {
   mutezToTz,
   tzToMutez,
   useTezos,
+  TempleAsset,
+  TempleAssetType,
 } from "lib/temple/front";
-import { TempleAsset, TempleAssetType } from "lib/temple/types";
 
 export default function useSwapCalculations() {
   const { exchangeData: tokensExchangeData, tezUsdPrice } =

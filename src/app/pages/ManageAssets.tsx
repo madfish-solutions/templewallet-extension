@@ -1,23 +1,31 @@
-import React, { FC, memo, useCallback, useMemo, useRef, useState } from "react";
+import React, { FC, memo, useCallback, useMemo, useState } from "react";
 
 import classNames from "clsx";
 
 import Checkbox from "app/atoms/Checkbox";
 import { ReactComponent as AddIcon } from "app/icons/add-to-list.svg";
+import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import { ReactComponent as ControlCentreIcon } from "app/icons/control-centre.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import PageLayout from "app/layouts/PageLayout";
 import AssetIcon from "app/templates/AssetIcon";
 import SearchAssetField from "app/templates/SearchAssetField";
-import { T } from "lib/i18n/react";
+import { T, t } from "lib/i18n/react";
 import {
-  useTokens,
-  getAssetKey,
-  TempleAsset,
+  useChainId,
+  useAllKnownFungibleTokenSlugs,
+  useAllTokensBaseMetadata,
+  useFungibleTokens,
+  isFungibleTokenDisplayed,
+  useAccount,
+  useAssetMetadata,
+  getAssetName,
+  getAssetSymbol,
+  setTokenStatus,
   searchAssets,
-  TempleAssetType,
-  useNetwork,
 } from "lib/temple/front";
+import { ITokenStatus, ITokenType } from "lib/temple/repo";
+import { useConfirm } from "lib/ui/dialog";
 import { Link } from "lib/woozie";
 
 import { ManageAssetsSelectors } from "./ManageAssets.selectors";
@@ -37,50 +45,80 @@ const ManageAssets: FC = () => (
 
 export default ManageAssets;
 
+type TokenStatuses = Record<string, { displayed: boolean; removed: boolean }>;
+
 const ManageAssetsContent: FC = () => {
-  const network = useNetwork();
-  const { displayedAndHiddenTokens, updateToken } = useTokens();
+  const chainId = useChainId(true)!;
+  const account = useAccount();
+  const address = account.publicKeyHash;
 
-  const netIdRef = useRef<string>();
-  const sortIndexes = useRef<Map<string, number>>();
+  const {
+    data: allTokenSlugs = [],
+    isValidating: allKnownFungibleTokenSlugsLoading,
+  } = useAllKnownFungibleTokenSlugs(chainId);
+  const {
+    data: tokens = [],
+    revalidate,
+    isValidating: fungibleTokensLoading,
+  } = useFungibleTokens(chainId, address);
+  const tokenStatuses = useMemo(() => {
+    const statuses: TokenStatuses = {};
+    for (const t of tokens) {
+      statuses[t.tokenSlug] = {
+        displayed: isFungibleTokenDisplayed(t),
+        removed: t.status === ITokenStatus.Removed,
+      };
+    }
+    return statuses;
+  }, [tokens]);
 
-  const checkableTokens = useMemo(() => {
-    const unsorted = displayedAndHiddenTokens.map((t) =>
-      t.status === "displayed" ? toChecked(t) : toUnchecked(t)
-    );
-    const iMap = sortIndexes.current;
-    if (!iMap) return unsorted;
+  const loading = allKnownFungibleTokenSlugsLoading || fungibleTokensLoading;
 
-    return unsorted.sort((a, b) => {
-      const aIndex = iMap.get(getAssetKey(a)) ?? 0;
-      const bIndex = iMap.get(getAssetKey(b)) ?? 0;
-      return aIndex - bIndex;
-    });
-  }, [displayedAndHiddenTokens]);
-
-  if (!sortIndexes.current || netIdRef.current !== network.id) {
-    netIdRef.current = network.id;
-    sortIndexes.current = new Map(
-      checkableTokens.map((a, i) => [getAssetKey(a), i])
-    );
-  }
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const [searchValue, setSearchValue] = useState("");
 
-  const filteredTokens = useMemo(
-    () => searchAssets(checkableTokens, searchValue),
-    [checkableTokens, searchValue]
+  const managedTokens = useMemo(
+    () =>
+      allTokenSlugs.filter(
+        (slug) => slug in allTokensBaseMetadata && !tokenStatuses[slug]?.removed
+      ),
+    [allTokenSlugs, allTokensBaseMetadata, tokenStatuses]
   );
 
-  const handleAssetChecked = useCallback(
-    (asset: CheckableAsset, checked: boolean) => {
-      const plain = toPlain(asset);
+  const filteredTokens = useMemo(
+    () => searchAssets(searchValue, managedTokens, allTokensBaseMetadata),
+    [managedTokens, allTokensBaseMetadata, searchValue]
+  );
 
-      if (plain.type !== TempleAssetType.TEZ) {
-        updateToken(plain, { status: checked ? "displayed" : "hidden" });
+  const confirm = useConfirm();
+
+  const handleAssetUpdate = useCallback(
+    async (assetSlug: string, status: ITokenStatus) => {
+      try {
+        if (status === ITokenStatus.Removed) {
+          const confirmed = await confirm({
+            title: t("deleteTokenConfirm"),
+          });
+          if (!confirmed) return;
+        }
+
+        await setTokenStatus(
+          ITokenType.Fungible,
+          chainId,
+          address,
+          assetSlug,
+          status
+        );
+        await revalidate();
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(err);
+        }
+        alert(err.message);
       }
     },
-    [updateToken]
+    [chainId, address, revalidate, confirm]
   );
 
   return (
@@ -118,22 +156,21 @@ const ManageAssetsContent: FC = () => {
             "text-gray-700 text-sm leading-tight"
           )}
         >
-          {filteredTokens.map((asset, i, arr) => {
+          {filteredTokens.map((slug, i, arr) => {
             const last = i === arr.length - 1;
-            const key = getAssetKey(asset);
 
             return (
               <ListItem
-                key={key}
-                asset={asset}
+                key={slug}
+                assetSlug={slug}
                 last={last}
-                checked={asset.checked}
-                onChecked={handleAssetChecked}
+                checked={tokenStatuses[slug]?.displayed ?? false}
+                onUpdate={handleAssetUpdate}
               />
             );
           })}
         </div>
-      ) : (
+      ) : loading ? null : (
         <div
           className={classNames(
             "my-8",
@@ -174,68 +211,84 @@ const ManageAssetsContent: FC = () => {
 };
 
 type ListItemProps = {
-  asset: CheckableAsset;
+  assetSlug: string;
   last: boolean;
   checked: boolean;
-  onChecked: (asset: CheckableAsset, checked: boolean) => void;
+  onUpdate: (assetSlug: string, status: ITokenStatus) => void;
 };
 
-const ListItem = memo<ListItemProps>(({ asset, last, checked, onChecked }) => {
-  const handleCheckboxChange = useCallback(
-    (evt) => {
-      onChecked(asset, evt.target.checked);
-    },
-    [asset, onChecked]
-  );
+const ListItem = memo<ListItemProps>(
+  ({ assetSlug, last, checked, onUpdate }) => {
+    const metadata = useAssetMetadata(assetSlug);
 
-  return (
-    <label
-      className={classNames(
-        "block w-full",
-        "overflow-hidden",
-        !last && "border-b border-gray-200",
-        checked ? "bg-gray-100" : "hover:bg-gray-100 focus:bg-gray-100",
-        "flex items-center py-2 px-3",
-        "text-gray-700",
-        "transition ease-in-out duration-200",
-        "focus:outline-none",
-        "cursor-pointer"
-      )}
-    >
-      <AssetIcon asset={asset} size={32} className="mr-3 flex-shrink-0" />
+    const handleCheckboxChange = useCallback(
+      (evt) => {
+        onUpdate(
+          assetSlug,
+          evt.target.checked ? ITokenStatus.Enabled : ITokenStatus.Disabled
+        );
+      },
+      [assetSlug, onUpdate]
+    );
 
-      <div className="flex items-center">
-        <div className="flex flex-col items-start">
-          <div
-            className={classNames("text-sm font-normal text-gray-700")}
-            style={{ marginBottom: "0.125rem" }}
-          >
-            {asset.name}
-          </div>
+    return (
+      <label
+        className={classNames(
+          "block w-full",
+          "overflow-hidden",
+          !last && "border-b border-gray-200",
+          checked ? "bg-gray-100" : "hover:bg-gray-100 focus:bg-gray-100",
+          "flex items-center py-2 px-3",
+          "text-gray-700",
+          "transition ease-in-out duration-200",
+          "focus:outline-none",
+          "cursor-pointer"
+        )}
+      >
+        <AssetIcon
+          assetSlug={assetSlug}
+          size={32}
+          className="mr-3 flex-shrink-0"
+        />
 
-          <div className={classNames("text-xs font-light text-gray-600")}>
-            {asset.symbol}
+        <div className="flex items-center">
+          <div className="flex flex-col items-start">
+            <div
+              className={classNames("text-sm font-normal text-gray-700")}
+              style={{ marginBottom: "0.125rem" }}
+            >
+              {getAssetName(metadata)}
+            </div>
+
+            <div className={classNames("text-xs font-light text-gray-600")}>
+              {getAssetSymbol(metadata)}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex-1" />
+        <div className="flex-1" />
 
-      <Checkbox checked={checked} onChange={handleCheckboxChange} />
-    </label>
-  );
-});
+        <div
+          className={classNames(
+            "mr-2 p-1",
+            "rounded-full",
+            "text-gray-400 hover:text-gray-600",
+            "hover:bg-black hover:bg-opacity-5",
+            "transition ease-in-out duration-200"
+          )}
+          onClick={(evt) => {
+            evt.preventDefault();
+            onUpdate(assetSlug, ITokenStatus.Removed);
+          }}
+        >
+          <CloseIcon
+            className="w-auto h-4 stroke-current stroke-2"
+            title={t("delete")}
+          />
+        </div>
 
-type CheckableAsset = TempleAsset & { checked: boolean };
-
-function toPlain({ checked, ...asset }: CheckableAsset): TempleAsset {
-  return asset;
-}
-
-function toChecked(asset: TempleAsset): CheckableAsset {
-  return { ...asset, checked: true };
-}
-
-function toUnchecked(asset: TempleAsset): CheckableAsset {
-  return { ...asset, checked: false };
-}
+        <Checkbox checked={checked} onChange={handleCheckboxChange} />
+      </label>
+    );
+  }
+);

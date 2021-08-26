@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import { cache } from "swr";
 
@@ -21,20 +22,44 @@ import InUSD from "app/templates/InUSD";
 import SearchAssetField from "app/templates/SearchAssetField";
 import { T } from "lib/i18n/react";
 import {
-  useAssets,
-  getAssetKey,
-  searchAssets,
   useAccount,
   useBalanceSWRKey,
-  TempleAsset,
+  useChainId,
+  useDisplayedFungibleTokens,
+  useAssetMetadata,
+  getAssetSymbol,
+  getAssetName,
+  useAllTokensBaseMetadata,
+  searchAssets,
 } from "lib/temple/front";
 import { Link, navigate } from "lib/woozie";
 
 import { AssetsSelectors } from "./Assets.selectors";
 
 const Assets: FC = () => {
+  const chainId = useChainId(true)!;
   const account = useAccount();
-  const { allAssets } = useAssets();
+  const address = account.publicKeyHash;
+
+  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
+
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+
+  const { assetSlugs, latestBalances } = useMemo(() => {
+    const assetSlugs = ["tez"];
+    const latestBalances: Record<string, string> = {};
+
+    for (const { tokenSlug, latestBalance } of tokens) {
+      if (tokenSlug in allTokensBaseMetadata) {
+        assetSlugs.push(tokenSlug);
+      }
+      if (latestBalance) {
+        latestBalances[tokenSlug] = latestBalance;
+      }
+    }
+
+    return { assetSlugs, latestBalances };
+  }, [tokens, allTokensBaseMetadata]);
 
   const [searchValue, setSearchValue] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -42,14 +67,14 @@ const Assets: FC = () => {
 
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
 
-  const filteredAssets = useMemo(() => searchAssets(allAssets, searchValue), [
-    allAssets,
-    searchValue,
-  ]);
+  const filteredAssets = useMemo(
+    () => searchAssets(searchValue, assetSlugs, allTokensBaseMetadata),
+    [searchValue, assetSlugs, allTokensBaseMetadata]
+  );
 
-  const activeAssetKey = useMemo(() => {
+  const activeAsset = useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex]
-      ? getAssetKey(filteredAssets[activeIndex])
+      ? filteredAssets[activeIndex]
       : null;
   }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
 
@@ -68,12 +93,12 @@ const Assets: FC = () => {
   }, [setSearchFocused]);
 
   useEffect(() => {
-    if (!activeAssetKey) return;
+    if (!activeAsset) return;
 
     const handleKeyup = (evt: KeyboardEvent) => {
       switch (evt.key) {
         case "Enter":
-          navigate(toExploreAssetLink(activeAssetKey));
+          navigate(toExploreAssetLink(activeAsset));
           break;
 
         case "ArrowDown":
@@ -88,7 +113,7 @@ const Assets: FC = () => {
 
     window.addEventListener("keyup", handleKeyup);
     return () => window.removeEventListener("keyup", handleKeyup);
-  }, [activeAssetKey, setActiveIndex]);
+  }, [activeAsset, setActiveIndex]);
 
   return (
     <div className={classNames("w-full max-w-sm mx-auto")}>
@@ -132,17 +157,16 @@ const Assets: FC = () => {
         >
           {filteredAssets.map((asset, i, arr) => {
             const last = i === arr.length - 1;
-            const key = getAssetKey(asset);
-            const active = activeAssetKey ? key === activeAssetKey : false;
+            const active = activeAsset ? asset === activeAsset : false;
 
             return (
               <ListItem
-                key={key}
-                asset={asset}
-                slug={key}
+                key={asset}
+                assetSlug={asset}
                 last={last}
                 active={active}
                 accountPkh={account.publicKeyHash}
+                latestBalance={latestBalances[asset]}
               />
             );
           })}
@@ -190,22 +214,30 @@ const Assets: FC = () => {
 export default Assets;
 
 type ListItemProps = {
-  asset: TempleAsset;
-  slug: string;
+  assetSlug: string;
   last: boolean;
   active: boolean;
   accountPkh: string;
+  latestBalance?: string;
 };
 
 const ListItem = memo<ListItemProps>(
-  ({ asset, slug, last, active, accountPkh }) => {
-    const balanceSWRKey = useBalanceSWRKey(asset, accountPkh);
-    const balanceAlreadyLoaded = useMemo(() => cache.has(balanceSWRKey), [
-      balanceSWRKey,
-    ]);
+  ({ assetSlug, last, active, accountPkh, latestBalance }) => {
+    const metadata = useAssetMetadata(assetSlug);
+
+    const balanceSWRKey = useBalanceSWRKey(assetSlug, accountPkh);
+    const balanceAlreadyLoaded = useMemo(
+      () => cache.has(balanceSWRKey),
+      [balanceSWRKey]
+    );
 
     const toDisplayRef = useRef<HTMLDivElement>(null);
     const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
+
+    const preservedBalance = useMemo(() => {
+      if (!metadata || !latestBalance) return;
+      return new BigNumber(latestBalance).div(10 ** metadata.decimals);
+    }, [latestBalance, metadata]);
 
     useEffect(() => {
       const el = toDisplayRef.current;
@@ -227,9 +259,36 @@ const ListItem = memo<ListItemProps>(
       return;
     }, [displayed, setDisplayed]);
 
+    const renderBalance = useCallback(
+      (balance: BigNumber) => (
+        <div className="flex items-center">
+          <span className="text-base font-normal text-gray-700">
+            <Money>{balance}</Money>{" "}
+            <span className="opacity-90" style={{ fontSize: "0.75em" }}>
+              {getAssetSymbol(metadata)}
+            </span>
+          </span>
+
+          <InUSD assetSlug={assetSlug} volume={balance}>
+            {(usdBalance) => (
+              <div
+                className={classNames(
+                  "ml-2",
+                  "text-sm font-light text-gray-600"
+                )}
+              >
+                ${usdBalance}
+              </div>
+            )}
+          </InUSD>
+        </div>
+      ),
+      [assetSlug, metadata]
+    );
+
     return (
       <Link
-        to={toExploreAssetLink(slug)}
+        to={toExploreAssetLink(assetSlug)}
         className={classNames(
           "relative",
           "block w-full",
@@ -242,40 +301,30 @@ const ListItem = memo<ListItemProps>(
           "focus:outline-none"
         )}
         testID={AssetsSelectors.AssetItemButton}
-        testIDProperties={{ key: getAssetKey(asset) }}
+        testIDProperties={{ key: assetSlug }}
       >
-        <AssetIcon asset={asset} size={32} className="mr-3 flex-shrink-0" />
+        <AssetIcon
+          assetSlug={assetSlug}
+          size={32}
+          className="mr-3 flex-shrink-0"
+        />
 
         <div ref={toDisplayRef} className="flex items-center">
           <div className="flex flex-col">
-            <Balance address={accountPkh} asset={asset} displayed={displayed}>
-              {(balance) => (
-                <div className="flex items-center">
-                  <span className="text-base font-normal text-gray-700">
-                    <Money>{balance}</Money>{" "}
-                    <span className="opacity-90" style={{ fontSize: "0.75em" }}>
-                      {asset.symbol}
-                    </span>
-                  </span>
-
-                  <InUSD asset={asset} volume={balance}>
-                    {(usdBalance) => (
-                      <div
-                        className={classNames(
-                          "ml-2",
-                          "text-sm font-light text-gray-600"
-                        )}
-                      >
-                        ${usdBalance}
-                      </div>
-                    )}
-                  </InUSD>
-                </div>
-              )}
-            </Balance>
+            {preservedBalance ? (
+              renderBalance(preservedBalance)
+            ) : (
+              <Balance
+                address={accountPkh}
+                assetSlug={assetSlug}
+                displayed={displayed}
+              >
+                {renderBalance}
+              </Balance>
+            )}
 
             <div className={classNames("text-xs font-light text-gray-600")}>
-              {asset.name}
+              {getAssetName(metadata)}
             </div>
           </div>
         </div>

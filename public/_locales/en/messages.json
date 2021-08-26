@@ -2054,6 +2054,9 @@
   "finish": {
     "message": "Finish"
   },
+  "deleteTokenConfirm": {
+    "message": "Are you sure you want to delete this token?"
+  },
   "ledgerLiveSettings": {
     "message": "Use Ledger Live"
   },

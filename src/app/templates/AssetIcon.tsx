@@ -3,29 +3,34 @@ import React, { CSSProperties, memo, useCallback, useState } from "react";
 import classNames from "clsx";
 
 import Identicon from "app/atoms/Identicon";
-import { getAssetIconUrl } from "app/defaults";
-import { TempleAsset } from "lib/temple/types";
+import {
+  useAssetMetadata,
+  getAssetSymbol,
+  getThumbnailUri,
+} from "lib/temple/front";
+
 export type AssetIconProps = {
-  asset: TempleAsset;
+  assetSlug: string;
   className?: string;
   style?: CSSProperties;
   size?: number;
 };
 
 const AssetIcon = memo((props: AssetIconProps) => {
-  const { asset, className, style, size } = props;
-  const assetIconUrl = getAssetIconUrl(asset);
+  const { assetSlug, className, style, size } = props;
+  const metadata = useAssetMetadata(assetSlug);
+  const thumbnailUri = getThumbnailUri(metadata);
 
   const [imageDisplayed, setImageDisplayed] = useState(true);
   const handleImageError = useCallback(() => {
     setImageDisplayed(false);
   }, [setImageDisplayed]);
 
-  if (assetIconUrl && imageDisplayed) {
+  if (thumbnailUri && imageDisplayed) {
     return (
       <img
-        src={assetIconUrl}
-        alt={asset.name}
+        src={thumbnailUri}
+        alt={metadata?.name}
         className={classNames("overflow-hidden", className)}
         style={{
           width: size,
@@ -40,7 +45,7 @@ const AssetIcon = memo((props: AssetIconProps) => {
   return (
     <Identicon
       type="initials"
-      hash={asset.symbol}
+      hash={getAssetSymbol(metadata)}
       className={className}
       style={style}
       size={size}

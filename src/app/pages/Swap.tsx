@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { Suspense, useMemo } from "react";
 
 import classNames from "clsx";
 
@@ -27,7 +27,9 @@ const Swap: React.FC<SwapProps> = ({ assetSlug }) => (
         <SwapDisclaimer />
 
         <SwappableAssetsProvider initialAssetKey={assetSlug ?? undefined}>
-          <SwapForm assetSlug={assetSlug} />
+          <Suspense fallback={null}>
+            <SwapForm assetSlug={assetSlug} />
+          </Suspense>
         </SwappableAssetsProvider>
       </div>
     </div>

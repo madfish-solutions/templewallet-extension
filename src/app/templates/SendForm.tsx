@@ -48,7 +48,6 @@ import { T, t } from "lib/i18n/react";
 import { transferImplicit, transferToContract } from "lib/michelson";
 import {
   fetchBalance,
-  getAssetKey,
   hasManager,
   isAddressValid,
   isDomainNameValid,
@@ -56,20 +55,21 @@ import {
   loadContract,
   mutezToTz,
   TempleAccountType,
-  TempleAsset,
-  TempleAssetType,
-  TEZ_ASSET,
+  TEZOS_METADATA,
   toPenny,
   toTransferParams,
   tzToMutez,
   useAccount,
-  useAssetBySlug,
   useBalance,
   useTezos,
   useTezosDomainsClient,
   useNetwork,
   useAssetUSDPrice,
   useContacts,
+  useAssetMetadata,
+  isTezAsset,
+  fetchTezosBalance,
+  getAssetSymbol,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
@@ -93,7 +93,8 @@ type SendFormProps = {
 };
 
 const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
-  const asset = useAssetBySlug(assetSlug) ?? TEZ_ASSET;
+  assetSlug = assetSlug ?? "tez";
+
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
   const [addContactModalAddress, setAddContactModalAddress] = useState<
@@ -102,12 +103,12 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
   const { trackEvent } = useAnalytics();
 
   const handleAssetChange = useCallback(
-    (a: TempleAsset) => {
+    (aSlug: string) => {
       trackEvent(
         SendFormSelectors.AssetItemButton,
         AnalyticsEventCategory.ButtonPress
       );
-      navigate(`/send/${getAssetKey(a)}`, HistoryAction.Replace);
+      navigate(`/send/${aSlug}`, HistoryAction.Replace);
     },
     [trackEvent]
   );
@@ -130,14 +131,14 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
       )}
 
       <AssetSelect
-        value={asset}
+        value={assetSlug}
         onChange={handleAssetChange}
         className="mb-6"
       />
 
       <Suspense fallback={<SpinnerSection />}>
         <Form
-          localAsset={asset}
+          assetSlug={assetSlug}
           setOperation={setOperation}
           onAddContactRequested={handleAddContactRequested}
         />
@@ -154,18 +155,25 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
 export default SendForm;
 
 type FormProps = {
-  localAsset: TempleAsset;
+  assetSlug: string;
   setOperation: Dispatch<any>;
   onAddContactRequested: (address: string) => void;
 };
 
 const Form: FC<FormProps> = ({
-  localAsset,
+  assetSlug,
   setOperation,
   onAddContactRequested,
 }) => {
   const { registerBackHandler } = useAppEnv();
-  const assetPrice = useAssetUSDPrice(localAsset);
+
+  const assetMetadata = useAssetMetadata(assetSlug);
+  const assetPrice = useAssetUSDPrice(assetSlug);
+
+  const assetSymbol = useMemo(
+    () => getAssetSymbol(assetMetadata),
+    [assetMetadata]
+  );
 
   const { allContacts } = useContacts();
   const network = useNetwork();
@@ -179,13 +187,13 @@ const Form: FC<FormProps> = ({
   const accountPkh = acc.publicKeyHash;
 
   const { data: balanceData, mutate: mutateBalance } = useBalance(
-    localAsset,
+    assetSlug,
     accountPkh
   );
   const balance = balanceData!;
 
   const { data: tezBalanceData, mutate: mutateTezBalance } = useBalance(
-    TEZ_ASSET,
+    "tez",
     accountPkh
   );
   const tezBalance = tezBalanceData!;
@@ -319,10 +327,10 @@ const Form: FC<FormProps> = ({
   const estimateBaseFee = useCallback(async () => {
     try {
       const to = toResolved;
-      const tez = localAsset.type === TempleAssetType.TEZ;
+      const tez = isTezAsset(assetSlug);
 
       const balanceBN = (await mutateBalance(
-        fetchBalance(tezos, localAsset, accountPkh)
+        fetchBalance(tezos, assetSlug, assetMetadata, accountPkh)
       ))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
@@ -331,7 +339,7 @@ const Form: FC<FormProps> = ({
       let tezBalanceBN: BigNumber;
       if (!tez) {
         tezBalanceBN = (await mutateTezBalance(
-          fetchBalance(tezos, TEZ_ASSET, accountPkh)
+          fetchTezosBalance(tezos, accountPkh)
         ))!;
         if (tezBalanceBN.isZero()) {
           throw new ZeroTEZBalanceError();
@@ -341,10 +349,11 @@ const Form: FC<FormProps> = ({
       const [transferParams, manager] = await Promise.all([
         toTransferParams(
           tezos,
-          localAsset,
+          assetSlug,
+          assetMetadata,
           accountPkh,
           to,
-          toPenny(localAsset)
+          toPenny(assetMetadata)
         ),
         tezos.rpc.getManagerKey(
           acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh
@@ -421,7 +430,8 @@ const Form: FC<FormProps> = ({
   }, [
     acc,
     tezos,
-    localAsset,
+    assetSlug,
+    assetMetadata,
     accountPkh,
     toResolved,
     mutateBalance,
@@ -438,7 +448,7 @@ const Form: FC<FormProps> = ({
         ? [
             "transfer-base-fee",
             tezos.checksum,
-            localAsset.symbol,
+            assetSlug,
             accountPkh,
             toResolved,
           ]
@@ -471,25 +481,24 @@ const Form: FC<FormProps> = ({
   const maxAmount = useMemo(() => {
     if (!(baseFee instanceof BigNumber)) return null;
 
-    const maxAmountAsset =
-      localAsset.type === TempleAssetType.TEZ
-        ? BigNumber.max(
-            acc.type === TempleAccountType.ManagedKT
-              ? balance
-              : balance
-                  .minus(baseFee)
-                  .minus(safeFeeValue ?? 0)
-                  .minus(PENNY),
-            0
-          )
-        : balance;
+    const maxAmountAsset = isTezAsset(assetSlug)
+      ? BigNumber.max(
+          acc.type === TempleAccountType.ManagedKT
+            ? balance
+            : balance
+                .minus(baseFee)
+                .minus(safeFeeValue ?? 0)
+                .minus(PENNY),
+          0
+        )
+      : balance;
     const maxAmountUsd = assetPrice
       ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
       : new BigNumber(0);
     return shouldUseUsd ? maxAmountUsd : maxAmountAsset;
   }, [
     acc.type,
-    localAsset.type,
+    assetSlug,
     balance,
     baseFee,
     safeFeeValue,
@@ -546,10 +555,10 @@ const Form: FC<FormProps> = ({
     (usdAmount: BigNumber.Value) =>
       new BigNumber(usdAmount)
         .dividedBy(assetPrice ?? 1)
-        .toFormat(localAsset.decimals, BigNumber.ROUND_FLOOR, {
+        .toFormat(assetMetadata?.decimals ?? 0, BigNumber.ROUND_FLOOR, {
           decimalSeparator: ".",
         }),
-    [assetPrice, localAsset.decimals]
+    [assetPrice, assetMetadata?.decimals]
   );
 
   const validateRecipient = useCallback(
@@ -600,7 +609,8 @@ const Form: FC<FormProps> = ({
           const actualAmount = shouldUseUsd ? toAssetAmount(amount) : amount;
           const transferParams = await toTransferParams(
             tezos,
-            localAsset,
+            assetSlug,
+            assetMetadata,
             accountPkh,
             toResolved,
             actualAmount
@@ -636,7 +646,8 @@ const Form: FC<FormProps> = ({
       acc,
       formState.isSubmitting,
       tezos,
-      localAsset,
+      assetSlug,
+      assetMetadata,
       setSubmitError,
       setOperation,
       reset,
@@ -718,13 +729,11 @@ const Form: FC<FormProps> = ({
               />
               <div className="ml-1 mr-px font-normal">{filledContact.name}</div>{" "}
               (
-              <Balance asset={localAsset} address={filledContact.address}>
+              <Balance assetSlug={assetSlug} address={filledContact.address}>
                 {(bal) => (
                   <span className={classNames("text-xs leading-none")}>
                     <Money>{bal}</Money>{" "}
-                    <span style={{ fontSize: "0.75em" }}>
-                      {localAsset.symbol}
-                    </span>
+                    <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
                   </span>
                 )}
               </Balance>
@@ -737,7 +746,7 @@ const Form: FC<FormProps> = ({
                   ? "tokensRecepientInputDescriptionWithDomain"
                   : "tokensRecepientInputDescription"
               }
-              substitutions={localAsset.symbol}
+              substitutions={assetSymbol}
             />
           )
         }
@@ -812,17 +821,17 @@ const Form: FC<FormProps> = ({
                 "cursor-pointer pointer-events-auto"
               )}
             >
-              {shouldUseUsd ? "USD" : localAsset.symbol}
+              {shouldUseUsd ? "USD" : assetSymbol}
               <div className="ml-1 h-4 flex flex-col justify-between">
                 <ChevronUpIcon className="h-2 w-auto stroke-current stroke-2" />
                 <ChevronDownIcon className="h-2 w-auto stroke-current stroke-2" />
               </div>
             </button>
           ) : (
-            localAsset.symbol
+            assetSymbol
           )
         }
-        assetDecimals={shouldUseUsd ? 2 : localAsset.decimals}
+        assetDecimals={shouldUseUsd ? 2 : assetMetadata?.decimals ?? 0}
         label={t("amount")}
         labelDescription={
           restFormDisplayed &&
@@ -848,16 +857,12 @@ const Form: FC<FormProps> = ({
                       </span>{" "}
                       <T
                         id="inAsset"
-                        substitutions={
-                          localAsset.type === TempleAssetType.TEZ
-                            ? "ꜩ"
-                            : localAsset.symbol
-                        }
+                        substitutions={getAssetSymbol(assetMetadata, true)}
                       />
                     </div>
                   ) : (
                     <InUSD
-                      asset={localAsset}
+                      assetSlug={assetSlug}
                       volume={amountValue}
                       roundingMode={BigNumber.ROUND_FLOOR}
                     >
@@ -927,7 +932,7 @@ const Form: FC<FormProps> = ({
             name="fee"
             control={control}
             onChange={handleFeeFieldChange}
-            assetSymbol={TEZ_ASSET.symbol}
+            assetSymbol={TEZOS_METADATA.symbol}
             baseFee={baseFee}
             error={errors.fee}
             id="send-fee"

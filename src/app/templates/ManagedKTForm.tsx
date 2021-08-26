@@ -27,7 +27,6 @@ import {
   isAddressValid,
   useRelevantAccounts,
   useTezos,
-  TEZ_ASSET,
   useTempleClient,
   useChainId,
   isKnownChainId,
@@ -226,7 +225,7 @@ const ManagedKTForm: FC = () => {
                 <T id="contract" />
               </div>{" "}
               (
-              <Balance asset={TEZ_ASSET} address={filledAccount.address}>
+              <Balance assetSlug="tez" address={filledAccount.address}>
                 {(bal) => (
                   <span className={classNames("text-xs leading-none")}>
                     <Money>{bal}</Money>{" "}
@@ -347,7 +346,7 @@ const ContractOptionContent: FC<ContractOptionRenderProps> = (props) => {
           })()}
         </div>
 
-        <Balance asset={TEZ_ASSET} address={item.address}>
+        <Balance assetSlug="tez" address={item.address}>
           {(bal) => (
             <div
               className={classNames(

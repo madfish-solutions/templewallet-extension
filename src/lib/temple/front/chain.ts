@@ -7,28 +7,23 @@ import { trigger } from "swr";
 import {
   useTezos,
   useRelevantAccounts,
-  useAllAssetsRef,
   getBalanceSWRKey,
   confirmOperation,
 } from "lib/temple/front";
 
-export const [NewBlockTriggersProvider, useBlockTriggers] = constate(
-  useNewBlockTriggers
-);
+export const [NewBlockTriggersProvider, useBlockTriggers] =
+  constate(useNewBlockTriggers);
 
 function useNewBlockTriggers() {
   const tezos = useTezos();
   const allAccounts = useRelevantAccounts();
-  const allAssetsRef = useAllAssetsRef();
 
   const triggerNewBlock = useCallback(() => {
     for (const acc of allAccounts) {
-      for (const asset of allAssetsRef.current) {
-        trigger(getBalanceSWRKey(tezos, asset, acc.publicKeyHash), true);
-      }
+      trigger(getBalanceSWRKey(tezos, "tez", acc.publicKeyHash), true);
       trigger(["delegate", tezos.checksum, acc.publicKeyHash], true);
     }
-  }, [allAccounts, allAssetsRef, tezos]);
+  }, [allAccounts, tezos]);
 
   useOnBlock(triggerNewBlock);
 

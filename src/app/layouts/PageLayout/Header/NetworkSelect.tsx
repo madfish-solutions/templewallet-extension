@@ -9,10 +9,10 @@ import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 import { T } from "lib/i18n/react";
 import {
+  loadChainId,
   useAllNetworks,
   useNetwork,
   useSetNetworkId,
-  preloadTokens,
 } from "lib/temple/front";
 import Popper from "lib/ui/Popper";
 
@@ -36,9 +36,8 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
 
       if (!selected) {
         try {
-          await preloadTokens(rpcUrl);
-        } catch (_err) {
-        }
+          await loadChainId(rpcUrl);
+        } catch {}
 
         setNetworkId(netId);
       }
@@ -80,9 +79,9 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
                     "rounded",
                     "transition easy-in-out duration-200",
                     !disabled &&
-                    (selected
-                      ? "bg-white bg-opacity-10"
-                      : "hover:bg-white hover:bg-opacity-5"),
+                      (selected
+                        ? "bg-white bg-opacity-10"
+                        : "hover:bg-white hover:bg-opacity-5"),
                     disabled ? "cursor-default" : "cursor-pointer",
                     "flex items-center",
                     disabled && "opacity-25"
@@ -154,7 +153,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
 
           <Name style={{ maxWidth: "7rem" }}>
             {(network.nameI18nKey && <T id={network.nameI18nKey} />) ||
-            network.name}
+              network.name}
           </Name>
 
           <ChevronDownIcon
