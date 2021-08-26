@@ -124,9 +124,9 @@ export function toSlugFromLegacyAsset(asset: TempleAsset) {
       return "tez";
 
     case TempleAssetType.FA1_2:
-      return `fa1.2_${asset.address}_0`;
+      return `${asset.address}_0`;
 
     case TempleAssetType.FA2:
-      return `fa2_${asset.address}_${asset.id}`;
+      return `${asset.address}_${asset.id}`;
   }
 }
