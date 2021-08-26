@@ -5,8 +5,8 @@ import classNames from "clsx";
 import { ReactComponent as InfoIcon } from "app/icons/info.svg";
 import { ReactComponent as SwapIcon } from "app/icons/swap.svg";
 import PageLayout from "app/layouts/PageLayout";
-// import SwapForm from "app/templates/SwapForm";
-// import { SwappableAssetsProvider } from "app/templates/SwapForm/useSwappableAssets";
+import SwapForm from "app/templates/SwapForm";
+import { SwappableAssetsProvider } from "app/templates/SwapForm/useSwappableAssets";
 import { t, T } from "lib/i18n/react";
 import useTippy from "lib/ui/useTippy";
 
@@ -26,9 +26,9 @@ const Swap: React.FC<SwapProps> = ({ assetSlug }) => (
       <div className="w-full max-w-sm mx-auto">
         <SwapDisclaimer />
 
-        {/* <SwappableAssetsProvider initialAssetKey={assetSlug ?? undefined}>
+        <SwappableAssetsProvider initialAssetKey={assetSlug ?? undefined}>
           <SwapForm assetSlug={assetSlug} />
-        </SwappableAssetsProvider> */}
+        </SwappableAssetsProvider>
       </div>
     </div>
   </PageLayout>

@@ -49,7 +49,13 @@ const OperationView: FC<OperationViewProps> = ({
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restRaw }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
-        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : "tez",
+        assetSlug: tokenAddress
+          ? toTokenSlug(
+              typeof tokenId !== "undefined" ? "fa2" : "fa1.2",
+              tokenAddress,
+              tokenId
+            )
+          : "tez",
         tokenAddress,
         tokenId,
         ...restProps,

@@ -1,13 +1,11 @@
-import React, { ComponentProps, FC } from "react";
+import React, { ComponentProps, FC, useMemo } from "react";
 
 import classNames from "clsx";
 
 import FormField from "app/atoms/FormField";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import { T } from "lib/i18n/react";
-import { useRetryableSWR } from "lib/swr";
 import {
-  useTezos,
   fromAssetSlug,
   getAssetSymbol,
   isFA2Token,
@@ -21,14 +19,7 @@ type AssetInfoProps = {
 };
 
 const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
-  const tezos = useTezos();
-  const { data: assetData } = useRetryableSWR(
-    ["asset", assetSlug, tezos.checksum],
-    () => fromAssetSlug(tezos, assetSlug),
-    { suspense: true }
-  );
-  const asset = assetData!;
-
+  const asset = useMemo(() => fromAssetSlug(assetSlug), [assetSlug]);
   const metadata = useAssetMetadata(assetSlug);
 
   if (isTezAsset(asset)) return null;

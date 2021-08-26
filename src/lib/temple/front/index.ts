@@ -22,3 +22,6 @@ export * from "lib/temple/front/swap";
 export * from "lib/temple/front/blockexplorer";
 export * from "lib/temple/front/address-book";
 export * from "lib/temple/front/local-storage";
+
+// Legacy
+export * from "lib/temple/front/legacy-assets";

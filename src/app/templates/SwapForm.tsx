@@ -43,13 +43,14 @@ import {
   assetsAreSame,
   EXCHANGE_XTZ_RESERVE,
   useBalance,
-  TEZ_ASSET,
   assetAmountToUSD,
   ExchangerType,
-  useAssetBySlug,
   TempleAsset,
   getAssetId,
   getFeePercentage,
+  toSlugFromLegacyAsset,
+  useTokensMetadata,
+  toLegacyAsset,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 
@@ -69,7 +70,18 @@ type SwapFormWrapperProps = {
 };
 
 const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
-  const defaultAsset = useAssetBySlug(assetSlug) ?? undefined;
+  const { allTokensBaseMetadataRef } = useTokensMetadata();
+
+  const defaultAsset = useMemo(() => {
+    if (assetSlug) {
+      const metadata = allTokensBaseMetadataRef.current[assetSlug];
+      if (metadata) {
+        return toLegacyAsset(assetSlug, metadata);
+      }
+    }
+
+    return undefined;
+  }, [assetSlug, allTokensBaseMetadataRef]);
   const { exchangableAssets } = useSwappableAssets();
   const isSupportedNetwork = exchangableAssets.length > 0;
 
@@ -342,11 +354,14 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
 
   const closeError = useCallback(() => setError(undefined), []);
 
-  const { data: inputAssetBalance } = useBalance(
-    inputAsset ?? TEZ_ASSET,
-    accountPkh,
-    { suspense: false }
+  const inputAssetSlug = useMemo(
+    () => (inputAsset ? toSlugFromLegacyAsset(inputAsset) : "tez"),
+    [inputAsset]
   );
+
+  const { data: inputAssetBalance } = useBalance(inputAssetSlug, accountPkh, {
+    suspense: false,
+  });
   const validateAssetInput = useCallback(
     async ({ asset, amount }: SwapInputValue) => {
       if (!amount || !asset) {
@@ -355,10 +370,16 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       if (amount.eq(0)) {
         return t("amountMustBePositive");
       }
+      const assetSlug = toSlugFromLegacyAsset(asset);
       const balance =
         inputAsset && assetsAreSame(inputAsset, asset) && inputAssetBalance
           ? inputAssetBalance
-          : await fetchBalance(tezos, asset, accountPkh);
+          : await fetchBalance(
+              tezos,
+              assetSlug,
+              { decimals: asset.decimals },
+              accountPkh
+            );
       if (
         asset.type === TempleAssetType.TEZ &&
         amount.lte(balance) &&

@@ -33,7 +33,13 @@ async function fetchUSDPrices() {
     const rates = await getTokensExchangeRates({});
     for (const { tokenAddress, tokenId, exchangeRate } of rates) {
       if (tokenAddress) {
-        prices[toTokenSlug(tokenAddress, tokenId)] = exchangeRate;
+        prices[
+          toTokenSlug(
+            typeof tokenId !== "undefined" ? "fa2" : "fa1.2",
+            tokenAddress,
+            tokenId
+          )
+        ] = exchangeRate;
       } else {
         prices.tez = exchangeRate;
       }

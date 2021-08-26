@@ -25,7 +25,6 @@ import {
   useTezos,
   validateContractAddress,
   useNetwork,
-  assertTokenType,
   NotMatchingStandardError,
   loadContractForCallLambdaView,
   useTokensMetadata,
@@ -35,6 +34,8 @@ import {
   useChainId,
   useAccount,
   getBalanceSWRKey,
+  TokenStandard,
+  detectTokenStandard,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
@@ -106,6 +107,8 @@ const Form: FC = () => {
   const contractAddress = watch("address");
   const tokenId = watch("id") || 0;
 
+  const tokenStandardRef = useRef<TokenStandard>("fa1.2");
+
   const formValid = useMemo(
     () => validateContractAddress(contractAddress) === true && tokenId >= 0,
     [contractAddress, tokenId]
@@ -139,19 +142,19 @@ const Form: FC = () => {
         contractAddress
       );
 
-      let tokenType: "fa1.2" | "fa2";
-      try {
-        assertTokenType(contract, "fa2");
-        tokenType = "fa2";
-      } catch {
-        assertTokenType(contract, "fa1.2");
-        tokenType = "fa1.2";
+      const tokenStandard = await detectTokenStandard(tezos, contract);
+      if (!tokenStandard) {
+        throw new NotMatchingStandardError(
+          t("tokenDoesNotMatchStandard", "FA")
+        );
       }
 
-      await assertGetBalance(tezos, contract, tokenType, tokenId);
+      await assertGetBalance(tezos, contract, tokenStandard, tokenId);
 
-      const slug = toTokenSlug(contractAddress, tokenId);
+      const slug = toTokenSlug(tokenStandard, contractAddress, tokenId);
       const { base } = await fetchMetadata(slug);
+
+      tokenStandardRef.current = tokenStandard;
 
       setValue([
         { symbol: base.symbol },
@@ -235,7 +238,11 @@ const Form: FC = () => {
 
       formAnalytics.trackSubmit();
       try {
-        const tokenSlug = toTokenSlug(address, id || 0);
+        const tokenSlug = toTokenSlug(
+          tokenStandardRef.current,
+          address,
+          id || 0
+        );
 
         const { base } = await fetchMetadata(tokenSlug);
         const metadataToSet = {
