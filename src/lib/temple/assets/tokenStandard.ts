@@ -29,7 +29,7 @@ export async function detectTokenStandard(
   const { entrypoints } =
     typeof contract === "string"
       ? await retry(() => tezos.rpc.getEntrypoints(contract), RETRY_PARAMS)
-      : contract;
+      : contract.entrypoints;
 
   switch (true) {
     case isEntrypointsMatched(entrypoints, FA2_ENTRYPOINTS_SCHEMA):
@@ -91,7 +91,7 @@ function isEntrypointsMatched(
         !entry ||
         entry.prim !== prim ||
         entry.args.length !== args.length ||
-        (entry.args as any[]).some((arg, i) => arg.prim !== args[i])
+        args.some((arg, i) => arg !== entry.args[i]?.prim)
       ) {
         return false;
       }

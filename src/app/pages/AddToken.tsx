@@ -35,6 +35,7 @@ import {
   useAccount,
   getBalanceSWRKey,
   detectTokenStandard,
+  IncorrectTokenIdError,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
@@ -142,7 +143,7 @@ const Form: FC = () => {
       const tokenStandard = await detectTokenStandard(tezos, contract);
       if (!tokenStandard) {
         throw new NotMatchingStandardError(
-          t("tokenDoesNotMatchStandard", "FA")
+          "Failed when detecting token standard"
         );
       }
 
@@ -165,8 +166,8 @@ const Form: FC = () => {
       await withErrorHumanDelay(err, () => {
         if (err instanceof NotMatchingStandardError) {
           stateToSet = {
-            tokenValidationError: `${t("tokenDoesNotMatchStandard", "FA")}: ${
-              err.message
+            tokenValidationError: `${t("tokenDoesNotMatchStandard", "FA")}${
+              err instanceof IncorrectTokenIdError ? `: ${err.message}` : ""
             }`,
           };
         } else {
