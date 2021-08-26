@@ -592,7 +592,7 @@
     "message": "Seed phrase"
   },
   "mnemonicInputDescription": {
-    "message": "Mnemonic. Your secret twelve word phrase."
+    "message": "Mnemonic. Your secret 12 - 24 words phrase."
   },
   "mnemonicInputPlaceholder": {
     "message": "e.g. venue sock milk update..."
@@ -646,8 +646,8 @@
   "processing": {
     "message": "Processing..."
   },
-  "restoreWalletWithSeedPhrase": {
-    "message": "Restore your Wallet with Seed Phrase"
+  "restoreWallet": {
+    "message": "Restore your Wallet"
   },
   "accountAddressLabel": {
     "message": "Your current account address. Share it to receive funds."
@@ -728,7 +728,7 @@
     "message": "Import existing Wallet"
   },
   "importExistingWalletDescription": {
-    "message": "Already have a seed phrase? Import your existing wallet using a 12 or more mnemonic words"
+    "message": "Already have a wallet? Import it using your seed phrase or encrypted keystore file"
   },
   "links": {
     "message": "Links"

@@ -591,9 +591,6 @@
   "mnemonicInputLabel": {
     "message": "phrase mnémonique"
   },
-  "mnemonicInputDescription": {
-    "message": "Mnémonique. Votre phrase secrète à douze mots."
-  },
   "mnemonicInputPlaceholder": {
     "message": "p. ex. venue sock milk update…"
   },
@@ -645,9 +642,6 @@
   },
   "processing": {
     "message": "Traitement…"
-  },
-  "restoreWalletWithSeedPhrase": {
-    "message": "Restaurez votre portefeuille avec la phrase mnémonique"
   },
   "accountAddressLabel": {
     "message": "L'adresse de votre compte actuel. Partagez-la pour recevoir des fonds."
@@ -726,9 +720,6 @@
   },
   "importExistingWallet": {
     "message": "Importer un portefeuille existant"
-  },
-  "importExistingWalletDescription": {
-    "message": "Avez-vous déjà une phrase mnémonique ? Importez votre portefeuille existant en utilisant 12 mots mnémoniques ou plus"
   },
   "links": {
     "message": "Liens"

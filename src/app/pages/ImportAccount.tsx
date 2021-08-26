@@ -1,4 +1,12 @@
-import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { validateMnemonic } from "bip39";
 import classNames from "clsx";
@@ -6,9 +14,11 @@ import { useForm, Controller } from "react-hook-form";
 import useSWR from "swr";
 
 import Alert from "app/atoms/Alert";
+import FileInput, { FileInputProps } from "app/atoms/FileInput";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import NoSpaceField from "app/atoms/NoSpaceField";
+import TabSwitcher from "app/atoms/TabSwitcher";
 import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
@@ -32,7 +42,7 @@ import {
   ImportAccountFormType,
 } from "lib/temple/front";
 import useSafeState from "lib/ui/useSafeState";
-import { Link, navigate } from "lib/woozie";
+import { navigate } from "lib/woozie";
 
 type ImportAccountProps = {
   tabSlug: string | null;
@@ -80,10 +90,10 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
         },
         network.type !== "main"
           ? {
-            slug: "faucet",
-            i18nKey: "faucetFileTitle",
-            Form: FromFaucetForm,
-          }
+              slug: "faucet",
+              i18nKey: "faucetFileTitle",
+              Form: FromFaucetForm,
+            }
           : undefined,
         {
           slug: "managed-kt",
@@ -126,38 +136,12 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
       }
     >
       <div className="py-4">
-        <div
-          className={classNames(
-            "w-full max-w-md mx-auto",
-            "mb-4",
-            "flex flex-wrap items-center justify-center"
-          )}
-        >
-          {allTabs.map((t) => {
-            const active = slug === t.slug;
-
-            return (
-              <T key={t.slug} id={t.i18nKey}>
-                {(message) => (
-                  <Link
-                    to={`/import-account/${t.slug}`}
-                    replace
-                    className={classNames(
-                      "text-center cursor-pointer rounded-md mx-1 py-2 px-3 mb-1",
-                      "text-gray-600 text-sm",
-                      active
-                        ? "text-primary-orange bg-primary-orange bg-opacity-10"
-                        : "hover:bg-gray-100 focus:bg-gray-100",
-                      "transition ease-in-out duration-200"
-                    )}
-                  >
-                    {message}
-                  </Link>
-                )}
-              </T>
-            );
-          })}
-        </div>
+        <TabSwitcher
+          className="mb-4"
+          tabs={allTabs}
+          activeTabSlug={slug}
+          urlPrefix="/import-account"
+        />
 
         <Form />
       </div>
@@ -176,13 +160,8 @@ const ByPrivateKeyForm: FC = () => {
   const { importAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.PrivateKey);
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    formState,
-    watch,
-  } = useForm<ByPrivateKeyFormData>();
+  const { register, handleSubmit, errors, formState, watch } =
+    useForm<ByPrivateKeyFormData>();
   const [error, setError] = useState<ReactNode>(null);
 
   const onSubmit = useCallback(
@@ -211,9 +190,10 @@ const ByPrivateKeyForm: FC = () => {
   );
 
   const keyValue = watch("privateKey");
-  const encrypted = useMemo(() => keyValue?.substring(2, 3) === "e", [
-    keyValue,
-  ]);
+  const encrypted = useMemo(
+    () => keyValue?.substring(2, 3) === "e",
+    [keyValue]
+  );
 
   return (
     <form
@@ -307,21 +287,15 @@ const ByMnemonicForm: FC = () => {
   const { importMnemonicAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Mnemonic);
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    formState,
-  } = useForm<ByMnemonicFormData>({
-    defaultValues: {
-      customDerivationPath: "m/44'/1729'/0'/0'",
-      accountNumber: 1,
-    },
-  });
+  const { register, handleSubmit, errors, formState } =
+    useForm<ByMnemonicFormData>({
+      defaultValues: {
+        customDerivationPath: "m/44'/1729'/0'/0'",
+        accountNumber: 1,
+      },
+    });
   const [error, setError] = useState<ReactNode>(null);
-  const [derivationPath, setDerivationPath] = useState(
-    DERIVATION_PATHS[0]
-  );
+  const [derivationPath, setDerivationPath] = useState(DERIVATION_PATHS[0]);
 
   const onSubmit = useCallback(
     async ({
@@ -365,7 +339,13 @@ const ByMnemonicForm: FC = () => {
         setError(err.message);
       }
     },
-    [formState.isSubmitting, setError, importMnemonicAccount, derivationPath, formAnalytics]
+    [
+      formState.isSubmitting,
+      setError,
+      importMnemonicAccount,
+      derivationPath,
+      formAnalytics,
+    ]
   );
 
   return (
@@ -557,12 +537,8 @@ interface ByFundraiserFormData {
 
 const ByFundraiserForm: FC = () => {
   const { importFundraiserAccount } = useTempleClient();
-  const {
-    register,
-    errors,
-    handleSubmit,
-    formState,
-  } = useForm<ByFundraiserFormData>();
+  const { register, errors, handleSubmit, formState } =
+    useForm<ByFundraiserFormData>();
   const [error, setError] = useState<ReactNode>(null);
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Fundraiser);
 
@@ -717,9 +693,7 @@ const FromFaucetForm: FC = () => {
     () => textFieldRef.current?.focus(),
     []
   );
-  const cleanTextField = useCallback(() => setValue("text", ""), [
-    setValue,
-  ]);
+  const cleanTextField = useCallback(() => setValue("text", ""), [setValue]);
 
   const handleFormSubmit = useCallback((evt) => {
     evt.preventDefault();
@@ -789,8 +763,10 @@ const FromFaucetForm: FC = () => {
   );
 
   const handleUploadChange = useCallback(
-    async (evt) => {
-      if (processing) return;
+    async (files?: FileList) => {
+      const inputFile = files?.item(0);
+
+      if (processing || !inputFile) return;
       setProcessing(true);
       setAlert(null);
 
@@ -813,7 +789,7 @@ const FromFaucetForm: FC = () => {
               }
             };
 
-            reader.readAsText(evt.target.files[0]);
+            reader.readAsText(inputFile);
           });
         } catch (_err) {
           throw new Error(t("unexpectedOrInvalidFile"));
@@ -886,64 +862,10 @@ const FromFaucetForm: FC = () => {
             </span>
           </label>
 
-          <div className="relative w-full mb-2">
-            <input
-              className={classNames(
-                "appearance-none",
-                "absolute inset-0 w-full",
-                "block py-2 px-4",
-                "opacity-0",
-                "cursor-pointer"
-              )}
-              type="file"
-              name="documents[]"
-              accept=".json,application/json"
-              disabled={processing}
-              onChange={handleUploadChange}
-            />
-
-            <div
-              className={classNames(
-                "w-full",
-                "px-4 py-6",
-                "border-2 border-dashed",
-                "border-gray-300",
-                "focus:border-primary-orange",
-                "bg-gray-100 focus:bg-transparent",
-                "focus:outline-none focus:shadow-outline",
-                "transition ease-in-out duration-200",
-                "rounded-md",
-                "text-gray-400 text-lg leading-tight",
-                "placeholder-alphagray"
-              )}
-            >
-              <svg
-                width={48}
-                height={48}
-                viewBox="0 0 24 24"
-                aria-labelledby="uploadIconTitle"
-                stroke="#e2e8f0"
-                strokeWidth={2}
-                strokeLinecap="round"
-                fill="none"
-                color="#e2e8f0"
-                className="m-4 mx-auto"
-              >
-                <title>{"Upload"}</title>
-                <path d="M12 4v13M7 8l5-5 5 5M20 21H4" />
-              </svg>
-              <div className="w-full text-center">
-                {processing ? (
-                  <T id="processing" />
-                ) : (
-                  <T
-                    id="selectFileOfFormat"
-                    substitutions={[<b key="format">JSON</b>]}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
+          <FaucetFileInput
+            disabled={processing}
+            onChange={handleUploadChange}
+          />
         </div>
       </form>
 
@@ -1051,10 +973,10 @@ const WatchOnlyForm: FC = () => {
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
 
-  const finalAddress = useMemo(() => resolvedAddress || addressValue, [
-    resolvedAddress,
-    addressValue,
-  ]);
+  const finalAddress = useMemo(
+    () => resolvedAddress || addressValue,
+    [resolvedAddress, addressValue]
+  );
 
   const cleanToField = useCallback(() => {
     setValue("to", "");
@@ -1130,7 +1052,7 @@ const WatchOnlyForm: FC = () => {
     tezos,
     formState.isSubmitting,
     setError,
-    formAnalytics
+    formAnalytics,
   ]);
 
   return (
@@ -1219,3 +1141,60 @@ function validateAddress(value: any) {
       return true;
   }
 }
+
+type FaucetFileInputProps = Pick<FileInputProps, "disabled" | "onChange">;
+
+const FaucetFileInput: React.FC<FaucetFileInputProps> = ({
+  disabled,
+  onChange,
+}) => (
+  <FileInput
+    className="mb-2"
+    name="documents[]"
+    accept=".json,application/json"
+    disabled={disabled}
+    onChange={onChange}
+  >
+    <div
+      className={classNames(
+        "w-full",
+        "px-4 py-6",
+        "border-2 border-dashed",
+        "border-gray-300",
+        "focus:border-primary-orange",
+        "bg-gray-100 focus:bg-transparent",
+        "focus:outline-none focus:shadow-outline",
+        "transition ease-in-out duration-200",
+        "rounded-md",
+        "text-gray-400 text-lg leading-tight",
+        "placeholder-alphagray"
+      )}
+    >
+      <svg
+        width={48}
+        height={48}
+        viewBox="0 0 24 24"
+        aria-labelledby="uploadIconTitle"
+        stroke="#e2e8f0"
+        strokeWidth={2}
+        strokeLinecap="round"
+        fill="none"
+        color="#e2e8f0"
+        className="m-4 mx-auto"
+      >
+        <title>{"Upload"}</title>
+        <path d="M12 4v13M7 8l5-5 5 5M20 21H4" />
+      </svg>
+      <div className="w-full text-center">
+        {disabled ? (
+          <T id="processing" />
+        ) : (
+          <T
+            id="selectFileOfFormat"
+            substitutions={[<b key="format">JSON</b>]}
+          />
+        )}
+      </div>
+    </div>
+  </FileInput>
+);
