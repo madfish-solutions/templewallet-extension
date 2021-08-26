@@ -67,7 +67,6 @@ type FormData = {
 };
 
 type ComponentState = {
-  nonce: number;
   processing: boolean;
   bottomSectionVisible: boolean;
   tokenValidationError: ReactNode;
@@ -75,7 +74,6 @@ type ComponentState = {
 };
 
 const INITIAL_STATE: ComponentState = {
-  nonce: 0,
   processing: false,
   bottomSectionVisible: false,
   tokenValidationError: null,
@@ -118,21 +116,18 @@ const Form: FC = () => {
   ] = useSafeState(INITIAL_STATE);
   const [submitError, setSubmitError] = useSafeState<ReactNode>(null);
 
+  const attemptRef = useRef(0);
+
   const loadMetadataPure = useCallback(async () => {
     if (!formValid) return;
 
-    let currentNonce: number;
-    let stateToSet: Partial<ComponentState>;
-
-    setState((s) => {
-      currentNonce = s.nonce + 1;
-
-      return {
-        ...INITIAL_STATE,
-        nonce: currentNonce,
-        processing: true,
-      };
+    const attempt = ++attemptRef.current;
+    setState({
+      ...INITIAL_STATE,
+      processing: true,
     });
+
+    let stateToSet: Partial<ComponentState>;
 
     try {
       const contract = await loadContractForCallLambdaView(
@@ -187,15 +182,13 @@ const Form: FC = () => {
       });
     }
 
-    setState((s) =>
-      s.nonce === currentNonce
-        ? {
-            ...s,
-            processing: false,
-            ...stateToSet,
-          }
-        : s
-    );
+    if (attempt === attemptRef.current) {
+      setState((currentState) => ({
+        ...currentState,
+        ...stateToSet,
+        processing: false,
+      }));
+    }
   }, [
     tezos,
     setValue,
@@ -217,7 +210,8 @@ const Form: FC = () => {
     if (formValid) {
       loadMetadataRef.current();
     } else {
-      setState((s) => ({ ...INITIAL_STATE, nonce: s.nonce + 1 }));
+      setState(INITIAL_STATE);
+      attemptRef.current++;
     }
   }, [setState, formValid, networkId, contractAddress, tokenId]);
 
