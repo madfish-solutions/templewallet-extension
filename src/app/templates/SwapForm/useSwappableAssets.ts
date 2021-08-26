@@ -263,10 +263,11 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         const shortHash = `${address.slice(0, 7)}...${address.slice(-4)}`;
         try {
           const tokenSlug = toTokenSlug(address, tokenId);
-          const { base: tokenMetadata } = await fetchTokenMetadata(
-            tezos,
-            tokenSlug
-          );
+          const tokenMetadata =
+            allTokensBaseMetadataRef.current[tokenSlug] ??
+            (await fetchTokenMetadata(tezos, tokenSlug).then(
+              ({ base }) => base
+            ));
           const { name: parsedName, symbol: parsedSymbol } = tokenMetadata;
           const commonMetadata = {
             ...tokenMetadata,
@@ -314,7 +315,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           };
         }
       },
-      [tezos]
+      [tezos, allTokensBaseMetadataRef]
     );
 
     const getNewExchangeData = useCallback(
@@ -461,10 +462,12 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
                 contractAddress,
                 token.type === "fa1.2" ? undefined : token.fa2TokenId
               );
-              const { base } = await fetchTokenMetadata(tezos, tokenSlug).catch(
-                () => ({ base: fallbackMetadata })
-              );
-              metadata = base;
+
+              metadata =
+                allTokensBaseMetadataRef.current[tokenSlug] ??
+                (await fetchTokenMetadata(tezos, tokenSlug)
+                  .then(({ base }) => base)
+                  .catch(() => ({ base: fallbackMetadata })));
             } else {
               metadata = fallbackMetadata;
             }
@@ -504,7 +507,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         );
         return result;
       },
-      [tezos]
+      [tezos, allTokensBaseMetadataRef]
     );
 
     const { data: quipuswapTokenWhitelists } = useRetryableSWR(
