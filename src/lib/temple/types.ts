@@ -125,6 +125,7 @@ export interface TempleSettings {
 export enum TempleSharedStorageKey {
   DAppEnabled = "dappenabled",
   LocaleCode = "localecode",
+  UseLedgerLive = "useledgerlive",
 }
 
 export type TempleDAppSessions = Record<string, TempleDAppSession>;

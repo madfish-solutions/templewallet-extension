@@ -1,5 +1,23 @@
 import { getMessage } from "lib/i18n";
-import { TempleNetwork } from "lib/temple/types";
+import { TempleChainId, TempleNetwork } from "lib/temple/types";
+
+export const KNOWN_LAMBDA_CONTRACTS = new Map([
+  [TempleChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
+  [TempleChainId.Granadanet, "KT1VhtTGAyh7AVVwyH2ExNhaXvQq2rAJ6DNs"],
+  [TempleChainId.Florencenet, "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX"],
+  [TempleChainId.Edo2net, "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN"],
+  [TempleChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
+  [TempleChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
+]);
+
+export const NETWORK_IDS = new Map<string, string>([
+  [TempleChainId.Mainnet, "mainnet"],
+  [TempleChainId.Granadanet, "granadanet"],
+  [TempleChainId.Florencenet, "florencenet"],
+  [TempleChainId.Edo2net, "edo2net"],
+  [TempleChainId.Delphinet, "delphinet"],
+  [TempleChainId.Carthagenet, "carthagenet"],
+]);
 
 export const NETWORKS: TempleNetwork[] = [
   {
@@ -11,6 +29,46 @@ export const NETWORKS: TempleNetwork[] = [
     type: "main",
     rpcBaseURL: "https://mainnet-node.madfish.solutions",
     color: "#83b300",
+    disabled: false,
+  },
+  {
+    id: "giganode-mainnet",
+    name: "Mainnet @giganode.io",
+    description: "Highly available Tezos Mainnet nodes operated by Giganode",
+    lambdaContract: "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE",
+    type: "main",
+    rpcBaseURL: "https://mainnet-tezos.giganode.io",
+    color: "#059669",
+    disabled: false,
+  },
+  {
+    id: "smartpy-mainnet",
+    name: "Mainnet @smartpy.io",
+    description: "SmartPy Mainnet",
+    lambdaContract: "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE",
+    type: "main",
+    rpcBaseURL: "https://mainnet.smartpy.io",
+    color: "#34D399",
+    disabled: false,
+  },
+  {
+    id: "tzbeta-mainnet",
+    name: "Mainnet @tzbeta.net",
+    description: "Highly available Tezos Mainnet nodes operated by Blockscale",
+    lambdaContract: "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE",
+    type: "main",
+    rpcBaseURL: "https://rpc.tzbeta.net",
+    color: "#10B981",
+    disabled: false,
+  },
+  {
+    id: "tezie-mainnet",
+    name: "Mainnet @api.tez.ie",
+    description: "Highly available Tezos Mainnet nodes operated by ECAD Labs",
+    lambdaContract: "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE",
+    type: "main",
+    rpcBaseURL: "https://api.tez.ie/rpc/mainnet",
+    color: "#047857",
     disabled: false,
   },
   {
@@ -54,31 +112,11 @@ export const NETWORKS: TempleNetwork[] = [
   },
   // Hidden
   {
-    id: "giganode-mainnet",
-    name: "Tezos Mainnet @giganode",
-    description: "Highly available Tezos Mainnet nodes operated by Giganode",
-    type: "main",
-    rpcBaseURL: "https://mainnet-tezos.giganode.io",
-    color: "#83b300",
-    disabled: false,
-    hidden: true,
-  },
-  {
     id: "giganode-testnet",
     name: "Florence Testnet @giganode",
     description: "Highly available Tezos Mainnet nodes operated by Giganode",
     type: "test",
     rpcBaseURL: "https://testnet-tezos.giganode.io",
-    color: "#83b300",
-    disabled: false,
-    hidden: true,
-  },
-  {
-    id: "tzbeta-mainnet",
-    name: "Tezos Mainnet @rpc.tzbeta.net",
-    description: "Highly available Tezos Mainnet nodes operated by Blockscale",
-    type: "main",
-    rpcBaseURL: "https://rpc.tzbeta.net",
     color: "#83b300",
     disabled: false,
     hidden: true,
@@ -100,16 +138,6 @@ export const NETWORKS: TempleNetwork[] = [
     type: "test",
     rpcBaseURL: "https://rpczero.tzbeta.net",
     color: "#FBBF24",
-    disabled: false,
-    hidden: true,
-  },
-  {
-    id: "tezie-mainnet",
-    name: "Tezos Mainnet @api.tez.ie",
-    description: "Highly available Tezos Mainnet nodes operated by ECAD Labs",
-    type: "main",
-    rpcBaseURL: "https://api.tez.ie/rpc/mainnet",
-    color: "#83b300",
     disabled: false,
     hidden: true,
   },

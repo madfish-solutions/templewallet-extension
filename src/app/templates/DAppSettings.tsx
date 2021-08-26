@@ -1,4 +1,11 @@
-import React, { ComponentProps, FC, useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  ComponentProps,
+  FC,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 
@@ -81,9 +88,10 @@ const DAppSettings: FC = () => {
     [removeDAppSession, revalidate, confirm]
   );
 
-  const dAppEntries = useMemo(() => Object.entries(dAppSessions), [
-    dAppSessions,
-  ]);
+  const dAppEntries = useMemo(
+    () => Object.entries(dAppSessions),
+    [dAppSessions]
+  );
 
   return (
     <div className="w-full max-w-sm mx-auto my-8">
@@ -109,9 +117,7 @@ const DAppSettings: FC = () => {
         checked={dAppEnabled}
         onChange={handleChange}
         name="dAppEnabled"
-        label={t(
-          dAppEnabled ? "dAppsInteractionEnabled" : "dAppsInteractionDisabled"
-        )}
+        label={t(dAppEnabled ? "enabled" : "disabled")}
         labelDescription={t("dAppsInteraction")}
         errorCaption={error?.message}
         containerClassName="mb-4"
@@ -171,9 +177,9 @@ const DAppIcon: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = (
   />
 );
 
-const DAppDescription: FC<
-  OptionRenderProps<DAppEntry, string, DAppActions>
-> = (props) => {
+const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = (
+  props
+) => {
   const {
     actions,
     item: [origin, { appMeta, network, pkh }],
@@ -193,10 +199,7 @@ const DAppDescription: FC<
       {
         key: "originLabel",
         value: origin,
-        Component: ({
-          className,
-          ...rest
-        }: ComponentProps<typeof Name>) => (
+        Component: ({ className, ...rest }: ComponentProps<typeof Name>) => (
           <a
             href={origin}
             target="_blank"
