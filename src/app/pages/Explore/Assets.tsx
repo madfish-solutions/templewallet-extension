@@ -10,6 +10,7 @@ import React, {
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { cache } from "swr";
 
 import Money from "app/atoms/Money";
@@ -155,21 +156,39 @@ const Assets: FC = () => {
             "text-gray-700 text-sm leading-tight"
           )}
         >
-          {filteredAssets.map((asset, i, arr) => {
-            const last = i === arr.length - 1;
-            const active = activeAsset ? asset === activeAsset : false;
+          <TransitionGroup>
+            {filteredAssets.map((asset, i, arr) => {
+              const last = i === arr.length - 1;
+              const active = activeAsset ? asset === activeAsset : false;
 
-            return (
-              <ListItem
-                key={asset}
-                assetSlug={asset}
-                last={last}
-                active={active}
-                accountPkh={account.publicKeyHash}
-                latestBalance={latestBalances[asset]}
-              />
-            );
-          })}
+              return (
+                <CSSTransition
+                  key={asset}
+                  timeout={300}
+                  classNames={{
+                    enter: "opacity-0",
+                    enterActive: classNames(
+                      "opacity-100",
+                      "transition ease-out duration-300"
+                    ),
+                    exit: classNames(
+                      "opacity-0",
+                      "transition ease-in duration-300"
+                    ),
+                  }}
+                  unmountOnExit
+                >
+                  <ListItem
+                    assetSlug={asset}
+                    last={last}
+                    active={active}
+                    accountPkh={account.publicKeyHash}
+                    latestBalance={latestBalances[asset]}
+                  />
+                </CSSTransition>
+              );
+            })}
+          </TransitionGroup>
         </div>
       ) : (
         <div
