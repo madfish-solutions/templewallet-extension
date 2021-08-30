@@ -104,7 +104,7 @@ const Money = memo<MoneyProps>(
         return (
           <FullAmountTippy
             enabled={tooltip}
-            fullAmount={bn}
+            fullAmount={fiat ? new BigNumber(bn.toFixed(2)) : bn}
             className={tippyClassName}
           >
             {result.slice(0, indexOfDecimal + 1)}
