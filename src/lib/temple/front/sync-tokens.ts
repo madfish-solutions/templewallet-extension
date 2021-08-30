@@ -17,6 +17,7 @@ import {
   useTokensMetadata,
   AssetMetadata,
   useUSDPrices,
+  PREDEFINED_MAINNET_TOKENS,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 import { getAssetBalances, getTokensMetadata } from "lib/templewallet-api";
@@ -42,9 +43,9 @@ export const [SyncTokensProvider] = constate(() => {
 
     const bcdTokens = await fetchBcdTokenBalances(networkId, accountPkh);
 
-    let tokenSlugs = bcdTokens.map((token) =>
-      toTokenSlug(token.contract, token.token_id)
-    );
+    let tokenSlugs = bcdTokens
+      .map((token) => toTokenSlug(token.contract, token.token_id))
+      .concat(PREDEFINED_MAINNET_TOKENS);
 
     let balances = await getAssetBalances({
       account: accountPkh,
@@ -94,6 +95,10 @@ export const [SyncTokensProvider] = constate(() => {
           };
         }
 
+        const status = PREDEFINED_MAINNET_TOKENS.includes(slug)
+          ? Repo.ITokenStatus.Enabled
+          : Repo.ITokenStatus.Idle;
+
         return {
           // TODO: Uncomment when Collectible view is implemented
           // type: metadata?.artifactUri
@@ -103,7 +108,7 @@ export const [SyncTokensProvider] = constate(() => {
           chainId,
           account: accountPkh,
           tokenSlug: slug,
-          status: Repo.ITokenStatus.Idle,
+          status,
           addedAt: Date.now(),
           latestBalance: balance,
           latestUSDBalance: usdBalance,
