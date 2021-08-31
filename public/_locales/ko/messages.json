@@ -591,9 +591,6 @@
   "mnemonicInputLabel": {
     "message": "비밀 문구"
   },
-  "mnemonicInputDescription": {
-    "message": "니모닉. 회원님의 12개 단어로 된 비밀 문구."
-  },
   "mnemonicInputPlaceholder": {
     "message": "예) 장소 양말 우유 업데이트..."
   },
@@ -645,9 +642,6 @@
   },
   "processing": {
     "message": "처리 중..."
-  },
-  "restoreWalletWithSeedPhrase": {
-    "message": "비밀 문구로 지갑을 복원하세요"
   },
   "accountAddressLabel": {
     "message": "회원님의 현재 계정 주소입니다. 이를 공유하여 자금을 받으세요."
@@ -726,9 +720,6 @@
   },
   "importExistingWallet": {
     "message": "기존 지갑 불러오기"
-  },
-  "importExistingWalletDescription": {
-    "message": "비밀 문구가 이미 있으신가요? 12글자 이상의 니모닉 단어로 기존 지갑을 불러오세요"
   },
   "links": {
     "message": "링크"
