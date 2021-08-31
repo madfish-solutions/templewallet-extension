@@ -43,9 +43,13 @@ export const [SyncTokensProvider] = constate(() => {
 
     const bcdTokens = await fetchBcdTokenBalances(networkId, accountPkh);
 
-    let tokenSlugs = bcdTokens
-      .map((token) => toTokenSlug(token.contract, token.token_id))
-      .concat(PREDEFINED_MAINNET_TOKENS);
+    let tokenSlugs = Array.from(
+      new Set(
+        bcdTokens
+          .map((token) => toTokenSlug(token.contract, token.token_id))
+          .concat(PREDEFINED_MAINNET_TOKENS)
+      )
+    );
 
     let balances = await getAssetBalances({
       account: accountPkh,
