@@ -1,6 +1,7 @@
 import React, { FC, memo, useCallback, useMemo, useState } from "react";
 
 import classNames from "clsx";
+import { useDebounce } from "use-debounce";
 
 import Checkbox from "app/atoms/Checkbox";
 import { ReactComponent as AddIcon } from "app/icons/add-to-list.svg";
@@ -77,6 +78,7 @@ const ManageAssetsContent: FC = () => {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const [searchValue, setSearchValue] = useState("");
+  const [searchValueDebounced] = useDebounce(searchValue, 300);
 
   const managedTokens = useMemo(
     () =>
@@ -87,8 +89,9 @@ const ManageAssetsContent: FC = () => {
   );
 
   const filteredTokens = useMemo(
-    () => searchAssets(searchValue, managedTokens, allTokensBaseMetadata),
-    [managedTokens, allTokensBaseMetadata, searchValue]
+    () =>
+      searchAssets(searchValueDebounced, managedTokens, allTokensBaseMetadata),
+    [managedTokens, allTokensBaseMetadata, searchValueDebounced]
   );
 
   const confirm = useConfirm();

@@ -12,6 +12,7 @@ import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { cache } from "swr";
+import { useDebounce } from "use-debounce";
 
 import Money from "app/atoms/Money";
 import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
@@ -67,10 +68,11 @@ const Assets: FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
+  const [searchValueDebounced] = useDebounce(searchValue, 300);
 
   const filteredAssets = useMemo(
-    () => searchAssets(searchValue, assetSlugs, allTokensBaseMetadata),
-    [searchValue, assetSlugs, allTokensBaseMetadata]
+    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
   );
 
   const activeAsset = useMemo(() => {
