@@ -42,7 +42,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
           return <OpenInFullPage />;
 
         default:
-          return <ImportWallet tabSlug={p.tabSlug} />;
+          return <ImportWallet key={p.tabSlug ?? ""} tabSlug={p.tabSlug} />;
       }
     },
   ],
