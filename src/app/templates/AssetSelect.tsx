@@ -1,5 +1,6 @@
-import React, { FC, useMemo } from "react";
+import React, { FC, useCallback, useMemo } from "react";
 
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
 import Money from "app/atoms/Money";
@@ -13,19 +14,22 @@ import { T } from "lib/i18n/react";
 import {
   useDisplayedFungibleTokens,
   useAccount,
-  TempleAccountType,
   useChainId,
-  isTezAsset,
   useAssetMetadata,
   getAssetName,
   getAssetSymbol,
 } from "lib/temple/front";
+import * as Repo from "lib/temple/repo";
 
 type AssetSelectProps = {
   value: string;
   onChange?: (assetSlug: string) => void;
   className?: string;
 };
+
+type IAsset = Repo.IAccountToken | "tez";
+
+const getSlug = (asset: IAsset) => (asset === "tez" ? asset : asset.tokenSlug);
 
 const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
   const chainId = useChainId(true)!;
@@ -34,14 +38,10 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
 
-  const assetSlugs = useMemo(
-    () => [
-      "tez",
-      ...(account.type !== TempleAccountType.ManagedKT && tokens
-        ? tokens.map((t) => t.tokenSlug)
-        : []),
-    ],
-    [account.type, tokens]
+  const assets = useMemo<IAsset[]>(() => ["tez" as const, ...tokens], [tokens]);
+  const selected = useMemo(
+    () => assets.find((a) => getSlug(a) === value) ?? "tez",
+    [assets, value]
   );
 
   const title = useMemo(
@@ -70,16 +70,23 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
     []
   );
 
+  const handleChange = useCallback(
+    (asset: IAsset) => {
+      onChange?.(getSlug(asset));
+    },
+    [onChange]
+  );
+
   return (
     <IconifiedSelect
       Icon={AssetIcon}
       OptionSelectedIcon={AssetSelectedIcon}
       OptionInMenuContent={AssetInMenuContent}
       OptionSelectedContent={AssetSelectedContent}
-      getKey={(slug) => slug}
-      options={assetSlugs}
-      value={value}
-      onChange={onChange}
+      getKey={getSlug}
+      options={assets}
+      value={selected}
+      onChange={handleChange}
       title={title}
       className={className}
     />
@@ -88,36 +95,65 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
 
 export default AssetSelect;
 
-type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<string>;
+type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<IAsset>;
 
 const AssetIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <GenericAssetIcon assetSlug={option} className="h-8 w-auto mr-3" size={32} />
+  <GenericAssetIcon
+    assetSlug={getSlug(option)}
+    className="h-8 w-auto mr-3"
+    size={32}
+  />
 );
 
 const AssetSelectedIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <GenericAssetIcon assetSlug={option} className="h-12 w-auto mr-3" size={48} />
+  <GenericAssetIcon
+    assetSlug={getSlug(option)}
+    className="h-12 w-auto mr-3"
+    size={48}
+  />
 );
 
-const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
-  const metadata = useAssetMetadata(option);
+const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({
+  option: asset,
+}) => {
+  const account = useAccount();
+  const assetSlug = getSlug(asset);
+  const metadata = useAssetMetadata(assetSlug);
 
-  return isTezAsset(option) ? (
-    <span className="text-gray-700 text-lg">{getAssetName(metadata)}</span>
-  ) : (
+  return (
     <div className="flex flex-col items-start">
       <span className="text-gray-700 text-sm">{getAssetName(metadata)}</span>
 
-      <span className={classNames("text-gray-500", "text-xs leading-none")}>
-        {getAssetSymbol(metadata)}
+      <span className={classNames("text-gray-600", "text-sm leading-none")}>
+        {asset === "tez" ? (
+          <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
+            {(balance) => (
+              <>
+                <Money>{balance}</Money>{" "}
+                <span className="text-gray-500" style={{ fontSize: "0.75em" }}>
+                  {getAssetSymbol(metadata)}
+                </span>
+              </>
+            )}
+          </Balance>
+        ) : asset?.latestBalance && metadata ? (
+          <>
+            <Money tooltip={false}>
+              {new BigNumber(asset.latestBalance).div(10 ** metadata.decimals)}
+            </Money>{" "}
+            <span className="text-gray-500" style={{ fontSize: "0.75em" }}>
+              {getAssetSymbol(metadata)}
+            </span>
+          </>
+        ) : null}
       </span>
     </div>
   );
 };
 
-const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({
-  option: assetSlug,
-}) => {
+const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
   const account = useAccount();
+  const assetSlug = getSlug(option);
   const metadata = useAssetMetadata(assetSlug);
 
   return (

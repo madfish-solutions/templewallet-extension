@@ -2062,5 +2062,8 @@
   },
   "ledgerLiveSettingsDescription": {
     "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
+  },
+  "totalBalance": {
+    "message": "Total Balance"
   }
 }
