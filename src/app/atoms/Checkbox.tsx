@@ -2,6 +2,7 @@ import React, {
   forwardRef,
   InputHTMLAttributes,
   useCallback,
+  useEffect,
   useState,
 } from "react";
 
@@ -28,7 +29,12 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     },
     ref
   ) => {
-    const [localChecked, setLocalChecked] = useState(() => checked || false);
+    const [localChecked, setLocalChecked] = useState(() => checked ?? false);
+
+    useEffect(() => {
+      setLocalChecked((localChecked) => checked ?? localChecked);
+    }, [setLocalChecked, checked]);
+
     const handleChange = useCallback(
       (evt) => {
         if (onChange) {

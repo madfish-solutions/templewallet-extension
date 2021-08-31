@@ -2099,10 +2099,16 @@
   "finish": {
     "message": "Finish"
   },
+  "deleteTokenConfirm": {
+    "message": "Are you sure you want to delete this token?"
+  },
   "ledgerLiveSettings": {
     "message": "Use Ledger Live"
   },
   "ledgerLiveSettingsDescription": {
     "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
+  },
+  "totalBalance": {
+    "message": "Total Balance"
   }
 }

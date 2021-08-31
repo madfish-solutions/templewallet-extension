@@ -32,6 +32,7 @@ import {
 import { useFormAnalytics } from "lib/analytics";
 import { toLocalFixed } from "lib/i18n/numbers";
 import { T, t } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   TempleAssetType,
   useNetwork,
@@ -43,13 +44,14 @@ import {
   assetsAreSame,
   EXCHANGE_XTZ_RESERVE,
   useBalance,
-  TEZ_ASSET,
   assetAmountToUSD,
   ExchangerType,
-  useAssetBySlug,
   TempleAsset,
   getAssetId,
   getFeePercentage,
+  toSlugFromLegacyAsset,
+  useTokensMetadata,
+  toLegacyAsset,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 
@@ -69,7 +71,24 @@ type SwapFormWrapperProps = {
 };
 
 const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
-  const defaultAsset = useAssetBySlug(assetSlug) ?? undefined;
+  const tezos = useTezos();
+  const { allTokensBaseMetadataRef } = useTokensMetadata();
+
+  const defaultAsset = useRetryableSWR(
+    ["swap-default-asset", assetSlug, tezos.checksum],
+    async () => {
+      if (assetSlug) {
+        const metadata = allTokensBaseMetadataRef.current[assetSlug];
+        if (metadata) {
+          return toLegacyAsset(tezos, assetSlug, metadata);
+        }
+      }
+
+      return null;
+    },
+    { suspense: true, revalidateOnMount: true }
+  ).data;
+
   const { exchangableAssets } = useSwappableAssets();
   const isSupportedNetwork = exchangableAssets.length > 0;
 
@@ -87,7 +106,7 @@ const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
 export default SwapFormWrapper;
 
 type SwapFormProps = {
-  defaultAsset?: TempleAsset;
+  defaultAsset?: TempleAsset | null;
 };
 
 const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
@@ -342,11 +361,14 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
 
   const closeError = useCallback(() => setError(undefined), []);
 
-  const { data: inputAssetBalance } = useBalance(
-    inputAsset ?? TEZ_ASSET,
-    accountPkh,
-    { suspense: false }
+  const inputAssetSlug = useMemo(
+    () => (inputAsset ? toSlugFromLegacyAsset(inputAsset) : "tez"),
+    [inputAsset]
   );
+
+  const { data: inputAssetBalance } = useBalance(inputAssetSlug, accountPkh, {
+    suspense: false,
+  });
   const validateAssetInput = useCallback(
     async ({ asset, amount }: SwapInputValue) => {
       if (!amount || !asset) {
@@ -355,10 +377,16 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       if (amount.eq(0)) {
         return t("amountMustBePositive");
       }
+      const assetSlug = toSlugFromLegacyAsset(asset);
       const balance =
         inputAsset && assetsAreSame(inputAsset, asset) && inputAssetBalance
           ? inputAssetBalance
-          : await fetchBalance(tezos, asset, accountPkh);
+          : await fetchBalance(
+              tezos,
+              assetSlug,
+              { decimals: asset.decimals },
+              accountPkh
+            );
       if (
         asset.type === TempleAssetType.TEZ &&
         amount.lte(balance) &&

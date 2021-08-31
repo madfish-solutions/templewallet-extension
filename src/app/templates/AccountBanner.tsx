@@ -8,7 +8,7 @@ import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
 import Balance from "app/templates/Balance";
 import { t } from "lib/i18n/react";
-import { TempleAccount, TEZ_ASSET } from "lib/temple/front";
+import { TempleAccount, TEZOS_METADATA } from "lib/temple/front";
 
 type AccountBannerProps = HTMLAttributes<HTMLDivElement> & {
   account: TempleAccount;
@@ -117,7 +117,7 @@ const AccountBanner = memo<AccountBannerProps>(
                     >
                       <Money>{bal}</Money>{" "}
                       <span style={{ fontSize: "0.75em" }}>
-                        {TEZ_ASSET.symbol}
+                        {TEZOS_METADATA.symbol}
                       </span>
                     </div>
                   )}

@@ -11,7 +11,7 @@ import StarButton from "app/templates/DAppsList/StarButton";
 import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { CustomDAppInfo } from "lib/custom-dapps-api";
 import { t } from "lib/i18n/react";
-import { TEZ_ASSET, useAssetUSDPrice } from "lib/temple/front";
+import { useAssetUSDPrice } from "lib/temple/front";
 
 import { DAppStoreSelectors } from "../DAppsList.selectors";
 
@@ -37,7 +37,7 @@ const DAppItem: FC<DAppItemProps> = ({
   const handleStarClick = useCallback(() => {
     onStarClick(!isFavorite, slug);
   }, [isFavorite, onStarClick, slug]);
-  const tzUsdPrice = useAssetUSDPrice(TEZ_ASSET);
+  const tzUsdPrice = useAssetUSDPrice("tez");
   const tvlInTez = useMemo(() => {
     if (typeof tzUsdPrice === "number") {
       return new BigNumber(tvl).div(tzUsdPrice).decimalPlaces(6);

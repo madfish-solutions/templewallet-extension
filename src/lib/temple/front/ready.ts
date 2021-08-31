@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo } from "react";
 
 import { RpcClient } from "@taquito/rpc";
 import { TezosToolkit } from "@taquito/taquito";
@@ -17,8 +11,6 @@ import {
   TempleAccountType,
   TempleStatus,
   TempleState,
-  TempleAsset,
-  getClient,
   usePassiveStorage,
   useTempleClient,
   loadChainId,
@@ -41,7 +33,6 @@ export const [
   useAccount,
   useSettings,
   useTezos,
-  useTezosDomainsClient,
 ] = constate(
   useReadyTemple,
   (v) => v.allNetworks,
@@ -51,8 +42,7 @@ export const [
   (v) => v.setAccountPkh,
   (v) => v.account,
   (v) => v.settings,
-  (v) => v.tezos,
-  (v) => v.tezosDomainsClient
+  (v) => v.tezos
 );
 
 function useReadyTemple() {
@@ -147,14 +137,6 @@ function useReadyTemple() {
     }
   }, [tezos]);
 
-  /**
-   * Tezos domains
-   */
-  const tezosDomainsClient = useMemo(
-    () => getClient(networkId, tezos),
-    [networkId, tezos]
-  );
-
   return {
     allNetworks,
     network,
@@ -168,7 +150,6 @@ function useReadyTemple() {
 
     settings,
     tezos,
-    tezosDomainsClient,
   };
 }
 
@@ -232,20 +213,6 @@ export function useRelevantAccounts(withExtraTypes = true) {
   }, [relevantAccounts, account, setAccountPkh, lazyChainId]);
 
   return useMemo(() => relevantAccounts, [relevantAccounts]);
-}
-
-export const [TempleRefsProvider, useAllAssetsRef] = constate(
-  useRefs,
-  (v) => v.allAssetsRef
-);
-
-function useRefs() {
-  /**
-   * All assets reference(cache), needed for pretty network reselect
-   */
-  const allAssetsRef = useRef<TempleAsset[]>([]);
-
-  return { allAssetsRef };
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {
