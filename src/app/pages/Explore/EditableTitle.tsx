@@ -1,4 +1,11 @@
-import React, { FC, FormEventHandler, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  FC,
+  FormEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 
@@ -17,7 +24,7 @@ const EditableTitle: FC = () => {
   const { editAccountName } = useTempleClient();
   const account = useAccount();
   const alert = useAlert();
-  const formAnalytics = useFormAnalytics('ChangeAccountName');
+  const formAnalytics = useFormAnalytics("ChangeAccountName");
 
   const [editing, setEditing] = useState(false);
 
@@ -180,27 +187,33 @@ const EditableTitle: FC = () => {
       )}
 
       {!editing && (
-        <Button
+        <div
           className={classNames(
-            "absolute top-0 right-0",
-            "px-2 py-1",
-            "rounded overflow-hidden",
-            "flex items-center",
-            "text-gray-600 text-sm",
-            "transition ease-in-out duration-200",
-            "hover:bg-black hover:bg-opacity-5",
-            "opacity-75 hover:opacity-100 focus:opacity-100"
+            "absolute top-0 right-0 bottom-0",
+            "flex items-center"
           )}
-          onClick={handleEditClick}
-          testID={EditableTitleSelectors.EditButton}
         >
-          <EditIcon
+          <Button
             className={classNames(
-              "-ml-1 mr-1 h-4 w-auto stroke-current stroke-2"
+              "px-2 py-1",
+              "rounded overflow-hidden",
+              "flex items-center",
+              "text-gray-600 text-sm",
+              "transition ease-in-out duration-200",
+              "hover:bg-black hover:bg-opacity-5",
+              "opacity-75 hover:opacity-100 focus:opacity-100"
             )}
-          />
-          <T id="edit" />
-        </Button>
+            onClick={handleEditClick}
+            testID={EditableTitleSelectors.EditButton}
+          >
+            <EditIcon
+              className={classNames(
+                "-ml-1 mr-1 h-4 w-auto stroke-current stroke-2"
+              )}
+            />
+            <T id="edit" />
+          </Button>
+        </div>
       )}
     </div>
   );

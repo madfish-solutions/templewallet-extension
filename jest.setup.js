@@ -4,3 +4,9 @@ Object.assign(global, {
   crypto: new Crypto(),
   CryptoKey,
 });
+
+jest.mock("lib/temple/repo", () => ({
+  db: {
+    delete: jest.fn(),
+  },
+}));

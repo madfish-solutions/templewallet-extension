@@ -12,16 +12,16 @@ import HashChip from "app/templates/HashChip";
 import InUSD from "app/templates/InUSD";
 import { T, t, TProps } from "lib/i18n/react";
 import {
-  TempleAsset,
   RawOperationExpenses,
   RawOperationAssetExpense,
-  TEZ_ASSET,
   mutezToTz,
   tzToMutez,
+  getAssetSymbol,
+  useAssetMetadata,
 } from "lib/temple/front";
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, "tokenAddress"> & {
-  asset: TempleAsset | string;
+  assetSlug: string;
 };
 
 type OperationExpenses = Omit<RawOperationExpenses, "expenses"> & {
@@ -464,11 +464,10 @@ type OperationVolumeDisplayProps = {
 
 const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(
   ({ expense, volume, mainnet }) => {
-    const asset =
-      typeof expense?.asset === "object" ? expense.asset : undefined;
+    const metadata = useAssetMetadata(expense?.assetSlug ?? "tez");
 
     const finalVolume = expense
-      ? expense.amount.div(10 ** (asset?.decimals || 0))
+      ? expense.amount.div(10 ** (metadata?.decimals || 0))
       : volume;
 
     return (
@@ -478,13 +477,13 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(
           <span className="font-medium">
             <Money>{finalVolume || 0}</Money>
           </span>{" "}
-          {expense?.asset ? asset?.symbol || "???" : "ꜩ"}
+          {getAssetSymbol(metadata, true)}
         </span>
 
-        {(!expense?.asset || asset) && (
+        {expense?.assetSlug && (
           <InUSD
             volume={finalVolume || 0}
-            asset={asset || TEZ_ASSET}
+            assetSlug={expense.assetSlug}
             mainnet={mainnet}
           >
             {(usdVolume) => (

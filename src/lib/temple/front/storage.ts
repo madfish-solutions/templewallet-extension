@@ -1,6 +1,14 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import { browser } from "webextension-polyfill-ts";
+import { browser, Storage } from "webextension-polyfill-ts";
 
 import { useRetryableSWR } from "lib/swr";
 
@@ -8,13 +16,13 @@ export function useStorage<T = any>(
   key: string,
   fallback?: T
 ): [T, (val: SetStateAction<T>) => Promise<void>] {
-  const { data, revalidate } = useRetryableSWR<T>(key, fetchFromStorage, {
+  const { data, mutate } = useRetryableSWR<T>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
 
-  useOnStorageChanged(revalidate);
+  useEffect(() => onStorageChanged(key, mutate), [key, mutate]);
 
   const value = fallback !== undefined ? data ?? fallback : data!;
 
@@ -60,11 +68,23 @@ export function usePassiveStorage<T = any>(
   return [value, setValue];
 }
 
-export function useOnStorageChanged(handleStorageChanged: () => void) {
-  useEffect(() => {
-    browser.storage.onChanged.addListener(handleStorageChanged);
-    return () => browser.storage.onChanged.removeListener(handleStorageChanged);
-  }, [handleStorageChanged]);
+export function onStorageChanged<T = any>(
+  key: string,
+  callback: (newValue: T) => void
+) {
+  const handleChanged = (
+    changes: {
+      [s: string]: Storage.StorageChange;
+    },
+    areaName: string
+  ) => {
+    if (areaName === "local" && key in changes) {
+      callback(changes[key].newValue);
+    }
+  };
+
+  browser.storage.onChanged.addListener(handleChanged);
+  return () => browser.storage.onChanged.removeListener(handleChanged);
 }
 
 export async function fetchFromStorage(key: string) {

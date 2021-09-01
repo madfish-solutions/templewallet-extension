@@ -1,8 +1,14 @@
 import { TezosToolkit } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 
-import { batchify, loadContract, withTokenApprove } from "lib/temple/front";
-import { TempleAsset, TempleAssetType, TempleChainId } from "lib/temple/types";
+import {
+  batchify,
+  loadContract,
+  withTokenApprove,
+  TempleAsset,
+  TempleAssetType,
+  TempleChainId,
+} from "lib/temple/front";
 
 export type ExchangerType = "dexter" | "quipuswap" | "liquidity_baking";
 

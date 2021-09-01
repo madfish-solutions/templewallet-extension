@@ -36,7 +36,7 @@ const Money = memo<MoneyProps>(
     roundingMode = BigNumber.ROUND_DOWN,
     shortened,
     smallFractionFont = true,
-    tooltip,
+    tooltip = true,
   }) => {
     const bn = new BigNumber(children);
     const decimalsLength = bn.decimalPlaces();
@@ -60,8 +60,9 @@ const Money = memo<MoneyProps>(
         : result.indexOf(decimal);
 
     const tippyClassName = classNames(
-      "px-px -mr-px rounded cursor-pointer hover:bg-black",
-      "hover:bg-opacity-5 transition ease-in-out duration-200"
+      "px-px -mr-px rounded cursor-pointer",
+      tooltip && "hover:bg-black hover:bg-opacity-5",
+      "transition ease-in-out duration-200"
     );
 
     switch (true) {
@@ -104,7 +105,7 @@ const Money = memo<MoneyProps>(
         return (
           <FullAmountTippy
             enabled={tooltip}
-            fullAmount={bn}
+            fullAmount={fiat ? new BigNumber(bn.toFixed(2)) : bn}
             className={tippyClassName}
           >
             {result.slice(0, indexOfDecimal + 1)}
