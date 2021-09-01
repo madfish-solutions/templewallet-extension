@@ -29,6 +29,9 @@
   "maximiseView": {
     "message": "Maximise view"
   },
+  "selectFile": {
+    "message": "Select file"
+  },
   "selectFileOfFormat": {
     "message": "Select $format$ file",
     "placeholders": {
@@ -601,7 +604,7 @@
     "message": "Seed phrase"
   },
   "mnemonicInputDescription": {
-    "message": "Mnemonic. Your secret twelve word phrase."
+    "message": "Mnemonic. Your secret 12 - 24 words phrase."
   },
   "mnemonicInputPlaceholder": {
     "message": "e.g. venue sock milk update..."
@@ -655,8 +658,26 @@
   "processing": {
     "message": "Processing..."
   },
-  "restoreWalletWithSeedPhrase": {
-    "message": "Restore your Wallet with Seed Phrase"
+  "restoreWallet": {
+    "message": "Restore your Wallet"
+  },
+  "errorImportingKukaiWallet": {
+    "message": "Error while importing Kukai wallet"
+  },
+  "selectedFileFormatNotSupported": {
+    "message": "The selected file format is not supported"
+  },
+  "fileHasSyntaxError": {
+    "message": "The file has a syntax error. Make sure the file is correct."
+  },
+  "entropyDecryptionError": {
+    "message": "Failed to decrypt entropy. Make sure the password is correct"
+  },
+  "kukaiFileVersionError": {
+    "message": "Only files of version 3 can be processed"
+  },
+  "kukaiWalletTypeError": {
+    "message": "Cannot reveal seed phrase for this wallet type"
   },
   "accountAddressLabel": {
     "message": "Your current account address. Share it to receive funds."
@@ -737,7 +758,7 @@
     "message": "Import existing Wallet"
   },
   "importExistingWalletDescription": {
-    "message": "Already have a seed phrase? Import your existing wallet using a 12 or more mnemonic words"
+    "message": "Already have a wallet? Import it using your seed phrase or encrypted keystore file"
   },
   "links": {
     "message": "Links"
@@ -1004,8 +1025,32 @@
   "termsOfUsage": {
     "message": "Terms of Usage"
   },
+  "file": {
+    "message": "File"
+  },
+  "keystoreFile": {
+    "message": "Keystore File"
+  },
+  "keystoreFileFieldDescription": {
+    "message": "Import your wallet from an encrypted keystore file (.tez)."
+  },
+  "filePassword": {
+    "message": "File Password"
+  },
+  "filePasswordInputDescription": {
+    "message": "Please enter a password for keystore file"
+  },
+  "fileInputPrompt": {
+    "message": "Choose a file or drag it here"
+  },
+  "useKeystorePassword": {
+    "message": "Use File Password as Extension password"
+  },
   "create": {
     "message": "Create"
+  },
+  "import": {
+    "message": "Import"
   },
   "revealNewSeedPhrase": {
     "message": "<b>Click on area below</b> to reveal your new Seed Phrase.\nThen, write this phrase on a piece of paper and <b>store in a secure location</b>. Or you can memorize it."
@@ -2054,10 +2099,16 @@
   "finish": {
     "message": "Finish"
   },
+  "deleteTokenConfirm": {
+    "message": "Are you sure you want to delete this token?"
+  },
   "ledgerLiveSettings": {
     "message": "Use Ledger Live"
   },
   "ledgerLiveSettingsDescription": {
     "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
+  },
+  "totalBalance": {
+    "message": "Total Balance"
   }
 }
