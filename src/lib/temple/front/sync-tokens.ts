@@ -17,6 +17,7 @@ import {
   useTokensMetadata,
   AssetMetadata,
   useUSDPrices,
+  fetchDisplayedFungibleTokens,
   PREDEFINED_MAINNET_TOKENS,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
@@ -41,14 +42,19 @@ export const [SyncTokensProvider] = constate(() => {
   const sync = useCallback(async () => {
     if (networkId !== "mainnet") return;
 
-    const bcdTokens = await fetchBcdTokenBalances(networkId, accountPkh);
+    const [bcdTokens, displayedFungibleTokens] = await Promise.all([
+      fetchBcdTokenBalances(networkId, accountPkh),
+      fetchDisplayedFungibleTokens(chainId, accountPkh),
+    ]);
 
     let tokenSlugs = Array.from(
-      new Set(
-        bcdTokens
-          .map((token) => toTokenSlug(token.contract, token.token_id))
-          .concat(PREDEFINED_MAINNET_TOKENS)
-      )
+      new Set([
+        ...bcdTokens.map((token) =>
+          toTokenSlug(token.contract, token.token_id)
+        ),
+        ...displayedFungibleTokens.map(({ tokenSlug }) => tokenSlug),
+        ...PREDEFINED_MAINNET_TOKENS,
+      ])
     );
 
     let balances = await getAssetBalances({
