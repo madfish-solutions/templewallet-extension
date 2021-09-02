@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Temple - Tezos Wallet (ex. Thanos)",
-  "version": "1.12.0",
+  "version": "1.12.1",
 
   "icons": {
     "16": "misc/icon-16.png",
