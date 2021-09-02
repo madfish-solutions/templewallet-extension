@@ -181,7 +181,7 @@ export function searchAssets(
   const fuse = new Fuse(
     assetSlugs.map((slug) => ({
       slug,
-      metadata: allTokensBaseMetadata[slug],
+      metadata: isTezAsset(slug) ? TEZOS_METADATA : allTokensBaseMetadata[slug],
     })),
     {
       keys: [
