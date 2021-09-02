@@ -243,7 +243,7 @@ type ListItemProps = {
 };
 
 const ListItem = memo<ListItemProps>(
-  ({ assetSlug, last, active, accountPkh, latestBalance }) => {
+  ({ assetSlug, last, active, accountPkh }) => {
     const metadata = useAssetMetadata(assetSlug);
 
     const balanceSWRKey = useBalanceSWRKey(assetSlug, accountPkh);
@@ -255,10 +255,10 @@ const ListItem = memo<ListItemProps>(
     const toDisplayRef = useRef<HTMLDivElement>(null);
     const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
 
-    const preservedBalance = useMemo(() => {
-      if (!metadata || !latestBalance) return;
-      return new BigNumber(latestBalance).div(10 ** metadata.decimals);
-    }, [latestBalance, metadata]);
+    // const preservedBalance = useMemo(() => {
+    //   if (!metadata || !latestBalance) return;
+    //   return new BigNumber(latestBalance).div(10 ** metadata.decimals);
+    // }, [latestBalance, metadata]);
 
     useEffect(() => {
       const el = toDisplayRef.current;
@@ -332,7 +332,7 @@ const ListItem = memo<ListItemProps>(
 
         <div ref={toDisplayRef} className="flex items-center">
           <div className="flex flex-col">
-            {preservedBalance ? (
+            {/* {preservedBalance ? (
               renderBalance(preservedBalance)
             ) : (
               <Balance
@@ -342,7 +342,15 @@ const ListItem = memo<ListItemProps>(
               >
                 {renderBalance}
               </Balance>
-            )}
+            )} */}
+
+            <Balance
+              address={accountPkh}
+              assetSlug={assetSlug}
+              displayed={displayed}
+            >
+              {renderBalance}
+            </Balance>
 
             <div className={classNames("text-xs font-light text-gray-600")}>
               {getAssetName(metadata)}
