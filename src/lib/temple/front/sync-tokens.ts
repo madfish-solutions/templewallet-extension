@@ -21,7 +21,7 @@ import {
   PREDEFINED_MAINNET_TOKENS,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
-import { getAssetBalances, getTokensMetadata } from "lib/templewallet-api";
+import { getTokensMetadata } from "lib/templewallet-api";
 
 export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
@@ -47,20 +47,25 @@ export const [SyncTokensProvider] = constate(() => {
       fetchDisplayedFungibleTokens(chainId, accountPkh),
     ]);
 
+    const bcdTokensMap = new Map(
+      bcdTokens.map((token) => [
+        toTokenSlug(token.contract, token.token_id),
+        token,
+      ])
+    );
+
     let tokenSlugs = Array.from(
       new Set([
-        ...bcdTokens.map((token) =>
-          toTokenSlug(token.contract, token.token_id)
-        ),
+        ...bcdTokensMap.keys(),
         ...displayedFungibleTokens.map(({ tokenSlug }) => tokenSlug),
         ...PREDEFINED_MAINNET_TOKENS,
       ])
     );
 
-    let balances = await getAssetBalances({
-      account: accountPkh,
-      assetSlugs: tokenSlugs,
-    });
+    // let balances = await getAssetBalances({
+    //   account: accountPkh,
+    //   assetSlugs: tokenSlugs,
+    // });
 
     const tokenRepoKeys = tokenSlugs.map((slug) =>
       Repo.toAccountTokenKey(chainId, accountPkh, slug)
@@ -84,7 +89,9 @@ export const [SyncTokensProvider] = constate(() => {
     await Repo.accountTokens.bulkPut(
       tokenSlugs.map((slug, i) => {
         const existing = existingRecords[i];
-        const balance = balances[i];
+        // const balance = balances[i];
+        const bcdToken = bcdTokensMap.get(slug);
+        const balance = bcdToken?.balance ?? "0";
         const metadata =
           tokensMetadataToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
 
