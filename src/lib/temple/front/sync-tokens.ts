@@ -21,13 +21,13 @@ import {
   PREDEFINED_MAINNET_TOKENS,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
-import { getTokensMetadata } from "lib/templewallet-api";
+// import { getTokensMetadata } from "lib/templewallet-api";
 
 export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
 
-  const { allTokensBaseMetadataRef, setTokensBaseMetadata } =
+  const { allTokensBaseMetadataRef, setTokensBaseMetadata, fetchMetadata } =
     useTokensMetadata();
   const usdPrices = useUSDPrices();
 
@@ -78,7 +78,16 @@ export const [SyncTokensProvider] = constate(() => {
     const metadataSlugs = tokenSlugs.filter(
       (slug) => !(slug in allTokensBaseMetadataRef.current)
     );
-    const metadatas = await getTokensMetadata(metadataSlugs);
+    const metadatas = await Promise.all(
+      metadataSlugs.map(async (slug) => {
+        try {
+          const { base } = await fetchMetadata(slug);
+          return base;
+        } catch {
+          return null;
+        }
+      })
+    );
     for (let i = 0; i < metadatas.length; i++) {
       const metadata = metadatas[i];
       if (metadata) tokensMetadataToSet[metadataSlugs[i]] = metadata;
@@ -142,6 +151,7 @@ export const [SyncTokensProvider] = constate(() => {
     allTokensBaseMetadataRef,
     setTokensBaseMetadata,
     usdPrices,
+    fetchMetadata,
   ]);
 
   const syncRef = useRef(sync);
