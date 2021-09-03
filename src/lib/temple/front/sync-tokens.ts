@@ -41,6 +41,7 @@ export const [SyncTokensProvider] = constate(() => {
 
   const sync = useCallback(async () => {
     if (!networkId) return;
+    const mainnet = networkId === "mainnet";
 
     const [bcdTokens, displayedFungibleTokens] = await Promise.all([
       fetchBcdTokenBalances(networkId, accountPkh),
@@ -58,7 +59,7 @@ export const [SyncTokensProvider] = constate(() => {
       new Set([
         ...bcdTokensMap.keys(),
         ...displayedFungibleTokens.map(({ tokenSlug }) => tokenSlug),
-        ...(networkId === "mainnet" ? PREDEFINED_MAINNET_TOKENS : []),
+        ...(mainnet ? PREDEFINED_MAINNET_TOKENS : []),
       ])
     );
 
@@ -81,7 +82,7 @@ export const [SyncTokensProvider] = constate(() => {
 
     let metadatas;
     // Only for mainnet. Try load metadata from API.
-    if (networkId === "mainnet") {
+    if (mainnet) {
       try {
         metadatas = await getTokensMetadata(metadataSlugs, 15_000);
       } catch {}
@@ -90,10 +91,19 @@ export const [SyncTokensProvider] = constate(() => {
     if (!metadatas) {
       metadatas = await Promise.all(
         metadataSlugs.map(async (slug) => {
+          const noMetadataFlag = `no_metadata_${slug}`;
+          if (!mainnet && localStorage.getItem(noMetadataFlag) === "true") {
+            return null;
+          }
+
           try {
             const { base } = await fetchMetadata(slug);
             return base;
           } catch {
+            if (!mainnet) {
+              localStorage.setItem(noMetadataFlag, "true");
+            }
+
             return null;
           }
         })
