@@ -158,7 +158,7 @@ const Assets: FC = () => {
             "text-gray-700 text-sm leading-tight"
           )}
         >
-          <TransitionGroup>
+          <TransitionGroup key={chainId}>
             {filteredAssets.map((asset, i, arr) => {
               const last = i === arr.length - 1;
               const active = activeAsset ? asset === activeAsset : false;

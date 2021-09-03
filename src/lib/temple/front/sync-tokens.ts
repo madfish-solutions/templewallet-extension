@@ -40,7 +40,7 @@ export const [SyncTokensProvider] = constate(() => {
   );
 
   const sync = useCallback(async () => {
-    if (networkId !== "mainnet") return;
+    if (!networkId) return;
 
     const [bcdTokens, displayedFungibleTokens] = await Promise.all([
       fetchBcdTokenBalances(networkId, accountPkh),
@@ -58,7 +58,7 @@ export const [SyncTokensProvider] = constate(() => {
       new Set([
         ...bcdTokensMap.keys(),
         ...displayedFungibleTokens.map(({ tokenSlug }) => tokenSlug),
-        ...PREDEFINED_MAINNET_TOKENS,
+        ...(networkId === "mainnet" ? PREDEFINED_MAINNET_TOKENS : []),
       ])
     );
 
@@ -80,9 +80,14 @@ export const [SyncTokensProvider] = constate(() => {
     );
 
     let metadatas;
-    try {
-      metadatas = await getTokensMetadata(metadataSlugs, 15_000);
-    } catch {
+    // Only for mainnet. Try load metadata from API.
+    if (networkId === "mainnet") {
+      try {
+        metadatas = await getTokensMetadata(metadataSlugs, 15_000);
+      } catch {}
+    }
+    // Otherwise - fetch from chain.
+    if (!metadatas) {
       metadatas = await Promise.all(
         metadataSlugs.map(async (slug) => {
           try {
