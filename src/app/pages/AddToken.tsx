@@ -36,6 +36,8 @@ import {
   getBalanceSWRKey,
   detectTokenStandard,
   IncorrectTokenIdError,
+  AssetMetadata,
+  DetailedAssetMetdata,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
@@ -80,6 +82,8 @@ const INITIAL_STATE: ComponentState = {
   tokenDataError: null,
 };
 
+class ContractNotFoundError extends Error {}
+
 const Form: FC = () => {
   const tezos = useTezos();
   const { id: networkId } = useNetwork();
@@ -117,6 +121,10 @@ const Form: FC = () => {
   const [submitError, setSubmitError] = useSafeState<ReactNode>(null);
 
   const attemptRef = useRef(0);
+  const metadataRef = useRef<{
+    base: AssetMetadata;
+    detailed: DetailedAssetMetdata;
+  }>();
 
   const loadMetadataPure = useCallback(async () => {
     if (!formValid) return;
@@ -130,10 +138,12 @@ const Form: FC = () => {
     let stateToSet: Partial<ComponentState>;
 
     try {
-      const contract = await loadContractForCallLambdaView(
-        tezos,
-        contractAddress
-      );
+      let contract;
+      try {
+        contract = await loadContractForCallLambdaView(tezos, contractAddress);
+      } catch {
+        throw new ContractNotFoundError();
+      }
 
       const tokenStandard = await detectTokenStandard(tezos, contract);
       if (!tokenStandard) {
@@ -145,8 +155,11 @@ const Form: FC = () => {
       await assertGetBalance(tezos, contract, tokenStandard, tokenId);
 
       const slug = toTokenSlug(contractAddress, tokenId);
-      const { base } = await fetchMetadata(slug);
+      const metadata = await fetchMetadata(slug);
 
+      metadataRef.current = metadata;
+
+      const { base } = metadata;
       setValue([
         { symbol: base.symbol },
         { name: base.name },
@@ -159,7 +172,14 @@ const Form: FC = () => {
       };
     } catch (err) {
       await withErrorHumanDelay(err, () => {
-        if (err instanceof NotMatchingStandardError) {
+        if (err instanceof ContractNotFoundError) {
+          stateToSet = {
+            tokenValidationError: t(
+              "referredByTokenContractNotFound",
+              contractAddress
+            ),
+          };
+        } else if (err instanceof NotMatchingStandardError) {
           stateToSet = {
             tokenValidationError: `${t("tokenDoesNotMatchStandard", "FA")}${
               err instanceof IncorrectTokenIdError ? `: ${err.message}` : ""
@@ -230,9 +250,8 @@ const Form: FC = () => {
       try {
         const tokenSlug = toTokenSlug(address, id || 0);
 
-        const { base } = await fetchMetadata(tokenSlug);
         const metadataToSet = {
-          ...base,
+          ...(metadataRef.current?.base ?? {}),
           symbol,
           name,
           decimals: decimals ? +decimals : 0,
@@ -261,7 +280,7 @@ const Form: FC = () => {
           pathname: `/explore/${tokenSlug}`,
           search: "after_token_added=true",
         });
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
@@ -279,7 +298,6 @@ const Form: FC = () => {
       chainId,
       accountPkh,
       setSubmitError,
-      fetchMetadata,
       setTokensBaseMetadata,
       formAnalytics,
     ]
