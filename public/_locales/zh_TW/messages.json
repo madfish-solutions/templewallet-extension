@@ -591,9 +591,6 @@
   "mnemonicInputLabel": {
     "message": "助記詞"
   },
-  "mnemonicInputDescription": {
-    "message": "助記詞。包含 12 個字的秘密助記詞。"
-  },
   "mnemonicInputPlaceholder": {
     "message": "例如 venue sock milk update…"
   },
@@ -645,9 +642,6 @@
   },
   "processing": {
     "message": "正在處理……"
-  },
-  "restoreWalletWithSeedPhrase": {
-    "message": "使用助記詞還原您的錢包"
   },
   "accountAddressLabel": {
     "message": "您目前的帳戶地址。對外分享以收取資金。"
@@ -726,9 +720,6 @@
   },
   "importExistingWallet": {
     "message": "匯入現有的錢包"
-  },
-  "importExistingWalletDescription": {
-    "message": "已有助記詞？使用 12 個以上的助記詞匯入您現有的錢包"
   },
   "links": {
     "message": "連結"

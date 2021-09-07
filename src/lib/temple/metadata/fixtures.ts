@@ -97,7 +97,7 @@ export const PRESERVED_TOKEN_METADATA = new Map<string, AssetMetadata>([
       decimals: 3,
       symbol: "SMAK",
       name: "SmartLink",
-      thumbnailUri: "ipfs://QmU2C4jU154nwA71AKHeiEj79qe7ZQC4Mf7AeUj5ALXZfe",
+      thumbnailUri: "https://quipuswap.com/tokens/smak.png",
     },
   ],
 ]);

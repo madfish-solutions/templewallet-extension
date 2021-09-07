@@ -17,15 +17,17 @@ import {
   useTokensMetadata,
   AssetMetadata,
   useUSDPrices,
+  fetchDisplayedFungibleTokens,
+  PREDEFINED_MAINNET_TOKENS,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
-import { getAssetBalances, getTokensMetadata } from "lib/templewallet-api";
+import { getTokensMetadata } from "lib/templewallet-api";
 
 export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
 
-  const { allTokensBaseMetadataRef, setTokensBaseMetadata } =
+  const { allTokensBaseMetadataRef, setTokensBaseMetadata, fetchMetadata } =
     useTokensMetadata();
   const usdPrices = useUSDPrices();
 
@@ -38,18 +40,33 @@ export const [SyncTokensProvider] = constate(() => {
   );
 
   const sync = useCallback(async () => {
-    if (networkId !== "mainnet") return;
+    if (!networkId) return;
+    const mainnet = networkId === "mainnet";
 
-    const bcdTokens = await fetchBcdTokenBalances(networkId, accountPkh);
+    const [bcdTokens, displayedFungibleTokens] = await Promise.all([
+      fetchBcdTokenBalances(networkId, accountPkh),
+      fetchDisplayedFungibleTokens(chainId, accountPkh),
+    ]);
 
-    let tokenSlugs = bcdTokens.map((token) =>
-      toTokenSlug(token.contract, token.token_id)
+    const bcdTokensMap = new Map(
+      bcdTokens.map((token) => [
+        toTokenSlug(token.contract, token.token_id),
+        token,
+      ])
     );
 
-    let balances = await getAssetBalances({
-      account: accountPkh,
-      assetSlugs: tokenSlugs,
-    });
+    let tokenSlugs = Array.from(
+      new Set([
+        ...bcdTokensMap.keys(),
+        ...displayedFungibleTokens.map(({ tokenSlug }) => tokenSlug),
+        ...(mainnet ? PREDEFINED_MAINNET_TOKENS : []),
+      ])
+    );
+
+    // let balances = await getAssetBalances({
+    //   account: accountPkh,
+    //   assetSlugs: tokenSlugs,
+    // });
 
     const tokenRepoKeys = tokenSlugs.map((slug) =>
       Repo.toAccountTokenKey(chainId, accountPkh, slug)
@@ -62,7 +79,37 @@ export const [SyncTokensProvider] = constate(() => {
     const metadataSlugs = tokenSlugs.filter(
       (slug) => !(slug in allTokensBaseMetadataRef.current)
     );
-    const metadatas = await getTokensMetadata(metadataSlugs);
+
+    let metadatas;
+    // Only for mainnet. Try load metadata from API.
+    if (mainnet) {
+      try {
+        metadatas = await getTokensMetadata(metadataSlugs, 15_000);
+      } catch {}
+    }
+    // Otherwise - fetch from chain.
+    if (!metadatas) {
+      metadatas = await Promise.all(
+        metadataSlugs.map(async (slug) => {
+          const noMetadataFlag = `no_metadata_${slug}`;
+          if (!mainnet && localStorage.getItem(noMetadataFlag) === "true") {
+            return null;
+          }
+
+          try {
+            const { base } = await fetchMetadata(slug);
+            return base;
+          } catch {
+            if (!mainnet) {
+              localStorage.setItem(noMetadataFlag, "true");
+            }
+
+            return null;
+          }
+        })
+      );
+    }
+
     for (let i = 0; i < metadatas.length; i++) {
       const metadata = metadatas[i];
       if (metadata) tokensMetadataToSet[metadataSlugs[i]] = metadata;
@@ -73,7 +120,9 @@ export const [SyncTokensProvider] = constate(() => {
     await Repo.accountTokens.bulkPut(
       tokenSlugs.map((slug, i) => {
         const existing = existingRecords[i];
-        const balance = balances[i];
+        // const balance = balances[i];
+        const bcdToken = bcdTokensMap.get(slug);
+        const balance = bcdToken?.balance ?? "0";
         const metadata =
           tokensMetadataToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
 
@@ -94,6 +143,10 @@ export const [SyncTokensProvider] = constate(() => {
           };
         }
 
+        const status = PREDEFINED_MAINNET_TOKENS.includes(slug)
+          ? Repo.ITokenStatus.Enabled
+          : Repo.ITokenStatus.Idle;
+
         return {
           // TODO: Uncomment when Collectible view is implemented
           // type: metadata?.artifactUri
@@ -103,7 +156,7 @@ export const [SyncTokensProvider] = constate(() => {
           chainId,
           account: accountPkh,
           tokenSlug: slug,
-          status: Repo.ITokenStatus.Idle,
+          status,
           addedAt: Date.now(),
           latestBalance: balance,
           latestUSDBalance: usdBalance,
@@ -120,6 +173,7 @@ export const [SyncTokensProvider] = constate(() => {
     allTokensBaseMetadataRef,
     setTokensBaseMetadata,
     usdPrices,
+    fetchMetadata,
   ]);
 
   const syncRef = useRef(sync);

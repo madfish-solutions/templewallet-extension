@@ -40,7 +40,7 @@ import AddressChip from "./Explore/AddressChip";
 import Assets from "./Explore/Assets";
 import BakingSection from "./Explore/BakingSection";
 import EditableTitle from "./Explore/EditableTitle";
-import MainAssetBanner from "./Explore/MainAssetBanner";
+import MainBanner from "./Explore/MainBanner";
 
 type ExploreProps = {
   assetSlug?: string | null;
@@ -105,10 +105,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
       >
         <AddressChip pkh={accountPkh} className="mb-6" />
 
-        <MainAssetBanner
-          accountPkh={accountPkh}
-          assetSlug={assetSlug ?? "tez"}
-        />
+        <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div
           className="flex justify-around w-full mx-auto mt-6"

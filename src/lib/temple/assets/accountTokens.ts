@@ -2,6 +2,8 @@ import BigNumber from "bignumber.js";
 
 import * as Repo from "lib/temple/repo";
 
+import { PREDEFINED_MAINNET_TOKENS } from "./predefinedTokens";
+
 export async function setTokenStatus(
   type: Repo.ITokenType,
   chainId: string,
@@ -71,17 +73,21 @@ export function isFungibleTokenDisplayed(t: Repo.IAccountToken) {
 export function compareAccountTokensByUSDBalance(
   a: Repo.IAccountToken,
   b: Repo.IAccountToken
-) {
-  switch (true) {
-    case !a.latestUSDBalance:
-      return 1;
+): number {
+  if (!a.latestUSDBalance) return 1;
+  if (!b.latestUSDBalance) return -1;
 
-    case !b.latestUSDBalance:
-      return -1;
+  const aUSDBal = new BigNumber(a.latestUSDBalance);
+  const bUSDBal = new BigNumber(b.latestUSDBalance);
 
-    default:
-      return new BigNumber(a.latestUSDBalance!).isLessThan(b.latestUSDBalance!)
-        ? 1
-        : -1;
-  }
+  const aPredefIndex = PREDEFINED_MAINNET_TOKENS.findIndex(
+    (slug) => slug === a.tokenSlug
+  );
+  const bPredefIndex = PREDEFINED_MAINNET_TOKENS.findIndex(
+    (slug) => slug === b.tokenSlug
+  );
+
+  if (aUSDBal.isEqualTo(bUSDBal)) return aPredefIndex > bPredefIndex ? 1 : -1;
+
+  return aUSDBal.isLessThan(bUSDBal) ? 1 : -1;
 }

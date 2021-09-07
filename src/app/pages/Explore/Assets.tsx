@@ -10,7 +10,9 @@ import React, {
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { cache } from "swr";
+import { useDebounce } from "use-debounce";
 
 import Money from "app/atoms/Money";
 import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
@@ -66,10 +68,11 @@ const Assets: FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
+  const [searchValueDebounced] = useDebounce(searchValue, 300);
 
   const filteredAssets = useMemo(
-    () => searchAssets(searchValue, assetSlugs, allTokensBaseMetadata),
-    [searchValue, assetSlugs, allTokensBaseMetadata]
+    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
   );
 
   const activeAsset = useMemo(() => {
@@ -155,21 +158,39 @@ const Assets: FC = () => {
             "text-gray-700 text-sm leading-tight"
           )}
         >
-          {filteredAssets.map((asset, i, arr) => {
-            const last = i === arr.length - 1;
-            const active = activeAsset ? asset === activeAsset : false;
+          <TransitionGroup key={chainId}>
+            {filteredAssets.map((asset, i, arr) => {
+              const last = i === arr.length - 1;
+              const active = activeAsset ? asset === activeAsset : false;
 
-            return (
-              <ListItem
-                key={asset}
-                assetSlug={asset}
-                last={last}
-                active={active}
-                accountPkh={account.publicKeyHash}
-                latestBalance={latestBalances[asset]}
-              />
-            );
-          })}
+              return (
+                <CSSTransition
+                  key={asset}
+                  timeout={300}
+                  classNames={{
+                    enter: "opacity-0",
+                    enterActive: classNames(
+                      "opacity-100",
+                      "transition ease-out duration-300"
+                    ),
+                    exit: classNames(
+                      "opacity-0",
+                      "transition ease-in duration-300"
+                    ),
+                  }}
+                  unmountOnExit
+                >
+                  <ListItem
+                    assetSlug={asset}
+                    last={last}
+                    active={active}
+                    accountPkh={account.publicKeyHash}
+                    latestBalance={latestBalances[asset]}
+                  />
+                </CSSTransition>
+              );
+            })}
+          </TransitionGroup>
         </div>
       ) : (
         <div
@@ -222,7 +243,7 @@ type ListItemProps = {
 };
 
 const ListItem = memo<ListItemProps>(
-  ({ assetSlug, last, active, accountPkh, latestBalance }) => {
+  ({ assetSlug, last, active, accountPkh }) => {
     const metadata = useAssetMetadata(assetSlug);
 
     const balanceSWRKey = useBalanceSWRKey(assetSlug, accountPkh);
@@ -234,10 +255,10 @@ const ListItem = memo<ListItemProps>(
     const toDisplayRef = useRef<HTMLDivElement>(null);
     const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
 
-    const preservedBalance = useMemo(() => {
-      if (!metadata || !latestBalance) return;
-      return new BigNumber(latestBalance).div(10 ** metadata.decimals);
-    }, [latestBalance, metadata]);
+    // const preservedBalance = useMemo(() => {
+    //   if (!metadata || !latestBalance) return;
+    //   return new BigNumber(latestBalance).div(10 ** metadata.decimals);
+    // }, [latestBalance, metadata]);
 
     useEffect(() => {
       const el = toDisplayRef.current;
@@ -311,7 +332,7 @@ const ListItem = memo<ListItemProps>(
 
         <div ref={toDisplayRef} className="flex items-center">
           <div className="flex flex-col">
-            {preservedBalance ? (
+            {/* {preservedBalance ? (
               renderBalance(preservedBalance)
             ) : (
               <Balance
@@ -321,7 +342,15 @@ const ListItem = memo<ListItemProps>(
               >
                 {renderBalance}
               </Balance>
-            )}
+            )} */}
+
+            <Balance
+              address={accountPkh}
+              assetSlug={assetSlug}
+              displayed={displayed}
+            >
+              {renderBalance}
+            </Balance>
 
             <div className={classNames("text-xs font-light text-gray-600")}>
               {getAssetName(metadata)}
