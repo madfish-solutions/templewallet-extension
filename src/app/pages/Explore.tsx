@@ -15,6 +15,7 @@ import Spinner from "app/atoms/Spinner";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import { ReactComponent as DAppsIcon } from "app/icons/apps-alt.svg";
+import { ReactComponent as BuyIcon } from "app/icons/buy.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as ReceiveIcon } from "app/icons/receive.svg";
@@ -119,6 +120,11 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             href="/receive"
           />
           <ActionButton
+              label={<T id="buyButton" />}
+              Icon={BuyIcon}
+              href="/buy"
+          />
+          <ActionButton
             label={<T id="dApps" />}
             Icon={DAppsIcon}
             href="/dApps"
@@ -177,7 +183,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
-      className: "flex flex-col items-center mx-3 px-1",
+      className: "flex flex-col items-center mx-2 px-1",
       type: "button" as const,
       children: (
         <>

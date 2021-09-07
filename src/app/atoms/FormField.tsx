@@ -16,6 +16,10 @@ import CleanButton from "app/atoms/CleanButton";
 import { ReactComponent as LockAltIcon } from "app/icons/lock-alt.svg";
 import { T } from "lib/i18n/react";
 
+import useCopyToClipboard from "../../lib/ui/useCopyToClipboard";
+import {ReactComponent as CopyIcon} from "../icons/copy.svg";
+import CopyButton from "./CopyButton";
+
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> &
   TextareaHTMLAttributes<HTMLTextAreaElement>;
@@ -36,6 +40,7 @@ interface FormFieldProps extends FormFieldAttrs {
   fieldWrapperBottomMargin?: boolean;
   labelPaddingClassName?: string;
   dropdownInner?: ReactNode;
+  copyable?: boolean;
 }
 
 const FormField = forwardRef<FormFieldRef, FormFieldProps>(
@@ -66,12 +71,15 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       autoComplete = "off",
       fieldWrapperBottomMargin = true,
       labelPaddingClassName = "mb-4",
+      copyable,
       ...rest
     },
     ref
   ) => {
     const secret = secretProp && textarea;
     const Field = textarea ? "textarea" : "input";
+
+    const {copy} = useCopyToClipboard();
 
     const [localValue, setLocalValue] = useState(value ?? defaultValue ?? "");
     const [focused, setFocused] = useState(false);
@@ -300,6 +308,11 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           )}
 
           {cleanable && <CleanButton onClick={handleCleanClick} />}
+          {copyable && (
+              <CopyButton style={{position: 'absolute', bottom: '0px', right: '5px'}} text={value as string} type='link'>
+                  <CopyIcon style={{verticalAlign: 'inherit'}} className={classNames("h-4 ml-1 w-auto inline", "stroke-orange stroke-2")} onClick={() => copy()} />
+              </CopyButton>
+          )}
         </div>
 
         {errorCaption ? (
