@@ -6,7 +6,7 @@ import CopyButton from "app/atoms/CopyButton";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import { T } from "lib/i18n/react";
-import { exchangeDataInterface } from "lib/templewallet-api/exolix";
+import { exchangeDataInterface } from "lib/exolix";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 interface Props {

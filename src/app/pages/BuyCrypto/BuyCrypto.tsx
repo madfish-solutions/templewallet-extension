@@ -5,9 +5,9 @@ import PageLayout from "app/layouts/PageLayout";
 import ApproveStep from "app/pages/BuyCrypto/steps/ApproveStep";
 import ExchangeStep from "app/pages/BuyCrypto/steps/ExchangeStep";
 import InitialStep from "app/pages/BuyCrypto/steps/InitialStep";
+import { exchangeDataInterface } from "lib/exolix";
 import { T, t } from "lib/i18n/react";
 import { useAccount, useNetwork, useStorage } from "lib/temple/front";
-import { exchangeDataInterface } from "lib/templewallet-api/exolix";
 import { Redirect } from "lib/woozie";
 
 const steps = [
@@ -91,7 +91,6 @@ const BuyCrypto = () => {
         )}
         {step >= 1 && (
           <p
-            onClick={() => console.log("support link")}
             className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
           >
             <T id={"support"} />

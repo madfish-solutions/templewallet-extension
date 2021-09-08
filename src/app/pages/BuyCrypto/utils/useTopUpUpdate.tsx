@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import {
   exchangeDataInterface,
   getExchangeData,
-} from "lib/templewallet-api/exolix";
+} from "lib/exolix";
 
 const useTopUpUpdate = (
   exchangeData: exchangeDataInterface | null,
@@ -11,20 +11,20 @@ const useTopUpUpdate = (
   setIsError: (isError: boolean) => void
 ) => {
   useEffect(() => {
-    const statusCheck = setTimeout(function repeat() {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    timeoutId = setTimeout(function repeat() {
       (async () => {
         try {
           const data = await getExchangeData(exchangeData!.id);
-          console.log({ data });
           setExchangeData(data);
-          setTimeout(repeat, 3000);
+          timeoutId = setTimeout(repeat, 3000);
         } catch (e) {
           setIsError(true);
         }
       })();
     }, 3000);
     return () => {
-      clearTimeout(statusCheck);
+      clearTimeout(timeoutId);
     };
   }, [exchangeData, setExchangeData, setIsError]);
 };

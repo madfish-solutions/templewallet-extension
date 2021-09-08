@@ -12,7 +12,7 @@ import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
 import { T } from "lib/i18n/react";
-import { exchangeDataInterface } from "lib/templewallet-api/exolix";
+import { exchangeDataInterface } from "lib/exolix";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 interface Props {

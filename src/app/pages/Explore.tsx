@@ -59,7 +59,6 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const account = useAccount();
   const { search } = useLocation();
   const network = useNetwork();
-  console.log({ network });
 
   const assetMetadata = useAssetMetadata(assetSlug ?? "tez");
 
