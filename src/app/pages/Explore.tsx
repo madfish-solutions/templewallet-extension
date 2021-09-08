@@ -213,7 +213,7 @@ const ActionButton: FC<ActionButtonProps> = ({
         </>
       ),
     }),
-    [disabled, Icon, label]
+    [disabled, Icon, label, network.type]
   );
   return disabled ? (
     <button ref={buttonRef} {...commonButtonProps} />
