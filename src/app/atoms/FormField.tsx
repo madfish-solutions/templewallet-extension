@@ -14,7 +14,7 @@ import classNames from "clsx";
 
 import CleanButton from "app/atoms/CleanButton";
 import CopyButton from "app/atoms/CopyButton";
-import {ReactComponent as CopyIcon} from "app/icons/copy.svg";
+import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import { ReactComponent as LockAltIcon } from "app/icons/lock-alt.svg";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
@@ -78,7 +78,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? "textarea" : "input";
 
-      const {copy} = useCopyToClipboard();
+    const { copy } = useCopyToClipboard();
 
     const [localValue, setLocalValue] = useState(value ?? defaultValue ?? "");
     const [focused, setFocused] = useState(false);
@@ -307,11 +307,22 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           )}
 
           {cleanable && <CleanButton onClick={handleCleanClick} />}
-            {copyable && (
-                <CopyButton style={{position: 'absolute', bottom: '0px', right: '5px'}} text={value as string} type='link'>
-                    <CopyIcon style={{verticalAlign: 'inherit'}} className={classNames("h-4 ml-1 w-auto inline", "stroke-orange stroke-2")} onClick={() => copy()} />
-                </CopyButton>
-            )}
+          {copyable && (
+            <CopyButton
+              style={{ position: "absolute", bottom: "0px", right: "5px" }}
+              text={value as string}
+              type="link"
+            >
+              <CopyIcon
+                style={{ verticalAlign: "inherit" }}
+                className={classNames(
+                  "h-4 ml-1 w-auto inline",
+                  "stroke-orange stroke-2"
+                )}
+                onClick={() => copy()}
+              />
+            </CopyButton>
+          )}
         </div>
 
         {errorCaption ? (

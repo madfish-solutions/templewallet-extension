@@ -1,4 +1,12 @@
-import React, { FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
@@ -26,21 +34,12 @@ type RevealSecretProps = {
 };
 
 const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
-  const {
-    revealPrivateKey,
-    revealMnemonic,
-    setSeedRevealed,
-  } = useTempleClient();
+  const { revealPrivateKey, revealMnemonic, setSeedRevealed } =
+    useTempleClient();
   const account = useAccount();
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearError,
-    formState,
-  } = useForm<FormData>();
+  const { register, handleSubmit, errors, setError, clearError, formState } =
+    useForm<FormData>();
   const submitting = formState.isSubmitting;
 
   const [secret, setSecret] = useState<string | null>(null);

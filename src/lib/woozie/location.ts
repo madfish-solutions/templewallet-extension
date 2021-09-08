@@ -39,17 +39,8 @@ export function createLocationState(): LocationState {
     state,
   } = window.history as PatchedHistory;
 
-  let {
-    hash,
-    host,
-    hostname,
-    href,
-    origin,
-    pathname,
-    port,
-    protocol,
-    search,
-  } = window.location;
+  let { hash, host, hostname, href, origin, pathname, port, protocol, search } =
+    window.location;
 
   if (USE_LOCATION_HASH_AS_URL) {
     const url = new URL(hash.startsWith("#") ? hash.slice(1) : hash, origin);

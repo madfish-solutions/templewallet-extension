@@ -9,10 +9,7 @@ type NoSpaceFieldProps = ComponentProps<typeof FormField> & {
 
 const NoSpaceField = forwardRef<HTMLTextAreaElement, NoSpaceFieldProps>(
   ({ value, onChange, ...rest }, ref) => {
-    const format = useCallback(
-      (val: string) => val.replace(/\s/g, ""),
-      []
-    );
+    const format = useCallback((val: string) => val.replace(/\s/g, ""), []);
 
     const handleChange = useCallback(
       (evt) => {

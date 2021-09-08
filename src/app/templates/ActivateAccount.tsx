@@ -59,14 +59,8 @@ const ActivateAccount: FC = () => {
     [tezos]
   );
 
-  const {
-    register,
-    handleSubmit,
-    formState,
-    clearError,
-    setError,
-    errors,
-  } = useForm<FormData>();
+  const { register, handleSubmit, formState, clearError, setError, errors } =
+    useForm<FormData>();
   const submitting = formState.isSubmitting;
 
   const onSubmit = useCallback(
@@ -115,10 +109,10 @@ const ActivateAccount: FC = () => {
     ]
   );
 
-  const submit = useMemo(() => handleSubmit(onSubmit), [
-    handleSubmit,
-    onSubmit,
-  ]);
+  const submit = useMemo(
+    () => handleSubmit(onSubmit),
+    [handleSubmit, onSubmit]
+  );
 
   const handleSecretFieldKeyPress = useCallback(
     (evt) => {

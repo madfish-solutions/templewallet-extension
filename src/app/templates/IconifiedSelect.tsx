@@ -1,4 +1,10 @@
-import React, { ComponentType, forwardRef, HTMLAttributes, ReactNode, useCallback } from "react";
+import React, {
+  ComponentType,
+  forwardRef,
+  HTMLAttributes,
+  ReactNode,
+  useCallback,
+} from "react";
 
 import { Modifier } from "@popperjs/core";
 import classNames from "clsx";
@@ -161,14 +167,8 @@ type IconifiedSelectOptionProps<T> = Pick<
 const IconifiedSelectOption = <T extends unknown>(
   props: IconifiedSelectOptionProps<T>
 ) => {
-  const {
-    disabled,
-    value,
-    selected,
-    onClick,
-    Icon,
-    OptionInMenuContent,
-  } = props;
+  const { disabled, value, selected, onClick, Icon, OptionInMenuContent } =
+    props;
 
   const handleClick = useCallback(() => {
     onClick?.(value);

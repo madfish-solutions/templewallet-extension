@@ -121,10 +121,10 @@ const Popper = memo<PopperProps>(
       [children, renderPropsBase]
     );
 
-    const popupNode = useMemo(() => popup(renderPropsBase), [
-      popup,
-      renderPropsBase,
-    ]);
+    const popupNode = useMemo(
+      () => popup(renderPropsBase),
+      [popup, renderPropsBase]
+    );
 
     return (
       <>

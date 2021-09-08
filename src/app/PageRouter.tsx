@@ -92,9 +92,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     "/settings/:tabSlug?",
     onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),
   ],
-  [
-    "/buy", onlyInFullPage(() => <BuyCrypto />)
-  ],
+  ["/buy", onlyInFullPage(() => <BuyCrypto />)],
   ["*", () => <Woozie.Redirect to="/" />],
 ]);
 

@@ -35,14 +35,8 @@ const RemoveAccount: FC = () => {
     prevAccLengthRef.current = accLength;
   }, [allAccounts]);
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearError,
-    formState,
-  } = useForm<FormData>();
+  const { register, handleSubmit, errors, setError, clearError, formState } =
+    useForm<FormData>();
   const submitting = formState.isSubmitting;
 
   const onSubmit = useCallback(

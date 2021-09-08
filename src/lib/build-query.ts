@@ -19,7 +19,7 @@ export function buildQuery<P extends Record<string, unknown>, R = any>(
         : toQueryParams
         ? pick(params, toQueryParams)
         : undefined;
-  
+
     const r = await api.request<R>({
       method,
       url,
