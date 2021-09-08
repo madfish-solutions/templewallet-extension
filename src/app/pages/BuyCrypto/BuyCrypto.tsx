@@ -1,22 +1,23 @@
 import React, {useState} from 'react';
 
-import {T} from "../../../lib/i18n/react";
-import {useAccount, useStorage} from "../../../lib/temple/front";
-import {exchangeDataInterface} from "../../../lib/templewallet-api/exolix";
-import Stepper from "../../atoms/Stepper"
-import PageLayout from "../../layouts/PageLayout";
-import InitialStep from "./steps/InitialStep";
-import ApproveStep from "./steps/ApproveStep";
-import ExchangeStep from "./steps/ExchangeStep";
+import Stepper from "app/atoms/Stepper"
+import PageLayout from "app/layouts/PageLayout";
+import ApproveStep from "app/pages/BuyCrypto/steps/ApproveStep";
+import ExchangeStep from "app/pages/BuyCrypto/steps/ExchangeStep";
+import InitialStep from "app/pages/BuyCrypto/steps/InitialStep";
+import {T,t} from "lib/i18n/react";
+import {useAccount, useStorage} from "lib/temple/front";
+import {exchangeDataInterface} from "lib/templewallet-api/exolix";
+
 
 const steps = [{
-    label: 'Step 1'
+    label: `${t('step')} 1`
 },{
-    label: 'Step 2'
+    label: `${t('step')} 2`
 },{
-    label: 'Step 3'
+    label: `${t('step')} 3`
 },{
-    label: 'Step 4'
+    label: `${t('step')} 4`
 },]
 
 const BuyCrypto = () => {

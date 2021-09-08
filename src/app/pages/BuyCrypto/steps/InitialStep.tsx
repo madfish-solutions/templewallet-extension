@@ -2,14 +2,14 @@ import React, {ChangeEvent, FC, useEffect, useState} from 'react';
 
 import useSWR from "swr";
 
-import {T} from "../../../../lib/i18n/react";
-import {useAccount} from "../../../../lib/temple/front";
-import {exchangeDataInterface, getRate, submitExchange} from "../../../../lib/templewallet-api/exolix";
-import Divider from "../../../atoms/Divider";
-import FormSubmitButton from "../../../atoms/FormSubmitButton";
-import styles from "../BuyCrypto.module.css";
-import BuyCryptoInput from "../BuyCryptoInput";
-import ErrorComponent from "./ErrorComponent";
+import Divider from "app/atoms/Divider";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
+import BuyCryptoInput from "app/pages/BuyCrypto/BuyCryptoInput";
+import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
+import {T} from "lib/i18n/react";
+import {useAccount} from "lib/temple/front";
+import {exchangeDataInterface, getRate, submitExchange} from "lib/templewallet-api/exolix";
 
 const coinTo = 'XTZ'
 

@@ -13,12 +13,11 @@ import React, {
 import classNames from "clsx";
 
 import CleanButton from "app/atoms/CleanButton";
+import CopyButton from "app/atoms/CopyButton";
+import {ReactComponent as CopyIcon} from "app/icons/copy.svg";
 import { ReactComponent as LockAltIcon } from "app/icons/lock-alt.svg";
 import { T } from "lib/i18n/react";
-
-import useCopyToClipboard from "../../lib/ui/useCopyToClipboard";
-import {ReactComponent as CopyIcon} from "../icons/copy.svg";
-import CopyButton from "./CopyButton";
+import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> &

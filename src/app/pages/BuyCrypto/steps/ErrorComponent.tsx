@@ -2,12 +2,12 @@ import React, {FC} from 'react';
 
 import classNames from "clsx";
 
-import {T} from "../../../../lib/i18n/react";
-import {exchangeDataInterface} from "../../../../lib/templewallet-api/exolix";
-import useCopyToClipboard from "../../../../lib/ui/useCopyToClipboard";
-import CopyButton from "../../../atoms/CopyButton";
-import FormSubmitButton from "../../../atoms/FormSubmitButton";
-import {ReactComponent as CopyIcon} from "../../../icons/copy.svg";
+import CopyButton from "app/atoms/CopyButton";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import {ReactComponent as CopyIcon} from "app/icons/copy.svg";
+import {T} from "lib/i18n/react";
+import {exchangeDataInterface} from "lib/templewallet-api/exolix";
+import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 interface Props {
     exchangeData: exchangeDataInterface | null;
