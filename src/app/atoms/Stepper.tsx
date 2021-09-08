@@ -20,7 +20,6 @@ const Stepper: FC<Props> = ({ style, steps, currentStep = 2 }) => (
         <p>{stepItem.label}</p>
         <div className={styles["stepWrapper"]}>
           <div
-            onClick={() => console.log({ index })}
             className={classNames(
               styles["circle"],
               currentStep === index && styles["circle-active"],

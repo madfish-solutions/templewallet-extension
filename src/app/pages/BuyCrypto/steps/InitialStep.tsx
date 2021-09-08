@@ -8,13 +8,13 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import BuyCryptoInput from "app/pages/BuyCrypto/BuyCryptoInput";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
-import { T } from "lib/i18n/react";
-import { useAccount } from "lib/temple/front";
 import {
   exchangeDataInterface,
   getRate,
   submitExchange,
-} from "lib/templewallet-api/exolix";
+} from "lib/exolix";
+import { T } from "lib/i18n/react";
+import { useAccount } from "lib/temple/front";
 
 const coinTo = "XTZ";
 

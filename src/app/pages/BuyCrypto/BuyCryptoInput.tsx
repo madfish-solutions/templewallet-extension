@@ -7,7 +7,7 @@ import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Spinner from "app/atoms/Spinner";
 import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import CurrencyComponent from "app/pages/BuyCrypto/CurrencyComponent";
-import { getCurrencies } from "lib/templewallet-api/exolix";
+import { getCurrencies } from "lib/exolix";
 import Popper from "lib/ui/Popper";
 
 interface Props {
