@@ -8,6 +8,7 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import BuyCryptoInput from "app/pages/BuyCrypto/BuyCryptoInput";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
+import WarningComponent from "app/pages/BuyCrypto/steps/WarningComponent";
 import { exchangeDataInterface, getRate, submitExchange } from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import { useAccount } from "lib/temple/front";
@@ -88,6 +89,7 @@ const InitialStep: FC<Props> = ({
           <p className={styles["description"]}>
             <T id={"exchangeDetailsDescription"} />
           </p>
+          <WarningComponent currency={coinFrom} />
           <Divider style={{ marginTop: "60px", marginBottom: "10px" }} />
           {/*input 1*/}
           <BuyCryptoInput
