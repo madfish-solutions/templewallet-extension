@@ -22,7 +22,7 @@ interface Props {
     setIsError: (error: boolean) => void;
 }
 
-const FirstStep: FC<Props> = ({ exchangeData, setExchangeData, step, setStep, isError, setIsError}) => {
+const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, step, setStep, isError, setIsError}) => {
     const [amount, setAmount] = useState(0)
     const [coinFrom, setCoinFrom] = useState('BTC')
     const [depositAmount, setDepositAmount] = useState(0)
@@ -92,8 +92,8 @@ const FirstStep: FC<Props> = ({ exchangeData, setExchangeData, step, setStep, is
                     {/*<p className={styles['privacyAndPolicy']}>By clicking Exchange you agree with <a className={styles['link']} href='#'>Terms of Use</a> and <a className={styles['link']} href='#'>Privacy Policy</a></p>*/}
                     <p className={styles['privacyAndPolicy']}>
                         <T id="privacyAndPolicyLinks" substitutions={[
-                            <p className={styles['link']}><T id={'termsOfUse'} /></p>,
-                            <p className={styles['link']}><T id={'privacyPolicy'} /></p>
+                            <a className={styles['link']} rel="noreferrer" href="https://exolix.com/terms" target="_blank"><T id={'termsOfUse'} /></a>,
+                            <a className={styles['link']} rel="noreferrer" href="https://exolix.com/privacy" target="_blank"><T id={'privacyPolicy'}  /></a>
                         ]} />
                     </p>
                 </>
@@ -104,4 +104,4 @@ const FirstStep: FC<Props> = ({ exchangeData, setExchangeData, step, setStep, is
     )
 }
 
-export default FirstStep;
+export default InitialStep;

@@ -5,9 +5,9 @@ import {useAccount, useStorage} from "../../../lib/temple/front";
 import {exchangeDataInterface} from "../../../lib/templewallet-api/exolix";
 import Stepper from "../../atoms/Stepper"
 import PageLayout from "../../layouts/PageLayout";
-import FirstStep from "./steps/FirstStep";
-import SecondStep from "./steps/SecondStep";
-import ThirdStep from "./steps/ThirdStep";
+import InitialStep from "./steps/InitialStep";
+import ApproveStep from "./steps/ApproveStep";
+import ExchangeStep from "./steps/ExchangeStep";
 
 const steps = [{
     label: 'Step 1'
@@ -36,10 +36,10 @@ const BuyCrypto = () => {
             <div style={{maxWidth: '360px', margin: 'auto'}} className='text-center'>
                 <Stepper style={{marginTop: '64px'}} steps={steps} currentStep={step} />
                 {step === 0 && (
-                    <FirstStep isError={isError} setIsError={setIsError} exchangeData={exchangeData} setExchangeData={setExchangeData} step={step} setStep={setStep} />
+                    <InitialStep isError={isError} setIsError={setIsError} exchangeData={exchangeData} setExchangeData={setExchangeData} step={step} setStep={setStep} />
                 )}
                 {step === 1 && (
-                    <SecondStep
+                    <ApproveStep
                         exchangeData={exchangeData}
                         setExchangeData={setExchangeData}
                         setStep={setStep}
@@ -49,7 +49,7 @@ const BuyCrypto = () => {
                     />
                 )}
                 {(step === 2 || step === 3 || step === 4) && (
-                    <ThirdStep
+                    <ExchangeStep
                         exchangeData={exchangeData}
                         setExchangeData={setExchangeData}
                         setStep={setStep}
