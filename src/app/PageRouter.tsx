@@ -21,6 +21,8 @@ import { usePageRouterAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
 
+import BuyCrypto from "./pages/BuyCrypto/BuyCrypto";
+
 interface RouteContext {
   popup: boolean;
   fullPage: boolean;
@@ -89,6 +91,9 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
     "/settings/:tabSlug?",
     onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),
+  ],
+  [
+    "/buy", onlyInFullPage(() => <BuyCrypto />)
   ],
   ["*", () => <Woozie.Redirect to="/" />],
 ]);

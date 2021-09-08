@@ -15,6 +15,7 @@ import Spinner from "app/atoms/Spinner";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import { ReactComponent as DAppsIcon } from "app/icons/apps-alt.svg";
+import { ReactComponent as BuyIcon } from "app/icons/buy.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as ReceiveIcon } from "app/icons/receive.svg";
@@ -114,6 +115,11 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             label={<T id="receive" />}
             Icon={ReceiveIcon}
             href="/receive"
+          />
+          <ActionButton
+              label={<T id="buyButton" />}
+              Icon={BuyIcon}
+              href="/buy"
           />
           <ActionButton
             label={<T id="dApps" />}
