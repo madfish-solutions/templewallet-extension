@@ -3,12 +3,12 @@ import React, {ChangeEvent, FC} from 'react';
 import classNames from "clsx";
 import useSWR from "swr";
 
-import {getCurrencies} from "../../../lib/templewallet-api/exolix";
-import Popper from "../../../lib/ui/Popper";
-import DropdownWrapper from "../../atoms/DropdownWrapper";
-import Spinner from "../../atoms/Spinner";
-import styles from "./BuyCrypto.module.css";
-import CurrencyComponent from "./CurrencyDropdown";
+import DropdownWrapper from "app/atoms/DropdownWrapper";
+import Spinner from "app/atoms/Spinner";
+import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
+import CurrencyComponent from "app/pages/BuyCrypto/CurrencyComponent";
+import {getCurrencies} from "lib/templewallet-api/exolix";
+import Popper from "lib/ui/Popper";
 
 
 interface Props {

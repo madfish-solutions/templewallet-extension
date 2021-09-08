@@ -1,6 +1,6 @@
 import {useEffect} from "react";
 
-import {exchangeDataInterface, getExchangeData} from "../../../../lib/templewallet-api/exolix";
+import {exchangeDataInterface, getExchangeData} from "lib/templewallet-api/exolix";
 
 const useTopUpUpdate = (
     exchangeData: exchangeDataInterface | null,

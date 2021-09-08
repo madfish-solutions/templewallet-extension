@@ -2,16 +2,16 @@ import React, {FC, useEffect, useState} from 'react';
 
 import classNames from "clsx";
 
-import {getCurrentLocale, T} from "../../../../lib/i18n/react";
-import {exchangeDataInterface} from "../../../../lib/templewallet-api/exolix";
-import useCopyToClipboard from "../../../../lib/ui/useCopyToClipboard";
-import CopyButton from "../../../atoms/CopyButton";
-import Divider from "../../../atoms/Divider";
-import FormSubmitButton from "../../../atoms/FormSubmitButton";
-import HashShortView from "../../../atoms/HashShortView";
-import {ReactComponent as CopyIcon} from "../../../icons/copy.svg";
-import useTopUpUpdate from "../utils/useTopUpUpdate";
-import ErrorComponent from "./ErrorComponent";
+import CopyButton from "app/atoms/CopyButton";
+import Divider from "app/atoms/Divider";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import HashShortView from "app/atoms/HashShortView";
+import {ReactComponent as CopyIcon} from "app/icons/copy.svg";
+import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
+import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
+import {getCurrentLocale, T} from "lib/i18n/react";
+import {exchangeDataInterface} from "lib/templewallet-api/exolix";
+import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 interface Props {
     exchangeData: exchangeDataInterface | null;

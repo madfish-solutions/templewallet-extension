@@ -2,9 +2,9 @@ import React, {FC} from 'react'
 
 import classNames from "clsx";
 
+import styles from 'app/atoms/Stepper.module.css'
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 
-import styles from './Stepper.module.css'
 
 interface Props {
     style: React.CSSProperties;

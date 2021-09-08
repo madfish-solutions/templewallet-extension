@@ -2213,5 +2213,8 @@
   },
   "exchanging": {
     "message": "Exchanging"
+  },
+  "step": {
+    "message": "Step"
   }
 }
