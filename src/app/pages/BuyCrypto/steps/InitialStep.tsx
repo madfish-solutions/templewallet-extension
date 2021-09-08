@@ -8,11 +8,7 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import BuyCryptoInput from "app/pages/BuyCrypto/BuyCryptoInput";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
-import {
-  exchangeDataInterface,
-  getRate,
-  submitExchange,
-} from "lib/exolix-api";
+import { exchangeDataInterface, getRate, submitExchange } from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import { useAccount } from "lib/temple/front";
 
