@@ -39,7 +39,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, step, setStep, 
             await setExchangeData(data)
             setStep(step + 1);
         } catch (e) {
-            console.log({e})
+            setIsError(true)
         }
     }
     const {data: rates = {destination_amount: 0, rate: 0, min_amount: "0"}, error} = useSWR(
