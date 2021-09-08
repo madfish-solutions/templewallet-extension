@@ -12,7 +12,7 @@ import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
 import { T } from "lib/i18n/react";
-import { exchangeDataInterface } from "lib/exolix";
+import { exchangeDataInterface } from "lib/exolix-api";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 interface Props {
@@ -187,8 +187,8 @@ const ApproveStep: FC<Props> = ({
           </div>
           <div>
             <p
-              onClick={async () => {
-                await setStep(0);
+              onClick={() => {
+                setStep(0);
               }}
               className="text-blue-500 text-sm mb-8 inline-block cursor-pointer inline-block w-auto"
             >

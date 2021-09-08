@@ -12,7 +12,7 @@ import {
   exchangeDataInterface,
   getRate,
   submitExchange,
-} from "lib/exolix";
+} from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import { useAccount } from "lib/temple/front";
 

@@ -5,7 +5,7 @@ import PageLayout from "app/layouts/PageLayout";
 import ApproveStep from "app/pages/BuyCrypto/steps/ApproveStep";
 import ExchangeStep from "app/pages/BuyCrypto/steps/ExchangeStep";
 import InitialStep from "app/pages/BuyCrypto/steps/InitialStep";
-import { exchangeDataInterface } from "lib/exolix";
+import { exchangeDataInterface } from "lib/exolix-api";
 import { T, t } from "lib/i18n/react";
 import { useAccount, useNetwork, useStorage } from "lib/temple/front";
 import { Redirect } from "lib/woozie";

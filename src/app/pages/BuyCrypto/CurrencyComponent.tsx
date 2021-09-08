@@ -2,9 +2,10 @@ import React, { forwardRef } from "react";
 
 import { browser } from "webextension-polyfill-ts";
 
-import { ReactComponent as ChevronDownIcon } from "../../icons/chevron-down.svg";
-import AssetIcon from "../../templates/AssetIcon";
-import styles from "./BuyCrypto.module.css";
+import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
+import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
+import AssetIcon from "app/templates/AssetIcon";
+
 
 interface Props {
   callback?: () => void;
