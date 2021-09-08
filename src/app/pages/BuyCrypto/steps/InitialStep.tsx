@@ -10,6 +10,7 @@ import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import {T} from "lib/i18n/react";
 import {useAccount} from "lib/temple/front";
 import {exchangeDataInterface, getRate, submitExchange} from "lib/templewallet-api/exolix";
+import {useDebounce} from "use-debounce";
 
 const coinTo = 'XTZ'
 
@@ -28,6 +29,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, step, setStep, 
     const [depositAmount, setDepositAmount] = useState(0)
     const { publicKeyHash } = useAccount();
     const [disabledProceed, setDisableProceed] = useState(false)
+    const [debouncedAmount] = useDebounce(amount, 300);
 
     const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => setAmount(Number(e.target.value))
 
@@ -41,7 +43,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, step, setStep, 
         }
     }
     const {data: rates = {destination_amount: 0, rate: 0, min_amount: "0"}, error} = useSWR(
-        ['/api/currency', coinTo, coinFrom, amount],
+        ['/api/currency', coinTo, coinFrom, debouncedAmount],
         () => getRate({coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount})
     )
 
