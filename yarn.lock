@@ -1877,64 +1877,64 @@
     "@svgr/plugin-svgo" "^5.4.0"
     loader-utils "^2.0.0"
 
-"@taquito/http-utils@^9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/http-utils/-/http-utils-9.2.0.tgz#bab774bb4d2d65756cd91403c5700abe01d96422"
-  integrity sha512-OvfQIikCopGM1IbH1Heapih9lEf5FaHh+7/zhT7/8J0FIq48eE4Pha91JesMKsMvWImSiQ4Sro7Uz29/6r3u5Q==
+"@taquito/http-utils@^10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/http-utils/-/http-utils-10.1.0.tgz#2881840bfce7d06ab10d1d4bf1824b9113a1ac8c"
+  integrity sha512-nfT0W0l59C31fJrAGenIbFlWpoJM/UH2xZMLgxuIPMimgptvsJg0jc/WF3fxZ22gzlmJXZ1/7wIbrOVTIl2Arw==
   dependencies:
     xhr2-cookies "^1.1.0"
 
-"@taquito/ledger-signer@9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/ledger-signer/-/ledger-signer-9.2.0.tgz#dcd40ae5898864d210e15668288f6090aaae91b6"
-  integrity sha512-4Z4MNxHagLIpjQ/2ev2xCbMh005b37BXwM4/x42AHncEB8OBeKf/lDgBgnhNJ/RMFWbMv4J402ow3iUeIQ1aIg==
+"@taquito/ledger-signer@10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/ledger-signer/-/ledger-signer-10.1.0.tgz#58d7584554047b46cdc21d064db522809be3081d"
+  integrity sha512-AFKfVxwmHm/o1F5uTvewLS/sQ91JeFwx9oPqZDCrbVZgWAT0w1EE7uB4NEa88s60RM316Fwl/OiPEz7/1z2Hlw==
   dependencies:
     "@ledgerhq/hw-transport" "^5.51.1"
-    "@taquito/taquito" "^9.2.0"
-    "@taquito/utils" "^9.2.0"
+    "@taquito/taquito" "^10.1.0"
+    "@taquito/utils" "^10.1.0"
     "@types/jest" "^26.0.23"
     buffer "^6.0.3"
     libsodium-wrappers "0.7.8"
 
-"@taquito/local-forging@9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/local-forging/-/local-forging-9.2.0.tgz#6117931ce625bd85dad225166efffbcfe4e8681d"
-  integrity sha512-AjBn1GVquHs3Us26DzSZ/vyg2PMCCHfLA0XR758YIOZr/ZS9H1AfqDDoirnf1KkO5+8zBiLm3jvFdgnPOKB0fg==
+"@taquito/local-forging@10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/local-forging/-/local-forging-10.1.0.tgz#a2d002640728a2d4df1e5214a1b779de3ec8105b"
+  integrity sha512-kSIXpuOx8+Vpnfnzv5hmTlngHWtQV85B53ayVRHawJl5xWTQqESRSM5ii2Zc9LBaI2HR5zHvFTjhEUHxRikIiw==
   dependencies:
-    "@taquito/utils" "^9.2.0"
+    "@taquito/utils" "^10.1.0"
     bignumber.js "^9.0.1"
 
-"@taquito/michel-codec@9.2.0", "@taquito/michel-codec@^9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/michel-codec/-/michel-codec-9.2.0.tgz#f469b775090094545920c69703e13586c7b2b3b7"
-  integrity sha512-1nnqb2EbsvSzHCtigrKnT0wPXDg/8p/w0dGewRNlE4t001oW/E36YORWtZjhLrFLEHvq+LKFf/xS/OrMhKzoWg==
+"@taquito/michel-codec@10.1.0", "@taquito/michel-codec@^10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/michel-codec/-/michel-codec-10.1.0.tgz#2518cd4d6bcacd35f691f62dc355f82e4456ef8b"
+  integrity sha512-tbE7jir69zrC9GFpF278V69TiL8vNrt5Dfs8ldm5o7V3Mf4vXfYO632E0IsgbS6g3W5c3TJIZ/mue5WiTpfcWg==
 
-"@taquito/michelson-encoder@9.2.0", "@taquito/michelson-encoder@^9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/michelson-encoder/-/michelson-encoder-9.2.0.tgz#f7cf65218593e55444d101e7770443997c3ce970"
-  integrity sha512-12Fsww2PAZHeG/xexXBeT2Vydk3KDechJrhCoXTeLUnmT55zMMbHmdmShMsywNd3ehqTWUaQLuxgNVPS+LWYxA==
+"@taquito/michelson-encoder@10.1.0", "@taquito/michelson-encoder@^10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/michelson-encoder/-/michelson-encoder-10.1.0.tgz#7d25d9cd8518409a2052755cd083420ea3037d4d"
+  integrity sha512-sRoJKTAj3Mt9SGz+QO6ZpU4r8tg+ziFWezGx/eY6grKsA5mKoXZifV9NaNqqzxbcVJ5pjCdw8J7wvvW9hyF0OQ==
   dependencies:
-    "@taquito/rpc" "^9.2.0"
-    "@taquito/utils" "^9.2.0"
+    "@taquito/rpc" "^10.1.0"
+    "@taquito/utils" "^10.1.0"
     bignumber.js "^9.0.1"
     fast-json-stable-stringify "^2.1.0"
 
-"@taquito/rpc@9.2.0", "@taquito/rpc@^9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/rpc/-/rpc-9.2.0.tgz#ba50e0bef86470616abd4d77130daea9018465fa"
-  integrity sha512-Wj4x1URbFM3Two5k3twilAGut0LQXhVOILTOL3f3oFotFzvTgwhtdOXODxzhts4XyZbzv7fLnYVsCqrhsTKo7Q==
+"@taquito/rpc@10.1.0", "@taquito/rpc@^10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/rpc/-/rpc-10.1.0.tgz#e396b274027c83a56d4bb6f2d4c6a5945664df7c"
+  integrity sha512-X25vMm0qnAWJ+wwmfHl/XYE/X/ZTAH4s7h+cRqErVixEL5lt12C6JHT/n4BD8XjJPS/4Px3CRWTMkAZ0gcAiPQ==
   dependencies:
-    "@taquito/http-utils" "^9.2.0"
+    "@taquito/http-utils" "^10.1.0"
     bignumber.js "^9.0.1"
     lodash "^4.17.21"
 
-"@taquito/signer@9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/signer/-/signer-9.2.0.tgz#0b5954918cfa10ca034fbb16ee4cfd9fcc26e865"
-  integrity sha512-fUCgqv5yvQJdsQqYLTVQwZSMuZ+wgWSUZXxNT5zS3wRM93NuT0SmTlx39NlABTV28KoDgftNcpbhxHMnaZIP6w==
+"@taquito/signer@10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/signer/-/signer-10.1.0.tgz#b797182d44954436b0ff5f53242df4a487a146c9"
+  integrity sha512-quJD/bqjSRKs4RGcm8qyb8iWLcj0WjBx2HyP2l3zIO4YXBOIqjKZ5KoVpJLJA+i22h2cG452b9Ns5/r597FH2w==
   dependencies:
-    "@taquito/taquito" "^9.2.0"
-    "@taquito/utils" "^9.2.0"
+    "@taquito/taquito" "^10.1.0"
+    "@taquito/utils" "^10.1.0"
     bignumber.js "^9.0.1"
     bip39 "^3.0.4"
     elliptic "^6.5.4"
@@ -1942,58 +1942,58 @@
     pbkdf2 "^3.1.2"
     typedarray-to-buffer "^4.0.0"
 
-"@taquito/taquito@9.2.0", "@taquito/taquito@^9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/taquito/-/taquito-9.2.0.tgz#3337e0132f6764cccc1c0acf224f7e2b470a9f63"
-  integrity sha512-oCgF2BIXwRu0o64JppHKYpkq7N5EzfZQXvSQm/ecWEP5Kk2Uf7qNza7yid5zESIuIwTPwGJAv4D8kyc3QYi8Jg==
+"@taquito/taquito@10.1.0", "@taquito/taquito@^10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/taquito/-/taquito-10.1.0.tgz#0fdcc69bad0f274f69f989a4d9b9162335d32f66"
+  integrity sha512-KN/Z34rN6cVZmlNs50ZmWkfBziPkMUhJ/KgzJx1b89Vaxyq3tHISDFEnEJtFd8aKelDVbiyposHcZ6aqVzn7NQ==
   dependencies:
-    "@taquito/http-utils" "^9.2.0"
-    "@taquito/michel-codec" "^9.2.0"
-    "@taquito/michelson-encoder" "^9.2.0"
-    "@taquito/rpc" "^9.2.0"
-    "@taquito/utils" "^9.2.0"
+    "@taquito/http-utils" "^10.1.0"
+    "@taquito/michel-codec" "^10.1.0"
+    "@taquito/michelson-encoder" "^10.1.0"
+    "@taquito/rpc" "^10.1.0"
+    "@taquito/utils" "^10.1.0"
     bignumber.js "^9.0.1"
     rx-sandbox "^1.0.4"
     rxjs "^6.6.3"
 
-"@taquito/tzip12@9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/tzip12/-/tzip12-9.2.0.tgz#6e3f95bed46f33e55df61674a8da3e9240d5c4de"
-  integrity sha512-NRGcEt/zdQ48f9wZMLoEiO+ZmYFj7fwRJLuvzLF9eBALChU+GlZ+IjBoz29jHVEeXszleH2u3vhI39ZyBbC2pw==
+"@taquito/tzip12@10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/tzip12/-/tzip12-10.1.0.tgz#ab3b2bc6c26a5f41f744b2447ca7be23c4638887"
+  integrity sha512-7m0obPUzjQ7f0yF8ezghan4+Y1AQyLG3i4w2c+VYSYRhTq/lvyzBHKsNv23ShUOSZTVjCNRgWnrX4G3lbDBIcA==
   dependencies:
-    "@taquito/michelson-encoder" "^9.2.0"
-    "@taquito/taquito" "^9.2.0"
-    "@taquito/tzip16" "^9.2.0"
+    "@taquito/michelson-encoder" "^10.1.0"
+    "@taquito/taquito" "^10.1.0"
+    "@taquito/tzip16" "^10.1.0"
     bignumber.js "^9.0.1"
 
-"@taquito/tzip16@9.2.0", "@taquito/tzip16@^9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/tzip16/-/tzip16-9.2.0.tgz#e7e3471be036e549336b0e51882f640e463f0579"
-  integrity sha512-9G1ZZWojRxTIpza8vfBt7Si/x9JKeEMBKFoSAEcd84w1I779bFdn4lLs4CR6UGE0Sl7Tw5pNtH8gFRgLCo4a6g==
+"@taquito/tzip16@10.1.0", "@taquito/tzip16@^10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/tzip16/-/tzip16-10.1.0.tgz#63b451e05a9baf0e816751c79c0d14504b22244f"
+  integrity sha512-XHEOsc23RctLEbAk2r4sCZb7Kl281BvQ2JsOtrFwOKsbt+sJ80C0TJa+At9M11rlZc5bupgcUrMb8oElwSCcMA==
   dependencies:
-    "@taquito/http-utils" "^9.2.0"
-    "@taquito/michelson-encoder" "^9.2.0"
-    "@taquito/rpc" "^9.2.0"
-    "@taquito/taquito" "^9.2.0"
-    "@taquito/utils" "^9.2.0"
+    "@taquito/http-utils" "^10.1.0"
+    "@taquito/michelson-encoder" "^10.1.0"
+    "@taquito/rpc" "^10.1.0"
+    "@taquito/taquito" "^10.1.0"
+    "@taquito/utils" "^10.1.0"
     bignumber.js "^9.0.1"
     crypto-js "^4.0.0"
 
-"@taquito/utils@9.2.0", "@taquito/utils@^9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@taquito/utils/-/utils-9.2.0.tgz#6c9cde66aea30ffd069a02eacc3a3e946bd3eb27"
-  integrity sha512-pawB2Wqym/evBvSvF4AWeu5b+Zo1NArhqRrdoNOP6iBjhTfb7dcgavjhMFgG7/ATF6C17Mkqtn+Tp2V65i3MPA==
+"@taquito/utils@10.1.0", "@taquito/utils@^10.1.0":
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/@taquito/utils/-/utils-10.1.0.tgz#032843be047ee2a86ff07755530089d9922c10d0"
+  integrity sha512-jG4pBfbcZistUFCifJveHNm8cvOs/ZO8bG6fP9adLef1c8JDChLA5/y4yp3xqirCZyZIJ3EoBpT723uuF7EM+Q==
   dependencies:
     blakejs "^1.1.0"
     bs58check "^2.1.2"
     buffer "^6.0.3"
 
-"@temple-wallet/dapp@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/dapp/-/dapp-4.0.0.tgz#bac3990fc4316d8126b43a080c6813040c20132d"
-  integrity sha512-0Ss5RfoBWgs7Y44FqUrPmPKR6tFDKjagDAj1ykOQ8ARs00Z8mqGYWJ5hIsoo3PH2/WhMJfEjzjzCnMpGEJNvNg==
+"@temple-wallet/dapp@5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/dapp/-/dapp-5.0.2.tgz#6a7759b1527b3e0dd0079642e3b052a027bb2953"
+  integrity sha512-IIeHTowHXOp7/JnttfzMyCJjFWwhqOauDN7S2vU0GzHkpT5gH6FBXqB3kvZUyPfoxY0PXuXg+HKh++qABx+g9A==
   dependencies:
-    nanoid "^3.1.10"
+    nanoid "^3.1.25"
 
 "@temple-wallet/ledger-bridge@1.0.0":
   version "1.0.0"
@@ -2004,50 +2004,50 @@
     "@ledgerhq/hw-transport" "^5.26.0"
     "@types/ledgerhq__hw-transport" "^4.21.3"
 
-"@tezos-domains/core@1.4.0", "@tezos-domains/core@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.4.0.tgz#8319e528a4515fb543fe572a916a5c5f94767dbf"
-  integrity sha512-uZJ3bMYkQ8wIE8hfcpNs9w6AVzgACTXgfpOvYntaILJM53cfbojEYSF0CqZFMyva+Tc9JnvAMbxFA9FzM08lIQ==
+"@tezos-domains/core@1.7.0", "@tezos-domains/core@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.7.0.tgz#21001eb1bde41f7957bd5851c107f3627f352334"
+  integrity sha512-WmzVVBaN+Yvuo3RpdH0B3wjWBD81uoX9E10POqmPPXYjzykD8lDiFOSdrlHs8uKIj0AKYD3gfhDo+f7pJXa6Vg==
   dependencies:
     idna-uts46-hx "^3.3.0"
 
-"@tezos-domains/manager@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.4.0.tgz#cbd8d9cb4316f177ce4270db5cd3ebe76b1bb911"
-  integrity sha512-UN1i3ptdQLiWCO66R9sS2Jt+ZCSsrxs6vlJ4YOqa2+s0d067GRvkhemfIo+56eC0kV0H6UUIDKSQwGD5hW/cvg==
+"@tezos-domains/manager@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.7.0.tgz#4f125ca5b88848336fb8622962512305cc8bb03b"
+  integrity sha512-8H9ZuLbqAJR/9bwmPUvhhrpBY/aWybmE2TiwMPikHkrI/ICE4By5DVHgAw8LyPPXvVQ7v34aNxUkShWL/ydFMg==
   dependencies:
-    "@tezos-domains/core" "^1.4.0"
-    "@tezos-domains/taquito" "^1.4.0"
+    "@tezos-domains/core" "^1.7.0"
+    "@tezos-domains/taquito" "^1.7.0"
     "@types/sha.js" "^2.4.0"
     bignumber.js "^9.0.1"
     sha.js "^2.4.11"
 
-"@tezos-domains/resolver@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.4.0.tgz#6cbbc77d79651cc08b267bc6f95197efec6dd9da"
-  integrity sha512-TLsEP6SWEcp92ATNfYSVOQFqWzsk1pcDBmnUOYnCnowB7KE1CJdXO3HilI7TC1SXMxXggJ5YoMUp7X3x3bws+A==
+"@tezos-domains/resolver@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.7.0.tgz#a40877500288cf30dbdaaf8c8da167458ee27f98"
+  integrity sha512-E7/LUP4EV+nR9oZ/c6aOSLQwXgQSRRic5wr9cgB7yNwO3ZLX9iXI4PL7jg1DCQrEfURHYyF+9ovoVOtyQPA+QQ==
   dependencies:
-    "@tezos-domains/core" "^1.4.0"
+    "@tezos-domains/core" "^1.7.0"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito-client@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.4.0.tgz#4df383f3af3080a538501401032b7b2ec82df21b"
-  integrity sha512-pPCv4vtNUIj/5/qT8ow190L5b4/1sBshoUajkHZpqclMECszKS2BjOAlgQ7ZyHw+FRnYFcp+3ZBz3ZDEV1Ui6g==
+"@tezos-domains/taquito-client@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.7.0.tgz#7b18cf7c5bdc1ab61385a66503101a4c3988c71b"
+  integrity sha512-dFnsWAxqFpf9iCCLwOhpswZJWa0ecg3AmHKW44jnf1AiugXG7Dpdvox6q86rTWmflWwAYiJC4pr/mgd1JeZNJg==
   dependencies:
-    "@tezos-domains/core" "^1.4.0"
-    "@tezos-domains/manager" "^1.4.0"
-    "@tezos-domains/resolver" "^1.4.0"
-    "@tezos-domains/taquito" "^1.4.0"
+    "@tezos-domains/core" "^1.7.0"
+    "@tezos-domains/manager" "^1.7.0"
+    "@tezos-domains/resolver" "^1.7.0"
+    "@tezos-domains/taquito" "^1.7.0"
     bignumber.js "^9.0.1"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito/-/taquito-1.4.0.tgz#dc89f6f2c324829f50bf7f028df2f57cdc86660e"
-  integrity sha512-+12HDypZd+UUH3lMBKqzDHAW1pYrBuQP1BJcO1xe5O63HaN5mwmhhOHYy+TgA1Q3RUy0iiywGpfwbaUyhXM0yg==
+"@tezos-domains/taquito@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito/-/taquito-1.7.0.tgz#9de4e69546e9500cf518c444097da4decead70e7"
+  integrity sha512-jQFYAFryZUU5wlbvsPZUo5gvvdL2SUAmqykxIMZLmt1LENXB3r3YTSN+620kPX5E7E7lusBYUvSO0xEJWpyRKw==
   dependencies:
-    "@tezos-domains/core" "^1.4.0"
+    "@tezos-domains/core" "^1.7.0"
     bignumber.js "^9.0.1"
     node-cache "^5.1.2"
 
@@ -7911,10 +7911,15 @@ nan@^2.12.1:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.1.tgz#d7be34dfa3105b91494c3147089315eff8874b01"
   integrity sha512-isWHgVjnFjh2x2yuJ/tj3JbwoHu3UC2dX5G/88Cm24yB6YopVgxvBObDY7n5xW6ExmFhJpSEQqFPvq9zaXc8Jw==
 
-nanoid@3.1.12, nanoid@^3.1.10:
+nanoid@3.1.12:
   version "3.1.12"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.12.tgz#6f7736c62e8d39421601e4a0c77623a97ea69654"
   integrity sha512-1qstj9z5+x491jfiC4Nelk+f8XBad7LN20PmyWINJEMRSf3wcAjAWysw1qaA8z6NSKe2sjq1hRSDpBH5paCb6A==
+
+nanoid@^3.1.25:
+  version "3.1.25"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.25.tgz#09ca32747c0e543f0e1814b7d3793477f9c8e152"
+  integrity sha512-rdwtIXaXCLFAQbnfqDRnI6jaRHp9fTcYBjtFKE8eezcZ7LuLjhUaQGNeMXf1HmRoCH32CLz6XwX0TtxEOS/A3Q==
 
 nanomatch@^1.2.9:
   version "1.2.13"
