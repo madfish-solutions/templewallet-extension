@@ -6,8 +6,9 @@ import ApproveStep from "app/pages/BuyCrypto/steps/ApproveStep";
 import ExchangeStep from "app/pages/BuyCrypto/steps/ExchangeStep";
 import InitialStep from "app/pages/BuyCrypto/steps/InitialStep";
 import { T, t } from "lib/i18n/react";
-import { useAccount, useStorage } from "lib/temple/front";
+import { useAccount, useNetwork, useStorage } from "lib/temple/front";
 import { exchangeDataInterface } from "lib/templewallet-api/exolix";
+import { Redirect } from "lib/woozie";
 
 const steps = [
   {
@@ -25,6 +26,7 @@ const steps = [
 ];
 
 const BuyCrypto = () => {
+  const network = useNetwork();
   const { publicKeyHash } = useAccount();
   const [step, setStep] = useStorage<number>(
     `topup_step_state_${publicKeyHash}`,
@@ -36,6 +38,9 @@ const BuyCrypto = () => {
       `topup_exchange_data_state_${publicKeyHash}`,
       null
     );
+  if (network.type !== "main") {
+    return <Redirect to={"/"} />;
+  }
 
   return (
     <PageLayout
