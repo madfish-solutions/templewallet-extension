@@ -187,7 +187,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   const commonButtonProps = useMemo(
     () => ({
       className: `flex flex-col items-center px-1 ${
-        network.type === "test" ? "mx-2" : "mx-3"
+        network.type === "test" ? "mx-3" : "mx-2"
       }`,
       type: "button" as const,
       children: (
