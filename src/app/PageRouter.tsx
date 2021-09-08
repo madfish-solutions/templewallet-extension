@@ -2,6 +2,7 @@ import React, { FC, useLayoutEffect, useMemo } from "react";
 
 import { OpenInFullPage, useAppEnv } from "app/env";
 import AddToken from "app/pages/AddToken";
+import BuyCrypto from "app/pages/BuyCrypto/BuyCrypto";
 import ConnectLedger from "app/pages/ConnectLedger";
 import CreateAccount from "app/pages/CreateAccount";
 import CreateWallet from "app/pages/CreateWallet";
@@ -21,7 +22,6 @@ import { usePageRouterAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
 
-import BuyCrypto from "./pages/BuyCrypto/BuyCrypto";
 
 interface RouteContext {
   popup: boolean;
