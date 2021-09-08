@@ -9,16 +9,14 @@ const useTopUpUpdate = (
 ) => {
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
-    timeoutId = setTimeout(function repeat() {
-      (async () => {
-        try {
-          const data = await getExchangeData(exchangeData!.id);
-          setExchangeData(data);
-          timeoutId = setTimeout(repeat, 3000);
-        } catch (e) {
-          setIsError(true);
-        }
-      })();
+    timeoutId = setTimeout(async function repeat() {
+      try {
+        const data = await getExchangeData(exchangeData!.id);
+        setExchangeData(data);
+        timeoutId = setTimeout(repeat, 3000);
+      } catch (e) {
+        setIsError(true);
+      }
     }, 3000);
     return () => {
       clearTimeout(timeoutId);
