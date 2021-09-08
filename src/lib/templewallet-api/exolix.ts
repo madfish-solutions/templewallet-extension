@@ -2,7 +2,7 @@ import axios from "axios";
 
 const apiKey = process.env.EXOLIX_API_TOKEN;
 
-axios.defaults.headers.common = { Authorization: `bearer ${apiKey}` };
+axios.defaults.headers.common = { ...(apiKey && {Authorization: `bearer ${apiKey}`}) };
 
 export interface exchangeDataInterface {
   amount_from: string;
