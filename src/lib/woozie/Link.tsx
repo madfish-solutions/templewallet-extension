@@ -1,12 +1,23 @@
-import React, { AnchorHTMLAttributes, FC, MouseEventHandler, useCallback, useMemo } from "react";
+import React, {
+  AnchorHTMLAttributes,
+  FC,
+  MouseEventHandler,
+  useCallback,
+  useMemo,
+} from "react";
 
-import { TestIDProps, useAnalytics, AnalyticsEventCategory } from "lib/analytics";
+import {
+  TestIDProps,
+  useAnalytics,
+  AnalyticsEventCategory,
+} from "lib/analytics";
 import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
 import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
 import { To, createLocationUpdates, useLocation } from "lib/woozie/location";
 
 export interface LinkProps
-  extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
+  extends AnchorHTMLAttributes<HTMLAnchorElement>,
+    TestIDProps {
   to: To;
   replace?: boolean;
 }
@@ -19,11 +30,10 @@ const Link: FC<LinkProps> = ({ to, replace, ...rest }) => {
     [to, lctn]
   );
 
-  const url = useMemo(() => createUrl(pathname, search, hash), [
-    pathname,
-    search,
-    hash,
-  ]);
+  const url = useMemo(
+    () => createUrl(pathname, search, hash),
+    [pathname, search, hash]
+  );
 
   const href = useMemo(
     () =>
@@ -45,7 +55,8 @@ const Link: FC<LinkProps> = ({ to, replace, ...rest }) => {
 export default Link;
 
 interface LinkAnchorProps
-  extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
+  extends AnchorHTMLAttributes<HTMLAnchorElement>,
+    TestIDProps {
   onNavigate: () => void;
   onClick?: MouseEventHandler;
   target?: string;
@@ -64,7 +75,12 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
 
   const handleClick = useCallback(
     (evt) => {
-      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
+      testID !== undefined &&
+        trackEvent(
+          testID,
+          AnalyticsEventCategory.ButtonPress,
+          testIDProperties
+        );
 
       try {
         if (onClick) {

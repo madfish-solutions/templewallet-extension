@@ -60,15 +60,14 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
 
 export default BlockExplorerSelect;
 
-const BlockExplorerIcon: FC<
-  IconifiedSelectOptionRenderProps<BlockExplorer>
-> = ({ option: { id, name } }) => (
-  <Flag
-    alt={name}
-    className="ml-2 mr-3"
-    src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)}
-  />
-);
+const BlockExplorerIcon: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> =
+  ({ option: { id, name } }) => (
+    <Flag
+      alt={name}
+      className="ml-2 mr-3"
+      src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)}
+    />
+  );
 
 const BlockExplorerInMenuContent: FC<
   IconifiedSelectOptionRenderProps<BlockExplorer>

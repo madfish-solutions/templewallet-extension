@@ -1,3 +1,3 @@
 export enum AdditionalFeeInputSelectors {
-  FeeButton = 'AdditionalFeeInput/FeeButton'
+  FeeButton = "AdditionalFeeInput/FeeButton",
 }

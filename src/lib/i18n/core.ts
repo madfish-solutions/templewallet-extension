@@ -15,7 +15,7 @@ const dateFnsLocales: Record<string, Locale> = {
   ja,
   ko,
   uk,
-  ru
+  ru,
 };
 
 let fetchedLocaleMessages: FetchedLocaleMessages = {
@@ -54,7 +54,9 @@ export async function init() {
   }
 
   fetchedLocaleMessages = refetched;
-  cldrLocale = (cldrjsLocales as Record<string, any>)[getCurrentLocale()] || cldrjsLocales.en;
+  cldrLocale =
+    (cldrjsLocales as Record<string, any>)[getCurrentLocale()] ||
+    cldrjsLocales.en;
 }
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {

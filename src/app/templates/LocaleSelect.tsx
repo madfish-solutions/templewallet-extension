@@ -4,7 +4,11 @@ import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
 
 import Flag from "app/atoms/Flag";
-import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from "lib/analytics";
+import {
+  AnalyticsEventCategory,
+  AnalyticsEventEnum,
+  useAnalytics,
+} from "lib/analytics";
 import { getCurrentLocale, T, updateLocale } from "lib/i18n/react";
 
 import IconifiedSelect, {
@@ -106,10 +110,17 @@ const LocaleSelect: FC<LocaleSelectProps> = ({ className }) => {
     []
   );
 
-  const handleLocaleChange = useCallback(({ code }: LocaleOption) => {
-    trackEvent(AnalyticsEventEnum.LanguageChanged, AnalyticsEventCategory.ButtonPress, { code });
-    updateLocale(code);
-  }, [trackEvent]);
+  const handleLocaleChange = useCallback(
+    ({ code }: LocaleOption) => {
+      trackEvent(
+        AnalyticsEventEnum.LanguageChanged,
+        AnalyticsEventCategory.ButtonPress,
+        { code }
+      );
+      updateLocale(code);
+    },
+    [trackEvent]
+  );
 
   return (
     <IconifiedSelect
@@ -140,42 +151,40 @@ const LocaleIcon: FC<IconifiedSelectOptionRenderProps<LocaleOption>> = ({
   />
 );
 
-const LocaleInMenuContent: FC<
-  IconifiedSelectOptionRenderProps<LocaleOption>
-> = ({ option: { disabled, label } }) => {
-  return (
-    <div className={classNames("relative w-full text-lg text-gray-700")}>
-      {label}
+const LocaleInMenuContent: FC<IconifiedSelectOptionRenderProps<LocaleOption>> =
+  ({ option: { disabled, label } }) => {
+    return (
+      <div className={classNames("relative w-full text-lg text-gray-700")}>
+        {label}
 
-      {disabled && (
-        <div
-          className={classNames(
-            "absolute top-0 bottom-0 right-0",
-            "flex items-center"
-          )}
-        >
+        {disabled && (
           <div
             className={classNames(
-              "mr-2 px-1",
-              "bg-orange-500 rounded-sm shadow-md",
-              "text-white",
-              "text-xs font-semibold uppercase"
+              "absolute top-0 bottom-0 right-0",
+              "flex items-center"
             )}
           >
-            <T id="soon" />
+            <div
+              className={classNames(
+                "mr-2 px-1",
+                "bg-orange-500 rounded-sm shadow-md",
+                "text-white",
+                "text-xs font-semibold uppercase"
+              )}
+            >
+              <T id="soon" />
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
+        )}
+      </div>
+    );
+  };
 
-const LocaleSelectContent: FC<
-  IconifiedSelectOptionRenderProps<LocaleOption>
-> = ({ option }) => {
-  return (
-    <div className="flex flex-col items-start py-2">
-      <span className="text-xl text-gray-700">{option.label}</span>
-    </div>
-  );
-};
+const LocaleSelectContent: FC<IconifiedSelectOptionRenderProps<LocaleOption>> =
+  ({ option }) => {
+    return (
+      <div className="flex flex-col items-start py-2">
+        <span className="text-xl text-gray-700">{option.label}</span>
+      </div>
+    );
+  };

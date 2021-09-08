@@ -30,7 +30,8 @@ import {
   useAccount,
   useAssetMetadata,
   getAssetSymbol,
-  isTezAsset, useNetwork,
+  isTezAsset,
+  useNetwork,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 import { Link, useLocation, navigate, HistoryAction } from "lib/woozie";
@@ -58,7 +59,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const account = useAccount();
   const { search } = useLocation();
   const network = useNetwork();
-  console.log({network})
+  console.log({ network });
 
   const assetMetadata = useAssetMetadata(assetSlug ?? "tez");
 
@@ -118,12 +119,12 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             Icon={ReceiveIcon}
             href="/receive"
           />
-          {network.type !== 'test' && (
-              <ActionButton
-                  label={<T id="buyButton" />}
-                  Icon={BuyIcon}
-                  href="/buy"
-              />
+          {network.type !== "test" && (
+            <ActionButton
+              label={<T id="buyButton" />}
+              Icon={BuyIcon}
+              href="/buy"
+            />
           )}
 
           <ActionButton
@@ -186,7 +187,9 @@ const ActionButton: FC<ActionButtonProps> = ({
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
-      className: `flex flex-col items-center px-1 ${network.type === 'test' ? "mx-2" : "mx-3"}` ,
+      className: `flex flex-col items-center px-1 ${
+        network.type === "test" ? "mx-2" : "mx-3"
+      }`,
       type: "button" as const,
       children: (
         <>
