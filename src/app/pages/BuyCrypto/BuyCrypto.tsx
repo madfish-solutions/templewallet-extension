@@ -90,9 +90,7 @@ const BuyCrypto = () => {
           />
         )}
         {step >= 1 && (
-          <p
-            className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
-          >
+          <p className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto">
             <T id={"support"} />
           </p>
         )}

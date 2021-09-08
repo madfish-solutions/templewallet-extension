@@ -22,7 +22,6 @@ import { usePageRouterAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
 
-
 interface RouteContext {
   popup: boolean;
   fullPage: boolean;

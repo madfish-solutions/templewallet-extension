@@ -6,7 +6,6 @@ import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
 import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import AssetIcon from "app/templates/AssetIcon";
 
-
 interface Props {
   callback?: () => void;
   label: string;
