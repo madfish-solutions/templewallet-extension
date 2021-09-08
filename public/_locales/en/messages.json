@@ -2216,5 +2216,17 @@
   },
   "step": {
     "message": "Step"
+  },
+  "dogeNote": {
+    "message": "Note for DOGE: transfer network - MainNet DOGE. Please, deposit only DOGE (MainNet). Otherwise, you may lose your assets permanently."
+  },
+  "polygonNote": {
+    "message": "Note for MATIC: transfer network - Ethereum (ETH). Please, deposit only MATIC (ERC20). Otherwise, you may lose your assets permanently."
+  },
+  "usdtNote": {
+    "message": "Note for USDT: transfer network - Ethereum (ETH) ERC20. Please, deposit only USDT (ERC20). Otherwise, you may lose your assets permanently."
+  },
+  "cakeNote": {
+    "message": "Note for CAKE: transfer network - Binance Smart Chain (BSC). Please, deposit only CAKE (BEP20). Otherwise, you may lose your assets permanently."
   }
 }
