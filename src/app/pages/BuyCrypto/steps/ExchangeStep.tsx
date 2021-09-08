@@ -24,7 +24,7 @@ interface Props {
 
 const dateFormatOptions = {day: 'numeric', month: "long", year: "numeric", hour: "numeric", minute: "numeric"}
 
-const ThirdStep: FC<Props> = ({exchangeData, setExchangeData, setStep, step, isError, setIsError}) => {
+const ExchangeStep: FC<Props> = ({exchangeData, setExchangeData, setStep, step, isError, setIsError}) => {
     const {copy} = useCopyToClipboard();
     const [sendTime, setSendTime] = useState(new Date());
 
@@ -186,4 +186,4 @@ const ThirdStep: FC<Props> = ({exchangeData, setExchangeData, setStep, step, isE
     )
 };
 
-export default ThirdStep;
+export default ExchangeStep;

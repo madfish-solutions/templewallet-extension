@@ -24,7 +24,7 @@ interface Props {
     setIsError: (error: boolean) => void;
 }
 
-const SecondStep: FC<Props> = ({exchangeData, setExchangeData, setStep, step, isError, setIsError}) => {
+const ApproveStep: FC<Props> = ({exchangeData, setExchangeData, setStep, step, isError, setIsError}) => {
     const {copy} = useCopyToClipboard();
 
     useTopUpUpdate(exchangeData, setExchangeData, setIsError);
@@ -148,4 +148,4 @@ const SecondStep: FC<Props> = ({exchangeData, setExchangeData, setStep, step, is
         </>
     )};
 
-export default SecondStep;
+export default ApproveStep;
