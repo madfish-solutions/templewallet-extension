@@ -22,7 +22,7 @@ const BuyCrypto = () => {
   const { publicKeyHash } = useAccount();
   const [step, setStep] = useStorage<number>(
     `topup_step_state_${publicKeyHash}`,
-    4
+    0
   );
   const [isError, setIsError] = useState(false);
   const [exchangeData, setExchangeData] =
