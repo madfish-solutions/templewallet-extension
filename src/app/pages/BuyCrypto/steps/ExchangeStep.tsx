@@ -9,13 +9,13 @@ import HashShortView from "app/atoms/HashShortView";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
-import { exchangeDataInterface } from "lib/exolix-api";
+import { ExchangeDataInterface } from "lib/exolix-api";
 import { getCurrentLocale, T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 interface Props {
-  exchangeData: exchangeDataInterface | null;
-  setExchangeData: (exchangeData: exchangeDataInterface | null) => void;
+  exchangeData: ExchangeDataInterface;
+  setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
   step: number;
   setStep: (step: number) => void;
   isError: boolean;
@@ -45,31 +45,31 @@ const ExchangeStep: FC<Props> = ({
 
   useEffect(() => {
     if (
-      exchangeData!.status === "success" ||
-      exchangeData!.status === "exchanging"
+      exchangeData.status === "success" ||
+      exchangeData.status === "exchanging"
     ) {
-      setSendTime(new Date(exchangeData!.created_at * 1000));
+      setSendTime(new Date(exchangeData.created_at * 1000));
       setStep(step + 1);
     }
-    if (exchangeData!.status === "overdue") {
+    if (exchangeData.status === "overdue") {
       setIsError(true);
     }
   }, [exchangeData, setExchangeData, setStep, step, setIsError]);
 
   return (
     <>
-      {(exchangeData!.status === "exchanging" ||
-        exchangeData!.status === "confirmation" ||
-        exchangeData!.status === "overdue") && (
+      {(exchangeData.status === "exchanging" ||
+        exchangeData.status === "confirmation" ||
+        exchangeData.status === "overdue") && (
         <>
           <div className="m-auto">
             <p className="text-center text-base mt-4 text-gray-700">
-              {(exchangeData!.status === "confirmation" ||
-                (exchangeData!.status === "overdue" && step === 2)) && (
+              {(exchangeData.status === "confirmation" ||
+                (exchangeData.status === "overdue" && step === 2)) && (
                 <T id={"confirmation"} />
               )}
-              {(exchangeData!.status === "exchanging" ||
-                (exchangeData!.status === "overdue" && step === 3)) && (
+              {(exchangeData.status === "exchanging" ||
+                (exchangeData.status === "overdue" && step === 3)) && (
                 <T id={"exchanging"} />
               )}
             </p>
@@ -96,9 +96,9 @@ const ExchangeStep: FC<Props> = ({
                     style={{ color: "#1B262C" }}
                     className="text-xs inline align-text-bottom"
                   >
-                    {exchangeData!.id}
+                    {exchangeData.id}
                   </p>
-                  <CopyButton text={exchangeData!.id} type="link">
+                  <CopyButton text={exchangeData.id} type="link">
                     <CopyIcon
                       style={{ verticalAlign: "inherit" }}
                       className={classNames(
@@ -115,7 +115,7 @@ const ExchangeStep: FC<Props> = ({
                   <T id={"youSend"} />
                 </p>
                 <p style={{ color: "#1B262C" }} className="text-xs">
-                  {exchangeData!.amount_from} {exchangeData!.coin_from}
+                  {exchangeData.amount_from} {exchangeData.coin_from}
                 </p>
               </div>
               <div className="flex justify-between items-baseline mt-2">
@@ -123,18 +123,18 @@ const ExchangeStep: FC<Props> = ({
                   <T id={"youReceive"} />
                 </p>
                 <p style={{ color: "#1B262C" }} className="text-xs">
-                  {exchangeData!.amount_to} {exchangeData!.coin_to}
+                  {exchangeData.amount_to} {exchangeData.coin_to}
                 </p>
               </div>
               <div className="flex justify-between items-baseline mt-4">
                 <p className="text-gray-600 text-xs">
                   <T
                     id={"depositAddressText"}
-                    substitutions={[exchangeData!.coin_from]}
+                    substitutions={[exchangeData.coin_from]}
                   />
                 </p>
                 <p style={{ color: "#1B262C" }} className="text-xs">
-                  <HashShortView hash={exchangeData!.deposit_address} />
+                  <HashShortView hash={exchangeData.deposit_address} />
                 </p>
               </div>
               <div className="flex justify-between items-baseline mt-4">
@@ -142,7 +142,7 @@ const ExchangeStep: FC<Props> = ({
                   <T id={"recipientAddress"} />
                 </p>
                 <p style={{ color: "#1B262C" }} className="text-xs">
-                  <HashShortView hash={exchangeData!.destination_address} />
+                  <HashShortView hash={exchangeData.destination_address} />
                 </p>
               </div>
               <Divider style={{ marginTop: "1rem", marginBottom: "3rem" }} />
@@ -150,7 +150,7 @@ const ExchangeStep: FC<Props> = ({
           )}
         </>
       )}
-      {exchangeData!.status === "success" && (
+      {exchangeData.status === "success" && (
         <>
           <div className="m-auto">
             <p className="text-center text-base mt-4 text-gray-700">
@@ -170,9 +170,9 @@ const ExchangeStep: FC<Props> = ({
                 style={{ color: "#1B262C" }}
                 className="text-xs inline align-text-bottom"
               >
-                {exchangeData!.id}
+                {exchangeData.id}
               </p>
-              <CopyButton text={exchangeData!.id} type="link">
+              <CopyButton text={exchangeData.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: "inherit" }}
                   className={classNames(
@@ -200,10 +200,10 @@ const ExchangeStep: FC<Props> = ({
               <T id={"youSend"} />
             </p>
             <p style={{ color: "#1B262C" }} className="text-xs">
-              {exchangeData!.amount_from} {exchangeData!.coin_from}
+              {exchangeData.amount_from} {exchangeData.coin_from}
             </p>
           </div>
-          {exchangeData!.hash_out && exchangeData!.hash_out_link && (
+          {exchangeData.hash_out && exchangeData.hash_out_link && (
             <div className="flex justify-between items-baseline mt-2">
               <p className="text-gray-600 text-xs">
                 <T id={"inputHash"} />
@@ -211,9 +211,9 @@ const ExchangeStep: FC<Props> = ({
               <p style={{ color: "#1B262C" }} className="text-xs">
                 <a
                   className={"text-blue-700 underline"}
-                  href={exchangeData!.hash_out_link}
+                  href={exchangeData.hash_out_link}
                 >
-                  <HashShortView hash={exchangeData!.hash_out} />
+                  <HashShortView hash={exchangeData.hash_out} />
                 </a>
               </p>
             </div>
@@ -222,20 +222,20 @@ const ExchangeStep: FC<Props> = ({
             <p className="text-gray-600 text-xs">
               <T
                 id={"depositAddressText"}
-                substitutions={[exchangeData!.coin_from]}
+                substitutions={[exchangeData.coin_from]}
               />
             </p>
             <p style={{ color: "#1B262C" }} className="text-xs">
-              <HashShortView hash={exchangeData!.deposit_address} />
+              <HashShortView hash={exchangeData.deposit_address} />
             </p>
           </div>
           <div className="flex justify-between items-baseline mt-4">
             <p className="text-gray-600 text-xs">You receive:</p>
             <p style={{ color: "#1B262C" }} className="text-xs">
-              {exchangeData!.amount_to} {exchangeData!.coin_to}
+              {exchangeData.amount_to} {exchangeData.coin_to}
             </p>
           </div>
-          {exchangeData!.hash_in && exchangeData!.hash_in_link && (
+          {exchangeData.hash_in && exchangeData.hash_in_link && (
             <div className="flex justify-between items-baseline mt-2">
               <p className="text-gray-600 text-xs">
                 <T id={"inputHash"} />
@@ -243,9 +243,9 @@ const ExchangeStep: FC<Props> = ({
               <p style={{ color: "#1B262C" }} className="text-xs">
                 <a
                   className={"text-blue-700 underline"}
-                  href={exchangeData!.hash_in_link}
+                  href={exchangeData.hash_in_link}
                 >
-                  <HashShortView hash={exchangeData!.hash_in} />
+                  <HashShortView hash={exchangeData.hash_in} />
                 </a>
               </p>
             </div>
@@ -256,7 +256,7 @@ const ExchangeStep: FC<Props> = ({
               <T id={"recipientXtzAddress"} />
             </p>
             <p style={{ color: "#1B262C" }} className="text-xs">
-              <HashShortView hash={exchangeData!.destination_address} />
+              <HashShortView hash={exchangeData.destination_address} />
             </p>
           </div>
           <Divider style={{ marginTop: "1rem", marginBottom: "2.5rem" }} />

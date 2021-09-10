@@ -5,24 +5,16 @@ import PageLayout from "app/layouts/PageLayout";
 import ApproveStep from "app/pages/BuyCrypto/steps/ApproveStep";
 import ExchangeStep from "app/pages/BuyCrypto/steps/ExchangeStep";
 import InitialStep from "app/pages/BuyCrypto/steps/InitialStep";
-import { exchangeDataInterface } from "lib/exolix-api";
+import { ExchangeDataInterface } from "lib/exolix-api";
 import { T, t } from "lib/i18n/react";
 import { useAccount, useNetwork, useStorage } from "lib/temple/front";
 import { Redirect } from "lib/woozie";
 
 const steps = [
-  {
-    label: `${t("step")} 1`,
-  },
-  {
-    label: `${t("step")} 2`,
-  },
-  {
-    label: `${t("step")} 3`,
-  },
-  {
-    label: `${t("step")} 4`,
-  },
+`${t("step")} 1`,
+`${t("step")} 2`,
+`${t("step")} 3`,
+`${t("step")} 4`,
 ];
 
 const BuyCrypto = () => {
@@ -34,7 +26,7 @@ const BuyCrypto = () => {
   );
   const [isError, setIsError] = useState(false);
   const [exchangeData, setExchangeData] =
-    useStorage<exchangeDataInterface | null>(
+    useStorage<ExchangeDataInterface | null>(
       `topup_exchange_data_state_${publicKeyHash}`,
       null
     );
@@ -71,7 +63,7 @@ const BuyCrypto = () => {
         )}
         {step === 1 && (
           <ApproveStep
-            exchangeData={exchangeData}
+            exchangeData={exchangeData as ExchangeDataInterface}
             setExchangeData={setExchangeData}
             setStep={setStep}
             step={step}
@@ -81,7 +73,7 @@ const BuyCrypto = () => {
         )}
         {(step === 2 || step === 3 || step === 4) && (
           <ExchangeStep
-            exchangeData={exchangeData}
+            exchangeData={exchangeData as ExchangeDataInterface}
             setExchangeData={setExchangeData}
             setStep={setStep}
             step={step}

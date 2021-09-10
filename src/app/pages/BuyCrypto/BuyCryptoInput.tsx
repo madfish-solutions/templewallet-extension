@@ -51,7 +51,7 @@ const coinList = [
 const BuyCryptoInput: FC<Props> = ({
   type,
   coin,
-  setCoin,
+  setCoin = () => void 0,
   minAmount,
   value,
   readOnly = false,
@@ -63,7 +63,7 @@ const BuyCryptoInput: FC<Props> = ({
   );
 
   const filteredCurrencies = currencies.filter(
-    (currency: { status: number; label: string; code: string }) =>
+    (currency) =>
       currency.status === 1 && coinList.includes(currency.code)
   );
 
@@ -103,17 +103,13 @@ const BuyCryptoInput: FC<Props> = ({
                     <Spinner theme="primary" style={{ width: "3rem" }} />
                   ) : (
                     filteredCurrencies.map(
-                      (currency: {
-                        status: number;
-                        label: string;
-                        code: string;
-                      }) => (
+                      (currency) => (
                         <CurrencyComponent
                           type="currencyDropdown"
                           key={currency.code}
                           label={currency.code}
-                          callback={() => {
-                            setCoin!(currency.code);
+                          onPress={() => {
+                            setCoin(currency.code);
                             setOpened(false);
                           }}
                         />
@@ -124,14 +120,12 @@ const BuyCryptoInput: FC<Props> = ({
               )}
             >
               {({ ref, opened, toggleOpened, setOpened }) => (
-                <>
-                  <CurrencyComponent
-                    type="currencySelector"
-                    label={coin}
-                    ref={ref}
-                    callback={toggleOpened}
-                  />
-                </>
+                <CurrencyComponent
+                  type="currencySelector"
+                  label={coin}
+                  ref={ref as unknown as React.RefObject<HTMLDivElement>}
+                  onPress={toggleOpened}
+                />
               )}
             </Popper>
           ) : (

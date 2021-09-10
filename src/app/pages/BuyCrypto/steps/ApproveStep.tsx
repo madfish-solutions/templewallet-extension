@@ -11,13 +11,13 @@ import HashShortView from "app/atoms/HashShortView";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
-import { exchangeDataInterface } from "lib/exolix-api";
+import { ExchangeDataInterface } from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 interface Props {
-  exchangeData: exchangeDataInterface | null;
-  setExchangeData: (exchangeData: exchangeDataInterface | null) => void;
+  exchangeData: ExchangeDataInterface;
+  setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
   step: number;
   setStep: (step: number) => void;
   isError: boolean;
@@ -76,7 +76,7 @@ const ApproveStep: FC<Props> = ({
                 {props.seconds < 10 ? "0" + props.seconds : props.seconds}
               </p>
             )}
-            date={exchangeData!.created_at * 1000 + 3600000}
+            date={exchangeData.created_at * 1000 + 3600000}
             onComplete={() => setIsError(true)}
           />
           <Divider style={{ marginTop: "2rem" }} />
@@ -85,7 +85,7 @@ const ApproveStep: FC<Props> = ({
               <T id={"sendByOneTransaction"} />
             </p>
             <p style={{ color: "#1B262C" }} className="text-2xl">
-              {exchangeData!.amount_from} {exchangeData!.coin_from}
+              {exchangeData.amount_from} {exchangeData.coin_from}
             </p>
           </div>
           <div className="flex justify-between items-baseline">
@@ -93,7 +93,7 @@ const ApproveStep: FC<Props> = ({
               <T id={"youGet"} />
             </p>
             <p style={{ color: "#1B262C" }} className="text-xs">
-              {exchangeData!.amount_to} {exchangeData!.coin_to}
+              {exchangeData.amount_to} {exchangeData.coin_to}
             </p>
           </div>
           <div className="flex justify-between items-baseline">
@@ -101,8 +101,8 @@ const ApproveStep: FC<Props> = ({
               <T id={"fixedRate"} />
             </p>
             <p style={{ color: "#1B262C" }} className="text-xs">
-              1 {exchangeData!.coin_from} = {exchangeData!.rate}{" "}
-              {exchangeData!.coin_to}
+              1 {exchangeData.coin_from} = {exchangeData.rate}{" "}
+              {exchangeData.coin_to}
             </p>
           </div>
           <div className="flex justify-between items-baseline">
@@ -114,9 +114,9 @@ const ApproveStep: FC<Props> = ({
                 style={{ color: "#1B262C" }}
                 className="text-xs inline align-text-bottom"
               >
-                {exchangeData!.id}
+                {exchangeData.id}
               </p>
-              <CopyButton text={exchangeData!.id} type="link">
+              <CopyButton text={exchangeData.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: "inherit" }}
                   className={classNames(
@@ -131,11 +131,11 @@ const ApproveStep: FC<Props> = ({
           <p className="text-gray-600 text-xs text-center mt-6">
             <T
               id={"depositAddressText"}
-              substitutions={[exchangeData!.coin_from]}
+              substitutions={[exchangeData.coin_from]}
             />
           </p>
           <QRCode
-            value={exchangeData!.deposit_address}
+            value={exchangeData.deposit_address}
             style={{ width: "160px", margin: "24px auto" }}
           />
           <FormField
@@ -148,16 +148,16 @@ const ApproveStep: FC<Props> = ({
               textAlign: "center",
             }}
             textarea
-            value={exchangeData!.deposit_address}
+            value={exchangeData.deposit_address}
             copyable
           />
-          {exchangeData!.deposit_extra !== null && (
+          {exchangeData.deposit_extra !== null && (
             <>
               <p className="text-gray-600 text-xs text-center mt-6">
                 <T id={"atomDepositMemo"} />
               </p>
               <QRCode
-                value={exchangeData!.deposit_extra}
+                value={exchangeData.deposit_extra}
                 style={{ width: "160px", margin: "24px auto" }}
               />
               <FormField
@@ -170,7 +170,7 @@ const ApproveStep: FC<Props> = ({
                   textAlign: "center",
                 }}
                 textarea
-                value={exchangeData!.deposit_extra}
+                value={exchangeData.deposit_extra}
                 copyable
               />
             </>
@@ -182,7 +182,7 @@ const ApproveStep: FC<Props> = ({
               <T id={"recipientAddress"} />
             </p>
             <p style={{ color: "#1B262C" }} className="text-xs">
-              <HashShortView hash={exchangeData!.destination_address} />
+              <HashShortView hash={exchangeData.destination_address} />
             </p>
           </div>
           <div>

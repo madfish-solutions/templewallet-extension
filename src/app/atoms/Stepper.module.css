@@ -1,7 +1,6 @@
 .stepperWrapper {
   box-sizing: border-box;
   display: flex;
-  /*max-width: 60%;*/
   justify-content: space-between;
   margin: auto;
 }

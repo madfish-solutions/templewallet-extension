@@ -5,14 +5,14 @@ import classNames from "clsx";
 import CopyButton from "app/atoms/CopyButton";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
-import { exchangeDataInterface } from "lib/exolix-api";
+import { ExchangeDataInterface } from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
 interface Props {
-  exchangeData: exchangeDataInterface | null;
+  exchangeData: ExchangeDataInterface | null;
   setIsError: (isError: boolean) => void;
-  setExchangeData: (exchangeData: exchangeDataInterface | null) => void;
+  setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
   setStep: (step: number) => void;
 }
 
