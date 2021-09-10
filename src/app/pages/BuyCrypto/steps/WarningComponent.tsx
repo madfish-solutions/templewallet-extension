@@ -23,7 +23,6 @@ const getTranslationId = (currency: string) => {
 };
 
 const WarningComponent: FC<Props> = ({ currency }) => {
-
   return (
     <>
       {getTranslationId(currency) && (

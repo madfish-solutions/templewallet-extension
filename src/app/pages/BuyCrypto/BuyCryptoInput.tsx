@@ -63,8 +63,7 @@ const BuyCryptoInput: FC<Props> = ({
   );
 
   const filteredCurrencies = currencies.filter(
-    (currency) =>
-      currency.status === 1 && coinList.includes(currency.code)
+    (currency) => currency.status === 1 && coinList.includes(currency.code)
   );
 
   return (
@@ -102,19 +101,17 @@ const BuyCryptoInput: FC<Props> = ({
                   {currencies === [] && isCurrencyLoading && currencies ? (
                     <Spinner theme="primary" style={{ width: "3rem" }} />
                   ) : (
-                    filteredCurrencies.map(
-                      (currency) => (
-                        <CurrencyComponent
-                          type="currencyDropdown"
-                          key={currency.code}
-                          label={currency.code}
-                          onPress={() => {
-                            setCoin(currency.code);
-                            setOpened(false);
-                          }}
-                        />
-                      )
-                    )
+                    filteredCurrencies.map((currency) => (
+                      <CurrencyComponent
+                        type="currencyDropdown"
+                        key={currency.code}
+                        label={currency.code}
+                        onPress={() => {
+                          setCoin(currency.code);
+                          setOpened(false);
+                        }}
+                      />
+                    ))
                   )}
                 </DropdownWrapper>
               )}
