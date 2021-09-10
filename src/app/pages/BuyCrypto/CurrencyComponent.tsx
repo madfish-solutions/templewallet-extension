@@ -7,13 +7,13 @@ import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import AssetIcon from "app/templates/AssetIcon";
 
 interface Props {
-  callback?: () => void;
+  onPress?: () => void;
   label: string;
   type?: string;
 }
 
-const CurrencyComponent = forwardRef<HTMLElement, Props>(
-  ({ callback, label = "TEZ", type }, ref) => {
+const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
+  ({ onPress, label, type }, ref) => {
     return (
       <div
         style={
@@ -21,8 +21,8 @@ const CurrencyComponent = forwardRef<HTMLElement, Props>(
             ? undefined
             : { margin: "5px 0", justifyContent: "start", paddingLeft: "10px" }
         }
-        onClick={callback}
-        ref={ref as unknown as React.RefObject<HTMLDivElement>}
+        onClick={onPress}
+        ref={ref}
         className={styles["currencySelector"]}
       >
         {type === "tezosSelector" ? (

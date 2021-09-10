@@ -309,7 +309,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           {cleanable && <CleanButton onClick={handleCleanClick} />}
           {copyable && (
             <CopyButton
-              style={{ position: "absolute", bottom: "0px", right: "5px" }}
+              style={{ position: "absolute", bottom: cleanable ? "3px" : "0px", right: cleanable ? "30px" : "5px" }}
               text={value as string}
               type="link"
             >

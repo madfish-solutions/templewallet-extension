@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export interface exchangeDataInterface {
+export interface ExchangeDataInterface {
   amount_from: string;
   amount_to: string;
   coin_from: string;
@@ -20,10 +20,16 @@ export interface exchangeDataInterface {
   status: string;
 }
 
+interface CurrenciesInterface {
+  status: number;
+  label: string;
+  code: string
+}
+
 const api = axios.create({ baseURL: "https://exolix.com/api" });
 
 export const getCurrencies = async () => {
-  return api.get("/currency").then((r) => r.data);
+  return api.get<CurrenciesInterface[]>("/currency").then((r) => r.data);
 };
 
 export const getRate = async (data: {
@@ -46,6 +52,6 @@ export const submitExchange = async (data: {
 
 export const getExchangeData = async (
   exchangeId: string
-): Promise<exchangeDataInterface> => {
+): Promise<ExchangeDataInterface> => {
   return api.get(`/exchange/${exchangeId}`).then((r) => r.data);
 };

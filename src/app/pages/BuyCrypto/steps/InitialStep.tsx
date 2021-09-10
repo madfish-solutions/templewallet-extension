@@ -9,15 +9,15 @@ import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import BuyCryptoInput from "app/pages/BuyCrypto/BuyCryptoInput";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import WarningComponent from "app/pages/BuyCrypto/steps/WarningComponent";
-import { exchangeDataInterface, getRate, submitExchange } from "lib/exolix-api";
+import { ExchangeDataInterface, getRate, submitExchange } from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import { useAccount } from "lib/temple/front";
 
 const coinTo = "XTZ";
 
 interface Props {
-  exchangeData: exchangeDataInterface | null;
-  setExchangeData: (exchangeData: exchangeDataInterface | null) => void;
+  exchangeData: ExchangeDataInterface | null;
+  setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
   step: number;
   setStep: (step: number) => void;
   isError: boolean;
@@ -106,7 +106,6 @@ const InitialStep: FC<Props> = ({
             coin={coinTo}
             type="coinTo"
           />
-          {/*end input 1*/}
           <Divider style={{ marginTop: "40px", marginBottom: "20px" }} />
           <div className={styles["exchangeRateBlock"]}>
             <p className={styles["exchangeTitle"]}>
@@ -128,7 +127,6 @@ const InitialStep: FC<Props> = ({
           >
             <T id={"topUp"} />
           </FormSubmitButton>
-          {/*<p className={styles['privacyAndPolicy']}>By clicking Exchange you agree with <a className={styles['link']} href='#'>Terms of Use</a> and <a className={styles['link']} href='#'>Privacy Policy</a></p>*/}
           <p className={styles["privacyAndPolicy"]}>
             <T
               id="privacyAndPolicyLinks"

@@ -7,17 +7,15 @@ import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 
 interface Props {
   style: React.CSSProperties;
-  steps: {
-    label: string;
-  }[];
+  steps: string[];
   currentStep: number;
 }
 
 const Stepper: FC<Props> = ({ style, steps, currentStep = 2 }) => (
   <div className={classNames(styles["stepperWrapper"])} style={style}>
     {steps.map((stepItem, index) => (
-      <div className="stepBlock" key={stepItem.label + index}>
-        <p>{stepItem.label}</p>
+      <div className="stepBlock" key={stepItem}>
+        <p>{stepItem}</p>
         <div className={styles["stepWrapper"]}>
           <div
             className={classNames(
