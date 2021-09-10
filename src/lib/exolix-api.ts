@@ -52,6 +52,6 @@ export const submitExchange = async (data: {
 
 export const getExchangeData = async (
   exchangeId: string
-): Promise<ExchangeDataInterface> => {
-  return api.get(`/exchange/${exchangeId}`).then((r) => r.data);
+) => {
+  return api.get<ExchangeDataInterface>(`/exchange/${exchangeId}`).then((r) => r.data);
 };
