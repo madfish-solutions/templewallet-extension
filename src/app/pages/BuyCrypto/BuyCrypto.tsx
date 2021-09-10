@@ -11,10 +11,10 @@ import { useAccount, useNetwork, useStorage } from "lib/temple/front";
 import { Redirect } from "lib/woozie";
 
 const steps = [
-`${t("step")} 1`,
-`${t("step")} 2`,
-`${t("step")} 3`,
-`${t("step")} 4`,
+  `${t("step")} 1`,
+  `${t("step")} 2`,
+  `${t("step")} 3`,
+  `${t("step")} 4`,
 ];
 
 const BuyCrypto = () => {
@@ -82,7 +82,10 @@ const BuyCrypto = () => {
           />
         )}
         {step >= 1 && (
-          <a href={'https://exolix.com/contact'} className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto">
+          <a
+            href={"https://exolix.com/contact"}
+            className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
+          >
             <T id={"support"} />
           </a>
         )}

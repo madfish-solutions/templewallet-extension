@@ -23,7 +23,7 @@ export interface ExchangeDataInterface {
 interface CurrenciesInterface {
   status: number;
   label: string;
-  code: string
+  code: string;
 }
 
 const api = axios.create({ baseURL: "https://exolix.com/api" });
@@ -50,8 +50,8 @@ export const submitExchange = async (data: {
   return api.post("/exchange", data).then((r) => r.data);
 };
 
-export const getExchangeData = async (
-  exchangeId: string
-) => {
-  return api.get<ExchangeDataInterface>(`/exchange/${exchangeId}`).then((r) => r.data);
+export const getExchangeData = async (exchangeId: string) => {
+  return api
+    .get<ExchangeDataInterface>(`/exchange/${exchangeId}`)
+    .then((r) => r.data);
 };
