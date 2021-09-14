@@ -39,8 +39,10 @@ const InitialStep: FC<Props> = ({
   const [disabledProceed, setDisableProceed] = useState(false);
   const [debouncedAmount] = useDebounce(amount, 300);
 
-  const onAmountChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setAmount(Number(e.target.value));
+  const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+      setDisableProceed(false)
+      setAmount(Number(e.target.value))
+  };
 
   const submitExchangeHandler = async () => {
     try {
@@ -58,17 +60,10 @@ const InitialStep: FC<Props> = ({
     }
   };
   const {
-    data: rates = { destination_amount: 0, rate: 0, min_amount: "0" },
-    error,
+    data: rates = { destination_amount: 0, rate: 0, min_amount: "0" }
   } = useSWR(["/api/currency", coinTo, coinFrom, debouncedAmount], () =>
     getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
   );
-
-  useEffect(() => {
-    if (error) {
-      setIsError(true);
-    }
-  }, [error, setIsError]);
 
   useEffect(() => {
     setDepositAmount(rates.destination_amount);
