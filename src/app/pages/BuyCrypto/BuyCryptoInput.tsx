@@ -132,6 +132,11 @@ const BuyCryptoInput: FC<Props> = ({
         <div className={styles["amountInputContainer"]}>
           <input
             readOnly={readOnly}
+            onKeyPress={(event) => {
+              if (!/^[0-9]*\.?[0-9]*$/.test(event.key)) {
+                event.preventDefault();
+              }
+            }}
             value={value}
             placeholder="0.00"
             className={classNames([[styles["amountInput"], "pr-1"]])}
