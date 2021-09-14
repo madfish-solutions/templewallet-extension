@@ -34,6 +34,7 @@ const InitialStep: FC<Props> = ({
 }) => {
   const [amount, setAmount] = useState(0);
   const [coinFrom, setCoinFrom] = useState("BTC");
+  const [lastRate, setLastRate] = useState();
   const [depositAmount, setDepositAmount] = useState(0);
   const { publicKeyHash } = useAccount();
   const [disabledProceed, setDisableProceed] = useState(false);
@@ -54,7 +55,11 @@ const InitialStep: FC<Props> = ({
         destination_extra: "",
       });
       await setExchangeData(data);
-      setStep(step + 1);
+      if (data.status === 'confirmation') {
+        setStep(1);
+      } else if (data.status === 'exchanging') {
+        setStep(2)
+      }
     } catch (e) {
       setIsError(true);
     }
