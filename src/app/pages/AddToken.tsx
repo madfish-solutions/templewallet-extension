@@ -27,7 +27,7 @@ import {
   useNetwork,
   NotMatchingStandardError,
   loadContractForCallLambdaView,
-  useTokensMetadata,
+  useAssetsMetadata,
   toTokenSlug,
   NotFoundTokenMetadata,
   assertGetBalance,
@@ -90,7 +90,7 @@ const Form: FC = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
 
-  const { fetchMetadata, setTokensBaseMetadata } = useTokensMetadata();
+  const { fetchMetadata, setAssetsBaseMetadata } = useAssetsMetadata();
 
   const formAnalytics = useFormAnalytics("AddToken");
 
@@ -258,7 +258,7 @@ const Form: FC = () => {
           thumbnailUri,
         };
 
-        await setTokensBaseMetadata({ [tokenSlug]: metadataToSet });
+        await setAssetsBaseMetadata({ [tokenSlug]: metadataToSet });
 
         await Repo.accountTokens.put(
           {
@@ -298,7 +298,7 @@ const Form: FC = () => {
       chainId,
       accountPkh,
       setSubmitError,
-      setTokensBaseMetadata,
+      setAssetsBaseMetadata,
       formAnalytics,
     ]
   );

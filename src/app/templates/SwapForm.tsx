@@ -50,7 +50,7 @@ import {
   getAssetId,
   getFeePercentage,
   toSlugFromLegacyAsset,
-  useTokensMetadata,
+  useAssetsMetadata,
   toLegacyAsset,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
@@ -72,7 +72,7 @@ type SwapFormWrapperProps = {
 
 const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
   const tezos = useTezos();
-  const { allTokensBaseMetadataRef } = useTokensMetadata();
+  const { allTokensBaseMetadataRef } = useAssetsMetadata();
 
   const defaultAsset = useRetryableSWR(
     ["swap-default-asset", assetSlug, tezos.checksum],

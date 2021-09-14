@@ -2110,5 +2110,126 @@
   },
   "totalBalance": {
     "message": "Total Balance"
+  },
+  "buyButton": {
+    "message": "Buy"
+  },
+  "buyWithCrypto": {
+    "message": "Buy With Crypto"
+  },
+  "overdueTransaction": {
+    "message": "Transaction is overdue"
+  },
+  "overdueTransactionMessage": {
+    "message": "Please, create a new exchange unless \n you have sent the funds. \n If the funds have been sent, please, wait for the confirmation from the system."
+  },
+  "topUpAgain": {
+    "message": "Top Up Again"
+  },
+  "topUp": {
+    "message": "Top Up"
+  },
+  "newTopUp": {
+    "message": "New Top Up"
+  },
+  "exchangeDetails": {
+    "message": "Enter exchange details"
+  },
+  "exchangeDetailsDescription": {
+    "message": "Top up your TEZ balance instantly with 25 cryptocurrencies and without registration"
+  },
+  "privacyAndPolicyLinks": {
+    "message": "By clicking Exchange you agree with \n$termsOfUse$ and $privacyPolicy$",
+    "placeholders": {
+      "termsOfUse": {
+        "content": "$1"
+      },
+      "privacyPolicy": {
+        "content": "$2"
+      }
+    }
+  },
+  "depositAddressText": {
+    "message": "Deposit $depositAddress$ address:",
+    "placeholders": {
+      "depositAddress": {
+        "content": "$1"
+      }
+    }
+  },
+  "support": {
+    "message": "Support"
+  },
+  "deposit": {
+    "message": "Deposit"
+  },
+  "depositDescription": {
+    "message": "Send the funds to the address below. As soon as the deposit is received, the exchange process will begin automatically"
+  },
+  "sendByOneTransaction": {
+    "message": "Send by one transaction"
+  },
+  "youGet": {
+    "message": "You get:"
+  },
+  "fixedRate": {
+    "message": "Fixed rate:"
+  },
+  "transactionId": {
+    "message": "Transaction ID:"
+  },
+  "atomDepositMemo": {
+    "message": "Atom Deposit Memo"
+  },
+  "recipientAddress": {
+    "message": "Recipient address:"
+  },
+  "recipientXtzAddress": {
+    "message": "Recipient XTZ address:"
+  },
+  "inputHash": {
+    "message": "Input hash:"
+  },
+  "youSend": {
+    "message": "You send:"
+  },
+  "sendTime": {
+    "message": "Send time:"
+  },
+  "completedDescription": {
+    "message": "Please, check your funds in your wallet.\nThe exchange process is completed."
+  },
+  "completed": {
+    "message": "Completed"
+  },
+  "youReceive": {
+    "message": "You receive:"
+  },
+  "waitMessage": {
+    "message": "Please, wait. The convertation process will take from 15 min to 2 hours."
+  },
+  "confirmation": {
+    "message": "Confirmation"
+  },
+  "exchanging": {
+    "message": "Exchanging"
+  },
+  "step": {
+    "message": "Step"
+  },
+  "dogeNote": {
+    "message": "Note for DOGE: transfer network - MainNet DOGE. Please, deposit only DOGE (MainNet). Otherwise, you may lose your assets permanently."
+  },
+  "polygonNote": {
+    "message": "Note for MATIC: transfer network - Ethereum (ETH). Please, deposit only MATIC (ERC20). Otherwise, you may lose your assets permanently."
+  },
+  "usdtNote": {
+    "message": "Note for USDT: transfer network - Ethereum (ETH) ERC20. Please, deposit only USDT (ERC20). Otherwise, you may lose your assets permanently."
+  },
+  "cakeNote": {
+    "message": "Note for CAKE: transfer network - Binance Smart Chain (BSC). Please, deposit only CAKE (BEP20). Otherwise, you may lose your assets permanently."
+  },
+  "collectibles": {
+    "message": "Collectibles"
   }
 }

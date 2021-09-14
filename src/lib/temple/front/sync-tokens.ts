@@ -14,7 +14,7 @@ import {
   useAccount,
   isKnownChainId,
   toTokenSlug,
-  useTokensMetadata,
+  useAssetsMetadata,
   AssetMetadata,
   useUSDPrices,
   fetchDisplayedFungibleTokens,
@@ -28,7 +28,7 @@ export const [SyncTokensProvider] = constate(() => {
   const { publicKeyHash: accountPkh } = useAccount();
 
   const { allTokensBaseMetadataRef, setTokensBaseMetadata, fetchMetadata } =
-    useTokensMetadata();
+    useAssetsMetadata();
   const usdPrices = useUSDPrices();
 
   const networkId = useMemo(

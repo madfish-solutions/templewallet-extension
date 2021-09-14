@@ -31,7 +31,7 @@ import {
   useAssetMetadata,
   getAssetSymbol,
   getAssetName,
-  useAllTokensBaseMetadata,
+  useAllAssetsBaseMetadata,
   searchAssets,
 } from "lib/temple/front";
 import { Link, navigate } from "lib/woozie";
@@ -45,14 +45,14 @@ const Assets: FC = () => {
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
 
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const allAssetsBaseMetadata = useAllAssetsBaseMetadata();
 
   const { assetSlugs, latestBalances } = useMemo(() => {
     const assetSlugs = ["tez"];
     const latestBalances: Record<string, string> = {};
 
     for (const { tokenSlug, latestBalance } of tokens) {
-      if (tokenSlug in allTokensBaseMetadata) {
+      if (tokenSlug in allAssetsBaseMetadata) {
         assetSlugs.push(tokenSlug);
       }
       if (latestBalance) {
@@ -61,7 +61,7 @@ const Assets: FC = () => {
     }
 
     return { assetSlugs, latestBalances };
-  }, [tokens, allTokensBaseMetadata]);
+  }, [tokens, allAssetsBaseMetadata]);
 
   const [searchValue, setSearchValue] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -71,8 +71,8 @@ const Assets: FC = () => {
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
   const filteredAssets = useMemo(
-    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
+    () => searchAssets(searchValueDebounced, assetSlugs, allAssetsBaseMetadata),
+    [searchValueDebounced, assetSlugs, allAssetsBaseMetadata]
   );
 
   const activeAsset = useMemo(() => {

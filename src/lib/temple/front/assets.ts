@@ -22,7 +22,7 @@ import {
   putToStorage,
 } from "lib/temple/front";
 
-export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = "all_tokens_base_metadata";
+export const ALL_ASSETS_BASE_METADATA_STORAGE_KEY = "all_tokens_base_metadata";
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
   return useRetryableSWR(
@@ -67,23 +67,23 @@ export function useAssetMetadata(slug: string) {
   const tezos = useTezos();
   const forceUpdate = useForceUpdate();
 
-  const { allTokensBaseMetadataRef, fetchMetadata, setTokensBaseMetadata } =
-    useTokensMetadata();
+  const { allAssetsBaseMetadataRef, fetchMetadata, setAssetsBaseMetadata } =
+    useAssetsMetadata();
 
   useEffect(
     () =>
-      onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, (newValue) => {
+      onStorageChanged(ALL_ASSETS_BASE_METADATA_STORAGE_KEY, (newValue) => {
         if (
-          !deepEqual(newValue[slug], allTokensBaseMetadataRef.current[slug])
+          !deepEqual(newValue[slug], allAssetsBaseMetadataRef.current[slug])
         ) {
           forceUpdate();
         }
       }),
-    [slug, allTokensBaseMetadataRef, forceUpdate]
+    [slug, allAssetsBaseMetadataRef, forceUpdate]
   );
 
   const tezAsset = isTezAsset(slug);
-  const tokenMetadata = allTokensBaseMetadataRef.current[slug];
+  const tokenMetadata = allAssetsBaseMetadataRef.current[slug];
   const exist = Boolean(tokenMetadata);
 
   // Load token metadata if missing
@@ -95,10 +95,10 @@ export function useAssetMetadata(slug: string) {
   useEffect(() => {
     if (!isTezAsset(slug) && !exist && !autoFetchMetadataFails.has(slug)) {
       enqueueAutoFetchMetadata(() => fetchMetadata(slug))
-        .then((metadata) => setTokensBaseMetadata({ [slug]: metadata.base }))
+        .then((metadata) => setAssetsBaseMetadata({ [slug]: metadata.base }))
         .catch(() => autoFetchMetadataFails.add(slug));
     }
-  }, [slug, exist, fetchMetadata, setTokensBaseMetadata]);
+  }, [slug, exist, fetchMetadata, setAssetsBaseMetadata]);
 
   // Tezos
   if (tezAsset) {
@@ -116,16 +116,16 @@ export function useAssetMetadata(slug: string) {
 const defaultAllTokensBaseMetadata = {};
 const enqueueSetAllTokensBaseMetadata = createQueue();
 
-export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
+export const [AssetsMetadataProvider, useAssetsMetadata] = constate(() => {
   const [initialAllTokensBaseMetadata] = usePassiveStorage<
     Record<string, AssetMetadata>
-  >(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, defaultAllTokensBaseMetadata);
+  >(ALL_ASSETS_BASE_METADATA_STORAGE_KEY, defaultAllTokensBaseMetadata);
 
-  const allTokensBaseMetadataRef = useRef(initialAllTokensBaseMetadata);
+  const allAssetsBaseMetadataRef = useRef(initialAllTokensBaseMetadata);
   useEffect(
     () =>
-      onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, (newValue) => {
-        allTokensBaseMetadataRef.current = newValue;
+      onStorageChanged(ALL_ASSETS_BASE_METADATA_STORAGE_KEY, (newValue) => {
+          allAssetsBaseMetadataRef.current = newValue;
       }),
     []
   );
@@ -141,11 +141,11 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
     []
   );
 
-  const setTokensBaseMetadata = useCallback(
+  const setAssetsBaseMetadata = useCallback(
     (toSet: Record<string, AssetMetadata>) =>
       enqueueSetAllTokensBaseMetadata(() =>
-        putToStorage(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, {
-          ...allTokensBaseMetadataRef.current,
+        putToStorage(ALL_ASSETS_BASE_METADATA_STORAGE_KEY, {
+          ...allAssetsBaseMetadataRef.current,
           ...toSet,
         })
       ),
@@ -153,22 +153,42 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
   );
 
   return {
-    allTokensBaseMetadataRef,
-    setTokensBaseMetadata,
+    allAssetsBaseMetadataRef,
+    setAssetsBaseMetadata,
     fetchMetadata,
   };
 });
 
-export function useAllTokensBaseMetadata() {
-  const { allTokensBaseMetadataRef } = useTokensMetadata();
+export function useAllAssetsBaseMetadata() {
+  const { allAssetsBaseMetadataRef } = useAssetsMetadata();
   const forceUpdate = useForceUpdate();
 
   useEffect(
-    () => onStorageChanged(ALL_TOKENS_BASE_METADATA_STORAGE_KEY, forceUpdate),
+    () => onStorageChanged(ALL_ASSETS_BASE_METADATA_STORAGE_KEY, forceUpdate),
     [forceUpdate]
   );
 
-  return allTokensBaseMetadataRef.current;
+  return allAssetsBaseMetadataRef.current;
+}
+
+export function useAllCollectiblesBaseMetadata() {
+    const { allAssetsBaseMetadataRef } = useAssetsMetadata();
+    const forceUpdate = useForceUpdate();
+
+    const allCollectiblesBaseMetadata = Object.assign({});
+
+    for (const asset in allAssetsBaseMetadataRef.current) {
+        if (allAssetsBaseMetadataRef.current[asset].hasOwnProperty('artifactUri')) {
+            allCollectiblesBaseMetadata[asset] = allAssetsBaseMetadataRef.current[asset]
+        }
+    }
+
+    useEffect(
+        () => onStorageChanged(ALL_ASSETS_BASE_METADATA_STORAGE_KEY, forceUpdate),
+        [forceUpdate]
+    );
+
+    return allCollectiblesBaseMetadata;
 }
 
 export function searchAssets(

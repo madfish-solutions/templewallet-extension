@@ -15,7 +15,7 @@ import { T, t } from "lib/i18n/react";
 import {
   useChainId,
   useAllKnownFungibleTokenSlugs,
-  useAllTokensBaseMetadata,
+  useAllAssetsBaseMetadata,
   useFungibleTokens,
   isFungibleTokenDisplayed,
   useAccount,
@@ -75,7 +75,7 @@ const ManageAssetsContent: FC = () => {
 
   const loading = allKnownFungibleTokenSlugsLoading || fungibleTokensLoading;
 
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const allTokensBaseMetadata = useAllAssetsBaseMetadata();
 
   const [searchValue, setSearchValue] = useState("");
   const [searchValueDebounced] = useDebounce(searchValue, 300);

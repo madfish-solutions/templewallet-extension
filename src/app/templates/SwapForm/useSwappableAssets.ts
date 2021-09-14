@@ -29,7 +29,7 @@ import {
   mutezToTz,
   getAssetKey,
   LIQUIDITY_BAKING_CONTRACTS,
-  useTokensMetadata,
+  useAssetsMetadata,
   toLegacyAsset,
   toTokenSlug,
   TempleToken,
@@ -209,7 +209,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
 
     const { data: allKnownTokenSlugs = [] } =
       useAllKnownFungibleTokenSlugs(chainId);
-    const { allTokensBaseMetadataRef } = useTokensMetadata();
+    const { allTokensBaseMetadataRef } = useAssetsMetadata();
 
     const [allKnownAssets, setAllKnownAssets] = useSafeState<TempleAsset[]>(
       [],
