@@ -39,7 +39,10 @@ const ApproveStep: FC<Props> = ({
   useEffect(() => {
     if (exchangeData) {
       if (exchangeData.status === "confirmation") {
-        setStep(step + 1);
+        setStep(2);
+      }
+      if (exchangeData.status === "exchanging") {
+        setStep(3);
       }
       if (exchangeData.status === "overdue") {
         setIsError(true);
