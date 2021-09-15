@@ -1802,6 +1802,9 @@
   "noExchangersAvailable": {
     "message": "Sorry, no exchangers are available for the current network."
   },
+  "noResults": {
+    "message": "No Results"
+  },
   "max": {
     "message": "Max"
   },
