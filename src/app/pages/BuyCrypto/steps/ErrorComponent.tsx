@@ -24,8 +24,8 @@ const ErrorComponent: FC<Props> = ({
 }) => {
   const { copy } = useCopyToClipboard();
   const restartTopUpHandler = async () => {
-    setStep(0);
     await setExchangeData(null);
+    setStep(0);
     setIsError(false);
   };
   return (
