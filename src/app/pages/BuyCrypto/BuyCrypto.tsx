@@ -57,7 +57,6 @@ const BuyCrypto = () => {
             setIsError={setIsError}
             exchangeData={exchangeData}
             setExchangeData={setExchangeData}
-            step={step}
             setStep={setStep}
           />
         )}
@@ -66,7 +65,6 @@ const BuyCrypto = () => {
             exchangeData={exchangeData as ExchangeDataInterface}
             setExchangeData={setExchangeData}
             setStep={setStep}
-            step={step}
             isError={isError}
             setIsError={setIsError}
           />

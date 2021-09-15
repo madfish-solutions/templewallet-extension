@@ -18,7 +18,6 @@ const coinTo = "XTZ";
 interface Props {
   exchangeData: ExchangeDataInterface | null;
   setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
-  step: number;
   setStep: (step: number) => void;
   isError: boolean;
   setIsError: (error: boolean) => void;
@@ -27,22 +26,21 @@ interface Props {
 const InitialStep: FC<Props> = ({
   exchangeData,
   setExchangeData,
-  step,
   setStep,
   isError,
   setIsError,
 }) => {
   const [amount, setAmount] = useState(0);
   const [coinFrom, setCoinFrom] = useState("BTC");
-  const [lastRate, setLastRate] = useState();
+  const [lastMinAmount, setLastMinAmount] = useState("");
   const [depositAmount, setDepositAmount] = useState(0);
   const { publicKeyHash } = useAccount();
   const [disabledProceed, setDisableProceed] = useState(false);
   const [debouncedAmount] = useDebounce(amount, 300);
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
-      setDisableProceed(false)
-      setAmount(Number(e.target.value))
+    setDisableProceed(false);
+    setAmount(Number(e.target.value));
   };
 
   const submitExchangeHandler = async () => {
@@ -55,20 +53,21 @@ const InitialStep: FC<Props> = ({
         destination_extra: "",
       });
       await setExchangeData(data);
-      if (data.status === 'confirmation') {
+      if (data.status === "wait") {
         setStep(1);
-      } else if (data.status === 'exchanging') {
-        setStep(2)
+      } else if (data.status === "confirmation") {
+        setStep(2);
+      } else if (data.status === "exchanging") {
+        setStep(3);
       }
     } catch (e) {
       setIsError(true);
     }
   };
-  const {
-    data: rates = { destination_amount: 0, rate: 0, min_amount: "0" }
-  } = useSWR(["/api/currency", coinTo, coinFrom, debouncedAmount], () =>
-    getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
-  );
+  const { data: rates = { destination_amount: 0, rate: 0, min_amount: "0" } } =
+    useSWR(["/api/currency", coinTo, coinFrom, debouncedAmount], () =>
+      getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
+    );
 
   useEffect(() => {
     setDepositAmount(rates.destination_amount);
@@ -76,6 +75,9 @@ const InitialStep: FC<Props> = ({
       setDisableProceed(true);
     } else {
       setDisableProceed(false);
+    }
+    if (rates.min_amount > 0) {
+      setLastMinAmount(rates.min_amount);
     }
   }, [rates]);
 
@@ -93,11 +95,13 @@ const InitialStep: FC<Props> = ({
           <Divider style={{ marginTop: "60px", marginBottom: "10px" }} />
           {/*input 1*/}
           <BuyCryptoInput
-            onChangeInputHandler={onAmountChange}
             coin={coinFrom}
             setCoin={setCoinFrom}
             type="coinFrom"
             minAmount={rates.min_amount}
+            amount={amount}
+            lastMinAmount={lastMinAmount}
+            onChangeInputHandler={onAmountChange}
           />
           <br />
           <BuyCryptoInput

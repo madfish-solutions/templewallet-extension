@@ -17,6 +17,8 @@ interface Props {
   minAmount?: string;
   onChangeInputHandler?: (value: ChangeEvent<HTMLInputElement>) => void;
   value?: number;
+  amount?: number;
+  lastMinAmount?: string;
   readOnly?: boolean;
 }
 
@@ -55,6 +57,8 @@ const BuyCryptoInput: FC<Props> = ({
   minAmount,
   value,
   readOnly = false,
+  amount,
+  lastMinAmount,
   onChangeInputHandler,
 }) => {
   const { data: currencies = [], isValidating: isCurrencyLoading } = useSWR(
@@ -65,7 +69,7 @@ const BuyCryptoInput: FC<Props> = ({
   const filteredCurrencies = currencies.filter(
     (currency) => currency.status === 1 && coinList.includes(currency.code)
   );
-
+  console.log({ lastMinAmount, amount });
   return (
     <>
       <div className={styles["titleWrapper"]}>
@@ -145,6 +149,13 @@ const BuyCryptoInput: FC<Props> = ({
           />
         </div>
       </div>
+      <p className={"absolute text-red-700 text-xs"}>
+        {lastMinAmount !== undefined &&
+          amount !== undefined &&
+          amount !== 0 &&
+          Number(lastMinAmount) > Number(amount) &&
+          `Mimimal amount: ${minAmount} ${coin}`}
+      </p>
     </>
   );
 };
