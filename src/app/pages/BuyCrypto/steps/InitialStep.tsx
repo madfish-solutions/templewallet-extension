@@ -36,7 +36,7 @@ const InitialStep: FC<Props> = ({
   const [depositAmount, setDepositAmount] = useState(0);
   const { publicKeyHash } = useAccount();
   const [disabledProceed, setDisableProceed] = useState(false);
-  const [debouncedAmount] = useDebounce(amount, 300);
+  const [debouncedAmount] = useDebounce(amount, 500);
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDisableProceed(false);
