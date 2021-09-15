@@ -22,6 +22,8 @@ interface Props {
   readOnly?: boolean;
 }
 
+const numbersAndDotRegExp = /^[0-9]*\.?[0-9]*$/;
+
 const coinList = [
   "BTC",
   "LTC",
@@ -137,7 +139,7 @@ const BuyCryptoInput: FC<Props> = ({
           <input
             readOnly={readOnly}
             onKeyPress={(event) => {
-              if (!/^[0-9]*\.?[0-9]*$/.test(event.key)) {
+              if (!numbersAndDotRegExp.test(event.key)) {
                 event.preventDefault();
               }
             }}
