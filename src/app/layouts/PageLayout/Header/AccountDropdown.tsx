@@ -16,13 +16,13 @@ import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
 import { ReactComponent as PeopleIcon } from "app/icons/people.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import Balance from "app/templates/Balance";
+import SearchField from "app/templates/SearchField";
 import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, } from "lib/temple/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { Link } from "lib/woozie";
 
-import SearchField from '../../../templates/SearchField';
 import { AccountDropdownSelectors } from "./AccountDropdown.selectors";
 
 type ExcludesFalse = <T>(x: T | false) => x is T;
