@@ -69,7 +69,6 @@ const BuyCryptoInput: FC<Props> = ({
   const filteredCurrencies = currencies.filter(
     (currency) => currency.status === 1 && coinList.includes(currency.code)
   );
-  console.log({ lastMinAmount, amount });
   return (
     <>
       <div className={styles["titleWrapper"]}>
