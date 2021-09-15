@@ -18,7 +18,6 @@ import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 interface Props {
   exchangeData: ExchangeDataInterface;
   setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
-  step: number;
   setStep: (step: number) => void;
   isError: boolean;
   setIsError: (error: boolean) => void;
@@ -28,7 +27,6 @@ const ApproveStep: FC<Props> = ({
   exchangeData,
   setExchangeData,
   setStep,
-  step,
   isError,
   setIsError,
 }) => {
@@ -48,7 +46,7 @@ const ApproveStep: FC<Props> = ({
         setIsError(true);
       }
     }
-  }, [exchangeData, step, setStep, setIsError]);
+  }, [exchangeData, setStep, setIsError]);
 
   return (
     <>
