@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+import React, { FC, useCallback, useMemo, useState } from "react";
 
 import classNames from "clsx";
 
@@ -153,25 +153,30 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         className={classNames(
           "my-2",
         )}>
-        <SearchField
-          value={searchValue}
-          className={classNames(
-            "py-2 pl-8 pr-4",
-            "bg-transparent",
-            "border border-white border-opacity-10",
-            "focus:outline-none focus:border-opacity-75",
-            "transition ease-in-out duration-200",
-            "rounded rounded-b-none",
-            "text-white text-sm leading-tight",
-          )}
-          searchIconClassName="h-5 w-auto"
-          searchIconWrapperClassName="px-2 text-white opacity-75"
-          onValueChange={setSearchValue} />
+        {isShowSearch && (
+          <SearchField
+            value={searchValue}
+            className={classNames(
+              "py-2 pl-8 pr-4",
+              "bg-transparent",
+              "border border-white border-opacity-10",
+              "focus:outline-none",
+              "transition ease-in-out duration-200",
+              "rounded rounded-b-none",
+              "text-white text-sm leading-tight",
+            )}
+            searchIconClassName="h-5 w-auto"
+            searchIconWrapperClassName="px-2 text-white opacity-75"
+            cleanButtonStyle={{ backgroundColor: 'transparent' }}
+            cleanButtonIconStyle={{ stroke: 'white' }}
+            onValueChange={setSearchValue} />
+        )}
         <div
           className={classNames(
             "overflow-y-auto no-scrollbar",
-            "border border-white border-opacity-10 border-t-0 shadow-inner",
-            "rounded rounded-t-none"
+            "border border-white border-opacity-10 shadow-inner",
+            "rounded",
+            isShowSearch && "border-t-0 rounded-t-none",
           )}
           style={{ maxHeight: "12.5rem" }}>
           <div className="flex flex-col">

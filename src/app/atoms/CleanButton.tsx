@@ -8,12 +8,14 @@ import useTippy from "lib/ui/useTippy";
 
 type CleanButtonProps = HTMLAttributes<HTMLButtonElement> & {
   bottomOffset?: string;
+  iconStyle?: React.CSSProperties;
 };
 
 const CleanButton: FC<CleanButtonProps> = ({
   bottomOffset = "0.4rem",
   className,
   style = {},
+  iconStyle = {},
   ...rest
 }) => {
   const tippyProps = useMemo(
@@ -46,7 +48,7 @@ const CleanButton: FC<CleanButtonProps> = ({
       tabIndex={-1}
       {...rest}
     >
-      <CloseIcon className="w-auto h-4 stroke-current" />
+      <CloseIcon className="w-auto h-4 stroke-current" style={iconStyle} />
     </button>
   );
 };
