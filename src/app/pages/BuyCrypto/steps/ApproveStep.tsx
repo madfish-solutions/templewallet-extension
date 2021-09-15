@@ -11,7 +11,7 @@ import HashShortView from "app/atoms/HashShortView";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
-import { ExchangeDataInterface } from "lib/exolix-api";
+import {ExchangeDataInterface, ExchangeDataStatusEnum} from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
@@ -36,13 +36,13 @@ const ApproveStep: FC<Props> = ({
 
   useEffect(() => {
     if (exchangeData) {
-      if (exchangeData.status === "confirmation") {
+      if (exchangeData.status === ExchangeDataStatusEnum.CONFIRMATION) {
         setStep(2);
       }
-      if (exchangeData.status === "exchanging") {
+      if (exchangeData.status === ExchangeDataStatusEnum.EXCHANGING) {
         setStep(3);
       }
-      if (exchangeData.status === "overdue") {
+      if (exchangeData.status === ExchangeDataStatusEnum.OVERDUE) {
         setIsError(true);
       }
     }
