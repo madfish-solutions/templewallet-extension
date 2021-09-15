@@ -20,6 +20,14 @@ export interface ExchangeDataInterface {
   status: string;
 }
 
+export enum ExchangeDataStatusEnum {
+  WAIT= 'wait',
+  CONFIRMATION = 'confirmation',
+  EXCHANGING = 'exchanging',
+  SUCCESS = 'success',
+  OVERDUE = 'overdue'
+}
+
 interface CurrenciesInterface {
   status: number;
   label: string;

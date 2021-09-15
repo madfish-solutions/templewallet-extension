@@ -9,7 +9,7 @@ import HashShortView from "app/atoms/HashShortView";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
-import { ExchangeDataInterface } from "lib/exolix-api";
+import {ExchangeDataInterface, ExchangeDataStatusEnum} from "lib/exolix-api";
 import { getCurrentLocale, T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
@@ -45,31 +45,32 @@ const ExchangeStep: FC<Props> = ({
 
   useEffect(() => {
     if (
-      exchangeData.status === "success" ||
-      exchangeData.status === "exchanging"
+      exchangeData.status === ExchangeDataStatusEnum.SUCCESS
     ) {
       setSendTime(new Date(exchangeData.created_at * 1000));
-      setStep(step + 1);
-    }
-    if (exchangeData.status === "overdue") {
+      setStep(4);
+    } else if (exchangeData.status === ExchangeDataStatusEnum.EXCHANGING) {
+      setSendTime(new Date(exchangeData.created_at * 1000));
+      setStep(3);
+    } else if (exchangeData.status === ExchangeDataStatusEnum.OVERDUE) {
       setIsError(true);
     }
   }, [exchangeData, setExchangeData, setStep, step, setIsError]);
 
   return (
     <>
-      {(exchangeData.status === "exchanging" ||
-        exchangeData.status === "confirmation" ||
-        exchangeData.status === "overdue") && (
+      {(exchangeData.status === ExchangeDataStatusEnum.EXCHANGING ||
+        exchangeData.status === ExchangeDataStatusEnum.CONFIRMATION ||
+        exchangeData.status === ExchangeDataStatusEnum.OVERDUE) && (
         <>
           <div className="m-auto">
             <p className="text-center text-base mt-4 text-gray-700">
-              {(exchangeData.status === "confirmation" ||
-                (exchangeData.status === "overdue" && step === 2)) && (
+              {(exchangeData.status === ExchangeDataStatusEnum.CONFIRMATION ||
+                (exchangeData.status === ExchangeDataStatusEnum.OVERDUE && step === 2)) && (
                 <T id={"confirmation"} />
               )}
-              {(exchangeData.status === "exchanging" ||
-                (exchangeData.status === "overdue" && step === 3)) && (
+              {(exchangeData.status === ExchangeDataStatusEnum.EXCHANGING ||
+                (exchangeData.status === ExchangeDataStatusEnum.OVERDUE && step === 3)) && (
                 <T id={"exchanging"} />
               )}
             </p>
