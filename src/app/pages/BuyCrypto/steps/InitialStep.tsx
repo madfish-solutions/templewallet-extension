@@ -35,11 +35,12 @@ const InitialStep: FC<Props> = ({
   const [lastMinAmount, setLastMinAmount] = useState("");
   const [depositAmount, setDepositAmount] = useState(0);
   const { publicKeyHash } = useAccount();
-  const [disabledProceed, setDisableProceed] = useState(false);
+  const [disabledProceed, setDisableProceed] = useState(true);
   const [debouncedAmount] = useDebounce(amount, 500);
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDisableProceed(true);
+    console.log(e.target.value.length)
     setAmount(Number(e.target.value));
   };
 
@@ -64,14 +65,20 @@ const InitialStep: FC<Props> = ({
       setIsError(true);
     }
   };
-  const { data: rates = { destination_amount: 0, rate: 0, min_amount: "0" }, isValidating } =
+  const { data: rates = { destination_amount: 0, rate: 0, min_amount: "0" }} =
     useSWR(["/api/currency", coinTo, coinFrom, debouncedAmount], () =>
       getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
     );
 
   useEffect(() => {
     setDepositAmount(rates.destination_amount);
-    if (isValidating) {
+    if (amount === 0) {
+      setDisableProceed(true);
+    } else if (rates.min_amount === 0) {
+      setDisableProceed(true);
+    } else if (rates.min_amount > amount) {
+      setDisableProceed(true);
+    } else if (rates.destination_amount === 0) {
       setDisableProceed(true);
     } else {
       setDisableProceed(false);
@@ -79,7 +86,7 @@ const InitialStep: FC<Props> = ({
     if (rates.min_amount > 0) {
       setLastMinAmount(rates.min_amount);
     }
-  }, [rates, isValidating]);
+  }, [rates, amount]);
 
   return (
     <>

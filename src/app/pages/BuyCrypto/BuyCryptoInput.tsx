@@ -147,6 +147,7 @@ const BuyCryptoInput: FC<Props> = ({
             placeholder="0.00"
             className={classNames([[styles["amountInput"], "pr-1"]])}
             type="text"
+            maxLength={15}
             onChange={onChangeInputHandler}
           />
         </div>
