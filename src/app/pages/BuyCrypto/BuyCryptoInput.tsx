@@ -48,6 +48,7 @@ const coinList = [
   "QUICK",
   "LUNA",
   "ATOM",
+  "SUSHI"
 ];
 
 const BuyCryptoInput: FC<Props> = ({
@@ -153,7 +154,7 @@ const BuyCryptoInput: FC<Props> = ({
           amount !== undefined &&
           amount !== 0 &&
           Number(lastMinAmount) > Number(amount) &&
-          `Mimimal amount: ${minAmount} ${coin}`}
+          `Minimum amount: ${minAmount} ${coin}`}
       </p>
     </>
   );
