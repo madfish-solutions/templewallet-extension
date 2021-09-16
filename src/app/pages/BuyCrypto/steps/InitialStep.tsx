@@ -40,7 +40,6 @@ const InitialStep: FC<Props> = ({
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDisableProceed(true);
-    console.log(e.target.value.length)
     setAmount(Number(e.target.value));
   };
 

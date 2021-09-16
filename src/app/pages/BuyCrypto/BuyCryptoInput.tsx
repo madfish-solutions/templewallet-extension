@@ -138,7 +138,14 @@ const BuyCryptoInput: FC<Props> = ({
         <div className={styles["amountInputContainer"]}>
           <input
             readOnly={readOnly}
-            onKeyPress={(event) => {
+            onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
+              const value = (event.target as unknown as HTMLInputElement).value;
+              if (value.indexOf('0') !== -1 && value.length === 1 && event.key === '0') {
+                event.preventDefault();
+              }
+              if (value.indexOf('.') !== -1 && event.key === '.') {
+                event.preventDefault();
+              }
               if (!numbersAndDotRegExp.test(event.key)) {
                 event.preventDefault();
               }
