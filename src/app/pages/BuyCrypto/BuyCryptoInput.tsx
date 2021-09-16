@@ -64,7 +64,8 @@ const BuyCryptoInput: FC<Props> = ({
   lastMinAmount,
   onChangeInputHandler,
 }) => {
-  const { data: currencies = [], isValidating: isCurrencyLoading } = useSWR(
+  const isCoinFromType = type === "coinFrom"
+  const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(
     ["/api/currency"],
     getCurrencies
   );
@@ -76,10 +77,10 @@ const BuyCryptoInput: FC<Props> = ({
     <>
       <div className={styles["titleWrapper"]}>
         <p className={styles["titleLeft"]}>
-          {type === "coinFrom" ? "Send" : "Get"}
+          {isCoinFromType ? "Send" : "Get"}
         </p>
         <p className={styles["titleRight"]}>
-          {type === "coinFrom" ? (
+          {isCoinFromType ? (
             <>
               minimum amount: <span>{minAmount}</span> <span>{coin}</span>
             </>
@@ -88,7 +89,7 @@ const BuyCryptoInput: FC<Props> = ({
       </div>
       <div className={styles["inputWrapper"]}>
         <div className={styles["currencyBlock"]}>
-          {type === "coinFrom" ? (
+          {isCoinFromType ? (
             <Popper
               placement="bottom"
               strategy="fixed"
@@ -104,7 +105,7 @@ const BuyCryptoInput: FC<Props> = ({
                     padding: 0,
                   }}
                 >
-                  {currencies === [] && isCurrencyLoading && currencies ? (
+                  {isCurrenciesLoaded ? (
                     <Spinner theme="primary" style={{ width: "3rem" }} />
                   ) : (
                     filteredCurrencies.map((currency) => (
