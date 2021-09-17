@@ -18,7 +18,7 @@ import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import Balance from "app/templates/Balance";
 import SearchField from "app/templates/SearchField";
 import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
-import { T } from "lib/i18n/react";
+import { t, T } from "lib/i18n/react";
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, } from "lib/temple/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { Link } from "lib/woozie";
@@ -45,7 +45,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
     } else {
       const lowerCaseSearchValue = searchValue.toLowerCase();
 
-      return allAccounts.filter(account => account.name.toLowerCase().includes(lowerCaseSearchValue) || account.publicKeyHash.toLowerCase().includes(lowerCaseSearchValue));
+      return allAccounts.filter(account => account.name.toLowerCase().includes(lowerCaseSearchValue));
     }
   }, [searchValue, allAccounts]);
 
@@ -165,6 +165,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
               "rounded rounded-b-none",
               "text-white text-sm leading-tight",
             )}
+            placeholder={t("searchByName")}
             searchIconClassName="h-5 w-auto"
             searchIconWrapperClassName="px-2 text-white opacity-75"
             cleanButtonStyle={{ backgroundColor: 'transparent' }}
