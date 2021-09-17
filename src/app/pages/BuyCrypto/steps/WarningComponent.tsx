@@ -42,13 +42,11 @@ const WarningComponent: FC<Props> = ({ currency, amountAttention }) => {
 
             {amountAttention &&
               <>
-                <p className="text-base"><T id={'important'} /></p>
-                <p>
-                  <T
-                      id={"attentionSendAmount"}
-                      substitutions={[<a href={"https://exolix.com/contact"} className="underline" target="_blank" rel="noreferrer"><T id={'support'} /></a>]}
-                  />
-                </p>
+                <span className="text-base block pb-2 pt-2"><T id={'important'} /></span>
+                <T
+                    id={"attentionSendAmount"}
+                    substitutions={[<a href={"https://exolix.com/contact"} className="underline" target="_blank" rel="noreferrer"><T id={'support'} /></a>]}
+                />
               </>
             }
           </p>
