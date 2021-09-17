@@ -14,6 +14,7 @@ import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
 import {ExchangeDataInterface, ExchangeDataStatusEnum} from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
+import WarningComponent from "./WarningComponent";
 
 interface Props {
   exchangeData: ExchangeDataInterface;
@@ -80,7 +81,8 @@ const ApproveStep: FC<Props> = ({
             date={exchangeData.created_at * 1000 + 3600000}
             onComplete={() => setIsError(true)}
           />
-          <Divider style={{ marginTop: "2rem" }} />
+          <WarningComponent amountAttention />
+          <Divider style={{ marginBottom: "1.5rem", marginTop: "2rem" }} />
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
               <T id={"sendByOneTransaction"} />

@@ -82,6 +82,8 @@ const BuyCrypto = () => {
         {step >= 1 && (
           <a
             href={"https://exolix.com/contact"}
+            target="_blank"
+            rel="noreferrer"
             className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
           >
             <T id={"support"} />

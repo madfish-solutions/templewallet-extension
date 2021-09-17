@@ -1,9 +1,11 @@
 import React, { FC } from "react";
 
 import { T } from "lib/i18n/react";
+import classNames from "clsx";
 
 interface Props {
-  currency: string;
+  currency?: string;
+  amountAttention?: boolean;
 }
 
 const getTranslationId = (currency: string) => {
@@ -22,17 +24,33 @@ const getTranslationId = (currency: string) => {
   return;
 };
 
-const WarningComponent: FC<Props> = ({ currency }) => {
+const WarningComponent: FC<Props> = ({ currency, amountAttention }) => {
   return (
     <>
-      {getTranslationId(currency) && (
+      {(getTranslationId(currency!) || amountAttention) && (
         <div
           className={
-            "py-2 px-4 rounded-lg border border-orange-500 mt-10 mb-16"
+            classNames(
+        "py-2 px-4 rounded-lg border border-orange-500",
+                currency && "mt-10 mb-16",
+                amountAttention && "mt-8"
+            )
           }
         >
-          <p className={"text-red-700 text-xs"}>
-            <T id={getTranslationId(currency)!} />
+          <p className={"text-orange-500 text-xs"}>
+            {currency && <T id={getTranslationId(currency)!} />}
+
+            {amountAttention &&
+              <>
+                <p className="text-base"><T id={'important'} /></p>
+                <p>
+                  <T
+                      id={"attentionSendAmount"}
+                      substitutions={[<a href={"https://exolix.com/contact"} className="underline" target="_blank" rel="noreferrer"><T id={'support'} /></a>]}
+                  />
+                </p>
+              </>
+            }
           </p>
         </div>
       )}
