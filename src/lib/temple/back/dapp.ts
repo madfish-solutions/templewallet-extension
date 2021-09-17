@@ -50,10 +50,10 @@ export async function getCurrentPermission(
   const dApp = await getDApp(origin);
   const permission = dApp
     ? {
-        rpc: await getNetworkRPC(dApp.network),
-        pkh: dApp.pkh,
-        publicKey: dApp.publicKey,
-      }
+      rpc: await getNetworkRPC(dApp.network),
+      pkh: dApp.pkh,
+      publicKey: dApp.publicKey,
+    }
     : null;
   return {
     type: TempleDAppMessageType.GetCurrentPermissionResponse,

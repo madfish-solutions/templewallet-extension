@@ -10,6 +10,8 @@ type SearchFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   containerClassName?: string;
   searchIconClassName?: string;
   searchIconWrapperClassName?: string;
+  cleanButtonStyle?: React.CSSProperties;
+  cleanButtonIconStyle?: React.CSSProperties;
   value: string;
   onValueChange: (v: string) => void;
 };
@@ -22,6 +24,8 @@ const SearchField: FC<SearchFieldProps> = ({
   onValueChange,
   searchIconClassName,
   searchIconWrapperClassName,
+  cleanButtonStyle,
+  cleanButtonIconStyle,
   ...rest
 }) => {
   const handleChange = useCallback(
@@ -61,7 +65,11 @@ const SearchField: FC<SearchFieldProps> = ({
         </div>
 
         {Boolean(value) && (
-          <CleanButton bottomOffset={bottomOffset} onClick={handleClean} />
+          <CleanButton
+            bottomOffset={bottomOffset}
+            style={cleanButtonStyle}
+            iconStyle={cleanButtonIconStyle}
+            onClick={handleClean} />
         )}
       </div>
     </div>
