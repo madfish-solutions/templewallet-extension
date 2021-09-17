@@ -8,6 +8,7 @@ import {Link} from "../../../lib/woozie";
 import {ReactComponent as AddToListIcon} from "../../icons/add-to-list.svg";
 import SearchAssetField from "../../templates/SearchAssetField";
 import {AssetsSelectors} from "../Explore/Assets.selectors";
+import CollectibleItem from "./CollectibleItem";
 
 const CollectiblesList = () => {
     const allCollectiblesBaseMetadata = useAllCollectiblesBaseMetadata();
@@ -23,7 +24,9 @@ const CollectiblesList = () => {
         setSearchFocused(false);
     }, [setSearchFocused]);
 
-    console.log({allCollectiblesBaseMetadata})
+    const collectiblesArray = Object.keys(allCollectiblesBaseMetadata).map((item) => {
+        return allCollectiblesBaseMetadata[item];
+    })
 
     return (
         <div className={classNames("w-full max-w-sm mx-auto")}>
@@ -55,7 +58,11 @@ const CollectiblesList = () => {
                     <T id="manage" />
                 </Link>
             </div>
-
+            <div className='mt-1 mb-3 w-full border rounded border-gray-200'>
+                {collectiblesArray.map((item) => (
+                    <CollectibleItem key={item.name} collectible={item} />
+                ))}
+            </div>
         </div>
     )
 }
