@@ -50,7 +50,7 @@ const coinList = [
   "QUICK",
   "LUNA",
   "ATOM",
-  "SUSHI"
+  "SUSHI",
 ];
 
 const BuyCryptoInput: FC<Props> = ({
@@ -64,7 +64,7 @@ const BuyCryptoInput: FC<Props> = ({
   lastMinAmount,
   onChangeInputHandler,
 }) => {
-  const isCoinFromType = type === "coinFrom"
+  const isCoinFromType = type === "coinFrom";
   const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(
     ["/api/currency"],
     getCurrencies
@@ -76,9 +76,7 @@ const BuyCryptoInput: FC<Props> = ({
   return (
     <>
       <div className={styles["titleWrapper"]}>
-        <p className={styles["titleLeft"]}>
-          {isCoinFromType ? "Send" : "Get"}
-        </p>
+        <p className={styles["titleLeft"]}>{isCoinFromType ? "Send" : "Get"}</p>
         <p className={styles["titleRight"]}>
           {isCoinFromType ? (
             <>
@@ -141,10 +139,14 @@ const BuyCryptoInput: FC<Props> = ({
             readOnly={readOnly}
             onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
               const value = (event.target as unknown as HTMLInputElement).value;
-              if (value.indexOf('0') !== -1 && value.length === 1 && event.key === '0') {
+              if (
+                value.indexOf("0") !== -1 &&
+                value.length === 1 &&
+                event.key === "0"
+              ) {
                 event.preventDefault();
               }
-              if (value.indexOf('.') !== -1 && event.key === '.') {
+              if (value.indexOf(".") !== -1 && event.key === ".") {
                 event.preventDefault();
               }
               if (!numbersAndDotRegExp.test(event.key)) {

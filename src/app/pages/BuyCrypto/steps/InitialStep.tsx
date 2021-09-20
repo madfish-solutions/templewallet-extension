@@ -9,7 +9,12 @@ import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import BuyCryptoInput from "app/pages/BuyCrypto/BuyCryptoInput";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import WarningComponent from "app/pages/BuyCrypto/steps/WarningComponent";
-import {ExchangeDataInterface, ExchangeDataStatusEnum, getRate, submitExchange} from "lib/exolix-api";
+import {
+  ExchangeDataInterface,
+  ExchangeDataStatusEnum,
+  getRate,
+  submitExchange,
+} from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import { useAccount } from "lib/temple/front";
 
@@ -64,7 +69,7 @@ const InitialStep: FC<Props> = ({
       setIsError(true);
     }
   };
-  const { data: rates = { destination_amount: 0, rate: 0, min_amount: "0" }} =
+  const { data: rates = { destination_amount: 0, rate: 0, min_amount: "0" } } =
     useSWR(["/api/currency", coinTo, coinFrom, debouncedAmount], () =>
       getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
     );
