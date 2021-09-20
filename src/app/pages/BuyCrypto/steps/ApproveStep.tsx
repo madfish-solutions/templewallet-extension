@@ -11,9 +11,10 @@ import HashShortView from "app/atoms/HashShortView";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
-import {ExchangeDataInterface, ExchangeDataStatusEnum} from "lib/exolix-api";
+import { ExchangeDataInterface, ExchangeDataStatusEnum } from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
+
 import WarningComponent from "./WarningComponent";
 
 interface Props {

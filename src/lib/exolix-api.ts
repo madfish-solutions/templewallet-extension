@@ -21,11 +21,11 @@ export interface ExchangeDataInterface {
 }
 
 export enum ExchangeDataStatusEnum {
-  WAIT= 'wait',
-  CONFIRMATION = 'confirmation',
-  EXCHANGING = 'exchanging',
-  SUCCESS = 'success',
-  OVERDUE = 'overdue'
+  WAIT = "wait",
+  CONFIRMATION = "confirmation",
+  EXCHANGING = "exchanging",
+  SUCCESS = "success",
+  OVERDUE = "overdue",
 }
 
 interface CurrenciesInterface {

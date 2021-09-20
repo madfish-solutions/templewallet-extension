@@ -9,7 +9,7 @@ import HashShortView from "app/atoms/HashShortView";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
-import {ExchangeDataInterface, ExchangeDataStatusEnum} from "lib/exolix-api";
+import { ExchangeDataInterface, ExchangeDataStatusEnum } from "lib/exolix-api";
 import { getCurrentLocale, T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
@@ -44,9 +44,7 @@ const ExchangeStep: FC<Props> = ({
   useTopUpUpdate(exchangeData, setExchangeData, setIsError);
 
   useEffect(() => {
-    if (
-      exchangeData.status === ExchangeDataStatusEnum.SUCCESS
-    ) {
+    if (exchangeData.status === ExchangeDataStatusEnum.SUCCESS) {
       setSendTime(new Date(exchangeData.created_at * 1000));
       setStep(4);
     } else if (exchangeData.status === ExchangeDataStatusEnum.EXCHANGING) {
@@ -66,13 +64,11 @@ const ExchangeStep: FC<Props> = ({
           <div className="m-auto">
             <p className="text-center text-base mt-4 text-gray-700">
               {(exchangeData.status === ExchangeDataStatusEnum.CONFIRMATION ||
-                (exchangeData.status === ExchangeDataStatusEnum.OVERDUE && step === 2)) && (
-                <T id={"confirmation"} />
-              )}
+                (exchangeData.status === ExchangeDataStatusEnum.OVERDUE &&
+                  step === 2)) && <T id={"confirmation"} />}
               {(exchangeData.status === ExchangeDataStatusEnum.EXCHANGING ||
-                (exchangeData.status === ExchangeDataStatusEnum.OVERDUE && step === 3)) && (
-                <T id={"exchanging"} />
-              )}
+                (exchangeData.status === ExchangeDataStatusEnum.OVERDUE &&
+                  step === 3)) && <T id={"exchanging"} />}
             </p>
             <p className="text-center text-xs text-gray-700 mt-1">
               <T id={"waitMessage"} />
