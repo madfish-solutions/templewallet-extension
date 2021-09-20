@@ -1,10 +1,12 @@
+import BigNumber from "bignumber.js";
+
 export interface Token {
   contract: string;
-  id?: number;
+  id?: BigNumber.Value;
 }
 
 export interface FA2Token extends Token {
-  id: number;
+  id: BigNumber.Value;
 }
 
 export type Asset = Token | "tez";
