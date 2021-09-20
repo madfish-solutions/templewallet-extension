@@ -1,5 +1,6 @@
 import React, { ComponentProps, FC } from "react";
 
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
 import FormField from "app/atoms/FormField";
@@ -53,7 +54,11 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
       />
 
       {isFA2Token(asset) && (
-        <InfoField id="token-id" label={<T id="tokenId" />} value={asset.id} />
+        <InfoField
+          id="token-id"
+          label={<T id="tokenId" />}
+          value={new BigNumber(asset.id).toFixed()}
+        />
       )}
     </div>
   );

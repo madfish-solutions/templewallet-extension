@@ -2,6 +2,7 @@ import { TezosToolkit, compose } from "@taquito/taquito";
 import { tzip12, TokenMetadata } from "@taquito/tzip12";
 import { tzip16 } from "@taquito/tzip16";
 import retry from "async-retry";
+import BigNumber from "bignumber.js";
 
 import assert from "lib/assert";
 
@@ -36,10 +37,10 @@ export async function fetchTokenMetadata(
       () => tezos.contract.at(asset.contract, compose(tzip12, tzip16)),
       RETRY_PARAMS
     );
-    const assetId = asset.id ?? 0;
+    const assetId = new BigNumber(asset.id ?? 0).toFixed();
 
     const tzip12Data: TokenMetadataWithLogo = await retry(
-      () => contract.tzip12().getTokenMetadata(assetId),
+      () => contract.tzip12().getTokenMetadata(assetId as any),
       RETRY_PARAMS
     );
 
