@@ -105,7 +105,7 @@ export async function toLegacyAsset(
     ? {
         type: TempleAssetType.FA2,
         address: asset.contract,
-        id: asset.id,
+        id: +asset.id,
         ...base,
       }
     : {

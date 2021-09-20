@@ -53,7 +53,7 @@ export async function fromAssetSlug(
 
   return {
     contract: contractAddress,
-    id: tokenStandard === "fa2" ? +(tokenIdStr ?? 0) : undefined,
+    id: tokenStandard === "fa2" ? new BigNumber(tokenIdStr ?? 0) : undefined,
   };
 }
 
@@ -61,8 +61,8 @@ export function toAssetSlug(asset: Asset) {
   return isTezAsset(asset) ? asset : toTokenSlug(asset.contract, asset.id);
 }
 
-export function toTokenSlug(contract: string, id: number | string = 0) {
-  return `${contract}_${id}`;
+export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
+  return `${contract}_${new BigNumber(id).toFixed()}`;
 }
 
 export function isFA2Token(token: Token): token is FA2Token {
