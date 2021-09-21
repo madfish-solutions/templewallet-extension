@@ -62,6 +62,14 @@ export async function fetchAllKnownFungibleTokenSlugs(chainId: string) {
   return Array.from(new Set(allAccountTokens.map((t) => t.tokenSlug)));
 }
 
+export async function fetchAllKnownCollectibleTokenSlugs(chainId: string) {
+  const allAccountTokens = await Repo.accountTokens
+    .where({ type: Repo.ITokenType.Collectible, chainId })
+    .toArray();
+
+  return Array.from(new Set(allAccountTokens.map((t) => t.tokenSlug)));
+}
+
 export function isFungibleTokenDisplayed(t: Repo.IAccountToken) {
   return (
     t.status === Repo.ITokenStatus.Enabled ||
