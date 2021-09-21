@@ -1,17 +1,28 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 
 import classNames from "clsx";
 
 import {T} from "../../../lib/i18n/react";
-import {useAllCollectiblesBaseMetadata} from "../../../lib/temple/front";
+import {
+    isFungibleTokenDisplayed, useAccount,
+    useAllCollectiblesBaseMetadata,
+    useChainId,
+    useFungibleTokens
+} from "../../../lib/temple/front";
 import {Link} from "../../../lib/woozie";
 import {ReactComponent as AddToListIcon} from "../../icons/add-to-list.svg";
 import SearchAssetField from "../../templates/SearchAssetField";
 import {AssetsSelectors} from "../Explore/Assets.selectors";
+import {TokenStatuses} from "../ManageAssets";
 import CollectibleItem from "./CollectibleItem";
 
+const assetType = 'collectibles'
+
 const CollectiblesList = () => {
-    const allCollectiblesBaseMetadata = useAllCollectiblesBaseMetadata();
+    const chainId = useChainId(true)!;
+    const account = useAccount();
+    const address = account.publicKeyHash;
+    const allCollectiblesBaseMetadata = [];
     const [searchValue, setSearchValue] = useState('');
     const [searchFocused, setSearchFocused] = useState(false);
 
@@ -24,9 +35,34 @@ const CollectiblesList = () => {
         setSearchFocused(false);
     }, [setSearchFocused]);
 
-    const collectiblesArray = Object.keys(allCollectiblesBaseMetadata).map((item) => {
-        return Object.assign(allCollectiblesBaseMetadata[item], {contract: item});
-    })
+    // const {
+    //     data: tokens = [],
+    //     revalidate,
+    //     isValidating: fungibleTokensLoading,
+    // } = useFungibleTokens(chainId, address);
+    // const tokenStatuses = useMemo(() => {
+    //     const statuses: TokenStatuses = {};
+    //     for (const t of tokens) {
+    //         statuses[t.tokenSlug] = {
+    //             displayed: isFungibleTokenDisplayed(t),
+    //             removed: t.status === ITokenStatus.Removed,
+    //         };
+    //     }
+    //     return statuses;
+    // }, [tokens]);
+
+    // console.log({tokenStatuses})
+
+    const collectiblesArray = useMemo(() =>
+        Object.keys(allCollectiblesBaseMetadata).map((item) => {
+            return Object.assign(allCollectiblesBaseMetadata[item], {contract: item});
+        }), [allCollectiblesBaseMetadata])
+
+    console.log({collectiblesArray})
+
+    useEffect(() => {
+        console.log({searchValue})
+    }, [searchValue])
 
     return (
         <div className={classNames("w-full max-w-sm mx-auto")}>
@@ -39,7 +75,7 @@ const CollectiblesList = () => {
                 />
 
                 <Link
-                    to="/manage-assets"
+                    to={`/manage-assets/${assetType}`}
                     className={classNames(
                         "ml-2 flex-shrink-0",
                         "px-3 py-1",

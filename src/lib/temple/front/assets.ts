@@ -171,26 +171,6 @@ export function useAllAssetsBaseMetadata() {
   return allAssetsBaseMetadataRef.current;
 }
 
-export function useAllCollectiblesBaseMetadata() {
-    const { allAssetsBaseMetadataRef } = useAssetsMetadata();
-    const forceUpdate = useForceUpdate();
-
-    const allCollectiblesBaseMetadata = Object.assign({});
-
-    for (const asset in allAssetsBaseMetadataRef.current) {
-        if (allAssetsBaseMetadataRef.current[asset].hasOwnProperty('artifactUri')) {
-            allCollectiblesBaseMetadata[asset] = allAssetsBaseMetadataRef.current[asset]
-        }
-    }
-
-    useEffect(
-        () => onStorageChanged(ALL_ASSETS_BASE_METADATA_STORAGE_KEY, forceUpdate),
-        [forceUpdate]
-    );
-
-    return allCollectiblesBaseMetadata;
-}
-
 export function searchAssets(
   searchValue: string,
   assetSlugs: string[],

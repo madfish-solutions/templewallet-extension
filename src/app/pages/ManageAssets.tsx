@@ -31,7 +31,11 @@ import { Link } from "lib/woozie";
 
 import { ManageAssetsSelectors } from "./ManageAssets.selectors";
 
-const ManageAssets: FC = () => (
+interface Props {
+  assetType?: string;
+}
+
+const ManageAssets: FC<Props> = ({assetType}) => (
   <PageLayout
     pageTitle={
       <>
@@ -40,7 +44,7 @@ const ManageAssets: FC = () => (
       </>
     }
   >
-    <ManageAssetsContent />
+    <ManageAssetsContent assetType={assetType} />
   </PageLayout>
 );
 
@@ -48,7 +52,7 @@ export default ManageAssets;
 
 type TokenStatuses = Record<string, { displayed: boolean; removed: boolean }>;
 
-const ManageAssetsContent: FC = () => {
+const ManageAssetsContent: FC<Props> = ({assetType}) => {
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;

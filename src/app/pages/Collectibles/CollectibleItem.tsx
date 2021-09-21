@@ -6,15 +6,13 @@ import {ReactComponent as CollectiblePlaceholder} from "../../icons/collectibleP
 
 const CollectibleItem = ({collectible}) => {
     const [isLoaded, setIsLoaded] = useState(false)
-    console.log({collectible})
     return (
         <Link to={`/collectible/${collectible.contract}`}>
             <div className="flex items-center">
                 <div className="p-2">
                     <div style={{borderRadius: '12px'}} className="border border-gray-300 w-16 h-16 flex items-center justify-center">
-                        {isLoaded ?
-                            <img onLoad={() => setIsLoaded(true)} className='w-12 h-12' src={formatImgUri(collectible.artifactUri)} />
-                        : <CollectiblePlaceholder />}
+                        <img onLoad={() => setIsLoaded(true)} style={!isLoaded ? {display: 'none'} : {}} className='w-12 h-12' src={formatImgUri(collectible.artifactUri)} />
+                        {!isLoaded && <CollectiblePlaceholder />}
                     </div>
                 </div>
                 <div className="pl-2">

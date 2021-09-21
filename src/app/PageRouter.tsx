@@ -87,7 +87,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   ["/delegate", onlyReady(() => <Delegate />)],
   ["/dapps", onlyReady(() => <DApps />)],
-  ["/manage-assets", onlyReady(() => <ManageAssets />)],
+  ["/manage-assets/:assetType?", onlyReady(({assetType}) => <ManageAssets assetType={assetType} />)],
   ["/collectible/:collectibleAddress?", onlyReady(
       ({collectibleAddress}) => <CollectiblePage address={collectibleAddress} />
   )],
