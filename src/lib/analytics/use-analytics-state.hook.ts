@@ -64,19 +64,17 @@ export const sendPageEvent = async (
       category: AnalyticsEventCategory.PageOpened,
       chainId,
       ...(tokenAddress !== undefined && { tokenAddress }),
-      ...(tokenId !== undefined && { tokenId })
+      ...(tokenId !== undefined && { tokenId }),
     },
   });
 };
 
 export const useAnalyticsState = () => {
-  const [
-    analyticsState,
-    setAnalyticsState,
-  ] = useLocalStorage<AnalyticsStateInterface>("analytics", {
-    enabled: undefined,
-    userId: nanoid(),
-  });
+  const [analyticsState, setAnalyticsState] =
+    useLocalStorage<AnalyticsStateInterface>("analytics", {
+      enabled: undefined,
+      userId: nanoid(),
+    });
 
   return {
     analyticsState,

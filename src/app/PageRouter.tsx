@@ -2,6 +2,7 @@ import React, { FC, useLayoutEffect, useMemo } from "react";
 
 import { OpenInFullPage, useAppEnv } from "app/env";
 import AddToken from "app/pages/AddToken";
+import BuyCrypto from "app/pages/BuyCrypto/BuyCrypto";
 import ConnectLedger from "app/pages/ConnectLedger";
 import CreateAccount from "app/pages/CreateAccount";
 import CreateWallet from "app/pages/CreateWallet";
@@ -95,6 +96,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     "/settings/:tabSlug?",
     onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),
   ],
+  ["/buy", onlyReady(onlyInFullPage(() => <BuyCrypto />))],
   ["*", () => <Woozie.Redirect to="/" />],
 ]);
 

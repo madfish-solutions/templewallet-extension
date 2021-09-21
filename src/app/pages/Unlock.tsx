@@ -23,7 +23,7 @@ const SUBMIT_ERROR_TYPE = "submit-error";
 
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
-  const formAnalytics = useFormAnalytics('UnlockWallet');
+  const formAnalytics = useFormAnalytics("UnlockWallet");
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -33,14 +33,8 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       ?.focus();
   }, []);
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    setError,
-    clearError,
-    formState,
-  } = useForm<FormData>();
+  const { register, handleSubmit, errors, setError, clearError, formState } =
+    useForm<FormData>();
   const submitting = formState.isSubmitting;
 
   const onSubmit = useCallback(
@@ -66,7 +60,14 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         focusPasswordField();
       }
     },
-    [submitting, clearError, setError, unlock, focusPasswordField, formAnalytics]
+    [
+      submitting,
+      clearError,
+      setError,
+      unlock,
+      focusPasswordField,
+      formAnalytics,
+    ]
   );
 
   return (

@@ -2237,5 +2237,16 @@
   },
   "collectibles": {
     "message": "Collectibles"
+  },
+  "attentionSendAmount": {
+    "message": "You need to send the exact amount of cryptocurrency to the deposit address. Otherwise the transaction will fail and you will have to contact $support$",
+    "placeholders": {
+      "support": {
+        "content": "$1"
+      }
+    }
+  },
+  "important": {
+    "message": "Important"
   }
 }

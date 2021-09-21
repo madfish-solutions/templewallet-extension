@@ -2,12 +2,14 @@ import { buildQuery } from "lib/build-query";
 
 import { api } from "./base";
 
-export const bakingBadGetBaker = buildQuery<BakingBadGetBakerParams, BakingBadGetBakerResponse>(
-  api,
-  "GET",
-  ({ address }) => `/bakers/${address}`,
-  ["configs", "insurance", "contribution"]
-);
+export const bakingBadGetBaker = buildQuery<
+  BakingBadGetBakerParams,
+  BakingBadGetBakerResponse
+>(api, "GET", ({ address }) => `/bakers/${address}`, [
+  "configs",
+  "insurance",
+  "contribution",
+]);
 
 export const bakingBadGetKnownBakers = buildQuery<
   Omit<BakingBadGetBakerParams, "address">,
@@ -19,32 +21,34 @@ export type BakingBadGetBakerParams = {
   configs?: boolean;
   insurance?: boolean;
   contribution?: boolean;
-}
+};
 
-export type BakingBadGetBakerResponse = {
-  address: string;
-  name: string;
-  logo: string | null;
-  balance: number;
-  stakingBalance: number;
-  stakingCapacity: number;
-  maxStakingBalance: number;
-  freeSpace: number;
-  fee: number;
-  minDelegation: number;
-  payoutDelay: number;
-  payoutPeriod: number;
-  openForDelegation: boolean;
-  estimatedRoi: number;
-  serviceType: "tezos_only" | "multiasset" | "exchange" | "tezos_dune";
-  serviceHealth: "active" | "closed" | "dead";
-  payoutTiming: "stable" | "unstable" | "suspicious" | "no_data";
-  payoutAccuracy: "precise" | "inaccurate" | "suspicious" | "no_data";
-  audit: string;
-  config?: BakingBadBakerConfig;
-  insurance?: BakingBadBakerInsurance | null;
-  contribution?: BakingBadBakerContribution | null;
-} | "";
+export type BakingBadGetBakerResponse =
+  | {
+      address: string;
+      name: string;
+      logo: string | null;
+      balance: number;
+      stakingBalance: number;
+      stakingCapacity: number;
+      maxStakingBalance: number;
+      freeSpace: number;
+      fee: number;
+      minDelegation: number;
+      payoutDelay: number;
+      payoutPeriod: number;
+      openForDelegation: boolean;
+      estimatedRoi: number;
+      serviceType: "tezos_only" | "multiasset" | "exchange" | "tezos_dune";
+      serviceHealth: "active" | "closed" | "dead";
+      payoutTiming: "stable" | "unstable" | "suspicious" | "no_data";
+      payoutAccuracy: "precise" | "inaccurate" | "suspicious" | "no_data";
+      audit: string;
+      config?: BakingBadBakerConfig;
+      insurance?: BakingBadBakerInsurance | null;
+      contribution?: BakingBadBakerContribution | null;
+    }
+  | "";
 
 export type BakingBadBakerValueHistoryItem<T> = {
   cycle: number;

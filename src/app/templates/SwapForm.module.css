@@ -20,23 +20,23 @@
   background: transparent;
 }
 
-.exchanger-option input[type="radio"]:checked+label::before {
+.exchanger-option input[type="radio"]:checked + label::before {
   left: 1.3125rem;
 }
 
-.exchanger-option input[type="radio"]:checked+label::after {
-  background: #4299E1;
+.exchanger-option input[type="radio"]:checked + label::after {
+  background: #4299e1;
   left: 1.5625rem;
 }
 
 .exchanger-option label:hover::before,
 .exchanger-option label:hover::after {
-  filter: brightness(120%)
+  filter: brightness(120%);
 }
 
-.exchanger-option input[type="radio"]:disabled+label::before,
-.exchanger-option input[type="radio"]:disabled+label::after {
-  filter: grayscale(100%)
+.exchanger-option input[type="radio"]:disabled + label::before,
+.exchanger-option input[type="radio"]:disabled + label::after {
+  filter: grayscale(100%);
 }
 
 .swap-form-table {

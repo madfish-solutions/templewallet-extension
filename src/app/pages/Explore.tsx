@@ -15,6 +15,7 @@ import Spinner from "app/atoms/Spinner";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import { ReactComponent as DAppsIcon } from "app/icons/apps-alt.svg";
+import { ReactComponent as BuyIcon } from "app/icons/buy.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
 import { ReactComponent as ReceiveIcon } from "app/icons/receive.svg";
@@ -30,6 +31,7 @@ import {
   useAssetMetadata,
   getAssetSymbol,
   isTezAsset,
+  useNetwork,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 import { Link, useLocation, navigate, HistoryAction } from "lib/woozie";
@@ -57,6 +59,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
   const account = useAccount();
   const { search } = useLocation();
+  const network = useNetwork();
 
   const assetMetadata = useAssetMetadata(assetSlug ?? "tez");
 
@@ -116,6 +119,14 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             Icon={ReceiveIcon}
             href="/receive"
           />
+          {network.type !== "test" && (
+            <ActionButton
+              label={<T id="buyButton" />}
+              Icon={BuyIcon}
+              href="/buy"
+            />
+          )}
+
           <ActionButton
             label={<T id="dApps" />}
             Icon={DAppsIcon}
@@ -172,10 +183,13 @@ const ActionButton: FC<ActionButtonProps> = ({
   disabled,
   tippyProps = {},
 }) => {
+  const network = useNetwork();
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
-      className: "flex flex-col items-center mx-3 px-1",
+      className: `flex flex-col items-center px-1 ${
+        network.type === "test" ? "mx-3" : "mx-2"
+      }`,
       type: "button" as const,
       children: (
         <>
@@ -199,7 +213,7 @@ const ActionButton: FC<ActionButtonProps> = ({
         </>
       ),
     }),
-    [disabled, Icon, label]
+    [disabled, Icon, label, network.type]
   );
   return disabled ? (
     <button ref={buttonRef} {...commonButtonProps} />
