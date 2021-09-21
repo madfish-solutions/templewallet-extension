@@ -138,6 +138,9 @@ export const [SyncTokensProvider] = constate(() => {
         if (existing) {
           return {
             ...existing,
+            type: metadata?.artifactUri
+              ? Repo.ITokenType.Collectible
+              : Repo.ITokenType.Fungible,
             latestBalance: balance,
             latestUSDBalance: usdBalance,
           };
@@ -148,11 +151,9 @@ export const [SyncTokensProvider] = constate(() => {
           : Repo.ITokenStatus.Idle;
 
         return {
-          // TODO: Uncomment when Collectible view is implemented
-          // type: metadata?.artifactUri
-          //   ? Repo.ITokenType.Collectible
-          //   : Repo.ITokenType.Fungible,
-          type: Repo.ITokenType.Fungible,
+          type: metadata?.artifactUri
+            ? Repo.ITokenType.Collectible
+            : Repo.ITokenType.Fungible,
           chainId,
           account: accountPkh,
           tokenSlug: slug,
