@@ -13,11 +13,7 @@ type RedirectProps = {
   fallback?: ReactElement;
 };
 
-const Redirect: FC<RedirectProps> = ({
-  to,
-  push = false,
-  fallback = null,
-}) => {
+const Redirect: FC<RedirectProps> = ({ to, push = false, fallback = null }) => {
   useLayoutEffect(() => {
     const lctn = createLocationState();
     const { pathname, search, hash, state } = createLocationUpdates(to, lctn);

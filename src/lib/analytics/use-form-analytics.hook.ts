@@ -9,7 +9,10 @@ export const useFormAnalytics = (formName: string) => {
   return useMemo(
     () => ({
       trackChange: (oldValues: object, newValues: object) =>
-        trackEvent(formName, AnalyticsEventCategory.FormChange, { oldValues, newValues }),
+        trackEvent(formName, AnalyticsEventCategory.FormChange, {
+          oldValues,
+          newValues,
+        }),
       trackSubmit: (properties?: object) =>
         trackEvent(formName, AnalyticsEventCategory.FormSubmit, properties),
       trackSubmitSuccess: (properties?: object) =>

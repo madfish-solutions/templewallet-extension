@@ -1,0 +1,105 @@
+.title {
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 17px;
+  text-align: center;
+  margin-top: 16px;
+  color: #4a5568;
+}
+.description {
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  text-align: center;
+  max-width: 358px;
+  margin: auto;
+  color: #4a5568;
+}
+.exchangeRateBlock {
+  display: flex;
+  justify-content: space-between;
+}
+.exchangeTitle {
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  color: #718096;
+}
+.exchangeData {
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  color: #718096;
+}
+.privacyAndPolicy {
+  margin-top: 24px;
+  text-align: center;
+  color: #4a5568;
+}
+.link {
+  text-decoration: underline;
+}
+.inputWrapper {
+  width: 100%;
+  height: 72px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  box-sizing: border-box;
+  display: flex;
+}
+.titleWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.titleLeft {
+  font-family: "Inter", sans-serif;
+  font-size: 19px;
+  color: #1b262c;
+}
+.titleRight {
+  color: #a0aec0;
+}
+.titleRight span:nth-child(1) {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: #4a5568;
+}
+.titleRight span:nth-child(2) {
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  color: #4a5568;
+}
+.currencyBlock {
+  width: 120px;
+  height: 72px;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.currencySelector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.currencyName {
+  font-family: "Inter", sans-serif;
+  font-size: 17px;
+  color: #4a5568;
+  padding: 0 10px 0 8px;
+}
+.currencyCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.amountInputContainer {
+  display: flex;
+  flex: 1;
+}
+.amountInput {
+  width: 100%;
+  font-family: "Inter", sans-serif;
+  font-size: 23px;
+  border-radius: 6px;
+  text-align: right;
+}

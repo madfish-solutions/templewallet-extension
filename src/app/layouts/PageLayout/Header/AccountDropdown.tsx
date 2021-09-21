@@ -104,7 +104,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
           linkTo: null,
           onClick: handleMaximiseViewClick,
         },
-      ].filter((Boolean as any) as ExcludesFalse),
+      ].filter(Boolean as any as ExcludesFalse),
     [appEnv.fullPage, closeDropdown, handleMaximiseViewClick]
   );
 

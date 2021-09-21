@@ -11,10 +11,7 @@ type SimplePageLayoutProps = {
   title: ReactNode;
 };
 
-const SimplePageLayout: FC<SimplePageLayoutProps> = ({
-  title,
-  children,
-}) => {
+const SimplePageLayout: FC<SimplePageLayoutProps> = ({ title, children }) => {
   const appEnv = useAppEnv();
 
   return (

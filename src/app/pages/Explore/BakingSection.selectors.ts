@@ -1,4 +1,4 @@
 export enum BakingSectionSelectors {
-  DelegateNowButton = 'BakingSection/DelegateNowButton',
-  ReDelegateButton = 'BakingSection/ReDelegateButton',
+  DelegateNowButton = "BakingSection/DelegateNowButton",
+  ReDelegateButton = "BakingSection/ReDelegateButton",
 }
