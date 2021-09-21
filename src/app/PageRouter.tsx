@@ -20,6 +20,8 @@ import Welcome from "app/pages/Welcome";
 import { usePageRouterAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
+import CollectibleItem from "./pages/Collectibles/CollectibleItem";
+import CollectiblePage from "./pages/Collectibles/CollectiblePage";
 
 interface RouteContext {
   popup: boolean;
@@ -85,6 +87,9 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ["/delegate", onlyReady(() => <Delegate />)],
   ["/dapps", onlyReady(() => <DApps />)],
   ["/manage-assets", onlyReady(() => <ManageAssets />)],
+  ["/collectible/:collectibleAddress?", onlyReady(
+      ({collectibleAddress}) => <CollectiblePage address={collectibleAddress} />
+  )],
   ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
   [
     "/settings/:tabSlug?",

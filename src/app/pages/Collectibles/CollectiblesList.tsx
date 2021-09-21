@@ -25,7 +25,7 @@ const CollectiblesList = () => {
     }, [setSearchFocused]);
 
     const collectiblesArray = Object.keys(allCollectiblesBaseMetadata).map((item) => {
-        return allCollectiblesBaseMetadata[item];
+        return Object.assign(allCollectiblesBaseMetadata[item], {contract: item});
     })
 
     return (

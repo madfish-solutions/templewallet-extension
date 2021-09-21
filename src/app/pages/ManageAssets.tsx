@@ -75,7 +75,7 @@ const ManageAssetsContent: FC = () => {
 
   const loading = allKnownFungibleTokenSlugsLoading || fungibleTokensLoading;
 
-  const allTokensBaseMetadata = useAllAssetsBaseMetadata();
+  const allAssetsBaseMetadata = useAllAssetsBaseMetadata();
 
   const [searchValue, setSearchValue] = useState("");
   const [searchValueDebounced] = useDebounce(searchValue, 300);
@@ -83,15 +83,15 @@ const ManageAssetsContent: FC = () => {
   const managedTokens = useMemo(
     () =>
       allTokenSlugs.filter(
-        (slug) => slug in allTokensBaseMetadata && !tokenStatuses[slug]?.removed
+        (slug) => slug in allAssetsBaseMetadata && !tokenStatuses[slug]?.removed
       ),
-    [allTokenSlugs, allTokensBaseMetadata, tokenStatuses]
+    [allTokenSlugs, allAssetsBaseMetadata, tokenStatuses]
   );
 
   const filteredTokens = useMemo(
     () =>
-      searchAssets(searchValueDebounced, managedTokens, allTokensBaseMetadata),
-    [managedTokens, allTokensBaseMetadata, searchValueDebounced]
+      searchAssets(searchValueDebounced, managedTokens, allAssetsBaseMetadata),
+    [managedTokens, allAssetsBaseMetadata, searchValueDebounced]
   );
 
   const confirm = useConfirm();
