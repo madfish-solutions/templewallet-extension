@@ -7,6 +7,7 @@ import { navigate } from "lib/woozie";
 
 import {T} from "../../../lib/i18n/react";
 import {formatImgUri} from "../../../lib/image-uri";
+import {useAccount, useChainId, useCollectibleTokens} from "../../../lib/temple/front";
 import useCopyToClipboard from "../../../lib/ui/useCopyToClipboard";
 import CopyButton from "../../atoms/CopyButton";
 import Divider from "../../atoms/Divider";
@@ -17,8 +18,13 @@ import {ReactComponent as CopyIcon} from "../../icons/copy.svg";
 
 const CollectiblePage = ({address}) => {
     const { copy } = useCopyToClipboard();
-    const allCollectiblesBaseMetadata = [];
-    const collectibleData = allCollectiblesBaseMetadata[address]
+    const chainId = useChainId(true)!;
+    const account = useAccount();
+    const accountAddress = account.publicKeyHash;
+    const {data: allCollectibles = [], error} = useCollectibleTokens(chainId, accountAddress);
+    console.log({error})
+    console.log({allCollectibles})
+    const collectibleData = allCollectibles[address]
     return (
         <PageLayout
             pageTitle={collectibleData.name}

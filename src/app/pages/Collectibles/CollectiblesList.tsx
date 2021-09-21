@@ -5,8 +5,8 @@ import classNames from "clsx";
 import {T} from "../../../lib/i18n/react";
 import {
     isFungibleTokenDisplayed, useAccount,
-    useAllCollectiblesBaseMetadata,
-    useChainId,
+    useAllCollectiblesBaseMetadata, useAllKnownCollectibleTokenSlugs,
+    useChainId, useCollectibleTokens,
     useFungibleTokens
 } from "../../../lib/temple/front";
 import {Link} from "../../../lib/woozie";
@@ -22,7 +22,9 @@ const CollectiblesList = () => {
     const chainId = useChainId(true)!;
     const account = useAccount();
     const address = account.publicKeyHash;
-    const allCollectiblesBaseMetadata = [];
+    console.log({chainId, address})
+    const {data: collectibles = [], error: error1} = useCollectibleTokens(chainId, address);
+    console.log({error1, collectibles})
     const [searchValue, setSearchValue] = useState('');
     const [searchFocused, setSearchFocused] = useState(false);
 

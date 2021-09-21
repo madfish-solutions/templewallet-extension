@@ -27,7 +27,7 @@ export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
 
-  const { allTokensBaseMetadataRef, setTokensBaseMetadata, fetchMetadata } =
+  const { allAssetsBaseMetadataRef, allAssetsBaseMetadata, fetchMetadata } =
     useAssetsMetadata();
   const usdPrices = useUSDPrices();
 
@@ -77,7 +77,7 @@ export const [SyncTokensProvider] = constate(() => {
     const tokensMetadataToSet: Record<string, AssetMetadata> = {};
 
     const metadataSlugs = tokenSlugs.filter(
-      (slug) => !(slug in allTokensBaseMetadataRef.current)
+      (slug) => !(slug in allAssetsBaseMetadataRef.current)
     );
 
     let metadatas;
@@ -115,7 +115,7 @@ export const [SyncTokensProvider] = constate(() => {
       if (metadata) tokensMetadataToSet[metadataSlugs[i]] = metadata;
     }
 
-    await setTokensBaseMetadata(tokensMetadataToSet);
+    await allAssetsBaseMetadata(tokensMetadataToSet);
 
     await Repo.accountTokens.bulkPut(
       tokenSlugs.map((slug, i) => {
@@ -124,7 +124,7 @@ export const [SyncTokensProvider] = constate(() => {
         const bcdToken = bcdTokensMap.get(slug);
         const balance = bcdToken?.balance ?? "0";
         const metadata =
-          tokensMetadataToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
+          tokensMetadataToSet[slug] ?? allAssetsBaseMetadataRef.current[slug];
 
         const price = usdPrices[slug];
         const usdBalance =
@@ -171,8 +171,8 @@ export const [SyncTokensProvider] = constate(() => {
     accountPkh,
     networkId,
     chainId,
-    allTokensBaseMetadataRef,
-    setTokensBaseMetadata,
+    allAssetsBaseMetadataRef,
+    allAssetsBaseMetadata,
     usdPrices,
     fetchMetadata,
   ]);
