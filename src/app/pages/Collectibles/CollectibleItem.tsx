@@ -7,16 +7,20 @@ import { ReactComponent as CollectiblePlaceholder } from "../../icons/collectibl
 
 interface Props {
   assetSlug: string;
+  index: number;
+  itemsLength: number;
 }
 
-const CollectibleItem: FC<Props> = ({ assetSlug }) => {
+const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const collectibleMetadata = useAssetMetadata(assetSlug)!;
-
   return (
     <Link to={`/collectible/${assetSlug}`}>
-      <div className="flex items-center">
+      <div
+          className="flex items-center"
+          style={index === itemsLength - 1 ? {} : {borderBottom: '1px solid #e2e8f0'}}
+      >
         <div className="p-2">
           <div
             style={{ borderRadius: "12px" }}

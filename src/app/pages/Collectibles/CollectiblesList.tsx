@@ -77,8 +77,8 @@ const CollectiblesList = () => {
         </Link>
       </div>
       <div className="mt-1 mb-3 w-full border rounded border-gray-200">
-        {filteredAssets.map((item) => (
-          <CollectibleItem key={item} assetSlug={item} />
+        {filteredAssets.map((item, index) => (
+          <CollectibleItem key={item} assetSlug={item} index={index} itemsLength={filteredAssets.length} />
         ))}
       </div>
     </div>
