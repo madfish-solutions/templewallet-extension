@@ -17,13 +17,15 @@ import {
   useAllKnownFungibleTokenSlugs,
   useAllTokensBaseMetadata,
   useFungibleTokens,
-  isFungibleTokenDisplayed,
+  isTokenDisplayed,
   useAccount,
   useAssetMetadata,
   getAssetName,
   getAssetSymbol,
   setTokenStatus,
   searchAssets,
+  useAllKnownCollectibleTokenSlugs,
+  useCollectibleTokens,
 } from "lib/temple/front";
 import { ITokenStatus, ITokenType } from "lib/temple/repo";
 import { useConfirm } from "lib/ui/dialog";
@@ -31,7 +33,11 @@ import { Link } from "lib/woozie";
 
 import { ManageAssetsSelectors } from "./ManageAssets.selectors";
 
-const ManageAssets: FC = () => (
+interface Props {
+  assetType: string;
+}
+
+const ManageAssets: FC<Props> = ({ assetType }) => (
   <PageLayout
     pageTitle={
       <>
@@ -40,18 +46,32 @@ const ManageAssets: FC = () => (
       </>
     }
   >
-    <ManageAssetsContent />
+    <ManageAssetsContent assetType={assetType} />
   </PageLayout>
 );
 
 export default ManageAssets;
 
-type TokenStatuses = Record<string, { displayed: boolean; removed: boolean }>;
+export type TokenStatuses = Record<
+  string,
+  { displayed: boolean; removed: boolean }
+>;
 
-const ManageAssetsContent: FC = () => {
+const ManageAssetsContent: FC<Props> = ({ assetType }) => {
+  const isCollectibles = assetType === "collectibles";
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
+
+  const {
+    data: allCollectiblesSlugs = [],
+    isValidating: allKnownCollectiblesTokenSlugsLoading,
+  } = useAllKnownCollectibleTokenSlugs(chainId);
+  const {
+    data: collectibles = [],
+    revalidate: revalidateCollectibles,
+    isValidating: collectibleTokensLoading,
+  } = useCollectibleTokens(chainId, address, false);
 
   const {
     data: allTokenSlugs = [],
@@ -59,21 +79,30 @@ const ManageAssetsContent: FC = () => {
   } = useAllKnownFungibleTokenSlugs(chainId);
   const {
     data: tokens = [],
-    revalidate,
+    revalidate: revalidateTokens,
     isValidating: fungibleTokensLoading,
   } = useFungibleTokens(chainId, address);
+
+  const assets = isCollectibles ? collectibles : tokens;
+  const slugs = isCollectibles ? allCollectiblesSlugs : allTokenSlugs;
+  const revalidate = isCollectibles ? revalidateCollectibles : revalidateTokens;
+
   const tokenStatuses = useMemo(() => {
     const statuses: TokenStatuses = {};
-    for (const t of tokens) {
+    for (const t of assets) {
       statuses[t.tokenSlug] = {
-        displayed: isFungibleTokenDisplayed(t),
+        displayed: isTokenDisplayed(t),
         removed: t.status === ITokenStatus.Removed,
       };
     }
     return statuses;
-  }, [tokens]);
+  }, [assets]);
 
-  const loading = allKnownFungibleTokenSlugsLoading || fungibleTokensLoading;
+  const loading =
+    allKnownFungibleTokenSlugsLoading ||
+    fungibleTokensLoading ||
+    allKnownCollectiblesTokenSlugsLoading ||
+    collectibleTokensLoading;
 
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
@@ -82,10 +111,10 @@ const ManageAssetsContent: FC = () => {
 
   const managedTokens = useMemo(
     () =>
-      allTokenSlugs.filter(
+      slugs.filter(
         (slug) => slug in allTokensBaseMetadata && !tokenStatuses[slug]?.removed
       ),
-    [allTokenSlugs, allTokensBaseMetadata, tokenStatuses]
+    [slugs, allTokensBaseMetadata, tokenStatuses]
   );
 
   const filteredTokens = useMemo(
@@ -121,7 +150,7 @@ const ManageAssetsContent: FC = () => {
         alert(err.message);
       }
     },
-    [chainId, address, revalidate, confirm]
+    [chainId, address, confirm, revalidate]
   );
 
   return (

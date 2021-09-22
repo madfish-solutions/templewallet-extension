@@ -22,6 +22,8 @@ import { usePageRouterAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
 
+import CollectiblePage from "./pages/Collectibles/CollectiblePage";
+
 interface RouteContext {
   popup: boolean;
   fullPage: boolean;
@@ -85,7 +87,16 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   ["/delegate", onlyReady(() => <Delegate />)],
   ["/dapps", onlyReady(() => <DApps />)],
-  ["/manage-assets", onlyReady(() => <ManageAssets />)],
+  [
+    "/manage-assets/:assetType?",
+    onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />),
+  ],
+  [
+    "/collectible/:assetSlug?",
+    onlyReady(({ assetSlug }) => (
+      <CollectiblePage assetSlug={assetSlug!} />
+    )),
+  ],
   ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
   [
     "/settings/:tabSlug?",

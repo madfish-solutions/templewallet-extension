@@ -50,10 +50,14 @@ export function useFungibleTokens(chainId: string, account: string) {
   );
 }
 
-export function useCollectibleTokens(chainId: string, account: string) {
+export function useCollectibleTokens(
+  chainId: string,
+  account: string,
+  isDisplayed: boolean
+) {
   return useRetryableSWR(
-    ["collectible-tokens", chainId, account],
-    () => fetchCollectibleTokens(chainId, account),
+    ["collectible-tokens", chainId, account, isDisplayed],
+    () => fetchCollectibleTokens(chainId, account, isDisplayed),
     {
       revalidateOnMount: true,
       refreshInterval: 20_000,

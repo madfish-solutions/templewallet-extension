@@ -19,7 +19,12 @@ import Balance from "app/templates/Balance";
 import SearchField from "app/templates/SearchField";
 import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
 import { t, T } from "lib/i18n/react";
-import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient, } from "lib/temple/front";
+import {
+  useAccount,
+  useRelevantAccounts,
+  useSetAccountPkh,
+  useTempleClient,
+} from "lib/temple/front";
 import { PopperRenderProps } from "lib/ui/Popper";
 import { Link } from "lib/woozie";
 
@@ -37,7 +42,10 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const setAccountPkh = useSetAccountPkh();
   const [searchValue, setSearchValue] = useState("");
 
-  const isShowSearch = useMemo(() => allAccounts.length > 5, [allAccounts.length]);
+  const isShowSearch = useMemo(
+    () => allAccounts.length > 5,
+    [allAccounts.length]
+  );
 
   const filteredAccounts = useMemo(() => {
     if (searchValue.length === 0) {
@@ -45,7 +53,9 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
     } else {
       const lowerCaseSearchValue = searchValue.toLowerCase();
 
-      return allAccounts.filter(account => account.name.toLowerCase().includes(lowerCaseSearchValue));
+      return allAccounts.filter((account) =>
+        account.name.toLowerCase().includes(lowerCaseSearchValue)
+      );
     }
   }, [searchValue, allAccounts]);
 
@@ -149,10 +159,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
         </Button>
       </div>
 
-      <div
-        className={classNames(
-          "my-2",
-        )}>
+      <div className={classNames("my-2")}>
         {isShowSearch && (
           <SearchField
             value={searchValue}
@@ -163,94 +170,98 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
               "focus:outline-none",
               "transition ease-in-out duration-200",
               "rounded rounded-b-none",
-              "text-white text-sm leading-tight",
+              "text-white text-sm leading-tight"
             )}
             placeholder={t("searchByName")}
             searchIconClassName="h-5 w-auto"
             searchIconWrapperClassName="px-2 text-white opacity-75"
-            cleanButtonStyle={{ backgroundColor: 'transparent' }}
-            cleanButtonIconStyle={{ stroke: 'white' }}
-            onValueChange={setSearchValue} />
+            cleanButtonStyle={{ backgroundColor: "transparent" }}
+            cleanButtonIconStyle={{ stroke: "white" }}
+            onValueChange={setSearchValue}
+          />
         )}
         <div
           className={classNames(
             "overflow-y-auto no-scrollbar",
             "border border-white border-opacity-10 shadow-inner",
             "rounded",
-            isShowSearch && "border-t-0 rounded-t-none",
+            isShowSearch && "border-t-0 rounded-t-none"
           )}
-          style={{ maxHeight: "12.5rem" }}>
+          style={{ maxHeight: "12.5rem" }}
+        >
           <div className="flex flex-col">
             {filteredAccounts.length === 0 ? (
               <p className="text-center text-white text-sm p-10">
                 <T id="noResults" />
               </p>
-            ) : filteredAccounts.map((acc) => {
-              const selected = acc.publicKeyHash === account.publicKeyHash;
-              const handleAccountClick = () => {
-                if (!selected) {
-                  setAccountPkh(acc.publicKeyHash);
-                }
-                setOpened(false);
-              };
+            ) : (
+              filteredAccounts.map((acc) => {
+                const selected = acc.publicKeyHash === account.publicKeyHash;
+                const handleAccountClick = () => {
+                  if (!selected) {
+                    setAccountPkh(acc.publicKeyHash);
+                  }
+                  setOpened(false);
+                };
 
-              return (
-                <Button
-                  key={acc.publicKeyHash}
-                  className={classNames(
-                    "block w-full",
-                    "overflow-hidden",
-                    "flex items-center",
-                    "text-white text-shadow-black",
-                    "transition ease-in-out duration-200",
-                    selected && "shadow",
-                    selected
-                      ? "bg-white bg-opacity-10"
-                      : "hover:bg-white hover:bg-opacity-5",
-                    !selected && "opacity-75 hover:opacity-100"
-                  )}
-                  style={{
-                    padding: "0.375rem",
-                  }}
-                  onClick={handleAccountClick}
-                  testID={AccountDropdownSelectors.AccountItemButton}
-                >
-                  <Identicon
-                    type="bottts"
-                    hash={acc.publicKeyHash}
-                    size={32}
-                    className="flex-shrink-0 shadow-xs-white"
-                  />
+                return (
+                  <Button
+                    key={acc.publicKeyHash}
+                    className={classNames(
+                      "block w-full",
+                      "overflow-hidden",
+                      "flex items-center",
+                      "text-white text-shadow-black",
+                      "transition ease-in-out duration-200",
+                      selected && "shadow",
+                      selected
+                        ? "bg-white bg-opacity-10"
+                        : "hover:bg-white hover:bg-opacity-5",
+                      !selected && "opacity-75 hover:opacity-100"
+                    )}
+                    style={{
+                      padding: "0.375rem",
+                    }}
+                    onClick={handleAccountClick}
+                    testID={AccountDropdownSelectors.AccountItemButton}
+                  >
+                    <Identicon
+                      type="bottts"
+                      hash={acc.publicKeyHash}
+                      size={32}
+                      className="flex-shrink-0 shadow-xs-white"
+                    />
 
-                  <div className="flex flex-col items-start ml-2">
-                    <Name
-                      className="text-sm font-medium leading-none"
-                      style={{ paddingBottom: 3 }}
-                    >
-                      {acc.name}
-                    </Name>
+                    <div className="flex flex-col items-start ml-2">
+                      <Name
+                        className="text-sm font-medium leading-none"
+                        style={{ paddingBottom: 3 }}
+                      >
+                        {acc.name}
+                      </Name>
 
-                    <div className="flex flex-wrap items-center">
-                      <Balance address={acc.publicKeyHash}>
-                        {(bal) => (
-                          <span
-                            className={classNames(
-                              "text-xs leading-tight",
-                              "text-white text-opacity-75"
-                            )}
-                          >
-                          <Money tooltip={false}>{bal}</Money>{" "}
-                            <span style={{ fontSize: "0.5rem" }}>tez</span>
-                        </span>
-                        )}
-                      </Balance>
+                      <div className="flex flex-wrap items-center">
+                        <Balance address={acc.publicKeyHash}>
+                          {(bal) => (
+                            <span
+                              className={classNames(
+                                "text-xs leading-tight",
+                                "text-white text-opacity-75"
+                              )}
+                            >
+                              <Money tooltip={false}>{bal}</Money>{" "}
+                              <span style={{ fontSize: "0.5rem" }}>tez</span>
+                            </span>
+                          )}
+                        </Balance>
 
-                      <AccountTypeBadge account={acc} darkTheme />
+                        <AccountTypeBadge account={acc} darkTheme />
+                      </div>
                     </div>
-                  </div>
-                </Button>
-              );
-            })}
+                  </Button>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
