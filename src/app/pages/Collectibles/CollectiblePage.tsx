@@ -10,7 +10,7 @@ import { formatImgUri } from "../../../lib/image-uri";
 import {
   useAccount,
   useAssetMetadata,
-  useBalance, useExplorerBaseUrls,
+  useBalance
 } from "../../../lib/temple/front";
 import useCopyToClipboard from "../../../lib/ui/useCopyToClipboard";
 import CopyButton from "../../atoms/CopyButton";
@@ -25,14 +25,17 @@ interface Props {
 }
 
 const CollectiblePage: FC<Props> = ({ assetSlug }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
   const { data: collectibleBalance } = useBalance(assetSlug, accountPkh);
+
   const { copy } = useCopyToClipboard();
   const collectibleData = useAssetMetadata(assetSlug)!;
-  const [isLoaded, setIsLoaded] = useState(false);
+
   const [, rawAssetId] = assetSlug.split("_");
-  console.log({assetSlug, rawAssetId});
+
   return (
     <PageLayout pageTitle={collectibleData.name}>
       <div

@@ -36,7 +36,6 @@ const CollectibleItem: FC<Props> = ({ assetSlug }) => {
           <p style={{ color: "#1B262C" }} className="text-sm">
             {collectibleMetadata.name}
           </p>
-          <p className="text-gray-600 text-xs">Last price 1000000 tez</p>
         </div>
       </div>
     </Link>

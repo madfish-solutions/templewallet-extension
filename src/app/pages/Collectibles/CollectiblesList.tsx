@@ -28,6 +28,7 @@ const CollectiblesList = () => {
     address,
     true
   );
+
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const { assetSlugs } = useMemo(() => {
