@@ -31,8 +31,8 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   const { copy } = useCopyToClipboard();
   const collectibleData = useAssetMetadata(assetSlug)!;
   const [isLoaded, setIsLoaded] = useState(false);
-  const {account: accountBaseUrl} = useExplorerBaseUrls();
-  console.log({accountBaseUrl});
+  const [, rawAssetId] = assetSlug.split("_");
+  console.log({assetSlug, rawAssetId});
   return (
     <PageLayout pageTitle={collectibleData.name}>
       <div
@@ -74,14 +74,12 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           <p className="text-gray-600 text-xs">
             <T id={"address"} />
           </p>
-          <span>
+          <span  className={'flex align-middle'}>
             <p
               style={{ color: "#1B262C" }}
               className="text-xs inline align-text-bottom"
             >
-              <a className={"text-blue-700 underline"} href={`${accountBaseUrl}/${assetSlug}`}>
-                <HashShortView hash={assetSlug} />
-              </a>
+              <HashShortView hash={assetSlug} />
             </p>
             <CopyButton text={assetSlug} type="link">
               <CopyIcon
@@ -91,6 +89,29 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
                   "stroke-orange stroke-2"
                 )}
                 onClick={() => copy()}
+              />
+            </CopyButton>
+          </span>
+        </div>
+        <div className="flex justify-between items-baseline mb-4">
+          <p className="text-gray-600 text-xs">
+            <T id={"id"} />
+          </p>
+          <span className={'flex align-middle'}>
+            <p
+                style={{ color: "#1B262C" }}
+                className="text-xs inline align-text-bottom"
+            >
+              {rawAssetId}
+            </p>
+            <CopyButton text={rawAssetId} type="link">
+              <CopyIcon
+                  style={{ verticalAlign: "inherit" }}
+                  className={classNames(
+                      "h-4 ml-1 w-auto inline",
+                      "stroke-orange stroke-2"
+                  )}
+                  onClick={() => copy()}
               />
             </CopyButton>
           </span>
