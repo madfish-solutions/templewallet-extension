@@ -1,3 +1,3 @@
 export enum OpenInExplorerChipSelectors {
-  ViewOnBlockExplorerLink = 'OpenInExplorerChip/ViewOnBlockExplorerLink'
+  ViewOnBlockExplorerLink = "OpenInExplorerChip/ViewOnBlockExplorerLink",
 }

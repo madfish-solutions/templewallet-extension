@@ -16,9 +16,7 @@ export class ReadOnlySigner implements Signer {
   async secretKey(): Promise<string> {
     throw new Error("Secret key cannot be exposed");
   }
-  async sign(
-    digest: string
-  ): Promise<{
+  async sign(digest: string): Promise<{
     bytes: string;
     sig: string;
     prefixSig: string;

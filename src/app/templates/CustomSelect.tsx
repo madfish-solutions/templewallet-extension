@@ -100,24 +100,27 @@ const CustomSelect = <
 
 export default CustomSelect;
 
-type CustomSelectItemProps<T, K extends string | number, A extends Actions<K>> =
-  Pick<
-    CustomSelectProps<T, K, A>,
-    | "onSelect"
-    | "OptionIcon"
-    | "OptionContent"
-    | "padding"
-    | "autoFocus"
-    | "light"
-    | "hoverable"
-    | "actions"
-  > & {
-    active?: boolean;
-    last?: boolean;
-    itemId: K;
-    index: number;
-    item: T;
-  };
+type CustomSelectItemProps<
+  T,
+  K extends string | number,
+  A extends Actions<K>
+> = Pick<
+  CustomSelectProps<T, K, A>,
+  | "onSelect"
+  | "OptionIcon"
+  | "OptionContent"
+  | "padding"
+  | "autoFocus"
+  | "light"
+  | "hoverable"
+  | "actions"
+> & {
+  active?: boolean;
+  last?: boolean;
+  itemId: K;
+  index: number;
+  item: T;
+};
 
 const CustomSelectItem = <
   T extends {},

@@ -1,4 +1,4 @@
 export enum AssetsSelectors {
-  ManageButton = 'Assets/ManageButton',
-  AssetItemButton = 'Assets/AssetItemButton'
+  ManageButton = "Assets/ManageButton",
+  AssetItemButton = "Assets/AssetItemButton",
 }

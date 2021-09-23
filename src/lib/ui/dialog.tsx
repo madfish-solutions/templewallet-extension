@@ -24,17 +24,13 @@ const CONFIRM_CLOSE_EVENT_NAME = "confirmclosed";
 class AlertClosedEvent extends CustomEvent<void> {}
 class ConfirmClosedEvent extends CustomEvent<boolean> {}
 
-export const [
-  DialogsProvider,
-  useAlert,
-  useConfirm,
-  useModalsParams,
-] = constate(
-  useDialogs,
-  (v) => v.alert,
-  (v) => v.confirm,
-  (v) => v.modalsParams
-);
+export const [DialogsProvider, useAlert, useConfirm, useModalsParams] =
+  constate(
+    useDialogs,
+    (v) => v.alert,
+    (v) => v.confirm,
+    (v) => v.modalsParams
+  );
 
 function useDialogs() {
   const [alertParams, setAlertParams] = useState<AlertParams>({

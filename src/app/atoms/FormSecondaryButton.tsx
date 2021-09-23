@@ -7,10 +7,11 @@ import { TestIDProps } from "lib/analytics";
 
 import { Button } from "./Button";
 
-type FormSecondaryButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & TestIDProps & {
-  loading?: boolean;
-  small?: boolean;
-};
+type FormSecondaryButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
+  TestIDProps & {
+    loading?: boolean;
+    small?: boolean;
+  };
 
 const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
   loading,
