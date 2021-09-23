@@ -474,6 +474,7 @@ module.exports = {
     }),
     stroke: {
       current: "currentColor",
+      orange: "#ED8936"
     },
     strokeWidth: {
       0: "0",

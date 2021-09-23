@@ -7,10 +7,11 @@ import { TestIDProps } from "lib/analytics";
 
 import { Button } from "./Button";
 
-type FormSubmitButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & TestIDProps & {
-  loading?: boolean;
-  small?: boolean;
-};
+type FormSubmitButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
+  TestIDProps & {
+    loading?: boolean;
+    small?: boolean;
+  };
 
 const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   loading,

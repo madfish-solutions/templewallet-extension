@@ -1,0 +1,49 @@
+.stepperWrapper {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  margin: auto;
+}
+.circle {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #48bb78;
+  border-radius: 50%;
+  margin: auto;
+  position: relative;
+  z-index: 3;
+  background-color: #ffffff;
+}
+.circle-active {
+  border: 2px solid #48bb78;
+}
+.circle-passed {
+  background-color: #48bb78 !important;
+}
+.circle-last {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #48bb78;
+  border-radius: 50%;
+  margin: auto;
+  z-index: 3;
+  background-color: #ffffff;
+}
+.stepWrapper {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  position: relative;
+}
+.line {
+  height: 2px;
+  width: 100px;
+  left: 26px;
+  background-color: #c2c2c2;
+  position: absolute;
+}
+.line-active {
+  background-color: #48bb78;
+}

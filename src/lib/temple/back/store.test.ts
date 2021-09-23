@@ -19,14 +19,8 @@ describe("Store tests", () => {
   });
 
   it("Initial store values", () => {
-    const {
-      inited,
-      vault,
-      status,
-      accounts,
-      networks,
-      settings,
-    } = store.getState();
+    const { inited, vault, status, accounts, networks, settings } =
+      store.getState();
     expect(inited).toBeFalsy();
     expect(vault).toBeNull();
     expect(status).toBe(TempleStatus.Idle);

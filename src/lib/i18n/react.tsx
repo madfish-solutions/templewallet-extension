@@ -17,10 +17,10 @@ export type TProps = {
 export const T: FC<TProps> = ({ id, substitutions, children }) => {
   const message = useMemo(() => tReact(id, substitutions), [id, substitutions]);
 
-  return useMemo(() => (children ? children(message) : <>{message}</>), [
-    message,
-    children,
-  ]);
+  return useMemo(
+    () => (children ? children(message) : <>{message}</>),
+    [message, children]
+  );
 };
 
 export function t(messageName: string, substitutions?: Substitutions): string;

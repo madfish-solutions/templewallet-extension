@@ -11,10 +11,7 @@ type NetworkBannerProps = {
   narrow?: boolean;
 };
 
-const NetworkBanner: FC<NetworkBannerProps> = ({
-  rpc,
-  narrow = false,
-}) => {
+const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
   const allNetworks = useAllNetworks();
   const knownNetwork = useMemo(
     () => allNetworks.find((n) => n.rpcBaseURL === rpc),
