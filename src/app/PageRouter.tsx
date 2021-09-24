@@ -93,9 +93,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ],
   [
     "/collectible/:assetSlug?",
-    onlyReady(({ assetSlug }) => (
-      <CollectiblePage assetSlug={assetSlug!} />
-    )),
+    onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />),
   ],
   ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
   [

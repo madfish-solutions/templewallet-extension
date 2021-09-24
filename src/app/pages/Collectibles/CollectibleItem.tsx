@@ -18,8 +18,10 @@ const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
   return (
     <Link to={`/collectible/${assetSlug}`}>
       <div
-          className="flex items-center"
-          style={index === itemsLength - 1 ? {} : {borderBottom: '1px solid #e2e8f0'}}
+        className="flex items-center"
+        style={
+          index === itemsLength - 1 ? {} : { borderBottom: "1px solid #e2e8f0" }
+        }
       >
         <div className="p-2">
           <div

@@ -10,7 +10,7 @@ import { formatImgUri } from "../../../lib/image-uri";
 import {
   useAccount,
   useAssetMetadata,
-  useBalance
+  useBalance,
 } from "../../../lib/temple/front";
 import useCopyToClipboard from "../../../lib/ui/useCopyToClipboard";
 import CopyButton from "../../atoms/CopyButton";
@@ -77,7 +77,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           <p className="text-gray-600 text-xs">
             <T id={"address"} />
           </p>
-          <span  className={'flex align-middle'}>
+          <span className={"flex align-middle"}>
             <p
               style={{ color: "#1B262C" }}
               className="text-xs inline align-text-bottom"
@@ -100,21 +100,21 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           <p className="text-gray-600 text-xs">
             <T id={"id"} />
           </p>
-          <span className={'flex align-middle'}>
+          <span className={"flex align-middle"}>
             <p
-                style={{ color: "#1B262C" }}
-                className="text-xs inline align-text-bottom"
+              style={{ color: "#1B262C" }}
+              className="text-xs inline align-text-bottom"
             >
               {rawAssetId}
             </p>
             <CopyButton text={rawAssetId} type="link">
               <CopyIcon
-                  style={{ verticalAlign: "inherit" }}
-                  className={classNames(
-                      "h-4 ml-1 w-auto inline",
-                      "stroke-orange stroke-2"
-                  )}
-                  onClick={() => copy()}
+                style={{ verticalAlign: "inherit" }}
+                className={classNames(
+                  "h-4 ml-1 w-auto inline",
+                  "stroke-orange stroke-2"
+                )}
+                onClick={() => copy()}
               />
             </CopyButton>
           </span>
