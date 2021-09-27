@@ -57,7 +57,7 @@ export async function fromAssetSlug(
   };
 }
 
-export function fromFA2TokenSlug(slug: string): FA2Token {
+export function fromFa2TokenSlug(slug: string): FA2Token {
   if (isTezAsset(slug)) {
     throw new Error("Only fa2 token slug allowed");
   }
