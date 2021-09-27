@@ -1748,5 +1748,8 @@
         "content": "$1"
       }
     }
+  },
+  "buyButton": {
+    "message": "Buy"
   }
 }
