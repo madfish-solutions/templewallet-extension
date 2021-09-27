@@ -57,8 +57,10 @@ export async function fromAssetSlug(
   };
 }
 
-export function fromAssetSlugForce(slug: string): Asset {
-  if (isTezAsset(slug)) return slug;
+export function fromFA2TokenSlug(slug: string): FA2Token {
+  if (isTezAsset(slug)) {
+    throw new Error("Only fa2 token slug allowed");
+  }
 
   const [contractAddress, tokenIdStr] = slug.split("_");
   return {
