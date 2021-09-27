@@ -1,31 +1,32 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 
+import CollectibleImage from "app/atoms/CollectibleImage";
+import CopyButton from "app/atoms/CopyButton";
+import Divider from "app/atoms/Divider";
+import FormSubmitButton from "app/atoms/FormSubmitButton";
+import HashShortView from "app/atoms/HashShortView";
+import { ReactComponent as CollectiblePlaceholderLarge } from "app/icons/collectiblePlaceholderLarge.svg";
+import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import PageLayout from "app/layouts/PageLayout";
-import { navigate } from "lib/woozie";
-
-import { T } from "../../../lib/i18n/react";
-import { formatImgUri } from "../../../lib/image-uri";
+import { T } from "lib/i18n/react";
+import { fromFa2TokenSlug } from "lib/temple/assets/utils";
 import {
   useAccount,
   useAssetMetadata,
   useBalance
-} from "../../../lib/temple/front";
-import useCopyToClipboard from "../../../lib/ui/useCopyToClipboard";
-import CopyButton from "../../atoms/CopyButton";
-import Divider from "../../atoms/Divider";
-import FormSubmitButton from "../../atoms/FormSubmitButton";
-import HashShortView from "../../atoms/HashShortView";
-import { ReactComponent as CollectiblePlaceholderLarge } from "../../icons/collectiblePlaceholderLarge.svg";
-import { ReactComponent as CopyIcon } from "../../icons/copy.svg";
+} from "lib/temple/front";
+import useCopyToClipboard from "lib/ui/useCopyToClipboard";
+import { navigate } from "lib/woozie";
 
 interface Props {
   assetSlug: string;
 }
 
 const CollectiblePage: FC<Props> = ({ assetSlug }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [assetId, setAssetId] = useState(new BigNumber(0));
 
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
@@ -34,7 +35,9 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   const { copy } = useCopyToClipboard();
   const collectibleData = useAssetMetadata(assetSlug)!;
 
-  const [, rawAssetId] = assetSlug.split("_");
+  useEffect(() => {
+    setAssetId(fromFa2TokenSlug(assetSlug).id as BigNumber);
+  }, [assetSlug]);
 
   return (
     <PageLayout pageTitle={collectibleData.name}>
@@ -47,13 +50,10 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             style={{ borderRadius: "12px" }}
             className={"border border-gray-300 max-w-xs p-6 mx-auto my-10"}
           >
-            <img
-              onLoad={() => setIsLoaded(true)}
-              style={!isLoaded ? { display: "none" } : {}}
-              src={formatImgUri(collectibleData.artifactUri!)}
-              alt=""
+            <CollectibleImage
+              collectibleMetadata={collectibleData}
+              Placeholder={CollectiblePlaceholderLarge}
             />
-            {!isLoaded && <CollectiblePlaceholderLarge />}
           </div>
         </div>
         <Divider />
@@ -77,7 +77,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           <p className="text-gray-600 text-xs">
             <T id={"address"} />
           </p>
-          <span  className={'flex align-middle'}>
+          <span className={"flex align-middle"}>
             <p
               style={{ color: "#1B262C" }}
               className="text-xs inline align-text-bottom"
@@ -100,21 +100,21 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
           <p className="text-gray-600 text-xs">
             <T id={"id"} />
           </p>
-          <span className={'flex align-middle'}>
+          <span className={"flex align-middle"}>
             <p
-                style={{ color: "#1B262C" }}
-                className="text-xs inline align-text-bottom"
+              style={{ color: "#1B262C" }}
+              className="text-xs inline align-text-bottom"
             >
-              {rawAssetId}
+              {assetId.toFixed()}
             </p>
-            <CopyButton text={rawAssetId} type="link">
+            <CopyButton text={assetId.toFixed()} type="link">
               <CopyIcon
-                  style={{ verticalAlign: "inherit" }}
-                  className={classNames(
-                      "h-4 ml-1 w-auto inline",
-                      "stroke-orange stroke-2"
-                  )}
-                  onClick={() => copy()}
+                style={{ verticalAlign: "inherit" }}
+                className={classNames(
+                  "h-4 ml-1 w-auto inline",
+                  "stroke-orange stroke-2"
+                )}
+                onClick={() => copy()}
               />
             </CopyButton>
           </span>

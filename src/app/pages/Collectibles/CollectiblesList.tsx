@@ -3,21 +3,20 @@ import React, { useMemo, useState } from "react";
 import classNames from "clsx";
 import { useDebounce } from "use-debounce";
 
-import { T } from "../../../lib/i18n/react";
+import { ReactComponent as AddToListIcon } from "app/icons/add-to-list.svg";
+import CollectibleItem from "app/pages/Collectibles/CollectibleItem";
+import { AssetsSelectors } from "app/pages/Explore/Assets.selectors";
+import SearchAssetField from "app/templates/SearchAssetField";
+import { T } from "lib/i18n/react";
+import { AssetTypesEnum } from 'lib/temple/assets/types';
 import {
-  searchAssets,
   useAccount,
   useAllTokensBaseMetadata,
   useChainId,
   useCollectibleTokens,
-} from "../../../lib/temple/front";
-import { Link } from "../../../lib/woozie";
-import { ReactComponent as AddToListIcon } from "../../icons/add-to-list.svg";
-import SearchAssetField from "../../templates/SearchAssetField";
-import { AssetsSelectors } from "../Explore/Assets.selectors";
-import CollectibleItem from "./CollectibleItem";
-
-const assetType = "collectibles";
+  useFilteredAssets,
+} from "lib/temple/front";
+import { Link } from "lib/woozie";
 
 const CollectiblesList = () => {
   const chainId = useChainId(true)!;
@@ -31,7 +30,7 @@ const CollectiblesList = () => {
 
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
-  const { assetSlugs } = useMemo(() => {
+  const assetSlugs = useMemo(() => {
     const assetSlugs = [];
 
     for (const { tokenSlug } of collectibles) {
@@ -40,16 +39,13 @@ const CollectiblesList = () => {
       }
     }
 
-    return { assetSlugs };
+    return assetSlugs;
   }, [collectibles, allTokensBaseMetadata]);
 
   const [searchValue, setSearchValue] = useState("");
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
-  const filteredAssets = useMemo(
-    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
-    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
-  );
+  const filteredAssets = useFilteredAssets(assetSlugs, searchValueDebounced)
 
   return (
     <div className={classNames("w-full max-w-sm mx-auto")}>
@@ -57,7 +53,7 @@ const CollectiblesList = () => {
         <SearchAssetField value={searchValue} onValueChange={setSearchValue} />
 
         <Link
-          to={`/manage-assets/${assetType}`}
+          to={`/manage-assets/${AssetTypesEnum.Collectibles}`}
           className={classNames(
             "ml-2 flex-shrink-0",
             "px-3 py-1",
@@ -78,7 +74,12 @@ const CollectiblesList = () => {
       </div>
       <div className="mt-1 mb-3 w-full border rounded border-gray-200">
         {filteredAssets.map((item, index) => (
-          <CollectibleItem key={item} assetSlug={item} index={index} itemsLength={filteredAssets.length} />
+          <CollectibleItem
+            key={item}
+            assetSlug={item}
+            index={index}
+            itemsLength={filteredAssets.length}
+          />
         ))}
       </div>
     </div>

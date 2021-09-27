@@ -1,0 +1,32 @@
+import React, { FC, useState } from "react";
+
+import { formatImgUri } from "lib/image-uri";
+import { AssetMetadata } from "lib/temple/metadata/types";
+
+interface Props {
+  collectibleMetadata: AssetMetadata;
+  Placeholder: FC;
+  className?: string;
+}
+
+const CollectibleImage: FC<Props> = ({
+  collectibleMetadata,
+  Placeholder,
+  className,
+}) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  return (
+    <>
+      <img
+        onLoad={() => setIsLoaded(true)}
+        alt={collectibleMetadata.name}
+        style={!isLoaded ? { display: "none" } : {}}
+        className={className}
+        src={formatImgUri(collectibleMetadata.artifactUri!)}
+      />
+      {!isLoaded && <Placeholder />}
+    </>
+  );
+};
+
+export default CollectibleImage;

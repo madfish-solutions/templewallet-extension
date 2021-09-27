@@ -9,9 +9,11 @@ import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import { ReactComponent as ControlCentreIcon } from "app/icons/control-centre.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import PageLayout from "app/layouts/PageLayout";
+import { ManageAssetsSelectors } from "app/pages/ManageAssets.selectors";
 import AssetIcon from "app/templates/AssetIcon";
 import SearchAssetField from "app/templates/SearchAssetField";
 import { T, t } from "lib/i18n/react";
+import { AssetTypesEnum } from 'lib/temple/assets/types';
 import {
   useChainId,
   useAllKnownFungibleTokenSlugs,
@@ -23,15 +25,14 @@ import {
   getAssetName,
   getAssetSymbol,
   setTokenStatus,
-  searchAssets,
   useAllKnownCollectibleTokenSlugs,
   useCollectibleTokens,
+  useFilteredAssets,
 } from "lib/temple/front";
 import { ITokenStatus, ITokenType } from "lib/temple/repo";
 import { useConfirm } from "lib/ui/dialog";
 import { Link } from "lib/woozie";
 
-import { ManageAssetsSelectors } from "./ManageAssets.selectors";
 
 interface Props {
   assetType: string;
@@ -58,7 +59,7 @@ export type TokenStatuses = Record<
 >;
 
 const ManageAssetsContent: FC<Props> = ({ assetType }) => {
-  const isCollectibles = assetType === "collectibles";
+  const isCollectibles = assetType === AssetTypesEnum.Collectibles;
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
@@ -117,11 +118,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
     [slugs, allTokensBaseMetadata, tokenStatuses]
   );
 
-  const filteredTokens = useMemo(
-    () =>
-      searchAssets(searchValueDebounced, managedTokens, allTokensBaseMetadata),
-    [managedTokens, allTokensBaseMetadata, searchValueDebounced]
-  );
+  const filteredTokens = useFilteredAssets(managedTokens, searchValueDebounced)
 
   const confirm = useConfirm();
 
