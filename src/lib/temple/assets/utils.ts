@@ -57,6 +57,16 @@ export async function fromAssetSlug(
   };
 }
 
+export function fromAssetSlugForce(slug: string): Asset {
+  if (isTezAsset(slug)) return slug;
+
+  const [contractAddress, tokenIdStr] = slug.split("_");
+  return {
+    contract: contractAddress,
+    id: new BigNumber(tokenIdStr ?? 0),
+  };
+}
+
 export function toAssetSlug(asset: Asset) {
   return isTezAsset(asset) ? asset : toTokenSlug(asset.contract, asset.id);
 }
