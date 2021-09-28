@@ -43,7 +43,7 @@ const ManageAssets: FC<Props> = ({ assetType }) => (
     pageTitle={
       <>
         <ControlCentreIcon className="w-auto h-4 mr-1 stroke-current" />
-        <T id="manageAssets" />
+        <T id={assetType === AssetTypesEnum.Collectibles ? "manageCollectibles" : "manageAssets"} />
       </>
     }
   >
@@ -124,16 +124,18 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
 
   const handleAssetUpdate = useCallback(
     async (assetSlug: string, status: ITokenStatus) => {
+      console.log(assetType);
+      
       try {
         if (status === ITokenStatus.Removed) {
           const confirmed = await confirm({
-            title: t("deleteTokenConfirm"),
+            title: assetType === AssetTypesEnum.Collectibles ? t("deleteCollectibleConfirm") : t("deleteTokenConfirm"),
           });
           if (!confirmed) return;
         }
 
         await setTokenStatus(
-          ITokenType.Fungible,
+          assetType === AssetTypesEnum.Collectibles ? ITokenType.Collectible : ITokenType.Fungible,
           chainId,
           address,
           assetSlug,
@@ -147,7 +149,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
         alert(err.message);
       }
     },
-    [chainId, address, confirm, revalidate]
+    [chainId, address, confirm, revalidate, assetType]
   );
 
   return (
@@ -172,7 +174,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
           <AddIcon
             className={classNames("mr-1 h-5 w-auto stroke-current stroke-2")}
           />
-          <T id="addToken" />
+          <T id={assetType === AssetTypesEnum.Collectibles ? "addCollectible" : "addToken"} />
         </Link>
       </div>
 
@@ -195,6 +197,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
                 last={last}
                 checked={tokenStatuses[slug]?.displayed ?? false}
                 onUpdate={handleAssetUpdate}
+                assetType={assetType}
               />
             );
           })}
@@ -244,6 +247,7 @@ type ListItemProps = {
   last: boolean;
   checked: boolean;
   onUpdate: (assetSlug: string, status: ITokenStatus) => void;
+  assetType: string;
 };
 
 const ListItem = memo<ListItemProps>(

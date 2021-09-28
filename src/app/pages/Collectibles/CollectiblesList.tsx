@@ -73,14 +73,23 @@ const CollectiblesList = () => {
         </Link>
       </div>
       <div className="mt-1 mb-3 w-full border rounded border-gray-200">
-        {filteredAssets.map((item, index) => (
-          <CollectibleItem
-            key={item}
-            assetSlug={item}
-            index={index}
-            itemsLength={filteredAssets.length}
-          />
-        ))}
+        {filteredAssets.length === 0 ? (
+          <p className={'text-gray-600 text-center text-xs py-6'}>
+            <T id="zeroCollectibleText" />
+          </p>
+        ) : (
+          <>
+            {filteredAssets.map((item, index) => (
+              <CollectibleItem
+                key={item}
+                assetSlug={item}
+                index={index}
+                itemsLength={filteredAssets.length}
+              />
+            ))}
+          </>
+        )}
+        
       </div>
     </div>
   );
