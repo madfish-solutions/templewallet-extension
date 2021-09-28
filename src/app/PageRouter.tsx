@@ -3,6 +3,7 @@ import React, { FC, useLayoutEffect, useMemo } from "react";
 import { OpenInFullPage, useAppEnv } from "app/env";
 import AddToken from "app/pages/AddToken";
 import BuyCrypto from "app/pages/BuyCrypto/BuyCrypto";
+import CollectiblePage from "app/pages/Collectibles/CollectiblePage";
 import ConnectLedger from "app/pages/ConnectLedger";
 import CreateAccount from "app/pages/CreateAccount";
 import CreateWallet from "app/pages/CreateWallet";
@@ -21,8 +22,6 @@ import Welcome from "app/pages/Welcome";
 import { usePageRouterAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
-
-import CollectiblePage from "./pages/Collectibles/CollectiblePage";
 
 interface RouteContext {
   popup: boolean;
