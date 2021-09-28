@@ -22,10 +22,12 @@ interface Props {
 }
 
 const CollectiblePage: FC<Props> = ({ assetSlug }) => {
-  const assetId = useMemo(
-    () => new BigNumber(fromFa2TokenSlug(assetSlug).id),
+  const [assetContract, assetId] = useMemo(
+    () => [fromFa2TokenSlug(assetSlug).contract, new BigNumber(fromFa2TokenSlug(assetSlug).id)],
     [assetSlug]
   );
+
+  
 
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
@@ -44,8 +46,8 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
       >
         <div className={classNames("w-full max-w-sm mx-auto")}>
           <div
-            style={{ borderRadius: "12px" }}
-            className={"border border-gray-300 max-w-xs p-6 mx-auto my-10"}
+            style={{ borderRadius: "12px", width: '320px' }}
+            className={"border border-gray-300 p-6 mx-auto my-10"}
           >
             <CollectibleImage
               collectibleMetadata={collectibleData}
@@ -79,9 +81,9 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
               style={{ color: "#1B262C" }}
               className="text-xs inline align-text-bottom"
             >
-              <HashShortView hash={assetSlug} />
+              <HashShortView hash={assetContract} />
             </p>
-            <CopyButton text={assetSlug} type="link">
+            <CopyButton text={assetContract} type="link">
               <CopyIcon
                 style={{ verticalAlign: "inherit" }}
                 className={classNames(

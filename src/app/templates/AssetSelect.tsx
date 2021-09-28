@@ -41,7 +41,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
   const { data: collectibles = [] } = useCollectibleTokens(
     chainId,
     address,
-    false
+    true
   );
 
   const assets = useMemo<IAsset[]>(

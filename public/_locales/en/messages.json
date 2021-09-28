@@ -2251,5 +2251,17 @@
   },
   "id": {
     "message": "ID"
+  },
+  "addCollectible": {
+    "message": "Add Collectible"
+  },
+  "manageCollectibles": {
+    "message": "Manage Collectibles"
+  },
+  "deleteCollectibleConfirm": {
+    "message": "Are you sure you want to delete this collectible?"
+  },
+  "zeroCollectibleText": {
+    "message": "You don’t have NFT yet!\nGood time to get one of them"
   }
 }
