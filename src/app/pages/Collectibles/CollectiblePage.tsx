@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useMemo } from "react";
 
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
@@ -13,11 +13,7 @@ import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import PageLayout from "app/layouts/PageLayout";
 import { T } from "lib/i18n/react";
 import { fromFa2TokenSlug } from "lib/temple/assets/utils";
-import {
-  useAccount,
-  useAssetMetadata,
-  useBalance
-} from "lib/temple/front";
+import { useAccount, useAssetMetadata, useBalance } from "lib/temple/front";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 import { navigate } from "lib/woozie";
 
@@ -26,24 +22,25 @@ interface Props {
 }
 
 const CollectiblePage: FC<Props> = ({ assetSlug }) => {
-  const [assetId, setAssetId] = useState(new BigNumber(0));
+  const assetId = useMemo(
+    () => new BigNumber(fromFa2TokenSlug(assetSlug).id),
+    [assetSlug]
+  );
 
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
-  const { data: collectibleBalance } = useBalance(assetSlug, accountPkh);
+  const { data: collectibleBalance } = useBalance(assetSlug, accountPkh, {
+    suspense: false,
+  });
 
   const { copy } = useCopyToClipboard();
   const collectibleData = useAssetMetadata(assetSlug)!;
-
-  useEffect(() => {
-    setAssetId(fromFa2TokenSlug(assetSlug).id as BigNumber);
-  }, [assetSlug]);
 
   return (
     <PageLayout pageTitle={collectibleData.name}>
       <div
         style={{ maxWidth: "360px", margin: "auto" }}
-        className="text-center"
+        className="text-center pb-4"
       >
         <div className={classNames("w-full max-w-sm mx-auto")}>
           <div
@@ -70,7 +67,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
             <T id={"amount"} />
           </p>
           <p style={{ color: "#1B262C" }} className="text-xs">
-            {collectibleBalance!.toFixed()}
+            {collectibleBalance ? collectibleBalance.toFixed() : ""}
           </p>
         </div>
         <div className="flex justify-between items-baseline mb-4">
