@@ -56,6 +56,7 @@ import {
 import useTippy from "lib/ui/useTippy";
 
 import styles from "./SwapForm.module.css";
+import {usePriceImpact} from "./usePriceImpact.hook";
 
 type SwapFormValues = {
   input: SwapInputValue;
@@ -119,7 +120,6 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
     tezUsdPrice,
   } = useSwappableAssets();
   const { getInputAssetAmount, getOutputAssetAmounts } = useSwapCalculations();
-
   const tezos = useTezos();
   const network = useNetwork();
   const { publicKeyHash: accountPkh } = useAccount();
@@ -294,6 +294,25 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
     return { base, value: prettifiedExchangeRate };
   }, [inputAssetAmount, outputAssetAmount, inputAsset]);
 
+  let inputContractAddress, outputContractAddress;
+
+  if(inputAsset && outputAsset) {
+    inputContractAddress = getAssetExchangeData(
+        tokensExchangeData,
+        tezUsdPrice,
+        inputAsset!,
+        selectedExchanger
+    )?.contract;
+    outputContractAddress = getAssetExchangeData(
+        tokensExchangeData,
+        tezUsdPrice,
+        outputAsset!,
+        selectedExchanger
+    )?.contract;
+  }
+
+  const priceImpact = usePriceImpact(tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAssetAmount, outputAssetAmount, inputAsset, outputAsset);
+
   const onSubmit = useCallback(
     async ({
       exchanger,
@@ -306,6 +325,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       setIsSubmitting(true);
       const analyticsProperties = {
         exchanger,
+
         inputAsset: inputAsset!.symbol,
         outputAsset: outputAsset!.symbol,
       };
@@ -573,7 +593,18 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
     }),
     []
   );
+
+  const priceImpactInfoTippyProps = useMemo(
+      () => ({
+        trigger: "mouseenter",
+        hideOnClick: false,
+        content: t("priceImpactInfo"),
+        animation: "shift-away-subtle",
+      }),
+      []
+  );
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
+  const priceImpactInfoIconRef = useTippy<HTMLSpanElement>(priceImpactInfoTippyProps);
 
   const getUpdateInputAmountBatch = useCallback(
     async (
@@ -982,6 +1013,23 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
             </td>
             <td className="text-right text-gray-600">
               {getFeePercentage(selectedExchanger).toString()}%
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div className="flex items-center">
+                <T id="priceImpact" />
+                &nbsp;
+                <span ref={priceImpactInfoIconRef} className="text-gray-600">
+                  <InfoIcon className="w-3 h-auto stroke-current" />
+                </span>
+                :
+              </div>
+            </td>
+            <td className="text-right text-gray-600">
+              {selectedExchanger && inputAssetAmount && outputAssetAmount && inputAsset && outputAsset
+                  ? `${priceImpact.toFixed(2)}%`
+                  : "-"}
             </td>
           </tr>
           <tr>
