@@ -11,8 +11,10 @@ import {
 } from "@taquito/taquito";
 import * as TaquitoUtils from "@taquito/utils";
 import { LedgerTempleBridgeTransport } from "@temple-wallet/ledger-bridge";
+import * as aes from "aes-js";
 import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
+import * as pbkdf2 from "pbkdf2";
 import { browser } from "webextension-polyfill-ts";
 
 import { getMessage } from "lib/i18n";
@@ -23,7 +25,6 @@ import {
   fetchAndDecryptOne,
   encryptAndSaveMany,
   removeMany,
-  encrypt,
 } from "lib/temple/back/safe-storage";
 import {
   transformHttpResponseError,
@@ -156,13 +157,35 @@ export class Vault {
         (acc) => acc.type === TempleAccountType.HD
       );
 
-      const {
-        salt,
-        encrypted: { iv, dt },
-      } = await encrypt({ mnemonic, hdLength: hdAccounts.length }, passKey);
-      const prefix = Buffer.from(TEMPLE_SYNC_PREFIX, "utf8").toString("hex");
+      const data = [mnemonic, hdAccounts.length];
 
-      return `${prefix}${salt}${iv}${dt}`;
+      const salt = Passworder.generateSalt(16);
+      const saltHex = Buffer.from(salt).toString("hex");
+
+      const key = pbkdf2.pbkdf2Sync(
+        password,
+        saltHex,
+        5_000,
+        256 / 8,
+        "sha512"
+      );
+
+      let textBytes = aes.utils.utf8.toBytes(JSON.stringify(data));
+      const reminder = textBytes.length % 16;
+      if (reminder !== 0) {
+        textBytes = new Uint8Array([
+          ...textBytes,
+          ...Array.from({ length: 16 - reminder }).map(() => 0),
+        ]);
+      }
+
+      const iv = Passworder.generateSalt(16);
+      const aesCbc = new aes.ModeOfOperation.cbc(key, iv);
+      const encryptedBytes = aesCbc.encrypt(textBytes);
+
+      return [TEMPLE_SYNC_PREFIX, salt, iv, encryptedBytes]
+        .map((item) => Buffer.from(item).toString("base64"))
+        .join("");
     });
   }
 

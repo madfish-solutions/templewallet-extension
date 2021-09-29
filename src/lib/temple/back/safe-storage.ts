@@ -39,7 +39,7 @@ export async function removeMany(keys: string[]) {
   await browser.storage.local.remove(keys);
 }
 
-export async function encrypt(stuff: any, passKey: CryptoKey) {
+async function encrypt(stuff: any, passKey: CryptoKey) {
   const salt = Passworder.generateSalt();
   const derivedPassKey = await Passworder.deriveKey(passKey, salt);
   const encrypted = await Passworder.encrypt(stuff, derivedPassKey);
@@ -50,10 +50,7 @@ export async function encrypt(stuff: any, passKey: CryptoKey) {
   };
 }
 
-export async function decrypt<T>(
-  encStorage: EncryptedStorage,
-  passKey: CryptoKey
-) {
+async function decrypt<T>(encStorage: EncryptedStorage, passKey: CryptoKey) {
   const { salt: saltHex, encrypted } = encStorage;
   const salt = Buffer.from(saltHex, "hex");
   const derivedPassKey = await Passworder.deriveKey(passKey, salt);
