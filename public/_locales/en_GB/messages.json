@@ -295,7 +295,7 @@
     "message": "Symbol"
   },
   "tokenSymbolInputDescription": {
-    "message": "Token symbol, like 'USD' for United States Dollar."
+    "message": "Asset symbol, like 'USD' for United States Dollar."
   },
   "tokenSymbolInputPlaceholder": {
     "message": "e.g. WEW, BOW, LAL etc."
@@ -307,7 +307,7 @@
     "message": "Name"
   },
   "tokenNameInputDescription": {
-    "message": "Token name, like 'Bitcoin' for BTC asset."
+    "message": "Asset name, like 'Bitcoin' for BTC asset."
   },
   "tokenNameInputPlaceholder": {
     "message": "e.g. MySuperToken"
@@ -340,7 +340,7 @@
     "message": "(optional)"
   },
   "iconURLInputDescription": {
-    "message": "Image URL for token logo."
+    "message": "Image URL for asset logo."
   },
   "invalidAddress": {
     "message": "Invalid address"
@@ -1364,8 +1364,8 @@
   "manage": {
     "message": "Manage"
   },
-  "manageAssets": {
-    "message": "Manage Assets"
+  "manageTokens": {
+    "message": "Manage Tokens"
   },
   "noAssetsFound": {
     "message": "No assets found"
