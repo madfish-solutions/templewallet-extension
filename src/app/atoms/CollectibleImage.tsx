@@ -20,11 +20,11 @@ const CollectibleImage: FC<Props> = ({
       <img
         onLoad={() => setIsLoaded(true)}
         alt={collectibleMetadata.name}
-        style={isLoaded ? { display: "none" } : {}}
+        style={!isLoaded ? { display: "none" } : {}}
         className={className}
         src={formatImgUri(collectibleMetadata.artifactUri!)}
       />
-      {isLoaded && <Placeholder style={{display: 'inline'}} />}
+      {!isLoaded && <Placeholder style={{display: 'inline'}} />}
     </>
   );
 };
