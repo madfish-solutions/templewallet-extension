@@ -71,6 +71,13 @@ async function processRequest(
         mnemonic,
       };
 
+    case TempleMessageType.GenerateSyncPayloadRequest:
+      const payload = await Actions.generateSyncPayload(req.password);
+      return {
+        type: TempleMessageType.GenerateSyncPayloadResponse,
+        payload,
+      };
+
     case TempleMessageType.RemoveAccountRequest:
       await Actions.removeAccount(req.accountPublicKeyHash, req.password);
       return {

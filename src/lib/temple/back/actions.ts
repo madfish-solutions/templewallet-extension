@@ -119,6 +119,10 @@ export function revealMnemonic(password: string) {
   return withUnlocked(() => Vault.revealMnemonic(password));
 }
 
+export function generateSyncPayload(password: string) {
+  return withUnlocked(() => Vault.generateSyncPayload(password));
+}
+
 export function revealPrivateKey(accPublicKeyHash: string, password: string) {
   return withUnlocked(() => Vault.revealPrivateKey(accPublicKeyHash, password));
 }

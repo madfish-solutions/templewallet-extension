@@ -17,8 +17,8 @@ import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Money from "app/atoms/Money";
 import Spinner from "app/atoms/Spinner";
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
+import { ReactComponent as RefreshIcon } from "app/icons/refresh.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
-import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import AssetIcon from "app/templates/AssetIcon";
 import {
   getAssetExchangeData,
@@ -658,7 +658,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   onFocus={setFieldActive}
                   onBlur={setFieldInactive}
                 >
-                  <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-1" />
+                  <RefreshIcon className="w-4 h-auto text-gray-700 stroke-current stroke-1" />
                 </button>
               )}
               <div

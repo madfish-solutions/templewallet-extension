@@ -12,6 +12,7 @@ import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import { ReactComponent as SettingsIcon } from "app/icons/settings.svg";
 import { ReactComponent as SignalAltIcon } from "app/icons/signal-alt.svg";
 import { ReactComponent as StickerIcon } from "app/icons/sticker.svg";
+import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
 import PageLayout from "app/layouts/PageLayout";
 import About from "app/templates/About";
 import ActivateAccount from "app/templates/ActivateAccount";
@@ -22,6 +23,7 @@ import GeneralSettings from "app/templates/GeneralSettings";
 import HelpAndCommunity from "app/templates/HelpAndCommunity";
 import RemoveAccount from "app/templates/RemoveAccount";
 import RevealSecret from "app/templates/RevealSecret";
+import SyncSettings from "app/templates/SyncSettings";
 import { T } from "lib/i18n/react";
 import { Link } from "lib/woozie";
 
@@ -45,6 +47,15 @@ const TABS = [
     testID: SettingsSelectors.GeneralButton,
   },
   {
+    slug: "synchronization",
+    titleI18nKey: "synchronization",
+    Icon: SyncIcon,
+    Component: SyncSettings,
+    color: "#7ED9A7",
+    descriptionI18nKey: "synchronizationSettingsDescription",
+    testID: SettingsSelectors.SynchronizationButton,
+  },
+  {
     slug: "address-book",
     titleI18nKey: "addressBook",
     Icon: ContactBookIcon,
@@ -52,6 +63,15 @@ const TABS = [
     color: "#d53f8c",
     descriptionI18nKey: "addressBookDescription",
     testID: SettingsSelectors.AddressBookButton,
+  },
+  {
+    slug: "networks",
+    titleI18nKey: "networks",
+    Icon: SignalAltIcon,
+    Component: CustomNetworksSettings,
+    color: "#F6C90E",
+    descriptionI18nKey: "networksDescription",
+    testID: SettingsSelectors.NetworksButton,
   },
   {
     slug: "reveal-private-key",
@@ -81,13 +101,13 @@ const TABS = [
     testID: SettingsSelectors.DAppsButton,
   },
   {
-    slug: "networks",
-    titleI18nKey: "networks",
-    Icon: SignalAltIcon,
-    Component: CustomNetworksSettings,
-    color: "#F6C90E",
-    descriptionI18nKey: "networksDescription",
-    testID: SettingsSelectors.NetworksButton,
+    slug: "remove-account",
+    titleI18nKey: "removeAccount",
+    Icon: MinusIcon,
+    Component: RemoveAccount,
+    color: "rgb(245, 101, 101)",
+    descriptionI18nKey: "removeAccountDescription",
+    testID: SettingsSelectors.RemoveAccountButton,
   },
   {
     slug: "activate-account",
@@ -97,15 +117,6 @@ const TABS = [
     color: "rgb(131, 179, 0)",
     descriptionI18nKey: "activateAccountDescription",
     testID: SettingsSelectors.ActivateAccountButton,
-  },
-  {
-    slug: "remove-account",
-    titleI18nKey: "removeAccount",
-    Icon: MinusIcon,
-    Component: RemoveAccount,
-    color: "rgb(245, 101, 101)",
-    descriptionI18nKey: "removeAccountDescription",
-    testID: SettingsSelectors.RemoveAccountButton,
   },
   {
     slug: "about",

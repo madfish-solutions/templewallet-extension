@@ -2245,5 +2245,14 @@
   },
   "important": {
     "message": "Important"
+  },
+  "sync": {
+    "message": "Sync"
+  },
+  "synchronization": {
+    "message": "Synchronization"
+  },
+  "synchronizationSettingsDescription": {
+    "message": "Sync with Mobile Temple Wallet."
   }
 }

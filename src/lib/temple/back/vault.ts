@@ -23,6 +23,7 @@ import {
   fetchAndDecryptOne,
   encryptAndSaveMany,
   removeMany,
+  encrypt,
 } from "lib/temple/back/safe-storage";
 import {
   transformHttpResponseError,
@@ -39,6 +40,7 @@ import {
   TempleSettings,
 } from "lib/temple/types";
 
+const TEMPLE_SYNC_PREFIX = "templesync";
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = "vault";
 const DEFAULT_SETTINGS: TempleSettings = {};
@@ -140,6 +142,28 @@ export class Vault {
     return withError("Failed to reveal seed phrase", () =>
       fetchAndDecryptOne<string>(mnemonicStrgKey, passKey)
     );
+  }
+
+  static async generateSyncPayload(password: string) {
+    const passKey = await Vault.toValidPassKey(password);
+    return withError("Failed to generate sync payload", async () => {
+      const [mnemonic, allAccounts] = await Promise.all([
+        fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
+        fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey),
+      ]);
+
+      const hdAccounts = allAccounts.filter(
+        (acc) => acc.type === TempleAccountType.HD
+      );
+
+      const {
+        salt,
+        encrypted: { iv, dt },
+      } = await encrypt({ mnemonic, hdLength: hdAccounts.length }, passKey);
+      const prefix = Buffer.from(TEMPLE_SYNC_PREFIX, "utf8").toString("hex");
+
+      return `${prefix}${salt}${iv}${dt}`;
+    });
   }
 
   static async revealPrivateKey(accPublicKeyHash: string, password: string) {
