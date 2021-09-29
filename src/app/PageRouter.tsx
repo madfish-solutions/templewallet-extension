@@ -1,7 +1,7 @@
 import React, { FC, useLayoutEffect, useMemo } from "react";
 
 import { OpenInFullPage, useAppEnv } from "app/env";
-import AddToken from "app/pages/AddToken";
+import AddAsset from "app/pages/AddAsset";
 import BuyCrypto from "app/pages/BuyCrypto/BuyCrypto";
 import CollectiblePage from "app/pages/Collectibles/CollectiblePage";
 import ConnectLedger from "app/pages/ConnectLedger";
@@ -94,7 +94,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     "/collectible/:assetSlug?",
     onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />),
   ],
-  ["/add-token", onlyReady(onlyInFullPage(() => <AddToken />))],
+  ["/add-asset", onlyReady(onlyInFullPage(() => <AddAsset />))],
   [
     "/settings/:tabSlug?",
     onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),

@@ -244,6 +244,9 @@
   "addToken": {
     "message": "Add Token"
   },
+  "addAsset": {
+    "message": "Add Asset"
+  },
   "contractNotAvailable": {
     "message": "The contract at this address is not available. Does it exist on this network?"
   },
@@ -267,8 +270,11 @@
   "tokenId": {
     "message": "Token ID"
   },
+  "assetId": {
+    "message": "Asset ID"
+  },
   "tokenIdInputDescription": {
-    "message": "A non-negative integer number that identifies the token inside FA2 contract"
+    "message": "A non-negative integer number that identifies the asset inside FA2 contract"
   },
   "comingSoon": {
     "message": "Coming soon"
@@ -286,7 +292,7 @@
     "message": "Address"
   },
   "addressOfDeployedTokenContract": {
-    "message": "Address of a deployed token contract."
+    "message": "Address of a deployed asset contract."
   },
   "tokenContractPlaceholder": {
     "message": "e.g. KT1v9CmPy..."
@@ -1430,6 +1436,9 @@
   "assets": {
     "message": "Assets"
   },
+  "tokens": {
+    "message": "Tokens"
+  },
   "activity": {
     "message": "Activity"
   },
@@ -2262,6 +2271,6 @@
     "message": "Are you sure you want to delete this collectible?"
   },
   "zeroCollectibleText": {
-    "message": "You don’t have NFT yet!\nGood time to get one of them"
+    "message": "You don’t have collectibles yet!\nGood time to get one of them"
   }
 }

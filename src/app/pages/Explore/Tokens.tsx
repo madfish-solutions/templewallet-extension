@@ -38,7 +38,7 @@ import { Link, navigate } from "lib/woozie";
 
 import { AssetsSelectors } from "./Assets.selectors";
 
-const Assets: FC = () => {
+const Tokens: FC = () => {
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
@@ -232,7 +232,7 @@ const Assets: FC = () => {
   );
 };
 
-export default Assets;
+export default Tokens;
 
 type ListItemProps = {
   assetSlug: string;

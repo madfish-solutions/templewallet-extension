@@ -158,7 +158,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
         <SearchAssetField value={searchValue} onValueChange={setSearchValue} />
 
         <Link
-          to="/add-token"
+          to="/add-asset"
           className={classNames(
             "ml-2 flex-shrink-0",
             "px-3 py-1",
@@ -231,7 +231,13 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
               id="ifYouDontSeeYourAsset"
               substitutions={[
                 <b>
-                  <T id="addToken" />
+                  {
+                    assetType === AssetTypesEnum.Collectibles ? (
+                      <T id={'addCollectible'} />
+                    ) : (
+                      <T id={'addToken'} />
+                    )
+                  }
                 </b>,
               ]}
             />
