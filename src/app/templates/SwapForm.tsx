@@ -1,57 +1,45 @@
-import React, {
-  ChangeEvent,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, {ChangeEvent, forwardRef, useCallback, useEffect, useMemo, useRef, useState,} from "react";
 
-import { WalletOperation } from "@taquito/taquito";
+import {WalletOperation} from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import debouncePromise from "debounce-promise";
-import { Controller, useForm } from "react-hook-form";
-import { browser } from "webextension-polyfill-ts";
+import {Controller, useForm} from "react-hook-form";
+import {browser} from "webextension-polyfill-ts";
 
 import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Money from "app/atoms/Money";
-import { ReactComponent as InfoIcon } from "app/icons/info.svg";
-import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg";
+import {ReactComponent as InfoIcon} from "app/icons/info.svg";
+import {ReactComponent as SwapVerticalIcon} from "app/icons/swap-vertical.svg";
 import OperationStatus from "app/templates/OperationStatus";
-import SwapInput, { SwapInputValue } from "app/templates/SwapForm/SwapInput";
+import SwapInput, {SwapInputValue} from "app/templates/SwapForm/SwapInput";
 import useSwapCalculations from "app/templates/SwapForm/useSwapCalculations";
+import {getAssetExchangeData, TokenExchangeData, useSwappableAssets,} from "app/templates/SwapForm/useSwappableAssets";
+import {useFormAnalytics} from "lib/analytics";
+import {toLocalFixed} from "lib/i18n/numbers";
+import {T, t} from "lib/i18n/react";
+import {useRetryableSWR} from "lib/swr";
 import {
-  getAssetExchangeData,
-  TokenExchangeData,
-  useSwappableAssets,
-} from "app/templates/SwapForm/useSwappableAssets";
-import { useFormAnalytics } from "lib/analytics";
-import { toLocalFixed } from "lib/i18n/numbers";
-import { T, t } from "lib/i18n/react";
-import { useRetryableSWR } from "lib/swr";
-import {
-  TempleAssetType,
-  useNetwork,
-  useTezos,
   ALL_EXCHANGERS_TYPES,
-  useAccount,
-  swap,
-  fetchBalance,
+  assetAmountToUSD,
   assetsAreSame,
   EXCHANGE_XTZ_RESERVE,
-  useBalance,
-  assetAmountToUSD,
   ExchangerType,
-  TempleAsset,
+  fetchBalance,
   getAssetId,
   getFeePercentage,
-  toSlugFromLegacyAsset,
-  useTokensMetadata,
+  swap,
+  TempleAsset,
+  TempleAssetType,
   toLegacyAsset,
+  toSlugFromLegacyAsset,
+  useAccount,
+  useBalance,
+  useNetwork,
+  useTezos,
+  useTokensMetadata,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 
@@ -279,37 +267,44 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
     }
     const rawExchangeRate = inputAssetAmount.div(outputAssetAmount);
     if (rawExchangeRate.eq(0)) {
-      return { base: new BigNumber(1), value: new BigNumber(0) };
+      return {base: new BigNumber(1), value: new BigNumber(0)};
     }
     const base = new BigNumber(10).pow(
-      BigNumber.max(
-        0,
-        -Math.floor(Math.log10(rawExchangeRate.toNumber())) -
-          inputAsset.decimals
-      )
+        BigNumber.max(
+            0,
+            -Math.floor(Math.log10(rawExchangeRate.toNumber())) -
+            inputAsset.decimals
+        )
     );
     const prettifiedExchangeRate = rawExchangeRate
-      .multipliedBy(base)
-      .decimalPlaces(inputAsset.decimals);
-    return { base, value: prettifiedExchangeRate };
+        .multipliedBy(base)
+        .decimalPlaces(inputAsset.decimals);
+    return {base, value: prettifiedExchangeRate};
   }, [inputAssetAmount, outputAssetAmount, inputAsset]);
 
-  let inputContractAddress, outputContractAddress;
-
-  if(inputAsset && outputAsset) {
-    inputContractAddress = getAssetExchangeData(
+  const inputContractAddress = useMemo(() => {
+    if (!inputAsset) {
+      return undefined;
+    }
+    return getAssetExchangeData(
         tokensExchangeData,
         tezUsdPrice,
         inputAsset!,
         selectedExchanger
     )?.contract;
-    outputContractAddress = getAssetExchangeData(
+  }, [tokensExchangeData, tezUsdPrice, inputAsset, selectedExchanger])
+
+  const outputContractAddress = useMemo(() => {
+    if (!outputAsset) {
+      return undefined;
+    }
+    return getAssetExchangeData(
         tokensExchangeData,
         tezUsdPrice,
         outputAsset!,
         selectedExchanger
     )?.contract;
-  }
+  }, [tokensExchangeData, tezUsdPrice, outputAsset, selectedExchanger])
 
   const priceImpact = usePriceImpact(tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAssetAmount, outputAssetAmount, inputAsset, outputAsset);
 
@@ -1027,9 +1022,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
               </div>
             </td>
             <td className="text-right text-gray-600">
-              {selectedExchanger && inputAssetAmount && outputAssetAmount && inputAsset && outputAsset
-                  ? `${priceImpact.toFixed(2)}%`
-                  : "-"}
+              {priceImpact ? `${priceImpact.toFixed(2)}%` : "-"}
             </td>
           </tr>
           <tr>
