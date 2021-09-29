@@ -1,4 +1,4 @@
-import React, { FC, StyleHTMLAttributes, useState } from "react";
+import React, { FC, useState } from "react";
 
 import { formatImgUri } from "lib/image-uri";
 import { AssetMetadata } from "lib/temple/metadata/types";
