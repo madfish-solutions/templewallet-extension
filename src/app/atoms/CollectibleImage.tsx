@@ -24,7 +24,7 @@ const CollectibleImage: FC<Props> = ({
         className={className}
         src={formatImgUri(collectibleMetadata.artifactUri!)}
       />
-      {!isLoaded && <Placeholder style={{display: 'inline'}} />}
+      {!isLoaded && <Placeholder style={{ display: "inline" }} />}
     </>
   );
 };

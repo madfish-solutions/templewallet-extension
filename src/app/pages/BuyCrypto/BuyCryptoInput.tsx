@@ -1,5 +1,6 @@
 import React, { ChangeEvent, FC } from "react";
 
+import { Modifier } from "@popperjs/core";
 import classNames from "clsx";
 import useSWR from "swr";
 
@@ -7,19 +8,22 @@ import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Spinner from "app/atoms/Spinner";
 import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import CurrencyComponent from "app/pages/BuyCrypto/CurrencyComponent";
-import { getCurrencies } from "lib/exolix-api";
+import { getCurrencies, getRateDataInterface } from "lib/exolix-api";
+import { T } from "lib/i18n/react";
 import Popper from "lib/ui/Popper";
 
 interface Props {
   type: string;
   coin: string;
   setCoin?: (coin: string) => void;
-  minAmount?: string;
   onChangeInputHandler?: (value: ChangeEvent<HTMLInputElement>) => void;
   value?: number;
   amount?: number;
   lastMinAmount?: string;
   readOnly?: boolean;
+  rates?: getRateDataInterface;
+  maxAmount?: number;
+  isMaxAmountError?: boolean;
 }
 
 const numbersAndDotRegExp = /^[0-9]*\.?[0-9]*$/;
@@ -53,22 +57,47 @@ const coinList = [
   "SUSHI",
 ];
 
+const sameWidth: Modifier<string, any> = {
+  name: "sameWidth",
+  enabled: true,
+  phase: "beforeWrite",
+  requires: ["computeStyles"],
+  fn: ({ state }) => {
+    state.styles.popper.width = `${state.rects.reference.width}px`;
+    state.styles.popper.left = "-3px";
+  },
+  effect: ({ state }) => {
+    state.elements.popper.style.width = `${
+      (state.elements.reference as any).offsetWidth
+    }px`;
+    return () => {};
+  },
+};
+
 const BuyCryptoInput: FC<Props> = ({
   type,
   coin,
   setCoin = () => void 0,
-  minAmount,
   value,
   readOnly = false,
   amount,
   lastMinAmount,
   onChangeInputHandler,
+  rates = { destination_amount: 0, rate: 0, min_amount: "0" },
+  maxAmount,
+  isMaxAmountError,
 }) => {
   const isCoinFromType = type === "coinFrom";
   const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(
     ["/api/currency"],
     getCurrencies
   );
+
+  const isMinAmountError =
+    lastMinAmount !== undefined &&
+    amount !== undefined &&
+    amount !== 0 &&
+    Number(lastMinAmount) > Number(amount);
 
   const filteredCurrencies = currencies.filter(
     (currency) => currency.status === 1 && coinList.includes(currency.code)
@@ -77,10 +106,31 @@ const BuyCryptoInput: FC<Props> = ({
     <>
       <div className={styles["titleWrapper"]}>
         <p className={styles["titleLeft"]}>{isCoinFromType ? "Send" : "Get"}</p>
-        <p className={styles["titleRight"]}>
+        <p
+          className={classNames(
+            isMinAmountError ? "text-red-700" : "text-gray-500"
+          )}
+        >
           {isCoinFromType ? (
             <>
-              minimum amount: <span>{minAmount}</span> <span>{coin}</span>
+              <T id={"min"}></T>
+              <span
+                className={classNames(
+                  isMinAmountError ? "text-red-700" : "text-gray-700",
+                  "text-sm"
+                )}
+              >
+                {" "}
+                {rates!.min_amount}
+              </span>{" "}
+              <span
+                className={classNames(
+                  isMinAmountError ? "text-red-700" : "text-gray-700",
+                  "text-xs"
+                )}
+              >
+                {coin}
+              </span>
             </>
           ) : null}
         </p>
@@ -91,6 +141,7 @@ const BuyCryptoInput: FC<Props> = ({
             <Popper
               placement="bottom"
               strategy="fixed"
+              modifiers={[sameWidth]}
               fallbackPlacementsEnabled={false}
               popup={({ opened, setOpened }) => (
                 <DropdownWrapper
@@ -162,13 +213,39 @@ const BuyCryptoInput: FC<Props> = ({
           />
         </div>
       </div>
-      <p className={"absolute text-red-700 text-xs"}>
-        {lastMinAmount !== undefined &&
-          amount !== undefined &&
-          amount !== 0 &&
-          Number(lastMinAmount) > Number(amount) &&
-          `Minimum amount: ${minAmount} ${coin}`}
-      </p>
+      <div
+        className={styles["titleWrapper"]}
+        style={{ justifyContent: "flex-end" }}
+      >
+        <p
+          className={classNames(
+            isMaxAmountError ? "text-red-700" : "text-gray-500"
+          )}
+        >
+          {isCoinFromType ? (
+            <>
+              <T id={"max"}></T>:
+              <span
+                className={classNames(
+                  isMaxAmountError ? "text-red-700" : "text-gray-700",
+                  "text-sm"
+                )}
+              >
+                {" "}
+                {maxAmount !== Infinity ? maxAmount : "0"}
+              </span>{" "}
+              <span
+                className={classNames(
+                  isMaxAmountError ? "text-red-700" : "text-gray-700",
+                  "text-xs"
+                )}
+              >
+                {coin}
+              </span>
+            </>
+          ) : null}
+        </p>
+      </div>
     </>
   );
 };

@@ -2272,5 +2272,8 @@
   },
   "zeroCollectibleText": {
     "message": "You don’t have collectibles yet!\nGood time to get one of them"
+  },
+  "min": {
+    "message": "Min:"
   }
 }

@@ -13,7 +13,7 @@ import { ManageAssetsSelectors } from "app/pages/ManageAssets.selectors";
 import AssetIcon from "app/templates/AssetIcon";
 import SearchAssetField from "app/templates/SearchAssetField";
 import { T, t } from "lib/i18n/react";
-import { AssetTypesEnum } from 'lib/temple/assets/types';
+import { AssetTypesEnum } from "lib/temple/assets/types";
 import {
   useChainId,
   useAllKnownFungibleTokenSlugs,
@@ -33,7 +33,6 @@ import { ITokenStatus, ITokenType } from "lib/temple/repo";
 import { useConfirm } from "lib/ui/dialog";
 import { Link } from "lib/woozie";
 
-
 interface Props {
   assetType: string;
 }
@@ -43,7 +42,13 @@ const ManageAssets: FC<Props> = ({ assetType }) => (
     pageTitle={
       <>
         <ControlCentreIcon className="w-auto h-4 mr-1 stroke-current" />
-        <T id={assetType === AssetTypesEnum.Collectibles ? "manageCollectibles" : "manageTokens"} />
+        <T
+          id={
+            assetType === AssetTypesEnum.Collectibles
+              ? "manageCollectibles"
+              : "manageTokens"
+          }
+        />
       </>
     }
   >
@@ -118,24 +123,27 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
     [slugs, allTokensBaseMetadata, tokenStatuses]
   );
 
-  const filteredTokens = useFilteredAssets(managedTokens, searchValueDebounced)
+  const filteredTokens = useFilteredAssets(managedTokens, searchValueDebounced);
 
   const confirm = useConfirm();
 
   const handleAssetUpdate = useCallback(
     async (assetSlug: string, status: ITokenStatus) => {
-      console.log(assetType);
-      
       try {
         if (status === ITokenStatus.Removed) {
           const confirmed = await confirm({
-            title: assetType === AssetTypesEnum.Collectibles ? t("deleteCollectibleConfirm") : t("deleteTokenConfirm"),
+            title:
+              assetType === AssetTypesEnum.Collectibles
+                ? t("deleteCollectibleConfirm")
+                : t("deleteTokenConfirm"),
           });
           if (!confirmed) return;
         }
 
         await setTokenStatus(
-          assetType === AssetTypesEnum.Collectibles ? ITokenType.Collectible : ITokenType.Fungible,
+          assetType === AssetTypesEnum.Collectibles
+            ? ITokenType.Collectible
+            : ITokenType.Fungible,
           chainId,
           address,
           assetSlug,
@@ -174,7 +182,13 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
           <AddIcon
             className={classNames("mr-1 h-5 w-auto stroke-current stroke-2")}
           />
-          <T id={assetType === AssetTypesEnum.Collectibles ? "addCollectible" : "addToken"} />
+          <T
+            id={
+              assetType === AssetTypesEnum.Collectibles
+                ? "addCollectible"
+                : "addToken"
+            }
+          />
         </Link>
       </div>
 
@@ -231,13 +245,11 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
               id="ifYouDontSeeYourAsset"
               substitutions={[
                 <b>
-                  {
-                    assetType === AssetTypesEnum.Collectibles ? (
-                      <T id={'addCollectible'} />
-                    ) : (
-                      <T id={'addToken'} />
-                    )
-                  }
+                  {assetType === AssetTypesEnum.Collectibles ? (
+                    <T id={"addCollectible"} />
+                  ) : (
+                    <T id={"addToken"} />
+                  )}
                 </b>,
               ]}
             />

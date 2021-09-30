@@ -32,13 +32,13 @@ export async function toTransferParams(
       .toFixed();
     const methodArgs = isFA2Token(asset)
       ? [
-        [
-          {
-            from_: fromPkh,
-            txs: [{ to_: toPkh, token_id: asset.id, amount: pennyAmount }],
-          },
-        ],
-      ]
+          [
+            {
+              from_: fromPkh,
+              txs: [{ to_: toPkh, token_id: asset.id, amount: pennyAmount }],
+            },
+          ],
+        ]
       : [fromPkh, toPkh, pennyAmount];
 
     return contact.methods.transfer(...methodArgs).toTransferParams();
@@ -97,5 +97,8 @@ export function toPenny(metadata: AssetMetadata | null) {
 
 export function useFilteredAssets(assetSlugs: string[], searchValue: string) {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
-  return useMemo(() => searchAssets(searchValue, assetSlugs, allTokensBaseMetadata), [searchValue, assetSlugs, allTokensBaseMetadata])
+  return useMemo(
+    () => searchAssets(searchValue, assetSlugs, allTokensBaseMetadata),
+    [searchValue, assetSlugs, allTokensBaseMetadata]
+  );
 }

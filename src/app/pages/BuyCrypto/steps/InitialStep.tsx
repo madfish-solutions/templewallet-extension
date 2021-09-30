@@ -16,9 +16,10 @@ import {
   submitExchange,
 } from "lib/exolix-api";
 import { T } from "lib/i18n/react";
-import { useAccount } from "lib/temple/front";
+import { useAccount, useAssetUSDPrice } from "lib/temple/front";
 
 const coinTo = "XTZ";
+const maxDollarValue = 5000;
 
 interface Props {
   exchangeData: ExchangeDataInterface | null;
@@ -38,10 +39,13 @@ const InitialStep: FC<Props> = ({
   const [amount, setAmount] = useState(0);
   const [coinFrom, setCoinFrom] = useState("BTC");
   const [lastMinAmount, setLastMinAmount] = useState("");
+  const [lastMaxAmount, setLastMaxAmount] = useState(0);
+
   const [depositAmount, setDepositAmount] = useState(0);
   const { publicKeyHash } = useAccount();
   const [disabledProceed, setDisableProceed] = useState(true);
   const [debouncedAmount] = useDebounce(amount, 500);
+  const tezPrice = useAssetUSDPrice("tez");
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDisableProceed(true);
@@ -74,6 +78,14 @@ const InitialStep: FC<Props> = ({
       getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
     );
 
+  const maxAmount = 1 / ((Number(rates.rate) * tezPrice!) / maxDollarValue);
+  const isMaxAmountError =
+    lastMaxAmount !== Infinity &&
+    lastMaxAmount !== undefined &&
+    amount !== undefined &&
+    amount !== 0 &&
+    Number(amount) > Number(lastMaxAmount);
+
   useEffect(() => {
     setDepositAmount(rates.destination_amount);
     if (amount === 0) {
@@ -90,7 +102,15 @@ const InitialStep: FC<Props> = ({
     if (rates.min_amount > 0) {
       setLastMinAmount(rates.min_amount);
     }
-  }, [rates, amount]);
+    if (maxAmount !== Infinity) {
+      setLastMaxAmount(maxAmount);
+    }
+    if (isMaxAmountError) {
+      setDisableProceed(true);
+    } else {
+      setDisableProceed(false);
+    }
+  }, [rates, amount, maxAmount, isMaxAmountError]);
 
   return (
     <>
@@ -109,10 +129,12 @@ const InitialStep: FC<Props> = ({
             coin={coinFrom}
             setCoin={setCoinFrom}
             type="coinFrom"
-            minAmount={rates.min_amount}
             amount={amount}
             lastMinAmount={lastMinAmount}
             onChangeInputHandler={onAmountChange}
+            rates={rates}
+            maxAmount={lastMaxAmount}
+            isMaxAmountError={isMaxAmountError}
           />
           <br />
           <BuyCryptoInput
