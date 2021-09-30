@@ -42,7 +42,6 @@ const ManageAssets: FC<Props> = ({ assetType }) => (
   <PageLayout
     pageTitle={
       <>
-      {console.log(assetType)}
         <ControlCentreIcon className="w-auto h-4 mr-1 stroke-current" />
         <T id={assetType === AssetTypesEnum.Collectibles ? "manageCollectibles" : "manageTokens"} />
       </>
