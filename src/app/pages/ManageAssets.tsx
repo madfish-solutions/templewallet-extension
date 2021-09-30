@@ -9,49 +9,70 @@ import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import { ReactComponent as ControlCentreIcon } from "app/icons/control-centre.svg";
 import { ReactComponent as SearchIcon } from "app/icons/search.svg";
 import PageLayout from "app/layouts/PageLayout";
+import { ManageAssetsSelectors } from "app/pages/ManageAssets.selectors";
 import AssetIcon from "app/templates/AssetIcon";
 import SearchAssetField from "app/templates/SearchAssetField";
 import { T, t } from "lib/i18n/react";
+import { AssetTypesEnum } from 'lib/temple/assets/types';
 import {
   useChainId,
   useAllKnownFungibleTokenSlugs,
   useAllTokensBaseMetadata,
   useFungibleTokens,
-  isFungibleTokenDisplayed,
+  isTokenDisplayed,
   useAccount,
   useAssetMetadata,
   getAssetName,
   getAssetSymbol,
   setTokenStatus,
-  searchAssets,
+  useAllKnownCollectibleTokenSlugs,
+  useCollectibleTokens,
+  useFilteredAssets,
 } from "lib/temple/front";
 import { ITokenStatus, ITokenType } from "lib/temple/repo";
 import { useConfirm } from "lib/ui/dialog";
 import { Link } from "lib/woozie";
 
-import { ManageAssetsSelectors } from "./ManageAssets.selectors";
 
-const ManageAssets: FC = () => (
+interface Props {
+  assetType: string;
+}
+
+const ManageAssets: FC<Props> = ({ assetType }) => (
   <PageLayout
     pageTitle={
       <>
         <ControlCentreIcon className="w-auto h-4 mr-1 stroke-current" />
-        <T id="manageAssets" />
+        <T id={assetType === AssetTypesEnum.Collectibles ? "manageCollectibles" : "manageTokens"} />
       </>
     }
   >
-    <ManageAssetsContent />
+    <ManageAssetsContent assetType={assetType} />
   </PageLayout>
 );
 
 export default ManageAssets;
 
-type TokenStatuses = Record<string, { displayed: boolean; removed: boolean }>;
+export type TokenStatuses = Record<
+  string,
+  { displayed: boolean; removed: boolean }
+>;
 
-const ManageAssetsContent: FC = () => {
+const ManageAssetsContent: FC<Props> = ({ assetType }) => {
+  const isCollectibles = assetType === AssetTypesEnum.Collectibles;
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
+
+  const {
+    data: allCollectiblesSlugs = [],
+    isValidating: allKnownCollectiblesTokenSlugsLoading,
+  } = useAllKnownCollectibleTokenSlugs(chainId);
+  const {
+    data: collectibles = [],
+    revalidate: revalidateCollectibles,
+    isValidating: collectibleTokensLoading,
+  } = useCollectibleTokens(chainId, address, false);
 
   const {
     data: allTokenSlugs = [],
@@ -59,21 +80,30 @@ const ManageAssetsContent: FC = () => {
   } = useAllKnownFungibleTokenSlugs(chainId);
   const {
     data: tokens = [],
-    revalidate,
+    revalidate: revalidateTokens,
     isValidating: fungibleTokensLoading,
   } = useFungibleTokens(chainId, address);
+
+  const assets = isCollectibles ? collectibles : tokens;
+  const slugs = isCollectibles ? allCollectiblesSlugs : allTokenSlugs;
+  const revalidate = isCollectibles ? revalidateCollectibles : revalidateTokens;
+
   const tokenStatuses = useMemo(() => {
     const statuses: TokenStatuses = {};
-    for (const t of tokens) {
+    for (const t of assets) {
       statuses[t.tokenSlug] = {
-        displayed: isFungibleTokenDisplayed(t),
+        displayed: isTokenDisplayed(t),
         removed: t.status === ITokenStatus.Removed,
       };
     }
     return statuses;
-  }, [tokens]);
+  }, [assets]);
 
-  const loading = allKnownFungibleTokenSlugsLoading || fungibleTokensLoading;
+  const loading =
+    allKnownFungibleTokenSlugsLoading ||
+    fungibleTokensLoading ||
+    allKnownCollectiblesTokenSlugsLoading ||
+    collectibleTokensLoading;
 
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
@@ -82,32 +112,30 @@ const ManageAssetsContent: FC = () => {
 
   const managedTokens = useMemo(
     () =>
-      allTokenSlugs.filter(
+      slugs.filter(
         (slug) => slug in allTokensBaseMetadata && !tokenStatuses[slug]?.removed
       ),
-    [allTokenSlugs, allTokensBaseMetadata, tokenStatuses]
+    [slugs, allTokensBaseMetadata, tokenStatuses]
   );
 
-  const filteredTokens = useMemo(
-    () =>
-      searchAssets(searchValueDebounced, managedTokens, allTokensBaseMetadata),
-    [managedTokens, allTokensBaseMetadata, searchValueDebounced]
-  );
+  const filteredTokens = useFilteredAssets(managedTokens, searchValueDebounced)
 
   const confirm = useConfirm();
 
   const handleAssetUpdate = useCallback(
     async (assetSlug: string, status: ITokenStatus) => {
+      console.log(assetType);
+      
       try {
         if (status === ITokenStatus.Removed) {
           const confirmed = await confirm({
-            title: t("deleteTokenConfirm"),
+            title: assetType === AssetTypesEnum.Collectibles ? t("deleteCollectibleConfirm") : t("deleteTokenConfirm"),
           });
           if (!confirmed) return;
         }
 
         await setTokenStatus(
-          ITokenType.Fungible,
+          assetType === AssetTypesEnum.Collectibles ? ITokenType.Collectible : ITokenType.Fungible,
           chainId,
           address,
           assetSlug,
@@ -121,7 +149,7 @@ const ManageAssetsContent: FC = () => {
         alert(err.message);
       }
     },
-    [chainId, address, revalidate, confirm]
+    [chainId, address, confirm, revalidate, assetType]
   );
 
   return (
@@ -130,7 +158,7 @@ const ManageAssetsContent: FC = () => {
         <SearchAssetField value={searchValue} onValueChange={setSearchValue} />
 
         <Link
-          to="/add-token"
+          to="/add-asset"
           className={classNames(
             "ml-2 flex-shrink-0",
             "px-3 py-1",
@@ -146,7 +174,7 @@ const ManageAssetsContent: FC = () => {
           <AddIcon
             className={classNames("mr-1 h-5 w-auto stroke-current stroke-2")}
           />
-          <T id="addToken" />
+          <T id={assetType === AssetTypesEnum.Collectibles ? "addCollectible" : "addToken"} />
         </Link>
       </div>
 
@@ -169,6 +197,7 @@ const ManageAssetsContent: FC = () => {
                 last={last}
                 checked={tokenStatuses[slug]?.displayed ?? false}
                 onUpdate={handleAssetUpdate}
+                assetType={assetType}
               />
             );
           })}
@@ -202,7 +231,13 @@ const ManageAssetsContent: FC = () => {
               id="ifYouDontSeeYourAsset"
               substitutions={[
                 <b>
-                  <T id="addToken" />
+                  {
+                    assetType === AssetTypesEnum.Collectibles ? (
+                      <T id={'addCollectible'} />
+                    ) : (
+                      <T id={'addToken'} />
+                    )
+                  }
                 </b>,
               ]}
             />
@@ -218,6 +253,7 @@ type ListItemProps = {
   last: boolean;
   checked: boolean;
   onUpdate: (assetSlug: string, status: ITokenStatus) => void;
+  assetType: string;
 };
 
 const ListItem = memo<ListItemProps>(
