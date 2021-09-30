@@ -69,7 +69,8 @@ const SearchField: FC<SearchFieldProps> = ({
             bottomOffset={bottomOffset}
             style={cleanButtonStyle}
             iconStyle={cleanButtonIconStyle}
-            onClick={handleClean} />
+            onClick={handleClean}
+          />
         )}
       </div>
     </div>

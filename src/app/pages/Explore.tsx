@@ -36,12 +36,13 @@ import {
 import useTippy from "lib/ui/useTippy";
 import { Link, useLocation, navigate, HistoryAction } from "lib/woozie";
 
+import CollectiblesList from "./Collectibles/CollectiblesList";
 import { ExploreSelectors } from "./Explore.selectors";
 import AddressChip from "./Explore/AddressChip";
-import Assets from "./Explore/Assets";
 import BakingSection from "./Explore/BakingSection";
 import EditableTitle from "./Explore/EditableTitle";
 import MainBanner from "./Explore/MainBanner";
+import Tokens from "./Explore/Tokens";
 
 type ExploreProps = {
   assetSlug?: string | null;
@@ -273,10 +274,16 @@ const SecondarySection: FC<SecondarySectionProps> = ({
     if (!assetSlug) {
       return [
         {
-          slug: "assets",
-          title: t("assets"),
-          Component: Assets,
+          slug: "tokens",
+          title: t("tokens"),
+          Component: Tokens,
           testID: ExploreSelectors.AssetsTab,
+        },
+        {
+          slug: "collectibles",
+          title: t("collectibles"),
+          Component: CollectiblesList,
+          testID: ExploreSelectors.CollectiblesTab,
         },
         {
           slug: "delegation",
@@ -331,7 +338,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({
     >
       <div
         className={classNames(
-          "w-full max-w-sm mx-auto",
+          "w-full max-w-sm mx-auto px-3",
           "flex flex-wrap items-center justify-center"
         )}
       >
@@ -344,9 +351,9 @@ const SecondarySection: FC<SecondarySectionProps> = ({
               to={(lctn) => ({ ...lctn, search: `?tab=${t.slug}` })}
               replace
               className={classNames(
-                "w-1/3",
+                "w-1/4",
                 "text-center cursor-pointer mb-1 pb-1 pt-2 px-3",
-                "text-gray-500 text-sm font-medium",
+                "text-gray-500 text-xs font-medium",
                 "border-t-2",
                 active ? "border-primary-orange" : "border-transparent",
                 active ? "text-primary-orange" : "hover:text-primary-orange",

@@ -44,12 +44,12 @@ import { withErrorHumanDelay } from "lib/ui/humanDelay";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate } from "lib/woozie";
 
-const AddToken: FC = () => (
+const AddAsset: FC = () => (
   <PageLayout
     pageTitle={
       <>
         <AddIcon className="w-auto h-4 mr-1 stroke-current" />
-        <T id="addToken" />
+        <T id="addAsset" />
       </>
     }
   >
@@ -57,7 +57,7 @@ const AddToken: FC = () => (
   </PageLayout>
 );
 
-export default AddToken;
+export default AddAsset;
 
 type FormData = {
   address: string;
@@ -92,7 +92,7 @@ const Form: FC = () => {
 
   const { fetchMetadata, setTokensBaseMetadata } = useTokensMetadata();
 
-  const formAnalytics = useFormAnalytics("AddToken");
+  const formAnalytics = useFormAnalytics("AddAsset");
 
   const {
     register,
@@ -334,7 +334,7 @@ const Form: FC = () => {
         type="number"
         name="id"
         id="token-id"
-        label={`${t("tokenId")} ${t("optionalComment")}`}
+        label={`${t("assetId")} ${t("optionalComment")}`}
         labelDescription={t("tokenIdInputDescription")}
         placeholder="0"
         errorCaption={errors.id?.message}
