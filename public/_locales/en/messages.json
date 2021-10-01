@@ -2275,5 +2275,8 @@
   },
   "min": {
     "message": "Min:"
+  },
+  "warningTopUpServiceMessage": {
+    "message": "The token exchange feature is provided by a third party. The Temple wallet is not responsible for the work of third-party services."
   }
 }

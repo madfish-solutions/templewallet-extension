@@ -93,8 +93,7 @@ const BuyCryptoContent: FC = () => {
         </a>
       )}
       <p className={"mt-6 text-gray-600"}>
-        The token exchange feature is provided by a third party. The Temple
-        wallet is not responsible for the work of third-party services.
+        <T id={'warningTopUpServiceMessage'} />
       </p>
     </div>
   );

@@ -94,8 +94,6 @@ const BuyCryptoInput: FC<Props> = ({
   );
 
   const isMinAmountError =
-    lastMinAmount !== undefined &&
-    amount !== undefined &&
     amount !== 0 &&
     Number(lastMinAmount) > Number(amount);
 

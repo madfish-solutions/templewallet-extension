@@ -81,8 +81,6 @@ const InitialStep: FC<Props> = ({
   const maxAmount = 1 / ((Number(rates.rate) * tezPrice!) / maxDollarValue);
   const isMaxAmountError =
     lastMaxAmount !== Infinity &&
-    lastMaxAmount !== undefined &&
-    amount !== undefined &&
     amount !== 0 &&
     Number(amount) > Number(lastMaxAmount);
 
