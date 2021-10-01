@@ -30,6 +30,7 @@ import {
   fetchBalance,
   getAssetId,
   getFeePercentage,
+  getFormattedPriceImpact,
   swap,
   TempleAsset,
   TempleAssetType,
@@ -309,18 +310,6 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   const feePercentage = useMemo(() => getFeePercentage(selectedExchanger), [selectedExchanger]);
 
   const priceImpact = usePriceImpact(tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAssetAmount, outputAssetAmount, feePercentage, inputAsset, outputAsset);
-
-  const getFormattedPriceImpact = (priceImpact: BigNumber) => {
-    if (priceImpact.toString() !== "0"
-        && priceImpact.toString() !== "NaN"
-        && priceImpact.toString() !== "Infinity"
-        && priceImpact.toString() !== "-Infinity") {
-
-      return priceImpact.toFixed(2) + "%";
-    } else {
-      return "-";
-    }
-  }
 
   const onSubmit = useCallback(
       async ({
@@ -1027,10 +1016,10 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           <tr>
             <td>
               <div className="flex items-center">
-                <T id="priceImpact" />
+                <T id="priceImpact"/>
                 &nbsp;
                 <span ref={priceImpactInfoIconRef} className="text-gray-600">
-                  <InfoIcon className="w-3 h-auto stroke-current" />
+                  <InfoIcon className="w-3 h-auto stroke-current"/>
                 </span>
                 :
               </div>
@@ -1038,15 +1027,16 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
             <td className="text-right text-gray-600">
               {getFormattedPriceImpact(priceImpact)}
             </td>
+            `
           </tr>
           <tr>
             <td>
-              <T id="exchangeRate" />
+              <T id="exchangeRate"/>
             </td>
             <td className="text-right text-gray-600">
               {inputAsset && outputAsset && exchangeRate
-                ? `${exchangeRate.base} ${outputAsset.symbol} = ${toLocalFixed(
-                    exchangeRate.value
+                  ? `${exchangeRate.base} ${outputAsset.symbol} = ${toLocalFixed(
+                      exchangeRate.value
                   )} ${inputAsset.symbol}`
                 : "-"}
             </td>
