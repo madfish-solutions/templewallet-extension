@@ -230,7 +230,10 @@ const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = (
   return (
     <div className="flex flex-1 w-full">
       <div className="flex flex-col justify-between flex-1">
-        <Name className="mb-1 text-sm font-medium leading-tight text-left">
+        <Name
+          className="mb-1 text-sm font-medium leading-tight text-left"
+          style={{ maxWidth: "14rem" }}
+        >
           {appMeta.name}
         </Name>
 
