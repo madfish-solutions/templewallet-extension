@@ -304,9 +304,11 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
         outputAsset!,
         selectedExchanger
     )?.contract;
-  }, [tokensExchangeData, tezUsdPrice, outputAsset, selectedExchanger])
+  }, [tokensExchangeData, tezUsdPrice, outputAsset, selectedExchanger]);
 
-  const priceImpact = usePriceImpact(tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAssetAmount, outputAssetAmount, inputAsset, outputAsset);
+  const feePercentage = useMemo(() => getFeePercentage(selectedExchanger), [selectedExchanger]);
+
+  const priceImpact = usePriceImpact(tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAssetAmount, outputAssetAmount, feePercentage, inputAsset, outputAsset);
 
   const onSubmit = useCallback(
     async ({
@@ -1007,7 +1009,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
               </div>
             </td>
             <td className="text-right text-gray-600">
-              {getFeePercentage(selectedExchanger).toString()}%
+              {feePercentage.toString()}%
             </td>
           </tr>
           <tr>

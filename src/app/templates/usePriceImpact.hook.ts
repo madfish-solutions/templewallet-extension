@@ -5,80 +5,76 @@ import BigNumber from "bignumber.js";
 
 import {ExchangerType, getPoolParameters, TempleAsset, tokensToAtoms} from "../../lib/temple/front";
 
+const getMarketPrice = async (
+    tezos: TezosToolkit,
+    selectedExchanger: ExchangerType,
+    inputContractAddress?: string,
+    outputContractAddress?: string
+) => {
+    if (inputContractAddress === undefined && outputContractAddress !== undefined) {
+        const pool = await getPoolParameters(tezos, outputContractAddress, selectedExchanger);
 
-export const usePriceImpact = (tezos: TezosToolkit,
-                               selectedExchanger: ExchangerType,
-                               inputContractAddress?: string,
-                               outputContractAddress?: string,
-                               inputAssetAmount?: BigNumber,
-                               outputAssetAmount?: BigNumber,
-                               inputAsset?: TempleAsset,
-                               outputAsset?: TempleAsset) => {
+        return pool.tokenPool.dividedBy(pool.xtzPool);
+    } else if (inputContractAddress !== undefined && outputContractAddress === undefined) {
+        const pool = await getPoolParameters(tezos, inputContractAddress, selectedExchanger);
 
+        return pool.xtzPool.dividedBy(pool.tokenPool);
+    } else if (inputContractAddress !== undefined && outputContractAddress !== undefined) {
+        const pool1 = await getPoolParameters(tezos, inputContractAddress, selectedExchanger);
+        const pool2 = await getPoolParameters(tezos, outputContractAddress, selectedExchanger);
+
+        const pool1marketPrice = pool1.xtzPool.dividedBy(pool1.tokenPool);
+        const pool2marketPrice = pool2.tokenPool.dividedBy(pool2.xtzPool);
+
+        return pool1marketPrice.multipliedBy(pool2marketPrice);
+    }
+
+    return new BigNumber(0);
+};
+
+const getPriceImpact = (inputAtomsAmountWithFee: BigNumber, outputAtomsAmount: BigNumber, marketPrice: BigNumber) => {
+    const linearOutputAssetAmount = inputAtomsAmountWithFee.multipliedBy(marketPrice);
+    const outputDifference = linearOutputAssetAmount.minus(outputAtomsAmount);
+
+    return new BigNumber(100).multipliedBy(outputDifference.dividedBy(linearOutputAssetAmount));
+};
+
+export const usePriceImpact = (
+    tezos: TezosToolkit,
+    selectedExchanger: ExchangerType,
+    inputContractAddress?: string,
+    outputContractAddress?: string,
+    inputAmount?: BigNumber,
+    outputAmount?: BigNumber,
+    feePercentage?: BigNumber,
+    inputAsset?: TempleAsset,
+    outputAsset?: TempleAsset
+) => {
     const [priceImpact, setPriceImpact] = useState(new BigNumber(0));
 
     useEffect(() => {
         (async () => {
             if (
-                inputAssetAmount !== undefined &&
-                outputAssetAmount !== undefined &&
+                feePercentage !== undefined &&
+                inputAmount !== undefined &&
+                outputAmount !== undefined &&
                 inputAsset !== undefined &&
                 outputAsset !== undefined) {
 
-                let marketPrice, newMarketPrice;
+                const thousand = new BigNumber(1000);
+                const normalizedFee = thousand.minus(feePercentage.multipliedBy(new BigNumber(10))).dividedBy(thousand);
 
-                const inputAtomsAmount = tokensToAtoms(inputAssetAmount, inputAsset.decimals),
-                    outputAtomsAmount = tokensToAtoms(outputAssetAmount, outputAsset.decimals);
+                const inputAtomsAmount = tokensToAtoms(inputAmount, inputAsset.decimals);
+                const inputAtomsAmountWithFee = inputAtomsAmount.multipliedBy(normalizedFee);
 
-                const calculateMarketPrice = (tokenPool1: BigNumber, tokenPool2: BigNumber, xtzPool1?: BigNumber, xtzPool2?: BigNumber) => {
-                    if (xtzPool1 && xtzPool2) {
-                        return tokenPool1.div(xtzPool1).multipliedBy(xtzPool2.div(tokenPool2));
-                    }
-                    return tokenPool1.div(tokenPool2);
-                };
+                const outputAtomsAmount = tokensToAtoms(outputAmount, outputAsset.decimals);
 
+                const marketPrice = await getMarketPrice(tezos, selectedExchanger, inputContractAddress, outputContractAddress);
 
-                const calculateNewMarketPrice = (tokenPool1: BigNumber,
-                                                 tokenPool2: BigNumber,
-                                                 inputAtomsAmount: BigNumber,
-                                                 outputAtomsAmount: BigNumber,
-                                                 xtzPool1?: BigNumber,
-                                                 xtzPool2?: BigNumber) => {
-                    if (xtzPool1 && xtzPool2) {
-                        return (tokenPool1.plus(inputAtomsAmount)).div(xtzPool1).multipliedBy(xtzPool2.div(tokenPool2.minus(outputAtomsAmount)));
-                    }
-
-                    return (tokenPool1.plus(inputAtomsAmount)).div(tokenPool2.minus(outputAtomsAmount));
-                };
-
-                if (inputContractAddress !== undefined && outputContractAddress === undefined) {
-                    const pool = await getPoolParameters(tezos, inputContractAddress, selectedExchanger);
-
-                    marketPrice = calculateMarketPrice(pool.tokenPool, pool.xtzPool);
-                    newMarketPrice = calculateNewMarketPrice(pool.tokenPool, pool.xtzPool, inputAtomsAmount, outputAtomsAmount);
-
-                } else if (inputContractAddress === undefined && outputContractAddress !== undefined) {
-                    const pool = await getPoolParameters(tezos, outputContractAddress, selectedExchanger);
-
-                    marketPrice = calculateMarketPrice(pool.xtzPool, pool.tokenPool);
-                    newMarketPrice = calculateNewMarketPrice(pool.xtzPool, pool.tokenPool, inputAtomsAmount, outputAtomsAmount);
-
-                } else if (inputContractAddress !== undefined && outputContractAddress !== undefined) {
-                    const pool1 = await getPoolParameters(tezos, inputContractAddress, selectedExchanger),
-                        pool2 = await getPoolParameters(tezos, outputContractAddress, selectedExchanger);
-
-                    marketPrice = calculateMarketPrice(pool1.tokenPool, pool2.tokenPool, pool1.xtzPool, pool2.xtzPool);
-                    newMarketPrice = calculateNewMarketPrice(pool1.tokenPool, pool2.tokenPool, inputAtomsAmount, outputAtomsAmount, pool1.xtzPool, pool2.xtzPool);
-                }
-
-                if (newMarketPrice !== undefined && marketPrice !== undefined) {
-                    const hundred = new BigNumber(100),
-                        result = hundred.minus(hundred.div(newMarketPrice).multipliedBy(marketPrice));
-
-                    setPriceImpact(result);
-                }
-            } })();
-    }, [tezos, inputContractAddress, outputContractAddress, inputAssetAmount, outputAssetAmount, selectedExchanger, inputAsset, outputAsset])
+                setPriceImpact(getPriceImpact(inputAtomsAmountWithFee, outputAtomsAmount, marketPrice));
+            }
+        })();
+    }, [tezos, inputContractAddress, outputContractAddress, inputAmount, outputAmount, selectedExchanger, inputAsset, outputAsset, feePercentage])
 
     return priceImpact;
 }
