@@ -1,7 +1,8 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 
 import {TezosToolkit} from "@taquito/taquito";
 import BigNumber from "bignumber.js";
+import debouncePromise from "debounce-promise";
 
 import {ExchangerType, getPoolParameters, TempleAsset, tokensToAtoms} from "../../lib/temple/front";
 
@@ -52,29 +53,45 @@ export const usePriceImpact = (
 ) => {
     const [priceImpact, setPriceImpact] = useState(new BigNumber(0));
 
+    const calculatePriceImpactWithDebounce = useMemo(() => debouncePromise(async (
+        tezosParam: TezosToolkit,
+        selectedExchangerParam: ExchangerType,
+        inputContractAddressParam?: string,
+        outputContractAddressParam?: string,
+        inputAmountParam?: BigNumber,
+        outputAmountParam?: BigNumber,
+        feePercentageParam?: BigNumber,
+        inputAssetParam?: TempleAsset,
+        outputAssetParam?: TempleAsset
+    ) => {
+        if (
+            feePercentageParam !== undefined &&
+            inputAmountParam !== undefined &&
+            outputAmountParam !== undefined &&
+            inputAssetParam !== undefined &&
+            outputAssetParam !== undefined) {
+
+            const thousand = new BigNumber(1000);
+            const normalizedFee = thousand.minus(feePercentageParam.multipliedBy(new BigNumber(10))).dividedBy(thousand);
+
+            const inputAtomsAmount = tokensToAtoms(inputAmountParam, inputAssetParam.decimals);
+            const inputAtomsAmountWithFee = inputAtomsAmount.multipliedBy(normalizedFee);
+
+            const outputAtomsAmount = tokensToAtoms(outputAmountParam, outputAssetParam.decimals);
+
+            const marketPrice = await getMarketPrice(tezosParam, selectedExchangerParam, inputContractAddressParam, outputContractAddressParam);
+
+            const priceImpact = getPriceImpact(inputAtomsAmountWithFee, outputAtomsAmount, marketPrice);
+
+            setPriceImpact(priceImpact);
+        } else {
+            setPriceImpact(new BigNumber(0));
+        }
+    }, 350), [setPriceImpact]);
+
     useEffect(() => {
-        (async () => {
-            if (
-                feePercentage !== undefined &&
-                inputAmount !== undefined &&
-                outputAmount !== undefined &&
-                inputAsset !== undefined &&
-                outputAsset !== undefined) {
-
-                const thousand = new BigNumber(1000);
-                const normalizedFee = thousand.minus(feePercentage.multipliedBy(new BigNumber(10))).dividedBy(thousand);
-
-                const inputAtomsAmount = tokensToAtoms(inputAmount, inputAsset.decimals);
-                const inputAtomsAmountWithFee = inputAtomsAmount.multipliedBy(normalizedFee);
-
-                const outputAtomsAmount = tokensToAtoms(outputAmount, outputAsset.decimals);
-
-                const marketPrice = await getMarketPrice(tezos, selectedExchanger, inputContractAddress, outputContractAddress);
-
-                setPriceImpact(getPriceImpact(inputAtomsAmountWithFee, outputAtomsAmount, marketPrice));
-            }
-        })();
-    }, [tezos, inputContractAddress, outputContractAddress, inputAmount, outputAmount, selectedExchanger, inputAsset, outputAsset, feePercentage])
+        calculatePriceImpactWithDebounce(tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAmount, outputAmount, feePercentage, inputAsset, outputAsset);
+    }, [calculatePriceImpactWithDebounce, tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAmount, outputAmount, feePercentage, inputAsset, outputAsset])
 
     return priceImpact;
 }
