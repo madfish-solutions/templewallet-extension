@@ -1024,7 +1024,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
               </div>
             </td>
             <td className="text-right text-gray-600">
-              {priceImpact ? `${priceImpact.toFixed(2)}%` : "-"}
+              {priceImpact.toString() !== "0" && priceImpact.toString() !== "NaN" && priceImpact.toString() !== "Infinity" && priceImpact.toString() !== "-Infinity" ? `${priceImpact.toFixed(2)}%` : "-"}
             </td>
           </tr>
           <tr>
