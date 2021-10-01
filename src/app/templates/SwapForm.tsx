@@ -310,25 +310,37 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
 
   const priceImpact = usePriceImpact(tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAssetAmount, outputAssetAmount, feePercentage, inputAsset, outputAsset);
 
-  const onSubmit = useCallback(
-    async ({
-      exchanger,
-      tolerancePercentage,
-      input: { amount: inputAmount },
-    }: SwapFormValues) => {
-      if (isSubmitting) {
-        return;
-      }
-      setIsSubmitting(true);
-      const analyticsProperties = {
-        exchanger,
+  const getFormattedPriceImpact = (priceImpact: BigNumber) => {
+    if (priceImpact.toString() !== "0"
+        && priceImpact.toString() !== "NaN"
+        && priceImpact.toString() !== "Infinity"
+        && priceImpact.toString() !== "-Infinity") {
 
-        inputAsset: inputAsset!.symbol,
-        outputAsset: outputAsset!.symbol,
-      };
-      formAnalytics.trackSubmit(analyticsProperties);
-      try {
-        setOperation(undefined);
+      return priceImpact.toFixed(2) + "%";
+    } else {
+      return "-";
+    }
+  }
+
+  const onSubmit = useCallback(
+      async ({
+               exchanger,
+               tolerancePercentage,
+               input: {amount: inputAmount},
+             }: SwapFormValues) => {
+        if (isSubmitting) {
+          return;
+        }
+        setIsSubmitting(true);
+        const analyticsProperties = {
+          exchanger,
+
+          inputAsset: inputAsset!.symbol,
+          outputAsset: outputAsset!.symbol,
+        };
+        formAnalytics.trackSubmit(analyticsProperties);
+        try {
+          setOperation(undefined);
         const inputContractAddress = getAssetExchangeData(
           tokensExchangeData,
           tezUsdPrice,
@@ -1024,7 +1036,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
               </div>
             </td>
             <td className="text-right text-gray-600">
-              {priceImpact.toString() !== "0" && priceImpact.toString() !== "NaN" && priceImpact.toString() !== "Infinity" && priceImpact.toString() !== "-Infinity" ? `${priceImpact.toFixed(2)}%` : "-"}
+              {getFormattedPriceImpact(priceImpact)}
             </td>
           </tr>
           <tr>
