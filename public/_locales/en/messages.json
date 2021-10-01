@@ -242,7 +242,10 @@
     "message": "Click on deposit method to get money on your wallet. Use faucet to get free coins!"
   },
   "addToken": {
-    "message": "Add Token"
+    "message": "Add Asset"
+  },
+  "addAsset": {
+    "message": "Add Asset"
   },
   "addAsset": {
     "message": "Add Asset"
@@ -254,7 +257,7 @@
     "message": "No transfer method"
   },
   "tokenDoesNotMatchStandard": {
-    "message": "Provided token contract doesn't match $standard$ standard",
+    "message": "Provided asset contract doesn't match $standard$ standard",
     "placeholders": {
       "standard": {
         "content": "$1"
@@ -1632,7 +1635,7 @@
     "message": "Failed to load chain ID for this network"
   },
   "makeSureTokenIdIsCorrect": {
-    "message": "Please make sure that token ID is correct."
+    "message": "Please make sure that asset ID is correct."
   },
   "unknownErrorCheckingSomeEntrypoint": {
     "message": "An unknown error while checking '$name$' entrypoint occurred.",
@@ -1643,7 +1646,7 @@
     }
   },
   "incorrectTokenIdErrorMessage": {
-    "message": "Failed while processing token with provided data. Please make sure that token ID is correct."
+    "message": "Failed while processing asset with provided data. Please make sure that token ID is correct."
   },
   "transfer": {
     "message": "Transfer"

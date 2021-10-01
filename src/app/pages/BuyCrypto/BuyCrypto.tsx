@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 
 import Stepper from "app/atoms/Stepper";
 import PageLayout from "app/layouts/PageLayout";
@@ -10,6 +10,20 @@ import { T, t } from "lib/i18n/react";
 import { useAccount, useNetwork, useStorage } from "lib/temple/front";
 import { Redirect } from "lib/woozie";
 
+const BuyCrypto: FC = () => (
+  <PageLayout
+    pageTitle={
+      <>
+        <T id="buyWithCrypto" />
+      </>
+    }
+  >
+    <BuyCryptoContent />
+  </PageLayout>
+);
+
+export default BuyCrypto;
+
 const steps = [
   `${t("step")} 1`,
   `${t("step")} 2`,
@@ -17,7 +31,7 @@ const steps = [
   `${t("step")} 4`,
 ];
 
-const BuyCrypto = () => {
+const BuyCryptoContent: FC = () => {
   const network = useNetwork();
   const { publicKeyHash } = useAccount();
   const [step, setStep] = useStorage<number>(
@@ -35,67 +49,53 @@ const BuyCrypto = () => {
   }
 
   return (
-    <PageLayout
-      pageTitle={
-        <>
-          <T id="buyWithCrypto" />
-        </>
-      }
+    <div
+      style={{ maxWidth: "360px", margin: "auto" }}
+      className="pb-8 text-center"
     >
-      <div
-        style={{ maxWidth: "360px", margin: "auto" }}
-        className="text-center"
-      >
-        <Stepper
-          style={{ marginTop: "64px" }}
-          steps={steps}
-          currentStep={step}
+      <Stepper style={{ marginTop: "64px" }} steps={steps} currentStep={step} />
+      {step === 0 && (
+        <InitialStep
+          isError={isError}
+          setIsError={setIsError}
+          exchangeData={exchangeData}
+          setExchangeData={setExchangeData}
+          setStep={setStep}
         />
-        {step === 0 && (
-          <InitialStep
-            isError={isError}
-            setIsError={setIsError}
-            exchangeData={exchangeData}
-            setExchangeData={setExchangeData}
-            setStep={setStep}
-          />
-        )}
-        {step === 1 && (
-          <ApproveStep
-            exchangeData={exchangeData as ExchangeDataInterface}
-            setExchangeData={setExchangeData}
-            setStep={setStep}
-            isError={isError}
-            setIsError={setIsError}
-          />
-        )}
-        {(step === 2 || step === 3 || step === 4) && (
-          <ExchangeStep
-            exchangeData={exchangeData as ExchangeDataInterface}
-            setExchangeData={setExchangeData}
-            setStep={setStep}
-            step={step}
-            isError={isError}
-            setIsError={setIsError}
-          />
-        )}
-        {step >= 1 && (
-          <a
-            href={"https://exolix.com/contact"}
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
-          >
-            <T id={"support"} />
-          </a>
-        )}
-        <p className={"mt-6 text-gray-600"}>
-          The token exchange feature is provided by a third party. The Temple
-          wallet is not responsible for the work of third-party services.
-        </p>
-      </div>
-    </PageLayout>
+      )}
+      {step === 1 && (
+        <ApproveStep
+          exchangeData={exchangeData as ExchangeDataInterface}
+          setExchangeData={setExchangeData}
+          setStep={setStep}
+          isError={isError}
+          setIsError={setIsError}
+        />
+      )}
+      {(step === 2 || step === 3 || step === 4) && (
+        <ExchangeStep
+          exchangeData={exchangeData as ExchangeDataInterface}
+          setExchangeData={setExchangeData}
+          setStep={setStep}
+          step={step}
+          isError={isError}
+          setIsError={setIsError}
+        />
+      )}
+      {step >= 1 && (
+        <a
+          href={"https://exolix.com/contact"}
+          target="_blank"
+          rel="noreferrer"
+          className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
+        >
+          <T id={"support"} />
+        </a>
+      )}
+      <p className={"mt-6 text-gray-600"}>
+        The token exchange feature is provided by a third party. The Temple
+        wallet is not responsible for the work of third-party services.
+      </p>
+    </div>
   );
 };
-
-export default BuyCrypto;

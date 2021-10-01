@@ -1,5 +1,6 @@
 import React, { forwardRef } from "react";
 
+import classNames from "clsx";
 import { browser } from "webextension-polyfill-ts";
 
 import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
@@ -32,7 +33,7 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
         }
         onClick={onPress}
         ref={ref}
-        className={styles["currencySelector"]}
+        className={classNames(styles["currencySelector"], "cursor-pointer")}
       >
         {type === "tezosSelector" ? (
           <AssetIcon assetSlug="tez" size={32} />

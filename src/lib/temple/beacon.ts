@@ -193,6 +193,13 @@ export function formatOpParams(op: any) {
       storageLimit: storage_limit,
     };
   }
+
+  if (op.kind === "origination") {
+    return {
+      mutez: true,
+      ...rest,
+    };
+  }
   return rest;
 }
 
