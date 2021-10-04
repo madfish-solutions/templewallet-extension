@@ -80,9 +80,13 @@ const InitialStep: FC<Props> = ({
     );
 
   const maxAmount = useMemo(() => {
-    return new BigNumber((1 / ((Number(rates.rate) * tezPrice!) / maxDollarValue)).toFixed(
-      amount > 100 ? 2 : 6
-    )).toFixed();
+    return new BigNumber(1)
+      .dividedBy(
+        new BigNumber(rates.rate)
+          .multipliedBy(new BigNumber(tezPrice!))
+          .dividedBy(new BigNumber(maxDollarValue))
+      )
+      .toFixed(amount > 100 ? 2 : 6);
   }, [rates, tezPrice, amount]);
 
   const isMaxAmountError =
