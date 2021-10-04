@@ -1,4 +1,11 @@
-import React, { ChangeEvent, FC, useEffect, useMemo, useState } from "react";
+import React, {
+  ChangeEvent,
+  FC,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
@@ -37,7 +44,8 @@ const InitialStep: FC<Props> = ({
   isError,
   setIsError,
 }) => {
-  const [amount, setAmount] = useState(0.1);
+  const [initialRate, setInitialRate] = useState(0);
+  const [amount, setAmount] = useState(0);
   const [coinFrom, setCoinFrom] = useState("BTC");
   const [lastMinAmount, setLastMinAmount] = useState(new BigNumber(0));
   const [lastMaxAmount, setLastMaxAmount] = useState("0");
@@ -79,15 +87,26 @@ const InitialStep: FC<Props> = ({
       getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
     );
 
+  useEffect(() => {
+    (async () => {
+      const { rate } = await getRate({
+        coin_from: coinFrom,
+        coin_to: coinTo,
+        deposit_amount: 0.1,
+      });
+      setInitialRate(rate);
+    })();
+  }, [coinFrom]);
+
   const maxAmount = useMemo(() => {
     return new BigNumber(1)
       .dividedBy(
-        new BigNumber(rates.rate)
+        new BigNumber(rates.rate === 0 ? initialRate : rates.rate)
           .multipliedBy(new BigNumber(tezPrice!))
           .dividedBy(new BigNumber(maxDollarValue))
       )
       .toFixed(amount > 100 ? 2 : 6);
-  }, [rates, tezPrice, amount]);
+  }, [rates, tezPrice, amount, initialRate]);
 
   const isMaxAmountError =
     lastMaxAmount !== "Infinity" &&
@@ -105,6 +124,8 @@ const InitialStep: FC<Props> = ({
     } else if (rates.destination_amount === 0) {
       setDisableProceed(true);
     } else {
+      console.log("test");
+
       setDisableProceed(false);
     }
     if (rates.min_amount > 0) {
@@ -117,8 +138,6 @@ const InitialStep: FC<Props> = ({
     }
     if (isMaxAmountError) {
       setDisableProceed(true);
-    } else {
-      setDisableProceed(false);
     }
   }, [rates, amount, maxAmount, isMaxAmountError, coinFrom]);
 
