@@ -17,8 +17,6 @@ import useOnClickOutside from "use-onclickoutside";
 
 import Portal from "lib/ui/Portal";
 
-import styles from "./Poper.module.css";
-
 export interface PopperRenderProps {
   opened: boolean;
   setOpened: Dispatch<SetStateAction<boolean>>;
@@ -34,11 +32,10 @@ type PopperProps = Partial<Options> & {
     }
   >;
   fallbackPlacementsEnabled?: boolean;
-  scroll?: boolean;
 };
 
 const Popper = memo<PopperProps>(
-  ({ popup, children, fallbackPlacementsEnabled = true, scroll= false,  ...popperOptions }) => {
+  ({ popup, children, fallbackPlacementsEnabled = true, ...popperOptions }) => {
     const popperRef = useRef<Instance>();
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
@@ -134,7 +131,7 @@ const Popper = memo<PopperProps>(
         {triggerNode}
 
         <Portal>
-          <div className={scroll ? `${styles.scroll} z-40` : "z-40"} ref={popupRef}>
+          <div className="z-40" ref={popupRef}>
             {popupNode}
           </div>
         </Portal>

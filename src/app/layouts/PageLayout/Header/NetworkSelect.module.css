@@ -4,7 +4,7 @@
 
 .scroll {
     overflow-y: scroll;
-    height: 32rem;
+    max-height: 31rem;
 
     -ms-overflow-style: none;
     scrollbar-width: none;
