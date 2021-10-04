@@ -131,7 +131,7 @@ const Popper = memo<PopperProps>(
         {triggerNode}
 
         <Portal>
-          <div className="z-40" ref={popupRef}>
+          <div ref={popupRef} className="z-40">
             {popupNode}
           </div>
         </Portal>
