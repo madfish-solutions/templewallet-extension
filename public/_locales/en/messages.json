@@ -1643,7 +1643,7 @@
     }
   },
   "incorrectTokenIdErrorMessage": {
-    "message": "Failed while processing asset with provided data. Please make sure that token ID is correct."
+    "message": "Failed while processing asset with provided data. Please make sure that asset ID is correct."
   },
   "transfer": {
     "message": "Transfer"

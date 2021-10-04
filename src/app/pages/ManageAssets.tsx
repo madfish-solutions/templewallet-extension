@@ -129,7 +129,6 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
 
   const handleAssetUpdate = useCallback(
     async (assetSlug: string, status: ITokenStatus) => {
-      console.log(assetType);
 
       try {
         if (status === ITokenStatus.Removed) {

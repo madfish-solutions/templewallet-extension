@@ -124,8 +124,6 @@ const InitialStep: FC<Props> = ({
     } else if (rates.destination_amount === 0) {
       setDisableProceed(true);
     } else {
-      console.log("test");
-
       setDisableProceed(false);
     }
     if (rates.min_amount > 0) {
