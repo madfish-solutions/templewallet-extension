@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 
-import { formatImgUri } from "lib/image-uri";
+import { formatImgUri, sanitizeImgUri } from "lib/image-uri";
 import { AssetMetadata } from "lib/temple/metadata/types";
 
 interface Props {
@@ -22,9 +22,13 @@ const CollectibleImage: FC<Props> = ({
         alt={collectibleMetadata.name}
         style={!isLoaded ? { display: "none" } : {}}
         className={className}
-        src={formatImgUri(collectibleMetadata.artifactUri!)}
+        src={sanitizeImgUri(
+          formatImgUri(collectibleMetadata.artifactUri!),
+          512,
+          512
+        )}
       />
-      {!isLoaded && <Placeholder style={{display: 'inline'}} />}
+      {!isLoaded && <Placeholder style={{ display: "inline" }} />}
     </>
   );
 };
