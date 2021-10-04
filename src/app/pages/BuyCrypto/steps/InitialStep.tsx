@@ -1,5 +1,6 @@
 import React, { ChangeEvent, FC, useEffect, useMemo, useState } from "react";
 
+import BigNumber from "bignumber.js";
 import useSWR from "swr";
 import { useDebounce } from "use-debounce";
 
@@ -79,10 +80,11 @@ const InitialStep: FC<Props> = ({
     );
 
   const maxAmount = useMemo(() => {
-    return (1 / ((Number(rates.rate) * tezPrice!) / maxDollarValue)).toFixed(
+    return new BigNumber((1 / ((Number(rates.rate) * tezPrice!) / maxDollarValue)).toFixed(
       amount > 100 ? 2 : 6
-    );
+    )).toFixed();
   }, [rates, tezPrice, amount]);
+
   const isMaxAmountError =
     lastMaxAmount !== "Infinity" &&
     debouncedAmount !== 0 &&
