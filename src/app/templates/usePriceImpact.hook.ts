@@ -89,9 +89,7 @@ export const usePriceImpact = (
         }
     }, 350), [setPriceImpact]);
 
-    useEffect(() => {
-        calculatePriceImpactWithDebounce(tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAmount, outputAmount, feePercentage, inputAsset, outputAsset);
-    }, [calculatePriceImpactWithDebounce, tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAmount, outputAmount, feePercentage, inputAsset, outputAsset])
+    useEffect(() => void calculatePriceImpactWithDebounce(tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAmount, outputAmount, feePercentage, inputAsset, outputAsset), [calculatePriceImpactWithDebounce, tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAmount, outputAmount, feePercentage, inputAsset, outputAsset])
 
     return priceImpact;
 }
