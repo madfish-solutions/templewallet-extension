@@ -229,7 +229,7 @@ const BuyCryptoInput: FC<Props> = ({
                 )}
               >
                 {" "}
-                {maxAmount !== Infinity ? maxAmount : "0"}
+                {maxAmount !== "Infinity" ? maxAmount : "0"}
               </span>{" "}
               <span
                 className={classNames(
