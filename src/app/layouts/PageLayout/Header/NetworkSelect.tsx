@@ -49,6 +49,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
     <Popper
       placement="bottom-end"
       strategy="fixed"
+      scroll={true}
       popup={({ opened, setOpened }) => (
         <DropdownWrapper opened={opened} className="origin-top-right">
           <h2
