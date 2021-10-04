@@ -1,6 +1,7 @@
 import React, { ChangeEvent, FC } from "react";
 
 import { Modifier } from "@popperjs/core";
+import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import useSWR from "swr";
 
@@ -19,7 +20,7 @@ interface Props {
   onChangeInputHandler?: (value: ChangeEvent<HTMLInputElement>) => void;
   value?: number;
   amount?: number;
-  lastMinAmount?: string;
+  lastMinAmount?: BigNumber;
   readOnly?: boolean;
   rates?: getRateDataInterface;
   maxAmount?: string;
@@ -94,7 +95,7 @@ const BuyCryptoInput: FC<Props> = ({
   );
 
   const isMinAmountError =
-    amount !== 0 && Number(lastMinAmount) > Number(amount);
+    amount !== 0 && (lastMinAmount ? lastMinAmount.toNumber() : 0) > Number(amount);
 
   const filteredCurrencies = currencies.filter(
     (currency) => currency.status === 1 && coinList.includes(currency.code)

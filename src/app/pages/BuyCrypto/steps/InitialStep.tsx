@@ -39,7 +39,7 @@ const InitialStep: FC<Props> = ({
 }) => {
   const [amount, setAmount] = useState(0.1);
   const [coinFrom, setCoinFrom] = useState("BTC");
-  const [lastMinAmount, setLastMinAmount] = useState("");
+  const [lastMinAmount, setLastMinAmount] = useState(new BigNumber(0));
   const [lastMaxAmount, setLastMaxAmount] = useState("0");
 
   const [depositAmount, setDepositAmount] = useState(0);
@@ -104,7 +104,7 @@ const InitialStep: FC<Props> = ({
       setDisableProceed(false);
     }
     if (rates.min_amount > 0) {
-      setLastMinAmount(rates.min_amount);
+      setLastMinAmount(new BigNumber(rates.min_amount));
     }
     if (maxAmount !== "Infinity") {
       setLastMaxAmount(maxAmount);
