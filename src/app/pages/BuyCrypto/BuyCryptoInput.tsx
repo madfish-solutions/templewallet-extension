@@ -94,8 +94,7 @@ const BuyCryptoInput: FC<Props> = ({
   );
 
   const isMinAmountError =
-    amount !== 0 &&
-    Number(lastMinAmount) > Number(amount);
+    amount !== 0 && Number(lastMinAmount) > Number(amount);
 
   const filteredCurrencies = currencies.filter(
     (currency) => currency.status === 1 && coinList.includes(currency.code)

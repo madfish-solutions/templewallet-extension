@@ -36,7 +36,6 @@ const InitialStep: FC<Props> = ({
   isError,
   setIsError,
 }) => {
-  
   const [amount, setAmount] = useState(0.1);
   const [coinFrom, setCoinFrom] = useState("BTC");
   const [lastMinAmount, setLastMinAmount] = useState("");
@@ -80,7 +79,9 @@ const InitialStep: FC<Props> = ({
     );
 
   const maxAmount = useMemo(() => {
-    return (1 / ((Number(rates.rate) * tezPrice!) / maxDollarValue)).toFixed(amount > 100 ? 2 : 6)
+    return (1 / ((Number(rates.rate) * tezPrice!) / maxDollarValue)).toFixed(
+      amount > 100 ? 2 : 6
+    );
   }, [rates, tezPrice, amount]);
   const isMaxAmountError =
     lastMaxAmount !== "Infinity" &&
@@ -106,7 +107,7 @@ const InitialStep: FC<Props> = ({
     if (maxAmount !== "Infinity") {
       setLastMaxAmount(maxAmount);
     } else {
-      setLastMaxAmount('---')
+      setLastMaxAmount("---");
     }
     if (isMaxAmountError) {
       setDisableProceed(true);
