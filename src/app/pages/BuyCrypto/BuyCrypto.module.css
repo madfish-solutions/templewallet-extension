@@ -87,7 +87,7 @@
 .customCurrencyCircleWrapper {
   width: 32px;
   height: 32px;
-  border: 1px solid black;
+  border: 1px solid #718096;
   border-radius: 50%;
   display: flex;
   justify-content: center;
