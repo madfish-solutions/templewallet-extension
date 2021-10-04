@@ -2154,7 +2154,7 @@
     "message": "Top up your TEZ balance instantly with 25 cryptocurrencies and without registration"
   },
   "privacyAndPolicyLinks": {
-    "message": "By clicking Exchange you agree with \n$termsOfUse$ and $privacyPolicy$",
+    "message": "By clicking Top Up you agree with \n$termsOfUse$ and $privacyPolicy$",
     "placeholders": {
       "termsOfUse": {
         "content": "$1"

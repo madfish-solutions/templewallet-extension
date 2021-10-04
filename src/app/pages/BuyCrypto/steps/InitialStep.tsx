@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useEffect, useState } from "react";
+import React, { ChangeEvent, FC, useEffect, useMemo, useState } from "react";
 
 import useSWR from "swr";
 import { useDebounce } from "use-debounce";
@@ -36,10 +36,11 @@ const InitialStep: FC<Props> = ({
   isError,
   setIsError,
 }) => {
-  const [amount, setAmount] = useState(0);
+  
+  const [amount, setAmount] = useState(0.1);
   const [coinFrom, setCoinFrom] = useState("BTC");
   const [lastMinAmount, setLastMinAmount] = useState("");
-  const [lastMaxAmount, setLastMaxAmount] = useState(0);
+  const [lastMaxAmount, setLastMaxAmount] = useState("0");
 
   const [depositAmount, setDepositAmount] = useState(0);
   const { publicKeyHash } = useAccount();
@@ -74,15 +75,17 @@ const InitialStep: FC<Props> = ({
     }
   };
   const { data: rates = { destination_amount: 0, rate: 0, min_amount: "0" } } =
-    useSWR(["/api/currency", coinTo, coinFrom, debouncedAmount], () =>
+    useSWR(["/api/currency", coinTo, coinFrom, amount], () =>
       getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
     );
 
-  const maxAmount = 1 / ((Number(rates.rate) * tezPrice!) / maxDollarValue);
+  const maxAmount = useMemo(() => {
+    return (1 / ((Number(rates.rate) * tezPrice!) / maxDollarValue)).toFixed(amount > 100 ? 2 : 6)
+  }, [rates, tezPrice, amount]);
   const isMaxAmountError =
-    lastMaxAmount !== Infinity &&
-    amount !== 0 &&
-    Number(amount) > Number(lastMaxAmount);
+    lastMaxAmount !== "Infinity" &&
+    debouncedAmount !== 0 &&
+    Number(debouncedAmount) > Number(lastMaxAmount);
 
   useEffect(() => {
     setDepositAmount(rates.destination_amount);
@@ -100,15 +103,17 @@ const InitialStep: FC<Props> = ({
     if (rates.min_amount > 0) {
       setLastMinAmount(rates.min_amount);
     }
-    if (maxAmount !== Infinity) {
+    if (maxAmount !== "Infinity") {
       setLastMaxAmount(maxAmount);
+    } else {
+      setLastMaxAmount('---')
     }
     if (isMaxAmountError) {
       setDisableProceed(true);
     } else {
       setDisableProceed(false);
     }
-  }, [rates, amount, maxAmount, isMaxAmountError]);
+  }, [rates, amount, maxAmount, isMaxAmountError, coinFrom]);
 
   return (
     <>

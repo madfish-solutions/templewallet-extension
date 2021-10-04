@@ -22,7 +22,7 @@ interface Props {
   lastMinAmount?: string;
   readOnly?: boolean;
   rates?: getRateDataInterface;
-  maxAmount?: number;
+  maxAmount?: string;
   isMaxAmountError?: boolean;
 }
 
@@ -63,12 +63,12 @@ const sameWidth: Modifier<string, any> = {
   phase: "beforeWrite",
   requires: ["computeStyles"],
   fn: ({ state }) => {
-    state.styles.popper.width = `${state.rects.reference.width}px`;
-    state.styles.popper.left = "-3px";
+    state.styles.popper.width = `${state.rects.reference.width + 17}px`;
+    // state.styles.popper.left = "-5px";
   },
   effect: ({ state }) => {
     state.elements.popper.style.width = `${
-      (state.elements.reference as any).offsetWidth
+      (state.elements.reference as any).offsetWidth + 15
     }px`;
     return () => {};
   },
