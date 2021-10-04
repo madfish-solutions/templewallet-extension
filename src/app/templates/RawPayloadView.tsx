@@ -1,5 +1,7 @@
 import React, { CSSProperties, memo } from "react";
 
+import classNames from "clsx";
+
 import FormField from "app/atoms/FormField";
 
 type RawPayloadViewProps = {
@@ -29,7 +31,7 @@ const RawPayloadView = memo(
       spellCheck={false}
       readOnly
       fieldWrapperBottomMargin={fieldWrapperBottomMargin}
-      className={className}
+      className={classNames(className, "break-all")}
       style={{
         resize: "none",
         marginBottom: 0,
