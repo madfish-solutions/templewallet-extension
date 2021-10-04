@@ -22,7 +22,6 @@ const FileInput: React.FC<FileInputProps> = ({
 }) => {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      console.log("handle change");
       const { files } = e.target;
       if (files && files.length > 0) {
         onChange?.(files);
