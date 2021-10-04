@@ -39,10 +39,10 @@ const OperationsBanner = memo<OperationsBannerProps>(
               "block w-full max-w-full p-1",
               "rounded-md",
               "border-2 bg-gray-100 bg-opacity-50",
-              "text-xs leading-tight font-medium whitespace-no-wrap",
+              "text-xs leading-tight font-medium",
               typeof opParams === "string"
-                ? "whitespace-pre-wrap"
-                : "overflow-auto"
+                ? "break-all"
+                : "whitespace-no-wrap overflow-auto"
             )}
             style={{
               height: "10rem",
