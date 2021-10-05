@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  FC,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { ChangeEvent, FC, useEffect, useState } from "react";
 
 import BigNumber from "bignumber.js";
 import useSWR from "swr";
@@ -27,6 +21,7 @@ import { useAccount, useAssetUSDPrice } from "lib/temple/front";
 
 const coinTo = "XTZ";
 const maxDollarValue = 5000;
+const avgCommission = 300;
 
 interface Props {
   exchangeData: ExchangeDataInterface | null;
@@ -43,7 +38,7 @@ const InitialStep: FC<Props> = ({
   isError,
   setIsError,
 }) => {
-  const [initialRate, setInitialRate] = useState(0);
+  const [initialMaxAmount, setInitialMaxAmount] = useState("");
   const [amount, setAmount] = useState(0);
   const [coinFrom, setCoinFrom] = useState("BTC");
   const [lastMinAmount, setLastMinAmount] = useState(new BigNumber(0));
@@ -88,24 +83,30 @@ const InitialStep: FC<Props> = ({
 
   useEffect(() => {
     (async () => {
-      const { rate } = await getRate({
-        coin_from: coinFrom,
-        coin_to: coinTo,
-        deposit_amount: 0.1,
+      const { rate, ...rest } = await getRate({
+        coin_from: coinTo,
+        coin_to: coinFrom,
+        deposit_amount: (maxDollarValue + avgCommission) / tezPrice!,
       });
-      setInitialRate(rate);
-    })();
-  }, [coinFrom]);
 
-  const maxAmount = useMemo(() => {
-    return new BigNumber(1)
-      .dividedBy(
-        new BigNumber(rates.rate === 0 ? initialRate : rates.rate)
-          .multipliedBy(new BigNumber(tezPrice!))
-          .dividedBy(new BigNumber(maxDollarValue))
-      )
-      .toFixed(amount > 100 ? 2 : 6);
-  }, [rates, tezPrice, amount, initialRate]);
+      setInitialMaxAmount(
+        new BigNumber(rest.destination_amount).toFixed(
+          Number(rest.destination_amount) > 100 ? 2 : 6
+        )
+      );
+    })();
+  }, [coinFrom, tezPrice]);
+
+  const maxAmount =
+    rates.rate === 0
+      ? initialMaxAmount
+      : new BigNumber(1)
+          .dividedBy(
+            new BigNumber(rates.rate)
+              .multipliedBy(new BigNumber(tezPrice!))
+              .dividedBy(new BigNumber(maxDollarValue))
+          )
+          .toFixed(amount > 100 ? 2 : 6);
 
   const isMaxAmountError =
     lastMaxAmount !== "Infinity" &&
