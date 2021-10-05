@@ -38,7 +38,7 @@ const InitialStep: FC<Props> = ({
   isError,
   setIsError,
 }) => {
-  const [initialMaxAmount, setInitialMaxAmount] = useState("");
+  const [maxAmount, setMaxAmount] = useState("");
   const [amount, setAmount] = useState(0);
   const [coinFrom, setCoinFrom] = useState("BTC");
   const [lastMinAmount, setLastMinAmount] = useState(new BigNumber(0));
@@ -89,24 +89,13 @@ const InitialStep: FC<Props> = ({
         deposit_amount: (maxDollarValue + avgCommission) / tezPrice!,
       });
 
-      setInitialMaxAmount(
+      setMaxAmount(
         new BigNumber(rest.destination_amount).toFixed(
           Number(rest.destination_amount) > 100 ? 2 : 6
         )
       );
     })();
   }, [coinFrom, tezPrice]);
-
-  const maxAmount =
-    rates.rate === 0
-      ? initialMaxAmount
-      : new BigNumber(1)
-          .dividedBy(
-            new BigNumber(rates.rate)
-              .multipliedBy(new BigNumber(tezPrice!))
-              .dividedBy(new BigNumber(maxDollarValue))
-          )
-          .toFixed(amount > 100 ? 2 : 6);
 
   const isMaxAmountError =
     lastMaxAmount !== "Infinity" &&
