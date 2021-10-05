@@ -198,7 +198,7 @@ export function formatOpParams(op: any) {
     return {
       mutez: true,
       ...rest,
-    }
+    };
   }
   return rest;
 }

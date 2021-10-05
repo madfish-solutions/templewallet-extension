@@ -14,5 +14,5 @@ export type Asset = Token | "tez";
 export type TokenStandard = "fa1.2" | "fa2";
 
 export enum AssetTypesEnum {
-  Collectibles = 'collectibles',
+  Collectibles = "collectibles",
 }

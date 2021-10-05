@@ -11,7 +11,11 @@ import HashShortView from "app/atoms/HashShortView";
 import { ReactComponent as CopyIcon } from "app/icons/copy.svg";
 import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
 import useTopUpUpdate from "app/pages/BuyCrypto/utils/useTopUpUpdate";
-import { ExchangeDataInterface, ExchangeDataStatusEnum } from "lib/exolix-api";
+import {
+  ExchangeDataInterface,
+  ExchangeDataStatusEnum,
+  getExchangeData,
+} from "lib/exolix-api";
 import { T } from "lib/i18n/react";
 import useCopyToClipboard from "lib/ui/useCopyToClipboard";
 
@@ -80,7 +84,10 @@ const ApproveStep: FC<Props> = ({
               </p>
             )}
             date={exchangeData.created_at * 1000 + 3600000}
-            onComplete={() => setIsError(true)}
+            onComplete={async () => {
+              const data = await getExchangeData(exchangeData.id);
+              setExchangeData(data);
+            }}
           />
           <WarningComponent amountAttention />
           <Divider style={{ marginBottom: "1.5rem", marginTop: "2rem" }} />
@@ -194,7 +201,7 @@ const ApproveStep: FC<Props> = ({
               onClick={() => {
                 setStep(0);
               }}
-              className="text-blue-500 text-sm mb-8 inline-block cursor-pointer inline-block w-auto"
+              className="text-red-700 text-sm mb-8 inline-block cursor-pointer inline-block w-auto"
             >
               <T id={"cancel"} />
             </p>

@@ -23,11 +23,12 @@ interface Props {
 
 const CollectiblePage: FC<Props> = ({ assetSlug }) => {
   const [assetContract, assetId] = useMemo(
-    () => [fromFa2TokenSlug(assetSlug).contract, new BigNumber(fromFa2TokenSlug(assetSlug).id)],
+    () => [
+      fromFa2TokenSlug(assetSlug).contract,
+      new BigNumber(fromFa2TokenSlug(assetSlug).id),
+    ],
     [assetSlug]
   );
-
-  
 
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
@@ -46,7 +47,7 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
       >
         <div className={classNames("w-full max-w-sm mx-auto")}>
           <div
-            style={{ borderRadius: "12px", width: '320px' }}
+            style={{ borderRadius: "12px", width: "320px" }}
             className={"border border-gray-300 p-6 mx-auto my-10"}
           >
             <CollectibleImage

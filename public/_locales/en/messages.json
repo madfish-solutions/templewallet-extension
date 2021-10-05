@@ -1643,7 +1643,7 @@
     }
   },
   "incorrectTokenIdErrorMessage": {
-    "message": "Failed while processing asset with provided data. Please make sure that token ID is correct."
+    "message": "Failed while processing asset with provided data. Please make sure that asset ID is correct."
   },
   "transfer": {
     "message": "Transfer"
@@ -2160,7 +2160,7 @@
     "message": "Top up your TEZ balance instantly with 25 cryptocurrencies and without registration"
   },
   "privacyAndPolicyLinks": {
-    "message": "By clicking Exchange you agree with \n$termsOfUse$ and $privacyPolicy$",
+    "message": "By clicking Top Up you agree with \n$termsOfUse$ and $privacyPolicy$",
     "placeholders": {
       "termsOfUse": {
         "content": "$1"
@@ -2278,5 +2278,11 @@
   },
   "zeroCollectibleText": {
     "message": "You don’t have collectibles yet!\nGood time to get one of them"
+  },
+  "min": {
+    "message": "Min:"
+  },
+  "warningTopUpServiceMessage": {
+    "message": "The token exchange feature is provided by a third party. The Temple wallet is not responsible for the work of third-party services."
   }
 }
