@@ -2227,7 +2227,7 @@
     "message": "You receive:"
   },
   "waitMessage": {
-    "message": "Please, wait. The convertation process will take from 15 min to 2 hours."
+    "message": "Please, wait. The conversion process will take from 15 min to 2 hours."
   },
   "confirmation": {
     "message": "Confirmation"
