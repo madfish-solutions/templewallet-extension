@@ -49,6 +49,12 @@ export const getCurrencies = async () => {
   return api.get<CurrenciesInterface[]>("/currency").then((r) => r.data);
 };
 
+export interface getRateDataInterface {
+  destination_amount: number;
+  rate: number;
+  min_amount: string;
+}
+
 export const getRate = async (data: {
   coin_from: string;
   coin_to: string;
