@@ -2157,7 +2157,7 @@
     "message": "Enter exchange details"
   },
   "exchangeDetailsDescription": {
-    "message": "Top up your TEZ balance instantly with 25 cryptocurrencies and without registration"
+    "message": "Top up your TEZ balance instantly with 25 cryptocurrencies"
   },
   "privacyAndPolicyLinks": {
     "message": "By clicking Top Up you agree with \n$termsOfUse$ and $privacyPolicy$",
