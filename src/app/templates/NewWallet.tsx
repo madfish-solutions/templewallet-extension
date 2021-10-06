@@ -69,14 +69,9 @@ const importWalletOptions = [
 const validateKeystoreFile = (value?: FileList) => {
   const file = value?.item(0);
 
-  if (!file) {
-    return t("required");
-  }
-
-  if (!file.name.endsWith(".tez")) {
+  if (file && !file.name.endsWith(".tez")) {
     return t("selectedFileFormatNotSupported");
   }
-
   return true;
 };
 
@@ -127,10 +122,10 @@ const NewWallet: FC<NewWalletProps> = ({
   const clearKeystoreFileInput = useCallback(
     (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
       e.stopPropagation();
-      // @ts-ignore
-      setValue("keystoreFile", []);
+      setValue("keystoreFile", undefined);
+      triggerValidation("keystoreFile");
     },
-    [setValue]
+    [triggerValidation, setValue]
   );
 
   const onSubmit = useCallback(
@@ -311,9 +306,7 @@ const NewWallet: FC<NewWalletProps> = ({
                 as={KeystoreFileInput}
                 rules={{
                   required: isImportFromKeystore ? t("required") : false,
-                  validate: isImportFromKeystore
-                    ? validateKeystoreFile
-                    : undefined,
+                  validate: isImportFromKeystore ? validateKeystoreFile : undefined,
                 }}
                 clearKeystoreFileInput={clearKeystoreFileInput}
               />
