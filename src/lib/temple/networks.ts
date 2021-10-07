@@ -67,7 +67,7 @@ export const NETWORKS: TempleNetwork[] = [
     description: "Highly available Tezos Mainnet nodes operated by ECAD Labs",
     lambdaContract: "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE",
     type: "main",
-    rpcBaseURL: "https://api.tez.ie/rpc/mainnet",
+    rpcBaseURL: "https://mainnet.api.tez.ie",
     color: "#047857",
     disabled: false,
   },
