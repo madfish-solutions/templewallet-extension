@@ -2293,5 +2293,23 @@
   },
   "synchronizationSettingsDescription": {
     "message": "Sync with Mobile Temple Wallet."
+  },
+  "syncSettingsTitle": {
+    "message": "Sync with Mobile Temple Wallet"
+  },
+  "syncSettingsDescription": {
+    "message": "You can sync your Seed Phrase and accounts (HD) with your mobile device. If you just open the Temple Mobile app for the first time, click 'Sync' button and follow the steps in your phone."
+  },
+  "syncPasswordDescription": {
+    "message": "The password is used to protect the synchronization process."
+  },
+  "syncSettingsAlert": {
+    "message": "Make sure nobody else is looking at your screen when you scan this code."
+  },
+  "scanQRWithTempleMobile": {
+    "message": "Scan this QR-code with yor Temple Wallet Mobile app."
+  },
+  "done": {
+    "message": "Done"
   }
 }

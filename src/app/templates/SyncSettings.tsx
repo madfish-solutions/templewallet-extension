@@ -7,6 +7,7 @@ import React, {
   useLayoutEffect,
 } from "react";
 
+import classNames from "clsx";
 import { useForm } from "react-hook-form";
 import { QRCode } from "react-qr-svg";
 
@@ -89,51 +90,66 @@ const SyncSettings: FC = () => {
         <>
           <Alert
             title={t("attentionExclamation")}
-            description={<p>{`Attension text...`}</p>}
-            className="my-4"
+            description={
+              <p>
+                <T id="syncSettingsAlert" />
+              </p>
+            }
+            className="mt-4 mb-8"
           />
 
-          <QRCode
-            value={payload}
-            bgColor="#f7fafc"
-            fgColor="#000000"
-            level="Q"
-            style={{ width: "100%" }}
-            className="mb-8"
-          />
+          <p className="mb-4 text-sm text-gray-600">
+            <T id="scanQRWithTempleMobile" />
+          </p>
 
-          <FormField
-            secret
-            textarea
-            rows={4}
-            readOnly
-            label={`Payload`}
-            labelDescription={`Payload desc`}
-            id="reveal-secret-secret"
-            spellCheck={false}
-            containerClassName="mb-4"
-            className="resize-none notranslate"
-            value={payload}
-          />
+          <div
+            className={classNames(
+              "mb-8 p-1",
+              "bg-gray-100 border-2 border-gray-300",
+              "rounded"
+            )}
+          >
+            <QRCode
+              value={payload}
+              bgColor="#f7fafc"
+              fgColor="#000000"
+              level="Q"
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <FormSubmitButton className="w-full justify-center" onClick={() => setPayload(null)}>
+            <T id="done" />
+          </FormSubmitButton>
         </>
       ) : (
-        <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-          <FormField
-            ref={register({ required: t("required") })}
-            label={t("password")}
-            labelDescription={`Password desc`}
-            id="reveal-secret-password"
-            type="password"
-            name="password"
-            placeholder="********"
-            errorCaption={errors.password?.message}
-            containerClassName="mb-4"
-          />
+        <>
+          <h2 className="mb-3 text-base text-gray-700">
+            <T id="syncSettingsTitle" />
+          </h2>
 
-          <FormSubmitButton loading={submitting}>
-            <T id="sync" />
-          </FormSubmitButton>
-        </form>
+          <p className="mb-6 text-xs text-gray-600">
+            <T id="syncSettingsDescription" />
+          </p>
+
+          <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+            <FormField
+              ref={register({ required: t("required") })}
+              label={t("password")}
+              labelDescription={t("syncPasswordDescription")}
+              id="reveal-secret-password"
+              type="password"
+              name="password"
+              placeholder="********"
+              errorCaption={errors.password?.message}
+              containerClassName="mb-4"
+            />
+
+            <FormSubmitButton loading={submitting}>
+              <T id="sync" />
+            </FormSubmitButton>
+          </form>
+        </>
       )}
     </div>
   );
