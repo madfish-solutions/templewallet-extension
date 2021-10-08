@@ -1,7 +1,10 @@
+import { useMemo } from "react";
+
 import { TezosToolkit } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 
 import { loadContract } from "lib/temple/contract";
+import { searchAssets, useAllTokensBaseMetadata } from "lib/temple/front";
 import { AssetMetadata } from "lib/temple/metadata";
 
 import { detectTokenStandard } from "./tokenStandard";
@@ -57,6 +60,17 @@ export async function fromAssetSlug(
   };
 }
 
+export function fromFa2TokenSlug(slug: string): FA2Token {
+  if (isTezAsset(slug)) {
+    throw new Error("Only fa2 token slug allowed");
+  }
+  const [contractAddress, tokenIdStr] = slug.split("_");
+  return {
+    contract: contractAddress,
+    id: new BigNumber(tokenIdStr ?? 0),
+  };
+}
+
 export function toAssetSlug(asset: Asset) {
   return isTezAsset(asset) ? asset : toTokenSlug(asset.contract, asset.id);
 }
@@ -79,4 +93,12 @@ export function isTokenAsset(asset: Asset): asset is Token {
 
 export function toPenny(metadata: AssetMetadata | null) {
   return new BigNumber(1).div(10 ** (metadata?.decimals ?? 0));
+}
+
+export function useFilteredAssets(assetSlugs: string[], searchValue: string) {
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  return useMemo(
+    () => searchAssets(searchValue, assetSlugs, allTokensBaseMetadata),
+    [searchValue, assetSlugs, allTokensBaseMetadata]
+  );
 }

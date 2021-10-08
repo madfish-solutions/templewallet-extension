@@ -13,6 +13,15 @@ interface Props {
   type?: string;
 }
 
+const customLogoCurrencyList = [
+  "QUICK",
+  "1INCH",
+  "DOGE",
+  "CAKE",
+  "SUSHI",
+  "SHIB",
+];
+
 const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
   ({ onPress, label, type }, ref) => {
     return (
@@ -20,7 +29,7 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
         style={
           type === "currencySelector"
             ? undefined
-            : { margin: "5px 0", justifyContent: "start", paddingLeft: "10px" }
+            : { margin: "5px 0", justifyContent: "start", paddingLeft: "5px" }
         }
         onClick={onPress}
         ref={ref}
@@ -29,15 +38,31 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
         {type === "tezosSelector" ? (
           <AssetIcon assetSlug="tez" size={32} />
         ) : (
-          <img
-            alt="icon"
-            className={styles["currencyCircle"]}
-            src={browser.runtime.getURL(
-              "misc/token-logos/top-up-token-logos/" +
-                label.toLowerCase() +
-                ".png"
+          <>
+            {customLogoCurrencyList.indexOf(label) === -1 ? (
+              <img
+                alt="icon"
+                className={styles["currencyCircle"]}
+                src={browser.runtime.getURL(
+                  "misc/token-logos/top-up-token-logos/" +
+                    label.toLowerCase() +
+                    ".png"
+                )}
+              />
+            ) : (
+              <div className={styles["customCurrencyCircleWrapper"]}>
+                <img
+                  alt="icon"
+                  className={styles["customCurrencyCircle"]}
+                  src={browser.runtime.getURL(
+                    "misc/token-logos/top-up-token-logos/" +
+                      label.toLowerCase() +
+                      ".png"
+                  )}
+                />
+              </div>
             )}
-          />
+          </>
         )}
         <p className={styles["currencyName"]}>{label}</p>
         {type === "currencySelector" && (

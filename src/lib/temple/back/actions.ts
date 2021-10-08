@@ -43,7 +43,7 @@ import {
   TempleSharedStorageKey,
 } from "lib/temple/types";
 
-const ACCOUNT_NAME_PATTERN = /^[a-zA-Z0-9 _-]{1,16}$/;
+const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
 

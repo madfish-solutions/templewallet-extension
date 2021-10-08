@@ -35,7 +35,7 @@ export async function fetchDisplayedFungibleTokens(
 ) {
   return Repo.accountTokens
     .where({ type: Repo.ITokenType.Fungible, chainId, account })
-    .filter(isFungibleTokenDisplayed)
+    .filter(isTokenDisplayed)
     .reverse()
     .sortBy("addedAt")
     .then((items) => items.sort(compareAccountTokensByUSDBalance));
@@ -47,9 +47,16 @@ export async function fetchFungibleTokens(chainId: string, account: string) {
     .toArray();
 }
 
-export async function fetchCollectibleTokens(chainId: string, account: string) {
+export async function fetchCollectibleTokens(
+  chainId: string,
+  account: string,
+  isDisplayed: boolean
+) {
   return Repo.accountTokens
     .where({ type: Repo.ITokenType.Collectible, chainId, account })
+    .filter((accountToken) =>
+      isDisplayed ? isTokenDisplayed(accountToken) : true
+    )
     .reverse()
     .sortBy("addedAt");
 }
@@ -62,7 +69,15 @@ export async function fetchAllKnownFungibleTokenSlugs(chainId: string) {
   return Array.from(new Set(allAccountTokens.map((t) => t.tokenSlug)));
 }
 
-export function isFungibleTokenDisplayed(t: Repo.IAccountToken) {
+export async function fetchAllKnownCollectibleTokenSlugs(chainId: string) {
+  const allAccountTokens = await Repo.accountTokens
+    .where({ type: Repo.ITokenType.Collectible, chainId })
+    .toArray();
+
+  return Array.from(new Set(allAccountTokens.map((t) => t.tokenSlug)));
+}
+
+export function isTokenDisplayed(t: Repo.IAccountToken) {
   return (
     t.status === Repo.ITokenStatus.Enabled ||
     (t.status === Repo.ITokenStatus.Idle &&

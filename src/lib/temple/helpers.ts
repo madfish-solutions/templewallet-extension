@@ -1,13 +1,13 @@
-import { HttpResponseError } from "@taquito/http-utils";
-import { RpcClient } from "@taquito/rpc";
-import { MichelCodecPacker } from "@taquito/taquito";
-import { ValidationResult, validateAddress } from "@taquito/utils";
+import {HttpResponseError} from "@taquito/http-utils";
+import {RpcClient} from "@taquito/rpc";
+import {MichelCodecPacker} from "@taquito/taquito";
+import {validateAddress, ValidationResult} from "@taquito/utils";
 import BigNumber from "bignumber.js";
 import memoize from "micro-memoize";
 
-import { getMessage } from "lib/i18n";
-import { IntercomError } from "lib/intercom/helpers";
-import { FastRpcClient } from "lib/taquito-fast-rpc";
+import {getMessage} from "lib/i18n";
+import {IntercomError} from "lib/intercom/helpers";
+import {FastRpcClient} from "lib/taquito-fast-rpc";
 
 export const loadFastRpcClient = memoize(
   (rpc: string) => new FastRpcClient(rpc)
@@ -71,6 +71,10 @@ export function mutezToTz(mutez: any) {
 
 export function atomsToTokens(x: BigNumber, decimals: number) {
   return x.integerValue().div(new BigNumber(10).pow(decimals));
+}
+
+export function tokensToAtoms(x: BigNumber, decimals: number) {
+  return x.times(10 ** decimals).integerValue();
 }
 
 export function isAddressValid(address: string) {

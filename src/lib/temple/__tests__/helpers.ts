@@ -15,6 +15,12 @@ describe("Helpers", () => {
     expect(realValue.toFixed()).toBe("1000");
   });
 
+  it("tokensToAtoms", async () => {
+    const realValue = new BigNumber(1000);
+    const atomsValue = Helpers.tokensToAtoms(realValue, 9);
+    expect(atomsValue.toFixed()).toBe("1000000000000");
+  });
+
   it("atomsToTokens", async () => {
     let params: any = { kind: "transaction", script: {} };
     expect(Helpers.formatOpParamsBeforeSend(params)).toBe(params);

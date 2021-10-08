@@ -92,6 +92,9 @@ const BuyCryptoContent: FC = () => {
           <T id={"support"} />
         </a>
       )}
+      <p className={"mt-6 text-gray-600"}>
+        <T id={"warningTopUpServiceMessage"} />
+      </p>
     </div>
   );
 };

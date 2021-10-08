@@ -18,6 +18,7 @@ import {
   useAssetMetadata,
   getAssetName,
   getAssetSymbol,
+  useCollectibleTokens,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 
@@ -37,8 +38,16 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
   const address = account.publicKeyHash;
 
   const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
+  const { data: collectibles = [] } = useCollectibleTokens(
+    chainId,
+    address,
+    true
+  );
 
-  const assets = useMemo<IAsset[]>(() => ["tez" as const, ...tokens], [tokens]);
+  const assets = useMemo<IAsset[]>(
+    () => ["tez" as const, ...tokens, ...collectibles],
+    [tokens, collectibles]
+  );
   const selected = useMemo(
     () => assets.find((a) => getSlug(a) === value) ?? "tez",
     [assets, value]

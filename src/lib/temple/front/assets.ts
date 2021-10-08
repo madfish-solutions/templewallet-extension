@@ -20,6 +20,8 @@ import {
   fetchAllKnownFungibleTokenSlugs,
   onStorageChanged,
   putToStorage,
+  fetchCollectibleTokens,
+  fetchAllKnownCollectibleTokenSlugs,
 } from "lib/temple/front";
 
 export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = "all_tokens_base_metadata";
@@ -48,10 +50,38 @@ export function useFungibleTokens(chainId: string, account: string) {
   );
 }
 
+export function useCollectibleTokens(
+  chainId: string,
+  account: string,
+  isDisplayed: boolean
+) {
+  return useRetryableSWR(
+    ["collectible-tokens", chainId, account, isDisplayed],
+    () => fetchCollectibleTokens(chainId, account, isDisplayed),
+    {
+      revalidateOnMount: true,
+      refreshInterval: 20_000,
+      dedupingInterval: 5_000,
+    }
+  );
+}
+
 export function useAllKnownFungibleTokenSlugs(chainId: string) {
   return useRetryableSWR(
     ["all-known-fungible-token-slugs", chainId],
     () => fetchAllKnownFungibleTokenSlugs(chainId),
+    {
+      revalidateOnMount: true,
+      refreshInterval: 60_000,
+      dedupingInterval: 10_000,
+    }
+  );
+}
+
+export function useAllKnownCollectibleTokenSlugs(chainId: string) {
+  return useRetryableSWR(
+    ["all-known-collectible-token-slugs", chainId],
+    () => fetchAllKnownCollectibleTokenSlugs(chainId),
     {
       revalidateOnMount: true,
       refreshInterval: 60_000,

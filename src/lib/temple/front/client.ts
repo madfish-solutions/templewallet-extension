@@ -496,21 +496,33 @@ class TaquitoWallet implements WalletProvider {
     return this.pkh;
   }
 
-  async mapTransferParamsToWalletParams(params: WalletTransferParams) {
-    return withoutFeesOverride(params, await createTransferOperation(params));
-  }
-
-  async mapOriginateParamsToWalletParams(params: WalletOriginateParams) {
+  async mapTransferParamsToWalletParams(
+    params: () => Promise<WalletTransferParams>
+  ) {
+    const walletParams = await params();
     return withoutFeesOverride(
-      params,
-      await createOriginationOperation(params as any)
+      walletParams,
+      await createTransferOperation(walletParams)
     );
   }
 
-  async mapDelegateParamsToWalletParams(params: WalletDelegateParams) {
+  async mapOriginateParamsToWalletParams(
+    params: () => Promise<WalletOriginateParams>
+  ) {
+    const walletParams = await params();
     return withoutFeesOverride(
-      params,
-      await createSetDelegateOperation(params as any)
+      walletParams,
+      await createOriginationOperation(walletParams)
+    );
+  }
+
+  async mapDelegateParamsToWalletParams(
+    params: () => Promise<WalletDelegateParams>
+  ) {
+    const walletParams = await params();
+    return withoutFeesOverride(
+      walletParams,
+      await createSetDelegateOperation(walletParams as any)
     );
   }
 

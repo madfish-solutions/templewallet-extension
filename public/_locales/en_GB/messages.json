@@ -239,7 +239,7 @@
     "message": "Click on deposit method to get money on your wallet. Use faucet to get free coins!"
   },
   "addToken": {
-    "message": "Add Token"
+    "message": "Add Asset"
   },
   "contractNotAvailable": {
     "message": "The contract at this address is not available. Does it exist on this network?"
@@ -248,7 +248,7 @@
     "message": "No transfer method"
   },
   "tokenDoesNotMatchStandard": {
-    "message": "Provided token contract doesn't match $standard$ standard",
+    "message": "Provided asset contract doesn't match $standard$ standard",
     "placeholders": {
       "standard": {
         "content": "$1"
@@ -265,7 +265,7 @@
     "message": "Token ID"
   },
   "tokenIdInputDescription": {
-    "message": "A non-negative integer number that identifies the token inside FA2 contract"
+    "message": "A non-negative integer number that identifies the asset inside FA2 contract"
   },
   "comingSoonComment": {
     "message": "(coming soon)"
@@ -280,7 +280,7 @@
     "message": "Address"
   },
   "addressOfDeployedTokenContract": {
-    "message": "Address of a deployed token contract."
+    "message": "Address of a deployed asset contract."
   },
   "tokenContractPlaceholder": {
     "message": "e.g. KT1v9CmPy..."
@@ -295,7 +295,7 @@
     "message": "Symbol"
   },
   "tokenSymbolInputDescription": {
-    "message": "Token symbol, like 'USD' for United States Dollar."
+    "message": "Asset symbol, like 'USD' for United States Dollar."
   },
   "tokenSymbolInputPlaceholder": {
     "message": "e.g. WEW, BOW, LAL etc."
@@ -307,7 +307,7 @@
     "message": "Name"
   },
   "tokenNameInputDescription": {
-    "message": "Token name, like 'Bitcoin' for BTC asset."
+    "message": "Asset name, like 'Bitcoin' for BTC asset."
   },
   "tokenNameInputPlaceholder": {
     "message": "e.g. MySuperToken"
@@ -340,7 +340,7 @@
     "message": "(optional)"
   },
   "iconURLInputDescription": {
-    "message": "Image URL for token logo."
+    "message": "Image URL for asset logo."
   },
   "invalidAddress": {
     "message": "Invalid address"
@@ -1364,8 +1364,8 @@
   "manage": {
     "message": "Manage"
   },
-  "manageAssets": {
-    "message": "Manage Assets"
+  "manageTokens": {
+    "message": "Manage Tokens"
   },
   "noAssetsFound": {
     "message": "No assets found"
@@ -1515,7 +1515,7 @@
     "message": "Failed to load chain ID for this network"
   },
   "makeSureTokenIdIsCorrect": {
-    "message": "Please make sure that token ID is correct."
+    "message": "Please make sure that asset ID is correct."
   },
   "unknownErrorCheckingSomeEntrypoint": {
     "message": "An unknown error while checking '$name$' entrypoint occurred.",
@@ -1526,7 +1526,7 @@
     }
   },
   "incorrectTokenIdErrorMessage": {
-    "message": "Failed while processing token with provided data. Please make sure that token ID is correct."
+    "message": "Failed while processing asset with provided data. Please make sure that asset ID is correct."
   },
   "transfer": {
     "message": "Transfer"

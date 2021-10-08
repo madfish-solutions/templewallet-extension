@@ -34,11 +34,26 @@ interface CurrenciesInterface {
   code: string;
 }
 
-const api = axios.create({ baseURL: "https://exolix.com/api" });
+const API_KEY = process.env.TEMPLE_WALLET_EXOLIX_API_KEY;
+
+const api = axios.create({
+  baseURL: "https://exolix.com/api",
+  ...(API_KEY && {
+    headers: {
+      Authorization: API_KEY,
+    },
+  }),
+});
 
 export const getCurrencies = async () => {
   return api.get<CurrenciesInterface[]>("/currency").then((r) => r.data);
 };
+
+export interface getRateDataInterface {
+  destination_amount: number;
+  rate: number;
+  min_amount: string;
+}
 
 export const getRate = async (data: {
   coin_from: string;
