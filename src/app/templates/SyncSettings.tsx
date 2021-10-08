@@ -118,7 +118,10 @@ const SyncSettings: FC = () => {
             />
           </div>
 
-          <FormSubmitButton className="w-full justify-center" onClick={() => setPayload(null)}>
+          <FormSubmitButton
+            className="w-full justify-center"
+            onClick={() => setPayload(null)}
+          >
             <T id="done" />
           </FormSubmitButton>
         </>
