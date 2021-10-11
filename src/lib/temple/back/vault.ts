@@ -170,14 +170,9 @@ export class Vault {
         "sha512"
       );
 
-      let textBytes = aes.utils.utf8.toBytes(JSON.stringify(data));
-      const reminder = textBytes.length % 16;
-      if (reminder !== 0) {
-        textBytes = new Uint8Array([
-          ...textBytes,
-          ...Array.from({ length: 16 - reminder }).map(() => 0),
-        ]);
-      }
+      const textBytes = aes.padding.pkcs7.pad(
+        aes.utils.utf8.toBytes(JSON.stringify(data))
+      );
 
       const iv = Passworder.generateSalt(16);
       const aesCbc = new aes.ModeOfOperation.cbc(key, iv);
