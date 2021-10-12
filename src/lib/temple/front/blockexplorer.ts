@@ -123,8 +123,8 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
       [
         TempleChainId.Mainnet,
         {
-          account: "http://tezblock.io/account",
-          transaction: "http://tezblock.io/transaction",
+          account: "https://tezblock.io/account",
+          transaction: "https://tezblock.io/transaction",
         },
       ],
     ]),
