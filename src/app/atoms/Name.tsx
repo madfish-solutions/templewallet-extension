@@ -7,7 +7,7 @@ type NameProps = HTMLAttributes<HTMLDivElement>;
 const Name: FC<NameProps> = ({ className, style = {}, ...rest }) => (
   <div
     className={classNames(
-      "whitespace-no-wrap overflow-x-auto no-scrollbar",
+      "whitespace-no-wrap overflow-x-auto letter-truncated-fix no-scrollbar",
       className
     )}
     style={{ maxWidth: "12rem", ...style }}
