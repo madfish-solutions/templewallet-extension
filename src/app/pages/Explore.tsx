@@ -111,7 +111,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div
-          className="flex justify-around w-full mx-auto mt-6"
+          className="flex justify-around mx-auto mt-6"
           style={{ maxWidth: "19rem" }}
         >
           <ActionButton
@@ -184,10 +184,13 @@ const ActionButton: FC<ActionButtonProps> = ({
   tippyProps = {},
 }) => {
   const network = useNetwork();
+  const { popup } = useAppEnv();
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
-      className: `flex flex-col items-center px-1 ${
+      className: `flex flex-col items-center ${
+          popup ? "" : "px-1"
+      } ${
         network.type === "test" ? "mx-3" : "mx-2"
       }`,
       type: "button" as const,
@@ -204,7 +207,7 @@ const ActionButton: FC<ActionButtonProps> = ({
           </div>
           <span
             className={classNames(
-              "text-xs",
+              "text-xs text-center",
               disabled ? "text-blue-300" : "text-blue-500"
             )}
           >
@@ -213,7 +216,7 @@ const ActionButton: FC<ActionButtonProps> = ({
         </>
       ),
     }),
-    [disabled, Icon, label, network.type]
+    [disabled, Icon, label, network.type, popup]
   );
   return disabled ? (
     <button ref={buttonRef} {...commonButtonProps} />
