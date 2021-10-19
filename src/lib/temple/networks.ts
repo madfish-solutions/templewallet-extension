@@ -4,6 +4,7 @@ import { TempleChainId, TempleNetwork } from "lib/temple/types";
 export const KNOWN_LAMBDA_CONTRACTS = new Map([
   [TempleChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
   [TempleChainId.Granadanet, "KT1VhtTGAyh7AVVwyH2ExNhaXvQq2rAJ6DNs"],
+  [TempleChainId.Hangzhounet, "KT1Uu5atnGR8m7S6i1rvTB3r71PPqHBDfkSS"],
   [TempleChainId.Florencenet, "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX"],
   [TempleChainId.Edo2net, "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN"],
   [TempleChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
@@ -13,6 +14,7 @@ export const KNOWN_LAMBDA_CONTRACTS = new Map([
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, "mainnet"],
   [TempleChainId.Granadanet, "granadanet"],
+  [TempleChainId.Hangzhounet, "hangzhounet"],
   [TempleChainId.Florencenet, "florencenet"],
   [TempleChainId.Edo2net, "edo2net"],
   [TempleChainId.Delphinet, "delphinet"],
@@ -79,6 +81,16 @@ export const NETWORKS: TempleNetwork[] = [
     type: "test",
     rpcBaseURL: "https://granadanet.smartpy.io",
     color: "#667eea",
+    disabled: false,
+  },
+  {
+    id: "hangzhounet",
+    name: "Hangzhounet Testnet",
+    description: "Hangzhounet testnet",
+    lambdaContract: "KT1Uu5atnGR8m7S6i1rvTB3r71PPqHBDfkSS",
+    type: "test",
+    rpcBaseURL: "https://hangzhounet.smartpy.io",
+    color: "#b83280",
     disabled: false,
   },
   {

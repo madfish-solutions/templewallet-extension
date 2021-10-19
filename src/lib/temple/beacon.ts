@@ -13,6 +13,7 @@ export interface AppMetadata {
 export type NetworkType =
   | "mainnet"
   | "granadanet"
+  | "hangzhounet"
   | "florencenet"
   | "edonet"
   | "carthagenet"
