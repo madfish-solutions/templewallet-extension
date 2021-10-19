@@ -24,7 +24,7 @@ const CollectibleImage: FC<Props> = ({
         className={className}
         src={sanitizeImgUri(
           formatImgUri(
-            collectibleMetadata.displayUri ?? collectibleMetadata.artifactUri!
+            collectibleMetadata.displayUri || collectibleMetadata.artifactUri!
           ),
           512,
           512
