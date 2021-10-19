@@ -113,3 +113,10 @@ button,
 .grayscale-firefox-fix {
   filter: grayscale(1%);
 }
+
+/* Fix letter truncated */
+.letter-truncated-fix {
+  line-height: normal;
+  padding-bottom: 0;
+  padding-top: 0;
+}
