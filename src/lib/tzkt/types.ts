@@ -4,6 +4,7 @@ export type TzktOperationType = "delegation" | "transaction" | "reveal";
 export type TzktNetwork =
   | "mainnet"
   | "granadanet"
+  | "hangzhounet"
   | "florencenet"
   | "edo2net"
   | "delphinet";

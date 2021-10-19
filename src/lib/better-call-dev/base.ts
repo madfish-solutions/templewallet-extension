@@ -20,6 +20,7 @@ export const buildQuery = makeBuildQueryFn<Record<string, unknown>, any>(
 export type BcdNetwork =
   | "mainnet"
   | "granadanet"
+  | "hangzhounet"
   | "florencenet"
   | "edo2net"
   | "delphinet";
