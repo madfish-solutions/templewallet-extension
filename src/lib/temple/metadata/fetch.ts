@@ -60,6 +60,7 @@ export async function fetchTokenMetadata(
         tzip12Data.icon ||
         tzip12Data.iconUri ||
         tzip12Data.iconUrl,
+      displayUri: tzip12Data.displayUri,
       artifactUri: tzip12Data.artifactUri,
     };
 
@@ -109,5 +110,6 @@ interface TokenMetadataWithLogo extends TokenMetadata {
   icon?: string;
   iconUri?: string;
   iconUrl?: string;
+  displayUri?: string;
   artifactUri?: string;
 }

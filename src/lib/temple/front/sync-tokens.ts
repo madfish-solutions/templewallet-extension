@@ -19,6 +19,9 @@ import {
   useUSDPrices,
   fetchDisplayedFungibleTokens,
   PREDEFINED_MAINNET_TOKENS,
+  fetchCollectibleTokens,
+  toBaseMetadata,
+  DetailedAssetMetdata,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 import { getTokensMetadata } from "lib/templewallet-api";
@@ -27,8 +30,12 @@ export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
 
-  const { allTokensBaseMetadataRef, setTokensBaseMetadata, fetchMetadata } =
-    useTokensMetadata();
+  const {
+    allTokensBaseMetadataRef,
+    setTokensBaseMetadata,
+    setTokensDetailedMetadata,
+    fetchMetadata,
+  } = useTokensMetadata();
   const usdPrices = useUSDPrices();
 
   const networkId = useMemo(
@@ -43,10 +50,12 @@ export const [SyncTokensProvider] = constate(() => {
     if (!networkId) return;
     const mainnet = networkId === "mainnet";
 
-    const [bcdTokens, displayedFungibleTokens] = await Promise.all([
-      fetchBcdTokenBalances(networkId, accountPkh),
-      fetchDisplayedFungibleTokens(chainId, accountPkh),
-    ]);
+    const [bcdTokens, displayedFungibleTokens, displayedCollectibleTokens] =
+      await Promise.all([
+        fetchBcdTokenBalances(networkId, accountPkh),
+        fetchDisplayedFungibleTokens(chainId, accountPkh),
+        fetchCollectibleTokens(chainId, accountPkh, true),
+      ]);
 
     const bcdTokensMap = new Map(
       bcdTokens.map((token) => [
@@ -55,10 +64,15 @@ export const [SyncTokensProvider] = constate(() => {
       ])
     );
 
+    const displayedTokenSlugs = [
+      ...displayedFungibleTokens,
+      ...displayedCollectibleTokens,
+    ].map(({ tokenSlug }) => tokenSlug);
+
     let tokenSlugs = Array.from(
       new Set([
         ...bcdTokensMap.keys(),
-        ...displayedFungibleTokens.map(({ tokenSlug }) => tokenSlug),
+        ...displayedTokenSlugs,
         ...(mainnet ? PREDEFINED_MAINNET_TOKENS : []),
       ])
     );
@@ -74,8 +88,6 @@ export const [SyncTokensProvider] = constate(() => {
 
     const existingRecords = await Repo.accountTokens.bulkGet(tokenRepoKeys);
 
-    const tokensMetadataToSet: Record<string, AssetMetadata> = {};
-
     const metadataSlugs = tokenSlugs.filter(
       (slug) => !(slug in allTokensBaseMetadataRef.current)
     );
@@ -84,7 +96,10 @@ export const [SyncTokensProvider] = constate(() => {
     // Only for mainnet. Try load metadata from API.
     if (mainnet) {
       try {
-        metadatas = await getTokensMetadata(metadataSlugs, 15_000);
+        const response = await getTokensMetadata(metadataSlugs, 15_000);
+        metadatas = response.map(
+          (data) => data && { base: toBaseMetadata(data), detailed: data }
+        );
       } catch {}
     }
     // Otherwise - fetch from chain.
@@ -97,8 +112,7 @@ export const [SyncTokensProvider] = constate(() => {
           }
 
           try {
-            const { base } = await fetchMetadata(slug);
-            return base;
+            return await fetchMetadata(slug);
           } catch {
             if (!mainnet) {
               localStorage.setItem(noMetadataFlag, "true");
@@ -110,12 +124,23 @@ export const [SyncTokensProvider] = constate(() => {
       );
     }
 
+    const baseMetadatasToSet: Record<string, AssetMetadata> = {};
+    const detailedMetadatasToSet: Record<string, DetailedAssetMetdata> = {};
+
     for (let i = 0; i < metadatas.length; i++) {
-      const metadata = metadatas[i];
-      if (metadata) tokensMetadataToSet[metadataSlugs[i]] = metadata;
+      const data = metadatas[i];
+
+      if (data) {
+        const slug = metadataSlugs[i];
+        const { base, detailed } = data;
+
+        baseMetadatasToSet[slug] = base;
+        detailedMetadatasToSet[slug] = detailed;
+      }
     }
 
-    await setTokensBaseMetadata(tokensMetadataToSet);
+    await setTokensBaseMetadata(baseMetadatasToSet);
+    await setTokensDetailedMetadata(detailedMetadatasToSet);
 
     await Repo.accountTokens.bulkPut(
       tokenSlugs.map((slug, i) => {
@@ -124,7 +149,7 @@ export const [SyncTokensProvider] = constate(() => {
         const bcdToken = bcdTokensMap.get(slug);
         const balance = bcdToken?.balance ?? "0";
         const metadata =
-          tokensMetadataToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
+          baseMetadatasToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
 
         const price = usdPrices[slug];
         const usdBalance =
@@ -173,6 +198,7 @@ export const [SyncTokensProvider] = constate(() => {
     chainId,
     allTokensBaseMetadataRef,
     setTokensBaseMetadata,
+    setTokensDetailedMetadata,
     usdPrices,
     fetchMetadata,
   ]);

@@ -90,7 +90,8 @@ const Form: FC = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
 
-  const { fetchMetadata, setTokensBaseMetadata } = useTokensMetadata();
+  const { fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } =
+    useTokensMetadata();
 
   const formAnalytics = useFormAnalytics("AddAsset");
 
@@ -250,7 +251,7 @@ const Form: FC = () => {
       try {
         const tokenSlug = toTokenSlug(address, id || 0);
 
-        const metadataToSet = {
+        const baseMetadata = {
           ...(metadataRef.current?.base ?? {}),
           symbol,
           name,
@@ -258,7 +259,12 @@ const Form: FC = () => {
           thumbnailUri,
         };
 
-        await setTokensBaseMetadata({ [tokenSlug]: metadataToSet });
+        await setTokensBaseMetadata({ [tokenSlug]: baseMetadata });
+        if (metadataRef.current?.detailed) {
+          await setTokensDetailedMetadata({
+            [tokenSlug]: metadataRef.current.detailed,
+          });
+        }
 
         await Repo.accountTokens.put(
           {
@@ -299,6 +305,7 @@ const Form: FC = () => {
       accountPkh,
       setSubmitError,
       setTokensBaseMetadata,
+      setTokensDetailedMetadata,
       formAnalytics,
     ]
   );
