@@ -1,6 +1,6 @@
 import { formatImgUri, sanitizeImgUri } from "lib/image-uri";
 
-import { AssetMetadata } from "./types";
+import { AssetMetadata, DetailedAssetMetdata } from "./types";
 
 export function getAssetSymbol(metadata: AssetMetadata | null, short = false) {
   if (!metadata) return "???";
@@ -18,4 +18,18 @@ export function getThumbnailUri(metadata: AssetMetadata | null) {
     metadata.thumbnailUri &&
     sanitizeImgUri(formatImgUri(metadata.thumbnailUri))
   );
+}
+
+export function toBaseMetadata(
+  data: DetailedAssetMetdata | AssetMetadata
+): AssetMetadata {
+  return {
+    decimals: data.decimals,
+    symbol: data.symbol,
+    name: data.name,
+    shouldPreferSymbol: data.shouldPreferSymbol,
+    thumbnailUri: data.thumbnailUri,
+    displayUri: data.displayUri,
+    artifactUri: data.artifactUri,
+  };
 }

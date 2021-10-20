@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import constate from "constate";
 import deepEqual from "fast-deep-equal";
 import Fuse from "fuse.js";
 import useForceUpdate from "use-force-update";
+import { browser } from "webextension-polyfill-ts";
 
 import { createQueue } from "lib/queue";
 import { useRetryableSWR } from "lib/swr";
@@ -20,11 +21,13 @@ import {
   fetchAllKnownFungibleTokenSlugs,
   onStorageChanged,
   putToStorage,
+  fetchFromStorage,
   fetchCollectibleTokens,
   fetchAllKnownCollectibleTokenSlugs,
+  DetailedAssetMetdata,
 } from "lib/temple/front";
 
-export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = "all_tokens_base_metadata";
+export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = "tokens_base_metadata";
 
 export function useDisplayedFungibleTokens(chainId: string, account: string) {
   return useRetryableSWR(
@@ -97,8 +100,12 @@ export function useAssetMetadata(slug: string) {
   const tezos = useTezos();
   const forceUpdate = useForceUpdate();
 
-  const { allTokensBaseMetadataRef, fetchMetadata, setTokensBaseMetadata } =
-    useTokensMetadata();
+  const {
+    allTokensBaseMetadataRef,
+    fetchMetadata,
+    setTokensBaseMetadata,
+    setTokensDetailedMetadata,
+  } = useTokensMetadata();
 
   useEffect(
     () =>
@@ -113,7 +120,7 @@ export function useAssetMetadata(slug: string) {
   );
 
   const tezAsset = isTezAsset(slug);
-  const tokenMetadata = allTokensBaseMetadataRef.current[slug];
+  const tokenMetadata = allTokensBaseMetadataRef.current[slug] ?? null;
   const exist = Boolean(tokenMetadata);
 
   // Load token metadata if missing
@@ -125,10 +132,21 @@ export function useAssetMetadata(slug: string) {
   useEffect(() => {
     if (!isTezAsset(slug) && !exist && !autoFetchMetadataFails.has(slug)) {
       enqueueAutoFetchMetadata(() => fetchMetadata(slug))
-        .then((metadata) => setTokensBaseMetadata({ [slug]: metadata.base }))
+        .then((metadata) =>
+          Promise.all([
+            setTokensBaseMetadata({ [slug]: metadata.base }),
+            setTokensDetailedMetadata({ [slug]: metadata.detailed }),
+          ])
+        )
         .catch(() => autoFetchMetadataFails.add(slug));
     }
-  }, [slug, exist, fetchMetadata, setTokensBaseMetadata]);
+  }, [
+    slug,
+    exist,
+    fetchMetadata,
+    setTokensBaseMetadata,
+    setTokensDetailedMetadata,
+  ]);
 
   // Tezos
   if (tezAsset) {
@@ -182,12 +200,41 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
     []
   );
 
+  const setTokensDetailedMetadata = useCallback(
+    (toSet: Record<string, DetailedAssetMetdata>) =>
+      browser.storage.local.set(
+        mapObjectKeys(toSet, getDetailedMetadataStorageKey)
+      ),
+    []
+  );
+
   return {
     allTokensBaseMetadataRef,
-    setTokensBaseMetadata,
     fetchMetadata,
+    setTokensBaseMetadata,
+    setTokensDetailedMetadata,
   };
 });
+
+export function useDetailedAssetMetadata(slug: string) {
+  const baseMetadata = useAssetMetadata(slug);
+
+  const storageKey = useMemo(() => getDetailedMetadataStorageKey(slug), [slug]);
+
+  const { data: detailedMetadata, mutate } =
+    useRetryableSWR<DetailedAssetMetdata>(
+      ["detailed-metadata", storageKey],
+      fetchFromStorage,
+      {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+      }
+    );
+
+  useEffect(() => onStorageChanged(storageKey, mutate), [storageKey, mutate]);
+
+  return detailedMetadata ?? baseMetadata;
+}
 
 export function useAllTokensBaseMetadata() {
   const { allTokensBaseMetadataRef } = useTokensMetadata();
@@ -224,4 +271,20 @@ export function searchAssets(
   );
 
   return fuse.search(searchValue).map(({ item: { slug } }) => slug);
+}
+
+function getDetailedMetadataStorageKey(slug: string) {
+  return `detailed_asset_metadata_${slug}`;
+}
+
+function mapObjectKeys<T extends Record<string, any>>(
+  obj: T,
+  predicate: (key: string) => string
+): T {
+  const newObj: Record<string, any> = {};
+  for (const key of Object.keys(obj)) {
+    newObj[predicate(key)] = obj[key];
+  }
+
+  return newObj as T;
 }
