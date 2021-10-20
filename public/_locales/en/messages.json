@@ -2120,6 +2120,78 @@
   "finish": {
     "message": "Finish"
   },
+  "welcomeToOnboarding": {
+    "message": "Welcome to Onboarding"
+  },
+  "addressBalanceDetails": {
+    "message": "Your address and balance"
+  },
+  "addressBalanceDescription": {
+    "message": "After creating an account, you’ll get a unique address — your personal identifier in the Tezos blockchain. If you would like to receive and use TEZ or Tezos-built tokens in Temple, you should use this address."
+  },
+  "addressBalanceHint": {
+    "message": "The balance of your TEZ is displayed under the public address."
+  },
+  "howToStartDetails": {
+    "message": "How to start"
+  },
+  "howToStartDescription1": {
+    "message": "To start using your wallet and interacting with the Tezos DApps ecosystem, the account balance must be positive. To do this, top up your address with TEZ coins."
+  },
+  "howToStartDescription2": {
+    "message": "You can use the “Buy” button to exchange your cryptocurrencies on TEZ"
+  },
+  "howToStartHint": {
+    "message": "Also, you can copy your address and send coins to it from another wallet or Exchange. To copy the address, click on it on the main wallet screen or use “Receive”."
+  },
+  "tokensCollectibleDetails": {
+    "message": "Tokens & Collectible"
+  },
+  "tokensCollectibleDescription1": {
+    "message": "Your balances of FA1.2 and FA2 tokens are displayed on the “Tokens” tab."
+  },
+  "tokensCollectibleDescription2": {
+    "message": "You can send, check balances, or contract addresses of any token by clicking on it in this section."
+  },
+  "tokensCollectibleHint": {
+    "message": "Your Non-Fungible Tokens (NFT) are displayed on the “Collectibles” tab. Here you can also interact with your own NFTs, see their full view, ID, and contract address."
+  },
+  "profileRpcDetails": {
+    "message": "Profile & RPC"
+  },
+  "profileRpcDescription": {
+    "message": "At the top of the interface, you can see your account robo-icon. By clicking on it, you will see the parameters for interaction with accounts, the settings button, and the extension view mode."
+  },
+  "profileRpcHint1": {
+    "message": "Next, you will see the “Networks” selector, which allows you to select a node (RPC) to which your Temple extension will be connected."
+  },
+  "profileRpcHint2": {
+    "message": "If your balance is not displayed, try changing the node."
+  },
+  "profileRpcHint3": {
+    "message": "You can choose from a predefined list or add PRC manually by following these instructions."
+  },
+  "congratsDetails": {
+    "message": "Congrats!"
+  },
+  "congratsDescription1": {
+    "message": "Thanks for your attention!"
+  },
+  "congratsDescription2": {
+    "message": "Now you know about the basic and most important functions of the Temple wallet."
+  },
+  "congratsDescription3": {
+    "message": "You can learn all features of the Temple from our “Educational series” on YouTube."
+  },
+  "congratsDescription4": {
+    "message": "Also, instructions and guides are available in our knowledge base."
+  },
+  "congratsDescription5": {
+    "message": "Join our communities in Telegram and Discord."
+  },
+  "congratsDescription6": {
+    "message": "PS: Good luck exploring the Tezos world!"
+  },
   "deleteTokenConfirm": {
     "message": "Are you sure you want to delete this token?"
   },

@@ -1,24 +1,25 @@
-"use strict";
 
-const path = require("path");
-const fs = require("fs");
-const webpack = require("webpack");
-const resolve = require("resolve");
-const ZipPlugin = require("zip-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const ExtensionReloader = require("webpack-extension-reloader");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const fs = require("fs");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
-const WatchMissingNodeModulesPlugin = require("react-dev-utils/WatchMissingNodeModulesPlugin");
-const ForkTsCheckerWebpackPlugin = require("react-dev-utils/ForkTsCheckerWebpackPlugin");
-const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
 const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const path = require("path");
 const WebpackBar = require("webpackbar");
 const safePostCssParser = require("postcss-safe-parser");
+const ForkTsCheckerWebpackPlugin = require("react-dev-utils/ForkTsCheckerWebpackPlugin");
+const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
+const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
+const WatchMissingNodeModulesPlugin = require("react-dev-utils/WatchMissingNodeModulesPlugin");
+const resolve = require("resolve");
+const TerserPlugin = require("terser-webpack-plugin");
+const webpack = require("webpack");
+const ExtensionReloader = require("webpack-extension-reloader");
+const ZipPlugin = require("zip-webpack-plugin");
+
 const pkg = require("./package.json");
 const tsConfig = require("./tsconfig.json");
 
@@ -207,7 +208,7 @@ module.exports = {
         // match the requirements. When no loader matches it will fall
         // back to the "file" loader at the end of the loader list.
         oneOf: [
-          // "url" loader works like "file" loader except that it embeds assets
+          // "url" loader works like "file" loader except that it embeds images
           // smaller than specified limit in bytes as data URLs to avoid requests.
           // A missing `test` is equivalent to a match.
           {
@@ -277,7 +278,7 @@ module.exports = {
             },
           },
           // "postcss" loader applies autoprefixer to our CSS.
-          // "css" loader resolves paths in CSS and adds assets as dependencies.
+          // "css" loader resolves paths in CSS and adds images as dependencies.
           // "style" loader turns CSS into JS modules that inject <style> tags.
           // In production, we use MiniCSSExtractPlugin to extract that CSS
           // to a file, but in development "style" loader enables hot editing
@@ -308,7 +309,7 @@ module.exports = {
               },
             }),
           },
-          // "file" loader makes sure those assets get served by WebpackDevServer.
+          // "file" loader makes sure those images get served by WebpackDevServer.
           // When you `import` an asset, you get its (virtual) filename.
           // In production, they would get copied to the `build` folder.
           // This loader doesn't use a "test" so it will catch all modules

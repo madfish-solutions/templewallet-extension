@@ -1,0 +1,19 @@
+.title {
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 23px;
+  text-align: center;
+  margin: 40px 0 40px 0;
+  color: #1B262C;;
+}
+
+.description {
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  text-align: center;
+  max-width: 358px;
+  margin: 40px 0 40px 0;
+  color: #4a5568;
+}

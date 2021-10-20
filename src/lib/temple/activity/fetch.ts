@@ -21,7 +21,7 @@ export async function fetchOperations({
     .between([chainId, 0], [chainId, Date.now()])
     .reverse();
 
-  // Filter by members & assets
+  // Filter by members & images
   query = query.filter(
     (o) =>
       o.members.includes(address) &&

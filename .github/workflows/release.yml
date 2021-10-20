@@ -11,7 +11,7 @@ env:
 
 jobs:
   create-release:
-    name: Uploads release assets, generates changelogs
+    name: Uploads release images, generates changelogs
     runs-on: ubuntu-latest
     environment: production
     steps:
