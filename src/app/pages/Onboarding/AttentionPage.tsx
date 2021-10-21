@@ -17,7 +17,7 @@ const AttentionPage: FC<Props> = ({setStep}) => {
       <p className={styles["description"]}>
         <T id={"attentionDescription"}/>
       </p>
-      <p className={styles["listTitle"]}>
+      <p className={styles["description"]} style={{textAlign: "start", marginBottom: 20, marginLeft: -24}}>
         <T id={"attentionListTitle1"}/>
       </p>
       <ul className={styles["listContainer"]}>
@@ -26,7 +26,7 @@ const AttentionPage: FC<Props> = ({setStep}) => {
         <li><T id={"attentionListItem3"}/></li>
         <li><T id={"attentionListItem4"}/></li>
       </ul>
-      <p className={styles["listTitle"]}>
+      <p className={styles["description"]} style={{textAlign: "start", marginBottom: 20, marginLeft: -24}}>
         <T id={"attentionListTitle2"}/>
       </p>
       <ul className={styles["listContainer"]}>
@@ -38,13 +38,14 @@ const AttentionPage: FC<Props> = ({setStep}) => {
       <p className={styles["description"]}>
         <T id={"takeCare"}/>
       </p>
-      <p className={styles["description"]}>
+      <p className={styles["description"]} style={{marginBottom: 0, color: "#3182CE"}}>
         <T id={"readMore"}/>
         <a
           href={"https://www.youtube.com/playlist?list=PLVfSwYHwGJ2Gyyf16LEIgvkNoC1YtgjX1"}
           target="_blank"
           rel="noreferrer"
           className={styles["link"]}
+          style={{fontSize: 12}}
         >
           link
         </a>

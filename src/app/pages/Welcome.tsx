@@ -25,7 +25,7 @@ const SIGNS = [
   },
   {
     key: "create",
-    linkTo: "/onboarding",
+    linkTo: "/create-wallet",
     filled: true,
     Icon: FolderAddIcon,
     titleI18nKey: "createNewWallet",
