@@ -4,11 +4,7 @@ import {T} from "../../../../lib/i18n/react";
 import {Button} from "../../../atoms/Button";
 import styles from "../Onboarding.module.css";
 
-interface Props {
-  setStep: (step: number) => void;
-}
-
-const AttentionPage: FC<Props> = ({setStep}) => {
+const AttentionPage: FC = () => {
   return (
     <>
       <p className={styles["title"]}>
@@ -41,7 +37,7 @@ const AttentionPage: FC<Props> = ({setStep}) => {
       <p className={styles["description"]} style={{marginBottom: 0, color: "#3182CE"}}>
         <T id={"readMore"}/>
         <a
-          href={"https://www.youtube.com/playlist?list=PLVfSwYHwGJ2Gyyf16LEIgvkNoC1YtgjX1"}
+          href={"https://madfish.crunch.help/temple-wallet/a-note-on-security"}
           target="_blank"
           rel="noreferrer"
           className={styles["link"]}
@@ -59,7 +55,7 @@ const AttentionPage: FC<Props> = ({setStep}) => {
           marginTop: "40px",
           borderRadius: 4
         }}
-        onClick={() => setStep(0)}>
+        onClick={() => {}}>
         <T id={"thanks"}/>
       </Button>
     </>

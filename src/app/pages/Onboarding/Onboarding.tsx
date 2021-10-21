@@ -4,7 +4,6 @@ import {t, T} from "../../../lib/i18n/react";
 import {useStorage} from "../../../lib/temple/front";
 import Stepper from "../../atoms/Stepper";
 import PageLayout from "../../layouts/PageLayout";
-import AttentionPage from "./pages/AttentionPage";
 import CongratsPage from "./pages/CongrantsPage";
 import FirstStep from "./steps/FirstStep";
 import FourthStep from "./steps/FourthStep";
@@ -39,13 +38,12 @@ const Onboarding: FC = () => {
         style={{maxWidth: "360px", margin: "auto"}}
         className="pb-8 text-center"
       >
-        <Stepper style={{marginTop: "40px"}} steps={steps} currentStep={step}/>
+        {step < 4 && <Stepper style={{marginTop: "40px"}} steps={steps} currentStep={step}/>}
         {step === 0 && <FirstStep setStep={setStep}/>}
         {step === 1 && <SecondStep setStep={setStep}/>}
         {step === 2 && <ThirdStep setStep={setStep}/>}
         {step === 3 && <FourthStep setStep={setStep}/>}
         {step === 4 && <CongratsPage setStep={setStep}/>}
-        {step === 5 && <AttentionPage setStep={setStep}/>}
       </div>
     </PageLayout>
   );
