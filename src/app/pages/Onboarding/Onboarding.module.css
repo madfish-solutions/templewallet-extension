@@ -17,3 +17,21 @@
   margin: 40px 0 40px 0;
   color: #4a5568;
 }
+
+.link {
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  text-align: center;
+  max-width: 358px;
+  color: #4198e0;
+  text-decoration: underline;
+}
+
+.linksList {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0 68px;
+}
