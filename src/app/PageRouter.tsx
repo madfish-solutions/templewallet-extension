@@ -23,8 +23,6 @@ import { usePageRouterAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
 
-import Onboarding from "./pages/Onboarding/Onboarding";
-
 interface RouteContext {
   popup: boolean;
   fullPage: boolean;
@@ -71,7 +69,6 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     onlyReady(({ assetSlug }) => <Explore assetSlug={assetSlug} />),
   ],
   ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
-  ["/onboarding", onlyNotReady(() => <Onboarding />)],
   ["/create-account", onlyReady(() => <CreateAccount />)],
   [
     "/import-account/:tabSlug?",

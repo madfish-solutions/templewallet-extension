@@ -1,6 +1,7 @@
 import React, {FC} from "react";
 
 import {T} from "../../../../lib/i18n/react";
+import {useTempleClient} from "../../../../lib/temple/front";
 import {Button} from "../../../atoms/Button";
 import {ReactComponent as DiscordIcon} from "../../../icons/discord.svg";
 import {ReactComponent as RedditIcon} from "../../../icons/reddit.svg";
@@ -8,10 +9,6 @@ import {ReactComponent as TelegramIcon} from "../../../icons/telegram.svg";
 import {ReactComponent as TwitterIcon} from "../../../icons/twitter.svg";
 import {ReactComponent as YoutubeIcon} from "../../../icons/youtube.svg";
 import styles from "../Onboarding.module.css";
-
-interface Props {
-  setStep: (step: number) => void;
-}
 
 const links = [
   {
@@ -41,7 +38,9 @@ const links = [
   }
 ];
 
-const CongratsPage: FC<Props> = ({setStep}) => {
+const CongratsPage: FC = () => {
+  const { setOnboardingCompleted } = useTempleClient();
+
   return (
     <>
       <p className={styles["title"]}>
@@ -91,9 +90,9 @@ const CongratsPage: FC<Props> = ({setStep}) => {
           >
             <div
               className="w-8 h-8 rounded-md"
-              style={{ background, padding: background ? "0.375rem" : 0 }}
+              style={{background, padding: background ? "0.375rem" : 0}}
             >
-              <Icon className="h-full w-auto" />
+              <Icon className="h-full w-auto"/>
             </div>
           </a>
         ))}
@@ -107,7 +106,7 @@ const CongratsPage: FC<Props> = ({setStep}) => {
           marginTop: "40px",
           borderRadius: 4
         }}
-        onClick={() => setStep(5)}>
+        onClick={() => setOnboardingCompleted(true)}>
         <T id={"start"}/>
       </Button>
     </>

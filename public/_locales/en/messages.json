@@ -109,6 +109,9 @@
   "back": {
     "message": "Back"
   },
+  "skip": {
+    "message": "Skip"
+  },
   "addNewToken": {
     "message": "Add new Token"
   },

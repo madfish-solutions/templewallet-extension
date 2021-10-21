@@ -124,6 +124,11 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const [seedRevealed, setSeedRevealed] = useStorage("seed_revealed", true);
 
   /**
+   * Onboarding progress flag
+   */
+  const [onboardingCompleted, setOnboardingCompleted] = useStorage("onboarding_completed", false);
+
+  /**
    * Actions
    */
 
@@ -442,6 +447,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     resetConfirmation,
     seedRevealed,
     setSeedRevealed,
+    onboardingCompleted,
+    setOnboardingCompleted,
 
     // Actions
     registerWallet,

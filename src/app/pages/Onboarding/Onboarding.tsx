@@ -26,13 +26,13 @@ const Onboarding: FC = () => {
   return (
     <PageLayout
       pageTitle={
-        <>
+        <span style={step !== 4 ? {marginLeft: 62} : {}}>
           {step >= 1 ? <T id="onboarding"/> : <T id="welcomeToOnboarding"/>}
-        </>
+        </span>
       }
-      hasBackAction={step >= 1}
       step={step}
       setStep={setStep}
+      skip={step < 4}
     >
       <div
         style={{maxWidth: "360px", margin: "auto"}}
@@ -43,7 +43,7 @@ const Onboarding: FC = () => {
         {step === 1 && <SecondStep setStep={setStep}/>}
         {step === 2 && <ThirdStep setStep={setStep}/>}
         {step === 3 && <FourthStep setStep={setStep}/>}
-        {step === 4 && <CongratsPage setStep={setStep}/>}
+        {step === 4 && <CongratsPage/>}
       </div>
     </PageLayout>
   );

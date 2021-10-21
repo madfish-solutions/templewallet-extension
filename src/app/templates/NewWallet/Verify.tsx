@@ -18,7 +18,7 @@ type VerifyProps = {
 const WORDS_TO_FILL = 2;
 
 const Verify: FC<VerifyProps> = ({ data }) => {
-  const { registerWallet, setSeedRevealed } = useTempleClient();
+  const { registerWallet, setSeedRevealed, setOnboardingCompleted } = useTempleClient();
 
   const words = useMemo(() => data.mnemonic.split(" "), [data.mnemonic]);
   const indexesToFill = useMemo(() => {
@@ -65,6 +65,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
     try {
       await registerWallet(data.password, data.mnemonic);
       setSeedRevealed(true);
+      setOnboardingCompleted(false);
     } catch (err) {
       if (process.env.NODE_ENV === "development") {
         console.error(err);
@@ -77,6 +78,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
     submitting,
     registerWallet,
     setSeedRevealed,
+    setOnboardingCompleted,
     data.password,
     data.mnemonic,
   ]);

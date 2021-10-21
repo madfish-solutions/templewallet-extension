@@ -31,10 +31,10 @@ import {
   useAssetMetadata,
   getAssetSymbol,
   isTezAsset,
-  useNetwork,
+  useNetwork, useTempleClient,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
-import { Link, useLocation, navigate, HistoryAction } from "lib/woozie";
+import {Link, useLocation, navigate, HistoryAction} from "lib/woozie";
 
 import CollectiblesList from "./Collectibles/CollectiblesList";
 import { ExploreSelectors } from "./Explore.selectors";
@@ -43,6 +43,7 @@ import BakingSection from "./Explore/BakingSection";
 import EditableTitle from "./Explore/EditableTitle";
 import MainBanner from "./Explore/MainBanner";
 import Tokens from "./Explore/Tokens";
+import Onboarding from "./Onboarding/Onboarding";
 
 type ExploreProps = {
   assetSlug?: string | null;
@@ -57,6 +58,7 @@ const tippyProps = {
 
 const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
+  const { onboardingCompleted } = useTempleClient();
   const account = useAccount();
   const { search } = useLocation();
   const network = useNetwork();
@@ -76,7 +78,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
 
-  return (
+  return !onboardingCompleted ? (<Onboarding/>) : (
     <PageLayout
       pageTitle={
         <>
