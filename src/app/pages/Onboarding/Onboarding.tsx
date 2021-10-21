@@ -4,8 +4,8 @@ import {t, T} from "../../../lib/i18n/react";
 import {useStorage} from "../../../lib/temple/front";
 import Stepper from "../../atoms/Stepper";
 import PageLayout from "../../layouts/PageLayout";
-import AttentionPage from "./AttentionPage";
-import CongratsPage from "./CongrantsPage";
+import AttentionPage from "./pages/AttentionPage";
+import CongratsPage from "./pages/CongrantsPage";
 import FirstStep from "./steps/FirstStep";
 import FourthStep from "./steps/FourthStep";
 import SecondStep from "./steps/SecondStep";
@@ -31,6 +31,9 @@ const Onboarding: FC = () => {
           {step >= 1 ? <T id="onboarding"/> : <T id="welcomeToOnboarding"/>}
         </>
       }
+      hasBackAction={step >= 1}
+      step={step}
+      setStep={setStep}
     >
       <div
         style={{maxWidth: "360px", margin: "auto"}}

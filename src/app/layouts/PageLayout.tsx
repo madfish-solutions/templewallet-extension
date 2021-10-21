@@ -100,11 +100,19 @@ const SpinnerSection: FC = () => (
 type ToolbarProps = {
   pageTitle?: ReactNode;
   hasBackAction?: boolean;
+  step?: number;
+  setStep?: (step: number) => void;
 };
 
-const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true }) => {
+const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setStep }) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage, registerBackHandler, onBack } = useAppEnv();
+
+  const onStepBack = () => {
+    if (step && setStep && step > 0) {
+      setStep(step-1);
+    }
+  }
 
   const inHome = pathname === "/";
   const canBack = historyPosition > 0 || !inHome;
@@ -179,7 +187,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true }) => {
               "transition duration-300 ease-in-out",
               "opacity-90 hover:opacity-100"
             )}
-            onClick={onBack}
+            onClick={step ? onStepBack : onBack}
             testID={PageLayoutSelectors.BackButton}
           >
             <ChevronLeftIcon

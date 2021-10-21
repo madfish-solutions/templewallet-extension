@@ -1,13 +1,13 @@
 import React, {FC} from "react";
 
-import {T} from "../../../lib/i18n/react";
-import {Button} from "../../atoms/Button";
-import {ReactComponent as DiscordIcon} from "../../icons/discord.svg";
-import {ReactComponent as RedditIcon} from "../../icons/reddit.svg";
-import {ReactComponent as TelegramIcon} from "../../icons/telegram.svg";
-import {ReactComponent as TwitterIcon} from "../../icons/twitter.svg";
-import {ReactComponent as YoutubeIcon} from "../../icons/youtube.svg";
-import styles from "./Onboarding.module.css";
+import {T} from "../../../../lib/i18n/react";
+import {Button} from "../../../atoms/Button";
+import {ReactComponent as DiscordIcon} from "../../../icons/discord.svg";
+import {ReactComponent as RedditIcon} from "../../../icons/reddit.svg";
+import {ReactComponent as TelegramIcon} from "../../../icons/telegram.svg";
+import {ReactComponent as TwitterIcon} from "../../../icons/twitter.svg";
+import {ReactComponent as YoutubeIcon} from "../../../icons/youtube.svg";
+import styles from "../Onboarding.module.css";
 
 interface Props {
   setStep: (step: number) => void;

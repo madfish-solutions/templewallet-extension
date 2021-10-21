@@ -1,8 +1,8 @@
 import React, {FC} from "react";
 
-import {T} from "../../../lib/i18n/react";
-import {Button} from "../../atoms/Button";
-import styles from "./Onboarding.module.css";
+import {T} from "../../../../lib/i18n/react";
+import {Button} from "../../../atoms/Button";
+import styles from "../Onboarding.module.css";
 
 interface Props {
   setStep: (step: number) => void;
