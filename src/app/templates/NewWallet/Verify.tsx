@@ -8,8 +8,6 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import { T } from "lib/i18n/react";
 import { useTempleClient } from "lib/temple/front";
 
-import {useOnboardingProgress} from "../../pages/Onboarding/hooks/useOnboardingProgress.hook";
-
 type VerifyProps = {
   data: {
     mnemonic: string;
@@ -21,7 +19,6 @@ const WORDS_TO_FILL = 2;
 
 const Verify: FC<VerifyProps> = ({ data }) => {
   const { registerWallet, setSeedRevealed } = useTempleClient();
-  const { setOnboardingCompleted } = useOnboardingProgress();
 
   const words = useMemo(() => data.mnemonic.split(" "), [data.mnemonic]);
   const indexesToFill = useMemo(() => {
@@ -68,7 +65,6 @@ const Verify: FC<VerifyProps> = ({ data }) => {
     try {
       await registerWallet(data.password, data.mnemonic);
       setSeedRevealed(true);
-      setOnboardingCompleted(false);
     } catch (err) {
       if (process.env.NODE_ENV === "development") {
         console.error(err);
@@ -81,7 +77,6 @@ const Verify: FC<VerifyProps> = ({ data }) => {
     submitting,
     registerWallet,
     setSeedRevealed,
-    setOnboardingCompleted,
     data.password,
     data.mnemonic,
   ]);
