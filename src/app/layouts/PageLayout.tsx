@@ -16,7 +16,7 @@ import {AnalyticsConfirmationOverlay} from "lib/analytics";
 import {T} from "lib/i18n/react";
 import {goBack, HistoryAction, navigate, useLocation} from "lib/woozie";
 
-import {useTempleClient} from "../../lib/temple/front";
+import {useOnboardingProgress} from "../pages/Onboarding/hooks/useOnboardingProgress.hook";
 import {PageLayoutSelectors} from "./PageLayout.selectors";
 
 type PageLayoutProps = ToolbarProps;
@@ -100,7 +100,7 @@ type ToolbarProps = {
 const Toolbar: FC<ToolbarProps> = ({pageTitle, hasBackAction = true, step, setStep, skip}) => {
   const {historyPosition, pathname} = useLocation();
   const {fullPage, registerBackHandler, onBack} = useAppEnv();
-  const {setOnboardingCompleted} = useTempleClient();
+  const {setOnboardingCompleted} = useOnboardingProgress();
 
   const onStepBack = () => {
     if (step && setStep && step > 0) {

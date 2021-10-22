@@ -31,7 +31,7 @@ import {
   useAssetMetadata,
   getAssetSymbol,
   isTezAsset,
-  useNetwork, useTempleClient,
+  useNetwork,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
 import {Link, useLocation, navigate, HistoryAction} from "lib/woozie";
@@ -43,6 +43,7 @@ import BakingSection from "./Explore/BakingSection";
 import EditableTitle from "./Explore/EditableTitle";
 import MainBanner from "./Explore/MainBanner";
 import Tokens from "./Explore/Tokens";
+import {useOnboardingProgress} from "./Onboarding/hooks/useOnboardingProgress.hook";
 import Onboarding from "./Onboarding/Onboarding";
 
 type ExploreProps = {
@@ -58,7 +59,7 @@ const tippyProps = {
 
 const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
-  const { onboardingCompleted } = useTempleClient();
+  const { onboardingCompleted } = useOnboardingProgress();
   const account = useAccount();
   const { search } = useLocation();
   const network = useNetwork();
@@ -78,7 +79,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
 
-  return !onboardingCompleted ? (<Onboarding/>) : (
+  return onboardingCompleted ? (
     <PageLayout
       pageTitle={
         <>
@@ -153,7 +154,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
       <SecondarySection assetSlug={assetSlug} />
     </PageLayout>
-  );
+  ) : (<Onboarding/>);
 };
 
 export default Explore;

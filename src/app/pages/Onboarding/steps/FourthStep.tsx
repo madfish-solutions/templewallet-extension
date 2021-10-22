@@ -2,7 +2,7 @@ import React, {FC} from "react";
 
 import {T} from "../../../../lib/i18n/react";
 import {Button} from "../../../atoms/Button";
-import ProfileRpcImg from "../images/profile-rpc.png"
+import ProfileRpcImg from "../assets/profile-rpc.png"
 import styles from "../Onboarding.module.css";
 
 interface Props {

@@ -2,7 +2,7 @@ import React, {FC} from "react";
 
 import {T} from "../../../../lib/i18n/react";
 import {Button} from "../../../atoms/Button";
-import TokensCollectibleImg from "../images/tokens-collectible.png"
+import TokensCollectibleImg from "../assets/tokens-collectible.png"
 import styles from "../Onboarding.module.css";
 
 interface Props {

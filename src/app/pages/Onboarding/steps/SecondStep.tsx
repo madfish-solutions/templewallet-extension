@@ -2,7 +2,7 @@ import React, {FC} from "react";
 
 import {T} from "../../../../lib/i18n/react";
 import {Button} from "../../../atoms/Button";
-import ExploreButtonsImg from "../images/explore-buttons.png"
+import ExploreButtonsImg from "../assets/explore-buttons.png"
 import styles from "../Onboarding.module.css";
 
 interface Props {

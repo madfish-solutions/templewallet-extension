@@ -2,7 +2,7 @@ import React, {FC} from "react";
 
 import {T} from "../../../../lib/i18n/react";
 import {Button} from "../../../atoms/Button";
-import AddressBalanceImg from "../images/address-balance.png"
+import AddressBalanceImg from "../assets/address-balance.png"
 import styles from "../Onboarding.module.css";
 
 interface Props {

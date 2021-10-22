@@ -122,7 +122,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       [searchAssets]
     );
     const { data: searchResults = defaultSearchResults } = useRetryableSWR(
-      ["swap-input-matching-images", searchString, tokenId, knownAssetsKeys],
+      ["swap-input-matching-assets", searchString, tokenId, knownAssetsKeys],
       getMatchingAssets
     );
     const { matchingExchangableAssets, showTokenIdInput } = searchResults;

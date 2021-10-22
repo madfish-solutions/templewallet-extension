@@ -1,13 +1,13 @@
 import React, {FC} from "react";
 
 import {T} from "../../../../lib/i18n/react";
-import {useTempleClient} from "../../../../lib/temple/front";
 import {Button} from "../../../atoms/Button";
 import {ReactComponent as DiscordIcon} from "../../../icons/discord.svg";
 import {ReactComponent as RedditIcon} from "../../../icons/reddit.svg";
 import {ReactComponent as TelegramIcon} from "../../../icons/telegram.svg";
 import {ReactComponent as TwitterIcon} from "../../../icons/twitter.svg";
 import {ReactComponent as YoutubeIcon} from "../../../icons/youtube.svg";
+import {useOnboardingProgress} from "../hooks/useOnboardingProgress.hook";
 import styles from "../Onboarding.module.css";
 
 const links = [
@@ -39,7 +39,7 @@ const links = [
 ];
 
 const CongratsPage: FC = () => {
-  const { setOnboardingCompleted } = useTempleClient();
+  const { setOnboardingCompleted } = useOnboardingProgress();
 
   return (
     <>
