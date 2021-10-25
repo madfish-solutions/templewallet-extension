@@ -48,7 +48,8 @@ const ViewsSwitcher = memo(
               selected && "bg-gray-100",
               "px-2 py-1",
               "text-xs text-gray-600",
-              "flex items-center"
+              "flex items-center",
+              "truncate"
             )}
             onClick={handleClick}
             testID={spf.testID}
