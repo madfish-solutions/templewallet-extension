@@ -74,11 +74,8 @@ const CongratsPage: FC = () => {
       >
         https://madfish.crunch.help/temple-wallet
       </a>
-      <p className={styles["description"]} style={{marginTop: 20, marginBottom: 0}}>
+      <p className={styles["description"]} style={{marginTop: 20, marginBottom: 10, fontWeight: "bold"}}>
         <T id={"congratsDescription5"}/>
-      </p>
-      <p className={styles["description"]} style={{marginTop: 20}}>
-        <T id={"congratsDescription6"}/>
       </p>
       <div className={styles["linksList"]}>
         {links.map(({ href, background, Icon }) => (
@@ -97,13 +94,16 @@ const CongratsPage: FC = () => {
           </a>
         ))}
       </div>
+      <p className={styles["description"]} style={{marginTop: 30, marginBottom: 0}}>
+        <T id={"congratsDescription6"}/>
+      </p>
       <Button
         className="w-full justify-center border-none"
         style={{
           padding: "10px 2rem",
           background: "#4198e0",
           color: "#ffffff",
-          marginTop: "40px",
+          marginTop: "20px",
           borderRadius: 4
         }}
         onClick={() => setOnboardingCompleted(true)}>
