@@ -94,7 +94,7 @@ const CongratsPage: FC = () => {
           </a>
         ))}
       </div>
-      <p className={styles["description"]} style={{marginTop: 30, marginBottom: 0}}>
+      <p className={styles["description"]} style={{marginBottom: 0}}>
         <T id={"congratsDescription6"}/>
       </p>
       <Button
