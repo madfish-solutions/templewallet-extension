@@ -8,7 +8,7 @@ import { ReactComponent as HashIcon } from "app/icons/hash.svg";
 import ExpensesView, { ModifyFeeAndLimit } from "app/templates/ExpensesView";
 import OperationsBanner from "app/templates/OperationsBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
-import ViewsSwitcher from "app/templates/ViewsSwitcher";
+import ViewsSwitcher from "app/templates/ViewsSwitcher/ViewsSwitcher";
 import { T, t } from "lib/i18n/react";
 import {
   tryParseExpenses,
