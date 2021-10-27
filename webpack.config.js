@@ -1,24 +1,25 @@
-"use strict";
 
-const path = require("path");
-const fs = require("fs");
-const webpack = require("webpack");
-const resolve = require("resolve");
-const ZipPlugin = require("zip-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const ExtensionReloader = require("webpack-extension-reloader");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const fs = require("fs");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
-const WatchMissingNodeModulesPlugin = require("react-dev-utils/WatchMissingNodeModulesPlugin");
-const ForkTsCheckerWebpackPlugin = require("react-dev-utils/ForkTsCheckerWebpackPlugin");
-const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
-const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const WebpackBar = require("webpackbar");
+const path = require("path");
 const safePostCssParser = require("postcss-safe-parser");
+const ForkTsCheckerWebpackPlugin = require("react-dev-utils/ForkTsCheckerWebpackPlugin");
+const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
+const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
+const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
+const WatchMissingNodeModulesPlugin = require("react-dev-utils/WatchMissingNodeModulesPlugin");
+const resolve = require("resolve");
+const TerserPlugin = require("terser-webpack-plugin");
+const webpack = require("webpack");
+const ExtensionReloader = require("webpack-extension-reloader");
+const WebpackBar = require("webpackbar");
+const ZipPlugin = require("zip-webpack-plugin");
+
 const pkg = require("./package.json");
 const tsConfig = require("./tsconfig.json");
 
