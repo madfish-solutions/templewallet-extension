@@ -46,6 +46,12 @@ const localeOptions: LocaleOption[] = [
     disabled: false,
   },
   {
+    code: "de",
+    flagName: "de",
+    label: "German (Deutsch)",
+    disabled: false,
+  },
+  {
     code: "zh_CN",
     flagName: "cn",
     label: "Chinese ‒ Simplified (简体中文)",
@@ -73,6 +79,18 @@ const localeOptions: LocaleOption[] = [
     code: "uk",
     flagName: "ua",
     label: "Ukrainian (Українська)",
+    disabled: false,
+  },
+  {
+    code: "tr",
+    flagName: "tr",
+    label: "Turkish (Türk)",
+    disabled: false,
+  },
+  {
+    code: "pt",
+    flagName: "pt",
+    label: "Portuguese (Português)",
     disabled: false,
   },
   // Disabled
