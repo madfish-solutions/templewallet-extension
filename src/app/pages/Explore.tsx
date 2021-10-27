@@ -363,7 +363,8 @@ const SecondarySection: FC<SecondarySectionProps> = ({
                 "border-t-2",
                 active ? "border-primary-orange" : "border-transparent",
                 active ? "text-primary-orange" : "hover:text-primary-orange",
-                "transition ease-in-out duration-300"
+                "transition ease-in-out duration-300",
+                "truncate"
               )}
               testID={t.testID}
             >

@@ -18,9 +18,8 @@ import ExpensesView, { ModifyFeeAndLimit } from "app/templates/ExpensesView";
 import NetworkBanner from "app/templates/NetworkBanner";
 import OperationsBanner from "app/templates/OperationsBanner";
 import RawPayloadView from "app/templates/RawPayloadView";
-import ViewsSwitcher, {
-  ViewsSwitcherItemProps,
-} from "app/templates/ViewsSwitcher";
+import ViewsSwitcher from "app/templates/ViewsSwitcher/ViewsSwitcher";
+import { ViewsSwitcherItemProps } from "app/templates/ViewsSwitcher/ViewsSwitcherItem";
 import { T, t } from "lib/i18n/react";
 import { useRetryableSWR } from "lib/swr";
 import {
