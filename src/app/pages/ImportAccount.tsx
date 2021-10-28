@@ -636,11 +636,12 @@ const ByFundraiserForm: FC = () => {
 
 interface FaucetData {
   mnemonic: string[];
-  secret: string;
   amount: string;
   pkh: string;
   password: string;
   email: string;
+  secret: string;
+  activation_code: string;
 }
 
 interface FaucetTextInputFormData {
@@ -703,7 +704,7 @@ const FromFaucetForm: FC = () => {
     async (data: FaucetData) => {
       const [activationStatus, op] = await activateAccount(
         data.pkh,
-        data.secret
+        data.secret ?? data.activation_code
       );
 
       if (activationStatus === ActivationStatus.ActivationRequestSent) {
@@ -927,9 +928,13 @@ function validateFaucetTextInput(text?: string) {
 function toFaucetJSON(text: string) {
   const data = JSON.parse(text);
   if (
-    ![data.pkh, data.secret, data.mnemonic, data.email, data.password].every(
-      Boolean
-    )
+    ![
+      data.pkh,
+      data.secret ?? data.activation_code,
+      data.mnemonic,
+      data.email,
+      data.password,
+    ].every(Boolean)
   ) {
     throw new Error();
   }
