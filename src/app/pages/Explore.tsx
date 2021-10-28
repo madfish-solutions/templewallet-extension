@@ -34,7 +34,7 @@ import {
   useNetwork,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
-import {Link, useLocation, navigate, HistoryAction} from "lib/woozie";
+import { Link, useLocation, navigate, HistoryAction } from "lib/woozie";
 
 import CollectiblesList from "./Collectibles/CollectiblesList";
 import { ExploreSelectors } from "./Explore.selectors";
@@ -43,7 +43,7 @@ import BakingSection from "./Explore/BakingSection";
 import EditableTitle from "./Explore/EditableTitle";
 import MainBanner from "./Explore/MainBanner";
 import Tokens from "./Explore/Tokens";
-import {useOnboardingProgress} from "./Onboarding/hooks/useOnboardingProgress.hook";
+import { useOnboardingProgress } from "./Onboarding/hooks/useOnboardingProgress.hook";
 import Onboarding from "./Onboarding/Onboarding";
 
 type ExploreProps = {
@@ -154,7 +154,9 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
       <SecondarySection assetSlug={assetSlug} />
     </PageLayout>
-  ) : (<Onboarding/>);
+  ) : (
+    <Onboarding />
+  );
 };
 
 export default Explore;
@@ -191,9 +193,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
-      className: `flex flex-col items-center ${
-          popup ? "" : "px-1"
-      } ${
+      className: `flex flex-col items-center ${popup ? "" : "px-1"} ${
         network.type === "test" ? "mx-3" : "mx-2"
       }`,
       type: "button" as const,

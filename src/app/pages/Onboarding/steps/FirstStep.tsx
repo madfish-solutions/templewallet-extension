@@ -1,26 +1,26 @@
-import React, {FC} from "react";
+import React, { FC } from "react";
 
-import {T} from "../../../../lib/i18n/react";
-import {Button} from "../../../atoms/Button";
-import AddressBalanceImg from "../assets/address-balance.png"
+import { T } from "../../../../lib/i18n/react";
+import { Button } from "../../../atoms/Button";
+import AddressBalanceImg from "../assets/address-balance.png";
 import styles from "../Onboarding.module.css";
 
 interface Props {
   setStep: (step: number) => void;
 }
 
-const FirstStep: FC<Props> = ({setStep}) => {
+const FirstStep: FC<Props> = ({ setStep }) => {
   return (
     <>
       <p className={styles["title"]}>
-        <T id={"addressBalanceDetails"}/>
+        <T id={"addressBalanceDetails"} />
       </p>
       <p className={styles["description"]}>
-        <T id={"addressBalanceDescription"}/>
+        <T id={"addressBalanceDescription"} />
       </p>
-      <img src={AddressBalanceImg} alt='AddressBalanceImg'/>
-      <p className={styles["description"]} style={{marginBottom: 0}}>
-        <T id={"addressBalanceHint"}/>
+      <img src={AddressBalanceImg} alt="AddressBalanceImg" />
+      <p className={styles["description"]} style={{ marginBottom: 0 }}>
+        <T id={"addressBalanceHint"} />
       </p>
       <Button
         className="w-full justify-center border-none"
@@ -29,13 +29,14 @@ const FirstStep: FC<Props> = ({setStep}) => {
           background: "#4198e0",
           color: "#ffffff",
           marginTop: "40px",
-          borderRadius: 4
+          borderRadius: 4,
         }}
-        onClick={() => setStep(1)}>
-        <T id={"next"}/>
+        onClick={() => setStep(1)}
+      >
+        <T id={"next"} />
       </Button>
     </>
   );
-}
+};
 
 export default FirstStep;

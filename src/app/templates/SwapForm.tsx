@@ -1,26 +1,38 @@
-import React, {ChangeEvent, forwardRef, useCallback, useEffect, useMemo, useRef, useState,} from "react";
+import React, {
+  ChangeEvent,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import {WalletOperation} from "@taquito/taquito";
+import { WalletOperation } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import debouncePromise from "debounce-promise";
-import {Controller, useForm} from "react-hook-form";
-import {browser} from "webextension-polyfill-ts";
+import { Controller, useForm } from "react-hook-form";
+import { browser } from "webextension-polyfill-ts";
 
 import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Money from "app/atoms/Money";
-import {ReactComponent as InfoIcon} from "app/icons/info.svg";
-import {ReactComponent as SwapVerticalIcon} from "app/icons/swap-vertical.svg";
+import { ReactComponent as InfoIcon } from "app/icons/info.svg";
+import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg";
 import OperationStatus from "app/templates/OperationStatus";
-import SwapInput, {SwapInputValue} from "app/templates/SwapForm/SwapInput";
+import SwapInput, { SwapInputValue } from "app/templates/SwapForm/SwapInput";
 import useSwapCalculations from "app/templates/SwapForm/useSwapCalculations";
-import {getAssetExchangeData, TokenExchangeData, useSwappableAssets,} from "app/templates/SwapForm/useSwappableAssets";
-import {useFormAnalytics} from "lib/analytics";
-import {toLocalFixed} from "lib/i18n/numbers";
-import {T, t} from "lib/i18n/react";
-import {useRetryableSWR} from "lib/swr";
+import {
+  getAssetExchangeData,
+  TokenExchangeData,
+  useSwappableAssets,
+} from "app/templates/SwapForm/useSwappableAssets";
+import { useFormAnalytics } from "lib/analytics";
+import { toLocalFixed } from "lib/i18n/numbers";
+import { T, t } from "lib/i18n/react";
+import { useRetryableSWR } from "lib/swr";
 import {
   ALL_EXCHANGERS_TYPES,
   assetAmountToUSD,
@@ -45,7 +57,7 @@ import {
 import useTippy from "lib/ui/useTippy";
 
 import styles from "./SwapForm.module.css";
-import {usePriceImpact} from "./usePriceImpact.hook";
+import { usePriceImpact } from "./usePriceImpact.hook";
 
 type SwapFormValues = {
   input: SwapInputValue;
@@ -268,19 +280,19 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
     }
     const rawExchangeRate = inputAssetAmount.div(outputAssetAmount);
     if (rawExchangeRate.eq(0)) {
-      return {base: new BigNumber(1), value: new BigNumber(0)};
+      return { base: new BigNumber(1), value: new BigNumber(0) };
     }
     const base = new BigNumber(10).pow(
-        BigNumber.max(
-            0,
-            -Math.floor(Math.log10(rawExchangeRate.toNumber())) -
-            inputAsset.decimals
-        )
+      BigNumber.max(
+        0,
+        -Math.floor(Math.log10(rawExchangeRate.toNumber())) -
+          inputAsset.decimals
+      )
     );
     const prettifiedExchangeRate = rawExchangeRate
-        .multipliedBy(base)
-        .decimalPlaces(inputAsset.decimals);
-    return {base, value: prettifiedExchangeRate};
+      .multipliedBy(base)
+      .decimalPlaces(inputAsset.decimals);
+    return { base, value: prettifiedExchangeRate };
   }, [inputAssetAmount, outputAssetAmount, inputAsset]);
 
   const inputContractAddress = useMemo(() => {
@@ -288,48 +300,61 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       return undefined;
     }
     return getAssetExchangeData(
-        tokensExchangeData,
-        tezUsdPrice,
-        inputAsset!,
-        selectedExchanger
+      tokensExchangeData,
+      tezUsdPrice,
+      inputAsset!,
+      selectedExchanger
     )?.contract;
-  }, [tokensExchangeData, tezUsdPrice, inputAsset, selectedExchanger])
+  }, [tokensExchangeData, tezUsdPrice, inputAsset, selectedExchanger]);
 
   const outputContractAddress = useMemo(() => {
     if (!outputAsset) {
       return undefined;
     }
     return getAssetExchangeData(
-        tokensExchangeData,
-        tezUsdPrice,
-        outputAsset!,
-        selectedExchanger
+      tokensExchangeData,
+      tezUsdPrice,
+      outputAsset!,
+      selectedExchanger
     )?.contract;
   }, [tokensExchangeData, tezUsdPrice, outputAsset, selectedExchanger]);
 
-  const feePercentage = useMemo(() => getFeePercentage(selectedExchanger), [selectedExchanger]);
+  const feePercentage = useMemo(
+    () => getFeePercentage(selectedExchanger),
+    [selectedExchanger]
+  );
 
-  const priceImpact = usePriceImpact(tezos, selectedExchanger, inputContractAddress, outputContractAddress, inputAssetAmount, outputAssetAmount, feePercentage, inputAsset, outputAsset);
+  const priceImpact = usePriceImpact(
+    tezos,
+    selectedExchanger,
+    inputContractAddress,
+    outputContractAddress,
+    inputAssetAmount,
+    outputAssetAmount,
+    feePercentage,
+    inputAsset,
+    outputAsset
+  );
 
   const onSubmit = useCallback(
-      async ({
-               exchanger,
-               tolerancePercentage,
-               input: {amount: inputAmount},
-             }: SwapFormValues) => {
-        if (isSubmitting) {
-          return;
-        }
-        setIsSubmitting(true);
-        const analyticsProperties = {
-          exchanger,
+    async ({
+      exchanger,
+      tolerancePercentage,
+      input: { amount: inputAmount },
+    }: SwapFormValues) => {
+      if (isSubmitting) {
+        return;
+      }
+      setIsSubmitting(true);
+      const analyticsProperties = {
+        exchanger,
 
-          inputAsset: inputAsset!.symbol,
-          outputAsset: outputAsset!.symbol,
-        };
-        formAnalytics.trackSubmit(analyticsProperties);
-        try {
-          setOperation(undefined);
+        inputAsset: inputAsset!.symbol,
+        outputAsset: outputAsset!.symbol,
+      };
+      formAnalytics.trackSubmit(analyticsProperties);
+      try {
+        setOperation(undefined);
         const inputContractAddress = getAssetExchangeData(
           tokensExchangeData,
           tezUsdPrice,
@@ -593,16 +618,18 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   );
 
   const priceImpactInfoTippyProps = useMemo(
-      () => ({
-        trigger: "mouseenter",
-        hideOnClick: false,
-        content: t("priceImpactInfo"),
-        animation: "shift-away-subtle",
-      }),
-      []
+    () => ({
+      trigger: "mouseenter",
+      hideOnClick: false,
+      content: t("priceImpactInfo"),
+      animation: "shift-away-subtle",
+    }),
+    []
   );
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
-  const priceImpactInfoIconRef = useTippy<HTMLSpanElement>(priceImpactInfoTippyProps);
+  const priceImpactInfoIconRef = useTippy<HTMLSpanElement>(
+    priceImpactInfoTippyProps
+  );
 
   const getUpdateInputAmountBatch = useCallback(
     async (
@@ -1016,10 +1043,10 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           <tr>
             <td>
               <div className="flex items-center">
-                <T id="priceImpact"/>
+                <T id="priceImpact" />
                 &nbsp;
                 <span ref={priceImpactInfoIconRef} className="text-gray-600">
-                  <InfoIcon className="w-3 h-auto stroke-current"/>
+                  <InfoIcon className="w-3 h-auto stroke-current" />
                 </span>
                 :
               </div>
@@ -1031,12 +1058,12 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           </tr>
           <tr>
             <td>
-              <T id="exchangeRate"/>
+              <T id="exchangeRate" />
             </td>
             <td className="text-right text-gray-600">
               {inputAsset && outputAsset && exchangeRate
-                  ? `${exchangeRate.base} ${outputAsset.symbol} = ${toLocalFixed(
-                      exchangeRate.value
+                ? `${exchangeRate.base} ${outputAsset.symbol} = ${toLocalFixed(
+                    exchangeRate.value
                   )} ${inputAsset.symbol}`
                 : "-"}
             </td>
