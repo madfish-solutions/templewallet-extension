@@ -209,7 +209,7 @@ export async function requestOperation(
                 type: TempleDAppMessageType.OperationResponse,
                 opHash: op.hash,
               });
-            } catch (err) {
+            } catch (err: any) {
               if (err instanceof TezosOperationError) {
                 err.message = TempleDAppErrorType.TezosOperation;
                 reject(err);
@@ -340,7 +340,7 @@ export async function requestBroadcast(
       type: TempleDAppMessageType.BroadcastResponse,
       opHash,
     };
-  } catch (err) {
+  } catch (err: any) {
     throw err instanceof TezosOperationError
       ? (() => {
           err.message = TempleDAppErrorType.TezosOperation;

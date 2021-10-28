@@ -61,7 +61,7 @@ export async function assertGetBalance(
               .read((tezos as any).lambdaContract),
       RETRY_PARAMS
     );
-  } catch (err) {
+  } catch (err: any) {
     if (err?.value?.string === "FA2_TOKEN_UNDEFINED") {
       throw new IncorrectTokenIdError(
         getMessage("incorrectTokenIdErrorMessage")
@@ -98,7 +98,7 @@ function isEntrypointsMatched(
     }
 
     return true;
-  } catch (err) {
+  } catch (err: any) {
     if (process.env.NODE_ENV === "development") {
       console.error(err);
     }

@@ -208,7 +208,7 @@ const ConfirmDAppForm: FC = () => {
           modifiedTotalFeeValue - revealFee,
           modifiedStorageLimitValue
         );
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }

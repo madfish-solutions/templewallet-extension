@@ -83,7 +83,7 @@ export async function fetchTokenMetadata(
     };
 
     return { base, detailed };
-  } catch (err) {
+  } catch (err: any) {
     if (process.env.NODE_ENV === "development") {
       console.error(err);
     }

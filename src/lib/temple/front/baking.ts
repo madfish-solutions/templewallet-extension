@@ -17,7 +17,7 @@ export function useDelegate(address: string, suspense = true) {
   const getDelegate = useCallback(async () => {
     try {
       return await tezos.rpc.getDelegate(address);
-    } catch (err) {
+    } catch (err: any) {
       if (err.status === 404) {
         return null;
       }

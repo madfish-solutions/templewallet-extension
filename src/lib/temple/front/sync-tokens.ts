@@ -224,7 +224,7 @@ export const [SyncTokensProvider] = constate(() => {
     const syncAndDefer = async () => {
       try {
         await syncRef.current();
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }

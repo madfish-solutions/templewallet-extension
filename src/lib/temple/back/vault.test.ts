@@ -279,8 +279,8 @@ describe("Vault tests", () => {
     const accounts = await vault.fetchAccounts();
     try {
       await Vault.removeAccount(accounts[0].publicKeyHash, password);
-    } catch (e) {
-      expect(e.message).toEqual("Failed to remove account");
+    } catch (err: any) {
+      expect(err.message).toEqual("Failed to remove account");
     }
     const accountsWithWatchOnly = await vault.importWatchOnlyAccount(
       "KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn"

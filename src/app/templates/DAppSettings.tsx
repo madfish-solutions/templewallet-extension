@@ -64,7 +64,7 @@ const DAppSettings: FC = () => {
 
       try {
         setDAppEnabled(evt.target.checked);
-      } catch (err) {
+      } catch (err: any) {
         setError(err);
       }
 

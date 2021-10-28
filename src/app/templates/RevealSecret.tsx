@@ -105,7 +105,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
         }
 
         setSecret(scrt);
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }

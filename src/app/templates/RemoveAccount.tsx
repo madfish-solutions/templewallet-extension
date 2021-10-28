@@ -46,7 +46,7 @@ const RemoveAccount: FC = () => {
       clearError("password");
       try {
         await removeAccount(account.publicKeyHash, password);
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }

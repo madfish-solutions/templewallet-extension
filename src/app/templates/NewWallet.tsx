@@ -153,13 +153,13 @@ const NewWallet: FC<NewWalletProps> = ({
                 mnemonic
               );
               setSeedRevealed(true);
-            } catch (e) {
+            } catch (err: any) {
               alert({
                 title: t("errorImportingKukaiWallet"),
                 children:
-                  e instanceof SyntaxError
+                  err instanceof SyntaxError
                     ? t("fileHasSyntaxError")
-                    : e.message,
+                    : err.message,
               });
             }
           }
@@ -169,7 +169,7 @@ const NewWallet: FC<NewWalletProps> = ({
             password: data.password!,
           });
         }
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }

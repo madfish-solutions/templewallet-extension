@@ -81,7 +81,7 @@ async function handleReset(alert: AlertFn, confirm: ConfirmFn) {
         await Repo.db.delete();
         await browser.storage.local.clear();
         browser.runtime.reload();
-      } catch (err) {
+      } catch (err: any) {
         await alert({
           title: getMessage("error"),
           children: err.message,

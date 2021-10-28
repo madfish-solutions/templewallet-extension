@@ -7,7 +7,7 @@ export function useRetryableSWR<T, E = any>(
 ) {
   try {
     return useSWR(key, fn, { errorRetryCount: 10, ...config });
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof Promise) throw err;
     const [, , errorKey] = cache.serializeKey(key);
     err.swrErrorKey = errorKey;

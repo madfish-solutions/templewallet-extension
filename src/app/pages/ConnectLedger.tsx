@@ -130,7 +130,7 @@ const ConnectLedger: FC = () => {
         );
 
         formAnalytics.trackSubmitSuccess();
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {

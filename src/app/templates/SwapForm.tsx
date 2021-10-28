@@ -381,9 +381,9 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
         setError(undefined);
         formAnalytics.trackSubmitSuccess(analyticsProperties);
         setOperation(op);
-      } catch (e) {
-        if (e.message !== "Declined") {
-          setError(e);
+      } catch (err: any) {
+        if (err.message !== "Declined") {
+          setError(err);
         }
         formAnalytics.trackSubmitFail(analyticsProperties);
       } finally {
@@ -663,9 +663,9 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
             ),
           },
         });
-      } catch (e) {
+      } catch (err) {
         if (process.env.NODE_ENV === "development") {
-          console.error(e);
+          console.error(err);
         }
         batch.push({
           input: { asset: inputAsset },
@@ -708,9 +708,9 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
             ),
           },
         });
-      } catch (e) {
+      } catch (err) {
         if (process.env.NODE_ENV === "development") {
-          console.error(e);
+          console.error(err);
         }
         batch.push({
           output: { asset: outputAsset },

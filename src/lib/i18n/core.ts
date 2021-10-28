@@ -79,7 +79,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
     }
 
     return val.message;
-  } catch (err) {
+  } catch (err: any) {
     if (process.env.NODE_ENV === "development") {
       console.error(err);
     }
@@ -123,7 +123,7 @@ export async function fetchLocaleMessages(locale: string) {
 
     appendPlaceholderLists(messages);
     return messages;
-  } catch (err) {
+  } catch (err: any) {
     if (process.env.NODE_ENV === "development") {
       console.error(err);
     }

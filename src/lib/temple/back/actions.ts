@@ -328,7 +328,7 @@ export function sendOperations(
                 } catch {}
 
                 resolve({ opHash: op.hash });
-              } catch (err) {
+              } catch (err: any) {
                 if (err instanceof TezosOperationError) {
                   reject(err);
                 } else {
@@ -483,7 +483,7 @@ export async function processBeacon(
 
       try {
         msg = await Beacon.decryptMessage(msg, recipientPubKey);
-      } catch (err) {
+      } catch (err: any) {
         await Beacon.removeDAppPublicKey(origin);
         throw err;
       }
@@ -625,7 +625,7 @@ export async function processBeacon(
         }
 
         throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
-      } catch (err) {
+      } catch (err: any) {
         if (err instanceof TezosOperationError) {
           throw err;
         }
@@ -649,7 +649,7 @@ export async function processBeacon(
 
         throw new Error(beaconErrorType);
       }
-    } catch (err) {
+    } catch (err: any) {
       return {
         ...resBase,
         type: Beacon.MessageType.Error,

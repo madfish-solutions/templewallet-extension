@@ -123,7 +123,7 @@ export class Vault {
       for (const migrate of migrationsToRun) {
         await migrate(passKey);
       }
-    } catch (err) {
+    } catch (err: any) {
       if (process.env.NODE_ENV === "development") {
         console.error(err);
       }
@@ -494,7 +494,7 @@ export class Vault {
 
       try {
         return await batch.send();
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -750,7 +750,7 @@ async function withError<T>(
     return await factory(() => {
       throw new Error("<stub>");
     });
-  } catch (err) {
+  } catch (err: any) {
     throw err instanceof PublicError ? err : new PublicError(errMessage);
   }
 }
