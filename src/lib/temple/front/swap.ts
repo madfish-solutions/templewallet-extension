@@ -1,7 +1,14 @@
-import {TezosToolkit} from "@taquito/taquito";
+import { TezosToolkit } from "@taquito/taquito";
 import BigNumber from "bignumber.js";
 
-import {batchify, loadContract, TempleAsset, TempleAssetType, TempleChainId, withTokenApprove,} from "lib/temple/front";
+import {
+  batchify,
+  loadContract,
+  TempleAsset,
+  TempleAssetType,
+  TempleChainId,
+  withTokenApprove,
+} from "lib/temple/front";
 
 export type ExchangerType = "dexter" | "quipuswap" | "liquidity_baking";
 
@@ -168,11 +175,12 @@ export function getFeePercentage(exchangerType: ExchangerType) {
 }
 
 export function getFormattedPriceImpact(priceImpact: BigNumber) {
-  if (priceImpact.toString() !== "0"
-      && priceImpact.toString() !== "NaN"
-      && priceImpact.toString() !== "Infinity"
-      && priceImpact.toString() !== "-Infinity") {
-
+  if (
+    priceImpact.toString() !== "0" &&
+    priceImpact.toString() !== "NaN" &&
+    priceImpact.toString() !== "Infinity" &&
+    priceImpact.toString() !== "-Infinity"
+  ) {
     return priceImpact.toFixed(2) + "%";
   } else {
     return "-";
@@ -180,9 +188,9 @@ export function getFormattedPriceImpact(priceImpact: BigNumber) {
 }
 
 export async function getPoolParameters(
-    tezos: TezosToolkit,
-    contractAddress: string,
-    type: ExchangerType
+  tezos: TezosToolkit,
+  contractAddress: string,
+  type: ExchangerType
 ): Promise<{ tokenPool: BigNumber; xtzPool: BigNumber }> {
   const contract = await loadContract(tezos, contractAddress, false);
   const storage = await contract.storage<any>();

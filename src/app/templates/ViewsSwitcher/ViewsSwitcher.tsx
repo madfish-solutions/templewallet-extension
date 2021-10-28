@@ -2,7 +2,7 @@ import React, { memo } from "react";
 
 import classNames from "clsx";
 
-import ViewsSwitcherItem, { ViewsSwitcherItemProps } from './ViewsSwitcherItem';
+import ViewsSwitcherItem, { ViewsSwitcherItemProps } from "./ViewsSwitcherItem";
 
 export type ViewsSwitcherProps = {
   activeItem: ViewsSwitcherItemProps;
@@ -21,7 +21,8 @@ const ViewsSwitcher = memo(
           activeItem={activeItem}
           totalItemsLength={arr.length}
           onChange={onChange}
-        />))}
+        />
+      ))}
     </div>
   )
 );

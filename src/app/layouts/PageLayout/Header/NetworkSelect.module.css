@@ -1,11 +1,11 @@
 .scroll::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 .scroll {
-    overflow-y: scroll;
-    max-height: 31rem;
+  overflow-y: scroll;
+  max-height: 31rem;
 
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

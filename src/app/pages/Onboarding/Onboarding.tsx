@@ -1,7 +1,7 @@
-import React, {FC} from "react";
+import React, { FC } from "react";
 
-import {t, T} from "../../../lib/i18n/react";
-import {useStorage} from "../../../lib/temple/front";
+import { t, T } from "../../../lib/i18n/react";
+import { useStorage } from "../../../lib/temple/front";
 import Stepper from "../../atoms/Stepper";
 import PageLayout from "../../layouts/PageLayout";
 import CongratsPage from "./pages/CongrantsPage";
@@ -18,16 +18,13 @@ const steps = [
 ];
 
 const Onboarding: FC = () => {
-  const [step, setStep] = useStorage<number>(
-    `onboarding_step_state`,
-    0
-  );
+  const [step, setStep] = useStorage<number>(`onboarding_step_state`, 0);
 
   return (
     <PageLayout
       pageTitle={
-        <span style={step !== 4 ? {marginLeft: 62} : {}}>
-          {step >= 1 ? <T id="onboarding"/> : <T id="welcomeToOnboarding"/>}
+        <span style={step !== 4 ? { marginLeft: 62 } : {}}>
+          {step >= 1 ? <T id="onboarding" /> : <T id="welcomeToOnboarding" />}
         </span>
       }
       step={step}
@@ -35,15 +32,21 @@ const Onboarding: FC = () => {
       skip={step < 4}
     >
       <div
-        style={{maxWidth: "360px", margin: "auto"}}
+        style={{ maxWidth: "360px", margin: "auto" }}
         className="pb-8 text-center"
       >
-        {step < 4 && <Stepper style={{marginTop: "40px"}} steps={steps} currentStep={step}/>}
-        {step === 0 && <FirstStep setStep={setStep}/>}
-        {step === 1 && <SecondStep setStep={setStep}/>}
-        {step === 2 && <ThirdStep setStep={setStep}/>}
-        {step === 3 && <FourthStep setStep={setStep}/>}
-        {step === 4 && <CongratsPage/>}
+        {step < 4 && (
+          <Stepper
+            style={{ marginTop: "40px" }}
+            steps={steps}
+            currentStep={step}
+          />
+        )}
+        {step === 0 && <FirstStep setStep={setStep} />}
+        {step === 1 && <SecondStep setStep={setStep} />}
+        {step === 2 && <ThirdStep setStep={setStep} />}
+        {step === 3 && <FourthStep setStep={setStep} />}
+        {step === 4 && <CongratsPage />}
       </div>
     </PageLayout>
   );

@@ -1,10 +1,10 @@
-import React, { FC, FunctionComponent, SVGProps, useMemo } from 'react';
+import React, { FC, FunctionComponent, SVGProps, useMemo } from "react";
 
-import classNames from 'clsx';
+import classNames from "clsx";
 
-import { Button } from 'app/atoms/Button';
-import { TestIDProps } from 'lib/analytics';
-import useTippy from 'lib/ui/useTippy';
+import { Button } from "app/atoms/Button";
+import { TestIDProps } from "lib/analytics";
+import useTippy from "lib/ui/useTippy";
 
 export type ViewsSwitcherItemProps = {
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
@@ -20,7 +20,13 @@ interface Props {
   onChange: (item: ViewsSwitcherItemProps) => void;
 }
 
-const ViewsSwitcherItem: FC<Props> = ({ currentItem, currentItemIndex, activeItem, totalItemsLength, onChange }) => {
+const ViewsSwitcherItem: FC<Props> = ({
+  currentItem,
+  currentItemIndex,
+  activeItem,
+  totalItemsLength,
+  onChange,
+}) => {
   const tippyProps = useMemo(
     () => ({
       trigger: "mouseenter",
@@ -28,7 +34,7 @@ const ViewsSwitcherItem: FC<Props> = ({ currentItem, currentItemIndex, activeIte
       content: currentItem.name,
       animation: "shift-away-subtle",
     }),
-    []
+    [currentItem.name]
   );
   const tippyRef = useTippy<HTMLButtonElement>(tippyProps);
 
@@ -40,7 +46,6 @@ const ViewsSwitcherItem: FC<Props> = ({ currentItem, currentItemIndex, activeIte
   return (
     <Button
       ref={tippyRef}
-
       className={classNames(
         (() => {
           switch (true) {
@@ -48,10 +53,7 @@ const ViewsSwitcherItem: FC<Props> = ({ currentItem, currentItemIndex, activeIte
               return classNames("rounded rounded-r-none", "border");
 
             case last:
-              return classNames(
-                "rounded rounded-l-none",
-                "border border-l-0"
-              );
+              return classNames("rounded rounded-l-none", "border border-l-0");
 
             default:
               return "border border-l-0";
@@ -70,9 +72,7 @@ const ViewsSwitcherItem: FC<Props> = ({ currentItem, currentItemIndex, activeIte
       <currentItem.Icon
         className={classNames("h-4 w-auto mr-1", "stroke-current")}
       />
-      <span className={classNames("truncate")}>
-        {currentItem.name}
-      </span>
+      <span className={classNames("truncate")}>{currentItem.name}</span>
     </Button>
   );
 };

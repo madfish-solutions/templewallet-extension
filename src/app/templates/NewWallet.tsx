@@ -306,7 +306,9 @@ const NewWallet: FC<NewWalletProps> = ({
                 as={KeystoreFileInput}
                 rules={{
                   required: isImportFromKeystore ? t("required") : false,
-                  validate: isImportFromKeystore ? validateKeystoreFile : undefined,
+                  validate: isImportFromKeystore
+                    ? validateKeystoreFile
+                    : undefined,
                 }}
                 clearKeystoreFileInput={clearKeystoreFileInput}
               />

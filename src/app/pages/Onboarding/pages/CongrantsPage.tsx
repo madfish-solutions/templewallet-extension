@@ -1,13 +1,13 @@
-import React, {FC} from "react";
+import React, { FC } from "react";
 
-import {T} from "../../../../lib/i18n/react";
-import {Button} from "../../../atoms/Button";
-import {ReactComponent as DiscordIcon} from "../../../icons/discord.svg";
-import {ReactComponent as RedditIcon} from "../../../icons/reddit.svg";
-import {ReactComponent as TelegramIcon} from "../../../icons/telegram.svg";
-import {ReactComponent as TwitterIcon} from "../../../icons/twitter.svg";
-import {ReactComponent as YoutubeIcon} from "../../../icons/youtube.svg";
-import {useOnboardingProgress} from "../hooks/useOnboardingProgress.hook";
+import { T } from "../../../../lib/i18n/react";
+import { Button } from "../../../atoms/Button";
+import { ReactComponent as DiscordIcon } from "../../../icons/discord.svg";
+import { ReactComponent as RedditIcon } from "../../../icons/reddit.svg";
+import { ReactComponent as TelegramIcon } from "../../../icons/telegram.svg";
+import { ReactComponent as TwitterIcon } from "../../../icons/twitter.svg";
+import { ReactComponent as YoutubeIcon } from "../../../icons/youtube.svg";
+import { useOnboardingProgress } from "../hooks/useOnboardingProgress.hook";
 import styles from "../Onboarding.module.css";
 
 const links = [
@@ -35,7 +35,7 @@ const links = [
     href: "https://www.reddit.com/r/MadFishCommunity",
     background: "#FF4500",
     Icon: RedditIcon,
-  }
+  },
 ];
 
 const CongratsPage: FC = () => {
@@ -44,27 +44,38 @@ const CongratsPage: FC = () => {
   return (
     <>
       <p className={styles["title"]}>
-        <T id={"congrats"}/>
+        <T id={"congrats"} />
       </p>
-      <p className={styles["description"]} style={{marginBottom: 20}}>
-        <T id={"congratsDescription1"}/>
+      <p className={styles["description"]} style={{ marginBottom: 20 }}>
+        <T id={"congratsDescription1"} />
       </p>
-      <p className={styles["description"]} style={{marginTop: 20, marginBottom: 0}}>
-        <T id={"congratsDescription2"}/>
+      <p
+        className={styles["description"]}
+        style={{ marginTop: 20, marginBottom: 0 }}
+      >
+        <T id={"congratsDescription2"} />
       </p>
-      <p className={styles["description"]} style={{marginTop: 20, marginBottom: 0}}>
-        <T id={"congratsDescription3"}/>
+      <p
+        className={styles["description"]}
+        style={{ marginTop: 20, marginBottom: 0 }}
+      >
+        <T id={"congratsDescription3"} />
       </p>
       <a
-        href={"https://www.youtube.com/playlist?list=PLVfSwYHwGJ2Gyyf16LEIgvkNoC1YtgjX1"}
+        href={
+          "https://www.youtube.com/playlist?list=PLVfSwYHwGJ2Gyyf16LEIgvkNoC1YtgjX1"
+        }
         target="_blank"
         rel="noreferrer"
         className={styles["link"]}
       >
         https://www.youtube.com/playlist?list=PLVfSwYHwGJ2Gyyf16LEIgvkNoC1YtgjX1
       </a>
-      <p className={styles["description"]} style={{marginTop: 20, marginBottom: 0}}>
-        <T id={"congratsDescription4"}/>
+      <p
+        className={styles["description"]}
+        style={{ marginTop: 20, marginBottom: 0 }}
+      >
+        <T id={"congratsDescription4"} />
       </p>
       <a
         href={"https://madfish.crunch.help/temple-wallet"}
@@ -74,8 +85,11 @@ const CongratsPage: FC = () => {
       >
         https://madfish.crunch.help/temple-wallet
       </a>
-      <p className={styles["description"]} style={{marginTop: 20, marginBottom: 10, fontWeight: "bold"}}>
-        <T id={"congratsDescription5"}/>
+      <p
+        className={styles["description"]}
+        style={{ marginTop: 20, marginBottom: 10, fontWeight: "bold" }}
+      >
+        <T id={"congratsDescription5"} />
       </p>
       <div className={styles["linksList"]}>
         {links.map(({ href, background, Icon }) => (
@@ -87,15 +101,15 @@ const CongratsPage: FC = () => {
           >
             <div
               className="w-8 h-8 rounded-md"
-              style={{background, padding: background ? "0.375rem" : 0}}
+              style={{ background, padding: background ? "0.375rem" : 0 }}
             >
-              <Icon className="h-full w-auto"/>
+              <Icon className="h-full w-auto" />
             </div>
           </a>
         ))}
       </div>
-      <p className={styles["description"]} style={{marginBottom: 0}}>
-        <T id={"congratsDescription6"}/>
+      <p className={styles["description"]} style={{ marginBottom: 0 }}>
+        <T id={"congratsDescription6"} />
       </p>
       <Button
         className="w-full justify-center border-none"
@@ -104,13 +118,14 @@ const CongratsPage: FC = () => {
           background: "#4198e0",
           color: "#ffffff",
           marginTop: "20px",
-          borderRadius: 4
+          borderRadius: 4,
         }}
-        onClick={() => setOnboardingCompleted(true)}>
-        <T id={"start"}/>
+        onClick={() => setOnboardingCompleted(true)}
+      >
+        <T id={"start"} />
       </Button>
     </>
   );
-}
+};
 
 export default CongratsPage;

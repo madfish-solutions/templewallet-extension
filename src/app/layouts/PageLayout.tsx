@@ -1,35 +1,44 @@
-import React, {ComponentProps, FC, ReactNode, Suspense, useEffect, useLayoutEffect, useRef, useState,} from "react";
+import React, {
+  ComponentProps,
+  FC,
+  ReactNode,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 
 import DocBg from "app/a11y/DocBg";
-import {Button} from "app/atoms/Button";
+import { Button } from "app/atoms/Button";
 import Spinner from "app/atoms/Spinner";
-import {useAppEnv} from "app/env";
+import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
-import {ReactComponent as ChevronLeftIcon} from "app/icons/chevron-left.svg";
+import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import ContentContainer from "app/layouts/ContentContainer";
 import ConfirmationOverlay from "app/layouts/PageLayout/ConfirmationOverlay";
 import Header from "app/layouts/PageLayout/Header";
 import NoLambdaViewContractAlert from "app/templates/NoLambdaViewContractAlert";
-import {AnalyticsConfirmationOverlay} from "lib/analytics";
-import {T} from "lib/i18n/react";
-import {goBack, HistoryAction, navigate, useLocation} from "lib/woozie";
+import { AnalyticsConfirmationOverlay } from "lib/analytics";
+import { T } from "lib/i18n/react";
+import { goBack, HistoryAction, navigate, useLocation } from "lib/woozie";
 
-import {useOnboardingProgress} from "../pages/Onboarding/hooks/useOnboardingProgress.hook";
-import {PageLayoutSelectors} from "./PageLayout.selectors";
+import { useOnboardingProgress } from "../pages/Onboarding/hooks/useOnboardingProgress.hook";
+import { PageLayoutSelectors } from "./PageLayout.selectors";
 
 type PageLayoutProps = ToolbarProps;
 
-const PageLayout: FC<PageLayoutProps> = ({children, ...toolbarProps}) => {
-  const {fullPage} = useAppEnv();
+const PageLayout: FC<PageLayoutProps> = ({ children, ...toolbarProps }) => {
+  const { fullPage } = useAppEnv();
 
   return (
     <>
-      <DocBg bgClassName="bg-primary-orange"/>
+      <DocBg bgClassName="bg-primary-orange" />
 
       <div className={classNames(fullPage && "pb-20", "relative")}>
-        <Header/>
+        <Header />
 
         <ContentPaper>
           <Toolbar {...toolbarProps} />
@@ -97,16 +106,22 @@ type ToolbarProps = {
   skip?: boolean;
 };
 
-const Toolbar: FC<ToolbarProps> = ({pageTitle, hasBackAction = true, step, setStep, skip}) => {
-  const {historyPosition, pathname} = useLocation();
-  const {fullPage, registerBackHandler, onBack} = useAppEnv();
-  const {setOnboardingCompleted} = useOnboardingProgress();
+const Toolbar: FC<ToolbarProps> = ({
+  pageTitle,
+  hasBackAction = true,
+  step,
+  setStep,
+  skip,
+}) => {
+  const { historyPosition, pathname } = useLocation();
+  const { fullPage, registerBackHandler, onBack } = useAppEnv();
+  const { setOnboardingCompleted } = useOnboardingProgress();
 
   const onStepBack = () => {
     if (step && setStep && step > 0) {
       setStep(step - 1);
     }
-  }
+  };
 
   const inHome = pathname === "/";
   const canBack = historyPosition > 0 || !inHome;
@@ -195,7 +210,7 @@ const Toolbar: FC<ToolbarProps> = ({pageTitle, hasBackAction = true, step, setSt
             <T id="back" />
           </Button>
         )}
-        {!!step && (step > 0) && (
+        {!!step && step > 0 && (
           <Button
             className={classNames(
               "px-4 py-2",
@@ -236,7 +251,7 @@ const Toolbar: FC<ToolbarProps> = ({pageTitle, hasBackAction = true, step, setSt
         </h2>
       )}
 
-      <div className="flex-1"/>
+      <div className="flex-1" />
       {skip && (
         <div className="flex content-end">
           <Button
@@ -252,7 +267,7 @@ const Toolbar: FC<ToolbarProps> = ({pageTitle, hasBackAction = true, step, setSt
             )}
             onClick={() => setOnboardingCompleted(true)}
           >
-            <T id="skip"/>
+            <T id="skip" />
           </Button>
         </div>
       )}
