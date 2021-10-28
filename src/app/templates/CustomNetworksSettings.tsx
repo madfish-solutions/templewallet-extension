@@ -69,7 +69,7 @@ const CustomNetworksSettings: FC = () => {
       let chainId;
       try {
         chainId = await loadChainId(rpcBaseURL);
-      } catch (err) {
+      } catch (err: any) {
         await withErrorHumanDelay(err, () =>
           setError(
             "rpcBaseURL",
@@ -117,7 +117,7 @@ const CustomNetworksSettings: FC = () => {
             : lambdaContracts,
         });
         resetForm();
-      } catch (err) {
+      } catch (err: any) {
         await withErrorHumanDelay(err, () =>
           setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message)
         );
@@ -366,7 +366,7 @@ const LambdaContractSection: FC = () => {
           },
         });
         resetLambdaForm();
-      } catch (err) {
+      } catch (err: any) {
         await withErrorHumanDelay(err, () =>
           setLambdaFormError("lambdaContract", SUBMIT_ERROR_TYPE, err.message)
         );
@@ -413,7 +413,7 @@ const LambdaContractSection: FC = () => {
           [network.id]: contractAddress,
         },
       });
-    } catch (err) {
+    } catch (err: any) {
       let error = err;
       if (err.message?.includes("[object Object]") && err.node) {
         error = new Error(

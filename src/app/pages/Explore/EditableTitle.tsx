@@ -81,7 +81,7 @@ const EditableTitle: FC = () => {
           setEditing(false);
 
           formAnalytics.trackSubmitSuccess();
-        } catch (err) {
+        } catch (err: any) {
           formAnalytics.trackSubmitFail();
 
           if (process.env.NODE_ENV === "development") {

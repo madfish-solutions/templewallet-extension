@@ -65,7 +65,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
     try {
       await registerWallet(data.password, data.mnemonic);
       setSeedRevealed(true);
-    } catch (err) {
+    } catch (err: any) {
       if (process.env.NODE_ENV === "development") {
         console.error(err);
       }

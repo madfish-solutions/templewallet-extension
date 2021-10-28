@@ -47,7 +47,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         await unlock(password);
 
         formAnalytics.trackSubmitSuccess();
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {

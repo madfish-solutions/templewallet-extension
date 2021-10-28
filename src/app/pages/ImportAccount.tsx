@@ -174,7 +174,7 @@ const ByPrivateKeyForm: FC = () => {
         await importAccount(privateKey.replace(/\s/g, ""), encPassword);
 
         formAnalytics.trackSubmitSuccess();
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
@@ -327,7 +327,7 @@ const ByMnemonicForm: FC = () => {
         );
 
         formAnalytics.trackSubmitSuccess();
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
@@ -556,7 +556,7 @@ const ByFundraiserForm: FC = () => {
         );
 
         formAnalytics.trackSubmitSuccess();
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
@@ -659,7 +659,7 @@ const FromFaucetForm: FC = () => {
       let op;
       try {
         op = await tezos.tz.activate(address, secret);
-      } catch (err) {
+      } catch (err: any) {
         const invalidActivationError =
           err && err.body && /Invalid activation/.test(err.body);
         if (invalidActivationError) {
@@ -718,7 +718,7 @@ const FromFaucetForm: FC = () => {
           data.password,
           data.mnemonic.join(" ")
         );
-      } catch (err) {
+      } catch (err: any) {
         if (/Account already exists/.test(err?.message)) {
           setAccountPkh(data.pkh);
           navigate("/");
@@ -745,7 +745,7 @@ const FromFaucetForm: FC = () => {
         await importAccount(toFaucetJSON(formData.text));
 
         formAnalytics.trackSubmitSuccess();
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {
@@ -785,7 +785,7 @@ const FromFaucetForm: FC = () => {
             reader.onload = (readEvt: any) => {
               try {
                 res(toFaucetJSON(readEvt.target.result));
-              } catch (err) {
+              } catch (err: any) {
                 rej(err);
               }
             };
@@ -797,7 +797,7 @@ const FromFaucetForm: FC = () => {
         }
 
         await importAccount(data);
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
@@ -1040,7 +1040,7 @@ const WatchOnlyForm: FC = () => {
       await importWatchOnlyAccount(finalAddress, chainId);
 
       formAnalytics.trackSubmitSuccess();
-    } catch (err) {
+    } catch (err: any) {
       formAnalytics.trackSubmitFail();
 
       if (process.env.NODE_ENV === "development") {

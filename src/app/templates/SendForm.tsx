@@ -410,7 +410,7 @@ const Form: FC<FormProps> = ({
       }
 
       return baseFee;
-    } catch (err) {
+    } catch (err: any) {
       // Human delay
       await new Promise((r) => setTimeout(r, 300));
 
@@ -626,7 +626,7 @@ const Form: FC<FormProps> = ({
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess();
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
         if (err.message === "Declined") {

@@ -63,7 +63,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
         );
         try {
           return (await localForger.parse(unsignedBytes)) || [];
-        } catch (err) {
+        } catch (err: any) {
           if (process.env.NODE_ENV === "development") {
             console.error(err);
           }
@@ -185,7 +185,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
           modifiedTotalFeeValue - revealFee,
           modifiedStorageLimitValue
         );
-      } catch (err) {
+      } catch (err: any) {
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
         setError(err);

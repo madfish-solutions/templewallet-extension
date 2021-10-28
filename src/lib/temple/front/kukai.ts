@@ -50,7 +50,7 @@ async function decrypt(chipher: string, password: string, salt: string) {
     } else {
       return null;
     }
-  } catch (err) {
+  } catch (err: any) {
     return null;
   }
 }

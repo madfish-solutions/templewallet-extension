@@ -41,7 +41,7 @@ const ActivateAccount: FC = () => {
       let op;
       try {
         op = await tezos.tz.activate(address, secret);
-      } catch (err) {
+      } catch (err: any) {
         const invalidActivationError =
           err && err.body && /Invalid activation/.test(err.body);
         if (invalidActivationError) {
@@ -87,7 +87,7 @@ const ActivateAccount: FC = () => {
             });
             break;
         }
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }

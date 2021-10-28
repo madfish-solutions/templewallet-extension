@@ -46,7 +46,7 @@ const AddContactModal: FC<AddContactModalProps> = ({ address, onClose }) => {
         });
         resetForm();
         onClose();
-      } catch (err) {
+      } catch (err: any) {
         await withErrorHumanDelay(err, () =>
           setError("address", "submit-error", err.message)
         );

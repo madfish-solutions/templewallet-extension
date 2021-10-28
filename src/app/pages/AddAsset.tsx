@@ -171,7 +171,7 @@ const Form: FC = () => {
       stateToSet = {
         bottomSectionVisible: true,
       };
-    } catch (err) {
+    } catch (err: any) {
       await withErrorHumanDelay(err, () => {
         if (err instanceof ContractNotFoundError) {
           stateToSet = {

@@ -65,7 +65,7 @@ export async function confirmOperation(
         return opEntry;
       }
     }
-  } catch (err) {
+  } catch (err: any) {
     if (process.env.NODE_ENV === "development") {
       console.error(err);
     }
@@ -165,7 +165,7 @@ export async function withTokenApprove(
   let resetApprove = false;
   try {
     await tezos.estimate.batch([approveParams]);
-  } catch (err) {
+  } catch (err: any) {
     resetApprove = true;
   }
 

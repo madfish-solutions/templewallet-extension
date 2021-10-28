@@ -280,7 +280,7 @@ const DelegateForm: FC = () => {
       }
 
       return baseFee;
-    } catch (err) {
+    } catch (err: any) {
       // Human delay
       await new Promise((r) => setTimeout(r, 300));
 
@@ -384,7 +384,7 @@ const DelegateForm: FC = () => {
         reset({ to: "", fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess(analyticsProperties);
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail(analyticsProperties);
 
         if (err.message === "Declined") {

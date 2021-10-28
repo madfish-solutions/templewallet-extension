@@ -158,7 +158,7 @@ const ManagedKTForm: FC = () => {
         await importKTManagedAccount(contractAddress, chainId, owner);
 
         formAnalytics.trackSubmitSuccess();
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {

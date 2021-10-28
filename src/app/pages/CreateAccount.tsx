@@ -66,7 +66,7 @@ const CreateAccount: FC = () => {
         await createAccount(name);
 
         formAnalytics.trackSubmitSuccess();
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
         if (process.env.NODE_ENV === "development") {

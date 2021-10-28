@@ -86,7 +86,7 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
         if (onClick) {
           onClick(evt);
         }
-      } catch (err) {
+      } catch (err: any) {
         evt.preventDefault();
         throw err;
       }

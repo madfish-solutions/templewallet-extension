@@ -137,7 +137,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
 
         await addContact({ address, name, addedAt: Date.now() });
         resetForm();
-      } catch (err) {
+      } catch (err: any) {
         await withErrorHumanDelay(err, () =>
           setError("address", SUBMIT_ERROR_TYPE, err.message)
         );

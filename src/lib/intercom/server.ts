@@ -75,7 +75,7 @@ export class IntercomServer {
           }
 
           throw new Error("Not Found");
-        } catch (err) {
+        } catch (err: any) {
           this.send(port, {
             type: MessageType.Err,
             reqId: msg.reqId,

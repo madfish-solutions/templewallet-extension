@@ -150,7 +150,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
           status
         );
         await revalidate();
-      } catch (err) {
+      } catch (err: any) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
         }
