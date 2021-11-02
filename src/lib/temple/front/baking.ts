@@ -10,7 +10,7 @@ import {
 } from "lib/baking-bad";
 import { useRetryableSWR } from "lib/swr";
 import { useTezos, useNetwork } from "lib/temple/front";
-import { getAllBakers, getBaker, TNBaker } from "lib/tezos-nodes";
+import { getBaker, TNBaker } from "lib/tezos-nodes";
 import { TzktRewardsEntry } from "lib/tzkt";
 
 export function useDelegate(address: string, suspense = true) {

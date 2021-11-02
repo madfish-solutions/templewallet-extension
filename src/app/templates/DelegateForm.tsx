@@ -35,7 +35,7 @@ import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
 import { useFormAnalytics } from "lib/analytics";
 import { toLocalFormat } from "lib/i18n/numbers";
-import { T, t, getCurrentLocale } from "lib/i18n/react";
+import { T, t } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
 import {
   useNetwork,
