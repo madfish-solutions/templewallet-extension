@@ -3,8 +3,10 @@ import { useCallback, useMemo } from "react";
 import BigNumber from "bignumber.js";
 
 import {
+  BakingBadBaker,
   BakingBadBakerValueHistoryItem,
   bakingBadGetBaker,
+  getAllBakersBakingBad,
 } from "lib/baking-bad";
 import { useRetryableSWR } from "lib/swr";
 import { useTezos, useNetwork } from "lib/temple/front";
@@ -143,7 +145,7 @@ export function useKnownBakers(suspense = true) {
   const net = useNetwork();
   const { data: bakers } = useRetryableSWR(
     net.type === "main" ? "all-bakers" : null,
-    getAllBakers,
+    getAllBakersBakingBad,
     {
       refreshInterval: 120_000,
       dedupingInterval: 60_000,
@@ -151,7 +153,7 @@ export function useKnownBakers(suspense = true) {
     }
   );
 
-  return useMemo(() => (bakers && bakers.length > 1 ? bakers : null), [bakers]);
+  return useMemo(() => (bakers && bakers.length > 1 ? bakers as BakingBadBaker[] : null), [bakers]);
 }
 
 type RewardsStatsCalculationParams = {

@@ -120,11 +120,6 @@ const DelegateForm: FC = () => {
     return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
   }, [search, bakerSortTypes]);
 
-  const pluralRules = useMemo(
-    () => new Intl.PluralRules(getCurrentLocale().replace("_", "-")),
-    []
-  );
-
   const sortedKnownBakers = useMemo(() => {
     if (!knownBakers) return null;
 
@@ -134,16 +129,15 @@ const DelegateForm: FC = () => {
         return toSort.sort((a, b) => a.fee - b.fee);
 
       case "space":
-        return toSort.sort((a, b) => b.freespace - a.freespace);
+        return toSort.sort((a, b) => b.freeSpace - a.freeSpace);
 
       case "rank":
       default:
-        return toSort.sort((a, b) => {
-          if (a.total_points === b.total_points) {
-            return a.fee - b.fee;
-          }
-          return b.total_points - a.total_points;
-        });
+        return toSort.sort((a, b) => (
+          a.insuranceCoverage
+          && b.insuranceCoverage
+          && b.insuranceCoverage - a.insuranceCoverage)
+          || b.estimatedRoi - a.estimatedRoi);
     }
   }, [knownBakers, sortBakersBy]);
 
@@ -736,7 +730,7 @@ const DelegateForm: FC = () => {
                     >
                       <div>
                         <img
-                          src={baker.logo}
+                          src={baker.logo ?? browser.runtime.getURL("misc/baker.svg")}
                           alt={baker.name}
                           className={classNames(
                             "flex-shrink-0",
@@ -760,22 +754,6 @@ const DelegateForm: FC = () => {
                           <Name className="pb-1 text-base font-medium">
                             {baker.name}
                           </Name>
-
-                          <T
-                            id={`cycles_${pluralRules.select(baker.lifetime)}`}
-                            substitutions={String(baker.lifetime)}
-                          >
-                            {(message) => (
-                              <span
-                                className={classNames(
-                                  "ml-2",
-                                  "text-xs text-black text-opacity-50 pb-px"
-                                )}
-                              >
-                                {message}
-                              </span>
-                            )}
-                          </T>
                         </div>
 
                         <div
@@ -804,7 +782,25 @@ const DelegateForm: FC = () => {
                             )}
                           </T>
                         </div>
-
+                        <div className="mb-1 flex flex-wrap items-center pl-px">
+                          <T id="space">
+                            {(message) => (
+                              <div
+                                className={classNames(
+                                  "text-xs font-light leading-none",
+                                  "text-gray-600"
+                                )}
+                              >
+                                {message}:{" "}
+                                <span className="font-normal">
+                                  <Money>{baker.freeSpace}</Money>
+                                </span>{" "}
+                                <span style={{ fontSize: "0.75em" }}>TEZ</span>
+                              </div>
+                            )}
+                          </T>
+                        </div>
+                        {/* min delegation */}
                         <div className="flex flex-wrap items-center pl-px">
                           <T id="space">
                             {(message) => (
@@ -816,7 +812,7 @@ const DelegateForm: FC = () => {
                               >
                                 {message}:{" "}
                                 <span className="font-normal">
-                                  <Money>{baker.freespace}</Money>
+                                  <Money>{baker.minDelegation}</Money>
                                 </span>{" "}
                                 <span style={{ fontSize: "0.75em" }}>TEZ</span>
                               </div>
@@ -913,9 +909,9 @@ const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => (
   />
 );
 
-class UnchangedError extends Error {}
+class UnchangedError extends Error { }
 
-class UnregisteredDelegateError extends Error {}
+class UnregisteredDelegateError extends Error { }
 
 function validateAddress(value: any) {
   switch (false) {

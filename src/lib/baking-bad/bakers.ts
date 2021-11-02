@@ -13,8 +13,17 @@ export const bakingBadGetBaker = buildQuery<
 
 export const bakingBadGetKnownBakers = buildQuery<
   Omit<BakingBadGetBakerParams, "address">,
-  BakingBadGetBakerResponse
+  BakingBadGetBakerResponse[]
 >(api, "GET", "/bakers", ["configs", "insurance", "contribution"]);
+
+export async function getAllBakersBakingBad() {
+  const bakers = await bakingBadGetKnownBakers({
+    configs: false,
+    insurance: true,
+    contribution: true,
+  })
+  return bakers
+}
 
 export type BakingBadGetBakerParams = {
   address: string;
@@ -23,31 +32,34 @@ export type BakingBadGetBakerParams = {
   contribution?: boolean;
 };
 
+export type BakingBadBaker = {
+  address: string;
+  name: string;
+  logo: string | null;
+  balance: number;
+  stakingBalance: number;
+  stakingCapacity: number;
+  maxStakingBalance: number;
+  freeSpace: number;
+  fee: number;
+  minDelegation: number;
+  payoutDelay: number;
+  payoutPeriod: number;
+  openForDelegation: boolean;
+  estimatedRoi: number;
+  serviceType: "tezos_only" | "multiasset" | "exchange" | "tezos_dune";
+  serviceHealth: "active" | "closed" | "dead";
+  payoutTiming: "stable" | "unstable" | "suspicious" | "no_data";
+  payoutAccuracy: "precise" | "inaccurate" | "suspicious" | "no_data";
+  audit: string;
+  config?: BakingBadBakerConfig;
+  insurance?: BakingBadBakerInsurance | null;
+  insuranceCoverage?: number;
+  contribution?: BakingBadBakerContribution | null;
+}
+
 export type BakingBadGetBakerResponse =
-  | {
-      address: string;
-      name: string;
-      logo: string | null;
-      balance: number;
-      stakingBalance: number;
-      stakingCapacity: number;
-      maxStakingBalance: number;
-      freeSpace: number;
-      fee: number;
-      minDelegation: number;
-      payoutDelay: number;
-      payoutPeriod: number;
-      openForDelegation: boolean;
-      estimatedRoi: number;
-      serviceType: "tezos_only" | "multiasset" | "exchange" | "tezos_dune";
-      serviceHealth: "active" | "closed" | "dead";
-      payoutTiming: "stable" | "unstable" | "suspicious" | "no_data";
-      payoutAccuracy: "precise" | "inaccurate" | "suspicious" | "no_data";
-      audit: string;
-      config?: BakingBadBakerConfig;
-      insurance?: BakingBadBakerInsurance | null;
-      contribution?: BakingBadBakerContribution | null;
-    }
+  | BakingBadBaker
   | "";
 
 export type BakingBadBakerValueHistoryItem<T> = {
