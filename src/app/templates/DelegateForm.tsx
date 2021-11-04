@@ -601,13 +601,13 @@ const DelegateForm: FC = () => {
                   id="clickOnBakerPrompt"
                   substitutions={[
                     <a
-                      href="https://www.tezos-nodes.com"
+                      href="https://baking-bad.org/"
                       key="link"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-normal underline"
                     >
-                      Tezos Nodes
+                      Baking Bad
                     </a>,
                   ]}
                 >
@@ -800,9 +800,8 @@ const DelegateForm: FC = () => {
                             )}
                           </T>
                         </div>
-                        {/* min delegation */}
                         <div className="flex flex-wrap items-center pl-px">
-                          <T id="space">
+                          <T id="minDelegation">
                             {(message) => (
                               <div
                                 className={classNames(

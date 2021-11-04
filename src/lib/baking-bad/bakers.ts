@@ -22,7 +22,7 @@ export async function getAllBakersBakingBad() {
     insurance: true,
     contribution: true,
   })
-  return bakers
+  return bakers.filter(baker => typeof baker !== 'string') as BakingBadBaker[]
 }
 
 export type BakingBadGetBakerParams = {

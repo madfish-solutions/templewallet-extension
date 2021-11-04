@@ -3,7 +3,6 @@ import { useCallback, useMemo } from "react";
 import BigNumber from "bignumber.js";
 
 import {
-  BakingBadBaker,
   BakingBadBakerValueHistoryItem,
   bakingBadGetBaker,
   getAllBakersBakingBad,
@@ -153,7 +152,7 @@ export function useKnownBakers(suspense = true) {
     }
   );
 
-  return useMemo(() => (bakers && bakers.length > 1 ? bakers as BakingBadBaker[] : null), [bakers]);
+  return useMemo(() => (bakers && bakers.length > 1 ? bakers : null), [bakers]);
 }
 
 type RewardsStatsCalculationParams = {

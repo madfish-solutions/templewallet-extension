@@ -881,6 +881,9 @@
   "space": {
     "message": "Space"
   },
+  "minDelegation": {
+    "message": "Min. delegation"
+  },
   "delegation": {
     "message": "Delegation"
   },
