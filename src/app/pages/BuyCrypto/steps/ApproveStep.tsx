@@ -146,7 +146,7 @@ const ApproveStep: FC<Props> = ({
             />
           </p>
           <QRCode
-            value={exchangeData.deposit_address}
+            value={`${exchangeData.deposit_address}?amount=${exchangeData.amount_from}`}
             style={{ width: "160px", margin: "24px auto" }}
           />
           <FormField
