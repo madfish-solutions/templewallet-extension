@@ -1,6 +1,6 @@
-import React, { ChangeEvent, FC } from "react";
+import React, {ChangeEvent, FC} from "react";
 
-import { Modifier } from "@popperjs/core";
+import {Modifier} from "@popperjs/core";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import useSWR from "swr";
@@ -9,8 +9,8 @@ import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Spinner from "app/atoms/Spinner";
 import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import CurrencyComponent from "app/pages/BuyCrypto/CurrencyComponent";
-import { getCurrencies, getRateDataInterface } from "lib/exolix-api";
-import { T } from "lib/i18n/react";
+import {getCurrencies, getRateDataInterface} from "lib/exolix-api";
+import {T} from "lib/i18n/react";
 import Popper from "lib/ui/Popper";
 
 interface Props {
@@ -25,6 +25,7 @@ interface Props {
   rates?: getRateDataInterface;
   maxAmount?: string;
   isMaxAmountError?: boolean;
+  isCurrencyAvailable?: boolean;
 }
 
 const numbersAndDotRegExp = /^[0-9]*\.?[0-9]*$/;
@@ -76,20 +77,21 @@ const sameWidth: Modifier<string, any> = {
 };
 
 const BuyCryptoInput: FC<Props> = ({
-  type,
-  coin,
-  setCoin = () => void 0,
-  value,
-  readOnly = false,
-  amount,
-  lastMinAmount,
-  onChangeInputHandler,
-  rates = { destination_amount: 0, rate: 0, min_amount: "0" },
-  maxAmount,
-  isMaxAmountError,
-}) => {
+                                     type,
+                                     coin,
+                                     setCoin = () => void 0,
+                                     value,
+                                     readOnly = false,
+                                     amount,
+                                     lastMinAmount,
+                                     onChangeInputHandler,
+                                     rates = {destination_amount: 0, rate: 0, min_amount: "0"},
+                                     maxAmount,
+                                     isMaxAmountError,
+                                     isCurrencyAvailable,
+                                   }) => {
   const isCoinFromType = type === "coinFrom";
-  const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(
+  const {data: currencies = [], isValidating: isCurrenciesLoaded} = useSWR(
     ["/api/currency"],
     getCurrencies
   );
@@ -112,7 +114,7 @@ const BuyCryptoInput: FC<Props> = ({
         >
           {isCoinFromType ? (
             <>
-              <T id={"min"}></T>
+              <T id={"min"}/>
               <span
                 className={classNames(
                   isMinAmountError ? "text-red-700" : "text-gray-700",
@@ -221,28 +223,28 @@ const BuyCryptoInput: FC<Props> = ({
             isMaxAmountError ? "text-red-700" : "text-gray-500"
           )}
         >
-          {isCoinFromType ? (
+          {isCoinFromType ? isCurrencyAvailable ? (
             <>
-              <T id={"max"}></T>:
+              <T id={"max"}/>
               <span
                 className={classNames(
                   isMaxAmountError ? "text-red-700" : "text-gray-700",
                   "text-sm"
                 )}
               >
-                {" "}
+              {" "}
                 {maxAmount !== "Infinity" ? maxAmount : "0"}
-              </span>{" "}
+                </span>{" "}
               <span
                 className={classNames(
                   isMaxAmountError ? "text-red-700" : "text-gray-700",
                   "text-xs"
                 )}
               >
-                {coin}
-              </span>
+              {coin}
+                </span>
             </>
-          ) : null}
+          ) : <span className="text-red-700"><T id={"currencyUnavailable"}/></span> : null}
         </p>
       </div>
     </>
