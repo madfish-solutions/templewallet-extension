@@ -133,11 +133,7 @@ const DelegateForm: FC = () => {
 
       case "rank":
       default:
-        return toSort.sort((a, b) => (
-          a.insuranceCoverage
-          && b.insuranceCoverage
-          && b.insuranceCoverage - a.insuranceCoverage)
-          || b.estimatedRoi - a.estimatedRoi);
+        return toSort;
     }
   }, [knownBakers, sortBakersBy]);
 
