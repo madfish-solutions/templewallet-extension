@@ -1,4 +1,4 @@
-export const IPFS_GATEWAY = "ipfs.io";
+export const IPFS_GATEWAY = "cloudflare-ipfs.com";
 
 export function formatImgUri(origin: string) {
   if (origin.startsWith("ipfs://")) {
