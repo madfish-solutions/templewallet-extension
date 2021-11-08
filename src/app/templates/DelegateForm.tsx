@@ -110,6 +110,11 @@ const DelegateForm: FC = () => {
         title: t("space"),
         testID: DelegateFormSelectors.SortBakerBySpaceTab,
       },
+      {
+        key: "staking",
+        title: t("staking"),
+        testID: DelegateFormSelectors.SortBakerByStakingTab,
+      },
     ],
     []
   );
@@ -130,6 +135,9 @@ const DelegateForm: FC = () => {
 
       case "space":
         return toSort.sort((a, b) => b.freeSpace - a.freeSpace);
+
+      case "staking":
+        return toSort.sort((a, b) => b.stakingBalance - a.stakingBalance);
 
       case "rank":
       default:
@@ -797,7 +805,7 @@ const DelegateForm: FC = () => {
                           </T>
                         </div>
                         <div className="flex flex-wrap items-center pl-px">
-                          <T id="minDelegation">
+                          <T id="staking">
                             {(message) => (
                               <div
                                 className={classNames(
@@ -807,7 +815,7 @@ const DelegateForm: FC = () => {
                               >
                                 {message}:{" "}
                                 <span className="font-normal">
-                                  <Money>{baker.minDelegation}</Money>
+                                  <Money>{baker.stakingBalance}</Money>
                                 </span>{" "}
                                 <span style={{ fontSize: "0.75em" }}>TEZ</span>
                               </div>

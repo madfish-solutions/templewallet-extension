@@ -881,8 +881,8 @@
   "space": {
     "message": "Space"
   },
-  "minDelegation": {
-    "message": "Min. delegation"
+  "staking": {
+    "message": "Staking"
   },
   "delegation": {
     "message": "Delegation"
