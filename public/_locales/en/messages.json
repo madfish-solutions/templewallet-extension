@@ -1823,6 +1823,9 @@
   "max": {
     "message": "Max"
   },
+  "currencyUnavailable": {
+    "message": "The currency is temporarily unavailable."
+  },
   "balance": {
     "message": "Balance:"
   },

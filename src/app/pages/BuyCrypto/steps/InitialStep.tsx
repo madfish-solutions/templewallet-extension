@@ -43,6 +43,7 @@ const InitialStep: FC<Props> = ({
   const [coinFrom, setCoinFrom] = useState("BTC");
   const [lastMinAmount, setLastMinAmount] = useState(new BigNumber(0));
   const [lastMaxAmount, setLastMaxAmount] = useState("0");
+  const [isCurrencyAvailable, setIsCurrencyAvailable] = useState(true);
 
   const [depositAmount, setDepositAmount] = useState(0);
   const { publicKeyHash } = useAccount();
@@ -83,17 +84,23 @@ const InitialStep: FC<Props> = ({
 
   useEffect(() => {
     (async () => {
-      const { rate, ...rest } = await getRate({
-        coin_from: coinTo,
-        coin_to: coinFrom,
-        deposit_amount: (maxDollarValue + avgCommission) / tezPrice!,
-      });
+      try {
+        setIsCurrencyAvailable(true);
 
-      setMaxAmount(
-        new BigNumber(rest.destination_amount).toFixed(
-          Number(rest.destination_amount) > 100 ? 2 : 6
-        )
-      );
+        const { rate, ...rest } = await getRate({
+          coin_from: coinTo,
+          coin_to: coinFrom,
+          deposit_amount: (maxDollarValue + avgCommission) / tezPrice!,
+        });
+
+        setMaxAmount(
+          new BigNumber(rest.destination_amount).toFixed(
+            Number(rest.destination_amount) > 100 ? 2 : 6
+          )
+        );
+      } catch (e) {
+        setIsCurrencyAvailable(false);
+      }
     })();
   }, [coinFrom, tezPrice]);
 
@@ -151,6 +158,7 @@ const InitialStep: FC<Props> = ({
             rates={rates}
             maxAmount={lastMaxAmount}
             isMaxAmountError={isMaxAmountError}
+            isCurrencyAvailable={isCurrencyAvailable}
           />
           <br />
           <BuyCryptoInput
