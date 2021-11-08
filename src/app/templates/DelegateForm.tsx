@@ -35,7 +35,7 @@ import InUSD from "app/templates/InUSD";
 import OperationStatus from "app/templates/OperationStatus";
 import { useFormAnalytics } from "lib/analytics";
 import { toLocalFormat } from "lib/i18n/numbers";
-import { T, t, getCurrentLocale } from "lib/i18n/react";
+import { T, t } from "lib/i18n/react";
 import { setDelegate } from "lib/michelson";
 import {
   useNetwork,
@@ -110,6 +110,11 @@ const DelegateForm: FC = () => {
         title: t("space"),
         testID: DelegateFormSelectors.SortBakerBySpaceTab,
       },
+      {
+        key: "staking",
+        title: t("staking"),
+        testID: DelegateFormSelectors.SortBakerByStakingTab,
+      },
     ],
     []
   );
@@ -120,11 +125,6 @@ const DelegateForm: FC = () => {
     return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
   }, [search, bakerSortTypes]);
 
-  const pluralRules = useMemo(
-    () => new Intl.PluralRules(getCurrentLocale().replace("_", "-")),
-    []
-  );
-
   const sortedKnownBakers = useMemo(() => {
     if (!knownBakers) return null;
 
@@ -134,16 +134,14 @@ const DelegateForm: FC = () => {
         return toSort.sort((a, b) => a.fee - b.fee);
 
       case "space":
-        return toSort.sort((a, b) => b.freespace - a.freespace);
+        return toSort.sort((a, b) => b.freeSpace - a.freeSpace);
+
+      case "staking":
+        return toSort.sort((a, b) => b.stakingBalance - a.stakingBalance);
 
       case "rank":
       default:
-        return toSort.sort((a, b) => {
-          if (a.total_points === b.total_points) {
-            return a.fee - b.fee;
-          }
-          return b.total_points - a.total_points;
-        });
+        return toSort;
     }
   }, [knownBakers, sortBakersBy]);
 
@@ -607,13 +605,13 @@ const DelegateForm: FC = () => {
                   id="clickOnBakerPrompt"
                   substitutions={[
                     <a
-                      href="https://www.tezos-nodes.com"
+                      href="https://baking-bad.org/"
                       key="link"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-normal underline"
                     >
-                      Tezos Nodes
+                      Baking Bad
                     </a>,
                   ]}
                 >
@@ -736,7 +734,7 @@ const DelegateForm: FC = () => {
                     >
                       <div>
                         <img
-                          src={baker.logo}
+                          src={baker.logo ?? browser.runtime.getURL("misc/baker.svg")}
                           alt={baker.name}
                           className={classNames(
                             "flex-shrink-0",
@@ -760,22 +758,6 @@ const DelegateForm: FC = () => {
                           <Name className="pb-1 text-base font-medium">
                             {baker.name}
                           </Name>
-
-                          <T
-                            id={`cycles_${pluralRules.select(baker.lifetime)}`}
-                            substitutions={String(baker.lifetime)}
-                          >
-                            {(message) => (
-                              <span
-                                className={classNames(
-                                  "ml-2",
-                                  "text-xs text-black text-opacity-50 pb-px"
-                                )}
-                              >
-                                {message}
-                              </span>
-                            )}
-                          </T>
                         </div>
 
                         <div
@@ -804,8 +786,7 @@ const DelegateForm: FC = () => {
                             )}
                           </T>
                         </div>
-
-                        <div className="flex flex-wrap items-center pl-px">
+                        <div className="mb-1 flex flex-wrap items-center pl-px">
                           <T id="space">
                             {(message) => (
                               <div
@@ -816,7 +797,25 @@ const DelegateForm: FC = () => {
                               >
                                 {message}:{" "}
                                 <span className="font-normal">
-                                  <Money>{baker.freespace}</Money>
+                                  <Money>{baker.freeSpace}</Money>
+                                </span>{" "}
+                                <span style={{ fontSize: "0.75em" }}>TEZ</span>
+                              </div>
+                            )}
+                          </T>
+                        </div>
+                        <div className="flex flex-wrap items-center pl-px">
+                          <T id="staking">
+                            {(message) => (
+                              <div
+                                className={classNames(
+                                  "text-xs font-light leading-none",
+                                  "text-gray-600"
+                                )}
+                              >
+                                {message}:{" "}
+                                <span className="font-normal">
+                                  <Money>{baker.stakingBalance}</Money>
                                 </span>{" "}
                                 <span style={{ fontSize: "0.75em" }}>TEZ</span>
                               </div>
@@ -913,9 +912,9 @@ const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => (
   />
 );
 
-class UnchangedError extends Error {}
+class UnchangedError extends Error { }
 
-class UnregisteredDelegateError extends Error {}
+class UnregisteredDelegateError extends Error { }
 
 function validateAddress(value: any) {
   switch (false) {
