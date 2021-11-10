@@ -38,7 +38,6 @@ async function awaitFonts(name: string, weights: number[], className: string) {
     if (process.env.NODE_ENV === "development") {
       console.error(err);
     }
-  } finally {
-    return null;
   }
+  return null
 }
