@@ -64,7 +64,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
     if (secret) {
       const t = setTimeout(() => {
         setSecret(null);
-      }, 10 * 60_000);
+      }, 30_000);
 
       return () => {
         clearTimeout(t);
