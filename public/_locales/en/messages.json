@@ -97,8 +97,8 @@
   "accounts": {
     "message": "Accounts"
   },
-  "logOut": {
-    "message": "Log out"
+  "lock": {
+    "message": "Lock"
   },
   "importedAccount": {
     "message": "Imported"

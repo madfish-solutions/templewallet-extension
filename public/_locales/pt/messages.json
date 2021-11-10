@@ -97,8 +97,8 @@
   "accounts": {
     "message": "Contas"
   },
-  "logOut": {
-    "message": "Terminar sessão"
+  "lock": {
+    "message": "Bloquear"
   },
   "importedAccount": {
     "message": "Importado"
