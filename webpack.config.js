@@ -1,5 +1,3 @@
-
-
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const fs = require("fs");
@@ -470,6 +468,7 @@ module.exports = {
             warnings: false,
             comparisons: false,
             inline: 2,
+            drop_console: NODE_ENV === "production",
           },
           mangle: {
             safari10: true,
