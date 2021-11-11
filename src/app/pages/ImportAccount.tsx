@@ -376,6 +376,7 @@ const ByMnemonicForm: FC = () => {
         errorCaption={errors.mnemonic?.message}
         label={t("mnemonicInputLabel")}
         labelDescription={t("mnemonicInputDescription")}
+        labelWarning={t("mnemonicInputWarning")}
         id="importfundacc-mnemonic"
         placeholder={t("mnemonicInputPlaceholder")}
         spellCheck={false}
