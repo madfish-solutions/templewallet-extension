@@ -32,6 +32,7 @@ import {
   isKnownChainId,
   ImportAccountFormType,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import {
   getOneUserContracts,
   TzktRelatedContract,
@@ -161,7 +162,7 @@ const ManagedKTForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 

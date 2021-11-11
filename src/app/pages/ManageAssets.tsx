@@ -29,6 +29,7 @@ import {
   useCollectibleTokens,
   useFilteredAssets,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import { ITokenStatus, ITokenType } from "lib/temple/repo";
 import { useConfirm } from "lib/ui/dialog";
 import { Link } from "lib/woozie";
@@ -151,7 +152,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
         );
         await revalidate();
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
         alert(err.message);

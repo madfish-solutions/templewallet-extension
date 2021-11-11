@@ -71,6 +71,7 @@ import {
   fetchTezosBalance,
   getAssetSymbol,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
 
@@ -418,7 +419,7 @@ const Form: FC<FormProps> = ({
         return err;
       }
 
-      if (process.env.NODE_ENV === "development") {
+      if (isDevEnv()) {
         console.error(err);
       }
 
@@ -633,7 +634,7 @@ const Form: FC<FormProps> = ({
           return;
         }
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 

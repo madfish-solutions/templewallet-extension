@@ -54,6 +54,7 @@ import {
   useTezos,
   useTokensMetadata,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import useTippy from "lib/ui/useTippy";
 
 import styles from "./SwapForm.module.css";
@@ -664,7 +665,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           },
         });
       } catch (err) {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
         batch.push({
@@ -709,7 +710,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           },
         });
       } catch (err) {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
         batch.push({

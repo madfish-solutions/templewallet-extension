@@ -16,6 +16,7 @@ import {
   loadChainId,
   michelEncoder,
   loadFastRpcClient,
+  isDevEnv,
 } from "lib/temple/front";
 
 export enum ActivationStatus {
@@ -132,7 +133,7 @@ function useReadyTemple() {
   }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
   useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
+    if (isDevEnv()) {
       (window as any).tezos = tezos;
     }
   }, [tezos]);

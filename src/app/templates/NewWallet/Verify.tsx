@@ -7,6 +7,7 @@ import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import { T } from "lib/i18n/react";
 import { useTempleClient } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 
 type VerifyProps = {
   data: {
@@ -66,7 +67,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
       await registerWallet(data.password, data.mnemonic);
       setSeedRevealed(true);
     } catch (err: any) {
-      if (process.env.NODE_ENV === "development") {
+      if (isDevEnv()) {
         console.error(err);
       }
 

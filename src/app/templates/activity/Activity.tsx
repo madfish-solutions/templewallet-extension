@@ -15,6 +15,7 @@ import {
   syncOperations,
   isSyncSupported,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import { IOperation } from "lib/temple/repo";
 import useSafeState from "lib/ui/useSafeState";
 
@@ -83,7 +84,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
     try {
       await syncOperations("old", chainId, address);
     } catch (err: any) {
-      if (process.env.NODE_ENV === "development") {
+      if (isDevEnv()) {
         console.error(err);
       }
       setSyncError(err);
@@ -103,7 +104,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
 
       setRestOperations((ops) => [...ops, ...oldOperations]);
     } catch (err: any) {
-      if (process.env.NODE_ENV === "development") {
+      if (isDevEnv()) {
         console.error(err);
       }
     }
@@ -131,7 +132,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
         refetchLatest();
       }
     } catch (err: any) {
-      if (process.env.NODE_ENV === "development") {
+      if (isDevEnv()) {
         console.error(err);
       }
       setSyncError(err);

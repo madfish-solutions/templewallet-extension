@@ -13,6 +13,7 @@ import {
   useRelevantAccounts,
   useAccount,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import { navigate } from "lib/woozie";
 
 const SUBMIT_ERROR_TYPE = "submit-error";
@@ -47,7 +48,7 @@ const RemoveAccount: FC = () => {
       try {
         await removeAccount(account.publicKeyHash, password);
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 

@@ -41,6 +41,7 @@ import {
   useNetwork,
   ImportAccountFormType,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate } from "lib/woozie";
 
@@ -177,7 +178,7 @@ const ByPrivateKeyForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 
@@ -330,7 +331,7 @@ const ByMnemonicForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 
@@ -559,7 +560,7 @@ const ByFundraiserForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 
@@ -748,7 +749,7 @@ const FromFaucetForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 
@@ -798,7 +799,7 @@ const FromFaucetForm: FC = () => {
 
         await importAccount(data);
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 
@@ -1043,7 +1044,7 @@ const WatchOnlyForm: FC = () => {
     } catch (err: any) {
       formAnalytics.trackSubmitFail();
 
-      if (process.env.NODE_ENV === "development") {
+      if (isDevEnv()) {
         console.error(err);
       }
 

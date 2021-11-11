@@ -13,6 +13,7 @@ import {
   useAccount,
   confirmOperation,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import useIsMounted from "lib/ui/useIsMounted";
 
 type FormData = {
@@ -88,7 +89,7 @@ const ActivateAccount: FC = () => {
             break;
         }
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 

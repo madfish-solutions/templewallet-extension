@@ -45,6 +45,7 @@ import {
   TempleAccount,
   TempleChainId,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers"
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation } from "lib/woozie";
 
@@ -209,7 +210,7 @@ const ConfirmDAppForm: FC = () => {
           modifiedStorageLimitValue
         );
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 

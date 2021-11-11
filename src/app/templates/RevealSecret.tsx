@@ -22,6 +22,7 @@ import {
   useAccount,
   TempleAccountType,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 
@@ -106,7 +107,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
 
         setSecret(scrt);
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 

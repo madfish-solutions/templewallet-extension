@@ -39,6 +39,7 @@ import {
   AssetMetadata,
   DetailedAssetMetdata,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import * as Repo from "lib/temple/repo";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
 import useSafeState from "lib/ui/useSafeState";
@@ -289,7 +290,7 @@ const Form: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 

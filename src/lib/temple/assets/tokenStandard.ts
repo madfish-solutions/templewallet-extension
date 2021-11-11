@@ -3,6 +3,7 @@ import retry from "async-retry";
 
 import { getMessage } from "lib/i18n";
 
+import { isDevEnv } from "../helpers";
 import { TokenStandard } from "./types";
 
 const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
@@ -99,7 +100,7 @@ function isEntrypointsMatched(
 
     return true;
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
+    if (isDevEnv()) {
       console.error(err);
     }
 

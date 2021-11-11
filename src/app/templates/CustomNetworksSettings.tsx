@@ -30,6 +30,7 @@ import {
   KNOWN_LAMBDA_CONTRACTS,
   NETWORK_IDS,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import { COLORS } from "lib/ui/colors";
 import { useConfirm } from "lib/ui/dialog";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
@@ -159,7 +160,7 @@ const CustomNetworksSettings: FC = () => {
           ({ rpcBaseURL }) => rpcBaseURL !== baseUrl
         ),
       }).catch(async (err) => {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
         await new Promise((res) => setTimeout(res, 300));

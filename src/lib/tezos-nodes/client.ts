@@ -1,12 +1,13 @@
 import axios from "axios";
 
+import { isDevEnv } from "lib/temple/helpers";
 import { TNBakerPreview, TNBaker } from "lib/tezos-nodes/types";
 
 const api = axios.create({ baseURL: "https://api.tezos-nodes.com/v1" });
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (process.env.NODE_ENV === "development") {
+    if (isDevEnv()) {
       console.error(err);
     }
 
