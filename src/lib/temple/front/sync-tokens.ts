@@ -22,6 +22,7 @@ import {
   fetchCollectibleTokens,
   toBaseMetadata,
   DetailedAssetMetdata,
+  isDevEnv,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 import { getTokensMetadata } from "lib/templewallet-api";
@@ -225,7 +226,7 @@ export const [SyncTokensProvider] = constate(() => {
       try {
         await syncRef.current();
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
       } finally {

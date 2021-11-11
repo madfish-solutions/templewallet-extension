@@ -29,6 +29,7 @@ import {
   formatOpParamsBeforeSend,
   michelEncoder,
   loadFastRpcClient,
+  isDevEnv,
 } from "lib/temple/helpers";
 import { isLedgerLiveEnabled } from "lib/temple/ledger-live";
 import * as Passworder from "lib/temple/passworder";
@@ -124,7 +125,7 @@ export class Vault {
         await migrate(passKey);
       }
     } catch (err: any) {
-      if (process.env.NODE_ENV === "development") {
+      if (isDevEnv()) {
         console.error(err);
       }
     } finally {
@@ -495,7 +496,7 @@ export class Vault {
       try {
         return await batch.send();
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 

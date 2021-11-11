@@ -28,6 +28,7 @@ import {
   useTempleClient,
   validateDerivationPath,
 } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import { navigate } from "lib/woozie";
 
 type FormData = {
@@ -133,7 +134,7 @@ const ConnectLedger: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 

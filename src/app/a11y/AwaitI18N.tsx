@@ -3,6 +3,7 @@ import { FC } from "react";
 import useSWR from "swr";
 
 import { onInited } from "lib/i18n";
+import { isDevEnv } from "lib/temple/helpers";
 
 const AwaitI18N: FC = () => {
   useSWR("i18n", awaitI18n, {
@@ -24,7 +25,7 @@ async function awaitI18n() {
       new Promise((r) => setTimeout(r, 3_000)),
     ]);
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
+    if (isDevEnv()) {
       console.error(err);
     }
   }

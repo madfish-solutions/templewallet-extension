@@ -7,6 +7,7 @@ import BigNumber from "bignumber.js";
 import assert from "lib/assert";
 
 import { fromAssetSlug, isTezAsset } from "../assets";
+import { isDevEnv } from "../helpers";
 import { TEZOS_METADATA } from "./defaults";
 import { PRESERVED_TOKEN_METADATA } from "./fixtures";
 import { AssetMetadata, DetailedAssetMetdata } from "./types";
@@ -84,7 +85,7 @@ export async function fetchTokenMetadata(
 
     return { base, detailed };
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
+    if (isDevEnv()) {
       console.error(err);
     }
 

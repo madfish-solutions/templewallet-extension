@@ -1,6 +1,9 @@
 import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk, ru } from "date-fns/locale";
 import { browser } from "webextension-polyfill-ts";
 
+import { isDevEnv } from "lib/temple/helpers";
+
+
 import cldrjsLocales from "./cldrjs-locales.json";
 import { areLocalesEqual, processTemplate, toList } from "./helpers";
 import { getSavedLocale } from "./saving";
@@ -80,7 +83,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
 
     return val.message;
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
+    if (isDevEnv()) {
       console.error(err);
     }
 
@@ -124,7 +127,7 @@ export async function fetchLocaleMessages(locale: string) {
     appendPlaceholderLists(messages);
     return messages;
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
+    if (isDevEnv()) {
       console.error(err);
     }
 

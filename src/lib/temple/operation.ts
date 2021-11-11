@@ -13,7 +13,7 @@ import { OperationBatch } from "@taquito/taquito/dist/types/batch/rpc-batch-prov
 import { TransferParams } from "@taquito/taquito/dist/types/operations/types";
 import BigNumber from "bignumber.js";
 
-import { loadContract } from "lib/temple/front";
+import { isDevEnv, loadContract } from "lib/temple/front";
 
 export const SYNC_INTERVAL = 10_000;
 export const CONFIRM_TIMEOUT = 60_000 * 5;
@@ -66,7 +66,7 @@ export async function confirmOperation(
       }
     }
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
+    if (isDevEnv()) {
       console.error(err);
     }
 

@@ -9,6 +9,7 @@ import {
   useRelevantAccounts,
   getBalanceSWRKey,
   confirmOperation,
+  isDevEnv,
 } from "lib/temple/front";
 
 export const [NewBlockTriggersProvider, useBlockTriggers] =
@@ -63,7 +64,7 @@ export function useOnBlock(callback: (blockHash: string) => void) {
         blockHashRef.current = hash;
       });
       sub.on("error", (err) => {
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
         sub.close();

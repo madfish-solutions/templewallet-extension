@@ -16,6 +16,7 @@ import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { useTempleClient, useAccount } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import { useAlert } from "lib/ui/dialog";
 
 import { EditableTitleSelectors } from "./EditableTitle.selectors";
@@ -84,7 +85,7 @@ const EditableTitle: FC = () => {
         } catch (err: any) {
           formAnalytics.trackSubmitFail();
 
-          if (process.env.NODE_ENV === "development") {
+          if (isDevEnv()) {
             console.error(err);
           }
 

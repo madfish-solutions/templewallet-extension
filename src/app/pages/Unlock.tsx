@@ -9,6 +9,7 @@ import SimplePageLayout from "app/layouts/SimplePageLayout";
 import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { useTempleClient } from "lib/temple/front";
+import { isDevEnv } from "lib/temple/helpers";
 import { Link } from "lib/woozie";
 
 interface UnlockProps {
@@ -50,7 +51,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
+        if (isDevEnv()) {
           console.error(err);
         }
 
