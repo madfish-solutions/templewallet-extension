@@ -5,7 +5,7 @@ import { TezosToolkit } from "@taquito/taquito";
 import { Tzip16Module } from "@taquito/tzip16";
 import constate from "constate";
 
-import { IS_DEV_ENV } from "app/defaults";
+import { IS_DEV_ENV } from "app/env";
 import { useRetryableSWR } from "lib/swr";
 import {
   ReadyTempleState,
