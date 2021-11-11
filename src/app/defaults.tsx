@@ -22,7 +22,7 @@ export const PASSWORD_PATTERN = new RegExp(
 );
 
 export const URL_PATTERN =
-  /^((?:https:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(https:\/\/localhost:[0-9]+)$/;
+  /^((?:https:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
 
 export const PASSWORD_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
