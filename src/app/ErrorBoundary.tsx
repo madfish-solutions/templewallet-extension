@@ -6,8 +6,6 @@ import { cache } from "swr";
 import { ReactComponent as DangerIcon } from "app/icons/danger.svg";
 import { T } from "lib/i18n/react";
 
-import { IS_DEV_ENV } from "./defaults";;
-
 type ErrorBoundaryProps = {
   className?: string;
   whileMessage?: string;
@@ -25,9 +23,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    if (IS_DEV_ENV) {
-      console.error(error.message, errorInfo.componentStack);
-    }
+    console.error(error.message, errorInfo.componentStack);
   }
 
   componentDidMount() {

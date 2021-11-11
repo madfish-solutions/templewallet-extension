@@ -23,7 +23,6 @@ import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import {
   ArtificialError,
-  IS_DEV_ENV,
   NotEnoughFundsError,
   ZeroBalanceError,
 } from "app/defaults";
@@ -287,9 +286,7 @@ const DelegateForm: FC = () => {
         return err;
       }
 
-      if (IS_DEV_ENV) {
-        console.error(err);
-      }
+      console.error(err);
 
       switch (true) {
         case ["delegate.unchanged", "delegate.already_active"].some((t) =>
@@ -390,9 +387,7 @@ const DelegateForm: FC = () => {
           return;
         }
 
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

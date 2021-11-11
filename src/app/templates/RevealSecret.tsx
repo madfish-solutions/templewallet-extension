@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import { getAccountBadgeTitle, IS_DEV_ENV } from "app/defaults";
+import { getAccountBadgeTitle } from "app/defaults";
 import AccountBanner from "app/templates/AccountBanner";
 import { T, t } from "lib/i18n/react";
 import {
@@ -106,9 +106,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
 
         setSecret(scrt);
       } catch (err: any) {
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

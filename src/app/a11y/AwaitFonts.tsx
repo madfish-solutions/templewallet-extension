@@ -3,8 +3,6 @@ import React, { FC } from "react";
 import FontFaceObserver from "fontfaceobserver";
 import useSWR from "swr";
 
-import { IS_DEV_ENV } from "app/defaults";
-
 type AwaitFontsProps = {
   name: string;
   weights: number[];
@@ -37,9 +35,7 @@ async function awaitFonts(name: string, weights: number[], className: string) {
     await Promise.all(fonts.map((font) => font.load()));
     document.body.classList.add(...className.split(" "));
   } catch (err: any) {
-    if (IS_DEV_ENV) {
-      console.error(err);
-    }
+    console.error(err);
   }
   return null
 }

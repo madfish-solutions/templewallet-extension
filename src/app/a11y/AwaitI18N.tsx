@@ -2,7 +2,6 @@ import { FC } from "react";
 
 import useSWR from "swr";
 
-import { IS_DEV_ENV } from "app/defaults";
 import { onInited } from "lib/i18n";
 
 const AwaitI18N: FC = () => {
@@ -25,9 +24,7 @@ async function awaitI18n() {
       new Promise((r) => setTimeout(r, 3_000)),
     ]);
   } catch (err: any) {
-    if (IS_DEV_ENV) {
-      console.error(err);
-    }
+    console.error(err);
   }
   return null;
 }

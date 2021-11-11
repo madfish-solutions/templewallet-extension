@@ -49,7 +49,6 @@ import useSafeState from "lib/ui/useSafeState";
 import { useLocation } from "lib/woozie";
 
 import { ConfirmPageSelectors } from "./ConfirmPage.selectors";
-import { IS_DEV_ENV } from "./defaults";
 
 const ConfirmPage: FC = () => {
   const { ready } = useTempleClient();
@@ -210,9 +209,7 @@ const ConfirmDAppForm: FC = () => {
           modifiedStorageLimitValue
         );
       } catch (err: any) {
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

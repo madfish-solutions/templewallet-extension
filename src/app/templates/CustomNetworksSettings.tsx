@@ -9,7 +9,7 @@ import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Name from "app/atoms/Name";
 import SubTitle from "app/atoms/SubTitle";
-import { IS_DEV_ENV, URL_PATTERN } from "app/defaults";
+import {  URL_PATTERN } from "app/defaults";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import HashChip from "app/templates/HashChip";
 import { T, t } from "lib/i18n/react";
@@ -110,10 +110,10 @@ const CustomNetworksSettings: FC = () => {
           ],
           lambdaContracts: lambdaContract
             ? {
-                ...lambdaContracts,
-                [chainId]: lambdaContract,
-                [networkId]: lambdaContract,
-              }
+              ...lambdaContracts,
+              [chainId]: lambdaContract,
+              [networkId]: lambdaContract,
+            }
             : lambdaContracts,
         });
         resetForm();
@@ -159,9 +159,7 @@ const CustomNetworksSettings: FC = () => {
           ({ rpcBaseURL }) => rpcBaseURL !== baseUrl
         ),
       }).catch(async (err) => {
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
         await new Promise((res) => setTimeout(res, 300));
         setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message);
       });
@@ -320,7 +318,7 @@ const LambdaContractSection: FC = () => {
       try {
         return Boolean(
           network.lambdaContract &&
-            (await tezos.contract.at(network.lambdaContract))
+          (await tezos.contract.at(network.lambdaContract))
         );
       } catch {
         return false;

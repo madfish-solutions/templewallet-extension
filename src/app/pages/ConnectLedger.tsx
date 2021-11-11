@@ -15,7 +15,6 @@ import Alert from "app/atoms/Alert";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import { IS_DEV_ENV } from "app/defaults";
 import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import PageLayout from "app/layouts/PageLayout";
@@ -127,16 +126,14 @@ const ConnectLedger: FC = () => {
           name,
           derivationType,
           customDerivationPath ??
-            (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
+          (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
         );
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

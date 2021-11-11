@@ -1,7 +1,6 @@
 import { TezosToolkit, WalletContract, Contract } from "@taquito/taquito";
 import retry from "async-retry";
 
-import { IS_DEV_ENV } from "app/defaults";
 import { getMessage } from "lib/i18n";
 
 import { TokenStandard } from "./types";
@@ -100,9 +99,7 @@ function isEntrypointsMatched(
 
     return true;
   } catch (err: any) {
-    if (IS_DEV_ENV) {
       console.error(err);
-    }
 
     return false;
   }

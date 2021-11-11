@@ -1,6 +1,5 @@
 import axios from "axios";
 
-import { IS_DEV_ENV } from "app/defaults";
 import { TNBakerPreview, TNBaker } from "lib/tezos-nodes/types";
 
 
@@ -8,9 +7,7 @@ const api = axios.create({ baseURL: "https://api.tezos-nodes.com/v1" });
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (IS_DEV_ENV) {
-      console.error(err);
-    }
+    console.error(err);
 
     throw err;
   }

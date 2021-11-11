@@ -19,7 +19,7 @@ import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import TabSwitcher from "app/atoms/TabSwitcher";
-import { MNEMONIC_ERROR_CAPTION, formatMnemonic, IS_DEV_ENV } from "app/defaults";
+import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import PageLayout from "app/layouts/PageLayout";
@@ -90,10 +90,10 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
         },
         network.type !== "main"
           ? {
-              slug: "faucet",
-              i18nKey: "faucetFileTitle",
-              Form: FromFaucetForm,
-            }
+            slug: "faucet",
+            i18nKey: "faucetFileTitle",
+            Form: FromFaucetForm,
+          }
           : undefined,
         {
           slug: "managed-kt",
@@ -177,9 +177,7 @@ const ByPrivateKeyForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay
         await new Promise((r) => setTimeout(r, 300));
@@ -330,9 +328,7 @@ const ByMnemonicForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay
         await new Promise((r) => setTimeout(r, 300));
@@ -559,9 +555,7 @@ const ByFundraiserForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay
         await new Promise((r) => setTimeout(r, 300));
@@ -748,9 +742,7 @@ const FromFaucetForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
@@ -798,9 +790,7 @@ const FromFaucetForm: FC = () => {
 
         await importAccount(data);
       } catch (err: any) {
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
@@ -1043,9 +1033,7 @@ const WatchOnlyForm: FC = () => {
     } catch (err: any) {
       formAnalytics.trackSubmitFail();
 
-      if (IS_DEV_ENV) {
-        console.error(err);
-      }
+      console.error(err);
 
       // Human delay
       await new Promise((r) => setTimeout(r, 300));

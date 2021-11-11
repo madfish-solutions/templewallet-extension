@@ -17,7 +17,6 @@ import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
 import NoSpaceField from "app/atoms/NoSpaceField";
-import { IS_DEV_ENV } from "app/defaults";
 import Balance from "app/templates/Balance";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { useFormAnalytics } from "lib/analytics";
@@ -162,9 +161,7 @@ const ManagedKTForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay
         await new Promise((r) => setTimeout(r, 300));

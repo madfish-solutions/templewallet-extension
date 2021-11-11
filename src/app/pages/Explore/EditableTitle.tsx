@@ -12,7 +12,6 @@ import classNames from "clsx";
 import { Button } from "app/atoms/Button";
 import FormField from "app/atoms/FormField";
 import Name from "app/atoms/Name";
-import { IS_DEV_ENV } from "app/defaults";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
@@ -85,9 +84,7 @@ const EditableTitle: FC = () => {
         } catch (err: any) {
           formAnalytics.trackSubmitFail();
 
-          if (IS_DEV_ENV) {
             console.error(err);
-          }
 
           await alert({
             title: t("errorChangingAccountName"),

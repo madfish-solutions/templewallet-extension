@@ -7,7 +7,7 @@ import React, {
   useLayoutEffect,
 } from "react";
 
-import { ACTIVITY_PAGE_SIZE, IS_DEV_ENV } from "app/defaults";
+import { ACTIVITY_PAGE_SIZE } from "app/defaults";
 import { useRetryableSWR } from "lib/swr";
 import {
   useChainId,
@@ -83,9 +83,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
     try {
       await syncOperations("old", chainId, address);
     } catch (err: any) {
-      if (IS_DEV_ENV) {
-        console.error(err);
-      }
+      console.error(err);
       setSyncError(err);
     }
 
@@ -103,9 +101,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
 
       setRestOperations((ops) => [...ops, ...oldOperations]);
     } catch (err: any) {
-      if (IS_DEV_ENV) {
-        console.error(err);
-      }
+      console.error(err);
     }
 
     setLoadingMore(false);
@@ -131,9 +127,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
         refetchLatest();
       }
     } catch (err: any) {
-      if (IS_DEV_ENV) {
-        console.error(err);
-      }
+      console.error(err);
       setSyncError(err);
     }
     setSyncing(false);

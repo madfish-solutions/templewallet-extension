@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import { IS_DEV_ENV } from "app/defaults";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
@@ -51,9 +50,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (IS_DEV_ENV) {
           console.error(err);
-        }
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

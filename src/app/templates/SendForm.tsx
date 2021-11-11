@@ -26,7 +26,6 @@ import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import {
   ArtificialError,
-  IS_DEV_ENV,
   NotEnoughFundsError,
   ZeroBalanceError,
   ZeroTEZBalanceError,
@@ -419,9 +418,7 @@ const Form: FC<FormProps> = ({
         return err;
       }
 
-      if (IS_DEV_ENV) {
-        console.error(err);
-      }
+      console.error(err);
 
       switch (true) {
         default:
@@ -447,12 +444,12 @@ const Form: FC<FormProps> = ({
     () =>
       toFilled
         ? [
-            "transfer-base-fee",
-            tezos.checksum,
-            assetSlug,
-            accountPkh,
-            toResolved,
-          ]
+          "transfer-base-fee",
+          tezos.checksum,
+          assetSlug,
+          accountPkh,
+          toResolved,
+        ]
         : null,
     estimateBaseFee,
     {
@@ -484,14 +481,14 @@ const Form: FC<FormProps> = ({
 
     const maxAmountAsset = isTezAsset(assetSlug)
       ? BigNumber.max(
-          acc.type === TempleAccountType.ManagedKT
-            ? balance
-            : balance
-                .minus(baseFee)
-                .minus(safeFeeValue ?? 0)
-                .minus(PENNY),
-          0
-        )
+        acc.type === TempleAccountType.ManagedKT
+          ? balance
+          : balance
+            .minus(baseFee)
+            .minus(safeFeeValue ?? 0)
+            .minus(PENNY),
+        0
+      )
       : balance;
     const maxAmountUsd = assetPrice
       ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
@@ -634,9 +631,7 @@ const Form: FC<FormProps> = ({
           return;
         }
 
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

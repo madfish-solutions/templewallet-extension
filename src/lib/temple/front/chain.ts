@@ -4,7 +4,6 @@ import { Subscription } from "@taquito/taquito";
 import constate from "constate";
 import { trigger } from "swr";
 
-import { IS_DEV_ENV } from "app/defaults";
 import {
   useTezos,
   useRelevantAccounts,
@@ -64,9 +63,7 @@ export function useOnBlock(callback: (blockHash: string) => void) {
         blockHashRef.current = hash;
       });
       sub.on("error", (err) => {
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
         sub.close();
         spawnSub();
       });

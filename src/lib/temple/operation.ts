@@ -13,7 +13,6 @@ import { OperationBatch } from "@taquito/taquito/dist/types/batch/rpc-batch-prov
 import { TransferParams } from "@taquito/taquito/dist/types/operations/types";
 import BigNumber from "bignumber.js";
 
-import { IS_DEV_ENV } from "app/defaults";
 import { loadContract } from "lib/temple/front";
 
 export const SYNC_INTERVAL = 10_000;
@@ -58,7 +57,7 @@ export async function confirmOperation(
         try {
           status = (opEntry.contents[0] as any).metadata.operation_result
             .status;
-        } catch {}
+        } catch { }
         if (status && status !== "applied") {
           throw new FailedOpError(`Operation ${status}`);
         }
@@ -67,9 +66,7 @@ export async function confirmOperation(
       }
     }
   } catch (err: any) {
-    if (IS_DEV_ENV) {
-      console.error(err);
-    }
+    console.error(err);
 
     if (err instanceof FailedOpError) {
       throw err;
@@ -101,7 +98,7 @@ export async function findOperation(block: BlockResponse, opHash: string) {
   return null;
 }
 
-export class FailedOpError extends Error {}
+export class FailedOpError extends Error { }
 
 export const batchify = (
   batch: OperationBatch | WalletOperationBatch,
@@ -172,10 +169,10 @@ export async function withTokenApprove(
 
   return resetApprove
     ? [
-        getFA12ApproveParams(tokenContract, to, new BigNumber(0)),
-        approveParams,
-        ...transfers,
-      ]
+      getFA12ApproveParams(tokenContract, to, new BigNumber(0)),
+      approveParams,
+      ...transfers,
+    ]
     : [approveParams, ...transfers];
 }
 

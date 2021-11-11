@@ -17,7 +17,6 @@ import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
-import { IS_DEV_ENV } from "app/defaults";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import PageLayout from "app/layouts/PageLayout";
 import { useFormAnalytics } from "lib/analytics";
@@ -83,7 +82,7 @@ const INITIAL_STATE: ComponentState = {
   tokenDataError: null,
 };
 
-class ContractNotFoundError extends Error {}
+class ContractNotFoundError extends Error { }
 
 const Form: FC = () => {
   const tezos = useTezos();
@@ -183,9 +182,8 @@ const Form: FC = () => {
           };
         } else if (err instanceof NotMatchingStandardError) {
           stateToSet = {
-            tokenValidationError: `${t("tokenDoesNotMatchStandard", "FA")}${
-              err instanceof IncorrectTokenIdError ? `: ${err.message}` : ""
-            }`,
+            tokenValidationError: `${t("tokenDoesNotMatchStandard", "FA")}${err instanceof IncorrectTokenIdError ? `: ${err.message}` : ""
+              }`,
           };
         } else {
           const errorMessage = t(
@@ -290,9 +288,7 @@ const Form: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay
         await new Promise((r) => setTimeout(r, 300));

@@ -23,7 +23,6 @@ import {
   PASSWORD_ERROR_CAPTION,
   MNEMONIC_ERROR_CAPTION,
   formatMnemonic,
-  IS_DEV_ENV,
 } from "app/defaults";
 import { ReactComponent as TrashbinIcon } from "app/icons/bin.svg";
 import { ReactComponent as PaperclipIcon } from "app/icons/paperclip.svg";
@@ -171,9 +170,7 @@ const NewWallet: FC<NewWalletProps> = ({
           });
         }
       } catch (err: any) {
-        if (IS_DEV_ENV) {
           console.error(err);
-        }
 
         await alert({
           title: t("actionConfirmation"),

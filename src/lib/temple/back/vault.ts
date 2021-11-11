@@ -15,7 +15,6 @@ import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import { browser } from "webextension-polyfill-ts";
 
-import { IS_DEV_ENV } from "app/defaults";
 import { getMessage } from "lib/i18n";
 import { PublicError } from "lib/temple/back/defaults";
 import { TempleLedgerSigner } from "lib/temple/back/ledger-signer";
@@ -125,9 +124,7 @@ export class Vault {
         await migrate(passKey);
       }
     } catch (err: any) {
-      if (IS_DEV_ENV) {
         console.error(err);
-      }
     } finally {
       await encryptAndSaveMany(
         [[migrationLevelStrgKey, MIGRATIONS.length]],
@@ -496,9 +493,7 @@ export class Vault {
       try {
         return await batch.send();
       } catch (err: any) {
-        if (IS_DEV_ENV) {
           console.error(err);
-        }
 
         switch (true) {
           case err instanceof PublicError:

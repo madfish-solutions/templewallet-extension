@@ -9,7 +9,6 @@ import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Logo from "app/atoms/Logo";
 import SubTitle from "app/atoms/SubTitle";
-import { IS_DEV_ENV } from "app/defaults";
 import { useAppEnv } from "app/env";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
@@ -65,9 +64,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
         try {
           return (await localForger.parse(unsignedBytes)) || [];
         } catch (err: any) {
-          if (IS_DEV_ENV) {
-            console.error(err);
-          }
+          console.error(err);
           return [];
         }
       default:
@@ -122,13 +119,13 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
         },
         ...(payload.bytesToSign
           ? [
-              {
-                key: "bytes",
-                name: t("bytes"),
-                Icon: HashIcon,
-                testID: InternalConfirmationSelectors.BytesTab,
-              },
-            ]
+            {
+              key: "bytes",
+              name: t("bytes"),
+              Icon: HashIcon,
+              testID: InternalConfirmationSelectors.BytesTab,
+            },
+          ]
           : []),
       ];
     }
@@ -169,8 +166,8 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === "operations" &&
       payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) +
-        revealFee) ||
-      0
+      revealFee) ||
+    0
   );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] =
     useSafeState(

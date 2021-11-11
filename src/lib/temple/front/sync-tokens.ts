@@ -4,7 +4,6 @@ import BigNumber from "bignumber.js";
 import constate from "constate";
 import { trigger } from "swr";
 
-import { IS_DEV_ENV } from "app/defaults";
 import {
   BCD_NETWORKS_NAMES,
   getAccountTokenBalances,
@@ -101,7 +100,7 @@ export const [SyncTokensProvider] = constate(() => {
         metadatas = response.map(
           (data) => data && { base: toBaseMetadata(data), detailed: data }
         );
-      } catch {}
+      } catch { }
     }
     // Otherwise - fetch from chain.
     if (!metadatas) {
@@ -226,9 +225,7 @@ export const [SyncTokensProvider] = constate(() => {
       try {
         await syncRef.current();
       } catch (err: any) {
-        if (IS_DEV_ENV) {
-          console.error(err);
-        }
+        console.error(err);
       } finally {
         if (isTheSameNetwork()) {
           timeoutId = setTimeout(syncAndDefer, 30_000);

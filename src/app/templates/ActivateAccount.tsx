@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import { IS_DEV_ENV } from "app/defaults";
 import AccountBanner from "app/templates/AccountBanner";
 import { T, t } from "lib/i18n/react";
 import {
@@ -89,9 +88,7 @@ const ActivateAccount: FC = () => {
             break;
         }
       } catch (err: any) {
-        if (IS_DEV_ENV) {
           console.error(err);
-        }
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
