@@ -119,11 +119,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   );
 
   /**
-   * Backup seed phrase flag
-   */
-  const [seedRevealed, setSeedRevealed] = useStorage("seed_revealed", true);
-
-  /**
    * Actions
    */
 
@@ -440,8 +435,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     // Misc
     confirmation,
     resetConfirmation,
-    seedRevealed,
-    setSeedRevealed,
 
     // Actions
     registerWallet,

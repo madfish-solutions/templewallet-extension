@@ -34,7 +34,7 @@ type RevealSecretProps = {
 };
 
 const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
-  const { revealPrivateKey, revealMnemonic, setSeedRevealed } =
+  const { revealPrivateKey, revealMnemonic } =
     useTempleClient();
   const account = useAccount();
 
@@ -100,7 +100,6 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
 
           case "seed-phrase":
             scrt = await revealMnemonic(password);
-            setSeedRevealed(true);
             break;
         }
 
@@ -124,7 +123,6 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
       revealPrivateKey,
       revealMnemonic,
       account.publicKeyHash,
-      setSeedRevealed,
       setSecret,
       focusPasswordField,
     ]
