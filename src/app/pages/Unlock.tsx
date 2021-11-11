@@ -5,11 +5,11 @@ import { useForm } from "react-hook-form";
 
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { IS_DEV_ENV } from "app/defaults";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
 import { useTempleClient } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import { Link } from "lib/woozie";
 
 interface UnlockProps {
@@ -51,7 +51,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

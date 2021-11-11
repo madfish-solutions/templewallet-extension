@@ -9,7 +9,7 @@ import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Name from "app/atoms/Name";
 import SubTitle from "app/atoms/SubTitle";
-import { URL_PATTERN } from "app/defaults";
+import { IS_DEV_ENV, URL_PATTERN } from "app/defaults";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import HashChip from "app/templates/HashChip";
 import { T, t } from "lib/i18n/react";
@@ -30,7 +30,6 @@ import {
   KNOWN_LAMBDA_CONTRACTS,
   NETWORK_IDS,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import { COLORS } from "lib/ui/colors";
 import { useConfirm } from "lib/ui/dialog";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
@@ -160,7 +159,7 @@ const CustomNetworksSettings: FC = () => {
           ({ rpcBaseURL }) => rpcBaseURL !== baseUrl
         ),
       }).catch(async (err) => {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
         await new Promise((res) => setTimeout(res, 300));

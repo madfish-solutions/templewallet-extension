@@ -9,6 +9,7 @@ import FormSecondaryButton from "app/atoms/FormSecondaryButton";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Logo from "app/atoms/Logo";
 import SubTitle from "app/atoms/SubTitle";
+import { IS_DEV_ENV } from "app/defaults";
 import { useAppEnv } from "app/env";
 import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
 import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
@@ -32,7 +33,6 @@ import {
   TempleChainId,
   toTokenSlug,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import useSafeState from "lib/ui/useSafeState";
 
 import { InternalConfirmationSelectors } from "./InternalConfirmation.selectors";
@@ -65,7 +65,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
         try {
           return (await localForger.parse(unsignedBytes)) || [];
         } catch (err: any) {
-          if (isDevEnv()) {
+          if (IS_DEV_ENV) {
             console.error(err);
           }
           return [];

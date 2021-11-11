@@ -26,6 +26,7 @@ import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import {
   ArtificialError,
+  IS_DEV_ENV,
   NotEnoughFundsError,
   ZeroBalanceError,
   ZeroTEZBalanceError,
@@ -71,14 +72,13 @@ import {
   fetchTezosBalance,
   getAssetSymbol,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate, HistoryAction } from "lib/woozie";
 
 import { SendFormSelectors } from "./SendForm.selectors";
 import AddContactModal from "./SendForm/AddContactModal";
 import ContactsDropdown from "./SendForm/ContactsDropdown";
-import SendErrorAlert from "./SendForm/SendErrorAlert";
+import SendErrorAlert from "./SendForm/SendErrorAlert";;
 
 interface FormData {
   to: string;
@@ -419,7 +419,7 @@ const Form: FC<FormProps> = ({
         return err;
       }
 
-      if (isDevEnv()) {
+      if (IS_DEV_ENV) {
         console.error(err);
       }
 
@@ -634,7 +634,7 @@ const Form: FC<FormProps> = ({
           return;
         }
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

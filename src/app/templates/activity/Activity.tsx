@@ -7,7 +7,7 @@ import React, {
   useLayoutEffect,
 } from "react";
 
-import { ACTIVITY_PAGE_SIZE } from "app/defaults";
+import { ACTIVITY_PAGE_SIZE, IS_DEV_ENV } from "app/defaults";
 import { useRetryableSWR } from "lib/swr";
 import {
   useChainId,
@@ -15,7 +15,6 @@ import {
   syncOperations,
   isSyncSupported,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import { IOperation } from "lib/temple/repo";
 import useSafeState from "lib/ui/useSafeState";
 
@@ -84,7 +83,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
     try {
       await syncOperations("old", chainId, address);
     } catch (err: any) {
-      if (isDevEnv()) {
+      if (IS_DEV_ENV) {
         console.error(err);
       }
       setSyncError(err);
@@ -104,7 +103,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
 
       setRestOperations((ops) => [...ops, ...oldOperations]);
     } catch (err: any) {
-      if (isDevEnv()) {
+      if (IS_DEV_ENV) {
         console.error(err);
       }
     }
@@ -132,7 +131,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
         refetchLatest();
       }
     } catch (err: any) {
-      if (isDevEnv()) {
+      if (IS_DEV_ENV) {
         console.error(err);
       }
       setSyncError(err);

@@ -15,6 +15,7 @@ import * as Bip39 from "bip39";
 import * as Ed25519 from "ed25519-hd-key";
 import { browser } from "webextension-polyfill-ts";
 
+import { IS_DEV_ENV } from "app/defaults";
 import { getMessage } from "lib/i18n";
 import { PublicError } from "lib/temple/back/defaults";
 import { TempleLedgerSigner } from "lib/temple/back/ledger-signer";
@@ -29,7 +30,6 @@ import {
   formatOpParamsBeforeSend,
   michelEncoder,
   loadFastRpcClient,
-  isDevEnv,
 } from "lib/temple/helpers";
 import { isLedgerLiveEnabled } from "lib/temple/ledger-live";
 import * as Passworder from "lib/temple/passworder";
@@ -125,7 +125,7 @@ export class Vault {
         await migrate(passKey);
       }
     } catch (err: any) {
-      if (isDevEnv()) {
+      if (IS_DEV_ENV) {
         console.error(err);
       }
     } finally {
@@ -496,7 +496,7 @@ export class Vault {
       try {
         return await batch.send();
       } catch (err: any) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

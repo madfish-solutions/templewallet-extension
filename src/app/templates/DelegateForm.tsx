@@ -23,6 +23,7 @@ import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
 import {
   ArtificialError,
+  IS_DEV_ENV,
   NotEnoughFundsError,
   ZeroBalanceError,
 } from "app/defaults";
@@ -55,7 +56,6 @@ import {
   isDomainNameValid,
   fetchTezosBalance,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation, Link } from "lib/woozie";
 
@@ -287,7 +287,7 @@ const DelegateForm: FC = () => {
         return err;
       }
 
-      if (isDevEnv()) {
+      if (IS_DEV_ENV) {
         console.error(err);
       }
 
@@ -390,7 +390,7 @@ const DelegateForm: FC = () => {
           return;
         }
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

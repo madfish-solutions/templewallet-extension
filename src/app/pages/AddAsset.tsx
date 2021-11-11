@@ -17,6 +17,7 @@ import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import Spinner from "app/atoms/Spinner";
+import { IS_DEV_ENV } from "app/defaults";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import PageLayout from "app/layouts/PageLayout";
 import { useFormAnalytics } from "lib/analytics";
@@ -39,7 +40,6 @@ import {
   AssetMetadata,
   DetailedAssetMetdata,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import * as Repo from "lib/temple/repo";
 import { withErrorHumanDelay } from "lib/ui/humanDelay";
 import useSafeState from "lib/ui/useSafeState";
@@ -290,7 +290,7 @@ const Form: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

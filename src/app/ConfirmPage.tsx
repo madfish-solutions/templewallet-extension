@@ -45,11 +45,11 @@ import {
   TempleAccount,
   TempleChainId,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers"
 import useSafeState from "lib/ui/useSafeState";
 import { useLocation } from "lib/woozie";
 
 import { ConfirmPageSelectors } from "./ConfirmPage.selectors";
+import { IS_DEV_ENV } from "./defaults";
 
 const ConfirmPage: FC = () => {
   const { ready } = useTempleClient();
@@ -210,7 +210,7 @@ const ConfirmDAppForm: FC = () => {
           modifiedStorageLimitValue
         );
       } catch (err: any) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

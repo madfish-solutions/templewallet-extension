@@ -63,10 +63,6 @@ export function tzToMutez(tz: any) {
   return bigNum.times(10 ** 6).integerValue();
 }
 
-export function isDevEnv() {
-  return process.env.NODE_ENV === "development"
-}
-
 export function mutezToTz(mutez: any) {
   const bigNum = new BigNumber(mutez);
   if (bigNum.isNaN()) return bigNum;

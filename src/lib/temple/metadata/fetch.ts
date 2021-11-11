@@ -4,10 +4,10 @@ import { tzip16 } from "@taquito/tzip16";
 import retry from "async-retry";
 import BigNumber from "bignumber.js";
 
+import { IS_DEV_ENV } from "app/defaults";
 import assert from "lib/assert";
 
 import { fromAssetSlug, isTezAsset } from "../assets";
-import { isDevEnv } from "../helpers";
 import { TEZOS_METADATA } from "./defaults";
 import { PRESERVED_TOKEN_METADATA } from "./fixtures";
 import { AssetMetadata, DetailedAssetMetdata } from "./types";
@@ -85,7 +85,7 @@ export async function fetchTokenMetadata(
 
     return { base, detailed };
   } catch (err: any) {
-    if (isDevEnv()) {
+    if (IS_DEV_ENV) {
       console.error(err);
     }
 

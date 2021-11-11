@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { IS_DEV_ENV } from "app/defaults";
 import AccountBanner from "app/templates/AccountBanner";
 import { T, t } from "lib/i18n/react";
 import {
@@ -13,7 +14,6 @@ import {
   useAccount,
   confirmOperation,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import useIsMounted from "lib/ui/useIsMounted";
 
 type FormData = {
@@ -89,7 +89,7 @@ const ActivateAccount: FC = () => {
             break;
         }
       } catch (err: any) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 
