@@ -155,7 +155,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
           onClick={handleLogoutClick}
           testID={AccountDropdownSelectors.LogoutButton}
         >
-          <T id="logOut" />
+          <T id="lock" />
         </Button>
       </div>
 
