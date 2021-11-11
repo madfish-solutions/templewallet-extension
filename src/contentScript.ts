@@ -126,8 +126,9 @@ window.addEventListener(
 
 function send(
   msg: TemplePageMessage | LegacyPageMessage | BeaconPageMessage,
-  targetOrigin = "*"
+  targetOrigin: string
 ) {
+  if(!targetOrigin || targetOrigin === '*') return
   window.postMessage(msg, targetOrigin);
 }
 
