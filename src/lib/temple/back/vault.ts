@@ -101,7 +101,7 @@ export class Vault {
       await browser.storage.local.clear();
       await encryptAndSaveMany(
         [
-          [checkStrgKey, null],
+          [checkStrgKey, Bip39.generateMnemonic(128)],
           [migrationLevelStrgKey, MIGRATIONS.length],
           [mnemonicStrgKey, mnemonic],
           [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
@@ -183,8 +183,10 @@ export class Vault {
   private static toValidPassKey(password: string) {
     return withError("Invalid password", async (doThrow) => {
       const passKey = await Passworder.generateKey(password);
-      const check = await fetchAndDecryptOne<any>(checkStrgKey, passKey);
-      if (check !== null) {
+      try {
+        await fetchAndDecryptOne<any>(checkStrgKey, passKey);
+      } catch(e:any) {
+        console.log(e);
         doThrow();
       }
       return passKey;
