@@ -5,12 +5,11 @@ import classNames from "clsx";
 import { Button } from "app/atoms/Button";
 import { useAppEnv } from "app/env";
 import ContentContainer from "app/layouts/ContentContainer";
+import { useAnalyticsSettings } from "lib/analytics";
+import { T } from "lib/i18n/react";
+import { useTempleClient } from "lib/temple/front";
 
-import { T } from "../i18n/react";
-import { useTempleClient } from "../temple/front";
-import { useAnalyticsSettings } from "./use-analytics-settings.hook";
-
-export const AnalyticsConfirmationOverlay: FC = () => {
+const AnalyticsConfirmationOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { ready } = useTempleClient();
   const { analyticsEnabled, setAnalyticsEnabled } = useAnalyticsSettings();
@@ -106,3 +105,5 @@ export const AnalyticsConfirmationOverlay: FC = () => {
     </>
   ) : null;
 };
+
+export default AnalyticsConfirmationOverlay;
