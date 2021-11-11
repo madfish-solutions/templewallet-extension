@@ -83,9 +83,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
     try {
       await syncOperations("old", chainId, address);
     } catch (err: any) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
+      console.error(err);
       setSyncError(err);
     }
 
@@ -103,9 +101,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
 
       setRestOperations((ops) => [...ops, ...oldOperations]);
     } catch (err: any) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
+      console.error(err);
     }
 
     setLoadingMore(false);
@@ -131,9 +127,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
         refetchLatest();
       }
     } catch (err: any) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
+      console.error(err);
       setSyncError(err);
     }
     setSyncing(false);

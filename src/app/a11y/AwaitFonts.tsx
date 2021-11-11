@@ -35,10 +35,7 @@ async function awaitFonts(name: string, weights: number[], className: string) {
     await Promise.all(fonts.map((font) => font.load()));
     document.body.classList.add(...className.split(" "));
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(err);
-    }
-  } finally {
-    return null;
+    console.error(err);
   }
+  return null
 }

@@ -84,9 +84,7 @@ export async function fetchTokenMetadata(
 
     return { base, detailed };
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
       console.error(err);
-    }
 
     throw new NotFoundTokenMetadata();
   }

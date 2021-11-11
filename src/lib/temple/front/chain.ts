@@ -63,9 +63,7 @@ export function useOnBlock(callback: (blockHash: string) => void) {
         blockHashRef.current = hash;
       });
       sub.on("error", (err) => {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
         sub.close();
         spawnSub();
       });
