@@ -17,6 +17,7 @@ import Identicon from "app/atoms/Identicon";
 import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
 import NoSpaceField from "app/atoms/NoSpaceField";
+import { IS_DEV_ENV } from "app/defaults";
 import Balance from "app/templates/Balance";
 import CustomSelect, { OptionRenderProps } from "app/templates/CustomSelect";
 import { useFormAnalytics } from "lib/analytics";
@@ -32,7 +33,6 @@ import {
   isKnownChainId,
   ImportAccountFormType,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import {
   getOneUserContracts,
   TzktRelatedContract,
@@ -162,7 +162,7 @@ const ManagedKTForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

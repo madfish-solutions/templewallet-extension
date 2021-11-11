@@ -21,6 +21,8 @@ export const PASSWORD_PATTERN = new RegExp(
   ].join("")
 );
 
+export const IS_DEV_ENV = process.env.NODE_ENV === "development"
+
 export const URL_PATTERN =
   /^((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
 

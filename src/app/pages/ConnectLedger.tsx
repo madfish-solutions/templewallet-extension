@@ -15,6 +15,7 @@ import Alert from "app/atoms/Alert";
 import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { IS_DEV_ENV } from "app/defaults";
 import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import PageLayout from "app/layouts/PageLayout";
@@ -28,7 +29,6 @@ import {
   useTempleClient,
   validateDerivationPath,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import { navigate } from "lib/woozie";
 
 type FormData = {
@@ -134,7 +134,7 @@ const ConnectLedger: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

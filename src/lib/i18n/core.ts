@@ -1,13 +1,12 @@
 import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk, ru } from "date-fns/locale";
 import { browser } from "webextension-polyfill-ts";
 
-import { isDevEnv } from "lib/temple/helpers";
-
+import { IS_DEV_ENV } from "app/defaults";
 
 import cldrjsLocales from "./cldrjs-locales.json";
 import { areLocalesEqual, processTemplate, toList } from "./helpers";
 import { getSavedLocale } from "./saving";
-import { FetchedLocaleMessages, LocaleMessages, Substitutions } from "./types";
+import { FetchedLocaleMessages, LocaleMessages, Substitutions } from "./types";;
 
 const dateFnsLocales: Record<string, Locale> = {
   en: enUS,
@@ -83,7 +82,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
 
     return val.message;
   } catch (err: any) {
-    if (isDevEnv()) {
+    if (IS_DEV_ENV) {
       console.error(err);
     }
 
@@ -127,7 +126,7 @@ export async function fetchLocaleMessages(locale: string) {
     appendPlaceholderLists(messages);
     return messages;
   } catch (err: any) {
-    if (isDevEnv()) {
+    if (IS_DEV_ENV) {
       console.error(err);
     }
 

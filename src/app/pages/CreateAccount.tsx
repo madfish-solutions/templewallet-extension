@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { IS_DEV_ENV } from "app/defaults";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import PageLayout from "app/layouts/PageLayout";
 import { useFormAnalytics } from "lib/analytics";
@@ -14,7 +15,6 @@ import {
   useAllAccounts,
   useSetAccountPkh,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import { navigate } from "lib/woozie";
 
 type FormData = {
@@ -70,7 +70,7 @@ const CreateAccount: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

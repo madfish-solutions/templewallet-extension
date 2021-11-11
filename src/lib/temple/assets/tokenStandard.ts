@@ -1,9 +1,9 @@
 import { TezosToolkit, WalletContract, Contract } from "@taquito/taquito";
 import retry from "async-retry";
 
+import { IS_DEV_ENV } from "app/defaults";
 import { getMessage } from "lib/i18n";
 
-import { isDevEnv } from "../helpers";
 import { TokenStandard } from "./types";
 
 const STUB_TEZOS_ADDRESS = "tz1TTXUmQaxe1dTLPtyD4WMQP6aKYK9C8fKw";
@@ -100,7 +100,7 @@ function isEntrypointsMatched(
 
     return true;
   } catch (err: any) {
-    if (isDevEnv()) {
+    if (IS_DEV_ENV) {
       console.error(err);
     }
 

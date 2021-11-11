@@ -19,6 +19,7 @@ import Alert from "app/atoms/Alert";
 import AssetField from "app/atoms/AssetField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import Money from "app/atoms/Money";
+import { IS_DEV_ENV } from "app/defaults";
 import { ReactComponent as InfoIcon } from "app/icons/info.svg";
 import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg";
 import OperationStatus from "app/templates/OperationStatus";
@@ -54,11 +55,10 @@ import {
   useTezos,
   useTokensMetadata,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import useTippy from "lib/ui/useTippy";
 
 import styles from "./SwapForm.module.css";
-import { usePriceImpact } from "./usePriceImpact.hook";
+import { usePriceImpact } from "./usePriceImpact.hook";;
 
 type SwapFormValues = {
   input: SwapInputValue;
@@ -665,7 +665,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           },
         });
       } catch (err) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
         batch.push({
@@ -710,7 +710,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           },
         });
       } catch (err) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
         batch.push({

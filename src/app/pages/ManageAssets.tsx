@@ -4,6 +4,7 @@ import classNames from "clsx";
 import { useDebounce } from "use-debounce";
 
 import Checkbox from "app/atoms/Checkbox";
+import { IS_DEV_ENV } from "app/defaults";
 import { ReactComponent as AddIcon } from "app/icons/add-to-list.svg";
 import { ReactComponent as CloseIcon } from "app/icons/close.svg";
 import { ReactComponent as ControlCentreIcon } from "app/icons/control-centre.svg";
@@ -29,7 +30,6 @@ import {
   useCollectibleTokens,
   useFilteredAssets,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import { ITokenStatus, ITokenType } from "lib/temple/repo";
 import { useConfirm } from "lib/ui/dialog";
 import { Link } from "lib/woozie";
@@ -152,7 +152,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
         );
         await revalidate();
       } catch (err: any) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
         alert(err.message);

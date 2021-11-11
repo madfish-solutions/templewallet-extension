@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
-import { getAccountBadgeTitle } from "app/defaults";
+import { getAccountBadgeTitle, IS_DEV_ENV } from "app/defaults";
 import AccountBanner from "app/templates/AccountBanner";
 import { T, t } from "lib/i18n/react";
 import {
@@ -22,7 +22,6 @@ import {
   useAccount,
   TempleAccountType,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 
 const SUBMIT_ERROR_TYPE = "submit-error";
 
@@ -107,7 +106,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
 
         setSecret(scrt);
       } catch (err: any) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

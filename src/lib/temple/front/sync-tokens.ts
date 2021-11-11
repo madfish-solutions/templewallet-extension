@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 import constate from "constate";
 import { trigger } from "swr";
 
+import { IS_DEV_ENV } from "app/defaults";
 import {
   BCD_NETWORKS_NAMES,
   getAccountTokenBalances,
@@ -22,7 +23,6 @@ import {
   fetchCollectibleTokens,
   toBaseMetadata,
   DetailedAssetMetdata,
-  isDevEnv,
 } from "lib/temple/front";
 import * as Repo from "lib/temple/repo";
 import { getTokensMetadata } from "lib/templewallet-api";
@@ -226,7 +226,7 @@ export const [SyncTokensProvider] = constate(() => {
       try {
         await syncRef.current();
       } catch (err: any) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
       } finally {

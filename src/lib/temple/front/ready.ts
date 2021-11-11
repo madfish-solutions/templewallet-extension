@@ -5,6 +5,7 @@ import { TezosToolkit } from "@taquito/taquito";
 import { Tzip16Module } from "@taquito/tzip16";
 import constate from "constate";
 
+import { IS_DEV_ENV } from "app/defaults";
 import { useRetryableSWR } from "lib/swr";
 import {
   ReadyTempleState,
@@ -16,7 +17,6 @@ import {
   loadChainId,
   michelEncoder,
   loadFastRpcClient,
-  isDevEnv,
 } from "lib/temple/front";
 
 export enum ActivationStatus {
@@ -133,7 +133,7 @@ function useReadyTemple() {
   }, [createTaquitoSigner, createTaquitoWallet, network, account]);
 
   useEffect(() => {
-    if (isDevEnv()) {
+    if (IS_DEV_ENV) {
       (window as any).tezos = tezos;
     }
   }, [tezos]);

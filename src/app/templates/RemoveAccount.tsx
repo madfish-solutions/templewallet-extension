@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { IS_DEV_ENV } from "app/defaults";
 import AccountBanner from "app/templates/AccountBanner";
 import { T, t } from "lib/i18n/react";
 import {
@@ -13,7 +14,6 @@ import {
   useRelevantAccounts,
   useAccount,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import { navigate } from "lib/woozie";
 
 const SUBMIT_ERROR_TYPE = "submit-error";
@@ -48,7 +48,7 @@ const RemoveAccount: FC = () => {
       try {
         await removeAccount(account.publicKeyHash, password);
       } catch (err: any) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

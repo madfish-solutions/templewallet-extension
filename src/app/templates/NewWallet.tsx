@@ -23,12 +23,12 @@ import {
   PASSWORD_ERROR_CAPTION,
   MNEMONIC_ERROR_CAPTION,
   formatMnemonic,
+  IS_DEV_ENV,
 } from "app/defaults";
 import { ReactComponent as TrashbinIcon } from "app/icons/bin.svg";
 import { ReactComponent as PaperclipIcon } from "app/icons/paperclip.svg";
 import { T, t } from "lib/i18n/react";
 import { decryptKukaiSeedPhrase, useTempleClient } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import { useAlert } from "lib/ui/dialog";
 import { Link } from "lib/woozie";
 
@@ -171,7 +171,7 @@ const NewWallet: FC<NewWalletProps> = ({
           });
         }
       } catch (err: any) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 

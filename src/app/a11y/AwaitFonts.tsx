@@ -3,7 +3,7 @@ import React, { FC } from "react";
 import FontFaceObserver from "fontfaceobserver";
 import useSWR from "swr";
 
-import { isDevEnv } from "lib/temple/helpers";
+import { IS_DEV_ENV } from "app/defaults";
 
 type AwaitFontsProps = {
   name: string;
@@ -37,7 +37,7 @@ async function awaitFonts(name: string, weights: number[], className: string) {
     await Promise.all(fonts.map((font) => font.load()));
     document.body.classList.add(...className.split(" "));
   } catch (err: any) {
-    if (isDevEnv()) {
+    if (IS_DEV_ENV) {
       console.error(err);
     }
   }

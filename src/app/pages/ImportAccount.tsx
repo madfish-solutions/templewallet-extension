@@ -19,7 +19,7 @@ import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import NoSpaceField from "app/atoms/NoSpaceField";
 import TabSwitcher from "app/atoms/TabSwitcher";
-import { MNEMONIC_ERROR_CAPTION, formatMnemonic } from "app/defaults";
+import { MNEMONIC_ERROR_CAPTION, formatMnemonic, IS_DEV_ENV } from "app/defaults";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as OkIcon } from "app/icons/ok.svg";
 import PageLayout from "app/layouts/PageLayout";
@@ -41,7 +41,6 @@ import {
   useNetwork,
   ImportAccountFormType,
 } from "lib/temple/front";
-import { isDevEnv } from "lib/temple/helpers";
 import useSafeState from "lib/ui/useSafeState";
 import { navigate } from "lib/woozie";
 
@@ -178,7 +177,7 @@ const ByPrivateKeyForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 
@@ -331,7 +330,7 @@ const ByMnemonicForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 
@@ -560,7 +559,7 @@ const ByFundraiserForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 
@@ -749,7 +748,7 @@ const FromFaucetForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 
@@ -799,7 +798,7 @@ const FromFaucetForm: FC = () => {
 
         await importAccount(data);
       } catch (err: any) {
-        if (isDevEnv()) {
+        if (IS_DEV_ENV) {
           console.error(err);
         }
 
@@ -1044,7 +1043,7 @@ const WatchOnlyForm: FC = () => {
     } catch (err: any) {
       formAnalytics.trackSubmitFail();
 
-      if (isDevEnv()) {
+      if (IS_DEV_ENV) {
         console.error(err);
       }
 
