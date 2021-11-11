@@ -118,7 +118,7 @@ export const NETWORKS: TempleNetwork[] = [
     name: "localhost:8732",
     description: "Local Sandbox",
     type: "test",
-    rpcBaseURL: "http://localhost:8732",
+    rpcBaseURL: "https://localhost:8732",
     color: "#e9e1cc",
     disabled: false,
   },
