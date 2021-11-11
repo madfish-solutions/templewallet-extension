@@ -57,7 +57,7 @@ import {
 import useTippy from "lib/ui/useTippy";
 
 import styles from "./SwapForm.module.css";
-import { usePriceImpact } from "./usePriceImpact.hook";
+import { usePriceImpact } from "./usePriceImpact.hook";;
 
 type SwapFormValues = {
   input: SwapInputValue;
@@ -222,7 +222,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       setOutputAssetAmounts(newOutputAmounts);
       setOutputAmountLoading(false);
       newOutputAmount = newOutputAmounts?.[selectedExchanger];
-    } catch {}
+    } catch { }
     const exchangeData =
       newOutputAsset &&
       getAssetExchangeData(
@@ -286,7 +286,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
       BigNumber.max(
         0,
         -Math.floor(Math.log10(rawExchangeRate.toNumber())) -
-          inputAsset.decimals
+        inputAsset.decimals
       )
     );
     const prettifiedExchangeRate = rawExchangeRate
@@ -425,11 +425,11 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
         inputAsset && assetsAreSame(inputAsset, asset) && inputAssetBalance
           ? inputAssetBalance
           : await fetchBalance(
-              tezos,
-              assetSlug,
-              { decimals: asset.decimals },
-              accountPkh
-            );
+            tezos,
+            assetSlug,
+            { decimals: asset.decimals },
+            accountPkh
+          );
       if (
         asset.type === TempleAssetType.TEZ &&
         amount.lte(balance) &&
@@ -460,13 +460,13 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
         asset.type === TempleAssetType.TEZ
           ? new BigNumber(Infinity)
           : getAssetExchangeData(
-              tokensExchangeData,
-              tezUsdPrice,
-              asset,
-              selectedExchanger
-            )
-              ?.normalizedTokenLiquidity?.div(3)
-              .decimalPlaces(asset.decimals) ?? new BigNumber(Infinity);
+            tokensExchangeData,
+            tezUsdPrice,
+            asset,
+            selectedExchanger
+          )
+            ?.normalizedTokenLiquidity?.div(3)
+            .decimalPlaces(asset.decimals) ?? new BigNumber(Infinity);
       return (
         amount.lte(maxExchangable) ||
         `maximalAmount:${toLocalFixed(maxExchangable)}`
@@ -664,9 +664,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           },
         });
       } catch (err) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
         batch.push({
           input: { asset: inputAsset },
         });
@@ -709,9 +707,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
           },
         });
       } catch (err) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
         batch.push({
           output: { asset: outputAsset },
         });
@@ -1063,8 +1059,8 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
             <td className="text-right text-gray-600">
               {inputAsset && outputAsset && exchangeRate
                 ? `${exchangeRate.base} ${outputAsset.symbol} = ${toLocalFixed(
-                    exchangeRate.value
-                  )} ${inputAsset.symbol}`
+                  exchangeRate.value
+                )} ${inputAsset.symbol}`
                 : "-"}
             </td>
           </tr>

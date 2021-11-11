@@ -47,9 +47,7 @@ const RemoveAccount: FC = () => {
       try {
         await removeAccount(account.publicKeyHash, password);
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
           console.error(err);
-        }
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

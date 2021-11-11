@@ -82,7 +82,7 @@ const INITIAL_STATE: ComponentState = {
   tokenDataError: null,
 };
 
-class ContractNotFoundError extends Error {}
+class ContractNotFoundError extends Error { }
 
 const Form: FC = () => {
   const tezos = useTezos();
@@ -182,9 +182,8 @@ const Form: FC = () => {
           };
         } else if (err instanceof NotMatchingStandardError) {
           stateToSet = {
-            tokenValidationError: `${t("tokenDoesNotMatchStandard", "FA")}${
-              err instanceof IncorrectTokenIdError ? `: ${err.message}` : ""
-            }`,
+            tokenValidationError: `${t("tokenDoesNotMatchStandard", "FA")}${err instanceof IncorrectTokenIdError ? `: ${err.message}` : ""
+              }`,
           };
         } else {
           const errorMessage = t(
@@ -289,9 +288,7 @@ const Form: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay
         await new Promise((r) => setTimeout(r, 300));
