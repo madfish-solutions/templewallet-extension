@@ -185,15 +185,15 @@ export class Vault {
       const passKey = await Passworder.generateKey(password);
       try {
         await fetchAndDecryptOne<any>(checkStrgKey, passKey);
-      } catch(e:any) {
-        console.log(e);
+      } catch (err: any) {
+        console.log(err);
         doThrow();
       }
       return passKey;
     });
   }
 
-  constructor(private passKey: CryptoKey) {}
+  constructor(private passKey: CryptoKey) { }
 
   revealPublicKey(accPublicKeyHash: string) {
     return withError("Failed to reveal public key", () =>
@@ -215,7 +215,7 @@ export class Vault {
         settingsStrgKey,
         this.passKey
       );
-    } catch {}
+    } catch { }
     return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
@@ -555,7 +555,7 @@ export class Vault {
         );
         return createMemorySigner(privateKey).then((signer) => ({
           signer,
-          cleanup: () => {},
+          cleanup: () => { },
         }));
     }
   }
@@ -577,9 +577,9 @@ const MIGRATIONS = [
     const migratedAccounts = accounts.map((acc) =>
       acc.type === TempleAccountType.HD
         ? {
-            ...acc,
-            type: TempleAccountType.Imported,
-          }
+          ...acc,
+          type: TempleAccountType.Imported,
+        }
         : acc
     );
 
@@ -696,7 +696,7 @@ async function createLedgerSigner(
   // After Ledger Live bridge was setuped, we don't close transport
   // Probably we do not need to close it
   // But if we need, we can close it after not use timeout
-  const cleanup = () => {}; // transport.close();
+  const cleanup = () => { }; // transport.close();
   const signer = new TempleLedgerSigner(
     transport,
     removeMFromDerivationPath(derivationPath),
