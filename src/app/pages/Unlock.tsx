@@ -50,9 +50,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
           console.error(err);
-        }
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

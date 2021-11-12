@@ -73,7 +73,7 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": ["http://localhost/*", "https://*/*"],
       "js": ["scripts/contentScript.js"],
       "run_at": "document_start",
       "all_frames": true

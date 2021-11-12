@@ -26,6 +26,7 @@ interface FormFieldProps extends FormFieldAttrs {
   extraSection?: ReactNode;
   label?: ReactNode;
   labelDescription?: ReactNode;
+  labelWarning?: ReactNode;
   errorCaption?: ReactNode;
   containerClassName?: string;
   containerStyle?: React.CSSProperties;
@@ -49,6 +50,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       extraSection,
       label,
       labelDescription,
+      labelWarning,
       errorCaption,
       containerClassName,
       textarea,
@@ -188,6 +190,18 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
                 style={{ maxWidth: "90%" }}
               >
                 {labelDescription}
+              </span>
+            )}
+
+            {labelWarning && (
+              <span
+                className={classNames(
+                  "mt-1",
+                  "text-xs font-medium text-red-600"
+                )}
+                style={{ maxWidth: "90%" }}
+              >
+                {labelWarning}
               </span>
             )}
           </label>

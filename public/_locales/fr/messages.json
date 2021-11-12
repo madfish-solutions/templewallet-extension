@@ -94,7 +94,7 @@
   "accounts": {
     "message": "Comptes"
   },
-  "logOut": {
+  "lock": {
     "message": "Déconnexion"
   },
   "importedAccount": {

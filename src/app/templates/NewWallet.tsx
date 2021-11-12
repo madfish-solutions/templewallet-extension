@@ -170,9 +170,7 @@ const NewWallet: FC<NewWalletProps> = ({
           });
         }
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
           console.error(err);
-        }
 
         await alert({
           title: t("actionConfirmation"),

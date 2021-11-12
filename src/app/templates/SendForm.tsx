@@ -77,7 +77,7 @@ import { navigate, HistoryAction } from "lib/woozie";
 import { SendFormSelectors } from "./SendForm.selectors";
 import AddContactModal from "./SendForm/AddContactModal";
 import ContactsDropdown from "./SendForm/ContactsDropdown";
-import SendErrorAlert from "./SendForm/SendErrorAlert";
+import SendErrorAlert from "./SendForm/SendErrorAlert";;
 
 interface FormData {
   to: string;
@@ -418,9 +418,7 @@ const Form: FC<FormProps> = ({
         return err;
       }
 
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
+      console.error(err);
 
       switch (true) {
         default:
@@ -446,12 +444,12 @@ const Form: FC<FormProps> = ({
     () =>
       toFilled
         ? [
-            "transfer-base-fee",
-            tezos.checksum,
-            assetSlug,
-            accountPkh,
-            toResolved,
-          ]
+          "transfer-base-fee",
+          tezos.checksum,
+          assetSlug,
+          accountPkh,
+          toResolved,
+        ]
         : null,
     estimateBaseFee,
     {
@@ -483,14 +481,14 @@ const Form: FC<FormProps> = ({
 
     const maxAmountAsset = isTezAsset(assetSlug)
       ? BigNumber.max(
-          acc.type === TempleAccountType.ManagedKT
-            ? balance
-            : balance
-                .minus(baseFee)
-                .minus(safeFeeValue ?? 0)
-                .minus(PENNY),
-          0
-        )
+        acc.type === TempleAccountType.ManagedKT
+          ? balance
+          : balance
+            .minus(baseFee)
+            .minus(safeFeeValue ?? 0)
+            .minus(PENNY),
+        0
+      )
       : balance;
     const maxAmountUsd = assetPrice
       ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
@@ -633,9 +631,7 @@ const Form: FC<FormProps> = ({
           return;
         }
 
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

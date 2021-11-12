@@ -99,9 +99,7 @@ function isEntrypointsMatched(
 
     return true;
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
       console.error(err);
-    }
 
     return false;
   }
