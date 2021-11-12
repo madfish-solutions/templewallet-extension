@@ -24,10 +24,13 @@ function openFullPage() {
   });
 }
 
+var disconnectTimestamp = 0
+
 browser.runtime.onConnect.addListener(function (externalPort) {
   console.log('onConnect')
+  disconnectTimestamp = 0;
   externalPort.onDisconnect.addListener(function () {
-    var ignoreError = browser.runtime.lastError;
+    disconnectTimestamp = Date.now();
     console.log("onDisconnect");
   });
 }
