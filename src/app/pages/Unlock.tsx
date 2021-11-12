@@ -21,14 +21,15 @@ type FormData = {
 };
 
 const SUBMIT_ERROR_TYPE = "submit-error";
-const FIVE_MINS = 5 * 60_000
+const LOCK_TIME = 5 * 60_000;
+const LAST_ATTEMPT = 3;
 
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
   const formAnalytics = useFormAnalytics("UnlockWallet");
 
-  const [attempt, addAtttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 0);
-  const [disabled, setDisabled] = useLocalStorage<number>(TempleSharedStorageKey.DisabledTimeLeft, 0);
+  const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
+  const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -49,14 +50,14 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       clearError("password");
       formAnalytics.trackSubmit();
       try {
-        if (attempt > 2) await new Promise((res) => setTimeout(res, Math.random() * 2000 + 1000));
+        if (attempt > LAST_ATTEMPT) await new Promise((res) => setTimeout(res, Math.random() * 2000 + 1000));
         await unlock(password);
 
         formAnalytics.trackSubmitSuccess();
-        addAtttempt(0);
+        setAttempt(1);
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
-        addAtttempt(attempt + 1);
+        setAttempt(attempt + 1);
 
         console.error(err);
 
@@ -73,31 +74,31 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       unlock,
       focusPasswordField,
       formAnalytics,
-      attempt, 
-      addAtttempt
+      attempt,
+      setAttempt
     ]
   );
 
   useEffect(() => {
-    if (attempt > 2 && !disabled) {
-      setDisabled(Date.now());
+    if (attempt > LAST_ATTEMPT && !timelock) {
+      setTimeLock(Date.now());
     }
-  }, [attempt, disabled, setDisabled])
-  
-  const isDisabled = useMemo(() => Date.now() - disabled <= FIVE_MINS, [disabled])
+  }, [attempt, timelock, setTimeLock])
+
+  const isDisabled = useMemo(() => Date.now() - timelock <= LOCK_TIME, [timelock])
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if(Date.now() - disabled > FIVE_MINS) {
-        setDisabled(0)
-        addAtttempt(2)
+      if (Date.now() - timelock > LOCK_TIME) {
+        setTimeLock(0)
+        setAttempt(LAST_ATTEMPT)
       }
     }, 5_000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [disabled, attempt, setDisabled, addAtttempt]);
+  }, [timelock, attempt, setTimeLock, setAttempt]);
 
   return (
     <SimplePageLayout
