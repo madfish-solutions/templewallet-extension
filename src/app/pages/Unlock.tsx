@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useRef } from "react";
 
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
@@ -9,7 +9,7 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
-import { useTempleClient } from "lib/temple/front";
+import { useLocalStorage, useTempleClient, TempleSharedStorageKey } from "lib/temple/front";
 import { Link } from "lib/woozie";
 
 interface UnlockProps {
@@ -21,13 +21,14 @@ type FormData = {
 };
 
 const SUBMIT_ERROR_TYPE = "submit-error";
+const FIVE_MINS = 1 * 60_000
 
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
   const formAnalytics = useFormAnalytics("UnlockWallet");
 
-  const [attempt, addAtttempt] = useState<number>(0);
-  const [disabled, setDisabled] = useState<boolean>(false);
+  const [attempt, addAtttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 0);
+  const [disabled, setDisabled] = useLocalStorage<number>(TempleSharedStorageKey.DisabledTimeLeft, 0);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -52,6 +53,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         await unlock(password);
 
         formAnalytics.trackSubmitSuccess();
+        addAtttempt(0);
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
         addAtttempt(attempt + 1);
@@ -71,28 +73,31 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       unlock,
       focusPasswordField,
       formAnalytics,
-      attempt
+      attempt, 
+      addAtttempt
     ]
   );
 
-  const disabledInput = useCallback(async () => {
-    setDisabled(true);
-    await new Promise((res) => setTimeout(res, 10 * 1_000 * (attempt - 2)));
-    setDisabled(false);
-  }, [attempt])
+  useEffect(() => {
+    if (attempt > 2 && !disabled) {
+      setDisabled(Date.now());
+    }
+  }, [attempt, disabled, setDisabled])
+  
+  const isDisabled = useMemo(() => Date.now() - disabled <= FIVE_MINS, [disabled])
 
   useEffect(() => {
-    if (attempt > 2) {
-      disabledInput()
-    }
-  }, [attempt, disabledInput])
+    const interval = setInterval(() => {
+      if(Date.now() - disabled > FIVE_MINS) {
+        setDisabled(0)
+        addAtttempt(2)
+      }
+    }, 5_000);
 
-
-  useEffect(() => {
-    if (disabled) {
-
-    }
-  }, [disabled, attempt])
+    return () => {
+      clearInterval(interval);
+    };
+  }, [disabled, attempt, setDisabled, addAtttempt]);
 
   return (
     <SimplePageLayout
@@ -106,11 +111,11 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         </>
       }
     >
-      {disabled && (
+      {isDisabled && (
         <Alert
           type="error"
           title={t("error")}
-          description={t('entropyDecryptionError')}
+          description={t('unlockPasswordErrorDelay')}
           className="mt-6"
         />
       )}
@@ -130,10 +135,10 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
           errorCaption={errors.password && errors.password.message}
           containerClassName="mb-4"
           autoFocus
-          disabled={disabled}
+          disabled={isDisabled}
         />
 
-        <FormSubmitButton disabled={disabled} loading={submitting}>{t("unlock")}</FormSubmitButton>
+        <FormSubmitButton disabled={isDisabled} loading={submitting}>{t("unlock")}</FormSubmitButton>
 
         {canImportNew && (
           <div className="my-6">
