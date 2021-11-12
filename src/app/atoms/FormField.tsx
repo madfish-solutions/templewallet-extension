@@ -134,11 +134,15 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 
     useEffect(() => {
       if (secret && focused) {
+        const t = setTimeout(() => {
+          getFieldEl()?.blur();
+        }, 30_000);
         const handleBlur = () => {
           getFieldEl()?.blur();
         };
         window.addEventListener("blur", handleBlur);
         return () => {
+          clearTimeout(t);
           window.removeEventListener("blur", handleBlur);
         };
       }
