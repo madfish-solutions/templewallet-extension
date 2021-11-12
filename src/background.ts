@@ -23,3 +23,12 @@ function openFullPage() {
     url: browser.runtime.getURL("fullpage.html"),
   });
 }
+
+browser.runtime.onConnect.addListener(function (externalPort) {
+  console.log('onConnect')
+  externalPort.onDisconnect.addListener(function () {
+    var ignoreError = browser.runtime.lastError;
+    console.log("onDisconnect");
+  });
+}
+);
