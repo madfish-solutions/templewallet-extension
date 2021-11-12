@@ -26,9 +26,7 @@ import {
 } from "app/defaults";
 import { ReactComponent as TrashbinIcon } from "app/icons/bin.svg";
 import { ReactComponent as PaperclipIcon } from "app/icons/paperclip.svg";
-import { useAnalyticsState } from "lib/analytics/use-analytics-state.hook";
 import { T, t } from "lib/i18n/react";
-import { deletePopupMode } from "lib/popup-mode";
 import { decryptKukaiSeedPhrase, useTempleClient } from "lib/temple/front";
 import { useAlert } from "lib/ui/dialog";
 import { Link } from "lib/woozie";
@@ -97,7 +95,6 @@ const NewWallet: FC<NewWalletProps> = ({
     setValue,
   } = useForm<FormData>({ defaultValues: { shouldUseKeystorePassword: true } });
   const submitting = formState.isSubmitting;
-  const { analyticsState, setAnalyticsState } = useAnalyticsState();
 
   const shouldUseKeystorePassword = watch("shouldUseKeystorePassword");
   const passwordValue = watch("password");
@@ -172,11 +169,6 @@ const NewWallet: FC<NewWalletProps> = ({
             password: data.password!,
           });
         }
-        deletePopupMode()
-        setAnalyticsState({
-          enabled: undefined,
-          userId: analyticsState.userId,
-        })
       } catch (err: any) {
         if (process.env.NODE_ENV === "development") {
           console.error(err);
@@ -354,42 +346,42 @@ const NewWallet: FC<NewWalletProps> = ({
         {(!ownMnemonic ||
           isImportFromSeedPhrase ||
           !shouldUseKeystorePassword) && (
-          <>
-            <FormField
-              ref={register({
-                required: t("required"),
-                pattern: {
-                  value: PASSWORD_PATTERN,
-                  message: PASSWORD_ERROR_CAPTION,
-                },
-              })}
-              label={t("password")}
-              labelDescription={t("unlockPasswordInputDescription")}
-              id="newwallet-password"
-              type="password"
-              name="password"
-              placeholder="********"
-              errorCaption={errors.password?.message}
-              containerClassName="mb-8"
-            />
+            <>
+              <FormField
+                ref={register({
+                  required: t("required"),
+                  pattern: {
+                    value: PASSWORD_PATTERN,
+                    message: PASSWORD_ERROR_CAPTION,
+                  },
+                })}
+                label={t("password")}
+                labelDescription={t("unlockPasswordInputDescription")}
+                id="newwallet-password"
+                type="password"
+                name="password"
+                placeholder="********"
+                errorCaption={errors.password?.message}
+                containerClassName="mb-8"
+              />
 
-            <FormField
-              ref={register({
-                required: t("required"),
-                validate: (val) =>
-                  val === passwordValue || t("mustBeEqualToPasswordAbove"),
-              })}
-              label={t("repeatPassword")}
-              labelDescription={t("repeatPasswordInputDescription")}
-              id="newwallet-repassword"
-              type="password"
-              name="repassword"
-              placeholder="********"
-              errorCaption={errors.repassword?.message}
-              containerClassName="mb-8"
-            />
-          </>
-        )}
+              <FormField
+                ref={register({
+                  required: t("required"),
+                  validate: (val) =>
+                    val === passwordValue || t("mustBeEqualToPasswordAbove"),
+                })}
+                label={t("repeatPassword")}
+                labelDescription={t("repeatPasswordInputDescription")}
+                id="newwallet-repassword"
+                type="password"
+                name="repassword"
+                placeholder="********"
+                errorCaption={errors.repassword?.message}
+                containerClassName="mb-8"
+              />
+            </>
+          )}
 
         <FormCheckbox
           ref={register({
