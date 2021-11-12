@@ -1,8 +1,9 @@
-import React, { FC, useCallback, useRef } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
 
+import Alert from "app/atoms/Alert";
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
@@ -25,6 +26,9 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
   const formAnalytics = useFormAnalytics("UnlockWallet");
 
+  const [attempt, addAtttempt] = useState<number>(0);
+  const [disabled, setDisabled] = useState<boolean>(false);
+
   const formRef = useRef<HTMLFormElement>(null);
 
   const focusPasswordField = useCallback(() => {
@@ -44,13 +48,15 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       clearError("password");
       formAnalytics.trackSubmit();
       try {
+        if (attempt > 2) await new Promise((res) => setTimeout(res, Math.random() * 2000 + 1000));
         await unlock(password);
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
+        addAtttempt(attempt + 1);
 
-          console.error(err);
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
@@ -65,8 +71,28 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       unlock,
       focusPasswordField,
       formAnalytics,
+      attempt
     ]
   );
+
+  const disabledInput = useCallback(async () => {
+    setDisabled(true);
+    await new Promise((res) => setTimeout(res, 10 * 1_000 * (attempt - 2)));
+    setDisabled(false);
+  }, [attempt])
+
+  useEffect(() => {
+    if (attempt > 2) {
+      disabledInput()
+    }
+  }, [attempt, disabledInput])
+
+
+  useEffect(() => {
+    if (disabled) {
+
+    }
+  }, [disabled, attempt])
 
   return (
     <SimplePageLayout
@@ -80,6 +106,14 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         </>
       }
     >
+      {disabled && (
+        <Alert
+          type="error"
+          title={t("error")}
+          description={t('entropyDecryptionError')}
+          className="mt-6"
+        />
+      )}
       <form
         ref={formRef}
         className="w-full max-w-sm mx-auto my-8"
@@ -96,9 +130,10 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
           errorCaption={errors.password && errors.password.message}
           containerClassName="mb-4"
           autoFocus
+          disabled={disabled}
         />
 
-        <FormSubmitButton loading={submitting}>{t("unlock")}</FormSubmitButton>
+        <FormSubmitButton disabled={disabled} loading={submitting}>{t("unlock")}</FormSubmitButton>
 
         {canImportNew && (
           <div className="my-6">
