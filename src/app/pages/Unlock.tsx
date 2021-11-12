@@ -21,7 +21,7 @@ type FormData = {
 };
 
 const SUBMIT_ERROR_TYPE = "submit-error";
-const FIVE_MINS = 1 * 60_000
+const FIVE_MINS = 5 * 60_000
 
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
