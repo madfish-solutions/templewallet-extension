@@ -64,9 +64,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
         try {
           return (await localForger.parse(unsignedBytes)) || [];
         } catch (err: any) {
-          if (process.env.NODE_ENV === "development") {
-            console.error(err);
-          }
+          console.error(err);
           return [];
         }
       default:
@@ -121,13 +119,13 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
         },
         ...(payload.bytesToSign
           ? [
-              {
-                key: "bytes",
-                name: t("bytes"),
-                Icon: HashIcon,
-                testID: InternalConfirmationSelectors.BytesTab,
-              },
-            ]
+            {
+              key: "bytes",
+              name: t("bytes"),
+              Icon: HashIcon,
+              testID: InternalConfirmationSelectors.BytesTab,
+            },
+          ]
           : []),
       ];
     }
@@ -168,8 +166,8 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === "operations" &&
       payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) +
-        revealFee) ||
-      0
+      revealFee) ||
+    0
   );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] =
     useSafeState(

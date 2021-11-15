@@ -23,9 +23,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(error.message, errorInfo.componentStack);
-    }
+    console.error(error.message, errorInfo.componentStack);
   }
 
   componentDidMount() {

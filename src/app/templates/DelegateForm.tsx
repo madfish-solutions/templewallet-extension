@@ -286,9 +286,7 @@ const DelegateForm: FC = () => {
         return err;
       }
 
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
+      console.error(err);
 
       switch (true) {
         case ["delegate.unchanged", "delegate.already_active"].some((t) =>
@@ -389,9 +387,7 @@ const DelegateForm: FC = () => {
           return;
         }
 
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

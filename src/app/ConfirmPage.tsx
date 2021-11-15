@@ -209,9 +209,7 @@ const ConfirmDAppForm: FC = () => {
           modifiedStorageLimitValue
         );
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

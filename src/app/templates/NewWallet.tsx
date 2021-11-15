@@ -80,7 +80,7 @@ const NewWallet: FC<NewWalletProps> = ({
   title,
   tabSlug = "seed-phrase",
 }) => {
-  const { locked, registerWallet, setSeedRevealed } = useTempleClient();
+  const { locked, registerWallet } = useTempleClient();
   const alert = useAlert();
 
   const {
@@ -139,7 +139,6 @@ const NewWallet: FC<NewWalletProps> = ({
               data.password!,
               formatMnemonic(data.mnemonic!)
             );
-            setSeedRevealed(true);
           } else {
             try {
               const mnemonic = await decryptKukaiSeedPhrase(
@@ -152,7 +151,6 @@ const NewWallet: FC<NewWalletProps> = ({
                   : data.password!,
                 mnemonic
               );
-              setSeedRevealed(true);
             } catch (err: any) {
               alert({
                 title: t("errorImportingKukaiWallet"),
@@ -170,9 +168,7 @@ const NewWallet: FC<NewWalletProps> = ({
           });
         }
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
           console.error(err);
-        }
 
         await alert({
           title: t("actionConfirmation"),
@@ -185,7 +181,6 @@ const NewWallet: FC<NewWalletProps> = ({
       ownMnemonic,
       setBackupData,
       registerWallet,
-      setSeedRevealed,
       alert,
       isImportFromSeedPhrase,
     ]

@@ -100,7 +100,7 @@ export const [SyncTokensProvider] = constate(() => {
         metadatas = response.map(
           (data) => data && { base: toBaseMetadata(data), detailed: data }
         );
-      } catch {}
+      } catch { }
     }
     // Otherwise - fetch from chain.
     if (!metadatas) {
@@ -225,9 +225,7 @@ export const [SyncTokensProvider] = constate(() => {
       try {
         await syncRef.current();
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
       } finally {
         if (isTheSameNetwork()) {
           timeoutId = setTimeout(syncAndDefer, 30_000);
