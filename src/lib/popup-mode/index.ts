@@ -1,9 +1,5 @@
-export const POPUP_MODE_STORAGE_KEY = "popup_mode";
+export const POPUP_MODE_STORAGE_KEY = 'popup_mode';
 export const DEFAULT_POPUP_MODE = true;
-
-export function deletePopupMode() {
-  localStorage.removeItem(POPUP_MODE_STORAGE_KEY);
-}
 
 export function setPopupMode(enabled: boolean) {
   localStorage.setItem(POPUP_MODE_STORAGE_KEY, JSON.stringify(enabled));

@@ -10,8 +10,7 @@ import DisableOutlinesForClick from "app/a11y/DisableOutlinesForClick";
 import Dialogs from "app/layouts/Dialogs";
 import { getMessage } from "lib/i18n";
 import { T } from "lib/i18n/react";
-import { Vault } from "lib/temple/back/vault";
-import * as Repo from "lib/temple/repo";
+import { clearStorage } from "lib/temple/reset";
 import {
   AlertFn,
   ConfirmFn,
@@ -79,7 +78,7 @@ async function handleReset(alert: AlertFn, confirm: ConfirmFn) {
   if (confirmed) {
     (async () => {
       try {
-        await Vault.clearStorage();
+        await clearStorage();
         browser.runtime.reload();
       } catch (err: any) {
         await alert({
