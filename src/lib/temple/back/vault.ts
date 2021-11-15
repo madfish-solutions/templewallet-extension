@@ -124,9 +124,7 @@ export class Vault {
         await migrate(passKey);
       }
     } catch (err: any) {
-      if (process.env.NODE_ENV === "development") {
         console.error(err);
-      }
     } finally {
       await encryptAndSaveMany(
         [[migrationLevelStrgKey, MIGRATIONS.length]],
@@ -495,9 +493,7 @@ export class Vault {
       try {
         return await batch.send();
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
           console.error(err);
-        }
 
         switch (true) {
           case err instanceof PublicError:

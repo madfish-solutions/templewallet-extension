@@ -57,7 +57,7 @@ export async function confirmOperation(
         try {
           status = (opEntry.contents[0] as any).metadata.operation_result
             .status;
-        } catch {}
+        } catch { }
         if (status && status !== "applied") {
           throw new FailedOpError(`Operation ${status}`);
         }
@@ -66,9 +66,7 @@ export async function confirmOperation(
       }
     }
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(err);
-    }
+    console.error(err);
 
     if (err instanceof FailedOpError) {
       throw err;
@@ -100,7 +98,7 @@ export async function findOperation(block: BlockResponse, opHash: string) {
   return null;
 }
 
-export class FailedOpError extends Error {}
+export class FailedOpError extends Error { }
 
 export const batchify = (
   batch: OperationBatch | WalletOperationBatch,
@@ -171,10 +169,10 @@ export async function withTokenApprove(
 
   return resetApprove
     ? [
-        getFA12ApproveParams(tokenContract, to, new BigNumber(0)),
-        approveParams,
-        ...transfers,
-      ]
+      getFA12ApproveParams(tokenContract, to, new BigNumber(0)),
+      approveParams,
+      ...transfers,
+    ]
     : [approveParams, ...transfers];
 }
 

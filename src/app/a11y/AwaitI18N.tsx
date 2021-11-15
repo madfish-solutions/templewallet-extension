@@ -23,7 +23,8 @@ async function awaitI18n() {
       new Promise((r) => onInited(() => r(null))),
       new Promise((r) => setTimeout(r, 3_000)),
     ]);
-  } finally {
-    return null;
+  } catch (err: any) {
+    console.error(err);
   }
+  return null;
 }
