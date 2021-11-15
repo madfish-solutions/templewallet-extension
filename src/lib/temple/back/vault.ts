@@ -220,7 +220,7 @@ export class Vault {
   }
 
   async importAccount(accPrivateKey: string, encPassword?: string) {
-    const errMessage = 'Failed to import account' + '.\nThis may happen because provided Key is invalid';
+    const errMessage = 'Failed to import account.\nThis may happen because provided Key is invalid';
 
     return withError(errMessage, async () => {
       const allAccounts = await this.fetchAccounts();
