@@ -1,6 +1,7 @@
 import { browser } from "webextension-polyfill-ts";
 
-import { start } from "lib/temple/back/main";
+import { start, lockWallet } from "lib/temple/back/main";
+// import { start } from "lib/temple/back/main";
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
   switch (reason) {
@@ -24,14 +25,16 @@ function openFullPage() {
   });
 }
 
-var disconnectTimestamp = 0
+const LOCK_TIME = 2 * 60_000
+let disconnectTimestamp = 0
 
 browser.runtime.onConnect.addListener(function (externalPort) {
-  console.log('onConnect')
+  if (Date.now() - disconnectTimestamp >= LOCK_TIME) {
+    lockWallet()
+  }
   disconnectTimestamp = 0;
   externalPort.onDisconnect.addListener(function () {
     disconnectTimestamp = Date.now();
-    console.log("onDisconnect");
   });
 }
 );
