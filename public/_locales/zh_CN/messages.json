@@ -94,8 +94,8 @@
   "accounts": {
     "message": "账户"
   },
-  "logOut": {
-    "message": "退出"
+  "lock": {
+    "message": "堵塞"
   },
   "importedAccount": {
     "message": "已导入"

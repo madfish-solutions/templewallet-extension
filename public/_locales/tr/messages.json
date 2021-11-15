@@ -97,8 +97,8 @@
   "accounts": {
     "message": "Hesaplar"
   },
-  "logOut": {
-    "message": "Oturumu kapat"
+  "lock": {
+    "message": "Engellemek"
   },
   "importedAccount": {
     "message": "İçe aktarıldı"

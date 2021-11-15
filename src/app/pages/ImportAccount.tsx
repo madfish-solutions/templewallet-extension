@@ -90,10 +90,10 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
         },
         network.type !== "main"
           ? {
-              slug: "faucet",
-              i18nKey: "faucetFileTitle",
-              Form: FromFaucetForm,
-            }
+            slug: "faucet",
+            i18nKey: "faucetFileTitle",
+            Form: FromFaucetForm,
+          }
           : undefined,
         {
           slug: "managed-kt",
@@ -177,9 +177,7 @@ const ByPrivateKeyForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay
         await new Promise((r) => setTimeout(r, 300));
@@ -330,9 +328,7 @@ const ByMnemonicForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay
         await new Promise((r) => setTimeout(r, 300));
@@ -376,6 +372,7 @@ const ByMnemonicForm: FC = () => {
         errorCaption={errors.mnemonic?.message}
         label={t("mnemonicInputLabel")}
         labelDescription={t("mnemonicInputDescription")}
+        labelWarning={t("mnemonicInputWarning")}
         id="importfundacc-mnemonic"
         placeholder={t("mnemonicInputPlaceholder")}
         spellCheck={false}
@@ -559,9 +556,7 @@ const ByFundraiserForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay
         await new Promise((r) => setTimeout(r, 300));
@@ -748,9 +743,7 @@ const FromFaucetForm: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
@@ -798,9 +791,7 @@ const FromFaucetForm: FC = () => {
 
         await importAccount(data);
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
@@ -1043,9 +1034,7 @@ const WatchOnlyForm: FC = () => {
     } catch (err: any) {
       formAnalytics.trackSubmitFail();
 
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
+      console.error(err);
 
       // Human delay
       await new Promise((r) => setTimeout(r, 300));

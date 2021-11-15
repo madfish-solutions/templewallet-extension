@@ -97,8 +97,8 @@
   "accounts": {
     "message": "Accounts"
   },
-  "logOut": {
-    "message": "Log out"
+  "lock": {
+    "message": "Lock"
   },
   "importedAccount": {
     "message": "Imported"
@@ -614,6 +614,9 @@
   },
   "mnemonicInputDescription": {
     "message": "Mnemonic. Your secret 12 - 24 words phrase."
+  },
+  "mnemonicInputWarning": {
+    "message": "We don't store your seed phrase. Don't lose it!"
   },
   "mnemonicInputPlaceholder": {
     "message": "e.g. venue sock milk update..."

@@ -126,16 +126,14 @@ const ConnectLedger: FC = () => {
           name,
           derivationType,
           customDerivationPath ??
-            (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
+          (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
         );
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

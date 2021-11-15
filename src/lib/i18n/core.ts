@@ -4,7 +4,7 @@ import { browser } from "webextension-polyfill-ts";
 import cldrjsLocales from "./cldrjs-locales.json";
 import { areLocalesEqual, processTemplate, toList } from "./helpers";
 import { getSavedLocale } from "./saving";
-import { FetchedLocaleMessages, LocaleMessages, Substitutions } from "./types";
+import { FetchedLocaleMessages, LocaleMessages, Substitutions } from "./types";;
 
 const dateFnsLocales: Record<string, Locale> = {
   en: enUS,
@@ -80,9 +80,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
 
     return val.message;
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(err);
-    }
+    console.error(err);
 
     return "";
   }
@@ -124,9 +122,7 @@ export async function fetchLocaleMessages(locale: string) {
     appendPlaceholderLists(messages);
     return messages;
   } catch (err: any) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(err);
-    }
+    console.error(err);
 
     return null;
   }

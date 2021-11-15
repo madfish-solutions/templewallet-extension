@@ -64,7 +64,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
     if (secret) {
       const t = setTimeout(() => {
         setSecret(null);
-      }, 10 * 60_000);
+      }, 3 * 60_000);
 
       return () => {
         clearTimeout(t);
@@ -106,9 +106,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
 
         setSecret(scrt);
       } catch (err: any) {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));

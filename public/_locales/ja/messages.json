@@ -94,8 +94,8 @@
   "accounts": {
     "message": "アカウント"
   },
-  "logOut": {
-    "message": "ログアウト"
+  "lock": {
+    "message": "ブロック"
   },
   "importedAccount": {
     "message": "インポート済み"

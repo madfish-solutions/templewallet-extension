@@ -94,8 +94,8 @@
   "accounts": {
     "message": "Аккаунти"
   },
-  "logOut": {
-    "message": "Вийти"
+  "lock": {
+    "message": "Заблокувати"
   },
   "importedAccount": {
     "message": "Імпортовані"
