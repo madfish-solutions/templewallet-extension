@@ -27,13 +27,13 @@ interface LegacyPageMessage {
 
 type BeaconMessage =
   | {
-      target: BeaconMessageTarget;
-      payload: any;
-    }
+    target: BeaconMessageTarget;
+    payload: any;
+  }
   | {
-      target: BeaconMessageTarget;
-      encryptedPayload: any;
-    };
+    target: BeaconMessageTarget;
+    encryptedPayload: any;
+  };
 
 type BeaconPageMessage =
   | BeaconMessage
@@ -111,9 +111,9 @@ window.addEventListener(
               res.payload === "pong"
                 ? { ...message, sender: SENDER }
                 : {
-                    message,
-                    sender: { id: SENDER.id },
-                  },
+                  message,
+                  sender: { id: SENDER.id },
+                },
               evt.origin
             );
           }
@@ -126,8 +126,9 @@ window.addEventListener(
 
 function send(
   msg: TemplePageMessage | LegacyPageMessage | BeaconPageMessage,
-  targetOrigin = "*"
+  targetOrigin: string
 ) {
+  if (!targetOrigin || targetOrigin === '*') return;
   window.postMessage(msg, targetOrigin);
 }
 
