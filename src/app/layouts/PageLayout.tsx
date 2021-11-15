@@ -18,15 +18,15 @@ import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
 import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import ContentContainer from "app/layouts/ContentContainer";
-import ConfirmationOverlay from "app/layouts/PageLayout/ConfirmationOverlay";
-import Header from "app/layouts/PageLayout/Header";
 import NoLambdaViewContractAlert from "app/templates/NoLambdaViewContractAlert";
-import { AnalyticsConfirmationOverlay } from "lib/analytics";
 import { T } from "lib/i18n/react";
 import { goBack, HistoryAction, navigate, useLocation } from "lib/woozie";
 
 import { useOnboardingProgress } from "../pages/Onboarding/hooks/useOnboardingProgress.hook";
 import { PageLayoutSelectors } from "./PageLayout.selectors";
+import AnalyticsConfirmationOverlay from "./PageLayout/AnalyticsConfirmationOverlay";
+import ConfirmationOverlay from "./PageLayout/ConfirmationOverlay";
+import Header from "./PageLayout/Header";
 
 type PageLayoutProps = ToolbarProps;
 
