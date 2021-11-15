@@ -11,6 +11,10 @@ import {
 
 const frontStore = store.map(toFront);
 
+export function lockWallet() {
+  Actions.lock()
+}
+
 export async function start() {
   intercom.onRequest(processRequest);
   await Actions.init();
