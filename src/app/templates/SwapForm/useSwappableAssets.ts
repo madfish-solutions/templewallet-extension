@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { BigMapAbstraction, TezosToolkit } from "@taquito/taquito";
-import { validateAddress, ValidationResult } from "@taquito/utils";
-import BigNumber from "bignumber.js";
-import constate from "constate";
+import { BigMapAbstraction, TezosToolkit } from '@taquito/taquito';
+import { validateAddress, ValidationResult } from '@taquito/utils';
+import BigNumber from 'bignumber.js';
+import constate from 'constate';
 
-import { formatImgUri } from "lib/image-uri";
-import { getQuipuswapWhitelist } from "lib/quipuswap";
-import { useRetryableSWR } from "lib/swr";
+import { formatImgUri } from 'lib/image-uri';
+import { getQuipuswapWhitelist } from 'lib/quipuswap';
+import { useRetryableSWR } from 'lib/swr';
 import {
   AssetIdentifier,
   DEXTER_EXCHANGE_CONTRACTS,
@@ -36,9 +36,9 @@ import {
   TempleChainId,
   TempleAssetType,
   TempleAsset,
-  detectTokenStandard,
-} from "lib/temple/front";
-import useSafeState from "lib/ui/useSafeState";
+  detectTokenStandard
+} from 'lib/temple/front';
+import useSafeState from 'lib/ui/useSafeState';
 
 const DEXTER_INITIAL_TOKENS = new Map<string, TempleToken[]>([
   [
@@ -47,51 +47,49 @@ const DEXTER_INITIAL_TOKENS = new Map<string, TempleToken[]>([
       {
         type: TempleAssetType.FA1_2,
         decimals: 8,
-        symbol: "tzBTC",
-        name: "tzBTC",
+        symbol: 'tzBTC',
+        name: 'tzBTC',
         fungible: true,
-        address: "KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn",
-        iconUrl:
-          "https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg",
+        address: 'KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn',
+        iconUrl: 'https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg'
       },
       {
         type: TempleAssetType.FA1_2,
         decimals: 18,
-        symbol: "KUSD",
-        name: "Kolibri",
+        symbol: 'KUSD',
+        name: 'Kolibri',
         fungible: true,
-        address: "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV",
-        iconUrl: "https://kolibri-data.s3.amazonaws.com/logo.png",
+        address: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV',
+        iconUrl: 'https://kolibri-data.s3.amazonaws.com/logo.png'
       },
       {
         type: TempleAssetType.FA1_2,
         decimals: 6,
-        symbol: "wXTZ",
-        name: "Wrapped Tezos",
+        symbol: 'wXTZ',
+        name: 'Wrapped Tezos',
         fungible: true,
-        address: "KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH",
-        iconUrl:
-          "https://raw.githubusercontent.com/StakerDAO/wrapped-xtz/dev/assets/wXTZ-token-FullColor.png",
+        address: 'KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH',
+        iconUrl: 'https://raw.githubusercontent.com/StakerDAO/wrapped-xtz/dev/assets/wXTZ-token-FullColor.png'
       },
       {
         type: TempleAssetType.FA1_2,
         decimals: 18,
-        symbol: "ETHtz",
-        name: "ETHtez",
+        symbol: 'ETHtz',
+        name: 'ETHtez',
         fungible: true,
-        address: "KT19at7rQUvyjxnZ2fBv7D9zc8rkyG7gAoU8",
-        iconUrl: "https://ethtz.io/ETHtz_purple.png",
+        address: 'KT19at7rQUvyjxnZ2fBv7D9zc8rkyG7gAoU8',
+        iconUrl: 'https://ethtz.io/ETHtz_purple.png'
       },
       {
         type: TempleAssetType.FA1_2,
         decimals: 6,
-        symbol: "USDtz",
-        name: "USDtez",
+        symbol: 'USDtz',
+        name: 'USDtez',
         fungible: true,
-        address: "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-        iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
-      },
-    ],
+        address: 'KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9',
+        iconUrl: 'https://usdtz.com/lightlogo10USDtz.png'
+      }
+    ]
   ],
   [
     TempleChainId.Edo2net,
@@ -99,21 +97,21 @@ const DEXTER_INITIAL_TOKENS = new Map<string, TempleToken[]>([
       {
         type: TempleAssetType.FA1_2,
         decimals: 0,
-        symbol: "KT1CUg3...wv3K",
-        name: "KT1CUg3...wv3K",
+        symbol: 'KT1CUg3...wv3K',
+        name: 'KT1CUg3...wv3K',
         fungible: true,
-        address: "KT1CUg39jQF8mV6nTMqZxjUUZFuz1KXowv3K",
+        address: 'KT1CUg39jQF8mV6nTMqZxjUUZFuz1KXowv3K'
       },
       {
         type: TempleAssetType.FA1_2,
         decimals: 0,
-        symbol: "KT1FCMQ...daWH",
-        name: "KT1FCMQ...daWH",
+        symbol: 'KT1FCMQ...daWH',
+        name: 'KT1FCMQ...daWH',
         fungible: true,
-        address: "KT1FCMQk44tEP9fm9n5JJEhkSk1TW3XQdaWH",
-      },
-    ],
-  ],
+        address: 'KT1FCMQk44tEP9fm9n5JJEhkSk1TW3XQdaWH'
+      }
+    ]
+  ]
 ]);
 
 const LIQUIDITY_BAKING_INITIAL_TOKENS = new Map<string, TempleToken[]>([
@@ -123,28 +121,23 @@ const LIQUIDITY_BAKING_INITIAL_TOKENS = new Map<string, TempleToken[]>([
       {
         type: TempleAssetType.FA1_2,
         decimals: 0,
-        symbol: "KT1Vqar...mkCN",
-        name: "KT1Vqar...mkCN",
+        symbol: 'KT1Vqar...mkCN',
+        name: 'KT1Vqar...mkCN',
         fungible: true,
-        address: "KT1VqarPDicMFn1ejmQqqshUkUXTCTXwmkCN",
-      },
-    ],
-  ],
+        address: 'KT1VqarPDicMFn1ejmQqqshUkUXTCTXwmkCN'
+      }
+    ]
+  ]
 ]);
 
 function assetMatchesSearchStr(asset: TempleAsset, str: string) {
-  return [
-    asset.type === TempleAssetType.TEZ ? "" : asset.address,
-    asset.name,
-    asset.symbol,
-  ].some((fieldValue) => fieldValue.toLowerCase().includes(str.toLowerCase()));
+  return [asset.type === TempleAssetType.TEZ ? '' : asset.address, asset.name, asset.symbol].some(fieldValue =>
+    fieldValue.toLowerCase().includes(str.toLowerCase())
+  );
 }
 
 function getTokenId(token: TempleToken, replacer: number): number;
-function getTokenId(
-  token: TempleToken,
-  replacer?: undefined
-): number | undefined;
+function getTokenId(token: TempleToken, replacer?: undefined): number | undefined;
 function getTokenId(token: TempleToken, replacer?: number) {
   return token.type === TempleAssetType.FA2 ? token.id : replacer;
 }
@@ -154,12 +147,8 @@ async function getTokensToExchangeBigmaps(
   tezos: TezosToolkit
 ): Promise<BigMapAbstraction[]> {
   return Promise.all(
-    contractsAddresses.map(async (contractAddress) => {
-      const tokenListContract = await loadContract(
-        tezos,
-        contractAddress,
-        false
-      );
+    contractsAddresses.map(async contractAddress => {
+      const tokenListContract = await loadContract(tezos, contractAddress, false);
       const tokenListStorage = await tokenListContract.storage<any>();
       return tokenListStorage.token_to_exchange;
     })
@@ -175,10 +164,7 @@ export type TokenExchangeData = Record<
     usdPrice?: number;
   }
 >;
-export type TokensExchangeData = Record<
-  string,
-  Record<number, Partial<TokenExchangeData>>
->;
+export type TokensExchangeData = Record<string, Record<number, Partial<TokenExchangeData>>>;
 
 export const getAssetExchangeData = (
   tokensExchangeData: TokensExchangeData,
@@ -191,7 +177,7 @@ export const getAssetExchangeData = (
       contract: undefined,
       normalizedTezLiquidity: undefined,
       normalizedTokenLiquidity: undefined,
-      usdPrice: tezUsdPrice ?? undefined,
+      usdPrice: tezUsdPrice ?? undefined
     };
   }
   return tokensExchangeData[asset.address]?.[getTokenId(asset, 0)]?.[exchanger];
@@ -207,14 +193,10 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
     const tezos = useTezos();
     const network = useNetwork();
 
-    const { data: allKnownTokenSlugs = [] } =
-      useAllKnownFungibleTokenSlugs(chainId);
+    const { data: allKnownTokenSlugs = [] } = useAllKnownFungibleTokenSlugs(chainId);
     const { allTokensBaseMetadataRef } = useTokensMetadata();
 
-    const [allKnownAssets, setAllKnownAssets] = useSafeState<TempleAsset[]>(
-      [],
-      chainId
-    );
+    const [allKnownAssets, setAllKnownAssets] = useSafeState<TempleAsset[]>([], chainId);
 
     useEffect(() => {
       (async () => {
@@ -230,33 +212,20 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           setAllKnownAssets(result);
         } catch {}
       })();
-    }, [
-      setAllKnownAssets,
-      allKnownTokenSlugs,
-      allTokensBaseMetadataRef,
-      tezos,
-    ]);
+    }, [setAllKnownAssets, allKnownTokenSlugs, allTokensBaseMetadataRef, tezos]);
 
-    const tezUsdPrice = useAssetUSDPrice("tez");
-    const networkTezUsdPrice = network.type === "main" ? tezUsdPrice : null;
+    const tezUsdPrice = useAssetUSDPrice('tez');
+    const networkTezUsdPrice = network.type === 'main' ? tezUsdPrice : null;
     const prevChainIdRef = useRef(chainId);
-    const [qsStoredTokens, setQsStoredTokens] = useStorage<TempleToken[]>(
-      `qs_1.1_stored_tokens_${chainId}`,
-      []
-    );
+    const [qsStoredTokens, setQsStoredTokens] = useStorage<TempleToken[]>(`qs_1.1_stored_tokens_${chainId}`, []);
 
     const getAssetData = useCallback(
-      async (
-        knownAssets: TempleAsset[],
-        assetId: AssetIdentifier
-      ): Promise<TempleAsset> => {
+      async (knownAssets: TempleAsset[], assetId: AssetIdentifier): Promise<TempleAsset> => {
         const { address, tokenId } = assetId;
         if (!address) {
           return TEZ_ASSET;
         }
-        const alreadyKnownAsset = knownAssets.find((asset) =>
-          matchesAsset(assetId, asset)
-        );
+        const alreadyKnownAsset = knownAssets.find(asset => matchesAsset(assetId, asset));
         if (alreadyKnownAsset) {
           return alreadyKnownAsset;
         }
@@ -265,33 +234,26 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           const tokenSlug = toTokenSlug(address, tokenId);
           const tokenMetadata =
             allTokensBaseMetadataRef.current[tokenSlug] ??
-            (await fetchTokenMetadata(tezos, tokenSlug).then(
-              ({ base }) => base
-            ));
+            (await fetchTokenMetadata(tezos, tokenSlug).then(({ base }) => base));
           const { name: parsedName, symbol: parsedSymbol } = tokenMetadata;
           const commonMetadata = {
             ...tokenMetadata,
-            iconUrl:
-              tokenMetadata.thumbnailUri &&
-              formatImgUri(tokenMetadata.thumbnailUri),
-            name: !parsedName || parsedName === "???" ? shortHash : parsedName,
-            symbol:
-              !parsedSymbol || parsedSymbol === "???"
-                ? shortHash
-                : parsedSymbol,
+            iconUrl: tokenMetadata.thumbnailUri && formatImgUri(tokenMetadata.thumbnailUri),
+            name: !parsedName || parsedName === '???' ? shortHash : parsedName,
+            symbol: !parsedSymbol || parsedSymbol === '???' ? shortHash : parsedSymbol,
             address,
-            fungible: true,
+            fungible: true
           };
           if (assetId.tokenId === undefined) {
             return {
               ...commonMetadata,
-              type: TempleAssetType.FA1_2,
+              type: TempleAssetType.FA1_2
             };
           }
           return {
             ...commonMetadata,
             type: TempleAssetType.FA2,
-            id: assetId.tokenId,
+            id: assetId.tokenId
           };
         } catch (e) {
           const commonMetadata = {
@@ -300,18 +262,18 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
             address,
             decimals: 0,
             fungible: true,
-            status: "hidden" as const,
+            status: 'hidden' as const
           };
           if (assetId.tokenId === undefined) {
             return {
               ...commonMetadata,
-              type: TempleAssetType.FA1_2,
+              type: TempleAssetType.FA1_2
             };
           }
           return {
             ...commonMetadata,
             type: TempleAssetType.FA2,
-            id: assetId.tokenId,
+            id: assetId.tokenId
           };
         }
       },
@@ -327,33 +289,21 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         }
 
         const asset = await getAssetData(knownAssets, assetId);
-        const dexterExchangeContract =
-          DEXTER_EXCHANGE_CONTRACTS.get(chainId)?.[tokenAddress]?.[
-            tokenId ?? 0
-          ];
-        const liquidityBakingContract =
-          LIQUIDITY_BAKING_CONTRACTS.get(chainId)?.[tokenAddress]?.[
-            tokenId ?? 0
-          ];
+        const dexterExchangeContract = DEXTER_EXCHANGE_CONTRACTS.get(chainId)?.[tokenAddress]?.[tokenId ?? 0];
+        const liquidityBakingContract = LIQUIDITY_BAKING_CONTRACTS.get(chainId)?.[tokenAddress]?.[tokenId ?? 0];
         const newExchangers: Partial<TokenExchangeData> = {};
         await Promise.all(
           [
-            { contract: dexterExchangeContract, type: "dexter" as const },
+            { contract: dexterExchangeContract, type: 'dexter' as const },
             {
               contract: liquidityBakingContract,
-              type: "liquidity_baking" as const,
-            },
+              type: 'liquidity_baking' as const
+            }
           ].map(async ({ contract, type }) => {
             if (contract) {
-              const { tokenPool, xtzPool } = await getPoolParameters(
-                tezos,
-                contract,
-                type
-              );
+              const { tokenPool, xtzPool } = await getPoolParameters(tezos, contract, type);
               const normalizedTezLiquidity = mutezToTz(xtzPool);
-              const normalizedTokenLiquidity = tokenPool.div(
-                new BigNumber(10).pow(asset.decimals)
-              );
+              const normalizedTokenLiquidity = tokenPool.div(new BigNumber(10).pow(asset.decimals));
               newExchangers[type] = {
                 contract,
                 normalizedTezLiquidity,
@@ -361,11 +311,8 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
                 usdPrice: normalizedTokenLiquidity.eq(0)
                   ? undefined
                   : (networkTezUsdPrice &&
-                      normalizedTezLiquidity
-                        .div(normalizedTokenLiquidity)
-                        .times(networkTezUsdPrice)
-                        .toNumber()) ??
-                    undefined,
+                      normalizedTezLiquidity.div(normalizedTokenLiquidity).times(networkTezUsdPrice).toNumber()) ??
+                    undefined
               };
             }
           })
@@ -380,12 +327,8 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
               ? await getTokensToExchangeBigmaps(fa12FactoriesAddresses, tezos)
               : [];
             exchangeContract = (
-              await Promise.all(
-                fa12TokensToExchangeBigmaps.map((bigMap) =>
-                  bigMap.get<string | undefined>(tokenAddress)
-                )
-              )
-            ).find((value) => value !== undefined);
+              await Promise.all(fa12TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>(tokenAddress)))
+            ).find(value => value !== undefined);
           } else {
             const fa2FactoriesAddresses = quipuswapFactories.fa2Factory;
             const fa2TokensToExchangeBigmaps = fa2FactoriesAddresses
@@ -393,22 +336,14 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
               : [];
             exchangeContract = (
               await Promise.all(
-                fa2TokensToExchangeBigmaps.map((bigMap) =>
-                  bigMap.get<string | undefined>([tokenAddress, tokenId])
-                )
+                fa2TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>([tokenAddress, tokenId]))
               )
-            ).find((value) => value !== undefined);
+            ).find(value => value !== undefined);
           }
           if (exchangeContract) {
-            const { tokenPool, xtzPool } = await getPoolParameters(
-              tezos,
-              exchangeContract,
-              "quipuswap"
-            );
+            const { tokenPool, xtzPool } = await getPoolParameters(tezos, exchangeContract, 'quipuswap');
             const normalizedTezLiquidity = mutezToTz(xtzPool);
-            const normalizedTokenLiquidity = tokenPool.div(
-              new BigNumber(10).pow(asset.decimals)
-            );
+            const normalizedTokenLiquidity = tokenPool.div(new BigNumber(10).pow(asset.decimals));
             newExchangers.quipuswap = {
               contract: exchangeContract,
               normalizedTezLiquidity,
@@ -416,11 +351,8 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
               usdPrice: normalizedTokenLiquidity.eq(0)
                 ? undefined
                 : (networkTezUsdPrice &&
-                    normalizedTezLiquidity
-                      .div(normalizedTokenLiquidity)
-                      .times(networkTezUsdPrice)
-                      .toNumber()) ??
-                  undefined,
+                    normalizedTezLiquidity.div(normalizedTokenLiquidity).times(networkTezUsdPrice).toNumber()) ??
+                  undefined
             };
           }
         }
@@ -434,34 +366,24 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         const quipuswapWhitelist = await getQuipuswapWhitelist();
         const result = new Map<string, TempleToken[]>();
         await Promise.all(
-          quipuswapWhitelist.map(async (token) => {
-            const {
-              contractAddress,
-              metadata: metadataFromApi,
-              network,
-            } = token;
-            const fallbackName = `${contractAddress.slice(
-              0,
-              7
-            )}...${contractAddress.slice(-4)}`;
+          quipuswapWhitelist.map(async token => {
+            const { contractAddress, metadata: metadataFromApi, network } = token;
+            const fallbackName = `${contractAddress.slice(0, 7)}...${contractAddress.slice(-4)}`;
             const fallbackMetadata = {
               decimals: 0,
               symbol: fallbackName,
               name: fallbackName,
-              thumbnailUri: undefined,
+              thumbnailUri: undefined
             };
 
             let metadata;
             if (metadataFromApi) {
               metadata = {
                 ...metadataFromApi,
-                iconUrl: metadataFromApi.thumbnailUri,
+                iconUrl: metadataFromApi.thumbnailUri
               };
             } else if (currentChainId === network) {
-              const tokenSlug = toTokenSlug(
-                contractAddress,
-                token.type === "fa1.2" ? undefined : token.fa2TokenId
-              );
+              const tokenSlug = toTokenSlug(contractAddress, token.type === 'fa1.2' ? undefined : token.fa2TokenId);
 
               metadata =
                 allTokensBaseMetadataRef.current[tokenSlug] ??
@@ -471,12 +393,11 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
             } else {
               metadata = fallbackMetadata;
             }
-            metadata.thumbnailUri =
-              metadata.thumbnailUri && formatImgUri(metadata.thumbnailUri);
-            if (metadata.name === "???") {
+            metadata.thumbnailUri = metadata.thumbnailUri && formatImgUri(metadata.thumbnailUri);
+            if (metadata.name === '???') {
               metadata.name = fallbackName;
             }
-            if (metadata.symbol === "???") {
+            if (metadata.symbol === '???') {
               metadata.symbol = fallbackName;
             }
 
@@ -486,18 +407,18 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
               symbol: metadata.symbol,
               name: metadata.name,
               iconUrl: metadata.thumbnailUri,
-              fungible: true,
+              fungible: true
             };
             const tokenMetadata: TempleToken =
-              token.type === "fa1.2"
+              token.type === 'fa1.2'
                 ? {
                     ...commonTokenMetadata,
-                    type: TempleAssetType.FA1_2,
+                    type: TempleAssetType.FA1_2
                   }
                 : {
                     ...commonTokenMetadata,
                     type: TempleAssetType.FA2,
-                    id: token.fa2TokenId,
+                    id: token.fa2TokenId
                   };
             if (!result.get(network)) {
               result.set(network, []);
@@ -511,7 +432,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
     );
 
     const { data: quipuswapTokenWhitelists } = useRetryableSWR(
-      ["quipuswap-token-whitelists", chainId],
+      ['quipuswap-token-whitelists', chainId],
       getQuipuswapTokensWhitelists,
       { suspense: true }
     );
@@ -523,15 +444,13 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           ...qsStoredTokens,
           ...(quipuswapTokenWhitelists!.get(chainId) ?? []),
           ...(DEXTER_INITIAL_TOKENS.get(chainId) ?? []),
-          ...(LIQUIDITY_BAKING_INITIAL_TOKENS.get(chainId) ?? []),
+          ...(LIQUIDITY_BAKING_INITIAL_TOKENS.get(chainId) ?? [])
         ].reduce<Record<string, TempleAsset>>((previousValue, asset) => {
           const { address, tokenId } = getAssetId(asset);
-          const assetFromVisible = allKnownAssets.find((visibleAsset) =>
-            assetsAreSame(visibleAsset, asset)
-          );
+          const assetFromVisible = allKnownAssets.find(visibleAsset => assetsAreSame(visibleAsset, asset));
           return {
             ...previousValue,
-            [`${address}_${tokenId}`]: assetFromVisible ?? asset,
+            [`${address}_${tokenId}`]: assetFromVisible ?? asset
           };
         }, {})
       );
@@ -539,21 +458,22 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
 
     const noInitialAssetKeyKnownAssets = useMemo(() => {
       return Object.values(
-        [...allKnownAssets, ...noInitialAssetKeyExchangableAssets].reduce<
-          Record<string, TempleAsset>
-        >((previousValue, asset) => {
-          const { address, tokenId } = getAssetId(asset);
-          return {
-            ...previousValue,
-            [`${address}_${tokenId}`]: asset,
-          };
-        }, {})
+        [...allKnownAssets, ...noInitialAssetKeyExchangableAssets].reduce<Record<string, TempleAsset>>(
+          (previousValue, asset) => {
+            const { address, tokenId } = getAssetId(asset);
+            return {
+              ...previousValue,
+              [`${address}_${tokenId}`]: asset
+            };
+          },
+          {}
+        )
       );
     }, [allKnownAssets, noInitialAssetKeyExchangableAssets]);
 
     const noInitialAssetKeyAssetsKey = useMemo(() => {
       return noInitialAssetKeyKnownAssets
-        .map((asset) => {
+        .map(asset => {
           const { address, tokenId } = getAssetId(asset);
           return `${address}_${tokenId}`;
         })
@@ -564,25 +484,20 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
       if (!initialAssetKey) {
         return null;
       }
-      if (initialAssetKey === "tez") {
+      if (initialAssetKey === 'tez') {
         return TEZ_ASSET;
       }
-      const [assetAddress, rawAssetId] = initialAssetKey.split("_");
-      const alreadyKnownAsset = noInitialAssetKeyKnownAssets.find(
-        (candidate) => {
-          switch (candidate.type) {
-            case TempleAssetType.TEZ:
-              return false;
-            case TempleAssetType.FA2:
-              return (
-                candidate.address === assetAddress &&
-                Number(rawAssetId ?? "0") === candidate.id
-              );
-            default:
-              return candidate.address === assetAddress;
-          }
+      const [assetAddress, rawAssetId] = initialAssetKey.split('_');
+      const alreadyKnownAsset = noInitialAssetKeyKnownAssets.find(candidate => {
+        switch (candidate.type) {
+          case TempleAssetType.TEZ:
+            return false;
+          case TempleAssetType.FA2:
+            return candidate.address === assetAddress && Number(rawAssetId ?? '0') === candidate.id;
+          default:
+            return candidate.address === assetAddress;
         }
-      );
+      });
       if (alreadyKnownAsset) {
         return alreadyKnownAsset;
       }
@@ -592,10 +507,10 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         tokenStandard &&
         getAssetData(
           [],
-          tokenStandard === "fa2"
+          tokenStandard === 'fa2'
             ? {
                 address: assetAddress,
-                tokenId: Number(rawAssetId),
+                tokenId: Number(rawAssetId)
               }
             : { address: assetAddress }
         )
@@ -603,38 +518,32 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
     }, [initialAssetKey, noInitialAssetKeyKnownAssets, getAssetData, tezos]);
 
     const { data: assetFromInitialKey } = useRetryableSWR(
-      ["asset-from-key", initialAssetKey, chainId, noInitialAssetKeyAssetsKey],
+      ['asset-from-key', initialAssetKey, chainId, noInitialAssetKeyAssetsKey],
       getAssetFromInitialKey,
       { suspense: true }
     );
 
     const getAssetFromInitialKeyExchangeData = useCallback(async () => {
-      if (!initialAssetKey || initialAssetKey === "tez") {
+      if (!initialAssetKey || initialAssetKey === 'tez') {
         return null;
       }
 
-      const [assetAddress, rawAssetId] = initialAssetKey.split("_");
+      const [assetAddress, rawAssetId] = initialAssetKey.split('_');
 
       let tokenId: number | undefined;
       const tokenStandard = await detectTokenStandard(tezos, assetAddress);
-      if (tokenStandard === "fa2") {
+      if (tokenStandard === 'fa2') {
         tokenId = Number(rawAssetId);
       }
 
-      return getNewExchangeData(
-        assetFromInitialKey ? [assetFromInitialKey] : [],
-        {
-          address: assetAddress,
-          tokenId,
-        }
-      );
+      return getNewExchangeData(assetFromInitialKey ? [assetFromInitialKey] : [], {
+        address: assetAddress,
+        tokenId
+      });
     }, [assetFromInitialKey, getNewExchangeData, initialAssetKey, tezos]);
 
     const { data: assetFromInitialKeyExchangeData } = useRetryableSWR(
-      [
-        "asset-from-key-exchange-data",
-        assetFromInitialKey && getAssetKey(assetFromInitialKey),
-      ],
+      ['asset-from-key-exchange-data', assetFromInitialKey && getAssetKey(assetFromInitialKey)],
       getAssetFromInitialKeyExchangeData,
       { suspense: true }
     );
@@ -649,17 +558,14 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
       }
       return {
         [assetFromInitialKey.address]: {
-          [getTokenId(assetFromInitialKey, 0)]: assetFromInitialKeyExchangeData,
-        },
+          [getTokenId(assetFromInitialKey, 0)]: assetFromInitialKeyExchangeData
+        }
       };
     }, [assetFromInitialKey, assetFromInitialKeyExchangeData]);
 
     const noSearchStrKnownAssets = useMemo(
       () =>
-        assetFromInitialKey &&
-        !noInitialAssetKeyKnownAssets.some((asset) =>
-          assetsAreSame(asset, assetFromInitialKey)
-        )
+        assetFromInitialKey && !noInitialAssetKeyKnownAssets.some(asset => assetsAreSame(asset, assetFromInitialKey))
           ? [assetFromInitialKey, ...noInitialAssetKeyKnownAssets]
           : noInitialAssetKeyKnownAssets,
       [noInitialAssetKeyKnownAssets, assetFromInitialKey]
@@ -667,26 +573,17 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
     const noSearchStrExchangableAssets = useMemo(
       () =>
         assetFromInitialKey &&
-        !noInitialAssetKeyExchangableAssets.some((asset) =>
-          assetsAreSame(asset, assetFromInitialKey)
-        ) &&
+        !noInitialAssetKeyExchangableAssets.some(asset => assetsAreSame(asset, assetFromInitialKey)) &&
         assetFromInitialKeyExchangeData &&
         Object.keys(assetFromInitialKeyExchangeData).length > 0
           ? [assetFromInitialKey, ...noInitialAssetKeyExchangableAssets]
           : noInitialAssetKeyExchangableAssets,
-      [
-        assetFromInitialKey,
-        assetFromInitialKeyExchangeData,
-        noInitialAssetKeyExchangableAssets,
-      ]
+      [assetFromInitialKey, assetFromInitialKeyExchangeData, noInitialAssetKeyExchangableAssets]
     );
 
-    const [exchangableAssets, setExchangableAssets] = useState(
-      noSearchStrExchangableAssets
-    );
+    const [exchangableAssets, setExchangableAssets] = useState(noSearchStrExchangableAssets);
     const [knownAssets, setKnownAssets] = useState(noSearchStrKnownAssets);
-    const [exchangeData, setExchangeData] =
-      useState<TokensExchangeData>(initialExchangeData);
+    const [exchangeData, setExchangeData] = useState<TokensExchangeData>(initialExchangeData);
     const [exchangeDataLoading, setExchangeDataLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
 
@@ -697,12 +594,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         setExchangeData(initialExchangeData);
       }
       prevChainIdRef.current = chainId;
-    }, [
-      chainId,
-      initialExchangeData,
-      noSearchStrKnownAssets,
-      noSearchStrExchangableAssets,
-    ]);
+    }, [chainId, initialExchangeData, noSearchStrKnownAssets, noSearchStrExchangableAssets]);
 
     const ensureExchangeData = useCallback(
       async (assetId: AssetIdentifier) => {
@@ -712,8 +604,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           return {};
         }
 
-        const alreadyKnownExchangers =
-          exchangeData[tokenAddress]?.[tokenId ?? 0];
+        const alreadyKnownExchangers = exchangeData[tokenAddress]?.[tokenId ?? 0];
         if (alreadyKnownExchangers) {
           return alreadyKnownExchangers;
         }
@@ -721,7 +612,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         setExchangeDataLoading(true);
         const newExchangers = await getNewExchangeData(knownAssets, assetId);
         const newExchangeData = {
-          ...exchangeData,
+          ...exchangeData
         };
         if (!newExchangeData[tokenAddress]) {
           newExchangeData[tokenAddress] = {};
@@ -735,26 +626,23 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
     );
 
     const searchAssets = useCallback(
-      async (searchString = "", tokenId?: number) => {
-        const matchingExchangableAssets = exchangableAssets.filter((asset) => {
+      async (searchString = '', tokenId?: number) => {
+        const matchingExchangableAssets = exchangableAssets.filter(asset => {
           return (
             assetMatchesSearchStr(asset, searchString) &&
-            (asset.type !== TempleAssetType.FA2 ||
-              tokenId === undefined ||
-              tokenId === asset.id)
+            (asset.type !== TempleAssetType.FA2 || tokenId === undefined || tokenId === asset.id)
           );
         });
         if (validateAddress(searchString) !== ValidationResult.VALID) {
           return {
             matchingExchangableAssets,
-            showTokenIdInput: false,
+            showTokenIdInput: false
           };
         }
         if (matchingExchangableAssets.length > 0) {
           return {
             matchingExchangableAssets,
-            showTokenIdInput:
-              matchingExchangableAssets[0].type === TempleAssetType.FA2,
+            showTokenIdInput: matchingExchangableAssets[0].type === TempleAssetType.FA2
           };
         }
         try {
@@ -764,7 +652,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
             setSearchLoading(false);
             return {
               matchingExchangableAssets: [],
-              showTokenIdInput: false,
+              showTokenIdInput: false
             };
           }
 
@@ -772,13 +660,13 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           let exchangeContractAddress: string | undefined;
           let showTokenIdInput = false;
 
-          if (tokenStandard === "fa2") {
+          if (tokenStandard === 'fa2') {
             showTokenIdInput = true;
             if (tokenId === undefined) {
               setSearchLoading(false);
               return {
                 matchingExchangableAssets: [],
-                showTokenIdInput: true,
+                showTokenIdInput: true
               };
             }
             const fa2FactoriesAddresses = quipuswapFactories.fa2Factory;
@@ -787,47 +675,32 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
               : [];
             exchangeContractAddress = (
               await Promise.all(
-                fa2TokensToExchangeBigmaps.map((bigMap) =>
-                  bigMap.get<string | undefined>([searchString, tokenId])
-                )
+                fa2TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>([searchString, tokenId]))
               )
-            ).find((value) => value !== undefined);
+            ).find(value => value !== undefined);
           } else {
             const fa12FactoriesAddresses = quipuswapFactories.fa12Factory;
             const fa12TokensToExchangeBigmaps = fa12FactoriesAddresses
               ? await getTokensToExchangeBigmaps(fa12FactoriesAddresses, tezos)
               : [];
             exchangeContractAddress = (
-              await Promise.all(
-                fa12TokensToExchangeBigmaps.map((bigMap) =>
-                  bigMap.get<string | undefined>(searchString)
-                )
-              )
-            ).find((value) => value !== undefined);
+              await Promise.all(fa12TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>(searchString)))
+            ).find(value => value !== undefined);
           }
 
           if (exchangeContractAddress) {
             const tokenMetadata = await getAssetData(knownAssets, {
               tokenId,
-              address: searchString,
+              address: searchString
             });
-            const { xtzPool, tokenPool } = await getPoolParameters(
-              tezos,
-              exchangeContractAddress,
-              "quipuswap"
-            );
+            const { xtzPool, tokenPool } = await getPoolParameters(tezos, exchangeContractAddress, 'quipuswap');
             const normalizedTezLiquidity = mutezToTz(xtzPool);
-            const normalizedTokenLiquidity = tokenPool.div(
-              new BigNumber(10).pow(tokenMetadata.decimals)
-            );
+            const normalizedTokenLiquidity = tokenPool.div(new BigNumber(10).pow(tokenMetadata.decimals));
             setKnownAssets([...knownAssets, tokenMetadata]);
             setExchangableAssets([...exchangableAssets, tokenMetadata]);
-            setQsStoredTokens([
-              ...qsStoredTokens,
-              tokenMetadata as TempleToken,
-            ]);
+            setQsStoredTokens([...qsStoredTokens, tokenMetadata as TempleToken]);
             const newExchangeData = {
-              ...exchangeData,
+              ...exchangeData
             };
             if (!newExchangeData[searchString]) {
               newExchangeData[searchString] = {};
@@ -841,30 +714,27 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
                 usdPrice: normalizedTokenLiquidity.eq(0)
                   ? undefined
                   : (networkTezUsdPrice &&
-                      normalizedTezLiquidity
-                        .div(normalizedTokenLiquidity)
-                        .times(networkTezUsdPrice)
-                        .toNumber()) ??
-                    undefined,
-              },
+                      normalizedTezLiquidity.div(normalizedTokenLiquidity).times(networkTezUsdPrice).toNumber()) ??
+                    undefined
+              }
             };
             setExchangeData(newExchangeData);
             setSearchLoading(false);
             return {
               matchingExchangableAssets: [tokenMetadata],
-              showTokenIdInput,
+              showTokenIdInput
             };
           }
           setSearchLoading(false);
           return {
             matchingExchangableAssets: [],
-            showTokenIdInput: false,
+            showTokenIdInput: false
           };
         } catch (e) {
           setSearchLoading(false);
           return {
             matchingExchangableAssets: [],
-            showTokenIdInput: false,
+            showTokenIdInput: false
           };
         }
       },
@@ -877,7 +747,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         networkTezUsdPrice,
         tezos,
         qsStoredTokens,
-        setQsStoredTokens,
+        setQsStoredTokens
       ]
     );
 
@@ -889,7 +759,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
       searchLoading,
       ensureExchangeData,
       quipuswapTokensWhitelist: quipuswapTokenWhitelists?.get(chainId) ?? [],
-      searchAssets,
+      searchAssets
     };
   }
 );

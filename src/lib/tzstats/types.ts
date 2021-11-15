@@ -1,7 +1,7 @@
 export enum TZStatsNetwork {
-  Mainnet = "https://api.tzstats.com",
-  Florencenet = "https://api.florence.tzstats.com",
-  Edonet = "https://api.edo.tzstats.com",
+  Mainnet = 'https://api.tzstats.com',
+  Florencenet = 'https://api.florence.tzstats.com',
+  Edonet = 'https://api.edo.tzstats.com'
 }
 
 export interface ErrorData {
@@ -13,9 +13,9 @@ export interface ErrorData {
   request_id: string;
 }
 
-export type AddressType = "ed25519" | "secp256k1" | "p256";
+export type AddressType = 'ed25519' | 'secp256k1' | 'p256';
 
-export type OperationStatus = "applied" | "failed" | "backtracked" | "skipped";
+export type OperationStatus = 'applied' | 'failed' | 'backtracked' | 'skipped';
 
 export interface TZStatsAccountOp extends TZStatsAccount {
   ops: TZStatsOperation[];
@@ -230,7 +230,7 @@ export type QueryArguments = Partial<{
   // columns: string[],
   limit: number;
   cursor: number;
-  order: "asc" | "desc";
+  order: 'asc' | 'desc';
 }>;
 
 export type QueryFilter = [QFColumn, QFOperator, QFArgument];
@@ -239,16 +239,16 @@ export type QFColumn = string;
 export type QFArgument = string;
 
 export enum QFOperator {
-  Equal = "eq",
-  NotEqual = "ne",
-  GreaterThan = "gt",
-  GreaterThanOrEqual = "gte",
-  LessThan = "lt",
-  LessThanOrEqual = "lte",
-  InclusionInList = "in",
-  NotIncludedInList = "nin",
-  Range = "rg",
-  Regexp = "re",
+  Equal = 'eq',
+  NotEqual = 'ne',
+  GreaterThan = 'gt',
+  GreaterThanOrEqual = 'gte',
+  LessThan = 'lt',
+  LessThanOrEqual = 'lte',
+  InclusionInList = 'in',
+  NotIncludedInList = 'nin',
+  Range = 'rg',
+  Regexp = 're'
 }
 
 export interface OperationRow {

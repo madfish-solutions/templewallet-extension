@@ -1,10 +1,10 @@
-import React, { FC } from "react";
+import React, { FC } from 'react';
 
-import AnalyticsSettings from "app/templates/AnalyticsSettings";
-import BlockExplorerSelect from "app/templates/BlockExplorerSelect";
-import LedgerLiveSettings from "app/templates/LedgerLiveSettings";
-import LocaleSelect from "app/templates/LocaleSelect";
-import PopupSettings from "app/templates/PopupSettings";
+import AnalyticsSettings from 'app/templates/AnalyticsSettings';
+import BlockExplorerSelect from 'app/templates/BlockExplorerSelect';
+import LedgerLiveSettings from 'app/templates/LedgerLiveSettings';
+import LocaleSelect from 'app/templates/LocaleSelect';
+import PopupSettings from 'app/templates/PopupSettings';
 
 const GeneralSettings: FC = () => {
   return (

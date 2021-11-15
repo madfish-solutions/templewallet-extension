@@ -1,9 +1,6 @@
-import Color from "@dicebear/avatars/lib/color";
-import Random from "@dicebear/avatars/lib/random";
-import {
-  ColorCollection,
-  Color as ColorType,
-} from "@dicebear/avatars/lib/types";
+import Color from '@dicebear/avatars/lib/color';
+import Random from '@dicebear/avatars/lib/random';
+import { ColorCollection, Color as ColorType } from '@dicebear/avatars/lib/types';
 
 type Options = {
   margin?: number;
@@ -34,18 +31,14 @@ export default function initialsSprites(random: Random, options: Options = {}) {
         options.backgroundColors.length === 0 ||
         options.backgroundColors.indexOf(backgroundColor) !== -1
       ) {
-        backgroundColors.push(
-          (Color.collection as any)[backgroundColor][
-            options.backgroundColorLevel!
-          ]
-        );
+        backgroundColors.push((Color.collection as any)[backgroundColor][options.backgroundColorLevel!]);
       }
     });
   }
 
   let backgroundColor = random.pickone(backgroundColors);
   let seedInitials = random.seed.trim().slice(0, options.chars);
-  let fontFamily = "Menlo,Monaco,monospace";
+  let fontFamily = 'Menlo,Monaco,monospace';
 
   // prettier-ignore
   let svg = [

@@ -1,1 +1,1 @@
-declare module "@ledgerhq/hw-transport-webauthn";
+declare module '@ledgerhq/hw-transport-webauthn';

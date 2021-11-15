@@ -1,10 +1,10 @@
-import { browser } from "webextension-polyfill-ts";
+import { browser } from 'webextension-polyfill-ts';
 
-import { start } from "lib/temple/back/main";
+import { start } from 'lib/temple/back/main';
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
   switch (reason) {
-    case "install":
+    case 'install':
       openFullPage();
       break;
   }
@@ -12,7 +12,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
 
 start();
 
-if (process.env.TARGET_BROWSER === "safari") {
+if (process.env.TARGET_BROWSER === 'safari') {
   browser.browserAction.onClicked.addListener(() => {
     openFullPage();
   });
@@ -20,6 +20,6 @@ if (process.env.TARGET_BROWSER === "safari") {
 
 function openFullPage() {
   browser.tabs.create({
-    url: browser.runtime.getURL("fullpage.html"),
+    url: browser.runtime.getURL('fullpage.html')
   });
 }

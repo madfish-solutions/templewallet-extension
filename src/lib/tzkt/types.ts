@@ -1,30 +1,13 @@
 // Actually, there is a bunch of other types but only these will be used for now
-export type TzktOperationType = "delegation" | "transaction" | "reveal";
+export type TzktOperationType = 'delegation' | 'transaction' | 'reveal';
 
-export type TzktNetwork =
-  | "mainnet"
-  | "granadanet"
-  | "hangzhounet"
-  | "florencenet"
-  | "edo2net"
-  | "delphinet";
+export type TzktNetwork = 'mainnet' | 'granadanet' | 'hangzhounet' | 'florencenet' | 'edo2net' | 'delphinet';
 
-export type TzktQuoteCurrency =
-  | "None"
-  | "Btc"
-  | "Eur"
-  | "Usd"
-  | "Cny"
-  | "Jpy"
-  | "Krw";
+export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
 
-export type TzktOperationStatus =
-  | "applied"
-  | "failed"
-  | "backtracked"
-  | "skipped";
+export type TzktOperationStatus = 'applied' | 'failed' | 'backtracked' | 'skipped';
 
-export type TzktContractType = "delegator_contract" | "smart_contract";
+export type TzktContractType = 'delegator_contract' | 'smart_contract';
 
 export interface TzktAlias {
   alias?: string;
@@ -67,7 +50,7 @@ export type TzktGetOperationsParams = {
 export type TzktQuote = Partial<Record<TzktQuoteCurrency, number>>;
 
 export interface TzktDelegationOperation extends TzktOperationBase {
-  type: "delegation";
+  type: 'delegation';
   initiator?: TzktAlias;
   nonce?: number;
   amount?: number;
@@ -76,7 +59,7 @@ export interface TzktDelegationOperation extends TzktOperationBase {
 }
 
 export interface TzktTransactionOperation extends TzktOperationBase {
-  type: "transaction";
+  type: 'transaction';
   initiator?: TzktAlias;
   nonce?: number;
   storageLimit: number;
@@ -90,13 +73,10 @@ export interface TzktTransactionOperation extends TzktOperationBase {
 }
 
 export interface TzktRevealOperation extends TzktOperationBase {
-  type: "reveal";
+  type: 'reveal';
 }
 
-export type TzktOperation =
-  | TzktDelegationOperation
-  | TzktTransactionOperation
-  | TzktRevealOperation;
+export type TzktOperation = TzktDelegationOperation | TzktTransactionOperation | TzktRevealOperation;
 
 export type TzktDelegateInfo = {
   alias?: string;
@@ -114,13 +94,13 @@ export type TzktRelatedContract = {
   creationTime: string;
 };
 
-type Int32ParameterKey = "eq" | "ne" | "gt" | "ge" | "lt" | "le" | "in" | "ni";
+type Int32ParameterKey = 'eq' | 'ne' | 'gt' | 'ge' | 'lt' | 'le' | 'in' | 'ni';
 export type Int32Parameter = Partial<Record<Int32ParameterKey, number>>;
 
 export type TzktGetRewardsParams = {
   address: string;
   cycle?: Int32Parameter;
-  sort?: "asc" | "desc";
+  sort?: 'asc' | 'desc';
   offset?: number;
   limit?: number;
   quote?: TzktQuoteCurrency[];
@@ -180,38 +160,21 @@ export type TzktRewardsEntry = {
 
 export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
 
-export const allInt32ParameterKeys: Int32ParameterKey[] = [
-  "eq",
-  "ne",
-  "gt",
-  "ge",
-  "lt",
-  "le",
-  "in",
-  "ni",
-];
+export const allInt32ParameterKeys: Int32ParameterKey[] = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'in', 'ni'];
 
-export const isDelegation = (
-  operation: TzktOperation
-): operation is TzktDelegationOperation => {
-  return operation.type === "delegation";
+export const isDelegation = (operation: TzktOperation): operation is TzktDelegationOperation => {
+  return operation.type === 'delegation';
 };
 
-export const isTransaction = (
-  operation: TzktOperation
-): operation is TzktTransactionOperation => {
-  return operation.type === "transaction";
+export const isTransaction = (operation: TzktOperation): operation is TzktTransactionOperation => {
+  return operation.type === 'transaction';
 };
 
-export const isReveal = (
-  operation: TzktOperation
-): operation is TzktRevealOperation => {
-  return operation.type === "reveal";
+export const isReveal = (operation: TzktOperation): operation is TzktRevealOperation => {
+  return operation.type === 'reveal';
 };
 
-const validTzktNetworks = ["mainnet", "edo2net", "florencenet", "delphinet"];
-export const isValidTzktNetwork = (
-  networkId: string
-): networkId is TzktNetwork => {
+const validTzktNetworks = ['mainnet', 'edo2net', 'florencenet', 'delphinet'];
+export const isValidTzktNetwork = (networkId: string): networkId is TzktNetwork => {
   return validTzktNetworks.includes(networkId);
 };

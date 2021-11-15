@@ -1,4 +1,4 @@
-import { buildQuery, BcdNetwork } from "./base";
+import { buildQuery, BcdNetwork } from './base';
 
 /**
  * Queries
@@ -9,25 +9,18 @@ export type BcdTokenTransfersParams = {
   address: string;
   last_id?: string;
   size?: number;
-  sort?: "asc" | "desc";
+  sort?: 'asc' | 'desc';
   start?: number;
   end?: number;
   contracts?: string;
   token_id?: number;
 };
 
-export const getTokenTransfers = buildQuery<
-  BcdTokenTransfersParams,
-  BcdTokenTransfers
->("GET", (params) => `/tokens/${params.network}/transfers/${params.address}`, [
-  "last_id",
-  "size",
-  "sort",
-  "start",
-  "end",
-  "contracts",
-  "token_id",
-]);
+export const getTokenTransfers = buildQuery<BcdTokenTransfersParams, BcdTokenTransfers>(
+  'GET',
+  params => `/tokens/${params.network}/transfers/${params.address}`,
+  ['last_id', 'size', 'sort', 'start', 'end', 'contracts', 'token_id']
+);
 
 /**
  * Types

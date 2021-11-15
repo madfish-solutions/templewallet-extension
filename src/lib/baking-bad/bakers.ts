@@ -1,28 +1,26 @@
-import { buildQuery } from "lib/build-query";
+import { buildQuery } from 'lib/build-query';
 
-import { api } from "./base";
+import { api } from './base';
 
-export const bakingBadGetBaker = buildQuery<
-  BakingBadGetBakerParams,
-  BakingBadGetBakerResponse
->(api, "GET", ({ address }) => `/bakers/${address}`, [
-  "configs",
-  "insurance",
-  "contribution",
-]);
+export const bakingBadGetBaker = buildQuery<BakingBadGetBakerParams, BakingBadGetBakerResponse>(
+  api,
+  'GET',
+  ({ address }) => `/bakers/${address}`,
+  ['configs', 'insurance', 'contribution']
+);
 
 export const bakingBadGetKnownBakers = buildQuery<
-  Omit<BakingBadGetBakerParams, "address">,
+  Omit<BakingBadGetBakerParams, 'address'>,
   BakingBadGetBakerResponse[]
->(api, "GET", "/bakers", ["configs", "insurance", "contribution"]);
+>(api, 'GET', '/bakers', ['configs', 'insurance', 'contribution']);
 
 export async function getAllBakersBakingBad() {
   const bakers = await bakingBadGetKnownBakers({
     configs: false,
     insurance: true,
-    contribution: true,
-  })
-  return bakers.filter(baker => typeof baker !== 'string') as BakingBadBaker[]
+    contribution: true
+  });
+  return bakers.filter(baker => typeof baker !== 'string') as BakingBadBaker[];
 }
 
 export type BakingBadGetBakerParams = {
@@ -47,20 +45,18 @@ export type BakingBadBaker = {
   payoutPeriod: number;
   openForDelegation: boolean;
   estimatedRoi: number;
-  serviceType: "tezos_only" | "multiasset" | "exchange" | "tezos_dune";
-  serviceHealth: "active" | "closed" | "dead";
-  payoutTiming: "stable" | "unstable" | "suspicious" | "no_data";
-  payoutAccuracy: "precise" | "inaccurate" | "suspicious" | "no_data";
+  serviceType: 'tezos_only' | 'multiasset' | 'exchange' | 'tezos_dune';
+  serviceHealth: 'active' | 'closed' | 'dead';
+  payoutTiming: 'stable' | 'unstable' | 'suspicious' | 'no_data';
+  payoutAccuracy: 'precise' | 'inaccurate' | 'suspicious' | 'no_data';
   audit: string;
   config?: BakingBadBakerConfig;
   insurance?: BakingBadBakerInsurance | null;
   insuranceCoverage?: number;
   contribution?: BakingBadBakerContribution | null;
-}
+};
 
-export type BakingBadGetBakerResponse =
-  | BakingBadBaker
-  | "";
+export type BakingBadGetBakerResponse = BakingBadBaker | '';
 
 export type BakingBadBakerValueHistoryItem<T> = {
   cycle: number;

@@ -1,34 +1,26 @@
-import React, {
-  ChangeEvent,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { ChangeEvent, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Modifier } from "@popperjs/core";
-import BigNumber from "bignumber.js";
-import classNames from "clsx";
+import { Modifier } from '@popperjs/core';
+import BigNumber from 'bignumber.js';
+import classNames from 'clsx';
 
-import AssetField from "app/atoms/AssetField";
-import DropdownWrapper from "app/atoms/DropdownWrapper";
-import Money from "app/atoms/Money";
-import Spinner from "app/atoms/Spinner";
-import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
-import { ReactComponent as SearchIcon } from "app/icons/search.svg";
-import { ReactComponent as SyncIcon } from "app/icons/sync.svg";
-import AssetIcon from "app/templates/AssetIcon";
+import AssetField from 'app/atoms/AssetField';
+import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import Money from 'app/atoms/Money';
+import Spinner from 'app/atoms/Spinner';
+import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
+import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { ReactComponent as SyncIcon } from 'app/icons/sync.svg';
+import AssetIcon from 'app/templates/AssetIcon';
 import {
   getAssetExchangeData,
   TokensExchangeData,
-  useSwappableAssets,
-} from "app/templates/SwapForm/useSwappableAssets";
-import { useFormAnalytics } from "lib/analytics";
-import { toLocalFormat } from "lib/i18n/numbers";
-import { t, T } from "lib/i18n/react";
-import { useRetryableSWR } from "lib/swr";
+  useSwappableAssets
+} from 'app/templates/SwapForm/useSwappableAssets';
+import { useFormAnalytics } from 'lib/analytics';
+import { toLocalFormat } from 'lib/i18n/numbers';
+import { t, T } from 'lib/i18n/react';
+import { useRetryableSWR } from 'lib/swr';
 import {
   useAccount,
   useBalance,
@@ -42,9 +34,9 @@ import {
   getAssetKey,
   TempleAsset,
   TempleAssetType,
-  toSlugFromLegacyAsset,
-} from "lib/temple/front";
-import Popper, { PopperRenderProps } from "lib/ui/Popper";
+  toSlugFromLegacyAsset
+} from 'lib/temple/front';
+import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 
 export type SwapInputValue = {
   asset?: TempleAsset;
@@ -62,10 +54,7 @@ type SwapInputProps = {
   onBlur?: () => void;
   onChange?: (newValue: SwapInputValue) => void;
   selectedExchanger: ExchangerType;
-  triggerValidation?: (
-    payload?: string | string[] | undefined,
-    shouldRender?: boolean | undefined
-  ) => void;
+  triggerValidation?: (payload?: string | string[] | undefined, shouldRender?: boolean | undefined) => void;
   value?: SwapInputValue;
   withPercentageButtons?: boolean;
   isOutput?: boolean;
@@ -75,7 +64,7 @@ const BUTTONS_PERCENTAGES = [25, 50, 75, 100];
 
 const defaultSearchResults = {
   matchingExchangableAssets: [],
-  showTokenIdInput: false,
+  showTokenIdInput: false
 };
 const defaultInputValue: SwapInputValue = {};
 const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
@@ -93,60 +82,39 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       selectedExchanger,
       triggerValidation,
       value = defaultInputValue,
-      withPercentageButtons,
+      withPercentageButtons
     },
     ref
   ) => {
     const { asset, amount, usdAmount } = value;
 
     const [shouldShowUsd, setShouldShowUsd] = useState(false);
-    const [searchString, setSearchString] = useState("");
+    const [searchString, setSearchString] = useState('');
     const [tokenId, setTokenId] = useState<number>();
     const { publicKeyHash: accountPkh } = useAccount();
-    const {
-      exchangeData,
-      exchangableAssets,
-      searchAssets,
-      searchLoading,
-      tezUsdPrice,
-    } = useSwappableAssets();
-    const { trackChange } = useFormAnalytics("SwapForm");
+    const { exchangeData, exchangableAssets, searchAssets, searchLoading, tezUsdPrice } = useSwappableAssets();
+    const { trackChange } = useFormAnalytics('SwapForm');
 
     const knownAssetsKeys = useMemo(
-      () => exchangableAssets.map((asset) => getAssetKey(asset)).join(),
+      () => exchangableAssets.map(asset => getAssetKey(asset)).join(),
       [exchangableAssets]
     );
     const getMatchingAssets = useCallback(
-      (_k: string, searchStr?: string, tokenId?: number) =>
-        searchAssets(searchStr, tokenId),
+      (_k: string, searchStr?: string, tokenId?: number) => searchAssets(searchStr, tokenId),
       [searchAssets]
     );
     const { data: searchResults = defaultSearchResults } = useRetryableSWR(
-      ["swap-input-matching-assets", searchString, tokenId, knownAssetsKeys],
+      ['swap-input-matching-assets', searchString, tokenId, knownAssetsKeys],
       getMatchingAssets
     );
     const { matchingExchangableAssets, showTokenIdInput } = searchResults;
 
-    const assetSlug = useMemo(
-      () => (asset ? toSlugFromLegacyAsset(asset) : "tez"),
-      [asset]
-    );
-    const { data: balance, revalidate: updateBalance } = useBalance(
-      assetSlug,
-      accountPkh,
-      { suspense: false }
-    );
+    const assetSlug = useMemo(() => (asset ? toSlugFromLegacyAsset(asset) : 'tez'), [asset]);
+    const { data: balance, revalidate: updateBalance } = useBalance(assetSlug, accountPkh, { suspense: false });
     useOnBlock(updateBalance);
 
     const assetExchangeData = useMemo(
-      () =>
-        asset &&
-        getAssetExchangeData(
-          exchangeData,
-          tezUsdPrice,
-          asset,
-          selectedExchanger
-        ),
+      () => asset && getAssetExchangeData(exchangeData, tezUsdPrice, asset, selectedExchanger),
       [exchangeData, tezUsdPrice, asset, selectedExchanger]
     );
 
@@ -157,23 +125,13 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       if (isOutput) {
         return new BigNumber(Infinity);
       }
-      const exchangableAmount =
-        asset.type === TempleAssetType.TEZ
-          ? balance?.minus(EXCHANGE_XTZ_RESERVE)
-          : balance;
+      const exchangableAmount = asset.type === TempleAssetType.TEZ ? balance?.minus(EXCHANGE_XTZ_RESERVE) : balance;
       const maxExchangable =
         asset.type === TempleAssetType.TEZ
-          ? assetExchangeData?.normalizedTezLiquidity
-              ?.div(3)
-              .decimalPlaces(asset.decimals)
-          : assetExchangeData?.normalizedTokenLiquidity
-              ?.div(3)
-              .decimalPlaces(asset.decimals);
+          ? assetExchangeData?.normalizedTezLiquidity?.div(3).decimalPlaces(asset.decimals)
+          : assetExchangeData?.normalizedTokenLiquidity?.div(3).decimalPlaces(asset.decimals);
       return BigNumber.max(
-        BigNumber.min(
-          maxExchangable ?? new BigNumber(Infinity),
-          exchangableAmount ?? new BigNumber(Infinity)
-        ),
+        BigNumber.min(maxExchangable ?? new BigNumber(Infinity), exchangableAmount ?? new BigNumber(Infinity)),
         0
       );
     }, [asset, balance, isOutput, assetExchangeData]);
@@ -186,20 +144,17 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       }
     }, [shouldShowUsd, actualShouldShowUsd]);
 
-    const handleSearchChange = useCallback(
-      (e: ChangeEvent<HTMLInputElement>) => {
-        setTokenId(undefined);
-        setSearchString(e.target.value);
-      },
-      []
-    );
+    const handleSearchChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+      setTokenId(undefined);
+      setSearchString(e.target.value);
+    }, []);
 
     const handleAmountChange = useCallback(
       (amount?: BigNumber, usdAmount?: BigNumber) => {
         onChange?.({
           asset,
           amount,
-          usdAmount,
+          usdAmount
         });
       },
       [onChange, asset]
@@ -218,7 +173,7 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
         onChange?.({
           asset,
           amount: newAmount,
-          usdAmount: newUsdAmount,
+          usdAmount: newUsdAmount
         });
         triggerValidation?.(name);
       },
@@ -227,20 +182,17 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
 
     const handleSelectedAssetChange = useCallback(
       (newValue: TempleAsset) => {
-        const newAmount = amount?.decimalPlaces(
-          newValue.decimals,
-          BigNumber.ROUND_DOWN
-        );
+        const newAmount = amount?.decimalPlaces(newValue.decimals, BigNumber.ROUND_DOWN);
         const newUsdAmount = assetAmountToUSD(newAmount, assetUsdPrice);
         onChange?.({
           asset: newValue,
           amount: newAmount,
-          usdAmount: newUsdAmount,
+          usdAmount: newUsdAmount
         });
         if (asset) {
           trackChange({ [name]: asset.symbol }, { [name]: newValue.symbol });
         }
-        setSearchString("");
+        setSearchString('');
         setTokenId(undefined);
         onBlur?.();
       },
@@ -248,21 +200,17 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
     );
 
     const handleInUSDToggle = useCallback(() => {
-      setShouldShowUsd((prevShouldShowUsd) => !prevShouldShowUsd);
+      setShouldShowUsd(prevShouldShowUsd => !prevShouldShowUsd);
     }, []);
 
     const reservationTip = useMemo(
       () =>
         t(
-          "amountMustBeReservedForNetworkFees",
+          'amountMustBeReservedForNetworkFees',
           `${EXCHANGE_XTZ_RESERVE.toString()} TEZ${
             actualShouldShowUsd
-              ? ` (≈$${assetAmountToUSD(
-                  EXCHANGE_XTZ_RESERVE,
-                  assetUsdPrice,
-                  BigNumber.ROUND_UP
-                )})`
-              : ""
+              ? ` (≈$${assetAmountToUSD(EXCHANGE_XTZ_RESERVE, assetUsdPrice, BigNumber.ROUND_UP)})`
+              : ''
           }`
         ),
       [actualShouldShowUsd, assetUsdPrice]
@@ -272,29 +220,23 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
       if (!error) {
         return error;
       }
-      if (error.startsWith("amountReserved")) {
+      if (error.startsWith('amountReserved')) {
         return reservationTip;
       }
-      if (error.startsWith("maximalAmount")) {
-        const amountAsset = new BigNumber(error.split(":")[1]);
+      if (error.startsWith('maximalAmount')) {
+        const amountAsset = new BigNumber(error.split(':')[1]);
         return t(
-          "maximalAmount",
-          (actualShouldShowUsd
-            ? assetAmountToUSD(amountAsset, assetUsdPrice)
-            : amountAsset
-          )?.toFixed()
+          'maximalAmount',
+          (actualShouldShowUsd ? assetAmountToUSD(amountAsset, assetUsdPrice) : amountAsset)?.toFixed()
         );
       }
       return error;
     }, [error, actualShouldShowUsd, assetUsdPrice, reservationTip]);
 
-    const shouldShowReservationTip =
-      asset?.type === TempleAssetType.TEZ &&
-      maxAmount.lte(amount ?? 0) &&
-      !prettyError;
+    const shouldShowReservationTip = asset?.type === TempleAssetType.TEZ && maxAmount.lte(amount ?? 0) && !prettyError;
 
     return (
-      <div className={classNames("w-full", className)} onBlur={onBlur}>
+      <div className={classNames('w-full', className)} onBlur={onBlur}>
         <input className="hidden" name={name} ref={ref} />
         <Popper
           placement="bottom"
@@ -343,22 +285,16 @@ const SwapInput = forwardRef<HTMLInputElement, SwapInputProps>(
         </Popper>
         <div
           className={classNames(
-            withPercentageButtons && "mt-1",
-            "w-full flex items-center",
-            prettyError || shouldShowReservationTip
-              ? "justify-between"
-              : "justify-end"
+            withPercentageButtons && 'mt-1',
+            'w-full flex items-center',
+            prettyError || shouldShowReservationTip ? 'justify-between' : 'justify-end'
           )}
         >
-          {prettyError && (
-            <div className="text-red-700 text-xs">{prettyError}</div>
-          )}
-          {shouldShowReservationTip && (
-            <div className="text-gray-500 text-xs">{reservationTip}</div>
-          )}
+          {prettyError && <div className="text-red-700 text-xs">{prettyError}</div>}
+          {shouldShowReservationTip && <div className="text-gray-500 text-xs">{reservationTip}</div>}
           {withPercentageButtons && (
             <div className="flex">
-              {BUTTONS_PERCENTAGES.map((percentage) => (
+              {BUTTONS_PERCENTAGES.map(percentage => (
                 <PercentageButton
                   disabled={!balance}
                   key={percentage}
@@ -382,23 +318,16 @@ type PercentageButtonProps = {
   onClick: (percentage: number) => void;
 };
 
-const PercentageButton: React.FC<PercentageButtonProps> = ({
-  percentage,
-  onClick,
-  disabled,
-}) => {
-  const handleClick = useCallback(
-    () => onClick(percentage),
-    [onClick, percentage]
-  );
+const PercentageButton: React.FC<PercentageButtonProps> = ({ percentage, onClick, disabled }) => {
+  const handleClick = useCallback(() => onClick(percentage), [onClick, percentage]);
 
   return (
     <button
       disabled={disabled}
       type="button"
       className={classNames(
-        "border border-gray-300 text-gray-500 rounded-md ml-1",
-        "h-5 w-8 flex justify-center items-center leading-tight"
+        'border border-gray-300 text-gray-500 rounded-md ml-1',
+        'h-5 w-8 flex justify-center items-center leading-tight'
       )}
       onClick={handleClick}
     >
@@ -408,7 +337,7 @@ const PercentageButton: React.FC<PercentageButtonProps> = ({
 };
 
 type SwapInputHeaderProps = PopperRenderProps &
-  Pick<SwapInputProps, "selectedExchanger" | "label" | "disabled"> & {
+  Pick<SwapInputProps, 'selectedExchanger' | 'label' | 'disabled'> & {
     amount?: BigNumber;
     amountLoading?: boolean;
     balance?: BigNumber;
@@ -448,7 +377,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       tokenId,
       toggleOpened,
       tokensExchangeData,
-      usdAmount,
+      usdAmount
     },
     ref
   ) => {
@@ -466,7 +395,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
       prevOpenedRef.current = opened;
     }, [opened]);
 
-    const handleAmountFieldFocus = useCallback((evt) => {
+    const handleAmountFieldFocus = useCallback(evt => {
       evt.preventDefault();
       setIsActive(true);
       amountFieldRef.current?.focus({ preventScroll: true });
@@ -479,12 +408,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
     }, []);
     const assetUsdPrice =
       selectedAsset &&
-      getAssetExchangeData(
-        tokensExchangeData,
-        tezUsdPrice,
-        selectedAsset,
-        selectedExchanger
-      )?.usdPrice;
+      getAssetExchangeData(tokensExchangeData, tezUsdPrice, selectedAsset, selectedExchanger)?.usdPrice;
     const canSwitchToUSD = !!assetUsdPrice;
 
     const displayedBalance = useMemo(() => {
@@ -501,11 +425,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
           onAmountChange();
         } else if (shouldShowUsd) {
           const newValueUsd = new BigNumber(newValue);
-          const newValueAsset = usdToAssetAmount(
-            newValueUsd,
-            assetUsdPrice,
-            selectedAsset!.decimals
-          );
+          const newValueAsset = usdToAssetAmount(newValueUsd, assetUsdPrice, selectedAsset!.decimals);
           onAmountChange(newValueAsset, newValueUsd);
         } else {
           const newValueAsset = new BigNumber(newValue);
@@ -529,56 +449,35 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
         <div className="w-full flex mb-1 items-center justify-between">
           <span className="text-xl text-gray-900">{label}</span>
           {selectedAsset && (
-            <span
-              className={classNames(
-                opened && "hidden",
-                "text-xs text-gray-500"
-              )}
-            >
+            <span className={classNames(opened && 'hidden', 'text-xs text-gray-500')}>
               <span className="mr-1">
                 <T id="balance" />
               </span>
               {displayedBalance && (
-                <span
-                  className={classNames(
-                    "text-sm mr-1 text-gray-700",
-                    displayedBalance.eq(0) && "text-red-700"
-                  )}
-                >
-                  {shouldShowUsd ? "≈" : ""}
+                <span className={classNames('text-sm mr-1 text-gray-700', displayedBalance.eq(0) && 'text-red-700')}>
+                  {shouldShowUsd ? '≈' : ''}
                   <Money smallFractionFont={false} fiat={shouldShowUsd}>
                     {displayedBalance}
                   </Money>
                 </span>
               )}
-              <span>{shouldShowUsd ? "$" : selectedAsset.symbol}</span>
+              <span>{shouldShowUsd ? '$' : selectedAsset.symbol}</span>
             </span>
           )}
         </div>
         <div
           className={classNames(
-            isActive && "border-orange-500 bg-gray-100",
-            "transition ease-in-out duration-200",
-            "w-full border rounded-md border-gray-300"
+            isActive && 'border-orange-500 bg-gray-100',
+            'transition ease-in-out duration-200',
+            'w-full border rounded-md border-gray-300'
           )}
           ref={ref}
         >
-          <div
-            className={classNames(
-              "w-full flex items-stretch",
-              !opened && "hidden"
-            )}
-            style={{ height: "4.5rem" }}
-          >
+          <div className={classNames('w-full flex items-stretch', !opened && 'hidden')} style={{ height: '4.5rem' }}>
             <div className="items-center ml-5 mr-3 my-6">
               <SearchIcon className="w-6 h-auto text-gray-500 stroke-current stroke-2" />
             </div>
-            <div
-              className={classNames(
-                "text-lg flex flex-1 items-stretch",
-                disabled && "pointer-events-none"
-              )}
-            >
+            <div className={classNames('text-lg flex flex-1 items-stretch', disabled && 'pointer-events-none')}>
               <div className="flex-1 flex items-stretch mr-2">
                 <input
                   className="w-full px-2 bg-transparent"
@@ -593,7 +492,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                 <div className="w-24 flex items-stretch border-l border-gray-300">
                   <AssetField
                     containerClassName="items-stretch"
-                    containerStyle={{ flexDirection: "row" }}
+                    containerStyle={{ flexDirection: 'row' }}
                     disabled={disabled}
                     fieldWrapperBottomMargin={false}
                     onBlur={setFieldInactive}
@@ -601,38 +500,28 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                     value={tokenId}
                     className="text-lg border-none bg-opacity-0 focus:shadow-none"
                     onChange={handleTokenIdChange}
-                    placeholder={t("tokenId")}
-                    style={{ padding: "0 0.5rem", borderRadius: 0 }}
+                    placeholder={t('tokenId')}
+                    style={{ padding: '0 0.5rem', borderRadius: 0 }}
                     assetDecimals={0}
                   />
                 </div>
               )}
             </div>
           </div>
-          <div
-            className={classNames(
-              "w-full flex items-stretch",
-              opened && "hidden"
-            )}
-            style={{ height: "4.5rem" }}
-          >
+          <div className={classNames('w-full flex items-stretch', opened && 'hidden')} style={{ height: '4.5rem' }}>
             <div
               className={classNames(
-                "border-r border-gray-300 pl-4 pr-3 flex py-5 items-center",
-                disabled ? "pointer-events-none" : "cursor-pointer"
+                'border-r border-gray-300 pl-4 pr-3 flex py-5 items-center',
+                disabled ? 'pointer-events-none' : 'cursor-pointer'
               )}
               onClick={disabled ? undefined : toggleOpened}
             >
               {selectedAsset ? (
                 <>
-                  <AssetIcon
-                    assetSlug={toSlugFromLegacyAsset(selectedAsset)}
-                    size={32}
-                    className="mr-2"
-                  />
+                  <AssetIcon assetSlug={toSlugFromLegacyAsset(selectedAsset)} size={32} className="mr-2" />
                   <span
                     className="text-gray-700 text-lg mr-2 items-center overflow-hidden block w-16"
-                    style={{ textOverflow: "ellipsis" }}
+                    style={{ textOverflow: 'ellipsis' }}
                   >
                     {selectedAsset.type === TempleAssetType.TEZ
                       ? selectedAsset.symbol.toUpperCase()
@@ -653,7 +542,7 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
               {canSwitchToUSD && (
                 <button
                   type="button"
-                  className={classNames("mr-2", !assetUsdPrice && "hidden")}
+                  className={classNames('mr-2', !assetUsdPrice && 'hidden')}
                   onClick={onInUSDToggle}
                   onFocus={setFieldActive}
                   onBlur={setFieldInactive}
@@ -663,8 +552,8 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
               )}
               <div
                 className={classNames(
-                  "h-full flex-1 flex items-end justify-center flex-col",
-                  amountLoading && "hidden"
+                  'h-full flex-1 flex items-end justify-center flex-col',
+                  amountLoading && 'hidden'
                 )}
               >
                 <AssetField
@@ -675,43 +564,37 @@ const SwapInputHeader = forwardRef<HTMLDivElement, SwapInputHeaderProps>(
                   onBlur={setFieldInactive}
                   onFocus={handleAmountFieldFocus}
                   className={classNames(
-                    "text-gray-700 text-2xl text-right border-none bg-opacity-0",
-                    "pl-0 focus:shadow-none"
+                    'text-gray-700 text-2xl text-right border-none bg-opacity-0',
+                    'pl-0 focus:shadow-none'
                   )}
                   onChange={handleAmountChange}
                   placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
                   style={{ padding: 0, borderRadius: 0 }}
                   min={0}
-                  assetDecimals={
-                    shouldShowUsd ? 2 : selectedAsset?.decimals ?? 0
-                  }
+                  assetDecimals={shouldShowUsd ? 2 : selectedAsset?.decimals ?? 0}
                 />
-                {network.type === "main" && (
+                {network.type === 'main' && (
                   <span
                     className={classNames(
-                      "mt-2 text-xs",
-                      displayedConversionNumber === undefined
-                        ? "text-gray-500"
-                        : "text-gray-700"
+                      'mt-2 text-xs',
+                      displayedConversionNumber === undefined ? 'text-gray-500' : 'text-gray-700'
                     )}
                   >
-                    ≈{" "}
+                    ≈{' '}
                     <Money smallFractionFont={false} fiat={!shouldShowUsd}>
                       {displayedConversionNumber ?? 0}
                     </Money>
-                    <span className="text-gray-500">{` ${
-                      shouldShowUsd ? selectedAsset!.symbol : "$"
-                    }`}</span>
+                    <span className="text-gray-500">{` ${shouldShowUsd ? selectedAsset!.symbol : '$'}`}</span>
                   </span>
                 )}
               </div>
               <div
                 className={classNames(
-                  "h-full flex-1 flex items-end justify-center flex-col",
-                  !amountLoading && "hidden"
+                  'h-full flex-1 flex items-end justify-center flex-col',
+                  !amountLoading && 'hidden'
                 )}
               >
-                <Spinner theme="primary" style={{ width: "3rem" }} />
+                <Spinner theme="primary" style={{ width: '3rem' }} />
               </div>
             </div>
           </div>
@@ -740,7 +623,7 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
   options,
   searchString,
   tokenIdMissing,
-  value,
+  value
 }) => {
   const handleOptionClick = useCallback(
     (newValue: TempleAsset) => {
@@ -757,36 +640,28 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
       opened={opened}
       className="origin-top overflow-x-hidden overflow-y-auto"
       style={{
-        maxHeight: "15.75rem",
-        backgroundColor: "white",
-        borderColor: "#e2e8f0",
-        padding: 0,
+        maxHeight: '15.75rem',
+        backgroundColor: 'white',
+        borderColor: '#e2e8f0',
+        padding: 0
       }}
     >
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           {isLoading ? (
-            <Spinner theme="primary" style={{ width: "3rem" }} />
+            <Spinner theme="primary" style={{ width: '3rem' }} />
           ) : (
             <p className="flex items-center justify-center text-gray-600 text-base font-light">
-              {searchString ? (
-                <SearchIcon className="w-5 h-auto mr-1 stroke-current" />
-              ) : null}
+              {searchString ? <SearchIcon className="w-5 h-auto mr-1 stroke-current" /> : null}
 
-              <span>
-                {tokenIdMissing ? (
-                  <T id="specifyTokenId" />
-                ) : (
-                  <T id="noAssetsFound" />
-                )}
-              </span>
+              <span>{tokenIdMissing ? <T id="specifyTokenId" /> : <T id="noAssetsFound" />}</span>
             </p>
           )}
         </div>
       )}
       {options.map((option, index) => (
         <AssetOption
-          key={getAssetKey(option) ?? "tez"}
+          key={getAssetKey(option) ?? 'tez'}
           option={option}
           selected={!!value && getAssetKey(value) === getAssetKey(option)}
           onClick={handleOptionClick}
@@ -804,11 +679,7 @@ type AssetOptionProps = {
   isLast: boolean;
 };
 
-const AssetOption: React.FC<AssetOptionProps> = ({
-  option,
-  onClick,
-  isLast,
-}) => {
+const AssetOption: React.FC<AssetOptionProps> = ({ option, onClick, isLast }) => {
   const handleClick = useCallback(() => {
     onClick(option);
   }, [onClick, option]);
@@ -816,23 +687,18 @@ const AssetOption: React.FC<AssetOptionProps> = ({
 
   const assetSlug = useMemo(() => toSlugFromLegacyAsset(option), [option]);
   const { data: balance } = useBalance(assetSlug, accountPkh, {
-    suspense: false,
+    suspense: false
   });
 
   return (
     <button
       type="button"
       onClick={handleClick}
-      className={classNames(
-        !isLast && "border-b border-gray-300",
-        "p-4 w-full flex items-center"
-      )}
+      className={classNames(!isLast && 'border-b border-gray-300', 'p-4 w-full flex items-center')}
     >
       <AssetIcon assetSlug={assetSlug} size={32} className="mr-2" />
       <span className="text-gray-700 text-lg mr-2">
-        {option.type === TempleAssetType.TEZ
-          ? option.symbol.toUpperCase()
-          : option.symbol}
+        {option.type === TempleAssetType.TEZ ? option.symbol.toUpperCase() : option.symbol}
       </span>
       <div className="flex-1 text-right text-lg text-gray-600">
         {balance && (
@@ -846,17 +712,15 @@ const AssetOption: React.FC<AssetOptionProps> = ({
 };
 
 const sameWidth: Modifier<string, any> = {
-  name: "sameWidth",
+  name: 'sameWidth',
   enabled: true,
-  phase: "beforeWrite",
-  requires: ["computeStyles"],
+  phase: 'beforeWrite',
+  requires: ['computeStyles'],
   fn: ({ state }) => {
     state.styles.popper.width = `${state.rects.reference.width}px`;
   },
   effect: ({ state }) => {
-    state.elements.popper.style.width = `${
-      (state.elements.reference as any).offsetWidth
-    }px`;
+    state.elements.popper.style.width = `${(state.elements.reference as any).offsetWidth}px`;
     return () => {};
-  },
+  }
 };
