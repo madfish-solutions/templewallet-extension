@@ -137,8 +137,12 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
         const handleBlur = () => {
           getFieldEl()?.blur();
         };
+        const t = setTimeout(() => {
+          handleBlur();
+        }, 30_000);
         window.addEventListener("blur", handleBlur);
         return () => {
+          clearTimeout(t);
           window.removeEventListener("blur", handleBlur);
         };
       }
