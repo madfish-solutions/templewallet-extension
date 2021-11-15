@@ -25,16 +25,19 @@ function openFullPage() {
   });
 }
 
-const LOCK_TIME = 2 * 60_000
-let disconnectTimestamp = 0
+const LOCK_TIME = 2 * 60_000;
+let disconnectTimestamp = 0;
+let connectionsCount = 0;
 
 browser.runtime.onConnect.addListener(function (externalPort) {
-  if (Date.now() - disconnectTimestamp >= LOCK_TIME) {
+  connectionsCount++;
+  if (connectionsCount === 1 && Date.now() - disconnectTimestamp >= LOCK_TIME) {
     lock();
   }
-  disconnectTimestamp = 0;
   externalPort.onDisconnect.addListener(function () {
-    disconnectTimestamp = Date.now();
+    connectionsCount--;
+    if (connectionsCount === 0) {
+      disconnectTimestamp = Date.now();
+    }
   });
-}
-);
+});
