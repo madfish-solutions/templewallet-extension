@@ -11,6 +11,8 @@ export class NotEnoughFundsError extends ArtificialError {}
 export class ZeroBalanceError extends NotEnoughFundsError {}
 export class ZeroTEZBalanceError extends NotEnoughFundsError {}
 
+export const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
+
 export const PASSWORD_PATTERN = new RegExp(
   [
     "^",

@@ -12,6 +12,7 @@ import classNames from "clsx";
 import { Button } from "app/atoms/Button";
 import FormField from "app/atoms/FormField";
 import Name from "app/atoms/Name";
+import { ACCOUNT_NAME_PATTERN } from "app/defaults";
 import { ReactComponent as EditIcon } from "app/icons/edit.svg";
 import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
@@ -84,7 +85,7 @@ const EditableTitle: FC = () => {
         } catch (err: any) {
           formAnalytics.trackSubmitFail();
 
-            console.error(err);
+          console.error(err);
 
           await alert({
             title: t("errorChangingAccountName"),
@@ -118,7 +119,7 @@ const EditableTitle: FC = () => {
             name="name"
             defaultValue={account.name}
             maxLength={16}
-            pattern="^[a-zA-Z0-9 _-]{1,16}$"
+            pattern={ACCOUNT_NAME_PATTERN.toString()}
             title={t("accountNameInputTitle")}
             spellCheck={false}
             className={classNames(
