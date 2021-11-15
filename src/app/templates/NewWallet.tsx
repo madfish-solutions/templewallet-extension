@@ -341,42 +341,42 @@ const NewWallet: FC<NewWalletProps> = ({
         {(!ownMnemonic ||
           isImportFromSeedPhrase ||
           !shouldUseKeystorePassword) && (
-          <>
-            <FormField
-              ref={register({
-                required: t("required"),
-                pattern: {
-                  value: PASSWORD_PATTERN,
-                  message: PASSWORD_ERROR_CAPTION,
-                },
-              })}
-              label={t("password")}
-              labelDescription={t("unlockPasswordInputDescription")}
-              id="newwallet-password"
-              type="password"
-              name="password"
-              placeholder="********"
-              errorCaption={errors.password?.message}
-              containerClassName="mb-8"
-            />
+            <>
+              <FormField
+                ref={register({
+                  required: t("required"),
+                  pattern: {
+                    value: PASSWORD_PATTERN,
+                    message: PASSWORD_ERROR_CAPTION,
+                  },
+                })}
+                label={t("password")}
+                labelDescription={t("unlockPasswordInputDescription")}
+                id="newwallet-password"
+                type="password"
+                name="password"
+                placeholder="********"
+                errorCaption={errors.password?.message}
+                containerClassName="mb-8"
+              />
 
-            <FormField
-              ref={register({
-                required: t("required"),
-                validate: (val) =>
-                  val === passwordValue || t("mustBeEqualToPasswordAbove"),
-              })}
-              label={t("repeatPassword")}
-              labelDescription={t("repeatPasswordInputDescription")}
-              id="newwallet-repassword"
-              type="password"
-              name="repassword"
-              placeholder="********"
-              errorCaption={errors.repassword?.message}
-              containerClassName="mb-8"
-            />
-          </>
-        )}
+              <FormField
+                ref={register({
+                  required: t("required"),
+                  validate: (val) =>
+                    val === passwordValue || t("mustBeEqualToPasswordAbove"),
+                })}
+                label={t("repeatPassword")}
+                labelDescription={t("repeatPasswordInputDescription")}
+                id="newwallet-repassword"
+                type="password"
+                name="repassword"
+                placeholder="********"
+                errorCaption={errors.repassword?.message}
+                containerClassName="mb-8"
+              />
+            </>
+          )}
 
         <FormCheckbox
           ref={register({
