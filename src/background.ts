@@ -1,7 +1,7 @@
 import { browser } from "webextension-polyfill-ts";
 
-import { start, lockWallet } from "lib/temple/back/main";
-// import { start } from "lib/temple/back/main";
+import { lock } from "lib/temple/back/actions";
+import { start } from "lib/temple/back/main";
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
   switch (reason) {
@@ -30,7 +30,7 @@ let disconnectTimestamp = 0
 
 browser.runtime.onConnect.addListener(function (externalPort) {
   if (Date.now() - disconnectTimestamp >= LOCK_TIME) {
-    lockWallet()
+    lock();
   }
   disconnectTimestamp = 0;
   externalPort.onDisconnect.addListener(function () {
