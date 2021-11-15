@@ -1,0 +1,4 @@
+dist
+node_modules
+xcode
+public/popup.html
