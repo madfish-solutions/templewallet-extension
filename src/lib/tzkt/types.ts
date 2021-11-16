@@ -4,10 +4,7 @@ export type TzktOperationType = "delegation" | "transaction" | "reveal";
 export type TzktNetwork =
   | "mainnet"
   | "granadanet"
-  | "hangzhounet"
-  | "florencenet"
-  | "edo2net"
-  | "delphinet";
+  | "hangzhounet";
 
 export type TzktQuoteCurrency =
   | "None"
@@ -191,27 +188,8 @@ export const allInt32ParameterKeys: Int32ParameterKey[] = [
   "ni",
 ];
 
-export const isDelegation = (
-  operation: TzktOperation
-): operation is TzktDelegationOperation => {
-  return operation.type === "delegation";
-};
-
-export const isTransaction = (
-  operation: TzktOperation
-): operation is TzktTransactionOperation => {
-  return operation.type === "transaction";
-};
-
 export const isReveal = (
   operation: TzktOperation
 ): operation is TzktRevealOperation => {
   return operation.type === "reveal";
-};
-
-const validTzktNetworks = ["mainnet", "edo2net", "florencenet", "delphinet"];
-export const isValidTzktNetwork = (
-  networkId: string
-): networkId is TzktNetwork => {
-  return validTzktNetworks.includes(networkId);
 };

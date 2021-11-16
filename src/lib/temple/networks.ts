@@ -5,14 +5,14 @@ export const KNOWN_LAMBDA_CONTRACTS = new Map([
   [TempleChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
   [TempleChainId.Granadanet, "KT1VhtTGAyh7AVVwyH2ExNhaXvQq2rAJ6DNs"],
   [TempleChainId.Hangzhounet, "KT19ewhnhaCcCuoF1Ly2pxXAFRiF3UtgaY9U"],
-  [TempleChainId.Florencenet, "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX"]
+  [TempleChainId.Idiazabalnet, "KT1VCXUAQC6bky8LKjSaTvM9wwTXe9YQ7N4s"]
 ]);
 
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, "mainnet"],
   [TempleChainId.Granadanet, "granadanet"],
   [TempleChainId.Hangzhounet, "hangzhounet"],
-  [TempleChainId.Florencenet, "florencenet"]
+  [TempleChainId.Idiazabalnet, "idiazabalnet"]
 ]);
 
 export const NETWORKS: TempleNetwork[] = [
@@ -81,20 +81,20 @@ export const NETWORKS: TempleNetwork[] = [
     id: "hangzhounet",
     name: "Hangzhounet Testnet",
     description: "Hangzhounet testnet",
-    lambdaContract: "KT1Uu5atnGR8m7S6i1rvTB3r71PPqHBDfkSS",
+    lambdaContract: "KT19ewhnhaCcCuoF1Ly2pxXAFRiF3UtgaY9U",
     type: "test",
     rpcBaseURL: "https://hangzhounet.smartpy.io",
     color: "#b83280",
     disabled: false,
   },
   {
-    id: "florencenet",
-    name: "Florence Testnet",
-    description: "Florence testnet",
-    lambdaContract: "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX",
+    id: "idiazabalnet",
+    name: "Idiazabalnet Testnet",
+    description: "Idiazabalnet testnet",
+    lambdaContract: "KT1VCXUAQC6bky8LKjSaTvM9wwTXe9YQ7N4s",
     type: "test",
-    rpcBaseURL: "https://florencenet.smartpy.io",
-    color: "#FFD88A",
+    rpcBaseURL: "https://rpc.tzkt.io/idiazabalnet",
+    color: "#131380",
     disabled: false,
   },
   {
@@ -108,42 +108,12 @@ export const NETWORKS: TempleNetwork[] = [
   },
   // Hidden
   {
-    id: "giganode-testnet",
-    name: "Florence Testnet @giganode",
-    description: "Highly available Tezos Mainnet nodes operated by Giganode",
-    type: "test",
-    rpcBaseURL: "https://testnet-tezos.giganode.io",
-    color: "#83b300",
-    disabled: false,
-    hidden: true,
-  },
-  {
-    id: "tzbeta-testnet",
-    name: "Florence Testnet @rpctest.tzbeta.net",
-    description: "Highly available Delphi Testnet nodes operated by Blockscale",
-    type: "test",
-    rpcBaseURL: "https://rpctest.tzbeta.net",
-    color: "#ed6663",
-    disabled: false,
-    hidden: true,
-  },
-  {
     id: "tzbeta-rpczero",
     name: "Edo Testnet @rpczero.tzbeta.net",
     description: "Highly available Edo Testnet nodes operated by Blockscale",
     type: "test",
     rpcBaseURL: "https://rpczero.tzbeta.net",
     color: "#FBBF24",
-    disabled: false,
-    hidden: true,
-  },
-  {
-    id: "tezie-delphinet",
-    name: "Delphi Testnet @api.tez.ie",
-    description: "Highly available Delphi Testnet nodes operated by ECAD Labs",
-    type: "test",
-    rpcBaseURL: "https://api.tez.ie/rpc/delphinet",
-    color: "#ed6663",
     disabled: false,
     hidden: true,
   }

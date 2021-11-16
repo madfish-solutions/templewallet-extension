@@ -93,19 +93,6 @@ export const QUIPUSWAP_CONTRACTS = new Map<
   Partial<Record<"fa12Factory" | "fa2Factory", string[]>>
 >([
   [
-    TempleChainId.Florencenet,
-    {
-      fa12Factory: [
-        "KT195gyo5G7pay2tYweWDeYFkGLqcvQTXoCW",
-        "KT1We4CHneKjnCkovTDV34qc4W7xzWbn5LwY",
-      ],
-      fa2Factory: [
-        "KT1HjLwPC3sbh6W5HjaKBsiVPTgptcNbnXnc",
-        "KT1SQX24W2v6D5sgihznax1eBykEGQNc7UpD",
-      ],
-    },
-  ],
-  [
     TempleChainId.Mainnet,
     {
       fa12Factory: [

@@ -13,8 +13,7 @@ import {
 export const TZKT_API_BASE_URLS = new Map([
   [TempleChainId.Mainnet, "https://api.tzkt.io/v1"],
   [TempleChainId.Granadanet, "https://api.granadanet.tzkt.io/v1"],
-  [TempleChainId.Hangzhounet, "https://api.hangzhou2net.tzkt.io/v1"],
-  [TempleChainId.Florencenet, "https://api.florencenet.tzkt.io/v1"]
+  [TempleChainId.Hangzhounet, "https://api.hangzhou2net.tzkt.io/v1"]
 ]);
 
 const api = axios.create();
