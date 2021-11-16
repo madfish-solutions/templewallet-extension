@@ -6,7 +6,7 @@ export const BCD_NETWORKS_NAMES = new Map<TempleChainId, BcdNetwork>([
   [TempleChainId.Mainnet, "mainnet"],
   [TempleChainId.Granadanet, "granadanet"],
   [TempleChainId.Florencenet, "florencenet"],
-  [TempleChainId.Edo2net, "edo2net"],
+  [TempleChainId.Hangzhounet, "hangzhou2net"]
 ]);
 
 export const buildQuery = makeBuildQueryFn<Record<string, unknown>, any>(
@@ -20,7 +20,5 @@ export const buildQuery = makeBuildQueryFn<Record<string, unknown>, any>(
 export type BcdNetwork =
   | "mainnet"
   | "granadanet"
-  | "hangzhounet"
-  | "florencenet"
-  | "edo2net"
-  | "delphinet";
+  | "hangzhou2net"
+  | "florencenet";

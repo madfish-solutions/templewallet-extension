@@ -4,21 +4,15 @@ import { TempleChainId, TempleNetwork } from "lib/temple/types";
 export const KNOWN_LAMBDA_CONTRACTS = new Map([
   [TempleChainId.Mainnet, "KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE"],
   [TempleChainId.Granadanet, "KT1VhtTGAyh7AVVwyH2ExNhaXvQq2rAJ6DNs"],
-  [TempleChainId.Hangzhounet, "KT1Uu5atnGR8m7S6i1rvTB3r71PPqHBDfkSS"],
-  [TempleChainId.Florencenet, "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX"],
-  [TempleChainId.Edo2net, "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN"],
-  [TempleChainId.Delphinet, "KT1EC1oaF3LwjiPto3fpUZiS3sWYuQHGxqXM"],
-  [TempleChainId.Carthagenet, "KT1PCtQTdgD44WsYgTzAUUztMcrDmPiSuSV1"],
+  [TempleChainId.Hangzhounet, "KT19ewhnhaCcCuoF1Ly2pxXAFRiF3UtgaY9U"],
+  [TempleChainId.Florencenet, "KT1BbTmNHmJp2NnQyw5qsAExEYmYuUpR2HdX"]
 ]);
 
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, "mainnet"],
   [TempleChainId.Granadanet, "granadanet"],
   [TempleChainId.Hangzhounet, "hangzhounet"],
-  [TempleChainId.Florencenet, "florencenet"],
-  [TempleChainId.Edo2net, "edo2net"],
-  [TempleChainId.Delphinet, "delphinet"],
-  [TempleChainId.Carthagenet, "carthagenet"],
+  [TempleChainId.Florencenet, "florencenet"]
 ]);
 
 export const NETWORKS: TempleNetwork[] = [
@@ -104,16 +98,6 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false,
   },
   {
-    id: "edo2net",
-    name: "Edo2 Testnet",
-    description: "Edo2 testnet",
-    lambdaContract: "KT1A64nVZDccAHGAsf1ZyVajXZcbiwjV3SnN",
-    type: "test",
-    rpcBaseURL: "https://edonet.smartpy.io",
-    color: "#FBBF24",
-    disabled: false,
-  },
-  {
     id: "sandbox",
     name: "localhost:8732",
     description: "Local Sandbox",
@@ -162,36 +146,5 @@ export const NETWORKS: TempleNetwork[] = [
     color: "#ed6663",
     disabled: false,
     hidden: true,
-  },
-  {
-    id: "tezie-edonet",
-    name: "Edo Testnet @api.tez.ie",
-    description: "Highly available Edo Testnet nodes operated by ECAD Labs",
-    type: "test",
-    rpcBaseURL: "https://api.tez.ie/rpc/edonet",
-    color: "#FBBF24",
-    disabled: false,
-    hidden: true,
-  },
-  {
-    id: "pointninja-mainnet",
-    name: "Tezos Mainnet @mainnet.point.ninja",
-    description: "Highly available Tezos Mainnet nodes operated by Point Ninja",
-    type: "main",
-    rpcBaseURL: "https://mainnet.point.ninja",
-    color: "#83b300",
-    disabled: false,
-    hidden: true,
-  },
-  {
-    id: "madfish-mainnet",
-    name: "Tezos Mainnet @mainnet-node.madfish.solutions",
-    description:
-      "Highly available Tezos Mainnet nodes operated by Madfish Solutions",
-    type: "main",
-    rpcBaseURL: "https://mainnet-node.madfish.solutions",
-    color: "#83b300",
-    disabled: false,
-    hidden: true,
-  },
+  }
 ];
