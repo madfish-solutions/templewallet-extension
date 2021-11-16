@@ -31,7 +31,7 @@ export enum TempleChainId {
   Mainnet = "NetXdQprcVkpaWU",
   Granadanet = "NetXz969SFaFn8k",
   Hangzhounet = "NetXZSsxBpMQeAT",
-  Florencenet = "NetXxkAx4woPLyu"
+  Idiazabalnet = "NetXxkAx4woPLyu"
 }
 
 export function isKnownChainId(chainId: string): chainId is TempleChainId {

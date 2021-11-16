@@ -14,8 +14,7 @@ import {
 } from "lib/tzstats/types";
 
 export const TZSTATS_CHAINS = new Map([
-  [TempleChainId.Mainnet, TZStatsNetwork.Mainnet],
-  [TempleChainId.Florencenet, TZStatsNetwork.Florencenet]
+  [TempleChainId.Mainnet, TZStatsNetwork.Mainnet]
 ]);
 
 export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;
