@@ -1,4 +1,11 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
@@ -25,8 +32,19 @@ type FormData = {
 };
 
 const SUBMIT_ERROR_TYPE = "submit-error";
-const LOCK_TIME = 5 * 60_000;
+const LOCK_TIME = 60_000;
 const LAST_ATTEMPT = 3;
+
+const checkTime = (i: number) => (i < 10 ? "0" + i : i);
+
+const getTimeLeft = (start: number, end: number) => {
+  const isPositiveTime =
+    start + end - Date.now() < 0 ? 0 : start + end - Date.now();
+  const diff = isPositiveTime / 1000;
+  const seconds = Math.floor(diff % 60);
+  const minutes = Math.floor(diff / 60);
+  return `${checkTime(minutes)}:${checkTime(seconds)}`;
+};
 
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
@@ -40,6 +58,9 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     TempleSharedStorageKey.TimeLock,
     0
   );
+  const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
+
+  const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, lockLevel));
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -70,7 +91,11 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         setAttempt(1);
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
+        if (attempt >= LAST_ATTEMPT) setTimeLock(Date.now());
         setAttempt(attempt + 1);
+        setTimeleft(
+          getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3))
+        );
 
         console.error(err);
 
@@ -89,32 +114,27 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       formAnalytics,
       attempt,
       setAttempt,
+      setTimeLock,
     ]
   );
 
-  useEffect(() => {
-    if (attempt > LAST_ATTEMPT && !timelock) {
-      setTimeLock(Date.now());
-    }
-  }, [attempt, timelock, setTimeLock]);
-
   const isDisabled = useMemo(
-    () => Date.now() - timelock <= LOCK_TIME,
-    [timelock]
+    () => Date.now() - timelock <= lockLevel,
+    [timelock, lockLevel]
   );
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (Date.now() - timelock > LOCK_TIME) {
-        setAttempt(LAST_ATTEMPT);
+      if (Date.now() - timelock > lockLevel) {
         setTimeLock(0);
       }
-    }, 5_000);
+      setTimeleft(getTimeLeft(timelock, lockLevel));
+    }, 1_000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [timelock, attempt, setTimeLock, setAttempt]);
+  }, [timelock, lockLevel, setTimeLock]);
 
   return (
     <SimplePageLayout
@@ -132,7 +152,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         <Alert
           type="error"
           title={t("error")}
-          description={t("unlockPasswordErrorDelay")}
+          description={`${t("unlockPasswordErrorDelay")} ${timeleft}`}
           className="mt-6"
         />
       )}
