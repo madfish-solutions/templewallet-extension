@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 
 import FormField from "app/atoms/FormField";
 import FormSubmitButton from "app/atoms/FormSubmitButton";
+import { ACCOUNT_NAME_PATTERN } from "app/defaults";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
 import PageLayout from "app/layouts/PageLayout";
 import { useFormAnalytics } from "lib/analytics";
@@ -69,7 +70,7 @@ const CreateAccount: FC = () => {
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-          console.error(err);
+        console.error(err);
 
         // Human delay.
         await new Promise((res) => setTimeout(res, 300));
@@ -93,7 +94,7 @@ const CreateAccount: FC = () => {
           <FormField
             ref={register({
               pattern: {
-                value: /^.{0,16}$/,
+                value: ACCOUNT_NAME_PATTERN,
                 message: t("accountNameInputTitle"),
               },
             })}
