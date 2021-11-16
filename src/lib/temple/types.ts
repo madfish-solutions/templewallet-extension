@@ -30,11 +30,8 @@ export interface TempleState {
 export enum TempleChainId {
   Mainnet = "NetXdQprcVkpaWU",
   Granadanet = "NetXz969SFaFn8k",
-  Hangzhounet = "NetXuXoGoLxNK6o",
-  Florencenet = "NetXxkAx4woPLyu",
-  Edo2net = "NetXSgo1ZT2DRUG",
-  Delphinet = "NetXm8tYqnMWky1",
-  Carthagenet = "NetXjD3HPJJjmcd",
+  Hangzhounet = "NetXZSsxBpMQeAT",
+  Florencenet = "NetXxkAx4woPLyu"
 }
 
 export function isKnownChainId(chainId: string): chainId is TempleChainId {

@@ -39,8 +39,8 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
       [
         TempleChainId.Hangzhounet,
         {
-          account: "https://hangzhounet.tzkt.io",
-          transaction: "https://hangzhounet.tzkt.io",
+          account: "https://hangzhou2net.tzkt.io",
+          transaction: "https://hangzhou2net.tzkt.io",
         },
       ],
       [
@@ -49,21 +49,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
           account: "https://florencenet.tzkt.io",
           transaction: "https://florencenet.tzkt.io",
         },
-      ],
-      [
-        TempleChainId.Edo2net,
-        {
-          account: "https://edo2net.tzkt.io",
-          transaction: "https://edo2net.tzkt.io",
-        },
-      ],
-      [
-        TempleChainId.Delphinet,
-        {
-          account: "https://delphinet.tzkt.io",
-          transaction: "https://delphinet.tzkt.io",
-        },
-      ],
+      ]
     ]),
   },
   {
@@ -83,14 +69,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
           account: "https://florence.tzstats.com",
           transaction: "https://florence.tzstats.com",
         },
-      ],
-      [
-        TempleChainId.Edo2net,
-        {
-          account: "https://edo.tzstats.com",
-          transaction: "https://edo.tzstats.com",
-        },
-      ],
+      ]
     ]),
   },
   {
@@ -114,13 +93,7 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         {
           transaction: "https://better-call.dev/florencenet/opg",
         },
-      ],
-      [
-        TempleChainId.Edo2net,
-        {
-          transaction: "https://better-call.dev/edo2net/opg",
-        },
-      ],
+      ]
     ]),
   },
   {
