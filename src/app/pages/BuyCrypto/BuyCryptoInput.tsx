@@ -57,6 +57,19 @@ const coinList = [
   "LUNA",
   "ATOM",
   "SUSHI",
+  "CELO",
+  "AVAX",
+  "AXS",
+  "EPS",
+  "EOS",
+  "FTM",
+  "FLOW",
+  "KAVA",
+  "KSM",
+  "NEAR",
+  "sUSD",
+  "USDTERC20",
+  "USDTBSC"
 ];
 
 const sameWidth: Modifier<string, any> = {
@@ -65,7 +78,7 @@ const sameWidth: Modifier<string, any> = {
   phase: "beforeWrite",
   requires: ["computeStyles"],
   fn: ({ state }) => {
-    state.styles.popper.width = `${state.rects.reference.width + 17}px`;
+    state.styles.popper.width = `${state.rects.reference.width + 40}px`;
     // state.styles.popper.left = "-5px";
   },
   effect: ({ state }) => {
@@ -95,6 +108,8 @@ const BuyCryptoInput: FC<Props> = ({
     ["/api/currency"],
     getCurrencies
   );
+
+  console.log({ currencies })
 
   const isMinAmountError =
     amount !== 0 &&
