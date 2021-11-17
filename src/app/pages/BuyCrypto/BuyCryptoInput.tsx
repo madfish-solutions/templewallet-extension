@@ -109,8 +109,6 @@ const BuyCryptoInput: FC<Props> = ({
     getCurrencies
   );
 
-  console.log({ currencies })
-
   const isMinAmountError =
     amount !== 0 &&
     (lastMinAmount ? lastMinAmount.toNumber() : 0) > Number(amount);
