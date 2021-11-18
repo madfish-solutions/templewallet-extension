@@ -92,28 +92,7 @@ const DEXTER_INITIAL_TOKENS = new Map<string, TempleToken[]>([
         iconUrl: "https://usdtz.com/lightlogo10USDtz.png",
       },
     ],
-  ],
-  [
-    TempleChainId.Edo2net,
-    [
-      {
-        type: TempleAssetType.FA1_2,
-        decimals: 0,
-        symbol: "KT1CUg3...wv3K",
-        name: "KT1CUg3...wv3K",
-        fungible: true,
-        address: "KT1CUg39jQF8mV6nTMqZxjUUZFuz1KXowv3K",
-      },
-      {
-        type: TempleAssetType.FA1_2,
-        decimals: 0,
-        symbol: "KT1FCMQ...daWH",
-        name: "KT1FCMQ...daWH",
-        fungible: true,
-        address: "KT1FCMQk44tEP9fm9n5JJEhkSk1TW3XQdaWH",
-      },
-    ],
-  ],
+  ]
 ]);
 
 const LIQUIDITY_BAKING_INITIAL_TOKENS = new Map<string, TempleToken[]>([

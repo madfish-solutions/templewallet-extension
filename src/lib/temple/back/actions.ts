@@ -552,7 +552,7 @@ export async function processBeacon(
 
               return {
                 type: TempleDAppMessageType.PermissionRequest,
-                network: network === "edonet" ? "edo2net" : (network as any),
+                network: (network as any),
                 appMeta: req.appMetadata,
                 force: true,
               };
