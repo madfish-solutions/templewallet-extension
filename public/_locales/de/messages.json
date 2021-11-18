@@ -979,7 +979,7 @@
     "message": "Delegieren an KT... Vertragsadresse nicht möglich"
   },
   "confirmAction": {
-    "message": "$Action$ bestätigen",
+    "message": "$action$ bestätigen",
     "placeholders": {
       "action": {
         "content": "$1"
@@ -1340,7 +1340,7 @@
     "description": "Ledger = https://www.ledger.com/"
   },
   "firefoxLedgerConnectionError": {
-    "message": "$sorry$ Die Verbindung zum $device$-Gerät über $browser$ ist vorübergehend $nicht verfügbar$.",
+    "message": "$sorry$ Die Verbindung zum $device$-Gerät über $browser$ ist vorübergehend $unavailable$.",
     "placeholders": {
       "sorry": {
         "content": "$1"
