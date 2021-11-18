@@ -66,7 +66,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
       await registerWallet(data.password, data.mnemonic);
       setSeedRevealed(true);
     } catch (err: any) {
-        console.error(err);
+      console.error(err);
 
       alert(err.message);
     }
@@ -168,10 +168,10 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
 function getTwoNearIndexes(index: number, limit: number) {
   switch (true) {
     case index === 0:
-      return [1, 2];
+      return [1, 2, 3];
 
     case index === limit - 1:
-      return [limit - 2, limit - 3];
+      return [limit - 2, limit - 3, limit - 4];
 
     default:
       return [index - 1, index + 1];
