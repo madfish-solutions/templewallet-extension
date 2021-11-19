@@ -1,9 +1,9 @@
 import React, {
   FC,
   FunctionComponent,
-  SVGProps,
   ReactNode,
   Suspense,
+  SVGProps,
   useLayoutEffect,
   useMemo,
 } from "react";
@@ -26,15 +26,15 @@ import Activity from "app/templates/activity/Activity";
 import AssetInfo from "app/templates/AssetInfo";
 import { T, t } from "lib/i18n/react";
 import {
+  getAssetSymbol,
+  isTezAsset,
   TempleAccountType,
   useAccount,
   useAssetMetadata,
-  getAssetSymbol,
-  isTezAsset,
   useNetwork,
 } from "lib/temple/front";
 import useTippy from "lib/ui/useTippy";
-import { Link, useLocation, navigate, HistoryAction } from "lib/woozie";
+import { HistoryAction, Link, navigate, useLocation } from "lib/woozie";
 
 import CollectiblesList from "./Collectibles/CollectiblesList";
 import { ExploreSelectors } from "./Explore.selectors";

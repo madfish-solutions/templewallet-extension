@@ -1,29 +1,38 @@
-import React, {ComponentProps, FC, ReactNode, Suspense, useEffect, useLayoutEffect, useRef, useState,} from "react";
+import React, {
+  ComponentProps,
+  FC,
+  ReactNode,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 
 import DocBg from "app/a11y/DocBg";
-import {Button} from "app/atoms/Button";
+import { Button } from "app/atoms/Button";
 import Spinner from "app/atoms/Spinner";
-import {useAppEnv} from "app/env";
+import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
-import {ReactComponent as ChevronLeftIcon} from "app/icons/chevron-left.svg";
+import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import ContentContainer from "app/layouts/ContentContainer";
 import NoLambdaViewContractAlert from "app/templates/NoLambdaViewContractAlert";
-import {T} from "lib/i18n/react";
-import {goBack, HistoryAction, Link, navigate, useLocation} from "lib/woozie";
+import { T } from "lib/i18n/react";
+import { goBack, HistoryAction, Link, navigate, useLocation } from "lib/woozie";
 
-import {ReactComponent as AttentionIcon} from "../icons/attention.svg";
-import {useOnboardingProgress} from "../pages/Onboarding/hooks/useOnboardingProgress.hook";
-import {PageLayoutSelectors} from "./PageLayout.selectors";
+import { ReactComponent as AttentionIcon } from "../icons/attention.svg";
+import { useOnboardingProgress } from "../pages/Onboarding/hooks/useOnboardingProgress.hook";
+import { PageLayoutSelectors } from "./PageLayout.selectors";
 import AnalyticsConfirmationOverlay from "./PageLayout/AnalyticsConfirmationOverlay";
 import ConfirmationOverlay from "./PageLayout/ConfirmationOverlay";
 import Header from "./PageLayout/Header";
 
 type PageLayoutProps = ToolbarProps;
 
-const PageLayout: FC<PageLayoutProps> = ({children, ...toolbarProps}) => {
-  const {fullPage} = useAppEnv();
+const PageLayout: FC<PageLayoutProps> = ({ children, ...toolbarProps }) => {
+  const { fullPage } = useAppEnv();
 
   return (
     <>
@@ -100,13 +109,13 @@ type ToolbarProps = {
 };
 
 const Toolbar: FC<ToolbarProps> = ({
-                                     pageTitle,
-                                     hasBackAction = true,
-                                     step,
-                                     setStep,
-                                     skip,
-                                     attention,
-                                   }) => {
+  pageTitle,
+  hasBackAction = true,
+  step,
+  setStep,
+  skip,
+  attention,
+}) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage, registerBackHandler, onBack } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
@@ -246,10 +255,12 @@ const Toolbar: FC<ToolbarProps> = ({
         </h2>
       )}
 
-      <div className="flex-1"/>
+      <div className="flex-1" />
       {attention && (
         <div className="flex content-end">
-          <Link to={"/attention"} style={{paddingRight: 12}}><AttentionIcon className="w-auto h-6 stroke-current flex-1 content-end"  /></Link>
+          <Link to={"/attention"} style={{ paddingRight: 12 }}>
+            <AttentionIcon className="w-auto h-6 stroke-current flex-1 content-end" />
+          </Link>
         </div>
       )}
       {skip && (
