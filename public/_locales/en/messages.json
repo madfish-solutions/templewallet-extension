@@ -2204,6 +2204,9 @@
   "thanks": {
     "message": "Ok thanks!"
   },
+  "makeSureBrowserIsUpToDate": {
+    "message": "Please make sure you are using an up-to-date browser version. Otherwise, we strongly recommend updating your browser to the newest version!"
+  },
   "congratsDescription1": {
     "message": "Thanks for your attention!"
   },

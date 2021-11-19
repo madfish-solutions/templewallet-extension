@@ -95,6 +95,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
           )}
         </>
       }
+      attention={true}
     >
       {fullPage && (
         <>
