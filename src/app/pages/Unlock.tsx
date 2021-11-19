@@ -96,6 +96,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         setTimeleft(
           getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3))
         );
+        console.log(err);
 
         console.error(err);
 
