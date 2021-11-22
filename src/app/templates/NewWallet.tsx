@@ -80,7 +80,7 @@ const NewWallet: FC<NewWalletProps> = ({
   title,
   tabSlug = "seed-phrase",
 }) => {
-  const { locked, registerWallet, setSeedRevealed } = useTempleClient();
+  const { locked, registerWallet } = useTempleClient();
   const alert = useAlert();
 
   const {
@@ -139,7 +139,6 @@ const NewWallet: FC<NewWalletProps> = ({
               data.password!,
               formatMnemonic(data.mnemonic!)
             );
-            setSeedRevealed(true);
           } else {
             try {
               const mnemonic = await decryptKukaiSeedPhrase(
@@ -152,7 +151,6 @@ const NewWallet: FC<NewWalletProps> = ({
                   : data.password!,
                 mnemonic
               );
-              setSeedRevealed(true);
             } catch (err: any) {
               alert({
                 title: t("errorImportingKukaiWallet"),
@@ -183,7 +181,6 @@ const NewWallet: FC<NewWalletProps> = ({
       ownMnemonic,
       setBackupData,
       registerWallet,
-      setSeedRevealed,
       alert,
       isImportFromSeedPhrase,
     ]
@@ -344,42 +341,42 @@ const NewWallet: FC<NewWalletProps> = ({
         {(!ownMnemonic ||
           isImportFromSeedPhrase ||
           !shouldUseKeystorePassword) && (
-          <>
-            <FormField
-              ref={register({
-                required: t("required"),
-                pattern: {
-                  value: PASSWORD_PATTERN,
-                  message: PASSWORD_ERROR_CAPTION,
-                },
-              })}
-              label={t("password")}
-              labelDescription={t("unlockPasswordInputDescription")}
-              id="newwallet-password"
-              type="password"
-              name="password"
-              placeholder="********"
-              errorCaption={errors.password?.message}
-              containerClassName="mb-8"
-            />
+            <>
+              <FormField
+                ref={register({
+                  required: t("required"),
+                  pattern: {
+                    value: PASSWORD_PATTERN,
+                    message: PASSWORD_ERROR_CAPTION,
+                  },
+                })}
+                label={t("password")}
+                labelDescription={t("unlockPasswordInputDescription")}
+                id="newwallet-password"
+                type="password"
+                name="password"
+                placeholder="********"
+                errorCaption={errors.password?.message}
+                containerClassName="mb-8"
+              />
 
-            <FormField
-              ref={register({
-                required: t("required"),
-                validate: (val) =>
-                  val === passwordValue || t("mustBeEqualToPasswordAbove"),
-              })}
-              label={t("repeatPassword")}
-              labelDescription={t("repeatPasswordInputDescription")}
-              id="newwallet-repassword"
-              type="password"
-              name="repassword"
-              placeholder="********"
-              errorCaption={errors.repassword?.message}
-              containerClassName="mb-8"
-            />
-          </>
-        )}
+              <FormField
+                ref={register({
+                  required: t("required"),
+                  validate: (val) =>
+                    val === passwordValue || t("mustBeEqualToPasswordAbove"),
+                })}
+                label={t("repeatPassword")}
+                labelDescription={t("repeatPasswordInputDescription")}
+                id="newwallet-repassword"
+                type="password"
+                name="repassword"
+                placeholder="********"
+                errorCaption={errors.repassword?.message}
+                containerClassName="mb-8"
+              />
+            </>
+          )}
 
         <FormCheckbox
           ref={register({
