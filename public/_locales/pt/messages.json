@@ -1309,7 +1309,7 @@
     "description": "Ledger = https://www.ledger.com/"
   },
   "defaultLedgerName": {
-    "message": "Ledger $number",
+    "message": "Ledger $number$",
     "description": "Ledger = https://www.ledger.com/",
     "placeholders": {
       "number": {
@@ -1527,7 +1527,7 @@
     }
   },
   "someNetworkIsNotCurrent": {
-    "message": "A rede $rede$ foi especificada, que não é a rede atual",
+    "message": "A rede $network$ foi especificada, que não é a rede atual",
     "placeholders": {
       "network": {
         "content": "$1"
