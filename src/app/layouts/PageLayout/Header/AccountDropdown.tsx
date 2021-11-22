@@ -28,6 +28,7 @@ import {
 import { PopperRenderProps } from "lib/ui/Popper";
 import { Link } from "lib/woozie";
 
+import { ReactComponent as DAppsIcon } from "../../../icons/apps-alt.svg";
 import { AccountDropdownSelectors } from "./AccountDropdown.selectors";
 
 type ExcludesFalse = <T>(x: T | false) => x is T;
@@ -98,6 +99,13 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
           Icon: LinkIcon,
           i18nKey: "connectLedger",
           linkTo: "/connect-ledger",
+          onClick: closeDropdown,
+        },
+        {
+          key: "dapps",
+          Icon: DAppsIcon,
+          i18nKey: "dapps",
+          linkTo: "/dApps",
           onClick: closeDropdown,
         },
         {
