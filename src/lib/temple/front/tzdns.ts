@@ -10,10 +10,6 @@ import { TaquitoTezosDomainsClient } from "@tezos-domains/taquito-client";
 import { useTezos, useChainId, NETWORK_IDS } from "lib/temple/front";
 
 export function getClient(networkId: string, tezos: TezosToolkit) {
-  if (networkId === "edo2net") {
-    networkId = "edonet";
-  }
-
   return isTezosDomainsSupportedNetwork(networkId)
     ? new TaquitoTezosDomainsClient({ network: networkId, tezos })
     : TaquitoTezosDomainsClient.Unsupported;

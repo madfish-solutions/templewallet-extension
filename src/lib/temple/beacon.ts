@@ -14,10 +14,6 @@ export type NetworkType =
   | "mainnet"
   | "granadanet"
   | "hangzhounet"
-  | "florencenet"
-  | "edonet"
-  | "carthagenet"
-  | "delphinet"
   | "custom";
 
 export interface Network {
