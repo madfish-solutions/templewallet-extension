@@ -63,18 +63,7 @@ export const DEXTER_EXCHANGE_CONTRACTS = new Map<
         0: "KT1Tr2eG3eVmPRbymrbU2UppUmKjFPXomGG9",
       },
     },
-  ],
-  [
-    TempleChainId.Edo2net,
-    {
-      KT1CUg39jQF8mV6nTMqZxjUUZFuz1KXowv3K: {
-        0: "KT1BYYLfMjufYwqFtTSYJND7bzKNyK7mjrjM",
-      },
-      KT1FCMQk44tEP9fm9n5JJEhkSk1TW3XQdaWH: {
-        0: "KT1RfTPvrfAQDGAJ7wB71EtwxLQgjmfz59kE",
-      },
-    },
-  ],
+  ]
 ]);
 
 export const LIQUIDITY_BAKING_CONTRACTS = new Map<
@@ -103,26 +92,6 @@ export const QUIPUSWAP_CONTRACTS = new Map<
   string,
   Partial<Record<"fa12Factory" | "fa2Factory", string[]>>
 >([
-  [
-    TempleChainId.Edo2net,
-    {
-      fa12Factory: ["KT1WEcbPNGZNe6d5pm3eNufqe7cHS77DBG2G"],
-      fa2Factory: ["KT1KGdYTfLdzTKpyQbKkHJ2ASmBYa84hnCiQ"],
-    },
-  ],
-  [
-    TempleChainId.Florencenet,
-    {
-      fa12Factory: [
-        "KT195gyo5G7pay2tYweWDeYFkGLqcvQTXoCW",
-        "KT1We4CHneKjnCkovTDV34qc4W7xzWbn5LwY",
-      ],
-      fa2Factory: [
-        "KT1HjLwPC3sbh6W5HjaKBsiVPTgptcNbnXnc",
-        "KT1SQX24W2v6D5sgihznax1eBykEGQNc7UpD",
-      ],
-    },
-  ],
   [
     TempleChainId.Mainnet,
     {
