@@ -10,6 +10,7 @@ import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
 import { openInFullPage, useAppEnv } from "app/env";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import { ReactComponent as DAppsIcon } from "app/icons/apps-alt.svg";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
@@ -28,7 +29,6 @@ import {
 import { PopperRenderProps } from "lib/ui/Popper";
 import { Link } from "lib/woozie";
 
-import { ReactComponent as DAppsIcon } from "../../../icons/apps-alt.svg";
 import { AccountDropdownSelectors } from "./AccountDropdown.selectors";
 
 type ExcludesFalse = <T>(x: T | false) => x is T;
