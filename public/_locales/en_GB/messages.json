@@ -712,7 +712,7 @@
     "message": "A password is used to protect the wallet."
   },
   "unlockPasswordErrorDelay": {
-    "message": "You have entered the wrong password three times. Your wallet is being blocked for"
+    "message": "You have entered the wrong password three times. Your wallet is being blocked for 5 minutes."
   },
   "unlock": {
     "message": "Unlock"
