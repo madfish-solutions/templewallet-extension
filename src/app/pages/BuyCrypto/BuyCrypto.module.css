@@ -6,6 +6,9 @@
   margin-top: 16px;
   color: #4a5568;
 }
+.selected {
+  font-weight: 600;
+}
 .description {
   font-family: "Inter", sans-serif;
   font-weight: 400;
