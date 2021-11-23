@@ -12,6 +12,7 @@ interface Props {
   label: string;
   type?: string;
   short?: boolean;
+  className?: string;
 }
 
 const customLogoCurrencyList = [
@@ -24,7 +25,12 @@ const customLogoCurrencyList = [
 ];
 
 const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
-  ({ onPress, label, type, short = false }, ref) => {
+  ({ onPress, label, type, short = false, className }, ref) => {
+    const compoundClassName = classNames(
+      styles["currencySelector"],
+      "cursor-pointer",
+      className
+    );
     return (
       <div
         style={
@@ -34,7 +40,7 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
         }
         onClick={onPress}
         ref={ref}
-        className={classNames(styles["currencySelector"], "cursor-pointer")}
+        className={compoundClassName}
       >
         {type === "tezosSelector" ? (
           <AssetIcon assetSlug="tez" size={32} />

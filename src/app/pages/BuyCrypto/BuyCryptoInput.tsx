@@ -170,6 +170,9 @@ const BuyCryptoInput: FC<Props> = ({
                         type="currencyDropdown"
                         key={currency.code}
                         label={currency.code}
+                        className={
+                          currency.code === coin ? styles.selected : ""
+                        }
                         onPress={() => {
                           setCoin(currency.code);
                           setOpened(false);
