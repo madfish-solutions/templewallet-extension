@@ -11,6 +11,7 @@ interface Props {
   onPress?: () => void;
   label: string;
   type?: string;
+  short?: boolean;
 }
 
 const customLogoCurrencyList = [
@@ -23,7 +24,7 @@ const customLogoCurrencyList = [
 ];
 
 const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
-  ({ onPress, label, type }, ref) => {
+  ({ onPress, label, type, short = false }, ref) => {
     return (
       <div
         style={
@@ -64,7 +65,9 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
             )}
           </>
         )}
-        <p className={styles["currencyName"]}>{label}</p>
+        <p className={styles["currencyName"]}>
+          {short && label.length > 4 ? `${label.substr(0, 3)}…` : label}
+        </p>
         {type === "currencySelector" && (
           <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
         )}
