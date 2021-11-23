@@ -170,7 +170,7 @@ const NewWallet: FC<NewWalletProps> = ({
           });
         }
       } catch (err: any) {
-          console.error(err);
+        console.error(err);
 
         await alert({
           title: t("actionConfirmation"),

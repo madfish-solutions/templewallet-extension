@@ -17,23 +17,58 @@ type VerifyProps = {
 
 const WORDS_TO_FILL = 2;
 
+const range = (startAt = 0, size: number) => {
+  return [...Array(size).keys()].map((i) => i + startAt);
+};
+
+const shuffle = (array: any[]) => {
+  const length = array == null ? 0 : array.length;
+  if (!length) {
+    return [];
+  }
+  let index = -1;
+  const lastIndex = length - 1;
+  const result = [...array];
+  while (++index < length) {
+    const rand = index + Math.floor(Math.random() * (lastIndex - index + 1));
+    const value = result[rand];
+    result[rand] = result[index];
+    result[index] = value;
+  }
+  return result;
+};
+
 const Verify: FC<VerifyProps> = ({ data }) => {
-  const { registerWallet, setSeedRevealed } = useTempleClient();
+  const { registerWallet } = useTempleClient();
 
   const words = useMemo(() => data.mnemonic.split(" "), [data.mnemonic]);
-  const indexesToFill = useMemo(() => {
-    const indexes: number[] = [];
-    for (let i = 0; i < WORDS_TO_FILL; i++) {
-      while (true) {
-        const index = getRandomInt(0, words.length - 1);
-        const twoNearIndexes = getTwoNearIndexes(index, words.length);
-        if ([index, ...twoNearIndexes].every((ni) => !indexes.includes(ni))) {
-          indexes.push(index);
-          break;
-        }
+  const wordsToCheckPositions = useMemo(() => {
+    const shuffledPositions = shuffle(range(0, words.length));
+    const selectedPositions: number[] = [];
+    for (let i = 0; i < words.length; i++) {
+      const newPosition = shuffledPositions[i];
+      if (
+        selectedPositions.every((selectedPosition) => {
+          const distance = Math.abs(selectedPosition - newPosition);
+          if (
+            [selectedPosition, newPosition].some((position) =>
+              [0, words.length - 1].some((edge) => edge === position)
+            )
+          ) {
+            return distance > 2;
+          }
+
+          return distance > 1;
+        })
+      ) {
+        selectedPositions.push(newPosition);
+      }
+      if (selectedPositions.length === WORDS_TO_FILL) {
+        break;
       }
     }
-    return sortNumbers(indexes);
+
+    return selectedPositions.sort((a, b) => a - b);
   }, [words]);
 
   const [filledIndexes, setFilledIndexes] = useState<number[]>([]);
@@ -52,8 +87,8 @@ const Verify: FC<VerifyProps> = ({ data }) => {
   );
 
   const filled = useMemo(
-    () => indexesToFill.every((i) => filledIndexes.includes(i)),
-    [indexesToFill, filledIndexes]
+    () => wordsToCheckPositions.every((i) => filledIndexes.includes(i)),
+    [wordsToCheckPositions, filledIndexes]
   );
 
   const { handleSubmit, formState } = useForm();
@@ -64,20 +99,12 @@ const Verify: FC<VerifyProps> = ({ data }) => {
 
     try {
       await registerWallet(data.password, data.mnemonic);
-      setSeedRevealed(true);
     } catch (err: any) {
-        console.error(err);
+      console.error(err);
 
       alert(err.message);
     }
-  }, [
-    filled,
-    submitting,
-    registerWallet,
-    setSeedRevealed,
-    data.password,
-    data.mnemonic,
-  ]);
+  }, [filled, submitting, registerWallet, data.password, data.mnemonic]);
 
   return (
     <div className="w-full max-w-md mx-auto my-8">
@@ -93,7 +120,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
         </h3>
 
         <div className="mb-8 flex flex-col">
-          {indexesToFill.map((indexToFill, i) => (
+          {wordsToCheckPositions.map((indexToFill, i) => (
             <WordsRow
               key={i}
               allWords={words}
@@ -176,12 +203,6 @@ function getTwoNearIndexes(index: number, limit: number) {
     default:
       return [index - 1, index + 1];
   }
-}
-
-function getRandomInt(min: number, max: number) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function sortNumbers(arr: number[]) {
