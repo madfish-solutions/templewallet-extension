@@ -174,45 +174,34 @@ const EditableTitle: FC = () => {
           </div>
         </form>
       ) : (
-        <Name
-          className={classNames(
-            "mb-2",
-            "text-2xl font-light text-gray-700 text-center"
-          )}
-          style={{ maxWidth: "20rem" }}
-        >
-          {account.name}
-        </Name>
-      )}
-
-      {!editing && (
-        <div
-          className={classNames(
-            "absolute top-0 right-0 bottom-0",
-            "flex items-center"
-          )}
-        >
-          <Button
+        <>
+          <Name
             className={classNames(
-              "px-2 py-1",
-              "rounded overflow-hidden",
-              "flex items-center",
-              "text-gray-600 text-sm",
-              "transition ease-in-out duration-200",
-              "hover:bg-black hover:bg-opacity-5",
-              "opacity-75 hover:opacity-100 focus:opacity-100"
+              "mb-2 pl-7 max-w-xs",
+              "text-2xl font-light text-gray-700 text-center"
             )}
-            onClick={handleEditClick}
-            testID={EditableTitleSelectors.EditButton}
           >
-            <EditIcon
+            {account.name}
+          </Name>
+          {!editing && (
+            <Button
               className={classNames(
-                "-ml-1 mr-1 h-4 w-auto stroke-current stroke-2"
+                "px-1 py-1 ml-1 mb-2",
+                "rounded overflow-hidden",
+                "text-gray-600 text-sm",
+                "transition ease-in-out duration-200",
+                "hover:bg-black hover:bg-opacity-5",
+                "opacity-75 hover:opacity-100 focus:opacity-100"
               )}
-            />
-            <T id="edit" />
-          </Button>
-        </div>
+              onClick={handleEditClick}
+              testID={EditableTitleSelectors.EditButton}
+            >
+              <EditIcon
+                className={classNames("h-5 w-auto stroke-current stroke-2")}
+              />
+            </Button>
+          )}
+        </>
       )}
     </div>
   );
