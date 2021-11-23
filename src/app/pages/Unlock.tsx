@@ -1,4 +1,11 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import classNames from "clsx";
 import { useForm } from "react-hook-form";
@@ -9,7 +16,11 @@ import FormSubmitButton from "app/atoms/FormSubmitButton";
 import SimplePageLayout from "app/layouts/SimplePageLayout";
 import { useFormAnalytics } from "lib/analytics";
 import { T, t } from "lib/i18n/react";
-import { useLocalStorage, useTempleClient, TempleSharedStorageKey } from "lib/temple/front";
+import {
+  useLocalStorage,
+  useTempleClient,
+  TempleSharedStorageKey,
+} from "lib/temple/front";
 import { Link } from "lib/woozie";
 
 interface UnlockProps {
@@ -21,15 +32,35 @@ type FormData = {
 };
 
 const SUBMIT_ERROR_TYPE = "submit-error";
-const LOCK_TIME = 5 * 60_000;
+const LOCK_TIME = 60_000;
 const LAST_ATTEMPT = 3;
+
+const checkTime = (i: number) => (i < 10 ? "0" + i : i);
+
+const getTimeLeft = (start: number, end: number) => {
+  const isPositiveTime =
+    start + end - Date.now() < 0 ? 0 : start + end - Date.now();
+  const diff = isPositiveTime / 1000;
+  const seconds = Math.floor(diff % 60);
+  const minutes = Math.floor(diff / 60);
+  return `${checkTime(minutes)}:${checkTime(seconds)}`;
+};
 
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
   const formAnalytics = useFormAnalytics("UnlockWallet");
 
-  const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
-  const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
+  const [attempt, setAttempt] = useLocalStorage<number>(
+    TempleSharedStorageKey.PasswordAttempts,
+    1
+  );
+  const [timelock, setTimeLock] = useLocalStorage<number>(
+    TempleSharedStorageKey.TimeLock,
+    0
+  );
+  const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
+
+  const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, lockLevel));
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -50,14 +81,21 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       clearError("password");
       formAnalytics.trackSubmit();
       try {
-        if (attempt > LAST_ATTEMPT) await new Promise((res) => setTimeout(res, Math.random() * 2000 + 1000));
+        if (attempt > LAST_ATTEMPT)
+          await new Promise((res) =>
+            setTimeout(res, Math.random() * 2000 + 1000)
+          );
         await unlock(password);
 
         formAnalytics.trackSubmitSuccess();
         setAttempt(1);
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
+        if (attempt >= LAST_ATTEMPT) setTimeLock(Date.now());
         setAttempt(attempt + 1);
+        setTimeleft(
+          getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3))
+        );
 
         console.error(err);
 
@@ -75,30 +113,28 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       focusPasswordField,
       formAnalytics,
       attempt,
-      setAttempt
+      setAttempt,
+      setTimeLock,
     ]
   );
 
-  useEffect(() => {
-    if (attempt > LAST_ATTEMPT && !timelock) {
-      setTimeLock(Date.now());
-    }
-  }, [attempt, timelock, setTimeLock])
-
-  const isDisabled = useMemo(() => Date.now() - timelock <= LOCK_TIME, [timelock])
+  const isDisabled = useMemo(
+    () => Date.now() - timelock <= lockLevel,
+    [timelock, lockLevel]
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (Date.now() - timelock > LOCK_TIME) {
-        setTimeLock(0)
-        setAttempt(LAST_ATTEMPT)
+      if (Date.now() - timelock > lockLevel) {
+        setTimeLock(0);
       }
-    }, 5_000);
+      setTimeleft(getTimeLeft(timelock, lockLevel));
+    }, 1_000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [timelock, attempt, setTimeLock, setAttempt]);
+  }, [timelock, lockLevel, setTimeLock]);
 
   return (
     <SimplePageLayout
@@ -116,7 +152,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         <Alert
           type="error"
           title={t("error")}
-          description={t('unlockPasswordErrorDelay')}
+          description={`${t("unlockPasswordErrorDelay")} ${timeleft}`}
           className="mt-6"
         />
       )}
@@ -139,7 +175,9 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
           disabled={isDisabled}
         />
 
-        <FormSubmitButton disabled={isDisabled} loading={submitting}>{t("unlock")}</FormSubmitButton>
+        <FormSubmitButton disabled={isDisabled} loading={submitting}>
+          {t("unlock")}
+        </FormSubmitButton>
 
         {canImportNew && (
           <div className="my-6">
