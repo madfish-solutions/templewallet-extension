@@ -10,6 +10,7 @@ import Money from "app/atoms/Money";
 import Name from "app/atoms/Name";
 import { openInFullPage, useAppEnv } from "app/env";
 import { ReactComponent as AddIcon } from "app/icons/add.svg";
+import { ReactComponent as DAppsIcon } from "app/icons/apps-alt.svg";
 import { ReactComponent as DownloadIcon } from "app/icons/download.svg";
 import { ReactComponent as LinkIcon } from "app/icons/link.svg";
 import { ReactComponent as MaximiseIcon } from "app/icons/maximise.svg";
@@ -98,6 +99,13 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
           Icon: LinkIcon,
           i18nKey: "connectLedger",
           linkTo: "/connect-ledger",
+          onClick: closeDropdown,
+        },
+        {
+          key: "dapps",
+          Icon: DAppsIcon,
+          i18nKey: "dapps",
+          linkTo: "/dApps",
           onClick: closeDropdown,
         },
         {
