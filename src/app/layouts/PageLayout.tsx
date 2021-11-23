@@ -20,8 +20,9 @@ import { ReactComponent as ChevronLeftIcon } from "app/icons/chevron-left.svg";
 import ContentContainer from "app/layouts/ContentContainer";
 import NoLambdaViewContractAlert from "app/templates/NoLambdaViewContractAlert";
 import { T } from "lib/i18n/react";
-import { goBack, HistoryAction, navigate, useLocation } from "lib/woozie";
+import { goBack, HistoryAction, Link, navigate, useLocation } from "lib/woozie";
 
+import { ReactComponent as AttentionIcon } from "../icons/attention.svg";
 import { useOnboardingProgress } from "../pages/Onboarding/hooks/useOnboardingProgress.hook";
 import { PageLayoutSelectors } from "./PageLayout.selectors";
 import AnalyticsConfirmationOverlay from "./PageLayout/AnalyticsConfirmationOverlay";
@@ -104,6 +105,7 @@ type ToolbarProps = {
   step?: number;
   setStep?: (step: number) => void;
   skip?: boolean;
+  attention?: boolean;
 };
 
 const Toolbar: FC<ToolbarProps> = ({
@@ -112,6 +114,7 @@ const Toolbar: FC<ToolbarProps> = ({
   step,
   setStep,
   skip,
+  attention,
 }) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage, registerBackHandler, onBack } = useAppEnv();
@@ -246,12 +249,20 @@ const Toolbar: FC<ToolbarProps> = ({
             "text-gray-600",
             "text-sm font-light leading-none"
           )}
+          style={attention ? { marginLeft: 40 } : {}}
         >
           {pageTitle}
         </h2>
       )}
 
       <div className="flex-1" />
+      {attention && (
+        <div className="flex content-end">
+          <Link to={"/attention"} style={{ paddingRight: 12 }}>
+            <AttentionIcon className="w-auto h-6 stroke-current flex-1 content-end" />
+          </Link>
+        </div>
+      )}
       {skip && (
         <div className="flex content-end">
           <Button
