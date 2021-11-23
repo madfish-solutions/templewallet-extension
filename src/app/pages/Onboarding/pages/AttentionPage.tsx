@@ -1,12 +1,24 @@
 import React, { FC } from "react";
 
+import { goBack } from "lib/woozie";
+
 import { T } from "../../../../lib/i18n/react";
 import { Button } from "../../../atoms/Button";
+import PageLayout from "../../../layouts/PageLayout";
 import styles from "../Onboarding.module.css";
 
-const AttentionPage: FC = () => {
-  return (
-    <>
+const AttentionPage: FC = () => (
+  <PageLayout
+    pageTitle={
+      <>
+        <T id="onboarding" />
+      </>
+    }
+  >
+    <div
+      style={{ maxWidth: "360px", margin: "auto" }}
+      className="pb-8 text-center"
+    >
       <p className={styles["title"]}>
         <T id={"attention"} />
       </p>
@@ -15,7 +27,7 @@ const AttentionPage: FC = () => {
       </p>
       <p
         className={styles["description"]}
-        style={{ textAlign: "start", marginBottom: 20, marginLeft: -24 }}
+        style={{ textAlign: "start", marginBottom: 20 }}
       >
         <T id={"attentionListTitle1"} />
       </p>
@@ -35,7 +47,7 @@ const AttentionPage: FC = () => {
       </ul>
       <p
         className={styles["description"]}
-        style={{ textAlign: "start", marginBottom: 20, marginLeft: -24 }}
+        style={{ textAlign: "start", marginTop: 20, marginBottom: 20 }}
       >
         <T id={"attentionListTitle2"} />
       </p>
@@ -53,12 +65,15 @@ const AttentionPage: FC = () => {
           <T id={"attentionListItem8"} />
         </li>
       </ul>
-      <p className={styles["description"]}>
+      <p
+        className={styles["description"]}
+        style={{ marginTop: 24, marginBottom: 24 }}
+      >
         <T id={"takeCare"} />
       </p>
       <p
         className={styles["description"]}
-        style={{ marginBottom: 0, color: "#3182CE" }}
+        style={{ marginTop: 0, marginBottom: 0, color: "#3182CE" }}
       >
         <T id={"readMore"} />
         <a
@@ -71,6 +86,12 @@ const AttentionPage: FC = () => {
           link
         </a>
       </p>
+      <p
+        className={styles["description"]}
+        style={{ marginTop: 24, marginBottom: 0, fontWeight: 500 }}
+      >
+        <T id={"makeSureBrowserIsUpToDate"} />
+      </p>
       <Button
         className="w-full justify-center border-none"
         style={{
@@ -80,12 +101,12 @@ const AttentionPage: FC = () => {
           marginTop: "40px",
           borderRadius: 4,
         }}
-        onClick={() => {}}
+        onClick={() => goBack()}
       >
         <T id={"thanks"} />
       </Button>
-    </>
-  );
-};
+    </div>
+  </PageLayout>
+);
 
 export default AttentionPage;
