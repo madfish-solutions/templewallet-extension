@@ -31,7 +31,11 @@ let connectionsCount = 0;
 
 browser.runtime.onConnect.addListener((externalPort) => {
   connectionsCount++;
-  if (connectionsCount === 1 && Date.now() - disconnectTimestamp >= LOCK_TIME) {
+  if (
+    connectionsCount === 1 &&
+    Date.now() - disconnectTimestamp >= LOCK_TIME &&
+    disconnectTimestamp !== 0
+  ) {
     lock();
   }
   externalPort.onDisconnect.addListener(() => {
