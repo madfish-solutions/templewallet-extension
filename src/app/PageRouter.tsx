@@ -23,6 +23,8 @@ import { usePageRouterAnalytics } from "lib/analytics";
 import { useTempleClient } from "lib/temple/front";
 import * as Woozie from "lib/woozie";
 
+import AttentionPage from "./pages/Onboarding/pages/AttentionPage";
+
 interface RouteContext {
   popup: boolean;
   fullPage: boolean;
@@ -100,6 +102,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
     onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),
   ],
   ["/buy", onlyReady(onlyInFullPage(() => <BuyCrypto />))],
+  ["/attention", onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ["*", () => <Woozie.Redirect to="/" />],
 ]);
 
