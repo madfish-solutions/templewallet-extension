@@ -14,7 +14,6 @@ import { Props as TippyProps } from "tippy.js";
 import Spinner from "app/atoms/Spinner";
 import { useAppEnv } from "app/env";
 import ErrorBoundary from "app/ErrorBoundary";
-import { ReactComponent as DAppsIcon } from "app/icons/apps-alt.svg";
 import { ReactComponent as BuyIcon } from "app/icons/buy.svg";
 import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
 import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
@@ -114,10 +113,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
-        <div
-          className="flex justify-around mx-auto mt-6"
-          style={{ maxWidth: "19rem" }}
-        >
+        <div className="flex justify-around mx-auto mt-6">
           <ActionButton
             label={<T id="receive" />}
             Icon={ReceiveIcon}
@@ -131,11 +127,6 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             />
           )}
 
-          <ActionButton
-            label={<T id="dApps" />}
-            Icon={DAppsIcon}
-            href="/dApps"
-          />
           <ActionButton
             label={<T id="swap" />}
             Icon={SwapIcon}
@@ -190,12 +181,11 @@ const ActionButton: FC<ActionButtonProps> = ({
   tippyProps = {},
 }) => {
   const network = useNetwork();
-  const { popup } = useAppEnv();
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
-      className: `flex flex-col items-center ${popup ? "" : "px-1"} ${
-        network.type === "test" ? "mx-3" : "mx-2"
+      className: `flex flex-col items-center ${
+        network.type === "test" ? "mx-6" : "mx-4"
       }`,
       type: "button" as const,
       children: (
@@ -220,7 +210,7 @@ const ActionButton: FC<ActionButtonProps> = ({
         </>
       ),
     }),
-    [disabled, Icon, label, network.type, popup]
+    [disabled, Icon, label, network.type]
   );
   return disabled ? (
     <button ref={buttonRef} {...commonButtonProps} />
