@@ -104,7 +104,12 @@ const Verify: FC<VerifyProps> = ({ data }) => {
 
       alert(err.message);
     }
-  }, [filled, submitting, registerWallet, data.password, data.mnemonic]);
+  }, [
+    filled,
+    submitting,
+    registerWallet,
+    data.password,
+    data.mnemonic]);
 
   return (
     <div className="w-full max-w-md mx-auto my-8">

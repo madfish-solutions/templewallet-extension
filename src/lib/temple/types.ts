@@ -124,6 +124,8 @@ export enum TempleSharedStorageKey {
   DAppEnabled = "dappenabled",
   LocaleCode = "localecode",
   UseLedgerLive = "useledgerlive",
+  PasswordAttempts = "passwordAttempts",
+  TimeLock = "timelock",
 }
 
 export type TempleDAppSessions = Record<string, TempleDAppSession>;
