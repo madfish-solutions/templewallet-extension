@@ -15,7 +15,6 @@ import { nanoid } from "nanoid";
 
 import { IntercomClient } from "lib/intercom";
 import { useRetryableSWR } from "lib/swr";
-import { useStorage } from "lib/temple/front";
 import {
   TempleConfirmationPayload,
   TempleMessageType,
@@ -117,11 +116,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     () => [...defaultNetworksWithLambdaContracts, ...customNetworks],
     [defaultNetworksWithLambdaContracts, customNetworks]
   );
-
-  /**
-   * Backup seed phrase flag
-   */
-  const [seedRevealed, setSeedRevealed] = useStorage("seed_revealed", true);
 
   /**
    * Actions
@@ -440,8 +434,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     // Misc
     confirmation,
     resetConfirmation,
-    seedRevealed,
-    setSeedRevealed,
 
     // Actions
     registerWallet,
