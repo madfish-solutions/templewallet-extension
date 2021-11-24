@@ -15,7 +15,6 @@ import { nanoid } from "nanoid";
 
 import { IntercomClient } from "lib/intercom";
 import { useRetryableSWR } from "lib/swr";
-import { useStorage } from "lib/temple/front";
 import {
   TempleConfirmationPayload,
   TempleMessageType,
