@@ -280,12 +280,7 @@ const ConfirmDAppForm: FC = () => {
   const modifyFeeAndLimit = useMemo<ModifyFeeAndLimit>(
     () => ({
       totalFee: modifiedTotalFeeValue,
-      onTotalFeeChange: v => {
-        console.log(modifiedTotalFeeValue);
-        if (v > modifiedTotalFeeValue) {
-          setModifiedTotalFeeValue(v);
-        }
-      },
+      onTotalFeeChange: v => setModifiedTotalFeeValue(v),
       storageLimit: modifiedStorageLimitDisplayed ? modifiedStorageLimitValue : null,
       onStorageLimitChange: v => setModifiedStorageLimitValue(v)
     }),
