@@ -1,1 +1,1 @@
-declare module "typedarray-to-buffer";
+declare module 'typedarray-to-buffer';

@@ -1,6 +1,6 @@
-import { browser } from "webextension-polyfill-ts";
+import { browser } from 'webextension-polyfill-ts';
 
-import * as Repo from "lib/temple/repo";
+import * as Repo from 'lib/temple/repo';
 
 export async function clearStorage() {
   await Repo.db.delete();

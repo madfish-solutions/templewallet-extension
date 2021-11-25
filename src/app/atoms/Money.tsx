@@ -1,19 +1,12 @@
-import React, {
-  FC,
-  HTMLAttributes,
-  memo,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
+import React, { FC, HTMLAttributes, memo, useCallback, useMemo, useRef } from 'react';
 
-import BigNumber from "bignumber.js";
-import classNames from "clsx";
+import BigNumber from 'bignumber.js';
+import classNames from 'clsx';
 
-import { toLocalFixed, toLocalFormat, toShortened } from "lib/i18n/numbers";
-import { getNumberSymbols, t } from "lib/i18n/react";
-import useCopyToClipboard from "lib/ui/useCopyToClipboard";
-import useTippy, { TippyInstance, TippyProps } from "lib/ui/useTippy";
+import { toLocalFixed, toLocalFormat, toShortened } from 'lib/i18n/numbers';
+import { getNumberSymbols, t } from 'lib/i18n/react';
+import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+import useTippy, { TippyInstance, TippyProps } from 'lib/ui/useTippy';
 
 type MoneyProps = {
   children: number | string | BigNumber;
@@ -36,7 +29,7 @@ const Money = memo<MoneyProps>(
     roundingMode = BigNumber.ROUND_DOWN,
     shortened,
     smallFractionFont = true,
-    tooltip = true,
+    tooltip = true
   }) => {
     const bn = new BigNumber(children);
     const decimalsLength = bn.decimalPlaces();
@@ -46,33 +39,20 @@ const Money = memo<MoneyProps>(
     }
     const { decimal } = getNumberSymbols();
 
-    const decimals = fiat
-      ? 2
-      : decimalsLength > cryptoDecimals
-      ? cryptoDecimals
-      : decimalsLength;
-    let result = shortened
-      ? toShortened(bn)
-      : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
-    let indexOfDecimal =
-      result.indexOf(decimal) === -1
-        ? result.indexOf(".")
-        : result.indexOf(decimal);
+    const decimals = fiat ? 2 : decimalsLength > cryptoDecimals ? cryptoDecimals : decimalsLength;
+    let result = shortened ? toShortened(bn) : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
+    let indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
     const tippyClassName = classNames(
-      "px-px -mr-px rounded cursor-pointer",
-      tooltip && "hover:bg-black hover:bg-opacity-5",
-      "transition ease-in-out duration-200"
+      'px-px -mr-px rounded cursor-pointer',
+      tooltip && 'hover:bg-black hover:bg-opacity-5',
+      'transition ease-in-out duration-200'
     );
 
     switch (true) {
       case indexOfDecimal === -1:
         return (
-          <FullAmountTippy
-            enabled={tooltip}
-            fullAmount={bn}
-            className={tippyClassName}
-          >
+          <FullAmountTippy enabled={tooltip} fullAmount={bn} className={tippyClassName}>
             {result}
           </FullAmountTippy>
         );
@@ -80,23 +60,16 @@ const Money = memo<MoneyProps>(
       case !fiat && decimalsLength > cryptoDecimals && !shortened:
         result = toLocalFormat(bn, {
           decimalPlaces: Math.max(cryptoDecimals - 2, 0),
-          roundingMode,
+          roundingMode
         });
         indexOfDecimal = result.indexOf(decimal);
 
         return (
-          <FullAmountTippy
-            enabled={tooltip}
-            fullAmount={bn}
-            className={tippyClassName}
-            showAmountTooltip
-          >
+          <FullAmountTippy enabled={tooltip} fullAmount={bn} className={tippyClassName} showAmountTooltip>
             {result.slice(0, indexOfDecimal + 1)}
-            <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
+            <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
               {result.slice(indexOfDecimal + 1, result.length)}
-              {cryptoDecimals >= 2 && (
-                <span className="opacity-75 tracking-tighter">...</span>
-              )}
+              {cryptoDecimals >= 2 && <span className="opacity-75 tracking-tighter">...</span>}
             </span>
           </FullAmountTippy>
         );
@@ -109,7 +82,7 @@ const Money = memo<MoneyProps>(
             className={tippyClassName}
           >
             {result.slice(0, indexOfDecimal + 1)}
-            <span style={{ fontSize: smallFractionFont ? "0.9em" : undefined }}>
+            <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
               {result.slice(indexOfDecimal + 1, result.length)}
             </span>
           </FullAmountTippy>
@@ -139,18 +112,18 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
 
   const tippyContent = useMemo(() => {
     if (copied) {
-      return t("copiedHash");
+      return t('copiedHash');
     }
-    return showAmountTooltip ? fullAmountStr : t("copyHashToClipboard");
+    return showAmountTooltip ? fullAmountStr : t('copyHashToClipboard');
   }, [copied, showAmountTooltip, fullAmountStr]);
 
   const tippyInstanceRef = useRef<TippyInstance>();
   const tippyProps = useMemo<TippyProps>(
     () => ({
-      trigger: "mouseenter",
+      trigger: 'mouseenter',
       hideOnClick: false,
       content: tippyContent,
-      animation: "shift-away-subtle",
+      animation: 'shift-away-subtle',
       onCreate(instance) {
         tippyInstanceRef.current = instance;
         instance.enable();
@@ -163,7 +136,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
       },
       onHidden() {
         setCopied(false);
-      },
+      }
     }),
     [tippyContent, showAmountTooltip, setCopied]
   );
@@ -171,7 +144,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   const ref = useTippy<HTMLSpanElement>(tippyProps);
 
   const handleClick = useCallback(
-    (evt) => {
+    evt => {
       evt.preventDefault();
       evt.stopPropagation();
 
@@ -188,12 +161,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   return enabled ? (
     <>
       <span ref={ref} onClick={handleClick} {...rest} />
-      <input
-        ref={fieldRef}
-        value={fullAmountStr}
-        readOnly
-        className="sr-only"
-      />
+      <input ref={fieldRef} value={fullAmountStr} readOnly className="sr-only" />
     </>
   ) : (
     <span {...rest} />

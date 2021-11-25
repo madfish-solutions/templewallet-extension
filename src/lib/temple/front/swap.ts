@@ -1,5 +1,5 @@
-import { TezosToolkit } from "@taquito/taquito";
-import BigNumber from "bignumber.js";
+import { TezosToolkit } from '@taquito/taquito';
+import BigNumber from 'bignumber.js';
 
 import {
   batchify,
@@ -7,10 +7,10 @@ import {
   TempleAsset,
   TempleAssetType,
   TempleChainId,
-  withTokenApprove,
-} from "lib/temple/front";
+  withTokenApprove
+} from 'lib/temple/front';
 
-export type ExchangerType = "dexter" | "quipuswap" | "liquidity_baking";
+export type ExchangerType = 'dexter' | 'quipuswap' | 'liquidity_baking';
 
 type SwapContractDescriptor = {
   type: ExchangerType;
@@ -31,80 +31,61 @@ export type SwapParams = {
   tezos: TezosToolkit;
 };
 
-export const ALL_EXCHANGERS_TYPES: ExchangerType[] = [
-  "dexter",
-  "quipuswap",
-  "liquidity_baking",
-];
+export const ALL_EXCHANGERS_TYPES: ExchangerType[] = ['dexter', 'quipuswap', 'liquidity_baking'];
 
-export const EXCHANGE_XTZ_RESERVE = new BigNumber("0.3");
+export const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 
 // chainId -> token -> contract
-export const DEXTER_EXCHANGE_CONTRACTS = new Map<
-  string,
-  Record<string, Record<number, string>>
->([
+export const DEXTER_EXCHANGE_CONTRACTS = new Map<string, Record<string, Record<number, string>>>([
   [
     TempleChainId.Mainnet,
     {
       KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn: {
-        0: "KT1BGQR7t4izzKZ7eRodKWTodAsM23P38v7N",
+        0: 'KT1BGQR7t4izzKZ7eRodKWTodAsM23P38v7N'
       },
       KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV: {
-        0: "KT1AbYeDbjjcAnV1QK7EZUUdqku77CdkTuv6",
+        0: 'KT1AbYeDbjjcAnV1QK7EZUUdqku77CdkTuv6'
       },
       KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH: {
-        0: "KT1D56HQfMmwdopmFLTwNHFJSs6Dsg2didFo",
+        0: 'KT1D56HQfMmwdopmFLTwNHFJSs6Dsg2didFo'
       },
       KT19at7rQUvyjxnZ2fBv7D9zc8rkyG7gAoU8: {
-        0: "KT1PDrBE59Zmxnb8vXRgRAG1XmvTMTs5EDHU",
+        0: 'KT1PDrBE59Zmxnb8vXRgRAG1XmvTMTs5EDHU'
       },
       KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9: {
-        0: "KT1Tr2eG3eVmPRbymrbU2UppUmKjFPXomGG9",
-      },
-    },
+        0: 'KT1Tr2eG3eVmPRbymrbU2UppUmKjFPXomGG9'
+      }
+    }
   ]
 ]);
 
-export const LIQUIDITY_BAKING_CONTRACTS = new Map<
-  string,
-  Record<string, Record<number, string>>
->([
+export const LIQUIDITY_BAKING_CONTRACTS = new Map<string, Record<string, Record<number, string>>>([
   [
     TempleChainId.Mainnet,
     {
       KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn: {
-        0: "KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5",
-      },
-    },
+        0: 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5'
+      }
+    }
   ],
   [
     TempleChainId.Granadanet,
     {
       KT1VqarPDicMFn1ejmQqqshUkUXTCTXwmkCN: {
-        0: "KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5",
-      },
-    },
-  ],
+        0: 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5'
+      }
+    }
+  ]
 ]);
 
-export const QUIPUSWAP_CONTRACTS = new Map<
-  string,
-  Partial<Record<"fa12Factory" | "fa2Factory", string[]>>
->([
+export const QUIPUSWAP_CONTRACTS = new Map<string, Partial<Record<'fa12Factory' | 'fa2Factory', string[]>>>([
   [
     TempleChainId.Mainnet,
     {
-      fa12Factory: [
-        "KT1FWHLMk5tHbwuSsp31S4Jum4dTVmkXpfJw",
-        "KT1Lw8hCoaBrHeTeMXbqHPG4sS4K1xn7yKcD",
-      ],
-      fa2Factory: [
-        "KT1PvEyN1xCFCgorN92QCfYjw3axS6jawCiJ",
-        "KT1SwH9P1Tx8a58Mm6qBExQFTcy2rwZyZiXS",
-      ],
-    },
-  ],
+      fa12Factory: ['KT1FWHLMk5tHbwuSsp31S4Jum4dTVmkXpfJw', 'KT1Lw8hCoaBrHeTeMXbqHPG4sS4K1xn7yKcD'],
+      fa2Factory: ['KT1PvEyN1xCFCgorN92QCfYjw3axS6jawCiJ', 'KT1SwH9P1Tx8a58Mm6qBExQFTcy2rwZyZiXS']
+    }
+  ]
 ]);
 
 export function matchesAsset(assetId: AssetIdentifier, asset: TempleAsset) {
@@ -137,22 +118,22 @@ function floor(x: BigNumber) {
 }
 
 export function getFeePercentage(exchangerType: ExchangerType) {
-  if (exchangerType === "liquidity_baking") {
-    return new BigNumber("0.1");
+  if (exchangerType === 'liquidity_baking') {
+    return new BigNumber('0.1');
   }
-  return new BigNumber("0.3");
+  return new BigNumber('0.3');
 }
 
 export function getFormattedPriceImpact(priceImpact: BigNumber) {
   if (
-    priceImpact.toString() !== "0" &&
-    priceImpact.toString() !== "NaN" &&
-    priceImpact.toString() !== "Infinity" &&
-    priceImpact.toString() !== "-Infinity"
+    priceImpact.toString() !== '0' &&
+    priceImpact.toString() !== 'NaN' &&
+    priceImpact.toString() !== 'Infinity' &&
+    priceImpact.toString() !== '-Infinity'
   ) {
-    return priceImpact.toFixed(2) + "%";
+    return priceImpact.toFixed(2) + '%';
   } else {
-    return "-";
+    return '-';
   }
 }
 
@@ -164,16 +145,16 @@ export async function getPoolParameters(
   const contract = await loadContract(tezos, contractAddress, false);
   const storage = await contract.storage<any>();
 
-  if (type === "quipuswap") {
+  if (type === 'quipuswap') {
     return {
       tokenPool: storage.storage.token_pool,
-      xtzPool: storage.storage.tez_pool,
+      xtzPool: storage.storage.tez_pool
     };
   }
 
   return {
     tokenPool: storage.tokenPool,
-    xtzPool: storage.xtzPool,
+    xtzPool: storage.xtzPool
   };
 }
 
@@ -186,13 +167,9 @@ export async function getMutezOutput(
   if (tokenPool.eq(0) || xtzPool.eq(0)) {
     return new BigNumber(0);
   }
-  const tokenInQuotient = new BigNumber(1000).minus(
-    getFeePercentage(type).times(10)
-  );
+  const tokenInQuotient = new BigNumber(1000).minus(getFeePercentage(type).times(10));
   const tokenInWithFee = tokenAmount.times(tokenInQuotient);
-  return tokenInWithFee
-    .times(xtzPool)
-    .idiv(tokenPool.times(1000).plus(tokenInWithFee));
+  return tokenInWithFee.times(xtzPool).idiv(tokenPool.times(1000).plus(tokenInWithFee));
 }
 
 export async function getMutezInput(
@@ -205,9 +182,7 @@ export async function getMutezInput(
   }
   const { tokenPool, xtzPool } = await getPoolParameters(tezos, address, type);
   const numerator = xtzPool.times(1000).times(tokenAmount);
-  const denominatorQuotient = new BigNumber(1000).minus(
-    getFeePercentage(type).times(10)
-  );
+  const denominatorQuotient = new BigNumber(1000).minus(getFeePercentage(type).times(10));
   const denominator = tokenPool.minus(tokenAmount).times(denominatorQuotient);
   return numerator.idiv(denominator).plus(1);
 }
@@ -222,13 +197,9 @@ export async function getTokenOutput(
   if (invariant.eq(0)) {
     return new BigNumber(0);
   }
-  const tezInQuotient = new BigNumber(1000).minus(
-    getFeePercentage(type).times(10)
-  );
+  const tezInQuotient = new BigNumber(1000).minus(getFeePercentage(type).times(10));
   const tezInWithFee = mutezAmount.multipliedBy(tezInQuotient);
-  return tezInWithFee
-    .times(tokenPool)
-    .idiv(xtzPool.times(1000).plus(tezInWithFee));
+  return tezInWithFee.times(tokenPool).idiv(xtzPool.times(1000).plus(tezInWithFee));
 }
 
 export async function getTokenInput(
@@ -241,9 +212,7 @@ export async function getTokenInput(
   }
   const { tokenPool, xtzPool } = await getPoolParameters(tezos, address, type);
   const numerator = tokenPool.times(1000).times(mutezAmount);
-  const denominatorQuotient = new BigNumber(1000).minus(
-    getFeePercentage(type).times(10)
-  );
+  const denominatorQuotient = new BigNumber(1000).minus(getFeePercentage(type).times(10));
   const denominator = xtzPool.minus(mutezAmount).times(denominatorQuotient);
   return numerator.idiv(denominator).plus(1);
 }
@@ -257,19 +226,17 @@ export async function swap({
   exchangerType,
   inputAmount,
   tolerance,
-  tezos,
+  tezos
 }: SwapParams) {
   const transactionsBatch = tezos.wallet.batch([]);
-  const rawInputAssetAmount = inputAmount.multipliedBy(
-    new BigNumber(10).pow(inputAsset.decimals)
-  );
+  const rawInputAssetAmount = inputAmount.multipliedBy(new BigNumber(10).pow(inputAsset.decimals));
   const inputIsTz = inputAsset.type === TempleAssetType.TEZ;
   const outputIsTz = outputAsset.type === TempleAssetType.TEZ;
   let mutezOutput = inputIsTz
     ? rawInputAssetAmount
     : await getMutezOutput(tezos, rawInputAssetAmount, {
         address: inputContractAddress!,
-        type: exchangerType,
+        type: exchangerType
       });
   const deadline = Math.floor(Date.now() / 1000) + 30 * 60 * 1000;
   const toleranceQuotient = new BigNumber(1).minus(tolerance);
@@ -277,51 +244,35 @@ export async function swap({
   if (inputAsset.type !== TempleAssetType.TEZ) {
     const exchangeContract = await loadContract(tezos, inputContractAddress!);
     mutezOutput = BigNumber.max(
-      floor(
-        mutezOutput.multipliedBy(
-          outputIsTz ? toleranceQuotient : tokenToTokenMiddleQuotient
-        )
-      ),
+      floor(mutezOutput.multipliedBy(outputIsTz ? toleranceQuotient : tokenToTokenMiddleQuotient)),
       1
     );
     const exchangeOperations = [
       (() => {
         switch (exchangerType) {
-          case "quipuswap":
+          case 'quipuswap':
             return exchangeContract.methods
               .tokenToTezPayment(rawInputAssetAmount, mutezOutput, accountPkh)
               .toTransferParams();
-          case "dexter":
+          case 'dexter':
             return exchangeContract.methods
-              .tokenToXtz(
-                accountPkh,
-                accountPkh,
-                rawInputAssetAmount,
-                mutezOutput,
-                deadline.toString()
-              )
+              .tokenToXtz(accountPkh, accountPkh, rawInputAssetAmount, mutezOutput, deadline.toString())
               .toTransferParams();
           default:
             return exchangeContract.methods
-              .tokenToXtz(
-                accountPkh,
-                rawInputAssetAmount,
-                mutezOutput,
-                deadline.toString()
-              )
+              .tokenToXtz(accountPkh, rawInputAssetAmount, mutezOutput, deadline.toString())
               .toTransferParams();
         }
-      })(),
+      })()
     ];
     batchify(
       transactionsBatch,
       await withTokenApprove(tezos, exchangeOperations, {
         tokenAddress: inputAsset.address,
-        tokenId:
-          inputAsset.type === TempleAssetType.FA2 ? inputAsset.id : undefined,
+        tokenId: inputAsset.type === TempleAssetType.FA2 ? inputAsset.id : undefined,
         from: accountPkh,
         to: inputContractAddress!,
-        value: rawInputAssetAmount,
+        value: rawInputAssetAmount
       })
     );
   }
@@ -329,20 +280,17 @@ export async function swap({
     const exchangeContract = await loadContract(tezos, outputContractAddress!);
     const maxTokensOutput = await getTokenOutput(tezos, mutezOutput, {
       address: outputContractAddress!,
-      type: exchangerType,
+      type: exchangerType
     });
-    const tokensOutput = BigNumber.max(
-      floor(maxTokensOutput.multipliedBy(toleranceQuotient)),
-      1
-    );
+    const tokensOutput = BigNumber.max(floor(maxTokensOutput.multipliedBy(toleranceQuotient)), 1);
     batchify(transactionsBatch, [
-      exchangerType === "quipuswap"
+      exchangerType === 'quipuswap'
         ? exchangeContract.methods
             .tezToTokenPayment(tokensOutput, accountPkh)
             .toTransferParams({ amount: mutezOutput.toNumber(), mutez: true })
         : exchangeContract.methods
             .xtzToToken(accountPkh, tokensOutput, deadline.toString())
-            .toTransferParams({ amount: mutezOutput.toNumber(), mutez: true }),
+            .toTransferParams({ amount: mutezOutput.toNumber(), mutez: true })
     ]);
   }
   return transactionsBatch.send();
