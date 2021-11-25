@@ -1,6 +1,6 @@
-import React, { CSSProperties, memo } from "react";
+import React, { CSSProperties, memo } from 'react';
 
-import FormField from "app/atoms/FormField";
+import FormField from 'app/atoms/FormField';
 
 type RawPayloadViewProps = {
   payload: string;
@@ -12,14 +12,7 @@ type RawPayloadViewProps = {
 };
 
 const RawPayloadView = memo(
-  ({
-    className,
-    payload,
-    label,
-    rows,
-    style = {},
-    fieldWrapperBottomMargin = false,
-  }: RawPayloadViewProps) => (
+  ({ className, payload, label, rows, style = {}, fieldWrapperBottomMargin = false }: RawPayloadViewProps) => (
     <FormField
       textarea
       rows={rows}
@@ -31,9 +24,9 @@ const RawPayloadView = memo(
       fieldWrapperBottomMargin={fieldWrapperBottomMargin}
       className={className}
       style={{
-        resize: "none",
+        resize: 'none',
         marginBottom: 0,
-        ...style,
+        ...style
       }}
     />
   )

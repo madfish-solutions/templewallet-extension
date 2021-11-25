@@ -1,6 +1,6 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError } from 'axios';
 
-import { TempleChainId } from "lib/temple/types";
+import { TempleChainId } from 'lib/temple/types';
 import {
   TZStatsNetwork,
   ErrorData,
@@ -10,39 +10,31 @@ import {
   OperationRow,
   TZStatsAccountOp,
   TZStatsMarketTicker,
-  TZStatsContract,
-} from "lib/tzstats/types";
+  TZStatsContract
+} from 'lib/tzstats/types';
 
-export const TZSTATS_CHAINS = new Map([
-  [TempleChainId.Mainnet, TZStatsNetwork.Mainnet]
-]);
+export const TZSTATS_CHAINS = new Map([[TempleChainId.Mainnet, TZStatsNetwork.Mainnet]]);
 
 export type Explore<P, T> = (n: TZStatsNetwork, p?: Partial<P>) => Promise<T>;
 
-export type Query<T> = (
-  n: TZStatsNetwork,
-  a?: QueryArguments | null,
-  f?: QueryFilter[]
-) => Promise<T>;
+export type Query<T> = (n: TZStatsNetwork, a?: QueryArguments | null, f?: QueryFilter[]) => Promise<T>;
 
 const api = axios.create();
 api.interceptors.response.use(
-  (res) => res,
-  (err) => {
+  res => res,
+  err => {
     const errors: ErrorData[] = (err as AxiosError).response?.data?.errors;
-    const finalError = new Error("Failed when querying TZStats API");
+    const finalError = new Error('Failed when querying TZStats API');
     throw Object.assign(finalError, {
       data: errors ?? [],
-      origin: err,
+      origin: err
     });
   }
 );
 
-export const getMarketTickers = () =>
-  getMarketTickersPure(TZStatsNetwork.Mainnet);
+export const getMarketTickers = () => getMarketTickersPure(TZStatsNetwork.Mainnet);
 
-export const getMarketTickersPure =
-  explore<TZStatsMarketTicker[]>("/markets/tickers");
+export const getMarketTickersPure = explore<TZStatsMarketTicker[]>('/markets/tickers');
 
 export const getAccountWithOperations = explore<
   TZStatsAccountOp,
@@ -52,125 +44,121 @@ export const getAccountWithOperations = explore<
     offset: number;
     block: string | number;
     since: string | number;
-    order: "asc" | "desc";
+    order: 'asc' | 'desc';
   }
 >(({ pkh, ...rest }) => [`/explorer/account/${pkh}/op`, rest]);
 
-export const getOneUserManagedContracts = explore<
-  TZStatsContract[],
-  { account: string }
->(({ account }) => [`/explorer/account/${account}/managed`, {}]);
+export const getOneUserManagedContracts = explore<TZStatsContract[], { account: string }>(({ account }) => [
+  `/explorer/account/${account}/managed`,
+  {}
+]);
 
-export const getOperationTable = wrapQuery(
-  query<OperationRowTuple[]>("/tables/op"),
-  (opsInTuples) =>
-    opsInTuples.map(
-      ([
-        rowId,
-        time,
-        height,
-        cycle,
-        hash,
-        counter,
-        opN,
-        opL,
-        opP,
-        opC,
-        opI,
-        type,
-        status,
-        isSuccess,
-        isContract,
-        gasLimit,
-        gasUsed,
-        gasPrice,
-        storageLimit,
-        storageSize,
-        storagePaid,
-        volume,
-        fee,
-        reward,
-        deposit,
-        burned,
-        senderId,
-        receiverId,
-        managerId,
-        delegateId,
-        isInternal,
-        hasData,
-        data,
-        parameters,
-        storage,
-        bigMapDiff,
-        errors,
-        daysDestroyed,
-        branchId,
-        branchHeight,
-        branchDepth,
-        isImplicit,
-        entrypointId,
-        sender,
-        receiver,
-        manager,
-        delegate,
-      ]): OperationRow => ({
-        rowId,
-        time,
-        height,
-        cycle,
-        hash,
-        counter,
-        opN,
-        opL,
-        opP,
-        opC,
-        opI,
-        type,
-        status,
-        isSuccess,
-        isContract,
-        gasLimit,
-        gasUsed,
-        gasPrice,
-        storageLimit,
-        storageSize,
-        storagePaid,
-        volume,
-        fee,
-        reward,
-        deposit,
-        burned,
-        senderId,
-        receiverId,
-        managerId,
-        delegateId,
-        isInternal,
-        hasData,
-        data,
-        parameters,
-        storage,
-        bigMapDiff,
-        errors,
-        daysDestroyed,
-        branchId,
-        branchHeight,
-        branchDepth,
-        isImplicit,
-        entrypointId,
-        sender,
-        receiver,
-        manager,
-        delegate,
-      })
-    )
+export const getOperationTable = wrapQuery(query<OperationRowTuple[]>('/tables/op'), opsInTuples =>
+  opsInTuples.map(
+    ([
+      rowId,
+      time,
+      height,
+      cycle,
+      hash,
+      counter,
+      opN,
+      opL,
+      opP,
+      opC,
+      opI,
+      type,
+      status,
+      isSuccess,
+      isContract,
+      gasLimit,
+      gasUsed,
+      gasPrice,
+      storageLimit,
+      storageSize,
+      storagePaid,
+      volume,
+      fee,
+      reward,
+      deposit,
+      burned,
+      senderId,
+      receiverId,
+      managerId,
+      delegateId,
+      isInternal,
+      hasData,
+      data,
+      parameters,
+      storage,
+      bigMapDiff,
+      errors,
+      daysDestroyed,
+      branchId,
+      branchHeight,
+      branchDepth,
+      isImplicit,
+      entrypointId,
+      sender,
+      receiver,
+      manager,
+      delegate
+    ]): OperationRow => ({
+      rowId,
+      time,
+      height,
+      cycle,
+      hash,
+      counter,
+      opN,
+      opL,
+      opP,
+      opC,
+      opI,
+      type,
+      status,
+      isSuccess,
+      isContract,
+      gasLimit,
+      gasUsed,
+      gasPrice,
+      storageLimit,
+      storageSize,
+      storagePaid,
+      volume,
+      fee,
+      reward,
+      deposit,
+      burned,
+      senderId,
+      receiverId,
+      managerId,
+      delegateId,
+      isInternal,
+      hasData,
+      data,
+      parameters,
+      storage,
+      bigMapDiff,
+      errors,
+      daysDestroyed,
+      branchId,
+      branchHeight,
+      branchDepth,
+      isImplicit,
+      entrypointId,
+      sender,
+      receiver,
+      manager,
+      delegate
+    })
+  )
 );
 
-function explore<T = any, P = never>(
-  pathOrFactory: string | ((p: Partial<P>) => [string, Partial<P>])
-): Explore<P, T> {
+function explore<T = any, P = never>(pathOrFactory: string | ((p: Partial<P>) => [string, Partial<P>])): Explore<P, T> {
   return async (network, args) => {
     let path, params;
-    if (typeof pathOrFactory === "function") {
+    if (typeof pathOrFactory === 'function') {
       [path, params] = pathOrFactory(args!);
     } else {
       path = pathOrFactory;
@@ -178,7 +166,7 @@ function explore<T = any, P = never>(
 
     const res = await api.get<T>(path, {
       baseURL: network,
-      params,
+      params
     });
     return res.data;
   };
@@ -193,7 +181,7 @@ function query<T = any>(path: string): Query<T> {
 
     const res = await api.get<T>(path, {
       baseURL: network,
-      params,
+      params
     });
     return res.data;
   };

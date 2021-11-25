@@ -1,13 +1,10 @@
-import { useMemo } from "react";
+import { useMemo } from 'react';
 
-import { TezosToolkit } from "@taquito/taquito";
-import {
-  DomainNameValidationResult,
-  isTezosDomainsSupportedNetwork,
-} from "@tezos-domains/core";
-import { TaquitoTezosDomainsClient } from "@tezos-domains/taquito-client";
+import { TezosToolkit } from '@taquito/taquito';
+import { DomainNameValidationResult, isTezosDomainsSupportedNetwork } from '@tezos-domains/core';
+import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
-import { useTezos, useChainId, NETWORK_IDS } from "lib/temple/front";
+import { useTezos, useChainId, NETWORK_IDS } from 'lib/temple/front';
 
 export function getClient(networkId: string, tezos: TezosToolkit) {
   return isTezosDomainsSupportedNetwork(networkId)
@@ -15,14 +12,8 @@ export function getClient(networkId: string, tezos: TezosToolkit) {
     : TaquitoTezosDomainsClient.Unsupported;
 }
 
-export function isDomainNameValid(
-  name: string,
-  client: TaquitoTezosDomainsClient
-) {
-  return (
-    client.validator.validateDomainName(name) ===
-    DomainNameValidationResult.VALID
-  );
+export function isDomainNameValid(name: string, client: TaquitoTezosDomainsClient) {
+  return client.validator.validateDomainName(name) === DomainNameValidationResult.VALID;
 }
 
 export function useTezosDomainsClient() {

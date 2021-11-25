@@ -1,23 +1,11 @@
-import React, {
-  AnchorHTMLAttributes,
-  FC,
-  MouseEventHandler,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { AnchorHTMLAttributes, FC, MouseEventHandler, useCallback, useMemo } from 'react';
 
-import {
-  TestIDProps,
-  useAnalytics,
-  AnalyticsEventCategory,
-} from "lib/analytics";
-import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
-import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
-import { To, createLocationUpdates, useLocation } from "lib/woozie/location";
+import { TestIDProps, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
+import { USE_LOCATION_HASH_AS_URL } from 'lib/woozie/config';
+import { HistoryAction, createUrl, changeState } from 'lib/woozie/history';
+import { To, createLocationUpdates, useLocation } from 'lib/woozie/location';
 
-export interface LinkProps
-  extends AnchorHTMLAttributes<HTMLAnchorElement>,
-    TestIDProps {
+export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
   to: To;
   replace?: boolean;
 }
@@ -25,27 +13,15 @@ export interface LinkProps
 const Link: FC<LinkProps> = ({ to, replace, ...rest }) => {
   const lctn = useLocation();
 
-  const { pathname, search, hash, state } = useMemo(
-    () => createLocationUpdates(to, lctn),
-    [to, lctn]
-  );
+  const { pathname, search, hash, state } = useMemo(() => createLocationUpdates(to, lctn), [to, lctn]);
 
-  const url = useMemo(
-    () => createUrl(pathname, search, hash),
-    [pathname, search, hash]
-  );
+  const url = useMemo(() => createUrl(pathname, search, hash), [pathname, search, hash]);
 
-  const href = useMemo(
-    () =>
-      USE_LOCATION_HASH_AS_URL ? `${window.location.pathname}#${url}` : url,
-    [url]
-  );
+  const href = useMemo(() => (USE_LOCATION_HASH_AS_URL ? `${window.location.pathname}#${url}` : url), [url]);
 
   const handleNavigate = useCallback(() => {
     const action =
-      replace || url === createUrl(lctn.pathname, lctn.search, lctn.hash)
-        ? HistoryAction.Replace
-        : HistoryAction.Push;
+      replace || url === createUrl(lctn.pathname, lctn.search, lctn.hash) ? HistoryAction.Replace : HistoryAction.Push;
     changeState(action, state, url);
   }, [replace, state, url, lctn]);
 
@@ -54,9 +30,7 @@ const Link: FC<LinkProps> = ({ to, replace, ...rest }) => {
 
 export default Link;
 
-interface LinkAnchorProps
-  extends AnchorHTMLAttributes<HTMLAnchorElement>,
-    TestIDProps {
+interface LinkAnchorProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
   onNavigate: () => void;
   onClick?: MouseEventHandler;
   target?: string;
@@ -74,13 +48,8 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
   const { trackEvent } = useAnalytics();
 
   const handleClick = useCallback(
-    (evt) => {
-      testID !== undefined &&
-        trackEvent(
-          testID,
-          AnalyticsEventCategory.ButtonPress,
-          testIDProperties
-        );
+    evt => {
+      testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
       try {
         if (onClick) {
@@ -94,7 +63,7 @@ const LinkAnchor: FC<LinkAnchorProps> = ({
       if (
         !evt.defaultPrevented && // onClick prevented default
         evt.button === 0 && // ignore everything but left clicks
-        (!target || target === "_self") && // let browser handle "target=_blank" etc.
+        (!target || target === '_self') && // let browser handle "target=_blank" etc.
         !isModifiedEvent(evt) // ignore clicks with modifier keys
       ) {
         evt.preventDefault();

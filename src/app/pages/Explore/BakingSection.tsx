@@ -1,45 +1,36 @@
-import React, { memo, useCallback, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from 'react';
 
-import BigNumber from "bignumber.js";
-import classNames from "clsx";
+import BigNumber from 'bignumber.js';
+import classNames from 'clsx';
 
-import { Button } from "app/atoms/Button";
-import Spinner from "app/atoms/Spinner";
-import { useAppEnv } from "app/env";
-import { ReactComponent as DiamondIcon } from "app/icons/diamond.svg";
-import { ReactComponent as SupportAltIcon } from "app/icons/support-alt.svg";
-import BakingHistoryItem from "app/pages/Explore/BakingHistoryItem";
-import BakerBanner from "app/templates/BakerBanner";
-import { T, t } from "lib/i18n/react";
-import { useRetryableSWR } from "lib/swr";
-import {
-  useAccount,
-  useDelegate,
-  TempleAccountType,
-  useChainId,
-  isKnownChainId,
-} from "lib/temple/front";
-import { getDelegatorRewards, TZKT_API_BASE_URLS } from "lib/tzkt";
-import useTippy from "lib/ui/useTippy";
-import { Link } from "lib/woozie";
+import { Button } from 'app/atoms/Button';
+import Spinner from 'app/atoms/Spinner';
+import { useAppEnv } from 'app/env';
+import { ReactComponent as DiamondIcon } from 'app/icons/diamond.svg';
+import { ReactComponent as SupportAltIcon } from 'app/icons/support-alt.svg';
+import BakingHistoryItem from 'app/pages/Explore/BakingHistoryItem';
+import BakerBanner from 'app/templates/BakerBanner';
+import { T, t } from 'lib/i18n/react';
+import { useRetryableSWR } from 'lib/swr';
+import { useAccount, useDelegate, TempleAccountType, useChainId, isKnownChainId } from 'lib/temple/front';
+import { getDelegatorRewards, TZKT_API_BASE_URLS } from 'lib/tzkt';
+import useTippy from 'lib/ui/useTippy';
+import { Link } from 'lib/woozie';
 
-import styles from "./BakingSection.module.css";
-import { BakingSectionSelectors } from "./BakingSection.selectors";
+import styles from './BakingSection.module.css';
+import { BakingSectionSelectors } from './BakingSection.selectors';
 
 type RewardsPerEventHistoryItem = Partial<
   Record<
-    | "rewardPerOwnBlock"
-    | "rewardPerEndorsement"
-    | "rewardPerFutureBlock"
-    | "rewardPerFutureEndorsement",
+    'rewardPerOwnBlock' | 'rewardPerEndorsement' | 'rewardPerFutureBlock' | 'rewardPerFutureEndorsement',
     BigNumber
   >
 >;
 const allRewardsPerEventKeys: (keyof RewardsPerEventHistoryItem)[] = [
-  "rewardPerOwnBlock",
-  "rewardPerEndorsement",
-  "rewardPerFutureBlock",
-  "rewardPerFutureEndorsement",
+  'rewardPerOwnBlock',
+  'rewardPerEndorsement',
+  'rewardPerFutureBlock',
+  'rewardPerFutureEndorsement'
 ];
 
 const BakingSection = memo(() => {
@@ -50,10 +41,10 @@ const BakingSection = memo(() => {
   const { popup } = useAppEnv();
 
   const tippyProps = {
-    trigger: "mouseenter",
+    trigger: 'mouseenter',
     hideOnClick: false,
-    content: t("disabledForWatchOnlyAccount"),
-    animation: "shift-away-subtle",
+    content: t('disabledForWatchOnlyAccount'),
+    animation: 'shift-away-subtle'
   };
 
   const getBakingHistory = useCallback(
@@ -64,60 +55,57 @@ const BakingSection = memo(() => {
       return (
         (await getDelegatorRewards(chainId, {
           address: accountPkh,
-          limit: 30,
+          limit: 30
         })) || []
       );
     },
     [chainId]
   );
-  const { data: bakingHistory, isValidating: loadingBakingHistory } =
-    useRetryableSWR(
-      ["baking-history", acc.publicKeyHash, myBakerPkh, chainId],
-      getBakingHistory,
-      { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
-    );
+  const { data: bakingHistory, isValidating: loadingBakingHistory } = useRetryableSWR(
+    ['baking-history', acc.publicKeyHash, myBakerPkh, chainId],
+    getBakingHistory,
+    { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
+  );
 
   const delegateButtonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonDelegateButtonProps = useMemo(
     () => ({
       className: classNames(
-        "py-2 px-6 rounded",
-        "border-2",
-        "border-indigo-500",
-        canDelegate && "hover:border-indigo-600 focus:border-indigo-600",
-        "bg-indigo-500",
-        canDelegate && "hover:bg-indigo-600 focus:bg-indigo-600",
-        "flex items-center justify-center",
-        "text-white",
-        "text-base font-semibold",
-        "transition ease-in-out duration-300",
-        canDelegate && styles["delegate-button"],
-        !canDelegate && "opacity-50"
+        'py-2 px-6 rounded',
+        'border-2',
+        'border-indigo-500',
+        canDelegate && 'hover:border-indigo-600 focus:border-indigo-600',
+        'bg-indigo-500',
+        canDelegate && 'hover:bg-indigo-600 focus:bg-indigo-600',
+        'flex items-center justify-center',
+        'text-white',
+        'text-base font-semibold',
+        'transition ease-in-out duration-300',
+        canDelegate && styles['delegate-button'],
+        !canDelegate && 'opacity-50'
       ),
       testID: BakingSectionSelectors.DelegateNowButton,
       children: (
         <>
-          <DiamondIcon
-            className={classNames("-ml-2 mr-2", "h-5 w-auto", "stroke-current")}
-          />
+          <DiamondIcon className={classNames('-ml-2 mr-2', 'h-5 w-auto', 'stroke-current')} />
           <T id="delegateNow" />
         </>
-      ),
+      )
     }),
     [canDelegate]
   );
   const commonSmallDelegateButtonProps = useMemo(
     () => ({
       className: classNames(
-        "h-5 px-2 rounded flex items-center border",
-        "border-indigo-500 text-indigo-500",
-        canDelegate && "hover:border-indigo-600 focus:border-indigo-600",
-        canDelegate && "hover:text-indigo-600 focus:text-indigo-600",
-        "transition ease-in-out duration-300",
-        !canDelegate && "opacity-50"
+        'h-5 px-2 rounded flex items-center border',
+        'border-indigo-500 text-indigo-500',
+        canDelegate && 'hover:border-indigo-600 focus:border-indigo-600',
+        canDelegate && 'hover:text-indigo-600 focus:text-indigo-600',
+        'transition ease-in-out duration-300',
+        !canDelegate && 'opacity-50'
       ),
       testID: BakingSectionSelectors.ReDelegateButton,
-      children: <T id="reDelegate" />,
+      children: <T id="reDelegate" />
     }),
     [canDelegate]
   );
@@ -125,7 +113,7 @@ const BakingSection = memo(() => {
     if (!bakingHistory) {
       return [];
     }
-    return bakingHistory.map((historyItem) => {
+    return bakingHistory.map(historyItem => {
       const {
         endorsements,
         endorsementRewards,
@@ -134,60 +122,42 @@ const BakingSection = memo(() => {
         futureEndorsements,
         futureEndorsementRewards,
         ownBlocks,
-        ownBlockRewards,
+        ownBlockRewards
       } = historyItem;
-      const rewardPerOwnBlock =
-        ownBlocks === 0
-          ? undefined
-          : new BigNumber(ownBlockRewards).div(ownBlocks);
-      const rewardPerEndorsement =
-        endorsements === 0
-          ? undefined
-          : new BigNumber(endorsementRewards).div(endorsements);
-      const rewardPerFutureBlock =
-        futureBlocks === 0
-          ? undefined
-          : new BigNumber(futureBlockRewards).div(futureBlocks);
+      const rewardPerOwnBlock = ownBlocks === 0 ? undefined : new BigNumber(ownBlockRewards).div(ownBlocks);
+      const rewardPerEndorsement = endorsements === 0 ? undefined : new BigNumber(endorsementRewards).div(endorsements);
+      const rewardPerFutureBlock = futureBlocks === 0 ? undefined : new BigNumber(futureBlockRewards).div(futureBlocks);
       const rewardPerFutureEndorsement =
-        futureEndorsements === 0
-          ? undefined
-          : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
+        futureEndorsements === 0 ? undefined : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
       return {
         rewardPerOwnBlock,
         rewardPerEndorsement,
         rewardPerFutureBlock,
-        rewardPerFutureEndorsement,
+        rewardPerFutureEndorsement
       };
     });
   }, [bakingHistory]);
   const fallbackRewardsPerEvents = useMemo(() => {
-    return rewardsPerEventHistory.map((historyItem) =>
+    return rewardsPerEventHistory.map(historyItem =>
       allRewardsPerEventKeys.reduce(
         (fallbackRewardsItem, key, index) => {
           if (historyItem[key]) {
             return {
               ...fallbackRewardsItem,
-              [key]: historyItem[key],
+              [key]: historyItem[key]
             };
           }
           let leftValueIndex = index - 1;
-          while (
-            leftValueIndex >= 0 &&
-            !rewardsPerEventHistory[leftValueIndex][key]
-          ) {
+          while (leftValueIndex >= 0 && !rewardsPerEventHistory[leftValueIndex][key]) {
             leftValueIndex--;
           }
           let rightValueIndex = index + 1;
-          while (
-            rightValueIndex < rewardsPerEventHistory.length &&
-            !rewardsPerEventHistory[rightValueIndex][key]
-          ) {
+          while (rightValueIndex < rewardsPerEventHistory.length && !rewardsPerEventHistory[rightValueIndex][key]) {
             rightValueIndex++;
           }
           let fallbackRewardsValue = new BigNumber(0);
           const leftValueExists = leftValueIndex >= 0;
-          const rightValueExists =
-            rightValueIndex < rewardsPerEventHistory.length;
+          const rightValueExists = rightValueIndex < rewardsPerEventHistory.length;
           if (leftValueExists && rightValueExists) {
             const leftValue = rewardsPerEventHistory[leftValueIndex][key]!;
             const rightValue = rewardsPerEventHistory[rightValueIndex][key]!;
@@ -202,21 +172,18 @@ const BakingSection = memo(() => {
               .plus(y0);
             fallbackRewardsValue = y2;
           } else if (leftValueExists || rightValueExists) {
-            fallbackRewardsValue =
-              rewardsPerEventHistory[
-                leftValueExists ? leftValueIndex : rightValueIndex
-              ][key]!;
+            fallbackRewardsValue = rewardsPerEventHistory[leftValueExists ? leftValueIndex : rightValueIndex][key]!;
           }
           return {
             ...fallbackRewardsItem,
-            [key]: fallbackRewardsValue,
+            [key]: fallbackRewardsValue
           };
         },
         {
           rewardPerOwnBlock: new BigNumber(0),
           rewardPerEndorsement: new BigNumber(0),
           rewardPerFutureBlock: new BigNumber(0),
-          rewardPerFutureEndorsement: new BigNumber(0),
+          rewardPerFutureEndorsement: new BigNumber(0)
         }
       )
     );
@@ -224,13 +191,7 @@ const BakingSection = memo(() => {
   const currentCycle = useMemo(
     () =>
       bakingHistory?.find(
-        ({
-          extraBlockRewards,
-          endorsementRewards,
-          ownBlockRewards,
-          ownBlockFees,
-          extraBlockFees,
-        }) => {
+        ({ extraBlockRewards, endorsementRewards, ownBlockRewards, ownBlockFees, extraBlockFees }) => {
           const totalCurrentRewards = new BigNumber(extraBlockRewards)
             .plus(endorsementRewards)
             .plus(ownBlockRewards)
@@ -245,10 +206,7 @@ const BakingSection = memo(() => {
   return useMemo(
     () => (
       <div className="flex justify-center">
-        <div
-          className="mb-12 flex flex-col items-stretch"
-          style={{ maxWidth: "22.5rem" }}
-        >
+        <div className="mb-12 flex flex-col items-stretch" style={{ maxWidth: '22.5rem' }}>
           {myBakerPkh ? (
             <>
               <div className="mb-4 flex flex-row justify-between items-center text-xs leading-tight">
@@ -257,23 +215,16 @@ const BakingSection = memo(() => {
                 </span>
 
                 {canDelegate ? (
-                  <Link
-                    to="/delegate"
-                    type="button"
-                    {...commonSmallDelegateButtonProps}
-                  />
+                  <Link to="/delegate" type="button" {...commonSmallDelegateButtonProps} />
                 ) : (
-                  <Button
-                    ref={delegateButtonRef}
-                    {...commonSmallDelegateButtonProps}
-                  />
+                  <Button ref={delegateButtonRef} {...commonSmallDelegateButtonProps} />
                 )}
               </div>
               <BakerBanner
                 bakerPkh={myBakerPkh}
                 style={{
                   maxWidth: undefined,
-                  width: popup ? "100%" : "22.5rem",
+                  width: popup ? '100%' : '22.5rem'
                 }}
               />
             </>
@@ -282,27 +233,17 @@ const BakingSection = memo(() => {
               <SupportAltIcon className="w-16 h-auto mb-1 stroke-current" />
 
               <T id="delegatingMotivation">
-                {(message) => (
-                  <p
-                    className="mb-6 text-sm font-light text-center"
-                    style={{ maxWidth: "20rem" }}
-                  >
+                {message => (
+                  <p className="mb-6 text-sm font-light text-center" style={{ maxWidth: '20rem' }}>
                     {message}
                   </p>
                 )}
               </T>
 
               {canDelegate ? (
-                <Link
-                  to="/delegate"
-                  type="button"
-                  {...commonDelegateButtonProps}
-                />
+                <Link to="/delegate" type="button" {...commonDelegateButtonProps} />
               ) : (
-                <Button
-                  ref={delegateButtonRef}
-                  {...commonDelegateButtonProps}
-                />
+                <Button ref={delegateButtonRef} {...commonDelegateButtonProps} />
               )}
             </div>
           )}
@@ -326,18 +267,10 @@ const BakingSection = memo(() => {
                   currentCycle={currentCycle}
                   key={`${historyItem.cycle},${historyItem.baker.address}`}
                   content={historyItem}
-                  fallbackRewardPerEndorsement={
-                    fallbackRewardsPerEvents[index].rewardPerEndorsement
-                  }
-                  fallbackRewardPerFutureBlock={
-                    fallbackRewardsPerEvents[index].rewardPerFutureBlock
-                  }
-                  fallbackRewardPerFutureEndorsement={
-                    fallbackRewardsPerEvents[index].rewardPerFutureEndorsement
-                  }
-                  fallbackRewardPerOwnBlock={
-                    fallbackRewardsPerEvents[index].rewardPerOwnBlock
-                  }
+                  fallbackRewardPerEndorsement={fallbackRewardsPerEvents[index].rewardPerEndorsement}
+                  fallbackRewardPerFutureBlock={fallbackRewardsPerEvents[index].rewardPerFutureBlock}
+                  fallbackRewardPerFutureEndorsement={fallbackRewardsPerEvents[index].rewardPerFutureEndorsement}
+                  fallbackRewardPerOwnBlock={fallbackRewardsPerEvents[index].rewardPerOwnBlock}
                 />
               ))}
             </>
@@ -355,7 +288,7 @@ const BakingSection = memo(() => {
       loadingBakingHistory,
       bakingHistory,
       fallbackRewardsPerEvents,
-      popup,
+      popup
     ]
   );
 });

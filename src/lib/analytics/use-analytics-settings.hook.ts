@@ -1,4 +1,4 @@
-import { useAnalyticsState } from "./use-analytics-state.hook";
+import { useAnalyticsState } from './use-analytics-state.hook';
 
 export const useAnalyticsSettings = () => {
   const { analyticsState, setAnalyticsState } = useAnalyticsState();
@@ -9,6 +9,6 @@ export const useAnalyticsSettings = () => {
 
   return {
     analyticsEnabled: analyticsState.enabled,
-    setAnalyticsEnabled,
+    setAnalyticsEnabled
   };
 };

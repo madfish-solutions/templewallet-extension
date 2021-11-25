@@ -1,6 +1,6 @@
-import React, { FC, HTMLAttributes, memo, useCallback, useState } from "react";
+import React, { FC, HTMLAttributes, memo, useCallback, useState } from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
 export type FlagProps = {
   alt: string;
@@ -8,7 +8,7 @@ export type FlagProps = {
   src?: string;
 };
 
-const Flag: FC<FlagProps> = (props) => {
+const Flag: FC<FlagProps> = props => {
   const { alt, className, src } = props;
   const [error, setError] = useState(false);
 
@@ -21,18 +21,10 @@ const Flag: FC<FlagProps> = (props) => {
   }
 
   return (
-    <div
-      className={classNames("w-6 flex justify-center items-center", className)}
-      style={{ height: "1.3125rem" }}
-    >
+    <div className={classNames('w-6 flex justify-center items-center', className)} style={{ height: '1.3125rem' }}>
       {src ? (
         <>
-          <img
-            alt={alt}
-            className={classNames({ hidden: error })}
-            src={src}
-            onError={handleError}
-          />
+          <img alt={alt} className={classNames({ hidden: error })} src={src} onError={handleError} />
           {error && <FlagStub className="w-6 h-auto" />}
         </>
       ) : (
