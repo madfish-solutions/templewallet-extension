@@ -1,44 +1,32 @@
-import {
-  LedgerSigner,
-  LedgerTransport,
-  DerivationType,
-} from "@taquito/ledger-signer";
-import {
-  b58cdecode,
-  b58cencode,
-  buf2hex,
-  hex2buf,
-  isValidPrefix,
-  mergebuf,
-  prefix,
-} from "@taquito/utils";
-import * as elliptic from "elliptic";
-import * as sodium from "libsodium-wrappers";
+import { LedgerSigner, LedgerTransport, DerivationType } from '@taquito/ledger-signer';
+import { b58cdecode, b58cencode, buf2hex, hex2buf, isValidPrefix, mergebuf, prefix } from '@taquito/utils';
+import * as elliptic from 'elliptic';
+import * as sodium from 'libsodium-wrappers';
 
-import { PublicError } from "lib/temple/back/defaults";
-import toBuffer from "typedarray-to-buffer";
+import { PublicError } from 'lib/temple/back/defaults';
+import toBuffer from 'typedarray-to-buffer';
 
-type curves = "ed" | "p2" | "sp";
+type curves = 'ed' | 'p2' | 'sp';
 
 const pref = {
   ed: {
-    pk: prefix["edpk"],
-    sk: prefix["edsk"],
+    pk: prefix['edpk'],
+    sk: prefix['edsk'],
     pkh: prefix.tz1,
-    sig: prefix.edsig,
+    sig: prefix.edsig
   },
   p2: {
-    pk: prefix["p2pk"],
-    sk: prefix["p2sk"],
+    pk: prefix['p2pk'],
+    sk: prefix['p2sk'],
     pkh: prefix.tz3,
-    sig: prefix.p2sig,
+    sig: prefix.p2sig
   },
   sp: {
-    pk: prefix["sppk"],
-    sk: prefix["spsk"],
+    pk: prefix['sppk'],
+    sk: prefix['spsk'],
     pkh: prefix.tz2,
-    sig: prefix.spsig,
-  },
+    sig: prefix.spsig
+  }
 };
 
 export class TempleLedgerSigner extends LedgerSigner {
@@ -56,7 +44,7 @@ export class TempleLedgerSigner extends LedgerSigner {
   async publicKey() {
     return (
       this.accPublicKey ??
-      super.publicKey().catch((err) => {
+      super.publicKey().catch(err => {
         throw toLedgerError(err);
       })
     );
@@ -65,33 +53,30 @@ export class TempleLedgerSigner extends LedgerSigner {
   async publicKeyHash() {
     return (
       this.accPublicKeyHash ??
-      super.publicKeyHash().catch((err) => {
+      super.publicKeyHash().catch(err => {
         throw toLedgerError(err);
       })
     );
   }
 
   async sign(bytes: string, watermark?: Uint8Array) {
-    const result = await super.sign(bytes, watermark).catch((err) => {
+    const result = await super.sign(bytes, watermark).catch(err => {
       throw toLedgerError(err);
     });
 
     let bb = hex2buf(bytes);
-    if (typeof watermark !== "undefined") {
+    if (typeof watermark !== 'undefined') {
       bb = mergebuf(watermark, bb);
     }
     const watermarkedBytes = buf2hex(toBuffer(bb));
-    const signatureVerified = await this.verify(
-      watermarkedBytes,
-      result.prefixSig
-    );
+    const signatureVerified = await this.verify(watermarkedBytes, result.prefixSig);
 
     if (!signatureVerified) {
       throw toLedgerError(
         new Error(
-          "Signature failed verification against public key." +
-            " Maybe the account on your device does not match" +
-            " the account from which you are trying to perform the action."
+          'Signature failed verification against public key.' +
+            ' Maybe the account on your device does not match' +
+            ' the account from which you are trying to perform the action.'
         )
       );
     }
@@ -106,20 +91,13 @@ export class TempleLedgerSigner extends LedgerSigner {
     const curve = publicKey.substring(0, 2) as curves;
     const _publicKey = toBuffer(b58cdecode(publicKey, pref[curve].pk));
 
-    let signaturePrefix = signature.startsWith("sig")
-      ? signature.substr(0, 3)
-      : signature.substr(0, 5);
+    let signaturePrefix = signature.startsWith('sig') ? signature.substr(0, 3) : signature.substr(0, 5);
 
     if (!isValidPrefix(signaturePrefix)) {
-      throw new Error(
-        `Unsupported signature given by remote signer: ${signature}`
-      );
+      throw new Error(`Unsupported signature given by remote signer: ${signature}`);
     }
 
-    const publicKeyHash = b58cencode(
-      sodium.crypto_generichash(20, _publicKey),
-      pref[curve].pkh
-    );
+    const publicKeyHash = b58cencode(sodium.crypto_generichash(20, _publicKey), pref[curve].pkh);
     if (publicKeyHash !== pkh) {
       throw new Error(
         `Requested public key does not match the initialized public key hash: {
@@ -130,7 +108,7 @@ export class TempleLedgerSigner extends LedgerSigner {
     }
 
     let sig;
-    if (signature.substring(0, 3) === "sig") {
+    if (signature.substring(0, 3) === 'sig') {
       sig = b58cdecode(signature, prefix.sig);
     } else if (signature.substring(0, 5) === `${curve}sig`) {
       sig = b58cdecode(signature, pref[curve].sig);
@@ -140,7 +118,7 @@ export class TempleLedgerSigner extends LedgerSigner {
 
     const bytesHash = sodium.crypto_generichash(32, hex2buf(bytes));
 
-    if (curve === "ed") {
+    if (curve === 'ed') {
       try {
         return sodium.crypto_sign_verify_detached(sig, bytesHash, _publicKey);
       } catch (e) {
@@ -148,8 +126,8 @@ export class TempleLedgerSigner extends LedgerSigner {
       }
     }
 
-    if (curve === "sp") {
-      const key = new elliptic.ec("secp256k1").keyFromPublic(_publicKey);
+    if (curve === 'sp') {
+      const key = new elliptic.ec('secp256k1').keyFromPublic(_publicKey);
       const hexSig = buf2hex(toBuffer(sig));
       const match = hexSig.match(/([a-f\d]{64})/gi);
       if (match) {
@@ -163,8 +141,8 @@ export class TempleLedgerSigner extends LedgerSigner {
       return false;
     }
 
-    if (curve === "p2") {
-      const key = new elliptic.ec("p256").keyFromPublic(_publicKey);
+    if (curve === 'p2') {
+      const key = new elliptic.ec('p256').keyFromPublic(_publicKey);
       const hexSig = buf2hex(toBuffer(sig));
       const match = hexSig.match(/([a-f\d]{64})/gi);
       if (match) {

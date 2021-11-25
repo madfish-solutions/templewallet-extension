@@ -1,6 +1,6 @@
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import { OperationsPreview } from "lib/temple/front";
+import { OperationsPreview } from 'lib/temple/front';
 
 export type RawOperationAssetExpense = {
   tokenAddress?: string;
@@ -17,23 +17,15 @@ export type RawOperationExpenses = {
   expenses: RawOperationAssetExpense[];
 };
 
-export function tryParseExpenses(
-  operations: OperationsPreview,
-  accountAddress: string
-) {
+export function tryParseExpenses(operations: OperationsPreview, accountAddress: string) {
   const r = tryParseExpensesPure(operations, accountAddress);
   return r;
 }
 
-export function tryParseExpensesPure(
-  operations: OperationsPreview,
-  accountAddress: string
-): RawOperationExpenses[] {
-  const operationsAsArray = Array.isArray(operations)
-    ? operations
-    : operations.contents;
+export function tryParseExpensesPure(operations: OperationsPreview, accountAddress: string): RawOperationExpenses[] {
+  const operationsAsArray = Array.isArray(operations) ? operations : operations.contents;
   return (Array.isArray(operationsAsArray) ? operationsAsArray : [])
-    .map<RawOperationExpenses | undefined>((operation) => {
+    .map<RawOperationExpenses | undefined>(operation => {
       if (operation.destination) {
         operation = { ...operation, to: operation.destination };
       }
@@ -46,13 +38,13 @@ export function tryParseExpensesPure(
       if (!kind) {
         return undefined;
       }
-      if (kind === "delegation") {
+      if (kind === 'delegation') {
         return {
           amount: 0,
           delegate: operation.delegate,
           type,
           isEntrypointInteraction: false,
-          expenses: [],
+          expenses: []
         };
       }
       if (from && from !== accountAddress) {
@@ -60,18 +52,15 @@ export function tryParseExpensesPure(
           amount: parsedAmount,
           type,
           isEntrypointInteraction,
-          expenses: [],
+          expenses: []
         };
       }
       const expenses: RawOperationAssetExpense[] = [];
       if (amount) {
         expenses.push({ amount: new BigNumber(amount), to });
       }
-      if (["transfer", "approve"].includes(type)) {
-        if (
-          type === "transfer" &&
-          getParameters(operation)?.value instanceof Array
-        ) {
+      if (['transfer', 'approve'].includes(type)) {
+        if (type === 'transfer' && getParameters(operation)?.value instanceof Array) {
           const internalTransfers = getParameters(operation).value;
           internalTransfers.forEach((transfersBatch: any) => {
             transfersBatch.args[1].forEach((transfer: any) => {
@@ -79,7 +68,7 @@ export function tryParseExpensesPure(
                 tokenAddress: operation.to,
                 amount: new BigNumber(transfer.args[1].args[1].int),
                 tokenId: Number(transfer.args[1].args[0].int),
-                to: transfer.args[0].string,
+                to: transfer.args[0].string
               });
             });
           });
@@ -94,15 +83,11 @@ export function tryParseExpensesPure(
           }
           const to = args?.[0]?.string;
           const amount = args?.[1]?.int;
-          if (
-            [tokenAddress, to, amount].every(
-              (value) => typeof value === "string"
-            )
-          ) {
+          if ([tokenAddress, to, amount].every(value => typeof value === 'string')) {
             expenses.push({
               tokenAddress,
               amount: new BigNumber(amount),
-              to,
+              to
             });
           }
         }
@@ -113,7 +98,7 @@ export function tryParseExpensesPure(
         type,
         isEntrypointInteraction,
         contractAddress: isEntrypointInteraction ? to : undefined,
-        expenses,
+        expenses
       };
     })
     .filter((x): x is RawOperationExpenses => !!x);

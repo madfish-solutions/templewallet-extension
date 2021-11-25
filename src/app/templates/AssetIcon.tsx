@@ -1,13 +1,9 @@
-import React, { CSSProperties, memo, useCallback, useState } from "react";
+import React, { CSSProperties, memo, useCallback, useState } from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
-import Identicon from "app/atoms/Identicon";
-import {
-  useAssetMetadata,
-  getAssetSymbol,
-  getThumbnailUri,
-} from "lib/temple/front";
+import Identicon from 'app/atoms/Identicon';
+import { useAssetMetadata, getAssetSymbol, getThumbnailUri } from 'lib/temple/front';
 
 export type AssetIconProps = {
   assetSlug: string;
@@ -31,26 +27,18 @@ const AssetIcon = memo((props: AssetIconProps) => {
       <img
         src={thumbnailUri}
         alt={metadata?.name}
-        className={classNames("overflow-hidden", className)}
+        className={classNames('overflow-hidden', className)}
         style={{
           width: size,
           height: size,
-          ...style,
+          ...style
         }}
         onError={handleImageError}
       />
     );
   }
 
-  return (
-    <Identicon
-      type="initials"
-      hash={getAssetSymbol(metadata)}
-      className={className}
-      style={style}
-      size={size}
-    />
-  );
+  return <Identicon type="initials" hash={getAssetSymbol(metadata)} className={className} style={style} size={size} />;
 });
 
 export default AssetIcon;

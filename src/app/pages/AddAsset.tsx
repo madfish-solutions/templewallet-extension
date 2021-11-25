@@ -1,26 +1,19 @@
-import React, {
-  FC,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useMemo,
-} from "react";
+import React, { FC, ReactNode, useCallback, useEffect, useRef, useMemo } from 'react';
 
-import classNames from "clsx";
-import { FormContextValues, useForm } from "react-hook-form";
-import { cache as swrCache } from "swr";
-import { useDebouncedCallback } from "use-debounce";
+import classNames from 'clsx';
+import { FormContextValues, useForm } from 'react-hook-form';
+import { cache as swrCache } from 'swr';
+import { useDebouncedCallback } from 'use-debounce';
 
-import Alert from "app/atoms/Alert";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import Spinner from "app/atoms/Spinner";
-import { ReactComponent as AddIcon } from "app/icons/add.svg";
-import PageLayout from "app/layouts/PageLayout";
-import { useFormAnalytics } from "lib/analytics";
-import { T, t } from "lib/i18n/react";
+import Alert from 'app/atoms/Alert';
+import FormField from 'app/atoms/FormField';
+import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import NoSpaceField from 'app/atoms/NoSpaceField';
+import Spinner from 'app/atoms/Spinner';
+import { ReactComponent as AddIcon } from 'app/icons/add.svg';
+import PageLayout from 'app/layouts/PageLayout';
+import { useFormAnalytics } from 'lib/analytics';
+import { T, t } from 'lib/i18n/react';
 import {
   useTezos,
   validateContractAddress,
@@ -37,12 +30,12 @@ import {
   detectTokenStandard,
   IncorrectTokenIdError,
   AssetMetadata,
-  DetailedAssetMetdata,
-} from "lib/temple/front";
-import * as Repo from "lib/temple/repo";
-import { withErrorHumanDelay } from "lib/ui/humanDelay";
-import useSafeState from "lib/ui/useSafeState";
-import { navigate } from "lib/woozie";
+  DetailedAssetMetdata
+} from 'lib/temple/front';
+import * as Repo from 'lib/temple/repo';
+import { withErrorHumanDelay } from 'lib/ui/humanDelay';
+import useSafeState from 'lib/ui/useSafeState';
+import { navigate } from 'lib/woozie';
 
 const AddAsset: FC = () => (
   <PageLayout
@@ -79,10 +72,10 @@ const INITIAL_STATE: ComponentState = {
   processing: false,
   bottomSectionVisible: false,
   tokenValidationError: null,
-  tokenDataError: null,
+  tokenDataError: null
 };
 
-class ContractNotFoundError extends Error { }
+class ContractNotFoundError extends Error {}
 
 const Form: FC = () => {
   const tezos = useTezos();
@@ -90,35 +83,24 @@ const Form: FC = () => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
 
-  const { fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } =
-    useTokensMetadata();
+  const { fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } = useTokensMetadata();
 
-  const formAnalytics = useFormAnalytics("AddAsset");
+  const formAnalytics = useFormAnalytics('AddAsset');
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    formState,
-    watch,
-    setValue,
-    triggerValidation,
-  } = useForm<FormData>({
-    mode: "onChange",
+  const { register, handleSubmit, errors, formState, watch, setValue, triggerValidation } = useForm<FormData>({
+    mode: 'onChange'
   });
 
-  const contractAddress = watch("address");
-  const tokenId = watch("id") || 0;
+  const contractAddress = watch('address');
+  const tokenId = watch('id') || 0;
 
   const formValid = useMemo(
     () => validateContractAddress(contractAddress) === true && tokenId >= 0,
     [contractAddress, tokenId]
   );
 
-  const [
-    { processing, bottomSectionVisible, tokenValidationError, tokenDataError },
-    setState,
-  ] = useSafeState(INITIAL_STATE);
+  const [{ processing, bottomSectionVisible, tokenValidationError, tokenDataError }, setState] =
+    useSafeState(INITIAL_STATE);
   const [submitError, setSubmitError] = useSafeState<ReactNode>(null);
 
   const attemptRef = useRef(0);
@@ -133,7 +115,7 @@ const Form: FC = () => {
     const attempt = ++attemptRef.current;
     setState({
       ...INITIAL_STATE,
-      processing: true,
+      processing: true
     });
 
     let stateToSet: Partial<ComponentState>;
@@ -148,9 +130,7 @@ const Form: FC = () => {
 
       const tokenStandard = await detectTokenStandard(tezos, contract);
       if (!tokenStandard) {
-        throw new NotMatchingStandardError(
-          "Failed when detecting token standard"
-        );
+        throw new NotMatchingStandardError('Failed when detecting token standard');
       }
 
       await assertGetBalance(tezos, contract, tokenStandard, tokenId);
@@ -165,59 +145,47 @@ const Form: FC = () => {
         { symbol: base.symbol },
         { name: base.name },
         { decimals: base.decimals },
-        { thumbnailUri: base.thumbnailUri },
+        { thumbnailUri: base.thumbnailUri }
       ]);
 
       stateToSet = {
-        bottomSectionVisible: true,
+        bottomSectionVisible: true
       };
     } catch (err: any) {
       await withErrorHumanDelay(err, () => {
         if (err instanceof ContractNotFoundError) {
           stateToSet = {
-            tokenValidationError: t(
-              "referredByTokenContractNotFound",
-              contractAddress
-            ),
+            tokenValidationError: t('referredByTokenContractNotFound', contractAddress)
           };
         } else if (err instanceof NotMatchingStandardError) {
           stateToSet = {
-            tokenValidationError: `${t("tokenDoesNotMatchStandard", "FA")}${err instanceof IncorrectTokenIdError ? `: ${err.message}` : ""
-              }`,
+            tokenValidationError: `${t('tokenDoesNotMatchStandard', 'FA')}${
+              err instanceof IncorrectTokenIdError ? `: ${err.message}` : ''
+            }`
           };
         } else {
           const errorMessage = t(
-            err instanceof NotFoundTokenMetadata
-              ? "failedToParseMetadata"
-              : "unknownParseErrorOccurred"
+            err instanceof NotFoundTokenMetadata ? 'failedToParseMetadata' : 'unknownParseErrorOccurred'
           );
 
-          setValue([{ symbol: "" }, { name: "" }, { decimals: 0 }]);
+          setValue([{ symbol: '' }, { name: '' }, { decimals: 0 }]);
 
           stateToSet = {
             bottomSectionVisible: true,
-            tokenDataError: errorMessage,
+            tokenDataError: errorMessage
           };
         }
       });
     }
 
     if (attempt === attemptRef.current) {
-      setState((currentState) => ({
+      setState(currentState => ({
         ...currentState,
         ...stateToSet,
-        processing: false,
+        processing: false
       }));
     }
-  }, [
-    tezos,
-    setValue,
-    setState,
-    fetchMetadata,
-    formValid,
-    contractAddress,
-    tokenId,
-  ]);
+  }, [tezos, setValue, setState, fetchMetadata, formValid, contractAddress, tokenId]);
 
   const loadMetadata = useDebouncedCallback(loadMetadataPure, 500);
 
@@ -236,8 +204,8 @@ const Form: FC = () => {
   }, [setState, formValid, networkId, contractAddress, tokenId]);
 
   const cleanContractAddress = useCallback(() => {
-    setValue("address", "");
-    triggerValidation("address");
+    setValue('address', '');
+    triggerValidation('address');
   }, [setValue, triggerValidation]);
 
   const onSubmit = useCallback(
@@ -255,13 +223,13 @@ const Form: FC = () => {
           symbol,
           name,
           decimals: decimals ? +decimals : 0,
-          thumbnailUri,
+          thumbnailUri
         };
 
         await setTokensBaseMetadata({ [tokenSlug]: baseMetadata });
         if (metadataRef.current?.detailed) {
           await setTokensDetailedMetadata({
-            [tokenSlug]: metadataRef.current.detailed,
+            [tokenSlug]: metadataRef.current.detailed
           });
         }
 
@@ -272,7 +240,7 @@ const Form: FC = () => {
             account: accountPkh,
             tokenSlug,
             status: Repo.ITokenStatus.Enabled,
-            addedAt: Date.now(),
+            addedAt: Date.now()
           },
           Repo.toAccountTokenKey(chainId, accountPkh, tokenSlug)
         );
@@ -283,7 +251,7 @@ const Form: FC = () => {
 
         navigate({
           pathname: `/explore/${tokenSlug}`,
-          search: "after_token_added=true",
+          search: 'after_token_added=true'
         });
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
@@ -291,7 +259,7 @@ const Form: FC = () => {
         console.error(err);
 
         // Human delay
-        await new Promise((r) => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 300));
         setSubmitError(err.message);
       }
     },
@@ -303,19 +271,16 @@ const Form: FC = () => {
       setSubmitError,
       setTokensBaseMetadata,
       setTokensDetailedMetadata,
-      formAnalytics,
+      formAnalytics
     ]
   );
 
   return (
-    <form
-      className="w-full max-w-sm mx-auto my-8"
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
       <NoSpaceField
         ref={register({
-          required: t("required"),
-          validate: validateContractAddress,
+          required: t('required'),
+          validate: validateContractAddress
         })}
         name="address"
         id="addtoken-address"
@@ -323,59 +288,42 @@ const Form: FC = () => {
         rows={2}
         cleanable={Boolean(contractAddress)}
         onClean={cleanContractAddress}
-        label={t("address")}
-        labelDescription={t("addressOfDeployedTokenContract")}
-        placeholder={t("tokenContractPlaceholder")}
+        label={t('address')}
+        labelDescription={t('addressOfDeployedTokenContract')}
+        placeholder={t('tokenContractPlaceholder')}
         errorCaption={errors.address?.message}
         containerClassName="mb-6"
       />
 
       <FormField
         ref={register({
-          min: { value: 0, message: t("nonNegativeIntMessage") },
+          min: { value: 0, message: t('nonNegativeIntMessage') }
         })}
         min={0}
         type="number"
         name="id"
         id="token-id"
-        label={`${t("assetId")} ${t("optionalComment")}`}
-        labelDescription={t("tokenIdInputDescription")}
+        label={`${t('assetId')} ${t('optionalComment')}`}
+        labelDescription={t('tokenIdInputDescription')}
         placeholder="0"
         errorCaption={errors.id?.message}
         containerClassName="mb-6"
       />
 
       {tokenValidationError && (
-        <Alert
-          type="error"
-          title={t("error")}
-          autoFocus
-          description={tokenValidationError}
-          className="mb-8"
-        />
+        <Alert type="error" title={t('error')} autoFocus description={tokenValidationError} className="mb-8" />
       )}
 
       {tokenDataError && (
-        <Alert
-          type="warn"
-          title={t("failedToParseMetadata")}
-          autoFocus
-          description={tokenDataError}
-          className="mb-8"
-        />
+        <Alert type="warn" title={t('failedToParseMetadata')} autoFocus description={tokenDataError} className="mb-8" />
       )}
 
       <div
-        className={classNames("w-full", {
-          hidden: !bottomSectionVisible || processing,
+        className={classNames('w-full', {
+          hidden: !bottomSectionVisible || processing
         })}
       >
-        <BottomSection
-          register={register}
-          errors={errors}
-          formState={formState}
-          submitError={submitError}
-        />
+        <BottomSection register={register} errors={errors} formState={formState} submitError={submitError} />
       </div>
 
       {processing && (
@@ -389,65 +337,62 @@ const Form: FC = () => {
   );
 };
 
-type BottomSectionProps = Pick<
-  FormContextValues,
-  "register" | "errors" | "formState"
-> & {
+type BottomSectionProps = Pick<FormContextValues, 'register' | 'errors' | 'formState'> & {
   submitError?: ReactNode;
 };
 
-const BottomSection: FC<BottomSectionProps> = (props) => {
+const BottomSection: FC<BottomSectionProps> = props => {
   const { register, errors, formState, submitError } = props;
 
   return (
     <>
       <FormField
         ref={register({
-          required: t("required"),
+          required: t('required'),
           validate: (val: string) => {
             if (!val || val.length < 2 || val.length > 8) {
-              return t("tokenSymbolPatternDescription");
+              return t('tokenSymbolPatternDescription');
             }
             return true;
-          },
+          }
         })}
         name="symbol"
         id="addtoken-symbol"
-        label={t("symbol")}
-        labelDescription={t("tokenSymbolInputDescription")}
-        placeholder={t("tokenSymbolInputPlaceholder")}
+        label={t('symbol')}
+        labelDescription={t('tokenSymbolInputDescription')}
+        placeholder={t('tokenSymbolInputPlaceholder')}
         errorCaption={errors.symbol?.message}
         containerClassName="mb-4"
       />
 
       <FormField
         ref={register({
-          required: t("required"),
+          required: t('required'),
           validate: (val: string) => {
             if (!val || val.length < 3 || val.length > 50) {
-              return t("tokenNamePatternDescription");
+              return t('tokenNamePatternDescription');
             }
             return true;
-          },
+          }
         })}
         name="name"
         id="addtoken-name"
-        label={t("name")}
-        labelDescription={t("tokenNameInputDescription")}
-        placeholder={t("tokenNameInputPlaceholder")}
+        label={t('name')}
+        labelDescription={t('tokenNameInputDescription')}
+        placeholder={t('tokenNameInputPlaceholder')}
         errorCaption={errors.name?.message}
         containerClassName="mb-4"
       />
 
       <FormField
         ref={register({
-          min: { value: 0, message: t("nonNegativeIntMessage") },
+          min: { value: 0, message: t('nonNegativeIntMessage') }
         })}
         type="number"
         name="decimals"
         id="addtoken-decimals"
-        label={t("decimals")}
-        labelDescription={t("decimalsInputDescription")}
+        label={t('decimals')}
+        labelDescription={t('decimalsInputDescription')}
         placeholder="0"
         errorCaption={errors.decimals?.message}
         containerClassName="mb-4"
@@ -463,51 +408,31 @@ const BottomSection: FC<BottomSectionProps> = (props) => {
 
             return (
               <ul className="list-disc list-inside">
-                <T id="validImageURL">{(message) => <li>{message}</li>}</T>
-                <T id="onlyHTTPS">{(message) => <li>{message}</li>}</T>
-                <T id="formatsAllowed">{(message) => <li>{message}</li>}</T>
-                <T id="orIPFSImageURL">{(message) => <li>{message}</li>}</T>
+                <T id="validImageURL">{message => <li>{message}</li>}</T>
+                <T id="onlyHTTPS">{message => <li>{message}</li>}</T>
+                <T id="formatsAllowed">{message => <li>{message}</li>}</T>
+                <T id="orIPFSImageURL">{message => <li>{message}</li>}</T>
               </ul>
             );
-          },
+          }
         })}
         name="thumbnailUri"
         id="addtoken-thumbnailUri"
         label={
           <>
-            <T id="iconURL" />{" "}
-            <T id="optionalComment">
-              {(message) => (
-                <span className="text-sm font-light text-gray-600">
-                  {message}
-                </span>
-              )}
-            </T>
+            <T id="iconURL" />{' '}
+            <T id="optionalComment">{message => <span className="text-sm font-light text-gray-600">{message}</span>}</T>
           </>
         }
-        labelDescription={t("iconURLInputDescription")}
+        labelDescription={t('iconURLInputDescription')}
         placeholder="e.g. https://cdn.com/mytoken.png"
         errorCaption={errors.iconUrl?.message}
         containerClassName="mb-6"
       />
 
-      {submitError && (
-        <Alert
-          type="error"
-          title={t("error")}
-          autoFocus
-          description={submitError}
-          className="mb-6"
-        />
-      )}
+      {submitError && <Alert type="error" title={t('error')} autoFocus description={submitError} className="mb-6" />}
 
-      <T id="addToken">
-        {(message) => (
-          <FormSubmitButton loading={formState.isSubmitting}>
-            {message}
-          </FormSubmitButton>
-        )}
-      </T>
+      <T id="addToken">{message => <FormSubmitButton loading={formState.isSubmitting}>{message}</FormSubmitButton>}</T>
     </>
   );
 };

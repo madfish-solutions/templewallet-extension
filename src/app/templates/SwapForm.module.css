@@ -1,5 +1,5 @@
 .exchanger-option label::before {
-  content: "";
+  content: '';
   display: inline-block;
   width: 0.875rem;
   height: 0.875rem;
@@ -10,7 +10,7 @@
 }
 
 .exchanger-option label::after {
-  content: "";
+  content: '';
   display: inline-block;
   width: 0.375rem;
   height: 0.375rem;
@@ -20,11 +20,11 @@
   background: transparent;
 }
 
-.exchanger-option input[type="radio"]:checked + label::before {
+.exchanger-option input[type='radio']:checked + label::before {
   left: 1.3125rem;
 }
 
-.exchanger-option input[type="radio"]:checked + label::after {
+.exchanger-option input[type='radio']:checked + label::after {
   background: #4299e1;
   left: 1.5625rem;
 }
@@ -34,8 +34,8 @@
   filter: brightness(120%);
 }
 
-.exchanger-option input[type="radio"]:disabled + label::before,
-.exchanger-option input[type="radio"]:disabled + label::after {
+.exchanger-option input[type='radio']:disabled + label::before,
+.exchanger-option input[type='radio']:disabled + label::after {
   filter: grayscale(100%);
 }
 
