@@ -1,15 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from 'react';
 
-import { TezosToolkit } from "@taquito/taquito";
-import BigNumber from "bignumber.js";
-import debouncePromise from "debounce-promise";
+import { TezosToolkit } from '@taquito/taquito';
+import BigNumber from 'bignumber.js';
+import debouncePromise from 'debounce-promise';
 
-import {
-  ExchangerType,
-  getPoolParameters,
-  TempleAsset,
-  tokensToAtoms,
-} from "../../lib/temple/front";
+import { ExchangerType, getPoolParameters, TempleAsset, tokensToAtoms } from '../../lib/temple/front';
 
 const getMarketPrice = async (
   tezos: TezosToolkit,
@@ -17,42 +12,17 @@ const getMarketPrice = async (
   inputContractAddress?: string,
   outputContractAddress?: string
 ) => {
-  if (
-    inputContractAddress === undefined &&
-    outputContractAddress !== undefined
-  ) {
-    const pool = await getPoolParameters(
-      tezos,
-      outputContractAddress,
-      selectedExchanger
-    );
+  if (inputContractAddress === undefined && outputContractAddress !== undefined) {
+    const pool = await getPoolParameters(tezos, outputContractAddress, selectedExchanger);
 
     return pool.tokenPool.dividedBy(pool.xtzPool);
-  } else if (
-    inputContractAddress !== undefined &&
-    outputContractAddress === undefined
-  ) {
-    const pool = await getPoolParameters(
-      tezos,
-      inputContractAddress,
-      selectedExchanger
-    );
+  } else if (inputContractAddress !== undefined && outputContractAddress === undefined) {
+    const pool = await getPoolParameters(tezos, inputContractAddress, selectedExchanger);
 
     return pool.xtzPool.dividedBy(pool.tokenPool);
-  } else if (
-    inputContractAddress !== undefined &&
-    outputContractAddress !== undefined
-  ) {
-    const pool1 = await getPoolParameters(
-      tezos,
-      inputContractAddress,
-      selectedExchanger
-    );
-    const pool2 = await getPoolParameters(
-      tezos,
-      outputContractAddress,
-      selectedExchanger
-    );
+  } else if (inputContractAddress !== undefined && outputContractAddress !== undefined) {
+    const pool1 = await getPoolParameters(tezos, inputContractAddress, selectedExchanger);
+    const pool2 = await getPoolParameters(tezos, outputContractAddress, selectedExchanger);
 
     const pool1marketPrice = pool1.xtzPool.dividedBy(pool1.tokenPool);
     const pool2marketPrice = pool2.tokenPool.dividedBy(pool2.xtzPool);
@@ -63,18 +33,11 @@ const getMarketPrice = async (
   return new BigNumber(0);
 };
 
-const getPriceImpact = (
-  inputAtomsAmountWithFee: BigNumber,
-  outputAtomsAmount: BigNumber,
-  marketPrice: BigNumber
-) => {
-  const linearOutputAssetAmount =
-    inputAtomsAmountWithFee.multipliedBy(marketPrice);
+const getPriceImpact = (inputAtomsAmountWithFee: BigNumber, outputAtomsAmount: BigNumber, marketPrice: BigNumber) => {
+  const linearOutputAssetAmount = inputAtomsAmountWithFee.multipliedBy(marketPrice);
   const outputDifference = linearOutputAssetAmount.minus(outputAtomsAmount);
 
-  return new BigNumber(100).multipliedBy(
-    outputDifference.dividedBy(linearOutputAssetAmount)
-  );
+  return new BigNumber(100).multipliedBy(outputDifference.dividedBy(linearOutputAssetAmount));
 };
 
 export const usePriceImpact = (
@@ -116,17 +79,10 @@ export const usePriceImpact = (
               .minus(feePercentageParam.multipliedBy(new BigNumber(10)))
               .dividedBy(thousand);
 
-            const inputAtomsAmount = tokensToAtoms(
-              inputAmountParam,
-              inputAssetParam.decimals
-            );
-            const inputAtomsAmountWithFee =
-              inputAtomsAmount.multipliedBy(normalizedFee);
+            const inputAtomsAmount = tokensToAtoms(inputAmountParam, inputAssetParam.decimals);
+            const inputAtomsAmountWithFee = inputAtomsAmount.multipliedBy(normalizedFee);
 
-            const outputAtomsAmount = tokensToAtoms(
-              outputAmountParam,
-              outputAssetParam.decimals
-            );
+            const outputAtomsAmount = tokensToAtoms(outputAmountParam, outputAssetParam.decimals);
 
             const marketPrice = await getMarketPrice(
               tezosParam,
@@ -135,11 +91,7 @@ export const usePriceImpact = (
               outputContractAddressParam
             );
 
-            const priceImpact = getPriceImpact(
-              inputAtomsAmountWithFee,
-              outputAtomsAmount,
-              marketPrice
-            );
+            const priceImpact = getPriceImpact(inputAtomsAmountWithFee, outputAtomsAmount, marketPrice);
 
             setPriceImpact(priceImpact);
           } else {
@@ -174,7 +126,7 @@ export const usePriceImpact = (
       outputAmount,
       feePercentage,
       inputAsset,
-      outputAsset,
+      outputAsset
     ]
   );
 

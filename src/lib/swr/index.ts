@@ -1,4 +1,4 @@
-import useSWR, { keyInterface, ConfigInterface, cache } from "swr";
+import useSWR, { keyInterface, ConfigInterface, cache } from 'swr';
 
 export function useRetryableSWR<T, E = any>(
   key: keyInterface,

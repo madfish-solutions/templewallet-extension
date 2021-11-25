@@ -14,7 +14,7 @@
     "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",
     "lint": "eslint src",
-    "format": "prettier \"./**/*\" --write --ignore-unknown",
+    "lint:fix": "prettier \"./**/*\" --write --ignore-unknown",
     "clear:lint": "rimraf node_modules/.cache/eslint-loader"
   },
   "dependencies": {
@@ -87,6 +87,7 @@
     "eslint-plugin-flowtype": "5.2.0",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsx-a11y": "6.4.1",
+    "eslint-plugin-prettier": "^3.4.1",
     "eslint-plugin-react": "7.22.0",
     "eslint-plugin-react-hooks": "4.2.0",
     "fast-deep-equal": "3.1.3",

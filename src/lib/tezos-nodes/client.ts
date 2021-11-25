@@ -1,12 +1,11 @@
-import axios from "axios";
+import axios from 'axios';
 
-import { TNBakerPreview, TNBaker } from "lib/tezos-nodes/types";
+import { TNBakerPreview, TNBaker } from 'lib/tezos-nodes/types';
 
-
-const api = axios.create({ baseURL: "https://api.tezos-nodes.com/v1" });
+const api = axios.create({ baseURL: 'https://api.tezos-nodes.com/v1' });
 api.interceptors.response.use(
-  (res) => res,
-  (err) => {
+  res => res,
+  err => {
     console.error(err);
 
     throw err;
@@ -14,7 +13,7 @@ api.interceptors.response.use(
 );
 
 export async function getAllBakers() {
-  const { data: bakers } = await api.get<TNBakerPreview[]>("/bakers");
+  const { data: bakers } = await api.get<TNBakerPreview[]>('/bakers');
   return bakers.filter(isBakerPay).map(fixBakerLogo);
 }
 

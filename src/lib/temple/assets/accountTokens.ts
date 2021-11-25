@@ -1,8 +1,8 @@
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import * as Repo from "lib/temple/repo";
+import * as Repo from 'lib/temple/repo';
 
-import { PREDEFINED_MAINNET_TOKENS } from "./predefinedTokens";
+import { PREDEFINED_MAINNET_TOKENS } from './predefinedTokens';
 
 export async function setTokenStatus(
   type: Repo.ITokenType,
@@ -21,86 +21,63 @@ export async function setTokenStatus(
         chainId,
         account,
         tokenSlug,
-        addedAt: Date.now(),
+        addedAt: Date.now()
       }),
-      status,
+      status
     },
     repoKey
   );
 }
 
-export async function fetchDisplayedFungibleTokens(
-  chainId: string,
-  account: string
-) {
+export async function fetchDisplayedFungibleTokens(chainId: string, account: string) {
   return Repo.accountTokens
     .where({ type: Repo.ITokenType.Fungible, chainId, account })
     .filter(isTokenDisplayed)
     .reverse()
-    .sortBy("addedAt")
-    .then((items) => items.sort(compareAccountTokensByUSDBalance));
+    .sortBy('addedAt')
+    .then(items => items.sort(compareAccountTokensByUSDBalance));
 }
 
 export async function fetchFungibleTokens(chainId: string, account: string) {
-  return Repo.accountTokens
-    .where({ type: Repo.ITokenType.Fungible, chainId, account })
-    .toArray();
+  return Repo.accountTokens.where({ type: Repo.ITokenType.Fungible, chainId, account }).toArray();
 }
 
-export async function fetchCollectibleTokens(
-  chainId: string,
-  account: string,
-  isDisplayed: boolean
-) {
+export async function fetchCollectibleTokens(chainId: string, account: string, isDisplayed: boolean) {
   return Repo.accountTokens
     .where({ type: Repo.ITokenType.Collectible, chainId, account })
-    .filter((accountToken) =>
-      isDisplayed ? isTokenDisplayed(accountToken) : true
-    )
+    .filter(accountToken => (isDisplayed ? isTokenDisplayed(accountToken) : true))
     .reverse()
-    .sortBy("addedAt");
+    .sortBy('addedAt');
 }
 
 export async function fetchAllKnownFungibleTokenSlugs(chainId: string) {
-  const allAccountTokens = await Repo.accountTokens
-    .where({ type: Repo.ITokenType.Fungible, chainId })
-    .toArray();
+  const allAccountTokens = await Repo.accountTokens.where({ type: Repo.ITokenType.Fungible, chainId }).toArray();
 
-  return Array.from(new Set(allAccountTokens.map((t) => t.tokenSlug)));
+  return Array.from(new Set(allAccountTokens.map(t => t.tokenSlug)));
 }
 
 export async function fetchAllKnownCollectibleTokenSlugs(chainId: string) {
-  const allAccountTokens = await Repo.accountTokens
-    .where({ type: Repo.ITokenType.Collectible, chainId })
-    .toArray();
+  const allAccountTokens = await Repo.accountTokens.where({ type: Repo.ITokenType.Collectible, chainId }).toArray();
 
-  return Array.from(new Set(allAccountTokens.map((t) => t.tokenSlug)));
+  return Array.from(new Set(allAccountTokens.map(t => t.tokenSlug)));
 }
 
 export function isTokenDisplayed(t: Repo.IAccountToken) {
   return (
     t.status === Repo.ITokenStatus.Enabled ||
-    (t.status === Repo.ITokenStatus.Idle &&
-      new BigNumber(t.latestBalance!).isGreaterThan(0))
+    (t.status === Repo.ITokenStatus.Idle && new BigNumber(t.latestBalance!).isGreaterThan(0))
   );
 }
 
-export function compareAccountTokensByUSDBalance(
-  a: Repo.IAccountToken,
-  b: Repo.IAccountToken
-): number {
+export function compareAccountTokensByUSDBalance(a: Repo.IAccountToken, b: Repo.IAccountToken): number {
   if (!a.latestUSDBalance) return 1;
   if (!b.latestUSDBalance) return -1;
 
   const aUSDBal = new BigNumber(a.latestUSDBalance);
   const bUSDBal = new BigNumber(b.latestUSDBalance);
 
-  const aPredefIndex = PREDEFINED_MAINNET_TOKENS.findIndex(
-    (slug) => slug === a.tokenSlug
-  );
-  const bPredefIndex = PREDEFINED_MAINNET_TOKENS.findIndex(
-    (slug) => slug === b.tokenSlug
-  );
+  const aPredefIndex = PREDEFINED_MAINNET_TOKENS.findIndex(slug => slug === a.tokenSlug);
+  const bPredefIndex = PREDEFINED_MAINNET_TOKENS.findIndex(slug => slug === b.tokenSlug);
 
   if (aUSDBal.isEqualTo(bUSDBal)) return aPredefIndex > bPredefIndex ? 1 : -1;
 
