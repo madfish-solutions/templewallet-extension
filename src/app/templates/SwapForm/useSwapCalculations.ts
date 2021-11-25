@@ -1,12 +1,8 @@
-import { useCallback } from "react";
+import { useCallback } from 'react';
 
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import {
-  getAssetExchangeData,
-  TokenExchangeData,
-  useSwappableAssets,
-} from "app/templates/SwapForm/useSwappableAssets";
+import { getAssetExchangeData, TokenExchangeData, useSwappableAssets } from 'app/templates/SwapForm/useSwappableAssets';
 import {
   ALL_EXCHANGERS_TYPES,
   assetsAreSame,
@@ -19,37 +15,25 @@ import {
   tzToMutez,
   useTezos,
   TempleAsset,
-  TempleAssetType,
-} from "lib/temple/front";
+  TempleAssetType
+} from 'lib/temple/front';
 
 export default function useSwapCalculations() {
-  const { exchangeData: tokensExchangeData, tezUsdPrice } =
-    useSwappableAssets();
+  const { exchangeData: tokensExchangeData, tezUsdPrice } = useSwappableAssets();
 
   const tezos = useTezos();
 
   const getOutputTezAmounts = useCallback(
-    async (
-      inputAsset: TempleAsset,
-      amount: BigNumber,
-      tokenExchangeData?: Partial<TokenExchangeData>
-    ) => {
-      const rawAssetAmount = new BigNumber(amount).multipliedBy(
-        new BigNumber(10).pow(inputAsset.decimals)
-      );
+    async (inputAsset: TempleAsset, amount: BigNumber, tokenExchangeData?: Partial<TokenExchangeData>) => {
+      const rawAssetAmount = new BigNumber(amount).multipliedBy(new BigNumber(10).pow(inputAsset.decimals));
       const amounts = await Promise.all(
-        ALL_EXCHANGERS_TYPES.map(async (exchangerType) => {
+        ALL_EXCHANGERS_TYPES.map(async exchangerType => {
           if (inputAsset.type === TempleAssetType.TEZ) {
             return new BigNumber(amount);
           }
           const contractAddress = (
             tokenExchangeData?.[exchangerType] ??
-            getAssetExchangeData(
-              tokensExchangeData,
-              tezUsdPrice,
-              inputAsset,
-              exchangerType
-            )
+            getAssetExchangeData(tokensExchangeData, tezUsdPrice, inputAsset, exchangerType)
           )?.contract;
           if (!contractAddress) {
             return undefined;
@@ -58,17 +42,15 @@ export default function useSwapCalculations() {
           return mutezToTz(
             await getMutezOutput(tezos, rawAssetAmount, {
               address: contractAddress,
-              type: exchangerType,
+              type: exchangerType
             })
           );
         })
       );
-      return ALL_EXCHANGERS_TYPES.reduce<
-        Partial<Record<ExchangerType, BigNumber>>
-      >(
+      return ALL_EXCHANGERS_TYPES.reduce<Partial<Record<ExchangerType, BigNumber>>>(
         (resultPart, exchangerType, index) => ({
           ...resultPart,
-          [exchangerType]: amounts[index],
+          [exchangerType]: amounts[index]
         }),
         {}
       );
@@ -86,17 +68,10 @@ export default function useSwapCalculations() {
       if (outputAsset.type === TempleAssetType.TEZ) {
         return amount;
       }
-      const rawAssetAmount = new BigNumber(amount).multipliedBy(
-        new BigNumber(10).pow(outputAsset.decimals)
-      );
+      const rawAssetAmount = new BigNumber(amount).multipliedBy(new BigNumber(10).pow(outputAsset.decimals));
       const contractAddress = (
         tokenExchangeData?.[exchangerType] ??
-        getAssetExchangeData(
-          tokensExchangeData,
-          tezUsdPrice,
-          outputAsset,
-          exchangerType
-        )
+        getAssetExchangeData(tokensExchangeData, tezUsdPrice, outputAsset, exchangerType)
       )?.contract;
       if (!contractAddress) {
         return undefined;
@@ -105,7 +80,7 @@ export default function useSwapCalculations() {
       return mutezToTz(
         await getMutezInput(tezos, rawAssetAmount, {
           address: contractAddress,
-          type: exchangerType,
+          type: exchangerType
         })
       );
     },
@@ -124,23 +99,16 @@ export default function useSwapCalculations() {
       }
       const contractAddress = (
         tokenExchangeData?.[exchangerType] ??
-        getAssetExchangeData(
-          tokensExchangeData,
-          tezUsdPrice,
-          outputAsset,
-          exchangerType
-        )
+        getAssetExchangeData(tokensExchangeData, tezUsdPrice, outputAsset, exchangerType)
       )?.contract;
       if (!contractAddress) {
         return undefined;
       }
-      const outputAssetElementaryParts = new BigNumber(10).pow(
-        outputAsset.decimals
-      );
+      const outputAssetElementaryParts = new BigNumber(10).pow(outputAsset.decimals);
       return (
         await getTokenOutput(tezos, tzToMutez(tez), {
           address: contractAddress,
-          type: exchangerType,
+          type: exchangerType
         })
       ).div(outputAssetElementaryParts);
     },
@@ -159,23 +127,16 @@ export default function useSwapCalculations() {
       }
       const contractAddress = (
         tokenExchangeData?.[exchangerType] ??
-        getAssetExchangeData(
-          tokensExchangeData,
-          tezUsdPrice,
-          inputAsset,
-          exchangerType
-        )
+        getAssetExchangeData(tokensExchangeData, tezUsdPrice, inputAsset, exchangerType)
       )?.contract;
       if (!contractAddress) {
         return undefined;
       }
-      const inputAssetElementaryParts = new BigNumber(10).pow(
-        inputAsset.decimals
-      );
+      const inputAssetElementaryParts = new BigNumber(10).pow(inputAsset.decimals);
       const result = (
         await getTokenInput(tezos, tzToMutez(tez), {
           address: contractAddress,
-          type: exchangerType,
+          type: exchangerType
         })
       ).div(inputAssetElementaryParts);
       return result;
@@ -192,29 +153,14 @@ export default function useSwapCalculations() {
       inputExchangeData?: Partial<TokenExchangeData>,
       outputExchangeData?: Partial<TokenExchangeData>
     ) => {
-      if (
-        outputAssetAmount === undefined ||
-        !inputAsset ||
-        !outputAsset ||
-        assetsAreSame(inputAsset, outputAsset)
-      ) {
+      if (outputAssetAmount === undefined || !inputAsset || !outputAsset || assetsAreSame(inputAsset, outputAsset)) {
         return undefined;
       }
-      const tezAmount = await getInputTezAmount(
-        outputAsset,
-        outputAssetAmount,
-        selectedExchanger,
-        outputExchangeData
-      );
+      const tezAmount = await getInputTezAmount(outputAsset, outputAssetAmount, selectedExchanger, outputExchangeData);
       if (tezAmount === undefined) {
         return undefined;
       }
-      const result = await getInputAmount(
-        tezAmount,
-        inputAsset,
-        selectedExchanger,
-        inputExchangeData
-      );
+      const result = await getInputAmount(tezAmount, inputAsset, selectedExchanger, inputExchangeData);
       return result;
     },
     [getInputAmount, getInputTezAmount]
@@ -228,48 +174,22 @@ export default function useSwapCalculations() {
       inputExchangeData?: Partial<TokenExchangeData>,
       outputExchangeData?: Partial<TokenExchangeData>
     ) => {
-      if (
-        inputAssetAmount === undefined ||
-        !inputAsset ||
-        !outputAsset ||
-        assetsAreSame(inputAsset, outputAsset)
-      ) {
+      if (inputAssetAmount === undefined || !inputAsset || !outputAsset || assetsAreSame(inputAsset, outputAsset)) {
         return undefined;
       }
       const {
         dexter: dexterTezAmount,
         quipuswap: quipuswapTezAmount,
-        liquidity_baking: liquidityBakingTezAmount,
-      } = await getOutputTezAmounts(
-        inputAsset,
-        inputAssetAmount,
-        inputExchangeData
-      );
+        liquidity_baking: liquidityBakingTezAmount
+      } = await getOutputTezAmounts(inputAsset, inputAssetAmount, inputExchangeData);
       return {
-        dexter:
-          dexterTezAmount &&
-          (await getOutputAmount(
-            dexterTezAmount,
-            outputAsset,
-            "dexter",
-            outputExchangeData
-          )),
+        dexter: dexterTezAmount && (await getOutputAmount(dexterTezAmount, outputAsset, 'dexter', outputExchangeData)),
         quipuswap:
           quipuswapTezAmount &&
-          (await getOutputAmount(
-            quipuswapTezAmount,
-            outputAsset,
-            "quipuswap",
-            outputExchangeData
-          )),
+          (await getOutputAmount(quipuswapTezAmount, outputAsset, 'quipuswap', outputExchangeData)),
         liquidity_baking:
           liquidityBakingTezAmount &&
-          (await getOutputAmount(
-            liquidityBakingTezAmount,
-            outputAsset,
-            "liquidity_baking",
-            outputExchangeData
-          )),
+          (await getOutputAmount(liquidityBakingTezAmount, outputAsset, 'liquidity_baking', outputExchangeData))
       };
     },
     [getOutputAmount, getOutputTezAmounts]
@@ -277,6 +197,6 @@ export default function useSwapCalculations() {
 
   return {
     getInputAssetAmount,
-    getOutputAssetAmounts,
+    getOutputAssetAmounts
   };
 }

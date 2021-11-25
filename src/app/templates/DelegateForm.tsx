@@ -1,42 +1,31 @@
-import React, {
-  FC,
-  ReactNode,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from "react";
+import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 
-import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
-import BigNumber from "bignumber.js";
-import classNames from "clsx";
-import { useForm, Controller } from "react-hook-form";
-import useSWR from "swr";
-import { browser } from "webextension-polyfill-ts";
+import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
+import BigNumber from 'bignumber.js';
+import classNames from 'clsx';
+import { useForm, Controller } from 'react-hook-form';
+import useSWR from 'swr';
+import { browser } from 'webextension-polyfill-ts';
 
-import Alert from "app/atoms/Alert";
-import { Button } from "app/atoms/Button";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Money from "app/atoms/Money";
-import Name from "app/atoms/Name";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import Spinner from "app/atoms/Spinner";
-import {
-  ArtificialError,
-  NotEnoughFundsError,
-  ZeroBalanceError,
-} from "app/defaults";
-import { useAppEnv } from "app/env";
-import { ReactComponent as ArrowUpIcon } from "app/icons/arrow-up.svg";
-import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
-import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
-import BakerBanner from "app/templates/BakerBanner";
-import InUSD from "app/templates/InUSD";
-import OperationStatus from "app/templates/OperationStatus";
-import { useFormAnalytics } from "lib/analytics";
-import { toLocalFormat } from "lib/i18n/numbers";
-import { T, t } from "lib/i18n/react";
-import { setDelegate } from "lib/michelson";
+import Alert from 'app/atoms/Alert';
+import { Button } from 'app/atoms/Button';
+import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import Money from 'app/atoms/Money';
+import Name from 'app/atoms/Name';
+import NoSpaceField from 'app/atoms/NoSpaceField';
+import Spinner from 'app/atoms/Spinner';
+import { ArtificialError, NotEnoughFundsError, ZeroBalanceError } from 'app/defaults';
+import { useAppEnv } from 'app/env';
+import { ReactComponent as ArrowUpIcon } from 'app/icons/arrow-up.svg';
+import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
+import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
+import BakerBanner from 'app/templates/BakerBanner';
+import InUSD from 'app/templates/InUSD';
+import OperationStatus from 'app/templates/OperationStatus';
+import { useFormAnalytics } from 'lib/analytics';
+import { toLocalFormat } from 'lib/i18n/numbers';
+import { T, t } from 'lib/i18n/react';
+import { setDelegate } from 'lib/michelson';
 import {
   useNetwork,
   useAccount,
@@ -53,16 +42,16 @@ import {
   loadContract,
   useTezosDomainsClient,
   isDomainNameValid,
-  fetchTezosBalance,
-} from "lib/temple/front";
-import useSafeState from "lib/ui/useSafeState";
-import { useLocation, Link } from "lib/woozie";
+  fetchTezosBalance
+} from 'lib/temple/front';
+import useSafeState from 'lib/ui/useSafeState';
+import { useLocation, Link } from 'lib/woozie';
 
-import { DelegateFormSelectors } from "./DelegateForm.selectors";
+import { DelegateFormSelectors } from './DelegateForm.selectors';
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
-const SORT_BAKERS_BY_KEY = "sort_bakers_by";
+const SORT_BAKERS_BY_KEY = 'sort_bakers_by';
 
 interface FormData {
   to: string;
@@ -71,19 +60,16 @@ interface FormData {
 
 const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
-  const formAnalytics = useFormAnalytics("DelegateForm");
+  const formAnalytics = useFormAnalytics('DelegateForm');
 
   const net = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
 
   const accountPkh = acc.publicKeyHash;
-  const assetSymbol = "ꜩ";
+  const assetSymbol = 'ꜩ';
 
-  const { data: balanceData, mutate: mutateBalance } = useBalance(
-    "tez",
-    accountPkh
-  );
+  const { data: balanceData, mutate: mutateBalance } = useBalance('tez', accountPkh);
   const balance = balanceData!;
   const balanceNum = balance!.toNumber();
 
@@ -96,25 +82,25 @@ const DelegateForm: FC = () => {
   const bakerSortTypes = useMemo(
     () => [
       {
-        key: "rank",
-        title: t("rank"),
-        testID: DelegateFormSelectors.SortBakerByRankTab,
+        key: 'rank',
+        title: t('rank'),
+        testID: DelegateFormSelectors.SortBakerByRankTab
       },
       {
-        key: "fee",
-        title: t("fee"),
-        testID: DelegateFormSelectors.SortBakerByFeeTab,
+        key: 'fee',
+        title: t('fee'),
+        testID: DelegateFormSelectors.SortBakerByFeeTab
       },
       {
-        key: "space",
-        title: t("space"),
-        testID: DelegateFormSelectors.SortBakerBySpaceTab,
+        key: 'space',
+        title: t('space'),
+        testID: DelegateFormSelectors.SortBakerBySpaceTab
       },
       {
-        key: "staking",
-        title: t("staking"),
-        testID: DelegateFormSelectors.SortBakerByStakingTab,
-      },
+        key: 'staking',
+        title: t('staking'),
+        testID: DelegateFormSelectors.SortBakerByStakingTab
+      }
     ],
     []
   );
@@ -130,16 +116,16 @@ const DelegateForm: FC = () => {
 
     const toSort = Array.from(knownBakers);
     switch (sortBakersBy.key) {
-      case "fee":
+      case 'fee':
         return toSort.sort((a, b) => a.fee - b.fee);
 
-      case "space":
+      case 'space':
         return toSort.sort((a, b) => b.freeSpace - a.freeSpace);
 
-      case "staking":
+      case 'staking':
         return toSort.sort((a, b) => b.stakingBalance - a.stakingBalance);
 
-      case "rank":
+      case 'rank':
       default:
         return toSort;
     }
@@ -149,42 +135,28 @@ const DelegateForm: FC = () => {
    * Form
    */
 
-  const {
-    watch,
-    handleSubmit,
-    errors,
-    control,
-    formState,
-    setValue,
-    triggerValidation,
-    reset,
-  } = useForm<FormData>({
-    mode: "onChange",
+  const { watch, handleSubmit, errors, control, formState, setValue, triggerValidation, reset } = useForm<FormData>({
+    mode: 'onChange',
     defaultValues: {
-      fee: RECOMMENDED_ADD_FEE,
-    },
+      fee: RECOMMENDED_ADD_FEE
+    }
   });
 
-  const toValue = watch("to");
+  const toValue = watch('to');
 
-  const toFilledWithAddress = useMemo(
-    () => Boolean(toValue && isAddressValid(toValue)),
-    [toValue]
-  );
+  const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
   const toFilledWithDomain = useMemo(
     () => toValue && isDomainNameValid(toValue, domainsClient),
     [toValue, domainsClient]
   );
   const domainAddressFactory = useCallback(
-    (_k: string, _checksum: string, toValue: string) =>
-      domainsClient.resolver.resolveNameToAddress(toValue),
+    (_k: string, _checksum: string, toValue: string) => domainsClient.resolver.resolveNameToAddress(toValue),
     [domainsClient]
   );
-  const { data: resolvedAddress } = useSWR(
-    ["tzdns-address", tezos.checksum, toValue],
-    domainAddressFactory,
-    { shouldRetryOnError: false, revalidateOnFocus: false }
-  );
+  const { data: resolvedAddress } = useSWR(['tzdns-address', tezos.checksum, toValue], domainAddressFactory, {
+    shouldRetryOnError: false,
+    revalidateOnFocus: false
+  });
 
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
 
@@ -193,10 +165,7 @@ const DelegateForm: FC = () => {
     [toFilledWithAddress, toFilledWithDomain, resolvedAddress]
   );
 
-  const toResolved = useMemo(
-    () => resolvedAddress || toValue,
-    [resolvedAddress, toValue]
-  );
+  const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
 
   const validateDelegate = useCallback(
     async (value: any) => {
@@ -209,17 +178,15 @@ const DelegateForm: FC = () => {
       }
 
       if (isDomainNameValid(value, domainsClient)) {
-        const resolved = await domainsClient.resolver.resolveNameToAddress(
-          value
-        );
+        const resolved = await domainsClient.resolver.resolveNameToAddress(value);
         if (!resolved) {
-          return t("domainDoesntResolveToAddress", value);
+          return t('domainDoesntResolveToAddress', value);
         }
 
         value = resolved;
       }
 
-      return isAddressValid(value) ? true : t("invalidAddressOrDomain");
+      return isAddressValid(value) ? true : t('invalidAddressOrDomain');
     },
     [canUseDomainNames, domainsClient]
   );
@@ -228,21 +195,19 @@ const DelegateForm: FC = () => {
     const to = toResolved;
     if (acc.type === TempleAccountType.ManagedKT) {
       const contract = await loadContract(tezos, accountPkh);
-      const transferParams = contract.methods
-        .do(setDelegate(to))
-        .toTransferParams();
+      const transferParams = contract.methods.do(setDelegate(to)).toTransferParams();
       return tezos.estimate.transfer(transferParams);
     } else {
       return tezos.estimate.setDelegate({
         source: accountPkh,
-        delegate: to,
+        delegate: to
       });
     }
   }, [tezos, accountPkh, acc.type, toResolved]);
 
   const cleanToField = useCallback(() => {
-    setValue("to", "");
-    triggerValidation("to");
+    setValue('to', '');
+    triggerValidation('to');
   }, [setValue, triggerValidation]);
 
   useLayoutEffect(() => {
@@ -257,17 +222,13 @@ const DelegateForm: FC = () => {
 
   const estimateBaseFee = useCallback(async () => {
     try {
-      const balanceBN = (await mutateBalance(
-        fetchTezosBalance(tezos, accountPkh)
-      ))!;
+      const balanceBN = (await mutateBalance(fetchTezosBalance(tezos, accountPkh)))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }
 
       const estmtn = await getEstimation();
-      const manager = tezos.rpc.getManagerKey(
-        acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh
-      );
+      const manager = tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh);
       let baseFee = mutezToTz(estmtn.totalCost);
       if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
@@ -280,7 +241,7 @@ const DelegateForm: FC = () => {
       return baseFee;
     } catch (err: any) {
       // Human delay
-      await new Promise((r) => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 300));
 
       if (err instanceof ArtificialError) {
         return err;
@@ -289,12 +250,10 @@ const DelegateForm: FC = () => {
       console.error(err);
 
       switch (true) {
-        case ["delegate.unchanged", "delegate.already_active"].some((t) =>
-          err?.id.includes(t)
-        ):
+        case ['delegate.unchanged', 'delegate.already_active'].some(t => err?.id.includes(t)):
           return new UnchangedError(err.message);
 
-        case err?.id.includes("unregistered_delegate"):
+        case err?.id.includes('unregistered_delegate'):
           return new UnregisteredDelegateError(err.message);
 
         default:
@@ -306,29 +265,15 @@ const DelegateForm: FC = () => {
   const {
     data: baseFee,
     error: estimateBaseFeeError,
-    isValidating: estimating,
-  } = useSWR(
-    () =>
-      toFilled
-        ? ["delegate-base-fee", tezos.checksum, accountPkh, toResolved]
-        : null,
-    estimateBaseFee,
-    {
-      shouldRetryOnError: false,
-      focusThrottleInterval: 10_000,
-      dedupingInterval: 30_000,
-    }
-  );
-  const estimationError = !estimating
-    ? baseFee instanceof Error
-      ? baseFee
-      : estimateBaseFeeError
-    : null;
+    isValidating: estimating
+  } = useSWR(() => (toFilled ? ['delegate-base-fee', tezos.checksum, accountPkh, toResolved] : null), estimateBaseFee, {
+    shouldRetryOnError: false,
+    focusThrottleInterval: 10_000,
+    dedupingInterval: 30_000
+  });
+  const estimationError = !estimating ? (baseFee instanceof Error ? baseFee : estimateBaseFeeError) : null;
 
-  const { data: baker, isValidating: bakerValidating } = useKnownBaker(
-    toResolved || null,
-    false
-  );
+  const { data: baker, isValidating: bakerValidating } = useKnownBaker(toResolved || null, false);
 
   const maxAddFee = useMemo(() => {
     if (baseFee instanceof BigNumber) {
@@ -337,15 +282,9 @@ const DelegateForm: FC = () => {
     return;
   }, [balanceNum, baseFee]);
 
-  const handleFeeFieldChange = useCallback(
-    ([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v),
-    [maxAddFee]
-  );
+  const handleFeeFieldChange = useCallback(([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v), [maxAddFee]);
 
-  const [submitError, setSubmitError] = useSafeState<ReactNode>(
-    null,
-    `${tezos.checksum}_${toResolved}`
-  );
+  const [submitError, setSubmitError] = useSafeState<ReactNode>(null, `${tezos.checksum}_${toResolved}`);
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
 
   const onSubmit = useCallback(
@@ -371,26 +310,26 @@ const DelegateForm: FC = () => {
             .setDelegate({
               source: accountPkh,
               delegate: to,
-              fee,
+              fee
             } as any)
             .send();
         }
 
         setOperation(op);
-        reset({ to: "", fee: RECOMMENDED_ADD_FEE });
+        reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess(analyticsProperties);
       } catch (err: any) {
         formAnalytics.trackSubmitFail(analyticsProperties);
 
-        if (err.message === "Declined") {
+        if (err.message === 'Declined') {
           return;
         }
 
         console.error(err);
 
         // Human delay.
-        await new Promise((res) => setTimeout(res, 300));
+        await new Promise(res => setTimeout(res, 300));
         setSubmitError(err);
       }
     },
@@ -404,34 +343,24 @@ const DelegateForm: FC = () => {
       reset,
       getEstimation,
       formAnalytics,
-      toResolved,
+      toResolved
     ]
   );
 
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
-  const estimateFallbackDisplayed =
-    toFilled && !baseFee && (estimating || bakerValidating);
+  const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
   const tzError = submitError || estimationError;
 
   return (
     <>
-      {operation && (
-        <OperationStatus typeTitle={t("delegation")} operation={operation} />
-      )}
+      {operation && <OperationStatus typeTitle={t('delegation')} operation={operation} />}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {useMemo(
           () => (
-            <div
-              className={classNames(
-                "mb-6",
-                "border rounded-md",
-                "p-2",
-                "flex items-center"
-              )}
-            >
+            <div className={classNames('mb-6', 'border rounded-md', 'p-2', 'flex items-center')}>
               <img
-                src={browser.runtime.getURL("misc/token-logos/tez.png")}
+                src={browser.runtime.getURL('misc/token-logos/tez.png')}
                 alt={assetSymbol}
                 className="w-auto h-12 mr-3"
               />
@@ -440,16 +369,11 @@ const DelegateForm: FC = () => {
                 <div className="flex items-center">
                   <div className="flex flex-col">
                     <span className="text-xl text-gray-700">
-                      <Money>{balance}</Money>{" "}
-                      <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
+                      <Money>{balance}</Money> <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
                     </span>
 
                     <InUSD assetSlug="tez" volume={balance}>
-                      {(usdBalance) => (
-                        <div className="mt-1 text-sm text-gray-500">
-                          ${usdBalance}
-                        </div>
-                      )}
+                      {usdBalance => <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>}
                     </InUSD>
                   </div>
                 </div>
@@ -464,7 +388,7 @@ const DelegateForm: FC = () => {
           as={<NoSpaceField ref={toFieldRef} />}
           control={control}
           rules={{
-            validate: validateDelegate,
+            validate: validateDelegate
           }}
           onChange={([v]) => v}
           onFocus={() => toFieldRef.current?.focus()}
@@ -473,35 +397,19 @@ const DelegateForm: FC = () => {
           cleanable={Boolean(toValue)}
           onClean={cleanToField}
           id="delegate-to"
-          label={t("baker")}
-          labelDescription={
-            canUseDomainNames
-              ? t("bakerInputDescriptionWithDomain")
-              : t("bakerInputDescription")
-          }
-          placeholder={
-            canUseDomainNames
-              ? t("recipientInputPlaceholderWithDomain")
-              : t("bakerInputPlaceholder")
-          }
+          label={t('baker')}
+          labelDescription={canUseDomainNames ? t('bakerInputDescriptionWithDomain') : t('bakerInputDescription')}
+          placeholder={canUseDomainNames ? t('recipientInputPlaceholderWithDomain') : t('bakerInputPlaceholder')}
           errorCaption={errors.to?.message && t(errors.to?.message.toString())}
           style={{
-            resize: "none",
+            resize: 'none'
           }}
           containerClassName="mb-4"
         />
 
         {resolvedAddress && (
-          <div
-            className={classNames(
-              "mb-4 -mt-3",
-              "text-xs font-light text-gray-600",
-              "flex flex-wrap items-center"
-            )}
-          >
-            <span className="mr-1 whitespace-no-wrap">
-              {t("resolvedAddress")}:
-            </span>
+          <div className={classNames('mb-4 -mt-3', 'text-xs font-light text-gray-600', 'flex flex-wrap items-center')}>
+            <span className="mr-1 whitespace-no-wrap">{t('resolvedAddress')}:</span>
             <span className="font-normal">{resolvedAddress}</span>
           </div>
         )}
@@ -514,35 +422,22 @@ const DelegateForm: FC = () => {
           <>
             {baker ? (
               <>
-                <div
-                  className={classNames(
-                    "-mt-2 mb-6",
-                    "flex flex-col items-center"
-                  )}
-                >
-                  <BakerBanner
-                    bakerPkh={baker!.address}
-                    displayAddress={false}
-                  />
+                <div className={classNames('-mt-2 mb-6', 'flex flex-col items-center')}>
+                  <BakerBanner bakerPkh={baker!.address} displayAddress={false} />
                 </div>
 
                 {!tzError && baker!.min_delegations_amount > balanceNum && (
                   <Alert
                     type="warn"
-                    title={t("minDelegationAmountTitle")}
+                    title={t('minDelegationAmountTitle')}
                     description={
                       <T
                         id="minDelegationAmountDescription"
                         substitutions={[
-                          <span
-                            className="font-normal"
-                            key="minDelegationsAmount"
-                          >
-                            <Money>{baker!.min_delegations_amount}</Money>{" "}
-                            <span style={{ fontSize: "0.75em" }}>
-                              {assetSymbol}
-                            </span>
-                          </span>,
+                          <span className="font-normal" key="minDelegationsAmount">
+                            <Money>{baker!.min_delegations_amount}</Money>{' '}
+                            <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
+                          </span>
                         ]}
                       />
                     }
@@ -550,21 +445,16 @@ const DelegateForm: FC = () => {
                   />
                 )}
               </>
-            ) : !tzError && net.type === "main" ? (
+            ) : !tzError && net.type === 'main' ? (
               <Alert
                 type="warn"
-                title={t("unknownBakerTitle")}
-                description={t("unknownBakerDescription")}
+                title={t('unknownBakerTitle')}
+                description={t('unknownBakerDescription')}
                 className="mb-6"
               />
             ) : null}
 
-            {tzError && (
-              <DelegateErrorAlert
-                type={submitError ? "submit" : "estimation"}
-                error={tzError}
-              />
-            )}
+            {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
 
             <AdditionalFeeInput
               name="fee"
@@ -576,25 +466,16 @@ const DelegateForm: FC = () => {
               id="delegate-fee"
             />
 
-            <FormSubmitButton
-              loading={formState.isSubmitting}
-              disabled={Boolean(estimationError)}
-            >
-              {t("delegate")}
+            <FormSubmitButton loading={formState.isSubmitting} disabled={Boolean(estimationError)}>
+              {t('delegate')}
             </FormSubmitButton>
           </>
         ) : (
           sortedKnownBakers && (
-            <div className={classNames("my-6", "flex flex-col")}>
-              <h2
-                className={classNames("mb-4", "leading-tight", "flex flex-col")}
-              >
+            <div className={classNames('my-6', 'flex flex-col')}>
+              <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
                 <T id="delegateToRecommendedBakers">
-                  {(message) => (
-                    <span className="text-base font-semibold text-gray-700">
-                      {message}
-                    </span>
-                  )}
+                  {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
                 </T>
 
                 <T
@@ -608,16 +489,13 @@ const DelegateForm: FC = () => {
                       className="font-normal underline"
                     >
                       Baking Bad
-                    </a>,
+                    </a>
                   ]}
                 >
-                  {(message) => (
+                  {message => (
                     <span
-                      className={classNames(
-                        "mt-1",
-                        "text-xs font-light text-gray-600"
-                      )}
-                      style={{ maxWidth: "90%" }}
+                      className={classNames('mt-1', 'text-xs font-light text-gray-600')}
+                      style={{ maxWidth: '90%' }}
                     >
                       {message}
                     </span>
@@ -625,15 +503,9 @@ const DelegateForm: FC = () => {
                 </T>
               </h2>
 
-              <div className={classNames("mb-2", "flex items-center")}>
+              <div className={classNames('mb-2', 'flex items-center')}>
                 <T id="sortBy">
-                  {(message) => (
-                    <span
-                      className={classNames("mr-1", "text-xs text-gray-500")}
-                    >
-                      {message}
-                    </span>
-                  )}
+                  {message => <span className={classNames('mr-1', 'text-xs text-gray-500')}>{message}</span>}
                 </T>
                 {bakerSortTypes.map(({ key, title, testID }, i, arr) => {
                   const first = i === 0;
@@ -644,32 +516,26 @@ const DelegateForm: FC = () => {
                     <Link
                       key={key}
                       to={{
-                        pathname: "/delegate",
-                        search: `${SORT_BAKERS_BY_KEY}=${key}`,
+                        pathname: '/delegate',
+                        search: `${SORT_BAKERS_BY_KEY}=${key}`
                       }}
                       replace
                       className={classNames(
                         (() => {
                           switch (true) {
                             case first:
-                              return classNames(
-                                "rounded rounded-r-none",
-                                "border"
-                              );
+                              return classNames('rounded rounded-r-none', 'border');
 
                             case last:
-                              return classNames(
-                                "rounded rounded-l-none",
-                                "border border-l-0"
-                              );
+                              return classNames('rounded rounded-l-none', 'border border-l-0');
 
                             default:
-                              return "border border-l-0";
+                              return 'border border-l-0';
                           }
                         })(),
-                        selected && "bg-gray-100",
-                        "px-2 py-px",
-                        "text-xs text-gray-600"
+                        selected && 'bg-gray-100',
+                        'px-2 py-px',
+                        'text-xs text-gray-600'
                       )}
                       testID={testID}
                     >
@@ -681,27 +547,24 @@ const DelegateForm: FC = () => {
                 <div className="flex-1" />
 
                 <div className="text-xs text-gray-500 flex items-center">
-                  <ArrowUpIcon
-                    className="h-3 w-auto stroke-current stroke-2"
-                    style={{ marginRight: "0.125rem" }}
-                  />
+                  <ArrowUpIcon className="h-3 w-auto stroke-current stroke-2" style={{ marginRight: '0.125rem' }} />
                   <T id="highestIsBetter" />
                 </div>
               </div>
 
               <div
                 className={classNames(
-                  "rounded-md overflow-hidden",
-                  "border",
-                  "flex flex-col",
-                  "text-gray-700 text-sm leading-tight"
+                  'rounded-md overflow-hidden',
+                  'border',
+                  'flex flex-col',
+                  'text-gray-700 text-sm leading-tight'
                 )}
               >
                 {sortedKnownBakers.map((baker, i, arr) => {
                   const last = i === arr.length - 1;
                   const handleBakerClick = () => {
-                    setValue("to", baker.address);
-                    triggerValidation("to");
+                    setValue('to', baker.address);
+                    triggerValidation('to');
                     window.scrollTo(0, 0);
                   };
 
@@ -710,19 +573,19 @@ const DelegateForm: FC = () => {
                       key={baker.address}
                       type="button"
                       className={classNames(
-                        "relative",
-                        "block w-full",
-                        "overflow-hidden",
-                        !last && "border-b border-gray-200",
-                        "hover:bg-gray-100 focus:bg-gray-100",
-                        "flex items-stretch",
-                        "text-gray-700",
-                        "transition ease-in-out duration-200",
-                        "focus:outline-none",
-                        "opacity-90 hover:opacity-100"
+                        'relative',
+                        'block w-full',
+                        'overflow-hidden',
+                        !last && 'border-b border-gray-200',
+                        'hover:bg-gray-100 focus:bg-gray-100',
+                        'flex items-stretch',
+                        'text-gray-700',
+                        'transition ease-in-out duration-200',
+                        'focus:outline-none',
+                        'opacity-90 hover:opacity-100'
                       )}
                       style={{
-                        padding: "0.65rem 0.5rem 0.65rem 0.5rem",
+                        padding: '0.65rem 0.5rem 0.65rem 0.5rem'
                       }}
                       onClick={handleBakerClick}
                       testID={DelegateFormSelectors.KnownBakerItemButton}
@@ -730,53 +593,27 @@ const DelegateForm: FC = () => {
                     >
                       <div>
                         <img
-                          src={baker.logo ?? browser.runtime.getURL("misc/baker.svg")}
+                          src={baker.logo ?? browser.runtime.getURL('misc/baker.svg')}
                           alt={baker.name}
-                          className={classNames(
-                            "flex-shrink-0",
-                            "w-10 h-auto",
-                            "bg-white rounded shadow-xs"
-                          )}
+                          className={classNames('flex-shrink-0', 'w-10 h-auto', 'bg-white rounded shadow-xs')}
                           style={{
-                            minHeight: "2.5rem",
+                            minHeight: '2.5rem'
                           }}
                         />
                       </div>
 
                       <div className="flex flex-col items-start ml-2">
-                        <div
-                          className={classNames(
-                            "mb-px",
-                            "flex flex-wrap items-center",
-                            "leading-none"
-                          )}
-                        >
-                          <Name className="pb-1 text-base font-medium">
-                            {baker.name}
-                          </Name>
+                        <div className={classNames('mb-px', 'flex flex-wrap items-center', 'leading-none')}>
+                          <Name className="pb-1 text-base font-medium">{baker.name}</Name>
                         </div>
 
-                        <div
-                          className={classNames(
-                            "mb-1 pl-px",
-                            "flex flex-wrap items-center"
-                          )}
-                        >
+                        <div className={classNames('mb-1 pl-px', 'flex flex-wrap items-center')}>
                           <T id="fee">
-                            {(message) => (
-                              <div
-                                className={classNames(
-                                  "text-xs font-light leading-none",
-                                  "text-gray-600"
-                                )}
-                              >
-                                {message}:{" "}
+                            {message => (
+                              <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
+                                {message}:{' '}
                                 <span className="font-normal">
-                                  {toLocalFormat(
-                                    new BigNumber(baker.fee).times(100),
-                                    { decimalPlaces: 2 }
-                                  )}
-                                  %
+                                  {toLocalFormat(new BigNumber(baker.fee).times(100), { decimalPlaces: 2 })}%
                                 </span>
                               </div>
                             )}
@@ -784,36 +621,26 @@ const DelegateForm: FC = () => {
                         </div>
                         <div className="mb-1 flex flex-wrap items-center pl-px">
                           <T id="space">
-                            {(message) => (
-                              <div
-                                className={classNames(
-                                  "text-xs font-light leading-none",
-                                  "text-gray-600"
-                                )}
-                              >
-                                {message}:{" "}
+                            {message => (
+                              <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
+                                {message}:{' '}
                                 <span className="font-normal">
                                   <Money>{baker.freeSpace}</Money>
-                                </span>{" "}
-                                <span style={{ fontSize: "0.75em" }}>TEZ</span>
+                                </span>{' '}
+                                <span style={{ fontSize: '0.75em' }}>TEZ</span>
                               </div>
                             )}
                           </T>
                         </div>
                         <div className="flex flex-wrap items-center pl-px">
                           <T id="staking">
-                            {(message) => (
-                              <div
-                                className={classNames(
-                                  "text-xs font-light leading-none",
-                                  "text-gray-600"
-                                )}
-                              >
-                                {message}:{" "}
+                            {message => (
+                              <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
+                                {message}:{' '}
                                 <span className="font-normal">
                                   <Money>{baker.stakingBalance}</Money>
-                                </span>{" "}
-                                <span style={{ fontSize: "0.75em" }}>TEZ</span>
+                                </span>{' '}
+                                <span style={{ fontSize: '0.75em' }}>TEZ</span>
                               </div>
                             )}
                           </T>
@@ -822,10 +649,10 @@ const DelegateForm: FC = () => {
 
                       <div
                         className={classNames(
-                          "absolute right-0 top-0 bottom-0",
-                          "flex items-center",
-                          "pr-2",
-                          "text-gray-500"
+                          'absolute right-0 top-0 bottom-0',
+                          'flex items-center',
+                          'pr-2',
+                          'text-gray-500'
                         )}
                       >
                         <ChevronRightIcon className="h-5 w-auto stroke-current" />
@@ -845,72 +672,64 @@ const DelegateForm: FC = () => {
 export default DelegateForm;
 
 type DelegateErrorAlertProps = {
-  type: "submit" | "estimation";
+  type: 'submit' | 'estimation';
   error: Error;
 };
 
 const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => (
   <Alert
-    type={type === "submit" ? "error" : "warn"}
+    type={type === 'submit' ? 'error' : 'warn'}
     title={(() => {
       switch (true) {
         case error instanceof NotEnoughFundsError:
-          return `${t("notEnoughFunds")} 😶`;
+          return `${t('notEnoughFunds')} 😶`;
 
-        case [UnchangedError, UnregisteredDelegateError].some(
-          (Err) => error instanceof Err
-        ):
-          return t("notAllowed");
+        case [UnchangedError, UnregisteredDelegateError].some(Err => error instanceof Err):
+          return t('notAllowed');
 
         default:
-          return t("failed");
+          return t('failed');
       }
     })()}
     description={(() => {
       switch (true) {
         case error instanceof ZeroBalanceError:
-          return t("yourBalanceIsZero");
+          return t('yourBalanceIsZero');
 
         case error instanceof NotEnoughFundsError:
-          return t("minimalFeeGreaterThanBalance");
+          return t('minimalFeeGreaterThanBalance');
 
         case error instanceof UnchangedError:
-          return t("alreadyDelegatedFundsToBaker");
+          return t('alreadyDelegatedFundsToBaker');
 
         case error instanceof UnregisteredDelegateError:
-          return t("bakerNotRegistered");
+          return t('bakerNotRegistered');
 
         default:
           return (
             <>
               <T
                 id="unableToPerformActionToBaker"
-                substitutions={t(
-                  type === "submit" ? "delegate" : "estimateDelegation"
-                ).toLowerCase()}
+                substitutions={t(type === 'submit' ? 'delegate' : 'estimateDelegation').toLowerCase()}
               />
               <br />
               <T id="thisMayHappenBecause" />
               <ul className="mt-1 ml-2 text-xs list-disc list-inside">
-                <T id="minimalFeeGreaterThanBalanceVerbose">
-                  {(message) => <li>{message}</li>}
-                </T>
-                <T id="networkOrOtherIssue">
-                  {(message) => <li>{message}</li>}
-                </T>
+                <T id="minimalFeeGreaterThanBalanceVerbose">{message => <li>{message}</li>}</T>
+                <T id="networkOrOtherIssue">{message => <li>{message}</li>}</T>
               </ul>
             </>
           );
       }
     })()}
     autoFocus
-    className={classNames("mt-6 mb-4")}
+    className={classNames('mt-6 mb-4')}
   />
 );
 
-class UnchangedError extends Error { }
+class UnchangedError extends Error {}
 
-class UnregisteredDelegateError extends Error { }
+class UnregisteredDelegateError extends Error {}
 
 function validateAddress(value: any) {
   switch (false) {
@@ -918,10 +737,10 @@ function validateAddress(value: any) {
       return true;
 
     case isAddressValid(value):
-      return "invalidAddress";
+      return 'invalidAddress';
 
     case !isKTAddress(value):
-      return "unableToDelegateToKTAddress";
+      return 'unableToDelegateToKTAddress';
 
     default:
       return true;

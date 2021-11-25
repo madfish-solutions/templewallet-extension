@@ -1,6 +1,6 @@
 type QuipuswapTokenBase = {
   network: string;
-  type: "fa1.2" | "fa2";
+  type: 'fa1.2' | 'fa2';
   contractAddress: string;
   metadata?: {
     decimals: number;
@@ -11,11 +11,11 @@ type QuipuswapTokenBase = {
 };
 
 export type QuipuswapFA12Token = QuipuswapTokenBase & {
-  type: "fa1.2";
+  type: 'fa1.2';
 };
 
 export type QuipuswapFA2Token = QuipuswapTokenBase & {
-  type: "fa2";
+  type: 'fa2';
   fa2TokenId: number;
 };
 

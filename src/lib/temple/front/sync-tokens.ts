@@ -1,14 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import BigNumber from "bignumber.js";
-import constate from "constate";
-import { trigger } from "swr";
+import BigNumber from 'bignumber.js';
+import constate from 'constate';
+import { trigger } from 'swr';
 
-import {
-  BCD_NETWORKS_NAMES,
-  getAccountTokenBalances,
-  BcdNetwork,
-} from "lib/better-call-dev";
+import { BCD_NETWORKS_NAMES, getAccountTokenBalances, BcdNetwork } from 'lib/better-call-dev';
 import {
   useChainId,
   useAccount,
@@ -21,60 +17,42 @@ import {
   PREDEFINED_MAINNET_TOKENS,
   fetchCollectibleTokens,
   toBaseMetadata,
-  DetailedAssetMetdata,
-} from "lib/temple/front";
-import * as Repo from "lib/temple/repo";
-import { getTokensMetadata } from "lib/templewallet-api";
+  DetailedAssetMetdata
+} from 'lib/temple/front';
+import * as Repo from 'lib/temple/repo';
+import { getTokensMetadata } from 'lib/templewallet-api';
 
 export const [SyncTokensProvider] = constate(() => {
   const chainId = useChainId(true)!;
   const { publicKeyHash: accountPkh } = useAccount();
 
-  const {
-    allTokensBaseMetadataRef,
-    setTokensBaseMetadata,
-    setTokensDetailedMetadata,
-    fetchMetadata,
-  } = useTokensMetadata();
+  const { allTokensBaseMetadataRef, setTokensBaseMetadata, setTokensDetailedMetadata, fetchMetadata } =
+    useTokensMetadata();
   const usdPrices = useUSDPrices();
 
   const networkId = useMemo(
-    () =>
-      (isKnownChainId(chainId!)
-        ? BCD_NETWORKS_NAMES.get(chainId)
-        : undefined) ?? null,
+    () => (isKnownChainId(chainId!) ? BCD_NETWORKS_NAMES.get(chainId) : undefined) ?? null,
     [chainId]
   );
 
   const sync = useCallback(async () => {
     if (!networkId) return;
-    const mainnet = networkId === "mainnet";
+    const mainnet = networkId === 'mainnet';
 
-    const [bcdTokens, displayedFungibleTokens, displayedCollectibleTokens] =
-      await Promise.all([
-        fetchBcdTokenBalances(networkId, accountPkh),
-        fetchDisplayedFungibleTokens(chainId, accountPkh),
-        fetchCollectibleTokens(chainId, accountPkh, true),
-      ]);
+    const [bcdTokens, displayedFungibleTokens, displayedCollectibleTokens] = await Promise.all([
+      fetchBcdTokenBalances(networkId, accountPkh),
+      fetchDisplayedFungibleTokens(chainId, accountPkh),
+      fetchCollectibleTokens(chainId, accountPkh, true)
+    ]);
 
-    const bcdTokensMap = new Map(
-      bcdTokens.map((token) => [
-        toTokenSlug(token.contract, token.token_id),
-        token,
-      ])
+    const bcdTokensMap = new Map(bcdTokens.map(token => [toTokenSlug(token.contract, token.token_id), token]));
+
+    const displayedTokenSlugs = [...displayedFungibleTokens, ...displayedCollectibleTokens].map(
+      ({ tokenSlug }) => tokenSlug
     );
 
-    const displayedTokenSlugs = [
-      ...displayedFungibleTokens,
-      ...displayedCollectibleTokens,
-    ].map(({ tokenSlug }) => tokenSlug);
-
     let tokenSlugs = Array.from(
-      new Set([
-        ...bcdTokensMap.keys(),
-        ...displayedTokenSlugs,
-        ...(mainnet ? PREDEFINED_MAINNET_TOKENS : []),
-      ])
+      new Set([...bcdTokensMap.keys(), ...displayedTokenSlugs, ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])])
     );
 
     // let balances = await getAssetBalances({
@@ -82,32 +60,26 @@ export const [SyncTokensProvider] = constate(() => {
     //   assetSlugs: tokenSlugs,
     // });
 
-    const tokenRepoKeys = tokenSlugs.map((slug) =>
-      Repo.toAccountTokenKey(chainId, accountPkh, slug)
-    );
+    const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
 
     const existingRecords = await Repo.accountTokens.bulkGet(tokenRepoKeys);
 
-    const metadataSlugs = tokenSlugs.filter(
-      (slug) => !(slug in allTokensBaseMetadataRef.current)
-    );
+    const metadataSlugs = tokenSlugs.filter(slug => !(slug in allTokensBaseMetadataRef.current));
 
     let metadatas;
     // Only for mainnet. Try load metadata from API.
     if (mainnet) {
       try {
         const response = await getTokensMetadata(metadataSlugs, 15_000);
-        metadatas = response.map(
-          (data) => data && { base: toBaseMetadata(data), detailed: data }
-        );
-      } catch { }
+        metadatas = response.map(data => data && { base: toBaseMetadata(data), detailed: data });
+      } catch {}
     }
     // Otherwise - fetch from chain.
     if (!metadatas) {
       metadatas = await Promise.all(
-        metadataSlugs.map(async (slug) => {
+        metadataSlugs.map(async slug => {
           const noMetadataFlag = `no_metadata_${slug}`;
-          if (!mainnet && localStorage.getItem(noMetadataFlag) === "true") {
+          if (!mainnet && localStorage.getItem(noMetadataFlag) === 'true') {
             return null;
           }
 
@@ -115,7 +87,7 @@ export const [SyncTokensProvider] = constate(() => {
             return await fetchMetadata(slug);
           } catch {
             if (!mainnet) {
-              localStorage.setItem(noMetadataFlag, "true");
+              localStorage.setItem(noMetadataFlag, 'true');
             }
 
             return null;
@@ -147,9 +119,8 @@ export const [SyncTokensProvider] = constate(() => {
         const existing = existingRecords[i];
         // const balance = balances[i];
         const bcdToken = bcdTokensMap.get(slug);
-        const balance = bcdToken?.balance ?? "0";
-        const metadata =
-          baseMetadatasToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
+        const balance = bcdToken?.balance ?? '0';
+        const metadata = baseMetadatasToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
 
         const price = usdPrices[slug];
         const usdBalance =
@@ -163,35 +134,29 @@ export const [SyncTokensProvider] = constate(() => {
         if (existing) {
           return {
             ...existing,
-            type: metadata?.artifactUri
-              ? Repo.ITokenType.Collectible
-              : Repo.ITokenType.Fungible,
+            type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
             latestBalance: balance,
-            latestUSDBalance: usdBalance,
+            latestUSDBalance: usdBalance
           };
         }
 
-        const status = PREDEFINED_MAINNET_TOKENS.includes(slug)
-          ? Repo.ITokenStatus.Enabled
-          : Repo.ITokenStatus.Idle;
+        const status = PREDEFINED_MAINNET_TOKENS.includes(slug) ? Repo.ITokenStatus.Enabled : Repo.ITokenStatus.Idle;
 
         return {
-          type: metadata?.artifactUri
-            ? Repo.ITokenType.Collectible
-            : Repo.ITokenType.Fungible,
+          type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
           chainId,
           account: accountPkh,
           tokenSlug: slug,
           status,
           addedAt: Date.now(),
           latestBalance: balance,
-          latestUSDBalance: usdBalance,
+          latestUSDBalance: usdBalance
         };
       }),
       tokenRepoKeys
     );
 
-    trigger(["displayed-fungible-tokens", chainId, accountPkh], true);
+    trigger(['displayed-fungible-tokens', chainId, accountPkh], true);
   }, [
     accountPkh,
     networkId,
@@ -200,7 +165,7 @@ export const [SyncTokensProvider] = constate(() => {
     setTokensBaseMetadata,
     setTokensDetailedMetadata,
     usdPrices,
-    fetchMetadata,
+    fetchMetadata
   ]);
 
   const syncRef = useRef(sync);
@@ -246,7 +211,7 @@ async function fetchBcdTokenBalances(network: BcdNetwork, address: string) {
     network,
     address,
     size,
-    offset: 0,
+    offset: 0
   });
 
   if (total > size) {
@@ -257,12 +222,12 @@ async function fetchBcdTokenBalances(network: BcdNetwork, address: string) {
           network,
           address,
           size,
-          offset: (i + 1) * size,
+          offset: (i + 1) * size
         })
       )
     );
 
-    balances = [...balances, ...restResponses.map((r) => r.balances).flat()];
+    balances = [...balances, ...restResponses.map(r => r.balances).flat()];
   }
 
   return balances;
