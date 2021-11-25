@@ -1,45 +1,35 @@
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-import classNames from "clsx";
-import { useForm } from "react-hook-form";
+import classNames from 'clsx';
+import { useForm } from 'react-hook-form';
 
-import Alert from "app/atoms/Alert";
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import { getAccountBadgeTitle } from "app/defaults";
-import AccountBanner from "app/templates/AccountBanner";
-import { T, t } from "lib/i18n/react";
-import {
-  useTempleClient,
-  useAccount,
-  TempleAccountType,
-} from "lib/temple/front";
+import Alert from 'app/atoms/Alert';
+import FormField from 'app/atoms/FormField';
+import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { getAccountBadgeTitle } from 'app/defaults';
+import AccountBanner from 'app/templates/AccountBanner';
+import { T, t } from 'lib/i18n/react';
+import { useTempleClient, useAccount, TempleAccountType } from 'lib/temple/front';
 
-const SUBMIT_ERROR_TYPE = "submit-error";
+import usePasswordToggle from '../atoms/usePasswordToggle.hook';
+
+const SUBMIT_ERROR_TYPE = 'submit-error';
 
 type FormData = {
   password: string;
 };
 
 type RevealSecretProps = {
-  reveal: "private-key" | "seed-phrase";
+  reveal: 'private-key' | 'seed-phrase';
 };
 
 const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
-  const { revealPrivateKey, revealMnemonic } =
-    useTempleClient();
+  const { revealPrivateKey, revealMnemonic } = useTempleClient();
   const account = useAccount();
 
-  const { register, handleSubmit, errors, setError, clearError, formState } =
-    useForm<FormData>();
+  const [passwordInputType, togglePasswordIcon] = usePasswordToggle();
+
+  const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
   const [secret, setSecret] = useState<string | null>(null);
@@ -76,9 +66,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
   const formRef = useRef<HTMLFormElement>(null);
 
   const focusPasswordField = useCallback(() => {
-    formRef.current
-      ?.querySelector<HTMLInputElement>("input[name='password']")
-      ?.focus();
+    formRef.current?.querySelector<HTMLInputElement>("input[name='password']")?.focus();
   }, []);
 
   useLayoutEffect(() => {
@@ -89,16 +77,16 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
     async ({ password }) => {
       if (submitting) return;
 
-      clearError("password");
+      clearError('password');
       try {
         let scrt: string;
 
         switch (reveal) {
-          case "private-key":
+          case 'private-key':
             scrt = await revealPrivateKey(account.publicKeyHash, password);
             break;
 
-          case "seed-phrase":
+          case 'seed-phrase':
             scrt = await revealMnemonic(password);
             break;
         }
@@ -108,8 +96,8 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
         console.error(err);
 
         // Human delay.
-        await new Promise((res) => setTimeout(res, 300));
-        setError("password", SUBMIT_ERROR_TYPE, err.message);
+        await new Promise(res => setTimeout(res, 300));
+        setError('password', SUBMIT_ERROR_TYPE, err.message);
         focusPasswordField();
       }
     },
@@ -122,54 +110,43 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
       revealMnemonic,
       account.publicKeyHash,
       setSecret,
-      focusPasswordField,
+      focusPasswordField
     ]
   );
 
   const texts = useMemo(() => {
     switch (reveal) {
-      case "private-key":
+      case 'private-key':
         return {
-          name: t("privateKey"),
+          name: t('privateKey'),
           accountBanner: (
             <AccountBanner
               account={account}
-              labelDescription={t(
-                "ifYouWantToRevealPrivateKeyFromOtherAccount"
-              )}
+              labelDescription={t('ifYouWantToRevealPrivateKeyFromOtherAccount')}
               className="mb-6"
             />
           ),
           derivationPathBanner: null,
           attention: <T id="doNotSharePrivateKey" />,
-          fieldDesc: <T id="privateKeyFieldDescription" />,
+          fieldDesc: <T id="privateKeyFieldDescription" />
         };
 
-      case "seed-phrase":
+      case 'seed-phrase':
         return {
-          name: t("seedPhrase"),
+          name: t('seedPhrase'),
           accountBanner: null,
           derivationPathBanner: (
-            <div className={classNames("mb-6", "flex flex-col")}>
-              <h2
-                className={classNames("mb-4", "leading-tight", "flex flex-col")}
-              >
+            <div className={classNames('mb-6', 'flex flex-col')}>
+              <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
                 <T id="derivationPath">
-                  {(message) => (
-                    <span className="text-base font-semibold text-gray-700">
-                      {message}
-                    </span>
-                  )}
+                  {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
                 </T>
 
                 <T id="pathForHDAccounts">
-                  {(message) => (
+                  {message => (
                     <span
-                      className={classNames(
-                        "mt-1",
-                        "text-xs font-light text-gray-600"
-                      )}
-                      style={{ maxWidth: "90%" }}
+                      className={classNames('mt-1', 'text-xs font-light text-gray-600')}
+                      style={{ maxWidth: '90%' }}
                     >
                       {message}
                     </span>
@@ -177,20 +154,9 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
                 </T>
               </h2>
 
-              <div
-                className={classNames(
-                  "w-full",
-                  "border rounded-md",
-                  "p-2",
-                  "flex items-center"
-                )}
-              >
+              <div className={classNames('w-full', 'border rounded-md', 'p-2', 'flex items-center')}>
                 <T id="derivationPathExample">
-                  {(message) => (
-                    <span className="text-sm font-medium text-gray-800">
-                      {message}
-                    </span>
-                  )}
+                  {message => <span className="text-sm font-medium text-gray-800">{message}</span>}
                 </T>
               </div>
             </div>
@@ -198,27 +164,22 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
           attention: <T id="doNotSharePhrase" />,
           fieldDesc: (
             <>
-              <T id="youWillNeedThisSeedPhrase" />{" "}
-              <T id="keepSeedPhraseSecret" />
+              <T id="youWillNeedThisSeedPhrase" /> <T id="keepSeedPhraseSecret" />
             </>
-          ),
+          )
         };
     }
   }, [reveal, account]);
 
   const forbidPrivateKeyRevealing =
-    reveal === "private-key" &&
-    [
-      TempleAccountType.Ledger,
-      TempleAccountType.ManagedKT,
-      TempleAccountType.WatchOnly,
-    ].includes(account.type);
+    reveal === 'private-key' &&
+    [TempleAccountType.Ledger, TempleAccountType.ManagedKT, TempleAccountType.WatchOnly].includes(account.type);
 
   const mainContent = useMemo(() => {
     if (forbidPrivateKeyRevealing) {
       return (
         <Alert
-          title={t("privateKeyCannotBeRevealed")}
+          title={t('privateKeyCannotBeRevealed')}
           description={
             <p>
               <T
@@ -226,19 +187,14 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
                 substitutions={[
                   <span
                     key="account-type"
-                    className={classNames(
-                      "rounded-sm",
-                      "border",
-                      "px-1 py-px",
-                      "font-normal leading-tight"
-                    )}
+                    className={classNames('rounded-sm', 'border', 'px-1 py-px', 'font-normal leading-tight')}
                     style={{
-                      fontSize: "0.75em",
-                      borderColor: "currentColor",
+                      fontSize: '0.75em',
+                      borderColor: 'currentColor'
                     }}
                   >
                     {getAccountBadgeTitle(account)}
-                  </span>,
+                  </span>
                 ]}
               />
             </p>
@@ -266,11 +222,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
             value={secret}
           />
 
-          <Alert
-            title={t("attentionExclamation")}
-            description={<p>{texts.attention}</p>}
-            className="my-4"
-          />
+          <Alert title={t('attentionExclamation')} description={<p>{texts.attention}</p>} className="my-4" />
         </>
       );
     }
@@ -278,25 +230,19 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
     return (
       <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
         <FormField
-          ref={register({ required: t("required") })}
-          label={t("password")}
-          labelDescription={t(
-            "revealSecretPasswordInputDescription",
-            texts.name
-          )}
+          ref={register({ required: t('required') })}
+          label={t('password')}
+          labelDescription={t('revealSecretPasswordInputDescription', texts.name)}
           id="reveal-secret-password"
-          type="password"
+          type={passwordInputType}
           name="password"
           placeholder="********"
           errorCaption={errors.password?.message}
           containerClassName="mb-4"
+          togglePasswordIcon={togglePasswordIcon}
         />
 
-        <T id="reveal">
-          {(message) => (
-            <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
-          )}
-        </T>
+        <T id="reveal">{message => <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>}</T>
       </form>
     );
   }, [
@@ -309,6 +255,8 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
     secret,
     texts,
     submitting,
+    passwordInputType,
+    togglePasswordIcon
   ]);
 
   return (
