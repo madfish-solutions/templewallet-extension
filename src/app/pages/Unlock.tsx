@@ -12,8 +12,6 @@ import { T, t } from 'lib/i18n/react';
 import { useLocalStorage, useTempleClient, TempleSharedStorageKey } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
 
-import usePasswordToggle from '../atoms/usePasswordToggle.hook';
-
 interface UnlockProps {
   canImportNew?: boolean;
 }
@@ -39,8 +37,6 @@ const getTimeLeft = (start: number, end: number) => {
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
   const formAnalytics = useFormAnalytics('UnlockWallet');
-
-  const [passwordInputType, togglePasswordIcon] = usePasswordToggle();
 
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
@@ -125,14 +121,13 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
           label={t('password')}
           labelDescription={t('unlockPasswordInputDescription')}
           id="unlock-password"
-          type={passwordInputType}
+          type="password"
           name="password"
           placeholder="********"
           errorCaption={errors.password && errors.password.message}
           containerClassName="mb-4"
           autoFocus
           disabled={isDisabled}
-          togglePasswordIcon={togglePasswordIcon}
         />
 
         <FormSubmitButton disabled={isDisabled} loading={submitting}>

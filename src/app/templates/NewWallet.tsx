@@ -18,7 +18,6 @@ import { decryptKukaiSeedPhrase, useTempleClient } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
 
-import usePasswordToggle from '../atoms/usePasswordToggle.hook';
 import Backup from './NewWallet/Backup';
 import Verify from './NewWallet/Verify';
 
@@ -66,9 +65,6 @@ const validateKeystoreFile = (value?: FileList) => {
 const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = 'seed-phrase' }) => {
   const { locked, registerWallet } = useTempleClient();
   const alert = useAlert();
-
-  const [passwordInputType, togglePasswordIcon] = usePasswordToggle();
-  const [passwordRepeatInputType, togglePasswordRepeatIcon] = usePasswordToggle();
 
   const { control, watch, register, handleSubmit, errors, reset, triggerValidation, formState, setValue } =
     useForm<FormData>({ defaultValues: { shouldUseKeystorePassword: true } });
@@ -255,12 +251,11 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
               label={t('filePassword')}
               labelDescription={t('filePasswordInputDescription')}
               id="keystore-password"
-              type={passwordInputType}
+              type="password"
               name="keystorePassword"
               placeholder="********"
               errorCaption={errors.keystorePassword?.message}
               containerClassName="mb-8"
-              togglePasswordIcon={togglePasswordIcon}
             />
 
             <Controller
@@ -286,12 +281,11 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
               label={t('password')}
               labelDescription={t('unlockPasswordInputDescription')}
               id="newwallet-password"
-              type={passwordInputType}
+              type="password"
               name="password"
               placeholder="********"
               errorCaption={errors.password?.message}
               containerClassName="mb-8"
-              togglePasswordIcon={togglePasswordIcon}
             />
 
             <FormField
@@ -302,12 +296,11 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
               label={t('repeatPassword')}
               labelDescription={t('repeatPasswordInputDescription')}
               id="newwallet-repassword"
-              type={passwordRepeatInputType}
+              type="password"
               name="repassword"
               placeholder="********"
               errorCaption={errors.repassword?.message}
               containerClassName="mb-8"
-              togglePasswordIcon={togglePasswordRepeatIcon}
             />
           </>
         )}

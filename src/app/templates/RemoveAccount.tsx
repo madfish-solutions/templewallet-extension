@@ -10,8 +10,6 @@ import { T, t } from 'lib/i18n/react';
 import { TempleAccountType, useTempleClient, useRelevantAccounts, useAccount } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
 
-import usePasswordToggle from '../atoms/usePasswordToggle.hook';
-
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
 type FormData = {
@@ -22,8 +20,6 @@ const RemoveAccount: FC = () => {
   const { removeAccount } = useTempleClient();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
-
-  const [passwordInputType, togglePasswordIcon] = usePasswordToggle();
 
   const prevAccLengthRef = useRef(allAccounts.length);
   useEffect(() => {
@@ -86,12 +82,11 @@ const RemoveAccount: FC = () => {
             label={t('password')}
             labelDescription={t('enterPasswordToRemoveAccount')}
             id="removeacc-secret-password"
-            type={passwordInputType}
+            type="password"
             name="password"
             placeholder="********"
             errorCaption={errors.password?.message}
             containerClassName="mb-4"
-            togglePasswordIcon={togglePasswordIcon}
           />
 
           <T id="remove">

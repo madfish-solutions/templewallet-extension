@@ -19,6 +19,8 @@ import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { T } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
+import usePasswordToggle from './usePasswordToggle.hook';
+
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
 interface FormFieldProps extends FormFieldAttrs {
@@ -40,7 +42,6 @@ interface FormFieldProps extends FormFieldAttrs {
   labelPaddingClassName?: string;
   dropdownInner?: ReactNode;
   copyable?: boolean;
-  togglePasswordIcon?: ReactNode;
 }
 
 const FormField = forwardRef<FormFieldRef, FormFieldProps>(
@@ -61,6 +62,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       dropdownInner = null,
       useDefaultInnerWrapper = true,
       id,
+      type,
       value,
       defaultValue,
       onChange,
@@ -73,13 +75,15 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       fieldWrapperBottomMargin = true,
       labelPaddingClassName = 'mb-4',
       copyable,
-      togglePasswordIcon,
       ...rest
     },
     ref
   ) => {
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
+
+    const [passwordInputType, togglePasswordIcon] = usePasswordToggle();
+    const isPasswordType = type === 'password' ? passwordInputType : type;
 
     const { copy } = useCopyToClipboard();
 
@@ -216,10 +220,11 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            type={isPasswordType}
             {...rest}
           />
 
-          {localValue !== '' && togglePasswordIcon}
+          {localValue !== '' && isPasswordType === passwordInputType && togglePasswordIcon}
 
           {extraInner &&
             (useDefaultInnerWrapper ? (

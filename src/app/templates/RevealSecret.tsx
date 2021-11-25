@@ -11,8 +11,6 @@ import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n/react';
 import { useTempleClient, useAccount, TempleAccountType } from 'lib/temple/front';
 
-import usePasswordToggle from '../atoms/usePasswordToggle.hook';
-
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
 type FormData = {
@@ -26,8 +24,6 @@ type RevealSecretProps = {
 const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
   const { revealPrivateKey, revealMnemonic } = useTempleClient();
   const account = useAccount();
-
-  const [passwordInputType, togglePasswordIcon] = usePasswordToggle();
 
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
@@ -234,30 +230,17 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
           label={t('password')}
           labelDescription={t('revealSecretPasswordInputDescription', texts.name)}
           id="reveal-secret-password"
-          type={passwordInputType}
+          type="password"
           name="password"
           placeholder="********"
           errorCaption={errors.password?.message}
           containerClassName="mb-4"
-          togglePasswordIcon={togglePasswordIcon}
         />
 
         <T id="reveal">{message => <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>}</T>
       </form>
     );
-  }, [
-    account,
-    forbidPrivateKeyRevealing,
-    errors,
-    handleSubmit,
-    onSubmit,
-    register,
-    secret,
-    texts,
-    submitting,
-    passwordInputType,
-    togglePasswordIcon
-  ]);
+  }, [account, forbidPrivateKeyRevealing, errors, handleSubmit, onSubmit, register, secret, texts, submitting]);
 
   return (
     <div className="w-full max-w-sm p-2 mx-auto">

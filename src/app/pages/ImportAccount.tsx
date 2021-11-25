@@ -36,8 +36,6 @@ import {
 import useSafeState from 'lib/ui/useSafeState';
 import { navigate } from 'lib/woozie';
 
-import usePasswordToggle from '../atoms/usePasswordToggle.hook';
-
 type ImportAccountProps = {
   tabSlug: string | null;
 };
@@ -142,7 +140,6 @@ interface ByPrivateKeyFormData {
 const ByPrivateKeyForm: FC = () => {
   const { importAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.PrivateKey);
-  const [passwordInputType, togglePasswordIcon] = usePasswordToggle();
 
   const { register, handleSubmit, errors, formState, watch } = useForm<ByPrivateKeyFormData>();
   const [error, setError] = useState<ReactNode>(null);
@@ -196,7 +193,7 @@ const ByPrivateKeyForm: FC = () => {
         <FormField
           ref={register}
           name="encPassword"
-          type={passwordInputType}
+          type="password"
           id="importacc-password"
           label={
             <>
@@ -210,7 +207,6 @@ const ByPrivateKeyForm: FC = () => {
           placeholder="*********"
           errorCaption={errors.encPassword?.message}
           containerClassName="mb-6"
-          togglePasswordIcon={togglePasswordIcon}
         />
       )}
 
@@ -248,7 +244,6 @@ interface ByMnemonicFormData {
 const ByMnemonicForm: FC = () => {
   const { importMnemonicAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Mnemonic);
-  const [passwordInputType, togglePasswordIcon] = usePasswordToggle();
 
   const { register, handleSubmit, errors, formState } = useForm<ByMnemonicFormData>({
     defaultValues: {
@@ -324,7 +319,7 @@ const ByMnemonicForm: FC = () => {
       <FormField
         ref={register}
         name="password"
-        type={passwordInputType}
+        type="password"
         id="importfundacc-password"
         label={
           <>
@@ -336,7 +331,6 @@ const ByMnemonicForm: FC = () => {
         placeholder="*********"
         errorCaption={errors.password?.message}
         containerClassName="mb-6"
-        togglePasswordIcon={togglePasswordIcon}
       />
 
       <div className={classNames('mb-4', 'flex flex-col')}>
@@ -459,7 +453,6 @@ const ByFundraiserForm: FC = () => {
   const { register, errors, handleSubmit, formState } = useForm<ByFundraiserFormData>();
   const [error, setError] = useState<ReactNode>(null);
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Fundraiser);
-  const [passwordInputType, togglePasswordIcon] = usePasswordToggle();
 
   const onSubmit = useCallback<(data: ByFundraiserFormData) => void>(
     async data => {
@@ -501,13 +494,12 @@ const ByFundraiserForm: FC = () => {
       <FormField
         ref={register({ required: t('required') })}
         name="password"
-        type={passwordInputType}
+        type="password"
         id="importfundacc-password"
         label={t('password')}
         placeholder="*********"
         errorCaption={errors.password?.message}
         containerClassName="mb-4"
-        togglePasswordIcon={togglePasswordIcon}
       />
 
       <FormField
