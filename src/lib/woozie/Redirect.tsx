@@ -1,11 +1,7 @@
-import { FC, ReactElement, useLayoutEffect } from "react";
+import { FC, ReactElement, useLayoutEffect } from 'react';
 
-import { HistoryAction, createUrl, changeState } from "lib/woozie/history";
-import {
-  To,
-  createLocationState,
-  createLocationUpdates,
-} from "lib/woozie/location";
+import { HistoryAction, createUrl, changeState } from 'lib/woozie/history';
+import { To, createLocationState, createLocationUpdates } from 'lib/woozie/location';
 
 type RedirectProps = {
   to: To;

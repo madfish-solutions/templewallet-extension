@@ -1,14 +1,14 @@
-import React, { Suspense, useMemo } from "react";
+import React, { Suspense, useMemo } from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
-import { ReactComponent as InfoIcon } from "app/icons/info.svg";
-import { ReactComponent as SwapIcon } from "app/icons/swap.svg";
-import PageLayout from "app/layouts/PageLayout";
-import SwapForm from "app/templates/SwapForm";
-import { SwappableAssetsProvider } from "app/templates/SwapForm/useSwappableAssets";
-import { t, T } from "lib/i18n/react";
-import useTippy from "lib/ui/useTippy";
+import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
+import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
+import PageLayout from 'app/layouts/PageLayout';
+import SwapForm from 'app/templates/SwapForm';
+import { SwappableAssetsProvider } from 'app/templates/SwapForm/useSwappableAssets';
+import { t, T } from 'lib/i18n/react';
+import useTippy from 'lib/ui/useTippy';
 
 type SwapProps = {
   assetSlug?: string | null;
@@ -18,7 +18,7 @@ const Swap: React.FC<SwapProps> = ({ assetSlug }) => (
   <PageLayout
     pageTitle={
       <>
-        <SwapIcon className="w-auto h-4 mr-1 stroke-current" /> {t("swap")}
+        <SwapIcon className="w-auto h-4 mr-1 stroke-current" /> {t('swap')}
       </>
     }
   >
@@ -41,10 +41,10 @@ export default Swap;
 const SwapDisclaimer: React.FC = () => {
   const tippyProps = useMemo(
     () => ({
-      trigger: "mouseenter",
+      trigger: 'mouseenter',
       hideOnClick: false,
-      content: t("swapDisclaimerContent"),
-      animation: "shift-away-subtle",
+      content: t('swapDisclaimerContent'),
+      animation: 'shift-away-subtle'
     }),
     []
   );
@@ -55,20 +55,20 @@ const SwapDisclaimer: React.FC = () => {
       <span
         ref={tippyRef}
         className={classNames(
-          "inline-flex items-center",
-          "-ml-1 p-1",
-          "cursor-default",
-          "text-xs",
-          "rounded-sm",
-          "text-gray-600 hover:bg-gray-100"
+          'inline-flex items-center',
+          '-ml-1 p-1',
+          'cursor-default',
+          'text-xs',
+          'rounded-sm',
+          'text-gray-600 hover:bg-gray-100'
         )}
       >
         <T id="swapDisclaimerTitle" />
         <InfoIcon
           style={{
-            width: "0.625rem",
-            height: "auto",
-            marginLeft: "0.125rem",
+            width: '0.625rem',
+            height: 'auto',
+            marginLeft: '0.125rem'
           }}
           className="stroke-current"
         />

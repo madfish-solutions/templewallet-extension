@@ -1,27 +1,21 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from 'react';
 
-import classNames from "clsx";
-import { useForm } from "react-hook-form";
+import classNames from 'clsx';
+import { useForm } from 'react-hook-form';
 
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Identicon from "app/atoms/Identicon";
-import Name from "app/atoms/Name";
-import SubTitle from "app/atoms/SubTitle";
-import { ReactComponent as CloseIcon } from "app/icons/close.svg";
-import { t, T } from "lib/i18n/react";
-import {
-  useContacts,
-  TempleContact,
-  isDomainNameValid,
-  useTezosDomainsClient,
-  isAddressValid,
-} from "lib/temple/front";
-import { useConfirm } from "lib/ui/dialog";
-import { withErrorHumanDelay } from "lib/ui/humanDelay";
+import FormField from 'app/atoms/FormField';
+import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import Identicon from 'app/atoms/Identicon';
+import Name from 'app/atoms/Name';
+import SubTitle from 'app/atoms/SubTitle';
+import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
+import { t, T } from 'lib/i18n/react';
+import { useContacts, TempleContact, isDomainNameValid, useTezosDomainsClient, isAddressValid } from 'lib/temple/front';
+import { useConfirm } from 'lib/ui/dialog';
+import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
-import CustomSelect, { OptionRenderProps } from "./CustomSelect";
-import HashChip from "./HashChip";
+import CustomSelect, { OptionRenderProps } from './CustomSelect';
+import HashChip from './HashChip';
 
 type ContactActions = {
   remove: (address: string) => void;
@@ -35,8 +29,8 @@ const AddressBook: React.FC = () => {
     async (address: string) => {
       if (
         !(await confirm({
-          title: t("actionConfirmation"),
-          children: t("deleteContactConfirm"),
+          title: t('actionConfirmation'),
+          children: t('deleteContactConfirm')
         }))
       ) {
         return;
@@ -49,7 +43,7 @@ const AddressBook: React.FC = () => {
 
   const contactActions = useMemo<ContactActions>(
     () => ({
-      remove: handleRemoveContactClick,
+      remove: handleRemoveContactClick
     }),
     [handleRemoveContactClick]
   );
@@ -67,10 +61,7 @@ const AddressBook: React.FC = () => {
           <T id="currentContacts" />
         </span>
 
-        <span
-          className={classNames("mt-1", "text-xs font-light text-gray-600")}
-          style={{ maxWidth: "90%" }}
-        >
+        <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
           <T id="updateContactDescription" />
         </span>
       </div>
@@ -96,7 +87,7 @@ type ContactFormData = {
   name: string;
 };
 
-const SUBMIT_ERROR_TYPE = "submit-error";
+const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   const { addContact } = useContacts();
@@ -109,7 +100,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
     formState,
     clearError,
     setError,
-    errors,
+    errors
   } = useForm<ContactFormData>();
   const submitting = formState.isSubmitting;
 
@@ -121,26 +112,22 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         clearError();
 
         if (isDomainNameValid(address, domainsClient)) {
-          const resolved = await domainsClient.resolver.resolveNameToAddress(
-            address
-          );
+          const resolved = await domainsClient.resolver.resolveNameToAddress(address);
           if (!resolved) {
-            throw new Error(t("domainDoesntResolveToAddress", address));
+            throw new Error(t('domainDoesntResolveToAddress', address));
           }
 
           address = resolved;
         }
 
         if (!isAddressValid(address)) {
-          throw new Error(t("invalidAddressOrDomain"));
+          throw new Error(t('invalidAddressOrDomain'));
         }
 
         await addContact({ address, name, addedAt: Date.now() });
         resetForm();
       } catch (err: any) {
-        await withErrorHumanDelay(err, () =>
-          setError("address", SUBMIT_ERROR_TYPE, err.message)
-        );
+        await withErrorHumanDelay(err, () => setError('address', SUBMIT_ERROR_TYPE, err.message));
       }
     },
     [submitting, clearError, addContact, resetForm, setError, domainsClient]
@@ -149,21 +136,19 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   const validateAddressField = useCallback(
     async (value: any) => {
       if (!value?.length) {
-        return t("Required");
+        return t('Required');
       }
 
       if (isDomainNameValid(value, domainsClient)) {
-        const resolved = await domainsClient.resolver.resolveNameToAddress(
-          value
-        );
+        const resolved = await domainsClient.resolver.resolveNameToAddress(value);
         if (!resolved) {
-          return t("domainDoesntResolveToAddress", value);
+          return t('domainDoesntResolveToAddress', value);
         }
 
         value = resolved;
       }
 
-      return isAddressValid(value) ? true : t("invalidAddressOrDomain");
+      return isAddressValid(value) ? true : t('invalidAddressOrDomain');
     },
     [domainsClient]
   );
@@ -172,23 +157,23 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
     <form className={className} onSubmit={handleSubmit(onAddContactSubmit)}>
       <FormField
         ref={register({ validate: validateAddressField })}
-        label={t("address")}
+        label={t('address')}
         id="address"
         name="address"
-        placeholder={t("recipientInputPlaceholderWithDomain")}
+        placeholder={t('recipientInputPlaceholderWithDomain')}
         errorCaption={errors.address?.message}
         containerClassName="mb-4"
       />
 
       <FormField
         ref={register({
-          required: t("required"),
-          maxLength: { value: 50, message: t("maximalAmount", "50") },
+          required: t('required'),
+          maxLength: { value: 50, message: t('maximalAmount', '50') }
         })}
-        label={t("name")}
+        label={t('name')}
         id="name"
         name="name"
-        placeholder={t("newContactPlaceholder")}
+        placeholder={t('newContactPlaceholder')}
         errorCaption={errors.name?.message}
         containerClassName="mb-6"
         maxLength={50}
@@ -201,25 +186,14 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   );
 };
 
-const ContactIcon: React.FC<
-  OptionRenderProps<TempleContact, string, ContactActions>
-> = ({ item }) => (
-  <Identicon
-    type="bottts"
-    hash={item.address}
-    size={32}
-    className="flex-shrink-0 shadow-xs"
-  />
+const ContactIcon: React.FC<OptionRenderProps<TempleContact, string, ContactActions>> = ({ item }) => (
+  <Identicon type="bottts" hash={item.address} size={32} className="flex-shrink-0 shadow-xs" />
 );
 
-const ContactContent: React.FC<
-  OptionRenderProps<TempleContact, string, ContactActions>
-> = ({ item, actions }) => (
+const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactActions>> = ({ item, actions }) => (
   <div className="flex flex-1 w-full">
     <div className="flex flex-col justify-between flex-1">
-      <Name className="mb-px text-sm font-medium leading-tight text-left">
-        {item.name}
-      </Name>
+      <Name className="mb-px text-sm font-medium leading-tight text-left">{item.name}</Name>
 
       <div className="text-xs font-light leading-tight text-gray-600">
         <HashChip hash={item.address} small />
@@ -230,15 +204,15 @@ const ContactContent: React.FC<
       <div className="flex items-center">
         <span
           className={classNames(
-            "mx-1",
-            "rounded-sm",
-            "border border-opacity-25",
-            "px-1 py-px",
-            "leading-tight",
-            "text-opacity-50",
-            "border-black text-black"
+            'mx-1',
+            'rounded-sm',
+            'border border-opacity-25',
+            'px-1 py-px',
+            'leading-tight',
+            'text-opacity-50',
+            'border-black text-black'
           )}
-          style={{ fontSize: "0.6rem" }}
+          style={{ fontSize: '0.6rem' }}
         >
           <T id="ownAccount" />
         </span>
@@ -246,19 +220,16 @@ const ContactContent: React.FC<
     ) : (
       <button
         className={classNames(
-          "flex-none p-2",
-          "text-gray-500 hover:text-gray-600",
-          "transition ease-in-out duration-200"
+          'flex-none p-2',
+          'text-gray-500 hover:text-gray-600',
+          'transition ease-in-out duration-200'
         )}
-        onClick={(evt) => {
+        onClick={evt => {
           evt.stopPropagation();
           actions?.remove(item.address);
         }}
       >
-        <CloseIcon
-          className="w-auto h-5 stroke-current stroke-2"
-          title={t("delete")}
-        />
+        <CloseIcon className="w-auto h-5 stroke-current stroke-2" title={t('delete')} />
       </button>
     )}
   </div>

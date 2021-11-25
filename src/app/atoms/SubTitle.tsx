@@ -1,21 +1,15 @@
-import React, { FC, HTMLAttributes } from "react";
+import React, { FC, HTMLAttributes } from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
-import { ReactComponent as ComponentIcon } from "app/icons/component.svg";
+import { ReactComponent as ComponentIcon } from 'app/icons/component.svg';
 
 type SubTitleProps = HTMLAttributes<HTMLHeadingElement> & {
   uppercase?: boolean;
   small?: boolean;
 };
 
-const SubTitle: FC<SubTitleProps> = ({
-  className,
-  children,
-  uppercase = true,
-  small = false,
-  ...rest
-}) => {
+const SubTitle: FC<SubTitleProps> = ({ className, children, uppercase = true, small = false, ...rest }) => {
   const comp = (
     <span className="text-gray-500 px-1">
       <ComponentIcon className="h-5 w-auto stroke-current" />
@@ -25,11 +19,11 @@ const SubTitle: FC<SubTitleProps> = ({
   return (
     <h2
       className={classNames(
-        "flex items-center justify-center",
-        "text-gray-700",
-        small ? "text-xl" : "text-2xl",
-        "font-light",
-        uppercase && "uppercase",
+        'flex items-center justify-center',
+        'text-gray-700',
+        small ? 'text-xl' : 'text-2xl',
+        'font-light',
+        uppercase && 'uppercase',
         className
       )}
       {...rest}

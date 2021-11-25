@@ -1,2 +1,2 @@
-export * from "lib/tzkt/types";
-export * from "lib/tzkt/client";
+export * from 'lib/tzkt/types';
+export * from 'lib/tzkt/client';
