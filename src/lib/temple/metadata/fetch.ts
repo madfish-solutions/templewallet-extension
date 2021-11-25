@@ -1,20 +1,20 @@
-import { TezosToolkit, compose } from "@taquito/taquito";
-import { tzip12, TokenMetadata } from "@taquito/tzip12";
-import { tzip16 } from "@taquito/tzip16";
-import retry from "async-retry";
-import BigNumber from "bignumber.js";
+import { TezosToolkit, compose } from '@taquito/taquito';
+import { tzip12, TokenMetadata } from '@taquito/tzip12';
+import { tzip16 } from '@taquito/tzip16';
+import retry from 'async-retry';
+import BigNumber from 'bignumber.js';
 
-import assert from "lib/assert";
+import assert from 'lib/assert';
 
-import { fromAssetSlug, isTezAsset } from "../assets";
-import { TEZOS_METADATA } from "./defaults";
-import { PRESERVED_TOKEN_METADATA } from "./fixtures";
-import { AssetMetadata, DetailedAssetMetdata } from "./types";
+import { fromAssetSlug, isTezAsset } from '../assets';
+import { TEZOS_METADATA } from './defaults';
+import { PRESERVED_TOKEN_METADATA } from './fixtures';
+import { AssetMetadata, DetailedAssetMetdata } from './types';
 
 const RETRY_PARAMS = {
   retries: 5,
   minTimeout: 100,
-  maxTimeout: 1_000,
+  maxTimeout: 1_000
 };
 
 export async function fetchTokenMetadata(
@@ -33,10 +33,7 @@ export async function fetchTokenMetadata(
   }
 
   try {
-    const contract = await retry(
-      () => tezos.contract.at(asset.contract, compose(tzip12, tzip16)),
-      RETRY_PARAMS
-    );
+    const contract = await retry(() => tezos.contract.at(asset.contract, compose(tzip12, tzip16)), RETRY_PARAMS);
     const assetId = new BigNumber(asset.id ?? 0).toFixed();
 
     const tzip12Data: TokenMetadataWithLogo = await retry(
@@ -44,10 +41,7 @@ export async function fetchTokenMetadata(
       RETRY_PARAMS
     );
 
-    assert(
-      "decimals" in tzip12Data &&
-        ("name" in tzip12Data || "symbol" in tzip12Data)
-    );
+    assert('decimals' in tzip12Data && ('name' in tzip12Data || 'symbol' in tzip12Data));
 
     const base: AssetMetadata = {
       decimals: +tzip12Data.decimals,
@@ -55,13 +49,9 @@ export async function fetchTokenMetadata(
       name: tzip12Data.name || tzip12Data.symbol!,
       shouldPreferSymbol: parseBool(tzip12Data.shouldPreferSymbol),
       thumbnailUri:
-        tzip12Data.thumbnailUri ||
-        tzip12Data.logo ||
-        tzip12Data.icon ||
-        tzip12Data.iconUri ||
-        tzip12Data.iconUrl,
+        tzip12Data.thumbnailUri || tzip12Data.logo || tzip12Data.icon || tzip12Data.iconUri || tzip12Data.iconUrl,
       displayUri: tzip12Data.displayUri,
-      artifactUri: tzip12Data.artifactUri,
+      artifactUri: tzip12Data.artifactUri
     };
 
     let tzip16Data: Record<string, any> | undefined;
@@ -79,25 +69,25 @@ export async function fetchTokenMetadata(
     const detailed: DetailedAssetMetdata = {
       ...(tzip16Data?.assets?.[assetId] ?? {}),
       ...tzip12Data,
-      ...base,
+      ...base
     };
 
     return { base, detailed };
   } catch (err: any) {
-      console.error(err);
+    console.error(err);
 
     throw new NotFoundTokenMetadata();
   }
 }
 
 export class NotFoundTokenMetadata extends Error {
-  name = "NotFoundTokenMetadata";
+  name = 'NotFoundTokenMetadata';
   message = "Metadata for token doesn't found";
 }
 
 function parseBool(value: any) {
-  if (value === "true") return true;
-  if (value === "false") return false;
+  if (value === 'true') return true;
+  if (value === 'false') return false;
   return;
 }
 

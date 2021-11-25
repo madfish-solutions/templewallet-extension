@@ -7,45 +7,36 @@ import React, {
   useLayoutEffect,
   useState,
   useMemo,
-  useRef,
-} from "react";
+  useRef
+} from 'react';
 
-import { DEFAULT_FEE, WalletOperation } from "@taquito/taquito";
-import type { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
-import BigNumber from "bignumber.js";
-import classNames from "clsx";
-import { Controller, useForm } from "react-hook-form";
-import useSWR from "swr";
+import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
+import type { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
+import BigNumber from 'bignumber.js';
+import classNames from 'clsx';
+import { Controller, useForm } from 'react-hook-form';
+import useSWR from 'swr';
 
-import Alert from "app/atoms/Alert";
-import AssetField from "app/atoms/AssetField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Identicon from "app/atoms/Identicon";
-import Money from "app/atoms/Money";
-import NoSpaceField from "app/atoms/NoSpaceField";
-import Spinner from "app/atoms/Spinner";
-import {
-  ArtificialError,
-  NotEnoughFundsError,
-  ZeroBalanceError,
-  ZeroTEZBalanceError,
-} from "app/defaults";
-import { useAppEnv } from "app/env";
-import { ReactComponent as ChevronDownIcon } from "app/icons/chevron-down.svg";
-import { ReactComponent as ChevronUpIcon } from "app/icons/chevron-up.svg";
-import AdditionalFeeInput from "app/templates/AdditionalFeeInput";
-import AssetSelect from "app/templates/AssetSelect";
-import Balance from "app/templates/Balance";
-import InUSD from "app/templates/InUSD";
-import OperationStatus from "app/templates/OperationStatus";
-import {
-  AnalyticsEventCategory,
-  useAnalytics,
-  useFormAnalytics,
-} from "lib/analytics";
-import { toLocalFixed } from "lib/i18n/numbers";
-import { T, t } from "lib/i18n/react";
-import { transferImplicit, transferToContract } from "lib/michelson";
+import Alert from 'app/atoms/Alert';
+import AssetField from 'app/atoms/AssetField';
+import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import Identicon from 'app/atoms/Identicon';
+import Money from 'app/atoms/Money';
+import NoSpaceField from 'app/atoms/NoSpaceField';
+import Spinner from 'app/atoms/Spinner';
+import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
+import { useAppEnv } from 'app/env';
+import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
+import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
+import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
+import AssetSelect from 'app/templates/AssetSelect';
+import Balance from 'app/templates/Balance';
+import InUSD from 'app/templates/InUSD';
+import OperationStatus from 'app/templates/OperationStatus';
+import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
+import { toLocalFixed } from 'lib/i18n/numbers';
+import { T, t } from 'lib/i18n/react';
+import { transferImplicit, transferToContract } from 'lib/michelson';
 import {
   fetchBalance,
   hasManager,
@@ -69,15 +60,15 @@ import {
   useAssetMetadata,
   isTezAsset,
   fetchTezosBalance,
-  getAssetSymbol,
-} from "lib/temple/front";
-import useSafeState from "lib/ui/useSafeState";
-import { navigate, HistoryAction } from "lib/woozie";
+  getAssetSymbol
+} from 'lib/temple/front';
+import useSafeState from 'lib/ui/useSafeState';
+import { navigate, HistoryAction } from 'lib/woozie';
 
-import { SendFormSelectors } from "./SendForm.selectors";
-import AddContactModal from "./SendForm/AddContactModal";
-import ContactsDropdown from "./SendForm/ContactsDropdown";
-import SendErrorAlert from "./SendForm/SendErrorAlert";;
+import { SendFormSelectors } from './SendForm.selectors';
+import AddContactModal from './SendForm/AddContactModal';
+import ContactsDropdown from './SendForm/ContactsDropdown';
+import SendErrorAlert from './SendForm/SendErrorAlert';
 
 interface FormData {
   to: string;
@@ -93,21 +84,16 @@ type SendFormProps = {
 };
 
 const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
-  assetSlug = assetSlug ?? "tez";
+  assetSlug = assetSlug ?? 'tez';
 
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
-  const [addContactModalAddress, setAddContactModalAddress] = useState<
-    string | null
-  >(null);
+  const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
   const { trackEvent } = useAnalytics();
 
   const handleAssetChange = useCallback(
     (aSlug: string) => {
-      trackEvent(
-        SendFormSelectors.AssetItemButton,
-        AnalyticsEventCategory.ButtonPress
-      );
+      trackEvent(SendFormSelectors.AssetItemButton, AnalyticsEventCategory.ButtonPress);
       navigate(`/send/${aSlug}`, HistoryAction.Replace);
     },
     [trackEvent]
@@ -126,28 +112,15 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
 
   return (
     <>
-      {operation && (
-        <OperationStatus typeTitle={t("transaction")} operation={operation} />
-      )}
+      {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} />}
 
-      <AssetSelect
-        value={assetSlug}
-        onChange={handleAssetChange}
-        className="mb-6"
-      />
+      <AssetSelect value={assetSlug} onChange={handleAssetChange} className="mb-6" />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form
-          assetSlug={assetSlug}
-          setOperation={setOperation}
-          onAddContactRequested={handleAddContactRequested}
-        />
+        <Form assetSlug={assetSlug} setOperation={setOperation} onAddContactRequested={handleAddContactRequested} />
       </Suspense>
 
-      <AddContactModal
-        address={addContactModalAddress}
-        onClose={closeContactModal}
-      />
+      <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />
     </>
   );
 };
@@ -160,20 +133,13 @@ type FormProps = {
   onAddContactRequested: (address: string) => void;
 };
 
-const Form: FC<FormProps> = ({
-  assetSlug,
-  setOperation,
-  onAddContactRequested,
-}) => {
+const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useAssetMetadata(assetSlug);
   const assetPrice = useAssetUSDPrice(assetSlug);
 
-  const assetSymbol = useMemo(
-    () => getAssetSymbol(assetMetadata),
-    [assetMetadata]
-  );
+  const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
   const { allContacts } = useContacts();
   const network = useNetwork();
@@ -181,51 +147,36 @@ const Form: FC<FormProps> = ({
   const tezos = useTezos();
   const domainsClient = useTezosDomainsClient();
 
-  const formAnalytics = useFormAnalytics("SendForm");
+  const formAnalytics = useFormAnalytics('SendForm');
 
   const canUseDomainNames = domainsClient.isSupported;
   const accountPkh = acc.publicKeyHash;
 
-  const { data: balanceData, mutate: mutateBalance } = useBalance(
-    assetSlug,
-    accountPkh
-  );
+  const { data: balanceData, mutate: mutateBalance } = useBalance(assetSlug, accountPkh);
   const balance = balanceData!;
 
-  const { data: tezBalanceData, mutate: mutateTezBalance } = useBalance(
-    "tez",
-    accountPkh
-  );
+  const { data: tezBalanceData, mutate: mutateTezBalance } = useBalance('tez', accountPkh);
   const tezBalance = tezBalanceData!;
 
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
 
-  const canToggleUsd = network.type === "main" && assetPrice !== null;
+  const canToggleUsd = network.type === 'main' && assetPrice !== null;
   const prevCanToggleUsd = useRef(canToggleUsd);
 
   /**
    * Form
    */
 
-  const {
-    watch,
-    handleSubmit,
-    errors,
-    control,
-    formState,
-    setValue,
-    triggerValidation,
-    reset,
-    getValues,
-  } = useForm<FormData>({
-    mode: "onChange",
-    defaultValues: {
-      fee: RECOMMENDED_ADD_FEE,
-    },
-  });
+  const { watch, handleSubmit, errors, control, formState, setValue, triggerValidation, reset, getValues } =
+    useForm<FormData>({
+      mode: 'onChange',
+      defaultValues: {
+        fee: RECOMMENDED_ADD_FEE
+      }
+    });
 
   const handleUsdToggle = useCallback(
-    (evt) => {
+    evt => {
       evt.preventDefault();
 
       const newShouldUseUsd = !shouldUseUsd;
@@ -235,13 +186,14 @@ const Form: FC<FormProps> = ({
       }
       const amount = new BigNumber(getValues().amount);
       setValue(
-        "amount",
-        (newShouldUseUsd
-          ? amount.multipliedBy(assetPrice!)
-          : amount.div(assetPrice!)
-        ).toFormat(newShouldUseUsd ? 2 : 6, BigNumber.ROUND_FLOOR, {
-          decimalSeparator: ".",
-        })
+        'amount',
+        (newShouldUseUsd ? amount.multipliedBy(assetPrice!) : amount.div(assetPrice!)).toFormat(
+          newShouldUseUsd ? 2 : 6,
+          BigNumber.ROUND_FLOOR,
+          {
+            decimalSeparator: '.'
+          }
+        )
       );
     },
     [setShouldUseUsd, shouldUseUsd, getValues, assetPrice, setValue]
@@ -249,22 +201,19 @@ const Form: FC<FormProps> = ({
   useEffect(() => {
     if (!canToggleUsd && prevCanToggleUsd.current && shouldUseUsd) {
       setShouldUseUsd(false);
-      setValue("amount", undefined);
+      setValue('amount', undefined);
     }
     prevCanToggleUsd.current = canToggleUsd;
   }, [setShouldUseUsd, canToggleUsd, shouldUseUsd, setValue]);
 
-  const toValue = watch("to");
-  const amountValue = watch("amount");
-  const feeValue = watch("fee") ?? RECOMMENDED_ADD_FEE;
+  const toValue = watch('to');
+  const amountValue = watch('amount');
+  const feeValue = watch('fee') ?? RECOMMENDED_ADD_FEE;
 
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
   const amountFieldRef = useRef<HTMLInputElement>(null);
 
-  const toFilledWithAddress = useMemo(
-    () => Boolean(toValue && isAddressValid(toValue)),
-    [toValue]
-  );
+  const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
 
   const toFilledWithDomain = useMemo(
     () => toValue && isDomainNameValid(toValue, domainsClient),
@@ -272,45 +221,36 @@ const Form: FC<FormProps> = ({
   );
 
   const domainAddressFactory = useCallback(
-    (_k: string, _checksum: string, toValue: string) =>
-      domainsClient.resolver.resolveNameToAddress(toValue),
+    (_k: string, _checksum: string, toValue: string) => domainsClient.resolver.resolveNameToAddress(toValue),
     [domainsClient]
   );
-  const { data: resolvedAddress } = useSWR(
-    ["tzdns-address", tezos.checksum, toValue],
-    domainAddressFactory,
-    { shouldRetryOnError: false, revalidateOnFocus: false }
-  );
+  const { data: resolvedAddress } = useSWR(['tzdns-address', tezos.checksum, toValue], domainAddressFactory, {
+    shouldRetryOnError: false,
+    revalidateOnFocus: false
+  });
 
   const toFilled = useMemo(
     () => (resolvedAddress ? toFilledWithDomain : toFilledWithAddress),
     [toFilledWithAddress, toFilledWithDomain, resolvedAddress]
   );
 
-  const toResolved = useMemo(
-    () => resolvedAddress || toValue,
-    [resolvedAddress, toValue]
-  );
+  const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
 
-  const toFilledWithKTAddress = useMemo(
-    () => isAddressValid(toResolved) && isKTAddress(toResolved),
-    [toResolved]
-  );
+  const toFilledWithKTAddress = useMemo(() => isAddressValid(toResolved) && isKTAddress(toResolved), [toResolved]);
 
   const filledContact = useMemo(
-    () =>
-      (toResolved && allContacts.find((c) => c.address === toResolved)) || null,
+    () => (toResolved && allContacts.find(c => c.address === toResolved)) || null,
     [allContacts, toResolved]
   );
 
   const cleanToField = useCallback(() => {
-    setValue("to", "");
-    triggerValidation("to");
+    setValue('to', '');
+    triggerValidation('to');
   }, [setValue, triggerValidation]);
 
   useLayoutEffect(() => {
     if (toFilled) {
-      toFieldRef.current?.scrollIntoView({ block: "center" });
+      toFieldRef.current?.scrollIntoView({ block: 'center' });
     }
   }, [toFilled]);
 
@@ -329,47 +269,30 @@ const Form: FC<FormProps> = ({
       const to = toResolved;
       const tez = isTezAsset(assetSlug);
 
-      const balanceBN = (await mutateBalance(
-        fetchBalance(tezos, assetSlug, assetMetadata, accountPkh)
-      ))!;
+      const balanceBN = (await mutateBalance(fetchBalance(tezos, assetSlug, assetMetadata, accountPkh)))!;
       if (balanceBN.isZero()) {
         throw new ZeroBalanceError();
       }
 
       let tezBalanceBN: BigNumber;
       if (!tez) {
-        tezBalanceBN = (await mutateTezBalance(
-          fetchTezosBalance(tezos, accountPkh)
-        ))!;
+        tezBalanceBN = (await mutateTezBalance(fetchTezosBalance(tezos, accountPkh)))!;
         if (tezBalanceBN.isZero()) {
           throw new ZeroTEZBalanceError();
         }
       }
 
       const [transferParams, manager] = await Promise.all([
-        toTransferParams(
-          tezos,
-          assetSlug,
-          assetMetadata,
-          accountPkh,
-          to,
-          toPenny(assetMetadata)
-        ),
-        tezos.rpc.getManagerKey(
-          acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh
-        ),
+        toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
+        tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh)
       ]);
 
       let estmtnMax: Estimate;
       if (acc.type === TempleAccountType.ManagedKT) {
-        const michelsonLambda = isKTAddress(to)
-          ? transferToContract
-          : transferImplicit;
+        const michelsonLambda = isKTAddress(to) ? transferToContract : transferImplicit;
 
         const contract = await loadContract(tezos, acc.publicKeyHash);
-        const transferParams = contract.methods
-          .do(michelsonLambda(to, tzToMutez(balanceBN)))
-          .toTransferParams();
+        const transferParams = contract.methods.do(michelsonLambda(to, tzToMutez(balanceBN))).toTransferParams();
         estmtnMax = await tezos.estimate.transfer(transferParams);
       } else if (tez) {
         const estmtn = await tezos.estimate.transfer(transferParams);
@@ -379,7 +302,7 @@ const Form: FC<FormProps> = ({
         }
         estmtnMax = await tezos.estimate.transfer({
           to,
-          amount: amountMax.toString() as any,
+          amount: amountMax.toString() as any
         });
       } else {
         estmtnMax = await tezos.estimate.transfer(transferParams);
@@ -401,18 +324,14 @@ const Form: FC<FormProps> = ({
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
-      if (
-        tez
-          ? baseFee.isGreaterThanOrEqualTo(balanceBN)
-          : baseFee.isGreaterThan(tezBalanceBN!)
-      ) {
+      if (tez ? baseFee.isGreaterThanOrEqualTo(balanceBN) : baseFee.isGreaterThan(tezBalanceBN!)) {
         throw new NotEnoughFundsError();
       }
 
       return baseFee;
     } catch (err: any) {
       // Human delay
-      await new Promise((r) => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 300));
 
       if (err instanceof ArtificialError) {
         return err;
@@ -425,44 +344,22 @@ const Form: FC<FormProps> = ({
           throw err;
       }
     }
-  }, [
-    acc,
-    tezos,
-    assetSlug,
-    assetMetadata,
-    accountPkh,
-    toResolved,
-    mutateBalance,
-    mutateTezBalance,
-  ]);
+  }, [acc, tezos, assetSlug, assetMetadata, accountPkh, toResolved, mutateBalance, mutateTezBalance]);
 
   const {
     data: baseFee,
     error: estimateBaseFeeError,
-    isValidating: estimating,
+    isValidating: estimating
   } = useSWR(
-    () =>
-      toFilled
-        ? [
-          "transfer-base-fee",
-          tezos.checksum,
-          assetSlug,
-          accountPkh,
-          toResolved,
-        ]
-        : null,
+    () => (toFilled ? ['transfer-base-fee', tezos.checksum, assetSlug, accountPkh, toResolved] : null),
     estimateBaseFee,
     {
       shouldRetryOnError: false,
       focusThrottleInterval: 10_000,
-      dedupingInterval: 30_000,
+      dedupingInterval: 30_000
     }
   );
-  const estimationError = !estimating
-    ? baseFee instanceof Error
-      ? baseFee
-      : estimateBaseFeeError
-    : null;
+  const estimationError = !estimating ? (baseFee instanceof Error ? baseFee : estimateBaseFeeError) : null;
 
   const maxAddFee = useMemo(() => {
     if (baseFee instanceof BigNumber) {
@@ -471,90 +368,70 @@ const Form: FC<FormProps> = ({
     return;
   }, [tezBalance, baseFee]);
 
-  const safeFeeValue = useMemo(
-    () => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue),
-    [maxAddFee, feeValue]
-  );
+  const safeFeeValue = useMemo(() => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue), [maxAddFee, feeValue]);
 
   const maxAmount = useMemo(() => {
     if (!(baseFee instanceof BigNumber)) return null;
 
     const maxAmountAsset = isTezAsset(assetSlug)
       ? BigNumber.max(
-        acc.type === TempleAccountType.ManagedKT
-          ? balance
-          : balance
-            .minus(baseFee)
-            .minus(safeFeeValue ?? 0)
-            .minus(PENNY),
-        0
-      )
+          acc.type === TempleAccountType.ManagedKT
+            ? balance
+            : balance
+                .minus(baseFee)
+                .minus(safeFeeValue ?? 0)
+                .minus(PENNY),
+          0
+        )
       : balance;
     const maxAmountUsd = assetPrice
       ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
       : new BigNumber(0);
     return shouldUseUsd ? maxAmountUsd : maxAmountAsset;
-  }, [
-    acc.type,
-    assetSlug,
-    balance,
-    baseFee,
-    safeFeeValue,
-    shouldUseUsd,
-    assetPrice,
-  ]);
+  }, [acc.type, assetSlug, balance, baseFee, safeFeeValue, shouldUseUsd, assetPrice]);
 
   const validateAmount = useCallback(
     (v?: number) => {
-      if (v === undefined) return t("required");
+      if (v === undefined) return t('required');
       if (!isKTAddress(toValue) && v === 0) {
-        return t("amountMustBePositive");
+        return t('amountMustBePositive');
       }
       if (!maxAmount) return true;
       const vBN = new BigNumber(v);
-      return (
-        vBN.isLessThanOrEqualTo(maxAmount) ||
-        t("maximalAmount", toLocalFixed(maxAmount))
-      );
+      return vBN.isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount));
     },
     [maxAmount, toValue]
   );
 
-  const handleFeeFieldChange = useCallback(
-    ([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v),
-    [maxAddFee]
-  );
+  const handleFeeFieldChange = useCallback(([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v), [maxAddFee]);
 
   const maxAmountStr = maxAmount?.toString();
   useEffect(() => {
-    if (formState.dirtyFields.has("amount")) {
-      triggerValidation("amount");
+    if (formState.dirtyFields.has('amount')) {
+      triggerValidation('amount');
     }
   }, [formState.dirtyFields, triggerValidation, maxAmountStr]);
 
   const handleSetMaxAmount = useCallback(() => {
     if (maxAmount) {
-      setValue("amount", maxAmount.toString());
-      triggerValidation("amount");
+      setValue('amount', maxAmount.toString());
+      triggerValidation('amount');
     }
   }, [setValue, maxAmount, triggerValidation]);
 
-  const handleAmountFieldFocus = useCallback((evt) => {
+  const handleAmountFieldFocus = useCallback(evt => {
     evt.preventDefault();
     amountFieldRef.current?.focus({ preventScroll: true });
   }, []);
 
-  const [submitError, setSubmitError] = useSafeState<any>(
-    null,
-    `${tezos.checksum}_${toResolved}`
-  );
+  const [submitError, setSubmitError] = useSafeState<any>(null, `${tezos.checksum}_${toResolved}`);
 
   const toAssetAmount = useCallback(
     (usdAmount: BigNumber.Value) =>
       new BigNumber(usdAmount)
         .dividedBy(assetPrice ?? 1)
         .toFormat(assetMetadata?.decimals ?? 0, BigNumber.ROUND_FLOOR, {
-          decimalSeparator: ".",
+          decimalSeparator: '.'
         }),
     [assetPrice, assetMetadata?.decimals]
   );
@@ -570,17 +447,15 @@ const Form: FC<FormProps> = ({
       }
 
       if (isDomainNameValid(value, domainsClient)) {
-        const resolved = await domainsClient.resolver.resolveNameToAddress(
-          value
-        );
+        const resolved = await domainsClient.resolver.resolveNameToAddress(value);
         if (!resolved) {
-          return t("domainDoesntResolveToAddress", value);
+          return t('domainDoesntResolveToAddress', value);
         }
 
         value = resolved;
       }
 
-      return isAddressValid(value) ? true : t("invalidAddressOrDomain");
+      return isAddressValid(value) ? true : t('invalidAddressOrDomain');
     },
     [canUseDomainNames, domainsClient]
   );
@@ -595,14 +470,10 @@ const Form: FC<FormProps> = ({
       try {
         let op: WalletOperation;
         if (isKTAddress(acc.publicKeyHash)) {
-          const michelsonLambda = isKTAddress(toResolved)
-            ? transferToContract
-            : transferImplicit;
+          const michelsonLambda = isKTAddress(toResolved) ? transferToContract : transferImplicit;
 
           const contract = await loadContract(tezos, acc.publicKeyHash);
-          op = await contract.methods
-            .do(michelsonLambda(toResolved, tzToMutez(amount)))
-            .send({ amount: 0 });
+          op = await contract.methods.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
         } else {
           const actualAmount = shouldUseUsd ? toAssetAmount(amount) : amount;
           const transferParams = await toTransferParams(
@@ -616,25 +487,23 @@ const Form: FC<FormProps> = ({
           const estmtn = await tezos.estimate.transfer(transferParams);
           const addFee = tzToMutez(feeVal ?? 0);
           const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
-          op = await tezos.wallet
-            .transfer({ ...transferParams, fee } as any)
-            .send();
+          op = await tezos.wallet.transfer({ ...transferParams, fee } as any).send();
         }
         setOperation(op);
-        reset({ to: "", fee: RECOMMENDED_ADD_FEE });
+        reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (err.message === "Declined") {
+        if (err.message === 'Declined') {
           return;
         }
 
         console.error(err);
 
         // Human delay.
-        await new Promise((res) => setTimeout(res, 300));
+        await new Promise(res => setTimeout(res, 300));
         setSubmitError(err);
       }
     },
@@ -651,14 +520,14 @@ const Form: FC<FormProps> = ({
       toResolved,
       shouldUseUsd,
       toAssetAmount,
-      formAnalytics,
+      formAnalytics
     ]
   );
 
   const handleAccountSelect = useCallback(
     (accountPkh: string) => {
-      setValue("to", accountPkh);
-      triggerValidation("to");
+      setValue('to', accountPkh);
+      triggerValidation('to');
     },
     [setValue, triggerValidation]
   );
@@ -678,12 +547,12 @@ const Form: FC<FormProps> = ({
   }, [setToFieldFocused]);
 
   const allContactsWithoutCurrent = useMemo(
-    () => allContacts.filter((c) => c.address !== accountPkh),
+    () => allContacts.filter(c => c.address !== accountPkh),
     [allContacts, accountPkh]
   );
 
   return (
-    <form style={{ minHeight: "24rem" }} onSubmit={handleSubmit(onSubmit)}>
+    <form style={{ minHeight: '24rem' }} onSubmit={handleSubmit(onSubmit)}>
       <Controller
         name="to"
         as={
@@ -704,7 +573,7 @@ const Form: FC<FormProps> = ({
         }
         control={control}
         rules={{
-          validate: validateRecipient,
+          validate: validateRecipient
         }}
         onChange={([v]) => v}
         onBlur={handleToFieldBlur}
@@ -713,7 +582,7 @@ const Form: FC<FormProps> = ({
         cleanable={Boolean(toValue)}
         onClean={cleanToField}
         id="send-to"
-        label={t("recipient")}
+        label={t('recipient')}
         labelDescription={
           filledContact ? (
             <div className="flex flex-wrap items-center">
@@ -723,13 +592,11 @@ const Form: FC<FormProps> = ({
                 size={14}
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
-              <div className="ml-1 mr-px font-normal">{filledContact.name}</div>{" "}
-              (
+              <div className="ml-1 mr-px font-normal">{filledContact.name}</div> (
               <Balance assetSlug={assetSlug} address={filledContact.address}>
-                {(bal) => (
-                  <span className={classNames("text-xs leading-none")}>
-                    <Money>{bal}</Money>{" "}
-                    <span style={{ fontSize: "0.75em" }}>{assetSymbol}</span>
+                {bal => (
+                  <span className={classNames('text-xs leading-none')}>
+                    <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
                   </span>
                 )}
               </Balance>
@@ -737,50 +604,28 @@ const Form: FC<FormProps> = ({
             </div>
           ) : (
             <T
-              id={
-                canUseDomainNames
-                  ? "tokensRecepientInputDescriptionWithDomain"
-                  : "tokensRecepientInputDescription"
-              }
+              id={canUseDomainNames ? 'tokensRecepientInputDescriptionWithDomain' : 'tokensRecepientInputDescription'}
               substitutions={assetSymbol}
             />
           )
         }
-        placeholder={t(
-          canUseDomainNames
-            ? "recipientInputPlaceholderWithDomain"
-            : "recipientInputPlaceholder"
-        )}
+        placeholder={t(canUseDomainNames ? 'recipientInputPlaceholderWithDomain' : 'recipientInputPlaceholder')}
         errorCaption={!toFieldFocused ? errors.to?.message : null}
         style={{
-          resize: "none",
+          resize: 'none'
         }}
         containerClassName="mb-4"
       />
 
       {resolvedAddress && (
-        <div
-          className={classNames(
-            "mb-4 -mt-3",
-            "text-xs font-light text-gray-600",
-            "flex flex-wrap items-center"
-          )}
-        >
-          <span className="mr-1 whitespace-no-wrap">
-            {t("resolvedAddress")}:
-          </span>
+        <div className={classNames('mb-4 -mt-3', 'text-xs font-light text-gray-600', 'flex flex-wrap items-center')}>
+          <span className="mr-1 whitespace-no-wrap">{t('resolvedAddress')}:</span>
           <span className="font-normal">{resolvedAddress}</span>
         </div>
       )}
 
       {toFilled && !filledContact ? (
-        <div
-          className={classNames(
-            "mb-4 -mt-3",
-            "text-xs font-light text-gray-600",
-            "flex flex-wrap items-center"
-          )}
-        >
+        <div className={classNames('mb-4 -mt-3', 'text-xs font-light text-gray-600', 'flex flex-wrap items-center')}>
           <button
             type="button"
             className="text-xs font-light text-gray-600 underline"
@@ -793,12 +638,10 @@ const Form: FC<FormProps> = ({
 
       <Controller
         name="amount"
-        as={
-          <AssetField ref={amountFieldRef} onFocus={handleAmountFieldFocus} />
-        }
+        as={<AssetField ref={amountFieldRef} onFocus={handleAmountFieldFocus} />}
         control={control}
         rules={{
-          validate: validateAmount,
+          validate: validateAmount
         }}
         onChange={([v]) => v}
         onFocus={() => amountFieldRef.current?.focus()}
@@ -809,15 +652,15 @@ const Form: FC<FormProps> = ({
               type="button"
               onClick={handleUsdToggle}
               className={classNames(
-                "px-1 rounded-md",
-                "flex items-center",
-                "font-light",
-                "hover:bg-black hover:bg-opacity-5",
-                "trasition ease-in-out duration-200",
-                "cursor-pointer pointer-events-auto"
+                'px-1 rounded-md',
+                'flex items-center',
+                'font-light',
+                'hover:bg-black hover:bg-opacity-5',
+                'trasition ease-in-out duration-200',
+                'cursor-pointer pointer-events-auto'
               )}
             >
-              {shouldUseUsd ? "USD" : assetSymbol}
+              {shouldUseUsd ? 'USD' : assetSymbol}
               <div className="ml-1 h-4 flex flex-col justify-between">
                 <ChevronUpIcon className="h-2 w-auto stroke-current stroke-2" />
                 <ChevronDownIcon className="h-2 w-auto stroke-current stroke-2" />
@@ -828,17 +671,13 @@ const Form: FC<FormProps> = ({
           )
         }
         assetDecimals={shouldUseUsd ? 2 : assetMetadata?.decimals ?? 0}
-        label={t("amount")}
+        label={t('amount')}
         labelDescription={
           restFormDisplayed &&
           maxAmount && (
             <>
-              <T id="availableToSend" />{" "}
-              <button
-                type="button"
-                className={classNames("underline")}
-                onClick={handleSetMaxAmount}
-              >
+              <T id="availableToSend" />{' '}
+              <button type="button" className={classNames('underline')} onClick={handleSetMaxAmount}>
                 {shouldUseUsd ? <span className="pr-px">$</span> : null}
                 {toLocalFixed(maxAmount)}
               </button>
@@ -847,28 +686,18 @@ const Form: FC<FormProps> = ({
                   <br />
                   {shouldUseUsd ? (
                     <div className="mt-1 -mb-3">
-                      ≈{" "}
-                      <span className="font-normal text-gray-700">
-                        {toAssetAmount(amountValue)}
-                      </span>{" "}
-                      <T
-                        id="inAsset"
-                        substitutions={getAssetSymbol(assetMetadata, true)}
-                      />
+                      ≈ <span className="font-normal text-gray-700">{toAssetAmount(amountValue)}</span>{' '}
+                      <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
                     </div>
                   ) : (
-                    <InUSD
-                      assetSlug={assetSlug}
-                      volume={amountValue}
-                      roundingMode={BigNumber.ROUND_FLOOR}
-                    >
-                      {(usdAmount) => (
+                    <InUSD assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
+                      {usdAmount => (
                         <div className="mt-1 -mb-3">
-                          ≈{" "}
+                          ≈{' '}
                           <span className="font-normal text-gray-700">
                             <span className="pr-px">$</span>
                             {usdAmount}
-                          </span>{" "}
+                          </span>{' '}
                           <T id="inUSD" />
                         </div>
                       )}
@@ -879,7 +708,7 @@ const Form: FC<FormProps> = ({
             </>
           )
         }
-        placeholder={t("amountPlaceholder")}
+        placeholder={t('amountPlaceholder')}
         errorCaption={restFormDisplayed && errors.amount?.message}
         containerClassName="mb-4"
         autoFocus={Boolean(maxAmount)}
@@ -895,15 +724,13 @@ const Form: FC<FormProps> = ({
                 return <SendErrorAlert type="submit" error={submitError} />;
 
               case Boolean(estimationError):
-                return (
-                  <SendErrorAlert type="estimation" error={estimationError} />
-                );
+                return <SendErrorAlert type="estimation" error={estimationError} />;
 
               case toResolved === accountPkh:
                 return (
                   <Alert
                     type="warn"
-                    title={t("attentionExclamation")}
+                    title={t('attentionExclamation')}
                     description={<T id="tryingToTransferToYourself" />}
                     className="mt-6 mb-4"
                   />
@@ -913,7 +740,7 @@ const Form: FC<FormProps> = ({
                 return (
                   <Alert
                     type="warn"
-                    title={t("attentionExclamation")}
+                    title={t('attentionExclamation')}
                     description={<T id="tryingToTransferToContract" />}
                     className="mt-6 mb-4"
                   />
@@ -935,11 +762,8 @@ const Form: FC<FormProps> = ({
           />
 
           <T id="send">
-            {(message) => (
-              <FormSubmitButton
-                loading={formState.isSubmitting}
-                disabled={Boolean(estimationError)}
-              >
+            {message => (
+              <FormSubmitButton loading={formState.isSubmitting} disabled={Boolean(estimationError)}>
                 {message}
               </FormSubmitButton>
             )}
@@ -956,7 +780,7 @@ function validateAddress(value: any) {
       return true;
 
     case isAddressValid(value):
-      return "invalidAddress";
+      return 'invalidAddress';
 
     default:
       return true;

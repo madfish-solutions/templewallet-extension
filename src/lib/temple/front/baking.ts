@@ -1,16 +1,12 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from 'react';
 
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import {
-  BakingBadBakerValueHistoryItem,
-  bakingBadGetBaker,
-  getAllBakersBakingBad,
-} from "lib/baking-bad";
-import { useRetryableSWR } from "lib/swr";
-import { useTezos, useNetwork } from "lib/temple/front";
-import { getBaker, TNBaker } from "lib/tezos-nodes";
-import { TzktRewardsEntry } from "lib/tzkt";
+import { BakingBadBakerValueHistoryItem, bakingBadGetBaker, getAllBakersBakingBad } from 'lib/baking-bad';
+import { useRetryableSWR } from 'lib/swr';
+import { useTezos, useNetwork } from 'lib/temple/front';
+import { getBaker, TNBaker } from 'lib/tezos-nodes';
+import { TzktRewardsEntry } from 'lib/tzkt';
 
 export function useDelegate(address: string, suspense = true) {
   const tezos = useTezos();
@@ -27,27 +23,27 @@ export function useDelegate(address: string, suspense = true) {
     }
   }, [address, tezos]);
 
-  return useRetryableSWR(["delegate", tezos.checksum, address], getDelegate, {
+  return useRetryableSWR(['delegate', tezos.checksum, address], getDelegate, {
     dedupingInterval: 20_000,
-    suspense,
+    suspense
   });
 }
 
 type RewardConfig = Record<
-  | "blocks"
-  | "endorses"
-  | "fees"
-  | "accusationRewards"
-  | "accusationLostDeposits"
-  | "accusationLostRewards"
-  | "accusationLostFees"
-  | "revelationRewards"
-  | "revelationLostRewards"
-  | "revelationLostFees"
-  | "missedBlocks"
-  | "stolenBlocks"
-  | "missedEndorses"
-  | "lowPriorityEndorses",
+  | 'blocks'
+  | 'endorses'
+  | 'fees'
+  | 'accusationRewards'
+  | 'accusationLostDeposits'
+  | 'accusationLostRewards'
+  | 'accusationLostFees'
+  | 'revelationRewards'
+  | 'revelationLostRewards'
+  | 'revelationLostFees'
+  | 'missedBlocks'
+  | 'stolenBlocks'
+  | 'missedEndorses'
+  | 'lowPriorityEndorses',
   boolean
 >;
 type Baker = TNBaker & {
@@ -73,9 +69,9 @@ const defaultRewardConfigHistory = [
       missedBlocks: true,
       stolenBlocks: true,
       missedEndorses: true,
-      lowPriorityEndorses: true,
-    },
-  },
+      lowPriorityEndorses: true
+    }
+  }
 ];
 
 export function useKnownBaker(address: string | null, suspense = true) {
@@ -88,69 +84,59 @@ export function useKnownBaker(address: string | null, suspense = true) {
         try {
           const bakingBadBaker = await bakingBadGetBaker({
             address,
-            configs: true,
+            configs: true
           });
-          if (typeof bakingBadBaker === "object") {
+          if (typeof bakingBadBaker === 'object') {
             return {
               ...baker,
               fee: bakingBadBaker.fee,
               feeHistory: bakingBadBaker.config?.fee,
               rewardConfigHistory:
-                bakingBadBaker.config?.rewardStruct.map(
-                  ({ cycle, value: rewardStruct }) => ({
-                    cycle,
-                    value: {
-                      blocks: (rewardStruct & 1) > 0,
-                      endorses: (rewardStruct & 2) > 0,
-                      fees: (rewardStruct & 4) > 0,
-                      accusationRewards: (rewardStruct & 8) > 0,
-                      accusationLostDeposits: (rewardStruct & 16) > 0,
-                      accusationLostRewards: (rewardStruct & 32) > 0,
-                      accusationLostFees: (rewardStruct & 64) > 0,
-                      revelationRewards: (rewardStruct & 128) > 0,
-                      revelationLostRewards: (rewardStruct & 256) > 0,
-                      revelationLostFees: (rewardStruct & 512) > 0,
-                      missedBlocks: (rewardStruct & 1024) > 0,
-                      stolenBlocks: (rewardStruct & 2048) > 0,
-                      missedEndorses: (rewardStruct & 4096) > 0,
-                      lowPriorityEndorses: (rewardStruct & 8192) > 0,
-                    },
-                  })
-                ) ?? defaultRewardConfigHistory,
+                bakingBadBaker.config?.rewardStruct.map(({ cycle, value: rewardStruct }) => ({
+                  cycle,
+                  value: {
+                    blocks: (rewardStruct & 1) > 0,
+                    endorses: (rewardStruct & 2) > 0,
+                    fees: (rewardStruct & 4) > 0,
+                    accusationRewards: (rewardStruct & 8) > 0,
+                    accusationLostDeposits: (rewardStruct & 16) > 0,
+                    accusationLostRewards: (rewardStruct & 32) > 0,
+                    accusationLostFees: (rewardStruct & 64) > 0,
+                    revelationRewards: (rewardStruct & 128) > 0,
+                    revelationLostRewards: (rewardStruct & 256) > 0,
+                    revelationLostFees: (rewardStruct & 512) > 0,
+                    missedBlocks: (rewardStruct & 1024) > 0,
+                    stolenBlocks: (rewardStruct & 2048) > 0,
+                    missedEndorses: (rewardStruct & 4096) > 0,
+                    lowPriorityEndorses: (rewardStruct & 8192) > 0
+                  }
+                })) ?? defaultRewardConfigHistory
             };
           }
         } catch {}
       }
       return {
         ...(baker as TNBaker),
-        rewardConfigHistory: defaultRewardConfigHistory,
+        rewardConfigHistory: defaultRewardConfigHistory
       };
     } catch (_err) {
       return null;
     }
   }, [address]);
-  return useRetryableSWR(
-    net.type === "main" && address ? ["baker", address] : null,
-    fetchBaker,
-    {
-      refreshInterval: 120_000,
-      dedupingInterval: 60_000,
-      suspense,
-    }
-  );
+  return useRetryableSWR(net.type === 'main' && address ? ['baker', address] : null, fetchBaker, {
+    refreshInterval: 120_000,
+    dedupingInterval: 60_000,
+    suspense
+  });
 }
 
 export function useKnownBakers(suspense = true) {
   const net = useNetwork();
-  const { data: bakers } = useRetryableSWR(
-    net.type === "main" ? "all-bakers" : null,
-    getAllBakersBakingBad,
-    {
-      refreshInterval: 120_000,
-      dedupingInterval: 60_000,
-      suspense,
-    }
-  );
+  const { data: bakers } = useRetryableSWR(net.type === 'main' ? 'all-bakers' : null, getAllBakersBakingBad, {
+    refreshInterval: 120_000,
+    dedupingInterval: 60_000,
+    suspense
+  });
 
   return useMemo(() => (bakers && bakers.length > 1 ? bakers : null), [bakers]);
 }
@@ -160,17 +146,14 @@ type RewardsStatsCalculationParams = {
   bakerDetails: Baker | null | undefined;
   currentCycle: number | undefined;
 } & Record<
-  | "fallbackRewardPerOwnBlock"
-  | "fallbackRewardPerEndorsement"
-  | "fallbackRewardPerFutureBlock"
-  | "fallbackRewardPerFutureEndorsement",
+  | 'fallbackRewardPerOwnBlock'
+  | 'fallbackRewardPerEndorsement'
+  | 'fallbackRewardPerFutureBlock'
+  | 'fallbackRewardPerFutureEndorsement',
   BigNumber
 >;
 
-function getBakingEfficiency({
-  rewardsEntry,
-  bakerDetails,
-}: RewardsStatsCalculationParams) {
+function getBakingEfficiency({ rewardsEntry, bakerDetails }: RewardsStatsCalculationParams) {
   const {
     cycle,
     ownBlockRewards,
@@ -191,7 +174,7 @@ function getBakingEfficiency({
     missedExtraBlockRewards,
     missedExtraBlockFees,
     missedOwnBlockFees,
-    missedOwnBlockRewards,
+    missedOwnBlockRewards
   } = rewardsEntry;
   let rewardConfig = defaultRewardConfigHistory[0].value;
   if (bakerDetails?.rewardConfigHistory) {
@@ -204,33 +187,21 @@ function getBakingEfficiency({
       }
     }
   }
-  const totalFutureRewards = new BigNumber(
-    rewardConfig.endorses ? futureEndorsementRewards : 0
-  ).plus(rewardConfig.blocks ? futureBlockRewards : 0);
+  const totalFutureRewards = new BigNumber(rewardConfig.endorses ? futureEndorsementRewards : 0).plus(
+    rewardConfig.blocks ? futureBlockRewards : 0
+  );
   const totalCurrentRewards = new BigNumber(
-    rewardConfig.blocks
-      ? new BigNumber(extraBlockRewards).plus(ownBlockRewards)
-      : 0
+    rewardConfig.blocks ? new BigNumber(extraBlockRewards).plus(ownBlockRewards) : 0
   )
-    .plus(
-      rewardConfig.endorses
-        ? new BigNumber(endorsementRewards).plus(doubleEndorsingRewards)
-        : 0
-    )
-    .plus(
-      rewardConfig.fees ? new BigNumber(ownBlockFees).plus(extraBlockFees) : 0
-    )
+    .plus(rewardConfig.endorses ? new BigNumber(endorsementRewards).plus(doubleEndorsingRewards) : 0)
+    .plus(rewardConfig.fees ? new BigNumber(ownBlockFees).plus(extraBlockFees) : 0)
     .plus(rewardConfig.revelationRewards ? revelationRewards : 0)
     .plus(doubleBakingRewards);
   const totalRewards = totalFutureRewards.plus(totalCurrentRewards);
 
   const fullEfficiencyIncome = new BigNumber(4e7)
     .multipliedBy(new BigNumber(ownBlocks).plus(futureBlocks))
-    .plus(
-      new BigNumber(1.25e6).multipliedBy(
-        new BigNumber(endorsements).plus(futureEndorsements)
-      )
-    );
+    .plus(new BigNumber(1.25e6).multipliedBy(new BigNumber(endorsements).plus(futureEndorsements)));
   const totalLost = new BigNumber(missedEndorsementRewards)
     .plus(missedExtraBlockFees)
     .plus(missedExtraBlockRewards)
@@ -240,7 +211,7 @@ function getBakingEfficiency({
   return new BigNumber(1).plus(totalGain.div(fullEfficiencyIncome));
 }
 
-type CycleStatus = "unlocked" | "locked" | "future" | "inProgress";
+type CycleStatus = 'unlocked' | 'locked' | 'future' | 'inProgress';
 
 export function getRewardsStats(params: RewardsStatsCalculationParams) {
   const {
@@ -250,7 +221,7 @@ export function getRewardsStats(params: RewardsStatsCalculationParams) {
     fallbackRewardPerOwnBlock,
     fallbackRewardPerEndorsement,
     fallbackRewardPerFutureBlock,
-    fallbackRewardPerFutureEndorsement,
+    fallbackRewardPerFutureEndorsement
   } = params;
   const {
     cycle,
@@ -271,12 +242,10 @@ export function getRewardsStats(params: RewardsStatsCalculationParams) {
     extraBlockFees,
     revelationRewards,
     doubleBakingRewards,
-    doubleEndorsingRewards,
+    doubleEndorsingRewards
   } = rewardsEntry;
 
-  const totalFutureRewards = new BigNumber(futureEndorsementRewards).plus(
-    futureBlockRewards
-  );
+  const totalFutureRewards = new BigNumber(futureEndorsementRewards).plus(futureBlockRewards);
   const totalCurrentRewards = new BigNumber(extraBlockRewards)
     .plus(endorsementRewards)
     .plus(ownBlockRewards)
@@ -287,56 +256,40 @@ export function getRewardsStats(params: RewardsStatsCalculationParams) {
     .plus(doubleEndorsingRewards);
   const cycleStatus: CycleStatus = (() => {
     switch (true) {
-      case totalFutureRewards.eq(0) &&
-        (currentCycle === undefined || cycle <= currentCycle - 6):
-        return "unlocked";
+      case totalFutureRewards.eq(0) && (currentCycle === undefined || cycle <= currentCycle - 6):
+        return 'unlocked';
       case totalFutureRewards.eq(0):
-        return "locked";
+        return 'locked';
       case totalCurrentRewards.eq(0):
-        return "future";
+        return 'future';
       default:
-        return "inProgress";
+        return 'inProgress';
     }
   })();
   const totalRewards = totalFutureRewards.plus(totalCurrentRewards);
   const rewards = totalRewards.multipliedBy(balance).div(stakingBalance);
-  let luck =
-    expectedBlocks + expectedEndorsements > 0
-      ? new BigNumber(-1)
-      : new BigNumber(0);
+  let luck = expectedBlocks + expectedEndorsements > 0 ? new BigNumber(-1) : new BigNumber(0);
   if (totalFutureRewards.plus(totalCurrentRewards).gt(0)) {
     const rewardPerOwnBlock =
-      ownBlocks === 0
-        ? fallbackRewardPerOwnBlock
-        : new BigNumber(ownBlockRewards).div(ownBlocks);
+      ownBlocks === 0 ? fallbackRewardPerOwnBlock : new BigNumber(ownBlockRewards).div(ownBlocks);
     const rewardPerEndorsement =
-      endorsements === 0
-        ? fallbackRewardPerEndorsement
-        : new BigNumber(endorsementRewards).div(endorsements);
-    const asIfNoFutureExpectedBlockRewards = new BigNumber(
-      expectedBlocks
-    ).multipliedBy(rewardPerOwnBlock);
-    const asIfNoFutureExpectedEndorsementRewards = new BigNumber(
-      expectedEndorsements
-    ).multipliedBy(rewardPerEndorsement);
-    const asIfNoFutureExpectedRewards = asIfNoFutureExpectedBlockRewards.plus(
-      asIfNoFutureExpectedEndorsementRewards
+      endorsements === 0 ? fallbackRewardPerEndorsement : new BigNumber(endorsementRewards).div(endorsements);
+    const asIfNoFutureExpectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(rewardPerOwnBlock);
+    const asIfNoFutureExpectedEndorsementRewards = new BigNumber(expectedEndorsements).multipliedBy(
+      rewardPerEndorsement
     );
+    const asIfNoFutureExpectedRewards = asIfNoFutureExpectedBlockRewards.plus(asIfNoFutureExpectedEndorsementRewards);
 
     const rewardPerFutureBlock =
-      futureBlocks === 0
-        ? fallbackRewardPerFutureBlock
-        : new BigNumber(futureBlockRewards).div(futureBlocks);
+      futureBlocks === 0 ? fallbackRewardPerFutureBlock : new BigNumber(futureBlockRewards).div(futureBlocks);
     const rewardPerFutureEndorsement =
       futureEndorsements === 0
         ? fallbackRewardPerFutureEndorsement
         : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
-    const asIfNoCurrentExpectedBlockRewards = new BigNumber(
-      expectedBlocks
-    ).multipliedBy(rewardPerFutureBlock);
-    const asIfNoCurrentExpectedEndorsementRewards = new BigNumber(
-      expectedEndorsements
-    ).multipliedBy(rewardPerFutureEndorsement);
+    const asIfNoCurrentExpectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(rewardPerFutureBlock);
+    const asIfNoCurrentExpectedEndorsementRewards = new BigNumber(expectedEndorsements).multipliedBy(
+      rewardPerFutureEndorsement
+    );
     const asIfNoCurrentExpectedRewards = asIfNoCurrentExpectedBlockRewards.plus(
       asIfNoCurrentExpectedEndorsementRewards
     );
@@ -374,6 +327,6 @@ export function getRewardsStats(params: RewardsStatsCalculationParams) {
     bakerFeePart,
     bakerFee,
     cycleStatus,
-    efficiency: getBakingEfficiency(params),
+    efficiency: getBakingEfficiency(params)
   };
 }
