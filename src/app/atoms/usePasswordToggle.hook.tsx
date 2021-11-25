@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { ReactComponent as EyeClosedBold } from '../icons/eye-closed-bold.svg';
 import { ReactComponent as EyeOpenBold } from '../icons/eye-open-bold.svg';
 
-const usePasswordToggle = () => {
+const usePasswordToggle = (): [string, JSX.Element] => {
   const [visible, setVisibility] = useState(false);
 
   const Icon = (
@@ -14,9 +14,9 @@ const usePasswordToggle = () => {
     </button>
   );
 
-  const InputType = visible ? 'text' : 'password';
+  const inputType = visible ? 'text' : 'password';
 
-  return [InputType, Icon] as const;
+  return [inputType, Icon];
 };
 
 export default usePasswordToggle;
