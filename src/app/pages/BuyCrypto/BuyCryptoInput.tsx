@@ -1,6 +1,6 @@
-import React, {ChangeEvent, FC} from "react";
+import React, { ChangeEvent, FC } from "react";
 
-import {Modifier} from "@popperjs/core";
+import { Modifier } from "@popperjs/core";
 import BigNumber from "bignumber.js";
 import classNames from "clsx";
 import useSWR from "swr";
@@ -9,8 +9,8 @@ import DropdownWrapper from "app/atoms/DropdownWrapper";
 import Spinner from "app/atoms/Spinner";
 import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
 import CurrencyComponent from "app/pages/BuyCrypto/CurrencyComponent";
-import {getCurrencies, getRateDataInterface} from "lib/exolix-api";
-import {T} from "lib/i18n/react";
+import { getCurrencies, getRateDataInterface } from "lib/exolix-api";
+import { T } from "lib/i18n/react";
 import Popper from "lib/ui/Popper";
 
 interface Props {
@@ -57,6 +57,19 @@ const coinList = [
   "LUNA",
   "ATOM",
   "SUSHI",
+  "CELO",
+  "AVAX",
+  "AXS",
+  "EPS",
+  "EOS",
+  "FTM",
+  "FLOW",
+  "KAVA",
+  "KSM",
+  "NEAR",
+  "sUSD",
+  "USDTERC20",
+  "USDTBSC",
 ];
 
 const sameWidth: Modifier<string, any> = {
@@ -65,33 +78,27 @@ const sameWidth: Modifier<string, any> = {
   phase: "beforeWrite",
   requires: ["computeStyles"],
   fn: ({ state }) => {
-    state.styles.popper.width = `${state.rects.reference.width + 17}px`;
-    // state.styles.popper.left = "-5px";
-  },
-  effect: ({ state }) => {
-    state.elements.popper.style.width = `${
-      (state.elements.reference as any).offsetWidth + 15
-    }px`;
-    return () => {};
+    state.styles.popper.width = `${state.rects.reference.width + 80}px`;
+    state.styles.popper.left = "-5px";
   },
 };
 
 const BuyCryptoInput: FC<Props> = ({
-                                     type,
-                                     coin,
-                                     setCoin = () => void 0,
-                                     value,
-                                     readOnly = false,
-                                     amount,
-                                     lastMinAmount,
-                                     onChangeInputHandler,
-                                     rates = {destination_amount: 0, rate: 0, min_amount: "0"},
-                                     maxAmount,
-                                     isMaxAmountError,
-                                     isCurrencyAvailable,
-                                   }) => {
+  type,
+  coin,
+  setCoin = () => void 0,
+  value,
+  readOnly = false,
+  amount,
+  lastMinAmount,
+  onChangeInputHandler,
+  rates = { destination_amount: 0, rate: 0, min_amount: "0" },
+  maxAmount,
+  isMaxAmountError,
+  isCurrencyAvailable,
+}) => {
   const isCoinFromType = type === "coinFrom";
-  const {data: currencies = [], isValidating: isCurrenciesLoaded} = useSWR(
+  const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(
     ["/api/currency"],
     getCurrencies
   );
@@ -114,7 +121,7 @@ const BuyCryptoInput: FC<Props> = ({
         >
           {isCoinFromType ? (
             <>
-              <T id={"min"}/>
+              <T id={"min"} />
               <span
                 className={classNames(
                   isMinAmountError ? "text-red-700" : "text-gray-700",
@@ -140,7 +147,7 @@ const BuyCryptoInput: FC<Props> = ({
         <div className={styles["currencyBlock"]}>
           {isCoinFromType ? (
             <Popper
-              placement="bottom"
+              placement="bottom-start"
               strategy="fixed"
               modifiers={[sameWidth]}
               fallbackPlacementsEnabled={false}
@@ -163,6 +170,9 @@ const BuyCryptoInput: FC<Props> = ({
                         type="currencyDropdown"
                         key={currency.code}
                         label={currency.code}
+                        className={
+                          currency.code === coin ? styles.selected : ""
+                        }
                         onPress={() => {
                           setCoin(currency.code);
                           setOpened(false);
@@ -177,6 +187,7 @@ const BuyCryptoInput: FC<Props> = ({
                 <CurrencyComponent
                   type="currencySelector"
                   label={coin}
+                  short
                   ref={ref as unknown as React.RefObject<HTMLDivElement>}
                   onPress={toggleOpened}
                 />
@@ -223,28 +234,34 @@ const BuyCryptoInput: FC<Props> = ({
             isMaxAmountError ? "text-red-700" : "text-gray-500"
           )}
         >
-          {isCoinFromType ? isCurrencyAvailable ? (
-            <>
-              <T id={"max"}/>
-              <span
-                className={classNames(
-                  isMaxAmountError ? "text-red-700" : "text-gray-700",
-                  "text-sm"
-                )}
-              >
-              {" "}
-                {maxAmount !== "Infinity" ? maxAmount : "0"}
+          {isCoinFromType ? (
+            isCurrencyAvailable ? (
+              <>
+                <T id={"max"} />
+                <span
+                  className={classNames(
+                    isMaxAmountError ? "text-red-700" : "text-gray-700",
+                    "text-sm"
+                  )}
+                >
+                  {" "}
+                  {maxAmount !== "Infinity" ? maxAmount : "0"}
                 </span>{" "}
-              <span
-                className={classNames(
-                  isMaxAmountError ? "text-red-700" : "text-gray-700",
-                  "text-xs"
-                )}
-              >
-              {coin}
+                <span
+                  className={classNames(
+                    isMaxAmountError ? "text-red-700" : "text-gray-700",
+                    "text-xs"
+                  )}
+                >
+                  {coin}
                 </span>
-            </>
-          ) : <span className="text-red-700"><T id={"currencyUnavailable"}/></span> : null}
+              </>
+            ) : (
+              <span className="text-red-700">
+                <T id={"currencyUnavailable"} />
+              </span>
+            )
+          ) : null}
         </p>
       </div>
     </>
