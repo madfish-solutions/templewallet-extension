@@ -1,0 +1,14 @@
+.apyBadge {
+  background: #4299e1;
+  border-radius: 4px;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 15px;
+  /* identical to box height */
+
+  /* Backgrounds/White */
+
+  color: #ffffff;
+}
