@@ -1,5 +1,5 @@
 .title {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-size: 23px;
   text-align: center;
@@ -8,7 +8,7 @@
 }
 
 .description {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: 17px;
@@ -19,7 +19,7 @@
 }
 
 .listContainer {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: 17px;
@@ -31,7 +31,7 @@
 }
 
 .link {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-size: 14px;
   line-height: 17px;

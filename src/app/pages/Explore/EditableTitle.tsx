@@ -1,31 +1,24 @@
-import React, {
-  FC,
-  FormEventHandler,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { FC, FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
-import { Button } from "app/atoms/Button";
-import FormField from "app/atoms/FormField";
-import Name from "app/atoms/Name";
-import { ACCOUNT_NAME_PATTERN } from "app/defaults";
-import { ReactComponent as EditIcon } from "app/icons/edit.svg";
-import { useFormAnalytics } from "lib/analytics";
-import { T, t } from "lib/i18n/react";
-import { useTempleClient, useAccount } from "lib/temple/front";
-import { useAlert } from "lib/ui/dialog";
+import { Button } from 'app/atoms/Button';
+import FormField from 'app/atoms/FormField';
+import Name from 'app/atoms/Name';
+import { ACCOUNT_NAME_PATTERN } from 'app/defaults';
+import { ReactComponent as EditIcon } from 'app/icons/edit.svg';
+import { useFormAnalytics } from 'lib/analytics';
+import { T, t } from 'lib/i18n/react';
+import { useTempleClient, useAccount } from 'lib/temple/front';
+import { useAlert } from 'lib/ui/dialog';
 
-import { EditableTitleSelectors } from "./EditableTitle.selectors";
+import { EditableTitleSelectors } from './EditableTitle.selectors';
 
 const EditableTitle: FC = () => {
   const { editAccountName } = useTempleClient();
   const account = useAccount();
   const alert = useAlert();
-  const formAnalytics = useFormAnalytics("ChangeAccountName");
+  const formAnalytics = useFormAnalytics('ChangeAccountName');
 
   const [editing, setEditing] = useState(false);
 
@@ -33,11 +26,7 @@ const EditableTitle: FC = () => {
   const accNamePrevRef = useRef<string>();
 
   useEffect(() => {
-    if (
-      accNamePrevRef.current &&
-      accNamePrevRef.current !== account.name &&
-      editing
-    ) {
+    if (accNamePrevRef.current && accNamePrevRef.current !== account.name && editing) {
       setEditing(false);
     }
 
@@ -68,7 +57,7 @@ const EditableTitle: FC = () => {
   }, [setEditing]);
 
   const handleEditSubmit = useCallback<FormEventHandler>(
-    (evt) => {
+    evt => {
       evt.preventDefault();
 
       (async () => {
@@ -88,8 +77,8 @@ const EditableTitle: FC = () => {
           console.error(err);
 
           await alert({
-            title: t("errorChangingAccountName"),
-            children: err.message,
+            title: t('errorChangingAccountName'),
+            children: err.message
           });
         }
       })();
@@ -110,40 +99,34 @@ const EditableTitle: FC = () => {
   return (
     <div className="relative flex items-center justify-center pt-4">
       {editing ? (
-        <form
-          className="flex flex-col items-center flex-1"
-          onSubmit={handleEditSubmit}
-        >
+        <form className="flex flex-col items-center flex-1" onSubmit={handleEditSubmit}>
           <FormField
             ref={editAccNameFieldRef}
             name="name"
             defaultValue={account.name}
             maxLength={16}
             pattern={ACCOUNT_NAME_PATTERN.toString().slice(1, -1)}
-            title={t("accountNameInputTitle")}
+            title={t('accountNameInputTitle')}
             spellCheck={false}
-            className={classNames(
-              "w-full mx-auto max-w-xs",
-              "text-2xl font-light text-gray-700 text-center"
-            )}
-            style={{ padding: "0.075rem 0" }}
+            className={classNames('w-full mx-auto max-w-xs', 'text-2xl font-light text-gray-700 text-center')}
+            style={{ padding: '0.075rem 0' }}
             onFocus={handleEditFieldFocus}
             onBlur={handleEditFieldBlur}
           />
 
           <div className="flex items-stretch mb-2">
             <T id="cancel">
-              {(message) => (
+              {message => (
                 <Button
                   type="button"
                   className={classNames(
-                    "mx-1",
-                    "px-2 py-1",
-                    "rounded overflow-hidden",
-                    "text-gray-600 text-sm",
-                    "transition ease-in-out duration-200",
-                    "hover:bg-black hover:bg-opacity-5",
-                    "opacity-75 hover:opacity-100 focus:opacity-100"
+                    'mx-1',
+                    'px-2 py-1',
+                    'rounded overflow-hidden',
+                    'text-gray-600 text-sm',
+                    'transition ease-in-out duration-200',
+                    'hover:bg-black hover:bg-opacity-5',
+                    'opacity-75 hover:opacity-100 focus:opacity-100'
                   )}
                   onClick={handleCancelClick}
                   testID={EditableTitleSelectors.CancelButton}
@@ -154,16 +137,16 @@ const EditableTitle: FC = () => {
             </T>
 
             <T id="save">
-              {(message) => (
+              {message => (
                 <Button
                   className={classNames(
-                    "mx-1",
-                    "px-2 py-1",
-                    "rounded overflow-hidden",
-                    "text-gray-600 text-sm",
-                    "transition ease-in-out duration-200",
-                    "hover:bg-black hover:bg-opacity-5",
-                    "opacity-75 hover:opacity-100 focus:opacity-100"
+                    'mx-1',
+                    'px-2 py-1',
+                    'rounded overflow-hidden',
+                    'text-gray-600 text-sm',
+                    'transition ease-in-out duration-200',
+                    'hover:bg-black hover:bg-opacity-5',
+                    'opacity-75 hover:opacity-100 focus:opacity-100'
                   )}
                   testID={EditableTitleSelectors.SaveButton}
                 >
@@ -175,30 +158,23 @@ const EditableTitle: FC = () => {
         </form>
       ) : (
         <>
-          <Name
-            className={classNames(
-              "mb-2 pl-7 max-w-xs",
-              "text-2xl font-light text-gray-700 text-center"
-            )}
-          >
+          <Name className={classNames('mb-2 pl-7 max-w-xs', 'text-2xl font-light text-gray-700 text-center')}>
             {account.name}
           </Name>
           {!editing && (
             <Button
               className={classNames(
-                "px-1 py-1 ml-1 mb-2",
-                "rounded overflow-hidden",
-                "text-gray-600 text-sm",
-                "transition ease-in-out duration-200",
-                "hover:bg-black hover:bg-opacity-5",
-                "opacity-75 hover:opacity-100 focus:opacity-100"
+                'px-1 py-1 ml-1 mb-2',
+                'rounded overflow-hidden',
+                'text-gray-600 text-sm',
+                'transition ease-in-out duration-200',
+                'hover:bg-black hover:bg-opacity-5',
+                'opacity-75 hover:opacity-100 focus:opacity-100'
               )}
               onClick={handleEditClick}
               testID={EditableTitleSelectors.EditButton}
             >
-              <EditIcon
-                className={classNames("h-5 w-auto stroke-current stroke-2")}
-              />
+              <EditIcon className={classNames('h-5 w-auto stroke-current stroke-2')} />
             </Button>
           )}
         </>

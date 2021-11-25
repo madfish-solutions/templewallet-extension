@@ -4,15 +4,15 @@
  */
 
 export default {
-  coverageProvider: "v8",
+  coverageProvider: 'v8',
   moduleNameMapper: {
-    "^lib/(.*)$": "<rootDir>/src/lib/$1",
+    '^lib/(.*)$': '<rootDir>/src/lib/$1'
   },
-  testEnvironment: "jsdom",
+  testEnvironment: 'jsdom',
   transform: {
-    ".+\\.ts$": "ts-jest",
+    '.+\\.ts$': 'ts-jest'
   },
-  moduleFileExtensions: ["ts", "js"],
-  setupFiles: ["dotenv/config", "@serh11p/jest-webextension-mock"],
-  setupFilesAfterEnv: ["./jest.setup.js"],
+  moduleFileExtensions: ['ts', 'js'],
+  setupFiles: ['dotenv/config', '@serh11p/jest-webextension-mock'],
+  setupFilesAfterEnv: ['./jest.setup.js']
 };

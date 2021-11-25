@@ -1,12 +1,12 @@
-import React, { FC, memo, useCallback, useMemo, useState } from "react";
+import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
-import classNames from "clsx";
-import { useForm } from "react-hook-form";
+import classNames from 'clsx';
+import { useForm } from 'react-hook-form';
 
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import { T } from "lib/i18n/react";
-import { useTempleClient } from "lib/temple/front";
+import FormField from 'app/atoms/FormField';
+import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { T } from 'lib/i18n/react';
+import { useTempleClient } from 'lib/temple/front';
 
 type VerifyProps = {
   data: {
@@ -18,7 +18,7 @@ type VerifyProps = {
 const WORDS_TO_FILL = 2;
 
 const range = (startAt = 0, size: number) => {
-  return [...Array(size).keys()].map((i) => i + startAt);
+  return [...Array(size).keys()].map(i => i + startAt);
 };
 
 const shuffle = (array: any[]) => {
@@ -41,20 +41,16 @@ const shuffle = (array: any[]) => {
 const Verify: FC<VerifyProps> = ({ data }) => {
   const { registerWallet } = useTempleClient();
 
-  const words = useMemo(() => data.mnemonic.split(" "), [data.mnemonic]);
+  const words = useMemo(() => data.mnemonic.split(' '), [data.mnemonic]);
   const wordsToCheckPositions = useMemo(() => {
     const shuffledPositions = shuffle(range(0, words.length));
     const selectedPositions: number[] = [];
     for (let i = 0; i < words.length; i++) {
       const newPosition = shuffledPositions[i];
       if (
-        selectedPositions.every((selectedPosition) => {
+        selectedPositions.every(selectedPosition => {
           const distance = Math.abs(selectedPosition - newPosition);
-          if (
-            [selectedPosition, newPosition].some((position) =>
-              [0, words.length - 1].some((edge) => edge === position)
-            )
-          ) {
+          if ([selectedPosition, newPosition].some(position => [0, words.length - 1].some(edge => edge === position))) {
             return distance > 2;
           }
 
@@ -75,11 +71,11 @@ const Verify: FC<VerifyProps> = ({ data }) => {
 
   const handleFill = useCallback(
     (index: number, filled: boolean) => {
-      setFilledIndexes((fi) => {
+      setFilledIndexes(fi => {
         if (filled) {
           return fi.includes(index) ? fi : [...fi, index];
         } else {
-          return fi.filter((i) => i !== index);
+          return fi.filter(i => i !== index);
         }
       });
     },
@@ -87,7 +83,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
   );
 
   const filled = useMemo(
-    () => wordsToCheckPositions.every((i) => filledIndexes.includes(i)),
+    () => wordsToCheckPositions.every(i => filledIndexes.includes(i)),
     [wordsToCheckPositions, filledIndexes]
   );
 
@@ -104,23 +100,12 @@ const Verify: FC<VerifyProps> = ({ data }) => {
 
       alert(err.message);
     }
-  }, [
-    filled,
-    submitting,
-    registerWallet,
-    data.password,
-    data.mnemonic]);
+  }, [filled, submitting, registerWallet, data.password, data.mnemonic]);
 
   return (
     <div className="w-full max-w-md mx-auto my-8">
       <form className="w-full mt-8" onSubmit={handleSubmit(onSubmit)}>
-        <h3
-          className={classNames(
-            "mt-2 mb-8",
-            "text-gray-600 text-xl font-light",
-            "text-center"
-          )}
-        >
+        <h3 className={classNames('mt-2 mb-8', 'text-gray-600 text-xl font-light', 'text-center')}>
           <T id="verifySeedPhraseDescription" />
         </h3>
 
@@ -130,7 +115,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
               key={i}
               allWords={words}
               indexToFill={indexToFill}
-              onFill={(filled) => handleFill(indexToFill, filled)}
+              onFill={filled => handleFill(indexToFill, filled)}
             />
           ))}
         </div>
@@ -152,18 +137,12 @@ type WordsRowProps = {
 };
 
 const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
-  const nearIndexes = useMemo(
-    () => getTwoNearIndexes(indexToFill, allWords.length),
-    [indexToFill, allWords.length]
-  );
-  const indexes = useMemo(
-    () => sortNumbers([indexToFill, ...nearIndexes]),
-    [indexToFill, nearIndexes]
-  );
-  const [fillValue, setFillValue] = useState("");
+  const nearIndexes = useMemo(() => getTwoNearIndexes(indexToFill, allWords.length), [indexToFill, allWords.length]);
+  const indexes = useMemo(() => sortNumbers([indexToFill, ...nearIndexes]), [indexToFill, nearIndexes]);
+  const [fillValue, setFillValue] = useState('');
 
   const handleChange = useCallback(
-    (evt) => {
+    evt => {
       const { value } = evt.target;
       setFillValue(value);
       onFill(value === allWords[indexToFill]);
@@ -172,8 +151,8 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
   );
 
   return (
-    <div className={classNames("mb-6", "-mx-2", "flex items-stretch")}>
-      {indexes.map((i) => {
+    <div className={classNames('mb-6', '-mx-2', 'flex items-stretch')}>
+      {indexes.map(i => {
         const toFill = i === indexToFill;
 
         return (
@@ -183,11 +162,11 @@ const WordsRow = memo<WordsRowProps>(({ allWords, indexToFill, onFill }) => {
               {...(toFill
                 ? {
                     value: fillValue,
-                    onChange: handleChange,
+                    onChange: handleChange
                   }
                 : {
                     disabled: true,
-                    defaultValue: allWords[i],
+                    defaultValue: allWords[i]
                   })}
             />
           </div>

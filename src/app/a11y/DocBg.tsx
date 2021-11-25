@@ -1,4 +1,4 @@
-import { FC, useLayoutEffect } from "react";
+import { FC, useLayoutEffect } from 'react';
 
 type DocBgProps = {
   bgClassName: string;
@@ -9,8 +9,8 @@ const doc = document.documentElement;
 const DocBg: FC<DocBgProps> = ({ bgClassName }) => {
   useLayoutEffect(() => {
     const toReturn: string[] = [];
-    doc.classList.forEach((token) => {
-      if (token.startsWith("bg-")) {
+    doc.classList.forEach(token => {
+      if (token.startsWith('bg-')) {
         toReturn.push(token);
       }
     });

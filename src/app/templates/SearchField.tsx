@@ -1,9 +1,9 @@
-import React, { FC, InputHTMLAttributes, useCallback } from "react";
+import React, { FC, InputHTMLAttributes, useCallback } from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
-import CleanButton from "app/atoms/CleanButton";
-import { ReactComponent as SearchIcon } from "app/icons/search.svg";
+import CleanButton from 'app/atoms/CleanButton';
+import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 
 type SearchFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   bottomOffset?: string;
@@ -17,7 +17,7 @@ type SearchFieldProps = InputHTMLAttributes<HTMLInputElement> & {
 };
 
 const SearchField: FC<SearchFieldProps> = ({
-  bottomOffset = "0.45rem",
+  bottomOffset = '0.45rem',
   className,
   containerClassName,
   value,
@@ -29,22 +29,22 @@ const SearchField: FC<SearchFieldProps> = ({
   ...rest
 }) => {
   const handleChange = useCallback(
-    (evt) => {
+    evt => {
       onValueChange(evt.target.value);
     },
     [onValueChange]
   );
 
   const handleClean = useCallback(() => {
-    onValueChange("");
+    onValueChange('');
   }, [onValueChange]);
 
   return (
-    <div className={classNames("w-full flex flex-col", containerClassName)}>
-      <div className={classNames("relative", "flex items-stretch")}>
+    <div className={classNames('w-full flex flex-col', containerClassName)}>
+      <div className={classNames('relative', 'flex items-stretch')}>
         <input
           type="text"
-          className={classNames("appearance-none w-full", className)}
+          className={classNames('appearance-none w-full', className)}
           value={value}
           spellCheck={false}
           autoComplete="off"
@@ -52,16 +52,8 @@ const SearchField: FC<SearchFieldProps> = ({
           {...rest}
         />
 
-        <div
-          className={classNames(
-            "absolute left-0 top-0 bottom-0",
-            "flex items-center",
-            searchIconWrapperClassName
-          )}
-        >
-          <SearchIcon
-            className={classNames("stroke-current", searchIconClassName)}
-          />
+        <div className={classNames('absolute left-0 top-0 bottom-0', 'flex items-center', searchIconWrapperClassName)}>
+          <SearchIcon className={classNames('stroke-current', searchIconClassName)} />
         </div>
 
         {Boolean(value) && (

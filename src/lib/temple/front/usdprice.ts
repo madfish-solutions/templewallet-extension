@@ -1,10 +1,10 @@
-import { useMemo } from "react";
+import { useMemo } from 'react';
 
-import constate from "constate";
+import constate from 'constate';
 
-import { useRetryableSWR } from "lib/swr";
-import { toTokenSlug } from "lib/temple/front";
-import { getTokensExchangeRates } from "lib/templewallet-api";
+import { useRetryableSWR } from 'lib/swr';
+import { toTokenSlug } from 'lib/temple/front';
+import { getTokensExchangeRates } from 'lib/templewallet-api';
 
 export function useAssetUSDPrice(slug: string) {
   const prices = useUSDPrices();
@@ -15,16 +15,14 @@ export function useAssetUSDPrice(slug: string) {
   }, [slug, prices]);
 }
 
-export const [USDPriceProvider, useUSDPrices] = constate(
-  (params: { suspense?: boolean }) => {
-    const { data } = useRetryableSWR("usd-prices", fetchUSDPrices, {
-      refreshInterval: 5 * 60 * 1_000,
-      dedupingInterval: 30_000,
-      suspense: params.suspense,
-    });
-    return data ?? {};
-  }
-);
+export const [USDPriceProvider, useUSDPrices] = constate((params: { suspense?: boolean }) => {
+  const { data } = useRetryableSWR('usd-prices', fetchUSDPrices, {
+    refreshInterval: 5 * 60 * 1_000,
+    dedupingInterval: 30_000,
+    suspense: params.suspense
+  });
+  return data ?? {};
+});
 
 async function fetchUSDPrices() {
   const prices: Record<string, string> = {};
