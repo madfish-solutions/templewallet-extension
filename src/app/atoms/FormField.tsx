@@ -82,8 +82,9 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
-    const [passwordInputType, togglePasswordIcon] = usePasswordToggle();
-    const isPasswordType = type === 'password' ? passwordInputType : type;
+    const [passwordInputType, TogglePasswordIcon] = usePasswordToggle();
+    const isPasswordInput = type === 'password';
+    const inputType = isPasswordInput ? passwordInputType : type;
 
     const { copy } = useCopyToClipboard();
 
@@ -213,6 +214,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
               className
             )}
             id={id}
+            type={inputType}
             value={value}
             defaultValue={defaultValue}
             spellCheck={spellCheck}
@@ -220,11 +222,10 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            type={isPasswordType}
             {...rest}
           />
 
-          {localValue !== '' && isPasswordType === passwordInputType && togglePasswordIcon}
+          {localValue !== '' && isPasswordInput && TogglePasswordIcon}
 
           {extraInner &&
             (useDefaultInnerWrapper ? (
