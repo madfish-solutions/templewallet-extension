@@ -11,6 +11,8 @@ interface Props {
   onPress?: () => void;
   label: string;
   type?: string;
+  short?: boolean;
+  className?: string;
 }
 
 const customLogoCurrencyList = [
@@ -23,7 +25,12 @@ const customLogoCurrencyList = [
 ];
 
 const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
-  ({ onPress, label, type }, ref) => {
+  ({ onPress, label, type, short = false, className }, ref) => {
+    const compoundClassName = classNames(
+      styles["currencySelector"],
+      "cursor-pointer",
+      className
+    );
     return (
       <div
         style={
@@ -33,7 +40,7 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
         }
         onClick={onPress}
         ref={ref}
-        className={classNames(styles["currencySelector"], "cursor-pointer")}
+        className={compoundClassName}
       >
         {type === "tezosSelector" ? (
           <AssetIcon assetSlug="tez" size={32} />
@@ -64,7 +71,9 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
             )}
           </>
         )}
-        <p className={styles["currencyName"]}>{label}</p>
+        <p className={styles["currencyName"]}>
+          {short && label.length > 4 ? `${label.substr(0, 3)}…` : label}
+        </p>
         {type === "currencySelector" && (
           <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
         )}
