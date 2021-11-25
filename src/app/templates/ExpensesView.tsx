@@ -42,6 +42,9 @@ export interface ModifyFeeAndLimit {
   onStorageLimitChange: (storageLimit: number) => void;
 }
 
+const MIN_GAS_FEE = 0.000001;
+const MAX_GAS_FEE = 1000;
+
 const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit }) => {
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
@@ -115,8 +118,8 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
                           onChange={val => {
                             onChange?.(tzToMutez(val ?? defaultGasFee).toNumber());
                           }}
-                          min={0}
-                          max={1000}
+                          min={MIN_GAS_FEE}
+                          max={MAX_GAS_FEE}
                           placeholder={defaultGasFee.toFixed()}
                           className={classNames(
                             'mr-1',
