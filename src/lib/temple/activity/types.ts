@@ -4,7 +4,7 @@ export enum OpStackItemType {
   Delegation,
   Interaction,
   Origination,
-  Other,
+  Other
 }
 
 export type OpStackItem =

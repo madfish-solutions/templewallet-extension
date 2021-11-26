@@ -1,7 +1,7 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState } from 'react';
 
-import { formatImgUri, sanitizeImgUri } from "lib/image-uri";
-import { AssetMetadata } from "lib/temple/metadata/types";
+import { formatImgUri, sanitizeImgUri } from 'lib/image-uri';
+import { AssetMetadata } from 'lib/temple/metadata/types';
 
 interface Props {
   collectibleMetadata: AssetMetadata;
@@ -9,28 +9,18 @@ interface Props {
   className?: string;
 }
 
-const CollectibleImage: FC<Props> = ({
-  collectibleMetadata,
-  Placeholder,
-  className,
-}) => {
+const CollectibleImage: FC<Props> = ({ collectibleMetadata, Placeholder, className }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   return (
     <>
       <img
         onLoad={() => setIsLoaded(true)}
         alt={collectibleMetadata.name}
-        style={!isLoaded ? { display: "none" } : {}}
+        style={!isLoaded ? { display: 'none' } : {}}
         className={className}
-        src={sanitizeImgUri(
-          formatImgUri(
-            collectibleMetadata.displayUri || collectibleMetadata.artifactUri!
-          ),
-          512,
-          512
-        )}
+        src={sanitizeImgUri(formatImgUri(collectibleMetadata.displayUri || collectibleMetadata.artifactUri!), 512, 512)}
       />
-      {!isLoaded && <Placeholder style={{ display: "inline" }} />}
+      {!isLoaded && <Placeholder style={{ display: 'inline' }} />}
     </>
   );
 };

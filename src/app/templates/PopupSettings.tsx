@@ -1,8 +1,8 @@
-import React, { FC, useCallback, useRef, useState } from "react";
+import React, { FC, useCallback, useRef, useState } from 'react';
 
-import FormCheckbox from "app/atoms/FormCheckbox";
-import { t, T } from "lib/i18n/react";
-import { isPopupModeEnabled, setPopupMode } from "lib/popup-mode";
+import FormCheckbox from 'app/atoms/FormCheckbox';
+import { t, T } from 'lib/i18n/react';
+import { isPopupModeEnabled, setPopupMode } from 'lib/popup-mode';
 
 const PopupSettings: FC<{}> = () => {
   const popupEnabled = isPopupModeEnabled();
@@ -10,7 +10,7 @@ const PopupSettings: FC<{}> = () => {
   const [error, setError] = useState<any>(null);
 
   const handlePopupModeChange = useCallback(
-    (evt) => {
+    evt => {
       if (changingRef.current) return;
       changingRef.current = true;
       setError(null);
@@ -24,18 +24,12 @@ const PopupSettings: FC<{}> = () => {
 
   return (
     <>
-      <label
-        className="mb-4 leading-tight flex flex-col"
-        htmlFor="popupEnabled"
-      >
+      <label className="mb-4 leading-tight flex flex-col" htmlFor="popupEnabled">
         <span className="text-base font-semibold text-gray-700">
           <T id="popupSettings" />
         </span>
 
-        <span
-          className="mt-1 text-xs font-light text-gray-600"
-          style={{ maxWidth: "90%" }}
-        >
+        <span className="mt-1 text-xs font-light text-gray-600" style={{ maxWidth: '90%' }}>
           <T id="popupSettingsDescription" />
         </span>
       </label>
@@ -44,7 +38,7 @@ const PopupSettings: FC<{}> = () => {
         checked={popupEnabled}
         onChange={handlePopupModeChange}
         name="popupEnabled"
-        label={t(popupEnabled ? "popupEnabled" : "popupDisabled")}
+        label={t(popupEnabled ? 'popupEnabled' : 'popupDisabled')}
         // labelDescription={t("enablePopup")}
         errorCaption={error?.message}
         containerClassName="mb-4"

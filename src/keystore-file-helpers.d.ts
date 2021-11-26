@@ -1,2 +1,2 @@
-declare module "node-forge";
-declare module "scryptsy";
+declare module 'node-forge';
+declare module 'scryptsy';

@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
-import { useAppEnv } from "app/env";
+import { useAppEnv } from 'app/env';
 
 type DAppIconProps = {
   name: string;
@@ -15,11 +15,11 @@ const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => {
   return (
     <div
       className={classNames(
-        "bg-white border border-gray-300 rounded-2xl flex justify-center items-center",
-        !popup && "w-20 h-20",
+        'bg-white border border-gray-300 rounded-2xl flex justify-center items-center',
+        !popup && 'w-20 h-20',
         className
       )}
-      style={popup ? { width: "4.5rem", height: "4.5rem" } : undefined}
+      style={popup ? { width: '4.5rem', height: '4.5rem' } : undefined}
     >
       {logo ? (
         <img className="rounded-2xl" alt={name} src={logo} />
