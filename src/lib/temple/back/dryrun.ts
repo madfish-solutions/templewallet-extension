@@ -1,13 +1,9 @@
-import { localForger } from "@taquito/local-forging";
-import { TezosToolkit } from "@taquito/taquito";
-import { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
+import { localForger } from '@taquito/local-forging';
+import { TezosToolkit } from '@taquito/taquito';
+import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
 
-import {
-  formatOpParamsBeforeSend,
-  michelEncoder,
-  loadFastRpcClient,
-} from "lib/temple/helpers";
-import { ReadOnlySigner } from "lib/temple/read-only-signer";
+import { formatOpParamsBeforeSend, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
+import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 
 export type DryRunParams = {
   opParams: any[];
@@ -16,17 +12,12 @@ export type DryRunParams = {
   sourcePublicKey: string;
 };
 
-export async function dryRunOpParams({
-  opParams,
-  networkRpc,
-  sourcePkh,
-  sourcePublicKey,
-}: DryRunParams) {
+export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePublicKey }: DryRunParams) {
   try {
     const tezos = new TezosToolkit(loadFastRpcClient(networkRpc));
 
     let bytesToSign: string | undefined;
-    const signer = new ReadOnlySigner(sourcePkh, sourcePublicKey, (digest) => {
+    const signer = new ReadOnlySigner(sourcePkh, sourcePublicKey, digest => {
       bytesToSign = digest;
     });
 
@@ -41,7 +32,7 @@ export async function dryRunOpParams({
           .batch(formated)
           .send()
           .catch(() => undefined),
-        tezos.estimate.batch(formated).catch(() => undefined),
+        tezos.estimate.batch(formated).catch(() => undefined)
       ]);
       estimates = result[1]?.map(
         (e, i) =>
@@ -51,12 +42,10 @@ export async function dryRunOpParams({
             consumedMilligas: e.consumedMilligas,
             gasLimit: e.gasLimit,
             minimalFeeMutez: e.minimalFeeMutez,
-            storageLimit: opParams[i]?.storageLimit
-              ? +opParams[i].storageLimit
-              : e.storageLimit,
+            storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
             suggestedFeeMutez: e.suggestedFeeMutez,
             totalCost: e.totalCost,
-            usingBaseFeeMutez: e.usingBaseFeeMutez,
+            usingBaseFeeMutez: e.usingBaseFeeMutez
           } as Estimate)
       );
     } catch {}
@@ -74,9 +63,9 @@ export async function dryRunOpParams({
             ...op,
             fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,
             gasLimit: op.gasLimit ?? estimates?.[eIndex].gasLimit,
-            storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit,
+            storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit
           };
-        }),
+        })
       };
     }
 
@@ -86,13 +75,9 @@ export async function dryRunOpParams({
   }
 }
 
-export function buildFinalOpParmas(
-  opParams: any[],
-  modifiedTotalFee?: number,
-  modifiedStorageLimit?: number
-) {
+export function buildFinalOpParmas(opParams: any[], modifiedTotalFee?: number, modifiedStorageLimit?: number) {
   if (modifiedTotalFee !== undefined) {
-    opParams = opParams.map((op) => ({ ...op, fee: 0 }));
+    opParams = opParams.map(op => ({ ...op, fee: 0 }));
     opParams[opParams.length - 1].fee = modifiedTotalFee;
   }
 

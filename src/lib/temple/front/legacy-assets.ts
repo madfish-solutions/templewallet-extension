@@ -1,7 +1,7 @@
-import { TezosToolkit } from "@taquito/taquito";
+import { TezosToolkit } from '@taquito/taquito';
 
-import { isFA2Token, isTezAsset, fromAssetSlug } from "lib/temple/assets";
-import { AssetMetadata } from "lib/temple/metadata";
+import { isFA2Token, isTezAsset, fromAssetSlug } from 'lib/temple/assets';
+import { AssetMetadata } from 'lib/temple/metadata';
 
 /**
  * @deprecated
@@ -17,9 +17,9 @@ export type TempleToken = TempleFA1_2Asset | TempleFA2Asset;
  * @deprecated
  */
 export enum TempleAssetType {
-  TEZ = "TEZ",
-  FA1_2 = "FA1_2",
-  FA2 = "FA2",
+  TEZ = 'TEZ',
+  FA1_2 = 'FA1_2',
+  FA2 = 'FA2'
 }
 
 export interface TempleAssetBase {
@@ -53,10 +53,10 @@ export interface TempleFA2Asset extends TempleTokenBase {
  */
 export const TEZ_ASSET: TempleAsset = {
   type: TempleAssetType.TEZ,
-  name: "Tezos",
-  symbol: "tez",
+  name: 'Tezos',
+  symbol: 'tez',
   decimals: 6,
-  fungible: true,
+  fungible: true
 };
 
 /**
@@ -72,7 +72,7 @@ export function assetsAreSame(aAsset: TempleAsset, bAsset: TempleAsset) {
 export function getAssetKey(asset: TempleAsset) {
   switch (asset.type) {
     case TempleAssetType.TEZ:
-      return "tez";
+      return 'tez';
 
     case TempleAssetType.FA2:
       return `${asset.address}_${asset.id}`;
@@ -85,11 +85,7 @@ export function getAssetKey(asset: TempleAsset) {
 /**
  * @deprecated
  */
-export async function toLegacyAsset(
-  tezos: TezosToolkit,
-  slug: string,
-  metadata: AssetMetadata
-): Promise<TempleAsset> {
+export async function toLegacyAsset(tezos: TezosToolkit, slug: string, metadata: AssetMetadata): Promise<TempleAsset> {
   const asset = await fromAssetSlug(tezos, slug);
 
   if (isTezAsset(asset)) return TEZ_ASSET;
@@ -98,7 +94,7 @@ export async function toLegacyAsset(
     decimals: metadata.decimals,
     symbol: metadata.symbol,
     name: metadata.name,
-    fungible: true,
+    fungible: true
   };
 
   return isFA2Token(asset)
@@ -106,12 +102,12 @@ export async function toLegacyAsset(
         type: TempleAssetType.FA2,
         address: asset.contract,
         id: +asset.id,
-        ...base,
+        ...base
       }
     : {
         type: TempleAssetType.FA1_2,
         address: asset.contract,
-        ...base,
+        ...base
       };
 }
 
@@ -121,7 +117,7 @@ export async function toLegacyAsset(
 export function toSlugFromLegacyAsset(asset: TempleAsset) {
   switch (asset.type) {
     case TempleAssetType.TEZ:
-      return "tez";
+      return 'tez';
 
     case TempleAssetType.FA1_2:
       return `${asset.address}_0`;

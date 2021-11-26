@@ -1,13 +1,16 @@
 .title {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-size: 17px;
   text-align: center;
   margin-top: 16px;
   color: #4a5568;
 }
+.selected {
+  font-weight: 600;
+}
 .description {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-size: 12px;
   text-align: center;
@@ -20,12 +23,12 @@
   justify-content: space-between;
 }
 .exchangeTitle {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
   color: #718096;
 }
 .exchangeData {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
   color: #718096;
 }
@@ -51,7 +54,7 @@
   align-items: baseline;
 }
 .titleLeft {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 19px;
   color: #1b262c;
 }
@@ -71,7 +74,7 @@
   margin-left: 5px;
 }
 .currencyName {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 17px;
   color: #4a5568;
   padding: 0 0 0 8px;
@@ -103,7 +106,7 @@
 }
 .amountInput {
   width: 100%;
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 23px;
   border-radius: 6px;
   text-align: right;
