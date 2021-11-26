@@ -1305,7 +1305,7 @@
     }
   },
   "ledgerNano": {
-    "message": "Hauptbuch Nano",
+    "message": "Ledger Nano",
     "description": "Ledger = https://www.ledger.com/"
   },
   "defaultLedgerName": {
@@ -1321,7 +1321,7 @@
     "message": "1-16 Zeichen, keine Sonderzeichen"
   },
   "ledgerNameInputDescription": {
-    "message": "Wie wird das neue Hauptbuch-Konto heißen?",
+    "message": "Wie wird das neue Ledger-Konto heißen?",
     "description": "Ledger = https://www.ledger.com/"
   },
   "defaultDerivationPathLabel": {
@@ -1336,7 +1336,7 @@
     "message": "Klicken Sie auf 'Benutzerdefinierter Ableitungspfad', um ihn anzupassen."
   },
   "addLedgerAccount": {
-    "message": "Hauptbuch-Konto hinzufügen",
+    "message": "Ledger-Konto hinzufügen",
     "description": "Ledger = https://www.ledger.com/"
   },
   "firefoxLedgerConnectionError": {
@@ -2045,7 +2045,7 @@
     "message": "Unbekanntes Konto"
   },
   "ledgerLiveBridgeGuide": {
-    "message": "Um eine Verbindung zum Hauptbuch herzustellen, aktivieren Sie bitte die Hauptbuch-Live-Anwendung auf Ihrem Gerät, öffnen Sie die Tezos Wallet-Anwendung und erlauben Sie eine WebSocket-Verbindung zu Ihrem Temple-Konto."
+    "message": "Um eine Verbindung zum Ledger herzustellen, aktivieren Sie bitte die Ledger-Live-Anwendung auf Ihrem Gerät, öffnen Sie die Tezos Wallet-Anwendung und erlauben Sie eine WebSocket-Verbindung zu Ihrem Temple-Konto."
   },
   "noExchangerFoundForToken": {
     "message": "Für Token $symbol$ ($name$) wurde kein Austauscher gefunden.",
