@@ -3,6 +3,7 @@ import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useStat
 import classNames from 'clsx';
 
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
+import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 
 type CheckboxProps = InputHTMLAttributes<HTMLInputElement> & {
   containerClassName?: string;
@@ -14,55 +15,18 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const [localChecked, setLocalChecked] = useState(() => checked ?? false);
 
     useEffect(() => {
-      setLocalChecked(localChecked => checked ?? localChecked);
+      setLocalChecked(prevChecked => checked ?? prevChecked);
     }, [setLocalChecked, checked]);
 
-    const handleChange = useCallback(
-      evt => {
-        if (onChange) {
-          onChange(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-
-        setLocalChecked(evt.target.checked);
-      },
-      [onChange, setLocalChecked]
-    );
+    const handleChange = useCallback(checkedHandler, [onChange, setLocalChecked]);
 
     /**
      * Focus handling
      */
     const [localFocused, setLocalFocused] = useState(false);
 
-    const handleFocus = useCallback(
-      evt => {
-        if (onFocus) {
-          onFocus(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-
-        setLocalFocused(true);
-      },
-      [onFocus, setLocalFocused]
-    );
-
-    const handleBlur = useCallback(
-      evt => {
-        if (onBlur) {
-          onBlur(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-
-        setLocalFocused(false);
-      },
-      [onBlur, setLocalFocused]
-    );
+    const handleFocus = useCallback(focusHandler, [onFocus, setLocalFocused]);
+    const handleBlur = useCallback(blurHandler, [onBlur, setLocalFocused]);
 
     return (
       <div
@@ -99,9 +63,9 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           type="checkbox"
           className={classNames('sr-only', className)}
           checked={localChecked}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          onChange={e => handleChange(e, onChange!, setLocalChecked)}
+          onFocus={e => handleFocus(e, onFocus!, setLocalFocused)}
+          onBlur={e => handleBlur(e, onBlur!, setLocalFocused)}
           {...rest}
         />
 

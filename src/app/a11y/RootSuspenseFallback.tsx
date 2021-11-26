@@ -19,7 +19,7 @@ const RootSuspenseFallback: FC = () => {
       const t = setTimeout(forceUpdate, DELAY - (Date.now() - startedAt));
       return () => clearTimeout(t);
     }
-    return;
+    return undefined;
   }, [forceUpdate]);
 
   const spinnerDisplayed = startedAt && Date.now() > startedAt + 1_000;
