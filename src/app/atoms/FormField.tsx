@@ -201,7 +201,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
               'appearance-none',
               'w-full',
               'py-3 pl-4',
-              extraInner ? 'pr-32' : 'pr-4',
+              extraInner ? 'pr-32' : isPasswordInput ? 'pr-12' : 'pr-4',
               'border-2',
               errorCaption ? 'border-red-500' : 'border-gray-300',
               'focus:border-primary-orange',
