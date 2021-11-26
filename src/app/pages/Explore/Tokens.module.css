@@ -4,11 +4,16 @@
   font-family: Inter;
   font-style: normal;
   font-weight: 500;
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 15px;
-  /* identical to box height */
-
-  /* Backgrounds/White */
-
   color: #ffffff;
+}
+
+.tokenSymbol {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 16px;
+  color: #1b262c;
 }
