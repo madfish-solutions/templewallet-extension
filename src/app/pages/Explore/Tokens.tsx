@@ -247,19 +247,20 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
   const renderBalance = useCallback(
     (balance: BigNumber) => (
       <div className="flex flex-col items-end">
-        <div className="text-base font-normal text-gray-700">
-          <Money>{balance}</Money>{' '}
+        <div className="text-base font-medium text-gray-700">
+          <Money smallFractionFont={false}>{balance}</Money>{' '}
         </div>
 
-        <div className={'flex'}>
+        <div className={'flex text-xs'}>
           {'≈ '}
-          <InUSD assetSlug={assetSlug} volume={balance}>
-            {usdBalance => <div className={classNames('ml-2', 'text-sm font-light text-gray-600')}>${usdBalance}</div>}
+          <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+            {usdBalance => <div className={classNames('ml-1', 'font-medium text-gray-700')}>{usdBalance}</div>}
           </InUSD>
+          <span className={'ml-1 font-light text-gray-600'}>$</span>
         </div>
       </div>
     ),
-    [assetSlug, metadata]
+    [assetSlug]
   );
 
   return (
@@ -279,17 +280,17 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
       testID={AssetsSelectors.AssetItemButton}
       testIDProperties={{ key: assetSlug }}
     >
-      <AssetIcon assetSlug={assetSlug} size={32} className="mr-2 flex-shrink-0" />
+      <AssetIcon assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
       <div ref={toDisplayRef} className="flex justify-between w-full">
         <div className="flex flex-col">
-          <div className={classNames('flex')}>
-            <div className={classNames('text-xs font-light text-gray-600')}>{getAssetSymbol(metadata)}</div>
+          <div className={classNames('flex items-center mb-1')}>
+            <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
             {assetSlug === 'tez' && (
               <div className={classNames('ml-1 px-2 py-1', styles['apyBadge'])}>{<T id="tezosApy" />}</div>
             )}
           </div>
-          <div className={classNames('text-xs font-light text-gray-600')}>{getAssetName(metadata)}</div>
+          <div className={classNames('text-xs font-normal text-gray-700')}>{getAssetName(metadata)}</div>
         </div>
         <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
           {renderBalance}
