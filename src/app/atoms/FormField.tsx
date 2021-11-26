@@ -18,6 +18,7 @@ import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { T } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
@@ -84,47 +85,10 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const [localValue, setLocalValue] = useState(value ?? defaultValue ?? '');
     const [focused, setFocused] = useState(false);
 
-    const handleChange = useCallback(
-      evt => {
-        if (onChange) {
-          onChange(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
+    const handleChange = useCallback(checkedHandler, [onChange, setLocalValue]);
 
-        setLocalValue(evt.target.value);
-      },
-      [onChange, setLocalValue]
-    );
-
-    const handleFocus = useCallback(
-      evt => {
-        if (onFocus) {
-          onFocus(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-
-        setFocused(true);
-      },
-      [onFocus, setFocused]
-    );
-
-    const handleBlur = useCallback(
-      evt => {
-        if (onBlur) {
-          onBlur(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-
-        setFocused(false);
-      },
-      [onBlur, setFocused]
-    );
+    const handleFocus = useCallback(focusHandler, [onFocus, setFocused]);
+    const handleBlur = useCallback(blurHandler, [onBlur, setFocused]);
 
     const getFieldEl = useCallback(() => {
       const selector = 'input, textarea';
@@ -133,19 +97,19 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 
     useEffect(() => {
       if (secret && focused) {
-        const handleBlur = () => {
+        const handleLocalBlur = () => {
           getFieldEl()?.blur();
         };
         const t = setTimeout(() => {
-          handleBlur();
+          handleLocalBlur();
         }, 30_000);
-        window.addEventListener('blur', handleBlur);
+        window.addEventListener('blur', handleLocalBlur);
         return () => {
           clearTimeout(t);
-          window.removeEventListener('blur', handleBlur);
+          window.removeEventListener('blur', handleLocalBlur);
         };
       }
-      return;
+      return undefined;
     }, [secret, focused, getFieldEl]);
 
     const secretBannerDisplayed = useMemo(
@@ -211,12 +175,13 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             defaultValue={defaultValue}
             spellCheck={spellCheck}
             autoComplete={autoComplete}
-            onChange={handleChange}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
+            onChange={e => handleChange(e, onChange!, setLocalValue)}
+            onFocus={e => handleFocus(e, onFocus!, setFocused)}
+            onBlur={e => handleBlur(e, onBlur!, setFocused)}
             {...rest}
           />
 
+          {/* <ExtraInner extraInner={extraInner} useDefaultInnerWrapper={useDefaultInnerWrapper} /> */}
           {extraInner &&
             (useDefaultInnerWrapper ? (
               <div
@@ -238,66 +203,124 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 
           {extraButton}
 
-          {secretBannerDisplayed && (
-            <div
-              className={classNames(
-                'absolute',
-                'bg-gray-200',
-                'rounded-md',
-                'flex flex-col items-center justify-center',
-                'cursor-text'
-              )}
-              style={{
-                top: 2,
-                right: 2,
-                bottom: 2,
-                left: 2
-              }}
-              onClick={handleSecretBannerClick}
-            >
-              <p
-                className={classNames(
-                  'mb-1',
-                  'flex items-center',
-                  'text-gray-600 text-lg font-semibold',
-                  'uppercase',
-                  'text-shadow-black'
-                )}
-              >
-                <LockAltIcon className={classNames('-ml-2 mr-1', 'h-6 w-auto', 'stroke-current stroke-2')} />
-                <T id="protectedFormField">{message => <span>{message}</span>}</T>
-              </p>
+          <SecretBanner
+            handleSecretBannerClick={handleSecretBannerClick}
+            secretBannerDisplayed={secretBannerDisplayed}
+          />
 
-              <p className={classNames('mb-1', 'flex items-center', 'text-gray-500 text-sm')}>
-                <T id="clickToRevealOrEditField">{message => <span>{message}</span>}</T>
-              </p>
-            </div>
-          )}
-
-          {cleanable && <CleanButton onClick={handleCleanClick} />}
-          {copyable && (
-            <CopyButton
-              style={{
-                position: 'absolute',
-                bottom: cleanable ? '3px' : '0px',
-                right: cleanable ? '30px' : '5px'
-              }}
-              text={value as string}
-              type="link"
-            >
-              <CopyIcon
-                style={{ verticalAlign: 'inherit' }}
-                className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
-                onClick={() => copy()}
-              />
-            </CopyButton>
-          )}
+          <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
+          <Copyable value={value} copy={copy} cleanable={cleanable} copyable={copyable} />
         </div>
-
-        {errorCaption ? <div className="text-xs text-red-500">{errorCaption}</div> : null}
+        <ErrorCaption errorCaption={errorCaption} />
       </div>
     );
   }
 );
+
+// interface ExtraInnerProps {
+//   extraInner?: {};
+//   useDefaultInnerWrapper: boolean;
+// }
+
+// const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, extraInner }) =>
+//   extraInner &&
+//   (useDefaultInnerWrapper ? (
+//     <div
+//       className={classNames(
+//         'overflow-hidden',
+//         'absolute inset-y-0 right-0 w-32',
+//         'flex items-center justify-end',
+//         'opacity-50',
+//         'pointer-events-none'
+//       )}
+//     >
+//       <span className="mx-4 text-lg font-light text-gray-900">{extraInner}</span>
+//     </div>
+//   ) : (
+//     extraInner
+//   ));
+
+interface SecretBannerProps {
+  handleSecretBannerClick: () => void;
+  secretBannerDisplayed: React.ReactNode;
+}
+
+const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, handleSecretBannerClick }) =>
+  secretBannerDisplayed ? (
+    <div
+      className={classNames(
+        'absolute',
+        'bg-gray-200',
+        'rounded-md',
+        'flex flex-col items-center justify-center',
+        'cursor-text'
+      )}
+      style={{
+        top: 2,
+        right: 2,
+        bottom: 2,
+        left: 2
+      }}
+      onClick={handleSecretBannerClick}
+    >
+      <p
+        className={classNames(
+          'mb-1',
+          'flex items-center',
+          'text-gray-600 text-lg font-semibold',
+          'uppercase',
+          'text-shadow-black'
+        )}
+      >
+        <LockAltIcon className={classNames('-ml-2 mr-1', 'h-6 w-auto', 'stroke-current stroke-2')} />
+        <T id="protectedFormField">{message => <span>{message}</span>}</T>
+      </p>
+
+      <p className={classNames('mb-1', 'flex items-center', 'text-gray-500 text-sm')}>
+        <T id="clickToRevealOrEditField">{message => <span>{message}</span>}</T>
+      </p>
+    </div>
+  ) : null;
+
+interface CleanableProps {
+  handleCleanClick: () => void;
+  cleanable: React.ReactNode;
+}
+
+const Cleanable: React.FC<CleanableProps> = ({ cleanable, handleCleanClick }) =>
+  cleanable ? <CleanButton onClick={handleCleanClick} /> : null;
+
+interface CopyableProps {
+  value: React.ReactNode;
+  copy: () => void;
+  cleanable: React.ReactNode;
+  copyable: React.ReactNode;
+}
+
+const Copyable: React.FC<CopyableProps> = ({ copy, cleanable, value, copyable }) =>
+  copyable ? (
+    <CopyButton
+      style={{
+        position: 'absolute',
+        bottom: cleanable ? '3px' : '0px',
+        right: cleanable ? '30px' : '5px'
+      }}
+      text={value as string}
+      type="link"
+    >
+      <CopyIcon
+        style={{ verticalAlign: 'inherit' }}
+        className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+        onClick={() => copy()}
+      />
+    </CopyButton>
+  ) : null;
+
+interface ErrorCaptionProps {
+  errorCaption: React.ReactNode;
+}
+
+const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) =>
+  errorCaption ? <div className="text-xs text-red-500">{errorCaption}</div> : null;
 
 export default FormField;
