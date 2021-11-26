@@ -24,7 +24,6 @@ const DisableOutlinesForClick: FC = () => {
     }
 
     function handleKeyDown(evt: KeyboardEvent) {
-      // replaced with .key instead of deprecated .which
       if (evt.key === TAB_KEY_CODE) {
         reset();
         container.addEventListener('mousedown', handleMouseDown);
