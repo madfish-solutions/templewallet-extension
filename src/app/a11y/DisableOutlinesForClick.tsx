@@ -10,8 +10,6 @@ const CLASS_NAME = styles['focus-disabled'];
  * to the container element when entering "mouse mode" (on a `mousedown` event)
  * and remove it when entering "keyboard mode" (on a `tab` key `keydown` event)
  */
-
-// update for restart pipeline
 const DisableOutlinesForClick: FC = () => {
   useEffect(() => {
     const container = document.documentElement;
