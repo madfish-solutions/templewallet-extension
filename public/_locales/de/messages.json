@@ -512,7 +512,7 @@
     }
   },
   "ledger": {
-    "message": "Hauptbuch",
+    "message": "Ledger",
     "description": "Ledger = https://www.ledger.com/"
   },
   "retry": {
@@ -757,7 +757,7 @@
     "message": "Wallet mit Seed-Phrase importieren"
   },
   "connectLedger": {
-    "message": "Hauptbuch verbinden",
+    "message": "Ledger verbinden",
     "description": "Ledger = https://www.ledger.com/"
   },
   "importExistingWallet": {
