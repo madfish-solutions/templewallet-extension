@@ -27,15 +27,15 @@ const CollectiblesList = () => {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const assetSlugs = useMemo(() => {
-    const assetSlugs = [];
+    const slugs = [];
 
     for (const { tokenSlug } of collectibles) {
       if (tokenSlug in allTokensBaseMetadata) {
-        assetSlugs.push(tokenSlug);
+        slugs.push(tokenSlug);
       }
     }
 
-    return assetSlugs;
+    return slugs;
   }, [collectibles, allTokensBaseMetadata]);
 
   const [searchValue, setSearchValue] = useState('');

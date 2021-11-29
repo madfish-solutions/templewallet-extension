@@ -28,7 +28,7 @@ export enum ExchangeDataStatusEnum {
   OVERDUE = 'overdue'
 }
 
-interface CurrenciesInterface {
+export interface CurrenciesInterface {
   status: number;
   label: string;
   code: string;
