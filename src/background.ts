@@ -3,13 +3,7 @@ import { browser } from 'webextension-polyfill-ts';
 import { lock } from 'lib/temple/back/actions';
 import { start } from 'lib/temple/back/main';
 
-browser.runtime.onInstalled.addListener(({ reason }) => {
-  switch (reason) {
-    case 'install':
-      openFullPage();
-      break;
-  }
-});
+browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));
 
 start();
 
