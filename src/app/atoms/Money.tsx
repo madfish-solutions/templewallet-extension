@@ -18,7 +18,7 @@ type MoneyProps = {
   tooltip?: boolean;
 };
 
-const DEFAULT_CRYPTO_DECIMALS = 6;
+const DEFAULT_CRYPTO_DECIMALS = 8;
 const ENOUGH_INT_LENGTH = 4;
 
 const Money = memo<MoneyProps>(
@@ -69,7 +69,6 @@ const Money = memo<MoneyProps>(
             {result.slice(0, indexOfDecimal + 1)}
             <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
               {result.slice(indexOfDecimal + 1, result.length)}
-              {cryptoDecimals >= 2 && <span className="opacity-75 tracking-tighter">...</span>}
             </span>
           </FullAmountTippy>
         );

@@ -247,16 +247,14 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
   const renderBalance = useCallback(
     (balance: BigNumber) => (
       <div className="flex flex-col items-end">
-        <div className="text-base font-medium text-gray-700">
-          <Money smallFractionFont={false}>{balance}</Money>{' '}
+        <div className="text-base font-medium text-gray-800">
+          <Money smallFractionFont={false}>{balance}</Money> <span>{getAssetSymbol(metadata)}</span>
         </div>
 
         <div className={'flex text-xs'}>
-          {'≈ '}
           <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
-            {usdBalance => <div className={classNames('ml-1', 'font-medium text-gray-700')}>{usdBalance}</div>}
+            {usdBalance => <div className={classNames('ml-1', 'font-normal text-gray-500')}>≈ {usdBalance} $</div>}
           </InUSD>
-          <span className={'ml-1 font-light text-gray-600'}>$</span>
         </div>
       </div>
     ),
