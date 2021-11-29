@@ -264,6 +264,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                 <OperationsBanner
                   opParams={payload.rawToSign ?? payload.opParams}
                   jsonViewStyle={signPayloadFormats.length > 1 ? { height: '11rem' } : undefined}
+                  modifiedTotalFeeValue={modifiedTotalFeeValue}
                 />
               )}
 

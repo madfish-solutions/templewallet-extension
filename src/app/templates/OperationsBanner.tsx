@@ -7,60 +7,88 @@ import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { T } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
+type contentsItem = {
+  kind: string;
+  source: string;
+  fee: string;
+  counter: string;
+  gas_limit: string;
+  storage_limit: string;
+  amount: string;
+  destination: string;
+};
+
 type OperationsBannerProps = {
   jsonViewStyle?: CSSProperties;
-  opParams: any[] | { branch: string; contents: any[] } | string;
+  opParams: any[] | { branch: string; contents: contentsItem[] } | string;
+  modifiedTotalFeeValue?: number;
   label?: ReactNode;
   className?: string;
 };
 
-const OperationsBanner = memo<OperationsBannerProps>(({ jsonViewStyle, opParams, label, className }) => {
-  opParams = typeof opParams === 'string' ? opParams : formatOpParams(opParams);
+const OperationsBanner = memo<OperationsBannerProps>(
+  ({ jsonViewStyle, opParams, modifiedTotalFeeValue, label, className }) => {
+    opParams = typeof opParams === 'string' ? opParams : formatOpParams(opParams);
 
-  return (
-    <>
-      {label && (
-        <h2 className={classNames('w-full mb-2', 'text-base font-semibold leading-tight', 'text-gray-700')}>{label}</h2>
-      )}
+    if (typeof opParams === 'object' && !(opParams instanceof window.Array)) {
+      opParams = {
+        ...opParams,
+        contents: [
+          {
+            ...opParams.contents[0],
+            fee: JSON.stringify(modifiedTotalFeeValue)
+          }
+        ]
+      };
+    }
 
-      <div className={classNames('relative mb-2', className)}>
-        <div
-          className={classNames(
-            'block w-full max-w-full p-1',
-            'rounded-md',
-            'border-2 bg-gray-100 bg-opacity-50',
-            'text-xs leading-tight font-medium',
-            typeof opParams === 'string' ? 'break-all' : 'whitespace-no-wrap overflow-auto'
-          )}
-          style={{
-            height: '10rem',
-            ...jsonViewStyle
-          }}
-        >
-          {typeof opParams === 'string' ? (
-            <div className={classNames('p-1', 'text-lg text-gray-700 font-normal')}>{opParams}</div>
-          ) : (
-            <ReactJson
-              src={opParams}
-              name={null}
-              iconStyle="square"
-              indentWidth={4}
-              collapsed={Array.isArray(opParams) ? 2 : 3}
-              collapseStringsAfterLength={36}
-              enableClipboard={false}
-              displayObjectSize={false}
-              displayDataTypes={false}
-            />
-          )}
+    return (
+      <>
+        {label && (
+          <h2 className={classNames('w-full mb-2', 'text-base font-semibold leading-tight', 'text-gray-700')}>
+            {label}
+          </h2>
+        )}
+
+        <div className={classNames('relative mb-2', className)}>
+          <div
+            className={classNames(
+              'block w-full max-w-full p-1',
+              'rounded-md',
+              'border-2 bg-gray-100 bg-opacity-50',
+              'text-xs leading-tight font-medium',
+              typeof opParams === 'string' ? 'break-all' : 'whitespace-no-wrap overflow-auto'
+            )}
+            style={{
+              height: '10rem',
+              ...jsonViewStyle
+            }}
+          >
+            {typeof opParams === 'string' ? (
+              <div className={classNames('p-1', 'text-lg text-gray-700 font-normal')}>{opParams}</div>
+            ) : (
+              <ReactJson
+                src={opParams}
+                name={null}
+                iconStyle="square"
+                indentWidth={4}
+                collapsed={Array.isArray(opParams) ? 2 : 3}
+                collapseStringsAfterLength={36}
+                enableClipboard={false}
+                displayObjectSize={false}
+                displayDataTypes={false}
+              />
+            )}
+          </div>
+
+          <div className={classNames('absolute top-0 right-0 pt-2 pr-2')}>
+            <CopyButton toCopy={opParams} />
+          </div>
         </div>
-
-        <div className={classNames('absolute top-0 right-0 pt-2 pr-2')}>
-          <CopyButton toCopy={opParams} />
-        </div>
-      </div>
-    </>
-  );
-});
+      </>
+    );
+  }
+);
 
 export default OperationsBanner;
 
