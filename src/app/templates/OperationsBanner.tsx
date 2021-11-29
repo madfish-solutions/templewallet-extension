@@ -7,7 +7,7 @@ import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { T } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-type contentsItem = {
+type ContentsItem = {
   kind: string;
   source: string;
   fee: string;
@@ -20,26 +20,25 @@ type contentsItem = {
 
 type OperationsBannerProps = {
   jsonViewStyle?: CSSProperties;
-  opParams: any[] | { branch: string; contents: contentsItem[] } | string;
-  modifiedTotalFeeValue?: number;
+  opParams: any[] | { branch: string; contents: ContentsItem[] } | string;
+  modifiedTotalFee?: number;
+  modifiedStorageLimit?: number;
   label?: ReactNode;
   className?: string;
 };
 
 const OperationsBanner = memo<OperationsBannerProps>(
-  ({ jsonViewStyle, opParams, modifiedTotalFeeValue, label, className }) => {
+  ({ jsonViewStyle, opParams, modifiedTotalFee, modifiedStorageLimit, label, className }) => {
     opParams = typeof opParams === 'string' ? opParams : formatOpParams(opParams);
 
-    if (typeof opParams === 'object' && !(opParams instanceof window.Array)) {
-      opParams = {
-        ...opParams,
-        contents: [
-          {
-            ...opParams.contents[0],
-            fee: JSON.stringify(modifiedTotalFeeValue)
-          }
-        ]
-      };
+    if (typeof opParams === 'object' && !Array.isArray(opParams)) {
+      if (modifiedTotalFee !== undefined) {
+        opParams.contents[0].fee = JSON.stringify(modifiedTotalFee);
+      }
+
+      if (modifiedStorageLimit !== undefined && opParams.contents.length < 2) {
+        opParams.contents[0].storage_limit = JSON.stringify(modifiedStorageLimit);
+      }
     }
 
     return (
