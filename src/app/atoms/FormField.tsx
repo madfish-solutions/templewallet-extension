@@ -175,9 +175,9 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             defaultValue={defaultValue}
             spellCheck={spellCheck}
             autoComplete={autoComplete}
-            onChange={e => handleChange(e, onChange!, setLocalValue)}
-            onFocus={e => handleFocus(e, onFocus!, setFocused)}
-            onBlur={e => handleBlur(e, onBlur!, setFocused)}
+            onChange={(e: any) => handleChange(e, onChange!, setLocalValue)}
+            onFocus={(e: any) => handleFocus(e, onFocus!, setFocused)}
+            onBlur={(e: any) => handleBlur(e, onBlur!, setFocused)}
             {...rest}
           />
 
