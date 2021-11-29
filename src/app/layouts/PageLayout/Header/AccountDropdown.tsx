@@ -46,7 +46,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
     } else {
       const lowerCaseSearchValue = searchValue.toLowerCase();
 
-      return allAccounts.filter(account => account.name.toLowerCase().includes(lowerCaseSearchValue));
+      return allAccounts.filter(currentAccount => currentAccount.name.toLowerCase().includes(lowerCaseSearchValue));
     }
   }, [searchValue, allAccounts]);
 
