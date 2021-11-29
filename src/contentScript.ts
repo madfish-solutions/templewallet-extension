@@ -46,72 +46,82 @@ window.addEventListener(
     if (evt.source !== window) return;
 
     const legacyRequest = evt.data?.type === LegacyPageMessageType.Request;
+    const isTempleRequest = evt.data?.type === TemplePageMessageType.Request || legacyRequest;
+    const isBeaconRequest =
+      evt.data?.target === BeaconMessageTarget.Extension && (evt.data?.targetId === SENDER.id || !evt.data?.targetId);
 
-    if (evt.data?.type === TemplePageMessageType.Request || legacyRequest) {
-      const { payload, reqId } = evt.data as TemplePageMessage;
-
-      getIntercom()
-        .request({
-          type: TempleMessageType.PageRequest,
-          origin: evt.origin,
-          payload
-        })
-        .then((res: TempleResponse) => {
-          if (res?.type === TempleMessageType.PageResponse) {
-            send(
-              {
-                type: legacyRequest ? LegacyPageMessageType.Response : TemplePageMessageType.Response,
-                payload: res.payload,
-                reqId
-              },
-              evt.origin
-            );
-          }
-        })
-        .catch(err => {
-          send(
-            {
-              type: legacyRequest ? LegacyPageMessageType.ErrorResponse : TemplePageMessageType.ErrorResponse,
-              payload: serealizeError(err),
-              reqId
-            },
-            evt.origin
-          );
-        });
-    } else if (
-      evt.data?.target === BeaconMessageTarget.Extension &&
-      (evt.data?.targetId === SENDER.id || !evt.data?.targetId)
-    ) {
-      getIntercom()
-        .request({
-          type: TempleMessageType.PageRequest,
-          origin: evt.origin,
-          payload: evt.data.encryptedPayload ?? evt.data.payload,
-          beacon: true,
-          encrypted: Boolean(evt.data.encryptedPayload)
-        })
-        .then((res: TempleResponse) => {
-          if (res?.type === TempleMessageType.PageResponse && res.payload) {
-            const message = {
-              target: BeaconMessageTarget.Page,
-              ...(res.encrypted ? { encryptedPayload: res.payload } : { payload: res.payload })
-            };
-            send(
-              res.payload === 'pong'
-                ? { ...message, sender: SENDER }
-                : {
-                    message,
-                    sender: { id: SENDER.id }
-                  },
-              evt.origin
-            );
-          }
-        })
-        .catch(err => console.error(err));
+    if (isTempleRequest) {
+      templeRequest(evt, legacyRequest);
+    } else if (isBeaconRequest) {
+      beaconRequest(evt);
+    } else {
+      return;
     }
   },
   false
 );
+
+function templeRequest(evt: MessageEvent, isLegacyRequest: boolean) {
+  const { payload, reqId } = evt.data as TemplePageMessage;
+
+  getIntercom()
+    .request({
+      type: TempleMessageType.PageRequest,
+      origin: evt.origin,
+      payload
+    })
+    .then((res: TempleResponse) => {
+      if (res?.type === TempleMessageType.PageResponse) {
+        send(
+          {
+            type: isLegacyRequest ? LegacyPageMessageType.Response : TemplePageMessageType.Response,
+            payload: res.payload,
+            reqId
+          },
+          evt.origin
+        );
+      }
+    })
+    .catch(err => {
+      send(
+        {
+          type: isLegacyRequest ? LegacyPageMessageType.ErrorResponse : TemplePageMessageType.ErrorResponse,
+          payload: serealizeError(err),
+          reqId
+        },
+        evt.origin
+      );
+    });
+}
+
+function beaconRequest(evt: MessageEvent) {
+  getIntercom()
+    .request({
+      type: TempleMessageType.PageRequest,
+      origin: evt.origin,
+      payload: evt.data.encryptedPayload ?? evt.data.payload,
+      beacon: true,
+      encrypted: Boolean(evt.data.encryptedPayload)
+    })
+    .then((res: TempleResponse) => {
+      if (res?.type === TempleMessageType.PageResponse && res.payload) {
+        const message = {
+          target: BeaconMessageTarget.Page,
+          ...(res.encrypted ? { encryptedPayload: res.payload } : { payload: res.payload })
+        };
+        send(
+          res.payload === 'pong'
+            ? { ...message, sender: SENDER }
+            : {
+                message,
+                sender: { id: SENDER.id }
+              },
+          evt.origin
+        );
+      }
+    })
+    .catch(err => console.error(err));
+}
 
 function send(msg: TemplePageMessage | LegacyPageMessage | BeaconPageMessage, targetOrigin: string) {
   if (!targetOrigin || targetOrigin === '*') return;
