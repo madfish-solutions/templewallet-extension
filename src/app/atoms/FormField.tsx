@@ -19,6 +19,8 @@ import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { T } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
+import usePasswordToggle from './usePasswordToggle.hook';
+
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
 interface FormFieldProps extends FormFieldAttrs {
@@ -60,6 +62,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       dropdownInner = null,
       useDefaultInnerWrapper = true,
       id,
+      type,
       value,
       defaultValue,
       onChange,
@@ -78,6 +81,10 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
   ) => {
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
+
+    const [passwordInputType, TogglePasswordIcon] = usePasswordToggle();
+    const isPasswordInput = type === 'password';
+    const inputType = isPasswordInput ? passwordInputType : type;
 
     const { copy } = useCopyToClipboard();
 
@@ -194,7 +201,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
               'appearance-none',
               'w-full',
               'py-3 pl-4',
-              extraInner ? 'pr-32' : 'pr-4',
+              extraInner ? 'pr-32' : isPasswordInput ? 'pr-12' : 'pr-4',
               'border-2',
               errorCaption ? 'border-red-500' : 'border-gray-300',
               'focus:border-primary-orange',
@@ -207,6 +214,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
               className
             )}
             id={id}
+            type={inputType}
             value={value}
             defaultValue={defaultValue}
             spellCheck={spellCheck}
@@ -216,6 +224,8 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             onBlur={handleBlur}
             {...rest}
           />
+
+          {localValue !== '' && isPasswordInput && TogglePasswordIcon}
 
           {extraInner &&
             (useDefaultInnerWrapper ? (
