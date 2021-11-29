@@ -136,12 +136,13 @@ const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
     <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
       {balance => (
         <div className="flex flex-col items-start">
-          <span className="text-xl text-gray-700">
-            <Money>{balance}</Money> <span style={{ fontSize: '0.75em' }}>{getAssetSymbol(metadata)}</span>
+          <span className="text-xl text-gray-800">
+            <Money smallFractionFont={false}>{balance}</Money>{' '}
+            <span style={{ fontSize: '0.75em' }}>{getAssetSymbol(metadata)}</span>
           </span>
 
-          <InUSD assetSlug={assetSlug} volume={balance}>
-            {usdBalance => <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>}
+          <InUSD smallFractionFont={false} assetSlug={assetSlug} volume={balance}>
+            {usdBalance => <div className="mt-1 text-sm text-gray-500">≈ {usdBalance} $</div>}
           </InUSD>
         </div>
       )}
