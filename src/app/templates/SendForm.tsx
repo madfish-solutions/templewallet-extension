@@ -78,7 +78,7 @@ interface FormData {
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
-const ADDITIONAL_TEMPLE_GAS_FEE = 69;
+export const ADDITIONAL_TEMPLE_GAS_FEE = 69;
 
 type SendFormProps = {
   assetSlug?: string | null;

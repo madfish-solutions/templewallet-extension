@@ -35,8 +35,7 @@ import {
 import useSafeState from 'lib/ui/useSafeState';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
-
-const ADDITIONAL_TEMPLE_GAS_FEE = 69;
+import { ADDITIONAL_TEMPLE_GAS_FEE } from './SendForm';
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
