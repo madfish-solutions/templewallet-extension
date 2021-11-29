@@ -181,23 +181,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             {...rest}
           />
 
-          {/* <ExtraInner extraInner={extraInner} useDefaultInnerWrapper={useDefaultInnerWrapper} /> */}
-          {extraInner &&
-            (useDefaultInnerWrapper ? (
-              <div
-                className={classNames(
-                  'overflow-hidden',
-                  'absolute inset-y-0 right-0 w-32',
-                  'flex items-center justify-end',
-                  'opacity-50',
-                  'pointer-events-none'
-                )}
-              >
-                <span className="mx-4 text-lg font-light text-gray-900">{extraInner}</span>
-              </div>
-            ) : (
-              extraInner
-            ))}
+          <ExtraInner extraInner={extraInner} useDefaultInnerWrapper={useDefaultInnerWrapper} />
 
           {dropdownInner}
 
@@ -217,28 +201,31 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
   }
 );
 
-// interface ExtraInnerProps {
-//   extraInner?: {};
-//   useDefaultInnerWrapper: boolean;
-// }
+interface ExtraInnerProps {
+  extraInner: {} | null;
+  useDefaultInnerWrapper: boolean;
+}
 
-// const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, extraInner }) =>
-//   extraInner &&
-//   (useDefaultInnerWrapper ? (
-//     <div
-//       className={classNames(
-//         'overflow-hidden',
-//         'absolute inset-y-0 right-0 w-32',
-//         'flex items-center justify-end',
-//         'opacity-50',
-//         'pointer-events-none'
-//       )}
-//     >
-//       <span className="mx-4 text-lg font-light text-gray-900">{extraInner}</span>
-//     </div>
-//   ) : (
-//     extraInner
-//   ));
+const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, extraInner }) => {
+  if (extraInner) {
+    useDefaultInnerWrapper ? (
+      <div
+        className={classNames(
+          'overflow-hidden',
+          'absolute inset-y-0 right-0 w-32',
+          'flex items-center justify-end',
+          'opacity-50',
+          'pointer-events-none'
+        )}
+      >
+        <span className="mx-4 text-lg font-light text-gray-900">{extraInner}</span>
+      </div>
+    ) : (
+      extraInner
+    );
+  }
+  return null;
+};
 
 interface SecretBannerProps {
   handleSecretBannerClick: () => void;
