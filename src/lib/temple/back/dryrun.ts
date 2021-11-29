@@ -78,7 +78,7 @@ export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePu
 export function buildFinalOpParmas(opParams: any[], modifiedTotalFee?: number, modifiedStorageLimit?: number) {
   if (modifiedTotalFee !== undefined) {
     opParams = opParams.map(op => ({ ...op, fee: 0 }));
-    opParams[opParams.length - 1].fee = modifiedTotalFee;
+    opParams[0].fee = modifiedTotalFee;
   }
 
   if (modifiedStorageLimit !== undefined && opParams.length < 2) {
