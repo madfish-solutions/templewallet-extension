@@ -17,8 +17,8 @@ import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { T } from 'lib/i18n/react';
-import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
+import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
@@ -181,7 +181,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             {...rest}
           />
 
-          <ExtraInner extraInner={extraInner} useDefaultInnerWrapper={useDefaultInnerWrapper} />
+          <ExtraInner innerComponent={extraInner} useDefaultInnerWrapper={useDefaultInnerWrapper} />
 
           {dropdownInner}
 
@@ -202,13 +202,13 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 );
 
 interface ExtraInnerProps {
-  extraInner: {} | null;
+  innerComponent: React.ReactNode;
   useDefaultInnerWrapper: boolean;
 }
 
-const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, extraInner }) => {
-  if (extraInner) {
-    useDefaultInnerWrapper ? (
+const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, innerComponent }) => {
+  if (useDefaultInnerWrapper)
+    return (
       <div
         className={classNames(
           'overflow-hidden',
@@ -218,18 +218,15 @@ const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, extraIn
           'pointer-events-none'
         )}
       >
-        <span className="mx-4 text-lg font-light text-gray-900">{extraInner}</span>
+        <span className="mx-4 text-lg font-light text-gray-900">{innerComponent}</span>
       </div>
-    ) : (
-      extraInner
     );
-  }
-  return null;
+  return <>{innerComponent}</>;
 };
 
 interface SecretBannerProps {
   handleSecretBannerClick: () => void;
-  secretBannerDisplayed: React.ReactNode;
+  secretBannerDisplayed: boolean;
 }
 
 const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, handleSecretBannerClick }) =>
