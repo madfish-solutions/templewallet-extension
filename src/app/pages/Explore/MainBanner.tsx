@@ -15,7 +15,6 @@ import {
   getAssetSymbol,
   useAssetMetadata,
   useChainId,
-  // TempleChainId,
   useDisplayedFungibleTokens,
   useBalance,
   useAssetUSDPrice
@@ -28,7 +27,6 @@ type MainBannerProps = {
 
 const MainBanner = memo<MainBannerProps>(({ assetSlug, accountPkh }) => {
   const chainId = useChainId(true)!;
-  // const mainnet = chainId === TempleChainId.Mainnet;
   const assetBannerDisplayed = true; // assetSlug || !mainnet
 
   return assetBannerDisplayed ? (
