@@ -40,19 +40,19 @@ const Tokens: FC = () => {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const { assetSlugs, latestBalances } = useMemo(() => {
-    const assetSlugs = ['tez'];
-    const latestBalances: Record<string, string> = {};
+    const slugs = ['tez'];
+    const balances: Record<string, string> = {};
 
     for (const { tokenSlug, latestBalance } of tokens) {
       if (tokenSlug in allTokensBaseMetadata) {
-        assetSlugs.push(tokenSlug);
+        slugs.push(tokenSlug);
       }
       if (latestBalance) {
-        latestBalances[tokenSlug] = latestBalance;
+        balances[tokenSlug] = latestBalance;
       }
     }
 
-    return { assetSlugs, latestBalances };
+    return { assetSlugs: slugs, latestBalances: balances };
   }, [tokens, allTokensBaseMetadata]);
 
   const [searchValue, setSearchValue] = useState('');
@@ -219,11 +219,6 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
 
-  // const preservedBalance = useMemo(() => {
-  //   if (!metadata || !latestBalance) return;
-  //   return new BigNumber(latestBalance).div(10 ** metadata.decimals);
-  // }, [latestBalance, metadata]);
-
   useEffect(() => {
     const el = toDisplayRef.current;
     if (!displayed && 'IntersectionObserver' in window && el) {
@@ -241,7 +236,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
         observer.unobserve(el);
       };
     }
-    return;
+    return undefined;
   }, [displayed, setDisplayed]);
 
   const renderBalance = useCallback(
@@ -283,18 +278,6 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
 
       <div ref={toDisplayRef} className="flex items-center">
         <div className="flex flex-col">
-          {/* {preservedBalance ? (
-              renderBalance(preservedBalance)
-            ) : (
-              <Balance
-                address={accountPkh}
-                assetSlug={assetSlug}
-                displayed={displayed}
-              >
-                {renderBalance}
-              </Balance>
-            )} */}
-
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
             {renderBalance}
           </Balance>
