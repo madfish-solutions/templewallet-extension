@@ -219,11 +219,6 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
   const toDisplayRef = useRef<HTMLDivElement>(null);
   const [displayed, setDisplayed] = useState(balanceAlreadyLoaded);
 
-  // const preservedBalance = useMemo(() => {
-  //   if (!metadata || !latestBalance) return;
-  //   return new BigNumber(latestBalance).div(10 ** metadata.decimals);
-  // }, [latestBalance, metadata]);
-
   useEffect(() => {
     const el = toDisplayRef.current;
     if (!displayed && 'IntersectionObserver' in window && el) {
@@ -258,7 +253,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
         </div>
       </div>
     ),
-    [assetSlug]
+    [assetSlug, metadata]
   );
 
   return (
