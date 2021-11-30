@@ -9,7 +9,7 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner';
 import styles from 'app/pages/BuyCrypto/BuyCrypto.module.css';
 import CurrencyComponent from 'app/pages/BuyCrypto/CurrencyComponent';
-import { CurrenciesInterface, getCurrencies, getRateDataInterface } from 'lib/exolix-api';
+import { getCurrencies, getRateDataInterface } from 'lib/exolix-api';
 import { T } from 'lib/i18n/react';
 import Popper from 'lib/ui/Popper';
 
