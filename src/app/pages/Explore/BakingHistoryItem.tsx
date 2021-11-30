@@ -75,31 +75,31 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
       fallbackRewardPerOwnBlock
     });
 
-    const { StatusIcon, iconColor, title } = (() => {
+    const { OperationIcon, iconClass, iconText } = (() => {
       switch (cycleStatus) {
         case 'unlocked':
           return {
-            StatusIcon: OkIcon,
-            iconColor: 'green-500',
-            title: 'Rewards unlocked'
+            OperationIcon: OkIcon,
+            iconClass: 'green-500',
+            iconText: 'Rewards unlocked'
           };
         case 'locked':
           return {
-            StatusIcon: TimeIcon,
-            iconColor: 'orange-500',
-            title: 'Rewards still locked'
+            OperationIcon: TimeIcon,
+            iconClass: 'orange-500',
+            iconText: 'Rewards still locked'
           };
         case 'future':
           return {
-            StatusIcon: HourglassIcon,
-            iconColor: 'gray-500',
-            title: 'Future rewards'
+            OperationIcon: HourglassIcon,
+            iconClass: 'gray-500',
+            iconText: 'Future rewards'
           };
         default:
           return {
-            StatusIcon: InProgressIcon,
-            iconColor: 'blue-600',
-            title: 'Cycle in progress'
+            OperationIcon: InProgressIcon,
+            iconClass: 'blue-600',
+            iconText: 'Cycle in progress'
           };
       }
     })();
@@ -132,9 +132,9 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
     })();
 
     return {
-      StatusIcon,
-      iconColor,
-      title,
+      StatusIcon: OperationIcon,
+      iconColor: iconClass,
+      title: iconText,
       statsEntriesProps: [
         {
           name: 'Delegated',
