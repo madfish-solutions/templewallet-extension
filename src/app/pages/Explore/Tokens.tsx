@@ -40,19 +40,19 @@ const Tokens: FC = () => {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
 
   const { assetSlugs, latestBalances } = useMemo(() => {
-    const assetSlugs = ['tez'];
-    const latestBalances: Record<string, string> = {};
+    const slugs = ['tez'];
+    const balances: Record<string, string> = {};
 
     for (const { tokenSlug, latestBalance } of tokens) {
       if (tokenSlug in allTokensBaseMetadata) {
-        assetSlugs.push(tokenSlug);
+        slugs.push(tokenSlug);
       }
       if (latestBalance) {
-        latestBalances[tokenSlug] = latestBalance;
+        balances[tokenSlug] = latestBalance;
       }
     }
 
-    return { assetSlugs, latestBalances };
+    return { assetSlugs: slugs, latestBalances: balances };
   }, [tokens, allTokensBaseMetadata]);
 
   const [searchValue, setSearchValue] = useState('');
@@ -236,7 +236,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
         observer.unobserve(el);
       };
     }
-    return;
+    return undefined;
   }, [displayed, setDisplayed]);
 
   const renderBalancInToken = useCallback(

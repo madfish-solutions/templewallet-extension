@@ -136,7 +136,7 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
         observer.unobserve(toolbarEl);
       };
     }
-    return;
+    return undefined;
   }, [setSticked]);
 
   return (
