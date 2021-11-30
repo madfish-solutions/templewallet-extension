@@ -181,7 +181,7 @@ const BakingSection = memo(() => {
                 <DelegateLink
                   canDelegate={canDelegate}
                   delegateButtonRef={delegateButtonRef}
-                  delegateBtn={commonSmallDelegateButtonProps}
+                  delegateButtonProps={commonSmallDelegateButtonProps}
                 />
               </div>
               <BakerBanner
@@ -207,7 +207,7 @@ const BakingSection = memo(() => {
               <DelegateLink
                 canDelegate={canDelegate}
                 delegateButtonRef={delegateButtonRef}
-                delegateBtn={commonDelegateButtonProps}
+                delegateButtonProps={commonDelegateButtonProps}
               />
             </div>
           )}
@@ -255,18 +255,18 @@ export default BakingSection;
 interface DelegateLinkProps {
   canDelegate: boolean;
   delegateButtonRef: React.RefObject<HTMLButtonElement>;
-  delegateBtn: {
+  delegateButtonProps: {
     className: string;
     testID: BakingSectionSelectors;
     children: JSX.Element;
   };
 }
 
-const DelegateLink: React.FC<DelegateLinkProps> = ({ canDelegate, delegateButtonRef, delegateBtn }) =>
+const DelegateLink: React.FC<DelegateLinkProps> = ({ canDelegate, delegateButtonRef, delegateButtonProps }) =>
   canDelegate ? (
-    <Link to="/delegate" type="button" {...delegateBtn} />
+    <Link to="/delegate" type="button" {...delegateButtonProps} />
   ) : (
-    <Button ref={delegateButtonRef} {...delegateBtn} />
+    <Button ref={delegateButtonRef} {...delegateButtonProps} />
   );
 
 type RewardsTrueType = {
