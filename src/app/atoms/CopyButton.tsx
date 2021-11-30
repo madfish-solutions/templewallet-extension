@@ -43,6 +43,9 @@ const CopyButton: FC<CopyButtonProps> = ({
 
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
 
+  const roundedClassName = rounded === 'base' ? 'rounded' : 'rounded-sm';
+  const smallClassName = small ? 'text-xs p-1' : 'text-sm py-1 px-2';
+
   return (
     <>
       <button
@@ -72,8 +75,8 @@ const CopyButton: FC<CopyButtonProps> = ({
                       return 'text-gray-700';
                   }
                 })(),
-                rounded === 'base' ? 'rounded' : 'rounded-sm',
-                small ? 'text-xs p-1' : 'text-sm py-1 px-2',
+                roundedClassName,
+                smallClassName,
                 'font-tnum leading-none select-none',
                 'transition ease-in-out duration-300',
                 className

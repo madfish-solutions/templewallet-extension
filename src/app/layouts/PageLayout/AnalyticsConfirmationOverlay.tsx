@@ -19,16 +19,13 @@ const AnalyticsConfirmationOverlay: FC = () => {
   const handleConfirmButtonClick = () => setAnalyticsEnabled(true);
   const handleCancelButtonClick = () => setAnalyticsEnabled(false);
 
+  const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
+
   return ready && analyticsSettingsNotDefined ? (
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
       <ContentContainer
-        className={classNames(
-          'fixed z-50',
-          'max-h-full',
-          'overflow-y-auto',
-          popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'
-        )}
+        className={classNames('fixed z-50', 'max-h-full', 'overflow-y-auto', popupClassName)}
         padding={!popup}
       >
         <div className={classNames('bg-white rounded-md shadow-lg py-8 px-15', popup && 'h-full')}>
