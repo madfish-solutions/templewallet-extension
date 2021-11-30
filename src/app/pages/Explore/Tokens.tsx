@@ -239,21 +239,26 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
     return;
   }, [displayed, setDisplayed]);
 
-  const renderBalance = useCallback(
+  const renderBalancInToken = useCallback(
     (balance: BigNumber) => (
-      <div className="flex flex-col items-end">
-        <div className="text-base font-medium text-gray-800">
-          <Money smallFractionFont={false}>{balance}</Money> <span>{getAssetSymbol(metadata)}</span>
-        </div>
-
-        <div className={'flex text-xs'}>
-          <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
-            {usdBalance => <div className={classNames('ml-1', 'font-normal text-gray-500')}>≈ {usdBalance} $</div>}
-          </InUSD>
-        </div>
+      <div className="text-base font-medium text-gray-800">
+        <Money smallFractionFont={false}>{balance}</Money> <span>{getAssetSymbol(metadata)}</span>
       </div>
     ),
     [assetSlug, metadata]
+  );
+
+  const renderBalanceInUSD = useCallback(
+    (balance: BigNumber) => (
+      <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+        {usdBalance => (
+          <div className={classNames('ml-1', 'font-normal text-gray-500 text-xs w-full text-right')}>
+            ≈ {usdBalance} $
+          </div>
+        )}
+      </InUSD>
+    ),
+    [assetSlug]
   );
 
   return (
@@ -275,19 +280,26 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
     >
       <AssetIcon assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
-      <div ref={toDisplayRef} className="flex justify-between w-full">
-        <div className="flex flex-col">
-          <div className={classNames('flex items-center mb-1')}>
+      <div ref={toDisplayRef} className="w-full">
+        <div className="flex justify-between w-full mb-1">
+          <div className="flex items-center">
             <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
             {assetSlug === 'tez' && (
               <div className={classNames('ml-1 px-2 py-1', styles['apyBadge'])}>{<T id="tezosApy" />}</div>
             )}
           </div>
-          <div className={classNames('text-xs font-normal text-gray-700')}>{getAssetName(metadata)}</div>
+          <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
+            {renderBalancInToken}
+          </Balance>
         </div>
-        <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
-          {renderBalance}
-        </Balance>
+        <div className="flex justify-between w-full mb-1">
+          <div className={classNames('text-xs font-normal text-gray-700 truncate w-full')}>
+            {getAssetName(metadata)}
+          </div>
+          <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
+            {renderBalanceInUSD}
+          </Balance>
+        </div>
       </div>
     </Link>
   );
