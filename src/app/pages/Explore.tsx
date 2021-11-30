@@ -41,7 +41,7 @@ type ExploreProps = {
   assetSlug?: string | null;
 };
 
-const tippyProps = {
+const tippyPropsMock = {
   trigger: 'mouseenter',
   hideOnClick: false,
   content: t('disabledForWatchOnlyAccount'),
@@ -64,11 +64,14 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         navigate('/', HistoryAction.Replace);
       });
     }
-    return;
+    return undefined;
   }, [registerBackHandler, assetSlug, search]);
 
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
+  const fullpageClassName = fullPage ? 'mb-10' : 'mb-6';
+  const swapLink = assetSlug ? `/swap/${assetSlug}` : '/swap';
+  const sendLink = assetSlug ? `/send/${assetSlug}` : '/send';
 
   return onboardingCompleted ? (
     <PageLayout
@@ -93,7 +96,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         </>
       )}
 
-      <div className={classNames('flex flex-col items-center', fullPage ? 'mb-10' : 'mb-6')}>
+      <div className={classNames('flex flex-col items-center', fullpageClassName)}>
         <AddressChip pkh={accountPkh} className="mb-6" />
 
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
@@ -105,16 +108,16 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
           <ActionButton
             label={<T id="swap" />}
             Icon={SwapIcon}
-            href={assetSlug ? `/swap/${assetSlug}` : '/swap'}
+            href={swapLink}
             disabled={!canSend}
-            tippyProps={tippyProps}
+            tippyProps={tippyPropsMock}
           />
           <ActionButton
             label={<T id="send" />}
             Icon={SendIcon}
-            href={assetSlug ? `/send/${assetSlug}` : '/send'}
+            href={sendLink}
             disabled={!canSend}
-            tippyProps={tippyProps}
+            tippyProps={tippyPropsMock}
           />
         </div>
       </div>
@@ -267,20 +270,20 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
   }, [assetSlug]);
 
   const { slug, Component } = useMemo(() => {
-    const tab = tabSlug ? tabs.find(t => t.slug === tabSlug) : null;
+    const tab = tabSlug ? tabs.find(currentTab => currentTab.slug === tabSlug) : null;
     return tab ?? tabs[0];
   }, [tabSlug, tabs]);
 
   return (
     <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md', className)}>
       <div className={classNames('w-full max-w-sm mx-auto px-3', 'flex flex-wrap items-center justify-center')}>
-        {tabs.map(t => {
-          const active = slug === t.slug;
+        {tabs.map(currentTab => {
+          const active = slug === currentTab.slug;
 
           return (
             <Link
-              key={assetSlug ? `asset_${t.slug}` : t.slug}
-              to={lctn => ({ ...lctn, search: `?tab=${t.slug}` })}
+              key={assetSlug ? `asset_${currentTab.slug}` : currentTab.slug}
+              to={lctn => ({ ...lctn, search: `?tab=${currentTab.slug}` })}
               replace
               className={classNames(
                 'w-1/4',
@@ -292,9 +295,9 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
                 'transition ease-in-out duration-300',
                 'truncate'
               )}
-              testID={t.testID}
+              testID={currentTab.testID}
             >
-              {t.title}
+              {currentTab.title}
             </Link>
           );
         })}
