@@ -99,18 +99,10 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const [focused, setFocused] = useState(false);
 
     const handleChange = useCallback(
-      evt => {
-        if (onChange) {
-          onChange(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
+      (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
+        checkedHandler(e, onChange!, setLocalValue);
 
-        const tempValue = evt.target.value;
-
-        setLocalValue(tempValue);
-
+        const tempValue = e.target.value;
         if (setPasswordValidity) {
           setPasswordValidity({
             minChar: tempValue.length >= 8,
