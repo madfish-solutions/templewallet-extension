@@ -13,7 +13,7 @@ type AccountTypeBadgeProps = {
 const AccountTypeBadge = memo<AccountTypeBadgeProps>(({ account, darkTheme = false }) => {
   const title = getAccountBadgeTitle(account);
 
-  const isDarkTheme = darkTheme ? 'border-white text-white' : 'border-black text-black';
+  const textAndBorderStyle = darkTheme ? 'border-white text-white' : 'border-black text-black';
 
   return title ? (
     <span
@@ -24,7 +24,7 @@ const AccountTypeBadge = memo<AccountTypeBadgeProps>(({ account, darkTheme = fal
         'px-1 py-px',
         'leading-tight',
         'text-opacity-50',
-        isDarkTheme
+        textAndBorderStyle
       )}
       style={{ fontSize: '0.6rem' }}
     >
