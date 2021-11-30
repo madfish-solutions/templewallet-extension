@@ -73,6 +73,59 @@ const ConfirmPage: FC = () => {
   );
 };
 
+interface PayloadContentProps {
+  accountPkhToConnect: string;
+  setAccountPkhToConnect: (item: string) => void;
+  payload: TempleDAppPayload;
+  modifyFeeAndLimit: ModifyFeeAndLimit;
+}
+
+const PayloadContent: React.FC<PayloadContentProps> = ({
+  accountPkhToConnect,
+  setAccountPkhToConnect,
+  payload,
+  modifyFeeAndLimit
+}) => {
+  const allAccounts = useRelevantAccounts(false);
+  const AccountOptionContent = useMemo(() => AccountOptionContentHOC(payload.networkRpc), [payload.networkRpc]);
+  const chainId = useCustomChainId(payload.networkRpc, true)!;
+  const mainnet = chainId === TempleChainId.Mainnet;
+
+  return payload.type === 'connect' ? (
+    <div className={classNames('w-full', 'flex flex-col')}>
+      <h2 className={classNames('mb-2', 'leading-tight', 'flex flex-col')}>
+        <T id="account">{message => <span className="text-base font-semibold text-gray-700">{message}</span>}</T>
+
+        <T id="toBeConnectedWithDApp">
+          {message => (
+            <span className={classNames('mt-px', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+              {message}
+            </span>
+          )}
+        </T>
+      </h2>
+
+      <CustomSelect<TempleAccount, string>
+        activeItemId={accountPkhToConnect}
+        getItemId={getPkh}
+        items={allAccounts}
+        maxHeight="8rem"
+        onSelect={setAccountPkhToConnect}
+        OptionIcon={AccountIcon}
+        OptionContent={AccountOptionContent}
+        autoFocus
+      />
+    </div>
+  ) : (
+    <OperationView
+      payload={payload}
+      networkRpc={payload.networkRpc}
+      mainnet={mainnet}
+      modifyFeeAndLimit={modifyFeeAndLimit}
+    />
+  );
+};
+
 export default ConfirmPage;
 
 const getPkh = (account: TempleAccount) => account.publicKeyHash;
@@ -87,11 +140,11 @@ const ConfirmDAppForm: FC = () => {
   const loc = useLocation();
   const id = useMemo(() => {
     const usp = new URLSearchParams(loc.search);
-    const id = usp.get('id');
-    if (!id) {
+    const pageId = usp.get('id');
+    if (!pageId) {
       throw new Error(t('notIdentified'));
     }
-    return id;
+    return pageId;
   }, [loc.search]);
 
   const { data } = useRetryableSWR<TempleDAppPayload>([id], getDAppPayload, {
@@ -102,16 +155,11 @@ const ConfirmDAppForm: FC = () => {
   });
   const payload = data!;
 
-  const chainId = useCustomChainId(payload.networkRpc, true)!;
-  const mainnet = chainId === TempleChainId.Mainnet;
-
   const connectedAccount = useMemo(
     () =>
       allAccounts.find(a => a.publicKeyHash === (payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh)),
     [payload, allAccounts, accountPkhToConnect]
   );
-
-  const AccountOptionContent = useMemo(() => AccountOptionContentHOC(payload.networkRpc), [payload.networkRpc]);
 
   const onConfirm = useCallback(
     async (confimed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => {
@@ -341,45 +389,12 @@ const ConfirmDAppForm: FC = () => {
               )}
 
               <NetworkBanner rpc={payload.networkRpc} narrow={payload.type === 'connect'} />
-
-              {payload.type === 'connect' ? (
-                <div className={classNames('w-full', 'flex flex-col')}>
-                  <h2 className={classNames('mb-2', 'leading-tight', 'flex flex-col')}>
-                    <T id="account">
-                      {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
-                    </T>
-
-                    <T id="toBeConnectedWithDApp">
-                      {message => (
-                        <span
-                          className={classNames('mt-px', 'text-xs font-light text-gray-600')}
-                          style={{ maxWidth: '90%' }}
-                        >
-                          {message}
-                        </span>
-                      )}
-                    </T>
-                  </h2>
-
-                  <CustomSelect<TempleAccount, string>
-                    activeItemId={accountPkhToConnect}
-                    getItemId={getPkh}
-                    items={allAccounts}
-                    maxHeight="8rem"
-                    onSelect={setAccountPkhToConnect}
-                    OptionIcon={AccountIcon}
-                    OptionContent={AccountOptionContent}
-                    autoFocus
-                  />
-                </div>
-              ) : (
-                <OperationView
-                  payload={payload}
-                  networkRpc={payload.networkRpc}
-                  mainnet={mainnet}
-                  modifyFeeAndLimit={modifyFeeAndLimit}
-                />
-              )}
+              <PayloadContent
+                payload={payload}
+                accountPkhToConnect={accountPkhToConnect}
+                setAccountPkhToConnect={setAccountPkhToConnect}
+                modifyFeeAndLimit={modifyFeeAndLimit}
+              />
             </>
           )}
         </div>
