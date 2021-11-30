@@ -4,7 +4,7 @@ import { t, T } from '../../../lib/i18n/react';
 import { useStorage } from '../../../lib/temple/front';
 import Stepper from '../../atoms/Stepper';
 import PageLayout from '../../layouts/PageLayout';
-import CongratsPage from './pages/CongrantsPage';
+import CongratsPage from './pages/CongratsPage';
 import FirstStep from './steps/FirstStep';
 import FourthStep from './steps/FourthStep';
 import SecondStep from './steps/SecondStep';
