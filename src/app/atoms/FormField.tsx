@@ -92,10 +92,22 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const [localValue, setLocalValue] = useState(value ?? defaultValue ?? '');
     const [focused, setFocused] = useState(false);
 
-    const handleChange = useCallback(checkedHandler, [onChange, setLocalValue]);
+    const handleChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) =>
+        checkedHandler(e, onChange!, setLocalValue),
+      [onChange, setLocalValue]
+    );
 
-    const handleFocus = useCallback(focusHandler, [onFocus, setFocused]);
-    const handleBlur = useCallback(blurHandler, [onBlur, setFocused]);
+    const handleFocus = useCallback(
+      (e: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) =>
+        focusHandler(e, onFocus!, setFocused),
+      [onFocus, setFocused]
+    );
+    const handleBlur = useCallback(
+      (e: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) =>
+        blurHandler(e, onBlur!, setFocused),
+      [onBlur, setFocused]
+    );
 
     const getFieldEl = useCallback(() => {
       const selector = 'input, textarea';
@@ -183,9 +195,9 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             defaultValue={defaultValue}
             spellCheck={spellCheck}
             autoComplete={autoComplete}
-            onChange={(e: any) => handleChange(e, onChange!, setLocalValue)}
-            onFocus={(e: any) => handleFocus(e, onFocus!, setFocused)}
-            onBlur={(e: any) => handleBlur(e, onBlur!, setFocused)}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             {...rest}
           />
 
