@@ -18,15 +18,24 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       setLocalChecked(prevChecked => checked ?? prevChecked);
     }, [setLocalChecked, checked]);
 
-    const handleChange = useCallback(checkedHandler, [onChange, setLocalChecked]);
+    const handleChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => checkedHandler(e, onChange!, setLocalChecked),
+      [onChange, setLocalChecked]
+    );
 
     /**
      * Focus handling
      */
     const [localFocused, setLocalFocused] = useState(false);
 
-    const handleFocus = useCallback(focusHandler, [onFocus, setLocalFocused]);
-    const handleBlur = useCallback(blurHandler, [onBlur, setLocalFocused]);
+    const handleFocus = useCallback(
+      (e: React.FocusEvent<HTMLInputElement>) => focusHandler(e, onFocus!, setLocalFocused),
+      [onFocus, setLocalFocused]
+    );
+    const handleBlur = useCallback(
+      (e: React.FocusEvent<HTMLInputElement>) => blurHandler(e, onBlur!, setLocalFocused),
+      [onBlur, setLocalFocused]
+    );
 
     return (
       <div
@@ -63,9 +72,9 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           type="checkbox"
           className={classNames('sr-only', className)}
           checked={localChecked}
-          onChange={e => handleChange(e, onChange!, setLocalChecked)}
-          onFocus={e => handleFocus(e, onFocus!, setLocalFocused)}
-          onBlur={e => handleBlur(e, onBlur!, setLocalFocused)}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           {...rest}
         />
 
