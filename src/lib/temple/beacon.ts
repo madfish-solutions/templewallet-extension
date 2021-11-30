@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import * as sodium from 'libsodium-wrappers';
+import memoize from 'p-memoize';
 import { browser } from 'webextension-polyfill-ts';
 
 import * as bs58check from 'bs58check';
@@ -299,28 +300,25 @@ export async function createCryptoBox(
   return [Buffer.from(kxSelfPublicKey), Buffer.from(kxSelfPrivateKey), Buffer.from(kxOtherPublicKey)];
 }
 
-let keyPair: sodium.KeyPair;
-export async function getOrCreateKeyPair() {
-  const items = await browser.storage.local.get([KEYPAIR_SEED_STORAGE_KEY]);
-  const exist = KEYPAIR_SEED_STORAGE_KEY in items;
+export const getOrCreateKeyPair = memoize(
+  async () => {
+    const items = await browser.storage.local.get([KEYPAIR_SEED_STORAGE_KEY]);
+    const exist = KEYPAIR_SEED_STORAGE_KEY in items;
 
-  if (exist && keyPair) {
-    return keyPair;
-  }
+    let seed: string;
+    if (exist) {
+      seed = items[KEYPAIR_SEED_STORAGE_KEY];
+    } else {
+      const newSeed = generateNewSeed();
+      await browser.storage.local.set({ [KEYPAIR_SEED_STORAGE_KEY]: newSeed });
+      seed = newSeed;
+    }
 
-  let seed: string;
-  if (exist) {
-    seed = items[KEYPAIR_SEED_STORAGE_KEY];
-  } else {
-    const newSeed = generateNewSeed();
-    await browser.storage.local.set({ [KEYPAIR_SEED_STORAGE_KEY]: newSeed });
-    seed = newSeed;
-  }
-
-  await sodium.ready;
-  keyPair = sodium.crypto_sign_seed_keypair(sodium.crypto_generichash(32, sodium.from_string(seed)));
-  return keyPair;
-}
+    await sodium.ready;
+    return sodium.crypto_sign_seed_keypair(sodium.crypto_generichash(32, sodium.from_string(seed)));
+  },
+  { maxAge: 60_000 }
+);
 
 export async function getDAppPublicKey(origin: string) {
   const key = toPubKeyStorageKey(origin);
