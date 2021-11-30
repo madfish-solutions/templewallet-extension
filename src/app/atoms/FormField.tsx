@@ -19,6 +19,8 @@ import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { T } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
+import PasswordStrengthIndicator, { PasswordValidation } from '../../lib/ui/PasswordStrengthIndicator';
+import { lettersNumbersMixtureRegx, specialCharacterRegx, uppercaseLowercaseMixtureRegx } from '../defaults';
 import usePasswordToggle from './usePasswordToggle.hook';
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
@@ -42,6 +44,8 @@ interface FormFieldProps extends FormFieldAttrs {
   labelPaddingClassName?: string;
   dropdownInner?: ReactNode;
   copyable?: boolean;
+  passwordValidity?: PasswordValidation;
+  setPasswordValidity?: (v: PasswordValidation) => void;
 }
 
 const FormField = forwardRef<FormFieldRef, FormFieldProps>(
@@ -75,6 +79,8 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       fieldWrapperBottomMargin = true,
       labelPaddingClassName = 'mb-4',
       copyable,
+      passwordValidity,
+      setPasswordValidity,
       ...rest
     },
     ref
@@ -100,9 +106,20 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           }
         }
 
-        setLocalValue(evt.target.value);
+        const tempValue = evt.target.value;
+
+        setLocalValue(tempValue);
+
+        if (setPasswordValidity) {
+          setPasswordValidity({
+            minChar: tempValue.length >= 8,
+            cases: uppercaseLowercaseMixtureRegx.test(tempValue),
+            number: lettersNumbersMixtureRegx.test(tempValue),
+            specialChar: specialCharacterRegx.test(tempValue)
+          });
+        }
       },
-      [onChange, setLocalValue]
+      [onChange, setLocalValue, setPasswordValidity]
     );
 
     const handleFocus = useCallback(
@@ -304,7 +321,9 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           )}
         </div>
 
-        {errorCaption ? <div className="text-xs text-red-500">{errorCaption}</div> : null}
+        {errorCaption && !focused ? <div className="text-xs text-red-500">{errorCaption}</div> : null}
+
+        {focused && passwordValidity && <PasswordStrengthIndicator validity={passwordValidity} />}
       </div>
     );
   }
