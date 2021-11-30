@@ -32,41 +32,31 @@ const OperationsBanner = memo<OperationsBannerProps>(
     opParams = typeof opParams === 'string' ? opParams : formatOpParams(opParams);
 
     if (typeof opParams === 'object' && !Array.isArray(opParams)) {
-      console.log(opParams.contents.length);
-      if (modifiedTotalFee !== undefined) {
-        opParams = {
-          ...opParams,
-          contents: [
-            ...opParams.contents.map((elem, index) => {
-              if (index === 0) {
-                return {
-                  ...elem,
-                  fee: JSON.stringify(modifiedTotalFee)
-                };
-              }
-              return elem;
-            })
-          ]
-        };
-      }
+      opParams = {
+        ...opParams,
+        contents: opParams.contents.map((elem, i, contents) => {
+          if (i === 0) {
+            let newElem = elem;
+            if (modifiedTotalFee !== undefined) {
+              newElem = {
+                ...newElem,
+                fee: JSON.stringify(modifiedTotalFee)
+              };
+            }
 
-      if (modifiedStorageLimit !== undefined && opParams.contents.length < 2) {
-        opParams = {
-          ...opParams,
-          contents: [
-            ...opParams.contents.map((elem, index) => {
-              if (index === 0) {
-                return {
-                  ...elem,
-                  storage_limit: JSON.stringify(modifiedStorageLimit)
-                };
-              }
-              return elem;
-            })
-          ]
-        };
-      }
-      console.log(opParams.contents.length);
+            if (modifiedStorageLimit !== undefined && contents.length < 2) {
+              newElem = {
+                ...newElem,
+                storage_limit: JSON.stringify(modifiedStorageLimit)
+              };
+            }
+
+            return newElem;
+          }
+
+          return elem;
+        })
+      };
     }
 
     return (
