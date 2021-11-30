@@ -85,7 +85,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
-const Page: FC = () => {
+const PageRouter: FC = () => {
   const { trigger, pathname, search } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
@@ -117,7 +117,7 @@ const Page: FC = () => {
   return useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
 };
 
-export default Page;
+export default PageRouter;
 
 function onlyReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.Router.SKIP);
