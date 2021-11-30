@@ -10,7 +10,7 @@ import FormCheckbox from 'app/atoms/FormCheckbox';
 import FormField from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import TabSwitcher from 'app/atoms/TabSwitcher';
-import { PASSWORD_PATTERN, PASSWORD_ERROR_CAPTION, MNEMONIC_ERROR_CAPTION, formatMnemonic } from 'app/defaults';
+import { PASSWORD_PATTERN, MNEMONIC_ERROR_CAPTION, formatMnemonic } from 'app/defaults';
 import { ReactComponent as TrashbinIcon } from 'app/icons/bin.svg';
 import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
 import { T, t } from 'lib/i18n/react';
@@ -18,6 +18,7 @@ import { decryptKukaiSeedPhrase, useTempleClient } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
 
+import { PasswordValidation } from '../../lib/ui/PasswordStrengthIndicator';
 import Backup from './NewWallet/Backup';
 import Verify from './NewWallet/Verify';
 
@@ -72,6 +73,13 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
 
   const shouldUseKeystorePassword = watch('shouldUseKeystorePassword');
   const passwordValue = watch('password');
+
+  const [passwordValidity, setPasswordValidity] = useState<PasswordValidation>({
+    minChar: false,
+    cases: false,
+    number: false,
+    specialChar: false
+  });
 
   const isImportFromSeedPhrase = tabSlug === 'seed-phrase';
   const isImportFromKeystore = tabSlug === 'keystore-file';
@@ -273,10 +281,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
             <FormField
               ref={register({
                 required: t('required'),
-                pattern: {
-                  value: PASSWORD_PATTERN,
-                  message: PASSWORD_ERROR_CAPTION
-                }
+                pattern: PASSWORD_PATTERN
               })}
               label={t('password')}
               labelDescription={t('unlockPasswordInputDescription')}
@@ -286,6 +291,8 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
               placeholder="********"
               errorCaption={errors.password?.message}
               containerClassName="mb-8"
+              passwordValidity={passwordValidity}
+              setPasswordValidity={setPasswordValidity}
             />
 
             <FormField
