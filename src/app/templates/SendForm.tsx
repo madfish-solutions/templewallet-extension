@@ -5,9 +5,9 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useState,
   useMemo,
-  useRef
+  useRef,
+  useState
 } from 'react';
 
 import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
@@ -39,10 +39,13 @@ import { T, t } from 'lib/i18n/react';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import {
   fetchBalance,
+  fetchTezosBalance,
+  getAssetSymbol,
   hasManager,
   isAddressValid,
   isDomainNameValid,
   isKTAddress,
+  isTezAsset,
   loadContract,
   mutezToTz,
   TempleAccountType,
@@ -51,19 +54,16 @@ import {
   toTransferParams,
   tzToMutez,
   useAccount,
-  useBalance,
-  useTezos,
-  useTezosDomainsClient,
-  useNetwork,
-  useAssetUSDPrice,
-  useContacts,
   useAssetMetadata,
-  isTezAsset,
-  fetchTezosBalance,
-  getAssetSymbol
+  useAssetUSDPrice,
+  useBalance,
+  useContacts,
+  useNetwork,
+  useTezos,
+  useTezosDomainsClient
 } from 'lib/temple/front';
 import useSafeState from 'lib/ui/useSafeState';
-import { navigate, HistoryAction } from 'lib/woozie';
+import { HistoryAction, navigate } from 'lib/woozie';
 
 import { SendFormSelectors } from './SendForm.selectors';
 import AddContactModal from './SendForm/AddContactModal';

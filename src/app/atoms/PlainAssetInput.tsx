@@ -43,7 +43,7 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
         numVal = new BigNumber(val);
       }
 
-      if (!numVal.isNaN() && numVal.isGreaterThanOrEqualTo(min) && numVal.isLessThanOrEqualTo(max)) {
+      if (!numVal.isNaN() && numVal.isGreaterThan(min) && numVal.isLessThanOrEqualTo(max)) {
         if (setGasFeeError) {
           setGasFeeError(false);
         }
@@ -52,9 +52,11 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
         if (onChange) {
           onChange(val !== '' ? numVal.toFixed() : undefined);
         }
-      } else {
-        if (setGasFeeError && numVal.isLessThanOrEqualTo(min)) {
-          setGasFeeError(true);
+      } else if (setGasFeeError && numVal.isLessThanOrEqualTo(min)) {
+        setGasFeeError(true);
+        setLocalValue(val);
+        if (onChange) {
+          onChange(val !== '' ? numVal.toFixed() : undefined);
         }
       }
     },
