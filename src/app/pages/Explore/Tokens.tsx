@@ -245,7 +245,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
         <Money smallFractionFont={false}>{balance}</Money> <span>{getAssetSymbol(metadata)}</span>
       </div>
     ),
-    [assetSlug, metadata]
+    [metadata]
   );
 
   const renderBalanceInUSD = useCallback(
