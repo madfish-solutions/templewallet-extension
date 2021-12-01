@@ -153,27 +153,7 @@ const Form: FC = () => {
       };
     } catch (err: any) {
       await withErrorHumanDelay(err, () => {
-        if (err instanceof ContractNotFoundError) {
-          stateToSet = {
-            tokenValidationError: t('referredByTokenContractNotFound', contractAddress)
-          };
-        } else if (err instanceof NotMatchingStandardError) {
-          const errorMessage = err instanceof IncorrectTokenIdError ? `: ${err.message}` : '';
-          stateToSet = {
-            tokenValidationError: `${t('tokenDoesNotMatchStandard', 'FA')}${errorMessage}`
-          };
-        } else {
-          const errorMessage = t(
-            err instanceof NotFoundTokenMetadata ? 'failedToParseMetadata' : 'unknownParseErrorOccurred'
-          );
-
-          setValue([{ symbol: '' }, { name: '' }, { decimals: 0 }]);
-
-          stateToSet = {
-            bottomSectionVisible: true,
-            tokenDataError: errorMessage
-          };
-        }
+        stateToSet = errorHandler(err, contractAddress, setState);
       });
     }
 
@@ -434,4 +414,26 @@ const BottomSection: FC<BottomSectionProps> = props => {
       <T id="addToken">{message => <FormSubmitButton loading={formState.isSubmitting}>{message}</FormSubmitButton>}</T>
     </>
   );
+};
+
+const errorHandler = (err: any, contractAddress: string, setValue: any) => {
+  if (err instanceof ContractNotFoundError) {
+    return {
+      tokenValidationError: t('referredByTokenContractNotFound', contractAddress)
+    };
+  } else if (err instanceof NotMatchingStandardError) {
+    const errorMessage = err instanceof IncorrectTokenIdError ? `: ${err.message}` : '';
+    return {
+      tokenValidationError: `${t('tokenDoesNotMatchStandard', 'FA')}${errorMessage}`
+    };
+  } else {
+    const errorMessage = t(
+      err instanceof NotFoundTokenMetadata ? 'failedToParseMetadata' : 'unknownParseErrorOccurred'
+    );
+    setValue([{ symbol: '' }, { name: '' }, { decimals: 0 }]);
+    return {
+      bottomSectionVisible: true,
+      tokenDataError: errorMessage
+    };
+  }
 };
