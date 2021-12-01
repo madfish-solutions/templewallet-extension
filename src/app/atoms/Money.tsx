@@ -116,7 +116,7 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
 }) => {
   const { decimal } = getNumberSymbols();
   const result = toLocalFormat(bn, {
-    decimalPlaces: Math.max(cryptoDecimals - 2, 0),
+    decimalPlaces: Math.max(cryptoDecimals, 0),
     roundingMode
   });
   const indexOfDecimal = result.indexOf(decimal);
