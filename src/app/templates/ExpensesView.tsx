@@ -33,6 +33,7 @@ type ExpensesViewProps = {
   estimates?: Estimate[];
   mainnet?: boolean;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
+  setGasFeeError?: (b: boolean) => void;
 };
 
 export interface ModifyFeeAndLimit {
@@ -42,10 +43,10 @@ export interface ModifyFeeAndLimit {
   onStorageLimitChange: (storageLimit: number) => void;
 }
 
-const MIN_GAS_FEE = 0.000001;
+const MIN_GAS_FEE = 0;
 const MAX_GAS_FEE = 1000;
 
-const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit }) => {
+const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit, setGasFeeError }) => {
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
 
@@ -118,6 +119,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
                           onChange={val => {
                             onChange?.(tzToMutez(val ?? defaultGasFee).toNumber());
                           }}
+                          setGasFeeError={setGasFeeError}
                           min={MIN_GAS_FEE}
                           max={MAX_GAS_FEE}
                           placeholder={defaultGasFee.toFixed()}
@@ -195,7 +197,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
     }
 
     return null;
-  }, [modifyFeeAndLimit, estimates, mainnet]);
+  }, [modifyFeeAndLimit, estimates, mainnet, setGasFeeError]);
 
   if (!expenses) {
     return null;

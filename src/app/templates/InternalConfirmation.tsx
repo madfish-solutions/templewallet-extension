@@ -35,7 +35,6 @@ import {
 import useSafeState from 'lib/ui/useSafeState';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
-import { ADDITIONAL_TEMPLE_GAS_FEE } from './SendForm';
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
@@ -134,6 +133,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   const [spFormat, setSpFormat] = useSafeState(signPayloadFormats[0]);
   const [error, setError] = useSafeState<any>(null);
+  const [gasFeeError, setGasFeeError] = useSafeState(false);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
 
@@ -151,7 +151,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === 'operations' &&
-      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) + revealFee + ADDITIONAL_TEMPLE_GAS_FEE) ||
+      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) + revealFee) ||
       0
   );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] = useSafeState(
@@ -291,11 +291,14 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
                   mainnet={mainnet}
+                  setGasFeeError={setGasFeeError}
                 />
               )}
             </>
           )}
         </div>
+
+        {gasFeeError && <T id="gasFeeMustBePositive" />}
 
         <div className="flex-1" />
 
@@ -325,6 +328,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                 <FormSubmitButton
                   type="button"
                   className="justify-center w-full"
+                  disabled={gasFeeError}
                   loading={confirming}
                   onClick={handleConfirmClick}
                   testID={

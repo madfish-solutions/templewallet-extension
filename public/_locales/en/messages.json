@@ -543,6 +543,9 @@
   "amountMustBePositive": {
     "message": "Must be positive"
   },
+  "gasFeeMustBePositive": {
+    "message": "Gas fee must be positive"
+  },
   "accountName": {
     "message": "Account name"
   },
