@@ -116,7 +116,7 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
 }) => {
   const { decimal } = getNumberSymbols();
   const result = toLocalFormat(bn, {
-    decimalPlaces: Math.max(cryptoDecimals - 2, 0),
+    decimalPlaces: Math.max(cryptoDecimals, 0),
     roundingMode
   });
   const indexOfDecimal = result.indexOf(decimal);
@@ -126,7 +126,6 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
       {result.slice(0, indexOfDecimal + 1)}
       <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
         {result.slice(indexOfDecimal + 1, result.length)}
-        {cryptoDecimals >= 2 && <span className="opacity-75 tracking-tighter">...</span>}
       </span>
     </FullAmountTippy>
   );
