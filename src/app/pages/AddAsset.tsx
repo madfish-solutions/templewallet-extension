@@ -158,10 +158,9 @@ const Form: FC = () => {
             tokenValidationError: t('referredByTokenContractNotFound', contractAddress)
           };
         } else if (err instanceof NotMatchingStandardError) {
+          const errorMessage = err instanceof IncorrectTokenIdError ? `: ${err.message}` : '';
           stateToSet = {
-            tokenValidationError: `${t('tokenDoesNotMatchStandard', 'FA')}${
-              err instanceof IncorrectTokenIdError ? `: ${err.message}` : ''
-            }`
+            tokenValidationError: `${t('tokenDoesNotMatchStandard', 'FA')}${errorMessage}`
           };
         } else {
           const errorMessage = t(
