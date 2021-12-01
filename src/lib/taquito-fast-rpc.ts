@@ -1,13 +1,12 @@
 import { RpcClient } from '@taquito/rpc';
-import debouncePromise from 'debounce-promise';
-import memoize from 'mem';
+import memoize from 'p-memoize';
 
 interface RPCOptions {
   block: string;
 }
 
 export class FastRpcClient extends RpcClient {
-  refreshInterval = 20_000; // 20 src
+  refreshInterval = 10_000; // 10 sec
   memoizeMaxAge = 180_000; // 3 min
 
   private latestBlock?: {
@@ -180,15 +179,16 @@ export class FastRpcClient extends RpcClient {
     const head = wantsHead(opts);
     if (!head) return opts;
 
-    if (!this.latestBlock || Date.now() - this.latestBlock.refreshedAt > this.refreshInterval) {
-      const hash = await this.getLatestBlockHash();
-      this.latestBlock = { hash, refreshedAt: Date.now() };
-    }
-
-    return { block: this.latestBlock.hash };
+    await this.refreshLatestBlock();
+    return { block: this.latestBlock!.hash };
   }
 
-  private getLatestBlockHash = debouncePromise(() => super.getBlockHash(), 100);
+  private refreshLatestBlock = onlyOncePerExec(async () => {
+    if (!this.latestBlock || Date.now() - this.latestBlock.refreshedAt > this.refreshInterval) {
+      const hash = await super.getBlockHash();
+      this.latestBlock = { hash, refreshedAt: Date.now() };
+    }
+  });
 }
 
 function wantsHead(opts?: RPCOptions) {
@@ -197,4 +197,14 @@ function wantsHead(opts?: RPCOptions) {
 
 function toOptsKey(opts?: RPCOptions) {
   return opts?.block ?? 'head';
+}
+
+function onlyOncePerExec<T>(factory: () => Promise<T>) {
+  let worker: Promise<T> | null = null;
+
+  return () =>
+    worker ??
+    (worker = factory().finally(() => {
+      worker = null;
+    }));
 }

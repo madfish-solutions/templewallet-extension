@@ -82,10 +82,10 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
 
   const tokenStatuses = useMemo(() => {
     const statuses: TokenStatuses = {};
-    for (const t of assets) {
-      statuses[t.tokenSlug] = {
-        displayed: isTokenDisplayed(t),
-        removed: t.status === ITokenStatus.Removed
+    for (const asset of assets) {
+      statuses[asset.tokenSlug] = {
+        displayed: isTokenDisplayed(asset),
+        removed: asset.status === ITokenStatus.Removed
       };
     }
     return statuses;
@@ -185,25 +185,8 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
             );
           })}
         </div>
-      ) : loading ? null : (
-        <div className={classNames('my-8', 'flex flex-col items-center justify-center', 'text-gray-500')}>
-          <p className={classNames('mb-2', 'flex items-center justify-center', 'text-gray-600 text-base font-light')}>
-            {Boolean(searchValue) && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
-
-            <span>
-              <T id="noAssetsFound" />
-            </span>
-          </p>
-
-          <p className={classNames('text-center text-xs font-light')}>
-            <T
-              id="ifYouDontSeeYourAsset"
-              substitutions={[
-                <b>{assetType === AssetTypesEnum.Collectibles ? <T id={'addCollectible'} /> : <T id={'addToken'} />}</b>
-              ]}
-            />
-          </p>
-        </div>
+      ) : (
+        <LoadingComponent loading={loading} searchValue={searchValue} assetType={assetType} />
       )}
     </div>
   );
@@ -275,3 +258,30 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) =>
     </label>
   );
 });
+
+interface LoadingComponentProps {
+  loading: boolean;
+  searchValue: string;
+  assetType: string;
+}
+
+const LoadingComponent: React.FC<LoadingComponentProps> = ({ loading, searchValue, assetType }) => {
+  return loading ? null : (
+    <div className={classNames('my-8', 'flex flex-col items-center justify-center', 'text-gray-500')}>
+      <p className={classNames('mb-2', 'flex items-center justify-center', 'text-gray-600 text-base font-light')}>
+        {Boolean(searchValue) && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
+
+        <span>
+          <T id="noAssetsFound" />
+        </span>
+      </p>
+
+      <p className={classNames('text-center text-xs font-light')}>
+        <T id="ifYouDontSeeYourAsset" substitutions={[<RenderAssetComponent assetType={assetType} />]} />
+      </p>
+    </div>
+  );
+};
+const RenderAssetComponent: React.FC<{ assetType: string }> = ({ assetType }) => (
+  <b>{assetType === AssetTypesEnum.Collectibles ? <T id={'addCollectible'} /> : <T id={'addToken'} />}</b>
+);

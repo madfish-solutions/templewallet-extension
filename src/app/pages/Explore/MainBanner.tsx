@@ -15,7 +15,6 @@ import {
   getAssetSymbol,
   useAssetMetadata,
   useChainId,
-  // TempleChainId,
   useDisplayedFungibleTokens,
   useBalance,
   useAssetUSDPrice
@@ -28,7 +27,6 @@ type MainBannerProps = {
 
 const MainBanner = memo<MainBannerProps>(({ assetSlug, accountPkh }) => {
   const chainId = useChainId(true)!;
-  // const mainnet = chainId === TempleChainId.Mainnet;
   const assetBannerDisplayed = true; // assetSlug || !mainnet
 
   return assetBannerDisplayed ? (
@@ -101,12 +99,13 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
           <Balance address={accountPkh} assetSlug={assetSlug}>
             {balance => (
               <div className="flex flex-col">
-                <span className="text-xl text-gray-700">
-                  <Money>{balance}</Money> <span className="text-lg opacity-90">{getAssetSymbol(assetMetadata)}</span>
+                <span className="text-xl text-gray-800">
+                  <Money smallFractionFont={false}>{balance}</Money>{' '}
+                  <span className="text-lg">{getAssetSymbol(assetMetadata)}</span>
                 </span>
 
-                <InUSD assetSlug={assetSlug} volume={balance}>
-                  {usdBalance => <div className="mt-1 text-sm text-gray-500">${usdBalance}</div>}
+                <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+                  {usdBalance => <div className="mt-1 text-sm text-gray-500">≈ {usdBalance} $</div>}
                 </InUSD>
               </div>
             )}

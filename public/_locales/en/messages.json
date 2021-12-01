@@ -1832,6 +1832,9 @@
   "noResults": {
     "message": "No Results"
   },
+  "tezosApy": {
+    "message": "APY: 6%"
+  },
   "max": {
     "message": "Max"
   },
