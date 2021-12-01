@@ -15,7 +15,6 @@ import { T, t } from 'lib/i18n/react';
 import { useAccount, useTezos, useTezosDomainsClient } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useSafeState from 'lib/ui/useSafeState';
-// import Deposit from "./Receive/Deposit";
 
 const ADDRESS_FIELD_VIEWS = [
   {

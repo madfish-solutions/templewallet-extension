@@ -35,6 +35,7 @@ import {
 import useSafeState from 'lib/ui/useSafeState';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
+import { ADDITIONAL_TEMPLE_GAS_FEE } from './SendForm';
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
@@ -151,7 +152,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === 'operations' &&
-      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) + revealFee) ||
+      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) + revealFee + ADDITIONAL_TEMPLE_GAS_FEE) ||
       0
   );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] = useSafeState(
@@ -265,6 +266,8 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                 <OperationsBanner
                   opParams={payload.rawToSign ?? payload.opParams}
                   jsonViewStyle={signPayloadFormats.length > 1 ? { height: '11rem' } : undefined}
+                  modifiedTotalFee={modifiedTotalFeeValue}
+                  modifiedStorageLimit={modifiedStorageLimitValue}
                 />
               )}
 
