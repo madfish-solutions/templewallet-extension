@@ -291,14 +291,18 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
                   mainnet={mainnet}
+                  gasFeeError={gasFeeError}
                   setGasFeeError={setGasFeeError}
                 />
               )}
             </>
           )}
+          {gasFeeError && (
+            <p className="text-xs text-red-600 pt-1 h-4">
+              <T id="gasFeeMustBePositive" />
+            </p>
+          )}
         </div>
-
-        {gasFeeError && <T id="gasFeeMustBePositive" />}
 
         <div className="flex-1" />
 

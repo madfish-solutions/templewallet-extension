@@ -33,6 +33,7 @@ type ExpensesViewProps = {
   estimates?: Estimate[];
   mainnet?: boolean;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
+  gasFeeError?: boolean;
   setGasFeeError?: (b: boolean) => void;
 };
 
@@ -46,7 +47,14 @@ export interface ModifyFeeAndLimit {
 const MIN_GAS_FEE = 0;
 const MAX_GAS_FEE = 1000;
 
-const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit, setGasFeeError }) => {
+const ExpensesView: FC<ExpensesViewProps> = ({
+  expenses,
+  estimates,
+  mainnet,
+  modifyFeeAndLimit,
+  gasFeeError,
+  setGasFeeError
+}) => {
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
 
@@ -129,7 +137,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
                             'w-24',
                             'py-px px-1',
                             'border',
-                            'border-gray-300',
+                            gasFeeError ? 'border-red-300' : 'border-gray-300',
                             'focus:border-primary-orange',
                             'bg-gray-100 focus:bg-transparent',
                             'focus:outline-none focus:shadow-outline',
@@ -197,7 +205,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
     }
 
     return null;
-  }, [modifyFeeAndLimit, estimates, mainnet, setGasFeeError]);
+  }, [modifyFeeAndLimit, estimates, mainnet, gasFeeError, setGasFeeError]);
 
   if (!expenses) {
     return null;
@@ -209,7 +217,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
         'relative rounded-md overflow-y-auto border',
         'flex flex-col text-gray-700 text-sm leading-tight'
       )}
-      style={{ height: '11rem' }}
+      style={{ height: gasFeeError ? '10rem' : '11rem' }}
     >
       {expenses.map((item, index, arr) => (
         <ExpenseViewItem key={index} item={item} last={index === arr.length - 1} mainnet={mainnet} />
