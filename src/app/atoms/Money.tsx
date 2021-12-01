@@ -39,7 +39,9 @@ const Money = memo<MoneyProps>(
     }
     const { decimal } = getNumberSymbols();
 
-    const decimals = fiat ? 2 : decimalsLength > cryptoDecimals ? cryptoDecimals : decimalsLength;
+    const deciamlsLimit = decimalsLength > cryptoDecimals ? cryptoDecimals : decimalsLength;
+
+    const decimals = fiat ? 2 : deciamlsLimit;
     let result = shortened ? toShortened(bn) : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
     let indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
@@ -49,49 +51,113 @@ const Money = memo<MoneyProps>(
       'transition ease-in-out duration-200'
     );
 
-    switch (true) {
-      case indexOfDecimal === -1:
-        return (
-          <FullAmountTippy enabled={tooltip} fullAmount={bn} className={tippyClassName}>
-            {result}
-          </FullAmountTippy>
-        );
-
-      case !fiat && decimalsLength > cryptoDecimals && !shortened:
-        result = toLocalFormat(bn, {
-          decimalPlaces: Math.max(cryptoDecimals - 2, 0),
-          roundingMode
-        });
-        indexOfDecimal = result.indexOf(decimal);
-
-        return (
-          <FullAmountTippy enabled={tooltip} fullAmount={bn} className={tippyClassName} showAmountTooltip>
-            {result.slice(0, indexOfDecimal + 1)}
-            <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
-              {result.slice(indexOfDecimal + 1, result.length)}
-              {cryptoDecimals >= 2 && <span className="opacity-75 tracking-tighter">...</span>}
-            </span>
-          </FullAmountTippy>
-        );
-
-      default:
-        return (
-          <FullAmountTippy
-            enabled={tooltip}
-            fullAmount={fiat ? new BigNumber(bn.toFixed(2)) : bn}
-            className={tippyClassName}
-          >
-            {result.slice(0, indexOfDecimal + 1)}
-            <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
-              {result.slice(indexOfDecimal + 1, result.length)}
-            </span>
-          </FullAmountTippy>
-        );
+    if (indexOfDecimal === -1) {
+      return <JustMoney tooltip={tooltip} result={result} className={tippyClassName} bn={bn} />;
     }
+
+    if (!fiat && decimalsLength > cryptoDecimals && !shortened) {
+      return (
+        <MoneyWithoutFormat
+          tooltip={tooltip}
+          className={tippyClassName}
+          bn={bn}
+          cryptoDecimals={cryptoDecimals}
+          roundingMode={roundingMode}
+          smallFractionFont={smallFractionFont}
+        />
+      );
+    }
+
+    return (
+      <MoneyWithFormat
+        tooltip={tooltip}
+        result={result}
+        className={tippyClassName}
+        bn={bn}
+        isFiat={fiat}
+        indexOfDecimal={indexOfDecimal}
+        smallFractionFont={smallFractionFont}
+      />
+    );
   }
 );
 
 export default Money;
+
+interface JustMoneyProps {
+  tooltip: boolean;
+  bn: BigNumber;
+  className: string;
+  result: string;
+}
+
+const JustMoney: FC<JustMoneyProps> = ({ tooltip, bn, className, result }) => (
+  <FullAmountTippy enabled={tooltip} fullAmount={bn} className={className}>
+    {result}
+  </FullAmountTippy>
+);
+
+interface MoneyWithoutFormatProps {
+  tooltip: boolean;
+  bn: BigNumber;
+  className: string;
+  cryptoDecimals: number;
+  roundingMode?: BigNumber.RoundingMode;
+  smallFractionFont: boolean;
+}
+
+const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
+  tooltip,
+  bn,
+  className,
+  cryptoDecimals,
+  roundingMode,
+  smallFractionFont
+}) => {
+  const { decimal } = getNumberSymbols();
+  const result = toLocalFormat(bn, {
+    decimalPlaces: Math.max(cryptoDecimals - 2, 0),
+    roundingMode
+  });
+  const indexOfDecimal = result.indexOf(decimal);
+
+  return (
+    <FullAmountTippy enabled={tooltip} fullAmount={bn} className={className} showAmountTooltip>
+      {result.slice(0, indexOfDecimal + 1)}
+      <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
+        {result.slice(indexOfDecimal + 1, result.length)}
+        {cryptoDecimals >= 2 && <span className="opacity-75 tracking-tighter">...</span>}
+      </span>
+    </FullAmountTippy>
+  );
+};
+
+interface MoneyWithFormatProps {
+  tooltip: boolean;
+  bn: BigNumber;
+  className: string;
+  result: string;
+  indexOfDecimal: number;
+  smallFractionFont: boolean;
+  isFiat?: boolean;
+}
+
+const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
+  tooltip,
+  bn,
+  className,
+  result,
+  indexOfDecimal,
+  isFiat,
+  smallFractionFont
+}) => (
+  <FullAmountTippy enabled={tooltip} fullAmount={isFiat ? new BigNumber(bn.toFixed(2)) : bn} className={className}>
+    {result.slice(0, indexOfDecimal + 1)}
+    <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
+      {result.slice(indexOfDecimal + 1, result.length)}
+    </span>
+  </FullAmountTippy>
+);
 
 type FullAmountTippyProps = HTMLAttributes<HTMLButtonElement> & {
   fullAmount: BigNumber;
