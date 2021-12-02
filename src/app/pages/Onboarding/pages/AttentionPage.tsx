@@ -9,7 +9,6 @@ import styles from '../Onboarding.module.css';
 
 const AttentionPage: FC = () => {
   const { onBack } = useAppEnv();
-  console.log(isSafeBrowserVersion);
 
   return (
     <PageLayout
