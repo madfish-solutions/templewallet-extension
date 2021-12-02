@@ -33,8 +33,6 @@ type ExpensesViewProps = {
   estimates?: Estimate[];
   mainnet?: boolean;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
-  gasFeeError?: boolean;
-  setGasFeeError?: (b: boolean) => void;
 };
 
 export interface ModifyFeeAndLimit {
@@ -44,17 +42,10 @@ export interface ModifyFeeAndLimit {
   onStorageLimitChange: (storageLimit: number) => void;
 }
 
-const MIN_GAS_FEE = 0;
+export const MIN_GAS_FEE = 0;
 const MAX_GAS_FEE = 1000;
 
-const ExpensesView: FC<ExpensesViewProps> = ({
-  expenses,
-  estimates,
-  mainnet,
-  modifyFeeAndLimit,
-  gasFeeError,
-  setGasFeeError
-}) => {
+const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit }) => {
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
 
@@ -127,8 +118,6 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                           onChange={val => {
                             onChange?.(tzToMutez(val ?? defaultGasFee).toNumber());
                           }}
-                          setGasFeeError={setGasFeeError}
-                          min={MIN_GAS_FEE}
                           max={MAX_GAS_FEE}
                           placeholder={defaultGasFee.toFixed()}
                           className={classNames(
@@ -137,7 +126,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                             'w-24',
                             'py-px px-1',
                             'border',
-                            gasFeeError ? 'border-red-300' : 'border-gray-300',
+                            modifyFeeAndLimit.totalFee <= MIN_GAS_FEE ? 'border-red-300' : 'border-gray-300',
                             'focus:border-primary-orange',
                             'bg-gray-100 focus:bg-transparent',
                             'focus:outline-none focus:shadow-outline',
@@ -205,7 +194,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
     }
 
     return null;
-  }, [modifyFeeAndLimit, estimates, mainnet, gasFeeError, setGasFeeError]);
+  }, [modifyFeeAndLimit, estimates, mainnet]);
 
   if (!expenses) {
     return null;
@@ -217,7 +206,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         'relative rounded-md overflow-y-auto border',
         'flex flex-col text-gray-700 text-sm leading-tight'
       )}
-      style={{ height: gasFeeError ? '10rem' : '11rem' }}
+      style={{ height: modifyFeeAndLimit && modifyFeeAndLimit.totalFee <= MIN_GAS_FEE ? '10rem' : '11rem' }}
     >
       {expenses.map((item, index, arr) => (
         <ExpenseViewItem key={index} item={item} last={index === arr.length - 1} mainnet={mainnet} />
