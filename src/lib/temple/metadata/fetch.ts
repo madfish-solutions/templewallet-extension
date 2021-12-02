@@ -18,10 +18,10 @@ const RETRY_PARAMS = {
 };
 
 const getTzip12Metadata = async (contract: ReturnType<typeof tzip12>, tokenId: number) => {
-  const tzip12Metadata: TokenMetadataWithLogo = {} as TokenMetadataWithLogo;
+  let tzip12Metadata: TokenMetadataWithLogo = {} as TokenMetadataWithLogo;
 
   try {
-    await retry(() => contract.tzip12().getTokenMetadata(tokenId), RETRY_PARAMS);
+    tzip12Metadata = await retry(() => contract.tzip12().getTokenMetadata(tokenId), RETRY_PARAMS);
   } catch {}
 
   return tzip12Metadata;
@@ -55,7 +55,7 @@ const getMetadataFromUri = async (
     const storage = await contract.storage<any>();
     assert('token_metadata_uri' in storage);
 
-    const metadataUri = storage.token_metadata_uri.replace('{tokenId}', '3600001' ?? tokenId);
+    const metadataUri = storage.token_metadata_uri.replace('{tokenId}', tokenId);
 
     const metadataProvider = new MetadataProvider(DEFAULT_HANDLERS);
     const context = new Context(tezos.rpc);
