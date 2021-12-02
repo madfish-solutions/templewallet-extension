@@ -78,7 +78,6 @@ interface FormData {
 
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
-export const ADDITIONAL_TEMPLE_GAS_FEE = 69;
 
 type SendFormProps = {
   assetSlug?: string | null;
@@ -320,7 +319,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       //   usingBaseFeeMutez: estmtnMax.usingBaseFeeMutez,
       // });
 
-      let baseFee = mutezToTz(estmtnMax.totalCost + ADDITIONAL_TEMPLE_GAS_FEE);
+      let baseFee = mutezToTz(estmtnMax.totalCost);
       if (!hasManager(manager)) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
