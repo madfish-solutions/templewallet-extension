@@ -13,7 +13,9 @@ import NoLambdaViewContractAlert from 'app/templates/NoLambdaViewContractAlert';
 import { T } from 'lib/i18n/react';
 import { goBack, HistoryAction, Link, navigate, useLocation } from 'lib/woozie';
 
-import { ReactComponent as AttentionIcon } from '../icons/attention.svg';
+import { isSafeBrowserVersion } from '../../lib/browser-info';
+import { ReactComponent as AttentionGreyIcon } from '../icons/attentionGrey.svg';
+import { ReactComponent as AttentionRedIcon } from '../icons/attentionRed.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 import AnalyticsConfirmationOverlay from './PageLayout/AnalyticsConfirmationOverlay';
@@ -214,7 +216,11 @@ const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setS
       {attention && (
         <div className="flex content-end">
           <Link to={'/attention'} style={{ paddingRight: 12 }}>
-            <AttentionIcon className="w-auto h-6 stroke-current flex-1 content-end" />
+            {isSafeBrowserVersion ? (
+              <AttentionGreyIcon className="w-auto h-6 stroke-current flex-1 content-end" />
+            ) : (
+              <AttentionRedIcon className="w-auto h-6 stroke-current flex-1 content-end" />
+            )}
           </Link>
         </div>
       )}

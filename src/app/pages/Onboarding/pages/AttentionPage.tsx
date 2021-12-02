@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 
+import { isSafeBrowserVersion } from '../../../../lib/browser-info';
 import { T } from '../../../../lib/i18n/react';
 import { Button } from '../../../atoms/Button';
 import { useAppEnv } from '../../../env';
@@ -8,6 +9,7 @@ import styles from '../Onboarding.module.css';
 
 const AttentionPage: FC = () => {
   const { onBack } = useAppEnv();
+  console.log(isSafeBrowserVersion);
 
   return (
     <PageLayout
@@ -21,7 +23,12 @@ const AttentionPage: FC = () => {
         <p className={styles['title']}>
           <T id={'attention'} />
         </p>
-        <p className={styles['description']}>
+        {!isSafeBrowserVersion && (
+          <p className={styles['alert']}>
+            <T id={'browserVersionIsOutOfDate'} />
+          </p>
+        )}
+        <p className={styles['description']} style={isSafeBrowserVersion ? {} : { marginTop: 24 }}>
           <T id={'attentionDescription'} />
         </p>
         <p className={styles['description']} style={{ textAlign: 'start', marginBottom: 20 }}>
@@ -72,9 +79,6 @@ const AttentionPage: FC = () => {
           >
             link
           </a>
-        </p>
-        <p className={styles['description']} style={{ marginTop: 24, marginBottom: 0, fontWeight: 500 }}>
-          <T id={'makeSureBrowserIsUpToDate'} />
         </p>
         <Button
           className="w-full justify-center border-none"
