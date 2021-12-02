@@ -90,8 +90,6 @@ export async function fetchTokenMetadata(
     const tzip12Metadata = await getTzip12Metadata(contract, assetId as any);
     const metadataFromUri = await getMetadataFromUri(contract, assetId, tezos);
 
-    console.log(tzip12Metadata);
-
     const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
 
     assert('decimals' in rawMetadata && ('name' in rawMetadata || 'symbol' in rawMetadata));
