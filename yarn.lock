@@ -2072,14 +2072,14 @@
   dependencies:
     idna-uts46-hx "^3.3.0"
 
-"@tezos-domains/core@^1.9.0":
+"@tezos-domains/core@^1.7.0", "@tezos-domains/core@^1.9.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@tezos-domains/core/-/core-1.9.0.tgz#24acce47a70197d5b6b62e9ef9b3caf6ab2bb5be"
   integrity sha512-AP2pO3zL3vngHxBOqt8uTR8BH545vXsWU0PY1/35k4U42U59eLZ5/I0QNKgQRpiRdSrAbejMpny3L4ebs9YC4g==
   dependencies:
     idna-uts46-hx "^3.3.0"
 
-"@tezos-domains/manager@^1.9.0":
+"@tezos-domains/manager@^1.7.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@tezos-domains/manager/-/manager-1.9.0.tgz#8e9b19b0a9abed56ea17427893cf1b484c825e84"
   integrity sha512-NaJBiXZgiM2MmTyjoVHw+0s7mUKleYycBDLHsyCdzMbRELUkexytwyywd6b5/xuNMCOXU3GoOkXeVnSDIUxpYg==
@@ -2090,7 +2090,7 @@
     bignumber.js "^9.0.1"
     sha.js "^2.4.11"
 
-"@tezos-domains/resolver@^1.9.0":
+"@tezos-domains/resolver@^1.7.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@tezos-domains/resolver/-/resolver-1.9.0.tgz#c268d4c249f5ef87710e815bc3fa7352e4a3f92b"
   integrity sha512-x3M0oBkhsDmlPvcsPTcbNxV6WuJZp8xX7R6Lc12ihBUhklTUNym5zefnI3O2wcxhJe9wT045Q6xxEMpmbhSypw==
@@ -2098,19 +2098,19 @@
     "@tezos-domains/core" "^1.9.0"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito-client@1.9.0":
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.9.0.tgz#f048472c4ad48a1a29657fa3e697b53b2c2b0930"
-  integrity sha512-ZBIJ7S+Ct0BizcFSZStpKK7wfwi5MvFYL3PI8uXwUA7K6pzO8yAyg/46MIsUhMeZUM3A6iBsgyPRYAStAAPaXQ==
+"@tezos-domains/taquito-client@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@tezos-domains/taquito-client/-/taquito-client-1.7.0.tgz#7b18cf7c5bdc1ab61385a66503101a4c3988c71b"
+  integrity sha512-dFnsWAxqFpf9iCCLwOhpswZJWa0ecg3AmHKW44jnf1AiugXG7Dpdvox6q86rTWmflWwAYiJC4pr/mgd1JeZNJg==
   dependencies:
-    "@tezos-domains/core" "^1.9.0"
-    "@tezos-domains/manager" "^1.9.0"
-    "@tezos-domains/resolver" "^1.9.0"
-    "@tezos-domains/taquito" "^1.9.0"
+    "@tezos-domains/core" "^1.7.0"
+    "@tezos-domains/manager" "^1.7.0"
+    "@tezos-domains/resolver" "^1.7.0"
+    "@tezos-domains/taquito" "^1.7.0"
     bignumber.js "^9.0.1"
     node-cache "^5.1.2"
 
-"@tezos-domains/taquito@^1.9.0":
+"@tezos-domains/taquito@^1.7.0", "@tezos-domains/taquito@^1.9.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@tezos-domains/taquito/-/taquito-1.9.0.tgz#403bbbf3e38bad2b69a3b34d6b7e3e7b609b4974"
   integrity sha512-NuwYCXkZcE8zGmY4vqbE1M1L5UFrmHo2HWz/IzUJKB1exxGcWrnGTcGb9x4AX4MsPGBgFErrNhQv+MZX5rMKPw==
