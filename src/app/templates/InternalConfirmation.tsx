@@ -14,7 +14,7 @@ import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
 import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import AccountBanner from 'app/templates/AccountBanner';
-import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView';
+import ExpensesView, { MIN_GAS_FEE, ModifyFeeAndLimit } from 'app/templates/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
@@ -24,13 +24,13 @@ import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 import {
   TempleAccountType,
-  TempleConfirmationPayload,
-  tryParseExpenses,
-  useNetwork,
-  useRelevantAccounts,
-  useCustomChainId,
   TempleChainId,
-  toTokenSlug
+  TempleConfirmationPayload,
+  toTokenSlug,
+  tryParseExpenses,
+  useCustomChainId,
+  useNetwork,
+  useRelevantAccounts
 } from 'lib/temple/front';
 import useSafeState from 'lib/ui/useSafeState';
 
@@ -134,7 +134,6 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   const [spFormat, setSpFormat] = useSafeState(signPayloadFormats[0]);
   const [error, setError] = useSafeState<any>(null);
-  const [gasFeeError, setGasFeeError] = useSafeState(false);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
 
@@ -158,6 +157,8 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] = useSafeState(
     (payload.type === 'operations' && payload.opParams[0].storageLimit) || 0
   );
+
+  const gasFeeError = useMemo(() => modifiedTotalFeeValue <= MIN_GAS_FEE, [modifiedTotalFeeValue]);
 
   const confirm = useCallback(
     async (confirmed: boolean) => {
@@ -294,8 +295,6 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
                   mainnet={mainnet}
-                  gasFeeError={gasFeeError}
-                  setGasFeeError={setGasFeeError}
                 />
               )}
             </>

@@ -8,7 +8,6 @@ type PlainAssetInputProps = Omit<React.HTMLAttributes<HTMLInputElement>, 'onChan
   max?: number;
   assetDecimals?: number;
   onChange?: (v?: string) => void;
-  setGasFeeError?: (b: boolean) => void;
 };
 
 const PlainAssetInput: FC<PlainAssetInputProps> = ({
@@ -17,7 +16,6 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
   max = Number.MAX_SAFE_INTEGER,
   assetDecimals = 6,
   onChange,
-  setGasFeeError,
   onFocus,
   onBlur,
   ...rest
@@ -43,24 +41,14 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
         numVal = new BigNumber(val);
       }
 
-      if (!numVal.isNaN() && numVal.isGreaterThan(min) && numVal.isLessThanOrEqualTo(max)) {
-        if (setGasFeeError) {
-          setGasFeeError(false);
-        }
-
-        setLocalValue(val);
-        if (onChange) {
-          onChange(val !== '' ? numVal.toFixed() : undefined);
-        }
-      } else if (setGasFeeError && numVal.isLessThanOrEqualTo(min)) {
-        setGasFeeError(true);
+      if (!numVal.isNaN() && numVal.isGreaterThanOrEqualTo(min) && numVal.isLessThanOrEqualTo(max)) {
         setLocalValue(val);
         if (onChange) {
           onChange(val !== '' ? numVal.toFixed() : undefined);
         }
       }
     },
-    [assetDecimals, setLocalValue, min, max, onChange, setGasFeeError]
+    [assetDecimals, setLocalValue, min, max, onChange]
   );
 
   const handleFocus = useCallback(
