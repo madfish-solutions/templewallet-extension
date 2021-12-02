@@ -32,23 +32,7 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
         {type === 'tezosSelector' ? (
           <AssetIcon assetSlug="tez" size={32} />
         ) : (
-          <>
-            {customLogoCurrencyList.indexOf(label) === -1 ? (
-              <img
-                alt="icon"
-                className={styles['currencyCircle']}
-                src={browser.runtime.getURL('misc/token-logos/top-up-token-logos/' + label.toLowerCase() + '.png')}
-              />
-            ) : (
-              <div className={styles['customCurrencyCircleWrapper']}>
-                <img
-                  alt="icon"
-                  className={styles['customCurrencyCircle']}
-                  src={browser.runtime.getURL('misc/token-logos/top-up-token-logos/' + label.toLowerCase() + '.png')}
-                />
-              </div>
-            )}
-          </>
+          <CurrencyImage label={label} logoList={customLogoCurrencyList} />
         )}
         <p className={styles['currencyName']}>{short && label.length > 4 ? `${label.substr(0, 3)}…` : label}</p>
         {type === 'currencySelector' && (
@@ -58,5 +42,22 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
     );
   }
 );
+
+const CurrencyImage: React.FC<{ label: string; logoList: string[] }> = ({ label, logoList }) =>
+  logoList.indexOf(label) === -1 ? (
+    <img
+      alt="icon"
+      className={styles['currencyCircle']}
+      src={browser.runtime.getURL('misc/token-logos/top-up-token-logos/' + label.toLowerCase() + '.png')}
+    />
+  ) : (
+    <div className={styles['customCurrencyCircleWrapper']}>
+      <img
+        alt="icon"
+        className={styles['customCurrencyCircle']}
+        src={browser.runtime.getURL('misc/token-logos/top-up-token-logos/' + label.toLowerCase() + '.png')}
+      />
+    </div>
+  );
 
 export default CurrencyComponent;
