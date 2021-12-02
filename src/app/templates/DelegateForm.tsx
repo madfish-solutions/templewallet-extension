@@ -71,7 +71,7 @@ const DelegateForm: FC = () => {
 
   const { data: balanceData, mutate: mutateBalance } = useBalance('tez', accountPkh);
   const balance = balanceData!;
-  const balanceNum = balance!.toNumber();
+  const balanceNum = balance.toNumber();
 
   const knownBakers = useKnownBakers();
   const domainsClient = useTezosDomainsClient();
@@ -150,7 +150,7 @@ const DelegateForm: FC = () => {
     [toValue, domainsClient]
   );
   const domainAddressFactory = useCallback(
-    (_k: string, _checksum: string, toValue: string) => domainsClient.resolver.resolveNameToAddress(toValue),
+    (_k: string, _checksum: string, value: string) => domainsClient.resolver.resolveNameToAddress(value),
     [domainsClient]
   );
   const { data: resolvedAddress } = useSWR(['tzdns-address', tezos.checksum, toValue], domainAddressFactory, {
@@ -217,7 +217,7 @@ const DelegateForm: FC = () => {
         window.scrollTo(0, 0);
       });
     }
-    return;
+    return undefined;
   }, [toFilled, registerBackHandler, cleanToField]);
 
   const estimateBaseFee = useCallback(async () => {
@@ -229,16 +229,16 @@ const DelegateForm: FC = () => {
 
       const estmtn = await getEstimation();
       const manager = tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh);
-      let baseFee = mutezToTz(estmtn.totalCost);
+      let estimatedBaseFee = mutezToTz(estmtn.totalCost);
       if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
-        baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
+        estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
-      if (baseFee.isGreaterThanOrEqualTo(balanceBN)) {
+      if (estimatedBaseFee.isGreaterThanOrEqualTo(balanceBN)) {
         throw new NotEnoughFundsError();
       }
 
-      return baseFee;
+      return estimatedBaseFee;
     } catch (err: any) {
       // Human delay
       await new Promise(r => setTimeout(r, 300));
@@ -250,7 +250,7 @@ const DelegateForm: FC = () => {
       console.error(err);
 
       switch (true) {
-        case ['delegate.unchanged', 'delegate.already_active'].some(t => err?.id.includes(t)):
+        case ['delegate.unchanged', 'delegate.already_active'].some(errorLabel => err?.id.includes(errorLabel)):
           return new UnchangedError(err.message);
 
         case err?.id.includes('unregistered_delegate'):
@@ -271,7 +271,8 @@ const DelegateForm: FC = () => {
     focusThrottleInterval: 10_000,
     dedupingInterval: 30_000
   });
-  const estimationError = !estimating ? (baseFee instanceof Error ? baseFee : estimateBaseFeeError) : null;
+  const baseFeeError = baseFee instanceof Error ? baseFee : estimateBaseFeeError;
+  const estimationError = !estimating ? baseFeeError : null;
 
   const { data: baker, isValidating: bakerValidating } = useKnownBaker(toResolved || null, false);
 
@@ -279,7 +280,7 @@ const DelegateForm: FC = () => {
     if (baseFee instanceof BigNumber) {
       return new BigNumber(balanceNum).minus(baseFee).minus(PENNY).toNumber();
     }
-    return;
+    return undefined;
   }, [balanceNum, baseFee]);
 
   const handleFeeFieldChange = useCallback(([v]) => (maxAddFee && v > maxAddFee ? maxAddFee : v), [maxAddFee]);
@@ -471,198 +472,7 @@ const DelegateForm: FC = () => {
             </FormSubmitButton>
           </>
         ) : (
-          sortedKnownBakers && (
-            <div className={classNames('my-6', 'flex flex-col')}>
-              <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
-                <T id="delegateToRecommendedBakers">
-                  {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
-                </T>
-
-                <T
-                  id="clickOnBakerPrompt"
-                  substitutions={[
-                    <a
-                      href="https://baking-bad.org/"
-                      key="link"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-normal underline"
-                    >
-                      Baking Bad
-                    </a>
-                  ]}
-                >
-                  {message => (
-                    <span
-                      className={classNames('mt-1', 'text-xs font-light text-gray-600')}
-                      style={{ maxWidth: '90%' }}
-                    >
-                      {message}
-                    </span>
-                  )}
-                </T>
-              </h2>
-
-              <div className={classNames('mb-2', 'flex items-center')}>
-                <T id="sortBy">
-                  {message => <span className={classNames('mr-1', 'text-xs text-gray-500')}>{message}</span>}
-                </T>
-                {bakerSortTypes.map(({ key, title, testID }, i, arr) => {
-                  const first = i === 0;
-                  const last = i === arr.length - 1;
-                  const selected = sortBakersBy.key === key;
-
-                  return (
-                    <Link
-                      key={key}
-                      to={{
-                        pathname: '/delegate',
-                        search: `${SORT_BAKERS_BY_KEY}=${key}`
-                      }}
-                      replace
-                      className={classNames(
-                        (() => {
-                          switch (true) {
-                            case first:
-                              return classNames('rounded rounded-r-none', 'border');
-
-                            case last:
-                              return classNames('rounded rounded-l-none', 'border border-l-0');
-
-                            default:
-                              return 'border border-l-0';
-                          }
-                        })(),
-                        selected && 'bg-gray-100',
-                        'px-2 py-px',
-                        'text-xs text-gray-600'
-                      )}
-                      testID={testID}
-                    >
-                      {title}
-                    </Link>
-                  );
-                })}
-
-                <div className="flex-1" />
-
-                <div className="text-xs text-gray-500 flex items-center">
-                  <ArrowUpIcon className="h-3 w-auto stroke-current stroke-2" style={{ marginRight: '0.125rem' }} />
-                  <T id="highestIsBetter" />
-                </div>
-              </div>
-
-              <div
-                className={classNames(
-                  'rounded-md overflow-hidden',
-                  'border',
-                  'flex flex-col',
-                  'text-gray-700 text-sm leading-tight'
-                )}
-              >
-                {sortedKnownBakers.map((baker, i, arr) => {
-                  const last = i === arr.length - 1;
-                  const handleBakerClick = () => {
-                    setValue('to', baker.address);
-                    triggerValidation('to');
-                    window.scrollTo(0, 0);
-                  };
-
-                  return (
-                    <Button
-                      key={baker.address}
-                      type="button"
-                      className={classNames(
-                        'relative',
-                        'block w-full',
-                        'overflow-hidden',
-                        !last && 'border-b border-gray-200',
-                        'hover:bg-gray-100 focus:bg-gray-100',
-                        'flex items-stretch',
-                        'text-gray-700',
-                        'transition ease-in-out duration-200',
-                        'focus:outline-none',
-                        'opacity-90 hover:opacity-100'
-                      )}
-                      style={{
-                        padding: '0.65rem 0.5rem 0.65rem 0.5rem'
-                      }}
-                      onClick={handleBakerClick}
-                      testID={DelegateFormSelectors.KnownBakerItemButton}
-                      testIDProperties={{ bakerAddress: baker.address }}
-                    >
-                      <div>
-                        <img
-                          src={baker.logo ?? browser.runtime.getURL('misc/baker.svg')}
-                          alt={baker.name}
-                          className={classNames('flex-shrink-0', 'w-10 h-auto', 'bg-white rounded shadow-xs')}
-                          style={{
-                            minHeight: '2.5rem'
-                          }}
-                        />
-                      </div>
-
-                      <div className="flex flex-col items-start ml-2">
-                        <div className={classNames('mb-px', 'flex flex-wrap items-center', 'leading-none')}>
-                          <Name className="pb-1 text-base font-medium">{baker.name}</Name>
-                        </div>
-
-                        <div className={classNames('mb-1 pl-px', 'flex flex-wrap items-center')}>
-                          <T id="fee">
-                            {message => (
-                              <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
-                                {message}:{' '}
-                                <span className="font-normal">
-                                  {toLocalFormat(new BigNumber(baker.fee).times(100), { decimalPlaces: 2 })}%
-                                </span>
-                              </div>
-                            )}
-                          </T>
-                        </div>
-                        <div className="mb-1 flex flex-wrap items-center pl-px">
-                          <T id="space">
-                            {message => (
-                              <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
-                                {message}:{' '}
-                                <span className="font-normal">
-                                  <Money>{baker.freeSpace}</Money>
-                                </span>{' '}
-                                <span style={{ fontSize: '0.75em' }}>TEZ</span>
-                              </div>
-                            )}
-                          </T>
-                        </div>
-                        <div className="flex flex-wrap items-center pl-px">
-                          <T id="staking">
-                            {message => (
-                              <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
-                                {message}:{' '}
-                                <span className="font-normal">
-                                  <Money>{baker.stakingBalance}</Money>
-                                </span>{' '}
-                                <span style={{ fontSize: '0.75em' }}>TEZ</span>
-                              </div>
-                            )}
-                          </T>
-                        </div>
-                      </div>
-
-                      <div
-                        className={classNames(
-                          'absolute right-0 top-0 bottom-0',
-                          'flex items-center',
-                          'pr-2',
-                          'text-gray-500'
-                        )}
-                      >
-                        <ChevronRightIcon className="h-5 w-auto stroke-current" />
-                      </div>
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          )
+          sortedKnownBakers && <KnownDelegatorsList setValue={setValue} triggerValidation={triggerValidation} />
         )}
       </form>
     </>
@@ -670,6 +480,245 @@ const DelegateForm: FC = () => {
 };
 
 export default DelegateForm;
+
+const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({ setValue, triggerValidation }) => {
+  const knownBakers = useKnownBakers();
+  const { search } = useLocation();
+
+  const bakerSortTypes = useMemo(
+    () => [
+      {
+        key: 'rank',
+        title: t('rank'),
+        testID: DelegateFormSelectors.SortBakerByRankTab
+      },
+      {
+        key: 'fee',
+        title: t('fee'),
+        testID: DelegateFormSelectors.SortBakerByFeeTab
+      },
+      {
+        key: 'space',
+        title: t('space'),
+        testID: DelegateFormSelectors.SortBakerBySpaceTab
+      },
+      {
+        key: 'staking',
+        title: t('staking'),
+        testID: DelegateFormSelectors.SortBakerByStakingTab
+      }
+    ],
+    []
+  );
+
+  const sortBakersBy = useMemo(() => {
+    const usp = new URLSearchParams(search);
+    const val = usp.get(SORT_BAKERS_BY_KEY);
+    return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
+  }, [search, bakerSortTypes]);
+  const sortedKnownBakers = useMemo(() => {
+    if (!knownBakers) return null;
+
+    const toSort = Array.from(knownBakers);
+    switch (sortBakersBy.key) {
+      case 'fee':
+        return toSort.sort((a, b) => a.fee - b.fee);
+
+      case 'space':
+        return toSort.sort((a, b) => b.freeSpace - a.freeSpace);
+
+      case 'staking':
+        return toSort.sort((a, b) => b.stakingBalance - a.stakingBalance);
+
+      case 'rank':
+      default:
+        return toSort;
+    }
+  }, [knownBakers, sortBakersBy]);
+  if (!sortedKnownBakers) return null;
+  return (
+    <div className={classNames('my-6', 'flex flex-col')}>
+      <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
+        <T id="delegateToRecommendedBakers">
+          {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
+        </T>
+
+        <T
+          id="clickOnBakerPrompt"
+          substitutions={[
+            <a
+              href="https://baking-bad.org/"
+              key="link"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-normal underline"
+            >
+              Baking Bad
+            </a>
+          ]}
+        >
+          {message => (
+            <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+              {message}
+            </span>
+          )}
+        </T>
+      </h2>
+
+      <div className={classNames('mb-2', 'flex items-center')}>
+        <T id="sortBy">{message => <span className={classNames('mr-1', 'text-xs text-gray-500')}>{message}</span>}</T>
+        {bakerSortTypes.map(({ key, title, testID }, i, arr) => {
+          const first = i === 0;
+          const last = i === arr.length - 1;
+          const selected = sortBakersBy.key === key;
+
+          return (
+            <Link
+              key={key}
+              to={{
+                pathname: '/delegate',
+                search: `${SORT_BAKERS_BY_KEY}=${key}`
+              }}
+              replace
+              className={classNames(
+                (() => {
+                  switch (true) {
+                    case first:
+                      return classNames('rounded rounded-r-none', 'border');
+
+                    case last:
+                      return classNames('rounded rounded-l-none', 'border border-l-0');
+
+                    default:
+                      return 'border border-l-0';
+                  }
+                })(),
+                selected && 'bg-gray-100',
+                'px-2 py-px',
+                'text-xs text-gray-600'
+              )}
+              testID={testID}
+            >
+              {title}
+            </Link>
+          );
+        })}
+
+        <div className="flex-1" />
+
+        <div className="text-xs text-gray-500 flex items-center">
+          <ArrowUpIcon className="h-3 w-auto stroke-current stroke-2" style={{ marginRight: '0.125rem' }} />
+          <T id="highestIsBetter" />
+        </div>
+      </div>
+
+      <div
+        className={classNames(
+          'rounded-md overflow-hidden',
+          'border',
+          'flex flex-col',
+          'text-gray-700 text-sm leading-tight'
+        )}
+      >
+        {sortedKnownBakers.map((baker, i, arr) => {
+          const last = i === arr.length - 1;
+          const handleBakerClick = () => {
+            setValue('to', baker.address);
+            triggerValidation('to');
+            window.scrollTo(0, 0);
+          };
+
+          return (
+            <Button
+              key={baker.address}
+              type="button"
+              className={classNames(
+                'relative',
+                'block w-full',
+                'overflow-hidden',
+                !last && 'border-b border-gray-200',
+                'hover:bg-gray-100 focus:bg-gray-100',
+                'flex items-stretch',
+                'text-gray-700',
+                'transition ease-in-out duration-200',
+                'focus:outline-none',
+                'opacity-90 hover:opacity-100'
+              )}
+              style={{
+                padding: '0.65rem 0.5rem 0.65rem 0.5rem'
+              }}
+              onClick={handleBakerClick}
+              testID={DelegateFormSelectors.KnownBakerItemButton}
+              testIDProperties={{ bakerAddress: baker.address }}
+            >
+              <div>
+                <img
+                  src={baker.logo ?? browser.runtime.getURL('misc/baker.svg')}
+                  alt={baker.name}
+                  className={classNames('flex-shrink-0', 'w-10 h-auto', 'bg-white rounded shadow-xs')}
+                  style={{
+                    minHeight: '2.5rem'
+                  }}
+                />
+              </div>
+
+              <div className="flex flex-col items-start ml-2">
+                <div className={classNames('mb-px', 'flex flex-wrap items-center', 'leading-none')}>
+                  <Name className="pb-1 text-base font-medium">{baker.name}</Name>
+                </div>
+
+                <div className={classNames('mb-1 pl-px', 'flex flex-wrap items-center')}>
+                  <T id="fee">
+                    {message => (
+                      <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
+                        {message}:{' '}
+                        <span className="font-normal">
+                          {toLocalFormat(new BigNumber(baker.fee).times(100), { decimalPlaces: 2 })}%
+                        </span>
+                      </div>
+                    )}
+                  </T>
+                </div>
+                <div className="mb-1 flex flex-wrap items-center pl-px">
+                  <T id="space">
+                    {message => (
+                      <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
+                        {message}:{' '}
+                        <span className="font-normal">
+                          <Money>{baker.freeSpace}</Money>
+                        </span>{' '}
+                        <span style={{ fontSize: '0.75em' }}>TEZ</span>
+                      </div>
+                    )}
+                  </T>
+                </div>
+                <div className="flex flex-wrap items-center pl-px">
+                  <T id="staking">
+                    {message => (
+                      <div className={classNames('text-xs font-light leading-none', 'text-gray-600')}>
+                        {message}:{' '}
+                        <span className="font-normal">
+                          <Money>{baker.stakingBalance}</Money>
+                        </span>{' '}
+                        <span style={{ fontSize: '0.75em' }}>TEZ</span>
+                      </div>
+                    )}
+                  </T>
+                </div>
+              </div>
+
+              <div
+                className={classNames('absolute right-0 top-0 bottom-0', 'flex items-center', 'pr-2', 'text-gray-500')}
+              >
+                <ChevronRightIcon className="h-5 w-auto stroke-current" />
+              </div>
+            </Button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 type DelegateErrorAlertProps = {
   type: 'submit' | 'estimation';
