@@ -12,7 +12,9 @@ type LogoProps = SVGProps<SVGSVGElement> & {
 };
 
 const Logo = memo<LogoProps>(({ hasTitle, white, style = {}, ...rest }) => {
-  const Component = white ? (hasTitle ? WhiteLogoTitle : WhiteLogo) : hasTitle ? LogoTitle : PlainLogo;
+  const whiteLogoType = hasTitle ? WhiteLogoTitle : WhiteLogo;
+  const plainLogoType = hasTitle ? LogoTitle : PlainLogo;
+  const Component = white ? whiteLogoType : plainLogoType;
 
   return (
     <Component
