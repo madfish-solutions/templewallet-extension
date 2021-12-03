@@ -1,4 +1,4 @@
-const secureBrowserVersions: { [index: string]: number } = {
+const secureBrowserVersions: Record<string, number> = {
   Chrome: 93,
   Firefox: 88,
   IE: 11,

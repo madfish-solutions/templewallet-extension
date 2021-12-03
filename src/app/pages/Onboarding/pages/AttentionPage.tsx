@@ -1,10 +1,11 @@
 import React, { FC } from 'react';
 
-import { isSafeBrowserVersion } from '../../../../lib/browser-info';
-import { T } from '../../../../lib/i18n/react';
-import { Button } from '../../../atoms/Button';
-import { useAppEnv } from '../../../env';
-import PageLayout from '../../../layouts/PageLayout';
+import { Button } from 'app/atoms/Button';
+import { useAppEnv } from 'app/env';
+import PageLayout from 'app/layouts/PageLayout';
+import { isSafeBrowserVersion } from 'lib/browser-info';
+import { T } from 'lib/i18n/react';
+
 import styles from '../Onboarding.module.css';
 
 const AttentionPage: FC = () => {
