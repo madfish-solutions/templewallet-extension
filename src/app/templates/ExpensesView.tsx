@@ -12,11 +12,11 @@ import HashChip from 'app/templates/HashChip';
 import InUSD from 'app/templates/InUSD';
 import { T, t, TProps } from 'lib/i18n/react';
 import {
-  RawOperationExpenses,
-  RawOperationAssetExpense,
-  mutezToTz,
-  tzToMutez,
   getAssetSymbol,
+  mutezToTz,
+  RawOperationAssetExpense,
+  RawOperationExpenses,
+  tzToMutez,
   useAssetMetadata
 } from 'lib/temple/front';
 
@@ -33,6 +33,7 @@ type ExpensesViewProps = {
   estimates?: Estimate[];
   mainnet?: boolean;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
+  gasFeeError?: boolean;
 };
 
 export interface ModifyFeeAndLimit {
@@ -42,10 +43,9 @@ export interface ModifyFeeAndLimit {
   onStorageLimitChange: (storageLimit: number) => void;
 }
 
-export const MIN_GAS_FEE = 0;
 const MAX_GAS_FEE = 1000;
 
-const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit }) => {
+const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit, gasFeeError }) => {
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
 
@@ -126,7 +126,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
                             'w-24',
                             'py-px px-1',
                             'border',
-                            modifyFeeAndLimit.totalFee <= MIN_GAS_FEE ? 'border-red-300' : 'border-gray-300',
+                            gasFeeError ? 'border-red-300' : 'border-gray-300',
                             'focus:border-primary-orange',
                             'bg-gray-100 focus:bg-transparent',
                             'focus:outline-none focus:shadow-outline',
@@ -206,7 +206,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
         'relative rounded-md overflow-y-auto border',
         'flex flex-col text-gray-700 text-sm leading-tight'
       )}
-      style={{ height: modifyFeeAndLimit && modifyFeeAndLimit.totalFee <= MIN_GAS_FEE ? '10rem' : '11rem' }}
+      style={{ height: gasFeeError ? '10rem' : '11rem' }}
     >
       {expenses.map((item, index, arr) => (
         <ExpenseViewItem key={index} item={item} last={index === arr.length - 1} mainnet={mainnet} />

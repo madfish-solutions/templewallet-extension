@@ -14,7 +14,7 @@ import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
 import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import AccountBanner from 'app/templates/AccountBanner';
-import ExpensesView, { MIN_GAS_FEE, ModifyFeeAndLimit } from 'app/templates/ExpensesView';
+import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationsBanner from 'app/templates/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
@@ -40,6 +40,8 @@ type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => Promise<void>;
 };
+
+const MIN_GAS_FEE = 0;
 
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm }) => {
   const { rpcBaseURL: currentNetworkRpc } = useNetwork();
@@ -294,6 +296,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
                   mainnet={mainnet}
+                  gasFeeError={gasFeeError}
                 />
               )}
             </>
