@@ -9,7 +9,12 @@ const usePasswordToggle = (): [string, JSX.Element] => {
   const [visible, setVisibility] = useState(false);
 
   const Icon = (
-    <button type="button" className={classNames('absolute inset-y-0 right-3')} onClick={() => setVisibility(!visible)}>
+    <button
+      type="button"
+      tabIndex={1}
+      className={classNames('absolute inset-y-0 right-3')}
+      onClick={() => setVisibility(!visible)}
+    >
       {visible ? <EyeClosedBold /> : <EyeOpenBold />}
     </button>
   );
