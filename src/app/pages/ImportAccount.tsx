@@ -101,7 +101,7 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
     [network.type]
   );
   const { slug, Form } = useMemo(() => {
-    const tab = tabSlug ? allTabs.find(t => t.slug === tabSlug) : null;
+    const tab = tabSlug ? allTabs.find(currentTab => currentTab.slug === tabSlug) : null;
     return tab ?? allTabs[0];
   }, [allTabs, tabSlug]);
   useEffect(() => {
@@ -801,7 +801,7 @@ const WatchOnlyForm: FC = () => {
   const addressValue = watch('address');
 
   const domainAddressFactory = useCallback(
-    (_k: string, _checksum: string, addressValue: string) => domainsClient.resolver.resolveNameToAddress(addressValue),
+    (_k: string, _checksum: string, address: string) => domainsClient.resolver.resolveNameToAddress(address),
     [domainsClient]
   );
   const { data: resolvedAddress } = useSWR(['tzdns-address', tezos.checksum, addressValue], domainAddressFactory, {

@@ -23,7 +23,7 @@ const ConfirmationOverlay: FC = () => {
         document.body.classList.remove('overscroll-y-none');
       };
     }
-    return;
+    return undefined;
   }, [displayed]);
 
   const handleConfirm = useCallback(

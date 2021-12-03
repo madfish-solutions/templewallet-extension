@@ -2,7 +2,7 @@ import { FC, useEffect } from 'react';
 
 import styles from './DisableOutlinesForClick.module.css';
 
-const TAB_KEY_CODE = 9;
+const TAB_KEY_CODE = 'Tab';
 const CLASS_NAME = styles['focus-disabled'];
 
 /**
@@ -24,7 +24,7 @@ const DisableOutlinesForClick: FC = () => {
     }
 
     function handleKeyDown(evt: KeyboardEvent) {
-      if (evt.which === TAB_KEY_CODE) {
+      if (evt.key === TAB_KEY_CODE) {
         reset();
         container.addEventListener('mousedown', handleMouseDown);
       }

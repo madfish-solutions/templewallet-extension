@@ -19,7 +19,7 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
   const { resolver: domainsResolver } = useTezosDomainsClient();
 
   const resolveDomainReverseName = useCallback(
-    (_k: string, pkh: string) => domainsResolver.resolveAddressToName(pkh),
+    (_k: string, publicKeyHash: string) => domainsResolver.resolveAddressToName(publicKeyHash),
     [domainsResolver]
   );
 
