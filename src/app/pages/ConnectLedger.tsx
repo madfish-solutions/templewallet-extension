@@ -60,7 +60,7 @@ const DERIVATION_TYPES = [
 ];
 
 const ConnectLedger: FC = () => {
-  const { createLedgerAccount } = useTempleClient();
+  const { createLedgerAccount, createLedgerLiveAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
   const formAnalytics = useFormAnalytics('ConnectLedger');
@@ -100,11 +100,19 @@ const ConnectLedger: FC = () => {
 
       formAnalytics.trackSubmit();
       try {
-        await createLedgerAccount(
-          name,
-          derivationType,
-          customDerivationPath ?? (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
-        );
+        if (window.navigator.hid) {
+          await createLedgerAccount(
+            name,
+            derivationType,
+            customDerivationPath ?? (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
+          );
+        } else {
+          await createLedgerLiveAccount(
+            name,
+            derivationType,
+            customDerivationPath ?? (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
+          );
+        }
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
@@ -117,8 +125,36 @@ const ConnectLedger: FC = () => {
         setError(err.message);
       }
     },
-    [submitting, createLedgerAccount, setError, formAnalytics]
+    [submitting, createLedgerAccount, createLedgerLiveAccount, setError, formAnalytics]
   );
+
+  // const handleLedgerConnect = useCallback(
+  //   async ({ name, accountNumber, customDerivationPath, derivationType }: FormData) => {
+  //     if (submitting) return;
+
+  //     setError(null);
+
+  //     formAnalytics.trackSubmit();
+  //     try {
+  //       await createLedgerAccount(
+  //         name,
+  //         derivationType,
+  //         customDerivationPath ?? (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
+  //       );
+
+  //       formAnalytics.trackSubmitSuccess();
+  //     } catch (err: any) {
+  //       formAnalytics.trackSubmitFail();
+
+  //       console.error(err);
+
+  //       // Human delay.
+  //       await new Promise(res => setTimeout(res, 300));
+  //       setError(err.message);
+  //     }
+  //   },
+  //   [submitting, createLedgerAccount, setError, formAnalytics]
+  // );
 
   return (
     <PageLayout
@@ -223,7 +259,14 @@ const ConnectLedger: FC = () => {
             <T id="addLedgerAccount">
               {message => (
                 <FormSubmitButton loading={submitting} className="mt-8">
-                  {message}
+                  {message} via Ledger live
+                </FormSubmitButton>
+              )}
+            </T>
+            <T id="addLedgerAccount">
+              {message => (
+                <FormSubmitButton loading={submitting} className="mt-8">
+                  {message} without Ledger Live
                 </FormSubmitButton>
               )}
             </T>

@@ -353,6 +353,41 @@ export class Vault {
     });
   }
 
+  async createLedgerLiveAccount(name: string, derivationPath?: string, derivationType?: DerivationType) {
+    return withError('Failed to connect Ledger account', async () => {
+      if (!derivationPath) derivationPath = getMainDerivationPath(0);
+
+      const { signer, cleanup } = await createLedgerSigner(derivationPath, derivationType);
+
+      try {
+        const accPublicKey = await signer.publicKey();
+        const accPublicKeyHash = await signer.publicKeyHash();
+
+        const newAccount: TempleAccount = {
+          type: TempleAccountType.Ledger,
+          name,
+          publicKeyHash: accPublicKeyHash,
+          derivationPath,
+          derivationType
+        };
+        const allAccounts = await this.fetchAccounts();
+        const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+        await encryptAndSaveMany(
+          [
+            [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+            [accountsStrgKey, newAllAcounts]
+          ],
+          this.passKey
+        );
+
+        return newAllAcounts;
+      } finally {
+        cleanup();
+      }
+    });
+  }
+
   async editAccountName(accPublicKeyHash: string, name: string) {
     return withError('Failed to edit account name', async () => {
       const allAccounts = await this.fetchAccounts();

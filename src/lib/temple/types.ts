@@ -235,6 +235,8 @@ export enum TempleMessageType {
   ImportWatchOnlyAccountResponse = 'TEMPLE_IMPORT_WATCH_ONLY_ACCOUNT_RESPONSE',
   CreateLedgerAccountRequest = 'TEMPLE_CREATE_LEDGER_ACCOUNT_REQUEST',
   CreateLedgerAccountResponse = 'TEMPLE_CREATE_LEDGER_ACCOUNT_RESPONSE',
+  CreateLedgerLiveAccountRequest = 'TEMPLE_CREATE_LEDGER_LIVE_ACCOUNT_REQUEST',
+  CreateLedgerLiveAccountResponse = 'TEMPLE_CREATE_LEDGER_LIVE_ACCOUNT_RESPONSE',
   UpdateSettingsRequest = 'TEMPLE_UPDATE_SETTINGS_REQUEST',
   UpdateSettingsResponse = 'TEMPLE_UPDATE_SETTINGS_RESPONSE',
   OperationsRequest = 'TEMPLE_OPERATIONS_REQUEST',
@@ -277,6 +279,7 @@ export type TempleRequest =
   | TempleImportManagedKTAccountRequest
   | TempleImportWatchOnlyAccountRequest
   | TempleCreateLedgerAccountRequest
+  | TempleCreateLedgerLiveAccountRequest
   | TempleOperationsRequest
   | TempleSignRequest
   | TempleConfirmationRequest
@@ -306,6 +309,7 @@ export type TempleResponse =
   | TempleImportManagedKTAccountResponse
   | TempleImportWatchOnlyAccountResponse
   | TempleCreateLedgerAccountResponse
+  | TempleCreateLedgerLiveAccountResponse
   | TempleOperationsResponse
   | TempleSignResponse
   | TempleConfirmationResponse
@@ -496,6 +500,17 @@ export interface TempleCreateLedgerAccountRequest extends TempleMessageBase {
 
 export interface TempleCreateLedgerAccountResponse extends TempleMessageBase {
   type: TempleMessageType.CreateLedgerAccountResponse;
+}
+
+export interface TempleCreateLedgerLiveAccountRequest extends TempleMessageBase {
+  type: TempleMessageType.CreateLedgerLiveAccountRequest;
+  name: string;
+  derivationPath?: string;
+  derivationType?: DerivationType;
+}
+
+export interface TempleCreateLedgerLiveAccountResponse extends TempleMessageBase {
+  type: TempleMessageType.CreateLedgerLiveAccountResponse;
 }
 
 export interface TempleUpdateSettingsRequest extends TempleMessageBase {

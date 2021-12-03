@@ -251,6 +251,19 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     []
   );
 
+  const createLedgerLiveAccount = useCallback(
+    async (name: string, derivationType?: DerivationType, derivationPath?: string) => {
+      const res = await request({
+        type: TempleMessageType.CreateLedgerLiveAccountRequest,
+        name,
+        derivationPath,
+        derivationType
+      });
+      assertResponse(res.type === TempleMessageType.CreateLedgerLiveAccountResponse);
+    },
+    []
+  );
+
   const updateSettings = useCallback(async (settings: Partial<TempleSettings>) => {
     const res = await request({
       type: TempleMessageType.UpdateSettingsRequest,
@@ -384,6 +397,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     importKTManagedAccount,
     importWatchOnlyAccount,
     createLedgerAccount,
+    createLedgerLiveAccount,
     updateSettings,
     confirmInternal,
     getDAppPayload,
