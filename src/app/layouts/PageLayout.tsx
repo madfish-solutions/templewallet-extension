@@ -10,10 +10,10 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import NoLambdaViewContractAlert from 'app/templates/NoLambdaViewContractAlert';
+import { isSafeBrowserVersion } from 'lib/browser-info';
 import { T } from 'lib/i18n/react';
 import { goBack, HistoryAction, Link, navigate, useLocation } from 'lib/woozie';
 
-import { isSafeBrowserVersion } from '../../lib/browser-info';
 import { ReactComponent as AttentionGreyIcon } from '../icons/attentionGrey.svg';
 import { ReactComponent as AttentionRedIcon } from '../icons/attentionRed.svg';
 import { useOnboardingProgress } from '../pages/Onboarding/hooks/useOnboardingProgress.hook';
