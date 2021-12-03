@@ -3,7 +3,7 @@ import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } f
 import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, Control, FieldError, NestDataObject, FormStateProxy } from 'react-hook-form';
 import useSWR from 'swr';
 import { browser } from 'webextension-polyfill-ts';
 
@@ -42,7 +42,8 @@ import {
   loadContract,
   useTezosDomainsClient,
   isDomainNameValid,
-  fetchTezosBalance
+  fetchTezosBalance,
+  Baker
 } from 'lib/temple/front';
 import useSafeState from 'lib/ui/useSafeState';
 import { useLocation, Link } from 'lib/woozie';
@@ -62,7 +63,6 @@ const DelegateForm: FC = () => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
 
-  const net = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
 
@@ -72,64 +72,8 @@ const DelegateForm: FC = () => {
   const { data: balanceData, mutate: mutateBalance } = useBalance('tez', accountPkh);
   const balance = balanceData!;
   const balanceNum = balance.toNumber();
-
-  const knownBakers = useKnownBakers();
   const domainsClient = useTezosDomainsClient();
   const canUseDomainNames = domainsClient.isSupported;
-
-  const { search } = useLocation();
-
-  const bakerSortTypes = useMemo(
-    () => [
-      {
-        key: 'rank',
-        title: t('rank'),
-        testID: DelegateFormSelectors.SortBakerByRankTab
-      },
-      {
-        key: 'fee',
-        title: t('fee'),
-        testID: DelegateFormSelectors.SortBakerByFeeTab
-      },
-      {
-        key: 'space',
-        title: t('space'),
-        testID: DelegateFormSelectors.SortBakerBySpaceTab
-      },
-      {
-        key: 'staking',
-        title: t('staking'),
-        testID: DelegateFormSelectors.SortBakerByStakingTab
-      }
-    ],
-    []
-  );
-
-  const sortBakersBy = useMemo(() => {
-    const usp = new URLSearchParams(search);
-    const val = usp.get(SORT_BAKERS_BY_KEY);
-    return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
-  }, [search, bakerSortTypes]);
-
-  const sortedKnownBakers = useMemo(() => {
-    if (!knownBakers) return null;
-
-    const toSort = Array.from(knownBakers);
-    switch (sortBakersBy.key) {
-      case 'fee':
-        return toSort.sort((a, b) => a.fee - b.fee);
-
-      case 'space':
-        return toSort.sort((a, b) => b.freeSpace - a.freeSpace);
-
-      case 'staking':
-        return toSort.sort((a, b) => b.stakingBalance - a.stakingBalance);
-
-      case 'rank':
-      default:
-        return toSort;
-    }
-  }, [knownBakers, sortBakersBy]);
 
   /**
    * Form
@@ -348,10 +292,6 @@ const DelegateForm: FC = () => {
     ]
   );
 
-  const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
-  const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
-  const tzError = submitError || estimationError;
-
   return (
     <>
       {operation && <OperationStatus typeTitle={t('delegation')} operation={operation} />}
@@ -415,71 +355,138 @@ const DelegateForm: FC = () => {
           </div>
         )}
 
-        {estimateFallbackDisplayed ? (
-          <div className="flex justify-center my-8">
-            <Spinner className="w-20" />
-          </div>
-        ) : restFormDisplayed ? (
-          <>
-            {baker ? (
-              <>
-                <div className={classNames('-mt-2 mb-6', 'flex flex-col items-center')}>
-                  <BakerBanner bakerPkh={baker!.address} displayAddress={false} />
-                </div>
-
-                {!tzError && baker!.min_delegations_amount > balanceNum && (
-                  <Alert
-                    type="warn"
-                    title={t('minDelegationAmountTitle')}
-                    description={
-                      <T
-                        id="minDelegationAmountDescription"
-                        substitutions={[
-                          <span className="font-normal" key="minDelegationsAmount">
-                            <Money>{baker!.min_delegations_amount}</Money>{' '}
-                            <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
-                          </span>
-                        ]}
-                      />
-                    }
-                    className="mb-6"
-                  />
-                )}
-              </>
-            ) : !tzError && net.type === 'main' ? (
-              <Alert
-                type="warn"
-                title={t('unknownBakerTitle')}
-                description={t('unknownBakerDescription')}
-                className="mb-6"
-              />
-            ) : null}
-
-            {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
-
-            <AdditionalFeeInput
-              name="fee"
-              control={control}
-              onChange={handleFeeFieldChange}
-              assetSymbol={assetSymbol}
-              baseFee={baseFee}
-              error={errors.fee}
-              id="delegate-fee"
-            />
-
-            <FormSubmitButton loading={formState.isSubmitting} disabled={Boolean(estimationError)}>
-              {t('delegate')}
-            </FormSubmitButton>
-          </>
-        ) : (
-          sortedKnownBakers && <KnownDelegatorsList setValue={setValue} triggerValidation={triggerValidation} />
-        )}
+        <BakerForm
+          baker={baker}
+          submitError={submitError}
+          estimationError={estimationError}
+          estimating={estimating}
+          baseFee={baseFee}
+          toFilled={toFilled}
+          bakerValidating={bakerValidating}
+          control={control}
+          errors={errors}
+          handleFeeFieldChange={handleFeeFieldChange}
+          setValue={setValue}
+          triggerValidation={triggerValidation}
+          formState={formState}
+        />
       </form>
     </>
   );
 };
 
 export default DelegateForm;
+
+interface BakerFormProps {
+  baker: Baker | null | undefined;
+  toFilled: boolean | '';
+  submitError: ReactNode;
+  estimationError: any;
+  estimating: boolean;
+  bakerValidating: boolean;
+  baseFee?: BigNumber | ArtificialError | UnchangedError | UnregisteredDelegateError;
+  control: Control<FormData>;
+  handleFeeFieldChange: ([v]: any) => any;
+  errors: NestDataObject<FormData, FieldError>;
+  setValue: any;
+  triggerValidation: (payload?: string | string[] | undefined, shouldRender?: boolean | undefined) => Promise<boolean>;
+  formState: FormStateProxy<FormData>;
+}
+
+const BakerForm: React.FC<BakerFormProps> = ({
+  baker,
+  submitError,
+  estimationError,
+  estimating,
+  bakerValidating,
+  toFilled,
+  baseFee,
+  control,
+  errors,
+  handleFeeFieldChange,
+  setValue,
+  triggerValidation,
+  formState
+}) => {
+  const assetSymbol = 'ꜩ';
+  const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
+  if (estimateFallbackDisplayed) {
+    return (
+      <div className="flex justify-center my-8">
+        <Spinner className="w-20" />
+      </div>
+    );
+  }
+  const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
+  const tzError = submitError || estimationError;
+  return restFormDisplayed ? (
+    <>
+      <BakerBannerComponent baker={baker} tzError={tzError} />
+
+      {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
+
+      <AdditionalFeeInput
+        name="fee"
+        control={control}
+        onChange={handleFeeFieldChange}
+        assetSymbol={assetSymbol}
+        baseFee={baseFee}
+        error={errors.fee}
+        id="delegate-fee"
+      />
+
+      <FormSubmitButton loading={formState.isSubmitting} disabled={Boolean(estimationError)}>
+        {t('delegate')}
+      </FormSubmitButton>
+    </>
+  ) : (
+    <KnownDelegatorsList setValue={setValue} triggerValidation={triggerValidation} />
+  );
+};
+
+interface BakerBannerComponentProps {
+  baker: Baker | null | undefined;
+  tzError: any;
+}
+
+const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, baker }) => {
+  const acc = useAccount();
+
+  const accountPkh = acc.publicKeyHash;
+  const { data: balanceData } = useBalance('tez', accountPkh);
+  const balance = balanceData!;
+  const balanceNum = balance.toNumber();
+  const net = useNetwork();
+  const assetSymbol = 'ꜩ';
+  return baker ? (
+    <>
+      <div className={classNames('-mt-2 mb-6', 'flex flex-col items-center')}>
+        <BakerBanner bakerPkh={baker!.address} displayAddress={false} />
+      </div>
+
+      {!tzError && baker!.min_delegations_amount > balanceNum && (
+        <Alert
+          type="warn"
+          title={t('minDelegationAmountTitle')}
+          description={
+            <T
+              id="minDelegationAmountDescription"
+              substitutions={[
+                <span className="font-normal" key="minDelegationsAmount">
+                  <Money>{baker!.min_delegations_amount}</Money>{' '}
+                  <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
+                </span>
+              ]}
+            />
+          }
+          className="mb-6"
+        />
+      )}
+    </>
+  ) : !tzError && net.type === 'main' ? (
+    <Alert type="warn" title={t('unknownBakerTitle')} description={t('unknownBakerDescription')} className="mb-6" />
+  ) : null;
+};
 
 const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({ setValue, triggerValidation }) => {
   const knownBakers = useKnownBakers();
