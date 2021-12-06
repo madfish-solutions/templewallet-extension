@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { validateMnemonic, generateMnemonic } from 'bip39';
+import { generateMnemonic, validateMnemonic } from 'bip39';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -10,15 +10,15 @@ import FormCheckbox from 'app/atoms/FormCheckbox';
 import FormField from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import TabSwitcher from 'app/atoms/TabSwitcher';
-import { PASSWORD_PATTERN, MNEMONIC_ERROR_CAPTION, formatMnemonic } from 'app/defaults';
+import { formatMnemonic, MNEMONIC_ERROR_CAPTION, PASSWORD_PATTERN } from 'app/defaults';
 import { ReactComponent as TrashbinIcon } from 'app/icons/bin.svg';
 import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
 import { T, t } from 'lib/i18n/react';
 import { decryptKukaiSeedPhrase, useTempleClient } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
+import { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import { Link } from 'lib/woozie';
 
-import { PasswordValidation } from '../../lib/ui/PasswordStrengthIndicator';
 import Backup from './NewWallet/Backup';
 import Verify from './NewWallet/Verify';
 
