@@ -18,8 +18,8 @@ interface Props {
 
 const ErrorComponent: FC<Props> = ({ exchangeData, setIsError, setExchangeData, setStep }) => {
   const { copy } = useCopyToClipboard();
-  const restartTopUpHandler = () => {
-    setExchangeData(null);
+  const restartTopUpHandler = async () => {
+    await setExchangeData(null);
     setStep(0);
     setIsError(false);
   };
