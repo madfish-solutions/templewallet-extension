@@ -2235,7 +2235,7 @@
     "message": "Attention"
   },
   "attentionDescription": {
-    "message": "Never and under any pretext don’t provide your private keys and seed phrase to third parties."
+    "message": "Never and under any pretext share your private keys and seed phrase with third parties."
   },
   "attentionListTitle1": {
     "message": "Also, remember:"
