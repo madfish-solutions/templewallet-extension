@@ -74,7 +74,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
   const shouldUseKeystorePassword = watch('shouldUseKeystorePassword');
   const passwordValue = watch('password');
 
-  const [passwordValidity, setPasswordValidity] = useState<PasswordValidation>({
+  const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
     minChar: false,
     cases: false,
     number: false,
@@ -291,8 +291,8 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
               placeholder="********"
               errorCaption={errors.password?.message}
               containerClassName="mb-8"
-              passwordValidity={passwordValidity}
-              setPasswordValidity={setPasswordValidity}
+              passwordValidation={passwordValidation}
+              setPasswordValidation={setPasswordValidation}
             />
 
             <FormField

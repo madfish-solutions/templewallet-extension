@@ -47,8 +47,8 @@ interface FormFieldProps extends FormFieldAttrs {
   labelPaddingClassName?: string;
   dropdownInner?: ReactNode;
   copyable?: boolean;
-  passwordValidity?: PasswordValidation;
-  setPasswordValidity?: (v: PasswordValidation) => void;
+  passwordValidation?: PasswordValidation;
+  setPasswordValidation?: (v: PasswordValidation) => void;
 }
 
 const FormField = forwardRef<FormFieldRef, FormFieldProps>(
@@ -82,8 +82,8 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       fieldWrapperBottomMargin = true,
       labelPaddingClassName = 'mb-4',
       copyable,
-      passwordValidity,
-      setPasswordValidity,
+      passwordValidation,
+      setPasswordValidation,
       ...rest
     },
     ref
@@ -105,8 +105,8 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
         checkedHandler(e, onChange!, setLocalValue);
 
         const tempValue = e.target.value;
-        if (setPasswordValidity) {
-          setPasswordValidity({
+        if (setPasswordValidation) {
+          setPasswordValidation({
             minChar: tempValue.length >= MIN_PASSWORD_LENGTH,
             cases: uppercaseLowercaseMixtureRegx.test(tempValue),
             number: lettersNumbersMixtureRegx.test(tempValue),
@@ -114,7 +114,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           });
         }
       },
-      [onChange, setLocalValue, setPasswordValidity]
+      [onChange, setLocalValue, setPasswordValidation]
     );
 
     const handleFocus = useCallback(
@@ -237,7 +237,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
         </div>
         <ErrorCaption errorCaption={errorCaption} />
 
-        {focused && passwordValidity && <PasswordStrengthIndicator validation={passwordValidity} />}
+        {focused && passwordValidation && <PasswordStrengthIndicator validation={passwordValidation} />}
       </div>
     );
   }
