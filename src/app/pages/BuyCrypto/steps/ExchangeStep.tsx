@@ -228,9 +228,9 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               background: '#4299e1',
               marginTop: '24px'
             }}
-            onClick={async () => {
-              await setStep(0);
-              await setExchangeData(null);
+            onClick={() => {
+              setStep(0);
+              setExchangeData(null);
             }}
           >
             <T id={'newTopUp'} />
