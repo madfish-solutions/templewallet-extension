@@ -1,6 +1,6 @@
-import { TezosToolkit, compose } from '@taquito/taquito';
+import { TezosToolkit, compose, Context, ContractAbstraction, ContractProvider } from '@taquito/taquito';
 import { tzip12, TokenMetadata } from '@taquito/tzip12';
-import { tzip16 } from '@taquito/tzip16';
+import { DEFAULT_HANDLERS, MetadataProvider, tzip16, MetadataInterface } from '@taquito/tzip16';
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 
@@ -15,6 +15,57 @@ const RETRY_PARAMS = {
   retries: 5,
   minTimeout: 100,
   maxTimeout: 1_000
+};
+
+const getTzip12Metadata = async (contract: ReturnType<typeof tzip12>, tokenId: number) => {
+  let tzip12Metadata: TokenMetadataWithLogo = {} as TokenMetadataWithLogo;
+
+  try {
+    tzip12Metadata = await retry(() => contract.tzip12().getTokenMetadata(tokenId), RETRY_PARAMS);
+  } catch {}
+
+  return tzip12Metadata;
+};
+
+const getTzip16Metadata = async (contract: ReturnType<typeof tzip16>) => {
+  let tzip16Metadata: Record<string, any> = {};
+
+  try {
+    tzip16Metadata = await retry(
+      () =>
+        contract
+          .tzip16()
+          .getMetadata()
+          .then(({ metadata }) => metadata),
+      RETRY_PARAMS
+    );
+  } catch {}
+
+  return tzip16Metadata;
+};
+
+const getMetadataFromUri = async (
+  contract: ContractAbstraction<ContractProvider>,
+  tokenId: string,
+  tezos: TezosToolkit
+) => {
+  let metadataFromUri: MetadataInterface = {};
+
+  try {
+    const storage = await contract.storage<any>();
+    assert('token_metadata_uri' in storage);
+
+    const metadataUri = storage.token_metadata_uri.replace('{tokenId}', tokenId);
+
+    const metadataProvider = new MetadataProvider(DEFAULT_HANDLERS);
+    const context = new Context(tezos.rpc);
+
+    metadataFromUri = await metadataProvider
+      .provideMetadata(contract, metadataUri, context)
+      .then(({ metadata }) => metadata);
+  } catch {}
+
+  return metadataFromUri;
 };
 
 export async function fetchTokenMetadata(
@@ -36,39 +87,29 @@ export async function fetchTokenMetadata(
     const contract = await retry(() => tezos.contract.at(asset.contract, compose(tzip12, tzip16)), RETRY_PARAMS);
     const assetId = new BigNumber(asset.id ?? 0).toFixed();
 
-    const tzip12Data: TokenMetadataWithLogo = await retry(
-      () => contract.tzip12().getTokenMetadata(assetId as any),
-      RETRY_PARAMS
-    );
+    const tzip12Metadata = await getTzip12Metadata(contract, assetId as any);
+    const metadataFromUri = await getMetadataFromUri(contract, assetId, tezos);
 
-    assert('decimals' in tzip12Data && ('name' in tzip12Data || 'symbol' in tzip12Data));
+    const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
+
+    assert('decimals' in rawMetadata && ('name' in rawMetadata || 'symbol' in rawMetadata));
 
     const base: AssetMetadata = {
-      decimals: +tzip12Data.decimals,
-      symbol: tzip12Data.symbol || tzip12Data.name!.substr(0, 8),
-      name: tzip12Data.name || tzip12Data.symbol!,
-      shouldPreferSymbol: parseBool(tzip12Data.shouldPreferSymbol),
+      decimals: +rawMetadata.decimals,
+      symbol: rawMetadata.symbol || rawMetadata.name!.substr(0, 8),
+      name: rawMetadata.name || rawMetadata.symbol!,
+      shouldPreferSymbol: parseBool(rawMetadata.shouldPreferSymbol),
       thumbnailUri:
-        tzip12Data.thumbnailUri || tzip12Data.logo || tzip12Data.icon || tzip12Data.iconUri || tzip12Data.iconUrl,
-      displayUri: tzip12Data.displayUri,
-      artifactUri: tzip12Data.artifactUri
+        rawMetadata.thumbnailUri || rawMetadata.logo || rawMetadata.icon || rawMetadata.iconUri || rawMetadata.iconUrl,
+      displayUri: rawMetadata.displayUri,
+      artifactUri: rawMetadata.artifactUri
     };
 
-    let tzip16Data: Record<string, any> | undefined;
-    try {
-      tzip16Data = await retry(
-        () =>
-          contract
-            .tzip16()
-            .getMetadata()
-            .then(({ metadata }) => metadata),
-        RETRY_PARAMS
-      );
-    } catch {}
+    const tzip16Metadata = await getTzip16Metadata(contract);
 
     const detailed: DetailedAssetMetdata = {
-      ...(tzip16Data?.assets?.[assetId] ?? {}),
-      ...tzip12Data,
+      ...tzip16Metadata?.assets?.[assetId],
+      ...rawMetadata,
       ...base
     };
 
