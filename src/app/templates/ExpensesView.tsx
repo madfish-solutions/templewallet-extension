@@ -194,7 +194,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
     }
 
     return null;
-  }, [modifyFeeAndLimit, estimates, mainnet]);
+  }, [modifyFeeAndLimit, estimates, mainnet, gasFeeError]);
 
   if (!expenses) {
     return null;
