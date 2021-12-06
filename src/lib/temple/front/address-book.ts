@@ -26,15 +26,7 @@ export function useContacts() {
       }
 
       await updateSettings({
-        contacts: [
-          {
-            address: cToAdd.address,
-            name: cToAdd.name,
-            addedAt: cToAdd.addedAt,
-            accountInWallet: cToAdd.accountInWallet
-          },
-          ...contacts
-        ]
+        contacts: [cToAdd, ...contacts]
       });
     },
     [contacts, allContacts, updateSettings]
