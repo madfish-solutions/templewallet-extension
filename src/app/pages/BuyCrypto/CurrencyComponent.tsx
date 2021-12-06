@@ -29,11 +29,7 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
         ref={ref}
         className={compoundClassName}
       >
-        {type === 'tezosSelector' ? (
-          <AssetIcon assetSlug="tez" size={32} />
-        ) : (
-          <CurrencyImage label={label} logoList={customLogoCurrencyList} />
-        )}
+        {type === 'tezosSelector' ? <AssetIcon assetSlug="tez" size={32} /> : <RenderImage label={label} />}
         <p className={styles['currencyName']}>{short && label.length > 4 ? `${label.substr(0, 3)}…` : label}</p>
         {type === 'currencySelector' && (
           <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
@@ -43,8 +39,14 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
   }
 );
 
-const CurrencyImage: React.FC<{ label: string; logoList: string[] }> = ({ label, logoList }) =>
-  logoList.indexOf(label) === -1 ? (
+export default CurrencyComponent;
+
+interface RenderImageProps {
+  label: string;
+}
+
+const RenderImage: React.FC<RenderImageProps> = ({ label }) =>
+  customLogoCurrencyList.indexOf(label) === -1 ? (
     <img
       alt="icon"
       className={styles['currencyCircle']}
@@ -59,5 +61,3 @@ const CurrencyImage: React.FC<{ label: string; logoList: string[] }> = ({ label,
       />
     </div>
   );
-
-export default CurrencyComponent;
