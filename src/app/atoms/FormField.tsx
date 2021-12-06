@@ -18,11 +18,13 @@ import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { T } from 'lib/i18n/react';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
+import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import PasswordStrengthIndicator, { PasswordValidation } from '../../lib/ui/PasswordStrengthIndicator';
 import { lettersNumbersMixtureRegx, specialCharacterRegx, uppercaseLowercaseMixtureRegx } from '../defaults';
 import usePasswordToggle from './usePasswordToggle.hook';
+
+const MIN_PASSWORD_LENGTH = 8;
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
@@ -105,7 +107,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
         const tempValue = e.target.value;
         if (setPasswordValidity) {
           setPasswordValidity({
-            minChar: tempValue.length >= 8,
+            minChar: tempValue.length >= MIN_PASSWORD_LENGTH,
             cases: uppercaseLowercaseMixtureRegx.test(tempValue),
             number: lettersNumbersMixtureRegx.test(tempValue),
             specialChar: specialCharacterRegx.test(tempValue)
@@ -235,7 +237,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
         </div>
         <ErrorCaption errorCaption={errorCaption} />
 
-        {focused && passwordValidity && <PasswordStrengthIndicator validity={passwordValidity} />}
+        {focused && passwordValidity && <PasswordStrengthIndicator validation={passwordValidity} />}
       </div>
     );
   }
