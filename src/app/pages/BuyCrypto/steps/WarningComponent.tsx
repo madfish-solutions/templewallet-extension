@@ -22,7 +22,7 @@ const getTranslationId = (currency: string) => {
   if (currency === 'CAKE') {
     return 'cakeNote';
   }
-  return undefined;
+  return;
 };
 
 const WarningComponent: FC<Props> = ({ currency, amountAttention }) => {
