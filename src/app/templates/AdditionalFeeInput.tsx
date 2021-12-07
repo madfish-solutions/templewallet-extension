@@ -77,18 +77,8 @@ const feeOptions: FeeOption[] = [
 const getFeeOptionId = (option: FeeOption) => option.type;
 
 const AdditionalFeeInput: FC<AdditionalFeeInputProps> = props => {
-  const { assetSymbol, baseFee, control, error, id, name, onChange } = props;
+  const { assetSymbol, baseFee, control, id, name, onChange } = props;
   const { trackEvent } = useAnalytics();
-
-  const validateAdditionalFee = useCallback((v?: number) => {
-    if (v === undefined) {
-      return t('required');
-    }
-    if (v <= 0) {
-      return t('amountMustBePositive');
-    }
-    return true;
-  }, []);
 
   const customFeeInputRef = useRef<HTMLInputElement>(null);
   const focusCustomFeeInput = useCallback(() => {
@@ -124,10 +114,6 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = props => {
         )
       }
       placeholder="0"
-      errorCaption={error?.message}
-      rules={{
-        validate: validateAdditionalFee
-      }}
     />
   );
 };
