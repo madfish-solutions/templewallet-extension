@@ -43,50 +43,12 @@ type InternalConfiramtionProps = {
 };
 
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm }) => {
-  const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
-
-  const getContentToParse = useCallback(async () => {
-    switch (payload.type) {
-      case 'operations':
-        return payload.opParams || [];
-      case 'sign':
-        const unsignedBytes = payload.bytes.substr(0, payload.bytes.length - 128);
-        try {
-          return (await localForger.parse(unsignedBytes)) || [];
-        } catch (err: any) {
-          console.error(err);
-          return [];
-        }
-      default:
-        return [];
-    }
-  }, [payload]);
-  const { data: contentToParse } = useRetryableSWR(['content-to-parse'], getContentToParse, { suspense: true });
-
-  const networkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
-
-  const chainId = useCustomChainId(networkRpc, true)!;
-  const mainnet = chainId === TempleChainId.Mainnet;
-
   const allAccounts = useRelevantAccounts();
   const account = useMemo(
     () => allAccounts.find(a => a.publicKeyHash === payload.sourcePkh)!,
     [allAccounts, payload.sourcePkh]
   );
-  const rawExpensesData = useMemo(
-    () => tryParseExpenses(contentToParse!, account.publicKeyHash),
-    [contentToParse, account.publicKeyHash]
-  );
-  const expensesData = useMemo(() => {
-    return rawExpensesData.map(({ expenses, ...restProps }) => ({
-      expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
-        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : 'tez',
-        ...restProps
-      })),
-      ...restProps
-    }));
-  }, [rawExpensesData]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === 'operations') {
@@ -132,7 +94,6 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     ];
   }, [payload]);
 
-  const [spFormat, setSpFormat] = useSafeState(signPayloadFormats[0]);
   const [error, setError] = useSafeState<any>(null);
   const [confirming, setConfirming] = useSafeState(false);
   const [declining, setDeclining] = useSafeState(false);
@@ -188,29 +149,6 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     setDeclining(false);
   }, [confirming, declining, setDeclining, confirm]);
 
-  const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
-
-  const modifiedStorageLimitDisplayed = useMemo(
-    () => payload.type === 'operations' && payload.opParams.length < 2,
-    [payload]
-  );
-
-  const modifyFeeAndLimit = useMemo<ModifyFeeAndLimit>(
-    () => ({
-      totalFee: modifiedTotalFeeValue,
-      onTotalFeeChange: v => setModifiedTotalFeeValue(v),
-      storageLimit: modifiedStorageLimitDisplayed ? modifiedStorageLimitValue : null,
-      onStorageLimitChange: v => setModifiedStorageLimitValue(v)
-    }),
-    [
-      modifiedTotalFeeValue,
-      setModifiedTotalFeeValue,
-      modifiedStorageLimitValue,
-      setModifiedStorageLimitValue,
-      modifiedStorageLimitDisplayed
-    ]
-  );
-
   return (
     <div className={classNames('h-full w-full', 'max-w-sm mx-auto', 'flex flex-col', !popup && 'justify-center px-2')}>
       <div className={classNames('flex flex-col items-center justify-center', popup && 'flex-1')}>
@@ -233,70 +171,16 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
             <T id="confirmAction" substitutions={t(payload.type === 'sign' ? 'signAction' : 'operations')} />
           </SubTitle>
 
-          {error ? (
-            <Alert
-              closable
-              onClose={handleErrorAlertClose}
-              type="error"
-              title={t('error')}
-              description={error?.message ?? t('smthWentWrong')}
-              className="my-4"
-              autoFocus
-            />
-          ) : (
-            <>
-              <AccountBanner account={account} labelIndent="sm" className="w-full mb-4" />
-
-              <NetworkBanner rpc={payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc} />
-
-              {signPayloadFormats.length > 1 && (
-                <div className="w-full flex justify-end mb-3 items-center">
-                  <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
-                    <T id="operations" />
-                  </span>
-
-                  <div className="flex-1" />
-
-                  <ViewsSwitcher activeItem={spFormat} items={signPayloadFormats} onChange={setSpFormat} />
-                </div>
-              )}
-
-              {payload.type === 'operations' && spFormat.key === 'raw' && (
-                <OperationsBanner
-                  opParams={payload.rawToSign ?? payload.opParams}
-                  jsonViewStyle={signPayloadFormats.length > 1 ? { height: '11rem' } : undefined}
-                  modifiedTotalFee={modifiedTotalFeeValue}
-                  modifiedStorageLimit={modifiedStorageLimitValue}
-                />
-              )}
-
-              {payload.type === 'sign' && spFormat.key === 'bytes' && (
-                <>
-                  <RawPayloadView
-                    label={t('payloadToSign')}
-                    payload={payload.bytes}
-                    className="mb-4"
-                    style={{ height: '11rem' }}
-                  />
-                </>
-              )}
-
-              {payload.type === 'operations' && payload.bytesToSign && spFormat.key === 'bytes' && (
-                <>
-                  <RawPayloadView payload={payload.bytesToSign} className="mb-4" style={{ height: '11rem' }} />
-                </>
-              )}
-
-              {spFormat.key === 'preview' && (
-                <ExpensesView
-                  expenses={expensesData}
-                  estimates={payload.type === 'operations' ? payload.estimates : undefined}
-                  modifyFeeAndLimit={modifyFeeAndLimit}
-                  mainnet={mainnet}
-                />
-              )}
-            </>
-          )}
+          <SignSection
+            error={error}
+            setError={setError}
+            payload={payload}
+            signPayloadFormats={signPayloadFormats}
+            modifiedTotalFeeValue={modifiedTotalFeeValue}
+            setModifiedTotalFeeValue={setModifiedTotalFeeValue}
+            modifiedStorageLimitValue={modifiedStorageLimitValue}
+            setModifiedStorageLimitValue={setModifiedStorageLimitValue}
+          />
         </div>
 
         <div className="flex-1" />
@@ -347,3 +231,163 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 };
 
 export default InternalConfirmation;
+
+type SignSectionProps = {
+  error: any;
+  setError: any;
+  signPayloadFormats: any;
+  payload: TempleConfirmationPayload;
+  modifiedTotalFeeValue: any;
+  setModifiedTotalFeeValue: any;
+  modifiedStorageLimitValue: any;
+  setModifiedStorageLimitValue: any;
+};
+
+const SignSection: React.FC<SignSectionProps> = ({
+  error,
+  setError,
+  payload,
+  signPayloadFormats,
+  modifiedTotalFeeValue,
+  setModifiedTotalFeeValue,
+  modifiedStorageLimitValue,
+  setModifiedStorageLimitValue
+}) => {
+  const { rpcBaseURL: currentNetworkRpc } = useNetwork();
+  const [spFormat, setSpFormat] = useSafeState(signPayloadFormats[0]);
+
+  const getContentToParse = useCallback(async () => {
+    switch (payload.type) {
+      case 'operations':
+        return payload.opParams || [];
+      case 'sign':
+        const unsignedBytes = payload.bytes.substr(0, payload.bytes.length - 128);
+        try {
+          return (await localForger.parse(unsignedBytes)) || [];
+        } catch (err: any) {
+          console.error(err);
+          return [];
+        }
+      default:
+        return [];
+    }
+  }, [payload]);
+  const { data: contentToParse } = useRetryableSWR(['content-to-parse'], getContentToParse, { suspense: true });
+
+  const networkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
+
+  const chainId = useCustomChainId(networkRpc, true)!;
+  const mainnet = chainId === TempleChainId.Mainnet;
+
+  const allAccounts = useRelevantAccounts();
+  const account = useMemo(
+    () => allAccounts.find(a => a.publicKeyHash === payload.sourcePkh)!,
+    [allAccounts, payload.sourcePkh]
+  );
+
+  const rawExpensesData = useMemo(
+    () => tryParseExpenses(contentToParse!, account.publicKeyHash),
+    [contentToParse, account.publicKeyHash]
+  );
+  const expensesData = useMemo(() => {
+    return rawExpensesData.map(({ expenses, ...restProps }) => ({
+      expenses: expenses.map(({ tokenAddress, tokenId, ...props }) => ({
+        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : 'tez',
+        ...props
+      })),
+      ...restProps
+    }));
+  }, [rawExpensesData]);
+
+  const modifiedStorageLimitDisplayed = useMemo(
+    () => payload.type === 'operations' && payload.opParams.length < 2,
+    [payload]
+  );
+
+  const modifyFeeAndLimit = useMemo<ModifyFeeAndLimit>(
+    () => ({
+      totalFee: modifiedTotalFeeValue,
+      onTotalFeeChange: v => setModifiedTotalFeeValue(v),
+      storageLimit: modifiedStorageLimitDisplayed ? modifiedStorageLimitValue : null,
+      onStorageLimitChange: v => setModifiedStorageLimitValue(v)
+    }),
+    [
+      modifiedTotalFeeValue,
+      setModifiedTotalFeeValue,
+      modifiedStorageLimitValue,
+      setModifiedStorageLimitValue,
+      modifiedStorageLimitDisplayed
+    ]
+  );
+
+  const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
+
+  const errorNetworkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
+  const jsonViewStyle = signPayloadFormats.length > 1 ? { height: '11rem' } : undefined;
+  const estimates = payload.type === 'operations' ? payload.estimates : undefined;
+
+  return error ? (
+    <Alert
+      closable
+      onClose={handleErrorAlertClose}
+      type="error"
+      title={t('error')}
+      description={error?.message ?? t('smthWentWrong')}
+      className="my-4"
+      autoFocus
+    />
+  ) : (
+    <>
+      <AccountBanner account={account} labelIndent="sm" className="w-full mb-4" />
+
+      <NetworkBanner rpc={errorNetworkRpc} />
+
+      {signPayloadFormats.length > 1 && (
+        <div className="w-full flex justify-end mb-3 items-center">
+          <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
+            <T id="operations" />
+          </span>
+
+          <div className="flex-1" />
+
+          <ViewsSwitcher activeItem={spFormat} items={signPayloadFormats} onChange={setSpFormat} />
+        </div>
+      )}
+
+      {payload.type === 'operations' && spFormat.key === 'raw' && (
+        <OperationsBanner
+          opParams={payload.rawToSign ?? payload.opParams}
+          jsonViewStyle={jsonViewStyle}
+          modifiedTotalFee={modifiedTotalFeeValue}
+          modifiedStorageLimit={modifiedStorageLimitValue}
+        />
+      )}
+
+      {payload.type === 'sign' && spFormat.key === 'bytes' && (
+        <>
+          <RawPayloadView
+            label={t('payloadToSign')}
+            payload={payload.bytes}
+            className="mb-4"
+            style={{ height: '11rem' }}
+          />
+        </>
+      )}
+
+      {payload.type === 'operations' && payload.bytesToSign && spFormat.key === 'bytes' && (
+        <>
+          <RawPayloadView payload={payload.bytesToSign} className="mb-4" style={{ height: '11rem' }} />
+        </>
+      )}
+
+      {spFormat.key === 'preview' && (
+        <ExpensesView
+          expenses={expensesData}
+          estimates={estimates}
+          modifyFeeAndLimit={modifyFeeAndLimit}
+          mainnet={mainnet}
+        />
+      )}
+    </>
+  );
+};

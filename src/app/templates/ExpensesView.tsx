@@ -45,158 +45,192 @@ export interface ModifyFeeAndLimit {
 const MIN_GAS_FEE = 0.000001;
 const MAX_GAS_FEE = 1000;
 
-const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit }) => {
-  const modifyFeeAndLimitSection = useMemo(() => {
-    if (!modifyFeeAndLimit) return null;
+const FallbackTransactionText: React.FC = () => (
+  <span>
+    <T id="txIsLikelyToFail" />
+  </span>
+);
 
-    if (estimates) {
-      let defaultGasFeeMutez = new BigNumber(0);
-      let storageFeeMutez = new BigNumber(0);
-      try {
-        let i = 0;
-        for (const e of estimates) {
-          defaultGasFeeMutez = defaultGasFeeMutez.plus(e.suggestedFeeMutez);
-          storageFeeMutez = storageFeeMutez.plus(
-            Math.ceil(
-              (i === 0 ? modifyFeeAndLimit.storageLimit ?? e.storageLimit : e.storageLimit) *
-                (e as any).minimalFeePerStorageByteMutez
-            )
-          );
-          i++;
-        }
-      } catch {
-        return null;
-      }
+interface ModifyFeeAndLimitSectionProps {
+  modifyFeeAndLimit: any;
+  estimates: any;
+  mainnet?: boolean;
+}
 
-      const gasFee = mutezToTz(modifyFeeAndLimit.totalFee);
-      const defaultGasFee = mutezToTz(defaultGasFeeMutez);
-      const storageFee = mutezToTz(storageFeeMutez);
+const ModifyFeeAndLimitSection: React.FC<ModifyFeeAndLimitSectionProps> = ({
+  modifyFeeAndLimit,
+  estimates,
+  mainnet
+}) => {
+  if (!modifyFeeAndLimit) return <FallbackTransactionText />;
+  if (!estimates) return <FallbackTransactionText />;
 
-      return (
-        <div className="w-full flex flex-col">
-          {[
-            {
-              key: 'totalFee',
-              title: t('gasFee'),
-              value: gasFee,
-              onChange: modifyFeeAndLimit.onTotalFeeChange
-            },
-            {
-              key: 'storageFeeMax',
-              title: t('storageFeeMax'),
-              value: storageFee
-            },
-            ...(modifyFeeAndLimit.storageLimit !== null
-              ? [
-                  {
-                    key: 'storageLimit',
-                    title: t('storageLimit'),
-                    value: modifyFeeAndLimit.storageLimit,
-                    onChange: modifyFeeAndLimit.onStorageLimitChange
-                  }
-                ]
-              : [])
-          ].map(({ key, title, value, onChange }, i, arr) => (
-            <div key={key} className={classNames('w-full flex items-center', i !== arr.length - 1 && 'mb-1')}>
-              <div
-                className={classNames('whitespace-no-wrap overflow-x-auto no-scrollbar', 'opacity-90')}
-                style={{ maxWidth: '45%' }}
-              >
-                {title}
-              </div>
-              <div className="mr-1">:</div>
-
-              <div className="flex-1" />
-
-              {value instanceof BigNumber ? (
-                <>
-                  <div className="mr-1">
-                    {onChange ? (
-                      <>
-                        <PlainAssetInput
-                          value={value.toFixed()}
-                          onChange={val => {
-                            onChange?.(tzToMutez(val ?? defaultGasFee).toNumber());
-                          }}
-                          min={MIN_GAS_FEE}
-                          max={MAX_GAS_FEE}
-                          placeholder={defaultGasFee.toFixed()}
-                          className={classNames(
-                            'mr-1',
-                            'appearance-none',
-                            'w-24',
-                            'py-px px-1',
-                            'border',
-                            'border-gray-300',
-                            'focus:border-primary-orange',
-                            'bg-gray-100 focus:bg-transparent',
-                            'focus:outline-none focus:shadow-outline',
-                            'transition ease-in-out duration-200',
-                            'rounded',
-                            'text-right',
-                            'text-gray-700 text-sm leading-tight',
-                            'placeholder-gray-600'
-                          )}
-                        />
-                        ꜩ
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-medium">
-                          <Money>{value}</Money>
-                        </span>{' '}
-                        ꜩ
-                      </>
-                    )}
-                  </div>
-
-                  <InUSD volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
-                    {usdAmount => (
-                      <div>
-                        <span className="opacity-75">(</span>
-                        <span className="pr-px">$</span>
-                        {usdAmount}
-                        <span className="opacity-75">)</span>
-                      </div>
-                    )}
-                  </InUSD>
-                </>
-              ) : (
-                <input
-                  type="number"
-                  value={value || ''}
-                  onChange={e => {
-                    if (e.target.value.length > 8) return;
-                    const val = +e.target.value;
-                    onChange?.(val > 0 ? val : 0);
-                  }}
-                  placeholder="0"
-                  className={classNames(
-                    'appearance-none',
-                    'w-24',
-                    'py-px pl-1',
-                    'border',
-                    'border-gray-300',
-                    'focus:border-primary-orange',
-                    'bg-gray-100 focus:bg-transparent',
-                    'focus:outline-none focus:shadow-outline',
-                    'transition ease-in-out duration-200',
-                    'rounded',
-                    'text-right',
-                    'text-gray-700 text-sm leading-tight',
-                    'placeholder-gray-600'
-                  )}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+  let defaultGasFeeMutez = new BigNumber(0);
+  let storageFeeMutez = new BigNumber(0);
+  try {
+    let i = 0;
+    for (const e of estimates) {
+      defaultGasFeeMutez = defaultGasFeeMutez.plus(e.suggestedFeeMutez);
+      storageFeeMutez = storageFeeMutez.plus(
+        Math.ceil(
+          (i === 0 ? modifyFeeAndLimit.storageLimit ?? e.storageLimit : e.storageLimit) *
+            (e as any).minimalFeePerStorageByteMutez
+        )
       );
+      i++;
     }
+  } catch {
+    return <FallbackTransactionText />;
+  }
 
-    return null;
-  }, [modifyFeeAndLimit, estimates, mainnet]);
+  const gasFee = mutezToTz(modifyFeeAndLimit.totalFee);
+  const defaultGasFee = mutezToTz(defaultGasFeeMutez);
+  const storageFee = mutezToTz(storageFeeMutez);
 
+  return (
+    <div className="w-full flex flex-col">
+      {[
+        {
+          key: 'totalFee',
+          title: t('gasFee'),
+          value: gasFee,
+          onChange: modifyFeeAndLimit.onTotalFeeChange
+        },
+        {
+          key: 'storageFeeMax',
+          title: t('storageFeeMax'),
+          value: storageFee
+        },
+        ...(modifyFeeAndLimit.storageLimit !== null
+          ? [
+              {
+                key: 'storageLimit',
+                title: t('storageLimit'),
+                value: modifyFeeAndLimit.storageLimit,
+                onChange: modifyFeeAndLimit.onStorageLimitChange
+              }
+            ]
+          : [])
+      ].map(({ key, title, value, onChange }, i, arr) => (
+        <div key={key} className={classNames('w-full flex items-center', i !== arr.length - 1 && 'mb-1')}>
+          <div
+            className={classNames('whitespace-no-wrap overflow-x-auto no-scrollbar', 'opacity-90')}
+            style={{ maxWidth: '45%' }}
+          >
+            {title}
+          </div>
+          <div className="mr-1">:</div>
+
+          <div className="flex-1" />
+
+          <EstimationComponent defaultGasFee={defaultGasFee} onChange={onChange} value={value} mainnet={mainnet} />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+interface EstimationComponentProps {
+  onChange: any;
+  defaultGasFee: BigNumber;
+  value: BigNumber;
+  mainnet?: boolean;
+}
+
+const EstimationComponent: React.FC<EstimationComponentProps> = ({ defaultGasFee, onChange, value, mainnet }) => {
+  return value instanceof BigNumber ? (
+    <>
+      <div className="mr-1">
+        <GasFeeComponent value={value} onChange={onChange} defaultGasFee={defaultGasFee} />
+      </div>
+
+      <InUSD volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
+        {usdAmount => (
+          <div>
+            <span className="opacity-75">(</span>
+            <span className="pr-px">$</span>
+            {usdAmount}
+            <span className="opacity-75">)</span>
+          </div>
+        )}
+      </InUSD>
+    </>
+  ) : (
+    <input
+      type="number"
+      value={value || ''}
+      onChange={e => {
+        if (e.target.value.length > 8) return;
+        const val = +e.target.value;
+        onChange?.(val > 0 ? val : 0);
+      }}
+      placeholder="0"
+      className={classNames(
+        'appearance-none',
+        'w-24',
+        'py-px pl-1',
+        'border',
+        'border-gray-300',
+        'focus:border-primary-orange',
+        'bg-gray-100 focus:bg-transparent',
+        'focus:outline-none focus:shadow-outline',
+        'transition ease-in-out duration-200',
+        'rounded',
+        'text-right',
+        'text-gray-700 text-sm leading-tight',
+        'placeholder-gray-600'
+      )}
+    />
+  );
+};
+
+interface GasFeeComponentProps {
+  onChange: any;
+  defaultGasFee: BigNumber;
+  value: BigNumber;
+}
+
+const GasFeeComponent: React.FC<GasFeeComponentProps> = ({ defaultGasFee, onChange, value }) => {
+  return onChange ? (
+    <>
+      <PlainAssetInput
+        value={value.toFixed()}
+        onChange={val => {
+          onChange?.(tzToMutez(val ?? defaultGasFee).toNumber());
+        }}
+        min={MIN_GAS_FEE}
+        max={MAX_GAS_FEE}
+        placeholder={defaultGasFee.toFixed()}
+        className={classNames(
+          'mr-1',
+          'appearance-none',
+          'w-24',
+          'py-px px-1',
+          'border',
+          'border-gray-300',
+          'focus:border-primary-orange',
+          'bg-gray-100 focus:bg-transparent',
+          'focus:outline-none focus:shadow-outline',
+          'transition ease-in-out duration-200',
+          'rounded',
+          'text-right',
+          'text-gray-700 text-sm leading-tight',
+          'placeholder-gray-600'
+        )}
+      />
+      ꜩ
+    </>
+  ) : (
+    <>
+      <span className="font-medium">
+        <Money>{value}</Money>
+      </span>{' '}
+      ꜩ
+    </>
+  );
+};
+
+const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit }) => {
   if (!expenses) {
     return null;
   }
@@ -226,11 +260,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
               'text-sm text-gray-700'
             )}
           >
-            {modifyFeeAndLimitSection ?? (
-              <span>
-                <T id="txIsLikelyToFail" />
-              </span>
-            )}
+            <ModifyFeeAndLimitSection estimates={estimates} mainnet={mainnet} modifyFeeAndLimit={modifyFeeAndLimit} />
           </div>
         </>
       )}
@@ -249,7 +279,6 @@ type ExpenseViewItemProps = {
 const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
   const operationTypeLabel = useMemo(() => {
     switch (item.type) {
-      // TODO: add translations for other operations types
       case 'transaction':
       case 'transfer':
         return `↑ ${t('transfer')}`;
@@ -369,7 +398,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
             ))}
 
           {item.expenses.length === 0 && item.amount && new BigNumber(item.amount).isGreaterThan(0) ? (
-            <OperationVolumeDisplay volume={item.amount!} mainnet={mainnet} />
+            <OperationVolumeDisplay volume={item.amount} mainnet={mainnet} />
           ) : null}
         </div>
       </div>
@@ -414,7 +443,6 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
   return (
     <>
       <span className="text-sm">
-        {/* {withdrawal && "-"} */}
         <span className="font-medium">
           <Money>{finalVolume || 0}</Money>
         </span>{' '}
