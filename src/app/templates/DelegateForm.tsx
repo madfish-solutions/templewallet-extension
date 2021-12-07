@@ -461,10 +461,10 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
   return baker ? (
     <>
       <div className={classNames('-mt-2 mb-6', 'flex flex-col items-center')}>
-        <BakerBanner bakerPkh={baker!.address} displayAddress={false} />
+        <BakerBanner bakerPkh={baker.address} displayAddress={false} />
       </div>
 
-      {!tzError && baker!.min_delegations_amount > balanceNum && (
+      {!tzError && baker.min_delegations_amount > balanceNum && (
         <Alert
           type="warn"
           title={t('minDelegationAmountTitle')}
@@ -473,7 +473,7 @@ const BakerBannerComponent: React.FC<BakerBannerComponentProps> = ({ tzError, ba
               id="minDelegationAmountDescription"
               substitutions={[
                 <span className="font-normal" key="minDelegationsAmount">
-                  <Money>{baker!.min_delegations_amount}</Money>{' '}
+                  <Money>{baker.min_delegations_amount}</Money>{' '}
                   <span style={{ fontSize: '0.75em' }}>{assetSymbol}</span>
                 </span>
               ]}
