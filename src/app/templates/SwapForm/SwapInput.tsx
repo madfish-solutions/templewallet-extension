@@ -34,7 +34,9 @@ import {
   getAssetKey,
   TempleAsset,
   TempleAssetType,
-  toSlugFromLegacyAsset
+  toSlugFromLegacyAsset,
+  useFungibleTokens,
+  useChainId
 } from 'lib/temple/front';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 
@@ -625,6 +627,15 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
   tokenIdMissing,
   value
 }) => {
+  const chainId = useChainId(true)!;
+  const { publicKeyHash } = useAccount();
+
+  const knownFungibleTokens = useFungibleTokens(chainId, publicKeyHash);
+  const knownFungibleTokensSlugs = useMemo(
+    () => ['tez', ...(knownFungibleTokens.data ?? []).map(item => item.tokenSlug)],
+    [knownFungibleTokens.data]
+  );
+
   const handleOptionClick = useCallback(
     (newValue: TempleAsset) => {
       if (!value || !assetsAreSame(newValue, value)) {
@@ -664,31 +675,48 @@ const AssetsMenu: React.FC<AssetsMenuProps> = ({
           key={getAssetKey(option) ?? 'tez'}
           option={option}
           selected={!!value && getAssetKey(value) === getAssetKey(option)}
-          onClick={handleOptionClick}
           isLast={index === options.length - 1}
+          knownAssetsSlugs={knownFungibleTokensSlugs}
+          onClick={handleOptionClick}
         />
       ))}
     </DropdownWrapper>
   );
 };
 
+type AssetOptionBalanceProps = {
+  assetSlug: string;
+};
+
+const AssetOptionBalance: React.FC<AssetOptionBalanceProps> = ({ assetSlug }) => {
+  const { publicKeyHash } = useAccount();
+
+  const balance = useBalance(assetSlug, publicKeyHash, {
+    suspense: false
+  });
+
+  return balance.data ? (
+    <Money smallFractionFont={false} tooltip={false}>
+      {balance.data}
+    </Money>
+  ) : null;
+};
+
 type AssetOptionProps = {
   option: TempleAsset;
   selected: boolean;
-  onClick: (newValue: TempleAsset) => void;
   isLast: boolean;
+  knownAssetsSlugs: string[];
+  onClick: (newValue: TempleAsset) => void;
 };
 
-const AssetOption: React.FC<AssetOptionProps> = ({ option, onClick, isLast }) => {
+const AssetOption: React.FC<AssetOptionProps> = ({ option, isLast, knownAssetsSlugs, onClick }) => {
+  const assetSlug = useMemo(() => toSlugFromLegacyAsset(option), [option]);
+  const isKnownAsset = useMemo(() => knownAssetsSlugs.some(slug => slug === assetSlug), [knownAssetsSlugs, assetSlug]);
+
   const handleClick = useCallback(() => {
     onClick(option);
   }, [onClick, option]);
-  const { publicKeyHash: accountPkh } = useAccount();
-
-  const assetSlug = useMemo(() => toSlugFromLegacyAsset(option), [option]);
-  const { data: balance } = useBalance(assetSlug, accountPkh, {
-    suspense: false
-  });
 
   return (
     <button
@@ -701,11 +729,7 @@ const AssetOption: React.FC<AssetOptionProps> = ({ option, onClick, isLast }) =>
         {option.type === TempleAssetType.TEZ ? option.symbol.toUpperCase() : option.symbol}
       </span>
       <div className="flex-1 text-right text-lg text-gray-600">
-        {balance && (
-          <Money smallFractionFont={false} tooltip={false}>
-            {balance}
-          </Money>
-        )}
+        {isKnownAsset && <AssetOptionBalance assetSlug={assetSlug} />}
       </div>
     </button>
   );
