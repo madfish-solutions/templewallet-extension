@@ -1,1 +1,1 @@
-export { getAllPairs } from './utils/pairs.utils';
+export { getAllPairs } from './utils/pair.utils';
