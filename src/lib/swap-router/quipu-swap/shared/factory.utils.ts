@@ -27,11 +27,13 @@ export const getQuipuSwapFactoryPairs = async (
         const dexAddress = await tokenToExchange.get<string>(token);
 
         if (dexAddress !== undefined) {
+          const dexContract = await getContract(dexAddress, tezos);
+
           return {
             aToken: 'tez',
             bToken: quipuSwapFactoryTokenToTokenType(token),
             dexType: DexTypeEnum.QuipuSwap,
-            dexAddress
+            dexContract
           };
         }
       }

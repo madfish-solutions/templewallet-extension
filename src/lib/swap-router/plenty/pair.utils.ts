@@ -18,7 +18,7 @@ export const getPlentyPairs = (tezos: TezosToolkit): Promise<PairInterface[]> =>
         aToken: plentyDexTokenToTokenType(storage.token1Address, storage.token1Check, storage.token1Id),
         bToken: plentyDexTokenToTokenType(storage.token2Address, storage.token2Check, storage.token2Id),
         dexType: DexTypeEnum.Plenty,
-        dexAddress
+        dexContract
       };
     })
   );

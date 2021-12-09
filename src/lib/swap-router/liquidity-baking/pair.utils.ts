@@ -18,7 +18,7 @@ export const getLiquidityBakingPairs = (tezos: TezosToolkit): Promise<PairInterf
         aToken: 'tez',
         bToken: liquidityBakingDexTokenToTokenType(storage.tokenAddress),
         dexType: DexTypeEnum.LiquidityBaking,
-        dexAddress
+        dexContract
       };
     })
   );
