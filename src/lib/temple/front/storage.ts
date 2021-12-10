@@ -81,3 +81,7 @@ export async function fetchFromStorage(key: string) {
 export async function putToStorage<T = any>(key: string, value: T) {
   return browser.storage.local.set({ [key]: value });
 }
+
+export async function removeFromStorage(key: string) {
+  return browser.storage.local.remove(key);
+}
