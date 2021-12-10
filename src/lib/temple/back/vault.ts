@@ -34,8 +34,6 @@ import * as Passworder from 'lib/temple/passworder';
 import { clearStorage } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 
-import { removeFromStorage, useStorage } from '../front';
-
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = 'vault';
 const DEFAULT_SETTINGS: TempleSettings = {};
@@ -584,9 +582,8 @@ const MIGRATIONS = [
     ]);
 
     // Address book contacts migration
-    const [savedContacts] = useStorage<TempleContact[]>('contacts', []);
-    settings = { ...settings, contacts: savedContacts };
-    await removeFromStorage('contacts');
+    const contacts = await getPlain<TempleContact[]>('contacts');
+    settings = { ...settings, contacts };
 
     const accountsStrgKeys = accounts!
       .map(acc => [accPrivKeyStrgKey(acc.publicKeyHash), accPubKeyStrgKey(acc.publicKeyHash)])
@@ -607,7 +604,7 @@ const MIGRATIONS = [
     await encryptAndSaveMany(toSave, passKey);
 
     // Remove old
-    await removeManyLegacy(toSave.map(([key]) => key));
+    await removeManyLegacy([...toSave.map(([key]) => key), 'contacts']);
   }
 ];
 
