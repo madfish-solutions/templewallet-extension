@@ -360,7 +360,7 @@ const DelegateForm: FC = () => {
           () => (
             <div className={classNames('mb-6', 'border rounded-md', 'p-2', 'flex items-center')}>
               <img
-                src={browser.runtime.getURL('misc/token-logos/tez.png')}
+                src={browser.runtime.getURL('misc/token-logos/tez.svg')}
                 alt={assetSymbol}
                 className="w-auto h-12 mr-3"
               />

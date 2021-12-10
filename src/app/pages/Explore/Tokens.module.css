@@ -1,0 +1,19 @@
+.apyBadge {
+  background: #4299e1;
+  border-radius: 4px;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 15px;
+  color: #ffffff;
+}
+
+.tokenSymbol {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 16px;
+  color: #1b262c;
+}
