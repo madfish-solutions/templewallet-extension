@@ -19,7 +19,6 @@ export async function getAllBakers() {
 
 export async function getBaker(address: string) {
   const { data: baker } = await api.get<TNBaker>(`/baker/${address}`);
-  if (!isBakerPay(baker)) return null;
   return fixBakerLogo(baker);
 }
 

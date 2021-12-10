@@ -233,12 +233,6 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
           testID: ExploreSelectors.CollectiblesTab
         },
         {
-          slug: 'delegation',
-          title: t('delegation'),
-          Component: Delegation,
-          testID: ExploreSelectors.DelegationTab
-        },
-        {
           slug: 'activity',
           title: t('activity'),
           Component: ActivityTab,
@@ -254,19 +248,27 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
       testID: ExploreSelectors.ActivityTab
     };
 
+    const info = {
+      slug: 'info',
+      title: t('info'),
+      Component: () => <AssetInfo assetSlug={assetSlug} />,
+      testID: ExploreSelectors.AboutTab
+    };
+
     if (isTezAsset(assetSlug)) {
-      return [activity];
+      return [
+        activity,
+        {
+          slug: 'delegation',
+          title: t('delegation'),
+          Component: Delegation,
+          testID: ExploreSelectors.DelegationTab
+        },
+        info
+      ];
     }
 
-    return [
-      activity,
-      {
-        slug: 'about',
-        title: t('about'),
-        Component: () => <AssetInfo assetSlug={assetSlug} />,
-        testID: ExploreSelectors.AboutTab
-      }
-    ];
+    return [activity, info];
   }, [assetSlug]);
 
   const { slug, Component } = useMemo(() => {
@@ -303,7 +305,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
         })}
       </div>
 
-      <div className={classNames('mx-4 mb-4', fullPage ? 'mt-8' : 'mt-4')}>
+      <div className={'mx-4 mb-4 mt-6'}>
         <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
       </div>
     </div>
