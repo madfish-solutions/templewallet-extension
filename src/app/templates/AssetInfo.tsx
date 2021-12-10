@@ -22,7 +22,7 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
 
   const metadata = useAssetMetadata(assetSlug);
 
-  if (isTezAsset(asset)) return null;
+  // if (isTezAsset(asset)) return null;
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
@@ -32,14 +32,14 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
         id="contract-address"
         label={<T id="contract" />}
         labelDescription={<T id="addressOfTokenContract" substitutions={[getAssetSymbol(metadata)]} />}
-        value={asset.contract}
+        value={isTezAsset(asset) ? 'TEZ' : asset.contract}
         size={36}
         style={{
           resize: 'none'
         }}
       />
 
-      {isFA2Token(asset) && (
+      {!isTezAsset(asset) && isFA2Token(asset) && (
         <InfoField id="token-id" label={<T id="tokenId" />} value={new BigNumber(asset.id).toFixed()} />
       )}
     </div>
