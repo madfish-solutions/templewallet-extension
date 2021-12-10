@@ -13,3 +13,9 @@ export function sanitizeImgUri(url: string, x = 64, y = 64) {
   }
   return url;
 }
+
+export const formatCollectibleUri = (address: string, id: string) => {
+  return `https://assets.objkt.com/file/assets-001/${address}/${id.length > 1 ? id[id.length - 2] : 0}/${
+    id[id.length - 1]
+  }/${id}/thumb400`;
+};
