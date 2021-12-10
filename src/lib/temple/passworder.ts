@@ -53,16 +53,17 @@ export async function decrypt<T = any>(
   return JSON.parse(stuffStr);
 }
 
-export function generateKey(password: string) {
-  return crypto.subtle.importKey('raw', Buffer.alloc(32, password), 'PBKDF2', false, ['deriveBits', 'deriveKey']);
+export async function generateKey(password: string) {
+  const hash = await crypto.subtle.digest('SHA-256', Buffer.from(password, 'utf-8'));
+  return importKey(hash);
 }
 
-export function deriveKey(key: CryptoKey, salt: Uint8Array) {
+export function deriveKey(key: CryptoKey, salt: Uint8Array, iterations = 310_000) {
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
       salt,
-      iterations: 10000,
+      iterations,
       hash: 'SHA-256'
     },
     key,
@@ -76,4 +77,22 @@ export function generateSalt(byteCount = 32) {
   const view = new Uint8Array(byteCount);
   crypto.getRandomValues(view);
   return view;
+}
+
+function importKey(keyData: ArrayBuffer) {
+  return crypto.subtle.importKey('raw', keyData, 'PBKDF2', false, ['deriveBits', 'deriveKey']);
+}
+
+/**
+ * @deprecated
+ */
+export function generateKeyLegacy(password: string) {
+  return importKey(Buffer.alloc(32, password));
+}
+
+/**
+ * @deprecated
+ */
+export function deriveKeyLegacy(key: CryptoKey, salt: Uint8Array) {
+  return deriveKey(key, salt, 10_000);
 }
