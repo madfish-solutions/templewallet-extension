@@ -8,7 +8,6 @@ import { useDebounce } from 'use-debounce';
 
 import Money from 'app/atoms/Money';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
-import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import AssetIcon from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
@@ -29,6 +28,7 @@ import {
 import { Link, navigate } from 'lib/woozie';
 
 import { AssetsSelectors } from './Assets.selectors';
+import styles from './Tokens.module.css';
 
 const Tokens: FC = () => {
   const chainId = useChainId(true)!;
@@ -239,22 +239,24 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
     return undefined;
   }, [displayed, setDisplayed]);
 
-  const renderBalance = useCallback(
+  const renderBalancInToken = useCallback(
     (balance: BigNumber) => (
-      <div className="flex items-center">
-        <span className="text-base font-normal text-gray-700">
-          <Money>{balance}</Money>{' '}
-          <span className="opacity-90" style={{ fontSize: '0.75em' }}>
-            {getAssetSymbol(metadata)}
-          </span>
-        </span>
-
-        <InUSD assetSlug={assetSlug} volume={balance}>
-          {usdBalance => <div className={classNames('ml-2', 'text-sm font-light text-gray-600')}>${usdBalance}</div>}
-        </InUSD>
+      <div className="text-base font-medium text-gray-800">
+        <Money smallFractionFont={false}>{balance}</Money>
       </div>
     ),
-    [assetSlug, metadata]
+    []
+  );
+
+  const renderBalanceInUSD = useCallback(
+    (balance: BigNumber) => (
+      <InUSD assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+        {usdBalance => (
+          <div className={classNames('ml-1', 'font-normal text-gray-500 text-xs text-right')}>≈ {usdBalance} $</div>
+        )}
+      </InUSD>
+    ),
+    [assetSlug]
   );
 
   return (
@@ -266,7 +268,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
         'overflow-hidden',
         !last && 'border-b border-gray-200',
         active ? 'bg-gray-100' : 'hover:bg-gray-100 focus:bg-gray-100',
-        'flex items-center py-2 px-3',
+        'flex items-center p-4',
         'text-gray-700',
         'transition ease-in-out duration-200',
         'focus:outline-none'
@@ -274,20 +276,28 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
       testID={AssetsSelectors.AssetItemButton}
       testIDProperties={{ key: assetSlug }}
     >
-      <AssetIcon assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
+      <AssetIcon assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
-      <div ref={toDisplayRef} className="flex items-center">
-        <div className="flex flex-col">
+      <div ref={toDisplayRef} className="w-full">
+        <div className="flex justify-between w-full mb-1">
+          <div className="flex items-center">
+            <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
+            {assetSlug === 'tez' && (
+              <div className={classNames('ml-1 px-2 py-1', styles['apyBadge'])}>{<T id="tezosApy" />}</div>
+            )}
+          </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
-            {renderBalance}
+            {renderBalancInToken}
           </Balance>
-
-          <div className={classNames('text-xs font-light text-gray-600')}>{getAssetName(metadata)}</div>
         </div>
-      </div>
-
-      <div className={classNames('absolute right-0 top-0 bottom-0', 'flex items-center', 'pr-2', 'text-gray-500')}>
-        <ChevronRightIcon className="h-5 w-auto stroke-current" />
+        <div className="flex justify-between w-full mb-1">
+          <div className={classNames('text-xs font-normal text-gray-700 truncate w-auto flex-1')}>
+            {getAssetName(metadata)}
+          </div>
+          <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
+            {renderBalanceInUSD}
+          </Balance>
+        </div>
       </div>
     </Link>
   );

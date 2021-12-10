@@ -24,23 +24,24 @@ import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 import {
   TempleAccountType,
-  TempleConfirmationPayload,
-  tryParseExpenses,
-  useNetwork,
-  useRelevantAccounts,
-  useCustomChainId,
   TempleChainId,
-  toTokenSlug
+  TempleConfirmationPayload,
+  toTokenSlug,
+  tryParseExpenses,
+  useCustomChainId,
+  useNetwork,
+  useRelevantAccounts
 } from 'lib/temple/front';
 import useSafeState from 'lib/ui/useSafeState';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
-import { ADDITIONAL_TEMPLE_GAS_FEE } from './SendForm';
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => Promise<void>;
 };
+
+const MIN_GAS_FEE = 0;
 
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm }) => {
   const { rpcBaseURL: currentNetworkRpc } = useNetwork();
@@ -151,12 +152,14 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === 'operations' &&
-      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) + revealFee + ADDITIONAL_TEMPLE_GAS_FEE) ||
+      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) + revealFee) ||
       0
   );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] = useSafeState(
     (payload.type === 'operations' && payload.opParams[0].storageLimit) || 0
   );
+
+  const gasFeeError = useMemo(() => modifiedTotalFeeValue <= MIN_GAS_FEE, [modifiedTotalFeeValue]);
 
   const confirm = useCallback(
     async (confirmed: boolean) => {
@@ -265,6 +268,8 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                 <OperationsBanner
                   opParams={payload.rawToSign ?? payload.opParams}
                   jsonViewStyle={signPayloadFormats.length > 1 ? { height: '11rem' } : undefined}
+                  modifiedTotalFee={modifiedTotalFeeValue}
+                  modifiedStorageLimit={modifiedStorageLimitValue}
                 />
               )}
 
@@ -291,9 +296,15 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
                   mainnet={mainnet}
+                  gasFeeError={gasFeeError}
                 />
               )}
             </>
+          )}
+          {spFormat.key === 'preview' && gasFeeError && (
+            <p className="text-xs text-red-600 pt-1 h-4">
+              <T id="gasFeeMustBePositive" />
+            </p>
           )}
         </div>
 
@@ -325,6 +336,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
                 <FormSubmitButton
                   type="button"
                   className="justify-center w-full"
+                  disabled={gasFeeError}
                   loading={confirming}
                   onClick={handleConfirmClick}
                   testID={

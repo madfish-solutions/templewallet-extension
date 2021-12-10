@@ -11,7 +11,18 @@ import * as Ed25519 from 'ed25519-hd-key';
 import { getMessage } from 'lib/i18n';
 import { PublicError } from 'lib/temple/back/defaults';
 import { TempleLedgerSigner } from 'lib/temple/back/ledger-signer';
-import { isStored, fetchAndDecryptOne, encryptAndSaveMany, removeMany } from 'lib/temple/back/safe-storage';
+import {
+  isStored,
+  fetchAndDecryptOne,
+  encryptAndSaveMany,
+  removeMany,
+  savePlain,
+  getPlain,
+  fetchAndDecryptOneLegacy,
+  encryptAndSaveManyLegacy,
+  isStoredLegacy,
+  removeManyLegacy
+} from 'lib/temple/back/safe-storage';
 import {
   transformHttpResponseError,
   formatOpParamsBeforeSend,
@@ -29,12 +40,13 @@ const DEFAULT_SETTINGS: TempleSettings = {};
 
 enum StorageEntity {
   Check = 'check',
-  MigrationLevel = 'mgrnlvl',
+  MigrationLevel = 'migration',
   Mnemonic = 'mnemonic',
   AccPrivKey = 'accprivkey',
   AccPubKey = 'accpubkey',
   Accounts = 'accounts',
-  Settings = 'settings'
+  Settings = 'settings',
+  LegacyMigrationLevel = 'mgrnlvl'
 }
 
 const checkStrgKey = createStorageKey(StorageEntity.Check);
@@ -44,16 +56,20 @@ const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
 const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
 const accountsStrgKey = createStorageKey(StorageEntity.Accounts);
 const settingsStrgKey = createStorageKey(StorageEntity.Settings);
+const legacyMigrationLevelStrgKey = createStorageKey(StorageEntity.LegacyMigrationLevel);
 
 export class Vault {
-  static isExist() {
-    return isStored(checkStrgKey);
+  static async isExist() {
+    const stored = await isStored(checkStrgKey);
+    if (stored) return stored;
+
+    return isStoredLegacy(checkStrgKey);
   }
 
   static async setup(password: string) {
-    const passKey = await Vault.toValidPassKey(password);
     return withError('Failed to unlock wallet', async () => {
-      await Vault.runMigrations(passKey);
+      await Vault.runMigrations(password);
+      const passKey = await Vault.toValidPassKey(password);
       return new Vault(passKey);
     });
   }
@@ -82,8 +98,7 @@ export class Vault {
       await clearStorage();
       await encryptAndSaveMany(
         [
-          [checkStrgKey, Bip39.generateMnemonic(128)],
-          [migrationLevelStrgKey, MIGRATIONS.length],
+          [checkStrgKey, generateCheck()],
           [mnemonicStrgKey, mnemonic],
           [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
           [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
@@ -91,23 +106,43 @@ export class Vault {
         ],
         passKey
       );
+      await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
     });
   }
 
-  static async runMigrations(passKey: CryptoKey) {
+  static async runMigrations(password: string) {
+    const legacyMigrationLevelStored = await isStoredLegacy(legacyMigrationLevelStrgKey);
+
     try {
-      const migrationLevelStored = await isStored(migrationLevelStrgKey);
-      const migrationLevel = migrationLevelStored
-        ? await fetchAndDecryptOne<number>(migrationLevelStrgKey, passKey)
-        : 0;
+      let migrationLevel: number;
+
+      if (legacyMigrationLevelStored) {
+        migrationLevel = await fetchAndDecryptOneLegacy<number>(
+          legacyMigrationLevelStrgKey,
+          await Passworder.generateKeyLegacy(password)
+        );
+      } else {
+        const saved = await getPlain<number>(migrationLevelStrgKey);
+        migrationLevel = saved ?? 0;
+      }
+
       const migrationsToRun = MIGRATIONS.filter((_m, i) => i >= migrationLevel);
+
+      if (migrationsToRun.length === 0) {
+        return;
+      }
+
       for (const migrate of migrationsToRun) {
-        await migrate(passKey);
+        await migrate(password);
       }
     } catch (err: any) {
       console.error(err);
     } finally {
-      await encryptAndSaveMany([[migrationLevelStrgKey, MIGRATIONS.length]], passKey);
+      if (legacyMigrationLevelStored) {
+        await removeManyLegacy([legacyMigrationLevelStrgKey]);
+      }
+
+      await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
     }
   }
 
@@ -460,11 +495,13 @@ export class Vault {
  */
 
 const MIGRATIONS = [
-  // [0] Fix derivation
-  async (passKey: CryptoKey) => {
+  // [1] Fix derivation
+  async (password: string) => {
+    const passKey = await Passworder.generateKeyLegacy(password);
+
     const [mnemonic, accounts] = await Promise.all([
-      fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
-      fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey)
+      fetchAndDecryptOneLegacy<string>(mnemonicStrgKey, passKey),
+      fetchAndDecryptOneLegacy<TempleAccount[]>(accountsStrgKey, passKey)
     ]);
     const migratedAccounts = accounts.map(acc =>
       acc.type === TempleAccountType.HD
@@ -488,7 +525,7 @@ const MIGRATIONS = [
     };
     const newAccounts = [newInitialAccount, ...migratedAccounts];
 
-    await encryptAndSaveMany(
+    await encryptAndSaveManyLegacy(
       [
         [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
         [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
@@ -498,31 +535,82 @@ const MIGRATIONS = [
     );
   },
 
-  // [1] Add hdIndex prop to HD Accounts
-  async (passKey: CryptoKey) => {
-    const accounts = await fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey);
+  // [2] Add hdIndex prop to HD Accounts
+  async (password: string) => {
+    const passKey = await Passworder.generateKeyLegacy(password);
+    const accounts = await fetchAndDecryptOneLegacy<TempleAccount[]>(accountsStrgKey, passKey);
 
     let hdAccIndex = 0;
     const newAccounts = accounts.map(acc =>
       acc.type === TempleAccountType.HD ? { ...acc, hdIndex: hdAccIndex++ } : acc
     );
 
-    await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
+    await encryptAndSaveManyLegacy([[accountsStrgKey, newAccounts]], passKey);
   },
 
-  // [2] Improve token managing flow
+  // [3] Improve token managing flow
   // Migrate from tokens{netId}: TempleToken[] + hiddenTokens{netId}: TempleToken[]
   // to tokens{chainId}: TempleToken[]
   async () => {
     // The code base for this migration has been removed
     // because it is no longer needed,
     // but this migration is required for version compatibility.
+  },
+
+  // [4] Improve crypto security
+  // Migrate legacy crypto storage
+  // New crypto updates:
+  // - Use password hash in memory when unlocked(instead of plain password)
+  // - Wrap storage keys in sha256(instead of plain)
+  // - Concat storage values to bytes(instead of json)
+  // - Increase PBKDF rounds
+  async (password: string) => {
+    const legacyPassKey = await Passworder.generateKeyLegacy(password);
+
+    const fetchLegacySafe = async <T>(storageKey: string) => {
+      try {
+        return await fetchAndDecryptOneLegacy<T>(storageKey, legacyPassKey);
+      } catch {
+        return undefined;
+      }
+    };
+
+    const [mnemonic, accounts, settings] = await Promise.all([
+      fetchLegacySafe<string>(mnemonicStrgKey),
+      fetchLegacySafe<TempleAccount[]>(accountsStrgKey),
+      fetchLegacySafe<TempleSettings>(settingsStrgKey)
+    ]);
+
+    const accountsStrgKeys = accounts!
+      .map(acc => [accPrivKeyStrgKey(acc.publicKeyHash), accPubKeyStrgKey(acc.publicKeyHash)])
+      .flat();
+
+    const accountsStrgValues = await Promise.all(accountsStrgKeys.map(fetchLegacySafe));
+
+    const toSave = [
+      [checkStrgKey, generateCheck()],
+      [mnemonicStrgKey, mnemonic],
+      [accountsStrgKey, accounts],
+      [settingsStrgKey, settings],
+      ...accountsStrgKeys.map((key, i) => [key, accountsStrgValues[i]])
+    ].filter(([_key, value]) => value !== undefined) as [string, any][];
+
+    // Save new storage items
+    const passKey = await Passworder.generateKey(password);
+    await encryptAndSaveMany(toSave, passKey);
+
+    // Remove old
+    await removeManyLegacy(toSave.map(([key]) => key));
   }
 ];
 
 /**
  * Misc
  */
+
+function generateCheck() {
+  return Bip39.generateMnemonic(128);
+}
 
 function removeMFromDerivationPath(dPath: string) {
   return dPath.startsWith('m/') ? dPath.substring(2) : dPath;

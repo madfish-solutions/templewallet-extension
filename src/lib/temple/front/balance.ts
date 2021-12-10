@@ -50,7 +50,7 @@ export function useBalance(assetSlug: string, address: string, opts: UseBalanceO
   return useRetryableSWR(displayed ? getBalanceSWRKey(tezos, assetSlug, address) : null, fetchBalanceLocal, {
     suspense: opts.suspense ?? true,
     revalidateOnFocus: false,
-    dedupingInterval: 5_000,
+    dedupingInterval: 20_000,
     initialData: opts.initial
   });
 }
