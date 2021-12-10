@@ -12,6 +12,7 @@ import HashChip from 'app/templates/HashChip';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { T } from 'lib/i18n/react';
 import { useRelevantAccounts, useAccount, useKnownBaker, useExplorerBaseUrls } from 'lib/temple/front';
+import { TempleAccount } from 'lib/temple/types';
 
 type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
   bakerPkh: string;
@@ -104,29 +105,7 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, displayAddress = true, c
           <div className="flex flex-col items-start flex-1 ml-2">
             <div className={classNames('mb-px w-full', 'flex flex-wrap items-center', 'leading-none')}>
               <Name className="pb-1 mr-1 text-lg font-medium">
-                {bakerAcc ? (
-                  <>
-                    {bakerAcc.name}
-                    {bakerAcc.publicKeyHash === account.publicKeyHash && (
-                      <T id="selfComment">
-                        {message => (
-                          <>
-                            {' '}
-                            <span className="font-light opacity-75">{message}</span>
-                          </>
-                        )}
-                      </T>
-                    )}
-                  </>
-                ) : (
-                  <T id="unknownBakerTitle">
-                    {message => (
-                      <span className="font-normal">
-                        {typeof message === 'string' ? message.toLowerCase() : message}
-                      </span>
-                    )}
-                  </T>
-                )}
+                <BakerAccount account={account} bakerAcc={bakerAcc} />
               </Name>
             </div>
 
@@ -143,3 +122,24 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, displayAddress = true, c
 });
 
 export default BakerBanner;
+
+const BakerAccount: React.FC<{ bakerAcc: TempleAccount | null; account: TempleAccount }> = ({ bakerAcc, account }) =>
+  bakerAcc ? (
+    <>
+      {bakerAcc.name}
+      {bakerAcc.publicKeyHash === account.publicKeyHash && (
+        <T id="selfComment">
+          {message => (
+            <>
+              {' '}
+              <span className="font-light opacity-75">{message}</span>
+            </>
+          )}
+        </T>
+      )}
+    </>
+  ) : (
+    <T id="unknownBakerTitle">
+      {message => <span className="font-normal">{typeof message === 'string' ? message.toLowerCase() : message}</span>}
+    </T>
+  );

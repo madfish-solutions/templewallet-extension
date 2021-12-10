@@ -169,23 +169,13 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
 
     return (
       <div ref={rootRef} className={classNames('w-full flex flex-col', containerClassName)} style={containerStyle}>
-        {label ? (
-          <label className={classNames(labelPaddingClassName, 'leading-tight', 'flex flex-col')} htmlFor={id}>
-            <span className="text-base font-semibold text-gray-700">{label}</span>
-
-            {labelDescription && (
-              <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
-                {labelDescription}
-              </span>
-            )}
-
-            {labelWarning && (
-              <span className={classNames('mt-1', 'text-xs font-medium text-red-600')} style={{ maxWidth: '90%' }}>
-                {labelWarning}
-              </span>
-            )}
-          </label>
-        ) : null}
+        <LabelComponent
+          label={label}
+          warning={labelWarning}
+          description={labelDescription}
+          className={labelPaddingClassName}
+          id={id}
+        />
 
         {extraSection}
 
@@ -196,7 +186,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
               'appearance-none',
               'w-full',
               'py-3 pl-4',
-              extraInner ? 'pr-32' : isPasswordInput ? 'pr-12' : 'pr-4',
+              getInnerClassName(isPasswordInput, extraInner),
               'border-2',
               errorCaption ? 'border-red-500' : 'border-gray-300',
               'focus:border-primary-orange',
@@ -348,5 +338,37 @@ interface ErrorCaptionProps {
 
 const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) =>
   errorCaption ? <div className="text-xs text-red-500">{errorCaption}</div> : null;
+
+interface LabelComponentProps {
+  className: string;
+  label: ReactNode;
+  description: ReactNode;
+  warning: ReactNode;
+  id?: string;
+}
+
+const LabelComponent: React.FC<LabelComponentProps> = ({ label, className, description, warning, id }) =>
+  label ? (
+    <label className={classNames(className, 'leading-tight', 'flex flex-col')} htmlFor={id}>
+      <span className="text-base font-semibold text-gray-700">{label}</span>
+
+      {description && (
+        <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
+          {description}
+        </span>
+      )}
+
+      {warning && (
+        <span className={classNames('mt-1', 'text-xs font-medium text-red-600')} style={{ maxWidth: '90%' }}>
+          {warning}
+        </span>
+      )}
+    </label>
+  ) : null;
+
+const getInnerClassName = (isPasswordInput: boolean, extraInner: ReactNode) => {
+  const passwordClassName = isPasswordInput ? 'pr-12' : 'pr-4';
+  return extraInner ? 'pr-32' : passwordClassName;
+};
 
 export default FormField;
