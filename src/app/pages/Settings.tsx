@@ -15,7 +15,7 @@ import { ReactComponent as StickerIcon } from 'app/icons/sticker.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About';
 import ActivateAccount from 'app/templates/ActivateAccount';
-import AddressBookSettings from 'app/templates/AddressBookSettings';
+import AddressBook from 'app/templates/AddressBook';
 import CustomNetworksSettings from 'app/templates/CustomNetworksSettings';
 import DAppSettings from 'app/templates/DAppSettings';
 import GeneralSettings from 'app/templates/GeneralSettings';
@@ -48,7 +48,7 @@ const TABS = [
     slug: 'address-book',
     titleI18nKey: 'addressBook',
     Icon: ContactBookIcon,
-    Component: AddressBookSettings,
+    Component: AddressBook,
     color: '#d53f8c',
     descriptionI18nKey: 'addressBookDescription',
     testID: SettingsSelectors.AddressBookButton
