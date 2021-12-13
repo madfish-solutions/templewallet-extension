@@ -107,7 +107,7 @@ const OperationView: FC<OperationViewProps> = ({ payload, networkRpc, mainnet = 
         <OperationsBanner
           opParams={payload.preview}
           className={classNames(spFormat.key !== 'raw' && 'hidden')}
-          jsonViewStyle={{ height: '11rem' }}
+          jsonViewStyle={{ height: '11rem', maxHeight: '100%', overflow: 'auto' }}
         />
 
         <RawPayloadView
