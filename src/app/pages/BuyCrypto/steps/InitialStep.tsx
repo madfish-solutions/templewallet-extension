@@ -54,7 +54,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         destination_address: publicKeyHash,
         destination_extra: ''
       });
-      await setExchangeData(data);
+      setExchangeData(data);
       if (data.status === ExchangeDataStatusEnum.WAIT) {
         setStep(1);
       } else if (data.status === ExchangeDataStatusEnum.CONFIRMATION) {
