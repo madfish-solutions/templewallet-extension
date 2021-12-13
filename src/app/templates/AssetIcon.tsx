@@ -13,7 +13,7 @@ export type AssetIconProps = {
   className?: string;
   style?: CSSProperties;
   size?: number;
-  assetType: string;
+  assetType?: string;
 };
 
 const AssetIcon = memo((props: AssetIconProps) => {
