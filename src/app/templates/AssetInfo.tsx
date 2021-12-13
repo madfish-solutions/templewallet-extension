@@ -22,8 +22,6 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
 
   const metadata = useAssetMetadata(assetSlug);
 
-  // if (isTezAsset(asset)) return null;
-
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
       <InfoField
