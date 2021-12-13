@@ -510,9 +510,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
   );
 
   const visibleAssetSymbol = shouldUseUsd ? 'USD' : assetSymbol;
-  const assetDomainName = canUseDomainNames
-    ? 'tokensRecepientInputDescriptionWithDomain'
-    : 'tokensRecepientInputDescription';
+  const assetDomainName = getAssetDomainName(canUseDomainNames);
 
   const isContactsDropdownOpen = getFilled(toFilled, toFieldFocused);
 
@@ -569,7 +567,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
             <T id={assetDomainName} substitutions={assetSymbol} />
           )
         }
-        placeholder={t(canUseDomainNames ? 'recipientInputPlaceholderWithDomain' : 'recipientInputPlaceholder')}
+        placeholder={t(getDomainTextError(canUseDomainNames))}
         errorCaption={!toFieldFocused ? errors.to?.message : null}
         style={{
           resize: 'none'
@@ -893,3 +891,7 @@ const InnerDropDownComponentGuard: React.FC<ContactsDropdownProps> = ({ contacts
 };
 
 const getFilled = (toFilled: boolean | '', toFieldFocused: boolean) => (!toFilled ? toFieldFocused : false);
+const getDomainTextError = (canUseDomainNames: boolean) =>
+  canUseDomainNames ? 'recipientInputPlaceholderWithDomain' : 'recipientInputPlaceholder';
+const getAssetDomainName = (canUseDomainNames: boolean) =>
+  canUseDomainNames ? 'tokensRecepientInputDescriptionWithDomain' : 'tokensRecepientInputDescription';
