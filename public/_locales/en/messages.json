@@ -455,17 +455,20 @@
   "toBeConnectedWithDApp": {
     "message": "to be connected with dApp."
   },
+  "requirements": {
+    "message": "Requirements:"
+  },
   "atLeast8Characters": {
-    "message": "At least 8 characters"
+    "message": "At least 8 characters - the more characters, the better."
   },
-  "atLeast1Number": {
-    "message": "At least 1 number"
+  "mixtureOfUppercaseAndLowercaseLetters": {
+    "message": "A mixture of both uppercase and lowercase letters."
   },
-  "atLeast1LowercaseLetter": {
-    "message": "At least 1 lowercase letter"
+  "mixtureOfLettersAndNumbers": {
+    "message": "A mixture of letters and numbers."
   },
-  "atLeast1UppercaseLetter": {
-    "message": "At least 1 uppercase letter"
+  "atLeast1SpecialCharacter": {
+    "message": "Inclusion of at least one special character, e.g., ! @ # ? ] - (optional, recommended)."
   },
   "mnemonicWordsAmountConstraint": {
     "message": "12, 15, 18, 21 or 24 words in English"
@@ -542,6 +545,9 @@
   },
   "amountMustBePositive": {
     "message": "Must be positive"
+  },
+  "gasFeeMustBePositive": {
+    "message": "Gas fee must be positive"
   },
   "accountName": {
     "message": "Account name"
@@ -2210,8 +2216,8 @@
   "thanks": {
     "message": "Ok thanks!"
   },
-  "makeSureBrowserIsUpToDate": {
-    "message": "Please make sure you are using an up-to-date browser version. Otherwise, we strongly recommend updating your browser to the newest version!"
+  "browserVersionIsOutOfDate": {
+    "message": "Your browser version is out of date, we strongly recommend updating to the newest version!"
   },
   "congratsDescription1": {
     "message": "Thanks for your attention!"

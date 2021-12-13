@@ -3,7 +3,7 @@
   font-weight: 400;
   font-size: 23px;
   text-align: center;
-  margin: 40px 0 40px 0;
+  margin: 40px 0 24px 0;
   color: #1b262c;
 }
 
@@ -13,7 +13,6 @@
   font-size: 14px;
   line-height: 17px;
   text-align: center;
-  max-width: 358px;
   margin: 40px 0 40px 0;
   color: #4a5568;
 }
@@ -23,11 +22,19 @@
   font-weight: 400;
   font-size: 14px;
   line-height: 17px;
-  max-width: 358px;
   color: #4a5568;
   text-align: start;
   list-style-type: disc;
   padding-left: 24px;
+}
+
+.alert {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  text-align: center;
+  color: #e53e3e;
+  margin: 24px 0 24px 0;
 }
 
 .link {
@@ -36,7 +43,6 @@
   font-size: 14px;
   line-height: 17px;
   text-align: center;
-  max-width: 358px;
   color: #3182ce;
   text-decoration: underline;
 }
