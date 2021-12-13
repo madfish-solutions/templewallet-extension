@@ -9,7 +9,7 @@ const LockUpSettings: FC<{}> = () => {
   const changingRef = useRef(false);
   const [error, setError] = useState<any>(null);
 
-  const handlePopupModeChange = useCallback(
+  const handleLockUpChange = useCallback(
     evt => {
       if (changingRef.current) return;
       changingRef.current = true;
@@ -36,7 +36,7 @@ const LockUpSettings: FC<{}> = () => {
 
       <FormCheckbox
         checked={lockUpEnabled}
-        onChange={handlePopupModeChange}
+        onChange={handleLockUpChange}
         name="lockUpEnabled"
         label={t(lockUpEnabled ? 'enabled' : 'disabled')}
         errorCaption={error?.message}

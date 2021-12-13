@@ -16,9 +16,9 @@ const GeneralSettings: FC = () => {
 
       <PopupSettings />
 
-      <AnalyticsSettings />
-
       <LockUpSettings />
+
+      <AnalyticsSettings />
 
       <LedgerLiveSettings />
     </div>
