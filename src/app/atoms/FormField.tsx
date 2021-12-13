@@ -25,6 +25,7 @@ import { lettersNumbersMixtureRegx, specialCharacterRegx, uppercaseLowercaseMixt
 import usePasswordToggle from './usePasswordToggle.hook';
 
 const MIN_PASSWORD_LENGTH = 8;
+export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
@@ -90,6 +91,8 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
   ) => {
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
+
+    const isPasswordStrengthIndicator = errorCaption === PASSWORD_ERROR_CAPTION;
 
     const [passwordInputType, TogglePasswordIcon] = usePasswordToggle();
     const isPasswordInput = type === 'password';
@@ -237,11 +240,11 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
         </div>
         <ErrorCaption errorCaption={errorCaption} />
 
-        {errorCaption === 'PASSWORD_ERROR_CAPTION' && passwordValidation && (
+        {isPasswordStrengthIndicator && passwordValidation && (
           <PasswordStrengthIndicator validation={passwordValidation} />
         )}
 
-        {focused && errorCaption !== 'PASSWORD_ERROR_CAPTION' && passwordValidation && (
+        {!isPasswordStrengthIndicator && focused && passwordValidation && (
           <PasswordStrengthIndicator validation={passwordValidation} />
         )}
       </div>
@@ -350,11 +353,10 @@ const Copyable: React.FC<CopyableProps> = ({ copy, cleanable, value, copyable })
 
 interface ErrorCaptionProps {
   errorCaption: React.ReactNode;
+  isPasswordStrengthIndicator?: boolean;
 }
 
-const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) =>
-  errorCaption && errorCaption !== 'PASSWORD_ERROR_CAPTION' ? (
-    <div className="text-xs text-red-500">{errorCaption}</div>
-  ) : null;
+const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption, isPasswordStrengthIndicator }) =>
+  errorCaption && !isPasswordStrengthIndicator ? <div className="text-xs text-red-500">{errorCaption}</div> : null;
 
 export default FormField;
