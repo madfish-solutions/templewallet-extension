@@ -71,7 +71,7 @@ import { HistoryAction, navigate } from 'lib/woozie';
 
 import { SendFormSelectors } from './SendForm.selectors';
 import AddContactModal from './SendForm/AddContactModal';
-import ContactsDropdown from './SendForm/ContactsDropdown';
+import ContactsDropdown, { ContactsDropdownProps } from './SendForm/ContactsDropdown';
 import SendErrorAlert from './SendForm/SendErrorAlert';
 
 interface FormData {
@@ -490,8 +490,8 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     [setValue, triggerValidation]
   );
 
-  const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
-  const estimateFallbackDisplayed = toFilled && !baseFee && estimating;
+  const restFormDisplayed = getRestFormDisplayed(toFilled, baseFee, estimationError);
+  const estimateFallbackDisplayed = getEstimateFallBackDisplayed(toFilled, baseFee, estimating);
 
   const [toFieldFocused, setToFieldFocused] = useState(false);
 
@@ -514,7 +514,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     ? 'tokensRecepientInputDescriptionWithDomain'
     : 'tokensRecepientInputDescription';
 
-  const isContactsDropdownOpen = !toFilled ? toFieldFocused : false;
+  const isContactsDropdownOpen = getFilled(toFilled, toFieldFocused);
 
   return (
     <form style={{ minHeight: '24rem' }} onSubmit={handleSubmit(onSubmit)}>
@@ -525,14 +525,12 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
             ref={toFieldRef}
             onFocus={handleToFieldFocus}
             dropdownInner={
-              allContactsWithoutCurrent.length > 0 ? (
-                <ContactsDropdown
-                  contacts={allContactsWithoutCurrent}
-                  opened={isContactsDropdownOpen}
-                  onSelect={handleAccountSelect}
-                  searchTerm={toValue}
-                />
-              ) : null
+              <InnerDropDownComponentGuard
+                contacts={allContactsWithoutCurrent}
+                opened={isContactsDropdownOpen}
+                onSelect={handleAccountSelect}
+                searchTerm={toValue}
+              />
             }
           />
         }
@@ -884,3 +882,14 @@ const getBaseFeeError = (baseFee: BigNumber | ArtificialError | undefined, estim
   baseFee instanceof Error ? baseFee : estimateBaseFeeError;
 
 const getFeeError = (estimating: boolean, feeError: any) => (!estimating ? feeError : null);
+const getEstimateFallBackDisplayed = (toFilled: boolean | '', baseFee: any, estimating: boolean) =>
+  toFilled && !baseFee && estimating;
+const getRestFormDisplayed = (toFilled: boolean | '', baseFee: any, estimationError: any) =>
+  Boolean(toFilled && (baseFee || estimationError));
+
+const InnerDropDownComponentGuard: React.FC<ContactsDropdownProps> = ({ contacts, opened, onSelect, searchTerm }) => {
+  if (contacts.length <= 0) return null;
+  return <ContactsDropdown contacts={contacts} opened={opened} onSelect={onSelect} searchTerm={searchTerm} />;
+};
+
+const getFilled = (toFilled: boolean | '', toFieldFocused: boolean) => (!toFilled ? toFieldFocused : false);
