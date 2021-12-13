@@ -74,6 +74,10 @@ export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
   return `${contract}_${new BigNumber(id).toFixed()}`;
 }
 
+export function isFA2Asset(asset: Asset): asset is FA2Token {
+  return asset === 'tez' ? false : typeof asset.id !== 'undefined';
+}
+
 export function isFA2Token(token: Token): token is FA2Token {
   return typeof token.id !== 'undefined';
 }
