@@ -261,7 +261,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         window.scrollTo(0, 0);
       });
     }
-    return;
+    return undefined;
   }, [toFilled, registerBackHandler, cleanToField]);
 
   const estimateBaseFee = useCallback(async () => {
@@ -365,7 +365,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     if (baseFee instanceof BigNumber) {
       return tezBalance.minus(baseFee).minus(PENNY).toNumber();
     }
-    return;
+    return undefined;
   }, [tezBalance, baseFee]);
 
   const safeFeeValue = useMemo(() => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue), [maxAddFee, feeValue]);
@@ -525,8 +525,8 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
   );
 
   const handleAccountSelect = useCallback(
-    (accountPkh: string) => {
-      setValue('to', accountPkh);
+    (account: string) => {
+      setValue('to', account);
       triggerValidation('to');
     },
     [setValue, triggerValidation]
