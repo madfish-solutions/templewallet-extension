@@ -31,7 +31,7 @@ browser.runtime.onConnect.addListener(externalPort => {
     connectionsCount === 1 &&
     Date.now() - disconnectTimestamp >= LOCK_TIME &&
     disconnectTimestamp !== 0 &&
-    !lockUpEnabled
+    lockUpEnabled
   ) {
     lock();
   }
