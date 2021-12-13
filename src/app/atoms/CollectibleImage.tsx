@@ -1,6 +1,9 @@
 import React, { FC, useState } from 'react';
 
 import { formatCollectibleUri } from 'lib/image-uri';
+import { useRetryableSWR } from 'lib/swr';
+import { fromAssetSlug } from 'lib/temple/assets';
+import { useTezos } from 'lib/temple/front';
 import { AssetMetadata } from 'lib/temple/metadata';
 
 interface Props {
@@ -11,8 +14,14 @@ interface Props {
 }
 
 const CollectibleImage: FC<Props> = ({ collectibleMetadata, assetSlug, Placeholder, className }) => {
+  const tezos = useTezos();
   const [isLoaded, setIsLoaded] = useState(false);
-  const [address, id] = assetSlug.split('_');
+  const asset = useRetryableSWR(['asset', assetSlug, tezos.checksum], () => fromAssetSlug(tezos, assetSlug), {
+    suspense: true
+  }).data!;
+  if (asset === 'tez') return null;
+  const assetId = asset.id ? asset.id.toString() : '0';
+  const srcSlug = formatCollectibleUri(asset.contract, assetId);
   return (
     <>
       <img
@@ -20,7 +29,7 @@ const CollectibleImage: FC<Props> = ({ collectibleMetadata, assetSlug, Placehold
         alt={collectibleMetadata.name}
         style={!isLoaded ? { display: 'none' } : {}}
         className={className}
-        src={formatCollectibleUri(address, id)}
+        src={srcSlug}
       />
       {!isLoaded && <Placeholder style={{ display: 'inline' }} />}
     </>
