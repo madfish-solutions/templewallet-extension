@@ -7,7 +7,7 @@ import { Controller, useForm } from 'react-hook-form';
 import Alert from 'app/atoms/Alert';
 import FileInput, { FileInputProps } from 'app/atoms/FileInput';
 import FormCheckbox from 'app/atoms/FormCheckbox';
-import FormField from 'app/atoms/FormField';
+import FormField, { PASSWORD_ERROR_CAPTION } from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import TabSwitcher from 'app/atoms/TabSwitcher';
 import { formatMnemonic, MNEMONIC_ERROR_CAPTION, PASSWORD_PATTERN } from 'app/defaults';
@@ -280,10 +280,10 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
           <>
             <FormField
               ref={register({
-                required: 'PASSWORD_ERROR_CAPTION',
+                required: PASSWORD_ERROR_CAPTION,
                 pattern: {
                   value: PASSWORD_PATTERN,
-                  message: 'PASSWORD_ERROR_CAPTION'
+                  message: PASSWORD_ERROR_CAPTION
                 }
               })}
               label={t('password')}
