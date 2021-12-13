@@ -2319,10 +2319,10 @@
     "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
   },
   "lockUpSettings": {
-    "message": "Lock up"
+    "message": "Extension lock-up"
   },
   "lockUpSettingsDescription": {
-    "message": "Here you can configure lock up of extension."
+    "message": "The extension will be automatically blocked after 5 minutes of inactivity."
   },
   "totalBalance": {
     "message": "Total Balance"
