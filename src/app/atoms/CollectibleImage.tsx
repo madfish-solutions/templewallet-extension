@@ -1,9 +1,9 @@
 import React, { FC, useState } from 'react';
 
-import { formatCollectibleUri } from 'lib/image-uri';
+import { formatCollectibleUri, formatImgUri, sanitizeImgUri } from 'lib/image-uri';
 import { useRetryableSWR } from 'lib/swr';
 import { fromAssetSlug } from 'lib/temple/assets';
-import { useTezos } from 'lib/temple/front';
+import { useNetwork, useTezos } from 'lib/temple/front';
 import { AssetMetadata } from 'lib/temple/metadata';
 
 interface Props {
@@ -15,13 +15,20 @@ interface Props {
 
 const CollectibleImage: FC<Props> = ({ collectibleMetadata, assetSlug, Placeholder, className }) => {
   const tezos = useTezos();
+  const network = useNetwork();
   const [isLoaded, setIsLoaded] = useState(false);
   const asset = useRetryableSWR(['asset', assetSlug, tezos.checksum], () => fromAssetSlug(tezos, assetSlug), {
     suspense: true
   }).data!;
   if (asset === 'tez') return null;
   const assetId = asset.id ? asset.id.toString() : '0';
-  const srcSlug = formatCollectibleUri(asset.contract, assetId);
+  const objktSrc = formatCollectibleUri(asset.contract, assetId);
+  const templeSrc = sanitizeImgUri(
+    formatImgUri(collectibleMetadata.displayUri || collectibleMetadata.artifactUri!),
+    512,
+    512
+  );
+  const assetSrc = network.type === 'main' ? objktSrc : templeSrc;
   return (
     <>
       <img
@@ -29,7 +36,7 @@ const CollectibleImage: FC<Props> = ({ collectibleMetadata, assetSlug, Placehold
         alt={collectibleMetadata.name}
         style={!isLoaded ? { display: 'none' } : {}}
         className={className}
-        src={srcSlug}
+        src={assetSrc}
       />
       {!isLoaded && <Placeholder style={{ display: 'inline' }} />}
     </>
