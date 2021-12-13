@@ -41,7 +41,7 @@ const PasswordStrengthIndicator: FC<PasswordStrengthIndicatorProps> = ({
 );
 
 const PasswordStrengthIndicatorItem: FC<PasswordStrengthIndicatorItemProps> = ({ isValid, message }) => (
-  <li style={isValid ? { color: '#48bb78' } : {}}>{message}</li>
+  <li style={isValid ? { color: '#48bb78' } : { color: '#e53e3e' }}>{message}</li>
 );
 
 export default PasswordStrengthIndicator;
