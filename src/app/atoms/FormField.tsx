@@ -237,7 +237,13 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
         </div>
         <ErrorCaption errorCaption={errorCaption} />
 
-        {focused && passwordValidation && <PasswordStrengthIndicator validation={passwordValidation} />}
+        {errorCaption === 'PASSWORD_ERROR_CAPTION' && passwordValidation && (
+          <PasswordStrengthIndicator validation={passwordValidation} />
+        )}
+
+        {focused && errorCaption !== 'PASSWORD_ERROR_CAPTION' && passwordValidation && (
+          <PasswordStrengthIndicator validation={passwordValidation} />
+        )}
       </div>
     );
   }
@@ -347,6 +353,8 @@ interface ErrorCaptionProps {
 }
 
 const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) =>
-  errorCaption ? <div className="text-xs text-red-500">{errorCaption}</div> : null;
+  errorCaption && errorCaption !== 'PASSWORD_ERROR_CAPTION' ? (
+    <div className="text-xs text-red-500">{errorCaption}</div>
+  ) : null;
 
 export default FormField;

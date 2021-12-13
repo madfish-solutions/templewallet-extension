@@ -280,8 +280,11 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
           <>
             <FormField
               ref={register({
-                required: t('required'),
-                pattern: PASSWORD_PATTERN
+                required: 'PASSWORD_ERROR_CAPTION',
+                pattern: {
+                  value: PASSWORD_PATTERN,
+                  message: 'PASSWORD_ERROR_CAPTION'
+                }
               })}
               label={t('password')}
               labelDescription={t('unlockPasswordInputDescription')}
