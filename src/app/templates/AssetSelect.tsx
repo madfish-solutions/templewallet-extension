@@ -16,6 +16,7 @@ import {
   useAssetMetadata,
   getAssetName,
   getAssetSymbol,
+  AssetMetadata,
   useCollectibleTokens
 } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
@@ -114,14 +115,9 @@ const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset })
               </>
             )}
           </Balance>
-        ) : asset?.latestBalance && metadata ? (
-          <>
-            <Money tooltip={false}>{new BigNumber(asset.latestBalance).div(10 ** metadata.decimals)}</Money>{' '}
-            <span className="text-gray-500" style={{ fontSize: '0.75em' }}>
-              {getAssetSymbol(metadata)}
-            </span>
-          </>
-        ) : null}
+        ) : (
+          <AssetMoney asset={asset} metadata={metadata} />
+        )}
       </span>
     </div>
   );
@@ -149,3 +145,13 @@ const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
     </Balance>
   );
 };
+
+const AssetMoney: FC<{ asset: IAsset; metadata: AssetMetadata }> = ({ asset, metadata }) =>
+  asset !== 'tez' && asset?.latestBalance && metadata ? (
+    <>
+      <Money tooltip={false}>{new BigNumber(asset.latestBalance).div(10 ** metadata.decimals)}</Money>{' '}
+      <span className="text-gray-500" style={{ fontSize: '0.75em' }}>
+        {getAssetSymbol(metadata)}
+      </span>
+    </>
+  ) : null;
