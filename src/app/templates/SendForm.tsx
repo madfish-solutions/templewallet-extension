@@ -221,7 +221,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
   );
 
   const domainAddressFactory = useCallback(
-    (_k: string, _checksum: string, toValue: string) => domainsClient.resolver.resolveNameToAddress(toValue),
+    (_k: string, _checksum: string, address: string) => domainsClient.resolver.resolveNameToAddress(address),
     [domainsClient]
   );
   const { data: resolvedAddress } = useSWR(['tzdns-address', tezos.checksum, toValue], domainAddressFactory, {
@@ -292,8 +292,8 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         const michelsonLambda = isKTAddress(to) ? transferToContract : transferImplicit;
 
         const contract = await loadContract(tezos, acc.publicKeyHash);
-        const transferParams = contract.methods.do(michelsonLambda(to, tzToMutez(balanceBN))).toTransferParams();
-        estmtnMax = await tezos.estimate.transfer(transferParams);
+        const transferParamsWrapper = contract.methods.do(michelsonLambda(to, tzToMutez(balanceBN))).toTransferParams();
+        estmtnMax = await tezos.estimate.transfer(transferParamsWrapper);
       } else if (tez) {
         const estmtn = await tezos.estimate.transfer(transferParams);
         let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
@@ -308,29 +308,17 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         estmtnMax = await tezos.estimate.transfer(transferParams);
       }
 
-      // console.info({
-      //   burnFeeMutez: estmtnMax.burnFeeMutez,
-      //   consumedMilligas: estmtnMax.consumedMilligas,
-      //   gasLimit: estmtnMax.gasLimit,
-      //   minimalFeeMutez: estmtnMax.minimalFeeMutez,
-      //   storageLimit: estmtnMax.storageLimit,
-      //   suggestedFeeMutez: estmtnMax.suggestedFeeMutez,
-      //   totalCost: estmtnMax.totalCost,
-      //   usingBaseFeeMutez: estmtnMax.usingBaseFeeMutez,
-      // });
-
-      let baseFee = mutezToTz(estmtnMax.totalCost);
+      let estimatedBaseFee = mutezToTz(estmtnMax.totalCost);
       if (!hasManager(manager)) {
-        baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
+        estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
-      if (tez ? baseFee.isGreaterThanOrEqualTo(balanceBN) : baseFee.isGreaterThan(tezBalanceBN!)) {
+      if (tez ? estimatedBaseFee.isGreaterThanOrEqualTo(balanceBN) : estimatedBaseFee.isGreaterThan(tezBalanceBN!)) {
         throw new NotEnoughFundsError();
       }
 
-      return baseFee;
+      return estimatedBaseFee;
     } catch (err: any) {
-      // Human delay
       await new Promise(r => setTimeout(r, 300));
 
       if (err instanceof ArtificialError) {
@@ -338,11 +326,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       }
 
       console.error(err);
-
-      switch (true) {
-        default:
-          throw err;
-      }
+      throw err;
     }
   }, [acc, tezos, assetSlug, assetMetadata, accountPkh, toResolved, mutateBalance, mutateTezBalance]);
 
