@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import * as sodium from 'libsodium-wrappers';
+import memoize from 'p-memoize';
 import { browser } from 'webextension-polyfill-ts';
 
 import * as bs58check from 'bs58check';
@@ -217,14 +218,14 @@ export async function getSenderId(): Promise<string> {
 
 export async function encryptMessage(message: string, recipientPublicKey: string): Promise<string> {
   const keyPair = await getOrCreateKeyPair();
-  const { sharedTx } = await createCryptoBoxClient(recipientPublicKey, keyPair.privateKey);
+  const { sharedTx } = await createCryptoBoxClient(recipientPublicKey, keyPair);
 
   return encryptCryptoboxPayload(message, sharedTx);
 }
 
 export async function decryptMessage(payload: string, senderPublicKey: string) {
   const keyPair = await getOrCreateKeyPair();
-  const { sharedRx } = await createCryptoBoxServer(senderPublicKey, keyPair.privateKey);
+  const { sharedRx } = await createCryptoBoxServer(senderPublicKey, keyPair);
 
   const hexPayload = Buffer.from(payload, 'hex');
 
@@ -271,56 +272,53 @@ export async function decryptCryptoboxPayload(payload: Uint8Array, sharedKey: Ui
 
 export async function createCryptoBoxServer(
   otherPublicKey: string,
-  selfPrivateKey: Uint8Array
+  selfKeyPair: sodium.KeyPair
 ): Promise<sodium.CryptoKX> {
-  const keys = await createCryptoBox(otherPublicKey, selfPrivateKey);
+  const keys = await createCryptoBox(otherPublicKey, selfKeyPair);
 
   return sodium.crypto_kx_server_session_keys(...keys);
 }
 
 export async function createCryptoBoxClient(
   otherPublicKey: string,
-  selfPrivateKey: Uint8Array
+  selfKeyPair: sodium.KeyPair
 ): Promise<sodium.CryptoKX> {
-  const keys = await createCryptoBox(otherPublicKey, selfPrivateKey);
+  const keys = await createCryptoBox(otherPublicKey, selfKeyPair);
 
   return sodium.crypto_kx_client_session_keys(...keys);
 }
 
 export async function createCryptoBox(
   otherPublicKey: string,
-  selfPrivateKey: Uint8Array
+  selfKeyPair: sodium.KeyPair
 ): Promise<[Uint8Array, Uint8Array, Uint8Array]> {
   // TODO: Don't calculate it every time?
-  const kxSelfPrivateKey = sodium.crypto_sign_ed25519_sk_to_curve25519(Buffer.from(selfPrivateKey)); // Secret bytes to scalar bytes
-  const kxSelfPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(Buffer.from(selfPrivateKey).slice(32, 64)); // Secret bytes to scalar bytes
+  const kxSelfPrivateKey = sodium.crypto_sign_ed25519_sk_to_curve25519(Buffer.from(selfKeyPair.privateKey)); // Secret bytes to scalar bytes
+  const kxSelfPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(Buffer.from(selfKeyPair.publicKey)); // Secret bytes to scalar bytes
   const kxOtherPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(Buffer.from(otherPublicKey, 'hex')); // Secret bytes to scalar bytes
 
   return [Buffer.from(kxSelfPublicKey), Buffer.from(kxSelfPrivateKey), Buffer.from(kxOtherPublicKey)];
 }
 
-let keyPair: sodium.KeyPair;
-export async function getOrCreateKeyPair() {
-  const items = await browser.storage.local.get([KEYPAIR_SEED_STORAGE_KEY]);
-  const exist = KEYPAIR_SEED_STORAGE_KEY in items;
+export const getOrCreateKeyPair = memoize(
+  async () => {
+    const items = await browser.storage.local.get([KEYPAIR_SEED_STORAGE_KEY]);
+    const exist = KEYPAIR_SEED_STORAGE_KEY in items;
 
-  if (exist && keyPair) {
-    return keyPair;
-  }
+    let seed: string;
+    if (exist) {
+      seed = items[KEYPAIR_SEED_STORAGE_KEY];
+    } else {
+      const newSeed = generateNewSeed();
+      await browser.storage.local.set({ [KEYPAIR_SEED_STORAGE_KEY]: newSeed });
+      seed = newSeed;
+    }
 
-  let seed: string;
-  if (exist) {
-    seed = items[KEYPAIR_SEED_STORAGE_KEY];
-  } else {
-    const newSeed = generateNewSeed();
-    await browser.storage.local.set({ [KEYPAIR_SEED_STORAGE_KEY]: newSeed });
-    seed = newSeed;
-  }
-
-  await sodium.ready;
-  keyPair = sodium.crypto_sign_seed_keypair(sodium.crypto_generichash(32, sodium.from_string(seed)));
-  return keyPair;
-}
+    await sodium.ready;
+    return sodium.crypto_sign_seed_keypair(sodium.crypto_generichash(32, sodium.from_string(seed)));
+  },
+  { maxAge: 60_000 }
+);
 
 export async function getDAppPublicKey(origin: string) {
   const key = toPubKeyStorageKey(origin);

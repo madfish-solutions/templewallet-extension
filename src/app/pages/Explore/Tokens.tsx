@@ -242,10 +242,10 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
   const renderBalancInToken = useCallback(
     (balance: BigNumber) => (
       <div className="text-base font-medium text-gray-800">
-        <Money smallFractionFont={false}>{balance}</Money> <span>{getAssetSymbol(metadata)}</span>
+        <Money smallFractionFont={false}>{balance}</Money>
       </div>
     ),
-    [metadata]
+    []
   );
 
   const renderBalanceInUSD = useCallback(

@@ -28,7 +28,7 @@ interface Props {
   isCurrencyAvailable?: boolean;
 }
 
-const numbersAndDotRegExp = /^[0-9]*\.?[0-9]*$/;
+const numbersAndDotRegExp = /^\d*\.?\d*$/;
 
 const coinList = [
   'BTC',
@@ -103,19 +103,17 @@ const BuyCryptoInput: FC<Props> = ({
   const isMinAmountError = amount !== 0 && (lastMinAmount ? lastMinAmount.toNumber() : 0) > Number(amount);
 
   const filteredCurrencies = currencies.filter(currency => currency.status === 1 && coinList.includes(currency.code));
+  const amountErrorClassName = getBigErrorText(isMinAmountError);
   return (
     <>
       <div className={styles['titleWrapper']}>
         <p className={styles['titleLeft']}>{isCoinFromType ? 'Send' : 'Get'}</p>
-        <p className={classNames(isMinAmountError ? 'text-red-700' : 'text-gray-500')}>
+        <p className={classNames(getSmallErrorText(isMinAmountError))}>
           {isCoinFromType ? (
             <>
               <T id={'min'} />
-              <span className={classNames(isMinAmountError ? 'text-red-700' : 'text-gray-700', 'text-sm')}>
-                {' '}
-                {rates!.min_amount}
-              </span>{' '}
-              <span className={classNames(isMinAmountError ? 'text-red-700' : 'text-gray-700', 'text-xs')}>{coin}</span>
+              <span className={classNames(amountErrorClassName, 'text-sm')}> {rates.min_amount}</span>{' '}
+              <span className={classNames(amountErrorClassName, 'text-xs')}>{coin}</span>
             </>
           ) : null}
         </p>
@@ -176,11 +174,11 @@ const BuyCryptoInput: FC<Props> = ({
           <input
             readOnly={readOnly}
             onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
-              const value = (event.target as unknown as HTMLInputElement).value;
-              if (value.indexOf('0') !== -1 && value.length === 1 && event.key === '0') {
+              const inputValue = (event.target as unknown as HTMLInputElement).value;
+              if (inputValue.indexOf('0') !== -1 && inputValue.length === 1 && event.key === '0') {
                 event.preventDefault();
               }
-              if (value.indexOf('.') !== -1 && event.key === '.') {
+              if (inputValue.indexOf('.') !== -1 && event.key === '.') {
                 event.preventDefault();
               }
               if (!numbersAndDotRegExp.test(event.key)) {
@@ -196,30 +194,65 @@ const BuyCryptoInput: FC<Props> = ({
           />
         </div>
       </div>
-      <div className={styles['titleWrapper']} style={{ justifyContent: 'flex-end' }}>
-        <p className={classNames(isMaxAmountError ? 'text-red-700' : 'text-gray-500')}>
-          {isCoinFromType ? (
-            isCurrencyAvailable ? (
-              <>
-                <T id={'max'} />
-                <span className={classNames(isMaxAmountError ? 'text-red-700' : 'text-gray-700', 'text-sm')}>
-                  {' '}
-                  {maxAmount !== 'Infinity' ? maxAmount : '0'}
-                </span>{' '}
-                <span className={classNames(isMaxAmountError ? 'text-red-700' : 'text-gray-700', 'text-xs')}>
-                  {coin}
-                </span>
-              </>
-            ) : (
-              <span className="text-red-700">
-                <T id={'currencyUnavailable'} />
-              </span>
-            )
-          ) : null}
-        </p>
-      </div>
+      <MaxAmountErrorComponent
+        isMaxAmountError={isMaxAmountError}
+        isCoinFromType={isCoinFromType}
+        isCurrencyAvailable={isCurrencyAvailable}
+        maxAmount={maxAmount}
+        coin={coin}
+      />
     </>
   );
 };
+
+interface MaxAmountErrorComponentProps {
+  isMaxAmountError?: boolean;
+  isCoinFromType: boolean;
+  isCurrencyAvailable?: boolean;
+  maxAmount?: string;
+  coin: string;
+}
+
+const MaxAmountErrorComponent: React.FC<MaxAmountErrorComponentProps> = ({
+  isMaxAmountError,
+  isCoinFromType,
+  isCurrencyAvailable,
+  maxAmount,
+  coin
+}) => {
+  const maxAmountErrorText = getBigErrorText(isMaxAmountError);
+  return (
+    <div className={styles['titleWrapper']} style={{ justifyContent: 'flex-end' }}>
+      <p className={classNames(getSmallErrorText(isMaxAmountError))}>
+        {isCoinFromType && (
+          <CurrencyText
+            className={maxAmountErrorText}
+            coin={coin}
+            maxAmount={maxAmount}
+            isCurrencyAvailable={isCurrencyAvailable}
+          />
+        )}
+      </p>
+    </div>
+  );
+};
+
+const CurrencyText: React.FC<
+  Omit<MaxAmountErrorComponentProps, 'isCoinFromType' | 'isMaxAmountError'> & { className: string }
+> = ({ isCurrencyAvailable, className, coin, maxAmount }) =>
+  isCurrencyAvailable ? (
+    <>
+      <T id={'max'} />
+      <span className={classNames(className, 'text-sm')}> {maxAmount !== 'Infinity' ? maxAmount : '0'}</span>{' '}
+      <span className={classNames(className, 'text-xs')}>{coin}</span>
+    </>
+  ) : (
+    <span className="text-red-700">
+      <T id={'currencyUnavailable'} />
+    </span>
+  );
+
+const getSmallErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-500');
+const getBigErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-700');
 
 export default BuyCryptoInput;
