@@ -9,7 +9,7 @@ import { TempleContact, searchContacts } from 'lib/temple/front';
 
 import ContactsDropdownItem from './ContactsDropdownItem';
 
-type ContactsDropdownProps = {
+export type ContactsDropdownProps = {
   contacts: TempleContact[];
   opened: boolean;
   onSelect: (address: string) => void;
