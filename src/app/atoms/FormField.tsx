@@ -189,9 +189,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
             )}
           </label>
         ) : null}
-
         {extraSection}
-
         <div className={classNames('relative', fieldWrapperBottomMargin && 'mb-2', 'flex items-stretch')}>
           <Field
             ref={ref as any}
@@ -238,14 +236,13 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
           <Copyable value={value} copy={copy} cleanable={cleanable} copyable={copyable} />
         </div>
-        <ErrorCaption errorCaption={errorCaption} />
+        <ErrorCaption errorCaption={errorCaption} isPasswordStrengthIndicator={isPasswordStrengthIndicator} />
 
-        {isPasswordStrengthIndicator && passwordValidation && (
-          <PasswordStrengthIndicator validation={passwordValidation} />
-        )}
-
-        {!isPasswordStrengthIndicator && focused && passwordValidation && (
-          <PasswordStrengthIndicator validation={passwordValidation} />
+        {passwordValidation && (
+          <>
+            {isPasswordStrengthIndicator && <PasswordStrengthIndicator validation={passwordValidation} />}
+            {!isPasswordStrengthIndicator && focused && <PasswordStrengthIndicator validation={passwordValidation} />}
+          </>
         )}
       </div>
     );
