@@ -92,7 +92,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
-    const isPasswordStrengthIndicator = errorCaption === PASSWORD_ERROR_CAPTION;
+    const isPasswordError = errorCaption === PASSWORD_ERROR_CAPTION;
 
     const [passwordInputType, TogglePasswordIcon] = usePasswordToggle();
     const isPasswordInput = type === 'password';
@@ -228,12 +228,16 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
           <Copyable value={value} copy={copy} cleanable={cleanable} copyable={copyable} />
         </div>
-        <ErrorCaption errorCaption={errorCaption} isPasswordStrengthIndicator={isPasswordStrengthIndicator} />
+        <ErrorCaption errorCaption={errorCaption} isPasswordStrengthIndicator={isPasswordError} />
 
         {passwordValidation && (
           <>
-            {isPasswordStrengthIndicator && <PasswordStrengthIndicator validation={passwordValidation} />}
-            {!isPasswordStrengthIndicator && focused && <PasswordStrengthIndicator validation={passwordValidation} />}
+            {isPasswordError && (
+              <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
+            )}
+            {!isPasswordError && focused && (
+              <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
+            )}
           </>
         )}
       </div>
