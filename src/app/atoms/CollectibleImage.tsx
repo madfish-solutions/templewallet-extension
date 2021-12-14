@@ -1,9 +1,5 @@
 import React, { FC, useState } from 'react';
 
-import { formatCollectibleUri, formatImgUri, sanitizeImgUri } from 'lib/image-uri';
-import { useRetryableSWR } from 'lib/swr';
-import { fromAssetSlug } from 'lib/temple/assets';
-import { useNetwork, useTezos } from 'lib/temple/front';
 import { AssetMetadata } from 'lib/temple/metadata';
 import useImageLoader from 'lib/ui/useImageLoader';
 
