@@ -63,30 +63,28 @@ const formatFa2 = (
   onTransfer: (tokenId: string, from: string, to: string, amount: string) => void
 ) => {
   const { entrypoint, value } = parameters;
-  if (entrypoint === 'transfer') {
-    for (const { args: x } of value) {
-      let from: string | undefined;
+  if (entrypoint !== 'transfer') return;
+  for (const { args: x } of value) {
+    let from: string | undefined;
 
-      if (typeof x[0].string === 'string') {
-        from = x[0].string;
-      }
-      for (const { args: y } of x[1]) {
-        let to, tokenId, amount: string | undefined;
+    from = checkIfVarString(x);
+    for (const { args: y } of x[1]) {
+      let to, tokenId, amount: string | undefined;
 
-        if (typeof y[0].string === 'string') {
-          to = y[0].string;
-        }
-        if (typeof y[1].args[0].int === 'string') {
-          tokenId = toTokenId(destination, y[1].args[0].int);
-        }
-        if (typeof y[1].args[1].int === 'string') {
-          amount = y[1].args[1].int;
-        }
+      to = checkIfVarString(y);
+      tokenId = checkDestination(y[1].args[0], destination);
+      amount = checkIfIntString(y[1].args[1]);
 
-        if (from && to && tokenId && amount) {
-          onTransfer(tokenId, from, to, amount);
-        }
+      if (from && to && tokenId && amount) {
+        onTransfer(tokenId, from, to, amount);
       }
     }
   }
 };
+
+const checkIfVarString = (x: any) => (typeof x[0].string === 'string' ? x[0].string : undefined);
+
+const checkIfIntString = (x: any) => (typeof x.int === 'string' ? x.int : undefined);
+
+const checkDestination = (x: any, destination: string) =>
+  typeof x.int === 'string' ? toTokenId(destination, x.int) : undefined;
