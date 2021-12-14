@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useRef, useState } from 'react';
+import React, { FC, useCallback } from 'react';
 
 import FormCheckbox from 'app/atoms/FormCheckbox';
 import { t, T } from 'lib/i18n/react';
@@ -6,21 +6,10 @@ import { isLockUpEnabled, setLockUp } from 'lib/ui/useLockUp';
 
 const LockUpSettings: FC<{}> = () => {
   const lockUpEnabled = isLockUpEnabled();
-  const changingRef = useRef(false);
-  const [error, setError] = useState<any>(null);
 
-  const handleLockUpChange = useCallback(
-    evt => {
-      if (changingRef.current) return;
-      changingRef.current = true;
-      setError(null);
-
-      setLockUp(evt.target.checked);
-      changingRef.current = false;
-      window.location.reload();
-    },
-    [setError]
-  );
+  const handleLockUpChange = useCallback(evt => {
+    setLockUp(evt.target.checked);
+  }, []);
 
   return (
     <>
@@ -39,7 +28,6 @@ const LockUpSettings: FC<{}> = () => {
         onChange={handleLockUpChange}
         name="lockUpEnabled"
         label={t(lockUpEnabled ? 'enabled' : 'disabled')}
-        errorCaption={error?.message}
         containerClassName="mb-4"
       />
     </>
