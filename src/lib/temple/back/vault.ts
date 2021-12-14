@@ -2,7 +2,7 @@ import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
 import { InMemorySigner } from '@taquito/signer';
-import { TezosToolkit, CompositeForger, RpcForger, Signer, TezosOperationError } from '@taquito/taquito';
+import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import { LedgerTempleBridgeTransport } from '@temple-wallet/ledger-bridge';
 import * as Bip39 from 'bip39';
@@ -12,27 +12,27 @@ import { getMessage } from 'lib/i18n';
 import { PublicError } from 'lib/temple/back/defaults';
 import { TempleLedgerSigner } from 'lib/temple/back/ledger-signer';
 import {
-  isStored,
-  fetchAndDecryptOne,
   encryptAndSaveMany,
-  removeMany,
-  savePlain,
-  getPlain,
-  fetchAndDecryptOneLegacy,
   encryptAndSaveManyLegacy,
+  fetchAndDecryptOne,
+  fetchAndDecryptOneLegacy,
+  getPlain,
+  isStored,
   isStoredLegacy,
-  removeManyLegacy
+  removeMany,
+  removeManyLegacy,
+  savePlain
 } from 'lib/temple/back/safe-storage';
 import {
-  transformHttpResponseError,
   formatOpParamsBeforeSend,
+  loadFastRpcClient,
   michelEncoder,
-  loadFastRpcClient
+  transformHttpResponseError
 } from 'lib/temple/helpers';
 import { isLedgerLiveEnabled } from 'lib/temple/ledger-live';
 import * as Passworder from 'lib/temple/passworder';
 import { clearStorage } from 'lib/temple/reset';
-import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
+import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = 'vault';
@@ -575,11 +575,15 @@ const MIGRATIONS = [
       }
     };
 
-    const [mnemonic, accounts, settings] = await Promise.all([
+    let [mnemonic, accounts, settings] = await Promise.all([
       fetchLegacySafe<string>(mnemonicStrgKey),
       fetchLegacySafe<TempleAccount[]>(accountsStrgKey),
       fetchLegacySafe<TempleSettings>(settingsStrgKey)
     ]);
+
+    // Address book contacts migration
+    const contacts = await getPlain<TempleContact[]>('contacts');
+    settings = { ...settings, contacts };
 
     const accountsStrgKeys = accounts!
       .map(acc => [accPrivKeyStrgKey(acc.publicKeyHash), accPubKeyStrgKey(acc.publicKeyHash)])
@@ -600,7 +604,7 @@ const MIGRATIONS = [
     await encryptAndSaveMany(toSave, passKey);
 
     // Remove old
-    await removeManyLegacy(toSave.map(([key]) => key));
+    await removeManyLegacy([...toSave.map(([key]) => key), 'contacts']);
   }
 ];
 
