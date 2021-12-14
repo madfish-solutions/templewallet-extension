@@ -21,15 +21,15 @@ const MoneyDiffView = memo<MoneyDiffViewProps>(({ assetId: assetSlug, diff, pend
 
   const diffBN = useMemo(() => new BigNumber(diff).div(metadata ? 10 ** metadata.decimals : 1), [diff, metadata]);
 
+  const conditionalPopupClassName = popup ? 'text-xs' : 'text-sm';
+  const conditionalDiffClassName = diffBN.gt(0) ? 'text-green-500' : 'text-red-700';
+  const conditionalPendingClassName = pending ? 'text-yellow-600' : conditionalDiffClassName;
+  const showPlus = diffBN.gt(0) ? '+' : '';
+
   return metadata ? (
     <div className={classNames('inline-flex flex-wrap justify-end items-baseline', className)}>
-      <div
-        className={classNames(
-          popup ? 'text-xs' : 'text-sm',
-          pending ? 'text-yellow-600' : diffBN.gt(0) ? 'text-green-500' : 'text-red-700'
-        )}
-      >
-        {diffBN.gt(0) ? '+' : ''}
+      <div className={classNames(conditionalPopupClassName, conditionalPendingClassName)}>
+        {showPlus}
         <Money>{diffBN}</Money> {getAssetSymbol(metadata, true)}
       </div>
 

@@ -91,9 +91,9 @@ export const usePriceImpact = (
               outputContractAddressParam
             );
 
-            const priceImpact = getPriceImpact(inputAtomsAmountWithFee, outputAtomsAmount, marketPrice);
+            const priceImpactInner = getPriceImpact(inputAtomsAmountWithFee, outputAtomsAmount, marketPrice);
 
-            setPriceImpact(priceImpact);
+            setPriceImpact(priceImpactInner);
           } else {
             setPriceImpact(new BigNumber(0));
           }
