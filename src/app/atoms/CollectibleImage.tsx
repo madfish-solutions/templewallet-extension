@@ -5,6 +5,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { fromAssetSlug } from 'lib/temple/assets';
 import { useNetwork, useTezos } from 'lib/temple/front';
 import { AssetMetadata } from 'lib/temple/metadata';
+import useImageLoader from 'lib/ui/useImageLoader';
 
 interface Props {
   collectibleMetadata: AssetMetadata;
@@ -14,21 +15,9 @@ interface Props {
 }
 
 const CollectibleImage: FC<Props> = ({ collectibleMetadata, assetSlug, Placeholder, className }) => {
-  const tezos = useTezos();
-  const network = useNetwork();
+  const assetSrc = useImageLoader(assetSlug);
   const [isLoaded, setIsLoaded] = useState(false);
-  const asset = useRetryableSWR(['asset', assetSlug, tezos.checksum], () => fromAssetSlug(tezos, assetSlug), {
-    suspense: true
-  }).data!;
-  if (asset === 'tez') return null;
-  const assetId = asset.id ? asset.id.toString() : '0';
-  const objktSrc = formatCollectibleUri(asset.contract, assetId);
-  const templeSrc = sanitizeImgUri(
-    formatImgUri(collectibleMetadata.displayUri || collectibleMetadata.artifactUri!),
-    512,
-    512
-  );
-  const assetSrc = network.type === 'main' ? objktSrc : templeSrc;
+
   return (
     <>
       <img
