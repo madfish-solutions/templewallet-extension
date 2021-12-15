@@ -59,7 +59,7 @@ export function toLocalFixed(value: BigNumber.Value, decimalPlaces?: number, rou
   return localizeDefaultFormattedNumber(rawResult);
 }
 
-const formatFiniteNum = () => {
+const formatFiniteNum = (value: BigNumber.Value) => {
   const bn = new BigNumber(value);
   const numberSymbols = getNumberSymbols();
 
