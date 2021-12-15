@@ -82,18 +82,27 @@ const estimateLocalGroup = (
         appendToDiff('local', 'tez', new BigNumber(op.balance).times(-1).toFixed(), diffs);
       }
     } else if (op.kind === OpKind.TRANSACTION) {
-      if ((op.source === address || op.destination === address) && isPositiveNumber(op.amount)) {
-        appendToDiff('local', 'tez', new BigNumber(op.amount).times(op.source === address ? -1 : 1).toFixed(), diffs);
-      }
-
-      if (op.parameters) {
-        tryParseTokenTransfers(op.parameters, op.destination, (assetId, from, to, amount) => {
-          if (from === address || to === address) {
-            appendToDiff('local', assetId, new BigNumber(amount).times(from === address ? -1 : 1).toFixed(), diffs);
-          }
-        });
-      }
+      estimateTransactionOperation(op, address, diffs);
     }
+  }
+};
+
+const estimateTransactionOperation = (
+  op: OperationContentsAndResult,
+  address: string,
+  diffs: Record<string, { source: DiffSource; diff: string }[]>
+) => {
+  if (op.kind !== OpKind.TRANSACTION) return;
+  if ((op.source === address || op.destination === address) && isPositiveNumber(op.amount)) {
+    appendToDiff('local', 'tez', new BigNumber(op.amount).times(op.source === address ? -1 : 1).toFixed(), diffs);
+  }
+
+  if (op.parameters) {
+    tryParseTokenTransfers(op.parameters, op.destination, (assetId, from, to, amount) => {
+      if (from === address || to === address) {
+        appendToDiff('local', assetId, new BigNumber(amount).times(from === address ? -1 : 1).toFixed(), diffs);
+      }
+    });
   }
 };
 
@@ -105,26 +114,34 @@ const estimateTzktGroup = (
   if (!tzktGroup) return;
   for (const tzktOp of tzktGroup) {
     if (tzktOp.type === 'transaction' && tzktOp.status === 'applied') {
-      if ((tzktOp.sender.address === address || tzktOp.target.address === address) && isPositiveNumber(tzktOp.amount)) {
-        appendToDiff(
-          'tzkt',
-          'tez',
-          new BigNumber(tzktOp.amount).times(tzktOp.sender.address === address ? -1 : 1).toFixed(),
-          diffs
-        );
-      }
-
-      if (tzktOp.parameters) {
-        try {
-          tryParseTokenTransfers(JSON.parse(tzktOp.parameters), tzktOp.target.address, (assetId, from, to, amount) => {
-            if (from === address || to === address) {
-              appendToDiff('tzkt', assetId, new BigNumber(amount).times(from === address ? -1 : 1).toFixed(), diffs);
-            }
-          });
-        } catch {}
-      }
+      estimateTzktOp(tzktOp, address, diffs);
     }
   }
+};
+
+const estimateTzktOp = (
+  tzktOp: TzktOperation,
+  address: string,
+  diffs: Record<string, { source: DiffSource; diff: string }[]>
+) => {
+  if (tzktOp.type !== 'transaction' || tzktOp.status !== 'applied') return;
+  if ((tzktOp.sender.address === address || tzktOp.target.address === address) && isPositiveNumber(tzktOp.amount)) {
+    appendToDiff(
+      'tzkt',
+      'tez',
+      new BigNumber(tzktOp.amount).times(tzktOp.sender.address === address ? -1 : 1).toFixed(),
+      diffs
+    );
+  }
+
+  if (!tzktOp.parameters) return;
+  try {
+    tryParseTokenTransfers(JSON.parse(tzktOp.parameters), tzktOp.target.address, (assetId, from, to, amount) => {
+      if (from === address || to === address) {
+        appendToDiff('tzkt', assetId, new BigNumber(amount).times(from === address ? -1 : 1).toFixed(), diffs);
+      }
+    });
+  } catch {}
 };
 
 const estimateBcdTokenTransfers = (
