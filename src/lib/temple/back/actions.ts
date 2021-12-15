@@ -235,28 +235,13 @@ export function sendOperations(
       });
 
       let closing = false;
-      const close = () => {
-        if (closing) return;
-        closing = true;
-
-        try {
-          stopTimeout();
-          stopRequestListening();
-          stopDisconnectListening();
-
-          intercom.notify(port, {
-            type: TempleMessageType.ConfirmationExpired,
-            id
-          });
-        } catch (_err) {}
-      };
 
       const decline = () => {
         reject(new Error('Declined'));
       };
       const declineAndClose = () => {
         decline();
-        close();
+        closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
       };
 
       const stopRequestListening = intercom.onRequest(async (req: TempleRequest, reqPort) => {
@@ -288,13 +273,13 @@ export function sendOperations(
             decline();
           }
 
-          close();
+          closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
 
           return {
             type: TempleMessageType.ConfirmationResponse
           };
         }
-        return;
+        return undefined;
       });
 
       const stopDisconnectListening = intercom.onDisconnect(port, declineAndClose);
@@ -322,28 +307,13 @@ export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: s
         });
 
         let closing = false;
-        const close = () => {
-          if (closing) return;
-          closing = true;
-
-          try {
-            stopTimeout();
-            stopRequestListening();
-            stopDisconnectListening();
-
-            intercom.notify(port, {
-              type: TempleMessageType.ConfirmationExpired,
-              id
-            });
-          } catch (_err) {}
-        };
 
         const decline = () => {
           reject(new Error('Declined'));
         };
         const declineAndClose = () => {
           decline();
-          close();
+          closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
         };
 
         const stopRequestListening = intercom.onRequest(async (req: TempleRequest, reqPort) => {
@@ -355,13 +325,13 @@ export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: s
               decline();
             }
 
-            close();
+            closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
 
             return {
               type: TempleMessageType.ConfirmationResponse
             };
           }
-          return;
+          return undefined;
         });
 
         const stopDisconnectListening = intercom.onDisconnect(port, declineAndClose);
@@ -605,3 +575,28 @@ async function createCustomNetworksSnapshot(settings: TempleSettings) {
 function getErrorData(err: any) {
   return err instanceof TezosOperationError ? err.errors.map(({ contract_code, ...rest }: any) => rest) : undefined;
 }
+
+const close = (
+  closing: boolean,
+  port: Runtime.Port,
+  id: string,
+  stopTimeout: any,
+  stopRequestListening: any,
+  stopDisconnectListening: any
+) => {
+  let innerClosing = closing;
+  if (innerClosing) return innerClosing;
+  innerClosing = true;
+
+  try {
+    stopTimeout();
+    stopRequestListening();
+    stopDisconnectListening();
+
+    intercom.notify(port, {
+      type: TempleMessageType.ConfirmationExpired,
+      id
+    });
+  } catch (_err) {}
+  return innerClosing;
+};
