@@ -11,15 +11,10 @@ export function parseOpStack(operation: Repo.IOperation, address: string) {
   const { localGroup, tzktGroup, bcdTokenTransfers } = operation.data;
 
   const opStack: OpStackItem[] = [];
-  const addIfNotExist = (itemToAdd: OpStackItem) => {
-    if (opStack.every(item => !isOpStackItemsEqual(item, itemToAdd))) {
-      opStack.push(itemToAdd);
-    }
-  };
 
-  estimateTzktGroup(tzktGroup, address, opStack);
-  estimateLocalGroup(localGroup, address, opStack);
-  estimateBcdTokenTransfer(bcdTokenTransfers, address, addIfNotExist);
+  if (tzktGroup) estimateTzktGroup(tzktGroup, address, opStack);
+  else if (localGroup) estimateLocalGroup(localGroup, address, opStack);
+  if (bcdTokenTransfers) estimateBcdTokenTransfer(bcdTokenTransfers, address, opStack);
 
   return opStack.sort((a, b) => a.type - b.type);
 }
@@ -142,7 +137,7 @@ const getTzktTransfers = (
 const estimateBcdTokenTransfer = (
   bcdTokenTransfers: BcdTokenTransfer[] | undefined,
   address: string,
-  addIfNotExist: (itemToAdd: OpStackItem) => void
+  opStack: OpStackItem[]
 ) => {
   if (!bcdTokenTransfers) return;
   /**
@@ -151,15 +146,21 @@ const estimateBcdTokenTransfer = (
 
   for (const tokenTrans of bcdTokenTransfers) {
     if (tokenTrans.from === address) {
-      addIfNotExist({
-        type: OpStackItemType.TransferTo,
-        to: tokenTrans.to
-      });
+      addIfNotExist(
+        {
+          type: OpStackItemType.TransferTo,
+          to: tokenTrans.to
+        },
+        opStack
+      );
     } else if (tokenTrans.to === address) {
-      addIfNotExist({
-        type: OpStackItemType.TransferFrom,
-        from: tokenTrans.from
-      });
+      addIfNotExist(
+        {
+          type: OpStackItemType.TransferFrom,
+          from: tokenTrans.from
+        },
+        opStack
+      );
     }
   }
 };
@@ -270,5 +271,11 @@ const getTokenTransfers = (
       with: op.destination,
       entrypoint: op.parameters.entrypoint
     });
+  }
+};
+
+const addIfNotExist = (itemToAdd: OpStackItem, opStack: OpStackItem[]) => {
+  if (opStack.every(item => !isOpStackItemsEqual(item, itemToAdd))) {
+    opStack.push(itemToAdd);
   }
 };
