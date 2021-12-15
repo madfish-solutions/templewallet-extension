@@ -1,6 +1,7 @@
-import React, { FC, ReactNode } from 'react';
+import React, { FC } from 'react';
 
 import { T } from '../i18n/react';
+import PasswordStrengthIndicatorItem from './PasswordStrengthIndicatorItem';
 
 export interface PasswordValidation {
   minChar: boolean;
@@ -9,17 +10,10 @@ export interface PasswordValidation {
   specialChar: boolean;
 }
 
-type PasswordStrengthIndicatorProps = {
+interface PasswordStrengthIndicatorProps {
   validation: PasswordValidation;
   isPasswordError?: boolean;
-};
-
-type PasswordStrengthIndicatorItemProps = {
-  isValid: boolean;
-  message: ReactNode;
-  title?: boolean;
-  noColor?: boolean;
-};
+}
 
 const PasswordStrengthIndicator: FC<PasswordStrengthIndicatorProps> = ({
   validation: { minChar, cases, number, specialChar },
@@ -52,16 +46,5 @@ const PasswordStrengthIndicator: FC<PasswordStrengthIndicatorProps> = ({
     </ul>
   </div>
 );
-
-const PasswordStrengthIndicatorItem: FC<PasswordStrengthIndicatorItemProps> = ({
-  isValid,
-  message,
-  title = false,
-  noColor = false
-}) => {
-  const style = isValid ? { color: '#48bb78' } : noColor ? {} : { color: '#e53e3e' };
-
-  return title ? <p style={style}>{message}</p> : <li style={style}>{message}</li>;
-};
 
 export default PasswordStrengthIndicator;
