@@ -14,13 +14,11 @@ const useImageLoader = (assetSlug: string): string => {
     return getThumbnailUri(collectibleMetadata) ?? '';
   }
   const assetId = asset.id ? asset.id.toString() : '0';
-  const objktSrc = formatCollectibleUri(asset.contract, assetId);
-  const templeSrc = sanitizeImgUri(
-    formatImgUri(collectibleMetadata.displayUri || collectibleMetadata.artifactUri!),
-    512,
-    512
-  );
-  return network.type === 'main' ? objktSrc : templeSrc;
+  if (network.type === 'main') {
+    return formatCollectibleUri(asset.contract, assetId);
+  } else {
+    return sanitizeImgUri(formatImgUri(collectibleMetadata.displayUri || collectibleMetadata.artifactUri!), 512, 512);
+  }
 };
 
 export default useImageLoader;
