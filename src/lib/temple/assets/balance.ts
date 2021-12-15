@@ -21,9 +21,7 @@ export async function fetchBalance(
   let nat: BigNumber | undefined;
 
   if (asset === 'tez') {
-    try {
-      nat = await tezos.tz.getBalance(account);
-    } catch {}
+    nat = await getBalanceSafe(tezos, account);
   } else {
     const contract = await loadContractForCallLambdaView(tezos, asset.contract);
 
@@ -47,3 +45,10 @@ export async function fetchBalance(
 
   return assetMetadata ? nat.div(10 ** assetMetadata.decimals) : nat;
 }
+
+const getBalanceSafe = async (tezos: TezosToolkit, account: string) => {
+  try {
+    return await tezos.tz.getBalance(account);
+  } catch {}
+  return undefined;
+};
