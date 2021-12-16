@@ -17,7 +17,7 @@ const useImageLoader = (assetSlug: string): string => {
   if (network.type === 'main') {
     return formatCollectibleUri(asset.contract, assetId);
   } else {
-    return sanitizeImgUri(formatImgUri(collectibleMetadata.displayUri || collectibleMetadata.artifactUri!), 512, 512);
+    return sanitizeImgUri(formatImgUri(collectibleMetadata.displayUri || collectibleMetadata.artifactUri), 512, 512);
   }
 };
 
