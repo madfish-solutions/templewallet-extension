@@ -102,7 +102,7 @@
     "nanoid": "3.1.30",
     "node-forge": "0.10.0",
     "npm-run-all": "4.1.5",
-    "optimize-css-assets-webpack-plugin": "^6.0.1",
+    "optimize-css-assets-webpack-plugin": "5.0.8",
     "p-memoize": "4.0.3",
     "postcss-flexbugs-fixes": "4.2.1",
     "postcss-loader": "3.0.0",
@@ -154,6 +154,11 @@
     "path-parse": "1.0.7",
     "browserslist": "4.16.5",
     "tmpl": "1.0.5",
-    "ansi-regex": "5.0.1"
+    "ansi-regex": "5.0.1",
+    "nth-check": "2.0.1",
+    "ws": "7.4.6",
+    "hosted-git-info": "2.8.9",
+    "color-string": "1.5.5",
+    "postcss": "7.0.36"
   }
 }
