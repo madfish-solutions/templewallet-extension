@@ -107,14 +107,7 @@ export class TempleLedgerSigner extends LedgerSigner {
       );
     }
 
-    let sig;
-    if (signature.substring(0, 3) === 'sig') {
-      sig = b58cdecode(signature, prefix.sig);
-    } else if (signature.substring(0, 5) === `${curve}sig`) {
-      sig = b58cdecode(signature, pref[curve].sig);
-    } else {
-      throw new Error(`Invalid signature provided: ${signature}`);
-    }
+    let sig = getSig(signature, curve, pref);
 
     const bytesHash = sodium.crypto_generichash(32, hex2buf(bytes));
 
@@ -159,6 +152,18 @@ export class TempleLedgerSigner extends LedgerSigner {
     throw new Error(`Curve '${curve}' not supported`);
   }
 }
+
+const getSig = (signature: string, curve: any, pref: any) => {
+  let sig;
+  if (signature.substring(0, 3) === 'sig') {
+    sig = b58cdecode(signature, prefix.sig);
+  } else if (signature.substring(0, 5) === `${curve}sig`) {
+    sig = b58cdecode(signature, pref[curve].sig);
+  } else {
+    throw new Error(`Invalid signature provided: ${signature}`);
+  }
+  return sig;
+};
 
 function toLedgerError(err: any) {
   return new PublicError(`Ledger error. ${err.message}`);
