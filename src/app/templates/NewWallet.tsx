@@ -1,21 +1,22 @@
 import React, { FC, ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { validateMnemonic, generateMnemonic } from 'bip39';
+import { generateMnemonic, validateMnemonic } from 'bip39';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
 import Alert from 'app/atoms/Alert';
 import FileInput, { FileInputProps } from 'app/atoms/FileInput';
 import FormCheckbox from 'app/atoms/FormCheckbox';
-import FormField from 'app/atoms/FormField';
+import FormField, { PASSWORD_ERROR_CAPTION } from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import TabSwitcher from 'app/atoms/TabSwitcher';
-import { PASSWORD_PATTERN, PASSWORD_ERROR_CAPTION, MNEMONIC_ERROR_CAPTION, formatMnemonic } from 'app/defaults';
+import { formatMnemonic, MNEMONIC_ERROR_CAPTION, PASSWORD_PATTERN } from 'app/defaults';
 import { ReactComponent as TrashbinIcon } from 'app/icons/bin.svg';
 import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
 import { T, t } from 'lib/i18n/react';
 import { decryptKukaiSeedPhrase, useTempleClient } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
+import { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import { Link } from 'lib/woozie';
 
 import Backup from './NewWallet/Backup';
@@ -72,6 +73,13 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
 
   const shouldUseKeystorePassword = watch('shouldUseKeystorePassword');
   const passwordValue = watch('password');
+
+  const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
+    minChar: false,
+    cases: false,
+    number: false,
+    specialChar: false
+  });
 
   const isImportFromSeedPhrase = tabSlug === 'seed-phrase';
   const isImportFromKeystore = tabSlug === 'keystore-file';
@@ -272,7 +280,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
           <>
             <FormField
               ref={register({
-                required: t('required'),
+                required: PASSWORD_ERROR_CAPTION,
                 pattern: {
                   value: PASSWORD_PATTERN,
                   message: PASSWORD_ERROR_CAPTION
@@ -286,6 +294,8 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
               placeholder="********"
               errorCaption={errors.password?.message}
               containerClassName="mb-8"
+              passwordValidation={passwordValidation}
+              setPasswordValidation={setPasswordValidation}
             />
 
             <FormField
