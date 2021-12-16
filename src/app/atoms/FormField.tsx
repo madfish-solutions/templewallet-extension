@@ -154,7 +154,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     }, [secret, focused, getFieldEl]);
 
     const secretBannerDisplayed = useMemo(
-      () => Boolean(secret && localValue && !focused),
+      () => Boolean(secret && localValue !== '' && !focused),
       [secret, localValue, focused]
     );
 
@@ -305,7 +305,7 @@ const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, hand
       </p>
 
       <p className={classNames('mb-1', 'flex items-center', 'text-gray-500 text-sm')}>
-        <T id="clickToRevealOrEditField">{message => <span>{message}</span>}</T>
+        <T id="clickToRevealField">{message => <span>{message}</span>}</T>
       </p>
     </div>
   ) : null;
