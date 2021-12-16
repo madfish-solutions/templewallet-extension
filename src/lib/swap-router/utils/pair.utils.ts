@@ -6,10 +6,14 @@ import { getPlentyPairs } from '../plenty/pair.utils';
 import { getQuipuSwapPairs } from '../quipu-swap/pair.utils';
 
 export const getAllPairs = async (tezos: TezosToolkit): Promise<PairInterface[]> =>
-  Promise.all([getQuipuSwapPairs(tezos), getPlentyPairs(tezos), getLiquidityBakingPairs(tezos)]).then(
+  Promise.all([
+    // getQuipuSwapPairs(tezos),
+    getPlentyPairs(tezos),
+    // getLiquidityBakingPairs(tezos)
+  ]).then(
     ([quipuSwapPairs, plentyPairs, liquidityBakingPairs]) => [
       ...quipuSwapPairs,
-      ...plentyPairs,
-      ...liquidityBakingPairs
+      // ...plentyPairs,
+      // ...liquidityBakingPairs
     ]
   );

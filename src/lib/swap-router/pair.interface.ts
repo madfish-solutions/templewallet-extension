@@ -1,11 +1,11 @@
 import { ContractAbstraction, ContractProvider } from '@taquito/taquito';
 
 import { DexTypeEnum } from './dex-type.enum';
-import { TokenType } from './token.type';
+import { TokenInterface } from './token.interface';
 
 export interface PairInterface {
-  aToken: TokenType;
-  bToken: TokenType;
+  aToken: TokenInterface;
+  bToken: TokenInterface;
   dexType: DexTypeEnum;
   dexContract: ContractAbstraction<ContractProvider>;
 }

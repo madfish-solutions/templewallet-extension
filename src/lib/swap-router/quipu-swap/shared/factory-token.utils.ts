@@ -1,7 +1,7 @@
-import { TokenType } from '../../token.type';
+import { TokenInterface } from '../../token.interface';
 import { QuipuSwapFactoryTokenType } from './factory-token.type';
 
-export const quipuSwapFactoryTokenToTokenType = (token: QuipuSwapFactoryTokenType): TokenType => {
+export const quipuSwapFactoryTokenToTokenType = (token: QuipuSwapFactoryTokenType): TokenInterface => {
   if (typeof token === 'string') {
     return { address: token };
   } else {

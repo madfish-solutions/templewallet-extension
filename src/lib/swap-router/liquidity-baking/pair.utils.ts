@@ -15,7 +15,7 @@ export const getLiquidityBakingPairs = (tezos: TezosToolkit): Promise<PairInterf
       const storage = await dexContract.storage<LiquidityBakingDexStorageInterface>();
 
       return {
-        aToken: 'tez',
+        aToken: { address: 'tez' },
         bToken: liquidityBakingDexTokenToTokenType(storage.tokenAddress),
         dexType: DexTypeEnum.LiquidityBaking,
         dexContract

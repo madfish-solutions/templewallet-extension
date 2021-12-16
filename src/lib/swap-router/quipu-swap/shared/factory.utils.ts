@@ -30,7 +30,7 @@ export const getQuipuSwapFactoryPairs = async (
           const dexContract = await getContract(dexAddress, tezos);
 
           return {
-            aToken: 'tez',
+            aToken: { address: 'tez' },
             bToken: quipuSwapFactoryTokenToTokenType(token),
             dexType: DexTypeEnum.QuipuSwap,
             dexContract

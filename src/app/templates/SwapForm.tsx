@@ -25,6 +25,7 @@ import {
   ALL_EXCHANGERS_TYPES,
   assetAmountToUSD,
   assetsAreSame,
+  atomsToTokens,
   EXCHANGE_XTZ_RESERVE,
   ExchangerType,
   fetchBalance,
@@ -34,9 +35,12 @@ import {
   swap,
   TempleAsset,
   TempleAssetType,
+  tokensToAtoms,
   toLegacyAsset,
   toSlugFromLegacyAsset,
+  toTokenSlug,
   useAccount,
+  useAllTokensBaseMetadata,
   useBalance,
   useNetwork,
   useTezos,
@@ -44,7 +48,10 @@ import {
 } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
 
+import { TradeTypeEnum } from '../../lib/swap-router/router/trade-type.enum';
+import { useBestTrade } from '../../lib/swap-router/router/use-best-trade.hook';
 import styles from './SwapForm.module.css';
+import { swapInputAssetToTokenInterface } from './SwapForm.utils';
 import { usePriceImpact } from './usePriceImpact.hook';
 
 type SwapFormValues = {
@@ -151,6 +158,36 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   const [outputAmountLoading, setOutputAmountLoading] = useState(false);
   const [noExchangerAsset, setNoExchangerAsset] = useState<TempleAsset>();
   const [outputAssetAmounts, setOutputAssetAmounts] = useState<Partial<Record<ExchangerType, BigNumber>>>();
+
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+  const bestTrade = useBestTrade(
+    TradeTypeEnum.EXACT_INPUT,
+    swapInputAssetToTokenInterface(inputAsset),
+    swapInputAssetToTokenInterface(outputAsset),
+    tokensToAtoms(inputAssetAmount ?? new BigNumber(0), inputAsset?.decimals ?? 0),
+    tezos
+  );
+
+  useEffect(() => {
+    console.log(
+      atomsToTokens(
+        bestTrade?.inputAmount ?? new BigNumber(0),
+        allTokensBaseMetadata[toTokenSlug(bestTrade?.inputToken.address ?? '', bestTrade?.inputToken.id)]?.decimals
+      ).toFixed()
+    );
+    console.log(
+      atomsToTokens(
+        bestTrade?.outputAmount ?? new BigNumber(0),
+        allTokensBaseMetadata[toTokenSlug(bestTrade?.outputToken.address ?? '', bestTrade?.outputToken.id)]?.decimals
+      ).toFixed()
+    );
+    console.log(
+      bestTrade?.route.map(
+        ({ dexType, aToken, bToken }) =>
+          `${dexType} ${aToken.address}_${aToken.id?.toFixed()} / ${bToken.address}_${bToken.id?.toFixed()}`
+      )
+    );
+  }, [bestTrade]);
 
   useEffect(() => {
     if (prevNetworkIdRef.current !== network.id) {
@@ -354,8 +391,8 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
         asset.type === TempleAssetType.TEZ
           ? new BigNumber(Infinity)
           : getAssetExchangeData(tokensExchangeData, tezUsdPrice, asset, selectedExchanger)
-              ?.normalizedTokenLiquidity?.div(3)
-              .decimalPlaces(asset.decimals) ?? new BigNumber(Infinity);
+          ?.normalizedTokenLiquidity?.div(3)
+          .decimalPlaces(asset.decimals) ?? new BigNumber(Infinity);
       return amount.lte(maxExchangable) || `maximalAmount:${toLocalFixed(maxExchangable)}`;
     },
     [selectedExchanger, inputAsset, tokensExchangeData, tezUsdPrice]
@@ -774,66 +811,67 @@ const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
 
       <table className={classNames('w-full text-xs text-gray-500 mb-1', styles['swap-form-table'])}>
         <tbody>
-          <tr>
-            <td>
-              <div className="flex items-center">
-                <T id="fee" />
-                &nbsp;
-                <span ref={feeInfoIconRef} className="text-gray-600">
+        <tr>
+          <td>
+            <div className="flex items-center">
+              <T id="fee" />
+              &nbsp;
+              <span ref={feeInfoIconRef} className="text-gray-600">
                   <InfoIcon className="w-3 h-auto stroke-current" />
                 </span>
-                :
-              </div>
-            </td>
-            <td className="text-right text-gray-600">{feePercentage.toString()}%</td>
-          </tr>
-          <tr>
-            <td>
-              <div className="flex items-center">
-                <T id="priceImpact" />
-                &nbsp;
-                <span ref={priceImpactInfoIconRef} className="text-gray-600">
+              :
+            </div>
+          </td>
+          <td className="text-right text-gray-600">{feePercentage.toString()}%</td>
+        </tr>
+        <tr>
+          <td>
+            <div className="flex items-center">
+              <T id="priceImpact" />
+              &nbsp;
+              <span ref={priceImpactInfoIconRef} className="text-gray-600">
                   <InfoIcon className="w-3 h-auto stroke-current" />
                 </span>
-                :
-              </div>
-            </td>
-            <td className="text-right text-gray-600">{getFormattedPriceImpact(priceImpact)}</td>`
-          </tr>
-          <tr>
-            <td>
-              <T id="exchangeRate" />
-            </td>
-            <td className="text-right text-gray-600">
-              {inputAsset && outputAsset && exchangeRate
-                ? `${exchangeRate.base} ${outputAsset.symbol} = ${toLocalFixed(exchangeRate.value)} ${
-                    inputAsset.symbol
-                  }`
-                : '-'}
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <T id="slippageTolerance" />
-            </td>
-            <td className="justify-end text-gray-600 flex">
-              <Controller
-                control={control}
-                as={SlippageToleranceInput}
-                error={!!errors.tolerancePercentage}
-                name="tolerancePercentage"
-                rules={{ validate: validateTolerancePercentage }}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <T id="minimumReceived" />
-            </td>
-            <td className="text-right text-gray-600">
-              {minimumReceived && outputAsset ? `${toLocalFixed(minimumReceived)} ${outputAsset.symbol}` : '-'}
-            </td>
-          </tr>
+              :
+            </div>
+          </td>
+          <td className="text-right text-gray-600">{getFormattedPriceImpact(priceImpact)}</td>
+          `
+        </tr>
+        <tr>
+          <td>
+            <T id="exchangeRate" />
+          </td>
+          <td className="text-right text-gray-600">
+            {inputAsset && outputAsset && exchangeRate
+              ? `${exchangeRate.base} ${outputAsset.symbol} = ${toLocalFixed(exchangeRate.value)} ${
+                inputAsset.symbol
+              }`
+              : '-'}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <T id="slippageTolerance" />
+          </td>
+          <td className="justify-end text-gray-600 flex">
+            <Controller
+              control={control}
+              as={SlippageToleranceInput}
+              error={!!errors.tolerancePercentage}
+              name="tolerancePercentage"
+              rules={{ validate: validateTolerancePercentage }}
+            />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <T id="minimumReceived" />
+          </td>
+          <td className="text-right text-gray-600">
+            {minimumReceived && outputAsset ? `${toLocalFixed(minimumReceived)} ${outputAsset.symbol}` : '-'}
+          </td>
+        </tr>
         </tbody>
       </table>
 
