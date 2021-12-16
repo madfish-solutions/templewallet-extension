@@ -21,8 +21,13 @@ function localizeDefaultFormattedNumber(formattedNumber: string) {
 }
 
 export function toLocalFormat(value: BigNumber.Value, { decimalPlaces, roundingMode, format }: FormatParams) {
-  const isFormatted = formatFiniteNum()
-  if(isFormatted) return isFormatted
+  const bn = new BigNumber(value);
+  const numberSymbols = getNumberSymbols();
+
+  if (!bn.isFinite()) {
+    const showMinus = bn.lt(0) ? '-' : '';
+    return bn.isNaN() ? numberSymbols.nan : `${showMinus}${numberSymbols.infinity}`;
+  }
 
   let rawResult = '';
   if (decimalPlaces !== undefined && roundingMode !== undefined) {
@@ -51,15 +56,6 @@ export function getPluralKey(keyPrefix: string, amount: number) {
 }
 
 export function toLocalFixed(value: BigNumber.Value, decimalPlaces?: number, roundingMode?: BigNumber.RoundingMode) {
-  const isFormatted = formatFiniteNum()
-  if(isFormatted) return isFormatted
-
-  const rawResult = decimalPlaces === undefined ? bn.toFixed() : bn.toFixed(decimalPlaces, roundingMode);
-
-  return localizeDefaultFormattedNumber(rawResult);
-}
-
-const formatFiniteNum = (value: BigNumber.Value) => {
   const bn = new BigNumber(value);
   const numberSymbols = getNumberSymbols();
 
@@ -67,6 +63,10 @@ const formatFiniteNum = (value: BigNumber.Value) => {
     const showMinus = bn.lt(0) ? '-' : '';
     return bn.isNaN() ? numberSymbols.nan : `${showMinus}${numberSymbols.infinity}`;
   }
+
+  const rawResult = decimalPlaces === undefined ? bn.toFixed() : bn.toFixed(decimalPlaces, roundingMode);
+
+  return localizeDefaultFormattedNumber(rawResult);
 }
 
 export function toShortened(value: BigNumber.Value) {
