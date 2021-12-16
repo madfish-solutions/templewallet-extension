@@ -91,6 +91,8 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
+    console.log(id);
+
     const [passwordInputType, TogglePasswordIcon] = usePasswordToggle();
     const isPasswordInput = type === 'password';
     const inputType = isPasswordInput ? passwordInputType : type;
@@ -151,7 +153,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     }, [secret, focused, getFieldEl]);
 
     const secretBannerDisplayed = useMemo(
-      () => Boolean(secret && localValue && !focused),
+      () => Boolean(secret && localValue !== '' && !focused),
       [secret, localValue, focused]
     );
 
@@ -220,6 +222,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           <SecretBanner
             handleSecretBannerClick={handleSecretBannerClick}
             secretBannerDisplayed={secretBannerDisplayed}
+            fieldId={id}
           />
 
           <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
@@ -259,9 +262,10 @@ const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultInnerWrapper, innerCo
 interface SecretBannerProps {
   handleSecretBannerClick: () => void;
   secretBannerDisplayed: boolean;
+  fieldId?: string;
 }
 
-const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, handleSecretBannerClick }) =>
+const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, handleSecretBannerClick, fieldId }) =>
   secretBannerDisplayed ? (
     <div
       className={classNames(
@@ -293,7 +297,15 @@ const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, hand
       </p>
 
       <p className={classNames('mb-1', 'flex items-center', 'text-gray-500 text-sm')}>
-        <T id="clickToRevealThisField">{message => <span>{message}</span>}</T>
+        <T
+          id={
+            fieldId === 'reveal-secret-secret' || fieldId === 'backup-mnemonic'
+              ? 'clickToRevealField'
+              : 'clickToRevealOrEditField'
+          }
+        >
+          {message => <span>{message}</span>}
+        </T>
       </p>
     </div>
   ) : null;
