@@ -23,17 +23,12 @@ export const PASSWORD_PATTERN = new RegExp(
   ].join('')
 );
 
+export const uppercaseLowercaseMixtureRegx = /(?=.*[a-z])(?=.*[A-Z])/;
+export const lettersNumbersMixtureRegx = /(?=.*\d)(?=.*[A-Za-z])/;
+export const specialCharacterRegx = /[!@#$%^&*()_+\-=\]{};':"\\|,.<>?]/;
+
 export const URL_PATTERN =
   /^((?:https:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
-
-export const PASSWORD_ERROR_CAPTION = (
-  <ul className="list-disc list-inside">
-    <T id="atLeast8Characters">{message => <li>{message}</li>}</T>
-    <T id="atLeast1Number">{message => <li>{message}</li>}</T>
-    <T id="atLeast1LowercaseLetter">{message => <li>{message}</li>}</T>
-    <T id="atLeast1UppercaseLetter">{message => <li>{message}</li>}</T>
-  </ul>
-);
 
 export const MNEMONIC_ERROR_CAPTION = (
   <ul className="list-disc list-inside">

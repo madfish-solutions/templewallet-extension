@@ -7,7 +7,7 @@ import FormField from 'app/atoms/FormField';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { T } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import { useTezos, fromAssetSlug, getAssetSymbol, isFA2Token, isTezAsset, useAssetMetadata } from 'lib/temple/front';
+import { useTezos, fromAssetSlug, getAssetSymbol, isFA2Asset, isTezAsset, useAssetMetadata } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 type AssetInfoProps = {
@@ -22,8 +22,6 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
 
   const metadata = useAssetMetadata(assetSlug);
 
-  if (isTezAsset(asset)) return null;
-
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>
       <InfoField
@@ -32,14 +30,14 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
         id="contract-address"
         label={<T id="contract" />}
         labelDescription={<T id="addressOfTokenContract" substitutions={[getAssetSymbol(metadata)]} />}
-        value={asset.contract}
+        value={isTezAsset(asset) ? 'TEZ' : asset.contract}
         size={36}
         style={{
           resize: 'none'
         }}
       />
 
-      {isFA2Token(asset) && (
+      {isFA2Asset(asset) && (
         <InfoField id="token-id" label={<T id="tokenId" />} value={new BigNumber(asset.id).toFixed()} />
       )}
     </div>
