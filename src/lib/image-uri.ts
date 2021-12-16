@@ -1,6 +1,6 @@
 export const IPFS_GATEWAY = 'ipfs.io';
 
-export function formatImgUri(origin?: string) {
+export function formatImgUri(origin: string | undefined) {
   if (origin && origin.startsWith('ipfs://')) {
     return `https://${IPFS_GATEWAY}/ipfs/${origin.substring(7)}/`;
   }
