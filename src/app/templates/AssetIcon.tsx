@@ -17,10 +17,12 @@ export type AssetIconProps = {
 
 const AssetIcon = memo((props: AssetIconProps) => {
   const { assetSlug, className, style, size, assetType } = props;
+  const [fallbackIcon, setFallbackIcon] = useState<Boolean>(false);
   const metadata = useAssetMetadata(assetSlug);
   const nftSrc = useImageLoader(assetSlug);
   let thumbnailUri;
-  if (assetType === AssetTypesEnum.Collectibles) {
+  const isNft = assetType === AssetTypesEnum.Collectibles && !fallbackIcon;
+  if (isNft) {
     thumbnailUri = nftSrc;
   } else {
     thumbnailUri = getThumbnailUri(metadata);
@@ -28,8 +30,12 @@ const AssetIcon = memo((props: AssetIconProps) => {
 
   const [imageDisplayed, setImageDisplayed] = useState(true);
   const handleImageError = useCallback(() => {
-    setImageDisplayed(false);
-  }, [setImageDisplayed]);
+    if (isNft) {
+      setFallbackIcon(true);
+    } else {
+      setImageDisplayed(false);
+    }
+  }, [setImageDisplayed, isNft]);
 
   if (thumbnailUri && imageDisplayed) {
     return (
