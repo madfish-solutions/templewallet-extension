@@ -200,7 +200,7 @@ type ListItemProps = {
   assetType: string;
 };
 
-const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) => {
+const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate, assetType }) => {
   const metadata = useAssetMetadata(assetSlug);
 
   const handleCheckboxChange = useCallback(
@@ -224,7 +224,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate }) =>
         'cursor-pointer'
       )}
     >
-      <AssetIcon assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
+      <AssetIcon assetType={assetType} assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
 
       <div className="flex items-center">
         <div className="flex flex-col items-start">
