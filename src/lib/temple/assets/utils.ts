@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { TezosToolkit } from '@taquito/taquito';
+import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import { loadContract } from 'lib/temple/contract';
@@ -19,7 +19,7 @@ export async function toTransferParams(
   amount: BigNumber.Value
 ) {
   const asset = await fromAssetSlug(tezos, assetSlug);
-
+  console.log('good');
   if (isTezAsset(asset)) {
     return {
       to: toPkh,
@@ -28,18 +28,36 @@ export async function toTransferParams(
   } else {
     const contact = await loadContract(tezos, asset.contract);
     const pennyAmount = new BigNumber(amount).times(10 ** (assetMetadata?.decimals ?? 0)).toFixed();
-    const methodArgs = isFA2Token(asset)
-      ? [
-          [
-            {
-              from_: fromPkh,
-              txs: [{ to_: toPkh, token_id: asset.id, amount: pennyAmount }]
-            }
-          ]
-        ]
-      : [fromPkh, toPkh, pennyAmount];
-
-    return contact.methods.transfer(...methodArgs).toTransferParams();
+    return isFA2Token(asset)
+      ? {
+          kind: OpKind.TRANSACTION,
+          to: contact.address,
+          amount: 0,
+          parameter: {
+            entrypoint: 'transfer',
+            value: [
+              {
+                prim: 'Pair',
+                args: [
+                  { string: fromPkh },
+                  [
+                    {
+                      prim: 'Pair',
+                      args: [
+                        { string: toPkh },
+                        {
+                          prim: 'Pair',
+                          args: [{ int: asset.id }, { int: pennyAmount }]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          }
+        }
+      : contact.methods.transfer(fromPkh, toPkh, pennyAmount).toTransferParams();
   }
 }
 
