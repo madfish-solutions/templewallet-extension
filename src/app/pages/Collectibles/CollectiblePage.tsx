@@ -41,7 +41,11 @@ const CollectiblePage: FC<Props> = ({ assetSlug }) => {
       <div style={{ maxWidth: '360px', margin: 'auto' }} className="text-center pb-4">
         <div className={classNames('w-full max-w-sm mx-auto')}>
           <div style={{ borderRadius: '12px', width: '320px' }} className={'border border-gray-300 p-6 mx-auto my-10'}>
-            <CollectibleImage collectibleMetadata={collectibleData} Placeholder={CollectiblePlaceholderLarge} />
+            <CollectibleImage
+              assetSlug={assetSlug}
+              collectibleMetadata={collectibleData}
+              Placeholder={CollectiblePlaceholderLarge}
+            />
           </div>
         </div>
         <Divider />

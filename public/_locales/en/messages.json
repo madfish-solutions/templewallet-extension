@@ -85,8 +85,8 @@
   "protectedFormField": {
     "message": "Protected"
   },
-  "clickToRevealOrEditField": {
-    "message": "Click to reveal or edit this field"
+  "clickToRevealField": {
+    "message": "Click to reveal this field"
   },
   "copiedHash": {
     "message": "Copied."

@@ -25,6 +25,7 @@ import { lettersNumbersMixtureRegx, specialCharacterRegx, uppercaseLowercaseMixt
 import usePasswordToggle from './usePasswordToggle.hook';
 
 const MIN_PASSWORD_LENGTH = 8;
+export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
@@ -91,6 +92,8 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
+    const isPasswordError = errorCaption === PASSWORD_ERROR_CAPTION;
+
     const [passwordInputType, TogglePasswordIcon] = usePasswordToggle();
     const isPasswordInput = type === 'password';
     const inputType = isPasswordInput ? passwordInputType : type;
@@ -151,7 +154,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     }, [secret, focused, getFieldEl]);
 
     const secretBannerDisplayed = useMemo(
-      () => Boolean(secret && localValue && !focused),
+      () => Boolean(secret && localValue !== '' && !focused),
       [secret, localValue, focused]
     );
 
@@ -225,9 +228,18 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
           <Copyable value={value} copy={copy} cleanable={cleanable} copyable={copyable} />
         </div>
-        <ErrorCaption errorCaption={errorCaption} />
+        <ErrorCaption errorCaption={errorCaption} isPasswordStrengthIndicator={isPasswordError} />
 
-        {focused && passwordValidation && <PasswordStrengthIndicator validation={passwordValidation} />}
+        {passwordValidation && (
+          <>
+            {isPasswordError && (
+              <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
+            )}
+            {!isPasswordError && focused && (
+              <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
+            )}
+          </>
+        )}
       </div>
     );
   }
@@ -293,7 +305,7 @@ const SecretBanner: React.FC<SecretBannerProps> = ({ secretBannerDisplayed, hand
       </p>
 
       <p className={classNames('mb-1', 'flex items-center', 'text-gray-500 text-sm')}>
-        <T id="clickToRevealOrEditField">{message => <span>{message}</span>}</T>
+        <T id="clickToRevealField">{message => <span>{message}</span>}</T>
       </p>
     </div>
   ) : null;
@@ -334,10 +346,11 @@ const Copyable: React.FC<CopyableProps> = ({ copy, cleanable, value, copyable })
 
 interface ErrorCaptionProps {
   errorCaption: React.ReactNode;
+  isPasswordStrengthIndicator?: boolean;
 }
 
-const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) =>
-  errorCaption ? <div className="text-xs text-red-500">{errorCaption}</div> : null;
+const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption, isPasswordStrengthIndicator }) =>
+  errorCaption && !isPasswordStrengthIndicator ? <div className="text-xs text-red-500">{errorCaption}</div> : null;
 
 interface LabelComponentProps {
   className: string;
