@@ -25,6 +25,7 @@ const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
               className="w-12 h-12"
               collectibleMetadata={collectibleMetadata}
               Placeholder={CollectiblePlaceholder}
+              assetSlug={assetSlug}
             />
           </div>
         </div>

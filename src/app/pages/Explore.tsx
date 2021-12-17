@@ -101,7 +101,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
-        <div className="flex justify-around mx-auto mt-6">
+        <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
           <ActionButton label={<T id="receive" />} Icon={ReceiveIcon} href="/receive" />
           {network.type !== 'test' && <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} href="/buy" />}
 
@@ -144,11 +144,10 @@ type ActionButtonProps = {
 };
 
 const ActionButton: FC<ActionButtonProps> = ({ label, Icon, href, disabled, tippyProps = {} }) => {
-  const network = useNetwork();
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
-      className: `flex flex-col items-center ${network.type === 'test' ? 'mx-6' : 'mx-4'}`,
+      className: `flex flex-col items-center`,
       type: 'button' as const,
       children: (
         <>
@@ -167,7 +166,7 @@ const ActionButton: FC<ActionButtonProps> = ({ label, Icon, href, disabled, tipp
         </>
       )
     }),
-    [disabled, Icon, label, network.type]
+    [disabled, Icon, label]
   );
   return disabled ? <button ref={buttonRef} {...commonButtonProps} /> : <Link to={href} {...commonButtonProps} />;
 };
@@ -233,12 +232,6 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
           testID: ExploreSelectors.CollectiblesTab
         },
         {
-          slug: 'delegation',
-          title: t('delegation'),
-          Component: Delegation,
-          testID: ExploreSelectors.DelegationTab
-        },
-        {
           slug: 'activity',
           title: t('activity'),
           Component: ActivityTab,
@@ -254,19 +247,26 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
       testID: ExploreSelectors.ActivityTab
     };
 
+    const info = {
+      slug: 'info',
+      title: t('info'),
+      Component: () => <AssetInfo assetSlug={assetSlug} />,
+      testID: ExploreSelectors.AboutTab
+    };
+
     if (isTezAsset(assetSlug)) {
-      return [activity];
+      return [
+        activity,
+        {
+          slug: 'delegation',
+          title: t('delegate'),
+          Component: Delegation,
+          testID: ExploreSelectors.DelegationTab
+        }
+      ];
     }
 
-    return [
-      activity,
-      {
-        slug: 'about',
-        title: t('about'),
-        Component: () => <AssetInfo assetSlug={assetSlug} />,
-        testID: ExploreSelectors.AboutTab
-      }
-    ];
+    return [activity, info];
   }, [assetSlug]);
 
   const { slug, Component } = useMemo(() => {
@@ -276,7 +276,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
 
   return (
     <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md', className)}>
-      <div className={classNames('w-full max-w-sm mx-auto px-3', 'flex flex-wrap items-center justify-center')}>
+      <div className={classNames('w-full max-w-sm mx-auto px-10', 'flex items-center justify-center')}>
         {tabs.map(currentTab => {
           const active = slug === currentTab.slug;
 
@@ -286,8 +286,8 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
               to={lctn => ({ ...lctn, search: `?tab=${currentTab.slug}` })}
               replace
               className={classNames(
-                'w-1/4',
-                'text-center cursor-pointer mb-1 pb-1 pt-2 px-3',
+                'flex1 w-full',
+                'text-center cursor-pointer mb-1 pb-1 pt-2',
                 'text-gray-500 text-xs font-medium',
                 'border-t-2',
                 active ? 'border-primary-orange' : 'border-transparent',
@@ -303,7 +303,7 @@ const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) =
         })}
       </div>
 
-      <div className={classNames('mx-4 mb-4', fullPage ? 'mt-8' : 'mt-4')}>
+      <div className={'mx-4 mb-4 mt-6'}>
         <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
       </div>
     </div>

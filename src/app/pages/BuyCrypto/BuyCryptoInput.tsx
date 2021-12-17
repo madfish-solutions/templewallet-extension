@@ -98,189 +98,138 @@ const BuyCryptoInput: FC<Props> = ({
   isCurrencyAvailable
 }) => {
   const isCoinFromType = type === 'coinFrom';
+  const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(['/api/currency'], getCurrencies);
+
+  const isMinAmountError = amount !== 0 && (lastMinAmount ? lastMinAmount.toNumber() : 0) > Number(amount);
+
+  const filteredCurrencies = currencies.filter(currency => currency.status === 1 && coinList.includes(currency.code));
+  const amountErrorClassName = getBigErrorText(isMinAmountError);
   return (
     <>
-      <SendOrGet
-        amount={amount}
-        lastMinAmount={lastMinAmount}
-        isCoinFromType={isCoinFromType}
-        coin={coin}
-        rateAmount={rates!.min_amount}
-      />
-      <BaseInputComponent
-        isCoinFromType={isCoinFromType}
-        coin={coin}
-        readOnly={readOnly}
-        value={value}
-        onChangeInputHandler={onChangeInputHandler}
-        setCoin={setCoin}
-      />
-      <MinMaxComponent
-        isCoinFromType={isCoinFromType}
-        coin={coin}
-        maxAmount={maxAmount}
+      <div className={styles['titleWrapper']}>
+        <p className={styles['titleLeft']}>{isCoinFromType ? 'Send' : 'Get'}</p>
+        <p className={classNames(getSmallErrorText(isMinAmountError))}>
+          {isCoinFromType ? (
+            <>
+              <T id={'min'} />
+              <span className={classNames(amountErrorClassName, 'text-sm')}> {rates.min_amount}</span>{' '}
+              <span className={classNames(amountErrorClassName, 'text-xs')}>{coin}</span>
+            </>
+          ) : null}
+        </p>
+      </div>
+      <div className={styles['inputWrapper']}>
+        <div className={styles['currencyBlock']}>
+          {isCoinFromType ? (
+            <Popper
+              placement="bottom-start"
+              strategy="fixed"
+              modifiers={[sameWidth]}
+              fallbackPlacementsEnabled={false}
+              popup={({ opened, setOpened }) => (
+                <DropdownWrapper
+                  opened={opened}
+                  className="origin-top overflow-x-hidden overflow-y-auto"
+                  style={{
+                    maxHeight: '15.75rem',
+                    backgroundColor: 'white',
+                    borderColor: '#e2e8f0',
+                    padding: 0
+                  }}
+                >
+                  {isCurrenciesLoaded ? (
+                    <Spinner theme="primary" style={{ width: '3rem' }} />
+                  ) : (
+                    filteredCurrencies.map(currency => (
+                      <CurrencyComponent
+                        type="currencyDropdown"
+                        key={currency.code}
+                        label={currency.code}
+                        className={currency.code === coin ? styles.selected : ''}
+                        onPress={() => {
+                          setCoin(currency.code);
+                          setOpened(false);
+                        }}
+                      />
+                    ))
+                  )}
+                </DropdownWrapper>
+              )}
+            >
+              {({ ref, opened, toggleOpened, setOpened }) => (
+                <CurrencyComponent
+                  type="currencySelector"
+                  label={coin}
+                  short
+                  ref={ref as unknown as React.RefObject<HTMLDivElement>}
+                  onPress={toggleOpened}
+                />
+              )}
+            </Popper>
+          ) : (
+            <CurrencyComponent type="tezosSelector" label={coin} />
+          )}
+        </div>
+        <div className={styles['amountInputContainer']}>
+          <input
+            readOnly={readOnly}
+            onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
+              const inputValue = (event.target as unknown as HTMLInputElement).value;
+              if (inputValue.indexOf('0') !== -1 && inputValue.length === 1 && event.key === '0') {
+                event.preventDefault();
+              }
+              if (inputValue.indexOf('.') !== -1 && event.key === '.') {
+                event.preventDefault();
+              }
+              if (!numbersAndDotRegExp.test(event.key)) {
+                event.preventDefault();
+              }
+            }}
+            value={value}
+            placeholder="0.00"
+            className={classNames([[styles['amountInput'], 'pr-1']])}
+            type="text"
+            maxLength={15}
+            onChange={onChangeInputHandler}
+          />
+        </div>
+      </div>
+      <MaxAmountErrorComponent
         isMaxAmountError={isMaxAmountError}
+        isCoinFromType={isCoinFromType}
         isCurrencyAvailable={isCurrencyAvailable}
+        maxAmount={maxAmount}
+        coin={coin}
       />
     </>
   );
 };
 
-export default BuyCryptoInput;
-
-interface SendOrGetProps {
-  lastMinAmount?: BigNumber;
-  amount?: number;
-  isCoinFromType: boolean;
-  coin: string;
-  rateAmount: string;
-}
-
-const SendOrGet: React.FC<SendOrGetProps> = ({ amount, lastMinAmount, isCoinFromType, coin, rateAmount }) => {
-  const isMinAmountError = amount !== 0 && (lastMinAmount ? lastMinAmount.toNumber() : 0) > Number(amount);
-  const minAmountClassName1 = isMinAmountError ? 'text-red-700' : 'text-gray-500';
-  const minAmountClassName2 = isMinAmountError ? 'text-red-700' : 'text-gray-700';
-  return (
-    <div className={styles['titleWrapper']}>
-      <p className={styles['titleLeft']}>{isCoinFromType ? 'Send' : 'Get'}</p>
-      <p className={classNames(minAmountClassName1)}>
-        {isCoinFromType ? (
-          <>
-            <T id={'min'} />
-            <span className={classNames(minAmountClassName2, 'text-sm')}> {rateAmount}</span>{' '}
-            <span className={classNames(minAmountClassName2, 'text-xs')}>{coin}</span>
-          </>
-        ) : null}
-      </p>
-    </div>
-  );
-};
-
-interface BaseInputComponentProps {
-  isCoinFromType: boolean;
-  coin: string;
-  readOnly: boolean;
-  value?: number;
-  onChangeInputHandler?: (value: ChangeEvent<HTMLInputElement>) => void;
-  setCoin?: (coin: string) => void;
-}
-
-const BaseInputComponent: React.FC<BaseInputComponentProps> = ({
-  isCoinFromType,
-  coin,
-  readOnly = false,
-  value,
-  onChangeInputHandler,
-  setCoin = () => void 0
-}) => {
-  const { data: currencies = [], isValidating: isCurrenciesLoaded } = useSWR(['/api/currency'], getCurrencies);
-
-  const filteredCurrencies = currencies.filter(currency => currency.status === 1 && coinList.includes(currency.code));
-  return (
-    <div className={styles['inputWrapper']}>
-      <div className={styles['currencyBlock']}>
-        {isCoinFromType ? (
-          <Popper
-            placement="bottom-start"
-            strategy="fixed"
-            modifiers={[sameWidth]}
-            fallbackPlacementsEnabled={false}
-            popup={({ opened, setOpened }) => (
-              <DropdownWrapper
-                opened={opened}
-                className="origin-top overflow-x-hidden overflow-y-auto"
-                style={{
-                  maxHeight: '15.75rem',
-                  backgroundColor: 'white',
-                  borderColor: '#e2e8f0',
-                  padding: 0
-                }}
-              >
-                {isCurrenciesLoaded ? (
-                  <Spinner theme="primary" style={{ width: '3rem' }} />
-                ) : (
-                  filteredCurrencies.map(currency => (
-                    <CurrencyComponent
-                      type="currencyDropdown"
-                      key={currency.code}
-                      label={currency.code}
-                      className={currency.code === coin ? styles.selected : ''}
-                      onPress={() => {
-                        setCoin(currency.code);
-                        setOpened(false);
-                      }}
-                    />
-                  ))
-                )}
-              </DropdownWrapper>
-            )}
-          >
-            {({ ref, toggleOpened }) => (
-              <CurrencyComponent
-                type="currencySelector"
-                label={coin}
-                short
-                ref={ref as unknown as React.RefObject<HTMLDivElement>}
-                onPress={toggleOpened}
-              />
-            )}
-          </Popper>
-        ) : (
-          <CurrencyComponent type="tezosSelector" label={coin} />
-        )}
-      </div>
-      <div className={styles['amountInputContainer']}>
-        <input
-          readOnly={readOnly}
-          onKeyPress={(event: React.KeyboardEvent<HTMLInputElement>) => {
-            const inputValue = (event.target as unknown as HTMLInputElement).value;
-            if (inputValue.indexOf('0') !== -1 && inputValue.length === 1 && event.key === '0') {
-              event.preventDefault();
-            }
-            if (inputValue.indexOf('.') !== -1 && event.key === '.') {
-              event.preventDefault();
-            }
-            if (!numbersAndDotRegExp.test(event.key)) {
-              event.preventDefault();
-            }
-          }}
-          value={value}
-          placeholder="0.00"
-          className={classNames([[styles['amountInput'], 'pr-1']])}
-          type="text"
-          maxLength={15}
-          onChange={onChangeInputHandler}
-        />
-      </div>
-    </div>
-  );
-};
-
-interface MinMaxComponentProps {
-  isCoinFromType: boolean;
-  coin: string;
-  maxAmount?: string;
+interface MaxAmountErrorComponentProps {
   isMaxAmountError?: boolean;
+  isCoinFromType: boolean;
   isCurrencyAvailable?: boolean;
+  maxAmount?: string;
+  coin: string;
 }
 
-const MinMaxComponent: React.FC<MinMaxComponentProps> = ({
-  isCoinFromType,
-  coin,
-  maxAmount,
+const MaxAmountErrorComponent: React.FC<MaxAmountErrorComponentProps> = ({
   isMaxAmountError,
-  isCurrencyAvailable
+  isCoinFromType,
+  isCurrencyAvailable,
+  maxAmount,
+  coin
 }) => {
-  const maxAmountClassName = isMaxAmountError ? 'text-red-700' : 'text-gray-500';
+  const maxAmountErrorText = getBigErrorText(isMaxAmountError);
   return (
     <div className={styles['titleWrapper']} style={{ justifyContent: 'flex-end' }}>
-      <p className={classNames(maxAmountClassName)}>
+      <p className={classNames(getSmallErrorText(isMaxAmountError))}>
         {isCoinFromType && (
-          <InnerMax
-            isCurrencyAvailable={isCurrencyAvailable}
-            isMaxAmountError={isMaxAmountError}
+          <CurrencyText
+            className={maxAmountErrorText}
             coin={coin}
             maxAmount={maxAmount}
+            isCurrencyAvailable={isCurrencyAvailable}
           />
         )}
       </p>
@@ -288,25 +237,22 @@ const MinMaxComponent: React.FC<MinMaxComponentProps> = ({
   );
 };
 
-interface InnerMaxProps {
-  coin: string;
-  maxAmount?: string;
-  isMaxAmountError?: boolean;
-  isCurrencyAvailable?: boolean;
-}
-
-const InnerMax: React.FC<InnerMaxProps> = ({ coin, maxAmount, isMaxAmountError, isCurrencyAvailable }) => {
-  const maxAmountClassName = isMaxAmountError ? 'text-red-700' : 'text-gray-700';
-  const trueMaxAmount = maxAmount !== 'Infinity' ? maxAmount : '0';
-  return isCurrencyAvailable ? (
+const CurrencyText: React.FC<
+  Omit<MaxAmountErrorComponentProps, 'isCoinFromType' | 'isMaxAmountError'> & { className: string }
+> = ({ isCurrencyAvailable, className, coin, maxAmount }) =>
+  isCurrencyAvailable ? (
     <>
       <T id={'max'} />
-      <span className={classNames(maxAmountClassName, 'text-sm')}> {trueMaxAmount}</span>{' '}
-      <span className={classNames(maxAmountClassName, 'text-xs')}>{coin}</span>
+      <span className={classNames(className, 'text-sm')}> {maxAmount !== 'Infinity' ? maxAmount : '0'}</span>{' '}
+      <span className={classNames(className, 'text-xs')}>{coin}</span>
     </>
   ) : (
     <span className="text-red-700">
       <T id={'currencyUnavailable'} />
     </span>
   );
-};
+
+const getSmallErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-500');
+const getBigErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-700');
+
+export default BuyCryptoInput;
