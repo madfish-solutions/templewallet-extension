@@ -82,8 +82,8 @@ export function validateDerivationPath(p: string) {
 
   const parts = p.replace('m', '').split('/').filter(Boolean);
   if (
-    !parts.every(p => {
-      const pNum = +(p.includes("'") ? p.replace("'", '') : p);
+    !parts.every(itemPart => {
+      const pNum = +(itemPart.includes("'") ? itemPart.replace("'", '') : itemPart);
       return Number.isSafeInteger(pNum) && pNum >= 0;
     })
   ) {

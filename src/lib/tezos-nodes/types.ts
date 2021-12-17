@@ -56,9 +56,11 @@ export interface TNBakerSocial {
   icon: string;
 }
 
+type TNProposalVote = 'yay' | 'nay' | null;
+
 export interface TNBakerVote {
   proposal_name: string;
-  proposal_vote: 'yay' | 'nay' | null;
-  testing_vote: 'yay' | 'nay' | null;
-  promotion_vote: 'yay' | 'nay' | null;
+  proposal_vote: TNProposalVote;
+  testing_vote: TNProposalVote;
+  promotion_vote: TNProposalVote;
 }

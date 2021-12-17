@@ -37,15 +37,7 @@ export async function confirmOperation(
 
       const opEntry = await findOperation(block, opHash);
       if (opEntry) {
-        let status;
-        try {
-          status = (opEntry.contents[0] as any).metadata.operation_result.status;
-        } catch {}
-        if (status && status !== 'applied') {
-          throw new FailedOpError(`Operation ${status}`);
-        }
-
-        return opEntry;
+        return formatOperationEntry(opEntry);
       }
     }
   } catch (err: any) {
@@ -156,3 +148,15 @@ export function getOriginatedContractAddress(opEntry: OperationEntry) {
     | undefined;
   return originationOp?.metadata?.operation_result?.originated_contracts?.[0] ?? null;
 }
+
+const formatOperationEntry = (opEntry: OperationEntry) => {
+  let status;
+  try {
+    status = (opEntry.contents[0] as any).metadata.operation_result.status;
+  } catch {}
+  if (status && status !== 'applied') {
+    throw new FailedOpError(`Operation ${status}`);
+  }
+
+  return opEntry;
+};

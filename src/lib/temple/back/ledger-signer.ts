@@ -112,41 +112,15 @@ export class TempleLedgerSigner extends LedgerSigner {
     const bytesHash = sodium.crypto_generichash(32, hex2buf(bytes));
 
     if (curve === 'ed') {
-      try {
-        return sodium.crypto_sign_verify_detached(sig, bytesHash, _publicKey);
-      } catch (e) {
-        return false;
-      }
+      return safeSignEdData(sig, bytesHash, _publicKey);
     }
 
     if (curve === 'sp') {
-      const key = new elliptic.ec('secp256k1').keyFromPublic(_publicKey);
-      const hexSig = buf2hex(toBuffer(sig));
-      const match = hexSig.match(/([a-f\d]{64})/gi);
-      if (match) {
-        try {
-          const [r, s] = match;
-          return key.verify(bytesHash, { r, s });
-        } catch (e) {
-          return false;
-        }
-      }
-      return false;
+      return safeSignSpData(sig, bytesHash, _publicKey);
     }
 
     if (curve === 'p2') {
-      const key = new elliptic.ec('p256').keyFromPublic(_publicKey);
-      const hexSig = buf2hex(toBuffer(sig));
-      const match = hexSig.match(/([a-f\d]{64})/gi);
-      if (match) {
-        try {
-          const [r, s] = match;
-          return key.verify(bytesHash, { r, s });
-        } catch (e) {
-          return false;
-        }
-      }
-      return false;
+      return safeSignP2Data(sig, bytesHash, _publicKey);
     }
 
     throw new Error(`Curve '${curve}' not supported`);
@@ -168,3 +142,41 @@ const getSig = (signature: string, curve: any, pref: any) => {
 function toLedgerError(err: any) {
   return new PublicError(`Ledger error. ${err.message}`);
 }
+
+const safeSignEdData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
+  try {
+    return sodium.crypto_sign_verify_detached(sig, bytesHash, _publicKey);
+  } catch (e) {
+    return false;
+  }
+};
+
+const safeSignSpData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
+  const key = new elliptic.ec('secp256k1').keyFromPublic(_publicKey);
+  const hexSig = buf2hex(toBuffer(sig));
+  const match = hexSig.match(/([a-f\d]{64})/gi);
+  if (match) {
+    try {
+      const [r, s] = match;
+      return key.verify(bytesHash, { r, s });
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+};
+
+const safeSignP2Data = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
+  const key = new elliptic.ec('p256').keyFromPublic(_publicKey);
+  const hexSig = buf2hex(toBuffer(sig));
+  const match = hexSig.match(/([a-f\d]{64})/gi);
+  if (match) {
+    try {
+      const [r, s] = match;
+      return key.verify(bytesHash, { r, s });
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+};
