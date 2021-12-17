@@ -19,7 +19,7 @@ export async function toTransferParams(
   amount: BigNumber.Value
 ) {
   const asset = await fromAssetSlug(tezos, assetSlug);
-  console.log('good');
+
   if (isTezAsset(asset)) {
     return {
       to: toPkh,
