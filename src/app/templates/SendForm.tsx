@@ -296,7 +296,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         estmtnMax = await tezos.estimate.transfer(transferParams);
       } else if (tez) {
         const estmtn = await tezos.estimate.transfer(transferParams);
-        let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
+        let amountMax = balanceBN.minus(mutezToTz(estmtn.suggestedFeeMutez));
         if (!hasManager(manager)) {
           amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
         }
