@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import constate from 'constate';
 import { trigger } from 'swr';
 
-import { BCD_NETWORKS_NAMES, getAccountTokenBalances, BcdNetwork } from 'lib/better-call-dev';
+import { BCD_NETWORKS_NAMES, getAccountTokenBalances, BcdNetwork, BcdAccountTokenBalance } from 'lib/better-call-dev';
 import {
   useChainId,
   useAccount,
@@ -31,132 +31,21 @@ export const [SyncTokensProvider] = constate(() => {
   const usdPrices = useUSDPrices();
 
   const networkId = useMemo(
-    () => (isKnownChainId(chainId!) ? BCD_NETWORKS_NAMES.get(chainId) : undefined) ?? null,
+    () => (isKnownChainId(chainId) ? BCD_NETWORKS_NAMES.get(chainId) : undefined) ?? null,
     [chainId]
   );
 
   const sync = useCallback(async () => {
-    if (!networkId) return;
-    const mainnet = networkId === 'mainnet';
-
-    const [bcdTokens, displayedFungibleTokens, displayedCollectibleTokens] = await Promise.all([
-      fetchBcdTokenBalances(networkId, accountPkh),
-      fetchDisplayedFungibleTokens(chainId, accountPkh),
-      fetchCollectibleTokens(chainId, accountPkh, true)
-    ]);
-
-    const bcdTokensMap = new Map(bcdTokens.map(token => [toTokenSlug(token.contract, token.token_id), token]));
-
-    const displayedTokenSlugs = [...displayedFungibleTokens, ...displayedCollectibleTokens].map(
-      ({ tokenSlug }) => tokenSlug
+    makeSync(
+      accountPkh,
+      networkId,
+      chainId,
+      allTokensBaseMetadataRef,
+      setTokensBaseMetadata,
+      setTokensDetailedMetadata,
+      usdPrices,
+      fetchMetadata
     );
-
-    let tokenSlugs = Array.from(
-      new Set([...bcdTokensMap.keys(), ...displayedTokenSlugs, ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])])
-    );
-
-    // let balances = await getAssetBalances({
-    //   account: accountPkh,
-    //   assetSlugs: tokenSlugs,
-    // });
-
-    const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
-
-    const existingRecords = await Repo.accountTokens.bulkGet(tokenRepoKeys);
-
-    const metadataSlugs = tokenSlugs.filter(slug => !(slug in allTokensBaseMetadataRef.current));
-
-    let metadatas;
-    // Only for mainnet. Try load metadata from API.
-    if (mainnet) {
-      try {
-        const response = await getTokensMetadata(metadataSlugs, 15_000);
-        metadatas = response.map(data => data && { base: toBaseMetadata(data), detailed: data });
-      } catch {}
-    }
-    // Otherwise - fetch from chain.
-    if (!metadatas) {
-      metadatas = await Promise.all(
-        metadataSlugs.map(async slug => {
-          const noMetadataFlag = `no_metadata_${slug}`;
-          if (!mainnet && localStorage.getItem(noMetadataFlag) === 'true') {
-            return null;
-          }
-
-          try {
-            return await fetchMetadata(slug);
-          } catch {
-            if (!mainnet) {
-              localStorage.setItem(noMetadataFlag, 'true');
-            }
-
-            return null;
-          }
-        })
-      );
-    }
-
-    const baseMetadatasToSet: Record<string, AssetMetadata> = {};
-    const detailedMetadatasToSet: Record<string, DetailedAssetMetdata> = {};
-
-    for (let i = 0; i < metadatas.length; i++) {
-      const data = metadatas[i];
-
-      if (data) {
-        const slug = metadataSlugs[i];
-        const { base, detailed } = data;
-
-        baseMetadatasToSet[slug] = base;
-        detailedMetadatasToSet[slug] = detailed;
-      }
-    }
-
-    await setTokensBaseMetadata(baseMetadatasToSet);
-    await setTokensDetailedMetadata(detailedMetadatasToSet);
-
-    await Repo.accountTokens.bulkPut(
-      tokenSlugs.map((slug, i) => {
-        const existing = existingRecords[i];
-        // const balance = balances[i];
-        const bcdToken = bcdTokensMap.get(slug);
-        const balance = bcdToken?.balance ?? '0';
-        const metadata = baseMetadatasToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
-
-        const price = usdPrices[slug];
-        const usdBalance =
-          price &&
-          metadata &&
-          new BigNumber(balance)
-            .times(price)
-            .div(10 ** metadata.decimals)
-            .toFixed();
-
-        if (existing) {
-          return {
-            ...existing,
-            type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
-            latestBalance: balance,
-            latestUSDBalance: usdBalance
-          };
-        }
-
-        const status = PREDEFINED_MAINNET_TOKENS.includes(slug) ? Repo.ITokenStatus.Enabled : Repo.ITokenStatus.Idle;
-
-        return {
-          type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
-          chainId,
-          account: accountPkh,
-          tokenSlug: slug,
-          status,
-          addedAt: Date.now(),
-          latestBalance: balance,
-          latestUSDBalance: usdBalance
-        };
-      }),
-      tokenRepoKeys
-    );
-
-    trigger(['displayed-fungible-tokens', chainId, accountPkh], true);
   }, [
     accountPkh,
     networkId,
@@ -232,3 +121,154 @@ async function fetchBcdTokenBalances(network: BcdNetwork, address: string) {
 
   return balances;
 }
+
+const makeSync = async (
+  accountPkh: string,
+  networkId: BcdNetwork | null,
+  chainId: string,
+  allTokensBaseMetadataRef: any,
+  setTokensBaseMetadata: any,
+  setTokensDetailedMetadata: any,
+  usdPrices: Record<string, string>,
+  fetchMetadata: any
+) => {
+  if (!networkId) return;
+  const mainnet = networkId === 'mainnet';
+
+  const [bcdTokens, displayedFungibleTokens, displayedCollectibleTokens] = await Promise.all([
+    fetchBcdTokenBalances(networkId, accountPkh),
+    fetchDisplayedFungibleTokens(chainId, accountPkh),
+    fetchCollectibleTokens(chainId, accountPkh, true)
+  ]);
+
+  const bcdTokensMap = new Map(bcdTokens.map(token => [toTokenSlug(token.contract, token.token_id), token]));
+
+  const displayedTokenSlugs = [...displayedFungibleTokens, ...displayedCollectibleTokens].map(
+    ({ tokenSlug }) => tokenSlug
+  );
+
+  let tokenSlugs = Array.from(
+    new Set([...bcdTokensMap.keys(), ...displayedTokenSlugs, ...(mainnet ? PREDEFINED_MAINNET_TOKENS : [])])
+  );
+
+  const tokenRepoKeys = tokenSlugs.map(slug => Repo.toAccountTokenKey(chainId, accountPkh, slug));
+
+  const existingRecords = await Repo.accountTokens.bulkGet(tokenRepoKeys);
+
+  const metadataSlugs = tokenSlugs.filter(slug => !(slug in allTokensBaseMetadataRef.current));
+
+  let metadatas;
+  // Only for mainnet. Try load metadata from API.
+  if (mainnet) {
+    try {
+      const response = await getTokensMetadata(metadataSlugs, 15_000);
+      metadatas = response.map(data => data && { base: toBaseMetadata(data), detailed: data });
+    } catch {}
+  }
+  // Otherwise - fetch from chain.
+  if (!metadatas) {
+    metadatas = await Promise.all(metadataSlugs.map(slug => generateMetadataRequest(slug, mainnet, fetchMetadata)));
+  }
+
+  const baseMetadatasToSet: Record<string, AssetMetadata> = {};
+  const detailedMetadatasToSet: Record<string, DetailedAssetMetdata> = {};
+
+  for (let i = 0; i < metadatas.length; i++) {
+    const data = metadatas[i];
+
+    if (data) {
+      const slug = metadataSlugs[i];
+      const { base, detailed } = data;
+
+      baseMetadatasToSet[slug] = base;
+      detailedMetadatasToSet[slug] = detailed;
+    }
+  }
+
+  await setTokensBaseMetadata(baseMetadatasToSet);
+  await setTokensDetailedMetadata(detailedMetadatasToSet);
+
+  await Repo.accountTokens.bulkPut(
+    tokenSlugs.map((slug, i) =>
+      updateTokenSlugs(
+        slug,
+        i,
+        chainId,
+        accountPkh,
+        existingRecords,
+        bcdTokensMap,
+        baseMetadatasToSet,
+        allTokensBaseMetadataRef,
+        usdPrices
+      )
+    ),
+    tokenRepoKeys
+  );
+
+  trigger(['displayed-fungible-tokens', chainId, accountPkh], true);
+};
+
+const generateMetadataRequest = async (slug: string, mainnet: boolean, fetchMetadata: any) => {
+  const noMetadataFlag = `no_metadata_${slug}`;
+  if (!mainnet && localStorage.getItem(noMetadataFlag) === 'true') {
+    return null;
+  }
+
+  try {
+    return await fetchMetadata(slug);
+  } catch {
+    if (!mainnet) {
+      localStorage.setItem(noMetadataFlag, 'true');
+    }
+
+    return null;
+  }
+};
+
+const updateTokenSlugs = (
+  slug: string,
+  i: number,
+  chainId: string,
+  accountPkh: string,
+  existingRecords: (Repo.IAccountToken | undefined)[],
+  bcdTokensMap: Map<string, BcdAccountTokenBalance>,
+  baseMetadatasToSet: any,
+  allTokensBaseMetadataRef: any,
+  usdPrices: Record<string, string>
+) => {
+  const existing = existingRecords[i];
+  const bcdToken = bcdTokensMap.get(slug);
+  const balance = bcdToken?.balance ?? '0';
+  const metadata = baseMetadatasToSet[slug] ?? allTokensBaseMetadataRef.current[slug];
+
+  const price = usdPrices[slug];
+  const usdBalance =
+    price &&
+    metadata &&
+    new BigNumber(balance)
+      .times(price)
+      .div(10 ** metadata.decimals)
+      .toFixed();
+
+  if (existing) {
+    return {
+      ...existing,
+      type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
+      latestBalance: balance,
+      latestUSDBalance: usdBalance
+    };
+  }
+
+  const status = PREDEFINED_MAINNET_TOKENS.includes(slug) ? Repo.ITokenStatus.Enabled : Repo.ITokenStatus.Idle;
+
+  return {
+    type: metadata?.artifactUri ? Repo.ITokenType.Collectible : Repo.ITokenType.Fungible,
+    chainId,
+    account: accountPkh,
+    tokenSlug: slug,
+    status,
+    addedAt: Date.now(),
+    latestBalance: balance,
+    latestUSDBalance: usdBalance
+  };
+};
