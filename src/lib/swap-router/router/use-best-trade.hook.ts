@@ -3,10 +3,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
-import { PairLiquidityInterface } from '../pair-liquidity.interface';
+import { getRoutePairs } from '../backend';
+import { RoutePairInterface } from '../backend/interfaces/route-pair.interface';
 import { TokenInterface } from '../token.interface';
-import { getAllPairsLiquidity } from '../utils/pair-liquidity.utils';
-import { getAllPairs } from '../utils/pair.utils';
 import { bestTradeExactIn } from './best-trade.utils';
 import { TradeTypeEnum } from './trade-type.enum';
 import { isTradeBetter } from './trade.utils';
@@ -20,14 +19,13 @@ export const useBestTrade = (
   specifiedAmount: BigNumber,
   tezos: TezosToolkit
 ) => {
-  const [allPairs, setAllPairs] = useState<PairLiquidityInterface[]>([]);
+  const [allPairs, setAllPairs] = useState<RoutePairInterface[]>([]);
 
   useEffect(() => {
     (async () => {
-      const pairs = await getAllPairs(tezos);
-      const pairsLiquidity = await getAllPairsLiquidity(pairs);
+      const allPairs = await getRoutePairs();
 
-      setAllPairs(pairsLiquidity);
+      setAllPairs(allPairs);
     })();
   }, [tezos]);
 
@@ -40,6 +38,7 @@ export const useBestTrade = (
 
         let currentTrade = null;
         if (tradeType === TradeTypeEnum.EXACT_INPUT) {
+          // @ts-ignore
           currentTrade = bestTradeExactIn(allPairs, inputToken, specifiedAmount, outputToken, options)[0] ?? null;
         } else {
           currentTrade = null;
