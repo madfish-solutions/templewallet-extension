@@ -1,5 +1,5 @@
 import { HttpResponseError } from '@taquito/http-utils';
-import { RpcClient } from '@taquito/rpc';
+import { ManagerKeyResponse, RpcClient } from '@taquito/rpc';
 import { MichelCodecPacker } from '@taquito/taquito';
 import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
@@ -23,7 +23,7 @@ export function fetchChainId(rpcUrl: string) {
   return rpc.getChainId();
 }
 
-export function hasManager(manager: any) {
+export function hasManager(manager: ManagerKeyResponse) {
   return manager && typeof manager === 'object' ? !!manager.key : !!manager;
 }
 
