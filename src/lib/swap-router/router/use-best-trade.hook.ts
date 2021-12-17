@@ -5,7 +5,7 @@ import { BigNumber } from 'bignumber.js';
 
 import { PairLiquidityInterface } from '../pair-liquidity.interface';
 import { TokenInterface } from '../token.interface';
-import { getAllPairsLiquidity, mapOppositePairLiquidity } from '../utils/pair-liquidity.utils';
+import { getAllPairsLiquidity } from '../utils/pair-liquidity.utils';
 import { getAllPairs } from '../utils/pair.utils';
 import { bestTradeExactIn } from './best-trade.utils';
 import { TradeTypeEnum } from './trade-type.enum';
@@ -27,13 +27,7 @@ export const useBestTrade = (
       const pairs = await getAllPairs(tezos);
       const pairsLiquidity = await getAllPairsLiquidity(pairs);
 
-      const oppositePairsLiquidity = pairsLiquidity.map(mapOppositePairLiquidity);
-
-      const allPairs = [...pairsLiquidity, ...oppositePairsLiquidity];
-
-      console.log(allPairs.length);
-
-      setAllPairs(allPairs);
+      setAllPairs(pairsLiquidity);
     })();
   }, [tezos]);
 

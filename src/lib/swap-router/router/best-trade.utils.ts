@@ -33,15 +33,8 @@ export const bestTradeExactIn = (
   for (let i = 0; i < allPairs.length; i++) {
     const pair = allPairs[i];
 
-    // console.log('input', nextInputToken.address);
-    // console.log('aToken', pair.aToken.address);
-    // console.log('bToken', pair.bToken.address);
     // pair irrelevant
-    if (!areTokensEqual(pair.aToken, nextInputToken)) {
-      // console.log('skipping');
-      continue;
-    }
-    // console.log('skip check');
+    if (!areTokensEqual(pair.aToken, nextInputToken) && !areTokensEqual(pair.bToken, nextInputToken)) continue;
     if (pair.aTokenPool.isEqualTo(ZERO) || pair.bTokenPool.isEqualTo(ZERO)) continue;
 
     const bTokenOutput = findSwapOutput(nextInputAmount, pair.aTokenPool, pair.bTokenPool, getPairFee(pair));

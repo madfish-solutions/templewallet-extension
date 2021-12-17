@@ -20,11 +20,3 @@ export const getAllPairsLiquidity = async (pairs: PairInterface[]): Promise<Pair
       return getPairLiquidity(pair);
     })
   ).then(pairs => pairs.filter(pair => !pair.aTokenPool.isEqualTo(ZERO) && !pair.bTokenPool.isEqualTo(ZERO)));
-
-export const mapOppositePairLiquidity = (pair: PairLiquidityInterface): PairLiquidityInterface => ({
-  ...pair,
-  aToken: pair.bToken,
-  bToken: pair.aToken,
-  aTokenPool: pair.bTokenPool,
-  bTokenPool: pair.aTokenPool
-});
