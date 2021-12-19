@@ -470,10 +470,10 @@ export async function getNetworkRPC(net: TempleDAppNetwork) {
       const current = await getCurrentTempleNetwork();
       const [currentChainId, targetChainId] = await Promise.all([
         loadChainId(current.rpcBaseURL),
-        loadChainId(targetRpc)
+        loadChainId(targetRpc).catch(() => null)
       ]);
 
-      return currentChainId === targetChainId ? current.rpcBaseURL : targetRpc;
+      return targetChainId === null || currentChainId === targetChainId ? current.rpcBaseURL : targetRpc;
     } catch {
       return targetRpc;
     }
