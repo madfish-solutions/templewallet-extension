@@ -36,7 +36,7 @@ const AddressBook: React.FC = () => {
         return;
       }
 
-      removeContact(address);
+      await removeContact(address);
     },
     [confirm, removeContact]
   );

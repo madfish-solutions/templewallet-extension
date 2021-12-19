@@ -5,7 +5,7 @@ import { TempleContact, useRelevantAccounts, useSettings, useTempleClient } from
 
 export function useContacts() {
   const { updateSettings } = useTempleClient();
-  const { contacts = [] } = useSettings();
+  let { contacts = [] } = useSettings();
   const allAccounts = useRelevantAccounts();
   const accountContacts = useMemo<TempleContact[]>(
     () =>
@@ -16,6 +16,19 @@ export function useContacts() {
       })),
     [allAccounts]
   );
+
+  const intersections = useMemo<TempleContact[]>(
+    () =>
+      contacts.filter(contact => accountContacts.some(accountContact => contact.address === accountContact.address)),
+    [contacts, accountContacts]
+  );
+
+  if (intersections.length > 0) {
+    for (let intersection of intersections) {
+      contacts = contacts.filter(contact => contact.address !== intersection.address);
+    }
+    (async () => await updateSettings({ contacts }))();
+  }
 
   const allContacts = useMemo(() => [...contacts, ...accountContacts], [contacts, accountContacts]);
 
@@ -33,8 +46,8 @@ export function useContacts() {
   );
 
   const removeContact = useCallback(
-    (address: string) =>
-      void updateSettings({
+    async (address: string) =>
+      await updateSettings({
         contacts: contacts.filter(c => c.address !== address)
       }),
     [contacts, updateSettings]
