@@ -61,10 +61,10 @@ import {
   useTezos,
   useTezosDomainsClient
 } from 'lib/temple/front';
+import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { useFilteredContacts } from '../../lib/temple/front/use-filtered-contacts.hook';
 import { SendFormSelectors } from './SendForm.selectors';
 import AddContactModal from './SendForm/AddContactModal';
 import ContactsDropdown from './SendForm/ContactsDropdown';
