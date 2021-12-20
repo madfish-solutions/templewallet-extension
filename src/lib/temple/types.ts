@@ -1,5 +1,6 @@
 import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
+import { TransportType } from '@temple-wallet/ledger-bridge';
 
 type NonEmptyArray<T> = [T, ...T[]];
 
@@ -493,6 +494,7 @@ export interface TempleCreateLedgerAccountRequest extends TempleMessageBase {
   name: string;
   derivationPath?: string;
   derivationType?: DerivationType;
+  transportType: TransportType;
 }
 
 export interface TempleCreateLedgerAccountResponse extends TempleMessageBase {

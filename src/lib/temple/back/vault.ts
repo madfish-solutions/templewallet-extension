@@ -651,19 +651,15 @@ async function createLedgerSigner(
 ) {
   const ledgerLiveEnabled = await isLedgerLiveEnabled();
 
-  if (!transport || ledgerLiveEnabled !== transport.ledgerLiveUsed) {
-    await transport?.close();
+  if (transport) await transport?.close();
 
-    const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
-    if (!bridgeUrl) {
-      throw new Error("Require a 'TEMPLE_WALLET_LEDGER_BRIDGE_URL' environment variable to be set");
-    }
-
-    transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
-    if (ledgerLiveEnabled) {
-      transport.useLedgerLive();
-    }
+  const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
+  if (!bridgeUrl) {
+    throw new Error("Require a 'TEMPLE_WALLET_LEDGER_BRIDGE_URL' environment variable to be set");
   }
+
+  transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
+  transport.updateTransportType(ledgerLiveEnabled);
 
   // After Ledger Live bridge was setuped, we don't close transport
   // Probably we do not need to close it

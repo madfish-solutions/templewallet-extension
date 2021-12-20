@@ -1,29 +1,20 @@
 import React from 'react';
 
 import FormCheckbox from 'app/atoms/FormCheckbox';
-import { t, T } from 'lib/i18n/react';
-import { useRetryableSWR } from 'lib/swr';
+import { T, t } from 'lib/i18n/react';
 import { TempleSharedStorageKey, useLocalStorage } from 'lib/temple/front';
-import { isLedgerLiveEnabledByDefault } from 'lib/temple/ledger-live';
 
 const LedgerLiveSettings: React.FC<{}> = () => {
-  const { data: enabledByDefault } = useRetryableSWR(
-    ['is-ledger-live-enabled-by-default'],
-    isLedgerLiveEnabledByDefault
-  );
-
-  const settingsDisplayed = !enabledByDefault && process.env.TARGET_BROWSER !== 'firefox';
-
-  const [ledgerLiveEnabled, setLedgerLiveEnabled] = useLocalStorage<boolean>(
+  const [ledgerTransportType, setLedgerTransportType] = useLocalStorage<boolean>(
     TempleSharedStorageKey.UseLedgerLive,
     false
   );
 
   const handlePopupModeChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setLedgerLiveEnabled(evt.target.checked);
+    setLedgerTransportType(evt.target.checked);
   };
 
-  return settingsDisplayed ? (
+  return (
     <>
       <label className="mb-4 leading-tight flex flex-col" htmlFor="ledgerLiveSettings">
         <span className="text-base font-semibold text-gray-700">
@@ -36,14 +27,14 @@ const LedgerLiveSettings: React.FC<{}> = () => {
       </label>
 
       <FormCheckbox
-        checked={ledgerLiveEnabled}
+        checked={ledgerTransportType}
         onChange={handlePopupModeChange}
         name="ledgerLiveEnabled"
-        label={t(ledgerLiveEnabled ? 'enabled' : 'disabled')}
+        label={t(ledgerTransportType ? 'enabled' : 'disabled')}
         containerClassName="mb-4"
       />
     </>
-  ) : null;
+  );
 };
 
 export default LedgerLiveSettings;
