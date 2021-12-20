@@ -14,6 +14,7 @@ import { useContacts, TempleContact, isDomainNameValid, useTezosDomainsClient, i
 import { useConfirm } from 'lib/ui/dialog';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
+import { useFilteredContacts } from '../../lib/temple/front/use-filtered-contacts.hook';
 import CustomSelect, { OptionRenderProps } from './CustomSelect';
 import HashChip from './HashChip';
 
@@ -22,7 +23,8 @@ type ContactActions = {
 };
 
 const AddressBook: React.FC = () => {
-  const { allContacts, removeContact } = useContacts();
+  const { removeContact } = useContacts();
+  const { allContacts } = useFilteredContacts();
   const confirm = useConfirm();
 
   const handleRemoveContactClick = useCallback(

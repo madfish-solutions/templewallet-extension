@@ -5,35 +5,33 @@ import { useTempleClient } from './client';
 import { useRelevantAccounts, useSettings } from './ready';
 
 export function useFilteredContacts() {
-  const { contacts = [] } = useSettings();
   const { updateSettings } = useTempleClient();
-  const allAccounts = useRelevantAccounts();
 
+  const settings = useSettings();
+  const settingContacts = useMemo(() => settings.contacts ?? [], [settings.contacts]);
+
+  const accounts = useRelevantAccounts();
   const accountContacts = useMemo<TempleContact[]>(
     () =>
-      allAccounts.map(acc => ({
+      accounts.map(acc => ({
         address: acc.publicKeyHash,
         name: acc.name,
         accountInWallet: true
       })),
-    [allAccounts]
+    [accounts]
   );
 
-  const intersections = useMemo<TempleContact[]>(
-    () =>
-      contacts.filter(contact => accountContacts.some(accountContact => contact.address === accountContact.address)),
-    [contacts, accountContacts]
-  );
+  const allContacts = useMemo(() => {
+    const filteredSettingContacts = settingContacts.filter(
+      contact => !accountContacts.some(intersection => contact.address === intersection.address)
+    );
 
-  if (intersections.length > 0) {
-    let filteredContacts;
-
-    for (let intersection of intersections) {
-      filteredContacts = contacts.filter(contact => contact.address !== intersection.address);
+    if (filteredSettingContacts.length !== settingContacts.length) {
+      updateSettings({ contacts: filteredSettingContacts });
     }
-    (async () => await updateSettings({ contacts: filteredContacts }))();
-    return { filteredContacts, accountContacts };
-  }
 
-  return { contacts, accountContacts };
+    return [...filteredSettingContacts, ...accountContacts];
+  }, [settingContacts, accountContacts, updateSettings]);
+
+  return { contacts: settingContacts, allContacts };
 }
