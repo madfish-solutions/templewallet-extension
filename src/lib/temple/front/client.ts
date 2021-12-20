@@ -27,6 +27,8 @@ import {
 } from 'lib/temple/types';
 import toBuffer from 'typedarray-to-buffer';
 
+import { isLedgerLiveEnabled } from '../ledger-live';
+
 type Confirmation = {
   id: string;
   payload: TempleConfirmationPayload;
@@ -243,6 +245,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
       const res = await request({
         type: TempleMessageType.CreateLedgerAccountRequest,
         name,
+        transportType: isLedgerLiveEnabled(),
         derivationPath,
         derivationType
       });

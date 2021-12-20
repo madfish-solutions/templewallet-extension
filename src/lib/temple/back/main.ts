@@ -104,7 +104,7 @@ async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.CreateLedgerAccountRequest:
-      await Actions.craeteLedgerAccount(req.name, req.derivationPath, req.derivationType);
+      await Actions.createLedgerAccount(req.name, req.derivationPath, req.derivationType);
       return {
         type: TempleMessageType.CreateLedgerAccountResponse
       };

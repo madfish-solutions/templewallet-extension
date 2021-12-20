@@ -20,6 +20,7 @@ import {
   useTempleClient,
   validateDerivationPath
 } from 'lib/temple/front';
+import { isLedgerLiveEnabled } from 'lib/temple/ledger-live';
 import { navigate } from 'lib/woozie';
 
 type FormData = {
@@ -58,6 +59,8 @@ const DERIVATION_TYPES = [
     name: 'P256 (tz3...)'
   }
 ];
+
+const LEDGER_USB_VENDOR_ID = '0x2c97';
 
 const ConnectLedger: FC = () => {
   const { createLedgerAccount } = useTempleClient();
@@ -99,6 +102,34 @@ const ConnectLedger: FC = () => {
       setError(null);
 
       formAnalytics.trackSubmit();
+      try {
+        // @ts-ignore
+        const webhidTransport = window.navigator.hid;
+        if (webhidTransport && isLedgerLiveEnabled()) {
+          const devices = await webhidTransport.getDevices();
+          const webHidIsConnected = devices.some((device: any) => device.vendorId === Number(LEDGER_USB_VENDOR_ID));
+          if (!webHidIsConnected) {
+            const connectedDevices = await webhidTransport.requestDevice({
+              filters: [{ vendorId: LEDGER_USB_VENDOR_ID }]
+            });
+            const userApprovedWebHidConnection = connectedDevices.some(
+              (device: any) => device.vendorId === Number(LEDGER_USB_VENDOR_ID)
+            );
+            if (!userApprovedWebHidConnection) {
+              throw new Error('No Ledger connected error');
+            }
+          }
+        }
+      } catch (err: any) {
+        formAnalytics.trackSubmitFail();
+
+        console.error(err);
+
+        // Human delay.
+        await new Promise(res => setTimeout(res, 300));
+        setError(err.message);
+      }
+
       try {
         await createLedgerAccount(
           name,

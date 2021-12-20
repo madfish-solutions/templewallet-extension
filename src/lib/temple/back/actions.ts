@@ -179,7 +179,7 @@ export function importWatchOnlyAccount(address: string, chainId?: string) {
   });
 }
 
-export function craeteLedgerAccount(name: string, derivationPath?: string, derivationType?: DerivationType) {
+export function createLedgerAccount(name: string, derivationPath?: string, derivationType?: DerivationType) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.createLedgerAccount(name, derivationPath, derivationType);
     accountsUpdated(updatedAccounts);
