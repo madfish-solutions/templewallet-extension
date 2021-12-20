@@ -11,10 +11,10 @@ import SubTitle from 'app/atoms/SubTitle';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { t, T } from 'lib/i18n/react';
 import { useContacts, TempleContact, isDomainNameValid, useTezosDomainsClient, isAddressValid } from 'lib/temple/front';
+import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
 import { useConfirm } from 'lib/ui/dialog';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
-import { useFilteredContacts } from '../../lib/temple/front/use-filtered-contacts.hook';
 import CustomSelect, { OptionRenderProps } from './CustomSelect';
 import HashChip from './HashChip';
 
