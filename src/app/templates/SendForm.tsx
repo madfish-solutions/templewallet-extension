@@ -57,7 +57,6 @@ import {
   useAssetMetadata,
   useAssetUSDPrice,
   useBalance,
-  useContacts,
   useNetwork,
   useTezos,
   useTezosDomainsClient
@@ -65,6 +64,7 @@ import {
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { useFilteredContacts } from '../../lib/temple/front/use-filtered-contacts.hook';
 import { SendFormSelectors } from './SendForm.selectors';
 import AddContactModal from './SendForm/AddContactModal';
 import ContactsDropdown from './SendForm/ContactsDropdown';
@@ -141,7 +141,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
-  const { allContacts } = useContacts();
+  const { allContacts } = useFilteredContacts();
   const network = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();

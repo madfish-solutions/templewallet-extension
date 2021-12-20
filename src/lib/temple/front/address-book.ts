@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import { getMessage } from 'lib/i18n';
 import { TempleContact, useTempleClient } from 'lib/temple/front';
@@ -7,9 +7,7 @@ import { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export function useContacts() {
   const { updateSettings } = useTempleClient();
-  const { contacts = [], accountContacts } = useFilteredContacts();
-
-  const allContacts = useMemo(() => [...contacts, ...accountContacts], [contacts, accountContacts]);
+  const { contacts, allContacts } = useFilteredContacts();
 
   const addContact = useCallback(
     async (cToAdd: TempleContact) => {
@@ -38,7 +36,6 @@ export function useContacts() {
   );
 
   return {
-    allContacts,
     addContact,
     removeContact,
     getContact
