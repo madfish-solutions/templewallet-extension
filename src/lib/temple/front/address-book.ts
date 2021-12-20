@@ -1,34 +1,13 @@
 import { useCallback, useMemo } from 'react';
 
 import { getMessage } from 'lib/i18n';
-import { TempleContact, useRelevantAccounts, useSettings, useTempleClient } from 'lib/temple/front';
+import { TempleContact, useTempleClient } from 'lib/temple/front';
+
+import { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export function useContacts() {
   const { updateSettings } = useTempleClient();
-  let { contacts = [] } = useSettings();
-  const allAccounts = useRelevantAccounts();
-  const accountContacts = useMemo<TempleContact[]>(
-    () =>
-      allAccounts.map(acc => ({
-        address: acc.publicKeyHash,
-        name: acc.name,
-        accountInWallet: true
-      })),
-    [allAccounts]
-  );
-
-  const intersections = useMemo<TempleContact[]>(
-    () =>
-      contacts.filter(contact => accountContacts.some(accountContact => contact.address === accountContact.address)),
-    [contacts, accountContacts]
-  );
-
-  if (intersections.length > 0) {
-    for (let intersection of intersections) {
-      contacts = contacts.filter(contact => contact.address !== intersection.address);
-    }
-    (async () => await updateSettings({ contacts }))();
-  }
+  const { contacts = [], accountContacts } = useFilteredContacts();
 
   const allContacts = useMemo(() => [...contacts, ...accountContacts], [contacts, accountContacts]);
 
@@ -60,7 +39,6 @@ export function useContacts() {
 
   return {
     allContacts,
-    accountContacts,
     addContact,
     removeContact,
     getContact
