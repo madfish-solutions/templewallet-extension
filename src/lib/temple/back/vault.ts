@@ -68,7 +68,6 @@ export class Vault {
 
   static async setup(password: string) {
     return withError('Failed to unlock wallet', async () => {
-      await Vault.assertValidPassword(password);
       await Vault.runMigrations(password);
 
       const passKey = await Vault.toValidPassKey(password);
@@ -113,18 +112,17 @@ export class Vault {
   }
 
   static async runMigrations(password: string) {
-    const decryptLegacySafe = <T>(strgKey: string) =>
-      withError('Invalid password', async () => {
-        const legacyPassKey = await Passworder.generateKeyLegacy(password);
-        return fetchAndDecryptOneLegacy<T>(strgKey, legacyPassKey);
-      });
+    await Vault.assertValidPassword(password);
 
     let migrationLevel: number;
 
     const legacyMigrationLevelStored = await isStoredLegacy(legacyMigrationLevelStrgKey);
 
     if (legacyMigrationLevelStored) {
-      migrationLevel = await decryptLegacySafe<number>(legacyMigrationLevelStrgKey);
+      migrationLevel = await withError('Invalid password', async () => {
+        const legacyPassKey = await Passworder.generateKeyLegacy(password);
+        return fetchAndDecryptOneLegacy<number>(legacyMigrationLevelStrgKey, legacyPassKey);
+      });
     } else {
       const saved = await getPlain<number>(migrationLevelStrgKey);
 
@@ -149,9 +147,6 @@ export class Vault {
       const legacyCheckStored = await isStoredLegacy(checkStrgKey);
 
       if (saved !== undefined && legacyCheckStored) {
-        // Validate password
-        await decryptLegacySafe(checkStrgKey);
-
         // Override migration level, force
         migrationLevel = 3;
       }
