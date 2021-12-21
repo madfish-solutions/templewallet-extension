@@ -223,7 +223,7 @@ export class Vault {
   }
 
   private static validatePassword(password: string) {
-    return withError('Invalid password', async doThrow => {
+    return withError('Invalid password', async () => {
       const legacyCheckStored = await isStoredLegacy(checkStrgKey);
       if (legacyCheckStored) {
         const legacyPassKey = await Passworder.generateKeyLegacy(password);
