@@ -229,10 +229,10 @@ export class Vault {
       if (legacyCheckStored) {
         const legacyPassKey = await Passworder.generateKeyLegacy(password);
         await fetchAndDecryptOneLegacy<any>(checkStrgKey, legacyPassKey);
+      } else {
+        const passKey = await Passworder.generateKey(password);
+        await fetchAndDecryptOne<any>(checkStrgKey, passKey);
       }
-
-      const passKey = await Passworder.generateKey(password);
-      await fetchAndDecryptOne<any>(checkStrgKey, passKey);
     });
   }
 
