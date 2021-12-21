@@ -68,6 +68,7 @@ export class Vault {
 
   static async setup(password: string) {
     return withError('Failed to unlock wallet', async () => {
+      await Vault.validatePassword(password);
       await Vault.runMigrations(password);
       const passKey = await Vault.toValidPassKey(password);
       return new Vault(passKey);
@@ -151,7 +152,7 @@ export class Vault {
         await decryptLegacySafe(checkStrgKey);
 
         // Override migration level, force
-        migrationLevel = saved - 1;
+        migrationLevel = 3;
       }
     }
 
@@ -218,6 +219,19 @@ export class Vault {
         doThrow();
       }
       return passKey;
+    });
+  }
+
+  private static validatePassword(password: string) {
+    return withError('Invalid password', async doThrow => {
+      const legacyCheckStored = await isStoredLegacy(checkStrgKey);
+      if (legacyCheckStored) {
+        const legacyPassKey = await Passworder.generateKeyLegacy(password);
+        await fetchAndDecryptOneLegacy<any>(checkStrgKey, legacyPassKey);
+      }
+
+      const passKey = await Passworder.generateKey(password);
+      await fetchAndDecryptOne<any>(checkStrgKey, passKey);
     });
   }
 
