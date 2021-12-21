@@ -68,8 +68,9 @@ export class Vault {
 
   static async setup(password: string) {
     return withError('Failed to unlock wallet', async () => {
-      await Vault.validatePassword(password);
+      await Vault.assertValidPassword(password);
       await Vault.runMigrations(password);
+
       const passKey = await Vault.toValidPassKey(password);
       return new Vault(passKey);
     });
@@ -222,7 +223,7 @@ export class Vault {
     });
   }
 
-  private static validatePassword(password: string) {
+  private static assertValidPassword(password: string) {
     return withError('Invalid password', async () => {
       const legacyCheckStored = await isStoredLegacy(checkStrgKey);
       if (legacyCheckStored) {
