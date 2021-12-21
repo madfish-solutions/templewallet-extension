@@ -296,7 +296,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         estmtnMax = await tezos.estimate.transfer(transferParams);
       } else if (tez) {
         const estmtn = await tezos.estimate.transfer(transferParams);
-        let amountMax = balanceBN.minus(mutezToTz(estmtn.suggestedFeeMutez));
+        let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
         if (!hasManager(manager)) {
           amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
         }
@@ -319,7 +319,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       //   usingBaseFeeMutez: estmtnMax.usingBaseFeeMutez,
       // });
 
-      let baseFee = mutezToTz(estmtnMax.suggestedFeeMutez);
+      let baseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
       if (!hasManager(manager)) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
