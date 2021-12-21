@@ -229,7 +229,7 @@ const DelegateForm: FC = () => {
 
       const estmtn = await getEstimation();
       const manager = await tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh);
-      let baseFee = mutezToTz(estmtn.suggestedFeeMutez);
+      let baseFee = mutezToTz(estmtn.burnFeeMutez + estmtn.suggestedFeeMutez);
       if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
