@@ -111,21 +111,51 @@ export class Vault {
   }
 
   static async runMigrations(password: string) {
+    const decryptLegacySafe = <T>(strgKey: string) =>
+      withError('Invalid password', async () => {
+        const legacyPassKey = await Passworder.generateKeyLegacy(password);
+        return fetchAndDecryptOneLegacy<T>(strgKey, legacyPassKey);
+      });
+
+    let migrationLevel: number;
+
     const legacyMigrationLevelStored = await isStoredLegacy(legacyMigrationLevelStrgKey);
 
-    try {
-      let migrationLevel: number;
+    if (legacyMigrationLevelStored) {
+      migrationLevel = await decryptLegacySafe<number>(legacyMigrationLevelStrgKey);
+    } else {
+      const saved = await getPlain<number>(migrationLevelStrgKey);
 
-      if (legacyMigrationLevelStored) {
-        migrationLevel = await fetchAndDecryptOneLegacy<number>(
-          legacyMigrationLevelStrgKey,
-          await Passworder.generateKeyLegacy(password)
-        );
-      } else {
-        const saved = await getPlain<number>(migrationLevelStrgKey);
-        migrationLevel = saved ?? 0;
+      migrationLevel = saved ?? 0;
+
+      /**
+       * The code below is a fix for production issue that occurred
+       * due to an incorrect migration to the new migration type.
+       *
+       * The essence of the problem:
+       * if you enter the password incorrectly after the upgrade,
+       * the migration will not work (as it should),
+       * but it will save that it passed.
+       * And the next unlock attempt will go on a new path.
+       *
+       * Solution:
+       * Check if there is an legacy version of checkStrgKey field in storage
+       * and if there is both it and new migration record,
+       * then overwrite migration level.
+       */
+
+      const legacyCheckStored = await isStoredLegacy(checkStrgKey);
+
+      if (saved !== undefined && legacyCheckStored) {
+        // Validate password
+        await decryptLegacySafe(checkStrgKey);
+
+        // Override migration level, force
+        migrationLevel = saved - 1;
       }
+    }
 
+    try {
       const migrationsToRun = MIGRATIONS.filter((_m, i) => i >= migrationLevel);
 
       if (migrationsToRun.length === 0) {
