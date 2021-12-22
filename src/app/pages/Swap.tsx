@@ -5,14 +5,13 @@ import classNames from 'clsx';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import SwapForm from 'app/templates/SwapForm';
-import { SwappableAssetsProvider } from 'app/templates/SwapForm/useSwappableAssets';
+import { SwapForm } from 'app/templates/SwapForm/SwapForm';
 import { t, T } from 'lib/i18n/react';
 import useTippy from 'lib/ui/useTippy';
 
-type SwapProps = {
-  assetSlug?: string | null;
-};
+interface SwapProps {
+  assetSlug?: string;
+}
 
 const Swap: React.FC<SwapProps> = ({ assetSlug }) => (
   <PageLayout
@@ -26,11 +25,9 @@ const Swap: React.FC<SwapProps> = ({ assetSlug }) => (
       <div className="w-full max-w-sm mx-auto">
         <SwapDisclaimer />
 
-        <SwappableAssetsProvider initialAssetKey={assetSlug ?? undefined}>
-          <Suspense fallback={null}>
-            <SwapForm assetSlug={assetSlug} />
-          </Suspense>
-        </SwappableAssetsProvider>
+        <Suspense fallback={null}>
+          <SwapForm assetSlug={assetSlug} />
+        </Suspense>
       </div>
     </div>
   </PageLayout>

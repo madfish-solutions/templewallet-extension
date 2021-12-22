@@ -38,10 +38,7 @@ const CollectiblesList = () => {
     return slugs;
   }, [collectibles, allTokensBaseMetadata]);
 
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
-
-  const filteredAssets = useFilteredAssets(assetSlugs, searchValueDebounced);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(assetSlugs);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>

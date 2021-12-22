@@ -1,0 +1,16 @@
+import React from 'react';
+
+import { SwapInputValue } from '../SwapFormValue.interface';
+
+export interface SwapFormInputProps {
+  value: SwapInputValue;
+  className?: string;
+  error?: string;
+  label: React.ReactNode;
+  loading?: boolean;
+  name: string;
+  triggerValidation: (payload?: string | string[] | undefined, shouldRender?: boolean | undefined) => void;
+  withPercentageButtons?: boolean;
+  isOutput?: boolean;
+  onChange: (newValue: SwapInputValue) => void;
+}

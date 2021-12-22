@@ -93,6 +93,8 @@ export function validateDerivationPath(p: string) {
   return true;
 }
 
+export const isValidContractAddress = (address: string) => isAddressValid(address) && isKTAddress(address);
+
 export function validateContractAddress(value: any) {
   switch (false) {
     case isAddressValid(value):

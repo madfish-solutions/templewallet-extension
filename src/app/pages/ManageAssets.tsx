@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useMemo, useState } from 'react';
+import React, { FC, memo, useCallback, useState } from 'react';
 
 import classNames from 'clsx';
 import { useDebounce } from 'use-debounce';
@@ -15,18 +15,13 @@ import SearchAssetField from 'app/templates/SearchAssetField';
 import { T, t } from 'lib/i18n/react';
 import { AssetTypesEnum } from 'lib/temple/assets/types';
 import {
-  useChainId,
-  useAllKnownFungibleTokenSlugs,
-  useAllTokensBaseMetadata,
-  useFungibleTokens,
-  isTokenDisplayed,
-  useAccount,
-  useAssetMetadata,
   getAssetName,
   getAssetSymbol,
   setTokenStatus,
-  useAllKnownCollectibleTokenSlugs,
-  useCollectibleTokens,
+  useAccount,
+  useAssetMetadata,
+  useAvailableAssets,
+  useChainId,
   useFilteredAssets
 } from 'lib/temple/front';
 import { ITokenStatus, ITokenType } from 'lib/temple/repo';
@@ -52,62 +47,15 @@ const ManageAssets: FC<Props> = ({ assetType }) => (
 
 export default ManageAssets;
 
-export type TokenStatuses = Record<string, { displayed: boolean; removed: boolean }>;
-
 const ManageAssetsContent: FC<Props> = ({ assetType }) => {
-  const isCollectibles = assetType === AssetTypesEnum.Collectibles;
   const chainId = useChainId(true)!;
   const account = useAccount();
   const address = account.publicKeyHash;
 
-  const { data: allCollectiblesSlugs = [], isValidating: allKnownCollectiblesTokenSlugsLoading } =
-    useAllKnownCollectibleTokenSlugs(chainId);
-  const {
-    data: collectibles = [],
-    revalidate: revalidateCollectibles,
-    isValidating: collectibleTokensLoading
-  } = useCollectibleTokens(chainId, address, false);
-
-  const { data: allTokenSlugs = [], isValidating: allKnownFungibleTokenSlugsLoading } =
-    useAllKnownFungibleTokenSlugs(chainId);
-  const {
-    data: tokens = [],
-    revalidate: revalidateTokens,
-    isValidating: fungibleTokensLoading
-  } = useFungibleTokens(chainId, address);
-
-  const assets = isCollectibles ? collectibles : tokens;
-  const slugs = isCollectibles ? allCollectiblesSlugs : allTokenSlugs;
-  const revalidate = isCollectibles ? revalidateCollectibles : revalidateTokens;
-
-  const tokenStatuses = useMemo(() => {
-    const statuses: TokenStatuses = {};
-    for (const asset of assets) {
-      statuses[asset.tokenSlug] = {
-        displayed: isTokenDisplayed(asset),
-        removed: asset.status === ITokenStatus.Removed
-      };
-    }
-    return statuses;
-  }, [assets]);
-
-  const loading =
-    allKnownFungibleTokenSlugsLoading ||
-    fungibleTokensLoading ||
-    allKnownCollectiblesTokenSlugsLoading ||
-    collectibleTokensLoading;
-
-  const allTokensBaseMetadata = useAllTokensBaseMetadata();
-
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
-
-  const managedTokens = useMemo(
-    () => slugs.filter(slug => slug in allTokensBaseMetadata && !tokenStatuses[slug]?.removed),
-    [slugs, allTokensBaseMetadata, tokenStatuses]
+  const { availableAssets, assetsStatuses, isLoading, revalidate } = useAvailableAssets(
+    assetType === AssetTypesEnum.Collectibles ? AssetTypesEnum.Collectibles : AssetTypesEnum.Tokens
   );
-
-  const filteredTokens = useFilteredAssets(managedTokens, searchValueDebounced);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(availableAssets);
 
   const confirm = useConfirm();
 
@@ -161,7 +109,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
         </Link>
       </div>
 
-      {filteredTokens.length > 0 ? (
+      {filteredAssets.length > 0 ? (
         <div
           className={classNames(
             'w-full overflow-hidden',
@@ -170,7 +118,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
             'text-gray-700 text-sm leading-tight'
           )}
         >
-          {filteredTokens.map((slug, i, arr) => {
+          {filteredAssets.map((slug, i, arr) => {
             const last = i === arr.length - 1;
 
             return (
@@ -178,7 +126,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
                 key={slug}
                 assetSlug={slug}
                 last={last}
-                checked={tokenStatuses[slug]?.displayed ?? false}
+                checked={assetsStatuses[slug]?.displayed ?? false}
                 onUpdate={handleAssetUpdate}
                 assetType={assetType}
               />
@@ -186,7 +134,7 @@ const ManageAssetsContent: FC<Props> = ({ assetType }) => {
           })}
         </div>
       ) : (
-        <LoadingComponent loading={loading} searchValue={searchValue} assetType={assetType} />
+        <LoadingComponent loading={isLoading} searchValue={searchValue} assetType={assetType} />
       )}
     </div>
   );

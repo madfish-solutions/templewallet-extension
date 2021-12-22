@@ -4,7 +4,7 @@ import { TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import debouncePromise from 'debounce-promise';
 
-import { ExchangerType, getPoolParameters, TempleAsset, tokensToAtoms } from '../../lib/temple/front';
+import { ExchangerType, getPoolParameters, TempleAsset, tokensToAtoms } from '../../../lib/temple/front';
 
 const getMarketPrice = async (
   tezos: TezosToolkit,
