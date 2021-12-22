@@ -3,7 +3,7 @@ import React, { FC, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } f
 import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import useSWR from 'swr';
 import { browser } from 'webextension-polyfill-ts';
 
@@ -27,25 +27,25 @@ import { toLocalFormat } from 'lib/i18n/numbers';
 import { T, t } from 'lib/i18n/react';
 import { setDelegate } from 'lib/michelson';
 import {
-  useNetwork,
+  fetchTezosBalance,
+  hasManager,
+  isAddressValid,
+  isDomainNameValid,
+  isKTAddress,
+  loadContract,
+  mutezToTz,
+  TempleAccountType,
+  tzToMutez,
   useAccount,
-  useTezos,
   useBalance,
   useKnownBaker,
   useKnownBakers,
-  tzToMutez,
-  mutezToTz,
-  isAddressValid,
-  isKTAddress,
-  hasManager,
-  TempleAccountType,
-  loadContract,
-  useTezosDomainsClient,
-  isDomainNameValid,
-  fetchTezosBalance
+  useNetwork,
+  useTezos,
+  useTezosDomainsClient
 } from 'lib/temple/front';
 import useSafeState from 'lib/ui/useSafeState';
-import { useLocation, Link } from 'lib/woozie';
+import { Link, useLocation } from 'lib/woozie';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
@@ -228,8 +228,8 @@ const DelegateForm: FC = () => {
       }
 
       const estmtn = await getEstimation();
-      const manager = tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh);
-      let baseFee = mutezToTz(estmtn.totalCost);
+      const manager = await tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh);
+      let baseFee = mutezToTz(estmtn.burnFeeMutez + estmtn.suggestedFeeMutez);
       if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
@@ -300,7 +300,7 @@ const DelegateForm: FC = () => {
       try {
         const estmtn = await getEstimation();
         const addFee = tzToMutez(feeVal ?? 0);
-        const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
+        const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
         let op: WalletOperation;
         if (acc.type === TempleAccountType.ManagedKT) {
           const contract = await loadContract(tezos, acc.publicKeyHash);
