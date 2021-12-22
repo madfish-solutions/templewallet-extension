@@ -95,6 +95,10 @@ export function toAssetSlug(asset: Asset) {
 }
 
 export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
+  if (contract === 'tez') {
+    return 'tez';
+  }
+
   return `${contract}_${new BigNumber(id).toFixed()}`;
 }
 

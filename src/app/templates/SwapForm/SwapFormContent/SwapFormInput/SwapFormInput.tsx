@@ -15,6 +15,7 @@ import {
   useAvailableAssets,
   useBalance,
   useFilteredAssets,
+  useGetTokenMetadata,
   useOnBlock,
   useTokensMetadata
 } from 'lib/temple/front';
@@ -51,15 +52,16 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     () => (assetSlug ? assetMetadataWithFallback : EMPTY_ASSET_METADATA),
     [assetSlug, assetMetadataWithFallback]
   );
-  const { allTokensBaseMetadataRef, fetchMetadata, setTokensBaseMetadata, setTokensDetailedMetadata } =
-    useTokensMetadata();
+  const getTokenMetadata = useGetTokenMetadata();
 
   const account = useAccount();
   const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });
   useOnBlock(balance.revalidate);
 
   const { availableAssets, assetsStatuses, isLoading, revalidate } = useAvailableAssets(AssetTypesEnum.Tokens);
-  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } = useFilteredAssets(availableAssets);
+  const availableAssetsWithTezos = useMemo(() => ['tez', ...availableAssets], [availableAssets]);
+  const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } =
+    useFilteredAssets(availableAssetsWithTezos);
 
   const showTokenIdInput = useSwapFormTokenIdInput(searchValue);
   const searchAssetSlug = toTokenSlug(searchValue, tokenId);
@@ -90,40 +92,34 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
       usdAmount
     });
 
-  const handlePercentageClick = useCallback(
-    (percentage: number) => {
-      if (!assetSlug) {
-        return;
-      }
-      const newAmount = maxAmount
-        .multipliedBy(percentage)
-        .div(100)
-        .decimalPlaces(assetMetadata.decimals, BigNumber.ROUND_DOWN);
-      onChange({
-        assetSlug,
-        amount: newAmount
-      });
-      triggerValidation(name);
-    },
-    [onChange, assetSlug, assetMetadata, maxAmount, triggerValidation, name]
-  );
+  const handlePercentageClick = (percentage: number) => {
+    if (!assetSlug) {
+      return;
+    }
+    const newAmount = maxAmount
+      .multipliedBy(percentage)
+      .div(100)
+      .decimalPlaces(assetMetadata.decimals, BigNumber.ROUND_DOWN);
+    onChange({
+      assetSlug,
+      amount: newAmount
+    });
+    triggerValidation(name);
+  };
 
-  const handleSelectedAssetChange = useCallback(
-    (newAssetSlug: string) => {
-      const newAssetMetadata = allTokensBaseMetadataRef.current[newAssetSlug];
-      const newAmount = amount?.decimalPlaces(newAssetMetadata.decimals, BigNumber.ROUND_DOWN);
+  const handleSelectedAssetChange = (newAssetSlug: string) => {
+    const newAssetMetadata = getTokenMetadata(newAssetSlug);
+    const newAmount = amount?.decimalPlaces(newAssetMetadata.decimals, BigNumber.ROUND_DOWN);
 
-      onChange({
-        assetSlug: newAssetSlug,
-        amount: newAmount
-      });
-      setSearchValue('');
-      setTokenId(undefined);
+    onChange({
+      assetSlug: newAssetSlug,
+      amount: newAmount
+    });
+    setSearchValue('');
+    setTokenId(undefined);
 
-      trackChange({ [name]: assetMetadata.symbol }, { [name]: newAssetMetadata.symbol });
-    },
-    [allTokensBaseMetadataRef, onChange]
-  );
+    trackChange({ [name]: assetMetadata.symbol }, { [name]: newAssetMetadata.symbol });
+  };
 
   const prettyError = useMemo(() => {
     if (!error) {

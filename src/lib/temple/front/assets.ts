@@ -194,6 +194,21 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
   };
 });
 
+export const useGetTokenMetadata = () => {
+  const { allTokensBaseMetadataRef } = useTokensMetadata();
+
+  return useCallback(
+    (slug: string) => {
+      if (isTezAsset(slug)) {
+        return TEZOS_METADATA;
+      }
+
+      return allTokensBaseMetadataRef.current[slug];
+    },
+    [allTokensBaseMetadataRef]
+  );
+};
+
 export function useDetailedAssetMetadata(slug: string) {
   const baseMetadata = useAssetMetadata(slug);
 

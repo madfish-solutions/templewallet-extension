@@ -40,10 +40,8 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
   });
   const isValid = Object.keys(errors).length === 0;
 
-  const input = watch('input');
-  const { assetSlug: inputAssetSlug, amount: inputAssetAmount } = input;
-  const output = watch('output');
-  const { assetSlug: outputAssetSlug, amount: outputAssetAmount } = output;
+  const inputValue = watch('input');
+  const outputValue = watch('output');
   const tolerancePercentage = watch('tolerancePercentage');
 
   const [operation, setOperation] = useState<WalletOperation>();
@@ -79,23 +77,6 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
   //     )
   //   );
   // }, [bestTrade]);
-
-  const handleToggleIconClick = () => {
-    // TODO: update value
-    // setValue(
-    //   [
-    //     { input: output },
-    //     {
-    //       output: {
-    //         ...input,
-    //         amount: newOutputAmount,
-    //         usdAmount: assetAmountToUSD(newOutputAmount, exchangeData?.usdPrice)
-    //       }
-    //     }
-    //   ],
-    //   true
-    // );
-  };
 
   const onSubmit = useCallback(
     async ({ tolerancePercentage, input, output }: SwapFormValue) => {
@@ -138,9 +119,6 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
         if (!amount || !assetSlug) {
           return '';
         }
-        if (assetSlug === outputAssetSlug) {
-          return t('inputOutputAssetsCannotBeSame');
-        }
         if (amount.isLessThanOrEqualTo(0)) {
           return t('amountMustBePositive');
         }
@@ -153,9 +131,6 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
         if (!amount || !assetSlug) {
           return '';
         }
-        if (assetSlug === inputAssetSlug) {
-          return t('inputOutputAssetsCannotBeSame');
-        }
         if (amount.isLessThanOrEqualTo(0)) {
           return t('amountMustBePositive');
         }
@@ -163,12 +138,27 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
         return true;
       }
     });
-  }, [register, inputAssetSlug, outputAssetSlug]);
+  }, [register]);
 
   const handleOperationCloseButtonPress = () => setOperation(undefined);
 
-  const handleInputChange = (newValue: SwapInputValue) => setValue('input', newValue);
-  const handleOutputChange = (newValue: SwapInputValue) => setValue('output', newValue);
+  const handleToggleIconClick = () =>
+    setValue([{ input: { assetSlug: outputValue.assetSlug } }, { output: { assetSlug: inputValue.assetSlug } }]);
+
+  const handleInputChange = (newInputValue: SwapInputValue) => {
+    setValue('input', newInputValue);
+
+    if (newInputValue.assetSlug === outputValue.assetSlug) {
+      setValue('output', {});
+    }
+  };
+  const handleOutputChange = (newOutputValue: SwapInputValue) => {
+    setValue('output', newOutputValue);
+
+    if (newOutputValue.assetSlug === inputValue.assetSlug) {
+      setValue('input', {});
+    }
+  };
 
   return (
     <form className="mb-8" onSubmit={handleSubmit(onSubmit)}>
@@ -184,7 +174,7 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
 
       <SwapFormInput
         name="input"
-        value={input}
+        value={inputValue}
         // @ts-ignore
         error={errors.input?.message}
         label={<T id="from" />}
@@ -203,7 +193,7 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
       <SwapFormInput
         className="mb-6"
         name="output"
-        value={output}
+        value={outputValue}
         loading={false}
         // @ts-ignore
         error={errors.output?.message}
