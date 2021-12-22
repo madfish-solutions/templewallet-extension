@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import classNames from 'clsx';
-import { useDebounce } from 'use-debounce';
 
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import CollectibleItem from 'app/pages/Collectibles/CollectibleItem';

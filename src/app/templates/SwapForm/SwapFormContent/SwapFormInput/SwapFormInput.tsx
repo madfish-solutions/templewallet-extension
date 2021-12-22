@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useCallback, useMemo, useState } from 'react';
+import React, { ChangeEvent, FC, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -16,8 +16,7 @@ import {
   useBalance,
   useFilteredAssets,
   useGetTokenMetadata,
-  useOnBlock,
-  useTokensMetadata
+  useOnBlock
 } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
 
@@ -58,7 +57,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const balance = useBalance(assetSlugWithFallback, account.publicKeyHash, { suspense: false });
   useOnBlock(balance.revalidate);
 
-  const { availableAssets, assetsStatuses, isLoading, revalidate } = useAvailableAssets(AssetTypesEnum.Tokens);
+  const { availableAssets, isLoading } = useAvailableAssets(AssetTypesEnum.Tokens);
   const availableAssetsWithTezos = useMemo(() => ['tez', ...availableAssets], [availableAssets]);
   const { filteredAssets, searchValue, setSearchValue, tokenId, setTokenId } =
     useFilteredAssets(availableAssetsWithTezos);

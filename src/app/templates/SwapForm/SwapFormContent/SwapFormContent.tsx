@@ -48,7 +48,6 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
   const [error, setError] = useState<Error>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // const allTokensBaseMetadata = useAllTokensBaseMetadata();
   // const bestTrade = useBestTrade(
   //   TradeTypeEnum.EXACT_INPUT,
   //   swapInputAssetToTokenInterface(inputAsset),
@@ -56,27 +55,6 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
   //   tokensToAtoms(inputAssetAmount ?? new BigNumber(0), inputAsset?.decimals ?? 0),
   //   tezos
   // );
-  //
-  // useEffect(() => {
-  //   console.log(
-  //     atomsToTokens(
-  //       bestTrade?.inputAmount ?? new BigNumber(0),
-  //       allTokensBaseMetadata[toTokenSlug(bestTrade?.inputToken.address ?? '', bestTrade?.inputToken.id)]?.decimals
-  //     ).toFixed()
-  //   );
-  //   console.log(
-  //     atomsToTokens(
-  //       bestTrade?.outputAmount ?? new BigNumber(0),
-  //       allTokensBaseMetadata[toTokenSlug(bestTrade?.outputToken.address ?? '', bestTrade?.outputToken.id)]?.decimals
-  //     ).toFixed()
-  //   );
-  //   console.log(
-  //     bestTrade?.route.map(
-  //       ({ dexType, aToken, bToken }) =>
-  //         `${dexType} ${aToken.address}_${aToken.id?.toFixed()} / ${bToken.address}_${bToken.id?.toFixed()}`
-  //     )
-  //   );
-  // }, [bestTrade]);
 
   const onSubmit = useCallback(
     async ({ tolerancePercentage, input, output }: SwapFormValue) => {

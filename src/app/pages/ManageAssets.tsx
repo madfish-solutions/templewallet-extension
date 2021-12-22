@@ -1,7 +1,6 @@
-import React, { FC, memo, useCallback, useState } from 'react';
+import React, { FC, memo, useCallback } from 'react';
 
 import classNames from 'clsx';
-import { useDebounce } from 'use-debounce';
 
 import Checkbox from 'app/atoms/Checkbox';
 import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
