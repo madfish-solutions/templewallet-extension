@@ -27,9 +27,7 @@ import { toLocalFormat } from 'lib/i18n/numbers';
 import { T, t } from 'lib/i18n/react';
 import { setDelegate } from 'lib/michelson';
 import {
-  useNetwork,
   useAccount,
-  useTezos,
   useBalance,
   useKnownBaker,
   useKnownBakers,
@@ -43,10 +41,12 @@ import {
   useTezosDomainsClient,
   isDomainNameValid,
   fetchTezosBalance,
-  Baker
+  Baker,
+  useNetwork,
+  useTezos
 } from 'lib/temple/front';
 import useSafeState from 'lib/ui/useSafeState';
-import { useLocation, Link } from 'lib/woozie';
+import { Link, useLocation } from 'lib/woozie';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
@@ -172,17 +172,17 @@ const DelegateForm: FC = () => {
       }
 
       const estmtn = await getEstimation();
-      const manager = tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh);
-      let estimatedBaseFee = mutezToTz(estmtn.totalCost);
+      const manager = await tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh);
+      let baseFee = mutezToTz(estmtn.burnFeeMutez + estmtn.suggestedFeeMutez);
       if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
-        estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
+        baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
-      if (estimatedBaseFee.isGreaterThanOrEqualTo(balanceBN)) {
+      if (baseFee.isGreaterThanOrEqualTo(balanceBN)) {
         throw new NotEnoughFundsError();
       }
 
-      return estimatedBaseFee;
+      return baseFee;
     } catch (err: any) {
       // Human delay
       await new Promise(r => setTimeout(r, 300));
@@ -245,7 +245,7 @@ const DelegateForm: FC = () => {
       try {
         const estmtn = await getEstimation();
         const addFee = tzToMutez(feeVal ?? 0);
-        const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
+        const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
         let op: WalletOperation;
         if (acc.type === TempleAccountType.ManagedKT) {
           const contract = await loadContract(tezos, acc.publicKeyHash);

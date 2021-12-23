@@ -57,11 +57,11 @@ import {
   useAssetMetadata,
   useAssetUSDPrice,
   useBalance,
-  useContacts,
   useNetwork,
   useTezos,
   useTezosDomainsClient
 } from 'lib/temple/front';
+import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
@@ -141,7 +141,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
-  const { allContacts } = useContacts();
+  const { allContacts } = useFilteredContacts();
   const network = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
@@ -319,7 +319,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       //   usingBaseFeeMutez: estmtnMax.usingBaseFeeMutez,
       // });
 
-      let baseFee = mutezToTz(estmtnMax.suggestedFeeMutez);
+      let baseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
       if (!hasManager(manager)) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
