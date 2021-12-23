@@ -48,6 +48,7 @@ const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
 
 const enqueueDApp = createQueue();
+const enqueueUnlock = createQueue();
 
 export async function init() {
   const vaultExist = await Vault.isExist();
@@ -91,12 +92,14 @@ export function lock() {
 }
 
 export function unlock(password: string) {
-  return withInited(async () => {
-    const vault = await Vault.setup(password);
-    const accounts = await vault.fetchAccounts();
-    const settings = await vault.fetchSettings();
-    unlocked({ vault, accounts, settings });
-  });
+  return withInited(() =>
+    enqueueUnlock(async () => {
+      const vault = await Vault.setup(password);
+      const accounts = await vault.fetchAccounts();
+      const settings = await vault.fetchSettings();
+      unlocked({ vault, accounts, settings });
+    })
+  );
 }
 
 export function createHDAccount(name?: string) {

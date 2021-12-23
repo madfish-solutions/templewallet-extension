@@ -1,23 +1,13 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import { getMessage } from 'lib/i18n';
-import { TempleContact, useRelevantAccounts, useSettings, useTempleClient } from 'lib/temple/front';
+import { TempleContact, useTempleClient } from 'lib/temple/front';
+
+import { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export function useContacts() {
   const { updateSettings } = useTempleClient();
-  const { contacts = [] } = useSettings();
-  const allAccounts = useRelevantAccounts();
-  const accountContacts = useMemo<TempleContact[]>(
-    () =>
-      allAccounts.map(acc => ({
-        address: acc.publicKeyHash,
-        name: acc.name,
-        accountInWallet: true
-      })),
-    [allAccounts]
-  );
-
-  const allContacts = useMemo(() => [...contacts, ...accountContacts], [contacts, accountContacts]);
+  const { contacts, allContacts } = useFilteredContacts();
 
   const addContact = useCallback(
     async (cToAdd: TempleContact) => {
@@ -33,8 +23,8 @@ export function useContacts() {
   );
 
   const removeContact = useCallback(
-    (address: string) =>
-      void updateSettings({
+    async (address: string) =>
+      await updateSettings({
         contacts: contacts.filter(c => c.address !== address)
       }),
     [contacts, updateSettings]
@@ -46,8 +36,6 @@ export function useContacts() {
   );
 
   return {
-    allContacts,
-    accountContacts,
     addContact,
     removeContact,
     getContact
