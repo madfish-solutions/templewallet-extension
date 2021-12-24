@@ -90,33 +90,31 @@ type opParamsType = {
   contents: ContentsItem[];
 };
 
-const enrichParams = (opParams: opParamsType, modifiedStorageLimit?: number, modifiedTotalFee?: number) => {
-  return {
-    ...opParams,
-    contents: opParams.contents.map((elem, i, contents) => {
-      if (i === 0) {
-        let newElem = elem;
-        if (modifiedTotalFee !== undefined) {
-          newElem = {
-            ...newElem,
-            fee: JSON.stringify(modifiedTotalFee)
-          };
-        }
-
-        if (modifiedStorageLimit !== undefined && contents.length < 2) {
-          newElem = {
-            ...newElem,
-            storage_limit: JSON.stringify(modifiedStorageLimit)
-          };
-        }
-
-        return newElem;
+const enrichParams = (opParams: opParamsType, modifiedStorageLimit?: number, modifiedTotalFee?: number) => ({
+  ...opParams,
+  contents: opParams.contents.map((elem, i, contents) => {
+    if (i === 0) {
+      let newElem = elem;
+      if (modifiedTotalFee !== undefined) {
+        newElem = {
+          ...newElem,
+          fee: JSON.stringify(modifiedTotalFee)
+        };
       }
 
-      return elem;
-    })
-  };
-};
+      if (modifiedStorageLimit !== undefined && contents.length < 2) {
+        newElem = {
+          ...newElem,
+          storage_limit: JSON.stringify(modifiedStorageLimit)
+        };
+      }
+
+      return newElem;
+    }
+
+    return elem;
+  })
+});
 
 export default OperationsBanner;
 

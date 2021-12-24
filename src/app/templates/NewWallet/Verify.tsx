@@ -17,8 +17,8 @@ type VerifyProps = {
 
 const WORDS_TO_FILL = 2;
 
-const range = (size: number, startAt = 0) => {
-  return [...Array(size).keys()].map(i => i + startAt);
+const range = (size: number) => {
+  return [...Array(size).keys()].map(i => i + 0);
 };
 
 const shuffle = (array: any[]) => {
@@ -43,7 +43,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
 
   const words = useMemo(() => data.mnemonic.split(' '), [data.mnemonic]);
   const wordsToCheckPositions = useMemo(() => {
-    const shuffledPositions = shuffle(range(words.length, 0));
+    const shuffledPositions = shuffle(range(words.length));
     const selectedPositions: number[] = [];
     for (let i = 0; i < words.length; i++) {
       const newPosition = shuffledPositions[i];
