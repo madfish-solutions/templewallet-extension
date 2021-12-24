@@ -59,11 +59,11 @@ import {
   useAssetMetadata,
   useAssetUSDPrice,
   useBalance,
-  useContacts,
   useNetwork,
   useTezos,
   useTezosDomainsClient
 } from 'lib/temple/front';
+import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
 import { AssetMetadata } from 'lib/temple/metadata';
 import { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
@@ -145,7 +145,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
-  const { allContacts } = useContacts();
+  const { allContacts } = useFilteredContacts();
   const network = useNetwork();
   const acc = useAccount();
   const tezos = useTezos();
@@ -293,7 +293,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
       let estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balanceBN, transferParams, manager);
 
-      let estimatedBaseFee = mutezToTz(estmtnMax.totalCost);
+      let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
       if (!hasManager(manager)) {
         estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
@@ -444,7 +444,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
           );
           const estmtn = await tezos.estimate.transfer(transferParams);
           const addFee = tzToMutez(feeVal ?? 0);
-          const fee = addFee.plus(estmtn.usingBaseFeeMutez).toNumber();
+          const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
           op = await tezos.wallet.transfer({ ...transferParams, fee } as any).send();
         }
         setOperation(op);

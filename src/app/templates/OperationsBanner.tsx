@@ -60,7 +60,9 @@ const OperationsBanner = memo<OperationsBannerProps>(
             }}
           >
             {typeof opParams === 'string' ? (
-              <div className={classNames('p-1', 'text-lg text-gray-700 font-normal')}>{opParams}</div>
+              <div className={classNames('p-1', 'text-lg text-gray-700 font-normal whitespace-pre-line')}>
+                {opParams}
+              </div>
             ) : (
               <ReactJson
                 src={opParams}

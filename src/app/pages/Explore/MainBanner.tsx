@@ -121,7 +121,7 @@ type BannerLayoutProps = {
 };
 
 const BannerLayout: FC<BannerLayoutProps> = ({ name, children }) => (
-  <div className={classNames('w-full mx-auto', 'pt-1', 'flex flex-col items-center')} style={{ maxWidth: '19rem' }}>
+  <div className={classNames('w-full mx-auto', 'pt-1', 'flex flex-col items-center max-w-sm px-6')}>
     <div className={classNames('relative', 'w-full', 'border rounded-md', 'p-2', 'flex items-center')}>
       <div className={classNames('absolute top-0 left-0 right-0', 'flex justify-center')}>
         <div

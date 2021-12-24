@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { TezosToolkit } from '@taquito/taquito';
+import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import { loadContract } from 'lib/temple/contract';
@@ -28,18 +28,36 @@ export async function toTransferParams(
   } else {
     const contact = await loadContract(tezos, asset.contract);
     const pennyAmount = new BigNumber(amount).times(10 ** (assetMetadata?.decimals ?? 0)).toFixed();
-    const methodArgs = isFA2Token(asset)
-      ? [
-          [
-            {
-              from_: fromPkh,
-              txs: [{ to_: toPkh, token_id: asset.id, amount: pennyAmount }]
-            }
-          ]
-        ]
-      : [fromPkh, toPkh, pennyAmount];
-
-    return contact.methods.transfer(...methodArgs).toTransferParams();
+    return isFA2Token(asset)
+      ? {
+          kind: OpKind.TRANSACTION,
+          to: contact.address,
+          amount: 0,
+          parameter: {
+            entrypoint: 'transfer',
+            value: [
+              {
+                prim: 'Pair',
+                args: [
+                  { string: fromPkh },
+                  [
+                    {
+                      prim: 'Pair',
+                      args: [
+                        { string: toPkh },
+                        {
+                          prim: 'Pair',
+                          args: [{ int: asset.id }, { int: pennyAmount }]
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          }
+        }
+      : contact.methods.transfer(fromPkh, toPkh, pennyAmount).toTransferParams();
   }
 }
 
@@ -72,6 +90,10 @@ export function toAssetSlug(asset: Asset) {
 
 export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
   return `${contract}_${new BigNumber(id).toFixed()}`;
+}
+
+export function isFA2Asset(asset: Asset): asset is FA2Token {
+  return asset === 'tez' ? false : typeof asset.id !== 'undefined';
 }
 
 export function isFA2Token(token: Token): token is FA2Token {

@@ -115,6 +115,7 @@ export type TempleNetworkType = 'main' | 'test';
 export interface TempleSettings {
   customNetworks?: TempleNetwork[];
   lambdaContracts?: Record<string, string>;
+  contacts?: TempleContact[];
 }
 
 export enum TempleSharedStorageKey {
