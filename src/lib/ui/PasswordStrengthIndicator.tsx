@@ -1,6 +1,7 @@
-import React, { FC, ReactNode } from 'react';
+import React, { FC } from 'react';
 
 import { T } from '../i18n/react';
+import PasswordStrengthIndicatorItem from './PasswordStrengthIndicatorItem';
 
 export interface PasswordValidation {
   minChar: boolean;
@@ -9,39 +10,41 @@ export interface PasswordValidation {
   specialChar: boolean;
 }
 
-type PasswordStrengthIndicatorProps = {
+interface PasswordStrengthIndicatorProps {
   validation: PasswordValidation;
-};
-
-type PasswordStrengthIndicatorItemProps = {
-  isValid: boolean;
-  message: ReactNode;
-};
+  isPasswordError?: boolean;
+}
 
 const PasswordStrengthIndicator: FC<PasswordStrengthIndicatorProps> = ({
-  validation: { minChar, cases, number, specialChar }
+  validation: { minChar, cases, number, specialChar },
+  isPasswordError = false
 }) => (
   <div className={'text-xs font-medium text-gray-600'}>
-    <p>
-      <T id="requirements" />
-    </p>
+    <T id="requirements">
+      {message => (
+        <PasswordStrengthIndicatorItem
+          isValid={minChar && cases && number && specialChar}
+          message={message}
+          noColor={!isPasswordError}
+          title
+        />
+      )}
+    </T>
     <ul className="list-disc list-inside">
-      <T id="atLeast8Characters">{message => <PasswordStrengthIndicatorItem isValid={minChar} message={message} />}</T>
+      <T id="atLeast8Characters">
+        {message => <PasswordStrengthIndicatorItem isValid={minChar} message={message} noColor={!isPasswordError} />}
+      </T>
       <T id="mixtureOfUppercaseAndLowercaseLetters">
-        {message => <PasswordStrengthIndicatorItem isValid={cases} message={message} />}
+        {message => <PasswordStrengthIndicatorItem isValid={cases} message={message} noColor={!isPasswordError} />}
       </T>
       <T id="mixtureOfLettersAndNumbers">
-        {message => <PasswordStrengthIndicatorItem isValid={number} message={message} />}
+        {message => <PasswordStrengthIndicatorItem isValid={number} message={message} noColor={!isPasswordError} />}
       </T>
       <T id="atLeast1SpecialCharacter">
-        {message => <PasswordStrengthIndicatorItem isValid={specialChar} message={message} />}
+        {message => <PasswordStrengthIndicatorItem isValid={specialChar} message={message} noColor />}
       </T>
     </ul>
   </div>
-);
-
-const PasswordStrengthIndicatorItem: FC<PasswordStrengthIndicatorItemProps> = ({ isValid, message }) => (
-  <li style={isValid ? { color: '#48bb78' } : {}}>{message}</li>
 );
 
 export default PasswordStrengthIndicator;

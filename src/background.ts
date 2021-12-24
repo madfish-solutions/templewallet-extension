@@ -2,6 +2,7 @@ import { browser } from 'webextension-polyfill-ts';
 
 import { lock } from 'lib/temple/back/actions';
 import { start } from 'lib/temple/back/main';
+import { isLockUpEnabled } from 'lib/ui/useLockUp';
 
 browser.runtime.onInstalled.addListener(({ reason }) => (reason === 'install' ? openFullPage() : null));
 
@@ -25,7 +26,13 @@ let connectionsCount = 0;
 
 browser.runtime.onConnect.addListener(externalPort => {
   connectionsCount++;
-  if (connectionsCount === 1 && Date.now() - disconnectTimestamp >= LOCK_TIME && disconnectTimestamp !== 0) {
+  const lockUpEnabled = isLockUpEnabled();
+  if (
+    connectionsCount === 1 &&
+    Date.now() - disconnectTimestamp >= LOCK_TIME &&
+    disconnectTimestamp !== 0 &&
+    lockUpEnabled
+  ) {
     lock();
   }
   externalPort.onDisconnect.addListener(() => {

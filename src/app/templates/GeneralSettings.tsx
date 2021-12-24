@@ -4,6 +4,7 @@ import AnalyticsSettings from 'app/templates/AnalyticsSettings';
 import BlockExplorerSelect from 'app/templates/BlockExplorerSelect';
 import LedgerLiveSettings from 'app/templates/LedgerLiveSettings';
 import LocaleSelect from 'app/templates/LocaleSelect';
+import LockUpSettings from 'app/templates/LockUpSettings';
 import PopupSettings from 'app/templates/PopupSettings';
 
 const GeneralSettings: FC = () => {
@@ -14,6 +15,8 @@ const GeneralSettings: FC = () => {
       <BlockExplorerSelect className="mb-8" />
 
       <PopupSettings />
+
+      <LockUpSettings />
 
       <AnalyticsSettings />
 

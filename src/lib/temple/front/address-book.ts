@@ -1,38 +1,33 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import { getMessage } from 'lib/i18n';
-import { TempleContact, useStorage, useRelevantAccounts } from 'lib/temple/front';
+import { TempleContact, useTempleClient } from 'lib/temple/front';
+
+import { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export function useContacts() {
-  const allAccounts = useRelevantAccounts();
-  const accountContacts = useMemo<TempleContact[]>(
-    () =>
-      allAccounts.map(acc => ({
-        address: acc.publicKeyHash,
-        name: acc.name,
-        accountInWallet: true
-      })),
-    [allAccounts]
-  );
-
-  const [savedContacts, setSavedContacts] = useStorage<TempleContact[]>('contacts', []);
-
-  const allContacts = useMemo(() => [...savedContacts, ...accountContacts], [savedContacts, accountContacts]);
+  const { updateSettings } = useTempleClient();
+  const { contacts, allContacts } = useFilteredContacts();
 
   const addContact = useCallback(
-    (cToAdd: TempleContact) => {
+    async (cToAdd: TempleContact) => {
       if (allContacts.some(c => c.address === cToAdd.address)) {
         throw new Error(getMessage('contactWithTheSameAddressAlreadyExists'));
       }
 
-      return setSavedContacts(cnts => [cToAdd, ...cnts]);
+      await updateSettings({
+        contacts: [cToAdd, ...contacts]
+      });
     },
-    [allContacts, setSavedContacts]
+    [contacts, allContacts, updateSettings]
   );
 
   const removeContact = useCallback(
-    (address: string) => setSavedContacts(cnts => cnts.filter(c => c.address !== address)),
-    [setSavedContacts]
+    async (address: string) =>
+      await updateSettings({
+        contacts: contacts.filter(c => c.address !== address)
+      }),
+    [contacts, updateSettings]
   );
 
   const getContact = useCallback(
@@ -41,9 +36,6 @@ export function useContacts() {
   );
 
   return {
-    allContacts,
-    accountContacts,
-    savedContacts,
     addContact,
     removeContact,
     getContact
