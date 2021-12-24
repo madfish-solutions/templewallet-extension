@@ -136,7 +136,7 @@ function mergeOperations(base?: IOperation[], toAppend: IOperation[] = []) {
   return uniques;
 }
 
-interface IHandlerLoadMore {
+interface HandleLoadMore {
   setLoadingMore: (value: React.SetStateAction<boolean>) => void;
   setSyncError: (value: React.SetStateAction<Error | null>) => void;
   setRestOperations: (value: React.SetStateAction<IOperation[]>) => void;
@@ -156,7 +156,7 @@ const handleLoadMore = async ({
   assetSlug,
   operations,
   hasMoreRef
-}: IHandlerLoadMore) => {
+}: HandleLoadMore) => {
   setLoadingMore(true);
 
   try {
