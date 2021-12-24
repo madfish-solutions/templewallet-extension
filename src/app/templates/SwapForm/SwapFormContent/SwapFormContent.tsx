@@ -14,6 +14,7 @@ import { T, t } from 'lib/i18n/react';
 import { swap } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
 
+import { useAllowedRouterPairs } from '../../../../lib/swap-router/hooks/use-allowed-router-pairs.hook';
 import styles from '../SwapForm.module.css';
 import { feeInfoTippyProps, priceImpactInfoTippyProps } from './SwapFormContent.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
@@ -43,6 +44,12 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
   const inputValue = watch('input');
   const outputValue = watch('output');
   const tolerancePercentage = watch('tolerancePercentage');
+
+  console.log('input', inputValue.assetSlug);
+  console.log('output', outputValue.assetSlug);
+  const allowedRoutePairs = useAllowedRouterPairs(inputValue.assetSlug, outputValue.assetSlug);
+
+  console.log(allowedRoutePairs.length);
 
   const [operation, setOperation] = useState<WalletOperation>();
   const [error, setError] = useState<Error>();
@@ -94,10 +101,11 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
   useEffect(() => {
     register('input', {
       validate: ({ assetSlug, amount }: SwapInputValue) => {
-        if (!amount || !assetSlug) {
-          return '';
+        console.log(!assetSlug);
+        if (!assetSlug) {
+          return 'assetMustBeSelected';
         }
-        if (amount.isLessThanOrEqualTo(0)) {
+        if (!amount || amount.isLessThanOrEqualTo(0)) {
           return t('amountMustBePositive');
         }
 

@@ -14,6 +14,7 @@ export const getPlentyRoutePair = async ({
     dexType,
     aTokenSlug,
     bTokenSlug,
+    dexAddress: dexContract.address,
     aTokenPool: storage.token1_pool,
     bTokenPool: storage.token2_pool
   };

@@ -1,1 +1,1 @@
-export { getRoutePairs } from './utils/route-pairs.utils';
+export { getAllRoutePairs } from './utils/route-pairs.utils';

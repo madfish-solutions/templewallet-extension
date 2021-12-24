@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
-import { getRoutePairs } from '../backend';
 import { RoutePairInterface } from '../backend/interfaces/route-pair.interface';
 import { TokenInterface } from '../token.interface';
 import { bestTradeExactIn } from './best-trade.utils';
@@ -23,7 +22,7 @@ export const useBestTrade = (
 
   useEffect(() => {
     (async () => {
-      const allPairs = await getRoutePairs();
+      const allPairs: RoutePairInterface[] = [];//await getRoutePairs();
 
       setAllPairs(allPairs);
     })();

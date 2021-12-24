@@ -14,6 +14,7 @@ export const getLiquidityBakingRoutePair = async ({
     dexType,
     aTokenSlug,
     bTokenSlug,
+    dexAddress: dexContract.address,
     aTokenPool: storage.xtzPool,
     bTokenPool: storage.tokenPool
   };

@@ -14,6 +14,7 @@ export const getQuipuSwapRoutePair = async ({
     dexType,
     aTokenSlug,
     bTokenSlug,
+    dexAddress: dexContract.address,
     aTokenPool: storage.storage.tez_pool,
     bTokenPool: storage.storage.token_pool
   };

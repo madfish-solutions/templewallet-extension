@@ -17,7 +17,7 @@ const ROUTE_PAIR_FUNCTION_RECORD: Record<DexTypeEnum, (pair: DexPairInterface) =
   [DexTypeEnum.LiquidityBaking]: getLiquidityBakingRoutePair
 };
 
-export const getRoutePairs = async () => {
+export const getAllRoutePairs = async () => {
   const dexPairs = await getAllDexPairs(Tezos);
 
   return Promise.all(
