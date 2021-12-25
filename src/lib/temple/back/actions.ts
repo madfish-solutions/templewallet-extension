@@ -609,5 +609,6 @@ function getErrorData(err: any) {
 
 function generateRawPayloadBytes(payload: string) {
   const hexBuffer = Buffer.from(payload, 'utf8').toString('hex');
+  // https://tezostaquito.io/docs/signing/
   return `0501${char2Bytes(hexBuffer)}${hexBuffer}`;
 }
