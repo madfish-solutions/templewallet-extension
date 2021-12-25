@@ -4,9 +4,8 @@ import { ReactComponent as SendIcon } from 'app/icons/send.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import SendForm from 'app/templates/SendForm';
 import { t } from 'lib/i18n/react';
-
-import { useAccount } from '../../lib/temple/front';
-import { HistoryAction, navigate } from '../../lib/woozie';
+import { useAccount } from 'lib/temple/front';
+import { HistoryAction, navigate } from 'lib/woozie';
 
 type SendProps = {
   assetSlug?: string | null;
@@ -15,9 +14,7 @@ type SendProps = {
 const Send: FC<SendProps> = ({ assetSlug }) => {
   const account = useAccount();
 
-  useEffect(() => {
-    navigate(`/send/tez`, HistoryAction.Replace);
-  }, [account]);
+  useEffect(() => navigate(`/send/tez`, HistoryAction.Replace), [account]);
 
   return (
     <PageLayout
