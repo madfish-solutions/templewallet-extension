@@ -12,5 +12,6 @@ export interface SwapFormInputProps {
   triggerValidation: (payload?: string | string[] | undefined, shouldRender?: boolean | undefined) => void;
   withPercentageButtons?: boolean;
   isOutput?: boolean;
-  onChange: (newValue: SwapInputValue) => void;
+  onChange: (value: SwapInputValue) => void;
+  onAmountChange: (value: SwapInputValue['amount']) => void;
 }

@@ -1,5 +1,5 @@
 import { DexPairInterface } from '../../interfaces/dex-pair.interface';
-import { RoutePairInterface } from '../../interfaces/route-pair.interface';
+import { RoutePair } from '../../interfaces/route-pair.interface';
 import { PlentyDexStorageInterface } from './dex-storage.interface';
 
 export const getPlentyRoutePair = async ({
@@ -7,7 +7,7 @@ export const getPlentyRoutePair = async ({
   dexContract,
   aTokenSlug,
   bTokenSlug
-}: DexPairInterface): Promise<RoutePairInterface> => {
+}: DexPairInterface): Promise<RoutePair> => {
   const storage = await dexContract.storage<PlentyDexStorageInterface>();
 
   return {

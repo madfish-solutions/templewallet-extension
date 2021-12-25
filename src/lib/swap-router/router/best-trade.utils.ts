@@ -2,13 +2,12 @@ import { BigNumber } from 'bignumber.js';
 
 import assert from 'lib/assert';
 
-import { getPairFee } from '../fee.utils';
+import { TradeTypeEnum } from '../enum/trade-type.enum';
 import { PairLiquidityInterface } from '../pair-liquidity.interface';
 import { TokenInterface } from '../token.interface';
 import { areTokensEqual } from '../utils/token.utils';
 import { sortedInsert } from './array.utils';
 import { findSwapOutput } from './swap.utils';
-import { TradeTypeEnum } from './trade-type.enum';
 import { TradeInterface } from './trade.interface';
 import { tradeComparator } from './trade.utils';
 
@@ -30,6 +29,8 @@ export const bestTradeExactIn = (
   assert(maxHops > 0, 'MAX_HOPS');
   assert(areTokensEqual(inputToken, nextInputToken) || currentPairs.length > 0, 'INVALID_RECURSION');
 
+  function getPairFee(pair: PairLiquidityInterface) {}
+
   for (let i = 0; i < allPairs.length; i++) {
     const pair = allPairs[i];
 
@@ -37,6 +38,7 @@ export const bestTradeExactIn = (
     if (!areTokensEqual(pair.aToken, nextInputToken) && !areTokensEqual(pair.bToken, nextInputToken)) continue;
     if (pair.aTokenPool.isEqualTo(ZERO) || pair.bTokenPool.isEqualTo(ZERO)) continue;
 
+    // @ts-ignore
     const bTokenOutput = findSwapOutput(nextInputAmount, pair.aTokenPool, pair.bTokenPool, getPairFee(pair));
 
     // we have arrived at the output token, so this is the final trade of one of the paths

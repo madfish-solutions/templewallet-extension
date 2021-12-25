@@ -2,7 +2,7 @@ import { BigNumber } from 'bignumber.js';
 
 import { DexTypeEnum } from '../enums/dex-type.enum';
 
-export interface RoutePairInterface {
+export interface RoutePair {
   dexType: DexTypeEnum;
   dexAddress: string;
   aTokenSlug: string;

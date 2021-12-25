@@ -3,10 +3,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { TezosToolkit } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
-import { RoutePairInterface } from '../backend/interfaces/route-pair.interface';
+import { RoutePair } from '../backend/interfaces/route-pair.interface';
+import { TradeTypeEnum } from '../enum/trade-type.enum';
 import { TokenInterface } from '../token.interface';
 import { bestTradeExactIn } from './best-trade.utils';
-import { TradeTypeEnum } from './trade-type.enum';
 import { isTradeBetter } from './trade.utils';
 
 const MAX_HOPS = 3;
@@ -18,11 +18,11 @@ export const useBestTrade = (
   specifiedAmount: BigNumber,
   tezos: TezosToolkit
 ) => {
-  const [allPairs, setAllPairs] = useState<RoutePairInterface[]>([]);
+  const [allPairs, setAllPairs] = useState<RoutePair[]>([]);
 
   useEffect(() => {
     (async () => {
-      const allPairs: RoutePairInterface[] = [];//await getRoutePairs();
+      const allPairs: RoutePair[] = [];//await getRoutePairs();
 
       setAllPairs(allPairs);
     })();

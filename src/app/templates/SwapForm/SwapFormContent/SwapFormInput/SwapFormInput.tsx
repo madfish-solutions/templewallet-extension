@@ -8,7 +8,6 @@ import { t } from 'lib/i18n/react';
 import {
   AssetTypesEnum,
   EMPTY_ASSET_METADATA,
-  EXCHANGE_XTZ_RESERVE,
   toTokenSlug,
   useAccount,
   useAssetMetadata,
@@ -27,6 +26,7 @@ import { SwapFormInputProps } from './SwapFormInput.props';
 import { SwapFormInputHeader } from './SwapFormInputHeader/SwapFormInputHeader';
 import { useSwapFormTokenIdInput } from './SwapFormTokenIdInput.hook';
 
+const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 const PERCENTAGE_BUTTONS = [25, 50, 75, 100];
 
 export const SwapFormInput: FC<SwapFormInputProps> = ({
@@ -39,7 +39,8 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   name,
   triggerValidation,
   withPercentageButtons,
-  onChange
+  onChange,
+  onAmountChange
 }) => {
   const { trackChange } = useFormAnalytics('SwapForm');
   const { assetSlug, amount, usdAmount } = value;
@@ -84,12 +85,14 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     setSearchValue(e.target.value);
   };
 
-  const handleAmountChange = (amount?: BigNumber, usdAmount?: BigNumber) =>
+  const handleAmountChange = (amount?: BigNumber, usdAmount?: BigNumber) => {
     onChange({
       assetSlug,
       amount,
       usdAmount
     });
+    onAmountChange(amount);
+  };
 
   const handlePercentageClick = (percentage: number) => {
     if (!assetSlug) {

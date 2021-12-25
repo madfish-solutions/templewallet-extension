@@ -11,10 +11,11 @@ import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
-import { swap } from 'lib/temple/front';
+import { useRoutePairsCombinations } from 'lib/swap-router/hooks/use-route-pairs-combinatios.hook';
+import { getBestTradeExactIn } from 'lib/swap-router/utils/best-trade.utils';
 import useTippy from 'lib/ui/useTippy';
 
-import { useAllowedRouterPairs } from '../../../../lib/swap-router/hooks/use-allowed-router-pairs.hook';
+import { TradeTypeEnum } from '../../../../lib/swap-router/enum/trade-type.enum';
 import styles from '../SwapForm.module.css';
 import { feeInfoTippyProps, priceImpactInfoTippyProps } from './SwapFormContent.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
@@ -36,72 +37,37 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
     defaultValues: {
       input: { assetSlug: initialAssetSlug },
       output: {},
-      tolerancePercentage: 1
+      slippageTolerance: 1
     }
   });
   const isValid = Object.keys(errors).length === 0;
 
   const inputValue = watch('input');
   const outputValue = watch('output');
-  const tolerancePercentage = watch('tolerancePercentage');
+  const slippageTolerance = watch('slippageTolerance');
 
-  console.log('input', inputValue.assetSlug);
-  console.log('output', outputValue.assetSlug);
-  const allowedRoutePairs = useAllowedRouterPairs(inputValue.assetSlug, outputValue.assetSlug);
+  const [tradeType, setTradeType] = useState(TradeTypeEnum.EXACT_INPUT);
+  const routePairsCombinations = useRoutePairsCombinations(inputValue.assetSlug, outputValue.assetSlug);
 
-  console.log(allowedRoutePairs.length);
-
-  const [operation, setOperation] = useState<WalletOperation>();
   const [error, setError] = useState<Error>();
+  const [operation, setOperation] = useState<WalletOperation>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // const bestTrade = useBestTrade(
-  //   TradeTypeEnum.EXACT_INPUT,
-  //   swapInputAssetToTokenInterface(inputAsset),
-  //   swapInputAssetToTokenInterface(outputAsset),
-  //   tokensToAtoms(inputAssetAmount ?? new BigNumber(0), inputAsset?.decimals ?? 0),
-  //   tezos
-  // );
+  useEffect(() => {
+    console.log('find new best trade', routePairsCombinations.length);
+    if (tradeType === TradeTypeEnum.EXACT_INPUT && inputValue.amount) {
+      console.log(tradeType, inputValue.amount?.toFixed());
+      const bestTradeExactIn = getBestTradeExactIn(inputValue.amount, routePairsCombinations);
 
-  const onSubmit = useCallback(
-    async ({ tolerancePercentage, input, output }: SwapFormValue) => {
-      if (isSubmitting) {
-        return;
-      }
-      setIsSubmitting(true);
-      const analyticsProperties = {
-        inputAsset: input.assetSlug,
-        outputAsset: output.assetSlug
-      };
-      formAnalytics.trackSubmit(analyticsProperties);
-      try {
-        setOperation(undefined);
-
-        // TODO: implement this
-        // @ts-ignore
-        const op = await swap({});
-
-        setError(undefined);
-        formAnalytics.trackSubmitSuccess(analyticsProperties);
-        setOperation(op);
-      } catch (err: any) {
-        if (err.message !== 'Declined') {
-          setError(err);
-        }
-        formAnalytics.trackSubmitFail(analyticsProperties);
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-    [isSubmitting, formAnalytics]
-  );
-
-  const closeError = useCallback(() => setError(undefined), []);
+      console.log(bestTradeExactIn);
+    } else {
+      console.log(tradeType, outputValue.amount?.toFixed());
+    }
+  }, [inputValue.amount, outputValue.amount, tradeType, slippageTolerance, routePairsCombinations]);
 
   useEffect(() => {
     register('input', {
       validate: ({ assetSlug, amount }: SwapInputValue) => {
-        console.log(!assetSlug);
         if (!assetSlug) {
           return 'assetMustBeSelected';
         }
@@ -126,7 +92,41 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
     });
   }, [register]);
 
-  const handleOperationCloseButtonPress = () => setOperation(undefined);
+  const onSubmit = useCallback(
+    async ({ slippageTolerance, input, output }: SwapFormValue) => {
+      if (isSubmitting) {
+        return;
+      }
+      setIsSubmitting(true);
+      const analyticsProperties = {
+        inputAsset: input.assetSlug,
+        outputAsset: output.assetSlug
+      };
+      formAnalytics.trackSubmit(analyticsProperties);
+      try {
+        setOperation(undefined);
+
+        // TODO: implement this
+        // @ts-ignore
+        // const op = await swap({});
+
+        setError(undefined);
+        formAnalytics.trackSubmitSuccess(analyticsProperties);
+        // setOperation(op);
+      } catch (err: any) {
+        if (err.message !== 'Declined') {
+          setError(err);
+        }
+        formAnalytics.trackSubmitFail(analyticsProperties);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [isSubmitting, formAnalytics]
+  );
+
+  const handleErrorClose = () => setError(undefined);
+  const handleOperationClose = () => setOperation(undefined);
 
   const handleToggleIconClick = () =>
     setValue([{ input: { assetSlug: outputValue.assetSlug } }, { output: { assetSlug: inputValue.assetSlug } }]);
@@ -146,6 +146,9 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
     }
   };
 
+  const handleInputAmountChange = () => setTradeType(TradeTypeEnum.EXACT_INPUT);
+  const handleOutputAmountChange = () => setTradeType(TradeTypeEnum.EXACT_OUTPUT);
+
   return (
     <form className="mb-8" onSubmit={handleSubmit(onSubmit)}>
       {operation && (
@@ -154,7 +157,7 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
           closable
           typeTitle={t('swapNoun')}
           operation={operation}
-          onClose={handleOperationCloseButtonPress}
+          onClose={handleOperationClose}
         />
       )}
 
@@ -168,6 +171,7 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
         withPercentageButtons
         triggerValidation={triggerValidation}
         onChange={handleInputChange}
+        onAmountChange={handleInputAmountChange}
       />
 
       <div className="w-full my-4 flex justify-center">
@@ -187,6 +191,7 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
         label={<T id="toAsset" />}
         triggerValidation={triggerValidation}
         onChange={handleOutputChange}
+        onAmountChange={handleOutputAmountChange}
       />
 
       <table className={classNames('w-full text-xs text-gray-500 mb-1', styles['swap-form-table'])}>
@@ -231,8 +236,8 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
               <Controller
                 control={control}
                 as={SlippageToleranceInput}
-                error={!!errors.tolerancePercentage}
-                name="tolerancePercentage"
+                error={!!errors.slippageTolerance}
+                name="slippageTolerance"
                 rules={{ validate: slippageToleranceInputValidationFn }}
               />
             </td>
@@ -255,7 +260,7 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
           title={t('error')}
           description={error.message}
           closable
-          onClose={closeError}
+          onClose={handleErrorClose}
         />
       )}
 

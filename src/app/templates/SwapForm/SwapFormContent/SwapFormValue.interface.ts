@@ -9,5 +9,5 @@ export interface SwapInputValue {
 export interface SwapFormValue {
   input: SwapInputValue;
   output: SwapInputValue;
-  tolerancePercentage: number;
+  slippageTolerance?: number;
 }

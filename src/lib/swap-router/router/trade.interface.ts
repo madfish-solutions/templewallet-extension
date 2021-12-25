@@ -1,8 +1,8 @@
 import { BigNumber } from 'bignumber.js';
 
+import { TradeTypeEnum } from '../enum/trade-type.enum';
 import { PairLiquidityInterface } from '../pair-liquidity.interface';
 import { TokenInterface } from '../token.interface';
-import { TradeTypeEnum } from './trade-type.enum';
 
 export interface TradeInterface {
   type: TradeTypeEnum;
