@@ -229,7 +229,7 @@ const BakingSection = memo(() => {
               </T>
 
               <div className={classNames('relative px-4 py-2', styles['sectionBg'])}>
-                <p className={'text-sm font-normal w-full'}>
+                <p className={'text-sm font-normal w-full cursor-pointer'} onClick={toggleShowDetails}>
                   <T id={'delegationHowTo'} />
                 </p>
                 <button
