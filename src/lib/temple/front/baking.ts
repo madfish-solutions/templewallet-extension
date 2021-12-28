@@ -46,7 +46,7 @@ type RewardConfig = Record<
   | 'lowPriorityEndorses',
   boolean
 >;
-export type Baker = TNBaker & {
+type Baker = TNBaker & {
   logo: string;
   feeHistory?: BakingBadBakerValueHistoryItem<number>[];
   rewardConfigHistory: BakingBadBakerValueHistoryItem<RewardConfig>[];
