@@ -133,7 +133,7 @@ export class NotFoundTokenMetadata extends Error {
 function parseBool(value: any) {
   if (value === 'true') return true;
   if (value === 'false') return false;
-  return;
+  return undefined;
 }
 
 interface TokenMetadataWithLogo extends TokenMetadata {

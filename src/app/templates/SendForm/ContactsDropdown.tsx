@@ -9,7 +9,7 @@ import { TempleContact, searchContacts } from 'lib/temple/front';
 
 import ContactsDropdownItem from './ContactsDropdownItem';
 
-type ContactsDropdownProps = {
+export type ContactsDropdownProps = {
   contacts: TempleContact[];
   opened: boolean;
   onSelect: (address: string) => void;
@@ -30,7 +30,7 @@ const ContactsDropdown = memo<ContactsDropdownProps>(({ contacts, opened, onSele
   );
 
   useEffect(() => {
-    setActiveIndex(i => (searchTerm ? (i !== null ? i : 0) : i));
+    setActiveIndex(i => getSearchTermIndex(i, searchTerm));
   }, [setActiveIndex, searchTerm]);
 
   useEffect(() => {
@@ -46,27 +46,9 @@ const ContactsDropdown = memo<ContactsDropdownProps>(({ contacts, opened, onSele
   }, [setActiveIndex, activeIndex, filteredContacts.length]);
 
   useEffect(() => {
-    const handleKeyup = (evt: KeyboardEvent) => {
-      switch (evt.key) {
-        case 'Enter':
-          if (activeItem) {
-            onSelect(activeItem.address);
-            (document.activeElement as any)?.blur();
-          }
-          break;
-
-        case 'ArrowDown':
-          setActiveIndex(i => (i !== null ? i + 1 : 0));
-          break;
-
-        case 'ArrowUp':
-          setActiveIndex(i => (i !== null ? (i > 0 ? i - 1 : 0) : i));
-          break;
-      }
-    };
-
-    window.addEventListener('keyup', handleKeyup);
-    return () => window.removeEventListener('keyup', handleKeyup);
+    const keyHandler = (evt: KeyboardEvent) => handleKeyup(evt, activeItem, onSelect, setActiveIndex);
+    window.addEventListener('keyup', keyHandler);
+    return () => window.removeEventListener('keyup', keyHandler);
   }, [activeItem, setActiveIndex, onSelect]);
 
   return (
@@ -115,3 +97,35 @@ const ContactsDropdown = memo<ContactsDropdownProps>(({ contacts, opened, onSele
 });
 
 export default ContactsDropdown;
+
+const getSearchTermIndex = (i: number | null, searchTerm: string) => (searchTerm ? getDefinedIndex(i) : i);
+const getDefinedIndex = (i: number | null) => (i !== null ? i : 0);
+const getMinimumIndex = (i: number | null) => (i !== null ? i + 1 : 0);
+const getMaximumIndex = (i: number | null) => {
+  if (i === null) return i;
+  return i > 0 ? i - 1 : 0;
+};
+
+const handleKeyup = (
+  evt: KeyboardEvent,
+  activeItem: TempleContact | null,
+  onSelect: (address: string) => void,
+  setActiveIndex: (value: React.SetStateAction<number | null>) => void
+) => {
+  switch (evt.key) {
+    case 'Enter':
+      if (activeItem) {
+        onSelect(activeItem.address);
+        (document.activeElement as any)?.blur();
+      }
+      break;
+
+    case 'ArrowDown':
+      setActiveIndex(i => getMinimumIndex(i));
+      break;
+
+    case 'ArrowUp':
+      setActiveIndex(i => getMaximumIndex(i));
+      break;
+  }
+};
