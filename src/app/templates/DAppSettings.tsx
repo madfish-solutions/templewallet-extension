@@ -44,11 +44,7 @@ const DAppSettings: FC = () => {
       changingRef.current = true;
       setError(null);
 
-      try {
-        setDAppEnabled(evt.target.checked);
-      } catch (err: any) {
-        setError(err);
-      }
+      setDAppEnabled(evt.target.checked).catch((err: any) => setError(err));
 
       changingRef.current = false;
     },
