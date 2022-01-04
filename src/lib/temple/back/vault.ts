@@ -196,7 +196,7 @@ export class Vault {
         doThrow();
       }
 
-      const newAllAcounts = allAccounts.filter(acc => acc.publicKeyHash !== accPublicKeyHash);
+      const newAllAcounts = allAccounts.filter(currentAccount => currentAccount.publicKeyHash !== accPublicKeyHash);
       await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], passKey);
 
       await removeMany([accPrivKeyStrgKey(accPublicKeyHash), accPubKeyStrgKey(accPublicKeyHash)]);
@@ -708,7 +708,7 @@ async function createLedgerSigner(
   // After Ledger Live bridge was setuped, we don't close transport
   // Probably we do not need to close it
   // But if we need, we can close it after not use timeout
-  const cleanup = () => {}; // transport.close();
+  const cleanup = () => {};
   const signer = new TempleLedgerSigner(
     transport,
     removeMFromDerivationPath(derivationPath),

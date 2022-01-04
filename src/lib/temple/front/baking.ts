@@ -179,8 +179,7 @@ function getBakingEfficiency({ rewardsEntry, bakerDetails }: RewardsStatsCalcula
   let rewardConfig = defaultRewardConfigHistory[0].value;
   if (bakerDetails?.rewardConfigHistory) {
     const { rewardConfigHistory } = bakerDetails;
-    for (let i = 0; i < rewardConfigHistory.length; i++) {
-      const historyEntry = rewardConfigHistory[i];
+    for (const historyEntry of rewardConfigHistory) {
       if (cycle >= historyEntry.cycle) {
         rewardConfig = historyEntry.value;
         break;
@@ -214,15 +213,7 @@ function getBakingEfficiency({ rewardsEntry, bakerDetails }: RewardsStatsCalcula
 type CycleStatus = 'unlocked' | 'locked' | 'future' | 'inProgress';
 
 export function getRewardsStats(params: RewardsStatsCalculationParams) {
-  const {
-    rewardsEntry,
-    bakerDetails,
-    currentCycle,
-    fallbackRewardPerOwnBlock,
-    fallbackRewardPerEndorsement,
-    fallbackRewardPerFutureBlock,
-    fallbackRewardPerFutureEndorsement
-  } = params;
+  const { rewardsEntry, bakerDetails, currentCycle } = params;
   const {
     cycle,
     balance,
@@ -234,10 +225,6 @@ export function getRewardsStats(params: RewardsStatsCalculationParams) {
     stakingBalance,
     expectedBlocks,
     expectedEndorsements,
-    ownBlocks,
-    futureBlocks,
-    futureEndorsements,
-    endorsements,
     ownBlockFees,
     extraBlockFees,
     revelationRewards,
@@ -270,43 +257,7 @@ export function getRewardsStats(params: RewardsStatsCalculationParams) {
   const rewards = totalRewards.multipliedBy(balance).div(stakingBalance);
   let luck = expectedBlocks + expectedEndorsements > 0 ? new BigNumber(-1) : new BigNumber(0);
   if (totalFutureRewards.plus(totalCurrentRewards).gt(0)) {
-    const rewardPerOwnBlock =
-      ownBlocks === 0 ? fallbackRewardPerOwnBlock : new BigNumber(ownBlockRewards).div(ownBlocks);
-    const rewardPerEndorsement =
-      endorsements === 0 ? fallbackRewardPerEndorsement : new BigNumber(endorsementRewards).div(endorsements);
-    const asIfNoFutureExpectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(rewardPerOwnBlock);
-    const asIfNoFutureExpectedEndorsementRewards = new BigNumber(expectedEndorsements).multipliedBy(
-      rewardPerEndorsement
-    );
-    const asIfNoFutureExpectedRewards = asIfNoFutureExpectedBlockRewards.plus(asIfNoFutureExpectedEndorsementRewards);
-
-    const rewardPerFutureBlock =
-      futureBlocks === 0 ? fallbackRewardPerFutureBlock : new BigNumber(futureBlockRewards).div(futureBlocks);
-    const rewardPerFutureEndorsement =
-      futureEndorsements === 0
-        ? fallbackRewardPerFutureEndorsement
-        : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
-    const asIfNoCurrentExpectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(rewardPerFutureBlock);
-    const asIfNoCurrentExpectedEndorsementRewards = new BigNumber(expectedEndorsements).multipliedBy(
-      rewardPerFutureEndorsement
-    );
-    const asIfNoCurrentExpectedRewards = asIfNoCurrentExpectedBlockRewards.plus(
-      asIfNoCurrentExpectedEndorsementRewards
-    );
-
-    const weights =
-      endorsements + futureEndorsements === 0
-        ? { current: ownBlocks, future: futureBlocks }
-        : { current: endorsements, future: futureEndorsements };
-    const totalExpectedRewards =
-      weights.current + weights.future === 0
-        ? new BigNumber(0)
-        : asIfNoFutureExpectedRewards
-            .multipliedBy(weights.current)
-            .plus(asIfNoCurrentExpectedRewards.multipliedBy(weights.future))
-            .div(new BigNumber(weights.current).plus(weights.future));
-
-    luck = totalRewards.minus(totalExpectedRewards).div(totalExpectedRewards);
+    luck = calculateLuck(params, totalRewards);
   }
   let bakerFeePart = bakerDetails?.fee ?? 0;
   if (bakerDetails?.feeHistory) {
@@ -330,3 +281,57 @@ export function getRewardsStats(params: RewardsStatsCalculationParams) {
     efficiency: getBakingEfficiency(params)
   };
 }
+
+const calculateLuck = (params: RewardsStatsCalculationParams, totalRewards: BigNumber) => {
+  const {
+    rewardsEntry,
+    fallbackRewardPerOwnBlock,
+    fallbackRewardPerEndorsement,
+    fallbackRewardPerFutureBlock,
+    fallbackRewardPerFutureEndorsement
+  } = params;
+  const {
+    ownBlockRewards,
+    futureBlockRewards,
+    endorsementRewards,
+    futureEndorsementRewards,
+    expectedBlocks,
+    expectedEndorsements,
+    ownBlocks,
+    futureBlocks,
+    futureEndorsements,
+    endorsements
+  } = rewardsEntry;
+  const rewardPerOwnBlock = ownBlocks === 0 ? fallbackRewardPerOwnBlock : new BigNumber(ownBlockRewards).div(ownBlocks);
+  const rewardPerEndorsement =
+    endorsements === 0 ? fallbackRewardPerEndorsement : new BigNumber(endorsementRewards).div(endorsements);
+  const asIfNoFutureExpectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(rewardPerOwnBlock);
+  const asIfNoFutureExpectedEndorsementRewards = new BigNumber(expectedEndorsements).multipliedBy(rewardPerEndorsement);
+  const asIfNoFutureExpectedRewards = asIfNoFutureExpectedBlockRewards.plus(asIfNoFutureExpectedEndorsementRewards);
+
+  const rewardPerFutureBlock =
+    futureBlocks === 0 ? fallbackRewardPerFutureBlock : new BigNumber(futureBlockRewards).div(futureBlocks);
+  const rewardPerFutureEndorsement =
+    futureEndorsements === 0
+      ? fallbackRewardPerFutureEndorsement
+      : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
+  const asIfNoCurrentExpectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(rewardPerFutureBlock);
+  const asIfNoCurrentExpectedEndorsementRewards = new BigNumber(expectedEndorsements).multipliedBy(
+    rewardPerFutureEndorsement
+  );
+  const asIfNoCurrentExpectedRewards = asIfNoCurrentExpectedBlockRewards.plus(asIfNoCurrentExpectedEndorsementRewards);
+
+  const weights =
+    endorsements + futureEndorsements === 0
+      ? { current: ownBlocks, future: futureBlocks }
+      : { current: endorsements, future: futureEndorsements };
+  const totalExpectedRewards =
+    weights.current + weights.future === 0
+      ? new BigNumber(0)
+      : asIfNoFutureExpectedRewards
+          .multipliedBy(weights.current)
+          .plus(asIfNoCurrentExpectedRewards.multipliedBy(weights.future))
+          .div(new BigNumber(weights.current).plus(weights.future));
+
+  return totalRewards.minus(totalExpectedRewards).div(totalExpectedRewards);
+};
