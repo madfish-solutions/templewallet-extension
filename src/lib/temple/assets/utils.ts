@@ -47,7 +47,7 @@ export async function toTransferParams(
                         { string: toPkh },
                         {
                           prim: 'Pair',
-                          args: [{ int: asset.id }, { int: pennyAmount }]
+                          args: [{ int: new BigNumber(asset.id).toFixed() }, { int: pennyAmount }]
                         }
                       ]
                     }

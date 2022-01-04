@@ -103,7 +103,7 @@ export function useExplorerBaseUrls() {
   return useMemo<Partial<BaseUrls>>(() => {
     if (chainId && isKnownChainId(chainId)) {
       const fallbackBaseUrls =
-        BLOCK_EXPLORERS.find(explorer => explorer.baseUrls.get(chainId))?.baseUrls.get(chainId) ?? {};
+        BLOCK_EXPLORERS.find(currentExplorer => currentExplorer.baseUrls.get(chainId))?.baseUrls.get(chainId) ?? {};
       return explorer.baseUrls.get(chainId) ?? fallbackBaseUrls;
     }
     return {};
