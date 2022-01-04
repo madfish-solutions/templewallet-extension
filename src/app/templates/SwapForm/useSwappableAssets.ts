@@ -36,8 +36,7 @@ import {
   TempleChainId,
   TempleAssetType,
   TempleAsset,
-  detectTokenStandard,
-  ReactiveTezosToolkit
+  detectTokenStandard
 } from 'lib/temple/front';
 import useSafeState from 'lib/ui/useSafeState';
 
@@ -179,7 +178,19 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
     const [allKnownAssets, setAllKnownAssets] = useSafeState<TempleAsset[]>([], chainId);
 
     useEffect(() => {
-      asyncFunction(allKnownTokenSlugs, allTokensBaseMetadataRef, tezos, setAllKnownAssets);
+      (async () => {
+        try {
+          const result: TempleAsset[] = [TEZ_ASSET];
+          for (const slug of allKnownTokenSlugs) {
+            const metadata = allTokensBaseMetadataRef.current[slug];
+            if (metadata) {
+              result.push(await toLegacyAsset(tezos, slug, metadata));
+            }
+          }
+
+          setAllKnownAssets(result);
+        } catch {}
+      })();
     }, [setAllKnownAssets, allKnownTokenSlugs, allTokensBaseMetadataRef, tezos]);
 
     const tezUsdPrice = useAssetUSDPrice('tez');
@@ -188,24 +199,143 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
     const [qsStoredTokens, setQsStoredTokens] = useStorage<TempleToken[]>(`qs_1.1_stored_tokens_${chainId}`, []);
 
     const getAssetData = useCallback(
-      async (knownAssetsInner: TempleAsset[], assetId: AssetIdentifier) => {
-        const result = await collectAssetData(knownAssetsInner, assetId, allTokensBaseMetadataRef, tezos);
-        return result;
+      async (knownAssets: TempleAsset[], assetId: AssetIdentifier): Promise<TempleAsset> => {
+        const { address, tokenId } = assetId;
+        if (!address) {
+          return TEZ_ASSET;
+        }
+        const alreadyKnownAsset = knownAssets.find(asset => matchesAsset(assetId, asset));
+        if (alreadyKnownAsset) {
+          return alreadyKnownAsset;
+        }
+        const shortHash = `${address.slice(0, 7)}...${address.slice(-4)}`;
+        try {
+          const tokenSlug = toTokenSlug(address, tokenId);
+          const tokenMetadata =
+            allTokensBaseMetadataRef.current[tokenSlug] ??
+            (await fetchTokenMetadata(tezos, tokenSlug).then(({ base }) => base));
+          const { name: parsedName, symbol: parsedSymbol } = tokenMetadata;
+          const commonMetadata = {
+            ...tokenMetadata,
+            iconUrl: tokenMetadata.thumbnailUri && formatImgUri(tokenMetadata.thumbnailUri),
+            name: !parsedName || parsedName === '???' ? shortHash : parsedName,
+            symbol: !parsedSymbol || parsedSymbol === '???' ? shortHash : parsedSymbol,
+            address,
+            fungible: true
+          };
+          if (assetId.tokenId === undefined) {
+            return {
+              ...commonMetadata,
+              type: TempleAssetType.FA1_2
+            };
+          }
+          return {
+            ...commonMetadata,
+            type: TempleAssetType.FA2,
+            id: assetId.tokenId
+          };
+        } catch (e) {
+          const commonMetadata = {
+            name: shortHash,
+            symbol: shortHash,
+            address,
+            decimals: 0,
+            fungible: true,
+            status: 'hidden' as const
+          };
+          if (assetId.tokenId === undefined) {
+            return {
+              ...commonMetadata,
+              type: TempleAssetType.FA1_2
+            };
+          }
+          return {
+            ...commonMetadata,
+            type: TempleAssetType.FA2,
+            id: assetId.tokenId
+          };
+        }
       },
       [tezos, allTokensBaseMetadataRef]
     );
 
     const getNewExchangeData = useCallback(
-      async (knownAssetsInner: TempleAsset[], assetId: AssetIdentifier) => {
-        const result = await collectNewExchangeData(
-          knownAssetsInner,
-          assetId,
-          getAssetData,
-          tezos,
-          chainId,
-          networkTezUsdPrice
+      async (knownAssets: TempleAsset[], assetId: AssetIdentifier) => {
+        const { address: tokenAddress, tokenId } = assetId;
+
+        if (!tokenAddress) {
+          return {};
+        }
+
+        const asset = await getAssetData(knownAssets, assetId);
+        const dexterExchangeContract = DEXTER_EXCHANGE_CONTRACTS.get(chainId)?.[tokenAddress]?.[tokenId ?? 0];
+        const liquidityBakingContract = LIQUIDITY_BAKING_CONTRACTS.get(chainId)?.[tokenAddress]?.[tokenId ?? 0];
+        const newExchangers: Partial<TokenExchangeData> = {};
+        await Promise.all(
+          [
+            { contract: dexterExchangeContract, type: 'dexter' as const },
+            {
+              contract: liquidityBakingContract,
+              type: 'liquidity_baking' as const
+            }
+          ].map(async ({ contract, type }) => {
+            if (contract) {
+              const { tokenPool, xtzPool } = await getPoolParameters(tezos, contract, type);
+              const normalizedTezLiquidity = mutezToTz(xtzPool);
+              const normalizedTokenLiquidity = tokenPool.div(new BigNumber(10).pow(asset.decimals));
+              newExchangers[type] = {
+                contract,
+                normalizedTezLiquidity,
+                normalizedTokenLiquidity,
+                usdPrice: normalizedTokenLiquidity.eq(0)
+                  ? undefined
+                  : (networkTezUsdPrice &&
+                      normalizedTezLiquidity.div(normalizedTokenLiquidity).times(networkTezUsdPrice).toNumber()) ??
+                    undefined
+              };
+            }
+          })
         );
-        return result;
+
+        const quipuswapFactories = QUIPUSWAP_CONTRACTS.get(chainId);
+        if (quipuswapFactories) {
+          let exchangeContract: string | undefined;
+          if (tokenId === undefined) {
+            const fa12FactoriesAddresses = quipuswapFactories.fa12Factory;
+            const fa12TokensToExchangeBigmaps = fa12FactoriesAddresses
+              ? await getTokensToExchangeBigmaps(fa12FactoriesAddresses, tezos)
+              : [];
+            exchangeContract = (
+              await Promise.all(fa12TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>(tokenAddress)))
+            ).find(value => value !== undefined);
+          } else {
+            const fa2FactoriesAddresses = quipuswapFactories.fa2Factory;
+            const fa2TokensToExchangeBigmaps = fa2FactoriesAddresses
+              ? await getTokensToExchangeBigmaps(fa2FactoriesAddresses, tezos)
+              : [];
+            exchangeContract = (
+              await Promise.all(
+                fa2TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>([tokenAddress, tokenId]))
+              )
+            ).find(value => value !== undefined);
+          }
+          if (exchangeContract) {
+            const { tokenPool, xtzPool } = await getPoolParameters(tezos, exchangeContract, 'quipuswap');
+            const normalizedTezLiquidity = mutezToTz(xtzPool);
+            const normalizedTokenLiquidity = tokenPool.div(new BigNumber(10).pow(asset.decimals));
+            newExchangers.quipuswap = {
+              contract: exchangeContract,
+              normalizedTezLiquidity,
+              normalizedTokenLiquidity,
+              usdPrice: normalizedTokenLiquidity.eq(0)
+                ? undefined
+                : (networkTezUsdPrice &&
+                    normalizedTezLiquidity.div(normalizedTokenLiquidity).times(networkTezUsdPrice).toNumber()) ??
+                  undefined
+            };
+          }
+        }
+        return newExchangers;
       },
       [chainId, getAssetData, networkTezUsdPrice, tezos]
     );
@@ -216,7 +346,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
         const result = new Map<string, TempleToken[]>();
         await Promise.all(
           quipuswapWhitelist.map(async token => {
-            const { contractAddress, metadata: metadataFromApi, network: net } = token;
+            const { contractAddress, metadata: metadataFromApi, network } = token;
             const fallbackName = `${contractAddress.slice(0, 7)}...${contractAddress.slice(-4)}`;
             const fallbackMetadata = {
               decimals: 0,
@@ -231,7 +361,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
                 ...metadataFromApi,
                 iconUrl: metadataFromApi.thumbnailUri
               };
-            } else if (currentChainId === net) {
+            } else if (currentChainId === network) {
               const tokenSlug = toTokenSlug(contractAddress, token.type === 'fa1.2' ? undefined : token.fa2TokenId);
 
               metadata =
@@ -269,10 +399,10 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
                     type: TempleAssetType.FA2,
                     id: token.fa2TokenId
                   };
-            if (!result.get(net)) {
-              result.set(net, []);
+            if (!result.get(network)) {
+              result.set(network, []);
             }
-            result.get(net)!.push(tokenMetadata);
+            result.get(network)!.push(tokenMetadata);
           })
         );
         return result;
@@ -476,34 +606,126 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
 
     const searchAssets = useCallback(
       async (searchString = '', tokenId?: number) => {
-        callbackFunction({
-          chainId,
-          exchangeData,
-          getAssetData,
-          exchangableAssets,
-          setExchangeData,
-          searchString,
-          setSearchLoading,
-          setKnownAssets,
-          knownAssets,
-          setQsStoredTokens,
-          qsStoredTokens,
-          networkTezUsdPrice,
-          tokenId,
-          setExchangableAssets,
-          tezos
+        const matchingExchangableAssets = exchangableAssets.filter(asset => {
+          return (
+            assetMatchesSearchStr(asset, searchString) &&
+            (asset.type !== TempleAssetType.FA2 || tokenId === undefined || tokenId === asset.id)
+          );
         });
+        if (validateAddress(searchString) !== ValidationResult.VALID) {
+          return {
+            matchingExchangableAssets,
+            showTokenIdInput: false
+          };
+        }
+        if (matchingExchangableAssets.length > 0) {
+          return {
+            matchingExchangableAssets,
+            showTokenIdInput: matchingExchangableAssets[0].type === TempleAssetType.FA2
+          };
+        }
+        try {
+          setSearchLoading(true);
+          const quipuswapFactories = QUIPUSWAP_CONTRACTS.get(chainId);
+          if (!quipuswapFactories) {
+            setSearchLoading(false);
+            return {
+              matchingExchangableAssets: [],
+              showTokenIdInput: false
+            };
+          }
+
+          const tokenStandard = await detectTokenStandard(tezos, searchString);
+          let exchangeContractAddress: string | undefined;
+          let showTokenIdInput = false;
+
+          if (tokenStandard === 'fa2') {
+            showTokenIdInput = true;
+            if (tokenId === undefined) {
+              setSearchLoading(false);
+              return {
+                matchingExchangableAssets: [],
+                showTokenIdInput: true
+              };
+            }
+            const fa2FactoriesAddresses = quipuswapFactories.fa2Factory;
+            const fa2TokensToExchangeBigmaps = fa2FactoriesAddresses
+              ? await getTokensToExchangeBigmaps(fa2FactoriesAddresses, tezos)
+              : [];
+            exchangeContractAddress = (
+              await Promise.all(
+                fa2TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>([searchString, tokenId]))
+              )
+            ).find(value => value !== undefined);
+          } else {
+            const fa12FactoriesAddresses = quipuswapFactories.fa12Factory;
+            const fa12TokensToExchangeBigmaps = fa12FactoriesAddresses
+              ? await getTokensToExchangeBigmaps(fa12FactoriesAddresses, tezos)
+              : [];
+            exchangeContractAddress = (
+              await Promise.all(fa12TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>(searchString)))
+            ).find(value => value !== undefined);
+          }
+
+          if (exchangeContractAddress) {
+            const tokenMetadata = await getAssetData(knownAssets, {
+              tokenId,
+              address: searchString
+            });
+            const { xtzPool, tokenPool } = await getPoolParameters(tezos, exchangeContractAddress, 'quipuswap');
+            const normalizedTezLiquidity = mutezToTz(xtzPool);
+            const normalizedTokenLiquidity = tokenPool.div(new BigNumber(10).pow(tokenMetadata.decimals));
+            setKnownAssets([...knownAssets, tokenMetadata]);
+            setExchangableAssets([...exchangableAssets, tokenMetadata]);
+            setQsStoredTokens([...qsStoredTokens, tokenMetadata as TempleToken]);
+            const newExchangeData = {
+              ...exchangeData
+            };
+            if (!newExchangeData[searchString]) {
+              newExchangeData[searchString] = {};
+            }
+            newExchangeData[searchString][tokenId ?? 0] = {
+              ...newExchangeData[searchString][tokenId ?? 0],
+              quipuswap: {
+                contract: exchangeContractAddress,
+                normalizedTezLiquidity,
+                normalizedTokenLiquidity,
+                usdPrice: normalizedTokenLiquidity.eq(0)
+                  ? undefined
+                  : (networkTezUsdPrice &&
+                      normalizedTezLiquidity.div(normalizedTokenLiquidity).times(networkTezUsdPrice).toNumber()) ??
+                    undefined
+              }
+            };
+            setExchangeData(newExchangeData);
+            setSearchLoading(false);
+            return {
+              matchingExchangableAssets: [tokenMetadata],
+              showTokenIdInput
+            };
+          }
+          setSearchLoading(false);
+          return {
+            matchingExchangableAssets: [],
+            showTokenIdInput: false
+          };
+        } catch (e) {
+          setSearchLoading(false);
+          return {
+            matchingExchangableAssets: [],
+            showTokenIdInput: false
+          };
+        }
       },
       [
-        networkTezUsdPrice,
-        qsStoredTokens,
         chainId,
         exchangeData,
         getAssetData,
         exchangableAssets,
-        setExchangableAssets,
         knownAssets,
+        networkTezUsdPrice,
         tezos,
+        qsStoredTokens,
         setQsStoredTokens
       ]
     );
@@ -520,331 +742,3 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
     };
   }
 );
-
-const asyncFunction = async (
-  allKnownTokenSlugs: string[],
-  allTokensBaseMetadataRef: any,
-  tezos: ReactiveTezosToolkit,
-  setAllKnownAssets: any
-) => {
-  try {
-    const result: TempleAsset[] = [TEZ_ASSET];
-    for (const slug of allKnownTokenSlugs) {
-      const metadata = allTokensBaseMetadataRef.current[slug];
-      if (metadata) {
-        result.push(await toLegacyAsset(tezos, slug, metadata));
-      }
-    }
-
-    setAllKnownAssets(result);
-  } catch {}
-};
-
-const collectAssetData = async (
-  knownAssetsInner: TempleAsset[],
-  assetId: AssetIdentifier,
-  allTokensBaseMetadataRef: any,
-  tezos: ReactiveTezosToolkit
-): Promise<TempleAsset> => {
-  const { address, tokenId } = assetId;
-  if (!address) {
-    return TEZ_ASSET;
-  }
-  const alreadyKnownAsset = knownAssetsInner.find(asset => matchesAsset(assetId, asset));
-  if (alreadyKnownAsset) {
-    return alreadyKnownAsset;
-  }
-  const shortHash = `${address.slice(0, 7)}...${address.slice(-4)}`;
-  try {
-    const tokenSlug = toTokenSlug(address, tokenId);
-    const tokenMetadata =
-      allTokensBaseMetadataRef.current[tokenSlug] ??
-      (await fetchTokenMetadata(tezos, tokenSlug).then(({ base }) => base));
-    const { name: parsedName, symbol: parsedSymbol } = tokenMetadata;
-    const commonMetadata = {
-      ...tokenMetadata,
-      iconUrl: tokenMetadata.thumbnailUri && formatImgUri(tokenMetadata.thumbnailUri),
-      name: !parsedName || parsedName === '???' ? shortHash : parsedName,
-      symbol: !parsedSymbol || parsedSymbol === '???' ? shortHash : parsedSymbol,
-      address,
-      fungible: true
-    };
-    if (assetId.tokenId === undefined) {
-      return {
-        ...commonMetadata,
-        type: TempleAssetType.FA1_2
-      };
-    }
-    return {
-      ...commonMetadata,
-      type: TempleAssetType.FA2,
-      id: assetId.tokenId
-    };
-  } catch (e) {
-    const commonMetadata = {
-      name: shortHash,
-      symbol: shortHash,
-      address,
-      decimals: 0,
-      fungible: true,
-      status: 'hidden' as const
-    };
-    if (assetId.tokenId === undefined) {
-      return {
-        ...commonMetadata,
-        type: TempleAssetType.FA1_2
-      };
-    }
-    return {
-      ...commonMetadata,
-      type: TempleAssetType.FA2,
-      id: assetId.tokenId
-    };
-  }
-};
-
-const collectNewExchangeData = async (
-  knownAssetsInner: TempleAsset[],
-  assetId: AssetIdentifier,
-  getAssetData: any,
-  tezos: ReactiveTezosToolkit,
-  chainId: string,
-  networkTezUsdPrice: number | null
-) => {
-  const { address: tokenAddress, tokenId } = assetId;
-
-  if (!tokenAddress) {
-    return {};
-  }
-
-  const asset = await getAssetData(knownAssetsInner, assetId);
-  const dexterExchangeContract = DEXTER_EXCHANGE_CONTRACTS.get(chainId)?.[tokenAddress]?.[tokenId ?? 0];
-  const liquidityBakingContract = LIQUIDITY_BAKING_CONTRACTS.get(chainId)?.[tokenAddress]?.[tokenId ?? 0];
-  const newExchangers: Partial<TokenExchangeData> = {};
-  await Promise.all(
-    [
-      { contract: dexterExchangeContract, type: 'dexter' as const },
-      {
-        contract: liquidityBakingContract,
-        type: 'liquidity_baking' as const
-      }
-    ].map(async ({ contract, type }) => {
-      if (contract) {
-        const { tokenPool, xtzPool } = await getPoolParameters(tezos, contract, type);
-        const normalizedTezLiquidity = mutezToTz(xtzPool);
-        const normalizedTokenLiquidity = tokenPool.div(new BigNumber(10).pow(asset.decimals));
-        newExchangers[type] = {
-          contract,
-          normalizedTezLiquidity,
-          normalizedTokenLiquidity,
-          usdPrice: normalizedTokenLiquidity.eq(0)
-            ? undefined
-            : (networkTezUsdPrice &&
-                normalizedTezLiquidity.div(normalizedTokenLiquidity).times(networkTezUsdPrice).toNumber()) ??
-              undefined
-        };
-      }
-    })
-  );
-
-  const temporaryResult = await getExchangeContract(chainId, tezos, tokenAddress, networkTezUsdPrice, asset, tokenId);
-  if (temporaryResult) {
-    newExchangers.quipuswap = temporaryResult;
-  }
-  return newExchangers;
-};
-
-const getExchangeContract = async (
-  chainId: string,
-  tezos: ReactiveTezosToolkit,
-  tokenAddress: string,
-  networkTezUsdPrice: number | null,
-  asset: any,
-  tokenId?: number
-) => {
-  const quipuswapFactories = QUIPUSWAP_CONTRACTS.get(chainId);
-  if (!quipuswapFactories) return null;
-  let exchangeContract: string | undefined;
-  if (tokenId === undefined) {
-    const fa12FactoriesAddresses = quipuswapFactories.fa12Factory;
-    const fa12TokensToExchangeBigmaps = fa12FactoriesAddresses
-      ? await getTokensToExchangeBigmaps(fa12FactoriesAddresses, tezos)
-      : [];
-    exchangeContract = (
-      await Promise.all(fa12TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>(tokenAddress)))
-    ).find(value => value !== undefined);
-  } else {
-    const fa2FactoriesAddresses = quipuswapFactories.fa2Factory;
-    const fa2TokensToExchangeBigmaps = fa2FactoriesAddresses
-      ? await getTokensToExchangeBigmaps(fa2FactoriesAddresses, tezos)
-      : [];
-    exchangeContract = (
-      await Promise.all(
-        fa2TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>([tokenAddress, tokenId]))
-      )
-    ).find(value => value !== undefined);
-  }
-  if (exchangeContract) {
-    const { tokenPool, xtzPool } = await getPoolParameters(tezos, exchangeContract, 'quipuswap');
-    const normalizedTezLiquidity = mutezToTz(xtzPool);
-    const normalizedTokenLiquidity = tokenPool.div(new BigNumber(10).pow(asset.decimals));
-    return {
-      contract: exchangeContract,
-      normalizedTezLiquidity,
-      normalizedTokenLiquidity,
-      usdPrice: normalizedTokenLiquidity.eq(0)
-        ? undefined
-        : (networkTezUsdPrice &&
-            normalizedTezLiquidity.div(normalizedTokenLiquidity).times(networkTezUsdPrice).toNumber()) ??
-          undefined
-    };
-  }
-  return null;
-};
-
-interface ICallbackFunction {
-  chainId: string;
-  exchangeData: any;
-  getAssetData: any;
-  exchangableAssets: TempleAsset[];
-  setExchangeData: any;
-  knownAssets: TempleAsset[];
-  networkTezUsdPrice: number | null;
-  tezos: ReactiveTezosToolkit;
-  qsStoredTokens: TempleAsset[];
-  setSearchLoading: any;
-  setKnownAssets: any;
-  setExchangableAssets: any;
-  setQsStoredTokens: any;
-  searchString?: string;
-  tokenId?: number;
-}
-
-const callbackFunction = async ({
-  chainId,
-  exchangeData,
-  getAssetData,
-  exchangableAssets,
-  setExchangeData,
-  searchString = '',
-  setSearchLoading,
-  setKnownAssets,
-  knownAssets,
-  qsStoredTokens,
-  setQsStoredTokens,
-  setExchangableAssets,
-  tokenId,
-  networkTezUsdPrice,
-  tezos
-}: ICallbackFunction) => {
-  const matchingExchangableAssets = exchangableAssets.filter(asset => {
-    return (
-      assetMatchesSearchStr(asset, searchString) &&
-      (asset.type !== TempleAssetType.FA2 || tokenId === undefined || tokenId === asset.id)
-    );
-  });
-  if (validateAddress(searchString) !== ValidationResult.VALID) {
-    return {
-      matchingExchangableAssets,
-      showTokenIdInput: false
-    };
-  }
-  if (matchingExchangableAssets.length > 0) {
-    return {
-      matchingExchangableAssets,
-      showTokenIdInput: matchingExchangableAssets[0].type === TempleAssetType.FA2
-    };
-  }
-  try {
-    setSearchLoading(true);
-    const quipuswapFactories = QUIPUSWAP_CONTRACTS.get(chainId);
-    if (!quipuswapFactories) {
-      setSearchLoading(false);
-      return {
-        matchingExchangableAssets: [],
-        showTokenIdInput: false
-      };
-    }
-
-    const tokenStandard = await detectTokenStandard(tezos, searchString);
-    let exchangeContractAddress: string | undefined;
-    let showTokenIdInput = false;
-
-    if (tokenStandard === 'fa2') {
-      showTokenIdInput = true;
-      if (tokenId === undefined) {
-        setSearchLoading(false);
-        return {
-          matchingExchangableAssets: [],
-          showTokenIdInput: true
-        };
-      }
-      const fa2FactoriesAddresses = quipuswapFactories.fa2Factory;
-      const fa2TokensToExchangeBigmaps = fa2FactoriesAddresses
-        ? await getTokensToExchangeBigmaps(fa2FactoriesAddresses, tezos)
-        : [];
-      exchangeContractAddress = (
-        await Promise.all(
-          fa2TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>([searchString, tokenId]))
-        )
-      ).find(value => value !== undefined);
-    } else {
-      const fa12FactoriesAddresses = quipuswapFactories.fa12Factory;
-      const fa12TokensToExchangeBigmaps = fa12FactoriesAddresses
-        ? await getTokensToExchangeBigmaps(fa12FactoriesAddresses, tezos)
-        : [];
-      exchangeContractAddress = (
-        await Promise.all(fa12TokensToExchangeBigmaps.map(bigMap => bigMap.get<string | undefined>(searchString)))
-      ).find(value => value !== undefined);
-    }
-
-    if (exchangeContractAddress) {
-      const tokenMetadata = await getAssetData(knownAssets, {
-        tokenId,
-        address: searchString
-      });
-      const { xtzPool, tokenPool } = await getPoolParameters(tezos, exchangeContractAddress, 'quipuswap');
-      const normalizedTezLiquidity = mutezToTz(xtzPool);
-      const normalizedTokenLiquidity = tokenPool.div(new BigNumber(10).pow(tokenMetadata.decimals));
-      setKnownAssets([...knownAssets, tokenMetadata]);
-      setExchangableAssets([...exchangableAssets, tokenMetadata]);
-      setQsStoredTokens([...qsStoredTokens, tokenMetadata as TempleToken]);
-      const newExchangeData = {
-        ...exchangeData
-      };
-      if (!newExchangeData[searchString]) {
-        newExchangeData[searchString] = {};
-      }
-      newExchangeData[searchString][tokenId ?? 0] = {
-        ...newExchangeData[searchString][tokenId ?? 0],
-        quipuswap: {
-          contract: exchangeContractAddress,
-          normalizedTezLiquidity,
-          normalizedTokenLiquidity,
-          usdPrice: normalizedTokenLiquidity.eq(0)
-            ? undefined
-            : (networkTezUsdPrice &&
-                normalizedTezLiquidity.div(normalizedTokenLiquidity).times(networkTezUsdPrice).toNumber()) ??
-              undefined
-        }
-      };
-      setExchangeData(newExchangeData);
-      setSearchLoading(false);
-      return {
-        matchingExchangableAssets: [tokenMetadata],
-        showTokenIdInput
-      };
-    }
-    setSearchLoading(false);
-    return {
-      matchingExchangableAssets: [],
-      showTokenIdInput: false
-    };
-  } catch (e) {
-    setSearchLoading(false);
-    return {
-      matchingExchangableAssets: [],
-      showTokenIdInput: false
-    };
-  }
-};
