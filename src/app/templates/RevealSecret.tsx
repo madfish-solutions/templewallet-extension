@@ -36,7 +36,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
     if (account.publicKeyHash) {
       return () => setSecret(null);
     }
-    return;
+    return undefined;
   }, [account.publicKeyHash, setSecret]);
 
   useEffect(() => {
@@ -48,15 +48,15 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
 
   useEffect(() => {
     if (secret) {
-      const t = setTimeout(() => {
+      const timer = setTimeout(() => {
         setSecret(null);
       }, 3 * 60_000);
 
       return () => {
-        clearTimeout(t);
+        clearTimeout(timer);
       };
     }
-    return;
+    return undefined;
   }, [secret, setSecret]);
 
   const formRef = useRef<HTMLFormElement>(null);
