@@ -224,90 +224,93 @@ export function sendOperations(
       opParams = dryRunResult.opParams;
     }
 
-    return new Promise(async (resolve, reject) => {
-      intercom.notify(port, {
-        type: TempleMessageType.ConfirmationRequested,
-        id,
-        payload: {
-          type: 'operations',
-          sourcePkh,
-          networkRpc,
-          opParams,
-          ...(dryRunResult ?? {})
-        }
-      });
-
-      let closing = false;
-      const close = () => {
-        if (closing) return;
-        closing = true;
-
-        try {
-          stopTimeout();
-          stopRequestListening();
-          stopDisconnectListening();
-
-          intercom.notify(port, {
-            type: TempleMessageType.ConfirmationExpired,
-            id
-          });
-        } catch (_err) {}
-      };
-
-      const decline = () => {
-        reject(new Error('Declined'));
-      };
-      const declineAndClose = () => {
-        decline();
-        close();
-      };
-
-      const stopRequestListening = intercom.onRequest(async (req: TempleRequest, reqPort) => {
-        if (reqPort === port && req?.type === TempleMessageType.ConfirmationRequest && req?.id === id) {
-          if (req.confirmed) {
-            try {
-              const op = await withUnlocked(({ vault }) =>
-                vault.sendOperations(
-                  sourcePkh,
-                  networkRpc,
-                  buildFinalOpParmas(opParams, req.modifiedTotalFee, req.modifiedStorageLimit)
-                )
-              );
-
-              try {
-                const chainId = await loadChainId(networkRpc);
-                await addLocalOperation(chainId, op.hash, op.results);
-              } catch {}
-
-              resolve({ opHash: op.hash });
-            } catch (err: any) {
-              if (err instanceof TezosOperationError) {
-                reject(err);
-              } else {
-                throw err;
-              }
-            }
-          } else {
-            decline();
-          }
-
-          close();
-
-          return {
-            type: TempleMessageType.ConfirmationResponse
-          };
-        }
-        return;
-      });
-
-      const stopDisconnectListening = intercom.onDisconnect(port, declineAndClose);
-
-      // Decline after timeout
-      const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
-      const stopTimeout = () => clearTimeout(t);
-    });
+    return new Promise((resolve, reject) =>
+      promisableUnlock(resolve, reject, port, id, sourcePkh, networkRpc, opParams, dryRunResult)
+    );
   });
 }
+
+const promisableUnlock = async (
+  resolve: any,
+  reject: any,
+  port: Runtime.Port,
+  id: string,
+  sourcePkh: string,
+  networkRpc: string,
+  opParams: any[],
+  dryRunResult: any
+) => {
+  intercom.notify(port, {
+    type: TempleMessageType.ConfirmationRequested,
+    id,
+    payload: {
+      type: 'operations',
+      sourcePkh,
+      networkRpc,
+      opParams,
+      ...(dryRunResult ?? {})
+    }
+  });
+
+  let closing = false;
+
+  const decline = () => {
+    reject(new Error('Declined'));
+  };
+  const declineAndClose = () => {
+    decline();
+    closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
+  };
+
+  const stopRequestListening = intercom.onRequest(async (req: TempleRequest, reqPort) => {
+    if (reqPort === port && req?.type === TempleMessageType.ConfirmationRequest && req?.id === id) {
+      if (req.confirmed) {
+        try {
+          const op = await withUnlocked(({ vault }) =>
+            vault.sendOperations(
+              sourcePkh,
+              networkRpc,
+              buildFinalOpParmas(opParams, req.modifiedTotalFee, req.modifiedStorageLimit)
+            )
+          );
+
+          await safeAddLocalOperation(networkRpc, op);
+
+          resolve({ opHash: op.hash });
+        } catch (err: any) {
+          if (err instanceof TezosOperationError) {
+            reject(err);
+          } else {
+            throw err;
+          }
+        }
+      } else {
+        decline();
+      }
+
+      closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
+
+      return {
+        type: TempleMessageType.ConfirmationResponse
+      };
+    }
+    return undefined;
+  });
+
+  const stopDisconnectListening = intercom.onDisconnect(port, declineAndClose);
+
+  // Decline after timeout
+  const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
+  const stopTimeout = () => clearTimeout(t);
+};
+
+const safeAddLocalOperation = async (networkRpc: string, op: any) => {
+  try {
+    const chainId = await loadChainId(networkRpc);
+    await addLocalOperation(chainId, op.hash, op.results);
+  } catch {}
+  return undefined;
+};
 
 export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: string, watermark?: string) {
   return withUnlocked(
@@ -325,28 +328,13 @@ export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: s
         });
 
         let closing = false;
-        const close = () => {
-          if (closing) return;
-          closing = true;
-
-          try {
-            stopTimeout();
-            stopRequestListening();
-            stopDisconnectListening();
-
-            intercom.notify(port, {
-              type: TempleMessageType.ConfirmationExpired,
-              id
-            });
-          } catch (_err) {}
-        };
 
         const decline = () => {
           reject(new Error('Declined'));
         };
         const declineAndClose = () => {
           decline();
-          close();
+          closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
         };
 
         const stopRequestListening = intercom.onRequest(async (req: TempleRequest, reqPort) => {
@@ -358,13 +346,13 @@ export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: s
               decline();
             }
 
-            close();
+            closing = close(closing, port, id, stopTimeout, stopRequestListening, stopDisconnectListening);
 
             return {
               type: TempleMessageType.ConfirmationResponse
             };
           }
-          return;
+          return undefined;
         });
 
         const stopDisconnectListening = intercom.onDisconnect(port, declineAndClose);
@@ -456,134 +444,8 @@ export async function processBeacon(origin: string, msg: string, encrypted = fal
     };
   }
 
-  const res = await (async (): Promise<Beacon.Response> => {
-    try {
-      try {
-        const templeReq = ((): TempleDAppRequest | void => {
-          switch (req.type) {
-            case Beacon.MessageType.PermissionRequest:
-              const network =
-                req.network.type === 'custom'
-                  ? {
-                      name: req.network.name!,
-                      rpc: req.network.rpcUrl!
-                    }
-                  : req.network.type;
-
-              return {
-                type: TempleDAppMessageType.PermissionRequest,
-                network: network as any,
-                appMeta: req.appMetadata,
-                force: true
-              };
-
-            case Beacon.MessageType.OperationRequest:
-              return {
-                type: TempleDAppMessageType.OperationRequest,
-                sourcePkh: req.sourceAddress,
-                opParams: req.operationDetails.map(Beacon.formatOpParams)
-              };
-
-            case Beacon.MessageType.SignPayloadRequest:
-              return {
-                type: TempleDAppMessageType.SignRequest,
-                sourcePkh: req.sourceAddress,
-                payload:
-                  req.signingType === Beacon.SigningType.RAW
-                    ? Buffer.from(req.payload, 'utf8').toString('hex')
-                    : req.payload
-              };
-
-            case Beacon.MessageType.BroadcastRequest:
-              return {
-                type: TempleDAppMessageType.BroadcastRequest,
-                signedOpBytes: req.signedTransaction
-              };
-          }
-        })();
-
-        if (templeReq) {
-          const templeRes = await processDApp(origin, templeReq);
-
-          if (templeRes) {
-            // Map Temple DApp response to Beacon response
-            switch (templeRes.type) {
-              case TempleDAppMessageType.PermissionResponse:
-                return {
-                  ...resBase,
-                  type: Beacon.MessageType.PermissionResponse,
-                  publicKey: (templeRes as any).publicKey,
-                  network: (req as Beacon.PermissionRequest).network,
-                  scopes: [Beacon.PermissionScope.OPERATION_REQUEST, Beacon.PermissionScope.SIGN]
-                };
-
-              case TempleDAppMessageType.OperationResponse:
-                return {
-                  ...resBase,
-                  type: Beacon.MessageType.OperationResponse,
-                  transactionHash: templeRes.opHash
-                };
-
-              case TempleDAppMessageType.SignResponse:
-                return {
-                  ...resBase,
-                  type: Beacon.MessageType.SignPayloadResponse,
-                  signature: templeRes.signature
-                };
-
-              case TempleDAppMessageType.BroadcastResponse:
-                return {
-                  ...resBase,
-                  type: Beacon.MessageType.BroadcastResponse,
-                  transactionHash: templeRes.opHash
-                };
-            }
-          }
-        }
-
-        throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
-      } catch (err: any) {
-        if (err instanceof TezosOperationError) {
-          throw err;
-        }
-
-        // Map Temple DApp error to Beacon error
-        const beaconErrorType = (() => {
-          switch (err?.message) {
-            case TempleDAppErrorType.InvalidParams:
-              return Beacon.ErrorType.PARAMETERS_INVALID_ERROR;
-
-            case TempleDAppErrorType.NotFound:
-            case TempleDAppErrorType.NotGranted:
-              return req.beaconId ? Beacon.ErrorType.NOT_GRANTED_ERROR : Beacon.ErrorType.ABORTED_ERROR;
-
-            default:
-              return err?.message;
-          }
-        })();
-
-        throw new Error(beaconErrorType);
-      }
-    } catch (err: any) {
-      return {
-        ...resBase,
-        type: Beacon.MessageType.Error,
-        errorType: (() => {
-          switch (true) {
-            case err instanceof TezosOperationError:
-              return Beacon.ErrorType.TRANSACTION_INVALID_ERROR;
-
-            case err?.message in Beacon.ErrorType:
-              return err.message;
-
-            default:
-              return Beacon.ErrorType.UNKNOWN_ERROR;
-          }
-        })(),
-        errorData: getErrorData(err)
-      };
-    }
-  })();
+  const res = await getBeaconResponse(req, resBase);
+  // const res = null;
 
   const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
   if (encrypted && recipientPubKey) {
@@ -594,6 +456,137 @@ export async function processBeacon(origin: string, msg: string, encrypted = fal
   }
   return { payload: resMsg };
 }
+
+const getBeaconResponse = async (req: Beacon.Request, resBase: any): Promise<Beacon.Response> => {
+  try {
+    try {
+      return await formatTempleReq(getTempleReq(req), req, resBase);
+    } catch (err: any) {
+      if (err instanceof TezosOperationError) {
+        throw err;
+      }
+
+      // Map Temple DApp error to Beacon error
+      const beaconErrorType = (() => {
+        switch (err?.message) {
+          case TempleDAppErrorType.InvalidParams:
+            return Beacon.ErrorType.PARAMETERS_INVALID_ERROR;
+
+          case TempleDAppErrorType.NotFound:
+          case TempleDAppErrorType.NotGranted:
+            return req.beaconId ? Beacon.ErrorType.NOT_GRANTED_ERROR : Beacon.ErrorType.ABORTED_ERROR;
+
+          default:
+            return err?.message;
+        }
+      })();
+
+      throw new Error(beaconErrorType);
+    }
+  } catch (err: any) {
+    return {
+      ...resBase,
+      type: Beacon.MessageType.Error,
+      errorType: (() => {
+        switch (true) {
+          case err instanceof TezosOperationError:
+            return Beacon.ErrorType.TRANSACTION_INVALID_ERROR;
+
+          case err?.message in Beacon.ErrorType:
+            return err.message;
+
+          default:
+            return Beacon.ErrorType.UNKNOWN_ERROR;
+        }
+      })(),
+      errorData: getErrorData(err)
+    };
+  }
+};
+
+const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
+  switch (req.type) {
+    case Beacon.MessageType.PermissionRequest:
+      const network =
+        req.network.type === 'custom'
+          ? {
+              name: req.network.name!,
+              rpc: req.network.rpcUrl!
+            }
+          : req.network.type;
+
+      return {
+        type: TempleDAppMessageType.PermissionRequest,
+        network: network as any,
+        appMeta: req.appMetadata,
+        force: true
+      };
+
+    case Beacon.MessageType.OperationRequest:
+      return {
+        type: TempleDAppMessageType.OperationRequest,
+        sourcePkh: req.sourceAddress,
+        opParams: req.operationDetails.map(Beacon.formatOpParams)
+      };
+
+    case Beacon.MessageType.SignPayloadRequest:
+      return {
+        type: TempleDAppMessageType.SignRequest,
+        sourcePkh: req.sourceAddress,
+        payload:
+          req.signingType === Beacon.SigningType.RAW ? Buffer.from(req.payload, 'utf8').toString('hex') : req.payload
+      };
+
+    case Beacon.MessageType.BroadcastRequest:
+      return {
+        type: TempleDAppMessageType.BroadcastRequest,
+        signedOpBytes: req.signedTransaction
+      };
+  }
+};
+
+const formatTempleReq = async (templeReq: TempleDAppRequest | void, req: Beacon.Request, resBase: any) => {
+  if (templeReq) {
+    const templeRes = await processDApp(origin, templeReq);
+
+    if (templeRes) {
+      // Map Temple DApp response to Beacon response
+      switch (templeRes.type) {
+        case TempleDAppMessageType.PermissionResponse:
+          return {
+            ...resBase,
+            type: Beacon.MessageType.PermissionResponse,
+            publicKey: (templeRes as any).publicKey,
+            network: (req as Beacon.PermissionRequest).network,
+            scopes: [Beacon.PermissionScope.OPERATION_REQUEST, Beacon.PermissionScope.SIGN]
+          };
+
+        case TempleDAppMessageType.OperationResponse:
+          return {
+            ...resBase,
+            type: Beacon.MessageType.OperationResponse,
+            transactionHash: templeRes.opHash
+          };
+
+        case TempleDAppMessageType.SignResponse:
+          return {
+            ...resBase,
+            type: Beacon.MessageType.SignPayloadResponse,
+            signature: templeRes.signature
+          };
+
+        case TempleDAppMessageType.BroadcastResponse:
+          return {
+            ...resBase,
+            type: Beacon.MessageType.BroadcastResponse,
+            transactionHash: templeRes.opHash
+          };
+      }
+    }
+  }
+
+  throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
+};
 
 async function createCustomNetworksSnapshot(settings: TempleSettings) {
   try {
@@ -608,3 +601,28 @@ async function createCustomNetworksSnapshot(settings: TempleSettings) {
 function getErrorData(err: any) {
   return err instanceof TezosOperationError ? err.errors.map(({ contract_code, ...rest }: any) => rest) : undefined;
 }
+
+const close = (
+  closing: boolean,
+  port: Runtime.Port,
+  id: string,
+  stopTimeout: any,
+  stopRequestListening: any,
+  stopDisconnectListening: any
+) => {
+  let innerClosing = closing;
+  if (innerClosing) return innerClosing;
+  innerClosing = true;
+
+  try {
+    stopTimeout();
+    stopRequestListening();
+    stopDisconnectListening();
+
+    intercom.notify(port, {
+      type: TempleMessageType.ConfirmationExpired,
+      id
+    });
+  } catch (_err) {}
+  return innerClosing;
+};
