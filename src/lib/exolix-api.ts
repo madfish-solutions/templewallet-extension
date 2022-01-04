@@ -49,7 +49,7 @@ export const getCurrencies = async () => {
   return api.get<CurrenciesInterface[]>('/currency').then(r => r.data);
 };
 
-export interface getRateDataInterface {
+export interface GetRateData {
   destination_amount: number;
   rate: number;
   min_amount: string;

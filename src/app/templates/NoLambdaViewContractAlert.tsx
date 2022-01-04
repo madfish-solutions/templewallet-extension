@@ -9,14 +9,14 @@ import { useRetryableSWR } from 'lib/swr';
 import { useTezos, useNetwork, loadChainId, useTempleClient } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
 
-const ConditionalNoLambdaViewContractAlert: FC = () => {
+const NoLambdaViewContractAlert: FC = () => {
   const { ready } = useTempleClient();
-  return ready ? <NoLambdaViewContractAlert /> : null;
+  return ready ? <ConditionalNoLambdaViewContractAlert /> : null;
 };
 
-export default ConditionalNoLambdaViewContractAlert;
+export default NoLambdaViewContractAlert;
 
-const NoLambdaViewContractAlert: FC = () => {
+const ConditionalNoLambdaViewContractAlert: FC = () => {
   const { fullPage } = useAppEnv();
   const tezos = useTezos();
   const network = useNetwork();
@@ -38,9 +38,11 @@ const NoLambdaViewContractAlert: FC = () => {
   );
   const displayed = !contractCheckSWR.isValidating && !contractCheckSWR.data;
 
+  const fullPageClassName = fullPage ? 'px-8' : 'px-4';
+
   return displayed ? (
     <div className="fixed bottom-0 w-full z-50">
-      <div className={classNames('w-full max-w-screen-sm mx-auto', 'py-4', fullPage ? 'px-8' : 'px-4')}>
+      <div className={classNames('w-full max-w-screen-sm mx-auto', 'py-4', fullPageClassName)}>
         <Link
           to="/settings/networks"
           className={classNames(

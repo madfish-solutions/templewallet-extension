@@ -116,7 +116,7 @@ export async function requestPermission(
             type: TempleMessageType.DAppPermConfirmationResponse
           };
         }
-        return;
+        return undefined;
       }
     });
   });
@@ -164,48 +164,64 @@ export async function requestOperation(
       onDecline: () => {
         reject(new Error(TempleDAppErrorType.NotGranted));
       },
-      handleIntercomRequest: async (confirmReq, decline) => {
-        if (confirmReq?.type === TempleMessageType.DAppOpsConfirmationRequest && confirmReq?.id === id) {
-          if (confirmReq.confirmed) {
-            try {
-              const op = await withUnlocked(({ vault }) =>
-                vault.sendOperations(
-                  dApp.pkh,
-                  networkRpc,
-                  buildFinalOpParmas(req.opParams, confirmReq.modifiedTotalFee, confirmReq.modifiedStorageLimit)
-                )
-              );
-
-              try {
-                const chainId = await loadChainId(networkRpc);
-                await addLocalOperation(chainId, op.hash, op.results);
-              } catch {}
-
-              resolve({
-                type: TempleDAppMessageType.OperationResponse,
-                opHash: op.hash
-              });
-            } catch (err: any) {
-              if (err instanceof TezosOperationError) {
-                err.message = TempleDAppErrorType.TezosOperation;
-                reject(err);
-              } else {
-                throw err;
-              }
-            }
-          } else {
-            decline();
-          }
-
-          return {
-            type: TempleMessageType.DAppOpsConfirmationResponse
-          };
-        }
-        return;
-      }
+      handleIntercomRequest: (confirmReq, decline) =>
+        handleIntercomRequest(confirmReq, decline, id, dApp, networkRpc, req, resolve, reject)
     });
   });
 }
+
+const handleIntercomRequest = async (
+  confirmReq: TempleRequest,
+  decline: () => void,
+  id: string,
+  dApp: TempleDAppSession,
+  networkRpc: string,
+  req: TempleDAppOperationRequest,
+  resolve: any,
+  reject: any
+) => {
+  if (confirmReq?.type === TempleMessageType.DAppOpsConfirmationRequest && confirmReq?.id === id) {
+    if (confirmReq.confirmed) {
+      try {
+        const op = await withUnlocked(({ vault }) =>
+          vault.sendOperations(
+            dApp.pkh,
+            networkRpc,
+            buildFinalOpParmas(req.opParams, confirmReq.modifiedTotalFee, confirmReq.modifiedStorageLimit)
+          )
+        );
+
+        safeGetChain(networkRpc, op);
+
+        resolve({
+          type: TempleDAppMessageType.OperationResponse,
+          opHash: op.hash
+        });
+      } catch (err: any) {
+        if (err instanceof TezosOperationError) {
+          err.message = TempleDAppErrorType.TezosOperation;
+          reject(err);
+        } else {
+          throw err;
+        }
+      }
+    } else {
+      decline();
+    }
+
+    return {
+      type: TempleMessageType.DAppOpsConfirmationResponse
+    };
+  }
+  return undefined;
+};
+
+const safeGetChain = async (networkRpc: string, op: any) => {
+  try {
+    const chainId = await loadChainId(networkRpc);
+    await addLocalOperation(chainId, op.hash, op.results);
+  } catch {}
+};
 
 export async function requestSign(origin: string, req: TempleDAppSignRequest): Promise<TempleDAppSignResponse> {
   if (req?.payload?.startsWith('0x')) {
@@ -226,62 +242,69 @@ export async function requestSign(origin: string, req: TempleDAppSignRequest): P
     throw new Error(TempleDAppErrorType.NotFound);
   }
 
-  return new Promise(async (resolve, reject) => {
-    const id = nanoid();
-    const networkRpc = await getNetworkRPC(dApp.network);
-
-    let preview: any;
-    try {
-      if (req.payload.match(TEZ_MSG_SIGN_PATTERN)) {
-        preview = emitMicheline(valueDecoder(Uint8ArrayConsumer.fromHexString(req.payload.slice(2))), {
-          indent: '  ',
-          newline: '\n'
-        }).slice(1, -1);
-      } else {
-        const parsed = await localForger.parse(req.payload);
-        if (parsed.contents.length > 0) {
-          preview = parsed;
-        }
-      }
-    } catch {
-      preview = null;
-    }
-
-    await requestConfirm({
-      id,
-      payload: {
-        type: 'sign',
-        origin,
-        networkRpc,
-        appMeta: dApp.appMeta,
-        sourcePkh: req.sourcePkh,
-        payload: req.payload,
-        preview
-      },
-      onDecline: () => {
-        reject(new Error(TempleDAppErrorType.NotGranted));
-      },
-      handleIntercomRequest: async (confirmReq, decline) => {
-        if (confirmReq?.type === TempleMessageType.DAppSignConfirmationRequest && confirmReq?.id === id) {
-          if (confirmReq.confirmed) {
-            const { prefixSig: signature } = await withUnlocked(({ vault }) => vault.sign(dApp.pkh, req.payload));
-            resolve({
-              type: TempleDAppMessageType.SignResponse,
-              signature
-            });
-          } else {
-            decline();
-          }
-
-          return {
-            type: TempleMessageType.DAppSignConfirmationResponse
-          };
-        }
-        return;
-      }
-    });
-  });
+  return new Promise((resolve, reject) => generatePromisifySign(resolve, reject, dApp, req));
 }
+
+const generatePromisifySign = async (
+  resolve: any,
+  reject: any,
+  dApp: TempleDAppSession,
+  req: TempleDAppSignRequest
+) => {
+  const id = nanoid();
+  const networkRpc = await getNetworkRPC(dApp.network);
+
+  let preview: any;
+  try {
+    if (req.payload.match(TEZ_MSG_SIGN_PATTERN)) {
+      preview = emitMicheline(valueDecoder(Uint8ArrayConsumer.fromHexString(req.payload.slice(2))), {
+        indent: '  ',
+        newline: '\n'
+      }).slice(1, -1);
+    } else {
+      const parsed = await localForger.parse(req.payload);
+      if (parsed.contents.length > 0) {
+        preview = parsed;
+      }
+    }
+  } catch {
+    preview = null;
+  }
+
+  await requestConfirm({
+    id,
+    payload: {
+      type: 'sign',
+      origin,
+      networkRpc,
+      appMeta: dApp.appMeta,
+      sourcePkh: req.sourcePkh,
+      payload: req.payload,
+      preview
+    },
+    onDecline: () => {
+      reject(new Error(TempleDAppErrorType.NotGranted));
+    },
+    handleIntercomRequest: async (confirmReq, decline) => {
+      if (confirmReq?.type === TempleMessageType.DAppSignConfirmationRequest && confirmReq?.id === id) {
+        if (confirmReq.confirmed) {
+          const { prefixSig: signature } = await withUnlocked(({ vault }) => vault.sign(dApp.pkh, req.payload));
+          resolve({
+            type: TempleDAppMessageType.SignResponse,
+            signature
+          });
+        } else {
+          decline();
+        }
+
+        return {
+          type: TempleMessageType.DAppSignConfirmationResponse
+        };
+      }
+      return undefined;
+    }
+  });
+};
 
 export async function requestBroadcast(
   origin: string,

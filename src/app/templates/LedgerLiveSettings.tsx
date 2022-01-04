@@ -23,6 +23,8 @@ const LedgerLiveSettings: React.FC<{}> = () => {
     setLedgerLiveEnabled(evt.target.checked);
   };
 
+  const ledgerLabel = ledgerLiveEnabled ? 'enabled' : 'disabled';
+
   return settingsDisplayed ? (
     <>
       <label className="mb-4 leading-tight flex flex-col" htmlFor="ledgerLiveSettings">
@@ -39,7 +41,7 @@ const LedgerLiveSettings: React.FC<{}> = () => {
         checked={ledgerLiveEnabled}
         onChange={handlePopupModeChange}
         name="ledgerLiveEnabled"
-        label={t(ledgerLiveEnabled ? 'enabled' : 'disabled')}
+        label={t(ledgerLabel)}
         containerClassName="mb-4"
       />
     </>
