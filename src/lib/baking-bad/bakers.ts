@@ -15,6 +15,7 @@ export const bakingBadGetKnownBakers = buildQuery<
 >(api, 'GET', '/bakers', ['configs', 'insurance', 'contribution']);
 
 export async function getAllBakersBakingBad() {
+  console.log('items');
   const bakers = await bakingBadGetKnownBakers({
     configs: false,
     insurance: true,
