@@ -1,5 +1,6 @@
 import { DerivationType } from '@taquito/ledger-signer';
 import { TezosOperationError } from '@taquito/taquito';
+import { char2Bytes } from '@taquito/utils';
 import {
   TempleDAppMessageType,
   TempleDAppErrorType,
@@ -533,8 +534,7 @@ const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
       return {
         type: TempleDAppMessageType.SignRequest,
         sourcePkh: req.sourceAddress,
-        payload:
-          req.signingType === Beacon.SigningType.RAW ? Buffer.from(req.payload, 'utf8').toString('hex') : req.payload
+        payload: req.signingType === Beacon.SigningType.RAW ? generateRawPayloadBytes(req.payload) : req.payload
       };
 
     case Beacon.MessageType.BroadcastRequest:
@@ -602,6 +602,11 @@ function getErrorData(err: any) {
   return err instanceof TezosOperationError ? err.errors.map(({ contract_code, ...rest }: any) => rest) : undefined;
 }
 
+function generateRawPayloadBytes(payload: string) {
+  const bytes = char2Bytes(Buffer.from(payload, 'utf8').toString('hex'));
+  // https://tezostaquito.io/docs/signing/
+  return `0501${char2Bytes(String(bytes.length))}${bytes}`;
+}
 const close = (
   closing: boolean,
   port: Runtime.Port,

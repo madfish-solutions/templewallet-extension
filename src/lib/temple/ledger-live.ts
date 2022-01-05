@@ -5,7 +5,7 @@ export async function isLedgerLiveEnabledByDefault() {
 }
 
 export async function isLedgerLiveEnabled() {
-  const isLedgerLive = localStorage.getItem(TempleSharedStorageKey.UseLedgerLive) === 'true';
-  if (isLedgerLive) return await isLedgerLiveEnabledByDefault();
-  return false;
+  return (
+    localStorage.getItem(TempleSharedStorageKey.UseLedgerLive) === 'true' || (await isLedgerLiveEnabledByDefault())
+  );
 }
