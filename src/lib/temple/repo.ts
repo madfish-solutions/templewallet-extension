@@ -4,8 +4,6 @@ import Dexie from 'dexie';
 import { BcdTokenTransfer } from 'lib/better-call-dev';
 import { TzktOperation } from 'lib/tzkt';
 
-import { IAsset } from '../../app/templates/AssetSelect';
-
 export enum Table {
   AccountTokens = 'accountTokens',
   Operations = 'operations',
@@ -29,10 +27,6 @@ export const syncTimes = db.table<ISyncTime, string>(Table.SyncTimes);
 
 export function toAccountTokenKey(chainId: string, account: string, tokenSlug: string) {
   return [chainId, account, tokenSlug].join('_');
-}
-
-export function getSlug(asset: IAsset) {
-  return asset === 'tez' ? asset : asset.tokenSlug;
 }
 
 export enum ITokenType {

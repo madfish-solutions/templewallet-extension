@@ -10,7 +10,9 @@ import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates
 import InUSD from 'app/templates/InUSD';
 import { T } from 'lib/i18n/react';
 import { AssetMetadata, getAssetName, getAssetSymbol, useAccount, useAssetMetadata } from 'lib/temple/front';
-import { IAccountToken, getSlug } from 'lib/temple/repo';
+
+import { IAsset } from './interfaces';
+import { getSlug } from './utils';
 
 type AssetSelectProps = {
   value: IAsset;
@@ -18,8 +20,6 @@ type AssetSelectProps = {
   onChange?: (assetSlug: string) => void;
   className?: string;
 };
-
-export type IAsset = IAccountToken | 'tez';
 
 const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className }) => {
   const title = useMemo(

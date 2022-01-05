@@ -30,7 +30,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
-import AssetSelect, { IAsset } from 'app/templates/AssetSelect';
+import AssetSelect from 'app/templates/AssetSelect/AssetSelect';
 import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
 import OperationStatus from 'app/templates/OperationStatus';
@@ -68,11 +68,12 @@ import {
 } from 'lib/temple/front';
 import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
 import { AssetMetadata } from 'lib/temple/metadata';
-import { getSlug } from 'lib/temple/repo';
 import { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { IAsset } from './AssetSelect/interfaces';
+import { getSlug } from './AssetSelect/utils';
 import { SendFormSelectors } from './SendForm.selectors';
 import AddContactModal from './SendForm/AddContactModal';
 import ContactsDropdown, { ContactsDropdownProps } from './SendForm/ContactsDropdown';
