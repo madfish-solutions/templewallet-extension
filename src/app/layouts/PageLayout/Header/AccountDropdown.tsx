@@ -22,7 +22,7 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { t, T } from 'lib/i18n/react';
 import { useAccount, useRelevantAccounts, useSetAccountPkh, useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
-import { HistoryAction, Link, navigate, useLocation } from 'lib/woozie';
+import { Link } from 'lib/woozie';
 
 import { AccountDropdownSelectors } from './AccountDropdown.selectors';
 
@@ -35,7 +35,6 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   const { trackEvent } = useAnalytics();
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
-  const currentLocation = useLocation();
   const setAccountPkh = useSetAccountPkh();
   const [searchValue, setSearchValue] = useState('');
 
@@ -193,9 +192,6 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
                 const handleAccountClick = () => {
                   if (!selected) {
                     setAccountPkh(acc.publicKeyHash);
-                    if (currentLocation.pathname.includes('/send')) {
-                      navigate(`/send/tez`, HistoryAction.Replace);
-                    }
                   }
                   setOpened(false);
                 };

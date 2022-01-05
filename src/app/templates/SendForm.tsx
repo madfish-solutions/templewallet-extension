@@ -30,7 +30,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
-import AssetSelect from 'app/templates/AssetSelect';
+import AssetSelect, { getSlug, IAsset } from 'app/templates/AssetSelect';
 import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
 import OperationStatus from 'app/templates/OperationStatus';
@@ -59,6 +59,9 @@ import {
   useAssetMetadata,
   useAssetUSDPrice,
   useBalance,
+  useChainId,
+  useCollectibleTokens,
+  useDisplayedFungibleTokens,
   useNetwork,
   useTezos,
   useTezosDomainsClient
@@ -90,6 +93,16 @@ type SendFormProps = {
 const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
   assetSlug = assetSlug ?? 'tez';
 
+  const chainId = useChainId(true)!;
+  const account = useAccount();
+  const address = account.publicKeyHash;
+
+  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
+  const { data: collectibles = [] } = useCollectibleTokens(chainId, address, true);
+
+  const assets = useMemo<IAsset[]>(() => ['tez' as const, ...tokens, ...collectibles], [tokens, collectibles]);
+  const selectedAsset = useMemo(() => assets.find(a => getSlug(a) === assetSlug) ?? 'tez', [assets, assetSlug]);
+
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
   const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
@@ -118,10 +131,14 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
     <>
       {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} />}
 
-      <AssetSelect value={assetSlug} onChange={handleAssetChange} className="mb-6" />
+      <AssetSelect value={selectedAsset} assets={assets} onChange={handleAssetChange} className="mb-6" />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form assetSlug={assetSlug} setOperation={setOperation} onAddContactRequested={handleAddContactRequested} />
+        <Form
+          assetSlug={getSlug(selectedAsset)}
+          setOperation={setOperation}
+          onAddContactRequested={handleAddContactRequested}
+        />
       </Suspense>
 
       <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />
