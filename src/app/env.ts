@@ -12,6 +12,8 @@ export type AppEnvironment = {
   confirmWindow?: boolean;
 };
 
+console.log('env');
+
 export enum WindowType {
   Popup,
   FullPage
