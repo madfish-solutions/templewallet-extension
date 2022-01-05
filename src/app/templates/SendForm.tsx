@@ -30,7 +30,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
-import AssetSelect, { getSlug, IAsset } from 'app/templates/AssetSelect';
+import AssetSelect, { IAsset } from 'app/templates/AssetSelect';
 import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
 import OperationStatus from 'app/templates/OperationStatus';
@@ -68,6 +68,7 @@ import {
 } from 'lib/temple/front';
 import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
 import { AssetMetadata } from 'lib/temple/metadata';
+import { getSlug } from 'lib/temple/repo';
 import { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
@@ -90,15 +91,12 @@ type SendFormProps = {
   assetSlug?: string | null;
 };
 
-const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
-  assetSlug = assetSlug ?? 'tez';
-
+const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
   const chainId = useChainId(true)!;
   const account = useAccount();
-  const address = account.publicKeyHash;
 
-  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
-  const { data: collectibles = [] } = useCollectibleTokens(chainId, address, true);
+  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, account.publicKeyHash);
+  const { data: collectibles = [] } = useCollectibleTokens(chainId, account.publicKeyHash, true);
 
   const assets = useMemo<IAsset[]>(() => ['tez' as const, ...tokens, ...collectibles], [tokens, collectibles]);
   const selectedAsset = useMemo(() => assets.find(a => getSlug(a) === assetSlug) ?? 'tez', [assets, assetSlug]);
