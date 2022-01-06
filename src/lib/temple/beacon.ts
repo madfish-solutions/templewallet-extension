@@ -350,6 +350,6 @@ export function fromHex(term: string) {
   return Buffer.from(term, 'hex');
 }
 
-function toPubKeyStorageKey(origin: string) {
+export function toPubKeyStorageKey(origin: string) {
   return `beacon_${origin}_pubkey`;
 }
