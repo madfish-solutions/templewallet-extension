@@ -315,6 +315,9 @@ export const getOrCreateKeyPair = memoize(
     }
 
     await sodium.ready;
+    // const p = sodium.crypto_generichash(2, sodium.from_string(seed));
+    // console.log('p is');
+    // console.log(p);
     return sodium.crypto_sign_seed_keypair(sodium.crypto_generichash(32, sodium.from_string(seed)));
   },
   { maxAge: 60_000 }
