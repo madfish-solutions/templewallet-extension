@@ -1,10 +1,19 @@
 import React from 'react';
 
+import { TransportType } from '@temple-wallet/ledger-bridge';
+
 import FormCheckbox from 'app/atoms/FormCheckbox';
 import { T, t } from 'lib/i18n/react';
+import { useRetryableSWR } from 'lib/swr';
 import { TempleSharedStorageKey, useLocalStorage } from 'lib/temple/front';
+import { isLedgerLiveEnabledByDefault } from 'lib/temple/ledger-live';
 
 const LedgerLiveSettings: React.FC<{}> = () => {
+  const { data: enabledByDefault } = useRetryableSWR(
+    ['is-ledger-live-enabled-by-default'],
+    isLedgerLiveEnabledByDefault
+  );
+
   const [ledgerTransportType, setLedgerTransportType] = useLocalStorage<boolean>(
     TempleSharedStorageKey.UseLedgerLive,
     false
@@ -14,7 +23,9 @@ const LedgerLiveSettings: React.FC<{}> = () => {
     setLedgerTransportType(evt.target.checked);
   };
 
-  const ledgerLabel = ledgerLiveEnabled ? 'enabled' : 'disabled';
+  const settingsDisplayed = enabledByDefault !== TransportType.U2F && process.env.TARGET_BROWSER !== 'firefox';
+
+  const ledgerLabel = ledgerTransportType ? 'enabled' : 'disabled';
 
   return settingsDisplayed ? (
     <>
@@ -36,7 +47,7 @@ const LedgerLiveSettings: React.FC<{}> = () => {
         containerClassName="mb-4"
       />
     </>
-  );
+  ) : null;
 };
 
 export default LedgerLiveSettings;
