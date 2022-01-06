@@ -4,7 +4,6 @@ import {
   fromHex,
   getDAppPublicKey,
   getOrCreateKeyPair,
-  KEYPAIR_SEED_STORAGE_KEY,
   removeDAppPublicKey,
   saveDAppPublicKey,
   toHex,
@@ -35,7 +34,6 @@ describe('Beacon tests', () => {
       expect(dappKey).toBe(undefined);
     });
     it('Can write to storage', async () => {
-      // await browser.storage.local.set({ beacon_something_pubkey: 'something' });
       const someKey = 'something';
       const someValue = 'somevalue';
       await saveDAppPublicKey(someKey, someValue);
@@ -63,19 +61,6 @@ describe('Beacon tests', () => {
       expect(keyPair).toHaveProperty('keyType');
       expect(keyPair).toHaveProperty('privateKey');
       expect(keyPair).toHaveProperty('publicKey');
-    });
-    it('Returns old value', async () => {
-      const sampleKeyType = 'sampleKeyType';
-      const samplePrivateKey = 'samplePrivateKey';
-      const samplePublicKey = 'samplePublicKey';
-      const sampleKeyPair = {
-        keyType: sampleKeyType,
-        privateKey: samplePrivateKey,
-        publicKey: samplePublicKey
-      };
-      await browser.storage.local.set({ [KEYPAIR_SEED_STORAGE_KEY]: JSON.stringify(sampleKeyPair) });
-      const keypair = await getOrCreateKeyPair();
-      expect(keypair).toMatchObject(sampleKeyPair);
     });
   });
 });

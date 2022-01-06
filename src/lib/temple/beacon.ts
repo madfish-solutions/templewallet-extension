@@ -1,5 +1,22 @@
 import { Buffer } from 'buffer';
-import * as sodium from 'libsodium-wrappers';
+import {
+  crypto_generichash,
+  crypto_box_seal,
+  ready,
+  crypto_secretbox_NONCEBYTES,
+  crypto_secretbox_MACBYTES,
+  crypto_sign_seed_keypair,
+  from_string,
+  randombytes_buf,
+  crypto_kx_server_session_keys,
+  crypto_secretbox_easy,
+  crypto_secretbox_open_easy,
+  crypto_kx_client_session_keys,
+  crypto_sign_ed25519_pk_to_curve25519,
+  crypto_sign_ed25519_sk_to_curve25519,
+  KeyPair,
+  CryptoKX
+} from 'libsodium-wrappers';
 import memoize from 'p-memoize';
 import { browser } from 'webextension-polyfill-ts';
 
@@ -210,9 +227,9 @@ export const PAIRING_RESPONSE_BASE: Partial<PostMessagePairingResponse> = {
 export const KEYPAIR_SEED_STORAGE_KEY = 'beacon_keypair_seed';
 
 export async function getSenderId(): Promise<string> {
-  await sodium.ready;
+  await ready;
   const keyPair = await getOrCreateKeyPair();
-  const buffer = Buffer.from(sodium.crypto_generichash(5, keyPair.publicKey));
+  const buffer = Buffer.from(crypto_generichash(5, keyPair.publicKey));
   return bs58check.encode(buffer);
 }
 
@@ -229,7 +246,7 @@ export async function decryptMessage(payload: string, senderPublicKey: string) {
 
   const hexPayload = Buffer.from(payload, 'hex');
 
-  if (hexPayload.length >= sodium.crypto_secretbox_NONCEBYTES + sodium.crypto_secretbox_MACBYTES) {
+  if (hexPayload.length >= crypto_secretbox_NONCEBYTES + crypto_secretbox_MACBYTES) {
     try {
       return await decryptCryptoboxPayload(hexPayload, sharedRx);
     } catch (decryptionError) {
@@ -241,61 +258,56 @@ export async function decryptMessage(payload: string, senderPublicKey: string) {
 }
 
 export async function sealCryptobox(payload: string | Buffer, publicKey: Uint8Array): Promise<string> {
-  await sodium.ready;
+  await ready;
 
-  const kxSelfPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(Buffer.from(publicKey)); // Secret bytes to scalar bytes
-  const encryptedMessage = sodium.crypto_box_seal(payload, kxSelfPublicKey);
+  const kxSelfPublicKey = crypto_sign_ed25519_pk_to_curve25519(Buffer.from(publicKey)); // Secret bytes to scalar bytes
+  const encryptedMessage = crypto_box_seal(payload, kxSelfPublicKey);
 
   return toHex(encryptedMessage);
 }
 
 export async function encryptCryptoboxPayload(message: string, sharedKey: Uint8Array): Promise<string> {
-  await sodium.ready;
+  await ready;
 
-  const nonce = Buffer.from(sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES));
+  const nonce = Buffer.from(randombytes_buf(crypto_secretbox_NONCEBYTES));
   const combinedPayload = Buffer.concat([
     nonce,
-    Buffer.from(sodium.crypto_secretbox_easy(Buffer.from(message, 'utf8'), nonce, sharedKey))
+    Buffer.from(crypto_secretbox_easy(Buffer.from(message, 'utf8'), nonce, sharedKey))
   ]);
 
   return toHex(combinedPayload);
 }
 
 export async function decryptCryptoboxPayload(payload: Uint8Array, sharedKey: Uint8Array): Promise<string> {
-  await sodium.ready;
+  await ready;
 
-  const nonce = payload.slice(0, sodium.crypto_secretbox_NONCEBYTES);
-  const ciphertext = payload.slice(sodium.crypto_secretbox_NONCEBYTES);
+  const nonce = payload.slice(0, crypto_secretbox_NONCEBYTES);
+  const ciphertext = payload.slice(crypto_secretbox_NONCEBYTES);
 
-  return Buffer.from(sodium.crypto_secretbox_open_easy(ciphertext, nonce, sharedKey)).toString('utf8');
+  return Buffer.from(crypto_secretbox_open_easy(ciphertext, nonce, sharedKey)).toString('utf8');
 }
 
-export async function createCryptoBoxServer(
-  otherPublicKey: string,
-  selfKeyPair: sodium.KeyPair
-): Promise<sodium.CryptoKX> {
+export async function createCryptoBoxServer(otherPublicKey: string, selfKeyPair: KeyPair): Promise<CryptoKX> {
   const keys = await createCryptoBox(otherPublicKey, selfKeyPair);
 
-  return sodium.crypto_kx_server_session_keys(...keys);
+  return crypto_kx_server_session_keys(...keys);
 }
 
-export async function createCryptoBoxClient(
-  otherPublicKey: string,
-  selfKeyPair: sodium.KeyPair
-): Promise<sodium.CryptoKX> {
+export async function createCryptoBoxClient(otherPublicKey: string, selfKeyPair: KeyPair): Promise<CryptoKX> {
   const keys = await createCryptoBox(otherPublicKey, selfKeyPair);
 
-  return sodium.crypto_kx_client_session_keys(...keys);
+  return crypto_kx_client_session_keys(...keys);
 }
 
 export async function createCryptoBox(
   otherPublicKey: string,
-  selfKeyPair: sodium.KeyPair
+  selfKeyPair: KeyPair
 ): Promise<[Uint8Array, Uint8Array, Uint8Array]> {
   // TODO: Don't calculate it every time?
-  const kxSelfPrivateKey = sodium.crypto_sign_ed25519_sk_to_curve25519(Buffer.from(selfKeyPair.privateKey)); // Secret bytes to scalar bytes
-  const kxSelfPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(Buffer.from(selfKeyPair.publicKey)); // Secret bytes to scalar bytes
-  const kxOtherPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(Buffer.from(otherPublicKey, 'hex')); // Secret bytes to scalar bytes
+  console.log(typeof selfKeyPair.privateKey);
+  const kxSelfPrivateKey = crypto_sign_ed25519_sk_to_curve25519(Buffer.from(selfKeyPair.privateKey)); // Secret bytes to scalar bytes
+  const kxSelfPublicKey = crypto_sign_ed25519_pk_to_curve25519(Buffer.from(selfKeyPair.publicKey)); // Secret bytes to scalar bytes
+  const kxOtherPublicKey = crypto_sign_ed25519_pk_to_curve25519(Buffer.from(otherPublicKey, 'hex')); // Secret bytes to scalar bytes
 
   return [Buffer.from(kxSelfPublicKey), Buffer.from(kxSelfPrivateKey), Buffer.from(kxOtherPublicKey)];
 }
@@ -314,11 +326,8 @@ export const getOrCreateKeyPair = memoize(
       seed = newSeed;
     }
 
-    await sodium.ready;
-    // const p = sodium.crypto_generichash(2, sodium.from_string(seed));
-    // console.log('p is');
-    // console.log(p);
-    return sodium.crypto_sign_seed_keypair(sodium.crypto_generichash(32, sodium.from_string(seed)));
+    await ready;
+    return crypto_sign_seed_keypair(crypto_generichash(32, from_string(seed)));
   },
   { maxAge: 60_000 }
 );
