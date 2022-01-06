@@ -684,7 +684,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
           handleFeeFieldChange={handleFeeFieldChange}
           baseFee={baseFee}
           error={errors.fee}
-          isSubmitting={formState.isSubmitted}
+          isSubmitting={formState.isSubmitting}
         />
       )}
     </form>
