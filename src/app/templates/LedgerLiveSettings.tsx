@@ -14,7 +14,9 @@ const LedgerLiveSettings: React.FC<{}> = () => {
     setLedgerTransportType(evt.target.checked);
   };
 
-  return (
+  const ledgerLabel = ledgerLiveEnabled ? 'enabled' : 'disabled';
+
+  return settingsDisplayed ? (
     <>
       <label className="mb-4 leading-tight flex flex-col" htmlFor="ledgerLiveSettings">
         <span className="text-base font-semibold text-gray-700">
@@ -30,7 +32,7 @@ const LedgerLiveSettings: React.FC<{}> = () => {
         checked={ledgerTransportType}
         onChange={handlePopupModeChange}
         name="ledgerLiveEnabled"
-        label={t(ledgerTransportType ? 'enabled' : 'disabled')}
+        label={t(ledgerLabel)}
         containerClassName="mb-4"
       />
     </>

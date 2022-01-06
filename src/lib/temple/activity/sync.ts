@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js';
 
-import { getTokenTransfers, BCD_NETWORKS_NAMES } from 'lib/better-call-dev';
+import { getTokenTransfers, BCD_NETWORKS_NAMES, BcdTokenTransfer } from 'lib/better-call-dev';
 import * as Repo from 'lib/temple/repo';
-import { TZKT_API_BASE_URLS, getOperations } from 'lib/tzkt';
+import { TZKT_API_BASE_URLS, getOperations, TzktOperation } from 'lib/tzkt';
 
 import { isPositiveNumber, tryParseTokenTransfers, toTokenId, getBcdTokenTransferId } from './helpers';
 
@@ -27,14 +27,14 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
       address,
       sort: 1,
       limit: 1000,
-      [fresh ? 'from' : 'to']:
+      [getFreshTzktField(fresh)]:
         tzktTime && new Date(fresh ? tzktTime.higherTimestamp + 1 : tzktTime.lowerTimestamp).toISOString()
     }),
     getTokenTransfers({
       network: bcdNetwork,
       address,
       sort: 'desc',
-      [fresh ? 'start' : 'end']:
+      [getFreshBcdField(fresh)]:
         bcdTime &&
         new BigNumber(fresh ? bcdTime.higherTimestamp + 1_000 : bcdTime.lowerTimestamp).idiv(1_000).toNumber()
     })
@@ -67,40 +67,48 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
    * TZKT
    */
 
+  syncTzktOperations(tzktOperations, chainId, address, tzktTime, fresh);
+
+  /**
+   * BCD
+   */
+
+  syncBcdOperations(tokenTransfers, chainId, address, tzktTime, fresh);
+
+  return tzktOperations.length + tokenTransfers.length;
+}
+
+const afterSyncUpdate = async (
+  serviceName: string,
+  chainId: string,
+  address: string,
+  fresh: boolean,
+  higherTimestamp: number,
+  lowerTimestamp: number
+) =>
+  await Repo.syncTimes.where({ service: serviceName, chainId, address }).modify(st => {
+    if (fresh) {
+      st.higherTimestamp = higherTimestamp;
+    } else {
+      st.lowerTimestamp = lowerTimestamp;
+    }
+  });
+
+const syncTzktOperations = async (
+  tzktOperations: TzktOperation[],
+  chainId: string,
+  address: string,
+  tzktTime: Repo.ISyncTime | undefined,
+  fresh: boolean
+) => {
   for (const tzktOp of tzktOperations) {
     const current = await Repo.operations.get(tzktOp.hash);
 
     const memberSet = new Set(current?.members);
     const assetIdSet = new Set(current?.assetIds);
 
-    if (
-      (tzktOp.type === 'transaction' || tzktOp.type === 'delegation') &&
-      tzktOp.amount &&
-      isPositiveNumber(tzktOp.amount)
-    ) {
-      assetIdSet.add('tez');
-    }
-
-    if (tzktOp.type === 'transaction') {
-      memberSet.add(tzktOp.sender.address);
-      memberSet.add(tzktOp.target.address);
-
-      if (tzktOp.parameters) {
-        try {
-          tryParseTokenTransfers(JSON.parse(tzktOp.parameters), tzktOp.target.address, (assetId, from, to) => {
-            memberSet.add(from).add(to);
-            assetIdSet.add(assetId);
-          });
-        } catch {}
-      }
-    } else if (tzktOp.type === 'delegation') {
-      if (tzktOp.initiator) {
-        memberSet.add(tzktOp.initiator.address);
-      }
-      if (tzktOp.newDelegate) {
-        memberSet.add(tzktOp.newDelegate.address);
-      }
-    }
+    addPositiveToOpeartionSet(tzktOp, assetIdSet);
+    addMemberSetOperations(tzktOp, assetIdSet, memberSet);
 
     const members = Array.from(memberSet);
     const assetIds = Array.from(assetIdSet);
@@ -143,20 +151,49 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
         lowerTimestamp
       });
     } else {
-      await Repo.syncTimes.where({ service: 'tzkt', chainId, address }).modify(st => {
-        if (fresh) {
-          st.higherTimestamp = higherTimestamp;
-        } else {
-          st.lowerTimestamp = lowerTimestamp;
-        }
-      });
+      await afterSyncUpdate('tzkt', chainId, address, fresh, higherTimestamp, lowerTimestamp);
     }
   }
+};
 
-  /**
-   * BCD
-   */
+const addPositiveToOpeartionSet = (tzktOp: TzktOperation, assetIdSet: Set<string>) =>
+  void (
+    (tzktOp.type === 'transaction' || tzktOp.type === 'delegation') &&
+    tzktOp.amount &&
+    isPositiveNumber(tzktOp.amount) &&
+    assetIdSet.add('tez')
+  );
 
+const addMemberSetOperations = (tzktOp: TzktOperation, assetIdSet: Set<string>, memberSet: Set<string>) => {
+  if (tzktOp.type === 'transaction') {
+    memberSet.add(tzktOp.sender.address);
+    memberSet.add(tzktOp.target.address);
+
+    if (tzktOp.parameters) {
+      try {
+        tryParseTokenTransfers(JSON.parse(tzktOp.parameters), tzktOp.target.address, (assetId, from, to) => {
+          memberSet.add(from).add(to);
+          assetIdSet.add(assetId);
+        });
+      } catch {}
+    }
+  } else if (tzktOp.type === 'delegation') {
+    if (tzktOp.initiator) {
+      memberSet.add(tzktOp.initiator.address);
+    }
+    if (tzktOp.newDelegate) {
+      memberSet.add(tzktOp.newDelegate.address);
+    }
+  }
+};
+
+const syncBcdOperations = async (
+  tokenTransfers: BcdTokenTransfer[],
+  chainId: string,
+  address: string,
+  tzktTime: Repo.ISyncTime | undefined,
+  fresh: boolean
+) => {
   for (const tokenTrans of tokenTransfers) {
     const current = await Repo.operations.get(tokenTrans.hash);
 
@@ -212,15 +249,11 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
         lowerTimestamp
       });
     } else {
-      await Repo.syncTimes.where({ service: 'bcd', chainId, address }).modify(st => {
-        if (fresh) {
-          st.higherTimestamp = higherTimestamp;
-        } else {
-          st.lowerTimestamp = lowerTimestamp;
-        }
-      });
+      await afterSyncUpdate('bcd', chainId, address, fresh, higherTimestamp, lowerTimestamp);
     }
   }
+};
 
-  return tzktOperations.length + tokenTransfers.length;
-}
+const getFreshTzktField = (fresh: boolean) => (fresh ? 'from' : 'to');
+
+const getFreshBcdField = (fresh: boolean) => (fresh ? 'start' : 'end');
