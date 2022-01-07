@@ -11,7 +11,7 @@ import Spinner from 'app/atoms/Spinner';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ReactComponent as SyncIcon } from 'app/icons/sync.svg';
-import AssetIcon from 'app/templates/AssetIcon';
+import SwapAssetIcon from 'app/templates/SwapAssetIcon';
 import {
   getAssetExchangeData,
   TokensExchangeData,
@@ -666,7 +666,7 @@ const AssetOption: React.FC<AssetOptionProps> = ({ option, isLast, knownAssetsSl
       onClick={handleClick}
       className={classNames(!isLast && 'border-b border-gray-300', 'p-4 w-full flex items-center')}
     >
-      <AssetIcon assetSlug={assetSlug} size={32} className="mr-2" />
+      <SwapAssetIcon assetSlug={assetSlug} size={32} className="mr-2" />
       <span className="text-gray-700 text-lg mr-2">
         {option.type === TempleAssetType.TEZ ? option.symbol.toUpperCase() : option.symbol}
       </span>
@@ -699,7 +699,7 @@ const SelectedAssetComponent: React.FC<{ selectedAsset?: TempleAsset }> = ({ sel
       selectedAsset.type === TempleAssetType.TEZ ? selectedAsset.symbol.toUpperCase() : selectedAsset.symbol;
     return (
       <>
-        <AssetIcon assetSlug={toSlugFromLegacyAsset(selectedAsset)} size={32} className="mr-2" />
+        <SwapAssetIcon assetSlug={toSlugFromLegacyAsset(selectedAsset)} size={32} className="mr-2" />
         <span
           className="text-gray-700 text-lg mr-2 items-center overflow-hidden block w-16"
           style={{ textOverflow: 'ellipsis' }}

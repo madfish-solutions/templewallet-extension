@@ -4,8 +4,8 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import Money from 'app/atoms/Money';
-import GenericAssetIcon from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
+import GenericAssetIcon from 'app/templates/CollectibleAssetIcon';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InUSD from 'app/templates/InUSD';
 import { T } from 'lib/i18n/react';
