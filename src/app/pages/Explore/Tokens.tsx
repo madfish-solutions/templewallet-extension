@@ -9,8 +9,8 @@ import { useDebounce } from 'use-debounce';
 import Money from 'app/atoms/Money';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import AssetIcon from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
+import CollectibleAssetIcon from 'app/templates/CollectibleAssetIcon';
 import InUSD from 'app/templates/InUSD';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T } from 'lib/i18n/react';
@@ -276,7 +276,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
       testID={AssetsSelectors.AssetItemButton}
       testIDProperties={{ key: assetSlug }}
     >
-      <AssetIcon assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
+      <CollectibleAssetIcon assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
       <div ref={toDisplayRef} className="w-full">
         <div className="flex justify-between w-full mb-1">

@@ -5,7 +5,8 @@ import { browser } from 'webextension-polyfill-ts';
 
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import styles from 'app/pages/BuyCrypto/BuyCrypto.module.css';
-import AssetIcon from 'app/templates/AssetIcon';
+
+import CollectibleAssetIcon from '../../templates/CollectibleAssetIcon';
 
 interface Props {
   onPress?: () => void;
@@ -29,7 +30,7 @@ const CurrencyComponent = forwardRef<HTMLDivElement, Props>(
         ref={ref}
         className={compoundClassName}
       >
-        {type === 'tezosSelector' ? <AssetIcon assetSlug="tez" size={32} /> : <RenderImage label={label} />}
+        {type === 'tezosSelector' ? <CollectibleAssetIcon assetSlug="tez" size={32} /> : <RenderImage label={label} />}
         <p className={styles['currencyName']}>{short && label.length > 4 ? `${label.substr(0, 3)}…` : label}</p>
         {type === 'currencySelector' && (
           <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
