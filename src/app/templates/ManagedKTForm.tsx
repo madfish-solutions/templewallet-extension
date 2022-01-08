@@ -104,7 +104,7 @@ const ManagedKTForm: FC = () => {
   );
 
   const onSubmit = useCallback(
-    async ({ contractAddress: address }: ImportKTAccountFormData) => {
+    async ({ contractAddress }: ImportKTAccountFormData) => {
       if (formState.isSubmitting) {
         return;
       }
@@ -112,7 +112,7 @@ const ManagedKTForm: FC = () => {
       formAnalytics.trackSubmit();
       setError(null);
       try {
-        const contract = await tezos.contract.at(address);
+        const contract = await tezos.contract.at(contractAddress);
         const owner = await contract.storage();
         if (typeof owner !== 'string') {
           throw new Error(t('invalidManagedContract'));
@@ -122,8 +122,8 @@ const ManagedKTForm: FC = () => {
           throw new Error(t('youAreNotContractManager'));
         }
 
-        const chain = await tezos.rpc.getChainId();
-        await importKTManagedAccount(address, chain, owner);
+        const chainId = await tezos.rpc.getChainId();
+        await importKTManagedAccount(contractAddress, chainId, owner);
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {

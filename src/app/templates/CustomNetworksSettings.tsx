@@ -392,7 +392,7 @@ const LambdaContractSection: FC = () => {
                 className="mb-4"
                 type="error"
                 title={t('error')}
-                description={lambdaDeploymentError.message}
+                description={lambdaDeploymentError!.message}
                 closable
                 onClose={handleErrorAlertClose}
               />

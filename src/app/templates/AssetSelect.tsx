@@ -9,19 +9,39 @@ import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InUSD from 'app/templates/InUSD';
 import { T } from 'lib/i18n/react';
-import { AssetMetadata, getAssetName, getAssetSymbol, useAccount, useAssetMetadata } from 'lib/temple/front';
-
-import { IAsset } from './interfaces';
-import { getSlug } from './utils';
+import {
+  useDisplayedFungibleTokens,
+  useAccount,
+  useChainId,
+  useAssetMetadata,
+  getAssetName,
+  getAssetSymbol,
+  AssetMetadata,
+  useCollectibleTokens
+} from 'lib/temple/front';
+import * as Repo from 'lib/temple/repo';
 
 type AssetSelectProps = {
-  value: IAsset;
-  assets: IAsset[];
+  value: string;
   onChange?: (assetSlug: string) => void;
   className?: string;
 };
 
-const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className }) => {
+type IAsset = Repo.IAccountToken | 'tez';
+
+const getSlug = (asset: IAsset) => (asset === 'tez' ? asset : asset.tokenSlug);
+
+const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
+  const chainId = useChainId(true)!;
+  const account = useAccount();
+  const address = account.publicKeyHash;
+
+  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
+  const { data: collectibles = [] } = useCollectibleTokens(chainId, address, true);
+
+  const assets = useMemo<IAsset[]>(() => ['tez' as const, ...tokens, ...collectibles], [tokens, collectibles]);
+  const selected = useMemo(() => assets.find(a => getSlug(a) === value) ?? 'tez', [assets, value]);
+
   const title = useMemo(
     () => (
       <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
@@ -54,7 +74,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
       OptionSelectedContent={AssetSelectedContent}
       getKey={getSlug}
       options={assets}
-      value={value}
+      value={selected}
       onChange={handleChange}
       title={title}
       className={className}

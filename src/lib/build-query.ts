@@ -10,8 +10,12 @@ export function buildQuery<P extends Record<string, unknown>, R = any>(
 ) {
   return async (params: RequestParams<P>) => {
     const url = typeof path === 'function' ? path(params) : path;
-    const pickParams = toQueryParams && typeof toQueryParams !== 'function' ? pick(params, toQueryParams) : undefined;
-    const queryParams = typeof toQueryParams === 'function' ? toQueryParams(params) : pickParams;
+    const queryParams =
+      typeof toQueryParams === 'function'
+        ? toQueryParams(params)
+        : toQueryParams
+        ? pick(params, toQueryParams)
+        : undefined;
 
     const r = await api.request<R>({
       method,

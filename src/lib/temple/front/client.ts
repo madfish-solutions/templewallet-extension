@@ -15,7 +15,6 @@ import { nanoid } from 'nanoid';
 
 import { IntercomClient } from 'lib/intercom';
 import { useRetryableSWR } from 'lib/swr';
-import { TempleNetwork } from 'lib/temple/front';
 import {
   TempleConfirmationPayload,
   TempleMessageType,
@@ -92,24 +91,27 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
 
-  const getLambdaContractFromNetwork = useCallback(
-    (network: TempleNetwork) =>
+  const customNetworks = useMemo(() => {
+    const customNetworksWithoutLambdaContracts = settings?.customNetworks ?? [];
+    return customNetworksWithoutLambdaContracts.map(network =>
       network.lambdaContract
         ? network
         : {
             ...network,
             lambdaContract: settings?.lambdaContracts?.[network.id]
-          },
-    [settings]
-  );
-
-  const customNetworks = useMemo(() => {
-    const customNetworksWithoutLambdaContracts = settings?.customNetworks ?? [];
-    return customNetworksWithoutLambdaContracts.map(getLambdaContractFromNetwork);
-  }, [settings, getLambdaContractFromNetwork]);
+          }
+    );
+  }, [settings]);
   const defaultNetworksWithLambdaContracts = useMemo(() => {
-    return defaultNetworks.map(getLambdaContractFromNetwork);
-  }, [defaultNetworks, getLambdaContractFromNetwork]);
+    return defaultNetworks.map(network =>
+      network.lambdaContract
+        ? network
+        : {
+            ...network,
+            lambdaContract: settings?.lambdaContracts?.[network.id]
+          }
+    );
+  }, [settings, defaultNetworks]);
   const networks = useMemo(
     () => [...defaultNetworksWithLambdaContracts, ...customNetworks],
     [defaultNetworksWithLambdaContracts, customNetworks]
@@ -249,10 +251,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     []
   );
 
-  const updateSettings = useCallback(async (newSettings: Partial<TempleSettings>) => {
+  const updateSettings = useCallback(async (settings: Partial<TempleSettings>) => {
     const res = await request({
       type: TempleMessageType.UpdateSettingsRequest,
-      settings: newSettings
+      settings
     });
     assertResponse(res.type === TempleMessageType.UpdateSettingsResponse);
   }, []);

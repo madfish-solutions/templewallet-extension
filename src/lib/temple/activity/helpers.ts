@@ -9,12 +9,57 @@ export function tryParseTokenTransfers(
 ) {
   // FA1.2
   try {
-    formatFa12(parameters, destination, onTransfer);
+    const { entrypoint, value } = parameters;
+    if (entrypoint === 'transfer') {
+      let from, to, amount: string | undefined;
+
+      const { args: x } = value as any;
+      if (typeof x[0].string === 'string') {
+        from = x[0].string;
+      }
+      const { args: y } = x[1];
+      if (typeof y[0].string === 'string') {
+        to = y[0].string;
+      }
+      if (typeof y[1].int === 'string') {
+        amount = y[1].int;
+      }
+
+      if (from && to && amount) {
+        onTransfer(toTokenId(destination), from, to, amount);
+      }
+    }
   } catch {}
 
   // FA2
   try {
-    formatFa2(parameters, destination, onTransfer);
+    const { entrypoint, value } = parameters;
+    if (entrypoint === 'transfer') {
+      for (const { args: x } of value as any) {
+        let from: string | undefined;
+
+        if (typeof x[0].string === 'string') {
+          from = x[0].string;
+        }
+        for (const { args: y } of x[1]) {
+          let to, tokenId, amount: string | undefined;
+
+          if (typeof y[0].string === 'string') {
+            to = y[0].string;
+          }
+          if (typeof y[1].args[0].int === 'string') {
+            tokenId = toTokenId(destination, y[1].args[0].int);
+          }
+          if (typeof y[1].args[1].int === 'string') {
+            amount = y[1].args[1].int;
+          }
+
+          if (from && to && tokenId && amount) {
+            onTransfer(tokenId, from, to, amount);
+          }
+        }
+      }
+    }
   } catch {}
 }
 
@@ -29,62 +74,3 @@ export function toTokenId(contractAddress: string, tokenId: string | number = 0)
 export function getBcdTokenTransferId(tokenTrans: BcdTokenTransfer) {
   return `${tokenTrans.hash}_${tokenTrans.nonce}`;
 }
-
-const formatFa12 = (
-  parameters: any,
-  destination: string,
-  onTransfer: (tokenId: string, from: string, to: string, amount: string) => void
-) => {
-  const { entrypoint, value } = parameters;
-  if (entrypoint === 'transfer') {
-    let from, to, amount: string | undefined;
-
-    const { args: x } = value;
-    if (typeof x[0].string === 'string') {
-      from = x[0].string;
-    }
-    const { args: y } = x[1];
-    if (typeof y[0].string === 'string') {
-      to = y[0].string;
-    }
-    if (typeof y[1].int === 'string') {
-      amount = y[1].int;
-    }
-
-    if (from && to && amount) {
-      onTransfer(toTokenId(destination), from, to, amount);
-    }
-  }
-};
-
-const formatFa2 = (
-  parameters: any,
-  destination: string,
-  onTransfer: (tokenId: string, from: string, to: string, amount: string) => void
-) => {
-  const { entrypoint, value } = parameters;
-  if (entrypoint !== 'transfer') return;
-  for (const { args: x } of value) {
-    let from: string | undefined;
-
-    from = checkIfVarString(x);
-    for (const { args: y } of x[1]) {
-      let to, tokenId, amount: string | undefined;
-
-      to = checkIfVarString(y);
-      tokenId = checkDestination(y[1].args[0], destination);
-      amount = checkIfIntString(y[1].args[1]);
-
-      if (from && to && tokenId && amount) {
-        onTransfer(tokenId, from, to, amount);
-      }
-    }
-  }
-};
-
-const checkIfVarString = (x: any) => (typeof x[0].string === 'string' ? x[0].string : undefined);
-
-const checkIfIntString = (x: any) => (typeof x.int === 'string' ? x.int : undefined);
-
-const checkDestination = (x: any, destination: string) =>
-  typeof x.int === 'string' ? toTokenId(destination, x.int) : undefined;

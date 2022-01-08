@@ -16,11 +16,10 @@ const SendErrorAlert: FC<SendErrorAlertProps> = ({ type, error }) => (
     type={type === 'submit' ? 'error' : 'warn'}
     title={(() => {
       switch (true) {
-        case error instanceof ZeroTEZBalanceError:
-          return `${t('notEnoughCurrencyFunds', 'ꜩ')} 😶`;
-
         case error instanceof NotEnoughFundsError:
-          return `${t('notEnoughFunds')} 😶`;
+          return error instanceof ZeroTEZBalanceError
+            ? `${t('notEnoughCurrencyFunds', 'ꜩ')} 😶`
+            : `${t('notEnoughFunds')} 😶`;
 
         default:
           return t('failed');

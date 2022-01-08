@@ -25,13 +25,13 @@ export default function initialsSprites(random: Random, options: Options = {}) {
 
     options.background = undefined;
   } else {
-    Object.keys(Color.collection).forEach((backgroundColorInner: any) => {
+    Object.keys(Color.collection).forEach((backgroundColor: any) => {
       if (
         options.backgroundColors === undefined ||
         options.backgroundColors.length === 0 ||
-        options.backgroundColors.indexOf(backgroundColorInner) !== -1
+        options.backgroundColors.indexOf(backgroundColor) !== -1
       ) {
-        backgroundColors.push((Color.collection as any)[backgroundColorInner][options.backgroundColorLevel!]);
+        backgroundColors.push((Color.collection as any)[backgroundColor][options.backgroundColorLevel!]);
       }
     });
   }

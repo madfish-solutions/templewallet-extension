@@ -56,11 +56,11 @@ type SwapFormValues = {
 
 const maxTolerancePercentage = 30;
 
-type SwapFormProps = {
+type SwapFormWrapperProps = {
   assetSlug?: string | null;
 };
 
-const SwapForm: React.FC<SwapFormProps> = ({ assetSlug }) => {
+const SwapFormWrapper: React.FC<SwapFormWrapperProps> = ({ assetSlug }) => {
   const tezos = useTezos();
   const { allTokensBaseMetadataRef } = useTokensMetadata();
 
@@ -90,16 +90,16 @@ const SwapForm: React.FC<SwapFormProps> = ({ assetSlug }) => {
     );
   }
 
-  return <InnerForm defaultAsset={defaultAsset} />;
+  return <SwapForm defaultAsset={defaultAsset} />;
 };
 
-export default SwapForm;
+export default SwapFormWrapper;
 
-type InnerFormProps = {
+type SwapFormProps = {
   defaultAsset?: TempleAsset | null;
 };
 
-const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
+const SwapForm: React.FC<SwapFormProps> = ({ defaultAsset }) => {
   const {
     ensureExchangeData,
     exchangableAssets: assets,
@@ -234,14 +234,14 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
     if (!inputAsset) {
       return undefined;
     }
-    return getAssetExchangeData(tokensExchangeData, tezUsdPrice, inputAsset, selectedExchanger)?.contract;
+    return getAssetExchangeData(tokensExchangeData, tezUsdPrice, inputAsset!, selectedExchanger)?.contract;
   }, [tokensExchangeData, tezUsdPrice, inputAsset, selectedExchanger]);
 
   const outputContractAddress = useMemo(() => {
     if (!outputAsset) {
       return undefined;
     }
-    return getAssetExchangeData(tokensExchangeData, tezUsdPrice, outputAsset, selectedExchanger)?.contract;
+    return getAssetExchangeData(tokensExchangeData, tezUsdPrice, outputAsset!, selectedExchanger)?.contract;
   }, [tokensExchangeData, tezUsdPrice, outputAsset, selectedExchanger]);
 
   const feePercentage = useMemo(() => getFeePercentage(selectedExchanger), [selectedExchanger]);
@@ -259,11 +259,7 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
   );
 
   const onSubmit = useCallback(
-    async ({
-      exchanger,
-      tolerancePercentage: tolerancePercentageInner,
-      input: { amount: inputAmount }
-    }: SwapFormValues) => {
+    async ({ exchanger, tolerancePercentage, input: { amount: inputAmount } }: SwapFormValues) => {
       if (isSubmitting) {
         return;
       }
@@ -283,7 +279,7 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
           inputAsset!,
           exchanger
         )?.contract;
-        const outputContractAddressInner = getAssetExchangeData(
+        const outputContractAddress = getAssetExchangeData(
           tokensExchangeData,
           tezUsdPrice,
           outputAsset!,
@@ -294,10 +290,10 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
           inputAsset: inputAsset!,
           inputContractAddress,
           outputAsset: outputAsset!,
-          outputContractAddress: outputContractAddressInner,
+          outputContractAddress,
           exchangerType: exchanger,
           inputAmount: inputAmount!,
-          tolerance: tolerancePercentageInner / 100,
+          tolerance: tolerancePercentage / 100,
           tezos
         });
         setError(undefined);
@@ -486,15 +482,15 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
       inputExchangeData?: Partial<TokenExchangeData>,
       outputExchangeData?: Partial<TokenExchangeData>
     ) => {
-      const { asset: inputAssetInner } = inputValue;
-      const { asset: outputAssetInner, amount: outputAmount } = outputValue;
+      const { asset: inputAsset } = inputValue;
+      const { asset: outputAsset, amount: outputAmount } = outputValue;
       const batch: Partial<SwapFormValues>[] = [];
       try {
         setInputAmountLoading(true);
         const newAmount = await getInputAssetAmount(
           outputAmount,
-          outputAssetInner,
-          inputAssetInner,
+          outputAsset,
+          inputAsset,
           exchanger,
           inputExchangeData,
           outputExchangeData
@@ -502,7 +498,7 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
         setInputAmountLoading(false);
         batch.push({
           input: {
-            asset: inputAssetInner,
+            asset: inputAsset,
             amount: newAmount,
             usdAmount: assetAmountToUSD(newAmount, inputExchangeData?.[exchanger]?.usdPrice)
           }
@@ -510,7 +506,7 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
       } catch (err) {
         console.error(err);
         batch.push({
-          input: { asset: inputAssetInner }
+          input: { asset: inputAsset }
         });
       }
       return batch;
@@ -525,15 +521,15 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
       inputExchangeData?: Partial<TokenExchangeData>,
       outputExchangeData?: Partial<TokenExchangeData>
     ) => {
-      const { asset: outputAssetInner } = outputValue;
-      const { asset: inputAssetInner, amount: inputAmount } = inputValue;
+      const { asset: outputAsset } = outputValue;
+      const { asset: inputAsset, amount: inputAmount } = inputValue;
       const batch: Partial<SwapFormValues>[] = [];
       try {
         setOutputAmountLoading(true);
         const outputAmounts = await getOutputAssetAmounts(
           inputAmount,
-          inputAssetInner,
-          outputAssetInner,
+          inputAsset,
+          outputAsset,
           inputExchangeData,
           outputExchangeData
         );
@@ -542,7 +538,7 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
         const newAmount = outputAmounts?.[exchanger];
         batch.push({
           output: {
-            asset: outputAssetInner,
+            asset: outputAsset,
             amount: newAmount,
             usdAmount: assetAmountToUSD(newAmount, outputExchangeData?.[exchanger]?.usdPrice)
           }
@@ -550,7 +546,7 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
       } catch (err) {
         console.error(err);
         batch.push({
-          output: { asset: outputAssetInner }
+          output: { asset: outputAsset }
         });
       }
       return batch;
@@ -559,24 +555,24 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
   );
 
   const getAfterChangeExchangerType = useCallback(
-    async (preferredExchanger: ExchangerType, outputAssetInner?: TempleAsset, inputAssetInner?: TempleAsset) => {
+    async (preferredExchanger: ExchangerType, outputAsset?: TempleAsset, inputAsset?: TempleAsset) => {
       let assetsExchangeData: Partial<Record<'input' | 'output', Partial<TokenExchangeData>>> = {};
-      if (outputAssetInner) {
-        assetsExchangeData.output = await ensureExchangeData(getAssetId(outputAssetInner));
+      if (outputAsset) {
+        assetsExchangeData.output = await ensureExchangeData(getAssetId(outputAsset));
       }
-      if (inputAssetInner) {
-        assetsExchangeData.input = await ensureExchangeData(getAssetId(inputAssetInner));
+      if (inputAsset) {
+        assetsExchangeData.input = await ensureExchangeData(getAssetId(inputAsset));
       }
       let exchanger: ExchangerType | undefined = preferredExchanger;
       if (
         (['input', 'output'] as const).some(assetKey => {
-          const asset = assetKey === 'input' ? inputAssetInner : outputAssetInner;
+          const asset = assetKey === 'input' ? inputAsset : outputAsset;
           return asset && asset.type !== TempleAssetType.TEZ && !assetsExchangeData[assetKey]?.[preferredExchanger];
         })
       ) {
         exchanger = ALL_EXCHANGERS_TYPES.find(exchangerType => {
           return (['input', 'output'] as const).every(assetKey => {
-            const asset = assetKey === 'input' ? inputAssetInner : outputAssetInner;
+            const asset = assetKey === 'input' ? inputAsset : outputAsset;
             return !asset || asset.type === TempleAssetType.TEZ || assetsExchangeData[assetKey]?.[exchangerType];
           });
         });

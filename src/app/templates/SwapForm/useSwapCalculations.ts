@@ -133,11 +133,13 @@ export default function useSwapCalculations() {
         return undefined;
       }
       const inputAssetElementaryParts = new BigNumber(10).pow(inputAsset.decimals);
-      const result = await getTokenInput(tezos, tzToMutez(tez), {
-        address: contractAddress,
-        type: exchangerType
-      });
-      return result.div(inputAssetElementaryParts);
+      const result = (
+        await getTokenInput(tezos, tzToMutez(tez), {
+          address: contractAddress,
+          type: exchangerType
+        })
+      ).div(inputAssetElementaryParts);
+      return result;
     },
     [tezos, tokensExchangeData, tezUsdPrice]
   );

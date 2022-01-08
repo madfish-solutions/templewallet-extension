@@ -51,10 +51,14 @@ const ActivityItem = memo<ActivityItemProps>(({ address, operation, syncSupporte
 
     const explorerStatus = operation.data.tzktGroup?.[0]?.status ?? operation.data.bcdTokenTransfers?.[0]?.status;
     const content = explorerStatus ?? 'pending';
-    const conditionalTextColor = explorerStatus ? 'text-red-600' : 'text-yellow-600';
 
     return (
-      <span className={classNames(explorerStatus === 'applied' ? 'text-gray-600' : conditionalTextColor, 'capitalize')}>
+      <span
+        className={classNames(
+          explorerStatus === 'applied' ? 'text-gray-600' : explorerStatus ? 'text-red-600' : 'text-yellow-600',
+          'capitalize'
+        )}
+      >
         {t(content) || content}
       </span>
     );

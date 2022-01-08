@@ -99,8 +99,8 @@ function handleReplacestate() {
 
 function patchHistory(action: HistoryAction) {
   const patchedHistory = window.history as PatchedHistory;
-  const popAction = action === HistoryAction.Pop ? -1 : 0;
-  const position = (patchedHistory.position ?? 0) + (action === HistoryAction.Push ? 1 : popAction);
+  const position =
+    (patchedHistory.position ?? 0) + (action === HistoryAction.Push ? 1 : action === HistoryAction.Pop ? -1 : 0);
 
   Object.assign(patchedHistory, {
     lastAction: action,

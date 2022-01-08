@@ -59,17 +59,34 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
     hasMoreRef.current = true;
   }, [safeStateKey]);
 
-  const handleLoadMoreInner = useCallback(async () => {
-    handleLoadMore({
-      setLoadingMore,
-      setSyncError,
-      setRestOperations,
-      chainId,
-      address,
-      assetSlug,
-      operations,
-      hasMoreRef
-    });
+  const handleLoadMore = useCallback(async () => {
+    setLoadingMore(true);
+
+    try {
+      await syncOperations('old', chainId, address);
+    } catch (err: any) {
+      console.error(err);
+      setSyncError(err);
+    }
+
+    try {
+      const oldOperations = await fetchOperations({
+        chainId,
+        address,
+        assetIds: assetSlug ? [assetSlug] : undefined,
+        limit: ACTIVITY_PAGE_SIZE,
+        offset: operations?.length ?? 0
+      });
+      if (oldOperations.length === 0) {
+        hasMoreRef.current = false;
+      }
+
+      setRestOperations(ops => [...ops, ...oldOperations]);
+    } catch (err: any) {
+      console.error(err);
+    }
+
+    setLoadingMore(false);
   }, [setLoadingMore, setSyncError, setRestOperations, chainId, address, assetSlug, operations]);
 
   /**
@@ -114,7 +131,7 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
       loadingMore={loadingMore}
       syncing={syncing}
       loadMoreDisplayed={hasMoreRef.current}
-      loadMore={handleLoadMoreInner}
+      loadMore={handleLoadMore}
       className={className}
     />
   );
@@ -135,53 +152,3 @@ function mergeOperations(base?: IOperation[], toAppend: IOperation[] = []) {
   }
   return uniques;
 }
-
-interface HandleLoadMore {
-  setLoadingMore: (value: React.SetStateAction<boolean>) => void;
-  setSyncError: (value: React.SetStateAction<Error | null>) => void;
-  setRestOperations: (value: React.SetStateAction<IOperation[]>) => void;
-  chainId: string;
-  address: string;
-  assetSlug?: string;
-  operations?: IOperation[];
-  hasMoreRef: React.MutableRefObject<boolean>;
-}
-
-const handleLoadMore = async ({
-  setLoadingMore,
-  setSyncError,
-  setRestOperations,
-  chainId,
-  address,
-  assetSlug,
-  operations,
-  hasMoreRef
-}: HandleLoadMore) => {
-  setLoadingMore(true);
-
-  try {
-    await syncOperations('old', chainId, address);
-  } catch (err: any) {
-    console.error(err);
-    setSyncError(err);
-  }
-
-  try {
-    const oldOperations = await fetchOperations({
-      chainId,
-      address,
-      assetIds: assetSlug ? [assetSlug] : undefined,
-      limit: ACTIVITY_PAGE_SIZE,
-      offset: operations?.length ?? 0
-    });
-    if (oldOperations.length === 0) {
-      hasMoreRef.current = false;
-    }
-
-    setRestOperations((ops: IOperation[]) => [...ops, ...oldOperations]);
-  } catch (err: any) {
-    console.error(err);
-  }
-
-  setLoadingMore(false);
-};

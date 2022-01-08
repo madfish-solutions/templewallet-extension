@@ -10,12 +10,11 @@ import React, {
   useState
 } from 'react';
 
-import { ManagerKeyResponse } from '@taquito/rpc';
-import { DEFAULT_FEE, TransferParams, WalletOperation } from '@taquito/taquito';
+import { DEFAULT_FEE, WalletOperation } from '@taquito/taquito';
 import type { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
-import { Controller, FieldError, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import useSWR from 'swr';
 
 import Alert from 'app/atoms/Alert';
@@ -30,7 +29,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
-import AssetSelect from 'app/templates/AssetSelect/AssetSelect';
+import AssetSelect from 'app/templates/AssetSelect';
 import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
 import OperationStatus from 'app/templates/OperationStatus';
@@ -49,7 +48,6 @@ import {
   isTezAsset,
   loadContract,
   mutezToTz,
-  ReactiveTezosToolkit,
   TempleAccountType,
   TEZOS_METADATA,
   toPenny,
@@ -59,24 +57,17 @@ import {
   useAssetMetadata,
   useAssetUSDPrice,
   useBalance,
-  useChainId,
-  useCollectibleTokens,
-  useDisplayedFungibleTokens,
   useNetwork,
   useTezos,
   useTezosDomainsClient
 } from 'lib/temple/front';
 import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
-import { AssetMetadata } from 'lib/temple/metadata';
-import { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { IAsset } from './AssetSelect/interfaces';
-import { getSlug } from './AssetSelect/utils';
 import { SendFormSelectors } from './SendForm.selectors';
 import AddContactModal from './SendForm/AddContactModal';
-import ContactsDropdown, { ContactsDropdownProps } from './SendForm/ContactsDropdown';
+import ContactsDropdown from './SendForm/ContactsDropdown';
 import SendErrorAlert from './SendForm/SendErrorAlert';
 
 interface FormData {
@@ -92,15 +83,8 @@ type SendFormProps = {
   assetSlug?: string | null;
 };
 
-const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
-  const chainId = useChainId(true)!;
-  const account = useAccount();
-
-  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, account.publicKeyHash);
-  const { data: collectibles = [] } = useCollectibleTokens(chainId, account.publicKeyHash, true);
-
-  const assets = useMemo<IAsset[]>(() => ['tez' as const, ...tokens, ...collectibles], [tokens, collectibles]);
-  const selectedAsset = useMemo(() => assets.find(a => getSlug(a) === assetSlug) ?? 'tez', [assets, assetSlug]);
+const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
+  assetSlug = assetSlug ?? 'tez';
 
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
@@ -130,14 +114,10 @@ const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
     <>
       {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} />}
 
-      <AssetSelect value={selectedAsset} assets={assets} onChange={handleAssetChange} className="mb-6" />
+      <AssetSelect value={assetSlug} onChange={handleAssetChange} className="mb-6" />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form
-          assetSlug={getSlug(selectedAsset)}
-          setOperation={setOperation}
-          onAddContactRequested={handleAddContactRequested}
-        />
+        <Form assetSlug={assetSlug} setOperation={setOperation} onAddContactRequested={handleAddContactRequested} />
       </Suspense>
 
       <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />
@@ -180,7 +160,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
   const [shouldUseUsd, setShouldUseUsd] = useSafeState(false);
 
-  const canToggleUsd = getAssetPriceByNetwork(network.type, assetPrice);
+  const canToggleUsd = network.type === 'main' && assetPrice !== null;
   const prevCanToggleUsd = useRef(canToggleUsd);
 
   /**
@@ -241,7 +221,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
   );
 
   const domainAddressFactory = useCallback(
-    (_k: string, _checksum: string, address: string) => domainsClient.resolver.resolveNameToAddress(address),
+    (_k: string, _checksum: string, toValue: string) => domainsClient.resolver.resolveNameToAddress(toValue),
     [domainsClient]
   );
   const { data: resolvedAddress } = useSWR(['tzdns-address', tezos.checksum, toValue], domainAddressFactory, {
@@ -281,7 +261,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         window.scrollTo(0, 0);
       });
     }
-    return undefined;
+    return;
   }, [toFilled, registerBackHandler, cleanToField]);
 
   const estimateBaseFee = useCallback(async () => {
@@ -307,19 +287,50 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh)
       ]);
 
-      let estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balanceBN, transferParams, manager);
+      let estmtnMax: Estimate;
+      if (acc.type === TempleAccountType.ManagedKT) {
+        const michelsonLambda = isKTAddress(to) ? transferToContract : transferImplicit;
 
-      let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
-      if (!hasManager(manager)) {
-        estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
+        const contract = await loadContract(tezos, acc.publicKeyHash);
+        const transferParams = contract.methods.do(michelsonLambda(to, tzToMutez(balanceBN))).toTransferParams();
+        estmtnMax = await tezos.estimate.transfer(transferParams);
+      } else if (tez) {
+        const estmtn = await tezos.estimate.transfer(transferParams);
+        let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
+        if (!hasManager(manager)) {
+          amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
+        }
+        estmtnMax = await tezos.estimate.transfer({
+          to,
+          amount: amountMax.toString() as any
+        });
+      } else {
+        estmtnMax = await tezos.estimate.transfer(transferParams);
       }
 
-      if (tez ? estimatedBaseFee.isGreaterThanOrEqualTo(balanceBN) : estimatedBaseFee.isGreaterThan(tezBalanceBN!)) {
+      // console.info({
+      //   burnFeeMutez: estmtnMax.burnFeeMutez,
+      //   consumedMilligas: estmtnMax.consumedMilligas,
+      //   gasLimit: estmtnMax.gasLimit,
+      //   minimalFeeMutez: estmtnMax.minimalFeeMutez,
+      //   storageLimit: estmtnMax.storageLimit,
+      //   suggestedFeeMutez: estmtnMax.suggestedFeeMutez,
+      //   totalCost: estmtnMax.totalCost,
+      //   usingBaseFeeMutez: estmtnMax.usingBaseFeeMutez,
+      // });
+
+      let baseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
+      if (!hasManager(manager)) {
+        baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
+      }
+
+      if (tez ? baseFee.isGreaterThanOrEqualTo(balanceBN) : baseFee.isGreaterThan(tezBalanceBN!)) {
         throw new NotEnoughFundsError();
       }
 
-      return estimatedBaseFee;
+      return baseFee;
     } catch (err: any) {
+      // Human delay
       await new Promise(r => setTimeout(r, 300));
 
       if (err instanceof ArtificialError) {
@@ -327,7 +338,11 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       }
 
       console.error(err);
-      throw err;
+
+      switch (true) {
+        default:
+          throw err;
+      }
     }
   }, [acc, tezos, assetSlug, assetMetadata, accountPkh, toResolved, mutateBalance, mutateTezBalance]);
 
@@ -344,14 +359,13 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
       dedupingInterval: 30_000
     }
   );
-  const feeError = getBaseFeeError(baseFee, estimateBaseFeeError);
-  const estimationError = getFeeError(estimating, feeError);
+  const estimationError = !estimating ? (baseFee instanceof Error ? baseFee : estimateBaseFeeError) : null;
 
   const maxAddFee = useMemo(() => {
     if (baseFee instanceof BigNumber) {
       return tezBalance.minus(baseFee).minus(PENNY).toNumber();
     }
-    return undefined;
+    return;
   }, [tezBalance, baseFee]);
 
   const safeFeeValue = useMemo(() => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue), [maxAddFee, feeValue]);
@@ -359,10 +373,22 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
   const maxAmount = useMemo(() => {
     if (!(baseFee instanceof BigNumber)) return null;
 
-    const maxAmountAsset = isTezAsset(assetSlug) ? getMaxAmountToken(acc, balance, baseFee, safeFeeValue) : balance;
-    const maxAmountUsd = getMaxAmountUsd(assetPrice, maxAmountAsset);
+    const maxAmountAsset = isTezAsset(assetSlug)
+      ? BigNumber.max(
+          acc.type === TempleAccountType.ManagedKT
+            ? balance
+            : balance
+                .minus(baseFee)
+                .minus(safeFeeValue ?? 0)
+                .minus(PENNY),
+          0
+        )
+      : balance;
+    const maxAmountUsd = assetPrice
+      ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+      : new BigNumber(0);
     return shouldUseUsd ? maxAmountUsd : maxAmountAsset;
-  }, [acc, assetSlug, balance, baseFee, safeFeeValue, shouldUseUsd, assetPrice]);
+  }, [acc.type, assetSlug, balance, baseFee, safeFeeValue, shouldUseUsd, assetPrice]);
 
   const validateAmount = useCallback(
     (v?: number) => {
@@ -499,15 +525,15 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
   );
 
   const handleAccountSelect = useCallback(
-    (account: string) => {
-      setValue('to', account);
+    (accountPkh: string) => {
+      setValue('to', accountPkh);
       triggerValidation('to');
     },
     [setValue, triggerValidation]
   );
 
-  const restFormDisplayed = getRestFormDisplayed(toFilled, baseFee, estimationError);
-  const estimateFallbackDisplayed = getEstimateFallBackDisplayed(toFilled, baseFee, estimating);
+  const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
+  const estimateFallbackDisplayed = toFilled && !baseFee && estimating;
 
   const [toFieldFocused, setToFieldFocused] = useState(false);
 
@@ -525,11 +551,6 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     [allContacts, accountPkh]
   );
 
-  const visibleAssetSymbol = shouldUseUsd ? 'USD' : assetSymbol;
-  const assetDomainName = getAssetDomainName(canUseDomainNames);
-
-  const isContactsDropdownOpen = getFilled(toFilled, toFieldFocused);
-
   return (
     <form style={{ minHeight: '24rem' }} onSubmit={handleSubmit(onSubmit)}>
       <Controller
@@ -539,12 +560,14 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
             ref={toFieldRef}
             onFocus={handleToFieldFocus}
             dropdownInner={
-              <InnerDropDownComponentGuard
-                contacts={allContactsWithoutCurrent}
-                opened={isContactsDropdownOpen}
-                onSelect={handleAccountSelect}
-                searchTerm={toValue}
-              />
+              allContactsWithoutCurrent.length > 0 ? (
+                <ContactsDropdown
+                  contacts={allContactsWithoutCurrent}
+                  opened={!toFilled ? toFieldFocused : false}
+                  onSelect={handleAccountSelect}
+                  searchTerm={toValue}
+                />
+              ) : null
             }
           />
         }
@@ -580,10 +603,13 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
               )
             </div>
           ) : (
-            <T id={assetDomainName} substitutions={assetSymbol} />
+            <T
+              id={canUseDomainNames ? 'tokensRecepientInputDescriptionWithDomain' : 'tokensRecepientInputDescription'}
+              substitutions={assetSymbol}
+            />
           )
         }
-        placeholder={t(getDomainTextError(canUseDomainNames))}
+        placeholder={t(canUseDomainNames ? 'recipientInputPlaceholderWithDomain' : 'recipientInputPlaceholder')}
         errorCaption={!toFieldFocused ? errors.to?.message : null}
         style={{
           resize: 'none'
@@ -634,7 +660,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
                 'cursor-pointer pointer-events-auto'
               )}
             >
-              {visibleAssetSymbol}
+              {shouldUseUsd ? 'USD' : assetSymbol}
               <div className="ml-1 h-4 flex flex-col justify-between">
                 <ChevronUpIcon className="h-2 w-auto stroke-current stroke-2" />
                 <ChevronDownIcon className="h-2 w-auto stroke-current stroke-2" />
@@ -655,13 +681,30 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
                 {shouldUseUsd ? <span className="pr-px">$</span> : null}
                 {toLocalFixed(maxAmount)}
               </button>
-              <TokenToUsd
-                amountValue={amountValue}
-                assetMetadata={assetMetadata}
-                shouldUseUsd={shouldUseUsd}
-                assetSlug={assetSlug}
-                toAssetAmount={toAssetAmount}
-              />
+              {amountValue ? (
+                <>
+                  <br />
+                  {shouldUseUsd ? (
+                    <div className="mt-1 -mb-3">
+                      ≈ <span className="font-normal text-gray-700">{toAssetAmount(amountValue)}</span>{' '}
+                      <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
+                    </div>
+                  ) : (
+                    <InUSD assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
+                      {usdAmount => (
+                        <div className="mt-1 -mb-3">
+                          ≈{' '}
+                          <span className="font-normal text-gray-700">
+                            <span className="pr-px">$</span>
+                            {usdAmount}
+                          </span>{' '}
+                          <T id="inUSD" />
+                        </div>
+                      )}
+                    </InUSD>
+                  )}
+                </>
+              ) : null}
             </>
           )
         }
@@ -673,147 +716,61 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
 
       {estimateFallbackDisplayed ? (
         <SpinnerSection />
-      ) : (
-        <FeeComponent
-          restFormDisplayed={restFormDisplayed}
-          submitError={submitError}
-          estimationError={estimationError}
-          toResolved={toResolved}
-          toFilledWithKTAddress={toFilledWithKTAddress}
-          control={control}
-          handleFeeFieldChange={handleFeeFieldChange}
-          baseFee={baseFee}
-          error={errors.fee}
-          isSubmitting={formState.isSubmitted}
-        />
-      )}
+      ) : restFormDisplayed ? (
+        <>
+          {(() => {
+            switch (true) {
+              case Boolean(submitError):
+                return <SendErrorAlert type="submit" error={submitError} />;
+
+              case Boolean(estimationError):
+                return <SendErrorAlert type="estimation" error={estimationError} />;
+
+              case toResolved === accountPkh:
+                return (
+                  <Alert
+                    type="warn"
+                    title={t('attentionExclamation')}
+                    description={<T id="tryingToTransferToYourself" />}
+                    className="mt-6 mb-4"
+                  />
+                );
+
+              case toFilledWithKTAddress:
+                return (
+                  <Alert
+                    type="warn"
+                    title={t('attentionExclamation')}
+                    description={<T id="tryingToTransferToContract" />}
+                    className="mt-6 mb-4"
+                  />
+                );
+
+              default:
+                return null;
+            }
+          })()}
+
+          <AdditionalFeeInput
+            name="fee"
+            control={control}
+            onChange={handleFeeFieldChange}
+            assetSymbol={TEZOS_METADATA.symbol}
+            baseFee={baseFee}
+            error={errors.fee}
+            id="send-fee"
+          />
+
+          <T id="send">
+            {message => (
+              <FormSubmitButton loading={formState.isSubmitting} disabled={Boolean(estimationError)}>
+                {message}
+              </FormSubmitButton>
+            )}
+          </T>
+        </>
+      ) : null}
     </form>
-  );
-};
-
-interface TokenToUsdProps {
-  amountValue: string;
-  assetMetadata: AssetMetadata;
-  shouldUseUsd: boolean;
-  assetSlug: string;
-  toAssetAmount: (usdAmount: BigNumber.Value) => string;
-}
-
-const TokenToUsd: React.FC<TokenToUsdProps> = ({
-  amountValue,
-  assetMetadata,
-  shouldUseUsd,
-  assetSlug,
-  toAssetAmount
-}) => {
-  if (!amountValue) return null;
-  return (
-    <>
-      <br />
-      {shouldUseUsd ? (
-        <div className="mt-1 -mb-3">
-          ≈ <span className="font-normal text-gray-700">{toAssetAmount(amountValue)}</span>{' '}
-          <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
-        </div>
-      ) : (
-        <InUSD assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
-          {usdAmount => (
-            <div className="mt-1 -mb-3">
-              ≈{' '}
-              <span className="font-normal text-gray-700">
-                <span className="pr-px">$</span>
-                {usdAmount}
-              </span>{' '}
-              <T id="inUSD" />
-            </div>
-          )}
-        </InUSD>
-      )}
-    </>
-  );
-};
-
-interface FeeComponentProps {
-  restFormDisplayed: boolean;
-  submitError: any;
-  estimationError: any;
-  toResolved: string;
-  toFilledWithKTAddress: boolean;
-  control: any;
-  handleFeeFieldChange: ([v]: any) => any;
-  baseFee?: BigNumber | Error | undefined;
-  error?: FieldError;
-  isSubmitting: boolean;
-}
-
-const FeeComponent: React.FC<FeeComponentProps> = ({
-  restFormDisplayed,
-  submitError,
-  estimationError,
-  toResolved,
-  toFilledWithKTAddress,
-  control,
-  handleFeeFieldChange,
-  baseFee,
-  error,
-  isSubmitting
-}) => {
-  const acc = useAccount();
-  const accountPkh = acc.publicKeyHash;
-  if (!restFormDisplayed) return null;
-  return (
-    <>
-      {(() => {
-        switch (true) {
-          case Boolean(submitError):
-            return <SendErrorAlert type="submit" error={submitError} />;
-
-          case Boolean(estimationError):
-            return <SendErrorAlert type="estimation" error={estimationError} />;
-
-          case toResolved === accountPkh:
-            return (
-              <Alert
-                type="warn"
-                title={t('attentionExclamation')}
-                description={<T id="tryingToTransferToYourself" />}
-                className="mt-6 mb-4"
-              />
-            );
-
-          case toFilledWithKTAddress:
-            return (
-              <Alert
-                type="warn"
-                title={t('attentionExclamation')}
-                description={<T id="tryingToTransferToContract" />}
-                className="mt-6 mb-4"
-              />
-            );
-
-          default:
-            return null;
-        }
-      })()}
-
-      <AdditionalFeeInput
-        name="fee"
-        control={control}
-        onChange={handleFeeFieldChange}
-        assetSymbol={TEZOS_METADATA.symbol}
-        baseFee={baseFee}
-        error={error}
-        id="send-fee"
-      />
-
-      <T id="send">
-        {message => (
-          <FormSubmitButton loading={isSubmitting} disabled={Boolean(estimationError)}>
-            {message}
-          </FormSubmitButton>
-        )}
-      </T>
-    </>
   );
 };
 
@@ -835,79 +792,3 @@ const SpinnerSection: FC = () => (
     <Spinner className="w-20" />
   </div>
 );
-
-const getMaxAmountUsd = (assetPrice: number | null, maxAmountAsset: BigNumber) =>
-  assetPrice ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR) : new BigNumber(0);
-
-const getMaxAmountToken = (acc: TempleAccount, balance: BigNumber, baseFee: BigNumber, safeFeeValue: number) =>
-  BigNumber.max(
-    acc.type === TempleAccountType.ManagedKT
-      ? balance
-      : balance
-          .minus(baseFee)
-          .minus(safeFeeValue ?? 0)
-          .minus(PENNY),
-    0
-  );
-
-type TransferParamsInvariant =
-  | TransferParams
-  | {
-      to: string;
-      amount: any;
-    };
-
-const estimateMaxFee = async (
-  acc: TempleAccount,
-  tez: boolean,
-  tezos: ReactiveTezosToolkit,
-  to: string,
-  balanceBN: BigNumber,
-  transferParams: TransferParamsInvariant,
-  manager: ManagerKeyResponse
-) => {
-  let estmtnMax: Estimate;
-  if (acc.type === TempleAccountType.ManagedKT) {
-    const michelsonLambda = isKTAddress(to) ? transferToContract : transferImplicit;
-
-    const contract = await loadContract(tezos, acc.publicKeyHash);
-    const transferParamsWrapper = contract.methods.do(michelsonLambda(to, tzToMutez(balanceBN))).toTransferParams();
-    estmtnMax = await tezos.estimate.transfer(transferParamsWrapper);
-  } else if (tez) {
-    const estmtn = await tezos.estimate.transfer(transferParams);
-    let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
-    if (!hasManager(manager)) {
-      amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
-    }
-    estmtnMax = await tezos.estimate.transfer({
-      to,
-      amount: amountMax.toString() as any
-    });
-  } else {
-    estmtnMax = await tezos.estimate.transfer(transferParams);
-  }
-  return estmtnMax;
-};
-
-const getAssetPriceByNetwork = (network: TempleNetworkType, assetPrice: number | null) =>
-  network === 'main' && assetPrice !== null;
-
-const getBaseFeeError = (baseFee: BigNumber | ArtificialError | undefined, estimateBaseFeeError: any) =>
-  baseFee instanceof Error ? baseFee : estimateBaseFeeError;
-
-const getFeeError = (estimating: boolean, feeError: any) => (!estimating ? feeError : null);
-const getEstimateFallBackDisplayed = (toFilled: boolean | '', baseFee: any, estimating: boolean) =>
-  toFilled && !baseFee && estimating;
-const getRestFormDisplayed = (toFilled: boolean | '', baseFee: any, estimationError: any) =>
-  Boolean(toFilled && (baseFee || estimationError));
-
-const InnerDropDownComponentGuard: React.FC<ContactsDropdownProps> = ({ contacts, opened, onSelect, searchTerm }) => {
-  if (contacts.length <= 0) return null;
-  return <ContactsDropdown contacts={contacts} opened={opened} onSelect={onSelect} searchTerm={searchTerm} />;
-};
-
-const getFilled = (toFilled: boolean | '', toFieldFocused: boolean) => (!toFilled ? toFieldFocused : false);
-const getDomainTextError = (canUseDomainNames: boolean) =>
-  canUseDomainNames ? 'recipientInputPlaceholderWithDomain' : 'recipientInputPlaceholder';
-const getAssetDomainName = (canUseDomainNames: boolean) =>
-  canUseDomainNames ? 'tokensRecepientInputDescriptionWithDomain' : 'tokensRecepientInputDescription';
