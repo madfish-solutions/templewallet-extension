@@ -32,10 +32,32 @@ const OperationsBanner = memo<OperationsBannerProps>(
     opParams = typeof opParams === 'string' ? opParams : formatOpParams(opParams);
 
     if (typeof opParams === 'object' && !Array.isArray(opParams)) {
-      opParams = enrichParams(opParams, modifiedStorageLimit, modifiedTotalFee);
-    }
+      opParams = {
+        ...opParams,
+        contents: opParams.contents.map((elem, i, contents) => {
+          if (i === 0) {
+            let newElem = elem;
+            if (modifiedTotalFee !== undefined) {
+              newElem = {
+                ...newElem,
+                fee: JSON.stringify(modifiedTotalFee)
+              };
+            }
 
-    const collapsedArgs = Array.isArray(opParams) ? 2 : 3;
+            if (modifiedStorageLimit !== undefined && contents.length < 2) {
+              newElem = {
+                ...newElem,
+                storage_limit: JSON.stringify(modifiedStorageLimit)
+              };
+            }
+
+            return newElem;
+          }
+
+          return elem;
+        })
+      };
+    }
 
     return (
       <>
@@ -69,7 +91,7 @@ const OperationsBanner = memo<OperationsBannerProps>(
                 name={null}
                 iconStyle="square"
                 indentWidth={4}
-                collapsed={collapsedArgs}
+                collapsed={Array.isArray(opParams) ? 2 : 3}
                 collapseStringsAfterLength={36}
                 enableClipboard={false}
                 displayObjectSize={false}
@@ -86,37 +108,6 @@ const OperationsBanner = memo<OperationsBannerProps>(
     );
   }
 );
-
-type opParamsType = {
-  branch: string;
-  contents: ContentsItem[];
-};
-
-const enrichParams = (opParams: opParamsType, modifiedStorageLimit?: number, modifiedTotalFee?: number) => ({
-  ...opParams,
-  contents: opParams.contents.map((elem, i, contents) => {
-    if (i === 0) {
-      let newElem = elem;
-      if (modifiedTotalFee !== undefined) {
-        newElem = {
-          ...newElem,
-          fee: JSON.stringify(modifiedTotalFee)
-        };
-      }
-
-      if (modifiedStorageLimit !== undefined && contents.length < 2) {
-        newElem = {
-          ...newElem,
-          storage_limit: JSON.stringify(modifiedStorageLimit)
-        };
-      }
-
-      return newElem;
-    }
-
-    return elem;
-  })
-});
 
 export default OperationsBanner;
 

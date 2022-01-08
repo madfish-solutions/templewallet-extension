@@ -6,21 +6,19 @@ export const bakingBadGetBaker = buildQuery<BakingBadGetBakerParams, BakingBadGe
   api,
   'GET',
   ({ address }) => `/bakers/${address}`,
-  ['configs', 'insurance', 'contribution', 'type']
+  ['configs', 'insurance', 'contribution']
 );
 
 export const bakingBadGetKnownBakers = buildQuery<
   Omit<BakingBadGetBakerParams, 'address'>,
   BakingBadGetBakerResponse[]
->(api, 'GET', '/bakers', ['configs', 'insurance', 'contribution', 'type', 'health']);
+>(api, 'GET', '/bakers', ['configs', 'insurance', 'contribution']);
 
 export async function getAllBakersBakingBad() {
   const bakers = await bakingBadGetKnownBakers({
-    configs: true,
+    configs: false,
     insurance: true,
-    contribution: true,
-    type: 'tezos_only,multiasset,tezos_dune',
-    health: 'active'
+    contribution: true
   });
   return bakers.filter(baker => typeof baker !== 'string') as BakingBadBaker[];
 }
@@ -30,8 +28,6 @@ export type BakingBadGetBakerParams = {
   configs?: boolean;
   insurance?: boolean;
   contribution?: boolean;
-  type?: string;
-  health?: string;
 };
 
 export type BakingBadBaker = {

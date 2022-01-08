@@ -187,6 +187,6 @@ function query<T = any>(path: string): Query<T> {
   };
 }
 
-function wrapQuery<T, U>(queryTransformer: Query<T>, transformer: (d: T) => U): Query<U> {
-  return (...args) => queryTransformer(...args).then(transformer);
+function wrapQuery<T, U>(query: Query<T>, transformer: (d: T) => U): Query<U> {
+  return (...args) => query(...args).then(transformer);
 }

@@ -9,7 +9,7 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner';
 import styles from 'app/pages/BuyCrypto/BuyCrypto.module.css';
 import CurrencyComponent from 'app/pages/BuyCrypto/CurrencyComponent';
-import { getCurrencies, GetRateData } from 'lib/exolix-api';
+import { getCurrencies, getRateDataInterface } from 'lib/exolix-api';
 import { T } from 'lib/i18n/react';
 import Popper from 'lib/ui/Popper';
 
@@ -22,7 +22,7 @@ interface Props {
   amount?: number;
   lastMinAmount?: BigNumber;
   readOnly?: boolean;
-  rates?: GetRateData;
+  rates?: getRateDataInterface;
   maxAmount?: string;
   isMaxAmountError?: boolean;
   isCurrencyAvailable?: boolean;

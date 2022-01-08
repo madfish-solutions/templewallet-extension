@@ -50,14 +50,14 @@ export class IntercomServer {
 
   private handleMessage(msg: any, port: Runtime.Port) {
     if (port.sender?.id === browser.runtime.id && msg?.type === MessageType.Req) {
-      (async msgInner => {
+      (async msg => {
         try {
           for (const handler of this.reqHandlers) {
             const data = await handler(msg.data, port);
             if (data !== undefined) {
               this.send(port, {
                 type: MessageType.Res,
-                reqId: msgInner.reqId,
+                reqId: msg.reqId,
                 data
               });
 
@@ -69,7 +69,7 @@ export class IntercomServer {
         } catch (err: any) {
           this.send(port, {
             type: MessageType.Err,
-            reqId: msgInner.reqId,
+            reqId: msg.reqId,
             data: serealizeError(err)
           });
         }

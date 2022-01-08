@@ -6,7 +6,7 @@ import { useAssetMetadata, getThumbnailUri, useNetwork, useTezos } from 'lib/tem
 const useImageLoader = (assetSlug: string): string => {
   const tezos = useTezos();
   const network = useNetwork();
-  const collectibleMetadata = useAssetMetadata(assetSlug) ?? {};
+  const collectibleMetadata = useAssetMetadata(assetSlug)!;
   const asset = useRetryableSWR(['asset', assetSlug, tezos.checksum], () => fromAssetSlug(tezos, assetSlug), {
     suspense: true
   }).data!;
