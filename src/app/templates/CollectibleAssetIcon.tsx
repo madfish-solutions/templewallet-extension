@@ -4,10 +4,11 @@ import { AssetTypesEnum } from 'lib/temple/assets';
 import { getThumbnailUri, useAssetMetadata } from 'lib/temple/front';
 import useImageLoader from 'lib/ui/useImageLoader';
 
-import AssetIcon from './AssetIcon';
-import { SwapAssetIconProps } from './SwapAssetIcon';
+import AssetIcon, { SwapAssetIconProps } from './AssetIcon';
 
-type CollectibleAssetIconProps = SwapAssetIconProps & { assetType?: string };
+interface CollectibleAssetIconProps extends SwapAssetIconProps {
+  assetType?: string;
+}
 
 const CollectibleAssetIcon = memo((props: CollectibleAssetIconProps) => {
   const { assetSlug, className, style, size, assetType } = props;
