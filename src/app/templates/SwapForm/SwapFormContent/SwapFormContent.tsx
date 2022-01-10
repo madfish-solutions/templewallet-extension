@@ -11,7 +11,10 @@ import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
+import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
+import { TradeTypeEnum } from 'lib/swap-router/enum/trade-type.enum';
 import { useRoutePairsCombinations } from 'lib/swap-router/hooks/use-route-pairs-combinatios.hook';
+import { Trade } from 'lib/swap-router/interface/trade.interface';
 import {
   getBestTradeExactInput,
   getBestTradeExactOutput,
@@ -21,11 +24,10 @@ import {
 import { useAssetMetadata } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
+import { HistoryAction, navigate } from 'lib/woozie';
 
-import { ROUTING_FEE_PERCENT } from '../../../../lib/swap-router/config';
-import { TradeTypeEnum } from '../../../../lib/swap-router/enum/trade-type.enum';
-import { Trade } from '../../../../lib/swap-router/interface/trade.interface';
 import styles from '../SwapForm.module.css';
+import { useSwapFormContentDefaultValue } from './SwapFormContent.form';
 import { feeInfoTippyProps, priceImpactInfoTippyProps } from './SwapFormContent.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
@@ -33,22 +35,15 @@ import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapFormValue, SwapInputValue } from './SwapFormValue.interface';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
-interface Props {
-  initialAssetSlug?: string;
-}
-
-export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
+export const SwapFormContent: FC = () => {
   const formAnalytics = useFormAnalytics('SwapForm');
 
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
   const priceImpactInfoIconRef = useTippy<HTMLSpanElement>(priceImpactInfoTippyProps);
 
+  const defaultValues = useSwapFormContentDefaultValue();
   const { handleSubmit, errors, watch, setValue, control, register, triggerValidation } = useForm<SwapFormValue>({
-    defaultValues: {
-      input: { assetSlug: initialAssetSlug },
-      output: {},
-      slippageTolerance: 1
-    }
+    defaultValues
   });
   const isValid = Object.keys(errors).length === 0;
 
@@ -96,6 +91,15 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
     outputAssetMetadata.decimals,
     setValue
   ]);
+
+  useEffect(
+    () =>
+      navigate(
+        { pathname: '/swap', search: `from=${inputValue.assetSlug ?? ''}&to=${outputValue.assetSlug ?? ''}` },
+        HistoryAction.Replace
+      ),
+    [inputValue.assetSlug, outputValue.assetSlug]
+  );
 
   useEffect(() => {
     if (tradeType === TradeTypeEnum.EXACT_OUTPUT) {

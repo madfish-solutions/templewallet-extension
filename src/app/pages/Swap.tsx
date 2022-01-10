@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo } from 'react';
+import React, { FC, Suspense, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -9,11 +9,7 @@ import { SwapForm } from 'app/templates/SwapForm/SwapForm';
 import { t, T } from 'lib/i18n/react';
 import useTippy from 'lib/ui/useTippy';
 
-interface SwapProps {
-  assetSlug?: string;
-}
-
-const Swap: React.FC<SwapProps> = ({ assetSlug }) => (
+const Swap: FC = () => (
   <PageLayout
     pageTitle={
       <>
@@ -26,7 +22,7 @@ const Swap: React.FC<SwapProps> = ({ assetSlug }) => (
         <SwapDisclaimer />
 
         <Suspense fallback={null}>
-          <SwapForm assetSlug={assetSlug} />
+          <SwapForm />
         </Suspense>
       </div>
     </div>

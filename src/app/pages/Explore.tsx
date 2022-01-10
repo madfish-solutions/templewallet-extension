@@ -25,7 +25,7 @@ import {
   useNetwork
 } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
-import { HistoryAction, Link, navigate, useLocation } from 'lib/woozie';
+import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
 import CollectiblesList from './Collectibles/CollectiblesList';
 import { ExploreSelectors } from './Explore.selectors';
@@ -70,7 +70,6 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
   const fullpageClassName = fullPage ? 'mb-10' : 'mb-6';
-  const swapLink = assetSlug ? `/swap/${assetSlug}` : '/swap';
   const sendLink = assetSlug ? `/send/${assetSlug}` : '/send';
 
   return onboardingCompleted ? (
@@ -102,20 +101,23 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
-          <ActionButton label={<T id="receive" />} Icon={ReceiveIcon} href="/receive" />
-          {network.type !== 'test' && <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} href="/buy" />}
+          <ActionButton label={<T id="receive" />} Icon={ReceiveIcon} to="/receive" />
+          {network.type !== 'test' && <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} to="/buy" />}
 
           <ActionButton
             label={<T id="swap" />}
             Icon={SwapIcon}
-            href={swapLink}
+            to={{
+              pathname: '/swap',
+              search: `from=${assetSlug ?? ''}`
+            }}
             disabled={!canSend}
             tippyProps={tippyPropsMock}
           />
           <ActionButton
             label={<T id="send" />}
             Icon={SendIcon}
-            href={sendLink}
+            to={sendLink}
             disabled={!canSend}
             tippyProps={tippyPropsMock}
           />
@@ -134,12 +136,12 @@ export default Explore;
 type ActionButtonProps = {
   label: React.ReactNode;
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
-  href: string;
+  to: To;
   disabled?: boolean;
   tippyProps?: Partial<TippyProps>;
 };
 
-const ActionButton: FC<ActionButtonProps> = ({ label, Icon, href, disabled, tippyProps = {} }) => {
+const ActionButton: FC<ActionButtonProps> = ({ label, Icon, to, disabled, tippyProps = {} }) => {
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
@@ -164,7 +166,7 @@ const ActionButton: FC<ActionButtonProps> = ({ label, Icon, href, disabled, tipp
     }),
     [disabled, Icon, label]
   );
-  return disabled ? <button ref={buttonRef} {...commonButtonProps} /> : <Link to={href} {...commonButtonProps} />;
+  return disabled ? <button ref={buttonRef} {...commonButtonProps} /> : <Link to={to} {...commonButtonProps} />;
 };
 
 const Delegation: FC = () => (

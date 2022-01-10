@@ -5,11 +5,7 @@ import { useNetwork } from 'lib/temple/front';
 
 import { SwapFormContent } from './SwapFormContent/SwapFormContent';
 
-interface Props {
-  assetSlug?: string;
-}
-
-export const SwapForm: FC<Props> = ({ assetSlug }) => {
+export const SwapForm: FC = () => {
   const network = useNetwork();
 
   if (network.type !== 'main') {
@@ -20,5 +16,5 @@ export const SwapForm: FC<Props> = ({ assetSlug }) => {
     );
   }
 
-  return <SwapFormContent initialAssetSlug={assetSlug} />;
+  return <SwapFormContent />;
 };
