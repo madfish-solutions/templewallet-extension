@@ -1,6 +1,8 @@
+// import { crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519 } from 'libsodium-wrappers';
 import { browser } from 'webextension-polyfill-ts';
 
 import {
+  // createCryptoBox,
   fromHex,
   getDAppPublicKey,
   getOrCreateKeyPair,
@@ -62,5 +64,17 @@ describe('Beacon tests', () => {
       expect(keyPair).toHaveProperty('privateKey');
       expect(keyPair).toHaveProperty('publicKey');
     });
+    // END OF UNCHANCHABLE PART
+    // it('createCryptoBox', async () => {
+    //   const selfKeyPair = await getOrCreateKeyPair();
+    //   const otherPublicKey = 'hehe';
+    //   const kxSelfPrivateKey = crypto_sign_ed25519_sk_to_curve25519(Buffer.from(selfKeyPair.privateKey)); // Secret bytes to scalar bytes
+    //   const kxSelfPublicKey = crypto_sign_ed25519_pk_to_curve25519(Buffer.from(selfKeyPair.publicKey)); // Secret bytes to scalar bytes
+    //   const kxOtherPublicKey = crypto_sign_ed25519_pk_to_curve25519(Buffer.from(otherPublicKey, 'hex')); // Secret bytes to scalar bytes
+    //   const buffers = await createCryptoBox(otherPublicKey, selfKeyPair);
+    //   expect(kxOtherPublicKey).toEqual(buffers[2]);
+    //   expect(kxSelfPublicKey).toEqual(buffers[1]);
+    //   expect(kxSelfPrivateKey).toEqual(buffers[0]);
+    // });
   });
 });
