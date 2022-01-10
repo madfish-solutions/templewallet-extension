@@ -1,17 +1,22 @@
-import React, { memo } from 'react';
+import React, { CSSProperties, memo } from 'react';
 
 import classNames from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
 import { useAssetMetadata, getAssetSymbol } from 'lib/temple/front';
 
-import { SwapAssetIconProps } from './SwapAssetIcon';
+export interface SwapAssetIconProps {
+  assetSlug: string;
+  className?: string;
+  style?: CSSProperties;
+  size?: number;
+}
 
-type AssetIconProps = SwapAssetIconProps & {
+interface AssetIconProps extends SwapAssetIconProps {
   thumbnailUri: string | null | undefined;
   imageDisplayed: boolean;
   handleImageError: () => void;
-};
+}
 
 const AssetIcon = memo((props: AssetIconProps) => {
   const { assetSlug, thumbnailUri, handleImageError, imageDisplayed, className, style, size } = props;

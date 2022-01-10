@@ -1,15 +1,8 @@
-import React, { CSSProperties, memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import { useAssetMetadata, getThumbnailUri } from 'lib/temple/front';
 
-import AssetIcon from './AssetIcon';
-
-export type SwapAssetIconProps = {
-  assetSlug: string;
-  className?: string;
-  style?: CSSProperties;
-  size?: number;
-};
+import AssetIcon, { SwapAssetIconProps } from './AssetIcon';
 
 const SwapAssetIcon = memo((props: SwapAssetIconProps) => {
   const { assetSlug, className, style, size } = props;
