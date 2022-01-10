@@ -34,7 +34,6 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   className,
   error,
   label,
-  loading,
   isOutput = false,
   name,
   triggerValidation,
@@ -162,17 +161,14 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
             selectedAssetSlug={assetSlug}
             selectedAssetMetadata={assetMetadata}
             amount={amount}
-            amountLoading={loading}
             balance={assetSlug ? balance.data : undefined}
             label={label}
             opened={opened}
             searchString={searchValue}
             setOpened={setOpened}
-            canSwitchToUSD={false}
             showTokenIdInput={showTokenIdInput}
             tokenId={tokenId}
             toggleOpened={toggleOpened}
-            onInUSDToggle={() => void 0}
             onTokenIdChange={setTokenId}
             onAmountChange={handleAmountChange}
             onSearchChange={handleSearchChange}

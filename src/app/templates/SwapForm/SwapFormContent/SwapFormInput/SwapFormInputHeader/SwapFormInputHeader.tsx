@@ -1,34 +1,30 @@
-import React, { ChangeEvent, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ChangeEvent, forwardRef, FocusEvent, useEffect, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
-import Spinner from 'app/atoms/Spinner';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { ReactComponent as SyncIcon } from 'app/icons/sync.svg';
 import AssetIcon from 'app/templates/AssetIcon';
+import InUSD from 'app/templates/InUSD';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { t, T } from 'lib/i18n/react';
-import { AssetMetadata, useNetwork } from 'lib/temple/front';
+import { AssetMetadata } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
 import { SwapFormInputProps } from '../SwapFormInput.props';
 
 interface Props extends PopperRenderProps, Pick<SwapFormInputProps, 'label'> {
   amount?: BigNumber;
-  amountLoading?: boolean;
   balance?: BigNumber;
   onAmountChange: (amount?: BigNumber) => void;
-  onInUSDToggle: () => void;
   onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onTokenIdChange: (value?: number) => void;
   searchString: string;
   selectedAssetSlug?: string;
   selectedAssetMetadata: AssetMetadata;
-  canSwitchToUSD: boolean;
   showTokenIdInput: boolean;
   tokenId?: number;
 }
@@ -37,18 +33,15 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
   (
     {
       amount,
-      amountLoading,
       balance,
       label,
       opened,
       searchString,
       selectedAssetSlug,
       selectedAssetMetadata,
-      canSwitchToUSD,
       showTokenIdInput,
       tokenId,
       toggleOpened,
-      onInUSDToggle,
       onTokenIdChange,
       onAmountChange,
       onSearchChange
@@ -58,14 +51,9 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
     const amountFieldRef = useRef<HTMLInputElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [isActive, setIsActive] = useState(false);
-    const network = useNetwork();
-
-    const displayedConversionNumber = amount;
-    const displayedBalance = useMemo(() => {
-      return balance;
-    }, [balance]);
 
     const prevOpenedRef = useRef(opened);
+
     useEffect(() => {
       if (!prevOpenedRef.current && opened) {
         searchInputRef.current?.focus();
@@ -75,11 +63,12 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
 
     const handleFocus = () => setIsActive(true);
     const handleBlur = () => setIsActive(false);
-    const handleAmountFieldFocus = useCallback(evt => {
-      evt.preventDefault();
+
+    const handleAmountFieldFocus = (event: FocusEvent<HTMLInputElement> | FocusEvent<HTMLTextAreaElement>) => {
+      event.preventDefault();
       setIsActive(true);
       amountFieldRef.current?.focus({ preventScroll: true });
-    }, []);
+    };
 
     const handleAmountChange = (newInputValue?: string) => {
       const newValue = newInputValue ? new BigNumber(newInputValue) : undefined;
@@ -100,15 +89,14 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
               <span className="mr-1">
                 <T id="balance" />
               </span>
-              {displayedBalance && (
-                <span className={classNames('text-sm mr-1 text-gray-700', displayedBalance.eq(0) && 'text-red-700')}>
-                  {canSwitchToUSD ? '≈' : ''}
-                  <Money smallFractionFont={false} fiat={canSwitchToUSD}>
-                    {displayedBalance}
+              {balance && (
+                <span className={classNames('text-sm mr-1 text-gray-700', balance.eq(0) && 'text-red-700')}>
+                  <Money smallFractionFont={false} fiat={false}>
+                    {balance}
                   </Money>
                 </span>
               )}
-              <span>{canSwitchToUSD ? '$' : selectedAssetMetadata.symbol}</span>
+              <span>{selectedAssetMetadata.symbol}</span>
             </span>
           )}
         </div>
@@ -180,23 +168,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
               <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
             </div>
             <div className="flex-1 px-2 flex items-center justify-between">
-              {canSwitchToUSD && (
-                <button
-                  type="button"
-                  className="mr-2"
-                  onClick={onInUSDToggle}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                >
-                  <SyncIcon className="w-4 h-auto text-gray-700 stroke-current stroke-1" />
-                </button>
-              )}
-              <div
-                className={classNames(
-                  'h-full flex-1 flex items-end justify-center flex-col',
-                  amountLoading && 'hidden'
-                )}
-              >
+              <div className="h-full flex-1 flex items-end justify-center flex-col">
                 <AssetField
                   ref={amountFieldRef}
                   value={amount?.toString()}
@@ -207,34 +179,20 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   style={{ padding: 0, borderRadius: 0 }}
                   placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
                   min={0}
-                  assetDecimals={canSwitchToUSD ? 2 : selectedAssetMetadata.decimals}
+                  assetDecimals={selectedAssetMetadata.decimals}
                   fieldWrapperBottomMargin={false}
                   onBlur={handleBlur}
                   onFocus={handleAmountFieldFocus}
                   onChange={handleAmountChange}
                 />
-                {network.type === 'main' && (
-                  <span
-                    className={classNames(
-                      'mt-2 text-xs',
-                      displayedConversionNumber === undefined ? 'text-gray-500' : 'text-gray-700'
-                    )}
-                  >
-                    ≈{' '}
-                    <Money smallFractionFont={false} fiat={!canSwitchToUSD}>
-                      {displayedConversionNumber ?? 0}
-                    </Money>
-                    <span className="text-gray-500">{` ${canSwitchToUSD ? selectedAssetMetadata.symbol : '$'}`}</span>
-                  </span>
-                )}
-              </div>
-              <div
-                className={classNames(
-                  'h-full flex-1 flex items-end justify-center flex-col',
-                  !amountLoading && 'hidden'
-                )}
-              >
-                <Spinner theme="primary" style={{ width: '3rem' }} />
+
+                <InUSD
+                  assetSlug={selectedAssetSlug}
+                  volume={selectedAssetSlug ? amount ?? 0 : 0}
+                  smallFractionFont={false}
+                >
+                  {usdBalance => <div className="text-gray-500">≈ {usdBalance} $</div>}
+                </InUSD>
               </div>
             </div>
           </div>

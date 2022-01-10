@@ -13,8 +13,8 @@ import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { useRoutePairsCombinations } from 'lib/swap-router/hooks/use-route-pairs-combinatios.hook';
 import { getBestTradeExactIn, getTradeOutput } from 'lib/swap-router/utils/best-trade.utils';
-import { useAssetMetadata, useGetTokenMetadata } from 'lib/temple/front';
-import { atomsToTokens, tokensToAtoms, tzToMutez } from 'lib/temple/helpers';
+import { useAssetMetadata } from 'lib/temple/front';
+import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 
 import { ROUTING_FEE_PERCENT } from '../../../../lib/swap-router/config';
@@ -53,7 +53,6 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
 
   const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez');
   const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez');
-  const getTokenMetadata = useGetTokenMetadata();
 
   const [tradeType, setTradeType] = useState(TradeTypeEnum.EXACT_INPUT);
   const [bestTrade, setBestTrade] = useState<Trade>([]);
@@ -64,9 +63,7 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    console.log('find new best trade', routePairsCombinations.length);
-    if (tradeType === TradeTypeEnum.EXACT_INPUT && inputValue.amount) {
-      console.log(tradeType, inputValue.amount?.toFixed());
+    if (tradeType === TradeTypeEnum.EXACT_INPUT && inputValue.amount && routePairsCombinations.length > 0) {
       const inputMutezAmount = tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals);
 
       const bestTradeExactIn = getBestTradeExactIn(inputMutezAmount, routePairsCombinations);
@@ -76,8 +73,20 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
 
       setBestTrade(bestTradeExactIn);
       setValue('output', { assetSlug: outputValue.assetSlug, amount: outputTzAmount });
+    } else {
+      setBestTrade([]);
+      setValue('output', { assetSlug: outputValue.assetSlug, amount: undefined });
     }
-  }, [inputValue.amount, outputValue.assetSlug, tradeType, slippageTolerance, routePairsCombinations, setValue]);
+  }, [
+    inputValue.amount,
+    outputValue.assetSlug,
+    tradeType,
+    slippageTolerance,
+    routePairsCombinations,
+    inputAssetMetadata.decimals,
+    outputAssetMetadata.decimals,
+    setValue
+  ]);
 
   useEffect(() => {
     register('input', {
@@ -181,7 +190,6 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
         // @ts-ignore
         error={errors.input?.message}
         label={<T id="from" />}
-        loading={false}
         withPercentageButtons
         triggerValidation={triggerValidation}
         onChange={handleInputChange}
@@ -198,7 +206,6 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
         className="mb-6"
         name="output"
         value={outputValue}
-        loading={false}
         // @ts-ignore
         error={errors.output?.message}
         isOutput={true}

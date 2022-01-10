@@ -7,7 +7,6 @@ export interface SwapFormInputProps {
   className?: string;
   error?: string;
   label: React.ReactNode;
-  loading?: boolean;
   name: string;
   triggerValidation: (payload?: string | string[] | undefined, shouldRender?: boolean | undefined) => void;
   withPercentageButtons?: boolean;
