@@ -1,10 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import classNames from 'clsx';
-
-import Identicon from 'app/atoms/Identicon';
 import { AssetTypesEnum } from 'lib/temple/assets';
-import { useAssetMetadata, getAssetSymbol, getThumbnailUri } from 'lib/temple/front';
+import { getThumbnailUri, useAssetMetadata } from 'lib/temple/front';
 import useImageLoader from 'lib/ui/useImageLoader';
 
 import AssetIcon from './AssetIcon';
