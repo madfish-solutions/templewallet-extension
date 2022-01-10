@@ -1,4 +1,4 @@
-export const IPFS_GATEWAY = 'ipfs.io';
+export const IPFS_GATEWAY = 'cloudflare-ipfs.com';
 
 export function formatImgUri(origin = '') {
   if (origin.startsWith('ipfs://')) {
@@ -15,7 +15,7 @@ export function sanitizeImgUri(url = '', x = 64, y = 64) {
 }
 
 export const formatCollectibleUri = (address: string, id: string) => {
-  return `https://assets.objkt.com/file/assets-001/${address}/${id.length > 1 ? id[id.length - 2] : 0}/${
+  return `https://assets.objkt.media/file/assets-001/${address}/${id.length > 1 ? id[id.length - 2] : 0}/${
     id[id.length - 1]
   }/${id}/thumb400`;
 };
