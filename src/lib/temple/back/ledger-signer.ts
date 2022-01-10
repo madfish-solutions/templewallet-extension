@@ -6,9 +6,9 @@ import * as sodium from 'libsodium-wrappers';
 import { PublicError } from 'lib/temple/back/defaults';
 import toBuffer from 'typedarray-to-buffer';
 
-type curves = 'ed' | 'p2' | 'sp';
+export type curves = 'ed' | 'p2' | 'sp';
 
-const pref = {
+export const pref = {
   ed: {
     pk: prefix['edpk'],
     sk: prefix['edsk'],
@@ -69,6 +69,7 @@ export class TempleLedgerSigner extends LedgerSigner {
       bb = mergebuf(watermark, bb);
     }
     const watermarkedBytes = buf2hex(toBuffer(bb));
+    console.log(result.prefixSig);
     const signatureVerified = await this.verify(watermarkedBytes, result.prefixSig);
 
     if (!signatureVerified) {
@@ -127,7 +128,7 @@ export class TempleLedgerSigner extends LedgerSigner {
   }
 }
 
-const getSig = (signature: string, curve: any, pref: any) => {
+export const getSig = (signature: string, curve: any, pref: any) => {
   let sig;
   if (signature.substring(0, 3) === 'sig') {
     sig = b58cdecode(signature, prefix.sig);
@@ -143,7 +144,7 @@ function toLedgerError(err: any) {
   return new PublicError(`Ledger error. ${err.message}`);
 }
 
-const safeSignEdData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
+export const safeSignEdData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
   try {
     return sodium.crypto_sign_verify_detached(sig, bytesHash, _publicKey);
   } catch (e) {
@@ -151,7 +152,7 @@ const safeSignEdData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any)
   }
 };
 
-const safeSignSpData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
+export const safeSignSpData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
   const key = new elliptic.ec('secp256k1').keyFromPublic(_publicKey);
   const hexSig = buf2hex(toBuffer(sig));
   const match = hexSig.match(/([a-f\d]{64})/gi);
@@ -166,7 +167,7 @@ const safeSignSpData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any)
   return false;
 };
 
-const safeSignP2Data = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
+export const safeSignP2Data = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
   const key = new elliptic.ec('p256').keyFromPublic(_publicKey);
   const hexSig = buf2hex(toBuffer(sig));
   const match = hexSig.match(/([a-f\d]{64})/gi);
