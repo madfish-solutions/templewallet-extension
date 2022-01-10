@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { TradeOperation } from 'lib/swap-router/interface/trade.interface';
 import { getDexName, getPoolName } from 'lib/swap-router/utils/trade-operation.utils';
-import { useGetTokenMetadata } from 'lib/temple/front';
+import { useAssetMetadata } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
 
 import AssetIcon from '../../../../AssetIcon';
@@ -17,19 +17,22 @@ interface Props {
 }
 
 export const SwapRouteItem: FC<Props> = ({ tradeOperation, isShowNextArrow }) => {
-  const getTokenMetadata = useGetTokenMetadata();
+  const aTokenMetadata = useAssetMetadata(tradeOperation.aTokenSlug);
+  const bTokenMetadata = useAssetMetadata(tradeOperation.bTokenSlug);
 
-  const aTokenMetadata = getTokenMetadata(tradeOperation.aTokenSlug);
-  const bTokenMetadata = getTokenMetadata(tradeOperation.bTokenSlug);
+  console.log(tradeOperation.dexAddress, tradeOperation.aTokenSlug, tradeOperation.bTokenSlug);
 
   const swapInfoDivRef = useTippy<HTMLDivElement>({
     trigger: 'mouseenter',
     hideOnClick: false,
-    content: `Dex: ${getDexName(tradeOperation.dexType)} \nPool: ${getPoolName(
-      tradeOperation.direction,
-      aTokenMetadata,
-      bTokenMetadata
-    )}`,
+    content:
+      aTokenMetadata &&
+      bTokenMetadata &&
+      `Dex: ${getDexName(tradeOperation.dexType)} \nPool: ${getPoolName(
+        tradeOperation.direction,
+        aTokenMetadata,
+        bTokenMetadata
+      )}`,
     animation: 'shift-away-subtle'
   });
 

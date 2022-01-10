@@ -10,10 +10,8 @@ export const getAllowedRoutePairs = (
     return allRoutePairs.filter(
       route =>
         ALLOWED_ROUTE_PAIRS_WHITELIST.includes(route.dexAddress) ||
-        route.aTokenSlug === inputAssetSlug ||
-        route.bTokenSlug === inputAssetSlug ||
-        route.aTokenSlug === outputAssetSlug ||
-        route.bTokenSlug === outputAssetSlug
+        (inputAssetSlug !== 'tez' && (route.aTokenSlug === inputAssetSlug || route.bTokenSlug === inputAssetSlug)) ||
+        (outputAssetSlug !== 'tez' && (route.aTokenSlug === outputAssetSlug || route.bTokenSlug === outputAssetSlug))
     );
   }
 

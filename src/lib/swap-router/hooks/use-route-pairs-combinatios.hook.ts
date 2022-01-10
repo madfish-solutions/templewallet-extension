@@ -14,10 +14,12 @@ export const useRoutePairsCombinations = (
 
   useEffect(() => {
     (async () => {
-      // TODO: add !0 pool check
       const allPairs = await getAllRoutePairs();
-      setAllRoutePairs(allPairs);
-      console.log('all', allPairs.length);
+      // TODO: move this into backend
+      const filteredPairs = allPairs.filter(pair => !pair.aTokenPool.isEqualTo(0) && !pair.bTokenPool.isEqualTo(0));
+
+      setAllRoutePairs(filteredPairs);
+      console.log('all', filteredPairs.length);
     })();
   }, []);
 

@@ -15,25 +15,64 @@ const findSwapOutput = (aTokenAmount: BigNumber, pair: RoutePairWithDirection) =
   return numerator.idiv(denominator);
 };
 
-const getTradeOperation = (aTokenAmount: BigNumber, pair: RoutePairWithDirection): TradeOperation => ({
+const findSwapInput = (bTokenAmount: BigNumber, pair: RoutePairWithDirection) => {
+  const feeRatio = getPairFeeRatio(pair);
+
+  const numerator = pair.aTokenPool.times(bTokenAmount);
+  const denominator = pair.bTokenPool.minus(bTokenAmount).times(feeRatio);
+
+  const input = numerator.idiv(denominator).plus(1);
+
+  return input.isGreaterThan(0) ? input : new BigNumber(Infinity);
+};
+
+const getTradeOperationExactInput = (aTokenAmount: BigNumber, pair: RoutePairWithDirection): TradeOperation => ({
   ...pair,
   aTokenAmount,
   bTokenAmount: findSwapOutput(aTokenAmount, pair)
 });
 
-export const calculateTradeExactIn = (inputAssetAmount: BigNumber, routePairs: RoutePairWithDirection[]) => {
+const getTradeOperationExactOutput = (bTokenAmount: BigNumber, pair: RoutePairWithDirection): TradeOperation => ({
+  ...pair,
+  bTokenAmount,
+  aTokenAmount: findSwapInput(bTokenAmount, pair)
+});
+
+export const calculateTradeExactInput = (inputAssetAmount: BigNumber, routePairs: RoutePairWithDirection[]) => {
   const trade: Trade = [];
 
   if (routePairs.length > 0) {
-    const firstTradeOperation = getTradeOperation(inputAssetAmount, routePairs[0]);
+    const firstTradeOperation = getTradeOperationExactInput(inputAssetAmount, routePairs[0]);
     trade.push(firstTradeOperation);
 
     if (routePairs.length > 1) {
       for (let i = 1; i < routePairs.length; i++) {
         const previousTradeOutput = trade[i - 1].bTokenAmount;
 
-        const tradeOperation = getTradeOperation(previousTradeOutput, routePairs[i]);
+        const tradeOperation = getTradeOperationExactInput(previousTradeOutput, routePairs[i]);
         trade.push(tradeOperation);
+      }
+    }
+  }
+
+  return trade;
+};
+
+export const calculateTradeExactOutput = (outputAssetAmount: BigNumber, routePairs: RoutePairWithDirection[]) => {
+  const trade: Trade = [];
+
+  if (routePairs.length > 0) {
+    const lastTradeIndex = routePairs.length - 1;
+
+    const firstTradeOperation = getTradeOperationExactOutput(outputAssetAmount, routePairs[lastTradeIndex]);
+    trade.unshift(firstTradeOperation);
+
+    if (routePairs.length > 1) {
+      for (let i = lastTradeIndex - 1; i >= 0; i--) {
+        const previousTradeInput = trade[0].aTokenAmount;
+
+        const tradeOperation = getTradeOperationExactOutput(previousTradeInput, routePairs[i]);
+        trade.unshift(tradeOperation);
       }
     }
   }

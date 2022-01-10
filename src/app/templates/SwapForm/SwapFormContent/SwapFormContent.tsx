@@ -12,7 +12,12 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { useRoutePairsCombinations } from 'lib/swap-router/hooks/use-route-pairs-combinatios.hook';
-import { getBestTradeExactIn, getTradeOutput } from 'lib/swap-router/utils/best-trade.utils';
+import {
+  getBestTradeExactInput,
+  getBestTradeExactOutput,
+  getTradeInput,
+  getTradeOutput
+} from 'lib/swap-router/utils/best-trade.utils';
 import { useAssetMetadata } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
@@ -63,23 +68,55 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (tradeType === TradeTypeEnum.EXACT_INPUT && inputValue.amount && routePairsCombinations.length > 0) {
-      const inputMutezAmount = tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals);
+    if (tradeType === TradeTypeEnum.EXACT_INPUT) {
+      if (inputValue.amount && routePairsCombinations.length > 0) {
+        const inputMutezAmount = tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals);
 
-      const bestTradeExactIn = getBestTradeExactIn(inputMutezAmount, routePairsCombinations);
-      const bestTradeOutput = getTradeOutput(bestTradeExactIn);
+        const bestTradeExactIn = getBestTradeExactInput(inputMutezAmount, routePairsCombinations);
+        const bestTradeOutput = getTradeOutput(bestTradeExactIn);
 
-      const outputTzAmount = atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals);
+        const outputTzAmount = bestTradeOutput
+          ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals)
+          : undefined;
 
-      setBestTrade(bestTradeExactIn);
-      setValue('output', { assetSlug: outputValue.assetSlug, amount: outputTzAmount });
-    } else {
-      setBestTrade([]);
-      setValue('output', { assetSlug: outputValue.assetSlug, amount: undefined });
+        setBestTrade(bestTradeExactIn);
+        setValue('output', { assetSlug: outputValue.assetSlug, amount: outputTzAmount });
+      } else {
+        setBestTrade([]);
+        setValue('output', { assetSlug: outputValue.assetSlug, amount: undefined });
+      }
     }
   }, [
     inputValue.amount,
     outputValue.assetSlug,
+    tradeType,
+    slippageTolerance,
+    routePairsCombinations,
+    inputAssetMetadata.decimals,
+    outputAssetMetadata.decimals,
+    setValue
+  ]);
+
+  useEffect(() => {
+    if (tradeType === TradeTypeEnum.EXACT_OUTPUT) {
+      if (outputValue.amount && routePairsCombinations.length > 0) {
+        const outputMutezAmount = tokensToAtoms(outputValue.amount, outputAssetMetadata.decimals);
+
+        const bestTradeExactOutput = getBestTradeExactOutput(outputMutezAmount, routePairsCombinations);
+        const bestTradeInput = getTradeInput(bestTradeExactOutput);
+
+        const inputTzAmount = bestTradeInput ? atomsToTokens(bestTradeInput, inputAssetMetadata.decimals) : undefined;
+
+        setBestTrade(bestTradeExactOutput);
+        setValue('input', { assetSlug: inputValue.assetSlug, amount: inputTzAmount });
+      } else {
+        setBestTrade([]);
+        setValue('input', { assetSlug: inputValue.assetSlug, amount: undefined });
+      }
+    }
+  }, [
+    outputValue.amount,
+    inputValue.assetSlug,
     tradeType,
     slippageTolerance,
     routePairsCombinations,

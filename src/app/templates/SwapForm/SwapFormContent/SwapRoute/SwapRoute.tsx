@@ -16,7 +16,7 @@ export const SwapRoute: FC<Props> = ({ trade, inputValue, outputValue }) => {
     return <SwapRouteInfo text="Please, select tokens to swap" />;
   }
 
-  if (!inputValue.amount || !outputValue.amount) {
+  if (!inputValue.amount && !outputValue.amount) {
     return <SwapRouteInfo text="Please, enter swap amount" />;
   }
 
@@ -27,7 +27,11 @@ export const SwapRoute: FC<Props> = ({ trade, inputValue, outputValue }) => {
   return (
     <div className="flex justify-between items-center mb-2">
       {trade.map((item, index) => (
-        <SwapRouteItem key={index} tradeOperation={item} isShowNextArrow={index !== trade.length - 1} />
+        <SwapRouteItem
+          key={`${index}_${item.dexType}_${item.aTokenSlug}_${item.bTokenSlug}`}
+          tradeOperation={item}
+          isShowNextArrow={index !== trade.length - 1}
+        />
       ))}
     </div>
   );

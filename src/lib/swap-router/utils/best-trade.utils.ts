@@ -3,34 +3,81 @@ import { BigNumber } from 'bignumber.js';
 import { RoutePairWithDirection } from '../interface/route-pair-with-direction.interface';
 import { Trade } from '../interface/trade.interface';
 import { getTradeFakeFee } from './fee.utils';
-import { calculateTradeExactIn } from './trade.utils';
+import { calculateTradeExactInput, calculateTradeExactOutput } from './trade.utils';
 
-export const getTradeOutput = (trade: Trade) => trade[trade.length - 1]?.bTokenAmount ?? new BigNumber(0);
+export const getTradeOutput = (trade: Trade): BigNumber | undefined => trade[trade.length - 1]?.bTokenAmount;
 
-const isTradeBetter = (firstTrade: Trade, secondTrade: Trade) => {
+export const getTradeInput = (trade: Trade): BigNumber | undefined => trade[0]?.aTokenAmount;
+
+const isTradeOutputBetter = (firstTrade: Trade, secondTrade: Trade) => {
   const firstTradeOutput = getTradeOutput(firstTrade);
   const firstTradeFakeFee = getTradeFakeFee(firstTrade);
 
   const secondTradeOutput = getTradeOutput(secondTrade);
   const secondTradeFakeFee = getTradeFakeFee(secondTrade);
 
-  // TODO: take fakeFee into account
-  return firstTradeOutput.isGreaterThan(secondTradeOutput);
+  if (firstTradeOutput && secondTradeOutput) {
+    // TODO: take fakeFee into account
+    return firstTradeOutput.isGreaterThan(secondTradeOutput);
+  }
+
+  if (firstTradeOutput) {
+    return true;
+  }
+
+  return false;
 };
 
-export const getBestTradeExactIn = (
+const isTradeInputBetter = (firstTrade: Trade, secondTrade: Trade) => {
+  const firstTradeInput = getTradeInput(firstTrade);
+  console.log(firstTradeInput?.toFixed());
+  const firstTradeFakeFee = getTradeFakeFee(firstTrade);
+
+  const secondTradeInput = getTradeInput(secondTrade);
+  const secondTradeFakeFee = getTradeFakeFee(secondTrade);
+
+  if (firstTradeInput && secondTradeInput) {
+    // TODO: take fakeFee into account
+    return firstTradeInput.isLessThan(secondTradeInput);
+  }
+
+  if (firstTradeInput) {
+    return true;
+  }
+
+  return false;
+};
+
+export const getBestTradeExactInput = (
   inputAssetAmount: BigNumber,
   routePairsCombinations: Array<RoutePairWithDirection[]>
 ) => {
-  let bestTradeExactIn: Trade = [];
+  let bestTradeExactInput: Trade = [];
 
   for (let routePairs of routePairsCombinations) {
-    const trade = calculateTradeExactIn(inputAssetAmount, routePairs);
+    const trade = calculateTradeExactInput(inputAssetAmount, routePairs);
 
-    if (isTradeBetter(trade, bestTradeExactIn)) {
-      bestTradeExactIn = trade;
+    if (isTradeOutputBetter(trade, bestTradeExactInput)) {
+      bestTradeExactInput = trade;
     }
   }
 
-  return bestTradeExactIn;
+  return bestTradeExactInput;
+};
+
+export const getBestTradeExactOutput = (
+  outputAssetAmount: BigNumber,
+  routePairsCombinations: Array<RoutePairWithDirection[]>
+) => {
+  let bestTradeExactOutput: Trade = [];
+
+  for (let routePairs of routePairsCombinations) {
+    const trade = calculateTradeExactOutput(outputAssetAmount, routePairs);
+
+    if (isTradeInputBetter(trade, bestTradeExactOutput)) {
+      bestTradeExactOutput = trade;
+    }
+  }
+
+  return bestTradeExactOutput;
 };
