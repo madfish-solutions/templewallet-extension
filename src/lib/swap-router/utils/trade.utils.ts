@@ -32,7 +32,7 @@ export const calculateTradeExactIn = (inputAssetAmount: BigNumber, routePairs: R
       for (let i = 1; i < routePairs.length; i++) {
         const previousTradeOutput = trade[i - 1].bTokenAmount;
 
-        const tradeOperation = getTradeOperation(previousTradeOutput, routePairs[0]);
+        const tradeOperation = getTradeOperation(previousTradeOutput, routePairs[i]);
         trade.push(tradeOperation);
       }
     }

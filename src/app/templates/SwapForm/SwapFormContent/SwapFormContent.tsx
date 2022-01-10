@@ -12,16 +12,21 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { useRoutePairsCombinations } from 'lib/swap-router/hooks/use-route-pairs-combinatios.hook';
-import { getBestTradeExactIn } from 'lib/swap-router/utils/best-trade.utils';
+import { getBestTradeExactIn, getTradeOutput } from 'lib/swap-router/utils/best-trade.utils';
+import { useAssetMetadata, useGetTokenMetadata } from 'lib/temple/front';
+import { atomsToTokens, tokensToAtoms, tzToMutez } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 
+import { ROUTING_FEE_PERCENT } from '../../../../lib/swap-router/config';
 import { TradeTypeEnum } from '../../../../lib/swap-router/enum/trade-type.enum';
+import { Trade } from '../../../../lib/swap-router/interface/trade.interface';
 import styles from '../SwapForm.module.css';
 import { feeInfoTippyProps, priceImpactInfoTippyProps } from './SwapFormContent.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapFormValue, SwapInputValue } from './SwapFormValue.interface';
+import { SwapRoute } from './SwapRoute/SwapRoute';
 
 interface Props {
   initialAssetSlug?: string;
@@ -46,7 +51,12 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
   const outputValue = watch('output');
   const slippageTolerance = watch('slippageTolerance');
 
+  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez');
+  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez');
+  const getTokenMetadata = useGetTokenMetadata();
+
   const [tradeType, setTradeType] = useState(TradeTypeEnum.EXACT_INPUT);
+  const [bestTrade, setBestTrade] = useState<Trade>([]);
   const routePairsCombinations = useRoutePairsCombinations(inputValue.assetSlug, outputValue.assetSlug);
 
   const [error, setError] = useState<Error>();
@@ -57,13 +67,17 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
     console.log('find new best trade', routePairsCombinations.length);
     if (tradeType === TradeTypeEnum.EXACT_INPUT && inputValue.amount) {
       console.log(tradeType, inputValue.amount?.toFixed());
-      const bestTradeExactIn = getBestTradeExactIn(inputValue.amount, routePairsCombinations);
+      const inputMutezAmount = tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals);
 
-      console.log(bestTradeExactIn);
-    } else {
-      console.log(tradeType, outputValue.amount?.toFixed());
+      const bestTradeExactIn = getBestTradeExactIn(inputMutezAmount, routePairsCombinations);
+      const bestTradeOutput = getTradeOutput(bestTradeExactIn);
+
+      const outputTzAmount = atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals);
+
+      setBestTrade(bestTradeExactIn);
+      setValue('output', { assetSlug: outputValue.assetSlug, amount: outputTzAmount });
     }
-  }, [inputValue.amount, outputValue.amount, tradeType, slippageTolerance, routePairsCombinations]);
+  }, [inputValue.amount, outputValue.assetSlug, tradeType, slippageTolerance, routePairsCombinations, setValue]);
 
   useEffect(() => {
     register('input', {
@@ -194,43 +208,42 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
         onAmountChange={handleOutputAmountChange}
       />
 
-      <table className={classNames('w-full text-xs text-gray-500 mb-1', styles['swap-form-table'])}>
+      <p className="text-xs text-gray-500 mb-1">
+        <T id="swapRoute" />:
+      </p>
+      <SwapRoute trade={bestTrade} inputValue={inputValue} outputValue={outputValue} />
+
+      <table className={classNames('w-full text-xs text-gray-500 mb-6', styles['swap-form-table'])}>
         <tbody>
           <tr>
             <td>
-              <div className="flex items-center">
-                <T id="fee" />
+              <span ref={feeInfoIconRef} className="flex w-fit items-center text-gray-500 hover:bg-gray-100">
+                <T id="routingFee" />
                 &nbsp;
-                <span ref={feeInfoIconRef} className="text-gray-600">
-                  <InfoIcon className="w-3 h-auto stroke-current" />
-                </span>
-                :
-              </div>
+                <InfoIcon className="w-3 h-auto stroke-current" />:
+              </span>
             </td>
-            <td className="text-right text-gray-600">-fee %</td>
+            <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT} %</td>
           </tr>
           <tr>
             <td>
-              <div className="flex items-center">
+              <span ref={priceImpactInfoIconRef} className="flex w-fit items-center text-gray-500 hover:bg-gray-100">
                 <T id="priceImpact" />
                 &nbsp;
-                <span ref={priceImpactInfoIconRef} className="text-gray-600">
-                  <InfoIcon className="w-3 h-auto stroke-current" />
-                </span>
-                :
-              </div>
+                <InfoIcon className="w-3 h-auto stroke-current" />:
+              </span>
             </td>
             <td className="text-right text-gray-600">'-price im-'</td>
           </tr>
           <tr>
             <td>
-              <T id="exchangeRate" />
+              <T id="exchangeRate" />:
             </td>
             <td className="text-right text-gray-600">'-ex rate-'</td>
           </tr>
           <tr>
             <td>
-              <T id="slippageTolerance" />
+              <T id="slippageTolerance" />:
             </td>
             <td className="justify-end text-gray-600 flex">
               <Controller
@@ -244,14 +257,12 @@ export const SwapFormContent: FC<Props> = ({ initialAssetSlug }) => {
           </tr>
           <tr>
             <td>
-              <T id="minimumReceived" />
+              <T id="minimumReceived" />:
             </td>
             <td className="text-right text-gray-600">- min Received</td>
           </tr>
         </tbody>
       </table>
-
-      <p className="text-xs text-gray-600 mb-6">{t('templeWalletFeeWarning')}</p>
 
       {error && (
         <Alert

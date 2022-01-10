@@ -43,7 +43,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   onAmountChange
 }) => {
   const { trackChange } = useFormAnalytics('SwapForm');
-  const { assetSlug, amount, usdAmount } = value;
+  const { assetSlug, amount } = value;
   const isTezosSlug = assetSlug === 'tez';
   const assetSlugWithFallback = assetSlug ?? 'tez';
 
@@ -85,11 +85,10 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     setSearchValue(e.target.value);
   };
 
-  const handleAmountChange = (amount?: BigNumber, usdAmount?: BigNumber) => {
+  const handleAmountChange = (amount?: BigNumber) => {
     onChange({
       assetSlug,
-      amount,
-      usdAmount
+      amount
     });
     onAmountChange(amount);
   };
@@ -173,7 +172,6 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
             showTokenIdInput={showTokenIdInput}
             tokenId={tokenId}
             toggleOpened={toggleOpened}
-            usdAmount={usdAmount}
             onInUSDToggle={() => void 0}
             onTokenIdChange={setTokenId}
             onAmountChange={handleAmountChange}

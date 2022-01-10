@@ -31,7 +31,6 @@ interface Props extends PopperRenderProps, Pick<SwapFormInputProps, 'label'> {
   canSwitchToUSD: boolean;
   showTokenIdInput: boolean;
   tokenId?: number;
-  usdAmount?: BigNumber;
 }
 
 export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
@@ -41,10 +40,6 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
       amountLoading,
       balance,
       label,
-      onAmountChange,
-      onInUSDToggle,
-      onSearchChange,
-      onTokenIdChange,
       opened,
       searchString,
       selectedAssetSlug,
@@ -53,7 +48,10 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
       showTokenIdInput,
       tokenId,
       toggleOpened,
-      usdAmount
+      onInUSDToggle,
+      onTokenIdChange,
+      onAmountChange,
+      onSearchChange
     },
     ref
   ) => {
@@ -62,8 +60,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
     const [isActive, setIsActive] = useState(false);
     const network = useNetwork();
 
-    const displayedAmount = canSwitchToUSD ? usdAmount : amount;
-    const displayedConversionNumber = canSwitchToUSD ? amount : usdAmount;
+    const displayedConversionNumber = amount;
     const displayedBalance = useMemo(() => {
       return balance;
     }, [balance]);
@@ -84,7 +81,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
       amountFieldRef.current?.focus({ preventScroll: true });
     }, []);
 
-    const handleChange = (newInputValue?: string) => {
+    const handleAmountChange = (newInputValue?: string) => {
       const newValue = newInputValue ? new BigNumber(newInputValue) : undefined;
       onAmountChange(newValue);
     };
@@ -201,20 +198,20 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                 )}
               >
                 <AssetField
-                  fieldWrapperBottomMargin={false}
-                  value={displayedAmount?.toString()}
                   ref={amountFieldRef}
-                  onBlur={handleBlur}
-                  onFocus={handleAmountFieldFocus}
+                  value={amount?.toString()}
                   className={classNames(
                     'text-gray-700 text-2xl text-right border-none bg-opacity-0',
                     'pl-0 focus:shadow-none'
                   )}
-                  onChange={handleChange}
-                  placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
                   style={{ padding: 0, borderRadius: 0 }}
+                  placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
                   min={0}
                   assetDecimals={canSwitchToUSD ? 2 : selectedAssetMetadata.decimals}
+                  fieldWrapperBottomMargin={false}
+                  onBlur={handleBlur}
+                  onFocus={handleAmountFieldFocus}
+                  onChange={handleAmountChange}
                 />
                 {network.type === 'main' && (
                   <span

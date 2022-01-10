@@ -1833,16 +1833,16 @@
     "message": "Über"
   },
   "exchangeRate": {
-    "message": "Wechselkurs:"
+    "message": "Wechselkurs"
   },
   "priceImpact": {
-    "message": "Preisauswirkung:"
+    "message": "Preisauswirkung"
   },
   "slippageTolerance": {
-    "message": "Schlupftoleranz:"
+    "message": "Schlupftoleranz"
   },
   "minimumReceived": {
-    "message": "Mindestens erhalten:"
+    "message": "Mindestens erhalten"
   },
   "inputOutputAssetsCannotBeSame": {
     "message": "Eingehende und ausgehende Vermögenswerte können nicht gleich sein"
@@ -2095,7 +2095,7 @@
     "message": "Haftungsausschluss. Lesen Sie den Abschnitt SWAP, bevor Sie ihn verwenden."
   },
   "swapDisclaimerContent": {
-    "message": "Temple Wallet bietet nur eine Schnittstelle zur Interaktion mit den Tezos Dexes. Wir sind nicht verantwortlich für: DEX-Ausgaben, angezeigte Token, Preise, Wechselkurse und Handelsentscheidungen der Nutzer. Bevor Sie diesen Swap-Abschnitt verwenden, sollten Sie die entsprechende Dokumentation lesen, um zu verstehen, wie die DEX(AMM)-Protokolle funktionieren. Die Nutzung dieses Abschnitts liegt allein in der Verantwortung des Nutzers."
+    "message": "Temple Wallet bietet nur eine Schnittstelle zur Interaktion mit den Tezos Dexes. \n\nWir sind nicht verantwortlich für: DEX-Ausgaben, angezeigte Token, Preise, Wechselkurse und Handelsentscheidungen der Nutzer. \n\nBevor Sie diesen Swap-Abschnitt verwenden, sollten Sie die entsprechende Dokumentation lesen, um zu verstehen, wie die DEX(AMM)-Protokolle funktionieren. \n\nDie Nutzung dieses Abschnitts liegt allein in der Verantwortung des Nutzers."
   },
   "noContactsFound": {
     "message": "Keine Kontakte gefunden"
