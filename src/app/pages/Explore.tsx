@@ -102,7 +102,17 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
         <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
           <ActionButton label={<T id="receive" />} Icon={ReceiveIcon} to="/receive" />
-          {network.type !== 'test' && <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} to="/buy" />}
+          {network.type !== 'test' && (
+            <ActionButton
+              disabled
+              tippyProps={{
+                content: t('featDoesNotWorkTemporarily')
+              }}
+              label={<T id="buyButton" />}
+              Icon={BuyIcon}
+              to="/buy"
+            />
+          )}
 
           <ActionButton
             label={<T id="swap" />}
