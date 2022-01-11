@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { AssetMetadata, useAssetMetadata } from 'lib/temple/front';
 
-import AssetIcon from '../../../../../AssetIcon';
+import AssetIcon from '../../../../AssetIcon';
 import { AssetOptionBalance } from './AssetOptionBalance';
 
 interface Props {

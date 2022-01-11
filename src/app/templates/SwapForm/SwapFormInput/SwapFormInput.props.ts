@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SwapInputValue } from '../SwapFormValue.interface';
+import { SwapInputValue } from '../SwapForm.form';
 
 export interface SwapFormInputProps {
   value: SwapInputValue;

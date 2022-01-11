@@ -1,10 +1,20 @@
 import { useMemo } from 'react';
 
+import BigNumber from 'bignumber.js';
 import { DeepPartial } from 'react-hook-form';
 
 import { useLocation } from 'lib/woozie';
 
-import { SwapFormValue } from './SwapFormValue.interface';
+export interface SwapInputValue {
+  assetSlug?: string;
+  amount?: BigNumber;
+}
+
+export interface SwapFormValue {
+  input: SwapInputValue;
+  output: SwapInputValue;
+  slippageTolerance?: number;
+}
 
 const getValidAssetSlug = (queryAssetSlug: string | null) =>
   queryAssetSlug && queryAssetSlug.length > 0 ? queryAssetSlug : undefined;

@@ -1,7 +1,8 @@
 import React, { FC } from 'react';
 
-import { Trade } from '../../../../../lib/swap-router/interface/trade.interface';
-import { SwapInputValue } from '../SwapFormValue.interface';
+import { Trade } from 'lib/swap-router/interface/trade.interface';
+
+import { SwapInputValue } from '../SwapForm.form';
 import { SwapRouteInfo } from './SwapRouteItem/SwapRouteInfo/SwapRouteInfo';
 import { SwapRouteItem } from './SwapRouteItem/SwapRouteItem';
 

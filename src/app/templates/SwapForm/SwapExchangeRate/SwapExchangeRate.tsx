@@ -3,7 +3,7 @@ import React, { FC, useMemo } from 'react';
 import Money from 'app/atoms/Money';
 import { AssetMetadata } from 'lib/temple/metadata';
 
-import { SwapInputValue } from '../SwapFormValue.interface';
+import { SwapInputValue } from '../SwapForm.form';
 
 interface Props {
   inputValue: SwapInputValue;

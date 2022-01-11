@@ -6,7 +6,7 @@ import { Trade } from 'lib/swap-router/interface/trade.interface';
 import { tokensToAtoms } from 'lib/temple/helpers';
 import { AssetMetadata } from 'lib/temple/metadata';
 
-import { SwapInputValue } from '../SwapFormValue.interface';
+import { SwapInputValue } from '../SwapForm.form';
 
 interface Props {
   trade: Trade;

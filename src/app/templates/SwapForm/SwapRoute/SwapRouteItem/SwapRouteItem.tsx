@@ -7,7 +7,7 @@ import { getDexName, getPoolName } from 'lib/swap-router/utils/trade-operation.u
 import { useAssetMetadata } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
 
-import AssetIcon from '../../../../AssetIcon';
+import AssetIcon from '../../../AssetIcon';
 import { DexTypeIcon } from './DexTypeIcon/DexTypeIcon';
 import { ReactComponent as NextArrow } from './icons/next-arrow.svg';
 

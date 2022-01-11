@@ -16,7 +16,7 @@ import ManageAssets from 'app/pages/ManageAssets';
 import Receive from 'app/pages/Receive';
 import Send from 'app/pages/Send';
 import Settings from 'app/pages/Settings';
-import Swap from 'app/pages/Swap';
+import { Swap } from 'app/pages/Swap/Swap';
 import Unlock from 'app/pages/Unlock';
 import Welcome from 'app/pages/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
