@@ -30,7 +30,6 @@ const isTradeOutputBetter = (firstTrade: Trade, secondTrade: Trade) => {
 
 const isTradeInputBetter = (firstTrade: Trade, secondTrade: Trade) => {
   const firstTradeInput = getTradeInput(firstTrade);
-  console.log(firstTradeInput?.toFixed());
   const firstTradeFakeFee = getTradeFakeFee(firstTrade);
 
   const secondTradeInput = getTradeInput(secondTrade);
