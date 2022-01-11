@@ -1,6 +1,6 @@
 import { TezosToolkit } from '@taquito/taquito';
 
-import { DexTypeEnum } from '../../dex-type.enum';
+import { DexTypeEnum } from '../../enum/dex-type.enum';
 import { getLiquidityBakingRoutePair } from '../dexes/liquidity-baking/route-pair.utils';
 import { getPlentyRoutePair } from '../dexes/plenty/route-pair.utils';
 import { getQuipuSwapRoutePair } from '../dexes/quipu-swap/shared/route-pair.utils';

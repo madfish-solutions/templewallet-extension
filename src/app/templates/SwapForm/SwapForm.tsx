@@ -52,6 +52,8 @@ export const SwapForm: FC = () => {
   const outputValue = watch('output');
   const slippageTolerance = watch('slippageTolerance');
 
+  console.log(slippageTolerance);
+
   const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez');
   const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez');
 

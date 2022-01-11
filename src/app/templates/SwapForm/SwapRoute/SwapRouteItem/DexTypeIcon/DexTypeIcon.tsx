@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-import { DexTypeEnum } from 'lib/swap-router/dex-type.enum';
+import { DexTypeEnum } from 'lib/swap-router/enum/dex-type.enum';
 
 import { ReactComponent as LiquidityBackingIcon } from './icons/liquidity-backing-icon.svg';
 import { ReactComponent as PlentyIcon } from './icons/plenty.svg';

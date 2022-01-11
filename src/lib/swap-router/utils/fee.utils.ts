@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 
-import { DexTypeEnum } from '../dex-type.enum';
+import { DexTypeEnum } from '../enum/dex-type.enum';
 import { RoutePairWithDirection } from '../interface/route-pair-with-direction.interface';
 import { Trade, TradeOperation } from '../interface/trade.interface';
 
