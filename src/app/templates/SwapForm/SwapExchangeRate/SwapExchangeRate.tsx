@@ -1,32 +1,31 @@
 import React, { FC, useMemo } from 'react';
 
 import Money from 'app/atoms/Money';
+import { Trade } from 'lib/swap-router/interface/trade.interface';
+import { getTradeInput, getTradeOutput } from 'lib/swap-router/utils/best-trade.utils';
+import { atomsToTokens } from 'lib/temple/helpers';
 import { AssetMetadata } from 'lib/temple/metadata';
 
-import { SwapInputValue } from '../SwapForm.form';
-
 interface Props {
-  inputValue: SwapInputValue;
-  outputValue: SwapInputValue;
+  trade: Trade;
   inputAssetMetadata: AssetMetadata;
   outputAssetMetadata: AssetMetadata;
 }
 
-export const SwapExchangeRate: FC<Props> = ({ inputValue, outputValue, inputAssetMetadata, outputAssetMetadata }) => {
+export const SwapExchangeRate: FC<Props> = ({ trade, inputAssetMetadata, outputAssetMetadata }) => {
   const exchangeRate = useMemo(() => {
-    if (
-      inputValue.amount &&
-      inputValue.assetSlug &&
-      outputValue.amount &&
-      outputValue.assetSlug &&
-      !inputValue.amount.isEqualTo(0) &&
-      !outputValue.amount.isEqualTo(0)
-    ) {
-      return inputValue.amount.dividedBy(outputValue.amount);
+    const tradeMutezInput = getTradeInput(trade);
+    const tradeMutezOutput = getTradeOutput(trade);
+
+    if (tradeMutezInput && tradeMutezOutput && !tradeMutezInput.isEqualTo(0) && !tradeMutezOutput.isEqualTo(0)) {
+      const tradeTzInput = atomsToTokens(tradeMutezInput, inputAssetMetadata.decimals);
+      const tradeTzOutput = atomsToTokens(tradeMutezOutput, outputAssetMetadata.decimals);
+
+      return tradeTzInput.dividedBy(tradeTzOutput);
     }
 
     return undefined;
-  }, [inputValue.amount, inputValue.assetSlug, outputValue.amount, outputValue.assetSlug]);
+  }, [trade, inputAssetMetadata.decimals, outputAssetMetadata.decimals]);
 
   return (
     <span>

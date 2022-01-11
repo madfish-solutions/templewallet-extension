@@ -303,13 +303,7 @@ export const SwapForm: FC = () => {
               </span>
             </td>
             <td className="text-right text-gray-600">
-              <SwapPriceImpact
-                trade={bestTrade}
-                inputValue={inputValue}
-                outputValue={outputValue}
-                inputAssetMetadata={inputAssetMetadata}
-                outputAssetMetadata={outputAssetMetadata}
-              />
+              <SwapPriceImpact trade={bestTrade} />
             </td>
           </tr>
           <tr>
@@ -318,8 +312,7 @@ export const SwapForm: FC = () => {
             </td>
             <td className="text-right text-gray-600">
               <SwapExchangeRate
-                inputValue={inputValue}
-                outputValue={outputValue}
+                trade={bestTrade}
                 inputAssetMetadata={inputAssetMetadata}
                 outputAssetMetadata={outputAssetMetadata}
               />

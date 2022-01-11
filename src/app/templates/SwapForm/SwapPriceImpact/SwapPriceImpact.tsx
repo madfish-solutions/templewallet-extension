@@ -3,52 +3,33 @@ import React, { FC, useMemo } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import { Trade } from 'lib/swap-router/interface/trade.interface';
+import { getTradeInput, getTradeOutput } from 'lib/swap-router/utils/best-trade.utils';
 import { getPairFeeRatio } from 'lib/swap-router/utils/fee.utils';
-import { tokensToAtoms } from 'lib/temple/helpers';
-import { AssetMetadata } from 'lib/temple/metadata';
-
-import { SwapInputValue } from '../SwapForm.form';
 
 interface Props {
   trade: Trade;
-  inputValue: SwapInputValue;
-  outputValue: SwapInputValue;
-  inputAssetMetadata: AssetMetadata;
-  outputAssetMetadata: AssetMetadata;
 }
 
-export const SwapPriceImpact: FC<Props> = ({
-  trade,
-  inputValue,
-  outputValue,
-  inputAssetMetadata,
-  outputAssetMetadata
-}) => {
+export const SwapPriceImpact: FC<Props> = ({ trade }) => {
   const priceImpact = useMemo(() => {
-    if (
-      inputValue.amount &&
-      outputValue.amount &&
-      trade.length > 0 &&
-      !inputValue.amount.isEqualTo(0) &&
-      !outputValue.amount.isEqualTo(0)
-    ) {
-      const inputMutezAmount = tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals);
-      const outputMutezAmount = tokensToAtoms(outputValue.amount, outputAssetMetadata.decimals);
+    const tradeInput = getTradeInput(trade);
+    const tradeOutput = getTradeOutput(trade);
 
+    if (tradeInput && tradeOutput && !tradeInput.isEqualTo(0) && !tradeOutput.isEqualTo(0)) {
       const linearOutputMutezAmount = trade.reduce((previousTradeOutput, tradeOperation) => {
         const feeRatio = getPairFeeRatio(tradeOperation);
         const linearExchangeRate = tradeOperation.bTokenPool.dividedBy(tradeOperation.aTokenPool);
 
         return previousTradeOutput.multipliedBy(feeRatio).multipliedBy(linearExchangeRate);
-      }, inputMutezAmount);
+      }, tradeInput);
 
       const HUNDRED = new BigNumber(100);
 
-      return HUNDRED.minus(HUNDRED.dividedBy(linearOutputMutezAmount).multipliedBy(outputMutezAmount));
+      return HUNDRED.minus(HUNDRED.multipliedBy(tradeOutput.dividedBy(linearOutputMutezAmount)));
     }
 
     return undefined;
-  }, [trade, inputValue.amount, outputValue.amount, inputAssetMetadata.decimals, outputAssetMetadata.decimals]);
+  }, [trade]);
 
   return <span>{priceImpact ? `${priceImpact.toFixed(2)}%` : '-'}</span>;
 };

@@ -11,7 +11,7 @@ export const useTradeWithSlippageTolerance = (
   slippageTolerance: number | undefined
 ) => {
   return useMemo(() => {
-    if (inputMutezAmountWithFee && slippageTolerance) {
+    if (inputMutezAmountWithFee && slippageTolerance !== undefined) {
       return calculateTradeExactInput(inputMutezAmountWithFee, trade, slippageTolerance);
     }
 
