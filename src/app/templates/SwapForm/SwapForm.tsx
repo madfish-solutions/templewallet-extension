@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { WalletOperation } from '@taquito/taquito';
 import classNames from 'clsx';
@@ -11,7 +11,7 @@ import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
-import { ROUTING_FEE_PERCENT } from 'lib/swap-router/config';
+import { ROUTING_FEE_INVERTED_RATIO, ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO } from 'lib/swap-router/config';
 import { TradeTypeEnum } from 'lib/swap-router/enum/trade-type.enum';
 import { useRoutePairsCombinations } from 'lib/swap-router/hooks/use-route-pairs-combinatios.hook';
 import { Trade } from 'lib/swap-router/interface/trade.interface';
@@ -60,9 +60,18 @@ export const SwapForm: FC = () => {
   const [bestTrade, setBestTrade] = useState<Trade>([]);
   const [tradeType, setTradeType] = useState(TradeTypeEnum.EXACT_INPUT);
   const routePairsCombinations = useRoutePairsCombinations(inputValue.assetSlug, outputValue.assetSlug);
+
+  const inputMutezAmountWithFee = useMemo(
+    () =>
+      inputValue.amount
+        ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals)
+            .multipliedBy(ROUTING_FEE_RATIO)
+            .dividedToIntegerBy(1)
+        : undefined,
+    [inputValue.amount, inputAssetMetadata.decimals]
+  );
   const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(
-    inputValue.amount,
-    inputAssetMetadata,
+    inputMutezAmountWithFee,
     bestTrade,
     slippageTolerance
   );
@@ -82,10 +91,8 @@ export const SwapForm: FC = () => {
 
   useEffect(() => {
     if (tradeType === TradeTypeEnum.EXACT_INPUT) {
-      if (inputValue.amount && routePairsCombinations.length > 0) {
-        const inputMutezAmount = tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals);
-
-        const bestTradeExactIn = getBestTradeExactInput(inputMutezAmount, routePairsCombinations);
+      if (inputMutezAmountWithFee && routePairsCombinations.length > 0) {
+        const bestTradeExactIn = getBestTradeExactInput(inputMutezAmountWithFee, routePairsCombinations);
         const bestTradeOutput = getTradeOutput(bestTradeExactIn);
 
         const outputTzAmount = bestTradeOutput
@@ -100,12 +107,11 @@ export const SwapForm: FC = () => {
       }
     }
   }, [
-    inputValue.amount,
+    inputMutezAmountWithFee,
     outputValue.assetSlug,
     tradeType,
     slippageTolerance,
     routePairsCombinations,
-    inputAssetMetadata.decimals,
     outputAssetMetadata.decimals,
     setValue
   ]);
@@ -116,12 +122,18 @@ export const SwapForm: FC = () => {
         const outputMutezAmount = tokensToAtoms(outputValue.amount, outputAssetMetadata.decimals);
 
         const bestTradeExactOutput = getBestTradeExactOutput(outputMutezAmount, routePairsCombinations);
-        const bestTradeInput = getTradeInput(bestTradeExactOutput);
+        const bestTradeMutezInput = getTradeInput(bestTradeExactOutput);
 
-        const inputTzAmount = bestTradeInput ? atomsToTokens(bestTradeInput, inputAssetMetadata.decimals) : undefined;
+        const bestTradeMutezInputWithFee = bestTradeMutezInput
+          ? bestTradeMutezInput.multipliedBy(ROUTING_FEE_INVERTED_RATIO).dividedToIntegerBy(1)
+          : undefined;
+
+        const inputTzAmountWithFee = bestTradeMutezInputWithFee
+          ? atomsToTokens(bestTradeMutezInputWithFee, inputAssetMetadata.decimals)
+          : undefined;
 
         setBestTrade(bestTradeExactOutput);
-        setValue('input', { assetSlug: inputValue.assetSlug, amount: inputTzAmount });
+        setValue('input', { assetSlug: inputValue.assetSlug, amount: inputTzAmountWithFee });
       } else {
         setBestTrade([]);
         setValue('input', { assetSlug: inputValue.assetSlug, amount: undefined });
