@@ -165,10 +165,10 @@ export const SwapForm: FC = () => {
     });
     register('output', {
       validate: ({ assetSlug, amount }: SwapInputValue) => {
-        if (!amount || !assetSlug) {
-          return '';
+        if (!assetSlug) {
+          return 'assetMustBeSelected';
         }
-        if (amount.isLessThanOrEqualTo(0)) {
+        if (!amount || amount.isLessThanOrEqualTo(0)) {
           return t('amountMustBePositive');
         }
 
@@ -363,7 +363,6 @@ export const SwapForm: FC = () => {
           padding: '10px 2rem',
           background: isValid ? '#4299e1' : '#c2c2c2'
         }}
-        disabled={!isValid}
         loading={isSubmitting}
       >
         <T id="swap" />
