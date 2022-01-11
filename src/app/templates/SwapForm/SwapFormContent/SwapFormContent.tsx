@@ -27,12 +27,14 @@ import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import styles from '../SwapForm.module.css';
+import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { useSwapFormContentDefaultValue } from './SwapFormContent.form';
 import { feeInfoTippyProps, priceImpactInfoTippyProps } from './SwapFormContent.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapFormValue, SwapInputValue } from './SwapFormValue.interface';
+import { SwapPriceImpact } from './SwapPriceImpact/SwapPriceImpact';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
 export const SwapFormContent: FC = () => {
@@ -61,6 +63,15 @@ export const SwapFormContent: FC = () => {
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<WalletOperation>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(
+    () =>
+      navigate(
+        { pathname: '/swap', search: `from=${inputValue.assetSlug ?? ''}&to=${outputValue.assetSlug ?? ''}` },
+        HistoryAction.Replace
+      ),
+    [inputValue.assetSlug, outputValue.assetSlug]
+  );
 
   useEffect(() => {
     if (tradeType === TradeTypeEnum.EXACT_INPUT) {
@@ -91,15 +102,6 @@ export const SwapFormContent: FC = () => {
     outputAssetMetadata.decimals,
     setValue
   ]);
-
-  useEffect(
-    () =>
-      navigate(
-        { pathname: '/swap', search: `from=${inputValue.assetSlug ?? ''}&to=${outputValue.assetSlug ?? ''}` },
-        HistoryAction.Replace
-      ),
-    [inputValue.assetSlug, outputValue.assetSlug]
-  );
 
   useEffect(() => {
     if (tradeType === TradeTypeEnum.EXACT_OUTPUT) {
@@ -281,13 +283,28 @@ export const SwapFormContent: FC = () => {
                 <InfoIcon className="w-3 h-auto stroke-current" />:
               </span>
             </td>
-            <td className="text-right text-gray-600">'-price im-'</td>
+            <td className="text-right text-gray-600">
+              <SwapPriceImpact
+                trade={bestTrade}
+                inputValue={inputValue}
+                outputValue={outputValue}
+                inputAssetMetadata={inputAssetMetadata}
+                outputAssetMetadata={outputAssetMetadata}
+              />
+            </td>
           </tr>
           <tr>
             <td>
               <T id="exchangeRate" />:
             </td>
-            <td className="text-right text-gray-600">'-ex rate-'</td>
+            <td className="text-right text-gray-600">
+              <SwapExchangeRate
+                inputValue={inputValue}
+                outputValue={outputValue}
+                inputAssetMetadata={inputAssetMetadata}
+                outputAssetMetadata={outputAssetMetadata}
+              />
+            </td>
           </tr>
           <tr>
             <td>

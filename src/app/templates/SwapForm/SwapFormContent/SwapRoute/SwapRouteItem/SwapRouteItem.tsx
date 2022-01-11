@@ -20,8 +20,6 @@ export const SwapRouteItem: FC<Props> = ({ tradeOperation, isShowNextArrow }) =>
   const aTokenMetadata = useAssetMetadata(tradeOperation.aTokenSlug);
   const bTokenMetadata = useAssetMetadata(tradeOperation.bTokenSlug);
 
-  console.log(tradeOperation.dexAddress, tradeOperation.aTokenSlug, tradeOperation.bTokenSlug);
-
   const swapInfoDivRef = useTippy<HTMLDivElement>({
     trigger: 'mouseenter',
     hideOnClick: false,
