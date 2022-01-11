@@ -30,7 +30,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput';
-import AssetSelect from 'app/templates/AssetSelect';
+import AssetSelect from 'app/templates/AssetSelect/AssetSelect';
 import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
 import OperationStatus from 'app/templates/OperationStatus';
@@ -59,6 +59,9 @@ import {
   useAssetMetadata,
   useAssetUSDPrice,
   useBalance,
+  useChainId,
+  useCollectibleTokens,
+  useDisplayedFungibleTokens,
   useNetwork,
   useTezos,
   useTezosDomainsClient
@@ -69,6 +72,8 @@ import { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { IAsset } from './AssetSelect/interfaces';
+import { getSlug } from './AssetSelect/utils';
 import { SendFormSelectors } from './SendForm.selectors';
 import AddContactModal from './SendForm/AddContactModal';
 import ContactsDropdown, { ContactsDropdownProps } from './SendForm/ContactsDropdown';
@@ -87,8 +92,15 @@ type SendFormProps = {
   assetSlug?: string | null;
 };
 
-const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
-  assetSlug = assetSlug ?? 'tez';
+const SendForm: FC<SendFormProps> = ({ assetSlug = 'tez' }) => {
+  const chainId = useChainId(true)!;
+  const account = useAccount();
+
+  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, account.publicKeyHash);
+  const { data: collectibles = [] } = useCollectibleTokens(chainId, account.publicKeyHash, true);
+
+  const assets = useMemo<IAsset[]>(() => ['tez' as const, ...tokens, ...collectibles], [tokens, collectibles]);
+  const selectedAsset = useMemo(() => assets.find(a => getSlug(a) === assetSlug) ?? 'tez', [assets, assetSlug]);
 
   const tezos = useTezos();
   const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
@@ -118,10 +130,14 @@ const SendForm: FC<SendFormProps> = ({ assetSlug }) => {
     <>
       {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} />}
 
-      <AssetSelect value={assetSlug} onChange={handleAssetChange} className="mb-6" />
+      <AssetSelect value={selectedAsset} assets={assets} onChange={handleAssetChange} className="mb-6" />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form assetSlug={assetSlug} setOperation={setOperation} onAddContactRequested={handleAddContactRequested} />
+        <Form
+          assetSlug={getSlug(selectedAsset)}
+          setOperation={setOperation}
+          onAddContactRequested={handleAddContactRequested}
+        />
       </Suspense>
 
       <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />
@@ -668,7 +684,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
           handleFeeFieldChange={handleFeeFieldChange}
           baseFee={baseFee}
           error={errors.fee}
-          isSubmitting={formState.isSubmitted}
+          isSubmitting={formState.isSubmitting}
         />
       )}
     </form>
