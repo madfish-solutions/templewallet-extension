@@ -24,7 +24,13 @@ export const SwapPriceImpact: FC<Props> = ({
   outputAssetMetadata
 }) => {
   const priceImpact = useMemo(() => {
-    if (inputValue.amount && outputValue.amount && trade.length > 0) {
+    if (
+      inputValue.amount &&
+      outputValue.amount &&
+      trade.length > 0 &&
+      !inputValue.amount.isEqualTo(0) &&
+      !outputValue.amount.isEqualTo(0)
+    ) {
       const inputMutezAmount = tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals);
       const outputMutezAmount = tokensToAtoms(outputValue.amount, outputAssetMetadata.decimals);
 

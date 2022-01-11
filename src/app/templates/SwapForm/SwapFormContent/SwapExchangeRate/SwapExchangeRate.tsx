@@ -14,7 +14,14 @@ interface Props {
 
 export const SwapExchangeRate: FC<Props> = ({ inputValue, outputValue, inputAssetMetadata, outputAssetMetadata }) => {
   const exchangeRate = useMemo(() => {
-    if (inputValue.amount && inputValue.assetSlug && outputValue.amount && outputValue.assetSlug) {
+    if (
+      inputValue.amount &&
+      inputValue.assetSlug &&
+      outputValue.amount &&
+      outputValue.assetSlug &&
+      !inputValue.amount.isEqualTo(0) &&
+      !outputValue.amount.isEqualTo(0)
+    ) {
       return inputValue.amount.dividedBy(outputValue.amount);
     }
 
