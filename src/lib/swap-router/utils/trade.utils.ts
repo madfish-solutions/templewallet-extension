@@ -26,10 +26,14 @@ const findSwapInput = (bTokenAmount: BigNumber, pair: RoutePairWithDirection) =>
   return input.isGreaterThan(0) ? input : new BigNumber(Infinity);
 };
 
-const getTradeOperationExactInput = (aTokenAmount: BigNumber, pair: RoutePairWithDirection): TradeOperation => ({
+const getTradeOperationExactInput = (
+  aTokenAmount: BigNumber,
+  pair: RoutePairWithDirection,
+  slippageToleranceRatio: number
+): TradeOperation => ({
   ...pair,
   aTokenAmount,
-  bTokenAmount: findSwapOutput(aTokenAmount, pair)
+  bTokenAmount: findSwapOutput(aTokenAmount.multipliedBy(slippageToleranceRatio), pair)
 });
 
 const getTradeOperationExactOutput = (bTokenAmount: BigNumber, pair: RoutePairWithDirection): TradeOperation => ({
@@ -38,18 +42,33 @@ const getTradeOperationExactOutput = (bTokenAmount: BigNumber, pair: RoutePairWi
   aTokenAmount: findSwapInput(bTokenAmount, pair)
 });
 
-export const calculateTradeExactInput = (inputAssetAmount: BigNumber, routePairs: RoutePairWithDirection[]) => {
+export const calculateTradeExactInput = (
+  inputAssetAmount: BigNumber,
+  routePairs: RoutePairWithDirection[],
+  slippageTolerancePercent = 0
+) => {
   const trade: Trade = [];
 
   if (routePairs.length > 0) {
-    const firstTradeOperation = getTradeOperationExactInput(inputAssetAmount, routePairs[0]);
+    const slippageToleranceRatio = (100 - slippageTolerancePercent) / 100;
+    const tradeOperationSlippageToleranceRatio = Math.pow(slippageToleranceRatio, 1 / routePairs.length);
+
+    const firstTradeOperation = getTradeOperationExactInput(
+      inputAssetAmount,
+      routePairs[0],
+      tradeOperationSlippageToleranceRatio
+    );
     trade.push(firstTradeOperation);
 
     if (routePairs.length > 1) {
       for (let i = 1; i < routePairs.length; i++) {
         const previousTradeOutput = trade[i - 1].bTokenAmount;
 
-        const tradeOperation = getTradeOperationExactInput(previousTradeOutput, routePairs[i]);
+        const tradeOperation = getTradeOperationExactInput(
+          previousTradeOutput,
+          routePairs[i],
+          tradeOperationSlippageToleranceRatio
+        );
         trade.push(tradeOperation);
       }
     }

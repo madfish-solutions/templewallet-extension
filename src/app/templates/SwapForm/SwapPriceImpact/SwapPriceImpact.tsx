@@ -3,6 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import { Trade } from 'lib/swap-router/interface/trade.interface';
+import { getPairFeeRatio } from 'lib/swap-router/utils/fee.utils';
 import { tokensToAtoms } from 'lib/temple/helpers';
 import { AssetMetadata } from 'lib/temple/metadata';
 
@@ -35,9 +36,10 @@ export const SwapPriceImpact: FC<Props> = ({
       const outputMutezAmount = tokensToAtoms(outputValue.amount, outputAssetMetadata.decimals);
 
       const linearOutputMutezAmount = trade.reduce((previousTradeOutput, tradeOperation) => {
+        const feeRatio = getPairFeeRatio(tradeOperation);
         const linearExchangeRate = tradeOperation.bTokenPool.dividedBy(tradeOperation.aTokenPool);
 
-        return previousTradeOutput.multipliedBy(linearExchangeRate);
+        return previousTradeOutput.multipliedBy(feeRatio).multipliedBy(linearExchangeRate);
       }, inputMutezAmount);
 
       const HUNDRED = new BigNumber(100);

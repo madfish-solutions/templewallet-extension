@@ -26,6 +26,7 @@ import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
 
+import { useTradeWithSlippageTolerance } from './hooks/use-trade-with-slippage-tolerance.hook';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormContentDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
@@ -33,6 +34,7 @@ import { feeInfoTippyProps, priceImpactInfoTippyProps } from './SwapForm.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
+import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapPriceImpact } from './SwapPriceImpact/SwapPriceImpact';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
@@ -52,14 +54,18 @@ export const SwapForm: FC = () => {
   const outputValue = watch('output');
   const slippageTolerance = watch('slippageTolerance');
 
-  console.log(slippageTolerance);
-
   const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? 'tez');
   const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez');
 
-  const [tradeType, setTradeType] = useState(TradeTypeEnum.EXACT_INPUT);
   const [bestTrade, setBestTrade] = useState<Trade>([]);
+  const [tradeType, setTradeType] = useState(TradeTypeEnum.EXACT_INPUT);
   const routePairsCombinations = useRoutePairsCombinations(inputValue.assetSlug, outputValue.assetSlug);
+  const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(
+    inputValue.amount,
+    inputAssetMetadata,
+    bestTrade,
+    slippageTolerance
+  );
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<WalletOperation>();
@@ -325,7 +331,12 @@ export const SwapForm: FC = () => {
             <td>
               <T id="minimumReceived" />:
             </td>
-            <td className="text-right text-gray-600">- min Received</td>
+            <td className="text-right text-gray-600">
+              <SwapMinimumReceived
+                tradeWithSlippageTolerance={bestTradeWithSlippageTolerance}
+                outputAssetMetadata={outputAssetMetadata}
+              />
+            </td>
           </tr>
         </tbody>
       </table>
