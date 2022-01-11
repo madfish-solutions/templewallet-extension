@@ -48,7 +48,7 @@ const CleanButton: FC<CleanButtonProps> = ({
       tabIndex={-1}
       {...rest}
     >
-      <CloseIcon title="" className="w-auto h-4 stroke-current" style={iconStyle} />
+      <CloseIcon className="w-auto h-4 stroke-current" style={iconStyle} />
     </button>
   );
 };
