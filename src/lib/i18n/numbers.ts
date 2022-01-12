@@ -25,7 +25,8 @@ export function toLocalFormat(value: BigNumber.Value, { decimalPlaces, roundingM
   const numberSymbols = getNumberSymbols();
 
   if (!bn.isFinite()) {
-    return bn.isNaN() ? numberSymbols.nan : `${bn.lt(0) ? '-' : ''}${numberSymbols.infinity}`;
+    const showMinus = bn.lt(0) ? '-' : '';
+    return bn.isNaN() ? numberSymbols.nan : `${showMinus}${numberSymbols.infinity}`;
   }
 
   let rawResult = '';
@@ -59,7 +60,8 @@ export function toLocalFixed(value: BigNumber.Value, decimalPlaces?: number, rou
   const numberSymbols = getNumberSymbols();
 
   if (!bn.isFinite()) {
-    return bn.isNaN() ? numberSymbols.nan : `${bn.lt(0) ? '-' : ''}${numberSymbols.infinity}`;
+    const showMinus = bn.lt(0) ? '-' : '';
+    return bn.isNaN() ? numberSymbols.nan : `${showMinus}${numberSymbols.infinity}`;
   }
 
   const rawResult = decimalPlaces === undefined ? bn.toFixed() : bn.toFixed(decimalPlaces, roundingMode);

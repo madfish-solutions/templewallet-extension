@@ -17,8 +17,8 @@ type VerifyProps = {
 
 const WORDS_TO_FILL = 2;
 
-const range = (startAt = 0, size: number) => {
-  return [...Array(size).keys()].map(i => i + startAt);
+const range = (size: number) => {
+  return [...Array(size).keys()].map(i => i + 0);
 };
 
 const shuffle = (array: any[]) => {
@@ -43,7 +43,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
 
   const words = useMemo(() => data.mnemonic.split(' '), [data.mnemonic]);
   const wordsToCheckPositions = useMemo(() => {
-    const shuffledPositions = shuffle(range(0, words.length));
+    const shuffledPositions = shuffle(range(words.length));
     const selectedPositions: number[] = [];
     for (let i = 0; i < words.length; i++) {
       const newPosition = shuffledPositions[i];
@@ -70,9 +70,9 @@ const Verify: FC<VerifyProps> = ({ data }) => {
   const [filledIndexes, setFilledIndexes] = useState<number[]>([]);
 
   const handleFill = useCallback(
-    (index: number, filled: boolean) => {
+    (index: number, isPresent: boolean) => {
       setFilledIndexes(fi => {
-        if (filled) {
+        if (isPresent) {
           return fi.includes(index) ? fi : [...fi, index];
         } else {
           return fi.filter(i => i !== index);
@@ -115,7 +115,7 @@ const Verify: FC<VerifyProps> = ({ data }) => {
               key={i}
               allWords={words}
               indexToFill={indexToFill}
-              onFill={filled => handleFill(indexToFill, filled)}
+              onFill={isPresent => handleFill(indexToFill, isPresent)}
             />
           ))}
         </div>
