@@ -5,8 +5,7 @@ import { browser } from 'webextension-polyfill-ts';
 
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import styles from 'app/pages/BuyCrypto/BuyCrypto.module.css';
-
-import AssetIcon from '../../templates/AssetIcon';
+import AssetIcon from 'app/templates/AssetIcon';
 
 interface Props {
   onPress?: () => void;
