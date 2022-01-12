@@ -10,7 +10,14 @@ import FormCheckbox from 'app/atoms/FormCheckbox';
 import FormField, { PASSWORD_ERROR_CAPTION } from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import TabSwitcher from 'app/atoms/TabSwitcher';
-import { formatMnemonic, MNEMONIC_ERROR_CAPTION, PASSWORD_PATTERN } from 'app/defaults';
+import {
+  formatMnemonic,
+  lettersNumbersMixtureRegx,
+  MNEMONIC_ERROR_CAPTION,
+  PASSWORD_PATTERN,
+  specialCharacterRegx,
+  uppercaseLowercaseMixtureRegx
+} from 'app/defaults';
 import { ReactComponent as TrashbinIcon } from 'app/icons/bin.svg';
 import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
 import { T, t } from 'lib/i18n/react';
@@ -21,6 +28,8 @@ import { Link } from 'lib/woozie';
 
 import Backup from './NewWallet/Backup';
 import Verify from './NewWallet/Verify';
+
+const MIN_PASSWORD_LENGTH = 8;
 
 interface FormData {
   keystoreFile?: FileList;
@@ -80,6 +89,16 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
     number: false,
     specialChar: false
   });
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
+    const tempValue = e.target.value;
+    setPasswordValidation({
+      minChar: tempValue.length >= MIN_PASSWORD_LENGTH,
+      cases: uppercaseLowercaseMixtureRegx.test(tempValue),
+      number: lettersNumbersMixtureRegx.test(tempValue),
+      specialChar: specialCharacterRegx.test(tempValue)
+    });
+  };
 
   const isImportFromSeedPhrase = tabSlug === 'seed-phrase';
   const isImportFromKeystore = tabSlug === 'keystore-file';
@@ -292,7 +311,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
               errorCaption={errors.password?.message}
               containerClassName="mb-8"
               passwordValidation={passwordValidation}
-              setPasswordValidation={setPasswordValidation}
+              onChange={handlePasswordChange}
             />
 
             <FormField

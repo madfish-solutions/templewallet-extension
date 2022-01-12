@@ -21,10 +21,8 @@ import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers'
 import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { lettersNumbersMixtureRegx, specialCharacterRegx, uppercaseLowercaseMixtureRegx } from '../defaults';
 import usePasswordToggle from './usePasswordToggle.hook';
 
-const MIN_PASSWORD_LENGTH = 8;
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
@@ -49,7 +47,6 @@ interface FormFieldProps extends FormFieldAttrs {
   dropdownInner?: ReactNode;
   copyable?: boolean;
   passwordValidation?: PasswordValidation;
-  setPasswordValidation?: (v: PasswordValidation) => void;
 }
 
 const FormField = forwardRef<FormFieldRef, FormFieldProps>(
@@ -84,7 +81,6 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       labelPaddingClassName = 'mb-4',
       copyable,
       passwordValidation,
-      setPasswordValidation,
       ...rest
     },
     ref
@@ -106,18 +102,8 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
         checkedHandler(e, onChange!, setLocalValue);
-
-        const tempValue = e.target.value;
-        if (setPasswordValidation) {
-          setPasswordValidation({
-            minChar: tempValue.length >= MIN_PASSWORD_LENGTH,
-            cases: uppercaseLowercaseMixtureRegx.test(tempValue),
-            number: lettersNumbersMixtureRegx.test(tempValue),
-            specialChar: specialCharacterRegx.test(tempValue)
-          });
-        }
       },
-      [onChange, setLocalValue, setPasswordValidation]
+      [onChange, setLocalValue]
     );
 
     const handleFocus = useCallback(
