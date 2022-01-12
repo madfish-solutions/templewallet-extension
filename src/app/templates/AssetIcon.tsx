@@ -3,6 +3,7 @@ import React, { memo, useState } from 'react';
 import classNames from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
+import { ReactComponent as PlaceholderSmall } from 'app/icons/collectiblePlaceholder.svg';
 import { ReactComponent as Placeholder } from 'app/icons/collectiblePlaceholderLarge.svg';
 import { getAssetSymbol, getThumbnailUri, useAssetMetadata } from 'lib/temple/front';
 
@@ -29,7 +30,11 @@ const AssetIcon = memo((props: AssetIconProps) => {
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [imageDisplayed, setImageDisplayed] = useState(true);
-  const displayingError = !isLoaded || !imageDisplayed;
+  const displayingError = isLoaded || !imageDisplayed;
+
+  if (!imageDisplayed) {
+    console.log(isLoaded);
+  }
 
   if (thumbnailUri) {
     return (
@@ -46,7 +51,11 @@ const AssetIcon = memo((props: AssetIconProps) => {
   }
 
   return isCollectible ? (
-    <Placeholder style={{ display: 'inline' }} />
+    className?.includes('w-12 h-12') ? (
+      <PlaceholderSmall />
+    ) : (
+      <Placeholder style={{ display: 'inline' }} />
+    )
   ) : (
     <Identicon type="initials" hash={getAssetSymbol(metadata)} className={className} size={size} />
   );
