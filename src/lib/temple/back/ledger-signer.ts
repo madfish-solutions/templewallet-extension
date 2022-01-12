@@ -2,6 +2,7 @@ import { LedgerSigner, LedgerTransport, DerivationType } from '@taquito/ledger-s
 import { b58cdecode, b58cencode, buf2hex, hex2buf, isValidPrefix, mergebuf, prefix } from '@taquito/utils';
 import * as elliptic from 'elliptic';
 import * as sodium from 'libsodium-wrappers';
+import { crypto_sign_verify_detached, crypto_generichash } from 'libsodium-wrappers';
 
 import { PublicError } from 'lib/temple/back/defaults';
 import toBuffer from 'typedarray-to-buffer';
@@ -69,7 +70,6 @@ export class TempleLedgerSigner extends LedgerSigner {
       bb = mergebuf(watermark, bb);
     }
     const watermarkedBytes = buf2hex(toBuffer(bb));
-    console.log(result.prefixSig);
     const signatureVerified = await this.verify(watermarkedBytes, result.prefixSig);
 
     if (!signatureVerified) {
@@ -89,44 +89,48 @@ export class TempleLedgerSigner extends LedgerSigner {
     await sodium.ready;
     const publicKey = await this.publicKey();
     const pkh = await this.publicKeyHash();
-    const curve = publicKey.substring(0, 2) as curves;
-    const _publicKey = toBuffer(b58cdecode(publicKey, pref[curve].pk));
+    return verifySignature(bytes, signature, publicKey, pkh);
+  }
+}
 
-    let signaturePrefix = signature.startsWith('sig') ? signature.substr(0, 3) : signature.substr(0, 5);
+export const verifySignature = (bytes: string, signature: string, publicKey: string, pkh: string) => {
+  const curve = publicKey.substring(0, 2) as curves;
+  const _publicKey = new Uint8Array(toBuffer(b58cdecode(publicKey, pref[curve].pk)));
 
-    if (!isValidPrefix(signaturePrefix)) {
-      throw new Error(`Unsupported signature given by remote signer: ${signature}`);
-    }
+  const signaturePrefix = signature.startsWith('sig') ? signature.substr(0, 3) : signature.substr(0, 5);
 
-    const publicKeyHash = b58cencode(sodium.crypto_generichash(20, _publicKey), pref[curve].pkh);
-    if (publicKeyHash !== pkh) {
-      throw new Error(
-        `Requested public key does not match the initialized public key hash: {
+  if (!isValidPrefix(signaturePrefix)) {
+    throw new Error(`Unsupported signature given by remote signer: ${signature}`);
+  }
+
+  const publicKeyHash = b58cencode(crypto_generichash(20, _publicKey), pref[curve].pkh);
+  if (publicKeyHash !== pkh) {
+    throw new Error(
+      `Requested public key does not match the initialized public key hash: {
           publicKey: ${publicKey},
           publicKeyHash: ${pkh}
         }`
-      );
-    }
-
-    let sig = getSig(signature, curve, pref);
-
-    const bytesHash = sodium.crypto_generichash(32, hex2buf(bytes));
-
-    if (curve === 'ed') {
-      return safeSignEdData(sig, bytesHash, _publicKey);
-    }
-
-    if (curve === 'sp') {
-      return safeSignSpData(sig, bytesHash, _publicKey);
-    }
-
-    if (curve === 'p2') {
-      return safeSignP2Data(sig, bytesHash, _publicKey);
-    }
-
-    throw new Error(`Curve '${curve}' not supported`);
+    );
   }
-}
+
+  const sig = new Uint8Array(getSig(signature, curve, pref));
+
+  const bytesHash = crypto_generichash(32, hex2buf(bytes));
+
+  if (curve === 'ed') {
+    return safeSignEdData(sig, bytesHash, _publicKey);
+  }
+
+  if (curve === 'sp') {
+    return safeSignSpData(sig, bytesHash, _publicKey);
+  }
+
+  if (curve === 'p2') {
+    return safeSignP2Data(sig, bytesHash, _publicKey);
+  }
+
+  throw new Error(`Curve '${curve}' not supported`);
+};
 
 export const getSig = (signature: string, curve: any, pref: any) => {
   let sig;
@@ -146,8 +150,9 @@ function toLedgerError(err: any) {
 
 export const safeSignEdData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
   try {
-    return sodium.crypto_sign_verify_detached(sig, bytesHash, _publicKey);
+    return crypto_sign_verify_detached(sig, bytesHash, _publicKey);
   } catch (e) {
+    console.log(e);
     return false;
   }
 };
