@@ -1,9 +1,8 @@
 import React, { FC } from 'react';
 
+import AssetIcon from 'app/templates/AssetIcon';
 import { useAssetMetadata } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
-
-import AssetIcon from '../../templates/AssetIcon';
 
 interface Props {
   assetSlug: string;
