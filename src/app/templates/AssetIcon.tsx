@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
 import { ReactComponent as PlaceholderSmall } from 'app/icons/collectiblePlaceholder.svg';
-import { ReactComponent as Placeholder } from 'app/icons/collectiblePlaceholderLarge.svg';
+import { ReactComponent as PlaceholderLarge } from 'app/icons/collectiblePlaceholderLarge.svg';
 import { getAssetSymbol, getThumbnailUri, useAssetMetadata } from 'lib/temple/front';
 
 import { formatCollectibleUri } from '../../lib/image-uri';
@@ -13,35 +13,29 @@ interface AssetIconProps {
   assetSlug: string;
   className?: string;
   size?: number;
+  placeholder?: 'small' | 'large';
 }
 
 const AssetIcon = memo((props: AssetIconProps) => {
-  const { assetSlug, className, size } = props;
+  const { assetSlug, className, size, placeholder } = props;
 
   const metadata = useAssetMetadata(assetSlug);
   const isCollectible = Boolean(metadata.artifactUri);
-  const isTez = assetSlug === 'tez';
 
-  const thumbnailUri = isTez
-    ? getThumbnailUri(metadata)
-    : isCollectible
-    ? formatCollectibleUri(assetSlug)
-    : getThumbnailUri(metadata);
+  const [error, setError] = useState(false);
 
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [imageDisplayed, setImageDisplayed] = useState(true);
-  const displayingError = isLoaded || !imageDisplayed;
-
-  if (!imageDisplayed) {
-    console.log(isLoaded);
+  let thumbnailUri;
+  if (assetSlug !== 'tez' && isCollectible) {
+    thumbnailUri = formatCollectibleUri(assetSlug);
+  } else {
+    thumbnailUri = getThumbnailUri(metadata);
   }
 
-  if (thumbnailUri) {
+  if (thumbnailUri && !error) {
     return (
       <img
         className={classNames(!isCollectible && 'overflow-hidden', className)}
-        onError={() => setImageDisplayed(false)}
-        onLoad={() => setIsLoaded(true)}
+        onError={() => setError(true)}
         alt={metadata.name}
         src={thumbnailUri}
         height={size}
@@ -51,10 +45,10 @@ const AssetIcon = memo((props: AssetIconProps) => {
   }
 
   return isCollectible ? (
-    className?.includes('w-12 h-12') ? (
-      <PlaceholderSmall />
+    placeholder === 'large' ? (
+      <PlaceholderLarge style={{ display: 'inline' }} />
     ) : (
-      <Placeholder style={{ display: 'inline' }} />
+      <PlaceholderSmall />
     )
   ) : (
     <Identicon type="initials" hash={getAssetSymbol(metadata)} className={className} size={size} />

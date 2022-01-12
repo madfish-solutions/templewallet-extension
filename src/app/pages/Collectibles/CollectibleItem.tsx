@@ -21,7 +21,7 @@ const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
             style={{ borderRadius: '12px' }}
             className="border border-gray-300 w-16 h-16 flex items-center justify-center"
           >
-            <AssetIcon assetSlug={assetSlug} className="w-12 h-12" />
+            <AssetIcon assetSlug={assetSlug} className="w-12 h-12" placeholder="small" />
           </div>
         </div>
         <div className="pl-2">
