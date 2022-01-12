@@ -22,20 +22,23 @@ const AssetIcon = memo((props: AssetIconProps) => {
   const metadata = useAssetMetadata(assetSlug);
   const isCollectible = Boolean(metadata.artifactUri);
 
-  const [error, setError] = useState(false);
+  const [fallback, setFallback] = useState(false);
+  const [display, setDisplay] = useState(true);
 
   let thumbnailUri;
-  if (assetSlug !== 'tez' && isCollectible) {
+  if (isCollectible && !fallback && assetSlug !== 'tez') {
     thumbnailUri = formatCollectibleUri(assetSlug);
   } else {
     thumbnailUri = getThumbnailUri(metadata);
   }
 
-  if (thumbnailUri && !error) {
+  const handleError = () => void (isCollectible ? setFallback(true) : setDisplay(false));
+
+  if (thumbnailUri && display) {
     return (
       <img
         className={classNames(!isCollectible && 'overflow-hidden', className)}
-        onError={() => setError(true)}
+        onError={handleError}
         alt={metadata.name}
         src={thumbnailUri}
         height={size}
