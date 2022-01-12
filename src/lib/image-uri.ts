@@ -14,7 +14,10 @@ export function sanitizeImgUri(url = '', x = 64, y = 64) {
   return url;
 }
 
-export const formatCollectibleUri = (address: string, id: string) => {
+export const formatCollectibleUri = (assetSlug: string) => {
+  const [address, id] = assetSlug.split('_');
+  console.log(assetSlug);
+
   return `https://assets.objkt.com/file/assets-001/${address}/${id.length > 1 ? id[id.length - 2] : 0}/${
     id[id.length - 1]
   }/${id}/thumb400`;

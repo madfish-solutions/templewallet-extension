@@ -1,44 +1,55 @@
-import React, { CSSProperties, memo } from 'react';
+import React, { memo, useState } from 'react';
 
 import classNames from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
-import { useAssetMetadata, getAssetSymbol } from 'lib/temple/front';
+import { ReactComponent as Placeholder } from 'app/icons/collectiblePlaceholderLarge.svg';
+import { getAssetSymbol, getThumbnailUri, useAssetMetadata } from 'lib/temple/front';
 
-export interface SwapAssetIconProps {
+import { formatCollectibleUri } from '../../lib/image-uri';
+
+interface AssetIconProps {
   assetSlug: string;
   className?: string;
-  style?: CSSProperties;
   size?: number;
 }
 
-interface AssetIconProps extends SwapAssetIconProps {
-  thumbnailUri: string | null | undefined;
-  imageDisplayed: boolean;
-  handleImageError: () => void;
-}
-
 const AssetIcon = memo((props: AssetIconProps) => {
-  const { assetSlug, thumbnailUri, handleImageError, imageDisplayed, className, style, size } = props;
-  const metadata = useAssetMetadata(assetSlug);
+  const { assetSlug, className, size } = props;
 
-  if (thumbnailUri && imageDisplayed) {
+  const metadata = useAssetMetadata(assetSlug);
+  const isCollectible = Boolean(metadata.artifactUri);
+  const isTez = assetSlug === 'tez';
+
+  const thumbnailUri = isTez
+    ? getThumbnailUri(metadata)
+    : isCollectible
+    ? formatCollectibleUri(assetSlug)
+    : getThumbnailUri(metadata);
+
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [imageDisplayed, setImageDisplayed] = useState(true);
+  const displayingError = !isLoaded || !imageDisplayed;
+
+  if (thumbnailUri) {
     return (
       <img
+        className={classNames(!isCollectible && 'overflow-hidden', className)}
+        onError={() => setImageDisplayed(false)}
+        onLoad={() => setIsLoaded(true)}
+        alt={metadata.name}
         src={thumbnailUri}
-        alt={metadata?.name}
-        className={classNames('overflow-hidden', className)}
-        style={{
-          width: size,
-          height: size,
-          ...style
-        }}
-        onError={handleImageError}
+        height={size}
+        width={size}
       />
     );
   }
 
-  return <Identicon type="initials" hash={getAssetSymbol(metadata)} className={className} style={style} size={size} />;
+  return isCollectible ? (
+    <Placeholder style={{ display: 'inline' }} />
+  ) : (
+    <Identicon type="initials" hash={getAssetSymbol(metadata)} className={className} size={size} />
+  );
 });
 
 export default AssetIcon;
