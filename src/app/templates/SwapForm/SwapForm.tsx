@@ -1,6 +1,7 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 
-import { WalletOperation } from '@taquito/taquito';
+import { BatchOperation, ParamsWithKind, WalletOperation } from '@taquito/taquito';
+import { TransferParams } from '@taquito/taquito/dist/types/operations/types';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -21,7 +22,8 @@ import {
   getTradeInput,
   getTradeOutput
 } from 'lib/swap-router/utils/best-trade.utils';
-import { useAssetMetadata } from 'lib/temple/front';
+import { getTradeOpParams } from 'lib/swap-router/utils/op-params.utils';
+import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
@@ -39,6 +41,8 @@ import { SwapPriceImpact } from './SwapPriceImpact/SwapPriceImpact';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
 export const SwapForm: FC = () => {
+  const tezos = useTezos();
+  const account = useAccount();
   const formAnalytics = useFormAnalytics('SwapForm');
 
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
@@ -77,7 +81,7 @@ export const SwapForm: FC = () => {
   );
 
   const [error, setError] = useState<Error>();
-  const [operation, setOperation] = useState<WalletOperation>();
+  const [operation, setOperation] = useState<BatchOperation>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(
@@ -177,38 +181,43 @@ export const SwapForm: FC = () => {
     });
   }, [register]);
 
-  const onSubmit = useCallback(
-    async ({ slippageTolerance, input, output }: SwapFormValue) => {
-      if (isSubmitting) {
-        return;
-      }
-      setIsSubmitting(true);
-      const analyticsProperties = {
-        inputAsset: input.assetSlug,
-        outputAsset: output.assetSlug
-      };
-      formAnalytics.trackSubmit(analyticsProperties);
-      try {
-        setOperation(undefined);
+  const onSubmit = async () => {
+    console.log('onSubmit');
+    if (isSubmitting) {
+      return;
+    }
+    setIsSubmitting(true);
 
-        // TODO: implement this
-        // @ts-ignore
-        // const op = await swap({});
+    const analyticsProperties = {
+      inputAsset: inputValue.assetSlug,
+      outputAsset: outputValue.assetSlug
+    };
 
-        setError(undefined);
-        formAnalytics.trackSubmitSuccess(analyticsProperties);
-        // setOperation(op);
-      } catch (err: any) {
-        if (err.message !== 'Declined') {
-          setError(err);
-        }
-        formAnalytics.trackSubmitFail(analyticsProperties);
-      } finally {
-        setIsSubmitting(false);
+    formAnalytics.trackSubmit(analyticsProperties);
+
+    try {
+      setOperation(undefined);
+
+      const feeOpParams: ParamsWithKind[] = [];
+      const tradeOpParams = await getTradeOpParams(bestTradeWithSlippageTolerance, account.publicKeyHash, tezos);
+
+      console.log(tradeOpParams);
+
+      // const batchOperation = await tezos.contract.batch([...feeOpParams, ...tradeOpParams]).send();
+
+      setError(undefined);
+      formAnalytics.trackSubmitSuccess(analyticsProperties);
+      // setOperation(batchOperation);
+    } catch (err: any) {
+      console.error(err);
+      if (err.message !== 'Declined') {
+        setError(err);
       }
-    },
-    [isSubmitting, formAnalytics]
-  );
+      formAnalytics.trackSubmitFail(analyticsProperties);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleErrorClose = () => setError(undefined);
   const handleOperationClose = () => setOperation(undefined);
