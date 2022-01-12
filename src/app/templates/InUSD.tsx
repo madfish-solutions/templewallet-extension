@@ -43,11 +43,13 @@ const InUSD: FC<InUSDProps> = ({
     return inUSD.integerValue();
   }, [price, showCents, volume]);
 
+  const cryptoDecimals = showCents ? undefined : 0;
+
   return mainnet && price !== null
     ? children(
         <Money
           fiat={showCents}
-          cryptoDecimals={showCents ? undefined : 0}
+          cryptoDecimals={cryptoDecimals}
           roundingMode={roundingMode}
           shortened={shortened}
           smallFractionFont={smallFractionFont}

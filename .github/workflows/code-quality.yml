@@ -43,4 +43,4 @@ jobs:
           name: chrome
           path: dist/chrome.zip
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 30

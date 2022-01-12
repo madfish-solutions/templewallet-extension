@@ -9,39 +9,19 @@ import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InUSD from 'app/templates/InUSD';
 import { T } from 'lib/i18n/react';
-import {
-  useDisplayedFungibleTokens,
-  useAccount,
-  useChainId,
-  useAssetMetadata,
-  getAssetName,
-  getAssetSymbol,
-  AssetMetadata,
-  useCollectibleTokens
-} from 'lib/temple/front';
-import * as Repo from 'lib/temple/repo';
+import { AssetMetadata, getAssetName, getAssetSymbol, useAccount, useAssetMetadata } from 'lib/temple/front';
+
+import { IAsset } from './interfaces';
+import { getSlug } from './utils';
 
 type AssetSelectProps = {
-  value: string;
+  value: IAsset;
+  assets: IAsset[];
   onChange?: (assetSlug: string) => void;
   className?: string;
 };
 
-type IAsset = Repo.IAccountToken | 'tez';
-
-const getSlug = (asset: IAsset) => (asset === 'tez' ? asset : asset.tokenSlug);
-
-const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
-  const chainId = useChainId(true)!;
-  const account = useAccount();
-  const address = account.publicKeyHash;
-
-  const { data: tokens = [] } = useDisplayedFungibleTokens(chainId, address);
-  const { data: collectibles = [] } = useCollectibleTokens(chainId, address, true);
-
-  const assets = useMemo<IAsset[]>(() => ['tez' as const, ...tokens, ...collectibles], [tokens, collectibles]);
-  const selected = useMemo(() => assets.find(a => getSlug(a) === value) ?? 'tez', [assets, value]);
-
+const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className }) => {
   const title = useMemo(
     () => (
       <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
@@ -74,7 +54,7 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, onChange, className }) => {
       OptionSelectedContent={AssetSelectedContent}
       getKey={getSlug}
       options={assets}
-      value={selected}
+      value={value}
       onChange={handleChange}
       title={title}
       className={className}
