@@ -1,19 +1,21 @@
 import { BigNumber } from 'bignumber.js';
 
 import { RoutePairWithDirection } from '../interface/route-pair-with-direction.interface';
-import { Trade } from '../interface/trade.interface';
+import { Trade, TradeOperation } from '../interface/trade.interface';
 import { getTradeFakeFee } from './fee.utils';
 import { calculateTradeExactInput, calculateTradeExactOutput } from './trade.utils';
 
-export const getTradeOutput = (trade: Trade): BigNumber | undefined => trade[trade.length - 1]?.bTokenAmount;
+export const getTradeOutputAmount = (trade: Trade): BigNumber | undefined => trade[trade.length - 1]?.bTokenAmount;
 
-export const getTradeInput = (trade: Trade): BigNumber | undefined => trade[0]?.aTokenAmount;
+export const getTradeInputOperation = (trade: Trade): TradeOperation | undefined => trade[0];
+
+export const getTradeInputAmount = (trade: Trade): BigNumber | undefined => getTradeInputOperation(trade)?.aTokenAmount;
 
 const isTradeOutputBetter = (firstTrade: Trade, secondTrade: Trade) => {
-  const firstTradeOutput = getTradeOutput(firstTrade);
+  const firstTradeOutput = getTradeOutputAmount(firstTrade);
   const firstTradeFakeFee = getTradeFakeFee(firstTrade);
 
-  const secondTradeOutput = getTradeOutput(secondTrade);
+  const secondTradeOutput = getTradeOutputAmount(secondTrade);
   const secondTradeFakeFee = getTradeFakeFee(secondTrade);
 
   if (firstTradeOutput && secondTradeOutput) {
@@ -29,10 +31,10 @@ const isTradeOutputBetter = (firstTrade: Trade, secondTrade: Trade) => {
 };
 
 const isTradeInputBetter = (firstTrade: Trade, secondTrade: Trade) => {
-  const firstTradeInput = getTradeInput(firstTrade);
+  const firstTradeInput = getTradeInputAmount(firstTrade);
   const firstTradeFakeFee = getTradeFakeFee(firstTrade);
 
-  const secondTradeInput = getTradeInput(secondTrade);
+  const secondTradeInput = getTradeInputAmount(secondTrade);
   const secondTradeFakeFee = getTradeFakeFee(secondTrade);
 
   if (firstTradeInput && secondTradeInput) {

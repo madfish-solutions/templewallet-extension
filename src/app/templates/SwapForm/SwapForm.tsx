@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useMemo, useState } from 'react';
 
-import { BatchOperation, ParamsWithKind, WalletOperation } from '@taquito/taquito';
-import { TransferParams } from '@taquito/taquito/dist/types/operations/types';
+import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -19,10 +18,12 @@ import { Trade } from 'lib/swap-router/interface/trade.interface';
 import {
   getBestTradeExactInput,
   getBestTradeExactOutput,
-  getTradeInput,
-  getTradeOutput
+  getTradeInputAmount,
+  getTradeOutputAmount
 } from 'lib/swap-router/utils/best-trade.utils';
 import { getTradeOpParams } from 'lib/swap-router/utils/op-params.utils';
+import { getRoutingFeeTransferParams } from 'lib/swap-router/utils/routing-fee.utils';
+import { parseTransferParamsToParamsWithKind } from 'lib/swap-router/utils/transfer-params.utils';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
@@ -65,14 +66,13 @@ export const SwapForm: FC = () => {
   const [tradeType, setTradeType] = useState(TradeTypeEnum.EXACT_INPUT);
   const routePairsCombinations = useRoutePairsCombinations(inputValue.assetSlug, outputValue.assetSlug);
 
-  const inputMutezAmountWithFee = useMemo(
-    () =>
-      inputValue.amount
-        ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals)
-            .multipliedBy(ROUTING_FEE_RATIO)
-            .dividedToIntegerBy(1)
-        : undefined,
+  const inputMutezAmount = useMemo(
+    () => (inputValue.amount ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals) : undefined),
     [inputValue.amount, inputAssetMetadata.decimals]
+  );
+  const inputMutezAmountWithFee = useMemo(
+    () => (inputMutezAmount ? inputMutezAmount.multipliedBy(ROUTING_FEE_RATIO).dividedToIntegerBy(1) : undefined),
+    [inputMutezAmount]
   );
   const bestTradeWithSlippageTolerance = useTradeWithSlippageTolerance(
     inputMutezAmountWithFee,
@@ -81,7 +81,7 @@ export const SwapForm: FC = () => {
   );
 
   const [error, setError] = useState<Error>();
-  const [operation, setOperation] = useState<BatchOperation>();
+  const [operation, setOperation] = useState<BatchWalletOperation>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(
@@ -97,7 +97,7 @@ export const SwapForm: FC = () => {
     if (tradeType === TradeTypeEnum.EXACT_INPUT) {
       if (inputMutezAmountWithFee && routePairsCombinations.length > 0) {
         const bestTradeExactIn = getBestTradeExactInput(inputMutezAmountWithFee, routePairsCombinations);
-        const bestTradeOutput = getTradeOutput(bestTradeExactIn);
+        const bestTradeOutput = getTradeOutputAmount(bestTradeExactIn);
 
         const outputTzAmount = bestTradeOutput
           ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals)
@@ -126,7 +126,7 @@ export const SwapForm: FC = () => {
         const outputMutezAmount = tokensToAtoms(outputValue.amount, outputAssetMetadata.decimals);
 
         const bestTradeExactOutput = getBestTradeExactOutput(outputMutezAmount, routePairsCombinations);
-        const bestTradeMutezInput = getTradeInput(bestTradeExactOutput);
+        const bestTradeMutezInput = getTradeInputAmount(bestTradeExactOutput);
 
         const bestTradeMutezInputWithFee = bestTradeMutezInput
           ? bestTradeMutezInput.multipliedBy(ROUTING_FEE_INVERTED_RATIO).dividedToIntegerBy(1)
@@ -198,16 +198,23 @@ export const SwapForm: FC = () => {
     try {
       setOperation(undefined);
 
-      const feeOpParams: ParamsWithKind[] = [];
+      const routingFeeOpParams = await getRoutingFeeTransferParams(
+        inputMutezAmount,
+        bestTradeWithSlippageTolerance,
+        account.publicKeyHash,
+        tezos
+      );
       const tradeOpParams = await getTradeOpParams(bestTradeWithSlippageTolerance, account.publicKeyHash, tezos);
 
-      console.log(tradeOpParams);
+      const opParams = [...routingFeeOpParams, ...tradeOpParams].map(transferParams =>
+        parseTransferParamsToParamsWithKind(transferParams)
+      );
 
-      // const batchOperation = await tezos.contract.batch([...feeOpParams, ...tradeOpParams]).send();
+      const batchOperation = await tezos.wallet.batch(opParams).send();
 
       setError(undefined);
       formAnalytics.trackSubmitSuccess(analyticsProperties);
-      // setOperation(batchOperation);
+      setOperation(batchOperation);
     } catch (err: any) {
       console.error(err);
       if (err.message !== 'Declined') {

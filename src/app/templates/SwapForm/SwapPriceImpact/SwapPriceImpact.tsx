@@ -3,7 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import { Trade } from 'lib/swap-router/interface/trade.interface';
-import { getTradeInput, getTradeOutput } from 'lib/swap-router/utils/best-trade.utils';
+import { getTradeInputAmount, getTradeOutputAmount } from 'lib/swap-router/utils/best-trade.utils';
 import { getPairFeeRatio } from 'lib/swap-router/utils/fee.utils';
 
 interface Props {
@@ -12,8 +12,8 @@ interface Props {
 
 export const SwapPriceImpact: FC<Props> = ({ trade }) => {
   const priceImpact = useMemo(() => {
-    const tradeInput = getTradeInput(trade);
-    const tradeOutput = getTradeOutput(trade);
+    const tradeInput = getTradeInputAmount(trade);
+    const tradeOutput = getTradeOutputAmount(trade);
 
     if (tradeInput && tradeOutput && !tradeInput.isEqualTo(0) && !tradeOutput.isEqualTo(0)) {
       const linearOutputMutezAmount = trade.reduce((previousTradeOutput, tradeOperation) => {

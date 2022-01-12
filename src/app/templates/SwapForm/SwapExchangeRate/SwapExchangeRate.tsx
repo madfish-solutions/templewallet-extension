@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react';
 
 import Money from 'app/atoms/Money';
 import { Trade } from 'lib/swap-router/interface/trade.interface';
-import { getTradeInput, getTradeOutput } from 'lib/swap-router/utils/best-trade.utils';
+import { getTradeInputAmount, getTradeOutputAmount } from 'lib/swap-router/utils/best-trade.utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { AssetMetadata } from 'lib/temple/metadata';
 
@@ -14,8 +14,8 @@ interface Props {
 
 export const SwapExchangeRate: FC<Props> = ({ trade, inputAssetMetadata, outputAssetMetadata }) => {
   const exchangeRate = useMemo(() => {
-    const tradeMutezInput = getTradeInput(trade);
-    const tradeMutezOutput = getTradeOutput(trade);
+    const tradeMutezInput = getTradeInputAmount(trade);
+    const tradeMutezOutput = getTradeOutputAmount(trade);
 
     if (tradeMutezInput && tradeMutezOutput && !tradeMutezInput.isEqualTo(0) && !tradeMutezOutput.isEqualTo(0)) {
       const tradeTzInput = atomsToTokens(tradeMutezInput, inputAssetMetadata.decimals);
