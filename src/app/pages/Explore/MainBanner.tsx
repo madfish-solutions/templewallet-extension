@@ -7,8 +7,8 @@ import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as DollarIcon } from 'app/icons/dollar.svg';
+import AssetIcon from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
-import CollectibleAssetIcon from 'app/templates/CollectibleAssetIcon';
 import InUSD from 'app/templates/InUSD';
 import { T } from 'lib/i18n/react';
 import {
@@ -94,7 +94,7 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
 
   return (
     <BannerLayout name={<Name style={{ maxWidth: popup ? '11rem' : '13rem' }}>{getAssetName(assetMetadata)}</Name>}>
-      <CollectibleAssetIcon assetSlug={assetSlug} size={48} className="mr-3 flex-shrink-0" />
+      <AssetIcon assetSlug={assetSlug} size={48} className="mr-3 flex-shrink-0" />
 
       <div className="font-light leading-none">
         <div className="flex items-center">
