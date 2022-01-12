@@ -2,7 +2,7 @@ import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
 import { InMemorySigner } from '@taquito/signer';
-import { TezosToolkit, CompositeForger, RpcForger, Signer, TezosOperationError } from '@taquito/taquito';
+import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import { LedgerTempleBridgeTransport } from '@temple-wallet/ledger-bridge';
 import * as Bip39 from 'bip39';
@@ -12,27 +12,27 @@ import { getMessage } from 'lib/i18n';
 import { PublicError } from 'lib/temple/back/defaults';
 import { TempleLedgerSigner } from 'lib/temple/back/ledger-signer';
 import {
-  isStored,
-  fetchAndDecryptOne,
   encryptAndSaveMany,
-  removeMany,
-  savePlain,
-  getPlain,
-  fetchAndDecryptOneLegacy,
   encryptAndSaveManyLegacy,
+  fetchAndDecryptOne,
+  fetchAndDecryptOneLegacy,
+  getPlain,
+  isStored,
   isStoredLegacy,
-  removeManyLegacy
+  removeMany,
+  removeManyLegacy,
+  savePlain
 } from 'lib/temple/back/safe-storage';
 import {
-  transformHttpResponseError,
   formatOpParamsBeforeSend,
+  loadFastRpcClient,
   michelEncoder,
-  loadFastRpcClient
+  transformHttpResponseError
 } from 'lib/temple/helpers';
 import { isLedgerLiveEnabled } from 'lib/temple/ledger-live';
 import * as Passworder from 'lib/temple/passworder';
 import { clearStorage } from 'lib/temple/reset';
-import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
+import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = 'vault';
@@ -69,6 +69,7 @@ export class Vault {
   static async setup(password: string) {
     return withError('Failed to unlock wallet', async () => {
       await Vault.runMigrations(password);
+
       const passKey = await Vault.toValidPassKey(password);
       return new Vault(passKey);
     });
@@ -111,21 +112,47 @@ export class Vault {
   }
 
   static async runMigrations(password: string) {
+    await Vault.assertValidPassword(password);
+
+    let migrationLevel: number;
+
     const legacyMigrationLevelStored = await isStoredLegacy(legacyMigrationLevelStrgKey);
 
-    try {
-      let migrationLevel: number;
+    if (legacyMigrationLevelStored) {
+      migrationLevel = await withError('Invalid password', async () => {
+        const legacyPassKey = await Passworder.generateKeyLegacy(password);
+        return fetchAndDecryptOneLegacy<number>(legacyMigrationLevelStrgKey, legacyPassKey);
+      });
+    } else {
+      const saved = await getPlain<number>(migrationLevelStrgKey);
 
-      if (legacyMigrationLevelStored) {
-        migrationLevel = await fetchAndDecryptOneLegacy<number>(
-          legacyMigrationLevelStrgKey,
-          await Passworder.generateKeyLegacy(password)
-        );
-      } else {
-        const saved = await getPlain<number>(migrationLevelStrgKey);
-        migrationLevel = saved ?? 0;
+      migrationLevel = saved ?? 0;
+
+      /**
+       * The code below is a fix for production issue that occurred
+       * due to an incorrect migration to the new migration type.
+       *
+       * The essence of the problem:
+       * if you enter the password incorrectly after the upgrade,
+       * the migration will not work (as it should),
+       * but it will save that it passed.
+       * And the next unlock attempt will go on a new path.
+       *
+       * Solution:
+       * Check if there is an legacy version of checkStrgKey field in storage
+       * and if there is both it and new migration record,
+       * then overwrite migration level.
+       */
+
+      const legacyCheckStored = await isStoredLegacy(checkStrgKey);
+
+      if (saved !== undefined && legacyCheckStored) {
+        // Override migration level, force
+        migrationLevel = 3;
       }
+    }
 
+    try {
       const migrationsToRun = MIGRATIONS.filter((_m, i) => i >= migrationLevel);
 
       if (migrationsToRun.length === 0) {
@@ -169,7 +196,7 @@ export class Vault {
         doThrow();
       }
 
-      const newAllAcounts = allAccounts.filter(acc => acc.publicKeyHash !== accPublicKeyHash);
+      const newAllAcounts = allAccounts.filter(currentAccount => currentAccount.publicKeyHash !== accPublicKeyHash);
       await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], passKey);
 
       await removeMany([accPrivKeyStrgKey(accPublicKeyHash), accPubKeyStrgKey(accPublicKeyHash)]);
@@ -188,6 +215,19 @@ export class Vault {
         doThrow();
       }
       return passKey;
+    });
+  }
+
+  private static assertValidPassword(password: string) {
+    return withError('Invalid password', async () => {
+      const legacyCheckStored = await isStoredLegacy(checkStrgKey);
+      if (legacyCheckStored) {
+        const legacyPassKey = await Passworder.generateKeyLegacy(password);
+        await fetchAndDecryptOneLegacy<any>(checkStrgKey, legacyPassKey);
+      } else {
+        const passKey = await Passworder.generateKey(password);
+        await fetchAndDecryptOne<any>(checkStrgKey, passKey);
+      }
     });
   }
 
@@ -575,11 +615,15 @@ const MIGRATIONS = [
       }
     };
 
-    const [mnemonic, accounts, settings] = await Promise.all([
+    let [mnemonic, accounts, settings] = await Promise.all([
       fetchLegacySafe<string>(mnemonicStrgKey),
       fetchLegacySafe<TempleAccount[]>(accountsStrgKey),
       fetchLegacySafe<TempleSettings>(settingsStrgKey)
     ]);
+
+    // Address book contacts migration
+    const contacts = await getPlain<TempleContact[]>('contacts');
+    settings = { ...settings, contacts };
 
     const accountsStrgKeys = accounts!
       .map(acc => [accPrivKeyStrgKey(acc.publicKeyHash), accPubKeyStrgKey(acc.publicKeyHash)])
@@ -600,7 +644,7 @@ const MIGRATIONS = [
     await encryptAndSaveMany(toSave, passKey);
 
     // Remove old
-    await removeManyLegacy(toSave.map(([key]) => key));
+    await removeManyLegacy([...toSave.map(([key]) => key), 'contacts']);
   }
 ];
 
@@ -664,7 +708,7 @@ async function createLedgerSigner(
   // After Ledger Live bridge was setuped, we don't close transport
   // Probably we do not need to close it
   // But if we need, we can close it after not use timeout
-  const cleanup = () => {}; // transport.close();
+  const cleanup = () => {};
   const signer = new TempleLedgerSigner(
     transport,
     removeMFromDerivationPath(derivationPath),

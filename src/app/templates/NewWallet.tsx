@@ -2,7 +2,7 @@ import React, { FC, ReactNode, useCallback, useEffect, useLayoutEffect, useRef, 
 
 import { generateMnemonic, validateMnemonic } from 'bip39';
 import classNames from 'clsx';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, FieldError, NestDataObject, useForm } from 'react-hook-form';
 
 import Alert from 'app/atoms/Alert';
 import FileInput, { FileInputProps } from 'app/atoms/FileInput';
@@ -113,7 +113,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
   const onSubmit = useCallback(
     async (data: FormData) => {
       if (submitting) return;
-
+      const password = data.shouldUseKeystorePassword ? data.keystorePassword! : data.password!;
       try {
         if (ownMnemonic) {
           if (isImportFromSeedPhrase) {
@@ -124,12 +124,9 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
                 await data.keystoreFile!.item(0)!.text(),
                 data.keystorePassword!
               );
-              await registerWallet(data.shouldUseKeystorePassword ? data.keystorePassword! : data.password!, mnemonic);
+              await registerWallet(password, mnemonic);
             } catch (err: any) {
-              alert({
-                title: t('errorImportingKukaiWallet'),
-                children: err instanceof SyntaxError ? t('fileHasSyntaxError') : err.message
-              });
+              handleKukaiWalletError(err);
             }
           }
         } else {
@@ -249,7 +246,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
                 }}
                 clearKeystoreFileInput={clearKeystoreFileInput}
               />
-              {errors.keystoreFile && <div className="text-xs text-red-500 mt-1">{errors.keystoreFile.message}</div>}
+              <ErrorKeystoreComponent errors={errors} />
             </div>
 
             <FormField
@@ -418,3 +415,17 @@ const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, onChange, 
     </FileInput>
   );
 };
+
+const handleKukaiWalletError = (err: any) => {
+  alert({
+    title: t('errorImportingKukaiWallet'),
+    children: err instanceof SyntaxError ? t('fileHasSyntaxError') : err.message
+  });
+};
+
+interface ErrorKeystoreComponentProps {
+  errors: NestDataObject<FormData, FieldError>;
+}
+
+const ErrorKeystoreComponent: React.FC<ErrorKeystoreComponentProps> = ({ errors }) =>
+  errors.keystoreFile ? <div className="text-xs text-red-500 mt-1">{errors.keystoreFile.message}</div> : null;

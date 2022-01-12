@@ -49,11 +49,13 @@ const CustomSelect = <T extends {}, K extends string | number = string | number,
     OptionContent
   } = props;
 
+  const borderStyle = light ? 'border' : 'border-2 bg-gray-100';
+
   return items.length > 0 ? (
     <div
       className={classNames(
         'relative rounded-md overflow-y-auto',
-        light ? 'border' : 'border-2 bg-gray-100',
+        borderStyle,
         'flex flex-col text-gray-700 text-sm leading-tight',
         className
       )}

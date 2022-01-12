@@ -1,5 +1,5 @@
 import { HttpResponseError } from '@taquito/http-utils';
-import { RpcClient } from '@taquito/rpc';
+import { ManagerKeyResponse, RpcClient } from '@taquito/rpc';
 import { MichelCodecPacker } from '@taquito/taquito';
 import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
@@ -23,7 +23,7 @@ export function fetchChainId(rpcUrl: string) {
   return rpc.getChainId();
 }
 
-export function hasManager(manager: any) {
+export function hasManager(manager: ManagerKeyResponse) {
   return manager && typeof manager === 'object' ? !!manager.key : !!manager;
 }
 
@@ -82,8 +82,8 @@ export function validateDerivationPath(p: string) {
 
   const parts = p.replace('m', '').split('/').filter(Boolean);
   if (
-    !parts.every(p => {
-      const pNum = +(p.includes("'") ? p.replace("'", '') : p);
+    !parts.every(itemPart => {
+      const pNum = +(itemPart.includes("'") ? itemPart.replace("'", '') : itemPart);
       return Number.isSafeInteger(pNum) && pNum >= 0;
     })
   ) {

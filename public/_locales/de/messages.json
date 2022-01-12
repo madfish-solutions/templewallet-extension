@@ -876,7 +876,7 @@
     "message": "Gebühr"
   },
   "space": {
-    "message": "Raum"
+    "message": "Freie Kapazität"
   },
   "delegation": {
     "message": "Delegation"
@@ -1309,7 +1309,7 @@
     "description": "Ledger = https://www.ledger.com/"
   },
   "defaultLedgerName": {
-    "message": "Hauptbuch $number$",
+    "message": "Ledger $number$",
     "description": "Ledger = https://www.ledger.com/",
     "placeholders": {
       "number": {
@@ -2124,10 +2124,10 @@
     "message": "Möchten Sie dieses Token wirklich löschen?"
   },
   "ledgerLiveSettings": {
-    "message": "Hauptbuch-Live verwenden"
+    "message": "Ledger-Live verwenden"
   },
   "ledgerLiveSettingsDescription": {
-    "message": "Mit der neuen Hauptbuch-Live Bridge können Sie Ihr Hauptbuch auf andere Weise verwenden."
+    "message": "Mit der neuen Ledger-Live Bridge können Sie Ihr Ledger auf andere Weise verwenden."
   },
   "totalBalance": {
     "message": "Gesamtguthaben"
