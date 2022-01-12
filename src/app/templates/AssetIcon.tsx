@@ -25,12 +25,8 @@ const AssetIcon = memo((props: AssetIconProps) => {
   const [fallback, setFallback] = useState(false);
   const [display, setDisplay] = useState(true);
 
-  let thumbnailUri;
-  if (isCollectible && !fallback && assetSlug !== 'tez') {
-    thumbnailUri = formatCollectibleUri(assetSlug);
-  } else {
-    thumbnailUri = getThumbnailUri(metadata);
-  }
+  const thumbnailUri =
+    isCollectible && !fallback && assetSlug !== 'tez' ? formatCollectibleUri(assetSlug) : getThumbnailUri(metadata);
 
   const handleError = () => void (isCollectible ? setFallback(true) : setDisplay(false));
 
