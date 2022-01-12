@@ -1,5 +1,4 @@
-import { OpKind, WalletParamsWithKind } from '@taquito/taquito';
-import { TransferParams } from '@taquito/taquito/dist/types/operations/types';
+import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
 
 export const parseTransferParamsToParamsWithKind = (transferParams: TransferParams): WalletParamsWithKind => ({
   ...transferParams,

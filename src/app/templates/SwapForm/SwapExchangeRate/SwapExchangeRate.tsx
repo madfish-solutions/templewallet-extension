@@ -1,8 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import Money from 'app/atoms/Money';
-import { Trade } from 'lib/swap-router/interface/trade.interface';
-import { getTradeInputAmount, getTradeOutputAmount } from 'lib/swap-router/utils/best-trade.utils';
+import { Trade, getTradeInputAmount, getTradeOutputAmount } from 'lib/swap-router';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { AssetMetadata } from 'lib/temple/metadata';
 

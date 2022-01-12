@@ -3,6 +3,7 @@ import { TezosToolkit } from '@taquito/taquito';
 import { TRANSACTION_LIFE_MINUTES } from '../../../config';
 import { RouteDirectionEnum } from '../../../enum/route-direction.enum';
 import { TradeOperation } from '../../../interface/trade.interface';
+import { getContract } from '../../../utils/contract.utils';
 import { LiquidityBakingContractAbstraction } from '../interfaces/liquidity-baking.contract-abstraction.interface';
 
 const getTransactionTimeoutDate = () => {
@@ -17,7 +18,7 @@ export const getLiquidityBakingTransferParams = async (
   senderPublicKeyHash: string,
   tezos: TezosToolkit
 ) => {
-  const contract = await tezos.contract.at<LiquidityBakingContractAbstraction>(tradeOperation.dexAddress);
+  const contract = await getContract<LiquidityBakingContractAbstraction>(tradeOperation.dexAddress, tezos);
 
   if (tradeOperation.direction === RouteDirectionEnum.Direct) {
     return contract.methods

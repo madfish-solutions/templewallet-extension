@@ -11,25 +11,25 @@ import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
-import { ROUTING_FEE_INVERTED_RATIO, ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO } from 'lib/swap-router/config';
-import { TradeTypeEnum } from 'lib/swap-router/enum/trade-type.enum';
-import { useRoutePairsCombinations } from 'lib/swap-router/hooks/use-route-pairs-combinatios.hook';
-import { Trade } from 'lib/swap-router/interface/trade.interface';
 import {
+  TradeTypeEnum,
+  Trade,
   getBestTradeExactInput,
   getBestTradeExactOutput,
   getTradeInputAmount,
-  getTradeOutputAmount
-} from 'lib/swap-router/utils/best-trade.utils';
-import { getTradeOpParams } from 'lib/swap-router/utils/op-params.utils';
-import { getRoutingFeeTransferParams } from 'lib/swap-router/utils/routing-fee.utils';
-import { parseTransferParamsToParamsWithKind } from 'lib/swap-router/utils/transfer-params.utils';
+  getTradeOutputAmount,
+  getRoutingFeeTransferParams,
+  getTradeOpParams,
+  useRoutePairsCombinations,
+  parseTransferParamsToParamsWithKind,
+  useTradeWithSlippageTolerance
+} from 'lib/swap-router';
+import { ROUTING_FEE_INVERTED_RATIO, ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
 
-import { useTradeWithSlippageTolerance } from './hooks/use-trade-with-slippage-tolerance.hook';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormContentDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';

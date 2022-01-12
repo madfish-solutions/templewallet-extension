@@ -1,6 +1,6 @@
-import { RoutePair } from '../backend/interfaces/route-pair.interface';
 import { RouteDirectionEnum } from '../enum/route-direction.enum';
 import { RoutePairWithDirection } from '../interface/route-pair-with-direction.interface';
+import { RoutePair } from '../interface/route-pair.interface';
 
 export const getRoutePairsWithDirection = (routePairs: RoutePair[]) => {
   const directRoutePairs = routePairs.map<RoutePairWithDirection>(route => ({

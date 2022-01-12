@@ -1,6 +1,7 @@
 import { TezosToolkit } from '@taquito/taquito';
 
 import { TradeOperation } from '../../../interface/trade.interface';
+import { getContract } from '../../../utils/contract.utils';
 import { PlentyContractAbstraction } from '../interfaces/plenty.contract-abstraction.interface';
 
 export const getPlentyTransferParams = async (
@@ -8,7 +9,7 @@ export const getPlentyTransferParams = async (
   senderPublicKeyHash: string,
   tezos: TezosToolkit
 ) => {
-  const contract = await tezos.contract.at<PlentyContractAbstraction>(tradeOperation.dexAddress);
+  const contract = await getContract<PlentyContractAbstraction>(tradeOperation.dexAddress, tezos);
 
   const [outputTokenAddress, outputTokenId = '0'] = tradeOperation.bTokenSlug.split('_');
 

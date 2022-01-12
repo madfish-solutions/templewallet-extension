@@ -1,3 +1,5 @@
+// TODO: remove this from shared lib
+
 export const ROUTING_FEE_PERCENT = 0.5;
 
 export const ROUTING_FEE_RATIO = (100 - ROUTING_FEE_PERCENT) / 100;

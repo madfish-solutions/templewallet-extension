@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { getAllRoutePairs } from '../backend';
-import { RoutePair } from '../backend/interfaces/route-pair.interface';
+import { RoutePair } from '../interface/route-pair.interface';
 import { getAllowedRoutePairs } from '../utils/allowed-route-pairs.utils';
 import { getRoutePairsCombinations } from '../utils/route-pairs-combinatios.utils';
 import { getRoutePairsWithDirection } from '../utils/route-pairs-with-direction.utils';

@@ -2,6 +2,7 @@ import { TezosToolkit } from '@taquito/taquito';
 
 import { RouteDirectionEnum } from '../../../enum/route-direction.enum';
 import { TradeOperation } from '../../../interface/trade.interface';
+import { getContract } from '../../../utils/contract.utils';
 import { QuipuSwapContractAbstraction } from '../interfaces/quipu-swap.contract-abstraction.interface';
 
 export const getQuipuSwapTransferParams = async (
@@ -9,7 +10,7 @@ export const getQuipuSwapTransferParams = async (
   senderPublicKeyHash: string,
   tezos: TezosToolkit
 ) => {
-  const contract = await tezos.contract.at<QuipuSwapContractAbstraction>(tradeOperation.dexAddress);
+  const contract = await getContract<QuipuSwapContractAbstraction>(tradeOperation.dexAddress, tezos);
 
   if (tradeOperation.direction === RouteDirectionEnum.Direct) {
     return contract.methods

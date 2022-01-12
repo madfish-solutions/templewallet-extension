@@ -1,5 +1,5 @@
 import { AssetMetadata } from '../../temple/metadata';
-import { DexTypeEnum } from '../backend/enums/dex-type.enum';
+import { DexTypeEnum } from '../enum/dex-type.enum';
 import { RouteDirectionEnum } from '../enum/route-direction.enum';
 
 export const getDexName = (dexType: DexTypeEnum) => {

@@ -2,8 +2,7 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
-import { TradeOperation } from 'lib/swap-router/interface/trade.interface';
-import { getDexName, getPoolName } from 'lib/swap-router/utils/trade-operation.utils';
+import { TradeOperation, getDexName, getPoolName } from 'lib/swap-router';
 import { useAssetMetadata } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
 

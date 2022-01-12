@@ -1,5 +1,4 @@
-import { TezosToolkit } from '@taquito/taquito';
-import { TransferParams } from '@taquito/taquito/dist/types/operations/types';
+import { TezosToolkit, TransferParams } from '@taquito/taquito';
 
 import { getLiquidityBakingTransferParams } from '../dexes/liquidity-baking/utils/transfer-params.utils';
 import { getPlentyTransferParams } from '../dexes/plenty/utils/transfer-params.utils';
