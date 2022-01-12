@@ -1,6 +1,7 @@
 import { ParamsWithKind, TezosToolkit } from '@taquito/taquito';
 import { TransferParams } from '@taquito/taquito/dist/types/operations/types';
 
+import { getPlentyTransferParams } from '../dexes/plenty/utils/transfer-params.utils';
 import { getQuipuSwapTransferParams } from '../dexes/quipu-swap/utils/transfer-params.utils';
 import { DexTypeEnum } from '../enum/dex-type.enum';
 import { Trade } from '../interface/trade.interface';
@@ -17,7 +18,7 @@ export const getTradeOpParams = (
         case DexTypeEnum.QuipuSwap:
           return getQuipuSwapTransferParams(tradeOperation, senderPublicKeyHash, tezos);
         case DexTypeEnum.Plenty:
-          return [] as unknown as TransferParams;
+          return getPlentyTransferParams(tradeOperation, senderPublicKeyHash, tezos);
         case DexTypeEnum.LiquidityBaking:
           return [] as unknown as TransferParams;
         default:

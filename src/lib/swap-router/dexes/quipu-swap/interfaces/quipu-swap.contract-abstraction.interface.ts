@@ -4,12 +4,12 @@ import { BigNumber } from 'bignumber.js';
 export interface QuipuSwapContractAbstraction extends ContractAbstraction<ContractProvider> {
   methods: {
     tezToTokenPayment: (
-      tokenOutputAmount: BigNumber,
+      outputTokenAmount: BigNumber,
       receiverPublicKeyHash: string
     ) => ContractMethod<ContractProvider>;
     tokenToTezPayment: (
-      tokenInputAmount: BigNumber,
-      tezosOutputAmount: BigNumber,
+      inputTokenAmount: BigNumber,
+      outputTezosAmount: BigNumber,
       receiverPublicKeyHash: string
     ) => ContractMethod<ContractProvider>;
   };
