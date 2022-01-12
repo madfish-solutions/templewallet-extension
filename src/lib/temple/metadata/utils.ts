@@ -1,4 +1,4 @@
-import { formatImgUri, sanitizeImgUri } from 'lib/image-uri';
+import { formatImgUri } from 'lib/image-uri';
 
 import { AssetMetadata, DetailedAssetMetdata } from './types';
 
@@ -13,7 +13,7 @@ export function getAssetName(metadata: AssetMetadata | null) {
 }
 
 export function getThumbnailUri(metadata: AssetMetadata | null) {
-  return metadata && metadata.thumbnailUri && sanitizeImgUri(formatImgUri(metadata.thumbnailUri));
+  return metadata && metadata.thumbnailUri && formatImgUri(metadata.thumbnailUri);
 }
 
 export function toBaseMetadata(data: DetailedAssetMetdata | AssetMetadata): AssetMetadata {
