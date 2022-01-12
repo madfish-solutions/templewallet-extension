@@ -85,8 +85,8 @@
   "protectedFormField": {
     "message": "Protected"
   },
-  "clickToRevealOrEditField": {
-    "message": "Click to reveal or edit this field"
+  "clickToRevealField": {
+    "message": "Click to reveal this field"
   },
   "copiedHash": {
     "message": "Copied."
@@ -747,6 +747,9 @@
   "about": {
     "message": "About"
   },
+  "info": {
+    "message": "Info"
+  },
   "aboutDescription": {
     "message": "Use this section to view meta info about Temple Wallet."
   },
@@ -898,6 +901,33 @@
   },
   "delegation": {
     "message": "Delegation"
+  },
+  "delegationWelcome": {
+    "message": "Welcome to Tezos delegation"
+  },
+  "delegationHowTo": {
+    "message": "How to delegate your tokens to the Baker?"
+  },
+  "delegationGuide": {
+    "message": "Full video guide"
+  },
+  "delegationGuideLink": {
+    "message": "How to Delegate XTZ"
+  },
+  "delegationComunity": {
+    "message": "In case you have any questions, write them in our communities"
+  },
+  "delegationFaq1": {
+    "message": "If you have XTZ tokens but you don't want to launch your node, you can delegate your XTZ tokens to Bakers with an already running node to get rewards from the mining based on your contribution."
+  },
+  "delegationFaq2": {
+    "message": "Delegation is the right and opportunity of every member of the Tezos network to transfer their vote in the form of XTZ tokens to other Bakers. Delegated funds are not frozen and are not moved anywhere. They remain in your wallet, and you can spend them or change Baker at any time."
+  },
+  "delegationFaq3": {
+    "message": "The delegation system is also part of the LPoS consensus and allows users to be involved in supporting the network. Also, delegation helps significantly speed up transactions, makes them cheap, creates the basis for network scaling, and brings a passive income for delegators."
+  },
+  "delegationFaq4": {
+    "message": "Delegation is the in-build function of the Temple Wallet."
   },
   "baker": {
     "message": "Baker"
@@ -2287,6 +2317,12 @@
   },
   "ledgerLiveSettingsDescription": {
     "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
+  },
+  "lockUpSettings": {
+    "message": "Extension lock-up"
+  },
+  "lockUpSettingsDescription": {
+    "message": "The extension will be automatically blocked after 5 minutes of inactivity."
   },
   "totalBalance": {
     "message": "Total Balance"
