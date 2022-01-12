@@ -2479,8 +2479,5 @@
   },
   "warningTopUpServiceMessage": {
     "message": "The token exchange feature is provided by a third party. The Temple wallet is not responsible for the work of third-party services."
-  },
-  "featDoesNotWorkTemporarily": {
-    "message": "Doesn't work temporarily"
   }
 }
