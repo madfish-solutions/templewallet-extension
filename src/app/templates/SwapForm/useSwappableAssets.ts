@@ -5,7 +5,7 @@ import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
 import constate from 'constate';
 
-import { formatImgUri } from 'lib/image-uri';
+import { formatIpfsUri } from 'lib/image-uri';
 import { getQuipuswapWhitelist } from 'lib/quipuswap';
 import { useRetryableSWR } from 'lib/swr';
 import {
@@ -217,7 +217,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
           const { name: parsedName, symbol: parsedSymbol } = tokenMetadata;
           const commonMetadata = {
             ...tokenMetadata,
-            iconUrl: tokenMetadata.thumbnailUri && formatImgUri(tokenMetadata.thumbnailUri),
+            iconUrl: tokenMetadata.thumbnailUri && formatIpfsUri(tokenMetadata.thumbnailUri),
             name: !parsedName || parsedName === '???' ? shortHash : parsedName,
             symbol: !parsedSymbol || parsedSymbol === '???' ? shortHash : parsedSymbol,
             address,
@@ -372,7 +372,7 @@ export const [SwappableAssetsProvider, useSwappableAssets] = constate(
             } else {
               metadata = fallbackMetadata;
             }
-            metadata.thumbnailUri = metadata.thumbnailUri && formatImgUri(metadata.thumbnailUri);
+            metadata.thumbnailUri = metadata.thumbnailUri && formatIpfsUri(metadata.thumbnailUri);
             if (metadata.name === '???') {
               metadata.name = fallbackName;
             }
