@@ -26,13 +26,14 @@ import {
   ActivationStatus,
   useAllAccounts,
   isAddressValid,
-  isDomainNameValid,
   useTezosDomainsClient,
   isKTAddress,
   confirmOperation,
   useNetwork,
   ImportAccountFormType
 } from 'lib/temple/front';
+import { activateAccount } from 'lib/temple/front/activate-account';
+import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import useSafeState from 'lib/ui/useSafeState';
 import { navigate } from 'lib/woozie';
 
@@ -546,25 +547,6 @@ const FromFaucetForm: FC = () => {
   const tezos = useTezos();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.FaucetFile);
 
-  const activateAccount = useCallback(
-    async (address: string, secret: string) => {
-      let op;
-      try {
-        op = await tezos.tz.activate(address, secret);
-      } catch (err: any) {
-        const invalidActivationError = err && err.body && /Invalid activation/.test(err.body);
-        if (invalidActivationError) {
-          return [ActivationStatus.AlreadyActivated] as [ActivationStatus];
-        }
-
-        throw err;
-      }
-
-      return [ActivationStatus.ActivationRequestSent, op] as [ActivationStatus, typeof op];
-    },
-    [tezos]
-  );
-
   const { control, handleSubmit: handleTextFormSubmit, watch, errors, setValue } = useForm<FaucetTextInputFormData>();
   const textFieldRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -581,7 +563,7 @@ const FromFaucetForm: FC = () => {
 
   const importAccount = useCallback(
     async (data: FaucetData) => {
-      const [activationStatus, op] = await activateAccount(data.pkh, data.secret ?? data.activation_code);
+      const [activationStatus, op] = await activateAccount(data.pkh, data.secret ?? data.activation_code, tezos);
 
       if (activationStatus === ActivationStatus.ActivationRequestSent) {
         setAlert(`🛫 ${t('requestSent', t('activationOperationType'))}`);
@@ -600,7 +582,7 @@ const FromFaucetForm: FC = () => {
         throw err;
       }
     },
-    [activateAccount, importFundraiserAccount, setAccountPkh, setAlert, tezos]
+    [importFundraiserAccount, setAccountPkh, setAlert, tezos]
   );
 
   const onTextFormSubmit = useCallback(
@@ -816,30 +798,6 @@ const WatchOnlyForm: FC = () => {
     triggerValidation('to');
   }, [setValue, triggerValidation]);
 
-  const validateAddressField = useCallback(
-    async (value: any) => {
-      if (!value?.length || value.length < 0) {
-        return false;
-      }
-
-      if (!canUseDomainNames) {
-        return validateAddress(value);
-      }
-
-      if (isDomainNameValid(value, domainsClient)) {
-        const resolved = await domainsClient.resolver.resolveNameToAddress(value);
-        if (!resolved) {
-          return t('domainDoesntResolveToAddress', value);
-        }
-
-        value = resolved;
-      }
-
-      return isAddressValid(value) ? true : t('invalidAddressOrDomain');
-    },
-    [canUseDomainNames, domainsClient]
-  );
-
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
 
@@ -887,7 +845,7 @@ const WatchOnlyForm: FC = () => {
         control={control}
         rules={{
           required: 'Required',
-          validate: validateAddressField
+          validate: (value: any) => validateDelegate(value, canUseDomainNames, domainsClient, t, validateAddress)
         }}
         onChange={([v]) => v}
         onFocus={() => addressFieldRef.current?.focus()}
