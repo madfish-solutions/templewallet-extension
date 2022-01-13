@@ -802,7 +802,7 @@ const InnerForm: React.FC<InnerFormProps> = ({ defaultAsset }) => {
                 :
               </div>
             </td>
-            <td className="text-right text-gray-600">{getFormattedPriceImpact(priceImpact)}</td>`
+            <td className="text-right text-gray-600">{getFormattedPriceImpact(priceImpact)}</td>
           </tr>
           <tr>
             <td>

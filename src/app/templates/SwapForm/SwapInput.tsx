@@ -11,7 +11,7 @@ import Spinner from 'app/atoms/Spinner';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ReactComponent as SyncIcon } from 'app/icons/sync.svg';
-import AssetIcon from 'app/templates/AssetIcon';
+import { AssetIcon } from 'app/templates/AssetIcon';
 import {
   getAssetExchangeData,
   TokensExchangeData,
