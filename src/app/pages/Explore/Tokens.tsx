@@ -9,7 +9,7 @@ import { useDebounce } from 'use-debounce';
 import Money from 'app/atoms/Money';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import AssetIcon from 'app/templates/AssetIcon';
+import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
 import SearchAssetField from 'app/templates/SearchAssetField';

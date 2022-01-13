@@ -10,7 +10,7 @@ import { ReactComponent as ControlCentreIcon } from 'app/icons/control-centre.sv
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { ManageAssetsSelectors } from 'app/pages/ManageAssets.selectors';
-import AssetIcon from 'app/templates/AssetIcon';
+import { AssetIcon } from 'app/templates/AssetIcon';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { T, t } from 'lib/i18n/react';
 import { AssetTypesEnum } from 'lib/temple/assets/types';
@@ -224,7 +224,7 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, checked, onUpdate, asse
         'cursor-pointer'
       )}
     >
-      <AssetIcon assetType={assetType} assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
+      <AssetIcon assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
 
       <div className="flex items-center">
         <div className="flex flex-col items-start">
