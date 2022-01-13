@@ -19,7 +19,7 @@ type OperationViewProps = {
   modifyFeeAndLimit?: ModifyFeeAndLimit;
 };
 
-const OperationView: FC<OperationViewProps> = ({ payload, networkRpc, mainnet = false, modifyFeeAndLimit }) => {
+const OperationView: FC<OperationViewProps> = ({ payload, mainnet = false, modifyFeeAndLimit }) => {
   const contentToParse = useMemo(() => {
     switch (payload.type) {
       case 'confirm_operations':
