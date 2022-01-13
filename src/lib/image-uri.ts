@@ -1,10 +1,8 @@
 import { AssetMetadata } from './temple/metadata';
 
-export const IPFS_GATEWAY = 'ipfs.io';
+export const IPFS_GATEWAY = 'cloudflare-ipfs.com';
 
 export function formatIpfsUri(origin = '') {
-  console.log('formatIpfsUri');
-
   if (origin.startsWith('ipfs://')) {
     return `https://${IPFS_GATEWAY}/ipfs/${origin.substring(7)}/`;
   }
@@ -19,18 +17,15 @@ export function sanitizeImgUri(url = '', x = 64, y = 64) {
 }
 
 export const formatTokenUri = (metadata: AssetMetadata) => {
-  console.log('formatTokenUri');
-
   const ipfsUri = formatIpfsUri(metadata.thumbnailUri);
 
   return sanitizeImgUri(ipfsUri);
 };
 
 export const formatCollectibleUri = (assetSlug: string) => {
-  console.log('formatCollectibleUri');
   const [address, id] = assetSlug.split('_');
 
-  return `https://assets.objkt.com/file/assets-001/${address}/${id.length > 1 ? id[id.length - 2] : 0}/${
+  return `https://assets.objkt.media/file/assets-001/${address}/${id.length > 1 ? id[id.length - 2] : 0}/${
     id[id.length - 1]
   }/${id}/thumb400`;
 };
