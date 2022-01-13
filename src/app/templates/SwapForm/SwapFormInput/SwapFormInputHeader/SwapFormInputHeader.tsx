@@ -7,7 +7,7 @@ import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import AssetIcon from 'app/templates/AssetIcon';
+import { AssetIcon } from 'app/templates/AssetIcon';
 import InUSD from 'app/templates/InUSD';
 import { toLocalFormat } from 'lib/i18n/numbers';
 import { t, T } from 'lib/i18n/react';

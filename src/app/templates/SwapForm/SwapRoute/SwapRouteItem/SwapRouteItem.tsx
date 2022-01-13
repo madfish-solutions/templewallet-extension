@@ -2,11 +2,11 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
+import { AssetIcon } from 'app/templates/AssetIcon';
 import { TradeOperation, getDexName, getPoolName } from 'lib/swap-router';
 import { useAssetMetadata } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
 
-import AssetIcon from '../../../AssetIcon';
 import { DexTypeIcon } from './DexTypeIcon/DexTypeIcon';
 import { ReactComponent as NextArrow } from './icons/next-arrow.svg';
 

@@ -2,9 +2,9 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
+import { AssetIcon } from 'app/templates/AssetIcon';
 import { AssetMetadata, useAssetMetadata } from 'lib/temple/front';
 
-import AssetIcon from '../../../../AssetIcon';
 import { AssetOptionBalance } from './AssetOptionBalance';
 
 interface Props {
