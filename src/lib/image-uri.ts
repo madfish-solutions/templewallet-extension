@@ -16,8 +16,8 @@ export function sanitizeImgUri(url = '', x = 64, y = 64) {
   return url;
 }
 
-export const formatTokenUri = (metadata: AssetMetadata) => {
-  const ipfsUri = formatIpfsUri(metadata.thumbnailUri);
+export const formatTokenUri = (metadata: AssetMetadata | null) => {
+  const ipfsUri = formatIpfsUri(metadata?.thumbnailUri);
 
   return sanitizeImgUri(ipfsUri);
 };
