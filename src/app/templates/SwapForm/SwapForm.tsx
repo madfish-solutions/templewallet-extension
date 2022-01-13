@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import classNames from 'clsx';
@@ -31,7 +31,7 @@ import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
-import { SwapFormValue, SwapInputValue, useSwapFormContentDefaultValue } from './SwapForm.form';
+import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
 import { feeInfoTippyProps, priceImpactInfoTippyProps } from './SwapForm.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
@@ -49,7 +49,7 @@ export const SwapForm: FC = () => {
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
   const priceImpactInfoIconRef = useTippy<HTMLSpanElement>(priceImpactInfoTippyProps);
 
-  const defaultValues = useSwapFormContentDefaultValue();
+  const defaultValues = useSwapFormDefaultValue();
   const { handleSubmit, errors, watch, setValue, control, register, triggerValidation } = useForm<SwapFormValue>({
     defaultValues
   });
@@ -82,6 +82,7 @@ export const SwapForm: FC = () => {
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();
+  const isSubmitButtonPressedRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(
@@ -109,6 +110,10 @@ export const SwapForm: FC = () => {
         setBestTrade([]);
         setValue('output', { assetSlug: outputValue.assetSlug, amount: undefined });
       }
+
+      if (isSubmitButtonPressedRef.current) {
+        triggerValidation();
+      }
     }
   }, [
     inputMutezAmountWithFee,
@@ -117,7 +122,8 @@ export const SwapForm: FC = () => {
     slippageTolerance,
     routePairsCombinations,
     outputAssetMetadata.decimals,
-    setValue
+    setValue,
+    triggerValidation
   ]);
 
   useEffect(() => {
@@ -142,6 +148,10 @@ export const SwapForm: FC = () => {
         setBestTrade([]);
         setValue('input', { assetSlug: inputValue.assetSlug, amount: undefined });
       }
+
+      if (isSubmitButtonPressedRef.current) {
+        triggerValidation();
+      }
     }
   }, [
     outputValue.amount,
@@ -151,7 +161,8 @@ export const SwapForm: FC = () => {
     routePairsCombinations,
     inputAssetMetadata.decimals,
     outputAssetMetadata.decimals,
-    setValue
+    setValue,
+    triggerValidation
   ]);
 
   useEffect(() => {
@@ -182,7 +193,6 @@ export const SwapForm: FC = () => {
   }, [register]);
 
   const onSubmit = async () => {
-    console.log('onSubmit');
     if (isSubmitting) {
       return;
     }
@@ -216,7 +226,6 @@ export const SwapForm: FC = () => {
       formAnalytics.trackSubmitSuccess(analyticsProperties);
       setOperation(batchOperation);
     } catch (err: any) {
-      console.error(err);
       if (err.message !== 'Declined') {
         setError(err);
       }
@@ -250,6 +259,8 @@ export const SwapForm: FC = () => {
   const handleInputAmountChange = () => setTradeType(TradeTypeEnum.EXACT_INPUT);
   const handleOutputAmountChange = () => setTradeType(TradeTypeEnum.EXACT_OUTPUT);
 
+  const handleSubmitButtonClick = () => (isSubmitButtonPressedRef.current = true);
+
   return (
     <form className="mb-8" onSubmit={handleSubmit(onSubmit)}>
       {operation && (
@@ -268,8 +279,7 @@ export const SwapForm: FC = () => {
         // @ts-ignore
         error={errors.input?.message}
         label={<T id="from" />}
-        withPercentageButtons
-        triggerValidation={triggerValidation}
+        withPercentageButtons={true}
         onChange={handleInputChange}
         onAmountChange={handleInputAmountChange}
       />
@@ -286,9 +296,7 @@ export const SwapForm: FC = () => {
         value={outputValue}
         // @ts-ignore
         error={errors.output?.message}
-        isOutput={true}
         label={<T id="toAsset" />}
-        triggerValidation={triggerValidation}
         onChange={handleOutputChange}
         onAmountChange={handleOutputAmountChange}
       />
@@ -380,6 +388,7 @@ export const SwapForm: FC = () => {
           background: isValid ? '#4299e1' : '#c2c2c2'
         }}
         loading={isSubmitting}
+        onClick={handleSubmitButtonClick}
       >
         <T id="swap" />
       </FormSubmitButton>

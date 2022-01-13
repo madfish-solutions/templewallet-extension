@@ -18,7 +18,7 @@ export const SwapPriceImpact: FC<Props> = ({ trade }) => {
         const feeRatio = getPairFeeRatio(tradeOperation);
         const linearExchangeRate = tradeOperation.bTokenPool.dividedBy(tradeOperation.aTokenPool);
 
-        return previousTradeOutput.multipliedBy(feeRatio).multipliedBy(linearExchangeRate);
+        return previousTradeOutput.multipliedBy(feeRatio).multipliedBy(linearExchangeRate).dividedToIntegerBy(1);
       }, tradeInput);
 
       const HUNDRED = new BigNumber(100);

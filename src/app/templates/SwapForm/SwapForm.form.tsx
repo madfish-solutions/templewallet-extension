@@ -19,7 +19,7 @@ export interface SwapFormValue {
 const getValidAssetSlug = (queryAssetSlug: string | null) =>
   queryAssetSlug && queryAssetSlug.length > 0 ? queryAssetSlug : undefined;
 
-export const useSwapFormContentDefaultValue = () => {
+export const useSwapFormDefaultValue = () => {
   const location = useLocation();
 
   return useMemo<DeepPartial<SwapFormValue>>(() => {

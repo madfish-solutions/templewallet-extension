@@ -34,9 +34,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   className,
   error,
   label,
-  isOutput = false,
   name,
-  triggerValidation,
   withPercentageButtons,
   onChange,
   onAmountChange
@@ -70,26 +68,22 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
       return new BigNumber(0);
     }
 
-    if (isOutput) {
-      return new BigNumber(Infinity);
-    }
-
     const maxSendAmount = isTezosSlug ? balance.data?.minus(EXCHANGE_XTZ_RESERVE) : balance.data;
 
     return maxSendAmount ?? new BigNumber(0);
-  }, [assetSlug, isTezosSlug, balance, isOutput]);
+  }, [assetSlug, isTezosSlug, balance.data]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTokenId(undefined);
     setSearchValue(e.target.value);
   };
 
-  const handleAmountChange = (amount?: BigNumber) => {
+  const handleAmountChange = (newAmount?: BigNumber) => {
     onChange({
       assetSlug,
-      amount
+      amount: newAmount
     });
-    onAmountChange(amount);
+    onAmountChange(newAmount);
   };
 
   const handlePercentageClick = (percentage: number) => {
@@ -100,11 +94,8 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
       .multipliedBy(percentage)
       .div(100)
       .decimalPlaces(assetMetadata.decimals, BigNumber.ROUND_DOWN);
-    onChange({
-      assetSlug,
-      amount: newAmount
-    });
-    triggerValidation(name);
+
+    handleAmountChange(newAmount);
   };
 
   const handleSelectedAssetChange = (newAssetSlug: string) => {
