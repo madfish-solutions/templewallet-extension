@@ -36,7 +36,7 @@ export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) =>
     ? formatIpfsUri(metadata?.thumbnailUri)
     : isCollectible
     ? formatCollectibleUri(assetSlug)
-    : formatTokenUri(metadata);
+    : formatTokenUri(metadata?.thumbnailUri);
 
   return (
     <div className={className}>
@@ -49,7 +49,7 @@ export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) =>
         onLoad={() => setIsLoaded(true)}
         onError={() => setIsLoadingFailed(true)}
       />
-      {!isLoaded && <AssetIconPlaceholder metadata={metadata} size={size} />}
+      {(!isLoaded || !metadata) && <AssetIconPlaceholder metadata={metadata} size={size} />}
     </div>
   );
 };
