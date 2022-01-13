@@ -1,5 +1,3 @@
-import { AssetMetadata } from './temple/metadata';
-
 export const IPFS_GATEWAY = 'cloudflare-ipfs.com';
 
 export function formatIpfsUri(url = '') {
