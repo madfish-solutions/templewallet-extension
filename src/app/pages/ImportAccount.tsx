@@ -793,9 +793,9 @@ const WatchOnlyForm: FC = () => {
 
   const finalAddress = useMemo(() => resolvedAddress || addressValue, [resolvedAddress, addressValue]);
 
-  const cleanToField = useCallback(() => {
-    setValue('to', '');
-    triggerValidation('to');
+  const cleanAddressField = useCallback(() => {
+    setValue('address', '');
+    triggerValidation('address');
   }, [setValue, triggerValidation]);
 
   const onSubmit = useCallback(async () => {
@@ -844,7 +844,7 @@ const WatchOnlyForm: FC = () => {
         as={<NoSpaceField ref={addressFieldRef} />}
         control={control}
         rules={{
-          required: 'Required',
+          required: true,
           validate: (value: any) => validateDelegate(value, canUseDomainNames, domainsClient, t, validateAddress)
         }}
         onChange={([v]) => v}
@@ -852,8 +852,8 @@ const WatchOnlyForm: FC = () => {
         textarea
         rows={2}
         cleanable={Boolean(addressValue)}
-        onClean={cleanToField}
-        id="send-to"
+        onClean={cleanAddressField}
+        id="watch-address"
         label={t('address')}
         labelDescription={
           <T id={canUseDomainNames ? 'addressInputDescriptionWithDomain' : 'addressInputDescription'} />
