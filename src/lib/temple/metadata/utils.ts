@@ -1,5 +1,3 @@
-import { formatIpfsUri } from 'lib/image-uri';
-
 import { AssetMetadata, DetailedAssetMetdata } from './types';
 
 export function getAssetSymbol(metadata: AssetMetadata | null, short = false) {
@@ -10,10 +8,6 @@ export function getAssetSymbol(metadata: AssetMetadata | null, short = false) {
 
 export function getAssetName(metadata: AssetMetadata | null) {
   return metadata ? metadata.name : 'Unknown Token';
-}
-
-export function getThumbnailUri(metadata: AssetMetadata | null) {
-  return metadata && metadata.thumbnailUri && formatIpfsUri(metadata.thumbnailUri);
 }
 
 export function toBaseMetadata(data: DetailedAssetMetdata | AssetMetadata): AssetMetadata {
