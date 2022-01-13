@@ -1,6 +1,7 @@
 import { TezosToolkit } from '@taquito/taquito';
 
-import { detectTokenStandard } from '../../temple/assets';
+import { detectTokenStandard } from 'lib/temple/assets';
+
 import { Fa12AssetContractAbstraction } from '../interface/fa1-2-asset.contract-abstraction.interface';
 import { Fa2AssetContractAbstraction } from '../interface/fa2-asset.contract-abstraction.interface';
 import { getContract } from './contract.utils';

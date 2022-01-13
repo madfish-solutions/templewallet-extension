@@ -1,4 +1,5 @@
-import { AssetMetadata } from '../../temple/metadata';
+import { AssetMetadata } from 'lib/temple/metadata';
+
 import { DexTypeEnum } from '../enum/dex-type.enum';
 import { RouteDirectionEnum } from '../enum/route-direction.enum';
 

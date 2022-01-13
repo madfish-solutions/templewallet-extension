@@ -30,8 +30,7 @@ import {
   useAccount,
   isTokenDisplayed
 } from 'lib/temple/front';
-
-import { ITokenStatus } from '../repo';
+import { ITokenStatus } from 'lib/temple/repo';
 
 export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
 

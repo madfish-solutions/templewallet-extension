@@ -4,9 +4,9 @@ import { DEFAULT_HANDLERS, MetadataInterface, MetadataProvider, tzip16 } from '@
 import retry from 'async-retry';
 
 import assert from 'lib/assert';
+import { isTezAsset } from 'lib/temple/assets';
+import { isValidContractAddress } from 'lib/temple/helpers';
 
-import { isTezAsset } from '../assets';
-import { isValidContractAddress } from '../helpers';
 import { TEZOS_METADATA } from './defaults';
 import { PRESERVED_TOKEN_METADATA } from './fixtures';
 import { AssetMetadata, DetailedAssetMetdata } from './types';
