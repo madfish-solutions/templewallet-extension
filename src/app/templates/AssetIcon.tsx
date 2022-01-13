@@ -1,57 +1,55 @@
-import React, { memo, useState } from 'react';
-
-import classNames from 'clsx';
+import React, { FC, useState } from 'react';
 
 import Identicon from 'app/atoms/Identicon';
-import { ReactComponent as PlaceholderSmall } from 'app/icons/collectiblePlaceholder.svg';
-import { ReactComponent as PlaceholderLarge } from 'app/icons/collectiblePlaceholderLarge.svg';
-import { getAssetSymbol, getThumbnailUri, useAssetMetadata } from 'lib/temple/front';
+import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
+import { formatCollectibleUri, formatIpfsUri, formatTokenUri } from 'lib/image-uri';
+import { AssetMetadata, getAssetSymbol, useAssetMetadata } from 'lib/temple/front';
 
-import { formatCollectibleUri } from '../../lib/image-uri';
+interface AssetIconPlaceholderProps {
+  metadata: AssetMetadata | null;
+  size?: number;
+}
+
+const AssetIconPlaceholder: FC<AssetIconPlaceholderProps> = ({ metadata, size }) => {
+  const isCollectible = Boolean(metadata?.artifactUri);
+
+  return isCollectible ? (
+    <CollectiblePlaceholder style={{ width: '100%', height: '100%' }} />
+  ) : (
+    <Identicon type="initials" hash={getAssetSymbol(metadata)} size={size} />
+  );
+};
 
 interface AssetIconProps {
   assetSlug: string;
   className?: string;
   size?: number;
-  placeholder?: 'small' | 'large';
 }
 
-const AssetIcon = memo((props: AssetIconProps) => {
-  const { assetSlug, className, size, placeholder } = props;
+export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoadingFailed, setIsLoadingFailed] = useState(false);
+  const metadata: AssetMetadata | null = useAssetMetadata(assetSlug);
+  const isCollectible = Boolean(metadata?.artifactUri);
 
-  const metadata = useAssetMetadata(assetSlug);
-  const isCollectible = Boolean(metadata.artifactUri);
+  const imageSrc = isLoadingFailed
+    ? formatIpfsUri(metadata?.thumbnailUri)
+    : isCollectible
+    ? formatCollectibleUri(assetSlug)
+    : formatTokenUri(metadata);
 
-  const [fallback, setFallback] = useState(false);
-  const [display, setDisplay] = useState(true);
-
-  const thumbnailUri =
-    isCollectible && !fallback && assetSlug !== 'tez' ? formatCollectibleUri(assetSlug) : getThumbnailUri(metadata);
-
-  const handleError = () => void (isCollectible ? setFallback(true) : setDisplay(false));
-
-  if (thumbnailUri && display) {
-    return (
+  return (
+    <div className={className}>
       <img
-        className={classNames(!isCollectible && 'overflow-hidden', className)}
-        onError={handleError}
-        alt={metadata.name}
-        src={thumbnailUri}
+        src={imageSrc}
+        alt={metadata?.name}
+        style={!isLoaded ? { display: 'none' } : {}}
         height={size}
         width={size}
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setIsLoadingFailed(true)}
       />
-    );
-  }
-
-  return isCollectible ? (
-    placeholder === 'large' ? (
-      <PlaceholderLarge style={{ display: 'inline' }} />
-    ) : (
-      <PlaceholderSmall />
-    )
-  ) : (
-    <Identicon type="initials" hash={getAssetSymbol(metadata)} className={className} size={size} />
+      {!isLoaded && <AssetIconPlaceholder metadata={metadata} size={size} />}
+    </div>
   );
-});
-
-export default AssetIcon;
+};

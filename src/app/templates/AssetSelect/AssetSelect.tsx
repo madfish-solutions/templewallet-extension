@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import Money from 'app/atoms/Money';
-import GenericAssetIcon from 'app/templates/AssetIcon';
+import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InUSD from 'app/templates/InUSD';
@@ -48,8 +48,8 @@ const AssetSelect: FC<AssetSelectProps> = ({ value, assets, onChange, className 
 
   return (
     <IconifiedSelect
-      Icon={AssetIcon}
-      OptionSelectedIcon={AssetSelectedIcon}
+      Icon={OptionIcon}
+      OptionSelectedIcon={OptionSelectedIcon}
       OptionInMenuContent={AssetInMenuContent}
       OptionSelectedContent={AssetSelectedContent}
       getKey={getSlug}
@@ -66,12 +66,12 @@ export default AssetSelect;
 
 type AssetSelectOptionRenderProps = IconifiedSelectOptionRenderProps<IAsset>;
 
-const AssetIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <GenericAssetIcon assetSlug={getSlug(option)} className="h-8 w-auto mr-3" size={32} />
+const OptionIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
+  <AssetIcon assetSlug={getSlug(option)} className="h-8 w-auto mr-3" size={32} />
 );
 
-const AssetSelectedIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
-  <GenericAssetIcon assetSlug={getSlug(option)} className="h-12 w-auto mr-3" size={48} />
+const OptionSelectedIcon: FC<AssetSelectOptionRenderProps> = ({ option }) => (
+  <AssetIcon assetSlug={getSlug(option)} className="h-12 w-auto mr-3" size={48} />
 );
 
 const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset }) => {
