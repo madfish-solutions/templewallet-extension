@@ -1,30 +1,22 @@
 import React from 'react';
 
-import { TransportType } from '@temple-wallet/ledger-bridge';
-
 import FormCheckbox from 'app/atoms/FormCheckbox';
 import { T, t } from 'lib/i18n/react';
-import { useRetryableSWR } from 'lib/swr';
 import { TempleSharedStorageKey, useLocalStorage } from 'lib/temple/front';
-import { getDefaultLedgerTransport } from 'lib/temple/ledger-live';
 
 const LedgerLiveSettings: React.FC<{}> = () => {
-  const { data: enabledByDefault } = useRetryableSWR(['is-ledger-live-enabled-by-default'], getDefaultLedgerTransport);
-
-  const [ledgerTransportType, setLedgerTransportType] = useLocalStorage<boolean>(
+  const [ledgerLiveEnabled, setLedgerLiveEnabled] = useLocalStorage<boolean>(
     TempleSharedStorageKey.UseLedgerLive,
     false
   );
 
   const handlePopupModeChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setLedgerTransportType(evt.target.checked);
+    setLedgerLiveEnabled(evt.target.checked);
   };
 
-  const settingsDisplayed = enabledByDefault !== TransportType.U2F && process.env.TARGET_BROWSER !== 'firefox';
+  const ledgerLabel = ledgerLiveEnabled ? 'enabled' : 'disabled';
 
-  const ledgerLabel = ledgerTransportType ? 'enabled' : 'disabled';
-
-  return settingsDisplayed ? (
+  return (
     <>
       <label className="mb-4 leading-tight flex flex-col" htmlFor="ledgerLiveSettings">
         <span className="text-base font-semibold text-gray-700">
@@ -37,14 +29,14 @@ const LedgerLiveSettings: React.FC<{}> = () => {
       </label>
 
       <FormCheckbox
-        checked={ledgerTransportType}
+        checked={ledgerLiveEnabled}
         onChange={handlePopupModeChange}
         name="ledgerLiveEnabled"
         label={t(ledgerLabel)}
         containerClassName="mb-4"
       />
     </>
-  ) : null;
+  );
 };
 
 export default LedgerLiveSettings;
