@@ -6,13 +6,10 @@ import FormCheckbox from 'app/atoms/FormCheckbox';
 import { T, t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 import { TempleSharedStorageKey, useLocalStorage } from 'lib/temple/front';
-import { isLedgerLiveEnabledByDefault } from 'lib/temple/ledger-live';
+import { getDefaultLedgerTransport } from 'lib/temple/ledger-live';
 
 const LedgerLiveSettings: React.FC<{}> = () => {
-  const { data: enabledByDefault } = useRetryableSWR(
-    ['is-ledger-live-enabled-by-default'],
-    isLedgerLiveEnabledByDefault
-  );
+  const { data: enabledByDefault } = useRetryableSWR(['is-ledger-live-enabled-by-default'], getDefaultLedgerTransport);
 
   const [ledgerTransportType, setLedgerTransportType] = useLocalStorage<boolean>(
     TempleSharedStorageKey.UseLedgerLive,
