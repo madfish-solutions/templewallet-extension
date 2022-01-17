@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { getAllRoutePairs } from '../backend';
+import { BigNumber } from 'bignumber.js';
+
+import { TEZOS_DEXES_API_URL } from '../config';
 import { RoutePair } from '../interface/route-pair.interface';
 import { getAllowedRoutePairs } from '../utils/allowed-route-pairs.utils';
 import { getRoutePairsCombinations } from '../utils/route-pairs-combinatios.utils';
@@ -10,17 +12,25 @@ export const useRoutePairsCombinations = (
   inputAssetSlug: string | null | undefined,
   outputAssetSlug: string | null | undefined
 ) => {
+  const webSocketRef = useRef<WebSocket>();
   const [allRoutePairs, setAllRoutePairs] = useState<RoutePair[]>([]);
 
   useEffect(() => {
-    (async () => {
-      const allPairs = await getAllRoutePairs();
-      // TODO: move this into backend
+    webSocketRef.current = new WebSocket(TEZOS_DEXES_API_URL);
+
+    webSocketRef.current.onmessage = (event: MessageEvent<string>) => {
+      const rawAllPairs: RoutePair[] = JSON.parse(event.data);
+      const allPairs = rawAllPairs.map<RoutePair>(rawPair => ({
+        ...rawPair,
+        aTokenPool: new BigNumber(rawPair.aTokenPool),
+        bTokenPool: new BigNumber(rawPair.bTokenPool)
+      }));
+
       const filteredPairs = allPairs.filter(pair => !pair.aTokenPool.isEqualTo(0) && !pair.bTokenPool.isEqualTo(0));
 
       setAllRoutePairs(filteredPairs);
-      console.log('all', filteredPairs.length);
-    })();
+    };
+    return () => webSocketRef.current?.close();
   }, []);
 
   return useMemo(() => {
