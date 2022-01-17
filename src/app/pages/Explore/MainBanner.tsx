@@ -5,6 +5,7 @@ import classNames from 'clsx';
 
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as DollarIcon } from 'app/icons/dollar.svg';
 import AssetIcon from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
@@ -89,9 +90,10 @@ type AssetBannerProps = {
 
 const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
   const assetMetadata = useAssetMetadata(assetSlug);
+  const { popup } = useAppEnv();
 
   return (
-    <BannerLayout name={<Name style={{ maxWidth: '13rem' }}>{getAssetName(assetMetadata)}</Name>}>
+    <BannerLayout name={<Name style={{ maxWidth: popup ? '11rem' : '13rem' }}>{getAssetName(assetMetadata)}</Name>}>
       <AssetIcon assetSlug={assetSlug} size={48} className="mr-3 flex-shrink-0" />
 
       <div className="font-light leading-none">
