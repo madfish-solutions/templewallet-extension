@@ -69,6 +69,7 @@ export class Vault {
   static async setup(password: string) {
     return withError('Failed to unlock wallet', async () => {
       await Vault.runMigrations(password);
+
       const passKey = await Vault.toValidPassKey(password);
       return new Vault(passKey);
     });
@@ -111,21 +112,47 @@ export class Vault {
   }
 
   static async runMigrations(password: string) {
+    await Vault.assertValidPassword(password);
+
+    let migrationLevel: number;
+
     const legacyMigrationLevelStored = await isStoredLegacy(legacyMigrationLevelStrgKey);
 
-    try {
-      let migrationLevel: number;
+    if (legacyMigrationLevelStored) {
+      migrationLevel = await withError('Invalid password', async () => {
+        const legacyPassKey = await Passworder.generateKeyLegacy(password);
+        return fetchAndDecryptOneLegacy<number>(legacyMigrationLevelStrgKey, legacyPassKey);
+      });
+    } else {
+      const saved = await getPlain<number>(migrationLevelStrgKey);
 
-      if (legacyMigrationLevelStored) {
-        migrationLevel = await fetchAndDecryptOneLegacy<number>(
-          legacyMigrationLevelStrgKey,
-          await Passworder.generateKeyLegacy(password)
-        );
-      } else {
-        const saved = await getPlain<number>(migrationLevelStrgKey);
-        migrationLevel = saved ?? 0;
+      migrationLevel = saved ?? 0;
+
+      /**
+       * The code below is a fix for production issue that occurred
+       * due to an incorrect migration to the new migration type.
+       *
+       * The essence of the problem:
+       * if you enter the password incorrectly after the upgrade,
+       * the migration will not work (as it should),
+       * but it will save that it passed.
+       * And the next unlock attempt will go on a new path.
+       *
+       * Solution:
+       * Check if there is an legacy version of checkStrgKey field in storage
+       * and if there is both it and new migration record,
+       * then overwrite migration level.
+       */
+
+      const legacyCheckStored = await isStoredLegacy(checkStrgKey);
+
+      if (saved !== undefined && legacyCheckStored) {
+        // Override migration level, force
+        migrationLevel = 3;
       }
+    }
 
+    try {
       const migrationsToRun = MIGRATIONS.filter((_m, i) => i >= migrationLevel);
 
       if (migrationsToRun.length === 0) {
@@ -169,7 +196,7 @@ export class Vault {
         doThrow();
       }
 
-      const newAllAcounts = allAccounts.filter(acc => acc.publicKeyHash !== accPublicKeyHash);
+      const newAllAcounts = allAccounts.filter(currentAccount => currentAccount.publicKeyHash !== accPublicKeyHash);
       await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], passKey);
 
       await removeMany([accPrivKeyStrgKey(accPublicKeyHash), accPubKeyStrgKey(accPublicKeyHash)]);
@@ -188,6 +215,19 @@ export class Vault {
         doThrow();
       }
       return passKey;
+    });
+  }
+
+  private static assertValidPassword(password: string) {
+    return withError('Invalid password', async () => {
+      const legacyCheckStored = await isStoredLegacy(checkStrgKey);
+      if (legacyCheckStored) {
+        const legacyPassKey = await Passworder.generateKeyLegacy(password);
+        await fetchAndDecryptOneLegacy<any>(checkStrgKey, legacyPassKey);
+      } else {
+        const passKey = await Passworder.generateKey(password);
+        await fetchAndDecryptOne<any>(checkStrgKey, passKey);
+      }
     });
   }
 
@@ -664,7 +704,7 @@ async function createLedgerSigner(
   // After Ledger Live bridge was setuped, we don't close transport
   // Probably we do not need to close it
   // But if we need, we can close it after not use timeout
-  const cleanup = () => {}; // transport.close();
+  const cleanup = () => {};
   const signer = new TempleLedgerSigner(
     transport,
     removeMFromDerivationPath(derivationPath),

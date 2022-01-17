@@ -38,13 +38,9 @@ export async function addLocalOperation(chainId: string, hash: string, localGrou
 
     // Parse asset ids
     if (op.kind === OpKind.ORIGINATION) {
-      if (isPositiveNumber(op.balance)) {
-        assetIdSet.add('tez');
-      }
+      addTezIfPositive(op.balance, assetIdSet);
     } else if (op.kind === OpKind.TRANSACTION) {
-      if (isPositiveNumber(op.amount)) {
-        assetIdSet.add('tez');
-      }
+      addTezIfPositive(op.amount, assetIdSet);
 
       if (op.parameters) {
         tryParseTokenTransfers(op.parameters, op.destination, (assetId, from, to) => {
@@ -69,3 +65,5 @@ export async function addLocalOperation(chainId: string, hash: string, localGrou
     }
   });
 }
+
+const addTezIfPositive = (x: string, assetSet: Set<string>) => isPositiveNumber(x) && assetSet.add('tez');
