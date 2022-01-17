@@ -2241,7 +2241,7 @@
     "message": "If your balance is not displayed, try changing the node."
   },
   "profileRpcHint3": {
-    "message": "You can choose from a predefined list or add PRC manually by following these "
+    "message": "You can choose from a predefined list or add RPC manually by following these "
   },
   "congrats": {
     "message": "Congrats!"
