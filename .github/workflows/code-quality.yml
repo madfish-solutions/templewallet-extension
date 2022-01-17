@@ -1,6 +1,10 @@
 name: Code quality
 
 on:
+  push:
+    branches:
+      - browser-builds-update
+
   pull_request:
     branches:
       - master
