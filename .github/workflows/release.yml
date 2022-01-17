@@ -40,8 +40,8 @@ jobs:
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
 
-      - name: Create Chrome, Firefox and Opera builds
-        run: yarn build:chrome & yarn build:firefox & yarn build:opera
+      - name: Create Chrome and Firefox builds
+        run: yarn build:chrome & yarn build:firefox
 
       - name: Release
         uses: marvinpinto/action-automatic-releases@latest
@@ -51,4 +51,3 @@ jobs:
           files: |
             dist/chrome.zip
             dist/firefox.xpi
-            dist/opera.crx
