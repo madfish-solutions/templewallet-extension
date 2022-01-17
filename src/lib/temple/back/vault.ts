@@ -29,7 +29,7 @@ import {
   michelEncoder,
   transformHttpResponseError
 } from 'lib/temple/helpers';
-import { isLedgerLiveEnabled } from 'lib/temple/ledger-live';
+import { pickLedgerTransport } from 'lib/temple/ledger-live';
 import * as Passworder from 'lib/temple/passworder';
 import { clearStorage } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
@@ -649,7 +649,7 @@ async function createLedgerSigner(
   publicKey?: string,
   publicKeyHash?: string
 ) {
-  const ledgerLiveEnabled = await isLedgerLiveEnabled();
+  const transportType = await pickLedgerTransport();
 
   if (transport) await transport?.close();
 
@@ -659,7 +659,7 @@ async function createLedgerSigner(
   }
 
   transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
-  transport.updateTransportType(ledgerLiveEnabled);
+  transport.updateTransportType(transportType);
 
   // After Ledger Live bridge was setuped, we don't close transport
   // Probably we do not need to close it

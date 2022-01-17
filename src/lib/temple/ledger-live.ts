@@ -2,11 +2,14 @@ import { TransportType } from '@temple-wallet/ledger-bridge';
 
 import { TempleSharedStorageKey } from 'lib/temple/types';
 
-export async function isLedgerLiveEnabledByDefault() {
-  return process.env.TARGET_BROWSER === 'chrome' ? TransportType.LEDGERLIVE : TransportType.U2F;
+export async function getDefaultLedgerTransport() {
+  // @ts-ignore
+  return process.env.TARGET_BROWSER === 'chrome' && window.navigator && window.navigator.hid
+    ? TransportType.LEDGERLIVE
+    : TransportType.U2F;
 }
 
-export function isLedgerLiveEnabled() {
+export function pickLedgerTransport() {
   const savedTransport = localStorage.getItem(TempleSharedStorageKey.UseLedgerLive);
 
   return pickTransport(savedTransport === 'true');
