@@ -22,14 +22,11 @@ export const SwapRouteItem: FC<Props> = ({ tradeOperation, isShowNextArrow }) =>
   const swapInfoDivRef = useTippy<HTMLDivElement>({
     trigger: 'mouseenter',
     hideOnClick: false,
-    content:
-      aTokenMetadata &&
-      bTokenMetadata &&
-      `Dex: ${getDexName(tradeOperation.dexType)} \nPool: ${getPoolName(
-        tradeOperation.direction,
-        aTokenMetadata,
-        bTokenMetadata
-      )}`,
+    content: `Dex: ${getDexName(tradeOperation.dexType)} \nPool: ${getPoolName(
+      tradeOperation.direction,
+      aTokenMetadata,
+      bTokenMetadata
+    )}`,
     animation: 'shift-away-subtle'
   });
 

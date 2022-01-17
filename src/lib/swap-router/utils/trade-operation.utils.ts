@@ -1,4 +1,4 @@
-import { AssetMetadata } from 'lib/temple/metadata';
+import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
 
 import { DexTypeEnum } from '../enum/dex-type.enum';
 import { RouteDirectionEnum } from '../enum/route-direction.enum';
@@ -21,8 +21,8 @@ export const getPoolName = (
 ) => {
   switch (direction) {
     case RouteDirectionEnum.Direct:
-      return `${aTokenMetadata.symbol}/${bTokenMetadata.symbol}`;
+      return `${getAssetSymbol(aTokenMetadata)}/${getAssetSymbol(bTokenMetadata)}`;
     case RouteDirectionEnum.Inverted:
-      return `${bTokenMetadata.symbol}/${aTokenMetadata.symbol}`;
+      return `${getAssetSymbol(bTokenMetadata)}/${getAssetSymbol(aTokenMetadata)}`;
   }
 };

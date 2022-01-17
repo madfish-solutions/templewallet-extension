@@ -14,5 +14,7 @@ export const slippageToleranceInputValidationFn = (v?: number) => {
   }
   const vBN = new BigNumber(v);
 
-  return vBN.isLessThanOrEqualTo(MAX_SLIPPAGE_TOLERANCE_PERCENT) || t('maximalAmount', [MAX_SLIPPAGE_TOLERANCE_PERCENT]);
+  return (
+    vBN.isLessThanOrEqualTo(MAX_SLIPPAGE_TOLERANCE_PERCENT) || t('maximalAmount', [MAX_SLIPPAGE_TOLERANCE_PERCENT])
+  );
 };

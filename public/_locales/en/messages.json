@@ -546,6 +546,9 @@
   "amountMustBePositive": {
     "message": "Must be positive"
   },
+  "assetMustBeSelected": {
+    "message": "Asset must be selected"
+  },
   "gasFeeMustBePositive": {
     "message": "Gas fee must be positive"
   },
@@ -2488,5 +2491,14 @@
   },
   "warningTopUpServiceMessage": {
     "message": "The token exchange feature is provided by a third party. The Temple wallet is not responsible for the work of third-party services."
+  },
+  "selectTokensToSwap": {
+    "message": "Please, select tokens to swap"
+  },
+  "enterSwapAmount": {
+    "message": "Please, enter swap amount"
+  },
+  "noQuotesAvailable": {
+    "message": "No quotes available"
   }
 }

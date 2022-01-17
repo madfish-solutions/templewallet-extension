@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 
+import { t } from 'lib/i18n/react';
 import { Trade } from 'lib/swap-router';
 
 import { SwapInputValue } from '../SwapForm.form';
@@ -14,15 +15,15 @@ interface Props {
 
 export const SwapRoute: FC<Props> = ({ trade, inputValue, outputValue }) => {
   if (!inputValue.assetSlug || !outputValue.assetSlug) {
-    return <SwapRouteInfo text="Please, select tokens to swap" />;
+    return <SwapRouteInfo text={t('selectTokensToSwap')} />;
   }
 
   if (!inputValue.amount && !outputValue.amount) {
-    return <SwapRouteInfo text="Please, enter swap amount" />;
+    return <SwapRouteInfo text={t('enterSwapAmount')} />;
   }
 
   if (trade.length === 0) {
-    return <SwapRouteInfo text="No quotes available!" />;
+    return <SwapRouteInfo text={t('noQuotesAvailable')} />;
   }
 
   return (

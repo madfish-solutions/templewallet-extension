@@ -169,7 +169,7 @@ export const SwapForm: FC = () => {
     register('input', {
       validate: ({ assetSlug, amount }: SwapInputValue) => {
         if (!assetSlug) {
-          return 'assetMustBeSelected';
+          return t('assetMustBeSelected');
         }
         if (!amount || amount.isLessThanOrEqualTo(0)) {
           return t('amountMustBePositive');
@@ -181,7 +181,7 @@ export const SwapForm: FC = () => {
     register('output', {
       validate: ({ assetSlug, amount }: SwapInputValue) => {
         if (!assetSlug) {
-          return 'assetMustBeSelected';
+          return t('assetMustBeSelected');
         }
         if (!amount || amount.isLessThanOrEqualTo(0)) {
           return t('amountMustBePositive');
@@ -302,7 +302,7 @@ export const SwapForm: FC = () => {
       />
 
       <p className="text-xs text-gray-500 mb-1">
-        <T id="swapRoute" />:
+        <T id="swapRoute" />
       </p>
       <SwapRoute trade={bestTrade} inputValue={inputValue} outputValue={outputValue} />
 
@@ -313,7 +313,7 @@ export const SwapForm: FC = () => {
               <span ref={feeInfoIconRef} className="flex w-fit items-center text-gray-500 hover:bg-gray-100">
                 <T id="routingFee" />
                 &nbsp;
-                <InfoIcon className="w-3 h-auto stroke-current" />:
+                <InfoIcon className="w-3 h-auto stroke-current" />
               </span>
             </td>
             <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT} %</td>
@@ -323,7 +323,7 @@ export const SwapForm: FC = () => {
               <span ref={priceImpactInfoIconRef} className="flex w-fit items-center text-gray-500 hover:bg-gray-100">
                 <T id="priceImpact" />
                 &nbsp;
-                <InfoIcon className="w-3 h-auto stroke-current" />:
+                <InfoIcon className="w-3 h-auto stroke-current" />
               </span>
             </td>
             <td className="text-right text-gray-600">
@@ -332,7 +332,7 @@ export const SwapForm: FC = () => {
           </tr>
           <tr>
             <td>
-              <T id="exchangeRate" />:
+              <T id="exchangeRate" />
             </td>
             <td className="text-right text-gray-600">
               <SwapExchangeRate
@@ -344,7 +344,7 @@ export const SwapForm: FC = () => {
           </tr>
           <tr>
             <td>
-              <T id="slippageTolerance" />:
+              <T id="slippageTolerance" />
             </td>
             <td className="justify-end text-gray-600 flex">
               <Controller
@@ -358,7 +358,7 @@ export const SwapForm: FC = () => {
           </tr>
           <tr>
             <td>
-              <T id="minimumReceived" />:
+              <T id="minimumReceived" />
             </td>
             <td className="text-right text-gray-600">
               <SwapMinimumReceived
