@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 
 import { t } from 'lib/i18n/react';
 
-const maxTolerancePercentage = 30;
+export const MAX_SLIPPAGE_TOLERANCE_PERCENT = 30;
 
 export const slippageToleranceInputValidationFn = (v?: number) => {
   if (v === undefined) {
@@ -14,5 +14,5 @@ export const slippageToleranceInputValidationFn = (v?: number) => {
   }
   const vBN = new BigNumber(v);
 
-  return vBN.isLessThanOrEqualTo(maxTolerancePercentage) || t('maximalAmount', [maxTolerancePercentage]);
+  return vBN.isLessThanOrEqualTo(MAX_SLIPPAGE_TOLERANCE_PERCENT) || t('maximalAmount', [MAX_SLIPPAGE_TOLERANCE_PERCENT]);
 };

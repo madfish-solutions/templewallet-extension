@@ -21,7 +21,7 @@ import Popper from 'lib/ui/Popper';
 
 import { AssetsMenu } from './AssetsMenu/AssetsMenu';
 import { PercentageButton } from './PercentageButton/PercentageButton';
-import { sameWidthModifiers } from './SwapFormInput.pooper';
+import { sameWidthModifiers } from './SwapFormInput.popper';
 import { SwapFormInputProps } from './SwapFormInput.props';
 import { SwapFormInputHeader } from './SwapFormInputHeader/SwapFormInputHeader';
 import { useSwapFormTokenIdInput } from './SwapFormTokenIdInput.hook';

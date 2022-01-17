@@ -4,6 +4,7 @@ import classNames from 'clsx';
 
 import AssetField from 'app/atoms/AssetField';
 
+import { MAX_SLIPPAGE_TOLERANCE_PERCENT } from './SlippageToleranceInput.validation';
 import { SlippageTolerancePresetButton } from './SlippageTolerancePresetButton/SlippageTolerancePresetButton';
 
 interface Props {
@@ -84,7 +85,7 @@ export const SlippageToleranceInput = forwardRef<HTMLInputElement, Props>(({ nam
           ref={ref}
           value={customPercentageValue}
           min={0}
-          max={30}
+          max={MAX_SLIPPAGE_TOLERANCE_PERCENT}
           assetSymbol={
             <span
               className={classNames(

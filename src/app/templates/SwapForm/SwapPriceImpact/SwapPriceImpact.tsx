@@ -21,9 +21,7 @@ export const SwapPriceImpact: FC<Props> = ({ trade }) => {
         return previousTradeOutput.multipliedBy(feeRatio).multipliedBy(linearExchangeRate).dividedToIntegerBy(1);
       }, tradeInput);
 
-      const HUNDRED = new BigNumber(100);
-
-      return HUNDRED.minus(HUNDRED.multipliedBy(tradeOutput.dividedBy(linearOutputMutezAmount)));
+      return new BigNumber(100).minus(new BigNumber(100).multipliedBy(tradeOutput.dividedBy(linearOutputMutezAmount)));
     }
 
     return undefined;
