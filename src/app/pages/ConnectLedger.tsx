@@ -20,7 +20,7 @@ import {
   useTempleClient,
   validateDerivationPath
 } from 'lib/temple/front';
-import { isLedgerLiveEnabled } from 'lib/temple/ledger-live';
+import { pickLedgerTransport } from 'lib/temple/ledger-live';
 import { navigate } from 'lib/woozie';
 
 type FormData = {
@@ -105,7 +105,7 @@ const ConnectLedger: FC = () => {
       try {
         // @ts-ignore
         const webhidTransport = window.navigator.hid;
-        if (webhidTransport && isLedgerLiveEnabled()) {
+        if (webhidTransport && pickLedgerTransport()) {
           const devices = await webhidTransport.getDevices();
           const webHidIsConnected = devices.some((device: any) => device.vendorId === Number(LEDGER_USB_VENDOR_ID));
           if (!webHidIsConnected) {
