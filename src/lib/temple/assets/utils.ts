@@ -95,11 +95,7 @@ export function toAssetSlug(asset: Asset) {
 }
 
 export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
-  if (contract === 'tez') {
-    return 'tez';
-  }
-
-  return `${contract}_${new BigNumber(id).toFixed()}`;
+  return contract === 'tez' ? 'tez' : `${contract}_${new BigNumber(id).toFixed()}`;
 }
 
 export function isFA2Asset(asset: Asset): asset is FA2Token {

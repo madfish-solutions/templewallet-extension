@@ -19,14 +19,14 @@ import { SwapFormInputProps } from '../SwapFormInput.props';
 interface Props extends PopperRenderProps, Pick<SwapFormInputProps, 'label'> {
   amount?: BigNumber;
   balance?: BigNumber;
-  onAmountChange: (amount?: BigNumber) => void;
-  onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onTokenIdChange: (value?: number) => void;
   searchString: string;
   selectedAssetSlug?: string;
   selectedAssetMetadata: AssetMetadata;
   showTokenIdInput: boolean;
   tokenId?: number;
+  onTokenIdChange: (value?: number) => void;
+  onAmountChange: (amount?: BigNumber) => void;
+  onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
@@ -115,28 +115,28 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
             <div className="text-lg flex flex-1 items-stretch">
               <div className="flex-1 flex items-stretch mr-2">
                 <input
+                  ref={searchInputRef}
+                  value={searchString}
                   className="w-full px-2 bg-transparent"
                   onBlur={handleBlur}
                   onFocus={handleFocus}
-                  value={searchString}
                   onChange={onSearchChange}
-                  ref={searchInputRef}
                 />
               </div>
               {showTokenIdInput && (
                 <div className="w-24 flex items-stretch border-l border-gray-300">
                   <AssetField
-                    containerClassName="items-stretch"
-                    containerStyle={{ flexDirection: 'row' }}
-                    fieldWrapperBottomMargin={false}
-                    onBlur={handleBlur}
-                    onFocus={handleFocus}
                     value={tokenId}
-                    className="text-lg border-none bg-opacity-0 focus:shadow-none"
-                    onChange={handleTokenIdChange}
+                    assetDecimals={0}
+                    fieldWrapperBottomMargin={false}
                     placeholder={t('tokenId')}
                     style={{ padding: '0 0.5rem', borderRadius: 0 }}
-                    assetDecimals={0}
+                    containerStyle={{ flexDirection: 'row' }}
+                    containerClassName="items-stretch"
+                    className="text-lg border-none bg-opacity-0 focus:shadow-none"
+                    onBlur={handleBlur}
+                    onFocus={handleFocus}
+                    onChange={handleTokenIdChange}
                   />
                 </div>
               )}
