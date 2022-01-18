@@ -23,7 +23,7 @@ import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
 import { T, t } from 'lib/i18n/react';
 import { decryptKukaiSeedPhrase, useTempleClient } from 'lib/temple/front';
 import { useAlert } from 'lib/ui/dialog';
-import { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
+import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import { Link } from 'lib/woozie';
 
 import Backup from './NewWallet/Backup';
@@ -79,9 +79,12 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
   const { control, watch, register, handleSubmit, errors, reset, triggerValidation, formState, setValue } =
     useForm<FormData>({ defaultValues: { shouldUseKeystorePassword: true } });
   const submitting = formState.isSubmitting;
+  const isPasswordError = errors.password?.message === PASSWORD_ERROR_CAPTION;
 
   const shouldUseKeystorePassword = watch('shouldUseKeystorePassword');
   const passwordValue = watch('password');
+
+  const [focused, setFocused] = useState(false);
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
     minChar: false,
@@ -294,25 +297,37 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
 
         {(!ownMnemonic || isImportFromSeedPhrase || !shouldUseKeystorePassword) && (
           <>
-            <FormField
-              ref={register({
-                required: PASSWORD_ERROR_CAPTION,
-                pattern: {
-                  value: PASSWORD_PATTERN,
-                  message: PASSWORD_ERROR_CAPTION
-                }
-              })}
-              label={t('password')}
-              labelDescription={t('unlockPasswordInputDescription')}
-              id="newwallet-password"
-              type="password"
-              name="password"
-              placeholder="********"
-              errorCaption={errors.password?.message}
-              containerClassName="mb-8"
-              passwordValidation={passwordValidation}
-              onChange={handlePasswordChange}
-            />
+            <div className="mb-8">
+              <FormField
+                ref={register({
+                  required: PASSWORD_ERROR_CAPTION,
+                  pattern: {
+                    value: PASSWORD_PATTERN,
+                    message: PASSWORD_ERROR_CAPTION
+                  }
+                })}
+                label={t('password')}
+                labelDescription={t('unlockPasswordInputDescription')}
+                id="newwallet-password"
+                type="password"
+                name="password"
+                placeholder="********"
+                errorCaption={errors.password?.message}
+                onFocus={() => setFocused(true)}
+                onChange={handlePasswordChange}
+              />
+
+              {passwordValidation && (
+                <>
+                  {isPasswordError && (
+                    <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
+                  )}
+                  {!isPasswordError && focused && (
+                    <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
+                  )}
+                </>
+              )}
+            </div>
 
             <FormField
               ref={register({
