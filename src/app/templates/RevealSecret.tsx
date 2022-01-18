@@ -235,6 +235,7 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
           placeholder="********"
           errorCaption={errors.password?.message}
           containerClassName="mb-4"
+          onChange={() => clearError()}
         />
 
         <T id="reveal">{message => <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>}</T>
