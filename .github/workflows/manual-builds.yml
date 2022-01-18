@@ -1,15 +1,15 @@
-name: Additional builds
+name: Manual builds
 
 on:
   workflow_dispatch:
     inputs:
       chrome:
         type: boolean
-        description: Include chrome build
+        description: Chrome build
         required: false
       firefox:
         type: boolean
-        description: Include firefox build
+        description: Firefox build
         required: false
 
 jobs:
