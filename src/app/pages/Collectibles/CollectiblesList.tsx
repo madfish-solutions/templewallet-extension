@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 
 import classNames from 'clsx';
-import { useDebounce } from 'use-debounce';
 
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import CollectibleItem from 'app/pages/Collectibles/CollectibleItem';
@@ -38,10 +37,7 @@ const CollectiblesList = () => {
     return slugs;
   }, [collectibles, allTokensBaseMetadata]);
 
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
-
-  const filteredAssets = useFilteredAssets(assetSlugs, searchValueDebounced);
+  const { filteredAssets, searchValue, setSearchValue } = useFilteredAssets(assetSlugs);
 
   return (
     <div className={classNames('w-full max-w-sm mx-auto')}>

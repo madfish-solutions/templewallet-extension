@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { OpKind, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
+import { useDebounce } from 'use-debounce';
 
 import { loadContract } from 'lib/temple/contract';
-import { searchAssets, useAllTokensBaseMetadata } from 'lib/temple/front';
+import { isValidContractAddress, searchAssets, useAllTokensBaseMetadata } from 'lib/temple/front';
 import { AssetMetadata } from 'lib/temple/metadata';
 
 import { detectTokenStandard } from './tokenStandard';
@@ -65,6 +66,11 @@ export async function fromAssetSlug(tezos: TezosToolkit, slug: string): Promise<
   if (isTezAsset(slug)) return slug;
 
   const [contractAddress, tokenIdStr] = slug.split('_');
+
+  if (!isValidContractAddress(contractAddress)) {
+    throw new Error('Invalid contract address');
+  }
+
   const tokenStandard = await detectTokenStandard(tezos, contractAddress);
 
   return {
@@ -89,7 +95,7 @@ export function toAssetSlug(asset: Asset) {
 }
 
 export function toTokenSlug(contract: string, id: BigNumber.Value = 0) {
-  return `${contract}_${new BigNumber(id).toFixed()}`;
+  return contract === 'tez' ? 'tez' : `${contract}_${new BigNumber(id).toFixed()}`;
 }
 
 export function isFA2Asset(asset: Asset): asset is FA2Token {
@@ -112,10 +118,23 @@ export function toPenny(metadata: AssetMetadata | null) {
   return new BigNumber(1).div(10 ** (metadata?.decimals ?? 0));
 }
 
-export function useFilteredAssets(assetSlugs: string[], searchValue: string) {
+export function useFilteredAssets(assetSlugs: string[]) {
   const allTokensBaseMetadata = useAllTokensBaseMetadata();
-  return useMemo(
-    () => searchAssets(searchValue, assetSlugs, allTokensBaseMetadata),
-    [searchValue, assetSlugs, allTokensBaseMetadata]
+
+  const [searchValue, setSearchValue] = useState('');
+  const [tokenId, setTokenId] = useState<number>();
+  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, tokenId) : searchValue, 300);
+
+  const filteredAssets = useMemo(
+    () => searchAssets(searchValueDebounced, assetSlugs, allTokensBaseMetadata),
+    [searchValueDebounced, assetSlugs, allTokensBaseMetadata]
   );
+
+  return {
+    filteredAssets,
+    searchValue,
+    setSearchValue,
+    tokenId,
+    setTokenId
+  };
 }
