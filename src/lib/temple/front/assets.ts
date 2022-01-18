@@ -24,8 +24,13 @@ import {
   fetchFromStorage,
   fetchCollectibleTokens,
   fetchAllKnownCollectibleTokenSlugs,
-  DetailedAssetMetdata
+  DetailedAssetMetdata,
+  AssetTypesEnum,
+  useChainId,
+  useAccount,
+  isTokenDisplayed
 } from 'lib/temple/front';
+import { ITokenStatus } from 'lib/temple/repo';
 
 export const ALL_TOKENS_BASE_METADATA_STORAGE_KEY = 'tokens_base_metadata';
 
@@ -188,6 +193,21 @@ export const [TokensMetadataProvider, useTokensMetadata] = constate(() => {
   };
 });
 
+export const useGetTokenMetadata = () => {
+  const { allTokensBaseMetadataRef } = useTokensMetadata();
+
+  return useCallback(
+    (slug: string) => {
+      if (isTezAsset(slug)) {
+        return TEZOS_METADATA;
+      }
+
+      return allTokensBaseMetadataRef.current[slug];
+    },
+    [allTokensBaseMetadataRef]
+  );
+};
+
 export function useDetailedAssetMetadata(slug: string) {
   const baseMetadata = useAssetMetadata(slug);
 
@@ -215,6 +235,59 @@ export function useAllTokensBaseMetadata() {
 
   return allTokensBaseMetadataRef.current;
 }
+
+type TokenStatuses = Record<string, { displayed: boolean; removed: boolean }>;
+
+export const useAvailableAssets = (assetType: AssetTypesEnum) => {
+  const chainId = useChainId(true)!;
+  const account = useAccount();
+  const allTokensBaseMetadata = useAllTokensBaseMetadata();
+
+  const { data: allCollectiblesSlugs = [], isValidating: allKnownCollectiblesTokenSlugsLoading } =
+    useAllKnownCollectibleTokenSlugs(chainId);
+  const {
+    data: collectibles = [],
+    revalidate: revalidateCollectibles,
+    isValidating: collectibleTokensLoading
+  } = useCollectibleTokens(chainId, account.publicKeyHash, false);
+
+  const { data: allTokenSlugs = [], isValidating: allKnownFungibleTokenSlugsLoading } =
+    useAllKnownFungibleTokenSlugs(chainId);
+  const {
+    data: tokens = [],
+    revalidate: revalidateTokens,
+    isValidating: fungibleTokensLoading
+  } = useFungibleTokens(chainId, account.publicKeyHash);
+
+  const isCollectibles = assetType === AssetTypesEnum.Collectibles;
+  const assets = isCollectibles ? collectibles : tokens;
+  const slugs = isCollectibles ? allCollectiblesSlugs : allTokenSlugs;
+  const revalidate = isCollectibles ? revalidateCollectibles : revalidateTokens;
+
+  const isLoading =
+    allKnownFungibleTokenSlugsLoading ||
+    fungibleTokensLoading ||
+    allKnownCollectiblesTokenSlugsLoading ||
+    collectibleTokensLoading;
+
+  const assetsStatuses = useMemo(() => {
+    const statuses: TokenStatuses = {};
+    for (const asset of assets) {
+      statuses[asset.tokenSlug] = {
+        displayed: isTokenDisplayed(asset),
+        removed: asset.status === ITokenStatus.Removed
+      };
+    }
+    return statuses;
+  }, [assets]);
+
+  const availableAssets = useMemo(
+    () => slugs.filter(slug => slug in allTokensBaseMetadata && !assetsStatuses[slug]?.removed),
+    [slugs, allTokensBaseMetadata, assetsStatuses]
+  );
+
+  return { availableAssets, assetsStatuses, isLoading, revalidate };
+};
 
 export function searchAssets(
   searchValue: string,

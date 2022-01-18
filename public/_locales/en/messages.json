@@ -546,6 +546,9 @@
   "amountMustBePositive": {
     "message": "Must be positive"
   },
+  "assetMustBeSelected": {
+    "message": "Asset must be selected"
+  },
   "gasFeeMustBePositive": {
     "message": "Gas fee must be positive"
   },
@@ -892,6 +895,12 @@
   },
   "fee": {
     "message": "Fee"
+  },
+  "routingFee": {
+    "message": "Routing Fee"
+  },
+  "routingFeeTooltip": {
+    "message": "For choosing the most profitable exchange route among Tezos DEXes. \n\nDEXes commissions are not included."
   },
   "space": {
     "message": "Space"
@@ -1886,17 +1895,20 @@
   "via": {
     "message": "Via"
   },
+  "swapRoute": {
+    "message": "Swap route"
+  },
   "exchangeRate": {
-    "message": "Exchange rate:"
+    "message": "Exchange rate"
   },
   "priceImpact": {
-    "message": "Price impact:"
+    "message": "Price impact"
   },
   "slippageTolerance": {
-    "message": "Slippage tolerance:"
+    "message": "Slippage tolerance"
   },
   "minimumReceived": {
-    "message": "Minimum received:"
+    "message": "Minimum received"
   },
   "inputOutputAssetsCannotBeSame": {
     "message": "Input and output assets cannot be the same"
@@ -2149,7 +2161,7 @@
     "message": "Disclaimer. Read before using the SWAP section."
   },
   "swapDisclaimerContent": {
-    "message": "Temple wallet only provides an interface to interact with the Tezos Dexes. We are not responsible for: DEX issues, displayed tokens, price, exchange rates, and user trading decisions. Before using this Swap Section, you should review the relevant documentation to understand how the DEX(AMM) protocols work. Using this section is solely the user's responsibility."
+    "message": "Temple wallet only provides an interface to interact with the Tezos Dexes. \n\nWe are not responsible for: DEX issues, displayed tokens, price, exchange rates, and user trading decisions. \n\nBefore using this Swap Section, you should review the relevant documentation to understand how the DEX(AMM) protocols work. \n\nUsing this section is solely the user's responsibility."
   },
   "noContactsFound": {
     "message": "No contacts found"
@@ -2479,5 +2491,17 @@
   },
   "warningTopUpServiceMessage": {
     "message": "The token exchange feature is provided by a third party. The Temple wallet is not responsible for the work of third-party services."
+  },
+  "selectTokensToSwap": {
+    "message": "Please, select tokens to swap"
+  },
+  "enterSwapAmount": {
+    "message": "Please, enter swap amount"
+  },
+  "noQuotesAvailable": {
+    "message": "No quotes available"
+  },
+  "swapRouteLoadingHasFailed": {
+    "message": "Exchange rate data loading has failed. \nReload this page or try again later."
   }
 }
