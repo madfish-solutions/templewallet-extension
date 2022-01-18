@@ -2101,6 +2101,9 @@
   "ledgerLiveBridgeGuide": {
     "message": "To connect to Ledger, please activate the Ledger Live application on your device, open Tezos Wallet application and allow a WebSocket connection to your Temple account."
   },
+  "ledgerBridgeGuide": {
+    "message": "To connect the Ledger, please activate your device and open Tezos Wallet application."
+  },
   "noExchangerFoundForToken": {
     "message": "No exchanger was found for token $symbol$ ($name$).",
     "placeholders": {
