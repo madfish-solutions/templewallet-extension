@@ -2500,5 +2500,8 @@
   },
   "noQuotesAvailable": {
     "message": "No quotes available"
+  },
+  "swapRouteLoadingHasFailed": {
+    "message": "Exchange rate data loading has failed. \nReload this page or try again later."
   }
 }

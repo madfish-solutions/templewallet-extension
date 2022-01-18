@@ -1,6 +1,7 @@
 export { DexTypeEnum } from './enum/dex-type.enum';
 export { TradeTypeEnum } from './enum/trade-type.enum';
 
+export { useAllRoutePairs } from './hooks/use-all-route-pairs.hook';
 export { useRoutePairsCombinations } from './hooks/use-route-pairs-combinatios.hook';
 export { useTradeWithSlippageTolerance } from './hooks/use-trade-with-slippage-tolerance.hook';
 

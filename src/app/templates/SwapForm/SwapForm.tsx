@@ -22,9 +22,15 @@ import {
   getTradeOpParams,
   useRoutePairsCombinations,
   parseTransferParamsToParamsWithKind,
-  useTradeWithSlippageTolerance
+  useTradeWithSlippageTolerance,
+  useAllRoutePairs
 } from 'lib/swap-router';
-import { ROUTING_FEE_INVERTED_RATIO, ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO } from 'lib/swap-router/config';
+import {
+  ROUTING_FEE_INVERTED_RATIO,
+  ROUTING_FEE_PERCENT,
+  ROUTING_FEE_RATIO,
+  TEZOS_DEXES_API_URL
+} from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
@@ -64,7 +70,12 @@ export const SwapForm: FC = () => {
 
   const [bestTrade, setBestTrade] = useState<Trade>([]);
   const [tradeType, setTradeType] = useState(TradeTypeEnum.EXACT_INPUT);
-  const routePairsCombinations = useRoutePairsCombinations(inputValue.assetSlug, outputValue.assetSlug);
+  const allRoutePairs = useAllRoutePairs(TEZOS_DEXES_API_URL);
+  const routePairsCombinations = useRoutePairsCombinations(
+    inputValue.assetSlug,
+    outputValue.assetSlug,
+    allRoutePairs.data
+  );
 
   const inputMutezAmount = useMemo(
     () => (inputValue.amount ? tokensToAtoms(inputValue.amount, inputAssetMetadata.decimals) : undefined),
@@ -304,7 +315,12 @@ export const SwapForm: FC = () => {
       <p className="text-xs text-gray-500 mb-1">
         <T id="swapRoute" />
       </p>
-      <SwapRoute trade={bestTrade} inputValue={inputValue} outputValue={outputValue} />
+      <SwapRoute
+        trade={bestTrade}
+        inputValue={inputValue}
+        outputValue={outputValue}
+        loadingHasFailed={allRoutePairs.hasFailed}
+      />
 
       <table className={classNames('w-full text-xs text-gray-500 mb-6', styles['swap-form-table'])}>
         <tbody>

@@ -11,9 +11,14 @@ interface Props {
   trade: Trade;
   inputValue: SwapInputValue;
   outputValue: SwapInputValue;
+  loadingHasFailed: boolean;
 }
 
-export const SwapRoute: FC<Props> = ({ trade, inputValue, outputValue }) => {
+export const SwapRoute: FC<Props> = ({ trade, inputValue, outputValue, loadingHasFailed }) => {
+  if (loadingHasFailed) {
+    return <SwapRouteInfo text={t('swapRouteLoadingHasFailed')} className="text-red-700" />;
+  }
+
   if (!inputValue.assetSlug || !outputValue.assetSlug) {
     return <SwapRouteInfo text={t('selectTokensToSwap')} />;
   }
