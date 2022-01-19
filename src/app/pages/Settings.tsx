@@ -73,7 +73,7 @@ const TABS = [
   },
   {
     slug: 'dapps',
-    titleI18nKey: 'connection',
+    titleI18nKey: 'authorizedDApps',
     Icon: AppsIcon,
     Component: DAppSettings,
     color: '#9F7AEA',
