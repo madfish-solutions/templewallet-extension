@@ -29,7 +29,7 @@ import {
   michelEncoder,
   transformHttpResponseError
 } from 'lib/temple/helpers';
-import { isLedgerLiveEnabled } from 'lib/temple/ledger-live';
+import { pickLedgerTransport } from 'lib/temple/ledger-live';
 import * as Passworder from 'lib/temple/passworder';
 import { clearStorage } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
@@ -689,21 +689,17 @@ async function createLedgerSigner(
   publicKey?: string,
   publicKeyHash?: string
 ) {
-  const ledgerLiveEnabled = await isLedgerLiveEnabled();
+  const transportType = await pickLedgerTransport();
 
-  if (!transport || ledgerLiveEnabled !== transport.ledgerLiveUsed) {
-    await transport?.close();
+  if (transport) await transport?.close();
 
-    const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
-    if (!bridgeUrl) {
-      throw new Error("Require a 'TEMPLE_WALLET_LEDGER_BRIDGE_URL' environment variable to be set");
-    }
-
-    transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
-    if (ledgerLiveEnabled) {
-      transport.useLedgerLive();
-    }
+  const bridgeUrl = process.env.TEMPLE_WALLET_LEDGER_BRIDGE_URL;
+  if (!bridgeUrl) {
+    throw new Error("Require a 'TEMPLE_WALLET_LEDGER_BRIDGE_URL' environment variable to be set");
   }
+
+  transport = await LedgerTempleBridgeTransport.open(bridgeUrl);
+  transport.updateTransportType(transportType);
 
   // After Ledger Live bridge was setuped, we don't close transport
   // Probably we do not need to close it

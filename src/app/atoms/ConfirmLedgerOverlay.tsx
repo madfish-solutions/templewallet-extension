@@ -1,10 +1,12 @@
 import React, { FC } from 'react';
 
+import { TransportType } from '@temple-wallet/ledger-bridge';
 import classNames from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
 import { T } from 'lib/i18n/react';
+import { pickLedgerTransport } from 'lib/temple/ledger-live';
 
 type ConfirmLedgerOverlayProps = {
   displayed: boolean;
@@ -44,7 +46,11 @@ const ConfirmLedgerOverlay: FC<ConfirmLedgerOverlayProps> = ({ displayed }) => (
 
       <LedgerNanoIcon className="animate-pulse" style={{ width: '10rem', height: 'auto' }} />
 
-      {process.env.TARGET_BROWSER === 'chrome' && (
+      {pickLedgerTransport() === TransportType.WEBHID ? (
+        <p className={classNames('mt-8', 'text-center', 'text-sm text-gray-600', 'max-w-xs')}>
+          <T id="ledgerBridgeGuide" />
+        </p>
+      ) : (
         <p className={classNames('mt-8', 'text-center', 'text-sm text-gray-600', 'max-w-xs')}>
           <T id="ledgerLiveBridgeGuide" />
         </p>
