@@ -67,12 +67,13 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
   const { locked, registerWallet } = useTempleClient();
   const alert = useAlert();
 
-  const { control, watch, register, handleSubmit, errors, reset, triggerValidation, formState, setValue } =
+  const { control, watch, register, handleSubmit, errors, clearError, reset, triggerValidation, formState, setValue } =
     useForm<FormData>({ defaultValues: { shouldUseKeystorePassword: true } });
   const submitting = formState.isSubmitting;
 
   const shouldUseKeystorePassword = watch('shouldUseKeystorePassword');
   const passwordValue = watch('password');
+  const keystoreFileValue = watch('keystoreFile');
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
     minChar: false,
@@ -97,6 +98,12 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
       triggerValidation('repassword');
     }
   }, [triggerValidation, formState.dirtyFields, passwordValue]);
+
+  useEffect(() => {
+    if (keystoreFileValue) {
+      clearError('keystoreFile');
+    }
+  }, [keystoreFileValue, clearError]);
 
   const [backupData, setBackupData] = useState<BackupData | null>(null);
   const [verifySeedPhrase, setVerifySeedPhrase] = useState(false);
