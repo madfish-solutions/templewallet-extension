@@ -44,6 +44,7 @@ import {
   useNetwork,
   useTezos
 } from 'lib/temple/front';
+import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import useSafeState from 'lib/ui/useSafeState';
 import { Link, useLocation } from 'lib/woozie';
 
@@ -109,30 +110,6 @@ const DelegateForm: FC = () => {
   );
 
   const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
-
-  const validateDelegate = useCallback(
-    async (value: any) => {
-      if (!value?.length || value.length < 0) {
-        return false;
-      }
-
-      if (!canUseDomainNames) {
-        return validateAddress(value);
-      }
-
-      if (isDomainNameValid(value, domainsClient)) {
-        const resolved = await domainsClient.resolver.resolveNameToAddress(value);
-        if (!resolved) {
-          return t('domainDoesntResolveToAddress', value);
-        }
-
-        value = resolved;
-      }
-
-      return isAddressValid(value) ? true : t('invalidAddressOrDomain');
-    },
-    [canUseDomainNames, domainsClient]
-  );
 
   const getEstimation = useCallback(async () => {
     const to = toResolved;
@@ -328,7 +305,7 @@ const DelegateForm: FC = () => {
           as={<NoSpaceField ref={toFieldRef} />}
           control={control}
           rules={{
-            validate: validateDelegate
+            validate: (value: any) => validateDelegate(value, canUseDomainNames, domainsClient, t, validateAddress)
           }}
           onChange={([v]) => v}
           onFocus={() => toFieldRef.current?.focus()}
