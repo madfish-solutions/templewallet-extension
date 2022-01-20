@@ -8,6 +8,7 @@ import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n/react';
 import { ActivationStatus, useTezos, useAccount, confirmOperation } from 'lib/temple/front';
+import { activateAccount } from 'lib/temple/front/activate-account';
 import useIsMounted from 'lib/ui/useIsMounted';
 
 type FormData = {
@@ -31,25 +32,6 @@ const ActivateAccount: FC = () => {
     [setSuccessPure, isMounted]
   );
 
-  const activateAccount = useCallback(
-    async (address: string, secret: string) => {
-      let op;
-      try {
-        op = await tezos.tz.activate(address, secret);
-      } catch (err: any) {
-        const invalidActivationError = err && err.body && /Invalid activation/.test(err.body);
-        if (invalidActivationError) {
-          return [ActivationStatus.AlreadyActivated] as [ActivationStatus];
-        }
-
-        throw err;
-      }
-
-      return [ActivationStatus.ActivationRequestSent, op] as [ActivationStatus, typeof op];
-    },
-    [tezos]
-  );
-
   const { register, handleSubmit, formState, clearError, setError, errors } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
@@ -61,7 +43,11 @@ const ActivateAccount: FC = () => {
       setSuccess(null);
 
       try {
-        const [activationStatus, op] = await activateAccount(account.publicKeyHash, data.secret.replace(/\s/g, ''));
+        const [activationStatus, op] = await activateAccount(
+          account.publicKeyHash,
+          data.secret.replace(/\s/g, ''),
+          tezos
+        );
         switch (activationStatus) {
           case ActivationStatus.AlreadyActivated:
             setSuccess(`🏁 ${t('accountAlreadyActivated')}`);
@@ -83,7 +69,7 @@ const ActivateAccount: FC = () => {
         setError('secret', SUBMIT_ERROR_TYPE, mes);
       }
     },
-    [clearError, submitting, setError, setSuccess, activateAccount, account.publicKeyHash, tezos]
+    [clearError, submitting, setError, setSuccess, account.publicKeyHash, tezos]
   );
 
   const submit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit]);

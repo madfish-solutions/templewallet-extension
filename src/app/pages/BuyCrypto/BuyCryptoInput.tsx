@@ -156,7 +156,7 @@ const BuyCryptoInput: FC<Props> = ({
                 </DropdownWrapper>
               )}
             >
-              {({ ref, opened, toggleOpened, setOpened }) => (
+              {({ ref, toggleOpened }) => (
                 <CurrencyComponent
                   type="currencySelector"
                   label={coin}

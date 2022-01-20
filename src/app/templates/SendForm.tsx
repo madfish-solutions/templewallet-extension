@@ -67,6 +67,7 @@ import {
   useTezosDomainsClient
 } from 'lib/temple/front';
 import { useFilteredContacts } from 'lib/temple/front/use-filtered-contacts.hook';
+import { validateDelegate } from 'lib/temple/front/validate-delegate';
 import { AssetMetadata } from 'lib/temple/metadata';
 import { TempleAccount, TempleNetworkType } from 'lib/temple/types';
 import useSafeState from 'lib/ui/useSafeState';
@@ -410,30 +411,6 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
     [assetPrice, assetMetadata?.decimals]
   );
 
-  const validateRecipient = useCallback(
-    async (value: any) => {
-      if (!value?.length || value.length < 0) {
-        return false;
-      }
-
-      if (!canUseDomainNames) {
-        return validateAddress(value);
-      }
-
-      if (isDomainNameValid(value, domainsClient)) {
-        const resolved = await domainsClient.resolver.resolveNameToAddress(value);
-        if (!resolved) {
-          return t('domainDoesntResolveToAddress', value);
-        }
-
-        value = resolved;
-      }
-
-      return isAddressValid(value) ? true : t('invalidAddressOrDomain');
-    },
-    [canUseDomainNames, domainsClient]
-  );
-
   const onSubmit = useCallback(
     async ({ amount, fee: feeVal }: FormData) => {
       if (formState.isSubmitting) return;
@@ -550,7 +527,7 @@ const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested })
         }
         control={control}
         rules={{
-          validate: validateRecipient
+          validate: (value: any) => validateDelegate(value, canUseDomainNames, domainsClient, t, validateAddress)
         }}
         onChange={([v]) => v}
         onBlur={handleToFieldBlur}
