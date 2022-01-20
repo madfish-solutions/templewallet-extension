@@ -1,18 +1,6 @@
+import { RouteDirectionEnum } from 'swap-router-sdk';
+
 import { AssetMetadata, getAssetSymbol } from 'lib/temple/metadata';
-
-import { DexTypeEnum } from '../enum/dex-type.enum';
-import { RouteDirectionEnum } from '../enum/route-direction.enum';
-
-export const getDexName = (dexType: DexTypeEnum) => {
-  switch (dexType) {
-    case DexTypeEnum.QuipuSwap:
-      return 'QuipuSwap';
-    case DexTypeEnum.Plenty:
-      return 'Plenty';
-    case DexTypeEnum.LiquidityBaking:
-      return 'Liquidity Backing';
-  }
-};
 
 export const getPoolName = (
   direction: RouteDirectionEnum,
