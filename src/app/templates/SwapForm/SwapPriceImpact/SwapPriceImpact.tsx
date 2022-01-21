@@ -1,8 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import { BigNumber } from 'bignumber.js';
-
-import { Trade, getPairFeeRatio, getTradeInputAmount, getTradeOutputAmount } from 'lib/swap-router';
+import { getPairFeeRatio, getTradeInputAmount, getTradeOutputAmount, Trade } from 'swap-router-sdk';
 
 interface Props {
   trade: Trade;
