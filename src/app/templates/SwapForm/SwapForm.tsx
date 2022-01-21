@@ -3,6 +3,19 @@ import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
+import {
+  getBestTradeExactInput,
+  getBestTradeExactOutput,
+  getTradeInputAmount,
+  getTradeOpParams,
+  getTradeOutputAmount,
+  parseTransferParamsToParamsWithKind,
+  Trade,
+  TradeTypeEnum,
+  useAllRoutePairs,
+  useRoutePairsCombinations,
+  useTradeWithSlippageTolerance
+} from 'swap-router-sdk';
 
 import Alert from 'app/atoms/Alert';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
@@ -11,20 +24,7 @@ import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
-import {
-  TradeTypeEnum,
-  Trade,
-  getBestTradeExactInput,
-  getBestTradeExactOutput,
-  getTradeInputAmount,
-  getTradeOutputAmount,
-  getRoutingFeeTransferParams,
-  getTradeOpParams,
-  useRoutePairsCombinations,
-  parseTransferParamsToParamsWithKind,
-  useTradeWithSlippageTolerance,
-  useAllRoutePairs
-} from 'lib/swap-router';
+import { getRoutingFeeTransferParams } from 'lib/swap-router';
 import {
   ROUTING_FEE_INVERTED_RATIO,
   ROUTING_FEE_PERCENT,
