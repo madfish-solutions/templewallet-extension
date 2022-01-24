@@ -304,7 +304,6 @@ export async function createCryptoBox(
   selfKeyPair: KeyPair
 ): Promise<[Uint8Array, Uint8Array, Uint8Array]> {
   // TODO: Don't calculate it every time?
-  console.log(typeof selfKeyPair.privateKey);
   const kxSelfPrivateKey = crypto_sign_ed25519_sk_to_curve25519(Buffer.from(selfKeyPair.privateKey)); // Secret bytes to scalar bytes
   const kxSelfPublicKey = crypto_sign_ed25519_pk_to_curve25519(Buffer.from(selfKeyPair.publicKey)); // Secret bytes to scalar bytes
   const kxOtherPublicKey = crypto_sign_ed25519_pk_to_curve25519(Buffer.from(otherPublicKey, 'hex')); // Secret bytes to scalar bytes
