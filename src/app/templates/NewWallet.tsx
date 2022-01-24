@@ -22,7 +22,7 @@ import { ReactComponent as TrashbinIcon } from 'app/icons/bin.svg';
 import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
 import { T, t } from 'lib/i18n/react';
 import { decryptKukaiSeedPhrase, useTempleClient } from 'lib/temple/front';
-import { useAlert } from 'lib/ui/dialog';
+import { AlertFn, useAlert } from 'lib/ui/dialog';
 import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import { Link } from 'lib/woozie';
 
@@ -74,7 +74,7 @@ const validateKeystoreFile = (value?: FileList) => {
 
 const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = 'seed-phrase' }) => {
   const { locked, registerWallet } = useTempleClient();
-  const alert = useAlert();
+  const customAlert = useAlert();
 
   const { control, watch, register, handleSubmit, errors, reset, triggerValidation, formState, setValue } =
     useForm<FormData>({ defaultValues: { shouldUseKeystorePassword: true } });
@@ -148,7 +148,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
               );
               await registerWallet(password, mnemonic);
             } catch (err: any) {
-              handleKukaiWalletError(err);
+              handleKukaiWalletError(err, customAlert);
             }
           }
         } else {
@@ -160,13 +160,13 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
       } catch (err: any) {
         console.error(err);
 
-        await alert({
+        await customAlert({
           title: t('actionConfirmation'),
           children: err.message
         });
       }
     },
-    [submitting, ownMnemonic, setBackupData, registerWallet, alert, isImportFromSeedPhrase]
+    [submitting, ownMnemonic, setBackupData, registerWallet, customAlert, isImportFromSeedPhrase]
   );
 
   const handleBackupComplete = useCallback(() => {
@@ -450,8 +450,8 @@ const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, onChange, 
   );
 };
 
-const handleKukaiWalletError = (err: any) => {
-  alert({
+const handleKukaiWalletError = (err: any, customAlert: AlertFn) => {
+  customAlert({
     title: t('errorImportingKukaiWallet'),
     children: err instanceof SyntaxError ? t('fileHasSyntaxError') : err.message
   });
