@@ -1,8 +1,8 @@
 import * as Repo from '../repo';
 
-const isPendingOperationOutdated = (addedAt: number) => {
-  const MAX_PENDING_OPERATION_DISPLAY_TIME = 4 * 3600000;
+const MAX_PENDING_OPERATION_DISPLAY_TIME = 4 * 3600000;
 
+const isPendingOperationOutdated = (addedAt: number) => {
   const currentTime = new Date().getTime();
 
   return currentTime - addedAt > MAX_PENDING_OPERATION_DISPLAY_TIME;
@@ -17,7 +17,5 @@ export const deletePendingOp = async () => {
 
   const arrayOpToDelete = await opToDelete.toArray();
 
-  arrayOpToDelete.forEach(o => {
-    Repo.operations.where('hash').equals(o.hash).delete();
-  });
+  await Repo.operations.bulkDelete(arrayOpToDelete.map(o => o.hash));
 };
