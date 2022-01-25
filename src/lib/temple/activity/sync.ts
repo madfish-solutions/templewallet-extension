@@ -77,7 +77,7 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
   syncBcdOperations(tokenTransfers, chainId, address, tzktTime, fresh);
 
   // delete outdated pending operations
-  deletePendingOp();
+  await deletePendingOp();
 
   return tzktOperations.length + tokenTransfers.length;
 }
