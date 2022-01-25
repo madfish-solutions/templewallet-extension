@@ -1,6 +1,3 @@
-jest.mock('webextension-polyfill-ts');
-jest.mock('libsodium-wrappers');
-
 const mockGet: jest.Mock<Promise<any>> = jest.fn(
   async () => new Promise(resolve => resolve({ beacon_something_pubkey: 'somevalue' }))
 );
