@@ -1,5 +1,5 @@
 // import { crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519 } from 'libsodium-wrappers';
-import * as sodium from 'libsodium-wrappers';
+// import * as sodium from 'libsodium-wrappers';
 import { browser } from 'webextension-polyfill-ts';
 
 import {
@@ -18,10 +18,11 @@ import { mockBrowserStorageLocal, mockCryptoUtil, mockSodiumUtil } from './beaco
 browser.storage.local = { ...browser.storage.local, ...mockBrowserStorageLocal };
 global.crypto = { ...crypto, ...mockCryptoUtil };
 
-// jest.mock('libsodium-wrappers');
-// sodium.crypto_sign_ed25519_pk_to_curve25519 = mockSodiumUtil.crypto_sign_ed25519_pk_to_curve25519;
-// sodium.crypto_sign_ed25519_sk_to_curve25519 = mockSodiumUtil.crypto_sign_ed25519_sk_to_curve25519;
-// crypto_sign_ed25519_sk_to_curve25519 = jest.fn();
+jest.mock('libsodium-wrappers', () => ({
+  ...jest.requireActual('libsodium-wrappers'),
+  crypto_sign_ed25519_pk_to_curve25519: jest.fn(() => ({})),
+  crypto_sign_ed25519_sk_to_curve25519: jest.fn(() => ({}))
+}));
 
 describe('Beacon', () => {
   const MOCK_ORIGINAL_KEY = 'something';
@@ -72,7 +73,7 @@ describe('Beacon', () => {
       expect(bufferMock.toString()).toBe('68656c6c6f2c20776f726c6421');
     });
   });
-  describe('Seed generation', () => {
+  describe('getOrCreateKeyPair', () => {
     it('Generates new valid seed', async () => {
       const keyPair = await getOrCreateKeyPair();
       expect(keyPair).toHaveProperty('keyType');
@@ -90,23 +91,28 @@ describe('Beacon', () => {
       expect(mockCryptoUtil.getRandomValues).toBeCalledWith(new Uint8Array(32));
     });
   });
-  // describe('createCryptoBox', () => {
-  //   it('Generates valid box from keypair and public key', async () => {
-  //     const selfKeyPair = await getOrCreateKeyPair();
-  //     const otherPublicKey = 'hehe';
-  //     const kxSelfPrivateKey = sodium.crypto_sign_ed25519_sk_to_curve25519(
-  //       new Uint8Array(Buffer.from(selfKeyPair.privateKey))
-  //     );
-  //     const kxSelfPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(
-  //       new Uint8Array(Buffer.from(selfKeyPair.publicKey))
-  //     );
-  //     const kxOtherPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(
-  //       new Uint8Array(Buffer.from(otherPublicKey, 'hex'))
-  //     );
-  //     const buffers = await createCryptoBox(otherPublicKey, selfKeyPair);
-  //     expect(kxOtherPublicKey).toEqual(buffers[2]);
-  //     expect(kxSelfPublicKey).toEqual(buffers[1]);
-  //     expect(kxSelfPrivateKey).toEqual(buffers[0]);
-  //   });
-  // });
+  describe('createCryptoBox', () => {
+    const sodium: any = jest.createMockFromModule('libsodium-wrappers');
+    sodium.crypto_sign_ed25519_pk_to_curve25519 = mockSodiumUtil.crypto_sign_ed25519_pk_to_curve25519;
+    sodium.crypto_sign_ed25519_sk_to_curve25519 = mockSodiumUtil.crypto_sign_ed25519_sk_to_curve25519;
+    // jest.mock('libsodium-wrappers');
+    // beforeEach(() => {
+    // });
+    it('Generates valid box from keypair and public key', async () => {
+      const selfKeyPair = await getOrCreateKeyPair();
+      const otherPublicKey = '444e1f4ab90c304a5ac003d367747aab63815f583ff2330ce159d12c1ecceba1';
+      // const kxSelfPrivateKey = crypto_sign_ed25519_sk_to_curve25519(
+      //   new Uint8Array(Buffer.from(selfKeyPair.privateKey))
+      // );
+      // const kxSelfPublicKey = crypto_sign_ed25519_pk_to_curve25519(new Uint8Array(Buffer.from(selfKeyPair.publicKey)));
+      // const kxOtherPublicKey = crypto_sign_ed25519_pk_to_curve25519(new Uint8Array(Buffer.from(otherPublicKey, 'hex')));
+      await createCryptoBox(otherPublicKey, selfKeyPair);
+      // expect(kxOtherPublicKey).toEqual(buffers[2]);
+      // expect(kxSelfPublicKey).toEqual(buffers[1]);
+      // expect(kxSelfPrivateKey).toEqual(buffers[0]);
+      expect(sodium.crypto_sign_ed25519_sk_to_curve25519).toBeCalledWith(Buffer.from(selfKeyPair.privateKey));
+      expect(sodium.crypto_sign_ed25519_pk_to_curve25519).toBeCalledWith(Buffer.from(selfKeyPair.publicKey));
+      expect(sodium.crypto_sign_ed25519_pk_to_curve25519).toBeCalledWith(Buffer.from(otherPublicKey, 'hex'));
+    });
+  });
 });
