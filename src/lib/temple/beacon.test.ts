@@ -11,30 +11,18 @@ import {
 } from './beacon';
 import { mockBrowserStorageLocal } from './beacon.mock';
 
-const SAMPLE_PAYLOAD = 'hello, world!';
-
-jest.mock('webextension-polyfill-ts');
-
-const mockGet: jest.Mock<Promise<any>> = jest.fn(
-  async () => new Promise(resolve => resolve({ beacon_something_pubkey: 'somevalue' }))
-);
-const mockSet: jest.Mock<Promise<void>> = jest.fn(async () => new Promise(resolve => resolve()));
-const mockRemove: jest.Mock<Promise<void>> = jest.fn(async () => new Promise(resolve => resolve()));
-
-browser.storage.local.set = mockSet;
-browser.storage.local.get = mockGet;
-browser.storage.local.remove = mockRemove;
+browser.storage.local = { ...browser.storage.local, ...mockBrowserStorageLocal };
 
 describe('Beacon', () => {
   const MOCK_ORIGINAL_KEY = 'something';
   const MOCK_MODIFIED_KEY = 'beacon_something_pubkey';
   const MOCK_ORIGINAL_VALUE = 'somevalue';
   const MOCK_STORAGE_OBJECT = { [MOCK_MODIFIED_KEY]: MOCK_ORIGINAL_VALUE };
+  const SAMPLE_PAYLOAD = 'hello, world!';
+
   beforeEach(() => {
-    // jest.clearAllMocks();
-    mockSet.mockClear();
-    mockRemove.mockClear();
     mockBrowserStorageLocal.set.mockClear();
+    mockBrowserStorageLocal.remove.mockClear();
   });
   describe('toPubKeyStorageKey', () => {
     it('Format public key to storage key', () => {
@@ -45,19 +33,19 @@ describe('Beacon', () => {
   describe('saveDAppPublicKey', () => {
     it('called with correct arguments', async () => {
       await saveDAppPublicKey(MOCK_ORIGINAL_KEY, MOCK_ORIGINAL_VALUE);
-      expect(mockSet).toBeCalledWith(MOCK_STORAGE_OBJECT);
+      expect(mockBrowserStorageLocal.set).toBeCalledWith(MOCK_STORAGE_OBJECT);
     });
   });
   describe('removeDAppPublicKey', () => {
     it('called with correct data', async () => {
       await removeDAppPublicKey(MOCK_ORIGINAL_KEY);
-      expect(mockRemove).toBeCalledWith([MOCK_MODIFIED_KEY]);
+      expect(mockBrowserStorageLocal.remove).toBeCalledWith([MOCK_MODIFIED_KEY]);
     });
   });
   describe('getDAppPublicKey', () => {
     it('called with correct arguments', async () => {
       await getDAppPublicKey(MOCK_ORIGINAL_KEY);
-      expect(mockGet).toBeCalledWith([MOCK_MODIFIED_KEY]);
+      expect(mockBrowserStorageLocal.get).toBeCalledWith([MOCK_MODIFIED_KEY]);
     });
   });
   describe('fromHex', () => {

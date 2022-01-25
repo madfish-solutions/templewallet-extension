@@ -1,34 +1,13 @@
-const { browser } = jest.createMockFromModule('webextension-polyfill-ts');
+jest.mock('webextension-polyfill-ts');
 
-let MOCK_STORAGE_OBJECT: any = {};
+const mockGet: jest.Mock<Promise<any>> = jest.fn(
+  async () => new Promise(resolve => resolve({ beacon_something_pubkey: 'somevalue' }))
+);
+const mockSet: jest.Mock<Promise<void>> = jest.fn(async () => new Promise(resolve => resolve()));
+const mockRemove: jest.Mock<Promise<void>> = jest.fn(async () => new Promise(resolve => resolve()));
 
 export const mockBrowserStorageLocal = {
-  get: jest.fn((key: any) => {
-    return MOCK_STORAGE_OBJECT[key];
-  }),
-  set: jest.fn(x => {
-    MOCK_STORAGE_OBJECT = {
-      ...MOCK_STORAGE_OBJECT,
-      ...Object.keys(x).reduce((newObj: any, key: keyof typeof x) => {
-        newObj[key] = x[key];
-        return newObj;
-      }, {})
-    };
-  }),
-  remove: jest.fn(key => delete MOCK_STORAGE_OBJECT[key])
+  get: mockGet,
+  set: mockSet,
+  remove: mockRemove
 };
-
-// browser.storage.local = mockBrowserStorageLocal;
-
-// jest.mock('./beacon', () => mockBrowserStorageLocal);
-
-// jest.mock('webextension-polyfill-ts', () => ({
-//   browser: jest.fn(() => ({
-//     storage: jest.fn(() => ({
-//       local: jest.fn(() => mockBrowserStorageLocal)
-//     }))
-//   }))
-// }));
-
-// browser.storage.local = mockBrowserStorageLocal;
-// browser.storage.local.set = jest.fn(() => console.log('data'));
