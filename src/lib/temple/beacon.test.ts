@@ -13,93 +13,87 @@ import { mockBrowserStorageLocal } from './beacon.mock';
 
 const SAMPLE_PAYLOAD = 'hello, world!';
 
-const MOCK_STORAGE_OBJECT = { beacon_something_pubkey: 'something' };
-
 jest.mock('webextension-polyfill-ts');
 
-// browser.storage.local.set = jest.fn(() => console.log('data'));
-// browser.storage.local = jest.fn(() => ({
-//   get: jest.fn(),
-//   set: jest.fn(),
-//   remove: jest.fn(),
-//   clear: jest.fn(),
-//   QUOTA_BYTES: 10
-// }));
 const mockGet = jest.fn(async (key?) => new Promise(resolve => resolve({ beacon_something_pubkey: 'somevalue' })));
-const mockSet = jest.fn(async (key?) => new Promise(resolve => resolve({ beacon_something_pubkey: 'somevalue' })));
+const mockSet: jest.Mock<Promise<void>> = jest.fn(async (key?) => new Promise(resolve => resolve()));
+const mockRemove: jest.Mock<Promise<void>> = jest.fn(async (key?) => new Promise(resolve => resolve()));
 browser.storage.local.get = jest.fn(
   async (key?) => new Promise(resolve => resolve({ beacon_something_pubkey: 'somevalue' }))
 );
-browser.storage.local.set = jest.fn(async (key?) => new Promise(resolve => resolve()));
+browser.storage.local.set = mockSet;
+browser.storage.local.remove = mockRemove;
 
 describe('Beacon', () => {
+  const MOCK_ORIGINAL_KEY = 'something';
+  const MOCK_MODIFIED_KEY = 'beacon_something_pubkey';
+  const MOCK_ORIGINAL_VALUE = 'somevalue';
+  const MOCK_STORAGE_OBJECT = { [MOCK_MODIFIED_KEY]: MOCK_ORIGINAL_VALUE };
   beforeEach(() => {
     // jest.clearAllMocks();
+    mockSet.mockClear();
+    mockRemove.mockClear();
     mockBrowserStorageLocal.set.mockClear();
   });
-  // describe('toPubKeyStorageKey', () => {
-  //   it('Format public key to storage key', () => {
-  //     const storageKey = toPubKeyStorageKey('myAwesomeDappKey');
-  //     expect(storageKey).toBe('beacon_myAwesomeDappKey_pubkey');
-  //   });
-  // });
-  // browser.storage.local.get
-  describe('saveDAppPublicKey', () => {
-    it('Can write to storage', async () => {
-      console.log('saveDAppPublicKey');
-      const someKey = 'something';
-      const someValue = 'somevalue';
-      await saveDAppPublicKey(someKey, someValue);
-      const items = await browser.storage.local.get('beacon_something_pubkey');
-      // console.log(dappKey);
-      expect(items['beacon_something_pubkey']).toBe(someValue);
-      expect(browser.storage.local.set).toBeCalledWith({ beacon_something_pubkey: someValue });
+  describe('toPubKeyStorageKey', () => {
+    it('Format public key to storage key', () => {
+      const storageKey = toPubKeyStorageKey('myAwesomeDappKey');
+      expect(storageKey).toBe('beacon_myAwesomeDappKey_pubkey');
     });
   });
-  // describe('removeDAppPublicKey', () => {
-  //   it('Stored key can be removed', async () => {
-  //     console.log('removeDAppPublicKey');
-  //     // await mockBrowserStorageLocal.set(MOCK_STORAGE_OBJECT);
-  //     // const dappKeyBefore = await getDAppPublicKey('something');
-  //     // expect(dappKeyBefore).toBe(MOCK_STORAGE_OBJECT.beacon_something_pubkey);
-  //     // await removeDAppPublicKey('something');
-  //     // const dappKeyAfter = await getDAppPublicKey('something');
-  //     // expect(dappKeyAfter).toBe(undefined);
-  //   });
-  // });
-  // describe('getDAppPublicKey', () => {
-  //   it('Stored key to be not empty', async () => {
-  //     console.log('getDAppPublicKey 1');
-  //     // const setStorageDataMock = jest.fn(x =>
-  //     //   Object.keys(x).reduce((newObj: any, key: keyof typeof x) => {
-  //     //     newObj[key] = x[key];
-  //     //     return newObj;
-  //     //   }, {})
-  //     // );
-  //     // setStorageDataMock(MOCK_STORAGE_OBJECT);
-  //     // expect(setStorageDataMock.mock.calls.length).toBe(1);
+  describe('saveDAppPublicKey', () => {
+    it('called with correct arguments', async () => {
+      await saveDAppPublicKey(MOCK_ORIGINAL_KEY, MOCK_ORIGINAL_VALUE);
+      expect(mockSet).toBeCalledWith(MOCK_STORAGE_OBJECT);
+    });
+  });
+  describe('removeDAppPublicKey', () => {
+    // it('Stored key can be removed', async () => {
+    //   await browser.storage.local.set(MOCK_STORAGE_OBJECT);
+    //   const dappKeyBefore = await getDAppPublicKey(MOCK_ORIGINAL_KEY);
+    //   expect(dappKeyBefore).toBe(MOCK_ORIGINAL_VALUE);
+    //   await removeDAppPublicKey(MOCK_ORIGINAL_KEY);
+    //   const dappKeyAfter = await getDAppPublicKey(MOCK_ORIGINAL_KEY);
+    //   expect(dappKeyAfter).toBe(undefined);
+    // });
+    it('called with correct data', async () => {
+      await removeDAppPublicKey(MOCK_ORIGINAL_KEY);
+      expect(mockRemove).toBeCalledWith([MOCK_MODIFIED_KEY]);
+    });
+  });
+  describe('getDAppPublicKey', () => {
+    it('Stored key to be not empty', async () => {
+      console.log('getDAppPublicKey 1');
+      // const setStorageDataMock = jest.fn(x =>
+      //   Object.keys(x).reduce((newObj: any, key: keyof typeof x) => {
+      //     newObj[key] = x[key];
+      //     return newObj;
+      //   }, {})
+      // );
+      // setStorageDataMock(MOCK_STORAGE_OBJECT);
+      // expect(setStorageDataMock.mock.calls.length).toBe(1);
 
-  //     // // The first argument of the first call to the function was 0
-  //     // expect(setStorageDataMock.mock.calls[0][0]).toBe(MOCK_STORAGE_OBJECT);
-  //     // // The first argument of the second call to the function was 1
-  //     // // The return value of the first call to the function was 42
-  //     // expect(setStorageDataMock.mock.results[0].value).toBe(MOCK_STORAGE_OBJECT);
+      // // The first argument of the first call to the function was 0
+      // expect(setStorageDataMock.mock.calls[0][0]).toBe(MOCK_STORAGE_OBJECT);
+      // // The first argument of the second call to the function was 1
+      // // The return value of the first call to the function was 42
+      // expect(setStorageDataMock.mock.results[0].value).toBe(MOCK_STORAGE_OBJECT);
 
-  //     // await browser.storage.local.set(MOCK_STORAGE_OBJECT);
-  //     const dappKeyBefore = await getDAppPublicKey('something');
+      // await browser.storage.local.set(MOCK_STORAGE_OBJECT);
+      const dappKeyBefore = await getDAppPublicKey('something');
 
-  //     expect(dappKeyBefore).toBe(undefined);
+      expect(dappKeyBefore).toBe(undefined);
 
-  //     await mockBrowserStorageLocal.set(MOCK_STORAGE_OBJECT);
-  //     const dappKeyAfter = await getDAppPublicKey('something');
-  //     expect(dappKeyAfter).toBe('something');
-  //   });
-  //   it('Not stored key to be undefined', async () => {
-  //     console.log('getDAppPublicKey 2');
-  //     const dappKey = await getDAppPublicKey('anotherKey');
-  //     expect(dappKey).toBe(undefined);
-  //   });
-  // });
+      await mockBrowserStorageLocal.set(MOCK_STORAGE_OBJECT);
+      const dappKeyAfter = await getDAppPublicKey('something');
+      expect(dappKeyAfter).toBe('something');
+    });
+    it('Not stored key to be undefined', async () => {
+      console.log('getDAppPublicKey 2');
+      const dappKey = await getDAppPublicKey('anotherKey');
+      expect(dappKey).toBe(undefined);
+    });
+  });
   // describe('fromHex', () => {
   //   it('Decode from Hex is working', async () => {
   //     const buf = Buffer.from(SAMPLE_PAYLOAD, 'utf8').toString('hex');

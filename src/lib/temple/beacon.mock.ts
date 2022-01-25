@@ -4,11 +4,9 @@ let MOCK_STORAGE_OBJECT: any = {};
 
 export const mockBrowserStorageLocal = {
   get: jest.fn((key: any) => {
-    console.log('get mock store', MOCK_STORAGE_OBJECT, MOCK_STORAGE_OBJECT[key]);
     return MOCK_STORAGE_OBJECT[key];
   }),
   set: jest.fn(x => {
-    console.log('before assign', MOCK_STORAGE_OBJECT);
     MOCK_STORAGE_OBJECT = {
       ...MOCK_STORAGE_OBJECT,
       ...Object.keys(x).reduce((newObj: any, key: keyof typeof x) => {
@@ -16,7 +14,6 @@ export const mockBrowserStorageLocal = {
         return newObj;
       }, {})
     };
-    console.log('after assign', MOCK_STORAGE_OBJECT);
   }),
   remove: jest.fn(key => delete MOCK_STORAGE_OBJECT[key])
 };
