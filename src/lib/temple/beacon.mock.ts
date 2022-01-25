@@ -1,4 +1,5 @@
 jest.mock('webextension-polyfill-ts');
+jest.mock('libsodium-wrappers');
 
 const mockGet: jest.Mock<Promise<any>> = jest.fn(
   async () => new Promise(resolve => resolve({ beacon_something_pubkey: 'somevalue' }))
@@ -10,4 +11,13 @@ export const mockBrowserStorageLocal = {
   get: mockGet,
   set: mockSet,
   remove: mockRemove
+};
+
+export const mockCryptoUtil = {
+  getRandomValues: jest.fn()
+};
+
+export const mockSodiumUtil = {
+  crypto_sign_ed25519_pk_to_curve25519: jest.fn(),
+  crypto_sign_ed25519_sk_to_curve25519: jest.fn()
 };

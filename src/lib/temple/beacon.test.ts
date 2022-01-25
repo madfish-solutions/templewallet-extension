@@ -1,7 +1,11 @@
+// import { crypto_sign_ed25519_pk_to_curve25519, crypto_sign_ed25519_sk_to_curve25519 } from 'libsodium-wrappers';
+import * as sodium from 'libsodium-wrappers';
 import { browser } from 'webextension-polyfill-ts';
 
 import {
+  createCryptoBox,
   fromHex,
+  generateNewSeed,
   getDAppPublicKey,
   getOrCreateKeyPair,
   removeDAppPublicKey,
@@ -9,9 +13,15 @@ import {
   toHex,
   toPubKeyStorageKey
 } from './beacon';
-import { mockBrowserStorageLocal } from './beacon.mock';
+import { mockBrowserStorageLocal, mockCryptoUtil, mockSodiumUtil } from './beacon.mock';
 
 browser.storage.local = { ...browser.storage.local, ...mockBrowserStorageLocal };
+global.crypto = { ...crypto, ...mockCryptoUtil };
+
+// jest.mock('libsodium-wrappers');
+// sodium.crypto_sign_ed25519_pk_to_curve25519 = mockSodiumUtil.crypto_sign_ed25519_pk_to_curve25519;
+// sodium.crypto_sign_ed25519_sk_to_curve25519 = mockSodiumUtil.crypto_sign_ed25519_sk_to_curve25519;
+// crypto_sign_ed25519_sk_to_curve25519 = jest.fn();
 
 describe('Beacon', () => {
   const MOCK_ORIGINAL_KEY = 'something';
@@ -50,18 +60,16 @@ describe('Beacon', () => {
   });
   describe('fromHex', () => {
     it('Decode from Hex is working', async () => {
-      const buf = Buffer.from(SAMPLE_PAYLOAD, 'utf8').toString('hex');
-      const hex = fromHex(buf);
-      expect(hex.toString('hex')).toBe(
-        Buffer.from([104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33]).toString('hex')
-      );
+      const bufferMock = Buffer.from(SAMPLE_PAYLOAD, 'utf8').toString('hex');
+      const termMock = fromHex(bufferMock);
+      expect(typeof termMock).toBe('object');
     });
   });
   describe('toHex', () => {
     it('Encode to Hex is working', async () => {
-      const buf = Buffer.from(SAMPLE_PAYLOAD, 'utf8');
-      const hex = toHex(buf);
-      expect(hex).toBe(Buffer.from([104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33]).toString('hex'));
+      const termMock = Buffer.from(SAMPLE_PAYLOAD, 'utf8');
+      const bufferMock = toHex(termMock);
+      expect(bufferMock.toString()).toBe('68656c6c6f2c20776f726c6421');
     });
   });
   describe('Seed generation', () => {
@@ -71,17 +79,34 @@ describe('Beacon', () => {
       expect(keyPair).toHaveProperty('privateKey');
       expect(keyPair).toHaveProperty('publicKey');
     });
-    //   // END OF UNCHANCHABLE PART
-    //   // it('createCryptoBox', async () => {
-    //   //   const selfKeyPair = await getOrCreateKeyPair();
-    //   //   const otherPublicKey = 'hehe';
-    //   //   const kxSelfPrivateKey = crypto_sign_ed25519_sk_to_curve25519(Buffer.from(selfKeyPair.privateKey)); // Secret bytes to scalar bytes
-    //   //   const kxSelfPublicKey = crypto_sign_ed25519_pk_to_curve25519(Buffer.from(selfKeyPair.publicKey)); // Secret bytes to scalar bytes
-    //   //   const kxOtherPublicKey = crypto_sign_ed25519_pk_to_curve25519(Buffer.from(otherPublicKey, 'hex')); // Secret bytes to scalar bytes
-    //   //   const buffers = await createCryptoBox(otherPublicKey, selfKeyPair);
-    //   //   expect(kxOtherPublicKey).toEqual(buffers[2]);
-    //   //   expect(kxSelfPublicKey).toEqual(buffers[1]);
-    //   //   expect(kxSelfPrivateKey).toEqual(buffers[0]);
-    //   // });
   });
+  describe('generateNewSeed', () => {
+    beforeEach(() => {
+      mockCryptoUtil.getRandomValues.mockClear();
+    });
+    it('should generate 64 cryptographically safe random bytes by default', () => {
+      const output = generateNewSeed();
+      expect(output).toHaveLength(64);
+      expect(mockCryptoUtil.getRandomValues).toBeCalledWith(new Uint8Array(32));
+    });
+  });
+  // describe('createCryptoBox', () => {
+  //   it('Generates valid box from keypair and public key', async () => {
+  //     const selfKeyPair = await getOrCreateKeyPair();
+  //     const otherPublicKey = 'hehe';
+  //     const kxSelfPrivateKey = sodium.crypto_sign_ed25519_sk_to_curve25519(
+  //       new Uint8Array(Buffer.from(selfKeyPair.privateKey))
+  //     );
+  //     const kxSelfPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(
+  //       new Uint8Array(Buffer.from(selfKeyPair.publicKey))
+  //     );
+  //     const kxOtherPublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(
+  //       new Uint8Array(Buffer.from(otherPublicKey, 'hex'))
+  //     );
+  //     const buffers = await createCryptoBox(otherPublicKey, selfKeyPair);
+  //     expect(kxOtherPublicKey).toEqual(buffers[2]);
+  //     expect(kxSelfPublicKey).toEqual(buffers[1]);
+  //     expect(kxSelfPrivateKey).toEqual(buffers[0]);
+  //   });
+  // });
 });
