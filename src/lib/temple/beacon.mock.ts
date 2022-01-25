@@ -13,8 +13,3 @@ export const mockBrowserStorageLocal = {
 export const mockCryptoUtil = {
   getRandomValues: jest.fn()
 };
-
-export const mockSodiumUtil = {
-  crypto_sign_ed25519_pk_to_curve25519: jest.fn(),
-  crypto_sign_ed25519_sk_to_curve25519: jest.fn()
-};
