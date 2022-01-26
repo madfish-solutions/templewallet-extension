@@ -5,6 +5,11 @@ import toBuffer from 'typedarray-to-buffer';
 
 import { curves, getSig, pref, safeSignEdData, safeSignP2Data, safeSignSpData, verifySignature } from './ledger-signer';
 
+jest.mock('@taquito/ledger-signer', () => ({
+  ...jest.requireActual('@taquito/ledger-signer'),
+  publicKey: jest.fn(() => ({}))
+}));
+
 const PAYLOAD = {
   ed: '0501313230363136653739323037333734373236393665363732303734363836313734323037373639366336633230363236353230373336393637366536353634',
   sp: '0501313230363136653739323037333734373236393665363732303734363836313734323037373639366336633230363236353230373336393637366536353634',
@@ -32,10 +37,26 @@ const PUBLIC_KEY_HASH = {
 };
 
 describe('Ledger Signer tests', () => {
-  describe('Ledger transport', () => {
-    it('Verify message', async () => {
+  describe('verifySignature', () => {
+    // Cant generate signature, which started with 'sig'
+    // it('Verify edsig message work', async () => {
+    //   await ready;
+    //   const res = verifySignature(PAYLOAD.ed, 'sigAuk6rFPbT', PUBLIC_KEY.ed, PUBLIC_KEY_HASH.ed);
+    //   expect(res).toBe(true);
+    // });
+    it('Verify edsig message work', async () => {
       await ready;
       const res = verifySignature(PAYLOAD.ed, SIGNATURE.ed, PUBLIC_KEY.ed, PUBLIC_KEY_HASH.ed);
+      expect(res).toBe(true);
+    });
+    it('Verify spsig message work', async () => {
+      await ready;
+      const res = verifySignature(PAYLOAD.sp, SIGNATURE.sp, PUBLIC_KEY.sp, PUBLIC_KEY_HASH.sp);
+      expect(res).toBe(true);
+    });
+    it('Verify p256sig message work', async () => {
+      await ready;
+      const res = verifySignature(PAYLOAD.p2, SIGNATURE.p2, PUBLIC_KEY.p2, PUBLIC_KEY_HASH.p2);
       expect(res).toBe(true);
     });
     it('Wrong public key to verify message', async () => {
@@ -48,8 +69,12 @@ describe('Ledger Signer tests', () => {
         verifySignature(PAYLOAD.ed, SIGNATURE.ed, 'do' + PUBLIC_KEY.ed.substring(2), PUBLIC_KEY_HASH.ed)
       ).toThrow();
     });
+    it('Unsupported signature given by remote signer to verify message', async () => {
+      await ready;
+      expect(() => verifySignature(PAYLOAD.ed, 'wrong' + SIGNATURE.ed, PUBLIC_KEY.ed, PUBLIC_KEY_HASH.ed)).toThrow();
+    });
   });
-  describe('Signature curve', () => {
+  describe('safeSignEdData', () => {
     it('Verify correct message with ed curve', async () => {
       await ready;
       const curve = PUBLIC_KEY.ed.substring(0, 2) as curves;
@@ -68,6 +93,8 @@ describe('Ledger Signer tests', () => {
       const data = safeSignEdData(sig, bytesHash, _publicKey);
       expect(data).toBe(false);
     });
+  });
+  describe('safeSignSpData', () => {
     it('Verify correct message with secp256k1 curve', async () => {
       await ready;
       const curve = PUBLIC_KEY.sp.substring(0, 2) as curves;
@@ -86,6 +113,8 @@ describe('Ledger Signer tests', () => {
       const data = safeSignSpData(sig, bytesHash, _publicKey);
       expect(data).toBe(false);
     });
+  });
+  describe('safeSignP2Data', () => {
     it('Verify correct message with p256 curve', async () => {
       await ready;
       const curve = PUBLIC_KEY.p2.substring(0, 2) as curves;
@@ -103,6 +132,17 @@ describe('Ledger Signer tests', () => {
       const bytesHash = crypto_generichash(32, hex2buf(WRONG_PAYLOAD));
       const data = safeSignP2Data(sig, bytesHash, _publicKey);
       expect(data).toBe(false);
+    });
+  });
+  describe('getSig', () => {
+    it('Get signature prefix', async () => {
+      // TODO
+    });
+    it('Get curve prefix', async () => {
+      // TODO
+    });
+    it('Throw error on invalid curve', async () => {
+      // TODO
     });
   });
 });
