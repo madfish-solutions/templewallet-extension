@@ -22,12 +22,12 @@ const OptionsWrapper: FC = () => (
 );
 
 const Options: FC = () => {
-  const alert = useAlert();
+  const customAlert = useAlert();
   const confirm = useConfirm();
 
   const internalHandleReset = useCallback(() => {
-    handleReset(alert, confirm);
-  }, [alert, confirm]);
+    handleReset(customAlert, confirm);
+  }, [customAlert, confirm]);
 
   return (
     <div className="p-4">
@@ -59,7 +59,7 @@ const Options: FC = () => {
 ReactDOM.render(<OptionsWrapper />, document.getElementById('root'));
 
 let resetting = false;
-async function handleReset(alert: AlertFn, confirm: ConfirmFn) {
+async function handleReset(customAlert: AlertFn, confirm: ConfirmFn) {
   if (resetting) return;
   resetting = true;
 
@@ -73,7 +73,7 @@ async function handleReset(alert: AlertFn, confirm: ConfirmFn) {
         await clearStorage();
         browser.runtime.reload();
       } catch (err: any) {
-        await alert({
+        await customAlert({
           title: getMessage('error'),
           children: err.message
         });
