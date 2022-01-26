@@ -152,7 +152,6 @@ export const safeSignEdData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKe
   try {
     return crypto_sign_verify_detached(sig, bytesHash, _publicKey);
   } catch (e) {
-    console.log(e);
     return false;
   }
 };

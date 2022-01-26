@@ -42,10 +42,6 @@ describe('Ledger Signer tests', () => {
       await ready;
       expect(() => verifySignature(PAYLOAD.ed, SIGNATURE.ed, PUBLIC_KEY.sp, PUBLIC_KEY_HASH.ed)).toThrow();
     });
-    it('Wrong public key to verify message', async () => {
-      await ready;
-      expect(() => verifySignature(PAYLOAD.ed, SIGNATURE.ed, PUBLIC_KEY.sp, PUBLIC_KEY_HASH.ed)).toThrow();
-    });
     it('Unsupported curve to verify message', async () => {
       await ready;
       expect(() =>
