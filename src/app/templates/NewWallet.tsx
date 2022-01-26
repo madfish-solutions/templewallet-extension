@@ -77,7 +77,10 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
   const customAlert = useAlert();
 
   const { control, watch, register, handleSubmit, errors, reset, triggerValidation, formState, setValue } =
-    useForm<FormData>({ defaultValues: { shouldUseKeystorePassword: true } });
+    useForm<FormData>({
+      defaultValues: { shouldUseKeystorePassword: true },
+      mode: 'onChange'
+    });
   const submitting = formState.isSubmitting;
   const isPasswordError = errors.password?.message === PASSWORD_ERROR_CAPTION;
 
@@ -123,14 +126,11 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
   const [backupData, setBackupData] = useState<BackupData | null>(null);
   const [verifySeedPhrase, setVerifySeedPhrase] = useState(false);
 
-  const clearKeystoreFileInput = useCallback(
-    (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-      e.stopPropagation();
-      setValue('keystoreFile', undefined);
-      triggerValidation('keystoreFile');
-    },
-    [triggerValidation, setValue]
-  );
+  const clearKeystoreFileInput = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    event.stopPropagation();
+    setValue('keystoreFile', undefined);
+    triggerValidation('keystoreFile');
+  };
 
   const onSubmit = useCallback(
     async (data: FormData) => {
@@ -413,7 +413,7 @@ type KeystoreFileInputProps = Pick<FileInputProps, 'value' | 'onChange' | 'name'
   clearKeystoreFileInput: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
 };
 
-const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, onChange, name, clearKeystoreFileInput }) => {
+const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, name, clearKeystoreFileInput, onChange }) => {
   const keystoreFile = value?.item?.(0);
 
   return (
@@ -435,8 +435,8 @@ const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, onChange, 
           {keystoreFile ? (
             <TrashbinIcon
               className="ml-2 w-6 h-auto text-red-700 stroke-current z-10 cursor-pointer"
-              onClick={clearKeystoreFileInput}
               style={{ minWidth: '1.5rem' }}
+              onClick={clearKeystoreFileInput}
             />
           ) : (
             <PaperclipIcon className="ml-2 w-6 h-auto text-gray-600 stroke-current" />
