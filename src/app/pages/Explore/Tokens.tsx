@@ -283,7 +283,9 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
           <div className="flex items-center">
             <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
             {assetSlug === 'tez' && (
-              <div className={classNames('ml-1 px-2 py-1', styles['apyBadge'])}>{<T id="tezosApy" />}</div>
+              <Link to="/explore/tez/?tab=delegation" className={classNames('ml-1 px-2 py-1', styles['apyBadge'])}>
+                {<T id="delegate" />}
+              </Link>
             )}
           </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>
