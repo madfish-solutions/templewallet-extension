@@ -26,48 +26,19 @@ import {
   formatOpParams,
   OperationRequest,
   encodeMessage,
-  MessageType,
-  PermissionScope,
-  PermissionRequest
+  MessageType
 } from './beacon';
 import { mockBrowserStorageLocal, mockCryptoUtil } from './beacon.mock';
 
 browser.storage.local = { ...browser.storage.local, ...mockBrowserStorageLocal };
 global.crypto = { ...crypto, ...mockCryptoUtil };
 
-// const testFunc = jest.fn(() => ({}));
-
-// const mockSodiumUtil = {
-//   crypto_generichash: testFunc,
-//   crypto_sign_seed_keypair: jest.fn(() => ({
-//     privateKey: 'mock privateKey',
-//     publicKey: 'mock publicKey',
-//     keyType: 'ed'
-//   })),
-//   crypto_sign_ed25519_pk_to_curve25519: jest.fn(() =>
-//     Buffer.from([109, 111, 99, 107, 32, 101, 100, 112, 107, 115, 105, 103])
-//   ),
-//   crypto_sign_ed25519_sk_to_curve25519: jest.fn(() => 'mock edsksig'),
-//   crypto_kx_client_session_keys: jest.fn(() => ({
-//     sharedRx: new Uint8Array(),
-//     sharedTx: new Uint8Array()
-//   })),
-//   crypto_kx_server_session_keys: jest.fn(() => ({
-//     sharedRx: new Uint8Array(),
-//     sharedTx: new Uint8Array()
-//   })),
-//   crypto_secretbox_open_easy: jest.fn(() => 'mock secretbox'),
-//   crypto_secretbox_easy: jest.fn(() => 'mock secretbox easy'),
-//   randombytes_buf: jest.fn(() => 'mock randombytes'),
-//   crypto_box_seal: testFunc
-// };
-
 jest.mock('libsodium-wrappers', () => ({
   ...jest.requireActual('libsodium-wrappers'),
   crypto_generichash: jest.fn(() => 'mock string'),
   crypto_sign_seed_keypair: jest.fn(() => ({
     privateKey: 'mock privateKey',
-    publicKey: 'mock publicKey',
+    publicKey: Buffer.from('444e1f4ab90c304a5ac003d367747aab63815f583ff2330ce159d12c1ecceba1'),
     keyType: 'ed'
   })),
   crypto_sign_ed25519_pk_to_curve25519: jest.fn(() =>
@@ -85,7 +56,7 @@ jest.mock('libsodium-wrappers', () => ({
   crypto_secretbox_open_easy: jest.fn(() => 'mock secretbox'),
   crypto_secretbox_easy: jest.fn(() => 'mock secretbox easy'),
   randombytes_buf: jest.fn(() => 'mock randombytes'),
-  crypto_box_seal: jest.fn(() => ({}))
+  crypto_box_seal: jest.fn(() => Buffer.from('mock cryptobox seal'))
 }));
 
 const MOCK_PUBLIC_KEY = '444e1f4ab90c304a5ac003d367747aab63815f583ff2330ce159d12c1ecceba1';
@@ -206,7 +177,8 @@ describe('Beacon', () => {
   });
   describe('sealCryptobox', () => {
     it('To be able seal cryptobox', async () => {
-      const msg = 'mock payload';
+      const msg =
+        '2s7MQwsWc93RsbS7VtKyK7Ln1gSHiAxLAttfL22sFreVaB3qEdy63bV6WSsAMAWi5XLVyn6sDKhju4p4XDDDATMpk7wHmPMYG2G13Eas1ens89zDyZkmZsV7DKdLaNW9aB6pup4WuAJruEpj4u6Y4seeui9qCtTw1V3tXLM9k95ze4s6ofxTyuNdy9PgRxLvsMrTbBoA7ETK1SWKh3ZduoTpgaCnexb4yq';
       const req: Request = decodeMessage<PostMessagePairingRequest>(msg);
       const keyPair = await getOrCreateKeyPair();
       const resBase = {
@@ -238,12 +210,6 @@ describe('Beacon', () => {
       };
       await w();
     });
-    // it('To be able decrypt sample message', async () => {
-    //   const message = 'mock payload';
-    //   const encMessage = Buffer.from(message, 'hex').toString();
-    //   const payload = await decryptMessage(encMessage, MOCK_PUBLIC_KEY);
-    //   expect(payload).toBe('');
-    // });
   });
   describe('encryptMessage', () => {
     it('To be able decrypt sample message', async () => {
@@ -259,21 +225,47 @@ describe('Beacon', () => {
     });
   });
   describe('formatOpParams', () => {
-    it('To be valid payload', async () => {
-      const msg = 'mock payload';
+    it('To be valid payload without changes', async () => {
+      const msg =
+        'T98o3bvBdnAk5D33JLxXF95DvXJnW2hv48znPDAxAHecuovmVUXaDBwvtkdPH5HnQ1SRZCPCUYBZXT7QUTni51xRQ9qBChsZCaUDbR7mMwDwbpq3';
       const req: Request = decodeMessage<OperationRequest>(msg);
       const message = await req.operationDetails.map(formatOpParams);
-      expect(message).toBe('44aQjTPHmtoriWAoTuz1e');
+      expect(message).toStrictEqual([
+        {
+          kind: 'noop'
+        }
+      ]);
+    });
+    it('To be valid payload for transaction', async () => {
+      const msg =
+        '654x25rCB9HXuAs1qSZ1AP7NSqApzqwS56p2QTas2qvtf2CPDig8VjtN9unBt27PivDNeapzMePNKQ7isfHLRVZHgzM5kUj17YnNw4ZSuPiB6QX1gGRy6ZTCResPEJToBBRCmNkciu2AY17Efm6w6xsL2PTsS9RUfXEWVH6KhZkswVhoSskcEZNqEUgdm8qeFMw4eWPAaHejU4be';
+      const req: Request = decodeMessage<OperationRequest>(msg);
+      const message = await req.operationDetails.map(formatOpParams);
+      expect(message).toStrictEqual([
+        { amount: 8, fee: 2, gasLimit: 4, kind: 'transaction', mutez: true, parameter: 9, storageLimit: 5, to: 6 }
+      ]);
+    });
+    it('To be valid payload for origination', async () => {
+      const msg =
+        '5NbQMW2kTqt8fvxmArwKQcrT5JQJLyUcYtBAouNB4YEs4PNVY2ginrMNCLK1WmpeuhxMpDJpyRLZ9EGT7ddyM1uHqu8Yp92nQQturL2xoYChC5bpNTdUzHZH1S';
+      const req: Request = decodeMessage<OperationRequest>(msg);
+      const message = await req.operationDetails.map(formatOpParams);
+      expect(message).toStrictEqual([
+        {
+          kind: 'origination',
+          mutez: true
+        }
+      ]);
     });
   });
   describe('decodeMessage', () => {
     it('To be valid payload', async () => {
-      const msg = 'mock payload';
+      const msg = 'aRN6xNrZy8M6MiswDWzg68Npu69JqR';
       const req: Request = decodeMessage<Request>(msg);
-      expect(req).toBe('44aQjTPHmtoriWAoTuz1e');
+      expect(req).toStrictEqual({ payload: 'mock' });
     });
   });
-  describe('decodeMessage', () => {
+  describe('encodeMessage', () => {
     it('To be valid payload', async () => {
       const resMsg = encodeMessage<Response>({
         version: '2',
@@ -281,7 +273,9 @@ describe('Beacon', () => {
         id: 'stub',
         type: MessageType.Disconnect
       });
-      expect(resMsg).toBe('44aQjTPHmtoriWAoTuz1e');
+      expect(resMsg).toBe(
+        '3x44L9TS1aRrZ9jq8CQRb1hiFGyuYktgX5DUBLrwNdhxoRcNiVdwgBCpqXt1qnLkrNGaBGJetv1u6iV83Zp3iCDPepqYgExtTtu53vEr6nDxoPQtvuiAfJ'
+      );
     });
   });
 });
