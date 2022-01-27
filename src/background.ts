@@ -31,13 +31,6 @@ browser.runtime.onConnect.addListener(externalPort => {
     connectionsCount++;
   }
   const lockUpEnabled = isLockUpEnabled();
-  console.log(
-    connectionsCount === 1,
-    Date.now() - disconnectTimestamp >= LOCK_TIME,
-    disconnectTimestamp !== 0,
-    lockUpEnabled,
-    disconnectTimestamp
-  );
   if (
     connectionsCount === 1 &&
     Date.now() - disconnectTimestamp >= LOCK_TIME &&
@@ -50,10 +43,8 @@ browser.runtime.onConnect.addListener(externalPort => {
     if (port.sender?.url?.startsWith(`${URL_BASE}${browser.runtime.id}`)) {
       connectionsCount--;
     }
-    console.log(connectionsCount);
     if (connectionsCount === 0) {
       disconnectTimestamp = Date.now();
     }
   });
-  console.log(connectionsCount);
 });
