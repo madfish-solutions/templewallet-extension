@@ -41,40 +41,36 @@ const PUBLIC_KEY_HASH = {
 };
 
 describe('Ledger Signer tests', () => {
+  beforeEach(async () => {
+    await ready;
+  });
   describe('verifySignature', () => {
     it('Verify edsig message work', async () => {
-      await ready;
       const res = verifySignature(PAYLOAD.ed, SIGNATURE.ed, PUBLIC_KEY.ed, PUBLIC_KEY_HASH.ed);
       expect(res).toBe(true);
     });
     it('Verify spsig message work', async () => {
-      await ready;
       const res = verifySignature(PAYLOAD.sp, SIGNATURE.sp, PUBLIC_KEY.sp, PUBLIC_KEY_HASH.sp);
       expect(res).toBe(true);
     });
     it('Verify p256sig message work', async () => {
-      await ready;
       const res = verifySignature(PAYLOAD.p2, SIGNATURE.p2, PUBLIC_KEY.p2, PUBLIC_KEY_HASH.p2);
       expect(res).toBe(true);
     });
     it('Wrong public key to verify message', async () => {
-      await ready;
       expect(() => verifySignature(PAYLOAD.ed, SIGNATURE.ed, PUBLIC_KEY.sp, PUBLIC_KEY_HASH.ed)).toThrow();
     });
     it('Unsupported curve to verify message', async () => {
-      await ready;
       expect(() =>
         verifySignature(PAYLOAD.ed, SIGNATURE.ed, 'do' + PUBLIC_KEY.ed.substring(2), PUBLIC_KEY_HASH.ed)
       ).toThrow();
     });
     it('Unsupported signature given by remote signer to verify message', async () => {
-      await ready;
       expect(() => verifySignature(PAYLOAD.ed, 'wrong' + SIGNATURE.ed, PUBLIC_KEY.ed, PUBLIC_KEY_HASH.ed)).toThrow();
     });
   });
   describe('safeSignEdData', () => {
     it('Verify correct message with ed curve', async () => {
-      await ready;
       const curve = PUBLIC_KEY.ed.substring(0, 2) as curves;
       const _publicKey = new Uint8Array(toBuffer(b58cdecode(PUBLIC_KEY.ed, pref[curve].pk)));
       const sig = new Uint8Array(getSig(SIGNATURE.ed, curve, pref));
@@ -83,7 +79,6 @@ describe('Ledger Signer tests', () => {
       expect(data).toBe(true);
     });
     it('Verify incorrect message with ed curve', async () => {
-      await ready;
       const curve = PUBLIC_KEY.ed.substring(0, 2) as curves;
       const _publicKey = new Uint8Array(toBuffer(b58cdecode(PUBLIC_KEY.ed, pref[curve].pk)));
       const sig = new Uint8Array(getSig(SIGNATURE.ed, curve, pref));
@@ -94,7 +89,6 @@ describe('Ledger Signer tests', () => {
   });
   describe('safeSignSpData', () => {
     it('Verify correct message with secp256k1 curve', async () => {
-      await ready;
       const curve = PUBLIC_KEY.sp.substring(0, 2) as curves;
       const _publicKey = new Uint8Array(toBuffer(b58cdecode(PUBLIC_KEY.sp, pref[curve].pk)));
       const sig = new Uint8Array(getSig(SIGNATURE.sp, curve, pref));
@@ -103,7 +97,6 @@ describe('Ledger Signer tests', () => {
       expect(data).toBe(true);
     });
     it('Verify incorrect message with secp256k1 curve', async () => {
-      await ready;
       const curve = PUBLIC_KEY.sp.substring(0, 2) as curves;
       const _publicKey = new Uint8Array(toBuffer(b58cdecode(PUBLIC_KEY.sp, pref[curve].pk)));
       const sig = new Uint8Array(getSig(SIGNATURE.sp, curve, pref));
