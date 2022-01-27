@@ -144,7 +144,7 @@ export const getSig = (signature: string, curve: any, pref: any) => {
   return sig;
 };
 
-function toLedgerError(err: any) {
+export function toLedgerError(err: any) {
   return new PublicError(`Ledger error. ${err.message}`);
 }
 
