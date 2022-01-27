@@ -24,10 +24,10 @@ const LOCK_TIME = 5 * 60_000;
 let disconnectTimestamp = 0;
 let connectionsCount = 0;
 
-const URL_BASE = 'chrome-extension://';
+const URL_BASE = 'extension://';
 
 browser.runtime.onConnect.addListener(externalPort => {
-  if (externalPort.sender?.url?.startsWith(`${URL_BASE}${browser.runtime.id}`)) {
+  if (externalPort.sender?.url?.includes(`${URL_BASE}${browser.runtime.id}`)) {
     connectionsCount++;
   }
   const lockUpEnabled = isLockUpEnabled();
@@ -40,7 +40,7 @@ browser.runtime.onConnect.addListener(externalPort => {
     lock();
   }
   externalPort.onDisconnect.addListener(port => {
-    if (port.sender?.url?.startsWith(`${URL_BASE}${browser.runtime.id}`)) {
+    if (port.sender?.url?.includes(`${URL_BASE}${browser.runtime.id}`)) {
       connectionsCount--;
     }
     if (connectionsCount === 0) {
