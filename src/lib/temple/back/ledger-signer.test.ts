@@ -146,12 +146,4 @@ describe('Ledger Signer tests', () => {
       expect(err.message).toBe(`Ledger error. ${errMessage}`);
     });
   });
-  describe('toLedgerError', () => {
-    it('it spawns new error', async () => {
-      const errMessage = 'some mock error';
-      const err = toLedgerError(new Error(errMessage));
-      expect(err).toHaveProperty('message');
-      expect(err.message).toBe(`Ledger error. ${errMessage}`);
-    });
-  });
 });
