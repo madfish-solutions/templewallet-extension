@@ -1,5 +1,7 @@
 import { browser } from 'webextension-polyfill-ts';
 
+import './libsodium-wrappers.mock';
+
 import {
   createCryptoBox,
   createCryptoBoxClient,
@@ -28,36 +30,10 @@ import {
   encodeMessage,
   MessageType
 } from './beacon';
-import { mockBrowserStorageLocal, mockCryptoUtil } from './beacon.mock';
+import { mockBrowserStorageLocal, mockCryptoUtil, mockSodiumUtil, MOCK_PK_KEY, MOCK_SK_KEY } from './beacon.mock';
 
 browser.storage.local = { ...browser.storage.local, ...mockBrowserStorageLocal };
 global.crypto = { ...crypto, ...mockCryptoUtil };
-
-jest.mock('libsodium-wrappers', () => ({
-  ...jest.requireActual('libsodium-wrappers'),
-  crypto_generichash: jest.fn(() => 'mock string'),
-  crypto_sign_seed_keypair: jest.fn(() => ({
-    privateKey: 'mock privateKey',
-    publicKey: Buffer.from('444e1f4ab90c304a5ac003d367747aab63815f583ff2330ce159d12c1ecceba1'),
-    keyType: 'ed'
-  })),
-  crypto_sign_ed25519_pk_to_curve25519: jest.fn(() =>
-    Buffer.from([109, 111, 99, 107, 32, 101, 100, 112, 107, 115, 105, 103])
-  ),
-  crypto_sign_ed25519_sk_to_curve25519: jest.fn(() => 'mock edsksig'),
-  crypto_kx_client_session_keys: jest.fn(() => ({
-    sharedRx: new Uint8Array(),
-    sharedTx: new Uint8Array()
-  })),
-  crypto_kx_server_session_keys: jest.fn(() => ({
-    sharedRx: new Uint8Array(),
-    sharedTx: new Uint8Array()
-  })),
-  crypto_secretbox_open_easy: jest.fn(() => 'mock secretbox'),
-  crypto_secretbox_easy: jest.fn(() => 'mock secretbox easy'),
-  randombytes_buf: jest.fn(() => 'mock randombytes'),
-  crypto_box_seal: jest.fn(() => Buffer.from('mock cryptobox seal'))
-}));
 
 const MOCK_PUBLIC_KEY = '444e1f4ab90c304a5ac003d367747aab63815f583ff2330ce159d12c1ecceba1';
 
@@ -71,6 +47,15 @@ describe('Beacon', () => {
   beforeEach(() => {
     mockBrowserStorageLocal.set.mockClear();
     mockBrowserStorageLocal.remove.mockClear();
+    mockSodiumUtil.crypto_sign_seed_keypair.mockClear();
+    mockSodiumUtil.crypto_generichash.mockClear();
+    mockSodiumUtil.crypto_sign_ed25519_sk_to_curve25519.mockClear();
+    mockSodiumUtil.crypto_sign_ed25519_pk_to_curve25519.mockClear();
+    mockSodiumUtil.crypto_kx_server_session_keys.mockClear();
+    mockSodiumUtil.crypto_secretbox_open_easy.mockClear();
+    mockSodiumUtil.randombytes_buf.mockClear();
+    mockSodiumUtil.crypto_secretbox_easy.mockClear();
+    mockSodiumUtil.crypto_box_seal.mockClear();
   });
   describe('toPubKeyStorageKey', () => {
     it('Format public key to storage key', () => {
@@ -92,15 +77,20 @@ describe('Beacon', () => {
   });
   describe('getDAppPublicKey', () => {
     it('called with correct arguments', async () => {
-      await getDAppPublicKey(MOCK_ORIGINAL_KEY);
+      const value = await getDAppPublicKey(MOCK_ORIGINAL_KEY);
       expect(mockBrowserStorageLocal.get).toBeCalledWith([MOCK_MODIFIED_KEY]);
+      expect(value === null).toBe(false);
+    });
+    it('called with not existed key', async () => {
+      const value = await getDAppPublicKey('wrong key');
+      expect(value === null).toBe(true);
     });
   });
   describe('fromHex', () => {
     it('Decode from Hex is working', async () => {
       const bufferMock = Buffer.from(SAMPLE_PAYLOAD, 'utf8').toString('hex');
       const termMock = fromHex(bufferMock);
-      expect(typeof termMock).toBe('object');
+      expect(termMock).toStrictEqual(Buffer.from(SAMPLE_PAYLOAD));
     });
   });
   describe('toHex', () => {
@@ -111,11 +101,11 @@ describe('Beacon', () => {
     });
   });
   describe('getOrCreateKeyPair', () => {
-    // it('called with correct arguments', async () => {
-    //   await getOrCreateKeyPair();
-    //   // expect(mockSodiumUtil.crypto_sign_seed_keypair).toBeCalledWith({});
-    //   expect(testFunc).toBeCalledWith(32, {});
-    // });
+    it('called with correct arguments', async () => {
+      await getOrCreateKeyPair();
+      expect(mockSodiumUtil.crypto_sign_seed_keypair).toBeCalledWith('mock string');
+      expect(mockSodiumUtil.crypto_generichash).toBeCalledWith(32, new Uint8Array(new Array(64).fill(48)));
+    });
     it('Generates new valid seed', async () => {
       const keyPair = await getOrCreateKeyPair();
       expect(keyPair).toHaveProperty('keyType');
@@ -138,6 +128,10 @@ describe('Beacon', () => {
       const selfKeyPair = await getOrCreateKeyPair();
       const buffers = await createCryptoBox(MOCK_PUBLIC_KEY, selfKeyPair);
       expect(buffers.length).toEqual(3);
+      expect(mockSodiumUtil.crypto_sign_ed25519_sk_to_curve25519).toBeCalledWith(Buffer.from(selfKeyPair.privateKey));
+      expect(mockSodiumUtil.crypto_sign_ed25519_pk_to_curve25519).toBeCalledWith(Buffer.from(selfKeyPair.publicKey));
+      expect(mockSodiumUtil.crypto_sign_ed25519_sk_to_curve25519.mock.calls.length).toBe(1);
+      expect(mockSodiumUtil.crypto_sign_ed25519_pk_to_curve25519.mock.calls.length).toBe(2);
     });
   });
   describe('createCryptoBoxClient', () => {
@@ -146,6 +140,11 @@ describe('Beacon', () => {
       const cryptoClient = await createCryptoBoxClient(MOCK_PUBLIC_KEY, keyPair);
       expect(cryptoClient).toHaveProperty('sharedRx');
       expect(cryptoClient).toHaveProperty('sharedTx');
+      expect(mockSodiumUtil.crypto_kx_client_session_keys).toBeCalledWith(
+        Buffer.from(MOCK_PK_KEY),
+        Buffer.from(MOCK_SK_KEY),
+        Buffer.from(MOCK_PK_KEY)
+      );
     });
   });
   describe('createCryptoBoxServer', () => {
@@ -154,6 +153,11 @@ describe('Beacon', () => {
       const cryptoClient = await createCryptoBoxServer(MOCK_PUBLIC_KEY, keyPair);
       expect(cryptoClient).toHaveProperty('sharedRx');
       expect(cryptoClient).toHaveProperty('sharedTx');
+      expect(mockSodiumUtil.crypto_kx_server_session_keys).toBeCalledWith(
+        Buffer.from(MOCK_PK_KEY),
+        Buffer.from(MOCK_SK_KEY),
+        Buffer.from(MOCK_PK_KEY)
+      );
     });
   });
   describe('decryptCryptoboxPayload', () => {
@@ -164,6 +168,16 @@ describe('Beacon', () => {
       const hexPayload = Buffer.from(payload, 'hex');
       const decryptedMessage = await decryptCryptoboxPayload(hexPayload, sharedRx);
       expect(decryptedMessage).toStrictEqual('mock secretbox');
+      expect(mockSodiumUtil.crypto_kx_server_session_keys).toBeCalledWith(
+        Buffer.from(MOCK_PK_KEY),
+        Buffer.from(MOCK_SK_KEY),
+        Buffer.from(MOCK_PK_KEY)
+      );
+      expect(mockSodiumUtil.crypto_secretbox_open_easy).toBeCalledWith(
+        Buffer.from([]),
+        Buffer.from([]),
+        new Uint8Array([])
+      );
     });
   });
   describe('encryptCryptoboxPayload', () => {
@@ -172,7 +186,13 @@ describe('Beacon', () => {
       const { sharedTx } = await createCryptoBoxClient(MOCK_PUBLIC_KEY, keyPair);
       const message = 'mock payload';
       const payload = await encryptCryptoboxPayload(message, sharedTx);
-      expect(typeof payload).toBe('string');
+      expect(payload).toBe('6d6f636b2072616e646f6d62797465736d6f636b20736563726574626f782065617379');
+      expect(mockSodiumUtil.randombytes_buf).toBeCalled();
+      expect(mockSodiumUtil.crypto_secretbox_easy).toBeCalledWith(
+        Buffer.from(message, 'utf8'),
+        Buffer.from('mock randombytes'),
+        sharedTx
+      );
     });
   });
   describe('sealCryptobox', () => {
@@ -194,7 +214,8 @@ describe('Beacon', () => {
         }),
         fromHex(req.publicKey)
       );
-      expect(typeof result).toBe('string');
+      expect(result).toBe('6d6f636b2063727970746f626f78207365616c');
+      expect(mockSodiumUtil.crypto_box_seal).toBeCalled();
     });
   });
   describe('decryptMessage', () => {
@@ -215,7 +236,7 @@ describe('Beacon', () => {
     it('To be able decrypt sample message', async () => {
       const message = 'mock payload';
       const payload = await encryptMessage(message, MOCK_PUBLIC_KEY);
-      expect(typeof payload).toBe('string');
+      expect(payload).toBe('6d6f636b2072616e646f6d62797465736d6f636b20736563726574626f782065617379');
     });
   });
   describe('getSenderId', () => {
