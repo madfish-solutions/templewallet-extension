@@ -3,12 +3,16 @@ import { crypto_generichash, ready } from 'libsodium-wrappers';
 
 import toBuffer from 'typedarray-to-buffer';
 
-import { curves, getSig, pref, safeSignEdData, safeSignP2Data, safeSignSpData, verifySignature } from './ledger-signer';
-
-jest.mock('@taquito/ledger-signer', () => ({
-  ...jest.requireActual('@taquito/ledger-signer'),
-  publicKey: jest.fn(() => ({}))
-}));
+import {
+  curves,
+  getSig,
+  pref,
+  safeSignEdData,
+  safeSignP2Data,
+  safeSignSpData,
+  toLedgerError,
+  verifySignature
+} from './ledger-signer';
 
 const PAYLOAD = {
   ed: '0501313230363136653739323037333734373236393665363732303734363836313734323037373639366336633230363236353230373336393637366536353634',
@@ -38,12 +42,6 @@ const PUBLIC_KEY_HASH = {
 
 describe('Ledger Signer tests', () => {
   describe('verifySignature', () => {
-    // Cant generate signature, which started with 'sig'
-    // it('Verify edsig message work', async () => {
-    //   await ready;
-    //   const res = verifySignature(PAYLOAD.ed, 'sigAuk6rFPbT', PUBLIC_KEY.ed, PUBLIC_KEY_HASH.ed);
-    //   expect(res).toBe(true);
-    // });
     it('Verify edsig message work', async () => {
       await ready;
       const res = verifySignature(PAYLOAD.ed, SIGNATURE.ed, PUBLIC_KEY.ed, PUBLIC_KEY_HASH.ed);
@@ -136,13 +134,31 @@ describe('Ledger Signer tests', () => {
   });
   describe('getSig', () => {
     it('Get signature prefix', async () => {
-      // TODO
+      expect(() => getSig('sig123', null, null)).toThrow();
     });
     it('Get curve prefix', async () => {
-      // TODO
+      const curve = PUBLIC_KEY.p2.substring(0, 2) as curves;
+      const sig = getSig(SIGNATURE.p2, curve, pref);
+      expect(sig.byteLength).toBe(64);
     });
     it('Throw error on invalid curve', async () => {
-      // TODO
+      expect(() => getSig('notsig123', null, null)).toThrowError(`Invalid signature provided: notsig123`);
+    });
+  });
+  describe('toLedgerError', () => {
+    it('it spawns new error', async () => {
+      const errMessage = 'some mock error';
+      const err = toLedgerError(new Error(errMessage));
+      expect(err).toHaveProperty('message');
+      expect(err.message).toBe(`Ledger error. ${errMessage}`);
+    });
+  });
+  describe('toLedgerError', () => {
+    it('it spawns new error', async () => {
+      const errMessage = 'some mock error';
+      const err = toLedgerError(new Error(errMessage));
+      expect(err).toHaveProperty('message');
+      expect(err.message).toBe(`Ledger error. ${errMessage}`);
     });
   });
 });
