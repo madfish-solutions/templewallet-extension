@@ -54,10 +54,6 @@ export async function addLocalOperation(chainId: string, hash: string, localGrou
   const members = Array.from(memberSet);
   const assetIds = Array.from(assetIdSet);
 
-  if (!Repo.db.isOpen()) {
-    Repo.db.open();
-  }
-
   return Repo.operations.add({
     hash,
     chainId,
