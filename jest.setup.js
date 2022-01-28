@@ -7,6 +7,7 @@ Object.assign(global, {
 
 jest.mock('lib/temple/repo', () => ({
   db: {
-    delete: jest.fn()
+    delete: jest.fn(),
+    open: jest.fn()
   }
 }));
