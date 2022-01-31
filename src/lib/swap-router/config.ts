@@ -1,4 +1,4 @@
-export const TEZOS_DEXES_API_URL = 'wss://mainnet-dexes-test.madfish.xyz/';
+export const TEZOS_DEXES_API_URL = 'ws://mainnet-node.madfish.xyz:3002/';
 
 export const ROUTING_FEE_ADDRESS = 'tz1ZDvLWqzqBNNYkHNEWm2aEWBk2YCGqZeTW';
 

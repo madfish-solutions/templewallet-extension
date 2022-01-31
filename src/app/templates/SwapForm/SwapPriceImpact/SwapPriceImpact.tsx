@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import { BigNumber } from 'bignumber.js';
-import { getPairFeeRatio, getTradeInputAmount, getTradeOutputAmount, Trade } from 'swap-router-sdk';
+import { DexTypeEnum, getPairFeeRatio, getTradeInputAmount, getTradeOutputAmount, Trade } from 'swap-router-sdk';
 
 interface Props {
   trade: Trade;
@@ -15,7 +15,14 @@ export const SwapPriceImpact: FC<Props> = ({ trade }) => {
     if (tradeInput && tradeOutput && !tradeInput.isEqualTo(0) && !tradeOutput.isEqualTo(0)) {
       const linearOutputMutezAmount = trade.reduce((previousTradeOutput, tradeOperation) => {
         const feeRatio = getPairFeeRatio(tradeOperation);
-        const linearExchangeRate = tradeOperation.bTokenPool.dividedBy(tradeOperation.aTokenPool);
+
+        const aTokenMultiplier = tradeOperation.aTokenMultiplier ?? new BigNumber(1);
+        const bTokenMultiplier = tradeOperation.bTokenMultiplier ?? new BigNumber(1);
+
+        const linearExchangeRate =
+          tradeOperation.dexType === DexTypeEnum.Youves
+            ? aTokenMultiplier.dividedBy(bTokenMultiplier)
+            : tradeOperation.bTokenPool.dividedBy(tradeOperation.aTokenPool);
 
         return previousTradeOutput.multipliedBy(feeRatio).multipliedBy(linearExchangeRate).dividedToIntegerBy(1);
       }, tradeInput);
