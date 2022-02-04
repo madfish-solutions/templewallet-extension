@@ -14,7 +14,7 @@ interface Props {
   onChange: (newValue?: number) => void;
 }
 
-const SLIPPAGE_PRESETS = [0.5, 1, 3];
+const SLIPPAGE_PRESETS = [0.75, 1.5, 3];
 
 export const SlippageToleranceInput = forwardRef<HTMLInputElement, Props>(({ name, value, error, onChange }, ref) => {
   const [customPercentageValue, setCustomPercentageValue] = useState<number>();

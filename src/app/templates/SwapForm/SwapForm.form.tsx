@@ -31,7 +31,7 @@ export const useSwapFormDefaultValue = () => {
     return {
       input: { assetSlug: getValidAssetSlug(inputAssetSlug) },
       output: { assetSlug: getValidAssetSlug(outputAssetSlug) },
-      slippageTolerance: 1
+      slippageTolerance: 1.5
     };
   }, [location.search]);
 };
