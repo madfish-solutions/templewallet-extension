@@ -39,12 +39,11 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
-import { feeInfoTippyProps, priceImpactInfoTippyProps } from './SwapForm.tippy';
+import { feeInfoTippyProps } from './SwapForm.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
-import { SwapPriceImpact } from './SwapPriceImpact/SwapPriceImpact';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
 export const SwapForm: FC = () => {
@@ -53,7 +52,6 @@ export const SwapForm: FC = () => {
   const formAnalytics = useFormAnalytics('SwapForm');
 
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
-  const priceImpactInfoIconRef = useTippy<HTMLSpanElement>(priceImpactInfoTippyProps);
 
   const defaultValues = useSwapFormDefaultValue();
   const { handleSubmit, errors, watch, setValue, control, register, triggerValidation } = useForm<SwapFormValue>({
@@ -333,18 +331,6 @@ export const SwapForm: FC = () => {
               </span>
             </td>
             <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT} %</td>
-          </tr>
-          <tr>
-            <td>
-              <span ref={priceImpactInfoIconRef} className="flex w-fit items-center text-gray-500 hover:bg-gray-100">
-                <T id="priceImpact" />
-                &nbsp;
-                <InfoIcon className="w-3 h-auto stroke-current" />
-              </span>
-            </td>
-            <td className="text-right text-gray-600">
-              <SwapPriceImpact trade={bestTrade} />
-            </td>
           </tr>
           <tr>
             <td>
