@@ -24,8 +24,12 @@ const LOCK_TIME = 5 * 60_000;
 let disconnectTimestamp = 0;
 let connectionsCount = 0;
 
+const URL_BASE = 'extension://';
+
 browser.runtime.onConnect.addListener(externalPort => {
-  connectionsCount++;
+  if (externalPort.sender?.url?.includes(`${URL_BASE}${browser.runtime.id}`)) {
+    connectionsCount++;
+  }
   const lockUpEnabled = isLockUpEnabled();
   if (
     connectionsCount === 1 &&
@@ -35,8 +39,10 @@ browser.runtime.onConnect.addListener(externalPort => {
   ) {
     lock();
   }
-  externalPort.onDisconnect.addListener(() => {
-    connectionsCount--;
+  externalPort.onDisconnect.addListener(port => {
+    if (port.sender?.url?.includes(`${URL_BASE}${browser.runtime.id}`)) {
+      connectionsCount--;
+    }
     if (connectionsCount === 0) {
       disconnectTimestamp = Date.now();
     }
