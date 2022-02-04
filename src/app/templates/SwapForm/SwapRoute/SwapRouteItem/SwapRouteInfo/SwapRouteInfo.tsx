@@ -9,9 +9,7 @@ interface Props {
 
 export const SwapRouteInfo: FC<Props> = ({ text, className }) => (
   <p
-    style={{
-      height: '4.625rem'
-    }}
+    style={{ height: '4.625rem' }}
     className={classNames(
       'flex justify-center items-center mb-2',
       'px-4',
