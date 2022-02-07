@@ -82,22 +82,17 @@ const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset })
   return (
     <div className="flex flex-col items-start">
       <span className="text-gray-700 text-sm">{getAssetName(metadata)}</span>
-
       <span className={classNames('text-gray-600', 'text-sm leading-none')}>
-        {asset === 'tez' ? (
-          <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
-            {balance => (
-              <>
-                <Money>{balance}</Money>{' '}
-                <span className="text-gray-500" style={{ fontSize: '0.75em' }}>
-                  {getAssetSymbol(metadata)}
-                </span>
-              </>
-            )}
-          </Balance>
-        ) : (
-          <AssetMoney asset={asset} metadata={metadata} />
-        )}
+        <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
+          {balance => (
+            <>
+              <Money>{balance}</Money>{' '}
+              <span className="text-gray-500" style={{ fontSize: '0.75em' }}>
+                {getAssetSymbol(metadata)}
+              </span>
+            </>
+          )}
+        </Balance>
       </span>
     </div>
   );
@@ -125,13 +120,3 @@ const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
     </Balance>
   );
 };
-
-const AssetMoney: FC<{ asset: IAsset; metadata: AssetMetadata }> = ({ asset, metadata }) =>
-  asset !== 'tez' && asset?.latestBalance && metadata ? (
-    <>
-      <Money tooltip={false}>{new BigNumber(asset.latestBalance).div(10 ** metadata.decimals)}</Money>{' '}
-      <span className="text-gray-500" style={{ fontSize: '0.75em' }}>
-        {getAssetSymbol(metadata)}
-      </span>
-    </>
-  ) : null;
