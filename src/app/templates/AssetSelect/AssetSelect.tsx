@@ -1,6 +1,4 @@
 import React, { FC, useCallback, useMemo } from 'react';
-
-import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import Money from 'app/atoms/Money';
@@ -9,7 +7,7 @@ import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InUSD from 'app/templates/InUSD';
 import { T } from 'lib/i18n/react';
-import { AssetMetadata, getAssetName, getAssetSymbol, useAccount, useAssetMetadata } from 'lib/temple/front';
+import { getAssetName, getAssetSymbol, useAccount, useAssetMetadata } from 'lib/temple/front';
 
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
