@@ -5,13 +5,10 @@ import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 import {
   getBestTradeExactInput,
-  getBestTradeExactOutput,
-  getTradeInputAmount,
   getTradeOpParams,
   getTradeOutputAmount,
   parseTransferParamsToParamsWithKind,
   Trade,
-  TradeTypeEnum,
   useAllRoutePairs,
   useRoutePairsCombinations,
   useTradeWithSlippageTolerance
@@ -25,12 +22,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import { getRoutingFeeTransferParams } from 'lib/swap-router';
-import {
-  ROUTING_FEE_INVERTED_RATIO,
-  ROUTING_FEE_PERCENT,
-  ROUTING_FEE_RATIO,
-  TEZOS_DEXES_API_URL
-} from 'lib/swap-router/config';
+import { ROUTING_FEE_PERCENT, ROUTING_FEE_RATIO, TEZOS_DEXES_API_URL } from 'lib/swap-router/config';
 import { useAccount, useAssetMetadata, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
@@ -39,12 +31,11 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
-import { feeInfoTippyProps, priceImpactInfoTippyProps } from './SwapForm.tippy';
+import { feeInfoTippyProps } from './SwapForm.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
-import { SwapPriceImpact } from './SwapPriceImpact/SwapPriceImpact';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
 export const SwapForm: FC = () => {
@@ -53,7 +44,6 @@ export const SwapForm: FC = () => {
   const formAnalytics = useFormAnalytics('SwapForm');
 
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
-  const priceImpactInfoIconRef = useTippy<HTMLSpanElement>(priceImpactInfoTippyProps);
 
   const defaultValues = useSwapFormDefaultValue();
   const { handleSubmit, errors, watch, setValue, control, register, triggerValidation } = useForm<SwapFormValue>({
@@ -69,7 +59,6 @@ export const SwapForm: FC = () => {
   const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? 'tez');
 
   const [bestTrade, setBestTrade] = useState<Trade>([]);
-  const [tradeType, setTradeType] = useState(TradeTypeEnum.EXACT_INPUT);
   const allRoutePairs = useAllRoutePairs(TEZOS_DEXES_API_URL);
   const routePairsCombinations = useRoutePairsCombinations(
     inputValue.assetSlug,
@@ -106,71 +95,27 @@ export const SwapForm: FC = () => {
   );
 
   useEffect(() => {
-    if (tradeType === TradeTypeEnum.EXACT_INPUT) {
-      if (inputMutezAmountWithFee && routePairsCombinations.length > 0) {
-        const bestTradeExactIn = getBestTradeExactInput(inputMutezAmountWithFee, routePairsCombinations);
-        const bestTradeOutput = getTradeOutputAmount(bestTradeExactIn);
+    if (inputMutezAmountWithFee && routePairsCombinations.length > 0) {
+      const bestTradeExactIn = getBestTradeExactInput(inputMutezAmountWithFee, routePairsCombinations);
+      const bestTradeOutput = getTradeOutputAmount(bestTradeExactIn);
 
-        const outputTzAmount = bestTradeOutput
-          ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals)
-          : undefined;
+      const outputTzAmount = bestTradeOutput ? atomsToTokens(bestTradeOutput, outputAssetMetadata.decimals) : undefined;
 
-        setBestTrade(bestTradeExactIn);
-        setValue('output', { assetSlug: outputValue.assetSlug, amount: outputTzAmount });
-      } else {
-        setBestTrade([]);
-        setValue('output', { assetSlug: outputValue.assetSlug, amount: undefined });
-      }
+      setBestTrade(bestTradeExactIn);
+      setValue('output', { assetSlug: outputValue.assetSlug, amount: outputTzAmount });
+    } else {
+      setBestTrade([]);
+      setValue('output', { assetSlug: outputValue.assetSlug, amount: undefined });
+    }
 
-      if (isSubmitButtonPressedRef.current) {
-        triggerValidation();
-      }
+    if (isSubmitButtonPressedRef.current) {
+      triggerValidation();
     }
   }, [
     inputMutezAmountWithFee,
     outputValue.assetSlug,
-    tradeType,
     slippageTolerance,
     routePairsCombinations,
-    outputAssetMetadata.decimals,
-    setValue,
-    triggerValidation
-  ]);
-
-  useEffect(() => {
-    if (tradeType === TradeTypeEnum.EXACT_OUTPUT) {
-      if (outputValue.amount && routePairsCombinations.length > 0) {
-        const outputMutezAmount = tokensToAtoms(outputValue.amount, outputAssetMetadata.decimals);
-
-        const bestTradeExactOutput = getBestTradeExactOutput(outputMutezAmount, routePairsCombinations);
-        const bestTradeMutezInput = getTradeInputAmount(bestTradeExactOutput);
-
-        const bestTradeMutezInputWithFee = bestTradeMutezInput
-          ? bestTradeMutezInput.multipliedBy(ROUTING_FEE_INVERTED_RATIO).dividedToIntegerBy(1)
-          : undefined;
-
-        const inputTzAmountWithFee = bestTradeMutezInputWithFee
-          ? atomsToTokens(bestTradeMutezInputWithFee, inputAssetMetadata.decimals)
-          : undefined;
-
-        setBestTrade(bestTradeExactOutput);
-        setValue('input', { assetSlug: inputValue.assetSlug, amount: inputTzAmountWithFee });
-      } else {
-        setBestTrade([]);
-        setValue('input', { assetSlug: inputValue.assetSlug, amount: undefined });
-      }
-
-      if (isSubmitButtonPressedRef.current) {
-        triggerValidation();
-      }
-    }
-  }, [
-    outputValue.amount,
-    inputValue.assetSlug,
-    tradeType,
-    slippageTolerance,
-    routePairsCombinations,
-    inputAssetMetadata.decimals,
     outputAssetMetadata.decimals,
     setValue,
     triggerValidation
@@ -250,7 +195,10 @@ export const SwapForm: FC = () => {
   const handleOperationClose = () => setOperation(undefined);
 
   const handleToggleIconClick = () =>
-    setValue([{ input: { assetSlug: outputValue.assetSlug } }, { output: { assetSlug: inputValue.assetSlug } }]);
+    setValue([
+      { input: { assetSlug: outputValue.assetSlug, amount: inputValue.amount } },
+      { output: { assetSlug: inputValue.assetSlug } }
+    ]);
 
   const handleInputChange = (newInputValue: SwapInputValue) => {
     setValue('input', newInputValue);
@@ -266,9 +214,6 @@ export const SwapForm: FC = () => {
       setValue('input', {});
     }
   };
-
-  const handleInputAmountChange = () => setTradeType(TradeTypeEnum.EXACT_INPUT);
-  const handleOutputAmountChange = () => setTradeType(TradeTypeEnum.EXACT_OUTPUT);
 
   const handleSubmitButtonClick = () => (isSubmitButtonPressedRef.current = true);
 
@@ -290,9 +235,7 @@ export const SwapForm: FC = () => {
         // @ts-ignore
         error={errors.input?.message}
         label={<T id="from" />}
-        withPercentageButtons={true}
         onChange={handleInputChange}
-        onAmountChange={handleInputAmountChange}
       />
 
       <div className="w-full my-4 flex justify-center">
@@ -308,8 +251,8 @@ export const SwapForm: FC = () => {
         // @ts-ignore
         error={errors.output?.message}
         label={<T id="toAsset" />}
+        amountInputDisabled={true}
         onChange={handleOutputChange}
-        onAmountChange={handleOutputAmountChange}
       />
 
       <p className="text-xs text-gray-500 mb-1">
@@ -333,18 +276,6 @@ export const SwapForm: FC = () => {
               </span>
             </td>
             <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT} %</td>
-          </tr>
-          <tr>
-            <td>
-              <span ref={priceImpactInfoIconRef} className="flex w-fit items-center text-gray-500 hover:bg-gray-100">
-                <T id="priceImpact" />
-                &nbsp;
-                <InfoIcon className="w-3 h-auto stroke-current" />
-              </span>
-            </td>
-            <td className="text-right text-gray-600">
-              <SwapPriceImpact trade={bestTrade} />
-            </td>
           </tr>
           <tr>
             <td>

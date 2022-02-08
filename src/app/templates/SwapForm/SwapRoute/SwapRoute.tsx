@@ -33,7 +33,7 @@ export const SwapRoute: FC<Props> = ({ trade, inputValue, outputValue, loadingHa
   }
 
   return (
-    <div className="flex justify-between items-center mb-2">
+    <div style={{ height: '4.625rem' }} className="flex justify-between items-center mb-2">
       {trade.map((item, index) => (
         <SwapRouteItem
           key={`${index}_${item.dexType}_${item.aTokenSlug}_${item.bTokenSlug}`}
