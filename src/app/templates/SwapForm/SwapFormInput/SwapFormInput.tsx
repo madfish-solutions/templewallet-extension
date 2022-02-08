@@ -35,7 +35,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   error,
   label,
   name,
-  withPercentageButtons,
+  amountInputDisabled,
   onChange,
   onAmountChange
 }) => {
@@ -126,7 +126,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
 
   return (
     <div className={classNames('w-full', className)}>
-      <input className="hidden" name={name} />
+      <input className="hidden" name={name} disabled={amountInputDisabled} />
       <Popper
         placement="bottom"
         strategy="fixed"
@@ -161,6 +161,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
             tokenId={tokenId}
             toggleOpened={toggleOpened}
             onTokenIdChange={setTokenId}
+            amountInputDisabled={amountInputDisabled}
             onAmountChange={handleAmountChange}
             onSearchChange={handleSearchChange}
           />
@@ -168,13 +169,13 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
       </Popper>
       <div
         className={classNames(
-          withPercentageButtons && 'mt-1',
+          !amountInputDisabled && 'mt-1',
           'w-full flex items-center',
           prettyError ? 'justify-between' : 'justify-end'
         )}
       >
         {prettyError && <div className="text-red-700 text-xs">{prettyError}</div>}
-        {withPercentageButtons && (
+        {!amountInputDisabled && (
           <div className="flex">
             {PERCENTAGE_BUTTONS.map(percentage => (
               <PercentageButton

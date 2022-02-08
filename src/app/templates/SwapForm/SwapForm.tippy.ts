@@ -6,10 +6,3 @@ export const feeInfoTippyProps = {
   content: t('routingFeeTooltip'),
   animation: 'shift-away-subtle'
 };
-
-export const priceImpactInfoTippyProps = {
-  trigger: 'mouseenter',
-  hideOnClick: false,
-  content: t('priceImpactInfo'),
-  animation: 'shift-away-subtle'
-};

@@ -24,6 +24,7 @@ interface Props extends PopperRenderProps, Pick<SwapFormInputProps, 'label'> {
   selectedAssetMetadata: AssetMetadata;
   showTokenIdInput: boolean;
   tokenId?: number;
+  amountInputDisabled?: boolean;
   onTokenIdChange: (value?: number) => void;
   onAmountChange: (amount?: BigNumber) => void;
   onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -42,6 +43,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
       showTokenIdInput,
       tokenId,
       toggleOpened,
+      amountInputDisabled,
       onTokenIdChange,
       onAmountChange,
       onSearchChange
@@ -167,7 +169,12 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
 
               <ChevronDownIcon className="w-4 h-auto text-gray-700 stroke-current stroke-2" />
             </div>
-            <div className="flex-1 px-2 flex items-center justify-between">
+            <div
+              className={classNames(
+                'flex-1 px-2 flex items-center justify-between',
+                amountInputDisabled && 'bg-gray-100'
+              )}
+            >
               <div className="h-full flex-1 flex items-end justify-center flex-col">
                 <AssetField
                   ref={amountFieldRef}
@@ -179,6 +186,7 @@ export const SwapFormInputHeader = forwardRef<HTMLDivElement, Props>(
                   style={{ padding: 0, borderRadius: 0 }}
                   placeholder={toLocalFormat(0, { decimalPlaces: 2 })}
                   min={0}
+                  disabled={amountInputDisabled}
                   assetDecimals={selectedAssetMetadata.decimals}
                   fieldWrapperBottomMargin={false}
                   onBlur={handleBlur}

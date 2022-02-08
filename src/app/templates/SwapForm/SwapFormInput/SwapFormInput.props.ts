@@ -8,7 +8,7 @@ export interface SwapFormInputProps {
   error?: string;
   label: React.ReactNode;
   name: string;
-  withPercentageButtons?: boolean;
+  amountInputDisabled?: boolean;
   onChange: (value: SwapInputValue) => void;
   onAmountChange: (value: SwapInputValue['amount']) => void;
 }
