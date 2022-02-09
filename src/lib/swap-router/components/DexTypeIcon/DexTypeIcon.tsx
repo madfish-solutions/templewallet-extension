@@ -21,7 +21,5 @@ export const DexTypeIcon: FC<Props> = ({ dexType }) => {
       return <LiquidityBackingIcon />;
     case DexTypeEnum.Youves:
       return <YouvesIcon />;
-    default:
-      return null;
   }
 };

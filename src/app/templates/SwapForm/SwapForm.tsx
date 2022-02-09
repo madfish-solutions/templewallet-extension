@@ -274,53 +274,53 @@ export const SwapForm: FC = () => {
 
       <table className={classNames('w-full text-xs text-gray-500 mb-6', styles['swap-form-table'])}>
         <tbody>
-        <tr>
-          <td>
+          <tr>
+            <td>
               <span ref={feeInfoIconRef} className="flex w-fit items-center text-gray-500 hover:bg-gray-100">
                 <T id="routingFee" />
                 &nbsp;
                 <InfoIcon className="w-3 h-auto stroke-current" />
               </span>
-          </td>
-          <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT} %</td>
-        </tr>
-        <tr>
-          <td>
-            <T id="exchangeRate" />
-          </td>
-          <td className="text-right text-gray-600">
-            <SwapExchangeRate
-              trade={bestTrade}
-              inputAssetMetadata={inputAssetMetadata}
-              outputAssetMetadata={outputAssetMetadata}
-            />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <T id="slippageTolerance" />
-          </td>
-          <td className="justify-end text-gray-600 flex">
-            <Controller
-              control={control}
-              as={SlippageToleranceInput}
-              error={!!errors.slippageTolerance}
-              name="slippageTolerance"
-              rules={{ validate: slippageToleranceInputValidationFn }}
-            />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <T id="minimumReceived" />
-          </td>
-          <td className="text-right text-gray-600">
-            <SwapMinimumReceived
-              tradeWithSlippageTolerance={bestTradeWithSlippageTolerance}
-              outputAssetMetadata={outputAssetMetadata}
-            />
-          </td>
-        </tr>
+            </td>
+            <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT} %</td>
+          </tr>
+          <tr>
+            <td>
+              <T id="exchangeRate" />
+            </td>
+            <td className="text-right text-gray-600">
+              <SwapExchangeRate
+                trade={bestTrade}
+                inputAssetMetadata={inputAssetMetadata}
+                outputAssetMetadata={outputAssetMetadata}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <T id="slippageTolerance" />
+            </td>
+            <td className="justify-end text-gray-600 flex">
+              <Controller
+                control={control}
+                as={SlippageToleranceInput}
+                error={!!errors.slippageTolerance}
+                name="slippageTolerance"
+                rules={{ validate: slippageToleranceInputValidationFn }}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <T id="minimumReceived" />
+            </td>
+            <td className="text-right text-gray-600">
+              <SwapMinimumReceived
+                tradeWithSlippageTolerance={bestTradeWithSlippageTolerance}
+                outputAssetMetadata={outputAssetMetadata}
+              />
+            </td>
+          </tr>
         </tbody>
       </table>
 
