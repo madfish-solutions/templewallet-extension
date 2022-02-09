@@ -37,6 +37,7 @@ import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/S
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
+import { SwapPriceUpdateBar } from './SwapPriceUpdateBar/SwapPriceUpdateBar';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
 const KNOWN_DEX_TYPES = [DexTypeEnum.QuipuSwap, DexTypeEnum.Plenty, DexTypeEnum.LiquidityBaking, DexTypeEnum.Youves];
@@ -272,7 +273,7 @@ export const SwapForm: FC = () => {
         loadingHasFailed={allRoutePairs.hasFailed}
       />
 
-      <table className={classNames('w-full text-xs text-gray-500 mb-6', styles['swap-form-table'])}>
+      <table className={classNames('w-full text-xs text-gray-500 mb-2', styles['swap-form-table'])}>
         <tbody>
           <tr>
             <td>
@@ -323,6 +324,8 @@ export const SwapForm: FC = () => {
           </tr>
         </tbody>
       </table>
+
+      <SwapPriceUpdateBar lastUpdateBlock={allRoutePairs.block} />
 
       {error && (
         <Alert
