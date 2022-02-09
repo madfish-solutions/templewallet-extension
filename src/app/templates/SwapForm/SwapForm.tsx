@@ -4,6 +4,7 @@ import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-o
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 import {
+  DexTypeEnum,
   getBestTradeExactInput,
   getTradeOpParams,
   getTradeOutputAmount,
@@ -38,6 +39,8 @@ import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapRoute } from './SwapRoute/SwapRoute';
 
+const KNOWN_DEX_TYPES = [DexTypeEnum.QuipuSwap, DexTypeEnum.Plenty, DexTypeEnum.LiquidityBaking, DexTypeEnum.Youves];
+
 export const SwapForm: FC = () => {
   const tezos = useTezos();
   const account = useAccount();
@@ -60,10 +63,14 @@ export const SwapForm: FC = () => {
 
   const [bestTrade, setBestTrade] = useState<Trade>([]);
   const allRoutePairs = useAllRoutePairs(TEZOS_DEXES_API_URL);
+  const filteredRoutePairs = useMemo(
+    () => allRoutePairs.data.filter(routePair => KNOWN_DEX_TYPES.includes(routePair.dexType)),
+    [allRoutePairs.data]
+  );
   const routePairsCombinations = useRoutePairsCombinations(
     inputValue.assetSlug,
     outputValue.assetSlug,
-    allRoutePairs.data
+    filteredRoutePairs
   );
 
   const inputMutezAmount = useMemo(
@@ -267,53 +274,53 @@ export const SwapForm: FC = () => {
 
       <table className={classNames('w-full text-xs text-gray-500 mb-6', styles['swap-form-table'])}>
         <tbody>
-          <tr>
-            <td>
+        <tr>
+          <td>
               <span ref={feeInfoIconRef} className="flex w-fit items-center text-gray-500 hover:bg-gray-100">
                 <T id="routingFee" />
                 &nbsp;
                 <InfoIcon className="w-3 h-auto stroke-current" />
               </span>
-            </td>
-            <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT} %</td>
-          </tr>
-          <tr>
-            <td>
-              <T id="exchangeRate" />
-            </td>
-            <td className="text-right text-gray-600">
-              <SwapExchangeRate
-                trade={bestTrade}
-                inputAssetMetadata={inputAssetMetadata}
-                outputAssetMetadata={outputAssetMetadata}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <T id="slippageTolerance" />
-            </td>
-            <td className="justify-end text-gray-600 flex">
-              <Controller
-                control={control}
-                as={SlippageToleranceInput}
-                error={!!errors.slippageTolerance}
-                name="slippageTolerance"
-                rules={{ validate: slippageToleranceInputValidationFn }}
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <T id="minimumReceived" />
-            </td>
-            <td className="text-right text-gray-600">
-              <SwapMinimumReceived
-                tradeWithSlippageTolerance={bestTradeWithSlippageTolerance}
-                outputAssetMetadata={outputAssetMetadata}
-              />
-            </td>
-          </tr>
+          </td>
+          <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT} %</td>
+        </tr>
+        <tr>
+          <td>
+            <T id="exchangeRate" />
+          </td>
+          <td className="text-right text-gray-600">
+            <SwapExchangeRate
+              trade={bestTrade}
+              inputAssetMetadata={inputAssetMetadata}
+              outputAssetMetadata={outputAssetMetadata}
+            />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <T id="slippageTolerance" />
+          </td>
+          <td className="justify-end text-gray-600 flex">
+            <Controller
+              control={control}
+              as={SlippageToleranceInput}
+              error={!!errors.slippageTolerance}
+              name="slippageTolerance"
+              rules={{ validate: slippageToleranceInputValidationFn }}
+            />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <T id="minimumReceived" />
+          </td>
+          <td className="text-right text-gray-600">
+            <SwapMinimumReceived
+              tradeWithSlippageTolerance={bestTradeWithSlippageTolerance}
+              outputAssetMetadata={outputAssetMetadata}
+            />
+          </td>
+        </tr>
         </tbody>
       </table>
 

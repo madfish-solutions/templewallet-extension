@@ -10,5 +10,4 @@ export interface SwapFormInputProps {
   name: string;
   amountInputDisabled?: boolean;
   onChange: (value: SwapInputValue) => void;
-  onAmountChange: (value: SwapInputValue['amount']) => void;
 }

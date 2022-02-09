@@ -36,8 +36,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   label,
   name,
   amountInputDisabled,
-  onChange,
-  onAmountChange
+  onChange
 }) => {
   const { trackChange } = useFormAnalytics('SwapForm');
   const { assetSlug, amount } = value;
@@ -78,13 +77,11 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     setSearchValue(e.target.value);
   };
 
-  const handleAmountChange = (newAmount?: BigNumber) => {
+  const handleAmountChange = (newAmount?: BigNumber) =>
     onChange({
       assetSlug,
       amount: newAmount
     });
-    onAmountChange(newAmount);
-  };
 
   const handlePercentageClick = (percentage: number) => {
     if (!assetSlug) {
