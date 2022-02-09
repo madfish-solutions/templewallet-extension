@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useMemo } from 'react';
 
-import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import Money from 'app/atoms/Money';
@@ -9,7 +8,7 @@ import Balance from 'app/templates/Balance';
 import IconifiedSelect, { IconifiedSelectOptionRenderProps } from 'app/templates/IconifiedSelect';
 import InUSD from 'app/templates/InUSD';
 import { T } from 'lib/i18n/react';
-import { AssetMetadata, getAssetName, getAssetSymbol, useAccount, useAssetMetadata } from 'lib/temple/front';
+import { getAssetName, getAssetSymbol, useAccount, useAssetMetadata } from 'lib/temple/front';
 
 import { IAsset } from './interfaces';
 import { getSlug } from './utils';
@@ -82,22 +81,17 @@ const AssetInMenuContent: FC<AssetSelectOptionRenderProps> = ({ option: asset })
   return (
     <div className="flex flex-col items-start">
       <span className="text-gray-700 text-sm">{getAssetName(metadata)}</span>
-
       <span className={classNames('text-gray-600', 'text-sm leading-none')}>
-        {asset === 'tez' ? (
-          <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
-            {balance => (
-              <>
-                <Money>{balance}</Money>{' '}
-                <span className="text-gray-500" style={{ fontSize: '0.75em' }}>
-                  {getAssetSymbol(metadata)}
-                </span>
-              </>
-            )}
-          </Balance>
-        ) : (
-          <AssetMoney asset={asset} metadata={metadata} />
-        )}
+        <Balance assetSlug={assetSlug} address={account.publicKeyHash}>
+          {balance => (
+            <>
+              <Money>{balance}</Money>{' '}
+              <span className="text-gray-500" style={{ fontSize: '0.75em' }}>
+                {getAssetSymbol(metadata)}
+              </span>
+            </>
+          )}
+        </Balance>
       </span>
     </div>
   );
@@ -125,13 +119,3 @@ const AssetSelectedContent: FC<AssetSelectOptionRenderProps> = ({ option }) => {
     </Balance>
   );
 };
-
-const AssetMoney: FC<{ asset: IAsset; metadata: AssetMetadata }> = ({ asset, metadata }) =>
-  asset !== 'tez' && asset?.latestBalance && metadata ? (
-    <>
-      <Money tooltip={false}>{new BigNumber(asset.latestBalance).div(10 ** metadata.decimals)}</Money>{' '}
-      <span className="text-gray-500" style={{ fontSize: '0.75em' }}>
-        {getAssetSymbol(metadata)}
-      </span>
-    </>
-  ) : null;
