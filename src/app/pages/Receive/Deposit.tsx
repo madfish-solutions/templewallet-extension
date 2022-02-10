@@ -28,8 +28,8 @@ const ALL_DEPOSITS = [
   {
     networkType: 'test',
     type: 'faucet',
-    titleName: 'tezosFaucetAlpha',
-    link: 'https://faucet.tzalpha.net/',
+    titleName: 'tezosFaucetTeztnetsXyz',
+    link: 'https://teztnets.xyz/',
     icon: <FaucetIcon />,
     color: ''
   }

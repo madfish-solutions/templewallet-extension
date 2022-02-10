@@ -229,8 +229,8 @@
   "tezosFaucet": {
     "message": "テゾスフォーセット"
   },
-  "tezosFaucetAlpha": {
-    "message": "テゾスフォーセット（アルファ）"
+  "tezosFaucetTeztnetsXyz": {
+    "message": "テゾスフォーセット（Teztnets.xyz）"
   },
   "depositToWallet": {
     "message": "自分のウォレットに入金"

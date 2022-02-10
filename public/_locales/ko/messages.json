@@ -229,8 +229,8 @@
   "tezosFaucet": {
     "message": "테조스 수도꼭지"
   },
-  "tezosFaucetAlpha": {
-    "message": "테조스 수도꼭지(알파)"
+  "tezosFaucetTeztnetsXyz": {
+    "message": "테조스 수도꼭지(Teztnets.xyz)"
   },
   "depositToWallet": {
     "message": "지갑에 입금"

@@ -229,8 +229,8 @@
   "tezosFaucet": {
     "message": "Tezos 水龍頭"
   },
-  "tezosFaucetAlpha": {
-    "message": "Tezos 水龍頭 (Alpha)"
+  "tezosFaucetTeztnetsXyz": {
+    "message": "Tezos 水龍頭 (Teztnets.xyz)"
   },
   "depositToWallet": {
     "message": "存款到您的錢包"

@@ -687,13 +687,13 @@ const FromFaucetForm: FC = () => {
                 id="faucetFileInputPrompt"
                 substitutions={[
                   <a
-                    href="https://faucet.tzalpha.net/"
+                    href="https://teztnets.xyz/"
                     key="link"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-normal underline"
                   >
-                    https://faucet.tzalpha.net
+                    https://teztnets.xyz
                   </a>
                 ]}
               />

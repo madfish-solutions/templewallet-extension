@@ -232,8 +232,8 @@
   "tezosFaucet": {
     "message": "Tezos Faucet"
   },
-  "tezosFaucetAlpha": {
-    "message": "Tezos Faucet (Alpha)"
+  "tezosFaucetTeztnetsXyz": {
+    "message": "Tezos Faucet (Teztnets.xyz)"
   },
   "depositToWallet": {
     "message": "Zahlen Sie in Ihre Wallet ein"
