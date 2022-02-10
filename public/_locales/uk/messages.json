@@ -1719,13 +1719,13 @@
     "message": "Через"
   },
   "exchangeRate": {
-    "message": "Курс обміну:"
+    "message": "Курс обміну"
   },
   "slippageTolerance": {
-    "message": "Максимально допустиме відхилення:"
+    "message": "Максимально допустиме відхилення"
   },
   "minimumReceived": {
-    "message": "Мінімальний вихід:"
+    "message": "Мінімальний вихід"
   },
   "helpAndCommunity": {
     "message": "Допомога та спільнота"

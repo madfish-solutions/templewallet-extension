@@ -1833,16 +1833,16 @@
     "message": "Via"
   },
   "exchangeRate": {
-    "message": "Taxa de câmbio:"
+    "message": "Taxa de câmbio"
   },
   "priceImpact": {
-    "message": "Impacto do preço:"
+    "message": "Impacto do preço"
   },
   "slippageTolerance": {
-    "message": "Tolerância de derrapagem:"
+    "message": "Tolerância de derrapagem"
   },
   "minimumReceived": {
-    "message": "Mínimo recebido:"
+    "message": "Mínimo recebido"
   },
   "inputOutputAssetsCannotBeSame": {
     "message": "Os ativos de entrada e saída não podem ser os mesmos"
@@ -2092,10 +2092,10 @@
     "message": "De momento, não pode realizar a operação!\nAguarde até a sua operação anterior ser aplicada e tente novamente."
   },
   "swapDisclaimerTitle": {
-    "message": "Renúncia de responsabilidade. Leia antes de utilizar a secção TROCA."
+    "message": "Renúncia de responsabilidade. Beta version, leia antes de utilizar a secção TROCA."
   },
   "swapDisclaimerContent": {
-    "message": "A carteira Temple fornece apenas uma interface para interagir com Tezos Dexes. Não somos responsáveis por: Questões DEX, tokens expostos, preço, taxas de câmbio e decisões de negociação dos utilizadores. Antes de utilizar esta secção de troca, deverá rever a documentação relevante para compreender como funcionam os protocolos DEX(AMM). A utilização desta secção é da exclusiva responsabilidade do utilizador."
+    "message": "A carteira Temple fornece apenas uma interface para interagir com Tezos Dexes. \n\nNão somos responsáveis por: Questões DEX, tokens expostos, preço, taxas de câmbio e decisões de negociação dos utilizadores. \n\nAntes de utilizar esta secção de troca, deverá rever a documentação relevante para compreender como funcionam os protocolos DEX(AMM). \n\nA utilização desta secção é da exclusiva responsabilidade do utilizador."
   },
   "noContactsFound": {
     "message": "Não foram encontrados contactos"

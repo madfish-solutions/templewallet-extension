@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 
-import CollectibleImage from 'app/atoms/CollectibleImage';
-import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectiblePlaceholder.svg';
+import { AssetIcon } from 'app/templates/AssetIcon';
 import { useAssetMetadata } from 'lib/temple/front';
 import { Link } from 'lib/woozie';
 
@@ -19,14 +18,9 @@ const CollectibleItem: FC<Props> = ({ assetSlug, index, itemsLength }) => {
         <div className="p-2">
           <div
             style={{ borderRadius: '12px' }}
-            className="border border-gray-300 w-16 h-16 flex items-center justify-center"
+            className="border border-gray-300 w-16 h-16 flex items-center justify-center overflow-hidden p-2"
           >
-            <CollectibleImage
-              className="w-12 h-12"
-              collectibleMetadata={collectibleMetadata}
-              Placeholder={CollectiblePlaceholder}
-              assetSlug={assetSlug}
-            />
+            <AssetIcon assetSlug={assetSlug} className="w-12 h-12" />
           </div>
         </div>
         <div className="pl-2">

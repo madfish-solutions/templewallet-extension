@@ -393,12 +393,10 @@ const reduceFunction = (
     const y0 = leftValue;
     const x1 = rightValueIndex;
     const y1 = rightValue;
-    const x2 = index;
-    const y2 = new BigNumber(x2 - x0)
+    fallbackRewardsValue = new BigNumber(index - x0)
       .div(x1 - x0)
       .multipliedBy(y1.minus(y0))
       .plus(y0);
-    fallbackRewardsValue = y2;
   } else if (leftValueExists || rightValueExists) {
     fallbackRewardsValue = rewardsPerEventHistory[leftValueExists ? leftValueIndex : rightValueIndex][key]!;
   }

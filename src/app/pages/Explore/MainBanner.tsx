@@ -7,7 +7,7 @@ import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as DollarIcon } from 'app/icons/dollar.svg';
-import AssetIcon from 'app/templates/AssetIcon';
+import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
 import { T } from 'lib/i18n/react';
@@ -102,7 +102,9 @@ const AssetBanner: FC<AssetBannerProps> = ({ assetSlug, accountPkh }) => {
             {balance => (
               <div className="flex flex-col">
                 <span className="text-xl text-gray-800">
-                  <Money smallFractionFont={false}>{balance}</Money>{' '}
+                  <span className="inline-block align-bottom truncate" style={{ maxWidth: popup ? '8rem' : '10rem' }}>
+                    <Money smallFractionFont={false}>{balance}</Money>
+                  </span>{' '}
                   <span className="text-lg">{getAssetSymbol(assetMetadata)}</span>
                 </span>
 

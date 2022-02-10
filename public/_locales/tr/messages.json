@@ -1824,25 +1824,25 @@
     "message": "Bakiye:"
   },
   "from": {
-    "message": "Gönderen:"
+    "message": "Gönderen"
   },
   "toAsset": {
-    "message": "Alıcı:"
+    "message": "Alıcı"
   },
   "via": {
-    "message": "Aracı:"
+    "message": "Aracı"
   },
   "exchangeRate": {
-    "message": "Borsa oranı:"
+    "message": "Borsa oranı"
   },
   "priceImpact": {
-    "message": "Fiyat etkisi:"
+    "message": "Fiyat etkisi"
   },
   "slippageTolerance": {
-    "message": "Slipaj toleransı:"
+    "message": "Slipaj toleransı"
   },
   "minimumReceived": {
-    "message": "Alınan minimum:"
+    "message": "Alınan minimum"
   },
   "inputOutputAssetsCannotBeSame": {
     "message": "Giriş ve çıkış varlıkları aynı olamaz"
@@ -2092,10 +2092,10 @@
     "message": "Bu işlemi şu anda gerçekleştiremezsiniz!\nLütfen önceki işleminiz uygulanana kadar bekleyin ve bundan sonra yeniden deneyin."
   },
   "swapDisclaimerTitle": {
-    "message": "Sorumluluk Reddi. Takas bölümünü kullanmadan önce okuyun."
+    "message": "Sorumluluk Reddi. Beta version, takas bölümünü kullanmadan önce okuyun."
   },
   "swapDisclaimerContent": {
-    "message": "Temple Wallet, yalnızca Tezos Dexes ile etkileşim kurmayı sağlayan bir arabirim sunar. Şunlardan sorumlu değiliz: DEX sorunları, görüntülenen token'lar, fiyat, borsa oranları ve kullanıcı alım satım kararları. Takas Bölümünü kullanmadan önce, ilgili belgeleri inceleyerek DEX(AMM) protokollerinin çalışma şeklini anlamanız gerekir. Bu bölümün kullanılması yalnızca kullanıcının sorumluluğundadır."
+    "message": "Temple Wallet, yalnızca Tezos Dexes ile etkileşim kurmayı sağlayan bir arabirim sunar. \n\nŞunlardan sorumlu değiliz: DEX sorunları, görüntülenen token'lar, fiyat, borsa oranları ve kullanıcı alım satım kararları. \n\nTakas Bölümünü kullanmadan önce, ilgili belgeleri inceleyerek DEX(AMM) protokollerinin çalışma şeklini anlamanız gerekir. \n\nBu bölümün kullanılması yalnızca kullanıcının sorumluluğundadır."
   },
   "noContactsFound": {
     "message": "Kişi bulunamadı"
