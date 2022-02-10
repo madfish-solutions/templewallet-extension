@@ -26,7 +26,11 @@ export const SwapPriceUpdateBar: FC<Props> = ({ lastUpdateBlock }) => {
     const transitionTime = widthPercent < prevWidthPercentRef.current ? '1s' : '0s';
     prevWidthPercentRef.current = widthPercent;
 
-    const text = secondsLeft >= 0 ? `in ${secondsLeft}s` : `is late for ${Math.abs(secondsLeft)}s`;
+    const text = isNaN(secondsLeft)
+      ? 'Loading...'
+      : secondsLeft >= 0
+      ? `Rates update in ${secondsLeft}s`
+      : `Rates update is late for ${Math.abs(secondsLeft)}s`;
 
     return {
       width: `${widthPercent}%`,
@@ -42,12 +46,9 @@ export const SwapPriceUpdateBar: FC<Props> = ({ lastUpdateBlock }) => {
   }, []);
 
   return (
-    <div className="relative h-4 bg-orange-500 bg-opacity-10 mb-6 rounded-sm overflow-hidden">
-      <div
-        style={{ width: state.width, transition: state.transition }}
-        className="absolute top-0 h-full bg-orange-500"
-      />
-      <p className="absolute left-0 right-0 text-center text-xs text-gray-700">Rates update {state.text}</p>
+    <div className="relative h-5 bg-gray-100 mb-6 rounded-sm border border-gray-300 overflow-hidden">
+      <div style={{ width: state.width, transition: state.transition }} className="absolute top-0 h-full bg-gray-400" />
+      <p className="absolute left-0 top-0 right-0 text-center text-xs text-gray-800">{state.text}</p>
     </div>
   );
 };
