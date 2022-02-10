@@ -4,6 +4,7 @@ import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-o
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 import {
+  DexTypeEnum,
   getBestTradeExactInput,
   getTradeOpParams,
   getTradeOutputAmount,
@@ -36,7 +37,10 @@ import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/S
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
+import { SwapPriceUpdateBar } from './SwapPriceUpdateBar/SwapPriceUpdateBar';
 import { SwapRoute } from './SwapRoute/SwapRoute';
+
+const KNOWN_DEX_TYPES = [DexTypeEnum.QuipuSwap, DexTypeEnum.Plenty, DexTypeEnum.LiquidityBaking, DexTypeEnum.Youves];
 
 export const SwapForm: FC = () => {
   const tezos = useTezos();
@@ -60,10 +64,14 @@ export const SwapForm: FC = () => {
 
   const [bestTrade, setBestTrade] = useState<Trade>([]);
   const allRoutePairs = useAllRoutePairs(TEZOS_DEXES_API_URL);
+  const filteredRoutePairs = useMemo(
+    () => allRoutePairs.data.filter(routePair => KNOWN_DEX_TYPES.includes(routePair.dexType)),
+    [allRoutePairs.data]
+  );
   const routePairsCombinations = useRoutePairsCombinations(
     inputValue.assetSlug,
     outputValue.assetSlug,
-    allRoutePairs.data
+    filteredRoutePairs
   );
 
   const inputMutezAmount = useMemo(
@@ -265,7 +273,7 @@ export const SwapForm: FC = () => {
         loadingHasFailed={allRoutePairs.hasFailed}
       />
 
-      <table className={classNames('w-full text-xs text-gray-500 mb-6', styles['swap-form-table'])}>
+      <table className={classNames('w-full text-xs text-gray-500 mb-2', styles['swap-form-table'])}>
         <tbody>
           <tr>
             <td>
@@ -316,6 +324,8 @@ export const SwapForm: FC = () => {
           </tr>
         </tbody>
       </table>
+
+      <SwapPriceUpdateBar lastUpdateBlock={allRoutePairs.block} />
 
       {error && (
         <Alert
