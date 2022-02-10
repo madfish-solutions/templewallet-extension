@@ -16,7 +16,7 @@ import ManageAssets from 'app/pages/ManageAssets';
 import Receive from 'app/pages/Receive';
 import Send from 'app/pages/Send';
 import Settings from 'app/pages/Settings';
-import Swap from 'app/pages/Swap';
+import { Swap } from 'app/pages/Swap/Swap';
 import Unlock from 'app/pages/Unlock';
 import Welcome from 'app/pages/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
@@ -73,7 +73,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
   ['/send/:assetSlug?', onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />)],
-  ['/swap/:assetSlug?', onlyReady(({ assetSlug }) => <Swap assetSlug={assetSlug} />)],
+  ['/swap', onlyReady(() => <Swap />)],
   ['/delegate', onlyReady(() => <Delegate />)],
   ['/dapps', onlyReady(() => <DApps />)],
   ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],

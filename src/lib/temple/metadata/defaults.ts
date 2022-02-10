@@ -8,3 +8,10 @@ export const TEZOS_METADATA: AssetMetadata = {
   name: 'Tezos',
   thumbnailUri: browser.runtime.getURL('misc/token-logos/tez.svg')
 };
+
+export const EMPTY_ASSET_METADATA: AssetMetadata = {
+  decimals: 0,
+  symbol: '',
+  name: '',
+  thumbnailUri: ''
+};

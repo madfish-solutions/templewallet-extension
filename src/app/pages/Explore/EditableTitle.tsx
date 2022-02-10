@@ -17,7 +17,7 @@ import { EditableTitleSelectors } from './EditableTitle.selectors';
 const EditableTitle: FC = () => {
   const { editAccountName } = useTempleClient();
   const account = useAccount();
-  const alert = useAlert();
+  const customAlert = useAlert();
   const formAnalytics = useFormAnalytics('ChangeAccountName');
 
   const [editing, setEditing] = useState(false);
@@ -76,14 +76,14 @@ const EditableTitle: FC = () => {
 
           console.error(err);
 
-          await alert({
+          await customAlert({
             title: t('errorChangingAccountName'),
             children: err.message
           });
         }
       })();
     },
-    [account.name, editAccountName, account.publicKeyHash, alert, formAnalytics]
+    [account.name, editAccountName, account.publicKeyHash, customAlert, formAnalytics]
   );
 
   const handleEditFieldFocus = useCallback(() => {

@@ -9,7 +9,7 @@ import { useDebounce } from 'use-debounce';
 import Money from 'app/atoms/Money';
 import { ReactComponent as AddToListIcon } from 'app/icons/add-to-list.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import AssetIcon from 'app/templates/AssetIcon';
+import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InUSD from 'app/templates/InUSD';
 import SearchAssetField from 'app/templates/SearchAssetField';
@@ -283,7 +283,9 @@ const ListItem = memo<ListItemProps>(({ assetSlug, last, active, accountPkh }) =
           <div className="flex items-center">
             <div className={classNames(styles['tokenSymbol'])}>{getAssetSymbol(metadata)}</div>
             {assetSlug === 'tez' && (
-              <div className={classNames('ml-1 px-2 py-1', styles['apyBadge'])}>{<T id="tezosApy" />}</div>
+              <Link to="/explore/tez/?tab=delegation" className={classNames('ml-1 px-2 py-1', styles['apyBadge'])}>
+                {<T id="delegate" />}
+              </Link>
             )}
           </div>
           <Balance address={accountPkh} assetSlug={assetSlug} displayed={displayed}>

@@ -18,13 +18,10 @@ import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as LockAltIcon } from 'app/icons/lock-alt.svg';
 import { T } from 'lib/i18n/react';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
-import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { lettersNumbersMixtureRegx, specialCharacterRegx, uppercaseLowercaseMixtureRegx } from '../defaults';
 import usePasswordToggle from './usePasswordToggle.hook';
 
-const MIN_PASSWORD_LENGTH = 8;
 export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 
 type FormFieldRef = HTMLInputElement | HTMLTextAreaElement;
@@ -48,8 +45,6 @@ interface FormFieldProps extends FormFieldAttrs {
   labelPaddingClassName?: string;
   dropdownInner?: ReactNode;
   copyable?: boolean;
-  passwordValidation?: PasswordValidation;
-  setPasswordValidation?: (v: PasswordValidation) => void;
 }
 
 const FormField = forwardRef<FormFieldRef, FormFieldProps>(
@@ -83,16 +78,12 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
       fieldWrapperBottomMargin = true,
       labelPaddingClassName = 'mb-4',
       copyable,
-      passwordValidation,
-      setPasswordValidation,
       ...rest
     },
     ref
   ) => {
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
-
-    const isPasswordError = errorCaption === PASSWORD_ERROR_CAPTION;
 
     const [passwordInputType, TogglePasswordIcon] = usePasswordToggle();
     const isPasswordInput = type === 'password';
@@ -106,18 +97,8 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
         checkedHandler(e, onChange!, setLocalValue);
-
-        const tempValue = e.target.value;
-        if (setPasswordValidation) {
-          setPasswordValidation({
-            minChar: tempValue.length >= MIN_PASSWORD_LENGTH,
-            cases: uppercaseLowercaseMixtureRegx.test(tempValue),
-            number: lettersNumbersMixtureRegx.test(tempValue),
-            specialChar: specialCharacterRegx.test(tempValue)
-          });
-        }
       },
-      [onChange, setLocalValue, setPasswordValidation]
+      [onChange, setLocalValue]
     );
 
     const handleFocus = useCallback(
@@ -228,18 +209,7 @@ const FormField = forwardRef<FormFieldRef, FormFieldProps>(
           <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
           <Copyable value={value} copy={copy} cleanable={cleanable} copyable={copyable} />
         </div>
-        <ErrorCaption errorCaption={errorCaption} isPasswordStrengthIndicator={isPasswordError} />
-
-        {passwordValidation && (
-          <>
-            {isPasswordError && (
-              <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
-            )}
-            {!isPasswordError && focused && (
-              <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
-            )}
-          </>
-        )}
+        <ErrorCaption errorCaption={errorCaption} />
       </div>
     );
   }
@@ -346,11 +316,15 @@ const Copyable: React.FC<CopyableProps> = ({ copy, cleanable, value, copyable })
 
 interface ErrorCaptionProps {
   errorCaption: React.ReactNode;
-  isPasswordStrengthIndicator?: boolean;
 }
 
-const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption, isPasswordStrengthIndicator }) =>
-  errorCaption && !isPasswordStrengthIndicator ? <div className="text-xs text-red-500">{errorCaption}</div> : null;
+const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) => {
+  const isPasswordStrengthIndicator = errorCaption === PASSWORD_ERROR_CAPTION;
+
+  return errorCaption && !isPasswordStrengthIndicator ? (
+    <div className="text-xs text-red-500">{errorCaption}</div>
+  ) : null;
+};
 
 interface LabelComponentProps {
   className: string;

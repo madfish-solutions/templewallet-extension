@@ -91,7 +91,7 @@ const ActivityItem = memo<ActivityItemProps>(({ address, operation, syncSupporte
 
         <div className="flex-1" />
 
-        <div className="flex flex-col flex-shrink-0">
+        <div className="flex flex-col flex-shrink-0 pt-2">
           {moneyDiffs.map(({ assetId, diff }, i) => (
             <MoneyDiffView key={i} assetId={assetId} diff={diff} pending={pending} />
           ))}

@@ -10,17 +10,26 @@ import FormCheckbox from 'app/atoms/FormCheckbox';
 import FormField, { PASSWORD_ERROR_CAPTION } from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import TabSwitcher from 'app/atoms/TabSwitcher';
-import { formatMnemonic, MNEMONIC_ERROR_CAPTION, PASSWORD_PATTERN } from 'app/defaults';
+import {
+  formatMnemonic,
+  lettersNumbersMixtureRegx,
+  MNEMONIC_ERROR_CAPTION,
+  PASSWORD_PATTERN,
+  specialCharacterRegx,
+  uppercaseLowercaseMixtureRegx
+} from 'app/defaults';
 import { ReactComponent as TrashbinIcon } from 'app/icons/bin.svg';
 import { ReactComponent as PaperclipIcon } from 'app/icons/paperclip.svg';
 import { T, t } from 'lib/i18n/react';
 import { decryptKukaiSeedPhrase, useTempleClient } from 'lib/temple/front';
-import { useAlert } from 'lib/ui/dialog';
-import { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
+import { AlertFn, useAlert } from 'lib/ui/dialog';
+import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import { Link } from 'lib/woozie';
 
 import Backup from './NewWallet/Backup';
 import Verify from './NewWallet/Verify';
+
+const MIN_PASSWORD_LENGTH = 8;
 
 interface FormData {
   keystoreFile?: FileList;
@@ -65,14 +74,20 @@ const validateKeystoreFile = (value?: FileList) => {
 
 const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = 'seed-phrase' }) => {
   const { locked, registerWallet } = useTempleClient();
-  const alert = useAlert();
+  const customAlert = useAlert();
 
   const { control, watch, register, handleSubmit, errors, reset, triggerValidation, formState, setValue } =
-    useForm<FormData>({ defaultValues: { shouldUseKeystorePassword: true } });
+    useForm<FormData>({
+      defaultValues: { shouldUseKeystorePassword: true },
+      mode: 'onChange'
+    });
   const submitting = formState.isSubmitting;
+  const isPasswordError = errors.password?.message === PASSWORD_ERROR_CAPTION;
 
   const shouldUseKeystorePassword = watch('shouldUseKeystorePassword');
   const passwordValue = watch('password');
+
+  const [focused, setFocused] = useState(false);
 
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
     minChar: false,
@@ -80,6 +95,16 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
     number: false,
     specialChar: false
   });
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
+    const tempValue = e.target.value;
+    setPasswordValidation({
+      minChar: tempValue.length >= MIN_PASSWORD_LENGTH,
+      cases: uppercaseLowercaseMixtureRegx.test(tempValue),
+      number: lettersNumbersMixtureRegx.test(tempValue),
+      specialChar: specialCharacterRegx.test(tempValue)
+    });
+  };
 
   const isImportFromSeedPhrase = tabSlug === 'seed-phrase';
   const isImportFromKeystore = tabSlug === 'keystore-file';
@@ -101,14 +126,11 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
   const [backupData, setBackupData] = useState<BackupData | null>(null);
   const [verifySeedPhrase, setVerifySeedPhrase] = useState(false);
 
-  const clearKeystoreFileInput = useCallback(
-    (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-      e.stopPropagation();
-      setValue('keystoreFile', undefined);
-      triggerValidation('keystoreFile');
-    },
-    [triggerValidation, setValue]
-  );
+  const clearKeystoreFileInput = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    event.stopPropagation();
+    setValue('keystoreFile', undefined);
+    triggerValidation('keystoreFile');
+  };
 
   const onSubmit = useCallback(
     async (data: FormData) => {
@@ -126,7 +148,7 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
               );
               await registerWallet(password, mnemonic);
             } catch (err: any) {
-              handleKukaiWalletError(err);
+              handleKukaiWalletError(err, customAlert);
             }
           }
         } else {
@@ -138,13 +160,13 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
       } catch (err: any) {
         console.error(err);
 
-        await alert({
+        await customAlert({
           title: t('actionConfirmation'),
           children: err.message
         });
       }
     },
-    [submitting, ownMnemonic, setBackupData, registerWallet, alert, isImportFromSeedPhrase]
+    [submitting, ownMnemonic, setBackupData, registerWallet, customAlert, isImportFromSeedPhrase]
   );
 
   const handleBackupComplete = useCallback(() => {
@@ -275,25 +297,37 @@ const NewWallet: FC<NewWalletProps> = ({ ownMnemonic = false, title, tabSlug = '
 
         {(!ownMnemonic || isImportFromSeedPhrase || !shouldUseKeystorePassword) && (
           <>
-            <FormField
-              ref={register({
-                required: PASSWORD_ERROR_CAPTION,
-                pattern: {
-                  value: PASSWORD_PATTERN,
-                  message: PASSWORD_ERROR_CAPTION
-                }
-              })}
-              label={t('password')}
-              labelDescription={t('unlockPasswordInputDescription')}
-              id="newwallet-password"
-              type="password"
-              name="password"
-              placeholder="********"
-              errorCaption={errors.password?.message}
-              containerClassName="mb-8"
-              passwordValidation={passwordValidation}
-              setPasswordValidation={setPasswordValidation}
-            />
+            <div className="mb-8">
+              <FormField
+                ref={register({
+                  required: PASSWORD_ERROR_CAPTION,
+                  pattern: {
+                    value: PASSWORD_PATTERN,
+                    message: PASSWORD_ERROR_CAPTION
+                  }
+                })}
+                label={t('password')}
+                labelDescription={t('unlockPasswordInputDescription')}
+                id="newwallet-password"
+                type="password"
+                name="password"
+                placeholder="********"
+                errorCaption={errors.password?.message}
+                onFocus={() => setFocused(true)}
+                onChange={handlePasswordChange}
+              />
+
+              {passwordValidation && (
+                <>
+                  {isPasswordError && (
+                    <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
+                  )}
+                  {!isPasswordError && focused && (
+                    <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
+                  )}
+                </>
+              )}
+            </div>
 
             <FormField
               ref={register({
@@ -379,7 +413,7 @@ type KeystoreFileInputProps = Pick<FileInputProps, 'value' | 'onChange' | 'name'
   clearKeystoreFileInput: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
 };
 
-const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, onChange, name, clearKeystoreFileInput }) => {
+const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, name, clearKeystoreFileInput, onChange }) => {
   const keystoreFile = value?.item?.(0);
 
   return (
@@ -401,8 +435,8 @@ const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, onChange, 
           {keystoreFile ? (
             <TrashbinIcon
               className="ml-2 w-6 h-auto text-red-700 stroke-current z-10 cursor-pointer"
-              onClick={clearKeystoreFileInput}
               style={{ minWidth: '1.5rem' }}
+              onClick={clearKeystoreFileInput}
             />
           ) : (
             <PaperclipIcon className="ml-2 w-6 h-auto text-gray-600 stroke-current" />
@@ -416,8 +450,8 @@ const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, onChange, 
   );
 };
 
-const handleKukaiWalletError = (err: any) => {
-  alert({
+const handleKukaiWalletError = (err: any, customAlert: AlertFn) => {
+  customAlert({
     title: t('errorImportingKukaiWallet'),
     children: err instanceof SyntaxError ? t('fileHasSyntaxError') : err.message
   });

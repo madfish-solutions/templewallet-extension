@@ -24,6 +24,10 @@
 @import '~tippy.js/dist/tippy.css';
 @import '~tippy.js/animations/shift-away-subtle.css';
 
+.tippy-content {
+  white-space: pre-line;
+}
+
 /**
  * React Modal
  */

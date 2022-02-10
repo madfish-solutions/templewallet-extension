@@ -1,12 +1,12 @@
-import { TezosToolkit, compose, Context, ContractAbstraction, ContractProvider } from '@taquito/taquito';
-import { tzip12, TokenMetadata } from '@taquito/tzip12';
-import { DEFAULT_HANDLERS, MetadataProvider, tzip16, MetadataInterface } from '@taquito/tzip16';
+import { compose, Context, ContractAbstraction, ContractProvider, TezosToolkit } from '@taquito/taquito';
+import { TokenMetadata, tzip12 } from '@taquito/tzip12';
+import { DEFAULT_HANDLERS, MetadataInterface, MetadataProvider, tzip16 } from '@taquito/tzip16';
 import retry from 'async-retry';
-import BigNumber from 'bignumber.js';
 
 import assert from 'lib/assert';
+import { isTezAsset } from 'lib/temple/assets';
+import { isValidContractAddress } from 'lib/temple/helpers';
 
-import { fromAssetSlug, isTezAsset } from '../assets';
 import { TEZOS_METADATA } from './defaults';
 import { PRESERVED_TOKEN_METADATA } from './fixtures';
 import { AssetMetadata, DetailedAssetMetdata } from './types';
@@ -72,9 +72,9 @@ export async function fetchTokenMetadata(
   tezos: TezosToolkit,
   assetSlug: string
 ): Promise<{ base: AssetMetadata; detailed: DetailedAssetMetdata }> {
-  const asset = await fromAssetSlug(tezos, assetSlug);
+  const [contractAddress, tokenIdStr = '0'] = assetSlug.split('_');
 
-  if (isTezAsset(asset)) {
+  if (isTezAsset(contractAddress)) {
     return { base: TEZOS_METADATA, detailed: TEZOS_METADATA };
   }
 
@@ -83,12 +83,16 @@ export async function fetchTokenMetadata(
     return { base: data, detailed: data };
   }
 
-  try {
-    const contract = await retry(() => tezos.contract.at(asset.contract, compose(tzip12, tzip16)), RETRY_PARAMS);
-    const assetId = new BigNumber(asset.id ?? 0).toFixed();
+  if (!isValidContractAddress(contractAddress)) {
+    throw new Error('Invalid contract address');
+  }
 
-    const tzip12Metadata = await getTzip12Metadata(contract, assetId as any);
-    const metadataFromUri = await getMetadataFromUri(contract, assetId, tezos);
+  try {
+    // TODO: add validation
+    const contract = await retry(() => tezos.contract.at(contractAddress, compose(tzip12, tzip16)), RETRY_PARAMS);
+
+    const tzip12Metadata = await getTzip12Metadata(contract, tokenIdStr as any);
+    const metadataFromUri = await getMetadataFromUri(contract, tokenIdStr, tezos);
 
     const rawMetadata = { ...metadataFromUri, ...tzip12Metadata };
 
@@ -108,7 +112,7 @@ export async function fetchTokenMetadata(
     const tzip16Metadata = await getTzip16Metadata(contract);
 
     const detailed: DetailedAssetMetdata = {
-      ...tzip16Metadata?.assets?.[assetId],
+      ...tzip16Metadata?.assets?.[tokenIdStr],
       ...rawMetadata,
       ...base
     };

@@ -4,6 +4,7 @@ import { getTokenTransfers, BCD_NETWORKS_NAMES, BcdTokenTransfer } from 'lib/bet
 import * as Repo from 'lib/temple/repo';
 import { TZKT_API_BASE_URLS, getOperations, TzktOperation } from 'lib/tzkt';
 
+import { deletePendingOp } from './deletePendingOp';
 import { isPositiveNumber, tryParseTokenTransfers, toTokenId, getBcdTokenTransferId } from './helpers';
 
 export function isSyncSupported(chainId: string) {
@@ -74,6 +75,9 @@ export async function syncOperations(type: 'new' | 'old', chainId: string, addre
    */
 
   syncBcdOperations(tokenTransfers, chainId, address, tzktTime, fresh);
+
+  // delete outdated pending operations
+  await deletePendingOp();
 
   return tzktOperations.length + tokenTransfers.length;
 }
