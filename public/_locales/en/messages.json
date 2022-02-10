@@ -2161,7 +2161,7 @@
     "message": "You can not conduct the operation at the moment!\nPlease, wait when your previous operation is applied and retry."
   },
   "swapDisclaimerTitle": {
-    "message": "Disclaimer. Read before using the SWAP section."
+    "message": "Disclaimer. Beta version, read before using the SWAP section."
   },
   "swapDisclaimerContent": {
     "message": "Temple wallet only provides an interface to interact with the Tezos Dexes. \n\nWe are not responsible for: DEX issues, displayed tokens, price, exchange rates, and user trading decisions. \n\nBefore using this Swap Section, you should review the relevant documentation to understand how the DEX(AMM) protocols work. \n\nUsing this section is solely the user's responsibility."

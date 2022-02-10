@@ -2092,7 +2092,7 @@
     "message": "Bu işlemi şu anda gerçekleştiremezsiniz!\nLütfen önceki işleminiz uygulanana kadar bekleyin ve bundan sonra yeniden deneyin."
   },
   "swapDisclaimerTitle": {
-    "message": "Sorumluluk Reddi. Takas bölümünü kullanmadan önce okuyun."
+    "message": "Sorumluluk Reddi. Beta version, takas bölümünü kullanmadan önce okuyun."
   },
   "swapDisclaimerContent": {
     "message": "Temple Wallet, yalnızca Tezos Dexes ile etkileşim kurmayı sağlayan bir arabirim sunar. \n\nŞunlardan sorumlu değiliz: DEX sorunları, görüntülenen token'lar, fiyat, borsa oranları ve kullanıcı alım satım kararları. \n\nTakas Bölümünü kullanmadan önce, ilgili belgeleri inceleyerek DEX(AMM) protokollerinin çalışma şeklini anlamanız gerekir. \n\nBu bölümün kullanılması yalnızca kullanıcının sorumluluğundadır."

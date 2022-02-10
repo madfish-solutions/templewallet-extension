@@ -2092,7 +2092,7 @@
     "message": "Sie können den Vorgang im Moment nicht durchführen!\nBitte warten Sie, wenn Ihr vorheriger Vorgang ausgeführt wurde, und versuchen Sie es erneut."
   },
   "swapDisclaimerTitle": {
-    "message": "Haftungsausschluss. Lesen Sie den Abschnitt SWAP, bevor Sie ihn verwenden."
+    "message": "Haftungsausschluss. Beta version, lesen Sie den Abschnitt SWAP, bevor Sie ihn verwenden."
   },
   "swapDisclaimerContent": {
     "message": "Temple Wallet bietet nur eine Schnittstelle zur Interaktion mit den Tezos Dexes. \n\nWir sind nicht verantwortlich für: DEX-Ausgaben, angezeigte Token, Preise, Wechselkurse und Handelsentscheidungen der Nutzer. \n\nBevor Sie diesen Swap-Abschnitt verwenden, sollten Sie die entsprechende Dokumentation lesen, um zu verstehen, wie die DEX(AMM)-Protokolle funktionieren. \n\nDie Nutzung dieses Abschnitts liegt allein in der Verantwortung des Nutzers."
