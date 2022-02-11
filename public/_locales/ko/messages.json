@@ -236,7 +236,7 @@
     "message": "지갑에 입금"
   },
   "depositToWalletDescription": {
-    "message": "지갑으로 돈을 받기 위한 입금 방법을 클릭하세요. 수도꼭지를 활용하여 무료 코인을 받으세요!"
+    "message": "수도꼭지를 활용하여 무료 코인을 받으세요!"
   },
   "addToken": {
     "message": "토큰 추가"

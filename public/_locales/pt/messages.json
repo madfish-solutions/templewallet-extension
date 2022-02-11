@@ -239,7 +239,7 @@
     "message": "Depositar na sua carteira"
   },
   "depositToWalletDescription": {
-    "message": "Clique no método de depósito para obter dinheiro na sua carteira. Utilize o faucet para obter moedas grátis!"
+    "message": "Utilize o faucet para obter moedas grátis!"
   },
   "addToken": {
     "message": "Adicionar Ativo"

@@ -236,7 +236,7 @@
     "message": "Deposit to your wallet"
   },
   "depositToWalletDescription": {
-    "message": "Click on deposit method to get money on your wallet. Use faucet to get free coins!"
+    "message": "Use faucet to get free coins!"
   },
   "addToken": {
     "message": "Add Asset"

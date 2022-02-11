@@ -236,7 +236,7 @@
     "message": "存入您的钱包"
   },
   "depositToWalletDescription": {
-    "message": "点击存款方式来将钱存入您的钱包。使用Faucet可获取免费代币！"
+    "message": "使用Faucet可获取免费代币！"
   },
   "addToken": {
     "message": "添加代币"

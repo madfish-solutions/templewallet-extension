@@ -16,6 +16,8 @@ import { useAccount, useTezos, useTezosDomainsClient } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useSafeState from 'lib/ui/useSafeState';
 
+import { Faucet } from './Receive/Faucet';
+
 const ADDRESS_FIELD_VIEWS = [
   {
     Icon: LanguageIcon,
@@ -119,7 +121,7 @@ const Receive: FC = () => {
               <QRCode bgColor="#f7fafc" fgColor="#000000" level="Q" style={{ width: '100%' }} value={address} />
             </div>
 
-            {/* <Deposit address={address} /> */}
+            <Faucet />
           </div>
         </div>
       </div>

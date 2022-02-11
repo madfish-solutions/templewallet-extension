@@ -236,7 +236,7 @@
     "message": "Dépôt dans votre portefeuille"
   },
   "depositToWalletDescription": {
-    "message": "Cliquez sur méthode de dépôt pour recevoir de l'argent dans votre portefeuille. Utilisez le faucet (robinet) pour obtenir des pièces gratuites !"
+    "message": "Utilisez le faucet (robinet) pour obtenir des pièces gratuites !"
   },
   "addToken": {
     "message": "Ajouter un jeton"

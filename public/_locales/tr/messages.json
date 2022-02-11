@@ -239,7 +239,7 @@
     "message": "Cüzdana yükleme yap"
   },
   "depositToWalletDescription": {
-    "message": "Cüzdanınıza para yüklemek için yatırma yöntemine tıklayın. Bedava koin almak için musluğu kullanın!"
+    "message": "Bedava koin almak için musluğu kullanın!"
   },
   "addToken": {
     "message": "Varlık Ekle"

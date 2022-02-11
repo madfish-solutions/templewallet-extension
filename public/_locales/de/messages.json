@@ -239,7 +239,7 @@
     "message": "Zahlen Sie in Ihre Wallet ein"
   },
   "depositToWalletDescription": {
-    "message": "Klicken Sie auf die Einzahlungsmethode, um Geld auf Ihre Wallet einzuzahlen. Verwenden Sie Faucet, um kostenlose Münzen zu erhalten!"
+    "message": "Verwenden Sie Faucet, um kostenlose Münzen zu erhalten!"
   },
   "addToken": {
     "message": "Vermögenswert hinzufügen"

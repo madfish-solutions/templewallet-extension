@@ -236,7 +236,7 @@
     "message": "存款到您的錢包"
   },
   "depositToWalletDescription": {
-    "message": "點擊存款方式，將錢存進您的錢包。使用水龍頭獲得免費錢幣！"
+    "message": "使用水龍頭獲得免費錢幣！"
   },
   "addToken": {
     "message": "新增代幣"
