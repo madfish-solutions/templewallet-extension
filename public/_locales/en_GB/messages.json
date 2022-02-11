@@ -1751,5 +1751,8 @@
         "content": "$1"
       }
     }
+  },
+  "swapTokenSearchInputPlaceholder": {
+    "message": "Enter name or address"
   }
 }
