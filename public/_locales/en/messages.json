@@ -2506,5 +2506,8 @@
   },
   "swapRouteLoadingHasFailed": {
     "message": "Exchange rate data loading has failed. \nReload this page or try again later."
+  },
+  "swapTokenSearchInputPlaceholder": {
+    "message": "Enter name or address"
   }
 }
