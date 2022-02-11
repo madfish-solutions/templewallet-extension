@@ -27,7 +27,6 @@ let connectionsCount = 0;
 const URL_BASE = 'extension://';
 
 browser.runtime.onConnect.addListener(externalPort => {
-  console.log(externalPort, browser.runtime);
   if (getChromePredicate(externalPort) || getFFPredicate(externalPort)) {
     connectionsCount++;
   }
@@ -50,8 +49,8 @@ browser.runtime.onConnect.addListener(externalPort => {
   });
 });
 
-const getChromePredicate = (port: any) => port.sender?.url?.includes(`${URL_BASE}${browser.runtime.id}`);
-const getFFPredicate = (port: any) => {
+export const getChromePredicate = (port: any) => port.sender?.url?.includes(`${URL_BASE}${browser.runtime.id}`);
+export const getFFPredicate = (port: any) => {
   const manifest: any = browser.runtime.getManifest();
   const fullUrl = manifest.background?.scripts[0];
   const edgeUrl = fullUrl.split('/scripts')[0].split('://')[1];
