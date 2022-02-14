@@ -118,8 +118,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             label={<T id="send" />}
             Icon={SendIcon}
             to={sendLink}
-            // TODO: remove this after test
-            // disabled={!canSend}
+            disabled={!canSend}
             tippyProps={tippyPropsMock}
           />
         </div>
