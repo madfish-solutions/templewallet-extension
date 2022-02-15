@@ -28,7 +28,7 @@ export const lettersNumbersMixtureRegx = /(?=.*\d)(?=.*[A-Za-z])/;
 export const specialCharacterRegx = /[!@#$%^&*()_+\-=\]{};':"\\|,.<>?]/;
 
 export const URL_PATTERN =
-  /^((?:https:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+)|(http(s)?:\/\/localhost:[0-9]+)$/;
+  /(^(https:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$)|(^http(s)?:\/\/localhost:[0-9]+$)/;
 
 export const MNEMONIC_ERROR_CAPTION = (
   <ul className="list-disc list-inside">
