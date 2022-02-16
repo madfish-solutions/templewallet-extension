@@ -15,6 +15,7 @@ import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import Activity from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
+import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import {
   getAssetSymbol,
@@ -111,6 +112,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
               pathname: '/swap',
               search: `from=${assetSlug ?? ''}`
             }}
+            testID={ExploreSelectors.SwapButton}
             disabled={!canSend}
             tippyProps={tippyPropsMock}
           />
@@ -133,15 +135,24 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
 export default Explore;
 
-type ActionButtonProps = {
+interface ActionButtonProps extends TestIDProps {
   label: React.ReactNode;
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
   to: To;
   disabled?: boolean;
   tippyProps?: Partial<TippyProps>;
-};
+}
 
-const ActionButton: FC<ActionButtonProps> = ({ label, Icon, to, disabled, tippyProps = {} }) => {
+const ActionButton: FC<ActionButtonProps> = ({
+  label,
+  Icon,
+  to,
+  disabled,
+  tippyProps = {},
+  testID,
+  testIDProperties
+}) => {
+  const { trackEvent } = useAnalytics();
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
@@ -166,7 +177,15 @@ const ActionButton: FC<ActionButtonProps> = ({ label, Icon, to, disabled, tippyP
     }),
     [disabled, Icon, label]
   );
-  return disabled ? <button ref={buttonRef} {...commonButtonProps} /> : <Link to={to} {...commonButtonProps} />;
+  return disabled ? (
+    <button ref={buttonRef} {...commonButtonProps} />
+  ) : (
+    <Link
+      onClick={() => testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties)}
+      to={to}
+      {...commonButtonProps}
+    />
+  );
 };
 
 const Delegation: FC = () => (
