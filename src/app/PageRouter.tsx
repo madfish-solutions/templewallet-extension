@@ -81,6 +81,7 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/buy', onlyReady(onlyInFullPage(() => <BuyCrypto />))],
+  ['/buy/crypto', onlyReady(onlyInFullPage(() => <BuyCrypto crypto />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
