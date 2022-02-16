@@ -78,7 +78,9 @@ const BuyCrypto: FC<BuyCryptoProps> = ({ crypto = false }) => {
         </>
       }
     >
-      <T id="topUpDescription" />
+      <div className="text-center my-3">
+        <T id="topUpDescription" />
+      </div>
       <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md')}>
         <div className={classNames('w-full max-w-sm mx-auto px-10', 'flex items-center justify-center')}>
           {tabs.map(currentTab => {
@@ -119,13 +121,17 @@ const Cryptos: FC = () => {
   const { trackEvent } = useAnalytics();
   return (
     <div>
-      <div className={classNames('-mx-4', 'shadow-md')}>
+      <div className={classNames('mx-auto max-w-sm flex flex-col items-center', 'border-2 rounded-md px-4 py-8')}>
         <img src={ExolixImg} alt="ExolixImg" />
-        <T id="buyWithExolix" />
-        <T id="buyWithExolixDescription" />
+        <div className="text-lg text-center">
+          <T id="buyWithExolix" />
+        </div>
+        <div className="text-center w-64 mx-auto">
+          <T id="buyWithExolixDescription" />
+        </div>
         <Link
           className={classNames(
-            'py-2 px-4 rounded',
+            'py-2 px-4 rounded mt-8',
             'border-2',
             'border-blue-500 hover:border-blue-600 focus:border-blue-600',
             'flex items-center justify-center',
@@ -134,7 +140,7 @@ const Cryptos: FC = () => {
             'text-base font-semibold',
             'transition ease-in-out duration-300',
             'bg-blue-500',
-            'w-35 mr-7'
+            'w-full'
           )}
           to={'/buy/crypto'}
           onClick={() => trackEvent(BuyCryptoSelectors.Crypto, AnalyticsEventCategory.ButtonPress)}
@@ -150,13 +156,17 @@ const Debits: FC = () => {
   const { trackEvent } = useAnalytics();
   return (
     <div>
-      <div className={classNames('-mx-4', 'shadow-md')}>
+      <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md px-4 py-8 mb-8')}>
         <img src={MoonPayImg} alt="MoonPayImg" />
-        <T id="buyWithMoonPay" />
-        <T id="buyWithMoonPayDescription" />
+        <div className="text-lg text-center">
+          <T id="buyWithMoonPay" />
+        </div>
+        <div className="text-center w-64 mx-auto">
+          <T id="buyWithMoonPayDescription" />
+        </div>
         <Link
           className={classNames(
-            'py-2 px-4 rounded',
+            'py-2 px-4 rounded mt-8',
             'border-2',
             'border-blue-500 hover:border-blue-600 focus:border-blue-600',
             'flex items-center justify-center',
@@ -165,7 +175,7 @@ const Debits: FC = () => {
             'text-base font-semibold',
             'transition ease-in-out duration-300',
             'bg-blue-500',
-            'w-35 mr-7'
+            'w-full'
           )}
           to={'/buy/crypto'}
           onClick={() => trackEvent(BuyCryptoSelectors.MoonPay, AnalyticsEventCategory.ButtonPress)}
@@ -173,13 +183,17 @@ const Debits: FC = () => {
           <T id="continue" />
         </Link>
       </div>
-      <div className={classNames('-mx-4', 'shadow-md')}>
+      <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md px-4 py-8')}>
         <img src={RampImg} alt="RampImg" />
-        <T id="buyWithRamp" />
-        <T id="buyWithRampDescription" />
+        <div className="text-lg text-center">
+          <T id="buyWithRamp" />
+        </div>
+        <div className="text-center w-64 mx-auto">
+          <T id="buyWithRampDescription" />
+        </div>
         <Link
           className={classNames(
-            'py-2 px-4 rounded',
+            'py-2 px-4 rounded mt-8',
             'border-2',
             'border-blue-500 hover:border-blue-600 focus:border-blue-600',
             'flex items-center justify-center',
@@ -188,7 +202,7 @@ const Debits: FC = () => {
             'text-base font-semibold',
             'transition ease-in-out duration-300',
             'bg-blue-500',
-            'w-35 mr-7'
+            'w-full'
           )}
           to={'/buy/crypto'}
           onClick={() => trackEvent(BuyCryptoSelectors.Ramp, AnalyticsEventCategory.ButtonPress)}
