@@ -10,25 +10,15 @@ import PageLayout from 'app/layouts/PageLayout';
 import ApproveStep from 'app/pages/BuyCrypto/steps/ApproveStep';
 import ExchangeStep from 'app/pages/BuyCrypto/steps/ExchangeStep';
 import InitialStep from 'app/pages/BuyCrypto/steps/InitialStep';
-import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { ExchangeDataInterface } from 'lib/exolix-api';
 import { T, t } from 'lib/i18n/react';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
-import { Redirect, useLocation, Link } from 'lib/woozie';
+import { Redirect, Link } from 'lib/woozie';
 
-import ExolixImg from './assets/exolix.png';
-import MoonPayImg from './assets/moonpay.png';
-import RampImg from './assets/ramp.png';
 import { BuyCryptoSelectors } from './BuyCypto.selectors';
-
-function useTabSlug() {
-  const { search } = useLocation();
-  const tabSlug = useMemo(() => {
-    const usp = new URLSearchParams(search);
-    return usp.get('tab');
-  }, [search]);
-  return useMemo(() => tabSlug, [tabSlug]);
-}
+import { Cryptos } from './Cryptos';
+import { Debits } from './Debits';
+import { useTabSlug } from './hooks/use-tab-slug';
 
 interface BuyCryptoProps {
   crypto?: boolean;
@@ -114,103 +104,6 @@ const BuyCrypto: FC<BuyCryptoProps> = ({ crypto = false }) => {
         </div>
       </div>
     </PageLayout>
-  );
-};
-
-const Cryptos: FC = () => {
-  const { trackEvent } = useAnalytics();
-  return (
-    <div>
-      <div className={classNames('mx-auto max-w-sm flex flex-col items-center', 'border-2 rounded-md px-4 py-8')}>
-        <img src={ExolixImg} alt="ExolixImg" />
-        <div className="text-lg text-center">
-          <T id="buyWithExolix" />
-        </div>
-        <div className="text-center w-64 mx-auto">
-          <T id="buyWithExolixDescription" />
-        </div>
-        <Link
-          className={classNames(
-            'py-2 px-4 rounded mt-8',
-            'border-2',
-            'border-blue-500 hover:border-blue-600 focus:border-blue-600',
-            'flex items-center justify-center',
-            'text-white',
-            'shadow-sm hover:shadow focus:shadow',
-            'text-base font-semibold',
-            'transition ease-in-out duration-300',
-            'bg-blue-500',
-            'w-full'
-          )}
-          to={'/buy/crypto'}
-          onClick={() => trackEvent(BuyCryptoSelectors.Crypto, AnalyticsEventCategory.ButtonPress)}
-        >
-          <T id="continue" />
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-const Debits: FC = () => {
-  const { trackEvent } = useAnalytics();
-  return (
-    <div>
-      <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md px-4 py-8 mb-8')}>
-        <img src={MoonPayImg} alt="MoonPayImg" />
-        <div className="text-lg text-center">
-          <T id="buyWithMoonPay" />
-        </div>
-        <div className="text-center w-64 mx-auto">
-          <T id="buyWithMoonPayDescription" />
-        </div>
-        <Link
-          className={classNames(
-            'py-2 px-4 rounded mt-8',
-            'border-2',
-            'border-blue-500 hover:border-blue-600 focus:border-blue-600',
-            'flex items-center justify-center',
-            'text-white',
-            'shadow-sm hover:shadow focus:shadow',
-            'text-base font-semibold',
-            'transition ease-in-out duration-300',
-            'bg-blue-500',
-            'w-full'
-          )}
-          to={'/buy/crypto'}
-          onClick={() => trackEvent(BuyCryptoSelectors.MoonPay, AnalyticsEventCategory.ButtonPress)}
-        >
-          <T id="continue" />
-        </Link>
-      </div>
-      <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md px-4 py-8')}>
-        <img src={RampImg} alt="RampImg" />
-        <div className="text-lg text-center">
-          <T id="buyWithRamp" />
-        </div>
-        <div className="text-center w-64 mx-auto">
-          <T id="buyWithRampDescription" />
-        </div>
-        <Link
-          className={classNames(
-            'py-2 px-4 rounded mt-8',
-            'border-2',
-            'border-blue-500 hover:border-blue-600 focus:border-blue-600',
-            'flex items-center justify-center',
-            'text-white',
-            'shadow-sm hover:shadow focus:shadow',
-            'text-base font-semibold',
-            'transition ease-in-out duration-300',
-            'bg-blue-500',
-            'w-full'
-          )}
-          to={'/buy/crypto'}
-          onClick={() => trackEvent(BuyCryptoSelectors.Ramp, AnalyticsEventCategory.ButtonPress)}
-        >
-          <T id="continue" />
-        </Link>
-      </div>
-    </div>
   );
 };
 
