@@ -15,7 +15,7 @@ import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import Activity from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
-import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
+import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import {
   getAssetSymbol,
@@ -112,9 +112,9 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
               pathname: '/swap',
               search: `from=${assetSlug ?? ''}`
             }}
-            testID={ExploreSelectors.SwapButton}
             disabled={!canSend}
             tippyProps={tippyPropsMock}
+            testID={ExploreSelectors.SwapButton}
           />
           <ActionButton
             label={<T id="send" />}
@@ -152,7 +152,6 @@ const ActionButton: FC<ActionButtonProps> = ({
   testID,
   testIDProperties
 }) => {
-  const { trackEvent } = useAnalytics();
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
@@ -180,11 +179,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   return disabled ? (
     <button ref={buttonRef} {...commonButtonProps} />
   ) : (
-    <Link
-      onClick={() => testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties)}
-      to={to}
-      {...commonButtonProps}
-    />
+    <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />
   );
 };
 
