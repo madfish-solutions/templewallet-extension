@@ -24,6 +24,7 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import AttentionPage from './pages/Onboarding/pages/AttentionPage';
+import SelectCrypto from './pages/SelectCrypto/SelectCrypto';
 
 interface RouteContext {
   popup: boolean;
@@ -80,8 +81,8 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   ['/collectible/:assetSlug?', onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />)],
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
-  ['/buy', onlyReady(onlyInFullPage(() => <BuyCrypto />))],
-  ['/buy/crypto', onlyReady(onlyInFullPage(() => <BuyCrypto crypto />))],
+  ['/buy', onlyReady(onlyInFullPage(() => <SelectCrypto />))],
+  ['/buy/crypto', onlyReady(onlyInFullPage(() => <BuyCrypto />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);

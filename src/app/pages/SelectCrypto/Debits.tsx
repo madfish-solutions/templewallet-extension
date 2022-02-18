@@ -8,7 +8,7 @@ import { Link } from 'lib/woozie';
 
 import MoonPayImg from './assets/moonpay.png';
 // import RampImg from './assets/ramp.png';
-import { BuyCryptoSelectors } from './BuyCypto.selectors';
+import { SelectCryptoSelectors } from './SelectCrypto.selectors';
 
 export const Debits: FC = () => {
   const { trackEvent } = useAnalytics();
@@ -36,7 +36,7 @@ export const Debits: FC = () => {
             'w-full'
           )}
           to={'/buy/crypto'}
-          onClick={() => trackEvent(BuyCryptoSelectors.MoonPay, AnalyticsEventCategory.ButtonPress)}
+          onClick={() => trackEvent(SelectCryptoSelectors.MoonPay, AnalyticsEventCategory.ButtonPress)}
         >
           <T id="continue" />
         </Link>
