@@ -2217,7 +2217,7 @@
     "message": "To start using your wallet and interacting with the Tezos DApps ecosystem, the account balance must be positive. To do this, top up your address with TEZ coins."
   },
   "howToStartDescription2": {
-    "message": "You can use the “Buy” button to exchange your cryptocurrencies on TEZ"
+    "message": "You can use the \"Buy\" button and top up your TEZ balance, using cryptocurrencies, debit, or credit cards."
   },
   "howToStartHint": {
     "message": "Also, you can copy your address and send coins to it from another wallet or Exchange. To copy the address, click on it on the main wallet screen or use “Receive”."
