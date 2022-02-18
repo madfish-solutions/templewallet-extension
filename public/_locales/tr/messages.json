@@ -9,7 +9,7 @@
     "message": "Tarayıcınızda Web Uzantısı olarak Tezos blokzinciri için kripto para cüzdanı."
   },
   "createAccount": {
-    "message": "Hesaplar Oluşturun veya Geri Yükleyin"
+    "message": "Hesap Oluştur veya Geri Yükle"
   },
   "importAccount": {
     "message": "Hesabı içe aktar"
