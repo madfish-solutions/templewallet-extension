@@ -14,7 +14,7 @@ export const Debits: FC = () => {
   const { trackEvent } = useAnalytics();
   return (
     <div>
-      <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md px-4 py-8 mb-8')}>
+      <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md p-4 mb-8')}>
         <img src={MoonPayImg} alt="MoonPayImg" />
         <div className="text-lg text-center">
           <T id="buyWithMoonPay" />
@@ -24,7 +24,7 @@ export const Debits: FC = () => {
         </div>
         <Link
           className={classNames(
-            'py-2 px-4 rounded mt-8',
+            'py-2 px-4 rounded mt-4',
             'border-2',
             'border-blue-500 hover:border-blue-600 focus:border-blue-600',
             'flex items-center justify-center',
@@ -41,7 +41,7 @@ export const Debits: FC = () => {
           <T id="continue" />
         </Link>
       </div>
-      {/* <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md px-4 py-8')}>
+      {/* <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md p-4')}>
         <img src={RampImg} alt="RampImg" />
         <div className="text-lg text-center">
           <T id="buyWithRamp" />

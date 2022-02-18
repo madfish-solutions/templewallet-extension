@@ -13,7 +13,7 @@ export const Cryptos: FC = () => {
   const { trackEvent } = useAnalytics();
   return (
     <div>
-      <div className={classNames('mx-auto max-w-sm flex flex-col items-center', 'border-2 rounded-md px-4 py-8')}>
+      <div className={classNames('mx-auto max-w-sm flex flex-col items-center', 'border-2 rounded-md p-4')}>
         <img src={ExolixImg} alt="ExolixImg" />
         <div className="text-lg text-center">
           <T id="buyWithExolix" />
@@ -23,7 +23,7 @@ export const Cryptos: FC = () => {
         </div>
         <Link
           className={classNames(
-            'py-2 px-4 rounded mt-8',
+            'py-2 px-4 rounded mt-4',
             'border-2',
             'border-blue-500 hover:border-blue-600 focus:border-blue-600',
             'flex items-center justify-center',

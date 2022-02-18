@@ -157,7 +157,7 @@ const ActionButton: FC<ActionButtonProps> = ({ label, Icon, to, disabled, tippyP
             )}
             style={{ padding: '0 0.625rem', height: '2.75rem' }}
           >
-            <Icon className="w-6 h-auto stroke-current stroke-2" />
+            <Icon className="w-6 h-auto stroke-current stroke-1" />
           </div>
           <span className={classNames('text-xs text-center', disabled ? 'text-blue-300' : 'text-blue-500')}>
             {label}

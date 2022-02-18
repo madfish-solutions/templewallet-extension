@@ -12,6 +12,7 @@ import { Link } from 'lib/woozie';
 
 import { Cryptos } from './Cryptos';
 import { Debits } from './Debits';
+import s from './SelectCrypto.module.css';
 import { SelectCryptoSelectors } from './SelectCrypto.selectors';
 
 const SelectCrypto: FC<{}> = () => {
@@ -49,40 +50,42 @@ const SelectCrypto: FC<{}> = () => {
   return (
     <PageLayout
       pageTitle={
-        <>
+        <div className="font-medium">
           <T id="topUpBuy" />
-        </>
+        </div>
       }
     >
-      <div className="text-center my-3">
+      <div className="text-center my-3 text-gray-700">
         <T id="topUpDescription" />
       </div>
-      <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md')}>
-        <div className={classNames('w-full max-w-sm mx-auto px-10', 'flex items-center justify-center')}>
-          {tabs.map(currentTab => {
-            const active = slug === currentTab.slug;
+      <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
+        <div className={s.bottomShadow}>
+          <div className={classNames('w-full max-w-sm mx-auto', 'flex items-center justify-center')}>
+            {tabs.map(currentTab => {
+              const active = slug === currentTab.slug;
 
-            return (
-              <Link
-                key={currentTab.slug}
-                to={lctn => ({ ...lctn, search: `?tab=${currentTab.slug}` })}
-                replace
-                className={classNames(
-                  'flex1 w-full',
-                  'text-center cursor-pointer mb-1 pb-1 pt-2',
-                  'text-gray-500 text-xs font-medium',
-                  'border-b-2',
-                  active ? 'border-primary-orange' : 'border-transparent',
-                  active ? 'text-primary-orange' : 'hover:text-primary-orange',
-                  'transition ease-in-out duration-300',
-                  'truncate'
-                )}
-                testID={currentTab.testID}
-              >
-                {currentTab.title}
-              </Link>
-            );
-          })}
+              return (
+                <Link
+                  key={currentTab.slug}
+                  to={lctn => ({ ...lctn, search: `?tab=${currentTab.slug}` })}
+                  replace
+                  className={classNames(
+                    'flex1 w-full',
+                    'text-center cursor-pointer pb-2',
+                    'text-gray-700 text-lg',
+                    'border-b-2',
+                    active ? 'border-primary-orange' : 'border-transparent',
+                    active ? 'text-primary-orange' : 'hover:text-primary-orange',
+                    'transition ease-in-out duration-300',
+                    'truncate'
+                  )}
+                  testID={currentTab.testID}
+                >
+                  {currentTab.title}
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
         <div className={'mx-4 mb-4 mt-6'}>
