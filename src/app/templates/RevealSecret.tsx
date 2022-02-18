@@ -122,7 +122,29 @@ const RevealSecret: FC<RevealSecretProps> = ({ reveal }) => {
               className="mb-6"
             />
           ),
-          derivationPathBanner: null,
+          derivationPathBanner: account.derivationPath && (
+            <div className="mb-6 flex flex-col">
+              <label className="mb-4 flex flex-col">
+                <span className="text-base font-semibold text-gray-700">
+                  <T id="derivationPath" />
+                </span>
+              </label>
+              <input
+                className={classNames(
+                  'appearance-none',
+                  'w-full',
+                  'py-3 pl-4',
+                  'border-2',
+                  'border-gray-300',
+                  'bg-transparent',
+                  'rounded-md',
+                  'text-gray-700 text-lg leading-tight'
+                )}
+                disabled={true}
+                value={account.derivationPath}
+              />
+            </div>
+          ),
           attention: <T id="doNotSharePrivateKey" />,
           fieldDesc: <T id="privateKeyFieldDescription" />
         };
