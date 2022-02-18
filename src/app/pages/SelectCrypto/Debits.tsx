@@ -63,7 +63,7 @@ export const Debits: FC = () => {
             'w-full'
           )}
           to={'/buy/crypto'}
-          onClick={() => trackEvent(BuyCryptoSelectors.Ramp, AnalyticsEventCategory.ButtonPress)}
+          onClick={() => trackEvent(SelectCryptoSelectors.Ramp, AnalyticsEventCategory.ButtonPress)}
         >
           <T id="continue" />
         </Link>

@@ -7,7 +7,7 @@ import { T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
 import ExolixImg from './assets/exolix.png';
-import { BuyCryptoSelectors } from './BuyCypto.selectors';
+import { SelectCryptoSelectors } from './SelectCrypto.selectors';
 
 export const Cryptos: FC = () => {
   const { trackEvent } = useAnalytics();
@@ -35,7 +35,7 @@ export const Cryptos: FC = () => {
             'w-full'
           )}
           to={'/buy/crypto'}
-          onClick={() => trackEvent(BuyCryptoSelectors.Crypto, AnalyticsEventCategory.ButtonPress)}
+          onClick={() => trackEvent(SelectCryptoSelectors.Crypto, AnalyticsEventCategory.ButtonPress)}
         >
           <T id="continue" />
         </Link>
