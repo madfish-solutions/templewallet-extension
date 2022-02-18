@@ -731,7 +731,7 @@
     "message": "Імпорт існуючого гаманця"
   },
   "importExistingWalletDescription": {
-    "message": "Already have a wallet? Import it using your seed phrase or encrypted keystore file Уже є гаманець? Імпортуйте його, використовуючи сід фразу або файл зашифрованого сховища ключа"
+    "message": "Уже є гаманець? Імпортуйте його, використовуючи сід фразу або файл зашифрованого сховища ключа"
   },
   "links": {
     "message": "Посилання"
