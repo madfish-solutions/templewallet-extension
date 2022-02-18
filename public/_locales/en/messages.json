@@ -2348,6 +2348,36 @@
   "buyWithCrypto": {
     "message": "Buy With Crypto"
   },
+  "buyWithExolix": {
+    "message": "Buy With Exolix"
+  },
+  "buyWithExolixDescription": {
+    "message": "Exchange 25 cryptocurrencies to TEZ instantly and without registration"
+  },
+  "buyWithMoonPay": {
+    "message": "Buy With MoonPay"
+  },
+  "buyWithMoonPayDescription": {
+    "message": "Crypto just got easy.Buy TEZ in minutes using Visa, Mastercard, and all major debit and credit cards."
+  },
+  "buyWithRamp": {
+    "message": "Buy With Ramp"
+  },
+  "buyWithRampDescription": {
+    "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
+  },
+  "topUpBuy": {
+    "message": "Top up TEZ balance"
+  },
+  "topUpDescription": {
+    "message": "To interact with the Tezos DApps ecosystem, the account balance must be positive. Top up your address with TEZ coins easily."
+  },
+  "topUpCrypto": {
+    "message": "Crypto"
+  },
+  "topUpDebit": {
+    "message": "Debit/Credit Card"
+  },
   "overdueTransaction": {
     "message": "Transaction is overdue"
   },
