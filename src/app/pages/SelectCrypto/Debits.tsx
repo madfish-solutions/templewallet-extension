@@ -6,8 +6,8 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
-import MoonPayImg from './assets/moonpay.png';
-// import RampImg from './assets/ramp.png';
+import { ReactComponent as MoonPayIcon } from './assets/MoonPay.svg';
+// import { ReactComponent as RampIcon } from './assets/Ramp.svg';
 import { SelectCryptoSelectors } from './SelectCrypto.selectors';
 
 export const Debits: FC = () => {
@@ -15,7 +15,7 @@ export const Debits: FC = () => {
   return (
     <div>
       <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md p-4 mb-8')}>
-        <img src={MoonPayImg} alt="MoonPayImg" />
+        <MoonPayIcon />
         <div className="text-lg text-center">
           <T id="buyWithMoonPay" />
         </div>
@@ -42,7 +42,7 @@ export const Debits: FC = () => {
         </Link>
       </div>
       {/* <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md p-4')}>
-        <img src={RampImg} alt="RampImg" />
+        <RampIcon />
         <div className="text-lg text-center">
           <T id="buyWithRamp" />
         </div>

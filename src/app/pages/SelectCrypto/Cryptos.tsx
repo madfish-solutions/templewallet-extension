@@ -6,7 +6,7 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
 
-import ExolixImg from './assets/exolix.png';
+import { ReactComponent as ExolixIcon } from './assets/Exolix.svg';
 import { SelectCryptoSelectors } from './SelectCrypto.selectors';
 
 export const Cryptos: FC = () => {
@@ -14,7 +14,7 @@ export const Cryptos: FC = () => {
   return (
     <div>
       <div className={classNames('mx-auto max-w-sm flex flex-col items-center', 'border-2 rounded-md p-4')}>
-        <img src={ExolixImg} alt="ExolixImg" />
+        <ExolixIcon />
         <div className="text-lg text-center">
           <T id="buyWithExolix" />
         </div>
