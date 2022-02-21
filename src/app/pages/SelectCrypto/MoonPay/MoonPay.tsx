@@ -19,7 +19,7 @@ export const MoonPay = () => {
   return (
     <a
       className={classNames(
-        'py-2 px-4 rounded mt-8',
+        'py-2 px-4 rounded mt-4',
         'border-2',
         'border-blue-500 hover:border-blue-600 focus:border-blue-600',
         'flex items-center justify-center',
