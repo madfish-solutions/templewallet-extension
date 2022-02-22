@@ -14,7 +14,7 @@ export const Debits: FC = () => {
   const { trackEvent } = useAnalytics();
   return (
     <div>
-      <div className={classNames('mx-auto max-w-sm', 'border-2 rounded-md p-4 mb-8')}>
+      <div className={classNames('mx-auto max-w-sm flex flex-col items-center', 'border-2 rounded-md p-4')}>
         <MoonPayIcon />
         <div className="text-lg text-center">
           <T id="buyWithMoonPay" />
