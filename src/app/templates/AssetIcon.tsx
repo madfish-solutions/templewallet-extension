@@ -40,16 +40,18 @@ export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) =>
 
   return (
     <div className={className}>
-      <img
-        src={imageSrc}
-        alt={metadata?.name}
-        style={!isLoaded ? { display: 'none' } : {}}
-        height={size}
-        width={size}
-        onLoad={() => setIsLoaded(true)}
-        onError={() => setIsLoadingFailed(true)}
-      />
-      {(!isLoaded || !metadata) && <AssetIconPlaceholder metadata={metadata} size={size} />}
+      {imageSrc !== '' && (
+        <img
+          src={imageSrc}
+          alt={metadata?.name}
+          style={!isLoaded ? { display: 'none' } : {}}
+          height={size}
+          width={size}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setIsLoadingFailed(true)}
+        />
+      )}
+      {(!isLoaded || !metadata || imageSrc === '') && <AssetIconPlaceholder metadata={metadata} size={size} />}
     </div>
   );
 };
