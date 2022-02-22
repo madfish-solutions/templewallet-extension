@@ -10,8 +10,9 @@ export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>, Test
   replace?: boolean;
 }
 
-const Link: FC<LinkProps> = ({ to, replace, ...rest }) => {
+const Link: FC<LinkProps> = ({ to, replace, testID, testIDProperties, ...rest }) => {
   const lctn = useLocation();
+  const { trackEvent } = useAnalytics();
 
   const { pathname, search, hash, state } = useMemo(() => createLocationUpdates(to, lctn), [to, lctn]);
 
@@ -20,10 +21,11 @@ const Link: FC<LinkProps> = ({ to, replace, ...rest }) => {
   const href = useMemo(() => (USE_LOCATION_HASH_AS_URL ? `${window.location.pathname}#${url}` : url), [url]);
 
   const handleNavigate = useCallback(() => {
+    testID !== undefined && trackEvent(testID, AnalyticsEventCategory.PageOpened, testIDProperties);
     const action =
       replace || url === createUrl(lctn.pathname, lctn.search, lctn.hash) ? HistoryAction.Replace : HistoryAction.Push;
     changeState(action, state, url);
-  }, [replace, state, url, lctn]);
+  }, [replace, state, url, lctn, testID, testIDProperties, trackEvent]);
 
   return <LinkAnchor {...rest} href={href} onNavigate={handleNavigate} />;
 };

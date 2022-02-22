@@ -32,6 +32,7 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
 import styles from './SwapForm.module.css';
+import { SwapFormSelectors } from './SwapForm.selectors';
 import { feeInfoTippyProps } from './SwapForm.tippy';
 import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput';
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
@@ -346,6 +347,7 @@ export const SwapForm: FC = () => {
         }}
         loading={isSubmitting}
         onClick={handleSubmitButtonClick}
+        testID={SwapFormSelectors.SwapSubmit}
       >
         <T id="swap" />
       </FormSubmitButton>
