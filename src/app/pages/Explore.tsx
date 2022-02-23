@@ -110,7 +110,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             Icon={SwapIcon}
             to={{
               pathname: '/swap',
-              search: `from=${assetSlug ?? ''}`
+              search: `from=${assetSlug ?? 'TEZ'}`
             }}
             disabled={!canSend}
             tippyProps={tippyPropsMock}
