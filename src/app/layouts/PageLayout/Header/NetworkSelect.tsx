@@ -93,7 +93,7 @@ const NetworkSelect: FC<NetworkSelectProps> = () => {
                     />
 
                     <span
-                      className="overflow-hidden text-sm text-white whitespace-no-wrap text-shadow-black"
+                      className="overflow-hidden text-sm text-white whitespace-nowrap text-shadow-black"
                       style={{ textOverflow: 'ellipsis', maxWidth: '10rem' }}
                     >
                       {(nameI18nKey && <T id={nameI18nKey} />) || name}

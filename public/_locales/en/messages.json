@@ -9,7 +9,7 @@
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
   },
   "createAccount": {
-    "message": "Create account"
+    "message": "Create or Restore account"
   },
   "importAccount": {
     "message": "Import account"
@@ -2506,5 +2506,8 @@
   },
   "swapRouteLoadingHasFailed": {
     "message": "Exchange rate data loading has failed. \nReload this page or try again later."
+  },
+  "swapTokenSearchInputPlaceholder": {
+    "message": "Enter name or address"
   }
 }

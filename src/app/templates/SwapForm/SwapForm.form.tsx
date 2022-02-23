@@ -25,7 +25,7 @@ export const useSwapFormDefaultValue = () => {
   return useMemo<DeepPartial<SwapFormValue>>(() => {
     const usp = new URLSearchParams(location.search);
 
-    const inputAssetSlug = usp.get('from');
+    const inputAssetSlug = usp.get('from') || 'tez';
     const outputAssetSlug = usp.get('to');
 
     return {

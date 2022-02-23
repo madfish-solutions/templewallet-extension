@@ -99,7 +99,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
           ].map(({ key, title, value, onChange }, i, arr) => (
             <div key={key} className={classNames('w-full flex items-center', i !== arr.length - 1 && 'mb-1')}>
               <div
-                className={classNames('whitespace-no-wrap overflow-x-auto no-scrollbar', 'opacity-90')}
+                className={classNames('whitespace-nowrap overflow-x-auto no-scrollbar', 'opacity-90')}
                 style={{ maxWidth: '45%' }}
               >
                 {title}

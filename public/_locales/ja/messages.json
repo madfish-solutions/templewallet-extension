@@ -12,7 +12,7 @@
     "message": "アカウントをインポート"
   },
   "createAccount": {
-    "message": "アカウントを作成"
+    "message": "アカウントを作成または復元する"
   },
   "faucetFileTitle": {
     "message": "フォーセットファイル"
