@@ -42,6 +42,8 @@ const AUTODECLINE_AFTER = 120_000;
 const STORAGE_KEY = 'dapp_sessions';
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
 const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
+const RARIBLE_MSG_SIGN_PATTERN =
+  /^05070705090a0000002100[a-f0-9]*b0a00000001000080[a-f0-9]*707030607070a000000[a-f0-9]*$/;
 
 export async function getCurrentPermission(origin: string): Promise<TempleDAppGetCurrentPermissionResponse> {
   const dApp = await getDApp(origin);
@@ -256,7 +258,7 @@ const generatePromisifySign = async (
 
   let preview: any;
   try {
-    if (req.payload.match(TEZ_MSG_SIGN_PATTERN)) {
+    if (req.payload.match(TEZ_MSG_SIGN_PATTERN) || req.payload.match(RARIBLE_MSG_SIGN_PATTERN)) {
       preview = emitMicheline(valueDecoder(Uint8ArrayConsumer.fromHexString(req.payload.slice(2))), {
         indent: '  ',
         newline: '\n'
