@@ -166,7 +166,7 @@ const ActionButton: FC<ActionButtonProps> = ({
             )}
             style={{ padding: '0 0.625rem', height: '2.75rem' }}
           >
-            <Icon className="w-6 h-auto stroke-current stroke-2" />
+            <Icon className="w-6 h-auto stroke-current" />
           </div>
           <span className={classNames('text-xs text-center', disabled ? 'text-blue-300' : 'text-blue-500')}>
             {label}
