@@ -265,7 +265,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
               'transition ease-in-out duration-200',
               'hover:bg-white hover:bg-opacity-10',
               'text-white text-shadow-black text-sm',
-              'whitespace-no-wrap'
+              'whitespace-nowrap'
             ),
             style: {
               paddingTop: '0.375rem',

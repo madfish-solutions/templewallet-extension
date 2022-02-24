@@ -511,9 +511,9 @@ function getStyleLoaders(cssOptions = {}) {
     {
       loader: require.resolve('postcss-loader'),
       options: {
-        ident: 'postcss',
-        plugins: () =>
-          [
+        postcssOptions: {
+          ident: 'postcss',
+          plugins: [
             require('postcss-flexbugs-fixes'),
             require('postcss-preset-env')({
               autoprefixer: {
@@ -523,8 +523,8 @@ function getStyleLoaders(cssOptions = {}) {
             }),
             require('tailwindcss'),
             require('autoprefixer')
-          ].filter(Boolean),
-        sourceMap: SOURCE_MAP
+          ]
+        }
       }
     }
   ].filter(Boolean);
