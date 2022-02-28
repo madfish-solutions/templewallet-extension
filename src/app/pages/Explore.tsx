@@ -28,6 +28,7 @@ import {
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
+import { DonationBanner } from '../atoms/DonationBanner';
 import CollectiblesList from './Collectibles/CollectiblesList';
 import { ExploreSelectors } from './Explore.selectors';
 import AddressChip from './Explore/AddressChip';
@@ -89,6 +90,8 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
       }
       attention={true}
     >
+      <DonationBanner />
+
       {fullPage && (
         <>
           <EditableTitle />
