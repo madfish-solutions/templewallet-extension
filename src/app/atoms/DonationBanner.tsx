@@ -2,13 +2,12 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
+import { ReactComponent as Ukraine } from 'app/icons/ukraine.svg';
 import { Link } from 'lib/woozie';
 
 import { AnalyticsEventCategory, useAnalytics } from '../../lib/analytics';
 import { T } from '../../lib/i18n/react';
 import { useAppEnv } from '../env';
-import Ukraine from './assets/ukraine.png';
-
 export const DonationBanner: FC = () => {
   const { popup } = useAppEnv();
   const { trackEvent } = useAnalytics();
@@ -23,7 +22,9 @@ export const DonationBanner: FC = () => {
       }}
     >
       <div className="flex flex-row mb-4">
-        <img src={Ukraine} alt="Ukraine" className="mr-4 my-auto" style={{ width: '72px', height: '49px' }} />
+        <div className="h-12 mr-4 my-auto">
+          <Ukraine />
+        </div>
         <div className="flex flex-col">
           <span className="font-inter font-semibold" style={{ fontSize: '17px' }}>
             <T id={'standWithUkraine'} />
