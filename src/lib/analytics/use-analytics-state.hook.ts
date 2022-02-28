@@ -44,15 +44,14 @@ export const sendPageEvent = async (
   rpc: string | undefined,
   path: string,
   search: string,
-  tokenAddress?: string,
-  tokenId?: string
+  additionalProperties = {}
 ) => {
   const url = `${path}${search}`;
   const chainId = rpc && (await loadChainId(rpc));
 
   client.page({
     userId,
-    name: url,
+    name: path,
     timestamp: new Date(),
     category: AnalyticsEventCategory.PageOpened,
     properties: {
@@ -61,8 +60,7 @@ export const sendPageEvent = async (
       referrer: path,
       category: AnalyticsEventCategory.PageOpened,
       chainId,
-      ...(tokenAddress !== undefined && { tokenAddress }),
-      ...(tokenId !== undefined && { tokenId })
+      ...additionalProperties
     }
   });
 };
