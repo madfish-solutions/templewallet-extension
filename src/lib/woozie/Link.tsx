@@ -21,7 +21,7 @@ const Link: FC<LinkProps> = ({ to, replace, testID, testIDProperties, ...rest })
   const href = useMemo(() => (USE_LOCATION_HASH_AS_URL ? `${window.location.pathname}#${url}` : url), [url]);
 
   const handleNavigate = useCallback(() => {
-    testID !== undefined && trackEvent(testID, AnalyticsEventCategory.PageOpened, testIDProperties);
+    testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
     const action =
       replace || url === createUrl(lctn.pathname, lctn.search, lctn.hash) ? HistoryAction.Replace : HistoryAction.Push;
     changeState(action, state, url);

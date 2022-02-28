@@ -102,8 +102,15 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
-          <ActionButton label={<T id="receive" />} Icon={ReceiveIcon} to="/receive" />
-          {network.type !== 'test' && <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} to="/buy" />}
+          <ActionButton
+            label={<T id="receive" />}
+            Icon={ReceiveIcon}
+            to="/receive"
+            testID={ExploreSelectors.ReceiveButton}
+          />
+          {network.type !== 'test' && (
+            <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} to="/buy" testID={ExploreSelectors.BuyButton} />
+          )}
 
           <ActionButton
             label={<T id="swap" />}
@@ -122,6 +129,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             to={sendLink}
             disabled={!canSend}
             tippyProps={tippyPropsMock}
+            testID={ExploreSelectors.SendButton}
           />
         </div>
       </div>
