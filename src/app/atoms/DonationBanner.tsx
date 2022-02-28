@@ -28,7 +28,7 @@ export const DonationBanner: FC = () => {
           <span className="font-inter font-semibold" style={{ fontSize: '17px' }}>
             <T id={'standWithUkraine'} />
           </span>
-          <span className="font-inter font-normal text-xs">
+          <span className="font-inter font-normal text-xs text-gray-700">
             <T id={'supportUkrainians'} />
           </span>
         </div>
