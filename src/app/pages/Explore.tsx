@@ -28,6 +28,7 @@ import {
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
+import { DonationBanner } from '../atoms/DonationBanner';
 import CollectiblesList from './Collectibles/CollectiblesList';
 import { ExploreSelectors } from './Explore.selectors';
 import AddressChip from './Explore/AddressChip';
@@ -89,6 +90,8 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
       }
       attention={true}
     >
+      <DonationBanner />
+
       {fullPage && (
         <>
           <EditableTitle />
@@ -98,7 +101,6 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
       <div className={classNames('flex flex-col items-center', fullpageClassName)}>
         <AddressChip pkh={accountPkh} className="mb-6" />
-
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
