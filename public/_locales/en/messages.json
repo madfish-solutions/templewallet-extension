@@ -9,7 +9,7 @@
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
   },
   "createAccount": {
-    "message": "Create account"
+    "message": "Create or Restore account"
   },
   "importAccount": {
     "message": "Import account"
@@ -2200,6 +2200,15 @@
   },
   "done": {
     "message": "Done!"
+  },
+  "donate": {
+    "message": "Donate"
+  },
+  "standWithUkraine": {
+    "message": "Stand with Ukraine"
+  },
+  "supportUkrainians": {
+    "message": "Donate TEZ - support Ukrainians in their fight with Putin occupants."
   },
   "addressBalanceDetails": {
     "message": "Your address and balance"

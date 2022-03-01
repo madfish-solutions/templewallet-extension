@@ -12,6 +12,8 @@ export type DryRunParams = {
   sourcePublicKey: string;
 };
 
+const FEE_PER_GAS_UNIT = 0.1;
+
 export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePublicKey }: DryRunParams) {
   try {
     const tezos = new TezosToolkit(loadFastRpcClient(networkRpc));
@@ -43,7 +45,9 @@ export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePu
             gasLimit: e.gasLimit,
             minimalFeeMutez: e.minimalFeeMutez,
             storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
-            suggestedFeeMutez: e.suggestedFeeMutez,
+            suggestedFeeMutez:
+              e.suggestedFeeMutez +
+              (opParams[i]?.gasLimit ? Math.ceil((opParams[i].gasLimit - e.gasLimit) * FEE_PER_GAS_UNIT) : 0),
             totalCost: e.totalCost,
             usingBaseFeeMutez: e.usingBaseFeeMutez
           } as Estimate)

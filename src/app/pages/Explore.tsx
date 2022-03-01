@@ -4,7 +4,6 @@ import classNames from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
 import Spinner from 'app/atoms/Spinner';
-import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
@@ -16,6 +15,7 @@ import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import Activity from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
+import { TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n/react';
 import {
   getAssetSymbol,
@@ -28,6 +28,7 @@ import {
 import useTippy from 'lib/ui/useTippy';
 import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
+import { DonationBanner } from '../atoms/DonationBanner';
 import CollectiblesList from './Collectibles/CollectiblesList';
 import { ExploreSelectors } from './Explore.selectors';
 import AddressChip from './Explore/AddressChip';
@@ -89,6 +90,8 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
       }
       attention={true}
     >
+      <DonationBanner />
+
       {fullPage && (
         <>
           <EditableTitle />
@@ -102,8 +105,15 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
         <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
-          <ActionButton label={<T id="receive" />} Icon={ReceiveIcon} to="/receive" />
-          {network.type !== 'test' && <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} to="/buy" />}
+          <ActionButton
+            label={<T id="receive" />}
+            Icon={ReceiveIcon}
+            to="/receive"
+            testID={ExploreSelectors.ReceiveButton}
+          />
+          {network.type !== 'test' && (
+            <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} to="/buy" testID={ExploreSelectors.BuyButton} />
+          )}
 
           <ActionButton
             label={<T id="swap" />}
@@ -114,6 +124,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             }}
             disabled={!canSend}
             tippyProps={tippyPropsMock}
+            testID={ExploreSelectors.SwapButton}
           />
           <ActionButton
             label={<T id="send" />}
@@ -121,6 +132,7 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
             to={sendLink}
             disabled={!canSend}
             tippyProps={tippyPropsMock}
+            testID={ExploreSelectors.SendButton}
           />
         </div>
       </div>
@@ -134,15 +146,23 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
 
 export default Explore;
 
-type ActionButtonProps = {
+interface ActionButtonProps extends TestIDProps {
   label: React.ReactNode;
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
   to: To;
   disabled?: boolean;
   tippyProps?: Partial<TippyProps>;
-};
+}
 
-const ActionButton: FC<ActionButtonProps> = ({ label, Icon, to, disabled, tippyProps = {} }) => {
+const ActionButton: FC<ActionButtonProps> = ({
+  label,
+  Icon,
+  to,
+  disabled,
+  tippyProps = {},
+  testID,
+  testIDProperties
+}) => {
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
@@ -157,7 +177,7 @@ const ActionButton: FC<ActionButtonProps> = ({ label, Icon, to, disabled, tippyP
             )}
             style={{ padding: '0 0.625rem', height: '2.75rem' }}
           >
-            <Icon className="w-6 h-auto stroke-current stroke-1" />
+            <Icon className="w-6 h-auto stroke-current" />
           </div>
           <span className={classNames('text-xs text-center', disabled ? 'text-blue-300' : 'text-blue-500')}>
             {label}
@@ -167,7 +187,11 @@ const ActionButton: FC<ActionButtonProps> = ({ label, Icon, to, disabled, tippyP
     }),
     [disabled, Icon, label]
   );
-  return disabled ? <button ref={buttonRef} {...commonButtonProps} /> : <Link to={to} {...commonButtonProps} />;
+  return disabled ? (
+    <button ref={buttonRef} {...commonButtonProps} />
+  ) : (
+    <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />
+  );
 };
 
 const Delegation: FC = () => (
@@ -189,6 +213,15 @@ const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => {
     </SuspenseContainer>
   );
 };
+
+function useTabSlug() {
+  const { search } = useLocation();
+  const tabSlug = useMemo(() => {
+    const usp = new URLSearchParams(search);
+    return usp.get('tab');
+  }, [search]);
+  return useMemo(() => tabSlug, [tabSlug]);
+}
 
 type SecondarySectionProps = {
   assetSlug?: string | null;
