@@ -3,7 +3,6 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as Ukraine } from 'app/icons/ukraine.svg';
-import { Link } from 'lib/woozie';
 
 import { AnalyticsEventCategory, useAnalytics } from '../../lib/analytics';
 import { T } from '../../lib/i18n/react';
@@ -34,7 +33,7 @@ export const DonationBanner: FC = () => {
           </span>
         </div>
       </div>
-      <Link
+      <a
         className={classNames(
           'py-2 px-4 rounded',
           'border-2',
@@ -47,11 +46,13 @@ export const DonationBanner: FC = () => {
           'bg-blue-500',
           'w-full'
         )}
-        to={'/donate'}
+        href="https://donate.tezos.org.ua"
+        target="_blank"
+        rel="noopener noreferrer"
         onClick={() => trackEvent('UkraineDonation', AnalyticsEventCategory.ButtonPress)}
       >
         <T id={'donate'} />
-      </Link>
+      </a>
     </div>
   );
 };

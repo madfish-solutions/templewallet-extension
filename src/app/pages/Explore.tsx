@@ -4,6 +4,7 @@ import classNames from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
 import Spinner from 'app/atoms/Spinner';
+import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
@@ -213,15 +214,6 @@ const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => {
     </SuspenseContainer>
   );
 };
-
-function useTabSlug() {
-  const { search } = useLocation();
-  const tabSlug = useMemo(() => {
-    const usp = new URLSearchParams(search);
-    return usp.get('tab');
-  }, [search]);
-  return useMemo(() => tabSlug, [tabSlug]);
-}
 
 type SecondarySectionProps = {
   assetSlug?: string | null;
