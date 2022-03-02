@@ -3,21 +3,14 @@ import React from 'react';
 import classNames from 'clsx';
 
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { getCurrentLocale } from 'lib/i18n';
-import { useAccount } from 'lib/temple/front';
 
 import { T } from '../../../../lib/i18n/react';
 import { SelectCryptoSelectors } from '../SelectCrypto.selectors';
 import { useSignedMoonPayUrl } from './useSignedMoonPayUrl';
 
 export const MoonPay = () => {
-  const { publicKeyHash: walletAddress } = useAccount();
-  const selectedLocale = getCurrentLocale();
   const { trackEvent } = useAnalytics();
-
-  const url = `https://buy-sandbox.moonpay.com?apiKey=pk_test_qO0hEwo5BlcLCGBUsDwARc4PSW80bmR&currencyCode=xtz&walletAddress=${walletAddress}&colorCode=%23ed8936&language=${selectedLocale}`;
-  const signedUrl = useSignedMoonPayUrl(url);
-  const isDisabled = signedUrl === '';
+  const { signedUrl, isDisabled } = useSignedMoonPayUrl();
 
   return (
     <a
