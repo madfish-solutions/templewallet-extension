@@ -46,7 +46,7 @@ export const DonationBanner: FC = () => {
           'bg-blue-500',
           'w-full'
         )}
-        href="https://www.donate.tezos.org.ua"
+        href="https://donate.tezos.org.ua"
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => trackEvent('UkraineDonation', AnalyticsEventCategory.ButtonPress)}
