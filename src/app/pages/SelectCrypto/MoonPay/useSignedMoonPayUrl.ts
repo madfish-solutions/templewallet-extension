@@ -13,11 +13,12 @@ const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://api.te
 const getSignedMoonPayUrl = buildQuery('GET', '/moonpay-sign', ['url']);
 
 export const useSignedMoonPayUrl = () => {
-  const [signedUrl, setSignedUrl] = useState('');
-  const isDisabled = signedUrl === '';
-
   const { publicKeyHash: walletAddress } = useAccount();
   const selectedLocale = getCurrentLocale();
+
+  const [signedUrl, setSignedUrl] = useState(
+    `${MOONPAY_DOMAIN}?apiKey=${API_KEY}&currencyCode=${CURRENCY_CODE}&colorCode=%23ed8936&language=${selectedLocale}`
+  );
 
   const url = `${MOONPAY_DOMAIN}?apiKey=${API_KEY}&currencyCode=${CURRENCY_CODE}&walletAddress=${walletAddress}&colorCode=%23ed8936&language=${selectedLocale}`;
 
@@ -30,5 +31,5 @@ export const useSignedMoonPayUrl = () => {
     })();
   }, [url]);
 
-  return { signedUrl, isDisabled };
+  return signedUrl;
 };

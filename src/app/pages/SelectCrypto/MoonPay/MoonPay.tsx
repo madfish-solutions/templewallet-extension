@@ -10,12 +10,12 @@ import { useSignedMoonPayUrl } from './useSignedMoonPayUrl';
 
 export const MoonPay = () => {
   const { trackEvent } = useAnalytics();
-  const { signedUrl, isDisabled } = useSignedMoonPayUrl();
+  const signedUrl = useSignedMoonPayUrl();
 
   return (
     <a
       className={classNames(
-        isDisabled ? 'shadow-inner pointer-events-none opacity-75' : 'shadow-sm hover:shadow focus:shadow',
+        'shadow-sm hover:shadow focus:shadow',
         'py-2 px-4 rounded mt-4',
         'border-2',
         'border-blue-500 hover:border-blue-600 focus:border-blue-600',
