@@ -4,8 +4,8 @@ import { getCurrentLocale } from '../../../../lib/i18n';
 import makeBuildQueryFn from '../../../../lib/makeBuildQueryFn';
 import { useAccount } from '../../../../lib/temple/front';
 
-const MOONPAY_DOMAIN = 'https://buy-sandbox.moonpay.com';
-const API_KEY = 'pk_test_qO0hEwo5BlcLCGBUsDwARc4PSW80bmR';
+const MOONPAY_DOMAIN = 'https://buy.moonpay.com';
+const API_KEY = 'pk_live_PrSDks3YtrreqFifd0BsIji7xPXjSGx';
 const CURRENCY_CODE = 'xtz';
 
 const buildQuery = makeBuildQueryFn<Record<string, string>, any>('https://api.templewallet.com/api');
