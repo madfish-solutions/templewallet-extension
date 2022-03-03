@@ -15,12 +15,11 @@ const getSignedMoonPayUrl = buildQuery('GET', '/moonpay-sign', ['url']);
 export const useSignedMoonPayUrl = () => {
   const { publicKeyHash: walletAddress } = useAccount();
   const selectedLocale = getCurrentLocale();
+  const defaultUrl = `${MOONPAY_DOMAIN}?apiKey=${API_KEY}&currencyCode=${CURRENCY_CODE}&colorCode=%23ed8936&language=${selectedLocale}`;
 
-  const [signedUrl, setSignedUrl] = useState(
-    `${MOONPAY_DOMAIN}?apiKey=${API_KEY}&currencyCode=${CURRENCY_CODE}&colorCode=%23ed8936&language=${selectedLocale}`
-  );
+  const [signedUrl, setSignedUrl] = useState(defaultUrl);
 
-  const url = `${MOONPAY_DOMAIN}?apiKey=${API_KEY}&currencyCode=${CURRENCY_CODE}&walletAddress=${walletAddress}&colorCode=%23ed8936&language=${selectedLocale}`;
+  const url = `${defaultUrl}&walletAddress=${walletAddress}`;
 
   useEffect(() => {
     (async () => {
