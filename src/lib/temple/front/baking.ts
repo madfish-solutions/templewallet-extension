@@ -2,10 +2,14 @@ import { useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { BakingBadBakerValueHistoryItem, bakingBadGetBaker, getAllBakersBakingBad } from 'lib/baking-bad';
+import {
+  BakingBadBaker,
+  BakingBadBakerValueHistoryItem,
+  bakingBadGetBaker,
+  getAllBakersBakingBad
+} from 'lib/baking-bad';
 import { useRetryableSWR } from 'lib/swr';
-import { useTezos, useNetwork } from 'lib/temple/front';
-import { getBaker, TNBaker } from 'lib/tezos-nodes';
+import { useNetwork, useTezos } from 'lib/temple/front';
 import { TzktRewardsEntry } from 'lib/tzkt';
 
 export function useDelegate(address: string, suspense = true) {
@@ -46,8 +50,8 @@ type RewardConfig = Record<
   | 'lowPriorityEndorses',
   boolean
 >;
-export type Baker = TNBaker & {
-  logo: string;
+export type Baker = Pick<BakingBadBaker, 'address' | 'name' | 'fee' | 'freeSpace' | 'minDelegation'> & {
+  logo?: string;
   feeHistory?: BakingBadBakerValueHistoryItem<number>[];
   rewardConfigHistory: BakingBadBakerValueHistoryItem<RewardConfig>[];
 };
@@ -79,46 +83,41 @@ export function useKnownBaker(address: string | null, suspense = true) {
   const fetchBaker = useCallback(async (): Promise<Baker | null> => {
     if (!address) return null;
     try {
-      const baker = await getBaker(address);
-      if (baker) {
-        try {
-          const bakingBadBaker = await bakingBadGetBaker({
-            address,
-            configs: true
-          });
-          if (typeof bakingBadBaker === 'object') {
-            return {
-              ...baker,
-              fee: bakingBadBaker.fee,
-              feeHistory: bakingBadBaker.config?.fee,
-              rewardConfigHistory:
-                bakingBadBaker.config?.rewardStruct.map(({ cycle, value: rewardStruct }) => ({
-                  cycle,
-                  value: {
-                    blocks: (rewardStruct & 1) > 0,
-                    endorses: (rewardStruct & 2) > 0,
-                    fees: (rewardStruct & 4) > 0,
-                    accusationRewards: (rewardStruct & 8) > 0,
-                    accusationLostDeposits: (rewardStruct & 16) > 0,
-                    accusationLostRewards: (rewardStruct & 32) > 0,
-                    accusationLostFees: (rewardStruct & 64) > 0,
-                    revelationRewards: (rewardStruct & 128) > 0,
-                    revelationLostRewards: (rewardStruct & 256) > 0,
-                    revelationLostFees: (rewardStruct & 512) > 0,
-                    missedBlocks: (rewardStruct & 1024) > 0,
-                    stolenBlocks: (rewardStruct & 2048) > 0,
-                    missedEndorses: (rewardStruct & 4096) > 0,
-                    lowPriorityEndorses: (rewardStruct & 8192) > 0
-                  }
-                })) ?? defaultRewardConfigHistory
-            };
-          }
-        } catch {}
+      const bakingBadBaker = await bakingBadGetBaker({ address, configs: true });
+
+      if (typeof bakingBadBaker === 'object') {
+        return {
+          address: bakingBadBaker.address,
+          name: bakingBadBaker.name,
+          logo: bakingBadBaker.logo ? bakingBadBaker.logo : undefined,
+          fee: bakingBadBaker.fee,
+          freeSpace: bakingBadBaker.freeSpace,
+          feeHistory: bakingBadBaker.config?.fee,
+          minDelegation: bakingBadBaker.minDelegation,
+          rewardConfigHistory:
+            bakingBadBaker.config?.rewardStruct.map(({ cycle, value: rewardStruct }) => ({
+              cycle,
+              value: {
+                blocks: (rewardStruct & 1) > 0,
+                endorses: (rewardStruct & 2) > 0,
+                fees: (rewardStruct & 4) > 0,
+                accusationRewards: (rewardStruct & 8) > 0,
+                accusationLostDeposits: (rewardStruct & 16) > 0,
+                accusationLostRewards: (rewardStruct & 32) > 0,
+                accusationLostFees: (rewardStruct & 64) > 0,
+                revelationRewards: (rewardStruct & 128) > 0,
+                revelationLostRewards: (rewardStruct & 256) > 0,
+                revelationLostFees: (rewardStruct & 512) > 0,
+                missedBlocks: (rewardStruct & 1024) > 0,
+                stolenBlocks: (rewardStruct & 2048) > 0,
+                missedEndorses: (rewardStruct & 4096) > 0,
+                lowPriorityEndorses: (rewardStruct & 8192) > 0
+              }
+            })) ?? defaultRewardConfigHistory
+        };
       }
-      return {
-        ...(baker as TNBaker),
-        rewardConfigHistory: defaultRewardConfigHistory
-      };
+
+      return null;
     } catch (_err) {
       return null;
     }
