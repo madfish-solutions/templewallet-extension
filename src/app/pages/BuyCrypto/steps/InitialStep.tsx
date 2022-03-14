@@ -14,6 +14,8 @@ import { ExchangeDataInterface, ExchangeDataStatusEnum, getRate, submitExchange 
 import { T } from 'lib/i18n/react';
 import { useAccount, useAssetUSDPrice } from 'lib/temple/front';
 
+import { BuyCryptoSelectors } from '../BuyCrypto.selectors';
+
 const coinTo = 'XTZ';
 const maxDollarValue = 5000;
 const avgCommission = 300;
@@ -163,6 +165,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             }}
             onClick={submitExchangeHandler}
             disabled={disabledProceed}
+            testID={BuyCryptoSelectors.TopupFirstStepSubmit}
           >
             <T id={'topUp'} />
           </FormSubmitButton>

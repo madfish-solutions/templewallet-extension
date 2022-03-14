@@ -5,10 +5,13 @@ import PageLayout from 'app/layouts/PageLayout';
 import ApproveStep from 'app/pages/BuyCrypto/steps/ApproveStep';
 import ExchangeStep from 'app/pages/BuyCrypto/steps/ExchangeStep';
 import InitialStep from 'app/pages/BuyCrypto/steps/InitialStep';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { ExchangeDataInterface } from 'lib/exolix-api';
 import { T, t } from 'lib/i18n/react';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
+
+import { BuyCryptoSelectors } from './BuyCrypto.selectors';
 
 const BuyCrypto: FC = () => (
   <PageLayout
@@ -27,6 +30,7 @@ export default BuyCrypto;
 const steps = [`${t('step')} 1`, `${t('step')} 2`, `${t('step')} 3`, `${t('step')} 4`];
 
 const BuyCryptoContent: FC = () => {
+  const { trackEvent } = useAnalytics();
   const network = useNetwork();
   const { publicKeyHash } = useAccount();
   const [step, setStep] = useStorage<number>(`topup_step_state_${publicKeyHash}`, 0);
@@ -76,6 +80,15 @@ const BuyCryptoContent: FC = () => {
           target="_blank"
           rel="noreferrer"
           className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
+          onClick={() => {
+            if (step === 2) {
+              trackEvent(BuyCryptoSelectors.TopupSecondStepSupport, AnalyticsEventCategory.ButtonPress);
+            } else if (step === 3) {
+              trackEvent(BuyCryptoSelectors.TopupThirdStepSupport, AnalyticsEventCategory.ButtonPress);
+            } else {
+              trackEvent(BuyCryptoSelectors.TopupFourthStepSupport, AnalyticsEventCategory.ButtonPress);
+            }
+          }}
         >
           <T id={'support'} />
         </a>

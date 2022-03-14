@@ -1,6 +1,7 @@
 export enum SelectCryptoSelectors {
-  Crypto = 'SelectCrypto/CryptoTab',
-  Debit = 'SelectCrypto/DebitTab',
-  MoonPay = 'SelectCrypto/MoonPayTab',
-  Ramp = 'SelectCrypto/RampTab'
+  Crypto = 'TopUp/CryptoTab',
+  Debit = 'TopUp/CardTab',
+  MoonPay = 'TopUp/MoonPayContinue',
+  Exolix = 'TopUp/ExolixContinue',
+  Ramp = 'TopUp/RampTab'
 }
