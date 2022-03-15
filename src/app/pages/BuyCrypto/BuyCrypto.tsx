@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 
 import Stepper from 'app/atoms/Stepper';
 import PageLayout from 'app/layouts/PageLayout';
@@ -39,6 +39,23 @@ const BuyCryptoContent: FC = () => {
     `topup_exchange_data_state_${publicKeyHash}`,
     null
   );
+
+  const handleTrackSupportSubmit = useCallback(() => {
+    let event = BuyCryptoSelectors.TopupFourthStepSupport;
+    switch (step) {
+      case 2:
+        event = BuyCryptoSelectors.TopupSecondStepSupport;
+        break;
+      case 3:
+        event = BuyCryptoSelectors.TopupThirdStepSupport;
+        break;
+      default:
+        event = BuyCryptoSelectors.TopupFourthStepSubmit;
+        break;
+    }
+    return trackEvent(event, AnalyticsEventCategory.ButtonPress);
+  }, [step, trackEvent]);
+
   if (network.type !== 'main') {
     return <Redirect to={'/'} />;
   }
@@ -80,15 +97,7 @@ const BuyCryptoContent: FC = () => {
           target="_blank"
           rel="noreferrer"
           className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
-          onClick={() => {
-            if (step === 2) {
-              trackEvent(BuyCryptoSelectors.TopupSecondStepSupport, AnalyticsEventCategory.ButtonPress);
-            } else if (step === 3) {
-              trackEvent(BuyCryptoSelectors.TopupThirdStepSupport, AnalyticsEventCategory.ButtonPress);
-            } else {
-              trackEvent(BuyCryptoSelectors.TopupFourthStepSupport, AnalyticsEventCategory.ButtonPress);
-            }
-          }}
+          onClick={handleTrackSupportSubmit}
         >
           <T id={'support'} />
         </a>
