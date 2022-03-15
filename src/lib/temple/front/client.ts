@@ -173,7 +173,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const generateSyncPayload = useCallback(async (password: string) => {
     const res = await request({
       type: TempleMessageType.GenerateSyncPayloadRequest,
-      password,
+      password
     });
     assertResponse(res.type === TempleMessageType.GenerateSyncPayloadResponse);
     return res.payload;

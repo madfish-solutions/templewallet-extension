@@ -5,8 +5,10 @@ import { InMemorySigner } from '@taquito/signer';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import { LedgerTempleBridgeTransport } from '@temple-wallet/ledger-bridge';
+import * as aes from 'aes-js';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
+import * as pbkdf2 from 'pbkdf2';
 
 import { getMessage } from 'lib/i18n';
 import { PublicError } from 'lib/temple/back/defaults';
@@ -34,7 +36,7 @@ import * as Passworder from 'lib/temple/passworder';
 import { clearStorage } from 'lib/temple/reset';
 import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 
-const TEMPLE_SYNC_PREFIX = "templesync";
+const TEMPLE_SYNC_PREFIX = 'templesync';
 const TEZOS_BIP44_COINTYPE = 1729;
 const STORAGE_KEY_PREFIX = 'vault';
 const DEFAULT_SETTINGS: TempleSettings = {};
@@ -181,40 +183,28 @@ export class Vault {
 
   static async generateSyncPayload(password: string) {
     const passKey = await Vault.toValidPassKey(password);
-    return withError("Failed to generate sync payload", async () => {
+    return withError('Failed to generate sync payload', async () => {
       const [mnemonic, allAccounts] = await Promise.all([
         fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
-        fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey),
+        fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey)
       ]);
 
-      const hdAccounts = allAccounts.filter(
-        (acc) => acc.type === TempleAccountType.HD
-      );
+      const hdAccounts = allAccounts.filter(acc => acc.type === TempleAccountType.HD);
 
       const data = [mnemonic, hdAccounts.length];
 
       const salt = Passworder.generateSalt(16);
-      const saltHex = Buffer.from(salt).toString("hex");
+      const saltHex = Buffer.from(salt).toString('hex');
 
-      const key = pbkdf2.pbkdf2Sync(
-        password,
-        saltHex,
-        5_000,
-        256 / 8,
-        "sha512"
-      );
+      const key = pbkdf2.pbkdf2Sync(password, saltHex, 5_000, 256 / 8, 'sha512');
 
-      const textBytes = aes.padding.pkcs7.pad(
-        aes.utils.utf8.toBytes(JSON.stringify(data))
-      );
+      const textBytes = aes.padding.pkcs7.pad(aes.utils.utf8.toBytes(JSON.stringify(data)));
 
       const iv = Passworder.generateSalt(16);
       const aesCbc = new aes.ModeOfOperation.cbc(key, iv);
       const encryptedBytes = aesCbc.encrypt(textBytes);
 
-      return [TEMPLE_SYNC_PREFIX, salt, iv, encryptedBytes]
-        .map((item) => Buffer.from(item).toString("base64"))
-        .join("");
+      return [TEMPLE_SYNC_PREFIX, salt, iv, encryptedBytes].map(item => Buffer.from(item).toString('base64')).join('');
     });
   }
 

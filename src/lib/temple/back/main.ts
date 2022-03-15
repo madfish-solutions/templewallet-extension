@@ -65,7 +65,7 @@ async function processRequest(req: TempleRequest, port: Runtime.Port): Promise<T
       const payload = await Actions.generateSyncPayload(req.password);
       return {
         type: TempleMessageType.GenerateSyncPayloadResponse,
-        payload,
+        payload
       };
 
     case TempleMessageType.RemoveAccountRequest:
