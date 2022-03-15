@@ -41,7 +41,7 @@ const BuyCryptoContent: FC = () => {
   );
 
   const handleTrackSupportSubmit = useCallback(() => {
-    let event = BuyCryptoSelectors.TopupFourthStepSupport;
+    let event: BuyCryptoSelectors;
     switch (step) {
       case 2:
         event = BuyCryptoSelectors.TopupSecondStepSupport;
