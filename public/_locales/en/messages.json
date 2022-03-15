@@ -9,7 +9,7 @@
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
   },
   "createAccount": {
-    "message": "Create account"
+    "message": "Create or Restore account"
   },
   "importAccount": {
     "message": "Import account"
@@ -85,8 +85,8 @@
   "protectedFormField": {
     "message": "Protected"
   },
-  "clickToRevealOrEditField": {
-    "message": "Click to reveal or edit this field"
+  "clickToRevealField": {
+    "message": "Click to reveal this field"
   },
   "copiedHash": {
     "message": "Copied."
@@ -97,8 +97,8 @@
   "accounts": {
     "message": "Accounts"
   },
-  "logOut": {
-    "message": "Log out"
+  "lock": {
+    "message": "Lock"
   },
   "importedAccount": {
     "message": "Imported"
@@ -108,6 +108,9 @@
   },
   "back": {
     "message": "Back"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "addNewToken": {
     "message": "Add new Token"
@@ -452,17 +455,20 @@
   "toBeConnectedWithDApp": {
     "message": "to be connected with dApp."
   },
+  "requirements": {
+    "message": "Requirements:"
+  },
   "atLeast8Characters": {
-    "message": "At least 8 characters"
+    "message": "At least 8 characters - the more characters, the better."
   },
-  "atLeast1Number": {
-    "message": "At least 1 number"
+  "mixtureOfUppercaseAndLowercaseLetters": {
+    "message": "A mixture of both uppercase and lowercase letters."
   },
-  "atLeast1LowercaseLetter": {
-    "message": "At least 1 lowercase letter"
+  "mixtureOfLettersAndNumbers": {
+    "message": "A mixture of letters and numbers."
   },
-  "atLeast1UppercaseLetter": {
-    "message": "At least 1 uppercase letter"
+  "atLeast1SpecialCharacter": {
+    "message": "Inclusion of at least one special character, e.g., ! @ # ? ] - (optional, recommended)."
   },
   "mnemonicWordsAmountConstraint": {
     "message": "12, 15, 18, 21 or 24 words in English"
@@ -540,6 +546,12 @@
   "amountMustBePositive": {
     "message": "Must be positive"
   },
+  "assetMustBeSelected": {
+    "message": "Asset must be selected"
+  },
+  "gasFeeMustBePositive": {
+    "message": "Gas fee must be positive"
+  },
   "accountName": {
     "message": "Account name"
   },
@@ -611,6 +623,9 @@
   },
   "mnemonicInputDescription": {
     "message": "Mnemonic. Your secret 12 - 24 words phrase."
+  },
+  "mnemonicInputWarning": {
+    "message": "We don't store your seed phrase. Don't lose it!"
   },
   "mnemonicInputPlaceholder": {
     "message": "e.g. venue sock milk update..."
@@ -735,6 +750,9 @@
   "about": {
     "message": "About"
   },
+  "info": {
+    "message": "Info"
+  },
   "aboutDescription": {
     "message": "Use this section to view meta info about Temple Wallet."
   },
@@ -746,6 +764,9 @@
   },
   "unlockPasswordInputDescription": {
     "message": "A password is used to protect the wallet."
+  },
+  "unlockPasswordErrorDelay": {
+    "message": "You have entered the wrong password three times. Your wallet is being blocked for"
   },
   "unlock": {
     "message": "Unlock"
@@ -875,11 +896,47 @@
   "fee": {
     "message": "Fee"
   },
+  "routingFee": {
+    "message": "Routing Fee"
+  },
+  "routingFeeTooltip": {
+    "message": "For choosing the most profitable exchange route among Tezos DEXes. \n\nDEXes commissions are not included."
+  },
   "space": {
     "message": "Space"
   },
+  "staking": {
+    "message": "Staking"
+  },
   "delegation": {
     "message": "Delegation"
+  },
+  "delegationWelcome": {
+    "message": "Welcome to Tezos delegation"
+  },
+  "delegationHowTo": {
+    "message": "How to delegate your tokens to the Baker?"
+  },
+  "delegationGuide": {
+    "message": "Full video guide"
+  },
+  "delegationGuideLink": {
+    "message": "How to Delegate XTZ"
+  },
+  "delegationComunity": {
+    "message": "In case you have any questions, write them in our communities"
+  },
+  "delegationFaq1": {
+    "message": "If you have XTZ tokens but you don't want to launch your node, you can delegate your XTZ tokens to Bakers with an already running node to get rewards from the mining based on your contribution."
+  },
+  "delegationFaq2": {
+    "message": "Delegation is the right and opportunity of every member of the Tezos network to transfer their vote in the form of XTZ tokens to other Bakers. Delegated funds are not frozen and are not moved anywhere. They remain in your wallet, and you can spend them or change Baker at any time."
+  },
+  "delegationFaq3": {
+    "message": "The delegation system is also part of the LPoS consensus and allows users to be involved in supporting the network. Also, delegation helps significantly speed up transactions, makes them cheap, creates the basis for network scaling, and brings a passive income for delegators."
+  },
+  "delegationFaq4": {
+    "message": "Delegation is the in-build function of the Temple Wallet."
   },
   "baker": {
     "message": "Baker"
@@ -1817,8 +1874,14 @@
   "noResults": {
     "message": "No Results"
   },
+  "tezosApy": {
+    "message": "APY: 6%"
+  },
   "max": {
     "message": "Max"
+  },
+  "currencyUnavailable": {
+    "message": "The currency is temporarily unavailable."
   },
   "balance": {
     "message": "Balance:"
@@ -1832,17 +1895,20 @@
   "via": {
     "message": "Via"
   },
+  "swapRoute": {
+    "message": "Swap route"
+  },
   "exchangeRate": {
-    "message": "Exchange rate:"
+    "message": "Exchange rate"
   },
   "priceImpact": {
-    "message": "Price impact:"
+    "message": "Price impact"
   },
   "slippageTolerance": {
-    "message": "Slippage tolerance:"
+    "message": "Slippage tolerance"
   },
   "minimumReceived": {
-    "message": "Minimum received:"
+    "message": "Minimum received"
   },
   "inputOutputAssetsCannotBeSame": {
     "message": "Input and output assets cannot be the same"
@@ -2047,6 +2113,9 @@
   "ledgerLiveBridgeGuide": {
     "message": "To connect to Ledger, please activate the Ledger Live application on your device, open Tezos Wallet application and allow a WebSocket connection to your Temple account."
   },
+  "ledgerBridgeGuide": {
+    "message": "To connect the Ledger, please activate your device and open Tezos Wallet application."
+  },
   "noExchangerFoundForToken": {
     "message": "No exchanger was found for token $symbol$ ($name$).",
     "placeholders": {
@@ -2092,10 +2161,10 @@
     "message": "You can not conduct the operation at the moment!\nPlease, wait when your previous operation is applied and retry."
   },
   "swapDisclaimerTitle": {
-    "message": "Disclaimer. Read before using the SWAP section."
+    "message": "Disclaimer. Beta version, read before using the SWAP section."
   },
   "swapDisclaimerContent": {
-    "message": "Temple wallet only provides an interface to interact with the Tezos Dexes. We are not responsible for: DEX issues, displayed tokens, price, exchange rates, and user trading decisions. Before using this Swap Section, you should review the relevant documentation to understand how the DEX(AMM) protocols work. Using this section is solely the user's responsibility."
+    "message": "Temple wallet only provides an interface to interact with the Tezos Dexes. \n\nWe are not responsible for: DEX issues, displayed tokens, price, exchange rates, and user trading decisions. \n\nBefore using this Swap Section, you should review the relevant documentation to understand how the DEX(AMM) protocols work. \n\nUsing this section is solely the user's responsibility."
   },
   "noContactsFound": {
     "message": "No contacts found"
@@ -2120,6 +2189,150 @@
   "finish": {
     "message": "Finish"
   },
+  "welcomeToOnboarding": {
+    "message": "Welcome to Onboarding"
+  },
+  "onboarding": {
+    "message": "Onboarding"
+  },
+  "next": {
+    "message": "Next"
+  },
+  "done": {
+    "message": "Done!"
+  },
+  "donate": {
+    "message": "Donate"
+  },
+  "standWithUkraine": {
+    "message": "Stand with Ukraine"
+  },
+  "supportUkrainians": {
+    "message": "Donate TEZ - support Ukrainians in their fight with Putin occupants."
+  },
+  "addressBalanceDetails": {
+    "message": "Your address and balance"
+  },
+  "addressBalanceDescription": {
+    "message": "After creating an account, you’ll get a unique address — your personal identifier in the Tezos blockchain. If you would like to receive and use TEZ or Tezos-built tokens in Temple, you should use this address."
+  },
+  "addressBalanceHint": {
+    "message": "The balance of your TEZ is displayed under the public address."
+  },
+  "howToStartDetails": {
+    "message": "How to start"
+  },
+  "howToStartDescription1": {
+    "message": "To start using your wallet and interacting with the Tezos DApps ecosystem, the account balance must be positive. To do this, top up your address with TEZ coins."
+  },
+  "howToStartDescription2": {
+    "message": "You can use the \"Buy\" button and top up your TEZ balance, using cryptocurrencies, debit, or credit cards."
+  },
+  "howToStartHint": {
+    "message": "Also, you can copy your address and send coins to it from another wallet or Exchange. To copy the address, click on it on the main wallet screen or use “Receive”."
+  },
+  "tokensCollectibleDetails": {
+    "message": "Tokens & Collectible"
+  },
+  "tokensCollectibleDescription1": {
+    "message": "Your balances of FA1.2 and FA2 tokens are displayed on the “Tokens” tab."
+  },
+  "tokensCollectibleDescription2": {
+    "message": "You can send, check balances, or contract addresses of any token by clicking on it in this section."
+  },
+  "tokensCollectibleHint": {
+    "message": "Your Non-Fungible Tokens (NFT) are displayed on the “Collectibles” tab. Here you can also interact with your own NFTs, see their full view, ID, and contract address."
+  },
+  "profileRpcDetails": {
+    "message": "Profile & RPC"
+  },
+  "profileRpcDescription": {
+    "message": "At the top of the interface, you can see your account robo-icon. By clicking on it, you will see the parameters for interaction with accounts, the settings button, and the extension view mode."
+  },
+  "profileRpcHint1": {
+    "message": "Next, you will see the “Networks” selector, which allows you to select a node (RPC) to which your Temple extension will be connected."
+  },
+  "profileRpcHint2": {
+    "message": "If your balance is not displayed, try changing the node."
+  },
+  "profileRpcHint3": {
+    "message": "You can choose from a predefined list or add RPC manually by following these "
+  },
+  "congrats": {
+    "message": "Congrats!"
+  },
+  "instructions": {
+    "message": "instructions."
+  },
+  "start": {
+    "message": "Start"
+  },
+  "thanks": {
+    "message": "Ok thanks!"
+  },
+  "browserVersionIsOutOfDate": {
+    "message": "Your browser version is out of date, we strongly recommend updating to the newest version!"
+  },
+  "congratsDescription1": {
+    "message": "Thanks for your attention!"
+  },
+  "congratsDescription2": {
+    "message": "Now you know about the basic and most important functions of the Temple wallet."
+  },
+  "congratsDescription3": {
+    "message": "You can learn all features of the Temple from our “Educational series” on YouTube."
+  },
+  "congratsDescription4": {
+    "message": "Also, instructions and guides are available in our knowledge base."
+  },
+  "congratsDescription5": {
+    "message": "Join our communities in Telegram and Discord."
+  },
+  "congratsDescription6": {
+    "message": "PS: Good luck exploring the Tezos world!"
+  },
+  "attention": {
+    "message": "Attention"
+  },
+  "attentionDescription": {
+    "message": "Never and under any pretext share your private keys and seed phrase with third parties."
+  },
+  "attentionListTitle1": {
+    "message": "Also, remember:"
+  },
+  "attentionListItem1": {
+    "message": "Your wallet can be targeted through a browser 0days or via other malicious extension installed;"
+  },
+  "attentionListItem2": {
+    "message": "The screen can potentially be manipulated by malicious software installed in the system;"
+  },
+  "attentionListItem3": {
+    "message": "User’s host machine can be targeted by malware to steal encrypted wallet;"
+  },
+  "attentionListItem4": {
+    "message": "Choosing weak passwords can reduce the ability of a wallet to resist adversarial brute-forcing."
+  },
+  "attentionListTitle2": {
+    "message": "To keep your assets safe, we recommend:"
+  },
+  "attentionListItem5": {
+    "message": "Move your funds from “hot” wallet to “cold” as soon as possible (Temple wallet supports integration with “Ledger Nano” devices);"
+  },
+  "attentionListItem6": {
+    "message": "Use separate browsers for web-surfing and wallet’s operating;"
+  },
+  "attentionListItem7": {
+    "message": "Use one browser’s tab at a time to make transactions;"
+  },
+  "attentionListItem8": {
+    "message": "Keep the wallet locked when it is not in usage."
+  },
+  "takeCare": {
+    "message": "Take care of your safety in the crypto world!"
+  },
+  "readMore": {
+    "message": "Read more by the "
+  },
   "deleteTokenConfirm": {
     "message": "Are you sure you want to delete this token?"
   },
@@ -2129,6 +2342,12 @@
   "ledgerLiveSettingsDescription": {
     "message": "The new Ledger Live bridge allows you to use your Ledger in a different way."
   },
+  "lockUpSettings": {
+    "message": "Extension lock-up"
+  },
+  "lockUpSettingsDescription": {
+    "message": "The extension will be automatically blocked after 5 minutes of inactivity."
+  },
   "totalBalance": {
     "message": "Total Balance"
   },
@@ -2137,6 +2356,36 @@
   },
   "buyWithCrypto": {
     "message": "Buy With Crypto"
+  },
+  "buyWithExolix": {
+    "message": "Buy With Exolix"
+  },
+  "buyWithExolixDescription": {
+    "message": "Exchange 25 cryptocurrencies to TEZ instantly and without registration"
+  },
+  "buyWithMoonPay": {
+    "message": "Buy With MoonPay"
+  },
+  "buyWithMoonPayDescription": {
+    "message": "Crypto just got easy.Buy TEZ in minutes using Visa, Mastercard, and all major debit and credit cards."
+  },
+  "buyWithRamp": {
+    "message": "Buy With Ramp"
+  },
+  "buyWithRampDescription": {
+    "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
+  },
+  "topUpBuy": {
+    "message": "Top up TEZ balance"
+  },
+  "topUpDescription": {
+    "message": "To interact with the Tezos DApps ecosystem, the account balance must be positive. Top up your address with TEZ coins easily."
+  },
+  "topUpCrypto": {
+    "message": "Crypto"
+  },
+  "topUpDebit": {
+    "message": "Debit/Credit Card"
   },
   "overdueTransaction": {
     "message": "Transaction is overdue"
@@ -2284,6 +2533,21 @@
   },
   "warningTopUpServiceMessage": {
     "message": "The token exchange feature is provided by a third party. The Temple wallet is not responsible for the work of third-party services."
+  },
+  "selectTokensToSwap": {
+    "message": "Please, select tokens to swap"
+  },
+  "enterSwapAmount": {
+    "message": "Please, enter swap amount"
+  },
+  "noQuotesAvailable": {
+    "message": "No quotes available"
+  },
+  "swapRouteLoadingHasFailed": {
+    "message": "Exchange rate data loading has failed. \nReload this page or try again later."
+  },
+  "swapTokenSearchInputPlaceholder": {
+    "message": "Enter name or address"
   },
   "sync": {
     "message": "Sync"

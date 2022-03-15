@@ -1,11 +1,8 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-type PlainAssetInputProps = Omit<
-  React.HTMLAttributes<HTMLInputElement>,
-  "onChange"
-> & {
+type PlainAssetInputProps = Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange'> & {
   value?: number | string;
   min?: number;
   max?: number;
@@ -23,10 +20,7 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
   onBlur,
   ...rest
 }) => {
-  const valueStr = useMemo(
-    () => (value === undefined ? "" : new BigNumber(value).toFixed()),
-    [value]
-  );
+  const valueStr = useMemo(() => (value === undefined ? '' : new BigNumber(value).toFixed()), [value]);
 
   const [localValue, setLocalValue] = useState(valueStr);
   const [focused, setFocused] = useState(false);
@@ -38,23 +32,19 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
   }, [setLocalValue, focused, valueStr]);
 
   const handleChange = useCallback(
-    (evt) => {
-      let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
+    evt => {
+      let val = evt.target.value.replace(/ /g, '').replace(/,/g, '.');
       let numVal = new BigNumber(val || 0);
-      const indexOfDot = val.indexOf(".");
+      const indexOfDot = val.indexOf('.');
       if (indexOfDot !== -1 && val.length - indexOfDot > assetDecimals + 1) {
         val = val.substring(0, indexOfDot + assetDecimals + 1);
         numVal = new BigNumber(val);
       }
 
-      if (
-        !numVal.isNaN() &&
-        numVal.isGreaterThanOrEqualTo(min) &&
-        numVal.isLessThanOrEqualTo(max)
-      ) {
+      if (!numVal.isNaN() && numVal.isGreaterThanOrEqualTo(min) && numVal.isLessThanOrEqualTo(max)) {
         setLocalValue(val);
         if (onChange) {
-          onChange(val !== "" ? numVal.toFixed() : undefined);
+          onChange(val !== '' ? numVal.toFixed() : undefined);
         }
       }
     },
@@ -62,7 +52,7 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
   );
 
   const handleFocus = useCallback(
-    (evt) => {
+    evt => {
       setFocused(true);
       if (onFocus) {
         onFocus(evt);
@@ -75,7 +65,7 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
   );
 
   const handleBlur = useCallback(
-    (evt) => {
+    evt => {
       setFocused(false);
       if (onBlur) {
         onBlur(evt);
@@ -88,14 +78,7 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
   );
 
   return (
-    <input
-      type="text"
-      value={localValue}
-      onChange={handleChange}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      {...rest}
-    />
+    <input type="text" value={localValue} onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} {...rest} />
   );
 };
 

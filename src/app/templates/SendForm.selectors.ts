@@ -1,4 +1,4 @@
 export enum SendFormSelectors {
-  AssetItemButton = "SendForm/AssetItemButton",
-  ContactItemButton = "SendForm/ContactItemButton",
+  AssetItemButton = 'SendForm/AssetItemButton',
+  ContactItemButton = 'SendForm/ContactItemButton'
 }

@@ -1,27 +1,27 @@
 const TOKEN_TRANFER_FA1_2 = {
-  destination: "KT1NbznEfpxZZyPUNcSWRm9Y8qZkdEgWEFaV",
+  destination: 'KT1NbznEfpxZZyPUNcSWRm9Y8qZkdEgWEFaV',
   parameters: {
-    entrypoint: "transfer",
+    entrypoint: 'transfer',
     value: {
-      prim: "Pair",
+      prim: 'Pair',
       args: [
         {
-          string: "tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o",
+          string: 'tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o'
         },
         {
-          prim: "Pair",
+          prim: 'Pair',
           args: [
             {
-              string: "tz1R3sPNAYaH2ZbweLpvvBnnJHHh1Zt68t7D",
+              string: 'tz1R3sPNAYaH2ZbweLpvvBnnJHHh1Zt68t7D'
             },
             {
-              int: "10000000000000000000",
-            },
-          ],
-        },
-      ],
-    },
-  },
+              int: '10000000000000000000'
+            }
+          ]
+        }
+      ]
+    }
+  }
 };
 
 export default TOKEN_TRANFER_FA1_2;

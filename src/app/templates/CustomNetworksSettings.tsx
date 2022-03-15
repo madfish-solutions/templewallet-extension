@@ -1,20 +1,20 @@
-import React, { FC, useCallback, useState } from "react";
+import React, { FC, useCallback, useState } from 'react';
 
-import classNames from "clsx";
-import { useForm } from "react-hook-form";
+import classNames from 'clsx';
+import { useForm } from 'react-hook-form';
 
-import Alert from "app/atoms/Alert";
-import FormField from "app/atoms/FormField";
-import FormSecondaryButton from "app/atoms/FormSecondaryButton";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Name from "app/atoms/Name";
-import SubTitle from "app/atoms/SubTitle";
-import { URL_PATTERN } from "app/defaults";
-import { ReactComponent as CloseIcon } from "app/icons/close.svg";
-import HashChip from "app/templates/HashChip";
-import { T, t } from "lib/i18n/react";
-import { viewLambda } from "lib/michelson";
-import { useRetryableSWR } from "lib/swr";
+import Alert from 'app/atoms/Alert';
+import FormField from 'app/atoms/FormField';
+import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
+import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import Name from 'app/atoms/Name';
+import SubTitle from 'app/atoms/SubTitle';
+import { URL_PATTERN } from 'app/defaults';
+import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
+import HashChip from 'app/templates/HashChip';
+import { T, t } from 'lib/i18n/react';
+import { viewLambda } from 'lib/michelson';
+import { useRetryableSWR } from 'lib/swr';
 import {
   isKnownChainId,
   loadChainId,
@@ -28,21 +28,18 @@ import {
   getOriginatedContractAddress,
   useChainId,
   KNOWN_LAMBDA_CONTRACTS,
-  NETWORK_IDS,
-} from "lib/temple/front";
-import { COLORS } from "lib/ui/colors";
-import { useConfirm } from "lib/ui/dialog";
-import { withErrorHumanDelay } from "lib/ui/humanDelay";
+  NETWORK_IDS
+} from 'lib/temple/front';
+import { COLORS } from 'lib/ui/colors';
+import { useConfirm } from 'lib/ui/dialog';
+import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
-type NetworkFormData = Pick<
-  TempleNetwork,
-  "name" | "rpcBaseURL" | "lambdaContract"
->;
+type NetworkFormData = Pick<TempleNetwork, 'name' | 'rpcBaseURL' | 'lambdaContract'>;
 type LambdaFormData = {
-  lambdaContract: NonNullable<TempleNetwork["lambdaContract"]>;
+  lambdaContract: NonNullable<TempleNetwork['lambdaContract']>;
 };
 
-const SUBMIT_ERROR_TYPE = "submit-error";
+const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const CustomNetworksSettings: FC = () => {
   const { updateSettings, defaultNetworks } = useTempleClient();
@@ -57,7 +54,7 @@ const CustomNetworksSettings: FC = () => {
     formState,
     clearError,
     setError,
-    errors,
+    errors
   } = useForm<NetworkFormData>();
   const submitting = formState.isSubmitting;
 
@@ -69,21 +66,13 @@ const CustomNetworksSettings: FC = () => {
       let chainId;
       try {
         chainId = await loadChainId(rpcBaseURL);
-      } catch (err) {
-        await withErrorHumanDelay(err, () =>
-          setError(
-            "rpcBaseURL",
-            SUBMIT_ERROR_TYPE,
-            t("invalidRpcCantGetChainId")
-          )
-        );
+      } catch (err: any) {
+        await withErrorHumanDelay(err, () => setError('rpcBaseURL', SUBMIT_ERROR_TYPE, t('invalidRpcCantGetChainId')));
         return;
       }
 
       if (!lambdaContract) {
-        lambdaContract = isKnownChainId(chainId)
-          ? KNOWN_LAMBDA_CONTRACTS.get(chainId)
-          : lambdaContracts[chainId];
+        lambdaContract = isKnownChainId(chainId) ? KNOWN_LAMBDA_CONTRACTS.get(chainId) : lambdaContracts[chainId];
       }
 
       if (!showNoLambdaWarning && !lambdaContract) {
@@ -101,45 +90,32 @@ const CustomNetworksSettings: FC = () => {
               rpcBaseURL,
               name,
               description: name,
-              type: networkId === "mainnet" ? "main" : "test",
+              type: networkId === 'mainnet' ? 'main' : 'test',
               disabled: false,
               color: COLORS[Math.floor(Math.random() * COLORS.length)],
               id: rpcBaseURL,
-              lambdaContract,
-            },
+              lambdaContract
+            }
           ],
           lambdaContracts: lambdaContract
             ? {
                 ...lambdaContracts,
                 [chainId]: lambdaContract,
-                [networkId]: lambdaContract,
+                [networkId]: lambdaContract
               }
-            : lambdaContracts,
+            : lambdaContracts
         });
         resetForm();
-      } catch (err) {
-        await withErrorHumanDelay(err, () =>
-          setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message)
-        );
+      } catch (err: any) {
+        await withErrorHumanDelay(err, () => setError('rpcBaseURL', SUBMIT_ERROR_TYPE, err.message));
       }
     },
-    [
-      clearError,
-      customNetworks,
-      lambdaContracts,
-      resetForm,
-      submitting,
-      setError,
-      updateSettings,
-      showNoLambdaWarning,
-    ]
+    [clearError, customNetworks, lambdaContracts, resetForm, submitting, setError, updateSettings, showNoLambdaWarning]
   );
 
   const rpcURLIsUnique = useCallback(
     (url: string) =>
-      ![...defaultNetworks, ...customNetworks]
-        .filter((n) => !n.hidden)
-        .some(({ rpcBaseURL }) => rpcBaseURL === url),
+      ![...defaultNetworks, ...customNetworks].filter(n => !n.hidden).some(({ rpcBaseURL }) => rpcBaseURL === url),
     [customNetworks, defaultNetworks]
   );
 
@@ -147,23 +123,19 @@ const CustomNetworksSettings: FC = () => {
     async (baseUrl: string) => {
       if (
         !(await confirm({
-          title: t("actionConfirmation"),
-          children: t("deleteNetworkConfirm"),
+          title: t('actionConfirmation'),
+          children: t('deleteNetworkConfirm')
         }))
       ) {
         return;
       }
 
       updateSettings({
-        customNetworks: customNetworks.filter(
-          ({ rpcBaseURL }) => rpcBaseURL !== baseUrl
-        ),
-      }).catch(async (err) => {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
-        await new Promise((res) => setTimeout(res, 300));
-        setError("rpcBaseURL", SUBMIT_ERROR_TYPE, err.message);
+        customNetworks: customNetworks.filter(({ rpcBaseURL }) => rpcBaseURL !== baseUrl)
+      }).catch(async err => {
+        console.error(err);
+        await new Promise(res => setTimeout(res, 300));
+        setError('rpcBaseURL', SUBMIT_ERROR_TYPE, err.message);
       });
     },
     [customNetworks, setError, updateSettings, confirm]
@@ -174,24 +146,14 @@ const CustomNetworksSettings: FC = () => {
       <LambdaContractSection />
 
       <div className="flex flex-col mb-8">
-        <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+        <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
           <T id="currentNetworks">
-            {(message) => (
-              <span className="text-base font-semibold text-gray-700">
-                {message}
-              </span>
-            )}
+            {message => <span className="text-base font-semibold text-gray-700">{message}</span>}
           </T>
 
           <T id="deleteNetworkHint">
-            {(message) => (
-              <span
-                className={classNames(
-                  "mt-1",
-                  "text-xs font-light text-gray-600"
-                )}
-                style={{ maxWidth: "90%" }}
-              >
+            {message => (
+              <span className={classNames('mt-1', 'text-xs font-light text-gray-600')} style={{ maxWidth: '90%' }}>
                 {message}
               </span>
             )}
@@ -200,13 +162,13 @@ const CustomNetworksSettings: FC = () => {
 
         <div
           className={classNames(
-            "rounded-md overflow-hidden",
-            "border",
-            "flex flex-col",
-            "text-gray-700 text-sm leading-tight"
+            'rounded-md overflow-hidden',
+            'border',
+            'flex flex-col',
+            'text-gray-700 text-sm leading-tight'
           )}
         >
-          {customNetworks.map((network) => (
+          {customNetworks.map(network => (
             <NetworksListItem
               canRemove
               network={network}
@@ -216,7 +178,7 @@ const CustomNetworksSettings: FC = () => {
             />
           ))}
           {defaultNetworks
-            .filter((n) => !n.hidden)
+            .filter(n => !n.hidden)
             .map((network, index) => (
               <NetworksListItem
                 canRemove={false}
@@ -234,11 +196,11 @@ const CustomNetworksSettings: FC = () => {
 
       <form onSubmit={handleSubmit(onNetworkFormSubmit)}>
         <FormField
-          ref={register({ required: t("required"), maxLength: 35 })}
-          label={t("name")}
+          ref={register({ required: t('required'), maxLength: 35 })}
+          label={t('name')}
           id="name"
           name="name"
-          placeholder={t("networkNamePlaceholder")}
+          placeholder={t('networkNamePlaceholder')}
           errorCaption={errors.name?.message}
           containerClassName="mb-4"
           maxLength={35}
@@ -246,23 +208,20 @@ const CustomNetworksSettings: FC = () => {
 
         <FormField
           ref={register({
-            required: t("required"),
+            required: t('required'),
             pattern: {
               value: URL_PATTERN,
-              message: t("mustBeValidURL"),
+              message: t('mustBeValidURL')
             },
             validate: {
-              unique: rpcURLIsUnique,
-            },
+              unique: rpcURLIsUnique
+            }
           })}
-          label={t("rpcBaseURL")}
+          label={t('rpcBaseURL')}
           id="rpc-base-url"
           name="rpcBaseURL"
           placeholder="http://localhost:8545"
-          errorCaption={
-            errors.rpcBaseURL?.message ||
-            (errors.rpcBaseURL?.type === "unique" ? t("mustBeUnique") : "")
-          }
+          errorCaption={errors.rpcBaseURL?.message || (errors.rpcBaseURL?.type === 'unique' ? t('mustBeUnique') : '')}
           containerClassName="mb-4"
         />
 
@@ -272,34 +231,22 @@ const CustomNetworksSettings: FC = () => {
             <>
               <T id="lambdaContract" />
               <T id="optionalComment">
-                {(message) => (
-                  <span className="ml-1 text-sm font-light text-gray-600">
-                    {message}
-                  </span>
-                )}
+                {message => <span className="ml-1 text-sm font-light text-gray-600">{message}</span>}
               </T>
             </>
           }
           id="lambda-contract"
           name="lambdaContract"
-          placeholder={t("lambdaContractPlaceholder")}
+          placeholder={t('lambdaContractPlaceholder')}
           errorCaption={errors.lambdaContract?.message}
           containerClassName="mb-4"
         />
 
         {showNoLambdaWarning && (
-          <Alert
-            className="mb-6"
-            title={t("attentionExclamation")}
-            description={t("noLambdaWarningContent")}
-          />
+          <Alert className="mb-6" title={t('attentionExclamation')} description={t('noLambdaWarningContent')} />
         )}
 
-        <T id="addNetwork">
-          {(message) => (
-            <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>
-          )}
-        </T>
+        <T id="addNetwork">{message => <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>}</T>
       </form>
     </div>
   );
@@ -315,20 +262,17 @@ const LambdaContractSection: FC = () => {
   const { lambdaContracts = {} } = useSettings();
 
   const contractCheckSWR = useRetryableSWR(
-    ["contract-check", tezos.checksum, network.lambdaContract],
+    ['contract-check', tezos.checksum, network.lambdaContract],
     async () => {
       try {
-        return Boolean(
-          network.lambdaContract &&
-            (await tezos.contract.at(network.lambdaContract))
-        );
+        return Boolean(network.lambdaContract && (await tezos.contract.at(network.lambdaContract)));
       } catch {
         return false;
       }
     },
     {
       revalidateOnFocus: false,
-      suspense: false,
+      suspense: false
     }
   );
   const displayed = !contractCheckSWR.isValidating && !contractCheckSWR.data;
@@ -340,7 +284,7 @@ const LambdaContractSection: FC = () => {
     formState: lambdaFormState,
     clearError: clearLambdaFormError,
     setError: setLambdaFormError,
-    errors: lambdaFormErrors,
+    errors: lambdaFormErrors
   } = useForm<LambdaFormData>();
   const lambdaFormSubmitting = lambdaFormState.isSubmitting;
   const [lambdaContractDeploying, setLambdaContractDeploying] = useState(false);
@@ -355,21 +299,19 @@ const LambdaContractSection: FC = () => {
       clearLambdaFormError();
       try {
         if (!netChainId) {
-          throw new Error(t("failedToLoadChainID"));
+          throw new Error(t('failedToLoadChainID'));
         }
 
         await updateSettings({
           lambdaContracts: {
             ...lambdaContracts,
             [netChainId]: data.lambdaContract,
-            [network.id]: data.lambdaContract,
-          },
+            [network.id]: data.lambdaContract
+          }
         });
         resetLambdaForm();
-      } catch (err) {
-        await withErrorHumanDelay(err, () =>
-          setLambdaFormError("lambdaContract", SUBMIT_ERROR_TYPE, err.message)
-        );
+      } catch (err: any) {
+        await withErrorHumanDelay(err, () => setLambdaFormError('lambdaContract', SUBMIT_ERROR_TYPE, err.message));
       }
     },
     [
@@ -380,7 +322,7 @@ const LambdaContractSection: FC = () => {
       network.id,
       resetLambdaForm,
       setLambdaFormError,
-      updateSettings,
+      updateSettings
     ]
   );
 
@@ -392,46 +334,37 @@ const LambdaContractSection: FC = () => {
     setLambdaDeploymentError(undefined);
     try {
       if (!netChainId) {
-        throw new Error(t("failedToLoadChainID"));
+        throw new Error(t('failedToLoadChainID'));
       }
 
       const op = await tezos.wallet
         .originate({
-          balance: "0",
+          balance: '0',
           code: viewLambda,
-          init: { prim: "Unit" },
+          init: { prim: 'Unit' }
         })
         .send();
       const opEntry = await confirmOperation(tezos, op.opHash);
       const contractAddress = getOriginatedContractAddress(opEntry);
-      if (!contractAddress) throw new Error(t("contractNotOriginated"));
+      if (!contractAddress) throw new Error(t('contractNotOriginated'));
 
       await updateSettings({
         lambdaContracts: {
           ...lambdaContracts,
           [netChainId]: contractAddress,
-          [network.id]: contractAddress,
-        },
+          [network.id]: contractAddress
+        }
       });
-    } catch (err) {
+    } catch (err: any) {
       let error = err;
-      if (err.message?.includes("[object Object]") && err.node) {
-        error = new Error(
-          err.message.replace("[object Object]", JSON.stringify(err.node))
-        );
+      if (err.message?.includes('[object Object]') && err.node) {
+        error = new Error(err.message.replace('[object Object]', JSON.stringify(err.node)));
       }
       await withErrorHumanDelay(error, () => setLambdaDeploymentError(error));
     } finally {
       setLambdaContractDeploying(false);
     }
-  }, [
-    lambdaFormLoading,
-    lambdaContracts,
-    netChainId,
-    network.id,
-    tezos,
-    updateSettings,
-  ]);
+  }, [lambdaFormLoading, lambdaContracts, netChainId, network.id, tezos, updateSettings]);
 
   const handleErrorAlertClose = useCallback(() => {
     setLambdaDeploymentError(null);
@@ -447,8 +380,8 @@ const LambdaContractSection: FC = () => {
             return (
               <Alert
                 className="mb-4"
-                title={t("justAMinute")}
-                description={t("waitWhileContractBeingDeployed")}
+                title={t('justAMinute')}
+                description={t('waitWhileContractBeingDeployed')}
                 type="success"
               />
             );
@@ -458,8 +391,8 @@ const LambdaContractSection: FC = () => {
               <Alert
                 className="mb-4"
                 type="error"
-                title={t("error")}
-                description={lambdaDeploymentError!.message}
+                title={t('error')}
+                description={lambdaDeploymentError.message}
                 closable
                 onClose={handleErrorAlertClose}
               />
@@ -469,34 +402,28 @@ const LambdaContractSection: FC = () => {
             return (
               <Alert
                 className="mb-4"
-                title={t("attentionExclamation")}
-                description={t("noActiveNetLambdaWarningContent")}
+                title={t('attentionExclamation')}
+                description={t('noActiveNetLambdaWarningContent')}
               />
             );
         }
       })()}
 
-      <form
-        onSubmit={handleLambdaFormSubmit(onLambdaFormSubmit)}
-        className="mb-8"
-      >
+      <form onSubmit={handleLambdaFormSubmit(onLambdaFormSubmit)} className="mb-8">
         <FormField
           ref={lambdaFormRegister({
             validate: validateLambdaContract,
-            required: true,
+            required: true
           })}
-          label={t("lambdaContract")}
+          label={t('lambdaContract')}
           id="current-network-lambda-contract"
           name="lambdaContract"
-          placeholder={t("lambdaContractPlaceholder")}
+          placeholder={t('lambdaContractPlaceholder')}
           errorCaption={lambdaFormErrors.lambdaContract?.message}
           containerClassName="mb-6"
         />
         <div className="flex justify-between">
-          <FormSubmitButton
-            loading={lambdaFormSubmitting}
-            disabled={lambdaContractDeploying}
-          >
+          <FormSubmitButton loading={lambdaFormSubmitting} disabled={lambdaContractDeploying}>
             <T id="add" />
           </FormSubmitButton>
 
@@ -520,41 +447,33 @@ type NetworksListItemProps = {
   last: boolean;
 };
 
-const NetworksListItem: FC<NetworksListItemProps> = (props) => {
+const NetworksListItem: FC<NetworksListItemProps> = props => {
   const {
     network: { name, nameI18nKey, rpcBaseURL, color, lambdaContract },
     canRemove,
     onRemoveClick,
-    last,
+    last
   } = props;
-  const handleRemoveClick = useCallback(
-    () => onRemoveClick?.(rpcBaseURL),
-    [onRemoveClick, rpcBaseURL]
-  );
+  const handleRemoveClick = useCallback(() => onRemoveClick?.(rpcBaseURL), [onRemoveClick, rpcBaseURL]);
 
   return (
     <div
       className={classNames(
-        "block w-full",
-        "overflow-hidden",
-        !last && "border-b border-gray-200",
-        "flex items-stretch",
-        "text-gray-700",
-        "transition ease-in-out duration-200",
-        "focus:outline-none",
-        "opacity-90 hover:opacity-100"
+        'block w-full',
+        'overflow-hidden',
+        !last && 'border-b border-gray-200',
+        'flex items-stretch',
+        'text-gray-700',
+        'transition ease-in-out duration-200',
+        'focus:outline-none',
+        'opacity-90 hover:opacity-100'
       )}
       style={{
-        padding: "0.4rem 0.375rem 0.4rem 0.375rem",
+        padding: '0.4rem 0.375rem 0.4rem 0.375rem'
       }}
     >
       <div
-        className={classNames(
-          "mt-1 ml-2 mr-3",
-          "w-3 h-3",
-          "border border-primary-white",
-          "rounded-full shadow-xs"
-        )}
+        className={classNames('mt-1 ml-2 mr-3', 'w-3 h-3', 'border border-primary-white', 'rounded-full shadow-xs')}
         style={{ background: color }}
       />
 
@@ -564,12 +483,9 @@ const NetworksListItem: FC<NetworksListItemProps> = (props) => {
         </Name>
 
         <div
-          className={classNames(
-            "text-xs text-gray-700 font-light",
-            "flex items-center"
-          )}
+          className={classNames('text-xs text-gray-700 font-light', 'flex items-center')}
           style={{
-            marginBottom: "0.125rem",
+            marginBottom: '0.125rem'
           }}
         >
           RPC:<Name className="ml-1 font-normal">{rpcBaseURL}</Name>
@@ -579,14 +495,7 @@ const NetworksListItem: FC<NetworksListItemProps> = (props) => {
           <div className="text-xs text-gray-700 font-light">
             <T
               id="someLambda"
-              substitutions={
-                <HashChip
-                  hash={lambdaContract}
-                  type="link"
-                  small
-                  className="font-normal"
-                />
-              }
+              substitutions={<HashChip hash={lambdaContract} type="link" small className="font-normal" />}
             />
           </div>
         )}
@@ -595,16 +504,13 @@ const NetworksListItem: FC<NetworksListItemProps> = (props) => {
       {canRemove && (
         <button
           className={classNames(
-            "flex-none p-2",
-            "text-gray-500 hover:text-gray-600",
-            "transition ease-in-out duration-200"
+            'flex-none p-2',
+            'text-gray-500 hover:text-gray-600',
+            'transition ease-in-out duration-200'
           )}
           onClick={handleRemoveClick}
         >
-          <CloseIcon
-            className="w-auto h-5 stroke-current stroke-2"
-            title={t("delete")}
-          />
+          <CloseIcon className="w-auto h-5 stroke-current stroke-2" title={t('delete')} />
         </button>
       )}
     </div>

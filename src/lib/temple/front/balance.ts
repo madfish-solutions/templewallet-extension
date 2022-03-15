@@ -1,16 +1,16 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from 'react';
 
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import { useRetryableSWR } from "lib/swr";
+import { useRetryableSWR } from 'lib/swr';
 import {
   useTezos,
   fetchBalance,
   ReactiveTezosToolkit,
   michelEncoder,
   loadFastRpcClient,
-  useAssetMetadata,
-} from "lib/temple/front";
+  useAssetMetadata
+} from 'lib/temple/front';
 
 type UseBalanceOptions = {
   suspense?: boolean;
@@ -19,11 +19,7 @@ type UseBalanceOptions = {
   initial?: BigNumber;
 };
 
-export function useBalance(
-  assetSlug: string,
-  address: string,
-  opts: UseBalanceOptions = {}
-) {
+export function useBalance(assetSlug: string, address: string, opts: UseBalanceOptions = {}) {
   const nativeTezos = useTezos();
   const assetMetadata = useAssetMetadata(assetSlug);
 
@@ -51,16 +47,12 @@ export function useBalance(
 
   const displayed = opts.displayed ?? true;
 
-  return useRetryableSWR(
-    displayed ? getBalanceSWRKey(tezos, assetSlug, address) : null,
-    fetchBalanceLocal,
-    {
-      suspense: opts.suspense ?? true,
-      revalidateOnFocus: false,
-      dedupingInterval: 5_000,
-      initialData: opts.initial,
-    }
-  );
+  return useRetryableSWR(displayed ? getBalanceSWRKey(tezos, assetSlug, address) : null, fetchBalanceLocal, {
+    suspense: opts.suspense ?? true,
+    revalidateOnFocus: false,
+    dedupingInterval: 20_000,
+    initialData: opts.initial
+  });
 }
 
 export function useBalanceSWRKey(assetSlug: string, address: string) {
@@ -68,10 +60,6 @@ export function useBalanceSWRKey(assetSlug: string, address: string) {
   return getBalanceSWRKey(tezos, assetSlug, address);
 }
 
-export function getBalanceSWRKey(
-  tezos: ReactiveTezosToolkit,
-  assetSlug: string,
-  address: string
-) {
-  return ["balance", tezos.checksum, assetSlug, address];
+export function getBalanceSWRKey(tezos: ReactiveTezosToolkit, assetSlug: string, address: string) {
+  return ['balance', tezos.checksum, assetSlug, address];
 }

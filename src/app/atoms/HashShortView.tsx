@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo } from 'react';
 
 type HashShortViewProps = {
   hash: string;
@@ -9,13 +9,7 @@ type HashShortViewProps = {
 };
 
 const HashShortView = memo<HashShortViewProps>(
-  ({
-    hash,
-    trim = true,
-    trimAfter = 20,
-    firstCharsCount = 7,
-    lastCharsCount = 4,
-  }) => {
+  ({ hash, trim = true, trimAfter = 20, firstCharsCount = 7, lastCharsCount = 4 }) => {
     if (!hash) return null;
 
     const trimmedHash = (() => {

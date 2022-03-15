@@ -1,12 +1,7 @@
-import makeBuildQueryFn from "lib/makeBuildQueryFn";
+import makeBuildQueryFn from 'lib/makeBuildQueryFn';
 
-import { TokensExchangeRatesEntry } from "./types";
+import { TokensExchangeRatesEntry } from './types';
 
-const buildQuery = makeBuildQueryFn<Record<string, unknown>, any>(
-  "https://api.templewallet.com/api"
-);
+const buildQuery = makeBuildQueryFn<Record<string, unknown>, any>('https://api.templewallet.com/api');
 
-export const getTokensExchangeRates = buildQuery<
-  {},
-  TokensExchangeRatesEntry[]
->("GET", "/exchange-rates");
+export const getTokensExchangeRates = buildQuery<{}, TokensExchangeRatesEntry[]>('GET', '/exchange-rates');

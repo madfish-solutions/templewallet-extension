@@ -1,75 +1,58 @@
-import React, { FC, useCallback, useMemo, useState } from "react";
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
-import BigNumber from "bignumber.js";
-import classNames from "clsx";
+import BigNumber from 'bignumber.js';
+import classNames from 'clsx';
 
-import Money from "app/atoms/Money";
-import { openInFullPage, useAppEnv } from "app/env";
-import { ReactComponent as InfoIcon } from "app/icons/info.svg";
-import DAppIcon from "app/templates/DAppsList/DAppIcon";
-import DAppItem from "app/templates/DAppsList/DAppItem";
-import StarButton from "app/templates/DAppsList/StarButton";
-import SearchField from "app/templates/SearchField";
-import { AnalyticsEventCategory, useAnalytics } from "lib/analytics";
-import { getDApps } from "lib/custom-dapps-api";
-import { t } from "lib/i18n/react";
-import { useRetryableSWR } from "lib/swr";
-import { useStorage, TEZOS_METADATA } from "lib/temple/front";
-import useTippy from "lib/ui/useTippy";
+import Money from 'app/atoms/Money';
+import { openInFullPage, useAppEnv } from 'app/env';
+import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
+import DAppIcon from 'app/templates/DAppsList/DAppIcon';
+import DAppItem from 'app/templates/DAppsList/DAppItem';
+import StarButton from 'app/templates/DAppsList/StarButton';
+import SearchField from 'app/templates/SearchField';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { getDApps } from 'lib/custom-dapps-api';
+import { t } from 'lib/i18n/react';
+import { useRetryableSWR } from 'lib/swr';
+import { useStorage, TEZOS_METADATA } from 'lib/temple/front';
+import useTippy from 'lib/ui/useTippy';
 
-import { DAppStoreSelectors } from "./DAppsList.selectors";
+import { DAppStoreSelectors } from './DAppsList.selectors';
 
-const USED_TAGS = [
-  "DEX",
-  "NFT",
-  "DAO",
-  "Game",
-  "Social",
-  "Marketplace",
-  "Farming",
-  "Other",
-];
-const TOP_DAPPS_SLUGS = ["quipuswap", "kolibri", "hen"];
+const USED_TAGS = ['DEX', 'NFT', 'DAO', 'Game', 'Social', 'Marketplace', 'Farming', 'Other'];
+const TOP_DAPPS_SLUGS = ['quipuswap', 'kolibri', 'hen'];
 
-const FAVORITE_DAPPS_STORAGE_KEY = "dapps_favorite";
+const FAVORITE_DAPPS_STORAGE_KEY = 'dapps_favorite';
 
 const DAppsList: FC = () => {
   const { trackEvent } = useAnalytics();
 
-  const [favoriteDApps, setFavoriteDApps] = useStorage<string[]>(
-    FAVORITE_DAPPS_STORAGE_KEY,
-    []
-  );
+  const [favoriteDApps, setFavoriteDApps] = useStorage<string[]>(FAVORITE_DAPPS_STORAGE_KEY, []);
   const { popup } = useAppEnv();
-  const { data } = useRetryableSWR("dapps-list", getDApps, { suspense: true });
+  const { data } = useRetryableSWR('dapps-list', getDApps, { suspense: true });
   const dApps = useMemo(() => {
     return data!.dApps.map(({ categories: rawCategories, ...restProps }) => {
-      const nonUniqueCategories = rawCategories.map((category) =>
-        USED_TAGS.includes(category) ? category : "Other"
-      );
-      const categories = nonUniqueCategories.filter((name) => name !== "Other");
+      const nonUniqueCategories = rawCategories.map(category => (USED_TAGS.includes(category) ? category : 'Other'));
+      const categories = nonUniqueCategories.filter(name => name !== 'Other');
       if (categories.length !== nonUniqueCategories.length) {
-        categories.push("Other");
+        categories.push('Other');
       }
 
       return {
         categories,
-        ...restProps,
+        ...restProps
       };
     });
   }, [data]);
 
-  const [searchString, setSearchString] = useState("");
+  const [searchString, setSearchString] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showOnlyFavorite, setShowOnlyFavorite] = useState(false);
 
-  const toggleFavoriteFilter = useCallback(
-    () => setShowOnlyFavorite((prevValue) => !prevValue),
-    []
-  );
+  const toggleFavoriteFilter = useCallback(() => setShowOnlyFavorite(prevValue => !prevValue), []);
 
   const handleTagClick = useCallback((name: string) => {
-    setSelectedTags((prevSelectedTags) => {
+    setSelectedTags(prevSelectedTags => {
       const tagIndex = prevSelectedTags.indexOf(name);
       const newSelectedTags = [...prevSelectedTags];
       if (tagIndex === -1) {
@@ -81,18 +64,11 @@ const DAppsList: FC = () => {
     });
   }, []);
 
-  const roundedTvl = useMemo(
-    () => new BigNumber(data!.tvl).decimalPlaces(0),
-    [data]
-  );
+  const roundedTvl = useMemo(() => new BigNumber(data!.tvl).decimalPlaces(0), [data]);
 
   const featuredDApps = useMemo(() => {
-    const topDApps = dApps.filter(({ slug }) =>
-      TOP_DAPPS_SLUGS.some((topDAppSlug) => topDAppSlug === slug)
-    );
-    const otherDApps = dApps.filter(
-      ({ slug }) => !TOP_DAPPS_SLUGS.some((topDAppSlug) => topDAppSlug === slug)
-    );
+    const topDApps = dApps.filter(({ slug }) => TOP_DAPPS_SLUGS.some(topDAppSlug => topDAppSlug === slug));
+    const otherDApps = dApps.filter(({ slug }) => !TOP_DAPPS_SLUGS.some(topDAppSlug => topDAppSlug === slug));
     return [...topDApps, ...otherDApps.slice(0, 3 - topDApps.length)];
   }, [dApps]);
 
@@ -100,7 +76,7 @@ const DAppsList: FC = () => {
     return dApps.filter(
       ({ name, categories, slug }) =>
         name.toLowerCase().includes(searchString.toLowerCase()) &&
-        selectedTags.every((selectedTag) => categories.includes(selectedTag)) &&
+        selectedTags.every(selectedTag => categories.includes(selectedTag)) &&
         (!showOnlyFavorite || favoriteDApps.includes(slug))
     );
   }, [dApps, searchString, selectedTags, favoriteDApps, showOnlyFavorite]);
@@ -120,74 +96,56 @@ const DAppsList: FC = () => {
 
   const handleFeaturedClick = useCallback(
     (website: string, name: string) => {
-      trackEvent(
-        DAppStoreSelectors.DAppOpened,
-        AnalyticsEventCategory.ButtonPress,
-        { website, name, promoted: true }
-      );
+      trackEvent(DAppStoreSelectors.DAppOpened, AnalyticsEventCategory.ButtonPress, { website, name, promoted: true });
     },
     [trackEvent]
   );
 
   const infoIconWrapperTippyProps = useMemo(
     () => ({
-      trigger: "mouseenter",
+      trigger: 'mouseenter',
       hideOnClick: false,
-      content: t("dAppsListTvlDescription"),
-      animation: "shift-away-subtle",
+      content: t('dAppsListTvlDescription'),
+      animation: 'shift-away-subtle'
     }),
     []
   );
-  const infoIconWrapperRef = useTippy<HTMLSpanElement>(
-    infoIconWrapperTippyProps
-  );
+  const infoIconWrapperRef = useTippy<HTMLSpanElement>(infoIconWrapperTippyProps);
 
   return (
     <div
       className={classNames(
-        popup ? "px-1" : "px-5",
-        popup && matchingDApps.length > 3 ? "pb-12" : "pb-4",
-        "w-full flex pt-2"
+        popup ? 'px-1' : 'px-5',
+        popup && matchingDApps.length > 3 ? 'pb-12' : 'pb-4',
+        'w-full flex pt-2'
       )}
     >
-      <div
-        className="mx-auto flex flex-col items-center"
-        style={{ maxWidth: "25rem" }}
-      >
+      <div className="mx-auto flex flex-col items-center" style={{ maxWidth: '25rem' }}>
         <div className="mb-2 text-sm text-gray-600 flex items-center leading-tight">
-          {t("tvl")}
+          {t('tvl')}
           <span ref={infoIconWrapperRef}>
             <InfoIcon
               style={{
-                width: "0.625rem",
-                height: "auto",
-                marginLeft: "0.125rem",
+                width: '0.625rem',
+                height: 'auto',
+                marginLeft: '0.125rem'
               }}
               className="stroke-current"
             />
           </span>
         </div>
         <h1 className="text-2xl text-gray-900 mb-2 font-medium leading-tight">
-          ~<Money cryptoDecimals={0}>{data!.totalTezLocked}</Money>{" "}
-          <span>{TEZOS_METADATA.symbol}</span>
+          ~<Money cryptoDecimals={0}>{data!.totalTezLocked}</Money> <span>{TEZOS_METADATA.symbol}</span>
         </h1>
-        <h2
-          className={classNames(
-            popup ? "mb-4" : "mb-6",
-            "text-base text-gray-600 leading-tight"
-          )}
-        >
+        <h2 className={classNames(popup ? 'mb-4' : 'mb-6', 'text-base text-gray-600 leading-tight')}>
           ~ $
           <Money cryptoDecimals={0} smallFractionFont={false}>
             {roundedTvl}
           </Money>
         </h2>
-        <span className="text-sm text-gray-600 mb-2">{t("promoted")}</span>
+        <span className="text-sm text-gray-600 mb-2">{t('promoted')}</span>
         <div
-          className={classNames(
-            popup ? "py-2 mb-4" : "py-6 mb-6",
-            "rounded-lg bg-gray-100 w-full flex justify-center"
-          )}
+          className={classNames(popup ? 'py-2 mb-4' : 'py-6 mb-6', 'rounded-lg bg-gray-100 w-full flex justify-center')}
         >
           {featuredDApps.slice(0, 3).map(({ slug, name, logo, website }) => (
             <a
@@ -200,13 +158,10 @@ const DAppsList: FC = () => {
             >
               <DAppIcon className="mb-2" name={name} logo={logo} />
               <span
-                className={classNames(
-                  !popup && "w-20",
-                  "text-center overflow-hidden text-gray-900"
-                )}
+                className={classNames(!popup && 'w-20', 'text-center overflow-hidden text-gray-900')}
                 style={{
-                  textOverflow: "ellipsis",
-                  width: popup ? "4.5rem" : undefined,
+                  textOverflow: 'ellipsis',
+                  width: popup ? '4.5rem' : undefined
                 }}
               >
                 {name}
@@ -216,36 +171,24 @@ const DAppsList: FC = () => {
         </div>
         <SearchField
           className={classNames(
-            "py-2 pl-8 pr-4",
-            "border border-gray-300",
-            "transition ease-in-out duration-200",
-            "rounded-lg",
-            "text-gray-700 text-sm leading-tight",
-            "placeholder-alphagray"
+            'py-2 pl-8 pr-4',
+            'border border-gray-300',
+            'transition ease-in-out duration-200',
+            'rounded-lg',
+            'text-gray-700 text-sm leading-tight',
+            'placeholder-alphagray'
           )}
           containerClassName="mb-4"
-          placeholder={t("searchDApps")}
+          placeholder={t('searchDApps')}
           searchIconClassName="h-4 w-auto"
           searchIconWrapperClassName="px-2 text-gray-700"
           value={searchString}
           onValueChange={setSearchString}
         />
-        <div
-          className={classNames(
-            popup ? "mb-4" : "mb-6",
-            "w-full flex justify-between"
-          )}
-        >
-          <div
-            className={classNames(!popup && "mr-2", "flex-1 flex flex-wrap")}
-          >
-            {USED_TAGS.map((tag) => (
-              <Tag
-                key={tag}
-                name={tag}
-                onClick={handleTagClick}
-                selected={selectedTags.includes(tag)}
-              />
+        <div className={classNames(popup ? 'mb-4' : 'mb-6', 'w-full flex justify-between')}>
+          <div className={classNames(!popup && 'mr-2', 'flex-1 flex flex-wrap')}>
+            {USED_TAGS.map(tag => (
+              <Tag key={tag} name={tag} onClick={handleTagClick} selected={selectedTags.includes(tag)} />
             ))}
           </div>
 
@@ -260,39 +203,35 @@ const DAppsList: FC = () => {
         </div>
         {matchingDApps.length === 0 && (
           <p className="text-sm text-center text-gray-700 mb-4">
-            {showOnlyFavorite && favoriteDApps.length === 0
-              ? t("noFavoriteDApps")
-              : t("noMatchingDAppsFound")}
+            {showOnlyFavorite && favoriteDApps.length === 0 ? t('noFavoriteDApps') : t('noMatchingDAppsFound')}
           </p>
         )}
-        {matchingDApps
-          .slice(0, popup ? 3 : matchingDApps.length)
-          .map((dAppProps) => (
-            <DAppItem
-              {...dAppProps}
-              key={dAppProps.slug}
-              onStarClick={handleFavoriteChange}
-              isFavorite={favoriteDApps.includes(dAppProps.slug)}
-              tvl={dAppProps.tvl}
-            />
-          ))}
+        {matchingDApps.slice(0, popup ? 3 : matchingDApps.length).map(dAppProps => (
+          <DAppItem
+            {...dAppProps}
+            key={dAppProps.slug}
+            onStarClick={handleFavoriteChange}
+            isFavorite={favoriteDApps.includes(dAppProps.slug)}
+            tvl={dAppProps.tvl}
+          />
+        ))}
       </div>
       <div
         className={classNames(
-          "absolute bottom-0 left-0 h-16 bg-gray-200 w-full",
-          (!popup || matchingDApps.length <= 3) && "hidden"
+          'absolute bottom-0 left-0 h-16 bg-gray-200 w-full',
+          (!popup || matchingDApps.length <= 3) && 'hidden'
         )}
-        style={{ padding: "0.625rem 1.25rem" }}
+        style={{ padding: '0.625rem 1.25rem' }}
       >
         <button
           className={classNames(
-            "bg-white w-full h-full border border-blue-500 rounded flex shadow-sm",
-            "justify-center items-center font-medium text-sm text-blue-500 leading-tight"
+            'bg-white w-full h-full border border-blue-500 rounded flex shadow-sm',
+            'justify-center items-center font-medium text-sm text-blue-500 leading-tight'
           )}
           type="button"
           onClick={openInFullPage}
         >
-          {t("viewAll")}
+          {t('viewAll')}
         </button>
       </div>
     </div>
@@ -313,9 +252,9 @@ const Tag: FC<TagProps> = ({ name, onClick, selected }) => {
   return (
     <button
       className={classNames(
-        "mr-2 mb-2 h-6 inline-flex items-center rounded-full px-4",
-        "border border-gray-300 text-xs text-gray-900 hover:bg-gray-200",
-        selected && "bg-gray-200"
+        'mr-2 mb-2 h-6 inline-flex items-center rounded-full px-4',
+        'border border-gray-300 text-xs text-gray-900 hover:bg-gray-200',
+        selected && 'bg-gray-200'
       )}
       onClick={handleClick}
       type="button"

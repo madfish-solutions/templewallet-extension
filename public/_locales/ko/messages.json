@@ -12,7 +12,7 @@
     "message": "계정 불러오기"
   },
   "createAccount": {
-    "message": "계정 생성"
+    "message": "계정 생성 또는 복원"
   },
   "faucetFileTitle": {
     "message": "수도꼭지 파일"
@@ -94,8 +94,8 @@
   "accounts": {
     "message": "계정"
   },
-  "logOut": {
-    "message": "로그아웃"
+  "lock": {
+    "message": "블록"
   },
   "importedAccount": {
     "message": "불러오기 완료"

@@ -1,11 +1,7 @@
-import { Signer } from "@taquito/taquito";
+import { Signer } from '@taquito/taquito';
 
 export class ReadOnlySigner implements Signer {
-  constructor(
-    private pkh: string,
-    private pk: string,
-    private onSign?: (digest: string) => void
-  ) {}
+  constructor(private pkh: string, private pk: string, private onSign?: (digest: string) => void) {}
 
   async publicKeyHash() {
     return this.pkh;
@@ -14,7 +10,7 @@ export class ReadOnlySigner implements Signer {
     return this.pk;
   }
   async secretKey(): Promise<string> {
-    throw new Error("Secret key cannot be exposed");
+    throw new Error('Secret key cannot be exposed');
   }
   async sign(digest: string): Promise<{
     bytes: string;
@@ -25,6 +21,6 @@ export class ReadOnlySigner implements Signer {
     if (this.onSign) {
       this.onSign(digest);
     }
-    throw new Error("Cannot sign");
+    throw new Error('Cannot sign');
   }
 }

@@ -16,6 +16,11 @@ export type AssetMetadata = {
   thumbnailUri?: string;
 
   // [format: uri-reference]
+  // A URI to an image of the asset.
+  // Used for display purposes.
+  displayUri?: string;
+
+  // [format: uri-reference]
   // A URI to the asset.
   artifactUri?: string;
 };
@@ -70,11 +75,6 @@ export type DetailedAssetMetdata = AssetMetadata &
     // [format: uri-reference]
     // A URI to a statement of rights.
     rightUri: string;
-
-    // [format: uri-reference]
-    // A URI to an image of the asset.
-    // Used for display purposes.
-    displayUri: string;
 
     // [format: uri-reference]
     // A URI with additional information

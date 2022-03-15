@@ -1,15 +1,13 @@
-import Analytics from "analytics-node";
-import { nanoid } from "nanoid";
+import Analytics from 'analytics-node';
+import { nanoid } from 'nanoid';
 
-import { useLocalStorage } from "lib/temple/front/local-storage";
+import { useLocalStorage } from 'lib/temple/front/local-storage';
 
-import { loadChainId } from "../temple/helpers";
-import { AnalyticsEventCategory } from "./analytics-event.enum";
+import { loadChainId } from '../temple/helpers';
+import { AnalyticsEventCategory } from './analytics-event.enum';
 
 if (!process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY) {
-  throw new Error(
-    "Require a 'TEMPLE_WALLET_SEGMENT_WRITE_KEY' environment variable to be set"
-  );
+  throw new Error("Require a 'TEMPLE_WALLET_SEGMENT_WRITE_KEY' environment variable to be set");
 }
 
 const client = new Analytics(process.env.TEMPLE_WALLET_SEGMENT_WRITE_KEY);
@@ -36,8 +34,8 @@ export const sendTrackEvent = async (
       ...properties,
       event,
       category,
-      chainId,
-    },
+      chainId
+    }
   });
 };
 
@@ -46,15 +44,14 @@ export const sendPageEvent = async (
   rpc: string | undefined,
   path: string,
   search: string,
-  tokenAddress?: string,
-  tokenId?: string
+  additionalProperties = {}
 ) => {
   const url = `${path}${search}`;
   const chainId = rpc && (await loadChainId(rpc));
 
   client.page({
     userId,
-    name: url,
+    name: path,
     timestamp: new Date(),
     category: AnalyticsEventCategory.PageOpened,
     properties: {
@@ -63,21 +60,19 @@ export const sendPageEvent = async (
       referrer: path,
       category: AnalyticsEventCategory.PageOpened,
       chainId,
-      ...(tokenAddress !== undefined && { tokenAddress }),
-      ...(tokenId !== undefined && { tokenId }),
-    },
+      ...additionalProperties
+    }
   });
 };
 
 export const useAnalyticsState = () => {
-  const [analyticsState, setAnalyticsState] =
-    useLocalStorage<AnalyticsStateInterface>("analytics", {
-      enabled: undefined,
-      userId: nanoid(),
-    });
+  const [analyticsState, setAnalyticsState] = useLocalStorage<AnalyticsStateInterface>('analytics', {
+    enabled: undefined,
+    userId: nanoid()
+  });
 
   return {
     analyticsState,
-    setAnalyticsState,
+    setAnalyticsState
   };
 };

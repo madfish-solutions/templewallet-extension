@@ -1,56 +1,57 @@
-import React, { CSSProperties, memo, useCallback, useState } from "react";
+import React, { FC, useState } from 'react';
 
-import classNames from "clsx";
+import Identicon from 'app/atoms/Identicon';
+import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
+import { formatCollectibleUri, formatIpfsUri, formatTokenUri } from 'lib/image-uri';
+import { AssetMetadata, getAssetSymbol, useAssetMetadata } from 'lib/temple/front';
 
-import Identicon from "app/atoms/Identicon";
-import {
-  useAssetMetadata,
-  getAssetSymbol,
-  getThumbnailUri,
-} from "lib/temple/front";
-
-export type AssetIconProps = {
-  assetSlug: string;
-  className?: string;
-  style?: CSSProperties;
+interface AssetIconPlaceholderProps {
+  metadata: AssetMetadata | null;
   size?: number;
+}
+
+const AssetIconPlaceholder: FC<AssetIconPlaceholderProps> = ({ metadata, size }) => {
+  const isCollectible = Boolean(metadata?.artifactUri);
+
+  return isCollectible ? (
+    <CollectiblePlaceholder style={{ width: '100%', height: '100%' }} />
+  ) : (
+    <Identicon type="initials" hash={getAssetSymbol(metadata)} size={size} />
+  );
 };
 
-const AssetIcon = memo((props: AssetIconProps) => {
-  const { assetSlug, className, style, size } = props;
-  const metadata = useAssetMetadata(assetSlug);
-  const thumbnailUri = getThumbnailUri(metadata);
+interface AssetIconProps {
+  assetSlug: string;
+  className?: string;
+  size?: number;
+}
 
-  const [imageDisplayed, setImageDisplayed] = useState(true);
-  const handleImageError = useCallback(() => {
-    setImageDisplayed(false);
-  }, [setImageDisplayed]);
+export const AssetIcon: FC<AssetIconProps> = ({ assetSlug, className, size }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoadingFailed, setIsLoadingFailed] = useState(false);
+  const metadata: AssetMetadata | null = useAssetMetadata(assetSlug);
+  const isCollectible = Boolean(metadata?.artifactUri);
 
-  if (thumbnailUri && imageDisplayed) {
-    return (
-      <img
-        src={thumbnailUri}
-        alt={metadata?.name}
-        className={classNames("overflow-hidden", className)}
-        style={{
-          width: size,
-          height: size,
-          ...style,
-        }}
-        onError={handleImageError}
-      />
-    );
-  }
+  const imageSrc = isLoadingFailed
+    ? formatIpfsUri(metadata?.thumbnailUri)
+    : isCollectible
+    ? formatCollectibleUri(assetSlug)
+    : formatTokenUri(metadata?.thumbnailUri);
 
   return (
-    <Identicon
-      type="initials"
-      hash={getAssetSymbol(metadata)}
-      className={className}
-      style={style}
-      size={size}
-    />
+    <div className={className}>
+      {imageSrc !== '' && (
+        <img
+          src={imageSrc}
+          alt={metadata?.name}
+          style={!isLoaded ? { display: 'none' } : {}}
+          height={size}
+          width={size}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setIsLoadingFailed(true)}
+        />
+      )}
+      {(!isLoaded || !metadata || imageSrc === '') && <AssetIconPlaceholder metadata={metadata} size={size} />}
+    </div>
   );
-});
-
-export default AssetIcon;
+};

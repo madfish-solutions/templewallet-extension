@@ -1,27 +1,30 @@
-import React, { FC, useLayoutEffect, useMemo } from "react";
+import React, { FC, useLayoutEffect, useMemo } from 'react';
 
-import { OpenInFullPage, useAppEnv } from "app/env";
-import AddAsset from "app/pages/AddAsset";
-import BuyCrypto from "app/pages/BuyCrypto/BuyCrypto";
-import CollectiblePage from "app/pages/Collectibles/CollectiblePage";
-import ConnectLedger from "app/pages/ConnectLedger";
-import CreateAccount from "app/pages/CreateAccount";
-import CreateWallet from "app/pages/CreateWallet";
-import DApps from "app/pages/DApps";
-import Delegate from "app/pages/Delegate";
-import Explore from "app/pages/Explore";
-import ImportAccount from "app/pages/ImportAccount";
-import ImportWallet from "app/pages/ImportWallet";
-import ManageAssets from "app/pages/ManageAssets";
-import Receive from "app/pages/Receive";
-import Send from "app/pages/Send";
-import Settings from "app/pages/Settings";
-import Swap from "app/pages/Swap";
-import Unlock from "app/pages/Unlock";
-import Welcome from "app/pages/Welcome";
-import { usePageRouterAnalytics } from "lib/analytics";
-import { useTempleClient } from "lib/temple/front";
-import * as Woozie from "lib/woozie";
+import { OpenInFullPage, useAppEnv } from 'app/env';
+import AddAsset from 'app/pages/AddAsset';
+import BuyCrypto from 'app/pages/BuyCrypto/BuyCrypto';
+import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
+import ConnectLedger from 'app/pages/ConnectLedger';
+import CreateAccount from 'app/pages/CreateAccount';
+import CreateWallet from 'app/pages/CreateWallet';
+import DApps from 'app/pages/DApps';
+import Delegate from 'app/pages/Delegate';
+import Explore from 'app/pages/Explore';
+import ImportAccount from 'app/pages/ImportAccount';
+import ImportWallet from 'app/pages/ImportWallet';
+import ManageAssets from 'app/pages/ManageAssets';
+import Receive from 'app/pages/Receive';
+import Send from 'app/pages/Send';
+import Settings from 'app/pages/Settings';
+import { Swap } from 'app/pages/Swap/Swap';
+import Unlock from 'app/pages/Unlock';
+import Welcome from 'app/pages/Welcome';
+import { usePageRouterAnalytics } from 'lib/analytics';
+import { useTempleClient } from 'lib/temple/front';
+import * as Woozie from 'lib/woozie';
+
+import AttentionPage from './pages/Onboarding/pages/AttentionPage';
+import SelectCrypto from './pages/SelectCrypto/SelectCrypto';
 
 interface RouteContext {
   popup: boolean;
@@ -34,7 +37,7 @@ type RouteFactory = Woozie.Router.ResolveResult<RouteContext>;
 
 const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
   [
-    "/import-wallet/:tabSlug?",
+    '/import-wallet/:tabSlug?',
     (p, ctx) => {
       switch (true) {
         case ctx.ready:
@@ -44,12 +47,12 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
           return <OpenInFullPage />;
 
         default:
-          return <ImportWallet key={p.tabSlug ?? ""} tabSlug={p.tabSlug} />;
+          return <ImportWallet key={p.tabSlug ?? ''} tabSlug={p.tabSlug} />;
       }
-    },
+    }
   ],
   [
-    "*",
+    '*',
     (_p, ctx) => {
       switch (true) {
         case ctx.locked:
@@ -61,49 +64,30 @@ const ROUTE_MAP = Woozie.Router.createMap<RouteContext>([
         default:
           return Woozie.Router.SKIP;
       }
-    },
+    }
   ],
-  ["/", (_p, ctx) => (ctx.ready ? <Explore /> : <Welcome />)],
-  [
-    "/explore/:assetSlug?",
-    onlyReady(({ assetSlug }) => <Explore assetSlug={assetSlug} />),
-  ],
-  ["/create-wallet", onlyNotReady(() => <CreateWallet />)],
-  ["/create-account", onlyReady(() => <CreateAccount />)],
-  [
-    "/import-account/:tabSlug?",
-    onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />),
-  ],
-  ["/connect-ledger", onlyReady(onlyInFullPage(() => <ConnectLedger />))],
-  ["/receive", onlyReady(() => <Receive />)],
-  [
-    "/send/:assetSlug?",
-    onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />),
-  ],
-  [
-    "/swap/:assetSlug?",
-    onlyReady(({ assetSlug }) => <Swap assetSlug={assetSlug} />),
-  ],
-  ["/delegate", onlyReady(() => <Delegate />)],
-  ["/dapps", onlyReady(() => <DApps />)],
-  [
-    "/manage-assets/:assetType?",
-    onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />),
-  ],
-  [
-    "/collectible/:assetSlug?",
-    onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />),
-  ],
-  ["/add-asset", onlyReady(onlyInFullPage(() => <AddAsset />))],
-  [
-    "/settings/:tabSlug?",
-    onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />),
-  ],
-  ["/buy", onlyReady(onlyInFullPage(() => <BuyCrypto />))],
-  ["*", () => <Woozie.Redirect to="/" />],
+  ['/', (_p, ctx) => (ctx.ready ? <Explore /> : <Welcome />)],
+  ['/explore/:assetSlug?', onlyReady(({ assetSlug }) => <Explore assetSlug={assetSlug} />)],
+  ['/create-wallet', onlyNotReady(() => <CreateWallet />)],
+  ['/create-account', onlyReady(() => <CreateAccount />)],
+  ['/import-account/:tabSlug?', onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />)],
+  ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
+  ['/receive', onlyReady(() => <Receive />)],
+  ['/send/:assetSlug?', onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />)],
+  ['/swap', onlyReady(() => <Swap />)],
+  ['/delegate', onlyReady(() => <Delegate />)],
+  ['/dapps', onlyReady(() => <DApps />)],
+  ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],
+  ['/collectible/:assetSlug?', onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />)],
+  ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
+  ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
+  ['/buy', onlyReady(onlyInFullPage(() => <SelectCrypto />))],
+  ['/buy/crypto', onlyReady(onlyInFullPage(() => <BuyCrypto />))],
+  ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
+  ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
-const Page: FC = () => {
+const PageRouter: FC = () => {
   const { trigger, pathname, search } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
@@ -112,7 +96,7 @@ const Page: FC = () => {
       window.scrollTo(0, 0);
     }
 
-    if (pathname === "/") {
+    if (pathname === '/') {
       Woozie.resetHistoryPosition();
     }
   }, [trigger, pathname]);
@@ -125,32 +109,26 @@ const Page: FC = () => {
       popup: appEnv.popup,
       fullPage: appEnv.fullPage,
       ready: temple.ready,
-      locked: temple.locked,
+      locked: temple.locked
     }),
     [appEnv.popup, appEnv.fullPage, temple.ready, temple.locked]
   );
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
 
-  return useMemo(
-    () => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx),
-    [pathname, ctx]
-  );
+  return useMemo(() => Woozie.Router.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
 };
 
-export default Page;
+export default PageRouter;
 
 function onlyReady(factory: RouteFactory): RouteFactory {
-  return (params, ctx) =>
-    ctx.ready ? factory(params, ctx) : Woozie.Router.SKIP;
+  return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.Router.SKIP);
 }
 
 function onlyNotReady(factory: RouteFactory): RouteFactory {
-  return (params, ctx) =>
-    ctx.ready ? Woozie.Router.SKIP : factory(params, ctx);
+  return (params, ctx) => (ctx.ready ? Woozie.Router.SKIP : factory(params, ctx));
 }
 
 function onlyInFullPage(factory: RouteFactory): RouteFactory {
-  return (params, ctx) =>
-    !ctx.fullPage ? <OpenInFullPage /> : factory(params, ctx);
+  return (params, ctx) => (!ctx.fullPage ? <OpenInFullPage /> : factory(params, ctx));
 }

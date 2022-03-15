@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { FC, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 
 type OverscrollBgProps = {
   topClassName: string;
@@ -7,23 +7,17 @@ type OverscrollBgProps = {
 
 const doc = document.documentElement;
 
-const OverscrollBg: FC<OverscrollBgProps> = ({
-  topClassName,
-  bottomClassName,
-}) => {
+const OverscrollBg: FC<OverscrollBgProps> = ({ topClassName, bottomClassName }) => {
   const prevScrollTopRef = useRef<number>();
 
   const handleScroll = useCallback(() => {
     const scrollTop = doc.scrollTop;
     if (scrollTop !== prevScrollTopRef.current) {
       const scrollRoad = doc.scrollHeight - doc.clientHeight;
-      const newClassName =
-        scrollTop > scrollRoad / 2 ? bottomClassName : topClassName;
+      const newClassName = scrollTop > scrollRoad / 2 ? bottomClassName : topClassName;
 
       if (!doc.classList.contains(newClassName)) {
-        doc.classList.remove(
-          newClassName === bottomClassName ? topClassName : bottomClassName
-        );
+        doc.classList.remove(newClassName === bottomClassName ? topClassName : bottomClassName);
         doc.classList.add(newClassName);
       }
     }
@@ -47,9 +41,9 @@ export default OverscrollBg;
 
 function useScroll(listener: () => void) {
   useEffect(() => {
-    window.addEventListener("scroll", listener);
+    window.addEventListener('scroll', listener);
     return () => {
-      window.removeEventListener("scroll", listener);
+      window.removeEventListener('scroll', listener);
     };
   }, [listener]);
 }

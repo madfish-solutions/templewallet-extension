@@ -1,8 +1,5 @@
-import { Estimate } from "@taquito/taquito/dist/types/contract/estimate";
-import {
-  TempleDAppMetadata,
-  TempleDAppNetwork,
-} from "@temple-wallet/dapp/dist/types";
+import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
+import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
 type NonEmptyArray<T> = [T, ...T[]];
 
@@ -28,12 +25,10 @@ export interface TempleState {
 }
 
 export enum TempleChainId {
-  Mainnet = "NetXdQprcVkpaWU",
-  Granadanet = "NetXz969SFaFn8k",
-  Florencenet = "NetXxkAx4woPLyu",
-  Edo2net = "NetXSgo1ZT2DRUG",
-  Delphinet = "NetXm8tYqnMWky1",
-  Carthagenet = "NetXjD3HPJJjmcd",
+  Mainnet = 'NetXdQprcVkpaWU',
+  Granadanet = 'NetXz969SFaFn8k',
+  Hangzhounet = 'NetXZSsxBpMQeAT',
+  Idiazabalnet = 'NetXxkAx4woPLyu'
 }
 
 export function isKnownChainId(chainId: string): chainId is TempleChainId {
@@ -43,7 +38,7 @@ export function isKnownChainId(chainId: string): chainId is TempleChainId {
 export enum TempleStatus {
   Idle,
   Locked,
-  Ready,
+  Ready
 }
 
 export type TempleAccount =
@@ -56,7 +51,7 @@ export type TempleAccount =
 export enum DerivationType {
   ED25519 = 0,
   SECP256K1 = 1,
-  P256 = 2,
+  P256 = 2
 }
 
 export interface TempleLedgerAccount extends TempleAccountBase {
@@ -98,7 +93,7 @@ export enum TempleAccountType {
   Imported,
   Ledger,
   ManagedKT,
-  WatchOnly,
+  WatchOnly
 }
 
 export interface TempleNetwork {
@@ -115,17 +110,20 @@ export interface TempleNetwork {
   hidden?: boolean;
 }
 
-export type TempleNetworkType = "main" | "test";
+export type TempleNetworkType = 'main' | 'test';
 
 export interface TempleSettings {
   customNetworks?: TempleNetwork[];
   lambdaContracts?: Record<string, string>;
+  contacts?: TempleContact[];
 }
 
 export enum TempleSharedStorageKey {
-  DAppEnabled = "dappenabled",
-  LocaleCode = "localecode",
-  UseLedgerLive = "useledgerlive",
+  DAppEnabled = 'dappenabled',
+  LocaleCode = 'localecode',
+  UseLedgerLive = 'useledgerlive',
+  PasswordAttempts = 'passwordAttempts',
+  TimeLock = 'timelock'
 }
 
 export type TempleDAppSessions = Record<string, TempleDAppSession>;
@@ -145,16 +143,14 @@ export interface TempleConfirmationPayloadBase {
   sourcePkh: string;
 }
 
-export interface TempleSignConfirmationPayload
-  extends TempleConfirmationPayloadBase {
-  type: "sign";
+export interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
+  type: 'sign';
   bytes: string;
   watermark?: string;
 }
 
-export interface TempleOpsConfirmationPayload
-  extends TempleConfirmationPayloadBase {
-  type: "operations";
+export interface TempleOpsConfirmationPayload extends TempleConfirmationPayloadBase {
+  type: 'operations';
   networkRpc: string;
   opParams: any[];
   bytesToSign?: string;
@@ -162,9 +158,7 @@ export interface TempleOpsConfirmationPayload
   estimates?: Estimate[];
 }
 
-export type TempleConfirmationPayload =
-  | TempleSignConfirmationPayload
-  | TempleOpsConfirmationPayload;
+export type TempleConfirmationPayload = TempleSignConfirmationPayload | TempleOpsConfirmationPayload;
 
 /**
  * DApp confirmation payloads
@@ -178,11 +172,11 @@ export interface TempleDAppPayloadBase {
 }
 
 export interface TempleDAppConnectPayload extends TempleDAppPayloadBase {
-  type: "connect";
+  type: 'connect';
 }
 
 export interface TempleDAppOperationsPayload extends TempleDAppPayloadBase {
-  type: "confirm_operations";
+  type: 'confirm_operations';
   sourcePkh: string;
   sourcePublicKey: string;
   opParams: any[];
@@ -192,16 +186,13 @@ export interface TempleDAppOperationsPayload extends TempleDAppPayloadBase {
 }
 
 export interface TempleDAppSignPayload extends TempleDAppPayloadBase {
-  type: "sign";
+  type: 'sign';
   sourcePkh: string;
   payload: string;
   preview: any;
 }
 
-export type TempleDAppPayload =
-  | TempleDAppConnectPayload
-  | TempleDAppOperationsPayload
-  | TempleDAppSignPayload;
+export type TempleDAppPayload = TempleDAppConnectPayload | TempleDAppOperationsPayload | TempleDAppSignPayload;
 
 /**
  * Messages
@@ -209,72 +200,69 @@ export type TempleDAppPayload =
 
 export enum TempleMessageType {
   // Notifications
-  StateUpdated = "TEMPLE_STATE_UPDATED",
-  ConfirmationRequested = "TEMPLE_CONFIRMATION_REQUESTED",
-  ConfirmationExpired = "TEMPLE_CONFIRMATION_EXPIRED",
+  StateUpdated = 'TEMPLE_STATE_UPDATED',
+  ConfirmationRequested = 'TEMPLE_CONFIRMATION_REQUESTED',
+  ConfirmationExpired = 'TEMPLE_CONFIRMATION_EXPIRED',
   // Request-Response pairs
-  GetStateRequest = "TEMPLE_GET_STATE_REQUEST",
-  GetStateResponse = "TEMPLE_GET_STATE_RESPONSE",
-  NewWalletRequest = "TEMPLE_NEW_WALLET_REQUEST",
-  NewWalletResponse = "TEMPLE_NEW_WALLET_RESPONSE",
-  UnlockRequest = "TEMPLE_UNLOCK_REQUEST",
-  UnlockResponse = "TEMPLE_UNLOCK_RESPONSE",
-  LockRequest = "TEMPLE_LOCK_REQUEST",
-  LockResponse = "TEMPLE_LOCK_RESPONSE",
-  CreateAccountRequest = "TEMPLE_CREATE_ACCOUNT_REQUEST",
-  CreateAccountResponse = "TEMPLE_CREATE_ACCOUNT_RESPONSE",
-  RevealPublicKeyRequest = "TEMPLE_REVEAL_PUBLIC_KEY_REQUEST",
-  RevealPublicKeyResponse = "TEMPLE_REVEAL_PUBLIC_KEY_RESPONSE",
-  RevealPrivateKeyRequest = "TEMPLE_REVEAL_PRIVATE_KEY_REQUEST",
-  RevealPrivateKeyResponse = "TEMPLE_REVEAL_PRIVATE_KEY_RESPONSE",
-  RevealMnemonicRequest = "TEMPLE_REVEAL_MNEMONIC_REQUEST",
-  RevealMnemonicResponse = "TEMPLE_REVEAL_MNEMONIC_RESPONSE",
+  GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
+  GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
+  NewWalletRequest = 'TEMPLE_NEW_WALLET_REQUEST',
+  NewWalletResponse = 'TEMPLE_NEW_WALLET_RESPONSE',
+  UnlockRequest = 'TEMPLE_UNLOCK_REQUEST',
+  UnlockResponse = 'TEMPLE_UNLOCK_RESPONSE',
+  LockRequest = 'TEMPLE_LOCK_REQUEST',
+  LockResponse = 'TEMPLE_LOCK_RESPONSE',
+  CreateAccountRequest = 'TEMPLE_CREATE_ACCOUNT_REQUEST',
+  CreateAccountResponse = 'TEMPLE_CREATE_ACCOUNT_RESPONSE',
+  RevealPublicKeyRequest = 'TEMPLE_REVEAL_PUBLIC_KEY_REQUEST',
+  RevealPublicKeyResponse = 'TEMPLE_REVEAL_PUBLIC_KEY_RESPONSE',
+  RevealPrivateKeyRequest = 'TEMPLE_REVEAL_PRIVATE_KEY_REQUEST',
+  RevealPrivateKeyResponse = 'TEMPLE_REVEAL_PRIVATE_KEY_RESPONSE',
+  RevealMnemonicRequest = 'TEMPLE_REVEAL_MNEMONIC_REQUEST',
+  RevealMnemonicResponse = 'TEMPLE_REVEAL_MNEMONIC_RESPONSE',
   GenerateSyncPayloadRequest = "TEMPLE_GENERATE_SYNC_PAYLOAD_REQUEST",
   GenerateSyncPayloadResponse = "TEMPLE_GENERATE_SYNC_PAYLOAD_RESPONSE",
-  RemoveAccountRequest = "TEMPLE_REMOVE_ACCOUNT_REQUEST",
-  RemoveAccountResponse = "TEMPLE_REMOVE_ACCOUNT_RESPONSE",
-  EditAccountRequest = "TEMPLE_EDIT_ACCOUNT_REQUEST",
-  EditAccountResponse = "TEMPLE_EDIT_ACCOUNT_RESPONSE",
-  ImportAccountRequest = "TEMPLE_IMPORT_ACCOUNT_REQUEST",
-  ImportAccountResponse = "TEMPLE_IMPORT_ACCOUNT_RESPONSE",
-  ImportMnemonicAccountRequest = "TEMPLE_IMPORT_MNEMONIC_ACCOUNT_REQUEST",
-  ImportMnemonicAccountResponse = "TEMPLE_IMPORT_MNEMONIC_ACCOUNT_RESPONSE",
-  ImportFundraiserAccountRequest = "TEMPLE_IMPORT_FUNDRAISER_ACCOUNT_REQUEST",
-  ImportFundraiserAccountResponse = "TEMPLE_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE",
-  ImportManagedKTAccountRequest = "TEMPLE_IMPORT_MANAGED_KT_ACCOUNT_REQUEST",
-  ImportManagedKTAccountResponse = "TEMPLE_IMPORT_MANAGED_KT_ACCOUNT_RESPONSE",
-  ImportWatchOnlyAccountRequest = "TEMPLE_IMPORT_WATCH_ONLY_ACCOUNT_REQUEST",
-  ImportWatchOnlyAccountResponse = "TEMPLE_IMPORT_WATCH_ONLY_ACCOUNT_RESPONSE",
-  CreateLedgerAccountRequest = "TEMPLE_CREATE_LEDGER_ACCOUNT_REQUEST",
-  CreateLedgerAccountResponse = "TEMPLE_CREATE_LEDGER_ACCOUNT_RESPONSE",
-  UpdateSettingsRequest = "TEMPLE_UPDATE_SETTINGS_REQUEST",
-  UpdateSettingsResponse = "TEMPLE_UPDATE_SETTINGS_RESPONSE",
-  OperationsRequest = "TEMPLE_OPERATIONS_REQUEST",
-  OperationsResponse = "TEMPLE_OPERATIONS_RESPONSE",
-  SignRequest = "TEMPLE_SIGN_REQUEST",
-  SignResponse = "TEMPLE_SIGN_RESPONSE",
-  ConfirmationRequest = "TEMPLE_CONFIRMATION_REQUEST",
-  ConfirmationResponse = "TEMPLE_CONFIRMATION_RESPONSE",
-  PageRequest = "TEMPLE_PAGE_REQUEST",
-  PageResponse = "TEMPLE_PAGE_RESPONSE",
-  DAppGetPayloadRequest = "TEMPLE_DAPP_GET_PAYLOAD_REQUEST",
-  DAppGetPayloadResponse = "TEMPLE_DAPP_GET_PAYLOAD_RESPONSE",
-  DAppPermConfirmationRequest = "TEMPLE_DAPP_PERM_CONFIRMATION_REQUEST",
-  DAppPermConfirmationResponse = "TEMPLE_DAPP_PERM_CONFIRMATION_RESPONSE",
-  DAppOpsConfirmationRequest = "TEMPLE_DAPP_OPS_CONFIRMATION_REQUEST",
-  DAppOpsConfirmationResponse = "TEMPLE_DAPP_OPS_CONFIRMATION_RESPONSE",
-  DAppSignConfirmationRequest = "TEMPLE_DAPP_SIGN_CONFIRMATION_REQUEST",
-  DAppSignConfirmationResponse = "TEMPLE_DAPP_SIGN_CONFIRMATION_RESPONSE",
-  DAppGetAllSessionsRequest = "TEMPLE_DAPP_GET_ALL_SESSIONS_REQUEST",
-  DAppGetAllSessionsResponse = "TEMPLE_DAPP_GET_ALL_SESSIONS_RESPONSE",
-  DAppRemoveSessionRequest = "TEMPLE_DAPP_REMOVE_SESSION_REQUEST",
-  DAppRemoveSessionResponse = "TEMPLE_DAPP_REMOVE_SESSION_RESPONSE",
+  RemoveAccountRequest = 'TEMPLE_REMOVE_ACCOUNT_REQUEST',
+  RemoveAccountResponse = 'TEMPLE_REMOVE_ACCOUNT_RESPONSE',
+  EditAccountRequest = 'TEMPLE_EDIT_ACCOUNT_REQUEST',
+  EditAccountResponse = 'TEMPLE_EDIT_ACCOUNT_RESPONSE',
+  ImportAccountRequest = 'TEMPLE_IMPORT_ACCOUNT_REQUEST',
+  ImportAccountResponse = 'TEMPLE_IMPORT_ACCOUNT_RESPONSE',
+  ImportMnemonicAccountRequest = 'TEMPLE_IMPORT_MNEMONIC_ACCOUNT_REQUEST',
+  ImportMnemonicAccountResponse = 'TEMPLE_IMPORT_MNEMONIC_ACCOUNT_RESPONSE',
+  ImportFundraiserAccountRequest = 'TEMPLE_IMPORT_FUNDRAISER_ACCOUNT_REQUEST',
+  ImportFundraiserAccountResponse = 'TEMPLE_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE',
+  ImportManagedKTAccountRequest = 'TEMPLE_IMPORT_MANAGED_KT_ACCOUNT_REQUEST',
+  ImportManagedKTAccountResponse = 'TEMPLE_IMPORT_MANAGED_KT_ACCOUNT_RESPONSE',
+  ImportWatchOnlyAccountRequest = 'TEMPLE_IMPORT_WATCH_ONLY_ACCOUNT_REQUEST',
+  ImportWatchOnlyAccountResponse = 'TEMPLE_IMPORT_WATCH_ONLY_ACCOUNT_RESPONSE',
+  CreateLedgerAccountRequest = 'TEMPLE_CREATE_LEDGER_ACCOUNT_REQUEST',
+  CreateLedgerAccountResponse = 'TEMPLE_CREATE_LEDGER_ACCOUNT_RESPONSE',
+  UpdateSettingsRequest = 'TEMPLE_UPDATE_SETTINGS_REQUEST',
+  UpdateSettingsResponse = 'TEMPLE_UPDATE_SETTINGS_RESPONSE',
+  OperationsRequest = 'TEMPLE_OPERATIONS_REQUEST',
+  OperationsResponse = 'TEMPLE_OPERATIONS_RESPONSE',
+  SignRequest = 'TEMPLE_SIGN_REQUEST',
+  SignResponse = 'TEMPLE_SIGN_RESPONSE',
+  ConfirmationRequest = 'TEMPLE_CONFIRMATION_REQUEST',
+  ConfirmationResponse = 'TEMPLE_CONFIRMATION_RESPONSE',
+  PageRequest = 'TEMPLE_PAGE_REQUEST',
+  PageResponse = 'TEMPLE_PAGE_RESPONSE',
+  DAppGetPayloadRequest = 'TEMPLE_DAPP_GET_PAYLOAD_REQUEST',
+  DAppGetPayloadResponse = 'TEMPLE_DAPP_GET_PAYLOAD_RESPONSE',
+  DAppPermConfirmationRequest = 'TEMPLE_DAPP_PERM_CONFIRMATION_REQUEST',
+  DAppPermConfirmationResponse = 'TEMPLE_DAPP_PERM_CONFIRMATION_RESPONSE',
+  DAppOpsConfirmationRequest = 'TEMPLE_DAPP_OPS_CONFIRMATION_REQUEST',
+  DAppOpsConfirmationResponse = 'TEMPLE_DAPP_OPS_CONFIRMATION_RESPONSE',
+  DAppSignConfirmationRequest = 'TEMPLE_DAPP_SIGN_CONFIRMATION_REQUEST',
+  DAppSignConfirmationResponse = 'TEMPLE_DAPP_SIGN_CONFIRMATION_RESPONSE',
+  DAppGetAllSessionsRequest = 'TEMPLE_DAPP_GET_ALL_SESSIONS_REQUEST',
+  DAppGetAllSessionsResponse = 'TEMPLE_DAPP_GET_ALL_SESSIONS_RESPONSE',
+  DAppRemoveSessionRequest = 'TEMPLE_DAPP_REMOVE_SESSION_REQUEST',
+  DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE'
 }
 
-export type TempleNotification =
-  | TempleStateUpdated
-  | TempleConfirmationRequested
-  | TempleConfirmationExpired;
+export type TempleNotification = TempleStateUpdated | TempleConfirmationRequested | TempleConfirmationExpired;
 
 export type TempleRequest =
   | TempleGetStateRequest
@@ -482,16 +470,14 @@ export interface TempleImportMnemonicAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportMnemonicAccountResponse;
 }
 
-export interface TempleImportFundraiserAccountRequest
-  extends TempleMessageBase {
+export interface TempleImportFundraiserAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportFundraiserAccountRequest;
   email: string;
   password: string;
   mnemonic: string;
 }
 
-export interface TempleImportFundraiserAccountResponse
-  extends TempleMessageBase {
+export interface TempleImportFundraiserAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportFundraiserAccountResponse;
 }
 
@@ -502,8 +488,7 @@ export interface TempleImportManagedKTAccountRequest extends TempleMessageBase {
   owner: string;
 }
 
-export interface TempleImportManagedKTAccountResponse
-  extends TempleMessageBase {
+export interface TempleImportManagedKTAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportManagedKTAccountResponse;
 }
 
@@ -513,8 +498,7 @@ export interface TempleImportWatchOnlyAccountRequest extends TempleMessageBase {
   chainId?: string;
 }
 
-export interface TempleImportWatchOnlyAccountResponse
-  extends TempleMessageBase {
+export interface TempleImportWatchOnlyAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportWatchOnlyAccountResponse;
 }
 
@@ -656,10 +640,10 @@ export interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
 export type OperationsPreview = any[] | { branch: string; contents: any[] };
 
 export enum ImportAccountFormType {
-  PrivateKey = "ImportAccountFormType.PrivateKey",
-  Mnemonic = "ImportAccountFormType.Mnemonic",
-  Fundraiser = "ImportAccountFormType.Fundraiser",
-  FaucetFile = "ImportAccountFormType.FaucetFile",
-  ManagedKT = "ImportAccountFormType.ManagedKT",
-  WatchOnly = "ImportAccountFormType.WatchOnly",
+  PrivateKey = 'ImportAccountFormType.PrivateKey',
+  Mnemonic = 'ImportAccountFormType.Mnemonic',
+  Fundraiser = 'ImportAccountFormType.Fundraiser',
+  FaucetFile = 'ImportAccountFormType.FaucetFile',
+  ManagedKT = 'ImportAccountFormType.ManagedKT',
+  WatchOnly = 'ImportAccountFormType.WatchOnly'
 }

@@ -12,7 +12,7 @@
     "message": "Importer un compte"
   },
   "createAccount": {
-    "message": "Créer un compte"
+    "message": "Créer ou restaurer un compte"
   },
   "faucetFileTitle": {
     "message": "Fichier Faucet"
@@ -94,7 +94,7 @@
   "accounts": {
     "message": "Comptes"
   },
-  "logOut": {
+  "lock": {
     "message": "Déconnexion"
   },
   "importedAccount": {

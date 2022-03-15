@@ -1,82 +1,81 @@
-import React, {
-  FC,
-  FunctionComponent,
-  SVGProps,
-  ReactNode,
-  Suspense,
-  useLayoutEffect,
-  useMemo,
-} from "react";
+import React, { FC, FunctionComponent, ReactNode, Suspense, SVGProps, useLayoutEffect, useMemo } from 'react';
 
-import classNames from "clsx";
-import { Props as TippyProps } from "tippy.js";
+import classNames from 'clsx';
+import { Props as TippyProps } from 'tippy.js';
 
-import Spinner from "app/atoms/Spinner";
-import { useAppEnv } from "app/env";
-import ErrorBoundary from "app/ErrorBoundary";
-import { ReactComponent as DAppsIcon } from "app/icons/apps-alt.svg";
-import { ReactComponent as BuyIcon } from "app/icons/buy.svg";
-import { ReactComponent as ChevronRightIcon } from "app/icons/chevron-right.svg";
-import { ReactComponent as ExploreIcon } from "app/icons/explore.svg";
-import { ReactComponent as ReceiveIcon } from "app/icons/receive.svg";
-import { ReactComponent as SendIcon } from "app/icons/send-alt.svg";
-import { ReactComponent as SwapVerticalIcon } from "app/icons/swap-vertical.svg";
-import PageLayout from "app/layouts/PageLayout";
-import Activity from "app/templates/activity/Activity";
-import AssetInfo from "app/templates/AssetInfo";
-import { T, t } from "lib/i18n/react";
+import Spinner from 'app/atoms/Spinner';
+import { useTabSlug } from 'app/atoms/useTabSlug';
+import { useAppEnv } from 'app/env';
+import ErrorBoundary from 'app/ErrorBoundary';
+import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
+import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
+import { ReactComponent as ExploreIcon } from 'app/icons/explore.svg';
+import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
+import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
+import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
+import PageLayout from 'app/layouts/PageLayout';
+import Activity from 'app/templates/activity/Activity';
+import AssetInfo from 'app/templates/AssetInfo';
+import { TestIDProps } from 'lib/analytics';
+import { T, t } from 'lib/i18n/react';
 import {
+  getAssetSymbol,
+  isTezAsset,
   TempleAccountType,
   useAccount,
   useAssetMetadata,
-  getAssetSymbol,
-  isTezAsset,
-  useNetwork,
-} from "lib/temple/front";
-import useTippy from "lib/ui/useTippy";
-import { Link, useLocation, navigate, HistoryAction } from "lib/woozie";
+  useNetwork
+} from 'lib/temple/front';
+import useTippy from 'lib/ui/useTippy';
+import { HistoryAction, Link, navigate, To, useLocation } from 'lib/woozie';
 
-import CollectiblesList from "./Collectibles/CollectiblesList";
-import { ExploreSelectors } from "./Explore.selectors";
-import AddressChip from "./Explore/AddressChip";
-import BakingSection from "./Explore/BakingSection";
-import EditableTitle from "./Explore/EditableTitle";
-import MainBanner from "./Explore/MainBanner";
-import Tokens from "./Explore/Tokens";
+import { DonationBanner } from '../atoms/DonationBanner';
+import CollectiblesList from './Collectibles/CollectiblesList';
+import { ExploreSelectors } from './Explore.selectors';
+import AddressChip from './Explore/AddressChip';
+import BakingSection from './Explore/BakingSection';
+import EditableTitle from './Explore/EditableTitle';
+import MainBanner from './Explore/MainBanner';
+import Tokens from './Explore/Tokens';
+import { useOnboardingProgress } from './Onboarding/hooks/useOnboardingProgress.hook';
+import Onboarding from './Onboarding/Onboarding';
 
 type ExploreProps = {
   assetSlug?: string | null;
 };
 
-const tippyProps = {
-  trigger: "mouseenter",
+const tippyPropsMock = {
+  trigger: 'mouseenter',
   hideOnClick: false,
-  content: t("disabledForWatchOnlyAccount"),
-  animation: "shift-away-subtle",
+  content: t('disabledForWatchOnlyAccount'),
+  animation: 'shift-away-subtle'
 };
 
 const Explore: FC<ExploreProps> = ({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
+  const { onboardingCompleted } = useOnboardingProgress();
   const account = useAccount();
   const { search } = useLocation();
   const network = useNetwork();
 
-  const assetMetadata = useAssetMetadata(assetSlug ?? "tez");
+  const assetMetadata = useAssetMetadata(assetSlug ?? 'tez');
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
-    if (assetSlug && usp.get("after_token_added") === "true") {
+    if (assetSlug && usp.get('after_token_added') === 'true') {
       return registerBackHandler(() => {
-        navigate("/", HistoryAction.Replace);
+        navigate('/', HistoryAction.Replace);
       });
     }
-    return;
+    return undefined;
   }, [registerBackHandler, assetSlug, search]);
 
   const accountPkh = account.publicKeyHash;
   const canSend = account.type !== TempleAccountType.WatchOnly;
+  const fullpageClassName = fullPage ? 'mb-10' : 'mb-6';
+  const sendLink = assetSlug ? `/send/${assetSlug}` : '/send';
 
-  return (
+  return onboardingCompleted ? (
     <PageLayout
       pageTitle={
         <>
@@ -85,14 +84,15 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
           {assetSlug && (
             <>
               <ChevronRightIcon className="w-auto h-4 mx-px stroke-current opacity-75" />
-              <span className="font-normal">
-                {getAssetSymbol(assetMetadata)}
-              </span>
+              <span className="font-normal">{getAssetSymbol(assetMetadata)}</span>
             </>
           )}
         </>
       }
+      attention={true}
     >
+      <DonationBanner />
+
       {fullPage && (
         <>
           <EditableTitle />
@@ -100,130 +100,103 @@ const Explore: FC<ExploreProps> = ({ assetSlug }) => {
         </>
       )}
 
-      <div
-        className={classNames(
-          "flex flex-col items-center",
-          fullPage ? "mb-10" : "mb-6"
-        )}
-      >
+      <div className={classNames('flex flex-col items-center', fullpageClassName)}>
         <AddressChip pkh={accountPkh} className="mb-6" />
 
         <MainBanner accountPkh={accountPkh} assetSlug={assetSlug} />
 
-        <div
-          className="flex justify-around w-full mx-auto mt-6"
-          style={{ maxWidth: "19rem" }}
-        >
+        <div className="flex justify-between mx-auto w-full max-w-sm mt-6 px-8">
           <ActionButton
             label={<T id="receive" />}
             Icon={ReceiveIcon}
-            href="/receive"
+            to="/receive"
+            testID={ExploreSelectors.ReceiveButton}
           />
-          {network.type !== "test" && (
-            <ActionButton
-              label={<T id="buyButton" />}
-              Icon={BuyIcon}
-              href="/buy"
-            />
+          {network.type !== 'test' && (
+            <ActionButton label={<T id="buyButton" />} Icon={BuyIcon} to="/buy" testID={ExploreSelectors.BuyButton} />
           )}
 
           <ActionButton
-            label={<T id="dApps" />}
-            Icon={DAppsIcon}
-            href="/dApps"
-          />
-          <ActionButton
             label={<T id="swap" />}
             Icon={SwapIcon}
-            href={assetSlug ? `/swap/${assetSlug}` : "/swap"}
+            to={{
+              pathname: '/swap',
+              search: `from=${assetSlug ?? ''}`
+            }}
             disabled={!canSend}
-            tippyProps={tippyProps}
+            tippyProps={tippyPropsMock}
+            testID={ExploreSelectors.SwapButton}
           />
           <ActionButton
             label={<T id="send" />}
             Icon={SendIcon}
-            href={assetSlug ? `/send/${assetSlug}` : "/send"}
+            to={sendLink}
             disabled={!canSend}
-            tippyProps={tippyProps}
+            tippyProps={tippyPropsMock}
+            testID={ExploreSelectors.SendButton}
           />
         </div>
       </div>
 
       <SecondarySection assetSlug={assetSlug} />
     </PageLayout>
+  ) : (
+    <Onboarding />
   );
 };
 
 export default Explore;
 
-const SwapIcon: FunctionComponent<SVGProps<SVGSVGElement>> = ({
-  className,
-  ...restProps
-}) => {
-  return (
-    <SwapVerticalIcon
-      className={classNames(className, "transform rotate-90")}
-      {...restProps}
-    />
-  );
-};
-
-type ActionButtonProps = {
+interface ActionButtonProps extends TestIDProps {
   label: React.ReactNode;
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
-  href: string;
+  to: To;
   disabled?: boolean;
   tippyProps?: Partial<TippyProps>;
-};
+}
 
 const ActionButton: FC<ActionButtonProps> = ({
   label,
   Icon,
-  href,
+  to,
   disabled,
   tippyProps = {},
+  testID,
+  testIDProperties
 }) => {
-  const network = useNetwork();
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
   const commonButtonProps = useMemo(
     () => ({
-      className: `flex flex-col items-center px-1 ${
-        network.type === "test" ? "mx-3" : "mx-2"
-      }`,
-      type: "button" as const,
+      className: `flex flex-col items-center`,
+      type: 'button' as const,
       children: (
         <>
           <div
             className={classNames(
-              disabled ? "bg-blue-300" : "bg-blue-500",
-              "rounded mb-1 flex items-center text-white"
+              disabled ? 'bg-blue-300' : 'bg-blue-500',
+              'rounded mb-1 flex items-center text-white'
             )}
-            style={{ padding: "0 0.625rem", height: "2.75rem" }}
+            style={{ padding: '0 0.625rem', height: '2.75rem' }}
           >
-            <Icon className="w-6 h-auto stroke-current stroke-2" />
+            <Icon className="w-6 h-auto stroke-current" />
           </div>
-          <span
-            className={classNames(
-              "text-xs",
-              disabled ? "text-blue-300" : "text-blue-500"
-            )}
-          >
+          <span className={classNames('text-xs text-center', disabled ? 'text-blue-300' : 'text-blue-500')}>
             {label}
           </span>
         </>
-      ),
+      )
     }),
-    [disabled, Icon, label, network.type]
+    [disabled, Icon, label]
   );
   return disabled ? (
     <button ref={buttonRef} {...commonButtonProps} />
   ) : (
-    <Link to={href} {...commonButtonProps} />
+    <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />
   );
 };
 
 const Delegation: FC = () => (
-  <SuspenseContainer whileMessage={t("delegationInfoWhileMessage")}>
+  <SuspenseContainer whileMessage={t('delegationInfoWhileMessage')}>
     <BakingSection />
   </SuspenseContainer>
 );
@@ -236,30 +209,18 @@ const ActivityTab: FC<ActivityTabProps> = ({ assetSlug }) => {
   const account = useAccount();
 
   return (
-    <SuspenseContainer whileMessage={t("operationHistoryWhileMessage")}>
+    <SuspenseContainer whileMessage={t('operationHistoryWhileMessage')}>
       <Activity address={account.publicKeyHash} assetSlug={assetSlug} />
     </SuspenseContainer>
   );
 };
-
-function useTabSlug() {
-  const { search } = useLocation();
-  const tabSlug = useMemo(() => {
-    const usp = new URLSearchParams(search);
-    return usp.get("tab");
-  }, [search]);
-  return useMemo(() => tabSlug, [tabSlug]);
-}
 
 type SecondarySectionProps = {
   assetSlug?: string | null;
   className?: string;
 };
 
-const SecondarySection: FC<SecondarySectionProps> = ({
-  assetSlug,
-  className,
-}) => {
+const SecondarySection: FC<SecondarySectionProps> = ({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
@@ -274,103 +235,91 @@ const SecondarySection: FC<SecondarySectionProps> = ({
     if (!assetSlug) {
       return [
         {
-          slug: "tokens",
-          title: t("tokens"),
+          slug: 'tokens',
+          title: t('tokens'),
           Component: Tokens,
-          testID: ExploreSelectors.AssetsTab,
+          testID: ExploreSelectors.AssetsTab
         },
         {
-          slug: "collectibles",
-          title: t("collectibles"),
+          slug: 'collectibles',
+          title: t('collectibles'),
           Component: CollectiblesList,
-          testID: ExploreSelectors.CollectiblesTab,
+          testID: ExploreSelectors.CollectiblesTab
         },
         {
-          slug: "delegation",
-          title: t("delegation"),
-          Component: Delegation,
-          testID: ExploreSelectors.DelegationTab,
-        },
-        {
-          slug: "activity",
-          title: t("activity"),
+          slug: 'activity',
+          title: t('activity'),
           Component: ActivityTab,
-          testID: ExploreSelectors.ActivityTab,
-        },
+          testID: ExploreSelectors.ActivityTab
+        }
       ];
     }
 
     const activity = {
-      slug: "activity",
-      title: t("activity"),
+      slug: 'activity',
+      title: t('activity'),
       Component: () => <ActivityTab assetSlug={assetSlug} />,
-      testID: ExploreSelectors.ActivityTab,
+      testID: ExploreSelectors.ActivityTab
+    };
+
+    const info = {
+      slug: 'info',
+      title: t('info'),
+      Component: () => <AssetInfo assetSlug={assetSlug} />,
+      testID: ExploreSelectors.AboutTab
     };
 
     if (isTezAsset(assetSlug)) {
-      return [activity];
+      return [
+        activity,
+        {
+          slug: 'delegation',
+          title: t('delegate'),
+          Component: Delegation,
+          testID: ExploreSelectors.DelegationTab
+        }
+      ];
     }
 
-    return [
-      activity,
-      {
-        slug: "about",
-        title: t("about"),
-        Component: () => <AssetInfo assetSlug={assetSlug} />,
-        testID: ExploreSelectors.AboutTab,
-      },
-    ];
+    return [activity, info];
   }, [assetSlug]);
 
   const { slug, Component } = useMemo(() => {
-    const tab = tabSlug ? tabs.find((t) => t.slug === tabSlug) : null;
+    const tab = tabSlug ? tabs.find(currentTab => currentTab.slug === tabSlug) : null;
     return tab ?? tabs[0];
   }, [tabSlug, tabs]);
 
   return (
-    <div
-      className={classNames(
-        "-mx-4",
-        "shadow-top-light",
-        fullPage && "rounded-t-md",
-        className
-      )}
-    >
-      <div
-        className={classNames(
-          "w-full max-w-sm mx-auto px-3",
-          "flex flex-wrap items-center justify-center"
-        )}
-      >
-        {tabs.map((t) => {
-          const active = slug === t.slug;
+    <div className={classNames('-mx-4', 'shadow-top-light', fullPage && 'rounded-t-md', className)}>
+      <div className={classNames('w-full max-w-sm mx-auto px-10', 'flex items-center justify-center')}>
+        {tabs.map(currentTab => {
+          const active = slug === currentTab.slug;
 
           return (
             <Link
-              key={assetSlug ? `asset_${t.slug}` : t.slug}
-              to={(lctn) => ({ ...lctn, search: `?tab=${t.slug}` })}
+              key={assetSlug ? `asset_${currentTab.slug}` : currentTab.slug}
+              to={lctn => ({ ...lctn, search: `?tab=${currentTab.slug}` })}
               replace
               className={classNames(
-                "w-1/4",
-                "text-center cursor-pointer mb-1 pb-1 pt-2 px-3",
-                "text-gray-500 text-xs font-medium",
-                "border-t-2",
-                active ? "border-primary-orange" : "border-transparent",
-                active ? "text-primary-orange" : "hover:text-primary-orange",
-                "transition ease-in-out duration-300"
+                'flex1 w-full',
+                'text-center cursor-pointer mb-1 pb-1 pt-2',
+                'text-gray-500 text-xs font-medium',
+                'border-t-2',
+                active ? 'border-primary-orange' : 'border-transparent',
+                active ? 'text-primary-orange' : 'hover:text-primary-orange',
+                'transition ease-in-out duration-300',
+                'truncate'
               )}
-              testID={t.testID}
+              testID={currentTab.testID}
             >
-              {t.title}
+              {currentTab.title}
             </Link>
           );
         })}
       </div>
 
-      <div className={classNames("mx-4 mb-4", fullPage ? "mt-8" : "mt-4")}>
-        <SuspenseContainer whileMessage="displaying tab">
-          {Component && <Component />}
-        </SuspenseContainer>
+      <div className={'mx-4 mb-4 mt-6'}>
+        <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
       </div>
     </div>
   );
@@ -381,11 +330,7 @@ type SuspenseContainerProps = {
   fallback?: ReactNode;
 };
 
-const SuspenseContainer: FC<SuspenseContainerProps> = ({
-  whileMessage,
-  fallback = <SpinnerSection />,
-  children,
-}) => (
+const SuspenseContainer: FC<SuspenseContainerProps> = ({ whileMessage, fallback = <SpinnerSection />, children }) => (
   <ErrorBoundary whileMessage={whileMessage}>
     <Suspense fallback={fallback}>{children}</Suspense>
   </ErrorBoundary>

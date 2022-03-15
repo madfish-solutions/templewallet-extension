@@ -1,7 +1,7 @@
-import { createQueue } from "./queue";
+import { createQueue } from './queue';
 
-describe("Queue", () => {
-  it("queue", async () => {
+describe('Queue', () => {
+  it('queue', async () => {
     const enqueue = createQueue();
 
     const result: number[] = [];
@@ -25,7 +25,7 @@ describe("Queue", () => {
         withDelay(0, () => {
           result.push(4);
         })
-      ),
+      )
     ]);
 
     expect(result).toStrictEqual([1, 2, 3, 4]);
@@ -33,6 +33,6 @@ describe("Queue", () => {
 });
 
 async function withDelay(ms: number, factory: () => any) {
-  await new Promise((r) => setTimeout(r, ms));
+  await new Promise(r => setTimeout(r, ms));
   return factory();
 }

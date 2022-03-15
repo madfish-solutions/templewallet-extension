@@ -9,7 +9,7 @@
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
   },
   "createAccount": {
-    "message": "Create account"
+    "message": "Create or Restore account"
   },
   "importAccount": {
     "message": "Import account"
@@ -95,7 +95,7 @@
     "message": "Accounts"
   },
   "logOut": {
-    "message": "Log out"
+    "message": "Lock"
   },
   "importedAccount": {
     "message": "Imported"
@@ -710,6 +710,9 @@
   },
   "unlockPasswordInputDescription": {
     "message": "A password is used to protect the wallet."
+  },
+  "unlockPasswordErrorDelay": {
+    "message": "You have entered the wrong password three times. Your wallet is being blocked for"
   },
   "unlock": {
     "message": "Unlock"
@@ -1748,5 +1751,8 @@
         "content": "$1"
       }
     }
+  },
+  "swapTokenSearchInputPlaceholder": {
+    "message": "Enter name or address"
   }
 }

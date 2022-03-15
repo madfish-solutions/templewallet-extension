@@ -12,7 +12,7 @@
     "message": "匯入帳戶"
   },
   "createAccount": {
-    "message": "建立帳戶"
+    "message": "創建或恢復帳戶"
   },
   "faucetFileTitle": {
     "message": "水龍頭檔案"
@@ -94,8 +94,8 @@
   "accounts": {
     "message": "帳戶"
   },
-  "logOut": {
-    "message": "登出"
+  "lock": {
+    "message": "堵塞"
   },
   "importedAccount": {
     "message": "已匯入"

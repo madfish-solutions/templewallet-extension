@@ -1,8 +1,8 @@
-import React, { FC } from "react";
+import React, { FC } from 'react';
 
-import Logo from "app/atoms/Logo";
-import SubTitle from "app/atoms/SubTitle";
-import { T } from "lib/i18n/react";
+import Logo from 'app/atoms/Logo';
+import SubTitle from 'app/atoms/SubTitle';
+import { T } from 'lib/i18n/react';
 
 const About: FC = () => (
   <div className="flex flex-col items-center my-8">
@@ -10,22 +10,16 @@ const About: FC = () => (
       <Logo style={{ height: 60 }} />
 
       <div className="ml-4">
-        <T id="appName">
-          {(message) => (
-            <h4 className="text-xl font-semibold text-gray-700">{message}</h4>
-          )}
-        </T>
+        <T id="appName">{message => <h4 className="text-xl font-semibold text-gray-700">{message}</h4>}</T>
         <T
           id="versionLabel"
           substitutions={[
             <span className="font-bold" key="version">
               {process.env.VERSION}
-            </span>,
+            </span>
           ]}
         >
-          {(message) => (
-            <p className="text-sm font-light text-gray-800">{message}</p>
-          )}
+          {message => <p className="text-sm font-light text-gray-800">{message}</p>}
         </T>
       </div>
     </div>
@@ -42,46 +36,42 @@ const About: FC = () => (
           target="_blank"
           rel="noopener noreferrer"
           className="font-normal hover:underline"
-          style={{ color: "#98c630" }}
+          style={{ color: '#98c630' }}
         >
           Madfish.Solutions
-        </a>,
+        </a>
       ]}
     >
-      {(message) => (
-        <p className="mt-6 text-base font-light text-gray-600">{message}</p>
-      )}
+      {message => <p className="mt-6 text-base font-light text-gray-600">{message}</p>}
     </T>
 
-    <T id="links">
-      {(message) => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}
-    </T>
+    <T id="links">{message => <SubTitle className="mt-10 mb-2">{message}</SubTitle>}</T>
 
     <div className="text-center">
       {[
         {
-          key: "website",
-          link: "https://templewallet.com",
+          key: 'website',
+          link: 'https://templewallet.com'
         },
         {
-          key: "repo",
-          link: "https://github.com/madfish-solutions/templewallet-extension",
+          key: 'repo',
+          link: 'https://github.com/madfish-solutions/templewallet-extension'
         },
         {
-          key: "privacyPolicy",
-          link: "https://templewallet.com/privacy",
+          key: 'privacyPolicy',
+          link: 'https://templewallet.com/privacy'
         },
         {
-          key: "termsOfUse",
-          link: "https://templewallet.com/terms",
+          key: 'termsOfUse',
+          link: 'https://templewallet.com/terms'
         },
         {
-          key: "contact",
-          link: "https://templewallet.com/contact",
-        },
+          key: 'contact',
+          link: 'https://templewallet.com/contact'
+        }
       ].map(({ key, link }) => (
         <T id={key} key={key}>
-          {(message) => (
+          {message => (
             <a
               key={key}
               href={link}

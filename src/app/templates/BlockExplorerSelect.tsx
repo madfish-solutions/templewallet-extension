@@ -1,19 +1,13 @@
-import React, { useMemo, useCallback, FC } from "react";
+import React, { useMemo, useCallback, FC } from 'react';
 
-import classNames from "clsx";
-import { browser } from "webextension-polyfill-ts";
+import classNames from 'clsx';
+import { browser } from 'webextension-polyfill-ts';
 
-import Flag from "app/atoms/Flag";
-import { T } from "lib/i18n/react";
-import {
-  BlockExplorer,
-  BLOCK_EXPLORERS,
-  useBlockExplorer,
-} from "lib/temple/front";
+import Flag from 'app/atoms/Flag';
+import { T } from 'lib/i18n/react';
+import { BlockExplorer, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
 
-import IconifiedSelect, {
-  IconifiedSelectOptionRenderProps,
-} from "./IconifiedSelect";
+import IconifiedSelect, { IconifiedSelectOptionRenderProps } from './IconifiedSelect';
 
 type BlockExplorerSelectProps = {
   className?: string;
@@ -26,7 +20,7 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
 
   const title = useMemo(
     () => (
-      <h2 className={classNames("mb-4", "leading-tight", "flex flex-col")}>
+      <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
         <span className="text-base font-semibold text-gray-700">
           <T id="blockExplorer" />
         </span>
@@ -60,28 +54,15 @@ const BlockExplorerSelect: FC<BlockExplorerSelectProps> = ({ className }) => {
 
 export default BlockExplorerSelect;
 
-const BlockExplorerIcon: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> =
-  ({ option: { id, name } }) => (
-    <Flag
-      alt={name}
-      className="ml-2 mr-3"
-      src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)}
-    />
-  );
+const BlockExplorerIcon: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option: { id, name } }) => (
+  <Flag alt={name} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)} />
+);
 
-const BlockExplorerInMenuContent: FC<
-  IconifiedSelectOptionRenderProps<BlockExplorer>
-> = ({ option: { name } }) => {
-  return (
-    <div className={classNames("relative w-full text-lg text-gray-700")}>
-      {name}
-    </div>
-  );
+const BlockExplorerInMenuContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option: { name } }) => {
+  return <div className={classNames('relative w-full text-lg text-gray-700')}>{name}</div>;
 };
 
-const BlockExplorerSelectContent: FC<
-  IconifiedSelectOptionRenderProps<BlockExplorer>
-> = ({ option }) => {
+const BlockExplorerSelectContent: FC<IconifiedSelectOptionRenderProps<BlockExplorer>> = ({ option }) => {
   return (
     <div className="flex flex-col items-start py-2">
       <span className="text-xl text-gray-700">{option.name}</span>

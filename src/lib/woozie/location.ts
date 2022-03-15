@@ -1,7 +1,7 @@
-import constate from "constate";
+import constate from 'constate';
 
-import { USE_LOCATION_HASH_AS_URL } from "lib/woozie/config";
-import { HistoryAction, PatchedHistory, useHistory } from "lib/woozie/history";
+import { USE_LOCATION_HASH_AS_URL } from 'lib/woozie/config';
+import { HistoryAction, PatchedHistory, useHistory } from 'lib/woozie/history';
 
 export interface LocationState {
   pathname: string;
@@ -36,14 +36,13 @@ export function createLocationState(): LocationState {
     length: historyLength,
     lastAction: trigger = null,
     position: historyPosition = 0,
-    state,
+    state
   } = window.history as PatchedHistory;
 
-  let { hash, host, hostname, href, origin, pathname, port, protocol, search } =
-    window.location;
+  let { hash, host, hostname, href, origin, pathname, port, protocol, search } = window.location;
 
   if (USE_LOCATION_HASH_AS_URL) {
-    const url = new URL(hash.startsWith("#") ? hash.slice(1) : hash, origin);
+    const url = new URL(hash.startsWith('#') ? hash.slice(1) : hash, origin);
 
     pathname = url.pathname;
     search = url.search;
@@ -60,25 +59,22 @@ export function createLocationState(): LocationState {
     hostname,
     href,
     origin,
-    pathname: pathname || "/",
+    pathname: pathname || '/',
     port,
     protocol,
-    search,
+    search
   };
 }
 
-export function createLocationUpdates(
-  to: To,
-  lctn: LocationState
-): LocationUpdates {
+export function createLocationUpdates(to: To, lctn: LocationState): LocationUpdates {
   switch (typeof to) {
-    case "string":
+    case 'string':
       return { pathname: to };
 
-    case "function":
+    case 'function':
       return to(lctn);
 
-    case "object":
+    case 'object':
       return to;
   }
 }

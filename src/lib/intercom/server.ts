@@ -1,13 +1,7 @@
-import { Runtime, browser } from "webextension-polyfill-ts";
+import { Runtime, browser } from 'webextension-polyfill-ts';
 
-import { serealizeError } from "./helpers";
-import {
-  MessageType,
-  RequestMessage,
-  ResponseMessage,
-  ErrorMessage,
-  SubscriptionMessage,
-} from "./types";
+import { serealizeError } from './helpers';
+import { MessageType, RequestMessage, ResponseMessage, ErrorMessage, SubscriptionMessage } from './types';
 
 type ReqHandler = (payload: any, port: Runtime.Port) => Promise<any>;
 
@@ -16,7 +10,7 @@ export class IntercomServer {
   private reqHandlers: Array<ReqHandler> = [];
 
   constructor() {
-    browser.runtime.onConnect.addListener((port) => {
+    browser.runtime.onConnect.addListener(port => {
       this.addPort(port);
 
       port.onDisconnect.addListener(() => {
@@ -40,7 +34,7 @@ export class IntercomServer {
 
   broadcast(data: any) {
     const msg: SubscriptionMessage = { type: MessageType.Sub, data };
-    this.ports.forEach((port) => {
+    this.ports.forEach(port => {
       port.postMessage(msg);
     });
   }
@@ -55,41 +49,35 @@ export class IntercomServer {
   }
 
   private handleMessage(msg: any, port: Runtime.Port) {
-    if (
-      port.sender?.id === browser.runtime.id &&
-      msg?.type === MessageType.Req
-    ) {
-      (async (msg) => {
+    if (port.sender?.id === browser.runtime.id && msg?.type === MessageType.Req) {
+      (async msgInner => {
         try {
           for (const handler of this.reqHandlers) {
             const data = await handler(msg.data, port);
             if (data !== undefined) {
               this.send(port, {
                 type: MessageType.Res,
-                reqId: msg.reqId,
-                data,
+                reqId: msgInner.reqId,
+                data
               });
 
               return;
             }
           }
 
-          throw new Error("Not Found");
-        } catch (err) {
+          throw new Error('Not Found');
+        } catch (err: any) {
           this.send(port, {
             type: MessageType.Err,
-            reqId: msg.reqId,
-            data: serealizeError(err),
+            reqId: msgInner.reqId,
+            data: serealizeError(err)
           });
         }
       })(msg as RequestMessage);
     }
   }
 
-  private send(
-    port: Runtime.Port,
-    msg: ResponseMessage | SubscriptionMessage | ErrorMessage
-  ) {
+  private send(port: Runtime.Port, msg: ResponseMessage | SubscriptionMessage | ErrorMessage) {
     if (this.ports.has(port)) {
       port.postMessage(msg);
     }
@@ -110,6 +98,6 @@ export class IntercomServer {
   }
 
   private removeReqHandler(handler: ReqHandler) {
-    this.reqHandlers = this.reqHandlers.filter((h) => h !== handler);
+    this.reqHandlers = this.reqHandlers.filter(h => h !== handler);
   }
 }

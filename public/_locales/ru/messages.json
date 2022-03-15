@@ -63,13 +63,13 @@
     "message": "Через"
   },
   "exchangeRate": {
-    "message": "Курс обмена:"
+    "message": "Курс обмена"
   },
   "slippageTolerance": {
-    "message": "Максимально допустимое отклонение:"
+    "message": "Максимально допустимое отклонение"
   },
   "minimumReceived": {
-    "message": "Минимальный выход:"
+    "message": "Минимальный выход"
   },
   "cycles_one": {
     "message": "$amount$ цикл",

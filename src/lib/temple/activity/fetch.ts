@@ -1,4 +1,4 @@
-import * as Repo from "lib/temple/repo";
+import * as Repo from 'lib/temple/repo';
 
 export type FetchOperationsParams = {
   chainId: string;
@@ -8,24 +8,13 @@ export type FetchOperationsParams = {
   limit?: number;
 };
 
-export async function fetchOperations({
-  chainId,
-  address,
-  assetIds,
-  offset,
-  limit,
-}: FetchOperationsParams) {
+export async function fetchOperations({ chainId, address, assetIds, offset, limit }: FetchOperationsParams) {
   // Base
-  let query = Repo.operations
-    .where("[chainId+addedAt]")
-    .between([chainId, 0], [chainId, Date.now()])
-    .reverse();
+  let query = Repo.operations.where('[chainId+addedAt]').between([chainId, 0], [chainId, Date.now()]).reverse();
 
   // Filter by members & assets
   query = query.filter(
-    (o) =>
-      o.members.includes(address) &&
-      (assetIds ? o.assetIds.some((aId) => assetIds.includes(aId)) : true)
+    o => o.members.includes(address) && (assetIds ? o.assetIds.some(aId => assetIds.includes(aId)) : true)
   );
 
   // Sorting

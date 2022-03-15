@@ -1,25 +1,20 @@
-import React, { ChangeEvent, FC, useEffect, useState } from "react";
+import React, { ChangeEvent, FC, useEffect, useState } from 'react';
 
-import BigNumber from "bignumber.js";
-import useSWR from "swr";
-import { useDebounce } from "use-debounce";
+import BigNumber from 'bignumber.js';
+import useSWR from 'swr';
+import { useDebounce } from 'use-debounce';
 
-import Divider from "app/atoms/Divider";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import styles from "app/pages/BuyCrypto/BuyCrypto.module.css";
-import BuyCryptoInput from "app/pages/BuyCrypto/BuyCryptoInput";
-import ErrorComponent from "app/pages/BuyCrypto/steps/ErrorComponent";
-import WarningComponent from "app/pages/BuyCrypto/steps/WarningComponent";
-import {
-  ExchangeDataInterface,
-  ExchangeDataStatusEnum,
-  getRate,
-  submitExchange,
-} from "lib/exolix-api";
-import { T } from "lib/i18n/react";
-import { useAccount, useAssetUSDPrice } from "lib/temple/front";
+import Divider from 'app/atoms/Divider';
+import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import styles from 'app/pages/BuyCrypto/BuyCrypto.module.css';
+import BuyCryptoInput from 'app/pages/BuyCrypto/BuyCryptoInput';
+import ErrorComponent from 'app/pages/BuyCrypto/steps/ErrorComponent';
+import WarningComponent from 'app/pages/BuyCrypto/steps/WarningComponent';
+import { ExchangeDataInterface, ExchangeDataStatusEnum, getRate, submitExchange } from 'lib/exolix-api';
+import { T } from 'lib/i18n/react';
+import { useAccount, useAssetUSDPrice } from 'lib/temple/front';
 
-const coinTo = "XTZ";
+const coinTo = 'XTZ';
 const maxDollarValue = 5000;
 const avgCommission = 300;
 
@@ -31,24 +26,19 @@ interface Props {
   setIsError: (error: boolean) => void;
 }
 
-const InitialStep: FC<Props> = ({
-  exchangeData,
-  setExchangeData,
-  setStep,
-  isError,
-  setIsError,
-}) => {
-  const [maxAmount, setMaxAmount] = useState("");
+const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isError, setIsError }) => {
+  const [maxAmount, setMaxAmount] = useState('');
   const [amount, setAmount] = useState(0);
-  const [coinFrom, setCoinFrom] = useState("BTC");
+  const [coinFrom, setCoinFrom] = useState('BTC');
   const [lastMinAmount, setLastMinAmount] = useState(new BigNumber(0));
-  const [lastMaxAmount, setLastMaxAmount] = useState("0");
+  const [lastMaxAmount, setLastMaxAmount] = useState('0');
+  const [isCurrencyAvailable, setIsCurrencyAvailable] = useState(true);
 
   const [depositAmount, setDepositAmount] = useState(0);
   const { publicKeyHash } = useAccount();
   const [disabledProceed, setDisableProceed] = useState(true);
   const [debouncedAmount] = useDebounce(amount, 500);
-  const tezPrice = useAssetUSDPrice("tez");
+  const tezPrice = useAssetUSDPrice('tez');
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDisableProceed(true);
@@ -62,9 +52,9 @@ const InitialStep: FC<Props> = ({
         coin_to: coinTo,
         deposit_amount: amount,
         destination_address: publicKeyHash,
-        destination_extra: "",
+        destination_extra: ''
       });
-      await setExchangeData(data);
+      setExchangeData(data);
       if (data.status === ExchangeDataStatusEnum.WAIT) {
         setStep(1);
       } else if (data.status === ExchangeDataStatusEnum.CONFIRMATION) {
@@ -76,31 +66,31 @@ const InitialStep: FC<Props> = ({
       setIsError(true);
     }
   };
-  const { data: rates = { destination_amount: 0, rate: 0, min_amount: "0" } } =
-    useSWR(["/api/currency", coinTo, coinFrom, amount], () =>
-      getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
-    );
+  const { data: rates = { destination_amount: 0, rate: 0, min_amount: '0' } } = useSWR(
+    ['/api/currency', coinTo, coinFrom, amount],
+    () => getRate({ coin_from: coinFrom, coin_to: coinTo, deposit_amount: amount })
+  );
 
   useEffect(() => {
     (async () => {
-      const { rate, ...rest } = await getRate({
-        coin_from: coinTo,
-        coin_to: coinFrom,
-        deposit_amount: (maxDollarValue + avgCommission) / tezPrice!,
-      });
+      try {
+        setIsCurrencyAvailable(true);
 
-      setMaxAmount(
-        new BigNumber(rest.destination_amount).toFixed(
-          Number(rest.destination_amount) > 100 ? 2 : 6
-        )
-      );
+        const { rate, ...rest } = await getRate({
+          coin_from: coinTo,
+          coin_to: coinFrom,
+          deposit_amount: (maxDollarValue + avgCommission) / tezPrice!
+        });
+
+        setMaxAmount(new BigNumber(rest.destination_amount).toFixed(Number(rest.destination_amount) > 100 ? 2 : 6));
+      } catch (e) {
+        setIsCurrencyAvailable(false);
+      }
     })();
   }, [coinFrom, tezPrice]);
 
   const isMaxAmountError =
-    lastMaxAmount !== "Infinity" &&
-    debouncedAmount !== 0 &&
-    Number(debouncedAmount) > Number(lastMaxAmount);
+    lastMaxAmount !== 'Infinity' && debouncedAmount !== 0 && Number(debouncedAmount) > Number(lastMaxAmount);
 
   useEffect(() => {
     setDepositAmount(rates.destination_amount);
@@ -118,10 +108,10 @@ const InitialStep: FC<Props> = ({
     if (rates.min_amount > 0) {
       setLastMinAmount(new BigNumber(rates.min_amount));
     }
-    if (maxAmount !== "Infinity") {
+    if (maxAmount !== 'Infinity') {
       setLastMaxAmount(maxAmount);
     } else {
-      setLastMaxAmount("---");
+      setLastMaxAmount('---');
     }
     if (isMaxAmountError) {
       setDisableProceed(true);
@@ -132,14 +122,14 @@ const InitialStep: FC<Props> = ({
     <>
       {!isError ? (
         <>
-          <p className={styles["title"]}>
-            <T id={"exchangeDetails"} />
+          <p className={styles['title']}>
+            <T id={'exchangeDetails'} />
           </p>
-          <p className={styles["description"]}>
-            <T id={"exchangeDetailsDescription"} />
+          <p className={styles['description']}>
+            <T id={'exchangeDetailsDescription'} />
           </p>
           <WarningComponent currency={coinFrom} />
-          <Divider style={{ marginTop: "60px", marginBottom: "10px" }} />
+          <Divider style={{ marginTop: '60px', marginBottom: '10px' }} />
           {/*input 1*/}
           <BuyCryptoInput
             coin={coinFrom}
@@ -151,55 +141,41 @@ const InitialStep: FC<Props> = ({
             rates={rates}
             maxAmount={lastMaxAmount}
             isMaxAmountError={isMaxAmountError}
+            isCurrencyAvailable={isCurrencyAvailable}
           />
           <br />
-          <BuyCryptoInput
-            readOnly={true}
-            value={depositAmount}
-            coin={coinTo}
-            type="coinTo"
-          />
-          <Divider style={{ marginTop: "40px", marginBottom: "20px" }} />
-          <div className={styles["exchangeRateBlock"]}>
-            <p className={styles["exchangeTitle"]}>
-              <T id={"exchangeRate"} />
+          <BuyCryptoInput readOnly={true} value={depositAmount} coin={coinTo} type="coinTo" />
+          <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+          <div className={styles['exchangeRateBlock']}>
+            <p className={styles['exchangeTitle']}>
+              <T id={'exchangeRate'} />
             </p>
-            <p className={styles["exchangeData"]}>
+            <p className={styles['exchangeData']}>
               1 {coinFrom} = {rates.rate} {coinTo}
             </p>
           </div>
           <FormSubmitButton
             className="w-full justify-center border-none"
             style={{
-              padding: "10px 2rem",
-              background: "#4299e1",
-              marginTop: "24px",
+              padding: '10px 2rem',
+              background: '#4299e1',
+              marginTop: '24px'
             }}
             onClick={submitExchangeHandler}
             disabled={disabledProceed}
           >
-            <T id={"topUp"} />
+            <T id={'topUp'} />
           </FormSubmitButton>
-          <p className={styles["privacyAndPolicy"]}>
+          <p className={styles['privacyAndPolicy']}>
             <T
               id="privacyAndPolicyLinks"
               substitutions={[
-                <a
-                  className={styles["link"]}
-                  rel="noreferrer"
-                  href="https://exolix.com/terms"
-                  target="_blank"
-                >
-                  <T id={"termsOfUse"} />
+                <a className={styles['link']} rel="noreferrer" href="https://exolix.com/terms" target="_blank">
+                  <T id={'termsOfUse'} />
                 </a>,
-                <a
-                  className={styles["link"]}
-                  rel="noreferrer"
-                  href="https://exolix.com/privacy"
-                  target="_blank"
-                >
-                  <T id={"privacyPolicy"} />
-                </a>,
+                <a className={styles['link']} rel="noreferrer" href="https://exolix.com/privacy" target="_blank">
+                  <T id={'privacyPolicy'} />
+                </a>
               ]}
             />
           </p>

@@ -12,7 +12,7 @@
     "message": "アカウントをインポート"
   },
   "createAccount": {
-    "message": "アカウントを作成"
+    "message": "アカウントを作成または復元する"
   },
   "faucetFileTitle": {
     "message": "フォーセットファイル"
@@ -94,8 +94,8 @@
   "accounts": {
     "message": "アカウント"
   },
-  "logOut": {
-    "message": "ログアウト"
+  "lock": {
+    "message": "ブロック"
   },
   "importedAccount": {
     "message": "インポート済み"

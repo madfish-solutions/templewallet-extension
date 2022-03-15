@@ -2,7 +2,7 @@
  * Inter UI font
  */
 
-@import "~inter-ui/inter.css";
+@import '~inter-ui/inter.css';
 
 * {
   font-variant-ligatures: none;
@@ -21,8 +21,12 @@
  * Tippy JS
  */
 
-@import "~tippy.js/dist/tippy.css";
-@import "~tippy.js/animations/shift-away-subtle.css";
+@import '~tippy.js/dist/tippy.css';
+@import '~tippy.js/animations/shift-away-subtle.css';
+
+.tippy-content {
+  white-space: pre-line;
+}
 
 /**
  * React Modal
@@ -64,9 +68,9 @@
  * Appearance for iOS and Safari
  */
 button,
-[type="button"],
-[type="reset"],
-[type="submit"] {
+[type='button'],
+[type='reset'],
+[type='submit'] {
   appearance: none;
 }
 
@@ -106,10 +110,17 @@ button,
 }
 
 .font-tnum {
-  font-feature-settings: "tnum";
+  font-feature-settings: 'tnum';
 }
 
 /* Fix CSS transition flickering in Firefox */
 .grayscale-firefox-fix {
   filter: grayscale(1%);
+}
+
+/* Fix letter truncated */
+.letter-truncated-fix {
+  line-height: normal;
+  padding-bottom: 0;
+  padding-top: 0;
 }

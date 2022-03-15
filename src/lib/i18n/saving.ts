@@ -1,4 +1,4 @@
-export const STORAGE_KEY = "locale";
+export const STORAGE_KEY = 'locale';
 
 export function getSavedLocale() {
   return localStorage.getItem(STORAGE_KEY);

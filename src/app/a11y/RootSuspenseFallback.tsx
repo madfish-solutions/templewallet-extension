@@ -1,8 +1,8 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect } from 'react';
 
-import useForceUpdate from "use-force-update";
+import useForceUpdate from 'use-force-update';
 
-import Spinner from "app/atoms/Spinner";
+import Spinner from 'app/atoms/Spinner';
 
 const DELAY = 1_000;
 
@@ -19,7 +19,7 @@ const RootSuspenseFallback: FC = () => {
       const t = setTimeout(forceUpdate, DELAY - (Date.now() - startedAt));
       return () => clearTimeout(t);
     }
-    return;
+    return undefined;
   }, [forceUpdate]);
 
   const spinnerDisplayed = startedAt && Date.now() > startedAt + 1_000;

@@ -3,15 +3,21 @@
   animation: pulse 2s infinite;
 }
 
+.ReactCollapse {
+  transition: height 500ms ease-in-out;
+}
+
+.sectionBg {
+  background-color: rgba(49, 130, 206, 0.04);
+}
+
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.25),
-      0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.25), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
 
   70% {
-    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0),
-      0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
 
   100% {

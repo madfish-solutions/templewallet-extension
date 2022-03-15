@@ -1,17 +1,12 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import classNames from "clsx";
-import useSWR from "swr";
+import classNames from 'clsx';
+import useSWR from 'swr';
 
-import { ReactComponent as HashIcon } from "app/icons/hash.svg";
-import { ReactComponent as LanguageIcon } from "app/icons/language.svg";
-import HashChip from "app/templates/HashChip";
-import {
-  useTezos,
-  useTezosDomainsClient,
-  fetchFromStorage,
-  putToStorage,
-} from "lib/temple/front";
+import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
+import { ReactComponent as LanguageIcon } from 'app/icons/language.svg';
+import HashChip from 'app/templates/HashChip';
+import { useTezos, useTezosDomainsClient, fetchFromStorage, putToStorage } from 'lib/temple/front';
 
 type AddressChipProps = {
   pkh: string;
@@ -24,18 +19,17 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
   const { resolver: domainsResolver } = useTezosDomainsClient();
 
   const resolveDomainReverseName = useCallback(
-    (_k: string, pkh: string) => domainsResolver.resolveAddressToName(pkh),
+    (_k: string, publicKeyHash: string) => domainsResolver.resolveAddressToName(publicKeyHash),
     [domainsResolver]
   );
 
-  const { data: reverseName } = useSWR(
-    () => ["tzdns-reverse-name", pkh, tezos.checksum],
-    resolveDomainReverseName,
-    { shouldRetryOnError: false, revalidateOnFocus: false }
-  );
+  const { data: reverseName } = useSWR(() => ['tzdns-reverse-name', pkh, tezos.checksum], resolveDomainReverseName, {
+    shouldRetryOnError: false,
+    revalidateOnFocus: false
+  });
 
   const [domainDisplayed, setDomainDisplayed] = useState(false);
-  const domainDisplayedKey = useMemo(() => "domain-displayed", []);
+  const domainDisplayedKey = useMemo(() => 'domain-displayed', []);
 
   useEffect(() => {
     (async () => {
@@ -47,7 +41,7 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
   }, [domainDisplayedKey, setDomainDisplayed]);
 
   const handleToggleDomainClick = useCallback(() => {
-    setDomainDisplayed((d) => {
+    setDomainDisplayed(d => {
       const newValue = !d;
       putToStorage(domainDisplayedKey, newValue);
       return newValue;
@@ -57,14 +51,9 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
   const Icon = domainDisplayed ? HashIcon : LanguageIcon;
 
   return (
-    <div className={classNames("flex items-center", className)}>
+    <div className={classNames('flex items-center', className)}>
       {reverseName && domainDisplayed ? (
-        <HashChip
-          hash={reverseName}
-          firstCharsCount={7}
-          lastCharsCount={10}
-          small={small}
-        />
+        <HashChip hash={reverseName} firstCharsCount={7} lastCharsCount={10} small={small} />
       ) : (
         <HashChip hash={pkh} small={small} />
       )}
@@ -73,25 +62,20 @@ const AddressChip: FC<AddressChipProps> = ({ pkh, className, small }) => {
         <button
           type="button"
           className={classNames(
-            "ml-2",
-            "bg-gray-100 hover:bg-gray-200",
-            "rounded-sm shadow-xs",
-            small ? "text-xs" : "text-sm",
-            "text-gray-500 leading-none select-none",
-            "transition ease-in-out duration-300",
-            "inline-flex items-center justify-center"
+            'ml-2',
+            'bg-gray-100 hover:bg-gray-200',
+            'rounded-sm shadow-xs',
+            small ? 'text-xs' : 'text-sm',
+            'text-gray-500 leading-none select-none',
+            'transition ease-in-out duration-300',
+            'inline-flex items-center justify-center'
           )}
           style={{
-            padding: 3,
+            padding: 3
           }}
           onClick={handleToggleDomainClick}
         >
-          <Icon
-            className={classNames(
-              "w-auto stroke-current",
-              small ? "h-3" : "h-4"
-            )}
-          />
+          <Icon className={classNames('w-auto stroke-current', small ? 'h-3' : 'h-4')} />
         </button>
       )}
     </div>

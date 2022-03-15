@@ -1,9 +1,9 @@
-import { FC, useEffect } from "react";
+import { FC, useEffect } from 'react';
 
-import styles from "./DisableOutlinesForClick.module.css";
+import styles from './DisableOutlinesForClick.module.css';
 
-const TAB_KEY_CODE = 9;
-const CLASS_NAME = styles["focus-disabled"];
+const TAB_KEY_CODE = 'Tab';
+const CLASS_NAME = styles['focus-disabled'];
 
 /**
  * A nifty little class that maintains event handlers to add a class
@@ -13,27 +13,27 @@ const CLASS_NAME = styles["focus-disabled"];
 const DisableOutlinesForClick: FC = () => {
   useEffect(() => {
     const container = document.documentElement;
-    container.addEventListener("mousedown", handleMouseDown);
+    container.addEventListener('mousedown', handleMouseDown);
 
     return reset;
 
     function handleMouseDown() {
       reset();
       container.classList.add(CLASS_NAME);
-      container.addEventListener("keydown", handleKeyDown);
+      container.addEventListener('keydown', handleKeyDown);
     }
 
     function handleKeyDown(evt: KeyboardEvent) {
-      if (evt.which === TAB_KEY_CODE) {
+      if (evt.key === TAB_KEY_CODE) {
         reset();
-        container.addEventListener("mousedown", handleMouseDown);
+        container.addEventListener('mousedown', handleMouseDown);
       }
     }
 
     function reset() {
       container.classList.remove(CLASS_NAME);
-      container.removeEventListener("keydown", handleKeyDown);
-      container.removeEventListener("mousedown", handleMouseDown);
+      container.removeEventListener('keydown', handleKeyDown);
+      container.removeEventListener('mousedown', handleMouseDown);
     }
   }, []);
 

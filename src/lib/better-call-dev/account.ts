@@ -1,4 +1,4 @@
-import { buildQuery, BcdNetwork } from "./base";
+import { buildQuery, BcdNetwork } from './base';
 
 /**
  * Queries
@@ -10,8 +10,8 @@ export type BcdGetAccountParams = {
 };
 
 export const getAccount = buildQuery<BcdGetAccountParams, BcdAccountInfo>(
-  "GET",
-  (params) => `/account/${params.network}/${params.address}`
+  'GET',
+  params => `/account/${params.network}/${params.address}`
 );
 
 export type BcdGetAccountMetadataParams = {
@@ -20,8 +20,8 @@ export type BcdGetAccountMetadataParams = {
 };
 
 export const getAccountMetadata = buildQuery<BcdGetAccountMetadataParams, any>(
-  "GET",
-  (params) => `/account/${params.network}/${params.address}/metadata`
+  'GET',
+  params => `/account/${params.network}/${params.address}/metadata`
 );
 
 export type BcdGetTokenBalancesParams = {
@@ -32,13 +32,10 @@ export type BcdGetTokenBalancesParams = {
   contract?: string;
 };
 
-export const getAccountTokenBalances = buildQuery<
-  BcdGetTokenBalancesParams,
-  BcdAccountTokenBalances
->(
-  "GET",
-  (params) => `/account/${params.network}/${params.address}/token_balances`,
-  ["offset", "size", "contract"]
+export const getAccountTokenBalances = buildQuery<BcdGetTokenBalancesParams, BcdAccountTokenBalances>(
+  'GET',
+  params => `/account/${params.network}/${params.address}/token_balances`,
+  ['offset', 'size', 'contract']
 );
 
 /**

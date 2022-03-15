@@ -1,8 +1,8 @@
-import React, { FC } from "react";
+import React, { FC } from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
-import { T } from "lib/i18n/react";
+import { T } from 'lib/i18n/react';
 
 interface Props {
   currency?: string;
@@ -10,19 +10,19 @@ interface Props {
 }
 
 const getTranslationId = (currency: string) => {
-  if (currency === "DOGE") {
-    return "dogeNote";
+  if (currency === 'DOGE') {
+    return 'dogeNote';
   }
-  if (currency === "MATIC") {
-    return "polygonNote";
+  if (currency === 'MATIC') {
+    return 'polygonNote';
   }
-  if (currency === "USDT") {
-    return "usdtNote";
+  if (currency === 'USDT') {
+    return 'usdtNote';
   }
-  if (currency === "CAKE") {
-    return "cakeNote";
+  if (currency === 'CAKE') {
+    return 'cakeNote';
   }
-  return;
+  return undefined;
 };
 
 const WarningComponent: FC<Props> = ({ currency, amountAttention }) => {
@@ -31,30 +31,25 @@ const WarningComponent: FC<Props> = ({ currency, amountAttention }) => {
       {(getTranslationId(currency!) || amountAttention) && (
         <div
           className={classNames(
-            "py-2 px-4 rounded-lg border border-orange-500",
-            currency && "mt-10 mb-16",
-            amountAttention && "mt-8"
+            'py-2 px-4 rounded-lg border border-orange-500',
+            currency && 'mt-10 mb-16',
+            amountAttention && 'mt-8'
           )}
         >
-          <p className={"text-orange-500 text-xs"}>
+          <p className={'text-orange-500 text-xs'}>
             {currency && <T id={getTranslationId(currency)!} />}
 
             {amountAttention && (
               <>
                 <span className="text-base block pb-2 pt-2">
-                  <T id={"important"} />
+                  <T id={'important'} />
                 </span>
                 <T
-                  id={"attentionSendAmount"}
+                  id={'attentionSendAmount'}
                   substitutions={[
-                    <a
-                      href={"https://exolix.com/contact"}
-                      className="underline"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <T id={"support"} />
-                    </a>,
+                    <a href={'https://exolix.com/contact'} className="underline" target="_blank" rel="noreferrer">
+                      <T id={'support'} />
+                    </a>
                   ]}
                 />
               </>

@@ -1,30 +1,23 @@
-import { AxiosInstance, AxiosRequestConfig } from "axios";
+import { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-export type RequestParams<T> = T &
-  Omit<AxiosRequestConfig, "method" | "url" | "params">;
+export type RequestParams<T> = T & Omit<AxiosRequestConfig, 'method' | 'url' | 'params'>;
 
 export function buildQuery<P extends Record<string, unknown>, R = any>(
   api: AxiosInstance,
-  method: "GET" | "POST",
+  method: 'GET' | 'POST',
   path: ((params: RequestParams<P>) => string) | string,
-  toQueryParams?:
-    | ((params: RequestParams<P>) => Record<string, unknown>)
-    | Array<keyof P>
+  toQueryParams?: ((params: RequestParams<P>) => Record<string, unknown>) | Array<keyof P>
 ) {
   return async (params: RequestParams<P>) => {
-    const url = typeof path === "function" ? path(params) : path;
-    const queryParams =
-      typeof toQueryParams === "function"
-        ? toQueryParams(params)
-        : toQueryParams
-        ? pick(params, toQueryParams)
-        : undefined;
+    const url = typeof path === 'function' ? path(params) : path;
+    const pickParams = toQueryParams && typeof toQueryParams !== 'function' ? pick(params, toQueryParams) : undefined;
+    const queryParams = typeof toQueryParams === 'function' ? toQueryParams(params) : pickParams;
 
     const r = await api.request<R>({
       method,
       url,
       params: queryParams,
-      ...params,
+      ...params
     });
     return r.data;
   };
@@ -32,7 +25,7 @@ export function buildQuery<P extends Record<string, unknown>, R = any>(
 
 function pick<T, U extends keyof T>(obj: T, keys: U[]) {
   const newObj: Partial<T> = {};
-  keys.forEach((key) => {
+  keys.forEach(key => {
     if (key in obj) {
       newObj[key] = obj[key];
     }

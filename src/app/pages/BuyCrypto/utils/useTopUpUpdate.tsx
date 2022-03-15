@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
-import { ExchangeDataInterface, getExchangeData } from "lib/exolix-api";
+import { ExchangeDataInterface, getExchangeData } from 'lib/exolix-api';
 
 const useTopUpUpdate = (
   exchangeData: ExchangeDataInterface,

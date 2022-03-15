@@ -1,14 +1,14 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState } from 'react';
 
-import Stepper from "app/atoms/Stepper";
-import PageLayout from "app/layouts/PageLayout";
-import ApproveStep from "app/pages/BuyCrypto/steps/ApproveStep";
-import ExchangeStep from "app/pages/BuyCrypto/steps/ExchangeStep";
-import InitialStep from "app/pages/BuyCrypto/steps/InitialStep";
-import { ExchangeDataInterface } from "lib/exolix-api";
-import { T, t } from "lib/i18n/react";
-import { useAccount, useNetwork, useStorage } from "lib/temple/front";
-import { Redirect } from "lib/woozie";
+import Stepper from 'app/atoms/Stepper';
+import PageLayout from 'app/layouts/PageLayout';
+import ApproveStep from 'app/pages/BuyCrypto/steps/ApproveStep';
+import ExchangeStep from 'app/pages/BuyCrypto/steps/ExchangeStep';
+import InitialStep from 'app/pages/BuyCrypto/steps/InitialStep';
+import { ExchangeDataInterface } from 'lib/exolix-api';
+import { T, t } from 'lib/i18n/react';
+import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
+import { Redirect } from 'lib/woozie';
 
 const BuyCrypto: FC = () => (
   <PageLayout
@@ -24,36 +24,24 @@ const BuyCrypto: FC = () => (
 
 export default BuyCrypto;
 
-const steps = [
-  `${t("step")} 1`,
-  `${t("step")} 2`,
-  `${t("step")} 3`,
-  `${t("step")} 4`,
-];
+const steps = [`${t('step')} 1`, `${t('step')} 2`, `${t('step')} 3`, `${t('step')} 4`];
 
 const BuyCryptoContent: FC = () => {
   const network = useNetwork();
   const { publicKeyHash } = useAccount();
-  const [step, setStep] = useStorage<number>(
-    `topup_step_state_${publicKeyHash}`,
-    0
-  );
+  const [step, setStep] = useStorage<number>(`topup_step_state_${publicKeyHash}`, 0);
   const [isError, setIsError] = useState(false);
-  const [exchangeData, setExchangeData] =
-    useStorage<ExchangeDataInterface | null>(
-      `topup_exchange_data_state_${publicKeyHash}`,
-      null
-    );
-  if (network.type !== "main") {
-    return <Redirect to={"/"} />;
+  const [exchangeData, setExchangeData] = useStorage<ExchangeDataInterface | null>(
+    `topup_exchange_data_state_${publicKeyHash}`,
+    null
+  );
+  if (network.type !== 'main') {
+    return <Redirect to={'/'} />;
   }
 
   return (
-    <div
-      style={{ maxWidth: "360px", margin: "auto" }}
-      className="pb-8 text-center"
-    >
-      <Stepper style={{ marginTop: "64px" }} steps={steps} currentStep={step} />
+    <div style={{ maxWidth: '360px', margin: 'auto' }} className="pb-8 text-center">
+      <Stepper style={{ marginTop: '64px' }} steps={steps} currentStep={step} />
       {step === 0 && (
         <InitialStep
           isError={isError}
@@ -84,16 +72,16 @@ const BuyCryptoContent: FC = () => {
       )}
       {step >= 1 && (
         <a
-          href={"https://exolix.com/contact"}
+          href={'https://exolix.com/contact'}
           target="_blank"
           rel="noreferrer"
           className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
         >
-          <T id={"support"} />
+          <T id={'support'} />
         </a>
       )}
-      <p className={"mt-6 text-gray-600"}>
-        <T id={"warningTopUpServiceMessage"} />
+      <p className={'mt-6 text-gray-600'}>
+        <T id={'warningTopUpServiceMessage'} />
       </p>
     </div>
   );

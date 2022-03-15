@@ -1,43 +1,36 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { useForm } from "react-hook-form";
+import { useForm } from 'react-hook-form';
 
-import FormField from "app/atoms/FormField";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import { ReactComponent as AddIcon } from "app/icons/add.svg";
-import PageLayout from "app/layouts/PageLayout";
-import { useFormAnalytics } from "lib/analytics";
-import { T, t } from "lib/i18n/react";
-import {
-  TempleAccountType,
-  useTempleClient,
-  useAllAccounts,
-  useSetAccountPkh,
-} from "lib/temple/front";
-import { navigate } from "lib/woozie";
+import FormField from 'app/atoms/FormField';
+import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import { ACCOUNT_NAME_PATTERN } from 'app/defaults';
+import { ReactComponent as AddIcon } from 'app/icons/add.svg';
+import PageLayout from 'app/layouts/PageLayout';
+import { useFormAnalytics } from 'lib/analytics';
+import { T, t } from 'lib/i18n/react';
+import { TempleAccountType, useTempleClient, useAllAccounts, useSetAccountPkh } from 'lib/temple/front';
+import { navigate } from 'lib/woozie';
 
 type FormData = {
   name: string;
 };
 
-const SUBMIT_ERROR_TYPE = "submit-error";
+const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const CreateAccount: FC = () => {
   const { createAccount } = useTempleClient();
   const allAccounts = useAllAccounts();
   const setAccountPkh = useSetAccountPkh();
-  const formAnalytics = useFormAnalytics("CreateAccount");
+  const formAnalytics = useFormAnalytics('CreateAccount');
 
   const allHDOrImported = useMemo(
-    () =>
-      allAccounts.filter((acc) =>
-        [TempleAccountType.HD, TempleAccountType.Imported].includes(acc.type)
-      ),
+    () => allAccounts.filter(acc => [TempleAccountType.HD, TempleAccountType.Imported].includes(acc.type)),
     [allAccounts]
   );
 
   const defaultName = useMemo(
-    () => t("defaultAccountName", String(allHDOrImported.length + 1)),
+    () => t('defaultAccountName', String(allHDOrImported.length + 1)),
     [allHDOrImported.length]
   );
 
@@ -46,36 +39,35 @@ const CreateAccount: FC = () => {
     const accLength = allAccounts.length;
     if (prevAccLengthRef.current < accLength) {
       setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
-      navigate("/");
+      navigate('/');
     }
     prevAccLengthRef.current = accLength;
   }, [allAccounts, setAccountPkh]);
 
-  const { register, handleSubmit, errors, setError, clearError, formState } =
-    useForm<FormData>({ defaultValues: { name: defaultName } });
+  const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>({
+    defaultValues: { name: defaultName }
+  });
   const submitting = formState.isSubmitting;
 
   const onSubmit = useCallback(
     async ({ name }) => {
       if (submitting) return;
 
-      clearError("name");
+      clearError('name');
 
       formAnalytics.trackSubmit();
       try {
         await createAccount(name);
 
         formAnalytics.trackSubmitSuccess();
-      } catch (err) {
+      } catch (err: any) {
         formAnalytics.trackSubmitFail();
 
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+        console.error(err);
 
         // Human delay.
-        await new Promise((res) => setTimeout(res, 300));
-        setError("name", SUBMIT_ERROR_TYPE, err.message);
+        await new Promise(res => setTimeout(res, 300));
+        setError('name', SUBMIT_ERROR_TYPE, err.message);
       }
     },
     [submitting, clearError, setError, createAccount, formAnalytics]
@@ -95,12 +87,12 @@ const CreateAccount: FC = () => {
           <FormField
             ref={register({
               pattern: {
-                value: /^.{0,16}$/,
-                message: t("accountNameInputTitle"),
-              },
+                value: ACCOUNT_NAME_PATTERN,
+                message: t('accountNameInputTitle')
+              }
             })}
-            label={t("accountName")}
-            labelDescription={t("accountNameInputDescription")}
+            label={t('accountName')}
+            labelDescription={t('accountNameInputDescription')}
             id="create-account-name"
             type="text"
             name="name"
@@ -110,7 +102,7 @@ const CreateAccount: FC = () => {
           />
 
           <T id="createAccount">
-            {(message) => (
+            {message => (
               <FormSubmitButton className="capitalize" loading={submitting}>
                 {message}
               </FormSubmitButton>

@@ -1,39 +1,39 @@
 const TOKEN_TRANSFER_FA2 = {
-  destination: "KT1RX7AdYr9hFZPQTZw5Fu8KkMwVtobHpTp6",
+  destination: 'KT1RX7AdYr9hFZPQTZw5Fu8KkMwVtobHpTp6',
   parameters: {
-    entrypoint: "transfer",
+    entrypoint: 'transfer',
     value: [
       {
-        prim: "Pair",
+        prim: 'Pair',
         args: [
           {
-            string: "tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o",
+            string: 'tz3Qth49881bX2dymtRREEKkFnuKzvhBjr6o'
           },
           [
             {
-              prim: "Pair",
+              prim: 'Pair',
               args: [
                 {
-                  string: "tz1R3sPNAYaH2ZbweLpvvBnnJHHh1Zt68t7D",
+                  string: 'tz1R3sPNAYaH2ZbweLpvvBnnJHHh1Zt68t7D'
                 },
                 {
-                  prim: "Pair",
+                  prim: 'Pair',
                   args: [
                     {
-                      int: "0",
+                      int: '0'
                     },
                     {
-                      int: "500",
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        ],
-      },
-    ],
-  },
+                      int: '500'
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        ]
+      }
+    ]
+  }
 };
 
 export default TOKEN_TRANSFER_FA2;

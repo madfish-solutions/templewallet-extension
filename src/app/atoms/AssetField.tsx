@@ -1,18 +1,10 @@
-import React, {
-  ComponentProps,
-  forwardRef,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { ComponentProps, forwardRef, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
-import FormField from "app/atoms/FormField";
+import FormField from 'app/atoms/FormField';
 
-type AssetFieldProps = Omit<ComponentProps<typeof FormField>, "onChange"> & {
+type AssetFieldProps = Omit<ComponentProps<typeof FormField>, 'onChange'> & {
   value?: number | string;
   min?: number;
   max?: number;
@@ -36,10 +28,7 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
     },
     ref
   ) => {
-    const valueStr = useMemo(
-      () => (value === undefined ? "" : new BigNumber(value).toFixed()),
-      [value]
-    );
+    const valueStr = useMemo(() => (value === undefined ? '' : new BigNumber(value).toFixed()), [value]);
 
     const [localValue, setLocalValue] = useState(valueStr);
     const [focused, setFocused] = useState(false);
@@ -51,23 +40,19 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
     }, [setLocalValue, focused, valueStr]);
 
     const handleChange = useCallback(
-      (evt) => {
-        let val = evt.target.value.replace(/ /g, "").replace(/,/g, ".");
+      evt => {
+        let val = evt.target.value.replace(/ /g, '').replace(/,/g, '.');
         let numVal = new BigNumber(val || 0);
-        const indexOfDot = val.indexOf(".");
+        const indexOfDot = val.indexOf('.');
         if (indexOfDot !== -1 && val.length - indexOfDot > assetDecimals + 1) {
           val = val.substring(0, indexOfDot + assetDecimals + 1);
           numVal = new BigNumber(val);
         }
 
-        if (
-          !numVal.isNaN() &&
-          numVal.isGreaterThanOrEqualTo(min) &&
-          numVal.isLessThanOrEqualTo(max)
-        ) {
+        if (!numVal.isNaN() && numVal.isGreaterThanOrEqualTo(min) && numVal.isLessThanOrEqualTo(max)) {
           setLocalValue(val);
           if (onChange) {
-            onChange(val !== "" ? numVal.toFixed() : undefined);
+            onChange(val !== '' ? numVal.toFixed() : undefined);
           }
         }
       },
@@ -75,7 +60,7 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
     );
 
     const handleFocus = useCallback(
-      (evt) => {
+      evt => {
         setFocused(true);
         if (onFocus) {
           onFocus(evt);
@@ -88,7 +73,7 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
     );
 
     const handleBlur = useCallback(
-      (evt) => {
+      evt => {
         setFocused(false);
         if (onBlur) {
           onBlur(evt);

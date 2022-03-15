@@ -1,14 +1,9 @@
-import React, {
-  forwardRef,
-  InputHTMLAttributes,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useState } from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
-import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
+import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 
 type CheckboxProps = InputHTMLAttributes<HTMLInputElement> & {
   containerClassName?: string;
@@ -16,36 +11,15 @@ type CheckboxProps = InputHTMLAttributes<HTMLInputElement> & {
 };
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  (
-    {
-      containerClassName,
-      errored = false,
-      className,
-      checked,
-      onChange,
-      onFocus,
-      onBlur,
-      ...rest
-    },
-    ref
-  ) => {
+  ({ containerClassName, errored = false, className, checked, onChange, onFocus, onBlur, ...rest }, ref) => {
     const [localChecked, setLocalChecked] = useState(() => checked ?? false);
 
     useEffect(() => {
-      setLocalChecked((localChecked) => checked ?? localChecked);
+      setLocalChecked(prevChecked => checked ?? prevChecked);
     }, [setLocalChecked, checked]);
 
     const handleChange = useCallback(
-      (evt) => {
-        if (onChange) {
-          onChange(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-
-        setLocalChecked(evt.target.checked);
-      },
+      (e: React.ChangeEvent<HTMLInputElement>) => checkedHandler(e, onChange!, setLocalChecked),
       [onChange, setLocalChecked]
     );
 
@@ -55,67 +29,48 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const [localFocused, setLocalFocused] = useState(false);
 
     const handleFocus = useCallback(
-      (evt) => {
-        if (onFocus) {
-          onFocus(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-
-        setLocalFocused(true);
-      },
+      (e: React.FocusEvent<HTMLInputElement>) => focusHandler(e, onFocus!, setLocalFocused),
       [onFocus, setLocalFocused]
     );
-
     const handleBlur = useCallback(
-      (evt) => {
-        if (onBlur) {
-          onBlur(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-
-        setLocalFocused(false);
-      },
+      (e: React.FocusEvent<HTMLInputElement>) => blurHandler(e, onBlur!, setLocalFocused),
       [onBlur, setLocalFocused]
     );
 
     return (
       <div
         className={classNames(
-          "h-6 w-6 flex-shrink-0",
-          localChecked ? "bg-primary-orange" : "bg-black-40",
-          "border",
+          'h-6 w-6 flex-shrink-0',
+          localChecked ? 'bg-primary-orange' : 'bg-black-40',
+          'border',
           (() => {
             switch (true) {
               case localChecked:
-                return "border-primary-orange-dark";
+                return 'border-primary-orange-dark';
 
               case localFocused:
-                return "border-primary-orange";
+                return 'border-primary-orange';
 
               case Boolean(errored):
-                return "border-red-400";
+                return 'border-red-400';
 
               default:
-                return "border-gray-400";
+                return 'border-gray-400';
             }
           })(),
-          "rounded-md overflow-hidden",
-          "disable-outline-for-click",
-          localFocused && "shadow-outline",
-          "transition ease-in-out duration-200",
-          "text-white",
-          "flex justify-center items-center",
+          'rounded-md overflow-hidden',
+          'disable-outline-for-click',
+          localFocused && 'shadow-outline',
+          'transition ease-in-out duration-200',
+          'text-white',
+          'flex justify-center items-center',
           containerClassName
         )}
       >
         <input
           ref={ref}
           type="checkbox"
-          className={classNames("sr-only", className)}
+          className={classNames('sr-only', className)}
           checked={localChecked}
           onChange={handleChange}
           onFocus={handleFocus}
@@ -124,12 +79,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         />
 
         <OkIcon
-          className={classNames(
-            localChecked ? "block" : "hidden",
-            "h-4 w-4",
-            "pointer-events-none",
-            "stroke-current"
-          )}
+          className={classNames(localChecked ? 'block' : 'hidden', 'h-4 w-4', 'pointer-events-none', 'stroke-current')}
           style={{ strokeWidth: 2 }}
         />
       </div>

@@ -1,12 +1,13 @@
-const { Crypto, CryptoKey } = require("@peculiar/webcrypto");
+const { Crypto, CryptoKey } = require('@peculiar/webcrypto');
 
 Object.assign(global, {
   crypto: new Crypto(),
-  CryptoKey,
+  CryptoKey
 });
 
-jest.mock("lib/temple/repo", () => ({
+jest.mock('lib/temple/repo', () => ({
   db: {
     delete: jest.fn(),
-  },
+    open: jest.fn()
+  }
 }));

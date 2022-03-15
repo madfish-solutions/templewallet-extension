@@ -1,15 +1,15 @@
-import { browser } from "webextension-polyfill-ts";
+import { TransportType } from '@temple-wallet/ledger-bridge';
 
-import { TempleSharedStorageKey } from "lib/temple/types";
+import { TempleSharedStorageKey } from 'lib/temple/types';
 
-export async function isLedgerLiveEnabledByDefault() {
-  const isWin = (await browser.runtime.getPlatformInfo()).os === "win";
-  return process.env.TARGET_BROWSER === "chrome" && !isWin;
+export function pickLedgerTransport() {
+  const savedTransport = localStorage.getItem(TempleSharedStorageKey.UseLedgerLive);
+
+  return pickTransport(savedTransport === 'true');
 }
 
-export async function isLedgerLiveEnabled() {
-  return (
-    localStorage.getItem(TempleSharedStorageKey.UseLedgerLive) === "true" ||
-    (await isLedgerLiveEnabledByDefault())
-  );
+export function pickTransport(isLedgerLive: boolean) {
+  if (isLedgerLive) return TransportType.LEDGERLIVE;
+  // @ts-ignore
+  return window.navigator && window.navigator.hid ? TransportType.WEBHID : TransportType.U2F;
 }

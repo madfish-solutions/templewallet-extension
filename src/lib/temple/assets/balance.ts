@@ -1,29 +1,27 @@
-import { TezosToolkit } from "@taquito/taquito";
-import BigNumber from "bignumber.js";
+import { TezosToolkit } from '@taquito/taquito';
+import BigNumber from 'bignumber.js';
 
-import { loadContractForCallLambdaView } from "lib/temple/front";
+import { loadContractForCallLambdaView } from 'lib/temple/front';
 
-import { AssetMetadata, TEZOS_METADATA } from "../metadata";
-import { fromAssetSlug, isFA2Token } from "./utils";
+import { AssetMetadata, TEZOS_METADATA } from '../metadata';
+import { fromAssetSlug, isFA2Token } from './utils';
 
 export function fetchTezosBalance(tezos: TezosToolkit, account: string) {
-  return fetchBalance(tezos, "tez", TEZOS_METADATA, account);
+  return fetchBalance(tezos, 'tez', TEZOS_METADATA, account);
 }
 
 export async function fetchBalance(
   tezos: TezosToolkit,
   assetSlug: string,
-  assetMetadata: Pick<AssetMetadata, "decimals"> | null,
+  assetMetadata: Pick<AssetMetadata, 'decimals'> | null,
   account: string
 ) {
   const asset = await fromAssetSlug(tezos, assetSlug);
 
   let nat: BigNumber | undefined;
 
-  if (asset === "tez") {
-    try {
-      nat = await tezos.tz.getBalance(account);
-    } catch {}
+  if (asset === 'tez') {
+    nat = await getBalanceSafe(tezos, account);
   } else {
     const contract = await loadContractForCallLambdaView(tezos, asset.contract);
 
@@ -36,9 +34,7 @@ export async function fetchBalance(
       } catch {}
     } else {
       try {
-        nat = await contract.views
-          .getBalance(account)
-          .read((tezos as any).lambdaContract);
+        nat = await contract.views.getBalance(account).read((tezos as any).lambdaContract);
       } catch {}
     }
   }
@@ -49,3 +45,10 @@ export async function fetchBalance(
 
   return assetMetadata ? nat.div(10 ** assetMetadata.decimals) : nat;
 }
+
+const getBalanceSafe = async (tezos: TezosToolkit, account: string) => {
+  try {
+    return await tezos.tz.getBalance(account);
+  } catch {}
+  return undefined;
+};

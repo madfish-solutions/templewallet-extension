@@ -1,13 +1,13 @@
-import { browser } from "webextension-polyfill-ts";
+import { browser } from 'webextension-polyfill-ts';
 
-import { init } from "./core";
-import { saveLocale } from "./saving";
+import { init } from './core';
+import { saveLocale } from './saving';
 
-export const REFRESH_MSGTYPE = "TEMPLE_I18N_REFRESH";
+export const REFRESH_MSGTYPE = 'TEMPLE_I18N_REFRESH';
 
 const initPromise = init();
 
-browser.runtime.onMessage.addListener((msg) => {
+browser.runtime.onMessage.addListener(msg => {
   if (msg?.type === REFRESH_MSGTYPE) {
     refresh();
   }

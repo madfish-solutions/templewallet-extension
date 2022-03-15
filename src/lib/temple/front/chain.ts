@@ -1,18 +1,12 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from 'react';
 
-import { Subscription } from "@taquito/taquito";
-import constate from "constate";
-import { trigger } from "swr";
+import { Subscription } from '@taquito/taquito';
+import constate from 'constate';
+import { trigger } from 'swr';
 
-import {
-  useTezos,
-  useRelevantAccounts,
-  getBalanceSWRKey,
-  confirmOperation,
-} from "lib/temple/front";
+import { useTezos, useRelevantAccounts, getBalanceSWRKey, confirmOperation } from 'lib/temple/front';
 
-export const [NewBlockTriggersProvider, useBlockTriggers] =
-  constate(useNewBlockTriggers);
+export const [NewBlockTriggersProvider, useBlockTriggers] = constate(useNewBlockTriggers);
 
 function useNewBlockTriggers() {
   const tezos = useTezos();
@@ -20,16 +14,14 @@ function useNewBlockTriggers() {
 
   const triggerNewBlock = useCallback(() => {
     for (const acc of allAccounts) {
-      trigger(getBalanceSWRKey(tezos, "tez", acc.publicKeyHash), true);
-      trigger(["delegate", tezos.checksum, acc.publicKeyHash], true);
+      trigger(getBalanceSWRKey(tezos, 'tez', acc.publicKeyHash), true);
+      trigger(['delegate', tezos.checksum, acc.publicKeyHash], true);
     }
   }, [allAccounts, tezos]);
 
   useOnBlock(triggerNewBlock);
 
-  const confirmOperationAndTriggerNewBlock = useCallback<
-    typeof confirmOperation
-  >(
+  const confirmOperationAndTriggerNewBlock = useCallback<typeof confirmOperation>(
     async (...args) => {
       const result = await confirmOperation(...args);
       triggerNewBlock();
@@ -40,7 +32,7 @@ function useNewBlockTriggers() {
 
   return {
     triggerNewBlock,
-    confirmOperationAndTriggerNewBlock,
+    confirmOperationAndTriggerNewBlock
   };
 }
 
@@ -54,18 +46,16 @@ export function useOnBlock(callback: (blockHash: string) => void) {
     return () => sub.close();
 
     function spawnSub() {
-      sub = tezos.stream.subscribe("head");
+      sub = tezos.stream.subscribe('head');
 
-      sub.on("data", (hash) => {
+      sub.on('data', hash => {
         if (blockHashRef.current && blockHashRef.current !== hash) {
           callback(hash);
         }
         blockHashRef.current = hash;
       });
-      sub.on("error", (err) => {
-        if (process.env.NODE_ENV === "development") {
-          console.error(err);
-        }
+      sub.on('error', err => {
+        console.error(err);
         sub.close();
         spawnSub();
       });

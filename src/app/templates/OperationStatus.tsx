@@ -1,18 +1,13 @@
-import React, { FC, ReactNode, useEffect, useMemo } from "react";
+import React, { FC, ReactNode, useEffect, useMemo } from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
-import Alert from "app/atoms/Alert";
-import OpenInExplorerChip from "app/atoms/OpenInExplorerChip";
-import HashChip from "app/templates/HashChip";
-import { T, t } from "lib/i18n/react";
-import {
-  useTezos,
-  useBlockTriggers,
-  useExplorerBaseUrls,
-  FailedOpError,
-} from "lib/temple/front";
-import useSafeState from "lib/ui/useSafeState";
+import Alert from 'app/atoms/Alert';
+import OpenInExplorerChip from 'app/atoms/OpenInExplorerChip';
+import HashChip from 'app/templates/HashChip';
+import { T, t } from 'lib/i18n/react';
+import { useTezos, useBlockTriggers, useExplorerBaseUrls, FailedOpError } from 'lib/temple/front';
+import useSafeState from 'lib/ui/useSafeState';
 
 type OperationStatusProps = {
   className?: string;
@@ -22,13 +17,7 @@ type OperationStatusProps = {
   operation: any;
 };
 
-const OperationStatus: FC<OperationStatusProps> = ({
-  typeTitle,
-  operation,
-  className,
-  closable,
-  onClose,
-}) => {
+const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, className, closable, onClose }) => {
   const tezos = useTezos();
   const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
 
@@ -39,82 +28,60 @@ const OperationStatus: FC<OperationStatusProps> = ({
   const descFooter = useMemo(
     () => (
       <div className="mt-2 text-xs flex items-center">
-        <div className="whitespace-no-wrap">
-          <T id="operationHash" />:{" "}
+        <div className="whitespace-nowrap">
+          <T id="operationHash" />:{' '}
         </div>
-        <HashChip
-          hash={hash}
-          firstCharsCount={10}
-          lastCharsCount={7}
-          small
-          key="hash"
-          className="ml-2 mr-2"
-        />
-        {transactionBaseUrl && (
-          <OpenInExplorerChip baseUrl={transactionBaseUrl} hash={hash} />
-        )}
+        <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small key="hash" className="ml-2 mr-2" />
+        {transactionBaseUrl && <OpenInExplorerChip baseUrl={transactionBaseUrl} hash={hash} />}
       </div>
     ),
     [hash, transactionBaseUrl]
   );
 
   const [alert, setAlert] = useSafeState<{
-    type: "success" | "error";
+    type: 'success' | 'error';
     title: string;
     description: ReactNode;
   }>(() => ({
-    type: "success",
-    title: `${t("success")} 🛫`,
+    type: 'success',
+    title: `${t('success')} 🛫`,
     description: (
       <>
         <T id="requestSent" substitutions={typeTitle} />
         {descFooter}
         <div className="flex-1" />
       </>
-    ),
+    )
   }));
 
   useEffect(() => {
     const abortCtrl = new AbortController();
 
     confirmOperationAndTriggerNewBlock(tezos, hash, {
-      signal: abortCtrl.signal,
+      signal: abortCtrl.signal
     })
       .then(() => {
-        setAlert((a) => ({
+        setAlert(a => ({
           ...a,
-          title: `${t("success")} ✅`,
+          title: `${t('success')} ✅`,
           description: (
             <>
-              <T
-                id="operationSuccessfullyProcessed"
-                substitutions={typeTitle}
-              />
+              <T id="operationSuccessfullyProcessed" substitutions={typeTitle} />
               {descFooter}
             </>
-          ),
+          )
         }));
       })
-      .catch((err) => {
+      .catch(err => {
         setAlert({
-          type: "error",
-          title: t("error"),
-          description:
-            err instanceof FailedOpError
-              ? err.message
-              : t("timedOutOperationConfirmation"),
+          type: 'error',
+          title: t('error'),
+          description: err instanceof FailedOpError ? err.message : t('timedOutOperationConfirmation')
         });
       });
 
     return () => abortCtrl.abort();
-  }, [
-    confirmOperationAndTriggerNewBlock,
-    tezos,
-    hash,
-    setAlert,
-    descFooter,
-    typeTitle,
-  ]);
+  }, [confirmOperationAndTriggerNewBlock, tezos, hash, setAlert, descFooter, typeTitle]);
 
   return (
     <Alert
@@ -122,7 +89,7 @@ const OperationStatus: FC<OperationStatusProps> = ({
       title={alert.title}
       description={alert.description}
       autoFocus
-      className={classNames("mb-8", className)}
+      className={classNames('mb-8', className)}
       closable={closable}
       onClose={onClose}
     />

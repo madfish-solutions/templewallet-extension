@@ -1,26 +1,18 @@
-import React, { ComponentType, CSSProperties, useCallback } from "react";
+import React, { ComponentType, CSSProperties, useCallback } from 'react';
 
-import classNames from "clsx";
+import classNames from 'clsx';
 
-import { ReactComponent as OkIcon } from "app/icons/ok.svg";
+import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 
 type Actions<K extends string | number> = { [key: string]: (id: K) => void };
 
-export type OptionRenderProps<
-  T,
-  K extends string | number = string | number,
-  A extends Actions<K> = {}
-> = {
+export type OptionRenderProps<T, K extends string | number = string | number, A extends Actions<K> = {}> = {
   actions?: A;
   item: T;
   index: number;
 };
 
-export type CustomSelectProps<
-  T,
-  K extends string | number = string | number,
-  A extends Actions<K> = {}
-> = {
+export type CustomSelectProps<T, K extends string | number = string | number, A extends Actions<K> = {}> = {
   activeItemId?: K;
   actions?: A;
   className?: string;
@@ -28,7 +20,7 @@ export type CustomSelectProps<
   id?: string;
   items: T[];
   maxHeight?: string;
-  padding?: CSSProperties["padding"];
+  padding?: CSSProperties['padding'];
   autoFocus?: boolean;
   light?: boolean;
   hoverable?: boolean;
@@ -37,11 +29,7 @@ export type CustomSelectProps<
   OptionContent: ComponentType<OptionRenderProps<T, K, A>>;
 };
 
-const CustomSelect = <
-  T extends {},
-  K extends string | number = string | number,
-  A extends Actions<K> = {}
->(
+const CustomSelect = <T extends {}, K extends string | number = string | number, A extends Actions<K> = {}>(
   props: CustomSelectProps<T, K, A>
 ) => {
   const {
@@ -53,20 +41,22 @@ const CustomSelect = <
     items,
     maxHeight,
     onSelect,
-    padding = "0.4rem 0.375rem 0.4rem 0.375rem",
+    padding = '0.4rem 0.375rem 0.4rem 0.375rem',
     autoFocus = false,
     light = false,
     hoverable = true,
     OptionIcon,
-    OptionContent,
+    OptionContent
   } = props;
+
+  const borderStyle = light ? 'border' : 'border-2 bg-gray-100';
 
   return items.length > 0 ? (
     <div
       className={classNames(
-        "relative rounded-md overflow-y-auto",
-        light ? "border" : "border-2 bg-gray-100",
-        "flex flex-col text-gray-700 text-sm leading-tight",
+        'relative rounded-md overflow-y-auto',
+        borderStyle,
+        'flex flex-col text-gray-700 text-sm leading-tight',
         className
       )}
       id={id}
@@ -100,20 +90,9 @@ const CustomSelect = <
 
 export default CustomSelect;
 
-type CustomSelectItemProps<
-  T,
-  K extends string | number,
-  A extends Actions<K>
-> = Pick<
+type CustomSelectItemProps<T, K extends string | number, A extends Actions<K>> = Pick<
   CustomSelectProps<T, K, A>,
-  | "onSelect"
-  | "OptionIcon"
-  | "OptionContent"
-  | "padding"
-  | "autoFocus"
-  | "light"
-  | "hoverable"
-  | "actions"
+  'onSelect' | 'OptionIcon' | 'OptionContent' | 'padding' | 'autoFocus' | 'light' | 'hoverable' | 'actions'
 > & {
   active?: boolean;
   last?: boolean;
@@ -122,11 +101,7 @@ type CustomSelectItemProps<
   item: T;
 };
 
-const CustomSelectItem = <
-  T extends {},
-  K extends string | number,
-  A extends Actions<K>
->(
+const CustomSelectItem = <T extends {}, K extends string | number, A extends Actions<K>>(
   props: CustomSelectItemProps<T, K, A>
 ) => {
   const {
@@ -142,38 +117,33 @@ const CustomSelectItem = <
     light,
     hoverable,
     OptionIcon,
-    OptionContent,
+    OptionContent
   } = props;
 
-  const handleSelect = useCallback(
-    () => onSelect?.(itemId),
-    [itemId, onSelect]
-  );
+  const handleSelect = useCallback(() => onSelect?.(itemId), [itemId, onSelect]);
 
-  const ItemComponent = onSelect ? "button" : "div";
+  const ItemComponent = onSelect ? 'button' : 'div';
 
   return (
     <ItemComponent
       type="button"
       className={classNames(
-        "w-full flex-shrink-0 overflow-hidden",
-        !last && "border-b border-gray-200",
+        'w-full flex-shrink-0 overflow-hidden',
+        !last && 'border-b border-gray-200',
         (() => {
           switch (true) {
             case active:
-              return light ? "bg-gray-200" : "bg-gray-300";
+              return light ? 'bg-gray-200' : 'bg-gray-300';
 
             case hoverable:
-              return light
-                ? "hover:bg-gray-100 focus:bg-gray-100"
-                : "hover:bg-gray-200 focus:bg-gray-200";
+              return light ? 'hover:bg-gray-100 focus:bg-gray-100' : 'hover:bg-gray-200 focus:bg-gray-200';
 
             default:
-              return "";
+              return '';
           }
         })(),
-        "flex items-center text-gray-700 transition ease-in-out duration-200",
-        "focus:outline-none opacity-90 hover:opacity-100"
+        'flex items-center text-gray-700 transition ease-in-out duration-200',
+        'focus:outline-none opacity-90 hover:opacity-100'
       )}
       style={{ padding }}
       autoFocus={autoFocus && active}
@@ -181,12 +151,7 @@ const CustomSelectItem = <
     >
       {OptionIcon && <OptionIcon actions={actions} item={item} index={index} />}
 
-      <div
-        className={classNames(
-          "w-full flex flex-col items-start",
-          OptionIcon && "ml-2"
-        )}
-      >
+      <div className={classNames('w-full flex flex-col items-start', OptionIcon && 'ml-2')}>
         <OptionContent actions={actions} item={item} index={index} />
       </div>
 
@@ -196,7 +161,7 @@ const CustomSelectItem = <
         <OkIcon
           className="w-auto h-5 mx-2 stroke-2 flex-none"
           style={{
-            stroke: "#777",
+            stroke: '#777'
           }}
         />
       )}

@@ -1,44 +1,27 @@
-import { useCallback } from "react";
+import { useCallback } from 'react';
 
-import { AnalyticsEventCategory } from "./analytics-event.enum";
-import { useAnalyticsNetwork } from "./use-analytics-network.hook";
-import {
-  sendPageEvent,
-  sendTrackEvent,
-  useAnalyticsState,
-} from "./use-analytics-state.hook";
+import { AnalyticsEventCategory } from './analytics-event.enum';
+import { useAnalyticsNetwork } from './use-analytics-network.hook';
+import { sendPageEvent, sendTrackEvent, useAnalyticsState } from './use-analytics-state.hook';
 
 export const useAnalytics = () => {
   const { analyticsState } = useAnalyticsState();
   const rpc = useAnalyticsNetwork();
 
   const trackEvent = useCallback(
-    (
-      event: string,
-      category: AnalyticsEventCategory = AnalyticsEventCategory.General,
-      properties?: object
-    ) =>
-      analyticsState.enabled &&
-      sendTrackEvent(analyticsState.userId, rpc, event, category, properties),
+    (event: string, category: AnalyticsEventCategory = AnalyticsEventCategory.General, properties?: object) =>
+      analyticsState.enabled && sendTrackEvent(analyticsState.userId, rpc, event, category, properties),
     [analyticsState.enabled, analyticsState.userId, rpc]
   );
 
   const pageEvent = useCallback(
-    (path: string, search: string, tokenAddress?: string, tokenId?: string) =>
-      analyticsState.enabled &&
-      sendPageEvent(
-        analyticsState.userId,
-        rpc,
-        path,
-        search,
-        tokenAddress,
-        tokenId
-      ),
+    (path: string, search: string, additionalProperties = {}) =>
+      analyticsState.enabled && sendPageEvent(analyticsState.userId, rpc, path, search, additionalProperties),
     [analyticsState.enabled, analyticsState.userId, rpc]
   );
 
   return {
     trackEvent,
-    pageEvent,
+    pageEvent
   };
 };

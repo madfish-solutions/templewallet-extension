@@ -1,14 +1,10 @@
-import { OperationContentsAndResult, OpKind } from "@taquito/rpc";
+import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
 
-import * as Repo from "lib/temple/repo";
+import * as Repo from 'lib/temple/repo';
 
-import { isPositiveNumber, tryParseTokenTransfers } from "./helpers";
+import { isPositiveNumber, tryParseTokenTransfers } from './helpers';
 
-export async function addLocalOperation(
-  chainId: string,
-  hash: string,
-  localGroup: OperationContentsAndResult[]
-) {
+export async function addLocalOperation(chainId: string, hash: string, localGroup: OperationContentsAndResult[]) {
   const memberSet = new Set<string>();
   const assetIdSet = new Set<string>();
 
@@ -42,23 +38,15 @@ export async function addLocalOperation(
 
     // Parse asset ids
     if (op.kind === OpKind.ORIGINATION) {
-      if (isPositiveNumber(op.balance)) {
-        assetIdSet.add("tez");
-      }
+      addTezIfPositive(op.balance, assetIdSet);
     } else if (op.kind === OpKind.TRANSACTION) {
-      if (isPositiveNumber(op.amount)) {
-        assetIdSet.add("tez");
-      }
+      addTezIfPositive(op.amount, assetIdSet);
 
       if (op.parameters) {
-        tryParseTokenTransfers(
-          op.parameters,
-          op.destination,
-          (assetId, from, to) => {
-            memberSet.add(from).add(to);
-            assetIdSet.add(assetId);
-          }
-        );
+        tryParseTokenTransfers(op.parameters, op.destination, (assetId, from, to) => {
+          memberSet.add(from).add(to);
+          assetIdSet.add(assetId);
+        });
       }
     }
   }
@@ -73,7 +61,9 @@ export async function addLocalOperation(
     assetIds,
     addedAt: Date.now(),
     data: {
-      localGroup,
-    },
+      localGroup
+    }
   });
 }
+
+const addTezIfPositive = (x: string, assetSet: Set<string>) => isPositiveNumber(x) && assetSet.add('tez');

@@ -1,94 +1,78 @@
-import React, { FC, useCallback, useMemo } from "react";
+import React, { FC, useCallback, useMemo } from 'react';
 
-import { localForger } from "@taquito/local-forging";
-import classNames from "clsx";
+import { localForger } from '@taquito/local-forging';
+import classNames from 'clsx';
 
-import Alert from "app/atoms/Alert";
-import ConfirmLedgerOverlay from "app/atoms/ConfirmLedgerOverlay";
-import FormSecondaryButton from "app/atoms/FormSecondaryButton";
-import FormSubmitButton from "app/atoms/FormSubmitButton";
-import Logo from "app/atoms/Logo";
-import SubTitle from "app/atoms/SubTitle";
-import { useAppEnv } from "app/env";
-import { ReactComponent as CodeAltIcon } from "app/icons/code-alt.svg";
-import { ReactComponent as EyeIcon } from "app/icons/eye.svg";
-import { ReactComponent as HashIcon } from "app/icons/hash.svg";
-import AccountBanner from "app/templates/AccountBanner";
-import ExpensesView, { ModifyFeeAndLimit } from "app/templates/ExpensesView";
-import NetworkBanner from "app/templates/NetworkBanner";
-import OperationsBanner from "app/templates/OperationsBanner";
-import RawPayloadView from "app/templates/RawPayloadView";
-import ViewsSwitcher, {
-  ViewsSwitcherItemProps,
-} from "app/templates/ViewsSwitcher";
-import { T, t } from "lib/i18n/react";
-import { useRetryableSWR } from "lib/swr";
+import Alert from 'app/atoms/Alert';
+import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
+import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
+import FormSubmitButton from 'app/atoms/FormSubmitButton';
+import Logo from 'app/atoms/Logo';
+import SubTitle from 'app/atoms/SubTitle';
+import { useAppEnv } from 'app/env';
+import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
+import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
+import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
+import AccountBanner from 'app/templates/AccountBanner';
+import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView';
+import NetworkBanner from 'app/templates/NetworkBanner';
+import OperationsBanner from 'app/templates/OperationsBanner';
+import RawPayloadView from 'app/templates/RawPayloadView';
+import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
+import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
+import { T, t } from 'lib/i18n/react';
+import { useRetryableSWR } from 'lib/swr';
 import {
   TempleAccountType,
-  TempleConfirmationPayload,
-  tryParseExpenses,
-  useNetwork,
-  useRelevantAccounts,
-  useCustomChainId,
   TempleChainId,
+  TempleConfirmationPayload,
   toTokenSlug,
-} from "lib/temple/front";
-import useSafeState from "lib/ui/useSafeState";
+  tryParseExpenses,
+  useCustomChainId,
+  useNetwork,
+  useRelevantAccounts
+} from 'lib/temple/front';
+import useSafeState from 'lib/ui/useSafeState';
 
-import { InternalConfirmationSelectors } from "./InternalConfirmation.selectors";
+import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
-  onConfirm: (
-    confirmed: boolean,
-    modifiedTotalFee?: number,
-    modifiedStorageLimit?: number
-  ) => Promise<void>;
+  onConfirm: (confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => Promise<void>;
 };
 
-const InternalConfirmation: FC<InternalConfiramtionProps> = ({
-  payload,
-  onConfirm,
-}) => {
+const MIN_GAS_FEE = 0;
+
+const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm }) => {
   const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
 
   const getContentToParse = useCallback(async () => {
     switch (payload.type) {
-      case "operations":
+      case 'operations':
         return payload.opParams || [];
-      case "sign":
-        const unsignedBytes = payload.bytes.substr(
-          0,
-          payload.bytes.length - 128
-        );
+      case 'sign':
+        const unsignedBytes = payload.bytes.substr(0, payload.bytes.length - 128);
         try {
           return (await localForger.parse(unsignedBytes)) || [];
-        } catch (err) {
-          if (process.env.NODE_ENV === "development") {
-            console.error(err);
-          }
+        } catch (err: any) {
+          console.error(err);
           return [];
         }
       default:
         return [];
     }
   }, [payload]);
-  const { data: contentToParse } = useRetryableSWR(
-    ["content-to-parse"],
-    getContentToParse,
-    { suspense: true }
-  );
+  const { data: contentToParse } = useRetryableSWR(['content-to-parse'], getContentToParse, { suspense: true });
 
-  const networkRpc =
-    payload.type === "operations" ? payload.networkRpc : currentNetworkRpc;
+  const networkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
 
   const chainId = useCustomChainId(networkRpc, true)!;
   const mainnet = chainId === TempleChainId.Mainnet;
 
   const allAccounts = useRelevantAccounts();
   const account = useMemo(
-    () => allAccounts.find((a) => a.publicKeyHash === payload.sourcePkh)!,
+    () => allAccounts.find(a => a.publicKeyHash === payload.sourcePkh)!,
     [allAccounts, payload.sourcePkh]
   );
   const rawExpensesData = useMemo(
@@ -98,54 +82,54 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
-        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : "tez",
-        ...restProps,
+        assetSlug: tokenAddress ? toTokenSlug(tokenAddress, tokenId) : 'tez',
+        ...restProps
       })),
-      ...restProps,
+      ...restProps
     }));
   }, [rawExpensesData]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
-    if (payload.type === "operations") {
+    if (payload.type === 'operations') {
       return [
         {
-          key: "preview",
-          name: t("preview"),
+          key: 'preview',
+          name: t('preview'),
           Icon: EyeIcon,
-          testID: InternalConfirmationSelectors.PreviewTab,
+          testID: InternalConfirmationSelectors.PreviewTab
         },
         {
-          key: "raw",
-          name: t("raw"),
+          key: 'raw',
+          name: t('raw'),
           Icon: CodeAltIcon,
-          testID: InternalConfirmationSelectors.RawTab,
+          testID: InternalConfirmationSelectors.RawTab
         },
         ...(payload.bytesToSign
           ? [
               {
-                key: "bytes",
-                name: t("bytes"),
+                key: 'bytes',
+                name: t('bytes'),
                 Icon: HashIcon,
-                testID: InternalConfirmationSelectors.BytesTab,
-              },
+                testID: InternalConfirmationSelectors.BytesTab
+              }
             ]
-          : []),
+          : [])
       ];
     }
 
     return [
       {
-        key: "preview",
-        name: t("preview"),
+        key: 'preview',
+        name: t('preview'),
         Icon: EyeIcon,
-        testID: InternalConfirmationSelectors.PreviewTab,
+        testID: InternalConfirmationSelectors.PreviewTab
       },
       {
-        key: "bytes",
-        name: t("bytes"),
+        key: 'bytes',
+        name: t('bytes'),
         Icon: HashIcon,
-        testID: InternalConfirmationSelectors.BytesTab,
-      },
+        testID: InternalConfirmationSelectors.BytesTab
+      }
     ];
   }, [payload]);
 
@@ -156,7 +140,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
 
   const revealFee = useMemo(() => {
     if (
-      payload.type === "operations" &&
+      payload.type === 'operations' &&
       payload.estimates &&
       payload.estimates.length === payload.opParams.length + 1
     ) {
@@ -167,38 +151,28 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   }, [payload]);
 
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
-    (payload.type === "operations" &&
-      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) +
-        revealFee) ||
+    (payload.type === 'operations' &&
+      payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) + revealFee) ||
       0
   );
-  const [modifiedStorageLimitValue, setModifiedStorageLimitValue] =
-    useSafeState(
-      (payload.type === "operations" && payload.opParams[0].storageLimit) || 0
-    );
+  const [modifiedStorageLimitValue, setModifiedStorageLimitValue] = useSafeState(
+    (payload.type === 'operations' && payload.opParams[0].storageLimit) || 0
+  );
+
+  const gasFeeError = useMemo(() => modifiedTotalFeeValue <= MIN_GAS_FEE, [modifiedTotalFeeValue]);
 
   const confirm = useCallback(
     async (confirmed: boolean) => {
       setError(null);
       try {
-        await onConfirm(
-          confirmed,
-          modifiedTotalFeeValue - revealFee,
-          modifiedStorageLimitValue
-        );
-      } catch (err) {
+        await onConfirm(confirmed, modifiedTotalFeeValue - revealFee, modifiedStorageLimitValue);
+      } catch (err: any) {
         // Human delay.
-        await new Promise((res) => setTimeout(res, 300));
+        await new Promise(res => setTimeout(res, 300));
         setError(err);
       }
     },
-    [
-      onConfirm,
-      setError,
-      modifiedTotalFeeValue,
-      modifiedStorageLimitValue,
-      revealFee,
-    ]
+    [onConfirm, setError, modifiedTotalFeeValue, modifiedStorageLimitValue, revealFee]
   );
 
   const handleConfirmClick = useCallback(async () => {
@@ -220,43 +194,29 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
   const modifiedStorageLimitDisplayed = useMemo(
-    () => payload.type === "operations" && payload.opParams.length < 2,
+    () => payload.type === 'operations' && payload.opParams.length < 2,
     [payload]
   );
 
   const modifyFeeAndLimit = useMemo<ModifyFeeAndLimit>(
     () => ({
       totalFee: modifiedTotalFeeValue,
-      onTotalFeeChange: (v) => setModifiedTotalFeeValue(v),
-      storageLimit: modifiedStorageLimitDisplayed
-        ? modifiedStorageLimitValue
-        : null,
-      onStorageLimitChange: (v) => setModifiedStorageLimitValue(v),
+      onTotalFeeChange: v => setModifiedTotalFeeValue(v),
+      storageLimit: modifiedStorageLimitDisplayed ? modifiedStorageLimitValue : null,
+      onStorageLimitChange: v => setModifiedStorageLimitValue(v)
     }),
     [
       modifiedTotalFeeValue,
       setModifiedTotalFeeValue,
       modifiedStorageLimitValue,
       setModifiedStorageLimitValue,
-      modifiedStorageLimitDisplayed,
+      modifiedStorageLimitDisplayed
     ]
   );
 
   return (
-    <div
-      className={classNames(
-        "h-full w-full",
-        "max-w-sm mx-auto",
-        "flex flex-col",
-        !popup && "justify-center px-2"
-      )}
-    >
-      <div
-        className={classNames(
-          "flex flex-col items-center justify-center",
-          popup && "flex-1"
-        )}
-      >
+    <div className={classNames('h-full w-full', 'max-w-sm mx-auto', 'flex flex-col', !popup && 'justify-center px-2')}>
+      <div className={classNames('flex flex-col items-center justify-center', popup && 'flex-1')}>
         <div className="flex items-center my-4">
           <Logo hasTitle />
         </div>
@@ -264,21 +224,16 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
 
       <div
         className={classNames(
-          "relative bg-white shadow-md",
-          popup ? "border-t border-gray-200" : "rounded-md",
-          "overflow-y-auto",
-          "flex flex-col"
+          'relative bg-white shadow-md',
+          popup ? 'border-t border-gray-200' : 'rounded-md',
+          'overflow-y-auto',
+          'flex flex-col'
         )}
-        style={{ height: "34rem" }}
+        style={{ height: '34rem' }}
       >
         <div className="px-4 pt-3">
           <SubTitle small className="mb-4">
-            <T
-              id="confirmAction"
-              substitutions={t(
-                payload.type === "sign" ? "signAction" : "operations"
-              )}
-            />
+            <T id="confirmAction" substitutions={t(payload.type === 'sign' ? 'signAction' : 'operations')} />
           </SubTitle>
 
           {error ? (
@@ -286,111 +241,81 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
               closable
               onClose={handleErrorAlertClose}
               type="error"
-              title={t("error")}
-              description={error?.message ?? t("smthWentWrong")}
+              title={t('error')}
+              description={error?.message ?? t('smthWentWrong')}
               className="my-4"
               autoFocus
             />
           ) : (
             <>
-              <AccountBanner
-                account={account}
-                labelIndent="sm"
-                className="w-full mb-4"
-              />
+              <AccountBanner account={account} labelIndent="sm" className="w-full mb-4" />
 
-              <NetworkBanner
-                rpc={
-                  payload.type === "operations"
-                    ? payload.networkRpc
-                    : currentNetworkRpc
-                }
-              />
+              <NetworkBanner rpc={payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc} />
 
               {signPayloadFormats.length > 1 && (
                 <div className="w-full flex justify-end mb-3 items-center">
-                  <span
-                    className={classNames(
-                      "mr-2",
-                      "text-base font-semibold text-gray-700"
-                    )}
-                  >
+                  <span className={classNames('mr-2', 'text-base font-semibold text-gray-700')}>
                     <T id="operations" />
                   </span>
 
                   <div className="flex-1" />
 
-                  <ViewsSwitcher
-                    activeItem={spFormat}
-                    items={signPayloadFormats}
-                    onChange={setSpFormat}
-                  />
+                  <ViewsSwitcher activeItem={spFormat} items={signPayloadFormats} onChange={setSpFormat} />
                 </div>
               )}
 
-              {payload.type === "operations" && spFormat.key === "raw" && (
+              {payload.type === 'operations' && spFormat.key === 'raw' && (
                 <OperationsBanner
                   opParams={payload.rawToSign ?? payload.opParams}
-                  jsonViewStyle={
-                    signPayloadFormats.length > 1
-                      ? { height: "11rem" }
-                      : undefined
-                  }
+                  jsonViewStyle={signPayloadFormats.length > 1 ? { height: '11rem' } : undefined}
+                  modifiedTotalFee={modifiedTotalFeeValue}
+                  modifiedStorageLimit={modifiedStorageLimitValue}
                 />
               )}
 
-              {payload.type === "sign" && spFormat.key === "bytes" && (
+              {payload.type === 'sign' && spFormat.key === 'bytes' && (
                 <>
                   <RawPayloadView
-                    label={t("payloadToSign")}
+                    label={t('payloadToSign')}
                     payload={payload.bytes}
                     className="mb-4"
-                    style={{ height: "11rem" }}
+                    style={{ height: '11rem' }}
                   />
                 </>
               )}
 
-              {payload.type === "operations" &&
-                payload.bytesToSign &&
-                spFormat.key === "bytes" && (
-                  <>
-                    <RawPayloadView
-                      payload={payload.bytesToSign}
-                      className="mb-4"
-                      style={{ height: "11rem" }}
-                    />
-                  </>
-                )}
+              {payload.type === 'operations' && payload.bytesToSign && spFormat.key === 'bytes' && (
+                <>
+                  <RawPayloadView payload={payload.bytesToSign} className="mb-4" style={{ height: '11rem' }} />
+                </>
+              )}
 
-              {spFormat.key === "preview" && (
+              {spFormat.key === 'preview' && (
                 <ExpensesView
                   expenses={expensesData}
-                  estimates={
-                    payload.type === "operations"
-                      ? payload.estimates
-                      : undefined
-                  }
+                  estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
                   mainnet={mainnet}
+                  gasFeeError={gasFeeError}
                 />
               )}
             </>
+          )}
+          {spFormat.key === 'preview' && gasFeeError && (
+            <p className="text-xs text-red-600 pt-1 h-4">
+              <T id="gasFeeMustBePositive" />
+            </p>
           )}
         </div>
 
         <div className="flex-1" />
 
         <div
-          className={classNames(
-            "sticky bottom-0 w-full",
-            "bg-white shadow-md",
-            "flex items-stretch",
-            "px-4 pt-2 pb-4"
-          )}
+          className={classNames('sticky bottom-0 w-full', 'bg-white shadow-md', 'flex items-stretch', 'px-4 pt-2 pb-4')}
         >
           <div className="w-1/2 pr-2">
             <T id="decline">
-              {(message) => (
+              {message => (
                 <FormSecondaryButton
                   type="button"
                   className="justify-center w-full"
@@ -406,17 +331,16 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
           </div>
 
           <div className="w-1/2 pl-2">
-            <T id={error ? "retry" : "confirm"}>
-              {(message) => (
+            <T id={error ? 'retry' : 'confirm'}>
+              {message => (
                 <FormSubmitButton
                   type="button"
                   className="justify-center w-full"
+                  disabled={gasFeeError}
                   loading={confirming}
                   onClick={handleConfirmClick}
                   testID={
-                    error
-                      ? InternalConfirmationSelectors.RetryButton
-                      : InternalConfirmationSelectors.ConfirmButton
+                    error ? InternalConfirmationSelectors.RetryButton : InternalConfirmationSelectors.ConfirmButton
                   }
                 >
                   {message}
@@ -426,9 +350,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({
           </div>
         </div>
 
-        <ConfirmLedgerOverlay
-          displayed={confirming && account.type === TempleAccountType.Ledger}
-        />
+        <ConfirmLedgerOverlay displayed={confirming && account.type === TempleAccountType.Ledger} />
       </div>
     </div>
   );

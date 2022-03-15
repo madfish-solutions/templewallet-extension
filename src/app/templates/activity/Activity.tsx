@@ -1,24 +1,12 @@
-import React, {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useLayoutEffect,
-} from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
 
-import { ACTIVITY_PAGE_SIZE } from "app/defaults";
-import { useRetryableSWR } from "lib/swr";
-import {
-  useChainId,
-  fetchOperations,
-  syncOperations,
-  isSyncSupported,
-} from "lib/temple/front";
-import { IOperation } from "lib/temple/repo";
-import useSafeState from "lib/ui/useSafeState";
+import { ACTIVITY_PAGE_SIZE } from 'app/defaults';
+import { useRetryableSWR } from 'lib/swr';
+import { useChainId, fetchOperations, syncOperations, isSyncSupported } from 'lib/temple/front';
+import { IOperation } from 'lib/temple/repo';
+import useSafeState from 'lib/ui/useSafeState';
 
-import ActivityView from "./ActivityView";
+import ActivityView from './ActivityView';
 
 type ActivityProps = {
   address: string;
@@ -30,15 +18,9 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
   const chainId = useChainId(true)!;
   const syncSupported = useMemo(() => isSyncSupported(chainId), [chainId]);
 
-  const safeStateKey = useMemo(
-    () => [chainId, address, assetSlug].join("_"),
-    [chainId, address, assetSlug]
-  );
+  const safeStateKey = useMemo(() => [chainId, address, assetSlug].join('_'), [chainId, address, assetSlug]);
 
-  const [restOperations, setRestOperations] = useSafeState<IOperation[]>(
-    [],
-    safeStateKey
-  );
+  const [restOperations, setRestOperations] = useSafeState<IOperation[]>([], safeStateKey);
   const [syncing, setSyncing] = useSafeState(false, safeStateKey);
   const [loadingMore, setLoadingMore] = useSafeState(false, safeStateKey);
   const [, setSyncError] = useSafeState<Error | null>(null, safeStateKey);
@@ -46,20 +28,20 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
   const {
     data: latestOperations,
     isValidating: fetching,
-    revalidate: refetchLatest,
+    revalidate: refetchLatest
   } = useRetryableSWR(
-    ["latest-operations", chainId, address, assetSlug],
+    ['latest-operations', chainId, address, assetSlug],
     () =>
       fetchOperations({
         chainId,
         address,
         assetIds: assetSlug ? [assetSlug] : undefined,
-        limit: ACTIVITY_PAGE_SIZE,
+        limit: ACTIVITY_PAGE_SIZE
       }),
     {
       revalidateOnMount: true,
       refreshInterval: 10_000,
-      dedupingInterval: 3_000,
+      dedupingInterval: 3_000
     }
   );
 
@@ -77,47 +59,18 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
     hasMoreRef.current = true;
   }, [safeStateKey]);
 
-  const handleLoadMore = useCallback(async () => {
-    setLoadingMore(true);
-
-    try {
-      await syncOperations("old", chainId, address);
-    } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
-      setSyncError(err);
-    }
-
-    try {
-      const oldOperations = await fetchOperations({
-        chainId,
-        address,
-        assetIds: assetSlug ? [assetSlug] : undefined,
-        limit: ACTIVITY_PAGE_SIZE,
-        offset: operations?.length ?? 0,
-      });
-      if (oldOperations.length === 0) {
-        hasMoreRef.current = false;
-      }
-
-      setRestOperations((ops) => [...ops, ...oldOperations]);
-    } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
-    }
-
-    setLoadingMore(false);
-  }, [
-    setLoadingMore,
-    setSyncError,
-    setRestOperations,
-    chainId,
-    address,
-    assetSlug,
-    operations,
-  ]);
+  const handleLoadMoreInner = useCallback(async () => {
+    handleLoadMore({
+      setLoadingMore,
+      setSyncError,
+      setRestOperations,
+      chainId,
+      address,
+      assetSlug,
+      operations,
+      hasMoreRef
+    });
+  }, [setLoadingMore, setSyncError, setRestOperations, chainId, address, assetSlug, operations]);
 
   /**
    * New operations syncing
@@ -126,14 +79,12 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
   const syncNewOperations = useCallback(async () => {
     setSyncing(true);
     try {
-      const newCount = await syncOperations("new", chainId, address);
+      const newCount = await syncOperations('new', chainId, address);
       if (newCount > 0) {
         refetchLatest();
       }
-    } catch (err) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(err);
-      }
+    } catch (err: any) {
+      console.error(err);
       setSyncError(err);
     }
     setSyncing(false);
@@ -159,13 +110,11 @@ const Activity = memo<ActivityProps>(({ address, assetSlug, className }) => {
       address={address}
       syncSupported={syncSupported}
       operations={operations ?? []}
-      initialLoading={
-        fetching || (!operations || operations.length === 0 ? syncing : false)
-      }
+      initialLoading={fetching || (!operations || operations.length === 0 ? syncing : false)}
       loadingMore={loadingMore}
       syncing={syncing}
       loadMoreDisplayed={hasMoreRef.current}
-      loadMore={handleLoadMore}
+      loadMore={handleLoadMoreInner}
       className={className}
     />
   );
@@ -186,3 +135,53 @@ function mergeOperations(base?: IOperation[], toAppend: IOperation[] = []) {
   }
   return uniques;
 }
+
+interface HandleLoadMore {
+  setLoadingMore: (value: React.SetStateAction<boolean>) => void;
+  setSyncError: (value: React.SetStateAction<Error | null>) => void;
+  setRestOperations: (value: React.SetStateAction<IOperation[]>) => void;
+  chainId: string;
+  address: string;
+  assetSlug?: string;
+  operations?: IOperation[];
+  hasMoreRef: React.MutableRefObject<boolean>;
+}
+
+const handleLoadMore = async ({
+  setLoadingMore,
+  setSyncError,
+  setRestOperations,
+  chainId,
+  address,
+  assetSlug,
+  operations,
+  hasMoreRef
+}: HandleLoadMore) => {
+  setLoadingMore(true);
+
+  try {
+    await syncOperations('old', chainId, address);
+  } catch (err: any) {
+    console.error(err);
+    setSyncError(err);
+  }
+
+  try {
+    const oldOperations = await fetchOperations({
+      chainId,
+      address,
+      assetIds: assetSlug ? [assetSlug] : undefined,
+      limit: ACTIVITY_PAGE_SIZE,
+      offset: operations?.length ?? 0
+    });
+    if (oldOperations.length === 0) {
+      hasMoreRef.current = false;
+    }
+
+    setRestOperations((ops: IOperation[]) => [...ops, ...oldOperations]);
+  } catch (err: any) {
+    console.error(err);
+  }
+
+  setLoadingMore(false);
+};

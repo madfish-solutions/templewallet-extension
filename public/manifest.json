@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Temple - Tezos Wallet (ex. Thanos)",
-  "version": "1.13.2",
+  "version": "1.13.29",
 
   "icons": {
     "16": "misc/icon-16.png",
@@ -73,7 +73,7 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"],
       "js": ["scripts/contentScript.js"],
       "run_at": "document_start",
       "all_frames": true

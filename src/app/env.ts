@@ -1,9 +1,11 @@
-import { FC, useCallback, useLayoutEffect, useRef } from "react";
+import { FC, useCallback, useLayoutEffect, useRef } from 'react';
 
-import constate from "constate";
-import { browser } from "webextension-polyfill-ts";
+import constate from 'constate';
+import { browser } from 'webextension-polyfill-ts';
 
-import { createUrl } from "lib/woozie";
+import { createUrl } from 'lib/woozie';
+
+export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
 export type AppEnvironment = {
   windowType: WindowType;
@@ -12,7 +14,7 @@ export type AppEnvironment = {
 
 export enum WindowType {
   Popup,
-  FullPage,
+  FullPage
 }
 
 export type BackHandler = () => void;
@@ -49,7 +51,7 @@ export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
     popup,
     confirmWindow,
     onBack,
-    registerBackHandler,
+    registerBackHandler
   };
 });
 
@@ -68,8 +70,8 @@ export const OpenInFullPage: FC = () => {
 
 export function openInFullPage() {
   const { search, hash } = window.location;
-  const url = createUrl("fullpage.html", search, hash);
+  const url = createUrl('fullpage.html', search, hash);
   browser.tabs.create({
-    url: browser.runtime.getURL(url),
+    url: browser.runtime.getURL(url)
   });
 }

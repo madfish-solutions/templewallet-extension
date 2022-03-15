@@ -1,1 +1,1 @@
-declare module "bs58check";
+declare module 'bs58check';
