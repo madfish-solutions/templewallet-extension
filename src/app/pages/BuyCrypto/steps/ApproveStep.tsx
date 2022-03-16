@@ -11,10 +11,12 @@ import HashShortView from 'app/atoms/HashShortView';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import ErrorComponent from 'app/pages/BuyCrypto/steps/ErrorComponent';
 import useTopUpUpdate from 'app/pages/BuyCrypto/utils/useTopUpUpdate';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { ExchangeDataInterface, ExchangeDataStatusEnum, getExchangeData } from 'lib/exolix-api';
 import { T } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
+import { BuyCryptoSelectors } from '../BuyCrypto.selectors';
 import WarningComponent from './WarningComponent';
 
 interface Props {
@@ -27,6 +29,8 @@ interface Props {
 
 const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isError, setIsError }) => {
   const { copy } = useCopyToClipboard();
+
+  const { trackEvent } = useAnalytics();
 
   useTopUpUpdate(exchangeData, setExchangeData, setIsError);
 
@@ -109,7 +113,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
                 {exchangeData.id}
               </p>
-              <CopyButton text={exchangeData.id} type="link">
+              <CopyButton text={exchangeData.id} type="link" testID={BuyCryptoSelectors.TopupSecondStepCopy}>
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
                   className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
@@ -169,6 +173,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           <div>
             <p
               onClick={() => {
+                trackEvent(BuyCryptoSelectors.TopupSecondStepCancel, AnalyticsEventCategory.ButtonPress);
                 setStep(0);
               }}
               className="text-red-700 text-sm mb-8 inline-block cursor-pointer inline-block w-auto"
