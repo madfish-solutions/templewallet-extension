@@ -9,6 +9,7 @@ import * as aes from 'aes-js';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
 import * as pbkdf2 from 'pbkdf2';
+import themis from 'wasm-themis';
 
 import { getMessage } from 'lib/i18n';
 import { PublicError } from 'lib/temple/back/defaults';
@@ -182,6 +183,9 @@ export class Vault {
   }
 
   static async generateSyncPayload(password: string) {
+    try {
+      await themis.initialize();
+    } catch { }
     const passKey = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
       const [mnemonic, allAccounts] = await Promise.all([
@@ -193,18 +197,11 @@ export class Vault {
 
       const data = [mnemonic, hdAccounts.length];
 
-      const salt = Passworder.generateSalt(16);
-      const saltHex = Buffer.from(salt).toString('hex');
+      const payload = Uint8Array.from(Buffer.from(JSON.stringify(data)));
+      const cell = themis.SecureCellSeal.withPassphrase(password);
+      const encrypted = cell.encrypt(payload);
 
-      const key = pbkdf2.pbkdf2Sync(password, saltHex, 5_000, 256 / 8, 'sha512');
-
-      const textBytes = aes.padding.pkcs7.pad(aes.utils.utf8.toBytes(JSON.stringify(data)));
-
-      const iv = Passworder.generateSalt(16);
-      const aesCbc = new aes.ModeOfOperation.cbc(key, iv);
-      const encryptedBytes = aesCbc.encrypt(textBytes);
-
-      return [TEMPLE_SYNC_PREFIX, salt, iv, encryptedBytes].map(item => Buffer.from(item).toString('base64')).join('');
+      return [TEMPLE_SYNC_PREFIX, encrypted].map(item => Buffer.from(item).toString('base64')).join('');
     });
   }
 
@@ -261,7 +258,7 @@ export class Vault {
     });
   }
 
-  constructor(private passKey: CryptoKey) {}
+  constructor(private passKey: CryptoKey) { }
 
   revealPublicKey(accPublicKeyHash: string) {
     return withError('Failed to reveal public key', () =>
@@ -277,7 +274,7 @@ export class Vault {
     let saved;
     try {
       saved = await fetchAndDecryptOne<TempleSettings>(settingsStrgKey, this.passKey);
-    } catch {}
+    } catch { }
     return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
@@ -552,7 +549,7 @@ export class Vault {
         const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
         return createMemorySigner(privateKey).then(signer => ({
           signer,
-          cleanup: () => {}
+          cleanup: () => { }
         }));
     }
   }
@@ -576,9 +573,9 @@ const MIGRATIONS = [
     const migratedAccounts = accounts.map(acc =>
       acc.type === TempleAccountType.HD
         ? {
-            ...acc,
-            type: TempleAccountType.Imported
-          }
+          ...acc,
+          type: TempleAccountType.Imported
+        }
         : acc
     );
 
@@ -734,7 +731,7 @@ async function createLedgerSigner(
   // After Ledger Live bridge was setuped, we don't close transport
   // Probably we do not need to close it
   // But if we need, we can close it after not use timeout
-  const cleanup = () => {};
+  const cleanup = () => { };
   const signer = new TempleLedgerSigner(
     transport,
     removeMFromDerivationPath(derivationPath),
