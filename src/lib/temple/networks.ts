@@ -5,14 +5,14 @@ export const KNOWN_LAMBDA_CONTRACTS = new Map([
   [TempleChainId.Mainnet, 'KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE'],
   [TempleChainId.Granadanet, 'KT1VhtTGAyh7AVVwyH2ExNhaXvQq2rAJ6DNs'],
   [TempleChainId.Hangzhounet, 'KT19ewhnhaCcCuoF1Ly2pxXAFRiF3UtgaY9U'],
-  [TempleChainId.Idiazabalnet, 'KT1VCXUAQC6bky8LKjSaTvM9wwTXe9YQ7N4s']
+  [TempleChainId.Ithacanet, 'KT1MT3Tgj8NEzzaKYLHUmntCX9ALL1QSg1Q8']
 ]);
 
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Granadanet, 'granadanet'],
   [TempleChainId.Hangzhounet, 'hangzhounet'],
-  [TempleChainId.Idiazabalnet, 'idiazabalnet']
+  [TempleChainId.Ithacanet, 'ithacanet']
 ]);
 
 export const NETWORKS: TempleNetwork[] = [
@@ -88,12 +88,12 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
-    id: 'idiazabalnet',
-    name: 'Idiazabalnet Testnet',
-    description: 'Idiazabalnet testnet',
-    lambdaContract: 'KT1VCXUAQC6bky8LKjSaTvM9wwTXe9YQ7N4s',
+    id: 'ithacanet',
+    name: 'Ithacanet Testnet',
+    description: 'Ithacanet testnet',
+    lambdaContract: 'KT1MT3Tgj8NEzzaKYLHUmntCX9ALL1QSg1Q8',
     type: 'test',
-    rpcBaseURL: 'https://rpc.tzkt.io/idiazabalnet',
+    rpcBaseURL: 'https://ithacanet.smartpy.io/',
     color: '#131380',
     disabled: false
   },
