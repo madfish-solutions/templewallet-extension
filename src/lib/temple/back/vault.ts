@@ -199,7 +199,8 @@ export class Vault {
 
       const payload = Uint8Array.from(Buffer.from(JSON.stringify(data)));
       const cell = themis.SecureCellSeal.withPassphrase(password);
-      const encrypted = cell.encrypt(payload);
+      const context = Uint8Array.from(Buffer.from("templewalletsync" + password));
+      const encrypted = cell.encrypt(payload, context);
 
       return [TEMPLE_SYNC_PREFIX, encrypted].map(item => Buffer.from(item).toString('base64')).join('');
     });
