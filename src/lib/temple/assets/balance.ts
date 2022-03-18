@@ -18,7 +18,7 @@ export async function fetchBalance(
 ) {
   const asset = await fromAssetSlug(tezos, assetSlug);
 
-  let nat: BigNumber | undefined;
+  let nat;
 
   if (asset === 'tez') {
     nat = await getBalanceSafe(tezos, account);
@@ -46,7 +46,7 @@ export async function fetchBalance(
   return assetMetadata ? nat.div(10 ** assetMetadata.decimals) : nat;
 }
 
-const getBalanceSafe = async (tezos: TezosToolkit, account: string): Promise<BigNumber> | undefined => {
+const getBalanceSafe = async (tezos: TezosToolkit, account: string) => {
   try {
     return await tezos.tz.getBalance(account);
   } catch {}
