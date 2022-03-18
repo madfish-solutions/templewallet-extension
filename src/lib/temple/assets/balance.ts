@@ -46,7 +46,7 @@ export async function fetchBalance(
   return assetMetadata ? nat.div(10 ** assetMetadata.decimals) : nat;
 }
 
-const getBalanceSafe = async (tezos: TezosToolkit, account: string) => {
+const getBalanceSafe = async (tezos: TezosToolkit, account: string): Promise<BigNumber> | undefined => {
   try {
     return await tezos.tz.getBalance(account);
   } catch {}

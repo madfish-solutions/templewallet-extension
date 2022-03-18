@@ -1,4 +1,4 @@
-import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
+import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
 type NonEmptyArray<T> = [T, ...T[]];
