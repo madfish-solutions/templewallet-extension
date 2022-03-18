@@ -1,5 +1,4 @@
 export interface CustomDAppInfo {
-  id: number;
   name: string;
   dappUrl: string;
   type: string;

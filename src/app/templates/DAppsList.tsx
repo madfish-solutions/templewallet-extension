@@ -95,10 +95,10 @@ const DAppsList: FC = () => {
         <div
           className={classNames(popup ? 'py-2 mb-4' : 'py-6 mb-6', 'rounded-lg bg-gray-100 w-full flex justify-center')}
         >
-          {featuredDApps.slice(0, 3).map(({ id, name, logo, dappUrl }) => (
+          {featuredDApps.slice(0, 3).map(({ slug, name, logo, dappUrl }) => (
             <a
               className="mx-4 py-1 flex flex-col items-center"
-              key={id}
+              key={slug}
               href={dappUrl}
               target="_blank"
               rel="noreferrer"
