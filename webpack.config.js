@@ -391,10 +391,6 @@ module.exports = {
         to: OUTPUT_PATH
       },
       {
-        from: WASM_PATH,
-        to: SCRIPTS_PATH
-      },
-      {
         from: MANIFEST_PATH,
         to: path.join(OUTPUT_PATH, 'manifest.json'),
         toType: 'file',
@@ -402,7 +398,11 @@ module.exports = {
           const manifest = transformManifestKeys(JSON.parse(content), TARGET_BROWSER);
           return JSON.stringify(manifest, null, 2);
         }
-      }
+      },
+      {
+        from: WASM_PATH,
+        to: SCRIPTS_PATH
+      },
     ]),
 
     new WebpackBar({
