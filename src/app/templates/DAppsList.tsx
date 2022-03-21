@@ -7,13 +7,13 @@ import DAppIcon from 'app/templates/DAppsList/DAppIcon';
 import DAppItem from 'app/templates/DAppsList/DAppItem';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { DappEnum, DappType, getDApps } from 'lib/custom-dapps-api';
+import { DappEnum, getDApps } from 'lib/custom-dapps-api';
 import { t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 
 import { DAppStoreSelectors } from './DAppsList.selectors';
 
-const USED_TAGS = Object.values(DappEnum).filter(x => typeof x !== 'number') as DappType[];
+const USED_TAGS = Object.values(DappEnum).filter(x => typeof x !== 'number') as DappEnum[];
 const TOP_DAPPS_SLUGS = ['quipuswap', 'objkt.com', 'youves'];
 
 const DAppsList = () => {
@@ -35,9 +35,9 @@ const DAppsList = () => {
   }, [data]);
 
   const [searchString, setSearchString] = useState('');
-  const [selectedTags, setSelectedTags] = useState<DappType[]>([]);
+  const [selectedTags, setSelectedTags] = useState<DappEnum[]>([]);
 
-  const handleTagClick = useCallback((name: DappType) => {
+  const handleTagClick = useCallback((name: DappEnum) => {
     setSelectedTags(prevSelectedTags => {
       const tagIndex = prevSelectedTags.indexOf(name);
       const newSelectedTags = [...prevSelectedTags];
@@ -158,8 +158,8 @@ const DAppsList = () => {
 export default DAppsList;
 
 type TagProps = {
-  name: DappType;
-  onClick: (name: DappType) => void;
+  name: DappEnum;
+  onClick: (name: DappEnum) => void;
   selected: boolean;
 };
 
