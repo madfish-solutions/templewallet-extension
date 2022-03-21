@@ -1,14 +1,17 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 
 import Stepper from 'app/atoms/Stepper';
 import PageLayout from 'app/layouts/PageLayout';
 import ApproveStep from 'app/pages/BuyCrypto/steps/ApproveStep';
 import ExchangeStep from 'app/pages/BuyCrypto/steps/ExchangeStep';
 import InitialStep from 'app/pages/BuyCrypto/steps/InitialStep';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { ExchangeDataInterface } from 'lib/exolix-api';
 import { T, t } from 'lib/i18n/react';
 import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
+
+import { BuyCryptoSelectors } from './BuyCrypto.selectors';
 
 const BuyCrypto: FC = () => (
   <PageLayout
@@ -27,6 +30,7 @@ export default BuyCrypto;
 const steps = [`${t('step')} 1`, `${t('step')} 2`, `${t('step')} 3`, `${t('step')} 4`];
 
 const BuyCryptoContent: FC = () => {
+  const { trackEvent } = useAnalytics();
   const network = useNetwork();
   const { publicKeyHash } = useAccount();
   const [step, setStep] = useStorage<number>(`topup_step_state_${publicKeyHash}`, 0);
@@ -35,6 +39,23 @@ const BuyCryptoContent: FC = () => {
     `topup_exchange_data_state_${publicKeyHash}`,
     null
   );
+
+  const handleTrackSupportSubmit = useCallback(() => {
+    let event: BuyCryptoSelectors;
+    switch (step) {
+      case 2:
+        event = BuyCryptoSelectors.TopupSecondStepSupport;
+        break;
+      case 3:
+        event = BuyCryptoSelectors.TopupThirdStepSupport;
+        break;
+      default:
+        event = BuyCryptoSelectors.TopupFourthStepSubmit;
+        break;
+    }
+    return trackEvent(event, AnalyticsEventCategory.ButtonPress);
+  }, [step, trackEvent]);
+
   if (network.type !== 'main') {
     return <Redirect to={'/'} />;
   }
@@ -76,6 +97,7 @@ const BuyCryptoContent: FC = () => {
           target="_blank"
           rel="noreferrer"
           className="text-blue-500 text-sm mb-8 cursor-pointer inline-block w-auto"
+          onClick={handleTrackSupportSubmit}
         >
           <T id={'support'} />
         </a>

@@ -12,15 +12,19 @@ export const DonationBanner: FC = () => {
   const { trackEvent } = useAnalytics();
 
   return (
-    <div
+    <a
       className={classNames('flex flex-col mx-auto mt-2', popup ? 'mb-6 p-4' : 'mb-2 p-6')}
       style={{
         border: '1px solid #EA2424',
         borderRadius: '4px',
         maxWidth: '360px'
       }}
+      href="https://donate.tezos.org.ua"
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => trackEvent('UkraineDonation', AnalyticsEventCategory.ButtonPress)}
     >
-      <div className="flex flex-row mb-4">
+      <div className="flex flex-row">
         <div className="h-12 mr-4 my-auto">
           <Ukraine />
         </div>
@@ -33,26 +37,6 @@ export const DonationBanner: FC = () => {
           </span>
         </div>
       </div>
-      <a
-        className={classNames(
-          'py-2 px-4 rounded',
-          'border-2',
-          'border-blue-500 hover:border-blue-600 focus:border-blue-600',
-          'flex items-center justify-center',
-          'text-white',
-          'shadow-sm hover:shadow focus:shadow',
-          'font-inter font-normal text-sm',
-          'transition ease-in-out duration-300',
-          'bg-blue-500',
-          'w-full'
-        )}
-        href="https://donate.tezos.org.ua"
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={() => trackEvent('UkraineDonation', AnalyticsEventCategory.ButtonPress)}
-      >
-        <T id={'donate'} />
-      </a>
-    </div>
+    </a>
   );
 };

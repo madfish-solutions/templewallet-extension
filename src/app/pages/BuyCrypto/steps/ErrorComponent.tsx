@@ -1,23 +1,38 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 
 import classNames from 'clsx';
 
 import CopyButton from 'app/atoms/CopyButton';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { ExchangeDataInterface } from 'lib/exolix-api';
 import { T } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-interface Props {
+import { BuyCryptoSelectors } from '../BuyCrypto.selectors';
+
+interface Props extends TestIDProps {
   exchangeData: ExchangeDataInterface | null;
   setIsError: (isError: boolean) => void;
   setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
   setStep: (step: number) => void;
 }
 
-const ErrorComponent: FC<Props> = ({ exchangeData, setIsError, setExchangeData, setStep }) => {
+const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError, setExchangeData, setStep }) => {
   const { copy } = useCopyToClipboard();
+  const { trackEvent } = useAnalytics();
+
+  useEffect(
+    () =>
+      void trackEvent(
+        BuyCryptoSelectors.TopupFirstStepTransactionOverdue,
+        AnalyticsEventCategory.General,
+        testIDProperties
+      ),
+    [trackEvent, testIDProperties]
+  );
+
   const restartTopUpHandler = () => {
     setExchangeData(null);
     setStep(0);
@@ -58,6 +73,7 @@ const ErrorComponent: FC<Props> = ({ exchangeData, setIsError, setExchangeData, 
           marginTop: '24px'
         }}
         onClick={restartTopUpHandler}
+        testID={BuyCryptoSelectors.TopupFirstStepSubmitAgain}
       >
         <T id={'topUpAgain'} />
       </FormSubmitButton>

@@ -13,6 +13,8 @@ import { ExchangeDataInterface, ExchangeDataStatusEnum } from 'lib/exolix-api';
 import { getCurrentLocale, T } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
+import { BuyCryptoSelectors } from '../BuyCrypto.selectors';
+
 interface Props {
   exchangeData: ExchangeDataInterface;
   setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
@@ -83,7 +85,11 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <p style={{ color: '#1B262C' }} className="text-xs inline align-text-bottom">
                     {exchangeData.id}
                   </p>
-                  <CopyButton text={exchangeData.id} type="link">
+                  <CopyButton
+                    text={exchangeData.id}
+                    type="link"
+                    testID={step === 2 ? BuyCryptoSelectors.TopupThirdStepCopy : BuyCryptoSelectors.TopupFourthStepCopy}
+                  >
                     <CopyIcon
                       style={{ verticalAlign: 'inherit' }}
                       className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
@@ -228,6 +234,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               background: '#4299e1',
               marginTop: '24px'
             }}
+            testID={BuyCryptoSelectors.TopupFourthStepSubmit}
             onClick={() => {
               setStep(0);
               setExchangeData(null);
