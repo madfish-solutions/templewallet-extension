@@ -5,10 +5,9 @@ import { InMemorySigner } from '@taquito/signer';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import { LedgerTempleBridgeTransport } from '@temple-wallet/ledger-bridge';
-import * as aes from 'aes-js';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
-import * as pbkdf2 from 'pbkdf2';
+import { initialize, SecureCellSeal } from 'wasm-themis';
 
 import { getMessage } from 'lib/i18n';
 import { PublicError } from 'lib/temple/back/defaults';
@@ -182,6 +181,9 @@ export class Vault {
   }
 
   static async generateSyncPayload(password: string) {
+    try {
+      await initialize();
+    } catch {}
     const passKey = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
       const [mnemonic, allAccounts] = await Promise.all([
@@ -193,18 +195,11 @@ export class Vault {
 
       const data = [mnemonic, hdAccounts.length];
 
-      const salt = Passworder.generateSalt(16);
-      const saltHex = Buffer.from(salt).toString('hex');
+      const payload = Uint8Array.from(Buffer.from(JSON.stringify(data)));
+      const cell = SecureCellSeal.withPassphrase(password);
+      const encrypted = cell.encrypt(payload);
 
-      const key = pbkdf2.pbkdf2Sync(password, saltHex, 5_000, 256 / 8, 'sha512');
-
-      const textBytes = aes.padding.pkcs7.pad(aes.utils.utf8.toBytes(JSON.stringify(data)));
-
-      const iv = Passworder.generateSalt(16);
-      const aesCbc = new aes.ModeOfOperation.cbc(key, iv);
-      const encryptedBytes = aesCbc.encrypt(textBytes);
-
-      return [TEMPLE_SYNC_PREFIX, salt, iv, encryptedBytes].map(item => Buffer.from(item).toString('base64')).join('');
+      return [TEMPLE_SYNC_PREFIX, encrypted].map(item => Buffer.from(item).toString('base64')).join('');
     });
   }
 
