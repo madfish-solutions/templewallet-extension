@@ -72,7 +72,7 @@
     "constate": "2.0.0",
     "copy-webpack-plugin": "5.1.2",
     "cross-env": "7.0.3",
-    "css-loader": "4.3.0",
+    "css-loader": "5.2.7",
     "date-fns": "2.15.0",
     "debounce-promise": "3.1.2",
     "dexie": "3.1.0-alpha.9",
@@ -104,7 +104,6 @@
     "npm-run-all": "4.1.5",
     "optimize-css-assets-webpack-plugin": "6.0.1",
     "p-memoize": "4.0.3",
-    "postcss": "8.4.6",
     "postcss-flexbugs-fixes": "5.0.2",
     "postcss-loader": "4.3.0",
     "postcss-preset-env": "7.3.3",
@@ -142,6 +141,12 @@
     "webpackbar": "4.0.0",
     "zip-webpack-plugin": "3.0.0"
   },
+  "peerDependencies": {
+    "postcss": "8.4.6"
+  },
+  "devDependencies": {
+    "postcss": "8.4.6"
+  },
   "resolutions": {
     "@taquito/**/braces": "2.3.1",
     "react-json-view/**/node-fetch": "2.6.7",
@@ -161,7 +166,7 @@
     "ws": "7.4.6",
     "hosted-git-info": "2.8.9",
     "color-string": "1.5.5",
-    "postcss": "8.2.13",
+    "postcss": "8.4.6",
     "follow-redirects": "1.14.8",
     "nanoid": "3.1.31"
   }
