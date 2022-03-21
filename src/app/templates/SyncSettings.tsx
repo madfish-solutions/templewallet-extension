@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
+import React, { FC, useCallback, useLayoutEffect, useRef } from 'react';
 
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
@@ -8,7 +8,7 @@ import Alert from 'app/atoms/Alert';
 import FormField from 'app/atoms/FormField';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import { T, t } from 'lib/i18n/react';
-import { useTempleClient } from 'lib/temple/front';
+import { useSecretState, useTempleClient } from 'lib/temple/front';
 
 type FormData = {
   password: string;
@@ -17,37 +17,20 @@ type FormData = {
 const SyncSettings: FC = () => {
   const { generateSyncPayload } = useTempleClient();
 
-  const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
-  const submitting = formState.isSubmitting;
-
-  const [payload, setPayload] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (payload) {
-      const t = setTimeout(() => {
-        setPayload(null);
-      }, 10 * 60_000);
-
-      return () => {
-        clearTimeout(t);
-      };
-    }
-    return;
-  }, [payload, setPayload]);
-
   const formRef = useRef<HTMLFormElement>(null);
+  const [payload, setPayload] = useSecretState();
+  const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
 
-  const focusPasswordField = useCallback(() => {
-    formRef.current?.querySelector<HTMLInputElement>("input[name='password']")?.focus();
-  }, []);
+  const focusPasswordField = useCallback(
+    () => formRef.current?.querySelector<HTMLInputElement>("input[name='password']")?.focus(),
+    []
+  );
 
-  useLayoutEffect(() => {
-    focusPasswordField();
-  }, [focusPasswordField]);
+  useLayoutEffect(() => focusPasswordField(), [focusPasswordField]);
 
   const onSubmit = useCallback(
     async ({ password }) => {
-      if (submitting) return;
+      if (formState.isSubmitting) return;
 
       clearError('password');
       try {
@@ -64,7 +47,7 @@ const SyncSettings: FC = () => {
         focusPasswordField();
       }
     },
-    [submitting, clearError, setError, generateSyncPayload, setPayload, focusPasswordField]
+    [formState.isSubmitting, clearError, setError, generateSyncPayload, setPayload, focusPasswordField]
   );
 
   return (
@@ -116,7 +99,7 @@ const SyncSettings: FC = () => {
               containerClassName="mb-4"
             />
 
-            <FormSubmitButton loading={submitting}>
+            <FormSubmitButton loading={formState.isSubmitting}>
               <T id="sync" />
             </FormSubmitButton>
           </form>
