@@ -49,9 +49,9 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
 
+    let defaultGasFeeMutez = new BigNumber(0);
+    let storageFeeMutez = new BigNumber(0);
     if (estimates) {
-      let defaultGasFeeMutez = new BigNumber(0);
-      let storageFeeMutez = new BigNumber(0);
       try {
         let i = 0;
         for (const e of estimates) {
@@ -67,138 +67,138 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
       } catch {
         return null;
       }
-
-      const gasFee = mutezToTz(modifyFeeAndLimit.totalFee);
-      const defaultGasFee = mutezToTz(defaultGasFeeMutez);
-      const storageFee = mutezToTz(storageFeeMutez);
-
-      return (
-        <div className="w-full flex flex-col">
-          {[
-            {
-              key: 'totalFee',
-              title: t('gasFee'),
-              value: gasFee,
-              onChange: modifyFeeAndLimit.onTotalFeeChange
-            },
-            {
-              key: 'storageFeeMax',
-              title: t('storageFeeMax'),
-              value: storageFee
-            },
-            ...(modifyFeeAndLimit.storageLimit !== null
-              ? [
-                  {
-                    key: 'storageLimit',
-                    title: t('storageLimit'),
-                    value: modifyFeeAndLimit.storageLimit,
-                    onChange: modifyFeeAndLimit.onStorageLimitChange
-                  }
-                ]
-              : [])
-          ].map(({ key, title, value, onChange }, i, arr) => (
-            <div key={key} className={classNames('w-full flex items-center', i !== arr.length - 1 && 'mb-1')}>
-              <div
-                className={classNames('whitespace-nowrap overflow-x-auto no-scrollbar', 'opacity-90')}
-                style={{ maxWidth: '45%' }}
-              >
-                {title}
-              </div>
-              <div className="mr-1">:</div>
-
-              <div className="flex-1" />
-
-              {value instanceof BigNumber ? (
-                <>
-                  <div className="mr-1">
-                    {onChange ? (
-                      <>
-                        <PlainAssetInput
-                          value={value.toFixed()}
-                          onChange={val => {
-                            onChange?.(tzToMutez(val ?? defaultGasFee).toNumber());
-                          }}
-                          max={MAX_GAS_FEE}
-                          placeholder={defaultGasFee.toFixed()}
-                          className={classNames(
-                            'mr-1',
-                            'appearance-none',
-                            'w-24',
-                            'py-px px-1',
-                            'border',
-                            gasFeeError ? 'border-red-300' : 'border-gray-300',
-                            'focus:border-primary-orange',
-                            'bg-gray-100 focus:bg-transparent',
-                            'focus:outline-none focus:shadow-outline',
-                            'transition ease-in-out duration-200',
-                            'rounded',
-                            'text-right',
-                            'text-gray-700 text-sm leading-tight',
-                            'placeholder-gray-600'
-                          )}
-                        />
-                        ꜩ
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-medium">
-                          <Money>{value}</Money>
-                        </span>{' '}
-                        ꜩ
-                      </>
-                    )}
-                  </div>
-
-                  <InUSD volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
-                    {usdAmount => (
-                      <div>
-                        <span className="opacity-75">(</span>
-                        <span className="pr-px">$</span>
-                        {usdAmount}
-                        <span className="opacity-75">)</span>
-                      </div>
-                    )}
-                  </InUSD>
-                </>
-              ) : (
-                <input
-                  type="number"
-                  value={value || ''}
-                  onChange={e => {
-                    if (e.target.value.length > 8) return;
-                    const val = +e.target.value;
-                    onChange?.(val > 0 ? val : 0);
-                  }}
-                  placeholder="0"
-                  className={classNames(
-                    'appearance-none',
-                    'w-24',
-                    'py-px pl-1',
-                    'border',
-                    'border-gray-300',
-                    'focus:border-primary-orange',
-                    'bg-gray-100 focus:bg-transparent',
-                    'focus:outline-none focus:shadow-outline',
-                    'transition ease-in-out duration-200',
-                    'rounded',
-                    'text-right',
-                    'text-gray-700 text-sm leading-tight',
-                    'placeholder-gray-600'
-                  )}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      );
     }
 
-    return null;
+    const gasFee = mutezToTz(modifyFeeAndLimit.totalFee);
+    const defaultGasFee = mutezToTz(defaultGasFeeMutez);
+    const storageFee = mutezToTz(storageFeeMutez);
+
+    return (
+      <div className="w-full flex flex-col">
+        {[
+          {
+            key: 'totalFee',
+            title: t('gasFee'),
+            value: gasFee,
+            onChange: modifyFeeAndLimit.onTotalFeeChange
+          },
+          {
+            key: 'storageFeeMax',
+            title: t('storageFeeMax'),
+            value: storageFee
+          },
+          ...(modifyFeeAndLimit.storageLimit !== null
+            ? [
+                {
+                  key: 'storageLimit',
+                  title: t('storageLimit'),
+                  value: modifyFeeAndLimit.storageLimit,
+                  onChange: modifyFeeAndLimit.onStorageLimitChange
+                }
+              ]
+            : [])
+        ].map(({ key, title, value, onChange }, i, arr) => (
+          <div key={key} className={classNames('w-full flex items-center', i !== arr.length - 1 && 'mb-1')}>
+            <div
+              className={classNames('whitespace-nowrap overflow-x-auto no-scrollbar', 'opacity-90')}
+              style={{ maxWidth: '45%' }}
+            >
+              {title}
+            </div>
+            <div className="mr-1">:</div>
+
+            <div className="flex-1" />
+
+            {value instanceof BigNumber ? (
+              <>
+                <div className="mr-1">
+                  {onChange ? (
+                    <>
+                      <PlainAssetInput
+                        value={value.toFixed()}
+                        onChange={val => {
+                          onChange?.(tzToMutez(val ?? defaultGasFee).toNumber());
+                        }}
+                        max={MAX_GAS_FEE}
+                        placeholder={defaultGasFee.toFixed()}
+                        className={classNames(
+                          'mr-1',
+                          'appearance-none',
+                          'w-24',
+                          'py-px px-1',
+                          'border',
+                          gasFeeError ? 'border-red-300' : 'border-gray-300',
+                          'focus:border-primary-orange',
+                          'bg-gray-100 focus:bg-transparent',
+                          'focus:outline-none focus:shadow-outline',
+                          'transition ease-in-out duration-200',
+                          'rounded',
+                          'text-right',
+                          'text-gray-700 text-sm leading-tight',
+                          'placeholder-gray-600'
+                        )}
+                      />
+                      ꜩ
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-medium">
+                        <Money>{value}</Money>
+                      </span>{' '}
+                      ꜩ
+                    </>
+                  )}
+                </div>
+
+                <InUSD volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
+                  {usdAmount => (
+                    <div>
+                      <span className="opacity-75">(</span>
+                      <span className="pr-px">$</span>
+                      {usdAmount}
+                      <span className="opacity-75">)</span>
+                    </div>
+                  )}
+                </InUSD>
+              </>
+            ) : (
+              <input
+                type="number"
+                value={value || ''}
+                onChange={e => {
+                  if (e.target.value.length > 8) return;
+                  const val = +e.target.value;
+                  onChange?.(val > 0 ? val : 0);
+                }}
+                placeholder="0"
+                className={classNames(
+                  'appearance-none',
+                  'w-24',
+                  'py-px pl-1',
+                  'border',
+                  'border-gray-300',
+                  'focus:border-primary-orange',
+                  'bg-gray-100 focus:bg-transparent',
+                  'focus:outline-none focus:shadow-outline',
+                  'transition ease-in-out duration-200',
+                  'rounded',
+                  'text-right',
+                  'text-gray-700 text-sm leading-tight',
+                  'placeholder-gray-600'
+                )}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
   }, [modifyFeeAndLimit, estimates, mainnet, gasFeeError]);
 
   if (!expenses) {
     return null;
   }
+
+  console.log(expenses, modifyFeeAndLimit, modifyFeeAndLimitSection);
 
   return (
     <div
