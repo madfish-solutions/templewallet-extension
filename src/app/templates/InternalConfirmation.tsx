@@ -150,13 +150,16 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     return 0;
   }, [payload]);
 
+  // console.log(payload);
+
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === 'operations' &&
+      payload.opParams &&
       payload.opParams.reduce((sum, op) => sum + (op.fee ? +op.fee : 0), 0) + revealFee) ||
       0
   );
   const [modifiedStorageLimitValue, setModifiedStorageLimitValue] = useSafeState(
-    (payload.type === 'operations' && payload.opParams[0].storageLimit) || 0
+    (payload.type === 'operations' && payload.opParams && payload.opParams[0].storageLimit) || 0
   );
 
   const gasFeeError = useMemo(() => modifiedTotalFeeValue <= MIN_GAS_FEE, [modifiedTotalFeeValue]);
@@ -194,7 +197,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
   const modifiedStorageLimitDisplayed = useMemo(
-    () => payload.type === 'operations' && payload.opParams.length < 2,
+    () => payload.type === 'operations' && payload.opParams && payload.opParams.length < 2,
     [payload]
   );
 

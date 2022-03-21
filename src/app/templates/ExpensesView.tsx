@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { FC, memo, useMemo, useRef } from 'react';
 
 import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
 import BigNumber from 'bignumber.js';
@@ -46,6 +46,7 @@ export interface ModifyFeeAndLimit {
 const MAX_GAS_FEE = 1000;
 
 const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit, gasFeeError }) => {
+  console.log(expenses, estimates, modifyFeeAndLimit);
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
 
@@ -62,9 +63,11 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
                 (e as any).minimalFeePerStorageByteMutez
             )
           );
+          console.log(e.storageLimit, modifyFeeAndLimit.storageLimit);
           i++;
         }
-      } catch {
+      } catch (e) {
+        console.log(e);
         return null;
       }
     }
@@ -198,42 +201,44 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
     return null;
   }
 
-  console.log(expenses, modifyFeeAndLimit, modifyFeeAndLimitSection);
-
   return (
-    <div
-      className={classNames(
-        'relative rounded-md overflow-y-auto border',
-        'flex flex-col text-gray-700 text-sm leading-tight'
-      )}
-      style={{ height: gasFeeError ? '10rem' : '11rem' }}
-    >
-      {expenses.map((item, index, arr) => (
-        <ExpenseViewItem key={index} item={item} last={index === arr.length - 1} mainnet={mainnet} />
-      ))}
+    <>
+      <div
+        className={classNames(
+          'relative rounded-md overflow-y-auto border',
+          'flex flex-col text-gray-700 text-sm leading-tight'
+        )}
+        style={{ height: gasFeeError ? '10rem' : '11rem' }}
+      >
+        {expenses.map((item, index, arr) => (
+          <ExpenseViewItem key={index} item={item} last={index === arr.length - 1} mainnet={mainnet} />
+        ))}
 
-      {modifyFeeAndLimit && (
-        <>
-          <div className="flex-1" />
+        {/* {modifyFeeAndLimit && ( */}
+        {true && (
+          <>
+            <div className="flex-1" />
 
-          <div
-            className={classNames(
-              'sticky bottom-0 left-0 right-0',
-              'flex items-center',
-              'px-2 py-1',
-              'bg-gray-200 bg-opacity-90 border-t',
-              'text-sm text-gray-700'
-            )}
-          >
-            {modifyFeeAndLimitSection ?? (
-              <span>
-                <T id="txIsLikelyToFail" />
-              </span>
-            )}
-          </div>
-        </>
+            <div
+              className={classNames(
+                'sticky bottom-0 left-0 right-0',
+                'flex items-center',
+                'px-2 py-1',
+                'bg-gray-200 bg-opacity-90 border-t',
+                'text-sm text-gray-700'
+              )}
+            >
+              {modifyFeeAndLimitSection} {/* {isTxLikelyToFail && ( */}
+            </div>
+          </>
+        )}
+      </div>
+      {expenses[0] && (
+        <span>
+          <T id="txIsLikelyToFail" />
+        </span>
       )}
-    </div>
+    </>
   );
 };
 

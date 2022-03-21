@@ -33,26 +33,33 @@ export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePu
         tezos.contract
           .batch(formated)
           .send()
-          .catch(() => undefined),
-        tezos.estimate.batch(formated).catch(() => undefined)
+          .catch(e => ({ ...e, isError: true })),
+        tezos.estimate.batch(formated).catch(e => ({ ...e, isError: true }))
       ]);
-      estimates = result[1]?.map(
-        (e, i) =>
-          ({
-            ...e,
-            burnFeeMutez: e.burnFeeMutez,
-            consumedMilligas: e.consumedMilligas,
-            gasLimit: e.gasLimit,
-            minimalFeeMutez: e.minimalFeeMutez,
-            storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
-            suggestedFeeMutez:
-              e.suggestedFeeMutez +
-              (opParams[i]?.gasLimit ? Math.ceil((opParams[i].gasLimit - e.gasLimit) * FEE_PER_GAS_UNIT) : 0),
-            totalCost: e.totalCost,
-            usingBaseFeeMutez: e.usingBaseFeeMutez
-          } as Estimate)
-      );
-    } catch {}
+      if (!result.some(x => x.isError)) {
+        estimates = result[1]?.map(
+          (e: any, i: number) =>
+            ({
+              ...e,
+              burnFeeMutez: e.burnFeeMutez,
+              consumedMilligas: e.consumedMilligas,
+              gasLimit: e.gasLimit,
+              minimalFeeMutez: e.minimalFeeMutez,
+              storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
+              suggestedFeeMutez:
+                e.suggestedFeeMutez +
+                (opParams[i]?.gasLimit ? Math.ceil((opParams[i].gasLimit - e.gasLimit) * FEE_PER_GAS_UNIT) : 0),
+              totalCost: e.totalCost,
+              usingBaseFeeMutez: e.usingBaseFeeMutez
+            } as Estimate)
+        );
+      } else {
+        return result;
+      }
+      console.log('[estimates]', result);
+    } catch (e) {
+      console.log('[dyrun error]', e);
+    }
 
     if (bytesToSign && estimates) {
       const withReveal = estimates.length === opParams.length + 1;
