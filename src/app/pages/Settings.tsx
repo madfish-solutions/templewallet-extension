@@ -177,11 +177,10 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                 const linkTo = `/settings/${slug}`;
 
                 return (
-                  <li key={slug} className={classNames(!first && 'mt-10 md:mt-0')}>
+                  <Link to={linkTo} key={slug} className={classNames(!first && 'mt-10 md:mt-0')} testID={testID}>
                     <div className="flex">
                       <div className="ml-2 flex-shrink-0">
-                        <Link
-                          to={linkTo}
+                        <div
                           className={classNames(
                             'block',
                             'h-12 w-12',
@@ -193,17 +192,15 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                             'opacity-90 hover:opacity-100 focus:opacity-100'
                           )}
                           style={{ backgroundColor: color }}
-                          testID={testID}
                         >
                           <Icon className="h-8 w-8 stroke-current" />
-                        </Link>
+                        </div>
                       </div>
 
                       <div className="ml-4">
                         <T id={titleI18nKey}>
                           {message => (
-                            <Link
-                              to={linkTo}
+                            <div
                               className={classNames(
                                 'text-lg leading-6 font-medium',
                                 'filter-brightness-75',
@@ -211,10 +208,9 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                                 'transition ease-in-out duration-200'
                               )}
                               style={{ color }}
-                              testID={testID}
                             >
                               {message}
-                            </Link>
+                            </div>
                           )}
                         </T>
 
@@ -223,7 +219,7 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                         </T>
                       </div>
                     </div>
-                  </li>
+                  </Link>
                 );
               })}
             </ul>
