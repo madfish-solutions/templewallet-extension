@@ -177,7 +177,7 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                 const linkTo = `/settings/${slug}`;
 
                 return (
-                  <Link to={linkTo} key={slug} className={classNames(!first && 'mt-10 md:mt-0')} testID={testID}>
+                  <Link to={linkTo} key={slug} className={classNames(!first && 'mt-10 md:mt-0 block')} testID={testID}>
                     <div className="flex">
                       <div className="ml-2 flex-shrink-0">
                         <div
