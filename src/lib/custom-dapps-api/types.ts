@@ -1,4 +1,4 @@
-export enum DappType {
+export enum DappEnum {
   Exchanges = 'Exchanges',
   Marketplaces = 'Marketplaces',
   Games = 'Games',
@@ -6,6 +6,9 @@ export enum DappType {
   Collectibles = 'Collectibles',
   Other = 'Other'
 }
+
+export type DappType = keyof typeof DappEnum;
+
 export interface CustomDAppInfo {
   name: string;
   dappUrl: string;

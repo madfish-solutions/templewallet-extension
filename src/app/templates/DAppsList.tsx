@@ -7,27 +7,25 @@ import DAppIcon from 'app/templates/DAppsList/DAppIcon';
 import DAppItem from 'app/templates/DAppsList/DAppItem';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { DappType, getDApps } from 'lib/custom-dapps-api';
+import { DappEnum, DappType, getDApps } from 'lib/custom-dapps-api';
 import { t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 
 import { DAppStoreSelectors } from './DAppsList.selectors';
 
-type DappTypeNames = keyof typeof DappType;
-
-const USED_TAGS = Object.values(DappType).filter(x => typeof x !== 'number') as DappTypeNames[];
+const USED_TAGS = Object.values(DappEnum).filter(x => typeof x !== 'number') as DappType[];
 const TOP_DAPPS_SLUGS = ['quipuswap', 'objkt.com', 'youves'];
 
-const DAppsList: FC = () => {
+const DAppsList = () => {
   const { trackEvent } = useAnalytics();
   const { popup } = useAppEnv();
   const { data } = useRetryableSWR('dapps-list', getDApps, { suspense: true });
 
   const dApps = useMemo(() => {
     return data!.dApps.map(({ categories: rawCategories, ...restProps }) => {
-      const categories = rawCategories.filter(name => name !== DappType.Other);
+      const categories = rawCategories.filter(name => name !== DappEnum.Other);
       if (categories.length !== rawCategories.length) {
-        categories.push(DappType.Other);
+        categories.push(DappEnum.Other);
       }
       return {
         categories,
@@ -37,9 +35,9 @@ const DAppsList: FC = () => {
   }, [data]);
 
   const [searchString, setSearchString] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<DappType[]>([]);
 
-  const handleTagClick = useCallback((name: string) => {
+  const handleTagClick = useCallback((name: DappType) => {
     setSelectedTags(prevSelectedTags => {
       const tagIndex = prevSelectedTags.indexOf(name);
       const newSelectedTags = [...prevSelectedTags];
@@ -160,8 +158,8 @@ const DAppsList: FC = () => {
 export default DAppsList;
 
 type TagProps = {
-  name: string;
-  onClick: (name: string) => void;
+  name: DappType;
+  onClick: (name: DappType) => void;
   selected: boolean;
 };
 
