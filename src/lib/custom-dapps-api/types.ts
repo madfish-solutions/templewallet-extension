@@ -1,10 +1,18 @@
+export enum DappType {
+  Exchanges = 'Exchanges',
+  Marketplaces = 'Marketplaces',
+  Games = 'Games',
+  DeFi = 'DeFi',
+  Collectibles = 'Collectibles',
+  Other = 'Other'
+}
 export interface CustomDAppInfo {
   name: string;
   dappUrl: string;
-  type: string;
+  type: DappType;
   logo: string;
   slug: string;
-  categories: string[];
+  categories: DappType[];
 }
 
 export interface CustomDAppsInfo {

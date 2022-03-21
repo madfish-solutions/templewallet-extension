@@ -7,20 +7,11 @@ import DAppIcon from 'app/templates/DAppsList/DAppIcon';
 import DAppItem from 'app/templates/DAppsList/DAppItem';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { getDApps } from 'lib/custom-dapps-api';
+import { DappType, getDApps } from 'lib/custom-dapps-api';
 import { t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
 
 import { DAppStoreSelectors } from './DAppsList.selectors';
-
-enum DappType {
-  Exchanges = 'Exchanges',
-  Marketplaces = 'Marketplaces',
-  Games = 'Games',
-  DeFi = 'DeFi',
-  Collectibles = 'Collectibles',
-  Other = 'Other'
-}
 
 type DappTypeNames = keyof typeof DappType;
 
