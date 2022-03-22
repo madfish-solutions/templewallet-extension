@@ -45,18 +45,25 @@ export async function detectTokenStandard(
 
 export async function assertGetBalance(
   chainId: ChainIds,
+  tezos: TezosToolkit,
   contract: WalletContract,
   standard: TokenStandard,
   fa2TokenId = 0
 ) {
   try {
-    await retry(
-      async () =>
-        standard === 'fa2'
-          ? await contract.views.balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }]).read(chainId)
-          : await contract.views.getBalance(STUB_TEZOS_ADDRESS).read(chainId),
-      RETRY_PARAMS
-    );
+    await retry(async () => {
+      let method = 'getBalance';
+      let params: any = STUB_TEZOS_ADDRESS;
+      if (standard === 'fa2') {
+        method = 'balance_of';
+        params = [{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }];
+      }
+      if (chainId === ChainIds.ITHACANET) {
+        return await contract.views[method](params).read(chainId);
+      } else {
+        return contract.views[method](params).read((tezos as any).lambdaContract);
+      }
+    }, RETRY_PARAMS);
   } catch (err: any) {
     console.log(err);
     if (err?.value?.string === 'FA2_TOKEN_UNDEFINED') {

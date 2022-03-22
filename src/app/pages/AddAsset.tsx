@@ -134,7 +134,7 @@ const Form: FC = () => {
         throw new NotMatchingStandardError('Failed when detecting token standard');
       }
 
-      await assertGetBalance(chainId as ChainIds, contract, tokenStandard, tokenId);
+      await assertGetBalance(chainId as ChainIds, tezos, contract, tokenStandard, tokenId);
 
       const slug = toTokenSlug(contractAddress, tokenId);
       const metadata = await fetchMetadata(slug);
