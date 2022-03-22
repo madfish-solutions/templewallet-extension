@@ -1,13 +1,15 @@
-import React, { FC, memo, useMemo, useRef } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
+import CopyButton from 'app/atoms/CopyButton';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import PlainAssetInput from 'app/atoms/PlainAssetInput';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import HashChip from 'app/templates/HashChip';
 import InUSD from 'app/templates/InUSD';
 import { T, t, TProps } from 'lib/i18n/react';
@@ -19,6 +21,7 @@ import {
   tzToMutez,
   useAssetMetadata
 } from 'lib/temple/front';
+import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 type OperationAssetExpense = Omit<RawOperationAssetExpense, 'tokenAddress'> & {
   assetSlug: string;
@@ -34,6 +37,7 @@ type ExpensesViewProps = {
   mainnet?: boolean;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
   gasFeeError?: boolean;
+  error?: any;
 };
 
 export interface ModifyFeeAndLimit {
@@ -45,8 +49,15 @@ export interface ModifyFeeAndLimit {
 
 const MAX_GAS_FEE = 1000;
 
-const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, modifyFeeAndLimit, gasFeeError }) => {
-  console.log(expenses, estimates, modifyFeeAndLimit);
+const ExpensesView: FC<ExpensesViewProps> = ({
+  expenses,
+  estimates,
+  mainnet,
+  modifyFeeAndLimit,
+  gasFeeError,
+  error
+}) => {
+  const { copy } = useCopyToClipboard();
   const modifyFeeAndLimitSection = useMemo(() => {
     if (!modifyFeeAndLimit) return null;
 
@@ -63,11 +74,9 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
                 (e as any).minimalFeePerStorageByteMutez
             )
           );
-          console.log(e.storageLimit, modifyFeeAndLimit.storageLimit);
           i++;
         }
-      } catch (e) {
-        console.log(e);
+      } catch {
         return null;
       }
     }
@@ -233,10 +242,27 @@ const ExpensesView: FC<ExpensesViewProps> = ({ expenses, estimates, mainnet, mod
           </>
         )}
       </div>
-      {expenses[0] && (
-        <span>
-          <T id="txIsLikelyToFail" />
-        </span>
+      {error && (
+        <div className="rounded-lg flex flex-col  border border-red-700 my-2 py-2 px-4 justify-center">
+          <span className="text-red-700 text-center">
+            <T id="txIsLikelyToFail" />
+          </span>
+          <hr className="my-2" />
+          <CopyButton
+            className="flex justify-center items-center text-orange-500 cursor-pointer"
+            text={JSON.stringify(error ?? {})}
+            type="link"
+          >
+            <span className="text-orange-500 bold mr-1">
+              <T id="copyErrorLogs" />
+            </span>
+            <CopyIcon
+              style={{ verticalAlign: 'inherit' }}
+              className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+              onClick={() => copy()}
+            />
+          </CopyButton>
+        </div>
       )}
     </>
   );

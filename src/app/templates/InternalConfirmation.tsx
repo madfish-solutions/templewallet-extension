@@ -37,7 +37,7 @@ import useSafeState from 'lib/ui/useSafeState';
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
 type InternalConfiramtionProps = {
-  payload: TempleConfirmationPayload;
+  payload: TempleConfirmationPayload & Array<any>;
   onConfirm: (confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => Promise<void>;
 };
 
@@ -149,8 +149,6 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
     return 0;
   }, [payload]);
-
-  // console.log(payload);
 
   const [modifiedTotalFeeValue, setModifiedTotalFeeValue] = useSafeState(
     (payload.type === 'operations' &&
@@ -296,6 +294,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
               {spFormat.key === 'preview' && (
                 <ExpensesView
                   expenses={expensesData}
+                  error={payload[0]}
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
                   mainnet={mainnet}
@@ -305,7 +304,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
             </>
           )}
           {spFormat.key === 'preview' && gasFeeError && (
-            <p className="text-xs text-red-600 pt-1 h-4">
+            <p className="text-xs text-red-600 pt-1 pb-8 h-4">
               <T id="gasFeeMustBePositive" />
             </p>
           )}

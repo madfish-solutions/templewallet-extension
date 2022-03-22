@@ -56,10 +56,7 @@ export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePu
       } else {
         return result;
       }
-      console.log('[estimates]', result);
-    } catch (e) {
-      console.log('[dyrun error]', e);
-    }
+    } catch {}
 
     if (bytesToSign && estimates) {
       const withReveal = estimates.length === opParams.length + 1;
