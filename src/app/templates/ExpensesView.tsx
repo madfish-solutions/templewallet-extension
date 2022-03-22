@@ -223,8 +223,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
           <ExpenseViewItem key={index} item={item} last={index === arr.length - 1} mainnet={mainnet} />
         ))}
 
-        {/* {modifyFeeAndLimit && ( */}
-        {true && (
+        {modifyFeeAndLimit && (
           <>
             <div className="flex-1" />
 
@@ -237,7 +236,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                 'text-sm text-gray-700'
               )}
             >
-              {modifyFeeAndLimitSection} {/* {isTxLikelyToFail && ( */}
+              {modifyFeeAndLimitSection}
             </div>
           </>
         )}
