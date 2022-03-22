@@ -5,7 +5,7 @@ export const KNOWN_LAMBDA_CONTRACTS = new Map([
   [TempleChainId.Mainnet, 'KT1CPuTzwC7h7uLXd5WQmpMFso1HxrLBUtpE'],
   [TempleChainId.Granadanet, 'KT1VhtTGAyh7AVVwyH2ExNhaXvQq2rAJ6DNs'],
   [TempleChainId.Hangzhounet, 'KT19ewhnhaCcCuoF1Ly2pxXAFRiF3UtgaY9U'],
-  [TempleChainId.Ithacanet, 'KT1MT3Tgj8NEzzaKYLHUmntCX9ALL1QSg1Q8']
+  [TempleChainId.Ithacanet, undefined]
 ]);
 
 export const NETWORK_IDS = new Map<string, string>([
@@ -91,9 +91,9 @@ export const NETWORKS: TempleNetwork[] = [
     id: 'ithacanet',
     name: 'Ithacanet Testnet',
     description: 'Ithacanet testnet',
-    lambdaContract: 'KT1MT3Tgj8NEzzaKYLHUmntCX9ALL1QSg1Q8',
+    lambdaContract: undefined,
     type: 'test',
-    rpcBaseURL: 'https://ithacanet.smartpy.io/',
+    rpcBaseURL: 'https://ithacanet.ecadinfra.com/',
     color: '#131380',
     disabled: false
   },

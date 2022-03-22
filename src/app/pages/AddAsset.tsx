@@ -1,5 +1,6 @@
 import React, { FC, ReactNode, useCallback, useEffect, useRef, useMemo } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
 import { cache as swrCache } from 'swr';
@@ -133,7 +134,7 @@ const Form: FC = () => {
         throw new NotMatchingStandardError('Failed when detecting token standard');
       }
 
-      await assertGetBalance(tezos, contract, tokenStandard, tokenId);
+      await assertGetBalance(chainId as ChainIds, contract, tokenStandard, tokenId);
 
       const slug = toTokenSlug(contractAddress, tokenId);
       const metadata = await fetchMetadata(slug);
@@ -164,7 +165,7 @@ const Form: FC = () => {
         processing: false
       }));
     }
-  }, [tezos, setValue, setState, fetchMetadata, formValid, contractAddress, tokenId]);
+  }, [tezos, chainId, setValue, setState, fetchMetadata, formValid, contractAddress, tokenId]);
 
   const loadMetadata = useDebouncedCallback(loadMetadataPure, 500);
 

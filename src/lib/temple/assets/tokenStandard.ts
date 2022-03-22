@@ -1,4 +1,4 @@
-import { TezosToolkit, WalletContract, Contract } from '@taquito/taquito';
+import { TezosToolkit, WalletContract, Contract, ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
 
 import { getMessage } from 'lib/i18n';
@@ -44,22 +44,21 @@ export async function detectTokenStandard(
 }
 
 export async function assertGetBalance(
-  tezos: TezosToolkit,
+  chainId: ChainIds,
   contract: WalletContract,
   standard: TokenStandard,
   fa2TokenId = 0
 ) {
   try {
     await retry(
-      () =>
+      async () =>
         standard === 'fa2'
-          ? contract.views
-              .balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }])
-              .read((tezos as any).lambdaContract)
-          : contract.views.getBalance(STUB_TEZOS_ADDRESS).read((tezos as any).lambdaContract),
+          ? await contract.views.balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }]).read(chainId)
+          : await contract.views.getBalance(STUB_TEZOS_ADDRESS).read(chainId),
       RETRY_PARAMS
     );
   } catch (err: any) {
+    console.log(err);
     if (err?.value?.string === 'FA2_TOKEN_UNDEFINED') {
       throw new IncorrectTokenIdError(getMessage('incorrectTokenIdErrorMessage'));
     } else {
