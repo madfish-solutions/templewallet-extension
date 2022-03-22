@@ -37,7 +37,7 @@ import useSafeState from 'lib/ui/useSafeState';
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
 type InternalConfiramtionProps = {
-  payload: TempleConfirmationPayload & Array<any>;
+  payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => Promise<void>;
 };
 
@@ -294,6 +294,8 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
               {spFormat.key === 'preview' && (
                 <ExpensesView
                   expenses={expensesData}
+                  // intentional, internal errors are here
+                  // @ts-ignore
                   error={payload[0]}
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}

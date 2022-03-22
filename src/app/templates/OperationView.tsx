@@ -13,7 +13,7 @@ import { T, t } from 'lib/i18n/react';
 import { tryParseExpenses, TempleDAppOperationsPayload, TempleDAppSignPayload, toTokenSlug } from 'lib/temple/front';
 
 type OperationViewProps = {
-  payload: (TempleDAppOperationsPayload | TempleDAppSignPayload) & Array<any>;
+  payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
   networkRpc?: string;
   mainnet?: boolean;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
@@ -117,7 +117,12 @@ const OperationView: FC<OperationViewProps> = ({ payload, mainnet = false, modif
         />
 
         <div className={classNames(spFormat.key !== 'preview' && 'hidden')}>
-          <ExpensesView error={payload[0]} expenses={expensesData} />
+          <ExpensesView
+            // intentional, internal errors are here
+            // @ts-ignore
+            error={payload[0]}
+            expenses={expensesData}
+          />
         </div>
       </div>
     );
