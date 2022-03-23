@@ -24,17 +24,18 @@ export async function fetchBalance(
     nat = await getBalanceSafe(tezos, account);
   } else {
     const contract = await loadContractForCallLambdaView(tezos, asset.contract);
+    const chainId = await tezos.rpc.getChainId();
 
     if (isFA2Token(asset)) {
       try {
         const response = await contract.views
           .balance_of([{ owner: account, token_id: asset.id }])
-          .read((tezos as any).lambdaContract);
+          .read(chainId);
         nat = response[0].balance;
       } catch {}
     } else {
       try {
-        nat = await contract.views.getBalance(account).read((tezos as any).lambdaContract);
+        nat = await contract.views.getBalance(account).read(chainId);
       } catch {}
     }
   }

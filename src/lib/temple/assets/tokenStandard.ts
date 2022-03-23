@@ -49,17 +49,16 @@ export async function assertGetBalance(
   standard: TokenStandard,
   fa2TokenId = 0
 ) {
+  const chainId = (await tezos.rpc.getChainId()) as ChainIds;
+
   try {
-    await retry(async () => {
-      const chainId = await tezos.rpc.getChainId();
-      let method = 'getBalance';
-      let params: any = STUB_TEZOS_ADDRESS;
-      if (standard === 'fa2') {
-        method = 'balance_of';
-        params = [{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }];
-      }
-      return await contract.views[method](params).read(chainId as ChainIds);
-    }, RETRY_PARAMS);
+    await retry(
+      () =>
+        standard === 'fa2'
+          ? contract.views.balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }]).read(chainId)
+          : contract.views.getBalance(STUB_TEZOS_ADDRESS).read(chainId),
+      RETRY_PARAMS
+    );
   } catch (err: any) {
     console.log(err);
     if (err?.value?.string === 'FA2_TOKEN_UNDEFINED') {
@@ -73,6 +72,7 @@ export async function assertGetBalance(
 }
 
 export class NotMatchingStandardError extends Error {}
+
 export class IncorrectTokenIdError extends NotMatchingStandardError {}
 
 function isEntrypointsMatched(entrypoints: Record<string, any>, schema: string[][]) {
