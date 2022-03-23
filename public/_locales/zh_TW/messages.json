@@ -1289,17 +1289,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Lambda 檢視合約"
-  },
-  "someLambda": {
-    "message": "Lambda 檢視：$lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "與 $contractAddress$ 合約的進入點「$entrypoint$」互動",
     "placeholders": {
@@ -1321,15 +1310,6 @@
   },
   "approveToken": {
     "message": "核准代表"
-  },
-  "noLambdaWarningContent": {
-    "message": "未指定 Lambda 檢視合約。部分功能可能因此無法運作。如要繼續，請按下「新增網路」按鈕。"
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "目前的網路未指定 Lambda 檢視合約！"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "目前的網路未指定 Lambda 檢視合約。您可從下面的表格新增，或「部署新合約」來部署新的合約並自動新增。"
   },
   "add": {
     "message": "新增"

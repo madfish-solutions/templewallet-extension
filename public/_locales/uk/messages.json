@@ -1319,17 +1319,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Lambda View contract"
-  },
-  "someLambda": {
-    "message": "Lambda View: $lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "Взаємодія з entrypoint'ом '$entrypoint$' контракту $contractAddress$",
     "placeholders": {
@@ -1351,15 +1340,6 @@
   },
   "approveToken": {
     "message": "Апрувнути Токен"
-  },
-  "noLambdaWarningContent": {
-    "message": "Контракт Lambda View не вказано. Деякі функціональні можливості можуть не працювати без нього. Натисніть кнопку 'Додати мережу', якщо ви хочете продовжити."
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "Контракт Lambda View було задано для поточної мережі!"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "Контрак Lambda View було задано для поточної мережі. Ви можете додати його у форму нижче або натиснути «Задеплоїти новий», щоб задеплоїти новий та додати автоматично."
   },
   "add": {
     "message": "Додати"
