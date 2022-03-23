@@ -2201,9 +2201,6 @@
   "done": {
     "message": "Done!"
   },
-  "donate": {
-    "message": "Donate"
-  },
   "standWithUkraine": {
     "message": "Stand with Ukraine"
   },
@@ -2379,7 +2376,7 @@
     "message": "Top up TEZ balance"
   },
   "topUpDescription": {
-    "message": "To interact with the Tezos DApps ecosystem, the account balance must be positive. Top up your address with TEZ coins easily."
+    "message": "Temple integrated third-party solutions to buy TEZ with crypto or a Debit/Credit card. Choose a provider, follow guides, get TEZ on your account."
   },
   "topUpCrypto": {
     "message": "Crypto"
