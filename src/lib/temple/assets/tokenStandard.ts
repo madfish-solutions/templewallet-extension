@@ -60,7 +60,6 @@ export async function assertGetBalance(
       RETRY_PARAMS
     );
   } catch (err: any) {
-    console.log(err);
     if (err?.value?.string === 'FA2_TOKEN_UNDEFINED') {
       throw new IncorrectTokenIdError(getMessage('incorrectTokenIdErrorMessage'));
     } else {
