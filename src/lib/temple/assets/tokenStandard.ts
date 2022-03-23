@@ -72,7 +72,6 @@ export async function assertGetBalance(
 }
 
 export class NotMatchingStandardError extends Error {}
-
 export class IncorrectTokenIdError extends NotMatchingStandardError {}
 
 function isEntrypointsMatched(entrypoints: Record<string, any>, schema: string[][]) {
