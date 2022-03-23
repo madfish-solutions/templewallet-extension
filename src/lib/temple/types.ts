@@ -102,7 +102,6 @@ export interface TempleNetwork {
   nameI18nKey?: string;
   description: string;
   descriptionI18nKey?: string;
-  lambdaContract?: string;
   type: TempleNetworkType;
   rpcBaseURL: string;
   color: string;
@@ -114,7 +113,6 @@ export type TempleNetworkType = 'main' | 'test';
 
 export interface TempleSettings {
   customNetworks?: TempleNetwork[];
-  lambdaContracts?: Record<string, string>;
   contacts?: TempleContact[];
 }
 

@@ -297,9 +297,6 @@
   "tokenContractPlaceholder": {
     "message": "ör. KT1v9CmPy..."
   },
-  "lambdaContractPlaceholder": {
-    "message": "ör. KT1v9CmPy..."
-  },
   "tokenSymbolPatternDescription": {
     "message": "Yalnızca a-z, A-Z, 0-9 karakterlerine izin verilir, 2-5 uzunluk"
   },

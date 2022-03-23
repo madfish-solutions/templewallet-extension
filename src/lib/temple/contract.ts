@@ -4,13 +4,6 @@ import memoize from 'micro-memoize';
 import { michelEncoder } from 'lib/temple/helpers';
 import { TempleChainId } from 'lib/temple/types';
 
-export type TokenMetadata = {
-  decimals: number;
-  symbol: string;
-  name: string;
-  iconUrl: string;
-};
-
 const KNOWN_CHAIN_IDS = Object.values(TempleChainId) as string[];
 
 export const loadContract = memoize(fetchContract, {

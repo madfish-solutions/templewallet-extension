@@ -28,9 +28,7 @@ export async function fetchBalance(
 
     if (isFA2Token(asset)) {
       try {
-        const response = await contract.views
-          .balance_of([{ owner: account, token_id: asset.id }])
-          .read(chainId);
+        const response = await contract.views.balance_of([{ owner: account, token_id: asset.id }]).read(chainId);
         nat = response[0].balance;
       } catch {}
     } else {

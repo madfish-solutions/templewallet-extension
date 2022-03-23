@@ -282,9 +282,6 @@
   "addressOfDeployedTokenContract": {
     "message": "デプロイされたトークンコントラクトのアドレス"
   },
-  "lambdaContractPlaceholder": {
-    "message": "例: KT1v9CmPy..."
-  },
   "tokenContractPlaceholder": {
     "message": "例: KT1v9CmPy..."
   },

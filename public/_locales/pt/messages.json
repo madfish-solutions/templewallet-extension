@@ -297,9 +297,6 @@
   "tokenContractPlaceholder": {
     "message": "por exemplo, KT1v9CmPy..."
   },
-  "lambdaContractPlaceholder": {
-    "message": "por exemplo, KT1v9CmPy..."
-  },
   "tokenSymbolPatternDescription": {
     "message": "Apenas são permitidos caracteres a-z, A-Z, 0-9, comprimento de 2 a 5"
   },

@@ -1,50 +1,27 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback } from 'react';
 
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import Alert from 'app/atoms/Alert';
 import FormField from 'app/atoms/FormField';
-import FormSecondaryButton from 'app/atoms/FormSecondaryButton';
 import FormSubmitButton from 'app/atoms/FormSubmitButton';
 import Name from 'app/atoms/Name';
 import SubTitle from 'app/atoms/SubTitle';
 import { URL_PATTERN } from 'app/defaults';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
-import HashChip from 'app/templates/HashChip';
 import { T, t } from 'lib/i18n/react';
-import { viewLambda } from 'lib/michelson';
-import { useRetryableSWR } from 'lib/swr';
-import {
-  isKnownChainId,
-  loadChainId,
-  TempleNetwork,
-  useNetwork,
-  useSettings,
-  useTezos,
-  useTempleClient,
-  validateContractAddress,
-  confirmOperation,
-  getOriginatedContractAddress,
-  useChainId,
-  KNOWN_LAMBDA_CONTRACTS,
-  NETWORK_IDS
-} from 'lib/temple/front';
+import { loadChainId, NETWORK_IDS, TempleNetwork, useSettings, useTempleClient } from 'lib/temple/front';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
 
-type NetworkFormData = Pick<TempleNetwork, 'name' | 'rpcBaseURL' | 'lambdaContract'>;
-type LambdaFormData = {
-  lambdaContract: NonNullable<TempleNetwork['lambdaContract']>;
-};
+type NetworkFormData = Pick<TempleNetwork, 'name' | 'rpcBaseURL'>;
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const CustomNetworksSettings: FC = () => {
   const { updateSettings, defaultNetworks } = useTempleClient();
-  const { lambdaContracts = {}, customNetworks = [] } = useSettings();
-  const [showNoLambdaWarning, setShowNoLambdaWarning] = useState(false);
+  const { customNetworks = [] } = useSettings();
   const confirm = useConfirm();
 
   const {
@@ -59,7 +36,7 @@ const CustomNetworksSettings: FC = () => {
   const submitting = formState.isSubmitting;
 
   const onNetworkFormSubmit = useCallback(
-    async ({ rpcBaseURL, name, lambdaContract }: NetworkFormData) => {
+    async ({ rpcBaseURL, name }: NetworkFormData) => {
       if (submitting) return;
       clearError();
 
@@ -70,16 +47,6 @@ const CustomNetworksSettings: FC = () => {
         await withErrorHumanDelay(err, () => setError('rpcBaseURL', SUBMIT_ERROR_TYPE, t('invalidRpcCantGetChainId')));
         return;
       }
-
-      if (!lambdaContract) {
-        lambdaContract = isKnownChainId(chainId) ? KNOWN_LAMBDA_CONTRACTS.get(chainId) : lambdaContracts[chainId];
-      }
-
-      if (!showNoLambdaWarning && !lambdaContract) {
-        setShowNoLambdaWarning(true);
-        return;
-      }
-      setShowNoLambdaWarning(false);
 
       try {
         const networkId = NETWORK_IDS.get(chainId) ?? rpcBaseURL;
@@ -93,24 +60,16 @@ const CustomNetworksSettings: FC = () => {
               type: networkId === 'mainnet' ? 'main' : 'test',
               disabled: false,
               color: COLORS[Math.floor(Math.random() * COLORS.length)],
-              id: rpcBaseURL,
-              lambdaContract
+              id: rpcBaseURL
             }
-          ],
-          lambdaContracts: lambdaContract
-            ? {
-                ...lambdaContracts,
-                [chainId]: lambdaContract,
-                [networkId]: lambdaContract
-              }
-            : lambdaContracts
+          ]
         });
         resetForm();
       } catch (err: any) {
         await withErrorHumanDelay(err, () => setError('rpcBaseURL', SUBMIT_ERROR_TYPE, err.message));
       }
     },
-    [clearError, customNetworks, lambdaContracts, resetForm, submitting, setError, updateSettings, showNoLambdaWarning]
+    [clearError, customNetworks, resetForm, submitting, setError, updateSettings]
   );
 
   const rpcURLIsUnique = useCallback(
@@ -143,8 +102,6 @@ const CustomNetworksSettings: FC = () => {
 
   return (
     <div className="w-full max-w-sm p-2 pb-4 mx-auto">
-      <LambdaContractSection />
-
       <div className="flex flex-col mb-8">
         <h2 className={classNames('mb-4', 'leading-tight', 'flex flex-col')}>
           <T id="currentNetworks">
@@ -225,27 +182,6 @@ const CustomNetworksSettings: FC = () => {
           containerClassName="mb-4"
         />
 
-        <FormField
-          ref={register({ validate: validateLambdaContract })}
-          label={
-            <>
-              <T id="lambdaContract" />
-              <T id="optionalComment">
-                {message => <span className="ml-1 text-sm font-light text-gray-600">{message}</span>}
-              </T>
-            </>
-          }
-          id="lambda-contract"
-          name="lambdaContract"
-          placeholder={t('lambdaContractPlaceholder')}
-          errorCaption={errors.lambdaContract?.message}
-          containerClassName="mb-4"
-        />
-
-        {showNoLambdaWarning && (
-          <Alert className="mb-6" title={t('attentionExclamation')} description={t('noLambdaWarningContent')} />
-        )}
-
         <T id="addNetwork">{message => <FormSubmitButton loading={submitting}>{message}</FormSubmitButton>}</T>
       </form>
     </div>
@@ -253,192 +189,6 @@ const CustomNetworksSettings: FC = () => {
 };
 
 export default CustomNetworksSettings;
-
-const LambdaContractSection: FC = () => {
-  const { updateSettings } = useTempleClient();
-  const tezos = useTezos();
-  const network = useNetwork();
-  const netChainId = useChainId(true);
-  const { lambdaContracts = {} } = useSettings();
-
-  const contractCheckSWR = useRetryableSWR(
-    ['contract-check', tezos.checksum, network.lambdaContract],
-    async () => {
-      try {
-        return Boolean(network.lambdaContract && (await tezos.contract.at(network.lambdaContract)));
-      } catch {
-        return false;
-      }
-    },
-    {
-      revalidateOnFocus: false,
-      suspense: false
-    }
-  );
-  const displayed = !contractCheckSWR.isValidating && !contractCheckSWR.data;
-
-  const {
-    register: lambdaFormRegister,
-    reset: resetLambdaForm,
-    handleSubmit: handleLambdaFormSubmit,
-    formState: lambdaFormState,
-    clearError: clearLambdaFormError,
-    setError: setLambdaFormError,
-    errors: lambdaFormErrors
-  } = useForm<LambdaFormData>();
-  const lambdaFormSubmitting = lambdaFormState.isSubmitting;
-  const [lambdaContractDeploying, setLambdaContractDeploying] = useState(false);
-  const [lambdaDeploymentError, setLambdaDeploymentError] = useState<any>(null);
-  const lambdaFormLoading = lambdaFormSubmitting || lambdaContractDeploying;
-
-  const onLambdaFormSubmit = useCallback(
-    async (data: LambdaFormData) => {
-      if (lambdaFormLoading) {
-        return;
-      }
-      clearLambdaFormError();
-      try {
-        if (!netChainId) {
-          throw new Error(t('failedToLoadChainID'));
-        }
-
-        await updateSettings({
-          lambdaContracts: {
-            ...lambdaContracts,
-            [netChainId]: data.lambdaContract,
-            [network.id]: data.lambdaContract
-          }
-        });
-        resetLambdaForm();
-      } catch (err: any) {
-        await withErrorHumanDelay(err, () => setLambdaFormError('lambdaContract', SUBMIT_ERROR_TYPE, err.message));
-      }
-    },
-    [
-      clearLambdaFormError,
-      lambdaContracts,
-      lambdaFormLoading,
-      netChainId,
-      network.id,
-      resetLambdaForm,
-      setLambdaFormError,
-      updateSettings
-    ]
-  );
-
-  const onLambdaDeployClick = useCallback(async () => {
-    if (lambdaFormLoading) {
-      return;
-    }
-    setLambdaContractDeploying(true);
-    setLambdaDeploymentError(undefined);
-    try {
-      if (!netChainId) {
-        throw new Error(t('failedToLoadChainID'));
-      }
-
-      const op = await tezos.wallet
-        .originate({
-          balance: '0',
-          code: viewLambda,
-          init: { prim: 'Unit' }
-        })
-        .send();
-      const opEntry = await confirmOperation(tezos, op.opHash);
-      const contractAddress = getOriginatedContractAddress(opEntry);
-      if (!contractAddress) throw new Error(t('contractNotOriginated'));
-
-      await updateSettings({
-        lambdaContracts: {
-          ...lambdaContracts,
-          [netChainId]: contractAddress,
-          [network.id]: contractAddress
-        }
-      });
-    } catch (err: any) {
-      let error = err;
-      if (err.message?.includes('[object Object]') && err.node) {
-        error = new Error(err.message.replace('[object Object]', JSON.stringify(err.node)));
-      }
-      await withErrorHumanDelay(error, () => setLambdaDeploymentError(error));
-    } finally {
-      setLambdaContractDeploying(false);
-    }
-  }, [lambdaFormLoading, lambdaContracts, netChainId, network.id, tezos, updateSettings]);
-
-  const handleErrorAlertClose = useCallback(() => {
-    setLambdaDeploymentError(null);
-  }, [setLambdaDeploymentError]);
-
-  if (!displayed) return null;
-
-  return (
-    <>
-      {(() => {
-        switch (true) {
-          case lambdaContractDeploying:
-            return (
-              <Alert
-                className="mb-4"
-                title={t('justAMinute')}
-                description={t('waitWhileContractBeingDeployed')}
-                type="success"
-              />
-            );
-
-          case lambdaDeploymentError instanceof Error:
-            return (
-              <Alert
-                className="mb-4"
-                type="error"
-                title={t('error')}
-                description={lambdaDeploymentError.message}
-                closable
-                onClose={handleErrorAlertClose}
-              />
-            );
-
-          default:
-            return (
-              <Alert
-                className="mb-4"
-                title={t('attentionExclamation')}
-                description={t('noActiveNetLambdaWarningContent')}
-              />
-            );
-        }
-      })()}
-
-      <form onSubmit={handleLambdaFormSubmit(onLambdaFormSubmit)} className="mb-8">
-        <FormField
-          ref={lambdaFormRegister({
-            validate: validateLambdaContract,
-            required: true
-          })}
-          label={t('lambdaContract')}
-          id="current-network-lambda-contract"
-          name="lambdaContract"
-          placeholder={t('lambdaContractPlaceholder')}
-          errorCaption={lambdaFormErrors.lambdaContract?.message}
-          containerClassName="mb-6"
-        />
-        <div className="flex justify-between">
-          <FormSubmitButton loading={lambdaFormSubmitting} disabled={lambdaContractDeploying}>
-            <T id="add" />
-          </FormSubmitButton>
-
-          <FormSecondaryButton
-            disabled={lambdaFormSubmitting}
-            loading={lambdaContractDeploying}
-            onClick={onLambdaDeployClick}
-          >
-            <T id="deployNew" />
-          </FormSecondaryButton>
-        </div>
-      </form>
-    </>
-  );
-};
 
 type NetworksListItemProps = {
   canRemove: boolean;
@@ -449,7 +199,7 @@ type NetworksListItemProps = {
 
 const NetworksListItem: FC<NetworksListItemProps> = props => {
   const {
-    network: { name, nameI18nKey, rpcBaseURL, color, lambdaContract },
+    network: { name, nameI18nKey, rpcBaseURL, color },
     canRemove,
     onRemoveClick,
     last
@@ -490,15 +240,6 @@ const NetworksListItem: FC<NetworksListItemProps> = props => {
         >
           RPC:<Name className="ml-1 font-normal">{rpcBaseURL}</Name>
         </div>
-
-        {lambdaContract && (
-          <div className="text-xs text-gray-700 font-light">
-            <T
-              id="someLambda"
-              substitutions={<HashChip hash={lambdaContract} type="link" small className="font-normal" />}
-            />
-          </div>
-        )}
       </div>
 
       {canRemove && (
@@ -516,7 +257,3 @@ const NetworksListItem: FC<NetworksListItemProps> = props => {
     </div>
   );
 };
-
-function validateLambdaContract(value: any) {
-  return value ? validateContractAddress(value) : true;
-}

@@ -282,9 +282,6 @@
   "addressOfDeployedTokenContract": {
     "message": "배치된 토큰 계약의 주소입니다."
   },
-  "lambdaContractPlaceholder": {
-    "message": "예) KT1v9CmPy..."
-  },
   "tokenContractPlaceholder": {
     "message": "예) KT1v9CmPy..."
   },

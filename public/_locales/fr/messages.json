@@ -282,9 +282,6 @@
   "addressOfDeployedTokenContract": {
     "message": "Adresse d'un contrat de jeton déployé."
   },
-  "lambdaContractPlaceholder": {
-    "message": "p. ex. KT1v9CmPy…"
-  },
   "tokenContractPlaceholder": {
     "message": "p. ex. KT1v9CmPy…"
   },

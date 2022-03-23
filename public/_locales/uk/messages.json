@@ -285,9 +285,6 @@
   "tokenContractPlaceholder": {
     "message": "e.g. KT1v9CmPy..."
   },
-  "lambdaContractPlaceholder": {
-    "message": "e.g. KT1v9CmPy..."
-  },
   "tokenSymbolPatternDescription": {
     "message": "Тільки a-z, A-Z, 0-9 символи дозволені, 2-5 довжина"
   },

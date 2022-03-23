@@ -282,9 +282,6 @@
   "addressOfDeployedTokenContract": {
     "message": "已部署代幣合約的地址。"
   },
-  "lambdaContractPlaceholder": {
-    "message": "例如 KT1v9CmPy…"
-  },
   "tokenContractPlaceholder": {
     "message": "例如 KT1v9CmPy…"
   },
