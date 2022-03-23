@@ -11488,7 +11488,7 @@ svgson@^4.0.0:
     omit-deep "0.3.0"
     xml-reader "2.4.3"
 
-swap-router-sdk@^1.5.0:
+swap-router-sdk@1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/swap-router-sdk/-/swap-router-sdk-1.5.0.tgz#477794a6a1fe5e544693d43ac01f001399225268"
   integrity sha512-LLLPj4Jv3nyNzt1Rmy+p54vbmfTDDSmrDKV326Xx2PLXBdTi+3n+KJCxZJG50UKXPPFMhA2vcCrumPKu/nj/tQ==
