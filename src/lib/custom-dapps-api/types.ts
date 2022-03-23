@@ -1,28 +1,21 @@
-export interface BcdDAppScreenshot {
-  type: string;
-  link: string;
+export enum DappEnum {
+  Exchanges = 'Exchanges',
+  Marketplaces = 'Marketplaces',
+  Games = 'Games',
+  DeFi = 'DeFi',
+  Collectibles = 'Collectibles',
+  Other = 'Other'
 }
 
 export interface CustomDAppInfo {
   name: string;
-  short_description: string;
-  full_description: string;
-  website: string;
-  slug: string;
-  authors: string[];
-  social_links: string[] | null;
-  interfaces: string[] | null;
-  categories: string[];
-  soon: boolean;
+  dappUrl: string;
+  type: DappEnum;
   logo: string;
-  cover: string;
-  screenshots?: BcdDAppScreenshot[];
-  tvl: string;
-  errorOccurred?: boolean;
+  slug: string;
+  categories: DappEnum[];
 }
 
 export interface CustomDAppsInfo {
   dApps: CustomDAppInfo[];
-  tvl: string;
-  totalTezLocked: string;
 }

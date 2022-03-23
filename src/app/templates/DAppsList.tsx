@@ -1,43 +1,32 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
-import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import Money from 'app/atoms/Money';
 import { openInFullPage, useAppEnv } from 'app/env';
-import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import DAppIcon from 'app/templates/DAppsList/DAppIcon';
 import DAppItem from 'app/templates/DAppsList/DAppItem';
-import StarButton from 'app/templates/DAppsList/StarButton';
 import SearchField from 'app/templates/SearchField';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { getDApps } from 'lib/custom-dapps-api';
+import { DappEnum, getDApps } from 'lib/custom-dapps-api';
 import { t } from 'lib/i18n/react';
 import { useRetryableSWR } from 'lib/swr';
-import { useStorage, TEZOS_METADATA } from 'lib/temple/front';
-import useTippy from 'lib/ui/useTippy';
 
 import { DAppStoreSelectors } from './DAppsList.selectors';
 
-const USED_TAGS = ['DEX', 'NFT', 'DAO', 'Game', 'Social', 'Marketplace', 'Farming', 'Other'];
-const TOP_DAPPS_SLUGS = ['quipuswap', 'kolibri', 'hen'];
+const USED_TAGS = Object.values(DappEnum).filter(x => typeof x !== 'number') as DappEnum[];
+const TOP_DAPPS_SLUGS = ['quipuswap', 'objkt.com', 'youves'];
 
-const FAVORITE_DAPPS_STORAGE_KEY = 'dapps_favorite';
-
-const DAppsList: FC = () => {
+const DAppsList = () => {
   const { trackEvent } = useAnalytics();
-
-  const [favoriteDApps, setFavoriteDApps] = useStorage<string[]>(FAVORITE_DAPPS_STORAGE_KEY, []);
   const { popup } = useAppEnv();
   const { data } = useRetryableSWR('dapps-list', getDApps, { suspense: true });
+
   const dApps = useMemo(() => {
     return data!.dApps.map(({ categories: rawCategories, ...restProps }) => {
-      const nonUniqueCategories = rawCategories.map(category => (USED_TAGS.includes(category) ? category : 'Other'));
-      const categories = nonUniqueCategories.filter(name => name !== 'Other');
-      if (categories.length !== nonUniqueCategories.length) {
-        categories.push('Other');
+      const categories = rawCategories.filter(name => name !== DappEnum.Other);
+      if (categories.length !== rawCategories.length) {
+        categories.push(DappEnum.Other);
       }
-
       return {
         categories,
         ...restProps
@@ -46,12 +35,9 @@ const DAppsList: FC = () => {
   }, [data]);
 
   const [searchString, setSearchString] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [showOnlyFavorite, setShowOnlyFavorite] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<DappEnum[]>([]);
 
-  const toggleFavoriteFilter = useCallback(() => setShowOnlyFavorite(prevValue => !prevValue), []);
-
-  const handleTagClick = useCallback((name: string) => {
+  const handleTagClick = useCallback((name: DappEnum) => {
     setSelectedTags(prevSelectedTags => {
       const tagIndex = prevSelectedTags.indexOf(name);
       const newSelectedTags = [...prevSelectedTags];
@@ -64,8 +50,6 @@ const DAppsList: FC = () => {
     });
   }, []);
 
-  const roundedTvl = useMemo(() => new BigNumber(data!.tvl).decimalPlaces(0), [data]);
-
   const featuredDApps = useMemo(() => {
     const topDApps = dApps.filter(({ slug }) => TOP_DAPPS_SLUGS.some(topDAppSlug => topDAppSlug === slug));
     const otherDApps = dApps.filter(({ slug }) => !TOP_DAPPS_SLUGS.some(topDAppSlug => topDAppSlug === slug));
@@ -74,25 +58,11 @@ const DAppsList: FC = () => {
 
   const matchingDApps = useMemo(() => {
     return dApps.filter(
-      ({ name, categories, slug }) =>
+      ({ name, categories }) =>
         name.toLowerCase().includes(searchString.toLowerCase()) &&
-        selectedTags.every(selectedTag => categories.includes(selectedTag)) &&
-        (!showOnlyFavorite || favoriteDApps.includes(slug))
+        selectedTags.every(selectedTag => categories.includes(selectedTag))
     );
-  }, [dApps, searchString, selectedTags, favoriteDApps, showOnlyFavorite]);
-
-  const handleFavoriteChange = useCallback(
-    (newIsFavorite: boolean, slug: string) => {
-      const newFavorites = [...favoriteDApps];
-      if (newIsFavorite) {
-        newFavorites.push(slug);
-      } else {
-        newFavorites.splice(newFavorites.indexOf(slug), 1);
-      }
-      setFavoriteDApps(newFavorites);
-    },
-    [setFavoriteDApps, favoriteDApps]
-  );
+  }, [dApps, searchString, selectedTags]);
 
   const handleFeaturedClick = useCallback(
     (website: string, name: string) => {
@@ -100,17 +70,6 @@ const DAppsList: FC = () => {
     },
     [trackEvent]
   );
-
-  const infoIconWrapperTippyProps = useMemo(
-    () => ({
-      trigger: 'mouseenter',
-      hideOnClick: false,
-      content: t('dAppsListTvlDescription'),
-      animation: 'shift-away-subtle'
-    }),
-    []
-  );
-  const infoIconWrapperRef = useTippy<HTMLSpanElement>(infoIconWrapperTippyProps);
 
   return (
     <div
@@ -121,40 +80,18 @@ const DAppsList: FC = () => {
       )}
     >
       <div className="mx-auto flex flex-col items-center" style={{ maxWidth: '25rem' }}>
-        <div className="mb-2 text-sm text-gray-600 flex items-center leading-tight">
-          {t('tvl')}
-          <span ref={infoIconWrapperRef}>
-            <InfoIcon
-              style={{
-                width: '0.625rem',
-                height: 'auto',
-                marginLeft: '0.125rem'
-              }}
-              className="stroke-current"
-            />
-          </span>
-        </div>
-        <h1 className="text-2xl text-gray-900 mb-2 font-medium leading-tight">
-          ~<Money cryptoDecimals={0}>{data!.totalTezLocked}</Money> <span>{TEZOS_METADATA.symbol}</span>
-        </h1>
-        <h2 className={classNames(popup ? 'mb-4' : 'mb-6', 'text-base text-gray-600 leading-tight')}>
-          ~ $
-          <Money cryptoDecimals={0} smallFractionFont={false}>
-            {roundedTvl}
-          </Money>
-        </h2>
         <span className="text-sm text-gray-600 mb-2">{t('promoted')}</span>
         <div
           className={classNames(popup ? 'py-2 mb-4' : 'py-6 mb-6', 'rounded-lg bg-gray-100 w-full flex justify-center')}
         >
-          {featuredDApps.slice(0, 3).map(({ slug, name, logo, website }) => (
+          {featuredDApps.slice(0, 3).map(({ slug, name, logo, dappUrl }) => (
             <a
               className="mx-4 py-1 flex flex-col items-center"
               key={slug}
-              href={website}
+              href={dappUrl}
               target="_blank"
               rel="noreferrer"
-              onClick={() => handleFeaturedClick(website, name)}
+              onClick={() => handleFeaturedClick(dappUrl, name)}
             >
               <DAppIcon className="mb-2" name={name} logo={logo} />
               <span
@@ -191,29 +128,9 @@ const DAppsList: FC = () => {
               <Tag key={tag} name={tag} onClick={handleTagClick} selected={selectedTags.includes(tag)} />
             ))}
           </div>
-
-          {!popup && (
-            <StarButton
-              className="flex-shrink-0"
-              iconClassName="w-6 h-auto"
-              isActive={showOnlyFavorite}
-              onClick={toggleFavoriteFilter}
-            />
-          )}
         </div>
-        {matchingDApps.length === 0 && (
-          <p className="text-sm text-center text-gray-700 mb-4">
-            {showOnlyFavorite && favoriteDApps.length === 0 ? t('noFavoriteDApps') : t('noMatchingDAppsFound')}
-          </p>
-        )}
         {matchingDApps.slice(0, popup ? 3 : matchingDApps.length).map(dAppProps => (
-          <DAppItem
-            {...dAppProps}
-            key={dAppProps.slug}
-            onStarClick={handleFavoriteChange}
-            isFavorite={favoriteDApps.includes(dAppProps.slug)}
-            tvl={dAppProps.tvl}
-          />
+          <DAppItem {...dAppProps} key={dAppProps.slug} />
         ))}
       </div>
       <div
@@ -241,8 +158,8 @@ const DAppsList: FC = () => {
 export default DAppsList;
 
 type TagProps = {
-  name: string;
-  onClick: (name: string) => void;
+  name: DappEnum;
+  onClick: (name: DappEnum) => void;
   selected: boolean;
 };
 
