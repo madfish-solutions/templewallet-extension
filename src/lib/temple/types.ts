@@ -26,7 +26,6 @@ export interface TempleState {
 
 export enum TempleChainId {
   Mainnet = 'NetXdQprcVkpaWU',
-  Granadanet = 'NetXz969SFaFn8k',
   Hangzhounet = 'NetXZSsxBpMQeAT',
   Ithacanet = 'NetXnHfVqm9iesp'
 }
