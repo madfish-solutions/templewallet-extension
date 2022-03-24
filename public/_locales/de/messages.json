@@ -297,9 +297,6 @@
   "tokenContractPlaceholder": {
     "message": "z. B. KT1v9CmPy..."
   },
-  "lambdaContractPlaceholder": {
-    "message": "z. B. KT1v9CmPy..."
-  },
   "tokenSymbolPatternDescription": {
     "message": "Nur a-z, A-Z, 0-9 Zeichen erlaubt, 2-5 Länge"
   },
@@ -1388,17 +1385,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Lambda View-Kontrakt"
-  },
-  "someLambda": {
-    "message": "Lambda View: $lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "Interaktion mit dem Einstiegspunkt '$entrypoint$' des Kontrakts $contractAddress$",
     "placeholders": {
@@ -1420,15 +1406,6 @@
   },
   "approveToken": {
     "message": "Token genehmigen"
-  },
-  "noLambdaWarningContent": {
-    "message": "Es wurde kein Lambda View-Kontrakt angegeben. Einige Funktionen funktionieren ohne ihn möglicherweise nicht. Klicken Sie auf die Schaltfläche 'Netzwerk hinzufügen', wenn Sie fortfahren möchten."
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "Es wurde kein Lambda View-Kontrakt für das aktuelle Netzwerk angegeben!"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "Es wurde kein Lambda View-Kontrakt für das aktuelle Netzwerk angegeben. Sie können ihn im unten stehenden Formular hinzufügen oder auf 'Neu bereitstellen' klicken, um einen neuen bereitzustellen und automatisch hinzuzufügen."
   },
   "add": {
     "message": "Hinzufügen"

@@ -1,6 +1,5 @@
 import { localForger } from '@taquito/local-forging';
-import { TezosToolkit } from '@taquito/taquito';
-import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
+import { Estimate, TezosToolkit } from '@taquito/taquito';
 
 import { formatOpParamsBeforeSend, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';

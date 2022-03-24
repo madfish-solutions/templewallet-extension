@@ -297,9 +297,6 @@
   "tokenContractPlaceholder": {
     "message": "por exemplo, KT1v9CmPy..."
   },
-  "lambdaContractPlaceholder": {
-    "message": "por exemplo, KT1v9CmPy..."
-  },
   "tokenSymbolPatternDescription": {
     "message": "Apenas são permitidos caracteres a-z, A-Z, 0-9, comprimento de 2 a 5"
   },
@@ -1388,17 +1385,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Contrato Lambda View"
-  },
-  "someLambda": {
-    "message": "Lambda View: $lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "Interação com o ponto de entrada '$entrypoint$' do $contractAddress$ do contrato",
     "placeholders": {
@@ -1420,15 +1406,6 @@
   },
   "approveToken": {
     "message": "Aprovar Token"
-  },
-  "noLambdaWarningContent": {
-    "message": "Não foi especificado nenhum contrato Lambda View. Algumas funcionalidades podem não funcionar sem este. Prima o botão 'Adicionar rede' se quiser prosseguir."
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "Não foi especificado nenhum contrato Lambda View para a rede atual!"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "Não foi especificado nenhum contrato Lambda View para a rede atual. Pode adicioná-lo no formulário abaixo ou clicar em 'Implantar novo' para implantar um novo e adicionar automaticamente."
   },
   "add": {
     "message": "Acrescentar"

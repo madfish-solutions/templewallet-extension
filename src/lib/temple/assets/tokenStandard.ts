@@ -1,4 +1,4 @@
-import { TezosToolkit, WalletContract, Contract } from '@taquito/taquito';
+import { TezosToolkit, WalletContract, Contract, ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
 
 import { getMessage } from 'lib/i18n';
@@ -49,14 +49,14 @@ export async function assertGetBalance(
   standard: TokenStandard,
   fa2TokenId = 0
 ) {
+  const chainId = (await tezos.rpc.getChainId()) as ChainIds;
+
   try {
     await retry(
       () =>
         standard === 'fa2'
-          ? contract.views
-              .balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }])
-              .read((tezos as any).lambdaContract)
-          : contract.views.getBalance(STUB_TEZOS_ADDRESS).read((tezos as any).lambdaContract),
+          ? contract.views.balance_of([{ owner: STUB_TEZOS_ADDRESS, token_id: fa2TokenId }]).read(chainId)
+          : contract.views.getBalance(STUB_TEZOS_ADDRESS).read(chainId),
       RETRY_PARAMS
     );
   } catch (err: any) {
