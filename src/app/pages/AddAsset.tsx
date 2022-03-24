@@ -19,7 +19,6 @@ import {
   validateContractAddress,
   useNetwork,
   NotMatchingStandardError,
-  loadContractForCallLambdaView,
   useTokensMetadata,
   toTokenSlug,
   NotFoundTokenMetadata,
@@ -30,7 +29,8 @@ import {
   detectTokenStandard,
   IncorrectTokenIdError,
   AssetMetadata,
-  DetailedAssetMetdata
+  DetailedAssetMetdata,
+  loadContract
 } from 'lib/temple/front';
 import * as Repo from 'lib/temple/repo';
 import { withErrorHumanDelay } from 'lib/ui/humanDelay';
@@ -123,7 +123,7 @@ const Form: FC = () => {
     try {
       let contract;
       try {
-        contract = await loadContractForCallLambdaView(tezos, contractAddress);
+        contract = await loadContract(tezos, contractAddress, false);
       } catch {
         throw new ContractNotFoundError();
       }

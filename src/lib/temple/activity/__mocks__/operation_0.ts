@@ -1484,7 +1484,7 @@ const OPERATION_COMPLEX = {
     bcdTokenTransfers: [
       {
         indexed_time: 2420957,
-        network: 'granadanet',
+        network: 'hangzhou2net',
         contract: 'KT1DaKxkR1LdnXW1tr7yozdwEAiSQDpCLUBj',
         initiator: 'KT1T2BiwkP5goinYv81pX64kxCR1DUL7yNus',
         hash: 'opZG7XNt1wHxvLeUZxQ5WkKJZCm64kMjbUPeGS8BTiehB5pBYsX',
@@ -1500,14 +1500,14 @@ const OPERATION_COMPLEX = {
         parent: 'tokenToTezPayment',
         token: {
           contract: 'KT1DaKxkR1LdnXW1tr7yozdwEAiSQDpCLUBj',
-          network: 'granadanet',
+          network: 'hangzhou2net',
           token_id: 0
         },
         alias: 'Quipu Token'
       },
       {
         indexed_time: 2420958,
-        network: 'granadanet',
+        network: 'hangzhou2net',
         contract: 'KT1P3RGEAa78XLTs3Hkpd1VWtryQRLDjiXqF',
         initiator: 'KT1GdCu6VyfijaARRx5tDPg4ZU2U8uQadBT4',
         hash: 'opZG7XNt1wHxvLeUZxQ5WkKJZCm64kMjbUPeGS8BTiehB5pBYsX',
@@ -1523,7 +1523,7 @@ const OPERATION_COMPLEX = {
         parent: 'tezToTokenPayment',
         token: {
           contract: 'KT1P3RGEAa78XLTs3Hkpd1VWtryQRLDjiXqF',
-          network: 'granadanet',
+          network: 'hangzhou2net',
           token_id: 0
         }
       }

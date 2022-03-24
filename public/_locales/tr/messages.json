@@ -297,9 +297,6 @@
   "tokenContractPlaceholder": {
     "message": "ör. KT1v9CmPy..."
   },
-  "lambdaContractPlaceholder": {
-    "message": "ör. KT1v9CmPy..."
-  },
   "tokenSymbolPatternDescription": {
     "message": "Yalnızca a-z, A-Z, 0-9 karakterlerine izin verilir, 2-5 uzunluk"
   },
@@ -1388,17 +1385,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Lambda View sözleşmesi"
-  },
-  "someLambda": {
-    "message": "Lambda View: $lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "$contractAddress$ sözleşmesi giriş noktası '$entrypoint$' ile etkileşim",
     "placeholders": {
@@ -1420,15 +1406,6 @@
   },
   "approveToken": {
     "message": "Token'ı onayla"
-  },
-  "noLambdaWarningContent": {
-    "message": "Lambda View sözleşmesi belirtilmedi. Bazı işlevler bu olmadan çalışmayabilir. Devam etmek istiyorsanız 'Ağ ekle' düğmesine basın."
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "Mevcut ağ için Lambda View sözleşmesi belirtilmedi!"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "Mevcut ağ için Lambda View sözleşmesi belirtilmedi. Aşağıdaki forma ekleyebilir ya da yeni bir sözleşme dağıtmak için 'Yeni dağıt' seçeneğine tıklayıp otomatik olarak ekleyebilirsiniz."
   },
   "add": {
     "message": "Ekle"

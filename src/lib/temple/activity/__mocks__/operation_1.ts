@@ -10,7 +10,7 @@ const OPERATION_TOKEN_TRANSFER_ONLY = {
     bcdTokenTransfers: [
       {
         indexed_time: 2736005,
-        network: 'granadanet',
+        network: 'hangzhou2net',
         contract: 'KT1NbznEfpxZZyPUNcSWRm9Y8qZkdEgWEFaV',
         initiator: 'tz1KoLibimdjUSfhrSpXwx4FhhhCq1JM5Etk',
         hash: 'ooB5B636cUpMqJV17Z3DSmgSqw9RvRKvt9vHsUwi3ghLBe3CzmC',
@@ -24,7 +24,7 @@ const OPERATION_TOKEN_TRANSFER_ONLY = {
         counter: 28265,
         token: {
           contract: 'KT1NbznEfpxZZyPUNcSWRm9Y8qZkdEgWEFaV',
-          network: 'granadanet',
+          network: 'hangzhou2net',
           token_id: 0,
           symbol: 'kDAO',
           name: 'Kolibri DAO',

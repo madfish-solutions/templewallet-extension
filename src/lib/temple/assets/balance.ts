@@ -1,7 +1,7 @@
-import { TezosToolkit } from '@taquito/taquito';
+import { ChainIds, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { loadContractForCallLambdaView } from 'lib/temple/front';
+import { loadContract } from 'lib/temple/front';
 
 import { AssetMetadata, TEZOS_METADATA } from '../metadata';
 import { fromAssetSlug, isFA2Token } from './utils';
@@ -18,23 +18,22 @@ export async function fetchBalance(
 ) {
   const asset = await fromAssetSlug(tezos, assetSlug);
 
-  let nat: BigNumber | undefined;
+  let nat;
 
   if (asset === 'tez') {
     nat = await getBalanceSafe(tezos, account);
   } else {
-    const contract = await loadContractForCallLambdaView(tezos, asset.contract);
+    const contract = await loadContract(tezos, asset.contract, false);
+    const chainId = (await tezos.rpc.getChainId()) as ChainIds;
 
     if (isFA2Token(asset)) {
       try {
-        const response = await contract.views
-          .balance_of([{ owner: account, token_id: asset.id }])
-          .read((tezos as any).lambdaContract);
+        const response = await contract.views.balance_of([{ owner: account, token_id: asset.id }]).read(chainId);
         nat = response[0].balance;
       } catch {}
     } else {
       try {
-        nat = await contract.views.getBalance(account).read((tezos as any).lambdaContract);
+        nat = await contract.views.getBalance(account).read(chainId);
       } catch {}
     }
   }

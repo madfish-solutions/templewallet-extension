@@ -15,7 +15,6 @@ import { nanoid } from 'nanoid';
 
 import { IntercomClient } from 'lib/intercom';
 import { useRetryableSWR } from 'lib/swr';
-import { TempleNetwork } from 'lib/temple/front';
 import {
   TempleConfirmationPayload,
   TempleMessageType,
@@ -92,28 +91,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
 
-  const getLambdaContractFromNetwork = useCallback(
-    (network: TempleNetwork) =>
-      network.lambdaContract
-        ? network
-        : {
-            ...network,
-            lambdaContract: settings?.lambdaContracts?.[network.id]
-          },
-    [settings]
-  );
-
-  const customNetworks = useMemo(() => {
-    const customNetworksWithoutLambdaContracts = settings?.customNetworks ?? [];
-    return customNetworksWithoutLambdaContracts.map(getLambdaContractFromNetwork);
-  }, [settings, getLambdaContractFromNetwork]);
-  const defaultNetworksWithLambdaContracts = useMemo(() => {
-    return defaultNetworks.map(getLambdaContractFromNetwork);
-  }, [defaultNetworks, getLambdaContractFromNetwork]);
-  const networks = useMemo(
-    () => [...defaultNetworksWithLambdaContracts, ...customNetworks],
-    [defaultNetworksWithLambdaContracts, customNetworks]
-  );
+  const customNetworks = useMemo(() => settings?.customNetworks ?? [], [settings]);
+  const networks = useMemo(() => [...defaultNetworks, ...customNetworks], [defaultNetworks, customNetworks]);
 
   /**
    * Actions
@@ -355,7 +334,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     // Aliases
     status,
     defaultNetworks,
-    customNetworks: defaultNetworksWithLambdaContracts,
+    customNetworks,
     networks,
     accounts,
     settings,

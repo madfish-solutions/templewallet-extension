@@ -300,9 +300,6 @@
   "tokenContractPlaceholder": {
     "message": "e.g. KT1v9CmPy..."
   },
-  "lambdaContractPlaceholder": {
-    "message": "e.g. KT1v9CmPy..."
-  },
   "tokenSymbolPatternDescription": {
     "message": "Only a-z, A-Z, 0-9 chars allowed, 2-5 length"
   },
@@ -1445,17 +1442,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Lambda View contract"
-  },
-  "someLambda": {
-    "message": "Lambda View: $lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "Interaction with entrypoint '$entrypoint$' of contract $contractAddress$",
     "placeholders": {
@@ -1477,15 +1463,6 @@
   },
   "approveToken": {
     "message": "Approve Token"
-  },
-  "noLambdaWarningContent": {
-    "message": "No Lambda View contract was specified. Some functionality may not work without it. Press 'Add network' button if you want to proceed."
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "No Lambda View contract for the current network was specified!"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "No Lambda View contract for the current network was specified. You can add it in the form below or click 'Deploy new' to deploy a new one and add automatically."
   },
   "add": {
     "message": "Add"
