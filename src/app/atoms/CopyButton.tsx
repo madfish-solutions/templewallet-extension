@@ -2,18 +2,20 @@ import React, { FC, HTMLAttributes, useMemo } from 'react';
 
 import classNames from 'clsx';
 
+import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n/react';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy from 'lib/ui/useTippy';
 
-export type CopyButtonProps = HTMLAttributes<HTMLButtonElement> & {
-  bgShade?: 100 | 200;
-  rounded?: 'sm' | 'base';
-  text: string;
-  small?: boolean;
-  type?: 'button' | 'link';
-  textShade?: 500 | 600 | 700;
-};
+export type CopyButtonProps = HTMLAttributes<HTMLButtonElement> &
+  TestIDProps & {
+    bgShade?: 100 | 200;
+    rounded?: 'sm' | 'base';
+    text: string;
+    small?: boolean;
+    type?: 'button' | 'link';
+    textShade?: 500 | 600 | 700;
+  };
 
 const CopyButton: FC<CopyButtonProps> = ({
   bgShade = 100,
@@ -24,8 +26,11 @@ const CopyButton: FC<CopyButtonProps> = ({
   type = 'button',
   rounded = 'sm',
   textShade = 600,
+  testID,
+  testIDProperties,
   ...rest
 }) => {
+  const { trackEvent } = useAnalytics();
   const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
 
   const tippyProps = useMemo(
@@ -45,6 +50,12 @@ const CopyButton: FC<CopyButtonProps> = ({
 
   const roundedClassName = rounded === 'base' ? 'rounded' : 'rounded-sm';
   const smallClassName = small ? 'text-xs p-1' : 'text-sm py-1 px-2';
+
+  const handleCopyPress = () => {
+    testID !== undefined && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
+
+    return copy();
+  };
 
   return (
     <>
@@ -84,7 +95,7 @@ const CopyButton: FC<CopyButtonProps> = ({
             : classNames('hover:underline', className)
         }
         {...rest}
-        onClick={copy}
+        onClick={handleCopyPress}
       >
         {children}
       </button>

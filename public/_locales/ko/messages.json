@@ -282,9 +282,6 @@
   "addressOfDeployedTokenContract": {
     "message": "배치된 토큰 계약의 주소입니다."
   },
-  "lambdaContractPlaceholder": {
-    "message": "예) KT1v9CmPy..."
-  },
   "tokenContractPlaceholder": {
     "message": "예) KT1v9CmPy..."
   },
@@ -1292,17 +1289,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Lambda View 계약"
-  },
-  "someLambda": {
-    "message": "Lambda View: $lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "$계약주소$ 계약의 진입점 '$진입점$'과 상호 소통",
     "placeholders": {
@@ -1324,15 +1310,6 @@
   },
   "approveToken": {
     "message": "토큰 승인"
-  },
-  "noLambdaWarningContent": {
-    "message": "지정된 Lambda View 계약이 없습니다. 이 계약이 없이는 일부 기능을 사용할 수 없습니다. 계속 진행하려면 '네트워크 추가' 버튼을 누르세요."
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "현재 네트워크에 대한 Lambda View 계약이 지정되지 않았습니다!"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "현재 네트워크에 대한 Lambda View 계약이 지정되지 않았습니다. 아래 양식에 이를 추가하거나 '새로 배치'를 클릭하여 새 계약을 배치하고 자동으로 추가할 수 있습니다."
   },
   "add": {
     "message": "추가"

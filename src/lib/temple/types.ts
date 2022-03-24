@@ -1,4 +1,4 @@
-import { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
+import { Estimate } from '@taquito/taquito';
 import { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
 type NonEmptyArray<T> = [T, ...T[]];
@@ -26,9 +26,8 @@ export interface TempleState {
 
 export enum TempleChainId {
   Mainnet = 'NetXdQprcVkpaWU',
-  Granadanet = 'NetXz969SFaFn8k',
   Hangzhounet = 'NetXZSsxBpMQeAT',
-  Idiazabalnet = 'NetXxkAx4woPLyu'
+  Ithacanet = 'NetXnHfVqm9iesp'
 }
 
 export function isKnownChainId(chainId: string): chainId is TempleChainId {
@@ -102,7 +101,6 @@ export interface TempleNetwork {
   nameI18nKey?: string;
   description: string;
   descriptionI18nKey?: string;
-  lambdaContract?: string;
   type: TempleNetworkType;
   rpcBaseURL: string;
   color: string;
@@ -114,7 +112,6 @@ export type TempleNetworkType = 'main' | 'test';
 
 export interface TempleSettings {
   customNetworks?: TempleNetwork[];
-  lambdaContracts?: Record<string, string>;
   contacts?: TempleContact[];
 }
 

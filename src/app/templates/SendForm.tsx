@@ -11,8 +11,7 @@ import React, {
 } from 'react';
 
 import { ManagerKeyResponse } from '@taquito/rpc';
-import { DEFAULT_FEE, TransferParams, WalletOperation } from '@taquito/taquito';
-import type { Estimate } from '@taquito/taquito/dist/types/contract/estimate';
+import { DEFAULT_FEE, TransferParams, WalletOperation, Estimate } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, FieldError, useForm } from 'react-hook-form';

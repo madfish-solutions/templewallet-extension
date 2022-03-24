@@ -15,7 +15,7 @@ const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => {
   return (
     <div
       className={classNames(
-        'bg-white border border-gray-300 rounded-2xl flex justify-center items-center',
+        'bg-white border border-gray-300 rounded-2xl flex justify-center items-center p-4',
         !popup && 'w-20 h-20',
         className
       )}

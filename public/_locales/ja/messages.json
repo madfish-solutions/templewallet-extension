@@ -282,9 +282,6 @@
   "addressOfDeployedTokenContract": {
     "message": "デプロイされたトークンコントラクトのアドレス"
   },
-  "lambdaContractPlaceholder": {
-    "message": "例: KT1v9CmPy..."
-  },
   "tokenContractPlaceholder": {
     "message": "例: KT1v9CmPy..."
   },
@@ -1292,17 +1289,6 @@
       }
     }
   },
-  "lambdaContract": {
-    "message": "Lambda Viewコントラクト"
-  },
-  "someLambda": {
-    "message": "Lambda View: $lambda$",
-    "placeholders": {
-      "lambda": {
-        "content": "$1"
-      }
-    }
-  },
   "interactionWithSomeEntrypoint": {
     "message": "コントラクト「$contractAddress$」のエントリポイント 「$entrypoint$」とのインタラクション",
     "placeholders": {
@@ -1324,15 +1310,6 @@
   },
   "approveToken": {
     "message": "トークンを承認"
-  },
-  "noLambdaWarningContent": {
-    "message": "Lambda Viewの契約が指定されていません。これがないと一部の機能が動作しない場合があります。続行する場合は、「ネットワークを追加」ボタンを押してください。"
-  },
-  "noActiveNetLambdaWarningTitle": {
-    "message": "現行ネットワークのLambda Viewコントラクトが指定されていませんでした！"
-  },
-  "noActiveNetLambdaWarningContent": {
-    "message": "現行ネットワークのLambda Viewコントラクトが指定されていませんでした。下のフォームで追加するか、「今すぐデプロイ」をクリックして新規にデプロイして自動的に追加してください。"
   },
   "add": {
     "message": "追加"

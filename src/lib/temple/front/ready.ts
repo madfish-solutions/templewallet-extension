@@ -112,7 +112,7 @@ function useReadyTemple() {
     const rpc = network.rpcBaseURL;
     const pkh = account.type === TempleAccountType.ManagedKT ? account.owner : account.publicKeyHash;
 
-    const t = new ReactiveTezosToolkit(loadFastRpcClient(rpc), checksum, network.lambdaContract);
+    const t = new ReactiveTezosToolkit(loadFastRpcClient(rpc), checksum);
     t.setSignerProvider(createTaquitoSigner(pkh));
     t.setWalletProvider(createTaquitoWallet(pkh, rpc));
     t.setPackerProvider(michelEncoder);
@@ -193,7 +193,7 @@ export function useRelevantAccounts(withExtraTypes = true) {
 }
 
 export class ReactiveTezosToolkit extends TezosToolkit {
-  constructor(rpc: string | RpcClient, public checksum: string, public lambdaContract?: string) {
+  constructor(rpc: string | RpcClient, public checksum: string) {
     super(rpc);
     this.addExtension(new Tzip16Module());
   }
