@@ -35,26 +35,25 @@ export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePu
           .catch(e => ({ ...e, isError: true })),
         tezos.estimate.batch(formated).catch(e => ({ ...e, isError: true }))
       ]);
-      if (!result.some(x => x.isError)) {
-        estimates = result[1]?.map(
-          (e: any, i: number) =>
-            ({
-              ...e,
-              burnFeeMutez: e.burnFeeMutez,
-              consumedMilligas: e.consumedMilligas,
-              gasLimit: e.gasLimit,
-              minimalFeeMutez: e.minimalFeeMutez,
-              storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
-              suggestedFeeMutez:
-                e.suggestedFeeMutez +
-                (opParams[i]?.gasLimit ? Math.ceil((opParams[i].gasLimit - e.gasLimit) * FEE_PER_GAS_UNIT) : 0),
-              totalCost: e.totalCost,
-              usingBaseFeeMutez: e.usingBaseFeeMutez
-            } as Estimate)
-        );
-      } else {
+      if (result.some(x => x.isError)) {
         return result;
       }
+      estimates = result[1]?.map(
+        (e: any, i: number) =>
+          ({
+            ...e,
+            burnFeeMutez: e.burnFeeMutez,
+            consumedMilligas: e.consumedMilligas,
+            gasLimit: e.gasLimit,
+            minimalFeeMutez: e.minimalFeeMutez,
+            storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
+            suggestedFeeMutez:
+              e.suggestedFeeMutez +
+              (opParams[i]?.gasLimit ? Math.ceil((opParams[i].gasLimit - e.gasLimit) * FEE_PER_GAS_UNIT) : 0),
+            totalCost: e.totalCost,
+            usingBaseFeeMutez: e.usingBaseFeeMutez
+          } as Estimate)
+      );
     } catch {}
 
     if (bytesToSign && estimates) {
