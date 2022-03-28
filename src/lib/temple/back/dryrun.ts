@@ -1,4 +1,5 @@
 import { localForger } from '@taquito/local-forging';
+import { ForgeOperationsParams } from '@taquito/rpc';
 import { Estimate, TezosToolkit } from '@taquito/taquito';
 
 import { formatOpParamsBeforeSend, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
@@ -11,9 +12,24 @@ export type DryRunParams = {
   sourcePublicKey: string;
 };
 
+interface DryRunResult {
+  error?: Array<any>;
+  result?: {
+    bytesToSign?: string;
+    rawToSign: ForgeOperationsParams;
+    estimates: Array<Estimate>;
+    opParams: any;
+  };
+}
+
 const FEE_PER_GAS_UNIT = 0.1;
 
-export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePublicKey }: DryRunParams) {
+export async function dryRunOpParams({
+  opParams,
+  networkRpc,
+  sourcePkh,
+  sourcePublicKey
+}: DryRunParams): Promise<DryRunResult> {
   try {
     const tezos = new TezosToolkit(loadFastRpcClient(networkRpc));
 
@@ -36,7 +52,7 @@ export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePu
         tezos.estimate.batch(formated).catch(e => ({ ...e, isError: true }))
       ]);
       if (result.some(x => x.isError)) {
-        return result;
+        return { error: result };
       }
       estimates = result[1]?.map(
         (e: any, i: number) =>
@@ -60,24 +76,26 @@ export async function dryRunOpParams({ opParams, networkRpc, sourcePkh, sourcePu
       const withReveal = estimates.length === opParams.length + 1;
       const rawToSign = await localForger.parse(bytesToSign);
       return {
-        bytesToSign,
-        rawToSign,
-        estimates,
-        opParams: opParams.map((op, i) => {
-          const eIndex = withReveal ? i + 1 : i;
-          return {
-            ...op,
-            fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,
-            gasLimit: op.gasLimit ?? estimates?.[eIndex].gasLimit,
-            storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit
-          };
-        })
+        result: {
+          bytesToSign,
+          rawToSign,
+          estimates,
+          opParams: opParams.map((op, i) => {
+            const eIndex = withReveal ? i + 1 : i;
+            return {
+              ...op,
+              fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,
+              gasLimit: op.gasLimit ?? estimates?.[eIndex].gasLimit,
+              storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit
+            };
+          })
+        }
       };
     }
 
-    return null;
+    return { error: [] };
   } catch {
-    return null;
+    return { error: [] };
   }
 }
 

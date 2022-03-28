@@ -412,7 +412,8 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
         if (dryrunResult) {
           payload = {
             ...payload,
-            ...dryrunResult
+            ...dryrunResult,
+            ...(dryrunResult.error ? { error: dryrunResult } : {})
           };
         }
       }

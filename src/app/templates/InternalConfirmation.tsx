@@ -39,11 +39,12 @@ import { InternalConfirmationSelectors } from './InternalConfirmation.selectors'
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => Promise<void>;
+  error?: any;
 };
 
 const MIN_GAS_FEE = 0;
 
-const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm }) => {
+const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
   const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
 
@@ -294,9 +295,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
               {spFormat.key === 'preview' && (
                 <ExpensesView
                   expenses={expensesData}
-                  // intentional, internal errors are here
-                  // @ts-ignore
-                  error={payload[0]}
+                  error={payloadError}
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
                   mainnet={mainnet}

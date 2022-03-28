@@ -30,6 +30,7 @@ import toBuffer from 'typedarray-to-buffer';
 type Confirmation = {
   id: string;
   payload: TempleConfirmationPayload;
+  error?: any;
 };
 
 const intercom = new IntercomClient();
@@ -69,7 +70,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
 
         case TempleMessageType.ConfirmationRequested:
           if (msg.id === confirmationIdRef.current) {
-            setConfirmation({ id: msg.id, payload: msg.payload });
+            setConfirmation({ id: msg.id, payload: msg.payload, error: msg.error });
           }
           break;
 
