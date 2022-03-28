@@ -1,0 +1,602 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		143DC56827F21E3600695FCF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143DC56727F21E3600695FCF /* AppDelegate.swift */; };
+		143DC56C27F21E3600695FCF /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 143DC56A27F21E3600695FCF /* Main.html */; };
+		143DC56E27F21E3600695FCF /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 143DC56D27F21E3600695FCF /* Icon.png */; };
+		143DC57027F21E3600695FCF /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 143DC56F27F21E3600695FCF /* Style.css */; };
+		143DC57227F21E3600695FCF /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 143DC57127F21E3600695FCF /* Script.js */; };
+		143DC57427F21E3600695FCF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143DC57327F21E3600695FCF /* ViewController.swift */; };
+		143DC57727F21E3600695FCF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 143DC57527F21E3600695FCF /* Main.storyboard */; };
+		143DC57927F21E3800695FCF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 143DC57827F21E3800695FCF /* Assets.xcassets */; };
+		143DC58127F21E3800695FCF /* Temple Wallet Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 143DC58027F21E3800695FCF /* Temple Wallet Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		143DC58627F21E3800695FCF /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143DC58527F21E3800695FCF /* SafariWebExtensionHandler.swift */; };
+		143DC58927F21E3800695FCF /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 143DC58827F21E3800695FCF /* _locales */; };
+		143DC58B27F21E3800695FCF /* images in Resources */ = {isa = PBXBuildFile; fileRef = 143DC58A27F21E3800695FCF /* images */; };
+		143DC58D27F21E3800695FCF /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 143DC58C27F21E3800695FCF /* manifest.json */; };
+		143DC58F27F21E3800695FCF /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 143DC58E27F21E3800695FCF /* background.js */; };
+		143DC59127F21E3800695FCF /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 143DC59027F21E3800695FCF /* content.js */; };
+		143DC59327F21E3800695FCF /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 143DC59227F21E3800695FCF /* popup.html */; };
+		143DC59527F21E3800695FCF /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = 143DC59427F21E3800695FCF /* popup.css */; };
+		143DC59727F21E3800695FCF /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 143DC59627F21E3800695FCF /* popup.js */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		143DC58227F21E3800695FCF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 143DC55C27F21E3600695FCF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 143DC57F27F21E3800695FCF;
+			remoteInfo = "Temple Wallet Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		143DC59F27F21E3800695FCF /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				143DC58127F21E3800695FCF /* Temple Wallet Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		143DC56427F21E3600695FCF /* Temple Wallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Temple Wallet.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		143DC56727F21E3600695FCF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		143DC56B27F21E3600695FCF /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
+		143DC56D27F21E3600695FCF /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		143DC56F27F21E3600695FCF /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		143DC57127F21E3600695FCF /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		143DC57327F21E3600695FCF /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		143DC57627F21E3600695FCF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		143DC57827F21E3800695FCF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		143DC57A27F21E3800695FCF /* Temple_Wallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Temple_Wallet.entitlements; sourceTree = "<group>"; };
+		143DC57B27F21E3800695FCF /* Temple Wallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Temple Wallet.entitlements"; sourceTree = "<group>"; };
+		143DC58027F21E3800695FCF /* Temple Wallet Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Temple Wallet Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		143DC58527F21E3800695FCF /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		143DC58827F21E3800695FCF /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; path = _locales; sourceTree = "<group>"; };
+		143DC58A27F21E3800695FCF /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
+		143DC58C27F21E3800695FCF /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
+		143DC58E27F21E3800695FCF /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = background.js; sourceTree = "<group>"; };
+		143DC59027F21E3800695FCF /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = content.js; sourceTree = "<group>"; };
+		143DC59227F21E3800695FCF /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = popup.html; sourceTree = "<group>"; };
+		143DC59427F21E3800695FCF /* popup.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = popup.css; sourceTree = "<group>"; };
+		143DC59627F21E3800695FCF /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = popup.js; sourceTree = "<group>"; };
+		143DC59827F21E3800695FCF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		143DC59927F21E3800695FCF /* Temple_Wallet_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Temple_Wallet_Extension.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		143DC56127F21E3600695FCF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		143DC57D27F21E3800695FCF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		143DC55B27F21E3600695FCF = {
+			isa = PBXGroup;
+			children = (
+				143DC56627F21E3600695FCF /* Temple Wallet */,
+				143DC58427F21E3800695FCF /* Temple Wallet Extension */,
+				143DC56527F21E3600695FCF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		143DC56527F21E3600695FCF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				143DC56427F21E3600695FCF /* Temple Wallet.app */,
+				143DC58027F21E3800695FCF /* Temple Wallet Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		143DC56627F21E3600695FCF /* Temple Wallet */ = {
+			isa = PBXGroup;
+			children = (
+				143DC56727F21E3600695FCF /* AppDelegate.swift */,
+				143DC57327F21E3600695FCF /* ViewController.swift */,
+				143DC57527F21E3600695FCF /* Main.storyboard */,
+				143DC57827F21E3800695FCF /* Assets.xcassets */,
+				143DC57A27F21E3800695FCF /* Temple_Wallet.entitlements */,
+				143DC57B27F21E3800695FCF /* Temple Wallet.entitlements */,
+				143DC56927F21E3600695FCF /* Resources */,
+			);
+			path = "Temple Wallet";
+			sourceTree = "<group>";
+		};
+		143DC56927F21E3600695FCF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				143DC56A27F21E3600695FCF /* Main.html */,
+				143DC56D27F21E3600695FCF /* Icon.png */,
+				143DC56F27F21E3600695FCF /* Style.css */,
+				143DC57127F21E3600695FCF /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		143DC58427F21E3800695FCF /* Temple Wallet Extension */ = {
+			isa = PBXGroup;
+			children = (
+				143DC58527F21E3800695FCF /* SafariWebExtensionHandler.swift */,
+				143DC59827F21E3800695FCF /* Info.plist */,
+				143DC59927F21E3800695FCF /* Temple_Wallet_Extension.entitlements */,
+				143DC58727F21E3800695FCF /* Resources */,
+			);
+			path = "Temple Wallet Extension";
+			sourceTree = "<group>";
+		};
+		143DC58727F21E3800695FCF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				143DC58827F21E3800695FCF /* _locales */,
+				143DC58A27F21E3800695FCF /* images */,
+				143DC58C27F21E3800695FCF /* manifest.json */,
+				143DC58E27F21E3800695FCF /* background.js */,
+				143DC59027F21E3800695FCF /* content.js */,
+				143DC59227F21E3800695FCF /* popup.html */,
+				143DC59427F21E3800695FCF /* popup.css */,
+				143DC59627F21E3800695FCF /* popup.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		143DC56327F21E3600695FCF /* Temple Wallet */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 143DC5A027F21E3800695FCF /* Build configuration list for PBXNativeTarget "Temple Wallet" */;
+			buildPhases = (
+				143DC56027F21E3600695FCF /* Sources */,
+				143DC56127F21E3600695FCF /* Frameworks */,
+				143DC56227F21E3600695FCF /* Resources */,
+				143DC59F27F21E3800695FCF /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				143DC58327F21E3800695FCF /* PBXTargetDependency */,
+			);
+			name = "Temple Wallet";
+			productName = "Temple Wallet";
+			productReference = 143DC56427F21E3600695FCF /* Temple Wallet.app */;
+			productType = "com.apple.product-type.application";
+		};
+		143DC57F27F21E3800695FCF /* Temple Wallet Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 143DC59C27F21E3800695FCF /* Build configuration list for PBXNativeTarget "Temple Wallet Extension" */;
+			buildPhases = (
+				143DC57C27F21E3800695FCF /* Sources */,
+				143DC57D27F21E3800695FCF /* Frameworks */,
+				143DC57E27F21E3800695FCF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Temple Wallet Extension";
+			productName = "Temple Wallet Extension";
+			productReference = 143DC58027F21E3800695FCF /* Temple Wallet Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		143DC55C27F21E3600695FCF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1330;
+				LastUpgradeCheck = 1330;
+				TargetAttributes = {
+					143DC56327F21E3600695FCF = {
+						CreatedOnToolsVersion = 13.3;
+					};
+					143DC57F27F21E3800695FCF = {
+						CreatedOnToolsVersion = 13.3;
+					};
+				};
+			};
+			buildConfigurationList = 143DC55F27F21E3600695FCF /* Build configuration list for PBXProject "Temple Wallet" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 143DC55B27F21E3600695FCF;
+			productRefGroup = 143DC56527F21E3600695FCF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				143DC56327F21E3600695FCF /* Temple Wallet */,
+				143DC57F27F21E3800695FCF /* Temple Wallet Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		143DC56227F21E3600695FCF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				143DC56E27F21E3600695FCF /* Icon.png in Resources */,
+				143DC57727F21E3600695FCF /* Main.storyboard in Resources */,
+				143DC57227F21E3600695FCF /* Script.js in Resources */,
+				143DC56C27F21E3600695FCF /* Main.html in Resources */,
+				143DC57927F21E3800695FCF /* Assets.xcassets in Resources */,
+				143DC57027F21E3600695FCF /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		143DC57E27F21E3800695FCF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				143DC58F27F21E3800695FCF /* background.js in Resources */,
+				143DC59527F21E3800695FCF /* popup.css in Resources */,
+				143DC59327F21E3800695FCF /* popup.html in Resources */,
+				143DC58B27F21E3800695FCF /* images in Resources */,
+				143DC58D27F21E3800695FCF /* manifest.json in Resources */,
+				143DC58927F21E3800695FCF /* _locales in Resources */,
+				143DC59127F21E3800695FCF /* content.js in Resources */,
+				143DC59727F21E3800695FCF /* popup.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		143DC56027F21E3600695FCF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				143DC57427F21E3600695FCF /* ViewController.swift in Sources */,
+				143DC56827F21E3600695FCF /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		143DC57C27F21E3800695FCF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				143DC58627F21E3800695FCF /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		143DC58327F21E3800695FCF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 143DC57F27F21E3800695FCF /* Temple Wallet Extension */;
+			targetProxy = 143DC58227F21E3800695FCF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		143DC56A27F21E3600695FCF /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				143DC56B27F21E3600695FCF /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		143DC57527F21E3600695FCF /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				143DC57627F21E3600695FCF /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		143DC59A27F21E3800695FCF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		143DC59B27F21E3800695FCF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		143DC59D27F21E3800695FCF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Temple Wallet Extension/Temple_Wallet_Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D653UWS37K;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Temple Wallet Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish.Temple-Wallet.Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		143DC59E27F21E3800695FCF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Temple Wallet Extension/Temple_Wallet_Extension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D653UWS37K;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Temple Wallet Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish.Temple-Wallet.Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		143DC5A127F21E3800695FCF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Temple Wallet/Temple Wallet.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D653UWS37K;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish.Temple-Wallet";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		143DC5A227F21E3800695FCF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Temple Wallet/Temple Wallet.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D653UWS37K;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Temple Wallet";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.madfish.Temple-Wallet";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		143DC55F27F21E3600695FCF /* Build configuration list for PBXProject "Temple Wallet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				143DC59A27F21E3800695FCF /* Debug */,
+				143DC59B27F21E3800695FCF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		143DC59C27F21E3800695FCF /* Build configuration list for PBXNativeTarget "Temple Wallet Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				143DC59D27F21E3800695FCF /* Debug */,
+				143DC59E27F21E3800695FCF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		143DC5A027F21E3800695FCF /* Build configuration list for PBXNativeTarget "Temple Wallet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				143DC5A127F21E3800695FCF /* Debug */,
+				143DC5A227F21E3800695FCF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 143DC55C27F21E3600695FCF /* Project object */;
+}
