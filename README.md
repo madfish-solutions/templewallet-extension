@@ -55,8 +55,6 @@ Optional for different browsers:
 yarn build:chrome
 # for Firefox directly
 yarn build:firefox
-# for Opera directly
-yarn build:opera
 
 # for all at once
 yarn build-all
