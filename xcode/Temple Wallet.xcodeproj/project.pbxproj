@@ -17,14 +17,16 @@
 		143DC57927F21E3800695FCF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 143DC57827F21E3800695FCF /* Assets.xcassets */; };
 		143DC58127F21E3800695FCF /* Temple Wallet Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 143DC58027F21E3800695FCF /* Temple Wallet Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		143DC58627F21E3800695FCF /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143DC58527F21E3800695FCF /* SafariWebExtensionHandler.swift */; };
-		143DC58927F21E3800695FCF /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 143DC58827F21E3800695FCF /* _locales */; };
-		143DC58B27F21E3800695FCF /* images in Resources */ = {isa = PBXBuildFile; fileRef = 143DC58A27F21E3800695FCF /* images */; };
-		143DC58D27F21E3800695FCF /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 143DC58C27F21E3800695FCF /* manifest.json */; };
-		143DC58F27F21E3800695FCF /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 143DC58E27F21E3800695FCF /* background.js */; };
-		143DC59127F21E3800695FCF /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 143DC59027F21E3800695FCF /* content.js */; };
-		143DC59327F21E3800695FCF /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 143DC59227F21E3800695FCF /* popup.html */; };
-		143DC59527F21E3800695FCF /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = 143DC59427F21E3800695FCF /* popup.css */; };
-		143DC59727F21E3800695FCF /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 143DC59627F21E3800695FCF /* popup.js */; };
+		143DC5D527F2231D00695FCF /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 143DC5CB27F2231C00695FCF /* scripts */; };
+		143DC5D627F2231D00695FCF /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 143DC5CC27F2231C00695FCF /* options.html */; };
+		143DC5D727F2231D00695FCF /* confirm.html in Resources */ = {isa = PBXBuildFile; fileRef = 143DC5CD27F2231D00695FCF /* confirm.html */; };
+		143DC5D827F2231D00695FCF /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 143DC5CE27F2231D00695FCF /* _locales */; };
+		143DC5D927F2231D00695FCF /* misc in Resources */ = {isa = PBXBuildFile; fileRef = 143DC5CF27F2231D00695FCF /* misc */; };
+		143DC5DA27F2231D00695FCF /* media in Resources */ = {isa = PBXBuildFile; fileRef = 143DC5D027F2231D00695FCF /* media */; };
+		143DC5DB27F2231D00695FCF /* fullpage.html in Resources */ = {isa = PBXBuildFile; fileRef = 143DC5D127F2231D00695FCF /* fullpage.html */; };
+		143DC5DC27F2231D00695FCF /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 143DC5D227F2231D00695FCF /* manifest.json */; };
+		143DC5DD27F2231D00695FCF /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 143DC5D327F2231D00695FCF /* popup.html */; };
+		143DC5DE27F2231D00695FCF /* styles in Resources */ = {isa = PBXBuildFile; fileRef = 143DC5D427F2231D00695FCF /* styles */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,16 +67,18 @@
 		143DC57B27F21E3800695FCF /* Temple Wallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Temple Wallet.entitlements"; sourceTree = "<group>"; };
 		143DC58027F21E3800695FCF /* Temple Wallet Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Temple Wallet Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		143DC58527F21E3800695FCF /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
-		143DC58827F21E3800695FCF /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; path = _locales; sourceTree = "<group>"; };
-		143DC58A27F21E3800695FCF /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
-		143DC58C27F21E3800695FCF /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
-		143DC58E27F21E3800695FCF /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = background.js; sourceTree = "<group>"; };
-		143DC59027F21E3800695FCF /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = content.js; sourceTree = "<group>"; };
-		143DC59227F21E3800695FCF /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = popup.html; sourceTree = "<group>"; };
-		143DC59427F21E3800695FCF /* popup.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = popup.css; sourceTree = "<group>"; };
-		143DC59627F21E3800695FCF /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = popup.js; sourceTree = "<group>"; };
 		143DC59827F21E3800695FCF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		143DC59927F21E3800695FCF /* Temple_Wallet_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Temple_Wallet_Extension.entitlements; sourceTree = "<group>"; };
+		143DC5CB27F2231C00695FCF /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../../../dist/chrome_unpacked/scripts; sourceTree = "<group>"; };
+		143DC5CC27F2231C00695FCF /* options.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = options.html; path = ../../../dist/chrome_unpacked/options.html; sourceTree = "<group>"; };
+		143DC5CD27F2231D00695FCF /* confirm.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = confirm.html; path = ../../../dist/chrome_unpacked/confirm.html; sourceTree = "<group>"; };
+		143DC5CE27F2231D00695FCF /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = ../../../dist/chrome_unpacked/_locales; sourceTree = "<group>"; };
+		143DC5CF27F2231D00695FCF /* misc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = misc; path = ../../../dist/chrome_unpacked/misc; sourceTree = "<group>"; };
+		143DC5D027F2231D00695FCF /* media */ = {isa = PBXFileReference; lastKnownFileType = folder; name = media; path = ../../../dist/chrome_unpacked/media; sourceTree = "<group>"; };
+		143DC5D127F2231D00695FCF /* fullpage.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = fullpage.html; path = ../../../dist/chrome_unpacked/fullpage.html; sourceTree = "<group>"; };
+		143DC5D227F2231D00695FCF /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = manifest.json; path = ../../../dist/chrome_unpacked/manifest.json; sourceTree = "<group>"; };
+		143DC5D327F2231D00695FCF /* popup.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = popup.html; path = ../../../dist/chrome_unpacked/popup.html; sourceTree = "<group>"; };
+		143DC5D427F2231D00695FCF /* styles */ = {isa = PBXFileReference; lastKnownFileType = folder; name = styles; path = ../../../dist/chrome_unpacked/styles; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,14 +156,16 @@
 		143DC58727F21E3800695FCF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				143DC58827F21E3800695FCF /* _locales */,
-				143DC58A27F21E3800695FCF /* images */,
-				143DC58C27F21E3800695FCF /* manifest.json */,
-				143DC58E27F21E3800695FCF /* background.js */,
-				143DC59027F21E3800695FCF /* content.js */,
-				143DC59227F21E3800695FCF /* popup.html */,
-				143DC59427F21E3800695FCF /* popup.css */,
-				143DC59627F21E3800695FCF /* popup.js */,
+				143DC5CE27F2231D00695FCF /* _locales */,
+				143DC5CD27F2231D00695FCF /* confirm.html */,
+				143DC5D127F2231D00695FCF /* fullpage.html */,
+				143DC5D227F2231D00695FCF /* manifest.json */,
+				143DC5D027F2231D00695FCF /* media */,
+				143DC5CF27F2231D00695FCF /* misc */,
+				143DC5CC27F2231C00695FCF /* options.html */,
+				143DC5D327F2231D00695FCF /* popup.html */,
+				143DC5CB27F2231C00695FCF /* scripts */,
+				143DC5D427F2231D00695FCF /* styles */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -258,14 +264,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				143DC58F27F21E3800695FCF /* background.js in Resources */,
-				143DC59527F21E3800695FCF /* popup.css in Resources */,
-				143DC59327F21E3800695FCF /* popup.html in Resources */,
-				143DC58B27F21E3800695FCF /* images in Resources */,
-				143DC58D27F21E3800695FCF /* manifest.json in Resources */,
-				143DC58927F21E3800695FCF /* _locales in Resources */,
-				143DC59127F21E3800695FCF /* content.js in Resources */,
-				143DC59727F21E3800695FCF /* popup.js in Resources */,
+				143DC5DE27F2231D00695FCF /* styles in Resources */,
+				143DC5DB27F2231D00695FCF /* fullpage.html in Resources */,
+				143DC5D527F2231D00695FCF /* scripts in Resources */,
+				143DC5D727F2231D00695FCF /* confirm.html in Resources */,
+				143DC5D927F2231D00695FCF /* misc in Resources */,
+				143DC5DD27F2231D00695FCF /* popup.html in Resources */,
+				143DC5DC27F2231D00695FCF /* manifest.json in Resources */,
+				143DC5DA27F2231D00695FCF /* media in Resources */,
+				143DC5D827F2231D00695FCF /* _locales in Resources */,
+				143DC5D627F2231D00695FCF /* options.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
