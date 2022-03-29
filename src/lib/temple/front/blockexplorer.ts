@@ -25,6 +25,13 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
         }
       ],
       [
+        TempleChainId.Ithacanet,
+        {
+          account: 'https://ithacanet.tzkt.io/',
+          transaction: 'https://ithacanet.tzkt.io/'
+        }
+      ],
+      [
         TempleChainId.Hangzhounet,
         {
           account: 'https://hangzhou2net.tzkt.io',
