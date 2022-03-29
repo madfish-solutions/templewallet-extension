@@ -177,6 +177,7 @@ const OperationView: FC<OperationViewProps> = ({
             estimates={payload.estimates}
             modifyFeeAndLimit={modifyFeeAndLimit}
             mainnet={mainnet}
+            error={payloadError}
           />
         </div>
       </div>
